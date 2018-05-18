@@ -10,6 +10,11 @@
 	<name>re-build</name>
 	<url>http://github.com/devezhao/re-build</url>
 	
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/devezhao/re-build/issues</url>
+	</issueManagement>
+	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<argLine>-Dfile.encoding=UTF-8</argLine>
@@ -37,4 +42,5 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	
 </project>
