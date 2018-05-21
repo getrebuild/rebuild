@@ -16,11 +16,117 @@ limitations under the License.
 
 package cn.devezhao.rebuild.server;
 
+import java.security.Security;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.metadata.MetadataFactory;
+import cn.devezhao.rebuild.server.service.CommonService;
+import cn.devezhao.rebuild.server.service.QueryFactory;
+import cn.devezhao.rebuild.server.service.SqlExecutor;
+import cn.devezhao.rebuild.web.commons.CurrentCaller;
+
 /**
- * 
  * @author zhaofang123@gmail.com
  * @since 05/18/2018
  */
 public class Application {
-
+	
+	/**
+	 * Logging */
+	public static final Log LOG = LogFactory.getLog(Application.class);
+	
+	private static ApplicationContext APPLICATION_CTX;
+	
+	/**
+	 * @param ctx
+	 */
+	protected Application(ApplicationContext ctx) {
+		Security.addProvider(new BouncyCastleProvider());
+		APPLICATION_CTX = ctx;
+		APPLICATION_CTX.getBeansOfType(Object.class);
+		LOG.warn("Rebuild Booting successful.");
+	}
+	
+	/**
+	 * 添加服务停止钩子
+	 * 
+	 * @param hook
+	 */
+	public static void addShutdownHook(Thread hook) {
+		Runtime.getRuntime().addShutdownHook(hook);
+	}
+	
+	/**
+	 * @return
+	 */
+	public static ApplicationContext context() {
+		if (APPLICATION_CTX == null) {
+			ApplicationContext ctx = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml" });
+			new Application(ctx);
+		}
+		return APPLICATION_CTX;
+	}
+	
+	/**
+	 * @param itemKey
+	 */
+	public static String getConfigItem(String itemKey) {
+		return getBean(AesPreferencesConfigurer.class).getItem(itemKey);
+	}
+	
+	/**
+	 * @return
+	 */
+	public static CurrentCaller getCurrentCaller() {
+		return getBean(CurrentCaller.class);
+	}
+	
+	/**
+	 * @return
+	 */
+	public static PersistManagerFactory getPersistManagerFactory() {
+		return getBean(PersistManagerFactory.class);
+	}
+	
+	/**
+	 * @return
+	 */
+	public static MetadataFactory getMetadataFactory() {
+		return getPersistManagerFactory().getMetadataFactory();
+	}
+	
+	/**
+	 * @return
+	 */
+	public static QueryFactory getQueryFactory() {
+		return getBean(QueryFactory.class);
+	}
+	
+	/**
+	 * @return
+	 */
+	public static SqlExecutor getSqlExecutor() {
+		return getBean(SqlExecutor.class);
+	}
+	
+	/**
+	 * @param beanClazz
+	 * @return
+	 */
+	public static <T> T getBean(Class<T> beanClazz) {
+		return context().getBean(beanClazz);
+	}
+	
+	/**
+	 * @return
+	 */
+	public static CommonService getCommonService() {
+		return getBean(CommonService.class);
+	}
 }
