@@ -17,13 +17,18 @@ limitations under the License.
 package cn.devezhao.rebuild.utils;
 
 import java.io.File;
+import java.nio.file.AccessDeniedException;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 
 import com.alibaba.fastjson.JSONObject;
 
+import cn.devezhao.commons.ThrowableUtils;
+import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -38,7 +43,8 @@ public class AppUtils {
 	 * @return
 	 */
 	public static ID getRequestUser(HttpServletRequest request) {
-		return null;
+		Object current = ServletUtils.getSessionAttribute(request, WebUtils.CURRENT_USER);
+		return (ID) current;
 	}
 	
 	/**
@@ -53,6 +59,42 @@ public class AppUtils {
 			jo.put("error_msg", errMsg);
 		}
 		return jo.toJSONString();
+	}
+	
+	/**
+	 * 获取后台抛出的错误消息
+	 * 
+	 * @param request
+	 * @param exception
+	 * @return
+	 */
+	public static String getErrorMessage(HttpServletRequest request, Throwable exception) {
+		String errorMsg = (String) request.getAttribute(ServletUtils.ERROR_MESSAGE);
+		if (StringUtils.isNotBlank(errorMsg)) {
+			return errorMsg;
+		}
+		
+		Throwable ex = (Throwable) request.getAttribute(ServletUtils.ERROR_EXCEPTION);
+		if (ex == null) {
+			ex = (Throwable) request.getAttribute(ServletUtils.JSP_JSP_EXCEPTION);
+		}
+		if (ex == null && exception != null) {
+			ex = exception;
+		}
+		if (ex != null) {
+			ex = ThrowableUtils.getRootCause(ex);
+		}
+		
+		if (ex == null) {
+			return "未知错误";
+		} else if (ex instanceof AccessDeniedException) {
+			String msg = StringUtils.defaultIfEmpty(ex.getLocalizedMessage(), "");
+			if (msg.contains("AJAX403")) {
+				return "AJAX403";
+			}
+			return "权限不足";
+		}
+		return ex.getClass().getSimpleName() + ":" + ex.getLocalizedMessage();
 	}
 	
 	/**

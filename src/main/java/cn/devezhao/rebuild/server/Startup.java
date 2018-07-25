@@ -15,9 +15,12 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 public class Startup extends HttpServlet {
 	private static final long serialVersionUID = 5783774294311348578L;
 	
+	private static String contextPath = "/";
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
+		contextPath = config.getServletContext().getContextPath();
+		
 		Application.LOG.warn("Rebuild Booting ...");
 		try {
 			ApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(getServletContext());
@@ -26,5 +29,14 @@ public class Startup extends HttpServlet {
 			Application.LOG.fatal("Booting FAIL!", ex);
 			System.exit(-1);
 		}
+	}
+	
+	/**
+	 * 获取部署路径
+	 * 
+	 * @return
+	 */
+	public static String getContextPath() {
+		return contextPath;
 	}
 }

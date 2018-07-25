@@ -25,6 +25,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.metadata.MetadataFactory;
 import cn.devezhao.rebuild.server.service.CommonService;
 import cn.devezhao.rebuild.server.service.QueryFactory;
@@ -106,6 +107,13 @@ public class Application {
 	 */
 	public static QueryFactory getQueryFactory() {
 		return getBean(QueryFactory.class);
+	}
+	
+	/**
+	 * @return
+	 */
+	public static Query createQuery(String ajql) {
+		return getQueryFactory().createQuery(ajql);
 	}
 	
 	/**

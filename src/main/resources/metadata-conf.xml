@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE metadata-config PUBLIC "-//persist4j/Metadata 0.3"
-		"https://raw.githubusercontent.com/devezhao/persist4j/master/src/main/resources/metadata.dtd">
+		"file:///D:/GitHub/persist4j/src/main/resources/metadata.dtd">
 <metadata-config schema-name-optimize="true" default-parent="SystemCommon">
 
 	<entity name="SystemCommon" type-code="000">
@@ -16,13 +16,15 @@
 	<entity name="User" type-code="001" description="用户">
 		<field name="userId" type="primary" />
 		<field name="loginName" type="string" max-length="100" nullable="false" />
-		<field name="email" type="string" max-length="100" default-value="N" />
-		<field name="mobile" type="string" max-length="100" />
-		<field name="password" type="string" max-length="300" />
-		<field name="fullName" type="string" max-length="300" />
+		<field name="email" type="string" max-length="100" />
+		<field name="password" type="string" max-length="100" />
+		<field name="fullName" type="string" max-length="100" />
 		<field name="avatarUrl" type="string" max-length="300" />
-		<field name="jobTitle" type="string" max-length="300" />
+		<field name="jobTitle" type="string" max-length="100" />
 		<field name="detpId" type="reference" ref-entity="Department" />
+		<field name="isDisabled" type="bool" default-value="T" />
+		<index type="unique" field-list="loginName"/>
+		<index type="unique" field-list="email"/>
 	</entity>
 	
 	<entity name="Department" type-code="002" description="部门">

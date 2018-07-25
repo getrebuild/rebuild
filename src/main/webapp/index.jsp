@@ -6,14 +6,11 @@
 <title>Rebuild</title>
 </head>
 <body>
-
-<div id="root"></div>
-<script type="text/babel">
-ReactDOM.render(
-	<h1>Hello React</h1>,
-	document.getElementById('root')
-);
+<div style="text-align:center;margin-top:20%;"><div class="mdl-spinner mdl-spinner--single-color mdl-js-spinner is-active"></div></div>
+<script type="text/javascript">
+$(document).ready(function(){
+	location.href = 'user/login';
+});
 </script>
-
 </body>
 </html>

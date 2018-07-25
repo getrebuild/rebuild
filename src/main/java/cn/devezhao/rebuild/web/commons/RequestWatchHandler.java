@@ -31,6 +31,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	
 	private static final Set<String> IGNORE_RES = new HashSet<>();
 	static {
+		IGNORE_RES.add("/user/");
 	}
 	
 	@Override
@@ -38,23 +39,30 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 			Object handler) throws Exception {
 		request.setAttribute(TIMEOUT_KEY, System.currentTimeMillis());
 		
+		String contentType = request.getContentType();
+		if ("text/html".equalsIgnoreCase(contentType)) {
+		}
+		
 		ID user = AppUtils.getRequestUser(request);
 		if (user != null) {
-			// 线程变量
 			Application.getCurrentCaller().set(user);
 		} else {
 			String rUrl = request.getRequestURI();
-			boolean allowed = false;
+			boolean isIgnore = false;
 			for (String r : IGNORE_RES) {
 				if (rUrl.contains(r)) {
-					allowed = true;
+					isIgnore = true;
 					break;
 				}
 			}
 			
-			if (!allowed) {
+			if (!isIgnore) {
 				LOG.warn("Unauthorized access [ " + rUrl + " ] from [ " + ServletUtils.getReferer(request) + " ]");
-				ServletUtils.writeJson(response, AppUtils.formatClientMsg(403, "非授权访问"));
+				if (ServletUtils.isAjaxRequest(request)) {
+					ServletUtils.writeJson(response, AppUtils.formatClientMsg(403, "非授权访问"));
+				} else {
+					response.sendError(403, "登录后继续");
+				}
 				return false;
 			}
 		}
@@ -86,7 +94,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 					.append("\nCause:    ").append(rootCause.getClass().getName())
 					.append("\nMessage:  ").append(rootCause.getMessage());
 			LOG.error(sb, rootCause);
-			ServletUtils.writeJson(response, AppUtils.formatClientMsg(500, errorMsg));
+			ServletUtils.writeJson(response, AppUtils.formatClientMsg(BaseControll.CODE_ERROR, errorMsg));
 		}
 	}
 	

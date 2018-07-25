@@ -7,9 +7,6 @@
         <dependent-module archiveName="persist4j-1.0.1-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/persist4j/persist4j">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="wxsdk-1.0.1-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/wxsdk/wxsdk">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
         <dependent-module archiveName="commons-1.1.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/commons/commons">
             <dependency-type>uses</dependency-type>
         </dependent-module>
