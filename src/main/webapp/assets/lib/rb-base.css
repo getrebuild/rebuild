@@ -90,6 +90,7 @@
 
 html {
 	font-family: sans-serif;
+	font-family: Roboto,San Francisco,"Helvetica Neue",Helvetica,Arial,PingFangSC-Light,"Hiragina Sans GB","WenQuanYi Micro Hei",'microsoft yahei ui','microsoft yahei',sans-serif;
 	line-height: 1.15;
 	-webkit-text-size-adjust: 100%;
 	-ms-text-size-adjust: 100%;
@@ -108,7 +109,7 @@ article,aside,figcaption,figure,footer,header,hgroup,main,nav,section {
 body {
 	margin: 0;
 	font-family: Roboto,Arial,sans-serif;
-	font-family: Roboto,San Francisco,"Helvetica Neue",Helvetica,Arial,PingFangSC-Light,"Hiragina Sans GB","WenQuanYi Micro Hei",'microsoft yahei ui','microsoft yahei',sans-serif;
+	font-family: Roboto,"Hiragina Sans GB",San Francisco,"Helvetica Neue",Helvetica,Arial,PingFangSC-Light,"WenQuanYi Micro Hei",'microsoft yahei ui','microsoft yahei',sans-serif;
 	font-size: 1rem;
 	font-weight: 400;
 	line-height: 1.428571;
@@ -5913,7 +5914,7 @@ button.close {
 	display: block;
 	margin: 0;
 	font-family: Roboto,Arial,sans-serif;
-	font-family: Roboto,San Francisco,"Helvetica Neue",Helvetica,Arial,PingFangSC-Light,"Hiragina Sans GB","WenQuanYi Micro Hei",'microsoft yahei ui','microsoft yahei',sans-serif;
+	font-family: Roboto,"Hiragina Sans GB",San Francisco,"Helvetica Neue",Helvetica,Arial,PingFangSC-Light,"WenQuanYi Micro Hei",'microsoft yahei ui','microsoft yahei',sans-serif;
 	font-style: normal;
 	font-weight: 400;
 	line-height: 1.428571;
@@ -6027,7 +6028,7 @@ button.close {
 	display: block;
 	max-width: 276px;
 	font-family: Roboto,Arial,sans-serif;
-	font-family: Roboto,San Francisco,"Helvetica Neue",Helvetica,Arial,PingFangSC-Light,"Hiragina Sans GB","WenQuanYi Micro Hei",'microsoft yahei ui','microsoft yahei',sans-serif;
+	font-family: Roboto,"Hiragina Sans GB",San Francisco,"Helvetica Neue",Helvetica,Arial,PingFangSC-Light,"WenQuanYi Micro Hei",'microsoft yahei ui','microsoft yahei',sans-serif;
 	font-style: normal;
 	font-weight: 400;
 	line-height: 1.428571;
@@ -12235,7 +12236,8 @@ canvas {
 	min-width: 19px;
 	margin-right: 9px;
 	text-align: center;
-	vertical-align: middle
+	vertical-align: middle;
+	margin-top: -2px
 }
 
 @media (min-width:768px) {
@@ -14478,7 +14480,7 @@ canvas {
 
 .rb-sub-header .navbar-nav>.nav-item>.nav-link {
 	font-family: Roboto,Arial,sans-serif;
-	font-family: Roboto,San Francisco,"Helvetica Neue",Helvetica,Arial,PingFangSC-Light,"Hiragina Sans GB","WenQuanYi Micro Hei",'microsoft yahei ui','microsoft yahei',sans-serif;
+	font-family: Roboto,"Hiragina Sans GB",San Francisco,"Helvetica Neue",Helvetica,Arial,PingFangSC-Light,"WenQuanYi Micro Hei",'microsoft yahei ui','microsoft yahei',sans-serif;
 	font-size: 1.1rem;
 	line-height: 40px;
 	min-width: 100px;
@@ -24097,7 +24099,7 @@ form.dropzone .dz-preview .dz-error-message {
 .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
 	line-height: 2rem;
 	font-family: Roboto,Arial,sans-serif;
-	font-family: Roboto,San Francisco,"Helvetica Neue",Helvetica,Arial,PingFangSC-Light,"Hiragina Sans GB","WenQuanYi Micro Hei",'microsoft yahei ui','microsoft yahei',sans-serif;
+	font-family: Roboto,"Hiragina Sans GB",San Francisco,"Helvetica Neue",Helvetica,Arial,PingFangSC-Light,"WenQuanYi Micro Hei",'microsoft yahei ui','microsoft yahei',sans-serif;
 	font-size: 1.077rem;
 	color: #999
 }

@@ -26,8 +26,8 @@ import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.rebuild.server.Application;
-import cn.devezhao.rebuild.server.Startup;
 import cn.devezhao.rebuild.web.commons.BaseControll;
+import cn.devezhao.rebuild.web.commons.PageForward;
 
 /**
  * 
@@ -42,7 +42,7 @@ public class UserControll extends BaseControll {
 	public String checkLogin(HttpServletRequest request) {
 		// TODO 检查自动登录
 		
-		request.setAttribute("rootpath", Startup.getContextPath());
+		PageForward.setPageAttribute(request);
 		return "/user/login.jsp";
 	}
 	
@@ -70,5 +70,15 @@ public class UserControll extends BaseControll {
 		
 		ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, foundUser[0]);
 		writeSuccess(response);
+	}
+	
+	@RequestMapping("forgot-passwd")
+	public String forgotPasswd(HttpServletRequest request, HttpServletResponse response) {
+		PageForward.setPageAttribute(request);
+		return "/user/forgot-passwd.jsp";
+	}
+	
+	@RequestMapping("user-forgot-passwd")
+	public void userForgotPasswd(HttpServletRequest request, HttpServletResponse response) {
 	}
 }

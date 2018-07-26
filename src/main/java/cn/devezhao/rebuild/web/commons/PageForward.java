@@ -16,19 +16,31 @@ limitations under the License.
 
 package cn.devezhao.rebuild.web.commons;
 
+import javax.servlet.http.HttpServletRequest;
+
 import cn.devezhao.commons.web.JhtmlForward;
 import cn.devezhao.commons.web.RequestContext;
+import cn.devezhao.rebuild.server.Startup;
 
 /**
  * @author zhaofang123@gmail.com
  * @since 07/25/2018
  */
-public class JhtmlForwardExt extends JhtmlForward {
+public class PageForward extends JhtmlForward {
 	private static final long serialVersionUID = -3419137991587451790L;
 
 	@Override
 	public void execute(RequestContext context) throws Exception {
-		context.getRequest().setAttribute("rootpath", contextPath);
+		setPageAttribute(context.getRequest());
 		super.execute(context);
+	}
+	
+	/**
+	 * 配置页面所用
+	 * 
+	 * @param request
+	 */
+	public static void setPageAttribute(HttpServletRequest request) {
+		request.setAttribute("baseUrl", Startup.getContextPath());
 	}
 }

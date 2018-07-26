@@ -3,21 +3,20 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>Rebuild</title>
+<title>用户管理</title>
 <style type="text/css">
 </style>
 </head>
 <body>
 <div class="rb-wrapper rb-collapsible-sidebar">
 	<jsp:include page="/_include/NavTop.jsp">
-		<jsp:param value="首页" name="pageTitle"/>
+		<jsp:param value="用户管理" name="pageTitle"/>
 	</jsp:include>
-	<jsp:include page="/_include/NavLeft.jsp">
-		<jsp:param value="dashboard-home" name="activeNav"/>
+	<jsp:include page="/_include/NavLeftAdmin.jsp">
+		<jsp:param value="user-list" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
 		<div class="main-content container-fluid">
-			<h3 class="text-center">首页可配置仪表盘</h3>
 		</div>
 	</div>
 </div>

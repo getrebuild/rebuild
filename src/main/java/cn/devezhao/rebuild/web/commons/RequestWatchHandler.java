@@ -11,11 +11,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
+import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.rebuild.server.Application;
 import cn.devezhao.rebuild.server.RebuildException;
+import cn.devezhao.rebuild.server.Startup;
 import cn.devezhao.rebuild.utils.AppUtils;
 
 /**
@@ -39,10 +41,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 			Object handler) throws Exception {
 		request.setAttribute(TIMEOUT_KEY, System.currentTimeMillis());
 		
-		String contentType = request.getContentType();
-		contentType = StringUtils.defaultIfBlank(contentType, request.getHeader("content-type"));
-		if ("text/html".equalsIgnoreCase(contentType)) {
-		}
+		String reqUrl = request.getRequestURI();
 		
 		ID user = AppUtils.getRequestUser(request);
 		if (user != null) {
@@ -62,7 +61,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 				if (ServletUtils.isAjaxRequest(request)) {
 					ServletUtils.writeJson(response, AppUtils.formatClientMsg(403, "非授权访问"));
 				} else {
-					response.sendError(403, "登录后继续");
+					response.sendRedirect(Startup.getContextPath() + "user/login?nexturl=" + CodecUtils.urlEncode(reqUrl));
 				}
 				return false;
 			}

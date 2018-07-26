@@ -51,11 +51,11 @@
 	</servlet>
 	
 	<servlet>
-		<servlet-name>JhtmlForward</servlet-name>
-		<servlet-class>cn.devezhao.rebuild.web.commons.JhtmlForwardExt</servlet-class>
+		<servlet-name>PageForward</servlet-name>
+		<servlet-class>cn.devezhao.rebuild.web.commons.PageForward</servlet-class>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>JhtmlForward</servlet-name>
+		<servlet-name>PageForward</servlet-name>
 		<url-pattern>*.htm</url-pattern>
 	</servlet-mapping>
 	
