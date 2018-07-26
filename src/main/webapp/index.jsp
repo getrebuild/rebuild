@@ -6,7 +6,7 @@
 <title>Rebuild</title>
 </head>
 <body>
-<div style="text-align:center;margin-top:20%;"><div class="mdl-spinner mdl-spinner--single-color mdl-js-spinner is-active"></div></div>
+<%@ include file="/_include/Foot.jsp" %>
 <script type="text/javascript">
 $(document).ready(function(){
 	location.href = 'user/login';

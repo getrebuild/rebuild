@@ -2,49 +2,70 @@
 <!DOCTYPE html>
 <html>
 <head>
-<%@ include file="/_include/Head.jsp" %>
+<%@ include file="/_include/Head.jsp"%>
 <title>用户登录</title>
 <style type="text/css">
-.rb-login{
-	width: 500px;
-	margin: 0 auto;
-	margin-top: 10%;
-	padding: 42px 0;
-}
-.rb-login > div{
-	width:300px;
-	margin: 0 auto;
-}
-.mdl-textfield{font-size:14px;}
-.mdl-textfield__input{font-size:14px}
 </style>
 </head>
-<body>
-<div class="rb-login mdl-card mdl-shadow--2dp">
-	<div><h3 style="font-size:20px;margin:0;padding:0">用户登录</h3></div>
-	<div class="mdl-textfield mdl-js-textfield">
-		<input class="mdl-textfield__input" type="text" id="user"> 
-		<label class="mdl-textfield__label" for="user">用户名</label>
+<body class="rb-splash-screen">
+	<div class="rb-wrapper rb-login">
+		<div class="rb-content">
+			<div class="main-content container-fluid">
+				<div class="splash-container">
+					<div class="card card-border-color card-border-color-primary">
+						<div class="card-header">
+							<h1 style="margin:0">REBUILD</h1>
+						</div>
+						<div class="card-body">
+							<form>
+								<div class="form-group">
+									<input class="form-control" id="username" type="text" placeholder="登录名" autocomplete="off">
+								</div>
+								<div class="form-group">
+									<input class="form-control" id="password" type="password" placeholder="登录密码">
+								</div>
+								<div class="form-group row login-tools">
+									<div class="col-6 login-remember">
+										<label class="custom-control custom-checkbox">
+											<input class="custom-control-input" type="checkbox">
+											<span class="custom-control-label">记住登录</span>
+										</label>
+									</div>
+									<div class="col-6 login-forgot-password">
+										<a href="forgot-password">找回密码</a>
+									</div>
+								</div>
+								<div class="form-group login-submit">
+									<a class="btn btn-primary btn-xl">登录</a>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div class="splash-footer">
+						<span>fork on <a href="https://github.com/devezhao/re-build/" target="_blank">GitHub</a></span>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
-	<div class="mdl-textfield mdl-js-textfield">
-		<input class="mdl-textfield__input" type="password" id="passwd">
-		<label class="mdl-textfield__label" for="passwd">密码</label>
-	</div>
-	<div>
-		<button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored J_login-btn" style="width:100%;font-size:15px;height:42px;">登录</button>
-	</div>
-</div>
+	<%@ include file="/_include/Foot.jsp"%>
 <script type="text/javascript">
-$(document).ready(function(){
-	$('.J_login-btn').click(function(){
-		let user = $('#user').val(),
-			passwd = $('#passwd').val();
-		$.post(__baseUrl + '/user/user-login', {user:user, passwd:passwd}, function(res){
-			if (res.error_code == 0) location.replace('../dashboard/home');
-			else alert(res.error_msg);
+	$(document).ready(function() {
+		$('.J_login-btn').click(function() {
+			let user = $('#user').val(), passwd = $('#passwd').val();
+			$.post(__baseUrl + '/user/user-login', {
+				user : user,
+				passwd : passwd
+			}, function(res) {
+				if (res.error_code == 0)
+					location.replace('../dashboard/home');
+				else
+					alert(res.error_msg);
+			});
 		});
 	});
-});
 </script>
 </body>
+
+
 </html>

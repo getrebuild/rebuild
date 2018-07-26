@@ -40,6 +40,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 		request.setAttribute(TIMEOUT_KEY, System.currentTimeMillis());
 		
 		String contentType = request.getContentType();
+		contentType = StringUtils.defaultIfBlank(contentType, request.getHeader("content-type"));
 		if ("text/html".equalsIgnoreCase(contentType)) {
 		}
 		

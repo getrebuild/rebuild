@@ -43,7 +43,7 @@ public class AppUtils {
 	 * @return
 	 */
 	public static ID getRequestUser(HttpServletRequest request) {
-		Object current = ServletUtils.getSessionAttribute(request, WebUtils.CURRENT_USER);
+		Object current = request.getSession(true).getAttribute(WebUtils.CURRENT_USER);
 		return (ID) current;
 	}
 	
