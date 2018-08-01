@@ -1,0 +1,18 @@
+.dataTables_oper .btn {
+	height: 2.8rem;
+	min-width: 80px;
+}
+
+.input-search, .input-search input {
+	width: 240px;
+	height: 2.8rem;
+	border-radius: 2px;
+}
+
+.input-search .input-group-btn button {
+	height: 2.6rem;
+}
+
+.input-search .input-group-btn button .icon {
+	font-size: 1.53rem;
+}

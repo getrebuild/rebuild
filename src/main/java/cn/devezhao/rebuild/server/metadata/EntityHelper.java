@@ -1,18 +1,17 @@
 package cn.devezhao.rebuild.server.metadata;
 
-import java.util.Date;
-
 import org.apache.commons.lang.StringUtils;
-import org.dom4j.Element;
 
-import cn.devezhao.commons.CalendarUtils;
+import com.alibaba.fastjson.JSONObject;
+
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.StandardRecord;
+import cn.devezhao.persist4j.record.FieldValueException;
+import cn.devezhao.persist4j.record.JsonRecordCreator;
 import cn.devezhao.persist4j.record.RecordCreator;
 import cn.devezhao.rebuild.server.Application;
-import cn.devezhao.rebuild.server.service.user.UserService;
 
 /**
  * @author Zhao Fangfang
@@ -20,7 +19,6 @@ import cn.devezhao.rebuild.server.service.user.UserService;
  * @since 1.0, 2013-6-26
  */
 public class EntityHelper {
-
 	
 	/**
 	 * 获取实体
@@ -47,15 +45,19 @@ public class EntityHelper {
 	 * @param user
 	 * @return
 	 */
-	public static Record parse(Element data, ID user) {
-		String entityName = data.attributeValue("name");
-		if (StringUtils.isBlank(entityName) || !data.getName().equals("entity")) {
-			throw new IllegalArgumentException("无效实体数据格式\n----\n" + data.asXML());
+	public static Record parse(JSONObject data, ID user) {
+		JSONObject metadata = data.getJSONObject(JsonRecordCreator.META_FIELD);
+		if (metadata == null) {
+			throw new FieldValueException("无效实体数据格式(1): " + data.toJSONString());
+		}
+		String entityName = metadata.getString("entity");
+		if (StringUtils.isBlank(entityName)) {
+			throw new FieldValueException("无效实体数据格式(2): " + data.toJSONString());
 		}
 		
 		RecordCreator creator = new ExtRecordCreator(getEntity(entityName), data, user);
 		Record record = creator.create();
-		bindCommonsFieldsValue(record, record.getPrimary() == null);
+		ExtRecordCreator.bindCommonsFieldsValue(record, record.getPrimary() == null);
 		return record;
 	}
 
@@ -66,10 +68,10 @@ public class EntityHelper {
 	 */
 	public static Record forUpdate(ID recordId, ID user) {
 		Entity entity = getEntity(recordId.getEntityCode());
-		Record r = new StandardRecord(entity, user);
-		r.setID(entity.getPrimaryField().getName(), recordId);
-		bindCommonsFieldsValue(r, false);
-		return r;
+		Record record = new StandardRecord(entity, user);
+		record.setID(entity.getPrimaryField().getName(), recordId);
+		ExtRecordCreator.bindCommonsFieldsValue(record, false);
+		return record;
 	}
 	
 	/**
@@ -79,50 +81,10 @@ public class EntityHelper {
 	 */
 	public static Record forNew(int entityCode, ID user) {
 		Entity entity = EntityHelper.getEntity(entityCode);
-		Record r = new StandardRecord(entity, user);
-		bindCommonsFieldsValue(r, true);
-		return r;
+		Record record = new StandardRecord(entity, user);
+		ExtRecordCreator.bindCommonsFieldsValue(record, true);
+		return record;
 	}
-	
-	/**
-	 * 绑定公用/权限字段值
-	 * 
-	 * @param r
-	 * @param isNew
-	 */
-	protected static void bindCommonsFieldsValue(Record r, boolean isNew) {
-		final Date now = CalendarUtils.now();
-		final Entity entity = r.getEntity();
-		
-		if (entity.containsField(modifiedOn)) {
-			r.setDate(modifiedOn, now);
-		}
-		if (entity.containsField(modifiedBy)) {
-			r.setID(modifiedBy, r.getEditor());
-		}
-		
-		if (isNew) {
-			if (entity.containsField(createdOn)) {
-				r.setDate(createdOn, now);
-			}
-			if (entity.containsField(createdBy)) {
-				r.setID(createdBy, r.getEditor());
-			}
-			if (entity.containsField(owningUser)) {
-				r.setID(owningUser, Application.getBean(UserService.class).getDeptOfUser(r.getEditor()));
-			}
-		}
-	}
-
-	
-	// 公共字段
-	
-	public static final String createdOn = "createdOn";
-	public static final String createdBy = "createdBy";
-	public static final String modifiedOn = "modifiedOn";
-	public static final String modifiedBy = "modifiedBy";
-	public static final String owningUser = "owningUser";
-	public static final String owningDept = "owningDept";
 	
 	// 实体代码
 

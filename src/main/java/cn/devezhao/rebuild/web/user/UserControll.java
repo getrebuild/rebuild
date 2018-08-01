@@ -16,6 +16,8 @@ limitations under the License.
 
 package cn.devezhao.rebuild.web.user;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -70,6 +72,12 @@ public class UserControll extends BaseControll {
 		
 		ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, foundUser[0]);
 		writeSuccess(response);
+	}
+	
+	@RequestMapping("logout")
+	public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ServletUtils.getSession(request).invalidate();
+		response.sendRedirect("login");
 	}
 	
 	@RequestMapping("forgot-passwd")
