@@ -20411,7 +20411,7 @@ pre code {
 .colored-header .modal-content .modal-header {
 	background-color: #e6e6e6;
 	color: #fff;
-	padding: 30px 20px;
+	padding: 20px 20px;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0
 }
@@ -20422,7 +20422,7 @@ pre code {
 
 .colored-header .modal-content .modal-header .close {
 	color: rgba(0,0,0,.7);
-	margin-top: -13px
+	margin-top: -10px
 }
 
 .colored-header .modal-content .modal-body {

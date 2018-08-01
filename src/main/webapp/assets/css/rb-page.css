@@ -1,6 +1,9 @@
-.dataTables_oper .btn {
+.btn {
 	height: 2.8rem;
-	min-width: 80px;
+	min-width: 88px;
+}
+.btn-xl {
+	height: 3.4rem;
 }
 
 .input-search, .input-search input {
