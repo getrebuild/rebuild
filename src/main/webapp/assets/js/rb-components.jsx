@@ -1,28 +1,48 @@
-// 弹出窗口
+// ~~!v1.0 弹出窗口
 class RbModal extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { title: props.title };
+    }
 	render() {
 		return (
-			<div className="modal fade colored-header colored-header-primary" id={this.props.id}>
+			<div className="modal fade colored-header colored-header-primary" ref="rbmodal">
 		        <div className="modal-dialog">
     		        <div className="modal-content">
         		        <div className="modal-header modal-header-colored">
-            		        <h3 className="modal-title">{this.props.title}</h3>
-            		        <button className="close md-close" type="button" data-dismiss="modal"><span className="zmdi zmdi-close"></span></button>
+            		        <h3 className="modal-title">{this.state.title || ''}</h3>
+            		        <button className="close md-close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
             		    </div>
-        		        <div className="modal-body">
+        		        <div className="modal-body iframe hide" ref="rbmodal.body">
+            		        <iframe src={this.state.url || 'about:blank'} frameborder="0" scrolling="no" ref="rbmodal.iframe" onLoad={()=>this.loaded()} onResize={()=>this.loaded()}></iframe>
         		        </div>
-        		        <div className="modal-footer">
-            		        <button className="btn btn-secondary md-close" type="button" data-dismiss="modal">取消</button>
-            		        <button className="btn btn-primary md-close" type="button">保存</button>
-            		    </div>
     		        </div>
 		        </div>
 			</div>
 		)
 	}
+	show(url) {
+        let that = this;
+        this.setState({ url: url }, function(){
+            $(that.refs['rbmodal']).modal({ show: true, backdrop: 'static' });
+        })
+    }
+    hide() {
+        $(this.refs['rbmodal']).modal('hide');
+    }
+    loaded() {
+        if (!this.state.url) return;
+        let that = this;
+        setTimeoutDelay(function(){
+            let iframe = $(that.refs['rbmodal.iframe']);
+            let height = iframe.contents().find('body').height();
+            if (height == 0 || height == that.__lastHeight) return;
+            $(that.refs['rbmodal.body']).height(height);
+            that.__lastHeight = height;
+        }, 50, 'RbModal-resize');
+    }
 }
-
-// 提示框
+// ~~!v1.0 提示框
 class RbAlter extends React.Component {
     constructor(props) {
        super(props);

@@ -31,7 +31,7 @@
 							</div>
 							<div class="col-sm-6">
 								<div class="dataTables_oper">
-									<button class="btn btn-space btn-primary" data-toggle="modal" data-target="#form-bp"><i class="icon zmdi zmdi-plus"></i> 新建</button>
+									<button class="btn btn-space btn-primary" onclick="rbModal.show('user-edit.htm')"><i class="icon zmdi zmdi-plus"></i> 新建</button>
 									<button class="btn btn-space btn-secondary" disabled="disabled"><i class="icon zmdi zmdi-delete"></i> 删除</button>
 									<div class="btn-group btn-space">
 										<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-chevron-down"></i></button>
@@ -91,14 +91,10 @@
 	</div>
 </div>
 
-<div id="modalWarp"></div>
-
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/rb-list.js" type="text/javascript"></script>
 <script type="text/babel">
-$(document).ready(function(){
-	ReactDOM.render(<RbModal title="新建用户" id="form-bp"/>, document.getElementById('modalWarp'));
-});
+const rbModal = ReactDOM.render(<RbModal title="新建用户" />, $('<div id="react-comps"></div>').appendTo(document.body)[0]);
 </script>
 <script type="text/javascript">
 $(document).ready(function(){

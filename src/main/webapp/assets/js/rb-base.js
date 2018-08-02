@@ -3,6 +3,7 @@
 	$.fn.extend({
 		'button': function(state) {
 			let el = $(this);
+			if (el.prop('nodeName') != 'BUTTON') return this;
 			if (state == 'loading') {
 				el.attr('disabled', true);
 				let loadingText = el.data('loading-text');
