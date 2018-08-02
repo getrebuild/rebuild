@@ -3,19 +3,42 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>用户管理</title>
+<title>实体管理</title>
 <style type="text/css">
+.card.entity .card-body{padding:14px 20px}
+.card.entity .icon{font-size:40px;}
+.card.entity h5,.card.entity p{margin:3px 0;}
+.card.entity p{color:#777;font-size:0.9rem;}
 </style>
 </head>
 <body>
-<div class="rb-wrapper rb-collapsible-sidebar">
+<div class="rb-wrapper rb-collapsible-sidebar rb-fixed-sidebar rb-aside">
 	<jsp:include page="/_include/NavTop.jsp">
-		<jsp:param value="用户管理" name="pageTitle"/>
+		<jsp:param value="实体管理" name="pageTitle"/>
 	</jsp:include>
 	<jsp:include page="/_include/NavLeftAdmin.jsp">
-		<jsp:param value="user-list" name="activeNav"/>
+		<jsp:param value="entity-list" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
+		<aside class="page-aside">
+			<div class="rb-scroller">
+				<div class="aside-content">
+					<div class="content">
+						<div class="aside-header">
+							<span class="title">用户</span>
+							<p class="description">管理用户</p>
+						</div>
+					</div>
+					<div class="aside-nav collapse">
+						<ul class="nav">
+							<li><a href="manage.htm"><i class="icon mdi mdi-inbox"></i>基本信息</a></li>
+							<li class="active"><a href="manage-fields.htm"><i class="icon mdi mdi-inbox"></i>管理字段</a></li>
+							<li><a href="manage-layout.htm"><i class="icon mdi mdi-inbox"></i>管理布局</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+        </aside>
 		<div class="main-content container-fluid">
 			<div class="card card-table">
 				<div class="card-body rb-loading">
@@ -33,16 +56,6 @@
 								<div class="dataTables_oper">
 									<button class="btn btn-space btn-primary" data-toggle="modal" data-target="#form-bp"><i class="icon zmdi zmdi-plus"></i> 新建</button>
 									<button class="btn btn-space btn-secondary" disabled="disabled"><i class="icon zmdi zmdi-delete"></i> 删除</button>
-									<div class="btn-group btn-space">
-										<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-chevron-down"></i></button>
-										<div class="dropdown-menu">
-											<a class="dropdown-item" href="#">Action</a>
-											<a class="dropdown-item" href="#">Another action</a>
-											<a class="dropdown-item" href="#">Something else here</a>
-											<div class="dropdown-divider"></div>
-											<a class="dropdown-item" href="#">Separated link</a>
-										</div>
-									</div>
 								</div>
 							</div>
 						</div>
@@ -56,8 +69,8 @@
 													<input class="custom-control-input" type="checkbox"><span class="custom-control-label"></span>
 												</label>
 											</th>
-											<th data-filed="loginName">用户</th>
-											<th data-field="email">邮箱</th>
+											<th data-filed="loginName">字段名称</th>
+											<th data-field="email">内部名称</th>
 											<th data-field="createdOn">创建时间</th>
 										</tr>
 									</thead>
@@ -90,35 +103,8 @@
 		</div>
 	</div>
 </div>
-
-<div id="modalWarp"></div>
-
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/js/rb-list.js" type="text/javascript"></script>
-<script type="text/babel">
-$(document).ready(function(){
-	ReactDOM.render(<RbModal title="新建用户" id="form-bp"/>, document.getElementById('modalWarp'));
-});
-</script>
 <script type="text/javascript">
-$(document).ready(function(){
-	let query = {
-		entity: 'User', pageNo: 1, pageSize: 20,
-		fields: ['loginName', 'email', 'createdOn']
-	};
-	$.post(__baseUrl + '/entity/list', JSON.stringify(query), function(res){
-		let tbody = $('#dataList tbody');
-		$(res.data.data).each(function(){
-			let tr = $('<tr></tr>').appendTo(tbody);
-			let rowLen = this.length;
-			$('<td data-id="' + this[rowLen - 1] + '"><label class="custom-control custom-control-sm custom-checkbox"><input class="custom-control-input" type="checkbox"><span class="custom-control-label"></span></label></td>').appendTo(tr);
-			$(this).each(function(idx, item){
-				$('<td>' + (item || '-') + '</td>').appendTo(tr);
-				if (idx == rowLen - 2) return false;
-			});
-		});
-	});
-});
 </script>
 </body>
 </html>

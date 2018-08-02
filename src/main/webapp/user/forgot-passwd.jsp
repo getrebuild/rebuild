@@ -14,7 +14,7 @@
 			<div class="splash-container">
 				<div class="card card-border-color card-border-color-primary">
 					<div class="card-header">
-						<h1 style="margin:0;font-weight:bold;">REBUILD</h1>
+						<img class="logo-img" src="../assets/img/logo.png" alt="REBUILD" width="102" height="27">
 					</div>
 					<div class="card-body">
 						<div class="form-group">

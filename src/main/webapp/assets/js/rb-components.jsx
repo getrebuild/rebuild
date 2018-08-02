@@ -22,3 +22,42 @@ class RbModal extends React.Component {
 	}
 }
 
+// 提示框
+class RbAlter extends React.Component {
+    constructor(props) {
+       super(props);
+       this.state = {};
+    }
+    render() {
+        return (
+            <div className="modal fade" ref="rbalter">
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <button className="close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="text-center">
+                                <h3>提示</h3>
+                                <p>{this.state.message || '提示内容'}</p>
+                                <div class="mt-8">
+                                    <button className="btn btn-space btn-secondary" type="button" ref="rbalter.confirm" onClick={()=>this.hide()}>确定</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+    show(message) {
+        let that = this;
+        this.setState({ message: message }, function(){
+            $(that.refs['rbalter']).modal('show');
+            $(that.refs['rbalter.confirm']).focus();
+        })
+    }
+    hide() {
+        $(this.refs['rbalter']).modal('hide');
+    }
+}

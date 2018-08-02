@@ -61,7 +61,7 @@ public class UserControll extends BaseControll {
 			writeFailure(response, "用户名或密码错误");
 			return;
 		}
-		if (foundUser[1].equals(EncryptUtils.toSHA256Hex(passwd))) {
+		if (!foundUser[1].equals(EncryptUtils.toSHA256Hex(passwd))) {
 			writeFailure(response, "用户名或密码错误");
 			return;
 		}

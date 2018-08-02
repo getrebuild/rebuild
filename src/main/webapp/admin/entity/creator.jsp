@@ -5,6 +5,10 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>实体管理</title>
 <style type="text/css">
+.card.entity .card-body{padding:14px 20px}
+.card.entity .icon{font-size:40px;}
+.card.entity h5,.card.entity p{margin:3px 0;}
+.card.entity p{color:#777;font-size:0.9rem;}
 </style>
 </head>
 <body>
@@ -17,9 +21,14 @@
 	</jsp:include>
 	<div class="rb-content">
 		<div class="main-content container-fluid">
+			<div class="row">
+				<div class="col-sm-2">
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
+<%@ include file="/_include/Foot.jsp"%>
 <script type="text/javascript">
 </script>
 </body>

@@ -3,6 +3,7 @@
 	<div class="container-fluid">
 		<div class="rb-navbar-header">
 			<a class="navbar-brand" href="${baseUrl}/dashboard/home.htm"></a>
+			<a class="rb-toggle-left-sidebar" href="#"><span class="icon zmdi zmdi-menu"></span></a>
 		</div>
 		<div class="rb-right-navbar">
 			<ul class="nav navbar-nav float-right rb-user-nav">

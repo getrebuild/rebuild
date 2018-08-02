@@ -14,8 +14,22 @@
 
 .input-search .input-group-btn button {
 	height: 2.6rem;
+	min-width: auto;
 }
 
 .input-search .input-group-btn button .icon {
 	font-size: 1.53rem;
+}
+
+.rb-collapsible-sidebar-collapsed .page-aside {
+	left: 60px;
+}
+
+.font-desc {
+	font-size: 12px;
+	color: #888;
+}
+
+.rb-aside .page-head {
+	margin-left: 280px;
 }

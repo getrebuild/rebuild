@@ -14,7 +14,7 @@
 			<div class="splash-container">
 				<div class="card card-border-color card-border-color-primary">
 					<div class="card-header">
-						<h1 style="margin:0;font-weight:bold;">REBUILD</h1>
+						<img class="logo-img" src="../assets/img/logo.png" alt="REBUILD" width="102" height="27">
 					</div>
 					<div class="card-body">
 						<div class="form-group">
@@ -35,7 +35,7 @@
 							</div>
 						</div>
 						<div class="form-group login-submit">
-							<button class="btn btn-primary btn-xl J_login-btn">登录</button>
+							<button class="btn btn-primary btn-xl J_login-btn" data-loading-text="登录中">登录</button>
 						</div>
 					</div>
 				</div>
@@ -47,17 +47,35 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
+<script type="text/babel">
+const rbAlter = ReactDOM.render(<RbAlter />, $('<div id="react-comps"></div>').appendTo(document.body)[0]);
+</script>
 <script type="text/javascript">
 $(document).ready(function() {
+	$('#user,#passwd').keydown(function(e){
+		if (e.keyCode == 13) $('.J_login-btn').trigger('click');
+	});
+	
 	$('.J_login-btn').click(function() {
 		let user = $('#user').val(),
 			passwd = $('#passwd').val();
-		if (!user || !passwd){ alert('请输入用户名和密码'); return; }
+		if (!user || !passwd){
+			rbAlter.show('请输入用户名和密码');
+			return;
+		}
 		
+		let btn = $(this).button('loading');
 		let reqdata = { user: user, passwd: passwd };
 		$.post(__baseUrl + '/user/user-login', reqdata, function(res) {
 			if (res.error_code == 0) location.replace('../dashboard/home.htm');
-			else alert(res.error_msg);
+			else{
+				rbAlter.show(res.error_msg || '登录失败');
+				btn.button('reset');
+				
+				setTimeout(function(){
+					rbAlter.hide();
+				}, 3000);
+			}
 		});
 	});
 });
