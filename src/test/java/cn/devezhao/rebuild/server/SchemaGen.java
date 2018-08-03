@@ -43,7 +43,7 @@ public class SchemaGen {
 		Table table = new Table(
 				entity,
 				PMF.getDialect(),
-				root.selectNodes("index"));
+				root.selectSingleNode("//entity[@name='" + entity.getName() + "']").selectNodes("index"));
 		
 		String[] ddl = table.generateDDL(true, false);
 		
