@@ -1,0 +1,60 @@
+.btn {
+	height: 2.8rem;
+	min-width: 88px;
+}
+.btn-xl {
+	height: 3.4rem;
+}
+
+.input-search, .input-search input {
+	width: 240px;
+	height: 2.8rem;
+	border-radius: 2px;
+}
+
+.input-search .input-group-btn button {
+	height: 2.6rem;
+	min-width: auto;
+}
+
+.input-search .input-group-btn button .icon {
+	font-size: 1.53rem;
+}
+
+.rb-collapsible-sidebar-collapsed .page-aside {
+	left: 60px;
+}
+
+.font-desc {
+	font-size: 12px;
+	color: #888;
+}
+
+.rb-aside .page-head {
+	margin-left: 280px;
+}
+
+.modal-body.iframe {
+	padding: 0 !important;
+}
+.modal-body.iframe iframe {
+	width: 100%;
+	height: 100%;
+}
+
+body.dialog {
+	background-color: #fff;
+}
+
+textarea.row2 {
+	height: 52px !important;
+	resize: none;
+}
+textarea.row3 {
+	height: 72px !important;
+	resize: none;
+}
+
+a {
+	cursor: pointer;
+}

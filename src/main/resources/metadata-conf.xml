@@ -4,9 +4,8 @@
 <metadata-config schema-name-optimize="true" default-parent="SystemCommon">
 
 	<entity name="SystemCommon" type-code="000">
-		<field name="autoId" type="long" auto-value="true" nullable="false" />
 		<field name="createdOn" type="timestamp" nullable="false" updatable="false" />
-		<field name="createdBy" type="reference" ref-entity="User" nullable="false" />
+		<field name="createdBy" type="reference" ref-entity="User" nullable="false" updatable="false" />
 		<field name="modifiedOn" type="timestamp" nullable="false" />
 		<field name="modifiedBy" type="reference" ref-entity="User" nullable="false" />
 		<field name="owningUser" type="reference" ref-entity="User" nullable="false" />
@@ -17,11 +16,11 @@
 		<field name="userId" type="primary" />
 		<field name="loginName" type="string" max-length="100" nullable="false" />
 		<field name="email" type="string" max-length="100" />
-		<field name="password" type="string" max-length="100" />
+		<field name="password" type="string" max-length="100" nullable="false" />
 		<field name="fullName" type="string" max-length="100" />
 		<field name="avatarUrl" type="string" max-length="300" />
 		<field name="jobTitle" type="string" max-length="100" />
-		<field name="detpId" type="reference" ref-entity="Department" />
+		<field name="deptId" type="reference" ref-entity="Department" nullable="false" />
 		<field name="isDisabled" type="bool" default-value="T" />
 		<index type="unique" field-list="loginName"/>
 		<index type="unique" field-list="email"/>
@@ -31,11 +30,13 @@
 		<field name="deptId" type="primary" />
 		<field name="name" type="string" max-length="100" nullable="false" />
 		<field name="parentDept" type="reference" ref-entity="Department" />
+		<field name="isDisabled" type="bool" default-value="F" />
 	</entity>
 	
 	<entity name="Role" type-code="003">
 		<field name="roleId" type="primary" />
 		<field name="name" type="string" max-length="100" nullable="false" />
+		<field name="isDisabled" type="bool" default-value="F" />
 	</entity>
 	
 	<entity name="RolePrivileges" type-code="004">
@@ -55,10 +56,15 @@
 		<field name="entityName" type="string" max-length="100" nullable="false" />
 		<field name="physicalName" type="string" max-length="100" nullable="false" />
 		<field name="entityLabel" type="string" max-length="100" nullable="false"/>
+		<field name="description" type="string" max-length="100"/>
+		<index type="unique" field-list="typeCode"/>
+		<index type="unique" field-list="entityName"/>
+		<index type="unique" field-list="physicalName"/>
 	</entity>
 	
 	<entity name="MetaField" type-code="011">
 		<field name="fieldId" type="primary" />
+		<field name="entityId" type="reference" ref-entity="MetaEntity" cascade="delete" nullable="false" />
 		<field name="fieldName" type="string" max-length="100" nullable="false" />
 		<field name="physicalName" type="string" max-length="100" nullable="false" />
 		<field name="fieldLabel" type="string" max-length="100" nullable="false"/>
@@ -66,9 +72,12 @@
 		<field name="nullable" type="bool" default-value="T"/>
 		<field name="creatable" type="bool" default-value="T"/>
 		<field name="updatable" type="bool" default-value="T"/>
-		<field name="precision" type="small-int" default-value="4"/>
+		<field name="precision" type="small-int" default-value="2"/>
 		<field name="maxLength" type="small-int" default-value="200"/>
-		<field name="defaultValue" type="string"/>
+		<field name="defaultValue" type="string" max-length="200"/>
+		<field name="description" type="string" max-length="100"/>
+		<index type="unique" field-list="entityId,fieldName"/>
+		<index type="unique" field-list="entityId,physicalName"/>
 	</entity>
 	
 </metadata-config>

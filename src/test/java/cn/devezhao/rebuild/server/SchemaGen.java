@@ -1,5 +1,6 @@
 package cn.devezhao.rebuild.server;
 
+import org.dom4j.Element;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -38,10 +39,11 @@ public class SchemaGen {
 	
 	static void gen(int e) {
 		Entity entity = PMF.getMetadataFactory().getEntity(e);
+		Element root = ((ConfigurationMetadataFactory) PMF.getMetadataFactory()).getConfigDocument().getRootElement();
 		Table table = new Table(
 				entity,
 				PMF.getDialect(),
-				((ConfigurationMetadataFactory) PMF.getMetadataFactory()).getConfigDocument().getRootElement());
+				root.selectSingleNode("//entity[@name='" + entity.getName() + "']").selectNodes("index"));
 		
 		String[] ddl = table.generateDDL(true, false);
 		

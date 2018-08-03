@@ -14,23 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.server;
+package cn.devezhao.rebuild.server.service.entitymanage;
 
-import org.junit.Test;
-
-import cn.devezhao.rebuild.server.metadata.EntityHelper;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.metadata.impl.EntityImpl;
 
 /**
  * 
  * @author zhaofang123@gmail.com
- * @since 05/19/2018
+ * @since 08/04/2018
  */
-public class StartupTest {
-	
-	@Test
-	public void startup() {
-		Application.context();
-		EntityHelper.getEntity(1);
+public class UnsafeEntity extends EntityImpl {
+	private static final long serialVersionUID = 2107073554299141281L;
+
+	public UnsafeEntity(String name, String physicalName, String description, int typeCode, String nameField) {
+		super(name, physicalName, description, typeCode, nameField);
 	}
 	
+	@Override
+	public void addField(Field field) {
+		super.addField(field);
+	}
 }

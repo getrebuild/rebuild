@@ -39,12 +39,14 @@ import cn.devezhao.persist4j.engine.ID;
 public class AppUtils {
 
 	/**
+	 * 获取请求用户
+	 * 
 	 * @param request
 	 * @return
 	 */
 	public static ID getRequestUser(HttpServletRequest request) {
 		Object current = request.getSession(true).getAttribute(WebUtils.CURRENT_USER);
-		return (ID) current;
+		return current == null ? null : (ID) current;
 	}
 	
 	/**

@@ -1,5 +1,6 @@
 package cn.devezhao.rebuild.web.commons;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,50 +30,19 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 
 	private static final Log LOG = LogFactory.getLog(RequestWatchHandler.class);
 	
-	private static final String TIMEOUT_KEY = "ErrorHandler_TIMEOUT";
-	
-	private static final Set<String> IGNORE_RES = new HashSet<>();
-	static {
-		IGNORE_RES.add("/user/");
-	}
-	
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
 			Object handler) throws Exception {
-		request.setAttribute(TIMEOUT_KEY, System.currentTimeMillis());
-		
-		String reqUrl = request.getRequestURI();
-		
-		ID user = AppUtils.getRequestUser(request);
-		if (user != null) {
-			Application.getCurrentCaller().set(user);
-		} else {
-			String rUrl = request.getRequestURI();
-			boolean isIgnore = false;
-			for (String r : IGNORE_RES) {
-				if (rUrl.contains(r)) {
-					isIgnore = true;
-					break;
-				}
-			}
-			
-			if (!isIgnore) {
-				LOG.warn("Unauthorized access [ " + rUrl + " ] from [ " + ServletUtils.getReferer(request) + " ]");
-				if (ServletUtils.isAjaxRequest(request)) {
-					ServletUtils.writeJson(response, AppUtils.formatClientMsg(403, "非授权访问"));
-				} else {
-					response.sendRedirect(Startup.getContextPath() + "user/login?nexturl=" + CodecUtils.urlEncode(reqUrl));
-				}
-				return false;
-			}
-		}
-		return true;
+		super.preHandle(request, response, handler);
+		return verfiyPass(request, response);
 	}
 	
 	@Override
 	public void afterCompletion(HttpServletRequest request,
 			HttpServletResponse response, Object handler, Exception exception)
 			throws Exception {
+		super.afterCompletion(request, response, handler, exception);
+		
 		ID requestUser = Application.getCurrentCaller().get();
 		Application.getCurrentCaller().clean();
 		logProgressTime(request);
@@ -112,5 +82,50 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 			if (qstr != null) url += '?' + qstr;
 			LOG.warn("Method handle time " + startTime + " ms. Request URL [ " + url + " ] from [ " + StringUtils.defaultIfEmpty(ServletUtils.getReferer(request), "-") + " ]");
 		}
+	}
+	
+	// --
+	
+	private static final String TIMEOUT_KEY = "ErrorHandler_TIMEOUT";
+	
+	private static final Set<String> IGNORE_RES = new HashSet<>();
+	static {
+		IGNORE_RES.add("/user/");
+	}
+	
+	/**
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws IOException
+	 */
+	public static boolean verfiyPass(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		request.setAttribute(TIMEOUT_KEY, System.currentTimeMillis());
+		
+		ID user = AppUtils.getRequestUser(request);
+		if (user != null) {
+			Application.getCurrentCaller().set(user);
+		} else {
+			String rUrl = request.getRequestURI();
+			boolean isIgnore = false;
+			for (String r : IGNORE_RES) {
+				if (rUrl.contains(r)) {
+					isIgnore = true;
+					break;
+				}
+			}
+			
+			if (!isIgnore) {
+				LOG.warn("Unauthorized access [ " + rUrl + " ] from [ " + ServletUtils.getReferer(request) + " ]");
+				if (ServletUtils.isAjaxRequest(request)) {
+					ServletUtils.writeJson(response, AppUtils.formatClientMsg(403, "非授权访问"));
+				} else {
+					String reqUrl = request.getRequestURI();
+					response.sendRedirect(Startup.getContextPath() + "/user/login?nexturl=" + CodecUtils.urlEncode(reqUrl));
+				}
+				return false;
+			}
+		}
+		return true;
 	}
 }

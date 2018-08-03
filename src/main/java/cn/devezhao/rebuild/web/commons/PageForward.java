@@ -16,10 +16,13 @@ limitations under the License.
 
 package cn.devezhao.rebuild.web.commons;
 
+import java.io.IOException;
+
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import cn.devezhao.commons.web.JhtmlForward;
-import cn.devezhao.commons.web.RequestContext;
 import cn.devezhao.rebuild.server.Startup;
 
 /**
@@ -30,9 +33,14 @@ public class PageForward extends JhtmlForward {
 	private static final long serialVersionUID = -3419137991587451790L;
 
 	@Override
-	public void execute(RequestContext context) throws Exception {
-		setPageAttribute(context.getRequest());
-		super.execute(context);
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		setPageAttribute(request);
+//		super.doGet(request, response);
+		boolean pass = RequestWatchHandler.verfiyPass(request, response);
+		if (pass) {
+			super.doGet(request, response);
+		}
 	}
 	
 	/**
