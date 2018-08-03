@@ -42,7 +42,37 @@
 		<div class="page-head">
 			<div class="page-head-title">基本信息</div>
 		</div>
-		<div class="main-content container-fluid">
+		<div class="main-content container-fluid" style="padding-top:3px">
+			<div class="card">
+				<div class="card-body">
+					<form>
+						<div class="form-group row">
+							<label class="col-12 col-sm-2 col-form-label text-sm-right">实体名称</label>
+							<div class="col-12 col-sm-8 col-lg-4">
+								<input class="form-control form-control-sm" type="text">
+							</div>
+						</div>
+						<div class="form-group row">
+							<label class="col-12 col-sm-2 col-form-label text-sm-right">系统标识</label>
+							<div class="col-12 col-sm-8 col-lg-4">
+								<input class="form-control form-control-sm" type="text" readonly="readonly">
+							</div>
+						</div>
+						<div class="form-group row">
+							<label class="col-12 col-sm-2 col-form-label text-sm-right">描述</label>
+							<div class="col-12 col-sm-8 col-lg-4">
+								<textarea class="form-control form-control-sm row2"></textarea>
+							</div>
+						</div>
+						<div class="form-group row footer">
+							<label class="col-12 col-sm-2 col-form-label text-sm-right"></label>
+							<div class="col-12 col-sm-8 col-lg-4">
+								<button class="btn btn-primary btn-space" type="button">确定</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>

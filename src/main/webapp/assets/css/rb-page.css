@@ -45,3 +45,16 @@
 body.dialog {
 	background-color: #fff;
 }
+
+textarea.row2 {
+	height: 52px !important;
+	resize: none;
+}
+textarea.row3 {
+	height: 72px !important;
+	resize: none;
+}
+
+a {
+	cursor: pointer;
+}

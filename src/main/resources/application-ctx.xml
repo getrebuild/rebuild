@@ -49,7 +49,7 @@
 		<constructor-arg index="0" ref="dataSource" />
 		<constructor-arg index="1" ref="dialect" />
 		<constructor-arg index="2">
-			<bean class="cn.devezhao.persist4j.metadata.impl.ConfigurationMetadataFactory">
+			<bean class="cn.devezhao.rebuild.server.metadata.DynamicMetadataFactory">
 				<constructor-arg index="0" value="metadata-conf.xml" />
 				<constructor-arg index="1" ref="dialect" />
 			</bean>
@@ -85,6 +85,16 @@
 	</aop:config>
 
 	<bean class="cn.devezhao.rebuild.server.service.CommonService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
+	
+	<bean class="cn.devezhao.rebuild.server.service.bizuser.UserService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
+	<bean class="cn.devezhao.rebuild.server.service.bizuser.DepartmentService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
+	<bean class="cn.devezhao.rebuild.server.service.bizuser.RoleService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 

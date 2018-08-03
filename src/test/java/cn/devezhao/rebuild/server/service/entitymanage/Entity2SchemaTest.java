@@ -14,13 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.server.metadata;
+package cn.devezhao.rebuild.server.service.entitymanage;
+
+import org.junit.Test;
+
+import cn.devezhao.rebuild.server.service.bizuser.UserService;
+import cn.devezhao.rebuild.server.service.entitymanage.Entity2Schema;
 
 /**
  * 
  * @author zhaofang123@gmail.com
- * @since 05/18/2018
+ * @since 08/03/2018
  */
-public class MetadataConfigurer {
+public class Entity2SchemaTest {
 
+	@Test
+	public void testCreate() throws Exception {
+		new Entity2Schema(UserService.ADMIN_USER).create("测试一把", null);
+	}
 }

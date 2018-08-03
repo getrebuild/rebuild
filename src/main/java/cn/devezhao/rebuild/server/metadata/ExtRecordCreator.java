@@ -10,7 +10,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.record.JsonRecordCreator;
 import cn.devezhao.rebuild.server.Application;
-import cn.devezhao.rebuild.server.service.user.UserService;
+import cn.devezhao.rebuild.server.service.bizuser.UserService;
 
 /**
  * @author Zhao Fangfang
@@ -68,7 +68,10 @@ public class ExtRecordCreator extends JsonRecordCreator {
 				r.setID(createdBy, r.getEditor());
 			}
 			if (entity.containsField(owningUser)) {
-				r.setID(owningUser, Application.getBean(UserService.class).getDeptOfUser(r.getEditor()));
+				r.setID(owningUser, r.getEditor());
+			}
+			if (entity.containsField(owningDept)) {
+				r.setID(owningDept, Application.getBean(UserService.class).getDeptOfUser(r.getEditor()));
 			}
 		}
 	}

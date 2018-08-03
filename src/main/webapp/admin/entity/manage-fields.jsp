@@ -54,7 +54,7 @@
 							</div>
 							<div class="col-sm-6">
 								<div class="dataTables_oper">
-									<button class="btn btn-space btn-primary" data-toggle="modal" data-target="#form-bp"><i class="icon zmdi zmdi-plus"></i> 新建</button>
+									<button class="btn btn-space btn-primary" onclick="rbModal.show('field-edit.htm')"><i class="icon zmdi zmdi-plus"></i> 新建</button>
 									<button class="btn btn-space btn-secondary" disabled="disabled"><i class="icon zmdi zmdi-delete"></i> 删除</button>
 								</div>
 							</div>
@@ -104,6 +104,10 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
+<script src="${baseUrl}/assets/js/rb-list.js" type="text/javascript"></script>
+<script type="text/babel">
+const rbModal = ReactDOM.render(<RbModal title="新建字段" />, $('<div id="react-comps"></div>').appendTo(document.body)[0]);
+</script>
 <script type="text/javascript">
 </script>
 </body>

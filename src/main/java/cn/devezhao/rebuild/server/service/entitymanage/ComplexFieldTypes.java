@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.server.metadata;
+package cn.devezhao.rebuild.server.service.entitymanage;
 
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.dialect.Type;
@@ -24,14 +24,10 @@ import cn.devezhao.persist4j.dialect.Type;
  * @author zhaofang123@gmail.com
  * @since 05/18/2018
  */
-public class FieldTypes {
+public class ComplexFieldTypes {
 	
 	// 文本
 	public static final Type TEXT = FieldType.STRING;
-	
-	// 超大文本
-	public static final Type NTEXT = FieldType.NTEXT;
-	
 	// 数字/整数/浮点数
 	public static final Type NUMBER = FieldType.DOUBLE;
 	

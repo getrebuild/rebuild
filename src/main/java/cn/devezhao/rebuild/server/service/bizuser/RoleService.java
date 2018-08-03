@@ -14,23 +14,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.server;
+package cn.devezhao.rebuild.server.service.bizuser;
 
-import org.junit.Test;
-
+import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
+import cn.devezhao.rebuild.server.service.BaseService;
 
 /**
  * 
  * @author zhaofang123@gmail.com
- * @since 05/19/2018
+ * @since 08/03/2018
  */
-public class StartupTest {
+public class RoleService extends BaseService {
+
+	/**
+	 * 管理员权限
+	 */
+	public static final ID ADMIN_ROLE = ID.valueOf("003-0000000000000001");
 	
-	@Test
-	public void startup() {
-		Application.context();
-		EntityHelper.getEntity(1);
+	protected RoleService(PersistManagerFactory persistManagerFactory) {
+		super(persistManagerFactory);
 	}
-	
+
+	@Override
+	public int getEntity() {
+		return EntityHelper.Role;
+	}
 }

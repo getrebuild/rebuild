@@ -14,23 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.server;
+package cn.devezhao.rebuild.server.service.entitymanage;
 
-import org.junit.Test;
-
+import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
+import cn.devezhao.rebuild.server.service.BaseService;
 
 /**
  * 
  * @author zhaofang123@gmail.com
- * @since 05/19/2018
+ * @since 08/03/2018
  */
-public class StartupTest {
-	
-	@Test
-	public void startup() {
-		Application.context();
-		EntityHelper.getEntity(1);
+public class MetaEntityService extends BaseService {
+
+	protected MetaEntityService(PersistManagerFactory persistManagerFactory) {
+		super(persistManagerFactory);
 	}
-	
+
+	@Override
+	public int getEntity() {
+		return EntityHelper.MetaEntity;
+	}
 }

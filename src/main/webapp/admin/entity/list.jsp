@@ -47,7 +47,7 @@
 					</a>
 				</div>
 				<div class="col-sm-2">
-					<a class="card entity" href="creator.htm">
+					<a class="card entity J_entity-new">
 						<div class="card-body">
 							<div class="float-left"><i class="icon zmdi zmdi-plus"></i></div>
 							<div class="float-left">
@@ -63,7 +63,15 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
+<script type="text/babel">
+const rbModal = ReactDOM.render(<RbModal title="新建实体" />, $('<div id="react-comps"></div>').appendTo(document.body)[0]);
+</script>
 <script type="text/javascript">
+$(document).ready(function(){
+	$('.J_entity-new').click(function(){
+		rbModal.show('entity-new.htm');
+	})
+})
 </script>
 </body>
 </html>

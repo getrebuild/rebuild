@@ -88,13 +88,13 @@ public class EntityHelper {
 	
 	// 实体代码
 
-	public static final int User = 001;
-	public static final int Department = 002;
-	public static final int Role = 003;
-	public static final int RolePrivileges = 004;
-	public static final int RoleMember = 005;
+	public static final int User = 1;
+	public static final int Department = 2;
+	public static final int Role = 3;
+	public static final int RolePrivileges = 4;
+	public static final int RoleMember = 5;
 	
-	public static final int MetaEntity = 010;
-	public static final int MetaField = 011;
+	public static final int MetaEntity = 10;
+	public static final int MetaField = 11;
 	
 }

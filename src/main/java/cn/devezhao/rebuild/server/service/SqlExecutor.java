@@ -109,7 +109,7 @@ public class SqlExecutor {
 		} finally {
 			SqlHelper.close(keyRs);
 			SqlHelper.close(pstmt);
-			SqlHelper.release(connect, factory.getDataSource());
+			SqlHelper.close(connect, factory.getDataSource());
 		}
 	}
 	

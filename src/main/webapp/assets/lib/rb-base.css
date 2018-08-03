@@ -13525,7 +13525,8 @@ canvas {
 
 .page-head {
 	padding: 20px 25px 10px;
-	position: relative
+	position: relative;
+	padding-top: 25px;
 }
 
 @media print {
@@ -21565,7 +21566,7 @@ select.form-control-xs:not([size]):not([multiple]) {
 }
 
 .form-control-sm,.input-group-sm>.form-control,.input-group-sm>.input-group-append>.btn,.input-group-sm>.input-group-append>.input-group-text,.input-group-sm>.input-group-prepend>.btn,.input-group-sm>.input-group-prepend>.input-group-text {
-	height: 37px;
+	height: 37px !important;
 	font-size: 1rem;
 	padding: 4px 12px
 }
