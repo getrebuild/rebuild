@@ -50,13 +50,14 @@
 		<field name="userId" type="reference" ref-entity="User" />
 	</entity>
 	
-	<entity name="MetaEntity" type-code="010" physical-name="">
+	<entity name="MetaEntity" type-code="010">
 		<field name="entityId" type="primary" />
 		<field name="typeCode" type="small-int" nullable="false" />
 		<field name="entityName" type="string" max-length="100" nullable="false" />
 		<field name="physicalName" type="string" max-length="100" nullable="false" />
-		<field name="entityLabel" type="string" max-length="100" nullable="false"/>
-		<field name="description" type="string" max-length="100"/>
+		<field name="entityLabel" type="string" max-length="100" nullable="false" description="for description"/>
+		<field name="comments" type="string" max-length="200"/>
+		<field name="icon" type="string" max-length="60"/>
 		<index type="unique" field-list="typeCode"/>
 		<index type="unique" field-list="entityName"/>
 		<index type="unique" field-list="physicalName"/>
@@ -67,15 +68,17 @@
 		<field name="entityId" type="reference" ref-entity="MetaEntity" cascade="delete" nullable="false" />
 		<field name="fieldName" type="string" max-length="100" nullable="false" />
 		<field name="physicalName" type="string" max-length="100" nullable="false" />
-		<field name="fieldLabel" type="string" max-length="100" nullable="false"/>
-		<field name="type" type="string" nullable="false"/>
+		<field name="fieldLabel" type="string" max-length="100" nullable="false" description="for description"/>
+		<field name="displayType" type="string" max-length="100" description="显示类型.如链接/QQ/电话其实都是文本"/>
 		<field name="nullable" type="bool" default-value="T"/>
 		<field name="creatable" type="bool" default-value="T"/>
 		<field name="updatable" type="bool" default-value="T"/>
 		<field name="precision" type="small-int" default-value="2"/>
-		<field name="maxLength" type="small-int" default-value="200"/>
 		<field name="defaultValue" type="string" max-length="200"/>
-		<field name="description" type="string" max-length="100"/>
+		<field name="maxLength" type="small-int" default-value="200"/>
+		<field name="refEntity" type="string" max-length="100"/>
+		<field name="cascade" type="string" max-length="100" default-value="ignore"/>
+		<field name="comments" type="string" max-length="200"/>
 		<index type="unique" field-list="entityId,fieldName"/>
 		<index type="unique" field-list="entityId,physicalName"/>
 	</entity>

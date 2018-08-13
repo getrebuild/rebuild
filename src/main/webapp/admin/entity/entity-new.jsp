@@ -3,7 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>用户管理</title>
+<title>新建实体</title>
 <style type="text/css">
 .footer{padding-bottom:0 !important;}
 </style>
@@ -12,15 +12,15 @@
 <div class="main-content">
 	<form>
 		<div class="form-group row">
-			<label class="col-12 col-sm-3 col-form-label text-sm-right">实体名称</label>
+			<label class="col-12 col-sm-3 col-form-label text-sm-right">名称</label>
 			<div class="col-12 col-sm-8 col-lg-4">
-				<input class="form-control form-control-sm" type="text" id="entityLabel" maxlength="20">
+				<input class="form-control form-control-sm" type="text" id="entityLabel" maxlength="40">
 			</div>
 		</div>
 		<div class="form-group row">
-			<label class="col-12 col-sm-3 col-form-label text-sm-right">描述</label>
+			<label class="col-12 col-sm-3 col-form-label text-sm-right">备注</label>
 			<div class="col-12 col-sm-8 col-lg-4">
-				<textarea class="form-control form-control-sm row2" id="description" maxlength="100"></textarea>
+				<textarea class="form-control form-control-sm row2" id="comments" maxlength="100" placeholder="可选"></textarea>
 			</div>
 		</div>
 		<div class="form-group row footer">
@@ -36,10 +36,13 @@
 $(document).ready(function(){
 	let btn = $('.btn-primary').click(function(){
 		let entityLabel = $('#entityLabel').val(),
-			desc = $('#description').val();
+			comments = $('#comments').val() || '';
+		if (!entityLabel){
+			alert('请输入名称'); return;
+		}
 		
 		btn.button('loading');
-		$.post('entity-new', { label:entityLabel, desc:desc }, function(res){
+		$.post('entity-new', { label:entityLabel, comments:comments }, function(res){
 			if (res.error_code == 0) parent.location.href = 'manage.htm?entity=' + res.data;
 			else{
 				alert(res);

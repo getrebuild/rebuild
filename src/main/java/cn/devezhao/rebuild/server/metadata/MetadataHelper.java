@@ -14,25 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.server.service.entitymanage;
+package cn.devezhao.rebuild.server.metadata;
 
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.metadata.impl.EntityImpl;
+import cn.devezhao.persist4j.metadata.impl.ConfigurationMetadataFactory;
+import cn.devezhao.rebuild.server.Application;
 
 /**
  * 
  * @author zhaofang123@gmail.com
- * @since 08/04/2018
+ * @since 08/13/2018
  */
-public class UnsafeEntity extends EntityImpl {
-	private static final long serialVersionUID = 2107073554299141281L;
+public class MetadataHelper {
 
-	public UnsafeEntity(String entityName, String physicalName, String entityLabel, int typeCode, String nameField) {
-		super(entityName, physicalName, entityLabel, typeCode, nameField);
-	}
-	
-	@Override
-	public void addField(Field field) {
-		super.addField(field);
+	/**
+	 * 更新元数据缓存
+	 */
+	public static void refreshMetadata() {
+		((ConfigurationMetadataFactory) Application.getMetadataFactory()).refresh(false);
 	}
 }

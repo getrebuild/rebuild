@@ -33,7 +33,7 @@ class RbModal extends React.Component {
     loaded() {
         if (!this.state.url) return;
         let that = this;
-        setTimeoutDelay(function(){
+        $setTimeout(function(){
             let iframe = $(that.refs['rbmodal.iframe']);
             let height = iframe.contents().find('body').height();
             if (height == 0 || height == that.__lastHeight) return;

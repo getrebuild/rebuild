@@ -33,7 +33,7 @@ $(function(){
 	let t = $('.rb-scroller');
 	t.perfectScrollbar();
 	$(window).resize(function(){
-		setTimeoutDelay(function(){
+		$setTimeout(function(){
 			t.perfectScrollbar('update');
 		}, 500, 'rb-scroller-update');
 	});
@@ -43,12 +43,27 @@ $(function(){
 	})
 });
 
-const __setTimeoutDelayHolds = {};
-const setTimeoutDelay = function(e, t, id){
-	if (id && __setTimeoutDelayHolds[id]){
-		clearTimeout(__setTimeoutDelayHolds[id]);
-		__setTimeoutDelayHolds[id] = null;
+const $__setTimeoutHolds = {};
+/* 不会重复执行的 setTimeout
+ */
+const $setTimeout = function(e, t, id){
+	if (id && $__setTimeoutHolds[id]){
+		clearTimeout($__setTimeoutHolds[id]);
+		$__setTimeoutHolds[id] = null;
 	}
-	let ttt = setTimeout(e, t);
-	if (id) __setTimeoutDelayHolds[id] = ttt;
+	let timer = setTimeout(e, t);
+	if (id) $__setTimeoutHolds[id] = timer;
+};
+
+/* 获取 URL 参数
+ */
+const $urlp = function(key, qstr) {
+	qstr = qstr || window.location.search;
+	if (!qstr) return (!key || key == '*') ? {} : null;
+	qstr = qstr.replace(/%20/g, ' ');
+	qstr = qstr.substr(1);
+	var param = qstr.split('&');
+	var map = new Object();
+	for (var i = 0, j = param.length; i < j; i++){ var pl=param[i].split('='); map[pl[0]] = pl[1]; }
+	return (!key || key == '*') ? map : map[key];
 };

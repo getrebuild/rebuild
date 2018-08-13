@@ -16,23 +16,11 @@ limitations under the License.
 
 package cn.devezhao.rebuild.server.service.entitymanage;
 
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.metadata.impl.EntityImpl;
-
 /**
  * 
  * @author zhaofang123@gmail.com
- * @since 08/04/2018
+ * @since 08/13/2018
  */
-public class UnsafeEntity extends EntityImpl {
-	private static final long serialVersionUID = 2107073554299141281L;
+public class Field2Schema {
 
-	public UnsafeEntity(String entityName, String physicalName, String entityLabel, int typeCode, String nameField) {
-		super(entityName, physicalName, entityLabel, typeCode, nameField);
-	}
-	
-	@Override
-	public void addField(Field field) {
-		super.addField(field);
-	}
 }

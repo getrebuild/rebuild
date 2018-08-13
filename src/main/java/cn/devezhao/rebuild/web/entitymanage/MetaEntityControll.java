@@ -17,6 +17,10 @@ limitations under the License.
 package cn.devezhao.rebuild.web.entitymanage;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,7 +28,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.rebuild.server.Application;
+import cn.devezhao.rebuild.server.metadata.EasyMeta;
+import cn.devezhao.rebuild.server.metadata.EntityHelper;
 import cn.devezhao.rebuild.server.service.entitymanage.Entity2Schema;
 import cn.devezhao.rebuild.web.commons.BaseControll;
 
@@ -41,13 +50,79 @@ public class MetaEntityControll extends BaseControll {
 	public void entityNew(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		String label = getParameterNotNull(request, "label");
-		String desc = getParameter(request, "desc");
+		String comments = getParameter(request, "comments");
 		
-		String entityName = new Entity2Schema(user).create(label, desc);
+		String entityName = new Entity2Schema(user).create(label, comments);
 		if (entityName != null) {
 			writeSuccess(response, entityName);
 		} else {
 			writeFailure(response);
 		}
+	}
+	
+	@RequestMapping("list-entity")
+	public void listEntity(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		List<Map<String, Object>> ret = new ArrayList<>();
+		for (Entity entity : Application.getMetadataFactory().getEntities()) {
+			EasyMeta easyMeta = new EasyMeta(entity);
+			if (easyMeta.isBuiltin()) {
+				continue;
+			}
+			Map<String, Object> map = new HashMap<>();
+			map.put("entityName", easyMeta.getName());
+			map.put("entityLabel", easyMeta.getLabel());
+			map.put("comments", easyMeta.getComments());
+			map.put("icon", easyMeta.getIcon());
+			ret.add(map);
+		}
+		writeSuccess(response, ret);
+	}
+	
+	@RequestMapping("baseinfo")
+	public void baseInfo(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String entityName = getParameter(request, "entity");
+		Entity entity = EntityHelper.getEntity(entityName);
+		if (entity == null) {
+			writeFailure(response, "无效实体");
+			return;
+		}
+		
+		EasyMeta easyMeta = new EasyMeta(entity);
+		Map<String, Object> ret = new HashMap<>();
+		ret.put("entityName", easyMeta.getName());
+		ret.put("entityLabel", easyMeta.getLabel());
+		ret.put("comments", easyMeta.getComments());
+		writeSuccess(response, ret);
+	}
+	
+	@RequestMapping("list-field")
+	public void listField(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String entityName = getParameter(request, "entity");
+		Entity entity = EntityHelper.getEntity(entityName);
+		if (entity == null) {
+			writeFailure(response, "无效实体");
+			return;
+		}
+		
+		List<Map<String, Object>> ret = new ArrayList<>();
+		for (Field field : entity.getFields()) {
+			EasyMeta easyMeta = new EasyMeta(field);
+			if (easyMeta.isBuiltin()) {
+				continue;
+			}
+			
+			Map<String, Object> map = new HashMap<>();
+			map.put("fieldName", easyMeta.getName());
+			map.put("fieldLabel", easyMeta.getLabel());
+			map.put("displayType", easyMeta.getDisplayType());
+			map.put("comments", easyMeta.getComments());
+			ret.add(map);
+		}
+		writeSuccess(response, ret);
+	}
+	
+	@RequestMapping("list-layout")
+	public void listLayout(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		// TODO 布局
 	}
 }

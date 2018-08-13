@@ -40,11 +40,20 @@
 			</div>
         </aside>
 		<div class="main-content container-fluid">
+			<h3 class="text-center">暂未开放</h3>
 		</div>
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script type="text/javascript">
+$(document).ready(function(){
+	let entity = $urlp('entity');
+	$('.aside-nav a').each(function(){
+		let that = $(this);
+		that.attr('href', that.attr('href') + '?entity=' + entity);
+	});
+	
+});
 </script>
 </body>
 </html>

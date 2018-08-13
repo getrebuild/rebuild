@@ -61,7 +61,7 @@
 						</div>
 						<div class="row rb-datatable-body">
 							<div class="col-sm-12">
-								<table class="table" id="dataList" data-entity="User">
+								<table class="table" id="dataList" data-entity="MetaField">
 									<thead>
 										<tr>
 											<th width="50">
@@ -69,8 +69,9 @@
 													<input class="custom-control-input" type="checkbox"><span class="custom-control-label"></span>
 												</label>
 											</th>
-											<th data-filed="loginName">字段名称</th>
-											<th data-field="email">内部名称</th>
+											<th data-filed="fieldLabel">字段名称</th>
+											<th data-field="fieldName">内部标识</th>
+											<th data-field="type">类型</th>
 											<th data-field="createdOn">创建时间</th>
 										</tr>
 									</thead>
@@ -109,6 +110,25 @@
 const rbModal = ReactDOM.render(<RbModal title="新建字段" />, $('<div id="react-comps"></div>').appendTo(document.body)[0]);
 </script>
 <script type="text/javascript">
+$(document).ready(function(){
+	let entity = $urlp('entity');
+	$('.aside-nav a').each(function(){
+		let that = $(this);
+		that.attr('href', that.attr('href') + '?entity=' + entity);
+	});
+	
+	$.get('list-field?entity=' + entity, function(res){
+		let tbody = $('#dataList tbody');
+		$(res.data).each(function(){
+			let tr = $('<tr></tr>').appendTo(tbody);
+			$('<td data-id="' + 'x' + '"><label class="custom-control custom-control-sm custom-checkbox"><input class="custom-control-input" type="checkbox"><span class="custom-control-label"></span></label></td>').appendTo(tr);
+			$('<td>' + this.fieldLabel + '</td>').appendTo(tr);
+			$('<td>' + this.fieldName + '</td>').appendTo(tr);
+			$('<td>' + this.type + '</td>').appendTo(tr);
+			$('<td>' + this.description + '</td>').appendTo(tr);
+		});
+	});
+});
 </script>
 </body>
 </html>

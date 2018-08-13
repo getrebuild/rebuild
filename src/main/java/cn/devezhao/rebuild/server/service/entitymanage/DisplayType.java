@@ -24,31 +24,34 @@ import cn.devezhao.persist4j.dialect.Type;
  * @author zhaofang123@gmail.com
  * @since 05/18/2018
  */
-public class ComplexFieldTypes {
+public enum DisplayType {
 	
-	// 文本
-	public static final Type TEXT = FieldType.STRING;
-	// 数字/整数/浮点数
-	public static final Type NUMBER = FieldType.DOUBLE;
+	NUMBER("整数", FieldType.LONG),
+	DECIMAL("货币", FieldType.DECIMAL),
+	DATETIME("日期", FieldType.TIMESTAMP),
+	PICKLIST("下拉列表", FieldType.INT),
+	TEXT("文本", FieldType.STRING),
+	QQ("QQ", FieldType.STRING),
+	EMAIL("邮箱", FieldType.STRING),
+	URL("链接", FieldType.STRING),
+	LOCATION("位置", FieldType.STRING),
+	IMAGE("图片", FieldType.STRING),
+	ID("主键", FieldType.PRIMARY),
+	REFERENCE("引用", FieldType.REFERENCE);
 	
-	// 下拉列表
-	public static final Type PICKLIST = FieldType.INT;
+	private String displayName;
+	private Type fieldType;
 	
-	// 日期/日期时间
-	public static final Type DATETIME = FieldType.TIMESTAMP;
+	private DisplayType(String displayName, Type fieldType) {
+		this.displayName = displayName;
+		this.fieldType = fieldType;
+	}
 	
-	// QQ
-	public static final Type QQ = FieldType.STRING;
+	public String getDisplayName() {
+		return displayName;
+	}
 	
-	// 邮箱
-	public static final Type EMAIL = FieldType.STRING;
-	
-	// 链接
-	public static final Type URL = FieldType.STRING;
-	
-	// 位置
-	public static final Type LOCATION = FieldType.STRING;
-	
-	// 图片
-	public static final Type IMAGE = FieldType.STRING;
+	public Type getFieldType() {
+		return fieldType;
+	}
 }

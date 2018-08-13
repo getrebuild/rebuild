@@ -47,21 +47,27 @@
 				<div class="card-body">
 					<form>
 						<div class="form-group row">
+							<label class="col-12 col-sm-2 col-form-label text-sm-right">图标</label>
+							<div class="col-12 col-sm-8 col-lg-4">
+								<input class="form-control form-control-sm" type="text" id="entityLabel">
+							</div>
+						</div>
+						<div class="form-group row">
 							<label class="col-12 col-sm-2 col-form-label text-sm-right">实体名称</label>
 							<div class="col-12 col-sm-8 col-lg-4">
-								<input class="form-control form-control-sm" type="text">
+								<input class="form-control form-control-sm" type="text" id="entityLabel">
 							</div>
 						</div>
 						<div class="form-group row">
-							<label class="col-12 col-sm-2 col-form-label text-sm-right">系统标识</label>
+							<label class="col-12 col-sm-2 col-form-label text-sm-right">内部标识</label>
 							<div class="col-12 col-sm-8 col-lg-4">
-								<input class="form-control form-control-sm" type="text" readonly="readonly">
+								<input class="form-control form-control-sm" type="text" readonly="readonly" id="entityName">
 							</div>
 						</div>
 						<div class="form-group row">
-							<label class="col-12 col-sm-2 col-form-label text-sm-right">描述</label>
+							<label class="col-12 col-sm-2 col-form-label text-sm-right">备注</label>
 							<div class="col-12 col-sm-8 col-lg-4">
-								<textarea class="form-control form-control-sm row2"></textarea>
+								<textarea class="form-control form-control-sm row2" id="comments"></textarea>
 							</div>
 						</div>
 						<div class="form-group row footer">
@@ -78,6 +84,19 @@
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script type="text/javascript">
+$(document).ready(function(){
+	let entity = $urlp('entity');
+	$('.aside-nav a').each(function(){
+		let that = $(this);
+		that.attr('href', that.attr('href') + '?entity=' + entity);
+	});
+	
+	$.get('baseinfo?entity=' + entity, function(res){
+		$('#entityLabel').val(res.data.entityLabel);
+		$('#entityName').val(res.data.entityName);
+		$('#comments').val(res.data.comments);
+	});
+});
 </script>
 </body>
 </html>

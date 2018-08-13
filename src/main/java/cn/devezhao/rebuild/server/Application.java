@@ -51,6 +51,11 @@ public class Application {
 		Security.addProvider(new BouncyCastleProvider());
 		APPLICATION_CTX = ctx;
 		APPLICATION_CTX.getBeansOfType(Object.class);
+		
+		// 自定义实体
+//		LOG.info("Loading custom entity ...");
+//		MetadataHelper.refreshMetadata();
+//		
 		LOG.warn("Rebuild Booting successful.");
 	}
 	
