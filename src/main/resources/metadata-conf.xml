@@ -4,24 +4,24 @@
 <metadata-config schema-name-optimize="true" default-parent="SystemCommon">
 
 	<entity name="SystemCommon" type-code="000">
-		<field name="createdOn" type="timestamp" nullable="false" updatable="false" />
-		<field name="createdBy" type="reference" ref-entity="User" nullable="false" updatable="false" />
-		<field name="modifiedOn" type="timestamp" nullable="false" />
-		<field name="modifiedBy" type="reference" ref-entity="User" nullable="false" />
-		<field name="owningUser" type="reference" ref-entity="User" nullable="false" />
-		<field name="owningDept" type="reference" ref-entity="Department" nullable="false" />
+		<field name="createdOn" type="timestamp" nullable="false" updatable="false" description="创建时间" />
+		<field name="createdBy" type="reference" ref-entity="User" nullable="false" updatable="false" description="创建人" />
+		<field name="modifiedOn" type="timestamp" nullable="false" description="更新时间" />
+		<field name="modifiedBy" type="reference" ref-entity="User" nullable="false" description="更新人" />
+		<field name="owningUser" type="reference" ref-entity="User" nullable="false" description="所属用户" />
+		<field name="owningDept" type="reference" ref-entity="Department" nullable="false" description="所属部门" />
 	</entity>
 
 	<entity name="User" type-code="001" description="用户">
 		<field name="userId" type="primary" />
-		<field name="loginName" type="string" max-length="100" nullable="false" />
-		<field name="email" type="string" max-length="100" />
-		<field name="password" type="string" max-length="100" nullable="false" />
-		<field name="fullName" type="string" max-length="100" />
-		<field name="avatarUrl" type="string" max-length="300" />
-		<field name="jobTitle" type="string" max-length="100" />
-		<field name="deptId" type="reference" ref-entity="Department" nullable="false" />
-		<field name="isDisabled" type="bool" default-value="T" />
+		<field name="loginName" type="string" max-length="100" nullable="false" description="登录名" />
+		<field name="email" type="string" max-length="100" description="邮箱"/>
+		<field name="password" type="string" max-length="100" nullable="false" description="登录密码"/>
+		<field name="fullName" type="string" max-length="100" description="姓名"/>
+		<field name="avatarUrl" type="string" max-length="300" description="头像"/>
+		<field name="jobTitle" type="string" max-length="100" description="职务"/>
+		<field name="deptId" type="reference" ref-entity="Department" nullable="false" description="所在部门"/>
+		<field name="isDisabled" type="bool" default-value="T" description="是否禁用"/>
 		<index type="unique" field-list="loginName"/>
 		<index type="unique" field-list="email"/>
 	</entity>
@@ -65,7 +65,7 @@
 	
 	<entity name="MetaField" type-code="011">
 		<field name="fieldId" type="primary" />
-		<field name="entityId" type="reference" ref-entity="MetaEntity" cascade="delete" nullable="false" />
+		<field name="belongEntity" type="string" max-length="100" nullable="false" />
 		<field name="fieldName" type="string" max-length="100" nullable="false" />
 		<field name="physicalName" type="string" max-length="100" nullable="false" />
 		<field name="fieldLabel" type="string" max-length="100" nullable="false" description="for description"/>
@@ -75,12 +75,12 @@
 		<field name="updatable" type="bool" default-value="T"/>
 		<field name="precision" type="small-int" default-value="2"/>
 		<field name="defaultValue" type="string" max-length="200"/>
-		<field name="maxLength" type="small-int" default-value="200"/>
+		<field name="maxLength" type="small-int" default-value="600"/>
 		<field name="refEntity" type="string" max-length="100"/>
 		<field name="cascade" type="string" max-length="100" default-value="ignore"/>
 		<field name="comments" type="string" max-length="200"/>
-		<index type="unique" field-list="entityId,fieldName"/>
-		<index type="unique" field-list="entityId,physicalName"/>
+		<index type="unique" field-list="belongEntity,fieldName"/>
+		<index type="unique" field-list="belongEntity,physicalName"/>
 	</entity>
 	
 </metadata-config>

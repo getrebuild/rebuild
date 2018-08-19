@@ -43,7 +43,7 @@ $(document).ready(function(){
 		
 		btn.button('loading');
 		$.post('entity-new', { label:entityLabel, comments:comments }, function(res){
-			if (res.error_code == 0) parent.location.href = 'manage.htm?entity=' + res.data;
+			if (res.error_code == 0) parent.location.href = res.data + '/base';
 			else{
 				alert(res);
 				btn.button('reset');

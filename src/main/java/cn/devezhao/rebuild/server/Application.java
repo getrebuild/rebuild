@@ -27,6 +27,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.metadata.MetadataFactory;
+import cn.devezhao.rebuild.server.metadata.MetadataHelper;
 import cn.devezhao.rebuild.server.service.CommonService;
 import cn.devezhao.rebuild.server.service.QueryFactory;
 import cn.devezhao.rebuild.server.service.SqlExecutor;
@@ -53,9 +54,9 @@ public class Application {
 		APPLICATION_CTX.getBeansOfType(Object.class);
 		
 		// 自定义实体
-//		LOG.info("Loading custom entity ...");
-//		MetadataHelper.refreshMetadata();
-//		
+		LOG.info("Loading custom entity ...");
+		MetadataHelper.refreshMetadata();
+		
 		LOG.warn("Rebuild Booting successful.");
 	}
 	

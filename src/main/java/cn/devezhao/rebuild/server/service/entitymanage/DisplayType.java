@@ -28,7 +28,7 @@ public enum DisplayType {
 	
 	NUMBER("整数", FieldType.LONG),
 	DECIMAL("货币", FieldType.DECIMAL),
-	DATETIME("日期", FieldType.TIMESTAMP),
+	DATETIME("日期时间", FieldType.TIMESTAMP),
 	PICKLIST("下拉列表", FieldType.INT),
 	TEXT("文本", FieldType.STRING),
 	QQ("QQ", FieldType.STRING),
@@ -53,5 +53,10 @@ public enum DisplayType {
 	
 	public Type getFieldType() {
 		return fieldType;
+	}
+	
+	@Override
+	public String toString() {
+		return getDisplayName() + " (" + name().toUpperCase() + ")";
 	}
 }

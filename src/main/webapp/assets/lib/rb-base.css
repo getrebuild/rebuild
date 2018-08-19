@@ -13006,435 +13006,6 @@ canvas {
 	}
 }
 
-.tab-chat {
-	white-space: nowrap;
-	font-size: 0;
-	width: 290px
-}
-
-.tab-chat h2 {
-	margin: 30px 20px 15px;
-	line-height: 1.1
-}
-
-.tab-chat .contact-list {
-	font-size: .9231rem
-}
-
-.tab-chat .contact-list .user a {
-	display: block;
-	padding: 11px 25px;
-	overflow: hidden
-}
-
-.tab-chat .contact-list .user a img {
-	width: 30px;
-	height: 30px;
-	border-radius: 50%;
-	float: left
-}
-
-.tab-chat .contact-list .user a .user-data,.tab-chat .contact-list .user a .user-data2 {
-	padding-left: 40px;
-	line-height: 16px
-}
-
-.tab-chat .contact-list .user a .user-data .status,.tab-chat .contact-list .user a .user-data2 .status {
-	background-color: #00b777;
-	border-radius: 50%;
-	float: right;
-	width: 7px;
-	height: 7px;
-	position: relative;
-	top: 5px
-}
-
-.tab-chat .contact-list .user a .user-data .status.offline,.tab-chat .contact-list .user a .user-data2 .status.offline {
-	background-color: #e65a5a
-}
-
-.tab-chat .contact-list .user a .user-data .status.away,.tab-chat .contact-list .user a .user-data2 .status.away {
-	background-color: #f2c329
-}
-
-.tab-chat .contact-list .user a .user-data .name,.tab-chat .contact-list .user a .user-data2 .name {
-	color: #404040;
-	font-weight: 500;
-	font-size: 1rem
-}
-
-.tab-chat .contact-list .user a .user-data .message,.tab-chat .contact-list .user a .user-data2 .message {
-	display: block;
-	color: #999;
-	font-size: 1rem
-}
-
-.tab-chat .contact-list .user a .user-data2 {
-	margin-top: 7px
-}
-
-.tab-chat .contact-list .user a:hover {
-	background-color: #f5f5f5
-}
-
-.tab-chat .contact-list-recent {
-	margin-bottom: 30px
-}
-
-.tab-chat .chat-contacts,.tab-chat .chat-window {
-	height: 100%;
-	width: 100%;
-	display: table;
-	table-layout: fixed;
-	position: absolute;
-	left: 0;
-	-webkit-transition: left .3s ease;
-	transition: left .3s ease
-}
-
-.tab-chat .chat-contacts .chat-sections {
-	height: 100%;
-	display: table-row
-}
-
-.tab-chat .chat-contacts .chat-sections .rb-scroller {
-	position: relative;
-	width: 100%;
-	height: 100%;
-	overflow: hidden
-}
-
-.tab-chat .chat-contacts .chat-sections .content {
-	position: absolute;
-	width: 100%;
-	top: 0;
-	bottom: 0
-}
-
-.tab-chat .chat-contacts .search {
-	position: relative
-}
-
-.tab-chat .chat-window {
-	height: 100%;
-	left: 290px;
-	display: table;
-	table-layout: fixed
-}
-
-.tab-chat .chat-window .title {
-	padding: 20px 10px;
-	padding-right: 20px;
-	overflow: hidden
-}
-
-.tab-chat .chat-window .title .icon {
-	font-size: 2.077rem;
-	width: 27px;
-	text-align: center;
-	color: #b3b3b3;
-	position: relative;
-	vertical-align: middle;
-	cursor: pointer
-}
-
-.tab-chat .chat-window .title .user {
-	display: inline-block;
-	float: right;
-	text-align: right;
-	line-height: 13px
-}
-
-.tab-chat .chat-window .title .user img {
-	height: 35px;
-	width: 35x;
-	border-radius: 50%;
-	float: right;
-	margin-left: 10px
-}
-
-.tab-chat .chat-window .title .user h2 {
-	display: inline-block;
-	margin: 0;
-	padding: 0;
-	border: 0
-}
-
-.tab-chat .chat-window .title .user span {
-	display: block;
-	font-size: .9231rem;
-	color: #999
-}
-
-.tab-chat .chat-window .chat-messages {
-	height: 100%;
-	display: table-row;
-	font-size: 1rem
-}
-
-.tab-chat .chat-window .chat-messages .rb-scroller {
-	position: relative;
-	width: 100%;
-	height: 100%;
-	overflow: hidden;
-	outline: 0
-}
-
-.tab-chat .chat-window .chat-messages .content {
-	position: absolute;
-	width: 100%;
-	top: 0;
-	bottom: 0
-}
-
-.tab-chat .chat-window .chat-messages ul {
-	outline: 0;
-	margin: 0;
-	padding: 0
-}
-
-.tab-chat .chat-window .chat-messages ul>li {
-	display: block;
-	list-style: none;
-	padding: 9px 16px
-}
-
-.tab-chat .chat-window .chat-messages ul>li .msg {
-	position: relative;
-	display: inline-block;
-	background-color: #4c8bf5;
-	color: #fff;
-	font-size: 1rem;
-	padding: 6px 8px;
-	border-radius: 3px;
-	white-space: normal;
-	text-align: left;
-	margin-left: 40px
-}
-
-.tab-chat .chat-window .chat-messages ul>li .msg:after {
-	content: "";
-	position: absolute;
-	right: -5px;
-	top: 7px;
-	border-bottom: 6px solid transparent;
-	border-left: 6px solid #4c8bf5;
-	border-top: 6px solid transparent
-}
-
-.tab-chat .chat-window .chat-messages ul>li.friend .msg {
-	background-color: #f0f0f0;
-	color: #595858;
-	margin-left: 0;
-	margin-right: 40px
-}
-
-.tab-chat .chat-window .chat-messages ul>li.friend .msg:after {
-	right: auto;
-	left: -5px;
-	border-left-width: 0;
-	border-right: 5px solid #f0f0f0
-}
-
-.tab-chat .chat-window .chat-messages ul>li.self {
-	text-align: right
-}
-
-.tab-chat .chat-window .chat-input {
-	position: relative
-}
-
-.tab-chat .chat-window .chat-input .input-wrapper {
-	border-top: 1px solid #f2f2f2
-}
-
-.tab-chat .chat-window .chat-input .input-wrapper>input {
-	border: 0;
-	background-color: #fafafa;
-	color: #b3b3b3;
-	width: 100%;
-	font-size: 1rem;
-	font-weight: 300;
-	padding: 15px 20px;
-	padding-left: 42px;
-	padding-right: 40px;
-	outline: 0
-}
-
-.tab-chat .chat-window .chat-input .input-wrapper>span {
-	position: absolute;
-	color: #aaa;
-	right: 15px;
-	top: 50%;
-	font-size: 1.538rem;
-	margin-top: -10px;
-	cursor: pointer
-}
-
-.tab-chat .chat-window .chat-input .input-wrapper>span:hover {
-	color: #d1d1d1
-}
-
-.tab-chat .chat-window .chat-input .input-wrapper .photo {
-	left: 15px;
-	font-size: 1.692rem;
-	top: 50%;
-	right: auto
-}
-
-.tab-chat.chat-opened .chat-contacts {
-	left: -290px
-}
-
-.tab-chat.chat-opened .chat-window {
-	left: 0
-}
-
-.tab-todo .todo-container {
-	height: 100%;
-	display: table;
-	table-layout: fixed;
-	width: 100%
-}
-
-.tab-todo .todo-wrapper {
-	display: table-row;
-	height: 100%
-}
-
-.tab-todo .rb-scroller {
-	position: relative;
-	overflow: hidden;
-	height: 100%
-}
-
-.tab-todo .todo-content {
-	padding: 10px 20px 0;
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%
-}
-
-.tab-todo .category-title {
-	display: block;
-	font-size: 1.154rem;
-	font-weight: 400;
-	color: gray;
-	padding-top: 15px;
-	padding-bottom: 15px;
-	border-bottom: 1px solid #ebebeb;
-	margin-bottom: 15px
-}
-
-.todo-list {
-	list-style: none;
-	padding: 4px 0 1px;
-	margin-bottom: 15px
-}
-
-.todo-list>li {
-	margin: 0;
-	padding: 0
-}
-
-.todo-list>li .custom-checkbox {
-	display: block;
-	margin-right: 4px
-}
-
-.todo-list>li .custom-checkbox.custom-control {
-	margin-bottom: 1rem
-}
-
-.todo-list>li .custom-checkbox input[type=checkbox]~.custom-control-label {
-	display: block;
-	cursor: pointer;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	line-height: 1.4
-}
-
-.todo-list>li .custom-checkbox input[type=checkbox]~.custom-control-label::before {
-	margin-right: 8px
-}
-
-.todo-list>li .custom-checkbox input[type=checkbox]:checked~.custom-control-label {
-	text-decoration: line-through;
-	color: #999
-}
-
-.todo-list>li .custom-checkbox .delete {
-	display: none;
-	float: right;
-	font-size: 1.308rem;
-	color: #b3b3b3;
-	line-height: 22px;
-	margin-left: 5px;
-	cursor: pointer
-}
-
-.todo-list>li .custom-checkbox .delete:hover {
-	color: gray
-}
-
-.todo-list>li .custom-checkbox:hover .delete {
-	display: inline-block
-}
-
-.tab-settings .settings-wrapper {
-	position: relative;
-	height: 100%;
-	overflow: hidden
-}
-
-.tab-settings .rb-scroller {
-	padding: 10px 20px 0;
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%
-}
-
-.tab-settings .category-title {
-	display: block;
-	font-size: 1.154rem;
-	font-weight: 400;
-	color: gray;
-	padding-top: 15px;
-	padding-bottom: 15px;
-	border-bottom: 1px solid #ebebeb;
-	margin-bottom: 15px
-}
-
-.settings-list {
-	list-style: none;
-	padding-left: 0;
-	margin-bottom: 15px
-}
-
-.settings-list>li {
-	margin: 0;
-	padding: 5px 0;
-	line-height: 24px;
-	font-size: 1.077rem
-}
-
-.settings-list>li .name {
-	display: block;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap
-}
-
-.settings-list>li .switch-button {
-	float: right;
-	margin-left: 5px
-}
-
 .rb-content {
 	position: relative;
 	left: 0;
@@ -21058,17 +20629,23 @@ pre code {
 }
 
 .table tr td.actions,.table tr th.actions {
-	text-align: center
+	text-align: center;
+	text-align: right;
 }
 
 .table tr td.actions .icon,.table tr th.actions .icon {
 	color: #a1a1a1;
 	font-size: 1.3846rem;
-	line-height: 18px
+	line-height: 18px;
+	padding: 0 4px;
 }
 
 .table tr td.actions .icon:hover,.table tr th.actions .icon:hover {
 	color: gray
+}
+
+.table tr td.actions .icon+.icon,.table tr th.actions .icon+.icon{
+	margin-left: 6px;
 }
 
 .table tbody tr td.user-avatar img {
@@ -21765,11 +21342,15 @@ select.form-control-xs:not([size]):not([multiple]) {
 
 .rb-error .error-number {
 	display: block;
-	font-size: 11.54rem;
+	font-size: 6.923rem;
 	font-weight: 700;
-	line-height: 240px;
+	line-height: 100px;
 	margin-bottom: 30px;
-	max-height: 240px
+	max-height: 240px;
+	padding: 20px 0;
+	font-size: 6.923rem;
+	margin-bottom: 10px;
+	line-height: 100px
 }
 
 .rb-error .error-number:after {
@@ -21820,11 +21401,6 @@ select.form-control-xs:not([size]):not([multiple]) {
 .rb-error .error-goback-button .btn {
 	min-width: 153px;
 	text-align: center
-}
-
-.rb-error-404 .error-container .error-number {
-	background: url(../img/404-bg.png) no-repeat center center;
-	background-size: contain
 }
 
 @media (max-width:575.98px) {

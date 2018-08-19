@@ -21,18 +21,11 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.github.stuxuhai.jpinyin.PinyinException;
-import com.github.stuxuhai.jpinyin.PinyinFormat;
-import com.github.stuxuhai.jpinyin.PinyinHelper;
-
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.Dialect;
 import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.persist4j.metadata.CascadeModel;
-import cn.devezhao.persist4j.metadata.impl.FieldImpl;
 import cn.devezhao.persist4j.util.StringHelper;
 import cn.devezhao.persist4j.util.support.Table;
 import cn.devezhao.rebuild.server.Application;
@@ -45,17 +38,20 @@ import cn.devezhao.rebuild.server.metadata.MetadataHelper;
  * @author zhaofang123@gmail.com
  * @since 08/03/2018
  */
-public class Entity2Schema {
+public class Entity2Schema extends Field2Schema {
 
 	private static final Log LOG = LogFactory.getLog(Entity2Schema.class);
-	
-	final private ID user;
 	
 	/**
 	 * @param user
 	 */
 	public Entity2Schema(ID user) {
-		this.user = user;
+		super(user);
+	}
+	
+	@Override
+	public String create(Entity entity, String fieldLabel, DisplayType type, String comments) {
+		throw new UnsupportedOperationException();
 	}
 	
 	/**
@@ -76,6 +72,7 @@ public class Entity2Schema {
 				break;
 			}
 		}
+		
 		String physicalName = "T__" + StringHelper.hyphenate(entityName).toUpperCase();
 		
 		Object maxTypeCode[] = Application.createQuery(
@@ -92,67 +89,27 @@ public class Entity2Schema {
 			record.setString("comments", comments);
 		}
 		record = Application.getCommonService().create(record);
-		ID metaEntityId = record.getPrimary();
+		tempMetaId.add(record.getPrimary());
 		
 		Entity unsafeEntity = new UnsafeEntity(entityName, physicalName, entityLabel, typeCode, null);
 		
 		String primaryFiled = entityName + "Id";
-		createField(unsafeEntity, metaEntityId, primaryFiled, "ID", DisplayType.ID, false, false, false, null, null);
-		createField(unsafeEntity, metaEntityId, ExtRecordCreator.createdOn, "创建人", DisplayType.REFERENCE, false, false, false, "User", null);
-		createField(unsafeEntity, metaEntityId, ExtRecordCreator.createdBy, "创建时间", DisplayType.DATETIME, false, false, false, null, null);
-		createField(unsafeEntity, metaEntityId, ExtRecordCreator.modifiedBy, "修改人", DisplayType.REFERENCE, false, false, true, "User", null);
-		createField(unsafeEntity, metaEntityId, ExtRecordCreator.modifiedOn, "修改时间", DisplayType.DATETIME, false, false, true, null, null);
-		createField(unsafeEntity, metaEntityId, ExtRecordCreator.owningUser, "所属用户", DisplayType.REFERENCE, false, false, true, "User", null);
-		createField(unsafeEntity, metaEntityId, ExtRecordCreator.owningDept, "所属部门", DisplayType.REFERENCE, false, false, true, "Department", null);
+		createField(unsafeEntity, primaryFiled, "ID", DisplayType.ID, false, false, false, null, "内建字段");
+		createField(unsafeEntity, ExtRecordCreator.createdBy, "创建人", DisplayType.REFERENCE, false, false, false, "User", "内建字段");
+		createField(unsafeEntity, ExtRecordCreator.createdOn, "创建时间", DisplayType.DATETIME, false, false, false, null, "内建字段");
+		createField(unsafeEntity, ExtRecordCreator.modifiedBy, "修改人", DisplayType.REFERENCE, false, false, true, "User", "内建字段");
+		createField(unsafeEntity, ExtRecordCreator.modifiedOn, "修改时间", DisplayType.DATETIME, false, false, true, null, "内建字段");
+		createField(unsafeEntity, ExtRecordCreator.owningUser, "所属用户", DisplayType.REFERENCE, false, false, true, "User", "内建字段");
+		createField(unsafeEntity, ExtRecordCreator.owningDept, "所属部门", DisplayType.REFERENCE, false, false, true, "Department", "内建字段");
 		
 		boolean schemaReady = schema2Database(unsafeEntity);
 		if (!schemaReady) {
-			Application.getCommonService().delete(metaEntityId);
+			Application.getCommonService().delete(tempMetaId.toArray(new ID[tempMetaId.size()]));
 			return null;
 		}
 		
 		MetadataHelper.refreshMetadata();
 		return entityName;
-	}
-	
-	/**
-	 * @param unsafeEntity
-	 * @param entityId
-	 * @param fieldName
-	 * @param fieldLabel
-	 * @param displayType
-	 * @param nullable
-	 * @param creatable
-	 * @param updatable
-	 * @param refEntity
-	 * @param comments
-	 * @return
-	 */
-	protected ID createField(Entity unsafeEntity, ID entityId, String fieldName, String fieldLabel, DisplayType displayType,
-			boolean nullable, boolean creatable, boolean updatable, String refEntity, String comments) {
-		Record record = EntityHelper.forNew(EntityHelper.MetaField, user);
-		record.setID("entityId", entityId);
-		record.setString("fieldName", fieldName);
-		String physicalName = StringHelper.hyphenate(fieldName).toUpperCase();
-		record.setString("physicalName", physicalName);
-		record.setString("fieldLabel", fieldLabel);
-		record.setString("displayType", displayType.name());
-		record.setBoolean("nullable", nullable);
-		record.setBoolean("creatable", creatable);
-		record.setBoolean("updatable", updatable);
-		if (StringUtils.isNotBlank(comments)) {
-			record.setString("comments", comments);
-		}
-		if (StringUtils.isNotBlank(refEntity)) {
-			record.setString("refEntity", refEntity);
-		}
-		
-		record = Application.getCommonService().create(record);
-		
-		Field unsafeField = new FieldImpl(fieldName, physicalName, fieldLabel, unsafeEntity, displayType.getFieldType(), CascadeModel.Ignore, 0, nullable, updatable, 0, null, false);
-		((UnsafeEntity) unsafeEntity).addField(unsafeField);
-		
-		return record.getPrimary();
 	}
 	
 	/**
@@ -170,18 +127,5 @@ public class Entity2Schema {
 			return false;
 		}
 		return true;
-	}
-	
-	// 中文 -> 拼音
-	// 去除空格
-	private String toPinyinString(String text) {
-		try {
-			text = PinyinHelper.convertToPinyinString(text, "", PinyinFormat.WITHOUT_TONE);
-			text = StringUtils.trimToEmpty(text);
-			text = text.replace(" ", "");
-			return text;
-		} catch (PinyinException e) {
-			throw new RuntimeException(text, e);
-		}
 	}
 }

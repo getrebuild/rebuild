@@ -25,7 +25,10 @@ import org.apache.commons.lang.StringUtils;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.BaseMeta;
+import cn.devezhao.rebuild.server.service.entitymanage.DisplayType;
 
 /**
  * 
@@ -45,6 +48,13 @@ public class EasyMeta implements BaseMeta {
 		BUILTIN_ENTITY.add("MetaEntity");
 		BUILTIN_ENTITY.add("MetaField");
 		
+		BUILTIN_FIELD.add(ExtRecordCreator.createdOn);
+		BUILTIN_FIELD.add(ExtRecordCreator.createdBy);
+		BUILTIN_FIELD.add(ExtRecordCreator.modifiedOn);
+		BUILTIN_FIELD.add(ExtRecordCreator.modifiedBy);
+		BUILTIN_FIELD.add(ExtRecordCreator.owningUser);
+		BUILTIN_FIELD.add(ExtRecordCreator.owningDept);
+		
 		SYSENTITY_INFO.put("User", new String[] { "account", "系统内建" });
 		SYSENTITY_INFO.put("Department", new String[] { "accounts", "系统内建" });
 	}
@@ -53,6 +63,10 @@ public class EasyMeta implements BaseMeta {
 	
 	public EasyMeta(BaseMeta baseMeta) {
 		this.baseMeta = baseMeta;
+	}
+	
+	public BaseMeta getBaseMeta() {
+		return baseMeta;
 	}
 	
 	@Override
@@ -83,24 +97,19 @@ public class EasyMeta implements BaseMeta {
 	}
 	
 	/**
-	 * 取代 persist4j 中的 description，而 persist4j 中的 description 则表示 label
-	 * 
-	 * @return
-	 */
-	public String getComments() {
-		// TODO
-		String ii[] = SYSENTITY_INFO.get(getName());
-		return ii == null ? null : ii[1];
-	}
-	
-	/**
 	 * 显示类型
 	 * 
 	 * @return
 	 */
 	public String getDisplayType() {
 		if (baseMeta instanceof Field) {
-			return ((Field) baseMeta).getType().getName().toUpperCase();
+			Object[] ext = getExtmeta();
+			if (ext != null) {
+				DisplayType dt = (DisplayType) ext[2];
+				return dt.toString();
+			} else {
+				return ((Field) baseMeta).getType().getName().toUpperCase();
+			}
 		}
 		return null;
 	}
@@ -114,16 +123,78 @@ public class EasyMeta implements BaseMeta {
 		if (baseMeta instanceof Entity) {
 			return BUILTIN_ENTITY.contains(getName());
 		} else if (baseMeta instanceof Field) {
+			if (((Field) baseMeta).getType() == FieldType.PRIMARY) {
+				return true;
+			}
 			return BUILTIN_FIELD.contains(getName());
 		}
 		return false;
 	}
 	
 	/**
+	 * 保存的 ID
+	 * 
+	 * @return
+	 */
+	public ID getMetaId() {
+		Object[] ext = getExtmeta();
+		return ext == null ? null : (ID) ext[0];
+	}
+	
+	/**
+	 * 取代 persist4j 中的 description，而 persist4j 中的 description 则表示 label
+	 * 
+	 * @return
+	 */
+	public String getComments() {
+		String def[] = SYSENTITY_INFO.get(getName());
+		String defComments = def == null ? null : def[1];
+		
+		String customComments = null;
+		Object[] ext = getExtmeta();
+		if (ext != null) {
+			customComments = (String) ext[1];
+		}
+		return StringUtils.defaultIfBlank(customComments, defComments);
+	}
+	
+	/**
 	 * @return
 	 */
 	public String getIcon() {
-		String ii[] = SYSENTITY_INFO.get(getName());
-		return ii == null ? "border-clear" : ii[0];
+		if (isField()) {
+			return null;
+		}
+		
+		String def[] = SYSENTITY_INFO.get(getName());
+		String defIcon = def == null ? null : def[0];
+		
+		String customIcon = null;
+		Object[] ext = getExtmeta();
+		if (ext != null) {
+			customIcon = StringUtils.defaultIfBlank((String) ext[2], "border-clear");
+		}
+		return StringUtils.defaultIfBlank(customIcon, defIcon);
+	}
+	
+	/**
+	 * @return
+	 */
+	private Object[] getExtmeta() {
+		Object[] ext = null;
+		if (isField()) {
+			Field field = (Field) baseMeta;
+			ext = MetadataHelper.getFieldExtmeta(field);
+		} else {
+			ext = MetadataHelper.getEntityExtmeta((Entity) baseMeta);
+		}
+		return ext;
+	}
+	
+	/**
+	 * @return
+	 */
+	private boolean isField() {
+		return baseMeta instanceof Field;
 	}
 }

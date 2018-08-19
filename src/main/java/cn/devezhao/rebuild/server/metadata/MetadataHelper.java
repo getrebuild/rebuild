@@ -16,6 +16,8 @@ limitations under the License.
 
 package cn.devezhao.rebuild.server.metadata;
 
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.metadata.impl.ConfigurationMetadataFactory;
 import cn.devezhao.rebuild.server.Application;
 
@@ -31,5 +33,21 @@ public class MetadataHelper {
 	 */
 	public static void refreshMetadata() {
 		((ConfigurationMetadataFactory) Application.getMetadataFactory()).refresh(false);
+	}
+	
+	/**
+	 * @param entity
+	 * @return
+	 */
+	public static Object[] getEntityExtmeta(Entity entity) {
+		return ((DynamicMetadataFactory) Application.getMetadataFactory()).getEntityExtmeta(entity.getName());
+	}
+	
+	/**
+	 * @param field
+	 * @return
+	 */
+	public static Object[] getFieldExtmeta(Field field) {
+		return ((DynamicMetadataFactory) Application.getMetadataFactory()).getFieldExtmeta(field.getOwnEntity().getName(), field.getName());
 	}
 }

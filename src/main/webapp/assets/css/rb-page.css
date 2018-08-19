@@ -58,3 +58,12 @@ textarea.row3 {
 a {
 	cursor: pointer;
 }
+
+.hide {
+	display: none;
+}
+
+.form-control-plaintext {
+	font-size: 1rem;
+	padding: 7px 0;
+}

@@ -16,6 +16,9 @@ limitations under the License.
 
 package cn.devezhao.rebuild.server.metadata;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -36,6 +39,11 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 	private static final long serialVersionUID = -5709281079615412347L;
 	
 	private static final Log LOG = LogFactory.getLog(DynamicMetadataFactory.class);
+	
+	// <Name, [ID, COMMENTS, ICON]>
+	private static final Map<String, Object[]> ENTITY_EXTMETA = new HashMap<>();
+	// <Name, [ID, COMMENTS]>
+	private static final Map<String, Object[]> FIELD_EXTMETA = new HashMap<>();
 	
 	public DynamicMetadataFactory(String configLocation, Dialect dialect) {
 		super(configLocation, dialect);
@@ -59,7 +67,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 		final Element rootElement = config.getRootElement();
 		
 		Object[][] customentity = Application.createQuery(
-				"select typeCode,entityName,physicalName,entityLabel from MetaEntity order by createdOn")
+				"select typeCode,entityName,physicalName,entityLabel,entityId,comments,icon from MetaEntity order by createdOn")
 				.array();
 		for (Object[] custom : customentity) {
 			int typeCode = (int) custom[0];
@@ -72,10 +80,11 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 					.addAttribute("name", name)
 					.addAttribute("physical-name", physicalName)
 					.addAttribute("description", description);
+			ENTITY_EXTMETA.put(name, new Object[] { custom[4], custom[5], custom[6] });
 		}
 		
 		Object[][] customfield = Application.createQuery(
-				"select entityId.entityName,fieldName,physicalName,fieldLabel,displayType,nullable,creatable,updatable,precision,maxLength,defaultValue,refEntity,cascade"
+				"select belongEntity,fieldName,physicalName,fieldLabel,displayType,nullable,creatable,updatable,precision,maxLength,defaultValue,refEntity,cascade,fieldId,comments"
 				+ " from MetaField order by createdOn")
 				.array();
 		for (Object[] custom : customfield) {
@@ -94,7 +103,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 					.addAttribute("nullable", custom[5].toString())
 					.addAttribute("creatable", custom[6].toString())
 					.addAttribute("updatable", custom[7].toString())
-					.addAttribute("precision", custom[8].toString())
+					.addAttribute("decimal-scale", custom[8].toString())
 					.addAttribute("max-length", custom[9].toString())
 					.addAttribute("default-value", (String) custom[10])
 					.addAttribute("ref-entity", (String) custom[11])
@@ -102,8 +111,30 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 			
 			DisplayType dt = DisplayType.valueOf((String) custom[4]);
 			field.addAttribute("type", dt.getFieldType().getName());
+			
+			FIELD_EXTMETA.put(entityName + "__" + fieldName, new Object[] { custom[13], custom[14], dt });
 		}
 		
-		XmlHelper.dump(rootElement);
+		if (LOG.isDebugEnabled()) {
+			XmlHelper.dump(rootElement);
+		}
+	}
+	
+	/**
+	 * @param entity
+	 * @return
+	 */
+	protected Object[] getEntityExtmeta(String entity) {
+		return ENTITY_EXTMETA.get(entity);
+	}
+	
+	/**
+	 * @param entity
+	 * @param field
+	 * @return
+	 */
+	protected Object[] getFieldExtmeta(String entity, String field) {
+		String key = entity + "__" + field;
+		return FIELD_EXTMETA.get(key);
 	}
 }

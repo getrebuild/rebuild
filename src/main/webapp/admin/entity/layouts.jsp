@@ -25,15 +25,15 @@
 				<div class="aside-content">
 					<div class="content">
 						<div class="aside-header">
-							<span class="title">用户</span>
-							<p class="description">管理用户</p>
+							<span class="title">${entityLabel}</span>
+							<p class="description">${comments}</p>
 						</div>
 					</div>
 					<div class="aside-nav collapse">
 						<ul class="nav">
-							<li><a href="manage.htm"><i class="icon mdi mdi-inbox"></i>基本信息</a></li>
-							<li><a href="manage-fields.htm"><i class="icon mdi mdi-inbox"></i>管理字段</a></li>
-							<li class="active"><a href="manage-layout.htm"><i class="icon mdi mdi-inbox"></i>管理布局</a></li>
+							<li><a href="base"><i class="icon mdi mdi-inbox"></i>基本信息</a></li>
+							<li><a href="fields"><i class="icon mdi mdi-inbox"></i>管理字段</a></li>
+							<li class="active"><a href="layouts"><i class="icon mdi mdi-inbox"></i>管理布局</a></li>
 						</ul>
 					</div>
 				</div>
@@ -47,12 +47,6 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script type="text/javascript">
 $(document).ready(function(){
-	let entity = $urlp('entity');
-	$('.aside-nav a').each(function(){
-		let that = $(this);
-		that.attr('href', that.attr('href') + '?entity=' + entity);
-	});
-	
 });
 </script>
 </body>

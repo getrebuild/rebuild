@@ -67,3 +67,25 @@ const $urlp = function(key, qstr) {
 	for (var i = 0, j = param.length; i < j; i++){ var pl=param[i].split('='); map[pl[0]] = pl[1]; }
 	return (!key || key == '*') ? map : map[key];
 };
+
+/* 获取元素值
+ * 如有 data-o 属性：如当前值与原值（data-o）一致，则返回 undefined；如清空了值则返回 null
+ */
+const $val = function(el){
+	el = $(el);
+	let nVal = null;
+	let oVal = el.data('o');
+	let tag = el.prop('tagName');
+	if (tag == 'INPUT' || tag == 'TEXTAREA' || tag == 'SELECT'){
+		nVal = el.val();
+	} else {
+		nVal = el.attr('data-val');
+		if (!!!nVal) nVal = oVal;
+	}
+	if (nVal) nVal = $.trim(nVal);
+	if (!!!oVal) return nVal;
+	
+	if ((oVal || null) === (nVal || null)) return undefined;
+	if (!!oVal && !!!nVal) return null;
+	else return $.trim(nVal);
+};

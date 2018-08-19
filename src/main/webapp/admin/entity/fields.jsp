@@ -3,7 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>实体管理</title>
+<title>字段管理</title>
 <style type="text/css">
 .card.entity .card-body{padding:14px 20px}
 .card.entity .icon{font-size:40px;}
@@ -25,15 +25,15 @@
 				<div class="aside-content">
 					<div class="content">
 						<div class="aside-header">
-							<span class="title">用户</span>
-							<p class="description">管理用户</p>
+							<span class="title">${entityLabel}</span>
+							<p class="description">${comments}</p>
 						</div>
 					</div>
 					<div class="aside-nav collapse">
 						<ul class="nav">
-							<li><a href="manage.htm"><i class="icon mdi mdi-inbox"></i>基本信息</a></li>
-							<li class="active"><a href="manage-fields.htm"><i class="icon mdi mdi-inbox"></i>管理字段</a></li>
-							<li><a href="manage-layout.htm"><i class="icon mdi mdi-inbox"></i>管理布局</a></li>
+							<li><a href="base"><i class="icon mdi mdi-inbox"></i>基本信息</a></li>
+							<li class="active"><a href="fields"><i class="icon mdi mdi-inbox"></i>管理字段</a></li>
+							<li><a href="layouts"><i class="icon mdi mdi-inbox"></i>管理布局</a></li>
 						</ul>
 					</div>
 				</div>
@@ -54,7 +54,7 @@
 							</div>
 							<div class="col-sm-6">
 								<div class="dataTables_oper">
-									<button class="btn btn-space btn-primary" onclick="rbModal.show('field-edit.htm')"><i class="icon zmdi zmdi-plus"></i> 新建</button>
+									<button class="btn btn-space btn-primary" onclick="rbModal.show('../field-new.htm?entity=${entityName}')"><i class="icon zmdi zmdi-plus"></i> 新建</button>
 									<button class="btn btn-space btn-secondary" disabled="disabled"><i class="icon zmdi zmdi-delete"></i> 删除</button>
 								</div>
 							</div>
@@ -71,8 +71,9 @@
 											</th>
 											<th data-filed="fieldLabel">字段名称</th>
 											<th data-field="fieldName">内部标识</th>
-											<th data-field="type">类型</th>
-											<th data-field="createdOn">创建时间</th>
+											<th data-field="displayType">类型</th>
+											<th data-field="comments">备注</th>
+											<th width="100"></th>
 										</tr>
 									</thead>
 									<tbody></tbody>
@@ -111,21 +112,19 @@ const rbModal = ReactDOM.render(<RbModal title="新建字段" />, $('<div id="re
 </script>
 <script type="text/javascript">
 $(document).ready(function(){
-	let entity = $urlp('entity');
-	$('.aside-nav a').each(function(){
-		let that = $(this);
-		that.attr('href', that.attr('href') + '?entity=' + entity);
-	});
-	
-	$.get('list-field?entity=' + entity, function(res){
+	$.get('../list-field?entity=${entityName}', function(res){
 		let tbody = $('#dataList tbody');
 		$(res.data).each(function(){
 			let tr = $('<tr></tr>').appendTo(tbody);
 			$('<td data-id="' + 'x' + '"><label class="custom-control custom-control-sm custom-checkbox"><input class="custom-control-input" type="checkbox"><span class="custom-control-label"></span></label></td>').appendTo(tr);
 			$('<td>' + this.fieldLabel + '</td>').appendTo(tr);
 			$('<td>' + this.fieldName + '</td>').appendTo(tr);
-			$('<td>' + this.type + '</td>').appendTo(tr);
-			$('<td>' + this.description + '</td>').appendTo(tr);
+			$('<td>' + this.displayType + '</td>').appendTo(tr);
+			$('<td>' + (this.comments || '--') + '</td>').appendTo(tr);
+			let actions = $('<td class="actions"><a class="icon J_edit" href="field/' + this.fieldName + '"><i class="zmdi zmdi-settings"></i></a><a class="icon J_del"><i class="zmdi zmdi-delete"></i></a></td>').appendTo(tr);
+			actions.find('.J_del').click(function(){
+				confirm('删除？');
+			});
 		});
 	});
 });

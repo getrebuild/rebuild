@@ -26,16 +26,23 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+
+import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.rebuild.server.Application;
 import cn.devezhao.rebuild.server.metadata.EasyMeta;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
+import cn.devezhao.rebuild.server.metadata.MetadataHelper;
 import cn.devezhao.rebuild.server.service.entitymanage.Entity2Schema;
 import cn.devezhao.rebuild.web.commons.BaseControll;
+import cn.devezhao.rebuild.web.commons.PageForward;
 
 /**
  * 
@@ -45,21 +52,20 @@ import cn.devezhao.rebuild.web.commons.BaseControll;
 @Controller
 @RequestMapping("/admin/entity/")
 public class MetaEntityControll extends BaseControll {
-
-	@RequestMapping("entity-new")
-	public void entityNew(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getRequestUser(request);
-		String label = getParameterNotNull(request, "label");
-		String comments = getParameter(request, "comments");
-		
-		String entityName = new Entity2Schema(user).create(label, comments);
-		if (entityName != null) {
-			writeSuccess(response, entityName);
-		} else {
-			writeFailure(response);
-		}
+	
+	@RequestMapping("list")
+	public String pageList(HttpServletRequest request) throws IOException {
+		PageForward.setPageAttribute(request);
+		return "/admin/entity/list.jsp";
 	}
 	
+	@RequestMapping("{entity}/base")
+	public String pageEntityBase(@PathVariable String entity, HttpServletRequest request) throws IOException {
+		setEntityBase(request, entity);
+		PageForward.setPageAttribute(request);
+		return "/admin/entity/baseinfo.jsp";
+	}
+
 	@RequestMapping("list-entity")
 	public void listEntity(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		List<Map<String, Object>> ret = new ArrayList<>();
@@ -78,51 +84,43 @@ public class MetaEntityControll extends BaseControll {
 		writeSuccess(response, ret);
 	}
 	
-	@RequestMapping("baseinfo")
-	public void baseInfo(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String entityName = getParameter(request, "entity");
-		Entity entity = EntityHelper.getEntity(entityName);
-		if (entity == null) {
-			writeFailure(response, "无效实体");
-			return;
-		}
+	@RequestMapping("entity-new")
+	public void entityNew(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getRequestUser(request);
+		String label = getParameterNotNull(request, "label");
+		String comments = getParameter(request, "comments");
 		
-		EasyMeta easyMeta = new EasyMeta(entity);
-		Map<String, Object> ret = new HashMap<>();
-		ret.put("entityName", easyMeta.getName());
-		ret.put("entityLabel", easyMeta.getLabel());
-		ret.put("comments", easyMeta.getComments());
-		writeSuccess(response, ret);
+		String entityName = new Entity2Schema(user).create(label, comments);
+		if (entityName != null) {
+			writeSuccess(response, entityName);
+		} else {
+			writeFailure(response);
+		}
 	}
 	
-	@RequestMapping("list-field")
-	public void listField(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String entityName = getParameter(request, "entity");
-		Entity entity = EntityHelper.getEntity(entityName);
-		if (entity == null) {
-			writeFailure(response, "无效实体");
-			return;
-		}
+	@RequestMapping("entity-update")
+	public void entityUpdate(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getRequestUser(request);
+		JSON formJson = ServletUtils.getRequestJson(request);
+		Record record = EntityHelper.parse((JSONObject) formJson, user);
+		Application.getCommonService().update(record);
 		
-		List<Map<String, Object>> ret = new ArrayList<>();
-		for (Field field : entity.getFields()) {
-			EasyMeta easyMeta = new EasyMeta(field);
-			if (easyMeta.isBuiltin()) {
-				continue;
-			}
-			
-			Map<String, Object> map = new HashMap<>();
-			map.put("fieldName", easyMeta.getName());
-			map.put("fieldLabel", easyMeta.getLabel());
-			map.put("displayType", easyMeta.getDisplayType());
-			map.put("comments", easyMeta.getComments());
-			ret.add(map);
-		}
-		writeSuccess(response, ret);
+		MetadataHelper.refreshMetadata();
+		writeSuccess(response);
 	}
 	
-	@RequestMapping("list-layout")
-	public void listLayout(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		// TODO 布局
+	/**
+	 * @param request
+	 * @param entity
+	 * @return
+	 */
+	protected static EasyMeta setEntityBase(HttpServletRequest request, String entity) {
+		EasyMeta entityMeta = new EasyMeta(EntityHelper.getEntity(entity));
+		request.setAttribute("entityMetaId", entityMeta.getMetaId());
+		request.setAttribute("entityName", entityMeta.getName());
+		request.setAttribute("entityLabel", entityMeta.getLabel());
+		request.setAttribute("icon", entityMeta.getIcon());
+		request.setAttribute("comments", entityMeta.getComments());
+		return entityMeta;
 	}
 }

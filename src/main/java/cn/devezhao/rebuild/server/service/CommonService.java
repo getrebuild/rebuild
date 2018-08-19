@@ -22,6 +22,7 @@ import java.util.Map;
 import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 
@@ -44,6 +45,20 @@ public class CommonService extends BaseService {
 		record = super.create(record);
 		createAfter(record);
 		return record;
+	}
+	
+	/**
+	 * 批量删除
+	 * 
+	 * @param ids
+	 * @return
+	 */
+	public int delete(ID[] ids) {
+		int affected = 0;
+		for (ID id : ids) {
+			affected += delete(id);
+		}
+		return affected;
 	}
 	
 	// --
