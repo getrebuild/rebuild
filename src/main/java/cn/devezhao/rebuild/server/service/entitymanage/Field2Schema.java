@@ -34,6 +34,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.Dialect;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.CascadeModel;
+import cn.devezhao.persist4j.metadata.MetadataException;
 import cn.devezhao.persist4j.metadata.impl.FieldImpl;
 import cn.devezhao.persist4j.util.StringHelper;
 import cn.devezhao.persist4j.util.support.Table;
@@ -65,9 +66,11 @@ public class Field2Schema {
 	 * @param fieldLabel
 	 * @param type
 	 * @param comments
+	 * @param refEntity
 	 * @return
 	 */
-	public String create(Entity entity, String fieldLabel, DisplayType type, String comments) {
+	public String create(Entity entity, String fieldLabel, DisplayType type, String comments,
+			String refEntity) {
 		String fieldName = toPinyinString(fieldLabel);
 		while (true) {
 			if (entity.containsField(fieldName)) {
@@ -77,7 +80,7 @@ public class Field2Schema {
 			}
 		}
 		
-		Field field = createField(entity, fieldName, fieldLabel, type, true, true, true, null, comments);
+		Field field = createField(entity, fieldName, fieldLabel, type, true, true, true, refEntity, comments);
 		
 		boolean schemaReady = schema2Database(entity, field);
 		if (!schemaReady) {
@@ -137,6 +140,11 @@ public class Field2Schema {
 		if (StringUtils.isNotBlank(refEntity)) {
 			record.setString("refEntity", refEntity);
 		}
+		
+		if (displayType == DisplayType.REFERENCE && StringUtils.isBlank(refEntity)) {
+			throw new MetadataException("引用字段必须指定引用实体");
+		}
+		
 		record = Application.getCommonService().create(record);
 		tempMetaId.add(record.getPrimary());
 		
@@ -165,7 +173,7 @@ public class Field2Schema {
 		}
 		
 		if (!StringHelper.isIdentifier(identifier)) {
-			throw new IllegalArgumentException("Valid Identifier: " + identifier);
+			throw new MetadataException("无效 META 名称: " + identifier);
 		}
 		return identifier;
 	}

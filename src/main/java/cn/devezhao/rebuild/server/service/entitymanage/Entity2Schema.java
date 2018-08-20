@@ -50,7 +50,7 @@ public class Entity2Schema extends Field2Schema {
 	}
 	
 	@Override
-	public String create(Entity entity, String fieldLabel, DisplayType type, String comments) {
+	public String create(Entity entity, String fieldLabel, DisplayType type, String comments, String refEntity) {
 		throw new UnsupportedOperationException();
 	}
 	
@@ -94,13 +94,13 @@ public class Entity2Schema extends Field2Schema {
 		Entity unsafeEntity = new UnsafeEntity(entityName, physicalName, entityLabel, typeCode, null);
 		
 		String primaryFiled = entityName + "Id";
-		createField(unsafeEntity, primaryFiled, "ID", DisplayType.ID, false, false, false, null, "内建字段");
-		createField(unsafeEntity, ExtRecordCreator.createdBy, "创建人", DisplayType.REFERENCE, false, false, false, "User", "内建字段");
-		createField(unsafeEntity, ExtRecordCreator.createdOn, "创建时间", DisplayType.DATETIME, false, false, false, null, "内建字段");
-		createField(unsafeEntity, ExtRecordCreator.modifiedBy, "修改人", DisplayType.REFERENCE, false, false, true, "User", "内建字段");
-		createField(unsafeEntity, ExtRecordCreator.modifiedOn, "修改时间", DisplayType.DATETIME, false, false, true, null, "内建字段");
-		createField(unsafeEntity, ExtRecordCreator.owningUser, "所属用户", DisplayType.REFERENCE, false, false, true, "User", "内建字段");
-		createField(unsafeEntity, ExtRecordCreator.owningDept, "所属部门", DisplayType.REFERENCE, false, false, true, "Department", "内建字段");
+		createField(unsafeEntity, primaryFiled, "ID", DisplayType.ID, false, false, false, null, "系统内建");
+		createField(unsafeEntity, ExtRecordCreator.createdBy, "创建人", DisplayType.REFERENCE, false, false, false, "User", "系统内建");
+		createField(unsafeEntity, ExtRecordCreator.createdOn, "创建时间", DisplayType.DATETIME, false, false, false, null, "系统内建");
+		createField(unsafeEntity, ExtRecordCreator.modifiedBy, "修改人", DisplayType.REFERENCE, false, false, true, "User", "系统内建");
+		createField(unsafeEntity, ExtRecordCreator.modifiedOn, "修改时间", DisplayType.DATETIME, false, false, true, null, "系统内建");
+		createField(unsafeEntity, ExtRecordCreator.owningUser, "所属用户", DisplayType.REFERENCE, false, false, true, "User", "系统内建");
+		createField(unsafeEntity, ExtRecordCreator.owningDept, "所属部门", DisplayType.REFERENCE, false, false, true, "Department", "系统内建");
 		
 		boolean schemaReady = schema2Database(unsafeEntity);
 		if (!schemaReady) {

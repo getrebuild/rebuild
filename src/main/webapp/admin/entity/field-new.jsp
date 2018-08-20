@@ -22,9 +22,18 @@
 			<label class="col-12 col-sm-3 col-form-label text-sm-right">类型</label>
 			<div class="col-12 col-sm-8 col-lg-6">
 				<select class="form-control form-control-sm" id="type">
-					<% for (DisplayType dt : DisplayType.values()) { %>
+					<% for (DisplayType dt : DisplayType.values()) {
+						if (dt != DisplayType.ID) {
+					%>
 					<option value="<%=dt.name()%>"><%=dt.getDisplayName() %></option>
-					<% } %>
+					<% } } %>
+				</select>
+			</div>
+		</div>
+		<div class="form-group row hide J_dt-REFERENCE">
+			<label class="col-12 col-sm-3 col-form-label text-sm-right">选择引用实体</label>
+			<div class="col-12 col-sm-8 col-lg-6">
+				<select class="form-control form-control-sm" id="refEntity">
 				</select>
 			</div>
 		</div>
@@ -49,13 +58,18 @@ $(document).ready(function(){
 	let btn = $('.btn-primary').click(function(){
 		let fieldLabel = $val('#fieldLabel'),
 			type = $val('#type'),
-			comments = $val('#comments');
+			comments = $val('#comments'),
+			refEntity = $val('#refEntity');
 		if (!fieldLabel){
 			alert('请输入字段名称'); return;
 		}
+		if (type == 'REFERENCE' && !refEntity){
+			alert('请选择引用实体'); return;
+		}
 		
+		let _data = { entity:entity, label:fieldLabel, type:type, comments:comments, refEntity:refEntity };
 		btn.button('loading');
-		$.post('field-new', { entity:entity, label:fieldLabel, type:type, comments:comments }, function(res){
+		$.post('field-new', _data, function(res){
 			if (res.error_code == 0) parent.location.href = entity + '/field/' + res.data;
 			else{
 				alert(res.error_msg);
@@ -63,6 +77,24 @@ $(document).ready(function(){
 			}
 		});
 	});
+	
+	let referenceLoaded = false;
+	$('#type').change(function(){
+		if ($(this).val() == 'REFERENCE'){
+			$('.J_dt-REFERENCE').removeClass('hide');
+			if (referenceLoaded == false){
+				referenceLoaded = true;
+				$.get('list-entity', function(res){
+					$(res.data).each(function(){
+						$('<option value="' + this.entityName + '">' + this.entityLabel + '</option>').appendTo('#refEntity');
+					})
+				});
+			}
+		}else{
+			$('.J_dt-REFERENCE').addClass('hide');
+		}
+	});
+	
 });
 </script>
 </body>

@@ -79,7 +79,8 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 			entity.addAttribute("type-code", typeCode + "")
 					.addAttribute("name", name)
 					.addAttribute("physical-name", physicalName)
-					.addAttribute("description", description);
+					.addAttribute("description", description)
+					.addAttribute("parent", "false");
 			ENTITY_EXTMETA.put(name, new Object[] { custom[4], custom[5], custom[6] });
 		}
 		

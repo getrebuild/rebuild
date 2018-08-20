@@ -14,7 +14,7 @@ class RbModal extends React.Component {
             		        <button className="close md-close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
             		    </div>
         		        <div className="modal-body iframe" ref="rbmodal.body">
-            		        <iframe src={this.state.url || 'about:blank'} frameborder="0" scrolling="no" ref="rbmodal.iframe" onLoad={()=>this.loaded()} onResize={()=>this.loaded()}></iframe>
+            		        <iframe src={this.state.url || 'about:blank'} frameborder="0" scrolling="auto" ref="rbmodal.iframe" onLoad={()=>this.loaded()} onResize={()=>this.loaded()}></iframe>
         		        </div>
     		        </div>
 		        </div>
@@ -35,7 +35,10 @@ class RbModal extends React.Component {
         let that = this;
         $setTimeout(function(){
             let iframe = $(that.refs['rbmodal.iframe']);
-            let height = iframe.contents().find('body').height();
+            let height = iframe.contents().find('body .main-content').height();
+            if (height == 0) height = iframe.contents().find('body').height();
+            else height += 45;  // .main-content's padding
+            console.log('fire loaded ... ' + height);
             if (height == 0 || height == that.__lastHeight) return;
             $(that.refs['rbmodal.body']).height(height);
             that.__lastHeight = height;

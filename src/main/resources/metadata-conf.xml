@@ -8,8 +8,6 @@
 		<field name="createdBy" type="reference" ref-entity="User" nullable="false" updatable="false" description="创建人" />
 		<field name="modifiedOn" type="timestamp" nullable="false" description="更新时间" />
 		<field name="modifiedBy" type="reference" ref-entity="User" nullable="false" description="更新人" />
-		<field name="owningUser" type="reference" ref-entity="User" nullable="false" description="所属用户" />
-		<field name="owningDept" type="reference" ref-entity="Department" nullable="false" description="所属部门" />
 	</entity>
 
 	<entity name="User" type-code="001" description="用户">
@@ -33,18 +31,19 @@
 		<field name="isDisabled" type="bool" default-value="F" />
 	</entity>
 	
-	<entity name="Role" type-code="003">
+	<entity name="Role" type-code="003" description="角色">
 		<field name="roleId" type="primary" />
-		<field name="name" type="string" max-length="100" nullable="false" />
-		<field name="isDisabled" type="bool" default-value="F" />
+		<field name="name" type="string" max-length="100" nullable="false" description="角色名称" />
+		<field name="isDisabled" type="bool" default-value="F" description="是否禁用" />
 	</entity>
 	
-	<entity name="RolePrivileges" type-code="004">
+	<entity name="RolePrivileges" type-code="004" parent="false">
 		<field name="privilegesId" type="primary" />
 		<field name="roleId" type="reference" ref-entity="Role" />
+		<field name="details" type="string" max-length="100" description="权限描述符"/>
 	</entity>
 	
-	<entity name="RoleMember" type-code="005">
+	<entity name="RoleMember" type-code="005" parent="false">
 		<field name="memberId" type="primary" />
 		<field name="roleId" type="reference" ref-entity="Role" />
 		<field name="userId" type="reference" ref-entity="User" />

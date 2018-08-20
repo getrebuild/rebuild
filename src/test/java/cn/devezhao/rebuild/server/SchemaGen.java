@@ -28,8 +28,8 @@ public class SchemaGen {
 		PMF = CTX.getBean(PersistManagerFactoryImpl.class);
 		
 //		genAll();
-		gen(EntityHelper.MetaEntity);
-		gen(EntityHelper.MetaField);
+		gen(EntityHelper.RolePrivileges);
+		gen(EntityHelper.RoleMember);
 		
 		System.exit(0);
 	}

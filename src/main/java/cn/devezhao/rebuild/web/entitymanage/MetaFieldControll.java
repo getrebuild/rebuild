@@ -95,6 +95,7 @@ public class MetaFieldControll extends BaseControll  {
 	public String pageEntityFields(@PathVariable String entity, @PathVariable String field, HttpServletRequest request) throws IOException {
 		EasyMeta easyMeta = MetaEntityControll.setEntityBase(request, entity);
 		Field fieldMeta = ((Entity) easyMeta.getBaseMeta()).getField(field);
+		System.out.println(fieldMeta);
 		EasyMeta fieldEasyMeta = new EasyMeta(fieldMeta);
 		
 		request.setAttribute("fieldMetaId", fieldEasyMeta.isBuiltin() ? null : fieldEasyMeta.getMetaId());
@@ -109,7 +110,8 @@ public class MetaFieldControll extends BaseControll  {
 			request.setAttribute("fieldPrecision", fieldMeta.getDecimalScale());
 		} else if (ft == FieldType.REFERENCE) {
 			Entity refentity = fieldMeta.getReferenceEntities()[0];
-			request.setAttribute("fieldRefentity", new EasyMeta(refentity).getLabel());
+			request.setAttribute("fieldRefentity", refentity.getName());
+			request.setAttribute("fieldRefentityLabel", new EasyMeta(refentity).getLabel());
 		}
 		
 		PageForward.setPageAttribute(request);
@@ -123,11 +125,12 @@ public class MetaFieldControll extends BaseControll  {
 		String label = getParameterNotNull(request, "label");
 		String type = getParameterNotNull(request, "type");
 		String comments = getParameter(request, "comments");
+		String refEntity = getParameter(request, "refEntity");
 		
 		Entity entity = EntityHelper.getEntity(entityName);
 		DisplayType dt = DisplayType.valueOf(type);
 		
-		String fieldName = new Field2Schema(user).create(entity, label, dt, comments);
+		String fieldName = new Field2Schema(user).create(entity, label, dt, comments, refEntity);
 		if (fieldName != null) {
 			writeSuccess(response, fieldName);
 		} else {

@@ -42,7 +42,6 @@ public class EasyMeta implements BaseMeta {
 	private static final Set<String> BUILTIN_FIELD = new HashSet<>();
 	private static final Map<String, String[]> SYSENTITY_INFO = new HashMap<>();
 	static {
-		BUILTIN_ENTITY.add("Role");
 		BUILTIN_ENTITY.add("RolePrivileges");
 		BUILTIN_ENTITY.add("RoleMember");
 		BUILTIN_ENTITY.add("MetaEntity");
@@ -57,6 +56,7 @@ public class EasyMeta implements BaseMeta {
 		
 		SYSENTITY_INFO.put("User", new String[] { "account", "系统内建" });
 		SYSENTITY_INFO.put("Department", new String[] { "accounts", "系统内建" });
+		SYSENTITY_INFO.put("Role", new String[] { "lock", "系统内建" });
 	}
 
 	private BaseMeta baseMeta;
@@ -93,6 +93,9 @@ public class EasyMeta implements BaseMeta {
 	 * @return
 	 */
 	public String getLabel() {
+		if (isField() && ((Field) baseMeta).getType() == FieldType.PRIMARY) {
+			return "ID";
+		}
 		return StringUtils.defaultIfBlank(getDescription(), getName().toUpperCase());
 	}
 	
@@ -149,6 +152,9 @@ public class EasyMeta implements BaseMeta {
 	public String getComments() {
 		String def[] = SYSENTITY_INFO.get(getName());
 		String defComments = def == null ? null : def[1];
+		if (getMetaId() == null && defComments == null) {
+			defComments = "系统内建";
+		}
 		
 		String customComments = null;
 		Object[] ext = getExtmeta();

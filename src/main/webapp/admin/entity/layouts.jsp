@@ -3,12 +3,10 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>实体管理</title>
+<title>布局管理</title>
 <style type="text/css">
-.card.entity .card-body{padding:14px 20px}
-.card.entity .icon{font-size:40px;}
-.card.entity h5,.card.entity p{margin:3px 0;}
-.card.entity p{color:#777;font-size:0.9rem;}
+.form-preview{max-width:630px;margin:0 auto;border:1px solid #4285f4;min-height:100px;padding:20px}
+.sortable-placeholder{border:1px dotted #dedede;height:36px;}
 </style>
 </head>
 <body>
@@ -40,13 +38,47 @@
 			</div>
         </aside>
 		<div class="main-content container-fluid">
-			<h3 class="text-center">暂未开放</h3>
+			<div class="row">
+				<div class="col-12 col-sm-8">
+					<div class="card">
+						<div class="card-header">表单预览<span class="card-subtitle">可上下拖动调整布局</span></div>
+						<div class="card-body">
+							<div class="form-preview dd-list connectedSortable">
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-12 col-sm-4">
+					<div class="card">
+						<div class="card-header">字段列表<span class="card-subtitle">拖动字段到左侧表单</span></div>
+						<div class="card-body">
+							<div class="field-list dd-list connectedSortable">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/jquery-ui.min.css">
+<script src="${baseUrl}/assets/lib/jquery-ui.min.js"></script>
+<script type="text/babel">
+</script>
 <script type="text/javascript">
 $(document).ready(function(){
+	$.get('../list-field?entity=${entityName}', function(res){
+		$(res.data).each(function(){
+			$('<div class="dd-item"><div class="dd-handle">' + this.fieldLabel + '</div></div>').appendTo('.field-list');
+		});
+		
+	    $( ".form-preview, .field-list" ).sortable({
+			connectWith: '.connectedSortable',
+			cursor: 'move',
+			placeholder: 'sortable-placeholder',
+		}).disableSelection();
+	});
 });
 </script>
 </body>

@@ -78,9 +78,9 @@
 							</div>
 						</div>
 						<div class="form-group row J_for-REFERENCE hide">
-							<label class="col-12 col-sm-2 col-form-label text-sm-right">引用自</label>
+							<label class="col-12 col-sm-2 col-form-label text-sm-right">引用实体</label>
 							<div class="col-12 col-sm-8 col-lg-4">
-								<input class="form-control form-control-sm" type="text" readonly="readonly" value="${fieldRefentity}">
+								<div class="form-control-plaintext"><a href="../../${fieldRefentity}/base">${fieldRefentityLabel} (${fieldRefentity})</a></div>
 							</div>
 						</div>
 						
@@ -88,12 +88,6 @@
 							<label class="col-12 col-sm-2 col-form-label text-sm-right">备注</label>
 							<div class="col-12 col-sm-8 col-lg-4">
 								<textarea class="form-control form-control-sm row2" id="comments" data-o="${fieldComments}">${fieldComments}</textarea>
-							</div>
-						</div>
-						<div class="form-group row">
-							<label class="col-12 col-sm-2 col-form-label text-sm-right">所属实体</label>
-							<div class="col-12 col-sm-8 col-lg-4">
-								<div class="form-control-plaintext"><a href="../base">${entityLabel}</a></div>
 							</div>
 						</div>
 						<div class="form-group row footer">
@@ -116,7 +110,9 @@
 <script type="text/javascript">
 $(document).ready(function(){
 	const metaId = '${fieldMetaId}';
-	const dt = '${fieldType}'.match('\\((.+?)\\)')[1];
+	let dt = '${fieldType}';
+	if (dt.indexOf('(') > -1) dt = dt.match('\\((.+?)\\)')[1];
+	
 	const btn = $('.btn-primary').click(function(){
 		if (!!!metaId) return;
 		let label = $val('#fieldLabel');
