@@ -40,13 +40,12 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.rebuild.server.Application;
-import cn.devezhao.rebuild.server.metadata.EasyMeta;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
 import cn.devezhao.rebuild.server.metadata.MetadataHelper;
 import cn.devezhao.rebuild.server.service.entitymanage.DisplayType;
+import cn.devezhao.rebuild.server.service.entitymanage.EasyMeta;
 import cn.devezhao.rebuild.server.service.entitymanage.Field2Schema;
 import cn.devezhao.rebuild.web.commons.BaseControll;
-import cn.devezhao.rebuild.web.commons.PageForward;
 
 /**
  * 
@@ -60,7 +59,6 @@ public class MetaFieldControll extends BaseControll  {
 	@RequestMapping("{entity}/fields")
 	public String pageEntityFields(@PathVariable String entity, HttpServletRequest request) throws IOException {
 		MetaEntityControll.setEntityBase(request, entity);
-		PageForward.setPageAttribute(request);
 		return "/admin/entity/fields.jsp";
 	}
 	
@@ -95,7 +93,6 @@ public class MetaFieldControll extends BaseControll  {
 	public String pageEntityFields(@PathVariable String entity, @PathVariable String field, HttpServletRequest request) throws IOException {
 		EasyMeta easyMeta = MetaEntityControll.setEntityBase(request, entity);
 		Field fieldMeta = ((Entity) easyMeta.getBaseMeta()).getField(field);
-		System.out.println(fieldMeta);
 		EasyMeta fieldEasyMeta = new EasyMeta(fieldMeta);
 		
 		request.setAttribute("fieldMetaId", fieldEasyMeta.isBuiltin() ? null : fieldEasyMeta.getMetaId());
@@ -114,7 +111,6 @@ public class MetaFieldControll extends BaseControll  {
 			request.setAttribute("fieldRefentityLabel", new EasyMeta(refentity).getLabel());
 		}
 		
-		PageForward.setPageAttribute(request);
 		return "/admin/entity/field-edit.jsp";
 	}
 	

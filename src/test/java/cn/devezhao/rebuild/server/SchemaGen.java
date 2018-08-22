@@ -9,7 +9,6 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.PersistManagerFactoryImpl;
 import cn.devezhao.persist4j.metadata.impl.ConfigurationMetadataFactory;
 import cn.devezhao.persist4j.util.support.Table;
-import cn.devezhao.rebuild.server.metadata.EntityHelper;
 
 /**
  * 根据 METADATA 生成表的创建语句
@@ -27,9 +26,11 @@ public class SchemaGen {
 		CTX = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml" });
 		PMF = CTX.getBean(PersistManagerFactoryImpl.class);
 		
-//		genAll();
-		gen(EntityHelper.RolePrivileges);
-		gen(EntityHelper.RoleMember);
+		genAll();
+//		gen(EntityHelper.MetaEntity);
+//		gen(EntityHelper.MetaField);
+//		gen(EntityHelper.PickList);
+//		gen(EntityHelper.Layout);
 		
 		System.exit(0);
 	}

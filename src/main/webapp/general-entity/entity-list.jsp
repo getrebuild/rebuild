@@ -3,42 +3,19 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>字段管理</title>
+<title>用户管理</title>
 <style type="text/css">
-.card.entity .card-body{padding:14px 20px}
-.card.entity .icon{font-size:40px;}
-.card.entity h5,.card.entity p{margin:3px 0;}
-.card.entity p{color:#777;font-size:0.9rem;}
 </style>
 </head>
 <body>
-<div class="rb-wrapper rb-collapsible-sidebar rb-fixed-sidebar rb-aside">
+<div class="rb-wrapper rb-collapsible-sidebar">
 	<jsp:include page="/_include/NavTop.jsp">
-		<jsp:param value="实体管理" name="pageTitle"/>
+		<jsp:param value="用户管理" name="pageTitle"/>
 	</jsp:include>
-	<jsp:include page="/_include/NavLeftAdmin.jsp">
-		<jsp:param value="entity-list" name="activeNav"/>
+	<jsp:include page="/_include/NavLeft.jsp">
+		<jsp:param value="user-list" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
-		<aside class="page-aside">
-			<div class="rb-scroller">
-				<div class="aside-content">
-					<div class="content">
-						<div class="aside-header">
-							<span class="title">${entityLabel}</span>
-							<p class="description">${comments}</p>
-						</div>
-					</div>
-					<div class="aside-nav collapse">
-						<ul class="nav">
-							<li><a href="base"><i class="icon mdi mdi-inbox"></i>基本信息</a></li>
-							<li class="active"><a href="fields"><i class="icon mdi mdi-inbox"></i>管理字段</a></li>
-							<li><a href="form-design"><i class="icon mdi mdi-inbox"></i>表单布局</a></li>
-						</ul>
-					</div>
-				</div>
-			</div>
-        </aside>
 		<div class="main-content container-fluid">
 			<div class="card card-table">
 				<div class="card-body rb-loading">
@@ -54,14 +31,24 @@
 							</div>
 							<div class="col-sm-6">
 								<div class="dataTables_oper">
-									<button class="btn btn-space btn-primary" onclick="rbModal.show('../field-new.htm?entity=${entityName}')"><i class="icon zmdi zmdi-plus"></i> 新建</button>
+									<button class="btn btn-space btn-primary" onclick="rbModal.show('${baseUrl}/entity/${entity}/new')"><i class="icon zmdi zmdi-plus"></i> 新建</button>
 									<button class="btn btn-space btn-secondary" disabled="disabled"><i class="icon zmdi zmdi-delete"></i> 删除</button>
+									<div class="btn-group btn-space">
+										<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-chevron-down"></i></button>
+										<div class="dropdown-menu">
+											<a class="dropdown-item" href="#">Action</a>
+											<a class="dropdown-item" href="#">Another action</a>
+											<a class="dropdown-item" href="#">Something else here</a>
+											<div class="dropdown-divider"></div>
+											<a class="dropdown-item" href="#">Separated link</a>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
 						<div class="row rb-datatable-body">
 							<div class="col-sm-12">
-								<table class="table" id="dataList" data-entity="MetaField">
+								<table class="table" id="dataList" data-entity="User">
 									<thead>
 										<tr>
 											<th width="50">
@@ -69,11 +56,9 @@
 													<input class="custom-control-input" type="checkbox"><span class="custom-control-label"></span>
 												</label>
 											</th>
-											<th data-filed="fieldLabel">字段名称</th>
-											<th data-field="fieldName">内部标识</th>
-											<th data-field="displayType">类型</th>
-											<th data-field="comments">备注</th>
-											<th width="100"></th>
+											<th data-filed="loginName">用户</th>
+											<th data-field="email">邮箱</th>
+											<th data-field="createdOn">创建时间</th>
 										</tr>
 									</thead>
 									<tbody></tbody>
@@ -105,28 +90,14 @@
 		</div>
 	</div>
 </div>
+
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/rb-list.js" type="text/javascript"></script>
 <script type="text/babel">
-const rbModal = ReactDOM.render(<RbModal title="新建字段" />, $('<div id="react-comps"></div>').appendTo(document.body)[0]);
+const rbModal = ReactDOM.render(<RbModal title="新建" />, $('<div id="react-comps"></div>').appendTo(document.body)[0]);
 </script>
 <script type="text/javascript">
 $(document).ready(function(){
-	$.get('../list-field?entity=${entityName}', function(res){
-		let tbody = $('#dataList tbody');
-		$(res.data).each(function(){
-			let tr = $('<tr></tr>').appendTo(tbody);
-			$('<td data-id="' + 'x' + '"><label class="custom-control custom-control-sm custom-checkbox"><input class="custom-control-input" type="checkbox"><span class="custom-control-label"></span></label></td>').appendTo(tr);
-			$('<td>' + this.fieldLabel + '</td>').appendTo(tr);
-			$('<td>' + this.fieldName + '</td>').appendTo(tr);
-			$('<td>' + this.displayType + '</td>').appendTo(tr);
-			$('<td>' + (this.comments || '--') + '</td>').appendTo(tr);
-			let actions = $('<td class="actions"><a class="icon J_edit" href="field/' + this.fieldName + '"><i class="zmdi zmdi-settings"></i></a><a class="icon J_del"><i class="zmdi zmdi-delete"></i></a></td>').appendTo(tr);
-			actions.find('.J_del').click(function(){
-				confirm('删除？');
-			});
-		});
-	});
 });
 </script>
 </body>

@@ -45,6 +45,7 @@ class RbModal extends React.Component {
         }, 100, 'RbModal-resize');
     }
 }
+
 // ~~!v1.0 提示框
 class RbAlter extends React.Component {
     constructor(props) {

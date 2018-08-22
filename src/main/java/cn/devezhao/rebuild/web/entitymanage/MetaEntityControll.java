@@ -37,9 +37,9 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.rebuild.server.Application;
-import cn.devezhao.rebuild.server.metadata.EasyMeta;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
 import cn.devezhao.rebuild.server.metadata.MetadataHelper;
+import cn.devezhao.rebuild.server.service.entitymanage.EasyMeta;
 import cn.devezhao.rebuild.server.service.entitymanage.Entity2Schema;
 import cn.devezhao.rebuild.web.commons.BaseControll;
 import cn.devezhao.rebuild.web.commons.PageForward;
@@ -62,7 +62,6 @@ public class MetaEntityControll extends BaseControll {
 	@RequestMapping("{entity}/base")
 	public String pageEntityBase(@PathVariable String entity, HttpServletRequest request) throws IOException {
 		setEntityBase(request, entity);
-		PageForward.setPageAttribute(request);
 		return "/admin/entity/baseinfo.jsp";
 	}
 
@@ -121,6 +120,7 @@ public class MetaEntityControll extends BaseControll {
 		request.setAttribute("entityLabel", entityMeta.getLabel());
 		request.setAttribute("icon", entityMeta.getIcon());
 		request.setAttribute("comments", entityMeta.getComments());
+		PageForward.setPageAttribute(request);
 		return entityMeta;
 	}
 }

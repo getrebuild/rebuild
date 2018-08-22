@@ -14,27 +14,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.web.dashboard;
+package cn.devezhao.rebuild.web.entity;
+
+import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import cn.devezhao.rebuild.web.commons.BaseControll;
 import cn.devezhao.rebuild.web.commons.PageForward;
 
 /**
  * 
  * @author zhaofang123@gmail.com
- * @since 07/25/2018
+ * @since 08/22/2018
  */
 @Controller
-@RequestMapping("/dashboard")
-public class DashboardControll {
+@RequestMapping("/entity/")
+public class GeneralListControll extends BaseControll {
 
-	@RequestMapping("/home")
-	public String home(HttpServletRequest request) {
+	@RequestMapping("{entity}/list")
+	public String pageNew(@PathVariable String entity, HttpServletRequest request) throws IOException {
 		PageForward.setPageAttribute(request);
-		return "/dashboard/home.jsp";
+		return "/general-entity/entity-list.jsp";
 	}
 }

@@ -19,15 +19,22 @@ package cn.devezhao.rebuild.web.entitymanage;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import cn.devezhao.rebuild.server.metadata.EasyMeta;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+
+import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.rebuild.server.Application;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
+import cn.devezhao.rebuild.server.service.entitymanage.LayoutManager;
 import cn.devezhao.rebuild.web.commons.BaseControll;
-import cn.devezhao.rebuild.web.commons.PageForward;
 
 /**
  * 
@@ -38,14 +45,24 @@ import cn.devezhao.rebuild.web.commons.PageForward;
 @RequestMapping("/admin/entity/")
 public class EntityLayoutControll extends BaseControll {
 	
-	@RequestMapping("{entity}/layouts")
-	public String pageEntityLayouts(@PathVariable String entity, HttpServletRequest request) throws IOException {
-		EasyMeta entityMeta = new EasyMeta(EntityHelper.getEntity(entity));
-		request.setAttribute("entityName", entityMeta.getName());
-		request.setAttribute("entityLabel", entityMeta.getLabel());
-		request.setAttribute("comments", entityMeta.getComments());
+	@RequestMapping("{entity}/form-design")
+	public String pageFormDesign(@PathVariable String entity, HttpServletRequest request) throws IOException {
+		MetaEntityControll.setEntityBase(request, entity);
 		
-		PageForward.setPageAttribute(request);
-		return "/admin/entity/layouts.jsp";
+		JSON ll = LayoutManager.getFormLayout(entity);
+		if (ll != null) {
+			request.setAttribute("config", ll);
+		}
+		return "/admin/entity/form-design.jsp";
+	}
+	
+	@RequestMapping("{entity}/form-update")
+	public void formUpdate(@PathVariable String entity, HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getRequestUser(request);
+		JSON formJson = ServletUtils.getRequestJson(request);
+		Record record = EntityHelper.parse((JSONObject) formJson, user);
+		Application.getCommonService().createOrUpdate(record);
+		
+		writeSuccess(response);
 	}
 }

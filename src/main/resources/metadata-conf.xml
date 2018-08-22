@@ -78,8 +78,25 @@
 		<field name="refEntity" type="string" max-length="100"/>
 		<field name="cascade" type="string" max-length="100" default-value="ignore"/>
 		<field name="comments" type="string" max-length="200"/>
+		<field name="moreConfig" type="string" max-length="1000" description="更多扩展配置，JSON格式KV"/>
 		<index type="unique" field-list="belongEntity,fieldName"/>
 		<index type="unique" field-list="belongEntity,physicalName"/>
+	</entity>
+	
+	<entity name="PickList" type-code="012">
+		<field name="pickListId" type="primary"/>
+		<field name="entity" type="string" max-length="100" nullable="false" />
+		<field name="field" type="string" max-length="100" nullable="false" />
+		<field name="value" type="long" />
+		<field name="displayValue" type="string" max-length="100" />
+		<index type="unique" field-list="entity,field"/>
+	</entity>
+	
+	<entity name="Layout" type-code="013">
+		<field name="layoutId" type="primary"/>
+		<field name="entity" type="string" max-length="100" nullable="false" />
+		<field name="type" type="small-int" default-value="1" description="1=表单"/>
+		<field name="config" type="text" description="JSON格式配置"/>
 	</entity>
 	
 </metadata-config>

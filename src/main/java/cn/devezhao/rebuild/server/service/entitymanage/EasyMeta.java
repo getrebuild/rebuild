@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.server.metadata;
+package cn.devezhao.rebuild.server.service.entitymanage;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,7 +28,8 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.BaseMeta;
-import cn.devezhao.rebuild.server.service.entitymanage.DisplayType;
+import cn.devezhao.rebuild.server.metadata.ExtRecordCreator;
+import cn.devezhao.rebuild.server.metadata.MetadataHelper;
 
 /**
  * 
@@ -46,6 +47,8 @@ public class EasyMeta implements BaseMeta {
 		BUILTIN_ENTITY.add("RoleMember");
 		BUILTIN_ENTITY.add("MetaEntity");
 		BUILTIN_ENTITY.add("MetaField");
+		BUILTIN_ENTITY.add("PickList");
+		BUILTIN_ENTITY.add("Layout");
 		
 		BUILTIN_FIELD.add(ExtRecordCreator.createdOn);
 		BUILTIN_FIELD.add(ExtRecordCreator.createdBy);

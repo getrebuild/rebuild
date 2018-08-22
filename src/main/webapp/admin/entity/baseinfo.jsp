@@ -32,7 +32,7 @@ a#entityIcon:hover{opacity:0.8}
 						<ul class="nav">
 							<li class="active"><a href="base"><i class="icon mdi mdi-inbox"></i>基本信息</a></li>
 							<li><a href="fields"><i class="icon mdi mdi-inbox"></i>管理字段</a></li>
-							<li><a href="layouts"><i class="icon mdi mdi-inbox"></i>管理布局</a></li>
+							<li><a href="form-design"><i class="icon mdi mdi-inbox"></i>表单布局</a></li>
 						</ul>
 					</div>
 				</div>
@@ -109,10 +109,8 @@ $(document).ready(function(){
 		}
 		
 		_data.metadata = { entity:'MetaEntity', id:metaId||null };
-		_data = JSON.stringify(_data);
-		console.log(_data);
 		btn.button('loading');
-		$.post('../entity-update', _data, function(res){
+		$.post('../entity-update', JSON.stringify(_data), function(res){
 			if (res.error_code == 0) location.reload();
 			else alert(res.error_msg)
 		});
