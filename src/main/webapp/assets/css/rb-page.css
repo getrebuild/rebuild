@@ -46,11 +46,19 @@ body.dialog {
 	background-color: #fff;
 }
 
-textarea.row2 {
+body.dialog .main-content {
+	min-height: 155px;
+}
+
+body.dialog .main-content .footer {
+	padding-bottom:0 !important;
+}
+
+textarea.row2x {
 	height: 52px !important;
 	resize: none;
 }
-textarea.row3 {
+textarea.row3x {
 	height: 72px !important;
 	resize: none;
 }
@@ -66,4 +74,34 @@ a {
 .form-control-plaintext {
 	font-size: 1rem;
 	padding: 7px 0;
+}
+
+.rb-datatable-body {
+	min-height: 200px;
+}
+
+.img-field>span{
+	display: inline-block;
+	margin-right: 9px;
+	margin-bottom: 9px;
+}
+a.img-upload {
+	width: 72px;
+	height: 72px;
+	text-align: center;
+	display: table-cell;
+    vertical-align: middle;
+    padding: 2px;
+}
+a.img-upload:hover{
+	border: 1px solid #5f99f5;
+}
+
+.img-upload > span.zmdi {
+	font-size: 2rem;
+	color: #aaa;
+}
+.img-upload > img {
+	max-width: 100%;
+	max-height: 100%;
 }

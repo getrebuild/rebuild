@@ -51,14 +51,18 @@ public class AppUtils {
 	
 	/**
 	 * @param errCode
-	 * @param errMsg
+	 * @param errMsgOrData
 	 * @return
 	 */
-	public static String formatClientMsg(int errCode, String errMsg) {
+	public static String formatClientMsg(int errCode, String errMsgOrData) {
 		JSONObject jo = new JSONObject();
 		jo.put("error_code", errCode);
-		if (errMsg != null) {
-			jo.put("error_msg", errMsg);
+		if (errMsgOrData != null) {
+			if (errCode == 0) {
+				jo.put("data", errMsgOrData);
+			} else {
+				jo.put("error_msg", errMsgOrData);
+			}
 		}
 		return jo.toJSONString();
 	}
@@ -87,8 +91,15 @@ public class AppUtils {
 			ex = ThrowableUtils.getRootCause(ex);
 		}
 		
+		
+		
 		if (ex == null) {
-			return "未知错误";
+			Integer statusCode = (Integer) request.getAttribute(ServletUtils.ERROR_STATUS_CODE);
+			if (statusCode != null) {
+				return "系统错误:SC" + statusCode;
+			} else {
+				return "系统错误";
+			}
 		} else if (ex instanceof AccessDeniedException) {
 			String msg = StringUtils.defaultIfEmpty(ex.getLocalizedMessage(), "");
 			if (msg.contains("AJAX403")) {

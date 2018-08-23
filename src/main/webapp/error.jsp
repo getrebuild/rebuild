@@ -1,14 +1,14 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isErrorPage="true"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isErrorPage="true" trimDirectiveWhitespaces="true"%>
 <%@ page import="cn.devezhao.rebuild.web.commons.PageForward"%>
 <%@ page import="cn.devezhao.rebuild.utils.AppUtils"%>
 <%@ page import="cn.devezhao.commons.web.ServletUtils"%>
 <%
-PageForward.setPageAttribute(request);
 String errorMsg = AppUtils.getErrorMessage(request, exception);
 if (ServletUtils.isAjaxRequest(request)) {
 	out.print(errorMsg);
 	return;
 }
+PageForward.setPageAttribute(request);
 Integer errorCode = (Integer) request.getAttribute(ServletUtils.ERROR_STATUS_CODE);
 errorCode = errorCode == null ? 400 : errorCode;
 %>

@@ -23,13 +23,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.rebuild.server.Application;
 import cn.devezhao.rebuild.web.commons.BaseControll;
-import cn.devezhao.rebuild.web.commons.PageForward;
 
 /**
  * 
@@ -41,11 +41,9 @@ import cn.devezhao.rebuild.web.commons.PageForward;
 public class UserControll extends BaseControll {
 
 	@RequestMapping("login")
-	public String checkLogin(HttpServletRequest request) {
+	public ModelAndView checkLogin(HttpServletRequest request) {
 		// TODO 检查自动登录
-		
-		PageForward.setPageAttribute(request);
-		return "/user/login.jsp";
+		return createModelAndView("/user/login.jsp");
 	}
 	
 	@RequestMapping("user-login")
@@ -80,10 +78,11 @@ public class UserControll extends BaseControll {
 		response.sendRedirect("login");
 	}
 	
+	// --
+	
 	@RequestMapping("forgot-passwd")
-	public String forgotPasswd(HttpServletRequest request, HttpServletResponse response) {
-		PageForward.setPageAttribute(request);
-		return "/user/forgot-passwd.jsp";
+	public ModelAndView forgotPasswd(HttpServletRequest request, HttpServletResponse response) {
+		return createModelAndView("/user/forgot-passwd.jsp");
 	}
 	
 	@RequestMapping("user-forgot-passwd")

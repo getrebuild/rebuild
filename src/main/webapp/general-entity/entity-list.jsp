@@ -3,22 +3,22 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>用户管理</title>
+<title>${entityLabel}列表</title>
 <style type="text/css">
 </style>
 </head>
 <body>
 <div class="rb-wrapper rb-collapsible-sidebar">
 	<jsp:include page="/_include/NavTop.jsp">
-		<jsp:param value="用户管理" name="pageTitle"/>
+		<jsp:param value="${entityLabel}列表" name="pageTitle"/>
 	</jsp:include>
 	<jsp:include page="/_include/NavLeft.jsp">
-		<jsp:param value="user-list" name="activeNav"/>
+		<jsp:param value="${entityName}-list" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
 		<div class="main-content container-fluid">
 			<div class="card card-table">
-				<div class="card-body rb-loading">
+				<div class="card-body rb-loading rb-loading-active1">
 					<div class="dataTables_wrapper container-fluid">
 						<div class="row rb-datatable-header">
 							<div class="col-sm-6">
@@ -31,16 +31,15 @@
 							</div>
 							<div class="col-sm-6">
 								<div class="dataTables_oper">
-									<button class="btn btn-space btn-primary" onclick="rbModal.show('${baseUrl}/entity/${entity}/new')"><i class="icon zmdi zmdi-plus"></i> 新建</button>
-									<button class="btn btn-space btn-secondary" disabled="disabled"><i class="icon zmdi zmdi-delete"></i> 删除</button>
+									<button class="btn btn-space btn-primary J_new" data-url="${baseUrl}/entity/${entity}/new"><i class="icon zmdi zmdi-plus"></i> 新建</button>
+									<button class="btn btn-space btn-secondary J_del" disabled="disabled"><i class="icon zmdi zmdi-delete"></i> 删除</button>
 									<div class="btn-group btn-space">
 										<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-chevron-down"></i></button>
-										<div class="dropdown-menu">
-											<a class="dropdown-item" href="#">Action</a>
-											<a class="dropdown-item" href="#">Another action</a>
-											<a class="dropdown-item" href="#">Something else here</a>
+										<div class="dropdown-menu dropdown-menu-right">
+											<a class="dropdown-item">列显示</a>
 											<div class="dropdown-divider"></div>
-											<a class="dropdown-item" href="#">Separated link</a>
+											<a class="dropdown-item">导出</a>
+											<a class="dropdown-item">导入</a>
 										</div>
 									</div>
 								</div>
@@ -93,11 +92,10 @@
 
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/rb-list.js" type="text/javascript"></script>
-<script type="text/babel">
-const rbModal = ReactDOM.render(<RbModal title="新建" />, $('<div id="react-comps"></div>').appendTo(document.body)[0]);
-</script>
+<script type="text/babel">const rbModal = renderRbcomp(<RbModal title="新建${entityLabel}" target=".J_new" />)</script>
 <script type="text/javascript">
 $(document).ready(function(){
+	$('.dropdown-toggle').dropdown()
 });
 </script>
 </body>

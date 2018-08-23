@@ -26,7 +26,7 @@
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script type="text/babel">
-const rbModal = ReactDOM.render(<RbModal title="新建实体" />, $('<div id="react-comps"></div>').appendTo(document.body)[0]);
+const rbModal = renderRbcomp(<RbModal title="新建实体" />);
 const EntityList = function(props){
 	const content = props.data.map((d) =>
 		<div class="col-12 col-lg-2 col-sm-4">
@@ -47,7 +47,7 @@ const EntityList = function(props){
 $(document).ready(function(){
 	$.get('list-entity', function(res){
 		let _data = res.data;
-		_data.push({ entityName:'$NEW$', entityLabel:'新建', comments:'新建一个实体', icon:'plus' });
+		_data.push({ entityName:'$NEW$', entityLabel:'新建', comments:'新建一个新实体', icon:'plus' });
 		ReactDOM.render(<EntityList data={_data} />, document.getElementById('entityList'));
 		$('.entity[href="$NEW$/base"]').click(function(){
 			rbModal.show('entity-new.htm');
@@ -55,10 +55,6 @@ $(document).ready(function(){
 		});
 	});
 });
-</script>
-<script type="text/javascript">
-$(document).ready(function(){
-})
 </script>
 </body>
 </html>

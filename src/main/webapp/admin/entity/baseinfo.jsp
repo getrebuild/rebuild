@@ -48,7 +48,7 @@ a#entityIcon:hover{opacity:0.8}
 						<div class="form-group row">
 							<label class="col-12 col-sm-2 col-form-label text-sm-right">图标</label>
 							<div class="col-12 col-sm-8 col-lg-4">
-								<a id="entityIcon" data-o="${icon}" title="更换图标" onclick="rbModal.show('../../search-icon.htm')"><i class="icon zmdi zmdi-${icon}"></i></a>
+								<a id="entityIcon" data-o="${icon}" title="更换图标" data-url="${baseUrl}/admin/search-icon.htm"><i class="icon zmdi zmdi-${icon}"></i></a>
 							</div>
 						</div>
 						<div class="form-group row">
@@ -66,13 +66,13 @@ a#entityIcon:hover{opacity:0.8}
 						<div class="form-group row">
 							<label class="col-12 col-sm-2 col-form-label text-sm-right">备注</label>
 							<div class="col-12 col-sm-8 col-lg-4">
-								<textarea class="form-control form-control-sm row2" id="comments" data-o="${comments}">${comments}</textarea>
+								<textarea class="form-control form-control-sm row2x" id="comments" data-o="${comments}">${comments}</textarea>
 							</div>
 						</div>
 						<div class="form-group row footer">
-							<label class="col-12 col-sm-2 col-form-label text-sm-right"></label>
-							<div class="col-12 col-sm-8 col-lg-4">
+							<div class="col-12 col-sm-8 col-lg-4 offset-sm-2">
 								<button class="btn btn-primary" type="button">更新</button>
+								
 								<div class="alert alert-warning alert-icon" style="display:none">
 									<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
 									<div class="message">系统内建实体，不允许修改</div>
@@ -87,7 +87,7 @@ a#entityIcon:hover{opacity:0.8}
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script type="text/babel">
-const rbModal = ReactDOM.render(<RbModal title="选择图标" />, $('<div id="react-comps"></div>').appendTo(document.body)[0]);
+const rbModal = renderRbcomp(<RbModal title="选择图标" target="#entityIcon" />);
 </script>
 <script type="text/javascript">
 icon_call = function(icon){
@@ -99,16 +99,16 @@ $(document).ready(function(){
 	const metaId = '${entityMetaId}';
 	const btn = $('.btn-primary').click(function(){
 		if (!!!metaId) return;
-		let icon = $val('#entityIcon');
-		let label = $val('#entityLabel');
-		let comments = $val('#comments');
+		let icon = $val('#entityIcon'),
+			label = $val('#entityLabel'),
+			comments = $val('#comments');
 		let _data = { icon:icon, label:label, comments:comments };
 		if (JSON.stringify(_data) == '{}'){
 			location.reload();
 			return;
 		}
 		
-		_data.metadata = { entity:'MetaEntity', id:metaId||null };
+		_data.metadata = { entity:'MetaEntity', id:metaId };
 		btn.button('loading');
 		$.post('../entity-update', JSON.stringify(_data), function(res){
 			if (res.error_code == 0) location.reload();

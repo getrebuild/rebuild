@@ -19,7 +19,6 @@ package cn.devezhao.rebuild.utils;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 
@@ -65,9 +64,8 @@ public class QiniuCloud {
 	 * @throws IOException
 	 */
 	public static String upload(File file) throws IOException {
-		String key = String.format("/fs/%s/%s", 
-				CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()),
-				UUID.randomUUID().toString().replace("-", ""));
+		String key = String.format("rebuild/%s/%s", 
+				CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()), file.getName());
 		Response resp = UPLOAD_MANAGER.put(file, key, getUpToken());
 		System.out.println(resp.bodyString());
 		return key;

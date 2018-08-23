@@ -4,10 +4,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>用户管理</title>
-<style type="text/css">
-.footer{padding-bottom:0 !important;}
-</style>
+<title>新建字段</title>
 </head>
 <body class="dialog">
 <div class="main-content">
@@ -22,11 +19,18 @@
 			<label class="col-12 col-sm-3 col-form-label text-sm-right">类型</label>
 			<div class="col-12 col-sm-8 col-lg-6">
 				<select class="form-control form-control-sm" id="type">
-					<% for (DisplayType dt : DisplayType.values()) {
-						if (dt != DisplayType.ID) {
-					%>
-					<option value="<%=dt.name()%>"><%=dt.getDisplayName() %></option>
-					<% } } %>
+					<option value="NUMBER">整数</option>
+					<option value="DECIMAL">货币</option>
+					<option value="DATETIME">日期时间</option>
+					<option value="TEXT">文本</option>
+					<option value="QQ">QQ</option>
+					<option value="EMAIL">邮箱</option>
+					<option value="URL">链接</option>
+					<option value="IMAGE">图片</option>
+					<option value="FILE">文件</option>
+					<option value="LOCATION">位置</option>
+					<option value="PICKLIST">列表</option>
+					<option value="REFERENCE">引用</option>
 				</select>
 			</div>
 		</div>
@@ -40,13 +44,12 @@
 		<div class="form-group row">
 			<label class="col-12 col-sm-3 col-form-label text-sm-right">备注</label>
 			<div class="col-12 col-sm-8 col-lg-4">
-				<textarea class="form-control form-control-sm row2" id="comments" maxlength="100" placeholder="可选"></textarea>
+				<textarea class="form-control form-control-sm row2x" id="comments" maxlength="100" placeholder="可选"></textarea>
 			</div>
 		</div>
 		<div class="form-group row footer">
-			<label class="col-12 col-sm-3 col-form-label text-sm-right"></label>
-			<div class="col-12 col-sm-8 col-lg-6">
-            	<button class="btn btn-primary btn-space" type="button">确定</button>
+			<div class="col-12 col-sm-8 col-lg-6 offset-sm-3">
+            	<button class="btn btn-primary" type="button" data-loading-text="请稍后">确定</button>
 			</div>
 		</div>
 	</form>

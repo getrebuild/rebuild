@@ -22,6 +22,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.web.servlet.ModelAndView;
+
 import cn.devezhao.commons.web.JhtmlForward;
 import cn.devezhao.rebuild.server.Startup;
 
@@ -36,19 +38,29 @@ public class PageForward extends JhtmlForward {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		setPageAttribute(request);
-//		super.doGet(request, response);
 		boolean pass = RequestWatchHandler.verfiyPass(request, response);
 		if (pass) {
 			super.doGet(request, response);
+		} else {
+			response.sendError(403, "无权访问");
 		}
 	}
 	
 	/**
-	 * 配置页面所用
+	 * 页面公用属性
 	 * 
 	 * @param request
 	 */
 	public static void setPageAttribute(HttpServletRequest request) {
 		request.setAttribute("baseUrl", Startup.getContextPath());
+	}
+	
+	/**
+	 * 页面公用属性
+	 * 
+	 * @param request
+	 */
+	public static void setPageAttribute(ModelAndView modelAndView) {
+		modelAndView.getModel().put("baseUrl", Startup.getContextPath());
 	}
 }

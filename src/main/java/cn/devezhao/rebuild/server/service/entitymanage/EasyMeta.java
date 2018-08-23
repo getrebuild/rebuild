@@ -112,7 +112,7 @@ public class EasyMeta implements BaseMeta {
 			Object[] ext = getExtmeta();
 			if (ext != null) {
 				DisplayType dt = (DisplayType) ext[2];
-				return dt.toString();
+				return dt.name();
 			} else {
 				return ((Field) baseMeta).getType().getName().toUpperCase();
 			}

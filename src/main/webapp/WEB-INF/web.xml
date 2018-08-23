@@ -59,6 +59,27 @@
 		<url-pattern>*.htm</url-pattern>
 	</servlet-mapping>
 	
+	<servlet>
+		<servlet-name>FileUploader</servlet-name>
+		<servlet-class>cn.devezhao.rebuild.web.commons.FileUploader</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>FileUploader</servlet-name>
+		<url-pattern>/filex/upload</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>FileDownload</servlet-name>
+		<servlet-class>cn.devezhao.rebuild.web.commons.FileDownload</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>FileDownload</servlet-name>
+		<url-pattern>/filex/download</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>FileDownload</servlet-name>
+		<url-pattern>/filex/imgview</url-pattern>
+	</servlet-mapping>
+	
 	<servlet-mapping>
 		<servlet-name>default</servlet-name>
 		<url-pattern>/assets/*</url-pattern>

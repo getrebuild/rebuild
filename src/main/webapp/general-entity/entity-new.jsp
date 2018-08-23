@@ -5,16 +5,21 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>新建</title>
 <style type="text/css">
-.footer{padding-bottom:0 !important;}
 </style>
 </head>
 <body class="dialog">
-<div class="main-content">
+<div class="main-content rb-loading rb-loading-active">
 	<div id="form-container"></div>
+	<div class="rb-spinner">
+		<svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://-www.w3.org/2000/svg">
+			<circle fill="none" stroke-width="4" stroke-linecap="round" cx="33" cy="33" r="30" class="circle"></circle>
+		</svg>
+	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
+<script src="${baseUrl}/assets/lib/jquery.html5uploader.js" type="text/javascript"></script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
-<script type="text/babel">(function(){ renderRbform(${formConfig}) })()</script>
+<script type="text/babel">(function(){ renderRbform(${FormConfig}) })()</script>
 <script type="text/javascript">
 $(document).ready(function(){
 });

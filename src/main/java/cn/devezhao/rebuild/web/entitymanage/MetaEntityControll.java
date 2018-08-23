@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -42,7 +43,6 @@ import cn.devezhao.rebuild.server.metadata.MetadataHelper;
 import cn.devezhao.rebuild.server.service.entitymanage.EasyMeta;
 import cn.devezhao.rebuild.server.service.entitymanage.Entity2Schema;
 import cn.devezhao.rebuild.web.commons.BaseControll;
-import cn.devezhao.rebuild.web.commons.PageForward;
 
 /**
  * 
@@ -54,15 +54,15 @@ import cn.devezhao.rebuild.web.commons.PageForward;
 public class MetaEntityControll extends BaseControll {
 	
 	@RequestMapping("list")
-	public String pageList(HttpServletRequest request) throws IOException {
-		PageForward.setPageAttribute(request);
-		return "/admin/entity/list.jsp";
+	public ModelAndView pageList(HttpServletRequest request) throws IOException {
+		return createModelAndView("/admin/entity/list.jsp");
 	}
 	
 	@RequestMapping("{entity}/base")
-	public String pageEntityBase(@PathVariable String entity, HttpServletRequest request) throws IOException {
-		setEntityBase(request, entity);
-		return "/admin/entity/baseinfo.jsp";
+	public ModelAndView pageEntityBase(@PathVariable String entity, HttpServletRequest request) throws IOException {
+		ModelAndView mv = createModelAndView("/admin/entity/baseinfo.jsp");
+		setEntityBase(mv, entity);
+		return mv;
 	}
 
 	@RequestMapping("list-entity")
@@ -109,18 +109,17 @@ public class MetaEntityControll extends BaseControll {
 	}
 	
 	/**
-	 * @param request
+	 * @param mv
 	 * @param entity
 	 * @return
 	 */
-	protected static EasyMeta setEntityBase(HttpServletRequest request, String entity) {
+	protected static EasyMeta setEntityBase(ModelAndView mv, String entity) {
 		EasyMeta entityMeta = new EasyMeta(EntityHelper.getEntity(entity));
-		request.setAttribute("entityMetaId", entityMeta.getMetaId());
-		request.setAttribute("entityName", entityMeta.getName());
-		request.setAttribute("entityLabel", entityMeta.getLabel());
-		request.setAttribute("icon", entityMeta.getIcon());
-		request.setAttribute("comments", entityMeta.getComments());
-		PageForward.setPageAttribute(request);
+		mv.getModel().put("entityMetaId", entityMeta.getMetaId());
+		mv.getModel().put("entityName", entityMeta.getName());
+		mv.getModel().put("entityLabel", entityMeta.getLabel());
+		mv.getModel().put("icon", entityMeta.getIcon());
+		mv.getModel().put("comments", entityMeta.getComments());
 		return entityMeta;
 	}
 }

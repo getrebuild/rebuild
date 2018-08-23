@@ -29,15 +29,19 @@ public enum DisplayType {
 	NUMBER("整数", FieldType.LONG),
 	DECIMAL("货币", FieldType.DECIMAL),
 	DATETIME("日期时间", FieldType.TIMESTAMP),
-	PICKLIST("下拉列表", FieldType.INT),
+	PICKLIST("列表", FieldType.LONG),
 	TEXT("文本", FieldType.STRING),
 	QQ("QQ", FieldType.STRING),
 	EMAIL("邮箱", FieldType.STRING),
 	URL("链接", FieldType.STRING),
 	LOCATION("位置", FieldType.STRING),
 	IMAGE("图片", FieldType.STRING),
-	ID("主键", FieldType.PRIMARY),
-	REFERENCE("引用", FieldType.REFERENCE);
+	FILE("文件", FieldType.STRING),
+	REFERENCE("引用", FieldType.REFERENCE),
+	
+	ID("主键", FieldType.PRIMARY);
+	
+	// --
 	
 	private String displayName;
 	private Type fieldType;

@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -46,14 +47,15 @@ import cn.devezhao.rebuild.web.commons.BaseControll;
 public class EntityLayoutControll extends BaseControll {
 	
 	@RequestMapping("{entity}/form-design")
-	public String pageFormDesign(@PathVariable String entity, HttpServletRequest request) throws IOException {
-		MetaEntityControll.setEntityBase(request, entity);
+	public ModelAndView pageFormDesign(@PathVariable String entity, HttpServletRequest request) throws IOException {
+		ModelAndView mv = createModelAndView("/admin/entity/form-design.jsp");
+		MetaEntityControll.setEntityBase(mv, entity);
 		
 		JSON ll = LayoutManager.getFormLayout(entity);
 		if (ll != null) {
 			request.setAttribute("config", ll);
 		}
-		return "/admin/entity/form-design.jsp";
+		return mv;
 	}
 	
 	@RequestMapping("{entity}/form-update")
@@ -62,7 +64,6 @@ public class EntityLayoutControll extends BaseControll {
 		JSON formJson = ServletUtils.getRequestJson(request);
 		Record record = EntityHelper.parse((JSONObject) formJson, user);
 		Application.getCommonService().createOrUpdate(record);
-		
 		writeSuccess(response);
 	}
 }

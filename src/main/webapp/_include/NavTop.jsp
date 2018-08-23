@@ -2,19 +2,19 @@
 <nav class="navbar navbar-expand fixed-top rb-top-header">
 	<div class="container-fluid">
 		<div class="rb-navbar-header">
-			<a class="navbar-brand" href="${baseUrl}/dashboard/home.htm"></a>
-			<a class="rb-toggle-left-sidebar" href="#"><span class="icon zmdi zmdi-menu"></span></a>
+			<a class="navbar-brand" href="${baseUrl}/dashboard/home"></a>
+			<a class="rb-toggle-left-sidebar"><span class="icon zmdi zmdi-menu"></span></a>
 		</div>
 		<div class="rb-right-navbar">
 			<ul class="nav navbar-nav float-right rb-user-nav">
 				<li class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><img src="${baseUrl}/assets/img/avatar.png" alt="Avatar"><span class="user-name">admin</span></a>
+					<a class="nav-link dropdown-toggle" href="${baseUrl}/my/profile" data-toggle="dropdown"><img src="${baseUrl}/assets/img/avatar.png" alt="Avatar"><span class="user-name">admin</span></a>
 					<div class="dropdown-menu">
 						<div class="user-info">
 							<div class="user-name">admin</div>
 							<div class="user-id">hello@getrebuild.com</div>
 						</div>
-						<a class="dropdown-item" href="${baseUrl}/my/profile.htm"><span class="icon zmdi zmdi-face"></span>个人信息</a>
+						<a class="dropdown-item" href="${baseUrl}/my/profile"><span class="icon zmdi zmdi-face"></span>个人信息</a>
 						<a class="dropdown-item" href="${baseUrl}/user/logout"><span class="icon zmdi zmdi-power"></span>退出</a>
 					</div>
 				</li>

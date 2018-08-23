@@ -3,13 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>字段管理</title>
-<style type="text/css">
-.card.entity .card-body{padding:14px 20px}
-.card.entity .icon{font-size:40px;}
-.card.entity h5,.card.entity p{margin:3px 0;}
-.card.entity p{color:#777;font-size:0.9rem;}
-</style>
+<title>管理字段</title>
 </head>
 <body>
 <div class="rb-wrapper rb-collapsible-sidebar rb-fixed-sidebar rb-aside">
@@ -41,7 +35,7 @@
         </aside>
 		<div class="main-content container-fluid">
 			<div class="card card-table">
-				<div class="card-body rb-loading">
+				<div class="card-body rb-loading rb-loading-active">
 					<div class="dataTables_wrapper container-fluid">
 						<div class="row rb-datatable-header">
 							<div class="col-sm-6">
@@ -54,14 +48,14 @@
 							</div>
 							<div class="col-sm-6">
 								<div class="dataTables_oper">
-									<button class="btn btn-space btn-primary" onclick="rbModal.show('../field-new.htm?entity=${entityName}')"><i class="icon zmdi zmdi-plus"></i> 新建</button>
+									<button class="btn btn-space btn-primary J_new" data-url="${baseUrl}/admin/entity/field-new.htm?entity=${entityName}"><i class="icon zmdi zmdi-plus"></i> 新建</button>
 									<button class="btn btn-space btn-secondary" disabled="disabled"><i class="icon zmdi zmdi-delete"></i> 删除</button>
 								</div>
 							</div>
 						</div>
 						<div class="row rb-datatable-body">
 							<div class="col-sm-12">
-								<table class="table" id="dataList" data-entity="MetaField">
+								<table class="table table-hover" id="dataList" data-entity="MetaField">
 									<thead>
 										<tr>
 											<th width="50">
@@ -87,9 +81,9 @@
 							<div class="col-sm-7">
 								<div class="dataTables_paginate paging_simple_numbers">
 									<ul class="pagination">
-										<li class="paginate_button page-item previous disabled"><a href="#" class="page-link"><span class="icon zmdi zmdi-chevron-left"></span></a></li>
-										<li class="paginate_button page-item active"><a href="#" class="page-link">1</a></li>
-										<li class="paginate_button page-item next"><a href="#" class="page-link"><span class="icon zmdi zmdi-chevron-right"></span></a></li>
+										<li class="paginate_button page-item previous disabled"><a class="page-link"><span class="icon zmdi zmdi-chevron-left"></span></a></li>
+										<li class="paginate_button page-item active"><a class="page-link">1</a></li>
+										<li class="paginate_button page-item next disabled"><a class="page-link"><span class="icon zmdi zmdi-chevron-right"></span></a></li>
 									</ul>
 								</div>
 							</div>
@@ -106,9 +100,8 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/js/rb-list.js" type="text/javascript"></script>
 <script type="text/babel">
-const rbModal = ReactDOM.render(<RbModal title="新建字段" />, $('<div id="react-comps"></div>').appendTo(document.body)[0]);
+const rbModal = renderRbcomp(<RbModal title="新建字段" target=".J_new" />);
 </script>
 <script type="text/javascript">
 $(document).ready(function(){
@@ -116,7 +109,7 @@ $(document).ready(function(){
 		let tbody = $('#dataList tbody');
 		$(res.data).each(function(){
 			let tr = $('<tr></tr>').appendTo(tbody);
-			$('<td data-id="' + 'x' + '"><label class="custom-control custom-control-sm custom-checkbox"><input class="custom-control-input" type="checkbox"><span class="custom-control-label"></span></label></td>').appendTo(tr);
+			$('<td data-id="' + this.fieldId + '"><label class="custom-control custom-control-sm custom-checkbox"><input class="custom-control-input" type="checkbox"><span class="custom-control-label"></span></label></td>').appendTo(tr);
 			$('<td>' + this.fieldLabel + '</td>').appendTo(tr);
 			$('<td>' + this.fieldName + '</td>').appendTo(tr);
 			$('<td>' + this.displayType + '</td>').appendTo(tr);
@@ -126,6 +119,8 @@ $(document).ready(function(){
 				confirm('删除？');
 			});
 		});
+		$('.dataTables_info').text('共 ' + res.data.length + ' 个字段');
+		$('.rb-loading-active').removeClass('rb-loading-active')
 	});
 });
 </script>

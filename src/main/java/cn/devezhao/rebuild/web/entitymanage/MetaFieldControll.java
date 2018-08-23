@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -57,9 +58,10 @@ import cn.devezhao.rebuild.web.commons.BaseControll;
 public class MetaFieldControll extends BaseControll  {
 	
 	@RequestMapping("{entity}/fields")
-	public String pageEntityFields(@PathVariable String entity, HttpServletRequest request) throws IOException {
-		MetaEntityControll.setEntityBase(request, entity);
-		return "/admin/entity/fields.jsp";
+	public ModelAndView pageEntityFields(@PathVariable String entity, HttpServletRequest request) throws IOException {
+		ModelAndView mv = createModelAndView("/admin/entity/fields.jsp");
+		MetaEntityControll.setEntityBase(mv, entity);
+		return mv;
 	}
 	
 	@RequestMapping("list-field")
@@ -74,11 +76,12 @@ public class MetaFieldControll extends BaseControll  {
 		List<Map<String, Object>> ret = new ArrayList<>();
 		for (Field field : entity.getFields()) {
 			EasyMeta easyMeta = new EasyMeta(field);
-//			if (easyMeta.isBuiltin()) {
-//				continue;
-//			}
+			if (field.getType() == FieldType.PRIMARY) {
+				continue;
+			}
 			
 			Map<String, Object> map = new HashMap<>();
+			map.put("fieldId", easyMeta.getMetaId().toLiteral());
 			map.put("fieldName", easyMeta.getName());
 			map.put("fieldLabel", easyMeta.getLabel());
 			map.put("displayType", easyMeta.getDisplayType());
@@ -90,28 +93,30 @@ public class MetaFieldControll extends BaseControll  {
 	}
 
 	@RequestMapping("{entity}/field/{field}")
-	public String pageEntityFields(@PathVariable String entity, @PathVariable String field, HttpServletRequest request) throws IOException {
-		EasyMeta easyMeta = MetaEntityControll.setEntityBase(request, entity);
+	public ModelAndView pageEntityFields(@PathVariable String entity, @PathVariable String field, HttpServletRequest request) throws IOException {
+		ModelAndView mv = createModelAndView("/admin/entity/field-edit.jsp");
+		EasyMeta easyMeta = MetaEntityControll.setEntityBase(mv, entity);
+		
 		Field fieldMeta = ((Entity) easyMeta.getBaseMeta()).getField(field);
 		EasyMeta fieldEasyMeta = new EasyMeta(fieldMeta);
 		
-		request.setAttribute("fieldMetaId", fieldEasyMeta.isBuiltin() ? null : fieldEasyMeta.getMetaId());
-		request.setAttribute("fieldName", fieldEasyMeta.getName());
-		request.setAttribute("fieldLabel", fieldEasyMeta.getLabel());
-		request.setAttribute("fieldComments", fieldEasyMeta.getComments());
-		request.setAttribute("fieldType", fieldEasyMeta.getDisplayType());
+		mv.getModel().put("fieldMetaId", fieldEasyMeta.isBuiltin() ? null : fieldEasyMeta.getMetaId());
+		mv.getModel().put("fieldName", fieldEasyMeta.getName());
+		mv.getModel().put("fieldLabel", fieldEasyMeta.getLabel());
+		mv.getModel().put("fieldComments", fieldEasyMeta.getComments());
+		mv.getModel().put("fieldType", fieldEasyMeta.getDisplayType());
 		
 		// 字段类型相关
 		Type ft = fieldMeta.getType();
 		if (ft == FieldType.DECIMAL) {
-			request.setAttribute("fieldPrecision", fieldMeta.getDecimalScale());
+			mv.getModel().put("fieldPrecision", fieldMeta.getDecimalScale());
 		} else if (ft == FieldType.REFERENCE) {
 			Entity refentity = fieldMeta.getReferenceEntities()[0];
-			request.setAttribute("fieldRefentity", refentity.getName());
-			request.setAttribute("fieldRefentityLabel", new EasyMeta(refentity).getLabel());
+			mv.getModel().put("fieldRefentity", refentity.getName());
+			mv.getModel().put("fieldRefentityLabel", new EasyMeta(refentity).getLabel());
 		}
 		
-		return "/admin/entity/field-edit.jsp";
+		return mv;
 	}
 	
 	@RequestMapping("field-new")

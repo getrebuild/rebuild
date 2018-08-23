@@ -2,7 +2,14 @@
 class RbModal extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { title: props.title };
+        this.state = { ...props };
+        if (props.target) {
+            let that = this;
+            let t = $(props.target);
+            t.click(function(){
+                that.show(t.data('url'))
+            })
+        }
     }
 	render() {
 		return (
@@ -42,7 +49,7 @@ class RbModal extends React.Component {
             if (height == 0 || height == that.__lastHeight) return;
             $(that.refs['rbmodal.body']).height(height);
             that.__lastHeight = height;
-        }, 100, 'RbModal-resize');
+        }, 400, 'RbModal-resize');
     }
 }
 
@@ -85,3 +92,9 @@ class RbAlter extends React.Component {
         $(this.refs['rbalter']).modal('hide');
     }
 }
+
+const renderRbcomp = function(jsx) {
+    let container = $('#react-comps');
+    if (container.length == 0) container = $('<div id="react-comps"></div>').appendTo(document.body);
+    return ReactDOM.render(jsx, container[0]);
+};

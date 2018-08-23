@@ -19,7 +19,9 @@ package cn.devezhao.rebuild.server.service.entitymanage;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.rebuild.server.Application;
+import cn.devezhao.rebuild.server.metadata.EntityHelper;
 
 /**
  * 
@@ -59,6 +61,15 @@ public class LayoutManager {
 	 */
 	public static JSON getFormLayoutForPortal(String entity) {
 		JSONObject config = (JSONObject) getFormLayout(entity);
+		
+		Entity entityMeta = EntityHelper.getEntity(entity);
+		for (Object element : config.getJSONArray("elements")) {
+			JSONObject el = (JSONObject) element;
+			String fieldName = el.getString("field");
+			EasyMeta fieldMeta = new EasyMeta(entityMeta.getField(fieldName));
+			el.put("label", fieldMeta.getLabel());
+			el.put("type", fieldMeta.getDisplayType());
+		}
 		
 		return config;
 	}

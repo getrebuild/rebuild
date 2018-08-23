@@ -4,9 +4,6 @@
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <title>新建实体</title>
-<style type="text/css">
-.footer{padding-bottom:0 !important;}
-</style>
 </head>
 <body class="dialog">
 <div class="main-content">
@@ -20,13 +17,12 @@
 		<div class="form-group row">
 			<label class="col-12 col-sm-3 col-form-label text-sm-right">备注</label>
 			<div class="col-12 col-sm-8 col-lg-4">
-				<textarea class="form-control form-control-sm row2" id="comments" maxlength="100" placeholder="可选"></textarea>
+				<textarea class="form-control form-control-sm row2x" id="comments" maxlength="100" placeholder="可选"></textarea>
 			</div>
 		</div>
 		<div class="form-group row footer">
-			<label class="col-12 col-sm-3"></label>
-			<div class="col-12 col-sm-8 col-lg-4">
-				<button class="btn btn-primary btn-space" type="button" data-loading-text="请稍后">确定</button>
+			<div class="col-12 col-sm-8 col-lg-4 offset-sm-3">
+				<button class="btn btn-primary" type="button" data-loading-text="请稍后">确定</button>
 			</div>
 		</div>
 	</form>
@@ -35,8 +31,8 @@
 <script type="text/javascript">
 $(document).ready(function(){
 	let btn = $('.btn-primary').click(function(){
-		let entityLabel = $('#entityLabel').val(),
-			comments = $('#comments').val() || '';
+		let entityLabel = $val('#entityLabel'),
+			comments = $val('#comments');
 		if (!entityLabel){
 			alert('请输入名称'); return;
 		}
