@@ -83,6 +83,7 @@ $(document).ready(function(){
 	
 	let referenceLoaded = false;
 	$('#type').change(function(){
+		if (parent && parent.rbModal) parent.rbModal.loaded()
 		if ($(this).val() == 'REFERENCE'){
 			$('.J_dt-REFERENCE').removeClass('hide');
 			if (referenceLoaded == false){

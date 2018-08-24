@@ -10,7 +10,7 @@
 		<field name="modifiedBy" type="reference" ref-entity="User" nullable="false" description="更新人" />
 	</entity>
 
-	<entity name="User" type-code="001" description="用户">
+	<entity name="User" type-code="001" description="用户" name-field="fullName">
 		<field name="userId" type="primary" />
 		<field name="loginName" type="string" max-length="100" nullable="false" description="登录名" />
 		<field name="email" type="string" max-length="100" description="邮箱"/>
@@ -19,22 +19,22 @@
 		<field name="avatarUrl" type="string" max-length="300" description="头像"/>
 		<field name="jobTitle" type="string" max-length="100" description="职务"/>
 		<field name="deptId" type="reference" ref-entity="Department" nullable="false" description="所在部门"/>
-		<field name="isDisabled" type="bool" default-value="T" description="是否禁用"/>
+		<field name="isDisabled" type="bool" default-value="T" description="是否停用"/>
 		<index type="unique" field-list="loginName"/>
 		<index type="unique" field-list="email"/>
 	</entity>
 	
-	<entity name="Department" type-code="002" description="部门">
+	<entity name="Department" type-code="002" description="部门" name-field="name">
 		<field name="deptId" type="primary" />
-		<field name="name" type="string" max-length="100" nullable="false" />
-		<field name="parentDept" type="reference" ref-entity="Department" />
-		<field name="isDisabled" type="bool" default-value="F" />
+		<field name="name" type="string" max-length="100" nullable="false" description="部门名称" />
+		<field name="parentDept" type="reference" ref-entity="Department" description="父级部门" />
+		<field name="isDisabled" type="bool" default-value="F" description="是否停用" />
 	</entity>
 	
-	<entity name="Role" type-code="003" description="角色">
+	<entity name="Role" type-code="003" description="角色" name-field="name">
 		<field name="roleId" type="primary" />
 		<field name="name" type="string" max-length="100" nullable="false" description="角色名称" />
-		<field name="isDisabled" type="bool" default-value="F" description="是否禁用" />
+		<field name="isDisabled" type="bool" default-value="F" description="是否停用" />
 	</entity>
 	
 	<entity name="RolePrivileges" type-code="004" parent="false">
@@ -49,7 +49,7 @@
 		<field name="userId" type="reference" ref-entity="User" />
 	</entity>
 	
-	<entity name="MetaEntity" type-code="010">
+	<entity name="MetaEntity" type-code="010" name-field="entityName">
 		<field name="entityId" type="primary" />
 		<field name="typeCode" type="small-int" nullable="false" />
 		<field name="entityName" type="string" max-length="100" nullable="false" />
@@ -57,12 +57,13 @@
 		<field name="entityLabel" type="string" max-length="100" nullable="false" description="for description"/>
 		<field name="comments" type="string" max-length="200"/>
 		<field name="icon" type="string" max-length="60"/>
+		<field name="nameField" type="string" max-length="100" />
 		<index type="unique" field-list="typeCode"/>
 		<index type="unique" field-list="entityName"/>
 		<index type="unique" field-list="physicalName"/>
 	</entity>
 	
-	<entity name="MetaField" type-code="011">
+	<entity name="MetaField" type-code="011" name-field="fieldName">
 		<field name="fieldId" type="primary" />
 		<field name="belongEntity" type="string" max-length="100" nullable="false" />
 		<field name="fieldName" type="string" max-length="100" nullable="false" />

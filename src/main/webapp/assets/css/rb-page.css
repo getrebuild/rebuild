@@ -1,6 +1,9 @@
 .btn {
-	height: 2.8rem;
+	min-height: 2.8rem;
 	min-width: 88px;
+}
+.btn-lg {
+	min-width: 108px;
 }
 
 .btn-xl {
@@ -15,6 +18,7 @@
 
 .input-search .input-group-btn button {
 	height: 2.6rem;
+	min-height: 2.6rem;
 	min-width: auto;
 }
 
@@ -42,6 +46,7 @@
 .modal-body.iframe iframe {
 	width: 100%;
 	height: 100%;
+	overflow: hidden;
 }
 
 body.dialog {
@@ -54,6 +59,10 @@ body.dialog .main-content {
 
 body.dialog .main-content .footer {
 	padding-bottom: 0 !important;
+}
+
+.select2-search--dropdown .select2-search__field {
+	padding: 3px 10px
 }
 
 textarea.row2x {
@@ -151,7 +160,7 @@ a {
 }
 
 .file-field .file-select {
-	margin-top: 3px;
+	margin-top: 1px;
 }
 
 .file-field .img-thumbnail {
@@ -176,4 +185,8 @@ a {
 	margin-left: 42px;
 	display: block;
 	word-break: break-all;
+}
+
+.datetime-field .input-group-append button {
+	min-width: 38px;
 }

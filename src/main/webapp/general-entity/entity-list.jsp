@@ -34,12 +34,12 @@
 									<button class="btn btn-space btn-primary J_new" data-url="${baseUrl}/entity/${entity}/new"><i class="icon zmdi zmdi-plus"></i> 新建</button>
 									<button class="btn btn-space btn-secondary J_del" disabled="disabled"><i class="icon zmdi zmdi-delete"></i> 删除</button>
 									<div class="btn-group btn-space">
-										<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-chevron-down"></i></button>
+										<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <span class="icon-dropdown zmdi zmdi-chevron-down"></span></button>
 										<div class="dropdown-menu dropdown-menu-right">
 											<a class="dropdown-item">列显示</a>
 											<div class="dropdown-divider"></div>
-											<a class="dropdown-item">导出</a>
 											<a class="dropdown-item">导入</a>
+											<a class="dropdown-item">导出</a>
 										</div>
 									</div>
 								</div>

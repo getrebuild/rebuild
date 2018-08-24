@@ -114,12 +114,14 @@ public class MetaEntityControll extends BaseControll {
 	 * @return
 	 */
 	protected static EasyMeta setEntityBase(ModelAndView mv, String entity) {
-		EasyMeta entityMeta = new EasyMeta(EntityHelper.getEntity(entity));
+		Entity e = EntityHelper.getEntity(entity);
+		EasyMeta entityMeta = new EasyMeta(e);
 		mv.getModel().put("entityMetaId", entityMeta.getMetaId());
 		mv.getModel().put("entityName", entityMeta.getName());
 		mv.getModel().put("entityLabel", entityMeta.getLabel());
 		mv.getModel().put("icon", entityMeta.getIcon());
 		mv.getModel().put("comments", entityMeta.getComments());
+		mv.getModel().put("nameField", e.getNameField().getName());
 		return entityMeta;
 	}
 }

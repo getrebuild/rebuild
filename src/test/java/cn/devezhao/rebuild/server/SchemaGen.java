@@ -26,7 +26,7 @@ public class SchemaGen {
 		CTX = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml" });
 		PMF = CTX.getBean(PersistManagerFactoryImpl.class);
 		
-		genAll();
+//		genAll();
 //		gen(EntityHelper.MetaEntity);
 //		gen(EntityHelper.MetaField);
 //		gen(EntityHelper.PickList);

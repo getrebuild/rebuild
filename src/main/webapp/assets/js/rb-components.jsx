@@ -21,7 +21,7 @@ class RbModal extends React.Component {
             		        <button className="close md-close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
             		    </div>
         		        <div className="modal-body iframe" ref="rbmodal.body">
-            		        <iframe src={this.state.url || 'about:blank'} frameborder="0" scrolling="auto" ref="rbmodal.iframe" onLoad={()=>this.loaded()} onResize={()=>this.loaded()}></iframe>
+            		        <iframe src={this.state.url || 'about:blank'} frameborder="0" scrolling="no" ref="rbmodal.iframe" onLoad={()=>this.loaded()} onResize={()=>this.loaded()}></iframe>
         		        </div>
     		        </div>
 		        </div>
@@ -49,7 +49,7 @@ class RbModal extends React.Component {
             if (height == 0 || height == that.__lastHeight) return;
             $(that.refs['rbmodal.body']).height(height);
             that.__lastHeight = height;
-        }, 100, 'RbModal-resize');
+        }, 50, 'RbModal-resize');
     }
 }
 

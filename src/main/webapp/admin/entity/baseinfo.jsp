@@ -64,6 +64,13 @@ a#entityIcon:hover{opacity:0.8}
 							</div>
 						</div>
 						<div class="form-group row">
+							<label class="col-12 col-sm-2 col-form-label text-sm-right">主显示字段</label>
+							<div class="col-12 col-sm-8 col-lg-4">
+								<select class="form-control form-control-sm" id="nameField">
+								</select>
+							</div>
+						</div>
+						<div class="form-group row">
 							<label class="col-12 col-sm-2 col-form-label text-sm-right">备注</label>
 							<div class="col-12 col-sm-8 col-lg-4">
 								<textarea class="form-control form-control-sm row2x" id="comments" data-o="${comments}">${comments}</textarea>
@@ -72,7 +79,6 @@ a#entityIcon:hover{opacity:0.8}
 						<div class="form-group row footer">
 							<div class="col-12 col-sm-8 col-lg-4 offset-sm-2">
 								<button class="btn btn-primary" type="button">更新</button>
-								
 								<div class="alert alert-warning alert-icon" style="display:none">
 									<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
 									<div class="message">系统内建实体，不允许修改</div>
@@ -86,6 +92,7 @@ a#entityIcon:hover{opacity:0.8}
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
+<script src="${baseUrl}/assets/lib/select2.min.js"></script>
 <script type="text/babel">
 const rbModal = renderRbcomp(<RbModal title="选择图标" target="#entityIcon" />);
 </script>
@@ -101,8 +108,9 @@ $(document).ready(function(){
 		if (!!!metaId) return;
 		let icon = $val('#entityIcon'),
 			label = $val('#entityLabel'),
-			comments = $val('#comments');
-		let _data = { icon:icon, label:label, comments:comments };
+			comments = $val('#comments'),
+			nameField = $val('#nameField');
+		let _data = { icon:icon, label:label, comments:comments, nameField:nameField };
 		if (JSON.stringify(_data) == '{}'){
 			location.reload();
 			return;
@@ -120,6 +128,21 @@ $(document).ready(function(){
 		btn.next().show();
 		btn.remove();
 	}
+	
+	$.get(rb.baseUrl + '/admin/entity/list-field?entity=${entityName}', function(d){
+		let results = d.data.map((item) => {
+			return {
+				id: item.fieldName,
+				text: item.fieldLabel,
+			}
+		});
+		$('#nameField').select2({
+			language: 'zh-CN',
+			placeholder: '选择字段',
+			allowClear: true,
+			data: results
+		}).val('${nameField}').trigger('change')
+	})
 });
 </script>
 </body>

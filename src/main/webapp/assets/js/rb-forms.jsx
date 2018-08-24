@@ -12,6 +12,7 @@ class RbForm extends React.Component {
                 <div className="form-group row footer">
                     <div className="col-12 col-sm-8 col-lg-4 offset-sm-3">
                         <button className="btn btn-primary btn-space" type="button" onClick={()=>this.post()}>保存</button>
+                        &nbsp;
                         <button className="btn btn-secondary btn-space" type="button" onClick={()=>location.reload()}>取消</button>
                     </div>
                 </div>
@@ -172,6 +173,38 @@ class RbFormFile extends RbFormElement {
     }
 }
 
+class RbFormDateTime extends RbFormElement {
+    constructor(props) {
+        super(props)
+    }
+    renderElement() {
+        return (
+            <div className="input-group datetime-field">
+                <input ref="field.value" className="form-control form-control-sm" type="text" id={this.props.field} value={this.props.defaultValue} />
+                <div className="input-group-append">
+                    <button className="btn btn-primary" type="button"><i className="icon zmdi zmdi-calendar"></i></button>
+                </div>
+            </div>
+        )
+    }
+    componentDidMount() {
+        $(this.refs['field.value']).datetimepicker({
+            componentIcon:'zmdi zmdi-calendar',
+            navIcons: { rightIcon:'zmdi zmdi-chevron-right', leftIcon:'zmdi zmdi-chevron-left'},
+            format: 'yyyy-mm-dd hh:ii:ss',
+            weekStart: 1,
+            autoclose: true,
+            language: 'zh',
+            todayHighlight: true,
+            showMeridian: false
+        })
+    }
+    getValue() {
+    }
+    removeItem(e) {
+    }
+}
+
 const __detectElement = function(item){
     if (item.type == 'TEXT'){
         return <RbFormText {...item} />
@@ -179,6 +212,8 @@ const __detectElement = function(item){
         return <RbFormImage {...item} />
     } else if (item.type == 'FILE'){
         return <RbFormFile {...item} />
+    } else if (item.type == 'DATETIME'){
+        return <RbFormDateTime {...item} />
     } else {
         console.error('Unknow element : ' + JSON.stringify(item))
     }

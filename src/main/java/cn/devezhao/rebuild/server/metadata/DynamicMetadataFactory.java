@@ -67,7 +67,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 		final Element rootElement = config.getRootElement();
 		
 		Object[][] customentity = Application.createQuery(
-				"select typeCode,entityName,physicalName,entityLabel,entityId,comments,icon from MetaEntity order by createdOn")
+				"select typeCode,entityName,physicalName,entityLabel,entityId,comments,icon,nameField from MetaEntity order by createdOn")
 				.array();
 		for (Object[] custom : customentity) {
 			int typeCode = (int) custom[0];
@@ -80,7 +80,8 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 					.addAttribute("name", name)
 					.addAttribute("physical-name", physicalName)
 					.addAttribute("description", description)
-					.addAttribute("parent", "false");
+					.addAttribute("parent", "false")
+					.addAttribute("name-field", (String) custom[7]);
 			ENTITY_EXTMETA.put(name, new Object[] { custom[4], custom[5], custom[6] });
 		}
 		

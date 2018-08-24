@@ -17,6 +17,7 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
+<script src="${baseUrl}/assets/lib/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
 <script src="${baseUrl}/assets/lib/jquery.html5uploader.js" type="text/javascript"></script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script type="text/babel">(function(){ renderRbform(${FormConfig}) })()</script>
