@@ -49,7 +49,7 @@ class RbModal extends React.Component {
             if (height == 0 || height == that.__lastHeight) return;
             $(that.refs['rbmodal.body']).height(height);
             that.__lastHeight = height;
-        }, 400, 'RbModal-resize');
+        }, 100, 'RbModal-resize');
     }
 }
 

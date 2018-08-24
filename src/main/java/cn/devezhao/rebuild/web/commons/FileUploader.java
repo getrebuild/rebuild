@@ -66,7 +66,7 @@ public class FileUploader extends HttpServlet {
 				item.write(temp);
 				
 				String cloud = req.getParameter("cloud");
-				if ("true".equals(cloud)) {
+				if ("true".equals(cloud) || "auto".equals(cloud)) {
 					uploadName = QiniuCloud.upload(temp);
 					if (temp.exists()) {
 						temp.delete();
