@@ -5879,7 +5879,7 @@ button.close {
 
 @media (min-width:576px) {
 	.modal-dialog {
-		max-width: 600px;
+		max-width: 680px;
 		margin: 1.75rem auto
 	}
 
@@ -10264,7 +10264,7 @@ a.text-grey:focus,a.text-grey:hover {
 	position: relative;
 	border-radius: 3px;
 	margin: 30px auto;
-	max-width: 630px;
+	max-width: 720px;
 	min-width: 320px
 }
 
@@ -19964,22 +19964,6 @@ pre code {
 	max-width: none
 }
 
-.custom-width .modal-dialog {
-	width: 700px;
-	max-width: none
-}
-
-.custom-width .modal-content {
-	width: 700px;
-	max-width: none
-}
-
-@media (max-width:767.98px) {
-	.custom-width .modal-content,.custom-width .modal-dialog,.custom-width .modal-header {
-		width: 100%!important
-	}
-}
-
 .colored-header .modal-content .modal-header {
 	background-color: #e6e6e6;
 	color: #fff;
@@ -22613,7 +22597,7 @@ form.dropzone .dz-preview .dz-error-message {
 .select2-container--default .select2-selection--single .select2-selection__rendered .select2-selection__clear {
 	right: 20px;
 	font-size: 1.35rem;
-	top: -1px;
+	top: 0px;
 }
 
 .select2-container--default .select2-selection--single .select2-selection__arrow {

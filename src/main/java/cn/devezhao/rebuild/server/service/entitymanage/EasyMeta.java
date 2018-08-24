@@ -103,16 +103,19 @@ public class EasyMeta implements BaseMeta {
 	}
 	
 	/**
-	 * 显示类型
-	 * 
+	 * @param easy
 	 * @return
 	 */
-	public String getDisplayType() {
+	public String getDisplayType(boolean easy) {
 		if (baseMeta instanceof Field) {
 			Object[] ext = getExtmeta();
 			if (ext != null) {
 				DisplayType dt = (DisplayType) ext[2];
-				return dt.name();
+				if (easy) {
+					return dt.getDisplayName() + " (" + dt.name() + ")";
+				} else {
+					return dt.name();
+				}
 			} else {
 				return ((Field) baseMeta).getType().getName().toUpperCase();
 			}

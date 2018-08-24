@@ -80,8 +80,8 @@ public class GeneralEntityActionControll extends BaseControll {
 		return mv;
 	}
 	
-	@RequestMapping("entity-save")
-	public void entitySave(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@RequestMapping("record-save")
+	public void recordSave(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		JSON formJson = ServletUtils.getRequestJson(request);
 		Record record = EntityHelper.parse((JSONObject) formJson, user);
@@ -92,8 +92,8 @@ public class GeneralEntityActionControll extends BaseControll {
 		writeSuccess(response, map);
 	}
 	
-	@RequestMapping("entity-delete")
-	public void entityDdelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@RequestMapping("record-delete")
+	public void recordDdelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID id = getIdParameterNotNull(request, "id");
 		Application.getCommonService().delete(id);
 		
@@ -102,8 +102,8 @@ public class GeneralEntityActionControll extends BaseControll {
 		writeSuccess(response, map);
 	}
 	
-	@RequestMapping("entity-get")
-	public void entityGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@RequestMapping("record-get")
+	public void recordGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID id = getIdParameterNotNull(request, "id");
 		Entity entity = EntityHelper.getEntity(id.getEntityCode());
 		

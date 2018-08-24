@@ -23,12 +23,14 @@
 					<option value="DECIMAL">货币</option>
 					<option value="DATETIME">日期时间</option>
 					<option value="TEXT">文本</option>
-					<option value="QQ">QQ</option>
+					<option value="PHONE">电话</option>
 					<option value="EMAIL">邮箱</option>
 					<option value="URL">链接</option>
 					<option value="IMAGE">图片</option>
 					<option value="FILE">文件</option>
+					<!--
 					<option value="LOCATION">位置</option>
+					-->
 					<option value="PICKLIST">列表</option>
 					<option value="REFERENCE">引用</option>
 				</select>

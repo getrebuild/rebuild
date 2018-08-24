@@ -2,18 +2,27 @@
 class RbForm extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { ...props };
+        this.__props = { entity:props.entity }
+        this.state = { };
+        
+        this.setFieldValue = this.setFieldValue.bind(this);
+        this.formData = {};
     }
     render() {
+        let that = this;
         return (
             <div className="rb-form">
             <form>
-                {this.props.children}
+                {this.props.children.map((child) => {
+                    child.props.setFieldValue = that.setFieldValue;
+                    child.props.parentProps = that.__props;
+                    return child;
+                })}
                 <div className="form-group row footer">
                     <div className="col-12 col-sm-8 col-lg-4 offset-sm-3">
                         <button className="btn btn-primary btn-space" type="button" onClick={()=>this.post()}>保存</button>
                         &nbsp;
-                        <button className="btn btn-secondary btn-space" type="button" onClick={()=>location.reload()}>取消</button>
+                        <button className="btn btn-secondary btn-space" type="button" onClick={()=>location.reload(true)}>重置</button>
                     </div>
                 </div>
             </form>
@@ -24,12 +33,18 @@ class RbForm extends React.Component {
         if (parent && parent.rbModal) parent.rbModal.loaded()
         $('.rb-loading-active').removeClass('rb-loading-active')
     }
+    setFieldValue(field, value) {
+        this.formData[field] = value;
+    }
     post() {
-        let vals = React.Children.map(this.props.children, function(child) {
-            console.log(child)
-            if (child) return child.getValue()
-        })
-        console.log(vals)
+        console.log('Post FromData ... ' + JSON.stringify(this.formData));
+        
+        // TODO 验证数据
+        
+        let _data = this.formData;
+        _data.metadata = { entity: this.props.entity, id: this.props.id };
+        $.post(rb.baseUrl + '/entity/record-save', JSON.stringify(_data), function(res){
+        });
     }
 }
 
@@ -37,6 +52,8 @@ class RbFormElement extends React.Component {
     constructor(props) {
         super(props);
         this.state = { ...props };
+        
+        this.handleChange = this.handleChange.bind(this);
     }
     render() {
         return (
@@ -48,45 +65,46 @@ class RbFormElement extends React.Component {
             </div>
         )
     }
+    componentDidUpdate(e) {
+        this.props.setFieldValue(this.props.field, this.state.value);
+        if (parent && parent.rbModal) parent.rbModal.loaded()
+    }
     renderElement() {
         return ('请复写此方法');
     }
-    componentDidUpdate() {
-        console.log('fire componentDidUpdate');
-        if (parent && parent.rbModal) parent.rbModal.loaded()
+    handleChange(event) {
+        this.setState({ value: event.target.value });
     }
-    getValue() {
-        let v = $val(this.refs['field.value'])
-        if (this.validate(v) == true) return v;
-        else throw new Error('无效值:' + this.props.field);
-    }
-    validate(v) {
+    valid(v) {
         return true;
     }
 }
 
+// 文本
 class RbFormText extends RbFormElement {
     constructor(props) {
         super(props);
     }
     renderElement() {
         return (
-            <input ref="field.value" className="form-control form-control-sm" type="text" id={this.props.field} value={this.props.defaultValue} maxlength={this.props.maxLength || 200} />
+            <input ref="field.value" className="form-control form-control-sm" type="text" id={this.props.field} value={this.state.value} maxlength={this.props.maxLength || 200} onChange={this.handleChange} />
         )
     }
 }
 
+// 文本域
 class RbFormTextarea extends RbFormElement {
     constructor(props) {
         super(props);
     }
     renderElement() {
         return (
-            <textarea ref="field.value" class="form-control form-control-sm row2" id={this.props.field} maxlength={this.props.maxLength || 200}>{this.props.defaultValue}</textarea>
+            <textarea ref="field.value" class="form-control form-control-sm row2" id={this.props.field} value={this.state.value} maxlength={this.props.maxLength || 200} onChange={this.handleChange} />
         )
     }
 }
 
+// 图片
 class RbFormImage extends RbFormElement {
     constructor(props) {
         super(props);
@@ -130,6 +148,7 @@ class RbFormImage extends RbFormElement {
     }
 }
 
+// 文件
 class RbFormFile extends RbFormElement {
     constructor(props) {
         super(props);
@@ -173,6 +192,7 @@ class RbFormFile extends RbFormElement {
     }
 }
 
+// 日期-时间
 class RbFormDateTime extends RbFormElement {
     constructor(props) {
         super(props)
@@ -205,8 +225,55 @@ class RbFormDateTime extends RbFormElement {
     }
 }
 
+// 引用
+class RbFormReference extends RbFormElement {
+    constructor(props) {
+        super(props)
+    }
+    renderElement() {
+        return (
+            <select ref="field.value" className="form-control form-control-sm" id={this.props.field} value={this.state.value} />
+        )
+    }
+    componentDidMount() {
+        let that = this;
+        $(this.refs['field.value']).select2({
+            language: 'zh-CN',
+            placeholder: '选择' + this.props.label,
+            allowClear: true,
+            minimumInputLength: 1,
+            ajax: {
+                url: rb.baseUrl + '/entity/common-search',
+                delay: 300,
+                data: function(params) {
+                    let query = {
+                        search: params.term,
+                        entity: that.props.parentProps.entity,
+                    };
+                    return query;
+                },
+                processResults: function(data){
+                    let rs = data.data.map((item) => {
+                        return item;
+                    });
+                    return {
+                        results: rs
+                    };
+                }
+            }
+        }).val('').trigger('change')
+    }
+    getValue() {
+    }
+    removeItem(e) {
+    }
+}
+
 const __detectElement = function(item){
     if (item.type == 'TEXT'){
+        return <RbFormText {...item} />
+    } else if (item.type == 'URL'){
+        item.regexp = '';
         return <RbFormText {...item} />
     } else if (item.type == 'IMAGE'){
         return <RbFormImage {...item} />
@@ -214,12 +281,14 @@ const __detectElement = function(item){
         return <RbFormFile {...item} />
     } else if (item.type == 'DATETIME'){
         return <RbFormDateTime {...item} />
+    } else if (item.type == 'REFERENCE'){
+        return <RbFormReference {...item} />
     } else {
         console.error('Unknow element : ' + JSON.stringify(item))
     }
 };
 const renderRbform = function(config) {
-    const form = <RbForm>
+    const form = <RbForm entity={config.entity}>
         {config.elements.map((item, index) => {
             return (__detectElement(item))
         })}

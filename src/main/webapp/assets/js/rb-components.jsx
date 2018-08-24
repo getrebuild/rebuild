@@ -45,7 +45,7 @@ class RbModal extends React.Component {
             let height = iframe.contents().find('body .main-content').height();
             if (height == 0) height = iframe.contents().find('body').height();
             else height += 45;  // .main-content's padding
-            console.log('fire loaded ... ' + height);
+            //console.log('fire loaded ... ' + height);
             if (height == 0 || height == that.__lastHeight) return;
             $(that.refs['rbmodal.body']).height(height);
             that.__lastHeight = height;

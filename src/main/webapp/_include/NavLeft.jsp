@@ -8,7 +8,7 @@
 				<ul class="sidebar-elements">
 					<li class="<%="dashboard-home".equals(activeNav) ? "active" : ""%>" id="nav_dashboard-home"><a href="${baseUrl}/dashboard/home"><i class="icon zmdi zmdi-home"></i><span>首页</span></a></li>
 					<li class="<%="entitylist-User".equals(activeNav) ? "active" : ""%>" id="nav_entitylist-User"><a href="${baseUrl}/entity/User/list"><i class="icon zmdi zmdi-account"></i><span>首页</span></a></li>
-					<li class="<%="entitylist-ziduanleixing".equals(activeNav) ? "active" : ""%>" id="nav_entitylist-ziduanleixing"><a href="${baseUrl}/entity/ziduanleixing/list"><i class="icon zmdi zmdi-account"></i><span>首页</span></a></li>
+					<li class="<%="entitylist-ceshiziduanleixing".equals(activeNav) ? "active" : ""%>" id="nav_entitylist-ceshiziduanleixing"><a href="${baseUrl}/entity/ceshiziduanleixing/list"><i class="icon zmdi zmdi-account"></i><span>首页</span></a></li>
 				</ul>
 			</div>
 		</div>

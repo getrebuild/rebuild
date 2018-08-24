@@ -68,7 +68,7 @@ public class LayoutManager {
 			String fieldName = el.getString("field");
 			EasyMeta fieldMeta = new EasyMeta(entityMeta.getField(fieldName));
 			el.put("label", fieldMeta.getLabel());
-			el.put("type", fieldMeta.getDisplayType());
+			el.put("type", fieldMeta.getDisplayType(false));
 		}
 		
 		return config;

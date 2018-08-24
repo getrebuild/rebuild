@@ -86,7 +86,7 @@ public class MetaFieldControll extends BaseControll  {
 			}
 			map.put("fieldName", easyMeta.getName());
 			map.put("fieldLabel", easyMeta.getLabel());
-			map.put("displayType", easyMeta.getDisplayType());
+			map.put("displayType", easyMeta.getDisplayType(true));
 			map.put("comments", easyMeta.getComments());
 			map.put("createdOn", null);
 			ret.add(map);
@@ -106,7 +106,7 @@ public class MetaFieldControll extends BaseControll  {
 		mv.getModel().put("fieldName", fieldEasyMeta.getName());
 		mv.getModel().put("fieldLabel", fieldEasyMeta.getLabel());
 		mv.getModel().put("fieldComments", fieldEasyMeta.getComments());
-		mv.getModel().put("fieldType", fieldEasyMeta.getDisplayType());
+		mv.getModel().put("fieldType", fieldEasyMeta.getDisplayType(true));
 		
 		// 字段类型相关
 		Type ft = fieldMeta.getType();
