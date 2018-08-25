@@ -5879,7 +5879,7 @@ button.close {
 
 @media (min-width:576px) {
 	.modal-dialog {
-		max-width: 680px;
+		max-width: 600px;
 		margin: 1.75rem auto
 	}
 
@@ -20895,7 +20895,7 @@ p .small,p small {
 }
 
 .text-bold {
-	font-weight: 500!important
+	font-weight: 800!important;
 }
 
 .text-success a {

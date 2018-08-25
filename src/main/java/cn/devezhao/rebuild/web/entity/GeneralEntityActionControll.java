@@ -80,6 +80,13 @@ public class GeneralEntityActionControll extends BaseControll {
 		return mv;
 	}
 	
+	@RequestMapping("form-config")
+	public void entityFormConfig(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String entity = getParameterNotNull(request, "entity");
+		JSON fc = LayoutManager.getFormLayoutForPortal(entity);
+		writeSuccess(response, fc);
+	}
+	
 	@RequestMapping("record-save")
 	public void recordSave(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);

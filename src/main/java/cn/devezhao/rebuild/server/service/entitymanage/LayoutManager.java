@@ -20,6 +20,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.rebuild.server.Application;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
 
@@ -66,11 +67,15 @@ public class LayoutManager {
 		for (Object element : config.getJSONArray("elements")) {
 			JSONObject el = (JSONObject) element;
 			String fieldName = el.getString("field");
-			EasyMeta fieldMeta = new EasyMeta(entityMeta.getField(fieldName));
-			el.put("label", fieldMeta.getLabel());
-			el.put("type", fieldMeta.getDisplayType(false));
+			Field fieldMeta = entityMeta.getField(fieldName);
+			EasyMeta easyField = new EasyMeta(fieldMeta);
+			el.put("label", easyField.getLabel());
+			el.put("type", easyField.getDisplayType(false));
+			el.put("empty", fieldMeta.isNullable());
+			el.put("create", easyField.isBuiltin());
+			el.put("update", fieldMeta.isUpdatable());
+			el.put("autoval", fieldMeta.isAutoValue());
 		}
-		
 		return config;
 	}
 }

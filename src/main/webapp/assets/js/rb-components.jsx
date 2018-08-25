@@ -7,13 +7,13 @@ class RbModal extends React.Component {
             let that = this;
             let t = $(props.target);
             t.click(function(){
-                that.show(t.data('url'))
+                that.show({ url:t.data('url') })
             })
         }
     }
 	render() {
 		return (
-			<div className="modal fade colored-header colored-header-primary" ref="rbmodal">
+			<div className="modal rbmodal colored-header colored-header-primary" ref="rbmodal">
 		        <div className="modal-dialog">
     		        <div className="modal-content">
         		        <div className="modal-header modal-header-colored">
@@ -28,11 +28,15 @@ class RbModal extends React.Component {
 			</div>
 		)
 	}
-	show(url) {
-        let that = this;
-        this.setState({ url: url }, function(){
-            $(that.refs['rbmodal']).modal({ show: true, backdrop: 'static' });
-        })
+	show(state) {
+	    if (!!!state) {
+	        $(this.refs['rbmodal']).modal({ show: true, backdrop: 'static' });
+	    } else {
+            let that = this;
+            this.setState(state, function(){
+                $(that.refs['rbmodal']).modal({ show: true, backdrop: 'static' });
+            })
+	    }
     }
     hide() {
         $(this.refs['rbmodal']).modal('hide');
@@ -45,7 +49,6 @@ class RbModal extends React.Component {
             let height = iframe.contents().find('body .main-content').height();
             if (height == 0) height = iframe.contents().find('body').height();
             else height += 45;  // .main-content's padding
-            //console.log('fire loaded ... ' + height);
             if (height == 0 || height == that.__lastHeight) return;
             $(that.refs['rbmodal.body']).height(height);
             that.__lastHeight = height;
@@ -57,11 +60,11 @@ class RbModal extends React.Component {
 class RbAlter extends React.Component {
     constructor(props) {
        super(props);
-       this.state = {};
+       this.state = { ...props };
     }
     render() {
         return (
-            <div className="modal fade" ref="rbalter">
+            <div className="modal rbalter" ref="rbalter">
                 <div className="modal-dialog">
                     <div className="modal-content">
                         <div className="modal-header">
@@ -72,7 +75,7 @@ class RbAlter extends React.Component {
                                 <h3>提示</h3>
                                 <p>{this.state.message || '提示内容'}</p>
                                 <div class="mt-8">
-                                    <button className="btn btn-space btn-secondary" type="button" ref="rbalter.confirm" onClick={()=>this.hide()}>确定</button>
+                                    <button className="btn btn-secondary" type="button" ref="rbalter.confirm" onClick={()=>this.hide()}>确定</button>
                                 </div>
                             </div>
                         </div>
@@ -91,6 +94,14 @@ class RbAlter extends React.Component {
     hide() {
         $(this.refs['rbalter']).modal('hide');
     }
+}
+
+function RbSpinner(props) {
+    return <div className="rb-spinner">
+        <svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://-www.w3.org/2000/svg">
+            <circle fill="none" stroke-width="4" stroke-linecap="round" cx="33" cy="33" r="30" class="circle"></circle>
+        </svg>
+    </div>
 }
 
 const renderRbcomp = function(jsx) {

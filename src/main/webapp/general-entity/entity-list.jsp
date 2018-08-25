@@ -92,10 +92,16 @@
 
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/rb-list.js" type="text/javascript"></script>
-<script type="text/babel">const rbModal = renderRbcomp(<RbModal title="新建${entityLabel}" target=".J_new" />)</script>
-<script type="text/javascript">
+<script type="text/babel">
 $(document).ready(function(){
-	$('.dropdown-toggle').dropdown()
+	$('.dropdown-toggle').dropdown();
+	
+	let rbFormModal = null;
+	$('.J_new').click(function(){
+		if (rbFormModal) rbFormModal.show();
+		else rbFormModal = renderRbcomp(<RbFormModal title="新建${entityLabel}" entity="${entityName}" />)
+	});
+	
 });
 </script>
 </body>

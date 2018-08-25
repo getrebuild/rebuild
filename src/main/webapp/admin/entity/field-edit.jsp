@@ -80,7 +80,7 @@
 						<div class="form-group row J_for-DATETIME hide">
 							<label class="col-12 col-sm-2 col-form-label text-sm-right">格式</label>
 							<div class="col-12 col-sm-8 col-lg-4">
-								<select class="form-control form-control-sm" id="precision" data-o="${fieldPrecision}">
+								<select class="form-control form-control-sm" id="dateformat" data-o="${fieldDateformat}">
 									<option value="yyyy-MM">YYYY-MM</option>
 									<option value="yyyy-MM-dd">YYYY-MM-DD</option>
 									<option value="yyyy-MM-dd HH:mm">YYYY-MM-DD HH:MM</option>
@@ -95,7 +95,7 @@
 							</div>
 						</div>
 						<div class="form-group row J_for-PICKLIST hide">
-							<label class="col-12 col-sm-2 col-form-label text-sm-right">类表选项</label>
+							<label class="col-12 col-sm-2 col-form-label text-sm-right">列表项目</label>
 							<div class="col-12 col-sm-8 col-lg-4">
 								<div class="dd-list">
 									<div class="dd-item">
@@ -113,11 +113,21 @@
 								<textarea class="form-control form-control-sm row2x" id="comments" data-o="${fieldComments}">${fieldComments}</textarea>
 							</div>
 						</div>
+						<div class="form-group row">
+							<div class="col-12 col-sm-8 col-lg-4 offset-sm-2">
+								<label class="custom-control custom-checkbox custom-control-inline" style="margin-bottom:0">
+									<input class="custom-control-input" type="checkbox" id="fieldNullable" data-o="${fieldNullable}"><span class="custom-control-label custom-control-color"> 允许空值</span>
+								</label>
+								<label class="custom-control custom-checkbox custom-control-inline" style="margin-bottom:0">
+									<input class="custom-control-input" type="checkbox" id="fieldUpdatable" data-o="${fieldUpdatable}"><span class="custom-control-label custom-control-color"> 允许修改值</span>
+								</label>
+							</div>
+						</div>
 						<div class="form-group row footer">
 							<div class="col-12 col-sm-8 col-lg-4 offset-sm-2">
-								<button class="btn btn-primary" type="button">更新</button>
+								<button class="btn btn-primary" type="button">保存</button>
 								
-								<div class="alert alert-warning alert-icon" style="display:none">
+								<div class="alert alert-warning alert-icon hide">
 									<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
 									<div class="message">系统内建字段，不允许修改</div>
 								</div>
@@ -139,9 +149,11 @@ $(document).ready(function(){
 	
 	const btn = $('.btn-primary').click(function(){
 		if (!!!metaId) return;
-		let label = $val('#fieldLabel');
-		let comments = $val('#comments');
-		let _data = { fieldLabel:label, comments:comments };
+		let label = $val('#fieldLabel'),
+			comments = $val('#comments'),
+			nullable = $val('#fieldNullable'),
+			updatable = $val('#fieldUpdatable');
+		let _data = { fieldLabel:label, comments:comments, nullable:nullable, updatable:updatable };
 		
 		$('.J_for-' + dt + ' .form-control').each(function(){
 			let id = $(this).attr('id');
@@ -162,15 +174,18 @@ $(document).ready(function(){
 			else alert(res.error_msg)
 		});
 	});
-	
 	if (!!!metaId){
-		btn.next().show();
+		btn.next().removeClass('hide');
 		btn.remove();
 	}
+	
+	$('#fieldNullable').attr('checked', $('#fieldNullable').data('o') == true)
+	$('#fieldUpdatable').attr('checked', $('#fieldUpdatable').data('o') == true)
 	
 	$('.J_for-' + dt).removeClass('hide');
 	$('#precision').val($('#precision').data('o'));
 	$('input.bslider').slider();
+	
 });
 </script>
 </body>

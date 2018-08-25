@@ -2,6 +2,7 @@
 	min-height: 2.8rem;
 	min-width: 88px;
 }
+
 .btn-lg {
 	min-width: 108px;
 }
@@ -37,6 +38,24 @@
 
 .rb-aside .page-head {
 	margin-left: 280px;
+}
+
+.modal-header .close+.close{
+	margin-left: 11px;
+}
+.modal-header .close .zmdi-settings {
+	font-size: 1.4rem;
+}
+.modal.rbmodal .modal-dialog {
+	max-width: 680px;
+}
+.modal.rbmodal .modal-dialog .modal-body {
+	min-height: 155px;
+	padding-top: 20px;
+}
+
+.modal.rbalter .modal-dialog {
+	max-width: 500px;
 }
 
 .modal-body.iframe {
@@ -92,6 +111,10 @@ a {
 	min-height: 200px;
 }
 
+.rb-form .footer {
+	padding-bottom: 6px;
+}
+
 .rb-form .type-IMAGE {
 	padding-bottom: 1px !important;
 }
@@ -101,8 +124,8 @@ a {
 }
 
 .img-field>span {
-	margin-bottom: 6px;
-	margin-right: 8px;
+	margin-bottom: 2px;
+	margin-right: 6px;
 	display: inline-block;
 }
 
@@ -121,9 +144,10 @@ a {
 	max-height: 100%;
 }
 
-.img-field label.img-upload{
+.img-field label.img-upload {
 	padding-top: 5px;
 }
+
 .img-field label.img-upload:hover {
 	border: 1px solid #5f99f5;
 }
@@ -155,7 +179,8 @@ a {
 	display: block;
 }
 
-.img-field a.img-upload:hover b:hover, .file-field .img-thumbnail:hover b:hover {
+.img-field a.img-upload:hover b:hover, .file-field .img-thumbnail:hover b:hover
+	{
 	background-color: rgba(0, 0, 0, 0.6);
 }
 
@@ -166,27 +191,44 @@ a {
 .file-field .img-thumbnail {
 	display: inline-block;
 	padding: 4px;
-	max-width: 240px;
-	min-height: 38px;
-	margin-bottom: 4px;
-	margin-right: 8px;
-	overflow: hidden;
+	max-width: 100%;
+	margin-right: 6px; margin-bottom : 2px; overflow : hidden;
 	position: relative;
+	overflow: hidden;
+	margin-bottom: 2px;
+}
+
+.file-field .img-thumbnail:last-child {
+	margin-right: 0
 }
 
 .file-field .img-thumbnail>i.zmdi {
 	font-size: 36px;
 	float: left;
-	width: 42px;
+	width: 40px;
 	text-align: center;
+	padding-top: 2px;
 }
 
 .file-field .img-thumbnail>span {
-	margin-left: 42px;
+	margin-left: 40px;
 	display: block;
 	word-break: break-all;
+	min-height: 30px;
+	padding: 2px 4px;
 }
 
 .datetime-field .input-group-append button {
 	min-width: 38px;
+}
+
+.col-form-label em {
+	background-color: #ea4335;
+	width: 3px;
+	height: 14px;
+	display: inline-block;
+	position: absolute;
+	margin-top: -1px;
+	right: 7px;
+	cursor: help;
 }
