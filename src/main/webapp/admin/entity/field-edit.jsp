@@ -116,10 +116,10 @@
 						<div class="form-group row">
 							<div class="col-12 col-sm-8 col-lg-4 offset-sm-2">
 								<label class="custom-control custom-checkbox custom-control-inline" style="margin-bottom:0">
-									<input class="custom-control-input" type="checkbox" id="fieldNullable" data-o="${fieldNullable}"><span class="custom-control-label custom-control-color"> 允许空值</span>
+									<input class="custom-control-input" type="checkbox" id="fieldNullable" data-o="${fieldNullable}"><span class="custom-control-label"> 允许空值</span>
 								</label>
 								<label class="custom-control custom-checkbox custom-control-inline" style="margin-bottom:0">
-									<input class="custom-control-input" type="checkbox" id="fieldUpdatable" data-o="${fieldUpdatable}"><span class="custom-control-label custom-control-color"> 允许修改值</span>
+									<input class="custom-control-input" type="checkbox" id="fieldUpdatable" data-o="${fieldUpdatable}"><span class="custom-control-label"> 允许修改值</span>
 								</label>
 							</div>
 						</div>
@@ -154,6 +154,9 @@ $(document).ready(function(){
 			nullable = $val('#fieldNullable'),
 			updatable = $val('#fieldUpdatable');
 		let _data = { fieldLabel:label, comments:comments, nullable:nullable, updatable:updatable };
+		console.log('A ' + JSON.stringify(_data))
+		_data = $cleanMap(_data)
+		console.log('B ' + JSON.stringify(_data))
 		
 		$('.J_for-' + dt + ' .form-control').each(function(){
 			let id = $(this).attr('id');

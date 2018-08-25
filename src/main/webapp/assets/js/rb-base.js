@@ -82,18 +82,35 @@ const $urlp = function(key, qstr) {
 const $val = function(el){
 	el = $(el);
 	let nVal = null;
-	let oVal = el.data('o');
 	let tag = el.prop('tagName');
 	if (tag == 'INPUT' || tag == 'TEXTAREA' || tag == 'SELECT'){
-		nVal = el.val();
+		if (tag == 'INPUT' && el.attr('type') == 'checkbox'){
+			nVal = el.prop('checked') + '';
+		} else {
+			nVal = el.val();
+		}
 	} else {
-		nVal = el.attr('data-val');
-		if (!!!nVal) nVal = oVal;
+		nVal = el.attr('value');
 	}
-	if (nVal) nVal = $.trim(nVal);
-	if (!!!oVal) return nVal;
 	
-	if ((oVal || null) === (nVal || null)) return undefined;
-	if (!!oVal && !!!nVal) return null;
-	else return $.trim(nVal);
+	let oVal = el.data('o') + '';
+	if (!!!oVal) return nVal || null;
+	
+	if ((oVal || 666) === (nVal || 666)) return null;  // unmodified
+	if (!!oVal && !!!nVal) return '';  // new value is empty
+	else return nVal || null;
 };
+
+/* 清理 Map 中的无效值（null、undefined）
+ */
+const $cleanMap = function(map) {
+	if ($.type(map) != 'object') throw Error('Unsupportted type ' + $.type(map))
+	
+	let newMap = {};
+	for (let k in map) {
+		let v = map[k];
+		if (v === null || v === undefined);
+		else newMap[k] = v;
+	}
+	return newMap;
+}

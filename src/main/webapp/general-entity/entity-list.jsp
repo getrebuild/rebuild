@@ -95,13 +95,12 @@
 <script type="text/babel">
 $(document).ready(function(){
 	$('.dropdown-toggle').dropdown();
-	
-	let rbFormModal = null;
+
+	var rbFormModal = null;
 	$('.J_new').click(function(){
 		if (rbFormModal) rbFormModal.show();
 		else rbFormModal = renderRbcomp(<RbFormModal title="新建${entityLabel}" entity="${entityName}" />)
 	});
-	
 });
 </script>
 </body>
