@@ -60,7 +60,7 @@ public class MetaEntityControll extends BaseControll {
 	
 	@RequestMapping("{entity}/base")
 	public ModelAndView pageEntityBase(@PathVariable String entity, HttpServletRequest request) throws IOException {
-		ModelAndView mv = createModelAndView("/admin/entity/baseinfo.jsp");
+		ModelAndView mv = createModelAndView("/admin/entity/entity-edit.jsp");
 		setEntityBase(mv, entity);
 		return mv;
 	}

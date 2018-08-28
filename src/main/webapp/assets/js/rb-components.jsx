@@ -2,7 +2,7 @@
 class RbModal extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { ...props };
+        this.state = { ...props, inLoad: true };
         if (props.target) {
             let that = this;
             let t = $(props.target);
@@ -20,8 +20,9 @@ class RbModal extends React.Component {
             		        <h3 className="modal-title">{this.state.title || ''}</h3>
             		        <button className="close md-close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
             		    </div>
-        		        <div className="modal-body iframe" ref="rbmodal.body">
+        		        <div className={'modal-body iframe rb-loading' + (this.state.inLoad ? ' rb-loading-active' : '')} ref="rbmodal.body">
             		        <iframe src={this.state.url || 'about:blank'} frameborder="0" scrolling="no" ref="rbmodal.iframe" onLoad={()=>this.loaded()} onResize={()=>this.loaded()}></iframe>
+            		        <RbSpinner />
         		        </div>
     		        </div>
 		        </div>
@@ -52,7 +53,8 @@ class RbModal extends React.Component {
             if (height == 0 || height == that.__lastHeight) return;
             $(that.refs['rbmodal.body']).height(height);
             that.__lastHeight = height;
-        }, 50, 'RbModal-resize');
+            that.setState({ inLoad:false })
+        }, 30, 'RbModal-resize');
     }
 }
 

@@ -98,7 +98,7 @@ const rbModal = renderRbcomp(<RbModal title="选择图标" target="#entityIcon" 
 </script>
 <script type="text/javascript">
 icon_call = function(icon){
-	$('#entityIcon').attr('data-val', icon)
+	$('#entityIcon').attr('value', icon)
 			.find('i').attr('class', 'icon zmdi zmdi-' + icon);
 	rbModal.hide();
 };
@@ -110,8 +110,9 @@ $(document).ready(function(){
 			label = $val('#entityLabel'),
 			comments = $val('#comments'),
 			nameField = $val('#nameField');
-		let _data = { icon:icon, label:label, comments:comments, nameField:nameField };
-		if (JSON.stringify(_data) == '{}'){
+		let _data = { icon:icon, entityLabel:label, comments:comments, nameField:nameField };
+		_data = $cleanMap(_data);
+		if (Object.keys(_data) == 0){
 			location.reload();
 			return;
 		}
