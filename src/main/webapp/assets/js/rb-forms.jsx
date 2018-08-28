@@ -137,7 +137,7 @@ class RbFormElement extends React.Component {
     render() {
         return (
             <div className={'form-group row type-' + this.props.type}>
-                <label className="col-12 col-sm-3 col-form-label text-sm-right">{this.props.label}{this.props.empty == false && <em/>}</label>
+                <label className="col-12 col-sm-3 col-form-label text-sm-right" title={this.props.empty ? '' : '必填项'}>{this.props.label}{!this.props.empty && <em/>}</label>
                 <div className="col-12 col-sm-8">
                     {this.renderElement()}
                 </div>

@@ -16,6 +16,8 @@ limitations under the License.
 
 package cn.devezhao.rebuild.server.service.entitymanage;
 
+import java.util.Map;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
@@ -74,7 +76,11 @@ public class LayoutManager {
 			el.put("empty", fieldMeta.isNullable());
 			el.put("create", easyField.isBuiltin());
 			el.put("update", fieldMeta.isUpdatable());
-			el.put("autoval", fieldMeta.isAutoValue());
+			
+			JSONObject ext = easyField.getFieldExtConfig();
+			for (Map.Entry<String, Object> e : ext.entrySet()) {
+				el.put("field" + e.getKey(), e.getValue());
+			}
 		}
 		return config;
 	}
