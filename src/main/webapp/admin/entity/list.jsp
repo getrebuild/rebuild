@@ -48,9 +48,9 @@ $(document).ready(function(){
 	$.get('list-entity', function(res){
 		let _data = res.data;
 		_data.push({ entityName:'$NEW$', entityLabel:'新建', comments:'新建一个新实体', icon:'plus' });
-		ReactDOM.render(<EntityList data={_data} />, document.getElementById('entityList'));
+		ReactDOM.render(<EntityList data={_data} />, $('#entityList')[0]);
 		$('.entity[href="$NEW$/base"]').click(function(){
-			rbModal.show('entity-new.htm');
+			rbModal.show({ url:'entity-new.htm' });
 			return false;
 		});
 	});

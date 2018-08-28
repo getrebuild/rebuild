@@ -39,9 +39,10 @@
 .rb-aside .page-head {
 	margin-left: 280px;
 }
-
+.modal-header .close.admin-settings {
+}
 .modal-header .close+.close{
-	margin-left: 11px;
+	margin-left: 6px;
 }
 .modal-header .close .zmdi-settings {
 	font-size: 1.4rem;
@@ -100,6 +101,9 @@ a {
 
 .hide {
 	display: none;
+}
+
+.admin-visibility {
 }
 
 .form-control-plaintext {
@@ -221,6 +225,18 @@ a {
 .datetime-field .input-group-append button {
 	min-width: 38px;
 }
+.datetime-field .clean {
+	position: absolute;
+	right: 45px;
+	top: 1px;
+	font-size: 1rem;
+	font-weight: 700;
+	color: #404040;
+	width: 12px;
+	height: 32px;
+	cursor: pointer;
+	padding-top: 10px;
+}
 
 .col-form-label em {
 	background-color: #ea4335;
@@ -229,6 +245,11 @@ a {
 	display: inline-block;
 	position: absolute;
 	margin-top: -1px;
-	right: 7px;
+	right: 5px;
 	cursor: help;
+}
+
+.form-text {
+	color: #878787;
+	margin-top: 6px;
 }

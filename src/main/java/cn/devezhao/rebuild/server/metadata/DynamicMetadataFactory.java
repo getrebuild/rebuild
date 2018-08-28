@@ -86,7 +86,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 		}
 		
 		Object[][] customfield = Application.createQuery(
-				"select belongEntity,fieldName,physicalName,fieldLabel,displayType,nullable,creatable,updatable,precision,maxLength,defaultValue,refEntity,cascade,fieldId,comments"
+				"select belongEntity,fieldName,physicalName,fieldLabel,displayType,nullable,creatable,updatable,precision,maxLength,defaultValue,refEntity,cascade,fieldId,comments,extConfig"
 				+ " from MetaField order by createdOn")
 				.array();
 		for (Object[] custom : customfield) {
@@ -114,7 +114,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 			DisplayType dt = DisplayType.valueOf((String) custom[4]);
 			field.addAttribute("type", dt.getFieldType().getName());
 			
-			FIELD_EXTMETA.put(entityName + "__" + fieldName, new Object[] { custom[13], custom[14], dt });
+			FIELD_EXTMETA.put(entityName + "__" + fieldName, new Object[] { custom[13], custom[14], dt, custom[15] });
 		}
 		
 		if (LOG.isDebugEnabled()) {

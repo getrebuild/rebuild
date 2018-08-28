@@ -73,13 +73,13 @@
 		<field name="nullable" type="bool" default-value="T"/>
 		<field name="creatable" type="bool" default-value="T"/>
 		<field name="updatable" type="bool" default-value="T"/>
-		<field name="precision" type="small-int" default-value="2"/>
+		<field name="precision" type="small-int" default-value="6"/>
 		<field name="defaultValue" type="string" max-length="200"/>
 		<field name="maxLength" type="small-int" default-value="600"/>
 		<field name="refEntity" type="string" max-length="100"/>
 		<field name="cascade" type="string" max-length="100" default-value="ignore"/>
 		<field name="comments" type="string" max-length="200"/>
-		<field name="moreConfig" type="string" max-length="1000" description="更多扩展配置，JSON格式KV"/>
+		<field name="extConfig" type="string" max-length="1000" description="更多扩展配置，JSON格式KV"/>
 		<index type="unique" field-list="belongEntity,fieldName"/>
 		<index type="unique" field-list="belongEntity,physicalName"/>
 	</entity>

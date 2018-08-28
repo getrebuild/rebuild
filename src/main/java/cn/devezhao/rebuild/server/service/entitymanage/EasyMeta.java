@@ -23,6 +23,9 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
@@ -108,7 +111,7 @@ public class EasyMeta implements BaseMeta {
 	 */
 	public String getDisplayType(boolean easy) {
 		if (baseMeta instanceof Field) {
-			Object[] ext = getExtmeta();
+			Object[] ext = getMetaExt();
 			if (ext != null) {
 				DisplayType dt = (DisplayType) ext[2];
 				if (easy) {
@@ -146,7 +149,7 @@ public class EasyMeta implements BaseMeta {
 	 * @return
 	 */
 	public ID getMetaId() {
-		Object[] ext = getExtmeta();
+		Object[] ext = getMetaExt();
 		return ext == null ? null : (ID) ext[0];
 	}
 	
@@ -163,7 +166,7 @@ public class EasyMeta implements BaseMeta {
 		}
 		
 		String customComments = null;
-		Object[] ext = getExtmeta();
+		Object[] ext = getMetaExt();
 		if (ext != null) {
 			customComments = (String) ext[1];
 		}
@@ -182,7 +185,7 @@ public class EasyMeta implements BaseMeta {
 		String defIcon = def == null ? null : def[0];
 		
 		String customIcon = null;
-		Object[] ext = getExtmeta();
+		Object[] ext = getMetaExt();
 		if (ext != null) {
 			customIcon = StringUtils.defaultIfBlank((String) ext[2], "border-clear");
 		}
@@ -190,13 +193,27 @@ public class EasyMeta implements BaseMeta {
 	}
 	
 	/**
+	 * 字段扩展配置
+	 * 
 	 * @return
 	 */
-	private Object[] getExtmeta() {
+	public JSONObject getFieldExtConfig() {
+		if (isField()) {
+			Object[] ext = getMetaExt();
+			return JSON.parseObject(StringUtils.defaultIfBlank((String) ext[3], "{}"));
+		}
+		return null;
+	}
+	
+	/**
+	 * 扩展属性
+	 * 
+	 * @return
+	 */
+	private Object[] getMetaExt() {
 		Object[] ext = null;
 		if (isField()) {
-			Field field = (Field) baseMeta;
-			ext = MetadataHelper.getFieldExtmeta(field);
+			ext = MetadataHelper.getFieldExtmeta((Field) baseMeta);
 		} else {
 			ext = MetadataHelper.getEntityExtmeta((Entity) baseMeta);
 		}

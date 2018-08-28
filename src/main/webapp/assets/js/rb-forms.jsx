@@ -11,7 +11,7 @@ class RbFormModal extends React.Component {
                     <div className="modal-content">
                         <div className="modal-header modal-header-colored">
                             <h3 className="modal-title">{this.state.title || ''}</h3>
-                            <a className="close md-close" type="button" href={rb.baseUrl + '/admin/entity/' + this.props.entity + '/base'} title="实体配置"><span className="zmdi zmdi-settings"></span></a>
+                            <a className="close md-close admin-settings admin-visibility" href={rb.baseUrl + '/admin/entity/' + this.props.entity + '/base'} title="实体配置"><span className="zmdi zmdi-settings"></span></a>
                             <button className="close md-close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
                         </div>
                         <div className={'modal-body rb-loading' + (this.state.inLoad ? ' rb-loading-active' : '')}>
@@ -53,6 +53,10 @@ const __detectElement = function(item){
         return <RbFormText {...item} />
     } else if (item.type == 'URL'){
         return <RbFormUrl {...item} />
+    } else if (item.type == 'EMAIL'){
+        return <RbFormEMail {...item} />
+    } else if (item.type == 'PHONE'){
+        return <RbFormPhone {...item} />
     } else if (item.type == 'IMAGE'){
         return <RbFormImage {...item} />
     } else if (item.type == 'FILE'){
@@ -73,8 +77,8 @@ class RbForm extends React.Component {
         this.__props = { entity: props.entity }
         this.state = { };
         
+        this.__FormData = {};
         this.setFieldValue = this.setFieldValue.bind(this);
-        this.formData = {};
     }
     render() {
         let that = this;
@@ -97,15 +101,20 @@ class RbForm extends React.Component {
         )
     }
     componentDidMount() {
-        if (parent && parent.rbModal) parent.rbModal.loaded()
         $('.rb-loading-active').removeClass('rb-loading-active')
     }
-    setFieldValue(field, value) {
-        this.formData[field] = value;
-        console.log('Set FromData ... ' + JSON.stringify(this.formData));
+    setFieldValue(field, value, error) {
+        this.__FormData[field] = { value:value, error:error };
+        console.log('Set ... ' + JSON.stringify(this.__FormData));
     }
     post() {
-        console.log('Post FromData ... ' + JSON.stringify(this.formData));
+        // check error
+        for (let k in this.__FormData) {
+            let err = this.__FormData[k].error;
+            if (err){ alert(err); return; }
+        }
+        
+        console.log('Post ... ' + JSON.stringify(this.__FormData));
         
         // TODO 验证数据???
         
@@ -135,26 +144,30 @@ class RbFormElement extends React.Component {
             </div>
         )
     }
-    componentDidUpdate(e) {
-        if (parent && parent.rbModal) parent.rbModal.loaded()
+    componentDidMount(e) {
+        if (this.props.empty == false) {
+            this.props.$$$parent.setFieldValue(this.props.field, null, this.props.label + '不能为空');
+        }
     }
     renderElement() {
-        return ('请复写此方法');
+        return '子类复写此方法';
     }
-    handleChange(event) {
+    handleChange(event, fireCheckError) {
         let val = event.target.value;
-        this.setState({ value: val });
-        this.props.$$$parent.setFieldValue(this.props.field, val);
+        let that = this;
+        this.setState({ value: val }, fireCheckError && function(){ that.checkError() });
     }
-    checkError(event) {
-        let val = this.state.value;
-        let el = $(event.target);
-        if (!!!val && el.data('empty') == 'false') {
-            el.addClass('is-invalid');
-            return false;
+    checkError() {
+        let err = this.checkHasError();
+        this.setState({ hasError: err });
+        let errTips = !!err ? (this.props.label + err) : null;
+        this.props.$$$parent.setFieldValue(this.props.field, this.state.value, errTips);
+    }
+    checkHasError(){
+        if (this.props.empty == false) {
+            return !!!this.state.value ? '不能为空' : null;
         }
-        el.removeClass('is-invalid');
-        return true;
+        return null;
     }
 }
 
@@ -165,8 +178,47 @@ class RbFormText extends RbFormElement {
     }
     renderElement() {
         return (
-            <input ref="field-value" className="form-control form-control-sm" type="text" value={this.state.value} data-empty={this.props.empty} onChange={this.handleChange} onBlur={this.checkError} />
+            <input ref="field-value" className={'form-control form-control-sm ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} type="text" value={this.state.value} data-empty={this.props.empty} onChange={this.handleChange} onBlur={this.checkError} />
         )
+    }
+}
+
+// 链接
+class RbFormUrl extends RbFormText {
+    constructor(props) {
+        super(props);
+    }
+    checkHasError() {
+        let err = super.checkHasError();
+        if (err) return err;
+        let val = this.state.value;
+        return (!!val && $regex.isUrl(val) == false) ? '链接格式不正确' : null;
+    }
+}
+
+// 邮箱
+class RbFormEMail extends RbFormText {
+    constructor(props) {
+        super(props);
+    }
+    checkHasError() {
+        let err = super.checkHasError();
+        if (err) return err;
+        let val = this.state.value;
+        return (!!val && $regex.isMail(val) == false) ? '邮箱格式不正确' : null;
+    }
+}
+
+// 电话/手机
+class RbFormPhone extends RbFormText {
+    constructor(props) {
+        super(props);
+    }
+    checkHasError() {
+        let err = super.checkHasError();
+        if (err) return err;
+        let val = this.state.value;
+        return (!!val && $regex.isTel(val) == false) ? '电话/手机格式不正确' : null;
     }
 }
 
@@ -177,29 +229,50 @@ class RbFormTextarea extends RbFormElement {
     }
     renderElement() {
         return (
-            <textarea ref="field-value" class="form-control form-control-sm row2x" value={this.state.value} data-empty={this.props.empty} onChange={this.handleChange} onBlur={this.checkError} />
+            <textarea ref="field-value" className={'form-control form-control-sm row2x ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} value={this.state.value} data-empty={this.props.empty} onChange={this.handleChange} onBlur={this.checkError} />
         )
     }
 }
 
-// URL
-class RbFormUrl extends RbFormText {
+// 日期-时间
+class RbFormDateTime extends RbFormElement {
     constructor(props) {
-        super(props);
+        super(props)
+        this.cleanValue = this.cleanValue.bind(this);
     }
-}
-
-// 邮箱
-class RbFormEMail extends RbFormText {
-    constructor(props) {
-        super(props);
+    renderElement() {
+        return (
+            <div className="input-group datetime-field">
+                <input ref="field-value" className={'form-control form-control-sm ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} type="text" value={this.state.value} data-empty={this.props.empty} />
+                <span className={'zmdi zmdi-close clean ' + (this.state.value ? '' : 'hide')} onClick={this.cleanValue}></span>
+                <div className="input-group-append">
+                    <button className="btn btn-primary" type="button" ref="field-value-icon"><i className="icon zmdi zmdi-calendar"></i></button>
+                </div>
+            </div>
+        )
     }
-}
-
-// 电话/手机
-class RbFormPhone extends RbFormText {
-    constructor(props) {
-        super(props);
+    componentDidMount() {
+        let that = this;
+        let dtp = $(this.refs['field-value']).datetimepicker({
+            componentIcon:'zmdi zmdi-calendar',
+            navIcons: { rightIcon:'zmdi zmdi-chevron-right', leftIcon:'zmdi zmdi-chevron-left'},
+            format: 'yyyy-mm-dd hh:ii:ss',
+            weekStart: 1,
+            autoclose: true,
+            language: 'zh',
+            todayHighlight: true,
+            showMeridian: false,
+            keyboardNavigation: false,
+        }).on('changeDate', function(event){
+            let val = $(this).val();
+            that.handleChange({ target: { value:val } }, true);
+        });
+        $(this.refs['field-value-icon']).click(()=>{
+            dtp.datetimepicker('show');
+        })
+    }
+    cleanValue() {
+        this.handleChange({ target: { value:'' } }, true);
     }
 }
 
@@ -212,7 +285,7 @@ class RbFormImage extends RbFormElement {
     renderElement() {
         return (
             <div className="img-field">
-                {this.state.value.map((item, index) => {
+                {this.state.value.map((item) => {
                     return (<span><a class="img-thumbnail img-upload"><img src={rb.storageUrl + item}/><b title="移除" onClick={()=>this.removeItem(item)}><span className="zmdi zmdi-delete"></span></b></a></span>)
                 })}
                 <span title="选择图片">
@@ -239,8 +312,7 @@ class RbFormImage extends RbFormElement {
                 if (d.error_code == 0){
                     let path = that.state.value;
                     path.push(d.data);
-                    that.setState({ value:path })
-                    that.handleChange({ target:{value:path } });
+                    that.handleChange({ target:{ value:path } }, true);
                 }
                 else alert(d.error_msg || '上传失败');
             }
@@ -249,8 +321,7 @@ class RbFormImage extends RbFormElement {
     removeItem(item) {
         let path = this.state.value;
         path.remove(item);
-        this.setState({ value:path })
-        this.handleChange({ target:{value:path } });
+        this.handleChange({ target:{ value:path } }, true);
     }
 }
 
@@ -263,7 +334,7 @@ class RbFormFile extends RbFormElement {
     renderElement() {
         return (
             <div className="file-field">
-                {this.state.value.map((item, index) => {
+                {this.state.value.map((item) => {
                     let fileName = item.split('/');
                     if (fileName.length > 1){
                         fileName = fileName[fileName.length - 1];
@@ -295,8 +366,7 @@ class RbFormFile extends RbFormElement {
                 if (d.error_code == 0){
                     let path = that.state.value;
                     path.push(d.data);
-                    that.setState({ value:path })
-                    that.handleChange({ target:{value:path } });
+                    that.handleChange({ target:{ value:path } }, true);
                 }
                 else alert(d.error_msg || '上传失败');
             }
@@ -305,46 +375,7 @@ class RbFormFile extends RbFormElement {
     removeItem(item) {
         let path = this.state.value;
         path.remove(item);
-        this.setState({ value:path })
-        this.handleChange({ target:{value:path } });
-    }
-}
-
-// 日期-时间
-class RbFormDateTime extends RbFormElement {
-    constructor(props) {
-        super(props)
-    }
-    renderElement() {
-        return (
-            <div className="input-group datetime-field">
-                <input ref="field-value" className="form-control form-control-sm" type="text" value={this.state.value} />
-                <div className="input-group-append">
-                    <button className="btn btn-primary" type="button" ref="field-value-icon"><i className="icon zmdi zmdi-calendar"></i></button>
-                </div>
-            </div>
-        )
-    }
-    componentDidMount() {
-        let that = this;
-        let dtp = $(this.refs['field-value']).datetimepicker({
-            componentIcon:'zmdi zmdi-calendar',
-            navIcons: { rightIcon:'zmdi zmdi-chevron-right', leftIcon:'zmdi zmdi-chevron-left'},
-            format: 'yyyy-mm-dd hh:ii:ss',
-            weekStart: 1,
-            autoclose: true,
-            language: 'zh',
-            todayHighlight: true,
-            showMeridian: false,
-            keyboardNavigation: false,
-        }).on('changeDate', function(event){
-            let val = $(this).val();
-            that.setState({ value:val })
-            that.handleChange({ target:{value:val } });
-        })
-        $(this.refs['field-value-icon']).click(()=>{
-            dtp.datetimepicker('show');
-        })
+        this.handleChange({ target:{ value:path } }, true);
     }
 }
 

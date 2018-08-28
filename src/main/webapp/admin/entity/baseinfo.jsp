@@ -78,7 +78,7 @@ a#entityIcon:hover{opacity:0.8}
 						</div>
 						<div class="form-group row footer">
 							<div class="col-12 col-sm-8 col-lg-4 offset-sm-2">
-								<button class="btn btn-primary" type="button">更新</button>
+								<button class="btn btn-primary" type="button">保存</button>
 								<div class="alert alert-warning alert-icon" style="display:none">
 									<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
 									<div class="message">系统内建实体，不允许修改</div>

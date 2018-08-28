@@ -114,3 +114,42 @@ const $cleanMap = function(map) {
 	}
 	return newMap;
 }
+
+// 常用正则
+const $regex = {
+	_Date:/^((((1[6-9]|[2-9]\d)\d{2})-(0?[13578]|1[02])-(0?[1-9]|[12]\d|3[01]))|(((1[6-9]|[2-9]\d)\d{2})-(0?[13456789]|1[012])-(0?[1-9]|[12]\d|30))|(((1[6-9]|[2-9]\d)\d{2})-0?2-(0?[1-9]|1\d|2[0-8]))|(((1[6-9]|[2-9]\d)(0[48]|[2468][048]|[13579][26])|((16|[2468][048]|[3579][26])00))-0?2-29-))$/,
+	_Url:/^(http|https|ftp)\:\/\/[a-z0-9\-\.]+(:[0-9]*)?\/?([a-z0-9\-\._\?\,\'\/\\\+&amp;%\$#\=~!:])*$/i,
+	_Mail:/^[a-z0-9._%-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i,
+	_Digit:/^[-+]?[0-9]+$/,  // 数字
+	_Number:/^[-+]?\d*\.?\d+$/,  // 包括小数点的数字
+	_Mobile:/^(13[0-9]|15[0-9]|18[0-9]|17[0-9])\d{8}$/,
+	_Tel:/^[0-9-]{4,20}$/,
+	_Text:/^[a-z\d\u4E00-\u9FA5]+$/i,  // 不含特殊字符和标点
+	isDate:function(val){
+		return this._Date.test(val);
+	},
+	isUrl:function(val){
+		return this._Url.test(val);
+	},
+	isMail:function(val){
+		return this._Mail.test(val);
+	},
+	isDigit:function(val){
+		return this._Digit.test(val);
+	},
+	isNumber:function(val){
+		return this._Number.test(val);
+	},
+	isMobile:function(val){
+		return this._Mobile.test(val);
+	},
+	isTel:function(val){
+		return this._Tel.test(val) || this._Mobile.test(val);
+	},
+	isValidText:function(val){
+		return this._Text.test(val);
+	},
+	isNotBlank:function(val){
+		return !val || $.trim(val).length == 0;
+	},
+};

@@ -148,7 +148,7 @@ public class Field2Schema {
 		record = Application.getCommonService().create(record);
 		tempMetaId.add(record.getPrimary());
 		
-		Field unsafeField = new FieldImpl(fieldName, physicalName, fieldLabel, entity, displayType.getFieldType(), CascadeModel.Ignore, 600, nullable, updatable, 2, null, false);
+		Field unsafeField = new FieldImpl(fieldName, physicalName, fieldLabel, entity, displayType.getFieldType(), CascadeModel.Ignore, 600, nullable, updatable, 6, null, false);
 		if (entity instanceof UnsafeEntity) {
 			((UnsafeEntity) entity).addField(unsafeField);
 		}

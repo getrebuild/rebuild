@@ -110,14 +110,15 @@ public class MetaFieldControll extends BaseControll  {
 		mv.getModel().put("fieldNullable", fieldMeta.isNullable());
 		mv.getModel().put("fieldUpdatable", fieldMeta.isUpdatable());
 		
+		
 		// 字段类型相关
 		Type ft = fieldMeta.getType();
-		if (ft == FieldType.DECIMAL) {
-			mv.getModel().put("fieldPrecision", fieldMeta.getDecimalScale());
-		} else if (ft == FieldType.REFERENCE) {
+		if (ft == FieldType.REFERENCE) {
 			Entity refentity = fieldMeta.getReferenceEntities()[0];
 			mv.getModel().put("fieldRefentity", refentity.getName());
 			mv.getModel().put("fieldRefentityLabel", new EasyMeta(refentity).getLabel());
+		} else {
+			mv.getModel().put("fieldExtConfig", fieldEasyMeta.getFieldExtConfig());
 		}
 		
 		return mv;

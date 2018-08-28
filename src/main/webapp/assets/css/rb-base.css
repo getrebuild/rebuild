@@ -22597,7 +22597,7 @@ form.dropzone .dz-preview .dz-error-message {
 .select2-container--default .select2-selection--single .select2-selection__rendered .select2-selection__clear {
 	right: 20px;
 	font-size: 1.35rem;
-	top: 0px;
+	top: -1px;
 }
 
 .select2-container--default .select2-selection--single .select2-selection__arrow {

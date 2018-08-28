@@ -61,13 +61,15 @@
 							</div>
 						</div>
 						<div class="form-group row J_for-DECIMAL hide">
-							<label class="col-12 col-sm-2 col-form-label text-sm-right">小数长度</label>
+							<label class="col-12 col-sm-2 col-form-label text-sm-right">小数位长度</label>
 							<div class="col-12 col-sm-8 col-lg-4">
-								<select class="form-control form-control-sm" id="precision" data-o="${fieldPrecision}">
+								<select class="form-control form-control-sm" id="decimalPrecision">
 									<option value="1">1位</option>
-									<option value="2">2位</option>
+									<option value="2" selected="selected">2位</option>
 									<option value="3">3位</option>
 									<option value="4">4位</option>
+									<option value="5">5位</option>
+									<option value="6">6位</option>
 								</select>
 							</div>
 						</div>
@@ -80,18 +82,19 @@
 						<div class="form-group row J_for-DATETIME hide">
 							<label class="col-12 col-sm-2 col-form-label text-sm-right">格式</label>
 							<div class="col-12 col-sm-8 col-lg-4">
-								<select class="form-control form-control-sm" id="dateformat" data-o="${fieldDateformat}">
+								<select class="form-control form-control-sm" id="dateFormat">
 									<option value="yyyy-MM">YYYY-MM</option>
 									<option value="yyyy-MM-dd">YYYY-MM-DD</option>
-									<option value="yyyy-MM-dd HH:mm">YYYY-MM-DD HH:MM</option>
-									<option value="yyyy-MM-dd HH:mm:ss" selected="selected">YYYY-MM-DD HH:MM:SS</option>
+									<option value="yyyy-MM-dd HH:mm" selected="selected">YYYY-MM-DD HH:MM</option>
+									<option value="yyyy-MM-dd HH:mm:ss">YYYY-MM-DD HH:MM:SS</option>
 								</select>
 							</div>
 						</div>
 						<div class="form-group row J_for-IMAGE J_for-FILE hide">
 							<label class="col-12 col-sm-2 col-form-label text-sm-right">允许上传数量</label>
 							<div class="col-12 col-sm-8 col-lg-4" style="padding-top:6px">
-								<input class="bslider form-control" id="allowNumber" type="text" data-slider-value="[1,5]" data-slider-step="1" data-slider-max="10" data-slider-min="0" data-slider-tooltip="show">
+								<input class="bslider form-control" id="uploadNumber" type="text" data-slider-value="[1,5]" data-slider-step="1" data-slider-max="10" data-slider-min="0" data-slider-tooltip="show">
+								<div class="form-text J_minmax">最少上传 <b>1</b> 个，最多上传 <b>5</b> 个</div>
 							</div>
 						</div>
 						<div class="form-group row J_for-PICKLIST hide">
@@ -146,6 +149,7 @@ $(document).ready(function(){
 	const metaId = '${fieldMetaId}';
 	let dt = '${fieldType}';
 	if (dt.indexOf('(') > -1) dt = dt.match('\\((.+?)\\)')[1];
+	const extConfigOld = JSON.parse('${fieldExtConfig}' || '{}');
 	
 	const btn = $('.btn-primary').click(function(){
 		if (!!!metaId) return;
@@ -154,16 +158,21 @@ $(document).ready(function(){
 			nullable = $val('#fieldNullable'),
 			updatable = $val('#fieldUpdatable');
 		let _data = { fieldLabel:label, comments:comments, nullable:nullable, updatable:updatable };
-		console.log('A ' + JSON.stringify(_data))
 		_data = $cleanMap(_data)
-		console.log('B ' + JSON.stringify(_data))
 		
+		let extConfig = {};
 		$('.J_for-' + dt + ' .form-control').each(function(){
-			let id = $(this).attr('id');
-			_data[id] = $val(this);
+			let k = $(this).attr('id');
+			let v = $val(this);
+			if (extConfigOld[k] != v) extConfig[k] = v;
 		});
 		
-		if (JSON.stringify(_data) == '{}'){
+		if (Object.keys(extConfig).length > 0){
+			_data['extConfig'] = JSON.stringify(extConfig);
+		}
+		
+		_data = $cleanMap(_data)
+		if (Object.keys(_data).length == 0){
 			location.reload();
 			return;
 		}
@@ -186,8 +195,21 @@ $(document).ready(function(){
 	$('#fieldUpdatable').attr('checked', $('#fieldUpdatable').data('o') == true)
 	
 	$('.J_for-' + dt).removeClass('hide');
-	$('#precision').val($('#precision').data('o'));
-	$('input.bslider').slider();
+	let uploadNumber = [1, 5];
+	for (let k in extConfigOld) {
+		if (k == 'uploadNumber'){
+			uploadNumber = extConfigOld[k].split(',');
+			uploadNumber[0] = ~~uploadNumber[0];
+			uploadNumber[1] = ~~uploadNumber[1];
+			$('.J_minmax b').eq(0).text(uploadNumber[0])
+			$('.J_minmax b').eq(1).text(uploadNumber[1])
+		} else $('#' + k).val(extConfigOld[k]);
+	}
+	$('input.bslider').slider({ value:uploadNumber }).on('change', function(e){
+		let v = e.value.newValue;
+		$('.J_minmax b').eq(0).text(v[0])
+		$('.J_minmax b').eq(1).text(v[1])
+	})
 	
 });
 </script>

@@ -13,7 +13,6 @@
 					<li class="divider">用户</li>
 					<li class="<%="user-list".equals(activeNav) ? "active" : ""%>" id="nav_user-list"><a href="${baseUrl}/admin/bizuser/user-list.htm"><i class="icon zmdi zmdi-account"></i><span>用户管理</span></a></li>
 					<li class="<%="dept-list".equals(activeNav) ? "active" : ""%>" id="nav_dept-list"><a href="${baseUrl}/admin/entity/dept-list.htm"><i class="icon zmdi zmdi-accounts"></i><span>部门管理</span></a></li>
-					<li class="<%="role-list".equals(activeNav) ? "active" : ""%>" id="nav_role-list"><a href="${baseUrl}/admin/entity/role-list.htm"><i class="icon zmdi zmdi-lock"></i><span>角色权限</span></a></li>
 				</ul>
 			</div>
 		</div>
