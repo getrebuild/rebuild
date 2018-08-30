@@ -40,16 +40,13 @@
 					</div>
 				</div>
 				<div class="splash-footer">
-					<span>&copy; 2018 <a href="https://github.com/devezhao/re-build/" target="_blank">Rebuild</a></span>
+					<span>&copy; 2018 <a href="https://github.com/getrebuild/re-build/" target="_blank">Rebuild</a></span>
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/babel">
-const rbAlter = ReactDOM.render(<RbAlter />, $('<div id="react-comps"></div>').appendTo(document.body)[0]);
-</script>
 <script type="text/javascript">
 $(document).ready(function() {
 	$('#user,#passwd').keydown(function(e){
@@ -57,24 +54,20 @@ $(document).ready(function() {
 	});
 	
 	$('.J_login-btn').click(function() {
-		let user = $('#user').val(),
-			passwd = $('#passwd').val();
+		let user = $val('#user'),
+			passwd = $val('#passwd');
 		if (!user || !passwd){
-			rbAlter.show('请输入用户名和密码');
+			rb.notice('请输入用户名和密码')
 			return;
 		}
 		
 		let btn = $(this).button('loading');
-		let reqdata = { user: user, passwd: passwd };
-		$.post(__baseUrl + '/user/user-login', reqdata, function(res) {
-			if (res.error_code == 0) location.replace('../dashboard/home.htm');
+		let _data = { user: user, passwd: passwd };
+		$.post(rb.baseUrl + '/user/user-login', _data, function(res) {
+			if (res.error_code == 0) location.replace('../dashboard/home');
 			else{
-				rbAlter.show(res.error_msg || '登录失败');
+				rb.notice(res.error_msg || '登录失败')
 				btn.button('reset');
-				
-				setTimeout(function(){
-					rbAlter.hide();
-				}, 3000);
 			}
 		});
 	});

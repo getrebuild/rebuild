@@ -106,15 +106,15 @@ public class EasyMeta implements BaseMeta {
 	}
 	
 	/**
-	 * @param easy
+	 * @param fullName
 	 * @return
 	 */
-	public String getDisplayType(boolean easy) {
+	public String getDisplayType(boolean fullName) {
 		if (baseMeta instanceof Field) {
 			Object[] ext = getMetaExt();
 			if (ext != null) {
 				DisplayType dt = (DisplayType) ext[2];
-				if (easy) {
+				if (fullName) {
 					return dt.getDisplayName() + " (" + dt.name() + ")";
 				} else {
 					return dt.name();

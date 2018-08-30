@@ -509,6 +509,10 @@ hr {
 	max-width: 100%;
 	height: auto
 }
+.img-thumbnail img {
+	max-height: 100%;
+	max-width: 100%;
+}
 
 .figure {
 	display: inline-block
@@ -13450,7 +13454,7 @@ canvas {
 }
 
 .splash-container {
-	max-width: 401px;
+	max-width: 501px;
 	margin: 50px auto
 }
 
@@ -20479,7 +20483,6 @@ pre code {
 
 .table>tbody>tr>td {
 	font-weight: 400;
-	vertical-align: middle
 }
 
 .rb-table-responsive {
@@ -20605,7 +20608,8 @@ pre code {
 .table tr td .custom-control,.table tr th .custom-control {
 	padding: 0;
 	margin: 0;
-	vertical-align: middle
+	vertical-align: middle;
+	cursor: pointer;
 }
 
 .table tr td .custom-control .custom-control-indicator,.table tr th .custom-control .custom-control-indicator {
@@ -21131,7 +21135,7 @@ select.form-control-xs:not([size]):not([multiple]) {
 .form-control-sm,.input-group-sm>.form-control,.input-group-sm>.input-group-append>.btn,.input-group-sm>.input-group-append>.input-group-text,.input-group-sm>.input-group-prepend>.btn,.input-group-sm>.input-group-prepend>.input-group-text {
 	height: 37px !important;
 	font-size: 1rem;
-	padding: 4px 12px
+	padding: 4px 10px
 }
 
 .form-control-lg,.input-group-lg>.form-control,.input-group-lg>.input-group-append>.btn,.input-group-lg>.input-group-append>.input-group-text,.input-group-lg>.input-group-prepend>.btn,.input-group-lg>.input-group-prepend>.input-group-text {
@@ -22583,11 +22587,11 @@ form.dropzone .dz-preview .dz-error-message {
 	outline: 0
 }
 
-.select2-container--default .select2-selection--single {
+.select2-container--default .select2-selection--single, .select2-container--default .select2-selection--multiple {
 	height: 37px
 }
 
-.select2-container--default .select2-selection--single .select2-selection__rendered {
+.select2-container--default .select2-selection--single .select2-selection__rendered, .select2-container--default .select2-selection--multiple .select2-selection__rendered {
 	padding: 0 10px;
 	height: 37px;
 	line-height: 37px;
@@ -22595,12 +22599,14 @@ form.dropzone .dz-preview .dz-error-message {
 	color: #404040
 }
 
-.select2-container--default .select2-selection--single .select2-selection__rendered .select2-selection__clear {
+.select2-container--default .select2-selection--single .select2-selection__rendered .select2-selection__clear, .select2-container--default .select2-selection--multiple .select2-selection__rendered .select2-selection__clear {
 	right: 20px;
 	font-size: 1.35rem;
 	top: -1px;
 }
-
+.select2-container--default .select2-selection--multiple .select2-selection__rendered .select2-selection__clear {
+	margin-top: -1px;
+}
 .select2-container--default .select2-selection--single .select2-selection__arrow {
 	height: 37px;
 	width: 20px
@@ -22634,22 +22640,20 @@ form.dropzone .dz-preview .dz-error-message {
 	font-size: 1rem
 }
 
-.select2-container--default .select2-selection--multiple .select2-selection__rendered {
-	padding: 4px 12px
-}
-
 .select2-container--default .select2-selection--multiple .select2-selection__choice {
-	border-radius: 0;
+	border-radius: 2px;
 	background-color: #f2f2f2;
 	color: #5a5a5a;
 	border-width: 0;
-	padding: 4px 6px;
+	padding: 3px 6px;
 	line-height: 18px
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
 	color: #666;
-	margin-right: 3px
+	margin-right: 3px;
+	font-size: 1.1rem;
+	padding-top: 1px;
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {

@@ -17,9 +17,14 @@ package cn.devezhao.rebuild.web.entity.datalist;
 
 import com.alibaba.fastjson.JSONObject;
 
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Query;
+import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.query.compiler.SelectItem;
 import cn.devezhao.rebuild.server.Application;
+import cn.devezhao.rebuild.server.metadata.EntityHelper;
 
 /**
  * 数据列表控制器
@@ -68,6 +73,17 @@ public class DefaultDataListControl implements DataListControl {
 		Query query = Application.createQuery(queryParser.toSql()).setTimeout(timeout);
 		int[] limit = queryParser.getSqlLimit();
 		Object[][] array = query.setLimit(limit[0], limit[1]).array();
+
+		// 补充引用字段的 NameField
+		Field[] fields = queryParser.getFieldList();
+		for (int i = 0; i < fields.length; i++) {
+			Field field = fields[i];
+			if (field.getType() == FieldType.REFERENCE) {
+				for (Object o[] : array) {
+					o[i] = readReferenceNamed(o[i]);
+				}
+			}
+		}
 		
 		DataWrapper wrapper = getDataWrapper(total, array, query.getSelectItems());
 		return wrapper.toJson();
@@ -81,5 +97,22 @@ public class DefaultDataListControl implements DataListControl {
 	 */
 	protected DataWrapper getDataWrapper(int total, Object[][] data, SelectItem[] fields) {
 		return new DataWrapper(total, data, fields);
+	}
+	
+	/**
+	 * @param idVal
+	 * @return
+	 */
+	protected Object[] readReferenceNamed(Object idVal) {
+		if (idVal == null) {
+			return null;
+		}
+		
+		ID id = (ID) idVal;
+		Entity entity = EntityHelper.getEntity(id.getEntityCode());
+		String sql = String.format("select %s from %s where %s = ?",
+				entity.getNameField().getName(), entity.getName(), entity.getPrimaryField().getName());
+		Object[] named = Application.createQuery(sql).setParameter(1, id).unique();
+		return new Object[] { id, named == null ? "" : named[0] };
 	}
 }

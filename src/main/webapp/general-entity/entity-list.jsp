@@ -47,21 +47,15 @@
 						</div>
 						<div class="row rb-datatable-body">
 							<div class="col-sm-12">
-								<table class="table" id="dataList" data-entity="User">
-									<thead>
-										<tr>
-											<th width="50">
-												<label class="custom-control custom-control-sm custom-checkbox">
-													<input class="custom-control-input" type="checkbox"><span class="custom-control-label"></span>
-												</label>
-											</th>
-											<th data-filed="loginName">用户</th>
-											<th data-field="email">邮箱</th>
-											<th data-field="createdOn">创建时间</th>
-										</tr>
-									</thead>
-									<tbody></tbody>
-								</table>
+								<div class="rb-loading rb-loading-active">
+									<div id="react-list" class="rb-scroller">
+									</div>
+									<div class="rb-spinner">
+								        <svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://-www.w3.org/2000/svg">
+								            <circle fill="none" stroke-width="4" stroke-linecap="round" cx="33" cy="33" r="30" class="circle"></circle>
+								        </svg>
+								    </div>
+								</div>
 							</div>
 						</div>
 						<div class="row rb-datatable-footer">
@@ -91,15 +85,17 @@
 </div>
 
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/js/rb-list.js" type="text/javascript"></script>
+<script src="${baseUrl}/assets/js/rb-list.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script type="text/babel">
 $(document).ready(function(){
-	$('.dropdown-toggle').dropdown();
+	var listConfig = JSON.parse('${DataListConfig}');
+	var rbList = renderRbcomp(<RbList config={listConfig} />, 'react-list');
 
 	var rbFormModal = null;
 	$('.J_new').click(function(){
-		if (rbFormModal) rbFormModal.show();
-		else rbFormModal = renderRbcomp(<RbFormModal title="新建${entityLabel}" entity="${entityName}" />)
+		if (rbFormModal) rbFormModal.show()
+		else rbFormModal = renderRbcomp(<RbFormModal title="新建${entityLabel}" entity="${entityName}" />, 'react-forms')
 	});
 });
 </script>

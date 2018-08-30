@@ -15,6 +15,9 @@ limitations under the License.
 */
 package cn.devezhao.rebuild.web.entity.datalist;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -24,6 +27,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
 import cn.devezhao.rebuild.server.metadata.ExtRecordCreator;
 
@@ -41,6 +45,8 @@ public class JsonQueryParser {
 	private DataListControl dataListControl;
 	
 	private Entity entity;
+	private List<Field> fieldList = new ArrayList<>();
+	
 	private String sql;
 	private String countSql;
 	private int[] limit;
@@ -53,43 +59,39 @@ public class JsonQueryParser {
 	public JsonQueryParser(JSONObject queryElement, DataListControl dataListControl) {
 		this.queryElement = queryElement;
 		this.dataListControl = dataListControl;
+		
 		this.entity = EntityHelper.getEntity(queryElement.getString("entity"));
+		
+		JSONArray fieldsNode = queryElement.getJSONArray("fields");
+		for (Object o : fieldsNode) {
+			String field = o.toString().trim();
+			fieldList.add(entity.getField(field));
+		}
 	}
 	
-	/**
-	 * @return
-	 */
 	public Entity getEntity() {
 		return entity;
 	}
 	
-	/**
-	 * @return
-	 */
+	public Field[] getFieldList() {
+		return fieldList.toArray(new Field[fieldList.size()]);
+	}
+	
 	public String toSql() {
 		doParseIfNeed();
 		return sql;
 	}
 	
-	/**
-	 * @return
-	 */
 	public String toSqlCount() {
 		doParseIfNeed();
 		return countSql;
 	}
 	
-	/**
-	 * @return
-	 */
 	public int[] getSqlLimit() {
 		doParseIfNeed();
 		return limit;
 	}
 	
-	/**
-	 * @return
-	 */
 	public boolean isNeedReload() {
 		doParseIfNeed();
 		return reload;
@@ -104,11 +106,10 @@ public class JsonQueryParser {
 		}
 		
 		StringBuffer sqlBase = new StringBuffer("select ");
-		JSONArray fieldsNode = queryElement.getJSONArray("fields");
-		for (Object o : fieldsNode) {
-			String field = o.toString();
-			sqlBase.append(StringEscapeUtils.escapeSql(field)).append(',');
+		for (Field field : fieldList) {
+			sqlBase.append(field.getName()).append(',');
 		}
+		// 最后增加一个主键列
 		String pkName = entity.getPrimaryField().getName();
 		sqlBase.append(pkName)
 				.append(" from ")

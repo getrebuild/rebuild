@@ -34,7 +34,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.rebuild.server.Application;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
-import cn.devezhao.rebuild.server.service.entitymanage.LayoutManager;
+import cn.devezhao.rebuild.server.service.entity.FormManager;
 import cn.devezhao.rebuild.web.commons.BaseControll;
 
 /**
@@ -51,7 +51,7 @@ public class EntityLayoutControll extends BaseControll {
 		ModelAndView mv = createModelAndView("/admin/entity/form-design.jsp");
 		MetaEntityControll.setEntityBase(mv, entity);
 		
-		JSON ll = LayoutManager.getFormLayout(entity);
+		JSON ll = FormManager.getFormLayout(entity);
 		if (ll != null) {
 			request.setAttribute("config", ll);
 		}

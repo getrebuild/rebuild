@@ -3,7 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>Rebuild</title>
+<title>首页</title>
 <style type="text/css">
 </style>
 </head>

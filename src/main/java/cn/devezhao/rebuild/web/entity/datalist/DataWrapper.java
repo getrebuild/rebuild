@@ -24,10 +24,13 @@ import org.apache.commons.lang.StringUtils;
 import com.alibaba.fastjson.JSON;
 
 import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.dialect.Type;
+import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.query.compiler.SelectItem;
+import cn.devezhao.rebuild.server.metadata.EntityHelper;
 
 /**
  * 数据包装
@@ -40,7 +43,7 @@ public class DataWrapper {
 
 	private int total;
 	private Object[][] data;
-	private SelectItem[] fields;
+	private SelectItem[] selectFields;
 	
 	/**
 	 * @param total
@@ -50,7 +53,7 @@ public class DataWrapper {
 	public DataWrapper(int total, Object[][] data, SelectItem[] fields) {
 		this.total = total;
 		this.data = data;
-		this.fields = fields;
+		this.selectFields = fields;
 	}
 	
 	/**
@@ -58,8 +61,8 @@ public class DataWrapper {
 	 */
 	public String toJson() {
 		for (Object[] o : data) {
-			for (int i = 0; i < fields.length; i++) {
-				Field field = fields[i].getField();
+			for (int i = 0; i < selectFields.length; i++) {
+				Field field = selectFields[i].getField();
 				Type cType = field.getType();
 				if (cType == FieldType.DATE) {
 					o[i] = wrapDate(o[i], field);
@@ -148,6 +151,20 @@ public class DataWrapper {
 	 * @return
 	 */
 	protected Object wrapSimple(Object value, Field field) {
-		return value == null ? StringUtils.EMPTY : value.toString();
+		if (value == null) {
+			return StringUtils.EMPTY;
+		}
+		
+		if (value instanceof Object[]) {
+			Object[] idNamed = (Object[]) value;
+			Object[] idNamed2 = new Object[3];
+			Entity idEntity = EntityHelper.getEntity(((ID) idNamed[0]).getEntityCode());
+			idNamed2[2] = idEntity.getName();
+			idNamed2[1] = idNamed[1] == null ? StringUtils.EMPTY : idNamed[1].toString();
+			idNamed2[0] = idNamed[0].toString();
+			return idNamed2;
+		} else {
+			return value.toString();
+		}
 	}
 }

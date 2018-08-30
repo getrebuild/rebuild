@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.server.service.entitymanage;
+package cn.devezhao.rebuild.server.service.entity;
 
 import java.util.Map;
 
@@ -25,13 +25,15 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.rebuild.server.Application;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
+import cn.devezhao.rebuild.server.service.entitymanage.EasyMeta;
 
 /**
+ * 表单管理
  * 
  * @author zhaofang123@gmail.com
- * @since 08/22/2018
+ * @since 08/30/2018
  */
-public class LayoutManager {
+public class FormManager {
 
 	/**
 	 * 获取表单布局
@@ -51,8 +53,6 @@ public class LayoutManager {
 			config.put("elements", JSON.parseArray((String) layout[1]));
 			return config;
 		}
-		
-		// TODO 暂无布局，使用默认
 		
 		config.put("elements", new String[0]);
 		return config;
@@ -79,7 +79,7 @@ public class LayoutManager {
 			
 			JSONObject ext = easyField.getFieldExtConfig();
 			for (Map.Entry<String, Object> e : ext.entrySet()) {
-				el.put("field" + e.getKey(), e.getValue());
+				el.put(e.getKey(), e.getValue());
 			}
 		}
 		return config;

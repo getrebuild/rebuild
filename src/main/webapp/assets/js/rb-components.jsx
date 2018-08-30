@@ -58,11 +58,9 @@ class RbModal extends React.Component {
     }
 }
 
-// ~~!v1.0 提示框
 class RbAlter extends React.Component {
     constructor(props) {
-       super(props);
-       this.state = { ...props };
+       super(props)
     }
     render() {
         return (
@@ -74,10 +72,10 @@ class RbAlter extends React.Component {
                         </div>
                         <div className="modal-body">
                             <div className="text-center">
-                                <h3>提示</h3>
-                                <p>{this.state.message || '提示内容'}</p>
+                                <h3>{this.props.title || '提示'}</h3>
+                                <p>{this.props.message || '提示内容'}</p>
                                 <div class="mt-8">
-                                    <button className="btn btn-secondary" type="button" ref="rbalter.confirm" onClick={()=>this.hide()}>确定</button>
+                                    <button className="btn btn-secondary" type="button" onClick={()=>this.hide()}>确定</button>
                                 </div>
                             </div>
                         </div>
@@ -86,15 +84,30 @@ class RbAlter extends React.Component {
             </div>
         )
     }
-    show(message) {
-        let that = this;
-        this.setState({ message: message }, function(){
-            $(that.refs['rbalter']).modal('show');
-            $(that.refs['rbalter.confirm']).focus();
-        })
+    componentDidMount() {
     }
     hide() {
-        $(this.refs['rbalter']).modal('hide');
+        $(this.refs['rbalter']).parent().remove();
+    }
+}
+
+class RbNotice extends React.Component {
+    constructor(props) {
+       super(props);
+    }
+    render() {
+        return <div className={'rbnotice ' + (this.props.type || '')} ref="rbnotice">
+            {this.props.message}
+        </div>
+    }
+    componentDidMount() {
+        if (this.props.autoClose == 'false');
+        else{
+            let that = this;
+            setTimeout(function(){
+                $(that.refs['rbnotice']).parent().remove();
+            }, this.props.timeout || 3000)
+        }
     }
 }
 
@@ -106,8 +119,17 @@ function RbSpinner(props) {
     </div>
 }
 
-const renderRbcomp = function(jsx) {
-    let container = $('#react-comps');
-    if (container.length == 0) container = $('<div id="react-comps"></div>').appendTo(document.body);
+const renderRbcomp = function(jsx, target) {
+    target = target || ('react-comps-' + new Date().getTime());
+    let container = $('#' + target);
+    if (container.length == 0) container = $('<div id="' + target + '"></div>').appendTo(document.body);
     return ReactDOM.render(jsx, container[0]);
 };
+
+var rb = rb || {}
+rb.notice = function(message, type){
+    renderRbcomp(<RbNotice message={message} type={type} />)
+}
+rb.alter = function(message, title){
+    renderRbcomp(<RbAlter message={message} title={title} />)
+}

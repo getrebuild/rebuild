@@ -3,23 +3,29 @@ class RbFormModal extends React.Component {
     constructor(props) {
         super(props);
         this.state = { ...props, inLoad: true };
+        
+        this.showNotice = this.showNotice.bind(this)
+        this.destroy = this.destroy.bind(this)
     }
     render() {
         return (
-            <div className="modal rbmodal colored-header colored-header-primary" ref="rbmodal">
+            <div className="modal-warpper" ref="rbmodal-warpper">
+            <div className={'modal rbmodal colored-header colored-header-primary'} ref="rbmodal">
                 <div className="modal-dialog">
                     <div className="modal-content">
                         <div className="modal-header modal-header-colored">
-                            <h3 className="modal-title">{this.state.title || ''}</h3>
+                            <h3 className="modal-title">{this.state.title || 'TITLE'}</h3>
                             <a className="close md-close admin-settings admin-visibility" href={rb.baseUrl + '/admin/entity/' + this.props.entity + '/base'} title="实体配置"><span className="zmdi zmdi-settings"></span></a>
                             <button className="close md-close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
                         </div>
                         <div className={'modal-body rb-loading' + (this.state.inLoad ? ' rb-loading-active' : '')}>
                             {this.state.formComponent}
-                            <RbSpinner />
+                            {this.state.inLoad && <RbSpinner />}
                         </div>
                     </div>
                 </div>
+            </div>
+            {this.state.noticeMessage && <RbNotice autoClose="false" message={this.state.noticeMessage} type={this.state.noticeType} />}
             </div>
         )
     }
@@ -29,14 +35,14 @@ class RbFormModal extends React.Component {
         // 渲染表单
         let that = this;
         let entity = this.props.entity;
-        $.get(rb.baseUrl + '/entity/form-config?entity=' + entity, function(res){
+        $.get(rb.baseUrl + '/app/entity-form-config?entity=' + entity, function(res){
             let elements = res.data.elements;
             const FORM = <RbForm entity={entity} $$$parent={that}>
                 {elements.map((item) => {
                     return __detectElement(item)
                 })}
                 </RbForm>;
-            that.setState({ formComponent:FORM }, function() {
+            that.setState({ formComponent: FORM }, function() {
                 that.setState({ inLoad:false })
             })
         })
@@ -45,7 +51,20 @@ class RbFormModal extends React.Component {
         $(this.refs['rbmodal']).modal({ show: true, backdrop: 'static' });
     }
     hide() {
-        $(this.refs['rbmodal']).modal('hide');
+        $(this.refs['rbmodal']).modal('hide')
+        this.setState({ noticeMessage: null })
+    }
+    destroy() {
+        //this.hide()
+        //$(this.refs['rbmodal-warpper']).remove()
+    }
+    showNotice(message, type) {
+        let that = this;
+        that.setState({ noticeMessage: message, noticeType: type || 'warning'  }, function(){
+            $setTimeout(function(){
+                that.setState({ noticeMessage: null })
+            }, 3000, 'rbform-notice');
+        })
     }
 }
 const __detectElement = function(item){
@@ -74,11 +93,11 @@ const __detectElement = function(item){
 class RbForm extends React.Component {
     constructor(props) {
         super(props);
-        this.__props = { entity: props.entity }
-        this.state = { };
+        this.state = { ...props };
         
         this.__FormData = {};
         this.setFieldValue = this.setFieldValue.bind(this);
+        this.showNotice = this.showNotice.bind(this);
     }
     render() {
         let that = this;
@@ -89,39 +108,60 @@ class RbForm extends React.Component {
                     child.props.$$$parent = that;
                     return child;
                 })}
-                <div className="form-group row footer">
-                    <div className="col-12 col-sm-8 offset-sm-3">
-                        <button className="btn btn-primary btn-space" type="button" onClick={()=>this.post()}>保存</button>
-                        &nbsp;
-                        <button className="btn btn-secondary btn-space" type="button" onClick={()=>this.props.$$$parent.hide()}>取消</button>
-                    </div>
-                </div>
+                {this.props.children.length == 0 ? this.__renderFormError() :
+                    (<div className="form-group row footer">
+                        <div className="col-12 col-sm-8 offset-sm-3" ref="rbform-action">
+                            <button className="btn btn-primary btn-space" type="button" onClick={()=>this.post()}>保存</button>
+                            &nbsp;
+                            <button className="btn btn-secondary btn-space" type="button" onClick={()=>this.props.$$$parent.hide()}>取消</button>
+                        </div>
+                    </div>)
+                }
             </form>
             </div>
         )
     }
+    __renderFormError(message) {
+        let cfgUrl = rb.baseUrl + '/admin/entity/' + this.props.entity + '/form-design';
+        message = message || `这个表单似乎没有配置。请 <a href="${cfgUrl}">前去配置</a>`;
+        message = { __html: '<strong>错误!</strong> ' + message };
+        return <div class="alert alert-contrast alert-warning">
+            <div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
+            <div class="message" dangerouslySetInnerHTML={message}></div>
+        </div>;
+    }
     componentDidMount() {
-        $('.rb-loading-active').removeClass('rb-loading-active')
     }
     setFieldValue(field, value, error) {
         this.__FormData[field] = { value:value, error:error };
-        console.log('Set ... ' + JSON.stringify(this.__FormData));
+        console.log('Set data ... ' + JSON.stringify(this.__FormData));
+    }
+    showNotice(message, type) {
+        this.props.$$$parent.showNotice(message, type);
     }
     post() {
-        // check error
+        console.log('Post data ... ' + JSON.stringify(this.__FormData));
+        // Check Error
+        let _data = {};
         for (let k in this.__FormData) {
             let err = this.__FormData[k].error;
-            if (err){ alert(err); return; }
+            if (err){ this.showNotice(err); return; }
+            else _data[k] = this.__FormData[k].value;
         }
         
-        console.log('Post ... ' + JSON.stringify(this.__FormData));
-        
-        // TODO 验证数据???
-        
-        let _data = this.formData;
         _data.metadata = { entity: this.props.entity, id: this.props.id };
-        //$.post(rb.baseUrl + '/entity/record-save', JSON.stringify(_data), function(res){
-        //});
+        
+        let actions = $(this.refs['rbform-action']).find('.btn').button('loading');
+        let that = this;
+        $.post(rb.baseUrl + '/app/record-save', JSON.stringify(_data), function(res){
+            actions.button('reset');
+            if (res.error_code == 0){
+                rb.notice('保存成功，<a>点击查看</a>');
+                that.props.$$$parent.destroy()
+            }else{
+                that.showNotice(res.error_msg || '保存失败，请稍后重试');
+            }
+        });
     }
 }
 
@@ -252,11 +292,27 @@ class RbFormDateTime extends RbFormElement {
         )
     }
     componentDidMount() {
+        super.componentDidMount()
+        let format = this.props.dateFormat.replace('mm', 'ii').toLowerCase();
+        let minView = 0;
+        switch (format.length) {
+            case 7:
+                minView = 'year';
+                break;
+        	case 10:
+        	    minView = 'month';
+        		break;
+        	default:
+        		break;
+        }
+        
         let that = this;
         let dtp = $(this.refs['field-value']).datetimepicker({
             componentIcon:'zmdi zmdi-calendar',
             navIcons: { rightIcon:'zmdi zmdi-chevron-right', leftIcon:'zmdi zmdi-chevron-left'},
-            format: 'yyyy-mm-dd hh:ii:ss',
+            format: format || 'yyyy-mm-dd hh:ii:ss',
+            minView: minView,
+            startView: minView == 'year' ? 'year' : 'month',
             weekStart: 1,
             autoclose: true,
             language: 'zh',
@@ -289,7 +345,7 @@ class RbFormImage extends RbFormElement {
                     return (<span><a class="img-thumbnail img-upload"><img src={rb.storageUrl + item}/><b title="移除" onClick={()=>this.removeItem(item)}><span className="zmdi zmdi-delete"></span></b></a></span>)
                 })}
                 <span title="选择图片">
-                    <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} />
+                    <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} accept="image/*" />
                     <label for={this.props.field + '-input'} className="img-thumbnail img-upload"><span className="zmdi zmdi-image-alt"></span></label>
                 </span>
                 <input ref="field-value" type="hidden" value={this.state.value} />
@@ -297,24 +353,29 @@ class RbFormImage extends RbFormElement {
         )
     }
     componentDidMount() {
+        super.componentDidMount()
         let that = this;
         let mprogress;
         $(that.refs['upload-input']).html5Uploader({
             name: that.props.field,
-            postUrl: __baseUrl + '/filex/upload?cloud=auto',
+            postUrl: rb.baseUrl + '/filex/upload?cloud=auto&type=image',
             onClientLoad: function(e, file){
+                if (file.type.substr(0, 5) != 'image'){
+                    that.props.$$$parent.showNotice('请上传图片');
+                    return false;
+                }
                 mprogress = new Mprogress({ template:3 });
                 mprogress.start()
             },
             onSuccess:function(d){
+                if (mprogress == null) return false;
                 mprogress.end();
                 d = JSON.parse(d.currentTarget.response);
                 if (d.error_code == 0){
                     let path = that.state.value;
                     path.push(d.data);
                     that.handleChange({ target:{ value:path } }, true);
-                }
-                else alert(d.error_msg || '上传失败');
+                } else that.showNitice(d.error_msg || '上传失败，请稍后重试');
             }
         });
     }
@@ -336,10 +397,8 @@ class RbFormFile extends RbFormElement {
             <div className="file-field">
                 {this.state.value.map((item) => {
                     let fileName = item.split('/');
-                    if (fileName.length > 1){
-                        fileName = fileName[fileName.length - 1];
-                        fileName = fileName.substr(15);
-                    }
+                    if (fileName.length > 1) fileName = fileName[fileName.length - 1];
+                    fileName = fileName.substr(15);
                     return (<div className="img-thumbnail"><i className="zmdi zmdi-file"></i><span>{fileName}</span><b title="移除" onClick={()=>this.removeItem(item)}><span className="zmdi zmdi-delete"></span></b></div>)
                 })}
                 <div className="file-select">
@@ -351,11 +410,12 @@ class RbFormFile extends RbFormElement {
         )
     }
     componentDidMount() {
+        super.componentDidMount()
         let that = this;
         let mprogress;
         $(that.refs['upload-input']).html5Uploader({
             name: that.props.field,
-            postUrl: __baseUrl + '/filex/upload?cloud=auto',
+            postUrl: rb.baseUrl + '/filex/upload?cloud=auto',
             onClientLoad: function(e, file){
                 mprogress = new Mprogress({ template:3 });
                 mprogress.start()
@@ -367,8 +427,7 @@ class RbFormFile extends RbFormElement {
                     let path = that.state.value;
                     path.push(d.data);
                     that.handleChange({ target:{ value:path } }, true);
-                }
-                else alert(d.error_msg || '上传失败');
+                } else that.showNitice(d.error_msg || '上传失败，请稍后重试');
             }
         });
     }
@@ -386,10 +445,11 @@ class RbFormReference extends RbFormElement {
     }
     renderElement() {
         return (
-            <select ref="field-value" className="form-control form-control-sm" value={this.state.value} onChange={this.handleChange} />
+            <select ref="field-value" className="form-control form-control-sm" value={this.state.value} onChange={this.handleChange} multiple="multiple" />
         )
     }
     componentDidMount() {
+        super.componentDidMount()
         let that = this;
         $(this.refs['field-value']).select2({
             language: 'zh-CN',
@@ -397,7 +457,7 @@ class RbFormReference extends RbFormElement {
             allowClear: true,
             minimumInputLength: 1,
             ajax: {
-                url: rb.baseUrl + '/entity/common-search',
+                url: rb.baseUrl + '/app/common/search',
                 delay: 300,
                 data: function(params) {
                     let query = {
@@ -417,10 +477,7 @@ class RbFormReference extends RbFormElement {
             }
         }).on('change.select2', function(e){
             let value = e.target.value;
-            that.setState({ value:value })
-            that.handleChange({ target:{value:value } });
+            that.handleChange({ target:{ value:value } }, true);
         });
-        
-        //.val('').trigger('change')
     }
 }

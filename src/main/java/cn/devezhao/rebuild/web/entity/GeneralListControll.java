@@ -30,6 +30,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.rebuild.server.service.entity.DataListManager;
 import cn.devezhao.rebuild.web.commons.BaseControll;
 import cn.devezhao.rebuild.web.entity.datalist.DataListControl;
 import cn.devezhao.rebuild.web.entity.datalist.DefaultDataListControl;
@@ -40,16 +41,19 @@ import cn.devezhao.rebuild.web.entity.datalist.DefaultDataListControl;
  * @since 08/22/2018
  */
 @Controller
-@RequestMapping("/entity/")
+@RequestMapping("/app/")
 public class GeneralListControll extends BaseControll {
 
 	@RequestMapping("{entity}/list")
 	public ModelAndView pageList(@PathVariable String entity, HttpServletRequest request) throws IOException {
-		return createModelAndView("/general-entity/entity-list.jsp", entity);
+		ModelAndView mv = createModelAndView("/general-entity/entity-list.jsp", entity);
+		JSON listCfg = DataListManager.getListConfig(entity);
+		mv.getModel().put("DataListConfig", JSON.toJSONString(listCfg));
+		return mv;
 	}
 	
-	@RequestMapping({ "entity-list" })
-	public void entityList(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@RequestMapping({ "record-list" })
+	public void recordList(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String reqdata = ServletUtils.getRequestString(request);
 		JSONObject reqJson = JSON.parseObject(reqdata);
 		

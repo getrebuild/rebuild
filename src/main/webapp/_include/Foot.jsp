@@ -12,4 +12,3 @@
 <script src="${baseUrl}/assets/lib/react.production.min.js"></script>
 <script src="${baseUrl}/assets/lib/react-dom.production.min.js"></script>
 <script src="${baseUrl}/assets/js/rb-components.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>

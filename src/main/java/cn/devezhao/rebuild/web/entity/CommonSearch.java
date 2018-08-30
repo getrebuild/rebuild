@@ -43,10 +43,10 @@ import cn.devezhao.rebuild.web.commons.BaseControll;
  * @since 08/24/2018
  */
 @Controller
-@RequestMapping("/entity/")
+@RequestMapping("/app/")
 public class CommonSearch extends BaseControll {
 
-	@RequestMapping("common-search")
+	@RequestMapping("common/search")
 	public void search(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameter(request, "entity");
 		String search = getParameter(request, "search");
