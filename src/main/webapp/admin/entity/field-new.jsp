@@ -1,5 +1,5 @@
-<%@page import="cn.devezhao.rebuild.server.service.entitymanage.DisplayType"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="cn.devezhao.rebuild.server.service.entitymanage.DisplayType"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -78,7 +78,7 @@ $(document).ready(function(){
 		$.post('field-new', _data, function(res){
 			if (res.error_code == 0) parent.location.href = entity + '/field/' + res.data;
 			else{
-				alert(res.error_msg);
+				rb.notice(res.error_msg)
 				btn.button('reset');
 			}
 		});
@@ -101,7 +101,6 @@ $(document).ready(function(){
 			$('.J_dt-REFERENCE').addClass('hide');
 		}
 	});
-	
 });
 </script>
 </body>

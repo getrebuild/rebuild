@@ -76,6 +76,10 @@ const __detectElement = function(item){
         return <RbFormEMail {...item} />
     } else if (item.type == 'PHONE'){
         return <RbFormPhone {...item} />
+    } else if (item.type == 'NUMBER'){
+        return <RbFormNumber {...item} />
+    } else if (item.type == 'DECIMAL'){
+        return <RbFormDecimal {...item} />
     } else if (item.type == 'IMAGE'){
         return <RbFormImage {...item} />
     } else if (item.type == 'FILE'){
@@ -259,6 +263,32 @@ class RbFormPhone extends RbFormText {
         if (err) return err;
         let val = this.state.value;
         return (!!val && $regex.isTel(val) == false) ? '电话/手机格式不正确' : null;
+    }
+}
+
+// 整数
+class RbFormNumber extends RbFormText {
+    constructor(props) {
+        super(props);
+    }
+    checkHasError() {
+        let err = super.checkHasError();
+        if (err) return err;
+        let val = this.state.value;
+        return (!!val && $regex.isNumber(val) == false) ? '整数格式不正确' : null;
+    }
+}
+
+// 货币
+class RbFormDecimal extends RbFormText {
+    constructor(props) {
+        super(props);
+    }
+    checkHasError() {
+        let err = super.checkHasError();
+        if (err) return err;
+        let val = this.state.value;
+        return (!!val && $regex.isDecimal(val) == false) ? '货币格式不正确' : null;
     }
 }
 

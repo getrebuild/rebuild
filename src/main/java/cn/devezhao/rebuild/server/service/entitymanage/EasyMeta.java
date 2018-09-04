@@ -200,6 +200,9 @@ public class EasyMeta implements BaseMeta {
 	public JSONObject getFieldExtConfig() {
 		if (isField()) {
 			Object[] ext = getMetaExt();
+			if (ext == null) {
+				return null;
+			}
 			return JSON.parseObject(StringUtils.defaultIfBlank((String) ext[3], "{}"));
 		}
 		return null;

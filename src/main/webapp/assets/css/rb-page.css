@@ -16,7 +16,8 @@
 	color: #4285f4 !important;
 	line-height: 2.8rem;
 }
-.btn.btn-link:hover{
+
+.btn.btn-link:hover {
 	color: #0d5bdd !important;
 }
 
@@ -48,21 +49,28 @@
 .rb-aside .page-head {
 	margin-left: 280px;
 }
+
 .modal-header .close.admin-settings {
+	
 }
-.modal-header .close+.close{
+
+.modal-header .close+.close {
 	margin-left: 6px;
 }
+
 .modal-header .close .zmdi-settings {
 	font-size: 1.4rem;
 }
+
 .modal.rbmodal .modal-dialog {
 	max-width: 680px;
 }
+
 .modal.rbmodal .modal-dialog .modal-body {
 	min-height: 155px;
 	padding-top: 20px;
 }
+
 .rbmodal.show {
 	display: block !important;
 }
@@ -116,6 +124,7 @@ a {
 }
 
 .admin-visibility {
+	
 }
 
 .form-control-plaintext {
@@ -127,10 +136,11 @@ a {
 	min-height: 200px;
 }
 
-.rb-form>form>.alert{
+.rb-form>form>.alert {
 	margin: 20px;
 	margin-bottom: 0;
 }
+
 .rb-form .type-IMAGE {
 	padding-bottom: 1px !important;
 }
@@ -208,7 +218,9 @@ a {
 	display: inline-block;
 	padding: 4px;
 	max-width: 100%;
-	margin-right: 6px; margin-bottom : 2px; overflow : hidden;
+	margin-right: 6px;
+	margin-bottom: 2px;
+	overflow: hidden;
 	position: relative;
 	overflow: hidden;
 	margin-bottom: 2px;
@@ -237,6 +249,7 @@ a {
 .datetime-field .input-group-append button {
 	min-width: 38px;
 }
+
 .datetime-field .clean {
 	position: absolute;
 	right: 45px;
@@ -268,7 +281,7 @@ a {
 
 .rbnotice {
 	position: absolute;
-	box-shadow: 0 0 4px rgba(0,0,0,.2);
+	box-shadow: 0 0 4px rgba(0, 0, 0, .2);
 	width: 360px;
 	background-color: #fff;
 	color: #333;
@@ -280,40 +293,57 @@ a {
 	padding: 18px 12px;
 	z-index: 1050;
 }
+
 .rbnotice.warning {
 	background-color: #fbbc05;
 	color: #fff;
 }
+
 .rbnotice.error {
 	background-color: #ea4335;
 	color: #fff;
 }
+
 .modal-warpper .rbnotice {
+	
 }
 
 .ui-mprogress .bar-bg, .ui-mprogress .buffer-bg {
 	z-index: 1051;
 }
+
 .ui-mprogress .indeter-bar {
 	z-index: 1052;
 }
 
-#react-list{
+#react-list {
 	position: relative;
 	overflow: hidden;
 }
+
 #react-list .table thead th {
 	font-weight: normal;
 	color: #555;
 	white-space: nowrap;
 }
+
 #react-list .table th, #react-list .table td {
 	cursor: default;
 }
+
+#react-list .table td>div {
+	white-space: nowrap;
+	display: block;
+	clear: both;
+	max-width: 200px;
+	text-overflow: ellipsis;
+	vertical-align: top;
+}
+
 #react-list .img-zoom {
-	max-width: 60px;
-	max-height: 60px;
-	display: inline-block;
+	width: 48px;
+	max-height: 48px;
+	float: left;
 	margin-right: 3px;
 	margin-bottom: 3px;
 	padding: 0;
@@ -322,6 +352,7 @@ a {
 	background-color: transparent;
 	background-color: #eee;
 }
+
 #react-list .img-zoom:last-child {
 	margin-right: 0;
 	margin-bottom: 3px;

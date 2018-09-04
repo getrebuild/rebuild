@@ -5,6 +5,7 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>${entityLabel}列表</title>
 <style type="text/css">
+#react-list{background-color:#fff;min-height:200px}
 </style>
 </head>
 <body>
@@ -18,7 +19,7 @@
 	<div class="rb-content">
 		<div class="main-content container-fluid">
 			<div class="card card-table">
-				<div class="card-body rb-loading rb-loading-active1">
+				<div class="card-body">
 					<div class="dataTables_wrapper container-fluid">
 						<div class="row rb-datatable-header">
 							<div class="col-sm-6">
@@ -33,50 +34,17 @@
 								<div class="dataTables_oper">
 									<button class="btn btn-space btn-primary J_new" data-url="${baseUrl}/entity/${entity}/new"><i class="icon zmdi zmdi-plus"></i> 新建</button>
 									<button class="btn btn-space btn-secondary J_del" disabled="disabled"><i class="icon zmdi zmdi-delete"></i> 删除</button>
-									<div class="btn-group btn-space">
-										<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <span class="icon-dropdown zmdi zmdi-chevron-down"></span></button>
-										<div class="dropdown-menu dropdown-menu-right">
-											<a class="dropdown-item">列显示</a>
-											<div class="dropdown-divider"></div>
-											<a class="dropdown-item">导入</a>
-											<a class="dropdown-item">导出</a>
-										</div>
-									</div>
+									<button class="btn btn-space btn-secondary J_column">列显示 <i class="icon zmdi zmdi-more-vert"></i></button>
 								</div>
 							</div>
 						</div>
-						<div class="row rb-datatable-body">
-							<div class="col-sm-12">
-								<div class="rb-loading rb-loading-active">
-									<div id="react-list" class="rb-scroller">
-									</div>
-									<div class="rb-spinner">
-								        <svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://-www.w3.org/2000/svg">
-								            <circle fill="none" stroke-width="4" stroke-linecap="round" cx="33" cy="33" r="30" class="circle"></circle>
-								        </svg>
-								    </div>
-								</div>
-							</div>
+						<div id="react-list" class="rb-loading rb-loading-active">
+							<div class="rb-spinner">
+						        <svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://-www.w3.org/2000/svg">
+						            <circle fill="none" stroke-width="4" stroke-linecap="round" cx="33" cy="33" r="30" class="circle"></circle>
+						        </svg>
+						    </div>
 						</div>
-						<div class="row rb-datatable-footer">
-							<div class="col-sm-5">
-								<div class="dataTables_info"></div>
-							</div>
-							<div class="col-sm-7">
-								<div class="dataTables_paginate paging_simple_numbers">
-									<ul class="pagination">
-										<li class="paginate_button page-item previous disabled"><a href="#" class="page-link"><span class="icon zmdi zmdi-chevron-left"></span></a></li>
-										<li class="paginate_button page-item active"><a href="#" class="page-link">1</a></li>
-										<li class="paginate_button page-item next"><a href="#" class="page-link"><span class="icon zmdi zmdi-chevron-right"></span></a></li>
-									</ul>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="rb-spinner">
-						<svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://-www.w3.org/2000/svg">
-							<circle fill="none" stroke-width="4" stroke-linecap="round" cx="33" cy="33" r="30" class="circle"></circle>
-						</svg>
 					</div>
 				</div>
 			</div>

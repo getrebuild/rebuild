@@ -20,7 +20,7 @@ class RbModal extends React.Component {
             		        <h3 className="modal-title">{this.state.title || ''}</h3>
             		        <button className="close md-close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
             		    </div>
-        		        <div className={'modal-body iframe rb-loading' + (this.state.inLoad ? ' rb-loading-active' : '')} ref="rbmodal.body">
+        		        <div className={'modal-body iframe rb-loading ' + (this.state.inLoad == true && 'rb-loading-active')} ref="rbmodal.body">
             		        <iframe src={this.state.url || 'about:blank'} frameborder="0" scrolling="no" ref="rbmodal.iframe" onLoad={()=>this.loaded()} onResize={()=>this.loaded()}></iframe>
             		        <RbSpinner />
         		        </div>
@@ -53,8 +53,8 @@ class RbModal extends React.Component {
             if (height == 0 || height == that.__lastHeight) return;
             $(that.refs['rbmodal.body']).height(height);
             that.__lastHeight = height;
-            that.setState({ inLoad:false })
-        }, 30, 'RbModal-resize');
+            that.setState({ inLoad: false })
+        }, 100, 'RbModal-resize');
     }
 }
 
@@ -96,7 +96,7 @@ class RbNotice extends React.Component {
        super(props);
     }
     render() {
-        return <div className={'rbnotice ' + (this.props.type || '')} ref="rbnotice">
+        return <div className={'rbnotice animated fadeIn ' + (this.props.type || 'warning')} ref="rbnotice">
             {this.props.message}
         </div>
     }
@@ -127,8 +127,8 @@ const renderRbcomp = function(jsx, target) {
 };
 
 var rb = rb || {}
-rb.notice = function(message, type){
-    renderRbcomp(<RbNotice message={message} type={type} />)
+rb.notice = function(message, type, timeout){
+    renderRbcomp(<RbNotice message={message} type={type} timeout={timeout} />)
 }
 rb.alter = function(message, title){
     renderRbcomp(<RbAlter message={message} title={title} />)

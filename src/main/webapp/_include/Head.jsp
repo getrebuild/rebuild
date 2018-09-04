@@ -4,6 +4,7 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/material-design-iconic-font.min.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/perfect-scrollbar.min.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/bootstrap-datetimepicker.min.css">
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/animate.min.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/select2.min.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/mprogress.min.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-base.css">

@@ -136,11 +136,13 @@ public class MetaFieldControll extends BaseControll  {
 		Entity entity = EntityHelper.getEntity(entityName);
 		DisplayType dt = DisplayType.valueOf(type);
 		
-		String fieldName = new Field2Schema(user).create(entity, label, dt, comments, refEntity);
-		if (fieldName != null) {
+		String fieldName = null;
+		try {
+			fieldName = new Field2Schema(user).create(entity, label, dt, comments, refEntity);
 			writeSuccess(response, fieldName);
-		} else {
-			writeFailure(response);
+		} catch (Exception ex) {
+			writeFailure(response, ex.getLocalizedMessage());
+			return;
 		}
 	}
 	

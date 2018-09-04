@@ -5010,7 +5010,13 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
 	line-height: 1.25;
 	color: #404040;
 	background-color: #fff;
-	border: 1px solid #dee2e6
+	border: 1px solid #dee2e6;
+	min-width: 36px;
+	text-align: center;
+}
+
+.page-link .icon {
+	font-size: 1.2rem;
 }
 
 .page-link:hover {
@@ -17882,7 +17888,8 @@ pre code {
 .btn .icon {
 	font-size: 1.231rem;
 	line-height: 15px;
-	vertical-align: middle
+	vertical-align: middle;
+	min-width: 10px;
 }
 
 .btn .icon.icon-left {
