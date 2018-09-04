@@ -89,11 +89,13 @@ public class MetaEntityControll extends BaseControll {
 		String label = getParameterNotNull(request, "label");
 		String comments = getParameter(request, "comments");
 		
-		String entityName = new Entity2Schema(user).create(label, comments);
-		if (entityName != null) {
+		String entityName = null;
+		try {
+			entityName = new Entity2Schema(user).create(label, comments);
 			writeSuccess(response, entityName);
-		} else {
-			writeFailure(response);
+		} catch (Exception ex) {
+			writeFailure(response, ex.getLocalizedMessage());
+			return;
 		}
 	}
 	

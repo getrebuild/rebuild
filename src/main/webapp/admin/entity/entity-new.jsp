@@ -9,7 +9,7 @@
 <div class="main-content">
 	<form>
 		<div class="form-group row">
-			<label class="col-12 col-sm-3 col-form-label text-sm-right">名称</label>
+			<label class="col-12 col-sm-3 col-form-label text-sm-right">实体名称</label>
 			<div class="col-12 col-sm-8 col-lg-4">
 				<input class="form-control form-control-sm" type="text" id="entityLabel" maxlength="40">
 			</div>
@@ -35,15 +35,15 @@ $(document).ready(function(){
 		let entityLabel = $val('#entityLabel'),
 			comments = $val('#comments');
 		if (!entityLabel){
-			alert('请输入名称'); return;
+			rb.notice('请输入实体名称'); return;
 		}
 		
 		btn.button('loading');
 		$.post('entity-new', { label:entityLabel, comments:comments }, function(res){
 			if (res.error_code == 0) parent.location.href = res.data + '/base';
 			else{
-				alert(res);
-				btn.button('reset');
+				rb.notice(res.error_msg)
+				btn.button('reset')
 			}
 		});
 	});

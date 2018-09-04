@@ -67,10 +67,10 @@ $(document).ready(function(){
 			comments = $val('#comments'),
 			refEntity = $val('#refEntity');
 		if (!fieldLabel){
-			alert('请输入字段名称'); return;
+			rb.notice('请输入字段名称'); return;
 		}
 		if (type == 'REFERENCE' && !refEntity){
-			alert('请选择引用实体'); return;
+			rb.notice('请选择引用实体'); return;
 		}
 		
 		let _data = { entity:entity, label:fieldLabel, type:type, comments:comments, refEntity:refEntity };
@@ -79,7 +79,7 @@ $(document).ready(function(){
 			if (res.error_code == 0) parent.location.href = entity + '/field/' + res.data;
 			else{
 				rb.notice(res.error_msg)
-				btn.button('reset');
+				btn.button('reset')
 			}
 		});
 	});

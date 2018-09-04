@@ -3,7 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>布局管理</title>
+<title>配置布局</title>
 <style type="text/css">
 .form-preview{max-width:630px;margin:0 auto;border:1px solid #4285f4;min-height:100px;padding:20px}
 .sortable-placeholder{border:1px dotted #dedede;height:36px;}
@@ -31,7 +31,7 @@
 						<ul class="nav">
 							<li><a href="base"><i class="icon mdi mdi-inbox"></i>基本信息</a></li>
 							<li><a href="fields"><i class="icon mdi mdi-inbox"></i>管理字段</a></li>
-							<li class="active"><a href="form-design"><i class="icon mdi mdi-inbox"></i>表单布局</a></li>
+							<li class="active"><a href="form-design"><i class="icon mdi mdi-inbox"></i>配置布局</a></li>
 						</ul>
 					</div>
 				</div>

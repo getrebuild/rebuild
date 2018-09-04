@@ -27,7 +27,7 @@
 						<ul class="nav">
 							<li><a href="base"><i class="icon mdi mdi-inbox"></i>基本信息</a></li>
 							<li class="active"><a href="fields"><i class="icon mdi mdi-inbox"></i>管理字段</a></li>
-							<li><a href="form-design"><i class="icon mdi mdi-inbox"></i>表单布局</a></li>
+							<li><a href="form-design"><i class="icon mdi mdi-inbox"></i>配置布局</a></li>
 						</ul>
 					</div>
 				</div>

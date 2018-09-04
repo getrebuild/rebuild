@@ -15,7 +15,7 @@ class RbFormModal extends React.Component {
                     <div className="modal-content">
                         <div className="modal-header modal-header-colored">
                             <h3 className="modal-title">{this.state.title || 'TITLE'}</h3>
-                            <a className="close md-close admin-settings admin-visibility" href={rb.baseUrl + '/admin/entity/' + this.props.entity + '/base'} title="实体配置"><span className="zmdi zmdi-settings"></span></a>
+                            <a className="close md-close admin-settings admin-visibility" href={rb.baseUrl + '/admin/entity/' + this.props.entity + '/base'} title="实体配置" target="_blank"><span className="zmdi zmdi-settings"></span></a>
                             <button className="close md-close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
                         </div>
                         <div className={'modal-body rb-loading' + (this.state.inLoad ? ' rb-loading-active' : '')}>
