@@ -16855,8 +16855,10 @@ pre code {
 .btn-group-sm>.btn,.btn-sm {
 	padding: 0 8px;
 	font-size: 1rem;
-	line-height: 22px;
-	border-radius: 2px
+	line-height: 24px;
+	border-radius: 2px;
+	min-height: auto !important;
+	min-width: 60px !important;
 }
 
 .btn-group-lg>.btn,.btn-lg {

@@ -5,6 +5,7 @@ import org.apache.commons.lang.StringUtils;
 import com.alibaba.fastjson.JSONObject;
 
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.StandardRecord;
@@ -38,6 +39,17 @@ public class EntityHelper {
 	 */
 	public static Entity getEntity(int entityCode) {
 		return Application.getPersistManagerFactory().getMetadataFactory().getEntity(entityCode);
+	}
+	
+	/**
+	 * 获取字段
+	 * 
+	 * @param entityCode
+	 * @return
+	 */
+	public static Field getField(String entityName, String fieldName) {
+		Entity entity = getEntity(entityName);
+		return entity.getField(fieldName);
 	}
 	
 	/**

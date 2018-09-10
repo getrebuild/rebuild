@@ -85,12 +85,13 @@
 	</entity>
 	
 	<entity name="PickList" type-code="012">
-		<field name="pickListId" type="primary"/>
-		<field name="entity" type="string" max-length="100" nullable="false" />
-		<field name="field" type="string" max-length="100" nullable="false" />
-		<field name="value" type="long" />
-		<field name="displayValue" type="string" max-length="100" />
-		<index type="unique" field-list="entity,field"/>
+		<field name="itemId" type="primary"/>
+		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
+		<field name="belongField" type="string" max-length="100" nullable="false" updatable="false" />
+		<field name="text" type="string" max-length="100" nullable="false" />
+		<field name="seq" type="int" description="排序,小到大" default-value="0"/>
+		<field name="isDefault" type="bool" default-value="F"/>
+		<field name="isHide" type="bool" default-value="F"/>
 	</entity>
 	
 	<entity name="Layout" type-code="013">

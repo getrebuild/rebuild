@@ -229,4 +229,19 @@ public class EasyMeta implements BaseMeta {
 	private boolean isField() {
 		return baseMeta instanceof Field;
 	}
+	
+	// --
+	
+	/**
+	 * @param field
+	 * @return
+	 */
+	public static DisplayType geDisplayType(Field field) {
+		Object[] ext = MetadataHelper.getFieldExtmeta(field);
+		if (ext == null) {
+			return null;
+		} else {
+			return (DisplayType) ext[2];
+		}
+	}
 }

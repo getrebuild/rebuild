@@ -27,6 +27,18 @@
 			return this;
 		}
 	});
+	
+	$.ajaxSetup({
+		dataType : 'json',
+		cache : false,
+		headers : {
+		},
+		xhrFields : {
+		},
+		complete : function(xhr) {
+			
+		}
+	});
 })(jQuery);
 // extend Array
 Array.prototype.remove = function(item) {

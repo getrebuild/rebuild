@@ -1,13 +1,16 @@
 // ~~!v1.0 弹出窗口
 class RbModal extends React.Component {
     constructor(props) {
-        super(props);
-        this.state = { ...props, inLoad: true };
+        super(props)
+        this.state = { ...props, inLoad: true }
+        
         if (props.target) {
-            let that = this;
             let t = $(props.target);
+            let hasUrl = t.data('url');
+            let that = this;
             t.click(function(){
-                that.show({ url:t.data('url') })
+                if (!!hasUrl) that.show({ url:hasUrl })
+                else that.show()
             })
         }
     }
@@ -20,41 +23,46 @@ class RbModal extends React.Component {
             		        <h3 className="modal-title">{this.state.title || ''}</h3>
             		        <button className="close md-close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
             		    </div>
-        		        <div className={'modal-body iframe rb-loading ' + (this.state.inLoad == true && 'rb-loading-active')} ref="rbmodal.body">
-            		        <iframe src={this.state.url || 'about:blank'} frameborder="0" scrolling="no" ref="rbmodal.iframe" onLoad={()=>this.loaded()} onResize={()=>this.loaded()}></iframe>
-            		        <RbSpinner />
-        		        </div>
+            		    <div className={'modal-body rb-loading ' + (this.state.inLoad == true && 'rb-loading-active') + ' ' + (this.state.url && 'iframe')}  ref="rbmodal.body">
+            		        {this.props.children || <iframe src={this.state.url || 'about:blank'} frameborder="0" scrolling="no" ref="rbmodal.iframe" onLoad={()=>this.loaded()} onResize={()=>this.loaded()}></iframe>}
+                            <RbSpinner />
+                        </div>
     		        </div>
 		        </div>
 			</div>
 		)
 	}
-	show(state) {
+	componentDidMount() {
+	    if (this.props.children) this.setState({ inLoad:false })
+    }	
+	show(state, callback) {
+        let that = this;
 	    if (!!!state) {
-	        $(this.refs['rbmodal']).modal({ show: true, backdrop: 'static' });
+	        $(this.refs['rbmodal']).modal({ show: true, backdrop: 'static' })
+	        typeof callback == 'function' && callback(that)
 	    } else {
-            let that = this;
             this.setState(state, function(){
-                $(that.refs['rbmodal']).modal({ show: true, backdrop: 'static' });
+                $(that.refs['rbmodal']).modal({ show: true, backdrop: 'static' })
+                typeof callback == 'function' && callback(that)
             })
 	    }
     }
     hide() {
-        $(this.refs['rbmodal']).modal('hide');
+        $(this.refs['rbmodal']).modal('hide')
     }
     loaded() {
-        if (!this.state.url) return;
+        if (!!!this.state.url) return
         let that = this;
         $setTimeout(function(){
-            let iframe = $(that.refs['rbmodal.iframe']);
-            let height = iframe.contents().find('body .main-content').height();
-            if (height == 0) height = iframe.contents().find('body').height();
+            let iframe = $(that.refs['rbmodal.iframe'])
+            let height = iframe.contents().find('body .main-content').height()
+            if (height == 0) height = iframe.contents().find('body').height()
             else height += 45;  // .main-content's padding
             if (height == 0 || height == that.__lastHeight) return;
-            $(that.refs['rbmodal.body']).height(height);
-            that.__lastHeight = height;
+            $(that.refs['rbmodal.body']).height(height)
+            that.__lastHeight = height
             that.setState({ inLoad: false })
-        }, 100, 'RbModal-resize');
+        }, 100, 'RbModal-resize')
     }
 }
 

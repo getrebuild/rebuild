@@ -15,16 +15,21 @@ limitations under the License.
 */
 package cn.devezhao.rebuild.web.entity.datalist;
 
+import java.util.List;
+import java.util.Map;
+
 import com.alibaba.fastjson.JSONObject;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Query;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.query.compiler.SelectItem;
 import cn.devezhao.rebuild.server.Application;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
+import cn.devezhao.rebuild.server.service.entity.PickListManager;
+import cn.devezhao.rebuild.server.service.entitymanage.DisplayType;
+import cn.devezhao.rebuild.server.service.entitymanage.EasyMeta;
 
 /**
  * 数据列表控制器
@@ -77,10 +82,14 @@ public class DefaultDataListControl implements DataListControl {
 		// 补充引用字段的 NameField
 		Field[] fields = queryParser.getFieldList();
 		for (int i = 0; i < fields.length; i++) {
-			Field field = fields[i];
-			if (field.getType() == FieldType.REFERENCE) {
+			DisplayType dt = EasyMeta.geDisplayType(fields[i]);
+			if (dt == DisplayType.REFERENCE) {
 				for (Object o[] : array) {
 					o[i] = readReferenceNamed(o[i]);
+				}
+			} else if (dt == DisplayType.PICKLIST) {
+				for (Object o[] : array) {
+					o[i] = readPickListLabel(o[i], fields[i]);
 				}
 			}
 		}
@@ -114,5 +123,24 @@ public class DefaultDataListControl implements DataListControl {
 				entity.getNameField().getName(), entity.getName(), entity.getPrimaryField().getName());
 		Object[] named = Application.createQuery(sql).setParameter(1, id).unique();
 		return new Object[] { id, named == null ? "" : named[0] };
+	}
+	
+	/**
+	 * @param itemId
+	 * @param field
+	 * @return
+	 */
+	protected String readPickListLabel(Object itemId, Field field) {
+		if (itemId == null) {
+			return null;
+		}
+		
+		List<Map<String, Object>> list = PickListManager.getPickListRaw(field.getOwnEntity().getName(), field.getName(), true, false);
+		for (Map<String, Object> e : list) {
+			if (itemId.toString().equals(e.get("id"))) {
+				return (String) e.get("text");
+			}
+		}
+		return "!!!删除!!!";
 	}
 }

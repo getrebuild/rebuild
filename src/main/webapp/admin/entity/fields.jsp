@@ -92,7 +92,7 @@ $(document).ready(function(){
 		let tbody = $('#dataList tbody');
 		$(res.data).each(function(){
 			let tr = $('<tr data-id="' + (this.fieldId || '') + '"></tr>').appendTo(tbody);
-			$('<td>' + this.fieldLabel + '</td>').appendTo(tr);
+			$('<td><a href="field/' + this.fieldName + '" class="field-main">' + this.fieldLabel + '</a></td>').appendTo(tr);
 			$('<td>' + this.fieldName + '</td>').appendTo(tr);
 			$('<td>' + this.displayType + '</td>').appendTo(tr);
 			$('<td>' + (this.comments || '--') + '</td>').appendTo(tr);

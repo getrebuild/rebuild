@@ -5,6 +5,12 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/bootstrap-slider.min.css">
 <%@ include file="/_include/Head.jsp"%>
 <title>字段信息</title>
+<style type="text/css">
+.border-box{border:1px solid #eee;padding:0 3px;position:relative;overflow:hidden;max-height:257px;}
+.dd-list .dd-item .dd3-content, .dd-list .dd3-item .dd3-content{padding-left:10px;margin:3px 0}
+.dd-list .dd-item.default .dd3-content{background-color:#dedede;cursor:help;}
+.dd-list .no-item{padding:9px;text-align:center;color:#999}
+</style>
 </head>
 <body>
 <div class="rb-wrapper rb-collapsible-sidebar rb-fixed-sidebar rb-aside">
@@ -98,16 +104,14 @@
 							</div>
 						</div>
 						<div class="form-group row J_for-PICKLIST hide">
-							<label class="col-12 col-sm-2 col-form-label text-sm-right">列表项目</label>
+							<label class="col-12 col-sm-2 col-form-label text-sm-right">选项</label>
 							<div class="col-12 col-sm-8 col-lg-4">
-								<div class="dd-list">
-									<div class="dd-item">
-										<div class="dd-handle">1</div>
-										<div class="dd-handle">1</div>
-										<div class="dd-handle">1</div>
-										<div class="dd-handle">1</div>
-									</div>
+								<div class="border-box rb-scroller" style="margin-bottom:9px">
+									<ol class="dd-list" id="picklist-items">
+										<li class="no-item">加载中</li>
+									</ol>
 								</div>
+								<button type="button" class="btn btn-space btn-secondary btn-sm J_picklistEdit" style="line-height:28px" data-url="../../picklist-config.htm?entity=${entityName}&field=${fieldName}"><i class="zmdi zmdi-settings"></i> 添加/管理选项</button>
 							</div>
 						</div>
 						<div class="form-group row">
@@ -144,6 +148,9 @@
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script type="text/javascript" src="${baseUrl}/assets/lib/bootstrap-slider.min.js"></script>
+<script type="text/babel">
+const rbModal = renderRbcomp(<RbModal title="管理列表选项" target=".J_picklistEdit" />);
+</script>
 <script type="text/javascript">
 $(document).ready(function(){
 	const metaId = '${fieldMetaId}';
@@ -181,9 +188,10 @@ $(document).ready(function(){
 		_data = JSON.stringify(_data);
 		console.log(_data);
 		btn.button('loading');
-		$.post('../../field-update', _data, function(res){
-			if (res.error_code == 0) location.reload();
-			else alert(res.error_msg)
+		$.post(rb.baseUrl +  'admin/field/field-update', _data, function(res){
+			if (res.error_code == 0){
+				location.reload();
+			} else alert(res.error_msg)
 		});
 	});
 	if (!!!metaId){
@@ -195,6 +203,7 @@ $(document).ready(function(){
 	$('#fieldUpdatable').attr('checked', $('#fieldUpdatable').data('o') == true)
 	
 	$('.J_for-' + dt).removeClass('hide');
+	
 	let uploadNumber = [1, 5];
 	for (let k in extConfigOld) {
 		if (k == 'uploadNumber'){
@@ -211,6 +220,17 @@ $(document).ready(function(){
 		$('.J_minmax b').eq(1).text(v[1])
 	})
 	
+	if (dt == 'PICKLIST'){
+		$.get(rb.baseUrl + '/admin/field/picklist-gets?entity=${entityName}&field=${fieldName}&isAll=false', function(res){
+			if (res.data.length == 0){
+				$('#picklist-items li').text('请添加选项'); return;
+			}
+			$('#picklist-items').empty();
+			$(res.data).each(function(){
+				$('<li class="dd-item dd3-item ' + (this['default'] === true ? 'default" title="默认选项' : '') + '"><div class="dd3-content text-3dot">' + this.text + '</div></li>').appendTo('#picklist-items');
+			});
+		});
+	}
 });
 </script>
 </body>

@@ -88,6 +88,10 @@
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 	
+	<bean class="cn.devezhao.rebuild.server.service.entitymanage.PickListService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
+	
 	<bean class="cn.devezhao.rebuild.server.service.bizuser.UserService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>

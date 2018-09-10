@@ -96,6 +96,18 @@ body.dialog {
 body.dialog .main-content {
 	min-height: 155px;
 }
+.dialog-footer {
+	border-top: 1px solid #eee;
+	margin: 0 -15px;
+	margin-bottom: -5px;
+	padding: 17px 30px;
+	padding-bottom: 0;
+	text-align: right;
+	margin-top: 15px;
+}
+.dialog-footer .btn {
+	margin-left: 5px;
+}
 
 body.dialog .main-content .footer, .rb-form .footer {
 	padding-bottom: 6px;
@@ -356,4 +368,14 @@ a {
 #react-list .img-zoom:last-child {
 	margin-right: 0;
 	margin-bottom: 3px;
+}
+
+.field-main {
+	font-weight: bold;
+}
+
+.text-3dot {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }

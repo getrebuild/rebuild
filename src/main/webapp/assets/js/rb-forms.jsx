@@ -86,6 +86,8 @@ const __detectElement = function(item){
         return <RbFormFile {...item} />
     } else if (item.type == 'DATETIME'){
         return <RbFormDateTime {...item} />
+    } else if (item.type == 'PICKLIST'){
+        return <RbFormPickList {...item} />
     } else if (item.type == 'REFERENCE'){
         return <RbFormReference {...item} />
     } else {
@@ -465,6 +467,42 @@ class RbFormFile extends RbFormElement {
         let path = this.state.value;
         path.remove(item);
         this.handleChange({ target:{ value:path } }, true);
+    }
+}
+
+// 列表
+class RbFormPickList extends RbFormElement {
+    constructor(props) {
+        super(props)
+        
+        let options = this.props.options
+        for (let i = 0; i < options.length; i++){
+            if (options[i]['default'] === true) {
+                this.state.value = options[i]['id'];
+                break;
+            }
+        }
+    }
+    renderElement() {
+        return (
+            <select ref="field-value" className="form-control form-control-sm" value={this.state.value} onChange={this.handleChange}>
+            {this.props.options.map((item) => {
+                return (<option value={item.id}>{item.text}</option>)
+            })}
+            </select>
+        )
+    }
+    componentDidMount() {
+        super.componentDidMount()
+        let that = this;
+        $(this.refs['field-value']).select2({
+            language: 'zh-CN',
+            placeholder: '选择' + that.props.label,
+            allowClear: true,
+        }).on('change.select2', function(e){
+            let value = e.target.value;
+            that.handleChange({ target:{ value:value } }, true);
+        });
     }
 }
 

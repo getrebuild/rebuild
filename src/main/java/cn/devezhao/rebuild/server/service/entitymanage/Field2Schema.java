@@ -69,8 +69,7 @@ public class Field2Schema {
 	 * @param refEntity
 	 * @return
 	 */
-	public String create(Entity entity, String fieldLabel, DisplayType type, String comments,
-			String refEntity) {
+	public String create(Entity entity, String fieldLabel, DisplayType type, String comments, String refEntity) {
 		String fieldName = toPinyinString(fieldLabel);
 		while (true) {
 			if (entity.containsField(fieldName)) {
@@ -136,6 +135,9 @@ public class Field2Schema {
 		record.setBoolean("updatable", updatable);
 		if (StringUtils.isNotBlank(comments)) {
 			record.setString("comments", comments);
+		}
+		if (displayType == DisplayType.PICKLIST) {
+			refEntity = "PickList";
 		}
 		if (StringUtils.isNotBlank(refEntity)) {
 			record.setString("refEntity", refEntity);

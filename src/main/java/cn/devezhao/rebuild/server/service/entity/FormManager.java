@@ -19,12 +19,14 @@ package cn.devezhao.rebuild.server.service.entity;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.rebuild.server.Application;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
+import cn.devezhao.rebuild.server.service.entitymanage.DisplayType;
 import cn.devezhao.rebuild.server.service.entitymanage.EasyMeta;
 
 /**
@@ -72,7 +74,8 @@ public class FormManager {
 			Field fieldMeta = entityMeta.getField(fieldName);
 			EasyMeta easyField = new EasyMeta(fieldMeta);
 			el.put("label", easyField.getLabel());
-			el.put("type", easyField.getDisplayType(false));
+			String dt = easyField.getDisplayType(false);
+			el.put("type", dt);
 			el.put("empty", fieldMeta.isNullable());
 			el.put("create", easyField.isBuiltin());
 			el.put("update", fieldMeta.isUpdatable());
@@ -80,6 +83,11 @@ public class FormManager {
 			JSONObject ext = easyField.getFieldExtConfig();
 			for (Map.Entry<String, Object> e : ext.entrySet()) {
 				el.put(e.getKey(), e.getValue());
+			}
+			
+			if (DisplayType.PICKLIST.name().equals(dt)) {
+				JSONArray picklist = PickListManager.getPickList(fieldMeta);
+				el.put("options", picklist);
 			}
 		}
 		return config;
