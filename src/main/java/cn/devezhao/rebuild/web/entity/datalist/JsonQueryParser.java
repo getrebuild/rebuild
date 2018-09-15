@@ -131,8 +131,8 @@ public class JsonQueryParser {
 			sqlWhere.append('(').append(dataListControl.getDefaultFilter()).append(')');
 		}
 		
-		JSONArray sortNode = queryElement.getJSONArray("sort");
-		if (sortNode != null && !sortNode.isEmpty()) {
+		String sortNode = queryElement.getString("sort");
+		if (StringUtils.isNotBlank(sortNode)) {
 			sqlSort.append(parseSort(sortNode));
 		} else if (entity.containsField(ExtRecordCreator.modifiedOn)) {
 			sqlSort.append(ExtRecordCreator.modifiedOn + " desc");
@@ -193,19 +193,22 @@ public class JsonQueryParser {
 	 * @param sortNode
 	 * @return
 	 */
-	protected String parseSort(JSONArray sortNode) {
-		StringBuffer sb = new StringBuffer(); 
-		int index = 0;
-		for (Object o : sortNode) {
-			JSONObject el = (JSONObject) o;
-			String field = el.getString("field");
-			String type = BooleanUtils.toBoolean(el.getString("ascending")) ? " asc" : " desc";
-			
-			sb.append(index++ == 0 ? ' ' : ',')
-					.append(field)
-					.append(type);
-		}
-		return sb.toString();
+	protected String parseSort(String sort) {
+		String[] sort_s = sort.split(":");
+		return sort_s[0] + ("desc".equalsIgnoreCase(sort_s[1]) ? " desc" : " asc");
+		
+//		StringBuffer sb = new StringBuffer(); 
+//		int index = 0;
+//		for (Object o : sortNode) {
+//			JSONObject el = (JSONObject) o;
+//			String field = el.getString("field");
+//			String type = BooleanUtils.toBoolean(el.getString("ascending")) ? " asc" : " desc";
+//			
+//			sb.append(index++ == 0 ? ' ' : ',')
+//					.append(field)
+//					.append(type);
+//		}
+//		return sb.toString();
 	}
 	
 	/**

@@ -30,8 +30,9 @@ public class SchemaGen {
 //		genAll();
 //		gen(EntityHelper.MetaEntity);
 //		gen(EntityHelper.MetaField);
-		gen(EntityHelper.PickList);
-//		gen(EntityHelper.Layout);
+//		gen(EntityHelper.PickList);
+		gen(EntityHelper.LayoutConfig);
+		gen(EntityHelper.FilterConfig);
 		
 		System.exit(0);
 	}

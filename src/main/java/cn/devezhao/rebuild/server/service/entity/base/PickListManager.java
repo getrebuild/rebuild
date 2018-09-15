@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.server.service.entity;
+package cn.devezhao.rebuild.server.service.entity.base;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +28,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.rebuild.server.Application;
 
 /**
+ * 列表项
  * 
  * @author zhaofang123@gmail.com
  * @since 09/06/2018

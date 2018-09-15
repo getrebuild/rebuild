@@ -7,15 +7,15 @@
 <title>列表选项</title>
 <style type="text/css">
 .border-box{border:1px solid #eee;padding:0 3px;position:relative;overflow:hidden;height:257px;}
-.dd-list{min-height:250px}
-.dd-list .dd-item .dd3-content, .dd-list .dd3-item .dd3-content{margin:3px 0}
+.border-box .dd-list{min-height:250px}
+.border-box .dd-list .dd-item .dd3-content, .dd-list .dd3-item .dd3-content{margin:3px 0}
 .border-box .dd-item .dd-handle{background-color:#eee;border-color:#eee}
-.dd-list .dd3-item .dd3-handle::before{color:#999}
-.dd-list .dd3-item .dd3-handle:hover::before{color:#fff}
-.dd-list .dd3-item .dd3-content{}
-.dd-list .dd3-item .dd3-action{position:absolute;right:1px;top:1px;}
-.dd-list .dd3-item .dd3-action>a{font-size:0.9rem;display:inline-block;line-height:34px;width:38px;display:none;text-align:center;}
-.dd-list .dd3-item:hover .dd3-action>a{display:inline-block;}
+.border-box .dd-list .dd3-item .dd3-handle::before{color:#999}
+.border-box .dd-list .dd3-item .dd3-handle:hover::before{color:#fff}
+.border-box .dd-list .dd3-item .dd3-content{}
+.border-box .dd-list .dd3-item .dd3-action{position:absolute;right:1px;top:1px;}
+.border-box .dd-list .dd3-item .dd3-action>a{font-size:0.9rem;display:inline-block;line-height:34px;width:38px;display:none;text-align:center;}
+.border-box .dd-list .dd3-item:hover .dd3-action>a{display:inline-block;}
 .item-option{padding:0;}
 .J_showbox .with-hide,.J_hidebox .with-show,.J_showbox .default .J_default{display:none !important;}
 .border-box .dd-item.default .dd3-content{background-color:#dedede}
@@ -26,8 +26,8 @@
 <div class="main-content">
 	<div class="row" style="margin:0">
 		<div class="col-6">
-			<h5>已显示</h5>
-			<div class="border-box rb-scroller1">
+			<h5>列表选项</h5>
+			<div class="border-box rb-scroller">
 				<ol class="dd-list J_showbox">
 				</ol>
 			</div>
@@ -35,14 +35,14 @@
 				<div class="input-group input-group-sm">
 					<input class="form-control J_text" type="text" maxlength="50">
 					<div class="input-group-append">
-						<button class="btn btn-secondary J_confirm" type="button" style="min-width:0">确定</button>
+						<button class="btn btn-secondary J_confirm" type="button" style="min-width:0">添加</button>
 					</div>
 				</div>
 			</form>
 		</div>
 		<div class="col-6">
-			<h5>未显示</h5>
-			<div class="border-box rb-scroller1">
+			<h5>已禁用的选项</h5>
+			<div class="border-box rb-scroller">
 				<ol class="dd-list J_hidebox">
 				</ol>
 			</div>
@@ -89,9 +89,9 @@ $(document).ready(function(){
 		let _data = { show: show_items, hide: hide_items };
 		console.log(JSON.stringify(_data))
 		
-		//let btn = $(this).button('loading')
+		let btn = $(this).button('loading')
 		$.post(rb.baseUrl + '/admin/field/picklist-sets?' + query, JSON.stringify(_data), function(res){
-			//btn.button('reset')
+			btn.button('reset')
 			if (res.error_code > 0) alert(res.error_msg)
 			else parent.location.reload();
 		});
@@ -103,7 +103,8 @@ $(document).ready(function(){
 			rb.notice('请输入选项文本'); return;
 		}
 		itemRender({ id: $('.J_text').attr('attr-id'), text: text });
-		$('.J_text').val('')
+		$('.J_text').val('').attr('attr-id', '')
+		$('.J_confirm').text('添加')
 	});
 	
 	$('.dd-list').sortable({
@@ -122,6 +123,7 @@ const itemRender = function(data, append){
 	item.attr('attr-id', data.id);
 	item.find('.dd3-action .J_edit').off('click').click(function(){
 		$('.J_text').val(data.text).attr('attr-id', data.id)
+		$('.J_confirm').text('修改')
 	});
 	item.find('.dd3-action .J_default').off('click').click(function(){
 		$('.J_showbox li').removeClass('default')

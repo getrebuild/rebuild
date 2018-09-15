@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.server.service.entity;
+package cn.devezhao.rebuild.server.service.entity.base;
 
 import java.util.Map;
 
@@ -24,38 +24,32 @@ import com.alibaba.fastjson.JSONObject;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
-import cn.devezhao.rebuild.server.Application;
+import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
 import cn.devezhao.rebuild.server.service.entitymanage.DisplayType;
 import cn.devezhao.rebuild.server.service.entitymanage.EasyMeta;
 
 /**
- * 表单管理
+ * 表单布局管理
  * 
  * @author zhaofang123@gmail.com
  * @since 08/30/2018
  */
-public class FormManager {
+public class FormManager extends LayoutConfigManager {
 
 	/**
-	 * 获取表单布局
-	 * 
 	 * @param entity
 	 * @return
 	 */
-	public static JSON getFormLayout(String entity) {
-		Object[] layout = Application.createQuery(
-				"select layoutId,config from Layout where type = 1 and entity = ?")
-				.setParameter(1, entity)
-				.unique();
+	public static JSON getFormLayoutRaw(String entity) {
+		Object[] lcr = getLayoutConfigRaw(entity, TYPE_FORM);
 		JSONObject config = new JSONObject();
 		config.put("entity", entity);
-		if (layout != null) {
-			config.put("id", layout[0].toString());
-			config.put("elements", JSON.parseArray((String) layout[1]));
+		if (lcr != null) {
+			config.put("id", lcr[0].toString());
+			config.put("elements", lcr[1]);
 			return config;
 		}
-		
 		config.put("elements", new String[0]);
 		return config;
 	}
@@ -64,9 +58,17 @@ public class FormManager {
 	 * @param entity
 	 * @return
 	 */
-	public static JSON getFormLayoutForPortal(String entity) {
-		JSONObject config = (JSONObject) getFormLayout(entity);
-		
+	public static JSON getFormLayout(String entity) {
+		return getFormLayout(entity, null);
+	}
+	
+	/**
+	 * @param entity
+	 * @param recordId
+	 * @return
+	 */
+	public static JSON getFormLayout(String entity, ID recordId) {
+		JSONObject config = (JSONObject) getFormLayoutRaw(entity);
 		Entity entityMeta = EntityHelper.getEntity(entity);
 		for (Object element : config.getJSONArray("elements")) {
 			JSONObject el = (JSONObject) element;
@@ -91,5 +93,16 @@ public class FormManager {
 			}
 		}
 		return config;
+	}
+	
+	/**
+	 * 视图布局
+	 * 
+	 * @param entity
+	 * @param recordId
+	 * @return
+	 */
+	public static JSON getViewLayout(String entity, ID recordId) {
+		return null;
 	}
 }

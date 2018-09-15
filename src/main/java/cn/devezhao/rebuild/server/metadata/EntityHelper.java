@@ -109,6 +109,7 @@ public class EntityHelper {
 	public static final int MetaEntity = 10;
 	public static final int MetaField = 11;
 	public static final int PickList = 12;
-	public static final int Layout = 13;
+	public static final int LayoutConfig = 13;
+	public static final int FilterConfig = 14;
 	
 }

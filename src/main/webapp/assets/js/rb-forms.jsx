@@ -35,7 +35,7 @@ class RbFormModal extends React.Component {
         // 渲染表单
         let that = this;
         let entity = this.props.entity;
-        $.get(rb.baseUrl + '/app/entity-form-config?entity=' + entity, function(res){
+        $.get(rb.baseUrl + '/app/entity/form-config?entity=' + entity, function(res){
             let elements = res.data.elements;
             const FORM = <RbForm entity={entity} $$$parent={that}>
                 {elements.map((item) => {

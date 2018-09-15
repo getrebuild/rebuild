@@ -34,7 +34,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.rebuild.server.Application;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
-import cn.devezhao.rebuild.server.service.entity.FormManager;
+import cn.devezhao.rebuild.server.service.entity.base.FormManager;
 import cn.devezhao.rebuild.web.commons.BaseControll;
 
 /**
@@ -44,16 +44,15 @@ import cn.devezhao.rebuild.web.commons.BaseControll;
  */
 @Controller
 @RequestMapping("/admin/entity/")
-public class EntityLayoutControll extends BaseControll {
+public class LayoutConfigControll extends BaseControll {
 	
 	@RequestMapping("{entity}/form-design")
 	public ModelAndView pageFormDesign(@PathVariable String entity, HttpServletRequest request) throws IOException {
 		ModelAndView mv = createModelAndView("/admin/entity/form-design.jsp");
 		MetaEntityControll.setEntityBase(mv, entity);
-		
-		JSON ll = FormManager.getFormLayout(entity);
-		if (ll != null) {
-			request.setAttribute("config", ll);
+		JSON fc = FormManager.getFormLayoutRaw(entity);
+		if (fc != null) {
+			request.setAttribute("FormConfig", fc);
 		}
 		return mv;
 	}

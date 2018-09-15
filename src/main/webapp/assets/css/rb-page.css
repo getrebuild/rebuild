@@ -96,6 +96,7 @@ body.dialog {
 body.dialog .main-content {
 	min-height: 155px;
 }
+
 .dialog-footer {
 	border-top: 1px solid #eee;
 	margin: 0 -15px;
@@ -105,6 +106,7 @@ body.dialog .main-content {
 	text-align: right;
 	margin-top: 15px;
 }
+
 .dialog-footer .btn {
 	margin-left: 5px;
 }
@@ -139,13 +141,22 @@ a {
 	
 }
 
+.rb-scroller {
+	position: relative;
+}
+
 .form-control-plaintext {
 	font-size: 1rem;
 	padding: 7px 0;
 }
 
-.rb-datatable-body, .rb-datatable-body .rb-loading {
+.rb-datatable-body, .rb-datatable-body .rb-scroller, .rb-datatable-body .rb-loading
+	{
 	min-height: 200px;
+}
+
+.rb-datatable-body .table {
+	min-width: 100%;
 }
 
 .rb-form>form>.alert {
@@ -328,54 +339,128 @@ a {
 	z-index: 1052;
 }
 
+.rblist-scroller>div {
+	overflow: hidden;
+}
+
 #react-list {
 	position: relative;
 	overflow: hidden;
 }
 
-#react-list .table thead th {
-	font-weight: normal;
-	color: #555;
-	white-space: nowrap;
-}
-
 #react-list .table th, #react-list .table td {
 	cursor: default;
-}
-
-#react-list .table td>div {
 	white-space: nowrap;
-	display: block;
-	clear: both;
-	max-width: 200px;
-	text-overflow: ellipsis;
-	vertical-align: top;
+	font-weight: normal;
+	padding: 10px;
 }
 
-#react-list .img-zoom {
-	width: 48px;
-	max-height: 48px;
+#react-list .table thead th {
+	padding-top: 12px;
+}
+
+#react-list .table thead th.sortable {
+	cursor: pointer;
+}
+
+#react-list .table thead th.sortable:active {
+	background-color: #dee2e6;
+}
+
+#react-list .table thead th>div {
+	color: #555;
+	position: relative;
+}
+
+#react-list .table thead th>div>i {
+	position: absolute;
+	height: 20px;
+	top: -1px;
+	right: -10px;
+}
+
+#react-list .table thead th>div>i.split {
+	width: 6px;
+	border-right: 2px dotted #aaa;
+	cursor: e-resize;
+}
+
+i.split.ui-draggable-dragging {
+	border-right-color: #4285f4 !important;
+}
+
+#react-list .table thead th>div>i.zmdi {
+	font-size: 16px;
+	right: 0;
+	color: #aaa;
+	padding-top: 2px;
+}
+
+#react-list .table thead th>div>i.zmdi.sort-asc::before {
+	content: '\f2f9';
+}
+
+#react-list .table thead th>div>i.zmdi.sort-desc::before {
+	content: '\f2fc';
+}
+
+#react-list .table td, #react-list .table td>div {
+	white-space: nowrap;
+	max-width: 100%;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	clear: both;
+}
+
+#react-list td .img-zoom {
+	width: 32px;
+	height: 32px;
+	line-height: 30px;
 	float: left;
 	margin-right: 3px;
-	margin-bottom: 3px;
+	margin-bottom: 0;
 	padding: 0;
 	overflow: hidden;
-	border: 0 none;
 	background-color: transparent;
-	background-color: #eee;
+	background-color: #fff;
+	border-radius: 0;
+	border: 0 solid #bbb;
 }
 
-#react-list .img-zoom:last-child {
+#react-list td .img-zoom:last-child {
 	margin-right: 0;
 	margin-bottom: 3px;
 }
 
-.field-main {
+.column-checkbox {
+	width: 49px;
+}
+
+.column-checkbox>div {
+	width: 29px;
+	padding-left: 11px;
+}
+
+.column-main {
 	font-weight: bold;
+}
+
+.column-empty {
+	
 }
 
 .text-3dot {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+}
+
+.unselect {
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none; /* Chrome/Safari/Opera */
+	-khtml-user-select: none; /* Konqueror */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* Internet Explorer/Edge */
+	user-select: none;
+	/* Non-prefixed version, currently not supported by any browser */
 }

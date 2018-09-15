@@ -7,6 +7,7 @@
 <script src="${baseUrl}/assets/lib/bootstrap-datetimepicker.min.js"></script>
 <script src="${baseUrl}/assets/lib/jquery.html5uploader.js"></script>
 <script src="${baseUrl}/assets/lib/select2.min.js"></script>
+<script src="${baseUrl}/assets/lib/jquery-ui.min.js"></script>
 <script src="${baseUrl}/assets/js/rb-base.js"></script>
 <script src="${baseUrl}/assets/lib/babel.min.js"></script>
 <script src="${baseUrl}/assets/lib/react.production.min.js"></script>

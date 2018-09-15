@@ -28,7 +28,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 
-import cn.devezhao.rebuild.server.service.entity.FormManager;
+import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.rebuild.server.service.entity.base.FormManager;
 import cn.devezhao.rebuild.web.commons.BaseControll;
 
 /**
@@ -39,35 +40,20 @@ import cn.devezhao.rebuild.web.commons.BaseControll;
 @Controller
 @RequestMapping("/app/")
 public class GeneralEntityControll extends BaseControll {
-
-	@RequestMapping("{entity}/new")
-	public ModelAndView pageNew(@PathVariable String entity, HttpServletRequest request) throws IOException {
-		ModelAndView mv = createModelAndView("/general-entity/entity-new.jsp", entity);
-		JSON formConfig = FormManager.getFormLayoutForPortal(entity);
-		mv.getModel().put("FormConfig", formConfig);
-		return mv;
-	}
-	
-	@RequestMapping("{entity}/{id}/edit")
-	public ModelAndView pageEdit(@PathVariable String entity, @PathVariable String id, HttpServletRequest request) throws IOException {
-		ModelAndView mv = createModelAndView("/general-entity/entity-edit.jsp", entity);
-		JSON formConfig = FormManager.getFormLayoutForPortal(entity);
-		mv.getModel().put("FormConfig", formConfig);
-		return mv;
-	}
 	
 	@RequestMapping("{entity}/{id}")
 	public ModelAndView pageView(@PathVariable String entity, @PathVariable String id, HttpServletRequest request) throws IOException {
 		ModelAndView mv = createModelAndView("/general-entity/entity-view.jsp", entity);
-		JSON formConfig = FormManager.getFormLayoutForPortal(entity);
+		JSON formConfig = FormManager.getFormLayout(entity);
 		mv.getModel().put("FormConfig", formConfig);
 		return mv;
 	}
 	
-	@RequestMapping("entity-form-config")
-	public void entityFormConfig(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@RequestMapping("entity/form-config")
+	public void entityForm(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
-		JSON fc = FormManager.getFormLayoutForPortal(entity);
+		ID recordId = getIdParameter(request, "id");
+		JSON fc = FormManager.getFormLayout(entity, recordId);
 		writeSuccess(response, fc);
 	}
 }

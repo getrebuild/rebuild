@@ -7,6 +7,7 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/animate.min.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/select2.min.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/mprogress.min.css">
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/jquery-ui.min.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-base.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-page.css">
 <script>

@@ -31,7 +31,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.rebuild.server.Application;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
-import cn.devezhao.rebuild.server.service.entity.PickListManager;
+import cn.devezhao.rebuild.server.service.entity.base.PickListManager;
 import cn.devezhao.rebuild.server.service.entitymanage.PickListService;
 import cn.devezhao.rebuild.web.commons.BaseControll;
 

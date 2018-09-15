@@ -74,8 +74,7 @@
 </script>
 <script type="text/javascript">
 $(document).ready(function(){
-	 const config = JSON.parse('${config}');
-	 
+	const config = JSON.parse('${FormConfig}' || '[]');
 	$.get('../list-field?entity=${entityName}', function(res){
 		let fieldNames = {};
 		$(res.data).each(function(){
@@ -100,8 +99,8 @@ $(document).ready(function(){
 			elements.push({ field:$(this).data('field') });
 		});
 		
-		let _data = { entity:'${entityName}', config:JSON.stringify(elements) };
-		_data.metadata = { entity:'Layout', id:config.id || null };
+		let _data = { belongEntity:'${entityName}', type:'FORM', config:JSON.stringify(elements) };
+		_data.metadata = { entity:'LayoutConfig', id:config.id || null };
 		btn.button('loading');
 		$.post('form-update', JSON.stringify(_data), function(res){
 			if (res.error_code == 0) location.reload();

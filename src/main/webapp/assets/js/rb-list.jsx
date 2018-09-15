@@ -2,41 +2,53 @@
 class RbList extends React.Component {
     constructor(props) {
         super(props)
-        this.state = { ...props, rowData: [], noData: false, checkedAll: false, pageNo: 1, pageSize: 3 }
-        this.__fields = this.props.config.fields
+        let fields = props.config.fields
+        props.config.fields = null
+        this.state = { ...props, fields: fields, rowData: [], noData: false, checkedAll: false, pageNo: 1, pageSize: 3 }
         
         this.toggleAllRow = this.toggleAllRow.bind(this)
         this.setPageNo = this.setPageNo.bind(this)
         this.setPageSize = this.setPageSize.bind(this)
+        
+        this.__defaultColumnWidth = $('#react-list').width() / 10
+        this.__defaultColumnWidth = 130;
     }
     render() {
+        let that = this;
         return (
         <div>
             <div className="row rb-datatable-body">
             <div className="col-sm-12">
                 <div className="rb-scroller" ref="rblist-scroller">
-                    <table className="table table-hover" ref="rblist-table">
-                        <thead>
-                            <tr>
-                                <th width="50">
-                                    <label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={this.state.checkedAll} onClick={this.toggleAllRow} /><span className="custom-control-label"></span></label>
-                                </th>
-                                {this.__fields.map((item) =>{
-                                    return (<th data-field={item.field}>{item.label}</th>)
+                    <table className="table table-hover table-striped" ref="rblist-table">
+                    <thead>
+                        <tr>
+                            <th className="column-checkbox">
+                                <div><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={this.state.checkedAll} onClick={this.toggleAllRow} /><span className="custom-control-label"></span></label></div>
+                            </th>
+                            {this.state.fields.map((item, index) =>{
+                                let columnWidth = (item.width || that.__defaultColumnWidth) + 'px'
+                                let styles = { width:columnWidth }
+                                let haveSort = item.sort || ''
+                                return (<th data-field={item.field} style={styles} className="sortable unselect" onClick={this.fieldSort.bind(this,item.field)}><div style={styles}>{item.label}<i className={'zmdi ' + haveSort}></i><i className="split"></i></div></th>)
+                            })}
+                            <th className="column-empty"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {this.state.rowData.map((item, index) => {
+                            let lastId = item[this.state.fields.length];
+                            return (<tr data-id={lastId[0]} onClick={this.clickRow.bind(this, index, false)}>
+                                <td className="column-checkbox">
+                                    <div><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={lastId[1]} onClick={this.clickRow.bind(this, index, true)} /><span className="custom-control-label"></span></label></div>
+                                </td>
+                                {item.map((cell, index) => {
+                                    return this.__renderCell(cell, index)
                                 })}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {this.state.rowData.map((item, index) => {
-                                let lastId = item[this.__fields.length];
-                                return (<tr data-id={lastId[0]} onClick={this.clickRow.bind(this, index, false)}>
-                                    <td><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={lastId[1]} onClick={this.clickRow.bind(this, index, true)} /><span className="custom-control-label"></span></label></td>
-                                    {item.map((cell, index) => {
-                                        return this.__renderCell(cell, index)
-                                    })}
-                                </tr>)
-                            })}    
-                        </tbody>
+                                <td className="column-empty"></td>
+                            </tr>)
+                        })}    
+                    </tbody>
                     </table>
                 </div>
             </div></div>
@@ -44,7 +56,23 @@ class RbList extends React.Component {
         </div>);
     }
     componentDidMount() {
-        $(this.refs['rblist-scroller']).perfectScrollbar()
+        const scroller = $(this.refs['rblist-scroller'])
+        scroller.perfectScrollbar()
+        let that = this;
+        scroller.find('th .split').draggable({ containment: '.rb-datatable-body', axis: 'x', helper: 'clone', stop: function(event, ui){
+            let field = $(event.target).parent().parent().data('field');
+            let left = ui.position.left - 4;
+            let fields = that.state.fields;
+            for (let i = 0; i < fields.length; i++){
+                if (fields[i].field == field){
+                    fields[i].width = left;
+                    break;
+                }
+            }
+            that.setState({ fields: fields }, function(){
+                //scroller.perfectScrollbar('update')
+            })
+        }})
         this.fetchList()
     }
     componentDidUpdate() {
@@ -52,19 +80,22 @@ class RbList extends React.Component {
     
     fetchList() {
         let fields = [];
-        this.__fields.forEach(function(item){
+        let field_sort = null;
+        this.state.fields.forEach(function(item){
             fields.push(item.field)
+            if (!!item.sort) field_sort = item.field + ':' + item.sort.replace('sort-', '')
         });
         let query = {
             entity: this.props.config.entity,
             fields: fields,
             pageNo: this.state.pageNo,
             pageSize: this.state.pageSize,
+            sort: field_sort,
             reload: true,
         };
         let that = this;
         $('#react-list').addClass('rb-loading-active')
-        $.post(rb.baseUrl + '/app/record-list', JSON.stringify(query), function(res){
+        $.post(rb.baseUrl + '/app/entity/record-list', JSON.stringify(query), function(res){
             if (res.error_code == 0){
                 let _rowData = res.data.data;
                 if (_rowData.length == 0) {
@@ -87,27 +118,28 @@ class RbList extends React.Component {
     // 渲染表格及相关事件处理
     
     __renderCell(cellVal, index) {
-        if (this.__fields.length == index) return null;
-        if (!!!cellVal) return <td><div>-</div></td>;
+        if (this.state.fields.length == index) return null;
+        if (!!!cellVal) return <td><div></div></td>;
         
-        let ft = this.__fields[index].type;
+        let ft = this.state.fields[index].type;
+        let styles = { width: (this.state.fields[index].width || this.__defaultColumnWidth) + 'px' }
         if (ft == 'IMAGE') {
             cellVal = JSON.parse(cellVal)
-            return <td><div>{cellVal.map((item)=>{
-                return <a href={'#/Preview/' + item} className="img-thumbnail img-zoom"><img src={rb.storageUrl + item} /></a>
+            return <td><div style={styles}>{cellVal.map((item)=>{
+                return <a href={'#!/Preview/' + item} className="img-thumbnail img-zoom"><img src={rb.storageUrl + item} /></a>
             })}<div className="clearfix" /></div></td>;
         } else if (ft == 'FILE') {
             cellVal = JSON.parse(cellVal);
-            return <td><div>{cellVal.map((item)=>{
+            return <td><div style={styles}>{cellVal.map((item)=>{
                 let fileName = item.split('/');
                 if (fileName.length > 1) fileName = fileName[fileName.length - 1];
                 fileName = fileName.substr(15);
-                return <a href={'#/Preview/' + item}>{fileName}</a>
+                return <a href={'#!/Preview/' + item}>{fileName}</a>
             })}</div></td>;
         } else if ($.type(cellVal) == 'array'){
-            return <td><div><a href={'#/View/' + cellVal[2] + '/' + cellVal[0]} onClick={() => this.clickView(cellVal)}>{cellVal[1]}</a></div></td>;
+            return <td><div style={styles}><a href={'#!/View/' + cellVal[2] + '/' + cellVal[0]} onClick={() => this.clickView(cellVal)}>{cellVal[1]}</a></div></td>;
         } else {
-            return <td><div>{cellVal || '-'}</div></td>;
+            return <td><div style={styles}>{cellVal || ''}</div></td>;
         }
     }
     toggleAllRow(e) {
@@ -178,6 +210,28 @@ class RbList extends React.Component {
     }
     
     reload() {
+    }
+    
+    // 配置相关
+    
+    fieldSort(field, e) {
+        let fields = this.state.fields;
+        for (let i = 0; i < fields.length; i++){
+            if (fields[i].field == field){
+                if (fields[i].sort == 'sort-asc') fields[i].sort = 'sort-desc';
+                else fields[i].sort = 'sort-asc';
+            } else {
+                fields[i].sort = null
+            }
+        }
+        let that = this
+        this.setState({ fields: fields }, function(){
+            that.fetchList()
+        })
+        
+        e.stopPropagation()
+        e.nativeEvent.stopImmediatePropagation()
+        return false
     }
 }
 

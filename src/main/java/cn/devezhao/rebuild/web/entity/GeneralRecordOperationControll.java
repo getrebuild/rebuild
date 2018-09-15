@@ -47,7 +47,7 @@ import cn.devezhao.rebuild.web.commons.BaseControll;
  * @since 08/30/2018
  */
 @Controller
-@RequestMapping("/app/")
+@RequestMapping("/app/entity/")
 public class GeneralRecordOperationControll extends BaseControll {
 
 	@RequestMapping("record-save")

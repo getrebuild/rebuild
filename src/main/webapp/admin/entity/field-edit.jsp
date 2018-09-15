@@ -111,7 +111,7 @@
 										<li class="no-item">加载中</li>
 									</ol>
 								</div>
-								<button type="button" class="btn btn-space btn-secondary btn-sm J_picklistEdit" style="line-height:28px" data-url="../../picklist-config.htm?entity=${entityName}&field=${fieldName}"><i class="zmdi zmdi-settings"></i> 添加/管理选项</button>
+								<button type="button" class="btn btn-secondary btn-sm J_picklistEdit" style="line-height:28px" data-url="../../picklist-config.htm?entity=${entityName}&field=${fieldName}"><i class="zmdi zmdi-settings"></i> 添加/管理选项</button>
 							</div>
 						</div>
 						<div class="form-group row">

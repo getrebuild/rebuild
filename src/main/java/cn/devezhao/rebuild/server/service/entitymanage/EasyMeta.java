@@ -1,5 +1,5 @@
 /*
-Copyright 2018 DEVEZHAO(zhaofang123@gmail.com)
+\Copyright 2018 DEVEZHAO(zhaofang123@gmail.com)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -51,7 +51,8 @@ public class EasyMeta implements BaseMeta {
 		BUILTIN_ENTITY.add("MetaEntity");
 		BUILTIN_ENTITY.add("MetaField");
 		BUILTIN_ENTITY.add("PickList");
-		BUILTIN_ENTITY.add("Layout");
+		BUILTIN_ENTITY.add("LayoutConfig");
+		BUILTIN_ENTITY.add("FilterConfig");
 		
 		BUILTIN_FIELD.add(ExtRecordCreator.createdOn);
 		BUILTIN_FIELD.add(ExtRecordCreator.createdBy);

@@ -32,9 +32,18 @@
 							</div>
 							<div class="col-sm-6">
 								<div class="dataTables_oper">
-									<button class="btn btn-space btn-primary J_new" data-url="${baseUrl}/entity/${entity}/new"><i class="icon zmdi zmdi-plus"></i> 新建</button>
+									<button class="btn btn-space btn-secondary J_view" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> 打开</button>
 									<button class="btn btn-space btn-secondary J_del" disabled="disabled"><i class="icon zmdi zmdi-delete"></i> 删除</button>
-									<button class="btn btn-space btn-secondary J_column">列显示 <i class="icon zmdi zmdi-more-vert"></i></button>
+									<button class="btn btn-space btn-primary J_new" data-url="${baseUrl}/entity/${entity}/new"><i class="icon zmdi zmdi-plus"></i> 新建</button>
+									<div class="btn-group btn-space">
+										<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-more-vert"></i></button>
+										<div class="dropdown-menu dropdown-menu-right">
+											<a class="dropdown-item J_showfields" data-url="${baseUrl}/general-entity/columns-set.htm?entity=${entityName}">列显示</a>
+											<div class="dropdown-divider"></div>
+											<a class="dropdown-item">导入</a>
+											<a class="dropdown-item">导出</a>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -56,10 +65,11 @@
 <script src="${baseUrl}/assets/js/rb-list.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script type="text/babel">
+const rbModal = renderRbcomp(<RbModal title="配置列显示" target=".J_showfields" />);
 $(document).ready(function(){
-	var listConfig = JSON.parse('${DataListConfig}');
-	var rbList = renderRbcomp(<RbList config={listConfig} />, 'react-list');
-
+	const listConfig = JSON.parse('${DataListConfig}');
+	const rbList = renderRbcomp(<RbList config={listConfig} />, 'react-list');
+	
 	var rbFormModal = null;
 	$('.J_new').click(function(){
 		if (rbFormModal) rbFormModal.show()
