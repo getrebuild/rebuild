@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.web.entity;
+package cn.devezhao.rebuild.web.entity.base;
 
 import java.io.IOException;
 
@@ -44,7 +44,7 @@ public class GeneralEntityControll extends BaseControll {
 	@RequestMapping("{entity}/{id}")
 	public ModelAndView pageView(@PathVariable String entity, @PathVariable String id, HttpServletRequest request) throws IOException {
 		ModelAndView mv = createModelAndView("/general-entity/entity-view.jsp", entity);
-		JSON formConfig = FormManager.getFormLayout(entity);
+		JSON formConfig = FormManager.getFormLayout(entity, getRequestUser(request));
 		mv.getModel().put("FormConfig", formConfig);
 		return mv;
 	}
@@ -53,7 +53,7 @@ public class GeneralEntityControll extends BaseControll {
 	public void entityForm(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
 		ID recordId = getIdParameter(request, "id");
-		JSON fc = FormManager.getFormLayout(entity, recordId);
+		JSON fc = FormManager.getFormLayout(entity, getRequestUser(request), recordId);
 		writeSuccess(response, fc);
 	}
 }

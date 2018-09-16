@@ -464,3 +464,5 @@ i.split.ui-draggable-dragging {
 	user-select: none;
 	/* Non-prefixed version, currently not supported by any browser */
 }
+
+.dd-list .sortable-placeholder{border:1px dotted #dedede;height:36px;margin:3px 0;background-color:#fffa90}

@@ -47,6 +47,15 @@ Array.prototype.remove = function(item) {
 		this.splice(index, 1);
 	}
 }
+Array.prototype.contains = function(item) {
+    let i = this.length;
+    while (i--) {
+        if (this[i] === item) {
+            return true;
+        }
+    }
+    return false;
+}
 
 // Init
 $(function(){

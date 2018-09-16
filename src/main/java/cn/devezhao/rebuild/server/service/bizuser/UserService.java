@@ -50,4 +50,7 @@ public class UserService extends BaseService {
 				.unique();
 		return (ID) found[0];
 	}
+	
+	// --
+	
 }

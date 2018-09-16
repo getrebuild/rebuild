@@ -15,7 +15,7 @@ class RbFormModal extends React.Component {
                     <div className="modal-content">
                         <div className="modal-header modal-header-colored">
                             <h3 className="modal-title">{this.state.title || 'TITLE'}</h3>
-                            <a className="close md-close admin-settings admin-visibility" href={rb.baseUrl + '/admin/entity/' + this.props.entity + '/base'} title="实体配置" target="_blank"><span className="zmdi zmdi-settings"></span></a>
+                            <a className="close md-close admin-settings admin-visibility" href={rb.baseUrl + '/admin/entity/' + this.props.entity + '/form-design'} title="配置布局" target="_blank"><span className="zmdi zmdi-settings"></span></a>
                             <button className="close md-close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
                         </div>
                         <div className={'modal-body rb-loading' + (this.state.inLoad ? ' rb-loading-active' : '')}>
@@ -68,7 +68,9 @@ class RbFormModal extends React.Component {
     }
 }
 const __detectElement = function(item){
-    if (item.type == 'TEXT'){
+    if (item.creatable == false){
+        return <RbFormReadonly {...item} />
+    } else if (item.type == 'TEXT'){
         return <RbFormText {...item} />
     } else if (item.type == 'URL'){
         return <RbFormUrl {...item} />
@@ -128,8 +130,8 @@ class RbForm extends React.Component {
         )
     }
     __renderFormError(message) {
-        let cfgUrl = rb.baseUrl + '/admin/entity/' + this.props.entity + '/form-design';
-        message = message || `这个表单似乎没有配置。请 <a href="${cfgUrl}">前去配置</a>`;
+        let fdUrl = rb.baseUrl + '/admin/entity/' + this.props.entity + '/form-design';
+        message = message || `表单未配置，请 <a href="${fdUrl}">配置</a> 后使用`;
         message = { __html: '<strong>错误!</strong> ' + message };
         return <div class="alert alert-contrast alert-warning">
             <div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
@@ -183,7 +185,7 @@ class RbFormElement extends React.Component {
     render() {
         return (
             <div className={'form-group row type-' + this.props.type}>
-                <label className="col-12 col-sm-3 col-form-label text-sm-right" title={this.props.empty ? '' : '必填项'}>{this.props.label}{!this.props.empty && <em/>}</label>
+                <label className="col-12 col-sm-3 col-form-label text-sm-right" title={this.props.nullable ? '' : '必填项'}>{this.props.label}{!this.props.nullable && <em/>}</label>
                 <div className="col-12 col-sm-8">
                     {this.renderElement()}
                 </div>
@@ -191,7 +193,7 @@ class RbFormElement extends React.Component {
         )
     }
     componentDidMount(e) {
-        if (this.props.empty == false) {
+        if (this.props.nullable == false && this.props.creatable == true) {
             this.props.$$$parent.setFieldValue(this.props.field, null, this.props.label + '不能为空');
         }
     }
@@ -210,10 +212,22 @@ class RbFormElement extends React.Component {
         this.props.$$$parent.setFieldValue(this.props.field, this.state.value, errTips);
     }
     checkHasError(){
-        if (this.props.empty == false) {
+        if (this.props.nullable == false) {
             return !!!this.state.value ? '不能为空' : null;
         }
         return null;
+    }
+}
+
+// 只读字段
+class RbFormReadonly extends RbFormElement {
+    constructor(props) {
+        super(props);
+    }
+    renderElement() {
+        return (
+            <input className="form-control form-control-sm" type="text" readonly="true" value={this.props.value} />
+        )
     }
 }
 
@@ -224,7 +238,7 @@ class RbFormText extends RbFormElement {
     }
     renderElement() {
         return (
-            <input ref="field-value" className={'form-control form-control-sm ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} type="text" value={this.state.value} data-empty={this.props.empty} onChange={this.handleChange} onBlur={this.checkError} />
+            <input ref="field-value" className={'form-control form-control-sm ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} type="text" value={this.state.value} data-nullable={this.props.nullable} onChange={this.handleChange} onBlur={this.checkError} />
         )
     }
 }
@@ -301,7 +315,7 @@ class RbFormTextarea extends RbFormElement {
     }
     renderElement() {
         return (
-            <textarea ref="field-value" className={'form-control form-control-sm row2x ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} value={this.state.value} data-empty={this.props.empty} onChange={this.handleChange} onBlur={this.checkError} />
+            <textarea ref="field-value" className={'form-control form-control-sm row2x ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} value={this.state.value} data-nullable={this.props.nullable} onChange={this.handleChange} onBlur={this.checkError} />
         )
     }
 }
@@ -315,7 +329,7 @@ class RbFormDateTime extends RbFormElement {
     renderElement() {
         return (
             <div className="input-group datetime-field">
-                <input ref="field-value" className={'form-control form-control-sm ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} type="text" value={this.state.value} data-empty={this.props.empty} />
+                <input ref="field-value" className={'form-control form-control-sm ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} type="text" value={this.state.value} data-nullable={this.props.nullable} />
                 <span className={'zmdi zmdi-close clean ' + (this.state.value ? '' : 'hide')} onClick={this.cleanValue}></span>
                 <div className="input-group-append">
                     <button className="btn btn-primary" type="button" ref="field-value-icon"><i className="icon zmdi zmdi-calendar"></i></button>
@@ -325,7 +339,7 @@ class RbFormDateTime extends RbFormElement {
     }
     componentDidMount() {
         super.componentDidMount()
-        let format = this.props.dateFormat.replace('mm', 'ii').toLowerCase();
+        let format = (this.props.dateFormat || 'yyyy-MM-dd HH:mm:ss').replace('mm', 'ii').toLowerCase();
         let minView = 0;
         switch (format.length) {
             case 7:

@@ -19,7 +19,6 @@
 .item-option{padding:0;}
 .J_showbox .with-hide,.J_hidebox .with-show,.J_showbox .default .J_default{display:none !important;}
 .border-box .dd-item.default .dd3-content{background-color:#dedede}
-.sortable-placeholder{border:1px dotted #eee;height:36px;margin:3px 0;background-color:#fffa90}
 </style>
 </head>
 <body class="dialog">
