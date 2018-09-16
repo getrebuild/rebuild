@@ -51,14 +51,15 @@ public class UserControll extends BaseControll {
 		String user = getParameterNotNull(request, "user");
 		String passwd = getParameterNotNull(request, "passwd");
 		
-		Object[] foundUser = Application.createQuery(
-				"select userId,password,isDisabled from User where loginName = ?")
-				.setParameter(1, user)
-				.unique();
-		if (foundUser == null) {
+		if (!Application.getUserStore().exists(user)) {
 			writeFailure(response, "用户名或密码错误");
 			return;
 		}
+		
+		Object[] foundUser = Application.createNoFilterQuery(
+				"select userId,password,isDisabled from User where loginName = ?")
+				.setParameter(1, user)
+				.unique();
 		if (!foundUser[1].equals(EncryptUtils.toSHA256Hex(passwd))) {
 			writeFailure(response, "用户名或密码错误");
 			return;

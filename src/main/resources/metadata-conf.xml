@@ -18,7 +18,8 @@
 		<field name="fullName" type="string" max-length="100" description="姓名"/>
 		<field name="avatarUrl" type="string" max-length="300" description="头像"/>
 		<field name="jobTitle" type="string" max-length="100" description="职务"/>
-		<field name="deptId" type="reference" ref-entity="Department" nullable="false" description="所在部门"/>
+		<field name="deptId" type="reference" ref-entity="Department" description="所在部门"/>
+		<field name="roleId" type="reference" ref-entity="Role" description="角色"/>
 		<field name="isDisabled" type="bool" default-value="T" description="是否停用"/>
 		<index type="unique" field-list="loginName"/>
 		<index type="unique" field-list="email"/>
@@ -40,7 +41,9 @@
 	<entity name="RolePrivileges" type-code="004" parent="false">
 		<field name="privilegesId" type="primary" />
 		<field name="roleId" type="reference" ref-entity="Role" />
-		<field name="details" type="string" max-length="100" description="权限描述符"/>
+		<field name="entity" type="int" nullable="false" description="实体" default-value="0"/>
+		<field name="definition" type="string" max-length="100" description="权限定义"/>
+		<field name="freelyKey" type="string" description="其他权限KEY"/>
 	</entity>
 	
 	<entity name="RoleMember" type-code="005" parent="false">

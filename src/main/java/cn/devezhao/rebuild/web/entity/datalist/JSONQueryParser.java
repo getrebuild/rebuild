@@ -29,7 +29,6 @@ import com.alibaba.fastjson.JSONObject;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
-import cn.devezhao.rebuild.server.metadata.ExtRecordCreator;
 
 /**
  * 列表查询解析
@@ -38,7 +37,7 @@ import cn.devezhao.rebuild.server.metadata.ExtRecordCreator;
  * @version $Id: QueryParser.java 1430 2015-04-16 11:29:21Z zhaoff@qidapp.com $
  * @since 1.0, 2013-6-20
  */
-public class JsonQueryParser {
+public class JSONQueryParser {
 
 	protected JSONObject queryElement;
 	
@@ -56,7 +55,7 @@ public class JsonQueryParser {
 	 * @param queryElement
 	 * @param dataListControl
 	 */
-	public JsonQueryParser(JSONObject queryElement, DataListControl dataListControl) {
+	public JSONQueryParser(JSONObject queryElement, DataListControl dataListControl) {
 		this.queryElement = queryElement;
 		this.dataListControl = dataListControl;
 		
@@ -134,10 +133,10 @@ public class JsonQueryParser {
 		String sortNode = queryElement.getString("sort");
 		if (StringUtils.isNotBlank(sortNode)) {
 			sqlSort.append(parseSort(sortNode));
-		} else if (entity.containsField(ExtRecordCreator.modifiedOn)) {
-			sqlSort.append(ExtRecordCreator.modifiedOn + " desc");
-		} else if (entity.containsField(ExtRecordCreator.createdOn)) {
-			sqlSort.append(ExtRecordCreator.createdOn + " desc");
+		} else if (entity.containsField(EntityHelper.modifiedOn)) {
+			sqlSort.append(EntityHelper.modifiedOn + " desc");
+		} else if (entity.containsField(EntityHelper.createdOn)) {
+			sqlSort.append(EntityHelper.createdOn + " desc");
 		}
 		sqlBase.append(sqlSort);
 		

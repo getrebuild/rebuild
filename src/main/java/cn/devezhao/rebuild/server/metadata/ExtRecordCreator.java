@@ -19,15 +19,6 @@ import cn.devezhao.rebuild.server.service.bizuser.UserService;
  */
 public class ExtRecordCreator extends JsonRecordCreator {
 	
-	// 公共字段
-	
-	public static final String createdOn = "createdOn";
-	public static final String createdBy = "createdBy";
-	public static final String modifiedOn = "modifiedOn";
-	public static final String modifiedBy = "modifiedBy";
-	public static final String owningUser = "owningUser";
-	public static final String owningDept = "owningDept";
-
 	/**
 	 * @param entity
 	 * @param source
@@ -53,25 +44,25 @@ public class ExtRecordCreator extends JsonRecordCreator {
 		final Date now = CalendarUtils.now();
 		final Entity entity = r.getEntity();
 		
-		if (entity.containsField(modifiedOn)) {
-			r.setDate(modifiedOn, now);
+		if (entity.containsField(EntityHelper.modifiedOn)) {
+			r.setDate(EntityHelper.modifiedOn, now);
 		}
-		if (entity.containsField(modifiedBy)) {
-			r.setID(modifiedBy, r.getEditor());
+		if (entity.containsField(EntityHelper.modifiedBy)) {
+			r.setID(EntityHelper.modifiedBy, r.getEditor());
 		}
 		
 		if (isNew) {
-			if (entity.containsField(createdOn)) {
-				r.setDate(createdOn, now);
+			if (entity.containsField(EntityHelper.createdOn)) {
+				r.setDate(EntityHelper.createdOn, now);
 			}
-			if (entity.containsField(createdBy)) {
-				r.setID(createdBy, r.getEditor());
+			if (entity.containsField(EntityHelper.createdBy)) {
+				r.setID(EntityHelper.createdBy, r.getEditor());
 			}
-			if (entity.containsField(owningUser)) {
-				r.setID(owningUser, r.getEditor());
+			if (entity.containsField(EntityHelper.owningUser)) {
+				r.setID(EntityHelper.owningUser, r.getEditor());
 			}
-			if (entity.containsField(owningDept)) {
-				r.setID(owningDept, Application.getBean(UserService.class).getDeptOfUser(r.getEditor()));
+			if (entity.containsField(EntityHelper.owningDept)) {
+				r.setID(EntityHelper.owningDept, Application.getBean(UserService.class).getDeptOfUser(r.getEditor()));
 			}
 		}
 	}

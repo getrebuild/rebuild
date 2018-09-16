@@ -43,7 +43,7 @@ public class LayoutConfigManager {
 	 * @return
 	 */
 	public static Object[] getLayoutConfigRaw(String entity, String type) {
-		Object[] config = Application.createQuery(
+		Object[] config = Application.createNoFilterQuery(
 				"select layoutId,config from LayoutConfig where type = ? and belongEntity = ?")
 				.setParameter(1, type)
 				.setParameter(2, entity)

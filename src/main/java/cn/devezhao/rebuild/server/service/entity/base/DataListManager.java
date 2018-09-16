@@ -31,7 +31,6 @@ import com.alibaba.fastjson.JSONObject;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
-import cn.devezhao.rebuild.server.metadata.ExtRecordCreator;
 import cn.devezhao.rebuild.server.service.entitymanage.EasyMeta;
 
 /**
@@ -59,8 +58,8 @@ public class DataListManager extends LayoutConfigManager {
 			if (nameField != null) {
 				columnList.add(warpColumn(nameField));
 			}
-			if (entityMeta.containsField(ExtRecordCreator.createdOn)) {
-				columnList.add(warpColumn(entityMeta.getField(ExtRecordCreator.createdOn)));
+			if (entityMeta.containsField(EntityHelper.createdOn)) {
+				columnList.add(warpColumn(entityMeta.getField(EntityHelper.createdOn)));
 			}
 		} else {
 			JSONArray config = (JSONArray) lcr[1];

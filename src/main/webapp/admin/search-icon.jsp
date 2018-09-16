@@ -26,6 +26,7 @@ $(document).ready(function(){
 			call($(this).data('icon'))
 		});
 	});
+	parent.rbModal.loaded()
 });
 </script>
 </body>

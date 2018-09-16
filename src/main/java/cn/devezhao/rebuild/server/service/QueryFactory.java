@@ -19,7 +19,9 @@ package cn.devezhao.rebuild.server.service;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.query.NativeQuery;
+import cn.devezhao.rebuild.server.Application;
 
 /**
  * 查询服务
@@ -30,12 +32,13 @@ import cn.devezhao.persist4j.query.NativeQuery;
 public class QueryFactory {
 	
 	public static final int QUERY_TIMEOUT = 5 * 1000;
+	public static final int SLOW_LOGGER_TIME = 1 * 1000;
 
-	private PersistManagerFactory persistManagerFactory;
+	final private PersistManagerFactory PM_FACTORY;
 
 	protected QueryFactory(PersistManagerFactory persistManagerFactory) {
 		super();
-		this.persistManagerFactory = persistManagerFactory;
+		this.PM_FACTORY = persistManagerFactory;
 	}
 
 	/**
@@ -43,8 +46,31 @@ public class QueryFactory {
 	 * @return
 	 */
 	public Query createQuery(String ajql) {
-		return persistManagerFactory.createQuery(ajql)
-				.setTimeout(QUERY_TIMEOUT).setSlowLoggerTime(1000);
+		return createQuery(ajql, Application.getCurrentCallerUser());
+	}
+	
+	/**
+	 * @param ajql
+	 * @param user
+	 * @return
+	 */
+	public Query createQuery(String ajql, ID user) {
+		Query query = PM_FACTORY.createQuery(ajql)
+				.setTimeout(QUERY_TIMEOUT)
+				.setSlowLoggerTime(SLOW_LOGGER_TIME)
+				.setFilter(Application.getSecurityManager().createQueryFilter(user));
+		return query;
+	}
+	
+	/**
+	 * @param ajql
+	 * @return
+	 */
+	public Query createQueryUnfiltered(String ajql) {
+		Query query = PM_FACTORY.createQuery(ajql)
+				.setTimeout(QUERY_TIMEOUT)
+				.setSlowLoggerTime(SLOW_LOGGER_TIME);
+		return query;
 	}
 
 	/**
@@ -52,8 +78,9 @@ public class QueryFactory {
 	 * @return
 	 */
 	public NativeQuery createNativeQuery(String sql) {
-		return persistManagerFactory.createNativeQuery(sql)
-				.setTimeout(QUERY_TIMEOUT).setSlowLoggerTime(1000);
+		return PM_FACTORY.createNativeQuery(sql)
+				.setTimeout(QUERY_TIMEOUT)
+				.setSlowLoggerTime(SLOW_LOGGER_TIME);
 	}
 
 	/**

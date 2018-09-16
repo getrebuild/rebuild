@@ -43,20 +43,17 @@ public class SqlExecutor {
 
 	private static final int MAX_BATCH_SIZE = 100;
 	
-	final private PersistManagerFactory factory;
+	final private PersistManagerFactory PM_FACTORY;
 	
-	/**
-	 * @param factory
-	 */
 	protected SqlExecutor(PersistManagerFactory factory) {
-		this.factory = factory;
+		this.PM_FACTORY = factory;
 	}
 	
 	/**
 	 * @param sql
 	 * @return
 	 */
-	public int execute(final String sql) {
+	public int execute(String sql) {
 		return execute(sql, 60);
 	}
 	
@@ -65,9 +62,9 @@ public class SqlExecutor {
 	 * @param timeout
 	 * @return
 	 */
-	public int execute(final String sql, int timeout) {
+	public int execute(String sql, int timeout) {
 		try {
-			final JdbcSupport jdbcSupport = (JdbcSupport) factory.createPersistManager();
+			final JdbcSupport jdbcSupport = (JdbcSupport) PM_FACTORY.createPersistManager();
 			jdbcSupport.setTimeout(timeout);
 			
 			return jdbcSupport.execute(new StatementCallback() {
@@ -89,8 +86,8 @@ public class SqlExecutor {
 	 * @param sql
 	 * @return
 	 */
-	public long executeInsert(final String sql) {
-		Connection connect = DataSourceUtils.getConnection(factory.getDataSource());
+	public long executeInsert(String sql) {
+		Connection connect = DataSourceUtils.getConnection(PM_FACTORY.getDataSource());
 		
 		PreparedStatement pstmt = null;
 		ResultSet keyRs = null;
@@ -109,7 +106,7 @@ public class SqlExecutor {
 		} finally {
 			SqlHelper.close(keyRs);
 			SqlHelper.close(pstmt);
-			SqlHelper.close(connect, factory.getDataSource());
+			SqlHelper.close(connect, PM_FACTORY.getDataSource());
 		}
 	}
 	
@@ -117,7 +114,7 @@ public class SqlExecutor {
 	 * @param sqls
 	 * @return
 	 */
-	public int executeBatch(final String[] sqls) {
+	public int executeBatch(String[] sqls) {
 		return executeBatch(sqls, 60);
 	}
 	
@@ -126,14 +123,14 @@ public class SqlExecutor {
 	 * @param timeout
 	 * @return
 	 */
-	public int executeBatch(final String[] sqls, int timeout) {
+	public int executeBatch(String[] sqls, int timeout) {
 	    int execTotal = 0;
         List<String> tmp = new ArrayList<String>();
         for (String s : sqls) {
             tmp.add(s);
             if (tmp.size() == MAX_BATCH_SIZE) {
                 try {
-                    final JdbcSupport jdbcSupport = (JdbcSupport) factory.createPersistManager();
+                    final JdbcSupport jdbcSupport = (JdbcSupport) PM_FACTORY.createPersistManager();
                     jdbcSupport.setTimeout(timeout);
                     
                     int[] exec = jdbcSupport.executeBatch(tmp.toArray(new String[tmp.size()]));
@@ -147,7 +144,7 @@ public class SqlExecutor {
         
         if (!tmp.isEmpty()) {
             try {
-                final JdbcSupport jdbcSupport = (JdbcSupport) factory.createPersistManager();
+                final JdbcSupport jdbcSupport = (JdbcSupport) PM_FACTORY.createPersistManager();
                 jdbcSupport.setTimeout(timeout);
                 
                 int[] exec = jdbcSupport.executeBatch(tmp.toArray(new String[tmp.size()]));

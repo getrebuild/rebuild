@@ -31,7 +31,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.BaseMeta;
-import cn.devezhao.rebuild.server.metadata.ExtRecordCreator;
+import cn.devezhao.rebuild.server.metadata.EntityHelper;
 import cn.devezhao.rebuild.server.metadata.MetadataHelper;
 
 /**
@@ -54,12 +54,12 @@ public class EasyMeta implements BaseMeta {
 		BUILTIN_ENTITY.add("LayoutConfig");
 		BUILTIN_ENTITY.add("FilterConfig");
 		
-		BUILTIN_FIELD.add(ExtRecordCreator.createdOn);
-		BUILTIN_FIELD.add(ExtRecordCreator.createdBy);
-		BUILTIN_FIELD.add(ExtRecordCreator.modifiedOn);
-		BUILTIN_FIELD.add(ExtRecordCreator.modifiedBy);
-		BUILTIN_FIELD.add(ExtRecordCreator.owningUser);
-		BUILTIN_FIELD.add(ExtRecordCreator.owningDept);
+		BUILTIN_FIELD.add(EntityHelper.createdOn);
+		BUILTIN_FIELD.add(EntityHelper.createdBy);
+		BUILTIN_FIELD.add(EntityHelper.modifiedOn);
+		BUILTIN_FIELD.add(EntityHelper.modifiedBy);
+		BUILTIN_FIELD.add(EntityHelper.owningUser);
+		BUILTIN_FIELD.add(EntityHelper.owningDept);
 		
 		SYSENTITY_INFO.put("User", new String[] { "account", "系统内建" });
 		SYSENTITY_INFO.put("Department", new String[] { "accounts", "系统内建" });
@@ -188,7 +188,7 @@ public class EasyMeta implements BaseMeta {
 		String customIcon = null;
 		Object[] ext = getMetaExt();
 		if (ext != null) {
-			customIcon = StringUtils.defaultIfBlank((String) ext[2], "border-clear");
+			customIcon = StringUtils.defaultIfBlank((String) ext[2], "texture");
 		}
 		return StringUtils.defaultIfBlank(customIcon, defIcon);
 	}

@@ -62,7 +62,7 @@ public class PickListManager {
 	 * @return
 	 */
 	public static List<Map<String, Object>> getPickListRaw(String entity, String field, boolean isAll, boolean reload) {
-		Object[][] array = Application.createQuery(
+		Object[][] array = Application.createNoFilterQuery(
 				"select itemId,text,isDefault,isHide from PickList where belongEntity = ? and belongField = ? order by seq asc")
 				.setParameter(1, entity)
 				.setParameter(2, field)

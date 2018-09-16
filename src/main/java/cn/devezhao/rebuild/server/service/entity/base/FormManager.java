@@ -27,8 +27,9 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.rebuild.server.Application;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
-import cn.devezhao.rebuild.server.metadata.ExtRecordCreator;
+import cn.devezhao.rebuild.server.privileges.User;
 import cn.devezhao.rebuild.server.service.entitymanage.DisplayType;
 import cn.devezhao.rebuild.server.service.entitymanage.EasyMeta;
 
@@ -116,12 +117,15 @@ public class FormManager extends LayoutConfigManager {
 			
 			if (easyField.isBuiltin()) {
 				el.put("creatable", false);
-				if (fieldName.equals(ExtRecordCreator.createdOn) || fieldName.equals(ExtRecordCreator.modifiedOn)) {
+				
+				User sUser = Application.getUserStore().getUser(user);
+				
+				if (fieldName.equals(EntityHelper.createdOn) || fieldName.equals(EntityHelper.modifiedOn)) {
 					el.put("value", CalendarUtils.getUTCDateTimeFormat().format(now));
-				} else if (fieldName.equals(ExtRecordCreator.createdBy) || fieldName.equals(ExtRecordCreator.modifiedBy) || fieldName.equals(ExtRecordCreator.owningUser)) {
-					el.put("value", user);
-				} else if (fieldName.equals(ExtRecordCreator.owningDept)) {
-					el.put("value", "所属部门");
+				} else if (fieldName.equals(EntityHelper.createdBy) || fieldName.equals(EntityHelper.modifiedBy) || fieldName.equals(EntityHelper.owningUser)) {
+					el.put("value", sUser.getFullName());
+				} else if (fieldName.equals(EntityHelper.owningDept)) {
+					el.put("value", sUser.getOwningDept().getName());
 				}
 			}
 		}

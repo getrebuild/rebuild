@@ -43,7 +43,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 			throws Exception {
 		super.afterCompletion(request, response, handler, exception);
 		
-		ID requestUser = Application.getCurrentCaller().get();
+		ID requestUser = Application.getCurrentCaller().get(true);
 		Application.getCurrentCaller().clean();
 		logProgressTime(request);
 		
@@ -55,16 +55,17 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 			}
 			
 			StringBuffer sb = new StringBuffer()
-					.append("\n++ EXECUTE REQUEST ERROR(s) STACK TRACE +++++++++++++++++++++++++++++++++++++++++++++")
-					.append("\nUser:     ").append(requestUser == null ? "-" : requestUser)
-					.append("\nHandler:  ").append(request.getRequestURI() + " [ " + handler + " ]")
-					.append("\nIP:       ").append(ServletUtils.getRemoteAddr(request))
-					.append("\nReferer:  ").append(StringUtils.defaultIfEmpty(ServletUtils.getReferer(request), "-"))
-					.append("\nBrowser:  ").append(StringUtils.defaultIfEmpty(request.getHeader("user-agent"), "-"))
-					.append("\nCause:    ").append(rootCause.getClass().getName())
-					.append("\nMessage:  ").append(rootCause.getMessage());
+					.append("\n++ EXECUTE REQUEST ERROR(s) TRACE +++++++++++++++++++++++++++++++++++++++++++++")
+					.append("\nUser      : ").append(requestUser == null ? "-" : requestUser)
+					.append("\nHandler   : ").append(request.getRequestURI() + " [ " + handler + " ]")
+					.append("\nIP        : ").append(ServletUtils.getRemoteAddr(request))
+					.append("\nReferer   : ").append(StringUtils.defaultIfEmpty(ServletUtils.getReferer(request), "-"))
+					.append("\nUserAgent : ").append(StringUtils.defaultIfEmpty(request.getHeader("user-agent"), "-"))
+					.append("\nCause     : ").append(rootCause.getClass().getName())
+					.append("\nMessage   : ").append(rootCause.getMessage());
 			LOG.error(sb, rootCause);
-			ServletUtils.writeJson(response, AppUtils.formatClientMsg(BaseControll.CODE_ERROR, errorMsg));
+			ServletUtils.writeJson(response, 
+					AppUtils.formatClientMsg(BaseControll.CODE_ERROR, errorMsg));
 		}
 	}
 	

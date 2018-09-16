@@ -53,6 +53,19 @@ public class EntityHelper {
 	}
 	
 	/**
+	 * 实体是否具有权限字段
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	public static boolean hasPrivilegesField(Entity entity) {
+		if (entity.containsField(owningUser) && entity.containsField(owningDept)) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
 	 * @param data
 	 * @param user
 	 * @return
@@ -97,6 +110,15 @@ public class EntityHelper {
 		ExtRecordCreator.bindCommonsFieldsValue(record, true);
 		return record;
 	}
+	
+	// 公共字段
+	
+	public static final String createdOn = "createdOn";
+	public static final String createdBy = "createdBy";
+	public static final String modifiedOn = "modifiedOn";
+	public static final String modifiedBy = "modifiedBy";
+	public static final String owningUser = "owningUser";
+	public static final String owningDept = "owningDept";
 	
 	// 实体代码
 

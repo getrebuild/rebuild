@@ -44,7 +44,7 @@ public class UserService extends BaseService {
 	}
 	
 	public ID getDeptOfUser(ID user) {
-		Object[] found = Application.createQuery(
+		Object[] found = Application.createNoFilterQuery(
 				"select deptId from User where userId = ?")
 				.setParameter(1, user)
 				.unique();

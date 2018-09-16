@@ -26,8 +26,10 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Query;
+import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MetadataFactory;
 import cn.devezhao.rebuild.server.metadata.MetadataHelper;
+import cn.devezhao.rebuild.server.privileges.UserStore;
 import cn.devezhao.rebuild.server.service.CommonService;
 import cn.devezhao.rebuild.server.service.QueryFactory;
 import cn.devezhao.rebuild.server.service.SqlExecutor;
@@ -51,11 +53,13 @@ public class Application {
 	protected Application(ApplicationContext ctx) {
 		Security.addProvider(new BouncyCastleProvider());
 		APPLICATION_CTX = ctx;
-		APPLICATION_CTX.getBeansOfType(Object.class);
+//		APPLICATION_CTX.getBeansOfType(Object.class);
 		
 		// 自定义实体
-		LOG.info("Loading custom entity ...");
+		LOG.info("Loading customized entity ...");
 		MetadataHelper.refreshMetadata();
+		
+		//
 		
 		LOG.warn("Rebuild Booting successful.");
 	}
@@ -97,6 +101,13 @@ public class Application {
 	/**
 	 * @return
 	 */
+	public static ID getCurrentCallerUser() {
+		return getCurrentCaller().get();
+	}
+	
+	/**
+	 * @return
+	 */
 	public static PersistManagerFactory getPersistManagerFactory() {
 		return getBean(PersistManagerFactory.class);
 	}
@@ -111,6 +122,20 @@ public class Application {
 	/**
 	 * @return
 	 */
+	public static UserStore getUserStore() {
+		return getBean(UserStore.class);
+	}
+	
+	/**
+	 * @return
+	 */
+	public static cn.devezhao.rebuild.server.privileges.SecurityManager getSecurityManager() {
+		return getBean(cn.devezhao.rebuild.server.privileges.SecurityManager.class);
+	}
+	
+	/**
+	 * @return
+	 */
 	public static QueryFactory getQueryFactory() {
 		return getBean(QueryFactory.class);
 	}
@@ -120,6 +145,13 @@ public class Application {
 	 */
 	public static Query createQuery(String ajql) {
 		return getQueryFactory().createQuery(ajql);
+	}
+	
+	/**
+	 * @return
+	 */
+	public static Query createNoFilterQuery(String ajql) {
+		return getQueryFactory().createQueryUnfiltered(ajql);
 	}
 	
 	/**

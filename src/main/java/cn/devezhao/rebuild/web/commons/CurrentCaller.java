@@ -40,16 +40,16 @@ public class CurrentCaller {
 	 * @return
 	 */
 	public ID get() {
-		return CALLER.get();
+		return get(false);
 	}
 	
 	/**
 	 * @return
 	 * @throws BadRequestException
 	 */
-	public ID getNotNull() throws BadRequestException {
-		ID user = get();
-		if (user == null) {
+	public ID get(boolean canNull) throws BadRequestException {
+		ID user = CALLER.get();
+		if (user == null && canNull == false) {
 			throw new BadRequestException(403, "无效请求用户");
 		}
 		return user;

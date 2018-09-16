@@ -56,12 +56,12 @@ public class PickListService extends BaseService  {
 	 */
 	public void txBatchUpdate(Field field, JSONObject config) {
 		Assert.notNull(config, "无效配置");
-		ID user = Application.getCurrentCaller().get();
+		ID user = Application.getCurrentCallerUser();
 		
 		JSONArray showItem = config.getJSONArray("show");
 		JSONArray hideItem = config.getJSONArray("hide");
 		
-		Object[][] itemsHold = Application.createQuery(
+		Object[][] itemsHold = Application.createNoFilterQuery(
 				"select itemId from PickList where belongEntity = ? and belongField = ?")
 				.setParameter(1, field.getOwnEntity().getName())
 				.setParameter(2, field.getName())

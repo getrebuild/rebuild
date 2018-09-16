@@ -43,27 +43,35 @@
 		<property name="preferredTestQuery" value="select 1" />
 	</bean>
 
-	<bean name="dialect" class="cn.devezhao.persist4j.dialect.MySQL5Dialect" />
+	<bean name="dbDialect" class="cn.devezhao.persist4j.dialect.MySQL5Dialect" />
 
-	<bean name="persistManagerFactory" class="cn.devezhao.persist4j.engine.PersistManagerFactoryImpl">
+	<bean name="PersistManagerFactory" class="cn.devezhao.persist4j.engine.PersistManagerFactoryImpl">
 		<constructor-arg index="0" ref="dataSource" />
-		<constructor-arg index="1" ref="dialect" />
+		<constructor-arg index="1" ref="dbDialect" />
 		<constructor-arg index="2">
 			<bean class="cn.devezhao.rebuild.server.metadata.DynamicMetadataFactory">
 				<constructor-arg index="0" value="metadata-conf.xml" />
-				<constructor-arg index="1" ref="dialect" />
+				<constructor-arg index="1" ref="dbDialect" />
 			</bean>
 		</constructor-arg>
 	</bean>
 
 	<bean class="cn.devezhao.rebuild.server.service.QueryFactory">
-		<constructor-arg index="0" ref="persistManagerFactory" />
+		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 
 	<bean class="cn.devezhao.rebuild.server.service.SqlExecutor">
-		<constructor-arg index="0" ref="persistManagerFactory" />
+		<constructor-arg index="0" ref="PersistManagerFactory" />
+	</bean>
+	
+	<bean class="cn.devezhao.rebuild.server.privileges.UserStore" name="UserStore" init-method="init" lazy-init="true">
+		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 
+	<bean class="cn.devezhao.rebuild.server.privileges.SecurityManager" lazy-init="true">
+		<constructor-arg index="0" ref="UserStore" />
+	</bean>
+	
 	<bean class="cn.devezhao.rebuild.web.commons.CurrentCaller" />
 
 	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
@@ -85,21 +93,21 @@
 	</aop:config>
 
 	<bean class="cn.devezhao.rebuild.server.service.CommonService">
-		<constructor-arg index="0" ref="persistManagerFactory" />
+		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 	
 	<bean class="cn.devezhao.rebuild.server.service.entitymanage.PickListService">
-		<constructor-arg index="0" ref="persistManagerFactory" />
+		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 	
 	<bean class="cn.devezhao.rebuild.server.service.bizuser.UserService">
-		<constructor-arg index="0" ref="persistManagerFactory" />
+		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 	<bean class="cn.devezhao.rebuild.server.service.bizuser.DepartmentService">
-		<constructor-arg index="0" ref="persistManagerFactory" />
+		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 	<bean class="cn.devezhao.rebuild.server.service.bizuser.RoleService">
-		<constructor-arg index="0" ref="persistManagerFactory" />
+		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 
 </beans>

@@ -55,8 +55,8 @@ class RbFormModal extends React.Component {
         this.setState({ noticeMessage: null })
     }
     destroy() {
-        //this.hide()
-        //$(this.refs['rbmodal-warpper']).remove()
+        this.hide()
+        $(this.refs['rbmodal-warpper']).remove()
     }
     showNotice(message, type) {
         let that = this;
@@ -161,7 +161,7 @@ class RbForm extends React.Component {
         
         let actions = $(this.refs['rbform-action']).find('.btn').button('loading');
         let that = this;
-        $.post(rb.baseUrl + '/app/record-save', JSON.stringify(_data), function(res){
+        $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), function(res){
             actions.button('reset');
             if (res.error_code == 0){
                 rb.notice('保存成功，<a>点击查看</a>');

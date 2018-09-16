@@ -174,6 +174,9 @@ public class Field2Schema {
 			throw new RuntimeException(text, e);
 		}
 		
+		if (identifier.length() > 50) {
+			identifier = identifier.substring(0, 50);
+		}
 		if (!StringHelper.isIdentifier(identifier)) {
 			throw new MetadataException("无效 META 名称: " + identifier);
 		}

@@ -66,7 +66,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 	private void appendConfig4Db(Document config) {
 		final Element rootElement = config.getRootElement();
 		
-		Object[][] customentity = Application.createQuery(
+		Object[][] customentity = Application.createNoFilterQuery(
 				"select typeCode,entityName,physicalName,entityLabel,entityId,comments,icon,nameField from MetaEntity order by createdOn")
 				.array();
 		for (Object[] custom : customentity) {
@@ -85,7 +85,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 			ENTITY_EXTMETA.put(name, new Object[] { custom[4], custom[5], custom[6] });
 		}
 		
-		Object[][] customfield = Application.createQuery(
+		Object[][] customfield = Application.createNoFilterQuery(
 				"select belongEntity,fieldName,physicalName,fieldLabel,displayType,nullable,creatable,updatable,precision,maxLength,defaultValue,refEntity,cascade,fieldId,comments,extConfig"
 				+ " from MetaField order by createdOn")
 				.array();
