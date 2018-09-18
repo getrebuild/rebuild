@@ -31,3 +31,4 @@
 		</div>
 	</div>
 </nav>
+<div class="rb-scroll-top"></div>

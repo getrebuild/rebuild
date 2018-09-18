@@ -51,8 +51,8 @@
 		</div>
 		<div class="form-group row footer">
 			<div class="col-12 col-sm-8 col-lg-6 offset-sm-3">
-            	<button class="btn btn-primary btn-space" type="button" data-loading-text="请稍后">确定</button>
-            	<a class="btn btn-link btn-space" onclick="parent.rbModal.hide()">取消</a>
+            	<button class="btn btn-primary" type="button" data-loading-text="请稍后">确定</button>
+            	<a class="btn btn-link" onclick="parent.newFieldModal.hide()">取消</a>
 			</div>
 		</div>
 	</form>

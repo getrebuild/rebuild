@@ -48,14 +48,14 @@
 							</div>
 							<div class="col-sm-6">
 								<div class="dataTables_oper">
-									<button class="btn btn-space btn-primary J_new" data-url="${baseUrl}/admin/entity/field-new.htm?entity=${entityName}"><i class="icon zmdi zmdi-plus"></i> 新建</button>
+									<button class="btn btn-primary btn-space J_new-field"><i class="icon zmdi zmdi-plus"></i> 新建</button>
 								</div>
 							</div>
 						</div>
 						<div class="row rb-datatable-body">
 							<div class="col-sm-12">
-								<div class="rb-loading rb-loading-active">
-									<table class="table table-hover" id="dataList">
+								<div class="rb-loading rb-loading-active data-list">
+									<table class="table table-hover table-striped" id="dataList">
 										<thead>
 											<tr>
 												<th width="20%" data-filed="fieldLabel">字段名称</th>
@@ -86,16 +86,16 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/rb-list.jsx" type="text/babel"></script>
 <script type="text/babel">
-const rbModal = renderRbcomp(<RbModal title="新建字段" target=".J_new" />);
+var newFieldModal = null
 $(document).ready(function(){
 	$.get('../list-field?entity=${entityName}', function(res){
 		let tbody = $('#dataList tbody');
 		$(res.data).each(function(){
 			let tr = $('<tr data-id="' + (this.fieldId || '') + '"></tr>').appendTo(tbody);
-			$('<td><a href="field/' + this.fieldName + '" class="field-main">' + this.fieldLabel + '</a></td>').appendTo(tr);
+			$('<td><a href="field/' + this.fieldName + '" class="column-main">' + this.fieldLabel + '</a></td>').appendTo(tr);
 			$('<td>' + this.fieldName + '</td>').appendTo(tr);
 			$('<td>' + this.displayType + '</td>').appendTo(tr);
-			$('<td>' + (this.comments || '--') + '</td>').appendTo(tr);
+			$('<td><div style="max-width:300px">' + (this.comments || '--') + '</div></td>').appendTo(tr);
 			let actions = $('<td class="actions"><a class="icon J_edit" href="field/' + this.fieldName + '"><i class="zmdi zmdi-settings"></i></a><a class="icon J_del"><i class="zmdi zmdi-delete"></i></a></td>').appendTo(tr);
 			actions.find('.J_del').click(function(){
 				if (!!!tr.data('id')){
@@ -105,9 +105,14 @@ $(document).ready(function(){
 				if (confirm('确认删除？')) alert('...')
 			});
 		});
-		renderRbcomp(<RbListPagination rowTotal={res.data.length} pageSize="200" pageNo="1" />, 'pagination');
+		renderRbcomp(<RbListPagination rowTotal={res.data.length} pageSize="1000" pageNo="1" />, 'pagination');
 		$('#dataList').parent().removeClass('rb-loading-active')
 	});
+	
+	$('.J_new-field').click(function(){
+		if (newFieldModal) newFieldModal.show()
+		else newFieldModal = rb.modal('${baseUrl}/admin/entity/field-new.htm?entity=${entityName}', '新建字段')
+	})
 });
 </script>
 </body>

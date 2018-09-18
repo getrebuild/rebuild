@@ -9,11 +9,12 @@
 .dd-list .dd-item .dd-handle{cursor:move}
 .dd-list .dd-item .dd-action{float:right;cursor:default}
 .dd-list .dd-item .dd-action i{font-size:12px;color:#999;font-style:normal;background-color:#eee;color:#999;display:inline-block;padding:2px 3px;line-height:1;border-radius:2px;margin-left:2px}
-.nodata{padding:14px 0;color:#999;border:1px dotted #dedede;text-align:center;display:none;}
+.nodata{padding:14px 0;color:#999;border:1px dotted #dedede;text-align:center;display:none;margin:5px 0;}
 .dd-list{min-height:200px}
 .readonly{border-left:3px solid #dedede !important}
 .not-nullable{border-left:3px solid #ea4335 !important}
 .card-header>div>span{font-size:12px;font-weight:normal;padding-left:4px;margin-right:9px;color:#888}
+.dd-placeholder{height:36px}
 </style>
 </head>
 <body>
@@ -110,7 +111,7 @@ $(document).ready(function(){
 	    $('.form-preview, .field-list').sortable({
 			connectWith: '.connectedSortable',
 			cursor: 'move',
-			placeholder: 'sortable-placeholder',
+			placeholder: 'dd-placeholder',
 			cancel: '.nodata',
 			stop: checkEmpty
 		}).disableSelection();

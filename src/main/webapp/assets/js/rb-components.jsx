@@ -2,22 +2,12 @@
 class RbModal extends React.Component {
     constructor(props) {
         super(props)
-        this.state = { ...props, inLoad: true }
-        
-        if (props.target) {
-            let t = $(props.target);
-            let hasUrl = t.data('url');
-            let that = this;
-            t.click(function(){
-                if (!!hasUrl) that.show({ url:hasUrl })
-                else that.show()
-            })
-        }
+        this.state = { ...props, inLoad: true, isDestroy: false }
     }
 	render() {
-		return (
+		return (this.state.isDestroy == true ? null :
 			<div className="modal rbmodal colored-header colored-header-primary" ref="rbmodal">
-		        <div className="modal-dialog">
+		        <div className="modal-dialog" style={{ maxWidth:(this.props.width || 680) + 'px' }}>
     		        <div className="modal-content">
         		        <div className="modal-header modal-header-colored">
             		        <h3 className="modal-title">{this.state.title || ''}</h3>
@@ -33,22 +23,7 @@ class RbModal extends React.Component {
 		)
 	}
 	componentDidMount() {
-	    if (this.props.children) this.setState({ inLoad:false })
-    }	
-	show(state, callback) {
-        let that = this;
-	    if (!!!state) {
-	        $(this.refs['rbmodal']).modal({ show: true, backdrop: 'static' })
-	        typeof callback == 'function' && callback(that)
-	    } else {
-            this.setState(state, function(){
-                $(that.refs['rbmodal']).modal({ show: true, backdrop: 'static' })
-                typeof callback == 'function' && callback(that)
-            })
-	    }
-    }
-    hide() {
-        $(this.refs['rbmodal']).modal('hide')
+	    if (this.props.children) this.setState({ inLoad: false })
     }
     loaded() {
         if (!!!this.state.url) return
@@ -58,11 +33,24 @@ class RbModal extends React.Component {
             let height = iframe.contents().find('body .main-content').height()
             if (height == 0) height = iframe.contents().find('body').height()
             else height += 45;  // .main-content's padding
-            if (height == 0 || height == that.__lastHeight) return;
             $(that.refs['rbmodal.body']).height(height)
-            that.__lastHeight = height
             that.setState({ inLoad: false })
         }, 100, 'RbModal-resize')
+    }
+	show(state, callback) {
+	    if (!!state) state = { ...state, isDestroy: false }
+	    else state = { isDestroy: false }
+	    let that = this;
+	    this.setState(state, function(){
+            $(that.refs['rbmodal']).modal({ show: true, backdrop: 'static' })
+            typeof callback == 'function' && callback(that)
+        })
+    }
+    hide(){
+        let root = $(this.refs['rbmodal']);
+        root.modal('hide')
+        this.setState({ isDestroy: true, inLoad: true  }, function(){
+        })
     }
 }
 
@@ -104,9 +92,11 @@ class RbNotice extends React.Component {
        super(props);
     }
     render() {
-        return <div className={'rbnotice animated fadeIn ' + (this.props.type || 'warning')} ref="rbnotice">
-            {this.props.message}
-        </div>
+        return (
+            <div className={'rbnotice animated fadeIn ' + (this.props.type || 'warning')} ref="rbnotice">
+                {this.props.message}
+            </div>
+        )
     }
     componentDidMount() {
         if (this.props.autoClose == 'false');
@@ -140,4 +130,9 @@ rb.notice = function(message, type, timeout){
 }
 rb.alter = function(message, title){
     renderRbcomp(<RbAlter message={message} title={title} />)
+}
+rb.modal = function(url, title, width) {
+    const comp = renderRbcomp(<RbModal url={url} title={title} width={width} />)
+    comp.show()
+    return comp
 }

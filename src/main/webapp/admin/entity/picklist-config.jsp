@@ -6,31 +6,23 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>列表选项</title>
 <style type="text/css">
-.border-box{border:1px solid #eee;padding:0 3px;position:relative;overflow:hidden;height:257px;}
-.border-box .dd-list{min-height:250px}
-.border-box .dd-list .dd-item .dd3-content, .dd-list .dd3-item .dd3-content{margin:3px 0}
-.border-box .dd-item .dd-handle{background-color:#eee;border-color:#eee}
-.border-box .dd-list .dd3-item .dd3-handle::before{color:#999}
-.border-box .dd-list .dd3-item .dd3-handle:hover::before{color:#fff}
-.border-box .dd-list .dd3-item .dd3-content{}
-.border-box .dd-list .dd3-item .dd3-action{position:absolute;right:1px;top:1px;}
-.border-box .dd-list .dd3-item .dd3-action>a{font-size:0.9rem;display:inline-block;line-height:34px;width:38px;display:none;text-align:center;}
-.border-box .dd-list .dd3-item:hover .dd3-action>a{display:inline-block;}
-.item-option{padding:0;}
+.sortable-box{height:268px}
+.sortable-box .dd-list{height:260px}
+.dd-item.default .dd3-content{background-color:#5a95f5 !important;border-color:#5a95f5;color:#fff}
+.dd-item.default .dd3-action a{color:#fff !important}
 .J_showbox .with-hide,.J_hidebox .with-show,.J_showbox .default .J_default{display:none !important;}
-.border-box .dd-item.default .dd3-content{background-color:#dedede}
 </style>
 </head>
 <body class="dialog">
 <div class="main-content">
 	<div class="row" style="margin:0">
 		<div class="col-6">
-			<h5>列表选项</h5>
-			<div class="border-box rb-scroller">
+			<h5 class="sortable-box-title">列表选项</h5>
+			<div class="sortable-box rb-scroller">
 				<ol class="dd-list J_showbox">
 				</ol>
 			</div>
-			<form style="margin-top:9px">
+			<form>
 				<div class="input-group input-group-sm">
 					<input class="form-control J_text" type="text" maxlength="50">
 					<div class="input-group-append">
@@ -40,8 +32,8 @@
 			</form>
 		</div>
 		<div class="col-6">
-			<h5>已禁用的选项</h5>
-			<div class="border-box rb-scroller">
+			<h5 class="sortable-box-title">已禁用的选项</h5>
+			<div class="sortable-box rb-scroller">
 				<ol class="dd-list J_hidebox">
 				</ol>
 			</div>
@@ -49,7 +41,7 @@
 	</div>
 	<div class="dialog-footer">
 		<button class="btn btn-primary J_save" type="button">保存</button>
-		<button class="btn btn-secondary" onclick="parent.rbModal.hide()" type="button">取消</button>
+		<button class="btn btn-secondary" onclick="parent.picklistModal.hide()" type="button">取消</button>
 	</div>
 </div>
 <script type="text/plain" id="picklist-temp">
@@ -109,7 +101,7 @@ $(document).ready(function(){
 	$('.dd-list').sortable({
 		connectWith: '.dd-list',
 		cursor: 'move',
-		placeholder: 'sortable-placeholder',
+		placeholder: 'dd-placeholder',
 	});
 });
 const itemRender = function(data, append){

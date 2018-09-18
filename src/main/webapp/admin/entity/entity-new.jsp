@@ -23,7 +23,7 @@
 		<div class="form-group row footer">
 			<div class="col-12 col-sm-8 col-lg-4 offset-sm-3">
 				<button class="btn btn-primary" type="button" data-loading-text="请稍后">确定</button>
-				<a class="btn btn-link btn-space" onclick="parent.rbModal.hide()">取消</a>
+				<a class="btn btn-link" onclick="parent.newEntityModal.hide()">取消</a>
 			</div>
 		</div>
 	</form>

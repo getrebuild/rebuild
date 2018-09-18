@@ -46,6 +46,14 @@
 	color: #888;
 }
 
+.margin-0 {
+	margin: 0 !important
+}
+
+.padding-0 {
+	padding: 0 !important
+}
+
 .rb-aside .page-head {
 	margin-left: 280px;
 }
@@ -60,10 +68,6 @@
 
 .modal-header .close .zmdi-settings {
 	font-size: 1.4rem;
-}
-
-.modal.rbmodal .modal-dialog {
-	max-width: 680px;
 }
 
 .modal.rbmodal .modal-dialog .modal-body {
@@ -343,43 +347,45 @@ a {
 	overflow: hidden;
 }
 
-#react-list {
+.data-list {
 	position: relative;
 	overflow: hidden;
+	min-height: 200px;
+	background-color: #fff;
 }
 
-#react-list .table th, #react-list .table td {
+.data-list .table th, .data-list .table td {
 	cursor: default;
 	white-space: nowrap;
 	font-weight: normal;
 	padding: 10px;
 }
 
-#react-list .table thead th {
+.data-list .table thead th {
 	padding-top: 12px;
 }
 
-#react-list .table thead th.sortable {
+.data-list .table thead th.sortable {
 	cursor: pointer;
 }
 
-#react-list .table thead th.sortable:active {
+.data-list .table thead th.sortable:active {
 	background-color: #dee2e6;
 }
 
-#react-list .table thead th>div {
+.data-list .table thead th>div {
 	color: #555;
 	position: relative;
 }
 
-#react-list .table thead th>div>i {
+.data-list .table thead th>div>i {
 	position: absolute;
 	height: 20px;
 	top: -1px;
 	right: -10px;
 }
 
-#react-list .table thead th>div>i.split {
+.data-list .table thead th>div>i.split {
 	width: 6px;
 	border-right: 2px dotted #aaa;
 	cursor: e-resize;
@@ -389,22 +395,22 @@ i.split.ui-draggable-dragging {
 	border-right-color: #4285f4 !important;
 }
 
-#react-list .table thead th>div>i.zmdi {
+.data-list .table thead th>div>i.zmdi {
 	font-size: 16px;
 	right: 0;
 	color: #aaa;
 	padding-top: 2px;
 }
 
-#react-list .table thead th>div>i.zmdi.sort-asc::before {
+.data-list .table thead th>div>i.zmdi.sort-asc::before {
 	content: '\f2f9';
 }
 
-#react-list .table thead th>div>i.zmdi.sort-desc::before {
+.data-list .table thead th>div>i.zmdi.sort-desc::before {
 	content: '\f2fc';
 }
 
-#react-list .table td, #react-list .table td>div {
+.data-list .table td, .data-list .table td>div {
 	white-space: nowrap;
 	max-width: 100%;
 	text-overflow: ellipsis;
@@ -412,7 +418,7 @@ i.split.ui-draggable-dragging {
 	clear: both;
 }
 
-#react-list td .img-zoom {
+.data-list td .img-zoom {
 	width: 32px;
 	height: 32px;
 	line-height: 30px;
@@ -427,7 +433,7 @@ i.split.ui-draggable-dragging {
 	border: 0 solid #bbb;
 }
 
-#react-list td .img-zoom:last-child {
+.data-list td .img-zoom:last-child {
 	margin-right: 0;
 	margin-bottom: 3px;
 }
@@ -442,11 +448,10 @@ i.split.ui-draggable-dragging {
 }
 
 .column-main {
-	font-weight: bold;
+	border-bottom: 1px dotted;
 }
 
 .column-empty {
-	
 }
 
 .text-3dot {
@@ -465,4 +470,44 @@ i.split.ui-draggable-dragging {
 	/* Non-prefixed version, currently not supported by any browser */
 }
 
-.dd-list .sortable-placeholder{border:1px dotted #dedede;height:36px;margin:3px 0;background-color:#fffa90}
+h5.sortable-box-title {
+	margin-top: 9px;
+}
+
+.sortable-box {
+	border: 1px solid #eee;
+	padding: 0 3px;
+	height: 388px;
+	z-index: 1;
+	margin-bottom: 12px;
+}
+
+.sortable-box .dd-list {
+	height: 380px;
+}
+
+.sortable-box .dd-list .dd-item .dd3-content, .dd-list .dd3-item .dd3-content {
+	margin: 3px 0
+}
+
+.sortable-box .dd-item .dd-handle {
+	background-color: #eee;
+	border-color: #eee
+}
+
+.sortable-box .dd-list .dd3-item .dd3-handle::before {
+	color: #999
+}
+
+.sortable-box .dd-list .dd3-item .dd3-handle:hover::before {
+	color: #fff
+}
+
+.sortable-box .dd-list .dd3-item .dd3-action{position:absolute;right:1px;top:1px;}
+.sortable-box .dd-list .dd3-item .dd3-action>a{font-size:0.9rem;display:inline-block;line-height:34px;width:38px;display:none;text-align:center;}
+.sortable-box .dd-list .dd3-item:hover .dd3-action>a{display:inline-block;}
+
+.sortable-box .dd-list .dd3-item.ui-sortable-helper .dd3-handle {
+	top: 3px;
+	height: 35px;
+}

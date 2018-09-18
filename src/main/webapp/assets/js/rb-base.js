@@ -36,7 +36,6 @@
 		xhrFields : {
 		},
 		complete : function(xhr) {
-			
 		}
 	});
 })(jQuery);
@@ -56,21 +55,6 @@ Array.prototype.contains = function(item) {
     }
     return false;
 }
-
-// Init
-$(function(){
-	let t = $('.rb-scroller');
-	t.perfectScrollbar();
-	$(window).resize(function(){
-		$setTimeout(function(){
-			t.perfectScrollbar('update');
-		}, 500, 'rb-scroller-update');
-	});
-	
-	$('.rb-toggle-left-sidebar').click(function(){
-		$('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed');
-	})
-});
 
 const $__setTimeoutHolds = {};
 /* 不会重复执行的 setTimeout
