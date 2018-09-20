@@ -67,7 +67,7 @@ public class MetaFieldControll extends BaseControll  {
 	@RequestMapping("list-field")
 	public void listField(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entityName = getParameter(request, "entity");
-		Entity entity = EntityHelper.getEntity(entityName);
+		Entity entity = MetadataHelper.getEntity(entityName);
 		if (entity == null) {
 			writeFailure(response, "无效实体");
 			return;
@@ -133,7 +133,7 @@ public class MetaFieldControll extends BaseControll  {
 		String comments = getParameter(request, "comments");
 		String refEntity = getParameter(request, "refEntity");
 		
-		Entity entity = EntityHelper.getEntity(entityName);
+		Entity entity = MetadataHelper.getEntity(entityName);
 		DisplayType dt = DisplayType.valueOf(type);
 		
 		String fieldName = null;

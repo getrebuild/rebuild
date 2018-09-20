@@ -30,7 +30,7 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.query.compiler.SelectItem;
-import cn.devezhao.rebuild.server.metadata.EntityHelper;
+import cn.devezhao.rebuild.server.metadata.MetadataHelper;
 
 /**
  * 数据包装
@@ -158,7 +158,7 @@ public class DataWrapper {
 		if (value instanceof Object[]) {
 			Object[] idNamed = (Object[]) value;
 			Object[] idNamed2 = new Object[3];
-			Entity idEntity = EntityHelper.getEntity(((ID) idNamed[0]).getEntityCode());
+			Entity idEntity = MetadataHelper.getEntity(((ID) idNamed[0]).getEntityCode());
 			idNamed2[2] = idEntity.getName();
 			idNamed2[1] = idNamed[1] == null ? StringUtils.EMPTY : idNamed[1].toString();
 			idNamed2[0] = idNamed[0].toString();

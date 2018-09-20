@@ -13,7 +13,7 @@
 		<jsp:param value="${entityLabel}列表" name="pageTitle"/>
 	</jsp:include>
 	<jsp:include page="/_include/NavLeft.jsp">
-		<jsp:param value="${entityName}-list" name="activeNav"/>
+		<jsp:param value="nav_entity-${entityName}" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
 		<div class="main-content container-fluid">
@@ -76,7 +76,7 @@ $(document).ready(function(){
 
 	$('.J_column-set').click(function(){
 		if (csModal) csModal.show()
-		else csModal = rb.modal('${baseUrl}/general-entity/columns-set.htm?entity=${entityName}', '设置列显示')
+		else csModal = rb.modal('${baseUrl}/general-entity/columns-settings.htm?entity=${entityName}', '设置列显示')
 	});
 });
 </script>

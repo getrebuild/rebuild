@@ -443,8 +443,8 @@ i.split.ui-draggable-dragging {
 }
 
 .column-checkbox>div {
-	width: 29px;
-	padding-left: 11px;
+	width: 18px;
+	padding-left: 0px;
 }
 
 .column-main {
@@ -510,4 +510,12 @@ h5.sortable-box-title {
 .sortable-box .dd-list .dd3-item.ui-sortable-helper .dd3-handle {
 	top: 3px;
 	height: 35px;
+}
+
+.nav-settings {
+	display: inline-block;
+}
+.nav-settings .icon {
+	font-size: 1.35rem;
+	vertical-align: middle;
 }

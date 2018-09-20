@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.web.entity.base;
+package cn.devezhao.rebuild.web.base.entity;
 
 import java.io.IOException;
 
@@ -30,7 +30,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.rebuild.server.service.entity.base.DataListManager;
+import cn.devezhao.rebuild.server.service.base.DataListManager;
 import cn.devezhao.rebuild.web.commons.BaseControll;
 import cn.devezhao.rebuild.web.entity.datalist.DataListControl;
 import cn.devezhao.rebuild.web.entity.datalist.DefaultDataListControl;

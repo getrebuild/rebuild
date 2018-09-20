@@ -12328,53 +12328,11 @@ canvas {
 	}
 }
 
-.rb-left-sidebar .progress-widget {
+.rb-left-sidebar .bottom-widget {
 	padding: 20px;
-	cursor: pointer
-}
-
-.rb-collapsible-sidebar-collapsed .rb-left-sidebar .progress-widget {
-	padding: 13px 14px;
-	margin-top: 25px
-}
-
-.rb-fixed-sidebar .rb-left-sidebar .progress-widget {
-	margin-top: 0
-}
-
-.rb-left-sidebar .progress-widget .progress-data {
-	color: #696969
-}
-
-.rb-left-sidebar .progress-widget .progress-value {
-	float: right
-}
-
-.rb-collapsible-sidebar-collapsed .rb-left-sidebar .progress-widget .progress-value {
-	float: none;
-	display: block;
-	text-align: center;
-	font-size: .8462rem
-}
-
-.rb-collapsible-sidebar-collapsed .rb-left-sidebar .progress-widget .name {
-	display: none
-}
-
-.rb-left-sidebar .progress-widget .progress {
-	margin: 10px 0 0;
-	height: 8px;
-	background-color: #ebebeb;
-	border-radius: 2px
-}
-
-.rb-collapsible-sidebar-collapsed .rb-left-sidebar .progress-widget .progress {
-	height: 5px;
-	margin-top: 7px
-}
-
-.rb-left-sidebar .progress-widget:hover {
-	background-color: #f0f0f0
+	cursor: pointer;
+	background-color: #f0f0f0;
+	margin-top: 0;
 }
 
 @media (max-width:767.98px) {
@@ -16423,10 +16381,10 @@ pre code {
 .btn-group-sm>.btn,.btn-sm {
 	padding: 0 8px;
 	font-size: 1rem;
-	line-height: 24px;
 	border-radius: 2px;
 	min-height: auto !important;
 	min-width: 60px !important;
+	line-height: 28px;
 }
 
 .btn-group-lg>.btn,.btn-lg {

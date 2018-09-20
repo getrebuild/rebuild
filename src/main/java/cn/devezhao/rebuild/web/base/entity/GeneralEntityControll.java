@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.web.entity.base;
+package cn.devezhao.rebuild.web.base.entity;
 
 import java.io.IOException;
 
@@ -29,7 +29,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.alibaba.fastjson.JSON;
 
 import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.rebuild.server.service.entity.base.FormManager;
+import cn.devezhao.rebuild.server.service.base.FormManager;
 import cn.devezhao.rebuild.web.commons.BaseControll;
 
 /**

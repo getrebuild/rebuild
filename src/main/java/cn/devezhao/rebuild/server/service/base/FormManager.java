@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.server.service.entity.base;
+package cn.devezhao.rebuild.server.service.base;
 
 import java.util.Date;
 import java.util.Map;
@@ -29,6 +29,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.rebuild.server.Application;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
+import cn.devezhao.rebuild.server.metadata.MetadataHelper;
 import cn.devezhao.rebuild.server.privileges.User;
 import cn.devezhao.rebuild.server.service.entitymanage.DisplayType;
 import cn.devezhao.rebuild.server.service.entitymanage.EasyMeta;
@@ -39,7 +40,7 @@ import cn.devezhao.rebuild.server.service.entitymanage.EasyMeta;
  * @author zhaofang123@gmail.com
  * @since 08/30/2018
  */
-public class FormManager extends LayoutConfigManager {
+public class FormManager extends LayoutManager {
 
 	/**
 	 * @param entity
@@ -74,7 +75,7 @@ public class FormManager extends LayoutConfigManager {
 	 */
 	public static JSON getFormLayout(String entity, ID user, ID recordId) {
 		final Date now = CalendarUtils.now();
-		final Entity entityMeta = EntityHelper.getEntity(entity);
+		final Entity entityMeta = MetadataHelper.getEntity(entity);
 		
 		JSONObject config = (JSONObject) getFormLayoutRaw(entity);
 		for (Object element : config.getJSONArray("elements")) {

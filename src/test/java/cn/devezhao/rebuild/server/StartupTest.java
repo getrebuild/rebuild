@@ -18,7 +18,7 @@ package cn.devezhao.rebuild.server;
 
 import org.junit.Test;
 
-import cn.devezhao.rebuild.server.metadata.EntityHelper;
+import cn.devezhao.rebuild.server.metadata.MetadataHelper;
 
 /**
  * 
@@ -30,7 +30,6 @@ public class StartupTest {
 	@Test
 	public void startup() {
 		Application.context();
-		EntityHelper.getEntity(1);
+		MetadataHelper.getEntity(1);
 	}
-	
 }

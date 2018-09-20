@@ -30,8 +30,8 @@ import com.alibaba.fastjson.JSONObject;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.rebuild.server.Application;
-import cn.devezhao.rebuild.server.metadata.EntityHelper;
-import cn.devezhao.rebuild.server.service.entity.base.PickListManager;
+import cn.devezhao.rebuild.server.metadata.MetadataHelper;
+import cn.devezhao.rebuild.server.service.base.PickListManager;
 import cn.devezhao.rebuild.server.service.entitymanage.PickListService;
 import cn.devezhao.rebuild.web.commons.BaseControll;
 
@@ -61,7 +61,7 @@ public class PickListControll extends BaseControll {
 		String field = getParameterNotNull(request, "field");
 		
 		
-		Field field2field = EntityHelper.getField(entity, field);
+		Field field2field = MetadataHelper.getField(entity, field);
 		Application.getBean(PickListService.class).txBatchUpdate(field2field, config);
 		writeSuccess(response);
 	}

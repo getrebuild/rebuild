@@ -37,7 +37,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.rebuild.server.metadata.EntityHelper;
+import cn.devezhao.rebuild.server.metadata.MetadataHelper;
 import cn.devezhao.rebuild.server.service.entitymanage.EasyMeta;
 import cn.devezhao.rebuild.utils.AppUtils;
 
@@ -278,7 +278,7 @@ public abstract class BaseControll {
 		PageForward.setPageAttribute(mv);
 		
 		if (entity != null) {
-			EasyMeta entityMeta = new EasyMeta(EntityHelper.getEntity(entity));
+			EasyMeta entityMeta = new EasyMeta(MetadataHelper.getEntity(entity));
 			mv.getModel().put("entityName", entityMeta.getName());
 			mv.getModel().put("entityLabel", entityMeta.getLabel());
 			mv.getModel().put("icon", entityMeta.getIcon());

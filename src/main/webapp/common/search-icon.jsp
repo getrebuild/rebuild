@@ -21,12 +21,12 @@
 $(document).ready(function(){
 	let call = parent.icon_call || function(icon){ alert(icon) };
 	$(ZMDI_ICONS).each(function(){
-		let a = $('<a data-icon="' + this + '"><i class="zmdi zmdi-' + this + '"></a>').appendTo('#icons');
+		let a = $('<a data-icon="' + this + '" title="' + this.toUpperCase() + '"><i class="zmdi zmdi-' + this + '"></a>').appendTo('#icons');
 		a.click(function(){
 			call($(this).data('icon'))
 		});
 	});
-	parent.rbModal.loaded()
+	//parent.iconModal && parent.iconModal.loaded()
 });
 </script>
 </body>

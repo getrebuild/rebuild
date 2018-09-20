@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.web.entity.base;
+package cn.devezhao.rebuild.web.base.entity;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -39,6 +39,7 @@ import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.util.StringHelper;
 import cn.devezhao.rebuild.server.Application;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
+import cn.devezhao.rebuild.server.metadata.MetadataHelper;
 import cn.devezhao.rebuild.web.commons.BaseControll;
 
 /**
@@ -75,7 +76,7 @@ public class GeneralRecordOperationControll extends BaseControll {
 	@RequestMapping("record-fetch")
 	public void fetchOne(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID id = getIdParameterNotNull(request, "id");
-		Entity entity = EntityHelper.getEntity(id.getEntityCode());
+		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		
 		String fields = getParameter(request, "fields");
 		if (StringUtils.isBlank(fields)) {

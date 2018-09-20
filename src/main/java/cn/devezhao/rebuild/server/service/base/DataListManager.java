@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.server.service.entity.base;
+package cn.devezhao.rebuild.server.service.base;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,6 +31,7 @@ import com.alibaba.fastjson.JSONObject;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
+import cn.devezhao.rebuild.server.metadata.MetadataHelper;
 import cn.devezhao.rebuild.server.service.entitymanage.EasyMeta;
 
 /**
@@ -39,7 +40,7 @@ import cn.devezhao.rebuild.server.service.entitymanage.EasyMeta;
  * @author zhaofang123@gmail.com
  * @since 08/30/2018
  */
-public class DataListManager extends LayoutConfigManager {
+public class DataListManager extends LayoutManager {
 	
 	private static final Log LOG = LogFactory.getLog(DataListManager.class);
 
@@ -51,7 +52,7 @@ public class DataListManager extends LayoutConfigManager {
 		Object[] lcr = getLayoutConfigRaw(entity, TYPE_DATALIST);
 		
 		List<Map<String, Object>> columnList = new ArrayList<>();
-		Entity entityMeta = EntityHelper.getEntity(entity);
+		Entity entityMeta = MetadataHelper.getEntity(entity);
 		// 默认配置
 		if (lcr == null) {
 			Field nameField = entityMeta.getNameField();

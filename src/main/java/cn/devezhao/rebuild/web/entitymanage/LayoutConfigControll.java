@@ -34,7 +34,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.rebuild.server.Application;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
-import cn.devezhao.rebuild.server.service.entity.base.FormManager;
+import cn.devezhao.rebuild.server.service.base.FormManager;
 import cn.devezhao.rebuild.web.commons.BaseControll;
 
 /**

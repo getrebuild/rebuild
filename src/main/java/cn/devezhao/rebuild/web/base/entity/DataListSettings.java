@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.web.entity.base;
+package cn.devezhao.rebuild.web.base.entity;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,8 +42,9 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.rebuild.server.Application;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
-import cn.devezhao.rebuild.server.service.entity.base.DataListManager;
-import cn.devezhao.rebuild.server.service.entity.base.LayoutConfigManager;
+import cn.devezhao.rebuild.server.metadata.MetadataHelper;
+import cn.devezhao.rebuild.server.service.base.DataListManager;
+import cn.devezhao.rebuild.server.service.base.LayoutManager;
 import cn.devezhao.rebuild.web.commons.BaseControll;
 
 /**
@@ -54,12 +55,12 @@ import cn.devezhao.rebuild.web.commons.BaseControll;
  */
 @Controller
 @RequestMapping("/app/")
-public class DataListConfigControll extends BaseControll {
+public class DataListSettings extends BaseControll {
 
 	@RequestMapping(value = "{entity}/list-columns", method = RequestMethod.POST)
-	public void columnSet(@PathVariable String entity, HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void columnsSet(@PathVariable String entity, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		Entity entityMeta = EntityHelper.getEntity(entity);
+		Entity entityMeta = MetadataHelper.getEntity(entity);
 		
 		JSON config = ServletUtils.getRequestJson(request);
 		ID configId = getIdParameter(request, "cfgid");
@@ -68,7 +69,7 @@ public class DataListConfigControll extends BaseControll {
 		if (configId == null) {
 			record = EntityHelper.forNew(EntityHelper.LayoutConfig, user);
 			record.setString("belongEntity", entityMeta.getName());
-			record.setString("type", LayoutConfigManager.TYPE_DATALIST);
+			record.setString("type", LayoutManager.TYPE_DATALIST);
 		} else {
 			record = EntityHelper.forUpdate(configId, user);
 		}
@@ -78,8 +79,8 @@ public class DataListConfigControll extends BaseControll {
 	}
 	
 	@RequestMapping(value = "{entity}/list-columns", method = RequestMethod.GET)
-	public void columnGet(@PathVariable String entity, HttpServletRequest request, HttpServletResponse response) throws IOException {
-		Entity entityMeta = EntityHelper.getEntity(entity);
+	public void columnsGet(@PathVariable String entity, HttpServletRequest request, HttpServletResponse response) throws IOException {
+		Entity entityMeta = MetadataHelper.getEntity(entity);
 		
 		List<Map<String, Object>> fieldList = new ArrayList<>();
 		for (Field field : entityMeta.getFields()) {

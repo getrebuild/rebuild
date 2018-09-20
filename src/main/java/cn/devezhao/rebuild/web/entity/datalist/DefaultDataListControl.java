@@ -26,8 +26,8 @@ import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.query.compiler.SelectItem;
 import cn.devezhao.rebuild.server.Application;
-import cn.devezhao.rebuild.server.metadata.EntityHelper;
-import cn.devezhao.rebuild.server.service.entity.base.PickListManager;
+import cn.devezhao.rebuild.server.metadata.MetadataHelper;
+import cn.devezhao.rebuild.server.service.base.PickListManager;
 import cn.devezhao.rebuild.server.service.entitymanage.DisplayType;
 import cn.devezhao.rebuild.server.service.entitymanage.EasyMeta;
 
@@ -82,7 +82,7 @@ public class DefaultDataListControl implements DataListControl {
 		// 补充引用字段的 NameField
 		Field[] fields = queryParser.getFieldList();
 		for (int i = 0; i < fields.length; i++) {
-			DisplayType dt = EasyMeta.geDisplayType(fields[i]);
+			DisplayType dt = EasyMeta.getDisplayType(fields[i]);
 			if (dt == DisplayType.REFERENCE) {
 				for (Object o[] : array) {
 					o[i] = readReferenceNamed(o[i]);
@@ -118,7 +118,7 @@ public class DefaultDataListControl implements DataListControl {
 		}
 		
 		ID id = (ID) idVal;
-		Entity entity = EntityHelper.getEntity(id.getEntityCode());
+		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		String sql = String.format("select %s from %s where %s = ?",
 				entity.getNameField().getName(), entity.getName(), entity.getPrimaryField().getName());
 		Object[] named = Application.createQuery(sql).setParameter(1, id).unique();

@@ -42,10 +42,11 @@ import cn.devezhao.rebuild.server.metadata.MetadataHelper;
 public class EasyMeta implements BaseMeta {
 	private static final long serialVersionUID = -6463919098111506968L;
 	
-	private static final Set<String> BUILTIN_ENTITY = new HashSet<>();
-	private static final Set<String> BUILTIN_FIELD = new HashSet<>();
+	public static final Set<String> BUILTIN_ENTITY = new HashSet<>();
+	public static final Set<String> BUILTIN_FIELD = new HashSet<>();
 	private static final Map<String, String[]> SYSENTITY_INFO = new HashMap<>();
 	static {
+		BUILTIN_ENTITY.add("Role");
 		BUILTIN_ENTITY.add("RolePrivileges");
 		BUILTIN_ENTITY.add("RoleMember");
 		BUILTIN_ENTITY.add("MetaEntity");
@@ -237,12 +238,20 @@ public class EasyMeta implements BaseMeta {
 	 * @param field
 	 * @return
 	 */
-	public static DisplayType geDisplayType(Field field) {
+	public static DisplayType getDisplayType(Field field) {
 		Object[] ext = MetadataHelper.getFieldExtmeta(field);
 		if (ext == null) {
 			return null;
 		} else {
 			return (DisplayType) ext[2];
 		}
+	}
+	
+	/**
+	 * @param meta
+	 * @return
+	 */
+	public static String getLabel(BaseMeta meta) {
+		return meta.getDescription();
 	}
 }

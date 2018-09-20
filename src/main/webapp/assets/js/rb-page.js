@@ -1,6 +1,5 @@
-// Init
+// common Init
 $(function(){
-	// Nav
 	
 	let t = $('.rb-scroller');
 	t.perfectScrollbar();
@@ -10,13 +9,17 @@ $(function(){
 		}, 500, 'rb-scroller-update');
 	});
 	
+	// Nav
+	
 	$('.rb-toggle-left-sidebar').click(function(){
 		$('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed');
 	});
 	
-	let nsModal;
+	navsModal = null;
 	$('.nav-settings').click(function(){
-		if (nsModal) nsModal.show();
-		else nsModal = rb.modal(rb.baseUrl + '/settings/nav-settings.htm', '导航设置', 720);
+		if (navsModal) navsModal.show();
+		else navsModal = rb.modal(rb.baseUrl + '/settings/nav-settings.htm', '设置导航菜单', 720);
 	});
+	
+	
 });

@@ -29,6 +29,7 @@ import com.alibaba.fastjson.JSONObject;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
+import cn.devezhao.rebuild.server.metadata.MetadataHelper;
 
 /**
  * 列表查询解析
@@ -59,7 +60,7 @@ public class JSONQueryParser {
 		this.queryElement = queryElement;
 		this.dataListControl = dataListControl;
 		
-		this.entity = EntityHelper.getEntity(queryElement.getString("entity"));
+		this.entity = MetadataHelper.getEntity(queryElement.getString("entity"));
 		
 		JSONArray fieldsNode = queryElement.getJSONArray("fields");
 		for (Object o : fieldsNode) {

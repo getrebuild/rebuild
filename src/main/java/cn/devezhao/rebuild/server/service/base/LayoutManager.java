@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.server.service.entity.base;
+package cn.devezhao.rebuild.server.service.base;
 
 import com.alibaba.fastjson.JSON;
 
@@ -26,7 +26,7 @@ import cn.devezhao.rebuild.server.Application;
  * @author zhaofang123@gmail.com
  * @since 09/15/2018
  */
-public class LayoutConfigManager {
+public class LayoutManager {
 	
 	// 表单
 	public static final String TYPE_FORM = "FORM";

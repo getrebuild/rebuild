@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.web.entity;
+package cn.devezhao.rebuild.web.base;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.rebuild.server.Application;
-import cn.devezhao.rebuild.server.metadata.EntityHelper;
+import cn.devezhao.rebuild.server.metadata.MetadataHelper;
 import cn.devezhao.rebuild.web.commons.BaseControll;
 
 /**
@@ -56,7 +56,7 @@ public class CommonSearch extends BaseControll {
 			return;
 		}
 		
-		Entity e = EntityHelper.getEntity(entity);
+		Entity e = MetadataHelper.getEntity(entity);
 		Field nameField = e.getNameField();
 		if (nameField == null) {
 			writeSuccess(response, ArrayUtils.EMPTY_STRING_ARRAY);

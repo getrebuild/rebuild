@@ -32,6 +32,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.rebuild.server.Application;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
+import cn.devezhao.rebuild.server.metadata.MetadataHelper;
 
 /**
  * 执行 CRUD 方法时做出权限拦截
@@ -70,7 +71,7 @@ public class PrivilegesGuardAndTransactionInterceptor extends TransactionInterce
 			caller = ((Record) idOrRecord).getEditor();
 		} else {
 			recordId = (ID) idOrRecord;
-			entity = EntityHelper.getEntity(recordId.getEntityCode());
+			entity = MetadataHelper.getEntity(recordId.getEntityCode());
 		}
 		
 		if (!EntityHelper.hasPrivilegesField(entity)) {

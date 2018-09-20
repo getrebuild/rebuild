@@ -36,18 +36,57 @@ public class MetadataHelper {
 	}
 	
 	/**
+	 * 获取实体扩展信息
+	 * 
 	 * @param entity
 	 * @return
 	 */
 	public static Object[] getEntityExtmeta(Entity entity) {
-		return ((DynamicMetadataFactory) Application.getMetadataFactory()).getEntityExtmeta(entity.getName());
+		return ((DynamicMetadataFactory) Application.getMetadataFactory())
+				.getEntityExtmeta(entity.getName());
 	}
 	
 	/**
+	 * 获取字段扩展信息
+	 * 
 	 * @param field
 	 * @return
 	 */
 	public static Object[] getFieldExtmeta(Field field) {
-		return ((DynamicMetadataFactory) Application.getMetadataFactory()).getFieldExtmeta(field.getOwnEntity().getName(), field.getName());
+		return ((DynamicMetadataFactory) Application.getMetadataFactory())
+				.getFieldExtmeta(field.getOwnEntity().getName(), field.getName());
+	}
+	
+	/**
+	 * @return
+	 */
+	public static Entity[] getEntities() {
+		return Application.getMetadataFactory().getEntities();
+	}
+	
+	/**
+	 * @param entityName
+	 * @return
+	 */
+	public static Entity getEntity(String entityName) {
+		return Application.getPersistManagerFactory().getMetadataFactory().getEntity(entityName);
+	}
+
+	/**
+	 * @param entityCode
+	 * @return
+	 */
+	public static Entity getEntity(int entityCode) {
+		return Application.getPersistManagerFactory().getMetadataFactory().getEntity(entityCode);
+	}
+	
+	/**
+	 * @param entityName
+	 * @param fieldName
+	 * @return
+	 */
+	public static Field getField(String entityName, String fieldName) {
+		Entity entity = getEntity(entityName);
+		return entity.getField(fieldName);
 	}
 }

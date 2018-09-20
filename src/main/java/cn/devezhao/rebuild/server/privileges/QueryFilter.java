@@ -24,6 +24,7 @@ import cn.devezhao.bizz.security.member.User;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Filter;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
+import cn.devezhao.rebuild.server.metadata.MetadataHelper;
 
 /**
  * 查询过滤器
@@ -91,7 +92,7 @@ public class QueryFilter extends EntityQueryFilter implements Filter {
 	
 	@Override
 	protected String evaluate(int entityCode, StringBuffer filtered) {
-		Entity entity = EntityHelper.getEntity(entityCode);
+		Entity entity = MetadataHelper.getEntity(entityCode);
 		if (!entity.containsField(EntityHelper.owningUser)) {
 			if (LOG.isDebugEnabled()) {
 				LOG.warn("No privilege field supported for QueryFilter! Entity: " + entity.getName());
