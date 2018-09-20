@@ -2,7 +2,7 @@
  Copyright (C) 2013 QIDAPP.com. All rights reserved.
  QIDAPP.com PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
-package cn.devezhao.rebuild.web.entity.datalist;
+package cn.devezhao.rebuild.web.base.entity.datalist;
 
 /**
  * @author Zhao Fangfang

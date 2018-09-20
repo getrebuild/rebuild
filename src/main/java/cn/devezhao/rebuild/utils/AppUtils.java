@@ -18,6 +18,7 @@ package cn.devezhao.rebuild.utils;
 
 import java.io.File;
 import java.nio.file.AccessDeniedException;
+import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -80,6 +81,8 @@ public class AppUtils {
 			return errorMsg;
 		}
 		
+		dump(request.getAttributeNames());
+		
 		Throwable ex = (Throwable) request.getAttribute(ServletUtils.ERROR_EXCEPTION);
 		if (ex == null) {
 			ex = (Throwable) request.getAttribute(ServletUtils.JSP_JSP_EXCEPTION);
@@ -91,12 +94,12 @@ public class AppUtils {
 			ex = ThrowableUtils.getRootCause(ex);
 		}
 		
-		
-		
 		if (ex == null) {
 			Integer statusCode = (Integer) request.getAttribute(ServletUtils.ERROR_STATUS_CODE);
-			if (statusCode != null) {
-				return "系统错误:SC" + statusCode;
+			if (statusCode == 404) {
+				return "访问的页面不存在";
+			} else if (statusCode != null) {
+				return "系统错误 (" + statusCode + ")";
 			} else {
 				return "系统错误";
 			}
@@ -116,5 +119,13 @@ public class AppUtils {
 	 */
 	public static File getFileOfTemp(String fileName) {
 		return new File(FileUtils.getTempDirectory(), fileName);
+	}
+	
+	// for debug
+	static void dump(Enumeration<?> enums) {
+		while (enums.hasMoreElements()) {
+			Object o = enums.nextElement();
+			System.out.println(o);
+		}
 	}
 }

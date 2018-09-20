@@ -33,7 +33,7 @@ import cn.devezhao.rebuild.server.privileges.UserStore;
 import cn.devezhao.rebuild.server.service.CommonService;
 import cn.devezhao.rebuild.server.service.QueryFactory;
 import cn.devezhao.rebuild.server.service.SqlExecutor;
-import cn.devezhao.rebuild.web.commons.CurrentCaller;
+import cn.devezhao.rebuild.web.CurrentCaller;
 
 /**
  * @author zhaofang123@gmail.com

@@ -42,7 +42,7 @@ import cn.devezhao.rebuild.server.metadata.EntityHelper;
 import cn.devezhao.rebuild.server.metadata.MetadataHelper;
 import cn.devezhao.rebuild.server.service.entitymanage.EasyMeta;
 import cn.devezhao.rebuild.server.service.entitymanage.Entity2Schema;
-import cn.devezhao.rebuild.web.commons.BaseControll;
+import cn.devezhao.rebuild.web.BaseControll;
 
 /**
  * 

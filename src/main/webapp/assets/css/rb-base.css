@@ -3766,7 +3766,7 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
 	position: relative;
 	display: block;
 	min-height: 1.428571rem;
-	padding-left: 2.1377rem
+	padding-left: 2rem
 }
 
 .custom-control-inline {
@@ -11814,7 +11814,8 @@ canvas {
 	margin-right: 9px;
 	text-align: center;
 	vertical-align: middle;
-	margin-top: -2px
+	margin-top: -2px;
+	margin-top: -1px;
 }
 
 @media (min-width:768px) {
@@ -12986,7 +12987,7 @@ canvas {
 }
 
 .splash-container {
-	max-width: 501px;
+	max-width: 401px;
 	margin: 50px auto
 }
 
@@ -18866,8 +18867,8 @@ pre code {
 
 .custom-checkbox .custom-control-label:before {
 	content: "";
-	width: 1.59rem;
-	height: 1.59rem;
+	width: 1.51rem;
+	height: 1.51rem;
 	border: 1px solid #ccc;
 	border-radius: 3px;
 	margin: 0 0
@@ -18875,12 +18876,13 @@ pre code {
 
 .custom-checkbox .custom-control-input:checked~.custom-control-label::after {
 	content: "\f26b";
-	font-size: 1.5452rem;
+	font-size: 1.4rem;
 	font-family: "Material-Design-Iconic-Font";
 	margin: 0 0;
 	font-weight: 400;
 	text-align: center;
-	line-height: 1.1
+	line-height: 1.1;
+	margin-left: -1px;
 }
 
 .custom-radio .custom-control-label:before {
@@ -20856,7 +20858,7 @@ select.form-control-xs:not([size]):not([multiple]) {
 
 .rb-error .error-container {
 	text-align: center;
-	margin-top: 100px
+	margin-top: 80px
 }
 
 @media (max-width:767.98px) {

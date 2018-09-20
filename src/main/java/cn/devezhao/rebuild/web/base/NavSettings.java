@@ -34,7 +34,7 @@ import cn.devezhao.rebuild.server.Application;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
 import cn.devezhao.rebuild.server.service.base.LayoutManager;
 import cn.devezhao.rebuild.server.service.base.NavManager;
-import cn.devezhao.rebuild.web.commons.BaseControll;
+import cn.devezhao.rebuild.web.BaseControll;
 
 /**
  * 

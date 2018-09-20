@@ -512,10 +512,12 @@ h5.sortable-box-title {
 	height: 35px;
 }
 
-.nav-settings {
-	display: inline-block;
+.rb-left-sidebar .bottom-widget{padding:3px 20px;margin:0;}
+.bottom-widget > a {
+	line-height: 42px;
 }
-.nav-settings .icon {
-	font-size: 1.35rem;
+.bottom-widget > a > .icon {
+	font-size: 1.846rem;
 	vertical-align: middle;
+	color: #737373;
 }

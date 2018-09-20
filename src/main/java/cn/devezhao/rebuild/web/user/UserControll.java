@@ -29,7 +29,7 @@ import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.rebuild.server.Application;
-import cn.devezhao.rebuild.web.commons.BaseControll;
+import cn.devezhao.rebuild.web.BaseControll;
 
 /**
  * 

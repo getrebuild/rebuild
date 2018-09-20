@@ -40,7 +40,7 @@ import cn.devezhao.persist4j.util.StringHelper;
 import cn.devezhao.rebuild.server.Application;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
 import cn.devezhao.rebuild.server.metadata.MetadataHelper;
-import cn.devezhao.rebuild.web.commons.BaseControll;
+import cn.devezhao.rebuild.web.BaseControll;
 
 /**
  * 

@@ -45,7 +45,7 @@ import cn.devezhao.rebuild.server.metadata.EntityHelper;
 import cn.devezhao.rebuild.server.metadata.MetadataHelper;
 import cn.devezhao.rebuild.server.service.base.DataListManager;
 import cn.devezhao.rebuild.server.service.base.LayoutManager;
-import cn.devezhao.rebuild.web.commons.BaseControll;
+import cn.devezhao.rebuild.web.BaseControll;
 
 /**
  * 数据列表相关配置

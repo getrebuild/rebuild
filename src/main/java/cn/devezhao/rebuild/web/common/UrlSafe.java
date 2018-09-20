@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.web.commons;
+package cn.devezhao.rebuild.web.common;
 
 import java.io.IOException;
 
@@ -24,6 +24,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+
+import cn.devezhao.rebuild.web.BaseControll;
 
 /**
  * 

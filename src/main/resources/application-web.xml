@@ -25,7 +25,7 @@
 	<mvc:interceptors>
 		<mvc:interceptor>
 			<mvc:mapping path="/**" />
-			<bean class="cn.devezhao.rebuild.web.commons.RequestWatchHandler"></bean>
+			<bean class="cn.devezhao.rebuild.web.RequestWatchHandler"></bean>
 		</mvc:interceptor>
 	</mvc:interceptors>
 </beans>

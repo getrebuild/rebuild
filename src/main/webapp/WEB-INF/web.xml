@@ -3,7 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" version="3.1">
 	
-	<display-name>Rebuild-0.1.0</display-name>
+	<display-name>Rebuild</display-name>
 	
 	<filter>
 		<filter-name>characterEncodingFilter</filter-name>
@@ -49,15 +49,6 @@
 		<servlet-class>cn.devezhao.rebuild.server.Startup</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
-	
-	<servlet>
-		<servlet-name>PageForward</servlet-name>
-		<servlet-class>cn.devezhao.rebuild.web.commons.PageForward</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>PageForward</servlet-name>
-		<url-pattern>*.htm</url-pattern>
-	</servlet-mapping>
 	
 	<servlet>
 		<servlet-name>FileUploader</servlet-name>

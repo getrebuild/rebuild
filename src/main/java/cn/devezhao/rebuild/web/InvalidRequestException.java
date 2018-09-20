@@ -14,37 +14,38 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.web.commons;
+package cn.devezhao.rebuild.web;
 
 import cn.devezhao.rebuild.server.RebuildException;
 
 /**
+ * 无效请求。如参数错误等
  * 
  * @author zhaofang123@gmail.com
  * @since 05/19/2018
  */
-public class BadRequestException extends RebuildException {
+public class InvalidRequestException extends RebuildException {
 	private static final long serialVersionUID = 1104144276994648297L;
 
 	private int errCode = 400;
 	
-	public BadRequestException() {
+	public InvalidRequestException() {
 		super();
 	}
 
-	public BadRequestException(String msg, Throwable cause) {
+	public InvalidRequestException(String msg, Throwable cause) {
 		super(msg, cause);
 	}
 
-	public BadRequestException(String msg) {
+	public InvalidRequestException(String msg) {
 		super(msg);
 	}
 
-	public BadRequestException(Throwable cause) {
+	public InvalidRequestException(Throwable cause) {
 		super(cause);
 	}
 	
-	public BadRequestException(int errCode, String msg) {
+	public InvalidRequestException(int errCode, String msg) {
 		super(msg);
 	}
 	

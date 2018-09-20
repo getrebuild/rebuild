@@ -36,7 +36,7 @@
 		</div>
 	</div>
 	<div class="bottom-widget">
-		<a class="nav-settings" href="javascript:;"><i class="icon zmdi zmdi-apps"></i> 导航设置</a>
+		<a class="nav-settings" href="javascript:;" title="导航设置"><i class="icon zmdi zmdi-apps"></i></a>
 	</div>
 </div>
 </div>

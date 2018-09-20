@@ -1,4 +1,20 @@
-package cn.devezhao.rebuild.web.commons;
+/*
+Copyright 2018 DEVEZHAO(zhaofang123@gmail.com)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package cn.devezhao.rebuild.web;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -33,8 +49,11 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
 			Object handler) throws Exception {
-		super.preHandle(request, response, handler);
-		return verfiyPass(request, response);
+		boolean chain = super.preHandle(request, response, handler);
+		if (chain) {
+			return verfiyPass(request, response);
+		}
+		return false;
 	}
 	
 	@Override
@@ -43,8 +62,9 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 			throws Exception {
 		super.afterCompletion(request, response, handler, exception);
 		
-		ID requestUser = Application.getCurrentCaller().get(true);
-		Application.getCurrentCaller().clean();
+		final ID REQUSER = Application.getCurrentCaller().get(true);
+		
+		Application.getCurrentCaller().clear();
 		logProgressTime(request);
 		
 		if (exception != null) {
@@ -56,7 +76,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 			
 			StringBuffer sb = new StringBuffer()
 					.append("\n++ EXECUTE REQUEST ERROR(s) TRACE +++++++++++++++++++++++++++++++++++++++++++++")
-					.append("\nUser      : ").append(requestUser == null ? "-" : requestUser)
+					.append("\nUser      : ").append(REQUSER == null ? "-" : REQUSER)
 					.append("\nHandler   : ").append(request.getRequestURI() + " [ " + handler + " ]")
 					.append("\nIP        : ").append(ServletUtils.getRemoteAddr(request))
 					.append("\nReferer   : ").append(StringUtils.defaultIfEmpty(ServletUtils.getReferer(request), "-"))

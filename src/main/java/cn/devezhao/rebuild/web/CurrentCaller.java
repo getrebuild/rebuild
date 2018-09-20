@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.web.commons;
+package cn.devezhao.rebuild.web;
 
 import cn.devezhao.persist4j.engine.ID;
 
@@ -32,25 +32,26 @@ public class CurrentCaller {
 		CALLER.set(user);
 	}
 	
-	protected void clean() {
+	protected void clear() {
 		CALLER.remove();
 	}
 
 	/**
 	 * @return
+	 * @throws InvalidRequestException
 	 */
-	public ID get() {
+	public ID get() throws InvalidRequestException {
 		return get(false);
 	}
 	
 	/**
 	 * @return
-	 * @throws BadRequestException
+	 * @throws InvalidRequestException
 	 */
-	public ID get(boolean canNull) throws BadRequestException {
+	public ID get(boolean allowNull) throws InvalidRequestException {
 		ID user = CALLER.get();
-		if (user == null && canNull == false) {
-			throw new BadRequestException(403, "无效请求用户");
+		if (user == null && allowNull == false) {
+			throw new InvalidRequestException(403, "无效请求用户");
 		}
 		return user;
 	}

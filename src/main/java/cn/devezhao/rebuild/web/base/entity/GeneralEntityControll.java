@@ -30,7 +30,7 @@ import com.alibaba.fastjson.JSON;
 
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.rebuild.server.service.base.FormManager;
-import cn.devezhao.rebuild.web.commons.BaseControll;
+import cn.devezhao.rebuild.web.BaseControll;
 
 /**
  * 

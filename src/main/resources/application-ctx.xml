@@ -72,7 +72,7 @@
 		<constructor-arg index="0" ref="UserStore" />
 	</bean>
 	
-	<bean class="cn.devezhao.rebuild.web.commons.CurrentCaller" />
+	<bean class="cn.devezhao.rebuild.web.CurrentCaller" />
 
 	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="dataSource" />

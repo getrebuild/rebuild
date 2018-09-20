@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.web.commons;
+package cn.devezhao.rebuild.web;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -29,7 +29,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 
@@ -37,15 +36,14 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.rebuild.server.metadata.MetadataHelper;
-import cn.devezhao.rebuild.server.service.entitymanage.EasyMeta;
-import cn.devezhao.rebuild.utils.AppUtils;
 
 /**
+ * 基础 Controll 类
+ * 
  * @author zhaofang123@gmail.com
  * @since 05/21/2017
  */
-public abstract class BaseControll {
+public abstract class BaseControll extends PageControll {
 	
 	public static final int CODE_OK = 0;
 	public static final int CODE_FAIL = 1000;
@@ -171,41 +169,6 @@ public abstract class BaseControll {
 	
 	/**
 	 * @param req
-	 * @return
-	 */
-	protected ID getRequestUser(HttpServletRequest req) {
-		ID fansId = AppUtils.getRequestUser(req);
-		if (fansId == null) {
-			throw new BadRequestException("无效请求用户");
-		}
-		return fansId;
-	}
-	
-	/**
-	 * @param req
-	 * @param name
-	 * @return
-	 */
-	protected ID getIdParameter(HttpServletRequest req, String name) {
-		String v = req.getParameter(name);
-		return ID.isId(v) ? ID.valueOf(v) : null;
-	}
-	
-	/**
-	 * @param req
-	 * @param name
-	 * @return
-	 */
-	protected ID getIdParameterNotNull(HttpServletRequest req, String name) {
-		String v = req.getParameter(name);
-		if (ID.isId(v)) {
-			return ID.valueOf(v);
-		}
-		throw new BadRequestException("无效ID参数 [" + name + "=" + v + "]");
-	}
-	
-	/**
-	 * @param req
 	 * @param name
 	 * @return
 	 */
@@ -231,7 +194,7 @@ public abstract class BaseControll {
 	protected String getParameterNotNull(HttpServletRequest req, String name) {
 		String v = req.getParameter(name);
 		if (StringUtils.isEmpty(v)) {
-			throw new BadRequestException("无效参数 [" + name + "=" + v + "]");
+			throw new InvalidRequestException("无效参数 [" + name + "=" + v + "]");
 		}
 		return v;
 	}
@@ -261,28 +224,25 @@ public abstract class BaseControll {
 	}
 	
 	/**
-	 * @param page
+	 * @param req
+	 * @param name
 	 * @return
 	 */
-	protected ModelAndView createModelAndView(String page) {
-		return createModelAndView(page, null);
+	protected ID getIdParameter(HttpServletRequest req, String name) {
+		String v = req.getParameter(name);
+		return ID.isId(v) ? ID.valueOf(v) : null;
 	}
 	
 	/**
-	 * @param page
-	 * @param entity
+	 * @param req
+	 * @param name
 	 * @return
 	 */
-	protected ModelAndView createModelAndView(String page, String entity) {
-		ModelAndView mv = new ModelAndView(page);
-		PageForward.setPageAttribute(mv);
-		
-		if (entity != null) {
-			EasyMeta entityMeta = new EasyMeta(MetadataHelper.getEntity(entity));
-			mv.getModel().put("entityName", entityMeta.getName());
-			mv.getModel().put("entityLabel", entityMeta.getLabel());
-			mv.getModel().put("icon", entityMeta.getIcon());
+	protected ID getIdParameterNotNull(HttpServletRequest req, String name) {
+		String v = req.getParameter(name);
+		if (ID.isId(v)) {
+			return ID.valueOf(v);
 		}
-		return mv;
+		throw new InvalidRequestException("无效ID参数 [" + name + "=" + v + "]");
 	}
 }

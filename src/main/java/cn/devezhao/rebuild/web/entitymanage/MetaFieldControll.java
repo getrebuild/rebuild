@@ -46,7 +46,7 @@ import cn.devezhao.rebuild.server.metadata.MetadataHelper;
 import cn.devezhao.rebuild.server.service.entitymanage.DisplayType;
 import cn.devezhao.rebuild.server.service.entitymanage.EasyMeta;
 import cn.devezhao.rebuild.server.service.entitymanage.Field2Schema;
-import cn.devezhao.rebuild.web.commons.BaseControll;
+import cn.devezhao.rebuild.web.BaseControll;
 
 /**
  * 

@@ -3,7 +3,7 @@
 	<div class="container-fluid">
 		<div class="rb-navbar-header">
 			<a class="navbar-brand" href="${baseUrl}/dashboard/home"></a>
-			<a class="rb-toggle-left-sidebar"><span class="icon zmdi zmdi-menu"></span></a>
+			<a class="rb-toggle-left-sidebar" title="展开/收缩菜单"><span class="icon zmdi zmdi-menu"></span></a>
 		</div>
 		<div class="rb-right-navbar">
 			<ul class="nav navbar-nav float-right rb-user-nav">
@@ -22,10 +22,10 @@
 			<div class="page-title"><span><%=request.getParameter("pageTitle")%></span></div>
 			<ul class="nav navbar-nav float-right rb-icons-nav">
 				<li class="nav-item dropdown">
-					<a class="nav-link rb-toggle-right-sidebar" href="${baseUrl}/admin/general.htm"><span class="icon zmdi zmdi-settings"></span></a>
+					<a class="nav-link rb-toggle-right-sidebar" href="${baseUrl}/admin/general.htm" title="系统设置"><span class="icon zmdi zmdi-settings"></span></a>
 				</li>
 				<li class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle" href="#"><span class="icon zmdi zmdi-notifications"></span></a>
+					<a class="nav-link dropdown-toggle" href="${baseUrl}/app/messages" title="消息中心"><span class="icon zmdi zmdi-notifications"></span></a>
 				</li>
 			</ul>
 		</div>

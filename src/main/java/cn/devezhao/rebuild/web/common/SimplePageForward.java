@@ -14,27 +14,33 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.web.dashboard;
+package cn.devezhao.rebuild.web.common;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
-import cn.devezhao.rebuild.web.BaseControll;
+import cn.devezhao.rebuild.server.Startup;
+import cn.devezhao.rebuild.web.PageControll;
 
 /**
- * 
  * @author zhaofang123@gmail.com
- * @since 07/25/2018
+ * @since 09/20/2018
  */
 @Controller
-@RequestMapping("/dashboard")
-public class DashboardControll extends BaseControll {
+public class SimplePageForward extends PageControll {
 
-	@RequestMapping("/home")
-	public ModelAndView pageHome(HttpServletRequest request) {
-		return createModelAndView("/dashboard/home.jsp");
+	@RequestMapping(value="*/*.htm", method = RequestMethod.GET)
+	public ModelAndView page(HttpServletRequest request) {
+		String path = request.getRequestURI().toString();
+		// replace `htm` to `jsp`
+		path = path.substring(0, path.length() - 3) + "jsp";
+		// remove context
+		path = path.substring(Startup.getContextPath().length());
+		
+		return createModelAndView(path);
 	}
 }

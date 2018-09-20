@@ -14,13 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.web.api;
+package cn.devezhao.rebuild.api;
+
+import org.springframework.stereotype.Controller;
 
 /**
  * 
  * @author zhaofang123@gmail.com
  * @since 05/19/2018
  */
-public class ApiControll {
-
+@Controller
+public class ApiGeteway {
 }
