@@ -75,8 +75,8 @@ $(document).ready(function(){
 		
 		let _data = { entity:entity, label:fieldLabel, type:type, comments:comments, refEntity:refEntity };
 		btn.button('loading');
-		$.post('field-new', _data, function(res){
-			if (res.error_code == 0) parent.location.href = entity + '/field/' + res.data;
+		$.post(rb.baseUrl + '/admin/entity/field-new', _data, function(res){
+			if (res.error_code == 0) parent.location.href = rb.baseUrl + '/admin/entity/' + entity + '/field/' + res.data;
 			else{
 				rb.notice(res.error_msg)
 				btn.button('reset')

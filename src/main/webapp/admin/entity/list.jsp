@@ -17,7 +17,7 @@
 		<jsp:param value="实体管理" name="pageTitle"/>
 	</jsp:include>
 	<jsp:include page="/_include/NavLeftAdmin.jsp">
-		<jsp:param value="entity-list" name="activeNav"/>
+		<jsp:param value="entities" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
 		<div class="main-content container-fluid" id="entityList">
@@ -29,7 +29,7 @@
 const EntityList = function(props){
 	const content = props.data.map((d) =>
 		<div class="col-12 col-lg-2 col-sm-4">
-			<a class="card entity" href={d.entityName + "/base"}>
+			<a class="card entity" href={"entity/" + d.entityName + "/base"}>
 				<div class="card-body">
 					<div class="float-left"><i class={"icon zmdi zmdi-" + d.icon}></i></div>
 					<div class="float-left">
@@ -45,14 +45,14 @@ const EntityList = function(props){
 };
 var newEntityModal = null
 $(document).ready(function(){
-	$.get('list-entity', function(res){
+	$.get(rb.baseUrl + '/admin/entity/entity-list', function(res){
 		let _data = res.data;
 		_data.push({ entityName:'$NEW$', entityLabel:'新建', comments:'新建一个新实体', icon:'plus' });
 		ReactDOM.render(<EntityList data={_data} />, $('#entityList')[0]);
 
-		$('.entity[href="$NEW$/base"]').click(function(){
+		$('.entity[href="entity/$NEW$/base"]').click(function(){
 			if (newEntityModal) newEntityModal.show()
-			else newEntityModal = rb.modal('entity-new.htm', '新建实体')
+			else newEntityModal = rb.modal(rb.baseUrl + '/admin/page/entity/entity-new', '新建实体')
 			return false;
 		});
 	});

@@ -23,10 +23,12 @@ class RbModal extends React.Component {
 		)
 	}
 	componentDidMount() {
-	    if (this.props.children) this.setState({ inLoad: false })
+	    // if (this.props.children) this.setState({ inLoad: false })
     }
     loaded() {
-        if (!!!this.state.url) return
+        if (!!!this.state.url) {
+            return
+        }
         let that = this;
         $setTimeout(function(){
             let iframe = $(that.refs['rbmodal.iframe'])
@@ -40,7 +42,7 @@ class RbModal extends React.Component {
 	show(state, callback) {
 	    if (!!state) state = { ...state, isDestroy: false }
 	    else state = { isDestroy: false }
-	    let that = this;
+	    let that = this
 	    this.setState(state, function(){
             $(that.refs['rbmodal']).modal({ show: true, backdrop: 'static' })
             typeof callback == 'function' && callback(that)
@@ -49,7 +51,9 @@ class RbModal extends React.Component {
     hide(){
         let root = $(this.refs['rbmodal']);
         root.modal('hide')
-        this.setState({ isDestroy: true, inLoad: true  }, function(){
+        let d = true
+        if (this.props.destroyOnHide == false) d = false
+        this.setState({ isDestroy: d, inLoad: d  }, function(){
         })
     }
 }
@@ -89,23 +93,34 @@ class RbAlter extends React.Component {
 
 class RbNotice extends React.Component {
     constructor(props) {
-       super(props);
+       super(props)
+       this.state = { animatedClass: 'slideInDown' }
     }
     render() {
-        return (
-            <div className={'rbnotice animated fadeIn ' + (this.props.type || 'warning')} ref="rbnotice">
-                {this.props.message}
-            </div>
-        )
+        let icon = this.props.type == 'success' ? 'check' : 'info-outline'
+        icon = this.props.type == 'danger' ? 'close-circle-o' : icon
+        let content = !!this.props.htmlMessage ? <div className="message" dangerouslySetInnerHTML={{ __html : this.props.htmlMessage }}></div> : <div className="message">{this.props.message}</div>
+        return (<div ref="rbnotice" className={'rbnotice animated faster ' + this.state.animatedClass}>
+            <div className={'alert alert-dismissible alert-' + (this.props.type || 'light')}>
+                <button className="close" type="button" onClick={()=>this.close()}><span className="zmdi zmdi-close"></span></button>
+                <div className="icon"><span className={'zmdi zmdi-' + icon}></span></div>
+                {content}
+        </div></div>)
     }
     componentDidMount() {
-        if (this.props.autoClose == 'false');
-        else{
-            let that = this;
+        if (this.props.closeAuto == false) return
+        let that = this
+        setTimeout(function(){
+            that.close()
+        }, that.props.timeout || 3000)
+    }
+    close() {
+        let that = this
+        this.setState({ animatedClass: 'fadeOut' }, function(){
             setTimeout(function(){
                 $(that.refs['rbnotice']).parent().remove();
-            }, this.props.timeout || 3000)
-        }
+            }, 1000)
+        })
     }
 }
 
@@ -117,22 +132,26 @@ function RbSpinner(props) {
     </div>
 }
 
+let renderRbcompTimes = 1;
 const renderRbcomp = function(jsx, target) {
-    target = target || ('react-comps-' + new Date().getTime());
+    target = target || ('react-comps-' + new Date().getTime()) + '-' + renderRbcompTimes++;
     let container = $('#' + target);
     if (container.length == 0) container = $('<div id="' + target + '"></div>').appendTo(document.body);
     return ReactDOM.render(jsx, container[0]);
 };
 
 var rb = rb || {}
-rb.notice = function(message, type, timeout){
-    renderRbcomp(<RbNotice message={message} type={type} timeout={timeout} />)
+rb.notice = function(message, type, exts){
+    exts = exts || {}
+    if (exts.html == true) return renderRbcomp(<RbNotice htmlMessage={message} type={type} timeout={exts.timeout} />)
+    else renderRbcomp(<RbNotice message={message} type={type} timeout={exts.timeout} />)
 }
 rb.alter = function(message, title){
     renderRbcomp(<RbAlter message={message} title={title} />)
 }
-rb.modal = function(url, title, width) {
-    const comp = renderRbcomp(<RbModal url={url} title={title} width={width} />)
+rb.modal = function(url, title, exts) {
+    exts = exts || {}
+    const comp = renderRbcomp(<RbModal url={url} title={title} width={exts.width} destroyOnHide={exts.destroyOnHide === false ? false : true } />)
     comp.show()
     return comp
 }

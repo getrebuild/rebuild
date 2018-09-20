@@ -26,7 +26,6 @@ $(document).ready(function(){
 			call($(this).data('icon'))
 		});
 	});
-	//parent.iconModal && parent.iconModal.loaded()
 });
 </script>
 </body>

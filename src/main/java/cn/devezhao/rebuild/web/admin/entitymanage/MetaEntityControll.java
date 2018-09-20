@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.web.entitymanage;
+package cn.devezhao.rebuild.web.admin.entitymanage;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -50,22 +50,22 @@ import cn.devezhao.rebuild.web.BaseControll;
  * @since 08/03/2018
  */
 @Controller
-@RequestMapping("/admin/entity/")
+@RequestMapping("/admin/")
 public class MetaEntityControll extends BaseControll {
 	
-	@RequestMapping("list")
+	@RequestMapping("entities")
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
 		return createModelAndView("/admin/entity/list.jsp");
 	}
 	
-	@RequestMapping("{entity}/base")
+	@RequestMapping("entity/{entity}/base")
 	public ModelAndView pageEntityBase(@PathVariable String entity, HttpServletRequest request) throws IOException {
 		ModelAndView mv = createModelAndView("/admin/entity/entity-edit.jsp");
 		setEntityBase(mv, entity);
 		return mv;
 	}
 
-	@RequestMapping("list-entity")
+	@RequestMapping("entity/entity-list")
 	public void listEntity(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		List<Map<String, Object>> ret = new ArrayList<>();
 		for (Entity entity : Application.getMetadataFactory().getEntities()) {
@@ -83,7 +83,7 @@ public class MetaEntityControll extends BaseControll {
 		writeSuccess(response, ret);
 	}
 	
-	@RequestMapping("entity-new")
+	@RequestMapping("entity/entity-new")
 	public void entityNew(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		String label = getParameterNotNull(request, "label");
@@ -99,7 +99,7 @@ public class MetaEntityControll extends BaseControll {
 		}
 	}
 	
-	@RequestMapping("entity-update")
+	@RequestMapping("entity/entity-update")
 	public void entityUpdate(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		JSON formJson = ServletUtils.getRequestJson(request);

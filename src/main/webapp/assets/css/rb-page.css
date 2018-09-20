@@ -308,31 +308,18 @@ a {
 
 .rbnotice {
 	position: absolute;
-	box-shadow: 0 0 4px rgba(0, 0, 0, .2);
 	width: 360px;
-	background-color: #fff;
-	color: #333;
 	top: 6px;
 	left: 50%;
 	margin-left: -180px;
-	font-size: 1rem;
-	text-align: center;
-	padding: 18px 12px;
 	z-index: 1050;
 }
 
-.rbnotice.warning {
-	background-color: #fbbc05;
-	color: #fff;
-}
-
-.rbnotice.error {
-	background-color: #ea4335;
-	color: #fff;
+.rbnotice a {
+	color: #fff
 }
 
 .modal-warpper .rbnotice {
-	
 }
 
 .ui-mprogress .bar-bg, .ui-mprogress .buffer-bg {

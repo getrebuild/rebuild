@@ -11815,7 +11815,7 @@ canvas {
 	text-align: center;
 	vertical-align: middle;
 	margin-top: -2px;
-	margin-top: -1px;
+	margin-top: -2px;
 }
 
 @media (min-width:768px) {
@@ -18882,7 +18882,6 @@ pre code {
 	font-weight: 400;
 	text-align: center;
 	line-height: 1.1;
-	margin-left: -1px;
 }
 
 .custom-radio .custom-control-label:before {
@@ -20557,7 +20556,7 @@ address {
 }
 
 .page-link {
-	font-size: 1.077rem;
+	font-size: 1rem;
 	line-height: 14px;
 	font-weight: 400;
 	padding: .7692rem .9231rem;

@@ -152,7 +152,7 @@ $(document).ready(function(){
 			if (!!item.value) navs.push(item)
 		})
 		console.log(JSON.stringify(navs))
-		if (navs.length == 0) { rb.notice('请至少配置一个菜单项'); return }
+		if (navs.length == 0) { rb.notice('请至少设置一个菜单项'); return }
 		
 		let btn = $(this).button('loading')
 		$.post(rb.baseUrl + '/app/common/nav-settings?cfgid=' + cfgid, JSON.stringify(navs), function(res){

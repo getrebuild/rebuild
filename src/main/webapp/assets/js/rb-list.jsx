@@ -4,7 +4,7 @@ class RbList extends React.Component {
         super(props)
         let fields = props.config.fields
         props.config.fields = null
-        this.state = { ...props, fields: fields, rowData: [], noData: false, checkedAll: false, pageNo: 1, pageSize: 4 }
+        this.state = { ...props, fields: fields, rowData: [], noData: false, checkedAll: false, pageNo: 1, pageSize: 5 }
         
         this.toggleAllRow = this.toggleAllRow.bind(this)
         this.setPageNo = this.setPageNo.bind(this)
@@ -15,6 +15,7 @@ class RbList extends React.Component {
     }
     render() {
         let that = this;
+        const lastIndex = this.state.fields.length;
         return (
         <div>
             <div className="row rb-datatable-body">
@@ -37,13 +38,13 @@ class RbList extends React.Component {
                     </thead>
                     <tbody>
                         {this.state.rowData.map((item, index) => {
-                            let lastId = item[this.state.fields.length];
-                            return (<tr data-id={lastId[0]} onClick={this.clickRow.bind(this, index, false)}>
+                            let lastGhost = item[lastIndex];
+                            return (<tr  className={lastGhost[1] && 'table-active'} data-id={lastGhost[0]} onClick={this.clickRow.bind(this, index, false)}>
                                 <td className="column-checkbox">
-                                    <div><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={lastId[1]} onClick={this.clickRow.bind(this, index, true)} /><span className="custom-control-label"></span></label></div>
+                                    <div><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={lastGhost[1]} onClick={this.clickRow.bind(this, index, true)} /><span className="custom-control-label"></span></label></div>
                                 </td>
                                 {item.map((cell, index) => {
-                                    return this.__renderCell(cell, index)
+                                    return that.__renderCell(cell, index)
                                 })}
                                 <td className="column-empty"></td>
                             </tr>)
@@ -76,9 +77,19 @@ class RbList extends React.Component {
         this.fetchList()
     }
     componentDidUpdate() {
+        let that = this
+        let selectedRows = []
+        this.state.rowData.forEach((item) => {
+            let lastGhost = item[that.state.fields.length];
+            if (lastGhost[1] == true) selectedRows.push(lastGhost[0])
+        })
+        $('.J_del, .J_view').attr('disabled', true)
+        if (selectedRows.length > 0) $('.J_del').attr('disabled', false)
+        if (selectedRows.length == 1) $('.J_view').attr('disabled', false)
+        this.__selectedRows = selectedRows
     }
     
-    fetchList() {
+    fetchList(filter) {
         let fields = [];
         let field_sort = null;
         this.state.fields.forEach(function(item){
@@ -91,6 +102,7 @@ class RbList extends React.Component {
             pageNo: this.state.pageNo,
             pageSize: this.state.pageSize,
             sort: field_sort,
+            filter: filter,
             reload: true,
         };
         let that = this;
@@ -197,19 +209,15 @@ class RbList extends React.Component {
     // 外部接口
     
     getSelectedId() {
-        let ids = []
-        let lastIndex = this.state.rowData[0].length - 1;
-        for (let i = 0; i < this.state.rowData.length; i++) {
-            let last = this.state.rowData[i][lastIndex];
-            if (last[1] == true) ids.push(last[0]);
-        }
-        return ids;
+        return this.__selectedRows
     }
     
-    search() {
+    search(filter) {
+        this.fetchList(filter)
     }
     
     reload() {
+        this.fetchList()
     }
     
     // 配置相关
@@ -239,15 +247,15 @@ class RbList extends React.Component {
 class RbListPagination extends React.Component {
     constructor(props) {
         super(props)
-        this.prevPage = this.prevPage.bind(this)
-        this.nextPage = this.nextPage.bind(this)
+        
+        this.prev = this.prev.bind(this)
+        this.next = this.next.bind(this)
     }
     
     render() {
-        this.__pageTotal = Math.ceil(this.props.rowTotal / this.props.pageSize);
-        if (this.__pageTotal <= 0) this.__pageTotal = 1;
-        let pageTotalShow = [];
-        for (let i = 1; i <= this.__pageTotal; i++) pageTotalShow.push(i)
+        this.pageTotal = Math.ceil(this.props.rowTotal / this.props.pageSize)
+        if (this.pageTotal <= 0) this.__pageTotal = 1
+        const pages = calcPages(this.pageTotal, this.props.pageNo)
         
         return (
         <div className="row rb-datatable-footer">
@@ -257,11 +265,12 @@ class RbListPagination extends React.Component {
             <div className="col-sm-7">
                 <div className="dataTables_paginate paging_simple_numbers">
                     <ul className="pagination">
-                        <li className="paginate_button page-item previous disabled"><a href="javascript:;" className="page-link" onClick={this.prevPage}><span className="icon zmdi zmdi-chevron-left"></span></a></li>
-                        {pageTotalShow.map((item) => {
-                            return <li className={'paginate_button page-item ' + (this.props.pageNo == item && 'active')}><a href="javascript:;" className="page-link" onClick={this.gotoPage.bind(this, item)}>{item}</a></li>
+                        {this.props.pageNo > 1 && <li className="paginate_button page-item"><a className="page-link" onClick={this.prev}><span className="icon zmdi zmdi-chevron-left"></span></a></li>}
+                        {pages.map((item) => {
+                            if (item == '.') return <li className="paginate_button page-item disabled"><a className="page-link">...</a></li>
+                            else return <li className={'paginate_button page-item ' + (this.props.pageNo == item && 'active')}><a href="javascript:;" className="page-link" onClick={this.goto.bind(this, item)}>{item}</a></li>
                         })}
-                        <li className="paginate_button page-item next"><a href="javascript:;" className="page-link" onClick={this.nextPage}><span className="icon zmdi zmdi-chevron-right"></span></a></li>
+                        {this.props.pageNo != this.pageTotal && <li className="paginate_button page-item"><a className="page-link" onClick={this.next}><span className="icon zmdi zmdi-chevron-right"></span></a></li>}
                     </ul>
                 </div>
             </div>
@@ -269,18 +278,18 @@ class RbListPagination extends React.Component {
         )
     }
     
-    prevPage() {
-        if (this.props.pageNo == 1) return;
+    prev() {
+        if (this.props.pageNo == 1) return
         else this.props.$$$parent.setPageNo(this.props.pageNo - 1)
     }
     
-    nextPage() {
-        if (this.props.pageNo == __pageTotal) return;
+    next() {
+        if (this.props.pageNo == this.pageTotal) return
         else this.props.$$$parent.setPageNo(this.props.pageNo + 1)
     }
     
-    gotoPage(pageNo) {
-        if (this.props.pageNo == pageNo) return;
+    goto(pageNo) {
+        if (this.props.pageNo == pageNo) return
         else this.props.$$$parent.setPageNo(pageNo)
     }
 }

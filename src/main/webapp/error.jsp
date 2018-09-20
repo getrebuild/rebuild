@@ -26,11 +26,22 @@ errorCode = errorCode == null ? 400 : errorCode;
 				<div class="error-number"><%=errorCode%></div>
 				<div class="error-description"><%=errorMsg%></div>
 				<div class="error-goback-button">
-					<a class="btn btn-xl btn-primary" href="${baseUrl}/dashboard/home">返回首页</a>
+					<a class="btn btn-xl btn-primary hide J_home" href="${baseUrl}/dashboard/home">返回首页</a>
+					<a class="btn btn-xl btn-primary hide J_reload" href="javascript:;" onclick="_reload()">刷新</a>
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
+<script src="${baseUrl}/assets/lib/jquery.min.js"></script>
+<script type="text/javascript">
+(function(){
+	if (self != top) $('.J_reload').removeClass('hide')
+	else $('.J_home').removeClass('hide')
+})()
+_reload = function(){
+	location.reload(true)
+}
+</script>
 </body>
 </html>

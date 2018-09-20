@@ -14,33 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.web.common;
-
-import javax.servlet.http.HttpServletRequest;
+package cn.devezhao.rebuild.web.admin;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
-import cn.devezhao.rebuild.server.Startup;
-import cn.devezhao.rebuild.web.PageControll;
+import cn.devezhao.rebuild.web.BaseControll;
 
 /**
+ * 
  * @author zhaofang123@gmail.com
  * @since 09/20/2018
  */
 @Controller
-public class SimplePageForward extends PageControll {
+@RequestMapping("/admin/")
+public class SystemSettings extends BaseControll {
 
-	@RequestMapping(value={ "/page/**/*", "/admin/page/**/*" }, method = RequestMethod.GET)
-	public ModelAndView page(HttpServletRequest request) {
-		String path = request.getRequestURI().toString();
-		// remove `context path` and `/page/`
-		path = path.substring(Startup.getContextPath().length());
-		path = path.replace("/page/", "/");
-		path = path + ".jsp";
-		
-		return createModelAndView(path);
+	@RequestMapping("systems")
+	public ModelAndView pageSettings() {
+		return createModelAndView("/admin/system-settings.jsp");
 	}
 }

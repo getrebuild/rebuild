@@ -64,10 +64,10 @@
 <script src="${baseUrl}/assets/js/rb-list.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script type="text/babel">
-var rbFormModal, csModal
+var rbFormModal, csModal, rbList
 $(document).ready(function(){
 	const listConfig = JSON.parse('${DataListConfig}')
-	const rbList = renderRbcomp(<RbList config={listConfig} />, 'react-list')
+	rbList = renderRbcomp(<RbList config={listConfig} />, 'react-list')
 	
 	$('.J_new').click(function(){
 		if (rbFormModal) rbFormModal.show()
@@ -76,7 +76,7 @@ $(document).ready(function(){
 
 	$('.J_column-set').click(function(){
 		if (csModal) csModal.show()
-		else csModal = rb.modal('${baseUrl}/general-entity/columns-settings.htm?entity=${entityName}', '设置列显示')
+		else csModal = rb.modal('${baseUrl}/page/general-entity/columns-settings?entity=${entityName}', '设置列显示')
 	});
 });
 </script>

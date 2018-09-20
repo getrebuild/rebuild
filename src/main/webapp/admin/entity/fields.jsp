@@ -11,7 +11,7 @@
 		<jsp:param value="实体管理" name="pageTitle"/>
 	</jsp:include>
 	<jsp:include page="/_include/NavLeftAdmin.jsp">
-		<jsp:param value="entity-list" name="activeNav"/>
+		<jsp:param value="entities" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
 		<aside class="page-aside">
@@ -111,7 +111,7 @@ $(document).ready(function(){
 	
 	$('.J_new-field').click(function(){
 		if (newFieldModal) newFieldModal.show()
-		else newFieldModal = rb.modal('${baseUrl}/admin/entity/field-new.htm?entity=${entityName}', '新建字段')
+		else newFieldModal = rb.modal('${baseUrl}/admin/page/entity/field-new?entity=${entityName}', '新建字段')
 	})
 });
 </script>

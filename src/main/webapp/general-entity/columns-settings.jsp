@@ -58,6 +58,7 @@ $(document).ready(function(){
 			let _this = $(this);
 			config.push({ field: _this.data('field') });
 		});
+		if (config.length == 0){ rb.notice('请至少设置一个显示列'); return }
 		
 		let btn = $(this).button('loading')
 		$.post(rb.baseUrl + '/app/' + entity + '/list-columns?cfgid=' + cfgid, JSON.stringify(config), function(res){

@@ -3,21 +3,20 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>通用配置</title>
+<title>系统配置</title>
 <style type="text/css">
 </style>
 </head>
 <body>
 <div class="rb-wrapper rb-collapsible-sidebar">
 	<jsp:include page="/_include/NavTop.jsp">
-		<jsp:param value="通用设置" name="pageTitle"/>
+		<jsp:param value="系统配置" name="pageTitle"/>
 	</jsp:include>
 	<jsp:include page="/_include/NavLeftAdmin.jsp">
-		<jsp:param value="general" name="activeNav"/>
+		<jsp:param value="systems" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
 		<div class="main-content container-fluid">
-			首页可配置仪表盘
 		</div>
 	</div>
 </div>

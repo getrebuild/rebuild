@@ -23,7 +23,7 @@
 		<jsp:param value="实体管理" name="pageTitle"/>
 	</jsp:include>
 	<jsp:include page="/_include/NavLeftAdmin.jsp">
-		<jsp:param value="entity-list" name="activeNav"/>
+		<jsp:param value="entities" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
 		<aside class="page-aside">

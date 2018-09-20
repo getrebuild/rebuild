@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cn.devezhao.rebuild.web.entitymanage;
+package cn.devezhao.rebuild.web.admin.entitymanage;
 
 import java.io.IOException;
 

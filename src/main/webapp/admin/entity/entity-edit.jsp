@@ -16,7 +16,7 @@ a#entityIcon:hover{opacity:0.8}
 		<jsp:param value="实体管理" name="pageTitle"/>
 	</jsp:include>
 	<jsp:include page="/_include/NavLeftAdmin.jsp">
-		<jsp:param value="entity-list" name="activeNav"/>
+		<jsp:param value="entities" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
 		<aside class="page-aside">
@@ -48,7 +48,7 @@ a#entityIcon:hover{opacity:0.8}
 						<div class="form-group row">
 							<label class="col-12 col-sm-2 col-form-label text-sm-right">图标</label>
 							<div class="col-12 col-sm-8 col-lg-4">
-								<a id="entityIcon" data-o="${icon}" title="更换图标" data-url="${baseUrl}/admin/search-icon.htm"><i class="icon zmdi zmdi-${icon}"></i></a>
+								<a id="entityIcon" data-o="${icon}" title="更换图标"><i class="icon zmdi zmdi-${icon}"></i></a>
 							</div>
 						</div>
 						<div class="form-group row">
@@ -92,15 +92,12 @@ a#entityIcon:hover{opacity:0.8}
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/lib/select2.min.js"></script>
-<script type="text/babel">
-const rbModal = renderRbcomp(<RbModal title="选择图标" target="#entityIcon" />);
-</script>
 <script type="text/javascript">
+var iconModal = null;
 icon_call = function(icon){
 	$('#entityIcon').attr('value', icon)
 			.find('i').attr('class', 'icon zmdi zmdi-' + icon);
-	rbModal.hide();
+	iconModal.hide();
 };
 $(document).ready(function(){
 	const metaId = '${entityMetaId}';
@@ -129,6 +126,11 @@ $(document).ready(function(){
 		btn.next().show();
 		btn.remove();
 	}
+	
+	$('#entityIcon').click(function(){
+		if (iconModal) iconModal.show()
+		else iconModal = rb.modal(rb.baseUrl + '/page/common/search-icon', '选择图标', { destroyOnHide:false })
+	})
 	
 	$.get(rb.baseUrl + '/admin/entity/list-field?entity=${entityName}', function(d){
 		let results = d.data.map((item) => {

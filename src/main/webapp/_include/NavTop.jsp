@@ -22,7 +22,7 @@
 			<div class="page-title"><span><%=request.getParameter("pageTitle")%></span></div>
 			<ul class="nav navbar-nav float-right rb-icons-nav">
 				<li class="nav-item dropdown">
-					<a class="nav-link rb-toggle-right-sidebar" href="${baseUrl}/admin/general.htm" title="系统设置"><span class="icon zmdi zmdi-settings"></span></a>
+					<a class="nav-link rb-toggle-right-sidebar" href="${baseUrl}/admin/systems" title="系统设置"><span class="icon zmdi zmdi-settings"></span></a>
 				</li>
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle" href="${baseUrl}/app/messages" title="消息中心"><span class="icon zmdi zmdi-notifications"></span></a>

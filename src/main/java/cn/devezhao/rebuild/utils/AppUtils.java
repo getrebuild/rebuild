@@ -81,8 +81,6 @@ public class AppUtils {
 			return errorMsg;
 		}
 		
-		dump(request.getAttributeNames());
-		
 		Throwable ex = (Throwable) request.getAttribute(ServletUtils.ERROR_EXCEPTION);
 		if (ex == null) {
 			ex = (Throwable) request.getAttribute(ServletUtils.JSP_JSP_EXCEPTION);
@@ -110,7 +108,12 @@ public class AppUtils {
 			}
 			return "权限不足";
 		}
-		return ex.getClass().getSimpleName() + ":" + ex.getLocalizedMessage();
+		
+		if (isDevmode()) {
+			return ex.getClass().getSimpleName() + " : " + ex.getLocalizedMessage();
+		} else {
+			return ex.getLocalizedMessage();
+		}
 	}
 	
 	/**
@@ -119,6 +122,15 @@ public class AppUtils {
 	 */
 	public static File getFileOfTemp(String fileName) {
 		return new File(FileUtils.getTempDirectory(), fileName);
+	}
+	
+	/**
+	 * 开发模式?
+	 * 
+	 * @return
+	 */
+	public static boolean isDevmode() {
+		return true;
 	}
 	
 	// for debug
