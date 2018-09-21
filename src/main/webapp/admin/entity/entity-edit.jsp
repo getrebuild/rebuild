@@ -11,7 +11,7 @@ a#entityIcon:hover{opacity:0.8}
 </style>
 </head>
 <body>
-<div class="rb-wrapper rb-collapsible-sidebar rb-fixed-sidebar rb-aside">
+<div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside">
 	<jsp:include page="/_include/NavTop.jsp">
 		<jsp:param value="实体管理" name="pageTitle"/>
 	</jsp:include>
@@ -20,10 +20,11 @@ a#entityIcon:hover{opacity:0.8}
 	</jsp:include>
 	<div class="rb-content">
 		<aside class="page-aside">
-			<div class="rb-scroller">
+			<div class="rb-scroller-aside rb-scroller">
 				<div class="aside-content">
 					<div class="content">
 						<div class="aside-header">
+							<button class="navbar-toggle collapsed" type="button"><span class="icon zmdi zmdi-caret-down"></span></button>
 							<span class="title">${entityLabel}</span>
 							<p class="description">${comments}</p>
 						</div>

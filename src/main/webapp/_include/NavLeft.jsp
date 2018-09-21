@@ -1,14 +1,15 @@
-<%@page import="cn.devezhao.commons.CodecUtils"%>
-<%@page import="org.apache.commons.lang.StringUtils"%>
-<%@page import="cn.devezhao.rebuild.server.Startup"%>
-<%@page import="cn.devezhao.rebuild.utils.AppUtils"%>
-<%@page import="com.alibaba.fastjson.JSONObject"%>
-<%@page import="com.alibaba.fastjson.JSONArray"%>
-<%@page import="cn.devezhao.rebuild.server.service.base.NavManager"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="cn.devezhao.commons.CodecUtils"%>
+<%@ page import="org.apache.commons.lang.StringUtils"%>
+<%@ page import="cn.devezhao.rebuild.server.Startup"%>
+<%@ page import="cn.devezhao.rebuild.utils.AppUtils"%>
+<%@ page import="com.alibaba.fastjson.JSONObject"%>
+<%@ page import="com.alibaba.fastjson.JSONArray"%>
+<%@ page import="cn.devezhao.rebuild.server.service.base.NavManager"%>
 <% final String activeNav = request.getParameter("activeNav"); %>
 <div class="rb-left-sidebar">
 <div class="left-sidebar-wrapper">
+	<a class="left-sidebar-toggle">MIN</a>
 	<div class="left-sidebar-spacer">
 		<div class="left-sidebar-scroll rb-scroller">
 			<div class="left-sidebar-content">

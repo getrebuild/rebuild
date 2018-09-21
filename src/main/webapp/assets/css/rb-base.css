@@ -12286,7 +12286,7 @@ canvas {
 }
 
 @media (max-width:767.98px) {
-	.rb-offcanvas-menu .rb-left-sidebar .progress-widget {
+	.rb-offcanvas-menu .rb-left-sidebar .bottom-widget {
 		display: block
 	}
 }
@@ -12337,7 +12337,7 @@ canvas {
 }
 
 @media (max-width:767.98px) {
-	.rb-left-sidebar .progress-widget {
+	.rb-left-sidebar .bottom-widget {
 		display: none
 	}
 }
@@ -12737,6 +12737,9 @@ canvas {
 	padding-bottom: 61px;
 	color: #404040
 }
+.rb-collapsible-sidebar-collapsed .page-aside {
+	left: 60px;
+}
 
 .no-border .page-aside {
 	border-width: 0
@@ -12761,7 +12764,7 @@ canvas {
 		position: relative;
 		margin-top: 0;
 		padding-bottom: 0;
-		left: 0;
+		left: 0 !important;
 		border-bottom: 2px solid #f2f2f2
 	}
 }

@@ -43,7 +43,7 @@ public class GeneralEntityControll extends BaseControll {
 	
 	@RequestMapping("{entity}/{id}")
 	public ModelAndView pageView(@PathVariable String entity, @PathVariable String id, HttpServletRequest request) throws IOException {
-		ModelAndView mv = createModelAndView("/general-entity/entity-view.jsp", entity);
+		ModelAndView mv = createModelAndView("/general-entity/record-view.jsp", entity);
 		JSON formConfig = FormManager.getFormLayout(entity, getRequestUser(request));
 		mv.getModel().put("FormConfig", formConfig);
 		return mv;

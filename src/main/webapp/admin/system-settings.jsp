@@ -8,7 +8,7 @@
 </style>
 </head>
 <body>
-<div class="rb-wrapper rb-collapsible-sidebar">
+<div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo">
 	<jsp:include page="/_include/NavTop.jsp">
 		<jsp:param value="系统配置" name="pageTitle"/>
 	</jsp:include>

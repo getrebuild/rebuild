@@ -2,6 +2,7 @@
 <% final String activeNav = request.getParameter("activeNav"); %>
 <div class="rb-left-sidebar">
 <div class="left-sidebar-wrapper">
+	<a class="left-sidebar-toggle">MIN</a>
 	<div class="left-sidebar-spacer">
 		<div class="left-sidebar-scroll rb-scroller">
 			<div class="left-sidebar-content">

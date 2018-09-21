@@ -17,7 +17,6 @@
 .input-group-prepend .input-group-text{padding:0;width:37px;text-align:center;display:inline-block;overflow:hidden;padding-top:9px;background-color:#fff}
 .input-group-prepend .input-group-text:hover{background-color:#eee;cursor:pointer;}
 .input-group-prepend .input-group-text i.zmdi{font-size:1.5rem;}
-
 </style>
 </head>
 <body class="dialog">

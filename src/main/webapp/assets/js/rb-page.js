@@ -1,6 +1,5 @@
 // common Init
 $(function(){
-	
 	let t = $('.rb-scroller');
 	t.perfectScrollbar();
 	$(window).resize(function(){
@@ -9,20 +8,44 @@ $(function(){
 		}, 500, 'rb-scroller-update');
 	});
 	
-	// Nav
+	if ($('body.dialog').length == 0){
+		__initNavs()
+	}
 	
+	// animate class
+	$setTimeout(function(){
+		$(document.body).addClass('rb-animate')
+	}, 1000)
+});
+
+const __initNavs = function(){
+	// Nav
 	$('.rb-toggle-left-sidebar').click(function(){
-		$('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed');
+		let s = $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed');
+		$.cookie('rb-sidebar-collapsed', s.hasClass('rb-collapsible-sidebar-collapsed'), { expires:90 })
 	});
+	if ($.cookie('rb-sidebar-collapsed') == 'true') $('.rb-collapsible-sidebar').addClass('rb-collapsible-sidebar-collapsed');
+	
+	$('.left-sidebar-toggle').click(function(){
+		$('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
+		$('.left-sidebar-spacer').toggleClass('open')
+	}).text($('.rb-right-navbar .page-title').text())
+	
+	// ASide
+	let aside = $('.page-aside');
+	if (aside.length > 0) {
+		$('.page-aside .aside-header').click(function(){
+			$(this).toggleClass('collapsed')
+			$('.page-aside .aside-nav').toggleClass('show')
+		})
+	}
 	
 	navsModal = null;
 	$('.nav-settings').click(function(){
 		if (navsModal) navsModal.show();
 		else navsModal = rb.modal(rb.baseUrl + '/page/settings/nav-settings', '设置导航菜单', 720);
 	});
-	
-	
-});
+}
 
 // 打开视图
 const recordView = function(id){

@@ -11,10 +11,9 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-base.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-page.css">
 <script>
-__baseUrl='${baseUrl}'
-rb = rb = {};
-rb.baseUrl = '${baseUrl}';
-rb.storageUrl = 'http://rb-cdn.errorpage.cn/';
+var rb = rb = {}
+rb.baseUrl = '${baseUrl}'
+rb.storageUrl = 'http://rb-cdn.errorpage.cn/'
 </script>
 <!--[if IE]>
 <script src="https://as.alipayobjects.com/g/component/??es6-shim/0.35.1/es6-sham.min.js,es6-shim/0.35.1/es6-shim.min.js"></script>
