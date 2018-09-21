@@ -9,19 +9,19 @@
 <div class="main-content">
 	<form>
 		<div class="form-group row">
-			<label class="col-12 col-sm-3 col-form-label text-sm-right">实体名称</label>
-			<div class="col-12 col-sm-8 col-lg-4">
+			<label class="col-sm-3 col-form-label text-sm-right">实体名称</label>
+			<div class="col-sm-7 col-lg-4">
 				<input class="form-control form-control-sm" type="text" id="entityLabel" maxlength="40">
 			</div>
 		</div>
 		<div class="form-group row">
-			<label class="col-12 col-sm-3 col-form-label text-sm-right">备注</label>
-			<div class="col-12 col-sm-8 col-lg-4">
+			<label class="col-sm-3 col-form-label text-sm-right">备注</label>
+			<div class="col-sm-7 col-lg-4">
 				<textarea class="form-control form-control-sm row2x" id="comments" maxlength="100" placeholder="可选"></textarea>
 			</div>
 		</div>
 		<div class="form-group row footer">
-			<div class="col-12 col-sm-8 col-lg-4 offset-sm-3">
+			<div class="col-sm-7 offset-sm-3">
 				<button class="btn btn-primary" type="button" data-loading-text="请稍后">确定</button>
 				<a class="btn btn-link" onclick="parent.newEntityModal.hide()">取消</a>
 			</div>
@@ -39,8 +39,8 @@ $(document).ready(function(){
 		}
 		
 		btn.button('loading');
-		$.post('entity-new', { label:entityLabel, comments:comments }, function(res){
-			if (res.error_code == 0) parent.location.href = res.data + '/base';
+		$.post(rb.baseUrl + '/admin/entity/entity-new', { label:entityLabel, comments:comments }, function(res){
+			if (res.error_code == 0) parent.location.href = rb.baseUrl + '/admin/entity/' +res.data + '/base';
 			else{
 				rb.notice(res.error_msg)
 				btn.button('reset')

@@ -5,10 +5,12 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>实体管理</title>
 <style type="text/css">
+.card.entity:hover{background-color:rgba(255,255,255,.7)}
 .card.entity .card-body{padding:14px 20px;color:#333;}
 .card.entity .icon{font-size:32px;margin-right:12px;color:#4285f4;}
 .card.entity span{margin-top:2px;display:block;}
 .card.entity p{margin:0}
+.title{margin-left:43px}
 </style>
 </head>
 <body>
@@ -28,15 +30,15 @@
 <script type="text/babel">
 const EntityList = function(props){
 	const content = props.data.map((d) =>
-		<div class="col-12 col-lg-2 col-sm-4">
-			<a class="card entity" href={"entity/" + d.entityName + "/base"}>
-				<div class="card-body">
-					<div class="float-left"><i class={"icon zmdi zmdi-" + d.icon}></i></div>
-					<div class="float-left">
-						<span>{d.entityLabel}</span>
-						<p class="font-desc">{d.comments || '-'}</p>
+		<div className="col-xl-2 col-lg-3 col-sm-6">
+			<a className="card entity" href={"entity/" + d.entityName + "/base"}>
+				<div className="card-body">
+					<div className="float-left"><i className={"icon zmdi zmdi-" + d.icon}></i></div>
+					<div className="title">
+						<span className="text-truncate">{d.entityLabel}</span>
+						<p className="font-desc">{d.comments || '-'}</p>
 					</div>
-					<div class="clearfix"></div>
+					<div className="clearfix"></div>
 				</div>
 			</a>
 		</div>

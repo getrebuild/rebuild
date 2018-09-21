@@ -10,14 +10,14 @@
 <div class="main-content">
 	<form>
 		<div class="form-group row">
-			<label class="col-12 col-sm-3 col-form-label text-sm-right">字段名称</label>
-			<div class="col-12 col-sm-8 col-lg-6">
+			<label class="col-sm-3 col-form-label text-sm-right">字段名称</label>
+			<div class="col-sm-7 col-lg-4">
 				<input class="form-control form-control-sm" type="text" id="fieldLabel">
 			</div>
 		</div>
 		<div class="form-group row">
-			<label class="col-12 col-sm-3 col-form-label text-sm-right">类型</label>
-			<div class="col-12 col-sm-8 col-lg-6">
+			<label class="col-sm-3 col-form-label text-sm-right">类型</label>
+			<div class="col-sm-7 col-lg-4">
 				<select class="form-control form-control-sm" id="type">
 					<option value="NUMBER">整数</option>
 					<option value="DECIMAL">货币</option>
@@ -28,29 +28,26 @@
 					<option value="URL">链接</option>
 					<option value="IMAGE">图片</option>
 					<option value="FILE">文件</option>
-					<!--
-					<option value="LOCATION">位置</option>
-					-->
 					<option value="PICKLIST">列表</option>
 					<option value="REFERENCE">引用</option>
 				</select>
 			</div>
 		</div>
 		<div class="form-group row hide J_dt-REFERENCE">
-			<label class="col-12 col-sm-3 col-form-label text-sm-right">选择引用实体</label>
-			<div class="col-12 col-sm-8 col-lg-6">
+			<label class="col-sm-3 col-form-label text-sm-right">选择引用实体</label>
+			<div class="col-sm-7 col-lg-4">
 				<select class="form-control form-control-sm" id="refEntity">
 				</select>
 			</div>
 		</div>
 		<div class="form-group row">
-			<label class="col-12 col-sm-3 col-form-label text-sm-right">备注</label>
-			<div class="col-12 col-sm-8 col-lg-4">
+			<label class="col-sm-3 col-form-label text-sm-right">备注</label>
+			<div class="col-sm-7 col-lg-4">
 				<textarea class="form-control form-control-sm row2x" id="comments" maxlength="100" placeholder="可选"></textarea>
 			</div>
 		</div>
 		<div class="form-group row footer">
-			<div class="col-12 col-sm-8 col-lg-6 offset-sm-3">
+			<div class="col-sm-7 offset-sm-3">
             	<button class="btn btn-primary" type="button" data-loading-text="请稍后">确定</button>
             	<a class="btn btn-link" onclick="parent.newFieldModal.hide()">取消</a>
 			</div>
@@ -86,12 +83,12 @@ $(document).ready(function(){
 	
 	let referenceLoaded = false;
 	$('#type').change(function(){
-		if (parent && parent.rbModal) parent.rbModal.loaded()
+		if (parent && parent.newFieldModal) parent.newFieldModal.loaded()
 		if ($(this).val() == 'REFERENCE'){
 			$('.J_dt-REFERENCE').removeClass('hide');
 			if (referenceLoaded == false){
 				referenceLoaded = true;
-				$.get('list-entity', function(res){
+				$.get(rb.baseUrl + '/admin/entity/entity-list', function(res){
 					$(res.data).each(function(){
 						$('<option value="' + this.entityName + '">' + this.entityLabel + '</option>').appendTo('#refEntity');
 					})

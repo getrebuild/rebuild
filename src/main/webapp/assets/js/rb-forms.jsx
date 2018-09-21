@@ -56,7 +56,7 @@ class RbFormModal extends React.Component {
         this.setState({ noticeMessage: null, isDestroy: destroy == true })
     }
     showNotice(message, type) {
-        rb.notice(message, type || 'warning', { html: true })
+        rb.notice(message, type, { html: true })
     }
 }
 const __detectElement = function(item){

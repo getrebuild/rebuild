@@ -171,14 +171,14 @@ public class Field2Schema {
 			text = text.replace(" ", "");
 			identifier = text.toLowerCase();
 		} catch (PinyinException e) {
-			throw new RuntimeException(text, e);
+			throw new MetadataException(text, e);
 		}
 		
-		if (identifier.length() > 50) {
-			identifier = identifier.substring(0, 50);
+		if (identifier.length() > 40) {
+			identifier = identifier.substring(0, 40);
 		}
 		if (!StringHelper.isIdentifier(identifier)) {
-			throw new MetadataException("无效 META 名称: " + identifier);
+			throw new MetadataException("无效名称 : " + text);
 		}
 		return identifier;
 	}

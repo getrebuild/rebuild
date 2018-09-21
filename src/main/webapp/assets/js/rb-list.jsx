@@ -4,7 +4,7 @@ class RbList extends React.Component {
         super(props)
         let fields = props.config.fields
         props.config.fields = null
-        this.state = { ...props, fields: fields, rowData: [], noData: false, checkedAll: false, pageNo: 1, pageSize: 5 }
+        this.state = { ...props, fields: fields, rowData: [], noData: false, checkedAll: false, pageNo: 1, pageSize: 10 }
         
         this.toggleAllRow = this.toggleAllRow.bind(this)
         this.setPageNo = this.setPageNo.bind(this)

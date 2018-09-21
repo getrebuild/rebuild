@@ -55,7 +55,7 @@ public class MetaEntityControll extends BaseControll {
 	
 	@RequestMapping("entities")
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
-		return createModelAndView("/admin/entity/list.jsp");
+		return createModelAndView("/admin/entity/entity-grid.jsp");
 	}
 	
 	@RequestMapping("entity/{entity}/base")

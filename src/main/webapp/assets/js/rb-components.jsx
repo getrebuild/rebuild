@@ -101,7 +101,7 @@ class RbNotice extends React.Component {
         icon = this.props.type == 'danger' ? 'close-circle-o' : icon
         let content = !!this.props.htmlMessage ? <div className="message" dangerouslySetInnerHTML={{ __html : this.props.htmlMessage }}></div> : <div className="message">{this.props.message}</div>
         return (<div ref="rbnotice" className={'rbnotice animated faster ' + this.state.animatedClass}>
-            <div className={'alert alert-dismissible alert-' + (this.props.type || 'light')}>
+            <div className={'alert alert-dismissible alert-' + (this.props.type || 'warning')}>
                 <button className="close" type="button" onClick={()=>this.close()}><span className="zmdi zmdi-close"></span></button>
                 <div className="icon"><span className={'zmdi zmdi-' + icon}></span></div>
                 {content}
@@ -142,6 +142,11 @@ const renderRbcomp = function(jsx, target) {
 
 var rb = rb || {}
 rb.notice = function(message, type, exts){
+    if (top != self && parent.rb && parent.rb.notice){
+        parent.rb.notice(message, type, exts)
+        return;
+    }
+    
     exts = exts || {}
     if (exts.html == true) return renderRbcomp(<RbNotice htmlMessage={message} type={type} timeout={exts.timeout} />)
     else renderRbcomp(<RbNotice message={message} type={type} timeout={exts.timeout} />)
