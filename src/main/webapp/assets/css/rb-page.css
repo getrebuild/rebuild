@@ -534,6 +534,7 @@ h5.sortable-box-title {
 }
 
 .rbview {
+	
 }
 
 .rbview.modal .modal-dialog {
@@ -565,6 +566,25 @@ h5.sortable-box-title {
 	font-size: 1.8rem;
 }
 
-.rbview.modal .modal-dialog .modal-content .modal-header .close .zmdi-settings {
+.rbview.modal .modal-dialog .modal-content .modal-header .close .zmdi-settings
+	{
 	font-size: 1.5rem;
+}
+
+.rbview-form {
+}
+
+.rbview-form .card-header-divider {
+	margin: 0;
+	margin-bottom: 14px;
+	padding-bottom: 0.6rem;
+	font-weight: 600;
+}
+
+.rbview-form .form-group.row {
+	padding: 3px 0;
+}
+
+.rbview-form .form-control-plaintext:hover {
+	background-color: #f8f8f8
 }

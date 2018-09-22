@@ -44,30 +44,27 @@ public class GeneralEntityControll extends BaseControll {
 	@RequestMapping("{entity}/view/{id}")
 	public ModelAndView pageView(@PathVariable String entity, @PathVariable String id,
 			HttpServletRequest request) throws IOException {
-		ID user = getRequestUser(request);
 		ID recordId = ID.valueOf(id);
-		
 		ModelAndView mv = createModelAndView("/general-entity/record-view.jsp", entity);
 		mv.getModel().put("id", recordId);
-		
-		JSON viewConfig = FormManager.getFormLayout(entity, user, recordId);
-		mv.getModel().put("ViewConfig", viewConfig);
 		return mv;
 	}
 	
-	@RequestMapping("{entity}/form-config")
+	@RequestMapping("{entity}/form-modal")
 	public void entityForm(@PathVariable String entity,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID recordId = getIdParameter(request, "id");
-		JSON fc = FormManager.getFormLayout(entity, getRequestUser(request), recordId);
+		JSON fc = FormManager.getFormModal(entity, getRequestUser(request), recordId);
 		writeSuccess(response, fc);
 	}
 	
-	@RequestMapping("{entity}/view-config")
+	@RequestMapping("{entity}/view-modal")
 	public void entityView(@PathVariable String entity,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID recordId = getIdParameter(request, "id");
-		JSON fc = FormManager.getViewLayout(entity, getRequestUser(request), recordId);
-		writeSuccess(response, fc);
+		ID user = getRequestUser(request);
+		ID recordId = getIdParameterNotNull(request, "id");
+		
+		JSON modal = FormManager.getViewModal(entity, user, recordId);
+		writeSuccess(response, modal);
 	}
 }

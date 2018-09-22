@@ -3,8 +3,6 @@ class RbFormModal extends React.Component {
     constructor(props) {
         super(props)
         this.state = { ...props, inLoad: true }
-        
-        this.showNotice = this.showNotice.bind(this)
     }
     render() {
         let adminUrl = rb.baseUrl + '/admin/entity/' + this.props.entity + '/form-design'
@@ -34,7 +32,7 @@ class RbFormModal extends React.Component {
         // 渲染表单
         let that = this
         const entity = this.props.entity
-        $.get(rb.baseUrl + '/app/' + entity + '/form-config?entity=' + entity, function(res){
+        $.get(rb.baseUrl + '/app/' + entity + '/form-modal?entity=' + entity, function(res){
             let elements = res.data.elements
             const FORM = <RbForm entity={entity} $$$parent={that}>
                 {elements.map((item) => {
@@ -125,7 +123,7 @@ class RbForm extends React.Component {
     __renderFormError(message) {
         let fdUrl = rb.baseUrl + '/admin/entity/' + this.props.entity + '/form-design'
         message = message || `表单尚未配置，请 <a href="${fdUrl}">配置</a> 后使用`
-        message = { __html: '<strong>错误!</strong> ' + message }
+        message = { __html: '<strong>Opps! </strong> ' + message }
         return <div class="alert alert-contrast alert-warning">
             <div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
             <div class="message" dangerouslySetInnerHTML={message}></div>
@@ -555,5 +553,80 @@ class RbFormReference extends RbFormElement {
             let value = e.target.value
             that.handleChange({ target:{ value:value } }, true)
         })
+    }
+}
+
+// ~~ 视图
+class RbViewForm extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = { ...props }
+        
+        
+    }
+    render() {
+        let that = this
+        return (
+            <div className="rbview-form">
+                {this.state.formComponent}
+            </div>
+        )
+    }
+    componentDidMount() {
+        let that = this
+        $.get(rb.baseUrl + '/app/' + this.props.entity + '/view-modal?id=' + this.props.id, function(res){
+            let elements = res.data.elements
+            const FORM = <div class="row">{elements.map((item) => {
+                return __detectViewElement(item)
+            })}</div>
+            that.setState({ formComponent: FORM }, function(){
+                if (window.mprogress) mprogress.end()
+            })
+        });
+    }
+}
+
+const __detectViewElement = function(item){
+    if (item.field == '$LINE$'){
+        return <div className="col-12"><div className="card-header-divider">{item.label}</div></div>
+    } else if (item.type == 'REFERENCE'){
+        return <RbViewFormLink {...item} />
+    } else {
+        return <RbViewFormElement {...item} />
+    }
+}
+
+// 表单元素父级
+class RbViewFormElement extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = { ...props }
+    }
+    render() {
+        const isFull = this.props.isFull == true
+        return (
+            <div className={'col-' + (isFull ? 12 : 6)}>
+            <div className="form-group row">
+                <label className={'col-form-label text-sm-right col-sm-' + (isFull ? 2 : 4)}>{this.props.label}</label>
+                <div className={'col-sm-' + (isFull ? 10 : 8)}>
+                    {this.state.value ? this.renderElement() : (<div className="form-control-plaintext text-muted">无</div>)}
+                </div>
+            </div>
+            </div>
+        )
+    }
+    componentDidMount(e) {
+    }
+    renderElement() {
+        return (<div className="form-control-plaintext">{this.state.value}</div>)
+    }
+}
+
+class RbViewFormLink extends RbViewFormElement {
+    constructor(props) {
+        super(props)
+    }
+    renderElement() {
+        return (<div className="form-control-plaintext"><a href="javascript:;" data-id={this.state.value[0]} data-entity={this.state.value[2]}>{this.state.value[1]}</a></div>)
     }
 }

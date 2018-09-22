@@ -26,6 +26,8 @@ import com.alibaba.fastjson.JSONObject;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.rebuild.server.Application;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
@@ -46,13 +48,13 @@ public class FormManager extends LayoutManager {
 	 * @param entity
 	 * @return
 	 */
-	public static JSON getFormLayoutRaw(String entity) {
-		Object[] lcr = getLayoutConfigRaw(entity, TYPE_FORM);
+	public static JSON getFormLayout(String entity) {
+		Object[] raw = getLayoutConfigRaw(entity, TYPE_FORM);
 		JSONObject config = new JSONObject();
 		config.put("entity", entity);
-		if (lcr != null) {
-			config.put("id", lcr[0].toString());
-			config.put("elements", lcr[1]);
+		if (raw != null) {
+			config.put("id", raw[0].toString());
+			config.put("elements", raw[1]);
 			return config;
 		}
 		config.put("elements", new String[0]);
@@ -63,8 +65,8 @@ public class FormManager extends LayoutManager {
 	 * @param entity
 	 * @return
 	 */
-	public static JSON getFormLayout(String entity, ID user) {
-		return getFormLayout(entity, user, null);
+	public static JSON getFormModal(String entity, ID user) {
+		return getFormModal(entity, user, null);
 	}
 	
 	/**
@@ -73,12 +75,14 @@ public class FormManager extends LayoutManager {
 	 * @param recordId
 	 * @return
 	 */
-	public static JSON getFormLayout(String entity, ID user, ID recordId) {
-		final Date now = CalendarUtils.now();
+	public static JSON getFormModal(String entity, ID user, ID recordId) {
 		final Entity entityMeta = MetadataHelper.getEntity(entity);
+		final User currentUser = Application.getUserStore().getUser(user);
+		final Date now = CalendarUtils.now();
 		
-		JSONObject config = (JSONObject) getFormLayoutRaw(entity);
-		for (Object element : config.getJSONArray("elements")) {
+		JSONObject config = (JSONObject) getFormLayout(entity);
+		JSONArray elements = config.getJSONArray("elements");
+		for (Object element : elements) {
 			JSONObject el = (JSONObject) element;
 			String fieldName = el.getString("field");
 			Field fieldMeta = entityMeta.getField(fieldName);
@@ -119,14 +123,12 @@ public class FormManager extends LayoutManager {
 			if (easyField.isBuiltin()) {
 				el.put("creatable", false);
 				
-				User sUser = Application.getUserStore().getUser(user);
-				
 				if (fieldName.equals(EntityHelper.createdOn) || fieldName.equals(EntityHelper.modifiedOn)) {
 					el.put("value", CalendarUtils.getUTCDateTimeFormat().format(now));
 				} else if (fieldName.equals(EntityHelper.createdBy) || fieldName.equals(EntityHelper.modifiedBy) || fieldName.equals(EntityHelper.owningUser)) {
-					el.put("value", sUser.getFullName());
+					el.put("value", currentUser.getFullName());
 				} else if (fieldName.equals(EntityHelper.owningDept)) {
-					el.put("value", sUser.getOwningDept().getName());
+					el.put("value", currentUser.getOwningDept().getName());
 				}
 			}
 		}
@@ -139,13 +141,13 @@ public class FormManager extends LayoutManager {
 	 * @param entity
 	 * @return
 	 */
-	public static JSON getViewLayoutRaw(String entity) {
-		Object[] lcr = getLayoutConfigRaw(entity, TYPE_VIEW);
+	public static JSON getViewLayout(String entity) {
+		Object[] raw = getLayoutConfigRaw(entity, TYPE_VIEW);
 		JSONObject config = new JSONObject();
 		config.put("entity", entity);
-		if (lcr != null) {
-			config.put("id", lcr[0].toString());
-			config.put("elements", lcr[1]);
+		if (raw != null) {
+			config.put("id", raw[0].toString());
+			config.put("elements", raw[1]);
 			return config;
 		}
 		config.put("elements", new String[0]);
@@ -160,7 +162,67 @@ public class FormManager extends LayoutManager {
 	 * @param recordId
 	 * @return
 	 */
-	public static JSON getViewLayout(String entity, ID user, ID recordId) {
-		return null;
+	public static JSON getViewModal(String entity, ID user, ID recordId) {
+		final Entity entityMeta = MetadataHelper.getEntity(entity);
+		
+		JSONObject config = (JSONObject) getViewLayout(entity);
+		JSONArray elements = config.getJSONArray("elements");
+		Record record = record(recordId, elements);
+		
+		for (Object element : elements) {
+			JSONObject el = (JSONObject) element;
+			String fieldName = el.getString("field");
+			if (fieldName.equals("$LINE$")) {
+				continue;
+			}
+			
+			Field fieldMeta = entityMeta.getField(fieldName);
+			EasyMeta easyField = new EasyMeta(fieldMeta);
+			el.put("label", easyField.getLabel());
+			String dt = easyField.getDisplayType(false);
+			el.put("type", dt);
+			
+			// 填充值
+			if (record.hasValue(fieldName)) {
+				Object value = record.getObjectValue(fieldName);
+				if (value instanceof ID) {
+					ID idValue = (ID) value;
+					String belongEntity = MetadataHelper.getEntity(idValue.getEntityCode()).getName();
+					el.put("value", new String[] { idValue.toLiteral(), idValue.getLabel(), belongEntity });
+				} else {
+					el.put("value", value.toString());
+				}
+			}
+		}
+		return config;
+	}
+	
+	/**
+	 * @param id
+	 * @param elements
+	 * @return
+	 */
+	protected static Record record(ID id, JSONArray elements) {
+		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
+		StringBuffer ajql = new StringBuffer("select ");
+		for (Object element : elements) {
+			JSONObject el = (JSONObject) element;
+			String field = el.getString("field");
+			if (!entity.containsField(field)) {
+				continue;
+			}
+			
+			Field fieldMeta = entity.getField(field);
+			if (fieldMeta.getType() == FieldType.REFERENCE) {
+				ajql.append('&').append(field).append(',');
+			}
+			ajql.append(field).append(',');
+		}
+		ajql.deleteCharAt(ajql.length() - 1);
+		ajql.append(" from ").append(entity.getName())
+				.append(" where ").append(entity.getPrimaryField().getName())
+				.append(" = '").append(id).append("'");
+		
+		return Application.getQueryFactory().record(ajql.toString());
 	}
 }

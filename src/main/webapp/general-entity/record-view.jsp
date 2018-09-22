@@ -13,8 +13,7 @@
 <body class="dialog">
 <div class="main-content">
 	<div class="row">
-		<div class="col-sm-10">
-			${id}
+		<div class="col-sm-10" id="react-formView">
 		</div>
 		<div class="col-sm-2">
 			<div class="view-btns">
@@ -28,9 +27,22 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/javascript">
+<script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
+<script type="text/babel">
+var rbFromView, rbFormModal
+var mprogress
 $(document).ready(function(){
-})
+	mprogress = new Mprogress({ template:3 })
+	mprogress.start()
+
+	const recordId = '${id}'
+	renderRbcomp(<RbViewForm entity="${entityName}" id={recordId}  />, 'react-formView')
+
+	$('.J_edit').click(function(){
+		if (rbFormModal) rbFormModal.show()
+		else rbFormModal = renderRbcomp(<RbFormModal title="编辑${entityLabel}" entity="${entityName}" id={recordId} />, 'react-forms')
+	});
+});
 </script>
 </body>
 </html>

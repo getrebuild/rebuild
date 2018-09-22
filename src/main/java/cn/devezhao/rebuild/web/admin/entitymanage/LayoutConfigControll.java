@@ -50,7 +50,7 @@ public class LayoutConfigControll extends BaseControll {
 	public ModelAndView pageFormDesign(@PathVariable String entity, HttpServletRequest request) throws IOException {
 		ModelAndView mv = createModelAndView("/admin/entity/form-design.jsp");
 		MetaEntityControll.setEntityBase(mv, entity);
-		JSON fc = FormManager.getFormLayoutRaw(entity);
+		JSON fc = FormManager.getFormLayout(entity);
 		if (fc != null) {
 			request.setAttribute("FormConfig", fc);
 		}
@@ -61,7 +61,7 @@ public class LayoutConfigControll extends BaseControll {
 	public ModelAndView pageViewDesign(@PathVariable String entity, HttpServletRequest request) throws IOException {
 		ModelAndView mv = createModelAndView("/admin/entity/view-design.jsp");
 		MetaEntityControll.setEntityBase(mv, entity);
-		JSON fc = FormManager.getViewLayoutRaw(entity);
+		JSON fc = FormManager.getViewLayout(entity);
 		if (fc != null) {
 			request.setAttribute("ViewConfig", fc);
 		}
