@@ -27,7 +27,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.persist4j.metadata.MetadataFactory;
 import cn.devezhao.rebuild.server.metadata.MetadataHelper;
 import cn.devezhao.rebuild.server.privileges.UserStore;
 import cn.devezhao.rebuild.server.service.CommonService;
@@ -110,13 +109,6 @@ public class Application {
 	 */
 	public static PersistManagerFactory getPersistManagerFactory() {
 		return getBean(PersistManagerFactory.class);
-	}
-	
-	/**
-	 * @return
-	 */
-	public static MetadataFactory getMetadataFactory() {
-		return getPersistManagerFactory().getMetadataFactory();
 	}
 	
 	/**

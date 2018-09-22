@@ -41,19 +41,33 @@ import cn.devezhao.rebuild.web.BaseControll;
 @RequestMapping("/app/")
 public class GeneralEntityControll extends BaseControll {
 	
-	@RequestMapping("{entity}/{id}")
-	public ModelAndView pageView(@PathVariable String entity, @PathVariable String id, HttpServletRequest request) throws IOException {
+	@RequestMapping("{entity}/view/{id}")
+	public ModelAndView pageView(@PathVariable String entity, @PathVariable String id,
+			HttpServletRequest request) throws IOException {
+		ID user = getRequestUser(request);
+		ID recordId = ID.valueOf(id);
+		
 		ModelAndView mv = createModelAndView("/general-entity/record-view.jsp", entity);
-		JSON formConfig = FormManager.getFormLayout(entity, getRequestUser(request));
-		mv.getModel().put("FormConfig", formConfig);
+		mv.getModel().put("id", recordId);
+		
+		JSON viewConfig = FormManager.getFormLayout(entity, user, recordId);
+		mv.getModel().put("ViewConfig", viewConfig);
 		return mv;
 	}
 	
-	@RequestMapping("entity/form-config")
-	public void entityForm(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String entity = getParameterNotNull(request, "entity");
+	@RequestMapping("{entity}/form-config")
+	public void entityForm(@PathVariable String entity,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID recordId = getIdParameter(request, "id");
 		JSON fc = FormManager.getFormLayout(entity, getRequestUser(request), recordId);
+		writeSuccess(response, fc);
+	}
+	
+	@RequestMapping("{entity}/view-config")
+	public void entityView(@PathVariable String entity,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID recordId = getIdParameter(request, "id");
+		JSON fc = FormManager.getViewLayout(entity, getRequestUser(request), recordId);
 		writeSuccess(response, fc);
 	}
 }

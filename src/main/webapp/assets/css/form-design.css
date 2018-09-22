@@ -1,0 +1,93 @@
+.form-preview {
+	margin: 0 auto
+}
+
+.dd-list .dd-item .dd-handle {
+	cursor: move
+}
+
+.dd-list .dd-item .dd-action {
+	float: right;
+	cursor: default
+}
+
+.dd-list .dd-item .dd-action i {
+	font-size: 12px;
+	color: #999;
+	font-style: normal;
+	background-color: #eee;
+	color: #999;
+	display: inline-block;
+	padding: 2px 3px;
+	line-height: 1;
+	border-radius: 2px;
+	margin-left: 2px;
+}
+
+.nodata {
+	padding: 11px 0;
+	color: #999;
+	border: 1px dotted #dedede;
+	text-align: center;
+	display: none;
+	margin: 0;
+}
+
+.dd-list {
+	min-height: 200px
+}
+
+.readonly {
+	border-left: 3px solid #dedede !important
+}
+
+.not-nullable {
+	border-left: 3px solid #ea4335 !important
+}
+
+.card-header>div>span {
+	font-size: 12px;
+	font-weight: normal;
+	padding-left: 4px;
+	margin-right: 9px;
+	color: #888
+}
+
+.dd-placeholder {
+	height: 36px
+}
+
+.view-preview {
+	margin: 0 -0.5%;
+}
+
+.view-preview .dd-item, .view-preview .dd-placeholder {
+	width: 49%;
+	float: left;
+	margin-left: 0.5%;
+	margin-right: 0.5%
+}
+
+.view-preview .dd-item.full {
+	width: 99% !important;
+}
+
+.view-preview .dd-item.line {
+	font-style: italic;
+	color: #777;
+}
+
+.dd-item .dd-action a {
+	display: none;
+	color: #fff;
+	font-size: 12px;
+	font-style: normal;
+}
+
+.dd-item .dd-action a, .dd-item .dd-action i {
+	margin-left: 6px !important;
+}
+
+.dd-item:hover .dd-action a {
+	display: inline-block;
+}

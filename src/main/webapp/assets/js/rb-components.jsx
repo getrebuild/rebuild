@@ -1,4 +1,4 @@
-// ~~!v1.0 弹出窗口
+// ~~ 弹出窗口
 class RbModal extends React.Component {
     constructor(props) {
         super(props)
@@ -10,11 +10,11 @@ class RbModal extends React.Component {
 		        <div className="modal-dialog" style={{ maxWidth:(this.props.width || 680) + 'px' }}>
     		        <div className="modal-content">
         		        <div className="modal-header modal-header-colored">
-            		        <h3 className="modal-title">{this.state.title || ''}</h3>
-            		        <button className="close md-close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
+            		        <h3 className="modal-title">{this.state.title || 'RbModal'}</h3>
+            		        <button className="close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
             		    </div>
-            		    <div className={'modal-body rb-loading ' + (this.state.inLoad == true && 'rb-loading-active') + ' ' + (this.state.url && 'iframe')}  ref="rbmodal.body">
-            		        {this.props.children || <iframe src={this.state.url || 'about:blank'} frameborder="0" scrolling="no" ref="rbmodal.iframe" onLoad={()=>this.loaded()} onResize={()=>this.loaded()}></iframe>}
+            		    <div className={'modal-body rb-loading ' + (this.state.inLoad == true && 'rb-loading-active') + ' ' + (this.state.url && 'iframe')}>
+            		        {this.props.children || <iframe src={this.state.url || 'about:blank'} frameborder="0" scrolling="no" onLoad={()=>this.loaded()} onResize={()=>this.loaded()}></iframe>}
                             <RbSpinner />
                         </div>
     		        </div>
@@ -23,33 +23,38 @@ class RbModal extends React.Component {
 		)
 	}
 	componentDidMount() {
-	    // if (this.props.children) this.setState({ inLoad: false })
+	    if (this.props.children) this.setState({ inLoad: false })
+	    this.show()
     }
     loaded() {
         if (!!!this.state.url) {
             return
         }
-        let that = this;
+        
+        let root = $(this.refs['rbmodal'])
+        let that = this
         $setTimeout(function(){
-            let iframe = $(that.refs['rbmodal.iframe'])
-            let height = iframe.contents().find('body .main-content').height()
+            let iframe = root.find('iframe')
+            let height = iframe.contents().find('.main-content').height()
             if (height == 0) height = iframe.contents().find('body').height()
             else height += 45;  // .main-content's padding
-            $(that.refs['rbmodal.body']).height(height)
+            root.find('.modal-body').height(height)
             that.setState({ inLoad: false })
         }, 100, 'RbModal-resize')
     }
 	show(state, callback) {
 	    if (!!state) state = { ...state, isDestroy: false }
 	    else state = { isDestroy: false }
-	    let that = this
+	    
+	    let root = $(this.refs['rbmodal'])
+        let that = this
 	    this.setState(state, function(){
-            $(that.refs['rbmodal']).modal({ show: true, backdrop: 'static' })
+            root.modal({ show: true, backdrop: 'static' })
             typeof callback == 'function' && callback(that)
         })
     }
     hide(){
-        let root = $(this.refs['rbmodal']);
+        let root = $(this.refs['rbmodal'])
         root.modal('hide')
         let d = true
         if (this.props.destroyOnHide == false) d = false
@@ -58,13 +63,83 @@ class RbModal extends React.Component {
     }
 }
 
+// ~~ 视图窗口
+class RbView extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = { ...props, inLoad: true, isShow: false }
+    }
+    render() {
+        let adminUrl = rb.baseUrl + '/admin/entity/' + this.props.entity + '/view-design'
+        return (
+            <div className={'modal rbview ' + (this.state.isShow == true && 'show')} ref="rbview">
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h3 className="modal-title">{this.state.title || 'RbView'}</h3>
+                            <a className="close admin-settings" href={adminUrl} title="配置布局" target="_blank"><span className="zmdi zmdi-settings"></span></a>
+                            <button className="close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
+                        </div>
+                        <div className={'modal-body iframe rb-loading ' + (this.state.inLoad == true && 'rb-loading-active')}>
+                            <iframe src={this.state.showAfterUrl || ''} frameborder="0" scrolling="no" onLoad={()=>this.loaded()}></iframe>
+                            <RbSpinner />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+    componentDidMount() {
+        let root = $(this.refs['rbview'])
+        let that = this
+        root.click(function(){
+            that.hide()
+        })
+        root.find('.modal-content').click(function(event){
+            let t = $(event.target)
+            if (t.hasClass('zmdi')) return true
+            if (t.hasClass('admin-settings')) window.open(t.attr('href'))
+            else if (t.hasClass('close')) that.hide()
+            return false
+        })
+        this.show()
+    }
+    loaded() {
+        if (!!this.state.showAfterUrl){
+            this.setState({ inLoad: false })
+        }
+    }
+    show(url) {
+        this.state.url = url || this.state.url
+        let root = $(this.refs['rbview'])
+        let that = this
+        this.setState({ isShow: true }, function(){
+            root.find('.modal-content').animate({ 'margin-right': 0 }, 400)
+            $setTimeout(function(){
+                that.setState({ showAfterUrl: that.state.url })
+            }, 400)
+        })
+    }
+    hide() {
+        let root = $(this.refs['rbview'])
+        this.setState({ isShow: false, inLoad: true, showAfterUrl: null }, function(){
+            root.find('.modal-content').css({ 'margin-right': -1200 })
+        })
+    }
+}
+
+// ~~ 提示框
 class RbAlter extends React.Component {
     constructor(props) {
        super(props)
     }
     render() {
+        let icon = this.props.type == 'danger' ? 'alert-triangle' : 'info-outline'
+        let type = this.props.type || 'primary'
+        let content = !!this.props.htmlMessage ? <div className="mt-3" dangerouslySetInnerHTML={{ __html : this.props.htmlMessage }}></div> : <p>{this.props.message || '提示内容'}</p>
+        let confirm = (this.props.confirm || this.hide).bind(this)
         return (
-            <div className="modal rbalter" ref="rbalter">
+            <div className="modal fade rbalter" ref="rbalter">
                 <div className="modal-dialog">
                     <div className="modal-content">
                         <div className="modal-header">
@@ -72,10 +147,12 @@ class RbAlter extends React.Component {
                         </div>
                         <div className="modal-body">
                             <div className="text-center">
-                                <h3>{this.props.title || '提示'}</h3>
-                                <p>{this.props.message || '提示内容'}</p>
-                                <div class="mt-8">
-                                    <button className="btn btn-secondary" type="button" onClick={()=>this.hide()}>确定</button>
+                                <div className={'text-' + type}><span className={'modal-main-icon zmdi zmdi-' + icon}></span></div>
+                                <h4>{this.props.title || '提示'}</h4>
+                                {content}
+                                <div className="mt-6 mb-4">
+                                    <button class="btn btn-space btn-secondary" type="button" onClick={()=>this.hide()}>取消</button>
+                                    <button className={'btn btn-space btn-' + type} type="button" onClick={confirm}>确定</button>
                                 </div>
                             </div>
                         </div>
@@ -85,12 +162,18 @@ class RbAlter extends React.Component {
         )
     }
     componentDidMount() {
+        $(this.refs['rbalter']).modal({ show: true, keyboard: true })
     }
     hide() {
-        $(this.refs['rbalter']).parent().remove();
+        let root = $(this.refs['rbalter'])
+        root.modal('hide')
+        $setTimeout(function(){
+            root.parent().remove()
+        }, 1000)
     }
 }
 
+// ~~ 提示条
 class RbNotice extends React.Component {
     constructor(props) {
        super(props)
@@ -100,12 +183,15 @@ class RbNotice extends React.Component {
         let icon = this.props.type == 'success' ? 'check' : 'info-outline'
         icon = this.props.type == 'danger' ? 'close-circle-o' : icon
         let content = !!this.props.htmlMessage ? <div className="message" dangerouslySetInnerHTML={{ __html : this.props.htmlMessage }}></div> : <div className="message">{this.props.message}</div>
-        return (<div ref="rbnotice" className={'rbnotice animated faster ' + this.state.animatedClass}>
+        return (
+        <div ref="rbnotice" className={'rbnotice animated faster ' + this.state.animatedClass}>
             <div className={'alert alert-dismissible alert-' + (this.props.type || 'warning')}>
                 <button className="close" type="button" onClick={()=>this.close()}><span className="zmdi zmdi-close"></span></button>
                 <div className="icon"><span className={'zmdi zmdi-' + icon}></span></div>
                 {content}
-        </div></div>)
+            </div>
+        </div>
+        )
     }
     componentDidMount() {
         if (this.props.closeAuto == false) return
@@ -138,25 +224,32 @@ const renderRbcomp = function(jsx, target) {
     let container = $('#' + target);
     if (container.length == 0) container = $('<div id="' + target + '"></div>').appendTo(document.body);
     return ReactDOM.render(jsx, container[0]);
-};
+}
 
 var rb = rb || {}
-rb.notice = function(message, type, exts){
+rb.notice = function(message, type, ext){
     if (top != self && parent.rb && parent.rb.notice){
-        parent.rb.notice(message, type, exts)
+        parent.rb.notice(message, type, ext)
         return;
     }
-    
-    exts = exts || {}
-    if (exts.html == true) return renderRbcomp(<RbNotice htmlMessage={message} type={type} timeout={exts.timeout} />)
-    else renderRbcomp(<RbNotice message={message} type={type} timeout={exts.timeout} />)
+    ext = ext || {}
+    if (ext.html == true) return renderRbcomp(<RbNotice htmlMessage={message} type={type} timeout={ext.timeout} />)
+    else renderRbcomp(<RbNotice message={message} type={type} timeout={ext.timeout} />)
 }
-rb.alter = function(message, title){
-    renderRbcomp(<RbAlter message={message} title={title} />)
+rb.alter = function(message, title, ext){
+    ext = ext || {}
+    if (ext.html == true) renderRbcomp(<RbAlter htmlMessage={message} title={title} type={ext.type} confirm={ext.confirm} />)
+    else renderRbcomp(<RbAlter message={message} title={title} type={ext.type} confirm={ext.confirm} />)
 }
-rb.modal = function(url, title, exts) {
-    exts = exts || {}
-    const comp = renderRbcomp(<RbModal url={url} title={title} width={exts.width} destroyOnHide={exts.destroyOnHide === false ? false : true } />)
-    comp.show()
-    return comp
+rb.modal = function(url, title, ext) {
+    ext = ext || {}
+    return renderRbcomp(<RbModal url={url} title={title} width={ext.width} destroyOnHide={ext.destroyOnHide === false ? false : true } />)
+}
+
+// 打开视图
+var viewModal
+rb.recordView = function(id, entity) {
+    let viewUrl = rb.baseUrl + '/app/' + entity + '/view/' + id
+    if (viewModal) viewModal.show(viewUrl)
+    else viewModal = renderRbcomp(<RbView url={viewUrl} entity={entity} />)
 }

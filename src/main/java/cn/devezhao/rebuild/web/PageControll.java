@@ -62,6 +62,10 @@ public abstract class PageControll {
 		setPageAttribute(mv);
 		
 		if (entity != null) {
+			if (!MetadataHelper.containsEntity(entity)) {
+				throw new InvalidRequestException("无效实体 : " + entity);
+			}
+			
 			EasyMeta entityMeta = new EasyMeta(MetadataHelper.getEntity(entity));
 			mv.getModel().put("entityName", entityMeta.getName());
 			mv.getModel().put("entityLabel", entityMeta.getLabel());

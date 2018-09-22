@@ -1,4 +1,4 @@
-// ~~!v1.0 数据列表
+// ~~ 数据列表
 class RbList extends React.Component {
     constructor(props) {
         super(props)
@@ -83,8 +83,8 @@ class RbList extends React.Component {
             let lastGhost = item[that.state.fields.length];
             if (lastGhost[1] == true) selectedRows.push(lastGhost[0])
         })
-        $('.J_del, .J_view').attr('disabled', true)
-        if (selectedRows.length > 0) $('.J_del').attr('disabled', false)
+        $('.J_delete, .J_view').attr('disabled', true)
+        if (selectedRows.length > 0) $('.J_delete').attr('disabled', false)
         if (selectedRows.length == 1) $('.J_view').attr('disabled', false)
         this.__selectedRows = selectedRows
     }
@@ -96,8 +96,9 @@ class RbList extends React.Component {
             fields.push(item.field)
             if (!!item.sort) field_sort = item.field + ':' + item.sort.replace('sort-', '')
         });
+        const entity = this.props.config.entity
         let query = {
-            entity: this.props.config.entity,
+            entity: entity,
             fields: fields,
             pageNo: this.state.pageNo,
             pageSize: this.state.pageSize,
@@ -107,7 +108,7 @@ class RbList extends React.Component {
         };
         let that = this;
         $('#react-list').addClass('rb-loading-active')
-        $.post(rb.baseUrl + '/app/entity/record-list', JSON.stringify(query), function(res){
+        $.post(rb.baseUrl + '/app/' + entity + '/record-list', JSON.stringify(query), function(res){
             if (res.error_code == 0){
                 let _rowData = res.data.data;
                 if (_rowData.length == 0) {
@@ -208,7 +209,7 @@ class RbList extends React.Component {
     
     // 外部接口
     
-    getSelectedId() {
+    getSelectedIds() {
         return this.__selectedRows
     }
     
@@ -277,17 +278,14 @@ class RbListPagination extends React.Component {
         </div>
         )
     }
-    
     prev() {
         if (this.props.pageNo == 1) return
         else this.props.$$$parent.setPageNo(this.props.pageNo - 1)
     }
-    
     next() {
         if (this.props.pageNo == this.pageTotal) return
         else this.props.$$$parent.setPageNo(this.props.pageNo + 1)
     }
-    
     goto(pageNo) {
         if (this.props.pageNo == pageNo) return
         else this.props.$$$parent.setPageNo(pageNo)

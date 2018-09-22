@@ -57,7 +57,18 @@ public class LayoutConfigControll extends BaseControll {
 		return mv;
 	}
 	
-	@RequestMapping("{entity}/form-update")
+	@RequestMapping("{entity}/view-design")
+	public ModelAndView pageViewDesign(@PathVariable String entity, HttpServletRequest request) throws IOException {
+		ModelAndView mv = createModelAndView("/admin/entity/view-design.jsp");
+		MetaEntityControll.setEntityBase(mv, entity);
+		JSON fc = FormManager.getViewLayoutRaw(entity);
+		if (fc != null) {
+			request.setAttribute("ViewConfig", fc);
+		}
+		return mv;
+	}
+	
+	@RequestMapping({ "{entity}/form-update", "{entity}/view-update" })
 	public void formUpdate(@PathVariable String entity, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		JSON formJson = ServletUtils.getRequestJson(request);

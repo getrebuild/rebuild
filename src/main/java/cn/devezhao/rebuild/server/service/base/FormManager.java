@@ -133,14 +133,34 @@ public class FormManager extends LayoutManager {
 		return config;
 	}
 	
+	// --
+	
+	/**
+	 * @param entity
+	 * @return
+	 */
+	public static JSON getViewLayoutRaw(String entity) {
+		Object[] lcr = getLayoutConfigRaw(entity, TYPE_VIEW);
+		JSONObject config = new JSONObject();
+		config.put("entity", entity);
+		if (lcr != null) {
+			config.put("id", lcr[0].toString());
+			config.put("elements", lcr[1]);
+			return config;
+		}
+		config.put("elements", new String[0]);
+		return config;
+	}
+	
 	/**
 	 * 视图布局
 	 * 
 	 * @param entity
+	 * @param user
 	 * @param recordId
 	 * @return
 	 */
-	public static JSON getViewLayout(String entity, ID recordId) {
+	public static JSON getViewLayout(String entity, ID user, ID recordId) {
 		return null;
 	}
 }

@@ -18,6 +18,8 @@ package cn.devezhao.rebuild.server.metadata;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.metadata.MetadataException;
+import cn.devezhao.persist4j.metadata.MetadataFactory;
 import cn.devezhao.persist4j.metadata.impl.ConfigurationMetadataFactory;
 import cn.devezhao.rebuild.server.Application;
 
@@ -29,10 +31,17 @@ import cn.devezhao.rebuild.server.Application;
 public class MetadataHelper {
 
 	/**
+	 * @return
+	 */
+	public static MetadataFactory getMetadataFactory() {
+		return Application.getPersistManagerFactory().getMetadataFactory();
+	}
+	
+	/**
 	 * 更新元数据缓存
 	 */
 	public static void refreshMetadata() {
-		((ConfigurationMetadataFactory) Application.getMetadataFactory()).refresh(false);
+		((ConfigurationMetadataFactory) getMetadataFactory()).refresh(false);
 	}
 	
 	/**
@@ -42,7 +51,7 @@ public class MetadataHelper {
 	 * @return
 	 */
 	public static Object[] getEntityExtmeta(Entity entity) {
-		return ((DynamicMetadataFactory) Application.getMetadataFactory())
+		return ((DynamicMetadataFactory) getMetadataFactory())
 				.getEntityExtmeta(entity.getName());
 	}
 	
@@ -53,7 +62,7 @@ public class MetadataHelper {
 	 * @return
 	 */
 	public static Object[] getFieldExtmeta(Field field) {
-		return ((DynamicMetadataFactory) Application.getMetadataFactory())
+		return ((DynamicMetadataFactory) getMetadataFactory())
 				.getFieldExtmeta(field.getOwnEntity().getName(), field.getName());
 	}
 	
@@ -61,7 +70,20 @@ public class MetadataHelper {
 	 * @return
 	 */
 	public static Entity[] getEntities() {
-		return Application.getMetadataFactory().getEntities();
+		return getMetadataFactory().getEntities();
+	}
+	
+	/**
+	 * @param entityName
+	 * @return
+	 */
+	public static boolean containsEntity(String entityName) {
+		try {
+			getEntity(entityName);
+			return true;
+		} catch (MetadataException ex) {
+			return false;
+		}
 	}
 	
 	/**
@@ -69,7 +91,7 @@ public class MetadataHelper {
 	 * @return
 	 */
 	public static Entity getEntity(String entityName) {
-		return Application.getPersistManagerFactory().getMetadataFactory().getEntity(entityName);
+		return getMetadataFactory().getEntity(entityName);
 	}
 
 	/**
@@ -77,7 +99,7 @@ public class MetadataHelper {
 	 * @return
 	 */
 	public static Entity getEntity(int entityCode) {
-		return Application.getPersistManagerFactory().getMetadataFactory().getEntity(entityCode);
+		return getMetadataFactory().getEntity(entityCode);
 	}
 	
 	/**

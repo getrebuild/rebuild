@@ -47,11 +47,6 @@ const __initNavs = function(){
 	});
 }
 
-// 打开视图
-const recordView = function(id){
-	console.log(id)
-}
-
 // 计算分页
 // @tp 总计页面 
 // @cp 当前页面

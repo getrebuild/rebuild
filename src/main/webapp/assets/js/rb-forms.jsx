@@ -1,4 +1,4 @@
-// ~~!v1.0 表单 Dialog
+// ~~ 表单 Dialog
 class RbFormModal extends React.Component {
     constructor(props) {
         super(props)
@@ -7,6 +7,7 @@ class RbFormModal extends React.Component {
         this.showNotice = this.showNotice.bind(this)
     }
     render() {
+        let adminUrl = rb.baseUrl + '/admin/entity/' + this.props.entity + '/form-design'
         return (this.state.isDestroy == true ? null :
             <div className="modal-warpper" ref="rbmodal-warpper">
             <div className={'modal rbmodal colored-header colored-header-primary'} ref="rbmodal">
@@ -14,7 +15,7 @@ class RbFormModal extends React.Component {
                     <div className="modal-content">
                         <div className="modal-header modal-header-colored">
                             <h3 className="modal-title">{this.state.title || 'TITLE'}</h3>
-                            <a className="close md-close admin-settings admin-visibility" href={rb.baseUrl + '/admin/entity/' + this.props.entity + '/form-design'} title="配置布局" target="_blank"><span className="zmdi zmdi-settings"></span></a>
+                            <a className="close admin-settings" href={adminUrl} title="配置布局" target="_blank"><span className="zmdi zmdi-settings"></span></a>
                             <button className="close md-close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
                         </div>
                         <div className={'modal-body rb-loading' + (this.state.inLoad ? ' rb-loading-active' : '')}>
@@ -32,8 +33,8 @@ class RbFormModal extends React.Component {
         
         // 渲染表单
         let that = this
-        let entity = this.props.entity
-        $.get(rb.baseUrl + '/app/entity/form-config?entity=' + entity, function(res){
+        const entity = this.props.entity
+        $.get(rb.baseUrl + '/app/' + entity + '/form-config?entity=' + entity, function(res){
             let elements = res.data.elements
             const FORM = <RbForm entity={entity} $$$parent={that}>
                 {elements.map((item) => {
@@ -89,7 +90,7 @@ const __detectElement = function(item){
     }
 }
 
-// ~~!v1.0 表单
+// ~~ 表单
 class RbForm extends React.Component {
     constructor(props) {
         super(props)

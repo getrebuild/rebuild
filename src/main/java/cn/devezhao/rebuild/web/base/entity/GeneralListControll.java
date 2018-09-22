@@ -45,15 +45,17 @@ import cn.devezhao.rebuild.web.base.entity.datalist.DefaultDataListControl;
 public class GeneralListControll extends BaseControll {
 
 	@RequestMapping("{entity}/list")
-	public ModelAndView pageList(@PathVariable String entity, HttpServletRequest request) throws IOException {
+	public ModelAndView pageList(@PathVariable String entity, 
+			HttpServletRequest request) throws IOException {
 		ModelAndView mv = createModelAndView("/general-entity/record-list.jsp", entity);
 		JSON cfg = DataListManager.getListColumnConfig(entity);
 		mv.getModel().put("DataListConfig", JSON.toJSONString(cfg));
 		return mv;
 	}
 	
-	@RequestMapping("entity/record-list")
-	public void recordList(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@RequestMapping("{entity}/record-list")
+	public void recordList(@PathVariable String entity,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String reqdata = ServletUtils.getRequestString(request);
 		JSONObject reqJson = JSON.parseObject(reqdata);
 		

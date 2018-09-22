@@ -32,15 +32,15 @@
 							<div class="col-sm-6">
 								<div class="dataTables_oper">
 									<button class="btn btn-space btn-secondary J_view" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> 打开</button>
-									<button class="btn btn-space btn-secondary J_del" disabled="disabled"><i class="icon zmdi zmdi-delete"></i> 删除</button>
+									<button class="btn btn-space btn-secondary danger J_delete" disabled="disabled"><i class="icon zmdi zmdi-delete"></i> 删除</button>
 									<button class="btn btn-space btn-primary J_new" data-url="${baseUrl}/entity/${entity}/new"><i class="icon zmdi zmdi-plus"></i> 新建</button>
 									<div class="btn-group btn-space">
 										<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-more-vert"></i></button>
 										<div class="dropdown-menu dropdown-menu-right">
-											<a class="dropdown-item J_column-set" data-url="">列显示</a>
+											<a class="dropdown-item J_assign">分配</a>
+											<a class="dropdown-item J_share">共享</a>
 											<div class="dropdown-divider"></div>
-											<a class="dropdown-item">导入</a>
-											<a class="dropdown-item">导出</a>
+											<a class="dropdown-item J_columnset" data-url="">列显示</a>
 										</div>
 									</div>
 								</div>
@@ -64,19 +64,40 @@
 <script src="${baseUrl}/assets/js/rb-list.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script type="text/babel">
-var rbFormModal, csModal, rbList
+var rbList, rbFormModal
+var csModal, assignModal, shareModal
 $(document).ready(function(){
-	const listConfig = JSON.parse('${DataListConfig}')
-	rbList = renderRbcomp(<RbList config={listConfig} />, 'react-list')
+	const DataListConfig = JSON.parse('${DataListConfig}')
+	rbList = renderRbcomp(<RbList config={DataListConfig} />, 'react-list')
 	
 	$('.J_new').click(function(){
 		if (rbFormModal) rbFormModal.show()
 		else rbFormModal = renderRbcomp(<RbFormModal title="新建${entityLabel}" entity="${entityName}" />, 'react-forms')
 	});
+	$('.J_delete').click(function(){
+		let ids = rbList.getSelectedIds()
+		if (ids.length < 1) return
+		rb.alter('确认删除选中的 ' + ids.length + ' 条记录吗？', '删除确认', { type: 'danger', confirm: function(){
+			console.log('TODO delete ... ')
+		} })
+	});
+	$('.J_view').click(function(){
+		let ids = rbList.getSelectedIds()
+		if (ids.length == 1) rb.recordView(ids[0], '${entityName}')
+	});
 
-	$('.J_column-set').click(function(){
+	$('.J_columnset').click(function(){
 		if (csModal) csModal.show()
 		else csModal = rb.modal('${baseUrl}/page/general-entity/columns-settings?entity=${entityName}', '设置列显示')
+	});
+
+	$('.J_assign').click(function(){
+		if (assignModal) assignModal.show()
+		else assignModal = rb.modal('${baseUrl}/page/general-entity/assign', '分配记录')
+	});
+	$('.J_share').click(function(){
+		if (shareModal) shareModal.show()
+		else shareModal = rb.modal('${baseUrl}/page/general-entity/share', '共享记录')
 	});
 });
 </script>

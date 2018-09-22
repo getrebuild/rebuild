@@ -245,7 +245,7 @@ $(document).ready(function(){
 		picklistModal = null;
 		$('.J_picklist-edit').click(function(){
 			if (picklistModal) picklistModal.show()
-			else picklistModal = rb.modal(rb.baseUrl + '/admin/entity/picklist-config.htm?entity=${entityName}&field=${fieldName}', '配置列表选项')
+			else picklistModal = rb.modal(rb.baseUrl + '/admin/page/entity/picklist-config?entity=${entityName}&field=${fieldName}', '配置列表选项')
 		})
 	}
 });
