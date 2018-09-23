@@ -52,7 +52,7 @@
 	
 	<servlet>
 		<servlet-name>FileUploader</servlet-name>
-		<servlet-class>cn.devezhao.rebuild.web.commons.FileUploader</servlet-class>
+		<servlet-class>cn.devezhao.rebuild.web.common.FileUploader</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>FileUploader</servlet-name>
@@ -60,7 +60,7 @@
 	</servlet-mapping>
 	<servlet>
 		<servlet-name>FileDownload</servlet-name>
-		<servlet-class>cn.devezhao.rebuild.web.commons.FileDownload</servlet-class>
+		<servlet-class>cn.devezhao.rebuild.web.common.FileDownload</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>FileDownload</servlet-name>

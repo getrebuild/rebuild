@@ -24,10 +24,10 @@
 							<input class="form-control" id="passwd" type="password" placeholder="密码">
 						</div>
 						<div class="form-group row login-tools">
+								
 							<div class="col-6 login-remember">
-								<label class="custom-control custom-checkbox">
-									<input class="custom-control-input" type="checkbox">
-									<span class="custom-control-label">记住登录</span>
+								<label class="custom-control custom-checkbox custom-control-inline" style="margin-bottom:0">
+									<input class="custom-control-input" type="checkbox"><span class="custom-control-label"> 记住登录</span>
 								</label>
 							</div>
 							<div class="col-6 login-forgot-password">

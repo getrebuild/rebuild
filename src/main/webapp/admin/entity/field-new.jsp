@@ -21,6 +21,7 @@
 				<select class="form-control form-control-sm" id="type">
 					<option value="NUMBER">整数</option>
 					<option value="DECIMAL">货币</option>
+					<option value="DATE">日期</option>
 					<option value="DATETIME">日期时间</option>
 					<option value="TEXT">文本</option>
 					<option value="PHONE">电话</option>
@@ -83,7 +84,7 @@ $(document).ready(function(){
 	
 	let referenceLoaded = false;
 	$('#type').change(function(){
-		if (parent && parent.newFieldModal) parent.newFieldModal.loaded()
+		if (parent && parent.newFieldModal) parent.newFieldModal.resize()
 		if ($(this).val() == 'REFERENCE'){
 			$('.J_dt-REFERENCE').removeClass('hide');
 			if (referenceLoaded == false){

@@ -5844,6 +5844,16 @@ button.close {
 	margin: -1rem -1rem -1rem auto
 }
 
+.modal-header > .icon {
+	font-size: 2.1rem;
+	color: #4285f4;
+	width: 24px;
+	overflow: hidden;
+	text-align: center;
+	margin-right: 9px;
+	margin-top: 2px;
+}
+
 .modal-title {
 	margin-bottom: 0;
 	line-height: 1.428571
@@ -18873,7 +18883,7 @@ pre code {
 	width: 1.51rem;
 	height: 1.51rem;
 	border: 1px solid #ccc;
-	border-radius: 3px;
+	border-radius: 2px;
 	margin: 0 0
 }
 
@@ -18885,6 +18895,7 @@ pre code {
 	font-weight: 400;
 	text-align: center;
 	line-height: 1.1;
+	margin-left: -1px;
 }
 
 .custom-radio .custom-control-label:before {

@@ -120,7 +120,7 @@ const itemRender = function(data, append){
 	item.find('.dd3-action .J_del').off('click').click(function(){
 		$(this).parent().parent().remove()
 	});
-	if (data['default'] === true) item.find('.dd3-action .J_default').trigger('click')
+	if (data['default'] === true && append == '.J_showbox') item.find('.dd3-action .J_default').trigger('click')
 };
 </script>
 </body>

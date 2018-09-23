@@ -25,29 +25,38 @@ import cn.devezhao.persist4j.dialect.Type;
  */
 public enum DisplayType {
 	
-	NUMBER("数字", FieldType.LONG),
-	DECIMAL("货币", FieldType.DECIMAL),
-	DATE("日期", FieldType.DATE),
-	DATETIME("日期时间", FieldType.TIMESTAMP),
-	TEXT("文本", FieldType.STRING),
-	EMAIL("邮箱", FieldType.STRING),
-	URL("链接", FieldType.STRING),
-	PHONE("电话", FieldType.STRING),
-	IMAGE("图片", FieldType.STRING),
-	FILE("附件", FieldType.STRING),
-	PICKLIST("列表", FieldType.REFERENCE),
-	REFERENCE("引用", FieldType.REFERENCE),
+	NUMBER("数字", FieldType.LONG, "##,###"),
+	DECIMAL("货币", FieldType.DECIMAL, "##,##0.00"),
 	
-	ID("主键", FieldType.PRIMARY);
+	DATE("日期", FieldType.DATE, "yyyy-MM-dd"),
+	DATETIME("日期时间", FieldType.TIMESTAMP, "yyyy-MM-dd HH:mm"),
+	
+	TEXT("文本", FieldType.STRING, null),
+	EMAIL("邮箱", FieldType.STRING, null),
+	URL("链接", FieldType.STRING, null),
+	PHONE("电话", FieldType.STRING, null),
+
+	IMAGE("图片", FieldType.STRING, null),
+	FILE("附件", FieldType.STRING, null),
+	
+	PICKLIST("列表", FieldType.REFERENCE, null),
+	REFERENCE("引用", FieldType.REFERENCE, null),
+	ID("主键", FieldType.PRIMARY, null),
+	
+	LOCATION("位置", FieldType.STRING, null),
+	
+	_BOOL("布尔", FieldType.BOOL, null);
 	
 	// --
 	
 	private String displayName;
 	private Type fieldType;
+	private String defaultFormat;
 	
-	private DisplayType(String displayName, Type fieldType) {
+	private DisplayType(String displayName, Type fieldType, String defaultFormat) {
 		this.displayName = displayName;
 		this.fieldType = fieldType;
+		this.defaultFormat = defaultFormat;
 	}
 	
 	public String getDisplayName() {
@@ -56,6 +65,10 @@ public enum DisplayType {
 	
 	public Type getFieldType() {
 		return fieldType;
+	}
+	
+	public String getDefaultFormat() {
+		return defaultFormat;
 	}
 	
 	@Override

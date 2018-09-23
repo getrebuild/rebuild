@@ -71,13 +71,13 @@
 						<div class="form-group row J_for-DECIMAL hide">
 							<label class="col-sm-2 col-form-label text-sm-right">小数位长度</label>
 							<div class="col-lg-4 col-sm-10">
-								<select class="form-control form-control-sm" id="decimalPrecision">
-									<option value="1">1位</option>
-									<option value="2" selected="selected">2位</option>
-									<option value="3">3位</option>
-									<option value="4">4位</option>
-									<option value="5">5位</option>
-									<option value="6">6位</option>
+								<select class="form-control form-control-sm" id="decimalFormat">
+									<option value="##,##0.0">1位</option>
+									<option value="##,##0.00" selected="selected">2位</option>
+									<option value="##,##0.000">3位</option>
+									<option value="##,##0.0000">4位</option>
+									<option value="##,##0.00000">5位</option>
+									<option value="##,##0.000000">6位</option>
 								</select>
 							</div>
 						</div>
@@ -87,11 +87,20 @@
 								<div class="form-control-plaintext"><a href="../../${fieldRefentity}/base">${fieldRefentityLabel} (${fieldRefentity})</a></div>
 							</div>
 						</div>
-						<div class="form-group row J_for-DATETIME hide">
+						<div class="form-group row J_for-DATE hide">
 							<label class="col-sm-2 col-form-label text-sm-right">格式</label>
 							<div class="col-lg-4 col-sm-10">
 								<select class="form-control form-control-sm" id="dateFormat">
+									<option value="yyyy">YYYY</option>
 									<option value="yyyy-MM">YYYY-MM</option>
+									<option value="yyyy-MM-dd" selected="selected">YYYY-MM-DD</option>
+								</select>
+							</div>
+						</div>
+						<div class="form-group row J_for-DATETIME hide">
+							<label class="col-sm-2 col-form-label text-sm-right">格式</label>
+							<div class="col-lg-4 col-sm-10">
+								<select class="form-control form-control-sm" id="datetimeFormat">
 									<option value="yyyy-MM-dd">YYYY-MM-DD</option>
 									<option value="yyyy-MM-dd HH:mm" selected="selected">YYYY-MM-DD HH:MM</option>
 									<option value="yyyy-MM-dd HH:mm:ss">YYYY-MM-DD HH:MM:SS</option>
@@ -134,7 +143,7 @@
 						</div>
 						<div class="form-group row footer">
 							<div class="col-lg-4 col-sm-10 offset-sm-2">
-								<button class="btn btn-primary" type="button">保存</button>
+								<button class="btn btn-primary J_save" type="button">保存</button>
 								<div class="alert alert-warning alert-icon hide">
 									<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
 									<div class="message">系统内建字段，不允许修改</div>
@@ -163,7 +172,7 @@ $(document).ready(function(){
 	if (dt.indexOf('(') > -1) dt = dt.match('\\((.+?)\\)')[1];
 	const extConfigOld = JSON.parse('${fieldExtConfig}' || '{}');
 	
-	const btn = $('.btn-primary').click(function(){
+	const btn = $('.J_save').click(function(){
 		if (!!!metaId) return;
 		let label = $val('#fieldLabel'),
 			comments = $val('#comments'),

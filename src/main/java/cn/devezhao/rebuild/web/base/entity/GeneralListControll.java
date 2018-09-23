@@ -48,7 +48,7 @@ public class GeneralListControll extends BaseControll {
 	public ModelAndView pageList(@PathVariable String entity, 
 			HttpServletRequest request) throws IOException {
 		ModelAndView mv = createModelAndView("/general-entity/record-list.jsp", entity);
-		JSON cfg = DataListManager.getListColumnConfig(entity);
+		JSON cfg = DataListManager.getColumnLayout(entity);
 		mv.getModel().put("DataListConfig", JSON.toJSONString(cfg));
 		return mv;
 	}

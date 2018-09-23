@@ -57,7 +57,7 @@
 					<div class="card">
 						<div class="card-header">
 							字段列表
-							<div class="float-right"><span class="not-nullable">必填</span><span class="readonly">只读</span></div>
+							<div class="float-right"><span class="not-nullable">必填字段</span><span class="readonly">只读字段</span></div>
 						</div>
 						<div class="card-body" style="padding-top:6px">
 							<div class="field-list dd-list connectedSortable">

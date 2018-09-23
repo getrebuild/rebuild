@@ -63,14 +63,16 @@ class RbView extends React.Component {
         this.state = { ...props, inLoad: true, isShow: false }
     }
     render() {
-        let adminUrl = rb.baseUrl + '/admin/entity/' + this.props.entity + '/view-design'
         return (
             <div className={'modal rbview ' + (this.state.isShow == true && 'show')} ref="rbview">
                 <div className="modal-dialog">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h3 className="modal-title">{this.state.title || 'RbView'}</h3>
-                            <a className="close admin-settings" href={adminUrl} title="配置布局" target="_blank"><span className="zmdi zmdi-settings"></span></a>
+                            {this.state.icon ? (<span className={'icon zmdi zmdi-' + this.state.icon}></span>) : '' }
+                            <h3 className="modal-title">
+                                {this.state.title || '视图'}
+                            </h3>
+                            <a className="close admin-settings" href={rb.baseUrl + '/admin/entity/' + this.state.entity + '/view-design'} title="配置布局" target="_blank"><span className="zmdi zmdi-settings"></span></a>
                             <button className="close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
                         </div>
                         <div className={'modal-body iframe rb-loading ' + (this.state.inLoad == true && 'rb-loading-active')}>
@@ -102,11 +104,12 @@ class RbView extends React.Component {
             this.setState({ inLoad: false })
         }
     }
-    show(url) {
-        this.state.url = url || this.state.url
+    show(url, ext) {
+        ext = ext || {}
+        url = url || this.state.url
         let root = $(this.refs['rbview'])
         let that = this
-        this.setState({ isShow: true }, function(){
+        this.setState({ ...ext, isShow: true, url: url }, function(){
             root.find('.modal-content').animate({ 'margin-right': 0 }, 400)
             setTimeout(function(){
                 that.setState({ showAfterUrl: that.state.url })
@@ -237,8 +240,8 @@ rb.modal = function(url, title, ext) {
 
 // 打开视图
 var viewModal
-rb.recordView = function(id, entity) {
+rb.recordView = function(id, title, entity, icon) {
     let viewUrl = rb.baseUrl + '/app/' + entity + '/view/' + id
-    if (viewModal) viewModal.show(viewUrl)
-    else viewModal = renderRbcomp(<RbView url={viewUrl} entity={entity} />)
+    if (viewModal) viewModal.show(viewUrl, { entity: entity, title: title, icon: icon })
+    else viewModal = renderRbcomp(<RbView url={viewUrl} entity={entity} title={title} icon={icon} />)
 }

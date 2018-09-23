@@ -29,8 +29,10 @@ import com.alibaba.fastjson.JSONObject;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.BaseMeta;
+import cn.devezhao.rebuild.server.RebuildException;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
 import cn.devezhao.rebuild.server.metadata.MetadataHelper;
 
@@ -112,20 +114,44 @@ public class EasyMeta implements BaseMeta {
 	 * @return
 	 */
 	public String getDisplayType(boolean fullName) {
-		if (baseMeta instanceof Field) {
+		if (isField()) {
+			DisplayType dt = getDisplayType();
+			if (fullName) {
+				return dt.getDisplayName() + " (" + dt.name() + ")";
+			} else {
+				return dt.name();
+			}
+		}
+		throw new UnsupportedOperationException("Non `field` entry");
+	}
+	
+	/**
+	 * @return
+	 */
+	public DisplayType getDisplayType() {
+		if (isField()) {
 			Object[] ext = getMetaExt();
 			if (ext != null) {
 				DisplayType dt = (DisplayType) ext[2];
-				if (fullName) {
-					return dt.getDisplayName() + " (" + dt.name() + ")";
-				} else {
-					return dt.name();
-				}
-			} else {
-				return ((Field) baseMeta).getType().getName().toUpperCase();
+				return dt;
+			}
+			
+			Type ft = ((Field) baseMeta).getType();
+			if (ft == FieldType.PRIMARY) {
+				return DisplayType.ID;
+			} else if (ft == FieldType.REFERENCE) {
+				return DisplayType.REFERENCE;
+			} else if (ft == FieldType.TIMESTAMP) {
+				return DisplayType.DATETIME;
+			} else if (ft == FieldType.DATE) {
+				return DisplayType.DATE;
+			} else if (ft == FieldType.STRING) {
+				return DisplayType.TEXT;
+			} else if (ft == FieldType.BOOL) {
+				return DisplayType._BOOL;
 			}
 		}
-		return null;
+		throw new RebuildException("Unsupported field type : " + this.baseMeta);
 	}
 	
 	/**
@@ -239,12 +265,7 @@ public class EasyMeta implements BaseMeta {
 	 * @return
 	 */
 	public static DisplayType getDisplayType(Field field) {
-		Object[] ext = MetadataHelper.getFieldExtmeta(field);
-		if (ext == null) {
-			return null;
-		} else {
-			return (DisplayType) ext[2];
-		}
+		return new EasyMeta(field).getDisplayType();
 	}
 	
 	/**

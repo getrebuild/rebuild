@@ -30,6 +30,8 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.rebuild.server.metadata.EntityHelper;
 import cn.devezhao.rebuild.server.metadata.MetadataHelper;
+import cn.devezhao.rebuild.server.service.entitymanage.DisplayType;
+import cn.devezhao.rebuild.server.service.entitymanage.EasyMeta;
 
 /**
  * 列表查询解析
@@ -38,7 +40,7 @@ import cn.devezhao.rebuild.server.metadata.MetadataHelper;
  * @version $Id: QueryParser.java 1430 2015-04-16 11:29:21Z zhaoff@qidapp.com $
  * @since 1.0, 2013-6-20
  */
-public class JSONQueryParser {
+public class JsonQueryParser {
 
 	protected JSONObject queryElement;
 	
@@ -56,7 +58,7 @@ public class JSONQueryParser {
 	 * @param queryElement
 	 * @param dataListControl
 	 */
-	public JSONQueryParser(JSONObject queryElement, DataListControl dataListControl) {
+	public JsonQueryParser(JSONObject queryElement, DataListControl dataListControl) {
 		this.queryElement = queryElement;
 		this.dataListControl = dataListControl;
 		
@@ -107,6 +109,9 @@ public class JSONQueryParser {
 		
 		StringBuffer sqlBase = new StringBuffer("select ");
 		for (Field field : fieldList) {
+			if (EasyMeta.getDisplayType(field) == DisplayType.PICKLIST) {
+				sqlBase.append('&');
+			}
 			sqlBase.append(field.getName()).append(',');
 		}
 		// 最后增加一个主键列
@@ -195,20 +200,8 @@ public class JSONQueryParser {
 	 */
 	protected String parseSort(String sort) {
 		String[] sort_s = sort.split(":");
-		return sort_s[0] + ("desc".equalsIgnoreCase(sort_s[1]) ? " desc" : " asc");
-		
-//		StringBuffer sb = new StringBuffer(); 
-//		int index = 0;
-//		for (Object o : sortNode) {
-//			JSONObject el = (JSONObject) o;
-//			String field = el.getString("field");
-//			String type = BooleanUtils.toBoolean(el.getString("ascending")) ? " asc" : " desc";
-//			
-//			sb.append(index++ == 0 ? ' ' : ',')
-//					.append(field)
-//					.append(type);
-//		}
-//		return sb.toString();
+		String sortField = sort_s[0];
+		return sortField + ("desc".equalsIgnoreCase(sort_s[1]) ? " desc" : " asc");
 	}
 	
 	/**

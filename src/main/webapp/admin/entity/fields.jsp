@@ -94,9 +94,9 @@ $(document).ready(function(){
 		$(res.data).each(function(){
 			let tr = $('<tr data-id="' + (this.fieldId || '') + '"></tr>').appendTo(tbody);
 			$('<td><a href="field/' + this.fieldName + '" class="column-main">' + this.fieldLabel + '</a></td>').appendTo(tr);
-			$('<td>' + this.fieldName + '</td>').appendTo(tr);
+			$('<td><div class="text-muted">' + this.fieldName + '</div></td>').appendTo(tr);
 			$('<td>' + this.displayType + '</td>').appendTo(tr);
-			$('<td><div style="max-width:300px">' + (this.comments || '--') + '</div></td>').appendTo(tr);
+			$('<td><div>' + (this.comments || '') + '</div></td>').appendTo(tr);
 			let actions = $('<td class="actions"><a class="icon J_edit" href="field/' + this.fieldName + '"><i class="zmdi zmdi-settings"></i></a><a class="icon J_del"><i class="zmdi zmdi-delete"></i></a></td>').appendTo(tr);
 			actions.find('.J_del').click(function(){
 				if (!!!tr.data('id')){

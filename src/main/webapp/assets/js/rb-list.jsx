@@ -11,7 +11,7 @@ class RbList extends React.Component {
         this.setPageSize = this.setPageSize.bind(this)
         
         this.__defaultColumnWidth = $('#react-list').width() / 10
-        this.__defaultColumnWidth = 130;
+        if (this.__defaultColumnWidth < 130) this.__defaultColumnWidth = 130
     }
     render() {
         let that = this;
@@ -39,12 +39,12 @@ class RbList extends React.Component {
                     <tbody>
                         {this.state.rowData.map((item, index) => {
                             let lastGhost = item[lastIndex];
-                            return (<tr  className={lastGhost[1] && 'table-active'} data-id={lastGhost[0]} onClick={this.clickRow.bind(this, index, false)}>
+                            return (<tr className={lastGhost[3] && 'table-active'} data-id={lastGhost[0]} onClick={this.clickRow.bind(this, index, false)}>
                                 <td className="column-checkbox">
-                                    <div><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={lastGhost[1]} onClick={this.clickRow.bind(this, index, true)} /><span className="custom-control-label"></span></label></div>
+                                    <div><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={lastGhost[3]} onClick={this.clickRow.bind(this, index, true)} /><span className="custom-control-label"></span></label></div>
                                 </td>
                                 {item.map((cell, index) => {
-                                    return that.__renderCell(cell, index)
+                                    return that.__renderCell(cell, index, lastGhost)
                                 })}
                                 <td className="column-empty"></td>
                             </tr>)
@@ -78,15 +78,16 @@ class RbList extends React.Component {
     }
     componentDidUpdate() {
         let that = this
-        let selectedRows = []
+        this.__selectedRows = []
         this.state.rowData.forEach((item) => {
             let lastGhost = item[that.state.fields.length];
-            if (lastGhost[1] == true) selectedRows.push(lastGhost[0])
+            if (lastGhost[3] == true) that.__selectedRows.push(lastGhost)
         })
+        
         $('.J_delete, .J_view').attr('disabled', true)
-        if (selectedRows.length > 0) $('.J_delete').attr('disabled', false)
-        if (selectedRows.length == 1) $('.J_view').attr('disabled', false)
-        this.__selectedRows = selectedRows
+        let sLen = this.__selectedRows.length
+        if (sLen > 0) $('.J_delete').attr('disabled', false)
+        if (sLen == 1) $('.J_view').attr('disabled', false)
     }
     
     fetchList(filter) {
@@ -114,13 +115,13 @@ class RbList extends React.Component {
                 if (_rowData.length == 0) {
                     that.setState({ noData: true });
                 } else {
-                    let lastIndex = _rowData[0].length - 1;
+                    let lastIndex = _rowData[0].length - 1
                     _rowData = _rowData.map((item) => {
-                        item[lastIndex] = [item[lastIndex], false]  // [ID, Checked?]
+                        item[lastIndex][3] = false  // Checked?
                         return item;
                     })
                 }
-                that.setState({ rowData: _rowData, rowTotal: res.data.total });
+                that.setState({ rowData: _rowData, rowTotal: res.data.total })
             }else{
                 rb.notice(res.error_msg || '数据加载失败，请稍后重试', 'error')
             }
@@ -130,63 +131,71 @@ class RbList extends React.Component {
     
     // 渲染表格及相关事件处理
     
-    __renderCell(cellVal, index) {
-        if (this.state.fields.length == index) return null;
-        if (!!!cellVal) return <td><div></div></td>;
-        
-        let ft = this.state.fields[index].type;
+    __renderCell(cellVal, index, lastGhost) {
+        if (this.state.fields.length == index) return null
+        if (!!!cellVal) return <td><div></div></td>
+       
+        const field = this.state.fields[index]
         let styles = { width: (this.state.fields[index].width || this.__defaultColumnWidth) + 'px' }
-        if (ft == 'IMAGE') {
-            cellVal = JSON.parse(cellVal)
+        if (field.type == 'IMAGE') {
+            cellVal = JSON.parse(cellVal || '[]')
             return <td><div style={styles}>{cellVal.map((item)=>{
                 return <a href={'#!/Preview/' + item} className="img-thumbnail img-zoom"><img src={rb.storageUrl + item} /></a>
-            })}<div className="clearfix" /></div></td>;
-        } else if (ft == 'FILE') {
-            cellVal = JSON.parse(cellVal);
+            })}<div className="clearfix" /></div></td>
+        } else if (field.type == 'FILE') {
+            cellVal = JSON.parse(cellVal || '[]')
             return <td><div style={styles}>{cellVal.map((item)=>{
-                let fileName = item.split('/');
+                let fileName = item.split('/')
                 if (fileName.length > 1) fileName = fileName[fileName.length - 1];
                 fileName = fileName.substr(15);
                 return <a href={'#!/Preview/' + item}>{fileName}</a>
             })}</div></td>;
-        } else if ($.type(cellVal) == 'array'){
-            return <td><div style={styles}><a href={'#!/View/' + cellVal[2] + '/' + cellVal[0]} onClick={() => this.clickView(cellVal)}>{cellVal[1]}</a></div></td>;
+        } else if (field.type == 'REFERENCE'){
+            return <td><div style={styles}><a href={'#!/View/' + cellVal[2][0] + '/' + cellVal[0]} onClick={() => this.clickView(cellVal)}>{cellVal[1]}</a></div></td>
+        } else if (field.field == this.props.config.nameField){
+            cellVal = lastGhost
+            return <td><div style={styles}><a href={'#!/View/' + cellVal[2][0] + '/' + cellVal[0]} onClick={() => this.clickView(cellVal)} className="column-main">{cellVal[1]}</a></div></td>
+        } else if (field.type == 'URL') {
+            return <td><div style={styles}><a href={rb.baseUrl + '/common/url-safe?url=' + encodeURIComponent(cellVal)} className="column-url" target="_blank">{cellVal}</a></div></td>
+        } else if (field.type == 'EMAIL') {
+            return <td><div style={styles}><a href={'mailto:' + cellVal} className="column-url">{cellVal}</a></div></td>
         } else {
-            return <td><div style={styles}>{cellVal || ''}</div></td>;
+            return <td><div style={styles}>{cellVal}</div></td>
         }
     }
     toggleAllRow(e) {
-        let checked = this.state.checkedAll == false;
-        let _rowData = this.state.rowData;
+        let checked = this.state.checkedAll == false
+        let _rowData = this.state.rowData
         _rowData = _rowData.map((item) => {
-            item[item.length - 1][1] = checked;  // Checked?
+            item[item.length - 1][3] = checked  // Checked?
             return item;
         });
-        this.setState({ checkedAll: checked, rowData: _rowData });
+        this.setState({ checkedAll: checked, rowData: _rowData })
         return false;
     }
     clickRow(rowIndex, holdOthers, e) {
-        if (e.target.tagName == 'SPAN') return false;
+        if (e.target.tagName == 'SPAN') return false
         e.stopPropagation()
         e.nativeEvent.stopImmediatePropagation()
         
-        let _rowData = this.state.rowData;
-        let lastIndex = _rowData[0].length - 1;
+        let _rowData = this.state.rowData
+        let lastIndex = _rowData[0].length - 1
         if (holdOthers == true){
             let item = _rowData[rowIndex];
-            item[lastIndex][1] = item[lastIndex][1] == false;  // Checked?
-            _rowData[rowIndex] = item;
+            item[lastIndex][3] = item[lastIndex][3] == false  // Checked?
+            _rowData[rowIndex] = item
         } else {
             _rowData = _rowData.map((item, index) => {
-                item[lastIndex][1] = index == rowIndex;
-                return item;
+                item[lastIndex][3] = index == rowIndex
+                return item
             })
         }
-        this.setState({ rowData: _rowData });
-        return false;
+        this.setState({ rowData: _rowData })
+        return false
     }
     clickView(cellVal) {
         console.log(cellVal)
+        rb.recordView(cellVal[0], cellVal[1], cellVal[2][0], cellVal[2][1])
         return false;
     }
     
@@ -209,7 +218,7 @@ class RbList extends React.Component {
     
     // 外部接口
     
-    getSelectedIds() {
+    getSelectedRows() {
         return this.__selectedRows
     }
     

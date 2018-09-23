@@ -15,21 +15,10 @@ limitations under the License.
 */
 package cn.devezhao.rebuild.web.base.entity.datalist;
 
-import java.util.List;
-import java.util.Map;
-
 import com.alibaba.fastjson.JSONObject;
 
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Query;
-import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.persist4j.query.compiler.SelectItem;
 import cn.devezhao.rebuild.server.Application;
-import cn.devezhao.rebuild.server.metadata.MetadataHelper;
-import cn.devezhao.rebuild.server.service.base.PickListManager;
-import cn.devezhao.rebuild.server.service.entitymanage.DisplayType;
-import cn.devezhao.rebuild.server.service.entitymanage.EasyMeta;
 
 /**
  * 数据列表控制器
@@ -40,7 +29,9 @@ import cn.devezhao.rebuild.server.service.entitymanage.EasyMeta;
  */
 public class DefaultDataListControl implements DataListControl {
 
-	protected JSONQueryParser queryParser;
+	protected static final int READ_TIMEOUT = 15 * 1000;
+	
+	protected JsonQueryParser queryParser;
 
 	/**
 	 */
@@ -51,13 +42,13 @@ public class DefaultDataListControl implements DataListControl {
 	 * @param queryElement
 	 */
 	public DefaultDataListControl(JSONObject queryElement) {
-		this.queryParser = new JSONQueryParser(queryElement, this);
+		this.queryParser = new JsonQueryParser(queryElement, this);
 	}
 
 	/**
 	 * @return
 	 */
-	public JSONQueryParser getQueryParser() {
+	public JsonQueryParser getQueryParser() {
 		return queryParser;
 	}
 
@@ -68,79 +59,18 @@ public class DefaultDataListControl implements DataListControl {
 	
 	@Override
 	public String getResult() {
-		int timeout = 10 * 1000;
 		int total = 0;
 		if (queryParser.isNeedReload()) {
 			String countSql = queryParser.toSqlCount();
 			total = ((Long) Application.createQuery(countSql).unique()[0]).intValue();
 		}
 		
-		Query query = Application.createQuery(queryParser.toSql()).setTimeout(timeout);
-		int[] limit = queryParser.getSqlLimit();
-		Object[][] array = query.setLimit(limit[0], limit[1]).array();
-
-		// 补充引用字段的 NameField
-		Field[] fields = queryParser.getFieldList();
-		for (int i = 0; i < fields.length; i++) {
-			DisplayType dt = EasyMeta.getDisplayType(fields[i]);
-			if (dt == DisplayType.REFERENCE) {
-				for (Object o[] : array) {
-					o[i] = readReferenceNamed(o[i]);
-				}
-			} else if (dt == DisplayType.PICKLIST) {
-				for (Object o[] : array) {
-					o[i] = readPickListLabel(o[i], fields[i]);
-				}
-			}
-		}
+		Query query = Application.createQuery(queryParser.toSql()).setTimeout(READ_TIMEOUT);
+		int[] limits = queryParser.getSqlLimit();
+		Object[][] array = query.setLimit(limits[0], limits[1]).array();
 		
-		DataWrapper wrapper = getDataWrapper(total, array, query.getSelectItems());
+		DataWrapper wrapper = new DataWrapper(
+				total, array, query.getSelectItems(), query.getRootEntity());
 		return wrapper.toJson();
-	}
-
-	/**
-	 * @param total
-	 * @param data
-	 * @param fields
-	 * @return
-	 */
-	protected DataWrapper getDataWrapper(int total, Object[][] data, SelectItem[] fields) {
-		return new DataWrapper(total, data, fields);
-	}
-	
-	/**
-	 * @param idVal
-	 * @return
-	 */
-	protected Object[] readReferenceNamed(Object idVal) {
-		if (idVal == null) {
-			return null;
-		}
-		
-		ID id = (ID) idVal;
-		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
-		String sql = String.format("select %s from %s where %s = ?",
-				entity.getNameField().getName(), entity.getName(), entity.getPrimaryField().getName());
-		Object[] named = Application.createQuery(sql).setParameter(1, id).unique();
-		return new Object[] { id, named == null ? "" : named[0] };
-	}
-	
-	/**
-	 * @param itemId
-	 * @param field
-	 * @return
-	 */
-	protected String readPickListLabel(Object itemId, Field field) {
-		if (itemId == null) {
-			return null;
-		}
-		
-		List<Map<String, Object>> list = PickListManager.getPickListRaw(field.getOwnEntity().getName(), field.getName(), true, false);
-		for (Map<String, Object> e : list) {
-			if (itemId.toString().equals(e.get("id"))) {
-				return (String) e.get("text");
-			}
-		}
-		return "!!!删除!!!";
 	}
 }

@@ -288,7 +288,7 @@ a {
 	width: 12px;
 	height: 32px;
 	cursor: pointer;
-	padding-top: 10px;
+	padding-top: 12px;
 }
 
 .col-form-label em {
@@ -308,7 +308,7 @@ a {
 }
 
 .rbnotice {
-	position: absolute;
+	position: fixed;
 	width: 360px;
 	top: 6px;
 	left: 50%;
@@ -405,6 +405,11 @@ i.split.ui-draggable-dragging {
 	text-overflow: ellipsis;
 	overflow: hidden;
 	clear: both;
+	max-width: 300px;
+}
+
+.data-list .table td, .data-list .table td>div.nmw {
+	max-width: 1000px;
 }
 
 .data-list td .img-zoom {
@@ -436,12 +441,26 @@ i.split.ui-draggable-dragging {
 	padding-left: 0px;
 }
 
+.column-checkbox .custom-control-label::after {
+	margin-left: 0 !important;
+}
+
 .column-main {
-	border-bottom: 1px dotted;
+	border-bottom: 1px solid;
+}
+
+.column-main:hover {
+	border-bottom: 0 solid;
+}
+
+.column-url {
+}
+
+.column-url:hover {
+	text-decoration: underline;
 }
 
 .column-empty {
-	
 }
 
 .text-3dot {
@@ -573,6 +592,7 @@ h5.sortable-box-title {
 }
 
 .rbview-form {
+	
 }
 
 .rbview-form .card-header-divider {
@@ -588,4 +608,8 @@ h5.sortable-box-title {
 
 .rbview-form .form-control-plaintext:hover {
 	background-color: #f8f8f8
+}
+
+.main-content .card.card-table {
+	margin-bottom: 0;
 }

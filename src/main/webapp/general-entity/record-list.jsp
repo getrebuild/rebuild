@@ -75,15 +75,18 @@ $(document).ready(function(){
 		else rbFormModal = renderRbcomp(<RbFormModal title="新建${entityLabel}" entity="${entityName}" />, 'react-forms')
 	});
 	$('.J_delete').click(function(){
-		let ids = rbList.getSelectedIds()
-		if (ids.length < 1) return
-		rb.alter('确认删除选中的 ' + ids.length + ' 条记录吗？', '删除确认', { type: 'danger', confirm: function(){
-			console.log('TODO delete ... ')
+		let s = rbList.getSelectedRows()
+		if (s.length < 1) return
+		rb.alter('确认删除选中的 ' + s.length + ' 条记录吗？', '删除确认', { type: 'danger', confirm: function(){
+			console.log('TODO delete ... ' + JSON.stringify(s))
 		} })
 	});
 	$('.J_view').click(function(){
-		let ids = rbList.getSelectedIds()
-		if (ids.length == 1) rb.recordView(ids[0], '${entityName}')
+		let s = rbList.getSelectedRows()
+		if (s.length == 1) {
+			s = s[0]
+			rb.recordView(s[0], s[1], s[2][0], s[2][1])
+		}
 	});
 
 	$('.J_columnset').click(function(){

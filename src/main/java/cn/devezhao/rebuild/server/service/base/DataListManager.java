@@ -48,14 +48,17 @@ public class DataListManager extends LayoutManager {
 	 * @param entity
 	 * @return
 	 */
-	public static JSON getListColumnConfig(String entity) {
-		Object[] lcr = getLayoutConfigRaw(entity, TYPE_DATALIST);
+	public static JSON getColumnLayout(String entity) {
+		Object[] raw = getLayoutConfigRaw(entity, TYPE_DATALIST);
 		
 		List<Map<String, Object>> columnList = new ArrayList<>();
 		Entity entityMeta = MetadataHelper.getEntity(entity);
+		
+		Field nameField = entityMeta.getNameField();
+		nameField = nameField == null ? entityMeta.getPrimaryField() : nameField;
+		
 		// 默认配置
-		if (lcr == null) {
-			Field nameField = entityMeta.getNameField();
+		if (raw == null) {
 			if (nameField != null) {
 				columnList.add(warpColumn(nameField));
 			}
@@ -63,7 +66,7 @@ public class DataListManager extends LayoutManager {
 				columnList.add(warpColumn(entityMeta.getField(EntityHelper.createdOn)));
 			}
 		} else {
-			JSONArray config = (JSONArray) lcr[1];
+			JSONArray config = (JSONArray) raw[1];
 			for (Object o : config) {
 				JSONObject jo = (JSONObject) o;
 				String field = jo.getString("field");
@@ -82,6 +85,7 @@ public class DataListManager extends LayoutManager {
 		
 		Map<String, Object> ret = new HashMap<>();
 		ret.put("entity", entity);
+		ret.put("nameField", nameField.getName());
 		ret.put("fields", columnList);
 		return (JSON) JSON.parse(JSON.toJSONString(ret));
 	}

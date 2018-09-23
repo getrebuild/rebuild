@@ -7,10 +7,11 @@
 <style type="text/css">
 .card.entity:hover{background-color:rgba(255,255,255,.7)}
 .card.entity .card-body{padding:14px 20px;color:#333;}
-.card.entity .icon{font-size:32px;margin-right:12px;color:#4285f4;}
+.card.entity .icon{font-size:32px;color:#4285f4;}
+.card.entity .card-body .float-left{width:30px;text-align:center;}
 .card.entity span{margin-top:2px;display:block;}
 .card.entity p{margin:0}
-.title{margin-left:43px}
+.title{margin-left:44px}
 </style>
 </head>
 <body>

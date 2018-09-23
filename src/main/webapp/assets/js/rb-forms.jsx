@@ -77,7 +77,7 @@ const __detectElement = function(item){
         return <RbFormImage {...item} />
     } else if (item.type == 'FILE'){
         return <RbFormFile {...item} />
-    } else if (item.type == 'DATETIME'){
+    } else if (item.type == 'DATETIME' || item.type == 'DATE'){
         return <RbFormDateTime {...item} />
     } else if (item.type == 'PICKLIST'){
         return <RbFormPickList {...item} />
@@ -123,7 +123,7 @@ class RbForm extends React.Component {
     __renderFormError(message) {
         let fdUrl = rb.baseUrl + '/admin/entity/' + this.props.entity + '/form-design'
         message = message || `表单尚未配置，请 <a href="${fdUrl}">配置</a> 后使用`
-        message = { __html: '<strong>Opps! </strong> ' + message }
+        message = { __html: '<strong>错误! </strong> ' + message }
         return <div class="alert alert-contrast alert-warning">
             <div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
             <div class="message" dangerouslySetInnerHTML={message}></div>
@@ -331,7 +331,7 @@ class RbFormDateTime extends RbFormElement {
     }
     componentDidMount() {
         super.componentDidMount()
-        let format = (this.props.dateFormat || 'yyyy-MM-dd HH:mm:ss').replace('mm', 'ii').toLowerCase()
+        let format = (this.props.datetimeFormat || this.props.dateFormat).replace('mm', 'ii').toLowerCase()
         let minView = 0
         switch (format.length) {
             case 7:

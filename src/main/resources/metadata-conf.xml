@@ -87,7 +87,7 @@
 		<index type="unique" field-list="belongEntity,physicalName"/>
 	</entity>
 	
-	<entity name="PickList" type-code="012" description="下拉列表配置选项">
+	<entity name="PickList" type-code="012" name-field="text" description="下拉列表配置选项">
 		<field name="itemId" type="primary"/>
 		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
 		<field name="belongField" type="string" max-length="100" nullable="false" updatable="false" />

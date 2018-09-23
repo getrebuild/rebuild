@@ -108,8 +108,8 @@ public class FormManager extends LayoutManager {
 				el.put("options", picklist);
 			}
 			else if (DisplayType.DATETIME.name().equals(dt)) {
-				if (!el.containsKey("dateFormat")) {
-					el.put("dateFormat", "yyyy-MM-dd HH:mm:ss");
+				if (!el.containsKey("datetimeFormat")) {
+					el.put("datetimeFormat", "yyyy-MM-dd HH:mm:ss");
 				}
 			}
 			else if (DisplayType.DATE.name().equals(dt)) {
@@ -167,7 +167,10 @@ public class FormManager extends LayoutManager {
 		
 		JSONObject config = (JSONObject) getViewLayout(entity);
 		JSONArray elements = config.getJSONArray("elements");
-		Record record = record(recordId, elements);
+		Record record = null;
+		if (!elements.isEmpty()) {
+			record = record(recordId, elements);
+		}
 		
 		for (Object element : elements) {
 			JSONObject el = (JSONObject) element;
