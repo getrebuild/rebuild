@@ -12331,7 +12331,7 @@ canvas {
 
 .rb-left-sidebar .bottom-widget {
 	padding: 20px;
-	cursor: pointer;
+	cursor: default;
 	background-color: #f0f0f0;
 	margin-top: 0;
 }

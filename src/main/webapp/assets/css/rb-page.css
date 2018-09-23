@@ -525,6 +525,7 @@ h5.sortable-box-title {
 
 .bottom-widget>a {
 	line-height: 42px;
+	display: inline-block;
 }
 
 .bottom-widget>a>.icon {

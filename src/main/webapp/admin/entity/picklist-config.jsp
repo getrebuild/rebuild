@@ -52,8 +52,6 @@
 </li>
 </script>
 <%@ include file="/_include/Foot.jsp"%>
-<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/jquery-ui.min.css">
-<script src="${baseUrl}/assets/lib/jquery-ui.min.js"></script>
 <script type="text/javascript">
 $(document).ready(function(){
 	const entity = $urlp('entity'),
@@ -78,7 +76,6 @@ $(document).ready(function(){
 			hide_items.push({ id: _this.attr('attr-id'), text: _this.find('.dd3-content').text() });
 		});
 		let _data = { show: show_items, hide: hide_items };
-		console.log(JSON.stringify(_data))
 		
 		let btn = $(this).button('loading')
 		$.post(rb.baseUrl + '/admin/field/picklist-sets?' + query, JSON.stringify(_data), function(res){
