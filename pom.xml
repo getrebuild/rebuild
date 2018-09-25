@@ -4,15 +4,15 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>cn.devezhao</groupId>
-	<artifactId>re-build</artifactId>
+	<artifactId>rebuild</artifactId>
 	<packaging>war</packaging>
-	<version>0.1.0-SNAPSHOT</version>
-	<name>re-build</name>
-	<url>http://github.com/devezhao/re-build</url>
+	<version>1.0.0-SNAPSHOT</version>
+	<name>rebuild</name>
+	<url>http://github.com/devezhao/rebuild</url>
 
 	<issueManagement>
 		<system>GitHub</system>
-		<url>https://github.com/devezhao/re-build/issues</url>
+		<url>https://github.com/devezhao/rebuild/issues</url>
 	</issueManagement>
 
 	<properties>
@@ -22,7 +22,7 @@
 	</properties>
 
 	<build>
-		<finalName>re-build</finalName>
+		<finalName>rebuild</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
