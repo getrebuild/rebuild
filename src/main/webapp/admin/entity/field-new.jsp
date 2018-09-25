@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="cn.devezhao.rebuild.server.service.entitymanage.DisplayType"%>
+<%@ page import="com.rebuild.server.service.entitymanage.DisplayType"%>
 <!DOCTYPE html>
 <html>
 <head>

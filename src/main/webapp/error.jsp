@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isErrorPage="true" trimDirectiveWhitespaces="true"%>
-<%@ page import="cn.devezhao.rebuild.web.common.SimplePageForward"%>
-<%@ page import="cn.devezhao.rebuild.utils.AppUtils"%>
+<%@ page import="com.rebuild.web.common.SimplePageForward"%>
+<%@ page import="com.rebuild.utils.AppUtils"%>
 <%@ page import="cn.devezhao.commons.web.ServletUtils"%>
 <%
 String errorMsg = AppUtils.getErrorMessage(request, exception);

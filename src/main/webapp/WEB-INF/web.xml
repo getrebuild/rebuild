@@ -48,13 +48,13 @@
 	</servlet-mapping>
 	<servlet>
 		<servlet-name>Startup</servlet-name>
-		<servlet-class>cn.devezhao.rebuild.server.Startup</servlet-class>
+		<servlet-class>com.rebuild.server.Startup</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	
 	<servlet>
 		<servlet-name>FileUploader</servlet-name>
-		<servlet-class>cn.devezhao.rebuild.web.common.FileUploader</servlet-class>
+		<servlet-class>com.rebuild.web.common.FileUploader</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>FileUploader</servlet-name>
@@ -62,7 +62,7 @@
 	</servlet-mapping>
 	<servlet>
 		<servlet-name>FileDownload</servlet-name>
-		<servlet-class>cn.devezhao.rebuild.web.common.FileDownload</servlet-class>
+		<servlet-class>com.rebuild.web.common.FileDownload</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>FileDownload</servlet-name>

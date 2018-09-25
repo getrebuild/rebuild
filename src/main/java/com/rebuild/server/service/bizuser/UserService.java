@@ -1,0 +1,57 @@
+/*
+Copyright 2018 DEVEZHAO(zhaofang123@gmail.com)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package com.rebuild.server.service.bizuser;
+
+import com.rebuild.server.Application;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.BaseService;
+
+import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.engine.ID;
+
+/**
+ * 
+ * @author zhaofang123@gmail.com
+ * @since 07/25/2018
+ */
+public class UserService extends BaseService {
+	
+	// 系统用户
+	public static final ID SYSTEM_USER = ID.valueOf("001-0000000000000000");
+	// 管理员
+	public static final ID ADMIN_USER = ID.valueOf("001-0000000000000001");
+	
+	protected UserService(PersistManagerFactory persistManagerFactory) {
+		super(persistManagerFactory);
+	}
+
+	@Override
+	public int getEntity() {
+		return EntityHelper.User;
+	}
+	
+	public ID getDeptOfUser(ID user) {
+		Object[] found = Application.createNoFilterQuery(
+				"select deptId from User where userId = ?")
+				.setParameter(1, user)
+				.unique();
+		return (ID) found[0];
+	}
+	
+	// --
+	
+}

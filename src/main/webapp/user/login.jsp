@@ -40,7 +40,7 @@
 					</div>
 				</div>
 				<div class="splash-footer">
-					<span>&copy; 2018 <a href="https://github.com/getrebuild/re-build/" target="_blank">Rebuild</a></span>
+					<span>&copy; 2018 <a href="https://github.com/getrebuild/rebuild/" target="_blank">Rebuild</a></span>
 				</div>
 			</div>
 		</div>

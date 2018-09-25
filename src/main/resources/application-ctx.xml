@@ -14,7 +14,7 @@
         http://www.springframework.org/schema/tx
         http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
 
-	<bean class="cn.devezhao.rebuild.server.AesPreferencesConfigurer">
+	<bean class="com.rebuild.server.AesPreferencesConfigurer">
 		<property name="locations">
 			<list>
 				<value>classpath:jdbc.properties</value>
@@ -49,30 +49,30 @@
 		<constructor-arg index="0" ref="dataSource" />
 		<constructor-arg index="1" ref="dbDialect" />
 		<constructor-arg index="2">
-			<bean class="cn.devezhao.rebuild.server.metadata.DynamicMetadataFactory">
+			<bean class="com.rebuild.server.metadata.DynamicMetadataFactory">
 				<constructor-arg index="0" value="metadata-conf.xml" />
 				<constructor-arg index="1" ref="dbDialect" />
 			</bean>
 		</constructor-arg>
 	</bean>
 
-	<bean class="cn.devezhao.rebuild.server.service.QueryFactory">
+	<bean class="com.rebuild.server.service.QueryFactory">
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 
-	<bean class="cn.devezhao.rebuild.server.service.SqlExecutor">
+	<bean class="com.rebuild.server.service.SqlExecutor">
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 	
-	<bean class="cn.devezhao.rebuild.server.privileges.UserStore" name="UserStore" init-method="init" lazy-init="true">
+	<bean class="com.rebuild.server.privileges.UserStore" name="UserStore" init-method="init" lazy-init="true">
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 
-	<bean class="cn.devezhao.rebuild.server.privileges.SecurityManager" lazy-init="true">
+	<bean class="com.rebuild.server.privileges.SecurityManager" lazy-init="true">
 		<constructor-arg index="0" ref="UserStore" />
 	</bean>
 	
-	<bean class="cn.devezhao.rebuild.web.CurrentCaller" />
+	<bean class="com.rebuild.web.CurrentCaller" />
 
 	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="dataSource" />
@@ -92,21 +92,21 @@
 		<aop:advisor advice-ref="txAdvice" pointcut-ref="txPoint" />
 	</aop:config>
 
-	<bean class="cn.devezhao.rebuild.server.service.CommonService">
+	<bean class="com.rebuild.server.service.CommonService">
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 	
-	<bean class="cn.devezhao.rebuild.server.service.entitymanage.PickListService">
+	<bean class="com.rebuild.server.service.entitymanage.PickListService">
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 	
-	<bean class="cn.devezhao.rebuild.server.service.bizuser.UserService">
+	<bean class="com.rebuild.server.service.bizuser.UserService">
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
-	<bean class="cn.devezhao.rebuild.server.service.bizuser.DepartmentService">
+	<bean class="com.rebuild.server.service.bizuser.DepartmentService">
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
-	<bean class="cn.devezhao.rebuild.server.service.bizuser.RoleService">
+	<bean class="com.rebuild.server.service.bizuser.RoleService">
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 
