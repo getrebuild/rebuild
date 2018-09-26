@@ -188,12 +188,18 @@ public class FormManager extends LayoutManager {
 			// 填充值
 			if (record.hasValue(fieldName)) {
 				Object value = record.getObjectValue(fieldName);
-				if (value instanceof ID) {
+				if (easyField.getDisplayType() == DisplayType.PICKLIST) {
+					ID pickValue = (ID) value;
+					el.put("value", pickValue.getLabel());
+				} 
+				else if (value instanceof ID) {
 					ID idValue = (ID) value;
 					String belongEntity = MetadataHelper.getEntity(idValue.getEntityCode()).getName();
 					el.put("value", new String[] { idValue.toLiteral(), idValue.getLabel(), belongEntity });
-				} else {
-					el.put("value", value.toString());
+				} 
+				else {
+					Object human = FieldValueWrapper.wrapFieldValue(value, easyField);
+					el.put("value", human);
 				}
 			}
 		}

@@ -63,6 +63,7 @@ class RbList extends React.Component {
         scroller.find('th .split').draggable({ containment: '.rb-datatable-body', axis: 'x', helper: 'clone', stop: function(event, ui){
             let field = $(event.target).parent().parent().data('field');
             let left = ui.position.left - 4;
+            if (left < 40) left = 40
             let fields = that.state.fields;
             for (let i = 0; i < fields.length; i++){
                 if (fields[i].field == field){
@@ -71,7 +72,7 @@ class RbList extends React.Component {
                 }
             }
             that.setState({ fields: fields }, function(){
-                //scroller.perfectScrollbar('update')
+//                scroller.perfectScrollbar('update')
             })
         }})
         this.fetchList()
@@ -139,17 +140,17 @@ class RbList extends React.Component {
         let styles = { width: (this.state.fields[index].width || this.__defaultColumnWidth) + 'px' }
         if (field.type == 'IMAGE') {
             cellVal = JSON.parse(cellVal || '[]')
-            return <td><div style={styles}>{cellVal.map((item)=>{
-                return <a href={'#!/Preview/' + item} className="img-thumbnail img-zoom"><img src={rb.storageUrl + item} /></a>
+            return <td><div style={styles} className="column-imgs" title={'点击查看所有图片 (' + cellVal.length + '个)'}>{cellVal.map((item)=>{
+                return <a href={'#!/Preview/' + item} className="img-thumbnail"><img src={rb.storageUrl + item} /></a>
             })}<div className="clearfix" /></div></td>
         } else if (field.type == 'FILE') {
             cellVal = JSON.parse(cellVal || '[]')
-            return <td><div style={styles}>{cellVal.map((item)=>{
+            return <td><div style={styles} className="column-files" title={'点击查看所有文件 (' + cellVal.length + '个)'}><ul className="list-unstyled">{cellVal.map((item)=>{
                 let fileName = item.split('/')
                 if (fileName.length > 1) fileName = fileName[fileName.length - 1];
                 fileName = fileName.substr(15);
-                return <a href={'#!/Preview/' + item}>{fileName}</a>
-            })}</div></td>;
+                return <li className="text-truncate"><a href={'#!/Preview/' + item}>{fileName}</a></li>
+            })}</ul></div></td>;
         } else if (field.type == 'REFERENCE'){
             return <td><div style={styles}><a href={'#!/View/' + cellVal[2][0] + '/' + cellVal[0]} onClick={() => this.clickView(cellVal)}>{cellVal[1]}</a></div></td>
         } else if (field.field == this.props.config.nameField){

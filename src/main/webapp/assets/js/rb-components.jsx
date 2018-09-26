@@ -37,7 +37,7 @@ class RbModal extends React.Component {
             else height += 45;  // .main-content's padding
             root.find('.modal-body').height(height)
             that.setState({ inLoad: false })
-        }, 2000, 'RbModal-resize')
+        }, 200, 'RbModal-resize')
     }
 	show(callback) {
         let that = this
@@ -93,7 +93,7 @@ class RbView extends React.Component {
         let root = $(this.refs['rbview'])
         let mc = root.find('.modal-content')
         root.on('hidden.bs.modal', function(){
-            mc.css({ 'margin-right': -1200 })
+            mc.css({ 'margin-right': -1280 })
             that.setState({ inLoad: true })
         }).on('shown.bs.modal', function(){
             mc.animate({ 'margin-right': 0 }, 400)
