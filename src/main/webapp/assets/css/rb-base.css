@@ -10298,7 +10298,6 @@ a.text-grey:focus,a.text-grey:hover {
 
 html {
 	height: 100%;
-	overflow-x: hidden;
 	font-size: 13px;
 }
 
@@ -10308,6 +10307,7 @@ body {
 	height: auto;
 	min-height: 100%;
 	line-height: 1.42857143
+	overflow-x: hidden;
 }
 
 body.rb-alt-bg {

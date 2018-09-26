@@ -27,9 +27,7 @@ class RbModal extends React.Component {
 	    this.show()
     }
 	resize() {
-        if (!!!this.state.url) {
-            return
-        }
+        if (!!!this.state.url) return
         let root = $(this.refs['rbmodal'])
         let that = this
         $setTimeout(function(){
@@ -39,7 +37,7 @@ class RbModal extends React.Component {
             else height += 45;  // .main-content's padding
             root.find('.modal-body').height(height)
             that.setState({ inLoad: false })
-        }, 100, 'RbModal-resize')
+        }, 2000, 'RbModal-resize')
     }
 	show(callback) {
         let that = this
@@ -60,67 +58,82 @@ class RbModal extends React.Component {
 class RbView extends React.Component {
     constructor(props) {
         super(props)
-        this.state = { ...props, inLoad: true, isShow: false }
+        this.state = { ...props, inLoad: true }
     }
     render() {
         return (
-            <div className={'modal rbview ' + (this.state.isShow == true && 'show')} ref="rbview">
+            <div className="modal-warpper">
+            <div className="modal rbview" ref="rbview">
                 <div className="modal-dialog">
                     <div className="modal-content">
                         <div className="modal-header">
                             {this.state.icon ? (<span className={'icon zmdi zmdi-' + this.state.icon}></span>) : '' }
-                            <h3 className="modal-title">
-                                {this.state.title || '视图'}
-                            </h3>
+                            <h3 className="modal-title">{this.state.title || '视图'}</h3>
                             <a className="close admin-settings" href={rb.baseUrl + '/admin/entity/' + this.state.entity + '/view-design'} title="配置布局" target="_blank"><span className="zmdi zmdi-settings"></span></a>
                             <button className="close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
                         </div>
                         <div className={'modal-body iframe rb-loading ' + (this.state.inLoad == true && 'rb-loading-active')}>
-                            <iframe src={this.state.showAfterUrl || ''} frameborder="0" scrolling="no" onLoad={()=>this.loaded()}></iframe>
+                            <iframe src={this.state.showAfterUrl || 'about:blank'} frameborder="0" scrolling="no"></iframe>
                             <RbSpinner />
                         </div>
                     </div>
                 </div>
             </div>
+            </div>
         )
     }
     componentDidMount() {
-        let root = $(this.refs['rbview'])
+        this.resizeModal()
         let that = this
-        root.click(function(){
-            that.hide()
+        $(window).resize(function(){
+            that.resizeModal()
+            that.resize() 
         })
-        root.find('.modal-content').click(function(event){
-            let t = $(event.target)
-            if (t.hasClass('zmdi')) return true
-            if (t.hasClass('admin-settings')) window.open(t.attr('href'))
-            else if (t.hasClass('close')) that.hide()
-            return false
+        
+        let root = $(this.refs['rbview'])
+        let mc = root.find('.modal-content')
+        root.on('hidden.bs.modal', function(){
+            mc.css({ 'margin-right': -1200 })
+            that.setState({ inLoad: true })
+        }).on('shown.bs.modal', function(){
+            mc.animate({ 'margin-right': 0 }, 400)
         })
         this.show()
     }
-    loaded() {
-        if (!!this.state.showAfterUrl){
-            this.setState({ inLoad: false })
-        }
+    hideLoading(resize) {
+        this.setState({ inLoad: false })
+        if (resize == true) this.resize()
+    }
+    resize() {
+        let root = $(this.refs['rbview'])
+        let that = this
+        $setTimeout(function(){
+            let iframe = root.find('iframe')
+            let height = iframe.contents().find('.main-content').height()
+            root.find('.modal-body').height(height + 40)
+            console.log('fire loaded ... ' + height)
+        }, 40, 'RbView-resize')
+    }
+    resizeModal() {
+        $(this.refs['rbview']).find('.modal-content').css('min-height', $(window).height())
     }
     show(url, ext) {
+        let urlChanged = true
+        if (url && url == this.state.url) urlChanged = false
         ext = ext || {}
         url = url || this.state.url
         let root = $(this.refs['rbview'])
         let that = this
-        this.setState({ ...ext, isShow: true, url: url }, function(){
-            root.find('.modal-content').animate({ 'margin-right': 0 }, 400)
-            setTimeout(function(){
+        this.setState({ ...ext, url: url, inLoad: urlChanged }, function(){
+            root.modal({ show: true, backdrop: true, keyboard: true, focus: true })
+            $setTimeout(function(){
                 that.setState({ showAfterUrl: that.state.url })
             }, 400)
         })
     }
     hide() {
         let root = $(this.refs['rbview'])
-        this.setState({ isShow: false, inLoad: true, showAfterUrl: null }, function(){
-            root.find('.modal-content').css({ 'margin-right': -1200 })
-        })
+        root.modal('hide')
     }
 }
 
@@ -242,6 +255,7 @@ rb.modal = function(url, title, ext) {
 var viewModal
 rb.recordView = function(id, title, entity, icon) {
     let viewUrl = rb.baseUrl + '/app/' + entity + '/view/' + id
+//    renderRbcomp(<RbModal url={viewUrl} title={title} />)
     if (viewModal) viewModal.show(viewUrl, { entity: entity, title: title, icon: icon })
     else viewModal = renderRbcomp(<RbView url={viewUrl} entity={entity} title={title} icon={icon} />)
 }

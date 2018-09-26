@@ -7,8 +7,8 @@ class RbFormModal extends React.Component {
     render() {
         let adminUrl = rb.baseUrl + '/admin/entity/' + this.props.entity + '/form-design'
         return (this.state.isDestroy == true ? null :
-            <div className="modal-warpper" ref="rbmodal-warpper">
-            <div className={'modal rbmodal colored-header colored-header-primary'} ref="rbmodal">
+            <div className="modal-warpper">
+            <div className="modal rbmodal colored-header colored-header-primary" ref="rbmodal">
                 <div className="modal-dialog">
                     <div className="modal-content">
                         <div className="modal-header modal-header-colored">
@@ -41,6 +41,7 @@ class RbFormModal extends React.Component {
                 </RbForm>
             that.setState({ formComponent: FORM }, function() {
                 that.setState({ inLoad: false })
+                if (parent && parent.viewModal) parent.viewModal.resize()
             })
         })
     }
@@ -101,7 +102,7 @@ class RbForm extends React.Component {
     render() {
         let that = this
         return (
-            <div className="rb-form">
+            <div className="rbform">
             <form>
                 {this.props.children.map((child) => {
                     child.props.$$$parent = that
@@ -556,13 +557,13 @@ class RbFormReference extends RbFormElement {
     }
 }
 
+// ---------------
+
 // ~~ 视图
 class RbViewForm extends React.Component {
     constructor(props) {
         super(props)
         this.state = { ...props }
-        
-        
     }
     render() {
         let that = this
@@ -580,7 +581,12 @@ class RbViewForm extends React.Component {
                 return __detectViewElement(item)
             })}</div>
             that.setState({ formComponent: FORM }, function(){
-                if (window.mprogress) mprogress.end()
+                $('.invisible').removeClass('invisible')
+                if (parent && parent.viewModal) {
+                    parent.viewModal.hideLoading(true)
+                }
+                
+                
             })
         });
     }
@@ -605,7 +611,7 @@ class RbViewFormElement extends React.Component {
     render() {
         const isFull = this.props.isFull == true
         return (
-            <div className={'col-' + (isFull ? 12 : 6)}>
+            <div className={'col-12 col-sm-' + (isFull ? 12 : 6)}>
             <div className="form-group row">
                 <label className={'col-form-label text-sm-right col-sm-' + (isFull ? 2 : 4)}>{this.props.label}</label>
                 <div className={'col-sm-' + (isFull ? 10 : 8)}>

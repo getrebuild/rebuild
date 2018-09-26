@@ -62,16 +62,16 @@ Array.prototype.contains = function(item) {
     return false;
 }
 
-const $__setTimeoutHolds = {};
+const __$setTimeoutHolds = {};
 /* 不会重复执行的 setTimeout
  */
 const $setTimeout = function(e, t, id){
-	if (id && $__setTimeoutHolds[id]){
-		clearTimeout($__setTimeoutHolds[id]);
-		$__setTimeoutHolds[id] = null;
+	if (id && __$setTimeoutHolds[id]){
+		clearTimeout(__$setTimeoutHolds[id]);
+		__$setTimeoutHolds[id] = null;
 	}
 	let timer = setTimeout(e, t);
-	if (id) $__setTimeoutHolds[id] = timer;
+	if (id) __$setTimeoutHolds[id] = timer;
 };
 
 /* 获取 URL 参数

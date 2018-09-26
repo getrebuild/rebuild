@@ -11,7 +11,7 @@
 </style>
 </head>
 <body class="dialog">
-<div class="main-content">
+<div class="main-content container-fluid invisible">
 	<div class="row">
 		<div class="col-sm-10" id="react-formView">
 		</div>
@@ -30,13 +30,9 @@
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script type="text/babel">
 var rbFromView, rbFormModal
-var mprogress
 $(document).ready(function(){
-	mprogress = new Mprogress({ template:3 })
-	mprogress.start()
-
 	const recordId = '${id}'
-	renderRbcomp(<RbViewForm entity="${entityName}" id={recordId}  />, 'react-formView')
+	rbFromView = renderRbcomp(<RbViewForm entity="${entityName}" id={recordId}  />, 'react-formView')
 
 	$('.J_edit').click(function(){
 		if (rbFormModal) rbFormModal.show()
