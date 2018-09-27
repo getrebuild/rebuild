@@ -301,7 +301,7 @@ class RbFormTextarea extends RbFormElement {
     }
     renderElement() {
         return (
-            <textarea ref="field-value" className={'form-control form-control-sm row2x ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} value={this.state.value} data-nullable={this.props.nullable} onChange={this.handleChange} onBlur={this.checkError} />
+            <textarea ref="field-value" className={'form-control form-control-sm row3x ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} value={this.state.value} data-nullable={this.props.nullable} onChange={this.handleChange} onBlur={this.checkError} />
         )
     }
 }
@@ -428,10 +428,8 @@ class RbFormFile extends RbFormElement {
         return (
             <div className="file-field">
                 {this.state.value.map((item) => {
-                    let fileName = item.split('/')
-                    if (fileName.length > 1) fileName = fileName[fileName.length - 1]
-                    fileName = fileName.substr(15)
-                    return (<div className="img-thumbnail"><i className="type"></i><span>{fileName}</span><b title="移除" onClick={()=>this.removeItem(item)}><span className="zmdi zmdi-delete"></span></b></div>)
+                    let fileName = __fileCutName(item)
+                    return (<div className="img-thumbnail"><i className={'ftype ' + __fileDetectingIcon(fileName)}/><span>{fileName}</span><b title="移除" onClick={()=>this.removeItem(item)}><span className="zmdi zmdi-delete"></span></b></div>)
                 })}
                 <div className="file-select">
                     <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} />
@@ -555,6 +553,8 @@ const __detectElement = function(item){
         return <RbFormReadonly {...item} />
     } else if (item.type == 'TEXT'){
         return <RbFormText {...item} />
+    } else if (item.type == 'NTEXT'){
+        return <RbFormTextarea {...item} />
     } else if (item.type == 'URL'){
         return <RbFormUrl {...item} />
     } else if (item.type == 'EMAIL'){
@@ -586,7 +586,13 @@ const __fileCutName = function(file) {
     return file.substr(file.indexOf('__') + 2)
 }
 const __fileDetectingIcon = function(file){
-    return 'file'
+    if (file.endsWith('.png') || file.endsWith('.gif') || file.endsWith('.jpg') || file.endsWith('.jpeg') || file.endsWith('.bmp')) return 'png';
+    else if (file.endsWith('.doc') || file.endsWith('.docx')) return 'word';
+    else if (file.endsWith('.ppt') || file.endsWith('.pptx')) return 'ppt';
+    else if (file.endsWith('.xls') || file.endsWith('.xlsx')) return 'excel';
+    else if (file.endsWith('.pdf')) return 'pdf';
+    else if (file.endsWith('.mp4') || file.endsWith('.rmvb') || file.endsWith('.rm') || file.endsWith('.avi') || file.endsWith('.flv')) return 'mp4';
+    return ''
 }
 
 // -- for View

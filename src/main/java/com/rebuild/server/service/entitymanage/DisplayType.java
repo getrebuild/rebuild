@@ -34,6 +34,7 @@ public enum DisplayType {
 	DATETIME("日期时间", FieldType.TIMESTAMP, "yyyy-MM-dd HH:mm"),
 	
 	TEXT("文本", FieldType.STRING, null),
+	NTEXT("超大文本", FieldType.TEXT, null),
 	EMAIL("邮箱", FieldType.STRING, null),
 	URL("链接", FieldType.STRING, null),
 	PHONE("电话", FieldType.STRING, null),

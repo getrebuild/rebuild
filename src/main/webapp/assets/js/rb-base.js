@@ -45,6 +45,7 @@
 	$.cookie.defaults = { expires:14, path: '/' }
 	
 })(jQuery);
+
 // extend Array
 Array.prototype.remove = function(item) {
 	var index = this.indexOf(item);
@@ -60,6 +61,21 @@ Array.prototype.contains = function(item) {
         }
     }
     return false;
+}
+// extend String
+String.prototype.startsWith = function(substr) {
+	if (!!!substr) return false;
+	if (this.length == 0 || this.length < substr.length) return false;
+	return this.substring(0, substr.length) == substr;
+}
+String.prototype.endsWith = function(substr) {
+	if (!!!substr) return false;
+	if (this.length == 0 || this.length < substr.length) return false;
+	return this.substring(this.length - substr.length) == substr;
+}
+String.prototype.contains = function(substr) {
+	if (!!!substr) return false;
+	return this.indexOf(substr) >=0;
 }
 
 const __$setTimeoutHolds = {};

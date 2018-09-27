@@ -146,9 +146,7 @@ class RbList extends React.Component {
         } else if (field.type == 'FILE') {
             cellVal = JSON.parse(cellVal || '[]')
             return <td><div style={styles} className="column-files"><ul className="list-unstyled">{cellVal.map((item)=>{
-                let fileName = item.split('/')
-                if (fileName.length > 1) fileName = fileName[fileName.length - 1];
-                fileName = fileName.substr(15);
+                let fileName = __fileCutName(item)
                 return <li className="text-truncate"><a href={'#!/Preview/' + item}>{fileName}</a></li>
             })}</ul></div></td>;
         } else if (field.type == 'REFERENCE'){

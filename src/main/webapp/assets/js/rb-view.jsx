@@ -119,8 +119,8 @@ class RbViewFormFile extends RbViewFormElement {
         let imgs = JSON.parse(this.state.value || '[]')
         return (<div className="file-field">
             {imgs.map((item)=>{
-                let fname = __fileCutName(item)
-                return <a onClick={this.previewFile.bind(this, item)} className="img-thumbnail" href={rb.storageUrl + item + '?attname=' + fname} target="_blank"><i className={'type ' + __fileDetectingIcon(fname)}></i><span>{fname}</span></a>
+                let fileName = __fileCutName(item)
+                return <a onClick={this.previewFile.bind(this, item)} className="img-thumbnail" href={rb.storageUrl + item + '?attname=' + fileName} target="_blank"><i className={'ftype ' + __fileDetectingIcon(fileName)}/><span>{fileName}</span></a>
             })}
         </div>)
     }

@@ -149,10 +149,17 @@ public class Field2Schema {
 			throw new MetadataException("引用字段必须指定引用实体");
 		}
 		
+		int maxLength = 767 / 2;
+		if (displayType == DisplayType.FILE || displayType == DisplayType.IMAGE) {
+			maxLength = 767;
+		} else if (displayType == DisplayType.NTEXT) {
+			maxLength = 65535;
+		}
+		
 		record = Application.getCommonService().create(record);
 		tempMetaId.add(record.getPrimary());
 		
-		Field unsafeField = new FieldImpl(fieldName, physicalName, fieldLabel, entity, displayType.getFieldType(), CascadeModel.Ignore, 600, nullable, updatable, 6, null, false);
+		Field unsafeField = new FieldImpl(fieldName, physicalName, fieldLabel, entity, displayType.getFieldType(), CascadeModel.Ignore, maxLength, nullable, updatable, 6, null, false);
 		if (entity instanceof UnsafeEntity) {
 			((UnsafeEntity) entity).addField(unsafeField);
 		}
