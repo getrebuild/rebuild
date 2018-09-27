@@ -54,89 +54,6 @@ class RbModal extends React.Component {
     }
 }
 
-// ~~ 视图窗口
-class RbView extends React.Component {
-    constructor(props) {
-        super(props)
-        this.state = { ...props, inLoad: true }
-    }
-    render() {
-        return (
-            <div className="modal-warpper">
-            <div className="modal rbview" ref="rbview">
-                <div className="modal-dialog">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            {this.state.icon ? (<span className={'icon zmdi zmdi-' + this.state.icon}></span>) : '' }
-                            <h3 className="modal-title">{this.state.title || '视图'}</h3>
-                            <a className="close admin-settings" href={rb.baseUrl + '/admin/entity/' + this.state.entity + '/view-design'} title="配置布局" target="_blank"><span className="zmdi zmdi-settings"></span></a>
-                            <button className="close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
-                        </div>
-                        <div className={'modal-body iframe rb-loading ' + (this.state.inLoad == true && 'rb-loading-active')}>
-                            <iframe src={this.state.showAfterUrl || 'about:blank'} frameborder="0" scrolling="no"></iframe>
-                            <RbSpinner />
-                        </div>
-                    </div>
-                </div>
-            </div>
-            </div>
-        )
-    }
-    componentDidMount() {
-        this.resizeModal()
-        let that = this
-        $(window).resize(function(){
-            that.resizeModal()
-            that.resize() 
-        })
-        
-        let root = $(this.refs['rbview'])
-        let mc = root.find('.modal-content')
-        root.on('hidden.bs.modal', function(){
-            mc.css({ 'margin-right': -1280 })
-            that.setState({ inLoad: true })
-        }).on('shown.bs.modal', function(){
-            mc.animate({ 'margin-right': 0 }, 400)
-        })
-        this.show()
-    }
-    hideLoading(resize) {
-        this.setState({ inLoad: false })
-        if (resize == true) this.resize()
-    }
-    resize() {
-        let root = $(this.refs['rbview'])
-        let that = this
-        $setTimeout(function(){
-            let iframe = root.find('iframe')
-            let height = iframe.contents().find('.main-content').height()
-            root.find('.modal-body').height(height + 40)
-            console.log('fire loaded ... ' + height)
-        }, 40, 'RbView-resize')
-    }
-    resizeModal() {
-        $(this.refs['rbview']).find('.modal-content').css('min-height', $(window).height())
-    }
-    show(url, ext) {
-        let urlChanged = true
-        if (url && url == this.state.url) urlChanged = false
-        ext = ext || {}
-        url = url || this.state.url
-        let root = $(this.refs['rbview'])
-        let that = this
-        this.setState({ ...ext, url: url, inLoad: urlChanged }, function(){
-            root.modal({ show: true, backdrop: true, keyboard: true, focus: true })
-            $setTimeout(function(){
-                that.setState({ showAfterUrl: that.state.url })
-            }, 400)
-        })
-    }
-    hide() {
-        let root = $(this.refs['rbview'])
-        root.modal('hide')
-    }
-}
-
 // ~~ 提示框
 class RbAlter extends React.Component {
     constructor(props) {
@@ -223,9 +140,9 @@ function RbSpinner(props) {
     </div>
 }
 
-var renderRbcompTimes = 1;
+var __renderRbcompTimes = 1;
 const renderRbcomp = function(jsx, target) {
-    target = target || ('react-comps-' + new Date().getTime()) + '-' + renderRbcompTimes++;
+    target = target || ('react-comps-' + new Date().getTime()) + '-' + __renderRbcompTimes++;
     let container = $('#' + target);
     if (container.length == 0) container = $('<div id="' + target + '"></div>').appendTo(document.body);
     return ReactDOM.render(jsx, container[0]);
@@ -249,13 +166,4 @@ rb.alter = function(message, title, ext){
 rb.modal = function(url, title, ext) {
     ext = ext || {}
     return renderRbcomp(<RbModal url={url} title={title} width={ext.width} destroyOnHide={ext.destroyOnHide === false ? false : true } />)
-}
-
-// 打开视图
-var viewModal
-rb.recordView = function(id, title, entity, icon) {
-    let viewUrl = rb.baseUrl + '/app/' + entity + '/view/' + id
-//    renderRbcomp(<RbModal url={viewUrl} title={title} />)
-    if (viewModal) viewModal.show(viewUrl, { entity: entity, title: title, icon: icon })
-    else viewModal = renderRbcomp(<RbView url={viewUrl} entity={entity} title={title} icon={icon} />)
 }

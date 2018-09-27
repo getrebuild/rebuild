@@ -75,6 +75,10 @@
 	padding-top: 20px;
 }
 
+.modal.rbmodal .modal-header > .icon {
+	color: #fff;
+}
+
 .rbmodal.show, .rbview.show {
 	display: block !important;
 }
@@ -177,9 +181,15 @@ a {
 	padding-bottom: 4px !important;
 }
 
+.img-field {
+	line-height: 1;
+	font-size: 0;
+	margin-bottom: -4px;
+}
+
 .img-field>span {
-	margin-right: 5px;
-	margin-bottom: 1px;
+	margin-right: 4px;
+	margin-bottom: 4px;
 	display: inline-block;
 }
 
@@ -189,8 +199,9 @@ a {
 	text-align: center;
 	display: table-cell;
 	vertical-align: middle;
-	padding: 1px;
 	position: relative;
+	border: 0 none;
+	padding: 0;
 }
 
 .img-field .img-upload>img {
@@ -244,31 +255,33 @@ a {
 
 .file-field .img-thumbnail {
 	display: inline-block;
-	padding: 4px;
+	padding: 3px;
 	max-width: 100%;
 	margin-right: 5px;
 	margin-bottom: 1px;
 	overflow: hidden;
 	position: relative;
 	overflow: hidden;
+	border: 0 none;
+	color: #404040;
 }
 
 .file-field .img-thumbnail:last-child {
 	margin-right: 0
 }
 
-.file-field .img-thumbnail>i.zmdi {
-	font-size: 32px;
+.file-field .img-thumbnail>i.type {
 	float: left;
-	width: 32px;
-	height: 32px;
-	overflow: hidden;
-	text-align: center;
+	width: 24px;
+	height: 24px;
 	line-height: 1;
+	background: url(../img/ft-icons/icon-txt.png) no-repeat center center;
+	background-size: 24px auto;
+	margin: 3px;
 }
 
 .file-field .img-thumbnail>span {
-	margin-left: 32px;
+	margin-left: 33px;
 	display: block;
 	word-break: break-all;
 	min-height: 30px;
@@ -320,10 +333,6 @@ a {
 
 .rbnotice a {
 	color: #fff
-}
-
-.modal-warpper .rbnotice {
-	
 }
 
 .ui-mprogress .bar-bg, .ui-mprogress .buffer-bg {
@@ -394,11 +403,11 @@ i.split.ui-draggable-dragging {
 }
 
 .data-list .table thead th>div>i.zmdi.sort-asc::before {
-	content: '\f2f9';
+	content: '\f2fc';
 }
 
 .data-list .table thead th>div>i.zmdi.sort-desc::before {
-	content: '\f2fc';
+	content: '\f2f9';
 }
 
 .data-list .table td, .data-list .table td>div {
@@ -414,33 +423,29 @@ i.split.ui-draggable-dragging {
 .data-list .table td, .data-list .table td>div.nmw {
 	max-width: 1000px;
 }
-
-.column-imgs {
+.column-imgs.img-field {
+	margin-bottom: 0;
 }
-.column-imgs > a {
-	width: 60px;
-	height: auto;
-	max-height: 120px;
-	margin-right: 2px;
-	margin-top: 2px;
-	padding: 0;
-	overflow: hidden;
-	border-radius: 0;
-	border: 0 solid #bbb;
-	display: inline-block;
-	font-size: 0;
-	line-height: 1;
+.column-imgs.img-field .img-upload {
+	width: 36px;
+	height: 36px;
 }
 
-.column-imgs > a:last-child {
-	margin-right: 0;
+.column-imgs.img-field>span {
+	margin-bottom: 0;
 }
 
 .column-files {
-	max-height: 60px
+	max-height: 36px
 }
+
 .column-files ul {
-	margin: 0
+	margin: 0;
+	line-height: 1.428571;
+}
+.column-files ul a {
+	color: #777 !important;
+	cursor: default;
 }
 
 .column-checkbox {
@@ -465,6 +470,7 @@ i.split.ui-draggable-dragging {
 }
 
 .column-url {
+	
 }
 
 .link:hover, .column-url:hover {
@@ -472,6 +478,7 @@ i.split.ui-draggable-dragging {
 }
 
 .column-empty {
+	
 }
 
 .text-3dot {
@@ -569,6 +576,10 @@ h5.sortable-box-title {
 	max-width: 100%;
 }
 
+.modal.rbview .modal-header > .icon {
+	margin-top: 3px;
+}
+
 .modal.rbview .modal-dialog .modal-content {
 	margin: 0;
 	box-shadow: 0 0 0 #000;
@@ -592,7 +603,8 @@ h5.sortable-box-title {
 	font-size: 1.8rem;
 }
 
-.modal.rbview .modal-dialog .modal-content .modal-header .close .zmdi-settings {
+.modal.rbview .modal-dialog .modal-content .modal-header .close .zmdi-settings
+	{
 	font-size: 1.5rem;
 }
 
@@ -615,7 +627,7 @@ h5.sortable-box-title {
 	margin-bottom: 0;
 }
 
-.imgs-grid > a {
+.imgs-grid>a {
 	width: 78px;
 	height: auto;
 	display: inline-block;
@@ -625,7 +637,7 @@ h5.sortable-box-title {
 	font-size: 0;
 }
 
-.files-grid > a {
+.files-grid>a {
 	display: inline-block;
 	margin-top: 2px;
 	margin-right: 2px;

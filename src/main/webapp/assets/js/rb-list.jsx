@@ -85,10 +85,10 @@ class RbList extends React.Component {
             if (lastGhost[3] == true) that.__selectedRows.push(lastGhost)
         })
         
-        $('.J_delete, .J_view').attr('disabled', true)
+        $('.J_delete, .J_view, .J_edit').attr('disabled', true)
         let sLen = this.__selectedRows.length
         if (sLen > 0) $('.J_delete').attr('disabled', false)
-        if (sLen == 1) $('.J_view').attr('disabled', false)
+        if (sLen == 1) $('.J_view, .J_edit').attr('disabled', false)
     }
     
     fetchList(filter) {
@@ -140,12 +140,12 @@ class RbList extends React.Component {
         let styles = { width: (this.state.fields[index].width || this.__defaultColumnWidth) + 'px' }
         if (field.type == 'IMAGE') {
             cellVal = JSON.parse(cellVal || '[]')
-            return <td><div style={styles} className="column-imgs" title={'点击查看所有图片 (' + cellVal.length + '个)'}>{cellVal.map((item)=>{
-                return <a href={'#!/Preview/' + item} className="img-thumbnail"><img src={rb.storageUrl + item} /></a>
+            return <td><div style={styles} className="img-field column-imgs">{cellVal.map((item)=>{
+                return <span><a href={'#!/Preview/' + item} className="img-thumbnail img-upload"><img src={rb.storageUrl + item + '?imageView2/2/w/100/interlace/1/q/100'} /></a></span>
             })}<div className="clearfix" /></div></td>
         } else if (field.type == 'FILE') {
             cellVal = JSON.parse(cellVal || '[]')
-            return <td><div style={styles} className="column-files" title={'点击查看所有文件 (' + cellVal.length + '个)'}><ul className="list-unstyled">{cellVal.map((item)=>{
+            return <td><div style={styles} className="column-files"><ul className="list-unstyled">{cellVal.map((item)=>{
                 let fileName = item.split('/')
                 if (fileName.length > 1) fileName = fileName[fileName.length - 1];
                 fileName = fileName.substr(15);
@@ -195,15 +195,13 @@ class RbList extends React.Component {
         return false
     }
     clickView(cellVal) {
-        console.log(cellVal)
-        rb.recordView(cellVal[0], cellVal[1], cellVal[2][0], cellVal[2][1])
+        renderRbViewModal(cellVal[0], cellVal[1], cellVal[2][0], cellVal[2][1])
         return false;
     }
     
     // 分页
     
     setPageNo(pageNo) {
-        console.log(pageNo)
         let that = this
         this.setState({ pageNo: pageNo || 1 }, function(){
             that.fetchList()

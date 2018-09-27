@@ -147,7 +147,7 @@ $(document).ready(function(){
 		let navs = []
 		$('.J_configbox .dd-item').each(function(){
 			let _this = $(this)
-			let item = { text:_this.find('.dd3-content').text(), type:_this.attr('attr-type'), value:_this.attr('attr-value'), icon:_this.attr('attr-icon') }
+			let item = { text:$.trim(_this.find('.dd3-content').text()), type:_this.attr('attr-type'), value:_this.attr('attr-value'), icon:_this.attr('attr-icon') }
 			if (!!item.value) navs.push(item)
 		})
 		console.log(JSON.stringify(navs))

@@ -28,15 +28,15 @@
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
 <script type="text/babel">
-var rbFromView, rbFormModal
+var rbFromView
 $(document).ready(function(){
 	const recordId = '${id}'
 	rbFromView = renderRbcomp(<RbViewForm entity="${entityName}" id={recordId}  />, 'react-formView')
 
 	$('.J_edit').click(function(){
-		if (rbFormModal) rbFormModal.show()
-		else rbFormModal = renderRbcomp(<RbFormModal title="编辑${entityLabel}" entity="${entityName}" id={recordId} />, 'react-forms')
+		renderRbFormModal(recordId, '编辑记录', '${entityName}', '${entityIcon}')
 	});
 });
 </script>

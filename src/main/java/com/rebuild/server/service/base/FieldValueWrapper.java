@@ -123,6 +123,7 @@ public class FieldValueWrapper {
 	 * @return
 	 */
 	public static Object wrapReference(Object reference, EasyMeta field) {
+		Assert.isTrue(reference instanceof Object[], "Must be 'Object[]'");
 		Object[] referenceValue = (Object[]) reference;
 		Object[] idNamed = new Object[3];
 		Entity idEntity = MetadataHelper.getEntity(((ID) referenceValue[0]).getEntityCode());

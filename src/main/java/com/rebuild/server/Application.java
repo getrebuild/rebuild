@@ -31,7 +31,7 @@ import com.rebuild.server.privileges.UserStore;
 import com.rebuild.server.service.CommonService;
 import com.rebuild.server.service.QueryFactory;
 import com.rebuild.server.service.SqlExecutor;
-import com.rebuild.web.CurrentCaller;
+import com.rebuild.web.OnlineSessionStore;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Query;
@@ -55,15 +55,27 @@ public class Application {
 	protected Application(ApplicationContext ctx) {
 		Security.addProvider(new BouncyCastleProvider());
 		APPLICATION_CTX = ctx;
-//		APPLICATION_CTX.getBeansOfType(Object.class);
+		
+		// 初始化所有 Beans
+		if (devMode()) {
+//			APPLICATION_CTX.getBeansOfType(Object.class);
+		}
 		
 		// 自定义实体
-		LOG.info("Loading customized entity ...");
+		LOG.info("Loading customized entities ...");
 		MetadataHelper.refreshMetadata();
 		
-		//
-		
 		LOG.warn("Rebuild Booting successful.");
+	}
+	
+	/**
+	 * 是否开发模式
+	 * 
+	 * @return
+	 */
+	public static boolean devMode() {
+		return org.apache.commons.lang.SystemUtils.IS_OS_WINDOWS
+				|| "1".equals(System.getProperty("dev"));
 	}
 	
 	/**
@@ -96,15 +108,15 @@ public class Application {
 	/**
 	 * @return
 	 */
-	public static CurrentCaller getCurrentCaller() {
-		return getBean(CurrentCaller.class);
+	public static OnlineSessionStore getSessionStore() {
+		return getBean(OnlineSessionStore.class);
 	}
 	
 	/**
 	 * @return
 	 */
-	public static ID getCurrentCallerUser() {
-		return getCurrentCaller().get();
+	public static ID currentCallerUser() {
+		return getSessionStore().getCurrentCaller();
 	}
 	
 	/**

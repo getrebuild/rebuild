@@ -30,11 +30,16 @@ public class CurrentCaller {
 
 	private static final ThreadLocal<ID> CALLER = new ThreadLocal<>();
 	
-	protected void set(ID user) {
+	/**
+	 * @param user
+	 */
+	protected void setCurrentCaller(ID user) {
 		CALLER.set(user);
 	}
 	
-	protected void clear() {
+	/**
+	 */
+	protected void clearCurrentCaller() {
 		CALLER.remove();
 	}
 
@@ -42,15 +47,15 @@ public class CurrentCaller {
 	 * @return
 	 * @throws InvalidRequestException
 	 */
-	public ID get() throws InvalidRequestException {
-		return get(false);
+	public ID getCurrentCaller() throws InvalidRequestException {
+		return getCurrentCaller(false);
 	}
 	
 	/**
 	 * @return
 	 * @throws InvalidRequestException
 	 */
-	public ID get(boolean allowNull) throws InvalidRequestException {
+	public ID getCurrentCaller(boolean allowNull) throws InvalidRequestException {
 		ID user = CALLER.get();
 		if (user == null && allowNull == false) {
 			throw new InvalidRequestException(403, "无效请求用户");

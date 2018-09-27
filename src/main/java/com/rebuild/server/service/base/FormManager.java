@@ -21,6 +21,9 @@ package com.rebuild.server.service.base;
 import java.util.Date;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -46,6 +49,8 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class FormManager extends LayoutManager {
 
+	private static final Log LOG = LogFactory.getLog(FormManager.class);
+	
 	/**
 	 * @param entity
 	 * @return
@@ -84,6 +89,12 @@ public class FormManager extends LayoutManager {
 		
 		JSONObject config = (JSONObject) getFormLayout(entity);
 		JSONArray elements = config.getJSONArray("elements");
+		
+		Record record = null;
+		if (recordId != null) {
+			record = record(recordId, elements);
+		}
+		
 		for (Object element : elements) {
 			JSONObject el = (JSONObject) element;
 			String fieldName = el.getString("field");
@@ -93,8 +104,10 @@ public class FormManager extends LayoutManager {
 			String dt = easyField.getDisplayType(false);
 			el.put("type", dt);
 			el.put("nullable", fieldMeta.isNullable());
-			el.put("updatable", fieldMeta.isUpdatable());
-			el.put("creatable", true);
+			el.put("readonly", false);
+			if (record != null && !fieldMeta.isUpdatable()) {
+				el.put("readonly", true);
+			}
 			
 			// 针对字段的配置
 			
@@ -123,7 +136,7 @@ public class FormManager extends LayoutManager {
 			// 默认值
 			
 			if (easyField.isBuiltin()) {
-				el.put("creatable", false);
+				el.put("readonly", true);
 				
 				if (fieldName.equals(EntityHelper.createdOn) || fieldName.equals(EntityHelper.modifiedOn)) {
 					el.put("value", CalendarUtils.getUTCDateTimeFormat().format(now));
@@ -132,6 +145,13 @@ public class FormManager extends LayoutManager {
 				} else if (fieldName.equals(EntityHelper.owningDept)) {
 					el.put("value", currentUser.getOwningDept().getName());
 				}
+			}
+			
+			// 编辑记录
+			// 填充值
+			if (record != null) {
+				Object value = wrapFieldValue(record, easyField, true);
+				el.put("value", value);
 			}
 		}
 		return config;
@@ -188,22 +208,8 @@ public class FormManager extends LayoutManager {
 			el.put("type", dt);
 			
 			// 填充值
-			if (record.hasValue(fieldName)) {
-				Object value = record.getObjectValue(fieldName);
-				if (easyField.getDisplayType() == DisplayType.PICKLIST) {
-					ID pickValue = (ID) value;
-					el.put("value", pickValue.getLabel());
-				} 
-				else if (value instanceof ID) {
-					ID idValue = (ID) value;
-					String belongEntity = MetadataHelper.getEntity(idValue.getEntityCode()).getName();
-					el.put("value", new String[] { idValue.toLiteral(), idValue.getLabel(), belongEntity });
-				} 
-				else {
-					Object human = FieldValueWrapper.wrapFieldValue(value, easyField);
-					el.put("value", human);
-				}
-			}
+			Object value = wrapFieldValue(record, easyField, false);
+			el.put("value", value);
 		}
 		return config;
 	}
@@ -214,12 +220,20 @@ public class FormManager extends LayoutManager {
 	 * @return
 	 */
 	protected static Record record(ID id, JSONArray elements) {
+		if (elements.isEmpty()) {
+			return null;
+		}
+		
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		StringBuffer ajql = new StringBuffer("select ");
 		for (Object element : elements) {
 			JSONObject el = (JSONObject) element;
 			String field = el.getString("field");
+			if (field.startsWith("$")) {
+				continue;
+			}
 			if (!entity.containsField(field)) {
+				LOG.warn("Unknow field '" + field + "' in '" + entity.getName() + "'");
 				continue;
 			}
 			
@@ -235,5 +249,35 @@ public class FormManager extends LayoutManager {
 				.append(" = '").append(id).append("'");
 		
 		return Application.getQueryFactory().record(ajql.toString());
+	}
+	
+	/**
+	 * @param record
+	 * @param field
+	 * @param readonly
+	 * @return
+	 */
+	protected static Object wrapFieldValue(Record record, EasyMeta field, boolean readonly) {
+		String fieldName = field.getName();
+		if (record.hasValue(fieldName)) {
+			Object value = record.getObjectValue(fieldName);
+			if (field.getDisplayType() == DisplayType.PICKLIST) {
+				ID pickValue = (ID) value;
+				return pickValue.getLabel();
+			} 
+			else if (value instanceof ID) {
+				ID idValue = (ID) value;
+				String belongEntity = MetadataHelper.getEntity(idValue.getEntityCode()).getName();
+				if (readonly) {
+					return idValue.getLabel();
+				} else {
+					return new String[] { idValue.toLiteral(), idValue.getLabel(), belongEntity };
+				}
+			} 
+			else {
+				return FieldValueWrapper.wrapFieldValue(value, field);
+			}
+		}
+		return null;
 	}
 }

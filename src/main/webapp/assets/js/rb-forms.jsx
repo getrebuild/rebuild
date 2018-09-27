@@ -12,7 +12,8 @@ class RbFormModal extends React.Component {
                 <div className="modal-dialog">
                     <div className="modal-content">
                         <div className="modal-header modal-header-colored">
-                            <h3 className="modal-title">{this.state.title || 'TITLE'}</h3>
+                            {this.state.icon ? (<span className={'icon zmdi zmdi-' + this.state.icon}></span>) : '' }
+                            <h3 className="modal-title">{this.state.title || '新建'}</h3>
                             <a className="close admin-settings" href={adminUrl} title="配置布局" target="_blank"><span className="zmdi zmdi-settings"></span></a>
                             <button className="close md-close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
                         </div>
@@ -28,64 +29,54 @@ class RbFormModal extends React.Component {
     }
     componentDidMount() {
         this.show()
-        
-        // 渲染表单
+        if (!!!this.state.id) this.__getFormModal()
+    }
+    // 渲染表单
+    __getFormModal() {
         let that = this
-        const entity = this.props.entity
-        $.get(rb.baseUrl + '/app/' + entity + '/form-modal?entity=' + entity, function(res){
+        const entity = this.state.entity
+        const id = this.state.id || ''
+        $.get(rb.baseUrl + '/app/' + entity + '/form-modal?entity=' + entity + '&id=' + id, function(res){
             let elements = res.data.elements
-            const FORM = <RbForm entity={entity} $$$parent={that}>
+            const FORM = <RbForm entity={entity} id={id} $$$parent={that}>
                 {elements.map((item) => {
                     return __detectElement(item)
                 })}
                 </RbForm>
             that.setState({ formComponent: FORM }, function() {
                 that.setState({ inLoad: false })
-                if (parent && parent.viewModal) parent.viewModal.resize()
             })
         })
     }
-    show() {
+    show(state) {
+        state = state || {}
         let that = this
-        this.setState({ isDestroy: false }, function(){
+        if (state.id != this.state.id) {
+            state = { ...state, isDestroy: true, formComponent: null, inLoad: true }
+            this.setState(state, function(){
+                that.__show({ ...state, isDestroy: false }, true)
+            })
+        } else {
+            this.__show({ ...state, isDestroy: false })
+        }
+    }
+    __show(state, idChanged) {
+        let that = this
+        this.setState(state, function(){
             $(that.refs['rbmodal']).modal({ show: true, backdrop: 'static' })
+            if (idChanged == true) {
+                that.__getFormModal()
+            }
         })
     }
     hide(destroy) {
         $(this.refs['rbmodal']).modal('hide')
-        this.setState({ noticeMessage: null, isDestroy: destroy == true })
+        let state = { noticeMessage: null, isDestroy: false }
+        if (destroy == true) state = { ...state, isDestroy: true, id: null }
+        this.setState(state)
     }
     showNotice(message, type) {
         rb.notice(message, type, { html: true })
-    }
-}
-const __detectElement = function(item){
-    if (item.creatable == false){
-        return <RbFormReadonly {...item} />
-    } else if (item.type == 'TEXT'){
-        return <RbFormText {...item} />
-    } else if (item.type == 'URL'){
-        return <RbFormUrl {...item} />
-    } else if (item.type == 'EMAIL'){
-        return <RbFormEMail {...item} />
-    } else if (item.type == 'PHONE'){
-        return <RbFormPhone {...item} />
-    } else if (item.type == 'NUMBER'){
-        return <RbFormNumber {...item} />
-    } else if (item.type == 'DECIMAL'){
-        return <RbFormDecimal {...item} />
-    } else if (item.type == 'IMAGE'){
-        return <RbFormImage {...item} />
-    } else if (item.type == 'FILE'){
-        return <RbFormFile {...item} />
-    } else if (item.type == 'DATETIME' || item.type == 'DATE'){
-        return <RbFormDateTime {...item} />
-    } else if (item.type == 'PICKLIST'){
-        return <RbFormPickList {...item} />
-    } else if (item.type == 'REFERENCE'){
-        return <RbFormReference {...item} />
-    } else {
-        console.error('Unknow element : ' + JSON.stringify(item))
     }
 }
 
@@ -149,7 +140,7 @@ class RbForm extends React.Component {
             else _data[k] = this.__FormData[k].value
         }
         
-        _data.metadata = { entity: this.props.entity, id: this.props.id }
+        _data.metadata = { entity: this.state.entity, id: this.state.id }
         
         let actions = $(this.refs['rbform-action']).find('.btn').button('loading')
         let that = this
@@ -159,6 +150,8 @@ class RbForm extends React.Component {
                 that.showNotice('保存成功。<a href="javascript:recordView(\'' + res.data.id + '\')">点击查看</a>', 'success')
                 that.props.$$$parent.hide(true)
                 if (window.rbList) window.rbList.reload()
+                else if (parent.rbList) parent.rbList.reload()
+                if (window.rbFromView) location.reload()
             }else{
                 that.showNotice(res.error_msg || '保存失败，请稍后重试', 'danger')
             }
@@ -375,7 +368,7 @@ class RbFormDateTime extends RbFormElement {
 class RbFormImage extends RbFormElement {
     constructor(props) {
         super(props)
-        this.state.value = []
+        this.state.value = JSON.parse(props.value || '[]')
     }
     renderElement() {
         return (
@@ -429,7 +422,7 @@ class RbFormImage extends RbFormElement {
 class RbFormFile extends RbFormElement {
     constructor(props) {
         super(props)
-        this.state.value = []
+        this.state.value = JSON.parse(props.value || '[]')
     }
     renderElement() {
         return (
@@ -438,7 +431,7 @@ class RbFormFile extends RbFormElement {
                     let fileName = item.split('/')
                     if (fileName.length > 1) fileName = fileName[fileName.length - 1]
                     fileName = fileName.substr(15)
-                    return (<div className="img-thumbnail"><i className="zmdi zmdi-file"></i><span>{fileName}</span><b title="移除" onClick={()=>this.removeItem(item)}><span className="zmdi zmdi-delete"></span></b></div>)
+                    return (<div className="img-thumbnail"><i className="type"></i><span>{fileName}</span><b title="移除" onClick={()=>this.removeItem(item)}><span className="zmdi zmdi-delete"></span></b></div>)
                 })}
                 <div className="file-select">
                     <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} />
@@ -557,142 +550,33 @@ class RbFormReference extends RbFormElement {
     }
 }
 
-// ---------------
-
-// ~~ 视图
-class RbViewForm extends React.Component {
-    constructor(props) {
-        super(props)
-        this.state = { ...props }
-    }
-    render() {
-        let that = this
-        return (
-            <div className="rbview-form">
-                {this.state.formComponent}
-            </div>
-        )
-    }
-    componentDidMount() {
-        let that = this
-        $.get(rb.baseUrl + '/app/' + this.props.entity + '/view-modal?id=' + this.props.id, function(res){
-            let elements = res.data.elements
-            const FORM = <div class="row">{elements.map((item) => {
-                return __detectViewElement(item)
-            })}</div>
-            that.setState({ formComponent: FORM }, function(){
-                $('.invisible').removeClass('invisible')
-                if (parent && parent.viewModal) {
-                    parent.viewModal.hideLoading(true)
-                }
-                
-                
-            })
-        });
-    }
-}
-
-const __detectViewElement = function(item){
-    if (item.field == '$LINE$'){
-        return <div className="col-12"><div className="card-header-divider">{item.label}</div></div>
-    } else if (item.type == 'REFERENCE'){
-        return <RbViewFormReference {...item} />
-    } else if (item.type == 'URL' || item.type == 'EMAIL'){
-        return <RbViewFormLink {...item} />
+const __detectElement = function(item){
+    if (item.readonly == true){
+        return <RbFormReadonly {...item} />
+    } else if (item.type == 'TEXT'){
+        return <RbFormText {...item} />
+    } else if (item.type == 'URL'){
+        return <RbFormUrl {...item} />
+    } else if (item.type == 'EMAIL'){
+        return <RbFormEMail {...item} />
+    } else if (item.type == 'PHONE'){
+        return <RbFormPhone {...item} />
+    } else if (item.type == 'NUMBER'){
+        return <RbFormNumber {...item} />
+    } else if (item.type == 'DECIMAL'){
+        return <RbFormDecimal {...item} />
     } else if (item.type == 'IMAGE'){
-        return <RbViewFormImage {...item} />
+        return <RbFormImage {...item} />
     } else if (item.type == 'FILE'){
-        return <RbViewFormFile {...item} />
+        return <RbFormFile {...item} />
+    } else if (item.type == 'DATETIME' || item.type == 'DATE'){
+        return <RbFormDateTime {...item} />
+    } else if (item.type == 'PICKLIST'){
+        return <RbFormPickList {...item} />
+    } else if (item.type == 'REFERENCE'){
+        return <RbFormReference {...item} />
     } else {
-        return <RbViewFormElement {...item} />
-    }
-}
-
-// 表单元素父级
-class RbViewFormElement extends React.Component {
-    constructor(props) {
-        super(props)
-        this.state = { ...props }
-    }
-    render() {
-        const isFull = this.props.isFull == true
-        return (
-            <div className={'col-12 col-sm-' + (isFull ? 12 : 6)}>
-            <div className="form-group row">
-                <label className={'col-form-label text-sm-right col-sm-' + (isFull ? 2 : 4)}>{this.props.label}</label>
-                <div className={'col-sm-' + (isFull ? 10 : 8)}>
-                    {this.state.value ? this.renderElement() : (<div className="form-control-plaintext text-muted">无</div>)}
-                </div>
-            </div>
-            </div>
-        )
-    }
-    componentDidMount(e) {
-    }
-    renderElement() {
-        return (<div className="form-control-plaintext">{this.state.value}</div>)
-    }
-}
-
-class RbViewFormReference extends RbViewFormElement {
-    constructor(props) {
-        super(props)
-    }
-    renderElement() {
-        return (<div className="form-control-plaintext"><a href="javascript:;" onClick={()=>this.clickView()}>{this.state.value[1]}</a></div>)
-    }
-    clickView() {
-        console.log(this.state.value)
-    }
-}
-
-class RbViewFormLink extends RbViewFormElement {
-    constructor(props) {
-        super(props)
-    }
-    renderElement() {
-        let link = this.state.value;
-        if (this.props.type == 'EMAIL') link = 'mailto:' + link
-        else link = rb.baseUrl + '/common/url-safe?url=' + encodeURIComponent(link)
-        return (<div className="form-control-plaintext"><a href={link} className="link" target={this.props.type == 'EMAIL' ? '_self' : '_blank'}>{this.state.value}</a></div>)
-    }
-    clickView() {
-        console.log(this.state.value)
-    }
-}
-
-class RbViewFormImage extends RbViewFormElement {
-    constructor(props) {
-        super(props)
-    }
-    renderElement() {
-        let imgs = JSON.parse(this.state.value || '[]')
-        return (<div className="img-field">
-            {imgs.map((item)=>{
-                return <span><a onClick={this.previewImage.bind(this, item)} className="img-thumbnail img-upload zoom-in" href={rb.storageUrl + item} target="_blank"><img src={rb.storageUrl + item} /></a></span>
-            })}
-        </div>)
-    }
-    previewImage(item) {
-        console.log(item + ' > ' + this.state.value)
-    }
-}
-
-class RbViewFormFile extends RbViewFormElement {
-    constructor(props) {
-        super(props)
-    }
-    renderElement() {
-        let imgs = JSON.parse(this.state.value || '[]')
-        return (<div className="file-field">
-            {imgs.map((item)=>{
-                let fname = __fileCutName(item)
-                return <a onClick={this.previewFile.bind(this, item)} className="img-thumbnail link" href={rb.storageUrl + item + '?attname=' + fname} target="_blank"><i className={'zmdi zmdi-' + __fileDetectingIcon(fname)}></i><span>{fname}</span></a>
-            })}
-        </div>)
-    }
-    previewFile(item) {
-        console.log(item + ' > ' + this.state.value)
+        console.error('Unknow element : ' + JSON.stringify(item))
     }
 }
 
@@ -703,4 +587,104 @@ const __fileCutName = function(file) {
 }
 const __fileDetectingIcon = function(file){
     return 'file'
+}
+
+// -- for View
+
+//~~ 右侧滑出视图窗口
+class RbViewModal extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = { ...props, inLoad: true }
+    }
+    render() {
+        return (
+            <div className="modal-warpper">
+            <div className="modal rbview" ref="rbview">
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            {this.state.icon ? (<span className={'icon zmdi zmdi-' + this.state.icon}></span>) : '' }
+                            <h3 className="modal-title">{this.state.title || '视图'}</h3>
+                            <a className="close admin-settings" href={rb.baseUrl + '/admin/entity/' + this.state.entity + '/view-design'} title="配置布局" target="_blank"><span className="zmdi zmdi-settings"></span></a>
+                            <button className="close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
+                        </div>
+                        <div className={'modal-body iframe rb-loading ' + (this.state.inLoad == true && 'rb-loading-active')}>
+                            <iframe src={this.state.showAfterUrl || 'about:blank'} frameborder="0" scrolling="no"></iframe>
+                            <RbSpinner />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        )
+    }
+    componentDidMount() {
+        this.resizeModal()
+        let that = this
+        $(window).resize(function(){
+            that.resizeModal()
+            that.resize() 
+        })
+        
+        let root = $(this.refs['rbview'])
+        let mc = root.find('.modal-content')
+        root.on('hidden.bs.modal', function(){
+            mc.css({ 'margin-right': -1280 })
+            that.setState({ inLoad: true })
+        }).on('shown.bs.modal', function(){
+            mc.animate({ 'margin-right': 0 }, 400)
+        })
+        this.show()
+    }
+    hideLoading(resize) {
+        this.setState({ inLoad: false })
+        if (resize == true) this.resize()
+    }
+    resize() {
+        let root = $(this.refs['rbview'])
+        let that = this
+        $setTimeout(function(){
+            let iframe = root.find('iframe')
+            let height = $(window).height() - 60
+            root.find('.modal-body').height(height)
+        }, 40, 'RbView-resize')
+    }
+    resizeModal() {
+        let root = $(this.refs['rbview'])
+        root.find('.modal-content').css('min-height', $(window).height())
+    }
+    show(url, ext) {
+        let urlChanged = true
+        if (url && url == this.state.url) urlChanged = false
+        ext = ext || {}
+        url = url || this.state.url
+        let root = $(this.refs['rbview'])
+        let that = this
+        this.setState({ ...ext, url: url, inLoad: urlChanged }, function(){
+            root.modal({ show: true, backdrop: true, keyboard: true, focus: true })
+            $setTimeout(function(){
+                that.setState({ showAfterUrl: that.state.url })
+            }, 400)
+        })
+    }
+    hide() {
+        let root = $(this.refs['rbview'])
+        root.modal('hide')
+    }
+}
+
+// -- Usage
+
+var rbFormModal
+const renderRbFormModal = function(id, title, entity, icon) {
+    if (rbFormModal) rbFormModal.show({ id: id, title: title, entity: entity, icon: icon })
+    else rbFormModal = renderRbcomp(<RbFormModal id={id} title={title} entity={entity} icon={icon} />)
+}
+
+var rbViewModal
+const renderRbViewModal = function(id, title, entity, icon) {
+    let viewUrl = rb.baseUrl + '/app/' + entity + '/view/' + id
+    if (rbViewModal) rbViewModal.show(viewUrl, { entity: entity, title: title, icon: icon })
+    else rbViewModal = renderRbcomp(<RbViewModal url={viewUrl} entity={entity} title={title} icon={icon} />)
 }

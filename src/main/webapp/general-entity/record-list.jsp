@@ -32,6 +32,7 @@
 							<div class="col-sm-6">
 								<div class="dataTables_oper">
 									<button class="btn btn-space btn-secondary J_view" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> 打开</button>
+									<button class="btn btn-space btn-secondary J_edit" disabled="disabled"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
 									<button class="btn btn-space btn-secondary danger J_delete" disabled="disabled"><i class="icon zmdi zmdi-delete"></i> 删除</button>
 									<button class="btn btn-space btn-primary J_new" data-url="${baseUrl}/entity/${entity}/new"><i class="icon zmdi zmdi-plus"></i> 新建</button>
 									<div class="btn-group btn-space">
@@ -64,15 +65,14 @@
 <script src="${baseUrl}/assets/js/rb-list.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script type="text/babel">
-var rbList, rbFormModal
-var csModal, assignModal, shareModal
+var rbList, csModal
+var assignModal, shareModal
 $(document).ready(function(){
 	const DataListConfig = JSON.parse('${DataListConfig}')
 	rbList = renderRbcomp(<RbList config={DataListConfig} />, 'react-list')
 	
 	$('.J_new').click(function(){
-		if (rbFormModal) rbFormModal.show()
-		else rbFormModal = renderRbcomp(<RbFormModal title="新建${entityLabel}" entity="${entityName}" />, 'react-forms')
+		renderRbFormModal(null, '新建${entityLabel}', '${entityName}', '${entityIcon}')
 	});
 	$('.J_delete').click(function(){
 		let s = rbList.getSelectedRows()
@@ -85,7 +85,14 @@ $(document).ready(function(){
 		let s = rbList.getSelectedRows()
 		if (s.length == 1) {
 			s = s[0]
-			rb.recordView(s[0], s[1], s[2][0], s[2][1])
+			renderRbViewModal(s[0], s[1], s[2][0], s[2][1])
+		}
+	});
+	$('.J_edit').click(function(){
+		let s = rbList.getSelectedRows()
+		if (s.length == 1) {
+			s = s[0]
+			renderRbFormModal(s[0], '编辑${entityLabel}', '${entityName}', '${entityIcon}')
 		}
 	});
 

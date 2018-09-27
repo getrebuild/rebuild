@@ -51,6 +51,8 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
 			Object handler) throws Exception {
+		Application.getSessionStore().storeLastActive(request);
+		
 		boolean chain = super.preHandle(request, response, handler);
 		if (chain) {
 			return verfiyPass(request, response);
@@ -64,9 +66,11 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 			throws Exception {
 		super.afterCompletion(request, response, handler, exception);
 		
-		final ID REQUSER = Application.getCurrentCaller().get(true);
+		final ID CALLER = Application.getSessionStore().getCurrentCaller(true);
+		if (CALLER != null) {
+			Application.getSessionStore().clearCurrentCaller();
+		}
 		
-		Application.getCurrentCaller().clear();
 		logProgressTime(request);
 		
 		if (exception != null) {
@@ -78,7 +82,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 			
 			StringBuffer sb = new StringBuffer()
 					.append("\n++ EXECUTE REQUEST ERROR(s) TRACE +++++++++++++++++++++++++++++++++++++++++++++")
-					.append("\nUser      : ").append(REQUSER == null ? "-" : REQUSER)
+					.append("\nUser      : ").append(CALLER == null ? "-" : CALLER)
 					.append("\nHandler   : ").append(request.getRequestURI() + " [ " + handler + " ]")
 					.append("\nIP        : ").append(ServletUtils.getRemoteAddr(request))
 					.append("\nReferer   : ").append(StringUtils.defaultIfEmpty(ServletUtils.getReferer(request), "-"))
@@ -127,7 +131,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 		
 		ID user = AppUtils.getRequestUser(request);
 		if (user != null) {
-			Application.getCurrentCaller().set(user);
+			Application.getSessionStore().setCurrentCaller(user);
 		} else {
 			String rUrl = request.getRequestURI();
 			boolean isIgnore = false;

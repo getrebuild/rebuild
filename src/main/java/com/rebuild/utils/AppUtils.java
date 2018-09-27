@@ -20,7 +20,6 @@ package com.rebuild.utils;
 
 import java.io.File;
 import java.nio.file.AccessDeniedException;
-import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -28,6 +27,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
 
 import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
@@ -42,17 +42,19 @@ import cn.devezhao.persist4j.engine.ID;
 public class AppUtils {
 
 	/**
-	 * 获取请求用户
+	 * 获取当前请求用户
 	 * 
 	 * @param request
 	 * @return
 	 */
 	public static ID getRequestUser(HttpServletRequest request) {
-		Object current = request.getSession(true).getAttribute(WebUtils.CURRENT_USER);
-		return current == null ? null : (ID) current;
+		Object user = request.getSession(true).getAttribute(WebUtils.CURRENT_USER);
+		return user == null ? null : (ID) user;
 	}
 	
 	/**
+	 * 格式化客户端消息
+	 * 
 	 * @param errCode
 	 * @param errMsgOrData
 	 * @return
@@ -111,7 +113,7 @@ public class AppUtils {
 			return "权限不足";
 		}
 		
-		if (isDevmode()) {
+		if (Application.devMode()) {
 			return ex.getClass().getSimpleName() + " : " + ex.getLocalizedMessage();
 		} else {
 			return ex.getLocalizedMessage();
@@ -124,22 +126,5 @@ public class AppUtils {
 	 */
 	public static File getFileOfTemp(String fileName) {
 		return new File(FileUtils.getTempDirectory(), fileName);
-	}
-	
-	/**
-	 * 开发模式?
-	 * 
-	 * @return
-	 */
-	public static boolean isDevmode() {
-		return true;
-	}
-	
-	// for debug
-	static void dump(Enumeration<?> enums) {
-		while (enums.hasMoreElements()) {
-			Object o = enums.nextElement();
-			System.out.println(o);
-		}
 	}
 }

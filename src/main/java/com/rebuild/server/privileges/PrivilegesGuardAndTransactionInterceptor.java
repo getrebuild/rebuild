@@ -81,7 +81,7 @@ public class PrivilegesGuardAndTransactionInterceptor extends TransactionInterce
 		}
 		// 当前会话用户
 		if (caller == null) {
-			caller = Application.getCurrentCallerUser();
+			caller = Application.currentCallerUser();
 		}
 		
 		final Permission permission = getPermissionByMethod(invocation.getMethod(), recordId == null);

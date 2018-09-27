@@ -103,7 +103,11 @@
 		<location>/error.jsp</location>
 	</error-page>
 	
+	<listener>
+		<listener-class>com.rebuild.web.OnlineSessionStore</listener-class>
+	</listener>
+	
 	<session-config>
-		<session-timeout>60</session-timeout>
+		<session-timeout>120</session-timeout>
 	</session-config>
 </web-app>

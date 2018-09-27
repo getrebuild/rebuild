@@ -72,7 +72,7 @@ public abstract class PageControll {
 			EasyMeta entityMeta = new EasyMeta(MetadataHelper.getEntity(entity));
 			mv.getModel().put("entityName", entityMeta.getName());
 			mv.getModel().put("entityLabel", entityMeta.getLabel());
-			mv.getModel().put("icon", entityMeta.getIcon());
+			mv.getModel().put("entityIcon", entityMeta.getIcon());
 		}
 		return mv;
 	}
