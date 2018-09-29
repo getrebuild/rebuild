@@ -44,7 +44,7 @@
 					</div>
 					<div class="tab-container">
                 		<ul class="nav nav-tabs nav-tabs-classic">
-							<li class="nav-item"><a class="nav-link active" href="#form-design">表单布局</a></li>
+							<li class="nav-item"><a class="nav-link active" href="#form-design">表单/视图布局</a></li>
 						</ul>
 		                <div class="tab-content">
 							<div class="tab-pane active">

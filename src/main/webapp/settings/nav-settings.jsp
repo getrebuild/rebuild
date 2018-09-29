@@ -33,7 +33,7 @@
 		</div>
 		<div class="col-7" style="padding-top:9px">
 			<div class="text-muted J_edit-tips">点击左侧菜单项编辑</div>
-			<div class="J_edit-menu hide">
+			<div class="J_edit-menu hide" style="margin-top:-6px">
 				<div class="tab-container">
 					<ul class="nav nav-tabs">
 						<li class="nav-item"><a class="nav-link J_menuType active" href="#ENTITY" data-toggle="tab">关联实体</a></li>
@@ -57,7 +57,7 @@
 					<input type="text" class="form-control form-control-sm J_menuName" placeholder="菜单名称">
 				</div>
 				<div>
-					<button type="button" class="btn btn-secondary J_menuConfirm">确定</button>
+					<button type="button" class="btn btn-primary bordered J_menuConfirm">确定</button>
 				</div>
 			</div>
 		</div>

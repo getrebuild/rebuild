@@ -194,7 +194,7 @@ $(document).ready(function(){
 		
 		_data = $cleanMap(_data)
 		if (Object.keys(_data).length == 0){
-			location.reload();
+			location.href = '../fields';
 			return;
 		}
 		
@@ -204,7 +204,7 @@ $(document).ready(function(){
 		btn.button('loading');
 		$.post(rb.baseUrl +  '/admin/entity/field-update', _data, function(res){
 			if (res.error_code == 0){
-				location.reload();
+				location.href = '../fields';
 			} else alert(res.error_msg)
 		});
 	});

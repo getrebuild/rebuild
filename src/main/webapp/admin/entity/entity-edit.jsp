@@ -130,7 +130,7 @@ $(document).ready(function(){
 	
 	$('#entityIcon').click(function(){
 		if (iconModal) iconModal.show()
-		else iconModal = rb.modal(rb.baseUrl + '/page/common/search-icon', '选择图标', { destroyOnHide:false })
+		else iconModal = rb.modal(rb.baseUrl + '/page/commons/search-icon', '选择图标', { destroyOnHide:false })
 	})
 	
 	$.get(rb.baseUrl + '/admin/entity/list-field?entity=${entityName}', function(d){

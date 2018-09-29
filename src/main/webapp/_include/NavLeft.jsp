@@ -26,7 +26,7 @@
 							navUrl = Startup.getContextPath() + "/app/" + navUrl + "/list";
 						} else {
 							navName = "nav_url-" + System.currentTimeMillis();
-							navUrl = Startup.getContextPath() + "/common/url-safe?url=" + CodecUtils.urlEncode(navUrl);
+							navUrl = Startup.getContextPath() + "/commons/url-safe?url=" + CodecUtils.urlEncode(navUrl);
 						}
 						String navIcon = StringUtils.defaultIfBlank(nav.getString("icon"), "texture");
 					%>
