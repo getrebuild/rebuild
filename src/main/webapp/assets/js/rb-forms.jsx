@@ -676,8 +676,10 @@ class RbViewModal extends React.Component {
         this.resizeModal()
         let that = this
         $(window).resize(function(){
-            that.resizeModal()
-            that.resize() 
+            $setTimeout(function(){
+                that.resizeModal()
+                that.resize() 
+            }, 200, 'rbview-resizeModal')
         })
         
         let root = $(this.refs['rbview'])
@@ -699,8 +701,7 @@ class RbViewModal extends React.Component {
         let that = this
         $setTimeout(function(){
             let iframe = root.find('iframe')
-            let height = $(window).height() - 0
-            root.find('.modal-body').height(height)
+            root.find('.modal-body').height($(window).height())
         }, 40, 'RbView-resize')
     }
     resizeModal() {

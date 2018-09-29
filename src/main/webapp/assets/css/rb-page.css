@@ -255,7 +255,7 @@ a {
 
 .file-field .img-thumbnail {
 	display: inline-block;
-	padding: 3px;
+	padding: 4px;
 	max-width: 100%;
 	margin-right: 5px;
 	margin-bottom: 1px;
@@ -635,39 +635,22 @@ h5.sortable-box-title {
 	margin-top: -11px;
 }
 
-.rbview-form .card-header-divider {
-	margin: 11px 0;
-	padding-bottom: 6px;
-	font-weight: 400;
-	border-bottom-color: #e3e3e3;
-}
-
 .rbview-form .form-group.row {
 	padding: 3px 0;
 }
 
 .rbview-form .form-control-plaintext:hover {
-	background-color: #f8f8f8
+	background-color: #f8f8f8;
+	background-color: #fff;
+}
+
+.rbview-form .type-NTEXT .form-control-plaintext {
+	max-height: 72px;
+	position: relative;
 }
 
 .main-content .card.card-table {
 	margin-bottom: 0;
-}
-
-.imgs-grid>a {
-	width: 78px;
-	height: auto;
-	display: inline-block;
-	margin-top: 2px;
-	margin-right: 2px;
-	line-height: 1;
-	font-size: 0;
-}
-
-.files-grid>a {
-	display: inline-block;
-	margin-top: 2px;
-	margin-right: 2px;
 }
 
 .zoom-in {
@@ -683,7 +666,7 @@ h5.sortable-box-title {
 }
 
 .form-line fieldset {
-	border-bottom: 1px solid #d9d9d9;
+	border-bottom: 1px solid #ebebeb;
 	position: relative;
 	margin: 18px 0;
 }
@@ -694,7 +677,7 @@ h5.sortable-box-title {
 	margin: 0;
 	background-color: #fff;
 	width: auto;
-	left: 9px;
+	left: 14px;
 	margin-top: -12px;
 	padding: 3px 6px;
 	cursor: pointer;
@@ -704,3 +687,4 @@ h5.sortable-box-title {
 .form-line fieldset legend:hover {
 	color: #4285f4;
 }
+

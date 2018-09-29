@@ -6,7 +6,7 @@ class RbViewForm extends React.Component {
     }
     render() {
         let that = this
-        return (<div className="rbview-form">
+        return (<div className="rbview-form" ref="reviewForm">
              {this.state.formComponent}
         </div>)
     }
@@ -22,6 +22,8 @@ class RbViewForm extends React.Component {
                 if (parent && parent.rbViewModal) {
                     parent.rbViewModal.hideLoading(true)
                 }
+                
+                $(that.refs['reviewForm']).find('.type-NTEXT .form-control-plaintext').perfectScrollbar()
             })
         });
     }
