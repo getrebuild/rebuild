@@ -46,10 +46,10 @@ import cn.devezhao.persist4j.dialect.FieldType;
  * @since 08/24/2018
  */
 @Controller
-@RequestMapping("/app/")
+@RequestMapping("/app/commons/")
 public class CommonSearch extends BaseControll {
 
-	@RequestMapping("common/search")
+	@RequestMapping("search")
 	public void search(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameter(request, "entity");
 		String search = getParameter(request, "search");

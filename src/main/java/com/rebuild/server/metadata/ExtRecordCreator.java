@@ -22,19 +22,19 @@ import java.util.Date;
 
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.service.bizuser.UserService;
+import com.rebuild.server.bizz.UserService;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.persist4j.record.JsonRecordCreator;
+import cn.devezhao.persist4j.record.JSONRecordCreator;
 
 /**
  * @author Zhao Fangfang
  * @since 1.0, 2013-6-26
  */
-public class ExtRecordCreator extends JsonRecordCreator {
+public class ExtRecordCreator extends JSONRecordCreator {
 	
 	/**
 	 * @param entity

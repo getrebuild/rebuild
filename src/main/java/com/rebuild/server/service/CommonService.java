@@ -18,10 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -45,7 +41,6 @@ public class CommonService extends BaseService {
 	@Override
 	public Record create(Record record) {
 		record = super.create(record);
-		createAfter(record);
 		return record;
 	}
 	
@@ -61,34 +56,5 @@ public class CommonService extends BaseService {
 			affected += delete(id);
 		}
 		return affected;
-	}
-	
-	// --
-	
-	private static final Map<Integer, ServiceExecuteCall> SERVICEEXECUTECALL_MAP = new HashMap<>();
-	
-	public void registerCall(ServiceExecuteCall call) {
-		SERVICEEXECUTECALL_MAP.put(call.getEntity(), call);
-	}
-	
-	/**
-	 * 创建后回调
-	 * 
-	 * @param record
-	 */
-	protected void createAfter(final Record record) {
-		final ServiceExecuteCall call = SERVICEEXECUTECALL_MAP.get(record.getEntity().getEntityCode());
-		if (call != null) {
-			if (call.isAsync()) {
-				ThreadPool.exec(new Runnable() {
-					@Override
-					public void run() {
-						call.call(record);
-					}
-				});
-			} else {
-				call.call(record);
-			}
-		}
 	}
 }

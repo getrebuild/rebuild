@@ -30,7 +30,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.service.base.DataListManager;
+import com.rebuild.server.helper.manager.DataListManager;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.base.entity.datalist.DataListControl;
 import com.rebuild.web.base.entity.datalist.DefaultDataListControl;

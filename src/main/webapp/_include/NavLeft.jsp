@@ -5,7 +5,7 @@
 <%@ page import="com.rebuild.utils.AppUtils"%>
 <%@ page import="com.alibaba.fastjson.JSONObject"%>
 <%@ page import="com.alibaba.fastjson.JSONArray"%>
-<%@ page import="com.rebuild.server.service.base.NavManager"%>
+<%@ page import="com.rebuild.server.helper.manager.NavManager"%>
 <% final String activeNav = request.getParameter("activeNav"); %>
 <div class="rb-left-sidebar">
 <div class="left-sidebar-wrapper">

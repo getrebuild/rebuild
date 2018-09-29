@@ -20,8 +20,8 @@ package com.rebuild.server.service.entitymanage;
 
 import org.junit.Test;
 
-import com.rebuild.server.service.bizuser.UserService;
-import com.rebuild.server.service.entitymanage.Entity2Schema;
+import com.rebuild.server.bizz.UserService;
+import com.rebuild.server.entityhub.Entity2Schema;
 
 /**
  * 

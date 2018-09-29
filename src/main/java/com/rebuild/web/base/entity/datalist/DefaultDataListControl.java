@@ -33,7 +33,7 @@ public class DefaultDataListControl implements DataListControl {
 
 	protected static final int READ_TIMEOUT = 15 * 1000;
 	
-	protected JsonQueryParser queryParser;
+	protected JSONQueryParser queryParser;
 
 	/**
 	 */
@@ -44,13 +44,13 @@ public class DefaultDataListControl implements DataListControl {
 	 * @param queryElement
 	 */
 	public DefaultDataListControl(JSONObject queryElement) {
-		this.queryParser = new JsonQueryParser(queryElement, this);
+		this.queryParser = new JSONQueryParser(queryElement, this);
 	}
 
 	/**
 	 * @return
 	 */
-	public JsonQueryParser getQueryParser() {
+	public JSONQueryParser getQueryParser() {
 		return queryParser;
 	}
 

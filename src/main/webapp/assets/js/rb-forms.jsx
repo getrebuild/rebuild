@@ -147,7 +147,7 @@ class RbForm extends React.Component {
         $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), function(res){
             actions.button('reset')
             if (res.error_code == 0){
-                that.showNotice('保存成功。<a href="javascript:recordView(\'' + res.data.id + '\')">点击查看</a>', 'success')
+                that.showNotice('记录保存成功', 'success')
                 that.props.$$$parent.hide(true)
                 if (window.rbList) window.rbList.reload()
                 else if (parent.rbList) parent.rbList.reload()

@@ -27,9 +27,9 @@ import org.apache.commons.logging.LogFactory;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
+import com.rebuild.server.entityhub.EasyMeta;
+import com.rebuild.server.helper.manager.FieldValueWrapper;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.base.FieldValueWrapper;
-import com.rebuild.server.service.entitymanage.EasyMeta;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -113,7 +113,8 @@ public class DataWrapper extends FieldValueWrapper {
 		
 		if (namedVal == null) {
 			String sql = String.format("select %s from %s where %s = ?",
-					nameField.getName(), entity.getName(), entity.getPrimaryField().getName());
+					(nameField.getType() == FieldType.REFERENCE ? "&" : "") + nameField.getName(),
+					entity.getName(), entity.getPrimaryField().getName());
 			Object[] named = Application.createQuery(sql).setParameter(1, idVal).unique();
 			if (named == null) {
 				LOG.debug("Reference is deleted : " + idVal);

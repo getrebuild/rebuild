@@ -75,7 +75,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 		
 		if (exception != null) {
 			Throwable rootCause = ThrowableUtils.getRootCause(exception);
-			String errorMsg = "系统繁忙";
+			String errorMsg = "系统繁忙！请稍后重试";
 			if (rootCause instanceof RebuildException) {
 				errorMsg = ((RebuildException) rootCause).toClientMsgString();
 			}

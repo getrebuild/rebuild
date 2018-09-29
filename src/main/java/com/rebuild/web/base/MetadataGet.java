@@ -30,8 +30,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.entitymanage.EasyMeta;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.persist4j.Entity;
@@ -43,10 +43,10 @@ import cn.devezhao.persist4j.Field;
  * @since 09/19/2018
  */
 @Controller
-@RequestMapping("/app/")
+@RequestMapping("/commons/metadata/")
 public class MetadataGet extends BaseControll {
 
-	@RequestMapping("common/metadata/entities")
+	@RequestMapping("entities")
 	public void entities(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		Entity[] entities = MetadataHelper.getEntities();
 		
@@ -65,7 +65,7 @@ public class MetadataGet extends BaseControll {
 		writeSuccess(response, list);
 	}
 	
-	@RequestMapping("common/metadata/fields")
+	@RequestMapping("fields")
 	public void fields(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
 		Entity entityBase = MetadataHelper.getEntity(entity);

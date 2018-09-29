@@ -664,3 +664,7 @@ h5.sortable-box-title {
 .zoom-in {
 	cursor: zoom-in !important;
 }
+
+.form-control-plaintext {
+	word-wrap: break-word;
+}

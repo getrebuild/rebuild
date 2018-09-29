@@ -29,9 +29,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.manager.LayoutManager;
+import com.rebuild.server.helper.manager.NavManager;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.base.LayoutManager;
-import com.rebuild.server.service.base.NavManager;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.commons.web.ServletUtils;
@@ -44,10 +44,10 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 09/19/2018
  */
 @Controller
-@RequestMapping("/app/")
+@RequestMapping("/app/commons/")
 public class NavSettings extends BaseControll {
 
-	@RequestMapping(value = "common/nav-settings", method = RequestMethod.POST)
+	@RequestMapping(value = "nav-settings", method = RequestMethod.POST)
 	public void navsSet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		
@@ -68,7 +68,7 @@ public class NavSettings extends BaseControll {
 		writeSuccess(response);
 	}
 	
-	@RequestMapping(value = "common/nav-settings", method = RequestMethod.GET)
+	@RequestMapping(value = "nav-settings", method = RequestMethod.GET)
 	public void navsGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		JSON config = NavManager.getNav(user);

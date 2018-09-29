@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
-import com.rebuild.server.service.base.FormManager;
+import com.rebuild.server.helper.manager.FormManager;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.persist4j.engine.ID;

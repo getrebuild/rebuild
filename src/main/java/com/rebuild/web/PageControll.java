@@ -23,8 +23,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.rebuild.server.Startup;
+import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.entitymanage.EasyMeta;
 import com.rebuild.utils.AppUtils;
 
 import cn.devezhao.persist4j.engine.ID;

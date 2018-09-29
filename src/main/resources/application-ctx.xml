@@ -54,7 +54,7 @@
 		</constructor-arg>
 	</bean>
 
-	<bean class="com.rebuild.server.service.QueryFactory">
+	<bean class="com.rebuild.server.query.QueryFactory">
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 
@@ -62,11 +62,11 @@
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 	
-	<bean class="com.rebuild.server.privileges.UserStore" name="UserStore" init-method="init">
+	<bean class="com.rebuild.server.bizz.privileges.UserStore" name="UserStore" init-method="init">
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 
-	<bean class="com.rebuild.server.privileges.SecurityManager">
+	<bean class="com.rebuild.server.bizz.privileges.SecurityManager">
 		<constructor-arg index="0" ref="UserStore" />
 	</bean>
 	
@@ -94,17 +94,17 @@
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 	
-	<bean class="com.rebuild.server.service.entitymanage.PickListService">
+	<bean class="com.rebuild.server.entityhub.PickListService">
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 	
-	<bean class="com.rebuild.server.service.bizuser.UserService">
+	<bean class="com.rebuild.server.bizz.UserService">
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
-	<bean class="com.rebuild.server.service.bizuser.DepartmentService">
+	<bean class="com.rebuild.server.bizz.DepartmentService">
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
-	<bean class="com.rebuild.server.service.bizuser.RoleService">
+	<bean class="com.rebuild.server.bizz.RoleService">
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 

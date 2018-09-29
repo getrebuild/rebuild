@@ -26,10 +26,11 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.rebuild.server.bizz.privileges.UserStore;
+import com.rebuild.server.helper.AesPreferencesConfigurer;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.privileges.UserStore;
+import com.rebuild.server.query.QueryFactory;
 import com.rebuild.server.service.CommonService;
-import com.rebuild.server.service.QueryFactory;
 import com.rebuild.server.service.SqlExecutor;
 import com.rebuild.web.OnlineSessionStore;
 
@@ -136,8 +137,8 @@ public class Application {
 	/**
 	 * @return
 	 */
-	public static com.rebuild.server.privileges.SecurityManager getSecurityManager() {
-		return getBean(com.rebuild.server.privileges.SecurityManager.class);
+	public static com.rebuild.server.bizz.privileges.SecurityManager getSecurityManager() {
+		return getBean(com.rebuild.server.bizz.privileges.SecurityManager.class);
 	}
 	
 	/**
