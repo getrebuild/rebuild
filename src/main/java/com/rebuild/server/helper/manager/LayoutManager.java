@@ -31,8 +31,6 @@ public class LayoutManager {
 	
 	// 表单
 	public static final String TYPE_FORM = "FORM";
-	// 视图
-	public static final String TYPE_VIEW = "VIEW";
 	// 数据列表
 	public static final String TYPE_DATALIST = "DATALIST";
 	// 导航

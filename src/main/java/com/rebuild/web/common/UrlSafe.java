@@ -37,7 +37,7 @@ import com.rebuild.web.BaseControll;
 @Controller
 public class UrlSafe extends BaseControll {
 
-	@RequestMapping(value="/common/url-safe", method=RequestMethod.GET)
+	@RequestMapping(value="/commons/url-safe", method=RequestMethod.GET)
 	public void safeRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String url = getParameterNotNull(request, "url");
 		

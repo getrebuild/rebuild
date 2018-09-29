@@ -16,61 +16,23 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.helper;
-
-import java.util.Date;
+package com.rebuild.server.service.base;
 
 import com.alibaba.fastjson.JSON;
-
-import cn.devezhao.commons.CalendarUtils;
+import com.rebuild.server.helper.TimeBulkTask;
 
 /**
  * 
  * @author devezhao
  * @since 09/29/2018
  */
-public abstract class TimeHugeTask extends HugeTask {
+public class ShareTask extends TimeBulkTask {
 
-	private Date beginTime;
-	private Date endTime;
-	
-	/**
-	 * @param data
-	 */
-	protected TimeHugeTask(JSON data) {
+	protected ShareTask(JSON data) {
 		super(data);
-		this.beginTime = CalendarUtils.now();
 	}
-	
-	/**
-	 * @return
-	 */
-	public Date getBeginTime() {
-		return beginTime;
-	}
-	
-	/**
-	 * @return
-	 */
-	public Date getEndTime() {
-		return endTime;
-	}
-	
-	/**
-	 * @param endTime
-	 */
-	protected void setEndTime(Date endTime) {
-		this.endTime = endTime;
-	}
-	
-	/**
-	 * 任务耗时（ms）
-	 * 
-	 * @return
-	 */
-	public long getElapsedTime() {
-		Date end = getEndTime();
-		end = end == null ? CalendarUtils.now() : end;
-		return end.getTime() - beginTime.getTime();
+
+	@Override
+	public void run() {
 	}
 }

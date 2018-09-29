@@ -75,7 +75,7 @@
 	padding-top: 20px;
 }
 
-.modal.rbmodal .modal-header > .icon {
+.modal.rbmodal .modal-header>.icon {
 	color: #fff;
 }
 
@@ -279,21 +279,27 @@ a {
 	background-size: 24px auto;
 	margin: 3px;
 }
+
 .file-field .img-thumbnail>i.ftype.png {
 	background-image: url(../img/ft-icons/icon-png.png)
 }
+
 .file-field .img-thumbnail>i.ftype.word {
 	background-image: url(../img/ft-icons/icon-word.png)
 }
+
 .file-field .img-thumbnail>i.ftype.ppt {
 	background-image: url(../img/ft-icons/icon-ppt.png)
 }
+
 .file-field .img-thumbnail>i.ftype.excel {
 	background-image: url(../img/ft-icons/icon-excel.png)
 }
+
 .file-field .img-thumbnail>i.ftype.pdf {
 	background-image: url(../img/ft-icons/icon-pdf.png)
 }
+
 .file-field .img-thumbnail>i.ftype.mp4 {
 	background-image: url(../img/ft-icons/icon-mp4.png)
 }
@@ -441,9 +447,11 @@ i.split.ui-draggable-dragging {
 .data-list .table td, .data-list .table td>div.nmw {
 	max-width: 1000px;
 }
+
 .column-imgs.img-field {
 	margin-bottom: 0;
 }
+
 .column-imgs.img-field .img-upload {
 	width: 36px;
 	height: 36px;
@@ -461,6 +469,7 @@ i.split.ui-draggable-dragging {
 	margin: 0;
 	line-height: 1.428571;
 }
+
 .column-files ul a {
 	color: #777 !important;
 	cursor: default;
@@ -594,36 +603,36 @@ h5.sortable-box-title {
 	max-width: 100%;
 }
 
-.modal.rbview .modal-header > .icon {
+.modal.rbview .modal-header>.icon {
 	margin-top: 3px;
 }
 
 .modal.rbview .modal-dialog .modal-content {
 	margin: 0;
-	box-shadow: 0 0 0 #000;
 	border-radius: 0;
-	border-left: 1px solid #e3e3e3;
 	max-width: 100%;
 	width: 1280px;
 	margin-right: -1280px;
 	float: right;
+	position: relative;
 }
 
 .modal.rbview .modal-dialog .modal-content .modal-header {
-	padding: 13px 19px;
-	padding-top: 14px;
-	border: 0 none;
-	border-bottom: 1px solid #e3e3e3;
+	background-color: #fff;
+	position: absolute;
+	z-index: 101;
+	border-radius: 0 0 0 4px;
+	right: 0;
+	top: 0;
+	padding-left: 10px;
 }
 
 .modal.rbview .modal-dialog .modal-content .modal-header .close {
 	margin-top: -10px;
-	font-size: 1.8rem;
 }
 
-.modal.rbview .modal-dialog .modal-content .modal-header .close .zmdi-settings
-	{
-	font-size: 1.5rem;
+.modal.rbview .modal-dialog .modal-content .modal-header .close.admin-settings {
+	margin-top: -11px;
 }
 
 .rbview-form .card-header-divider {
@@ -667,4 +676,31 @@ h5.sortable-box-title {
 
 .form-control-plaintext {
 	word-wrap: break-word;
+}
+
+.form-line {
+	
+}
+
+.form-line fieldset {
+	border-bottom: 1px solid #d9d9d9;
+	position: relative;
+	margin: 18px 0;
+}
+
+.form-line fieldset legend {
+	position: absolute;
+	font-size: 1rem;
+	margin: 0;
+	background-color: #fff;
+	width: auto;
+	left: 9px;
+	margin-top: -12px;
+	padding: 3px 6px;
+	cursor: pointer;
+	color: #777;
+}
+
+.form-line fieldset legend:hover {
+	color: #4285f4;
 }

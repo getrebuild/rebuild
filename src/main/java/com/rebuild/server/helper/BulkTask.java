@@ -26,7 +26,7 @@ import com.alibaba.fastjson.JSON;
  * @author devezhao
  * @since 09/29/2018
  */
-public abstract class HugeTask implements Runnable {
+public abstract class BulkTask implements Runnable {
 
 	private int totalQuantity = -1;
 	private int completeQuantity = 0;
@@ -39,7 +39,7 @@ public abstract class HugeTask implements Runnable {
 	/**
 	 * @param data
 	 */
-	protected HugeTask(JSON data) {
+	protected BulkTask(JSON data) {
 		this.data = data;
 	}
 	

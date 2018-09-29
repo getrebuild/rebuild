@@ -193,7 +193,7 @@ class RbList extends React.Component {
         return false
     }
     clickView(cellVal) {
-        renderRbViewModal(cellVal[0], cellVal[1], cellVal[2][0], cellVal[2][1])
+        renderRbViewModal(cellVal[0], cellVal[2][0])
         return false;
     }
     

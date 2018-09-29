@@ -85,7 +85,7 @@ $(document).ready(function(){
 		let s = rbList.getSelectedRows()
 		if (s.length == 1) {
 			s = s[0]
-			renderRbViewModal(s[0], s[1], s[2][0], s[2][1])
+			renderRbViewModal(s[0], s[2][0])
 		}
 	});
 	$('.J_edit').click(function(){

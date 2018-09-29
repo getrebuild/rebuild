@@ -5844,7 +5844,7 @@ button.close {
 	margin: -1rem -1rem -1rem auto
 }
 
-.modal-header > .icon {
+.modal-header > .icon, .header-icon {
 	font-size: 2.1rem;
 	color: #4285f4;
 	width: 24px;

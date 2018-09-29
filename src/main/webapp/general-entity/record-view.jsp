@@ -3,14 +3,21 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>${entityLabel}视图</title>
+<title>视图</title>
 <style type="text/css">
+.view-header{padding:15px 20px;height:62px;border-bottom:1px solid #e3e3e3;}
+.view-header .header-icon{float:left;}
+.view-header .title{line-height:1.428571;display:inline-block;margin:0;font-weight:300;font-size:1.538rem}
 .view-btns{padding-bottom:15px;}
 .view-btns .btn{width:100%;}
 .view-btns .btn+.btn{margin-top:6px}
 </style>
 </head>
 <body class="dialog">
+<div class="view-header">
+	 <span class="header-icon zmdi zmdi-${entityIcon}"></span>
+        <h3 class="title">${entityLabel}视图</h3>
+</div>
 <div class="main-content container-fluid invisible">
 	<div class="row">
 		<div class="col-sm-10" id="react-formView">

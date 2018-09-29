@@ -30,11 +30,11 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public abstract class BaseService {
 	
-	protected PersistManagerFactory persistManagerFactory;
+	final protected PersistManagerFactory aPMFactory;
 
-	protected BaseService(PersistManagerFactory persistManagerFactory) {
+	protected BaseService(PersistManagerFactory factory) {
 		super();
-		this.persistManagerFactory = persistManagerFactory;
+		this.aPMFactory = factory;
 	}
 	
 	/**
@@ -47,7 +47,7 @@ public abstract class BaseService {
 	 * @return
 	 */
 	public Record create(Record record) {
-		return persistManagerFactory.createPersistManager().save(record);
+		return aPMFactory.createPersistManager().save(record);
 	}
 
 	/**
@@ -55,7 +55,7 @@ public abstract class BaseService {
 	 * @return
 	 */
 	public Record update(Record record) {
-		return persistManagerFactory.createPersistManager().update(record);
+		return aPMFactory.createPersistManager().update(record);
 	}
 	
 	/**
@@ -67,19 +67,11 @@ public abstract class BaseService {
 	}
 
 	/**
-	 * @param record
-	 * @return
-	 */
-	public int delete(Record record) {
-		return delete(record.getPrimary());
-	}
-	
-	/**
 	 * @param recordId
 	 * @return
 	 */
 	public int delete(ID recordId) {
-		int affected = persistManagerFactory.createPersistManager().delete(recordId);
+		int affected = aPMFactory.createPersistManager().delete(recordId);
 		return affected;
 	}
 }

@@ -27,11 +27,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSON;
-import com.rebuild.server.helper.HugeTaskExecutor;
+import com.rebuild.server.helper.BulkTaskExecutor;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
-
-import cn.devezhao.commons.web.ServletUtils;
 
 /**
  * 
@@ -40,20 +38,20 @@ import cn.devezhao.commons.web.ServletUtils;
  */
 @RequestMapping("/commons/task/")
 @Controller
-public class HugeTaskControll extends BaseControll {
+public class BulkTaskControll extends BaseControll {
 
 	@RequestMapping("submit")
 	public void submit(HttpServletRequest request, HttpServletResponse response) 
 			throws IOException {
-		JSON reqdata = ServletUtils.getRequestJson(request);
-		
+//		JSON reqdata = ServletUtils.getRequestJson(request);
+//		BulkTaskExecutor.submit(task)
 	}
 
 	@RequestMapping("check-state")
 	public void checkState(HttpServletRequest request, HttpServletResponse response)
 			throws IOException {
 		String taskid = getParameterNotNull(request, "taskid");
-		double cp = HugeTaskExecutor.getTask(taskid).getCompletePercent();
+		double cp = BulkTaskExecutor.getTask(taskid).getCompletePercent();
 		JSON ret = JSONUtils.toJSONObject(new String[] { "taskid", "complete" }, new Object[] { taskid, cp });
 		writeSuccess(response, ret);
 	}

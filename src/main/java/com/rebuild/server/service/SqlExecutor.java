@@ -35,7 +35,7 @@ import cn.devezhao.persist4j.engine.StatementCallback;
 import cn.devezhao.persist4j.util.SqlHelper;
 
 /**
- * SQL执行者
+ * 原生 SQL 执行者
  * 
  * @author <a href="mailto:zhaofang123@gmail.com">Zhao Fangfang</a>
  * @since 0.1, Mar 31, 2010
@@ -44,10 +44,10 @@ public class SqlExecutor {
 
 	private static final int MAX_BATCH_SIZE = 100;
 	
-	final private PersistManagerFactory PM_FACTORY;
+	final private PersistManagerFactory aPMFactory;
 	
 	protected SqlExecutor(PersistManagerFactory factory) {
-		this.PM_FACTORY = factory;
+		this.aPMFactory = factory;
 	}
 	
 	/**
@@ -65,7 +65,7 @@ public class SqlExecutor {
 	 */
 	public int execute(String sql, int timeout) {
 		try {
-			final JdbcSupport jdbcSupport = (JdbcSupport) PM_FACTORY.createPersistManager();
+			final JdbcSupport jdbcSupport = (JdbcSupport) aPMFactory.createPersistManager();
 			jdbcSupport.setTimeout(timeout);
 			
 			return jdbcSupport.execute(new StatementCallback() {
@@ -88,7 +88,7 @@ public class SqlExecutor {
 	 * @return
 	 */
 	public long executeInsert(String sql) {
-		Connection connect = DataSourceUtils.getConnection(PM_FACTORY.getDataSource());
+		Connection connect = DataSourceUtils.getConnection(aPMFactory.getDataSource());
 		
 		PreparedStatement pstmt = null;
 		ResultSet keyRs = null;
@@ -107,7 +107,7 @@ public class SqlExecutor {
 		} finally {
 			SqlHelper.close(keyRs);
 			SqlHelper.close(pstmt);
-			SqlHelper.close(connect, PM_FACTORY.getDataSource());
+			SqlHelper.close(connect, aPMFactory.getDataSource());
 		}
 	}
 	
@@ -131,7 +131,7 @@ public class SqlExecutor {
             tmp.add(s);
             if (tmp.size() == MAX_BATCH_SIZE) {
                 try {
-                    final JdbcSupport jdbcSupport = (JdbcSupport) PM_FACTORY.createPersistManager();
+                    final JdbcSupport jdbcSupport = (JdbcSupport) aPMFactory.createPersistManager();
                     jdbcSupport.setTimeout(timeout);
                     
                     int[] exec = jdbcSupport.executeBatch(tmp.toArray(new String[tmp.size()]));
@@ -145,7 +145,7 @@ public class SqlExecutor {
         
         if (!tmp.isEmpty()) {
             try {
-                final JdbcSupport jdbcSupport = (JdbcSupport) PM_FACTORY.createPersistManager();
+                final JdbcSupport jdbcSupport = (JdbcSupport) aPMFactory.createPersistManager();
                 jdbcSupport.setTimeout(timeout);
                 
                 int[] exec = jdbcSupport.executeBatch(tmp.toArray(new String[tmp.size()]));

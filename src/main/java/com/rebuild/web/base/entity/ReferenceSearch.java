@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.base;
+package com.rebuild.web.base.entity;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,8 +47,8 @@ import cn.devezhao.persist4j.dialect.FieldType;
  */
 @Controller
 @RequestMapping("/app/commons/")
-public class CommonSearch extends BaseControll {
-
+public class ReferenceSearch extends BaseControll {
+	
 	@RequestMapping("search")
 	public void search(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameter(request, "entity");

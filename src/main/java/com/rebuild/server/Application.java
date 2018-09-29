@@ -32,6 +32,7 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.query.QueryFactory;
 import com.rebuild.server.service.CommonService;
 import com.rebuild.server.service.SqlExecutor;
+import com.rebuild.server.service.base.GeneralEntityService;
 import com.rebuild.web.OnlineSessionStore;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -39,13 +40,15 @@ import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * 后台类入口
+ * 
  * @author zhaofang123@gmail.com
  * @since 05/18/2018
  */
 public class Application {
 	
 	/**
-	 * Logging */
+	 * Global Logging */
 	public static final Log LOG = LogFactory.getLog(Application.class);
 	
 	private static ApplicationContext APPLICATION_CTX;
@@ -59,7 +62,7 @@ public class Application {
 		
 		// 初始化所有 Beans
 		if (devMode()) {
-//			APPLICATION_CTX.getBeansOfType(Object.class);
+			APPLICATION_CTX.getBeansOfType(Object.class);
 		}
 		
 		// 自定义实体
@@ -75,8 +78,7 @@ public class Application {
 	 * @return
 	 */
 	public static boolean devMode() {
-		return org.apache.commons.lang.SystemUtils.IS_OS_WINDOWS
-				|| "1".equals(System.getProperty("dev"));
+		return org.apache.commons.lang.SystemUtils.IS_OS_WINDOWS || "1".equals(System.getProperty("dev"));
 	}
 	
 	/**
@@ -85,12 +87,11 @@ public class Application {
 	 * @param hook
 	 */
 	public static void addShutdownHook(Thread hook) {
+		LOG.warn("Add shutdown hook : " + hook.getName());
 		Runtime.getRuntime().addShutdownHook(hook);
 	}
-	
-	/**
-	 * @return
-	 */
+
+	synchronized
 	public static ApplicationContext context() {
 		if (APPLICATION_CTX == null) {
 			ApplicationContext ctx = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml" });
@@ -98,89 +99,56 @@ public class Application {
 		}
 		return APPLICATION_CTX;
 	}
-	
-	/**
-	 * @param itemKey
-	 */
+
 	public static String getConfigItem(String itemKey) {
 		return getBean(AesPreferencesConfigurer.class).getItem(itemKey);
 	}
-	
-	/**
-	 * @return
-	 */
+
 	public static OnlineSessionStore getSessionStore() {
 		return getBean(OnlineSessionStore.class);
 	}
 	
-	/**
-	 * @return
-	 */
 	public static ID currentCallerUser() {
 		return getSessionStore().getCurrentCaller();
 	}
-	
-	/**
-	 * @return
-	 */
+
 	public static PersistManagerFactory getPersistManagerFactory() {
 		return getBean(PersistManagerFactory.class);
 	}
-	
-	/**
-	 * @return
-	 */
+
 	public static UserStore getUserStore() {
 		return getBean(UserStore.class);
 	}
-	
-	/**
-	 * @return
-	 */
+
 	public static com.rebuild.server.bizz.privileges.SecurityManager getSecurityManager() {
 		return getBean(com.rebuild.server.bizz.privileges.SecurityManager.class);
 	}
-	
-	/**
-	 * @return
-	 */
+
 	public static QueryFactory getQueryFactory() {
 		return getBean(QueryFactory.class);
 	}
 	
-	/**
-	 * @return
-	 */
 	public static Query createQuery(String ajql) {
 		return getQueryFactory().createQuery(ajql);
 	}
 	
-	/**
-	 * @return
-	 */
 	public static Query createNoFilterQuery(String ajql) {
 		return getQueryFactory().createQueryUnfiltered(ajql);
 	}
 	
-	/**
-	 * @return
-	 */
-	public static SqlExecutor getSqlExecutor() {
-		return getBean(SqlExecutor.class);
-	}
-	
-	/**
-	 * @param beanClazz
-	 * @return
-	 */
 	public static <T> T getBean(Class<T> beanClazz) {
 		return context().getBean(beanClazz);
 	}
-	
-	/**
-	 * @return
-	 */
+
+	public static SqlExecutor getSqlExecutor() {
+		return getBean(SqlExecutor.class);
+	}
+
 	public static CommonService getCommonService() {
 		return getBean(CommonService.class);
+	}
+
+	public static GeneralEntityService getGeneralEntityService() {
+		return getBean(GeneralEntityService.class);
 	}
 }

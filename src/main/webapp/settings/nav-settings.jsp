@@ -80,8 +80,6 @@
 </li>
 </script>
 <%@ include file="/_include/Foot.jsp"%>
-<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/jquery-ui.min.css">
-<script src="${baseUrl}/assets/lib/jquery-ui.min.js"></script>
 <script type="text/javascript">
 const UNICON_NAME = 'texture'
 $(document).ready(function(){
@@ -97,7 +95,7 @@ $(document).ready(function(){
 		axis: 'y'
 	})
 
-	$.get(rb.baseUrl + '/app/common/metadata/entities', function(res){
+	$.get(rb.baseUrl + '/commons/metadata/entities', function(res){
 		$(res.data).each(function(){
 			$('<option value="' + this.name + '" data-icon="' + this.icon + '">' + this.label + '</option>').appendTo('.J_menuEntity');
 		})
@@ -117,7 +115,7 @@ $(document).ready(function(){
 				$('.J_menuIcon .zmdi').attr('class', 'zmdi zmdi-' + s)
 				iconModal.hide()
 			}
-			iconModal = parent.rb.modal(rb.baseUrl + '/common/search-icon.htm', '选择图标')
+			iconModal = parent.rb.modal(rb.baseUrl + '/page/commons/search-icon', '选择图标')
 		}
 	})
 	
@@ -154,14 +152,14 @@ $(document).ready(function(){
 		if (navs.length == 0) { rb.notice('请至少设置一个菜单项'); return }
 		
 		let btn = $(this).button('loading')
-		$.post(rb.baseUrl + '/app/common/nav-settings?cfgid=' + cfgid, JSON.stringify(navs), function(res){
+		$.post(rb.baseUrl + '/app/commons/nav-settings?cfgid=' + cfgid, JSON.stringify(navs), function(res){
 			btn.button('reset')
 			if (res.error_code == 0) parent.location.reload()
 			else alert(res.error_msg)
 		});
 	})
 	
-	$.get(rb.baseUrl + '/app/common/nav-settings', function(res){
+	$.get(rb.baseUrl + '/app/commons/nav-settings', function(res){
 		if (res.data){
 			cfgid = res.data.id
 			$(res.data.config).each(function(){

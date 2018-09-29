@@ -16,39 +16,23 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.service;
+package com.rebuild.server.service.base;
 
-import cn.devezhao.persist4j.PersistManagerFactory;
-import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
+import com.rebuild.server.helper.TimeBulkTask;
 
 /**
- * 普通的 CRUD 服务
  * 
- * @author zhaofang123@gmail.com
- * @since 11/06/2017
+ * @author devezhao
+ * @since 09/29/2018
  */
-public class CommonService extends BaseService {
+public class BatchModifiedTask extends TimeBulkTask {
 
-	public CommonService(PersistManagerFactory factory) {
-		super(factory);
+	protected BatchModifiedTask(JSON data) {
+		super(data);
 	}
-	
+
 	@Override
-	public int getEntity() {
-		throw new UnsupportedOperationException();
-	}
-	
-	/**
-	 * 批量删除
-	 * 
-	 * @param ids
-	 * @return
-	 */
-	public int delete(ID[] ids) {
-		int affected = 0;
-		for (ID id : ids) {
-			affected += delete(id);
-		}
-		return affected;
+	public void run() {
 	}
 }

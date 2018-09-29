@@ -46,7 +46,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/admin/entity/")
-public class LayoutConfigControll extends BaseControll {
+public class LayoutManagerControll extends BaseControll {
 	
 	@RequestMapping("{entity}/form-design")
 	public ModelAndView pageFormDesign(@PathVariable String entity, HttpServletRequest request) throws IOException {
@@ -59,18 +59,7 @@ public class LayoutConfigControll extends BaseControll {
 		return mv;
 	}
 	
-	@RequestMapping("{entity}/view-design")
-	public ModelAndView pageViewDesign(@PathVariable String entity, HttpServletRequest request) throws IOException {
-		ModelAndView mv = createModelAndView("/admin/entity/view-design.jsp");
-		MetaEntityControll.setEntityBase(mv, entity);
-		JSON fc = FormManager.getViewLayout(entity);
-		if (fc != null) {
-			request.setAttribute("ViewConfig", fc);
-		}
-		return mv;
-	}
-	
-	@RequestMapping({ "{entity}/form-update", "{entity}/view-update" })
+	@RequestMapping({ "{entity}/form-update" })
 	public void formUpdate(@PathVariable String entity, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		JSON formJson = ServletUtils.getRequestJson(request);

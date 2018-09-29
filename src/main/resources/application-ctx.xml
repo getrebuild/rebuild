@@ -14,7 +14,7 @@
         http://www.springframework.org/schema/tx
         http://www.springframework.org/schema/tx/spring-tx-4.3.xsd" default-lazy-init="true">
 
-	<bean class="com.rebuild.server.AesPreferencesConfigurer">
+	<bean class="com.rebuild.server.helper.AesPreferencesConfigurer">
 		<property name="locations">
 			<list>
 				<value>classpath:jdbc.properties</value>
@@ -75,22 +75,26 @@
 	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="dataSource" />
 	</bean>
-
 	<tx:advice id="txAdvice" transaction-manager="txManager">
 		<tx:attributes>
 			<tx:method name="create*" propagation="REQUIRED" />
 			<tx:method name="update*" propagation="REQUIRED" />
 			<tx:method name="delete*" propagation="REQUIRED" />
-			<tx:method name="tx*" propagation="REQUIRED" />
+			<tx:method name="share*"  propagation="REQUIRED" />
+			<tx:method name="assign*" propagation="REQUIRED" />
+			<tx:method name="batch*"  propagation="REQUIRED" />
 		</tx:attributes>
 	</tx:advice>
-
 	<aop:config>
-		<aop:pointcut expression="execution(* *..service..*Service*.*(..))" id="txPoint" />
+		<aop:pointcut expression="execution(* com.rebuild.server..*Service.*(..))" id="txPoint" />
 		<aop:advisor advice-ref="txAdvice" pointcut-ref="txPoint" />
 	</aop:config>
 
 	<bean class="com.rebuild.server.service.CommonService">
+		<constructor-arg index="0" ref="PersistManagerFactory" />
+	</bean>
+	
+	<bean class="com.rebuild.server.service.base.GeneralEntityService">
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 	

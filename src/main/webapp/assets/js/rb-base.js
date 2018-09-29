@@ -39,7 +39,7 @@
 		xhrFields : {
 		},
 		complete : function(xhr) {
-			if (xhr.status == 500) rb.notice(xhr.responseText || '系统繁忙！请稍后重试', 'danger')
+			if (xhr.status == 500) rb.notice(xhr.responseText || '系统繁忙！请稍后重试', 'danger', { timeout: 6000 })
 			if (xhr.status == 403) rb.notice(xhr.responseText || '无权访问', 'danger')
 			console.log(xhr)
 		}

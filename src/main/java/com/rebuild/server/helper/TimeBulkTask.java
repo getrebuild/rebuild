@@ -18,48 +18,59 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Date;
 
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.springframework.scheduling.quartz.QuartzJobBean;
+import com.alibaba.fastjson.JSON;
 
-import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.CalendarUtils;
 
 /**
  * 
  * @author devezhao
  * @since 09/29/2018
  */
-public class HugeTaskExecutor extends QuartzJobBean {
+public abstract class TimeBulkTask extends BulkTask {
 
-	private static final Map<String, HugeTask> TASKS = new ConcurrentHashMap<>();
+	private Date beginTime;
+	private Date endTime;
 	
 	/**
-	 * @param task
-	 * @return
+	 * @param data
 	 */
-	public static String submit(HugeTask task) {
-		String taskid = task.getClass().getSimpleName() + "-" + CodecUtils.randomCode(20);
-		TASKS.put(taskid, task);
-		return taskid;
+	protected TimeBulkTask(JSON data) {
+		super(data);
+		this.beginTime = CalendarUtils.now();
 	}
 	
 	/**
-	 * @param taskid
 	 * @return
 	 */
-	public static HugeTask getTask(String taskid) {
-		return TASKS.get(taskid);
+	public Date getBeginTime() {
+		return beginTime;
 	}
 	
-	// --
+	/**
+	 * @return
+	 */
+	public Date getEndTime() {
+		return endTime;
+	}
 	
-	@Override
-	protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
-
-		// TODO 任务完成 2 小时了，移除
-		
+	/**
+	 * @param endTime
+	 */
+	protected void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
+	
+	/**
+	 * 任务耗时（ms）
+	 * 
+	 * @return
+	 */
+	public long getElapsedTime() {
+		Date end = getEndTime();
+		end = end == null ? CalendarUtils.now() : end;
+		return end.getTime() - beginTime.getTime();
 	}
 }

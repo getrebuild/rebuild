@@ -91,3 +91,7 @@
 .dd-item:hover .dd-action a {
 	display: inline-block;
 }
+
+.field-list .dd-item .dd-action a {
+	display: none !important;
+}

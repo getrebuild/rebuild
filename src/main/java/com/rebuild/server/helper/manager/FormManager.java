@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -56,6 +57,8 @@ public class FormManager extends LayoutManager {
 	 * @return
 	 */
 	public static JSON getFormLayout(String entity) {
+		Assert.notNull(entity, "[entity] not be null");
+		
 		Object[] raw = getLayoutConfigRaw(entity, TYPE_FORM);
 		JSONObject config = new JSONObject();
 		config.put("entity", entity);
@@ -69,6 +72,8 @@ public class FormManager extends LayoutManager {
 	}
 	
 	/**
+	 * 表单-新建
+	 * 
 	 * @param entity
 	 * @return
 	 */
@@ -77,12 +82,17 @@ public class FormManager extends LayoutManager {
 	}
 	
 	/**
+	 * 表单-编辑
+	 * 
 	 * @param entity
 	 * @param user
 	 * @param recordId
 	 * @return
 	 */
 	public static JSON getFormModal(String entity, ID user, ID recordId) {
+		Assert.notNull(entity, "[entity] not be null");
+		Assert.notNull(user, "[user] not be null");
+		
 		final Entity entityMeta = MetadataHelper.getEntity(entity);
 		final User currentUser = Application.getUserStore().getUser(user);
 		final Date now = CalendarUtils.now();
@@ -91,13 +101,17 @@ public class FormManager extends LayoutManager {
 		JSONArray elements = config.getJSONArray("elements");
 		
 		Record record = null;
-		if (recordId != null) {
+		if (!elements.isEmpty() && recordId != null) {
 			record = record(recordId, elements);
 		}
 		
 		for (Object element : elements) {
 			JSONObject el = (JSONObject) element;
 			String fieldName = el.getString("field");
+			if (fieldName.equals("$LINE$")) {
+				continue;
+			}
+			
 			Field fieldMeta = entityMeta.getField(fieldName);
 			EasyMeta easyField = new EasyMeta(fieldMeta);
 			el.put("label", easyField.getLabel());
@@ -147,8 +161,7 @@ public class FormManager extends LayoutManager {
 				}
 			}
 			
-			// 编辑记录
-			// 填充值
+			// 编辑记录 & 填充值
 			if (record != null) {
 				Object value = wrapFieldValue(record, easyField, true);
 				el.put("value", value);
@@ -157,27 +170,8 @@ public class FormManager extends LayoutManager {
 		return config;
 	}
 	
-	// --
-	
 	/**
-	 * @param entity
-	 * @return
-	 */
-	public static JSON getViewLayout(String entity) {
-		Object[] raw = getLayoutConfigRaw(entity, TYPE_VIEW);
-		JSONObject config = new JSONObject();
-		config.put("entity", entity);
-		if (raw != null) {
-			config.put("id", raw[0].toString());
-			config.put("elements", raw[1]);
-			return config;
-		}
-		config.put("elements", new String[0]);
-		return config;
-	}
-	
-	/**
-	 * 视图布局
+	 * 视图
 	 * 
 	 * @param entity
 	 * @param user
@@ -185,33 +179,8 @@ public class FormManager extends LayoutManager {
 	 * @return
 	 */
 	public static JSON getViewModal(String entity, ID user, ID recordId) {
-		final Entity entityMeta = MetadataHelper.getEntity(entity);
-		
-		JSONObject config = (JSONObject) getViewLayout(entity);
-		JSONArray elements = config.getJSONArray("elements");
-		Record record = null;
-		if (!elements.isEmpty()) {
-			record = record(recordId, elements);
-		}
-		
-		for (Object element : elements) {
-			JSONObject el = (JSONObject) element;
-			String fieldName = el.getString("field");
-			if (fieldName.equals("$LINE$")) {
-				continue;
-			}
-			
-			Field fieldMeta = entityMeta.getField(fieldName);
-			EasyMeta easyField = new EasyMeta(fieldMeta);
-			el.put("label", easyField.getLabel());
-			String dt = easyField.getDisplayType(false);
-			el.put("type", dt);
-			
-			// 填充值
-			Object value = wrapFieldValue(record, easyField, false);
-			el.put("value", value);
-		}
-		return config;
+		Assert.notNull(recordId, "[recordId] not be null");
+		return getFormModal(entity, user, recordId);
 	}
 	
 	/**
