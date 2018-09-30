@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.PortalMetaSorter;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.persist4j.Entity;
@@ -48,13 +49,8 @@ public class MetadataGet extends BaseControll {
 
 	@RequestMapping("entities")
 	public void entities(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		Entity[] entities = MetadataHelper.getEntities();
-		
 		List<Map<String, String>> list = new ArrayList<>();
-		for (Entity e : entities) {
-			if (EasyMeta.BUILTIN_ENTITY.contains(e.getName())) {
-				continue;
-			}
+		for (Entity e : PortalMetaSorter.sortEntities()) {
 			Map<String, String> map = new HashMap<>();
 			EasyMeta easy = new EasyMeta(e);
 			map.put("name", e.getName());
@@ -70,9 +66,8 @@ public class MetadataGet extends BaseControll {
 		String entity = getParameterNotNull(request, "entity");
 		Entity entityBase = MetadataHelper.getEntity(entity);
 		
-		Field[] fields = entityBase.getFields();
 		List<Map<String, String>> list = new ArrayList<>();
-		for (Field e : fields) {
+		for (Field e : PortalMetaSorter.sortFields(entityBase)) {
 			Map<String, String> map = new HashMap<>();
 			map.put("name", e.getName());
 			map.put("label", EasyMeta.getLabel(e));

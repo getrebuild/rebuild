@@ -15,13 +15,13 @@ class RbList extends React.Component {
     }
     render() {
         let that = this;
-        const lastIndex = this.state.fields.length;
+        const lastIndex = this.state.fields.length
         return (
         <div>
             <div className="row rb-datatable-body">
             <div className="col-sm-12">
                 <div className="rb-scroller" ref="rblist-scroller">
-                    <table className="table table-hover table-striped" ref="rblist-table">
+                    <table className="table table-hover table-striped">
                     <thead>
                         <tr>
                             <th className="column-checkbox">
@@ -51,6 +51,7 @@ class RbList extends React.Component {
                         })}    
                     </tbody>
                     </table>
+                    {this.state.noData == true ? <div className="nodata"><span class="modal-main-icon zmdi zmdi-info-outline"></span><p>没有检索到数据</p></div> : null}
                 </div>
             </div></div>
             <RbListPagination pageNo={this.state.pageNo} pageSize={this.state.pageSize} rowTotal={this.state.rowTotal} $$$parent={this} />
@@ -59,15 +60,15 @@ class RbList extends React.Component {
     componentDidMount() {
         const scroller = $(this.refs['rblist-scroller'])
         scroller.perfectScrollbar()
-        let that = this;
+        let that = this
         scroller.find('th .split').draggable({ containment: '.rb-datatable-body', axis: 'x', helper: 'clone', stop: function(event, ui){
-            let field = $(event.target).parent().parent().data('field');
+            let field = $(event.target).parent().parent().data('field')
             let left = ui.position.left - 4;
             if (left < 40) left = 40
-            let fields = that.state.fields;
+            let fields = that.state.fields
             for (let i = 0; i < fields.length; i++){
                 if (fields[i].field == field){
-                    fields[i].width = left;
+                    fields[i].width = left
                     break;
                 }
             }
@@ -81,7 +82,7 @@ class RbList extends React.Component {
         let that = this
         this.__selectedRows = []
         this.state.rowData.forEach((item) => {
-            let lastGhost = item[that.state.fields.length];
+            let lastGhost = item[that.state.fields.length]
             if (lastGhost[3] == true) that.__selectedRows.push(lastGhost)
         })
         
@@ -92,39 +93,38 @@ class RbList extends React.Component {
     }
     
     fetchList(filter) {
-        let fields = [];
-        let field_sort = null;
+        let fields = []
+        let field_sort = null
         this.state.fields.forEach(function(item){
             fields.push(item.field)
             if (!!item.sort) field_sort = item.field + ':' + item.sort.replace('sort-', '')
         });
         const entity = this.props.config.entity
+        this.lastFilter = filter || this.lastFilter
         let query = {
             entity: entity,
             fields: fields,
             pageNo: this.state.pageNo,
             pageSize: this.state.pageSize,
             sort: field_sort,
-            filter: filter,
+            filter: this.lastFilter,
             reload: true,
         };
         let that = this;
         $('#react-list').addClass('rb-loading-active')
         $.post(rb.baseUrl + '/app/' + entity + '/record-list', JSON.stringify(query), function(res){
             if (res.error_code == 0){
-                let _rowData = res.data.data;
-                if (_rowData.length == 0) {
-                    that.setState({ noData: true });
-                } else {
-                    let lastIndex = _rowData[0].length - 1
-                    _rowData = _rowData.map((item) => {
+                let rowdata = res.data.data
+                if (rowdata.length > 0) {
+                    let lastIndex = rowdata[0].length - 1
+                    rowdata = rowdata.map((item) => {
                         item[lastIndex][3] = false  // Checked?
-                        return item;
+                        return item
                     })
                 }
-                that.setState({ rowData: _rowData, rowTotal: res.data.total })
+                that.setState({ noData: rowdata.length == 0, rowData: rowdata, rowTotal: res.data.total })
             }else{
-                rb.notice(res.error_msg || '数据加载失败，请稍后重试', 'error')
+                rb.notice(res.error_msg || '加载失败，请稍后重试', 'danger')
             }
             $('#react-list').removeClass('rb-loading-active')
         });
@@ -254,20 +254,18 @@ class RbList extends React.Component {
 class RbListPagination extends React.Component {
     constructor(props) {
         super(props)
-        
         this.prev = this.prev.bind(this)
         this.next = this.next.bind(this)
     }
-    
     render() {
         this.pageTotal = Math.ceil(this.props.rowTotal / this.props.pageSize)
-        if (this.pageTotal <= 0) this.__pageTotal = 1
+        if (this.pageTotal <= 0) this.pageTotal = 1
         const pages = calcPages(this.pageTotal, this.props.pageNo)
         
         return (
         <div className="row rb-datatable-footer">
             <div className="col-sm-5">
-                <div className="dataTables_info">共 {this.props.rowTotal} 条数据</div>
+                <div className="dataTables_info">{this.props.rowTotal > 0 ? `共 ${this.props.rowTotal} 条数据` : ''}</div>
             </div>
             <div className="col-sm-7">
                 <div className="dataTables_paginate paging_simple_numbers">

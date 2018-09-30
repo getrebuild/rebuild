@@ -42,8 +42,8 @@
 							<div class="col-sm-6">
 								<div class="dataTables_filter">
 									<div class="input-group input-search">
-										<input class="form-control" placeholder="搜索 字段名称/内部标识 ..." type="text"><span class="input-group-btn">
-										<button class="btn btn-secondary"><i class="icon zmdi zmdi-search"></i></button></span>
+										<input class="form-control" placeholder="搜索 字段名称/内部标识" type="text">
+										<span class="input-group-btn"><button class="btn btn-secondary"><i class="icon zmdi zmdi-search"></i></button></span>
 									</div>
 								</div>
 							</div>
@@ -88,33 +88,50 @@
 <script src="${baseUrl}/assets/js/rb-list.jsx" type="text/babel"></script>
 <script type="text/babel">
 var newFieldModal = null
+var fields_data = null;
 $(document).ready(function(){
 	$.get('../list-field?entity=${entityName}', function(res){
-		let tbody = $('#dataList tbody');
-		$(res.data).each(function(){
-			let tr = $('<tr data-id="' + (this.fieldId || '') + '"></tr>').appendTo(tbody);
-			$('<td><a href="field/' + this.fieldName + '" class="column-main">' + this.fieldLabel + '</a></td>').appendTo(tr);
-			$('<td><div class="text-muted">' + this.fieldName + '</div></td>').appendTo(tr);
-			$('<td>' + this.displayType + '</td>').appendTo(tr);
-			$('<td><div>' + (this.comments || '') + '</div></td>').appendTo(tr);
-			let actions = $('<td class="actions"><a class="icon J_edit" href="field/' + this.fieldName + '"><i class="zmdi zmdi-settings"></i></a><a class="icon J_del"><i class="zmdi zmdi-delete"></i></a></td>').appendTo(tr);
-			actions.find('.J_del').click(function(){
-				if (!!!tr.data('id')){
-					rb.notice('系统内建字段，不允许删除')
-					return
-				}
-				if (confirm('确认删除？')) alert('...')
-			});
-		});
-		renderRbcomp(<RbListPagination rowTotal={res.data.length} pageSize="1000" pageNo="1" />, 'pagination');
-		$('#dataList').parent().removeClass('rb-loading-active')
-	});
-	
+		fields_data = res.data
+		render_list()
+	})
+	$('.input-search .btn').click(function(){
+		render_list($val('.input-search .form-control'))
+	})
+	$('.input-search .form-control').keydown(function(event){
+		if (event.which == 13) $('.input-search .btn').trigger('click')
+	})
+
 	$('.J_new-field').click(function(){
 		if (newFieldModal) newFieldModal.show()
 		else newFieldModal = rb.modal('${baseUrl}/admin/page/entity/field-new?entity=${entityName}', '新建字段')
 	})
 });
+const render_list = function(q){
+	if (!fields_data) return
+	let tbody = $('#dataList tbody').empty();
+	let size = 0
+	$(fields_data).each(function(){
+		if (!!q){
+			if (!(this.fieldName.contains(q) || this.fieldLabel.contains(q))) return
+		}
+		let tr = $('<tr data-id="' + (this.fieldId || '') + '"></tr>').appendTo(tbody);
+		$('<td><a href="field/' + this.fieldName + '" class="column-main">' + this.fieldLabel + '</a></td>').appendTo(tr);
+		$('<td><div class="text-muted">' + this.fieldName + '</div></td>').appendTo(tr);
+		$('<td>' + this.displayType + '</td>').appendTo(tr);
+		$('<td><div>' + (this.comments || '') + '</div></td>').appendTo(tr);
+		let actions = $('<td class="actions"><a class="icon J_edit" href="field/' + this.fieldName + '"><i class="zmdi zmdi-settings"></i></a><a class="icon J_del"><i class="zmdi zmdi-delete"></i></a></td>').appendTo(tr);
+		actions.find('.J_del').click(function(){
+			if (!!!tr.data('id')){
+				rb.notice('系统内建字段，不允许删除')
+				return
+			}
+			rb.notice('字段暂不支持删除')
+		});
+		size++
+	});
+	renderRbcomp(<RbListPagination rowTotal={size} pageSize="1000" pageNo="1" />, 'pagination');
+	$('#dataList').parent().removeClass('rb-loading-active')
+}
 </script>
 </body>
 </html>

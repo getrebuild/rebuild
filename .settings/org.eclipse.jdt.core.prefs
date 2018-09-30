@@ -6,3 +6,4 @@ org.eclipse.jdt.core.compiler.problem.assertIdentifier=error
 org.eclipse.jdt.core.compiler.problem.enumIdentifier=error
 org.eclipse.jdt.core.compiler.problem.forbiddenReference=warning
 org.eclipse.jdt.core.compiler.source=1.8
+org.eclipse.jdt.core.javaFormatter=org.eclipse.jdt.core.defaultJavaFormatter

@@ -162,15 +162,7 @@ public class EasyMeta implements BaseMeta {
 	 * @return
 	 */
 	public boolean isBuiltin() {
-		if (baseMeta instanceof Entity) {
-			return BUILTIN_ENTITY.contains(getName());
-		} else if (baseMeta instanceof Field) {
-			if (((Field) baseMeta).getType() == FieldType.PRIMARY) {
-				return true;
-			}
-			return BUILTIN_FIELD.contains(getName());
-		}
-		return false;
+		return isBuiltin(baseMeta);
 	}
 	
 	/**
@@ -276,5 +268,21 @@ public class EasyMeta implements BaseMeta {
 	 */
 	public static String getLabel(BaseMeta meta) {
 		return meta.getDescription();
+	}
+	
+	/**
+	 * @param meta
+	 * @return
+	 */
+	public static boolean isBuiltin(BaseMeta meta) {
+		String metaName = meta.getName();
+		if (meta instanceof Entity) {
+			return BUILTIN_ENTITY.contains(metaName);
+		}
+		
+		if (((Field) meta).getType() == FieldType.PRIMARY) {
+			return true;
+		}
+		return BUILTIN_FIELD.contains(metaName);
 	}
 }

@@ -73,6 +73,7 @@ public class UserLoginControll extends BaseControll {
 		}
 		
 		ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, foundUser[0]);
+		Application.getSessionStore().storeLoginSuccessed(request);
 		writeSuccess(response);
 	}
 	

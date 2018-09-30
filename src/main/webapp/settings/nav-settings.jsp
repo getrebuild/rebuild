@@ -155,7 +155,6 @@ $(document).ready(function(){
 		$.post(rb.baseUrl + '/app/commons/nav-settings?cfgid=' + cfgid, JSON.stringify(navs), function(res){
 			btn.button('reset')
 			if (res.error_code == 0) parent.location.reload()
-			else alert(res.error_msg)
 		});
 	})
 	

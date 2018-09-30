@@ -16,13 +16,22 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.base.entity.datalist;
+package com.rebuild.server.entityhub;
+
+import org.junit.Test;
+
+import com.rebuild.server.bizz.UserService;
+import com.rebuild.server.entityhub.Entity2Schema;
 
 /**
- * 高级查询解析器
  * 
- * @author devezhao
- * @since 09/29/2018
+ * @author zhaofang123@gmail.com
+ * @since 08/03/2018
  */
-public class AdvFilterParser {
+public class Entity2SchemaTest {
+
+	@Test
+	public void testCreate() throws Exception {
+		new Entity2Schema(UserService.ADMIN_USER).create("测试一把", null);
+	}
 }

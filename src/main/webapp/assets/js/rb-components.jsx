@@ -120,7 +120,8 @@ class RbNotice extends React.Component {
     componentDidMount() {
         if (this.props.closeAuto == false) return
         let that = this
-        setTimeout(function(){ that.close() }, that.props.timeout || 3000)
+        let dTimeout = this.props.type == 'danger' ? 6000 : 3000
+        setTimeout(function(){ that.close() }, that.props.timeout || dTimeout)
     }
     close() {
         let that = this

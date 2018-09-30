@@ -21,6 +21,7 @@ package com.rebuild.server.entityhub;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.CharSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.logging.Log;
@@ -172,19 +173,25 @@ public class Field2Schema {
 	 * @param text
 	 * @return
 	 */
-	protected String toPinyinString(String text) {
-		String identifier = null;
+	protected String toPinyinString(final String text) {
+		String identifier = text;
 		try {
-			text = PinyinHelper.convertToPinyinString(text, "", PinyinFormat.WITHOUT_TONE);
-			text = StringUtils.trimToEmpty(text);
-			text = text.replace(" ", "");
-			identifier = text.toLowerCase();
+			identifier = PinyinHelper.convertToPinyinString(text, "", PinyinFormat.WITHOUT_TONE);
+			identifier = identifier.replaceAll("[^a-zA-Z0-9]", "");
 		} catch (PinyinException e) {
 			throw new MetadataException(text, e);
 		}
+		if (StringUtils.isBlank(identifier)) {
+			throw new MetadataException("无效名称 : " + text);
+		}
 		
-		if (identifier.length() > 40) {
-			identifier = identifier.substring(0, 40);
+		char start = identifier.charAt(0);
+		if (!CharSet.ASCII_ALPHA.contains(start)) {
+			identifier = "a" + identifier;
+		}
+		identifier = identifier.toLowerCase();
+		if (identifier.length() > 42) {
+			identifier = identifier.substring(0, 42);
 		}
 		if (!StringHelper.isIdentifier(identifier)) {
 			throw new MetadataException("无效名称 : " + text);

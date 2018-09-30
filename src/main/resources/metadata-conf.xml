@@ -4,10 +4,10 @@
 <metadata-config schema-name-optimize="true" default-parent="SystemCommon">
 
 	<entity name="SystemCommon" type-code="000">
-		<field name="createdOn" type="timestamp" nullable="false" updatable="false" description="创建时间" />
 		<field name="createdBy" type="reference" ref-entity="User" nullable="false" updatable="false" description="创建人" />
-		<field name="modifiedOn" type="timestamp" nullable="false" description="更新时间" />
-		<field name="modifiedBy" type="reference" ref-entity="User" nullable="false" description="更新人" />
+		<field name="createdOn" type="timestamp" nullable="false" updatable="false" description="创建时间" />
+		<field name="modifiedBy" type="reference" ref-entity="User" nullable="false" description="修改人" />
+		<field name="modifiedOn" type="timestamp" nullable="false" description="修改时间" />
 	</entity>
 
 	<entity name="User" type-code="001" description="用户" name-field="fullName">
@@ -107,6 +107,7 @@
 	
 	<entity name="FilterConfig" type-code="014" description="过滤条件配置">
 		<field name="filterId" type="primary"/>
+		<field name="filterName" type="string" max-length="100" nullable="false" />
 		<field name="belongEntity" type="string" max-length="100" nullable="false" />
 		<field name="config" type="text" description="JSON格式配置" nullable="false"/>
 		<field name="shareFor" type="string" description="共享给哪些人，可选值: ALL/SELF/$MemberID" />

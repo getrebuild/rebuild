@@ -41,10 +41,7 @@ $(document).ready(function(){
 		btn.button('loading');
 		$.post(rb.baseUrl + '/admin/entity/entity-new', { label:entityLabel, comments:comments }, function(res){
 			if (res.error_code == 0) parent.location.href = rb.baseUrl + '/admin/entity/' +res.data + '/base';
-			else{
-				rb.notice(res.error_msg)
-				btn.button('reset')
-			}
+			else rb.notice(res.error_msg, 'danger')
 		});
 	});
 });

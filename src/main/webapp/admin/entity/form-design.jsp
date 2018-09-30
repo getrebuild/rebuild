@@ -128,7 +128,7 @@ $(document).ready(function(){
 		btn.button('loading');
 		$.post('form-update', JSON.stringify(_data), function(res){
 			if (res.error_code == 0) location.reload();
-			else alert(res.error_msg)
+			else rb.notice(res.error_msg, 'danger')
 		});
 	});
 });

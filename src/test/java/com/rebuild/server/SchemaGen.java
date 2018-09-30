@@ -42,7 +42,7 @@ public class SchemaGen {
 	private static PersistManagerFactory PMF;
 
 	public static void main(String[] args) {
-		CTX = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml" });
+		CTX = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml", });
 		PMF = CTX.getBean(PersistManagerFactoryImpl.class);
 		
 //		genAll();
@@ -50,7 +50,8 @@ public class SchemaGen {
 //		gen(EntityHelper.MetaField);
 //		gen(EntityHelper.PickList);
 //		gen(EntityHelper.LayoutConfig);
-		gen(EntityHelper.RolePrivileges);
+//		gen(EntityHelper.RolePrivileges);
+		gen(EntityHelper.FilterConfig);
 		
 		System.exit(0);
 	}

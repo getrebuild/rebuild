@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
@@ -32,6 +31,7 @@ import com.rebuild.server.entityhub.DisplayType;
 import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.query.AdvFilterParser;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -127,9 +127,12 @@ public class JSONQueryParser {
 			sqlWhere.append('(').append(dataListControl.getDefaultFilter()).append(')');
 		}
 		
-		JSONArray filterNode = queryElement.getJSONArray("filter");
-		if (filterNode != null && !filterNode.isEmpty()) {
-			sqlWhere.append(parseFilter(filterNode));
+		JSONObject filterExp = queryElement.getJSONObject("filter");
+		if (filterExp != null) {
+			String query = new AdvFilterParser(entity, filterExp).toSqlWhere();
+			if (StringUtils.isNotBlank(query)) {
+				sqlWhere.append(" and ").append(query);
+			}
 		}
 		sqlBase.append(sqlWhere);
 		
@@ -166,37 +169,6 @@ public class JSONQueryParser {
 	}
 	
 	/**
-	 * @param filterNode
-	 * @return
-	 */
-	protected String parseFilter(JSONArray filterNode) {
-		StringBuffer sb = new StringBuffer();
-		for (Object o : filterNode) {
-			JSONObject el = (JSONObject) o;
-			String field = el.getString("field");
-			String value = el.getString("value");
-			String op = el.getString("op");
-			op = convOp(op);
-			
-			if ("in".equals(op) || "exists".equals(op)) {
-				throw new UnsupportedOperationException("Unsupported 'in' or 'exists'");
-			} else {
-				sb.append(" and ")
-						.append(field)
-						.append(' ')
-						.append(op)
-						.append(' ');
-				if (NumberUtils.isDigits(value)) {
-					sb.append(value);
-				} else if (StringUtils.isNotBlank(value)) {
-					sb.append('\'').append(StringEscapeUtils.escapeSql(value)).append('\'');
-				}
-			}
-		}
-		return sb.toString();
-	}
-	
-	/**
 	 * @param sortNode
 	 * @return
 	 */
@@ -204,24 +176,5 @@ public class JSONQueryParser {
 		String[] sort_s = sort.split(":");
 		String sortField = sort_s[0];
 		return sortField + ("desc".equalsIgnoreCase(sort_s[1]) ? " desc" : " asc");
-	}
-	
-	/**
-	 * @param op
-	 * @return
-	 */
-	protected String convOp(String op) {
-		if ("eq".equals(op)) return "=";
-		if ("neq".equals(op)) return "<>";
-		if ("gt".equals(op)) return ">";
-		if ("lt".equals(op)) return "<";
-		if ("ge".equals(op)) return ">=";
-		if ("le".equals(op)) return "<=";
-		if ("nl".equals(op)) return "is null";
-		if ("nt".equals(op)) return "is not null";
-		if ("lk".equals(op)) return "like";
-		if ("nlk".equals(op)) return "not like";
-		if ("gb".equals(op)) return "group by";
-		return op;
 	}
 }

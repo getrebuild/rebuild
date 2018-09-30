@@ -3,7 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>配置列显示</title>
+<title>列显示</title>
 </head>
 <body class="dialog">
 <div class="main-content" style="overflow:hidden;">
@@ -25,7 +25,7 @@
 	</div>
 	<div class="dialog-footer">
 		<button class="btn btn-primary J_save" type="button">保存</button>
-		<button class="btn btn-secondary" onclick="parent.csModal.hide()" type="button">取消</button>
+		<button class="btn btn-secondary" onclick="parent.columnsModal.hide()" type="button">取消</button>
 	</div>
 </div>
 <script type="text/plain" id="item-temp">
@@ -41,8 +41,8 @@ $(document).ready(function(){
 	
 	let cfgid = null;
 	$.get(rb.baseUrl + '/app/' + entity + '/list-columns', function(res){
-		$(res.data['configList']).each(function(){ itemRender(this, '.J_config') })
-		$(res.data['fieldList']).each(function(){ itemRender(this, '.J_fields') })
+		$(res.data['configList']).each(function(){ item_render(this, '.J_config') })
+		$(res.data['fieldList']).each(function(){ item_render(this, '.J_fields') })
 		cfgid = res.data['configId'] || ''
 		
 		$('.dd-list').sortable({
@@ -64,11 +64,10 @@ $(document).ready(function(){
 		$.post(rb.baseUrl + '/app/' + entity + '/list-columns?cfgid=' + cfgid, JSON.stringify(config), function(res){
 			btn.button('reset')
 			if (res.error_code == 0) parent.location.reload()
-			else alert(res.eror_msg)
 		});
 	});
 });
-const itemRender = function(data, append){
+const item_render = function(data, append){
 	if ($(".dd-list li[data-field='" + data.field + "']").length > 0) return;
 	let item = $($('#item-temp').html()).appendTo(append)
 	item.attr('data-field', data.field)

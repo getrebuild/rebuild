@@ -31,7 +31,7 @@ public enum DisplayType {
 	DECIMAL("货币", FieldType.DECIMAL, "##,##0.00"),
 	
 	DATE("日期", FieldType.DATE, "yyyy-MM-dd"),
-	DATETIME("日期时间", FieldType.TIMESTAMP, "yyyy-MM-dd HH:mm"),
+	DATETIME("日期时间", FieldType.TIMESTAMP, "yyyy-MM-dd HH:mm:ss"),
 	
 	TEXT("文本", FieldType.STRING, null),
 	NTEXT("超大文本", FieldType.TEXT, null),

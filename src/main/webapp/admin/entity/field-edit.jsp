@@ -102,8 +102,8 @@
 							<div class="col-lg-4 col-sm-10">
 								<select class="form-control form-control-sm" id="datetimeFormat">
 									<option value="yyyy-MM-dd">YYYY-MM-DD</option>
-									<option value="yyyy-MM-dd HH:mm" selected="selected">YYYY-MM-DD HH:MM</option>
-									<option value="yyyy-MM-dd HH:mm:ss">YYYY-MM-DD HH:MM:SS</option>
+									<option value="yyyy-MM-dd HH:mm">YYYY-MM-DD HH:MM</option>
+									<option value="yyyy-MM-dd HH:mm:ss" selected="selected">YYYY-MM-DD HH:MM:SS</option>
 								</select>
 							</div>
 						</div>
@@ -203,9 +203,8 @@ $(document).ready(function(){
 		console.log(_data);
 		btn.button('loading');
 		$.post(rb.baseUrl +  '/admin/entity/field-update', _data, function(res){
-			if (res.error_code == 0){
-				location.href = '../fields';
-			} else alert(res.error_msg)
+			if (res.error_code == 0) location.href = '../fields';
+			else rb.notice(res.error_msg, 'danger')
 		});
 	});
 	if (!!!metaId){

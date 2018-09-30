@@ -21,27 +21,31 @@
 				<div class="card-body">
 					<div class="dataTables_wrapper container-fluid">
 						<div class="row rb-datatable-header">
-							<div class="col-sm-6">
+							<div class="col-12 col-sm-6">
 								<div class="dataTables_filter">
+									<div class="adv-search float-left">
+										<button class="btn btn-secondary" type="button"><span class="text-truncate">所有数据</span><i class="icon zmdi zmdi-caret-down"></i></button>
+									</div>
 									<div class="input-group input-search">
-										<input class="form-control" placeholder="搜索..." type="text"><span class="input-group-btn">
-										<button class="btn btn-secondary"><i class="icon zmdi zmdi-search"></i></button></span>
+										<input class="form-control rounded-left J_search-text" placeholder="搜索 ..." type="text">
+										<span class="input-group-btn"><button class="btn btn-secondary J_search-btn" type="button"><i class="icon zmdi zmdi-search"></i></button></span>
+										<span class="input-group-btn plus"><button class="btn btn-secondary J_qfields" type="button" title="设置查询字段"><i class="icon zmdi zmdi-playlist-plus"></i></button></span>
 									</div>
 								</div>
 							</div>
-							<div class="col-sm-6">
+							<div class="col-12 col-sm-6">
 								<div class="dataTables_oper">
 									<button class="btn btn-space btn-secondary J_view" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> 打开</button>
 									<button class="btn btn-space btn-secondary J_edit" disabled="disabled"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
-									<button class="btn btn-space btn-secondary danger J_delete" disabled="disabled"><i class="icon zmdi zmdi-delete"></i> 删除</button>
+									<button class="btn btn-space btn-secondary J_delete" disabled="disabled"><i class="icon zmdi zmdi-delete"></i> 删除</button>
 									<button class="btn btn-space btn-primary J_new" data-url="${baseUrl}/entity/${entity}/new"><i class="icon zmdi zmdi-plus"></i> 新建</button>
 									<div class="btn-group btn-space">
 										<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-more-vert"></i></button>
 										<div class="dropdown-menu dropdown-menu-right">
-											<a class="dropdown-item J_assign">分配</a>
-											<a class="dropdown-item J_share">共享</a>
+											<a class="dropdown-item J_share"><i class="icon zmdi zmdi-slideshare"></i> 共享</a>
+											<a class="dropdown-item J_assign"><i class="icon zmdi zmdi-mail-reply-all"></i> 分配</a>
 											<div class="dropdown-divider"></div>
-											<a class="dropdown-item J_columnset" data-url="">列显示</a>
+											<a class="dropdown-item J_columns"><i class="icon zmdi zmdi-sort-amount-asc"></i> 列显示</a>
 										</div>
 									</div>
 								</div>
@@ -64,8 +68,9 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/rb-list.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
 <script type="text/babel">
-var rbList, csModal
+var rbList, columnsModal
 var assignModal, shareModal
 $(document).ready(function(){
 	const DataListConfig = JSON.parse('${DataListConfig}')
@@ -96,11 +101,6 @@ $(document).ready(function(){
 		}
 	});
 
-	$('.J_columnset').click(function(){
-		if (csModal) csModal.show()
-		else csModal = rb.modal('${baseUrl}/page/general-entity/columns-settings?entity=${entityName}', '设置列显示')
-	});
-
 	$('.J_assign').click(function(){
 		if (assignModal) assignModal.show()
 		else assignModal = rb.modal('${baseUrl}/page/general-entity/assign', '分配记录')
@@ -109,6 +109,12 @@ $(document).ready(function(){
 		if (shareModal) shareModal.show()
 		else shareModal = rb.modal('${baseUrl}/page/general-entity/share', '共享记录')
 	});
+	$('.J_columns').click(function(){
+		if (columnsModal) columnsModal.show()
+		else columnsModal = rb.modal('${baseUrl}/page/general-entity/show-columns?entity=${entityName}', '设置列显示')
+	});
+
+	SimpleFilter.init('.input-search', '${entityName}');
 });
 </script>
 </body>

@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -47,7 +47,7 @@ public class OnlineSessionStore extends CurrentCaller implements HttpSessionList
 
 	private static final Log LOG = LogFactory.getLog(OnlineSessionStore.class);
 	
-	private static final Set<HttpSession> ONLINE_SESSIONS = new ConcurrentSkipListSet<>();
+	private static final Set<HttpSession> ONLINE_SESSIONS = new CopyOnWriteArraySet<>();
 	private static final Map<ID, HttpSession> ONLINE_USERS = new ConcurrentHashMap<>();
 	
 	@Override
