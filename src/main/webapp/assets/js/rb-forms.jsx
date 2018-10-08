@@ -50,7 +50,7 @@ class RbFormModal extends React.Component {
     show(state) {
         state = state || {}
         let that = this
-        if (state.id != this.state.id) {
+        if (state.id != this.state.id || state.entity != this.state.entity) {
             state = { ...state, isDestroy: true, formComponent: null, inLoad: true }
             this.setState(state, function(){
                 that.__show({ ...state, isDestroy: false }, true)
@@ -113,7 +113,7 @@ class RbForm extends React.Component {
     }
     __renderFormError(message) {
         let fdUrl = rb.baseUrl + '/admin/entity/' + this.props.entity + '/form-design'
-        message = message || `表单尚未配置，请 <a href="${fdUrl}">配置</a> 后使用`
+        message = message || `布局尚未配置，请 <a href="${fdUrl}">配置</a> 后使用`
         message = { __html: '<strong>错误! </strong> ' + message }
         return <div class="alert alert-contrast alert-warning">
             <div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
@@ -146,7 +146,7 @@ class RbForm extends React.Component {
         $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), function(res){
             actions.button('reset')
             if (res.error_code == 0){
-                that.showNotice('记录保存成功', 'success')
+                that.showNotice('保存成功', 'success')
                 that.props.$$$parent.hide(true)
                 if (window.rbList) window.rbList.reload()
                 else if (parent.rbList) parent.rbList.reload()
@@ -183,8 +183,12 @@ class RbFormElement extends React.Component {
         )
     }
     componentDidMount(e) {
-        if (this.props.nullable == false && this.props.creatable == true) {
-            this.props.$$$parent.setFieldValue(this.props.field, null, this.props.label + '不能为空')
+        let props = this.props
+        if (props.nullable == false && props.readonly == false) {
+            if (props.onView === true) {
+            } else {
+                this.props.$$$parent.setFieldValue(this.props.field, null, this.props.label + '不能为空')
+            }
         }
     }
     renderViewElement() {
@@ -218,8 +222,10 @@ class RbFormReadonly extends RbFormElement {
         super(props)
     }
     renderElement() {
+        let text = this.props.value
+        if (this.props.type == 'REFERENCE' && text) text = text[1]
         return (
-            <input className="form-control form-control-sm" type="text" readonly="true" value={this.props.value} />
+            <input className="form-control form-control-sm" type="text" readonly="true" value={text} />
         )
     }
 }
@@ -528,7 +534,7 @@ class RbFormPickList extends RbFormElement {
     componentDidMount() {
         super.componentDidMount()
         let that = this
-        $(this.refs['field-value']).select2({
+        let select2 = $(this.refs['field-value']).select2({
             language: 'zh-CN',
             placeholder: '选择' + that.props.label,
             allowClear: true,
@@ -536,6 +542,12 @@ class RbFormPickList extends RbFormElement {
             let value = e.target.value
             that.handleChange({ target:{ value:value } }, true)
         })
+        $setTimeout(function() {
+            select2.trigger("change")
+        }, 100)
+    }
+    componentWillUnmount() {
+        $(this.refs['field-value']).select2('destroy')
     }
 }
 
@@ -546,7 +558,7 @@ class RbFormReference extends RbFormElement {
     }
     renderElement() {
         return (
-            <select ref="field-value" className="form-control form-control-sm" value={this.state.value} onChange={this.handleChange} multiple="multiple" />
+            <select ref="field-value" className="form-control form-control-sm" value={this.state.value} onChange={this.handleChange} multiple="multiple" style={{width:'100%'}} />
         )
     }
     renderViewElement() {
@@ -554,20 +566,22 @@ class RbFormReference extends RbFormElement {
         return (<div className="form-control-plaintext"><a href="javascript:;" onClick={()=>this.clickView()}>{this.state.value[1]}</a></div>)
     }
     componentDidMount() {
+        console.log('fire componentDidMount ... ')
         super.componentDidMount()
         let that = this
-        $(this.refs['field-value']).select2({
+        let select2 = $(this.refs['field-value']).select2({
             language: 'zh-CN',
             placeholder: '选择' + that.props.label,
             allowClear: true,
             minimumInputLength: 1,
             ajax: {
-                url: rb.baseUrl + '/app/common/search',
+                url: rb.baseUrl + '/app/commons/search',
                 delay: 300,
                 data: function(params) {
                     let query = {
-                        search: params.term,
                         entity: that.props.$$$parent.props.entity,
+                        field: that.props.field,
+                        q: params.term,
                     }
                     return query
                 },
@@ -584,8 +598,43 @@ class RbFormReference extends RbFormElement {
             let value = e.target.value
             that.handleChange({ target:{ value:value } }, true)
         })
+        $setTimeout(function() {
+            select2.trigger("change")
+        }, 100)
+    }
+    componentWillUnmount() {
+        $(this.refs['field-value']).select2('destroy')
     }
     clickView() {
+    }
+}
+
+// 布尔 是/否
+class RbFormBool extends RbFormElement {
+    constructor(props) {
+        super(props)
+        this.state.value = props.value || 'F'
+        if (this.props.onView === true) {
+        } else {
+            if (props.value == '是' || props.value == '否') {
+                this.state.value = props.value == '是' ? 'T' : 'F'
+            }
+        }
+    }
+    renderElement() {
+        return (
+            <div>
+                <label className="custom-control custom-radio custom-control-inline" onClick={this.changeValue.bind(this, 'T')}>
+                    <input className="custom-control-input" name="radio-inline" type="radio" value="F" checked={this.state.value == 'T'}/><span className="custom-control-label">是</span>
+                </label>
+                <label className="custom-control custom-radio custom-control-inline" onClick={this.changeValue.bind(this, 'F')}>
+                    <input className="custom-control-input" name="radio-inline" type="radio" value="T" checked={this.state.value == 'F'}/><span className="custom-control-label">否</span>
+                </label>
+            </div>
+        )
+    }
+    changeValue(val) {
+        this.setState({ value: val })
     }
 }
 
@@ -600,10 +649,14 @@ class RbFormDivider extends React.Component {
     }
 }
 
+// 确定元素类型
 const __detectElement = function(item){
-    if (item.readonly == true){
+    if (item.onView === true) {
+    } else if (item.readonly == true) {
         return <RbFormReadonly {...item} />
-    } else if (item.type == 'TEXT'){
+    }
+    
+    if (item.type == 'TEXT'){
         return <RbFormText {...item} />
     } else if (item.type == 'NTEXT'){
         return <RbFormTextarea {...item} />
@@ -627,10 +680,12 @@ const __detectElement = function(item){
         return <RbFormPickList {...item} />
     } else if (item.type == 'REFERENCE'){
         return <RbFormReference {...item} />
+    } else if (item.type == 'BOOL'){
+        return <RbFormBool {...item} />
     } else if (item.field == '$LINE$'){
         return <RbFormDivider {...item} />
     } else {
-        console.error('Unknow element : ' + JSON.stringify(item))
+        throw new Error('Unknow element : ' + JSON.stringify(item))
     }
 }
 

@@ -16,20 +16,22 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.entityhub;
+package com.rebuild.server.bizz.privileges;
 
-import com.rebuild.server.service.BaseService;
+import java.io.Serializable;
 
-import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.bizz.security.member.BusinessUnit;
 
 /**
+ * 部门
  * 
- * @author zhaofang123@gmail.com
- * @since 08/03/2018
+ * @author devezhao
+ * @since 10/08/2018
  */
-public class MetaEntityService extends BaseService {
+public class Department extends BusinessUnit {
+	private static final long serialVersionUID = -5308455934676294159L;
 
-	protected MetaEntityService(PersistManagerFactory persistManagerFactory) {
-		super(persistManagerFactory);
+	public Department(Serializable identity, String name, boolean disabled) {
+		super(identity, name, disabled);
 	}
 }

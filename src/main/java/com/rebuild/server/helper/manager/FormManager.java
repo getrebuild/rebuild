@@ -30,8 +30,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.bizz.privileges.User;
-import com.rebuild.server.entityhub.DisplayType;
 import com.rebuild.server.entityhub.AccessibleMeta;
+import com.rebuild.server.entityhub.DisplayType;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 
@@ -163,7 +163,7 @@ public class FormManager extends LayoutManager {
 			
 			// 编辑记录 & 填充值
 			if (record != null) {
-				Object value = wrapFieldValue(record, easyField, true);
+				Object value = wrapFieldValue(record, easyField);
 				el.put("value", value);
 			}
 		}
@@ -226,7 +226,7 @@ public class FormManager extends LayoutManager {
 	 * @param readonly
 	 * @return
 	 */
-	protected static Object wrapFieldValue(Record record, AccessibleMeta field, boolean readonly) {
+	protected static Object wrapFieldValue(Record record, AccessibleMeta field) {
 		String fieldName = field.getName();
 		if (record.hasValue(fieldName)) {
 			Object value = record.getObjectValue(fieldName);
@@ -237,11 +237,7 @@ public class FormManager extends LayoutManager {
 			else if (value instanceof ID) {
 				ID idValue = (ID) value;
 				String belongEntity = MetadataHelper.getEntity(idValue.getEntityCode()).getName();
-				if (readonly) {
-					return idValue.getLabel();
-				} else {
-					return new String[] { idValue.toLiteral(), idValue.getLabel(), belongEntity };
-				}
+				return new String[] { idValue.toLiteral(), idValue.getLabel(), belongEntity };
 			} 
 			else {
 				return FieldValueWrapper.wrapFieldValue(value, field);

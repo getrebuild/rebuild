@@ -18,7 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.entityhub;
 
-import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.BaseService;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -32,10 +31,5 @@ public class MetaFieldService extends BaseService {
 
 	protected MetaFieldService(PersistManagerFactory persistManagerFactory) {
 		super(persistManagerFactory);
-	}
-
-	@Override
-	public int getEntity() {
-		return EntityHelper.MetaField;
 	}
 }

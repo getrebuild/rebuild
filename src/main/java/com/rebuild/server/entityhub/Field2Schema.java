@@ -104,7 +104,7 @@ public class Field2Schema {
 		StringBuilder ddlSql = new StringBuilder("alter table `" + entity.getPhysicalName() + "`\n  add column ");
 		table.generateFieldDDL(field, ddlSql);
 		try {
-			Application.getSqlExecutor().executeBatch(new String[] { ddlSql.toString() });
+			Application.getSQLExecutor().executeBatch(new String[] { ddlSql.toString() });
 		} catch (Throwable ex) {
 			LOG.error("DDL Error : \n" + ddlSql, ex);
 			return false;

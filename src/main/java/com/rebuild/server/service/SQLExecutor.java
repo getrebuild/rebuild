@@ -40,13 +40,13 @@ import cn.devezhao.persist4j.util.SqlHelper;
  * @author <a href="mailto:zhaofang123@gmail.com">Zhao Fangfang</a>
  * @since 0.1, Mar 31, 2010
  */
-public class SqlExecutor {
+public class SQLExecutor {
 
 	private static final int MAX_BATCH_SIZE = 100;
 	
 	final private PersistManagerFactory aPMFactory;
 	
-	protected SqlExecutor(PersistManagerFactory factory) {
+	protected SQLExecutor(PersistManagerFactory factory) {
 		this.aPMFactory = factory;
 	}
 	

@@ -49,7 +49,7 @@ public class UserStore {
 
 	final private Map<ID, User> USERs = new ConcurrentHashMap<>();
 	final private Map<ID, Role> ROLEs = new ConcurrentHashMap<>();
-	final private Map<ID, BusinessUnit> DEPTs = new ConcurrentHashMap<>();
+	final private Map<ID, Department> DEPTs = new ConcurrentHashMap<>();
 	
 	final private Map<String, ID> USERs_NAME2ID = new ConcurrentHashMap<>();
 	final private Map<String, ID> USERs_MAIL2ID = new ConcurrentHashMap<>();
@@ -170,8 +170,8 @@ public class UserStore {
 	 * @return
 	 * @throws NoMemberFoundException
 	 */
-	public BusinessUnit getDept(ID deptId) throws NoMemberFoundException {
-		BusinessUnit b = DEPTs.get(deptId);
+	public Department getDept(ID deptId) throws NoMemberFoundException {
+		Department b = DEPTs.get(deptId);
 		if (b == null) {
 			throw new NoMemberFoundException("No Department found: " + deptId);
 		}
@@ -248,6 +248,28 @@ public class UserStore {
 	 * @param deptId
 	 */
 	public void refreshDept(ID deptId) {
+		Department oldDept = DEPTs.get(deptId);
+		
+		Object[] o = PM_FACTORY.createQuery("select name,isDisabled,parentDept from Department where deptId = ?")
+				.setParameter(1, deptId)
+				.unique();
+		Department newDept = new Department(deptId, (String) o[0], (Boolean) o[1]);
+		store(newDept);
+		
+		ID parent = (ID) o[2];
+		if (oldDept != null) {
+			if (oldDept.getParent() == null && parent != null) {  // 新加入了部门
+				getDept(parent).addChild(newDept);
+			} else if (oldDept.getParent() != null && parent == null) {  // 离开了部门
+				getDept(parent).removeMember(oldDept);
+			} else if (oldDept.getParent() != null && parent != null && !oldDept.getIdentity().equals(parent)) {
+				getDept(deptId).removeMember(oldDept);
+				getDept(parent).addChild(newDept);
+			}
+			
+		} else if (parent != null) {
+			getDept(parent).addChild(newDept);
+		}
 	}
 	
 	private static final String USER_FS = "userId,loginName,email,fullName,avatarUrl,isDisabled,deptId,roleId";
@@ -257,7 +279,7 @@ public class UserStore {
 	 * @throws Exception
 	 */
 	synchronized 
-	public void init() throws Exception {
+	protected void init() throws Exception {
 		// User
 		
 		final Map<ID, Set<ID>> roleOfUserMap = new HashMap<>();
@@ -325,7 +347,7 @@ public class UserStore {
 		Map<ID, Set<ID>> parentTemp = new HashMap<>();
 		for (Object[] o : array) {
 			ID deptId = (ID) o[0];
-			BusinessUnit dept = new BusinessUnit(deptId, (String) o[1], (Boolean) o[2]);
+			Department dept = new Department(deptId, (String) o[1], (Boolean) o[2]);
 			
 			Set<ID> deptOfUser = deptOfUserMap.get(deptId);
 			if (deptOfUser != null) {
@@ -361,7 +383,7 @@ public class UserStore {
 	/**
 	 * @param user
 	 */
-	protected void store(User user) {
+	private void store(User user) {
 		USERs.put((ID) user.getIdentity(), user);
 		USERs_NAME2ID.put(normalIdentifier(user.getName()), (ID) user.getIdentity());
 		if (user.getEmail() != null) {
@@ -372,21 +394,21 @@ public class UserStore {
 	/**
 	 * @param role
 	 */
-	protected void store(Role role) {
+	private void store(Role role) {
 		ROLEs.put((ID) role.getIdentity(), role);
 	}
 	
 	/**
 	 * @param dept
 	 */
-	protected void store(BusinessUnit dept) {
+	private void store(Department dept) {
 		DEPTs.put((ID) dept.getIdentity(), dept);
 	}
 	
 	/*-
 	 * 统一化
 	 */
-	static String normalIdentifier(String ident) {
+	static private String normalIdentifier(String ident) {
 		return StringUtils.defaultIfEmpty(ident, "").toLowerCase();
 	}
 }

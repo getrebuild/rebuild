@@ -38,8 +38,12 @@ public class GeneralEntityService extends BaseService {
 		super(factory);
 	}
 	
-	@Override
-	public int getEntity() {
+	/**
+	 * 此服务类所属实体
+	 * 
+	 * @return
+	 */
+	public int getEntityCode() {
 		return 0;
 	}
 	
@@ -62,7 +66,9 @@ public class GeneralEntityService extends BaseService {
 	public int delete(ID recordId) {
 		Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 		String ajql = "select %s from %s where %s = '%s'";
+		
 		// TODO 需要哪些字段?
+		
 		String fields = "" + entity.getPrimaryField().getName();
 		ajql = String.format(ajql, fields, entity.getName(), entity.getPrimaryField().getName(), recordId);
 		

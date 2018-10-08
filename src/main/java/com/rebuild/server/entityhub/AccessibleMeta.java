@@ -222,7 +222,8 @@ public class AccessibleMeta implements BaseMeta {
 		if (isField()) {
 			Object[] ext = getMetaExt();
 			if (ext == null) {
-				return null;
+//				return null;
+				return JSON.parseObject("{}");
 			}
 			return JSON.parseObject(StringUtils.defaultIfBlank((String) ext[3], "{}"));
 		}

@@ -3,6 +3,10 @@
 	min-width: 88px;
 }
 
+.btn.auto {
+	min-width: auto;
+}
+
 .input-group-sm .btn {
 	min-width: 2.8rem;
 }
@@ -690,6 +694,10 @@ h5.sortable-box-title {
 .rbview-form .type-NTEXT .form-control-plaintext {
 	max-height: 72px;
 	position: relative;
+}
+
+.rbview-form .col-form-label em {
+	display: none;
 }
 
 .main-content .card.card-table {

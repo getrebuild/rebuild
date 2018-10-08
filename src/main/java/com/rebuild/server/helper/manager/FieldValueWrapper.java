@@ -23,8 +23,8 @@ import java.text.DecimalFormat;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
-import com.rebuild.server.entityhub.DisplayType;
 import com.rebuild.server.entityhub.AccessibleMeta;
+import com.rebuild.server.entityhub.DisplayType;
 import com.rebuild.server.metadata.MetadataHelper;
 
 import cn.devezhao.commons.CalendarUtils;
@@ -69,6 +69,8 @@ public class FieldValueWrapper {
 				|| dt == DisplayType.IMAGE || dt == DisplayType.FILE || dt == DisplayType.LOCATION) {
 			// 无需处理
 			return value;
+		} else if (dt == DisplayType.BOOL) {
+			return wrapBool(value, field);
 		} else {
 			return wrapSimple(value, field);
 		}
@@ -143,6 +145,15 @@ public class FieldValueWrapper {
 		idNamed[1] = referenceValue[1] == null ? StringUtils.EMPTY : referenceValue[1].toString();
 		idNamed[0] = referenceValue[0].toString();
 		return idNamed;
+	}
+	
+	/**
+	 * @param bool
+	 * @param field
+	 * @return
+	 */
+	public static String wrapBool(Object bool, AccessibleMeta field) {
+		return ((Boolean) bool) ? "是" : "否";
 	}
 	
 	/**

@@ -18,10 +18,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.bizz;
 
+import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.BaseService;
+import com.rebuild.server.service.base.GeneralEntityService;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -29,19 +31,26 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 08/03/2018
  */
-public class DepartmentService extends BaseService {
+public class DepartmentService extends GeneralEntityService {
 	
 	/**
 	 * 根级部门
 	 */
 	public static final ID ROOT_DEPT = ID.valueOf("002-0000000000000001");
 
-	protected DepartmentService(PersistManagerFactory persistManagerFactory) {
-		super(persistManagerFactory);
+	protected DepartmentService(PersistManagerFactory aPMFactory) {
+		super(aPMFactory);
 	}
 
 	@Override
-	public int getEntity() {
+	public int getEntityCode() {
 		return EntityHelper.Department;
+	}
+	
+	@Override
+	public Record createOrUpdate(Record record) {
+		record = super.createOrUpdate(record);
+		Application.getUserStore().refreshDept(record.getPrimary());
+		return record;
 	}
 }

@@ -36,11 +36,6 @@ public abstract class BaseService {
 		super();
 		this.aPMFactory = factory;
 	}
-	
-	/**
-	 * @return
-	 */
-	abstract public int getEntity();
 
 	/**
 	 * @param record

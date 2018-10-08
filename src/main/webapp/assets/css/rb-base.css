@@ -18843,10 +18843,13 @@ pre code {
 }
 
 .custom-control {
-	min-height: 1.7rem;
-	min-width: 1.7rem;
+	min-height: 1.51rem;
+	min-width: 1.51rem;
 	margin-top: .1875rem;
-	margin-bottom: 1.1105rem
+	margin-bottom: 1.1105rem;
+	margin-top: 7px;
+	margin-bottom: 7px;
+	cursor: pointer;
 }
 
 .custom-control-label {
@@ -18901,20 +18904,20 @@ pre code {
 .custom-radio .custom-control-label:before {
 	content: "";
 	border: 1px solid #d5d8de;
-	width: 1.77592rem;
-	height: 1.77592rem;
+	width: 1.51rem;
+	height: 1.51rem;
 	margin: 0 0
 }
 
 .custom-radio .custom-control-input:checked~.custom-control-label::after {
 	content: "\f26d";
-	width: 1.77592rem;
-	height: 1.77592rem;
+	width: 1.51rem;
+	height: 1.51rem;
 	margin: 0 0;
 	font-size: 1rem;
 	font-family: "Material-Design-Iconic-Font";
 	text-align: center;
-	line-height: 1.8
+	line-height: 1.7
 }
 
 .custom-radio-icon {
@@ -21459,6 +21462,7 @@ div.dataTables_wrapper div.dataTables_filter label select {
 .rb-datatable-header {
 	border-bottom: 1px solid #dee2e6;
 	margin: 2px 0 0;
+	margin: 0;
 	padding: 15px 10px 10px
 }
 

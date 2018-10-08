@@ -124,7 +124,7 @@ public class Entity2Schema extends Field2Schema {
 		Table table = new Table(entity, dialect);
 		String ddlSqls[] = table.generateDDL(false, false);
 		try {
-			Application.getSqlExecutor().executeBatch(ddlSqls);
+			Application.getSQLExecutor().executeBatch(ddlSqls);
 		} catch (Throwable ex) {
 			LOG.error("DDL Error : \n" + StringUtils.join(ddlSqls, "\n"), ex);
 			return false;

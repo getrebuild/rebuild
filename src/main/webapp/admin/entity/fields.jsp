@@ -42,7 +42,7 @@
 							<div class="col-sm-6">
 								<div class="dataTables_filter">
 									<div class="input-group input-search">
-										<input class="form-control" placeholder="搜索 字段名称/内部标识" type="text">
+										<input class="form-control rounded" placeholder="搜索 字段名称/内部标识" type="text">
 										<span class="input-group-btn"><button class="btn btn-secondary"><i class="icon zmdi zmdi-search"></i></button></span>
 									</div>
 								</div>

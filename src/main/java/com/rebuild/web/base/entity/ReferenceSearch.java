@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,16 +52,19 @@ public class ReferenceSearch extends BaseControll {
 	
 	@RequestMapping("search")
 	public void search(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String entity = getParameter(request, "entity");
-		String search = getParameter(request, "search");
+		String entity = getParameterNotNull(request, "entity");
+		String field = getParameterNotNull(request, "field");
+		String q = getParameter(request, "q");
 		
-		if (StringUtils.isBlank(search)) {
+		if (StringUtils.isBlank(q)) {
 			writeSuccess(response, ArrayUtils.EMPTY_STRING_ARRAY);
 			return;
 		}
 		
-		Entity e = MetadataHelper.getEntity(entity);
-		Field nameField = e.getNameField();
+		Entity root = MetadataHelper.getEntity(entity);
+		Field referenceField = root.getField(field);
+		Entity referenceEntity = referenceField.getReferenceEntities()[0];
+		Field nameField = referenceEntity.getNameField();
 		if (nameField == null) {
 			writeSuccess(response, ArrayUtils.EMPTY_STRING_ARRAY);
 			return;
@@ -72,8 +76,9 @@ public class ReferenceSearch extends BaseControll {
 		}
 		
 		String searchSql = "select %s,%s from %s where %s ";
-		searchSql = String.format(searchSql, e.getPrimaryField().getName(), nameField2str, e.getName(), nameField2str);
-		searchSql += "like '%" + search + "%'";
+		searchSql = String.format(searchSql, 
+				referenceEntity.getPrimaryField().getName(), nameField2str, referenceEntity.getName(), nameField2str);
+		searchSql += "like '%" + StringEscapeUtils.escapeSql(q) + "%'";
 		
 		Object[][] array = Application.createQuery(searchSql).setLimit(10).array();
 		

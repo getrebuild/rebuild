@@ -24,6 +24,7 @@ import cn.devezhao.bizz.security.member.BusinessUnit;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * 用户
  * 
  * @author zhaofang123@gmail.com
  * @since 09/16/2018

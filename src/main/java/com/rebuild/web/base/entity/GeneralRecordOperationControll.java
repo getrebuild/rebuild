@@ -58,7 +58,7 @@ public class GeneralRecordOperationControll extends BaseControll {
 		ID user = getRequestUser(request);
 		JSON formJson = ServletUtils.getRequestJson(request);
 		Record record = EntityHelper.parse((JSONObject) formJson, user);
-		record = Application.getCommonService().createOrUpdate(record);
+		record = Application.getGeneralEntityService(record.getEntity().getEntityCode()).createOrUpdate(record);
 		
 		Map<String, Object> map = new HashMap<>();
 		map.put("id", record.getPrimary());
@@ -68,7 +68,7 @@ public class GeneralRecordOperationControll extends BaseControll {
 	@RequestMapping("record-delete")
 	public void delete(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID id = getIdParameterNotNull(request, "id");
-		Application.getCommonService().delete(id);
+		Application.getGeneralEntityService(id.getEntityCode()).delete(id);
 		
 		Map<String, Object> map = new HashMap<>();
 		map.put("id", id);

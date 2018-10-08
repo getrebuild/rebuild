@@ -20,9 +20,10 @@ package com.rebuild.server.bizz;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.BaseService;
+import com.rebuild.server.service.base.GeneralEntityService;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -30,30 +31,26 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 07/25/2018
  */
-public class UserService extends BaseService {
+public class UserService extends GeneralEntityService {
 	
 	// 系统用户
 	public static final ID SYSTEM_USER = ID.valueOf("001-0000000000000000");
 	// 管理员
 	public static final ID ADMIN_USER = ID.valueOf("001-0000000000000001");
 	
-	protected UserService(PersistManagerFactory persistManagerFactory) {
-		super(persistManagerFactory);
+	protected UserService(PersistManagerFactory aPMFactory) {
+		super(aPMFactory);
 	}
 
 	@Override
-	public int getEntity() {
+	public int getEntityCode() {
 		return EntityHelper.User;
 	}
 	
-	public ID getDeptOfUser(ID user) {
-		Object[] found = Application.createNoFilterQuery(
-				"select deptId from User where userId = ?")
-				.setParameter(1, user)
-				.unique();
-		return (ID) found[0];
+	@Override
+	public Record createOrUpdate(Record record) {
+		record = super.createOrUpdate(record);
+		Application.getUserStore().refreshUser(record.getPrimary());
+		return record;
 	}
-	
-	// --
-	
 }

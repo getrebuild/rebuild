@@ -33,11 +33,6 @@ public class CommonService extends BaseService {
 		super(factory);
 	}
 	
-	@Override
-	public int getEntity() {
-		throw new UnsupportedOperationException();
-	}
-	
 	/**
 	 * 批量删除
 	 * 

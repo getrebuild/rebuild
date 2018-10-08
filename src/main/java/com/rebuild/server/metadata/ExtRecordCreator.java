@@ -22,7 +22,7 @@ import java.util.Date;
 
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.bizz.UserService;
+import com.rebuild.server.bizz.privileges.User;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
@@ -60,12 +60,13 @@ public class ExtRecordCreator extends JSONRecordCreator {
 	protected static void bindCommonsFieldsValue(Record r, boolean isNew) {
 		final Date now = CalendarUtils.now();
 		final Entity entity = r.getEntity();
+		final User editor = Application.getUserStore().getUser(r.getEditor());
 		
 		if (entity.containsField(EntityHelper.modifiedOn)) {
 			r.setDate(EntityHelper.modifiedOn, now);
 		}
 		if (entity.containsField(EntityHelper.modifiedBy)) {
-			r.setID(EntityHelper.modifiedBy, r.getEditor());
+			r.setID(EntityHelper.modifiedBy, (ID) editor.getIdentity());
 		}
 		
 		if (isNew) {
@@ -73,13 +74,13 @@ public class ExtRecordCreator extends JSONRecordCreator {
 				r.setDate(EntityHelper.createdOn, now);
 			}
 			if (entity.containsField(EntityHelper.createdBy)) {
-				r.setID(EntityHelper.createdBy, r.getEditor());
+				r.setID(EntityHelper.createdBy, (ID) editor.getIdentity());
 			}
 			if (entity.containsField(EntityHelper.owningUser)) {
-				r.setID(EntityHelper.owningUser, r.getEditor());
+				r.setID(EntityHelper.owningUser, (ID) editor.getIdentity());
 			}
 			if (entity.containsField(EntityHelper.owningDept)) {
-				r.setID(EntityHelper.owningDept, Application.getBean(UserService.class).getDeptOfUser(r.getEditor()));
+				r.setID(EntityHelper.owningDept, (ID) editor.getOwningDept().getIdentity());
 			}
 		}
 	}

@@ -58,7 +58,7 @@
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 
-	<bean class="com.rebuild.server.service.SqlExecutor">
+	<bean class="com.rebuild.server.service.SQLExecutor">
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 	

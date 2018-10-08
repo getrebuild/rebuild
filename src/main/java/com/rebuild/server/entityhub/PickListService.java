@@ -45,11 +45,6 @@ public class PickListService extends BaseService  {
 		super(persistManagerFactory);
 	}
 
-	@Override
-	public int getEntity() {
-		return EntityHelper.PickList;
-	}
-
 	/**
 	 * 保存配置
 	 * 
