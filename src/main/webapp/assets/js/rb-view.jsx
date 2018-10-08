@@ -31,6 +31,6 @@ class RbViewForm extends React.Component {
 
 const __detectViewElement = function(item){
     item.onView = true
-    item.viewMode = true
+    item.editMode = false  // viewMode and editMode
     return (<div className={'col-12 col-sm-' + (item.isFull ? 12 : 6)}>{__detectElement(item)}</div>)
 }

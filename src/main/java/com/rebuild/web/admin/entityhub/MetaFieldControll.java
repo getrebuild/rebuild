@@ -36,7 +36,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.entityhub.DisplayType;
-import com.rebuild.server.entityhub.EasyMeta;
+import com.rebuild.server.entityhub.AccessibleMeta;
 import com.rebuild.server.entityhub.Field2Schema;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -77,7 +77,7 @@ public class MetaFieldControll extends BaseControll  {
 		
 		List<Map<String, Object>> ret = new ArrayList<>();
 		for (Field field : entity.getFields()) {
-			EasyMeta easyMeta = new EasyMeta(field);
+			AccessibleMeta easyMeta = new AccessibleMeta(field);
 			if (field.getType() == FieldType.PRIMARY) {
 				continue;
 			}
@@ -100,10 +100,10 @@ public class MetaFieldControll extends BaseControll  {
 	@RequestMapping("{entity}/field/{field}")
 	public ModelAndView pageEntityFields(@PathVariable String entity, @PathVariable String field, HttpServletRequest request) throws IOException {
 		ModelAndView mv = createModelAndView("/admin/entity/field-edit.jsp");
-		EasyMeta easyMeta = MetaEntityControll.setEntityBase(mv, entity);
+		AccessibleMeta easyMeta = MetaEntityControll.setEntityBase(mv, entity);
 		
 		Field fieldMeta = ((Entity) easyMeta.getBaseMeta()).getField(field);
-		EasyMeta fieldEasyMeta = new EasyMeta(fieldMeta);
+		AccessibleMeta fieldEasyMeta = new AccessibleMeta(fieldMeta);
 		
 		mv.getModel().put("fieldMetaId", fieldEasyMeta.isBuiltin() ? null : fieldEasyMeta.getMetaId());
 		mv.getModel().put("fieldName", fieldEasyMeta.getName());
@@ -118,7 +118,7 @@ public class MetaFieldControll extends BaseControll  {
 		if (ft == FieldType.REFERENCE) {
 			Entity refentity = fieldMeta.getReferenceEntities()[0];
 			mv.getModel().put("fieldRefentity", refentity.getName());
-			mv.getModel().put("fieldRefentityLabel", new EasyMeta(refentity).getLabel());
+			mv.getModel().put("fieldRefentityLabel", new AccessibleMeta(refentity).getLabel());
 		} else {
 			mv.getModel().put("fieldExtConfig", fieldEasyMeta.getFieldExtConfig());
 		}

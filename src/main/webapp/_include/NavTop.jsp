@@ -14,7 +14,7 @@
 							<div class="user-name">admin</div>
 							<div class="user-id">hello@getrebuild.com</div>
 						</div>
-						<a class="dropdown-item" href="${baseUrl}/my/profile"><span class="icon zmdi zmdi-face"></span>个人信息</a>
+						<a class="dropdown-item" href="${baseUrl}/me/profile"><span class="icon zmdi zmdi-face"></span>个人信息</a>
 						<a class="dropdown-item" href="${baseUrl}/user/logout"><span class="icon zmdi zmdi-power"></span>退出</a>
 					</div>
 				</li>

@@ -37,29 +37,29 @@ const EntityList = function(props){
 					<div className="float-left"><i className={"icon zmdi zmdi-" + d.icon}></i></div>
 					<div className="title">
 						<span className="text-truncate">{d.entityLabel}</span>
-						<p className="font-desc">{d.comments || '-'}</p>
+						<p className="text-muted">{d.comments || '-'}</p>
 					</div>
 					<div className="clearfix"></div>
 				</div>
 			</a>
 		</div>
-	);
-	return <div className="row">{content}</div>;
-};
+	)
+	return <div className="row">{content}</div>
+}
 var newEntityModal = null
 $(document).ready(function(){
 	$.get(rb.baseUrl + '/admin/entity/entity-list', function(res){
-		let _data = res.data;
-		_data.push({ entityName:'$NEW$', entityLabel:'新建', comments:'新建一个新实体', icon:'plus' });
-		ReactDOM.render(<EntityList data={_data} />, $('#entityList')[0]);
+		let _data = res.data
+		_data.push({ entityName:'$NEW$', entityLabel:'新建', comments:'新建一个新实体', icon:'plus' })
+		ReactDOM.render(<EntityList data={_data} />, $('#entityList')[0])
 
 		$('.entity[href="entity/$NEW$/base"]').click(function(){
 			if (newEntityModal) newEntityModal.show()
 			else newEntityModal = rb.modal(rb.baseUrl + '/admin/page/entity/entity-new', '新建实体')
-			return false;
-		});
-	});
-});
+			return false
+		})
+	})
+})
 </script>
 </body>
 </html>

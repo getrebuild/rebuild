@@ -28,7 +28,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.entityhub.DisplayType;
-import com.rebuild.server.entityhub.EasyMeta;
+import com.rebuild.server.entityhub.AccessibleMeta;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -92,7 +92,7 @@ public class AdvFilterParser {
 		}
 		
 		Field metaField = rootEntity.getField(field);
-		if (EasyMeta.getDisplayType(metaField) == DisplayType.PICKLIST) {
+		if (AccessibleMeta.getDisplayType(metaField) == DisplayType.PICKLIST) {
 			field = '&' + field;
 		}
 		

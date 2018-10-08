@@ -168,11 +168,16 @@ class RbFormElement extends React.Component {
         this.checkError = this.checkError.bind(this)
     }
     render() {
+        let colWidths = [3, 8]
+        if (this.props.onView) {
+            colWidths[0] = 4
+            if (this.props.isFull) colWidths = [2, 10]
+        }
         return (
             <div className={'form-group row type-' + this.props.type}>
-                <label className={'col-12 col-form-label text-sm-right col-sm-' + (this.props.onView ? 4 : 3)} title={this.props.nullable ? '' : '必填项'}>{this.props.label}{!this.props.nullable && <em/>}</label>
-                <div className="col-12 col-sm-8">
-                    {this.state.viewMode == true ? this.renderViewElement() : this.renderElement()}
+                <label className={'col-12 col-form-label text-sm-right col-sm-' + colWidths[0]} title={this.props.nullable ? '' : '必填项'}>{this.props.label}{!this.props.nullable && <em/>}</label>
+                <div className={'col-12 col-sm-' + colWidths[1]}>
+                    {this.state.editMode === false ? this.renderViewElement() : this.renderElement()}
                 </div>
             </div>
         )
@@ -591,7 +596,7 @@ class RbFormDivider extends React.Component {
     }
     render() {
         if (this.props.onView == true) return (<div className="form-line"><fieldset><legend>{this.props.label || ''}</legend></fieldset></div>)
-        else return (<div />);
+        else return (<div />)  // TODO 编辑页暂无分割线
     }
 }
 

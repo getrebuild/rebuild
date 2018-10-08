@@ -41,7 +41,7 @@ import cn.devezhao.commons.web.WebUtils;
  */
 @Controller
 @RequestMapping("/user")
-public class UserLoginControll extends BaseControll {
+public class SignUpControll extends BaseControll {
 
 	@RequestMapping("login")
 	public ModelAndView checkLogin(HttpServletRequest request) {

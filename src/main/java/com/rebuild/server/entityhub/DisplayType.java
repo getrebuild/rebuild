@@ -48,7 +48,9 @@ public enum DisplayType {
 	
 	LOCATION("位置", FieldType.STRING, null),
 	
-	_BOOL("布尔", FieldType.BOOL, null);
+	// 内部用
+	
+	BOOL("布尔", FieldType.BOOL, null);
 	
 	// --
 	

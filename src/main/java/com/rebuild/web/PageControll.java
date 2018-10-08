@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.rebuild.server.Startup;
-import com.rebuild.server.entityhub.EasyMeta;
+import com.rebuild.server.entityhub.AccessibleMeta;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.AppUtils;
 
@@ -69,7 +69,7 @@ public abstract class PageControll {
 				throw new InvalidRequestException("无效实体 : " + entity);
 			}
 			
-			EasyMeta entityMeta = new EasyMeta(MetadataHelper.getEntity(entity));
+			AccessibleMeta entityMeta = new AccessibleMeta(MetadataHelper.getEntity(entity));
 			mv.getModel().put("entityName", entityMeta.getName());
 			mv.getModel().put("entityLabel", entityMeta.getLabel());
 			mv.getModel().put("entityIcon", entityMeta.getIcon());

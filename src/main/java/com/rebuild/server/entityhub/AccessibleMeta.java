@@ -43,14 +43,13 @@ import cn.devezhao.persist4j.metadata.BaseMeta;
  * @author zhaofang123@gmail.com
  * @since 08/13/2018
  */
-public class EasyMeta implements BaseMeta {
+public class AccessibleMeta implements BaseMeta {
 	private static final long serialVersionUID = -6463919098111506968L;
 	
 	public static final Set<String> BUILTIN_ENTITY = new HashSet<>();
 	public static final Set<String> BUILTIN_FIELD = new HashSet<>();
 	private static final Map<String, String[]> SYSENTITY_INFO = new HashMap<>();
 	static {
-		BUILTIN_ENTITY.add("Role");
 		BUILTIN_ENTITY.add("RolePrivileges");
 		BUILTIN_ENTITY.add("RoleMember");
 		BUILTIN_ENTITY.add("MetaEntity");
@@ -73,7 +72,7 @@ public class EasyMeta implements BaseMeta {
 
 	private BaseMeta baseMeta;
 	
-	public EasyMeta(BaseMeta baseMeta) {
+	public AccessibleMeta(BaseMeta baseMeta) {
 		this.baseMeta = baseMeta;
 	}
 	
@@ -150,7 +149,7 @@ public class EasyMeta implements BaseMeta {
 			} else if (ft == FieldType.STRING) {
 				return DisplayType.TEXT;
 			} else if (ft == FieldType.BOOL) {
-				return DisplayType._BOOL;
+				return DisplayType.BOOL;
 			}
 		}
 		throw new RebuildException("Unsupported field type : " + this.baseMeta);
@@ -259,7 +258,7 @@ public class EasyMeta implements BaseMeta {
 	 * @return
 	 */
 	public static DisplayType getDisplayType(Field field) {
-		return new EasyMeta(field).getDisplayType();
+		return new AccessibleMeta(field).getDisplayType();
 	}
 	
 	/**

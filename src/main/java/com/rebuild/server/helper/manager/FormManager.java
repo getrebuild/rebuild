@@ -31,7 +31,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.bizz.privileges.User;
 import com.rebuild.server.entityhub.DisplayType;
-import com.rebuild.server.entityhub.EasyMeta;
+import com.rebuild.server.entityhub.AccessibleMeta;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 
@@ -113,7 +113,7 @@ public class FormManager extends LayoutManager {
 			}
 			
 			Field fieldMeta = entityMeta.getField(fieldName);
-			EasyMeta easyField = new EasyMeta(fieldMeta);
+			AccessibleMeta easyField = new AccessibleMeta(fieldMeta);
 			el.put("label", easyField.getLabel());
 			String dt = easyField.getDisplayType(false);
 			el.put("type", dt);
@@ -226,7 +226,7 @@ public class FormManager extends LayoutManager {
 	 * @param readonly
 	 * @return
 	 */
-	protected static Object wrapFieldValue(Record record, EasyMeta field, boolean readonly) {
+	protected static Object wrapFieldValue(Record record, AccessibleMeta field, boolean readonly) {
 		String fieldName = field.getName();
 		if (record.hasValue(fieldName)) {
 			Object value = record.getObjectValue(fieldName);

@@ -27,7 +27,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
-import com.rebuild.server.entityhub.EasyMeta;
+import com.rebuild.server.entityhub.AccessibleMeta;
 import com.rebuild.server.helper.manager.FieldValueWrapper;
 import com.rebuild.server.metadata.MetadataHelper;
 
@@ -89,7 +89,7 @@ public class DataWrapper extends FieldValueWrapper {
 				} else if (field.getType() == FieldType.PRIMARY) {  // Last index always
 					row[i] = readReferenceNamed((ID) row[i], namedVal);
 				} else {
-					row[i] = wrapFieldValue(row[i], new EasyMeta(field));
+					row[i] = wrapFieldValue(row[i], new AccessibleMeta(field));
 				}
 			}
 		}
@@ -123,8 +123,8 @@ public class DataWrapper extends FieldValueWrapper {
 			namedVal = named[0];
 		}
 		
-		namedVal = wrapFieldValue(namedVal, new EasyMeta(nameField));
-		String[] meta = new String[] { entity.getName(), new EasyMeta(entity).getIcon() };
+		namedVal = wrapFieldValue(namedVal, new AccessibleMeta(nameField));
+		String[] meta = new String[] { entity.getName(), new AccessibleMeta(entity).getIcon() };
 		return new Object[] { idVal.toLiteral(), namedVal, meta };
 	}
 }
