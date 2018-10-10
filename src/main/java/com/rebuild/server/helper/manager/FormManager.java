@@ -77,8 +77,8 @@ public class FormManager extends LayoutManager {
 	 * @param entity
 	 * @return
 	 */
-	public static JSON getFormModal(String entity, ID user) {
-		return getFormModal(entity, user, null);
+	public static JSON getFormModel(String entity, ID user) {
+		return getFormModel(entity, user, null);
 	}
 	
 	/**
@@ -89,7 +89,7 @@ public class FormManager extends LayoutManager {
 	 * @param recordId
 	 * @return
 	 */
-	public static JSON getFormModal(String entity, ID user, ID recordId) {
+	public static JSON getFormModel(String entity, ID user, ID recordId) {
 		Assert.notNull(entity, "[entity] not be null");
 		Assert.notNull(user, "[user] not be null");
 		
@@ -102,7 +102,7 @@ public class FormManager extends LayoutManager {
 		
 		Record record = null;
 		if (!elements.isEmpty() && recordId != null) {
-			record = record(recordId, elements);
+			record = queryRecord(recordId, elements);
 		}
 		
 		for (Object element : elements) {
@@ -178,9 +178,9 @@ public class FormManager extends LayoutManager {
 	 * @param recordId
 	 * @return
 	 */
-	public static JSON getViewModal(String entity, ID user, ID recordId) {
+	public static JSON getViewModel(String entity, ID user, ID recordId) {
 		Assert.notNull(recordId, "[recordId] not be null");
-		return getFormModal(entity, user, recordId);
+		return getFormModel(entity, user, recordId);
 	}
 	
 	/**
@@ -188,7 +188,7 @@ public class FormManager extends LayoutManager {
 	 * @param elements
 	 * @return
 	 */
-	protected static Record record(ID id, JSONArray elements) {
+	protected static Record queryRecord(ID id, JSONArray elements) {
 		if (elements.isEmpty()) {
 			return null;
 		}

@@ -137,7 +137,12 @@ public class AccessibleMeta implements BaseMeta {
 				return dt;
 			}
 			
-			Type ft = ((Field) baseMeta).getType();
+			Field field = (Field) baseMeta;
+			if (field.getOwnEntity().getEntityCode() == EntityHelper.User && "email".equals(field.getName())) {
+				return DisplayType.EMAIL;
+			}
+			
+			Type ft = field.getType();
 			if (ft == FieldType.PRIMARY) {
 				return DisplayType.ID;
 			} else if (ft == FieldType.REFERENCE) {

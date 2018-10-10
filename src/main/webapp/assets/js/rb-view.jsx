@@ -5,17 +5,18 @@ class RbViewForm extends React.Component {
         this.state = { ...props }
     }
     render() {
-        let that = this
-        return (<div className="rbview-form" ref="reviewForm">
-             {this.state.formComponent}
-        </div>)
+        return (
+            <div className="rbview-form" ref="reviewForm">
+                {this.state.formComponent}
+            </div>
+        )
     }
     componentDidMount() {
         let that = this
-        $.get(rb.baseUrl + '/app/' + this.props.entity + '/view-modal?id=' + this.props.id, function(res){
+        $.get(rb.baseUrl + '/app/' + this.props.entity + '/view-model?id=' + this.props.id, function(res){
             let elements = res.data.elements
-            const FORM = <div class="row">{elements.map((item) => {
-                return __detectViewElement(item)
+            const FORM = <div className="row">{elements.map((item) => {
+                return detectViewElement(item)
             })}</div>
             that.setState({ formComponent: FORM }, function(){
                 $('.invisible').removeClass('invisible')
@@ -29,8 +30,8 @@ class RbViewForm extends React.Component {
     }
 }
 
-const __detectViewElement = function(item){
+const detectViewElement = function(item){
     item.onView = true
-    item.editMode = false  // viewMode and editMode
-    return (<div className={'col-12 col-sm-' + (item.isFull ? 12 : 6)}>{__detectElement(item)}</div>)
+    item.viewMode = true
+    return (<div className={'col-12 col-sm-' + (item.isFull ? 12 : 6)}>{detectElement(item)}</div>)
 }

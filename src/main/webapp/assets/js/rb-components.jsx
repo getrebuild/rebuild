@@ -14,7 +14,7 @@ class RbModal extends React.Component {
             		        <button className="close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
             		    </div>
             		    <div className={'modal-body rb-loading ' + (this.state.inLoad == true && ' rb-loading-active') + ' ' + (this.state.url && ' iframe')}>
-            		        {this.props.children || <iframe src={this.state.url || 'about:blank'} frameborder="0" scrolling="no" onLoad={()=>this.resize()} onResize={()=>this.resize()}></iframe>}
+            		        {this.props.children || <iframe src={this.state.url || 'about:blank'} frameBorder="0" scrolling="no" onLoad={()=>this.resize()} onResize={()=>this.resize()}></iframe>}
                             <RbSpinner />
                         </div>
     		        </div>
@@ -77,7 +77,7 @@ class RbAlter extends React.Component {
                                 <h4>{this.props.title || '提示'}</h4>
                                 {content}
                                 <div className="mt-6 mb-4">
-                                    <button class="btn btn-space btn-secondary" type="button" onClick={()=>this.hide()}>取消</button>
+                                    <button className="btn btn-space btn-secondary" type="button" onClick={()=>this.hide()}>取消</button>
                                     <button className={'btn btn-space btn-' + type} type="button" onClick={confirm}>确定</button>
                                 </div>
                             </div>
@@ -136,7 +136,7 @@ class RbNotice extends React.Component {
 function RbSpinner(props) {
     return <div className="rb-spinner">
         <svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://-www.w3.org/2000/svg">
-            <circle fill="none" stroke-width="4" stroke-linecap="round" cx="33" cy="33" r="30" class="circle"></circle>
+            <circle fill="none" strokeWidth="4" strokeLinecap="round" cx="33" cy="33" r="30" className="circle"></circle>
         </svg>
     </div>
 }

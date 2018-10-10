@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -44,10 +45,9 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 10/08/2018
  */
 @Controller
-@RequestMapping("/admin/bizuser/")
 public class UserControll extends BaseControll {
 	
-	@RequestMapping("users")
+	@RequestMapping("/admin/bizuser/users")
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
 		ModelAndView mv = createModelAndView("/admin/bizuser/user-list.jsp", "User");
 		JSON cfg = DataListManager.getColumnLayout("User");
@@ -55,7 +55,15 @@ public class UserControll extends BaseControll {
 		return mv;
 	}
 	
-	@RequestMapping("dept-tree")
+	@RequestMapping("/app/User/view/{id}")
+	public ModelAndView pageView(@PathVariable String id, HttpServletRequest request) throws IOException {
+		ID recordId = ID.valueOf(id);
+		ModelAndView mv = createModelAndView("/admin/bizuser/user-view.jsp", "User");
+		mv.getModel().put("id", recordId);
+		return mv;
+	}
+	
+	@RequestMapping("/admin/bizuser/dept-tree")
 	public void deptTreeGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		Object[][] firstDepts = Application.createQuery(
 				"select deptId from Department where parentDept is null")

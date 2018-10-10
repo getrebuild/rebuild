@@ -29,22 +29,22 @@ class RbList extends React.Component {
                             </th>
                             {this.state.fields.map((item, index) =>{
                                 let columnWidth = (item.width || that.__defaultColumnWidth) + 'px'
-                                let styles = { width:columnWidth }
-                                let haveSort = item.sort || ''
-                                return (<th data-field={item.field} style={styles} className="sortable unselect" onClick={this.fieldSort.bind(this,item.field)}><div style={styles}>{item.label}<i className={'zmdi ' + haveSort}></i><i className="split"></i></div></th>)
+                                let styles = { width: columnWidth }
+                                let sortClazz = item.sort || ''
+                                return (<th key={'field-' + item.field} style={styles} className="sortable unselect" onClick={this.fieldSort.bind(this, item.field)}><div style={styles}>{item.label}<i className={'zmdi ' + sortClazz}></i><i className="split"></i></div></th>)
                             })}
                             <th className="column-empty"></th>
                         </tr>
                     </thead>
                     <tbody>
                         {this.state.rowData.map((item, index) => {
-                            let lastGhost = item[lastIndex];
-                            return (<tr className={lastGhost[3] && 'table-active'} data-id={lastGhost[0]} onClick={this.clickRow.bind(this, index, false)}>
+                            let lastGhost = item[lastIndex]
+                            return (<tr key={'row-' + lastGhost[0]} className={lastGhost[3] ? 'table-active' : ''} onClick={this.clickRow.bind(this, index, false)}>
                                 <td className="column-checkbox">
                                     <div><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={lastGhost[3]} onClick={this.clickRow.bind(this, index, true)} /><span className="custom-control-label"></span></label></div>
                                 </td>
                                 {item.map((cell, index) => {
-                                    return that.__renderCell(cell, index, lastGhost)
+                                    return that.renderCell(cell, index, lastGhost)
                                 })}
                                 <td className="column-empty"></td>
                             </tr>)
@@ -60,6 +60,7 @@ class RbList extends React.Component {
     componentDidMount() {
         const scroller = $(this.refs['rblist-scroller'])
         scroller.perfectScrollbar()
+        
         let that = this
         scroller.find('th .split').draggable({ containment: '.rb-datatable-body', axis: 'x', helper: 'clone', stop: function(event, ui){
             let field = $(event.target).parent().parent().data('field')
@@ -73,7 +74,6 @@ class RbList extends React.Component {
                 }
             }
             that.setState({ fields: fields }, function(){
-//                scroller.perfectScrollbar('update')
             })
         }})
         this.fetchList()
@@ -87,9 +87,9 @@ class RbList extends React.Component {
         })
         
         $('.J_delete, .J_view, .J_edit').attr('disabled', true)
-        let sLen = this.__selectedRows.length
-        if (sLen > 0) $('.J_delete').attr('disabled', false)
-        if (sLen == 1) $('.J_view, .J_edit').attr('disabled', false)
+        let len = this.__selectedRows.length
+        if (len > 0) $('.J_delete').attr('disabled', false)
+        if (len == 1) $('.J_view, .J_edit').attr('disabled', false)
     }
     
     fetchList(filter) {
@@ -132,7 +132,7 @@ class RbList extends React.Component {
     
     // 渲染表格及相关事件处理
     
-    __renderCell(cellVal, index, lastGhost) {
+    renderCell(cellVal, index, lastGhost) {
         if (this.state.fields.length == index) return null
         if (!!!cellVal) return <td><div></div></td>
        
@@ -162,6 +162,7 @@ class RbList extends React.Component {
             return <td><div style={styles}>{cellVal}</div></td>
         }
     }
+    
     toggleAllRow(e) {
         let checked = this.state.checkedAll == false
         let _rowData = this.state.rowData
@@ -192,6 +193,7 @@ class RbList extends React.Component {
         this.setState({ rowData: _rowData })
         return false
     }
+    
     clickView(cellVal) {
         renderRbViewModal(cellVal[0], cellVal[2][0])
         return false;
