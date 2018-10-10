@@ -42,15 +42,7 @@ import cn.devezhao.persist4j.engine.ID;
 @Controller
 @RequestMapping("/app/")
 public class GeneralEntityControll extends BaseControll {
-	
-	@RequestMapping("{entity}/form-modal")
-	public void entityForm(@PathVariable String entity,
-			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID recordId = getIdParameter(request, "id");
-		JSON fc = FormManager.getFormModal(entity, getRequestUser(request), recordId);
-		writeSuccess(response, fc);
-	}
-	
+
 	@RequestMapping("{entity}/view/{id}")
 	public ModelAndView pageView(@PathVariable String entity, @PathVariable String id,
 			HttpServletRequest request) throws IOException {
@@ -58,6 +50,14 @@ public class GeneralEntityControll extends BaseControll {
 		ModelAndView mv = createModelAndView("/general-entity/record-view.jsp", entity);
 		mv.getModel().put("id", recordId);
 		return mv;
+	}
+	
+	@RequestMapping("{entity}/form-modal")
+	public void entityForm(@PathVariable String entity,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID recordId = getIdParameter(request, "id");
+		JSON fc = FormManager.getFormModal(entity, getRequestUser(request), recordId);
+		writeSuccess(response, fc);
 	}
 	
 	@RequestMapping("{entity}/view-modal")

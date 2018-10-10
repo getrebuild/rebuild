@@ -155,9 +155,9 @@ public class FormManager extends LayoutManager {
 				if (fieldName.equals(EntityHelper.createdOn) || fieldName.equals(EntityHelper.modifiedOn)) {
 					el.put("value", CalendarUtils.getUTCDateTimeFormat().format(now));
 				} else if (fieldName.equals(EntityHelper.createdBy) || fieldName.equals(EntityHelper.modifiedBy) || fieldName.equals(EntityHelper.owningUser)) {
-					el.put("value", currentUser.getFullName());
+					el.put("value", new Object[] { currentUser.getIdentity().toString(), currentUser.getFullName(), "User" });
 				} else if (fieldName.equals(EntityHelper.owningDept)) {
-					el.put("value", currentUser.getOwningDept().getName());
+					el.put("value", new Object[] { currentUser.getOwningDept().getIdentity().toString(), currentUser.getOwningDept().getName(), "Department" });
 				}
 			}
 			

@@ -67,6 +67,9 @@ public class DataListManager extends LayoutManager {
 			if (entityMeta.containsField(EntityHelper.createdBy)) {
 				columnList.add(warpColumn(entityMeta.getField(EntityHelper.createdBy)));
 			}
+			if (entityMeta.containsField(EntityHelper.createdOn)) {
+				columnList.add(warpColumn(entityMeta.getField(EntityHelper.createdOn)));
+			}
 		} else {
 			JSONArray config = (JSONArray) raw[1];
 			for (Object o : config) {

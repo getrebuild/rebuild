@@ -5,46 +5,37 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>部门用户</title>
 <style type="text/css">
-.dept-tree{padding:17px 20px;}
-.dept-tree li>a{display:block;padding:6px 6px;padding-left:1rem}
-.dept-tree li>a:hover{background-color:#eee}
-.dept-tree .list-unstyled ul{padding-left:1rem}
-.page-aside.none{
-	background: none;
-	border: 0 none;
-}
-.page-aside.none .card {
-	margin: 25px 0;
-	margin-left: 25px;
-	min-height: 336px;
-}
-.page-aside.none .card .card-body {
-	padding: 0;
-}
-.dept-tree li.active a{color:#4285f4}
+.dept-tree{padding:25px 20px;position:relative;}
+.dept-tree .list-unstyled{margin:0}
+.dept-tree .list-unstyled ul{padding-left:1rem;}
+.dept-tree li>a{display:block;padding:6px;padding-left:1rem}
+.dept-tree li>a:hover{background-color:#eee;border-radius:3px}
+.dept-tree li.active>a{color:#fff !important;background-color:#4285f4 !important;border-radius:3px}
 </style>
 </head>
 <body>
 <div class="rb-wrapper rb-aside rb-collapsible-sidebar">
 	<jsp:include page="/_include/NavTop.jsp">
-		<jsp:param value="部门用户" name="pageTitle"/>
+		<jsp:param value="用户列表" name="pageTitle"/>
 	</jsp:include>
 	<jsp:include page="/_include/NavLeftAdmin.jsp">
 		<jsp:param value="users" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
-		<aside class="page-aside none">
-			<div class="card">
-				<div class="card-body">
-					<div class="dept-tree">
-					</div>
+		<aside class="page-aside ">
+			<div class="rb-scroller">
+				<div class="dept-tree">
 				</div>
 			</div>
 		</aside>
-		<div class="main-content container-fluid">
+		<div class="main-content container-fluid main-content-list">
+			<ul class="nav nav-tabs nav-tabs-classic">
+				<li class="nav-item"><a href="users" class="nav-link active"><span class="icon zmdi zmdi-account"></span> 用户列表</a></li>
+				<li class="nav-item"><a href="departments" class="nav-link"><span class="icon zmdi zmdi-accounts"></span> 部门列表</a></li>
+			</ul>
 			<div class="card card-table">
 				<div class="card-body">
-					<div class="dataTables_wrapper container-fluid">
+					<div class="dataTables_wrapper">
 						<div class="row rb-datatable-header">
 							<div class="col-12 col-sm-6">
 								<div class="dataTables_filter">
@@ -89,9 +80,9 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/rb-list.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
 <script type="text/babel">
-
 var rbList, columnsModal
 $(document).ready(function(){
 	const DataListConfig = JSON.parse('${DataListConfig}')
@@ -99,20 +90,29 @@ $(document).ready(function(){
 
 	$('.J_new-user').click(function(){
 		renderRbFormModal(null, '新建用户', 'User', 'account')
-	});
+		formPostType = 1
+	})
 	$('.J_new-dept').click(function(){
 		renderRbFormModal(null, '新建部门', 'Department', 'accounts')
-	});
+		formPostType = 2
+	})
 	$('.J_columns').click(function(){
 		if (columnsModal) columnsModal.show()
 		else columnsModal = rb.modal('${baseUrl}/page/general-entity/show-columns?entity=User', '设置列显示')
-	});
+	})
 
 	loadDeptTree()
-});
+})
+var formPostType = 1
+var formPostAfterCall = function(){
+	if (formPostType == 1) rbList.reload()
+	else loadDeptTree()
+}
 const loadDeptTree = function(){
 	$.get(rb.baseUrl + '/admin/bizuser/dept-tree', function(res){
+		$('.dept-tree').empty()
 		let root = $('<ul class="list-unstyled"></ul>').appendTo('.dept-tree')
+		renderDeptTree({ id:'$ALL', name:'所有部门' }, root).addClass('active')
 		$(res.data).each(function(){
 			renderDeptTree(this, root)
 		})
@@ -120,12 +120,18 @@ const loadDeptTree = function(){
 }
 const renderDeptTree = function(dept, target) {
 	let child = $('<li data-id="' + dept.id + '"><a>' + dept.name + '</a></li>').appendTo(target)
+	child.click(function(){
+		$('.dept-tree li').removeClass('active')
+		child.addClass('active')
+		return false
+	})
 	if (dept.children && dept.children.length > 0) {
 		let parent = $('<ul class="list-unstyled"></ul>').appendTo(child)
 		$(dept.children).each(function(){
 			renderDeptTree(this, parent)
 		})
 	}
+	return child
 }
 </script>
 </body>

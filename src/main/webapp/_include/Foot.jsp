@@ -2,15 +2,15 @@
 <script src="${baseUrl}/assets/lib/jquery.min.js"></script>
 <script src="${baseUrl}/assets/lib/popper.min.js"></script>
 <script src="${baseUrl}/assets/lib/bootstrap.min.js"></script>
-<script src="${baseUrl}/assets/lib/perfect-scrollbar.jquery.min.js"></script>
-<script src="${baseUrl}/assets/lib/mprogress.min.js"></script>
-<script src="${baseUrl}/assets/lib/bootstrap-datetimepicker.min.js"></script>
+<script src="${baseUrl}/assets/lib/widget/perfect-scrollbar.jquery.min.js"></script>
+<script src="${baseUrl}/assets/lib/widget/mprogress.min.js"></script>
+<script src="${baseUrl}/assets/lib/widget/bootstrap-datetimepicker.min.js"></script>
 <script src="${baseUrl}/assets/lib/jquery.html5uploader.js"></script>
-<script src="${baseUrl}/assets/lib/select2.min.js"></script>
+<script src="${baseUrl}/assets/lib/widget/select2.min.js"></script>
 <script src="${baseUrl}/assets/lib/jquery-ui.min.js"></script>
 <script src="${baseUrl}/assets/js/rb-base.js"></script>
 <script src="${baseUrl}/assets/js/rb-page.js"></script>
-<script src="${baseUrl}/assets/lib/babel.min.js"></script>
-<script src="${baseUrl}/assets/lib/react.production.min.js"></script>
-<script src="${baseUrl}/assets/lib/react-dom.production.min.js"></script>
+<script src="${baseUrl}/assets/lib/react/babel.min.js"></script>
+<script src="${baseUrl}/assets/lib/react/react.production.min.js"></script>
+<script src="${baseUrl}/assets/lib/react/react-dom.production.min.js"></script>
 <script src="${baseUrl}/assets/js/rb-components.jsx" type="text/babel"></script>

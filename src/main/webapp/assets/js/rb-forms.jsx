@@ -39,7 +39,7 @@ class RbFormModal extends React.Component {
             let elements = res.data.elements
             const FORM = <RbForm entity={entity} id={id} $$$parent={that}>
                 {elements.map((item) => {
-                    return __detectElement(item)
+                    return detectElement(item)
                 })}
                 </RbForm>
             that.setState({ formComponent: FORM }, function() {
@@ -148,9 +148,7 @@ class RbForm extends React.Component {
             if (res.error_code == 0){
                 that.showNotice('保存成功', 'success')
                 that.props.$$$parent.hide(true)
-                if (window.rbList) window.rbList.reload()
-                else if (parent.rbList) parent.rbList.reload()
-                if (window.rbFromView) location.reload()
+                if (window.formPostAfterCall) window.formPostAfterCall()
             }else{
                 that.showNotice(res.error_msg || '保存失败，请稍后重试', 'danger')
             }
@@ -224,9 +222,7 @@ class RbFormReadonly extends RbFormElement {
     renderElement() {
         let text = this.props.value
         if (this.props.type == 'REFERENCE' && text) text = text[1]
-        return (
-            <input className="form-control form-control-sm" type="text" readonly="true" value={text} />
-        )
+        return <input className="form-control form-control-sm" type="text" readonly="true" value={text} />
     }
 }
 
@@ -436,7 +432,7 @@ class RbFormImage extends RbFormElement {
                     let path = that.state.value
                     path.push(d.data)
                     that.handleChange({ target:{ value:path } }, true)
-                } else that.showNitice(d.error_msg || '上传失败，请稍后重试')
+                } else that.showNotice(d.error_msg || '上传失败，请稍后重试')
             }
         })
     }
@@ -496,7 +492,7 @@ class RbFormFile extends RbFormElement {
                     let path = that.state.value
                     path.push(d.data)
                     that.handleChange({ target:{ value:path } }, true)
-                } else that.showNitice(d.error_msg || '上传失败，请稍后重试')
+                } else that.showNotice(d.error_msg || '上传失败，请稍后重试')
             }
         })
     }
@@ -609,35 +605,6 @@ class RbFormReference extends RbFormElement {
     }
 }
 
-// 布尔 是/否
-class RbFormBool extends RbFormElement {
-    constructor(props) {
-        super(props)
-        this.state.value = props.value || 'F'
-        if (this.props.onView === true) {
-        } else {
-            if (props.value == '是' || props.value == '否') {
-                this.state.value = props.value == '是' ? 'T' : 'F'
-            }
-        }
-    }
-    renderElement() {
-        return (
-            <div>
-                <label className="custom-control custom-radio custom-control-inline" onClick={this.changeValue.bind(this, 'T')}>
-                    <input className="custom-control-input" name="radio-inline" type="radio" value="F" checked={this.state.value == 'T'}/><span className="custom-control-label">是</span>
-                </label>
-                <label className="custom-control custom-radio custom-control-inline" onClick={this.changeValue.bind(this, 'F')}>
-                    <input className="custom-control-input" name="radio-inline" type="radio" value="T" checked={this.state.value == 'F'}/><span className="custom-control-label">否</span>
-                </label>
-            </div>
-        )
-    }
-    changeValue(val) {
-        this.setState({ value: val })
-    }
-}
-
 // 分割线
 class RbFormDivider extends React.Component {
     constructor(props) {
@@ -650,7 +617,12 @@ class RbFormDivider extends React.Component {
 }
 
 // 确定元素类型
-const __detectElement = function(item){
+const detectElement = function(item){
+    let isExtElement = detectElementExt(item)
+    if (isExtElement != null) {
+        return isExtElement
+    }
+    
     if (item.onView === true) {
     } else if (item.readonly == true) {
         return <RbFormReadonly {...item} />
@@ -680,13 +652,14 @@ const __detectElement = function(item){
         return <RbFormPickList {...item} />
     } else if (item.type == 'REFERENCE'){
         return <RbFormReference {...item} />
-    } else if (item.type == 'BOOL'){
-        return <RbFormBool {...item} />
     } else if (item.field == '$LINE$'){
         return <RbFormDivider {...item} />
     } else {
         throw new Error('Unknow element : ' + JSON.stringify(item))
     }
+}
+var detectElementExt = function(item){
+    return null
 }
 
 const __fileCutName = function(file) {
