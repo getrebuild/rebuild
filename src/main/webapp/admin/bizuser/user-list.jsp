@@ -3,7 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>部门用户</title>
+<title>用户管理</title>
 <style type="text/css">
 .dept-tree{padding:25px 20px;position:relative;}
 .dept-tree .list-unstyled{margin:0}
@@ -16,7 +16,7 @@
 <body>
 <div class="rb-wrapper rb-aside rb-collapsible-sidebar">
 	<jsp:include page="/_include/NavTop.jsp">
-		<jsp:param value="用户列表" name="pageTitle"/>
+		<jsp:param value="用户管理" name="pageTitle"/>
 	</jsp:include>
 	<jsp:include page="/_include/NavLeftAdmin.jsp">
 		<jsp:param value="users" name="activeNav"/>
@@ -104,7 +104,7 @@ $(document).ready(function(){
 	loadDeptTree()
 })
 var formPostType = 1
-var formPostAfterCall = function(){
+RbForm.postAfter = function(){
 	if (formPostType == 1) rbList.reload()
 	else loadDeptTree()
 }

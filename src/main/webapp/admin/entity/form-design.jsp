@@ -39,7 +39,7 @@
 			<div class="row">
 				<div class="col-12 col-sm-8">
 					<div class="float-right" style="margin-top:-1px">
-						<a class="btn btn-link J_add-line">+ 添加分栏</a>
+						<a class="btn btn-link J_add-divider">+ 添加分栏</a>
 						<button class="btn btn-primary J_save" type="button">保存配置</button>
 					</div>
 					<div class="tab-container">
@@ -92,7 +92,7 @@ $(document).ready(function(){
 		
 		$(config.elements).each(function(){
 			let field = validFields[this.field]
-			if (this.field == '$LINE$'){
+			if (this.field == '$DIVIDER$'){
 				render_item({ fieldName: this.field, fieldLabel: this.label || '分栏', isFull: true }, '.form-preview');
 			} else if (!!!field){
 				$('<div class="dd-item"><div class="dd-handle J_field text-danger text-center">字段 [' + this.field.toUpperCase() + '] 已删除</div></div>').appendTo('.form-preview');
@@ -111,15 +111,15 @@ $(document).ready(function(){
 		}).disableSelection();
 	});
 	
-	$('.J_add-line').click(function(){
-		render_item({ fieldName: '$LINE$', fieldLabel: '分栏', isFull: true }, '.form-preview')
+	$('.J_add-divider').click(function(){
+		render_item({ fieldName: '$DIVIDER$', fieldLabel: '分栏', isFull: true }, '.form-preview')
 	});
 	
 	let btn = $('.J_save').click(function(){
 		let elements = [];
 		$('.form-preview .J_field').each(function(){
 			let item = { field: $(this).data('field'), isFull: $(this).parent().hasClass('full') }
-			if (item.field == '$LINE$') item.label = $(this).find('span').text()
+			if (item.field == '$DIVIDER$') item.label = $(this).find('span').text()
 			elements.push(item);
 		});
 		
@@ -151,8 +151,8 @@ const render_item = function(data, append) {
 		$('<i>' + data.displayType.split('(')[0].trim() + '</i>').appendTo(actions)
 	}
 	
-	if (data.fieldName == '$LINE$'){
-		item.addClass('line')
+	if (data.fieldName == '$DIVIDER$'){
+		item.addClass('divider')
 		$('<a href="javascript:;" title="修改分栏名称">[修改]</a>').appendTo(actions).click(function(){
 			let input = '<div style="width:360px;margin:0 auto;"><input type="text" class="form-control form-control-sm" placeholder="输入分栏名称"></div>'
 			rb.alter(input, '修改分栏名称', { html: true, confirm: function(){

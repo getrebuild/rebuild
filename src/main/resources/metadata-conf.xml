@@ -12,8 +12,8 @@
 
 	<entity name="User" type-code="001" description="用户" name-field="fullName">
 		<field name="userId" type="primary" />
-		<field name="loginName" type="string" max-length="100" nullable="false" description="登录名" />
-		<field name="email" type="string" max-length="100" nullable="false" description="邮箱"/>
+		<field name="loginName" type="string" max-length="100" nullable="false" updatable="false" description="登录名" />
+		<field name="email" type="string" max-length="100" description="邮箱"/>
 		<field name="password" type="string" max-length="100" description="登录密码"/>
 		<field name="fullName" type="string" max-length="100" description="姓名"/>
 		<field name="avatarUrl" type="string" max-length="300" description="头像"/>

@@ -3,19 +3,31 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>部门列表</title>
+<title>部门管理</title>
 <style type="text/css">
+.dept-tree{padding:25px 20px;position:relative;}
+.dept-tree .list-unstyled{margin:0}
+.dept-tree .list-unstyled ul{padding-left:1rem;}
+.dept-tree li>a{display:block;padding:6px;padding-left:1rem}
+.dept-tree li>a:hover{background-color:#eee;border-radius:3px}
+.dept-tree li.active>a{color:#fff !important;background-color:#4285f4 !important;border-radius:3px}
 </style>
 </head>
 <body>
-<div class="rb-wrapper rb-collapsible-sidebar">
+<div class="rb-wrapper rb-aside rb-collapsible-sidebar">
 	<jsp:include page="/_include/NavTop.jsp">
-		<jsp:param value="部门列表" name="pageTitle"/>
+		<jsp:param value="部门管理" name="pageTitle"/>
 	</jsp:include>
 	<jsp:include page="/_include/NavLeftAdmin.jsp">
 		<jsp:param value="users" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
+		<aside class="page-aside ">
+			<div class="rb-scroller">
+				<div class="dept-tree">
+				</div>
+			</div>
+		</aside>
 		<div class="main-content container-fluid main-content-list">
 			<ul class="nav nav-tabs nav-tabs-classic">
 				<li class="nav-item"><a href="users" class="nav-link"><span class="icon zmdi zmdi-account"></span> 用户列表</a></li>
@@ -35,7 +47,7 @@
 							</div>
 							<div class="col-12 col-sm-6">
 								<div class="dataTables_oper">
-									<button class="btn btn-primary btn-space J_new-dept" type="button"><i class="icon zmdi zmdi-accounts-add"></i> 新建部门</button>
+									<button class="btn btn-primary btn-space J_new-user" type="button"><i class="icon zmdi zmdi-accounts-add"></i> 新建部门</button>
 									<div class="btn-group btn-space">
 										<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-more-vert"></i></button>
 										<div class="dropdown-menu dropdown-menu-right">
@@ -72,12 +84,45 @@ $(document).ready(function(){
 
 	$('.J_new-dept').click(function(){
 		renderRbFormModal(null, '新建部门', 'Department', 'accounts')
-	});
+		formPostType = 2
+	})
 	$('.J_columns').click(function(){
 		if (columnsModal) columnsModal.show()
 		else columnsModal = rb.modal('${baseUrl}/page/general-entity/show-columns?entity=Department', '设置列显示')
-	});
+	})
+	
+	loadDeptTree()
 })
+var formPostType = 1
+var formPostAfterCall = function(){
+	if (formPostType == 1) rbList.reload()
+	else loadDeptTree()
+}
+const loadDeptTree = function(){
+	$.get(rb.baseUrl + '/admin/bizuser/dept-tree', function(res){
+		$('.dept-tree').empty()
+		let root = $('<ul class="list-unstyled"></ul>').appendTo('.dept-tree')
+		renderDeptTree({ id:'$ALL', name:'所有部门' }, root).addClass('active')
+		$(res.data).each(function(){
+			renderDeptTree(this, root)
+		})
+	})
+}
+const renderDeptTree = function(dept, target) {
+	let child = $('<li data-id="' + dept.id + '"><a>' + dept.name + '</a></li>').appendTo(target)
+	child.click(function(){
+		$('.dept-tree li').removeClass('active')
+		child.addClass('active')
+		return false
+	})
+	if (dept.children && dept.children.length > 0) {
+		let parent = $('<ul class="list-unstyled"></ul>').appendTo(child)
+		$(dept.children).each(function(){
+			renderDeptTree(this, parent)
+		})
+	}
+	return child
+}
 </script>
 </body>
 </html>

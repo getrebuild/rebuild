@@ -90,6 +90,30 @@ public class FormManager extends LayoutManager {
 	 * @return
 	 */
 	public static JSON getFormModel(String entity, ID user, ID recordId) {
+		return getModel(entity, user, recordId, false);
+	}
+	
+	/**
+	 * 视图
+	 * 
+	 * @param entity
+	 * @param user
+	 * @param recordId
+	 * @return
+	 */
+	public static JSON getViewModel(String entity, ID user, ID recordId) {
+		Assert.notNull(recordId, "[recordId] not be null");
+		return getModel(entity, user, recordId, true);
+	}
+	
+	/**
+	 * @param entity
+	 * @param user
+	 * @param recordId
+	 * @param onView
+	 * @return
+	 */
+	protected static JSON getModel(String entity, ID user, ID recordId, boolean onView) {
 		Assert.notNull(entity, "[entity] not be null");
 		Assert.notNull(user, "[user] not be null");
 		
@@ -108,7 +132,7 @@ public class FormManager extends LayoutManager {
 		for (Object element : elements) {
 			JSONObject el = (JSONObject) element;
 			String fieldName = el.getString("field");
-			if (fieldName.equals("$LINE$")) {
+			if (fieldName.equals("$LINE$") || fieldName.equals("$DIVIDER$")) {
 				continue;
 			}
 			
@@ -164,23 +188,21 @@ public class FormManager extends LayoutManager {
 			// 编辑记录 & 填充值
 			if (record != null) {
 				Object value = wrapFieldValue(record, easyField);
+				if (value != null) {
+					if (!onView && easyField.getDisplayType() == DisplayType.BOOL) {
+						value = value.toString().equals("是") ? "T" : "F";
+					}
+				}
+				
 				el.put("value", value);
+			} else {
+				
+				// TODO 默认值
+				
+				el.put("value", null);
 			}
 		}
 		return config;
-	}
-	
-	/**
-	 * 视图
-	 * 
-	 * @param entity
-	 * @param user
-	 * @param recordId
-	 * @return
-	 */
-	public static JSON getViewModel(String entity, ID user, ID recordId) {
-		Assert.notNull(recordId, "[recordId] not be null");
-		return getFormModel(entity, user, recordId);
 	}
 	
 	/**

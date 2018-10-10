@@ -3,29 +3,26 @@ class RbFormBool extends RbFormElement {
     constructor(props) {
         super(props)
         this.state.value = props.value || 'F'
-        if (this.props.onView === true) {
-        } else {
-            if (props.value == '是' || props.value == '否') {
-                this.state.value = props.value == '是' ? 'T' : 'F'
-            }
-        }
+        this.changeValue = this.changeValue.bind(this)
     }
     renderElement() {
         return (
             <div>
                 <label className="custom-control custom-radio custom-control-inline">
-                    <input className="custom-control-input" name={'radio-' + this.props.field} type="radio" checked={this.state.value == 'T'} onChange={this.changeValue.bind(this, 'T')} />
+                    <input className="custom-control-input" name={'radio-' + this.props.field} type="radio" checked={this.state.value == 'T'} data-value="T" onChange={this.changeValue} />
                     <span className="custom-control-label">是</span>
                 </label>
                 <label className="custom-control custom-radio custom-control-inline">
-                    <input className="custom-control-input" name={'radio-' + this.props.field} type="radio" checked={this.state.value == 'F'} onChange={this.changeValue.bind(this, 'F')} />
+                    <input className="custom-control-input" name={'radio-' + this.props.field} type="radio" checked={this.state.value == 'F'} data-value="F" onChange={this.changeValue} />
                     <span className="custom-control-label">否</span>
                 </label>
             </div>
         )
     }
-    changeValue(val) {
-        this.setState({ value: val })
+    changeValue(e) {
+        let val = e.target.dataset.value
+        console.log(val)
+        this.handleChange({ target:{ value: val } }, true)
     }
 }
 

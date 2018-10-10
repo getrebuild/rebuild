@@ -72,9 +72,13 @@
 	width: 99% !important;
 }
 
-.view-preview .dd-item.line {
-	font-style: italic;
-	color: #777;
+.view-preview .dd-item.divider .dd-handle {
+	background-color: #eee;
+	color: #404040;
+}
+
+.view-preview .dd-item.divider .dd-action a {
+	color: #4285f4;
 }
 
 .dd-item .dd-action a {

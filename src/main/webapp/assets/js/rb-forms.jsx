@@ -152,11 +152,17 @@ class RbForm extends React.Component {
             if (res.error_code == 0){
                 rb.notice('保存成功', 'success')
                 that.props.$$$parent.hide(true)
-                if (window.formPostAfterCall) window.formPostAfterCall()
+                RbForm.postAfter()
             }else{
                 rb.notice(res.error_msg || '保存失败，请稍后重试', 'danger')
             }
         })
+    }
+    
+    static postAfter() {
+        if (window.rbList) window.rbList.reload()
+        else if (parent.rbList) parent.rbList.reload()
+        if (window.rbFromView) location.reload()
     }
 }
 
@@ -242,7 +248,7 @@ class RbFormReadonly extends RbFormElement {
     renderElement() {
         let text = this.props.value
         if (this.props.type == 'REFERENCE' && text) text = text[1]
-        return <input className="form-control form-control-sm" type="text" readonly="true" value={text} />
+        return <input className="form-control form-control-sm" type="text" readOnly="true" value={text} />
     }
 }
 
@@ -628,8 +634,10 @@ class RbFormDivider extends React.Component {
         super(props)
     }
     render() {
-        if (this.props.onView == true) return (<div className="form-line"><fieldset><legend>{this.props.label || ''}</legend></fieldset></div>)
-        else return (<div />)  // TODO 编辑页暂无分割线
+        let label = this.props.label || ''
+        if (label == '分栏') label = null
+        if (this.props.onView == true) return <div className="form-line"><fieldset>{label ? (<legend>{label}</legend>) : null}</fieldset></div>
+        else return <div />  // TODO 编辑页暂无分割线
     }
 }
 
@@ -669,7 +677,7 @@ const detectElement = function(item){
         return <RbFormPickList {...item} />
     } else if (item.type == 'REFERENCE'){
         return <RbFormReference {...item} />
-    } else if (item.field == '$LINE$'){
+    } else if (item.field == '$LINE$' || item.field == '$DIVIDER$'){
         return <RbFormDivider {...item} />
     } else {
         throw new Error('Unknow element : ' + JSON.stringify(item))
