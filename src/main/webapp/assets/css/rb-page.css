@@ -29,7 +29,8 @@
 	color: #0d5bdd !important;
 }
 
-.input-search, .input-search input {
+.input-search,
+.input-search input {
 	width: 240px;
 	height: 2.8rem;
 }
@@ -40,7 +41,8 @@
 	min-width: auto;
 }
 
-.input-search button .icon, .adv-search button .icon {
+.input-search button .icon,
+.adv-search button .icon {
 	font-size: 1.55rem !important;
 	color: #737373;
 }
@@ -60,10 +62,12 @@
 	margin-right: 12px;
 	width: 220px;
 }
+
 .adv-search span {
 	display: inline-block;
 	max-width: 185px;
 }
+
 .adv-search button {
 	width: 100%;
 	text-align: left;
@@ -72,6 +76,7 @@
 	box-shadow: 0 0 0 #fff !important;
 	position: relative;
 }
+
 .adv-search button .icon {
 	position: absolute;
 	margin-top: 10px;
@@ -88,10 +93,6 @@
 
 .rb-aside .page-head {
 	margin-left: 280px;
-}
-
-.modal-header .close.admin-settings {
-	
 }
 
 .modal-header .close+.close {
@@ -111,7 +112,8 @@
 	color: #fff;
 }
 
-.rbmodal.show, .rbview.show {
+.rbmodal.show,
+.rbview.show {
 	display: block !important;
 }
 
@@ -152,7 +154,8 @@ body.dialog .main-content {
 	margin-left: 5px;
 }
 
-body.dialog .main-content .footer, .rbform .footer {
+body.dialog .main-content .footer,
+.rbform .footer {
 	padding-bottom: 6px;
 }
 
@@ -178,10 +181,6 @@ a {
 	display: none;
 }
 
-.admin-visibility {
-	
-}
-
 .rb-scroller {
 	position: relative;
 }
@@ -192,6 +191,7 @@ a {
 }
 
 /* for Form page */
+
 .rbform>form>.alert {
 	margin: 20px;
 	margin-bottom: 0;
@@ -250,7 +250,8 @@ a {
 	cursor: default;
 }
 
-.img-field a.img-upload b, .file-field .img-thumbnail b {
+.img-field a.img-upload b,
+.file-field .img-thumbnail b {
 	display: none;
 	position: absolute;
 	bottom: 0;
@@ -264,12 +265,13 @@ a {
 	text-align: center;
 }
 
-.img-field a.img-upload:hover b, .file-field .img-thumbnail:hover b {
+.img-field a.img-upload:hover b,
+.file-field .img-thumbnail:hover b {
 	display: block;
 }
 
-.img-field a.img-upload:hover b:hover, .file-field .img-thumbnail:hover b:hover
-	{
+.img-field a.img-upload:hover b:hover,
+.file-field .img-thumbnail:hover b:hover {
 	background-color: rgba(0, 0, 0, 0.6);
 }
 
@@ -277,13 +279,15 @@ a {
 	width: 100%;
 	height: 100%;
 }
+
 .img-field.avatar .img-upload {
 	border-radius: 50%;
 	overflow: hidden;
 	padding: 0;
 	border: 0 none;
 }
-.img-field.avatar label.img-upload:hover{
+
+.img-field.avatar label.img-upload:hover {
 	border: 0 none;
 	opacity: 0.8;
 }
@@ -398,7 +402,8 @@ a {
 	color: #fff
 }
 
-.ui-mprogress .bar-bg, .ui-mprogress .buffer-bg {
+.ui-mprogress .bar-bg,
+.ui-mprogress .buffer-bg {
 	z-index: 1051;
 }
 
@@ -408,8 +413,9 @@ a {
 
 /* for DataList page */
 
-.rb-datatable-body, .rb-datatable-body .rb-scroller, .rb-datatable-body .rb-loading
-	{
+.rb-datatable-body,
+.rb-datatable-body .rb-scroller,
+.rb-datatable-body .rb-loading {
 	min-height: 200px;
 }
 
@@ -442,7 +448,8 @@ a {
 	font-weight: 300;
 }
 
-.data-list .table th, .data-list .table td {
+.data-list .table th,
+.data-list .table td {
 	cursor: default;
 	white-space: nowrap;
 	font-weight: normal;
@@ -498,7 +505,8 @@ i.split.ui-draggable-dragging {
 	content: '\f2f9';
 }
 
-.data-list .table td, .data-list .table td>div {
+.data-list .table td,
+.data-list .table td>div {
 	white-space: nowrap;
 	max-width: 100%;
 	text-overflow: ellipsis;
@@ -508,7 +516,8 @@ i.split.ui-draggable-dragging {
 	white-space: nowrap;
 }
 
-.data-list .table td, .data-list .table td>div.nmw {
+.data-list .table td,
+.data-list .table td>div.nmw {
 	max-width: 1000px;
 }
 
@@ -560,17 +569,14 @@ i.split.ui-draggable-dragging {
 	border-bottom: 0 solid;
 }
 
-.column-url {
-	
-}
+.column-url {}
 
-.link:hover, .column-url:hover {
+.link:hover,
+.column-url:hover {
 	text-decoration: underline;
 }
 
-.column-empty {
-	
-}
+.column-empty {}
 
 .text-3dot {
 	overflow: hidden;
@@ -579,18 +585,29 @@ i.split.ui-draggable-dragging {
 }
 
 .unselect {
-	-webkit-touch-callout: none; /* iOS Safari */
-	-webkit-user-select: none; /* Chrome/Safari/Opera */
-	-khtml-user-select: none; /* Konqueror */
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* Internet Explorer/Edge */
+	-webkit-touch-callout: none;
+	/* iOS Safari */
+	-webkit-user-select: none;
+	/* Chrome/Safari/Opera */
+	-khtml-user-select: none;
+	/* Konqueror */
+	-moz-user-select: none;
+	/* Firefox */
+	-ms-user-select: none;
+	/* Internet Explorer/Edge */
 	user-select: none;
 	/* Non-prefixed version, currently not supported by any browser */
 }
 
-.main-content-list > .card-table{border-top-left-radius:0;border-top-right-radius:0;border-top: 2px solid #4285f4;}
-.main-content-list > .nav-tabs>li.nav-item a.nav-link{padding:11px 15px}
+.main-content-list>.card-table {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+	border-top: 2px solid #4285f4;
+}
 
+.main-content-list>.nav-tabs>li.nav-item a.nav-link {
+	padding: 11px 15px
+}
 
 h5.sortable-box-title {
 	margin-top: 9px;
@@ -608,8 +625,8 @@ h5.sortable-box-title {
 	height: 380px;
 }
 
-.sortable-box .dd-list .dd-item .dd3-content, .dd-list .dd3-item .dd3-content
-	{
+.sortable-box .dd-list .dd-item .dd3-content,
+.dd-list .dd3-item .dd3-content {
 	margin: 3px 0
 }
 
@@ -699,8 +716,7 @@ h5.sortable-box-title {
 	margin-top: -10px;
 }
 
-.modal.rbview .modal-dialog .modal-content .modal-header .close.admin-settings
-	{
+.modal.rbview .modal-dialog .modal-content .modal-header .close.admin-settings {
 	margin-top: -11px;
 }
 
@@ -734,9 +750,6 @@ h5.sortable-box-title {
 	word-wrap: break-word;
 }
 
-.form-line {
-}
-
 .form-line fieldset {
 	border-bottom: 1px dotted #ebebeb;
 	position: relative;
@@ -767,4 +780,36 @@ h5.sortable-box-title {
 
 .btn-primary.bordered:hover {
 	box-shadow: 0 1px 0 rgba(0, 0, 0, .1);
+}
+
+.dept-tree {
+	padding: 25px 20px;
+}
+
+.dept-tree .list-unstyled {
+	margin: 0
+}
+
+.dept-tree .list-unstyled ul {
+	padding-left: 1rem;
+}
+
+.dept-tree li>a {
+	display: block;
+	padding: 6px 9px;
+	margin-left: 1rem;
+}
+.dept-tree > ul > li > a {
+	margin-left: 0;
+}
+
+.dept-tree li>a:hover {
+	background-color: #eee;
+	border-radius: 3px
+}
+
+.dept-tree li.active>a {
+	color: #fff !important;
+	background-color: #4285f4 !important;
+	border-radius: 3px
 }

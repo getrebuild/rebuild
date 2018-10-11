@@ -171,20 +171,6 @@ public class FormManager extends LayoutManager {
 				}
 			}
 			
-			// 默认值
-			
-			if (easyField.isBuiltin()) {
-				el.put("readonly", true);
-				
-				if (fieldName.equals(EntityHelper.createdOn) || fieldName.equals(EntityHelper.modifiedOn)) {
-					el.put("value", CalendarUtils.getUTCDateTimeFormat().format(now));
-				} else if (fieldName.equals(EntityHelper.createdBy) || fieldName.equals(EntityHelper.modifiedBy) || fieldName.equals(EntityHelper.owningUser)) {
-					el.put("value", new Object[] { currentUser.getIdentity().toString(), currentUser.getFullName(), "User" });
-				} else if (fieldName.equals(EntityHelper.owningDept)) {
-					el.put("value", new Object[] { currentUser.getOwningDept().getIdentity().toString(), currentUser.getOwningDept().getName(), "Department" });
-				}
-			}
-			
 			// 编辑记录 & 填充值
 			if (record != null) {
 				Object value = wrapFieldValue(record, easyField);
@@ -196,10 +182,19 @@ public class FormManager extends LayoutManager {
 				
 				el.put("value", value);
 			} else {
+				if (easyField.isBuiltin()) {
+					el.put("readonly", true);
+					if (fieldName.equals(EntityHelper.createdOn) || fieldName.equals(EntityHelper.modifiedOn)) {
+						el.put("value", CalendarUtils.getUTCDateTimeFormat().format(now));
+					} else if (fieldName.equals(EntityHelper.createdBy) || fieldName.equals(EntityHelper.modifiedBy) || fieldName.equals(EntityHelper.owningUser)) {
+						el.put("value", new Object[] { currentUser.getIdentity().toString(), currentUser.getFullName(), "User" });
+					} else if (fieldName.equals(EntityHelper.owningDept)) {
+						el.put("value", new Object[] { currentUser.getOwningDept().getIdentity().toString(), currentUser.getOwningDept().getName(), "Department" });
+					}
+				}
 				
 				// TODO 默认值
 				
-				el.put("value", null);
 			}
 		}
 		return config;

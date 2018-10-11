@@ -6,8 +6,8 @@
 	<entity name="SystemCommon" type-code="000">
 		<field name="createdBy" type="reference" ref-entity="User" nullable="false" updatable="false" description="创建人" />
 		<field name="createdOn" type="timestamp" nullable="false" updatable="false" description="创建时间" />
-		<field name="modifiedBy" type="reference" ref-entity="User" nullable="false" description="修改人" />
-		<field name="modifiedOn" type="timestamp" nullable="false" description="修改时间" />
+		<field name="modifiedBy" type="reference" ref-entity="User" nullable="false" updatable="false" description="修改人" />
+		<field name="modifiedOn" type="timestamp" nullable="false" updatable="false" description="修改时间" />
 	</entity>
 
 	<entity name="User" type-code="001" description="用户" name-field="fullName">
@@ -41,9 +41,11 @@
 	<entity name="RolePrivileges" type-code="004" parent="false">
 		<field name="privilegesId" type="primary" />
 		<field name="roleId" type="reference" ref-entity="Role" />
-		<field name="entity" type="int" nullable="false" description="实体" default-value="0"/>
+		<field name="entity" type="string" max-length="100" nullable="false" default-value="N"/>
+		<field name="zeroKey" type="string" description="其他权限KEY"/>
 		<field name="definition" type="string" max-length="100" description="权限定义"/>
-		<field name="freelyKey" type="string" description="其他权限KEY"/>
+		<index field-list="roleId"/>
+		<index type="unique" field-list="entity,zeroKey"/>
 	</entity>
 	
 	<entity name="RoleMember" type-code="005" parent="false">

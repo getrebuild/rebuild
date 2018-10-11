@@ -5,12 +5,6 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>用户管理</title>
 <style type="text/css">
-.dept-tree{padding:25px 20px;position:relative;}
-.dept-tree .list-unstyled{margin:0}
-.dept-tree .list-unstyled ul{padding-left:1rem;}
-.dept-tree li>a{display:block;padding:6px;padding-left:1rem}
-.dept-tree li>a:hover{background-color:#eee;border-radius:3px}
-.dept-tree li.active>a{color:#fff !important;background-color:#4285f4 !important;border-radius:3px}
 </style>
 </head>
 <body>
@@ -119,7 +113,7 @@ const loadDeptTree = function(){
 	})
 }
 const renderDeptTree = function(dept, target) {
-	let child = $('<li data-id="' + dept.id + '"><a>' + dept.name + '</a></li>').appendTo(target)
+	let child = $('<li data-id="' + dept.id + '"><a class="text-truncate">' + dept.name + '</a></li>').appendTo(target)
 	child.click(function(){
 		$('.dept-tree li').removeClass('active')
 		child.addClass('active')

@@ -28,13 +28,17 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 
 import cn.devezhao.bizz.privileges.Privileges;
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.bizz.security.EntityPrivileges;
 import cn.devezhao.bizz.security.member.BusinessUnit;
 import cn.devezhao.bizz.security.member.NoMemberFoundException;
 import cn.devezhao.bizz.security.member.Role;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
 
@@ -54,11 +58,11 @@ public class UserStore {
 	final private Map<String, ID> USERs_NAME2ID = new ConcurrentHashMap<>();
 	final private Map<String, ID> USERs_MAIL2ID = new ConcurrentHashMap<>();
 	
-	final private PersistManagerFactory PM_FACTORY;
+	final private PersistManagerFactory aPMFactory;
 	
-	protected UserStore(PersistManagerFactory persistManagerFactory) {
+	protected UserStore(PersistManagerFactory aPMFactory) {
 		super();
-		this.PM_FACTORY = persistManagerFactory;
+		this.aPMFactory = aPMFactory;
 	}
 	
 	/**
@@ -250,7 +254,7 @@ public class UserStore {
 	public void refreshDept(ID deptId) {
 		Department oldDept = DEPTs.get(deptId);
 		
-		Object[] o = PM_FACTORY.createQuery("select name,isDisabled,parentDept from Department where deptId = ?")
+		Object[] o = aPMFactory.createQuery("select name,isDisabled,parentDept from Department where deptId = ?")
 				.setParameter(1, deptId)
 				.unique();
 		Department newDept = new Department(deptId, (String) o[0], (Boolean) o[1]);
@@ -285,7 +289,7 @@ public class UserStore {
 		final Map<ID, Set<ID>> roleOfUserMap = new HashMap<>();
 		final Map<ID, Set<ID>> deptOfUserMap = new HashMap<>();
 		
-		Object[][] array = PM_FACTORY.createQuery("select " + USER_FS + " from User").array();
+		Object[][] array = aPMFactory.createQuery("select " + USER_FS + " from User").array();
 		for (Object[] o : array) {
 			ID userId = (ID) o[0];
 			User user = new User(
@@ -316,18 +320,26 @@ public class UserStore {
 		
 		// ROLE
 		
-		array = PM_FACTORY.createQuery("select roleId,name,isDisabled from Role").array();
+		array = aPMFactory.createQuery("select roleId,name,isDisabled from Role").array();
 		for (Object[] o : array) {
 			ID roleId = (ID) o[0];
 			Role role = new Role(roleId, (String) o[1], (Boolean) o[2]);
 			
-			Object[][] definition = PM_FACTORY.createQuery(
-					"select entity,definition from RolePrivileges where roleId = ?")
+			Object[][] definition = aPMFactory.createQuery(
+					"select entity,definition,zeroKey from RolePrivileges where roleId = ?")
 					.setParameter(1, roleId)
 					.array();
 			for (Object[] e : definition) {
-				Privileges priv = new EntityPrivileges((Integer) e[0], (String) e[1]);
-				role.addPrivileges(priv);
+				String entity = (String) e[0];
+				if ("N".equals(entity)) {
+					Privileges p = new ZeroPrivileges((String) e[2], (String) e[1]);
+					role.addPrivileges(p);
+				} else {
+					Entity entityMeta = aPMFactory.getMetadataFactory().getEntity(entity);
+					Privileges p = new EntityPrivileges(
+							entityMeta.getEntityCode(), converEntityPrivilegesDefinition((String) e[1]));
+					role.addPrivileges(p);
+				}
 			}
 			
 			Set<ID> roleOfUser = roleOfUserMap.get(roleId);
@@ -343,7 +355,7 @@ public class UserStore {
 		
 		// DEPT
 		
-		array = PM_FACTORY.createQuery("select deptId,name,isDisabled,parentDept from Department").array();
+		array = aPMFactory.createQuery("select deptId,name,isDisabled,parentDept from Department").array();
 		Map<ID, Set<ID>> parentTemp = new HashMap<>();
 		for (Object[] o : array) {
 			ID deptId = (ID) o[0];
@@ -405,10 +417,72 @@ public class UserStore {
 		DEPTs.put((ID) dept.getIdentity(), dept);
 	}
 	
-	/*-
-	 * 统一化
-	 */
+	// 统一化 Key
 	static private String normalIdentifier(String ident) {
 		return StringUtils.defaultIfEmpty(ident, "").toLowerCase();
+	}
+	
+	/**
+	 * 转换成 bizz 能识别的权限定义
+	 * 
+	 * @param definition
+	 * @return
+	 * @see EntityPrivileges
+	 * @see BizzPermission
+	 */
+	static private String converEntityPrivilegesDefinition(String definition) {
+		JSONObject defJson = JSON.parseObject(definition);
+		int C = defJson.getInteger("C");
+		int D = defJson.getInteger("D");
+		int U = defJson.getInteger("U");
+		int R = defJson.getInteger("R");
+		int A = defJson.getInteger("A");
+		int S = defJson.getInteger("S");
+	
+		int deepP = 0;
+		int deepL = 0;
+		int deepD = 0;
+		int deepG = 0;
+		
+		// {"A":0,"R":1,"C":4,"S":0,"D":0,"U":0} >> 1:9,2:1,3:1,4:1
+		
+		if (C >= 4) {
+			deepP += BizzPermission.CREATE.getMask();
+			deepL += BizzPermission.CREATE.getMask();
+			deepD += BizzPermission.CREATE.getMask();
+			deepG += BizzPermission.CREATE.getMask();
+		}
+		
+		if (D >= 1) deepP += BizzPermission.DELETE.getMask();
+		if (D >= 2) deepL += BizzPermission.DELETE.getMask();
+		if (D >= 3) deepD += BizzPermission.DELETE.getMask();
+		if (D >= 4) deepG += BizzPermission.DELETE.getMask();
+		
+		if (U >= 1) deepP += BizzPermission.UPDATE.getMask();
+		if (U >= 2) deepL += BizzPermission.UPDATE.getMask();
+		if (U >= 3) deepD += BizzPermission.UPDATE.getMask();
+		if (U >= 4) deepG += BizzPermission.UPDATE.getMask();
+		
+		if (R >= 1) deepP += BizzPermission.READ.getMask();
+		if (R >= 2) deepL += BizzPermission.READ.getMask();
+		if (R >= 3) deepD += BizzPermission.READ.getMask();
+		if (R >= 4) deepG += BizzPermission.READ.getMask();
+		
+		if (A >= 1) deepP += BizzPermission.ASSIGN.getMask();
+		if (A >= 2) deepL += BizzPermission.ASSIGN.getMask();
+		if (A >= 3) deepD += BizzPermission.ASSIGN.getMask();
+		if (A >= 4) deepG += BizzPermission.ASSIGN.getMask();
+		
+		if (S >= 1) deepP += BizzPermission.SHARE.getMask();
+		if (S >= 2) deepL += BizzPermission.SHARE.getMask();
+		if (S >= 3) deepD += BizzPermission.SHARE.getMask();
+		if (S >= 4) deepG += BizzPermission.SHARE.getMask();
+		
+		return "1:" + deepP + ",2:" + deepL + ",3:" + deepD + ",4:" + deepG;
+	}
+	
+	public static void main(String[] args) {
+		String c = converEntityPrivilegesDefinition("{\"A\":0,\"R\":1,\"C\":4,\"S\":0,\"D\":0,\"U\":0}");
+		System.out.println(c);
 	}
 }

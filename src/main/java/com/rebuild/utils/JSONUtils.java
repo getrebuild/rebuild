@@ -18,14 +18,21 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.utils;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSON;
 
+import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.persist4j.engine.ID;
+
 /**
+ * JSON format
  * 
  * @author devezhao
  * @since 09/29/2018
@@ -53,5 +60,39 @@ public class JSONUtils {
 			map.put(keys[i], values[i]);
 		}
 		return (JSON) JSON.toJSON(map);
+	}
+	
+	/**
+	 * @param keys
+	 * @param valuesArray
+	 * @return
+	 */
+	public static JSON toJSONArray(String keys[], Object valuesArray[][]) {
+		List<Map<String, Object>> array = new ArrayList<>();
+		for (Object[] o : valuesArray) {
+			Map<String, Object> map = new HashMap<>();
+			for (int i = 0; i < keys.length; i++) {
+				map.put(keys[i], toString(o[i]));
+			}
+			array.add(map);
+		}
+		return (JSON) JSON.toJSON(array);
+	}
+	
+	/**
+	 * 尝试将值转化成字符串
+	 * 
+	 * @param aVal
+	 * @return
+	 */
+	public static Object toString(Object aVal) {
+		if (aVal == null) {
+			return null;
+		} else if (aVal instanceof ID) {
+			return aVal.toString();
+		} else if (aVal instanceof Date) {
+			return CalendarUtils.getUTCDateTimeFormat().format(aVal);
+		}
+		return aVal;
 	}
 }

@@ -5,12 +5,6 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>部门管理</title>
 <style type="text/css">
-.dept-tree{padding:25px 20px;position:relative;}
-.dept-tree .list-unstyled{margin:0}
-.dept-tree .list-unstyled ul{padding-left:1rem;}
-.dept-tree li>a{display:block;padding:6px;padding-left:1rem}
-.dept-tree li>a:hover{background-color:#eee;border-radius:3px}
-.dept-tree li.active>a{color:#fff !important;background-color:#4285f4 !important;border-radius:3px}
 </style>
 </head>
 <body>
@@ -22,7 +16,7 @@
 		<jsp:param value="users" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
-		<aside class="page-aside ">
+		<aside class="page-aside">
 			<div class="rb-scroller">
 				<div class="dept-tree">
 				</div>
@@ -47,7 +41,7 @@
 							</div>
 							<div class="col-12 col-sm-6">
 								<div class="dataTables_oper">
-									<button class="btn btn-primary btn-space J_new-user" type="button"><i class="icon zmdi zmdi-accounts-add"></i> 新建部门</button>
+									<button class="btn btn-primary btn-space J_new-dept" type="button"><i class="icon zmdi zmdi-accounts-add"></i> 新建部门</button>
 									<div class="btn-group btn-space">
 										<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-more-vert"></i></button>
 										<div class="dropdown-menu dropdown-menu-right">
@@ -84,7 +78,6 @@ $(document).ready(function(){
 
 	$('.J_new-dept').click(function(){
 		renderRbFormModal(null, '新建部门', 'Department', 'accounts')
-		formPostType = 2
 	})
 	$('.J_columns').click(function(){
 		if (columnsModal) columnsModal.show()
@@ -93,11 +86,6 @@ $(document).ready(function(){
 	
 	loadDeptTree()
 })
-var formPostType = 1
-var formPostAfterCall = function(){
-	if (formPostType == 1) rbList.reload()
-	else loadDeptTree()
-}
 const loadDeptTree = function(){
 	$.get(rb.baseUrl + '/admin/bizuser/dept-tree', function(res){
 		$('.dept-tree').empty()
@@ -109,7 +97,7 @@ const loadDeptTree = function(){
 	})
 }
 const renderDeptTree = function(dept, target) {
-	let child = $('<li data-id="' + dept.id + '"><a>' + dept.name + '</a></li>').appendTo(target)
+	let child = $('<li data-id="' + dept.id + '"><a class="text-truncate">' + dept.name + '</a></li>').appendTo(target)
 	child.click(function(){
 		$('.dept-tree li').removeClass('active')
 		child.addClass('active')

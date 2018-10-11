@@ -98,12 +98,12 @@ public class Entity2Schema extends Field2Schema {
 		
 		String primaryFiled = entityName + "Id";
 		createField(unsafeEntity, primaryFiled, "ID", DisplayType.ID, false, false, false, null, "系统内建");
-		createField(unsafeEntity, EntityHelper.createdBy, "创建人", DisplayType.REFERENCE, false, false, false, "User", "系统内建");
-		createField(unsafeEntity, EntityHelper.createdOn, "创建时间", DisplayType.DATETIME, false, false, false, null, "系统内建");
-		createField(unsafeEntity, EntityHelper.modifiedBy, "修改人", DisplayType.REFERENCE, false, false, true, "User", "系统内建");
-		createField(unsafeEntity, EntityHelper.modifiedOn, "修改时间", DisplayType.DATETIME, false, false, true, null, "系统内建");
-		createField(unsafeEntity, EntityHelper.owningUser, "所属用户", DisplayType.REFERENCE, false, false, true, "User", "系统内建");
-		createField(unsafeEntity, EntityHelper.owningDept, "所属部门", DisplayType.REFERENCE, false, false, true, "Department", "系统内建");
+		createField(unsafeEntity, EntityHelper.createdBy, "创建人", 		DisplayType.REFERENCE, 	false, false, false, "User", "系统内建");
+		createField(unsafeEntity, EntityHelper.createdOn, "创建时间", 	DisplayType.DATETIME, 	false, false, false, null, "系统内建");
+		createField(unsafeEntity, EntityHelper.modifiedBy, "修改人", 	DisplayType.REFERENCE, 	false, false, false, "User", "系统内建");
+		createField(unsafeEntity, EntityHelper.modifiedOn, "修改时间", 	DisplayType.DATETIME, 	false, false, false, null, "系统内建");
+		createField(unsafeEntity, EntityHelper.owningUser, "所属用户", 	DisplayType.REFERENCE, 	false, false, false, "User", "系统内建");
+		createField(unsafeEntity, EntityHelper.owningDept, "所属部门", 	DisplayType.REFERENCE, 	false, false, false, "Department", "系统内建");
 		
 		boolean schemaReady = schema2Database(unsafeEntity);
 		if (!schemaReady) {

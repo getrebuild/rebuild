@@ -18,6 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.bizz;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.base.GeneralEntityService;
@@ -52,5 +56,59 @@ public class RoleService extends GeneralEntityService {
 		record = super.createOrUpdate(record);
 		Application.getUserStore().refreshRole(record.getPrimary());
 		return record;
+	}
+	
+	/**
+	 * @param roleId
+	 * @param definition
+	 */
+	public void batchUpdatePrivileges(ID roleId, JSONObject definition) {
+		Object[][] array = Application.createQuery(
+				"select privilegesId,definition,entity,zeroKey from RolePrivileges where roleId = ?")
+				.setParameter(1, roleId)
+				.array();
+		Map<String, Object[]> existsMap = new HashMap<>();
+		for (Object[] o : array) {
+			if ("N".equals(o[2])) {
+				o[2] = o[3];
+			}
+			existsMap.put(o[2].toString(), o);
+		}
+		
+		JSONObject entityPriv = definition.getJSONObject("entity");
+		JSONObject zeroPriv = definition.getJSONObject("zero");
+		JSONObject allPriv = new JSONObject();
+		allPriv.putAll(entityPriv);
+		allPriv.putAll(zeroPriv);
+		zeroPriv.clear();
+		
+		for (Map.Entry<String, Object> e : allPriv.entrySet()) {
+			String name = e.getKey();
+			String defi = e.getValue().toString();
+			if (existsMap.containsKey(name)) {
+				Object[] exists = existsMap.get(name);
+				// Unchanged
+				if (defi.equalsIgnoreCase(exists[1].toString())) {
+					continue;
+				}
+				
+				Record priv = EntityHelper.forUpdate((ID) exists[0], Application.currentCallerUser());
+				priv.setString("definition", defi);
+				super.update(priv);
+				
+			} else {
+				Record priv = EntityHelper.forNew(EntityHelper.RolePrivileges, Application.currentCallerUser());
+				priv.setID("roleId", roleId);
+				if (entityPriv.containsKey(name)) {
+					priv.setString("entity", name);
+				} else {
+					priv.setString("zeroKey", name);
+				}
+				priv.setString("definition", defi);
+				super.create(priv);
+			}
+		}
+		
+		Application.getUserStore().refreshRole(roleId);
 	}
 }

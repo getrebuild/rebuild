@@ -56,7 +56,8 @@ public class PortalMetaSorter {
 		List<Entity> list = new ArrayList<>();
 		for (Entity entity : entities) {
 			int ec = entity.getEntityCode();
-			if (AccessibleMeta.isBuiltin(entity) || (!fromAdmin && (ec == EntityHelper.User || ec == EntityHelper.Department))) {
+			if (AccessibleMeta.isBuiltin(entity) 
+					|| (!fromAdmin && (ec == EntityHelper.User || ec == EntityHelper.Department || ec == EntityHelper.Role))) {
 			} else {
 				list.add(entity);
 			}

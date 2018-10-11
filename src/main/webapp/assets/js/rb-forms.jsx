@@ -152,7 +152,7 @@ class RbForm extends React.Component {
             if (res.error_code == 0){
                 rb.notice('保存成功', 'success')
                 that.props.$$$parent.hide(true)
-                RbForm.postAfter()
+                RbForm.postAfter(res.data)
             }else{
                 rb.notice(res.error_msg || '保存失败，请稍后重试', 'danger')
             }
@@ -197,7 +197,7 @@ class RbFormElement extends React.Component {
     renderElement() {
         return '子类复写此方法'
     }
-    componentDidMount(e) {
+    componentDidMount() {
         let props = this.props
         // 必填字段
         if (props.nullable == false && props.readonly == false && props.onView != true) {
@@ -390,7 +390,7 @@ class RbFormDateTime extends RbFormElement {
             todayHighlight: true,
             showMeridian: false,
             keyboardNavigation: false,
-        }).on('changeDate', function(event){
+        }).on('changeDate', function(){
             let val = $(this).val()
             that.handleChange({ target: { value: val } }, true)
         })
@@ -756,9 +756,7 @@ class RbViewModal extends React.Component {
     }
     resize() {
         let root = $(this.refs['rbview'])
-        let that = this
         $setTimeout(function(){
-            let iframe = root.find('iframe')
             root.find('.modal-body').height($(window).height())
         }, 40, 'RbView-resize')
     }
