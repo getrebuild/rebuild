@@ -1,4 +1,4 @@
-// ~~ 简单过滤器
+// 简单过滤器
 const SimpleFilter = {
     init(el, entity) {
         this.root = $(el)

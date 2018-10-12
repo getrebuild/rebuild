@@ -14,7 +14,7 @@ class RbModal extends React.Component {
             		        <button className="close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
             		    </div>
             		    <div className={'modal-body rb-loading ' + (this.state.inLoad == true && ' rb-loading-active') + ' ' + (this.state.url && ' iframe')}>
-            		        {this.props.children || <iframe src={this.state.url || 'about:blank'} frameBorder="0" scrolling="no" onLoad={()=>this.resize()} onResize={()=>this.resize()}></iframe>}
+            		        {this.props.children || <iframe src={this.state.url || 'about:blank'} frameBorder="0" scrolling="no" onLoad={()=>this.resize()}></iframe>}
                             <RbSpinner />
                         </div>
     		        </div>
@@ -149,7 +149,21 @@ const renderRbcomp = function(jsx, target) {
     return ReactDOM.render(jsx, container[0]);
 }
 
+// -- Usage
+
 var rb = rb || {}
+
+rb.modal = function(url, title, ext) {
+    ext = ext || {}
+    return renderRbcomp(<RbModal url={url} title={title} width={ext.width} destroyOnHide={ext.destroyOnHide === false ? false : true } />)
+}
+
+rb.alter = function(message, title, ext){
+    ext = ext || {}
+    if (ext.html == true) return renderRbcomp(<RbAlter htmlMessage={message} title={title} type={ext.type} confirm={ext.confirm} />)
+    else return renderRbcomp(<RbAlter message={message} title={title} type={ext.type} confirm={ext.confirm} />)
+}
+
 rb.notice = function(message, type, ext){
     if (top != self && parent.rb && parent.rb.notice){
         parent.rb.notice(message, type, ext)
@@ -158,13 +172,4 @@ rb.notice = function(message, type, ext){
     ext = ext || {}
     if (ext.html == true) return renderRbcomp(<RbNotice htmlMessage={message} type={type} timeout={ext.timeout} />)
     else return renderRbcomp(<RbNotice message={message} type={type} timeout={ext.timeout} />)
-}
-rb.alter = function(message, title, ext){
-    ext = ext || {}
-    if (ext.html == true) return renderRbcomp(<RbAlter htmlMessage={message} title={title} type={ext.type} confirm={ext.confirm} />)
-    else return renderRbcomp(<RbAlter message={message} title={title} type={ext.type} confirm={ext.confirm} />)
-}
-rb.modal = function(url, title, ext) {
-    ext = ext || {}
-    return renderRbcomp(<RbModal url={url} title={title} width={ext.width} destroyOnHide={ext.destroyOnHide === false ? false : true } />)
 }

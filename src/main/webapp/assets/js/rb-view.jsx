@@ -20,8 +20,8 @@ class RbViewForm extends React.Component {
             })}</div>
             that.setState({ formComponent: FORM }, function(){
                 $('.invisible').removeClass('invisible')
-                if (parent && parent.rbViewModal) {
-                    parent.rbViewModal.hideLoading(true)
+                if (parent && parent.RbViewModal_Comp) {
+                    parent.RbViewModal_Comp.hideLoading(true)
                 }
                 
                 $(that.refs['reviewForm']).find('.type-NTEXT .form-control-plaintext').perfectScrollbar()
@@ -34,4 +34,13 @@ const detectViewElement = function(item){
     item.onView = true
     item.viewMode = true
     return (<div className={'col-12 col-sm-' + (item.isFull ? 12 : 6)}>{detectElement(item)}</div>)
+}
+
+// -- Usage
+
+var rb = rb || {}
+
+// props = { entity, recordId }
+rb.RbViewForm = function(props, target){
+    return renderRbcomp(<RbViewForm {...props}  />, target || 'tab-rbview')
 }

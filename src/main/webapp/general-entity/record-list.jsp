@@ -73,11 +73,10 @@
 var rbList, columnsModal
 var assignModal, shareModal
 $(document).ready(function(){
-	const DataListConfig = JSON.parse('${DataListConfig}')
-	rbList = renderRbcomp(<RbList config={DataListConfig} />, 'react-list')
+	rbList = rb.RbList({ config: JSON.parse('${DataListConfig}') })
 	
 	$('.J_new').click(function(){
-		renderRbFormModal(null, '新建${entityLabel}', '${entityName}', '${entityIcon}')
+		rb.RbFormModal({ title: '新建${entityLabel}', entity: '${entityName}', icon: '${entityIcon}' })
 	});
 	$('.J_delete').click(function(){
 		let s = rbList.getSelectedRows()
@@ -90,14 +89,14 @@ $(document).ready(function(){
 		let s = rbList.getSelectedRows()
 		if (s.length == 1) {
 			s = s[0]
-			renderRbViewModal(s[0], s[2][0])
+			rb.RbViewModal({ id: s[0], entity: s[2][0] })
 		}
 	});
 	$('.J_edit').click(function(){
 		let s = rbList.getSelectedRows()
 		if (s.length == 1) {
 			s = s[0]
-			renderRbFormModal(s[0], '编辑${entityLabel}', '${entityName}', '${entityIcon}')
+			rb.RbFormModal({ id: s[0], title: '编辑${entityLabel}', entity: '${entityName}', icon: '${entityIcon}' })
 		}
 	});
 

@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/bootstrap-slider.min.css">
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/widget/bootstrap-slider.min.css">
 <%@ include file="/_include/Head.jsp"%>
 <title>字段信息</title>
 <style type="text/css">
@@ -156,15 +156,16 @@
 		</div>
 	</div>
 </div>
-<script type="text/plain" id="picklist-temp">
+<script type="text/plain" id="picklist-tmpl">
 <li class="dd-item dd3-item">
 	<div class="dd3-content text-3dot">HOLD</div>
 	<div class="dd-handle dd3-handle"></div>
 	<div class="dd3-action"><a href="javascript:;" class="J_default" title="设为默认">[默认]</a></div>
 </li>
 </script>
+
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/javascript" src="${baseUrl}/assets/lib/bootstrap-slider.min.js"></script>
+<script type="text/javascript" src="${baseUrl}/assets/lib/widget/bootstrap-slider.min.js"></script>
 <script type="text/javascript">
 $(document).ready(function(){
 	const metaId = '${fieldMetaId}';
@@ -258,7 +259,7 @@ $(document).ready(function(){
 	}
 });
 const picklistItemRender = function(data){
-	let item = $($('#picklist-temp').html()).appendTo('#picklist-items');
+	let item = $($('#picklist-tmpl').html()).appendTo('#picklist-items');
 	item.find('.dd3-content').text(data.text)
 	item.attr('attr-id', data.id);
 	item.find('.dd3-action .J_default').off('click').click(function(){

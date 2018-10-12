@@ -23,40 +23,44 @@
 		<jsp:param value="entities" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
-		<div class="main-content container-fluid" id="entityList">
+		<div class="main-content container-fluid">
+			<div class="row" id="entityList">
+			</div>
 		</div>
 	</div>
 </div>
-<%@ include file="/_include/Foot.jsp"%>
-<script type="text/babel">
-const EntityList = function(props){
-	const content = props.data.map((d) =>
-		<div className="col-xl-2 col-lg-3 col-sm-6">
-			<a className="card entity" href={"entity/" + d.entityName + "/base"}>
-				<div className="card-body">
-					<div className="float-left"><i className={"icon zmdi zmdi-" + d.icon}></i></div>
-					<div className="title">
-						<span className="text-truncate">{d.entityLabel}</span>
-						<p className="text-muted">{d.comments || '-'}</p>
-					</div>
-					<div className="clearfix"></div>
-				</div>
-			</a>
+<script type="text/palin" id="entity-tmpl">
+<div class="col-xl-2 col-lg-3 col-sm-6">
+	<a class="card entity">
+		<div class="card-body">
+			<div class="float-left"><i class="icon zmdi"></i></div>
+			<div class="title">
+				<span class="text-truncate">新建实体</span>
+				<p class="text-muted">新建一个新实体</p>
+			</div>
+			<div class="clearfix"></div>
 		</div>
-	)
-	return <div className="row">{content}</div>
-}
+	</a>
+</div>
+</script>
+<%@ include file="/_include/Foot.jsp"%>
+<script type="text/javascript">
 var newEntityModal = null
 $(document).ready(function(){
 	$.get(rb.baseUrl + '/admin/entity/entity-list', function(res){
-		let _data = res.data
-		_data.push({ entityName:'$NEW$', entityLabel:'新建', comments:'新建一个新实体', icon:'plus' })
-		ReactDOM.render(<EntityList data={_data} />, $('#entityList')[0])
-
-		$('.entity[href="entity/$NEW$/base"]').click(function(){
+		$(res.data).each(function(){
+			let tmp = $($('#entity-tmpl').html()).appendTo('#entityList')
+			tmp.find('a.card').attr('href', 'entity/' + this.entityName + '/base')
+			tmp.find('.icon').addClass('zmdi-' + this.icon)
+			tmp.find('.title span').text(this.entityLabel)
+			tmp.find('.title p').text(this.comments)
+		});
+		
+		let tmp = $($('#entity-tmpl').html()).appendTo('#entityList')
+		tmp.find('.icon').addClass('zmdi-plus')
+		tmp.click(function(){
 			if (newEntityModal) newEntityModal.show()
 			else newEntityModal = rb.modal(rb.baseUrl + '/admin/page/entity/entity-new', '新建实体')
-			return false
 		})
 	})
 })

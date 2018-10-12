@@ -195,7 +195,7 @@ class RbList extends React.Component {
     }
     
     clickView(cellVal) {
-        renderRbViewModal(cellVal[0], cellVal[2][0])
+        rb.RbViewModal({ id: cellVal[0], entity: cellVal[2][0] })
         return false;
     }
     
@@ -260,28 +260,28 @@ class RbListPagination extends React.Component {
         this.next = this.next.bind(this)
     }
     render() {
-        this.pageTotal = Math.ceil(this.props.rowTotal / this.props.pageSize)
+        let props = this.props
+        this.pageTotal = Math.ceil(props.rowTotal / props.pageSize)
         if (this.pageTotal <= 0) this.pageTotal = 1
-        const pages = calcPages(this.pageTotal, this.props.pageNo)
-        
+        const pages = calcPages(this.pageTotal, props.pageNo)
         return (
-        <div className="row rb-datatable-footer">
-            <div className="col-sm-5">
-                <div className="dataTables_info">{this.props.rowTotal > 0 ? `共 ${this.props.rowTotal} 条数据` : ''}</div>
-            </div>
-            <div className="col-sm-7">
-                <div className="dataTables_paginate paging_simple_numbers">
-                    <ul className="pagination">
-                        {this.props.pageNo > 1 && <li className="paginate_button page-item"><a className="page-link" onClick={this.prev}><span className="icon zmdi zmdi-chevron-left"></span></a></li>}
-                        {pages.map((item) => {
-                            if (item == '.') return <li className="paginate_button page-item disabled"><a className="page-link">...</a></li>
-                            else return <li className={'paginate_button page-item ' + (this.props.pageNo == item && 'active')}><a href="javascript:;" className="page-link" onClick={this.goto.bind(this, item)}>{item}</a></li>
-                        })}
-                        {this.props.pageNo != this.pageTotal && <li className="paginate_button page-item"><a className="page-link" onClick={this.next}><span className="icon zmdi zmdi-chevron-right"></span></a></li>}
-                    </ul>
+            <div className="row rb-datatable-footer">
+                <div className="col-sm-5">
+                    <div className="dataTables_info">{props.rowTotal > 0 ? `共 ${props.rowTotal} 条数据` : ''}</div>
+                </div>
+                <div className="col-sm-7">
+                    <div className="dataTables_paginate paging_simple_numbers">
+                        <ul className="pagination">
+                            {props.pageNo > 1 && <li className="paginate_button page-item"><a className="page-link" onClick={this.prev}><span className="icon zmdi zmdi-chevron-left"></span></a></li>}
+                            {pages.map((item) => {
+                                if (item == '.') return <li className="paginate_button page-item disabled"><a className="page-link">...</a></li>
+                                else return <li className={'paginate_button page-item ' + (props.pageNo == item && 'active')}><a href="javascript:;" className="page-link" onClick={this.goto.bind(this, item)}>{item}</a></li>
+                            })}
+                            {props.pageNo != this.pageTotal && <li className="paginate_button page-item"><a className="page-link" onClick={this.next}><span className="icon zmdi zmdi-chevron-right"></span></a></li>}
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </div>
         )
     }
     prev() {
@@ -296,4 +296,18 @@ class RbListPagination extends React.Component {
         if (this.props.pageNo == pageNo) return
         else this.props.$$$parent.setPageNo(pageNo)
     }
+}
+
+// -- Usage
+
+var rb = rb || {}
+
+// props = { config }
+rb.RbList = function(props, target) {
+    return renderRbcomp(<RbList {...props} />, target || 'react-list')
+}
+
+// props = { rowTotal, pageSize, pageNo }
+rb.RbListPagination = function(props, target) {
+    return renderRbcomp(<RbListPagination {...props} />, target || 'pagination')
 }

@@ -786,15 +786,21 @@ class RbViewModal extends React.Component {
 
 // -- Usage
 
-var rbFormModal
-const renderRbFormModal = function(id, title, entity, icon) {
-    if (rbFormModal) rbFormModal.show({ id: id, title: title, entity: entity, icon: icon })
-    else rbFormModal = renderRbcomp(<RbFormModal id={id} title={title} entity={entity} icon={icon} />)
+var rb = rb || {}
+
+var RbFormModal_Comp
+// props = { id, entity, title, icon }
+rb.RbFormModal = function(props) {
+    if (RbFormModal_Comp) RbFormModal_Comp.show(props)
+    else RbFormModal_Comp = renderRbcomp(<RbFormModal {...props} />)
+    return RbFormModal_Comp
 }
 
-var rbViewModal
-const renderRbViewModal = function(id, entity) {
-    let viewUrl = rb.baseUrl + '/app/' + entity + '/view/' + id
-    if (rbViewModal) rbViewModal.show(viewUrl, { entity: entity })
-    else rbViewModal = renderRbcomp(<RbViewModal url={viewUrl} entity={entity} />)
+var RbViewModal_Comp
+// props = { id, entity }
+rb.RbViewModal = function(props) {
+    let viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
+    if (RbViewModal_Comp) RbViewModal_Comp.show(viewUrl, { entity: props.entity })
+    else RbViewModal_Comp = renderRbcomp(<RbViewModal url={viewUrl} entity={props.entity} />)
+    return RbViewModal_Comp
 }

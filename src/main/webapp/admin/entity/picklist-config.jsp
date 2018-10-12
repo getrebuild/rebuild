@@ -1,5 +1,4 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="com.rebuild.server.entityhub.DisplayType"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -44,7 +43,7 @@
 		<button class="btn btn-secondary" onclick="parent.picklistModal.hide()" type="button">取消</button>
 	</div>
 </div>
-<script type="text/plain" id="picklist-temp">
+<script type="text/plain" id="picklist-tmpl">
 <li class="dd-item dd3-item">
 	<div class="dd3-content text-3dot">HOLD</div>
 	<div class="dd-handle dd3-handle"></div>
@@ -60,7 +59,7 @@ $(document).ready(function(){
 	
 	$.get(rb.baseUrl + '/admin/field/picklist-gets?isAll=true&' + query, function(res){
 		$(res.data).each(function(){
-			itemRender(this, this.hide === true ? '.J_hidebox' : '.J_showbox')
+			item_render(this, this.hide === true ? '.J_hidebox' : '.J_showbox')
 		});
 	});
 	
@@ -90,7 +89,7 @@ $(document).ready(function(){
 		if (!!!text){
 			rb.notice('请输入选项文本'); return;
 		}
-		itemRender({ id: $('.J_text').attr('attr-id'), text: text });
+		item_render({ id: $('.J_text').attr('attr-id'), text: text });
 		$('.J_text').val('').attr('attr-id', '')
 		$('.J_confirm').text('添加')
 	});
@@ -101,11 +100,11 @@ $(document).ready(function(){
 		placeholder: 'dd-placeholder',
 	});
 });
-const itemRender = function(data, append){
+const item_render = function(data, append){
 	data.id = data.id || new Date().getTime()
 	append = append || '.J_showbox';
 	let item = $(append).find("li[attr-id='" + data.id + "']")
-	if (item.length == 0) item = $($('#picklist-temp').html()).appendTo(append);
+	if (item.length == 0) item = $($('#picklist-tmpl').html()).appendTo(append);
 	
 	item.find('.dd3-content').text(data.text)
 	item.attr('attr-id', data.id);

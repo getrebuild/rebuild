@@ -1,6 +1,6 @@
-<%@page import="java.util.Map"%>
-<%@page import="java.util.List"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.util.Map"%>
+<%@ page import="java.util.List"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -24,7 +24,7 @@
 </style>
 </head>
 <body>
-<div class="rb-wrapper rb-aside rb-collapsible-sidebar">
+<div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside">
 	<jsp:include page="/_include/NavTop.jsp">
 		<jsp:param value="角色权限" name="pageTitle"/>
 	</jsp:include>
@@ -153,15 +153,14 @@
 RbForm.postAfter = function(data){
 	location.href = rb.baseUrl + '/admin/bizuser/role-privileges/' + data.id
 }
-</script>
-<script type="text/javascript">
+var currentRoleId
 $(document).ready(function(){
 	$('.J_new-role').click(function(){
-		renderRbFormModal(null, '新建角色', 'Role', 'lock')
+		rb.RbFormModal({ title: '新建角色', entity: 'Role', icon: 'lock' })
 	})
 	
-	current_roleId = '${RoleId}'
-	if (!!current_roleId) {
+	currentRoleId = '${RoleId}'
+	if (!!currentRoleId) {
 		$('.J_save').attr('disabled', false).click(updatePrivileges)
 		loadPrivileges()
 	}
@@ -220,12 +219,12 @@ const loadRoles = function() {
 		$('.dept-tree ul').empty()
 		$(res.data).each(function(){
 			let item = $('<li><a class="text-truncate" href="' + rb.baseUrl + '/admin/bizuser/role-privileges/' + this.id + '">' + this.name + '</a></li>').appendTo('.dept-tree ul')
-			if (current_roleId == this.id) item.addClass('active')
+			if (currentRoleId == this.id) item.addClass('active')
 		})
 	})
 }
 const loadPrivileges = function() {
-	$.get(rb.baseUrl + '/admin/bizuser/privileges-list?role=' + current_roleId, function(res){
+	$.get(rb.baseUrl + '/admin/bizuser/privileges-list?role=' + currentRoleId, function(res){
 		if (res.error_code == 0){
 			$(res.data).each(function(){
 				let etr = $('.table-priv tbody td.name>a[data-name="' + this.name + '"]')
@@ -269,7 +268,7 @@ const updatePrivileges = function() {
 	
 	let priv = { entity: privEntity, zero: privZero }
 	console.log(JSON.stringify(priv))
-	$.post(rb.baseUrl + '/admin/bizuser/privileges-update?role=' + current_role, JSON.stringify(priv), function(){
+	$.post(rb.baseUrl + '/admin/bizuser/privileges-update?role=' + currentRoleId, JSON.stringify(priv), function(){
 		location.reload()
 	})
 }

@@ -8,7 +8,7 @@
 </style>
 </head>
 <body>
-<div class="rb-wrapper rb-aside rb-collapsible-sidebar">
+<div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside">
 	<jsp:include page="/_include/NavTop.jsp">
 		<jsp:param value="部门管理" name="pageTitle"/>
 	</jsp:include>
@@ -73,15 +73,14 @@
 <script type="text/babel">
 var rbList, columnsModal
 $(document).ready(function(){
-	const DataListConfig = JSON.parse('${DataListConfig}')
-	rbList = renderRbcomp(<RbList config={DataListConfig} />, 'react-list')
+	rbList = rb.RbList({ config: JSON.parse('${DataListConfig}') })
 
 	$('.J_new-dept').click(function(){
-		renderRbFormModal(null, '新建部门', 'Department', 'accounts')
+		rb.RbFormModal({ title: '新建部门', entity: 'Department', icon: 'accounts' })
 	})
 	$('.J_columns').click(function(){
 		if (columnsModal) columnsModal.show()
-		else columnsModal = rb.modal('${baseUrl}/page/general-entity/show-columns?entity=Department', '设置列显示')
+		else columnsModal = rb.modal(rb.baseUrl + '/page/general-entity/show-columns?entity=Department', '设置列显示')
 	})
 	
 	loadDeptTree()
@@ -90,7 +89,7 @@ const loadDeptTree = function(){
 	$.get(rb.baseUrl + '/admin/bizuser/dept-tree', function(res){
 		$('.dept-tree').empty()
 		let root = $('<ul class="list-unstyled"></ul>').appendTo('.dept-tree')
-		renderDeptTree({ id:'$ALL', name:'所有部门' }, root).addClass('active')
+		renderDeptTree({ id:'$ALL$', name:'所有部门' }, root).addClass('active')
 		$(res.data).each(function(){
 			renderDeptTree(this, root)
 		})

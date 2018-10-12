@@ -8,7 +8,7 @@
 </style>
 </head>
 <body>
-<div class="rb-wrapper rb-aside rb-collapsible-sidebar">
+<div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside">
 	<jsp:include page="/_include/NavTop.jsp">
 		<jsp:param value="用户管理" name="pageTitle"/>
 	</jsp:include>
@@ -79,15 +79,14 @@
 <script type="text/babel">
 var rbList, columnsModal
 $(document).ready(function(){
-	const DataListConfig = JSON.parse('${DataListConfig}')
-	rbList = renderRbcomp(<RbList config={DataListConfig} />, 'react-list')
+	rbList = rb.RbList({ config: JSON.parse('${DataListConfig}') })
 
 	$('.J_new-user').click(function(){
-		renderRbFormModal(null, '新建用户', 'User', 'account')
+		rb.RbFormModal({ title: '新建用户', entity: 'User', icon: 'account' })
 		formPostType = 1
 	})
 	$('.J_new-dept').click(function(){
-		renderRbFormModal(null, '新建部门', 'Department', 'accounts')
+		rb.RbFormModal({ title: '新建部门', entity: 'Department', icon: 'accounts' })
 		formPostType = 2
 	})
 	$('.J_columns').click(function(){

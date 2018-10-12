@@ -20,6 +20,7 @@
 		</div>
 	</div>
 </div>
+<%@ include file="/_include/Foot.jsp"%>
 <script type="text/javascript">
 </script>
 </body>

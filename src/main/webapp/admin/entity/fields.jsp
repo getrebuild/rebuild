@@ -76,8 +76,7 @@
 								</div>
 							</div>
 						</div>
-						<div id="pagination">
-						</div>
+						<div id="pagination"></div>
 					</div>
 				</div>
 			</div>
@@ -94,6 +93,7 @@ $(document).ready(function(){
 		fields_data = res.data
 		render_list()
 	})
+
 	$('.input-search .btn').click(function(){
 		render_list($val('.input-search .form-control'))
 	})
@@ -129,7 +129,8 @@ const render_list = function(q){
 		});
 		size++
 	});
-	renderRbcomp(<RbListPagination rowTotal={size} pageSize="1000" pageNo="1" />, 'pagination');
+	
+	rb.RbListPagination({ rowTotal:size, pageSize:1000, pageNo:1 })
 	$('#dataList').parent().removeClass('rb-loading-active')
 }
 </script>

@@ -3,19 +3,8 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/view-page.css">
 <title>${entityLabel}视图</title>
-<style type="text/css">
-html,body{overflow:auto;height:100%;}
-.main-content{margin-top:62px;}
-.tab-container{margin-top:-8px}
-.tab-content{padding:0;margin:0;padding-top:13px}
-.view-header{padding:15px 20px;height:62px;border-bottom:1px solid #e3e3e3;position:absolute;top:0;left:0;width:100%;z-index:101;background-color:#fff}
-.view-header .header-icon{float:left;}
-.view-header .title{line-height:1.428571;display:inline-block;margin:0;font-weight:300;font-size:1.538rem}
-.view-btns{padding-bottom:15px;}
-.view-btns .btn{width:100%;}
-.view-btns .btn+.btn{margin-top:6px}
-</style>
 </head>
 <body class="dialog">
 <div class="view-header">
@@ -56,10 +45,10 @@ html,body{overflow:auto;height:100%;}
 var rbFromView
 $(document).ready(function(){
 	const recordId = '${id}'
-	rbFromView = renderRbcomp(<RbViewForm entity="${entityName}" id={recordId}  />, 'tab-rbview')
+	rbFromView = rb.RbViewForm({ entity:'${entityName}', id:recordId })
 
 	$('.J_edit').click(function(){
-		renderRbFormModal(recordId, '编辑记录', '${entityName}', '${entityIcon}')
+		rb.RbFormModal({ id:recordId, title:'编辑${entityLabel}',entity:'${entityName}', icon:'${entityIcon}' })
 	});
 });
 </script>
