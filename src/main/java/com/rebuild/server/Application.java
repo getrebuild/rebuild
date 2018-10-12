@@ -30,6 +30,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.rebuild.server.bizz.privileges.UserStore;
 import com.rebuild.server.helper.AesPreferencesConfigurer;
+import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.query.QueryFactory;
 import com.rebuild.server.service.CommonService;
@@ -129,6 +130,10 @@ public class Application {
 	public static UserStore getUserStore() {
 		return getBean(UserStore.class);
 	}
+	
+	public static RecordOwningCache getRecordOwningCache() {
+		return getBean(RecordOwningCache.class);
+	}
 
 	public static com.rebuild.server.bizz.privileges.SecurityManager getSecurityManager() {
 		return getBean(com.rebuild.server.bizz.privileges.SecurityManager.class);
@@ -162,16 +167,11 @@ public class Application {
 		return getBean(CommonService.class);
 	}
 
-	/**
-	 * @param entityCode
-	 * @return
-	 * @see #getCommonService()
-	 */
 	public static GeneralEntityService getGeneralEntityService(int entityCode) {
 		if (ESS.containsKey(entityCode)) {
 			return ESS.get(entityCode);
 		} else {
-			return getBean(GeneralEntityService.class);
+			return (GeneralEntityService) context().getBean("GeneralEntityService");
 		}
 	}
 }

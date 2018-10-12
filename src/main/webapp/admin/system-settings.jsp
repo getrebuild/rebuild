@@ -3,14 +3,14 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>系统配置</title>
+<title>通用配置</title>
 <style type="text/css">
 </style>
 </head>
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo">
 	<jsp:include page="/_include/NavTop.jsp">
-		<jsp:param value="系统配置" name="pageTitle"/>
+		<jsp:param value="通用配置" name="pageTitle"/>
 	</jsp:include>
 	<jsp:include page="/_include/NavLeftAdmin.jsp">
 		<jsp:param value="systems" name="activeNav"/>

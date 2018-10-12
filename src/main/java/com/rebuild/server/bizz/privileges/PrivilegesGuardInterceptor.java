@@ -21,16 +21,14 @@ package com.rebuild.server.bizz.privileges;
 import java.lang.reflect.Method;
 import java.security.Guard;
 
+import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.springframework.transaction.interceptor.TransactionAttribute;
-import org.springframework.transaction.interceptor.TransactionInterceptor;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 
 import cn.devezhao.bizz.privileges.Permission;
-import cn.devezhao.bizz.privileges.PrivilegesException;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.persist4j.Entity;
@@ -38,27 +36,29 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 执行 CRUD 方法时做出权限拦截
+ * 权限验证 - 拦截 Service 方法
  * 
- * @author Zhao Fangfang
- * @since 1.0, 2013-6-21
+ * @author devezhao
+ * @since 10/12/2018
  */
-public class PrivilegesGuardAndTransactionInterceptor extends TransactionInterceptor implements Guard {
-	private static final long serialVersionUID = -2995255439499512211L;
+public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
+	
+//	private static final Log LOG = LogFactory.getLog(PrivilegesGuardInterceptor.class);
 
 	@Override
 	public Object invoke(MethodInvocation invocation) throws Throwable {
 		checkGuard(invocation);
-		return super.invoke(invocation);
+		return invocation.proceed();
 	}
-
+	
 	@Override
 	public void checkGuard(Object object) throws SecurityException {
 		MethodInvocation invocation = (MethodInvocation) object;
 		if (!isNeedCheck(invocation)) {
-		    return;
+			return;
 		}
 		
+		// 方法的首个参数必须为 ID 或 Record
 		Object idOrRecord = invocation.getArguments()[0];
 		if (!(idOrRecord instanceof Record || idOrRecord instanceof ID)) {
 		    throw new IllegalArgumentException("Arguments[0] must be Record or ID object!");
@@ -74,33 +74,32 @@ public class PrivilegesGuardAndTransactionInterceptor extends TransactionInterce
 		} else {
 			recordId = (ID) idOrRecord;
 			entity = MetadataHelper.getEntity(recordId.getEntityCode());
+			caller = Application.currentCallerUser();
 		}
 		
+		// 无权限字段的不检查
 		if (!EntityHelper.hasPrivilegesField(entity)) {
 		    return;
 		}
+		
 		// 当前会话用户
 		if (caller == null) {
 			caller = Application.currentCallerUser();
 		}
 		
 		final Permission permission = getPermissionByMethod(invocation.getMethod(), recordId == null);
-		boolean allow = false;
+		boolean isAllowed = false;
 		if (permission == BizzPermission.CREATE) {
-			allow = Application.getSecurityManager().allowed(caller, entity.getEntityCode(), permission);
+			isAllowed = Application.getSecurityManager().allowed(caller, entity.getEntityCode(), permission);
 		} else {
 			if (recordId == null) {
 			    throw new IllegalArgumentException("No primary in record!");
 			}
 			
-			ID target = Application.getSecurityManager().getOwnUser(recordId);
-			allow = Application.getSecurityManager().allowed(caller, entity.getEntityCode(), permission, target);
-//			if (!allow && entity.getEntityCode() <= 12/* 权限实体 */) {
-//			    allow = Application.getSecurityManager().allowedBizz(caller, entity.getEntityCode(), recordId);
-//			}
+			isAllowed = Application.getSecurityManager().allowed(caller, entity.getEntityCode(), permission, recordId);
 		}
 		
-		if (!allow) {
+		if (!isAllowed) {
 		    throw new AccessDeniedException(
 		    		"User [ " + caller + " ] not allowed execute action [ " + permission + " ]. "
 		    		+ (recordId == null ? "Entity : " + entity.getName() : "ID : " + recordId));
@@ -108,38 +107,34 @@ public class PrivilegesGuardAndTransactionInterceptor extends TransactionInterce
 	}
 	
 	/**
-	 * @param invocation
-	 * @return
-	 */
-	private boolean isNeedCheck(MethodInvocation invocation) {
-		// 只用事务，不检查权限
-		String mName = invocation.getMethod().getName();
-		if (mName.startsWith("tx") || mName.startsWith("noGuard")) {
-			return false;
-		}
-		
-		Class<?> targetClass = (invocation.getThis() != null ? invocation.getThis().getClass() : null);
-		TransactionAttribute txAttr =
-				getTransactionAttributeSource().getTransactionAttribute(invocation.getMethod(), targetClass);
-		return (txAttr != null);
-	}
-	
-	/**
 	 * @param method
 	 * @return
 	 */
-	private Permission getPermissionByMethod(Method method, boolean isNew) {
-		String mName = method.getName();
-		
-		if (mName.startsWith("createOrUpdate")) {
+	protected Permission getPermissionByMethod(Method method, boolean isNew) {
+		String action = method.getName();
+		if (action.startsWith("createOrUpdate")) {
 			return isNew ? BizzPermission.CREATE : BizzPermission.UPDATE;
-		} else if (mName.startsWith("create")) {
+		} else if (action.startsWith("create")) {
 		    return BizzPermission.CREATE;
-		} else if (mName.startsWith("update")) {
+		} else if (action.startsWith("update")) {
 		    return BizzPermission.UPDATE;
-		} else if (mName.startsWith("delete")) {
+		} else if (action.startsWith("delete")) {
 		    return BizzPermission.DELETE;
+		} else if (action.startsWith("assign")) {
+		    return BizzPermission.ASSIGN;
+		} else if (action.startsWith("share")) {
+		    return BizzPermission.SHARE;
 		}
-		throw new PrivilegesException("Illegal method [ " + method + " ] on Permission give!");
+		return null;
+	}
+	
+	/**
+	 * @param invocation
+	 * @return
+	 */
+	protected boolean isNeedCheck(MethodInvocation invocation) {
+		String action = invocation.getMethod().getName();
+		return action.startsWith("create") || action.startsWith("update")
+				|| action.startsWith("delete") || action.startsWith("assign") || action.startsWith("share");
 	}
 }

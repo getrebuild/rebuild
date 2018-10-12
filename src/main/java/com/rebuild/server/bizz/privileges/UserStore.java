@@ -193,12 +193,12 @@ public class UserStore {
 		
 		// OLD , CLEAN , HOLD
 		
-		User oldUser = !ifExists ? null : getUser(userId);
-		Role oldRole = oldUser == null ? null : oldUser.getOwningRole();
+		final User oldUser = !ifExists ? null : getUser(userId);
+		final Role oldRole = oldUser == null ? null : oldUser.getOwningRole();
 		if (oldRole != null) {
 			oldRole.removeMember(oldUser);
 		}
-		BusinessUnit oldDept = oldUser == null ? null : oldUser.getOwningBizUnit();
+		final Department oldDept = oldUser == null ? null : oldUser.getOwningDept();
 		if (oldDept != null) {
 			oldDept.removeMember(oldUser);
 		}
@@ -230,7 +230,7 @@ public class UserStore {
 		
 		ID newDeptId = (ID) u[6];
 		if (oldDept == null || !oldDept.getIdentity().equals(newDeptId)) {
-			getRole(newDeptId).addMember(newUser);
+			getDept(newDeptId).addMember(newUser);
 		} else {
 			oldDept.addMember(newUser);
 		}
@@ -244,6 +244,7 @@ public class UserStore {
 	 * @param roleId
 	 */
 	public void refreshRole(ID roleId) {
+		
 	}
 	
 	/**

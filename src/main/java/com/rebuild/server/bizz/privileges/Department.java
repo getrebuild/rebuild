@@ -21,6 +21,7 @@ package com.rebuild.server.bizz.privileges;
 import java.io.Serializable;
 
 import cn.devezhao.bizz.security.member.BusinessUnit;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 部门
@@ -33,5 +34,37 @@ public class Department extends BusinessUnit {
 
 	public Department(Serializable identity, String name, boolean disabled) {
 		super(identity, name, disabled);
+	}
+	
+	/**
+	 * 是否下级部门
+	 * 
+	 * @param child
+	 * @return
+	 */
+	public boolean isChildren(ID child) {
+		for (BusinessUnit dept : getChildren()) {
+			if (dept.getIdentity().equals(child)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * 是否子部门（所有）
+	 * 
+	 * @param child
+	 * @return
+	 */
+	public boolean isChildrenAll(Department child) {
+		for (BusinessUnit dept : getChildren()) {
+			if (dept.getIdentity().equals(child)) {
+				return true;
+			} else {
+				return ((Department) dept).isChildrenAll(child);
+			}
+		}
+		return false;
 	}
 }

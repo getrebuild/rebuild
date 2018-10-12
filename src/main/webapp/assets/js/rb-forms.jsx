@@ -587,7 +587,7 @@ class RbFormReference extends RbFormElement {
             language: 'zh-CN',
             placeholder: '选择' + that.props.label,
             allowClear: true,
-            minimumInputLength: 2,
+            minimumInputLength: 1,
             ajax: {
                 url: rb.baseUrl + '/app/commons/search',
                 delay: 300,

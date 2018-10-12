@@ -75,43 +75,47 @@ var assignModal, shareModal
 $(document).ready(function(){
 	rbList = rb.RbList({ config: JSON.parse('${DataListConfig}') })
 	
-	$('.J_new').click(function(){
-		rb.RbFormModal({ title: '新建${entityLabel}', entity: '${entityName}', icon: '${entityIcon}' })
-	});
-	$('.J_delete').click(function(){
-		let s = rbList.getSelectedRows()
-		if (s.length < 1) return
-		rb.alter('确认删除选中的 ' + s.length + ' 条记录吗？', '删除确认', { type: 'danger', confirm: function(){
-			console.log('TODO delete ... ' + JSON.stringify(s))
-		} })
-	});
 	$('.J_view').click(function(){
 		let s = rbList.getSelectedRows()
 		if (s.length == 1) {
 			s = s[0]
 			rb.RbViewModal({ id: s[0], entity: s[2][0] })
 		}
-	});
+	})
+
 	$('.J_edit').click(function(){
 		let s = rbList.getSelectedRows()
 		if (s.length == 1) {
 			s = s[0]
 			rb.RbFormModal({ id: s[0], title: '编辑${entityLabel}', entity: '${entityName}', icon: '${entityIcon}' })
 		}
-	});
+	})
+
+	$('.J_delete').click(function(){
+		let s = rbList.getSelectedRows()
+		if (s.length < 1) return
+		rb.alter('确认删除选中的 ' + s.length + ' 条记录吗？', '删除确认', { type: 'danger', confirm: function(){
+			console.log('TODO delete ... ' + JSON.stringify(s))
+		} })
+	})
+
+	$('.J_new').click(function(){
+		rb.RbFormModal({ title: '新建${entityLabel}', entity: '${entityName}', icon: '${entityIcon}' })
+	})
 
 	$('.J_assign').click(function(){
 		if (assignModal) assignModal.show()
 		else assignModal = rb.modal('${baseUrl}/page/general-entity/assign', '分配记录')
-	});
+	})
 	$('.J_share').click(function(){
 		if (shareModal) shareModal.show()
 		else shareModal = rb.modal('${baseUrl}/page/general-entity/share', '共享记录')
-	});
+	})
+
 	$('.J_columns').click(function(){
 		if (columnsModal) columnsModal.show()
 		else columnsModal = rb.modal('${baseUrl}/page/general-entity/show-columns?entity=${entityName}', '设置列显示')
-	});
+	})
 
 	SimpleFilter.init('.input-search', '${entityName}');
 });

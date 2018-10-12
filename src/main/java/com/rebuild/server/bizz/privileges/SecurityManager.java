@@ -20,12 +20,14 @@ package com.rebuild.server.bizz.privileges;
 
 import com.rebuild.server.bizz.RoleService;
 import com.rebuild.server.bizz.UserService;
+import com.rebuild.server.helper.cache.RecordOwningCache;
 
 import cn.devezhao.bizz.privileges.DepthEntry;
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.Privileges;
 import cn.devezhao.bizz.privileges.impl.BizzDepthEntry;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.bizz.security.member.Role;
 import cn.devezhao.bizz.security.member.User;
 import cn.devezhao.persist4j.engine.ID;
@@ -38,60 +40,55 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class SecurityManager {
 	
-	final private UserStore USER_STORE;
+	final private UserStore USERSTORE;
+	final private RecordOwningCache RECORDOWNINGCACHE;
 
-	public SecurityManager(UserStore us) {
-		super();
-		USER_STORE = us;
-	}
-	
 	/**
-	 * 获取记录所属人
-	 * 
-	 * @param recordId
-	 * @return
+	 * @param us
+	 * @param roc
 	 */
-	public ID getOwnUser(ID recordId) {
-		return null;
+	public SecurityManager(UserStore us, RecordOwningCache roc) {
+		this.USERSTORE = us;
+		this.RECORDOWNINGCACHE = roc;
 	}
 	
 	/**
-	 * 获取对某实体的权限
+	 * 获取指定实体的权限集合
 	 * 
 	 * @param userId
 	 * @param entity
 	 * @return
 	 */
-	public Privileges getPrivileges(ID userId, int entity) {
-		Role role = USER_STORE.getUser(userId).getOwningRole();
+	public Privileges getPrivileges(ID user, int entity) {
+		Role role = USERSTORE.getUser(user).getOwningRole();
 		return role.getPrivileges(entity);
 	}
 	
 	/**
-	 * 是否对某实体持有访问（读取）权限
-	 * 
-	 * @param userId
-	 * @param entity
-	 * @return
-	 */
-	public boolean allowedAccess(ID userId, int entity) {
-		return allowed(userId, entity, BizzPermission.READ);
-	}
-	
-	/**
-	 * 是否对某实体的数据（数据所属人）持有访问（读取）权限
+	 * 是否对指定实体有访问（读取）权限
 	 * 
 	 * @param user
 	 * @param entity
-	 * @param targetRecord
 	 * @return
 	 */
-	public boolean allowedAccess(ID user, int entity, ID targetRecord) {
-		return allowed(user, entity, BizzPermission.READ, targetRecord);
+	public boolean allowedAccess(ID user, int entity) {
+		return allowed(user, entity, BizzPermission.READ);
 	}
 	
 	/**
-	 * 是否对某实体持有指定权限
+	 * 是否对指定记录有访问（读取）权限
+	 * 
+	 * @param user
+	 * @param entity
+	 * @param target 目标记录
+	 * @return
+	 */
+	public boolean allowedAccess(ID user, int entity, ID target) {
+		return allowed(user, entity, BizzPermission.READ, target);
+	}
+	
+	/**
+	 * 是否对实体有指定权限
 	 * 
 	 * @param user
 	 * @param entity
@@ -103,30 +100,35 @@ public class SecurityManager {
 			return true;
 		}
 		
-		Role role = USER_STORE.getUser(user).getOwningRole();
+		Role role = USERSTORE.getUser(user).getOwningRole();
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
 			return true;
 		}
 		
-		Privileges priv = role.getPrivileges(entity);
-		return priv.allowed(action);
+		try {
+			Privileges priv = role.getPrivileges(entity);
+			return priv.allowed(action);
+		} catch (AccessDeniedException ex) {
+			// No such privileges
+			return false;
+		}
 	}
 	
 	/**
-	 * 是否对某实体的数据（数据所属人）持有指定权限
+	 * 是否对指定记录有指定权限
 	 * 
 	 * @param user
 	 * @param entity
 	 * @param action
-	 * @param targetRecord
+	 * @param target 目标记录
 	 * @return
 	 */
-	public boolean allowed(ID user, int entity, Permission action, ID targetRecord) {
+	public boolean allowed(ID user, int entity, Permission action, ID target) {
 		if (UserService.ADMIN_USER.equals(user)) {
 			return true;
 		}
 		
-		Role role = USER_STORE.getUser(user).getOwningRole();
+		Role role = USERSTORE.getUser(user).getOwningRole();
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
 			return true;
 		}
@@ -137,19 +139,58 @@ public class SecurityManager {
 			return false;
 		}
 		
-		DepthEntry de = priv.superlative(action);
-		if (BizzDepthEntry.NONE.equals(de)) {
+		DepthEntry depth = priv.superlative(action);
+		
+		if (BizzDepthEntry.NONE.equals(depth)) {
 			return false;
 		}
-		if (user.equals(targetRecord)) {
+		if (BizzDepthEntry.GLOBAL.equals(depth)) {
 			return true;
 		}
-		if (BizzDepthEntry.PRIVATE.equals(de)) {
-			return false;
-		}
-		if (BizzDepthEntry.GLOBAL.equals(de)) {
+		
+		ID targetUserId = RECORDOWNINGCACHE.getOwningUser(target);
+		
+		if (BizzDepthEntry.PRIVATE.equals(depth)) {
+			allowed = user.equals(targetUserId);
+			if (allowed == false) {
+				return allowedWithShare(user, entity, action, user);
+			}
 			return true;
 		}
+		
+		com.rebuild.server.bizz.privileges.User accessUser = USERSTORE.getUser(user);
+		com.rebuild.server.bizz.privileges.User targetUser = USERSTORE.getUser(targetUserId);
+		Department accessUserDept = (Department) accessUser.getOwningDept();
+		
+		if (BizzDepthEntry.LOCAL.equals(depth)) {
+			allowed = accessUserDept.equals(targetUser.getOwningDept());
+			if (allowed == false) {
+				return allowedWithShare(user, entity, action, user);
+			}
+			return true;
+		}
+		
+		if (BizzDepthEntry.DEEPDOWN.equals(depth)) {
+			if (accessUserDept.equals(targetUser.getOwningDept())) {
+				return true;
+			}
+			
+			allowed = accessUserDept.isChildrenAll((Department) targetUser.getOwningDept());
+			if (allowed == false) {
+				return allowedWithShare(user, entity, action, user);
+			}
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * TODO 通过共享取得的操作权限
+	 * 
+	 * @return
+	 */
+	private boolean allowedWithShare(ID user, int entity, Permission action, ID target) {
 		return false;
 	}
 	
@@ -164,7 +205,7 @@ public class SecurityManager {
 			return QueryFilter.ALLOWED;
 		}
 		
-		User sUser = USER_STORE.getUser(user);
+		User sUser = USERSTORE.getUser(user);
 		Role role = sUser.getOwningRole();
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
 			return QueryFilter.ALLOWED;

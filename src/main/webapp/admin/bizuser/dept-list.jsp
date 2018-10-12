@@ -41,6 +41,7 @@
 							</div>
 							<div class="col-12 col-sm-6">
 								<div class="dataTables_oper">
+									<button class="btn btn-space btn-secondary J_view" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> 打开</button>
 									<button class="btn btn-primary btn-space J_new-dept" type="button"><i class="icon zmdi zmdi-accounts-add"></i> 新建部门</button>
 									<div class="btn-group btn-space">
 										<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-more-vert"></i></button>
@@ -75,9 +76,18 @@ var rbList, columnsModal
 $(document).ready(function(){
 	rbList = rb.RbList({ config: JSON.parse('${DataListConfig}') })
 
+	$('.J_view').click(function(){
+		let s = rbList.getSelectedRows()
+		if (s.length == 1) {
+			s = s[0]
+			rb.RbViewModal({ id: s[0], entity: s[2][0] })
+		}
+	})
+
 	$('.J_new-dept').click(function(){
 		rb.RbFormModal({ title: '新建部门', entity: 'Department', icon: 'accounts' })
 	})
+
 	$('.J_columns').click(function(){
 		if (columnsModal) columnsModal.show()
 		else columnsModal = rb.modal(rb.baseUrl + '/page/general-entity/show-columns?entity=Department', '设置列显示')

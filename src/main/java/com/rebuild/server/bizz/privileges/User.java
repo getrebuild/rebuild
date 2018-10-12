@@ -20,7 +20,6 @@ package com.rebuild.server.bizz.privileges;
 
 import org.apache.commons.lang.StringUtils;
 
-import cn.devezhao.bizz.security.member.BusinessUnit;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -55,7 +54,14 @@ public class User extends cn.devezhao.bizz.security.member.User {
 		return avatarUrl;
 	}
 	
-	public BusinessUnit getOwningDept() {
-		return super.getOwningBizUnit();
+	public Department getOwningDept() {
+		return (Department) super.getOwningBizUnit();
+	}
+	
+	public boolean isActive() {
+		if (isDisabled()) {
+			return false;
+		}
+		return getOwningRole() != null && getOwningDept() != null;
 	}
 }

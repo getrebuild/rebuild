@@ -41,6 +41,7 @@
 							</div>
 							<div class="col-12 col-sm-6">
 								<div class="dataTables_oper">
+									<button class="btn btn-space btn-secondary J_view" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> 打开</button>
 									<div class="btn-group btn-space">
 										<button class="btn btn-primary J_new-user" type="button"><i class="icon zmdi zmdi-account-add"></i> 新建用户</button>
 										<button class="btn btn-primary dropdown-toggle auto" type="button" data-toggle="dropdown"><span class="icon zmdi zmdi-chevron-down"></span></button>
@@ -80,6 +81,14 @@
 var rbList, columnsModal
 $(document).ready(function(){
 	rbList = rb.RbList({ config: JSON.parse('${DataListConfig}') })
+	
+	$('.J_view').click(function(){
+		let s = rbList.getSelectedRows()
+		if (s.length == 1) {
+			s = s[0]
+			rb.RbViewModal({ id: s[0], entity: s[2][0] })
+		}
+	})
 
 	$('.J_new-user').click(function(){
 		rb.RbFormModal({ title: '新建用户', entity: 'User', icon: 'account' })
@@ -89,6 +98,7 @@ $(document).ready(function(){
 		rb.RbFormModal({ title: '新建部门', entity: 'Department', icon: 'accounts' })
 		formPostType = 2
 	})
+
 	$('.J_columns').click(function(){
 		if (columnsModal) columnsModal.show()
 		else columnsModal = rb.modal('${baseUrl}/page/general-entity/show-columns?entity=User', '设置列显示')

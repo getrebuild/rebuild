@@ -23,7 +23,7 @@
 		</property>
 	</bean>
 
-	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+	<bean name="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
 		<property name="driverClass" value="${db.driver}" />
 		<property name="jdbcUrl" value="${db.url}" />
 		<property name="user" value="${db.user}" />
@@ -65,36 +65,45 @@
 	<bean class="com.rebuild.server.bizz.privileges.UserStore" name="UserStore" init-method="init">
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
+	
+	<bean class="com.rebuild.server.helper.cache.RecordOwningCache" name="RecordOwningCache">
+		<constructor-arg index="0" ref="PersistManagerFactory" />
+		<!-- TODO 缓存提供者 -->
+	</bean>
 
 	<bean class="com.rebuild.server.bizz.privileges.SecurityManager">
 		<constructor-arg index="0" ref="UserStore" />
+		<constructor-arg index="1" ref="RecordOwningCache" />
 	</bean>
 	
 	<bean class="com.rebuild.web.OnlineSessionStore" />
-
-	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	
+	<bean name="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="dataSource" />
 	</bean>
 	<tx:advice id="txAdvice" transaction-manager="txManager">
 		<tx:attributes>
 			<tx:method name="create*" propagation="REQUIRED" />
-			<tx:method name="update*" propagation="REQUIRED" />
 			<tx:method name="delete*" propagation="REQUIRED" />
-			<tx:method name="share*"  propagation="REQUIRED" />
+			<tx:method name="update*" propagation="REQUIRED" />
 			<tx:method name="assign*" propagation="REQUIRED" />
-			<tx:method name="batch*"  propagation="REQUIRED" />
+			<tx:method name="share*"  propagation="REQUIRED" />
 		</tx:attributes>
 	</tx:advice>
+	
+	<bean name="privilegesGuard" class="com.rebuild.server.bizz.privileges.PrivilegesGuardInterceptor" />
+	
 	<aop:config>
-		<aop:pointcut expression="execution(* com.rebuild.server..*Service.*(..))" id="txPoint" />
-		<aop:advisor advice-ref="txAdvice" pointcut-ref="txPoint" />
+		<aop:pointcut id="servicesPoint" expression="execution(* com.rebuild.server..*Service.*(..))" />
+		<aop:advisor pointcut-ref="servicesPoint" advice-ref="txAdvice" />
+		<aop:advisor pointcut-ref="servicesPoint" advice-ref="privilegesGuard" />
 	</aop:config>
 
 	<bean class="com.rebuild.server.service.CommonService">
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 	
-	<bean class="com.rebuild.server.service.base.GeneralEntityService">
+	<bean name="GeneralEntityService" class="com.rebuild.server.service.base.GeneralEntityService">
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 	

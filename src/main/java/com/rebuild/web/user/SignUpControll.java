@@ -28,11 +28,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.bizz.privileges.User;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 
@@ -60,15 +62,17 @@ public class SignUpControll extends BaseControll {
 		}
 		
 		Object[] foundUser = Application.createNoFilterQuery(
-				"select userId,password,isDisabled from User where loginName = ?")
+				"select userId,password from User where loginName = ?")
 				.setParameter(1, user)
 				.unique();
 		if (!foundUser[1].equals(EncryptUtils.toSHA256Hex(passwd))) {
 			writeFailure(response, "用户名或密码错误");
 			return;
 		}
-		if ((boolean) foundUser[2]) {
-			writeFailure(response, "用户已禁用");
+		
+		User loginUser = Application.getUserStore().getUser((ID) foundUser[0]);
+		if (!loginUser.isActive()) {
+			writeFailure(response, "用户未激活");
 			return;
 		}
 		

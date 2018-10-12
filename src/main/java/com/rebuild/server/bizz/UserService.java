@@ -22,6 +22,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.base.GeneralEntityService;
 
+import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -49,6 +50,14 @@ public class UserService extends GeneralEntityService {
 	
 	@Override
 	public Record createOrUpdate(Record record) {
+		if (record.hasValue("password")) {
+			String password = record.getString("password");
+			password = EncryptUtils.toSHA256Hex(password);
+			record.setString("password", password);
+			
+			// TODO 验证密码安全性
+		}
+		
 		record = super.createOrUpdate(record);
 		Application.getUserStore().refreshUser(record.getPrimary());
 		return record;

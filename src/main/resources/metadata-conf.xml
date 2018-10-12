@@ -45,7 +45,7 @@
 		<field name="zeroKey" type="string" description="其他权限KEY"/>
 		<field name="definition" type="string" max-length="100" description="权限定义"/>
 		<index field-list="roleId"/>
-		<index type="unique" field-list="entity,zeroKey"/>
+		<index type="unique" field-list="roleId,entity,zeroKey"/>
 	</entity>
 	
 	<entity name="RoleMember" type-code="005" parent="false">
