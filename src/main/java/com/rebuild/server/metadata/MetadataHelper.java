@@ -23,10 +23,9 @@ import com.rebuild.server.Application;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.metadata.MetadataException;
-import cn.devezhao.persist4j.metadata.MetadataFactory;
-import cn.devezhao.persist4j.metadata.impl.ConfigurationMetadataFactory;
 
 /**
+ * 实体元数据
  * 
  * @author zhaofang123@gmail.com
  * @since 08/13/2018
@@ -34,17 +33,12 @@ import cn.devezhao.persist4j.metadata.impl.ConfigurationMetadataFactory;
 public class MetadataHelper {
 
 	/**
+	 * 元数据
+	 * 
 	 * @return
 	 */
-	public static MetadataFactory getMetadataFactory() {
-		return Application.getPersistManagerFactory().getMetadataFactory();
-	}
-	
-	/**
-	 * 更新元数据缓存
-	 */
-	public static void refreshMetadata() {
-		((ConfigurationMetadataFactory) getMetadataFactory()).refresh(false);
+	public static DynamicMetadataFactory getMetadataFactory() {
+		return (DynamicMetadataFactory) Application.getPersistManagerFactory().getMetadataFactory();
 	}
 	
 	/**
@@ -54,8 +48,7 @@ public class MetadataHelper {
 	 * @return
 	 */
 	public static Object[] getEntityExtmeta(Entity entity) {
-		return ((DynamicMetadataFactory) getMetadataFactory())
-				.getEntityExtmeta(entity.getName());
+		return getMetadataFactory().getEntityExtmeta(entity.getName());
 	}
 	
 	/**
@@ -65,8 +58,7 @@ public class MetadataHelper {
 	 * @return
 	 */
 	public static Object[] getFieldExtmeta(Field field) {
-		return ((DynamicMetadataFactory) getMetadataFactory())
-				.getFieldExtmeta(field.getOwnEntity().getName(), field.getName());
+		return getMetadataFactory().getFieldExtmeta(field.getOwnEntity().getName(), field.getName());
 	}
 	
 	/**

@@ -6,6 +6,10 @@
 	
 	<display-name>Rebuild</display-name>
 	
+	<listener>
+		<listener-class>com.rebuild.server.ServerListener</listener-class>
+	</listener>
+	
 	<filter>
 		<filter-name>characterEncodingFilter</filter-name>
 		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
@@ -46,11 +50,6 @@
 		<servlet-name>DispatcherServlet</servlet-name>
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
-	<servlet>
-		<servlet-name>Startup</servlet-name>
-		<servlet-class>com.rebuild.server.Startup</servlet-class>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
 	
 	<servlet>
 		<servlet-name>FileUploader</servlet-name>

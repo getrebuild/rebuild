@@ -21,18 +21,50 @@ package com.rebuild.server;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+
 /**
+ * 服务监听
  * 
  * @author devezhao
  * @since 10/13/2018
  */
-public class ServerBootListener implements ServletContextListener {
+public class ServerListener implements ServletContextListener {
 
-	@Override
-	public void contextInitialized(ServletContextEvent event) {
-	}
+	private static final Log LOG = LogFactory.getLog(ServerListener.class);
+
+	private static String CONTEXT_PATH = "";
 	
 	@Override
+	public void contextInitialized(ServletContextEvent event) {
+		LOG.info("Rebuild Booting ...");
+		
+		CONTEXT_PATH = event.getServletContext().getContextPath();
+		LOG.info("Detecting Rebuild context path '" + CONTEXT_PATH + "'");
+
+		try {
+			ApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(event.getServletContext());
+			new Application(ctx);
+		} catch (Throwable ex) {
+			LOG.fatal("Booting FAIL!", ex);
+			System.exit(-1);
+		}
+	}
+
+	@Override
 	public void contextDestroyed(ServletContextEvent event) {
+		LOG.info("Rebuild shutdown.");
+	}
+	
+	/**
+	 * 获取部署路径
+	 * 
+	 * @return
+	 */
+	public static String getContextPath() {
+		return CONTEXT_PATH;
 	}
 }

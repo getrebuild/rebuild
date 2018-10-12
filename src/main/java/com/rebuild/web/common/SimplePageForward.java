@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.rebuild.server.Startup;
+import com.rebuild.server.ServerListener;
 import com.rebuild.web.PageControll;
 
 /**
@@ -39,7 +39,7 @@ public class SimplePageForward extends PageControll {
 	public ModelAndView page(HttpServletRequest request) {
 		String path = request.getRequestURI().toString();
 		// remove `context path` and `/page/`
-		path = path.substring(Startup.getContextPath().length());
+		path = path.substring(ServerListener.getContextPath().length());
 		path = path.replace("/page/", "/");
 		path = path + ".jsp";
 		

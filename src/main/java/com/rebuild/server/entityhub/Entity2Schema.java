@@ -25,7 +25,6 @@ import org.apache.commons.logging.LogFactory;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.MetadataHelper;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
@@ -111,7 +110,7 @@ public class Entity2Schema extends Field2Schema {
 			return null;
 		}
 		
-		MetadataHelper.refreshMetadata();
+		Application.getMetadataFactory().refresh(false);
 		return entityName;
 	}
 	

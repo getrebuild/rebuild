@@ -31,7 +31,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.rebuild.server.bizz.privileges.UserStore;
 import com.rebuild.server.helper.AesPreferencesConfigurer;
 import com.rebuild.server.helper.cache.RecordOwningCache;
-import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.DynamicMetadataFactory;
 import com.rebuild.server.query.QueryFactory;
 import com.rebuild.server.service.CommonService;
 import com.rebuild.server.service.SQLExecutor;
@@ -67,12 +67,14 @@ public class Application {
 		
 		// 自定义实体
 		LOG.info("Loading customized entities ...");
-		MetadataHelper.refreshMetadata();
+		getMetadataFactory().refresh(false);
 		
 		// 实体对应的服务类
 		for (Map.Entry<String, GeneralEntityService> es : APPLICATION_CTX.getBeansOfType(GeneralEntityService.class).entrySet()) {
 			GeneralEntityService ges = es.getValue();
-			ESS.put(ges.getEntityCode(), ges);
+			if (ges.getEntityCode() > 0) {
+				ESS.put(ges.getEntityCode(), ges);
+			}
 		}
 		
 		// 初始化所有 Beans
@@ -125,6 +127,10 @@ public class Application {
 
 	public static PersistManagerFactory getPersistManagerFactory() {
 		return getBean(PersistManagerFactory.class);
+	}
+	
+	public static DynamicMetadataFactory getMetadataFactory() {
+		return (DynamicMetadataFactory) getPersistManagerFactory().getMetadataFactory();
 	}
 
 	public static UserStore getUserStore() {

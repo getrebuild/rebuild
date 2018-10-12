@@ -32,7 +32,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
-import com.rebuild.server.Startup;
+import com.rebuild.server.ServerListener;
 import com.rebuild.utils.AppUtils;
 
 import cn.devezhao.commons.CodecUtils;
@@ -148,7 +148,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 					ServletUtils.writeJson(response, AppUtils.formatClientMsg(403, "非授权访问"));
 				} else {
 					String reqUrl = request.getRequestURI();
-					response.sendRedirect(Startup.getContextPath() + "/user/login?nexturl=" + CodecUtils.urlEncode(reqUrl));
+					response.sendRedirect(ServerListener.getContextPath() + "/user/login?nexturl=" + CodecUtils.urlEncode(reqUrl));
 				}
 				return false;
 			}

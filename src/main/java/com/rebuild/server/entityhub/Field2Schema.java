@@ -32,7 +32,6 @@ import com.github.stuxuhai.jpinyin.PinyinFormat;
 import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.MetadataHelper;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -90,7 +89,7 @@ public class Field2Schema {
 			return null;
 		}
 		
-		MetadataHelper.refreshMetadata();
+		Application.getMetadataFactory().refresh(false);
 		return fieldName;
 	}
 	

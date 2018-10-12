@@ -35,8 +35,8 @@ import org.springframework.web.servlet.ModelAndView;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.entityhub.DisplayType;
 import com.rebuild.server.entityhub.AccessibleMeta;
+import com.rebuild.server.entityhub.DisplayType;
 import com.rebuild.server.entityhub.Field2Schema;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -155,7 +155,7 @@ public class MetaFieldControll extends BaseControll  {
 		Record record = EntityHelper.parse((JSONObject) formJson, user);
 		Application.getCommonService().update(record);
 		
-		MetadataHelper.refreshMetadata();
+		Application.getMetadataFactory().refresh(false);
 		writeSuccess(response);
 	}
 }

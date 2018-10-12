@@ -108,7 +108,7 @@ public class MetaEntityControll extends BaseControll {
 		Record record = EntityHelper.parse((JSONObject) formJson, user);
 		Application.getCommonService().update(record);
 		
-		MetadataHelper.refreshMetadata();
+		Application.getMetadataFactory().refresh(false);
 		writeSuccess(response);
 	}
 	

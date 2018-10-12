@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.web.servlet.ModelAndView;
 
-import com.rebuild.server.Startup;
+import com.rebuild.server.ServerListener;
 import com.rebuild.server.entityhub.AccessibleMeta;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.AppUtils;
@@ -84,7 +84,7 @@ public abstract class PageControll {
 	 * @param request
 	 */
 	public static void setPageAttribute(HttpServletRequest request) {
-		request.setAttribute("baseUrl", Startup.getContextPath());
+		request.setAttribute("baseUrl", ServerListener.getContextPath());
 	}
 	
 	/**
@@ -93,6 +93,6 @@ public abstract class PageControll {
 	 * @param request
 	 */
 	public static void setPageAttribute(ModelAndView modelAndView) {
-		modelAndView.getModel().put("baseUrl", Startup.getContextPath());
+		modelAndView.getModel().put("baseUrl", ServerListener.getContextPath());
 	}
 }
