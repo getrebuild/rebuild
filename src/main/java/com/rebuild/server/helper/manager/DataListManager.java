@@ -61,9 +61,8 @@ public class DataListManager extends LayoutManager {
 		
 		// 默认配置
 		if (raw == null) {
-			if (nameField != null) {
-				columnList.add(warpColumn(nameField));
-			}
+			columnList.add(warpColumn(nameField));
+			
 			if (entityMeta.containsField(EntityHelper.createdBy)) {
 				columnList.add(warpColumn(entityMeta.getField(EntityHelper.createdBy)));
 			}

@@ -54,7 +54,7 @@ public class RoleService extends GeneralEntityService {
 	@Override
 	public Record createOrUpdate(Record record) {
 		record = super.createOrUpdate(record);
-		Application.getUserStore().refreshRole(record.getPrimary());
+		Application.getUserStore().refreshRole(record.getPrimary(), false);
 		return record;
 	}
 	
@@ -82,6 +82,7 @@ public class RoleService extends GeneralEntityService {
 		allPriv.putAll(zeroPriv);
 		zeroPriv.clear();
 		
+		boolean privilegesChanged = false;
 		for (Map.Entry<String, Object> e : allPriv.entrySet()) {
 			String name = e.getKey();
 			String defi = e.getValue().toString();
@@ -95,6 +96,7 @@ public class RoleService extends GeneralEntityService {
 				Record priv = EntityHelper.forUpdate((ID) exists[0], Application.currentCallerUser());
 				priv.setString("definition", defi);
 				super.update(priv);
+				privilegesChanged = true;
 				
 			} else {
 				Record priv = EntityHelper.forNew(EntityHelper.RolePrivileges, Application.currentCallerUser());
@@ -106,9 +108,10 @@ public class RoleService extends GeneralEntityService {
 				}
 				priv.setString("definition", defi);
 				super.create(priv);
+				privilegesChanged = true;
 			}
 		}
 		
-		Application.getUserStore().refreshRole(roleId);
+		Application.getUserStore().refreshRole(roleId, privilegesChanged);
 	}
 }

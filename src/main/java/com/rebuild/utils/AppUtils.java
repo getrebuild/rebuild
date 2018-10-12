@@ -97,13 +97,13 @@ public class AppUtils {
 		}
 		
 		if (ex == null) {
-			Integer statusCode = (Integer) request.getAttribute(ServletUtils.ERROR_STATUS_CODE);
-			if (statusCode == 404) {
-				return "访问的页面不存在";
-			} else if (statusCode != null) {
-				return "系统错误 (" + statusCode + ")";
-			} else {
+			Integer sc = (Integer) request.getAttribute(ServletUtils.ERROR_STATUS_CODE);
+			if (sc == null) {
 				return "系统错误";
+			} else if (sc == 404) {
+				return "访问的页面不存在";
+			} else {
+				return "系统错误 (" + sc + ")";
 			}
 		} else if (ex instanceof AccessDeniedException) {
 			String msg = StringUtils.defaultIfEmpty(ex.getLocalizedMessage(), "");

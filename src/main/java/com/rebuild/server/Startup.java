@@ -38,12 +38,13 @@ public class Startup extends HttpServlet {
 	private static final Log LOG = LogFactory.getLog(Startup.class);
 	
 	private static String CONTEXT_PATH = "";
+	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		
-		CONTEXT_PATH = config.getServletContext().getContextPath();
-		LOG.info("Detecting Rebuild context path '" + CONTEXT_PATH + "'");
+		Startup.CONTEXT_PATH = config.getServletContext().getContextPath();
+		LOG.info("Detecting Rebuild context path '" + Startup.CONTEXT_PATH + "'");
 		
 		LOG.info("Rebuild Booting ...");
 		try {

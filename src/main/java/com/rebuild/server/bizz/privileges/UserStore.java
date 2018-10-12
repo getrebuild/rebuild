@@ -242,9 +242,30 @@ public class UserStore {
 	 * 刷新角色缓存
 	 * 
 	 * @param roleId
+	 * @param refreshPrivileges
 	 */
-	public void refreshRole(ID roleId) {
+	public void refreshRole(ID roleId, boolean refreshPrivileges) {
+		final Role oldRole = ROLEs.get(roleId);
 		
+		Object[] o = aPMFactory.createQuery(
+				"select roleId,name,isDisabled from Role where roleId = ?")
+				.setParameter(1, roleId)
+				.unique();
+		Role role = new Role(roleId, (String) o[1], (Boolean) o[2]);
+		
+		if (refreshPrivileges == false) {
+			if (oldRole != null) {
+				for (Privileges priv : oldRole.getAllPrivileges()) {
+					role.addPrivileges(priv);
+				}
+			}
+			
+			store(role);
+			return;
+		}
+		
+		loadPrivileges(role);
+		store(role);
 	}
 	
 	/**
@@ -255,7 +276,8 @@ public class UserStore {
 	public void refreshDept(ID deptId) {
 		Department oldDept = DEPTs.get(deptId);
 		
-		Object[] o = aPMFactory.createQuery("select name,isDisabled,parentDept from Department where deptId = ?")
+		Object[] o = aPMFactory.createQuery(
+				"select name,isDisabled,parentDept from Department where deptId = ?")
 				.setParameter(1, deptId)
 				.unique();
 		Department newDept = new Department(deptId, (String) o[0], (Boolean) o[1]);
@@ -325,23 +347,7 @@ public class UserStore {
 		for (Object[] o : array) {
 			ID roleId = (ID) o[0];
 			Role role = new Role(roleId, (String) o[1], (Boolean) o[2]);
-			
-			Object[][] definition = aPMFactory.createQuery(
-					"select entity,definition,zeroKey from RolePrivileges where roleId = ?")
-					.setParameter(1, roleId)
-					.array();
-			for (Object[] e : definition) {
-				String entity = (String) e[0];
-				if ("N".equals(entity)) {
-					Privileges p = new ZeroPrivileges((String) e[2], (String) e[1]);
-					role.addPrivileges(p);
-				} else {
-					Entity entityMeta = aPMFactory.getMetadataFactory().getEntity(entity);
-					Privileges p = new EntityPrivileges(
-							entityMeta.getEntityCode(), converEntityPrivilegesDefinition((String) e[1]));
-					role.addPrivileges(p);
-				}
-			}
+			loadPrivileges(role);
 			
 			Set<ID> roleOfUser = roleOfUserMap.get(roleId);
 			if (roleOfUser != null) {
@@ -418,6 +424,28 @@ public class UserStore {
 		DEPTs.put((ID) dept.getIdentity(), dept);
 	}
 	
+	/**
+	 * @param role
+	 */
+	private void loadPrivileges(Role role) {
+		Object[][] definition = aPMFactory.createQuery(
+				"select entity,definition,zeroKey from RolePrivileges where roleId = ?")
+				.setParameter(1, role.getIdentity())
+				.array();
+		for (Object[] e : definition) {
+			String entity = (String) e[0];
+			if ("N".equals(entity)) {
+				Privileges p = new ZeroPrivileges((String) e[2], (String) e[1]);
+				role.addPrivileges(p);
+			} else {
+				Entity entityMeta = aPMFactory.getMetadataFactory().getEntity(entity);
+				Privileges p = new EntityPrivileges(
+						entityMeta.getEntityCode(), converEntityPrivilegesDefinition((String) e[1]));
+				role.addPrivileges(p);
+			}
+		}
+	}
+	
 	// 统一化 Key
 	static private String normalIdentifier(String ident) {
 		return StringUtils.defaultIfEmpty(ident, "").toLowerCase();
@@ -480,10 +508,5 @@ public class UserStore {
 		if (S >= 4) deepG += BizzPermission.SHARE.getMask();
 		
 		return "1:" + deepP + ",2:" + deepL + ",3:" + deepD + ",4:" + deepG;
-	}
-	
-	public static void main(String[] args) {
-		String c = converEntityPrivilegesDefinition("{\"A\":0,\"R\":1,\"C\":4,\"S\":0,\"D\":0,\"U\":0}");
-		System.out.println(c);
 	}
 }
