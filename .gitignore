@@ -22,6 +22,8 @@
 hs_err_pid*
 
 # Eclipse
+/a.json
 /target/
 /.settings/
-/a.json
+/.classpath
+/.project
