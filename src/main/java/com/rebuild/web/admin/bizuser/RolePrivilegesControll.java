@@ -35,6 +35,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.bizz.RoleService;
 import com.rebuild.server.entityhub.AccessibleMeta;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.PortalMetaSorter;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
@@ -59,7 +60,7 @@ public class RolePrivilegesControll extends BaseControll {
 		return mv;
 	}
 	
-	@RequestMapping("role-privileges/{id}")
+	@RequestMapping("role/{id}")
 	public ModelAndView pagePrivileges(@PathVariable String id, HttpServletRequest request) throws IOException {
 		ModelAndView mv = createModelAndView("/admin/bizuser/role-privileges.jsp", "Role");
 		setEntities(mv);
@@ -75,7 +76,9 @@ public class RolePrivilegesControll extends BaseControll {
 	private void setEntities(ModelAndView mv) {
 		List<String[]> entities = new ArrayList<>();
 		for (Entity e : PortalMetaSorter.sortEntities(true)) {
-			entities.add(new String[] { e.getName(), AccessibleMeta.getLabel(e) });
+			if (EntityHelper.hasPrivilegesField(e)) {
+				entities.add(new String[] { e.getName(), AccessibleMeta.getLabel(e) });
+			}
 		}
 		mv.getModel().put("Entities", entities);
 	}

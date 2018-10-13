@@ -151,7 +151,7 @@
 <script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
 <script type="text/babel">
 RbForm.postAfter = function(data){
-	location.href = rb.baseUrl + '/admin/bizuser/role-privileges/' + data.id
+	location.href = rb.baseUrl + '/admin/bizuser/role/' + data.id
 }
 var currentRoleId
 $(document).ready(function(){
@@ -218,7 +218,7 @@ const loadRoles = function() {
 	$.get(rb.baseUrl + '/admin/bizuser/role-list', function(res){
 		$('.dept-tree ul').empty()
 		$(res.data).each(function(){
-			let item = $('<li><a class="text-truncate" href="' + rb.baseUrl + '/admin/bizuser/role-privileges/' + this.id + '">' + this.name + '</a></li>').appendTo('.dept-tree ul')
+			let item = $('<li><a class="text-truncate" href="' + rb.baseUrl + '/admin/bizuser/role/' + this.id + '">' + this.name + '</a></li>').appendTo('.dept-tree ul')
 			if (currentRoleId == this.id) item.addClass('active')
 		})
 	})
@@ -269,7 +269,7 @@ const updatePrivileges = function() {
 	let priv = { entity: privEntity, zero: privZero }
 	console.log(JSON.stringify(priv))
 	$.post(rb.baseUrl + '/admin/bizuser/privileges-update?role=' + currentRoleId, JSON.stringify(priv), function(){
-		location.reload()
+		rb.notice('权限保存成功', 'success')
 	})
 }
 </script>

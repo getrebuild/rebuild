@@ -34,6 +34,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
 import com.rebuild.server.ServerListener;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.web.admin.AdminEntryControll;
 
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ThrowableUtils;
@@ -128,27 +129,37 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	 */
 	public static boolean verfiyPass(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		request.setAttribute(TIMEOUT_KEY, System.currentTimeMillis());
+		final String requestURI = request.getRequestURI();
 		
 		ID user = AppUtils.getRequestUser(request);
 		if (user != null) {
 			Application.getSessionStore().setCurrentCaller(user);
+			
+			// 管理后台访问
+			if (requestURI.contains("/admin/") && !AdminEntryControll.isAdminVerified(request)) {
+				if (ServletUtils.isAjaxRequest(request)) {
+					ServletUtils.writeJson(response, AppUtils.formatClientMsg(403, "请验证管理员访问权限"));
+				} else {
+					response.sendRedirect(ServerListener.getContextPath() + "/user/entry-admin?nexturl=" + CodecUtils.urlEncode(requestURI));
+				}
+				return false;
+			}
+			
 		} else {
-			String rUrl = request.getRequestURI();
 			boolean isIgnore = false;
 			for (String r : IGNORE_RES) {
-				if (rUrl.contains(r)) {
+				if (requestURI.contains(r)) {
 					isIgnore = true;
 					break;
 				}
 			}
 			
 			if (!isIgnore) {
-				LOG.warn("Unauthorized access [ " + rUrl + " ] from [ " + ServletUtils.getReferer(request) + " ]");
+				LOG.warn("Unauthorized access [ " + requestURI + " ] from [ " + ServletUtils.getReferer(request) + " ]");
 				if (ServletUtils.isAjaxRequest(request)) {
-					ServletUtils.writeJson(response, AppUtils.formatClientMsg(403, "非授权访问"));
+					ServletUtils.writeJson(response, AppUtils.formatClientMsg(403, "未授权访问"));
 				} else {
-					String reqUrl = request.getRequestURI();
-					response.sendRedirect(ServerListener.getContextPath() + "/user/login?nexturl=" + CodecUtils.urlEncode(reqUrl));
+					response.sendRedirect(ServerListener.getContextPath() + "/user/login?nexturl=" + CodecUtils.urlEncode(requestURI));
 				}
 				return false;
 			}

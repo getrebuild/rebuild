@@ -144,6 +144,9 @@ class RbForm extends React.Component {
         }
         
         _data.metadata = { entity: this.state.entity, id: this.state.id }
+        if (RbForm.postBefore(data) == false) {
+            return
+        }
         
         let btns = $(this.refs['rbform-action']).find('.btn').button('loading')
         let that = this
@@ -159,7 +162,13 @@ class RbForm extends React.Component {
         })
     }
     
-    static postAfter() {
+    // 保存前调用
+    // @return false 则不继续保存
+    static postBefore(data) {
+        return true
+    }
+    // 保存后调用
+    static postAfter(data) {
         if (window.rbList) window.rbList.reload()
         else if (parent.rbList) parent.rbList.reload()
         if (window.rbFromView) location.reload()

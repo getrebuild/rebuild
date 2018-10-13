@@ -20,6 +20,9 @@ package com.rebuild.server.bizz.privileges;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.rebuild.server.bizz.RoleService;
+import com.rebuild.server.bizz.UserService;
+
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -63,5 +66,20 @@ public class User extends cn.devezhao.bizz.security.member.User {
 			return false;
 		}
 		return getOwningRole() != null && getOwningDept() != null;
+	}
+	
+	/**
+	 * 是否管理员
+	 * 
+	 * @return
+	 */
+	public boolean isAdmin() {
+		if (getIdentity().equals(UserService.ADMIN_USER)) {
+			return true;
+		}
+		if (getOwningRole() != null && getOwningRole().getIdentity().equals(RoleService.ADMIN_ROLE)) {
+			return true;
+		}
+		return false;
 	}
 }

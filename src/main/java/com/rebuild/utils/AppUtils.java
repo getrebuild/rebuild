@@ -45,7 +45,7 @@ public class AppUtils {
 	 * 获取当前请求用户
 	 * 
 	 * @param request
-	 * @return
+	 * @return null or UserID
 	 */
 	public static ID getRequestUser(HttpServletRequest request) {
 		Object user = request.getSession(true).getAttribute(WebUtils.CURRENT_USER);
