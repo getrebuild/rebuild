@@ -30,8 +30,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.bizz.privileges.User;
-import com.rebuild.server.entityhub.AccessibleMeta;
 import com.rebuild.server.entityhub.DisplayType;
+import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 
@@ -137,10 +137,10 @@ public class FormManager extends LayoutManager {
 			}
 			
 			Field fieldMeta = entityMeta.getField(fieldName);
-			AccessibleMeta easyField = new AccessibleMeta(fieldMeta);
+			EasyMeta easyField = new EasyMeta(fieldMeta);
 			el.put("label", easyField.getLabel());
-			String dt = easyField.getDisplayType(false);
-			el.put("type", dt);
+			DisplayType dt = easyField.getDisplayType();
+			el.put("type", dt.name());
 			el.put("nullable", fieldMeta.isNullable());
 			el.put("readonly", false);
 			if (record != null && !fieldMeta.isUpdatable()) {
@@ -156,32 +156,34 @@ public class FormManager extends LayoutManager {
 			
 			// 不同类型的特殊处理
 			
-			if (DisplayType.PICKLIST.name().equals(dt)) {
-				JSONArray picklist = PickListManager.getPickList(fieldMeta);
-				el.put("options", picklist);
+			if (dt == DisplayType.PICKLIST) {
+				JSONArray options = PickListManager.getPickList(fieldMeta);
+				el.put("options", options);
 			}
-			else if (DisplayType.DATETIME.name().equals(dt)) {
+			else if (dt == DisplayType.DATETIME) {
 				if (!el.containsKey("datetimeFormat")) {
 					el.put("datetimeFormat", "yyyy-MM-dd HH:mm:ss");
 				}
 			}
-			else if (DisplayType.DATE.name().equals(dt)) {
+			else if (dt == DisplayType.DATE) {
 				if (!el.containsKey("dateFormat")) {
 					el.put("dateFormat", "yyyy-MM-dd");
 				}
 			}
 			
-			// 编辑记录 & 填充值
+			// 编辑/视图
 			if (record != null) {
-				Object value = wrapFieldValue(record, easyField);
+				Object value = wrapFieldValue(record, easyField, onView);
 				if (value != null) {
-					if (!onView && easyField.getDisplayType() == DisplayType.BOOL) {
+					if (dt == DisplayType.BOOL && !onView) {
 						value = value.toString().equals("是") ? "T" : "F";
+					} else {
+						el.put("value", value);
 					}
 				}
-				
-				el.put("value", value);
-			} else {
+			}
+			// 新建记录
+			else {
 				if (easyField.isBuiltin()) {
 					el.put("readonly", true);
 					if (fieldName.equals(EntityHelper.createdOn) || fieldName.equals(EntityHelper.modifiedOn)) {
@@ -194,6 +196,17 @@ public class FormManager extends LayoutManager {
 				}
 				
 				// TODO 默认值
+				
+				if (dt == DisplayType.PICKLIST) {
+					JSONArray options = el.getJSONArray("options");
+					for (Object o : options) {
+						JSONObject opt = (JSONObject) o;
+						if (opt.getBooleanValue("default")) {
+							el.put("value", opt.getString("id"));
+							break;
+						}
+					}
+				}
 				
 			}
 		}
@@ -224,9 +237,12 @@ public class FormManager extends LayoutManager {
 			}
 			
 			Field fieldMeta = entity.getField(field);
+			
+			// PICKLIST and REFERENCE
 			if (fieldMeta.getType() == FieldType.REFERENCE) {
 				ajql.append('&').append(field).append(',');
 			}
+			
 			ajql.append(field).append(',');
 		}
 		ajql.deleteCharAt(ajql.length() - 1);
@@ -240,16 +256,16 @@ public class FormManager extends LayoutManager {
 	/**
 	 * @param record
 	 * @param field
-	 * @param readonly
+	 * @param onView
 	 * @return
 	 */
-	protected static Object wrapFieldValue(Record record, AccessibleMeta field) {
+	protected static Object wrapFieldValue(Record record, EasyMeta field, boolean onView) {
 		String fieldName = field.getName();
 		if (record.hasValue(fieldName)) {
 			Object value = record.getObjectValue(fieldName);
 			if (field.getDisplayType() == DisplayType.PICKLIST) {
 				ID pickValue = (ID) value;
-				return pickValue.getLabel();
+				return onView ? pickValue.getLabel() : pickValue.toLiteral();
 			} 
 			else if (value instanceof ID) {
 				ID idValue = (ID) value;

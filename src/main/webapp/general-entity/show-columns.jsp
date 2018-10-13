@@ -24,6 +24,12 @@
 		</div>
 	</div>
 	<div class="dialog-footer">
+		<div class="float-left">
+			<label class="custom-control custom-checkbox custom-control-inline">
+				<input class="custom-control-input" type="checkbox" id="applyFor" value="ALL" checked="checked">
+				<span class="custom-control-label">应用到全部用户</span>
+			</label>
+		</div>
 		<button class="btn btn-primary J_save" type="button">保存</button>
 		<button class="btn btn-secondary" onclick="parent.columnsModal.hide()" type="button">取消</button>
 	</div>

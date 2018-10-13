@@ -29,7 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.entityhub.AccessibleMeta;
+import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 
@@ -66,7 +66,7 @@ public class DataListManager extends LayoutManager {
 			if (entityMeta.containsField(EntityHelper.createdBy)) {
 				columnList.add(warpColumn(entityMeta.getField(EntityHelper.createdBy)));
 			}
-			if (entityMeta.containsField(EntityHelper.createdOn)) {
+			if (!nameField.getName().equals(EntityHelper.createdOn) && entityMeta.containsField(EntityHelper.createdOn)) {
 				columnList.add(warpColumn(entityMeta.getField(EntityHelper.createdOn)));
 			}
 		} else {
@@ -99,7 +99,7 @@ public class DataListManager extends LayoutManager {
 	 * @return
 	 */
 	public static Map<String, Object> warpColumn(Field field) {
-		AccessibleMeta easyMeta = new AccessibleMeta(field);
+		EasyMeta easyMeta = new EasyMeta(field);
 		Map<String, Object> map = new HashMap<>();
 		map.put("field", easyMeta.getName());
 		map.put("label", easyMeta.getLabel());

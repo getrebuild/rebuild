@@ -36,8 +36,9 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.rebuild.server.helper.QiniuCloud;
+import com.rebuild.server.helper.SystemProps;
 import com.rebuild.utils.AppUtils;
-import com.rebuild.utils.QiniuCloud;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
@@ -69,12 +70,12 @@ public class FileUploader extends HttpServlet {
 				}
 				uploadName = CalendarUtils.getDateFormat("hhMMssSSS").format(CalendarUtils.now()) + "__" + uploadName;
 				
-				File temp = AppUtils.getFileOfTemp(uploadName);
+				File temp = SystemProps.getFileOfTemp(uploadName);
 				item.write(temp);
 				
 				String cloud = req.getParameter("cloud");
 				if ("true".equals(cloud) || "auto".equals(cloud)) {
-					uploadName = QiniuCloud.upload(temp);
+					uploadName = QiniuCloud.instance().upload(temp);
 					if (temp.exists()) {
 						temp.delete();
 					}
@@ -101,7 +102,7 @@ public class FileUploader extends HttpServlet {
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		File track = AppUtils.getFileOfTemp("track");
+		File track = SystemProps.getFileOfTemp("track");
 		if (!track.exists() || !track.isDirectory()) {
 			boolean mked = track.mkdir();
 			if (!mked) {

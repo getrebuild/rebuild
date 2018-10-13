@@ -35,7 +35,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.entityhub.AccessibleMeta;
+import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.entityhub.Entity2Schema;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -71,7 +71,7 @@ public class MetaEntityControll extends BaseControll {
 	public void listEntity(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		List<Map<String, Object>> ret = new ArrayList<>();
 		for (Entity entity : MetadataHelper.getEntities()) {
-			AccessibleMeta easyMeta = new AccessibleMeta(entity);
+			EasyMeta easyMeta = new EasyMeta(entity);
 			if (easyMeta.isBuiltin()) {
 				continue;
 			}
@@ -117,9 +117,9 @@ public class MetaEntityControll extends BaseControll {
 	 * @param entity
 	 * @return
 	 */
-	protected static AccessibleMeta setEntityBase(ModelAndView mv, String entity) {
+	protected static EasyMeta setEntityBase(ModelAndView mv, String entity) {
 		Entity e = MetadataHelper.getEntity(entity);
-		AccessibleMeta entityMeta = new AccessibleMeta(e);
+		EasyMeta entityMeta = new EasyMeta(e);
 		mv.getModel().put("entityMetaId", entityMeta.getMetaId());
 		mv.getModel().put("entityName", entityMeta.getName());
 		mv.getModel().put("entityLabel", entityMeta.getLabel());

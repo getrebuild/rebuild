@@ -25,16 +25,22 @@ import org.springframework.web.servlet.ModelAndView;
 import com.rebuild.web.BaseControll;
 
 /**
+ * 系统配置
  * 
  * @author zhaofang123@gmail.com
  * @since 09/20/2018
  */
 @Controller
 @RequestMapping("/admin/")
-public class SystemSettings extends BaseControll {
+public class SystemConfigurerContoll extends BaseControll {
 
 	@RequestMapping("systems")
-	public ModelAndView pageSettings() {
-		return createModelAndView("/admin/system-settings.jsp");
+	public ModelAndView pageSystems() {
+		return createModelAndView("/admin/system-props.jsp");
+	}
+	
+	@RequestMapping("system/storage")
+	public ModelAndView pageStorage() {
+		return createModelAndView("/admin/storage-qiniu.jsp");
 	}
 }

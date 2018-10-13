@@ -9,9 +9,7 @@
 </head>
 <body>
 <div class="rb-wrapper rb-nosidebar-left rb-color-header">
-	<jsp:include page="/_include/NavTopOnlyHeader.jsp">
-		<jsp:param value="" name="pageTitle"/>
-	</jsp:include>
+	<jsp:include page="/_include/NavTopHeader.jsp" />
 	<div class="rb-content">
 		<div class="main-content container-fluid">
 			<div class="splash-container">
@@ -20,12 +18,14 @@
 						<h4>需要验证你的管理员身份</h4>
 					</div>
 					<div class="card-body">
+						<form>
 						<div class="form-group">
 							<input class="form-control" id="admin-passwd" type="password" placeholder="输入登录密码" autocomplete="off">
 						</div>
 						<div class="form-group login-submit">
-							<button class="btn btn-primary btn-xl J_verify-btn">验证</button>
+							<button class="btn btn-primary btn-xl J_verify-btn" type="submit">验证</button>
 						</div>
+						</form>
 					</div>
 				</div>
 				<div class="splash-footer">
@@ -46,6 +46,7 @@ $(document).ready(function(){
 			if (res.error_code == 0) location.replace(nexturl)
 			else rb.notice(res.error_msg)
 		})
+		return false
 	})
 })
 </script>

@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.rebuild.server.entityhub.DisplayType;
-import com.rebuild.server.entityhub.AccessibleMeta;
+import com.rebuild.server.entityhub.EasyMeta;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -34,7 +34,7 @@ import cn.devezhao.persist4j.metadata.BaseMeta;
  * 
  * @author devezhao
  * @since 09/30/2018
- * @see AccessibleMeta
+ * @see EasyMeta
  */
 public class PortalMetaSorter {
 
@@ -56,7 +56,7 @@ public class PortalMetaSorter {
 		List<Entity> list = new ArrayList<>();
 		for (Entity entity : entities) {
 			int ec = entity.getEntityCode();
-			if (AccessibleMeta.isBuiltin(entity) 
+			if (EasyMeta.isBuiltin(entity) 
 					|| (!fromAdmin && (ec == EntityHelper.User || ec == EntityHelper.Department || ec == EntityHelper.Role))) {
 			} else {
 				list.add(entity);
@@ -102,7 +102,7 @@ public class PortalMetaSorter {
 		
 		List<Field> list = new ArrayList<>();
 		for (Field field : fields) {
-			DisplayType dtThat = AccessibleMeta.getDisplayType(field);
+			DisplayType dtThat = EasyMeta.getDisplayType(field);
 			for (DisplayType dt : dtAllowed) {
 				if (dtThat == dt) {
 					list.add(field);

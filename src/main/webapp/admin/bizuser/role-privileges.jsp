@@ -14,7 +14,7 @@
 .R3{background-image:url(${baseUrl}/assets/img/role/role_3.gif)}
 .R4{background-image:url(${baseUrl}/assets/img/role/role_4.gif)}
 .table-priv.table{table-layout:fixed;border:0 none;border-bottom:1px solid #dee2e6;}
-.table-priv.table td, .table-priv.table th{padding:9px;vertical-align:middle;line-height:1}
+.table-priv.table td, .table-priv.table th{padding:9px 6px;vertical-align:middle;line-height:1}
 .table-priv.table th{border-top:0 none;font-weight:normal;color:#777}
 .table-priv.table th a:hover, .table-priv.table .name a:hover{opacity:0.8}
 .legend{border:1px solid #dee2e6;border-radius:3px;display:inline-block;padding:9px 15px;}
@@ -54,13 +54,13 @@
 						<table class="table table-priv">
 						<thead>
 							<tr>
-								<th width="25%">实体</th>
-								<th class="text-center"><a data-action="C">新建</a></th>
-								<th class="text-center"><a data-action="R">读取</a></th>
-								<th class="text-center"><a data-action="U">修改</a></th>
-								<th class="text-center"><a data-action="D">删除</a></th>
-								<th class="text-center"><a data-action="A">分派</a></th>
-								<th class="text-center"><a data-action="S">共享</a></th>
+								<th width="25%">业务实体</th>
+								<th class="text-center unselect"><a data-action="C">新建</a></th>
+								<th class="text-center unselect"><a data-action="R">读取</a></th>
+								<th class="text-center unselect"><a data-action="U">修改</a></th>
+								<th class="text-center unselect"><a data-action="D">删除</a></th>
+								<th class="text-center unselect"><a data-action="A">分派</a></th>
+								<th class="text-center unselect"><a data-action="S">共享</a></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -101,8 +101,8 @@
 						<table class="table table-priv">
 						<thead>
 							<tr>
-								<th width="25%">权限项</th>
-								<th class="text-center"><a data-action="Z">允许</a></th>
+								<th width="25%">权限项目</th>
+								<th class="text-center"><span data-action="Z">允许</span></th>
 								<th>前置条件</th>
 								<th></th>
 								<th></th>
@@ -194,11 +194,6 @@ $(document).ready(function(){
 	$('#priv-zero tbody .priv').click(function(){
 		clickPriv($(this), 'Z')
 	})
-	// 批量操作
-	$('#priv-zero thead th>a').click(function(){
-		let privAll = $('#priv-zero tbody .priv')
-		clickPriv(privAll, 'Z')
-	})
 	
 })
 const clickPriv = function(elements, action) {
@@ -269,7 +264,7 @@ const updatePrivileges = function() {
 	let priv = { entity: privEntity, zero: privZero }
 	console.log(JSON.stringify(priv))
 	$.post(rb.baseUrl + '/admin/bizuser/privileges-update?role=' + currentRoleId, JSON.stringify(priv), function(){
-		rb.notice('权限保存成功', 'success')
+		rb.notice('保存成功', 'success')
 	})
 }
 </script>

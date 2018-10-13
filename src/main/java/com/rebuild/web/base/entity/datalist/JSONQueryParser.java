@@ -28,7 +28,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.entityhub.DisplayType;
-import com.rebuild.server.entityhub.AccessibleMeta;
+import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.query.AdvFilterParser;
@@ -111,7 +111,7 @@ public class JSONQueryParser {
 		
 		StringBuffer sqlBase = new StringBuffer("select ");
 		for (Field field : fieldList) {
-			if (AccessibleMeta.getDisplayType(field) == DisplayType.PICKLIST) {
+			if (EasyMeta.getDisplayType(field) == DisplayType.PICKLIST) {
 				sqlBase.append('&');
 			}
 			sqlBase.append(field.getName()).append(',');

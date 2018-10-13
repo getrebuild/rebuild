@@ -23,7 +23,7 @@ import java.text.DecimalFormat;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
-import com.rebuild.server.entityhub.AccessibleMeta;
+import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.entityhub.DisplayType;
 import com.rebuild.server.metadata.MetadataHelper;
 
@@ -44,7 +44,7 @@ public class FieldValueWrapper {
 	 * @param field
 	 * @return
 	 */
-	public static Object wrapFieldValue(Object value, AccessibleMeta field) {
+	public static Object wrapFieldValue(Object value, EasyMeta field) {
 		if (value == null || StringUtils.isBlank(value.toString())) {
 			return StringUtils.EMPTY;
 		}
@@ -81,7 +81,7 @@ public class FieldValueWrapper {
 	 * @param field
 	 * @return
 	 */
-	public static String wrapDate(Object date, AccessibleMeta field) {
+	public static String wrapDate(Object date, EasyMeta field) {
 		String format = field.getFieldExtConfig().getString("dateFormat");
 		format = StringUtils.defaultIfEmpty(format, field.getDisplayType().getDefaultFormat());
 		Assert.notNull(format, "No format : " + field.getBaseMeta());
@@ -93,7 +93,7 @@ public class FieldValueWrapper {
 	 * @param field
 	 * @return
 	 */
-	public static String wrapDatetime(Object date, AccessibleMeta field) {
+	public static String wrapDatetime(Object date, EasyMeta field) {
 		String format = field.getFieldExtConfig().getString("datetimeFormat");
 		format = StringUtils.defaultIfEmpty(format, field.getDisplayType().getDefaultFormat());
 		Assert.notNull(format, "No format : " + field.getBaseMeta());
@@ -105,7 +105,7 @@ public class FieldValueWrapper {
 	 * @param field
 	 * @return
 	 */
-	public static String wrapNumber(Object number, AccessibleMeta field) {
+	public static String wrapNumber(Object number, EasyMeta field) {
 		String format = field.getFieldExtConfig().getString("numberFormat");
 		format = StringUtils.defaultIfEmpty(format, field.getDisplayType().getDefaultFormat());
 		Assert.notNull(format, "No format : " + field.getBaseMeta());
@@ -117,7 +117,7 @@ public class FieldValueWrapper {
 	 * @param field
 	 * @return
 	 */
-	public static String wrapDecimal(Object decimal, AccessibleMeta field) {
+	public static String wrapDecimal(Object decimal, EasyMeta field) {
 		String format = field.getFieldExtConfig().getString("decimalFormat");
 		format = StringUtils.defaultIfEmpty(format, field.getDisplayType().getDefaultFormat());
 		Assert.notNull(format, "No format : " + field.getBaseMeta());
@@ -129,7 +129,7 @@ public class FieldValueWrapper {
 	 * @param field
 	 * @return
 	 */
-	public static Object wrapReference(Object reference, AccessibleMeta field) {
+	public static Object wrapReference(Object reference, EasyMeta field) {
 		
 		// TODO 名称字段
 		
@@ -152,7 +152,7 @@ public class FieldValueWrapper {
 	 * @param field
 	 * @return
 	 */
-	public static String wrapBool(Object bool, AccessibleMeta field) {
+	public static String wrapBool(Object bool, EasyMeta field) {
 		return ((Boolean) bool) ? "是" : "否";
 	}
 	
@@ -161,7 +161,7 @@ public class FieldValueWrapper {
 	 * @param field
 	 * @return
 	 */
-	public static String wrapSimple(Object simple, AccessibleMeta field) {
+	public static String wrapSimple(Object simple, EasyMeta field) {
 		return simple.toString().trim();
 	}
 }

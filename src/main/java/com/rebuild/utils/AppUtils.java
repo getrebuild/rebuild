@@ -18,12 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.utils;
 
-import java.io.File;
 import java.nio.file.AccessDeniedException;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.alibaba.fastjson.JSONObject;
@@ -118,13 +116,5 @@ public class AppUtils {
 		} else {
 			return ex.getLocalizedMessage();
 		}
-	}
-	
-	/**
-	 * @param fileName
-	 * @return
-	 */
-	public static File getFileOfTemp(String fileName) {
-		return new File(FileUtils.getTempDirectory(), fileName);
 	}
 }

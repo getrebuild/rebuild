@@ -27,7 +27,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.entityhub.AccessibleMeta;
+import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.metadata.MetadataHelper;
 
 import cn.devezhao.persist4j.Entity;
@@ -71,7 +71,7 @@ public class AdvFilterManager {
 				continue;
 			}
 			
-			String label = AccessibleMeta.getLabel(metaEntity.getField(field));
+			String label = EasyMeta.getLabel(metaEntity.getField(field));
 			item.put("label", label);
 		}
 		raw[1] = config;

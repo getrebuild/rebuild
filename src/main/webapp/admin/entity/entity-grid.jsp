@@ -6,12 +6,12 @@
 <title>实体管理</title>
 <style type="text/css">
 .card.entity:hover{background-color:rgba(255,255,255,.7)}
-.card.entity .card-body{padding:12px 15px;color:#333;}
+.card.entity .card-body{padding:12px 20px;color:#333;}
 .card.entity .icon{font-size:32px;color:#4285f4;}
 .card.entity .card-body .float-left{width:30px;text-align:center;}
 .card.entity span{margin-top:2px;display:block;}
 .card.entity p{margin:0}
-.title{margin-left:42px}
+.title{margin-left:45px}
 </style>
 </head>
 <body>
@@ -60,7 +60,7 @@ $(document).ready(function(){
 		tmp.find('.icon').addClass('zmdi-plus')
 		tmp.click(function(){
 			if (newEntityModal) newEntityModal.show()
-			else newEntityModal = rb.modal(rb.baseUrl + '/admin/page/entity/entity-new', '新建实体')
+			else newEntityModal = rb.modal(rb.baseUrl + '/admin/page/entity/entity-new', '新建实体', { destroyOnHide: false })
 		})
 	})
 })

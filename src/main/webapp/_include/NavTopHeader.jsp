@@ -11,7 +11,6 @@ final String showName = UserHelper.getShowName(currentUser);
 	<div class="container-fluid">
 		<div class="rb-navbar-header">
 			<a class="navbar-brand" href="${baseUrl}/dashboard/home"></a>
-			<a class="rb-toggle-left-sidebar" title="展开/收缩菜单"><span class="icon zmdi zmdi-menu"></span></a>
 		</div>
 		<div class="rb-right-navbar">
 			<ul class="nav navbar-nav float-right rb-user-nav">
@@ -30,16 +29,6 @@ final String showName = UserHelper.getShowName(currentUser);
 					</div>
 				</li>
 			</ul>
-			<div class="page-title"><span><%=request.getParameter("pageTitle")%></span></div>
-			<ul class="nav navbar-nav float-right rb-icons-nav">
-				<li class="nav-item dropdown">
-					<a class="nav-link" href="${baseUrl}/admin/systems" title="系统设置"><span class="icon zmdi zmdi-settings"></span></a>
-				</li>
-				<li class="nav-item dropdown">
-					<a class="nav-link" href="${baseUrl}/app/messages" title="消息中心"><span class="icon zmdi zmdi-notifications"></span></a>
-				</li>
-			</ul>
 		</div>
 	</div>
 </nav>
-<div class="rb-scroll-top"></div>

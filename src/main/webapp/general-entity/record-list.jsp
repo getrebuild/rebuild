@@ -134,7 +134,7 @@ $(document).ready(function(){
 		else columnsModal = rb.modal('${baseUrl}/page/general-entity/show-columns?entity=${entityName}', '设置列显示')
 	})
 
-	SimpleFilter.init('.input-search', '${entityName}');
+	QuickFilter.init('.input-search', '${entityName}');
 });
 </script>
 </body>

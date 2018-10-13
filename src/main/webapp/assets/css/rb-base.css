@@ -11480,8 +11480,8 @@ canvas {
 }
 
 .rb-user-nav>li.dropdown>a img {
-	max-width: 32px;
-	max-height: 32px;
+	width: 32px;
+	height: 32px;
 	border-radius: 50%
 }
 
@@ -11544,7 +11544,7 @@ canvas {
 
 .rb-user-nav>li.dropdown .dropdown-menu .user-info .user-name {
 	display: block;
-	font-size: 1.462rem;
+	font-size: 1.2rem;
 	line-height: 22px;
 	text-overflow: ellipsis;
 	white-space: nowrap;

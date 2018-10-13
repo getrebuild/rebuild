@@ -144,7 +144,7 @@ class RbForm extends React.Component {
         }
         
         _data.metadata = { entity: this.state.entity, id: this.state.id }
-        if (RbForm.postBefore(data) == false) {
+        if (RbForm.postBefore(_data) == false) {
             return
         }
         
@@ -539,14 +539,6 @@ class RbFormFile extends RbFormElement {
 class RbFormPickList extends RbFormElement {
     constructor(props) {
         super(props)
-        
-        let options = props.options
-        for (let i = 0; i < options.length; i++){
-            if (options[i]['default'] === true) {
-                this.state.value = options[i]['id']
-                break
-            }
-        }
     }
     renderElement() {
         return (
@@ -565,10 +557,16 @@ class RbFormPickList extends RbFormElement {
             placeholder: '选择' + that.props.label,
             allowClear: true,
         }).on('change.select2', function(e){
-            let value = e.target.value
-            that.handleChange({ target:{ value:value } }, true)
+            let opt = e.target.value
+            that.handleChange({ target:{ value: opt } }, true)
         })
-        $setTimeout(function() { select2.trigger("change") }, 100)
+        
+        let val = this.state.value
+        $setTimeout(function() {
+            if (!!val) {
+            }
+            select2.trigger("change")
+        }, 100)
     }
     componentWillUnmount() {
         $(this.refs['field-value']).select2('destroy')

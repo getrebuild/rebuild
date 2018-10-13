@@ -16,13 +16,15 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.utils;
+package com.rebuild.server.helper;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.qiniu.common.Zone;
 import com.qiniu.http.Response;
@@ -35,27 +37,35 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.http4.HttpClientEx;
 
 /**
+ * 七牛云存储
  * 
  * @author zhaofang123@gmail.com
  * @since 05/19/2018
  */
 public class QiniuCloud {
 
-	private static final String ACCESS_KEY = "YCSTYJijko0gEoj84qx5NZjbshg2VzU7GE1l9FDe";
-	private static final String SECRET_KEY = "u1keXSO5otlajgiOGyF0QRWhFIQfVDi1D5-yEXv4";
+	private static final Log LOG = LogFactory.getLog(QiniuCloud.class);
 	
-	private static final Auth AUTH = Auth.create(ACCESS_KEY, SECRET_KEY);
-	private static final String BUCKET_NAME = "rb-cdn";
+	private final UploadManager UPLOAD_MANAGER = new UploadManager(new Configuration(Zone.autoZone()));
 	
-	private static final UploadManager UPLOAD_MANAGER = new UploadManager(new Configuration(Zone.autoZone()));
+	private Auth auth;
+	private String bucketName;
 
+	private QiniuCloud() {
+		init();
+	}
+	
 	/**
-	 * 上传 Token
-	 * 
-	 * @return
+	 * 初始化
 	 */
-	public static String getUpToken() {
-		return AUTH.uploadToken(BUCKET_NAME);
+	synchronized public void init() {
+		String[] account = SystemProps.getStorageAccount();
+		if (account != null) {
+			this.auth = Auth.create(account[0], account[1]);
+			this.bucketName = account[2];
+		} else {
+			LOG.error("云存储账户未配置，文件上传功能不可用");
+		}
 	}
 	
 	/**
@@ -65,26 +75,34 @@ public class QiniuCloud {
 	 * @return
 	 * @throws IOException
 	 */
-	public static String upload(File file) throws IOException {
+	public String upload(File file) throws IOException {
+		if (auth == null) {
+			return null;
+		}
+		
 		String key = String.format("rebuild/%s/%s", 
 				CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()), file.getName());
-		Response resp = UPLOAD_MANAGER.put(file, key, getUpToken());
-		System.out.println(resp.bodyString());
-		return key;
+		Response resp = UPLOAD_MANAGER.put(file, key, auth.uploadToken(bucketName));
+		if (resp.isOK()) {
+			return key;
+		} else {
+			LOG.error("文件上传失败 : " + resp);
+			return null;
+		}
 	}
 	
 	/**
-	 * 文件上传
+	 * 从 URL 上传文件
 	 * 
 	 * @param url
 	 * @return
 	 * @throws Exception
 	 */
-	public static String upload(URL url) throws Exception {
-		File tmp = AppUtils.getFileOfTemp("temp-" + System.currentTimeMillis());
+	public String upload(URL url) throws Exception {
+		File tmp = SystemProps.getFileOfTemp("temp-" + System.currentTimeMillis());
 		boolean success = download(url, tmp);
 		if (!success) {
-			throw new RebuildException("无法读取源文件:" + url);
+			throw new RebuildException("无法从 URL 读取文件 : " + url);
 		}
 		try {
 			return upload(tmp);
@@ -101,9 +119,19 @@ public class QiniuCloud {
 	 * @return
 	 * @throws Exception
 	 */
-	public static boolean download(URL url, File dest) throws Exception {
-		byte[] bs = HttpClientEx.instance().readBinary(url.toString(), 30 * 1000);
+	public boolean download(URL url, File dest) throws Exception {
+		byte[] bs = HttpClientEx.instance().readBinary(url.toString(), 60 * 1000);
 		FileUtils.writeByteArrayToFile(dest, bs);
 		return true;
+	}
+	
+	// --
+	
+	private static final QiniuCloud INSTANCE = new QiniuCloud();
+	/**
+	 * @return
+	 */
+	public static QiniuCloud instance() {
+		return INSTANCE;
 	}
 }

@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.rebuild.server.entityhub.AccessibleMeta;
+import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.PortalMetaSorter;
 import com.rebuild.web.BaseControll;
@@ -52,7 +52,7 @@ public class MetadataGet extends BaseControll {
 		List<Map<String, String>> list = new ArrayList<>();
 		for (Entity e : PortalMetaSorter.sortEntities()) {
 			Map<String, String> map = new HashMap<>();
-			AccessibleMeta easy = new AccessibleMeta(e);
+			EasyMeta easy = new EasyMeta(e);
 			map.put("name", e.getName());
 			map.put("label", easy.getLabel());
 			map.put("icon", easy.getIcon());
@@ -70,7 +70,7 @@ public class MetadataGet extends BaseControll {
 		for (Field e : PortalMetaSorter.sortFields(entityBase)) {
 			Map<String, String> map = new HashMap<>();
 			map.put("name", e.getName());
-			map.put("label", AccessibleMeta.getLabel(e));
+			map.put("label", EasyMeta.getLabel(e));
 			list.add(map);
 		}
 		writeSuccess(response, list);

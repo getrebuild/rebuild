@@ -29,6 +29,10 @@
 	color: #0d5bdd !important;
 }
 
+.navbar-nav .dropdown > .nav-link:hover>.icon, .bottom-widget > a:hover>.icon {
+	opacity: 0.8;
+}
+
 .input-search,
 .input-search input {
 	width: 240px;
@@ -154,6 +158,11 @@ body.dialog .main-content {
 	margin-left: 5px;
 }
 
+.dialog-footer > .float-left > .custom-control {
+	margin:0;
+	margin-top:6px
+}
+
 body.dialog .main-content .footer,
 .rbform .footer {
 	padding-bottom: 6px;
@@ -187,7 +196,7 @@ a {
 
 .form-control-plaintext {
 	font-size: 1rem;
-	padding: 7px 0;
+	padding: 8px 0;
 }
 
 /* for Form page */

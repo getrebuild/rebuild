@@ -43,7 +43,7 @@ import cn.devezhao.persist4j.metadata.BaseMeta;
  * @author zhaofang123@gmail.com
  * @since 08/13/2018
  */
-public class AccessibleMeta implements BaseMeta {
+public class EasyMeta implements BaseMeta {
 	private static final long serialVersionUID = -6463919098111506968L;
 	
 	public static final Set<String> BUILTIN_ENTITY = new HashSet<>();
@@ -72,7 +72,7 @@ public class AccessibleMeta implements BaseMeta {
 
 	private BaseMeta baseMeta;
 	
-	public AccessibleMeta(BaseMeta baseMeta) {
+	public EasyMeta(BaseMeta baseMeta) {
 		this.baseMeta = baseMeta;
 	}
 	
@@ -264,7 +264,7 @@ public class AccessibleMeta implements BaseMeta {
 	 * @return
 	 */
 	public static DisplayType getDisplayType(Field field) {
-		return new AccessibleMeta(field).getDisplayType();
+		return new EasyMeta(field).getDisplayType();
 	}
 	
 	/**

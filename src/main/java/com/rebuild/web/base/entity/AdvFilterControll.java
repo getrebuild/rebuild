@@ -36,7 +36,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.entityhub.DisplayType;
-import com.rebuild.server.entityhub.AccessibleMeta;
+import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.helper.manager.DataListManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -102,7 +102,7 @@ public class AdvFilterControll extends BaseControll {
 		
 		List<Map<String, Object>> fieldList = new ArrayList<>();
 		for (Field field : entityMeta.getFields()) {
-			DisplayType dt = AccessibleMeta.getDisplayType(field);
+			DisplayType dt = EasyMeta.getDisplayType(field);
 			if (dt == DisplayType.TEXT || dt == DisplayType.URL || dt == DisplayType.EMAIL || dt == DisplayType.PHONE || dt == DisplayType.PICKLIST) {
 				fieldList.add(DataListManager.warpColumn(field));
 			}

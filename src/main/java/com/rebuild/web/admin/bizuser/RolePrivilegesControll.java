@@ -34,7 +34,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.bizz.RoleService;
-import com.rebuild.server.entityhub.AccessibleMeta;
+import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.PortalMetaSorter;
 import com.rebuild.utils.JSONUtils;
@@ -77,7 +77,7 @@ public class RolePrivilegesControll extends BaseControll {
 		List<String[]> entities = new ArrayList<>();
 		for (Entity e : PortalMetaSorter.sortEntities(true)) {
 			if (EntityHelper.hasPrivilegesField(e)) {
-				entities.add(new String[] { e.getName(), AccessibleMeta.getLabel(e) });
+				entities.add(new String[] { e.getName(), EasyMeta.getLabel(e) });
 			}
 		}
 		mv.getModel().put("Entities", entities);
