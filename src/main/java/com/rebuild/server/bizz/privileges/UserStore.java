@@ -461,12 +461,12 @@ public class UserStore {
 	 */
 	static private String converEntityPrivilegesDefinition(String definition) {
 		JSONObject defJson = JSON.parseObject(definition);
-		int C = defJson.getInteger("C");
-		int D = defJson.getInteger("D");
-		int U = defJson.getInteger("U");
-		int R = defJson.getInteger("R");
-		int A = defJson.getInteger("A");
-		int S = defJson.getInteger("S");
+		int C = defJson.getIntValue("C");
+		int D = defJson.getIntValue("D");
+		int U = defJson.getIntValue("U");
+		int R = defJson.getIntValue("R");
+		int A = defJson.getIntValue("A");
+		int S = defJson.getIntValue("S");
 	
 		int deepP = 0;
 		int deepL = 0;

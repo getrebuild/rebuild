@@ -20,7 +20,6 @@ package com.rebuild.server;
 
 import org.junit.Test;
 
-import com.rebuild.server.Application;
 import com.rebuild.server.metadata.MetadataHelper;
 
 /**

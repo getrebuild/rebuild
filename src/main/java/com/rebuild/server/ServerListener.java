@@ -23,11 +23,9 @@ import javax.servlet.ServletContextListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
- * 服务监听
+ * 服务启动/停止监听
  * 
  * @author devezhao
  * @since 10/13/2018
@@ -40,16 +38,13 @@ public class ServerListener implements ServletContextListener {
 	
 	@Override
 	public void contextInitialized(ServletContextEvent event) {
-		LOG.info("Rebuild Booting ...");
-		
 		CONTEXT_PATH = event.getServletContext().getContextPath();
-		LOG.info("Detecting Rebuild context path '" + CONTEXT_PATH + "'");
+		LOG.debug("Detecting Rebuild context-path '" + CONTEXT_PATH + "'");
 
 		try {
-			ApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(event.getServletContext());
-			new Application(ctx);
+			Application.context();
 		} catch (Throwable ex) {
-			LOG.fatal("Booting FAIL!", ex);
+			LOG.fatal("Rebuild Booting failure!!!", ex);
 			System.exit(-1);
 		}
 	}

@@ -29,7 +29,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.rebuild.server.bizz.privileges.UserStore;
-import com.rebuild.server.helper.AesPreferencesConfigurer;
 import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.metadata.DynamicMetadataFactory;
 import com.rebuild.server.query.QueryFactory;
@@ -48,41 +47,47 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 05/18/2018
  */
-public class Application {
+public final class Application {
 	
 	/**
 	 * Global Logging */
 	public static final Log LOG = LogFactory.getLog(Application.class);
 	
-	private static ApplicationContext APPLICATION_CTX;
+	// for SPRING
+	volatile private static ApplicationContext APPLICATION_CTX;
 	
+	// 业务实体对应的服务类
 	private static Map<Integer, GeneralEntityService> ESS = new HashMap<>();
 	
 	/**
-	 * @param ctx
+	 * 初始化
 	 */
-	protected Application(ApplicationContext ctx) {
+	private Application(ApplicationContext ctx) {
 		Security.addProvider(new BouncyCastleProvider());
 		APPLICATION_CTX = ctx;
 		
 		// 自定义实体
 		LOG.info("Loading customized entities ...");
-		getMetadataFactory().refresh(false);
+		((DynamicMetadataFactory) ctx.getBean(PersistManagerFactory.class).getMetadataFactory()).refresh(false);
 		
 		// 实体对应的服务类
-		for (Map.Entry<String, GeneralEntityService> es : APPLICATION_CTX.getBeansOfType(GeneralEntityService.class).entrySet()) {
+		for (Map.Entry<String, GeneralEntityService> es : ctx.getBeansOfType(GeneralEntityService.class).entrySet()) {
 			GeneralEntityService ges = es.getValue();
 			if (ges.getEntityCode() > 0) {
 				ESS.put(ges.getEntityCode(), ges);
 			}
 		}
 		
-		// 初始化所有 Beans
-		if (devMode()) {
-			APPLICATION_CTX.getBeansOfType(Object.class);
+		LOG.info("Rebuild Booting successful.");
+	}
+	
+	public static ApplicationContext context() {
+		if (APPLICATION_CTX == null) {
+			LOG.info("Rebuild Booting ...");
+			ApplicationContext ctx = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml" });
+			new Application(ctx);
 		}
-		
-		LOG.warn("Rebuild Booting successful.");
+		return APPLICATION_CTX;
 	}
 	
 	/**
@@ -103,18 +108,9 @@ public class Application {
 		LOG.warn("Add shutdown hook : " + hook.getName());
 		Runtime.getRuntime().addShutdownHook(hook);
 	}
-
-	synchronized
-	public static ApplicationContext context() {
-		if (APPLICATION_CTX == null) {
-			ApplicationContext ctx = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml" });
-			new Application(ctx);
-		}
-		return APPLICATION_CTX;
-	}
-
-	public static String getConfigItem(String itemKey) {
-		return getBean(AesPreferencesConfigurer.class).getItem(itemKey);
+	
+	public static <T> T getBean(Class<T> beanClazz) {
+		return context().getBean(beanClazz);
 	}
 
 	public static OnlineSessionStore getSessionStore() {
@@ -155,10 +151,6 @@ public class Application {
 	
 	public static Query createNoFilterQuery(String ajql) {
 		return getQueryFactory().createQueryUnfiltered(ajql);
-	}
-	
-	public static <T> T getBean(Class<T> beanClazz) {
-		return context().getBean(beanClazz);
 	}
 
 	public static SQLExecutor getSQLExecutor() {
