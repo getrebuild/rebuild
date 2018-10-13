@@ -26,9 +26,9 @@ import com.rebuild.server.helper.TimeBulkTask;
  * @author devezhao
  * @since 09/29/2018
  */
-public class AssignTask extends TimeBulkTask {
+public class BatchAssignTask extends TimeBulkTask {
 
-	protected AssignTask(JSON data) {
+	protected BatchAssignTask(JSON data) {
 		super(data);
 	}
 

@@ -51,7 +51,7 @@ class RbList extends React.Component {
                         })}    
                     </tbody>
                     </table>
-                    {this.state.noData == true ? <div className="nodata"><span class="modal-main-icon zmdi zmdi-info-outline"></span><p>没有检索到数据</p></div> : null}
+                    {this.state.noData == true ? <div className="nodata"><span className="modal-main-icon zmdi zmdi-info-outline"/><p>没有检索到数据</p></div> : null}
                 </div>
             </div></div>
             <RbListPagination pageNo={this.state.pageNo} pageSize={this.state.pageSize} rowTotal={this.state.rowTotal} $$$parent={this} />

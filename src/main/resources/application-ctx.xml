@@ -41,18 +41,19 @@
 		<property name="preferredTestQuery" value="select 1" />
 	</bean>
 
-	<bean name="dbDialect" class="cn.devezhao.persist4j.dialect.MySQL5Dialect" />
-
+	<bean name="dialect" class="cn.devezhao.persist4j.dialect.MySQL5Dialect" />
 	<bean name="PersistManagerFactory" class="cn.devezhao.persist4j.engine.PersistManagerFactoryImpl">
 		<constructor-arg index="0" ref="dataSource" />
-		<constructor-arg index="1" ref="dbDialect" />
+		<constructor-arg index="1" ref="dialect" />
 		<constructor-arg index="2">
 			<bean class="com.rebuild.server.metadata.DynamicMetadataFactory">
 				<constructor-arg index="0" value="metadata-conf.xml" />
-				<constructor-arg index="1" ref="dbDialect" />
+				<constructor-arg index="1" ref="dialect" />
 			</bean>
 		</constructor-arg>
 	</bean>
+	
+	<bean class="com.rebuild.web.OnlineSessionStore" />
 
 	<bean class="com.rebuild.server.query.QueryFactory">
 		<constructor-arg index="0" ref="PersistManagerFactory" />
@@ -76,8 +77,6 @@
 		<constructor-arg index="1" ref="RecordOwningCache" />
 	</bean>
 	
-	<bean class="com.rebuild.web.OnlineSessionStore" />
-	
 	<bean name="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="dataSource" />
 	</bean>
@@ -88,6 +87,7 @@
 			<tx:method name="update*" propagation="REQUIRED" />
 			<tx:method name="assign*" propagation="REQUIRED" />
 			<tx:method name="share*"  propagation="REQUIRED" />
+			<tx:method name="bulk*"  propagation="REQUIRED" />
 		</tx:attributes>
 	</tx:advice>
 	

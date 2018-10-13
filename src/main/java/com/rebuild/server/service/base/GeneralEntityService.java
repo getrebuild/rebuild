@@ -18,12 +18,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.base;
 
-import com.rebuild.server.metadata.MetadataHelper;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.rebuild.server.Application;
 import com.rebuild.server.service.BaseService;
 
-import cn.devezhao.persist4j.Entity;
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.PersistManagerFactory;
-import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -33,9 +35,11 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 11/06/2017
  */
 public class GeneralEntityService extends BaseService {
-
-	public GeneralEntityService(PersistManagerFactory factory) {
-		super(factory);
+	
+	private static final Log LOG = LogFactory.getLog(GeneralEntityService.class);
+	
+	protected GeneralEntityService(PersistManagerFactory aPMFactory) {
+		super(aPMFactory);
 	}
 	
 	/**
@@ -47,33 +51,28 @@ public class GeneralEntityService extends BaseService {
 		return 0;
 	}
 	
-	/**
-	 * @param record
-	 * @return
-	 */
-	public int delete(Record record) {
-		ID recordId = record.getPrimary();
-		
-		// TODO 检查
-		
+	@Override
+	public int delete(ID recordId) {
 		return super.delete(recordId);
 	}
 	
 	/**
-	 * @see #delete(Record)
+	 * @see #delete(ID)
 	 */
-	@Override
-	public int delete(ID recordId) {
-		Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
-		String ajql = "select %s from %s where %s = '%s'";
+	public int bulkDelete(ID recordIds[]) {
+		ID user = Application.currentCallerUser();
+		int entity = recordIds[0].getEntityCode();
 		
-		// TODO 需要哪些字段?
-		
-		String fields = "" + entity.getPrimaryField().getName();
-		ajql = String.format(ajql, fields, entity.getName(), entity.getPrimaryField().getName(), recordId);
-		
-		Record record = aPMFactory.createQuery(ajql).record();
-		return delete(record);
+		int deleted = 0;
+		for (ID id : recordIds) {
+			boolean allowed = Application.getSecurityManager().allowed(user, entity, BizzPermission.DELETE, id);
+			if (allowed) {
+				deleted += this.delete(id);
+			} else {
+				LOG.warn("No have privileges to delete : " + user + " > " + id);
+			}
+		}
+		return deleted;
 	}
 	
 	/**

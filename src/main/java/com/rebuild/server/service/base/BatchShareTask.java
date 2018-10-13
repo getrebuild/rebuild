@@ -26,9 +26,9 @@ import com.rebuild.server.helper.TimeBulkTask;
  * @author devezhao
  * @since 09/29/2018
  */
-public class ShareTask extends TimeBulkTask {
+public class BatchShareTask extends TimeBulkTask {
 
-	protected ShareTask(JSON data) {
+	protected BatchShareTask(JSON data) {
 		super(data);
 	}
 

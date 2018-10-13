@@ -50,6 +50,7 @@ class RbModal extends React.Component {
         $(this.refs['rbmodal']).modal('hide')
         let d = true
         if (this.props.destroyOnHide == false) d = false
+        else $(this.refs['rbmodal']).modal('dispose')
         this.setState({ isDestroy: d, inLoad: d  })
     }
 }
@@ -66,7 +67,7 @@ class RbAlter extends React.Component {
         let confirm = (this.props.confirm || this.hide).bind(this)
         return (
             <div className="modal fade rbalter" ref="rbalter">
-                <div className="modal-dialog">
+                <div className="modal-dialog modal-dialog-centered">
                     <div className="modal-content">
                         <div className="modal-header">
                             <button className="close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
@@ -93,7 +94,10 @@ class RbAlter extends React.Component {
     hide() {
         let root = $(this.refs['rbalter'])
         root.modal('hide')
-        setTimeout(function(){ root.parent().remove() }, 1000)
+        setTimeout(function(){
+            root.modal('dispose')
+            root.parent().remove() 
+        }, 1000)
     }
 }
 

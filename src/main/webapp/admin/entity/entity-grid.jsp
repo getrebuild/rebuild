@@ -53,7 +53,7 @@ $(document).ready(function(){
 			tmp.find('a.card').attr('href', 'entity/' + this.entityName + '/base')
 			tmp.find('.icon').addClass('zmdi-' + this.icon)
 			tmp.find('.title span').text(this.entityLabel)
-			tmp.find('.title p').text(this.comments)
+			tmp.find('.title p').text(this.comments || '-')
 		});
 		
 		let tmp = $($('#entity-tmpl').html()).appendTo('#entityList')

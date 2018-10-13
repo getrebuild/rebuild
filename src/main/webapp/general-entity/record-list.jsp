@@ -45,6 +45,9 @@
 											<a class="dropdown-item J_share"><i class="icon zmdi zmdi-slideshare"></i> 共享</a>
 											<a class="dropdown-item J_assign"><i class="icon zmdi zmdi-mail-reply-all"></i> 分配</a>
 											<div class="dropdown-divider"></div>
+											<a class="dropdown-item J_exports"><i class="icon zmdi zmdi-download"></i> 导出</a>
+											<a class="dropdown-item J_imports"><i class="icon zmdi zmdi-upload"></i> 导入</a>
+											<div class="dropdown-divider"></div>
 											<a class="dropdown-item J_columns"><i class="icon zmdi zmdi-sort-amount-asc"></i> 列显示</a>
 										</div>
 									</div>
@@ -95,7 +98,21 @@ $(document).ready(function(){
 		let s = rbList.getSelectedRows()
 		if (s.length < 1) return
 		rb.alter('确认删除选中的 ' + s.length + ' 条记录吗？', '删除确认', { type: 'danger', confirm: function(){
-			console.log('TODO delete ... ' + JSON.stringify(s))
+			let deletes = s.map((item)=>{
+				return item[0]
+			})
+			
+			let that = this
+			$(that.refs['rbalter']).find('.btn').button('loading')
+
+			$.post(rb.baseUrl + '/app/entity/record-delete?id=' + deletes.join(','), function(res){
+				if (res.error_code == 0){
+					rbList.reload()
+					that.hide()
+				} else {
+					rb.notice(res.error_msg || '删除失败，请稍后重试', 'danger')
+				}
+			})
 		} })
 	})
 

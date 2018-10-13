@@ -20,8 +20,10 @@ package com.rebuild.web.base.entity;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,6 +37,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.base.GeneralEntityService;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.commons.web.ServletUtils;
@@ -51,7 +55,7 @@ import cn.devezhao.persist4j.util.StringHelper;
  */
 @Controller
 @RequestMapping("/app/entity/")
-public class GeneralOperationControll extends BaseControll {
+public class GeneralRecordControll extends BaseControll {
 
 	@RequestMapping("record-save")
 	public void save(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -67,12 +71,38 @@ public class GeneralOperationControll extends BaseControll {
 	
 	@RequestMapping("record-delete")
 	public void delete(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID id = getIdParameterNotNull(request, "id");
-		Application.getGeneralEntityService(id.getEntityCode()).delete(id);
+		String ids = getParameter(request, "id");
 		
-		Map<String, Object> map = new HashMap<>();
-		map.put("id", id);
-		writeSuccess(response, map);
+		Set<ID> idList = new HashSet<>();
+		int deleteEntityCode = 0;
+		for (String id : ids.split(",")) {
+			ID id0 = ID.valueOf(id);
+			if (deleteEntityCode == 0) {
+				deleteEntityCode = id0.getEntityCode();
+			}
+			if (deleteEntityCode != id0.getEntityCode()) {
+				writeFailure(response, "只能批量删除同一实体的记录");
+				return;
+			}
+			
+			idList.add(ID.valueOf(id));
+		}
+		
+		if (idList.isEmpty()) {
+			writeFailure(response, "没有要删除的记录");
+			return;
+		}
+		
+		GeneralEntityService ges = Application.getGeneralEntityService(deleteEntityCode);
+		int deleted = 0;
+		if (idList.size() == 1) {
+			deleted = ges.delete(idList.iterator().next());
+		} else {
+			deleted = ges.bulkDelete(idList.toArray(new ID[idList.size()]));
+		}
+		
+		JSON ret = JSONUtils.toJSONObject("deleted", deleted);
+		writeSuccess(response, ret);
 	}
 	
 	@RequestMapping("record-fetch")

@@ -23,6 +23,7 @@ import java.security.Guard;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.springframework.util.Assert;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
@@ -58,23 +59,24 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 			return;
 		}
 		
-		// 方法的首个参数必须为 ID 或 Record
 		Object idOrRecord = invocation.getArguments()[0];
-		if (!(idOrRecord instanceof Record || idOrRecord instanceof ID)) {
-		    throw new IllegalArgumentException("Arguments[0] must be Record or ID object!");
-		}
 		
 		ID recordId = null;
 		Entity entity = null;
 		ID caller = null;
+		
 		if (idOrRecord instanceof Record) {
 			recordId = ((Record) idOrRecord).getPrimary();
 			entity = ((Record) idOrRecord).getEntity();
 			caller = ((Record) idOrRecord).getEditor();
-		} else {
+		} else if (idOrRecord instanceof ID) {
 			recordId = (ID) idOrRecord;
 			entity = MetadataHelper.getEntity(recordId.getEntityCode());
-			caller = Application.currentCallerUser();
+		} else if (idOrRecord instanceof ID[]) {
+			Assert.isTrue(((ID[]) idOrRecord).length > 1, "Bulk must have at least 2 IDs");
+			entity = MetadataHelper.getEntity(((ID[]) idOrRecord)[0].getEntityCode());
+		} else {
+			throw new IllegalArgumentException("First arguments must be Record/ID/ID[]");
 		}
 		
 		// 无权限字段的不检查
@@ -82,9 +84,19 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		    return;
 		}
 		
-		// 当前会话用户
 		if (caller == null) {
+			// 当前会话用户
 			caller = Application.currentCallerUser();
+		}
+		
+		boolean isBulk = invocation.getMethod().getName().startsWith("bulkDelete");
+		if (isBulk) {
+			boolean deleteAllowed = Application.getSecurityManager().allowed(caller, entity.getEntityCode(), BizzPermission.DELETE);
+			if (!deleteAllowed) {
+				throw new AccessDeniedException(
+			    		"User [ " + caller + " ] not allowed execute action [ " + BizzPermission.DELETE + " ]. Entity : " + entity.getName());
+			}
+			return;
 		}
 		
 		final Permission permission = getPermissionByMethod(invocation.getMethod(), recordId == null);
@@ -133,8 +145,9 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 	 * @return
 	 */
 	protected boolean isNeedCheck(MethodInvocation invocation) {
-		String action = invocation.getMethod().getName();
-		return action.startsWith("create") || action.startsWith("update")
-				|| action.startsWith("delete") || action.startsWith("assign") || action.startsWith("share");
+		String act = invocation.getMethod().getName();
+		return act.startsWith("create") || act.startsWith("update")
+				|| act.startsWith("delete") || act.startsWith("assign") || act.startsWith("share")
+				|| act.startsWith("bulkDelete");
 	}
 }

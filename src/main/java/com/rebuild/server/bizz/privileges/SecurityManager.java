@@ -40,16 +40,24 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class SecurityManager {
 	
-	final private UserStore USERSTORE;
-	final private RecordOwningCache RECORDOWNINGCACHE;
+	final private UserStore USER_STORE;
+	final private RecordOwningCache RECORDOWNING_CACHE;
 
 	/**
 	 * @param us
 	 * @param roc
 	 */
 	public SecurityManager(UserStore us, RecordOwningCache roc) {
-		this.USERSTORE = us;
-		this.RECORDOWNINGCACHE = roc;
+		this.USER_STORE = us;
+		this.RECORDOWNING_CACHE = roc;
+	}
+	
+	/**
+	 * @param target
+	 * @return
+	 */
+	public ID getOwningUser(ID target) {
+		return RECORDOWNING_CACHE.getOwningUser(target);
 	}
 	
 	/**
@@ -60,7 +68,7 @@ public class SecurityManager {
 	 * @return
 	 */
 	public Privileges getPrivileges(ID user, int entity) {
-		Role role = USERSTORE.getUser(user).getOwningRole();
+		Role role = USER_STORE.getUser(user).getOwningRole();
 		return role.getPrivileges(entity);
 	}
 	
@@ -100,7 +108,7 @@ public class SecurityManager {
 			return true;
 		}
 		
-		Role role = USERSTORE.getUser(user).getOwningRole();
+		Role role = USER_STORE.getUser(user).getOwningRole();
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
 			return true;
 		}
@@ -128,7 +136,7 @@ public class SecurityManager {
 			return true;
 		}
 		
-		Role role = USERSTORE.getUser(user).getOwningRole();
+		Role role = USER_STORE.getUser(user).getOwningRole();
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
 			return true;
 		}
@@ -148,7 +156,7 @@ public class SecurityManager {
 			return true;
 		}
 		
-		ID targetUserId = RECORDOWNINGCACHE.getOwningUser(target);
+		ID targetUserId = RECORDOWNING_CACHE.getOwningUser(target);
 		
 		if (BizzDepthEntry.PRIVATE.equals(depth)) {
 			allowed = user.equals(targetUserId);
@@ -158,8 +166,8 @@ public class SecurityManager {
 			return true;
 		}
 		
-		com.rebuild.server.bizz.privileges.User accessUser = USERSTORE.getUser(user);
-		com.rebuild.server.bizz.privileges.User targetUser = USERSTORE.getUser(targetUserId);
+		com.rebuild.server.bizz.privileges.User accessUser = USER_STORE.getUser(user);
+		com.rebuild.server.bizz.privileges.User targetUser = USER_STORE.getUser(targetUserId);
 		Department accessUserDept = (Department) accessUser.getOwningDept();
 		
 		if (BizzDepthEntry.LOCAL.equals(depth)) {
@@ -205,7 +213,7 @@ public class SecurityManager {
 			return QueryFilter.ALLOWED;
 		}
 		
-		User sUser = USERSTORE.getUser(user);
+		User sUser = USER_STORE.getUser(user);
 		Role role = sUser.getOwningRole();
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
 			return QueryFilter.ALLOWED;
