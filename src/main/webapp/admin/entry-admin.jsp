@@ -21,7 +21,7 @@
 					</div>
 					<div class="card-body">
 						<div class="form-group">
-							<input class="form-control" id="passwd" type="password" placeholder="输入登录密码" autocomplete="off">
+							<input class="form-control" id="admin-passwd" type="password" placeholder="输入登录密码" autocomplete="off">
 						</div>
 						<div class="form-group login-submit">
 							<button class="btn btn-primary btn-xl J_verify-btn">验证</button>
@@ -40,7 +40,7 @@
 $(document).ready(function(){
 	let nexturl = decodeURIComponent($urlp('nexturl') || '../admin/systems')
 	$('.J_verify-btn').click(function(){
-		let passwd = $val('#passwd')
+		let passwd = $val('#admin-passwd')
 		if (!!!passwd) return
 		$.post('admin-verify?passwd=' + passwd, function(res) {
 			if (res.error_code == 0) location.replace(nexturl)

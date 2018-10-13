@@ -25,7 +25,7 @@
 				<div class="input-group input-group-sm">
 					<input class="form-control J_text" type="text" maxlength="50">
 					<div class="input-group-append">
-						<button class="btn btn-secondary J_confirm" type="button" style="min-width:0">添加</button>
+						<button class="btn btn-secondary J_confirm" type="submit" style="min-width:0">添加</button>
 					</div>
 				</div>
 			</form>
@@ -92,6 +92,7 @@ $(document).ready(function(){
 		item_render({ id: $('.J_text').attr('attr-id'), text: text });
 		$('.J_text').val('').attr('attr-id', '')
 		$('.J_confirm').text('添加')
+		return false
 	});
 	
 	$('.dd-list').sortable({

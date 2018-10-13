@@ -6,11 +6,12 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>字段信息</title>
 <style type="text/css">
-.sortable-box{height:268px}
-.sortable-box .dd-list{height:260px}
+.sortable-box{height:208px}
+.sortable-box .dd-list{height:200px}
 .sortable-box .dd-list .no-item{padding:9px;text-align:center;color:#999}
 .dd-item.default .dd3-content{background-color:#5a95f5 !important;border-color:#5a95f5;color:#fff}
 .dd-item.default .J_default{display:none !important;}
+.sortable-box.autoh,.sortable-box.autoh .dd-list{height:auto;}
 </style>
 </head>
 <body>
@@ -46,7 +47,7 @@
 			<div class="page-head-title">字段信息</div>
 		</div>
 		<div class="main-content container-fluid" style="padding-top:3px">
-			<div class="card">
+			<div class="card mb-0">
 				<div class="card-body">
 					<br>
 					<form>
@@ -115,9 +116,9 @@
 							</div>
 						</div>
 						<div class="form-group row J_for-PICKLIST hide">
-							<label class="col-sm-2 col-form-label text-sm-right">选项</label>
+							<label class="col-sm-2 col-form-label text-sm-right">列表选项</label>
 							<div class="col-lg-4 col-sm-10">
-								<div class="rb-scroller sortable-box">
+								<div class="rb-scroller sortable-box autoh">
 									<ol class="dd-list" id="picklist-items">
 										<li class="no-item">加载中</li>
 									</ol>
@@ -243,6 +244,7 @@ $(document).ready(function(){
 			$(res.data).each(function(){
 				picklistItemRender(this)
 			});
+			if (res.data.length > 5) $('#picklist-items').parent().removeClass('autoh')
 			
 			$('.dd-list').sortable({
 				cursor: 'move',

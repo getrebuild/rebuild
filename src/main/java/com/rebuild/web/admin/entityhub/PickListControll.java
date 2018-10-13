@@ -62,7 +62,6 @@ public class PickListControll extends BaseControll {
 		String entity = getParameterNotNull(request, "entity");
 		String field = getParameterNotNull(request, "field");
 		
-		
 		Field field2field = MetadataHelper.getField(entity, field);
 		Application.getBean(PickListService.class).txBatchUpdate(field2field, config);
 		writeSuccess(response);

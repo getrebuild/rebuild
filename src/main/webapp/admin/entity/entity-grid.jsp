@@ -6,12 +6,12 @@
 <title>实体管理</title>
 <style type="text/css">
 .card.entity:hover{background-color:rgba(255,255,255,.7)}
-.card.entity .card-body{padding:14px 20px;color:#333;}
+.card.entity .card-body{padding:12px 15px;color:#333;}
 .card.entity .icon{font-size:32px;color:#4285f4;}
 .card.entity .card-body .float-left{width:30px;text-align:center;}
 .card.entity span{margin-top:2px;display:block;}
 .card.entity p{margin:0}
-.title{margin-left:44px}
+.title{margin-left:42px}
 </style>
 </head>
 <body>
@@ -30,13 +30,13 @@
 	</div>
 </div>
 <script type="text/palin" id="entity-tmpl">
-<div class="col-xl-2 col-lg-3 col-sm-6">
+<div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
 	<a class="card entity">
 		<div class="card-body">
 			<div class="float-left"><i class="icon zmdi"></i></div>
 			<div class="title">
 				<span class="text-truncate">新建实体</span>
-				<p class="text-muted">新建一个新实体</p>
+				<p class="text-muted">新建一个实体</p>
 			</div>
 			<div class="clearfix"></div>
 		</div>
