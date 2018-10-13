@@ -48,7 +48,7 @@ public class UserHelper {
 	public static String getAvatarUrl(User user) {
 		String url = user.getAvatarUrl();
 		if (StringUtils.isBlank(url)) {
-			return ServerListener.getContextPath() + "/assets/img/afo.png";
+			return ServerListener.getContextPath() + "/assets/img/avatar.png";
 		}
 		return SystemProps.getStorageUrl() + url + "?imageView2/2/w/100/interlace/1/q/100";
 	}

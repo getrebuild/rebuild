@@ -3,7 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>列表选项</title>
+<title>导航菜单</title>
 <style type="text/css">
 .sortable-box{padding:0 1px;padding-top:1px;}
 .dd-list .dd3-item .dd3-content,.dd-placeholder{margin:0 0 1px !important;cursor:default;}
@@ -62,9 +62,10 @@
 		</div>
 	</div>
 	<div class="dialog-footer">	
-		<div class="float-left">
-			<label class="custom-control custom-checkbox custom-control-inline" style="margin:0;margin-top:6px">
-				<input class="custom-control-input" type="checkbox" id="applyFor" value="ALL"><span class="custom-control-label"> 应用到全部用户</span>
+		<div class="float-left hide J_for-admin">
+			<label class="custom-control custom-checkbox custom-control-inline">
+				<input class="custom-control-input" type="checkbox" id="applyFor" value="ALL" checked="checked">
+				<span class="custom-control-label">应用到全部用户</span>
 			</label>
 		</div>
 		<button class="btn btn-primary J_save" type="button">保存</button>

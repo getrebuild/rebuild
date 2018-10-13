@@ -51,6 +51,18 @@ public class AppUtils {
 	}
 	
 	/**
+	 * @param request
+	 * @return
+	 */
+	public static boolean isAdminUser(HttpServletRequest request) {
+		ID uid = getRequestUser(request);
+		if (uid == null) {
+			return false;
+		}
+		return Application.getUserStore().getUser(uid).isAdmin();
+	}
+	
+	/**
 	 * 格式化客户端消息
 	 * 
 	 * @param errCode

@@ -28,12 +28,14 @@
 			</div>
 		</div>
 		<div class="col-sm-2">
-			<div class="view-btns">
-				<button class="btn btn-secondary J_edit" type="button">编辑</button>
-			</div>
-			<div class="view-btns">
-				<button class="btn btn-secondary J_assgin" type="button">分配</button>
-				<button class="btn btn-secondary J_share" type="button">共享</button>
+			<div class="view-oper">
+				<div class="btns">
+					<button class="btn btn-secondary J_edit" type="button">编辑</button>
+				</div>
+				<div class="btns">
+					<button class="btn btn-secondary J_assgin" type="button">分配</button>
+					<button class="btn btn-secondary J_share" type="button">共享</button>
+				</div>
 			</div>
 		</div>
 	</div>

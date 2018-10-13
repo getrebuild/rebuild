@@ -16,6 +16,11 @@ $(function(){
 	$setTimeout(function(){
 		$(document.body).addClass('rb-animate')
 	}, 1000)
+	
+	if (rb.isAdminUser == true) {
+		$('.J_for-admin').removeClass('hide')
+	}
+	
 });
 
 const __initNavs = function(){
