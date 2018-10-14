@@ -62,7 +62,7 @@ public class RoleService extends GeneralEntityService {
 	 * @param roleId
 	 * @param definition
 	 */
-	public void batchUpdatePrivileges(ID roleId, JSONObject definition) {
+	public void bulkUpdatePrivileges(ID roleId, JSONObject definition) {
 		Object[][] array = Application.createQuery(
 				"select privilegesId,definition,entity,zeroKey from RolePrivileges where roleId = ?")
 				.setParameter(1, roleId)

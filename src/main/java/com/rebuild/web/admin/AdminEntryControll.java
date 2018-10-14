@@ -59,7 +59,7 @@ public class AdminEntryControll extends BaseControll {
 		if (admin.isAdmin()) {
 			return createModelAndView("/admin/entry-admin.jsp");
 		} else {
-			response.sendError(403, "非管理员用户");
+			response.sendError(403, "当前登录用户非管理员");
 			return null;
 		}
 	}

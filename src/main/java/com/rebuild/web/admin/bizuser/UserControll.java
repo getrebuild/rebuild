@@ -47,19 +47,19 @@ import cn.devezhao.persist4j.engine.ID;
 @Controller
 public class UserControll extends BaseControll {
 	
-	@RequestMapping("/admin/bizuser/users")
-	public ModelAndView pageList(HttpServletRequest request) throws IOException {
-		ModelAndView mv = createModelAndView("/admin/bizuser/user-list.jsp", "User");
-		JSON cfg = DataListManager.getColumnLayout("User");
-		mv.getModel().put("DataListConfig", JSON.toJSONString(cfg));
-		return mv;
-	}
-	
 	@RequestMapping("/app/User/view/{id}")
 	public ModelAndView pageView(@PathVariable String id, HttpServletRequest request) throws IOException {
 		ID recordId = ID.valueOf(id);
 		ModelAndView mv = createModelAndView("/admin/bizuser/user-view.jsp", "User");
 		mv.getModel().put("id", recordId);
+		return mv;
+	}
+	
+	@RequestMapping("/admin/bizuser/users")
+	public ModelAndView pageList(HttpServletRequest request) throws IOException {
+		ModelAndView mv = createModelAndView("/admin/bizuser/user-list.jsp", "User");
+		JSON config = DataListManager.getColumnLayout("User", getRequestUser(request));
+		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
 		return mv;
 	}
 	
@@ -78,11 +78,11 @@ public class UserControll extends BaseControll {
 	}
 	
 	/**
-	 * 组织部门树
+	 * 部门结构
 	 * 
 	 * @param parent
 	 */
-	private static JSONObject recursiveDeptTree(Department parent) {
+	private JSONObject recursiveDeptTree(Department parent) {
 		JSONObject parentJson = new JSONObject();
 		parentJson.put("id", parent.getIdentity().toString());
 		parentJson.put("name", parent.getName());

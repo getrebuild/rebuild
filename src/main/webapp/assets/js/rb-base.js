@@ -32,15 +32,14 @@
 	});
 	
 	$.ajaxSetup({
-		dataType : 'json',
+		headers:{
+			'Content-Type':'text/plain;charset=utf-8'
+		},
 		cache : false,
-		headers : {
-		},
-		xhrFields : {
-		},
 		complete : function(xhr) {
-			if (xhr.status == 500) rb.notice(xhr.responseText || '系统繁忙！请稍后重试', 'danger', { timeout: 6000 })
-			if (xhr.status == 403) rb.notice(xhr.responseText || '无权访问', 'danger')
+			if (xhr.status == 200){ }  // OK
+			else if (xhr.status == 403) rb.notice(xhr.responseText || '无权访问', 'danger')
+			else rb.notice((xhr.responseText || '系统繁忙，请稍后重试') + ' [' + xhr.status + ']', 'danger', { timeout: 6000 })
 		}
 	});
 	
@@ -182,3 +181,10 @@ const $regex = {
 		return !val || $.trim(val).length == 0;
 	},
 };
+
+const $encode = function(s) {
+	return encodeURIComponent(s);
+}
+const $decode = function(s) {
+	return decodeURIComponent(s);
+}

@@ -54,19 +54,17 @@ $(document).ready(function() {
 	});
 	
 	$('.J_login-btn').click(function() {
-		let user = $val('#user'),
-			passwd = $val('#passwd');
+		let user = $val('#user'), passwd = $val('#passwd');
 		if (!user || !passwd){
 			rb.notice('请输入用户名和密码')
 			return;
 		}
 		
 		let btn = $(this).button('loading');
-		let _data = { user: user, passwd: passwd };
-		$.post(rb.baseUrl + '/user/user-login', _data, function(res) {
+		$.post(rb.baseUrl + '/user/user-login?user=' + $encode(user) + '&passwd=' + $encode(passwd), function(res) {
 			if (res.error_code == 0) location.replace('../dashboard/home');
 			else{
-				rb.notice(res.error_msg || '登录失败')
+				rb.notice(res.error_msg || '登录失败，请稍后重试')
 				btn.button('reset');
 			}
 		});

@@ -64,7 +64,7 @@
 	<div class="dialog-footer">	
 		<div class="float-left hide J_for-admin">
 			<label class="custom-control custom-checkbox custom-control-inline">
-				<input class="custom-control-input" type="checkbox" id="applyFor" value="ALL" checked="checked">
+				<input class="custom-control-input" type="checkbox" id="applyTo" value="ALL" checked="checked">
 				<span class="custom-control-label">应用到全部用户</span>
 			</label>
 		</div>
@@ -101,11 +101,12 @@ $(document).ready(function(){
 		})
 	})
 	$('.J_menuEntity').change(function(){
-		let zmdi = $('.J_menuIcon .zmdi')
-		//if (zmdi.hasClass('zmdi-' + UNICON_NAME)){
-			let s = $('.J_menuEntity option:selected').data('icon')
-			zmdi.attr('class', 'zmdi zmdi-' + s)
-		//}
+		if (item_current_isNew == true) {
+			let icon = $('.J_menuEntity option:selected').data('icon')
+			$('.J_menuIcon .zmdi').attr('class', 'zmdi zmdi-' + icon)
+			let name = $('.J_menuEntity option:selected').text()
+			$('.J_menuName').val(name)
+		}
 	})
 	iconModal = null
 	$('.J_menuIcon').click(function(){
@@ -152,13 +153,13 @@ $(document).ready(function(){
 		if (navs.length == 0) { rb.notice('请至少设置一个菜单项'); return }
 		
 		let btn = $(this).button('loading')
-		$.post(rb.baseUrl + '/app/commons/nav-settings?cfgid=' + cfgid, JSON.stringify(navs), function(res){
+		$.post(rb.baseUrl + '/app/settings/nav-settings?cfgid=' + cfgid + '&toAll=' + $('#applyTo').prop('checked'), JSON.stringify(navs), function(res){
 			btn.button('reset')
 			if (res.error_code == 0) parent.location.reload()
 		});
 	})
 	
-	$.get(rb.baseUrl + '/app/commons/nav-settings', function(res){
+	$.get(rb.baseUrl + '/app/settings/nav-settings', function(res){
 		if (res.data){
 			cfgid = res.data.id
 			$(res.data.config).each(function(){
@@ -168,6 +169,7 @@ $(document).ready(function(){
 	})
 });
 var item_currentid;
+var item_current_isNew;
 var item_randomid = new Date().getTime();
 const itemRender = function(data, fromAdd){
 	data.id = data.id || item_randomid++
@@ -210,6 +212,7 @@ const itemRender = function(data, fromAdd){
 		item.find('.dd3-content').trigger('click')
 		$('.J_menuName').focus()
 	}
+	item_current_isNew = fromAdd
 };
 </script>
 </body>

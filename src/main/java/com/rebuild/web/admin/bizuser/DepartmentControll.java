@@ -34,26 +34,25 @@ import com.rebuild.web.BaseControll;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 
  * @author devezhao
  * @since 10/08/2018
  */
 @Controller
 public class DepartmentControll extends BaseControll {
 
-	@RequestMapping("/admin/bizuser/departments")
-	public ModelAndView pageList(HttpServletRequest request) throws IOException {
-		ModelAndView mv = createModelAndView("/admin/bizuser/dept-list.jsp", "Department");
-		JSON cfg = DataListManager.getColumnLayout("Department");
-		mv.getModel().put("DataListConfig", JSON.toJSONString(cfg));
-		return mv;
-	}
-	
 	@RequestMapping("/app/Department/view/{id}")
 	public ModelAndView pageView(@PathVariable String id, HttpServletRequest request) throws IOException {
 		ID recordId = ID.valueOf(id);
 		ModelAndView mv = createModelAndView("/admin/bizuser/dept-view.jsp", "Department");
 		mv.getModel().put("id", recordId);
+		return mv;
+	}
+	
+	@RequestMapping("/admin/bizuser/departments")
+	public ModelAndView pageList(HttpServletRequest request) throws IOException {
+		ModelAndView mv = createModelAndView("/admin/bizuser/dept-list.jsp", "Department");
+		JSON config = DataListManager.getColumnLayout("Department", getRequestUser(request));
+		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
 		return mv;
 	}
 }

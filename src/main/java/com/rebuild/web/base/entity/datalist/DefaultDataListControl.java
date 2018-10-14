@@ -18,10 +18,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.base.entity.datalist;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Query;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 数据列表控制器
@@ -33,18 +36,19 @@ public class DefaultDataListControl implements DataListControl {
 
 	protected static final int READ_TIMEOUT = 15 * 1000;
 	
-	protected JSONQueryParser queryParser;
+	private JSONQueryParser queryParser;
+	private ID user;
 
-	/**
-	 */
 	protected DefaultDataListControl() {
 	}
 	
 	/**
-	 * @param queryElement
+	 * @param query
+	 * @param user
 	 */
-	public DefaultDataListControl(JSONObject queryElement) {
-		this.queryParser = new JSONQueryParser(queryElement, this);
+	public DefaultDataListControl(JSONObject query, ID user) {
+		this.queryParser = new JSONQueryParser(query, this);
+		this.user = user;
 	}
 
 	/**
@@ -60,19 +64,19 @@ public class DefaultDataListControl implements DataListControl {
 	}
 	
 	@Override
-	public String getResult() {
-		int total = 0;
+	public JSON getResult() {
+		int totalRows = 0;
 		if (queryParser.isNeedReload()) {
-			String countSql = queryParser.toSqlCount();
-			total = ((Long) Application.createQuery(countSql).unique()[0]).intValue();
+			Object[] count = Application.getQueryFactory().createQuery(queryParser.toSqlCount(), user).unique();
+			totalRows = ObjectUtils.toInt(count[0]);
 		}
 		
-		Query query = Application.createQuery(queryParser.toSql()).setTimeout(READ_TIMEOUT);
+		Query query = Application.getQueryFactory().createQuery(queryParser.toSql(), user);
 		int[] limits = queryParser.getSqlLimit();
 		Object[][] array = query.setLimit(limits[0], limits[1]).array();
 		
 		DataWrapper wrapper = new DataWrapper(
-				total, array, query.getSelectItems(), query.getRootEntity());
+				totalRows, array, query.getSelectItems(), query.getRootEntity());
 		return wrapper.toJson();
 	}
 }

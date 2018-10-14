@@ -102,9 +102,9 @@
 	<entity name="LayoutConfig" type-code="013" description="布局配置（表单/视图/列表）">
 		<field name="layoutId" type="primary"/>
 		<field name="belongEntity" type="string" max-length="100" nullable="false" />
-		<field name="type" type="string" max-length="20" description="FORM,VIEW,LIST" nullable="false"/>
+		<field name="type" type="string" max-length="20" description="FORM,DATALIST,NAVI" nullable="false"/>
 		<field name="config" type="text" description="JSON格式配置" nullable="false"/>
-		<field name="applyFor" type="string" description="应用到哪些人，可选值: ALL/SELF/$MemberID" />
+		<field name="applyTo" type="string" default-value="SELF" description="应用到哪些人，可选值: ALL/SELF/$MemberID(U/D/R)" />
 	</entity>
 	
 	<entity name="FilterConfig" type-code="014" description="过滤条件配置">
@@ -112,7 +112,7 @@
 		<field name="filterName" type="string" max-length="100" nullable="false" />
 		<field name="belongEntity" type="string" max-length="100" nullable="false" />
 		<field name="config" type="text" description="JSON格式配置" nullable="false"/>
-		<field name="shareFor" type="string" description="共享给哪些人，可选值: ALL/SELF/$MemberID" />
+		<field name="applyTo" type="string" default-value="SELF" description="共享给哪些人，可选值: ALL/SELF/$MemberID(U/D/R)" />
 	</entity>
 	
 </metadata-config>

@@ -2,11 +2,12 @@
 <%@ page import="cn.devezhao.commons.CodecUtils"%>
 <%@ page import="org.apache.commons.lang.StringUtils"%>
 <%@ page import="com.rebuild.server.ServerListener"%>
-<%@ page import="com.rebuild.utils.AppUtils"%>
 <%@ page import="com.alibaba.fastjson.JSONObject"%>
 <%@ page import="com.alibaba.fastjson.JSONArray"%>
 <%@ page import="com.rebuild.server.helper.manager.NavManager"%>
-<% final String activeNav = request.getParameter("activeNav"); %>
+<%
+final String activeNav = request.getParameter("activeNav");
+%>
 <div class="rb-left-sidebar">
 <div class="left-sidebar-wrapper">
 	<a class="left-sidebar-toggle">MIN</a>
@@ -16,7 +17,7 @@
 				<ul class="sidebar-elements">
 					<li class="<%="dashboard-home".equals(activeNav) ? "active" : ""%>" id="nav_dashboard-home"><a href="${baseUrl}/dashboard/home"><i class="icon zmdi zmdi-home"></i><span>首页</span></a></li>
 					<%
-					JSONArray navs = NavManager.getNavForPortal();
+					JSONArray navs = NavManager.getNavForPortal(request);
 					for (Object o : navs) {
 						JSONObject nav = (JSONObject) o;
 						String navName = "nav_entity-" + nav.getString("value");
@@ -25,7 +26,7 @@
 						if (!isUrlType) {
 							navUrl = ServerListener.getContextPath() + "/app/" + navUrl + "/list";
 						} else {
-							navName = "nav_url-" + System.currentTimeMillis();
+							navName = "nav_url-" + navName.hashCode();
 							navUrl = ServerListener.getContextPath() + "/commons/url-safe?url=" + CodecUtils.urlEncode(navUrl);
 						}
 						String navIcon = StringUtils.defaultIfBlank(nav.getString("icon"), "texture");

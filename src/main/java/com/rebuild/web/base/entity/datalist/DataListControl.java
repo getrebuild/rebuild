@@ -18,6 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.base.entity.datalist;
 
+import com.alibaba.fastjson.JSON;
+
 /**
  * @author Zhao Fangfang
  * @since 1.0, 2013-6-20
@@ -36,5 +38,5 @@ public interface DataListControl {
 	 * 
 	 * @return
 	 */
-	String getResult();
+	JSON getResult();
 }

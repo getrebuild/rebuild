@@ -42,7 +42,7 @@ public class User extends cn.devezhao.bizz.security.member.User {
 		super(userId, loginName, disabled);
 		this.email = email;
 		this.fullName = fullName;
-		this.avatarUrl = "/assets/img/afo.png";
+		this.avatarUrl = avatarUrl;
 	}
 	
 	public String getEmail() {

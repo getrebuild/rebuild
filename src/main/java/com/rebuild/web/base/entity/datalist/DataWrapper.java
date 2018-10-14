@@ -18,9 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.base.entity.datalist;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,6 +27,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.helper.manager.FieldValueWrapper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -69,7 +67,7 @@ public class DataWrapper extends FieldValueWrapper {
 	/**
 	 * @return
 	 */
-	public String toJson() {
+	public JSON toJson() {
 		final Field namedFiled = entity.getNameField();
 		for (Object[] row : data) {
 			Object namedVal = null;
@@ -94,10 +92,9 @@ public class DataWrapper extends FieldValueWrapper {
 			}
 		}
 		
-		Map<String, Object> map = new HashMap<>();
-		map.put("total", total);
-		map.put("data", data);
-		return JSON.toJSONString(map);
+		return JSONUtils.toJSONObject(
+				new String[] { "total", "data" },
+				new Object[] { total, data });
 	}
 	
 	/**

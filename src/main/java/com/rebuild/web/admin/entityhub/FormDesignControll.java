@@ -34,10 +34,10 @@ import com.rebuild.server.Application;
 import com.rebuild.server.helper.manager.FormManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.web.BaseControll;
+import com.rebuild.web.LayoutConfig;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 
@@ -46,24 +46,32 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/admin/entity/")
-public class LayoutManagerControll extends BaseControll {
+public class FormDesignControll extends BaseControll implements LayoutConfig {
 	
 	@RequestMapping("{entity}/form-design")
 	public ModelAndView pageFormDesign(@PathVariable String entity, HttpServletRequest request) throws IOException {
 		ModelAndView mv = createModelAndView("/admin/entity/form-design.jsp");
 		MetaEntityControll.setEntityBase(mv, entity);
-		JSON fc = FormManager.getFormLayout(entity);
-		if (fc != null) {
-			request.setAttribute("FormConfig", fc);
+		JSON cfg = FormManager.getFormLayout(entity, getRequestUser(request));
+		if (cfg != null) {
+			request.setAttribute("FormConfig", cfg);
 		}
 		return mv;
 	}
 	
+	@Override
+	public void gets(String entity, HttpServletRequest request, HttpServletResponse response) throws IOException { }
+	
 	@RequestMapping({ "{entity}/form-update" })
-	public void formUpdate(@PathVariable String entity, HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getRequestUser(request);
+	@Override
+	public void sets(String entity, 
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		JSON formJson = ServletUtils.getRequestJson(request);
-		Record record = EntityHelper.parse((JSONObject) formJson, user);
+		Record record = EntityHelper.parse((JSONObject) formJson, getRequestUser(request));
+		if (record.getPrimary() == null) {
+			record.setString("applyTo", FormManager.APPLY_ALL);
+		}
+		
 		Application.getCommonService().createOrUpdate(record);
 		writeSuccess(response);
 	}

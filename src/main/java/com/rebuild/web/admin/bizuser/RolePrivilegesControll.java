@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
@@ -83,6 +84,7 @@ public class RolePrivilegesControll extends BaseControll {
 		mv.getModel().put("Entities", entities);
 	}
 	
+	
 	@RequestMapping("role-list")
 	public void roleList(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		Object[][] array = Application.createQuery("select roleId,name,isDisabled from Role").array();
@@ -92,15 +94,15 @@ public class RolePrivilegesControll extends BaseControll {
 	
 	@RequestMapping("privileges-list")
 	public void privilegesList(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID role = getIdParameterNotNull(request, "role");
-		if (RoleService.ADMIN_ROLE.equals(role)) {
+		ID roleId = getIdParameterNotNull(request, "role");
+		if (RoleService.ADMIN_ROLE.equals(roleId)) {
 			writeFailure(response, "管理员权限不允许修改");
 			return;
 		}
 		
 		Object[][] array = Application.createQuery(
 				"select entity,definition,zeroKey from RolePrivileges where roleId = ?")
-				.setParameter(1, role)
+				.setParameter(1, roleId)
 				.array();
 		for (Object[] o : array) {
 			String entity = o[0].toString();
@@ -113,11 +115,11 @@ public class RolePrivilegesControll extends BaseControll {
 		writeSuccess(response, retJson);
 	}
 	
-	@RequestMapping("privileges-update")
+	@RequestMapping( value = "privileges-update", method = RequestMethod.POST)
 	public void privilegesUpdate(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		JSON post = ServletUtils.getRequestJson(request);
 		ID role = getIdParameterNotNull(request, "role");
-		Application.getBean(RoleService.class).batchUpdatePrivileges(role, (JSONObject) post);
+		Application.getBean(RoleService.class).bulkUpdatePrivileges(role, (JSONObject) post);
 		writeSuccess(response);
 	}
 }

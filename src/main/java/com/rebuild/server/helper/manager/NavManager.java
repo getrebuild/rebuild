@@ -18,13 +18,18 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.manager;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * 导航菜单
  * 
  * @author zhaofang123@gmail.com
  * @since 09/20/2018
@@ -36,22 +41,33 @@ public class NavManager extends LayoutManager {
 	 * @return
 	 */
 	public static JSON getNav(ID user) {
-		Object[] sets = getLayoutConfigRaw("", TYPE_NAVI);
-		if (sets == null) {
+		Object[] cfgs = getLayoutConfigRaw("N", TYPE_NAVI, user);
+		if (cfgs == null) {
 			return null;
 		}
-		
-		JSONObject json = new JSONObject();
-		json.put("id", sets[0]);
-		json.put("config", sets[1]);
-		return json;
+		JSONObject cfgsJson = JSONUtils.toJSONObject(new String[] { "id", "config" }, cfgs);
+		return cfgsJson;
 	}
 	
 	/**
+	 * 页面用
+	 * 
+	 * @param request
 	 * @return
 	 */
-	public static JSONArray getNavForPortal() {
-		Object[] sets = getLayoutConfigRaw("", TYPE_NAVI);
-		return sets == null ? JSON.parseArray("[]") : (JSONArray) sets[1];
+	public static JSONArray getNavForPortal(HttpServletRequest request) {
+		ID user = AppUtils.getRequestUser(request);
+		Object[] cfgs = getLayoutConfigRaw("N", TYPE_NAVI, user);
+		return cfgs == null ? JSON.parseArray("[]") : (JSONArray) cfgs[1];
+	}
+	
+	/**
+	 * @param cfgid
+	 * @param toAll
+	 * @param user
+	 * @return
+	 */
+	public static ID detectConfigId(ID cfgid, boolean toAll, ID user) {
+		return LayoutManager.detectConfigId(cfgid, toAll, "N", TYPE_NAVI, user);
 	}
 }

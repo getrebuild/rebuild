@@ -19,12 +19,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.helper.manager;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.StringUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -32,9 +30,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 数据列表
@@ -43,67 +43,65 @@ import cn.devezhao.persist4j.Field;
  * @since 08/30/2018
  */
 public class DataListManager extends LayoutManager {
-	
-	private static final Log LOG = LogFactory.getLog(DataListManager.class);
 
 	/**
 	 * @param entity
+	 * @param user
 	 * @return
 	 */
-	public static JSON getColumnLayout(String entity) {
-		Object[] raw = getLayoutConfigRaw(entity, TYPE_DATALIST);
+	public static JSON getColumnLayout(String entity, ID user) {
+		Object[] cfgs = getLayoutConfigRaw(entity, TYPE_DATALIST, user);
 		
 		List<Map<String, Object>> columnList = new ArrayList<>();
 		Entity entityMeta = MetadataHelper.getEntity(entity);
 		
-		Field nameField = entityMeta.getNameField();
-		nameField = nameField == null ? entityMeta.getPrimaryField() : nameField;
+		Field namedField = entityMeta.getNameField();
+		namedField = namedField == null ? entityMeta.getPrimaryField() : namedField;
 		
 		// 默认配置
-		if (raw == null) {
-			columnList.add(warpColumn(nameField));
+		if (cfgs == null) {
+			columnList.add(formattedColumn(namedField));
 			
-			if (entityMeta.containsField(EntityHelper.createdBy)) {
-				columnList.add(warpColumn(entityMeta.getField(EntityHelper.createdBy)));
+			String namedFieldName = namedField.getName();
+			if (!StringUtils.equalsIgnoreCase(namedFieldName, EntityHelper.createdBy)
+					&& entityMeta.containsField(EntityHelper.createdBy)) {
+				columnList.add(formattedColumn(entityMeta.getField(EntityHelper.createdBy)));
 			}
-			if (!nameField.getName().equals(EntityHelper.createdOn) && entityMeta.containsField(EntityHelper.createdOn)) {
-				columnList.add(warpColumn(entityMeta.getField(EntityHelper.createdOn)));
+			if (!StringUtils.equalsIgnoreCase(namedFieldName, EntityHelper.createdOn)
+					&& entityMeta.containsField(EntityHelper.createdOn)) {
+				columnList.add(formattedColumn(entityMeta.getField(EntityHelper.createdOn)));
 			}
 		} else {
-			JSONArray config = (JSONArray) raw[1];
+			JSONArray config = (JSONArray) cfgs[1];
 			for (Object o : config) {
-				JSONObject jo = (JSONObject) o;
-				String field = jo.getString("field");
+				JSONObject col = (JSONObject) o;
+				String field = col.getString("field");
 				if (entityMeta.containsField(field)) {
-					Map<String, Object> map = warpColumn(entityMeta.getField(field));
-					Integer width = jo.getInteger("width");
+					Map<String, Object> map = formattedColumn(entityMeta.getField(field));
+					Integer width = col.getInteger("width");
 					if (width != null) {
 						map.put("width", width);
 					}
 					columnList.add(map);
 				} else {
-					LOG.warn("Invalid field : " + field);
+					LOG.warn("Unknow field '" + field + "' in '" + entity + "'");
 				}
 			}
 		}
 		
-		Map<String, Object> ret = new HashMap<>();
-		ret.put("entity", entity);
-		ret.put("nameField", nameField.getName());
-		ret.put("fields", columnList);
-		return (JSON) JSON.parse(JSON.toJSONString(ret));
+		return JSONUtils.toJSONObject(
+				new String[] { "entity", "nameField", "fields" }, 
+				new Object[] { entity, namedField.getName(), columnList });
 	}
 	
 	/**
 	 * @param field
 	 * @return
 	 */
-	public static Map<String, Object> warpColumn(Field field) {
+	public static Map<String, Object> formattedColumn(Field field) {
 		EasyMeta easyMeta = new EasyMeta(field);
-		Map<String, Object> map = new HashMap<>();
-		map.put("field", easyMeta.getName());
-		map.put("label", easyMeta.getLabel());
-		map.put("type", easyMeta.getDisplayType(false));
-		return map;
+		return JSONUtils.toJSONObject(
+				new String[] { "field", "label", "type" }, 
+				new Object[] { easyMeta.getName(), easyMeta.getLabel(), easyMeta.getDisplayType(false) });
 	}
 }

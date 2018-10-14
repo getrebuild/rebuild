@@ -161,7 +161,7 @@ public class EasyMeta implements BaseMeta {
 	}
 	
 	/**
-	 * 对用户来说是否可见
+	 * 系统内建字段，一般系统用
 	 * 
 	 * @return
 	 */

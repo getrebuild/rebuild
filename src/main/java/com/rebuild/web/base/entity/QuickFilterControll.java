@@ -33,13 +33,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.manager.DataListManager;
 import com.rebuild.server.helper.manager.LayoutManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.query.AdvFilterManager;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.LayoutConfig;
 
@@ -47,25 +47,23 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 数据列表相关配置
+ * 快速查询
  * 
- * @author zhaofang123@gmail.com
- * @since 09/15/2018
+ * @author devezhao
+ * @since 09/30/2018
  */
 @Controller
-@RequestMapping("/app/")
-public class DataListSettings extends BaseControll implements LayoutConfig {
+@RequestMapping("/app/{entity}/")
+public class QuickFilterControll extends BaseControll implements LayoutConfig {
 	
-	@RequestMapping(value = "{entity}/list-columns", method = RequestMethod.POST)
+	@RequestMapping(value="advfilter/quick-fields", method = RequestMethod.POST)
 	@Override
 	public void sets(@PathVariable String entity,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		Entity entityMeta = MetadataHelper.getEntity(entity);
 		
 		boolean toAll = "true".equals(getParameter(request, "toAll"));
 		// 非管理员只能设置自己
@@ -74,15 +72,17 @@ public class DataListSettings extends BaseControll implements LayoutConfig {
 			toAll = false;
 		}
 		
+		Entity entityMeta = MetadataHelper.getEntity(entity);
+		
 		JSON config = ServletUtils.getRequestJson(request);
 		ID cfgid = getIdParameter(request, "cfgid");
-		ID cfgidDetected = DataListManager.detectConfigId(cfgid, toAll, entity, DataListManager.TYPE_DATALIST, user);
+		ID cfgidDetected = AdvFilterManager.detectQuickConfigId(cfgid, toAll, entityMeta.getName(), user);
 		
 		Record record = null;
 		if (cfgidDetected == null) {
-			record = EntityHelper.forNew(EntityHelper.LayoutConfig, user);
+			record = EntityHelper.forNew(EntityHelper.FilterConfig, user);
 			record.setString("belongEntity", entityMeta.getName());
-			record.setString("type", LayoutManager.TYPE_DATALIST);
+			record.setString("filterName", AdvFilterManager.FILTER_QUICK);
 			record.setString("applyTo", toAll ? LayoutManager.APPLY_ALL : LayoutManager.APPLY_SELF);
 		} else {
 			record = EntityHelper.forUpdate(cfgidDetected, user);
@@ -93,41 +93,43 @@ public class DataListSettings extends BaseControll implements LayoutConfig {
 		writeSuccess(response);
 	}
 	
-	@RequestMapping(value = "{entity}/list-columns", method = RequestMethod.GET)
+	@RequestMapping(value="advfilter/quick-fields", method = RequestMethod.GET)
 	@Override
-	public void gets(@PathVariable String entity,
+	public void gets(@PathVariable String entity, 
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		Entity entityMeta = MetadataHelper.getEntity(entity);
 		
 		List<Map<String, Object>> fieldList = new ArrayList<>();
 		for (Field field : entityMeta.getFields()) {
-			if (field.getType() == FieldType.PRIMARY) {
-				continue;
-			}
-			fieldList.add(DataListManager.formattedColumn(field));
-		}
-		
-		List<Map<String, Object>> configList = new ArrayList<>();
-		Object[] raw = DataListManager.getLayoutConfigRaw(entity, DataListManager.TYPE_DATALIST, user);
-		if (raw != null) {
-			for (Object o : (JSONArray) raw[1]) {
-				JSONObject col = (JSONObject) o;
-				String field = col.getString("field");
-				if (entityMeta.containsField(field)) {
-					configList.add(DataListManager.formattedColumn(entityMeta.getField(field)));
-				} else {
-					LOG.warn("Unknow field '" + field + "' in '" + entity + "'");
-				}
+			if (AdvFilterManager.allowQuickFilter(field)) {
+				fieldList.add(DataListManager.formattedColumn(field));
 			}
 		}
 		
+		Object[] config = AdvFilterManager.getQuickFilterRaw(entity, user);
 		Map<String, Object> ret = new HashMap<>();
 		ret.put("fieldList", fieldList);
-		ret.put("configList", configList);
-		if (raw != null) {
-			ret.put("configId", raw[0].toString());
+		if (config != null) {
+			ret.put("config", config[1]);
+			ret.put("configId", config[0] != null ? config[0].toString() : null);
 		}
 		writeSuccess(response, ret);
+	}
+	
+	@RequestMapping(value="advfilter/quick", method = RequestMethod.GET)
+	public void getQuickFilter(@PathVariable String entity,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getRequestUser(request);
+		Entity entityMeta = MetadataHelper.getEntity(entity);
+		
+		Object[] config = AdvFilterManager.getQuickFilterRaw(entityMeta.getName(), user);
+		if (config == null) {
+			writeSuccess(response);
+			return;
+		}
+		
+		JSONObject quick = (JSONObject) config[1];
+		writeSuccess(response, quick);
 	}
 }

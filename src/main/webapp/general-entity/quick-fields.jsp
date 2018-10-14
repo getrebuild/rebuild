@@ -34,7 +34,7 @@
 	<div class="dialog-footer">
 		<div class="float-left hide J_for-admin">
 			<label class="custom-control custom-checkbox custom-control-inline">
-				<input class="custom-control-input" type="checkbox" id="applyFor" value="ALL" checked="checked">
+				<input class="custom-control-input" type="checkbox" id="applyTo" value="ALL" checked="checked">
 				<span class="custom-control-label">应用到全部用户</span>
 			</label>
 		</div>
@@ -48,7 +48,7 @@ $(document).ready(function(){
 	const entity = $urlp('entity');
 	
 	let cfgid = null;
-	$.get(rb.baseUrl + '/app/' + entity + '/list-advfilter', function(res){
+	$.get(rb.baseUrl + '/app/' + entity + '/advfilter/quick-fields', function(res){
 		let fieldNames = {}
 		$(res.data['fieldList']).each(function(){
 			item_render(this, '.J_fields')
@@ -74,7 +74,7 @@ $(document).ready(function(){
 		config = { items: config }
 		
 		let btn = $(this).button('loading')
-		$.post(rb.baseUrl + '/app/' + entity + '/list-advfilter?cfgid=' + cfgid, JSON.stringify(config), function(res){
+		$.post(rb.baseUrl + '/app/' + entity + '/advfilter/quick-fields?cfgid=' + cfgid + '&toAll=' + $('#applyTo').prop('checked'), JSON.stringify(config), function(res){
 			btn.button('reset')
 			if (res.error_code == 0){
 				if (parent.QuickFilter) {

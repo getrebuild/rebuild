@@ -337,7 +337,7 @@ const QuickFilter = {
     
     loadFilter() {
         let that = this
-        $.get(`${rb.baseUrl}/app/${this.entity}/advfilter/simple`, function(res){
+        $.get(`${rb.baseUrl}/app/${this.entity}/advfilter/quick`, function(res){
             that.filterExp = res.data || { items: [] }
             let qFields = []
             that.filterExp.items.forEach(function(item){

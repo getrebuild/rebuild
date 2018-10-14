@@ -33,34 +33,50 @@ import com.rebuild.server.helper.manager.LayoutManager;
 import com.rebuild.server.helper.manager.NavManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.web.BaseControll;
+import com.rebuild.web.LayoutConfig;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * 导航菜单设置
  * 
  * @author zhaofang123@gmail.com
  * @since 09/19/2018
  */
 @Controller
-@RequestMapping("/app/commons/")
-public class NavSettings extends BaseControll {
-
+@RequestMapping("/app/settings/")
+public class NavSettings extends BaseControll implements LayoutConfig {
+	
+	@Override
+	public void sets(String entity, HttpServletRequest request, HttpServletResponse response) throws IOException { }
+	@Override
+	public void gets(String entity, HttpServletRequest request, HttpServletResponse response) throws IOException { }
+	
 	@RequestMapping(value = "nav-settings", method = RequestMethod.POST)
-	public void navsSet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void sets(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		
+		boolean toAll = "true".equals(getParameter(request, "toAll"));
+		// 非管理员只能设置自己
+		boolean isAdmin = Application.getUserStore().getUser(user).isAdmin();
+		if (!isAdmin) {
+			toAll = false;
+		}
+		
 		JSON config = ServletUtils.getRequestJson(request);
-		ID configId = getIdParameter(request, "cfgid");
+		ID cfgid = getIdParameter(request, "cfgid");
+		ID cfgidDetected = NavManager.detectConfigId(cfgid, toAll, user);
 		
 		Record record = null;
-		if (configId == null) {
+		if (cfgidDetected == null) {
 			record = EntityHelper.forNew(EntityHelper.LayoutConfig, user);
-			record.setString("belongEntity", "");
+			record.setString("belongEntity", "N");
 			record.setString("type", LayoutManager.TYPE_NAVI);
+			record.setString("applyTo", toAll ? LayoutManager.APPLY_ALL : LayoutManager.APPLY_SELF);
 		} else {
-			record = EntityHelper.forUpdate(configId, user);
+			record = EntityHelper.forUpdate(cfgidDetected, user);
 		}
 		record.setString("config", config.toJSONString());
 		Application.getCommonService().createOrUpdate(record);
@@ -69,9 +85,8 @@ public class NavSettings extends BaseControll {
 	}
 	
 	@RequestMapping(value = "nav-settings", method = RequestMethod.GET)
-	public void navsGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getRequestUser(request);
-		JSON config = NavManager.getNav(user);
+	public void gets(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		JSON config = NavManager.getNav(getRequestUser(request));
 		writeSuccess(response, config);
 	}
 }

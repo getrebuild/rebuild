@@ -27,6 +27,8 @@ import java.util.Map;
 import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.engine.ID;
@@ -44,7 +46,7 @@ public class JSONUtils {
 	 * @param value
 	 * @return
 	 */
-	public static JSON toJSONObject(String key, Object value) {
+	public static JSONObject toJSONObject(String key, Object value) {
 		return toJSONObject(new String[] { key }, new Object[] { value });
 	}
 
@@ -53,13 +55,13 @@ public class JSONUtils {
 	 * @param values
 	 * @return
 	 */
-	public static JSON toJSONObject(String keys[], Object values[]) {
-		Assert.isTrue(keys.length == values.length, "K/V 长度不匹配");
+	public static JSONObject toJSONObject(String keys[], Object values[]) {
+		Assert.isTrue(keys.length <= values.length, "K/V 长度不匹配");
 		Map<String, Object> map = new HashMap<>();
 		for (int i = 0; i < keys.length; i++) {
 			map.put(keys[i], values[i]);
 		}
-		return (JSON) JSON.toJSON(map);
+		return (JSONObject) JSON.toJSON(map);
 	}
 	
 	/**
@@ -67,7 +69,7 @@ public class JSONUtils {
 	 * @param valuesArray
 	 * @return
 	 */
-	public static JSON toJSONArray(String keys[], Object valuesArray[][]) {
+	public static JSONArray toJSONArray(String keys[], Object valuesArray[][]) {
 		List<Map<String, Object>> array = new ArrayList<>();
 		for (Object[] o : valuesArray) {
 			Map<String, Object> map = new HashMap<>();
@@ -76,7 +78,7 @@ public class JSONUtils {
 			}
 			array.add(map);
 		}
-		return (JSON) JSON.toJSON(array);
+		return (JSONArray) JSON.toJSON(array);
 	}
 	
 	/**

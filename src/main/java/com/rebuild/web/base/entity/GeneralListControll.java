@@ -38,31 +38,29 @@ import com.rebuild.web.base.entity.datalist.DefaultDataListControl;
 import cn.devezhao.commons.web.ServletUtils;
 
 /**
+ * 数据列表-检索数据
  * 
  * @author zhaofang123@gmail.com
  * @since 08/22/2018
  */
 @Controller
-@RequestMapping("/app/")
+@RequestMapping("/app/{entity}/")
 public class GeneralListControll extends BaseControll {
 
-	@RequestMapping("{entity}/list")
-	public ModelAndView pageList(@PathVariable String entity, 
-			HttpServletRequest request) throws IOException {
+	@RequestMapping("list")
+	public ModelAndView pageList(@PathVariable String entity, HttpServletRequest request) throws IOException {
 		ModelAndView mv = createModelAndView("/general-entity/record-list.jsp", entity);
-		JSON cfg = DataListManager.getColumnLayout(entity);
-		mv.getModel().put("DataListConfig", JSON.toJSONString(cfg));
+		JSON config = DataListManager.getColumnLayout(entity, getRequestUser(request));
+		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
 		return mv;
 	}
 	
-	@RequestMapping("{entity}/record-list")
+	@RequestMapping("record-list")
 	public void recordList(@PathVariable String entity,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String reqdata = ServletUtils.getRequestString(request);
-		JSONObject reqJson = JSON.parseObject(reqdata);
-		
-		DataListControl control = new DefaultDataListControl(reqJson);
-		String json = control.getResult();
-		writeSuccess(response, JSON.parse(json));
+		JSONObject query = (JSONObject) ServletUtils.getRequestJson(request);
+		DataListControl control = new DefaultDataListControl(query, getRequestUser(request));
+		JSON result = control.getResult();
+		writeSuccess(response, result);
 	}
 }

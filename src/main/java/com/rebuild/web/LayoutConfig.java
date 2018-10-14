@@ -16,34 +16,27 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.base.entity;
+package com.rebuild.web;
 
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import com.rebuild.web.BaseControll;
-import com.rebuild.web.LayoutConfig;
+import org.springframework.web.bind.annotation.PathVariable;
 
 /**
- * 高级查询
+ * 布局配置标记接口
  * 
  * @author devezhao
  * @since 10/14/2018
  */
-@Controller
-@RequestMapping("/app/{entity}/")
-public class AdvFilterControll extends BaseControll implements LayoutConfig {
-
-	@Override
-	public void sets(String entity, HttpServletRequest request, HttpServletResponse response) throws IOException {
-	}
+public interface LayoutConfig {
 	
-	@Override
-	public void gets(String entity, HttpServletRequest request, HttpServletResponse response) throws IOException {
-	}
+	void sets(@PathVariable String entity, 
+			HttpServletRequest request, HttpServletResponse response) throws IOException;
+	
+	void gets(@PathVariable String entity, 
+			HttpServletRequest request, HttpServletResponse response) throws IOException;
+	
 }

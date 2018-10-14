@@ -21,6 +21,7 @@ package com.rebuild.server.helper.manager;
 import java.util.Date;
 import java.util.Map;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
@@ -54,27 +55,28 @@ public class FormManager extends LayoutManager {
 	
 	/**
 	 * @param entity
+	 * @param user
 	 * @return
 	 */
-	public static JSON getFormLayout(String entity) {
-		Assert.notNull(entity, "[entity] not be null");
+	public static JSON getFormLayout(String entity, ID user) {
+		JSONObject cfgsJson = new JSONObject();
+		cfgsJson.put("entity", entity);
 		
-		Object[] raw = getLayoutConfigRaw(entity, TYPE_FORM);
-		JSONObject config = new JSONObject();
-		config.put("entity", entity);
-		if (raw != null) {
-			config.put("id", raw[0].toString());
-			config.put("elements", raw[1]);
-			return config;
+		Object[] cfgs = getLayoutConfigRaw(entity, TYPE_FORM, user);
+		if (cfgs != null) {
+			cfgsJson.put("id", cfgs[0].toString());
+			cfgsJson.put("elements", cfgs[1]);
+		} else {
+			cfgsJson.put("elements", ArrayUtils.EMPTY_STRING_ARRAY);
 		}
-		config.put("elements", new String[0]);
-		return config;
+		return cfgsJson;
 	}
 	
 	/**
 	 * 表单-新建
 	 * 
 	 * @param entity
+	 * @param user
 	 * @return
 	 */
 	public static JSON getFormModel(String entity, ID user) {
@@ -86,11 +88,11 @@ public class FormManager extends LayoutManager {
 	 * 
 	 * @param entity
 	 * @param user
-	 * @param recordId
+	 * @param record
 	 * @return
 	 */
-	public static JSON getFormModel(String entity, ID user, ID recordId) {
-		return getModel(entity, user, recordId, false);
+	public static JSON getFormModel(String entity, ID user, ID record) {
+		return getModel(entity, user, record, false);
 	}
 	
 	/**
@@ -98,41 +100,45 @@ public class FormManager extends LayoutManager {
 	 * 
 	 * @param entity
 	 * @param user
-	 * @param recordId
+	 * @param record
 	 * @return
 	 */
-	public static JSON getViewModel(String entity, ID user, ID recordId) {
-		Assert.notNull(recordId, "[recordId] not be null");
-		return getModel(entity, user, recordId, true);
+	public static JSON getViewModel(String entity, ID user, ID record) {
+		Assert.notNull(record, "[record] not be null");
+		return getModel(entity, user, record, true);
 	}
 	
 	/**
 	 * @param entity
 	 * @param user
-	 * @param recordId
-	 * @param onView
+	 * @param record
+	 * @param onView 视图模式?
 	 * @return
 	 */
-	protected static JSON getModel(String entity, ID user, ID recordId, boolean onView) {
+	protected static JSON getModel(String entity, ID user, ID record, boolean onView) {
 		Assert.notNull(entity, "[entity] not be null");
 		Assert.notNull(user, "[user] not be null");
+		
+		// TODO 判断表单权限
 		
 		final Entity entityMeta = MetadataHelper.getEntity(entity);
 		final User currentUser = Application.getUserStore().getUser(user);
 		final Date now = CalendarUtils.now();
 		
-		JSONObject config = (JSONObject) getFormLayout(entity);
+		JSONObject config = (JSONObject) getFormLayout(entity, user);
 		JSONArray elements = config.getJSONArray("elements");
 		
-		Record record = null;
-		if (!elements.isEmpty() && recordId != null) {
-			record = queryRecord(recordId, elements);
+		Record data = null;
+		if (!elements.isEmpty() && record != null) {
+			data = queryRecord(record, elements);
 		}
 		
 		for (Object element : elements) {
 			JSONObject el = (JSONObject) element;
 			String fieldName = el.getString("field");
-			if (fieldName.equals("$LINE$") || fieldName.equals("$DIVIDER$")) {
+			
+			// 分割线
+			if (fieldName.equals("$DIVIDER$")) {
 				continue;
 			}
 			
@@ -143,14 +149,16 @@ public class FormManager extends LayoutManager {
 			el.put("type", dt.name());
 			el.put("nullable", fieldMeta.isNullable());
 			el.put("readonly", false);
-			if (record != null && !fieldMeta.isUpdatable()) {
+			
+			// 不可更新字段
+			if (data != null && !fieldMeta.isUpdatable()) {
 				el.put("readonly", true);
 			}
 			
 			// 针对字段的配置
 			
-			JSONObject ext = easyField.getFieldExtConfig();
-			for (Map.Entry<String, Object> e : ext.entrySet()) {
+			JSONObject fieldExt = easyField.getFieldExtConfig();
+			for (Map.Entry<String, Object> e : fieldExt.entrySet()) {
 				el.put(e.getKey(), e.getValue());
 			}
 			
@@ -162,24 +170,24 @@ public class FormManager extends LayoutManager {
 			}
 			else if (dt == DisplayType.DATETIME) {
 				if (!el.containsKey("datetimeFormat")) {
-					el.put("datetimeFormat", "yyyy-MM-dd HH:mm:ss");
+					el.put("datetimeFormat", DisplayType.DATETIME.getDefaultFormat());
 				}
 			}
 			else if (dt == DisplayType.DATE) {
 				if (!el.containsKey("dateFormat")) {
-					el.put("dateFormat", "yyyy-MM-dd");
+					el.put("dateFormat", DisplayType.DATE.getDefaultFormat());
 				}
 			}
 			
 			// 编辑/视图
-			if (record != null) {
-				Object value = wrapFieldValue(record, easyField, onView);
+			if (data != null) {
+				Object value = wrapFieldValue(data, easyField, onView);
 				if (value != null) {
 					if (dt == DisplayType.BOOL && !onView) {
-						value = value.toString().equals("是") ? "T" : "F";
-					} else {
-						el.put("value", value);
+						value = "是".equals(value) ? "T" : "F";
 					}
+					
+					el.put("value", value);
 				}
 			}
 			// 新建记录
@@ -195,8 +203,6 @@ public class FormManager extends LayoutManager {
 					}
 				}
 				
-				// TODO 默认值
-				
 				if (dt == DisplayType.PICKLIST) {
 					JSONArray options = el.getJSONArray("options");
 					for (Object o : options) {
@@ -207,6 +213,8 @@ public class FormManager extends LayoutManager {
 						}
 					}
 				}
+				
+				// TODO 字段的默认值
 				
 			}
 		}
@@ -254,15 +262,15 @@ public class FormManager extends LayoutManager {
 	}
 	
 	/**
-	 * @param record
+	 * @param data
 	 * @param field
 	 * @param onView
 	 * @return
 	 */
-	protected static Object wrapFieldValue(Record record, EasyMeta field, boolean onView) {
+	protected static Object wrapFieldValue(Record data, EasyMeta field, boolean onView) {
 		String fieldName = field.getName();
-		if (record.hasValue(fieldName)) {
-			Object value = record.getObjectValue(fieldName);
+		if (data.hasValue(fieldName)) {
+			Object value = data.getObjectValue(fieldName);
 			if (field.getDisplayType() == DisplayType.PICKLIST) {
 				ID pickValue = (ID) value;
 				return onView ? pickValue.getLabel() : pickValue.toLiteral();
