@@ -383,6 +383,18 @@ const RbListPage = {
             if (that._ModalSColumns) that._ModalSColumns.show()
             else that._ModalSColumns = rb.modal(`${rb.baseUrl}/page/general-entity/show-columns?entity=${entity[1]}`, '设置列显示')
         })
+        
+        // Privileges
+        if (ep) {
+            if (ep.C === false) $('.J_new').remove()
+            if (ep.D === false) $('.J_delete').remove()
+            if (ep.U === false) $('.J_edit').remove()
+            if (ep.A === false) $('.J_assign').remove()
+            if (ep.S === false) $('.J_share').remove()
+            
+            let divi = $('.J_actions .dropdown-menu').children().first()
+            if (divi.hasClass('dropdown-divider')) divi.remove()
+        }
     }
 }
 

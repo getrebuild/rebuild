@@ -29,6 +29,7 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.entityhub.EasyMeta;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.AppUtils;
 
@@ -81,20 +82,24 @@ public abstract class PageControll {
 			mv.getModel().put("entityLabel", easy.getLabel());
 			mv.getModel().put("entityIcon", easy.getIcon());
 			
-			Privileges priv = Application.getSecurityManager().getPrivileges(user, entityMeta.getEntityCode());
-			Permission[] actions = new Permission[] {
-					BizzPermission.CREATE,
-					BizzPermission.DELETE,
-					BizzPermission.UPDATE,
-					BizzPermission.READ,
-					BizzPermission.ASSIGN,
-					BizzPermission.SHARE,
-			};
-			Map<String, Boolean> actionMap = new HashMap<>();
-			for (Permission act : actions) {
-				actionMap.put(act.getName(), priv.allowed(act));
+			if (EntityHelper.hasPrivilegesField(entityMeta)) {
+				Privileges priv = Application.getSecurityManager().getPrivileges(user, entityMeta.getEntityCode());
+				Permission[] actions = new Permission[] {
+						BizzPermission.CREATE,
+						BizzPermission.DELETE,
+						BizzPermission.UPDATE,
+						BizzPermission.READ,
+						BizzPermission.ASSIGN,
+						BizzPermission.SHARE,
+				};
+				Map<String, Boolean> actionMap = new HashMap<>();
+				for (Permission act : actions) {
+					actionMap.put(act.getName(), priv.allowed(act));
+				}
+				mv.getModel().put("entityPrivileges", JSON.toJSONString(actionMap));
+			} else {
+				mv.getModel().put("entityPrivileges", "{}");
 			}
-			mv.getModel().put("entityPrivileges", JSON.toJSONString(actionMap));
 		}
 		return mv;
 	}

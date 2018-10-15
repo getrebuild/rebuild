@@ -35,7 +35,7 @@
 
 .input-search,
 .input-search input {
-	width: 240px;
+	width: 220px;
 	height: 2.8rem;
 }
 
@@ -52,7 +52,7 @@
 }
 
 .input-search .input-group-btn.plus {
-	margin-right: -34px;
+	margin-right: -36px;
 	margin-top: -1px;
 }
 
@@ -60,6 +60,9 @@
 	border: 1px solid #dbdbdb;
 	height: 2.8rem;
 	padding: 0 8px;
+	min-width: 35px;
+	border-radius: 0 2px 2px 0;
+	border-left: 0 none
 }
 
 .adv-search {
