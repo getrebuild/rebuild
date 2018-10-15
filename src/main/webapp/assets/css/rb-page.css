@@ -483,6 +483,7 @@ a {
 .data-list .table thead th>div {
 	color: #555;
 	position: relative;
+	text-overflow: ellipsis;
 }
 
 .data-list .table thead th>div>i {
@@ -493,7 +494,7 @@ a {
 }
 
 .data-list .table thead th>div>i.split {
-	width: 6px;
+	width: 8px;
 	border-right: 2px dotted #aaa;
 	cursor: e-resize;
 }

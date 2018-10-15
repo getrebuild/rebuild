@@ -183,8 +183,23 @@ const $regex = {
 };
 
 const $encode = function(s) {
-	return encodeURIComponent(s);
+	return encodeURIComponent(s)
 }
 const $decode = function(s) {
-	return decodeURIComponent(s);
+	return decodeURIComponent(s)
+}
+
+const $storage = {
+	get(key){
+		if (window.localStorage) return localStorage.getItem(key)
+		else return $.cookie(key)
+	},
+	set(key, val){
+		if (window.localStorage) localStorage.setItem(key, val)
+		else $.cookie(key, val, { expires:365 })
+	},
+	remove(key){
+		if (window.localStorage) localStorage.removeItem(key)
+		else $.removeCookie(key)
+	}
 }

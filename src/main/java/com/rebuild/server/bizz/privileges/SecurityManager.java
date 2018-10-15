@@ -28,7 +28,6 @@ import cn.devezhao.bizz.privileges.Privileges;
 import cn.devezhao.bizz.privileges.impl.BizzDepthEntry;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.bizz.security.member.Role;
-import cn.devezhao.bizz.security.member.User;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -71,8 +70,14 @@ public class SecurityManager {
 	 * @return
 	 */
 	public Privileges getPrivileges(ID user, int entity) {
-		Role role = USER_STORE.getUser(user).getOwningRole();
-		return role.getPrivileges(entity);
+		User u = USER_STORE.getUser(user);
+		if (!u.isActive()) {
+			return Privileges.NONE;
+		}
+		if (u.isAdmin()) {
+			return Privileges.ROOT;
+		}
+		return u.getOwningRole().getPrivileges(entity);
 	}
 	
 	/**

@@ -2,7 +2,17 @@
 class RbList extends React.Component {
     constructor(props) {
         super(props)
+        
+        this.__sortFieldKey = 'SortField-' + this.props.config.entity
+        this.__columnWidthKey = 'ColumnWidth-' + this.props.config.entity + '.'
+        
+        let sort = ($storage.get(this.__sortFieldKey) || ':').split(':')
         let fields = props.config.fields
+        for (let i = 0; i < fields.length; i++){
+            let cw = $storage.get(this.__columnWidthKey + fields[i].field)
+            if (!!cw && ~~cw > 40) fields[i].width = ~~cw
+            if (sort[0] == fields[i].field) fields[i].sort = sort[1]
+        }
         props.config.fields = null
         this.state = { ...props, fields: fields, rowData: [], noData: false, checkedAll: false, pageNo: 1, pageSize: 20 }
         
@@ -31,7 +41,7 @@ class RbList extends React.Component {
                                 let columnWidth = (item.width || that.__defaultColumnWidth) + 'px'
                                 let styles = { width: columnWidth }
                                 let sortClazz = item.sort || ''
-                                return (<th key={'field-' + item.field} style={styles} className="sortable unselect" onClick={this.fieldSort.bind(this, item.field)}><div style={styles}>{item.label}<i className={'zmdi ' + sortClazz}></i><i className="split"></i></div></th>)
+                                return (<th key={'column-' + item.field} style={styles} className="sortable unselect" onClick={this.fieldSort.bind(this, item.field)}><div style={styles}>{item.label}<i className={'zmdi ' + sortClazz}></i><i className="split" data-field={item.field}></i></div></th>)
                             })}
                             <th className="column-empty"></th>
                         </tr>
@@ -63,18 +73,18 @@ class RbList extends React.Component {
         
         let that = this
         scroller.find('th .split').draggable({ containment: '.rb-datatable-body', axis: 'x', helper: 'clone', stop: function(event, ui){
-            let field = $(event.target).parent().parent().data('field')
-            let left = ui.position.left - 4;
-            if (left < 40) left = 40
+            let field = $(event.target).data('field')
+            let left = ui.position.left - 2
+            if (left < 40) left = 40  // min
             let fields = that.state.fields
             for (let i = 0; i < fields.length; i++){
                 if (fields[i].field == field){
                     fields[i].width = left
-                    break;
+                    $storage.set(that.__columnWidthKey + field, left)
+                    break
                 }
             }
-            that.setState({ fields: fields }, function(){
-            })
+            that.setState({ fields: fields })
         }})
         this.fetchList()
     }
@@ -140,15 +150,17 @@ class RbList extends React.Component {
         let styles = { width: (this.state.fields[index].width || this.__defaultColumnWidth) + 'px' }
         if (field.type == 'IMAGE') {
             cellVal = JSON.parse(cellVal || '[]')
-            return <td><div style={styles} className="img-field column-imgs">{cellVal.map((item)=>{
-                return <span><a href={'#!/Preview/' + item} className="img-thumbnail img-upload"><img src={rb.storageUrl + item + '?imageView2/2/w/100/interlace/1/q/100'} /></a></span>
-            })}<div className="clearfix" /></div></td>
+            return (<td><div style={styles} className="img-field column-imgs">
+                {cellVal.map((item)=>{
+                    return <span><a href={'#!/Preview/' + item} className="img-thumbnail img-upload"><img src={rb.storageUrl + item + '?imageView2/2/w/100/interlace/1/q/100'} /></a></span>
+                })}<div className="clearfix" /></div></td>)
         } else if (field.type == 'FILE') {
             cellVal = JSON.parse(cellVal || '[]')
-            return <td><div style={styles} className="column-files"><ul className="list-unstyled">{cellVal.map((item)=>{
-                let fileName = __fileCutName(item)
-                return <li className="text-truncate"><a href={'#!/Preview/' + item}>{fileName}</a></li>
-            })}</ul></div></td>;
+            return (<td><div style={styles} className="column-files"><ul className="list-unstyled">
+                {cellVal.map((item)=>{
+                    let fileName = __fileCutName(item)
+                    return <li className="text-truncate"><a href={'#!/Preview/' + item}>{fileName}</a></li>
+                })}</ul></div></td>)
         } else if (field.type == 'REFERENCE'){
             return <td><div style={styles}><a href={'#!/View/' + cellVal[2][0] + '/' + cellVal[0]} onClick={() => this.clickView(cellVal)}>{cellVal[1]}</a></div></td>
         } else if (field.field == this.props.config.nameField){
@@ -235,8 +247,9 @@ class RbList extends React.Component {
         let fields = this.state.fields;
         for (let i = 0; i < fields.length; i++){
             if (fields[i].field == field){
-                if (fields[i].sort == 'sort-asc') fields[i].sort = 'sort-desc';
-                else fields[i].sort = 'sort-asc';
+                if (fields[i].sort == 'sort-asc') fields[i].sort = 'sort-desc'
+                else fields[i].sort = 'sort-asc'
+                $storage.set(this.__sortFieldKey, field + ':' + fields[i].sort)
             } else {
                 fields[i].sort = null
             }
@@ -274,8 +287,8 @@ class RbListPagination extends React.Component {
                         <ul className="pagination">
                             {props.pageNo > 1 && <li className="paginate_button page-item"><a className="page-link" onClick={this.prev}><span className="icon zmdi zmdi-chevron-left"></span></a></li>}
                             {pages.map((item) => {
-                                if (item == '.') return <li className="paginate_button page-item disabled"><a className="page-link">...</a></li>
-                                else return <li className={'paginate_button page-item ' + (props.pageNo == item && 'active')}><a href="javascript:;" className="page-link" onClick={this.goto.bind(this, item)}>{item}</a></li>
+                                if (item == '.') return <li key={'page-' + item} className="paginate_button page-item disabled"><a className="page-link">...</a></li>
+                                else return <li key={'page-' + item} className={'paginate_button page-item ' + (props.pageNo == item && 'active')}><a href="javascript:;" className="page-link" onClick={this.goto.bind(this, item)}>{item}</a></li>
                             })}
                             {props.pageNo != this.pageTotal && <li className="paginate_button page-item"><a className="page-link" onClick={this.next}><span className="icon zmdi zmdi-chevron-right"></span></a></li>}
                         </ul>
