@@ -108,13 +108,13 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 			    throw new IllegalArgumentException("No primary in record!");
 			}
 			
-			isAllowed = Application.getSecurityManager().allowed(caller, entity.getEntityCode(), permission, recordId);
+			isAllowed = Application.getSecurityManager().allowed(caller, recordId, permission);
 		}
 		
 		if (!isAllowed) {
 		    throw new AccessDeniedException(
-		    		"User [ " + caller + " ] not allowed execute action [ " + permission + " ]. "
-		    		+ (recordId == null ? "Entity : " + entity.getName() : "ID : " + recordId));
+		    		"User [ " + caller + " ] not allowed execute action [ " + permission.getName() + " ]. "
+		    		+ (recordId == null ? "Entity : " + entity.getName() : "Record : " + recordId));
 		}
 	}
 	

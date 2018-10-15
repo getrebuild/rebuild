@@ -39,6 +39,6 @@ public class UserProfileControll extends BaseControll {
 
 	@RequestMapping("profile")
 	public ModelAndView pageProfile(HttpServletRequest request) throws IOException {
-		return createModelAndView("/me/profile.jsp", "User");
+		return createModelAndView("/me/profile.jsp", "User", getRequestUser(request));
 	}
 }

@@ -63,7 +63,7 @@ public abstract class BaseService {
 
 	/**
 	 * @param recordId
-	 * @return
+	 * @return 删除记录数量（包括关联的记录）
 	 */
 	public int delete(ID recordId) {
 		int affected = aPMFactory.createPersistManager().delete(recordId);

@@ -49,28 +49,30 @@ public class UserControll extends BaseControll {
 	
 	@RequestMapping("/app/User/view/{id}")
 	public ModelAndView pageView(@PathVariable String id, HttpServletRequest request) throws IOException {
-		ID recordId = ID.valueOf(id);
-		ModelAndView mv = createModelAndView("/admin/bizuser/user-view.jsp", "User");
-		mv.getModel().put("id", recordId);
+		ID user = getRequestUser(request);
+		ID record = ID.valueOf(id);
+		ModelAndView mv = createModelAndView("/admin/bizuser/user-view.jsp", "User", user);
+		mv.getModel().put("id", record);
 		return mv;
 	}
 	
 	@RequestMapping("/admin/bizuser/users")
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
-		ModelAndView mv = createModelAndView("/admin/bizuser/user-list.jsp", "User");
-		JSON config = DataListManager.getColumnLayout("User", getRequestUser(request));
+		ID user = getRequestUser(request);
+		ModelAndView mv = createModelAndView("/admin/bizuser/user-list.jsp", "User", user);
+		JSON config = DataListManager.getColumnLayout("User", user);
 		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
 		return mv;
 	}
 	
 	@RequestMapping("/admin/bizuser/dept-tree")
 	public void deptTreeGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		Object[][] firstDepts = Application.createQuery(
+		Object[][] topDepts = Application.createQuery(
 				"select deptId from Department where parentDept is null")
 				.array();
 		
 		JSONArray firsts = new JSONArray();
-		for (Object dept[] : firstDepts) {
+		for (Object dept[] : topDepts) {
 			Department first = Application.getUserStore().getDept((ID) dept[0]);
 			firsts.add(recursiveDeptTree(first));
 		}

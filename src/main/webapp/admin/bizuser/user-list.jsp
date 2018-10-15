@@ -16,10 +16,9 @@
 		<jsp:param value="users" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
-		<aside class="page-aside ">
+		<aside class="page-aside">
 			<div class="rb-scroller">
-				<div class="dept-tree">
-				</div>
+				<div class="dept-tree"></div>
 			</div>
 		</aside>
 		<div class="main-content container-fluid main-content-list">
@@ -44,7 +43,7 @@
 								<div class="dataTables_oper">
 									<button class="btn btn-space btn-secondary J_view" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> 打开</button>
 									<div class="btn-group btn-space">
-										<button class="btn btn-primary J_new-user" type="button"><i class="icon zmdi zmdi-account-add"></i> 新建用户</button>
+										<button class="btn btn-primary J_new" type="button"><i class="icon zmdi zmdi-account-add"></i> 新建用户</button>
 										<button class="btn btn-primary dropdown-toggle auto" type="button" data-toggle="dropdown"><span class="icon zmdi zmdi-chevron-down"></span></button>
 										<div class="dropdown-menu dropdown-menu-right">
 											<a class="dropdown-item J_new-dept"><i class="icon zmdi zmdi-accounts-add"></i> 新建部门</a>
@@ -77,67 +76,28 @@
 <script src="${baseUrl}/assets/js/rb-list.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/bizuser/dept-tree.js" type="text/javascript"></script>
 <script type="text/babel">
-var rbList, columnsModal
 $(document).ready(function(){
-	rbList = rb.RbList({ config: JSON.parse('${DataListConfig}') })
-	
-	$('.J_view').click(function(){
-		let s = rbList.getSelectedRows()
-		if (s.length == 1) {
-			s = s[0]
-			rb.RbViewModal({ id: s[0], entity: s[2][0] })
-		}
-	})
+	RbListPage.init(
+		${DataListConfig},
+		['${entityLabel}', '${entityName}', '${entityIcon}'],
+		${entityPrivileges})
 
-	$('.J_new-user').click(function(){
-		rb.RbFormModal({ title: '新建用户', entity: 'User', icon: 'account' })
-		formPostType = 1
+	$('.J_new').click(function(){
+		formPostType = 2
 	})
 	$('.J_new-dept').click(function(){
 		rb.RbFormModal({ title: '新建部门', entity: 'Department', icon: 'accounts' })
 		formPostType = 2
 	})
 
-	$('.J_columns').click(function(){
-		if (columnsModal) columnsModal.show()
-		else columnsModal = rb.modal('${baseUrl}/page/general-entity/show-columns?entity=User', '设置列显示')
-	})
-
-	QuickFilter.init('.input-search', 'User')
-
 	loadDeptTree()
 })
 var formPostType = 1
 RbForm.postAfter = function(){
-	if (formPostType == 1) rbList.reload()
+	if (formPostType == 1) RbListPage._RbList.reload()
 	else loadDeptTree()
-}
-const loadDeptTree = function(){
-	$.get(rb.baseUrl + '/admin/bizuser/dept-tree', function(res){
-		$('.dept-tree').empty()
-		let root = $('<ul class="list-unstyled"></ul>').appendTo('.dept-tree')
-		renderDeptTree({ id:'$ALL', name:'所有部门' }, root).addClass('active')
-		$(res.data).each(function(){
-			renderDeptTree(this, root)
-		})
-	})
-}
-const renderDeptTree = function(dept, target) {
-	let child = $('<li data-id="' + dept.id + '"><a class="text-truncate">' + dept.name + '</a></li>').appendTo(target)
-	child.click(function(){
-		$('.dept-tree li').removeClass('active')
-		child.addClass('active')
-		return false
-	})
-	if (dept.children && dept.children.length > 0) {
-		let parent = $('<ul class="list-unstyled"></ul>').appendTo(child)
-		$(dept.children).each(function(){
-			renderDeptTree(this, parent)
-		})
-	}
-	return child
 }
 </script>
 </body>

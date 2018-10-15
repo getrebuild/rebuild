@@ -42,6 +42,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 
 /**
+ * 引用字段搜索
  * 
  * @author zhaofang123@gmail.com
  * @since 08/24/2018

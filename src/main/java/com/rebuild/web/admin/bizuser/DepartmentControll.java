@@ -42,16 +42,18 @@ public class DepartmentControll extends BaseControll {
 
 	@RequestMapping("/app/Department/view/{id}")
 	public ModelAndView pageView(@PathVariable String id, HttpServletRequest request) throws IOException {
-		ID recordId = ID.valueOf(id);
-		ModelAndView mv = createModelAndView("/admin/bizuser/dept-view.jsp", "Department");
-		mv.getModel().put("id", recordId);
+		ID user = getRequestUser(request);
+		ID record = ID.valueOf(id);
+		ModelAndView mv = createModelAndView("/admin/bizuser/dept-view.jsp", "Department", user);
+		mv.getModel().put("id", record);
 		return mv;
 	}
 	
 	@RequestMapping("/admin/bizuser/departments")
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
-		ModelAndView mv = createModelAndView("/admin/bizuser/dept-list.jsp", "Department");
-		JSON config = DataListManager.getColumnLayout("Department", getRequestUser(request));
+		ID user = getRequestUser(request);
+		ModelAndView mv = createModelAndView("/admin/bizuser/dept-list.jsp", "Department", user);
+		JSON config = DataListManager.getColumnLayout("Department", user);
 		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
 		return mv;
 	}

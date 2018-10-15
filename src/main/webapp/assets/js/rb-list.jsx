@@ -112,7 +112,7 @@ class RbList extends React.Component {
         };
         let that = this;
         $('#react-list').addClass('rb-loading-active')
-        $.post(rb.baseUrl + '/app/' + entity + '/record-list', JSON.stringify(query), function(res){
+        $.post(rb.baseUrl + '/app/' + entity + '/data-list', JSON.stringify(query), function(res){
             if (res.error_code == 0){
                 let rowdata = res.data.data
                 if (rowdata.length > 0) {
@@ -312,12 +312,89 @@ rb.RbListPagination = function(props, target) {
     return renderRbcomp(<RbListPagination {...props} />, target || 'pagination')
 }
 
-// 简单过滤器
+// 列表页面初始化
+const RbListPage = {
+    _RbList: null,
+    _ModalSColumns: null,
+    _ModalAssign: null,
+    _ModalShare: null,
+        
+    // @config - List config
+    // @entity - [Label, Name, Icon]
+    // @ep - Privileges of this entity
+    init: function(config, entity, ep) {
+        this._RbList = renderRbcomp(<RbList config={config} />, 'react-list')
+        
+        QuickFilter.init('.input-search', entity[1]);
+        
+        $('.J_new').click(function(){
+            rb.RbFormModal({ title: `新建${entity[0]}`, entity: entity[1], icon: entity[2] })
+        })
+        
+        let that = this
+        
+        $('.J_delete').click(function(){
+            let selected = that._RbList.getSelectedRows()
+            if (selected.length < 1) return
+            rb.alter('确认删除选中的 ' + selected.length + ' 条记录吗？', '删除确认', { type: 'danger', confirm: function(){
+                let ids = selected.map((item)=>{
+                    return item[0]
+                })
+                
+                $(this.refs['rbalter']).find('.btn').button('loading')
+                let that = this
+                $.post(rb.baseUrl + '/app/entity/record-delete?id=' + ids.join(','), function(res){
+                    if (res.error_code == 0){
+                        rbList.reload()
+                        that.hide()
+                    } else {
+                        rb.notice(res.error_msg || '删除失败，请稍后重试', 'danger')
+                    }
+                })
+            } })
+        })
+        
+        $('.J_edit').click(function(){
+            let selected = that._RbList.getSelectedRows()
+            if (selected.length == 1) {
+                selected = selected[0]
+                rb.RbFormModal({ id: selected[0], title: `编辑${entity[0]}`, entity: entity[1], icon: entity[2] })
+            }
+        })
+        
+        $('.J_view').click(function(){
+            let selected = that._RbList.getSelectedRows()
+            if (selected.length == 1) {
+                selected = selected[0]
+                rb.RbViewModal({ id: selected[0], entity: entity[1] })
+            }
+        })
+        
+        $('.J_assign').click(function(){
+            if (that._ModalAssign) that._ModalAssign.show()
+            else that._ModalAssign = rb.modal(`${rb.baseUrl}/page/general-entity/assign?entity=entity${entity[1]}`, '分配记录')
+        })
+        $('.J_share').click(function(){
+            if (that._ModalShare) that._ModalShare.show()
+            else that._ModalShare = rb.modal(`${rb.baseUrl}/page/general-entity/share?entity=entity${entity[1]}`, '共享记录')
+        })
+        
+        $('.J_columns').click(function(){
+            if (that._ModalSColumns) that._ModalSColumns.show()
+            else that._ModalSColumns = rb.modal(`${rb.baseUrl}/page/general-entity/show-columns?entity=${entity[1]}`, '设置列显示')
+        })
+    }
+}
+
+// 列表快速查询
 const QuickFilter = {
+    _ModalQFields: null,
+    
+    // @el - 控件
+    // @entity - 实体
     init(el, entity) {
         this.root = $(el)
         this.entity = entity
-        
         this.initEvent()
         this.loadFilter()
     },
@@ -357,15 +434,14 @@ const QuickFilter = {
         }
         
         this.filterExp.values = { 1: val }
-        if (window.rbList) rbList.search(this.filterExp)
-        else console.log('No rbList - ' + this.filterExp)
+        RbListPage._RbList.search(this.filterExp)
     },
     
     showQFieldsModal() {
-        if (this.qfieldsModal) this.qfieldsModal.show()
-        else this.qfieldsModal = rb.modal(`${rb.baseUrl}/page/general-entity/quick-fields?entity=${this.entity}`, '设置查询字段')
+        if (this._ModalQFields) this._ModalQFields.show()
+        else this._ModalQFields = rb.modal(`${rb.baseUrl}/page/general-entity/quick-fields?entity=${this.entity}`, '设置查询字段')
     },
     hideQFieldsModal() {
-        if (this.qfieldsModal) this.qfieldsModal.hide()
+        if (this._ModalQFields) this._ModalQFields.hide()
     }
 };

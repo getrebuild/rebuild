@@ -83,6 +83,7 @@
 		</div>
 	</div>
 </div>
+
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/rb-list.jsx" type="text/babel"></script>
 <script type="text/babel">

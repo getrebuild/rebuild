@@ -49,6 +49,7 @@ import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.util.StringHelper;
 
 /**
+ * 记录相关操作
  * 
  * @author zhaofang123@gmail.com
  * @since 08/30/2018
@@ -61,7 +62,17 @@ public class GeneralRecordControll extends BaseControll {
 	public void save(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		JSON formJson = ServletUtils.getRequestJson(request);
+		
 		Record record = EntityHelper.parse((JSONObject) formJson, user);
+		if (record.getPrimary() == null
+				&& !Application.getSecurityManager().allowedC(user, record.getEntity().getEntityCode())) {
+			writeFailure(response, "没有新建权限");
+			return;
+		} else if (!Application.getSecurityManager().allowedU(user, record.getPrimary())) {
+			writeFailure(response, "没有编辑权限");
+			return;
+		}
+		
 		record = Application.getGeneralEntityService(record.getEntity().getEntityCode()).createOrUpdate(record);
 		
 		Map<String, Object> map = new HashMap<>();
@@ -71,7 +82,10 @@ public class GeneralRecordControll extends BaseControll {
 	
 	@RequestMapping("record-delete")
 	public void delete(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String ids = getParameter(request, "id");
+		ID user = getRequestUser(request);
+		String ids = getParameterNotNull(request, "id");
+		
+		// TODO 级联删除
 		
 		Set<ID> idList = new HashSet<>();
 		int deleteEntityCode = 0;
@@ -93,15 +107,23 @@ public class GeneralRecordControll extends BaseControll {
 			return;
 		}
 		
+		ID firstId = idList.iterator().next();
+		if (!Application.getSecurityManager().allowedD(user, firstId)) {
+			writeFailure(response, "没有删除权限");
+			return;
+		}
+		
 		GeneralEntityService ges = Application.getGeneralEntityService(deleteEntityCode);
 		int deleted = 0;
 		if (idList.size() == 1) {
-			deleted = ges.delete(idList.iterator().next());
+			deleted = ges.delete(firstId);
 		} else {
 			deleted = ges.bulkDelete(idList.toArray(new ID[idList.size()]));
 		}
 		
-		JSON ret = JSONUtils.toJSONObject("deleted", deleted);
+		JSON ret = JSONUtils.toJSONObject(
+				new String[] { "deleted", "request_delete" },
+				new Object[] { deleted, idList.size() });
 		writeSuccess(response, ret);
 	}
 	

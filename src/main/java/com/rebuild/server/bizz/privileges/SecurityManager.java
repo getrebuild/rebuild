@@ -27,7 +27,6 @@ import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.Privileges;
 import cn.devezhao.bizz.privileges.impl.BizzDepthEntry;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
-import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.bizz.security.member.Role;
 import cn.devezhao.bizz.security.member.User;
 import cn.devezhao.persist4j.engine.ID;
@@ -37,6 +36,10 @@ import cn.devezhao.persist4j.engine.ID;
  * 
  * @author Zhao Fangfang
  * @since 1.0, 2013-6-21
+ * 
+ * @see Role
+ * @see BizzPermission
+ * @see BizzDepthEntry
  */
 public class SecurityManager {
 	
@@ -73,34 +76,143 @@ public class SecurityManager {
 	}
 	
 	/**
-	 * 是否对指定实体有访问（读取）权限
+	 * 创建权限
 	 * 
 	 * @param user
 	 * @param entity
 	 * @return
 	 */
-	public boolean allowedAccess(ID user, int entity) {
+	public boolean allowedC(ID user, int entity) {
+		return allowed(user, entity, BizzPermission.CREATE);
+	}
+	
+	/**
+	 * 删除权限
+	 * 
+	 * @param user
+	 * @param entity
+	 * @return
+	 */
+	public boolean allowedD(ID user, int entity) {
+		return allowed(user, entity, BizzPermission.DELETE);
+	}
+	
+	/**
+	 * 更新权限
+	 * 
+	 * @param user
+	 * @param entity
+	 * @return
+	 */
+	public boolean allowedU(ID user, int entity) {
+		return allowed(user, entity, BizzPermission.UPDATE);
+	}
+	
+	/**
+	 * 读取权限
+	 * 
+	 * @param user
+	 * @param entity
+	 * @return
+	 */
+	public boolean allowedR(ID user, int entity) {
 		return allowed(user, entity, BizzPermission.READ);
 	}
 	
 	/**
-	 * 是否对指定记录有访问（读取）权限
+	 * 分派权限
 	 * 
 	 * @param user
 	 * @param entity
-	 * @param target 目标记录
 	 * @return
 	 */
-	public boolean allowedAccess(ID user, int entity, ID target) {
-		return allowed(user, entity, BizzPermission.READ, target);
+	public boolean allowedA(ID user, int entity) {
+		return allowed(user, entity, BizzPermission.ASSIGN);
+	}
+	
+	/**
+	 * 共享权限
+	 * 
+	 * @param user
+	 * @param entity
+	 * @return
+	 */
+	public boolean allowedS(ID user, int entity) {
+		return allowed(user, entity, BizzPermission.SHARE);
+	}
+	
+	/**
+	 * 创建权限
+	 * 
+	 * @param user
+	 * @param target
+	 * @return
+	 */
+	public boolean allowedC(ID user, ID target) {
+		return allowed(user, target, BizzPermission.CREATE);
+	}
+	
+	/**
+	 * 删除权限
+	 * 
+	 * @param user
+	 * @param target
+	 * @return
+	 */
+	public boolean allowedD(ID user, ID target) {
+		return allowed(user, target, BizzPermission.DELETE);
+	}
+	
+	/**
+	 * 更新权限
+	 * 
+	 * @param user
+	 * @param target
+	 * @return
+	 */
+	public boolean allowedU(ID user, ID target) {
+		return allowed(user, target, BizzPermission.UPDATE);
+	}
+	
+	/**
+	 * 读取权限
+	 * 
+	 * @param user
+	 * @param target
+	 * @return
+	 */
+	public boolean allowedR(ID user, ID target) {
+		return allowed(user, target, BizzPermission.READ);
+	}
+	
+	/**
+	 * 分派权限
+	 * 
+	 * @param user
+	 * @param target
+	 * @return
+	 */
+	public boolean allowedA(ID user, ID target) {
+		return allowed(user, target, BizzPermission.ASSIGN);
+	}
+	
+	/**
+	 * 共享权限
+	 * 
+	 * @param user
+	 * @param target
+	 * @return
+	 */
+	public boolean allowedS(ID user, ID target) {
+		return allowed(user, target, BizzPermission.SHARE);
 	}
 	
 	/**
 	 * 是否对实体有指定权限
 	 * 
 	 * @param user
-	 * @param entity
-	 * @param action
+	 * @param entity 目标实体
+	 * @param action 权限动作
 	 * @return
 	 */
 	public boolean allowed(ID user, int entity, Permission action) {
@@ -113,25 +225,19 @@ public class SecurityManager {
 			return true;
 		}
 		
-		try {
-			Privileges priv = role.getPrivileges(entity);
-			return priv.allowed(action);
-		} catch (AccessDeniedException ex) {
-			// No such privileges
-			return false;
-		}
+		Privileges priv = role.getPrivileges(entity);
+		return priv.allowed(action);
 	}
 	
 	/**
 	 * 是否对指定记录有指定权限
 	 * 
 	 * @param user
-	 * @param entity
-	 * @param action
 	 * @param target 目标记录
+	 * @param action 权限动作
 	 * @return
 	 */
-	public boolean allowed(ID user, int entity, Permission action, ID target) {
+	public boolean allowed(ID user, ID target, Permission action) {
 		if (UserService.ADMIN_USER.equals(user)) {
 			return true;
 		}
@@ -140,6 +246,8 @@ public class SecurityManager {
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
 			return true;
 		}
+		
+		final int entity = target.getEntityCode();
 		
 		Privileges priv = role.getPrivileges(entity);
 		boolean allowed = priv.allowed(action);
@@ -161,7 +269,7 @@ public class SecurityManager {
 		if (BizzDepthEntry.PRIVATE.equals(depth)) {
 			allowed = user.equals(targetUserId);
 			if (allowed == false) {
-				return allowedWithShare(user, entity, action, user);
+				return allowedViaShare(user, user, action);
 			}
 			return true;
 		}
@@ -173,7 +281,7 @@ public class SecurityManager {
 		if (BizzDepthEntry.LOCAL.equals(depth)) {
 			allowed = accessUserDept.equals(targetUser.getOwningDept());
 			if (allowed == false) {
-				return allowedWithShare(user, entity, action, user);
+				return allowedViaShare(user, user, action);
 			}
 			return true;
 		}
@@ -185,7 +293,7 @@ public class SecurityManager {
 			
 			allowed = accessUserDept.isChildrenAll((Department) targetUser.getOwningDept());
 			if (allowed == false) {
-				return allowedWithShare(user, entity, action, user);
+				return allowedViaShare(user, user, action);
 			}
 			return true;
 		}
@@ -196,9 +304,12 @@ public class SecurityManager {
 	/**
 	 * TODO 通过共享取得的操作权限
 	 * 
+	 * @param user
+	 * @param target
+	 * @param action
 	 * @return
 	 */
-	private boolean allowedWithShare(ID user, int entity, Permission action, ID target) {
+	private boolean allowedViaShare(ID user, ID target, Permission action) {
 		return false;
 	}
 	

@@ -18,27 +18,49 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.cache;
 
+import org.springframework.cache.Cache;
+import org.springframework.cache.Cache.ValueWrapper;
+import org.springframework.cache.CacheManager;
+import org.springframework.util.Assert;
+
 /**
- * 
  * @author devezhao
  * @since 10/12/2018
  */
 public abstract class CacheTemplate<V> {
 
-	private int ttl = 60 * 60 * 24;  // default 1 day
+	final private CacheManager cacheManager;
 	
-	public CacheTemplate(int ttl) {
-		this.ttl = ttl;
+	protected CacheTemplate(CacheManager cacheManager) {
+		this.cacheManager = cacheManager;
 	}
 
-	protected V get(String key) {
-		return null;
+	@SuppressWarnings("unchecked")
+	public V get(String key) {
+		ValueWrapper vw = getCache().get(standardizationKey(key));
+		return vw == null ? null : (V) vw.get();
 	}
 	
-	protected void set(String key, V value) {
-		set(key, value, ttl);
+	public void put(String key, V value) {
+		getCache().put(standardizationKey(key), value);
 	}
 	
-	protected void set(String key, V value, int ttl) {
+	public void evict(String key, V value) {
+		getCache().evict(standardizationKey(key));
+	}
+	
+	protected Cache getCache() {
+		return cacheManager.getCache("default");
+	}
+	
+	/**
+	 * KEY 全大写
+	 * 
+	 * @param key
+	 * @return
+	 */
+	protected String standardizationKey(Object key) {
+		Assert.notNull(key, "[key] not be null");
+		return key.toString().toUpperCase();
 	}
 }

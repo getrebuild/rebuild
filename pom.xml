@@ -133,5 +133,10 @@
 			<artifactId>jpinyin</artifactId>
 			<version>1.1.8</version>
 		</dependency>
+		<dependency>
+			<groupId>net.sf.ehcache</groupId>
+			<artifactId>ehcache</artifactId>
+			<version>2.10.5</version>
+		</dependency>
 	</dependencies>
 </project>

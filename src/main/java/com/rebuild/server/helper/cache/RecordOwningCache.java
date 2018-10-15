@@ -18,6 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.cache;
 
+import org.springframework.cache.CacheManager;
+
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 
@@ -36,8 +38,8 @@ public class RecordOwningCache extends CacheTemplate<ID> {
 
 	final private PersistManagerFactory aPMFactory;
 	
-	protected RecordOwningCache(PersistManagerFactory aPMFactory) {
-		super(60 * 60 * 24 * 90);
+	protected RecordOwningCache(CacheManager cacheManager, PersistManagerFactory aPMFactory) {
+		super(cacheManager);
 		this.aPMFactory = aPMFactory;
 	}
 	
@@ -46,9 +48,9 @@ public class RecordOwningCache extends CacheTemplate<ID> {
 	 * @return
 	 */
 	public ID getOwningUser(ID record) {
-		final String key = "OU_" + record;
+		final String recordKey = record.toLiteral();
 		
-		Object hit = get(key);
+		Object hit = get(recordKey);
 		if (hit != null) {
 			return (ID) hit;
 		}
@@ -66,8 +68,12 @@ public class RecordOwningCache extends CacheTemplate<ID> {
 		}
 		
 		ID ownUser = (ID) own[0];
-		set(key, ownUser);
+		put(recordKey, ownUser);
 		return ownUser;
 	}
 	
+	@Override
+	protected String standardizationKey(Object key) {
+		return "OU__" + super.standardizationKey(key);
+	}
 }

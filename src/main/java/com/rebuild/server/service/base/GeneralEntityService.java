@@ -52,22 +52,23 @@ public class GeneralEntityService extends BaseService {
 	}
 	
 	@Override
-	public int delete(ID recordId) {
-		return super.delete(recordId);
+	public int delete(ID record) {
+		return super.delete(record);
 	}
 	
 	/**
+	 * @param records
+	 * @return 实际删除数量。请注意请求删除数量和实际删除数量可能不一致，因为可能没有删除权限
+	 * 
 	 * @see #delete(ID)
 	 */
-	public int bulkDelete(ID recordIds[]) {
+	public int bulkDelete(ID records[]) {
 		ID user = Application.currentCallerUser();
-		int entity = recordIds[0].getEntityCode();
-		
 		int deleted = 0;
-		for (ID id : recordIds) {
-			boolean allowed = Application.getSecurityManager().allowed(user, entity, BizzPermission.DELETE, id);
-			if (allowed) {
-				deleted += this.delete(id);
+		for (ID id : records) {
+			if (Application.getSecurityManager().allowed(user, id, BizzPermission.DELETE)) {
+				int affected = this.delete(id);
+				deleted += (affected > 0 ? 1 : 0);
 			} else {
 				LOG.warn("No have privileges to delete : " + user + " > " + id);
 			}

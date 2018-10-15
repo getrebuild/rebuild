@@ -3,6 +3,7 @@
 <%@ page import="com.rebuild.server.Application"%>
 <%@ page import="com.rebuild.server.bizz.privileges.User"%>
 <%@ page import="com.rebuild.server.bizz.UserHelper"%>
+<%@ page import="org.apache.commons.lang.StringUtils"%>
 <%
 final User currentUser = Application.getUserStore().getUser(AppUtils.getRequestUser(request));
 final String showName = UserHelper.getShowName(currentUser);
@@ -22,7 +23,7 @@ final String showName = UserHelper.getShowName(currentUser);
 					<div class="dropdown-menu">
 						<div class="user-info">
 							<div class="user-name"><%=showName%></div>
-							<div class="user-id"><%=currentUser.getEmail()%></div>
+							<div class="user-id"><%=StringUtils.defaultIfBlank(currentUser.getEmail(), "邮箱未设置")%></div>
 						</div>
 						<a class="dropdown-item" href="${baseUrl}/me/profile"><span class="icon zmdi zmdi-account-box"></span>个人设置</a>
 						<a class="dropdown-item" href="${baseUrl}/user/logout"><span class="icon zmdi zmdi-power"></span>退出</a>

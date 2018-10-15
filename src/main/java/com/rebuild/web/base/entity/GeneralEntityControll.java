@@ -35,6 +35,7 @@ import com.rebuild.web.BaseControll;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * 表单页面/视图
  * 
  * @author zhaofang123@gmail.com
  * @since 08/22/2018
@@ -46,27 +47,28 @@ public class GeneralEntityControll extends BaseControll {
 	@RequestMapping("{entity}/view/{id}")
 	public ModelAndView pageView(@PathVariable String entity, @PathVariable String id,
 			HttpServletRequest request) throws IOException {
-		ID recordId = ID.valueOf(id);
-		ModelAndView mv = createModelAndView("/general-entity/record-view.jsp", entity);
-		mv.getModel().put("id", recordId);
+		ID user = getRequestUser(request);
+		ID record = ID.valueOf(id);
+		ModelAndView mv = createModelAndView("/general-entity/record-view.jsp", entity, user);
+		mv.getModel().put("id", record);
 		return mv;
 	}
 	
 	@RequestMapping("{entity}/form-model")
 	public void entityForm(@PathVariable String entity,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID recordId = getIdParameter(request, "id");
-		JSON fc = FormManager.getFormModel(entity, getRequestUser(request), recordId);
-		writeSuccess(response, fc);
+		ID user = getRequestUser(request);
+		ID record = getIdParameter(request, "id");  // New or Update
+		JSON model = FormManager.getFormModel(entity, user, record);
+		writeSuccess(response, model);
 	}
 	
 	@RequestMapping("{entity}/view-model")
 	public void entityView(@PathVariable String entity,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		ID recordId = getIdParameterNotNull(request, "id");
-		
-		JSON modal = FormManager.getViewModel(entity, user, recordId);
+		ID record = getIdParameterNotNull(request, "id");
+		JSON modal = FormManager.getViewModel(entity, user, record);
 		writeSuccess(response, modal);
 	}
 }

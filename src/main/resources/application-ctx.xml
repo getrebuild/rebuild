@@ -67,9 +67,17 @@
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 	
+	<bean name="CacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+		<property name="cacheManager">
+			<bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+				<property name="configLocation" value="classpath:ehcache.xml"/>
+			</bean>
+		</property>
+	</bean>
+	
 	<bean class="com.rebuild.server.helper.cache.RecordOwningCache" name="RecordOwningCache">
-		<constructor-arg index="0" ref="PersistManagerFactory" />
-		<!-- TODO 缓存提供者 -->
+		<constructor-arg index="0" ref="CacheManager" />
+		<constructor-arg index="1" ref="PersistManagerFactory" />
 	</bean>
 
 	<bean class="com.rebuild.server.bizz.privileges.SecurityManager">

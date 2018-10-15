@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.metadata;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSONObject;
 
@@ -33,6 +34,7 @@ import cn.devezhao.persist4j.record.RecordCreator;
 /**
  * @author Zhao Fangfang
  * @since 1.0, 2013-6-26
+ * @see MetadataHelper
  */
 public class EntityHelper {
 	
@@ -44,6 +46,19 @@ public class EntityHelper {
 	 */
 	public static boolean hasPrivilegesField(Entity entity) {
 		if (entity.containsField(owningUser) && entity.containsField(owningDept)) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * 是否是权限相关实体（用户/部门/角色 等）
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	public static boolean isBizzEntity(Entity entity) {
+		if (entity.getEntityCode() <= 5) {
 			return true;
 		}
 		return false;
@@ -76,6 +91,9 @@ public class EntityHelper {
 	 * @return
 	 */
 	public static Record forUpdate(ID recordId, ID user) {
+		Assert.notNull(recordId, "[recordId] not be bull");
+		Assert.notNull(recordId, "[user] not be bull");
+		
 		Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 		Record record = new StandardRecord(entity, user);
 		record.setID(entity.getPrimaryField().getName(), recordId);
@@ -84,13 +102,15 @@ public class EntityHelper {
 	}
 	
 	/**
-	 * @param entityCode
+	 * @param entity
 	 * @param user
 	 * @return
 	 */
-	public static Record forNew(int entityCode, ID user) {
-		Entity entity = MetadataHelper.getEntity(entityCode);
-		Record record = new StandardRecord(entity, user);
+	public static Record forNew(int entity, ID user) {
+		Assert.notNull(user, "[user] not be bull");
+		
+		Entity entityMeta = MetadataHelper.getEntity(entity);
+		Record record = new StandardRecord(entityMeta, user);
 		ExtRecordCreator.bindCommonsFieldsValue(record, true);
 		return record;
 	}

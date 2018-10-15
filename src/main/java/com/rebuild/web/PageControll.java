@@ -18,15 +18,24 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.web.servlet.ModelAndView;
 
+import com.alibaba.fastjson.JSON;
+import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.AppUtils;
 
+import cn.devezhao.bizz.privileges.Permission;
+import cn.devezhao.bizz.privileges.Privileges;
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -52,27 +61,40 @@ public abstract class PageControll {
 	 * @return
 	 */
 	protected ModelAndView createModelAndView(String page) {
-		return createModelAndView(page, null);
+		return createModelAndView(page, null, null);
 	}
 	
 	/**
 	 * @param page
 	 * @param entity
+	 * @param user
 	 * @return
 	 */
-	protected ModelAndView createModelAndView(String page, String entity) {
+	protected ModelAndView createModelAndView(String page, String entity, ID user) {
 		ModelAndView mv = new ModelAndView(page);
 		setPageAttribute(mv);
 		
 		if (entity != null) {
-			if (!MetadataHelper.containsEntity(entity)) {
-				throw new InvalidRequestException("无效实体 : " + entity);
-			}
+			Entity entityMeta = MetadataHelper.getEntity(entity);
+			EasyMeta easy = new EasyMeta(entityMeta);
+			mv.getModel().put("entityName", easy.getName());
+			mv.getModel().put("entityLabel", easy.getLabel());
+			mv.getModel().put("entityIcon", easy.getIcon());
 			
-			EasyMeta entityMeta = new EasyMeta(MetadataHelper.getEntity(entity));
-			mv.getModel().put("entityName", entityMeta.getName());
-			mv.getModel().put("entityLabel", entityMeta.getLabel());
-			mv.getModel().put("entityIcon", entityMeta.getIcon());
+			Privileges priv = Application.getSecurityManager().getPrivileges(user, entityMeta.getEntityCode());
+			Permission[] actions = new Permission[] {
+					BizzPermission.CREATE,
+					BizzPermission.DELETE,
+					BizzPermission.UPDATE,
+					BizzPermission.READ,
+					BizzPermission.ASSIGN,
+					BizzPermission.SHARE,
+			};
+			Map<String, Boolean> actionMap = new HashMap<>();
+			for (Permission act : actions) {
+				actionMap.put(act.getName(), priv.allowed(act));
+			}
+			mv.getModel().put("entityPrivileges", JSON.toJSONString(actionMap));
 		}
 		return mv;
 	}

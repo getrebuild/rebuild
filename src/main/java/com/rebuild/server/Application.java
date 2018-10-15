@@ -63,7 +63,10 @@ public final class Application {
 	 * 初始化
 	 */
 	private Application(ApplicationContext ctx) {
+		LOG.info("Rebuild Booting ...");
+		
 		Security.addProvider(new BouncyCastleProvider());
+		
 		APPLICATION_CTX = ctx;
 		
 		// 自定义实体
@@ -83,7 +86,6 @@ public final class Application {
 	
 	public static ApplicationContext context() {
 		if (APPLICATION_CTX == null) {
-			LOG.info("Rebuild Booting ...");
 			ApplicationContext ctx = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml" });
 			new Application(ctx);
 		}

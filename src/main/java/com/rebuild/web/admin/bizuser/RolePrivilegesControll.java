@@ -56,17 +56,18 @@ public class RolePrivilegesControll extends BaseControll {
 
 	@RequestMapping("role-privileges")
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
-		ModelAndView mv = createModelAndView("/admin/bizuser/role-privileges.jsp", "Role");
+		ID user = getRequestUser(request);
+		ModelAndView mv = createModelAndView("/admin/bizuser/role-privileges.jsp", "Role", user);
 		setEntities(mv);
 		return mv;
 	}
 	
 	@RequestMapping("role/{id}")
 	public ModelAndView pagePrivileges(@PathVariable String id, HttpServletRequest request) throws IOException {
-		ModelAndView mv = createModelAndView("/admin/bizuser/role-privileges.jsp", "Role");
-		setEntities(mv);
-		
+		ID user = getRequestUser(request);
 		ID roleId = ID.valueOf(id);
+		ModelAndView mv = createModelAndView("/admin/bizuser/role-privileges.jsp", "Role", user);
+		setEntities(mv);
 		mv.getModel().put("RoleId", roleId.toLiteral());
 		return mv;
 	}

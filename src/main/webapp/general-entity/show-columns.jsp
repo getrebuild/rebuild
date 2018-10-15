@@ -31,7 +31,7 @@
 			</label>
 		</div>
 		<button class="btn btn-primary J_save" type="button">保存</button>
-		<button class="btn btn-secondary" onclick="parent.columnsModal.hide()" type="button">取消</button>
+		<button class="btn btn-secondary" onclick="parent.RbListPage._ModalSColumns.hide()" type="button">取消</button>
 	</div>
 </div>
 <script type="text/plain" id="item-temp">

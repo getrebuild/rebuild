@@ -73,68 +73,11 @@
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
 <script type="text/babel">
-var rbList, columnsModal
-var assignModal, shareModal
 $(document).ready(function(){
-	rbList = rb.RbList({ config: JSON.parse('${DataListConfig}') })
-	
-	$('.J_view').click(function(){
-		let s = rbList.getSelectedRows()
-		if (s.length == 1) {
-			s = s[0]
-			rb.RbViewModal({ id: s[0], entity: s[2][0] })
-		}
-	})
-
-	$('.J_edit').click(function(){
-		let s = rbList.getSelectedRows()
-		if (s.length == 1) {
-			s = s[0]
-			rb.RbFormModal({ id: s[0], title: '编辑${entityLabel}', entity: '${entityName}', icon: '${entityIcon}' })
-		}
-	})
-
-	$('.J_delete').click(function(){
-		let s = rbList.getSelectedRows()
-		if (s.length < 1) return
-		rb.alter('确认删除选中的 ' + s.length + ' 条记录吗？', '删除确认', { type: 'danger', confirm: function(){
-			let deletes = s.map((item)=>{
-				return item[0]
-			})
-			
-			let that = this
-			$(that.refs['rbalter']).find('.btn').button('loading')
-
-			$.post(rb.baseUrl + '/app/entity/record-delete?id=' + deletes.join(','), function(res){
-				if (res.error_code == 0){
-					rbList.reload()
-					that.hide()
-				} else {
-					rb.notice(res.error_msg || '删除失败，请稍后重试', 'danger')
-				}
-			})
-		} })
-	})
-
-	$('.J_new').click(function(){
-		rb.RbFormModal({ title: '新建${entityLabel}', entity: '${entityName}', icon: '${entityIcon}' })
-	})
-
-	$('.J_assign').click(function(){
-		if (assignModal) assignModal.show()
-		else assignModal = rb.modal('${baseUrl}/page/general-entity/assign', '分配记录')
-	})
-	$('.J_share').click(function(){
-		if (shareModal) shareModal.show()
-		else shareModal = rb.modal('${baseUrl}/page/general-entity/share', '共享记录')
-	})
-
-	$('.J_columns').click(function(){
-		if (columnsModal) columnsModal.show()
-		else columnsModal = rb.modal('${baseUrl}/page/general-entity/show-columns?entity=${entityName}', '设置列显示')
-	})
-
-	QuickFilter.init('.input-search', '${entityName}');
+	RbListPage.init(
+		${DataListConfig},
+		['${entityLabel}', '${entityName}', '${entityIcon}'],
+		${entityPrivileges})
 });
 </script>
 </body>

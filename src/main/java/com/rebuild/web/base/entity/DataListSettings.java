@@ -51,7 +51,7 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 数据列表相关配置
+ * 数据列表-配置
  * 
  * @author zhaofang123@gmail.com
  * @since 09/15/2018

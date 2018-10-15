@@ -8,9 +8,9 @@
 .sortable-box{height:288px}
 .sortable-box .dd-list{height:280px}
 .dd-list .dd-item .dd-handle{margin:3px 0;position:relative;cursor:pointer;}
-.dd-list .dd-item .zmdi{position:absolute;right:9px;top:7px;font-size:1.6rem;color:#fff;display:none;}
+.dd-list .dd-item .zmdi{position:absolute;right:9px;top:8px;font-size:1.5rem;color:#fff;display:none;}
 .J_fields .dd-item .dd-handle:hover .zmdi-plus{display:block;}
-.J_config .dd-item .dd-handle:hover .zmdi-minus{display:block;}
+.J_config .dd-item .dd-handle:hover .zmdi-close{display:block;}
 </style>
 </head>
 <body class="dialog">
@@ -86,7 +86,7 @@ $(document).ready(function(){
 	});
 });
 const item_render = function(data, append){
-	let item = $('<li class="dd-item" data-field="' + data.field + '"><div class="dd-handle J_field">' + data.label + '<i class="zmdi zmdi-plus"></i><i class="zmdi zmdi-minus"></i></div></li>').appendTo(append);
+	let item = $('<li class="dd-item" data-field="' + data.field + '"><div class="dd-handle J_field">' + data.label + '<i class="zmdi zmdi-plus"></i><i class="zmdi zmdi-close"></i></div></li>').appendTo(append);
 	item.click(function(){
 		let _this = $(this)
 		let clone = _this.clone(true)

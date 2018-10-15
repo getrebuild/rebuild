@@ -36,9 +36,10 @@ import com.rebuild.web.base.entity.datalist.DataListControl;
 import com.rebuild.web.base.entity.datalist.DefaultDataListControl;
 
 import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 数据列表-检索数据
+ * 数据列表
  * 
  * @author zhaofang123@gmail.com
  * @since 08/22/2018
@@ -49,14 +50,15 @@ public class GeneralListControll extends BaseControll {
 
 	@RequestMapping("list")
 	public ModelAndView pageList(@PathVariable String entity, HttpServletRequest request) throws IOException {
-		ModelAndView mv = createModelAndView("/general-entity/record-list.jsp", entity);
+		ID user = getRequestUser(request);
+		ModelAndView mv = createModelAndView("/general-entity/record-list.jsp", entity, user);
 		JSON config = DataListManager.getColumnLayout(entity, getRequestUser(request));
 		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
 		return mv;
 	}
 	
-	@RequestMapping("record-list")
-	public void recordList(@PathVariable String entity,
+	@RequestMapping("data-list")
+	public void dataList(@PathVariable String entity,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		JSONObject query = (JSONObject) ServletUtils.getRequestJson(request);
 		DataListControl control = new DefaultDataListControl(query, getRequestUser(request));

@@ -20,8 +20,6 @@ package com.rebuild.server;
 
 import org.junit.Test;
 
-import com.rebuild.server.metadata.MetadataHelper;
-
 /**
  * 
  * @author zhaofang123@gmail.com
@@ -32,6 +30,6 @@ public class StartupTest {
 	@Test
 	public void startup() {
 		Application.context();
-		MetadataHelper.getEntity(1);
+		Application.context().getBeansOfType(Object.class);
 	}
 }
