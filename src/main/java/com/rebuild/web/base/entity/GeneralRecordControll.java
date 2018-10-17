@@ -28,6 +28,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,10 +38,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.base.BulkContext;
 import com.rebuild.server.service.base.GeneralEntityService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
+import com.rebuild.web.InvalidRequestException;
 
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -64,10 +68,11 @@ public class GeneralRecordControll extends BaseControll {
 		JSON formJson = ServletUtils.getRequestJson(request);
 		
 		Record record = EntityHelper.parse((JSONObject) formJson, user);
-		if (record.getPrimary() == null
-				&& !Application.getSecurityManager().allowedC(user, record.getEntity().getEntityCode())) {
-			writeFailure(response, "没有新建权限");
-			return;
+		if (record.getPrimary() == null) {
+			if (!Application.getSecurityManager().allowedC(user, record.getEntity().getEntityCode())) {
+				writeFailure(response, "没有新建权限");
+				return;
+			}
 		} else if (!Application.getSecurityManager().allowedU(user, record.getPrimary())) {
 			writeFailure(response, "没有编辑权限");
 			return;
@@ -82,48 +87,99 @@ public class GeneralRecordControll extends BaseControll {
 	
 	@RequestMapping("record-delete")
 	public void delete(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getRequestUser(request);
-		String ids = getParameterNotNull(request, "id");
-		
-		// TODO 级联删除
-		
-		Set<ID> idList = new HashSet<>();
-		int deleteEntityCode = 0;
-		for (String id : ids.split(",")) {
-			ID id0 = ID.valueOf(id);
-			if (deleteEntityCode == 0) {
-				deleteEntityCode = id0.getEntityCode();
-			}
-			if (deleteEntityCode != id0.getEntityCode()) {
-				writeFailure(response, "只能批量删除同一实体的记录");
-				return;
-			}
-			
-			idList.add(ID.valueOf(id));
-		}
-		
-		if (idList.isEmpty()) {
+		final ID user = getRequestUser(request);
+		final ID[] ids = parseIdList(request);
+		if (ids.length == 0) {
 			writeFailure(response, "没有要删除的记录");
 			return;
 		}
 		
-		ID firstId = idList.iterator().next();
-		if (!Application.getSecurityManager().allowedD(user, firstId)) {
+		Entity entity = MetadataHelper.getEntity(ids[0].getEntityCode());
+		if (!Application.getSecurityManager().allowedD(user, entity.getEntityCode())) {
 			writeFailure(response, "没有删除权限");
 			return;
 		}
 		
-		GeneralEntityService ges = Application.getGeneralEntityService(deleteEntityCode);
-		int deleted = 0;
-		if (idList.size() == 1) {
-			deleted = ges.delete(firstId);
+		String[] cascades = parseCascades(request);
+		GeneralEntityService ges = Application.getGeneralEntityService(entity.getEntityCode());
+		
+		int affected = 0;
+		if (ids.length == 1) {
+			affected = ges.delete(ids[0], cascades);
 		} else {
-			deleted = ges.bulkDelete(idList.toArray(new ID[idList.size()]));
+			BulkContext context = new BulkContext(user, BizzPermission.DELETE, null, cascades, ids);
+			affected = ges.bulk(context);
 		}
 		
 		JSON ret = JSONUtils.toJSONObject(
-				new String[] { "deleted", "request_delete" },
-				new Object[] { deleted, idList.size() });
+				new String[] { "deleted", "requests" },
+				new Object[] { affected, ids.length });
+		writeSuccess(response, ret);
+	}
+	
+	@RequestMapping("record-assign")
+	public void assign(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		final ID user = getRequestUser(request);
+		final ID[] ids = parseIdList(request);
+		if (ids.length == 0) {
+			writeFailure(response, "没有要分派的记录");
+			return;
+		}
+		
+		Entity entity = MetadataHelper.getEntity(ids[0].getEntityCode());
+		if (!Application.getSecurityManager().allowedA(user, entity.getEntityCode())) {
+			writeFailure(response, "没有分派权限");
+			return;
+		}
+		
+		ID assignTo = getIdParameterNotNull(request, "to");
+		String[] cascades = parseCascades(request);
+		GeneralEntityService ges = Application.getGeneralEntityService(entity.getEntityCode());
+		
+		int affected = 0;
+		if (ids.length == 1) {
+			affected = ges.assign(ids[0], assignTo, cascades);
+		} else {
+			BulkContext context = new BulkContext(user, BizzPermission.ASSIGN, assignTo, cascades, ids);
+			affected = ges.bulk(context);
+		}
+		
+		JSON ret = JSONUtils.toJSONObject(
+				new String[] { "shared", "requests" },
+				new Object[] { affected, ids.length });
+		writeSuccess(response, ret);
+	}
+	
+	@RequestMapping("record-share")
+	public void share(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		final ID user = getRequestUser(request);
+		final ID[] ids = parseIdList(request);
+		if (ids.length == 0) {
+			writeFailure(response, "没有要共享的记录");
+			return;
+		}
+		
+		Entity entity = MetadataHelper.getEntity(ids[0].getEntityCode());
+		if (!Application.getSecurityManager().allowedA(user, entity.getEntityCode())) {
+			writeFailure(response, "没有共享权限");
+			return;
+		}
+		
+		ID shareTo = getIdParameterNotNull(request, "to");
+		String[] cascades = parseCascades(request);
+		GeneralEntityService ges = Application.getGeneralEntityService(entity.getEntityCode());
+		
+		int affected = 0;
+		if (ids.length == 1) {
+			affected = ges.share(ids[0], shareTo, cascades);
+		} else {
+			BulkContext context = new BulkContext(user, BizzPermission.SHARE, shareTo, cascades, ids);
+			affected = ges.bulk(context);
+		}
+		
+		JSON ret = JSONUtils.toJSONObject(
+				new String[] { "shared", "requests" },
+				new Object[] { affected, ids.length });
 		writeSuccess(response, ret);
 	}
 	
@@ -163,5 +219,46 @@ public class GeneralRecordControll extends BaseControll {
 		}
 		map.put(entity.getPrimaryField().getName(), id);
 		writeSuccess(response, map);
+	}
+	
+	/**
+	 * 操作ID列表
+	 * 
+	 * @param request
+	 * @return
+	 */
+	private ID[] parseIdList(HttpServletRequest request) {
+		String ids = getParameterNotNull(request, "id");
+		Set<ID> idList = new HashSet<>();
+		int sameEntityCode = 0;
+		for (String id : ids.split(",")) {
+			ID id0 = ID.valueOf(id);
+			if (sameEntityCode == 0) {
+				sameEntityCode = id0.getEntityCode();
+			}
+			if (sameEntityCode != id0.getEntityCode()) {
+				throw new InvalidRequestException("只能批量删除同一实体的记录");
+			}
+			idList.add(ID.valueOf(id));
+		}
+		return idList.toArray(new ID[idList.size()]);
+	}
+	
+	/**
+	 * 级联操作实体
+	 * 
+	 * @param request
+	 * @return
+	 */
+	private String[] parseCascades(HttpServletRequest request) {
+		String cascades = getParameter(request, "cascades");
+		if (StringUtils.isBlank(cascades)) {
+			return ArrayUtils.EMPTY_STRING_ARRAY;
+		}
+		String[] cass = cascades.split(",");
+		
+		// TODO 验证实体???
+		
+		return cass;
 	}
 }

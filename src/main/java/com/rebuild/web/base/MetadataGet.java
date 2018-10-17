@@ -21,8 +21,10 @@ package com.rebuild.web.base;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -72,6 +74,27 @@ public class MetadataGet extends BaseControll {
 			map.put("name", e.getName());
 			map.put("label", EasyMeta.getLabel(e));
 			list.add(map);
+		}
+		writeSuccess(response, list);
+	}
+	
+	@RequestMapping("references")
+	public void ref(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String entity = getParameterNotNull(request, "entity");
+		Entity entityMeta = MetadataHelper.getEntity(entity);
+		
+		Set<Entity> references = new HashSet<>();
+		
+		Field[] rtFields = entityMeta.getReferenceToFields();
+		for (Field field : rtFields) {
+			Entity own = field.getOwnEntity();
+			references.add(own);
+		}
+		
+		List<String[]> list = new ArrayList<>();
+		for (Entity e : references) {
+			EasyMeta easy = new EasyMeta(e);
+			list.add(new String[] { easy.getName(), easy.getLabel() });
 		}
 		writeSuccess(response, list);
 	}

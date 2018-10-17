@@ -18,14 +18,19 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.manager;
 
+import java.util.Iterator;
+
 import javax.servlet.http.HttpServletRequest;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -58,7 +63,30 @@ public class NavManager extends LayoutManager {
 	public static JSONArray getNavForPortal(HttpServletRequest request) {
 		ID user = AppUtils.getRequestUser(request);
 		Object[] cfgs = getLayoutConfigRaw("N", TYPE_NAVI, user);
-		return cfgs == null ? JSON.parseArray("[]") : (JSONArray) cfgs[1];
+		if (cfgs == null) {
+			return JSON.parseArray("[]");
+		}
+	
+		// 过滤
+		JSONArray navs = (JSONArray) cfgs[1];
+		for (Iterator<Object> iter = navs.iterator(); iter.hasNext(); ) {
+			JSONObject nav = (JSONObject) iter.next();
+			if ("ENTITY".equalsIgnoreCase(nav.getString("type"))) {
+				String entity = nav.getString("value");
+				if (!MetadataHelper.containsEntity(entity)) {
+					LOG.warn("Unknow entity in nav : " + entity);
+					iter.remove();
+					continue;
+				}
+				
+				Entity entityMeta = MetadataHelper.getEntity(entity);
+				if (!Application.getSecurityManager().allowedR(user, entityMeta.getEntityCode())) {
+					iter.remove();
+					continue;
+				}
+			}
+		}
+		return navs;
 	}
 	
 	/**

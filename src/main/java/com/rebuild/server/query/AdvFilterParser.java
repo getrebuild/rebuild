@@ -24,11 +24,13 @@ import java.util.List;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.entityhub.DisplayType;
 import com.rebuild.server.entityhub.EasyMeta;
+import com.rebuild.server.metadata.MetadataHelper;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -43,6 +45,16 @@ public class AdvFilterParser {
 	
 	private Entity rootEntity;
 	private JSONObject filterExp;
+	
+	/**
+	 * @param filterExp
+	 */
+	public AdvFilterParser(JSONObject filterExp) {
+		String entity = filterExp.getString("entity");
+		Assert.notNull(entity, "[entity] node can't be blank");
+		this.rootEntity = MetadataHelper.getEntity(entity);
+		this.filterExp = filterExp;
+	}
 	
 	/**
 	 * @param rootEntity

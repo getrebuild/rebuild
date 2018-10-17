@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.base.entity;
+package com.rebuild.web.base;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,21 +39,20 @@ import com.rebuild.web.BaseControll;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.dialect.FieldType;
 
 /**
- * 引用字段搜索
+ * 公用搜索
  * 
  * @author zhaofang123@gmail.com
  * @since 08/24/2018
  */
 @Controller
-public class ReferenceSearch extends BaseControll {
+public class SimpleSearch extends BaseControll {
 	
-	@RequestMapping("/app/entity/ref-search")
-	public void searchRefs(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@RequestMapping("/commons/search")
+	public void search(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
-		String field = getParameterNotNull(request, "field");
+		String qfields = getParameterNotNull(request, "qfields");
 		String q = getParameter(request, "q");
 		
 		if (StringUtils.isBlank(q)) {
@@ -63,22 +62,21 @@ public class ReferenceSearch extends BaseControll {
 		q = StringEscapeUtils.escapeSql(q);
 		
 		Entity entityMeta = MetadataHelper.getEntity(entity);
-		Field refField = entityMeta.getField(field);
-		Entity refEntity = refField.getReferenceEntities()[0];
-		Field nameField = refEntity.getNameField();
-		if (nameField == null) {
-			writeSuccess(response, ArrayUtils.EMPTY_STRING_ARRAY);
-			return;
-		}
+		Field idFiled = entityMeta.getPrimaryField();
+		Field nameField = entityMeta.getNameField();
 		
-		String nameField2str = nameField.getName();
-		if (nameField.getType() == FieldType.REFERENCE) {
-			nameField2str = "&" + nameField2str;
-		}
+		String sql = "select %s,%s from %s";
+		sql = String.format(sql, idFiled.getName(), nameField.getName(), entityMeta.getName());
 		
-		String sql = "select %s,%s from %s where %s ";
-		sql = String.format(sql, refEntity.getPrimaryField().getName(), nameField2str, refEntity.getName(), nameField2str);
-		sql += "like '%" + q + "%' order by modifiedOn desc";
+		List<String> or = new ArrayList<>();
+		for (String qField : qfields.split(",")) {
+			if (!entityMeta.containsField(qField)) {
+				LOG.warn("No field for search : " + qField);
+			} else {
+				or.add(qField + " like '%" + q + "%'");
+			}
+		}
+		sql += " where ( " + StringUtils.join(or, " or ") + " ) order by modifiedOn desc";
 		
 		Object[][] array = Application.createQuery(sql).setLimit(10).array();
 		List<Object> result = new ArrayList<>();

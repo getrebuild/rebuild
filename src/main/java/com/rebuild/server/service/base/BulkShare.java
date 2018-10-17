@@ -18,21 +18,39 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.base;
 
-import com.alibaba.fastjson.JSON;
-import com.rebuild.server.helper.TimeBulkTask;
+import com.rebuild.server.Application;
+
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 
  * @author devezhao
  * @since 09/29/2018
  */
-public class BatchModifiedTask extends TimeBulkTask {
+public class BulkShare extends BulkOperator {
 
-	protected BatchModifiedTask(JSON data) {
-		super(data);
+	public BulkShare(BulkContext context, GeneralEntityService ges) {
+		super(context, ges);
 	}
 
 	@Override
-	public void run() {
+	public Object exec() {
+		ID[] records = getWillRecords();
+		
+		int complated = 0;
+		int shared = 0;
+		
+		for (ID id : records) {
+			if (Application.getSecurityManager().allowedS(context.getOpUser(), id)) {
+				int a = ges.share(id, context.getToUser(), context.getCascades());
+				shared += (a > 0 ? 1 : 0);
+			} else {
+				LOG.warn("No have privileges to SHARE : " + context.getOpUser() + " > " + id);
+			}
+			
+			complated++;
+			setComplete(complated);
+		}
+		return shared;
 	}
 }

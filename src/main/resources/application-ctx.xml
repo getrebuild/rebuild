@@ -95,7 +95,8 @@
 			<tx:method name="update*" propagation="REQUIRED" />
 			<tx:method name="assign*" propagation="REQUIRED" />
 			<tx:method name="share*"  propagation="REQUIRED" />
-			<tx:method name="bulk*"  propagation="REQUIRED" />
+			<tx:method name="bulk*"   propagation="REQUIRED" />
+			<tx:method name="tx*"     propagation="REQUIRED" />
 		</tx:attributes>
 	</tx:advice>
 	
@@ -106,16 +107,20 @@
 		<aop:advisor pointcut-ref="servicesPoint" advice-ref="txAdvice" />
 		<aop:advisor pointcut-ref="servicesPoint" advice-ref="privilegesGuard" />
 	</aop:config>
-
+	
+	<bean class="com.rebuild.server.entityhub.PickListService">
+		<constructor-arg index="0" ref="PersistManagerFactory" />
+	</bean>
+	
 	<bean class="com.rebuild.server.service.CommonService">
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 	
-	<bean name="GeneralEntityService" class="com.rebuild.server.service.base.GeneralEntityService">
+	<bean class="com.rebuild.server.service.notification.NotificationService">
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 	
-	<bean class="com.rebuild.server.entityhub.PickListService">
+	<bean name="GeneralEntityService" class="com.rebuild.server.service.base.GeneralEntityService">
 		<constructor-arg index="0" ref="PersistManagerFactory" />
 	</bean>
 	

@@ -23,11 +23,11 @@ import java.security.Guard;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.springframework.util.Assert;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.base.BulkContext;
+import com.rebuild.server.service.base.GeneralEntityService;
 
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
@@ -59,62 +59,55 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 			return;
 		}
 		
-		Object idOrRecord = invocation.getArguments()[0];
-		
-		ID recordId = null;
-		Entity entity = null;
-		ID caller = null;
-		
-		if (idOrRecord instanceof Record) {
-			recordId = ((Record) idOrRecord).getPrimary();
-			entity = ((Record) idOrRecord).getEntity();
-			caller = ((Record) idOrRecord).getEditor();
-		} else if (idOrRecord instanceof ID) {
-			recordId = (ID) idOrRecord;
-			entity = MetadataHelper.getEntity(recordId.getEntityCode());
-		} else if (idOrRecord instanceof ID[]) {
-			Assert.isTrue(((ID[]) idOrRecord).length > 1, "Bulk must have at least 2 IDs");
-			entity = MetadataHelper.getEntity(((ID[]) idOrRecord)[0].getEntityCode());
-		} else {
-			throw new IllegalArgumentException("First arguments must be Record/ID/ID[]");
-		}
-		
-		// 无权限字段的不检查
-		if (!EntityHelper.hasPrivilegesField(entity)) {
-		    return;
-		}
-		
-		if (caller == null) {
-			// 当前会话用户
-			caller = Application.currentCallerUser();
-		}
-		
-		boolean isBulk = invocation.getMethod().getName().startsWith("bulkDelete");
+		boolean isBulk = invocation.getMethod().getName().startsWith("bulk");
 		if (isBulk) {
-			boolean deleteAllowed = Application.getSecurityManager().allowed(caller, entity.getEntityCode(), BizzPermission.DELETE);
-			if (!deleteAllowed) {
+			Object first = invocation.getArguments()[0];
+			if (!(first instanceof BulkContext)) {
+				throw new IllegalArgumentException("First argument must be BulkContext");
+			}
+			
+			BulkContext context = (BulkContext) first;
+			ID caller = Application.currentCallerUser();
+			
+			if (!Application.getSecurityManager().allowed(caller, context.getMainEntity().getEntityCode(), context.getAction())) {
 				throw new AccessDeniedException(
-			    		"User [ " + caller + " ] not allowed execute action [ " + BizzPermission.DELETE + " ]. Entity : " + entity.getName());
+			    		"User [ " + caller + " ] not allowed execute action [ " + context.getAction() + " ]. Entity : " + context.getMainEntity());
 			}
 			return;
 		}
 		
-		final Permission permission = getPermissionByMethod(invocation.getMethod(), recordId == null);
+		Object idOrRecord = invocation.getArguments()[0];
+		
+		ID recordId = null;
+		Entity entity = null;
+		
+		if (idOrRecord instanceof Record) {
+			recordId = ((Record) idOrRecord).getPrimary();
+			entity = ((Record) idOrRecord).getEntity();
+		} else if (idOrRecord instanceof ID) {
+			recordId = (ID) idOrRecord;
+			entity = MetadataHelper.getEntity(recordId.getEntityCode());
+		} else {
+			throw new IllegalArgumentException("First argument must be Record/ID");
+		}
+		
+		ID caller = Application.currentCallerUser();
+		Permission action = getPermissionByMethod(invocation.getMethod(), recordId == null);
+		
 		boolean isAllowed = false;
-		if (permission == BizzPermission.CREATE) {
-			isAllowed = Application.getSecurityManager().allowed(caller, entity.getEntityCode(), permission);
+		if (action == BizzPermission.CREATE) {
+			isAllowed = Application.getSecurityManager().allowed(caller, entity.getEntityCode(), action);
 		} else {
 			if (recordId == null) {
 			    throw new IllegalArgumentException("No primary in record!");
 			}
 			
-			isAllowed = Application.getSecurityManager().allowed(caller, recordId, permission);
+			isAllowed = Application.getSecurityManager().allowed(caller, recordId, action);
 		}
 		
 		if (!isAllowed) {
 		    throw new AccessDeniedException(
-		    		"User [ " + caller + " ] not allowed execute action [ " + permission.getName() + " ]. "
-		    		+ (recordId == null ? "Entity : " + entity.getName() : "Record : " + recordId));
+		    		"User [ " + caller + " ] not allowed execute action [ " + action + " ]. " + (recordId == null ? "Entity : " + entity : "Record : " + recordId));
 		}
 	}
 	
@@ -145,9 +138,14 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 	 * @return
 	 */
 	protected boolean isNeedCheck(MethodInvocation invocation) {
+		// 仅 GeneralEntityService 或其子类
+		if (!GeneralEntityService.class.isAssignableFrom(invocation.getThis().getClass())) {
+			return false;
+		}
+		
 		String act = invocation.getMethod().getName();
-		return act.startsWith("create") || act.startsWith("update")
-				|| act.startsWith("delete") || act.startsWith("assign") || act.startsWith("share")
-				|| act.startsWith("bulkDelete");
+		return act.startsWith("create") || act.startsWith("update") || act.startsWith("delete") 
+				|| act.startsWith("assign") || act.startsWith("share")
+				|| act.startsWith("bulk");
 	}
 }

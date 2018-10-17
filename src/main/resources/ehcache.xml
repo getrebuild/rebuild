@@ -1,14 +1,29 @@
-<ehcache>
-	<diskStore path="java.io.tmpdir" />
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
+	updateCheck="false">
 	
-	<defaultCache
+	<diskStore path="java.io.tmpdir" />
+
+	<defaultCache 
 		maxElementsInMemory="1000000"
-		eternal="false"
-		timeToIdleSeconds="604800"
+		eternal="false" 
+		timeToIdleSeconds="604800" 
 		timeToLiveSeconds="2592000"
-		overflowToDisk="true"
+		overflowToDisk="true" 
 		maxElementsOnDisk="100000000"
-		diskPersistent="false"
+		diskPersistent="false" 
+		diskExpiryThreadIntervalSeconds="120"
+		memoryStoreEvictionPolicy="LRU" />
+
+	<cache name="rebuild"
+		maxElementsInMemory="1000000"
+		eternal="false" 
+		timeToIdleSeconds="604800" 
+		timeToLiveSeconds="2592000"
+		overflowToDisk="true" 
+		maxElementsOnDisk="100000000"
+		diskPersistent="false" 
 		diskExpiryThreadIntervalSeconds="120"
 		memoryStoreEvictionPolicy="LRU" />
 		

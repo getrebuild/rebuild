@@ -29,6 +29,7 @@ import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ThreadPool;
 
 /**
+ * 大任务执行调度
  * 
  * @author devezhao
  * @since 09/29/2018

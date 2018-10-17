@@ -43,10 +43,12 @@
 										<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-more-vert"></i></button>
 										<div class="dropdown-menu dropdown-menu-right">
 											<a class="dropdown-item J_share"><i class="icon zmdi zmdi-slideshare"></i> 共享</a>
-											<a class="dropdown-item J_assign"><i class="icon zmdi zmdi-mail-reply-all"></i> 分配</a>
+											<a class="dropdown-item J_assign"><i class="icon zmdi zmdi-mail-reply-all"></i> 分派</a>
+											<!--
 											<div class="dropdown-divider"></div>
 											<a class="dropdown-item J_exports"><i class="icon zmdi zmdi-download"></i> 导出</a>
 											<a class="dropdown-item J_imports"><i class="icon zmdi zmdi-upload"></i> 导入</a>
+											-->
 											<div class="dropdown-divider"></div>
 											<a class="dropdown-item J_columns"><i class="icon zmdi zmdi-sort-amount-asc"></i> 列显示</a>
 										</div>

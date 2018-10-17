@@ -124,7 +124,7 @@ public class EntityHelper {
 	public static final String owningUser = "owningUser";
 	public static final String owningDept = "owningDept";
 	
-	// 实体代码
+	// 系统实体
 
 	public static final int User = 1;
 	public static final int Department = 2;
@@ -137,5 +137,7 @@ public class EntityHelper {
 	public static final int PickList = 12;
 	public static final int LayoutConfig = 13;
 	public static final int FilterConfig = 14;
+	
+	public static final int ShareAccess = 20;
 	
 }

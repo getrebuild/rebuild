@@ -18,10 +18,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.metadata;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.rebuild.server.Application;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.metadata.MetadataException;
 
 /**
@@ -105,5 +109,27 @@ public class MetadataHelper {
 	public static Field getField(String entityName, String fieldName) {
 		Entity entity = getEntity(entityName);
 		return entity.getField(fieldName);
+	}
+	
+	/**
+	 * <tt>reference</tt> 中的哪些字段引用了 <tt>source</tt>
+	 * 
+	 * @param source
+	 * @param reference
+	 * @return
+	 */
+	public static Field[] getReferenceToFields(Entity source, Entity reference) {
+		List<Field> fields = new ArrayList<>();
+		for (Field field : reference.getFields()) {
+			if (field.getType() != FieldType.REFERENCE) {
+				continue;
+			}
+			
+			Entity ref = field.getReferenceEntities()[0];
+			if (ref.getEntityCode() == source.getEntityCode()) {
+				fields.add(field);
+			}
+		}
+		return fields.toArray(new Field[fields.size()]);
 	}
 }

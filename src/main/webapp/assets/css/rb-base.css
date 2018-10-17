@@ -3736,8 +3736,9 @@ input[type=submit].btn-block {
 
 .dropdown-item.disabled,
 .dropdown-item:disabled {
-	color: #878787;
-	background-color: transparent
+	color: #878787 !important;
+	background-color: transparent !important;
+	cursor: default;
 }
 
 .dropdown-menu.show {

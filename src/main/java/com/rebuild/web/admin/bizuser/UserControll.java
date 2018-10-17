@@ -73,7 +73,7 @@ public class UserControll extends BaseControll {
 		
 		JSONArray firsts = new JSONArray();
 		for (Object dept[] : topDepts) {
-			Department first = Application.getUserStore().getDept((ID) dept[0]);
+			Department first = Application.getUserStore().getDepartment((ID) dept[0]);
 			firsts.add(recursiveDeptTree(first));
 		}
 		writeSuccess(response, firsts);

@@ -18,7 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper;
 
-import com.alibaba.fastjson.JSON;
+import java.util.Date;
+
+import cn.devezhao.commons.CalendarUtils;
 
 /**
  * 前台提交的耗时操作
@@ -28,47 +30,43 @@ import com.alibaba.fastjson.JSON;
  */
 public abstract class BulkTask implements Runnable {
 
-	private int totalQuantity = -1;
-	private int completeQuantity = 0;
+	private int total = -1;
+	private int complete = 0;
+	
+	private Date beginTime;
 	
 	/**
-	 * 任务执行相关数据
 	 */
-	protected JSON data;
-	
-	/**
-	 * @param data
-	 */
-	protected BulkTask(JSON data) {
-		this.data = data;
+	protected BulkTask() {
+		this.beginTime = CalendarUtils.now();
 	}
 	
 	/**
 	 * @param totalQuantity
 	 */
-	protected void setTotalQuantity(int totalQuantity) {
-		this.totalQuantity = totalQuantity;
+	protected void setTotal(int total) {
+		this.total = total;
 	}
 	
 	/**
 	 * @param completeQuantity
 	 */
-	protected void setCompleteQuantity(int completeQuantity) {
-		this.completeQuantity = completeQuantity;
+	protected void setComplete(int complete) {
+		this.complete = complete;
 	}
 	
 	/**
 	 * @return
 	 */
-	public int getTotalQuantity() {
-		return totalQuantity;
+	public int getTotal() {
+		return total;
 	}
 	
 	/**
 	 * @return
 	 */
-	public int getCompleteQuantity() {
-		return completeQuantity;
+	public int getComplete() {
+		return complete;
 	}
 	
 	/**
@@ -77,13 +75,13 @@ public abstract class BulkTask implements Runnable {
 	 * @return
 	 */
 	public double getCompletePercent() {
-		if (totalQuantity == -1 || completeQuantity == 0) {
+		if (total == -1 || complete == 0) {
 			return 0;
 		}
-		if (totalQuantity == completeQuantity) {
+		if (total == complete) {
 			return 1;
 		}
-		return completeQuantity / totalQuantity;
+		return complete / total;
 	}
 	
 	/**
@@ -92,6 +90,15 @@ public abstract class BulkTask implements Runnable {
 	 * @return
 	 */
 	public boolean isCompleted() {
-		return totalQuantity == -1 || totalQuantity == completeQuantity;
+		return total == -1 || total == complete;
+	}
+	
+	/**
+	 * 任务已耗时（ms）
+	 * 
+	 * @return
+	 */
+	public long getElapsedTime() {
+		return CalendarUtils.now().getTime() - beginTime.getTime();
 	}
 }

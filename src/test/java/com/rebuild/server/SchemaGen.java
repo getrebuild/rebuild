@@ -50,8 +50,9 @@ public class SchemaGen {
 //		gen(EntityHelper.MetaField);
 //		gen(EntityHelper.PickList);
 //		gen(EntityHelper.RolePrivileges);
-		gen(EntityHelper.LayoutConfig);
-		gen(EntityHelper.FilterConfig);
+//		gen(EntityHelper.LayoutConfig);
+//		gen(EntityHelper.FilterConfig);
+		gen(EntityHelper.ShareAccess);
 		
 		System.exit(0);
 	}

@@ -355,11 +355,13 @@ const RbListPage = {
                 })
                 
                 $(this.refs['rbalter']).find('.btn').button('loading')
-                let that = this
+                let thatModal = this
                 $.post(rb.baseUrl + '/app/entity/record-delete?id=' + ids.join(','), function(res){
                     if (res.error_code == 0){
-                        rbList.reload()
-                        that.hide()
+                        that._RbList.reload()
+                        thatModal.hide()
+                        if (res.data.deleted == res.data.requests) rb.notice('删除成功', 'success')
+                        else rb.notice('已成功删除 ' + res.data.deleted + ' 条记录', 'success')
                     } else {
                         rb.notice(res.error_msg || '删除失败，请稍后重试', 'danger')
                     }
@@ -384,12 +386,14 @@ const RbListPage = {
         })
         
         $('.J_assign').click(function(){
+            if (that._RbList.getSelectedRows().length < 1) { rb.notice('请选择要分派的记录'); return}
             if (that._ModalAssign) that._ModalAssign.show()
-            else that._ModalAssign = rb.modal(`${rb.baseUrl}/page/general-entity/assign?entity=entity${entity[1]}`, '分配记录')
+            else that._ModalAssign = rb.modal(`${rb.baseUrl}/page/general-entity/assign?entity=${entity[1]}`, '分派记录')
         })
         $('.J_share').click(function(){
+            if (that._RbList.getSelectedRows().length < 1) { rb.notice('请选择要共享的记录'); return}
             if (that._ModalShare) that._ModalShare.show()
-            else that._ModalShare = rb.modal(`${rb.baseUrl}/page/general-entity/share?entity=entity${entity[1]}`, '共享记录')
+            else that._ModalShare = rb.modal(`${rb.baseUrl}/page/general-entity/share?entity=${entity[1]}`, '共享记录')
         })
         
         $('.J_columns').click(function(){

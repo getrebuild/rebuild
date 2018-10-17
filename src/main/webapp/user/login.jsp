@@ -55,10 +55,7 @@ $(document).ready(function() {
 	
 	$('.J_login-btn').click(function() {
 		let user = $val('#user'), passwd = $val('#passwd');
-		if (!user || !passwd){
-			rb.notice('请输入用户名和密码')
-			return;
-		}
+		if (!user || !passwd) return;
 		
 		let btn = $(this).button('loading');
 		$.post(rb.baseUrl + '/user/user-login?user=' + $encode(user) + '&passwd=' + $encode(passwd), function(res) {

@@ -16,23 +16,24 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.service.base;
+package com.rebuild.server.service.notification;
 
-import com.alibaba.fastjson.JSON;
-import com.rebuild.server.helper.TimeBulkTask;
+import com.rebuild.server.service.BaseService;
+
+import cn.devezhao.persist4j.PersistManagerFactory;
 
 /**
+ * 通知/消息 服务
  * 
  * @author devezhao
- * @since 09/29/2018
+ * @since 10/17/2018
  */
-public class BatchShareTask extends TimeBulkTask {
+public class NotificationService extends BaseService {
 
-	protected BatchShareTask(JSON data) {
-		super(data);
+	protected NotificationService(PersistManagerFactory aPMFactory) {
+		super(aPMFactory);
 	}
-
-	@Override
-	public void run() {
+	
+	public void send(Message message) {
 	}
 }

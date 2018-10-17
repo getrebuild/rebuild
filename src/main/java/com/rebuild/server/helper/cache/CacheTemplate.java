@@ -50,7 +50,7 @@ public abstract class CacheTemplate<V> {
 	}
 	
 	protected Cache getCache() {
-		return cacheManager.getCache("default");
+		return cacheManager.getCache("rebuild");
 	}
 	
 	/**

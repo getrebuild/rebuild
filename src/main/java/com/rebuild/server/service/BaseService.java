@@ -32,9 +32,9 @@ public abstract class BaseService {
 	
 	final protected PersistManagerFactory aPMFactory;
 
-	protected BaseService(PersistManagerFactory factory) {
+	protected BaseService(PersistManagerFactory aPMFactory) {
 		super();
-		this.aPMFactory = factory;
+		this.aPMFactory = aPMFactory;
 	}
 
 	/**

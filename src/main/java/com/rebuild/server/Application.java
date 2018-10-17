@@ -35,6 +35,7 @@ import com.rebuild.server.query.QueryFactory;
 import com.rebuild.server.service.CommonService;
 import com.rebuild.server.service.SQLExecutor;
 import com.rebuild.server.service.base.GeneralEntityService;
+import com.rebuild.server.service.notification.NotificationService;
 import com.rebuild.web.OnlineSessionStore;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -158,11 +159,11 @@ public final class Application {
 	public static SQLExecutor getSQLExecutor() {
 		return getBean(SQLExecutor.class);
 	}
+	
+	public static NotificationService getNotifications() {
+		return getBean(NotificationService.class);
+	}
 
-	/**
-	 * @return
-	 * @see Application#getGeneralEntityService(int)
-	 */
 	public static CommonService getCommonService() {
 		return getBean(CommonService.class);
 	}

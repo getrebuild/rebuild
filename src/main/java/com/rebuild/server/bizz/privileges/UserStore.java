@@ -18,8 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.bizz.privileges;
 
+import java.security.Principal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -157,6 +160,41 @@ public class UserStore {
 	}
 	
 	/**
+	 * @param deptId
+	 * @return
+	 * @throws NoMemberFoundException
+	 */
+	public Department getDepartment(ID deptId) throws NoMemberFoundException {
+		Department b = DEPTs.get(deptId);
+		if (b == null) {
+			throw new NoMemberFoundException("No Department found: " + deptId);
+		}
+		return b;
+	}
+	
+	/**
+	 * @return
+	 */
+	public Department[] getAllDepartments() {
+		return DEPTs.values().toArray(new Department[DEPTs.size()]);
+	}
+	
+	/**
+	 * 获取一级部门列表
+	 * 
+	 * @return
+	 */
+	public Department[] getTopDepartments() {
+		List<Department> top = new ArrayList<>();
+		for (Department dept : DEPTs.values()) {
+			if (dept.getParent() == null) {
+				top.add(dept);
+			}
+		}
+		return top.toArray(new Department[top.size()]);
+	}
+	
+	/**
 	 * @param roleId
 	 * @return
 	 * @throws NoMemberFoundException
@@ -167,19 +205,6 @@ public class UserStore {
 			throw new NoMemberFoundException("No Role found: " + roleId);
 		}
 		return r;
-	}
-	
-	/**
-	 * @param deptId
-	 * @return
-	 * @throws NoMemberFoundException
-	 */
-	public Department getDept(ID deptId) throws NoMemberFoundException {
-		Department b = DEPTs.get(deptId);
-		if (b == null) {
-			throw new NoMemberFoundException("No Department found: " + deptId);
-		}
-		return b;
 	}
 	
 	/**
@@ -230,7 +255,7 @@ public class UserStore {
 		
 		ID newDeptId = (ID) u[6];
 		if (oldDept == null || !oldDept.getIdentity().equals(newDeptId)) {
-			getDept(newDeptId).addMember(newUser);
+			getDepartment(newDeptId).addMember(newUser);
 		} else {
 			oldDept.addMember(newUser);
 		}
@@ -259,7 +284,6 @@ public class UserStore {
 					role.addPrivileges(priv);
 				}
 			}
-			
 			store(role);
 			return;
 		}
@@ -273,7 +297,7 @@ public class UserStore {
 	 * 
 	 * @param deptId
 	 */
-	public void refreshDept(ID deptId) {
+	public void refreshDepartment(ID deptId) {
 		Department oldDept = DEPTs.get(deptId);
 		
 		Object[] o = aPMFactory.createQuery(
@@ -286,16 +310,16 @@ public class UserStore {
 		ID parent = (ID) o[2];
 		if (oldDept != null) {
 			if (oldDept.getParent() == null && parent != null) {  // 新加入了部门
-				getDept(parent).addChild(newDept);
+				getDepartment(parent).addChild(newDept);
 			} else if (oldDept.getParent() != null && parent == null) {  // 离开了部门
-				getDept(parent).removeMember(oldDept);
+				getDepartment(parent).removeMember(oldDept);
 			} else if (oldDept.getParent() != null && parent != null && !oldDept.getIdentity().equals(parent)) {
-				getDept(deptId).removeMember(oldDept);
-				getDept(parent).addChild(newDept);
+				getDepartment(deptId).removeMember(oldDept);
+				getDepartment(parent).addChild(newDept);
 			}
 			
 		} else if (parent != null) {
-			getDept(parent).addChild(newDept);
+			getDepartment(parent).addChild(newDept);
 		}
 	}
 	
@@ -390,9 +414,9 @@ public class UserStore {
 		
 		// 组织关系
 		for (Map.Entry<ID, Set<ID>> e : parentTemp.entrySet()) {
-			BusinessUnit parent = getDept(e.getKey());
+			BusinessUnit parent = getDepartment(e.getKey());
 			for (ID child : e.getValue()) {
-				parent.addChild(getDept(child));
+				parent.addChild(getDepartment(child));
 			}
 		}
 		
@@ -414,6 +438,12 @@ public class UserStore {
 	 * @param role
 	 */
 	private void store(Role role) {
+		Role old = ROLEs.get(role.getIdentity());
+		if (old != null) {
+			for (Principal user : old.getMembers()) {
+				role.addMember(user);
+			}
+		}
 		ROLEs.put((ID) role.getIdentity(), role);
 	}
 	
@@ -421,6 +451,12 @@ public class UserStore {
 	 * @param dept
 	 */
 	private void store(Department dept) {
+		Department old = DEPTs.get(dept.getIdentity());
+		if (old != null) {
+			for (Principal user : old.getMembers()) {
+				dept.addMember(user);
+			}
+		}
 		DEPTs.put((ID) dept.getIdentity(), dept);
 	}
 	

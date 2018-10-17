@@ -18,21 +18,40 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.base;
 
-import com.alibaba.fastjson.JSON;
-import com.rebuild.server.helper.TimeBulkTask;
+import com.rebuild.server.Application;
+
+import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * 删除
  * 
  * @author devezhao
- * @since 09/29/2018
+ * @since 10/16/2018
  */
-public class BatchAssignTask extends TimeBulkTask {
+public class BulkDelete extends BulkOperator {
 
-	protected BatchAssignTask(JSON data) {
-		super(data);
+	public BulkDelete(BulkContext context, GeneralEntityService ges) {
+		super(context, ges);
 	}
 
 	@Override
-	public void run() {
+	public Object exec() {
+		ID[] records = getWillRecords();
+		
+		int complated = 0;
+		int deleted = 0;
+		
+		for (ID id : records) {
+			if (Application.getSecurityManager().allowedD(context.getOpUser(), id)) {
+				int a = ges.delete(id);
+				deleted += (a > 0 ? 1 : 0);
+			} else {
+				LOG.warn("No have privileges to DELETE : " + context.getOpUser() + " > " + id);
+			}
+			
+			complated++;
+			setComplete(complated);
+		}
+		return deleted;
 	}
 }

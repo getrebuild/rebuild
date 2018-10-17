@@ -169,8 +169,8 @@ class RbForm extends React.Component {
     }
     // 保存后调用
     static postAfter(data) {
-        if (window.rbList) window.rbList.reload()
-        else if (parent.rbList) parent.rbList.reload()
+        if (window.RbListPage) window.RbListPage._RbList.reload()
+        else if (parent.RbListPage) parent.RbListPage._RbList.reload()
         if (window.rbFromView) location.reload()
     }
 }
@@ -596,7 +596,7 @@ class RbFormReference extends RbFormElement {
             allowClear: true,
             minimumInputLength: 1,
             ajax: {
-                url: rb.baseUrl + '/app/commons/search',
+                url: rb.baseUrl + '/app/entity/ref-search',
                 delay: 300,
                 data: function(params) {
                     let query = {

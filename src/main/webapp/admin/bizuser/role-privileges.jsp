@@ -101,8 +101,8 @@
 						<table class="table table-priv">
 						<thead>
 							<tr>
-								<th width="25%">权限项目</th>
-								<th class="text-center"><span data-action="Z">允许</span></th>
+								<th width="25%">权限项</th>
+								<th class="text-center"><a data-action="Z">允许</a></th>
 								<th>前置条件</th>
 								<th></th>
 								<th></th>
@@ -203,6 +203,10 @@ $(document).ready(function(){
 	$('#priv-zero tbody .priv').click(function(){
 		clickPriv($(this), 'Z')
 	})
+	$('#priv-zero thead th>a').click(function(){
+		let privAll = $('#priv-zero tbody .priv[data-action="Z"]')
+		clickPriv(privAll, 'Z')
+	})
 	$('#priv-zero tbody .name>a').click(function(){
 		let el = $(this).parent().next().find('i.priv')
 		clickPriv(el, 'Z')
@@ -211,8 +215,8 @@ $(document).ready(function(){
 })
 const clickPriv = function(elements, action) {
 	if (action == 'C' || action == 'Z') {
-		elements.toggleClass('R0')
-		elements.toggleClass('R4')
+		if (elements.first().hasClass('R0')) elements.removeClass('R0').addClass('R4')
+		else elements.removeClass('R4').addClass('R0')
 	} else {
 		let clz = 'R0'
 		if (elements.hasClass('R0')) clz = 'R1'
