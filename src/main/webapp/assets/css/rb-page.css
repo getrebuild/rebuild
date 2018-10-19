@@ -175,6 +175,10 @@ body.dialog .main-content .footer,
 	padding: 3px 6px
 }
 
+.select2.select2-container {
+	width: 100%;
+}
+
 textarea.row2x {
 	height: 52px !important;
 	resize: none;

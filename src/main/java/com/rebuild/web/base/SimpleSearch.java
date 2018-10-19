@@ -53,7 +53,7 @@ public class SimpleSearch extends BaseControll {
 	public void search(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
 		String qfields = getParameterNotNull(request, "qfields");
-		String q = getParameter(request, "q");
+		String q = getParameter(request, "qtext");
 		
 		if (StringUtils.isBlank(q)) {
 			writeSuccess(response, ArrayUtils.EMPTY_STRING_ARRAY);

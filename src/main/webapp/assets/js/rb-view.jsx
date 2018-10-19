@@ -44,3 +44,24 @@ var rb = rb || {}
 rb.RbViewForm = function(props, target){
     return renderRbcomp(<RbViewForm {...props}  />, target || 'tab-rbview')
 }
+
+const RbViewPage = {
+    _RbViewForm:  null,
+    
+    init(id, entity) {
+        this._RbViewForm = rb.RbViewForm({ entity: entity[1], id: id })
+        
+        $('.J_edit').click(function(){
+            rb.RbFormModal({ id: id, title: `编辑${entity[0]}`, entity: entity[1], icon: entity[2] })
+        })
+        
+        let that = this
+        
+        $('.J_assign').click(function(){
+            rb.AssignDialog({ entity: entity[1], ids: id })
+        })
+        $('.J_share').click(function(){
+            rb.ShareDialog({ entity: entity[1], ids: id })
+        })
+    }
+}

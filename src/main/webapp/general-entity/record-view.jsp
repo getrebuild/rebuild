@@ -30,11 +30,11 @@
 		<div class="col-sm-2">
 			<div class="view-oper">
 				<div class="btns">
-					<button class="btn btn-secondary J_edit" type="button">编辑</button>
+					<button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
 				</div>
 				<div class="btns">
-					<button class="btn btn-secondary J_assgin" type="button">分配</button>
-					<button class="btn btn-secondary J_share" type="button">共享</button>
+					<button class="btn btn-secondary J_assign" type="button"><i class="icon zmdi zmdi-mail-reply-all"></i> 分派</button>
+					<button class="btn btn-secondary J_share" type="button"><i class="icon zmdi zmdi-slideshare"></i> 共享</button>
 				</div>
 			</div>
 		</div>
@@ -43,15 +43,10 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/assign-share.jsx" type="text/babel"></script>
 <script type="text/babel">
-var rbFromView
 $(document).ready(function(){
-	const recordId = '${id}'
-	rbFromView = rb.RbViewForm({ entity:'${entityName}', id:recordId })
-
-	$('.J_edit').click(function(){
-		rb.RbFormModal({ id:recordId, title:'编辑${entityLabel}',entity:'${entityName}', icon:'${entityIcon}' })
-	});
+	RbViewPage.init('${id}', [ '${entityLabel}', '${entityName}', '${entityIcon}'])
 });
 </script>
 </body>

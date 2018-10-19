@@ -580,7 +580,7 @@ class RbFormReference extends RbFormElement {
     }
     renderElement() {
         return (
-            <select ref="field-value" className="form-control form-control-sm" onChange={this.handleChange} multiple="multiple" style={{width:'100%'}} />
+            <select ref="field-value" className="form-control form-control-sm" onChange={this.handleChange} multiple="multiple" />
         )
     }
     renderViewElement() {
@@ -593,8 +593,10 @@ class RbFormReference extends RbFormElement {
         let select2 = $(this.refs['field-value']).select2({
             language: 'zh-CN',
             placeholder: '选择' + that.props.label,
+            width: '100%',
             allowClear: true,
             minimumInputLength: 1,
+            maximumSelectionLength: 1,
             ajax: {
                 url: rb.baseUrl + '/app/entity/ref-search',
                 delay: 300,
@@ -607,9 +609,7 @@ class RbFormReference extends RbFormElement {
                     return query
                 },
                 processResults: function(data){
-                    let rs = data.data.map((item) => {
-                        return item
-                    })
+                    let rs = data.data.map((item) => { return item })
                     return { results: rs }
                 }
             }

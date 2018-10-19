@@ -1,7 +1,6 @@
 var opType = opType || ['assign', '分派']
 $(document).ready(function(){
-	let selected = parent.RbListPage._RbList.getSelectedRows()
-	const ids = selected.map((item) => { return item[0] })
+    const ids = $urlp('id').split(',')
 	const entity = $urlp('entity')
 	
 	$('#records').text('选中的记录 (' + ids.length + '条)')
@@ -31,7 +30,8 @@ $(document).ready(function(){
 	$('.J_click-cass a').click(function(){
 		$('.J_click-cass').remove();
 		$('.J_cass').removeClass('hide');
-		parent.RbListPage._ModalShare.resize()
+		
+		(parent.RbListPage || parent.RbViewPage).resizeModal()
 		
 		$.get(rb.baseUrl + '/commons/metadata/references?entity=' + entity, function(res){
 			$(res.data).each(function(){
@@ -53,10 +53,11 @@ $(document).ready(function(){
 		$.post(url, function(res) {
 		    if (res.error_code == 0){
 		        rb.notice('已成功' + opType[1] + ' ' + (res.data.assigned || res.data.shared) + ' 条记录', 'success')
-		        if (parent.RbListPage) {
-		            if (parent.RbListPage._RbList) parent.RbListPage._RbList.reload()
-		            $('.J_cancel').trigger('click')
-		        }
+	            $('.J_cancel').trigger('click')
+	            
+		        if (parent.RbListPage) parent.RbListPage._RbList.reload()
+		        if (parent.RbViewPage) parent.location.reload()
+		        
             } else {
                 rb.notice(res.error_msg || (opType[1] + '失败，请稍后重试'), 'danger')
             }
@@ -64,9 +65,6 @@ $(document).ready(function(){
 	})
 	
 	$('.J_cancel').click(function(){
-	    if (parent.RbListPage) {
-	    	if (parent.RbListPage._ModalAssign) parent.RbListPage._ModalAssign.hide()
-	        if (parent.RbListPage._ModalShare) parent.RbListPage._ModalShare.hide()
-	    }
+	    (parent.RbListPage || parent.RbViewPage).closeModal()
 	})
 });

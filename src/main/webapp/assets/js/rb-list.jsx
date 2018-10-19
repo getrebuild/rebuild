@@ -233,6 +233,12 @@ class RbList extends React.Component {
         return this.__selectedRows
     }
     
+    getSelectedIds() {
+        if (!this.__selectedRows || this.__selectedRows.length < 1) { rb.notice('未选中任何记录'); return [] }
+        let ids = this.__selectedRows.map((item) => { return item[0] })
+        return ids
+    }
+    
     search(filter) {
         this.fetchList(filter)
     }
@@ -328,9 +334,7 @@ rb.RbListPagination = function(props, target) {
 // 列表页面初始化
 const RbListPage = {
     _RbList: null,
-    _ModalSColumns: null,
-    _ModalAssign: null,
-    _ModalShare: null,
+    _ModalColumns: null,
         
     // @config - List config
     // @entity - [Label, Name, Icon]
@@ -386,19 +390,19 @@ const RbListPage = {
         })
         
         $('.J_assign').click(function(){
-            if (that._RbList.getSelectedRows().length < 1) { rb.notice('请选择要分派的记录'); return}
-            if (that._ModalAssign) that._ModalAssign.show()
-            else that._ModalAssign = rb.modal(`${rb.baseUrl}/page/general-entity/assign?entity=${entity[1]}`, '分派记录')
+            let ids = that._RbList.getSelectedIds()
+            if (ids.length < 1) return
+            rb.AssignDialog({ entity: entity[1], ids: ids })
         })
         $('.J_share').click(function(){
-            if (that._RbList.getSelectedRows().length < 1) { rb.notice('请选择要共享的记录'); return}
-            if (that._ModalShare) that._ModalShare.show()
-            else that._ModalShare = rb.modal(`${rb.baseUrl}/page/general-entity/share?entity=${entity[1]}`, '共享记录')
+            let ids = that._RbList.getSelectedIds()
+            if (ids.length < 1) return
+            rb.ShareDialog({ entity: entity[1], ids: ids })
         })
         
         $('.J_columns').click(function(){
-            if (that._ModalSColumns) that._ModalSColumns.show()
-            else that._ModalSColumns = rb.modal(`${rb.baseUrl}/page/general-entity/show-columns?entity=${entity[1]}`, '设置列显示')
+            if (that._ModalColumns) that._ModalColumns.show()
+            else that._ModalColumns = rb.modal(`${rb.baseUrl}/page/general-entity/show-columns?entity=${entity[1]}`, '设置列显示')
         })
         
         // Privileges
@@ -412,6 +416,13 @@ const RbListPage = {
             let divi = $('.J_actions .dropdown-menu').children().first()
             if (divi.hasClass('dropdown-divider')) divi.remove()
         }
+    },
+    
+    closeModal() {
+        if (this._ModalColumns) this._ModalColumns.hide()
+    },
+    resizeModal() {
+        if (this._ModalColumns) this._ModalColumns.resize()
     }
 }
 
