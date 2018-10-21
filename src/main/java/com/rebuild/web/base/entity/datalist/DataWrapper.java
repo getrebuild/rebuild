@@ -112,7 +112,7 @@ public class DataWrapper extends FieldValueWrapper {
 			String sql = String.format("select %s from %s where %s = ?",
 					(nameField.getType() == FieldType.REFERENCE ? "&" : "") + nameField.getName(),
 					entity.getName(), entity.getPrimaryField().getName());
-			Object[] named = Application.createQuery(sql).setParameter(1, idVal).unique();
+			Object[] named = Application.createQueryNoFilter(sql).setParameter(1, idVal).unique();
 			if (named == null) {
 				LOG.debug("Reference is deleted : " + idVal);
 				return null;
