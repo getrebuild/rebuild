@@ -18,7 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.bizz.privileges;
 
-import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -104,17 +103,18 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 			return ALLOWED.evaluate(null);
 		}
 		
-		String fvFormat = "{0} = '{1}'";
+		String fvFormat = "%s = '%s'";
 		
 		if (de == BizzDepthEntry.PRIVATE) {
-			return appendViaShare(entity, MessageFormat.format(fvFormat, EntityHelper.owningUser, user.getIdentity()));
+			return appendShareFilter(entity, 
+					String.format(fvFormat, EntityHelper.owningUser, user.getIdentity()));
 		}
 		
 		Department dept = user.getOwningDept();
-		String deptSql = MessageFormat.format(fvFormat, EntityHelper.owningDept, dept.getIdentity());
+		String deptSql = String.format(fvFormat, EntityHelper.owningDept, dept.getIdentity());
 		
 		if (de == BizzDepthEntry.LOCAL) {
-			return appendViaShare(entity, deptSql);
+			return appendShareFilter(entity, deptSql);
 		}
 		
 		if (de == BizzDepthEntry.DEEPDOWN) {
@@ -122,22 +122,30 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 			sqls.add(deptSql);
 			
 			for (BusinessUnit child : dept.getAllChildren()) {
-				sqls.add(MessageFormat.format(fvFormat, EntityHelper.owningDept, child.getIdentity()));
+				sqls.add(String.format(fvFormat, EntityHelper.owningDept, child.getIdentity()));
 			}
-			return appendViaShare(entity, "(" + StringUtils.join(sqls, " or ") + ")");
+			return appendShareFilter(entity, "(" + StringUtils.join(sqls, " or ") + ")");
 		}
 
 		return DENIED.evaluate(null);
 	}
 	
 	/**
-	 * TODO 通过共享添加的权限
+	 * TODO 共享权限
 	 * 
 	 * @param entity
-	 * @param filter
+	 * @param filtered
 	 * @return
 	 */
-	protected String appendViaShare(Entity entity, String filter) {
-		return filter;
+	protected String appendShareFilter(Entity entity, String filtered) {
+		// TODO exists 不能用
+//		String shareFilter = "exists (select rights from ShareAccess where entity = %d and shareTo = '%s' and recordId = ^%s)";
+//		shareFilter = String.format(shareFilter,
+//				entity.getEntityCode(), user.getIdentity().toString(), entity.getPrimaryField().getName());
+		
+		String shareFilter = "%s in (select recordId from ShareAccess where entity = %d and shareTo = '%s')";
+		shareFilter = String.format(shareFilter, 
+				entity.getPrimaryField().getName(), entity.getEntityCode(), user.getIdentity());
+		return "(" + filtered + " or " + shareFilter + ")";
 	}
 }

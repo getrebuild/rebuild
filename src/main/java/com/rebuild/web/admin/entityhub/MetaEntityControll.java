@@ -54,12 +54,12 @@ import cn.devezhao.persist4j.engine.ID;
 @Controller
 @RequestMapping("/admin/")
 public class MetaEntityControll extends BaseControll {
-	
+
 	@RequestMapping("entities")
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
 		return createModelAndView("/admin/entity/entity-grid.jsp");
 	}
-	
+
 	@RequestMapping("entity/{entity}/base")
 	public ModelAndView pageEntityBase(@PathVariable String entity, HttpServletRequest request) throws IOException {
 		ModelAndView mv = createModelAndView("/admin/entity/entity-edit.jsp");
@@ -84,13 +84,15 @@ public class MetaEntityControll extends BaseControll {
 		}
 		writeSuccess(response, ret);
 	}
-	
+
 	@RequestMapping("entity/entity-new")
 	public void entityNew(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		String label = getParameterNotNull(request, "label");
-		String comments = getParameter(request, "comments");
-		
+		JSONObject reqJson = (JSONObject) ServletUtils.getRequestJson(request);
+
+		String label = reqJson.getString("label");
+		String comments = reqJson.getString("comments");
+
 		String entityName = null;
 		try {
 			entityName = new Entity2Schema(user).create(label, comments);
@@ -100,18 +102,18 @@ public class MetaEntityControll extends BaseControll {
 			return;
 		}
 	}
-	
+
 	@RequestMapping("entity/entity-update")
 	public void entityUpdate(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		JSON formJson = ServletUtils.getRequestJson(request);
 		Record record = EntityHelper.parse((JSONObject) formJson, user);
 		Application.getCommonService().update(record);
-		
+
 		Application.getMetadataFactory().refresh(false);
 		writeSuccess(response);
 	}
-	
+
 	/**
 	 * @param mv
 	 * @param entity

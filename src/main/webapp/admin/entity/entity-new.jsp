@@ -37,9 +37,11 @@ $(document).ready(function(){
 		if (!entityLabel){
 			rb.notice('请输入实体名称'); return;
 		}
+		let _data = { label:entityLabel, comments:comments }
+		_data = JSON.stringify(_data)
 		
 		btn.button('loading');
-		$.post(rb.baseUrl + '/admin/entity/entity-new', { label:entityLabel, comments:comments }, function(res){
+		$.post(rb.baseUrl + '/admin/entity/entity-new', _data, function(res){
 			if (res.error_code == 0) parent.location.href = rb.baseUrl + '/admin/entity/' +res.data + '/base';
 			else rb.notice(res.error_msg, 'danger')
 		});

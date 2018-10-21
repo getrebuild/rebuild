@@ -129,11 +129,13 @@ public class MetaFieldControll extends BaseControll  {
 	@RequestMapping("field-new")
 	public void fieldNew(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		String entityName = getParameterNotNull(request, "entity");
-		String label = getParameterNotNull(request, "label");
-		String type = getParameterNotNull(request, "type");
-		String comments = getParameter(request, "comments");
-		String refEntity = getParameter(request, "refEntity");
+		JSONObject reqJson = (JSONObject) ServletUtils.getRequestJson(request);
+
+		String entityName = reqJson.getString("entity");
+		String label = reqJson.getString("label");
+		String type = reqJson.getString("type");
+		String comments = reqJson.getString("comments");
+		String refEntity = reqJson.getString("refEntity");
 		
 		Entity entity = MetadataHelper.getEntity(entityName);
 		DisplayType dt = DisplayType.valueOf(type);

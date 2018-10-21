@@ -120,7 +120,7 @@ public class RolePrivilegesControll extends BaseControll {
 	public void privilegesUpdate(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		JSON post = ServletUtils.getRequestJson(request);
 		ID role = getIdParameterNotNull(request, "role");
-		Application.getBean(RoleService.class).bulkUpdatePrivileges(role, (JSONObject) post);
+		Application.getBean(RoleService.class).txUpdatePrivileges(role, (JSONObject) post);
 		writeSuccess(response);
 	}
 }

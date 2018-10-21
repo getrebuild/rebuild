@@ -19,7 +19,7 @@ class TheBothDialog extends React.Component {
                                 <div className="form-group row">
                                     <label className="col-sm-3 col-form-label text-sm-right">{this.opType + '哪些记录'}</label>
                                     <div className="col-sm-7">
-                                        <div className="form-control-plaintext" id="records">{'选中的记录 (' + this.state.ids.split(',').length + '条)'}</div>
+                                        <div className="form-control-plaintext" id="records">{'选中的记录 (' + this.state.ids.length + '条)'}</div>
                                     </div>
                                 </div>
                                 <div className="form-group row">
@@ -133,12 +133,12 @@ class TheBothDialog extends React.Component {
 
 var rb = rb || {}
 
-// props = { entity, id }
+// props = { entity, ids }
 rb.AssignDialog = function(props){
     props = { ...props, type: 'assign' }
     return renderRbcomp(<TheBothDialog { ...props} />)
 }
-// props = { entity, id }
+// props = { entity, ids }
 rb.ShareDialog = function(props){
     props = { ...props, type: 'share' }
     return renderRbcomp(<TheBothDialog { ...props} />)

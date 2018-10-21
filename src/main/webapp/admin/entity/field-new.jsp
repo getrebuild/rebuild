@@ -73,6 +73,8 @@ $(document).ready(function(){
 		}
 		
 		let _data = { entity:entity, label:fieldLabel, type:type, comments:comments, refEntity:refEntity };
+		_data = JSON.stringify(_data)
+		
 		btn.button('loading');
 		$.post(rb.baseUrl + '/admin/entity/field-new', _data, function(res){
 			btn.button('reset')
