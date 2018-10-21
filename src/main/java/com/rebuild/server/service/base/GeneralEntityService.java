@@ -39,6 +39,7 @@ import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.Filter;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -71,19 +72,19 @@ public class GeneralEntityService extends BaseService {
 	/**
 	 * 获取级联操作记录
 	 * 
-	 * @param main 主记录
-	 * @param cascades 级联实体
+	 * @param recordOfMain 主记录
+	 * @param cascadeEntities 级联实体
 	 * @param action 动作
 	 * @return
 	 */
-	public Map<String, Set<ID>> getCascadeRecords(ID main, String[] cascades, Permission action) {
-		if (cascades == null || cascades.length == 0) {
+	protected Map<String, Set<ID>> getCascadeRecords(ID recordOfMain, String[] cascadeEntities, Permission action) {
+		if (cascadeEntities == null || cascadeEntities.length == 0) {
 			return Collections.emptyMap();
 		}
 		
-		Map<String, Set<ID>> cascadeRecordsMap = new HashMap<>();
-		Entity mainEntity = MetadataHelper.getEntity(main.getEntityCode());
-		for (String ref : cascades) {
+		Map<String, Set<ID>> entityRecordsMap = new HashMap<>();
+		Entity mainEntity = MetadataHelper.getEntity(recordOfMain.getEntityCode());
+		for (String ref : cascadeEntities) {
 			Entity refEntity = MetadataHelper.getEntity(ref);
 			
 			String sql = "select %s from %s where ( ";
@@ -91,21 +92,21 @@ public class GeneralEntityService extends BaseService {
 			
 			Field[] refToFields = MetadataHelper.getReferenceToFields(mainEntity, refEntity);
 			for (Field refToField : refToFields) {
-				sql += refToField.getName() + " = '" + main + "' or ";
+				sql += refToField.getName() + " = '" + recordOfMain + "' or ";
 			}
 			sql = sql.substring(0, sql.length() - 4);  // remove last ' or '
 			sql += " )";
 
-			// TODO 此处查询权限不对，应该查询能分派的记录，而非可读的记录
+			Filter filter = Application.getSecurityManager().createQueryFilter(Application.currentCallerUser(), action);
+			Object[][] array = Application.getQueryFactory().createQuery(sql, filter).array();
 			
-			Object[][] array = Application.createQuery(sql).array();
 			Set<ID> records = new HashSet<>();
 			for (Object[] o : array) {
 				records.add((ID) o[0]);
 			}
-			cascadeRecordsMap.put(ref, records);
+			entityRecordsMap.put(ref, records);
 		}
-		return cascadeRecordsMap;
+		return entityRecordsMap;
 	}
 	
 	@Override
@@ -128,7 +129,7 @@ public class GeneralEntityService extends BaseService {
 		Map<String, Set<ID>> cass = getCascadeRecords(record, cascades, BizzPermission.DELETE);
 		for (Map.Entry<String, Set<ID>> e : cass.entrySet()) {
 			if (LOG.isDebugEnabled()) {
-				LOG.debug("级联删除 - " + e.getKey() + "/" + e.getValue().size());
+				LOG.debug("级联删除 - " + e.getKey() + " > " + e.getValue());
 			}
 			for (ID id : e.getValue()) {
 				affected += delete(id, null);
@@ -164,7 +165,7 @@ public class GeneralEntityService extends BaseService {
 		Map<String, Set<ID>> cass = getCascadeRecords(record, cascades, BizzPermission.ASSIGN);
 		for (Map.Entry<String, Set<ID>> e : cass.entrySet()) {
 			if (LOG.isDebugEnabled()) {
-				LOG.debug("级联分派 - " + e.getKey() + "/" + e.getValue().size());
+				LOG.debug("级联分派 - " + e.getKey() + " > " + e.getValue());
 			}
 			
 			for (ID id : e.getValue()) {
@@ -207,7 +208,7 @@ public class GeneralEntityService extends BaseService {
 		Map<String, Set<ID>> cass = getCascadeRecords(record, cascades, BizzPermission.SHARE);
 		for (Map.Entry<String, Set<ID>> e : cass.entrySet()) {
 			if (LOG.isDebugEnabled()) {
-				LOG.debug("级联共享 - " + e.getKey() + "/" + e.getValue().size());
+				LOG.debug("级联共享 - " + e.getKey() + " > " + e.getValue());
 			}
 			
 			for (ID id : e.getValue()) {

@@ -61,7 +61,7 @@ public class SignUpControll extends BaseControll {
 			return;
 		}
 		
-		Object[] foundUser = Application.createNoFilterQuery(
+		Object[] foundUser = Application.createQueryNoFilter(
 				"select userId,password from User where loginName = ?")
 				.setParameter(1, user)
 				.unique();

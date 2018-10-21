@@ -18,8 +18,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.query;
 
-import com.rebuild.server.Application;
+import org.springframework.util.Assert;
 
+import com.rebuild.server.Application;
+import com.rebuild.server.bizz.privileges.EntityQueryFilter;
+
+import cn.devezhao.persist4j.Filter;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.Record;
@@ -34,14 +38,14 @@ import cn.devezhao.persist4j.query.NativeQuery;
  */
 public class QueryFactory {
 	
-	public static final int QUERY_TIMEOUT = 5 * 1000;
-	public static final int SLOW_LOGGER_TIME = 1 * 1000;
+	private static final int QUERY_TIMEOUT = 5 * 1000;
+	private static final int SLOW_LOGGER_TIME = 1 * 1000;
 
-	final private PersistManagerFactory PM_FACTORY;
+	final private PersistManagerFactory aPMFactory;
 
-	protected QueryFactory(PersistManagerFactory persistManagerFactory) {
+	protected QueryFactory(PersistManagerFactory aPMFactory) {
 		super();
-		this.PM_FACTORY = persistManagerFactory;
+		this.aPMFactory = aPMFactory;
 	}
 
 	/**
@@ -58,30 +62,37 @@ public class QueryFactory {
 	 * @return
 	 */
 	public Query createQuery(String ajql, ID user) {
-		Query query = PM_FACTORY.createQuery(ajql)
-				.setTimeout(QUERY_TIMEOUT)
-				.setSlowLoggerTime(SLOW_LOGGER_TIME)
-				.setFilter(Application.getSecurityManager().createQueryFilter(user));
-		return query;
+		return createQuery(ajql, Application.getSecurityManager().createQueryFilter(user));
 	}
 	
 	/**
 	 * @param ajql
 	 * @return
 	 */
-	public Query createQueryUnfiltered(String ajql) {
-		Query query = PM_FACTORY.createQuery(ajql)
+	public Query createQueryNoFilter(String ajql) {
+		return createQuery(ajql, EntityQueryFilter.ALLOWED);
+	}
+	
+	/**
+	 * @param ajql
+	 * @param user
+	 * @return
+	 */
+	public Query createQuery(String ajql, Filter filter) {
+		Assert.notNull(filter, "'filter' not be null");
+		Query query = aPMFactory.createQuery(ajql)
 				.setTimeout(QUERY_TIMEOUT)
-				.setSlowLoggerTime(SLOW_LOGGER_TIME);
+				.setSlowLoggerTime(SLOW_LOGGER_TIME)
+				.setFilter(filter);
 		return query;
 	}
-
+	
 	/**
 	 * @param sql
 	 * @return
 	 */
 	public NativeQuery createNativeQuery(String sql) {
-		return PM_FACTORY.createNativeQuery(sql)
+		return aPMFactory.createNativeQuery(sql)
 				.setTimeout(QUERY_TIMEOUT)
 				.setSlowLoggerTime(SLOW_LOGGER_TIME);
 	}

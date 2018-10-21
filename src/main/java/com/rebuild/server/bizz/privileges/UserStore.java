@@ -228,7 +228,7 @@ public class UserStore {
 			oldDept.removeMember(oldUser);
 		}
 		
-		Object[] u = Application.createNoFilterQuery(
+		Object[] u = Application.createQueryNoFilter(
 				"select " + USER_FS + " from User where userId = ?")
 				.setParameter(1, userId)
 				.unique();

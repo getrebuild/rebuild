@@ -70,7 +70,7 @@ public class AdminEntryControll extends BaseControll {
 		ID adminId = getRequestUser(request);
 		String passwd = getParameterNotNull(request, "passwd");
 		
-		Object[] foundUser = Application.createNoFilterQuery(
+		Object[] foundUser = Application.createQueryNoFilter(
 				"select password from User where userId = ?")
 				.setParameter(1, adminId)
 				.unique();

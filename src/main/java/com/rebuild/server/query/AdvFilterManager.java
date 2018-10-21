@@ -65,11 +65,11 @@ public class AdvFilterManager {
 		String sql = "select filterId,config,modifiedOn from FilterConfig where belongEntity = '%s' and filterName = '%s' and applyTo = ?";
 		sql = String.format(sql, entity, FILTER_QUICK);
 		
-		Object[] myself = Application.createNoFilterQuery(sql + " and createdBy = ?")
+		Object[] myself = Application.createQueryNoFilter(sql + " and createdBy = ?")
 				.setParameter(1, LayoutManager.APPLY_SELF)
 				.setParameter(2, user)
 				.unique();
-		Object[] global = Application.createNoFilterQuery(sql).setParameter(1, LayoutManager.APPLY_ALL).unique();
+		Object[] global = Application.createQueryNoFilter(sql).setParameter(1, LayoutManager.APPLY_ALL).unique();
 		
 		Object[] cfgs = global;
 		
@@ -133,7 +133,7 @@ public class AdvFilterManager {
 			sql = String.format(sql, LayoutManager.APPLY_SELF, user.toLiteral());
 		}
 		
-		Object[] detect = Application.createNoFilterQuery(sql).unique();
+		Object[] detect = Application.createQueryNoFilter(sql).unique();
 		return detect == null ? null : (ID) detect[0];
 	}
 	

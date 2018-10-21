@@ -68,11 +68,11 @@ public class LayoutManager {
 		String sql = "select layoutId,config,modifiedOn from LayoutConfig where belongEntity = '%s' and type = '%s' and applyTo = ?";
 		sql = String.format(sql, entity, type);
 
-		Object[] myself = Application.createNoFilterQuery(sql + " and createdBy = ?")
+		Object[] myself = Application.createQueryNoFilter(sql + " and createdBy = ?")
 				.setParameter(1, APPLY_SELF)
 				.setParameter(2, user)
 				.unique();
-		Object[] global = Application.createNoFilterQuery(sql).setParameter(1, APPLY_ALL).unique();
+		Object[] global = Application.createQueryNoFilter(sql).setParameter(1, APPLY_ALL).unique();
 
 		Object[] cfgs = global;
 		
@@ -115,7 +115,7 @@ public class LayoutManager {
 			sql = String.format(sql, APPLY_SELF, user.toLiteral());
 		}
 		
-		Object[] detect = Application.createNoFilterQuery(sql).unique();
+		Object[] detect = Application.createQueryNoFilter(sql).unique();
 		return detect == null ? null : (ID) detect[0];
 	}
 	

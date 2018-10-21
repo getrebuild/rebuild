@@ -58,7 +58,7 @@ public class PickListService extends BaseService  {
 		JSONArray showItem = config.getJSONArray("show");
 		JSONArray hideItem = config.getJSONArray("hide");
 		
-		Object[][] itemsHold = Application.createNoFilterQuery(
+		Object[][] itemsHold = Application.createQueryNoFilter(
 				"select itemId from PickList where belongEntity = ? and belongField = ?")
 				.setParameter(1, field.getOwnEntity().getName())
 				.setParameter(2, field.getName())

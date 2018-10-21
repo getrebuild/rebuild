@@ -19,6 +19,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.bizz.privileges;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import cn.devezhao.bizz.security.member.BusinessUnit;
 import cn.devezhao.persist4j.engine.ID;
@@ -66,5 +69,19 @@ public class Department extends BusinessUnit {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * 获取子部门（包括所有子级）
+	 * 
+	 * @return
+	 */
+	public Set<BusinessUnit> getAllChildren() {
+		Set<BusinessUnit> children = new HashSet<>();
+		children.addAll(getChildren());
+		for (BusinessUnit child : getChildren()) {
+			children.addAll(((Department) child).getAllChildren());
+		}
+		return Collections.unmodifiableSet(children);
 	}
 }

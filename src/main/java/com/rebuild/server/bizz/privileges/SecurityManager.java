@@ -28,6 +28,7 @@ import cn.devezhao.bizz.privileges.Privileges;
 import cn.devezhao.bizz.privileges.impl.BizzDepthEntry;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.bizz.security.member.Role;
+import cn.devezhao.persist4j.Filter;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -324,16 +325,22 @@ public class SecurityManager {
 	 * @param user
 	 * @return
 	 */
-	public QueryFilter createQueryFilter(ID user) {
-		if (UserService.ADMIN_USER.equals(user)) {
-			return QueryFilter.ALLOWED;
-		}
-		
+	public Filter createQueryFilter(ID user) {
+		return createQueryFilter(user, BizzPermission.READ);
+	}
+	
+	/**
+	 * 创建查询过滤器
+	 * 
+	 * @param user
+	 * @param action
+	 * @return
+	 */
+	public Filter createQueryFilter(ID user, Permission action) {
 		User theUser = USER_STORE.getUser(user);
-		Role role = theUser.getOwningRole();
-		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
-			return QueryFilter.ALLOWED;
+		if (theUser.isAdmin()) {
+			return EntityQueryFilter.ALLOWED;
 		}
-		return new QueryFilter(theUser);
+		return new EntityQueryFilter(theUser, action);
 	}
 }

@@ -63,7 +63,7 @@ public class Entity2Schema extends Field2Schema {
 	public String create(String entityLabel, String comments) {
 		String entityName = toPinyinString(entityLabel);
 		while (true) {
-			Object exists = Application.createNoFilterQuery(
+			Object exists = Application.createQueryNoFilter(
 					"select entityId from MetaEntity where entityName = ?")
 					.setParameter(1, entityName)
 					.unique();
@@ -76,7 +76,7 @@ public class Entity2Schema extends Field2Schema {
 		
 		String physicalName = "T__" + StringHelper.hyphenate(entityName).toUpperCase();
 		
-		Object maxTypeCode[] = Application.createNoFilterQuery(
+		Object maxTypeCode[] = Application.createQueryNoFilter(
 				"select min(typeCode) from MetaEntity").unique();
 		int typeCode = maxTypeCode == null || ObjectUtils.toInt(maxTypeCode[0]) == 0 
 				? 999 : (ObjectUtils.toInt(maxTypeCode[0]) - 1);

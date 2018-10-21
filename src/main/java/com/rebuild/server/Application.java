@@ -152,8 +152,8 @@ public final class Application {
 		return getQueryFactory().createQuery(ajql);
 	}
 	
-	public static Query createNoFilterQuery(String ajql) {
-		return getQueryFactory().createQueryUnfiltered(ajql);
+	public static Query createQueryNoFilter(String ajql) {
+		return getQueryFactory().createQueryNoFilter(ajql);
 	}
 
 	public static SQLExecutor getSQLExecutor() {
