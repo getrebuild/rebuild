@@ -18,14 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.bizz.privileges;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 
 import cn.devezhao.bizz.security.EntityQueryFilter;
-import cn.devezhao.bizz.security.member.User;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Filter;
 
@@ -70,8 +66,6 @@ public class QueryFilter extends EntityQueryFilter implements Filter {
 	
 	// -----------------------------------------------------------------------------------
 	
-	private static final Log LOG = LogFactory.getLog(QueryFilter.class);
-	
 	/**
 	 * @param user
 	 */
@@ -83,11 +77,10 @@ public class QueryFilter extends EntityQueryFilter implements Filter {
 	 * @see #evaluate(int)
 	 */
 	public String evaluate(Entity entity) {
-		if (!entity.containsField(EntityHelper.owningUser)) {
-			if (LOG.isDebugEnabled()) {
-				LOG.warn("No privilege field supported for QueryFilter! Entity: " + entity.getName());
-			}
-			return ALLOWED.evaluate(entity.getEntityCode());
+		if (((User) user).isAdmin()) {
+			return ALLOWED.evaluate(entity);
+		} else if (!EntityHelper.hasPrivilegesField(entity)) {
+			return DENIED.evaluate(entity.getEntityCode());			
 		}
 		return evaluate(entity.getEntityCode());
 	}
@@ -95,13 +88,10 @@ public class QueryFilter extends EntityQueryFilter implements Filter {
 	@Override
 	protected String evaluate(int entityCode, StringBuffer filtered) {
 		Entity entity = MetadataHelper.getEntity(entityCode);
-		if (!entity.containsField(EntityHelper.owningUser)) {
-			if (LOG.isDebugEnabled()) {
-				LOG.warn("No privilege field supported for QueryFilter! Entity: " + entity.getName());
-			}
+		if (((User) user).isAdmin()) {
 			return ALLOWED.evaluate(entity);
-//		} else if (entityCode == EntityHelper.User) {
-//			filtered.insert(filtered.lastIndexOf(")"), "or userId = '" + user.getIdentity() + "' ");
+		} else if (!EntityHelper.hasPrivilegesField(entity)) {
+			return DENIED.evaluate(entity.getEntityCode());			
 		}
 		return super.evaluate(entityCode, filtered);
 	}

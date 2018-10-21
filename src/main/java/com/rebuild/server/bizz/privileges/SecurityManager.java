@@ -329,11 +329,11 @@ public class SecurityManager {
 			return QueryFilter.ALLOWED;
 		}
 		
-		User sUser = USER_STORE.getUser(user);
-		Role role = sUser.getOwningRole();
+		User theUser = USER_STORE.getUser(user);
+		Role role = theUser.getOwningRole();
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
 			return QueryFilter.ALLOWED;
 		}
-		return new QueryFilter(sUser);
+		return new QueryFilter(theUser);
 	}
 }
