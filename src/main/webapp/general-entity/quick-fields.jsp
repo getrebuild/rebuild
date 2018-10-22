@@ -3,13 +3,13 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>查询字段</title>
+<title>快速查询字段</title>
 </head>
 <body class="dialog">
 <div class="main-content">
 	<div class="row m-0">
 		<div class="col-6 sortable-swap">
-			<h5 class="sortable-box-title">已设置</h5>
+			<h5 class="sortable-box-title">查询字段</h5>
 			<div class="sortable-box rb-scroller">
 				<ol class="dd-list J_config"></ol>
 			</div>
@@ -30,7 +30,7 @@
 			</label>
 		</div>
 		<button class="btn btn-primary J_save" type="button">保存</button>
-		<button class="btn btn-secondary" onclick="parent.QuickFilter.hideQFieldsModal()" type="button">取消</button>
+		<button class="btn btn-secondary" onclick="parent.QuickFilter.hideModal()" type="button">取消</button>
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>

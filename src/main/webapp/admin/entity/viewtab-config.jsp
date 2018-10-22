@@ -3,7 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>相关项</title>
+<title>视图相关项</title>
 </head>
 <body class="dialog">
 <div class="main-content">

@@ -427,8 +427,7 @@ const RbListPage = {
 
 // 列表快速查询
 const QuickFilter = {
-    _ModalQFields: null,
-    
+
     // @el - 控件
     // @entity - 实体
     init(el, entity) {
@@ -437,6 +436,7 @@ const QuickFilter = {
         this.initEvent()
         this.loadFilter()
     },
+    
     initEvent() {
         let that = this
         let btn = this.root.find('.J_search-btn').click(function(){
@@ -447,7 +447,7 @@ const QuickFilter = {
             if (event.which == 13) btn.trigger('click')
         })
         this.root.find('.J_qfields').click(function(event){
-            that.showQFieldsModal()
+            that.__currentModal = rb.modal(`${rb.baseUrl}/page/general-entity/quick-fields?entity=${that.entity}`, '设置快速查询字段')
         })
     },
     
@@ -456,31 +456,24 @@ const QuickFilter = {
         $.get(`${rb.baseUrl}/app/${this.entity}/advfilter/quick`, function(res){
             that.filterExp = res.data || { items: [] }
             let qFields = []
-            that.filterExp.items.forEach(function(item){
-                qFields.push(item.label)
-            })
+            that.filterExp.items.forEach(function(item){ qFields.push(item.label) })
             that.root.find('.J_search-text').attr('placeholder', '搜索 ' + qFields.join('/'))
         })
     },
     fireFilter(val) {
         if (!this.filterExp || this.filterExp.items.length == 0){
             rb.notice('请先设置查询字段')
-            let that = this
-            $setTimeout(function(){
-                that.showQFieldsModal()
-            }, 1500)
             return
         }
-        
         this.filterExp.values = { 1: val }
         RbListPage._RbList.search(this.filterExp)
     },
     
-    showQFieldsModal() {
-        if (this._ModalQFields) this._ModalQFields.show()
-        else this._ModalQFields = rb.modal(`${rb.baseUrl}/page/general-entity/quick-fields?entity=${this.entity}`, '设置查询字段')
-    },
-    hideQFieldsModal() {
-        if (this._ModalQFields) this._ModalQFields.hide()
+    // 隐藏当前 Modal
+    hideModal() {
+        if (this.__currentModal) {
+            this.__currentModal.hide(true)
+            this.__currentModal = null
+        }
     }
 };

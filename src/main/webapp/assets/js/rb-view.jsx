@@ -106,7 +106,7 @@ const RbViewPage = {
         }
         
         $('.vtab-settings').click(function(){
-            that.__currentModal = rb.modal(`${rb.baseUrl}/page/general-entity/viewtab-settings?entity=${that.__entity[1]}`, '设置视图相关项')
+            that.__currentModal = rb.modal(`${rb.baseUrl}/page/admin/entity/viewtab-config?entity=${that.__entity[1]}`, '设置视图相关项')
         })
     },
     
