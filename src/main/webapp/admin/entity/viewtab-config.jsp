@@ -32,7 +32,7 @@
 <script type="text/javascript">
 $(document).ready(function(){
 	const entity = $urlp('entity')
-	$.get(rb.baseUrl + '/app/' + entity + '/viewtab-settings', function(res){
+	$.get(rb.baseUrl + '/admin/entity/' + entity + '/viewtab-config', function(res){
 		$(res.data.refs).each(function(){ render_unset(this) })
 		$(res.data.config).each(function(){
 			$('.unset-list li[data-key="' + this + '"]').trigger('click')
@@ -47,7 +47,7 @@ $(document).ready(function(){
 		});
 		
 		let btn = $(this).button('loading')
-		$.post(rb.baseUrl + '/app/' + entity + '/viewtab-settings', JSON.stringify(config), function(res){
+		$.post(rb.baseUrl + '/admin/entity/' + entity + '/viewtab-config', JSON.stringify(config), function(res){
 			btn.button('reset')
 			if (res.error_code == 0) parent.location.reload()
 		});

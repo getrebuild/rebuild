@@ -41,13 +41,22 @@ $(document).ready(function(){
 	let nexturl = decodeURIComponent($urlp('nexturl') || '../admin/systems')
 	$('.J_verify-btn').click(function(){
 		let passwd = $val('#admin-passwd')
-		if (!!!passwd) return
+		if (!!!passwd) return false
+		
+		let but = $(this).button('loading')
 		$.post('admin-verify?passwd=' + passwd, function(res) {
 			if (res.error_code == 0) location.replace(nexturl)
-			else rb.notice(res.error_msg)
+			else{
+				rb.notice(res.error_msg)
+				but.button('reset')
+			}
 		})
 		return false
 	})
+	if (self != top && $(window).width() < 800){
+		$('.splash-footer, .navbar').remove()
+		$('.rb-wrapper').addClass('pt-0')
+	}
 })
 </script>
 </body>
