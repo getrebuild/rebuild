@@ -30,6 +30,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.helper.manager.FormManager;
+import com.rebuild.server.helper.manager.ViewTabManager;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.persist4j.engine.ID;
@@ -51,6 +52,10 @@ public class GeneralEntityControll extends BaseControll {
 		ID record = ID.valueOf(id);
 		ModelAndView mv = createModelAndView("/general-entity/record-view.jsp", entity, user);
 		mv.getModel().put("id", record);
+		
+		JSON vtab = ViewTabManager.getViewTab(entity);
+		mv.getModel().put("viewTabs", vtab);
+		
 		return mv;
 	}
 	

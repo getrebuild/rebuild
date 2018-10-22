@@ -585,7 +585,8 @@ class RbFormReference extends RbFormElement {
     }
     renderViewElement() {
         if (!!!this.state.value) return super.renderViewElement()
-        return <div className="form-control-plaintext"><a href="javascript:;" onClick={()=>this.clickView()}>{this.state.value[1]}</a></div>
+        let val = this.state.value
+        return <div className="form-control-plaintext"><a ref="field-text" href={`#!/View/${val[2]}/${val[0]}`} onClick={()=>this.clickView()}>{val[1]}</a></div>
     }
     componentDidMount() {
         super.componentDidMount()
@@ -632,6 +633,7 @@ class RbFormReference extends RbFormElement {
         $(this.refs['field-value']).select2('destroy')
     }
     clickView() {
+        RbViewPage.clickView($(this.refs['field-text']))
     }
 }
 

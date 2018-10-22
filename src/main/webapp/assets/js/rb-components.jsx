@@ -145,7 +145,7 @@ function RbSpinner(props) {
     </div>
 }
 
-var __renderRbcompTimes = 1;
+let __renderRbcompTimes = 1;
 const renderRbcomp = function(jsx, target) {
     target = target || ('react-comps-' + new Date().getTime()) + '-' + __renderRbcompTimes++;
     let container = $('#' + target);
@@ -155,7 +155,7 @@ const renderRbcomp = function(jsx, target) {
 
 // -- Usage
 
-var rb = rb || {}
+let rb = rb || {}
 
 rb.modal = function(url, title, ext) {
     ext = ext || {}

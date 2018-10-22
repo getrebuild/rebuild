@@ -137,6 +137,7 @@ public class EntityHelper {
 	public static final int PickList = 12;
 	public static final int LayoutConfig = 13;
 	public static final int FilterConfig = 14;
+	public static final int ViewTabConfig = 15;
 	
 	public static final int ShareAccess = 20;
 	

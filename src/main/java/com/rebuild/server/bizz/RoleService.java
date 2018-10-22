@@ -63,51 +63,54 @@ public class RoleService extends GeneralEntityService {
 	 * @param definition
 	 */
 	public void txUpdatePrivileges(ID roleId, JSONObject definition) {
+		final ID user = Application.currentCallerUser();
+		
 		Object[][] array = Application.createQuery(
 				"select privilegesId,definition,entity,zeroKey from RolePrivileges where roleId = ?")
 				.setParameter(1, roleId)
 				.array();
-		Map<String, Object[]> existsMap = new HashMap<>();
+		Map<String, Object[]> existsPrivileges = new HashMap<>();
 		for (Object[] o : array) {
-			if ("N".equals(o[2])) {
+			if ((int) o[2] == 0) {
 				o[2] = o[3];
 			}
-			existsMap.put(o[2].toString(), o);
+			existsPrivileges.put(o[2].toString(), o);
 		}
 		
-		JSONObject entityPriv = definition.getJSONObject("entity");
-		JSONObject zeroPriv = definition.getJSONObject("zero");
-		JSONObject allPriv = new JSONObject();
-		allPriv.putAll(entityPriv);
-		allPriv.putAll(zeroPriv);
-		zeroPriv.clear();
+		JSONObject entityPrivileges = definition.getJSONObject("entity");
+		JSONObject zeroPrivileges = definition.getJSONObject("zero");
+		JSONObject allPrivileges = new JSONObject();
+		allPrivileges.putAll(entityPrivileges);
+		allPrivileges.putAll(zeroPrivileges);
+		zeroPrivileges.clear();
 		
 		boolean privilegesChanged = false;
-		for (Map.Entry<String, Object> e : allPriv.entrySet()) {
+		for (Map.Entry<String, Object> e : allPrivileges.entrySet()) {
 			String name = e.getKey();
-			String defi = e.getValue().toString();
-			if (existsMap.containsKey(name)) {
-				Object[] exists = existsMap.get(name);
+			String def = e.getValue().toString();
+			if (existsPrivileges.containsKey(name)) {
+				Object[] exists = existsPrivileges.get(name);
 				// Unchanged
-				if (defi.equalsIgnoreCase(exists[1].toString())) {
+				if (def.equalsIgnoreCase(exists[1].toString())) {
 					continue;
 				}
 				
-				Record priv = EntityHelper.forUpdate((ID) exists[0], Application.currentCallerUser());
-				priv.setString("definition", defi);
-				super.update(priv);
+				Record privileges = EntityHelper.forUpdate((ID) exists[0], user);
+				privileges.setString("definition", def);
+				super.update(privileges);
 				privilegesChanged = true;
 				
 			} else {
-				Record priv = EntityHelper.forNew(EntityHelper.RolePrivileges, Application.currentCallerUser());
-				priv.setID("roleId", roleId);
-				if (entityPriv.containsKey(name)) {
-					priv.setString("entity", name);
+				Record privileges = EntityHelper.forNew(EntityHelper.RolePrivileges, user);
+				privileges.setID("roleId", roleId);
+				if (entityPrivileges.containsKey(name)) {
+					privileges.setInt("entity", Integer.parseInt(name));
 				} else {
-					priv.setString("zeroKey", name);
+					privileges.setInt("entity", 0);
+					privileges.setString("zeroKey", name);
 				}
-				priv.setString("definition", defi);
-				super.create(priv);
+				privileges.setString("definition", def);
+				super.create(privileges);
 				privilegesChanged = true;
 			}
 		}

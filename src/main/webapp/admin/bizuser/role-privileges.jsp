@@ -67,7 +67,7 @@
 						<%
 						List<String[]> entities = (List<String[]>) request.getAttribute("Entities");
 						for (String[] e : entities) {
-							boolean noAS = "/User/Department/Role/".contains("/" + e[0] + "/");
+							boolean noas = "/User/Department/Role/".contains("/" + e[0] + "/");
 						%>
 							<tr>
 								<td class="name"><a data-name="<%=e[0]%>"><%=e[1]%></a></td>
@@ -75,7 +75,7 @@
 								<td class="text-center"><i data-action="R" class="priv R0"></i></td>
 								<td class="text-center"><i data-action="U" class="priv R0"></i></td>
 								<td class="text-center"><i data-action="D" class="priv R0"></i></td>
-								<% if (noAS) { %>
+								<% if (noas) { %>
 								<td class="text-center text-muted">-</td>
 								<td class="text-center text-muted">-</td>
 								<%} else { %>
@@ -112,32 +112,32 @@
 						</thead>
 						<tbody>
 							<tr>
-								<td class="name"><a data-name="0-AllowLogin">允许登录</a></td>
+								<td class="name"><a data-name="AllowLogin">允许登录</a></td>
 								<td class="text-center"><i data-action="Z" class="priv R4"></i></td>
 								<td colspan="5" class="text-muted">无</td>
 							</tr>
 							<tr>
-								<td class="name"><a data-name="0-AllowBatchUpdate">允许批量修改</a></td>
+								<td class="name"><a data-name="AllowBatchUpdate">允许批量修改</a></td>
 								<td class="text-center"><i data-action="Z" class="priv R0"></i></td>
 								<td colspan="5">需具备相应实体的修改权限</td>
 							</tr>
 							<tr>
-								<td class="name"><a data-name="0-AllowDataImport">允许导入数据</a></td>
+								<td class="name"><a data-name="AllowDataImport">允许导入数据</a></td>
 								<td class="text-center"><i data-action="Z" class="priv R0"></i></td>
 								<td colspan="5">需具备相应实体的创建权限</td>
 							</tr>
 							<tr>
-								<td class="name"><a data-name="0-AllowDataOutput">允许导出数据</a></td>
+								<td class="name"><a data-name="AllowDataOutput">允许导出数据</a></td>
 								<td class="text-center"><i data-action="Z" class="priv R0"></i></td>
 								<td colspan="5">需具备相应实体的读取权限</td>
 							</tr>
 							<tr>
-								<td class="name"><a data-name="0-AllowCustomListColumn">允许自定义列显示</a></td>
+								<td class="name"><a data-name="AllowCustomListColumn">允许自定义列显示</a></td>
 								<td class="text-center"><i data-action="Z" class="priv R0"></i></td>
 								<td colspan="5" class="text-muted">无</td>
 							</tr>
 							<tr>
-								<td class="name"><a data-name="0-AllowCustomQuickField">允许自定义查询字段</a></td>
+								<td class="name"><a data-name="AllowCustomQuickField">允许自定义查询字段</a></td>
 								<td class="text-center"><i data-action="Z" class="priv R0"></i></td>
 								<td colspan="5" class="text-muted">无</td>
 							</tr>

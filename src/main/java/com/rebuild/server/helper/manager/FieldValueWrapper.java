@@ -23,12 +23,13 @@ import java.text.DecimalFormat;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
-import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.entityhub.DisplayType;
+import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.metadata.MetadataHelper;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -40,7 +41,16 @@ import cn.devezhao.persist4j.engine.ID;
 public class FieldValueWrapper {
 
 	/**
-	 * @param date
+	 * @param value
+	 * @param field
+	 * @return
+	 */
+	public static Object wrapFieldValue(Object value, Field field) {
+		return wrapFieldValue(value, new EasyMeta(field));
+	}
+	
+	/**
+	 * @param value
 	 * @param field
 	 * @return
 	 */
@@ -162,6 +172,11 @@ public class FieldValueWrapper {
 	 * @return
 	 */
 	public static String wrapSimple(Object simple, EasyMeta field) {
-		return simple.toString().trim();
+		String text = simple.toString().trim();
+		if (StringUtils.isBlank(text)) {
+			return StringUtils.EMPTY;
+		} else {
+			return text;
+		}
 	}
 }

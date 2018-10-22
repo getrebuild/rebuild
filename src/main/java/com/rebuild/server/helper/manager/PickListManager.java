@@ -52,7 +52,7 @@ public class PickListManager {
 	 * @return
 	 */
 	public static JSONArray getPickList(String entity, String field, boolean isAll) {
-		List<Map<String, Object>> list = getPickListRaw(entity, field, isAll, false);
+		List<Map<String, Object>> list = getRaw(entity, field, isAll, false);
 		return (JSONArray) JSON.toJSON(list);
 	}
 	
@@ -63,7 +63,7 @@ public class PickListManager {
 	 * @param reload
 	 * @return
 	 */
-	public static List<Map<String, Object>> getPickListRaw(String entity, String field, boolean isAll, boolean reload) {
+	public static List<Map<String, Object>> getRaw(String entity, String field, boolean isAll, boolean reload) {
 		Object[][] array = Application.createQueryNoFilter(
 				"select itemId,text,isDefault,isHide from PickList where belongEntity = ? and belongField = ? order by seq asc")
 				.setParameter(1, entity)

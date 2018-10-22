@@ -49,10 +49,10 @@ html, body {
 	padding-bottom: 15px;
 }
 
-.view-oper .btns .btn {
+.view-oper .btns .btn, .view-oper .btns .btn-group {
 	width: 100%;
 }
 
-.view-oper .btns .btn+.btn {
+.view-oper .btns .btn+.btn, .view-oper .btns .btn+.btn-group {
 	margin-top: 6px
 }

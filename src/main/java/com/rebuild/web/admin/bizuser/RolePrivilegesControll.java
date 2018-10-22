@@ -79,7 +79,7 @@ public class RolePrivilegesControll extends BaseControll {
 		List<String[]> entities = new ArrayList<>();
 		for (Entity e : PortalMetaSorter.sortEntities(true)) {
 			if (EntityHelper.hasPrivilegesField(e)) {
-				entities.add(new String[] { e.getName(), EasyMeta.getLabel(e) });
+				entities.add(new String[] { e.getEntityCode() + "", EasyMeta.getLabel(e) });
 			}
 		}
 		mv.getModel().put("Entities", entities);
@@ -106,8 +106,7 @@ public class RolePrivilegesControll extends BaseControll {
 				.setParameter(1, roleId)
 				.array();
 		for (Object[] o : array) {
-			String entity = o[0].toString();
-			if ("N".equals(entity)) {
+			if ((int) o[0] == 0) {
 				o[0] = o[2];
 			}
 		}

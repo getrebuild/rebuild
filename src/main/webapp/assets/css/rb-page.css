@@ -90,14 +90,6 @@
 	right: 8px;
 }
 
-.margin-0 {
-	margin: 0 !important
-}
-
-.padding-0 {
-	padding: 0 !important
-}
-
 .rb-aside .page-head {
 	margin-left: 280px;
 }
@@ -443,25 +435,30 @@ a {
 	overflow: hidden;
 }
 
-.data-list {
-	position: relative;
-	overflow: hidden;
-	min-height: 200px;
-	background-color: #fff;
-}
 
-.data-list .nodata {
+.list-nodata {
 	text-align: center;
-	margin-top: 36px;
-	color: #999;
+	padding-top: 36px;
 }
 
-.data-list .nodata p {
+.list-nodata .zmdi {
+	font-size: 48px;
+	color: #aaa;
+}
+
+.list-nodata p {
 	margin: 0;
 	margin-top: 9px;
 	color: #666;
 	font-size: 1.1rem;
 	font-weight: 300;
+}
+
+.data-list {
+	position: relative;
+	overflow: hidden;
+	min-height: 200px;
+	background-color: #fff;
 }
 
 .data-list .table th,

@@ -49,10 +49,12 @@ public class SchemaGen {
 //		gen(EntityHelper.MetaEntity);
 //		gen(EntityHelper.MetaField);
 //		gen(EntityHelper.PickList);
-//		gen(EntityHelper.RolePrivileges);
+		gen(EntityHelper.Role);
+		gen(EntityHelper.RolePrivileges);
+		gen(EntityHelper.ViewTabConfig);
 //		gen(EntityHelper.LayoutConfig);
 //		gen(EntityHelper.FilterConfig);
-		gen(EntityHelper.ShareAccess);
+//		gen(EntityHelper.ShareAccess);
 		
 		System.exit(0);
 	}

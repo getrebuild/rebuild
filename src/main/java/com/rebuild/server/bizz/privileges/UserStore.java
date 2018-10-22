@@ -41,7 +41,6 @@ import cn.devezhao.bizz.security.EntityPrivileges;
 import cn.devezhao.bizz.security.member.BusinessUnit;
 import cn.devezhao.bizz.security.member.NoMemberFoundException;
 import cn.devezhao.bizz.security.member.Role;
-import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
 
@@ -267,9 +266,9 @@ public class UserStore {
 	 * 刷新角色缓存
 	 * 
 	 * @param roleId
-	 * @param refreshPrivileges
+	 * @param reloadPrivileges
 	 */
-	public void refreshRole(ID roleId, boolean refreshPrivileges) {
+	public void refreshRole(ID roleId, boolean reloadPrivileges) {
 		final Role oldRole = ROLEs.get(roleId);
 		
 		Object[] o = aPMFactory.createQuery(
@@ -278,7 +277,7 @@ public class UserStore {
 				.unique();
 		Role role = new Role(roleId, (String) o[1], (Boolean) o[2]);
 		
-		if (refreshPrivileges == false) {
+		if (reloadPrivileges == false) {
 			if (oldRole != null) {
 				for (Privileges priv : oldRole.getAllPrivileges()) {
 					role.addPrivileges(priv);
@@ -469,14 +468,13 @@ public class UserStore {
 				.setParameter(1, role.getIdentity())
 				.array();
 		for (Object[] e : definition) {
-			String entity = (String) e[0];
-			if ("N".equals(entity)) {
+			int entity = (int) e[0];
+			if (entity == 0) {
 				Privileges p = new ZeroPrivileges((String) e[2], (String) e[1]);
 				role.addPrivileges(p);
 			} else {
-				Entity entityMeta = aPMFactory.getMetadataFactory().getEntity(entity);
 				Privileges p = new EntityPrivileges(
-						entityMeta.getEntityCode(), converEntityPrivilegesDefinition((String) e[1]));
+						entity, converEntityPrivilegesDefinition((String) e[1]));
 				role.addPrivileges(p);
 			}
 		}
