@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.rebuild.web.admin.AdminEntryControll"%>
 <%@ page import="com.rebuild.utils.AppUtils"%>
 <%@ page import="com.rebuild.server.Application"%>
 <%@ page import="com.rebuild.server.bizz.privileges.User"%>
@@ -26,20 +27,20 @@ final String showName = UserHelper.getShowName(currentUser);
 							<div class="user-name"><%=showName%></div>
 							<div class="user-id"><%=StringUtils.defaultIfBlank(currentUser.getEmail(), "邮箱未设置")%></div>
 						</div>
-						<a class="dropdown-item" href="${baseUrl}/me/profile"><span class="icon zmdi zmdi-account-box"></span>个人设置</a>
-						<a class="dropdown-item" href="${baseUrl}/user/logout"><span class="icon zmdi zmdi-power"></span>退出</a>
+						<a class="dropdown-item" href="${baseUrl}/me/profile"><i class="icon zmdi zmdi-account-box"></i>个人设置</a>
+						<a class="dropdown-item" href="${baseUrl}/user/logout"><i class="icon zmdi zmdi-power"></i>退出</a>
 					</div>
 				</li>
 			</ul>
 			<div class="page-title"><span><%=request.getParameter("pageTitle")%></span></div>
 			<ul class="nav navbar-nav float-right rb-icons-nav">
 				<% if (currentUser.isAdmin()) { %>
-				<li class="nav-item dropdown">
-					<a class="nav-link" href="${baseUrl}/admin/systems" title="系统配置"><span class="icon zmdi zmdi-settings"></span></a>
+				<li class="nav-item dropdown J_admin-settings" data-verified="<%=AdminEntryControll.isAdminVerified(request)%>">
+					<a class="nav-link" href="${baseUrl}/admin/systems" title="系统配置"><i class="icon zmdi zmdi-settings"></i></a>
 				</li>
 				<%} %>
 				<li class="nav-item dropdown">
-					<a class="nav-link" href="${baseUrl}/app/notifications" title="通知"><span class="icon zmdi zmdi-notifications"></span></a>
+					<a class="nav-link" href="${baseUrl}/app/notifications" title="通知"><i class="icon zmdi zmdi-notifications"></i></a>
 				</li>
 			</ul>
 		</div>

@@ -28,7 +28,7 @@
 			<div class="tab-container">
 				<ul class="nav nav-tabs">
 					<li class="nav-item"><a class="nav-link active" href="#tab-rbview" data-toggle="tab">视图</a></li>
-					<a class="vtab-settings" title="设置相关项"><i class="zmdi zmdi-settings"></i> </a>
+					<a class="vtab-settings J_for-admin hide" title="配置相关项"><i class="zmdi zmdi-settings"></i> </a>
 				</ul>
 				<div class="tab-content">
                     <div class="tab-pane active" id="tab-rbview"></div>
@@ -52,8 +52,8 @@
 					<div class="btn-group J_actions">
 						<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-plus"></i> 新建相关</button>
 						<div class="dropdown-menu dropdown-menu-right">
-							<div class="dropdown-divider"></div>
-							<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-settings"></i> 设置</a>
+							<div class="dropdown-divider J_for-admin hide"></div>
+							<a class="dropdown-item J_for-admin hide"><i class="icon zmdi zmdi-settings"></i> 配置新建</a>
 						</div>
 					</div>
 				</div>

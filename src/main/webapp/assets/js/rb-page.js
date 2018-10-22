@@ -19,8 +19,13 @@ $(function(){
 	
 	if (rb.isAdminUser == true) {
 		$('.J_for-admin').removeClass('hide')
+		if (location.href.indexOf('/admin/') == -1) {
+			if ($('.J_admin-settings').data('verified') == true){
+				$('.J_admin-settings a').attr('title', '系统配置 (已验证管理员权限)')
+				$('.J_admin-settings a i').addClass('text-danger')
+			}
+		}
 	}
-	
 });
 
 const __initNavs = function(){
@@ -36,7 +41,7 @@ const __initNavs = function(){
 		$('.left-sidebar-spacer').toggleClass('open')
 	}).text($('.rb-right-navbar .page-title').text())
 	
-	// ASide
+	// aside
 	let aside = $('.page-aside');
 	if (aside.length > 0) {
 		$('.page-aside .aside-header').click(function(){
@@ -55,7 +60,7 @@ const __initNavs = function(){
 // 计算分页
 // @tp 总计页面 
 // @cp 当前页面
-const calcPages = function(tp, cp){
+const $calcPages = function(tp, cp){
 	tp = ~~tp; cp = ~~cp;
 	let pages = [];
 	if (tp <= 8){
@@ -73,5 +78,4 @@ const calcPages = function(tp, cp){
 	if (end <= tp - 1) pages.push('.');
 	if (end <= tp) pages.push(tp);
 	return pages;
-	
 }
