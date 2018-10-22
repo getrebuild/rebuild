@@ -32,20 +32,27 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
+import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.helper.manager.FieldValueWrapper;
+import com.rebuild.server.helper.manager.ViewTabManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
+import com.rebuild.web.LayoutConfig;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 
@@ -56,10 +63,10 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 10/22/2018
  */
 @Controller
-@RequestMapping("/app/entity/")
-public class RelatedListControll extends BaseControll {
+@RequestMapping("/app/")
+public class RelatedListControll extends BaseControll implements LayoutConfig {
 
-	@RequestMapping("related-list")
+	@RequestMapping("entity/related-list")
 	public void relatedList(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID masterId = getIdParameterNotNull(request, "master");
 		String related = getParameterNotNull(request, "related");
@@ -86,7 +93,7 @@ public class RelatedListControll extends BaseControll {
 		writeSuccess(response, ret);
 	}
 	
-	@RequestMapping("related-counts")
+	@RequestMapping("entity/related-counts")
 	public void relatedCounts(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID masterId = getIdParameterNotNull(request, "master");
 		String relates[] = getParameterNotNull(request, "relates").split(",");
@@ -131,5 +138,47 @@ public class RelatedListControll extends BaseControll {
 			baseSql += " order by " + namedField.getName() + " asc";
 		}
 		return baseSql;
+	}
+	
+	// --
+	
+	@RequestMapping(value = "{entity}/viewtab-settings", method = RequestMethod.POST)
+	@Override
+	public void sets(@PathVariable String entity,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getRequestUser(request);
+		JSON config = ServletUtils.getRequestJson(request);
+		
+		Object[] vtab = ViewTabManager.getRaw(entity);
+		Record record = null;
+		if (vtab == null) {
+			record = EntityHelper.forNew(EntityHelper.ViewTabConfig, user);
+			record.setString("belongEntity", entity);
+		} else {
+			record = EntityHelper.forUpdate((ID) vtab[0], user);
+		}
+		record.setString("config", config.toJSONString());
+		Application.getCommonService().createOrUpdate(record);
+		
+		writeSuccess(response);
+	}
+	
+	@RequestMapping(value = "{entity}/viewtab-settings", method = RequestMethod.GET)
+	@Override
+	public void gets(@PathVariable String entity,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		Object[] vtab = ViewTabManager.getRaw(entity);
+		
+		Entity entityMeta = MetadataHelper.getEntity(entity);
+		Set<String[]> refs = new HashSet<>();
+		for (Field field : entityMeta.getReferenceToFields()) {
+			Entity e = field.getOwnEntity();
+			refs.add(new String[] { e.getName(), EasyMeta.getLabel(e) });
+		}
+		
+		JSON ret = JSONUtils.toJSONObject(
+				new String[] { "config", "refs" },
+				new Object[] { vtab == null ? null : vtab[1], refs });
+		writeSuccess(response, ret);
 	}
 }

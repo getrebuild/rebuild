@@ -54,8 +54,7 @@ public class GeneralEntityControll extends BaseControll {
 		mv.getModel().put("id", record);
 		
 		JSON vtab = ViewTabManager.getViewTab(entity);
-		mv.getModel().put("viewTabs", vtab);
-		
+		mv.getModel().put("ViewTabs", vtab);
 		return mv;
 	}
 	

@@ -5,21 +5,19 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>列表选项</title>
 <style type="text/css">
-.sortable-box{height:268px}
-.sortable-box .dd-list{height:260px}
-.dd-item.default .dd3-content{background-color:#5a95f5 !important;border-color:#5a95f5;color:#fff}
-.dd-item.default .dd3-action a{color:#fff !important}
-.J_showbox .with-hide,.J_hidebox .with-show,.J_showbox .default .J_default{display:none !important;}
+.dd3-item.default .dd3-content{background-color:#dedede !important}
+.unset-list .dd-handle{font-style:italic;color:#aaa}
+.unset-list .dd-item a.action{position:absolute;right:24px;top:1px;font-style:normal;}
+.unset-list .dd-item:hover a.action{color:#fff}
 </style>
 </head>
 <body class="dialog">
 <div class="main-content">
-	<div class="row" style="margin:0">
+	<div class="row m-0">
 		<div class="col-6">
 			<h5 class="sortable-box-title">列表选项</h5>
 			<div class="sortable-box rb-scroller">
-				<ol class="dd-list J_showbox">
-				</ol>
+				<ol class="dd-list J_config"></ol>
 			</div>
 			<form>
 				<div class="input-group input-group-sm">
@@ -33,8 +31,7 @@
 		<div class="col-6">
 			<h5 class="sortable-box-title">已禁用的选项</h5>
 			<div class="sortable-box rb-scroller">
-				<ol class="dd-list J_hidebox">
-				</ol>
+				<ol class="dd-list unset-list"></ol>
 			</div>
 		</div>
 	</div>
@@ -43,85 +40,86 @@
 		<button class="btn btn-secondary" onclick="parent.picklistModal.hide()" type="button">取消</button>
 	</div>
 </div>
-<script type="text/plain" id="picklist-tmpl">
-<li class="dd-item dd3-item">
-	<div class="dd3-content text-3dot">HOLD</div>
-	<div class="dd-handle dd3-handle"></div>
-	<div class="dd3-action"><a href="javascript:;" class="with-show J_default" title="设为默认">[默认]</a><a href="javascript:;" class="with-show J_edit" title="修改选项">[修改]</a><a href="javascript:;" class="with-hide J_del" title="移除选项">[移除]</a></div>
-</li>
-</script>
+
 <%@ include file="/_include/Foot.jsp"%>
+<script src="${baseUrl}/assets/js/sortable.js"></script>
 <script type="text/javascript">
+let tmpid = new Date().getTime()
+let default_item
 $(document).ready(function(){
-	const entity = $urlp('entity'),
-			field = $urlp('field');
-	const query = 'entity=' + entity + '&field=' + field;
+	const entity = $urlp('entity'), field = $urlp('field')
+	const query = 'entity=' + entity + '&field=' + field
 	
 	$.get(rb.baseUrl + '/admin/field/picklist-gets?isAll=true&' + query, function(res){
 		$(res.data).each(function(){
-			item_render(this, this.hide === true ? '.J_hidebox' : '.J_showbox')
-		});
-	});
-	
-	$('.J_save').click(function(){
-		let show_items = [];
-		$('.J_showbox>li').each(function(){
-			let _this = $(this);
-			show_items.push({ id: _this.attr('attr-id'), 'default': _this.hasClass('default'), text: _this.find('.dd3-content').text() });
-		});
-		let hide_items = [];
-		$('.J_hidebox>li').each(function(){
-			let _this = $(this);
-			hide_items.push({ id: _this.attr('attr-id'), text: _this.find('.dd3-content').text() });
-		});
-		let _data = { show: show_items, hide: hide_items };
-		
-		let btn = $(this).button('loading')
-		$.post(rb.baseUrl + '/admin/field/picklist-sets?' + query, JSON.stringify(_data), function(res){
-			btn.button('reset')
-			if (res.error_code > 0) alert(res.error_msg)
-			else parent.location.reload();
-		});
+			if (this.hide === true) render_unset([this.id, this.text])
+			else{
+				let item = render_item([this.id, this.text])
+				if (this['default'] == true) {
+					default_item = this.id
+					item.addClass('default')
+				}
+			}
+		})
 	})
 	
 	$('.J_confirm').click(function(){
 		let text = $val('.J_text');
-		if (!!!text){
-			rb.notice('请输入选项文本'); return;
-		}
-		item_render({ id: $('.J_text').attr('attr-id'), text: text });
+		if (!!!text){ rb.notice('请输入选项文本'); return; }
+		let id = $('.J_text').attr('attr-id')
 		$('.J_text').val('').attr('attr-id', '')
 		$('.J_confirm').text('添加')
+		if (!!!id) render_item([tmpid++, text])
+		else{
+			let item = $('.J_config li[data-key="' + id + '"]')
+			item.attr('data-key', id)
+			item.find('.dd3-content').text(text)
+		}
 		return false
-	});
+	})
 	
-	$('.dd-list').sortable({
-		connectWith: '.dd-list',
-		cursor: 'move',
-		placeholder: 'dd-placeholder',
-	});
-});
-const item_render = function(data, append){
-	data.id = data.id || new Date().getTime()
-	append = append || '.J_showbox';
-	let item = $(append).find("li[attr-id='" + data.id + "']")
-	if (item.length == 0) item = $($('#picklist-tmpl').html()).appendTo(append);
+	$('.J_save').click(function(){
+		let show_items = [];
+		$('.J_config>li').each(function(){
+			let _this = $(this)
+			let id = _this.attr('data-key')
+			show_items.push({ id: id, 'default': id == default_item, text: _this.find('.dd3-content').text() })
+		})
+		let hide_items = [];
+		$('.unset-list>li').each(function(){
+			let _this = $(this)
+			let id = _this.attr('data-key')
+			hide_items.push({ id: id, text: _this.find('.dd-handle').text().replace('[删除]', '') })
+		})
+		let _data = { show: show_items, hide: hide_items }
+		_data = JSON.stringify(_data)
+		
+		let btn = $(this).button('loading')
+		$.post(rb.baseUrl + '/admin/field/picklist-sets?' + query, _data, function(res){
+			btn.button('reset')
+			if (res.error_code > 0) rb.notice(res.error_msg, 'danger')
+			else parent.location.reload()
+		})
+	})
+})
+render_unset_after = function(item, data){
+	let del = $('<a href="javascript:;" class="action">[删除]</a>').appendTo(item.find('.dd-handle'))
 	
-	item.find('.dd3-content').text(data.text)
-	item.attr('attr-id', data.id);
-	item.find('.dd3-action .J_edit').off('click').click(function(){
-		$('.J_text').val(data.text).attr('attr-id', data.id)
+}
+render_item_after = function(item, data){
+	let edit = $('<a href="javascript:;">[修改]</a>').appendTo(item.find('.dd3-action'))
+	edit.click(function(){
+		$('.J_text').val(data[1]).attr('attr-id', data[0])
 		$('.J_confirm').text('修改')
-	});
-	item.find('.dd3-action .J_default').off('click').click(function(){
-		$('.J_showbox li').removeClass('default')
-		$(this).parent().parent().addClass('default')
-	});
-	item.find('.dd3-action .J_del').off('click').click(function(){
-		$(this).parent().parent().remove()
-	});
-	if (data['default'] === true && append == '.J_showbox') item.find('.dd3-action .J_default').trigger('click')
-};
+	})
+	
+	let default0 = $('<a href="javascript:;">[默认]</a>').appendTo(item.find('.dd3-action'))
+	default0.click(function(){
+		$('.J_config li').removeClass('default')
+		default0.parent().parent().addClass('default')
+		default_item = data[0]
+	})
+}
 </script>
 </body>
 </html>

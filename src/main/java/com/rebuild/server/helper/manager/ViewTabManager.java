@@ -18,7 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.manager;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.alibaba.fastjson.JSON;
@@ -45,8 +47,6 @@ public class ViewTabManager {
 	public static JSON getViewTab(String entity) {
 		Object vtab[] = getRaw(entity);
 		if (vtab == null) {
-//			return JSON.parseArray("[]");
-			
 			Entity entityMeta = MetadataHelper.getEntity(entity);
 			Set<String[]> refTos = new HashSet<>();
 			for (Field field : entityMeta.getReferenceToFields()) {
@@ -55,9 +55,17 @@ public class ViewTabManager {
 			}
 			return (JSON) JSONArray.toJSON(refTos);
 		}
-		return (JSON) vtab[1];
+		
+		JSONArray config = (JSONArray) vtab[1];
+		List<String[]> configWarp = new ArrayList<>();
+		for (Object o : config) {
+			String e = (String) o;
+			if (MetadataHelper.containsEntity(e)) {
+				configWarp.add(new String[] { e, EasyMeta.getLabel(MetadataHelper.getEntity(e)) });
+			}
+		}
+		return (JSON) JSON.toJSON(configWarp);
 	}
-
 	/**
 	 * @param entity
 	 * @param field

@@ -137,6 +137,7 @@ body.dialog {
 
 body.dialog .main-content {
 	min-height: 155px;
+	overflow: hidden;
 }
 
 .dialog-footer {
@@ -623,63 +624,54 @@ i.split.ui-draggable-dragging {
 	padding: 11px 15px
 }
 
-h5.sortable-box-title {
-	margin-top: 9px;
-}
+.sortable-box-title{margin-top:9px;}
+.sortable-swap{position:relative;}
+.sortable-swap>.zmdi-swap{position:absolute;font-size:2rem;color:#aaa;right:-10px;top:50%;margin-top:-1rem;}
 
 .sortable-box {
 	border: 1px solid #eee;
-	padding: 0 3px;
-	height: 388px;
+	padding: 0 2px;
+	height: 308px;
 	z-index: 1;
 	margin-bottom: 12px;
 }
 
 .sortable-box .dd-list {
-	height: 380px;
+	height: 300px;
 }
 
-.sortable-box .dd-list .dd-item .dd3-content,
-.dd-list .dd3-item .dd3-content {
-	margin: 3px 0
+.sortable-box .dd-list .dd-item, .sortable-box .dd-placeholder {
+	margin: 2px 0;
+	position: relative;
+}
+.sortable-box .dd-placeholder {
+	min-height: 36px;
 }
 
-.sortable-box .dd-item .dd-handle {
-	background-color: #eee;
-	border-color: #eee
+.sortable-box .dd-list .dd-handle, .sortable-box .dd-list .dd3-content {
+	margin: 0;
 }
 
-.sortable-box .dd-list .dd3-item .dd3-handle::before {
-	color: #999
-}
-
-.sortable-box .dd-list .dd3-item .dd3-handle:hover::before {
-	color: #fff
-}
-
-.sortable-box .dd-list .dd3-item .dd3-action {
+.sortable-box .dd-list .dd3-action {
 	position: absolute;
-	right: 1px;
-	top: 1px;
-}
-
-.sortable-box .dd-list .dd3-item .dd3-action>a {
-	font-size: 0.9rem;
-	display: inline-block;
-	line-height: 34px;
-	width: 38px;
+	right: 0;
+	top: 0;
 	display: none;
-	text-align: center;
 }
 
-.sortable-box .dd-list .dd3-item:hover .dd3-action>a {
+.sortable-box .dd-list .dd3-action a, .sortable-box a.action {
+	font-size: 12px;
 	display: inline-block;
+	padding: 7px 1px;
+	margin-right: 6px;
 }
 
-.sortable-box .dd-list .dd3-item.ui-sortable-helper .dd3-handle {
-	top: 3px;
-	height: 35px;
+.sortable-box .dd-list .dd3-item:hover .dd3-action {
+	display: block;
 }
+
+.sortable-box .unset-list .dd-handle::after{content:'\f278';font:normal normal normal 14px/1 'Material-Design-Iconic-Font';float:right;font-size:1.6rem;color:#999;}
+.sortable-box .unset-list .dd-item:hover .dd-handle::after{color:#fff}
 
 .rb-left-sidebar .bottom-widget {
 	padding: 3px 20px;

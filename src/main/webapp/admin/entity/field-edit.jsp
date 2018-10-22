@@ -8,10 +8,10 @@
 <style type="text/css">
 .sortable-box{height:208px}
 .sortable-box .dd-list{height:200px}
-.sortable-box .dd-list .no-item{padding:9px;text-align:center;color:#999}
-.dd-item.default .dd3-content{background-color:#5a95f5 !important;border-color:#5a95f5;color:#fff}
-.dd-item.default .J_default{display:none !important;}
+.sortable-box .dd-list .dd-item, .sortable-box .dd-list .dd-handle{background-color:#fff !important;color:#404040 !important}
+.sortable-box .no-item{padding:9px;text-align:center;color:#999}
 .sortable-box.autoh,.sortable-box.autoh .dd-list{height:auto;}
+.sortable-box .default .dd-handle{background-color:#dedede !important;cursor:help;}
 </style>
 </head>
 <body>
@@ -245,12 +245,6 @@ $(document).ready(function(){
 				picklistItemRender(this)
 			});
 			if (res.data.length > 5) $('#picklist-items').parent().removeClass('autoh')
-			
-			$('.dd-list').sortable({
-				cursor: 'move',
-				placeholder: 'dd-placeholder',
-				axis: 'y',
-			}).disableSelection()
 		});
 		
 		picklistModal = null;
@@ -261,14 +255,8 @@ $(document).ready(function(){
 	}
 });
 const picklistItemRender = function(data){
-	let item = $($('#picklist-tmpl').html()).appendTo('#picklist-items');
-	item.find('.dd3-content').text(data.text)
-	item.attr('attr-id', data.id);
-	item.find('.dd3-action .J_default').off('click').click(function(){
-		$('#picklist-items li').removeClass('default')
-		$(this).parent().parent().addClass('default')
-	});
-	if (data['default'] === true) item.find('.dd3-action .J_default').trigger('click')
+	let item = $('<li class="dd-item" data-key="' + data.id + '"><div class="dd-handle">' + data.text + '</div></li>').appendTo('#picklist-items')
+	if (data['default'] == true) item.addClass('default').attr('title', '默认项')
 };
 </script>
 </body>

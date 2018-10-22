@@ -334,8 +334,7 @@ rb.RbListPagination = function(props, target) {
 // 列表页面初始化
 const RbListPage = {
     _RbList: null,
-    _ModalColumns: null,
-        
+    
     // @config - List config
     // @entity - [Label, Name, Icon]
     // @ep - Privileges of this entity
@@ -401,8 +400,7 @@ const RbListPage = {
         })
         
         $('.J_columns').click(function(){
-            if (that._ModalColumns) that._ModalColumns.show()
-            else that._ModalColumns = rb.modal(`${rb.baseUrl}/page/general-entity/show-columns?entity=${entity[1]}`, '设置列显示')
+            that.__currentModal = rb.modal(`${rb.baseUrl}/page/general-entity/show-fields?entity=${entity[1]}`, '设置列显示')
         })
         
         // Privileges
@@ -413,16 +411,17 @@ const RbListPage = {
             if (ep.A === false) $('.J_assign').remove()
             if (ep.S === false) $('.J_share').remove()
             
-            let divi = $('.J_actions .dropdown-menu').children().first()
-            if (divi.hasClass('dropdown-divider')) divi.remove()
+            let div = $('.J_actions .dropdown-menu').children().first()
+            if (div.hasClass('dropdown-divider')) div.remove()
         }
     },
     
-    closeModal() {
-        if (this._ModalColumns) this._ModalColumns.hide()
-    },
-    resizeModal() {
-        if (this._ModalColumns) this._ModalColumns.resize()
+    // 隐藏当前 Modal
+    hideModal() {
+        if (this.__currentModal) {
+            this.__currentModal.hide(true)
+            this.__currentModal = null
+        }
     }
 }
 

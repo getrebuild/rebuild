@@ -71,10 +71,12 @@ const RbViewPage = {
         let rs = []
         $(config).each(function(){
             $('<li class="nav-item"><a class="nav-link" href="#tab-' + this[0] + '" data-toggle="tab">' + this[1] + '</a></li>').appendTo('.nav-tabs')
-            $('<div class="tab-pane active" id="tab-' + this[0] + '"><div class="related-list rb-loading rb-loading-active"></div></div>').appendTo('.tab-content')
+            $('<div class="tab-pane" id="tab-' + this[0] + '"><div class="related-list rb-loading rb-loading-active"></div></div>').appendTo('.tab-content')
             rs.push(this[0])
         })
+        
         let that = this
+        
         $('.nav-tabs li>a').on('click', function(e) {
             e.preventDefault()
             let _this = $(this)
@@ -92,13 +94,19 @@ const RbViewPage = {
             }
         })
         
-        $.get(rb.baseUrl + '/app/entity/related-counts?master=' + this.__id + '&relates=' + rs.join(','), function(res){
-            for (let k in res.data) {
-                if (~~res.data[k] > 0) {
-                    let nav = $('.nav-tabs a[href="#tab-' + k + '"]')
-                    $('<span class="badge badge-pill badge-primary">' + res.data[k] + '</span>').appendTo(nav)
+        if (rs.length > 0) {
+            $.get(rb.baseUrl + '/app/entity/related-counts?master=' + this.__id + '&relates=' + rs.join(','), function(res){
+                for (let k in res.data) {
+                    if (~~res.data[k] > 0) {
+                        let nav = $('.nav-tabs a[href="#tab-' + k + '"]')
+                        $('<span class="badge badge-pill badge-primary">' + res.data[k] + '</span>').appendTo(nav)
+                    }
                 }
-            }
+            })
+        }
+        
+        $('.vtab-settings').click(function(){
+            that.__currentModal = rb.modal(`${rb.baseUrl}/page/general-entity/viewtab-settings?entity=${that.__entity[1]}`, '设置视图相关项')
         })
     },
     
@@ -115,5 +123,13 @@ const RbViewPage = {
     
     clickView(el) {
         console.log($(el).attr('href'))
+    },
+    
+    // 隐藏当前 Modal
+    hideModal() {
+        if (this.__currentModal) {
+            this.__currentModal.hide(true)
+            this.__currentModal = null
+        }
     }
 }

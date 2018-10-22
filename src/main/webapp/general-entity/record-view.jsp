@@ -38,7 +38,7 @@
 		<div class="col-sm-2">
 			<div class="view-oper">
 				<div class="btns">
-					<button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
+					<button class="btn btn-primary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
 					<div class="btn-group J_actions">
 						<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-more-vert"></i></button>
 						<div class="dropdown-menu dropdown-menu-right">
@@ -50,8 +50,10 @@
 				</div>
 				<div class="btns">
 					<div class="btn-group J_actions">
-						<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-plus"></i> 新建</button>
+						<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-plus"></i> 新建相关</button>
 						<div class="dropdown-menu dropdown-menu-right">
+							<div class="dropdown-divider"></div>
+							<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-settings"></i> 设置</a>
 						</div>
 					</div>
 				</div>
@@ -66,7 +68,7 @@
 <script type="text/babel">
 $(document).ready(function(){
 	RbViewPage.init('${id}', [ '${entityLabel}', '${entityName}', '${entityIcon}'])
-	RbViewPage.initVTabs(${viewTabs})
+	RbViewPage.initVTabs(${ViewTabs})
 });
 </script>
 </body>
