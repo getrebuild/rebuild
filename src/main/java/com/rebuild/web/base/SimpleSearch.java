@@ -52,8 +52,8 @@ public class SimpleSearch extends BaseControll {
 	@RequestMapping("/commons/search")
 	public void search(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
-		String qfields = getParameterNotNull(request, "qfields");
-		String q = getParameter(request, "qtext");
+		String fields = getParameterNotNull(request, "fields");
+		String q = getParameter(request, "q");
 		
 		if (StringUtils.isBlank(q)) {
 			writeSuccess(response, ArrayUtils.EMPTY_STRING_ARRAY);
@@ -69,13 +69,19 @@ public class SimpleSearch extends BaseControll {
 		sql = String.format(sql, idFiled.getName(), nameField.getName(), entityMeta.getName());
 		
 		List<String> or = new ArrayList<>();
-		for (String qField : qfields.split(",")) {
+		for (String qField : fields.split(",")) {
 			if (!entityMeta.containsField(qField)) {
 				LOG.warn("No field for search : " + qField);
 			} else {
 				or.add(qField + " like '%" + q + "%'");
 			}
 		}
+		
+		if (or.isEmpty()) {
+			writeSuccess(response, ArrayUtils.EMPTY_STRING_ARRAY);
+			return;
+		}
+		
 		sql += " where ( " + StringUtils.join(or, " or ") + " ) order by modifiedOn desc";
 		
 		Object[][] array = Application.createQuery(sql).setLimit(10).array();

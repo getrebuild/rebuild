@@ -20,7 +20,15 @@
 			<div class="view-oper">
 				<div class="btns">
 					<button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
-					<button class="btn btn-secondary J_delete2" type="button"><i class="icon zmdi zmdi-delete"></i> 删除</button>
+					<div class="btn-group J_actions">
+						<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-more-vert"></i></button>
+						<div class="dropdown-menu dropdown-menu-right">
+							<a class="dropdown-item J_delete2"><i class="icon zmdi zmdi-delete"></i> 删除</a>
+							<div class="dropdown-divider"></div>
+							<a class="dropdown-item J_changeDept"><i class="icon zmdi zmdi-accounts"></i> 改变部门</a>
+							<a class="dropdown-item J_changeRole"><i class="icon zmdi zmdi-lock"></i> 改变角色</a>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -36,6 +44,12 @@ $(document).ready(function(){
 	RbViewPage.init('${id}', [ '${entityLabel}', 'User', '${entityIcon}'])
 	$('.J_delete2').click(function(){
 		rb.modal(rb.baseUrl + '/page/admin/bizuser/user-delete?user=${id}', '删除用户', { width:580 } )
+	})
+	$('.J_changeDept').click(function(){
+		rb.modal(rb.baseUrl + '/page/admin/bizuser/change-dept?user=${id}', '改变部门', { width:580 } )
+	})
+	$('.J_changeRole').click(function(){
+		rb.modal(rb.baseUrl + '/page/admin/bizuser/change-role?user=${id}', '改变角色', { width:580 } )
 	})
 });
 </script>

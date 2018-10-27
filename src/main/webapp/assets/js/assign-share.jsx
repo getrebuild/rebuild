@@ -69,8 +69,8 @@ class TheBothDialog extends React.Component {
                 data: function(params) {
                     let query = {
                         entity: 'User',
-                        qfields: 'loginName,fullName,email',
-                        qtext: params.term,
+                        fields: 'loginName,fullName,email',
+                        q: params.term,
                     }
                     return query
                 },

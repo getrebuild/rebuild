@@ -18,11 +18,17 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.bizz;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.base.GeneralEntityService;
 
 import cn.devezhao.commons.EncryptUtils;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -49,17 +55,58 @@ public class UserService extends GeneralEntityService {
 	}
 	
 	@Override
-	public Record createOrUpdate(Record record) {
+	public Record create(Record record) {
+		saveBefore(record);
+		Record r = super.create(record);
+		saveAfter(r, true);
+		return r;
+	}
+	
+	@Override
+	public Record update(Record record) {
+		saveBefore(record);
+		Record r = super.update(record);
+		saveAfter(r, false);
+		return r;
+	}
+	
+	private void saveBefore(Record record) {
 		if (record.hasValue("password")) {
 			String password = record.getString("password");
 			password = EncryptUtils.toSHA256Hex(password);
 			record.setString("password", password);
-			
-			// TODO 验证密码安全性
+		}
+	}
+	
+	private void saveAfter(Record record, boolean isNew) {
+		// TODO 必要时才更新用户缓存
+		Application.getUserStore().refreshUser(record.getPrimary());
+	}
+	
+	/**
+	 * 改变部门
+	 * 
+	 * @param user
+	 * @param newDept
+	 */
+	public void txChangeDept(ID user, ID newDept) {
+		Record record = EntityHelper.forUpdate(user, Application.currentCallerUser());
+		record.setID("deptId", newDept);
+		update(record);
+		
+		String updeptSql = "update `{0}` set OWNING_DEPT = ''%s'' where OWNING_USER = ''%s''";
+		updeptSql = String.format(updeptSql, newDept.toLiteral(), user.toLiteral());
+		
+		List<String> updeptSqls = new ArrayList<>();
+		for (Entity e : MetadataHelper.getEntities()) {
+			if (EntityHelper.hasPrivilegesField(e)) {
+				String sql = MessageFormat.format(updeptSql, e.getPhysicalName());
+				updeptSqls.add(sql);
+			}
 		}
 		
-		record = super.createOrUpdate(record);
-		Application.getUserStore().refreshUser(record.getPrimary());
-		return record;
+		// TODO 10M 超时，线程执行 ???
+		Application.getSQLExecutor().executeBatch(updeptSqls.toArray(new String[updeptSqls.size()]), 60 * 10);
 	}
+	
 }

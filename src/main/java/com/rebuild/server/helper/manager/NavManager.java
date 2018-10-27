@@ -50,6 +50,7 @@ public class NavManager extends LayoutManager {
 		if (cfgs == null) {
 			return null;
 		}
+		cfgs[0] = cfgs[0].toString();
 		JSONObject cfgsJson = JSONUtils.toJSONObject(new String[] { "id", "config" }, cfgs);
 		return cfgsJson;
 	}

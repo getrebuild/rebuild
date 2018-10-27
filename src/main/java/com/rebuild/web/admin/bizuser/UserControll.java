@@ -32,12 +32,15 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.bizz.UserService;
 import com.rebuild.server.bizz.privileges.Department;
+import com.rebuild.server.bizz.privileges.User;
 import com.rebuild.server.helper.manager.DataListManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.bizz.security.member.BusinessUnit;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -110,4 +113,37 @@ public class UserControll extends BaseControll {
 		}
 		writeSuccess(response, hasMember);
 	}
+	
+	@RequestMapping("/admin/bizuser/change-dept")
+	public void changeDept(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getIdParameterNotNull(request, "user");
+		ID deptNew = getIdParameterNotNull(request, "dept");
+		
+		User u = Application.getUserStore().getUser(user);
+		if (u.getOwningDept() != null && u.getOwningDept().getIdentity().equals(deptNew)) {
+			writeSuccess(response);
+			return;
+		}
+		
+		Application.getBean(UserService.class).txChangeDept(user, deptNew);
+		writeSuccess(response);
+	}
+	
+	@RequestMapping("/admin/bizuser/change-role")
+	public void changeRole(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getIdParameterNotNull(request, "user");
+		ID roleNew = getIdParameterNotNull(request, "role");
+		
+		User u = Application.getUserStore().getUser(user);
+		if (u.getOwningRole() != null && u.getOwningRole().getIdentity().equals(roleNew)) {
+			writeSuccess(response);
+			return;
+		}
+		
+		Record record = EntityHelper.forUpdate(user, getRequestUser(request));
+		record.setID("roleId", roleNew);
+		Application.getBean(UserService.class).update(record);
+		writeSuccess(response);
+	}
+	
 }

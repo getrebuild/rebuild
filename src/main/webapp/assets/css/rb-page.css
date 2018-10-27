@@ -702,8 +702,8 @@ i.split.ui-draggable-dragging {
 	margin: 0;
 	border-radius: 0;
 	max-width: 100%;
-	width: 1280px;
-	margin-right: -1280px;
+	width: 1220px;
+	margin-right: -1220px;
 	float: right;
 	position: relative;
 }
