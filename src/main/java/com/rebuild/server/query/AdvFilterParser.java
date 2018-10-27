@@ -19,7 +19,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.query;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -112,32 +114,54 @@ public class AdvFilterParser {
 		
 		String value = item.getString("value");
 		if (value.matches("\\{\\d+\\}")) {
-			String valueIndex = value.replaceAll("[\\{\\}]", "");
-			Object v = qvalues.get(valueIndex);
-			if (v == null) {
+			String valIndex = value.replaceAll("[\\{\\}]", "");
+			Object valHold = qvalues.get(valIndex);
+			if (valHold == null) {
 				return null;
 			}
 			
-			value = v.toString();
-			if (StringUtils.isBlank(value)) {
-				return null;
+			// in
+			if (valHold instanceof JSONArray) {
+				Set<String> valArray = new HashSet<>();
+				for (Object o : (JSONArray) valHold) {
+					valArray.add(quote(o.toString()));
+				}
+				
+				if (valArray.isEmpty()) {
+					return null;
+				} else {
+					value = "( " + StringUtils.join(valArray, ", ") + " )";
+				}
+				
+			} else {
+				value = valHold.toString();
+				if (StringUtils.isBlank(value)) {
+					return null;
+				}
 			}
+		}
+		
+		if (op.contains("like")) {
+			value = '%' + value + '%';
 		}
 
 		StringBuffer sb = new StringBuffer(field)
 				.append(' ')
 				.append(op)
 				.append(' ');
-		if ("like".equals(op) || "not like".equals(op)) {
-			value = '%' + value + '%';
-		}
 		
-		if (NumberUtils.isDigits(value)) {
+		if ("in".equals(op)) {
+			sb.append(value);
+		} else if (NumberUtils.isDigits(value)) {
 			sb.append(value);
 		} else if (StringUtils.isNotBlank(value)) {
-			sb.append('\'').append(StringEscapeUtils.escapeSql(value)).append('\'');
+			sb.append(quote(value));
 		}
 		return sb.toString();
+	}
+	
+	private String quote(String v) {
+		return String.format("'%s'", StringEscapeUtils.escapeSql(v));
 	}
 	
 	/**
@@ -155,6 +179,7 @@ public class AdvFilterParser {
 		if ("nt".equals(op)) return "is not null";
 		if ("lk".equals(op)) return "like";
 		if ("nlk".equals(op)) return "not like";
+		if ("in".equals(op)) return "in";
 		throw new UnsupportedOperationException("Unsupported token [" + op + "]");
 	}
 }

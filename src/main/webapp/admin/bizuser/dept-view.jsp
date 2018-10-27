@@ -19,7 +19,8 @@
 		<div class="col-sm-2">
 			<div class="view-oper">
 				<div class="btns">
-					<button class="btn btn-secondary J_edit" type="button">编辑</button>
+					<button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
+					<button class="btn btn-secondary J_delete2" type="button"><i class="icon zmdi zmdi-delete"></i> 删除</button>
 				</div>
 			</div>
 		</div>
@@ -30,14 +31,11 @@
 <script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
 <script type="text/babel">
-var rbFromView
 $(document).ready(function(){
-	const recordId = '${id}'
-	rbFromView = rb.RbViewForm({ entity:'${entityName}', id:recordId })
-
-	$('.J_edit').click(function(){
-		rb.RbFormModal({ id:recordId, title:'编辑${entityLabel}',entity:'${entityName}', icon:'${entityIcon}' })
-	});
+	RbViewPage.init('${id}', [ '${entityLabel}', 'Department', '${entityIcon}'])
+	$('.J_delete2').click(function(){
+		rb.modal(rb.baseUrl + '/page/admin/bizuser/dept-delete?dept=${id}', '删除部门', { width:580 } )
+	})
 });
 </script>
 </body>

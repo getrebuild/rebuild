@@ -21,13 +21,17 @@ package com.rebuild.web.admin.bizuser;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
+import com.rebuild.server.Application;
+import com.rebuild.server.bizz.DepartmentService;
 import com.rebuild.server.helper.manager.DataListManager;
 import com.rebuild.web.BaseControll;
 
@@ -56,5 +60,14 @@ public class DepartmentControll extends BaseControll {
 		JSON config = DataListManager.getColumnLayout("Department", user);
 		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
 		return mv;
+	}
+	
+	@RequestMapping( value = "/admin/bizuser/dept-delete", method = RequestMethod.POST)
+	public void deptDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID dept = getIdParameterNotNull(request, "id");
+		ID transfer = getIdParameter(request, "transfer");  // TODO 转移到新部门
+		
+		Application.getBean(DepartmentService.class).delete(dept, transfer);
+		writeSuccess(response);
 	}
 }

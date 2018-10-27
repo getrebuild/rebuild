@@ -18,8 +18,8 @@
 		<field name="fullName" type="string" max-length="100" description="姓名"/>
 		<field name="avatarUrl" type="string" max-length="300" description="头像"/>
 		<field name="jobTitle" type="string" max-length="100" description="职务"/>
-		<field name="deptId" type="reference" ref-entity="Department" description="所在部门" nullable="false" updatable="false" />
-		<field name="roleId" type="reference" ref-entity="Role" description="角色" nullable="false" updatable="false" />
+		<field name="deptId" type="reference" ref-entity="Department" cascade="remove-links" description="所在部门" nullable="false" updatable="false" />
+		<field name="roleId" type="reference" ref-entity="Role" cascade="remove-links" description="角色" nullable="false" updatable="false" />
 		<field name="isDisabled" type="bool" default-value="F" description="是否停用"/>
 		<index type="unique" field-list="loginName"/>
 		<index type="unique" field-list="email"/>
@@ -28,7 +28,7 @@
 	<entity name="Department" type-code="002" description="部门" name-field="name">
 		<field name="deptId" type="primary" />
 		<field name="name" type="string" max-length="100" nullable="false" description="部门名称" />
-		<field name="parentDept" type="reference" ref-entity="Department" description="父级部门" />
+		<field name="parentDept" type="reference" ref-entity="Department" cascade="remove-links" description="父级部门" />
 		<field name="isDisabled" type="bool" default-value="F" description="是否停用" />
 	</entity>
 	

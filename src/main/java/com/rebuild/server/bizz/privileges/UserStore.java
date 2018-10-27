@@ -34,11 +34,13 @@ import org.apache.commons.logging.LogFactory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.RebuildException;
 
 import cn.devezhao.bizz.privileges.Privileges;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.bizz.security.EntityPrivileges;
 import cn.devezhao.bizz.security.member.BusinessUnit;
+import cn.devezhao.bizz.security.member.MemberGroup;
 import cn.devezhao.bizz.security.member.NoMemberFoundException;
 import cn.devezhao.bizz.security.member.Role;
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -321,6 +323,63 @@ public class UserStore {
 			getDepartment(parent).addChild(newDept);
 		}
 	}
+
+	/**
+	 * @param roleId
+	 * @param transferTo
+	 */
+	public void removeRole(ID roleId, ID transferTo) {
+		Role role = getRole(roleId);
+		final Set<Principal> users = role.getMembers();
+		for (Principal u : users) {
+			((User) u).cleanOwningRole();
+		}
+ 		ROLEs.remove(roleId);
+ 		
+ 		if (transferTo != null) {
+ 			Role transferToRole = getRole(transferTo);
+ 			for (Principal user : users) {
+ 				transferToRole.addMember(user);
+ 	 		}
+ 		}
+	}
+	
+	/**
+	 * @param deptId
+	 * @param transferTo
+	 */
+	public void removeDepartment(ID deptId, ID transferTo) {
+		Department dept = getDepartment(deptId);
+		final Set<Principal> users = dept.getMembers();
+		
+		if (!users.isEmpty()) {
+			throw new RebuildException("Transfer member to another department after delete");
+		}
+		
+		for (Principal u : users) {
+			((User) u).cleanOwningDept();
+		}
+		DEPTs.remove(deptId);
+		
+		if (dept.getParent() != null) {
+			dept.getParent().removeChild(dept);
+		}
+ 		
+ 		if (transferTo != null) {
+ 			Department transferToDept = getDepartment(transferTo);
+ 			for (Principal user : users) {
+ 				transferToDept.addMember(user);
+ 	 		}
+ 		}
+	}
+	
+	/**
+	 * @param from
+	 * @param to
+	 */
+	public void transferMember(MemberGroup from, MemberGroup to) {
+	}
+	
 	
 	private static final String USER_FS = "userId,loginName,email,fullName,avatarUrl,isDisabled,deptId,roleId";
 	/**

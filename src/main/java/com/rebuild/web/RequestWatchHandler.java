@@ -89,7 +89,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 					.append("\nReferer   : ").append(StringUtils.defaultIfEmpty(ServletUtils.getReferer(request), "-"))
 					.append("\nUserAgent : ").append(StringUtils.defaultIfEmpty(request.getHeader("user-agent"), "-"))
 					.append("\nCause     : ").append(rootCause.getClass().getName())
-					.append("\nMessage   : ").append(rootCause.getMessage());
+					.append("\nMessage   : ").append(StringUtils.defaultIfBlank(rootCause.getMessage(), "-"));
 			LOG.error(sb, rootCause);
 			ServletUtils.writeJson(response, 
 					AppUtils.formatClientMsg(BaseControll.CODE_ERROR, errorMsg));

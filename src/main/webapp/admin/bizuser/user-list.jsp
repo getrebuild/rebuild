@@ -99,6 +99,14 @@ RbForm.postAfter = function(){
 	if (formPostType == 1) RbListPage._RbList.reload()
 	else loadDeptTree()
 }
+
+clickDept = function(depts) {
+	if (depts[0] == '$ALL$') depts = [];
+	let exp = { items: [], values: {} }
+	exp.items.push({ op:'in', field: 'deptId', value:'{2}' })
+	exp.values['2'] = depts
+	RbListPage._RbList.search(exp)
+}
 </script>
 </body>
 </html>

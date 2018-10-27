@@ -102,7 +102,7 @@
 						<thead>
 							<tr>
 								<th width="25%">权限项</th>
-								<th class="text-center"><a data-action="Z">允许</a></th>
+								<th class="text-center unselect"><a data-action="Z">允许</a></th>
 								<th>前置条件</th>
 								<th></th>
 								<th></th>
@@ -230,8 +230,18 @@ const loadRoles = function() {
 	$.get(rb.baseUrl + '/admin/bizuser/role-list', function(res){
 		$('.dept-tree ul').empty()
 		$(res.data).each(function(){
-			let item = $('<li><a class="text-truncate" href="' + rb.baseUrl + '/admin/bizuser/role/' + this.id + '">' + this.name + '</a></li>').appendTo('.dept-tree ul')
+			let _id = this.id
+			let item = $('<li><a class="text-truncate" href="' + rb.baseUrl + '/admin/bizuser/role/' + _id + '">' + this.name + '</a></li>').appendTo('.dept-tree ul')
+			let action = $('<div class="action"><a class="J_edit"><i class="zmdi zmdi-edit"></i></a><a class="J_del"><i class="zmdi zmdi-close"></i></a></div>').appendTo(item)
 			if (currentRoleId == this.id) item.addClass('active')
+			if (this.id == '003-0000000000000001') action.remove()
+
+			action.find('a.J_edit').click(function(){
+				rb.RbFormModal({ title: '编辑角色', entity: 'Role', icon: 'lock', id: _id })
+			})
+			action.find('a.J_del').click(function(){
+				rb.modal(rb.baseUrl + '/page/admin/bizuser/role-delete?role=' + _id, '删除角色', { width:580 } )
+			})
 		})
 	})
 }
@@ -279,7 +289,6 @@ const updatePrivileges = function() {
 	})
 	
 	let priv = { entity: privEntity, zero: privZero }
-	console.log(JSON.stringify(priv))
 	$.post(rb.baseUrl + '/admin/bizuser/privileges-update?role=' + currentRoleId, JSON.stringify(priv), function(){
 		rb.notice('保存成功', 'success')
 	})

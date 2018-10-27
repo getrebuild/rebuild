@@ -800,10 +800,14 @@ i.split.ui-draggable-dragging {
 	padding-left: 1rem;
 }
 
+.dept-tree li {
+	position: relative;
+}
+
 .dept-tree li>a {
 	display: block;
 	padding: 6px 9px;
-	margin-left: 1rem;
+	cursor: default;
 }
 .dept-tree > ul > li > a {
 	margin-left: 0;
@@ -818,4 +822,29 @@ i.split.ui-draggable-dragging {
 	color: #fff !important;
 	background-color: #4285f4 !important;
 	border-radius: 3px
+}
+
+.dept-tree li>div.action {
+	position: absolute;
+	right: 0;
+	top: 1px;
+	display: none;
+}
+.dept-tree li>div.action a {
+	display: inline-block;
+	height: 30px;
+	line-height: 30px;
+	width: 22px;
+	text-align: center;
+	font-size: 1.2rem;
+	color: #fff !important;
+	background-color: rgba(0,0,0,0.2);
+	border-radius: 2px;
+	margin-left: 1px;
+}
+.dept-tree li>div.action a:hover{
+	background-color: rgba(0,0,0,0.4);
+}
+.dept-tree ul>li.active:hover>div.action {
+	display: block;
 }

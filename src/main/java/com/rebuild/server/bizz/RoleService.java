@@ -117,4 +117,16 @@ public class RoleService extends GeneralEntityService {
 		
 		Application.getUserStore().refreshRole(roleId, privilegesChanged);
 	}
+	
+	@Override
+	public int delete(ID record, String[] cascades) {
+		int a = super.delete(record, cascades);
+		Application.getUserStore().removeRole(record, null);
+		return a;
+	}
+	
+	public void delete(ID roleId, ID transferTo) {
+		super.delete(roleId, null);
+ 		Application.getUserStore().removeRole(roleId, transferTo);
+	}
 }

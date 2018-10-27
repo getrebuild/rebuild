@@ -157,9 +157,14 @@ const renderRbcomp = function(jsx, target) {
 
 let rb = rb || {}
 
+rb.__currentModal
 rb.modal = function(url, title, ext) {
     ext = ext || {}
-    return renderRbcomp(<RbModal url={url} title={title} width={ext.width} destroyOnHide={ext.destroyOnHide === false ? false : true } />)
+    rb.__currentModal = renderRbcomp(<RbModal url={url} title={title} width={ext.width} destroyOnHide={ext.destroyOnHide === false ? false : true } />)
+    return rb.__currentModal
+}
+rb.modalHide = function(){
+    if (rb.__currentModal) rb.__currentModal.hide()
 }
 
 rb.alter = function(message, title, ext){

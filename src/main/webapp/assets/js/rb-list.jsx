@@ -349,6 +349,14 @@ const RbListPage = {
         
         let that = this
         
+        $('.J_edit').click(function(){
+            let selected = that._RbList.getSelectedRows()
+            if (selected.length == 1) {
+                selected = selected[0]
+                rb.RbFormModal({ id: selected[0], title: `编辑${entity[0]}`, entity: entity[1], icon: entity[2] })
+            }
+        })
+        
         $('.J_delete').click(function(){
             let selected = that._RbList.getSelectedRows()
             if (selected.length < 1) return
@@ -370,14 +378,6 @@ const RbListPage = {
                     }
                 })
             } })
-        })
-        
-        $('.J_edit').click(function(){
-            let selected = that._RbList.getSelectedRows()
-            if (selected.length == 1) {
-                selected = selected[0]
-                rb.RbFormModal({ id: selected[0], title: `编辑${entity[0]}`, entity: entity[1], icon: entity[2] })
-            }
         })
         
         $('.J_view').click(function(){
@@ -466,7 +466,12 @@ const QuickFilter = {
             return
         }
         this.filterExp.values = { 1: val }
+        this.mergeFilter()
         RbListPage._RbList.search(this.filterExp)
+    },
+    
+    // 复写增加额外过滤条件
+    mergeFilter() {
     },
     
     // 隐藏当前 Modal

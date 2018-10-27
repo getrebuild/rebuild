@@ -53,4 +53,16 @@ public class DepartmentService extends GeneralEntityService {
 		Application.getUserStore().refreshDepartment(record.getPrimary());
 		return record;
 	}
+	
+	@Override
+	public int delete(ID record, String[] cascades) {
+		int a = super.delete(record, cascades);
+		Application.getUserStore().removeDepartment(record, null);
+		return a;
+	}
+	
+	public void delete(ID deptId, ID transferTo) {
+		super.delete(deptId, null);
+ 		Application.getUserStore().removeDepartment(deptId, transferTo);
+	}
 }

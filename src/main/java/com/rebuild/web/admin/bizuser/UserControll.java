@@ -34,6 +34,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.bizz.privileges.Department;
 import com.rebuild.server.helper.manager.DataListManager;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.bizz.security.member.BusinessUnit;
@@ -96,5 +97,17 @@ public class UserControll extends BaseControll {
 			parentJson.put("children", children);
 		}
 		return parentJson;
+	}
+	
+	@RequestMapping("/admin/bizuser/check-has-member")
+	public void checkHasMember(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID id = getIdParameterNotNull(request, "id");
+		int hasMember = -1;
+		if (id.getEntityCode() == EntityHelper.Role) {
+			hasMember = Application.getUserStore().getRole(id).getMembers().size();
+		} else if (id.getEntityCode() == EntityHelper.Department) {
+			hasMember = Application.getUserStore().getDepartment(id).getMembers().size();
+		}
+		writeSuccess(response, hasMember);
 	}
 }

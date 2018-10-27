@@ -45,6 +45,10 @@ public class User extends cn.devezhao.bizz.security.member.User {
 		this.avatarUrl = avatarUrl;
 	}
 	
+	public ID getId() {
+		return (ID) getIdentity();
+	}
+	
 	public String getEmail() {
 		return email;
 	}
@@ -81,5 +85,13 @@ public class User extends cn.devezhao.bizz.security.member.User {
 			return true;
 		}
 		return false;
+	}
+	
+	protected void cleanOwningRole() {
+		super.setOwningRole(null);
+	}
+	
+	protected void cleanOwningDept() {
+		super.setOwningBizUnit(null);
 	}
 }

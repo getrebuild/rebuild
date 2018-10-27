@@ -122,4 +122,13 @@ public class RolePrivilegesControll extends BaseControll {
 		Application.getBean(RoleService.class).txUpdatePrivileges(role, (JSONObject) post);
 		writeSuccess(response);
 	}
+	
+	@RequestMapping( value = "role-delete", method = RequestMethod.POST)
+	public void roleDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID role = getIdParameterNotNull(request, "id");
+		ID transfer = getIdParameter(request, "transfer");  // TODO 转移到新角色
+		
+		Application.getBean(RoleService.class).delete(role, transfer);
+		writeSuccess(response);
+	}
 }

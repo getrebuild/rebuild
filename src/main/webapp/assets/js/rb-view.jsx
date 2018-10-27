@@ -53,11 +53,29 @@ const RbViewPage = {
         this.__entity = entity
         this._RbViewForm = rb.RbViewForm({ entity: entity[1], id: id })
         
+        let that = this
+        
+        $('.J_delete').click(function(){
+            rb.alter('确认删除当前记录吗？', '删除确认', { type: 'danger', confirm: function(){
+                $(this.refs['rbalter']).find('.btn').button('loading')
+                let thatModal = this
+                $.post(rb.baseUrl + '/app/entity/record-delete?id=' + that.__id, function(res){
+                    if (res.error_code == 0){
+                        if (res.data.deleted == res.data.requests) rb.notice('删除成功', 'success')
+                        else rb.notice('已成功删除 ' + res.data.deleted + ' 条记录', 'success')
+                        
+                        that.hide(true)
+                        
+                    } else {
+                        rb.notice(res.error_msg || '删除失败，请稍后重试', 'danger')
+                    }
+                })
+            } })
+        })
+        
         $('.J_edit').click(function(){
             rb.RbFormModal({ id: id, title: `编辑${entity[0]}`, entity: entity[1], icon: entity[2] })
         })
-        
-        let that = this
         
         $('.J_assign').click(function(){
             rb.AssignDialog({ entity: entity[1], ids: id })
@@ -130,6 +148,15 @@ const RbViewPage = {
         if (this.__currentModal) {
             this.__currentModal.hide(true)
             this.__currentModal = null
+        }
+    },
+    
+    // 隐藏划出的 View
+    hide(reload) {
+        if (parent.RbViewModal_Comp) parent.RbViewModal_Comp.hide()
+        if (reload == true) {
+            if (parent.RbListPage) parent.RbListPage._RbList.reload()
+            else setTimeout(function() { parent.location.reload() }, 1000)
         }
     }
 }

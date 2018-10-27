@@ -73,13 +73,19 @@
 <script src="${baseUrl}/assets/js/bizuser/dept-tree.js" type="text/javascript"></script>
 <script type="text/babel">
 $(document).ready(function(){
+	loadDeptTree()
 	RbListPage.init(
 		${DataListConfig},
-		['${entityLabel}', '${entityName}', '${entityIcon}'],
+		['${entityLabel}', 'Department', '${entityIcon}'],
 		${entityPrivileges})
-
-	loadDeptTree()
 })
+clickDept = function(depts) {
+	if (depts[0] == '$ALL$') depts = [];
+	let exp = { items: [], values: {} }
+	exp.items.push({ op:'in', field: 'deptId', value:'{2}' })
+	exp.values['2'] = depts
+	RbListPage._RbList.search(exp)
+}
 </script>
 </body>
 </html>

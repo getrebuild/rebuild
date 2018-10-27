@@ -795,9 +795,9 @@ class RbViewModal extends React.Component {
 
 // -- Usage
 
-var rb = rb || {}
+let rb = rb || {}
 
-var RbFormModal_Comp
+let RbFormModal_Comp
 // props = { id, entity, title, icon }
 rb.RbFormModal = function(props) {
     if (RbFormModal_Comp) RbFormModal_Comp.show(props)
@@ -805,7 +805,7 @@ rb.RbFormModal = function(props) {
     return RbFormModal_Comp
 }
 
-var RbViewModal_Comp
+let RbViewModal_Comp
 // props = { id, entity }
 rb.RbViewModal = function(props) {
     let viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
