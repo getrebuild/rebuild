@@ -494,6 +494,13 @@ a {
 	text-overflow: ellipsis;
 }
 
+.data-list .table thead th>div>span{
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	display: block;
+}
+
 .data-list .table thead th>div>i {
 	position: absolute;
 	height: 20px;
@@ -502,7 +509,7 @@ a {
 }
 
 .data-list .table thead th>div>i.split {
-	width: 8px;
+	width: 10px;
 	border-right: 2px dotted #aaa;
 	cursor: e-resize;
 }

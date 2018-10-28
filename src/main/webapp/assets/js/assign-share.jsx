@@ -61,7 +61,6 @@ class TheBothDialog extends React.Component {
             language: 'zh-CN',
             placeholder: '选择用户',
             width: '100%',
-            minimumInputLength: 1,
             allowClear: true,
             ajax: {
                 url: rb.baseUrl + '/commons/search',
@@ -79,7 +78,6 @@ class TheBothDialog extends React.Component {
                     return { results: rs }
                 }
             }
-        }).on('change.select2', function(e){
         })
         this.show()
     }
@@ -110,18 +108,18 @@ class TheBothDialog extends React.Component {
     
     post() {
         let to = $(this.refs['toUser']).val()
-        if (!to || to.length < 1) { rb.notice('请选择' + this.opType + '给谁'); return }
+        if (!!!to) { rb.notice('请选择' + this.opType + '给谁'); return }
         let cas = $(this.refs['cascades']).val() || []
         
         let that = this
-        let btns = $(this.refs['actions']).find('.btn').button('loading')
-        $.post(`${rb.baseUrl}/app/entity/record-${this.state.type}?id=${this.state.ids.join(',')}&cascades=${cas.join(',')}&to=${to.join(',')}`, function(res){
+        let btns = $(this.refs['actions']).find('.btn-primary').button('loading')
+        $.post(`${rb.baseUrl}/app/entity/record-${this.state.type}?id=${this.state.ids.join(',')}&cascades=${cas.join(',')}&to=${to}`, function(res){
             if (res.error_code == 0){
                 that.hide()
                 rb.notice('已成功' + that.opType + ' ' + (res.data.assigned || res.data.shared) + ' 条记录', 'success')
                 
-                if (RbListPage) RbListPage._RbList.reload()
-                if (RbViewPage) location.reload()
+                if (window.RbListPage) RbListPage._RbList.reload()
+                if (window.RbViewPage) location.reload()
                 
             } else {
                 rb.notice(res.error_msg || ('操作失败，请稍后重试'), 'danger')

@@ -27,8 +27,7 @@ class RbFormModal extends React.Component {
         )
     }
     componentDidMount() {
-        this.show()
-        if (!!!this.state.id) this.getFormModel()
+        this.showAfter({}, true)
     }
     
     // 渲染表单
@@ -36,7 +35,7 @@ class RbFormModal extends React.Component {
         let that = this
         const entity = this.state.entity
         const id = this.state.id || ''
-        $.get(rb.baseUrl + '/app/' + entity + '/form-model?entity=' + entity + '&id=' + id, function(res){
+        $.get(`${rb.baseUrl}/app/${entity}/form-model?id=${id}`, function(res){
             let elements = res.data.elements
             const FORM = <RbForm entity={entity} id={id} $$$parent={that}>
                 {elements.map((item) => {
@@ -53,7 +52,7 @@ class RbFormModal extends React.Component {
         state = state || {}
         let that = this
         if (state.id != this.state.id || state.entity != this.state.entity) {
-            state = { ...state, isDestroy: true, formComponent: null, inLoad: true }
+            state = { ...state, isDestroy: true, formComponent: null, inLoad: true, id: state.id, entity: state.entity }
             this.setState(state, function(){
                 that.showAfter({ ...state, isDestroy: false }, true)
             })
@@ -74,7 +73,7 @@ class RbFormModal extends React.Component {
     hide(destroy) {
         $(this.refs['rbmodal']).modal('hide')
         let state = { isDestroy: false }
-        if (destroy === true) state = { ...state, isDestroy: true, id: null }
+        if (destroy === true) state = { ...state, isDestroy: true }
         this.setState(state)
     }
 }

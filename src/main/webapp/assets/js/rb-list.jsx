@@ -10,7 +10,7 @@ class RbList extends React.Component {
         let fields = props.config.fields
         for (let i = 0; i < fields.length; i++){
             let cw = $storage.get(this.__columnWidthKey + fields[i].field)
-            if (!!cw && ~~cw > 40) fields[i].width = ~~cw
+            if (!!cw && ~~cw >= 48) fields[i].width = ~~cw
             if (sort[0] == fields[i].field) fields[i].sort = sort[1]
         }
         props.config.fields = null
@@ -38,10 +38,10 @@ class RbList extends React.Component {
                                 <div><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={this.state.checkedAll} onClick={this.toggleAllRow} /><span className="custom-control-label"></span></label></div>
                             </th>
                             {this.state.fields.map((item, index) =>{
-                                let columnWidth = (item.width || that.__defaultColumnWidth) + 'px'
-                                let styles = { width: columnWidth }
+                                let cWidth = (item.width || that.__defaultColumnWidth)
+                                let styles = { width: cWidth + 'px' }
                                 let sortClazz = item.sort || ''
-                                return (<th key={'column-' + item.field} style={styles} className="sortable unselect" onClick={this.fieldSort.bind(this, item.field)}><div style={styles}>{item.label}<i className={'zmdi ' + sortClazz}></i><i className="split" data-field={item.field}></i></div></th>)
+                                return (<th key={'column-' + item.field} style={styles} className="sortable unselect" onClick={this.fieldSort.bind(this, item.field)}><div style={styles}><span style={{ width: (cWidth-8) + 'px' }}>{item.label}</span><i className={'zmdi ' + sortClazz}></i><i className="split" data-field={item.field}></i></div></th>)
                             })}
                             <th className="column-empty"></th>
                         </tr>
@@ -75,7 +75,7 @@ class RbList extends React.Component {
         scroller.find('th .split').draggable({ containment: '.rb-datatable-body', axis: 'x', helper: 'clone', stop: function(event, ui){
             let field = $(event.target).data('field')
             let left = ui.position.left - 2
-            if (left < 40) left = 40  // min
+            if (left < 48) left = 48  // min
             let fields = that.state.fields
             for (let i = 0; i < fields.length; i++){
                 if (fields[i].field == field){
