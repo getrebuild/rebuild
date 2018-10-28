@@ -6,7 +6,7 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/view-page.css">
 <title>${entityLabel}视图</title>
 </head>
-<body class="dialog">
+<body class="view-body">
 <div class="view-header">
 	 <span class="header-icon zmdi zmdi-${entityIcon}"></span>
 	<h3 class="title">${entityLabel}视图</h3>

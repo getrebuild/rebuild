@@ -17,6 +17,9 @@ $(function(){
 		$(document.body).addClass('rb-animate')
 	}, 1000)
 	
+	// tooltip
+	$('[data-toggle="tooltip"]').tooltip()
+	
 	if (rb.isAdminUser == true) {
 		$('.J_for-admin').removeClass('hide')
 		if (location.href.indexOf('/admin/') == -1) {
@@ -50,11 +53,14 @@ const __initNavs = function(){
 		})
 	}
 	
-	navsModal = null;
 	$('.nav-settings').click(function(){
-		if (navsModal) navsModal.show();
-		else navsModal = rb.modal(rb.baseUrl + '/page/settings/nav-settings', '设置导航菜单', 720);
+		window.__currentModal = rb.modal(rb.baseUrl + '/page/settings/nav-settings', '设置导航菜单');
 	});
+}
+
+// 关闭当前打开的 Modal
+var $hideModal = function() {
+	if (window.__currentModal) window.__currentModal.hide()
 }
 
 // 计算分页

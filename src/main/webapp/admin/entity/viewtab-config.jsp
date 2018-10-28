@@ -24,7 +24,7 @@
 	</div>
 	<div class="dialog-footer">
 		<button class="btn btn-primary J_save" type="button">保存</button>
-		<button class="btn btn-secondary" onclick="parent.RbViewPage.hideModal()" type="button">取消</button>
+		<button class="btn btn-secondary" onclick="parent.$hideModal()" type="button">取消</button>
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>

@@ -1,7 +1,7 @@
 class TheBothDialog extends React.Component {
     constructor(props) {
         super(props)
-        this.state = { ...props, cascadesSpec: false }
+        this.state = { ...props, cascadesSpec: false, onView: !!window.RbViewPage }
         this.opType = props.type == 'assign' ? '分派' : '共享'
     }
     render() {
@@ -16,7 +16,7 @@ class TheBothDialog extends React.Component {
                         </div>
                         <div className='modal-body'>
                             <form>
-                                <div className="form-group row">
+                                <div className={'form-group row ' + (this.state.onView && 'hide')}>
                                     <label className="col-sm-3 col-form-label text-sm-right">{this.opType + '哪些记录'}</label>
                                     <div className="col-sm-7">
                                         <div className="form-control-plaintext" id="records">{'选中的记录 (' + this.state.ids.length + '条)'}</div>

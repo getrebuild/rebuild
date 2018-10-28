@@ -8,7 +8,7 @@
 <style type="text/css">
 </style>
 </head>
-<body class="dialog">
+<body class="view-body">
 <div class="view-header">
 	 <span class="header-icon zmdi zmdi-${entityIcon}"></span>
 	<h3 class="title">${entityLabel}视图</h3>

@@ -396,7 +396,7 @@ const RbListPage = {
         })
         
         $('.J_columns').click(function(){
-            that.__currentModal = rb.modal(`${rb.baseUrl}/page/general-entity/show-fields?entity=${entity[1]}`, '设置列显示')
+            window.__currentModal = rb.modal(`${rb.baseUrl}/page/general-entity/show-fields?entity=${entity[1]}`, '设置列显示')
         })
         
         // Privileges
@@ -409,14 +409,6 @@ const RbListPage = {
             $cleanMenu('.J_action')
         }
     },
-    
-    // 隐藏当前 Modal
-    hideModal() {
-        if (this.__currentModal) {
-            this.__currentModal.hide(true)
-            this.__currentModal = null
-        }
-    }
 }
 
 // 列表快速查询
@@ -441,7 +433,7 @@ const QuickFilter = {
             if (event.which == 13) btn.trigger('click')
         })
         this.root.find('.J_qfields').click(function(event){
-            that.__currentModal = rb.modal(`${rb.baseUrl}/page/general-entity/quick-fields?entity=${that.entity}`, '设置快速查询字段')
+            window.__currentModal = rb.modal(`${rb.baseUrl}/page/general-entity/quick-fields?entity=${that.entity}`, '设置快速查询字段')
         })
     },
     
@@ -466,13 +458,5 @@ const QuickFilter = {
     
     // 复写增加额外过滤条件
     mergeFilter() {
-    },
-    
-    // 隐藏当前 Modal
-    hideModal() {
-        if (this.__currentModal) {
-            this.__currentModal.hide(true)
-            this.__currentModal = null
-        }
     }
 };

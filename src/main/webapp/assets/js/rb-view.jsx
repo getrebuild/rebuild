@@ -47,7 +47,6 @@ rb.RbViewForm = function(props, target){
 
 const RbViewPage = {
     _RbViewForm:  null,
-    _currentModal: null,
     
     init(id, entity, ep) {
         this.__id = id
@@ -79,10 +78,10 @@ const RbViewPage = {
         })
         
         $('.J_assign').click(function(){
-            rb.AssignDialog({ entity: entity[1], ids: id })
+            rb.AssignDialog({ entity: entity[1], ids: [id] })
         })
         $('.J_share').click(function(){
-            rb.ShareDialog({ entity: entity[1], ids: id })
+            rb.ShareDialog({ entity: entity[1], ids: [id] })
         })
         
         // Privileges
@@ -139,7 +138,7 @@ const RbViewPage = {
         }
         
         $('.vtab-settings').click(function(){
-            that._currentModal = rb.modal(`${rb.baseUrl}/page/admin/entity/viewtab-config?entity=${that.__entity[1]}`, '设置视图相关项')
+            window.__currentModal = rb.modal(`${rb.baseUrl}/page/admin/entity/viewtab-config?entity=${that.__entity[1]}`, '设置视图相关项')
         })
     },
     
@@ -173,14 +172,6 @@ const RbViewPage = {
     
     clickView(el) {
         console.log($(el).attr('href'))
-    },
-    
-    // 隐藏当前 Modal
-    hideModal() {
-        if (this._currentModal) {
-            this._currentModal.hide(true)
-            this._currentModal = null
-        }
     },
     
     // 隐藏划出的 View
