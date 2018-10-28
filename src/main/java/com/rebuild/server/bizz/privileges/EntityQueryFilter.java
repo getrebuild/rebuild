@@ -138,15 +138,9 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 	 * @return
 	 */
 	protected String appendShareFilter(Entity entity, String filtered) {
-		// TODO exists 不能用
 		String shareFilter = "exists (select rights from ShareAccess where entity = %d and shareTo = '%s' and recordId = ^%s)";
 		shareFilter = String.format(shareFilter,
 				entity.getEntityCode(), user.getIdentity().toString(), entity.getPrimaryField().getName());
-		
-//		String shareFilter = "%s in (select recordId from ShareAccess where entity = %d and shareTo = '%s')";
-//		shareFilter = String.format(shareFilter, 
-//				entity.getPrimaryField().getName(), entity.getEntityCode(), user.getIdentity());
-		
 		return "(" + filtered + " or " + shareFilter + ")";
 	}
 }

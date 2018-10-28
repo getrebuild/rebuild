@@ -406,9 +406,7 @@ const RbListPage = {
             if (ep.U === false) $('.J_edit').remove()
             if (ep.A === false) $('.J_assign').remove()
             if (ep.S === false) $('.J_share').remove()
-            
-            let div = $('.J_actions .dropdown-menu').children().first()
-            if (div.hasClass('dropdown-divider')) div.remove()
+            $cleanMenu('.J_action')
         }
     },
     

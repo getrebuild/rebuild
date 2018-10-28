@@ -193,7 +193,7 @@ a {
 }
 
 .hide {
-	display: none;
+	display: none !important;
 }
 
 .rb-scroller {
@@ -745,13 +745,10 @@ i.split.ui-draggable-dragging {
 	right: 0;
 	top: 0;
 	padding-left: 10px;
+	max-height: 61px;
 }
 
 .modal.rbview .modal-dialog .modal-content .modal-header .close {
-	margin-top: -10px;
-}
-
-.modal.rbview .modal-dialog .modal-content .modal-header .close.s {
 	margin-top: -11px;
 }
 
@@ -785,10 +782,15 @@ i.split.ui-draggable-dragging {
 	word-wrap: break-word;
 }
 
+.form-line {
+	height: 32px;
+	overflow: hidden;
+}
+
 .form-line fieldset {
-	border-bottom: 1px dotted #ebebeb;
+	border-bottom: 1px solid #ebebeb;
 	position: relative;
-	margin: 18px 0;
+	margin: 16px 0;
 }
 
 .form-line fieldset legend {
@@ -797,9 +799,10 @@ i.split.ui-draggable-dragging {
 	margin: 0;
 	background-color: #fff;
 	width: auto;
-	left: 14px;
-	margin-top: -12px;
+	left: 0;
+	margin-top: -11px;
 	padding: 3px 6px;
+	padding-left: 0;
 	cursor: pointer;
 	color: #777;
 }

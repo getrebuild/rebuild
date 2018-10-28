@@ -21,7 +21,6 @@ package com.rebuild.web.base.entity;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.bizz.privileges.User;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.base.BulkContext;
@@ -45,15 +45,14 @@ import com.rebuild.web.BaseControll;
 import com.rebuild.web.InvalidRequestException;
 
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.persist4j.util.StringHelper;
 
 /**
- * 记录相关操作
+ * 记录操作
  * 
  * @author zhaofang123@gmail.com
  * @since 08/30/2018
@@ -183,42 +182,31 @@ public class GeneralRecordControll extends BaseControll {
 		writeSuccess(response, ret);
 	}
 	
-	@RequestMapping("record-fetch")
-	public void fetchOne(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID id = getIdParameterNotNull(request, "id");
+	@RequestMapping("record-meta")
+	public void fetchRecordMeta(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		final ID id = getIdParameterNotNull(request, "id");
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		
-		String fields = getParameter(request, "fields");
-		if (StringUtils.isBlank(fields)) {
-			fields = "";
-			for (Field field : entity.getFields()) {
-				fields += field.getName() + ',';
-			}
-		} else {
-			for (String field : fields.split(",")) {
-				if (StringHelper.isIdentifier(field)) {
-					fields += field + ',';
-				} else {
-					LOG.warn("忽略无效/非法字段: " + field);
-				}
-			}
-		}
-		fields = fields.substring(0, fields.length() - 1);
+		String sql = "select createdOn,modifiedOn,owningUser from %s where %s = '%s'";
+		sql = String.format(sql, entity.getName(), entity.getPrimaryField().getName(), id);
+		Object[] recordMeta = Application.getQueryFactory().createQueryNoFilter(sql).unique();
 		
-		StringBuffer sql = new StringBuffer("select ")
-				.append(fields)
-				.append(" from ").append(entity.getName())
-				.append(" where ").append(entity.getPrimaryField().getName()).append('=').append(id);
-		Record record = Application.createQuery(sql.toString()).record();
+		recordMeta[0] = CalendarUtils.getUTCDateTimeFormat().format(recordMeta[0]);
+		recordMeta[1] = CalendarUtils.getUTCDateTimeFormat().format(recordMeta[1]);
 		
-		Map<String, Object> map = new HashMap<>();
-		for (Iterator<String> iter = record.getAvailableFieldIterator(); iter.hasNext(); ) {
-			String field = iter.next();
-			Object value = record.getObjectValue(field);
-			map.put(field, value);
-		}
-		map.put(entity.getPrimaryField().getName(), id);
-		writeSuccess(response, map);
+		User owning = Application.getUserStore().getUser((ID) recordMeta[2]);
+		recordMeta[2] = new Object[] { owning.getId().toLiteral(), owning.getFullName() };
+	
+		Object[] shareTo = Application.createQuery(
+				"select count(accessId) from ShareAccess where entity = ? and recordId = ?")
+				.setParameter(1, entity.getEntityCode())
+				.setParameter(2, id)
+				.unique();
+		
+		JSON ret = JSONUtils.toJSONObject(
+				new String[] { "createdOn", "modifiedOn", "owningUser", "shareTo" },
+				new Object[] { recordMeta[0], recordMeta[1], recordMeta[2], shareTo[0] });
+		writeSuccess(response, ret);
 	}
 	
 	/**

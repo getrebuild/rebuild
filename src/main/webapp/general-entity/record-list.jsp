@@ -38,7 +38,7 @@
 									<button class="btn btn-space btn-secondary J_view" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> 打开</button>
 									<button class="btn btn-space btn-secondary J_edit" disabled="disabled"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
 									<button class="btn btn-space btn-primary J_new" data-url="${baseUrl}/entity/${entity}/new"><i class="icon zmdi zmdi-plus"></i> 新建</button>
-									<div class="btn-group btn-space J_actions">
+									<div class="btn-group btn-space J_action">
 										<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-more-vert"></i></button>
 										<div class="dropdown-menu dropdown-menu-right">
 											<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
@@ -77,10 +77,7 @@
 <script src="${baseUrl}/assets/js/assign-share.jsx" type="text/babel"></script>
 <script type="text/babel">
 $(document).ready(function(){
-	RbListPage.init(
-		${DataListConfig},
-		['${entityLabel}', '${entityName}', '${entityIcon}'],
-		${entityPrivileges})
+	RbListPage.init(${DataListConfig}, [ '${entityLabel}', '${entityName}', '${entityIcon}' ], ${entityPrivileges})
 });
 </script>
 </body>

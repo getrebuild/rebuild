@@ -49,7 +49,7 @@ const RbViewPage = {
     _RbViewForm:  null,
     _currentModal: null,
     
-    init(id, entity) {
+    init(id, entity, ep) {
         this.__id = id
         this.__entity = entity
         this._RbViewForm = rb.RbViewForm({ entity: entity[1], id: id })
@@ -84,6 +84,20 @@ const RbViewPage = {
         $('.J_share').click(function(){
             rb.ShareDialog({ entity: entity[1], ids: id })
         })
+        
+        // Privileges
+        if (ep) {
+            if (ep.D === false) $('.J_delete').remove()
+            if (ep.U === false) $('.J_edit').remove()
+            if (ep.A === false) $('.J_assign').remove()
+            if (ep.S === false) $('.J_share').remove()
+            
+            // clear
+            $cleanMenu('.J_action')
+            $cleanMenu('.J_new')
+            $('.view-action .col-6').each(function(){ if ($(this).children().length == 0) $(this).remove() })
+            if ($('.view-action').children().length == 0) $('.view-action').addClass('noaction')
+        }
     },
     
     initVTabs(config) {
@@ -105,7 +119,7 @@ const RbViewPage = {
             if (pane.hasClass('rb-loading-active')) {
                 if (~~_this.find('.badge').text() > 0) {
                     ReactDOM.render(<RbSpinner/>, pane[0])
-                    that.loadRelatedList(pane, _this.attr('href').substr(5))
+                    that.renderRelatedList(pane, _this.attr('href').substr(5))
                 } else {
                     ReactDOM.render(<div className="list-nodata"><span className="zmdi zmdi-info-outline"/><p>没有相关数据</p></div>, pane[0])
                     pane.removeClass('rb-loading-active')
@@ -129,7 +143,7 @@ const RbViewPage = {
         })
     },
     
-    loadRelatedList(el, related, page) {
+    renderRelatedList(el, related, page) {
         page = page || 1
         $.get(rb.baseUrl + '/app/entity/related-list?master=' + this.__id + '&related=' + related + '&pageNo=' + page, function(res){
             el.removeClass('rb-loading-active')
@@ -137,6 +151,23 @@ const RbViewPage = {
                 let h = '#!/View/' + related + '/' + this[0]
                 $('<div class="card"><div class="float-left"><a href="' + h + '" onclick="RbViewPage.clickView(this)">' + this[1] + '</a></div><div class="float-right" title="修改时间">' + this[2] + '</div><div class="clearfix"></div></div>').appendTo(el)
             })
+        })
+    },
+    
+    initRecordMeta() {
+        $.get(`${rb.baseUrl}/app/entity/record-meta?id=${this.__id}`, function(res){
+            if (res.error_code == 0) {
+                let _data = res.data
+                for (let k in _data) {
+                    if (k == 'owningUser'){
+                        $('<a href="#!/View/User/' + _data[k][0] + '" onclick="RbViewPage.clickView(this)">' + _data[k][1] + '</a>').appendTo('.J_' + k)
+                    } else if (k == 'shareTo'){
+                        $('<a>' + (_data[k] == 0 ? '无' : ('已共享给' + _data[k] + '位用户')) + '</a>').appendTo('.J_' + k)
+                    } else {
+                        $('<span>' + _data[k] + '</span>').appendTo('.J_' + k)
+                    }
+                }
+            }
         })
     },
     

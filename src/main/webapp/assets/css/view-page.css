@@ -26,7 +26,7 @@ html, body {
 	left: 0;
 	width: 100%;
 	z-index: 1001;
-	background-color: rgba(255,255,255,.8);
+	background-color: rgba(255, 255, 255, .8);
 	background-color: #fff;
 }
 
@@ -42,18 +42,80 @@ html, body {
 	font-size: 1.538rem
 }
 
-.view-oper {
-	
+.nav-tabs>li.nav-item a.nav-link {
+	padding: 11px 15px;
+	max-width: 120px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
-.view-oper .btns {
-	padding-bottom: 15px;
+.nav-tabs, .nav-tabs>li.nav-item {
+	position: relative;
 }
 
-.view-oper .btns .btn, .view-oper .btns .btn-group {
-	width: 100%;
+.nav-tabs .vtab-settings {
+	position: absolute;
+	right: 0;
+	top: 4px;
+	display: inline-block;
+	padding: 9px 8px;
+	font-size: 15px;
+	opacity: 0.6;
+	display: none;
 }
 
-.view-oper .btns .btn+.btn, .view-oper .btns .btn+.btn-group {
-	margin-top: 6px
+.nav-tabs .vtab-settings:hover {
+	opacity: 0.8
+}
+
+.nav-tabs:hover .vtab-settings {
+	display: inline-block;
+}
+
+.nav-tabs .badge {
+	position: absolute;
+	top: -1px;
+	right: -4px;
+	font-size: 10px
+}
+
+.related-list {
+	min-height: 200px
+}
+
+.related-list .card {
+	border: 1px solid #ebebeb;
+	box-shadow: 0 0 4px 0 rgba(0, 0, 0, .04);
+	padding: 10px 15px;
+	margin-bottom: 9px;
+}
+
+.related-list .card .float-right {
+	color: #aaa;
+	cursor: help;
+}
+
+.view-metas {
+	padding-left: 30px;
+}
+
+.view-metas>div {
+	margin-bottom: 15px !important;
+}
+
+.view-metas .row, .view-metas .form-line {
+	margin-bottom: 9px;
+}
+
+.view-metas dt {
+	font-weight: normal;
+}
+
+.view-action {
+	margin-top: 33px;
+}
+
+.view-action .btn {
+	width: 100%
 }

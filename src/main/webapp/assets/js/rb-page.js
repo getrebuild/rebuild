@@ -79,3 +79,23 @@ const $calcPages = function(tp, cp){
 	if (end <= tp) pages.push(tp);
 	return pages;
 }
+
+// @mbg = .btn-group
+const $cleanMenu = function(mbg){
+	mbg = $(mbg)
+	let mbgMenu = mbg.find('.dropdown-menu')
+	let first = mbgMenu.children().first()
+	if (first.hasClass('dropdown-divider')) first.remove()
+	let last = mbgMenu.children().last()
+	if (last.hasClass('dropdown-divider')) last.remove()
+	
+	$(mbgMenu.children()).each(function(){
+		let item = $(this)
+		if (item.hasClass('hide')) item.remove()
+	})
+	
+	// remove btn
+	if (mbgMenu.children().length == 0){
+		mbg.remove()
+	}
+}

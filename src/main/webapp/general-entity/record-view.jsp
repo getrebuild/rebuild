@@ -6,15 +6,6 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/view-page.css">
 <title>${entityLabel}视图</title>
 <style type="text/css">
-.nav-tabs>li.nav-item a.nav-link{padding:11px 15px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.nav-tabs,.nav-tabs>li.nav-item{position:relative;}
-.nav-tabs .vtab-settings{position:absolute;right:0;top:4px;display:inline-block;padding:9px 8px;font-size:15px;opacity:0.6;display:none;}
-.nav-tabs .vtab-settings:hover{opacity:0.8}
-.nav-tabs:hover .vtab-settings{display:inline-block;}
-.nav-tabs .badge{position:absolute;top:-1px;right:-4px;font-size:10px}
-.related-list{min-height:200px}
-.related-list .card{border:1px solid #ebebeb;box-shadow:0 0 4px 0 rgba(0,0,0,.04);padding:10px 15px;margin-bottom:9px;}
-.related-list .card .float-right{color:#aaa;cursor:help;}
 </style>
 </head>
 <body class="dialog">
@@ -24,7 +15,7 @@
 </div>
 <div class="main-content container-fluid invisible">
 	<div class="row">
-		<div class="col-sm-10">
+		<div class="col-sm-9 pr-0">
 			<div class="tab-container">
 				<ul class="nav nav-tabs">
 					<li class="nav-item"><a class="nav-link active" href="#tab-rbview" data-toggle="tab">视图</a></li>
@@ -35,28 +26,48 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-sm-2">
-			<div class="view-oper">
-				<div class="btns">
+		<div class="col-sm-3 view-metas">
+			<div class="view-action row">
+				<div class="col-6 pr-1 mb-2">
 					<button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
-					<div class="btn-group J_actions">
-						<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-more-vert"></i></button>
-						<div class="dropdown-menu dropdown-menu-right">
-							<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
-							<a class="dropdown-item J_assign"><i class="icon zmdi zmdi-mail-reply-all"></i> 分派</a>
-							<a class="dropdown-item J_share"><i class="icon zmdi zmdi-slideshare"></i> 共享</a>
-						</div>
+				</div>
+				<div class="col-6 pl-1 mb-2 btn-group J_action">
+					<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-more-vert"></i> 更多</button>
+					<div class="dropdown-menu dropdown-menu-right">
+						<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
+						<a class="dropdown-item J_assign"><i class="icon zmdi zmdi-mail-reply-all"></i> 分派</a>
+						<a class="dropdown-item J_share"><i class="icon zmdi zmdi-slideshare"></i> 共享</a>
 					</div>
 				</div>
-				<div class="btns">
-					<div class="btn-group J_actions">
-						<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-plus"></i> 新建相关</button>
-						<div class="dropdown-menu dropdown-menu-right">
-							<div class="dropdown-divider J_for-admin hide"></div>
-							<a class="dropdown-item J_for-admin hide"><i class="icon zmdi zmdi-settings"></i> 配置新建</a>
-						</div>
+				<div class="col-6 pr-1 btn-group J_new">
+					<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-plus"></i> 新建相关</button>
+					<div class="dropdown-menu dropdown-menu-right">
+						<div class="dropdown-divider J_for-admin hide"></div>
+						<a class="dropdown-item J_for-admin hide"><i class="icon zmdi zmdi-settings"></i> 配置新建</a>
 					</div>
 				</div>
+			</div>
+			<div class="view-user">
+				<div class="form-line"><fieldset><legend>用户</legend></fieldset></div>
+				<dl class="row">
+					<dt class="col-4 pr-0">所属用户</dt>
+					<dd class="col-8 pl-0 J_owningUser"></dd>
+				</dl>
+				<dl class="row">
+					<dt class="col-4 pr-0">共享用户</dt>
+					<dd class="col-8 pl-0 J_shareTo"></dd>
+				</dl>
+			</div>
+			<div class="view-date">
+				<div class="form-line"><fieldset><legend>日期</legend></fieldset></div>
+				<dl class="row">
+					<dt class="col-4 pr-0">创建时间</dt>
+					<dd class="col-8 pl-0 J_createdOn"></dd>
+				</dl>
+				<dl class="row">
+					<dt class="col-4 pr-0">修改时间</dt>
+					<dd class="col-8 pl-0 J_modifiedOn"></dd>
+				</dl>
 			</div>
 		</div>
 	</div>
@@ -67,8 +78,9 @@
 <script src="${baseUrl}/assets/js/assign-share.jsx" type="text/babel"></script>
 <script type="text/babel">
 $(document).ready(function(){
-	RbViewPage.init('${id}', [ '${entityLabel}', '${entityName}', '${entityIcon}'])
+	RbViewPage.init('${id}', [ '${entityLabel}', '${entityName}', '${entityIcon}' ], ${entityPrivileges})
 	RbViewPage.initVTabs(${ViewTabs})
+	RbViewPage.initRecordMeta()
 });
 </script>
 </body>

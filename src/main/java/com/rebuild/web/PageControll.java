@@ -62,7 +62,9 @@ public abstract class PageControll {
 	 * @return
 	 */
 	protected ModelAndView createModelAndView(String page) {
-		return createModelAndView(page, null, null);
+		ModelAndView mv = new ModelAndView(page);
+		setPageAttribute(mv);
+		return mv;
 	}
 	
 	/**
@@ -72,39 +74,75 @@ public abstract class PageControll {
 	 * @return
 	 */
 	protected ModelAndView createModelAndView(String page, String entity, ID user) {
-		ModelAndView mv = new ModelAndView(page);
-		setPageAttribute(mv);
+		ModelAndView mv = createModelAndView(page);
 		
-		if (entity != null) {
-			Entity entityMeta = MetadataHelper.getEntity(entity);
-			EasyMeta easy = new EasyMeta(entityMeta);
-			mv.getModel().put("entityName", easy.getName());
-			mv.getModel().put("entityLabel", easy.getLabel());
-			mv.getModel().put("entityIcon", easy.getIcon());
-			
-			if (EntityHelper.hasPrivilegesField(entityMeta)) {
-				Privileges priv = Application.getSecurityManager().getPrivileges(user, entityMeta.getEntityCode());
-				Permission[] actions = new Permission[] {
-						BizzPermission.CREATE,
-						BizzPermission.DELETE,
-						BizzPermission.UPDATE,
-						BizzPermission.READ,
-						BizzPermission.ASSIGN,
-						BizzPermission.SHARE,
-				};
-				Map<String, Boolean> actionMap = new HashMap<>();
-				for (Permission act : actions) {
-					actionMap.put(act.getName(), priv.allowed(act));
-				}
-				mv.getModel().put("entityPrivileges", JSON.toJSONString(actionMap));
-			} else {
-				mv.getModel().put("entityPrivileges", "{}");
+		Entity entityMeta = MetadataHelper.getEntity(entity);
+		EasyMeta easy = new EasyMeta(entityMeta);
+		mv.getModel().put("entityName", easy.getName());
+		mv.getModel().put("entityLabel", easy.getLabel());
+		mv.getModel().put("entityIcon", easy.getIcon());
+		
+		if (EntityHelper.hasPrivilegesField(entityMeta)) {
+			Privileges priv = Application.getSecurityManager().getPrivileges(user, entityMeta.getEntityCode());
+			Permission[] actions = new Permission[] {
+					BizzPermission.CREATE,
+					BizzPermission.DELETE,
+					BizzPermission.UPDATE,
+					BizzPermission.READ,
+					BizzPermission.ASSIGN,
+					BizzPermission.SHARE,
+			};
+			Map<String, Boolean> actionMap = new HashMap<>();
+			for (Permission act : actions) {
+				actionMap.put(act.getName(), priv.allowed(act));
 			}
+			mv.getModel().put("entityPrivileges", JSON.toJSONString(actionMap));
+		} else {
+			mv.getModel().put("entityPrivileges", "{}");
 		}
 		return mv;
 	}
 	
-
+	/**
+	 * @param page
+	 * @param record
+	 * @param user
+	 * @return
+	 */
+	protected ModelAndView createModelAndView(String page, ID record, ID user) {
+		ModelAndView mv = createModelAndView(page);
+		
+		Entity entityMeta = MetadataHelper.getEntity(record.getEntityCode());
+		EasyMeta easy = new EasyMeta(entityMeta);
+		mv.getModel().put("entityName", easy.getName());
+		mv.getModel().put("entityLabel", easy.getLabel());
+		mv.getModel().put("entityIcon", easy.getIcon());
+		
+		// TODO 验证记录权限
+		
+		if (EntityHelper.hasPrivilegesField(entityMeta)) {
+			Privileges priv = Application.getSecurityManager().getPrivileges(user, entityMeta.getEntityCode());
+			Permission[] actions = new Permission[] {
+					BizzPermission.CREATE,
+					BizzPermission.DELETE,
+					BizzPermission.UPDATE,
+					BizzPermission.READ,
+					BizzPermission.ASSIGN,
+					BizzPermission.SHARE,
+			};
+			Map<String, Boolean> actionMap = new HashMap<>();
+			for (Permission act : actions) {
+				actionMap.put(act.getName(), priv.allowed(act));
+			}
+			mv.getModel().put("entityPrivileges", JSON.toJSONString(actionMap));
+		} else {
+			mv.getModel().put("entityPrivileges", "{}");
+		}
+		return mv;
+	}
+	
+	// --
+	
 	/**
 	 * 页面公用属性
 	 * 

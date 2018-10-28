@@ -36,7 +36,7 @@ import com.rebuild.web.BaseControll;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 表单页面/视图
+ * 表单/视图
  * 
  * @author zhaofang123@gmail.com
  * @since 08/22/2018
@@ -50,7 +50,7 @@ public class GeneralEntityControll extends BaseControll {
 			HttpServletRequest request) throws IOException {
 		ID user = getRequestUser(request);
 		ID record = ID.valueOf(id);
-		ModelAndView mv = createModelAndView("/general-entity/record-view.jsp", entity, user);
+		ModelAndView mv = createModelAndView("/general-entity/record-view.jsp", record, user);
 		mv.getModel().put("id", record);
 		
 		JSON vtab = ViewTabManager.getViewTab(entity);
