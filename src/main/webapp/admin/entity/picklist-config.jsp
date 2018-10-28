@@ -5,7 +5,6 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>列表选项</title>
 <style type="text/css">
-.dd3-item.default .dd3-content{background-color:#dedede !important}
 .unset-list .dd-handle{font-style:italic;color:#aaa}
 .unset-list .dd-item a.action{position:absolute;right:24px;top:1px;font-style:normal;}
 .unset-list .dd-item:hover a.action{color:#fff}
@@ -57,7 +56,7 @@ $(document).ready(function(){
 				let item = render_item([this.id, this.text])
 				if (this['default'] == true) {
 					default_item = this.id
-					item.addClass('default')
+					item.addClass('active')
 				}
 			}
 		})
@@ -115,8 +114,8 @@ render_item_after = function(item, data){
 	
 	let default0 = $('<a href="javascript:;">[默认]</a>').appendTo(item.find('.dd3-action'))
 	default0.click(function(){
-		$('.J_config li').removeClass('default')
-		default0.parent().parent().addClass('default')
+		$('.J_config li').removeClass('active')
+		default0.parent().parent().addClass('active')
 		default_item = data[0]
 	})
 }

@@ -358,13 +358,9 @@ const RbListPage = {
         })
         
         $('.J_delete').click(function(){
-            let selected = that._RbList.getSelectedRows()
-            if (selected.length < 1) return
-            rb.alter('确认删除选中的 ' + selected.length + ' 条记录吗？', '删除确认', { type: 'danger', confirm: function(){
-                let ids = selected.map((item)=>{
-                    return item[0]
-                })
-                
+            let ids = that._RbList.getSelectedIds()
+            if (ids.length < 1) return
+            rb.alter('确认删除选中的 ' + ids.length + ' 条记录吗？', '删除确认', { type: 'danger', confirm: function(){
                 $(this.refs['rbalter']).find('.btn').button('loading')
                 let thatModal = this
                 $.post(rb.baseUrl + '/app/entity/record-delete?id=' + ids.join(','), function(res){

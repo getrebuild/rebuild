@@ -103,7 +103,7 @@
 }
 
 .modal.rbmodal .modal-dialog .modal-body {
-	min-height: 155px;
+	min-height: 162px;
 	padding-top: 20px;
 }
 
@@ -138,7 +138,7 @@ body.dialog, body.view-body {
 }
 
 body.dialog .main-content {
-	min-height: 155px;
+	min-height: 162px;
 	overflow: hidden;
 }
 
@@ -656,6 +656,9 @@ i.split.ui-draggable-dragging {
 
 .sortable-box .dd-list .dd-handle, .sortable-box .dd-list .dd3-content {
 	margin: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap
 }
 
 .sortable-box .dd-list .dd3-action {
@@ -672,12 +675,23 @@ i.split.ui-draggable-dragging {
 	margin-right: 6px;
 }
 
+.sortable-box .dd-list .dd3-action a .zmdi {
+	font-size: 1.23rem;
+	margin-top: 3px;
+}
+.sortable-box .dd-list .dd3-action a:hover .zmdi {
+	color: #4285f4;
+}
+
 .sortable-box .dd-list .dd3-item:hover .dd3-action {
 	display: block;
 }
 
-.sortable-box .unset-list .dd-handle::after{content:'\f278';font:normal normal normal 14px/1 'Material-Design-Iconic-Font';float:right;font-size:1.6rem;color:#999;}
-.sortable-box .unset-list .dd-item:hover .dd-handle::after{color:#fff}
+.sortable-box .unset-list .dd-handle{padding-right:30px}
+.sortable-box .unset-list .dd-handle::before{content:'\f278';font:normal normal normal 14px/1 'Material-Design-Iconic-Font';float:right;font-size:1.6rem;color:#999;float:right;margin-right:-20px}
+.sortable-box .unset-list .dd-item:hover .dd-handle::before{color:#fff}
+
+.sortable-box .dd-list .dd3-item.active .dd3-content{background-color:#dedede !important}
 
 .rb-left-sidebar .bottom-widget {
 	padding: 3px 20px;

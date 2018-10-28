@@ -246,19 +246,23 @@ public class UserStore {
 		// ROLE
 		
 		ID newRoleId = (ID) u[7];
-		if (oldRole == null || !oldRole.getIdentity().equals(newRoleId)) {
-			getRole(newRoleId).addMember(newUser);
-		} else {
-			oldRole.addMember(newUser);
+		if (!(newRoleId == null && oldRole == null)) {
+			if (oldRole == null || !oldRole.getIdentity().equals(newRoleId)) {
+				getRole(newRoleId).addMember(newUser);
+			} else {
+				oldRole.addMember(newUser);
+			}
 		}
 		
 		// DEPT
 		
 		ID newDeptId = (ID) u[6];
-		if (oldDept == null || !oldDept.getIdentity().equals(newDeptId)) {
-			getDepartment(newDeptId).addMember(newUser);
-		} else {
-			oldDept.addMember(newUser);
+		if (!(newDeptId == null && oldDept == null)) {
+			if (oldDept == null || !oldDept.getIdentity().equals(newDeptId)) {
+				getDepartment(newDeptId).addMember(newUser);
+			} else {
+				oldDept.addMember(newUser);
+			}
 		}
 		
 		return getUser(userId);

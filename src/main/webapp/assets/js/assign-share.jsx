@@ -25,7 +25,7 @@ class TheBothDialog extends React.Component {
                                 <div className="form-group row">
                                     <label className="col-sm-3 col-form-label text-sm-right">{this.opType + '给谁'}</label>
                                     <div className="col-sm-7">
-                                        <select className="form-control form-control-sm" ref="toUser" multiple="multiple" />
+                                        <select className="form-control form-control-sm" ref="toUser" />
                                     </div>
                                 </div>
                                 <div className={'form-group row ' + (this.state.cascadesSpec == false ? '' : 'hide')}>
@@ -62,7 +62,7 @@ class TheBothDialog extends React.Component {
             placeholder: '选择用户',
             width: '100%',
             minimumInputLength: 1,
-            maximumSelectionLength: 1,
+            allowClear: true,
             ajax: {
                 url: rb.baseUrl + '/commons/search',
                 delay: 300,

@@ -5,14 +5,8 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>导航菜单</title>
 <style type="text/css">
-.sortable-box{padding:0 1px;padding-top:1px;}
-.dd-list .dd3-item .dd3-content,.dd-placeholder{margin:0 0 1px !important;cursor:default;}
-.sortable-box .dd-list .dd3-item.ui-sortable-helper .dd3-handle{top:0;height:36px}
-.dd-list .dd3-item .dd3-content{position:relative;padding-left:66px}
-.dd-list .dd3-item .dd3-content i.zmdi{font-size:1.4rem;width:22px;overflow:hidden;position:absolute;left:43px;margin-top:1px}
-.dd-placeholder{height:36px !important}
-.dd-list .dd3-item:hover .dd3-content,.dd-list .dd3-item.active .dd3-content{background-color:#5a95f5;border-color:#5a95f5;color:#fff}
-.dd-list .dd3-item:hover a{color:#fff !important;display:inline-block;width:24px !important}
+.dd3-content>.zmdi{position:absolute;width:28px;height:28px;font-size:1.45rem;margin-left:-20px;}
+.dd3-content{padding-left:60px !important;cursor:default;}
 .input-group-prepend .input-group-text{padding:0;width:37px;text-align:center;display:inline-block;overflow:hidden;padding-top:9px;background-color:#fff}
 .input-group-prepend .input-group-text:hover{background-color:#eee;cursor:pointer;}
 .input-group-prepend .input-group-text i.zmdi{font-size:1.5rem;}
@@ -20,11 +14,10 @@
 </head>
 <body class="dialog">
 <div class="main-content">
-	<div class="row margin-0">
+	<div class="row m-0">
 		<div class="col-5" style="padding-top:9px">
 			<div class="sortable-box rb-scroller">
-				<ol class="dd-list J_configbox">
-				</ol>
+				<ol class="dd-list J_config"></ol>
 			</div>
 			<div class="actions">
 				<button type="button" class="btn btn-secondary btn-sm J_add-menu">+ 添加菜单项</button>
@@ -38,7 +31,7 @@
 						<li class="nav-item"><a class="nav-link J_menuType active" href="#ENTITY" data-toggle="tab">关联实体</a></li>
 						<li class="nav-item"><a class="nav-link J_menuType" href="#URL" data-toggle="tab">外部地址</a></li>
 					</ul>
-					<div class="tab-content margin-0" style="padding:20px 0">
+					<div class="tab-content m-0" style="padding:20px 0">
 						<div class="tab-pane active" id="ENTITY">
 							<select class="form-control form-control-sm J_menuEntity">
 								<option value="">请选择实体</option>
@@ -72,29 +65,18 @@
 		<button class="btn btn-secondary" onclick="parent.navsModal.hide()" type="button">取消</button>
 	</div>
 </div>
-<script type="text/plain" id="item-temp">
-<li class="dd-item dd3-item">
-	<div class="dd3-content text-3dot">HOLD</div>
-	<div class="dd-handle dd3-handle"></div>
-	<div class="dd3-action"><a href="javascript:;" class="J_del" title="移除"><i class="zmdi zmdi-close"></i></a></div>
-</li>
-</script>
 <%@ include file="/_include/Foot.jsp"%>
 <script type="text/javascript">
 const UNICON_NAME = 'texture'
 $(document).ready(function(){
-	$('.J_add-menu').click(function(){
-		itemRender({}, true)
-	});
-	
-	$('.dd-list').sortable({
-		connectWith: '.dd-list',
-		cursor: 'move',
+	$('.J_config').sortable({
 		placeholder: 'dd-placeholder',
-		handle: '.dd-handle',
-		axis: 'y'
-	})
+		handle: '.dd3-handle',
+		axis: 'y',
+	}).disableSelection()
 
+	$('.J_add-menu').click(function(){ render_item({}, true) });
+	
 	$.get(rb.baseUrl + '/commons/metadata/entities', function(res){
 		$(res.data).each(function(){
 			$('<option value="' + this.name + '" data-icon="' + this.icon + '">' + this.label + '</option>').appendTo('.J_menuEntity');
@@ -133,10 +115,10 @@ $(document).ready(function(){
 			if (!!!value){ rb.notice('请输入 URL'); return }
 			else if (!!value && !$regex.isUrl(value)){ rb.notice('请输入有效的 URL'); return }
 		}
-		itemRender({ id:item_currentid, text:name, type:type, value:value, icon:$('.J_menuIcon i').attr('class').replace('zmdi zmdi-', '') })
+		render_item({ id:item_currentid, text:name, type:type, value:value, icon:$('.J_menuIcon i').attr('class').replace('zmdi zmdi-', '') })
 		
 		item_currentid = null;
-		$('.J_configbox li').removeClass('active')
+		$('.J_config li').removeClass('active')
 		$('.J_edit-tips').removeClass('hide')
 		$('.J_edit-menu').addClass('hide')
 	})
@@ -144,12 +126,11 @@ $(document).ready(function(){
 	var cfgid = null
 	$('.J_save').click(function(){
 		let navs = []
-		$('.J_configbox .dd-item').each(function(){
+		$('.J_config .dd-item').each(function(){
 			let _this = $(this)
 			let item = { text:$.trim(_this.find('.dd3-content').text()), type:_this.attr('attr-type'), value:_this.attr('attr-value'), icon:_this.attr('attr-icon') }
 			if (!!item.value) navs.push(item)
 		})
-		console.log(JSON.stringify(navs))
 		if (navs.length == 0) { rb.notice('请至少设置一个菜单项'); return }
 		
 		let btn = $(this).button('loading')
@@ -162,35 +143,39 @@ $(document).ready(function(){
 	$.get(rb.baseUrl + '/app/settings/nav-settings', function(res){
 		if (res.data){
 			cfgid = res.data.id
-			$(res.data.config).each(function(){
-				itemRender(this)
-			})
+			$(res.data.config).each(function(){ render_item(this) })
 		}
 	})
 });
-var item_currentid;
-var item_current_isNew;
-var item_randomid = new Date().getTime();
-const itemRender = function(data, fromAdd){
+
+let item_currentid
+let item_current_isNew
+let item_randomid = new Date().getTime()
+const render_item = function(data, isNew) {
 	data.id = data.id || item_randomid++
 	data.text = data.text || '未命名菜单'
 	data.icon = data.icon || UNICON_NAME
 	
-	let item = $('.J_configbox').find("li[attr-id='" + data.id + "']")
-	if (item.length == 0) item = $($('#item-temp').html()).appendTo('.J_configbox');
-	item.find('.dd3-content').html('<i class="zmdi zmdi-' + data.icon + '"></i> ' + data.text)
+	let item = $('.J_config').find("li[attr-id='" + data.id + "']")
+	if (item.length == 0){
+		item = $('<li class="dd-item dd3-item"><div class="dd-handle dd3-handle"></div><div class="dd3-content"><i class="zmdi"></i><span></span></div></li>').appendTo('.J_config')
+		let action = $('<div class="dd3-action"><a class="J_addsub" title="添加子菜单"><i class="zmdi zmdi-plus"></i></a><a class="J_del" title="移除"><i class="zmdi zmdi-close"></i></a></div>').appendTo(item)
+		action.find('a.J_del').off('click').click(function() {
+			item.remove()
+		})
+	}
+	item.find('.dd3-content .zmdi').attr('class', 'zmdi zmdi-' + data.icon)
+	item.find('.dd3-content span').text(data.text)
 	item.attr({
 		'attr-id': data.id,
 		'attr-type': data.type || 'ENTITY',
 		'attr-value': data.value || '',
 		'attr-icon': data.icon,
-	});
-	item.find('.J_del').click(function(){
-		$(this).parent().parent().remove();
-		return false
 	})
-	item.find('.dd3-content').click(function(){
-		$('.J_configbox li').removeClass('active')
+	
+	// Event
+	item.find('.dd3-content').off('click').click(function(){
+		$('.J_config li').removeClass('active')
 		item.addClass('active')
 		
 		$('.J_edit-tips').addClass('hide')
@@ -208,12 +193,13 @@ const itemRender = function(data, fromAdd){
 		}
 		item_currentid = data.id
 	})
-	if (fromAdd == true){
+	
+	if (isNew == true){
 		item.find('.dd3-content').trigger('click')
 		$('.J_menuName').focus()
 	}
-	item_current_isNew = fromAdd
-};
+	item_current_isNew = isNew
+}
 </script>
 </body>
 </html>

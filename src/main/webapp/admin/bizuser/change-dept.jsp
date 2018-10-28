@@ -13,7 +13,7 @@
 		<div class="form-group row">
 			<label class="col-sm-3 col-form-label text-sm-right">选择新部门</label>
 			<div class="col-sm-7 col-lg-4">
-				<select class="form-control form-control-sm" id="newDept" multiple="multiple">
+				<select class="form-control form-control-sm" id="newDept">
 				</select>
 			</div>
 		</div>
@@ -36,6 +36,7 @@ $(document).ready(function(){
         width: '100%',
         minimumInputLength: 1,
         maximumSelectionLength: 1,
+        allowClear: true,
         ajax: {
             url: rb.baseUrl + '/commons/search',
             delay: 300,
@@ -56,10 +57,10 @@ $(document).ready(function(){
 	
 	let btn = $('.btn-primary').click(function(){
 		let dept = select2.val()
-		if (dept.length == 0){ rb.notice('请选择新部门'); return }
+		if (!!!dept){ rb.notice('请选择新部门'); return }
 		
 		btn.button('loading')
-		$.post(rb.baseUrl + '/admin/bizuser/change-dept?dept=' + dept[0] + '&user=' + user, function(res){
+		$.post(rb.baseUrl + '/admin/bizuser/change-dept?dept=' + dept + '&user=' + user, function(res){
 			if (res.error_code == 0) parent.location.reload()
 			else rb.notice(res.error_msg, 'danger')
 			btn.button('reset')

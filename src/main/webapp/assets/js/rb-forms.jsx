@@ -556,6 +556,7 @@ class RbFormPickList extends RbFormElement {
             language: 'zh-CN',
             placeholder: '选择' + that.props.label,
             allowClear: true,
+            width: '100%',
         }).on('change.select2', function(e){
             let opt = e.target.value
             that.handleChange({ target:{ value: opt } }, true)
