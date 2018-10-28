@@ -39,7 +39,7 @@
 						<a class="dropdown-item J_share"><i class="icon zmdi zmdi-slideshare"></i> 共享</a>
 					</div>
 				</div>
-				<div class="col-6 pr-1 btn-group J_new">
+				<div class="col-6 pr-1 mb-2 btn-group J_new">
 					<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-plus"></i> 新建相关</button>
 					<div class="dropdown-menu dropdown-menu-right">
 						<div class="dropdown-divider J_for-admin hide"></div>

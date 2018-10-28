@@ -5,7 +5,7 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>导航菜单</title>
 <style type="text/css">
-.dd3-content>.zmdi{position:absolute;width:28px;height:28px;font-size:1.45rem;margin-left:-20px;}
+.dd3-content>.zmdi{position:absolute;width:28px;height:28px;font-size:1.45rem;margin-left:-20px;margin-top:1px;}
 .dd3-content{padding-left:60px !important;cursor:default;}
 .input-group-prepend .input-group-text{padding:0;width:37px;text-align:center;display:inline-block;overflow:hidden;padding-top:9px;background-color:#fff}
 .input-group-prepend .input-group-text:hover{background-color:#eee;cursor:pointer;}
@@ -15,7 +15,7 @@
 <body class="dialog">
 <div class="main-content">
 	<div class="row m-0">
-		<div class="col-5" style="padding-top:9px">
+		<div class="col-5 mt-2 pr-0">
 			<div class="sortable-box rb-scroller">
 				<ol class="dd-list J_config"></ol>
 			</div>
@@ -23,7 +23,7 @@
 				<button type="button" class="btn btn-secondary btn-sm J_add-menu">+ 添加菜单项</button>
 			</div>
 		</div>
-		<div class="col-7" style="padding-top:9px">
+		<div class="col-7 mt-2 pl-6">
 			<div class="text-muted J_edit-tips">点击左侧菜单项编辑</div>
 			<div class="J_edit-menu hide" style="margin-top:-6px">
 				<div class="tab-container">
