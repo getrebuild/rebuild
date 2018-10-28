@@ -21,7 +21,7 @@ class RbViewForm extends React.Component {
             that.setState({ formComponent: FORM }, function(){
                 $('.invisible').removeClass('invisible')
                 if (parent && parent.RbViewModal_Comp) {
-                    parent.RbViewModal_Comp.hideLoading(true)
+                    parent.RbViewModal_Comp.hideLoading()
                 }
                 
                 $(that.refs['reviewForm']).find('.type-NTEXT .form-control-plaintext').perfectScrollbar()
@@ -47,6 +47,7 @@ rb.RbViewForm = function(props, target){
 
 const RbViewPage = {
     _RbViewForm:  null,
+    _currentModal: null,
     
     init(id, entity) {
         this.__id = id
@@ -124,7 +125,7 @@ const RbViewPage = {
         }
         
         $('.vtab-settings').click(function(){
-            that.__currentModal = rb.modal(`${rb.baseUrl}/page/admin/entity/viewtab-config?entity=${that.__entity[1]}`, '设置视图相关项')
+            that._currentModal = rb.modal(`${rb.baseUrl}/page/admin/entity/viewtab-config?entity=${that.__entity[1]}`, '设置视图相关项')
         })
     },
     
@@ -145,9 +146,9 @@ const RbViewPage = {
     
     // 隐藏当前 Modal
     hideModal() {
-        if (this.__currentModal) {
-            this.__currentModal.hide(true)
-            this.__currentModal = null
+        if (this._currentModal) {
+            this._currentModal.hide(true)
+            this._currentModal = null
         }
     },
     

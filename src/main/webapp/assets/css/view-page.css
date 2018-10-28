@@ -25,8 +25,9 @@ html, body {
 	top: 0;
 	left: 0;
 	width: 100%;
-	z-index: 101;
-	background-color: #fff
+	z-index: 1001;
+	background-color: rgba(255,255,255,.8);
+	background-color: #fff;
 }
 
 .view-header .header-icon {

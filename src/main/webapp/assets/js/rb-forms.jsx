@@ -740,38 +740,19 @@ class RbViewModal extends React.Component {
         )
     }
     componentDidMount() {
-        this.resizeModal()
         let that = this
-        $(window).resize(function(){
-            $setTimeout(function(){
-                that.resizeModal()
-                that.resize() 
-            }, 200, 'rbview-resizeModal')
-        })
-        
         let root = $(this.refs['rbview'])
         let mc = root.find('.modal-content')
         root.on('hidden.bs.modal', function(){
-            mc.css({ 'margin-right': -1280 })
+            mc.css({ 'margin-right': -1300 })
             that.setState({ inLoad: true })
         }).on('shown.bs.modal', function(){
             mc.animate({ 'margin-right': 0 }, 400)
         })
         this.show()
     }
-    hideLoading(resize) {
+    hideLoading() {
         this.setState({ inLoad: false })
-        if (resize == true) this.resize()
-    }
-    resize() {
-        let root = $(this.refs['rbview'])
-        $setTimeout(function(){
-            root.find('.modal-body').height($(window).height())
-        }, 40, 'RbView-resize')
-    }
-    resizeModal() {
-        let root = $(this.refs['rbview'])
-        root.find('.modal-content').css('min-height', $(window).height())
     }
     show(url, ext) {
         let urlChanged = true

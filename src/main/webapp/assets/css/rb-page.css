@@ -122,6 +122,8 @@
 
 .modal-body.iframe {
 	padding: 0 !important;
+	height: 100%;
+	width: 100%;
 }
 
 .modal-body.iframe iframe {
@@ -131,7 +133,7 @@
 	position: relative;
 }
 
-body.dialog {
+body.dialog, body.view-body {
 	background-color: #fff;
 }
 
@@ -162,6 +164,10 @@ body.dialog .main-content {
 body.dialog .main-content .footer,
 .rbform .footer {
 	padding-bottom: 6px;
+}
+
+body.view-body {
+	min-height: 100%;
 }
 
 .select2-search--dropdown .select2-search__field {
@@ -692,6 +698,7 @@ i.split.ui-draggable-dragging {
 .modal.rbview .modal-dialog {
 	margin: 0;
 	max-width: 100%;
+	height: 100%;
 }
 
 .modal.rbview .modal-header>.icon {
@@ -706,6 +713,7 @@ i.split.ui-draggable-dragging {
 	margin-right: -1220px;
 	float: right;
 	position: relative;
+	height: 100%;
 }
 
 .modal.rbview .modal-dialog .modal-content .modal-header {

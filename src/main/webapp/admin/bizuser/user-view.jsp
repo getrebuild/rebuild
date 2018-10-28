@@ -6,7 +6,7 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/view-page.css">
 <title>${entityLabel}视图</title>
 </head>
-<body class="dialog">
+<body class="view-body">
 <div class="view-header">
 	 <span class="header-icon zmdi zmdi-${entityIcon}"></span>
 	<h3 class="title">${entityLabel}视图</h3>
@@ -46,10 +46,10 @@ $(document).ready(function(){
 		rb.modal(rb.baseUrl + '/page/admin/bizuser/user-delete?user=${id}', '删除用户', { width:580 } )
 	})
 	$('.J_changeDept').click(function(){
-		rb.modal(rb.baseUrl + '/page/admin/bizuser/change-dept?user=${id}', '改变部门', { width:580 } )
+		RbViewPage._currentModal = rb.modal(rb.baseUrl + '/page/admin/bizuser/change-dept?user=${id}', '改变部门', { width:580 } )
 	})
 	$('.J_changeRole').click(function(){
-		rb.modal(rb.baseUrl + '/page/admin/bizuser/change-role?user=${id}', '改变角色', { width:580 } )
+		RbViewPage._currentModal = rb.modal(rb.baseUrl + '/page/admin/bizuser/change-role?user=${id}', '改变角色', { width:580 } )
 	})
 });
 </script>
