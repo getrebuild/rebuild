@@ -140,5 +140,6 @@ public class EntityHelper {
 	public static final int ViewTabConfig = 15;
 	
 	public static final int ShareAccess = 20;
+	public static final int SystemConfig = 21;
 	
 }

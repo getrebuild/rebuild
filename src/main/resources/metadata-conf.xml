@@ -130,4 +130,11 @@
 		<index field-list="entity,recordId,shareTo"/>
 	</entity>
 	
+	<entity name="SystemConfig" type-code="021" parent="false" description="系统全局配置项">
+		<field name="configId" type="primary" />
+		<field name="item" type="string" max-length="100" nullable="false" />
+		<field name="value" type="string" max-length="600" />
+		<index type="unique" field-list="item"/>
+	</entity>
+	
 </metadata-config>

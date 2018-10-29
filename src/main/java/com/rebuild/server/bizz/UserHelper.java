@@ -22,7 +22,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.bizz.privileges.User;
-import com.rebuild.server.helper.SystemProps;
+import com.rebuild.server.helper.SystemConfigurer;
 
 /**
  * 
@@ -50,6 +50,6 @@ public class UserHelper {
 		if (StringUtils.isBlank(url)) {
 			return ServerListener.getContextPath() + "/assets/img/avatar.png";
 		}
-		return SystemProps.getStorageUrl() + url + "?imageView2/2/w/100/interlace/1/q/100";
+		return SystemConfigurer.getStorageUrl() + url + "?imageView2/2/w/100/interlace/1/q/100";
 	}
 }

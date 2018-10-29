@@ -6,6 +6,10 @@
 	
 	<display-name>Rebuild</display-name>
 	
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>classpath:application-ctx.xml</param-value>
+	</context-param>
 	<listener>
 		<listener-class>com.rebuild.server.ServerListener</listener-class>
 	</listener>
@@ -22,19 +26,10 @@
 			<param-value>true</param-value>
 		</init-param>
 	</filter>
-	
 	<filter-mapping>
 		<filter-name>characterEncodingFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
-	
-	<context-param>
-		<param-name>contextConfigLocation</param-name>
-		<param-value>classpath:application-ctx.xml</param-value>
-	</context-param>
-	<listener>
-		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-	</listener>
 	
 	<servlet>
 		<servlet-name>DispatcherServlet</servlet-name>

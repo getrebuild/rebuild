@@ -26,6 +26,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -222,6 +223,30 @@ public abstract class BaseControll extends PageControll {
 	 */
 	protected Integer getIntParameter(HttpServletRequest req, String name, int defaultValue) {
 		Integer v = getIntParameter(req, name);
+		return v == null ? (defaultValue) : v;
+	}
+	
+	/**
+	 * @param req
+	 * @param name
+	 * @return
+	 */
+	protected Boolean getBoolParameter(HttpServletRequest req, String name) {
+		String v = req.getParameter(name);
+		if (v == null) {
+			return null;
+		}
+		return BooleanUtils.toBooleanObject(v);
+	}
+	
+	/**
+	 * @param req
+	 * @param name
+	 * @param defaultValue
+	 * @return
+	 */
+	protected Boolean getBoolParameter(HttpServletRequest req, String name, boolean defaultValue) {
+		Boolean v = getBoolParameter(req, name);
 		return v == null ? (defaultValue) : v;
 	}
 	

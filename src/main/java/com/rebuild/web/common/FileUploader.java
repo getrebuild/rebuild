@@ -37,7 +37,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.rebuild.server.helper.QiniuCloud;
-import com.rebuild.server.helper.SystemProps;
+import com.rebuild.server.helper.SystemConfigurer;
 import com.rebuild.utils.AppUtils;
 
 import cn.devezhao.commons.CalendarUtils;
@@ -70,7 +70,7 @@ public class FileUploader extends HttpServlet {
 				}
 				uploadName = CalendarUtils.getDateFormat("hhMMssSSS").format(CalendarUtils.now()) + "__" + uploadName;
 				
-				File temp = SystemProps.getFileOfTemp(uploadName);
+				File temp = SystemConfigurer.getFileOfTemp(uploadName);
 				item.write(temp);
 				
 				String cloud = req.getParameter("cloud");
@@ -102,7 +102,7 @@ public class FileUploader extends HttpServlet {
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		File track = SystemProps.getFileOfTemp("track");
+		File track = SystemConfigurer.getFileOfTemp("track");
 		if (!track.exists() || !track.isDirectory()) {
 			boolean mked = track.mkdir();
 			if (!mked) {

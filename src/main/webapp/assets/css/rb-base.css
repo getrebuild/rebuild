@@ -11956,7 +11956,10 @@ canvas {
 }
 
 .rb-collapsible-sidebar-collapsed .rb-left-sidebar .left-sidebar-content {
-	padding-top: 20px
+	padding-top: 20px;
+}
+.rb-collapsible-sidebar-collapsed .rb-left-sidebar .left-sidebar-content.no-divider {
+	padding-top: 8px;
 }
 
 .rb-left-sidebar .left-sidebar-toggle {

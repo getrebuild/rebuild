@@ -23,14 +23,17 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.bizz.privileges.User;
+import com.rebuild.utils.AES;
 import com.rebuild.web.BaseControll;
 
+import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
@@ -44,10 +47,31 @@ import cn.devezhao.persist4j.engine.ID;
 @Controller
 @RequestMapping("/user")
 public class SignUpControll extends BaseControll {
+	
+	private static final String AUTOLOGIN_KEY = "rb.alt";
 
 	@RequestMapping("login")
-	public ModelAndView checkLogin(HttpServletRequest request) {
-		// TODO 检查自动登录
+	public ModelAndView checkLogin(HttpServletRequest request, HttpServletResponse response) {
+		String alt = ServletUtils.readCookie(request, AUTOLOGIN_KEY);
+		if (StringUtils.isNotBlank(alt)) {
+			try {
+				alt = AES.decrypt(alt);
+				String alt_s[] = alt.split(",");
+				ID user = ID.valueOf(alt_s[0]);
+				if (Application.getUserStore().exists(user)) {
+					loginSuccessed(request, response, user, true);
+					
+					// TODO 安全性检查
+					
+					String nexturl = StringUtils.defaultIfBlank(request.getParameter("nexturl"), "../dashboard/home");
+					nexturl = CodecUtils.urlDecode(nexturl);
+					response.sendRedirect(nexturl);
+				}
+			} catch (Exception ex) {
+				LOG.error("自动登录失败 : " + alt, ex);
+			}
+		}
+		
 		return createModelAndView("/user/login.jsp");
 	}
 	
@@ -76,15 +100,37 @@ public class SignUpControll extends BaseControll {
 			return;
 		}
 		
-		ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, foundUser[0]);
-		Application.getSessionStore().storeLoginSuccessed(request);
+		loginSuccessed(request, response, (ID) foundUser[0], getBoolParameter(request, "autoLogin", false));
 		writeSuccess(response);
+	}
+	
+	/**
+	 * 登录成功
+	 * 
+	 * @param request
+	 * @param response
+	 * @param user
+	 * @param autoLogin
+	 */
+	private void loginSuccessed(HttpServletRequest request, HttpServletResponse response, ID user, boolean autoLogin) {
+		// 自动登录
+		if (autoLogin) {
+			String alt = user + "," + System.currentTimeMillis();
+			alt = AES.encrypt(alt);
+			ServletUtils.addCookie(response, AUTOLOGIN_KEY, alt, 60 * 60 * 24 * 30, null, "/");
+		} else {
+			ServletUtils.removeCookie(request, response, AUTOLOGIN_KEY);
+		}
+		
+		ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, user);
+		Application.getSessionStore().storeLoginSuccessed(request);
 	}
 	
 	@RequestMapping("logout")
 	public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ServletUtils.removeCookie(request, response, AUTOLOGIN_KEY);
 		ServletUtils.getSession(request).invalidate();
-		response.sendRedirect("login");
+		response.sendRedirect("login?exit=0");
 	}
 	
 	// --

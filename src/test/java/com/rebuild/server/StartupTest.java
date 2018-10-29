@@ -29,7 +29,7 @@ public class StartupTest {
 	
 	@Test
 	public void startup() {
-		Application.context();
-		Application.context().getBeansOfType(Object.class);
+		Application.debug();
+		Application.debug().getBeansOfType(Object.class);
 	}
 }

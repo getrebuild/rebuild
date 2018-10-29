@@ -21,6 +21,7 @@ package com.rebuild.server.helper;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer;
 
 import com.rebuild.utils.AES;
@@ -40,13 +41,16 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer {
 	private Properties propsHold = null;
 	
 	private void afterLoad(Properties props) {
-		String kpass = AES.getPassKey();
-		for (Object key : props.keySet()) {
-			if (key.toString().contains(".aes")) {
-				props.put(key, AES.decrypt(kpass));
+		final Object[] keys = props.keySet().toArray(new Object[0]);
+		for (Object key : keys) {
+			String key2 = key.toString();
+			if (key2.contains(".aes")) {
+				String val2 = props.getProperty(key2);
+				val2 = AES.decrypt(val2);
+				props.put(key2.replace(".aes", ""), val2);
 			}
 		}
-		propsHold = props;
+		propsHold = (Properties) props.clone();
 	}
 	
 	/**
@@ -55,7 +59,7 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer {
 	 * @param key
 	 * @return
 	 */
-	public String item(String name) {
-		return propsHold.getProperty(name);
+	public String getItem(String name) {
+		return StringUtils.defaultIfBlank(propsHold.getProperty(name), null);
 	}
 }

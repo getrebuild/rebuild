@@ -18,13 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server;
 
-import java.security.Security;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -54,41 +52,48 @@ public final class Application {
 	 * Global Logging */
 	public static final Log LOG = LogFactory.getLog(Application.class);
 	
-	// for SPRING
-	volatile private static ApplicationContext APPLICATION_CTX;
+	// SPRING
+	private static ApplicationContext APPLICATION_CTX;
 	
 	// 业务实体对应的服务类
 	private static Map<Integer, GeneralEntityService> ESS = new HashMap<>();
 	
+	protected Application(ApplicationContext ctx) {
+		APPLICATION_CTX = ctx;
+	}
+	
 	/**
 	 * 初始化
 	 */
-	private Application(ApplicationContext ctx) {
-		LOG.info("Rebuild Booting ...");
-		
-		Security.addProvider(new BouncyCastleProvider());
-		
-		APPLICATION_CTX = ctx;
+	protected void init(long startingAt) {
+//		Security.addProvider(new BouncyCastleProvider());
 		
 		// 自定义实体
 		LOG.info("Loading customized entities ...");
-		((DynamicMetadataFactory) ctx.getBean(PersistManagerFactory.class).getMetadataFactory()).refresh(false);
+		((DynamicMetadataFactory) APPLICATION_CTX.getBean(PersistManagerFactory.class).getMetadataFactory()).refresh(false);
 		
 		// 实体对应的服务类
-		for (Map.Entry<String, GeneralEntityService> es : ctx.getBeansOfType(GeneralEntityService.class).entrySet()) {
+		for (Map.Entry<String, GeneralEntityService> es : APPLICATION_CTX.getBeansOfType(GeneralEntityService.class).entrySet()) {
 			GeneralEntityService ges = es.getValue();
 			if (ges.getEntityCode() > 0) {
 				ESS.put(ges.getEntityCode(), ges);
 			}
 		}
 		
-		LOG.info("Rebuild Booting successful.");
+		LOG.info("Rebuild Boot successful in " + (System.currentTimeMillis() - startingAt) + " ms");
 	}
 	
-	public static ApplicationContext context() {
+	/**
+	 * 非 Server 环境下启动
+	 * 
+	 * @return
+	 */
+	protected static ApplicationContext debug() {
 		if (APPLICATION_CTX == null) {
+			LOG.info("Rebuild Booting in DEBUG mode ...");
+			long at = System.currentTimeMillis();
 			ApplicationContext ctx = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml" });
-			new Application(ctx);
+			new Application(ctx).init(at);
 		}
 		return APPLICATION_CTX;
 	}
@@ -113,7 +118,7 @@ public final class Application {
 	}
 	
 	public static <T> T getBean(Class<T> beanClazz) {
-		return context().getBean(beanClazz);
+		return APPLICATION_CTX.getBean(beanClazz);
 	}
 
 	public static OnlineSessionStore getSessionStore() {
@@ -172,7 +177,7 @@ public final class Application {
 		if (ESS.containsKey(entityCode)) {
 			return ESS.get(entityCode);
 		} else {
-			return (GeneralEntityService) context().getBean("GeneralEntityService");
+			return (GeneralEntityService) APPLICATION_CTX.getBean("GeneralEntityService");
 		}
 	}
 }

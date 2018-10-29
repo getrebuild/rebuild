@@ -19,10 +19,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server;
 
 import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.web.context.ContextLoaderListener;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * 服务启动/停止监听
@@ -30,7 +32,7 @@ import org.apache.commons.logging.LogFactory;
  * @author devezhao
  * @since 10/13/2018
  */
-public class ServerListener implements ServletContextListener {
+public class ServerListener extends ContextLoaderListener {
 
 	private static final Log LOG = LogFactory.getLog(ServerListener.class);
 
@@ -38,11 +40,17 @@ public class ServerListener implements ServletContextListener {
 	
 	@Override
 	public void contextInitialized(ServletContextEvent event) {
+		long at = System.currentTimeMillis();
+		LOG.info("Rebuild Booting ...");
+		
 		CONTEXT_PATH = event.getServletContext().getContextPath();
 		LOG.debug("Detecting Rebuild context-path '" + CONTEXT_PATH + "'");
-
+		
+		LOG.info("Initializing Spring context ...");
 		try {
-			Application.context();
+			super.contextInitialized(event);
+			WebApplicationContext wac = WebApplicationContextUtils.getWebApplicationContext(event.getServletContext());
+			new Application(wac).init(at);
 		} catch (Throwable ex) {
 			LOG.fatal("Rebuild Booting failure!!!", ex);
 			System.exit(-1);
@@ -51,7 +59,8 @@ public class ServerListener implements ServletContextListener {
 
 	@Override
 	public void contextDestroyed(ServletContextEvent event) {
-		LOG.info("Rebuild shutdown.");
+		LOG.info("Rebuild shutdown ...");
+		super.contextDestroyed(event);
 	}
 	
 	/**

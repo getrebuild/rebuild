@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="com.rebuild.server.helper.SystemProps"%>
+<%@ page import="com.rebuild.server.helper.SystemConfigurer"%>
 <%@ page import="com.rebuild.utils.AppUtils"%>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -15,7 +15,7 @@
 <script>
 var rb = rb || {}
 rb.baseUrl = '${baseUrl}'
-rb.storageUrl = '<%=SystemProps.getStorageUrl()%>'
+rb.storageUrl = '<%=SystemConfigurer.getStorageUrl()%>'
 rb.isAdminUser = <%=AppUtils.isAdminUser(request)%>
 </script>
 <!--[if IE]>

@@ -701,13 +701,15 @@ i.split.ui-draggable-dragging {
 .sortable-box .dd-list .dd3-item.active .dd3-content{background-color:#dedede !important}
 
 .rb-left-sidebar .bottom-widget {
-	padding: 3px 20px;
+	padding: 3px 16px;
 	margin: 0;
 }
 
 .bottom-widget>a {
 	line-height: 42px;
 	display: inline-block;
+	padding-left: 6px;
+	padding-right: 6px;
 }
 
 .bottom-widget>a>.icon {

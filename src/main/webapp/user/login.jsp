@@ -26,8 +26,8 @@
 						<div class="form-group row login-tools">
 								
 							<div class="col-6 login-remember">
-								<label class="custom-control custom-checkbox custom-control-inline" style="margin-bottom:0">
-									<input class="custom-control-input" type="checkbox"><span class="custom-control-label"> 记住登录</span>
+								<label class="custom-control custom-checkbox custom-control-inline mb-0">
+									<input class="custom-control-input" type="checkbox" id="autoLogin"><span class="custom-control-label"> 记住登录</span>
 								</label>
 							</div>
 							<div class="col-6 login-forgot-password">
@@ -49,20 +49,24 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script type="text/javascript">
 $(document).ready(function() {
-	$('#user,#passwd').keydown(function(e){
-		if (e.keyCode == 13) $('.J_login-btn').trigger('click');
-	});
+	if (top != self) {
+		parent.location.reload()
+		return
+	}
 	
+	$('#user,#passwd').keydown(function(e){
+		if (e.keyCode == 13) $('.J_login-btn').trigger('click')
+	});
 	$('.J_login-btn').click(function() {
-		let user = $val('#user'), passwd = $val('#passwd');
-		if (!user || !passwd) return;
+		let user = $val('#user'), passwd = $val('#passwd')
+		if (!user || !passwd) return
 		
 		let btn = $(this).button('loading');
-		$.post(rb.baseUrl + '/user/user-login?user=' + $encode(user) + '&passwd=' + $encode(passwd), function(res) {
-			if (res.error_code == 0) location.replace('../dashboard/home');
+		$.post(rb.baseUrl + '/user/user-login?user=' + $encode(user) + '&passwd=' + $encode(passwd) + '&autoLogin=' + $val('#autoLogin'), function(res) {
+			if (res.error_code == 0) location.replace($decode($urlp('nexturl') || '../dashboard/home'))
 			else{
 				rb.notice(res.error_msg || '登录失败，请稍后重试')
-				btn.button('reset');
+				btn.button('reset')
 			}
 		});
 	});

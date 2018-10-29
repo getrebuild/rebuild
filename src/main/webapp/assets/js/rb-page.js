@@ -1,14 +1,22 @@
 // common Init
 $(function(){
 	let t = $('.rb-scroller');
-	t.perfectScrollbar();
+	t.perfectScrollbar()
 	$(window).resize(function(){
 		$setTimeout(function(){
-			t.perfectScrollbar('update');
+			t.perfectScrollbar('update')
 		}, 500, 'rb-scroller-update');
 	});
 	
-	if ($('body.dialog').length == 0){
+	// tooltip
+	$('[data-toggle="tooltip"]').tooltip()
+	
+	if ($('body.dialog').length == 0 && $('body.view-body').length == 0){
+		console.log('In top-frame ... ' + location.href)
+		$('.sidebar-elements li').each(function(){
+			let _this = $(this)
+			if (!_this.hasClass('divider')) _this.tooltip({ placement: 'right', title: _this.text().trim(), delay: 200 })
+		})
 		__initNavs()
 	}
 	
@@ -17,35 +25,40 @@ $(function(){
 		$(document.body).addClass('rb-animate')
 	}, 1000)
 	
-	// tooltip
-	$('[data-toggle="tooltip"]').tooltip()
-	
 	if (rb.isAdminUser == true) {
 		$('.J_for-admin').removeClass('hide')
 		if (location.href.indexOf('/admin/') == -1) {
-			if ($('.J_admin-settings').data('verified') == true){
-				$('.J_admin-settings a').attr('title', '系统配置 (已验证管理员权限)')
+			if ($('.J_admin-settings').data('verified') == true) {
 				$('.J_admin-settings a i').addClass('text-danger')
 			}
 		}
+	} else {
+		$('.J_for-admin').remove()
 	}
 });
 
 const __initNavs = function(){
 	// Nav
 	$('.rb-toggle-left-sidebar').click(function(){
-		let s = $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed');
-		$.cookie('rb-sidebar-collapsed', s.hasClass('rb-collapsible-sidebar-collapsed'), { expires:90 })
+		let el = $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
+		let collapsed = el.hasClass('rb-collapsible-sidebar-collapsed')
+		$storage.set('rb-sidebar-collapsed', collapsed)
+		$('.sidebar-elements li').tooltip('toggleEnabled')
 	});
-	if ($.cookie('rb-sidebar-collapsed') == 'true') $('.rb-collapsible-sidebar').addClass('rb-collapsible-sidebar-collapsed');
+	if ($storage.get('rb-sidebar-collapsed') == 'true'){
+		$('.rb-collapsible-sidebar').addClass('rb-collapsible-sidebar-collapsed')
+	} else {
+		$('.sidebar-elements li').tooltip('disable')
+	}
 	
+	// At small-width
 	$('.left-sidebar-toggle').click(function(){
 		$('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
 		$('.left-sidebar-spacer').toggleClass('open')
 	}).text($('.rb-right-navbar .page-title').text())
 	
 	// aside
-	let aside = $('.page-aside');
+	let aside = $('.page-aside')
 	if (aside.length > 0) {
 		$('.page-aside .aside-header').click(function(){
 			$(this).toggleClass('collapsed')

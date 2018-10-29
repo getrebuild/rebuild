@@ -10,15 +10,15 @@ final String activeNav = request.getParameter("activeNav");
 %>
 <div class="rb-left-sidebar">
 <div class="left-sidebar-wrapper">
-	<a class="left-sidebar-toggle">MIN</a>
+	<a class="left-sidebar-toggle">IN-MIN</a>
 	<div class="left-sidebar-spacer">
 		<div class="left-sidebar-scroll rb-scroller">
-			<div class="left-sidebar-content">
+			<div class="left-sidebar-content no-divider">
 				<ul class="sidebar-elements">
 					<li class="<%="dashboard-home".equals(activeNav) ? "active" : ""%>" id="nav_dashboard-home"><a href="${baseUrl}/dashboard/home"><i class="icon zmdi zmdi-home"></i><span>首页</span></a></li>
 					<%
-					JSONArray navs = NavManager.getNavForPortal(request);
-					for (Object o : navs) {
+					JSONArray navArray = NavManager.getNavForPortal(request);
+					for (Object o : navArray) {
 						JSONObject nav = (JSONObject) o;
 						String navName = "nav_entity-" + nav.getString("value");
 						boolean isUrlType = "URL".equals(nav.getString("type"));
@@ -30,8 +30,9 @@ final String activeNav = request.getParameter("activeNav");
 							navUrl = ServerListener.getContextPath() + "/commons/url-safe?url=" + CodecUtils.urlEncode(navUrl);
 						}
 						String navIcon = StringUtils.defaultIfBlank(nav.getString("icon"), "texture");
+						String navText = nav.getString("text");
 					%>
-					<li id="<%=navName%>" class="<%=navName.equals(activeNav) ? "active" : ""%>"><a href="<%=navUrl%>" target="<%=isUrlType ? "_blank" : "_self"%>"><i class="icon zmdi zmdi-<%=navIcon%>"></i><span><%=nav.getString("text")%></span></a></li>
+					<li id="<%=navName%>" class="<%=navName.equals(activeNav) ? "active" : ""%>"><a href="<%=navUrl%>" target="<%=isUrlType ? "_blank" : "_self"%>"><i class="icon zmdi zmdi-<%=navIcon%>"></i><span><%=navText%></span></a></li>
 					<%}%>
 				</ul>
 			</div>

@@ -183,9 +183,11 @@ const $regex = {
 };
 
 const $encode = function(s) {
+	if (!!!s) return null
 	return encodeURIComponent(s)
 }
 const $decode = function(s) {
+	if (!!!s) return null
 	return decodeURIComponent(s)
 }
 
