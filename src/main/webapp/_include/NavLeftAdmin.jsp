@@ -8,9 +8,11 @@
 			<div class="left-sidebar-content">
 				<ul class="sidebar-elements">
 					<li class="divider">系统</li>
-					<li class="<%="systems".equals(activeNav) ? "active" : ""%>" id="nav_systems"><a href="${baseUrl}/admin/systems"><i class="icon zmdi zmdi-settings"></i><span>系统信息</span></a></li>
+					<li class="<%="systems".equals(activeNav) ? "active" : ""%>" id="nav_systems"><a href="${baseUrl}/admin/systems"><i class="icon zmdi zmdi-settings"></i><span>通用配置</span></a></li>
+					<!--
 					<li class="<%="system-storage".equals(activeNav) ? "active" : ""%>" id="nav_system-storage"><a href="${baseUrl}/admin/system/storage"><i class="icon zmdi zmdi-cloud-upload"></i><span>云存储配置</span></a></li>
 					<li class="<%="system-cache".equals(activeNav) ? "active" : ""%>" id="nav_system-cache"><a href="${baseUrl}/admin/system/cache"><i class="icon zmdi zmdi-memory"></i><span>缓存服务配置</span></a></li>
+					-->
 					<li class="divider">业务/实体</li>
 					<li class="<%="entities".equals(activeNav) ? "active" : ""%>" id="nav_entities"><a href="${baseUrl}/admin/entities"><i class="icon zmdi zmdi-widgets"></i><span>实体管理</span></a></li>
 					<li class="divider">用户</li>

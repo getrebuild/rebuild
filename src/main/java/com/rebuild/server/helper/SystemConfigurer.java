@@ -48,11 +48,12 @@ public class SystemConfigurer {
 	 * 系统配置项名称
 	 */
 	public static enum ItemName {
-		// 云存储
-		StorageURL, StorageApiKey, StorageApiSecret, StorageBucket,
-		
 		// 临时目录
 		TempDirectory,
+		// 云存储
+		StorageURL, StorageApiKey, StorageApiSecret, StorageBucket,
+		// 缓存服务
+		CacheHost, CachePort, CacheUser, CachePassword,
 	}
 	
 	private static final Log LOG = LogFactory.getLog(SystemConfigurer.class);
@@ -106,6 +107,26 @@ public class SystemConfigurer {
 			return null;
 		}
 		return new String[] { key, secret, bucket };
+	}
+	
+	public static String[] getCacheAccount() {
+		String host = getItemFromBoth(ItemName.CacheHost);
+		if (host == null) {
+			return null;
+		}
+		String port = getItemFromBoth(ItemName.CachePort);
+		if (port == null) {
+			return null;
+		}
+		String user = getItemFromBoth(ItemName.CacheUser);
+//		if (user == null) {
+//			return null;
+//		}
+		String password = getItemFromBoth(ItemName.CachePassword);
+		if (password == null) {
+			return null;
+		}
+		return new String[] { host, port, user, password };
 	}
 	
 	/*-
