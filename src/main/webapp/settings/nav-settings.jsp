@@ -7,6 +7,7 @@
 <style type="text/css">
 .dd3-content>.zmdi{position:absolute;width:28px;height:28px;font-size:1.45rem;margin-left:-20px;margin-top:1px;}
 .dd3-content{padding-left:60px !important;cursor:default;}
+.dd-item>ul{padding-left:22px}
 .input-group-prepend .input-group-text{padding:0;width:37px;text-align:center;display:inline-block;overflow:hidden;padding-top:9px;background-color:#fff}
 .input-group-prepend .input-group-text:hover{background-color:#eee;cursor:pointer;}
 .input-group-prepend .input-group-text i.zmdi{font-size:1.5rem;}
@@ -16,7 +17,7 @@
 <div class="main-content">
 	<div class="row m-0">
 		<div class="col-5 mt-2 pr-0">
-			<div class="sortable-box rb-scroller">
+			<div class="sortable-box h380 rb-scroller">
 				<ol class="dd-list J_config"></ol>
 			</div>
 			<div class="actions">
@@ -75,11 +76,11 @@ $(document).ready(function(){
 		axis: 'y',
 	}).disableSelection()
 
-	$('.J_add-menu').click(function(){ render_item({}, true) });
+	$('.J_add-menu').click(function(){ render_item({}, true) })
 	
 	$.get(rb.baseUrl + '/commons/metadata/entities', function(res){
 		$(res.data).each(function(){
-			$('<option value="' + this.name + '" data-icon="' + this.icon + '">' + this.label + '</option>').appendTo('.J_menuEntity');
+			$('<option value="' + this.name + '" data-icon="' + this.icon + '">' + this.label + '</option>').appendTo('.J_menuEntity')
 		})
 	})
 	$('.J_menuEntity').change(function(){
@@ -115,9 +116,10 @@ $(document).ready(function(){
 			if (!!!value){ rb.notice('请输入 URL'); return }
 			else if (!!value && !$regex.isUrl(value)){ rb.notice('请输入有效的 URL'); return }
 		}
-		render_item({ id:item_currentid, text:name, type:type, value:value, icon:$('.J_menuIcon i').attr('class').replace('zmdi zmdi-', '') })
+		let icon = $('.J_menuIcon i').attr('class').replace('zmdi zmdi-', '')
+		render_item({ id: item_currentid, text: name, type: type, value: value, icon: icon })
 		
-		item_currentid = null;
+		item_currentid = null
 		$('.J_config li').removeClass('active')
 		$('.J_edit-tips').removeClass('hide')
 		$('.J_edit-menu').addClass('hide')
@@ -126,10 +128,9 @@ $(document).ready(function(){
 	var cfgid = null
 	$('.J_save').click(function(){
 		let navs = []
-		$('.J_config .dd-item').each(function(){
-			let _this = $(this)
-			let item = { text:$.trim(_this.find('.dd3-content').text()), type:_this.attr('attr-type'), value:_this.attr('attr-value'), icon:_this.attr('attr-icon') }
-			if (!!item.value) navs.push(item)
+		$('.J_config>.dd-item').each(function(){
+			let item = build_item($(this), navs)
+			if (!!item) navs.push(item)
 		})
 		if (navs.length == 0) { rb.notice('请至少设置一个菜单项'); return }
 		
@@ -137,35 +138,70 @@ $(document).ready(function(){
 		$.post(rb.baseUrl + '/app/settings/nav-settings?cfgid=' + cfgid + '&toAll=' + $('#applyTo').prop('checked'), JSON.stringify(navs), function(res){
 			btn.button('reset')
 			if (res.error_code == 0) parent.location.reload()
-		});
+		})
 	})
 	
 	$.get(rb.baseUrl + '/app/settings/nav-settings', function(res){
 		if (res.data){
 			cfgid = res.data.id
-			$(res.data.config).each(function(){ render_item(this) })
+			$(res.data.config).each(function(){
+				let item = render_item(this)
+				if (!!this.sub) {
+					let subUl = $('<ul></ul>').appendTo(item)
+					$(this.sub).each(function(){
+						render_item(this, false, subUl)
+					})
+				}
+			})
 		}
 	})
-});
+})
 
+const build_item = function(item){
+	let data = { text: $.trim(item.find('.dd3-content').eq(0).text()), type: item.attr('attr-type'), value: item.attr('attr-value'), icon: item.attr('attr-icon') }
+	if (!!!data.value) return null
+	
+	let subNavs = item.find('ul>li')
+	if (subNavs.length > 0) {
+		data.sub = []
+		subNavs.each(function(){
+			let sub = build_item($(this))
+			if (sub) data.sub.push(sub)
+		})
+	}
+	return data
+}
 let item_currentid
 let item_current_isNew
 let item_randomid = new Date().getTime()
-const render_item = function(data, isNew) {
+const render_item = function(data, isNew, append2) {
 	data.id = data.id || item_randomid++
 	data.text = data.text || '未命名菜单'
 	data.icon = data.icon || UNICON_NAME
+	append2 = append2 || '.J_config'
 	
 	let item = $('.J_config').find("li[attr-id='" + data.id + "']")
 	if (item.length == 0){
-		item = $('<li class="dd-item dd3-item"><div class="dd-handle dd3-handle"></div><div class="dd3-content"><i class="zmdi"></i><span></span></div></li>').appendTo('.J_config')
+		item = $('<li class="dd-item dd3-item"><div class="dd-handle dd3-handle"></div><div class="dd3-content"><i class="zmdi"></i><span></span></div></li>').appendTo(append2)
 		let action = $('<div class="dd3-action"><a class="J_addsub" title="添加子菜单"><i class="zmdi zmdi-plus"></i></a><a class="J_del" title="移除"><i class="zmdi zmdi-close"></i></a></div>').appendTo(item)
 		action.find('a.J_del').off('click').click(function() {
 			item.remove()
 		})
+		action.find('a.J_addsub').off('click').click(function() {
+			let subUl = item.find('ul')
+			if (subUl.length == 0) {
+				subUl = $('<ul></ul>').appendTo(item)
+			}
+			render_item({}, true, subUl)
+		})
+		if (!$(append2).hasClass('J_config')) {
+			action.find('a.J_addsub').remove()
+		}
 	}
-	item.find('.dd3-content .zmdi').attr('class', 'zmdi zmdi-' + data.icon)
-	item.find('.dd3-content span').text(data.text)
+	
+	let content3 = item.find('.dd3-content').eq(0)
+	content3.find('.zmdi').attr('class', 'zmdi zmdi-' + data.icon)
+	content3.find('span').text(data.text)
 	item.attr({
 		'attr-id': data.id,
 		'attr-type': data.type || 'ENTITY',
@@ -174,7 +210,7 @@ const render_item = function(data, isNew) {
 	})
 	
 	// Event
-	item.find('.dd3-content').off('click').click(function(){
+	content3.off('click').click(function(){
 		$('.J_config li').removeClass('active')
 		item.addClass('active')
 		
@@ -195,10 +231,11 @@ const render_item = function(data, isNew) {
 	})
 	
 	if (isNew == true){
-		item.find('.dd3-content').trigger('click')
+		content3.trigger('click')
 		$('.J_menuName').focus()
 	}
 	item_current_isNew = isNew
+	return item
 }
 </script>
 </body>

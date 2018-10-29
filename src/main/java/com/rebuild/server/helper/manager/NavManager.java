@@ -22,14 +22,18 @@ import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.ServerListener;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 
+import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 
@@ -98,5 +102,59 @@ public class NavManager extends LayoutManager {
 	 */
 	public static ID detectConfigId(ID cfgid, boolean toAll, ID user) {
 		return LayoutManager.detectConfigId(cfgid, toAll, "N", TYPE_NAVI, user);
+	}
+	
+	/**
+	 * @param item
+	 * @param activeNav
+	 * @param isSub
+	 * @return
+	 */
+	public static String renderNavItem(JSONObject item, String activeNav, boolean is1Level) {
+		String navName = "nav_entity-" + item.getString("value");
+		boolean isUrlType = "URL".equals(item.getString("type"));
+		String navUrl = item.getString("value");
+		if (!isUrlType) {
+			navUrl = ServerListener.getContextPath() + "/app/" + navUrl + "/list";
+		} else {
+			navName = "nav_url-" + navName.hashCode();
+			navUrl = ServerListener.getContextPath() + "/commons/url-safe?url=" + CodecUtils.urlEncode(navUrl);
+		}
+		String navIcon = StringUtils.defaultIfBlank(item.getString("icon"), "texture");
+		String navText = item.getString("text");
+		
+		boolean subHas = false;
+		JSONArray subNavs = null;
+		if (is1Level) {
+			subNavs = item.getJSONArray("sub");
+			if (subNavs != null && !subNavs.isEmpty()) {
+				subHas = true;
+			}
+		}
+		
+		String navHtml = "<li id=\"%s\" class=\"%s\"><a href=\"%s\" target=\"%s\"><i class=\"icon zmdi zmdi-%s\"></i><span>%s</span></a>";
+		String clazz = navName.equals(activeNav) ? "active " : "";
+		if (subHas) {
+			clazz += "parent";
+			isUrlType = false;
+			navUrl = "javascript:;";
+//			navUrl = "###" + navUrl;
+		}
+		navHtml = String.format(navHtml, navName, clazz, navUrl, isUrlType ? "_blank" : "_self", navIcon, navText);
+		
+		if (subHas) {
+			String subHtml = "<ul class=\"sub-menu\"><li class=\"title\">%s</li><li class=\"nav-items\"><div class=\"rb-scroller\"><div class=\"content\"><ul>";
+			subHtml = String.format(subHtml, navText);
+			
+			for (Object o : subNavs) {
+				JSONObject subNav = (JSONObject) o;
+				subHtml += renderNavItem(subNav, activeNav, false);
+			}
+			subHtml += "</ul></div></div></li></ul>";
+			navHtml += subHtml;
+		}
+		
+		navHtml += "</li>";
+		return navHtml;
 	}
 }

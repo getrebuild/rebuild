@@ -13,9 +13,9 @@ $(function(){
 	
 	if ($('body.dialog').length == 0 && $('body.view-body').length == 0){
 		console.log('In top-frame ... ' + location.href)
-		$('.sidebar-elements li').each(function(){
+		$('.sidebar-elements>li>a').each(function(){
 			let _this = $(this)
-			if (!_this.hasClass('divider')) _this.tooltip({ placement: 'right', title: _this.text().trim(), delay: 200 })
+			_this.tooltip({ placement: 'right', title: _this.find('span').text().trim(), delay: 200 })
 		})
 		__initNavs()
 	}
@@ -43,12 +43,39 @@ const __initNavs = function(){
 		let el = $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
 		let collapsed = el.hasClass('rb-collapsible-sidebar-collapsed')
 		$storage.set('rb-sidebar-collapsed', collapsed)
-		$('.sidebar-elements li').tooltip('toggleEnabled')
+		$('.sidebar-elements>li>a').tooltip('toggleEnabled')
 	});
 	if ($storage.get('rb-sidebar-collapsed') == 'true'){
 		$('.rb-collapsible-sidebar').addClass('rb-collapsible-sidebar-collapsed')
 	} else {
-		$('.sidebar-elements li').tooltip('disable')
+		$('.sidebar-elements>li>a').tooltip('disable')
+	}
+	
+	// SubNavs
+	let currsntSubnav
+	$('.sidebar-elements li.parent').click(function(e){
+		let _this = $(this)
+		_this.toggleClass('open')
+		_this.find('.sub-menu').toggleClass('visible')
+		e.stopPropagation()
+		currsntSubnav = _this
+		_this.find('a').eq(0).tooltip('hide')
+	})
+	$('.sidebar-elements li.parent .sub-menu').click(function(e){
+		e.stopPropagation()
+	})
+	$(document.body).click(function(){
+		// MinNav && SubnavOpen
+		if ($('.rb-collapsible-sidebar').hasClass('rb-collapsible-sidebar-collapsed') && currsntSubnav.hasClass('open')) {
+			currsntSubnav.removeClass('open')
+			currsntSubnav.find('.sub-menu').removeClass('visible')
+		}
+	})
+	
+	let activeNav = $('.sidebar-elements li.active')
+	if (activeNav.parents('li.parent').length > 0) {
+		activeNav.parents('li.parent').addClass('active').first().trigger('click')
+		$(document.body).trigger('click')
 	}
 	
 	// At small-width

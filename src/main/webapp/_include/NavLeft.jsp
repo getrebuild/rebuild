@@ -20,20 +20,10 @@ final String activeNav = request.getParameter("activeNav");
 					JSONArray navArray = NavManager.getNavForPortal(request);
 					for (Object o : navArray) {
 						JSONObject nav = (JSONObject) o;
-						String navName = "nav_entity-" + nav.getString("value");
-						boolean isUrlType = "URL".equals(nav.getString("type"));
-						String navUrl = nav.getString("value");
-						if (!isUrlType) {
-							navUrl = ServerListener.getContextPath() + "/app/" + navUrl + "/list";
-						} else {
-							navName = "nav_url-" + navName.hashCode();
-							navUrl = ServerListener.getContextPath() + "/commons/url-safe?url=" + CodecUtils.urlEncode(navUrl);
-						}
-						String navIcon = StringUtils.defaultIfBlank(nav.getString("icon"), "texture");
-						String navText = nav.getString("text");
+						String navHtml = NavManager.renderNavItem(nav, activeNav, true);
+						out.print(navHtml);
+					}
 					%>
-					<li id="<%=navName%>" class="<%=navName.equals(activeNav) ? "active" : ""%>"><a href="<%=navUrl%>" target="<%=isUrlType ? "_blank" : "_self"%>"><i class="icon zmdi zmdi-<%=navIcon%>"></i><span><%=navText%></span></a></li>
-					<%}%>
 				</ul>
 			</div>
 		</div>

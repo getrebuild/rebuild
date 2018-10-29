@@ -59,6 +59,7 @@ public class EasyMeta implements BaseMeta {
 		BUILTIN_ENTITY.add("FilterConfig");
 		BUILTIN_ENTITY.add("ViewTabConfig");
 		BUILTIN_ENTITY.add("ShareAccess");
+		BUILTIN_ENTITY.add("SystemConfig");
 		
 		BUILTIN_FIELD.add(EntityHelper.createdOn);
 		BUILTIN_FIELD.add(EntityHelper.createdBy);
