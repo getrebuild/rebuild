@@ -3,14 +3,12 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>用户管理</title>
-<style type="text/css">
-</style>
+<title>${entityLabel}管理</title>
 </head>
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header">
 	<jsp:include page="/_include/NavTop.jsp">
-		<jsp:param value="用户管理" name="pageTitle"/>
+		<jsp:param value="${entityLabel}管理" name="pageTitle"/>
 	</jsp:include>
 	<jsp:include page="/_include/NavLeftAdmin.jsp">
 		<jsp:param value="users" name="activeNav"/>
@@ -23,7 +21,7 @@
 		</aside>
 		<div class="main-content container-fluid main-content-list">
 			<ul class="nav nav-tabs nav-tabs-classic">
-				<li class="nav-item"><a href="users" class="nav-link active"><span class="icon zmdi zmdi-account"></span> 用户列表</a></li>
+				<li class="nav-item"><a href="users" class="nav-link active"><span class="icon zmdi zmdi-account"></span> ${entityLabel}列表</a></li>
 				<li class="nav-item"><a href="departments" class="nav-link"><span class="icon zmdi zmdi-accounts"></span> 部门列表</a></li>
 			</ul>
 			<div class="card card-table">
@@ -43,7 +41,7 @@
 								<div class="dataTables_oper">
 									<button class="btn btn-space btn-secondary J_view" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> 打开</button>
 									<div class="btn-group btn-space">
-										<button class="btn btn-primary J_new" type="button"><i class="icon zmdi zmdi-account-add"></i> 新建用户</button>
+										<button class="btn btn-primary J_new" type="button"><i class="icon zmdi zmdi-account-add"></i> 新建${entityLabel}</button>
 										<button class="btn btn-primary dropdown-toggle auto" type="button" data-toggle="dropdown"><span class="icon zmdi zmdi-chevron-down"></span></button>
 										<div class="dropdown-menu dropdown-menu-right">
 											<a class="dropdown-item J_new-dept"><i class="icon zmdi zmdi-accounts-add"></i> 新建部门</a>
@@ -78,30 +76,24 @@
 <script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/bizuser/dept-tree.js" type="text/javascript"></script>
 <script type="text/babel">
-$(document).ready(function(){
-	RbListPage.init(
-		${DataListConfig},
-		['${entityLabel}', '${entityName}', '${entityIcon}'],
-		${entityPrivileges})
-
-	$('.J_new').click(function(){
-		formPostType = 2
-	})
-	$('.J_new-dept').click(function(){
-		rb.RbFormModal({ title: '新建部门', entity: 'Department', icon: 'accounts' })
-		formPostType = 2
-	})
-
-	loadDeptTree()
-})
-var formPostType = 1
+let formPostType = 1
 RbForm.postAfter = function(){
 	if (formPostType == 1) RbListPage._RbList.reload()
 	else loadDeptTree()
 }
 
+$(document).ready(function(){
+	RbListPage.init(${DataListConfig}, ['${entityLabel}', 'User', '${entityIcon}'], ${entityPrivileges})
+	loadDeptTree()
+
+	$('.J_new').click(function(){ formPostType = 1 })
+	$('.J_new-dept').click(function(){
+		formPostType = 2
+		rb.RbFormModal({ title: '新建部门', entity: 'Department', icon: 'accounts' })
+	})
+})
 clickDept = function(depts) {
-	if (depts[0] == '$ALL$') depts = [];
+	if (depts[0] == '$ALL$') depts = []
 	let exp = { items: [], values: {} }
 	exp.items.push({ op:'in', field: 'deptId', value:'{2}' })
 	exp.values['2'] = depts

@@ -44,11 +44,6 @@
 											<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
 											<a class="dropdown-item J_assign"><i class="icon zmdi zmdi-mail-reply-all"></i> 分派</a>
 											<a class="dropdown-item J_share"><i class="icon zmdi zmdi-slideshare"></i> 共享</a>
-											<!--
-											<div class="dropdown-divider"></div>
-											<a class="dropdown-item J_exports"><i class="icon zmdi zmdi-download"></i> 导出</a>
-											<a class="dropdown-item J_imports"><i class="icon zmdi zmdi-upload"></i> 导入</a>
-											-->
 											<div class="dropdown-divider"></div>
 											<a class="dropdown-item J_columns"><i class="icon zmdi zmdi-sort-amount-asc"></i> 列显示</a>
 										</div>

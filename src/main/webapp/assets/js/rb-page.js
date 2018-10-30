@@ -29,7 +29,7 @@ $(function(){
 		$('.J_for-admin').removeClass('hide')
 		if (location.href.indexOf('/admin/') == -1) {
 			if ($('.J_admin-settings').data('verified') == true) {
-				$('.J_admin-settings a i').addClass('text-danger')
+				$('.J_admin-settings a i').addClass('text-primary')
 			}
 		}
 	} else {

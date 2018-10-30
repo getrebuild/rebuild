@@ -145,5 +145,4 @@ public class UserControll extends BaseControll {
 		Application.getBean(UserService.class).update(record);
 		writeSuccess(response);
 	}
-	
 }

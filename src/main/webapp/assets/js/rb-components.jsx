@@ -64,10 +64,10 @@ class RbAlter extends React.Component {
     render() {
         let icon = this.props.type == 'danger' ? 'alert-triangle' : 'info-outline'
         let type = this.props.type || 'primary'
-        let content = !!this.props.htmlMessage ? <div className="mt-3" dangerouslySetInnerHTML={{ __html : this.props.htmlMessage }}></div> : <p>{this.props.message || '提示内容'}</p>
+        let content = !!this.props.htmlMessage ? <div className="mt-3" style={{ lineHeight:1.8 }} dangerouslySetInnerHTML={{ __html : this.props.htmlMessage }}></div> : <p>{this.props.message || '提示内容'}</p>
         let confirm = (this.props.confirm || this.hide).bind(this)
         return (
-            <div className="modal fade rbalter" ref="rbalter">
+            <div className="modal rbalter" ref="rbalter">
                 <div className="modal-dialog modal-dialog-centered">
                     <div className="modal-content">
                         <div className="modal-header">
@@ -80,7 +80,7 @@ class RbAlter extends React.Component {
                                 {content}
                                 <div className="mt-6 mb-4">
                                     <button className="btn btn-space btn-secondary" type="button" onClick={()=>this.hide()}>取消</button>
-                                    <button className={'btn btn-space btn-' + type} type="button" onClick={confirm}>确定</button>
+                                    <button className={'btn btn-space btn-' + type} type="button" onClick={confirm}>{this.props.confirmText || '确定'}</button>
                                 </div>
                             </div>
                         </div>
@@ -184,8 +184,8 @@ rb.modalResize = function(){
 
 rb.alter = function(message, title, ext){
     ext = ext || {}
-    if (ext.html == true) return renderRbcomp(<RbAlter htmlMessage={message} title={title} type={ext.type} confirm={ext.confirm} />)
-    else return renderRbcomp(<RbAlter message={message} title={title} type={ext.type} confirm={ext.confirm} />)
+    if (ext.html == true) return renderRbcomp(<RbAlter htmlMessage={message} title={title} type={ext.type} confirmText={ext.confirmText} confirm={ext.confirm} />)
+    else return renderRbcomp(<RbAlter message={message} title={title} type={ext.type} confirmText={ext.confirmText} confirm={ext.confirm} />)
 }
 
 rb.notice = function(message, type, ext){

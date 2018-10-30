@@ -56,21 +56,20 @@ const RbViewPage = {
         let that = this
         
         $('.J_delete').click(function(){
-            rb.alter('确认删除当前记录吗？', '删除确认', { type: 'danger', confirm: function(){
+            let alterExt = { type: 'danger', confirmText: '删除' }
+            alterExt.confirm = function(){
                 $(this.refs['rbalter']).find('.btn').button('loading')
                 let thatModal = this
-                $.post(rb.baseUrl + '/app/entity/record-delete?id=' + that.__id, function(res){
+                $.post(`${rb.baseUrl}/app/entity/record-delete?id=${that.__id}`, function(res){
                     if (res.error_code == 0){
-                        if (res.data.deleted == res.data.requests) rb.notice('删除成功', 'success')
-                        else rb.notice('已成功删除 ' + res.data.deleted + ' 条记录', 'success')
-                        
+                        rb.notice('删除成功', 'success')
                         that.hide(true)
-                        
                     } else {
                         rb.notice(res.error_msg || '删除失败，请稍后重试', 'danger')
                     }
                 })
-            } })
+            }
+            rb.alter('确认删除当前记录吗？', '删除确认', alterExt)
         })
         
         $('.J_edit').click(function(){
@@ -138,7 +137,7 @@ const RbViewPage = {
         }
         
         $('.vtab-settings').click(function(){
-            window.__currentModal = rb.modal(`${rb.baseUrl}/page/admin/entity/viewtab-config?entity=${that.__entity[1]}`, '设置视图相关项')
+            rb.modal(`${rb.baseUrl}/page/admin/entity/viewtab-config?entity=${that.__entity[1]}`, '配置显示项')
         })
     },
     

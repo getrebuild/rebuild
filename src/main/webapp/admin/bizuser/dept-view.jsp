@@ -13,14 +13,19 @@
 </div>
 <div class="main-content container-fluid invisible">
 	<div class="row">
-		<div class="col-sm-10">
+		<div class="col-sm-9 pr-0">
 			<div id="tab-rbview"></div>
 		</div>
-		<div class="col-sm-2">
-			<div class="view-oper">
-				<div class="btns">
+		<div class="col-sm-3 view-metas">
+			<div class="view-action row mt-3">
+				<div class="col-6 pr-1 mb-2">
 					<button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
-					<button class="btn btn-secondary J_delete2" type="button"><i class="icon zmdi zmdi-delete"></i> 删除</button>
+				</div>
+				<div class="col-6 pl-1 mb-2 btn-group J_action">
+					<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-more-vert"></i> 更多</button>
+					<div class="dropdown-menu dropdown-menu-right">
+						<a class="dropdown-item J_delete2"><i class="icon zmdi zmdi-delete"></i> 删除</a>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -33,10 +38,25 @@
 <script type="text/babel">
 $(document).ready(function(){
 	RbViewPage.init('${id}', [ '${entityLabel}', 'Department', '${entityIcon}'])
+
 	$('.J_delete2').click(function(){
-		rb.modal(rb.baseUrl + '/page/admin/bizuser/dept-delete?dept=${id}', '删除部门', { width:580 } )
+		$.get(rb.baseUrl + '/admin/bizuser/check-has-member?id=${id}', function(res){
+			if (res.data == 0){
+				rb.alter('此部门可以被安全的删除', '删除部门', { type: 'danger', confirmText: '删除', confirm: deleteDept })
+			} else {
+				let url = rb.baseUrl + '/admin/bizuser/users#dept=${id}'
+				let msg = '此部门下有 <a href="' + url + '" target="_blank">' + res.data + '</a> 个用户<br>你需要先将这些用户转移到其他部门，然后才能删除'
+				let alter = rb.alter(msg, '删除部门', { type: 'danger', html: true })
+			}
+		})
 	})
-});
+})
+const deleteDept = function(){
+	$.post(rb.baseUrl + '/admin/bizuser/dept-delete?transfer=&id=${id}', function(res){
+		if (res.error_code == 0) parent.location.reload()
+		else rb.notice(res.error_msg, 'danger')
+	})
+}
 </script>
 </body>
 </html>

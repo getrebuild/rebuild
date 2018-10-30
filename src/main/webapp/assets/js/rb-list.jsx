@@ -360,7 +360,9 @@ const RbListPage = {
         $('.J_delete').click(function(){
             let ids = that._RbList.getSelectedIds()
             if (ids.length < 1) return
-            rb.alter('确认删除选中的 ' + ids.length + ' 条记录吗？', '删除确认', { type: 'danger', confirm: function(){
+            
+            let alterExt = { type: 'danger', confirmText: '删除' }
+            alterExt.confirm = function(){
                 $(this.refs['rbalter']).find('.btn').button('loading')
                 let thatModal = this
                 $.post(rb.baseUrl + '/app/entity/record-delete?id=' + ids.join(','), function(res){
@@ -368,12 +370,13 @@ const RbListPage = {
                         that._RbList.reload()
                         thatModal.hide()
                         if (res.data.deleted == res.data.requests) rb.notice('删除成功', 'success')
-                        else rb.notice('已成功删除 ' + res.data.deleted + ' 条记录', 'success')
+                        else rb.notice('删除了 ' + res.data.deleted + ' 条记录', 'success')
                     } else {
                         rb.notice(res.error_msg || '删除失败，请稍后重试', 'danger')
                     }
                 })
-            } })
+            }
+            rb.alter('确认删除选中的 ' + ids.length + ' 条记录吗？', '删除确认', alterExt)
         })
         
         $('.J_view').click(function(){
@@ -433,7 +436,7 @@ const QuickFilter = {
             if (event.which == 13) btn.trigger('click')
         })
         this.root.find('.J_qfields').click(function(event){
-            window.__currentModal = rb.modal(`${rb.baseUrl}/page/general-entity/quick-fields?entity=${that.entity}`, '设置快速查询字段')
+            rb.modal(`${rb.baseUrl}/page/general-entity/quick-fields?entity=${that.entity}`, '设置快速查询字段')
         })
     },
     

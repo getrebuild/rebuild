@@ -239,12 +239,25 @@ const loadRoles = function() {
 			action.find('a.J_edit').click(function(){
 				rb.RbFormModal({ title: '编辑角色', entity: 'Role', icon: 'lock', id: _id })
 			})
+
 			action.find('a.J_del').click(function(){
-				rb.modal(rb.baseUrl + '/page/admin/bizuser/role-delete?role=' + _id, '删除角色', { width:580 } )
+				let alterExt = { type: 'danger', confirmText: '删除', confirm: function(){ deleteRole(_id) } }
+				$.get(rb.baseUrl + '/admin/bizuser/check-has-member?id=' + _id, function(res){
+					if (res.data == 0){
+						rb.alter('此角色可以被安全的删除', '删除角色', alterExt)
+					} else {
+						let url = rb.baseUrl + '/admin/bizuser/users#role=' + _id
+						let msg = '有 <a href="' + url + '" target="_blank">' + res.data + '</a> 个用户应用了此角色<br>删除将导致这些用户被禁用，直到你为他们指定了新的角色'
+						alterExt.html = true
+						let alter = rb.alter(msg, '删除角色', alterExt)
+					}
+				})
 			})
+
 		})
 	})
 }
+
 const loadPrivileges = function() {
 	$.get(rb.baseUrl + '/admin/bizuser/privileges-list?role=' + currentRoleId, function(res){
 		if (res.error_code == 0){
@@ -292,6 +305,13 @@ const updatePrivileges = function() {
 	$.post(rb.baseUrl + '/admin/bizuser/privileges-update?role=' + currentRoleId, JSON.stringify(priv), function(){
 		rb.notice('保存成功', 'success')
 	})
+}
+
+const deleteRole = function(id){
+	$.post(rb.baseUrl + '/admin/bizuser/role-delete?transfer=&id=' + id, function(res){
+		if (res.error_code == 0) location.replace(rb.baseUrl + '/admin/bizuser/role-privileges')
+		else rb.notice(res.error_msg, 'danger')
+	});
 }
 </script>
 </body>
