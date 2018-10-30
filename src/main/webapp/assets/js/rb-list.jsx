@@ -361,9 +361,9 @@ const RbListPage = {
             let ids = that._RbList.getSelectedIds()
             if (ids.length < 1) return
             
-            let alterExt = { type: 'danger', confirmText: '删除' }
-            alterExt.confirm = function(){
-                $(this.refs['rbalter']).find('.btn').button('loading')
+            let alertExt = { type: 'danger', confirmText: '删除' }
+            alertExt.confirm = function(){
+                $(this.refs['rbalert']).find('.btn').button('loading')
                 let thatModal = this
                 $.post(rb.baseUrl + '/app/entity/record-delete?id=' + ids.join(','), function(res){
                     if (res.error_code == 0){
@@ -376,7 +376,7 @@ const RbListPage = {
                     }
                 })
             }
-            rb.alter('确认删除选中的 ' + ids.length + ' 条记录吗？', '删除确认', alterExt)
+            rb.alert('确认删除选中的 ' + ids.length + ' 条记录吗？', '删除确认', alertExt)
         })
         
         $('.J_view').click(function(){

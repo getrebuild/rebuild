@@ -57,7 +57,7 @@ class RbModal extends React.Component {
 }
 
 // ~~ 提示框
-class RbAlter extends React.Component {
+class RbAlert extends React.Component {
     constructor(props) {
        super(props)
     }
@@ -67,7 +67,7 @@ class RbAlter extends React.Component {
         let content = !!this.props.htmlMessage ? <div className="mt-3" style={{ lineHeight:1.8 }} dangerouslySetInnerHTML={{ __html : this.props.htmlMessage }}></div> : <p>{this.props.message || '提示内容'}</p>
         let confirm = (this.props.confirm || this.hide).bind(this)
         return (
-            <div className="modal rbalter" ref="rbalter">
+            <div className="modal rbalert" ref="rbalert">
                 <div className="modal-dialog modal-dialog-centered">
                     <div className="modal-content">
                         <div className="modal-header">
@@ -90,10 +90,10 @@ class RbAlter extends React.Component {
         )
     }
     componentDidMount() {
-        $(this.refs['rbalter']).modal({ show: true, keyboard: true })
+        $(this.refs['rbalert']).modal({ show: true, keyboard: true })
     }
     hide() {
-        let root = $(this.refs['rbalter'])
+        let root = $(this.refs['rbalert'])
         root.modal('hide')
         setTimeout(function(){
             root.modal('dispose')
@@ -182,10 +182,10 @@ rb.modalResize = function(){
     if (rb.__currentModal) rb.__currentModal.resize()
 }
 
-rb.alter = function(message, title, ext){
+rb.alert = function(message, title, ext){
     ext = ext || {}
-    if (ext.html == true) return renderRbcomp(<RbAlter htmlMessage={message} title={title} type={ext.type} confirmText={ext.confirmText} confirm={ext.confirm} />)
-    else return renderRbcomp(<RbAlter message={message} title={title} type={ext.type} confirmText={ext.confirmText} confirm={ext.confirm} />)
+    if (ext.html == true) return renderRbcomp(<RbAlert htmlMessage={message} title={title} type={ext.type} confirmText={ext.confirmText} confirm={ext.confirm} />)
+    else return renderRbcomp(<RbAlert message={message} title={title} type={ext.type} confirmText={ext.confirmText} confirm={ext.confirm} />)
 }
 
 rb.notice = function(message, type, ext){

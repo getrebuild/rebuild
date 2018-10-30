@@ -155,9 +155,9 @@ const render_item = function(data, append) {
 		item.addClass('divider')
 		$('<a href="javascript:;" title="修改分栏名称">[修改]</a>').appendTo(actions).click(function(){
 			let input = '<div style="width:360px;margin:0 auto;"><input type="text" class="form-control form-control-sm" placeholder="输入分栏名称"></div>'
-			rb.alter(input, '修改分栏名称', { html: true, confirm: function(){
+			rb.alert(input, '修改分栏名称', { html: true, confirm: function(){
 				this.hide()
-				let name = $(this.refs['rbalter']).find('input').val() || '分栏';
+				let name = $(this.refs['rbalert']).find('input').val() || '分栏';
 				if (name){
 					handle.find('span').text(name)
 				}

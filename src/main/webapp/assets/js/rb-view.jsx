@@ -56,9 +56,9 @@ const RbViewPage = {
         let that = this
         
         $('.J_delete').click(function(){
-            let alterExt = { type: 'danger', confirmText: '删除' }
-            alterExt.confirm = function(){
-                $(this.refs['rbalter']).find('.btn').button('loading')
+            let alertExt = { type: 'danger', confirmText: '删除' }
+            alertExt.confirm = function(){
+                $(this.refs['rbalert']).find('.btn').button('loading')
                 let thatModal = this
                 $.post(`${rb.baseUrl}/app/entity/record-delete?id=${that.__id}`, function(res){
                     if (res.error_code == 0){
@@ -69,7 +69,7 @@ const RbViewPage = {
                     }
                 })
             }
-            rb.alter('确认删除当前记录吗？', '删除确认', alterExt)
+            rb.alert('确认删除当前记录吗？', '删除确认', alertExt)
         })
         
         $('.J_edit').click(function(){
@@ -96,7 +96,7 @@ const RbViewPage = {
             $('.view-action .col-6').each(function(){ if ($(this).children().length == 0) $(this).remove() })
             if ($('.view-action').children().length == 0){
                 $('.view-action').addClass('noaction')
-                $('<div class="alert alert-light alert-icon min mb-2 col-12"><div class="icon"><i class="zmdi zmdi-info-outline"></i></div><div class="message">你对此记录无可操作权限</div></div>').appendTo('.view-action')
+                $('<div class="alert alert-light alert-icon alert-icon-colored min mb-2"><div class="icon"><i class="zmdi zmdi-info-outline"></i></div><div class="message">你对此记录无可操作权限</div></div>').appendTo('.view-action')
             }
         }
     },

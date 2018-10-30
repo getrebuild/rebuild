@@ -241,15 +241,15 @@ const loadRoles = function() {
 			})
 
 			action.find('a.J_del').click(function(){
-				let alterExt = { type: 'danger', confirmText: '删除', confirm: function(){ deleteRole(_id) } }
+				let alertExt = { type: 'danger', confirmText: '删除', confirm: function(){ deleteRole(_id) } }
 				$.get(rb.baseUrl + '/admin/bizuser/check-has-member?id=' + _id, function(res){
 					if (res.data == 0){
-						rb.alter('此角色可以被安全的删除', '删除角色', alterExt)
+						rb.alert('此角色可以被安全的删除', '删除角色', alertExt)
 					} else {
 						let url = rb.baseUrl + '/admin/bizuser/users#role=' + _id
 						let msg = '有 <a href="' + url + '" target="_blank">' + res.data + '</a> 个用户应用了此角色<br>删除将导致这些用户被禁用，直到你为他们指定了新的角色'
-						alterExt.html = true
-						let alter = rb.alter(msg, '删除角色', alterExt)
+						alertExt.html = true
+						rb.alert(msg, '删除角色', alertExt)
 					}
 				})
 			})

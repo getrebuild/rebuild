@@ -43,7 +43,7 @@ $(document).ready(function(){
 	RbViewPage.init('${id}', [ '${entityLabel}', 'User', '${entityIcon}'])
 
 	$('.J_delete2').click(function(){
-		rb.alter('我们建议你停用用户，而非删除', '删除用户', { confirmText: '停用', confirm: function(){
+		rb.alert('我们建议你停用用户，而非删除', '删除用户', { confirmText: '停用', confirm: function(){
 			let _data = {isDisabled: true }
 			_data.metadata = { entity: 'User', id: '${id}' }
 			$.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), function(res){
