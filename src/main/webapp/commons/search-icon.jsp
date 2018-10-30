@@ -24,6 +24,7 @@ $(document).ready(function(){
 		let a = $('<a data-icon="' + this + '" title="' + this.toUpperCase() + '"><i class="zmdi zmdi-' + this + '"></a>').appendTo('#icons');
 		a.click(function(){
 			call($(this).data('icon'))
+			console.log($(this).data('icon') + ',')
 		});
 	});
 });

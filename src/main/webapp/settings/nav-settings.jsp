@@ -92,16 +92,13 @@ $(document).ready(function(){
 			$('.J_menuName').val(name)
 		}
 	})
-	iconModal = null
 	$('.J_menuIcon').click(function(){
-		if (iconModal) iconModal.show()
-		else{
-			parent.icon_call = function(s){
-				$('.J_menuIcon .zmdi').attr('class', 'zmdi zmdi-' + s)
-				iconModal.hide()
-			}
-			iconModal = parent.rb.modal(rb.baseUrl + '/page/commons/search-icon', '选择图标')
+		let url = rb.baseUrl + '/page/commons/search-icon'
+		parent.clickIcon = function(s){
+			$('.J_menuIcon .zmdi').attr('class', 'zmdi zmdi-' + s)
+			parent.rb.modalHide(url)
 		}
+		parent.rb.modal(url, '选择图标')
 	})
 	
 	$('.J_menuConfirm').click(function(){
