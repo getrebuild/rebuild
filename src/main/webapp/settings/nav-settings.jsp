@@ -29,13 +29,14 @@
 			<div class="J_edit-menu hide" style="margin-top:-6px">
 				<div class="tab-container">
 					<ul class="nav nav-tabs">
-						<li class="nav-item"><a class="nav-link J_menuType active" href="#ENTITY" data-toggle="tab">关联实体</a></li>
+						<li class="nav-item"><a class="nav-link J_menuType active" href="#ENTITY" data-toggle="tab">关联项</a></li>
 						<li class="nav-item"><a class="nav-link J_menuType" href="#URL" data-toggle="tab">外部地址</a></li>
 					</ul>
 					<div class="tab-content m-0" style="padding:20px 0">
 						<div class="tab-pane active" id="ENTITY">
 							<select class="form-control form-control-sm J_menuEntity">
-								<option value="">请选择实体</option>
+								<option value="">请选择关联项</option>
+								<optgroup label="实体"></optgroup>
 							</select>
 						</div>
 						<div class="tab-pane" id="URL">
@@ -80,7 +81,7 @@ $(document).ready(function(){
 	
 	$.get(rb.baseUrl + '/commons/metadata/entities', function(res){
 		$(res.data).each(function(){
-			$('<option value="' + this.name + '" data-icon="' + this.icon + '">' + this.label + '</option>').appendTo('.J_menuEntity')
+			$('<option value="' + this.name + '" data-icon="' + this.icon + '">' + this.label + '</option>').appendTo('.J_menuEntity optgroup')
 		})
 	})
 	$('.J_menuEntity').change(function(){
