@@ -37,6 +37,15 @@
 	color: rgba(255,255,255,.6)
 }
 
+.alert-icon.min > .icon {
+	width: 36px;
+	font-size: 1.5rem
+}
+.alert-icon.min > .message {
+	padding: 0.5rem;
+	padding-left: 1.3rem;
+}
+
 .input-search,
 .input-search input {
 	width: 220px;

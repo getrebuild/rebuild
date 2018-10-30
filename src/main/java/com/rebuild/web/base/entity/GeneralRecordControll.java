@@ -73,7 +73,7 @@ public class GeneralRecordControll extends BaseControll {
 				return;
 			}
 		} else if (!Application.getSecurityManager().allowedU(user, record.getPrimary())) {
-			writeFailure(response, "没有编辑权限");
+			writeFailure(response, "没有编辑此记录权限");
 			return;
 		}
 		
@@ -93,9 +93,15 @@ public class GeneralRecordControll extends BaseControll {
 			return;
 		}
 		
-		Entity entity = MetadataHelper.getEntity(ids[0].getEntityCode());
+		final ID firstId = ids[0];
+		
+		Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
 		if (!Application.getSecurityManager().allowedD(user, entity.getEntityCode())) {
 			writeFailure(response, "没有删除权限");
+			return;
+		}
+		if (ids.length == 1 && !Application.getSecurityManager().allowedD(user, firstId)) {
+			writeFailure(response, "没有删除此记录的权限");
 			return;
 		}
 		
@@ -104,7 +110,7 @@ public class GeneralRecordControll extends BaseControll {
 		
 		int affected = 0;
 		if (ids.length == 1) {
-			affected = ges.delete(ids[0], cascades);
+			affected = ges.delete(firstId, cascades);
 		} else {
 			BulkContext context = new BulkContext(user, BizzPermission.DELETE, null, cascades, ids);
 			affected = ges.bulk(context);
@@ -125,9 +131,15 @@ public class GeneralRecordControll extends BaseControll {
 			return;
 		}
 		
-		Entity entity = MetadataHelper.getEntity(ids[0].getEntityCode());
+		final ID firstId = ids[0];
+		
+		Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
 		if (!Application.getSecurityManager().allowedA(user, entity.getEntityCode())) {
 			writeFailure(response, "没有分派权限");
+			return;
+		}
+		if (ids.length == 1 && !Application.getSecurityManager().allowedA(user, firstId)) {
+			writeFailure(response, "没有分派此记录的权限");
 			return;
 		}
 		
@@ -137,7 +149,7 @@ public class GeneralRecordControll extends BaseControll {
 		
 		int affected = 0;
 		if (ids.length == 1) {
-			affected = ges.assign(ids[0], assignTo, cascades);
+			affected = ges.assign(firstId, assignTo, cascades);
 		} else {
 			BulkContext context = new BulkContext(user, BizzPermission.ASSIGN, assignTo, cascades, ids);
 			affected = ges.bulk(context);
@@ -158,9 +170,15 @@ public class GeneralRecordControll extends BaseControll {
 			return;
 		}
 		
-		Entity entity = MetadataHelper.getEntity(ids[0].getEntityCode());
+		final ID firstId = ids[0];
+		
+		Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
 		if (!Application.getSecurityManager().allowedA(user, entity.getEntityCode())) {
 			writeFailure(response, "没有共享权限");
+			return;
+		}
+		if (ids.length == 1 && !Application.getSecurityManager().allowedS(user, firstId)) {
+			writeFailure(response, "没有共享此记录的权限");
 			return;
 		}
 		
@@ -170,7 +188,7 @@ public class GeneralRecordControll extends BaseControll {
 		
 		int affected = 0;
 		if (ids.length == 1) {
-			affected = ges.share(ids[0], shareTo, cascades);
+			affected = ges.share(firstId, shareTo, cascades);
 		} else {
 			BulkContext context = new BulkContext(user, BizzPermission.SHARE, shareTo, cascades, ids);
 			affected = ges.bulk(context);
@@ -186,6 +204,11 @@ public class GeneralRecordControll extends BaseControll {
 	public void fetchRecordMeta(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		final ID id = getIdParameterNotNull(request, "id");
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
+		
+		if (!EntityHelper.hasPrivilegesField(entity)) {
+			writeFailure(response, "无权限实体");
+			return;
+		}
 		
 		String sql = "select createdOn,modifiedOn,owningUser from %s where %s = '%s'";
 		sql = String.format(sql, entity.getName(), entity.getPrimaryField().getName(), id);

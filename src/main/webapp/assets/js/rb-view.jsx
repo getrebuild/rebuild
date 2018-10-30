@@ -94,7 +94,10 @@ const RbViewPage = {
             $cleanMenu('.J_action')
             $cleanMenu('.J_new')
             $('.view-action .col-6').each(function(){ if ($(this).children().length == 0) $(this).remove() })
-            if ($('.view-action').children().length == 0) $('.view-action').addClass('noaction')
+            if ($('.view-action').children().length == 0){
+                $('.view-action').addClass('noaction')
+                $('<div class="alert alert-light alert-icon min mb-2 col-12"><div class="icon"><i class="zmdi zmdi-info-outline"></i></div><div class="message">你对此记录无可操作权限</div></div>').appendTo('.view-action')
+            }
         }
     },
     

@@ -119,3 +119,9 @@ html, body {
 .view-action .btn {
 	width: 100%
 }
+
+.view-action.noaction {
+	padding-top: 2px;
+	margin-left: 0;
+	margin-right: 0;
+}

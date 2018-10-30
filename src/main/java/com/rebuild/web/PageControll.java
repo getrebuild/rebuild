@@ -121,7 +121,6 @@ public abstract class PageControll {
 		// TODO 验证记录权限
 		
 		if (EntityHelper.hasPrivilegesField(entityMeta)) {
-			Privileges priv = Application.getSecurityManager().getPrivileges(user, entityMeta.getEntityCode());
 			Permission[] actions = new Permission[] {
 					BizzPermission.CREATE,
 					BizzPermission.DELETE,
@@ -132,7 +131,7 @@ public abstract class PageControll {
 			};
 			Map<String, Boolean> actionMap = new HashMap<>();
 			for (Permission act : actions) {
-				actionMap.put(act.getName(), priv.allowed(act));
+				actionMap.put(act.getName(), Application.getSecurityManager().allowed(user, record, act));
 			}
 			mv.getModel().put("entityPrivileges", JSON.toJSONString(actionMap));
 		} else {

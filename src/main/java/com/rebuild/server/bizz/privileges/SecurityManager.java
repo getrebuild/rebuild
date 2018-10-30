@@ -249,6 +249,9 @@ public class SecurityManager {
 		}
 		
 		Role role = USER_STORE.getUser(user).getOwningRole();
+		if (role == null) {
+			return false;
+		}
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
 			return true;
 		}
