@@ -45,7 +45,6 @@
 </script>
 <%@ include file="/_include/Foot.jsp"%>
 <script type="text/javascript">
-var newEntityModal = null
 $(document).ready(function(){
 	$.get(rb.baseUrl + '/admin/entity/entity-list', function(res){
 		$(res.data).each(function(){
@@ -58,9 +57,8 @@ $(document).ready(function(){
 		
 		let tmp = $($('#entity-tmpl').html()).appendTo('#entityList')
 		tmp.find('.icon').addClass('zmdi-plus')
-		tmp.click(function(){
-			if (newEntityModal) newEntityModal.show()
-			else newEntityModal = rb.modal(rb.baseUrl + '/admin/page/entity/entity-new', '新建实体', { destroyOnHide: false })
+		tmp.find('.card-body').click(function(){
+			rb.modal(rb.baseUrl + '/admin/page/entity/entity-new', '新建实体')
 		})
 	})
 })

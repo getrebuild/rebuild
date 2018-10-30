@@ -46,8 +46,8 @@ import cn.devezhao.persist4j.engine.ID;
 @Controller
 public class AdminEntryControll extends BaseControll {
 
-	@RequestMapping("/user/entry-admin")
-	public ModelAndView pageEntryAdmin(HttpServletRequest request, HttpServletResponse response)
+	@RequestMapping("/user/admin-entry")
+	public ModelAndView pageAdminEntry(HttpServletRequest request, HttpServletResponse response)
 			throws IOException {
 		boolean pass = RequestWatchHandler.verfiyPass(request, response);
 		if (!pass) {
@@ -57,7 +57,7 @@ public class AdminEntryControll extends BaseControll {
 		ID adminId = getRequestUser(request);
 		User admin = Application.getUserStore().getUser(adminId);
 		if (admin.isAdmin()) {
-			return createModelAndView("/admin/entry-admin.jsp");
+			return createModelAndView("/admin/admin-entry.jsp");
 		} else {
 			response.sendError(403, "当前登录用户非管理员");
 			return null;
@@ -91,5 +91,13 @@ public class AdminEntryControll extends BaseControll {
 	public static boolean isAdminVerified(HttpServletRequest request) {
 		Object verified = ServletUtils.getSessionAttribute(request, KEY_VERIFIED);
 		return verified != null;
+	}
+	
+	/**
+	 * @param request
+	 * @return
+	 */
+	public static void cleanAdminVerified(HttpServletRequest request) {
+		ServletUtils.setSessionAttribute(request, KEY_VERIFIED, null);
 	}
 }

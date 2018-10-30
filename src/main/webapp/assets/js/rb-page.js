@@ -94,14 +94,12 @@ const __initNavs = function(){
 	}
 	
 	$('.nav-settings').click(function(){
-		window.__currentModal = rb.modal(rb.baseUrl + '/page/settings/nav-settings', '设置导航菜单');
+		rb.modal(rb.baseUrl + '/page/settings/nav-settings', '设置导航菜单');
 	});
 }
 
-// 关闭当前打开的 Modal
-var $hideModal = function() {
-	if (window.__currentModal) window.__currentModal.hide()
-}
+// 是否在管理员页
+const $inAdminPage = location.href.indexOf('/admin/') > -1
 
 // 计算分页
 // @tp 总计页面 

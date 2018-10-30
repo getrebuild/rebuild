@@ -94,11 +94,10 @@ a#entityIcon:hover{opacity:0.8}
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script type="text/javascript">
-var iconModal = null;
-icon_call = function(icon){
+clickIcon = function(icon){
 	$('#entityIcon').attr('value', icon)
 			.find('i').attr('class', 'icon zmdi zmdi-' + icon);
-	iconModal.hide();
+	rb.modalHide()
 };
 $(document).ready(function(){
 	const metaId = '${entityMetaId}';
@@ -129,8 +128,7 @@ $(document).ready(function(){
 	}
 	
 	$('#entityIcon').click(function(){
-		if (iconModal) iconModal.show()
-		else iconModal = rb.modal(rb.baseUrl + '/page/commons/search-icon', '选择图标', { destroyOnHide:false })
+		rb.modal(rb.baseUrl + '/page/commons/search-icon', '选择图标')
 	})
 	
 	$.get(rb.baseUrl + '/admin/entity/list-field?entity=${entityName}', function(d){

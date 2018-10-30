@@ -19,8 +19,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.web;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -116,11 +114,6 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	
 	private static final String TIMEOUT_KEY = "ErrorHandler_TIMEOUT";
 	
-	private static final Set<String> IGNORE_RES = new HashSet<>();
-	static {
-		IGNORE_RES.add("/user/");
-	}
-	
 	/**
 	 * @param request
 	 * @param response
@@ -145,21 +138,13 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 				if (ServletUtils.isAjaxRequest(request)) {
 					ServletUtils.writeJson(response, AppUtils.formatClientMsg(403, "请验证管理员访问权限"));
 				} else {
-					response.sendRedirect(ServerListener.getContextPath() + "/user/entry-admin?nexturl=" + CodecUtils.urlEncode(requestUrl));
+					response.sendRedirect(ServerListener.getContextPath() + "/user/admin-entry?nexturl=" + CodecUtils.urlEncode(requestUrl));
 				}
 				return false;
 			}
 			
 		} else {
-			boolean isIgnore = false;
-			for (String r : IGNORE_RES) {
-				if (requestUrl.contains(r)) {
-					isIgnore = true;
-					break;
-				}
-			}
-			
-			if (!isIgnore) {
+			if (!isIgnoreRes(requestUrl)) {
 				LOG.warn("Unauthorized access [ " + requestUrl + " ] from [ " + ServletUtils.getReferer(request) + " ]");
 				if (ServletUtils.isAjaxRequest(request)) {
 					ServletUtils.writeJson(response, AppUtils.formatClientMsg(403, "未授权访问"));
@@ -170,5 +155,14 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 			}
 		}
 		return true;
+	}
+	
+	static boolean isIgnoreRes(String requestUrl) {
+		if (requestUrl.contains("/user/") && !requestUrl.contains("/user/admin")) {
+			return true;
+		} else if (requestUrl.contains("/assets")) {
+			return true;
+		}
+		return false;
 	}
 }

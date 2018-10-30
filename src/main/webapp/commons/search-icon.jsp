@@ -19,7 +19,7 @@
 <script src="${baseUrl}/assets/js/zmdi-icons.js"></script>
 <script type="text/javascript">
 $(document).ready(function(){
-	let call = parent.icon_call || function(icon){ alert(icon) };
+	let call = parent.clickIcon || function(icon){ alert(icon) };
 	$(ZMDI_ICONS).each(function(){
 		let a = $('<a data-icon="' + this + '" title="' + this.toUpperCase() + '"><i class="zmdi zmdi-' + this + '"></a>').appendTo('#icons');
 		a.click(function(){

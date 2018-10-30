@@ -27,7 +27,8 @@ class RbModal extends React.Component {
 	    this.show()
     }
 	resize() {
-        if (!!!this.state.url) return
+        if (!!!this.state.url) return  // 非 iframe 无需 resize
+        
         let root = $(this.refs['rbmodal'])
         let that = this
         $setTimeout(function(){
@@ -37,7 +38,7 @@ class RbModal extends React.Component {
             else height += 45;  // .main-content's padding
             root.find('.modal-body').height(height)
             that.setState({ inLoad: false })
-        }, 200, 'RbModal-resize')
+        }, 100, 'RbModal-resize')
     }
 	show(callback) {
         let that = this
@@ -137,6 +138,7 @@ class RbNotice extends React.Component {
     }
 }
 
+// ~~ 加载条
 function RbSpinner(props) {
     return <div className="rb-spinner">
         <svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://-www.w3.org/2000/svg">
@@ -145,9 +147,9 @@ function RbSpinner(props) {
     </div>
 }
 
-let __renderRbcompTimes = 1;
+let __renderRbcompTimes = new Date().getTime()
 const renderRbcomp = function(jsx, target) {
-    target = target || ('react-comps-' + new Date().getTime()) + '-' + __renderRbcompTimes++;
+    target = target || ('react-comps-' + __renderRbcompTimes++)
     let container = $('#' + target);
     if (container.length == 0) container = $('<div id="' + target + '"></div>').appendTo(document.body);
     return ReactDOM.render(jsx, container[0]);
@@ -158,13 +160,26 @@ const renderRbcomp = function(jsx, target) {
 let rb = rb || {}
 
 rb.__currentModal
+rb.__currentModalCache = {}
 rb.modal = function(url, title, ext) {
     ext = ext || {}
+    if (ext.destroyOnHide !== true) ext.destroyOnHide = false  // default false
+    
+    if (ext.destroyOnHide === false && !!rb.__currentModalCache[url]) {
+        rb.__currentModal = rb.__currentModalCache[url]
+        rb.__currentModal.show()
+        return rb.__currentModal
+    }
+    
     rb.__currentModal = renderRbcomp(<RbModal url={url} title={title} width={ext.width} destroyOnHide={ext.destroyOnHide === false ? false : true } />)
+    if (ext.destroyOnHide === false) rb.__currentModalCache[url] = rb.__currentModal
     return rb.__currentModal
 }
 rb.modalHide = function(){
     if (rb.__currentModal) rb.__currentModal.hide()
+}
+rb.modalResize = function(){
+    if (rb.__currentModal) rb.__currentModal.resize()
 }
 
 rb.alter = function(message, title, ext){

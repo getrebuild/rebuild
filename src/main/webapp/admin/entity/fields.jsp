@@ -87,7 +87,6 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/rb-list.jsx" type="text/babel"></script>
 <script type="text/babel">
-var newFieldModal = null
 var fields_data = null;
 $(document).ready(function(){
 	$.get('../list-field?entity=${entityName}', function(res){
@@ -103,8 +102,7 @@ $(document).ready(function(){
 	})
 
 	$('.J_new-field').click(function(){
-		if (newFieldModal) newFieldModal.show()
-		else newFieldModal = rb.modal('${baseUrl}/admin/page/entity/field-new?entity=${entityName}', '新建字段')
+		rb.modal('${baseUrl}/admin/page/entity/field-new?entity=${entityName}', '新建字段')
 	})
 });
 const render_list = function(q){
