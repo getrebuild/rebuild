@@ -36,15 +36,32 @@ class RbFormModal extends React.Component {
         const entity = this.state.entity
         const id = this.state.id || ''
         $.get(`${rb.baseUrl}/app/${entity}/form-model?id=${id}`, function(res){
-            let elements = res.data.elements
+            // 包含错误
+            if (res.error_code > 0 || !!res.data.error){
+                let error = res.data.error || res.error_msg
+                that.renderFromError(error)
+                return
+            }
+            
             const FORM = <RbForm entity={entity} id={id} $$$parent={that}>
-                {elements.map((item) => {
+                {res.data.elements.map((item) => {
                     return detectElement(item)
                 })}
                 </RbForm>
             that.setState({ formComponent: FORM }, function() {
                 that.setState({ inLoad: false })
             })
+        })
+    }
+    renderFromError(message) {
+        let error = <div className="alert alert-danger alert-icon mt-5 w-75" style={{ margin:'0 auto' }}>
+            <div className="icon"><i className="zmdi zmdi-alert-triangle"></i></div>
+            <div className="message" dangerouslySetInnerHTML={{ __html: '<strong>抱歉!</strong> ' + message }}></div>
+        </div>
+        
+        let that = this
+        that.setState({ formComponent: error }, function() {
+            that.setState({ inLoad: false })
         })
     }
     
@@ -94,16 +111,14 @@ class RbForm extends React.Component {
             <form>
                 {this.props.children.map((child) => {
                     return React.cloneElement(child, { $$$parent: that })
-                    // strict mode have error
-//                    child.$$$parent = that
-//                    return child
+                    // Has error in strict-mode
+                    //child.$$$parent = that; return child
                 })}
-                {this.props.children.length == 0 ? this.renderFormError() : this.renderFormAction()}
+                {this.renderFormAction()}
             </form>
             </div>
         )
     }
-        
     renderFormAction() {
         return (
             <div className="form-group row footer">
@@ -114,16 +129,6 @@ class RbForm extends React.Component {
                 </div>
             </div>
         )
-    }
-    
-    renderFormError(message) {
-        let adminUrl = rb.baseUrl + '/admin/entity/' + this.props.entity + '/form-design'
-        message = message || `布局尚未配置，请 <a href="${adminUrl}">配置</a> 后使用`
-        message = { __html: '<strong>错误! </strong> ' + message }
-        return <div className="alert alert-contrast alert-warning">
-            <div className="icon"><span className="zmdi zmdi-alert-triangle"></span></div>
-            <div className="message" dangerouslySetInnerHTML={message}></div>
-        </div>
     }
     
     setFieldValue(field, value, error) {

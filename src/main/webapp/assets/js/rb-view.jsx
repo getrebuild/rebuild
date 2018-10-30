@@ -5,28 +5,40 @@ class RbViewForm extends React.Component {
         this.state = { ...props }
     }
     render() {
-        return (
-            <div className="rbview-form" ref="reviewForm">
-                {this.state.formComponent}
-            </div>
-        )
+        return (<div className="rbview-form" ref="reviewForm">{this.state.formComponent}</div>)
     }
     componentDidMount() {
         let that = this
         $.get(rb.baseUrl + '/app/' + this.props.entity + '/view-model?id=' + this.props.id, function(res){
-            let elements = res.data.elements
-            const FORM = <div className="row">{elements.map((item) => {
+            // 包含错误
+            if (res.error_code > 0 || !!res.data.error){
+                let error = res.data.error || res.error_msg
+                that.renderViewError(error)
+                return
+            }
+            
+            const FORM = <div className="row">{res.data.elements.map((item) => {
                 return detectViewElement(item)
             })}</div>
             that.setState({ formComponent: FORM }, function(){
                 $('.invisible').removeClass('invisible')
-                if (parent && parent.RbViewModal_Comp) {
-                    parent.RbViewModal_Comp.hideLoading()
-                }
+                if (parent && parent.RbViewModal_Comp) parent.RbViewModal_Comp.hideLoading()
                 
                 $(that.refs['reviewForm']).find('.type-NTEXT .form-control-plaintext').perfectScrollbar()
             })
         });
+    }
+    renderViewError(message) {
+        let error = <div className="alert alert-danger alert-icon mt-5 w-75" style={{ margin:'0 auto' }}>
+            <div className="icon"><i className="zmdi zmdi-alert-triangle"></i></div>
+            <div className="message" dangerouslySetInnerHTML={{ __html: '<strong>抱歉!</strong> ' + message }}></div>
+        </div>
+
+        let that = this
+        that.setState({ formComponent: error }, function() {
+            $('.invisible').removeClass('invisible')
+            if (parent && parent.RbViewModal_Comp) parent.RbViewModal_Comp.hideLoading()
+        })
     }
 }
 

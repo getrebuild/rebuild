@@ -53,7 +53,7 @@ public class GeneralEntityControll extends BaseControll {
 		ModelAndView mv = createModelAndView("/general-entity/record-view.jsp", record, user);
 		mv.getModel().put("id", record);
 		
-		JSON vtab = ViewTabManager.getViewTab(entity);
+		JSON vtab = ViewTabManager.getViewTab(entity, user);
 		mv.getModel().put("ViewTabs", vtab);
 		return mv;
 	}

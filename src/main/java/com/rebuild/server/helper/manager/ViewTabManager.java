@@ -31,6 +31,7 @@ import com.rebuild.server.metadata.MetadataHelper;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 视图标签页
@@ -42,30 +43,39 @@ public class ViewTabManager {
 	
 	/**
 	 * @param entity
+	 * @param user
 	 * @return
 	 */
-	public static JSON getViewTab(String entity) {
+	public static JSON getViewTab(String entity, ID user) {
 		Object vtab[] = getRaw(entity);
+		
+		// NOTE VTab 使用全部 ???
 		if (vtab == null) {
 			Entity entityMeta = MetadataHelper.getEntity(entity);
 			Set<String[]> refTos = new HashSet<>();
 			for (Field field : entityMeta.getReferenceToFields()) {
 				Entity e = field.getOwnEntity();
-				refTos.add(new String[] { e.getName(), EasyMeta.getLabel(e) });
+				if (Application.getSecurityManager().allowedR(user, e.getEntityCode())) {
+					refTos.add(new String[] { e.getName(), EasyMeta.getLabel(e) });
+				}
 			}
 			return (JSON) JSONArray.toJSON(refTos);
 		}
 		
-		JSONArray config = (JSONArray) vtab[1];
-		List<String[]> configWarp = new ArrayList<>();
-		for (Object o : config) {
+		JSONArray cfg = (JSONArray) vtab[1];
+		List<String[]> cfgWarp = new ArrayList<>();
+		for (Object o : cfg) {
 			String e = (String) o;
 			if (MetadataHelper.containsEntity(e)) {
-				configWarp.add(new String[] { e, EasyMeta.getLabel(MetadataHelper.getEntity(e)) });
+				Entity eMeta = MetadataHelper.getEntity(e);
+				if (Application.getSecurityManager().allowedR(user, eMeta.getEntityCode())) {
+					cfgWarp.add(new String[] { eMeta.getName(), EasyMeta.getLabel(eMeta) });
+				}
 			}
 		}
-		return (JSON) JSON.toJSON(configWarp);
+		return (JSON) JSON.toJSON(cfgWarp);
 	}
+	
 	/**
 	 * @param entity
 	 * @param field

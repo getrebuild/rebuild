@@ -50,13 +50,13 @@ public class NavManager extends LayoutManager {
 	 * @return
 	 */
 	public static JSON getNav(ID user) {
-		Object[] cfgs = getLayoutConfigRaw("N", TYPE_NAVI, user);
-		if (cfgs == null) {
+		Object[] cfg = getLayoutConfigRaw("N", TYPE_NAVI, user);
+		if (cfg == null) {
 			return null;
 		}
-		cfgs[0] = cfgs[0].toString();
-		JSONObject cfgsJson = JSONUtils.toJSONObject(new String[] { "id", "config" }, cfgs);
-		return cfgsJson;
+		cfg[0] = cfg[0].toString();
+		JSONObject cfgJson = JSONUtils.toJSONObject(new String[] { "id", "config" }, cfg);
+		return cfgJson;
 	}
 	
 	/**
@@ -76,18 +76,22 @@ public class NavManager extends LayoutManager {
 		JSONArray navs = (JSONArray) cfgs[1];
 		for (Iterator<Object> iter = navs.iterator(); iter.hasNext(); ) {
 			JSONObject nav = (JSONObject) iter.next();
-			if ("ENTITY".equalsIgnoreCase(nav.getString("type"))) {
-				String entity = nav.getString("value");
-				if (!MetadataHelper.containsEntity(entity)) {
-					LOG.warn("Unknow entity in nav : " + entity);
-					iter.remove();
-					continue;
-				}
-				
-				Entity entityMeta = MetadataHelper.getEntity(entity);
-				if (!Application.getSecurityManager().allowedR(user, entityMeta.getEntityCode())) {
-					iter.remove();
-					continue;
+			if (isFilterNav(nav, user)) {
+				iter.remove();
+			} else {
+				JSONArray subNavs = nav.getJSONArray("sub");
+				if (subNavs != null && !subNavs.isEmpty()) {
+					for (Iterator<Object> subIter = subNavs.iterator(); subIter.hasNext(); ) {
+						JSONObject subNav = (JSONObject) subIter.next();
+						if (isFilterNav(subNav, user)) {
+							subIter.remove();
+						}
+					}
+					
+					// 无子级，移除主菜单
+					if (subNavs.isEmpty()) {
+						iter.remove();
+					}
 				}
 			}
 		}
@@ -95,10 +99,35 @@ public class NavManager extends LayoutManager {
 	}
 	
 	/**
+	 * 是否需要过滤掉
+	 * 
+	 * @param nav
+	 * @param user
+	 * @return
+	 */
+	private static boolean isFilterNav(JSONObject nav, ID user) {
+		String type = nav.getString("type");
+		if ("ENTITY".equalsIgnoreCase(type)) {
+			String entity = nav.getString("value");
+			if (!MetadataHelper.containsEntity(entity)) {
+				LOG.warn("Unknow entity in nav : " + entity);
+				return true;
+			}
+			
+			Entity entityMeta = MetadataHelper.getEntity(entity);
+			if (!Application.getSecurityManager().allowedR(user, entityMeta.getEntityCode())) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
 	 * @param cfgid
 	 * @param toAll
 	 * @param user
 	 * @return
+	 * @see LayoutManager#detectConfigId(ID, boolean, String, String, ID)
 	 */
 	public static ID detectConfigId(ID cfgid, boolean toAll, ID user) {
 		return LayoutManager.detectConfigId(cfgid, toAll, "N", TYPE_NAVI, user);

@@ -119,18 +119,40 @@ public class FormManager extends LayoutManager {
 		Assert.notNull(entity, "[entity] not be null");
 		Assert.notNull(user, "[user] not be null");
 		
-		// TODO 判断表单权限
-		
 		final Entity entityMeta = MetadataHelper.getEntity(entity);
 		final User currentUser = Application.getUserStore().getUser(user);
 		final Date now = CalendarUtils.now();
 		
+		// 判断表单权限
+		if (record == null) {
+			if (!Application.getSecurityManager().allowedC(user, entityMeta.getEntityCode())) {  // for C
+				return formatModelError("没有新建权限");
+			}
+		} else {
+			if (onView) {  // for R
+				if (!Application.getSecurityManager().allowedR(user, record)) {
+					return formatModelError("没有读取此记录的权限");
+				}
+			} else {  // for U
+				if (!Application.getSecurityManager().allowedU(user, record)) {
+					return formatModelError("没有编辑此记录的权限");
+				}
+			}
+		}
+		
 		JSONObject config = (JSONObject) getFormLayout(entity, user);
 		JSONArray elements = config.getJSONArray("elements");
+		
+		if (elements == null || elements.isEmpty()) {
+			return formatModelError("表单布局尚未配置，请配置后使用");
+		}
 		
 		Record data = null;
 		if (!elements.isEmpty() && record != null) {
 			data = queryRecord(record, elements);
+			if (data == null) {
+				return formatModelError("此记录已被删除，或你对此记录没有读取权限");
+			}
 		}
 		
 		for (Object element : elements) {
@@ -219,6 +241,16 @@ public class FormManager extends LayoutManager {
 			}
 		}
 		return config;
+	}
+	
+	/**
+	 * @param error
+	 * @return
+	 */
+	protected static JSONObject formatModelError(String error) {
+		JSONObject cfg = new JSONObject();
+		cfg.put("error", error);
+		return cfg;
 	}
 	
 	/**

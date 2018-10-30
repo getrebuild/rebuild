@@ -148,17 +148,6 @@ public class SecurityManager {
 	}
 	
 	/**
-	 * 创建权限
-	 * 
-	 * @param user
-	 * @param target
-	 * @return
-	 */
-	public boolean allowedC(ID user, ID target) {
-		return allowed(user, target, BizzPermission.CREATE);
-	}
-	
-	/**
 	 * 删除权限
 	 * 
 	 * @param user

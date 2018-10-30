@@ -73,7 +73,7 @@ public class GeneralRecordControll extends BaseControll {
 				return;
 			}
 		} else if (!Application.getSecurityManager().allowedU(user, record.getPrimary())) {
-			writeFailure(response, "没有编辑此记录权限");
+			writeFailure(response, "没有编辑此记录的权限");
 			return;
 		}
 		

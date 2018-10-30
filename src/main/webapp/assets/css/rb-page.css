@@ -38,11 +38,11 @@
 }
 
 .alert-icon.min > .icon {
-	width: 36px;
-	font-size: 1.5rem
+	width: 42px;
+	font-size: 1.6rem
 }
 .alert-icon.min > .message {
-	padding: 0.5rem;
+	padding: 0.8rem;
 	padding-left: 1.3rem;
 }
 
