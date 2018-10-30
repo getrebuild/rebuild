@@ -19,15 +19,14 @@
 <script src="${baseUrl}/assets/js/zmdi-icons.js"></script>
 <script type="text/javascript">
 $(document).ready(function(){
-	let call = parent.clickIcon || function(icon){ alert(icon) };
+	let call = parent.clickIcon || function(icon){ console.log('请复写 clickIcon 方法') }
 	$(ZMDI_ICONS).each(function(){
-		let a = $('<a data-icon="' + this + '" title="' + this.toUpperCase() + '"><i class="zmdi zmdi-' + this + '"></a>').appendTo('#icons');
-		a.click(function(){
-			call($(this).data('icon'))
-			console.log($(this).data('icon') + ',')
-		});
-	});
-});
+		if (ZMDI_ICONS_IGNORE.contains(this + '') == false) {
+			let a = $('<a data-icon="' + this + '" title="' + this.toUpperCase() + '"><i class="zmdi zmdi-' + this + '"></a>').appendTo('#icons')
+			a.click(function(){ call($(this).data('icon')) })
+		}
+	})
+})
 </script>
 </body>
 </html>

@@ -95,8 +95,7 @@ a#entityIcon:hover{opacity:0.8}
 <%@ include file="/_include/Foot.jsp"%>
 <script type="text/javascript">
 clickIcon = function(icon){
-	$('#entityIcon').attr('value', icon)
-			.find('i').attr('class', 'icon zmdi zmdi-' + icon);
+	$('#entityIcon').attr('value', icon).find('i').attr('class', 'icon zmdi zmdi-' + icon);
 	rb.modalHide()
 };
 $(document).ready(function(){

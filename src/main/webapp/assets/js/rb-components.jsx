@@ -164,22 +164,34 @@ rb.__currentModalCache = {}
 rb.modal = function(url, title, ext) {
     ext = ext || {}
     if (ext.destroyOnHide !== true) ext.destroyOnHide = false  // default false
-    
     if (ext.destroyOnHide === false && !!rb.__currentModalCache[url]) {
         rb.__currentModal = rb.__currentModalCache[url]
         rb.__currentModal.show()
         return rb.__currentModal
+    } else {
+        rb.__currentModal = renderRbcomp(<RbModal url={url} title={title} width={ext.width} destroyOnHide={ext.destroyOnHide === false ? false : true } />)
+        if (ext.destroyOnHide === false) rb.__currentModalCache[url] = rb.__currentModal
+        return rb.__currentModal
     }
-    
-    rb.__currentModal = renderRbcomp(<RbModal url={url} title={title} width={ext.width} destroyOnHide={ext.destroyOnHide === false ? false : true } />)
-    if (ext.destroyOnHide === false) rb.__currentModalCache[url] = rb.__currentModal
-    return rb.__currentModal
 }
-rb.modalHide = function(){
-    if (rb.__currentModal) rb.__currentModal.hide()
+rb.modalHide = function(url){
+    if (url){
+        let m = rb.__currentModalCache[url]
+        if (m) {
+            m.hide()
+            if ($('.rbmodal.show').length > 0) $(document.body).addClass('modal-open')  // keep modal-open
+        }
+    } else if (rb.__currentModal) {
+        rb.__currentModal.hide()
+    }
 }
-rb.modalResize = function(){
-    if (rb.__currentModal) rb.__currentModal.resize()
+rb.modalResize = function(url){
+    if (url){
+        let m = rb.__currentModalCache[url]
+        if (m) m.resize()
+    } else if (rb.__currentModal){
+        rb.__currentModal.resize()
+    }
 }
 
 rb.alert = function(message, title, ext){
