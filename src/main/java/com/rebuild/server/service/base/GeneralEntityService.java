@@ -33,6 +33,7 @@ import com.rebuild.server.bizz.privileges.User;
 import com.rebuild.server.helper.BulkTaskExecutor;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.AwareContext;
 import com.rebuild.server.service.BaseService;
 
 import cn.devezhao.bizz.privileges.Permission;
@@ -172,6 +173,8 @@ public class GeneralEntityService extends BaseService {
 				affected += assign(id, to, null);
 			}
 		}
+		
+		notifyObservers(AwareContext.valueOf(Application.currentCallerUser(), BizzPermission.ASSIGN, record));
 		return affected;
 	}
 	
@@ -215,6 +218,8 @@ public class GeneralEntityService extends BaseService {
 				affected += share(id, to, null);
 			}
 		}
+		
+		notifyObservers(AwareContext.valueOf(Application.currentCallerUser(), BizzPermission.SHARE, record));
 		return affected;
 	}
 	

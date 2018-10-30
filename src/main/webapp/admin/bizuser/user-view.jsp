@@ -24,7 +24,7 @@
 				<div class="col-6 pl-1 mb-2 btn-group J_action">
 					<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-more-vert"></i> 更多</button>
 					<div class="dropdown-menu dropdown-menu-right">
-						<a class="dropdown-item J_delete2"><i class="icon zmdi zmdi-delete"></i> 删除</a>
+						<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
 						<div class="dropdown-divider"></div>
 						<a class="dropdown-item J_changeDept"><i class="icon zmdi zmdi-accounts"></i> 改变部门</a>
 						<a class="dropdown-item J_changeRole"><i class="icon zmdi zmdi-lock"></i> 改变角色</a>
@@ -40,9 +40,10 @@
 <script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
 <script type="text/babel">
 $(document).ready(function(){
-	RbViewPage.init('${id}', [ '${entityLabel}', 'User', '${entityIcon}'])
+	RbViewPage.init('${id}', [ '${entityLabel}', 'User', '${entityIcon}' ])
+	if (rb.isAdminUser == false) $('.view-action').remove()
 
-	$('.J_delete2').click(function(){
+	$('.J_delete').off('click').click(function(){
 		rb.alert('我们建议你停用用户，而非删除', '删除用户', { confirmText: '停用', confirm: function(){
 			let _data = {isDisabled: true }
 			_data.metadata = { entity: 'User', id: '${id}' }

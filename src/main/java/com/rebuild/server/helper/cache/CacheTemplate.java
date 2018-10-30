@@ -45,7 +45,7 @@ public abstract class CacheTemplate<V> {
 		getCache().put(unityKey(key), value);
 	}
 	
-	public void evict(String key, V value) {
+	public void evict(String key) {
 		getCache().evict(unityKey(key));
 	}
 	

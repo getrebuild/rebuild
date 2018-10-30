@@ -90,7 +90,11 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 	@Override
 	public String evaluate(Entity entity) {
 		if (!EntityHelper.hasPrivilegesField(entity)) {
-			return DENIED.evaluate(null);
+			if (SecurityManager.isBizz(entity.getEntityCode())) {
+				return ALLOWED.evaluate(null);
+			} else {
+				return DENIED.evaluate(null);
+			}
 		}
 		
 		Privileges p = user.getOwningRole().getPrivileges(entity.getEntityCode());

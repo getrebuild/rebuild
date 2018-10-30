@@ -21,6 +21,7 @@ package com.rebuild.server.bizz.privileges;
 import com.rebuild.server.bizz.RoleService;
 import com.rebuild.server.bizz.UserService;
 import com.rebuild.server.helper.cache.RecordOwningCache;
+import com.rebuild.server.metadata.EntityHelper;
 
 import cn.devezhao.bizz.privileges.DepthEntry;
 import cn.devezhao.bizz.privileges.Permission;
@@ -220,6 +221,10 @@ public class SecurityManager {
 			return true;
 		}
 		
+		if (action == BizzPermission.READ && isBizz(entity)) {
+			return true;
+		}
+		
 		Privileges priv = role.getPrivileges(entity);
 		return priv.allowed(action);
 	}
@@ -245,7 +250,11 @@ public class SecurityManager {
 			return true;
 		}
 		
-		final int entity = target.getEntityCode();
+		int entity = target.getEntityCode();
+		
+		if (action == BizzPermission.READ && isBizz(entity)) {
+			return true;
+		}
 		
 		Privileges priv = role.getPrivileges(entity);
 		boolean allowed = priv.allowed(action);
@@ -334,5 +343,15 @@ public class SecurityManager {
 			return EntityQueryFilter.ALLOWED;
 		}
 		return new EntityQueryFilter(theUser, action);
+	}
+	
+	/**
+	 * TODO 用户/部门全局可读
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	public static boolean isBizz(int entity) {
+		return entity == EntityHelper.User || entity == EntityHelper.Department;
 	}
 }

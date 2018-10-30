@@ -18,6 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service;
 
+import java.util.Observable;
+
+import com.rebuild.server.Application;
+
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -28,7 +33,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 05/21/2017
  */
-public abstract class BaseService {
+public abstract class BaseService extends Observable {
 	
 	final protected PersistManagerFactory aPMFactory;
 
@@ -42,7 +47,9 @@ public abstract class BaseService {
 	 * @return
 	 */
 	public Record create(Record record) {
-		return aPMFactory.createPersistManager().save(record);
+		record = aPMFactory.createPersistManager().save(record);
+		notifyObservers(AwareContext.valueOf(record.getEditor(), BizzPermission.CREATE, record));
+		return record;
 	}
 
 	/**
@@ -50,7 +57,9 @@ public abstract class BaseService {
 	 * @return
 	 */
 	public Record update(Record record) {
-		return aPMFactory.createPersistManager().update(record);
+		record = aPMFactory.createPersistManager().update(record);
+		notifyObservers(AwareContext.valueOf(record.getEditor(), BizzPermission.UPDATE, record));
+		return record;
 	}
 	
 	/**
@@ -63,10 +72,11 @@ public abstract class BaseService {
 
 	/**
 	 * @param recordId
-	 * @return 删除记录数量（包括关联的记录）
+	 * @return 删除记录数量。包括关联的记录，自定义实体都选择了 remove-link 级联模式，因此基本不会自动关联删除
 	 */
 	public int delete(ID recordId) {
 		int affected = aPMFactory.createPersistManager().delete(recordId);
+		notifyObservers(AwareContext.valueOf(Application.currentCallerUser(), BizzPermission.DELETE, recordId));
 		return affected;
 	}
 }

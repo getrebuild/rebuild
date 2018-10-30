@@ -24,7 +24,7 @@
 				<div class="col-6 pl-1 mb-2 btn-group J_action">
 					<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-more-vert"></i> 更多</button>
 					<div class="dropdown-menu dropdown-menu-right">
-						<a class="dropdown-item J_delete2"><i class="icon zmdi zmdi-delete"></i> 删除</a>
+						<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
 					</div>
 				</div>
 			</div>
@@ -37,9 +37,10 @@
 <script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
 <script type="text/babel">
 $(document).ready(function(){
-	RbViewPage.init('${id}', [ '${entityLabel}', 'Department', '${entityIcon}'])
+	RbViewPage.init('${id}', [ '${entityLabel}', 'Department', '${entityIcon}' ])
+	if (rb.isAdminUser == false) $('.view-action').remove()
 
-	$('.J_delete2').click(function(){
+	$('.J_delete').off('click').click(function(){
 		$.get(rb.baseUrl + '/admin/bizuser/check-has-member?id=${id}', function(res){
 			if (res.data == 0){
 				rb.alert('此部门可以被安全的删除', '删除部门', { type: 'danger', confirmText: '删除', confirm: deleteDept })

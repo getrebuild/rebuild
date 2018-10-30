@@ -18,6 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.cache;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.cache.CacheManager;
 
 import com.rebuild.server.metadata.EntityHelper;
@@ -35,6 +37,8 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 10/12/2018
  */
 public class RecordOwningCache extends CacheTemplate<ID> {
+	
+	private static final Log LOG = LogFactory.getLog(RecordOwningCache.class);
 
 	final private PersistManagerFactory aPMFactory;
 	
@@ -64,12 +68,20 @@ public class RecordOwningCache extends CacheTemplate<ID> {
 		sql = String.format(sql, EntityHelper.owningUser, entity.getName(), entity.getPrimaryField().getName(), record.toLiteral());
 		Object[] own = aPMFactory.createQuery(sql).unique();
 		if (own == null) {
+			LOG.warn("No record found : " + record);
 			return null;
 		}
 		
 		ID ownUser = (ID) own[0];
 		put(recordKey, ownUser);
 		return ownUser;
+	}
+	
+	/**
+	 * @param record
+	 */
+	public void cleanOwningUser(ID record) {
+		evict(record.toLiteral());
 	}
 	
 	@Override
