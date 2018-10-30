@@ -8,7 +8,7 @@
 </style>
 </head>
 <body>
-<div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside">
+<div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header">
 	<jsp:include page="/_include/NavTop.jsp">
 		<jsp:param value="用户管理" name="pageTitle"/>
 	</jsp:include>

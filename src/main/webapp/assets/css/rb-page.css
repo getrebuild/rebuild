@@ -33,6 +33,10 @@
 	opacity: 0.8;
 }
 
+.rb-color-header .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar .icon {
+	color: rgba(255,255,255,.6)
+}
+
 .input-search,
 .input-search input {
 	width: 220px;

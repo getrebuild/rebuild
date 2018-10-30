@@ -36,11 +36,26 @@ public class SystemConfigurerContoll extends BaseControll {
 
 	@RequestMapping("systems")
 	public ModelAndView pageSystems() {
-		return createModelAndView("/admin/system-props.jsp");
+		return createModelAndView("/admin/system-general.jsp");
 	}
 	
-	@RequestMapping("system/storage")
-	public ModelAndView pageStorage() {
-		return createModelAndView("/admin/storage-qiniu.jsp");
+	@RequestMapping("plugins/storage")
+	public ModelAndView pagePluginsStorage() {
+		return createModelAndView("/admin/plugins/storage-qiniu.jsp");
+	}
+	
+	@RequestMapping("plugins/cache")
+	public ModelAndView pagePluginsCache() {
+		return createModelAndView("/admin/plugins/cache-redis.jsp");
+	}
+	
+	@RequestMapping("plugins/sms")
+	public ModelAndView pagePluginsSms() {
+		return createModelAndView("/admin/plugins/sms-submail.jsp");
+	}
+	
+	@RequestMapping("plugins/mail")
+	public ModelAndView pagePluginsMail() {
+		return createModelAndView("/admin/plugins/mail-submail.jsp");
 	}
 }

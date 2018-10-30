@@ -3,20 +3,21 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>云存储配置</title>
+<title>邮件服务配置</title>
 <style type="text/css">
 </style>
 </head>
 <body>
-<div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo">
+<div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header">
 	<jsp:include page="/_include/NavTop.jsp">
-		<jsp:param value="云存储配置" name="pageTitle"/>
+		<jsp:param value="邮件服务配置" name="pageTitle"/>
 	</jsp:include>
 	<jsp:include page="/_include/NavLeftAdmin.jsp">
-		<jsp:param value="system-storage" name="activeNav"/>
+		<jsp:param value="plugins-mail" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
 		<div class="main-content container-fluid">
+			<h3 class="text-center">暂未支持</h3>
 		</div>
 	</div>
 </div>

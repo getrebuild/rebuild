@@ -18,49 +18,39 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.cache;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 import org.springframework.cache.Cache;
-import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
-import org.springframework.util.Assert;
 
 /**
+ * 
  * @author devezhao
- * @since 10/12/2018
+ * @since 10/30/2018
  */
-public abstract class CacheTemplate<V> {
-
-	final private CacheManager cacheManager;
+public class RedisCacheManager implements CacheManager {
 	
-	protected CacheTemplate(CacheManager cacheManager) {
-		this.cacheManager = cacheManager;
+	private static final List<String> CACHE_NAMES = new ArrayList<>();
+	static {
+		CACHE_NAMES.add("rebuild.redis");
+	}
+	
+	private Cache cache;
+	
+	protected RedisCacheManager() {
+//		this.cache = new RedisCache();
 	}
 
-	@SuppressWarnings("unchecked")
-	public V get(String key) {
-		ValueWrapper vw = getCache().get(unityKey(key));
-		return vw == null ? null : (V) vw.get();
+	@Override
+	public Cache getCache(String name) {
+		return cache;
 	}
-	
-	public void put(String key, V value) {
-		getCache().put(unityKey(key), value);
-	}
-	
-	public void evict(String key, V value) {
-		getCache().evict(unityKey(key));
-	}
-	
-	protected Cache getCache() {
-		return cacheManager.getCache("rebuild");
-	}
-	
-	/**
-	 * KEY 全大写
-	 * 
-	 * @param key
-	 * @return
-	 */
-	protected String unityKey(Object key) {
-		Assert.notNull(key, "[key] not be null");
-		return key.toString().toUpperCase();
+
+	@Override
+	public Collection<String> getCacheNames() {
+		return Collections.unmodifiableCollection(CACHE_NAMES);
 	}
 }

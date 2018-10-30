@@ -10708,7 +10708,7 @@ canvas {
 	font-size: 1.615rem;
 	color: #5a5a5a;
 	line-height: 25px;
-	vertical-align: middle
+	vertical-align: middle;
 }
 
 .rb-collapsible-sidebar-hide-logo.rb-collapsible-sidebar-collapsed .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar {
@@ -12115,9 +12115,9 @@ canvas {
 		padding-bottom: 15px;
 		color: #b0b0b0;
 		padding: 18px 25px 0;
-		padding: 15px 25px 0;
+		padding: 18px 25px 0;
 		color: #b0b0b0;
-	    line-height: 30px;
+	    line-height: 38px;
 	    font-weight: 600;
 	    text-transform: uppercase;
 	    font-size: .8462rem;

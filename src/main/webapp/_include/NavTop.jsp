@@ -40,7 +40,7 @@ final String showName = UserHelper.getShowName(currentUser);
 				</li>
 				<%} %>
 				<li class="nav-item dropdown">
-					<a class="nav-link" href="${baseUrl}/app/notifications" title="通知"><i class="icon zmdi zmdi-notifications"></i></a>
+					<a class="nav-link" href="${baseUrl}/app/notifications" title="通知"><i class="icon zmdi zmdi-notifications"></i><span class="indicator hide"></span></a>
 				</li>
 			</ul>
 		</div>

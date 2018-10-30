@@ -3,7 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>验证管理员身份</title>
+<title>管理员入口</title>
 <style type="text/css">
 </style>
 </head>

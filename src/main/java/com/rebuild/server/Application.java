@@ -48,13 +48,17 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public final class Application {
 	
-	/**
-	 * Global Logging */
+	/** Rebuild Version
+	 */
+	public static final String VER = "REBUILD 1.0.0-SNAPSHOT";
+	
+	/** Logging for Global
+	 */
 	public static final Log LOG = LogFactory.getLog(Application.class);
+	
 	
 	// SPRING
 	private static ApplicationContext APPLICATION_CTX;
-	
 	// 业务实体对应的服务类
 	private static Map<Integer, GeneralEntityService> ESS = new HashMap<>();
 	

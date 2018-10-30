@@ -48,10 +48,15 @@ public class SystemConfigurer {
 	 * 系统配置项名称
 	 */
 	public static enum ItemName {
+		// 通用
+		AppName, LOGO, LOGOWhite, HomeURL, OpenSignUp,
+		
 		// 临时目录
 		TempDirectory,
+		
 		// 云存储
 		StorageURL, StorageApiKey, StorageApiSecret, StorageBucket,
+		
 		// 缓存服务
 		CacheHost, CachePort, CacheUser, CachePassword,
 	}
@@ -109,6 +114,11 @@ public class SystemConfigurer {
 		return new String[] { key, secret, bucket };
 	}
 	
+	/**
+	 * TODO 缓存服务账号
+	 * 
+	 * @return
+	 */
 	public static String[] getCacheAccount() {
 		String host = getItemFromBoth(ItemName.CacheHost);
 		if (host == null) {

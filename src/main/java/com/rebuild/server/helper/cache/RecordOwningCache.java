@@ -73,7 +73,7 @@ public class RecordOwningCache extends CacheTemplate<ID> {
 	}
 	
 	@Override
-	protected String standardizationKey(Object key) {
-		return "OU__" + super.standardizationKey(key);
+	protected String unityKey(Object key) {
+		return "OU__" + super.unityKey(key);
 	}
 }
