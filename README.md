@@ -1,1 +1,5 @@
-Building and Customize your system freely!
+Building your system freely!
+
+## What's rebuild
+
+## How to install
