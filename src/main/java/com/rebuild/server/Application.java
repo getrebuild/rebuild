@@ -70,7 +70,11 @@ public final class Application {
 	 * 初始化
 	 */
 	protected void init(long startingAt) {
-//		Security.addProvider(new BouncyCastleProvider());
+		boolean serversReady = ServersStatus.quickcheck();
+		if (!serversReady) {
+			LOG.info("Rebuild Booting failed!");
+			return;
+		}
 		
 		// 自定义实体
 		LOG.info("Loading customized entities ...");

@@ -31,6 +31,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
 import com.rebuild.server.ServerListener;
+import com.rebuild.server.ServersStatus;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.admin.AdminEntryControll;
 
@@ -50,6 +51,12 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
 			Object handler) throws Exception {
+		
+		if (!ServersStatus.isStatusOK()) {
+			ServletUtils.forward(request, response, "/servers-status.jsp");
+			return false;
+		}
+		
 		Application.getSessionStore().storeLastActive(request);
 		
 		boolean chain = super.preHandle(request, response, handler);

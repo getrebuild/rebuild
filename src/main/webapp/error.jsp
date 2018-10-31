@@ -15,19 +15,23 @@ errorCode = errorCode == null ? 400 : errorCode;
 <!DOCTYPE html>
 <html>
 <head>
-<%@ include file="/_include/Head.jsp"%>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/material-design-iconic-font.min.css">
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-base.css">
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-page.css">
 <title>提示</title>
 </head>
 <body class="rb-splash-screen">
 <div class="rb-wrapper rb-error">
-	<div class="rb-content" style="margin:0">
+	<div class="rb-content m-0">
 		<div class="main-content container-fluid">
 			<div class="error-container">
 				<div class="error-number"><%=errorCode%></div>
 				<div class="error-description"><%=errorMsg%></div>
 				<div class="error-goback-button">
 					<a class="btn btn-xl btn-primary hide J_home" href="${baseUrl}/dashboard/home">返回首页</a>
-					<a class="btn btn-xl btn-primary hide J_reload" href="javascript:;" onclick="_reload()">刷新</a>
+					<a class="btn btn-xl btn-primary hide J_reload" href="javascript:;" onclick="location.reload(true)">刷新</a>
 				</div>
 			</div>
 		</div>
@@ -39,9 +43,6 @@ errorCode = errorCode == null ? 400 : errorCode;
 	if (self != top) $('.J_reload').removeClass('hide')
 	else $('.J_home').removeClass('hide')
 })()
-_reload = function(){
-	location.reload(true)
-}
 </script>
 </body>
 </html>
