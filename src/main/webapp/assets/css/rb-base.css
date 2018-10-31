@@ -266,7 +266,8 @@ figure {
 
 img {
 	vertical-align: middle;
-	border-style: none
+	border-style: none;
+	max-height: 24px;
 }
 
 svg:not(:root) {
@@ -10659,10 +10660,11 @@ canvas {
 .rb-top-header .rb-navbar-header .navbar-brand {
 	line-height: 60px;
 	height: 60px;
-	width: 142px;
+	width: 146px;
 	background-image: url(../img/logo.png);
 	background-repeat: no-repeat;
 	background-position: 20px center;
+	background-size: auto 20px;
 	padding: 0 20px;
 	margin: 0;
 	display: block
@@ -10686,10 +10688,6 @@ canvas {
 	.rb-top-header .rb-navbar-header .navbar-brand {
 		margin-right: 10px
 	}
-}
-
-.rb-nosidebar-left .rb-top-header .rb-navbar-header .navbar-brand {
-	width: 142px
 }
 
 .rb-collapsible-sidebar-hide-logo.rb-collapsible-sidebar-collapsed .rb-top-header .rb-navbar-header .navbar-brand {

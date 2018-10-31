@@ -17,9 +17,7 @@ errorCode = errorCode == null ? 400 : errorCode;
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/material-design-iconic-font.min.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-base.css">
-<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-page.css">
 <title>提示</title>
 </head>
 <body class="rb-splash-screen">
@@ -31,7 +29,8 @@ errorCode = errorCode == null ? 400 : errorCode;
 				<div class="error-description"><%=errorMsg%></div>
 				<div class="error-goback-button">
 					<a class="btn btn-xl btn-primary hide J_home" href="${baseUrl}/dashboard/home">返回首页</a>
-					<a class="btn btn-xl btn-primary hide J_reload" href="javascript:;" onclick="location.reload(true)">刷新</a>
+					&nbsp;
+					<a class="btn btn-xl btn-primary hide J_reload" href="javascript:;" onclick="location.reload(true)">重试</a>
 				</div>
 			</div>
 		</div>
@@ -42,6 +41,7 @@ errorCode = errorCode == null ? 400 : errorCode;
 (function(){
 	if (self != top) $('.J_reload').removeClass('hide')
 	else $('.J_home').removeClass('hide')
+	if ($('.error-number').text() == '404') $('.J_reload').remove()
 })()
 </script>
 </body>

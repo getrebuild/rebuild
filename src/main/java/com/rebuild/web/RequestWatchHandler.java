@@ -51,7 +51,6 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
 			Object handler) throws Exception {
-		
 		if (!ServersStatus.isStatusOK()) {
 			ServletUtils.forward(request, response, "/servers-status.jsp");
 			return false;

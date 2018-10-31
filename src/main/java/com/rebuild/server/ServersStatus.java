@@ -42,6 +42,8 @@ public class ServersStatus {
 	private static final Map<String, String> LAST_STATUS = new ConcurrentHashMap<>();
 	static {
 		LAST_STATUS.put("DataSource", EMPTY);
+		LAST_STATUS.put("StroageService", EMPTY);
+		LAST_STATUS.put("CacheService", EMPTY);
 	}
 	/**
 	 * 最近检查状态
