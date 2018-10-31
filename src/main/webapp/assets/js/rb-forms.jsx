@@ -755,8 +755,11 @@ class RbViewModal extends React.Component {
             // in subView
             if (that.state.destroyOnHide == true) {
                 root.modal('dispose')
-                that.setState({ isDestroy: true })
-                rb.__currentRbFormModalCache[that.state.id] = null
+                let warp = root.parent().parent()
+                that.setState({ isDestroy: true }, function(){
+                	rb.__currentRbFormModalCache[that.state.id] = null
+                	$setTimeout(function(){ $(warp).remove() }, 200)
+                })
             }
             
         }).on('shown.bs.modal', function(){
