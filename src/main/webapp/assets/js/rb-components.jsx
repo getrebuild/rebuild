@@ -53,6 +53,9 @@ class RbModal extends React.Component {
         if (this.props.destroyOnHide == false) d = false
         else $(this.refs['rbmodal']).modal('dispose')
         this.setState({ isDestroy: d, inLoad: d  })
+        
+        // 如果还有其他 modal 处于 open 态， 则保持 modal-open，否则主窗口滚动条会消失
+        if ($('.rbmodal.show').length > 0) $(document.body).addClass('modal-open')
     }
 }
 
@@ -177,10 +180,8 @@ rb.modal = function(url, title, ext) {
 rb.modalHide = function(url){
     if (url){
         let m = rb.__currentModalCache[url]
-        if (m) {
-            m.hide()
-            if ($('.rbmodal.show').length > 0) $(document.body).addClass('modal-open')  // keep modal-open
-        }
+        if (m) m.hide()
+        else console.warn('No Modal found by url-key : ' + url)
     } else if (rb.__currentModal) {
         rb.__currentModal.hide()
     }
@@ -189,6 +190,7 @@ rb.modalResize = function(url){
     if (url){
         let m = rb.__currentModalCache[url]
         if (m) m.resize()
+        else console.warn('No Modal found by url-key : ' + url)
     } else if (rb.__currentModal){
         rb.__currentModal.resize()
     }

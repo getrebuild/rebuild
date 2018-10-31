@@ -1,0 +1,13 @@
+{
+  "name": "rebuild-babel",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "babel ../src/main/webapp/assets/js --out-dir ../src/main/webapp/assets/js/dist"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1"
+  }
+}
