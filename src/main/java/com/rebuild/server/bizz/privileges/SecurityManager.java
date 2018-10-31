@@ -352,6 +352,6 @@ public class SecurityManager {
 	 * @return
 	 */
 	public static boolean isBizz(int entity) {
-		return entity == EntityHelper.User || entity == EntityHelper.Department;
+		return entity == EntityHelper.User || entity == EntityHelper.Department || entity == EntityHelper.Role;
 	}
 }

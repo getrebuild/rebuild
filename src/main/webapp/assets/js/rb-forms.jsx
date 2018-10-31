@@ -638,7 +638,7 @@ class RbFormReference extends RbFormElement {
         $(this.refs['field-value']).select2('destroy')
     }
     clickView() {
-        RbViewPage.clickView($(this.refs['field-text']))
+        if (window.RbViewPage) window.RbViewPage.clickView($(this.refs['field-text']))
     }
 }
 
@@ -722,20 +722,18 @@ const __fileDetectingIcon = function(file){
 class RbViewModal extends React.Component {
     constructor(props) {
         super(props)
-        this.state = { ...props, inLoad: true }
+        this.state = { ...props, inLoad: true, isHide: true, isDestroy: false }
+        this.mcWidth = this.props.destroyOnHide == true ? 1170 : 1220
     }
     render() {
-        return (
+        return (this.state.isDestroy == true ? null :
             <div className="modal-warpper">
             <div className="modal rbview" ref="rbview">
                 <div className="modal-dialog">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            {rb.isAdminUser ? <a className="close" href={rb.baseUrl + '/admin/entity/' + this.state.entity + '/form-design'} title="配置布局" target="_blank"><span className="zmdi zmdi-settings"></span></a> : null}
-                            <button className="close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
-                        </div>
+                    <div className="modal-content" style={{ width: this.mcWidth + 'px' }}>
+                        {this.state.showClose == true ? <div className="modal-header"><button className="close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button></div> : null}
                         <div className={'modal-body iframe rb-loading ' + (this.state.inLoad == true && 'rb-loading-active')}>
-                            <iframe src={this.state.showAfterUrl || 'about:blank'} frameBorder="0" scrolling="no"></iframe>
+                            <iframe className={this.state.isHide ? 'invisible' : ''} src={this.state.showAfterUrl || 'about:blank'} frameBorder="0" scrolling="no"></iframe>
                             <RbSpinner />
                         </div>
                     </div>
@@ -749,15 +747,25 @@ class RbViewModal extends React.Component {
         let root = $(this.refs['rbview'])
         let mc = root.find('.modal-content')
         root.on('hidden.bs.modal', function(){
-            mc.css({ 'margin-right': -1300 })
-            that.setState({ inLoad: true })
+            mc.css({ 'margin-right': -1301 })
+            that.setState({ inLoad: true, isHide: true })
+            
+            // 如果还有其他 rbview 处于 open 态， 则保持 modal-open
+            if ($('.rbview.show').length > 0) $(document.body).addClass('modal-open').css({ 'padding-left': 17 })
+            // in subView
+            if (that.state.destroyOnHide == true) {
+                root.modal('dispose')
+                that.setState({ isDestroy: true })
+                rb.__currentRbFormModalCache[that.state.id] = null
+            }
+            
         }).on('shown.bs.modal', function(){
             mc.animate({ 'margin-right': 0 }, 400)
         })
         this.show()
     }
     hideLoading() {
-        this.setState({ inLoad: false })
+        this.setState({ inLoad: false, isHide: false })
     }
     show(url, ext) {
         let urlChanged = true
@@ -766,7 +774,7 @@ class RbViewModal extends React.Component {
         url = url || this.state.url
         let root = $(this.refs['rbview'])
         let that = this
-        this.setState({ ...ext, url: url, inLoad: urlChanged }, function(){
+        this.setState({ ...ext, url: url, inLoad: urlChanged, isHide: urlChanged }, function(){
             root.modal({ show: true, backdrop: true, keyboard: true, focus: true })
             $setTimeout(function(){
                 that.setState({ showAfterUrl: that.state.url })
@@ -783,19 +791,50 @@ class RbViewModal extends React.Component {
 
 let rb = rb || {}
 
-let RbFormModal_Comp
 // props = { id, entity, title, icon }
+rb.__currentRbFormModal
 rb.RbFormModal = function(props) {
-    if (RbFormModal_Comp) RbFormModal_Comp.show(props)
-    else RbFormModal_Comp = renderRbcomp(<RbFormModal {...props} />)
-    return RbFormModal_Comp
+    if (rb.__currentRbFormModal) rb.__currentRbFormModal.show(props)
+    else rb.__currentRbFormModal = renderRbcomp(<RbFormModal {...props} />)
+    return rb.__currentRbFormModal
 }
 
-let RbViewModal_Comp
 // props = { id, entity }
-rb.RbViewModal = function(props) {
+rb.__currentRbViewModal
+rb.__currentRbFormModalCache = {}
+rb.RbViewModal = function(props, subView) {
     let viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
-    if (RbViewModal_Comp) RbViewModal_Comp.show(viewUrl, { entity: props.entity })
-    else RbViewModal_Comp = renderRbcomp(<RbViewModal url={viewUrl} entity={props.entity} />)
-    return RbViewModal_Comp
+    if (subView == true){
+        let m = renderRbcomp(<RbViewModal url={viewUrl} destroyOnHide={true} id={props.id} />)
+        rb.__currentRbFormModalCache[props.id] = m
+        return m
+    }
+    
+    if (rb.__currentRbViewModal) rb.__currentRbViewModal.show(viewUrl)
+    else rb.__currentRbViewModal = renderRbcomp(<RbViewModal url={viewUrl} />)
+    rb.__currentRbFormModalCache[props.id] = rb.__currentRbViewModal
+    return rb.__currentRbViewModal
+}
+rb.RbViewModalGet = function(id){
+    return rb.__currentRbFormModalCache[id] || {}
+}
+
+rb.RbViewModalHide = function(id){
+    if (!!!id) {
+        if (rb.__currentRbViewModal) rb.__currentRbViewModal.hide()
+    } else {
+        let m =  rb.__currentRbFormModalCache[id]
+        if (m) {
+            m.hide()
+            //rb.__currentRbFormModalCache[id] = null
+        }
+    }
+}
+rb.RbViewModalHideLoading = function(id){
+    if (!!!id) {
+        if (rb.__currentRbViewModal) rb.__currentRbViewModal.hideLoading()
+    } else {
+        let m =  rb.__currentRbFormModalCache[id]
+        if (m) m.hideLoading()
+    }
 }

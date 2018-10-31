@@ -10,10 +10,14 @@
 </head>
 <body class="view-body">
 <div class="view-header">
-	 <span class="header-icon zmdi zmdi-${entityIcon}"></span>
+	<i class="header-icon zmdi zmdi-${entityIcon}"></i>
 	<h3 class="title">${entityLabel}视图</h3>
+	<span>
+		<a class="close J_close"><i class="zmdi zmdi-close"></i></a>
+		<a class="close s J_for-admin" href="${baseUrl}/admin/entity/${entityName}/form-design" title="配置布局" target="_blank"><i class="zmdi zmdi-settings"></i></a>
+	</span>
 </div>
-<div class="main-content container-fluid invisible">
+<div class="main-content container-fluid">
 	<div class="row">
 		<div class="col-sm-9 pr-0">
 			<div class="tab-container">

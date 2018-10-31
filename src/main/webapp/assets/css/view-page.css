@@ -4,7 +4,7 @@ html, body {
 }
 
 .main-content {
-	margin-top: 62px;
+	margin-top: 60px;
 }
 
 .tab-container {
@@ -19,7 +19,7 @@ html, body {
 
 .view-header {
 	padding: 15px 20px;
-	height: 62px;
+	height: 60px;
 	border-bottom: 1px solid #e3e3e3;
 	position: absolute;
 	top: 0;
@@ -40,6 +40,22 @@ html, body {
 	margin: 0;
 	font-weight: 300;
 	font-size: 1.538rem
+}
+
+.view-header > span > .close {
+	font-size: 1.638rem;
+    opacity: .5;
+    padding: 1rem;
+    margin: -1rem -1rem -1rem auto;
+    height: 40px;
+    margin-top: -10px;
+}
+.view-header > span > .close.s {
+	font-size: 1.42rem;
+	margin-right: -10px;
+}
+.view-header > span > .close:hover {
+	opacity: .75;
 }
 
 .nav-tabs>li.nav-item a.nav-link {

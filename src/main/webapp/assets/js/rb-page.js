@@ -11,8 +11,8 @@ $(function(){
 	// tooltip
 	$('[data-toggle="tooltip"]').tooltip()
 	
-	if ($('body.dialog').length == 0 && $('body.view-body').length == 0){
-		console.log('In top-frame ... ' + location.href)
+	// In top-frame
+	if ($('.rb-left-sidebar').length > 0){
 		$('.sidebar-elements>li>a').each(function(){
 			let _this = $(this)
 			_this.tooltip({ placement: 'right', title: _this.find('span').text().trim(), delay: 200 })
@@ -28,7 +28,7 @@ $(function(){
 	if (rb.isAdminUser == true) {
 		$('.J_for-admin').removeClass('hide')
 		if (location.href.indexOf('/admin/') == -1) {
-			if ($('.J_admin-settings').data('verified') == true) {
+			if (rb.isAdminVerified == true) {
 				$('.J_admin-settings a i').addClass('text-primary')
 			}
 		}

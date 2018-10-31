@@ -21,10 +21,7 @@ class RbViewForm extends React.Component {
                 return detectViewElement(item)
             })}</div>
             that.setState({ formComponent: FORM }, function(){
-                $('.invisible').removeClass('invisible')
-                if (parent && parent.RbViewModal_Comp) parent.RbViewModal_Comp.hideLoading()
-                
-                $(that.refs['reviewForm']).find('.type-NTEXT .form-control-plaintext').perfectScrollbar()
+                that.hideLoading()
             })
         });
     }
@@ -33,12 +30,15 @@ class RbViewForm extends React.Component {
             <div className="icon"><i className="zmdi zmdi-alert-triangle"></i></div>
             <div className="message" dangerouslySetInnerHTML={{ __html: '<strong>抱歉!</strong> ' + message }}></div>
         </div>
-
         let that = this
         that.setState({ formComponent: error }, function() {
-            $('.invisible').removeClass('invisible')
-            if (parent && parent.RbViewModal_Comp) parent.RbViewModal_Comp.hideLoading()
+            that.hideLoading()
         })
+    }
+    
+    hideLoading() {
+        if (parent && parent.rb.RbViewModalGet(this.state.id)) parent.rb.RbViewModalGet(this.state.id).hideLoading()
+        $(this.refs['reviewForm']).find('.type-NTEXT .form-control-plaintext').perfectScrollbar()
     }
 }
 
@@ -111,6 +111,10 @@ const RbViewPage = {
                 $('<div class="alert alert-light alert-icon alert-icon-colored min mb-2"><div class="icon"><i class="zmdi zmdi-info-outline"></i></div><div class="message">你对此记录无可操作权限</div></div>').appendTo('.view-action')
             }
         }
+        
+        $('.J_close').click(function(){
+            if (parent && parent.rb.RbViewModalGet(id)) parent.rb.RbViewModalGet(id).hide()
+        })
     },
     
     initVTabs(config) {
@@ -185,12 +189,15 @@ const RbViewPage = {
     },
     
     clickView(el) {
-        console.log($(el).attr('href'))
+        let viewUrl = $(el).attr('href')
+        console.log(viewUrl)
+        viewUrl = viewUrl.split('/')
+        parent.rb.RbViewModal({ entity: viewUrl[2], id: viewUrl[3] }, true)
     },
     
     // 隐藏划出的 View
     hide(reload) {
-        if (parent.RbViewModal_Comp) parent.RbViewModal_Comp.hide()
+        if (parent.rb.__currentRbViewModal) parent.rb.__currentRbViewModal.hide()
         if (reload == true) {
             if (parent.RbListPage) parent.RbListPage._RbList.reload()
             else setTimeout(function() { parent.location.reload() }, 1000)

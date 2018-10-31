@@ -129,7 +129,7 @@ class TheBothDialog extends React.Component {
     }
 }
 
-var rb = rb || {}
+let rb = rb || {}
 
 // props = { entity, ids }
 rb.AssignDialog = function(props){

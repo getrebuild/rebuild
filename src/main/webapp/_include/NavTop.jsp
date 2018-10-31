@@ -35,7 +35,7 @@ final String showName = UserHelper.getShowName(currentUser);
 			<div class="page-title"><span><%=request.getParameter("pageTitle")%></span></div>
 			<ul class="nav navbar-nav float-right rb-icons-nav">
 				<% if (currentUser.isAdmin()) { %>
-				<li class="nav-item dropdown J_admin-settings" data-verified="<%=AdminEntryControll.isAdminVerified(request)%>">
+				<li class="nav-item dropdown J_admin-settings">
 					<a class="nav-link" href="${baseUrl}/admin/systems" title="系统配置"><i class="icon zmdi zmdi-settings"></i></a>
 				</li>
 				<%} %>

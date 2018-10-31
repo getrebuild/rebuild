@@ -32,10 +32,6 @@
 					<button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
 				</div>
 				<div class="col-6 pl-1 mb-2 btn-group J_action">
-					<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-more-vert"></i> 更多</button>
-					<div class="dropdown-menu dropdown-menu-right">
-						<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
-					</div>
 				</div>
 			</div>
 		</div>
@@ -47,27 +43,9 @@
 <script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
 <script type="text/babel">
 $(document).ready(function(){
-	RbViewPage.init('${id}', [ '${entityLabel}', 'Department', '${entityIcon}' ])
+	RbViewPage.init('${id}', [ '${entityLabel}', 'Role', '${entityIcon}' ])
 	if (rb.isAdminUser == false || rb.isAdminVerified == false) $('.view-action').remove()
-
-	$('.J_delete').off('click').click(function(){
-		$.get(rb.baseUrl + '/admin/bizuser/check-has-member?id=${id}', function(res){
-			if (res.data == 0){
-				rb.alert('此部门可以被安全的删除', '删除部门', { type: 'danger', confirmText: '删除', confirm: deleteDept })
-			} else {
-				let url = rb.baseUrl + '/admin/bizuser/users#dept=${id}'
-				let msg = '此部门下有 <a href="' + url + '" target="_blank">' + res.data + '</a> 个用户<br>你需要先将这些用户转移到其他部门，然后才能删除'
-				rb.alert(msg, '删除部门', { type: 'danger', html: true })
-			}
-		})
-	})
-})
-const deleteDept = function(){
-	$.post(rb.baseUrl + '/admin/bizuser/dept-delete?transfer=&id=${id}', function(res){
-		if (res.error_code == 0) parent.location.reload()
-		else rb.notice(res.error_msg, 'danger')
-	})
-}
+});
 </script>
 </body>
 </html>
