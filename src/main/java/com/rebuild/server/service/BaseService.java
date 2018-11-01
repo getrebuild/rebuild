@@ -21,6 +21,7 @@ package com.rebuild.server.service;
 import java.util.Observable;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.metadata.EntityHelper;
 
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -43,12 +44,27 @@ public abstract class BaseService extends Observable {
 	}
 
 	/**
+	 * 语法糖
+	 * 
+	 * @param record
+	 * @return
+	 * @see #create(Record)
+	 * @see #update(Record)
+	 */
+	public Record createOrUpdate(Record record) {
+		return record.getPrimary() == null ? create(record) : update(record);
+	}
+	
+	/**
 	 * @param record
 	 * @return
 	 */
 	public Record create(Record record) {
 		record = aPMFactory.createPersistManager().save(record);
-		notifyObservers(AwareContext.valueOf(record.getEditor(), BizzPermission.CREATE, record));
+		if (countObservers() > 0) {
+			setChanged();
+			notifyObservers(OperateContext.valueOf(record.getEditor(), BizzPermission.CREATE, null, record));
+		}
 		return record;
 	}
 
@@ -58,16 +74,11 @@ public abstract class BaseService extends Observable {
 	 */
 	public Record update(Record record) {
 		record = aPMFactory.createPersistManager().update(record);
-		notifyObservers(AwareContext.valueOf(record.getEditor(), BizzPermission.UPDATE, record));
+		if (countObservers() > 0) {
+			setChanged();
+			notifyObservers(OperateContext.valueOf(record.getEditor(), BizzPermission.UPDATE, getBeforeRecord(record), record));
+		}
 		return record;
-	}
-	
-	/**
-	 * @param record
-	 * @return
-	 */
-	public Record createOrUpdate(Record record) {
-		return record.getPrimary() == null ? create(record) : update(record);
 	}
 
 	/**
@@ -76,7 +87,20 @@ public abstract class BaseService extends Observable {
 	 */
 	public int delete(ID recordId) {
 		int affected = aPMFactory.createPersistManager().delete(recordId);
-		notifyObservers(AwareContext.valueOf(Application.currentCallerUser(), BizzPermission.DELETE, recordId));
+		if (countObservers() > 0) {
+			setChanged();
+			Record deleted = EntityHelper.forUpdate(recordId, Application.currentCallerUser());
+			notifyObservers(OperateContext.valueOf(deleted.getEditor(), BizzPermission.DELETE, deleted, null));
+		}
 		return affected;
+	}
+	
+	/**
+	 * 操作前获取记录
+	 * 
+	 * @return
+	 */
+	protected Record getBeforeRecord(Record willUpdate) {
+		return null;
 	}
 }

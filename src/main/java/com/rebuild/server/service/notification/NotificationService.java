@@ -18,9 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.notification;
 
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.BaseService;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.Record;
 
 /**
  * 通知/消息 服务
@@ -34,6 +36,24 @@ public class NotificationService extends BaseService {
 		super(aPMFactory);
 	}
 	
+	/**
+	 * 发送消息
+	 * 
+	 * @param message
+	 */
 	public void send(Message message) {
+		Record record = EntityHelper.forNew(EntityHelper.Notification, message.getFromUser());
+		record.setID("fromUser", message.getFromUser());
+		record.setID("toUser", message.getToUser());
+		record.setString("message", message.getMessage());
+		if (message.getRelatedRecord() != null) {
+			record.setString("relatedRecord", message.getRelatedRecord().toLiteral());
+		}
+		create(record);
+	}
+	
+	@Override
+	public Record update(Record record) {
+		throw new UnsupportedOperationException();
 	}
 }

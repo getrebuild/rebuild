@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.user;
+package com.rebuild.web.login;
 
 import java.io.IOException;
 
@@ -40,13 +40,12 @@ import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 
  * @author zhaofang123@gmail.com
  * @since 07/25/2018
  */
 @Controller
-@RequestMapping("/user")
-public class SignUpControll extends BaseControll {
+@RequestMapping("/user/")
+public class LoginControll extends BaseControll {
 	
 	private static final String AUTOLOGIN_KEY = "rb.alt";
 

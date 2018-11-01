@@ -185,7 +185,7 @@ public final class Application {
 		if (ESS.containsKey(entityCode)) {
 			return ESS.get(entityCode);
 		} else {
-			return (GeneralEntityService) APPLICATION_CTX.getBean("GeneralEntityService");
+			return (GeneralEntityService) APPLICATION_CTX.getBean("generalEntityService");
 		}
 	}
 }

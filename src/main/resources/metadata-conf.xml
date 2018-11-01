@@ -133,8 +133,20 @@
 	<entity name="SystemConfig" type-code="021" parent="false" description="系统全局配置项">
 		<field name="configId" type="primary" />
 		<field name="item" type="string" max-length="100" nullable="false" />
-		<field name="value" type="string" max-length="600" />
+		<field name="value" type="string" max-length="600" nullable="false" />
 		<index type="unique" field-list="item"/>
+	</entity>
+	
+	<entity name="Notification" type-code="022" description="通知消息">
+		<field name="messageId" type="primary" />
+		<field name="messageType" type="small-int" default-value="0" />
+		<field name="fromUser" type="reference" ref-entity="User" nullable="false" updatable="false" />
+		<field name="toUser" type="reference" ref-entity="User" nullable="false" updatable="false" />
+		<field name="message" type="string" max-length="600" updatable="false" />
+		<field name="messageRich" type="text" max-length="6000" updatable="false" />
+		<field name="unread" type="bool" default-value="T"/>
+		<field name="relatedRecord" type="string" max-length="20" description="相关业务记录" updatable="false"/>
+		<index field-list="toUser,unread"/>
 	</entity>
 	
 </metadata-config>

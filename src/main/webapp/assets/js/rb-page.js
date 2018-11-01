@@ -35,20 +35,34 @@ $(function(){
 	} else {
 		$('.J_for-admin').remove()
 	}
+	
+	if ($('.J_notification-indicator').length > 0) {
+		setTimeout(__checkMessage, 1500)
+	}
 });
 
 const __initNavs = function(){
+	let isOffcanvas = $('.rb-offcanvas-menu').length > 0
+	
 	// Nav
-	$('.rb-toggle-left-sidebar').click(function(){
-		let el = $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
-		let collapsed = el.hasClass('rb-collapsible-sidebar-collapsed')
-		$storage.set('rb-sidebar-collapsed', collapsed)
-		$('.sidebar-elements>li>a').tooltip('toggleEnabled')
-	});
-	if ($storage.get('rb-sidebar-collapsed') == 'true'){
-		$('.rb-collapsible-sidebar').addClass('rb-collapsible-sidebar-collapsed')
-	} else {
+	if (isOffcanvas) {
+		$('.rb-toggle-left-sidebar').click(function(){
+			$(document.body).toggleClass('open-left-sidebar')
+			return false
+		})
 		$('.sidebar-elements>li>a').tooltip('disable')
+	} else {
+		$('.rb-toggle-left-sidebar').click(function(){
+			let el = $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
+			let collapsed = el.hasClass('rb-collapsible-sidebar-collapsed')
+			$storage.set('rb-sidebar-collapsed', collapsed)
+			$('.sidebar-elements>li>a').tooltip('toggleEnabled')
+		})
+		if ($storage.get('rb-sidebar-collapsed') == 'true'){
+			$('.rb-collapsible-sidebar').addClass('rb-collapsible-sidebar-collapsed')
+		} else {
+			$('.sidebar-elements>li>a').tooltip('disable')
+		}
 	}
 	
 	// SubNavs
@@ -69,6 +83,9 @@ const __initNavs = function(){
 		if ($('.rb-collapsible-sidebar').hasClass('rb-collapsible-sidebar-collapsed') && currsntSubnav.hasClass('open')) {
 			currsntSubnav.removeClass('open')
 			currsntSubnav.find('.sub-menu').removeClass('visible')
+		}
+		if (isOffcanvas) {
+			$(document.body).removeClass('open-left-sidebar')
 		}
 	})
 	
@@ -94,8 +111,19 @@ const __initNavs = function(){
 	}
 	
 	$('.nav-settings').click(function(){
-		rb.modal(rb.baseUrl + '/page/settings/nav-settings', '设置导航菜单');
-	});
+		rb.modal(rb.baseUrl + '/page/commons/nav-settings', '设置导航菜单');
+	})
+}
+
+// 检查消息
+const __checkMessage = function(){
+	$.get(rb.baseUrl + '/app/notification/check-message', function(res){
+		if (res.data.unread > 0){
+			$('.J_notification-indicator').removeClass('hide')
+			$('.rb-notifications span.badge').text(res.data.unread)
+		}
+		setTimeout(__checkMessage, 3000);
+	})
 }
 
 // 是否在管理员页

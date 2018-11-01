@@ -60,6 +60,7 @@ public class EasyMeta implements BaseMeta {
 		BUILTIN_ENTITY.add("ViewTabConfig");
 		BUILTIN_ENTITY.add("ShareAccess");
 		BUILTIN_ENTITY.add("SystemConfig");
+		BUILTIN_ENTITY.add("Notification");
 		
 		BUILTIN_FIELD.add(EntityHelper.createdOn);
 		BUILTIN_FIELD.add(EntityHelper.createdBy);
@@ -276,6 +277,15 @@ public class EasyMeta implements BaseMeta {
 	 */
 	public static String getLabel(BaseMeta meta) {
 		return meta.getDescription();
+	}
+	
+	/**
+	 * @param entityCode
+	 * @return
+	 */
+	public static String getEntityLabel(int entityCode) {
+		Entity entity = MetadataHelper.getEntity(entityCode);
+		return getLabel(entity);
 	}
 	
 	/**

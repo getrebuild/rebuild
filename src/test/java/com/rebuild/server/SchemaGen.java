@@ -54,8 +54,9 @@ public class SchemaGen {
 //		gen(EntityHelper.ViewTabConfig);
 //		gen(EntityHelper.LayoutConfig);
 //		gen(EntityHelper.FilterConfig);
-		gen(EntityHelper.ShareAccess);
+//		gen(EntityHelper.ShareAccess);
 //		gen(EntityHelper.SystemConfig);
+		gen(EntityHelper.Notification);
 		
 		System.exit(0);
 	}

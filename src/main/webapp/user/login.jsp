@@ -21,7 +21,7 @@
 							<input class="form-control" id="user" type="text" placeholder="用户名 (或邮箱)" autocomplete="off">
 						</div>
 						<div class="form-group">
-							<input class="form-control" id="passwd" type="password" placeholder="密码">
+							<input class="form-control" id="passwd" type="password" placeholder="登录密码">
 						</div>
 						<div class="form-group row login-tools">
 								

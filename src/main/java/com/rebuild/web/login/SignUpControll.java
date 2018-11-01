@@ -16,11 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.me;
-
-import java.io.IOException;
+package com.rebuild.web.login;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,16 +28,17 @@ import org.springframework.web.servlet.ModelAndView;
 import com.rebuild.web.BaseControll;
 
 /**
+ * 注册
  * 
  * @author devezhao
- * @since 10/08/2018
+ * @since 11/01/2018
  */
 @Controller
-@RequestMapping("/me/")
-public class UserProfileControll extends BaseControll {
-
-	@RequestMapping("profile")
-	public ModelAndView pageProfile(HttpServletRequest request) throws IOException {
-		return createModelAndView("/me/profile.jsp", "User", getRequestUser(request));
+@RequestMapping("/user/")
+public class SignUpControll extends BaseControll {
+	
+	@RequestMapping("signup")
+	public ModelAndView pageSignup(HttpServletRequest request, HttpServletResponse response) {
+		return createModelAndView("/user/signup.jsp");
 	}
 }

@@ -28,17 +28,18 @@ import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.ThreadPool;
 
 /**
+ * 记录操作观察者
  * 
  * @author devezhao
  * @since 10/31/2018
  */
-public abstract class AwareObserver implements Observer {
+public abstract class OperateObserver implements Observer {
 
-	protected static final Log LOG = LogFactory.getLog(AwareObserver.class);
+	protected final Log LOG = LogFactory.getLog(getClass());
 	
 	@Override
 	public void update(final Observable o, final Object arg) {
-		final AwareContext ctx = (AwareContext) arg;
+		final OperateContext ctx = (OperateContext) arg;
 		if (isAsync()) {
 			ThreadPool.exec(new Runnable() {
 				@Override
@@ -55,39 +56,47 @@ public abstract class AwareObserver implements Observer {
 		}
 	}
 	
-	private void update(AwareContext ctx) {
+	/**
+	 * @param ctx
+	 */
+	protected void update(OperateContext ctx) {
 		if (ctx.getAction() == BizzPermission.CREATE) {
-			notifyCreate(ctx);
+			onCreate(ctx);
 		} else if (ctx.getAction() == BizzPermission.UPDATE) {
-			notifyUpdate(ctx);
+			onUpdate(ctx);
 		} else if (ctx.getAction() == BizzPermission.DELETE) {
-			notifyDelete(ctx);
+			onDelete(ctx);
 		} else if (ctx.getAction() == BizzPermission.ASSIGN) {
-			notifyAssign(ctx);
+			onAssign(ctx);
 		} else if (ctx.getAction() == BizzPermission.SHARE) {
-			notifySahre(ctx);
+			onSahre(ctx);
 		}
 	}
 
 	/**
-	 * 是否异步
-	 * 
 	 * @return
 	 */
-	abstract protected boolean isAsync();
+	protected boolean isAsync() {
+		return true;
+	}
 	
-	public void notifyCreate(final AwareContext context) {
+	public void onCreate(final OperateContext context) {
+		LOG.info("Only logging context - " + context);
 	}
 
-	public void notifyUpdate(final AwareContext context) {
+	public void onUpdate(final OperateContext context) {
+		LOG.info("Only logging context - " + context);
 	}
 
-	public void notifyDelete(final AwareContext context) {
+	public void onDelete(final OperateContext context) {
+		LOG.info("Only logging context - " + context);
 	}
 
-	public void notifyAssign(final AwareContext context) {
+	public void onAssign(final OperateContext context) {
+		LOG.info("Only logging context - " + context);
 	}
 
-	public void notifySahre(final AwareContext context) {
+	public void onSahre(final OperateContext context) {
+		LOG.info("Only logging context - " + context);
 	}
 }

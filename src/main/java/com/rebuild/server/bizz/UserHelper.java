@@ -20,9 +20,12 @@ package com.rebuild.server.bizz;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.bizz.privileges.User;
 import com.rebuild.server.helper.SystemConfigurer;
+
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 
@@ -52,4 +55,13 @@ public class UserHelper {
 		}
 		return SystemConfigurer.getStorageUrl() + url + "?imageView2/2/w/100/interlace/1/q/100";
 	}
+	
+	/**
+	 * @param userId
+	 * @return
+	 */
+	public static String[] getShow(ID userId) {
+		User u = Application.getUserStore().getUser(userId);
+		return new String[] { getShowName(u), getAvatarUrl(u) };
+	} 
 }

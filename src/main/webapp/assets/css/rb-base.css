@@ -267,7 +267,6 @@ figure {
 img {
 	vertical-align: middle;
 	border-style: none;
-	max-height: 24px;
 }
 
 svg:not(:root) {
@@ -11134,10 +11133,6 @@ canvas {
 	}
 }
 
-.rb-offcanvas-menu .rb-top-header .navbar-brand {
-	width: 142px
-}
-
 .rb-offcanvas-menu .rb-top-header .rb-toggle-left-sidebar {
 	display: inline-block;
 	text-align: center;
@@ -11478,10 +11473,17 @@ canvas {
 	}
 }
 
-.rb-user-nav>li.dropdown>a img {
+.rb-user-nav>li.dropdown>a img, a.avatar img {
 	width: 32px;
 	height: 32px;
-	border-radius: 50%
+	border-radius: 50%;
+	background-color: #ccc;
+	display: inline-block;
+}
+
+a.avatar.x48 img {
+	width: 48px;
+	height: 48px;
 }
 
 .rb-user-nav>li.dropdown>a .user-name {
@@ -11729,7 +11731,6 @@ canvas {
 }
 
 .rb-notifications .notification>a .notification-info .text {
-	font-weight: 500;
 	color: #8a8a8a;
 	font-size: .9231rem;
 	line-height: 16px
@@ -11801,6 +11802,11 @@ canvas {
 
 .rb-notifications .notification:last-child {
 	border-bottom: 0
+}
+
+.rb-notifications .rb-scroller-notifications > .content > ul {
+    list-style: none;
+    padding-left: 0;
 }
 
 @media (max-width:575.98px) {

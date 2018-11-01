@@ -21,7 +21,9 @@ package com.rebuild.server.service.base;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Observer;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -33,8 +35,8 @@ import com.rebuild.server.bizz.privileges.User;
 import com.rebuild.server.helper.BulkTaskExecutor;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.AwareContext;
 import com.rebuild.server.service.BaseService;
+import com.rebuild.server.service.OperateContext;
 
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
@@ -53,12 +55,21 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 11/06/2017
  */
-public class GeneralEntityService extends BaseService {
+public class GeneralEntityService extends BaseService  {
 	
 	private static final Log LOG = LogFactory.getLog(GeneralEntityService.class);
 	
 	protected GeneralEntityService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
+	}
+	
+	protected GeneralEntityService(PersistManagerFactory aPMFactory, List<Observer> observers) {
+		super(aPMFactory);
+		
+		// 注入观察者
+		for (Observer o : observers) {
+			addObserver(o);
+		}
 	}
 	
 	/**
@@ -156,10 +167,10 @@ public class GeneralEntityService extends BaseService {
 		
 		User toUser = Application.getUserStore().getUser(to);
 		
-		Record assign = EntityHelper.forUpdate(record, (ID) toUser.getIdentity());
-		assign.setID(EntityHelper.owningUser, (ID) toUser.getIdentity());
-		assign.setID(EntityHelper.owningDept, (ID) toUser.getOwningDept().getIdentity());
-		super.update(assign);
+		Record assigned = EntityHelper.forUpdate(record, (ID) toUser.getIdentity());
+		assigned.setID(EntityHelper.owningUser, (ID) toUser.getIdentity());
+		assigned.setID(EntityHelper.owningDept, (ID) toUser.getOwningDept().getIdentity());
+		super.update(assigned);
 		
 		int affected = 1;
 		
@@ -174,7 +185,10 @@ public class GeneralEntityService extends BaseService {
 			}
 		}
 		
-		notifyObservers(AwareContext.valueOf(Application.currentCallerUser(), BizzPermission.ASSIGN, record));
+		if (countObservers() > 0) {
+			setChanged();
+			notifyObservers(OperateContext.valueOf(Application.currentCallerUser(), BizzPermission.ASSIGN, getBeforeRecord(assigned), assigned));
+		}
 		return affected;
 	}
 	
@@ -199,12 +213,12 @@ public class GeneralEntityService extends BaseService {
 		
 		ID currentUser = Application.currentCallerUser();
 		
-		Record share = EntityHelper.forNew(EntityHelper.ShareAccess, currentUser);
-		share.setInt("entity", record.getEntityCode());
-		share.setString("recordId", record.toLiteral());
-		share.setString("shareTo", to.toLiteral());
-		share.setInt("rights", BizzPermission.READ.getMask());
-		super.create(share);
+		Record shared = EntityHelper.forNew(EntityHelper.ShareAccess, currentUser);
+		shared.setInt("entity", record.getEntityCode());
+		shared.setString("recordId", record.toLiteral());
+		shared.setString("shareTo", to.toLiteral());
+		shared.setInt("rights", BizzPermission.READ.getMask());
+		super.create(shared);
 		
 		int affected = 1;
 		
@@ -219,7 +233,11 @@ public class GeneralEntityService extends BaseService {
 			}
 		}
 		
-		notifyObservers(AwareContext.valueOf(Application.currentCallerUser(), BizzPermission.SHARE, record));
+		if (countObservers() > 0) {
+			setChanged();
+			Record sharedRecord = EntityHelper.forUpdate(record, currentUser);
+			notifyObservers(OperateContext.valueOf(currentUser, BizzPermission.SHARE, sharedRecord, shared));
+		}
 		return affected;
 	}
 	

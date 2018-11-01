@@ -16,14 +16,10 @@ final String activeNav = request.getParameter("activeNav");
 			<div class="left-sidebar-content no-divider">
 				<ul class="sidebar-elements">
 					<li class="<%="dashboard-home".equals(activeNav) ? "active" : ""%>" id="nav_dashboard-home"><a href="${baseUrl}/dashboard/home"><i class="icon zmdi zmdi-home"></i><span>首页</span></a></li>
-					<%
-					JSONArray navArray = NavManager.getNavForPortal(request);
+					<%JSONArray navArray = NavManager.getNavForPortal(request);
 					for (Object o : navArray) {
-						JSONObject nav = (JSONObject) o;
-						String navHtml = NavManager.renderNavItem(nav, activeNav, true);
-						out.print(navHtml);
-					}
-					%>
+						out.print(NavManager.renderNavItem((JSONObject) o, activeNav, true));
+					}%>
 				</ul>
 			</div>
 		</div>

@@ -18,7 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.base;
 
-import com.rebuild.server.service.AwareObserver;
+import com.rebuild.server.service.OperateContext;
+import com.rebuild.server.service.OperateObserver;
 
 /**
  * TODO 记录审计日志
@@ -26,10 +27,30 @@ import com.rebuild.server.service.AwareObserver;
  * @author devezhao
  * @since 10/31/2018
  */
-public class AuditLoggingObserver extends AwareObserver {
+public class AuditLoggingObserver extends OperateObserver {
 	
 	@Override
-	protected boolean isAsync() {
-		return true;
+	public void onCreate(OperateContext context) {
+		super.onCreate(context);
+	}
+	
+	@Override
+	public void onUpdate(OperateContext context) {
+		super.onUpdate(context);
+	}
+	
+	@Override
+	public void onDelete(OperateContext context) {
+		super.onDelete(context);
+	}
+	
+	@Override
+	public void onAssign(OperateContext context) {
+		super.onAssign(context);
+	}
+	
+	@Override
+	public void onSahre(OperateContext context) {
+		super.onSahre(context);
 	}
 }

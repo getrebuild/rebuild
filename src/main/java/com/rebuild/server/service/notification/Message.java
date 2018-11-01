@@ -18,11 +18,47 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.notification;
 
+import cn.devezhao.persist4j.engine.ID;
+
 /**
+ * 通知消息
  * 
  * @author devezhao
  * @since 10/17/2018
  */
 public class Message {
 
+	private ID fromUser;
+	private ID toUser;
+	
+	private ID relatedRecord;
+	
+	private String message;
+
+	public Message(ID fromUser, ID toUser, String message) {
+		this(fromUser, toUser, message, null);
+	}
+
+	public Message(ID fromUser, ID toUser, String message, ID relatedRecord) {
+		this.fromUser = fromUser;
+		this.toUser = toUser;
+		this.message = message;
+		this.relatedRecord = relatedRecord;
+	}
+
+	public ID getFromUser() {
+		return fromUser;
+	}
+
+	public ID getToUser() {
+		return toUser;
+	}
+	
+	public ID getRelatedRecord() {
+		return relatedRecord;
+	}
+
+	public String getMessage() {
+		return message;
+	}
 }

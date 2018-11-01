@@ -27,7 +27,7 @@ final String showName = UserHelper.getShowName(currentUser);
 							<div class="user-name"><%=showName%></div>
 							<div class="user-id"><%=StringUtils.defaultIfBlank(currentUser.getEmail(), "邮箱未设置")%></div>
 						</div>
-						<a class="dropdown-item" href="${baseUrl}/me/profile"><i class="icon zmdi zmdi-account-box"></i>个人设置</a>
+						<a class="dropdown-item" href="${baseUrl}/settings/account"><i class="icon zmdi zmdi-account-box"></i>个人设置</a>
 						<a class="dropdown-item" href="${baseUrl}/user/logout"><i class="icon zmdi zmdi-power"></i>退出</a>
 					</div>
 				</li>
@@ -36,11 +36,34 @@ final String showName = UserHelper.getShowName(currentUser);
 			<ul class="nav navbar-nav float-right rb-icons-nav">
 				<% if (currentUser.isAdmin()) { %>
 				<li class="nav-item dropdown J_admin-settings">
-					<a class="nav-link" href="${baseUrl}/admin/systems" title="系统配置"><i class="icon zmdi zmdi-settings"></i></a>
+					<a class="nav-link" href="${baseUrl}/admin/systems"><i class="icon zmdi zmdi-settings"></i></a>
 				</li>
 				<%} %>
 				<li class="nav-item dropdown">
-					<a class="nav-link" href="${baseUrl}/app/notifications" title="通知"><i class="icon zmdi zmdi-notifications"></i><span class="indicator hide"></span></a>
+					<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="${baseUrl}/app/notifications"><i class="icon zmdi zmdi-notifications"></i><span class="J_notification-indicator indicator hide"></span></a>
+					<ul class="dropdown-menu rb-notifications">
+					<li>
+						<div class="title">未读 <span class="badge badge-pill">0</span></div>
+						<div class="list">
+							<div class="rb-scroller-notifications">
+								<div class="content">
+									<ul>
+										<li class="notification notification-unread">
+											<a href="${baseUrl}/app/notification/123">
+												<div class="image"><img src="${baseUrl}/assets/img/avatar.png" alt="Avatar"></div>
+												<div class="notification-info">
+													<div class="text"><span class="user-name">Jessica Caruso</span> accepted your invitation to join the team.</div>
+													<span class="date">2 min ago</span>
+												</div>
+											</a>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+						<div class="footer"><a href="${baseUrl}/app/notifications">查看全部</a></div>
+					</li>
+					</ul>
 				</li>
 			</ul>
 		</div>
