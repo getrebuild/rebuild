@@ -203,7 +203,7 @@ public class GeneralEntityService extends BaseService {
 		share.setInt("entity", record.getEntityCode());
 		share.setString("recordId", record.toLiteral());
 		share.setString("shareTo", to.toLiteral());
-		share.setInt("rights", 999);
+		share.setInt("rights", BizzPermission.READ.getMask());
 		super.create(share);
 		
 		int affected = 1;

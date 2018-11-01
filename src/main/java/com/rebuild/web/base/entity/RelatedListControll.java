@@ -68,7 +68,9 @@ public class RelatedListControll extends BaseControll {
 		String sql = genMasterSql(masterId, relatedEntity, false);
 		
 		int pn = NumberUtils.toInt(getParameter(request, "pageNo"), 1);
-		int ps = NumberUtils.toInt(getParameter(request, "pageSize"), 200);
+		int ps = NumberUtils.toInt(getParameter(request, "pageSize"), 100);
+		
+		// TODO 相关项列表分页
 		
 		Object[][] array = Application.createQuery(sql).setLimit(ps, pn * ps - ps).array();
 		for (Object[] o : array) {

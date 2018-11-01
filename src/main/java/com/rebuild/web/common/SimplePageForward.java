@@ -45,4 +45,9 @@ public class SimplePageForward extends PageControll {
 		
 		return createModelAndView(path);
 	}
+	
+	@RequestMapping(value={ "/gw/server-status" }, method = RequestMethod.GET)
+	public ModelAndView pageServersStatus(HttpServletRequest request) {
+		return createModelAndView("/server-status.jsp");
+	}
 }

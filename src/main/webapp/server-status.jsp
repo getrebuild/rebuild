@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.rebuild.utils.AppUtils"%>
 <%@ page import="com.rebuild.server.helper.SystemConfigurer"%>
 <%@ page import="org.apache.commons.lang.SystemUtils"%>
 <%@ page import="cn.devezhao.commons.CalendarUtils"%>
@@ -6,7 +7,7 @@
 <%@ page import="com.rebuild.server.ServerListener"%>
 <%@ page import="com.rebuild.server.Application"%>
 <%@ page import="org.apache.commons.lang.StringUtils"%>
-<%@ page import="com.rebuild.server.ServersStatus"%>
+<%@ page import="com.rebuild.server.ServerStatus"%>
 <%@ page import="java.util.Map"%>
 <!DOCTYPE html>
 <html>
@@ -24,7 +25,7 @@
 	<h5 class="text-bold">快速检查</h5>
 	<table class="table table-bordered table-sm">
 	<tbody>
-		<% for (Map.Entry<String, String> e : ServersStatus.getLastStatus().entrySet()) { %>
+		<% for (Map.Entry<String, String> e : ServerStatus.getLastStatus().entrySet()) { %>
 		<tr>
 			<th><%=e.getKey()%></th>
 			<td><%=e.getValue() == StringUtils.EMPTY ? "OK" : e.getValue()%></td>
@@ -41,20 +42,21 @@
 	</tbody>
 	</table>
 </div>
+<% if (AppUtils.getRequestUser(request) != null) { %>
 <div class="block">
 	<h5 class="text-bold">系统信息</h5>
 	<table class="table table-bordered table-sm">
 	<tbody>
 		<tr>
-			<th width="30%">版本</th>
+			<th width="30%">Application Version</th>
 			<td><a href="https://github.com/getrebuild/rebuild/releases"><%=Application.VER%></a></td>
 		</tr>
 		<tr>
-			<th>启动时间</th>
+			<th>Startup Time</th>
 			<td><%=ServerListener.getStartupTime()%></td>
 		</tr>
 		<tr>
-			<th>系统时间</th>
+			<th>System Time</th>
 			<td><%=CalendarUtils.now()%></td>
 		</tr>
 		<tr>
@@ -76,8 +78,9 @@
 	</tbody>
 	</table>
 </div>
+<% } %>
 <div class="block">
-<div class="text-muted">&copy; 2018 <a href="https://github.com/getrebuild/rebuild/">Rebuild</a></div>
+<div class="text-muted">&copy; 2018 <a href="https://getrebuild.com/">Rebuild</a></div>
 </div>
 </body>
 </html>

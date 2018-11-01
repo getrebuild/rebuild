@@ -126,7 +126,7 @@
 		<field name="entity" type="int" nullable="false" description="哪个实体"/>
 		<field name="recordId" type="string" max-length="20" nullable="false" updatable="false" description="记录ID" />
 		<field name="shareTo" type="string" max-length="20" nullable="false" updatable="false" description="共享给谁 (User/Dept/Role)" />
-		<field name="rights" type="int" nullable="false" updatable="false" description="共享权限(C=1,R=2,U=4,D=8)" />
+		<field name="rights" type="int" nullable="false" default-value="0" description="共享权限(R=2,U=4,D=8,0=Auto)" />
 		<index field-list="entity,recordId,shareTo"/>
 	</entity>
 	

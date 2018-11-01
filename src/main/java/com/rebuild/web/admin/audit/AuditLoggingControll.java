@@ -16,26 +16,29 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.api;
+package com.rebuild.web.admin.audit;
+
+import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.rebuild.web.BaseControll;
 
 /**
- * OpenAPI 入口
  * 
- * @author zhaofang123@gmail.com
- * @since 05/19/2018
+ * @author devezhao
+ * @since 11/01/2018
  */
 @Controller
-public class ApiGeteway {
-	
-	@RequestMapping("/gw/api/{apiName}")
-	public void api(@PathVariable String apiName,
-			HttpServletRequest request, HttpServletResponse response) throws Exception {
+@RequestMapping("/admin/")
+public class AuditLoggingControll extends BaseControll {
+
+	@RequestMapping("audit-logging")
+	public ModelAndView pageLogging(HttpServletRequest request) throws IOException {
+		return createModelAndView("/admin/audit/logging.jsp");
 	}
 }

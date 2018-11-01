@@ -31,7 +31,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
 import com.rebuild.server.ServerListener;
-import com.rebuild.server.ServersStatus;
+import com.rebuild.server.ServerStatus;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.admin.AdminEntryControll;
 
@@ -51,8 +51,8 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
 			Object handler) throws Exception {
-		if (!ServersStatus.isStatusOK()) {
-			ServletUtils.forward(request, response, "/servers-status.jsp");
+		if (!ServerStatus.isStatusOK()) {
+			response.sendRedirect(ServerListener.getContextPath() + "/gw/server-status");
 			return false;
 		}
 		
@@ -165,6 +165,8 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	
 	static boolean isIgnoreRes(String requestUrl) {
 		if (requestUrl.contains("/user/") && !requestUrl.contains("/user/admin")) {
+			return true;
+		} if (requestUrl.contains("/gw/")) {
 			return true;
 		} else if (requestUrl.contains("/assets")) {
 			return true;

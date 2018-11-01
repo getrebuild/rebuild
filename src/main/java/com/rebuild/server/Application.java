@@ -50,7 +50,7 @@ public final class Application {
 	
 	/** Rebuild Version
 	 */
-	public static final String VER = "REBUILD 1.0.0-SNAPSHOT";
+	public static final String VER = "1.0.0-SNAPSHOT";
 	
 	/** Logging for Global
 	 */
@@ -70,7 +70,7 @@ public final class Application {
 	 * 初始化
 	 */
 	protected void init(long startingAt) {
-		boolean serversReady = ServersStatus.quickcheck();
+		boolean serversReady = ServerStatus.quickcheck();
 		if (!serversReady) {
 			LOG.info("Rebuild Booting failed!");
 			return;

@@ -37,7 +37,7 @@ import cn.devezhao.commons.ThrowableUtils;
  * @author devezhao
  * @since 10/31/2018
  */
-public class ServersStatus {
+public class ServerStatus {
 
 	private static final Map<String, String> LAST_STATUS = new ConcurrentHashMap<>();
 	static {
@@ -74,7 +74,7 @@ public class ServersStatus {
 	 */
 	public static boolean quickcheck() {
 		String DataSource = checkingDataSource();
-		Application.LOG.info("Checking DataSource : " + (DataSource == EMPTY ? "[OK]" : DataSource));
+		Application.LOG.info("Checking DataSource : " + (DataSource == EMPTY ? "[ OK ]" : DataSource));
 		LAST_STATUS.put("DataSource", DataSource);
 
 		return DataSource == EMPTY;

@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.bizz.privileges;
 
+import com.rebuild.server.Application;
 import com.rebuild.server.bizz.RoleService;
 import com.rebuild.server.bizz.UserService;
 import com.rebuild.server.helper.cache.RecordOwningCache;
@@ -276,7 +277,7 @@ public class SecurityManager {
 		if (BizzDepthEntry.PRIVATE.equals(depth)) {
 			allowed = user.equals(targetUserId);
 			if (allowed == false) {
-				return allowedViaShare(user, user, action);
+				return allowedViaShare(user, target, action);
 			}
 			return true;
 		}
@@ -288,7 +289,7 @@ public class SecurityManager {
 		if (BizzDepthEntry.LOCAL.equals(depth)) {
 			allowed = accessUserDept.equals(targetUser.getOwningDept());
 			if (allowed == false) {
-				return allowedViaShare(user, user, action);
+				return allowedViaShare(user, target, action);
 			}
 			return true;
 		}
@@ -300,7 +301,7 @@ public class SecurityManager {
 			
 			allowed = accessUserDept.isChildrenAll((Department) targetUser.getOwningDept());
 			if (allowed == false) {
-				return allowedViaShare(user, user, action);
+				return allowedViaShare(user, target, action);
 			}
 			return true;
 		}
@@ -309,7 +310,7 @@ public class SecurityManager {
 	}
 	
 	/**
-	 * TODO 通过共享取得的操作权限
+	 * 通过共享取得的操作权限
 	 * 
 	 * @param user
 	 * @param target
@@ -317,6 +318,25 @@ public class SecurityManager {
 	 * @return
 	 */
 	private boolean allowedViaShare(ID user, ID target, Permission action) {
+		
+		// TODO 目前只共享了读取权限
+		// TODO 性能优化-缓存
+		
+		if (action != BizzPermission.READ) {
+			return false;
+		}
+		
+		Object[] rights = Application.createQueryNoFilter(
+				"select rights from ShareAccess where entity = ? and recordId = ? and shareTo = ?")
+				.setParameter(1, target.getEntityCode())
+				.setParameter(2, target)
+				.setParameter(3, user)
+				.unique();
+		int rightsVal = rights == null ? 0 : (int) rights[0];
+		if ((rightsVal & BizzPermission.READ.getMask()) != 0) {
+			return true;
+		}
+		
 		return false;
 	}
 	
@@ -346,7 +366,7 @@ public class SecurityManager {
 	}
 	
 	/**
-	 * TODO 用户/部门全局可读
+	 * TODO 用户/部门/角色 全局可读
 	 * 
 	 * @param entity
 	 * @return
