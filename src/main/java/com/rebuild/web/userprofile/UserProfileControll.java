@@ -53,8 +53,9 @@ public class UserProfileControll extends BaseControll {
 		return createModelAndView("/user-profile/account.jsp", "User", getRequestUser(request));
 	}
 	
-	@RequestMapping("/people/{user}")
+	@RequestMapping({ "/people/{user}", "/userhome/{user}" })
 	public ModelAndView pagePeople(@PathVariable String user, HttpServletRequest request) throws IOException {
+		// TODO 用户首页
 		return createModelAndView("/user-profile/user-home.jsp", "User", getRequestUser(request));
 	}
 	

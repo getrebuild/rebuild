@@ -33,29 +33,31 @@
 	color: #0d5bdd !important;
 }
 
-.navbar-nav .dropdown > .nav-link:hover>.icon, .bottom-widget > a:hover>.icon {
+.navbar-nav .dropdown>.nav-link:hover>.icon, .bottom-widget>a:hover>.icon
+	{
 	opacity: 0.8;
 }
 
-.rb-color-header .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar .icon {
-	color: rgba(255,255,255,.6)
+.rb-color-header .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar .icon
+	{
+	color: rgba(255, 255, 255, .6)
 }
 
 .logo-img {
 	max-height: 24px;
 }
 
-.alert-icon.min > .icon {
+.alert-icon.min>.icon {
 	width: 42px;
 	font-size: 1.6rem
 }
-.alert-icon.min > .message {
+
+.alert-icon.min>.message {
 	padding: 0.8rem;
 	padding-left: 1.3rem;
 }
 
-.input-search,
-.input-search input {
+.input-search, .input-search input {
 	width: 220px;
 	height: 2.8rem;
 }
@@ -66,8 +68,7 @@
 	min-width: auto;
 }
 
-.input-search button .icon,
-.adv-search button .icon {
+.input-search button .icon, .adv-search button .icon {
 	font-size: 1.55rem !important;
 	color: #737373;
 }
@@ -132,8 +133,7 @@
 	color: #fff;
 }
 
-.rbmodal.show,
-.rbview.show {
+.rbmodal.show, .rbview.show {
 	display: block !important;
 }
 
@@ -177,13 +177,12 @@ body.dialog .main-content {
 	margin-left: 5px;
 }
 
-.dialog-footer > .float-left > .custom-control {
-	margin:0;
-	margin-top:6px
+.dialog-footer>.float-left>.custom-control {
+	margin: 0;
+	margin-top: 6px
 }
 
-body.dialog .main-content .footer,
-.rbform .footer {
+body.dialog .main-content .footer, .rbform .footer {
 	padding-bottom: 6px;
 }
 
@@ -227,7 +226,6 @@ a {
 }
 
 /* for Form page */
-
 .rbform>form>.alert {
 	margin: 20px;
 	margin-bottom: 0;
@@ -286,8 +284,7 @@ a {
 	cursor: default;
 }
 
-.img-field a.img-upload b,
-.file-field .img-thumbnail b {
+.img-field a.img-upload b, .file-field .img-thumbnail b {
 	display: none;
 	position: absolute;
 	bottom: 0;
@@ -301,13 +298,12 @@ a {
 	text-align: center;
 }
 
-.img-field a.img-upload:hover b,
-.file-field .img-thumbnail:hover b {
+.img-field a.img-upload:hover b, .file-field .img-thumbnail:hover b {
 	display: block;
 }
 
-.img-field a.img-upload:hover b:hover,
-.file-field .img-thumbnail:hover b:hover {
+.img-field a.img-upload:hover b:hover, .file-field .img-thumbnail:hover b:hover
+	{
 	background-color: rgba(0, 0, 0, 0.6);
 }
 
@@ -438,8 +434,7 @@ a {
 	color: #fff
 }
 
-.ui-mprogress .bar-bg,
-.ui-mprogress .buffer-bg {
+.ui-mprogress .bar-bg, .ui-mprogress .buffer-bg {
 	z-index: 1051;
 }
 
@@ -448,10 +443,8 @@ a {
 }
 
 /* for DataList page */
-
-.rb-datatable-body,
-.rb-datatable-body .rb-scroller,
-.rb-datatable-body .rb-loading {
+.rb-datatable-body, .rb-datatable-body .rb-scroller, .rb-datatable-body .rb-loading
+	{
 	min-height: 200px;
 }
 
@@ -462,7 +455,6 @@ a {
 .rblist-scroller>div {
 	overflow: hidden;
 }
-
 
 .list-nodata {
 	text-align: center;
@@ -489,8 +481,7 @@ a {
 	background-color: #fff;
 }
 
-.data-list .table th,
-.data-list .table td {
+.data-list .table th, .data-list .table td {
 	cursor: default;
 	white-space: nowrap;
 	font-weight: normal;
@@ -515,7 +506,7 @@ a {
 	text-overflow: ellipsis;
 }
 
-.data-list .table thead th>div>span{
+.data-list .table thead th>div>span {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -554,8 +545,7 @@ i.split.ui-draggable-dragging {
 	content: '\f2f9';
 }
 
-.data-list .table td,
-.data-list .table td>div {
+.data-list .table td, .data-list .table td>div {
 	white-space: nowrap;
 	max-width: 100%;
 	text-overflow: ellipsis;
@@ -565,8 +555,7 @@ i.split.ui-draggable-dragging {
 	white-space: nowrap;
 }
 
-.data-list .table td,
-.data-list .table td>div.nmw {
+.data-list .table td, .data-list .table td>div.nmw {
 	max-width: 1000px;
 }
 
@@ -618,14 +607,17 @@ i.split.ui-draggable-dragging {
 	border-bottom: 0 solid;
 }
 
-.column-url {}
+.column-url {
+	
+}
 
-.link:hover,
-.column-url:hover {
+.link:hover, .column-url:hover {
 	text-decoration: underline;
 }
 
-.column-empty {}
+.column-empty {
+	
+}
 
 .text-3dot {
 	overflow: hidden;
@@ -658,9 +650,22 @@ i.split.ui-draggable-dragging {
 	padding: 11px 15px
 }
 
-.sortable-box-title{margin-top:9px;}
-.sortable-swap{position:relative;}
-.sortable-swap>.zmdi-swap{position:absolute;font-size:2rem;color:#aaa;right:-10px;top:50%;margin-top:-1rem;}
+.sortable-box-title {
+	margin-top: 9px;
+}
+
+.sortable-swap {
+	position: relative;
+}
+
+.sortable-swap>.zmdi-swap {
+	position: absolute;
+	font-size: 2rem;
+	color: #aaa;
+	right: -10px;
+	top: 50%;
+	margin-top: -1rem;
+}
 
 .sortable-box {
 	border: 1px solid #eee;
@@ -677,6 +682,7 @@ i.split.ui-draggable-dragging {
 .sortable-box.h380 {
 	height: 388px;
 }
+
 .sortable-box.h380 .dd-list {
 	height: 380px;
 }
@@ -685,6 +691,7 @@ i.split.ui-draggable-dragging {
 	margin: 2px 0;
 	position: relative;
 }
+
 .sortable-box .dd-placeholder {
 	min-height: 36px;
 }
@@ -714,19 +721,36 @@ i.split.ui-draggable-dragging {
 	font-size: 1.23rem;
 	margin-top: 3px;
 }
+
 .sortable-box .dd-list .dd3-action a:hover .zmdi {
 	color: #4285f4;
 }
 
-.sortable-box .dd-list .dd3-item:hover > .dd3-action {
+.sortable-box .dd-list .dd3-item:hover>.dd3-action {
 	display: block;
 }
 
-.sortable-box .unset-list .dd-handle{padding-right:30px}
-.sortable-box .unset-list .dd-handle::before{content:'\f278';font:normal normal normal 14px/1 'Material-Design-Iconic-Font';float:right;font-size:1.6rem;color:#999;float:right;margin-right:-20px}
-.sortable-box .unset-list .dd-item:hover .dd-handle::before{color:#fff}
+.sortable-box .unset-list .dd-handle {
+	padding-right: 30px
+}
 
-.sortable-box .dd-list .dd3-item.active>.dd3-content{background-color:#dedede !important}
+.sortable-box .unset-list .dd-handle::before {
+	content: '\f278';
+	font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
+	float: right;
+	font-size: 1.6rem;
+	color: #999;
+	float: right;
+	margin-right: -20px
+}
+
+.sortable-box .unset-list .dd-item:hover .dd-handle::before {
+	color: #fff
+}
+
+.sortable-box .dd-list .dd3-item.active>.dd3-content {
+	background-color: #dedede !important
+}
 
 .rb-left-sidebar .bottom-widget {
 	padding: 3px 16px;
@@ -871,7 +895,8 @@ i.split.ui-draggable-dragging {
 	padding: 6px 9px;
 	cursor: default;
 }
-.dept-tree > ul > li > a {
+
+.dept-tree>ul>li>a {
 	margin-left: 0;
 }
 
@@ -892,6 +917,7 @@ i.split.ui-draggable-dragging {
 	top: 1px;
 	display: none;
 }
+
 .dept-tree li>div.action a {
 	display: inline-block;
 	height: 30px;
@@ -900,13 +926,108 @@ i.split.ui-draggable-dragging {
 	text-align: center;
 	font-size: 1.2rem;
 	color: #fff !important;
-	background-color: rgba(0,0,0,0.2);
+	background-color: rgba(0, 0, 0, 0.2);
 	border-radius: 2px;
 	margin-left: 1px;
 }
-.dept-tree li>div.action a:hover{
-	background-color: rgba(0,0,0,0.4);
+
+.dept-tree li>div.action a:hover {
+	background-color: rgba(0, 0, 0, 0.4);
 }
+
 .dept-tree ul>li.active:hover>div.action {
 	display: block;
+}
+
+/* AdvFilter */
+.adv-filter-warp {
+	background-color: #fff;
+	padding: 20px;
+	max-width: 560px;
+}
+
+.adv-filter {
+	position: relative;
+}
+
+.adv-filter .item+.item {
+	margin-top: 12px;
+}
+
+.adv-filter .item.plus a {
+	display: inline-block;
+	padding: 3px;
+	position: relative;
+	padding-left: 24px;
+}
+
+.adv-filter .item.plus a .icon {
+	font-size: 1.4rem;
+	position: absolute;
+	left: 0;
+	margin-top: -1px
+}
+
+.adv-filter .item .field {
+	padding-left: 38px;
+	position: relative;
+}
+
+.adv-filter .item .field em {
+	float: left;
+	margin-left: -25px;
+	font-size: 12px;
+	font-style: normal;
+	padding-top: 10px;
+	color: #777;
+}
+.adv-filter .item .field i.zmdi {
+	position: absolute;
+	top: 7px;
+	left: 15px;
+	font-size: 1.4rem;
+	color: #999;
+	display: none;
+	cursor: pointer;
+}
+.adv-filter .item .field i.zmdi:hover{
+	color: #0d5bdd;
+}
+.adv-filter .item:hover .field i.zmdi {
+	display: block;
+}
+
+.adv-filter .item .op {
+	padding-left: 0;
+	padding-right: 0;
+}
+.adv-filter .item .val input+input{
+	margin-top: 6px;
+}
+
+.adv-filter .select2-container--default .select2-selection--single {
+	height: 34px;
+}
+
+.adv-filter .select2-container--default .select2-selection--single .select2-selection__rendered,
+	.adv-filter .form-control-sm {
+	height: 34px !important;
+	line-height: 34px;
+	padding-left: 8px;
+	padding-right: 8px;
+}
+
+.adv-filter .form-control-sm {
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+
+.adv-filter .select2-container--default .select2-selection--single .select2-selection__arrow b:after
+	{
+	line-height: 34px;
+}
+.adv-filter+.adv-filter {
+	border-top:1px solid #eee;
+	padding-top: 8px;
+	margin-top: 8px;
 }

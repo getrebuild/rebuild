@@ -205,3 +205,8 @@ const $storage = {
 		else $.removeCookie(key)
 	}
 }
+
+let random_times = 0
+const $random = function(){
+	return new Date().getTime() + '-' + random_times++
+}

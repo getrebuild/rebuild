@@ -18,11 +18,16 @@
 	<div class="rb-content">
 		<div class="main-content container-fluid">
 			<h3 class="text-center">首页可配置仪表盘</h3>
+			<div id="advfilter"></div>
 		</div>
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/javascript">
+<script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
+<script type="text/babel">
+$(document).ready(function(){
+	renderRbcomp(<AdvFilter entity="ceshiziduan" trigger="" />, 'advfilter')
+})
 </script>
 </body>
 </html>

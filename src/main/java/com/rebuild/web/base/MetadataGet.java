@@ -72,7 +72,9 @@ public class MetadataGet extends BaseControll {
 		for (Field e : PortalMetaSorter.sortFields(entityBase)) {
 			Map<String, String> map = new HashMap<>();
 			map.put("name", e.getName());
-			map.put("label", EasyMeta.getLabel(e));
+			EasyMeta easyMeta = new EasyMeta(e);
+			map.put("label", easyMeta.getLabel());
+			map.put("type", easyMeta.getDisplayType(false));
 			list.add(map);
 		}
 		writeSuccess(response, list);
