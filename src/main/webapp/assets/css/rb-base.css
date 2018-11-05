@@ -11272,7 +11272,7 @@ canvas {
 	top: 1px
 }
 
-.rb-icons-nav>li.dropdown>a .indicator {
+.rb-icons-nav>li.dropdown>a .indicator, .unread-flag {
 	background-color: #4285f4;
 	border-radius: 50%;
 	display: block;

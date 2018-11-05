@@ -20,6 +20,8 @@ package com.rebuild.server;
 
 import static org.apache.commons.lang.StringUtils.EMPTY;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.sql.Connection;
 import java.util.Collections;
 import java.util.Map;
@@ -27,7 +29,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+
+import com.rebuild.server.helper.SystemConfigurer;
 
 import cn.devezhao.commons.ThrowableUtils;
 
@@ -42,6 +47,7 @@ public class ServerStatus {
 	private static final Map<String, String> LAST_STATUS = new ConcurrentHashMap<>();
 	static {
 		LAST_STATUS.put("DataSource", EMPTY);
+		LAST_STATUS.put("CreateFile", EMPTY);
 		LAST_STATUS.put("StroageService", EMPTY);
 		LAST_STATUS.put("CacheService", EMPTY);
 	}
@@ -72,24 +78,51 @@ public class ServerStatus {
 	 * 
 	 * @return
 	 */
-	public static boolean quickcheck() {
-		String DataSource = checkingDataSource();
-		Application.LOG.info("Checking DataSource : " + (DataSource == EMPTY ? "[ OK ]" : DataSource));
-		LAST_STATUS.put("DataSource", DataSource);
-
-		return DataSource == EMPTY;
+	public static boolean checkAll() {
+		String theDataSource = checkDataSource();
+		Application.LOG.info("Checking DataSource : " + (theDataSource == EMPTY ? "[ OK ]" : theDataSource));
+		LAST_STATUS.put("DataSource", theDataSource);
+		
+		String theCreateFile = checkCreateFile();
+		Application.LOG.info("Checking CreateFile : " + (theCreateFile == EMPTY ? "[ OK ]" : theCreateFile));
+		LAST_STATUS.put("CreateFile", theCreateFile);
+		
+		return isStatusOK();
 	}
 
 	/**
 	 * @return
 	 */
-	protected static String checkingDataSource() {
+	protected static String checkDataSource() {
 		try {
 			DataSource ds = Application.getPersistManagerFactory().getDataSource();
 			Connection c = DataSourceUtils.getConnection(ds);
 			DataSourceUtils.releaseConnection(c, ds);
 		} catch (Exception ex) {
 			return ThrowableUtils.getRootCause(ex).getLocalizedMessage();
+		}
+		return EMPTY;
+	}
+	
+	/**
+	 * @return
+	 */
+	protected static String checkCreateFile() {
+		FileWriter fw = null;
+		try {
+			File test = SystemConfigurer.getFileOfTemp("test");
+			fw = new FileWriter(test);
+			IOUtils.write("TestCreateFile", fw);
+			if (!test.exists()) {
+				return "Cloud't create file in temp Directory";
+			} else {
+				test.delete();
+			}
+			
+		} catch (Exception ex) {
+			return ThrowableUtils.getRootCause(ex).getLocalizedMessage();
+		} finally {
+			IOUtils.closeQuietly(fw);
 		}
 		return EMPTY;
 	}

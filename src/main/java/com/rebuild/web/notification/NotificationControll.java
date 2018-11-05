@@ -86,8 +86,12 @@ public class NotificationControll extends BaseControll {
 		int pn = getIntParameter(request, "page", 1);
 		int ps = 20;
 		
-		Object[][] array = Application.createQueryNoFilter(
-				"select fromUser,message,unread,messageId,createdOn from Notification where toUser = ? and unread = 'T' order by createdOn desc")
+		boolean isAll = getBoolParameter(request, "isAll");
+		String sql = "select fromUser,message,unread,messageId,createdOn from Notification where toUser = ? and (1=1) order by createdOn desc";
+		if (isAll == false) {
+			sql = sql.replace("(1=1)", "unread = 'T'");
+		}
+		Object[][] array = Application.createQueryNoFilter(sql)
 				.setParameter(1, user)
 				.setLimit(ps, pn * ps - ps)
 				.array();
@@ -118,12 +122,14 @@ public class NotificationControll extends BaseControll {
 	@RequestMapping("/app/notification/toggle-unread")
 	public void toggleUnread(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		ID messageId = getIdParameter(request, "id");
+		String ids = getParameter(request, "id");
 		String state = getParameter(request, "state");
 		
-		Record record = EntityHelper.forUpdate(messageId, user);
-		record.setBoolean("unread", "unread".equalsIgnoreCase(state));
-		Application.getCommonService().update(record);
+		for (String id : ids.split(",")) {
+			Record record = EntityHelper.forUpdate(ID.valueOf(id), user);
+			record.setBoolean("unread", "unread".equalsIgnoreCase(state));
+			Application.getCommonService().update(record);
+		}
 		writeSuccess(response);
 	}
 }

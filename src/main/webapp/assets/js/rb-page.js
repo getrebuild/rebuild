@@ -36,7 +36,7 @@ $(function(){
 		$('.J_for-admin').remove()
 	}
 	
-	if ($('.J_notification-indicator').length > 0) {
+	if ($('.rb-notifications').length > 0) {
 		setTimeout(__checkMessage, 1500)
 	}
 });
@@ -116,11 +116,22 @@ const __initNavs = function(){
 }
 
 // 检查消息
+let __checkMessage_status = 0
 const __checkMessage = function(){
 	$.get(rb.baseUrl + '/app/notification/check-message', function(res){
+		let show = $('.rb-notifications').prev()
 		if (res.data.unread > 0){
-			$('.J_notification-indicator').removeClass('hide')
-			$('.rb-notifications span.badge').text(res.data.unread)
+			if (__checkMessage_status != res.data.unread) {
+				show.find('.indicator').removeClass('hide')
+				show.tooltip({ title: '有 ' + res.data.unread + ' 条未读消息', offset: -6 })
+				$('.rb-notifications span.badge').text(res.data.unread)
+				__checkMessage_status = res.data.unread
+			}
+		} else if (__checkMessage_status > 0) {
+			show.find('.indicator').addClass('hide')
+			show.attr('title', '').tooltip('dispose')
+			$('.rb-notifications span.badge').text('0')
+			__checkMessage_status = 0
 		}
 		setTimeout(__checkMessage, 3000);
 	})

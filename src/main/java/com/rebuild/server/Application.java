@@ -70,7 +70,7 @@ public final class Application {
 	 * 初始化
 	 */
 	protected void init(long startingAt) {
-		boolean serversReady = ServerStatus.quickcheck();
+		boolean serversReady = ServerStatus.checkAll();
 		if (!serversReady) {
 			LOG.info("Rebuild Booting failed!");
 			return;

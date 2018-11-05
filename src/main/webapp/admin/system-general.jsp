@@ -76,7 +76,7 @@ h5{background-color:#eee;margin:0;padding:10px;}
 							<ul style="line-height:2">
 								<li><a class="link" target="_blank" href="http://getrebuild.com/">帮助文档</a></li>
 								<li><a class="link" target="_blank" href="mailto:getrebuild@sina.com?subject=技术支持">技术支持</a></li>
-								<li><a class="link" target="_blank" href="mailto:getrebuild@sina.com?subject=定制开发与实施部署">定制开发与实施部署</a></li>
+								<li><a class="link" target="_blank" href="${baseUrl}/gw/server-status">系统运行状态</a></li>
 								<li><a class="link" target="_blank" href="https://github.com/getrebuild/rebuild">View on GitHub</a></li>
 							</ul>
 							<div class="text-muted"><i class="zmdi zmdi-info-outline"></i> 本软件系统使用 <a class="link" href="http://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GPL-3.0</a> 许可。请遵循许可协议。</div>
