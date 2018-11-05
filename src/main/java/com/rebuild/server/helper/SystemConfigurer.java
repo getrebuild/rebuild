@@ -139,6 +139,20 @@ public class SystemConfigurer {
 		return new String[] { host, port, user, password };
 	}
 	
+	/**
+	 * @return
+	 */
+	public static String[] getEmailAccount() {
+		return null;
+	}
+	
+	/**
+	 * @return
+	 */
+	public static String[] getSmsAccount() {
+		return null;
+	}
+	
 	/*-
 	 * 从数据库-配置文件获取
 	 */

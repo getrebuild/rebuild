@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.rebuild.server.bizz.RoleService;
 import com.rebuild.server.bizz.UserService;
+import com.rebuild.server.helper.SystemConfigurer;
 
 import cn.devezhao.persist4j.engine.ID;
 
@@ -58,7 +59,15 @@ public class User extends cn.devezhao.bizz.security.member.User {
 	}
 	
 	public String getAvatarUrl() {
-		return avatarUrl;
+		return getAvatarUrl(false);
+	}
+	
+	public String getAvatarUrl(boolean fullUrl) {
+		if (fullUrl) {
+			return SystemConfigurer.getStorageUrl() + getAvatarUrl();
+		} else {
+			return avatarUrl;
+		}
 	}
 	
 	public Department getOwningDept() {

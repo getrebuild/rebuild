@@ -19,6 +19,10 @@
 	height: 3.4rem;
 }
 
+.border-none {
+	border-width: 0 !important;
+}
+
 .btn.btn-link {
 	box-shadow: 0 0 0 transparent;
 	color: #4285f4 !important;
