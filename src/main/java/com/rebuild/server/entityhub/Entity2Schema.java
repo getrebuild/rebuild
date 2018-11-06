@@ -25,13 +25,13 @@ import org.apache.commons.logging.LogFactory;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.Dialect;
 import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.persist4j.util.StringHelper;
 import cn.devezhao.persist4j.util.support.Table;
 
 /**
@@ -61,20 +61,16 @@ public class Entity2Schema extends Field2Schema {
 	 * @return
 	 */
 	public String create(String entityLabel, String comments) {
-		String entityName = toPinyinString(entityLabel);
+		String entityName = toPinyinName(entityLabel);
 		while (true) {
-			Object exists = Application.createQueryNoFilter(
-					"select entityId from MetaEntity where entityName = ?")
-					.setParameter(1, entityName)
-					.unique();
-			if (exists != null) {
-				entityName += (1000 + RandomUtils.nextInt(8999));
+			if (MetadataHelper.containsEntity(entityName)) {
+				entityName += (10 + RandomUtils.nextInt(89));
 			} else {
 				break;
 			}
 		}
 		
-		String physicalName = "T__" + StringHelper.hyphenate(entityName).toUpperCase();
+		String physicalName = "T__" + entityName.toUpperCase();
 		
 		Object maxTypeCode[] = Application.createQueryNoFilter(
 				"select min(typeCode) from MetaEntity").unique();

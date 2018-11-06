@@ -978,8 +978,10 @@ i.split.ui-draggable-dragging {
 	margin-left: -25px;
 	font-size: 12px;
 	font-style: normal;
+	font-weight: bold;
 	padding-top: 10px;
 	color: #777;
+	padding-left: 5px;
 }
 .adv-filter .item .field i.zmdi {
 	position: absolute;
@@ -989,12 +991,16 @@ i.split.ui-draggable-dragging {
 	color: #999;
 	display: none;
 	cursor: pointer;
+	background-color: #fff;
 }
 .adv-filter .item .field i.zmdi:hover{
 	color: #0d5bdd;
 }
 .adv-filter .item:hover .field i.zmdi {
 	display: block;
+}
+.adv-filter .item:hover .field em {
+	display: none;
 }
 
 .adv-filter .item .op {
@@ -1005,25 +1011,54 @@ i.split.ui-draggable-dragging {
 	margin-top: 6px;
 }
 
-.adv-filter .select2-container--default .select2-selection--single {
+.adv-filter .item .val .val-range {
+	position: relative;
+}
+.adv-filter .item .val .val-range > span {
+	position: absolute;
+	right: 6px;
+	top: 6px;
+	height: 22px;
+	width: 22px;
+	line-height: 22px;
+	text-align: center;
+	background-color: #eee;
+	color: #999;
+	border-radius: 50%;
+	font-size: 12px;
+}
+.adv-filter .item .val .val-range > span.end {
+	top: 46px;
+}
+
+.adv-filter .select2-container--default .select2-selection--single, .adv-filter .select2-container--default .select2-selection--multiple {
 	height: 34px;
+}
+.adv-filter .select2-container--default .select2-selection--multiple {
+	min-height: 34px;
 }
 
 .adv-filter .select2-container--default .select2-selection--single .select2-selection__rendered,
-	.adv-filter .form-control-sm {
-	height: 34px !important;
+.adv-filter .select2-container--default .select2-selection--multiple .select2-selection__rendered,
+.adv-filter .form-control-sm {
+	height: 34px;
 	line-height: 34px;
 	padding-left: 8px;
 	padding-right: 8px;
 }
 
 .adv-filter .form-control-sm {
+	height: 34px !important;
 	padding-top: 2px;
 	padding-bottom: 2px;
 }
 
-.adv-filter .select2-container--default .select2-selection--single .select2-selection__arrow b:after
-	{
+.adv-filter .select2-container .select2-search--inline .select2-search__field,
+.adv-filter .select2-container--default .select2-selection--multiple .select2-selection__choice {
+	margin-top: 3px;
+}
+
+.adv-filter .select2-container--default .select2-selection--single .select2-selection__arrow b:after {
 	line-height: 34px;
 }
 .adv-filter+.adv-filter {

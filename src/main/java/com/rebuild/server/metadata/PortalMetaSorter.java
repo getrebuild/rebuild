@@ -19,6 +19,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.metadata;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import com.rebuild.server.entityhub.DisplayType;
@@ -114,21 +116,16 @@ public class PortalMetaSorter {
 	}
 	
 	/**
-	 * 排序
+	 * 按 Label 排序
 	 * 
 	 * @param metas
 	 */
 	private static void sortBaseMeta(BaseMeta[] metas) {
-//		ArrayUtils.reverse(metas);
-		
-		// TODO 元数据排序算法
-		
-//		Arrays.sort(metas, new Comparator<BaseMeta>() {
-//			@Override
-//			public int compare(BaseMeta a, BaseMeta b) {
-//				int c = EasyMeta.getLabel(a).compareToIgnoreCase(EasyMeta.getLabel(b));
-//				return c;
-//			}
-//		});
+		Arrays.sort(metas, new Comparator<BaseMeta>() {
+			@Override
+			public int compare(BaseMeta o1, BaseMeta o2) {
+				return EasyMeta.getLabel(o1).compareToIgnoreCase(EasyMeta.getLabel(o2));
+			}
+		});
 	}
 }

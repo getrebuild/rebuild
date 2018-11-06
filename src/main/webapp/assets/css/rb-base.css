@@ -23614,7 +23614,9 @@ div.dataTables_wrapper div.dataTables_filter label select {
 
 .datetimepicker table tbody tr td {
 	line-height: 31px;
-	padding: 0 8px
+	padding: 0 8px;
+	line-height: 28px;
+	padding: 0 7px;
 }
 
 .datetimepicker table tbody tr td.day {

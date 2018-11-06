@@ -72,10 +72,10 @@ public class Field2Schema {
 	 * @return
 	 */
 	public String create(Entity entity, String fieldLabel, DisplayType type, String comments, String refEntity) {
-		String fieldName = toPinyinString(fieldLabel);
+		String fieldName = toPinyinName(fieldLabel);
 		while (true) {
 			if (entity.containsField(fieldName)) {
-				fieldName += (1000 + RandomUtils.nextInt(8999));
+				fieldName += (10 + RandomUtils.nextInt(89));
 			} else {
 				break;
 			}
@@ -128,7 +128,7 @@ public class Field2Schema {
 		Record record = EntityHelper.forNew(EntityHelper.MetaField, user);
 		record.setString("belongEntity", entity.getName());
 		record.setString("fieldName", fieldName);
-		String physicalName = StringHelper.hyphenate(fieldName).toUpperCase();
+		String physicalName = fieldName.toUpperCase();
 		record.setString("physicalName", physicalName);
 		record.setString("fieldLabel", fieldLabel);
 		record.setString("displayType", displayType.name());
@@ -172,7 +172,7 @@ public class Field2Schema {
 	 * @param text
 	 * @return
 	 */
-	protected String toPinyinString(final String text) {
+	protected String toPinyinName(final String text) {
 		String identifier = text;
 		try {
 			identifier = PinyinHelper.convertToPinyinString(text, "", PinyinFormat.WITHOUT_TONE);
@@ -188,10 +188,12 @@ public class Field2Schema {
 		if (!CharSet.ASCII_ALPHA.contains(start)) {
 			identifier = "a" + identifier;
 		}
+		
 		identifier = identifier.toLowerCase();
 		if (identifier.length() > 42) {
 			identifier = identifier.substring(0, 42);
 		}
+		
 		if (!StringHelper.isIdentifier(identifier)) {
 			throw new MetadataException("无效名称 : " + text);
 		}

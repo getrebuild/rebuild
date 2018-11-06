@@ -18,9 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.metadata;
 
-import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -44,9 +44,9 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 	private static final Log LOG = LogFactory.getLog(DynamicMetadataFactory.class);
 	
 	// <Name, [ID, COMMENTS, ICON]>
-	private static final Map<String, Object[]> ENTITY_EXTMETA = new HashMap<>();
+	private static final Map<String, Object[]> ENTITY_EXTMETA = new CaseInsensitiveMap<>();
 	// <Name, [ID, COMMENTS]>
-	private static final Map<String, Object[]> FIELD_EXTMETA = new HashMap<>();
+	private static final Map<String, Object[]> FIELD_EXTMETA = new CaseInsensitiveMap<>();
 	
 	public DynamicMetadataFactory(String configLocation, Dialect dialect) {
 		super(configLocation, dialect);
@@ -69,30 +69,26 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 	private void appendConfig4Db(Document config) {
 		final Element rootElement = config.getRootElement();
 		
-		Object[][] customentity = Application.createQueryNoFilter(
+		Object[][] customEntity = Application.createQueryNoFilter(
 				"select typeCode,entityName,physicalName,entityLabel,entityId,comments,icon,nameField from MetaEntity order by createdOn")
 				.array();
-		for (Object[] custom : customentity) {
-			int typeCode = (int) custom[0];
+		for (Object[] custom : customEntity) {
 			String name = (String) custom[1];
-			String physicalName = (String) custom[2];
-			String description = (String) custom[3];
-			
 			Element entity = rootElement.addElement("entity");
-			entity.addAttribute("type-code", typeCode + "")
+			entity.addAttribute("type-code", custom[0] + "")
 					.addAttribute("name", name)
-					.addAttribute("physical-name", physicalName)
-					.addAttribute("description", description)
+					.addAttribute("physical-name", (String) custom[2])
+					.addAttribute("description", (String) custom[3])
 					.addAttribute("parent", "false")
 					.addAttribute("name-field", (String) custom[7]);
 			ENTITY_EXTMETA.put(name, new Object[] { custom[4], custom[5], custom[6] });
 		}
 		
-		Object[][] customfield = Application.createQueryNoFilter(
-				"select belongEntity,fieldName,physicalName,fieldLabel,displayType,nullable,creatable,updatable,precision,maxLength,defaultValue,refEntity,cascade,fieldId,comments,extConfig"
-				+ " from MetaField order by createdOn")
+		Object[][] customFields = Application.createQueryNoFilter(
+				"select belongEntity,fieldName,physicalName,fieldLabel,displayType,nullable,creatable,updatable,precision,"
+				+ "maxLength,defaultValue,refEntity,cascade,fieldId,comments,extConfig from MetaField order by createdOn")
 				.array();
-		for (Object[] custom : customfield) {
+		for (Object[] custom : customFields) {
 			String entityName = (String) custom[0];
 			String fieldName = (String) custom[1];
 			Element entityElement = (Element) rootElement.selectSingleNode("entity[@name='" + entityName + "']");
@@ -117,7 +113,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 			DisplayType dt = DisplayType.valueOf((String) custom[4]);
 			field.addAttribute("type", dt.getFieldType().getName());
 			
-			FIELD_EXTMETA.put(entityName + "__" + fieldName, new Object[] { custom[13], custom[14], dt, custom[15] });
+			FIELD_EXTMETA.put(entityName + "." + fieldName, new Object[] { custom[13], custom[14], dt, custom[15] });
 		}
 		
 		if (LOG.isDebugEnabled()) {
@@ -139,7 +135,6 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 	 * @return
 	 */
 	protected Object[] getFieldExtmeta(String entity, String field) {
-		String key = entity + "__" + field;
-		return FIELD_EXTMETA.get(key);
+		return FIELD_EXTMETA.get(entity + "." + field);
 	}
 }

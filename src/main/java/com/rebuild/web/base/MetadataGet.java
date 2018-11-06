@@ -32,7 +32,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.alibaba.fastjson.JSON;
 import com.rebuild.server.entityhub.EasyMeta;
+import com.rebuild.server.helper.manager.PickListManager;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.PortalMetaSorter;
 import com.rebuild.web.BaseControll;
@@ -80,8 +82,9 @@ public class MetadataGet extends BaseControll {
 		writeSuccess(response, list);
 	}
 	
+	// 指定实体所引用的字段实体
 	@RequestMapping("references")
-	public void ref(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void references(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
 		Entity entityMeta = MetadataHelper.getEntity(entity);
 		
@@ -98,6 +101,15 @@ public class MetadataGet extends BaseControll {
 			EasyMeta easy = new EasyMeta(e);
 			list.add(new String[] { easy.getName(), easy.getLabel() });
 		}
+		writeSuccess(response, list);
+	}
+	
+	// PickList 值列表
+	@RequestMapping("picklist")
+	public void ref(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String entity = getParameterNotNull(request, "entity");
+		String field = getParameterNotNull(request, "field");
+		JSON list = PickListManager.getPickList(entity, field, false);
 		writeSuccess(response, list);
 	}
 }

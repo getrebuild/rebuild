@@ -403,6 +403,7 @@ class RbFormDateTime extends RbFormElement {
             todayHighlight: true,
             showMeridian: false,
             keyboardNavigation: false,
+            minuteStep: 5,
         }).on('changeDate', function(){
             let val = $(this).val()
             that.handleChange({ target: { value: val } }, true)

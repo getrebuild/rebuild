@@ -80,7 +80,7 @@ const __initNavs = function(){
 	})
 	$(document.body).click(function(){
 		// MinNav && SubnavOpen
-		if ($('.rb-collapsible-sidebar').hasClass('rb-collapsible-sidebar-collapsed') && currsntSubnav.hasClass('open')) {
+		if ($('.rb-collapsible-sidebar').hasClass('rb-collapsible-sidebar-collapsed') && currsntSubnav && currsntSubnav.hasClass('open')) {
 			currsntSubnav.removeClass('open')
 			currsntSubnav.find('.sub-menu').removeClass('visible')
 		}
@@ -133,7 +133,7 @@ const __checkMessage = function(){
 			$('.rb-notifications span.badge').text('0')
 			__checkMessage_status = 0
 		}
-		setTimeout(__checkMessage, 3000);
+//		setTimeout(__checkMessage, 3000);
 	})
 }
 

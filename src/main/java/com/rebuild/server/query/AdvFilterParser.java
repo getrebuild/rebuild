@@ -69,12 +69,12 @@ public class AdvFilterParser {
 	
 	public String toSqlWhere() {
 		JSONArray items = filterExp.getJSONArray("items");
-		JSONObject qvalues = filterExp.getJSONObject("values");
+		JSONObject values = filterExp.getJSONObject("values");
 		String equation = StringUtils.defaultIfBlank(filterExp.getString("equation"), "OR");
 		
 		List<String> itemsSql = new ArrayList<>();
 		for (Object item : items) {
-			String itemSql = parseItem((JSONObject) item, qvalues);
+			String itemSql = parseItem((JSONObject) item, values);
 			if (itemSql != null) {
 				itemsSql.add(itemSql);
 			}
@@ -89,17 +89,18 @@ public class AdvFilterParser {
 			return "( " + StringUtils.join(itemsSql, " and ") + " )";
 		}
 		
-		// TODO 高级表达式
+		// TODO 高级表达式 eg. (1 AND 2) or (3 AND 4)
+		
 		
 		return null;
 	}
 	
 	/**
 	 * @param item
-	 * @param qvalues
+	 * @param values
 	 * @return
 	 */
-	protected String parseItem(JSONObject item, JSONObject qvalues) {
+	protected String parseItem(JSONObject item, JSONObject values) {
 		String field = item.getString("field");
 		if (!rootEntity.containsField(field)) {
 			return null;
@@ -113,17 +114,22 @@ public class AdvFilterParser {
 		String op = convOp(item.getString("op"));
 		
 		String value = item.getString("value");
+		// 占位
 		if (value.matches("\\{\\d+\\}")) {
+			if (values == null) {
+				return null;
+			}
+			
 			String valIndex = value.replaceAll("[\\{\\}]", "");
-			Object valHold = qvalues.get(valIndex);
-			if (valHold == null) {
+			Object valReady = values.get(valIndex);
+			if (valReady == null) {
 				return null;
 			}
 			
 			// in
-			if (valHold instanceof JSONArray) {
+			if (valReady instanceof JSONArray) {
 				Set<String> valArray = new HashSet<>();
-				for (Object o : (JSONArray) valHold) {
+				for (Object o : (JSONArray) valReady) {
 					valArray.add(quote(o.toString()));
 				}
 				
@@ -134,7 +140,7 @@ public class AdvFilterParser {
 				}
 				
 			} else {
-				value = valHold.toString();
+				value = valReady.toString();
 				if (StringUtils.isBlank(value)) {
 					return null;
 				}
@@ -169,17 +175,22 @@ public class AdvFilterParser {
 	 * @return
 	 */
 	protected String convOp(String op) {
-		if ("eq".equals(op)) return "=";
-		if ("neq".equals(op)) return "<>";
-		if ("gt".equals(op)) return ">";
-		if ("lt".equals(op)) return "<";
-		if ("ge".equals(op)) return ">=";
-		if ("le".equals(op)) return "<=";
-		if ("nl".equals(op)) return "is null";
-		if ("nt".equals(op)) return "is not null";
-		if ("lk".equals(op)) return "like";
-		if ("nlk".equals(op)) return "not like";
-		if ("in".equals(op)) return "in";
+		if ("EQ".equalsIgnoreCase(op)) return "=";
+		else if ("NEQ".equalsIgnoreCase(op)) return "<>";
+		else if ("GT".equalsIgnoreCase(op)) return ">";
+		else if ("LT".equalsIgnoreCase(op)) return "<";
+		else if ("GE".equalsIgnoreCase(op)) return ">=";
+		else if ("LE".equalsIgnoreCase(op)) return "<=";
+		else if ("NL".equalsIgnoreCase(op)) return "is null";
+		else if ("NT".equalsIgnoreCase(op)) return "is not null";
+		else if ("LK".equalsIgnoreCase(op)) return "like";
+		else if ("NLK".equalsIgnoreCase(op)) return "not like";
+		else if ("IN".equalsIgnoreCase(op)) return "in";
+		else if ("BW".equalsIgnoreCase(op)) return "between";
+		else if ("BFD".equalsIgnoreCase(op)) return "$before_day(%d)";
+		else if ("BFM".equalsIgnoreCase(op)) return "$before_month(%d)";
+		else if ("AFD".equalsIgnoreCase(op)) return "$after_day(%d)";
+		else if ("AFM".equalsIgnoreCase(op)) return "$after_month(%d)";
 		throw new UnsupportedOperationException("Unsupported token [" + op + "]");
 	}
 }
