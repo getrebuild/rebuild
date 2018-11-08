@@ -54,7 +54,7 @@ class RbFormModal extends React.Component {
         })
     }
     renderFromError(message) {
-        let error = <div className="alert alert-danger alert-icon mt-5 w-75" style={{ margin:'0 auto' }}>
+        let error = <div className="alert alert-danger alert-icon mt-5 w-75 mlr-auto">
             <div className="icon"><i className="zmdi zmdi-alert-triangle"></i></div>
             <div className="message" dangerouslySetInnerHTML={{ __html: '<strong>抱歉!</strong> ' + message }}></div>
         </div>

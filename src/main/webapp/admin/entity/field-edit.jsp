@@ -134,10 +134,10 @@
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-10 offset-sm-2">
-								<label class="custom-control custom-checkbox custom-control-inline" style="margin-bottom:0">
+								<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
 									<input class="custom-control-input" type="checkbox" id="fieldNullable" data-o="${fieldNullable}"><span class="custom-control-label"> 允许空值</span>
 								</label>
-								<label class="custom-control custom-checkbox custom-control-inline" style="margin-bottom:0">
+								<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
 									<input class="custom-control-input" type="checkbox" id="fieldUpdatable" data-o="${fieldUpdatable}"><span class="custom-control-label"> 允许修改值</span>
 								</label>
 							</div>

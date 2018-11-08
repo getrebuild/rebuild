@@ -177,6 +177,9 @@ a {
 .hide {
     display: none !important;
 }
+.mlr-auto {
+	margin: 0 auto !important;
+}
 .rb-scroller {
     position: relative;
 }
