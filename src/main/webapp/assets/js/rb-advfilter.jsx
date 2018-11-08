@@ -6,6 +6,7 @@ class AdvFilter extends React.Component {
         // TODO parse exists items
         let items = []
         this.state = { ...props, items: items }
+        this.handleChange = this.handleChange.bind(this)
         this.childrenRef = []
     }
     render() {
@@ -24,13 +25,13 @@ class AdvFilter extends React.Component {
                 <div className="adv-filter">
                     <div className="item">
                         <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                            <input className="custom-control-input" type="checkbox" onClick={()=>this.toggleAdvexp()} />
+                            <input className="custom-control-input" type="checkbox" onClick={()=>this.toggleEquation()} />
                             <span className="custom-control-label"> 启用高级表达式</span>
                         </label>
                     </div>
-                    {this.state.enableAdvexp !== true ? null :
+                    {this.state.enableEquation !== true ? null :
                     <div className="mb-3">
-                        <input className="form-control form-control-sm form-control-success" ref="adv-exp" value={this.state.advexp} onChange={()=>this.handleChange()} />
+                        <input className={'form-control form-control-sm' + (this.state.equationError ? ' is-invalid' : '')} value={this.state.equation || ''} onChange={this.handleChange} />
                     </div>
                     }
                     <div className="item">
@@ -58,9 +59,22 @@ class AdvFilter extends React.Component {
     onRef = (child) => {
         this.childrenRef.push(child)
     }
-    handleChange(event) {
-        let v = event.target.value
-        console.log(v)
+    handleChange(e) {
+        let val = e.target.value
+        let that = this
+        this.setState({ equation: val }, function(){
+            let token = val.toLowerCase().split(' ')
+            let hasError = false
+            for (let i = 0; i < token.length; i++) {
+                let t = $.trim(token[i])
+                if (!!!t) continue
+                if (!(t == '(' || t == ')' || t == 'or' || t == 'and' || (~~t > 0))) {
+                    hasError = true
+                    break
+                }
+            }
+            that.setState({ equationError: hasError })
+        })
     }
     
     addItem(){
@@ -71,9 +85,9 @@ class AdvFilter extends React.Component {
         let id = 'item-' + $random()
         _items.push(<FilterItem index={_items.length + 1} fields={this.fields} $$$parent={this} key={id} id={id} onRef={this.onRef} />)
         
-        let advexp = [] 
-        for (let i = 1; i <= _items.length; i++) advexp.push(i)
-        this.setState({ items: _items, advexp: advexp.join(' OR ') })
+        let equation = [] 
+        for (let i = 1; i <= _items.length; i++) equation.push(i)
+        this.setState({ items: _items, equation: equation.join(' OR ') })
     }
     removeItem(id){
         let _items = []
@@ -87,17 +101,17 @@ class AdvFilter extends React.Component {
         this.childrenRef = _children
         
         let that = this
-        let advexp = [] 
-        for (let i = 1; i <= _items.length; i++) advexp.push(i)
-        this.setState({ items: _items, advexp: advexp.join(' OR ') }, ()=>{
+        let equation = [] 
+        for (let i = 1; i <= _items.length; i++) equation.push(i)
+        this.setState({ items: _items, equation: equation.join(' OR ') }, ()=>{
             that.childrenRef.forEach((child, idx)=>{
                 child.setIndex(idx + 1)
             })
         })
     }
     
-    toggleAdvexp() {
-        this.setState({ enableAdvexp: this.state.enableAdvexp !== true })
+    toggleEquation() {
+        this.setState({ enableEquation: this.state.enableEquation !== true })
     }
     
     toFilterJson() {
@@ -111,8 +125,11 @@ class AdvFilter extends React.Component {
         if (hasError){ rb.notice('部分条件设置有误，请检查'); return }
         
         let adv = { entity: this.props.entity, items: filters }
-        if (this.state.enableAdvexp == true) adv.equation = this.state.advexp
-        console.log(JSON.stringify(adv))
+        if (this.state.enableEquation == true) adv.equation = this.state.equation
+        
+        $.post(rb.baseUrl + '/app/entity/test-advfilter', JSON.stringify(adv), function(res){
+            console.log(JSON.stringify(adv) + ' >> ' + res.data)
+        })
     }
 }
 
@@ -273,6 +290,9 @@ class FilterItem extends React.Component {
         } else if (lastType == 'REFERENCE') {
             this.removeBizzSearch()
         }
+        
+        if (this.state.value) this.valueCheck($(this.refs['filter-val']))
+        if (this.state.value2 && this.refs['filter-val2']) this.valueCheck($(this.refs['filter-val2']))
     }
     componentWillUnmount() {
         this.__select2.forEach((item, index) => { item.select2('destroy') })
@@ -282,19 +302,22 @@ class FilterItem extends React.Component {
         this.removeBizzSearch()
     }
     
-    valueHandle(event) {
+    valueHandle(e) {
         let that = this
-        let val = event.target.value
-        if (event.target.dataset.at == 2) this.setState({ value2: val })
+        let val = e.target.value
+        if (e.target.dataset.at == 2) this.setState({ value2: val })
         else this.setState({ value: val })
     }
-    valueCheck(event){
-        let el = $(event.target)
-        let val = event.target.value
+    // @e = el or event
+    valueCheck(e){
+        let el = e.target ? $(e.target) : e
+        let val = e.target ? e.target.value : e.val()
         if (!!!val){
             el.addClass('is-invalid')
         } else {
             if (this.isNumberValue() && $regex.isDecimal(val) == false){
+                el.addClass('is-invalid')
+            } else if (this.state.type == 'DATE' && $regex.isUTCDate(val) == false) {
                 el.addClass('is-invalid')
             } else {
                 el.removeClass('is-invalid')
@@ -330,8 +353,7 @@ class FilterItem extends React.Component {
             width: '100%',
         }).on('change.select2', function(e){
             let val = s2val.val()
-            that.setState({ value: val.join(',') }, function(){
-            })
+            that.setState({ value: val.join('|') })
         })
         this.__select2_PickList = s2val
     }
@@ -340,49 +362,7 @@ class FilterItem extends React.Component {
             console.log('remove PickList ...')
             this.__select2_PickList.select2('destroy')
             this.__select2_PickList = null
-        }
-    }
-    
-    renderDatepicker(){
-        console.log('render Datepicker ...')
-        let cfg = {
-            componentIcon:'zmdi zmdi-calendar',
-            navIcons: { rightIcon:'zmdi zmdi-chevron-right', leftIcon:'zmdi zmdi-chevron-left'},
-            format: 'yyyy-mm-dd',
-            minView: 2,
-            startView: 'month',
-            weekStart: 1,
-            autoclose: true,
-            language: 'zh',
-            todayHighlight: true,
-            showMeridian: false,
-            keyboardNavigation: false,
-        }
-        
-        let that = this
-        let dp1 = $(this.refs['filter-val']).datetimepicker(cfg)
-        dp1.on('change.select2', function(e){
-            that.setState({ value: e.target.value }, function(){
-            })
-        })
-        this.__datepicker = [dp1]
-        
-        if (this.refs['filter-val2']) {
-            let dp2 = $(this.refs['filter-val2']).datetimepicker(cfg)
-            dp2.on('change.select2', function(e){
-                that.setState({ value2: e.target.value }, function(){
-                })
-            })
-            this.__datepicker.push(dp2)
-        }
-    }
-    removeDatepicker(){
-        if (this.__datepicker) {
-            console.log('remove Datepicker ...')
-            this.__datepicker.forEach((item) => {
-                item.datetimepicker('remove')
-            })
-            this.__datepicker = null
+            this.setState({ value: null })
         }
     }
     
@@ -411,7 +391,7 @@ class FilterItem extends React.Component {
             }
         }).on('change.select2', function(e){
             let val = s2val.val()
-            that.setState({ value: val.join(',') })
+            that.setState({ value: val.join('|') })
         })
         this.__select2_BizzSearch = s2val
     }
@@ -420,6 +400,52 @@ class FilterItem extends React.Component {
             console.log('remove BizzSearch ...')
             this.__select2_BizzSearch.select2('destroy')
             this.__select2_BizzSearch = null
+            this.setState({ value: null })
+        }
+    }
+    
+    renderDatepicker(){
+        console.log('render Datepicker ...')
+        let cfg = {
+            componentIcon:'zmdi zmdi-calendar',
+            navIcons: { rightIcon:'zmdi zmdi-chevron-right', leftIcon:'zmdi zmdi-chevron-left'},
+            format: 'yyyy-mm-dd',
+            minView: 2,
+            startView: 'month',
+            weekStart: 1,
+            autoclose: true,
+            language: 'zh',
+            todayHighlight: true,
+            showMeridian: false,
+            keyboardNavigation: false,
+        }
+        
+        let that = this
+        let dp1 = $(this.refs['filter-val']).datetimepicker(cfg)
+        dp1.on('change.select2', function(e){
+            that.setState({ value: e.target.value }, ()=>{
+                that.valueCheck($(that.refs['filter-val']))
+            })
+        })
+        this.__datepicker = [dp1]
+        
+        if (this.refs['filter-val2']) {
+            let dp2 = $(this.refs['filter-val2']).datetimepicker(cfg)
+            dp2.on('change.select2', function(e){
+                that.setState({ value2: e.target.value }, ()=>{
+                    that.valueCheck($(that.refs['filter-val2']))
+                })
+            })
+            this.__datepicker.push(dp2)
+        }
+    }
+    removeDatepicker(){
+        if (this.__datepicker) {
+            console.log('remove Datepicker ...')
+            this.__datepicker.forEach((item) => {
+                item.datetimepicker('remove')
+            })
+            this.__datepicker = null
         }
     }
     

@@ -20,22 +20,23 @@ package com.rebuild.server.query;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.entityhub.DisplayType;
-import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.metadata.MetadataHelper;
 
 import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
 
 /**
  * 高级查询解析器
@@ -44,6 +45,8 @@ import cn.devezhao.persist4j.Field;
  * @since 09/29/2018
  */
 public class AdvFilterParser {
+	
+	private static final Log LOG = LogFactory.getLog(AdvFilterParser.class);
 	
 	private Entity rootEntity;
 	private JSONObject filterExp;
@@ -72,27 +75,47 @@ public class AdvFilterParser {
 		JSONObject values = filterExp.getJSONObject("values");
 		String equation = StringUtils.defaultIfBlank(filterExp.getString("equation"), "OR");
 		
-		List<String> itemsSql = new ArrayList<>();
+		Map<Integer, String> indexItemSqls = new LinkedHashMap<>();
+		int noIndex = 1;
 		for (Object item : items) {
-			String itemSql = parseItem((JSONObject) item, values);
+			JSONObject jo = (JSONObject) item;
+			Integer index = jo.getInteger("index");
+			if (index == null) {
+				index = noIndex++;
+			}
+			String itemSql = parseItem(jo, values);
 			if (itemSql != null) {
-				itemsSql.add(itemSql);
+				indexItemSqls.put(index, itemSql);
 			}
 		}
-		if (itemsSql.isEmpty()) {
+		if (indexItemSqls.isEmpty()) {
 			return null;
 		}
 		
 		if ("OR".equalsIgnoreCase(equation)) {
-			return "( " + StringUtils.join(itemsSql, " or ") + " )";
+			return "( " + StringUtils.join(indexItemSqls.values(), " or ") + " )";
 		} else if ("AND".equalsIgnoreCase(equation)) {
-			return "( " + StringUtils.join(itemsSql, " and ") + " )";
+			return "( " + StringUtils.join(indexItemSqls.values(), " and ") + " )";
+		} else {
+			// 高级表达式 eg. (1 AND 2) or (3 AND 4)
+			String tokens[] = equation.toLowerCase().split(" ");
+			List<String> itemSqls = new ArrayList<>();
+			for (int i = 0; i < tokens.length; i++) {
+				String token = tokens[i];
+				if (StringUtils.isBlank(token)) {
+					continue;
+				}
+				if (NumberUtils.isDigits(token)) {
+					String itemSql = StringUtils.defaultIfBlank(indexItemSqls.get(Integer.valueOf(token)), "(9=9)");
+					itemSqls.add(itemSql);
+				} else if (token.equals("(") || token.equals(")") || token.equals("or") || token.equals("and")) {
+					itemSqls.add(token);
+				} else {
+					LOG.warn("Ignore equation token : " + token);
+				}
+			}
+			return StringUtils.join(itemSqls, " ");
 		}
-		
-		// TODO 高级表达式 eg. (1 AND 2) or (3 AND 4)
-		
-		
-		return null;
 	}
 	
 	/**
@@ -106,68 +129,118 @@ public class AdvFilterParser {
 			return null;
 		}
 		
-		Field metaField = rootEntity.getField(field);
-		if (EasyMeta.getDisplayType(metaField) == DisplayType.PICKLIST) {
-			field = '&' + field;
-		}
+//		Field metaField = rootEntity.getField(field);
+//		if (EasyMeta.getDisplayType(metaField) == DisplayType.PICKLIST) {
+//			field = '&' + field;
+//		}
 		
 		String op = convOp(item.getString("op"));
-		
-		String value = item.getString("value");
-		// 占位
-		if (value.matches("\\{\\d+\\}")) {
-			if (values == null) {
-				return null;
-			}
-			
-			String valIndex = value.replaceAll("[\\{\\}]", "");
-			Object valReady = values.get(valIndex);
-			if (valReady == null) {
-				return null;
-			}
-			
-			// in
-			if (valReady instanceof JSONArray) {
-				Set<String> valArray = new HashSet<>();
-				for (Object o : (JSONArray) valReady) {
-					valArray.add(quote(o.toString()));
-				}
-				
-				if (valArray.isEmpty()) {
-					return null;
-				} else {
-					value = "( " + StringUtils.join(valArray, ", ") + " )";
-				}
-				
-			} else {
-				value = valReady.toString();
-				if (StringUtils.isBlank(value)) {
-					return null;
-				}
-			}
-		}
-		
-		if (op.contains("like")) {
-			value = '%' + value + '%';
-		}
-
 		StringBuffer sb = new StringBuffer(field)
 				.append(' ')
 				.append(op)
 				.append(' ');
+		// is null / is not null
+		if (op.contains("null")) {
+			return sb.toString();
+		}
 		
-		if ("in".equals(op)) {
+		String value = item.getString("value");
+		if (StringUtils.isBlank(value)) {
+			LOG.warn("Invalid item of advfilter : " + item.toJSONString());
+			return null;
+		}
+		
+		// 占位 {1}
+		if (value.matches("\\{\\d+\\}")) {
+			if (values == null) {
+				LOG.warn("Invalid item of advfilter : " + item.toJSONString());
+				return null;
+			}
+			
+			String valHold = value.replaceAll("[\\{\\}]", "");
+			value = parseVal(values.get(valHold), op);
+		} else {
+			value = parseVal(value, op);
+		}
+		if (value == null) {
+			LOG.warn("Invalid item of advfilter : " + item.toJSONString());
+			return null;
+		}
+		
+		// 区间
+		boolean isBetween = op.equals("between");
+		String value2 = isBetween ? parseVal(item.getString("value2"), op) : null;
+		if (isBetween && value2 == null) {
+			value2 = value;
+		}
+		
+		// like / not like
+		if (op.contains("like")) {
+			value = '%' + value + '%';
+		}
+		
+		if (op.equals("in") || op.equals("not in")) {
 			sb.append(value);
-		} else if (NumberUtils.isDigits(value)) {
-			sb.append(value);
-		} else if (StringUtils.isNotBlank(value)) {
-			sb.append(quote(value));
+		} else {
+			sb.append(quoteVal(value));
+		}
+		
+		if (isBetween) {
+//			sb.insert(0, "(").append(" and ").append(quoteVal(value2)).append(")");
+			sb.append(" and ").append(quoteVal(value2));
 		}
 		return sb.toString();
 	}
 	
-	private String quote(String v) {
-		return String.format("'%s'", StringEscapeUtils.escapeSql(v));
+	/**
+	 * @param val
+	 * @param op
+	 * @return
+	 */
+	private String parseVal(Object val, String op) {
+		String value = null;
+		// IN
+		if (val instanceof JSONArray) {
+			Set<String> array = new HashSet<>();
+			for (Object o : (JSONArray) val) {
+				array.add(quoteVal(o.toString()));
+			}
+			
+			if (array.isEmpty()) {
+				return null;
+			} else {
+				value = "( " + StringUtils.join(array, ",") + " )";
+			}
+			
+		} else {
+			value = val.toString();
+			if (StringUtils.isBlank(value)) {
+				return null;
+			}
+			
+			// 兼容 | 号分割
+			if (op.equals("in") || op.equals("not in")) {
+				Set<String> array = new HashSet<>();
+				for (String v : value.split("\\|")) {
+					array.add(quoteVal(v));
+				}
+				value = "( " + StringUtils.join(array, ",") + " )";
+			}
+		}
+		return value;
+	}
+	
+	/**
+	 * @param v
+	 * @return
+	 */
+	private String quoteVal(String v) {
+		if (NumberUtils.isDigits(v)) {
+			return v;
+		} else if (StringUtils.isNotBlank(v)) {
+			return String.format("'%s'", StringEscapeUtils.escapeSql(v));
+		}
+		return "''";
 	}
 	
 	/**
