@@ -20,6 +20,7 @@ package com.rebuild.server.bizz.privileges;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.rebuild.server.ServerListener;
 import com.rebuild.server.bizz.RoleService;
 import com.rebuild.server.bizz.UserService;
 import com.rebuild.server.helper.SystemConfigurer;
@@ -59,14 +60,17 @@ public class User extends cn.devezhao.bizz.security.member.User {
 	}
 	
 	public String getAvatarUrl() {
-		return getAvatarUrl(false);
+		return avatarUrl;
 	}
 	
 	public String getAvatarUrl(boolean fullUrl) {
-		if (fullUrl) {
-			return SystemConfigurer.getStorageUrl() + getAvatarUrl();
+		if (!fullUrl) {
+			return getAvatarUrl();
+		}
+		if (avatarUrl == null) {
+			return ServerListener.getContextPath() + "/assets/img/avatar.png";
 		} else {
-			return avatarUrl;
+			return SystemConfigurer.getStorageUrl() + getAvatarUrl() + "?imageView2/2/w/100/interlace/1/q/100";
 		}
 	}
 	
