@@ -186,6 +186,7 @@ public class AdvFilterParser {
 		else if ("LK".equalsIgnoreCase(op)) return "like";
 		else if ("NLK".equalsIgnoreCase(op)) return "not like";
 		else if ("IN".equalsIgnoreCase(op)) return "in";
+		else if ("NIN".equalsIgnoreCase(op)) return "not in";
 		else if ("BW".equalsIgnoreCase(op)) return "between";
 		else if ("BFD".equalsIgnoreCase(op)) return "$before_day(%d)";
 		else if ("BFM".equalsIgnoreCase(op)) return "$before_month(%d)";

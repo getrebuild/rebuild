@@ -5,9 +5,7 @@ class AdvFilter extends React.Component {
         
         // TODO parse exists items
         let items = []
-        this.filterItems = {}
         this.state = { ...props, items: items }
-        
         this.childrenRef = []
     }
     render() {
@@ -19,7 +17,6 @@ class AdvFilter extends React.Component {
                     <div className="filter-items" ref="items">
                         {this.state.items.map((item)=>{
                             return item
-                            //return React.cloneElement(item, { ref: item.id })
                         })}
                         <div className="item plus"><a href="javascript:;" onClick={()=>this.addItem()}><i className="zmdi zmdi-plus-circle icon"></i> 添加条件</a></div>
                     </div>
@@ -47,15 +44,18 @@ class AdvFilter extends React.Component {
     }
     componentDidMount() {
         let that = this
-        $.get(rb.baseUrl + '/commons/metadata/fields?entity=' + this.state.entity, function(res){
+        $.get(rb.baseUrl + '/commons/metadata/fields?entity=' + this.props.entity, function(res){
             that.fields = res.data.map((item) => {
-                if (item.type == 'DATETIME') item.type = 'DATE'
+                if (item.type == 'DATETIME') {
+                    item.type = 'DATE'
+                } else if (item.type == 'REFERENCE') {
+                    REFFIELD_CACHE[that.props.entity + '.' + item.name] = item.ref
+                }
                 return item
             })
         })
     }
     onRef = (child) => {
-        console.log('onRef ... ' + child)
         this.childrenRef.push(child)
     }
     handleChange(event) {
@@ -110,29 +110,32 @@ class AdvFilter extends React.Component {
         }
         if (hasError){ rb.notice('部分条件设置有误，请检查'); return }
         
-        let adv = { items: filters }
+        let adv = { entity: this.props.entity, items: filters }
         if (this.state.enableAdvexp == true) adv.equation = this.state.advexp
         console.log(JSON.stringify(adv))
     }
 }
 
-const OP_TYPE = { LK:'包含', NLK:'不包含', EQ:'等于', NEQ:'不等于', GT:'大于', LT:'小于', BW:'区间', NL:'为空', NT:'不为空', BFD:'...天前', BFM:'...月前', AFD:'...天后', AFM:'...月后' }
+const OP_TYPE = { LK:'包含', NLK:'不包含', IN:'包含', NIN:'不包含', EQ:'等于', NEQ:'不等于', GT:'大于', LT:'小于', BW:'区间', NL:'为空', NT:'不为空', BFD:'...天前', BFM:'...月前', AFD:'...天后', AFM:'...月后' }
 const OP_DATE_NOPICKER = ['BFD','BFM','AFD','AFM']
 const PICKLIST_CACHE = {}
+const REFFIELD_CACHE = {}
 
 class FilterItem extends React.Component {
     constructor(props) {
         super(props)
         this.state = { ...props }
         console.log(props)
+        this.__entity = this.props.$$$parent.props.entity
         
-        this.handleChange = this.handleChange.bind(this)
+        this.valueHandle = this.valueHandle.bind(this)
+        this.valueCheck = this.valueCheck.bind(this)
     }
     render() {
         return (
             <div className="row item">
                 <div className="col-sm-5 field">
-                    <em className={this.state.hasError ? 'text-danger' : ''}>{this.state.index}</em>
+                    <em>{this.state.index}</em>
                     <i className="zmdi zmdi-minus-circle" title="移除条件" onClick={()=>this.props.$$$parent.removeItem(this.props.id)}></i>
                     <select className="form-control form-control-sm" ref="filter-field" value={this.state.field}>
                         {this.state.fields.map((item)=>{
@@ -157,9 +160,11 @@ class FilterItem extends React.Component {
             op = [ 'GT', 'LT', 'BW', 'BFD', 'BFM', 'AFD', 'AFM' ]
         } else if (this.state.type == 'FILE' || this.state.type == 'IMAGE'){
             op = []
-        } else if (this.state.type == 'PICKLIST'){
-            op = [ 'LK', 'NLK' ]
+        } else if (this.state.type == 'PICKLIST' || this.isBizzField()){
+            op = [ 'IN', 'NIN' ]
         }
+        // TODO 根据引用字段类型
+        
         op.push('NL', 'NT')
         this.__op = op
         
@@ -172,12 +177,12 @@ class FilterItem extends React.Component {
         )
     }
     renderVal(){
-        let val = <input className="form-control form-control-sm" ref="filter-val" onChange={this.handleChange} value={this.state.value || ''} />
+        let val = <input className="form-control form-control-sm" ref="filter-val" onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
         if (this.state.op == 'BW'){
             val = (
                 <div className="val-range">
-                    <input className="form-control form-control-sm" ref="filter-val" onChange={this.handleChange} value={this.state.value || ''} />
-                    <input className="form-control form-control-sm" ref="filter-val2" onChange={this.handleChange} data-at="2" value={this.state.value2 || ''} />
+                    <input className="form-control form-control-sm" ref="filter-val" onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
+                    <input className="form-control form-control-sm" ref="filter-val2" onChange={this.valueHandle} onBlur={this.valueCheck} data-at="2" value={this.state.value2 || ''} />
                     <span>起</span>
                     <span className="end">止</span>
                 </div>)
@@ -188,8 +193,28 @@ class FilterItem extends React.Component {
                         return <option value={item.id} key={'val-' + item.id}>{item.text}</option>
                     })}
                 </select>)
+        } else if (this.isBizzField()){
+            val = <select className="form-control form-control-sm" multiple="true" ref="filter-val" />
         }
         return (val)
+    }
+    
+    // 引用 User/Department
+    isBizzField() {
+        if (this.state.type == 'REFERENCE'){
+            const fRef = REFFIELD_CACHE[this.__entity + '.' + this.state.field]
+            return fRef && (fRef[0] == 'User' || fRef[0] == 'Department')
+        }
+        return false
+    }
+    // 数字值
+    isNumberValue(){
+        if (this.state.type == 'NUMBER' || this.state.type == 'DECIMAL'){
+            return true
+        } else if (this.state.type == 'DATE' && OP_DATE_NOPICKER.contains(this.state.op)){
+            return true
+        }
+        return false
     }
     
     componentDidMount() {
@@ -198,7 +223,6 @@ class FilterItem extends React.Component {
         let that = this
         let s2field = $(this.refs['filter-field']).select2({
             language: 'zh-CN',
-            placeholder: '选择字段',
             width: '100%',
         }).on('change.select2', function(e){
             let ft = e.target.value.split('----')
@@ -208,7 +232,6 @@ class FilterItem extends React.Component {
         })
         let s2op = $(this.refs['filter-op']).select2({
             language: 'zh-CN',
-            placeholder: '选择操作',
             width: '100%',
         }).on('change.select2', function(e){
             that.setState({ op: e.target.value }, function(){
@@ -243,39 +266,54 @@ class FilterItem extends React.Component {
         } else if (lastType == 'DATE'){
             this.removeDatepicker()
         }
+        
+        if (this.isBizzField()){
+            const fRef = REFFIELD_CACHE[this.__entity + '.' + this.state.field]
+            this.renderBizzSearch(fRef[0])
+        } else if (lastType == 'REFERENCE') {
+            this.removeBizzSearch()
+        }
     }
     componentWillUnmount() {
-        this.__select2.forEach((item, index) => {
-            item.select2('destroy')
-        })
+        this.__select2.forEach((item, index) => { item.select2('destroy') })
         this.__select2 = null
         this.removePickList()
         this.removeDatepicker()
+        this.removeBizzSearch()
     }
     
-    handleChange(event) {
+    valueHandle(event) {
         let that = this
         let val = event.target.value
-        if (event.target.dataset.at == 2) {
-            this.setState({ value2: val }, function(){
-            })
+        if (event.target.dataset.at == 2) this.setState({ value2: val })
+        else this.setState({ value: val })
+    }
+    valueCheck(event){
+        let el = $(event.target)
+        let val = event.target.value
+        if (!!!val){
+            el.addClass('is-invalid')
         } else {
-            this.setState({ value: val }, function(){
-            })
+            if (this.isNumberValue() && $regex.isDecimal(val) == false){
+                el.addClass('is-invalid')
+            } else {
+                el.removeClass('is-invalid')
+            }
         }
     }
     
     renderPickList(field) {
         let that = this
-        if (PICKLIST_CACHE[field]) {
-            this.setState({ picklist: PICKLIST_CACHE[field] }, function(){
+        const plKey = this.props.$$$parent.props.entity + '.' + field
+        if (PICKLIST_CACHE[plKey]) {
+            this.setState({ picklist: PICKLIST_CACHE[plKey] }, function(){
                 that.renderPickListAfter()
             })
         } else {
             $.get(rb.baseUrl + '/commons/metadata/picklist?entity=' + this.props.$$$parent.props.entity + '&field=' + field, function(res){
                 if (res.error_code == 0){
-                    PICKLIST_CACHE[field] = res.data
-                    that.setState({ picklist: PICKLIST_CACHE[field] }, function(){
+                    PICKLIST_CACHE[plKey] = res.data
+                    that.setState({ picklist: PICKLIST_CACHE[plKey] }, function(){
                         that.renderPickListAfter()
                     })
                 } else{
@@ -289,7 +327,6 @@ class FilterItem extends React.Component {
         let that = this
         let s2val = $(this.refs['filter-val']).select2({
             language: 'zh-CN',
-            placeholder: '选择值',
             width: '100%',
         }).on('change.select2', function(e){
             let val = s2val.val()
@@ -349,6 +386,43 @@ class FilterItem extends React.Component {
         }
     }
     
+    renderBizzSearch(entity){
+        console.log('render BizzSearch ...')
+        let that = this
+        let s2val = $(this.refs['filter-val']).select2({
+            language: 'zh-CN',
+            width: '100%',
+            minimumInputLength: 1,
+            ajax: {
+                url: rb.baseUrl + '/commons/search',
+                delay: 300,
+                data: function(params) {
+                    let query = {
+                        entity: entity,
+                        fields: entity == 'User' ? 'loginName,fullName,email' : 'name',
+                        q: params.term,
+                    }
+                    return query
+                },
+                processResults: function(data){
+                    let rs = data.data.map((item) => { return item })
+                    return { results: rs }
+                }
+            }
+        }).on('change.select2', function(e){
+            let val = s2val.val()
+            that.setState({ value: val.join(',') })
+        })
+        this.__select2_BizzSearch = s2val
+    }
+    removeBizzSearch(){
+        if (this.__select2_BizzSearch){
+            console.log('remove BizzSearch ...')
+            this.__select2_BizzSearch.select2('destroy')
+            this.__select2_BizzSearch = null
+        }
+    }
+    
     setIndex(idx) {
         this.setState({ index: idx })
     }
@@ -358,16 +432,22 @@ class FilterItem extends React.Component {
             if (s.op == 'NL' || s.op == 'NT'){
                 // 允许无值
             } else {
-                this.setState({ hasError: true })
                 return
             }
+        } else if (s.op == 'NL' || s.op == 'NT'){
+            s.value = null
         }
+        
         if (s.op == 'BW' && !!!s.value2){
-            this.setState({ hasError: true })
             return
         }
         
-        let item = { index: s.index, field: s.field, op: s.op, value: s.value }
+        if (!!s.value && ($(this.refs['filter-val']).hasClass('is-invalid') || $(this.refs['filter-val2']).hasClass('is-invalid'))) {
+            return
+        }
+        
+        let item = { index: s.index, field: s.field, op: s.op }
+        if (s.value) item.value = s.value
         if (s.value2) item.value2 = s.value2
         this.setState({ hasError: false })
         return item

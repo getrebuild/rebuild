@@ -33,6 +33,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSON;
+import com.rebuild.server.entityhub.DisplayType;
 import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.helper.manager.PickListManager;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -70,13 +71,18 @@ public class MetadataGet extends BaseControll {
 		String entity = getParameterNotNull(request, "entity");
 		Entity entityBase = MetadataHelper.getEntity(entity);
 		
-		List<Map<String, String>> list = new ArrayList<>();
-		for (Field e : PortalMetaSorter.sortFields(entityBase)) {
-			Map<String, String> map = new HashMap<>();
-			map.put("name", e.getName());
-			EasyMeta easyMeta = new EasyMeta(e);
+		List<Map<String, Object>> list = new ArrayList<>();
+		for (Field field : PortalMetaSorter.sortFields(entityBase)) {
+			Map<String, Object> map = new HashMap<>();
+			map.put("name", field.getName());
+			EasyMeta easyMeta = new EasyMeta(field);
 			map.put("label", easyMeta.getLabel());
-			map.put("type", easyMeta.getDisplayType(false));
+			DisplayType dt = easyMeta.getDisplayType();
+			map.put("type", dt.name());
+			if (dt == DisplayType.REFERENCE) {
+				Entity ref = field.getReferenceEntities()[0];
+				map.put("ref", new String[] { ref.getName(), EasyMeta.getDisplayType(ref.getNameField()).name() });
+			}
 			list.add(map);
 		}
 		writeSuccess(response, list);

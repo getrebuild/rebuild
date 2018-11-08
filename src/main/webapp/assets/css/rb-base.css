@@ -18128,10 +18128,11 @@ form.dropzone .dz-preview .dz-error-message {
 }
 .select2-container--default .select2-selection--single, .select2-container--default .select2-selection--multiple {
     height: 37px
+	min-height: 37px;
+	font-size: 0;
 }
 .select2-container--default .select2-selection--single .select2-selection__rendered, .select2-container--default .select2-selection--multiple .select2-selection__rendered {
     padding: 0 10px;
-    height: 37px;
     line-height: 37px;
     font-size: 1rem;
     color: #404040
