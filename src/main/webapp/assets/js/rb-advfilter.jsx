@@ -11,7 +11,7 @@ class AdvFilter extends React.Component {
     }
     render() {
         return (
-            <div className="adv-filter-warp shadow rounded">
+            <div className={'adv-filter-warp ' + (this.props.inModal ? 'in-modal' : 'shadow rounded')}>
                 <div className="adv-filter">
                     <div className="filter-option">
                     </div>
@@ -312,15 +312,15 @@ class FilterItem extends React.Component {
     valueCheck(e){
         let el = e.target ? $(e.target) : e
         let val = e.target ? e.target.value : e.val()
+
+        el.removeClass('is-invalid')
         if (!!!val){
             el.addClass('is-invalid')
         } else {
-            if (this.isNumberValue() && $regex.isDecimal(val) == false){
-                el.addClass('is-invalid')
-            } else if (this.state.type == 'DATE' && $regex.isUTCDate(val) == false) {
-                el.addClass('is-invalid')
-            } else {
-                el.removeClass('is-invalid')
+            if (this.isNumberValue()) {
+                if ($regex.isDecimal(val) == false) el.addClass('is-invalid')
+            } else if (this.state.type == 'DATE') {
+                if ($regex.isUTCDate(val) == false) el.addClass('is-invalid')
             }
         }
     }
