@@ -15458,13 +15458,9 @@ pre code {
     margin-bottom: .5rem
 }
 .custom-control {
-    min-height: 1.51rem;
-    min-width: 1.51rem;
+    min-height: 1.7rem;
+    min-width: 1.7rem;
     margin-top: .1875rem;
-    margin-bottom: 1.1105rem;
-    margin-top: 7px;
-    margin-bottom: 7px;
-    cursor: pointer;
     margin-bottom: 1.1105rem
 }
 .custom-control-label {
