@@ -13,7 +13,7 @@ class RbModal extends React.Component {
             		        <h3 className="modal-title">{this.state.title || 'RbModal'}</h3>
             		        <button className="close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
             		    </div>
-            		    <div className={'modal-body rb-loading ' + (this.state.inLoad == true && ' rb-loading-active') + ' ' + (this.state.url && ' iframe')}>
+            		    <div className={'modal-body rb-loading' + (this.state.inLoad ? ' rb-loading-active' : '') + (this.state.url ? ' iframe' : '')}>
             		        {this.props.children || <iframe src={this.state.url || 'about:blank'} frameBorder="0" scrolling="no" onLoad={()=>this.resize()}></iframe>}
                             <RbSpinner />
                         </div>

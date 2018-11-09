@@ -782,6 +782,10 @@ i.split.ui-draggable-dragging {
     padding: 20px;
     max-width: 560px;
 }
+.adv-filter-warp.in-modal {
+	max-width: 1000px;
+	padding: 10px;
+}
 .adv-filter {
     position: relative;
 }

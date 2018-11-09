@@ -36,7 +36,11 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.metadata.MetadataHelper;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.dialect.Type;
 
 /**
  * 高级查询解析器
@@ -85,7 +89,7 @@ public class AdvFilterParser {
 			}
 			String itemSql = parseItem(jo, values);
 			if (itemSql != null) {
-				indexItemSqls.put(index, itemSql);
+				indexItemSqls.put(index, itemSql.trim());
 			}
 		}
 		if (indexItemSqls.isEmpty()) {
@@ -129,18 +133,16 @@ public class AdvFilterParser {
 			return null;
 		}
 		
-//		Field metaField = rootEntity.getField(field);
-//		if (EasyMeta.getDisplayType(metaField) == DisplayType.PICKLIST) {
-//			field = '&' + field;
-//		}
+		final Field fieldMeta = rootEntity.getField(field);
+		final String op = item.getString("op");
 		
-		String op = convOp(item.getString("op"));
+		String oper = convOp(op);
 		StringBuffer sb = new StringBuffer(field)
 				.append(' ')
-				.append(op)
+				.append(oper)
 				.append(' ');
 		// is null / is not null
-		if (op.contains("null")) {
+		if (oper.contains("null")) {
 			return sb.toString();
 		}
 		
@@ -158,36 +160,45 @@ public class AdvFilterParser {
 			}
 			
 			String valHold = value.replaceAll("[\\{\\}]", "");
-			value = parseVal(values.get(valHold), op);
+			value = parseValue(values.get(valHold), oper, fieldMeta);
 		} else {
-			value = parseVal(value, op);
+			value = parseValue(value, oper, fieldMeta);
 		}
 		if (value == null) {
 			LOG.warn("Invalid item of advfilter : " + item.toJSONString());
 			return null;
 		}
 		
+		// TODO 自定义函数
+		if ("BFD".equalsIgnoreCase(op)) {
+			value = CalendarUtils.getUTCDateFormat().format(CalendarUtils.addDay(-NumberUtils.toInt(value)));
+		} else if ("AFD".equalsIgnoreCase(op)) {
+			value = CalendarUtils.getUTCDateFormat().format(CalendarUtils.addDay(NumberUtils.toInt(value)));
+		} else if ("BFM".equalsIgnoreCase(op)) {
+			value = CalendarUtils.getUTCDateFormat().format(CalendarUtils.addMonth(-NumberUtils.toInt(value)));
+		} else if ("AFM".equalsIgnoreCase(op)) {
+			value = CalendarUtils.getUTCDateFormat().format(CalendarUtils.addMonth(NumberUtils.toInt(value)));
+		}
+		
 		// 区间
-		boolean isBetween = op.equals("between");
-		String value2 = isBetween ? parseVal(item.getString("value2"), op) : null;
+		boolean isBetween = oper.equals("between");
+		String value2 = isBetween ? parseValue(item.getString("value2"), oper, fieldMeta) : null;
 		if (isBetween && value2 == null) {
 			value2 = value;
 		}
 		
-		// like / not like
-		if (op.contains("like")) {
-			value = '%' + value + '%';
-		}
-		
-		if (op.equals("in") || op.equals("not in")) {
+		if (oper.equals("in") || oper.equals("not in")) {
 			sb.append(value);
 		} else {
-			sb.append(quoteVal(value));
+			// like / not like
+			if (oper.contains("like")) {
+				value = '%' + value + '%';
+			}
+			sb.append(quoteValue(value, fieldMeta.getType()));
 		}
 		
 		if (isBetween) {
-//			sb.insert(0, "(").append(" and ").append(quoteVal(value2)).append(")");
-			sb.append(" and ").append(quoteVal(value2));
+			sb.append(" and ").append(quoteValue(value2, fieldMeta.getType()));
 		}
 		return sb.toString();
 	}
@@ -195,22 +206,18 @@ public class AdvFilterParser {
 	/**
 	 * @param val
 	 * @param op
+	 * @param type
 	 * @return
 	 */
-	private String parseVal(Object val, String op) {
+	private String parseValue(Object val, String op, Field field) {
 		String value = null;
 		// IN
 		if (val instanceof JSONArray) {
-			Set<String> array = new HashSet<>();
-			for (Object o : (JSONArray) val) {
-				array.add(quoteVal(o.toString()));
+			Set<String> inVals = new HashSet<>();
+			for (Object v : (JSONArray) val) {
+				inVals.add(quoteValue(v.toString(), field.getType()));
 			}
-			
-			if (array.isEmpty()) {
-				return null;
-			} else {
-				value = "( " + StringUtils.join(array, ",") + " )";
-			}
+			return optimizeIn(inVals);
 			
 		} else {
 			value = val.toString();
@@ -220,25 +227,39 @@ public class AdvFilterParser {
 			
 			// 兼容 | 号分割
 			if (op.equals("in") || op.equals("not in")) {
-				Set<String> array = new HashSet<>();
+				Set<String> inVals = new HashSet<>();
 				for (String v : value.split("\\|")) {
-					array.add(quoteVal(v));
+					inVals.add(quoteValue(v, field.getType()));
 				}
-				value = "( " + StringUtils.join(array, ",") + " )";
+				return optimizeIn(inVals);
 			}
 		}
 		return value;
 	}
 	
 	/**
-	 * @param v
+	 * TODO 优化 in 为 OR
+	 * 
+	 * @param inVals
 	 * @return
 	 */
-	private String quoteVal(String v) {
-		if (NumberUtils.isDigits(v)) {
-			return v;
-		} else if (StringUtils.isNotBlank(v)) {
-			return String.format("'%s'", StringEscapeUtils.escapeSql(v));
+	private String optimizeIn(Set<String> inVals) {
+		if (inVals == null || inVals.isEmpty()) {
+			return null;
+		}
+		return "( " + StringUtils.join(inVals, ",") + " )";
+	}
+	
+	/**
+	 * @param val
+	 * @param type
+	 * @return
+	 */
+	private String quoteValue(String val, Type type) {
+		if (NumberUtils.isNumber(val) && isNumberType(type)) {
+			return val;
+		} else if (StringUtils.isNotBlank(val)) {
+			return String.format("'%s'", StringEscapeUtils.escapeSql(val));
 		}
 		return "''";
 	}
@@ -247,7 +268,7 @@ public class AdvFilterParser {
 	 * @param op
 	 * @return
 	 */
-	protected String convOp(String op) {
+	private String convOp(String op) {
 		if ("EQ".equalsIgnoreCase(op)) return "=";
 		else if ("NEQ".equalsIgnoreCase(op)) return "<>";
 		else if ("GT".equalsIgnoreCase(op)) return ">";
@@ -261,10 +282,19 @@ public class AdvFilterParser {
 		else if ("IN".equalsIgnoreCase(op)) return "in";
 		else if ("NIN".equalsIgnoreCase(op)) return "not in";
 		else if ("BW".equalsIgnoreCase(op)) return "between";
-		else if ("BFD".equalsIgnoreCase(op)) return "$before_day(%d)";
-		else if ("BFM".equalsIgnoreCase(op)) return "$before_month(%d)";
-		else if ("AFD".equalsIgnoreCase(op)) return "$after_day(%d)";
-		else if ("AFM".equalsIgnoreCase(op)) return "$after_month(%d)";
+		else if ("BFD".equalsIgnoreCase(op)) return "<"; //"$before_day(%d)";
+		else if ("BFM".equalsIgnoreCase(op)) return "<"; //"$before_month(%d)";
+		else if ("AFD".equalsIgnoreCase(op)) return ">"; //"$after_day(%d)";
+		else if ("AFM".equalsIgnoreCase(op)) return ">"; //"$after_month(%d)";
 		throw new UnsupportedOperationException("Unsupported token [" + op + "]");
+	}
+	
+	/**
+	 * @param type
+	 * @return
+	 */
+	private boolean isNumberType(Type type) {
+		return type == FieldType.INT || type == FieldType.SMALL_INT || type == FieldType.LONG 
+				|| type == FieldType.DOUBLE || type == FieldType.DECIMAL;
 	}
 }

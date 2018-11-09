@@ -126,7 +126,8 @@ $(document).ready(function(){
         onSuccess:function(d){
             d = JSON.parse(d.currentTarget.response)
             if (d.error_code == 0){
-            	$('.avatar img').attr({ 'src': rb.storageUrl + d.data, 'data-src': d.data })
+            	let aUrl = rb.storageUrl + d.data + '?imageView2/2/w/100/interlace/1/q/100'
+            	$('.avatar img').attr({ 'src': aUrl, 'data-src': d.data })
             } else rb.notice(d.error_msg || '上传失败，请稍后重试', 'danger')
         }
     })
