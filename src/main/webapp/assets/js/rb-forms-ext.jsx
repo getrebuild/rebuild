@@ -7,12 +7,12 @@ class RbFormBool extends RbFormElement {
     }
     renderElement() {
         return (
-            <div>
-                <label className="custom-control custom-radio custom-control-inline">
+            <div className="mt-1">
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline">
                     <input className="custom-control-input" name={'radio-' + this.props.field} type="radio" checked={this.state.value == 'T'} data-value="T" onChange={this.changeValue} />
                     <span className="custom-control-label">是</span>
                 </label>
-                <label className="custom-control custom-radio custom-control-inline">
+                <label className="custom-control custom-control-sm custom-radio custom-control-inline">
                     <input className="custom-control-input" name={'radio-' + this.props.field} type="radio" checked={this.state.value == 'F'} data-value="F" onChange={this.changeValue} />
                     <span className="custom-control-label">否</span>
                 </label>

@@ -67,6 +67,19 @@
     border-radius: 0 2px 2px 0;
     border-left: 0 none
 }
+.custom-control-label {
+	line-height: 1.9;
+}
+.custom-control-sm .custom-control-label {
+	line-height: 1.6;
+}
+.custom-control.custom-control-sm{
+	padding-left: 1.9377rem;
+}
+.custom-radio.custom-control-sm .custom-control-input:checked~.custom-control-label::after {
+	font-size: 13px;
+	padding-top: 0.15rem;
+}
 .adv-search {
     margin-right: 12px;
     width: 220px;

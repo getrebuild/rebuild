@@ -3109,7 +3109,7 @@ input[type=button].btn-block, input[type=reset].btn-block, input[type=submit].bt
     position: relative;
     display: block;
     min-height: 1.428571rem;
-    padding-left: 2rem
+    padding-left: 2.1377rem
 }
 .custom-control-inline {
     display: -webkit-inline-box;
@@ -3127,8 +3127,8 @@ input[type=button].btn-block, input[type=reset].btn-block, input[type=submit].bt
     background-color: #fff
 }
 .custom-control-input:focus~.custom-control-label::before {
-    -webkit-box-shadow: none;
-    box-shadow: none
+    -webkit-box-shadow: 0 0 0 .15rem #eee;
+    box-shadow: 0 0 0 .15rem #eee
 }
 .custom-control-input:active~.custom-control-label::before {
     color: #fff;
@@ -15465,6 +15465,7 @@ pre code {
     margin-top: 7px;
     margin-bottom: 7px;
     cursor: pointer;
+    margin-bottom: 1.1105rem
 }
 .custom-control-label {
     position: static;
@@ -15491,37 +15492,37 @@ pre code {
 }
 .custom-checkbox .custom-control-label:before {
     content: "";
-    width: 1.51rem;
-    height: 1.51rem;
+    width: 1.699rem;
+    height: 1.699rem;
     border: 1px solid #ccc;
-    border-radius: 2px;
+    border-radius: 3px;
     margin: 0 0
 }
 .custom-checkbox .custom-control-input:checked~.custom-control-label::after {
     content: "\f26b";
-    font-size: 1.4rem;
+    font-size: 1.5452rem;
     font-family: "Material-Design-Iconic-Font";
     margin: 0 0;
     font-weight: 400;
     text-align: center;
-    line-height: 1.1;
+    line-height: 1.1
 }
 .custom-radio .custom-control-label:before {
     content: "";
     border: 1px solid #d5d8de;
-    width: 1.51rem;
-    height: 1.51rem;
+    width: 1.77592rem;
+    height: 1.77592rem;
     margin: 0 0
 }
 .custom-radio .custom-control-input:checked~.custom-control-label::after {
     content: "\f26d";
-    width: 1.51rem;
-    height: 1.51rem;
+    width: 1.77592rem;
+    height: 1.77592rem;
     margin: 0 0;
     font-size: 1rem;
     font-family: "Material-Design-Iconic-Font";
     text-align: center;
-    line-height: 1.65;
+    line-height: 1.8
 }
 .custom-radio-icon {
     padding: 7px 0;
