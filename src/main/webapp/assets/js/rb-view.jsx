@@ -45,7 +45,8 @@ class RbViewForm extends React.Component {
 const detectViewElement = function(item){
     item.onView = true
     item.viewMode = true
-    return (<div className={'col-12 col-sm-' + (item.isFull ? 12 : 6)}>{detectElement(item)}</div>)
+    item.key = 'col-' + item.field
+    return (<div className={'col-12 col-sm-' + (item.isFull ? 12 : 6)} key={item.key}>{detectElement(item)}</div>)
 }
 
 // -- Usage

@@ -118,7 +118,7 @@ public class AdvFilterParser {
 					LOG.warn("Ignore equation token : " + token);
 				}
 			}
-			return StringUtils.join(itemSqls, " ");
+			return "( " + StringUtils.join(itemSqls, " ") + " )";
 		}
 	}
 	

@@ -17,6 +17,13 @@
 	</jsp:include>
 	<div class="rb-content">
 		<div class="main-content container-fluid">
+			<div class="row">
+				<div class="col-sm-6">
+				</div>
+				<div class="col-sm-6 text-right">
+					<button type="button" class="btn btn-link"><i class="zmdi zmdi-plus icon"></i> 添加图表</button>
+				</div>
+			</div>
 			<h3 class="text-center">首页可配置仪表盘</h3>
 			<div id="advfilter"></div>
 		</div>
@@ -26,8 +33,8 @@
 <script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
 <script type="text/babel">
 $(document).ready(function(){
-	renderRbcomp(<AdvFilter entity="kehu" trigger="" />, 'advfilter')
-	renderRbcomp(<RbModal><AdvFilter entity="kehu" inModal={true} /></RbModal>)
+	//renderRbcomp(<AdvFilter entity="kehu" trigger="" />, 'advfilter')
+	//renderRbcomp(<RbModal><AdvFilter entity="kehu" inModal={true} /></RbModal>)
 })
 </script>
 </body>

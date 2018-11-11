@@ -34,12 +34,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.manager.FieldValueWrapper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 引用字段搜索
@@ -50,8 +52,8 @@ import cn.devezhao.persist4j.dialect.FieldType;
 @Controller
 public class ReferenceSearch extends BaseControll {
 	
-	@RequestMapping("/app/entity/ref-search")
-	public void searchRefs(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@RequestMapping({ "/app/entity/ref-search", "/app/entity/reference-search" })
+	public void referenceSearch(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
 		String field = getParameterNotNull(request, "field");
 		String q = getParameter(request, "q");
@@ -89,5 +91,22 @@ public class ReferenceSearch extends BaseControll {
 			result.add(map);
 		}
 		writeSuccess(response, result);
+	}
+	
+	@RequestMapping({ "/app/entity/ref-label", "/app/entity/reference-label" })
+	public void referenceLabel(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String ids = getParameter(request, "ids", "");
+		
+		Map<String, String> labels = new HashMap<>();
+		for (String id : ids.split("\\|")) {
+			if (!ID.isId(id)) {
+				continue;
+			}
+			String label = FieldValueWrapper.getLabel(ID.valueOf(id));
+			if (label != null) {
+				labels.put(id, label);
+			}
+		}
+		writeSuccess(response, labels);
 	}
 }

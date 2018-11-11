@@ -22,6 +22,12 @@
 			</div>
 		</div>
 	</div>
+	<div style="margin:9px 15px;">
+		<div class="alert alert-info alert-icon min">
+			<div class="icon"><span class="zmdi zmdi-info-outline"></span></div>
+			<div class="message">快速查询仅支持文本、邮箱、电话、链接及列表类型的字段</div>
+		</div>
+	</div>
 	<div class="dialog-footer">
 		<div class="float-left hide J_for-admin">
 			<label class="custom-control custom-checkbox custom-control-inline">

@@ -32,24 +32,23 @@ class RbFormAvatar extends RbFormElement {
         super(props)
     }
     renderElement() {
+        let aUrl = this.state.value ? (rb.storageUrl + this.state.value + '?imageView2/2/w/100/interlace/1/q/100') : rb.baseUrl + '/assets/img/avatar.png'
         return (
             <div className="img-field avatar">
                 <span title="选择头像图片">
                     <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} accept="image/*" />
                     <label htmlFor={this.props.field + '-input'} className="img-thumbnail img-upload">
-                        <img src={rb.storageUrl + (this.state.value || 'rebuild/20181010/041046550__avatar.png') + '?imageView2/2/w/100/interlace/1/q/100'}/>
+                        <img src={aUrl}/>
                     </label>
                 </span>
             </div>
         )
     }
     renderViewElement() {
-        let avatarUrl = rb.storageUrl + (this.props.value || 'rebuild/20181010/041046550__avatar.png') + '?imageView2/2/w/100/interlace/1/q/100'
+        let aUrl = this.state.value ? (rb.storageUrl + this.state.value + '?imageView2/2/w/100/interlace/1/q/100') : rb.baseUrl + '/assets/img/avatar.png'
         return (
             <div className="img-field avatar">
-                <a className="img-thumbnail img-upload">
-                    <img src={rb.storageUrl + (this.state.value || 'rebuild/20181010/041046550__avatar.png') + '?imageView2/2/w/100/interlace/1/q/100'}/>
-                </a>
+                <a className="img-thumbnail img-upload"><img src={aUrl}/></a>
             </div>
         )
     }

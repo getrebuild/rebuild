@@ -21,6 +21,7 @@
     box-shadow: 0 0 0 transparent;
     color: #4285f4 !important;
     line-height: 2.8rem;
+    text-decoration: none !important;
 }
 .btn.btn-link:hover {
     color: #0d5bdd !important;
@@ -81,14 +82,14 @@
 	padding-top: 0.15rem;
 }
 .adv-search {
-    margin-right: 12px;
-    width: 220px;
+    margin-right: 10px;
+    margin-bottom: 5px;
 }
-.adv-search span {
-    display: inline-block;
-    max-width: 185px;
+.adv-search .btn-group, .adv-search .btn-group .dropdown-menu {
+	width: 220px;
 }
-.adv-search button {
+.adv-search .btn {
+	border-radius: 2px !important;
     width: 100%;
     text-align: left;
     height: 2.8rem;
@@ -96,10 +97,21 @@
     box-shadow: 0 0 0 #fff !important;
     position: relative;
 }
-.adv-search button .icon {
+.adv-search .btn>span {
+    display: inline-block;
+    max-width: 185px;
+}
+.adv-search .btn .icon {
     position: absolute;
     margin-top: 10px;
     right: 8px;
+}
+.adv-search .dropdown-item {
+	position: relative;
+	cursor: pointer;
+}
+.adv-search .dropdown-item a {
+	width: 150px;
 }
 .rb-aside .page-head {
     margin-left: 280px;
@@ -199,6 +211,12 @@ a {
 .form-control-plaintext {
     font-size: 1rem;
     padding: 8px 0;
+}
+.form-control.text {
+	border-radius: 0;
+	border-width: 0;
+	border-bottom-width: 1px;
+	padding: 4px !important;
 }
 /* FormPage */
 .rbform>form>.alert {
@@ -752,13 +770,14 @@ i.split.ui-draggable-dragging {
     background-color: #4285f4 !important;
     border-radius: 3px
 }
-.dept-tree li>div.action {
+.dept-tree li>div.action, .adv-search .dropdown-item div.action {
     position: absolute;
     right: 0;
     top: 1px;
     display: none;
+    font-size: 0;
 }
-.dept-tree li>div.action a {
+.dept-tree li>div.action a, .adv-search .dropdown-item div.action a {
     display: inline-block;
     height: 30px;
     line-height: 30px;
@@ -773,8 +792,21 @@ i.split.ui-draggable-dragging {
 .dept-tree li>div.action a:hover {
     background-color: rgba(0, 0, 0, 0.4);
 }
-.dept-tree ul>li.active:hover>div.action {
+.dept-tree ul>li.active:hover>div.action, .adv-search .dropdown-item:hover div.action {
     display: block;
+}
+.adv-search .dropdown-item div.action {
+}
+.adv-search .dropdown-item div.action a {
+	height: 32px;
+	line-height: 32px;
+    background-color: #eee;
+    color: #aaa !important;
+    border-radius: 0;
+    width: 24px
+}
+.adv-search .dropdown-item div.action a:hover {
+	color: #4285f4 !important;
 }
 /* AdvFilter */
 .adv-filter-warp {
@@ -813,14 +845,13 @@ i.split.ui-draggable-dragging {
     margin-left: -25px;
     font-size: 12px;
     font-style: normal;
-    font-weight: bold;
-    padding-top: 10px;
+    padding-top: 11px;
     color: #777;
     padding-left: 5px;
 }
 .adv-filter .item .field i.zmdi {
     position: absolute;
-    top: 7px;
+    top: 8px;
     left: 15px;
     font-size: 1.4rem;
     color: #999;
@@ -850,7 +881,7 @@ i.split.ui-draggable-dragging {
 .adv-filter .item .val .val-range>span {
     position: absolute;
     right: 6px;
-    top: 6px;
+    top: 7px;
     height: 22px;
     width: 22px;
     line-height: 22px;
@@ -861,19 +892,29 @@ i.split.ui-draggable-dragging {
     font-size: 12px;
 }
 .adv-filter .item .val .val-range>span.end {
-    top: 46px;
+    top: 50px;
 }
 .adv-filter+.adv-filter {
     border-top: 1px solid #eee;
     padding-top: 8px;
     margin-top: 8px;
 }
-
 .adv-filter .form-control-sm,.adv-filter .select2-container--default .select2-selection--single .select2-selection__rendered, .adv-filter .select2-container--default .select2-selection--multiple .select2-selection__rendered {
 	padding-left: 8px;
 	padding-right: 8px;
 }
-
+.adv-filter .float-left .btn+.btn{
+	margin-left: 10px;
+}
+.adv-filter .float-left .form-control-sm.text {
+	width: 200px;
+	padding-right: 25px !important;
+}
+.adv-filter .float-left .zmdi-border-color {
+	margin-top: -24px;
+	margin-right: 4px;
+	color: #bbb;
+}
 /* height = 34px 
 .adv-filter .select2-container--default .select2-selection--single, .adv-filter .select2-container--default .select2-selection--multiple {
 	min-height: 34px;

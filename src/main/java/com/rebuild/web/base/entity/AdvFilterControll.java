@@ -23,16 +23,24 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.query.AdvFilterManager;
 import com.rebuild.server.query.AdvFilterParser;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.LayoutConfig;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 高级查询
@@ -44,15 +52,59 @@ import cn.devezhao.commons.web.ServletUtils;
 @RequestMapping("/app/{entity}/")
 public class AdvFilterControll extends BaseControll implements LayoutConfig {
 
+	@RequestMapping("advfilter/post")
 	@Override
-	public void sets(String entity, HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void sets(@PathVariable String entity, 
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getRequestUser(request);
+		ID filterId = getIdParameter(request, "id");
+		String filterName = getParameter(request, "name");
+		JSON filter = ServletUtils.getRequestJson(request);
+		
+		Record record = null;
+		if (filterId == null) {
+			record = EntityHelper.forNew(EntityHelper.FilterConfig, user);
+			record.setString("belongEntity", entity);
+			if (StringUtils.isBlank(filterName)) {
+				filterName = "过滤项-" + CalendarUtils.getPlainDateFormat().format(CalendarUtils.now());
+			}
+		} else {
+			record = EntityHelper.forUpdate(filterId, user);
+		}
+		
+		if (StringUtils.isNotBlank(filterName)) {
+			record.setString("filterName", filterName);
+		}
+		
+		record.setString("config", filter.toJSONString());
+		Application.getCommonService().createOrUpdate(record);
+		
+		writeSuccess(response);
 	}
 	
+	@RequestMapping("advfilter/get")
 	@Override
-	public void gets(String entity, HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void gets(@PathVariable String entity, 
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID filterId = getIdParameter(request, "id");
+		Object[] filter = AdvFilterManager.getAdvFilterRaw(filterId);
+		if (filter == null) {
+			writeFailure(response, "无效过滤条件");
+		} else {
+			JSONObject cfg = (JSONObject) filter[1];
+			writeSuccess(response, cfg);
+		}
 	}
 	
-	@RequestMapping("test-advfilter")
+	@RequestMapping("advfilter/list")
+	public void list(@PathVariable String entity, 
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getRequestUser(request);
+		Object[][] filters = AdvFilterManager.getAdvFilterList(entity, user);
+		writeSuccess(response, filters);
+	}
+	
+	@RequestMapping("advfilter/test-parse")
 	public void testAdvfilter(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		JSON advfilter = ServletUtils.getRequestJson(request);
 		

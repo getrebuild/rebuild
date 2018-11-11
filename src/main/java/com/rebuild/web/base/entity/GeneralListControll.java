@@ -41,6 +41,7 @@ import com.rebuild.server.helper.manager.DataListManager;
 import com.rebuild.server.helper.manager.LayoutManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.PortalMetaSorter;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.LayoutConfig;
 import com.rebuild.web.base.entity.datalist.DataListControl;
@@ -50,7 +51,6 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -124,8 +124,8 @@ public class GeneralListControll extends BaseControll implements LayoutConfig {
 		Entity entityMeta = MetadataHelper.getEntity(entity);
 		
 		List<Map<String, Object>> fieldList = new ArrayList<>();
-		for (Field field : entityMeta.getFields()) {
-			if (field.getType() == FieldType.PRIMARY) {
+		for (Field field : PortalMetaSorter.sortFields(entityMeta)) {
+			if (PortalMetaSorter.isBizzFilter(field)) {
 				continue;
 			}
 			fieldList.add(DataListManager.formattedColumn(field));

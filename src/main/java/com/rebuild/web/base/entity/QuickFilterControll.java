@@ -39,6 +39,7 @@ import com.rebuild.server.helper.manager.DataListManager;
 import com.rebuild.server.helper.manager.LayoutManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.PortalMetaSorter;
 import com.rebuild.server.query.AdvFilterManager;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.LayoutConfig;
@@ -101,8 +102,8 @@ public class QuickFilterControll extends BaseControll implements LayoutConfig {
 		Entity entityMeta = MetadataHelper.getEntity(entity);
 		
 		List<Map<String, Object>> fieldList = new ArrayList<>();
-		for (Field field : entityMeta.getFields()) {
-			if (AdvFilterManager.allowQuickFilter(field)) {
+		for (Field field : PortalMetaSorter.sortFields(entityMeta)) {
+			if (AdvFilterManager.allowedQuickFilter(field)) {
 				fieldList.add(DataListManager.formattedColumn(field));
 			}
 		}
@@ -117,7 +118,7 @@ public class QuickFilterControll extends BaseControll implements LayoutConfig {
 		writeSuccess(response, ret);
 	}
 	
-	@RequestMapping(value="advfilter/quick", method = RequestMethod.GET)
+	@RequestMapping(value="advfilter/quick-gets", method = RequestMethod.GET)
 	public void getQuickFilter(@PathVariable String entity,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);

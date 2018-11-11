@@ -33,6 +33,7 @@ import com.rebuild.server.entityhub.DisplayType;
 import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.helper.manager.LayoutManager;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.PortalMetaSorter;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -83,7 +84,7 @@ public class AdvFilterManager {
 		if (cfgs == null) {
 			Entity entityMeta = MetadataHelper.getEntity(entity);
 			Field namedField = entityMeta.getNameField();
-			if (allowQuickFilter(namedField)) {
+			if (allowedQuickFilter(namedField)) {
 				cfgs = new Object[] { null, null };
 				cfgs[1] = String.format("{items:[{ op:'lk', field:'%s', value:'{1}' }]}", namedField.getName());
 			} else {
@@ -138,14 +139,67 @@ public class AdvFilterManager {
 	}
 	
 	/**
+	 * 是否允许 QuickFilter 字段
+	 * 
 	 * @param field
 	 * @return
 	 */
-	public static boolean allowQuickFilter(Field field) {
+	public static boolean allowedQuickFilter(Field field) {
 		if (field == null) {
 			return false;
 		}
+		if (PortalMetaSorter.isBizzFilter(field)) {
+			return false;
+		}
+		
 		DisplayType dt = EasyMeta.getDisplayType(field);
 		return (dt == DisplayType.TEXT || dt == DisplayType.URL || dt == DisplayType.EMAIL || dt == DisplayType.PHONE || dt == DisplayType.PICKLIST);
+	}
+	
+	// --
+	
+	/**
+	 * 获取高级查询列表
+	 * 
+	 * @param entity
+	 * @param user
+	 * @return
+	 */
+	public static Object[][] getAdvFilterList(String entity, ID user) {
+		Assert.notNull(entity, "[entity] not be null");
+		Assert.notNull(user, "[user] not be null");
+		
+		Object[][] array = Application.createQuery(
+				"select filterId,filterName,createdBy,config from FilterConfig where belongEntity = ? and filterName <> ? and ((applyTo = 'SELF' and createdBy = ?) or applyTo = 'ALL')")
+				.setParameter(1, entity)
+				.setParameter(2, FILTER_QUICK)
+				.setParameter(3, user)
+				.array();
+		for (Object[] o : array) {
+			o[2] = o[2].equals(user);  // allow edit
+			o[3] = JSON.parseObject((String) o[3]);
+		}
+		return array;
+	}
+	
+	/**
+	 * 获取高级查询列表
+	 * 
+	 * @param filterId
+	 * @return
+	 */
+	public static Object[] getAdvFilterRaw(ID filterId) {
+		Assert.notNull(filterId, "[filterId] not be null");
+		Object[] filter = Application.createQuery(
+				"select filterId,config from FilterConfig where filterId = ?")
+				.setParameter(1, filterId)
+				.unique();
+		if (filter == null || filter[1] == null) {
+			return null;
+		}
+		
+		String cfg = (String) filter[1];
+		filter[1] = JSON.parseObject(cfg);
+		return filter;
 	}
 }

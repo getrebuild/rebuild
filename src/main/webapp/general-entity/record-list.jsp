@@ -24,7 +24,14 @@
 							<div class="col-12 col-sm-6">
 								<div class="dataTables_filter">
 									<div class="adv-search float-left">
-										<button class="btn btn-secondary" type="button"><span class="text-truncate">所有数据</span><i class="icon zmdi zmdi-caret-down"></i></button>
+										<div class="btn-group">
+											<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="text-truncate J_name">所有数据</span><i class="icon zmdi zmdi-caret-down"></i></button>
+											<div class="dropdown-menu">
+												<li class="dropdown-item" data-id="$ALL$"><a>所有数据</a></li>
+												<div class="dropdown-divider"></div>
+												<a class="dropdown-item J_advfilter"><i class="icon zmdi zmdi-playlist-plus"></i>新增过滤项</a>
+											</div>
+										</div>
 									</div>
 									<div class="input-group input-search">
 										<input class="form-control rounded-left J_search-text" placeholder="搜索 ..." type="text">
@@ -73,6 +80,7 @@
 <script type="text/babel">
 $(document).ready(function(){
 	RbListPage.init(${DataListConfig}, [ '${entityLabel}', '${entityName}', '${entityIcon}' ], ${entityPrivileges})
+	rb.AdvFilter.init('.adv-search', '${entityName}')
 });
 </script>
 </body>

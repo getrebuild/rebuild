@@ -3,10 +3,15 @@ class AdvFilter extends React.Component {
     constructor(props) {
         super(props)
         
-        // TODO parse exists items
-        let items = []
-        this.state = { ...props, items: items }
-        this.handleChange = this.handleChange.bind(this)
+        let ext = {}
+        if (props.filter) {
+            if (!!props.filter.equation){
+                ext.enableEquation = true
+                ext.equation = props.filter.equation
+            }
+            this.__items = props.filter.items
+        }
+        this.state = { ...props, ...ext }
         this.childrenRef = []
     }
     render() {
@@ -16,28 +21,36 @@ class AdvFilter extends React.Component {
                     <div className="filter-option">
                     </div>
                     <div className="filter-items" ref="items">
-                        {this.state.items.map((item)=>{
+                        {(this.state.items || []).map((item)=>{
                             return item
                         })}
                         <div className="item plus"><a href="javascript:;" onClick={()=>this.addItem()}><i className="zmdi zmdi-plus-circle icon"></i> 添加条件</a></div>
                     </div>
                 </div>
                 <div className="adv-filter">
-                    <div className="item">
-                        <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                            <input className="custom-control-input" type="checkbox" onClick={()=>this.toggleEquation()} />
+                    <div className="item mt-1">
+                        <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2">
+                            <input className="custom-control-input" type="checkbox" onClick={()=>this.toggleEquation()} checked={this.state.enableEquation == true} data-id="enableEquation" onChange={this.handleChange} />
                             <span className="custom-control-label"> 启用高级表达式</span>
                         </label>
                     </div>
                     {this.state.enableEquation !== true ? null :
                     <div className="mb-3">
-                        <input className={'form-control form-control-sm' + (this.state.equationError ? ' is-invalid' : '')} value={this.state.equation || ''} onChange={this.handleChange} />
+                        <input className={'form-control form-control-sm' + (this.state.equationError ? ' is-invalid' : '')} value={this.state.equation || ''} data-id="equation" onChange={this.handleChange} />
                     </div>
                     }
                     <div className="item">
-                        <button className="btn btn-primary" type="button" onClick={()=>this.toFilterJson()}>应用</button>
-                        &nbsp;&nbsp;
-                        <button className="btn btn-secondary" type="button">取消</button>
+                        <div className="float-left">
+                            <button className="btn btn-primary" type="button" onClick={()=>this.confirm()}>确定</button>
+                            <button className="btn btn-secondary" type="button" onClick={()=>this.cancel()}>取消</button>
+                        </div>
+                        {this.state.inModal !== true ? null :
+                        <div className="float-left ml-4">
+                            <input className="form-control form-control-sm text" maxLength="20" value={this.state.filterName || ''} data-id="filterName" onChange={this.handleChange} placeholder="输入过滤项名称" />
+                            <i className="zmdi zmdi-border-color float-right"></i>
+                        </div>
+                        }
+                        <div className="clearfix"></div>
                     </div>
                 </div>
             </div>
@@ -50,17 +63,29 @@ class AdvFilter extends React.Component {
                 if (item.type == 'DATETIME') {
                     item.type = 'DATE'
                 } else if (item.type == 'REFERENCE') {
-                    REFFIELD_CACHE[that.props.entity + '.' + item.name] = item.ref
+                    REFMETA_CACHE[that.props.entity + '.' + item.name] = item.ref
                 }
                 return item
             })
+            
+            if (that.__items){
+                $(that.__items).each((index, item) => { that.addItem(item) })
+            }
         })
     }
     onRef = (child) => {
         this.childrenRef.push(child)
     }
-    handleChange(e) {
+    handleChange = (e) => {
         let val = e.target.value
+        let id = e.target.dataset.id
+        if (id == 'filterName'){
+            this.setState({ filterName: val })
+            return
+        } else if (id == 'enableEquation'){
+            return
+        }
+        
         let that = this
         this.setState({ equation: val }, function(){
             let token = val.toLowerCase().split(' ')
@@ -77,17 +102,23 @@ class AdvFilter extends React.Component {
         })
     }
     
-    addItem(){
+    addItem(cfg){
         if (!this.fields) return
         let _items = this.state.items || []
         if (_items.length >= 10){ rb.notice('最多可添加10个条件'); return }
         
         let id = 'item-' + $random()
-        _items.push(<FilterItem index={_items.length + 1} fields={this.fields} $$$parent={this} key={id} id={id} onRef={this.onRef} />)
+        let props = { fields: this.fields, $$$parent: this, key: id, id: id, onRef: this.onRef, index: _items.length + 1 }
+        if (!!cfg) props = { ...props, ...cfg }
+        _items.push(<FilterItem {...props} />)
         
-        let equation = [] 
-        for (let i = 1; i <= _items.length; i++) equation.push(i)
-        this.setState({ items: _items, equation: equation.join(' OR ') })
+        if (!!!cfg){
+            let equation = [] 
+            for (let i = 1; i <= _items.length; i++) equation.push(i)
+            this.setState({ items: _items, equation: equation.join(' OR ') })
+        } else {
+            this.setState({ items: _items })
+        }
     }
     removeItem(id){
         let _items = []
@@ -111,7 +142,13 @@ class AdvFilter extends React.Component {
     }
     
     toggleEquation() {
-        this.setState({ enableEquation: this.state.enableEquation !== true })
+        let enable = this.state.enableEquation !== true
+        this.setState({ enableEquation: enable })
+        if (enable == true && !!!this.state.equation){
+            let equation = [] 
+            for (let i = 1; i <= this.state.items.length; i++) equation.push(i)
+            this.setState({ equation: equation.join(' OR ') })
+        }
     }
     
     toFilterJson() {
@@ -123,30 +160,50 @@ class AdvFilter extends React.Component {
             else filters.push(fj)
         }
         if (hasError){ rb.notice('部分条件设置有误，请检查'); return }
+        if (filters.length == 0){ rb.notice('请至少添加1个条件'); return }
         
         let adv = { entity: this.props.entity, items: filters }
         if (this.state.enableEquation == true) adv.equation = this.state.equation
-        
-        $.post(rb.baseUrl + '/app/entity/test-advfilter', JSON.stringify(adv), function(res){
-            console.log(JSON.stringify(adv) + ' >> ' + res.data)
-        })
+        return adv
+    }
+    
+    confirm() {
+        let adv = this.toFilterJson()
+        if (!!!adv) return
+        if (this.props.confirm) this.props.confirm(adv, this.state.filterName)
+        else{
+            $.post(rb.baseUrl + '/app/entity/advfilter/test-parse', JSON.stringify(adv), function(res){
+                console.log(JSON.stringify(adv) + ' >> ' + res.data)
+            })
+        }
+    }
+    cancel() {
+        if (this.props.cancel) this.props.cancel()
+        else if (rb.AdvFilter) rb.AdvFilter.hideModal()
     }
 }
 
-const OP_TYPE = { LK:'包含', NLK:'不包含', IN:'包含', NIN:'不包含', EQ:'等于', NEQ:'不等于', GT:'大于', LT:'小于', BW:'区间', NL:'为空', NT:'不为空', BFD:'...天前', BFM:'...月前', AFD:'...天后', AFM:'...月后' }
-const OP_DATE_NOPICKER = ['BFD','BFM','AFD','AFM']
+const OP_TYPE = { LK:'包含', NLK:'不包含', IN:'包含', NIN:'不包含', EQ:'等于', NEQ:'不等于', GT:'大于', LT:'小于', BW:'区间', NL:'为空', NT:'不为空', BFD:'...天前', BFM:'...月前', AFD:'...天后', AFM:'...月后', RED:'最近...天', REM:'最近...月', SELFU:'本人', SELFD:'本部门' }
+const OP_DATE_NOPICKER = ['BFD','BFM','AFD','AFM','RED','REM']
+const OP_NOVALUE = ['NL','NT','SELFU','SELFD']
 const PICKLIST_CACHE = {}
-const REFFIELD_CACHE = {}
+const REFMETA_CACHE = {}
+const VALUE_HOLD = {}  // TODO
 
 class FilterItem extends React.Component {
     constructor(props) {
         super(props)
         this.state = { ...props }
-        console.log(props)
-        this.__entity = this.props.$$$parent.props.entity
+        
+        this.$$$entity = this.props.$$$parent.props.entity
         
         this.valueHandle = this.valueHandle.bind(this)
         this.valueCheck = this.valueCheck.bind(this)
+        
+        this.loadedPickList = false
+        this.loadedBizzSearch = false
+        
+        if (props.field && props.value) VALUE_HOLD[props.field] = props.value
     }
     render() {
         return (
@@ -154,52 +211,49 @@ class FilterItem extends React.Component {
                 <div className="col-sm-5 field">
                     <em>{this.state.index}</em>
                     <i className="zmdi zmdi-minus-circle" title="移除条件" onClick={()=>this.props.$$$parent.removeItem(this.props.id)}></i>
-                    <select className="form-control form-control-sm" ref="filter-field" value={this.state.field}>
+                    <select className="form-control form-control-sm" ref="filter-field">
                         {this.state.fields.map((item)=>{
                             return <option value={item.name + '----' + item.type} key={'field-' + item.name}>{item.label}</option>
                         })}
                     </select>
                 </div>
                 <div className="col-sm-2 op">
-                    {this.renderOp()}
+                    <select className="form-control form-control-sm" ref="filter-op">
+                        {this.selectOp().map((item)=>{
+                            return <option value={item} key={'op-' + item}>{OP_TYPE[item]}</option>
+                        })}
+                    </select>
                 </div>
-                <div className={'col-sm-5 val' + (this.state.op == 'NL' || this.state.op == 'NT' ? ' hide' : '')}>
-                    {this.renderVal()}
+                <div className={'col-sm-5 val' + (OP_NOVALUE.contains(this.state.op) ? ' hide' : '')}>
+                    {this.renderValue()}
                 </div>
             </div>
         )
     }
-    renderOp(){
+    selectOp(){
         let op = [ 'LK', 'NLK', 'EQ', 'NEQ' ]
         if (this.state.type == 'NUMBER' || this.state.type == 'DECIMAL'){
             op = [ 'GT', 'LT', 'BW', 'EQ' ]
         } else if (this.state.type == 'DATE' || this.state.type == 'DATETIME'){
-            op = [ 'GT', 'LT', 'BW', 'BFD', 'BFM', 'AFD', 'AFM' ]
+            op = [ 'GT', 'LT', 'BW', 'RED', 'REM', 'BFD', 'BFM', 'AFD', 'AFM' ]
         } else if (this.state.type == 'FILE' || this.state.type == 'IMAGE'){
             op = []
-        } else if (this.state.type == 'PICKLIST' || this.isBizzField()){
+        } else if (this.state.type == 'PICKLIST'){
             op = [ 'IN', 'NIN' ]
+        } else if (this.isBizzField()){
+            op = [ 'IN', 'NIN', 'SELFU', 'SELFD' ]
         }
-        // TODO 根据引用字段类型
-        
         op.push('NL', 'NT')
         this.__op = op
-        
-        return (
-            <select className="form-control form-control-sm" ref="filter-op" value={this.state.op}>
-                {op.map((item)=>{
-                    return <option value={item} key={'op-' + item}>{OP_TYPE[item]}</option>
-                })}
-            </select>
-        )
+        return op
     }
-    renderVal(){
+    renderValue(){
         let val = <input className="form-control form-control-sm" ref="filter-val" onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
         if (this.state.op == 'BW'){
             val = (
                 <div className="val-range">
                     <input className="form-control form-control-sm" ref="filter-val" onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
-                    <input className="form-control form-control-sm" ref="filter-val2" onChange={this.valueHandle} onBlur={this.valueCheck} data-at="2" value={this.state.value2 || ''} />
+                    <input className="form-control form-control-sm" ref="filter-val2" onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value2 || ''} data-at="2" />
                     <span>起</span>
                     <span className="end">止</span>
                 </div>)
@@ -213,13 +267,15 @@ class FilterItem extends React.Component {
         } else if (this.isBizzField()){
             val = <select className="form-control form-control-sm" multiple="true" ref="filter-val" />
         }
+        
+        VALUE_HOLD[this.state.field] = this.state.value
+        console.log('VALUE_HOLD ... ' + JSON.stringify(VALUE_HOLD))
         return (val)
     }
-    
     // 引用 User/Department
     isBizzField() {
         if (this.state.type == 'REFERENCE'){
-            const fRef = REFFIELD_CACHE[this.__entity + '.' + this.state.field]
+            const fRef = REFMETA_CACHE[this.$$$entity + '.' + this.state.field]
             return fRef && (fRef[0] == 'User' || fRef[0] == 'Department')
         }
         return false
@@ -258,7 +314,21 @@ class FilterItem extends React.Component {
             })
         })
         this.__select2 = [s2field, s2op]
-        s2field.trigger('change')
+        
+        // Load
+        if (this.props.field) {
+            let field = this.props.field
+            $(this.state.fields).each(function(){
+                if (this.name == field) {
+                    field = field + '----' + this.type
+                    return false
+                }
+            })
+            s2field.val(field).trigger('change')
+            setTimeout(()=>{ s2op.val(that.props.op).trigger('change') }, 100)
+        } else {
+            s2field.trigger('change')
+        }
     }
     componentDidUpdate(prevProps, prevState) {
         let thisEnter = this.state.field + '----' + this.state.type + '----' + (this.state.op == 'BW')/*区间*/ + '----' + (OP_DATE_NOPICKER.contains(this.state.op))
@@ -285,7 +355,7 @@ class FilterItem extends React.Component {
         }
         
         if (this.isBizzField()){
-            const fRef = REFFIELD_CACHE[this.__entity + '.' + this.state.field]
+            const fRef = REFMETA_CACHE[this.$$$entity + '.' + this.state.field]
             this.renderBizzSearch(fRef[0])
         } else if (lastType == 'REFERENCE') {
             this.removeBizzSearch()
@@ -312,7 +382,6 @@ class FilterItem extends React.Component {
     valueCheck(e){
         let el = e.target ? $(e.target) : e
         let val = e.target ? e.target.value : e.val()
-
         el.removeClass('is-invalid')
         if (!!!val){
             el.addClass('is-invalid')
@@ -356,6 +425,14 @@ class FilterItem extends React.Component {
             that.setState({ value: val.join('|') })
         })
         this.__select2_PickList = s2val
+        
+        // Load
+        if (this.props.value && this.loadedPickList == false) {
+            console.log(this.props.value)
+            let val = this.props.value.split('|')
+            s2val.val(val).trigger('change')
+            this.loadedPickList = true
+        }
     }
     removePickList(){
         if (this.__select2_PickList) {
@@ -394,6 +471,18 @@ class FilterItem extends React.Component {
             that.setState({ value: val.join('|') })
         })
         this.__select2_BizzSearch = s2val
+        
+        // Load
+        if (this.props.value && this.loadedBizzSearch == false) {
+            console.log(this.props.value)
+            $.get(rb.baseUrl + '/app/entity/reference-label?ids=' + $encode(this.props.value), function(res){
+                for (let kid in res.data) {
+                    let option = new Option(res.data[kid], kid, true, true)
+                    s2val.append(option)
+                }
+            })
+            this.loadedBizzSearch = true
+        }
     }
     removeBizzSearch(){
         if (this.__select2_BizzSearch){
@@ -455,12 +544,12 @@ class FilterItem extends React.Component {
     getFilterJson(){
         let s = this.state
         if (!!!s.value) {
-            if (s.op == 'NL' || s.op == 'NT'){
+            if (OP_NOVALUE.contains(s.op)){
                 // 允许无值
             } else {
                 return
             }
-        } else if (s.op == 'NL' || s.op == 'NT'){
+        } else if (OP_NOVALUE.contains(s.op)){
             s.value = null
         }
         
@@ -484,4 +573,73 @@ class FilterItem extends React.Component {
 
 rb.AdvFilter = {
         
+    // @el - 控件
+    // @entity - 实体
+    init(el, entity) {
+        this.__el = $(el)
+        this.__entity = entity
+        this.initEvent()
+        this.loadFilters()
+    },
+    
+    initEvent() {
+        let that = this
+        this.__el.find('.J_advfilter').click(function(){ that.showAdvFilter() })
+        // $ALL$
+        $('.adv-search .dropdown-item:eq(0)').click(() => {
+            $('.adv-search .J_name').text('所有数据')
+            RbListPage._RbList.setAdvFilter()
+        })
+    },
+    
+    loadFilters() {
+        let that = this
+        $.get(`${rb.baseUrl}/app/${this.__entity}/advfilter/list`, function(res){
+            $('.adv-search li.dropdown-item').each(function(){
+                if ($(this).data('id') != '$ALL$') $(this).remove()
+            })
+            
+            $(res.data).each(function(){
+                let item = $('<li class="dropdown-item" data-id="' + this[0] + '"><a class="text-truncate">' + this[1] + '</a></li>')
+                $('.adv-search .dropdown-item:eq(0)').after(item)
+                
+                let data = this
+                if (data[2] == true){
+                    let action = $('<div class="action"><a title="修改"><i class="zmdi zmdi-edit"></i></a></div>').appendTo(item)
+                    action.find('a').click(function(){
+                        that.__cfgid = data[0]
+                        that.showAdvFilter(data[3], data[1])
+                        $('.adv-search .btn').dropdown('toggle')
+                        return false
+                    })
+                }
+                item.click(function(){
+                    $('.adv-search .J_name').text(data[1])
+                    RbListPage._RbList.setAdvFilter(data[0])
+                })
+            })
+            
+        })
+    },
+    
+    saveFilter(cfg, name) {
+        if (!cfg) return
+        let url = `${rb.baseUrl}/app/${this.__entity}/advfilter/post?id=${rb.AdvFilter.__cfgid || ''}`
+        if (name) url += '&name=' + $encode(name)
+        $.post(url, JSON.stringify(cfg), function(res){
+            if (res.error_code == 0){
+                rb.notice('过滤项已保存', 'success')
+                rb.AdvFilter.hideModal()
+                rb.AdvFilter.loadFilters()
+            } else rb.notice(res.error_msg, 'danger')
+        })
+    },
+    
+    showAdvFilter(filter, name) {
+        let title = (filter ? '修改' : '新增') + '过滤项'
+        this.__modal = renderRbcomp(<RbModal title={title} destroyOnHide={true}><AdvFilter entity={this.__entity} inModal={true} confirm={this.saveFilter} filter={filter} filterName={name} /></RbModal>)
+    },
+    hideModal() {
+        if (this.__modal) this.__modal.hide()
+    }
 }

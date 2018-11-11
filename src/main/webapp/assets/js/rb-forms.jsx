@@ -658,6 +658,8 @@ class RbFormDivider extends React.Component {
 
 // 确定元素类型
 const detectElement = function(item){
+    if (!!!item.key) item.key = 'field-' + item.field
+    
     let isExtElement = detectElementExt(item)
     if (isExtElement != null) {
         return isExtElement

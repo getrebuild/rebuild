@@ -31,10 +31,12 @@ import com.rebuild.server.entityhub.DisplayType;
 import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.query.AdvFilterManager;
 import com.rebuild.server.query.AdvFilterParser;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 列表查询解析
@@ -122,18 +124,31 @@ public class JSONQueryParser {
 				.append(" from ")
 				.append(entity.getName());
 		
+		// Filter-Default
 		StringBuffer sqlWhere = new StringBuffer(" where (1=1)");
 		if (dataListControl.getDefaultFilter() != null) {
 			sqlWhere.append('(').append(dataListControl.getDefaultFilter()).append(')');
 		}
-		
-		JSONObject filterExp = queryElement.getJSONObject("filter");
-		if (filterExp != null) {
-			String query = new AdvFilterParser(entity, filterExp).toSqlWhere();
+		// Filter-Adv
+		String advExpId = queryElement.getString("advFilter");
+		if (ID.isId(advExpId)) {
+			Object[] adv = AdvFilterManager.getAdvFilterRaw(ID.valueOf(advExpId));
+			if (adv != null) {
+				String query = new AdvFilterParser(entity, (JSONObject) adv[1]).toSqlWhere();
+				if (StringUtils.isNotBlank(query)) {
+					sqlWhere.append(" and ").append(query);
+				}
+			}
+		}
+		// Filter-Quick
+		JSONObject quickExp = queryElement.getJSONObject("filter");
+		if (quickExp != null) {
+			String query = new AdvFilterParser(entity, quickExp).toSqlWhere();
 			if (StringUtils.isNotBlank(query)) {
 				sqlWhere.append(" and ").append(query);
 			}
 		}
+		
 		sqlBase.append(sqlWhere);
 		
 		StringBuffer sqlSort = new StringBuffer(" order by ");

@@ -32,7 +32,7 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.metadata.BaseMeta;
 
 /**
- * 前端配置时的元数据过滤
+ * 前端配置时的元数据过滤、排序
  * 
  * @author devezhao
  * @since 09/30/2018
@@ -91,6 +91,8 @@ public class PortalMetaSorter {
 	 */
 	public static Field[] sortFields(Field[] fields, DisplayType[] dtAllowed) {
 		sortBaseMeta(fields);
+
+		// 全部类型
 		if (dtAllowed == null || dtAllowed.length == 0) {
 			List<Field> list = new ArrayList<>();
 			for (Field field : fields) {
@@ -127,5 +129,20 @@ public class PortalMetaSorter {
 				return EasyMeta.getLabel(o1).compareToIgnoreCase(EasyMeta.getLabel(o2));
 			}
 		});
+	}
+	
+	/**
+	 * 设置时过滤某些 Bizz 实体字段
+	 * 
+	 * @param field
+	 * @return
+	 */
+	public static boolean isBizzFilter(Field field) {
+		int ec = field.getOwnEntity().getEntityCode();
+		String fn = field.getName();
+		if (ec == EntityHelper.User) {
+			return "avatarUrl".equalsIgnoreCase(fn) || "password".equalsIgnoreCase(fn);
+		}
+		return false;
 	}
 }

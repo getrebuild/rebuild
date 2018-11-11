@@ -49,8 +49,9 @@ class RbList extends React.Component {
                     <tbody>
                         {this.state.rowData.map((item, index) => {
                             let lastGhost = item[lastIndex]
-                            return (<tr key={'row-' + lastGhost[0]} className={lastGhost[3] ? 'table-active' : ''} onClick={this.clickRow.bind(this, index, false)}>
-                                <td className="column-checkbox">
+                            let rowKey = 'row-' + lastGhost[0]
+                            return (<tr key={rowKey} className={lastGhost[3] ? 'table-active' : ''} onClick={this.clickRow.bind(this, index, false)}>
+                                <td key={rowKey + '-checkbox'} className="column-checkbox">
                                     <div><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={lastGhost[3]} onClick={this.clickRow.bind(this, index, true)} /><span className="custom-control-label"></span></label></div>
                                 </td>
                                 {item.map((cell, index) => {
@@ -96,10 +97,11 @@ class RbList extends React.Component {
             if (lastGhost[3] == true) that.__selectedRows.push(lastGhost)
         })
         
-        $('.J_delete, .J_view, .J_edit').attr('disabled', true)
+        let oper = $('.dataTables_oper')
+        oper.find('.J_delete, .J_view, .J_edit').attr('disabled', true)
         let len = this.__selectedRows.length
-        if (len > 0) $('.J_delete').attr('disabled', false)
-        if (len == 1) $('.J_view, .J_edit').attr('disabled', false)
+        if (len > 0) oper.find('.J_delete').attr('disabled', false)
+        if (len == 1) oper.find('.J_view, .J_edit').attr('disabled', false)
     }
     
     fetchList(filter) {
@@ -118,6 +120,7 @@ class RbList extends React.Component {
             pageSize: this.state.pageSize,
             sort: field_sort,
             filter: this.lastFilter,
+            advFilter: this.advFilter,
             reload: true,
         };
         let that = this;
@@ -144,34 +147,36 @@ class RbList extends React.Component {
     
     renderCell(cellVal, index, lastGhost) {
         if (this.state.fields.length == index) return null
-        if (!!!cellVal) return <td><div></div></td>
+        
+        const cellKey = 'row-' + lastGhost[0] + '-' + index
+        if (!!!cellVal) return <td key={cellKey}><div></div></td>
        
         const field = this.state.fields[index]
         let styles = { width: (this.state.fields[index].width || this.__defaultColumnWidth) + 'px' }
         if (field.type == 'IMAGE') {
             cellVal = JSON.parse(cellVal || '[]')
-            return (<td><div style={styles} className="img-field column-imgs">
+            return (<td key={cellKey}><div style={styles} className="img-field column-imgs">
                 {cellVal.map((item)=>{
                     return <span><a href={'#!/Preview/' + item} className="img-thumbnail img-upload"><img src={rb.storageUrl + item + '?imageView2/2/w/100/interlace/1/q/100'} /></a></span>
                 })}<div className="clearfix" /></div></td>)
         } else if (field.type == 'FILE') {
             cellVal = JSON.parse(cellVal || '[]')
-            return (<td><div style={styles} className="column-files"><ul className="list-unstyled">
+            return (<td key={cellKey}><div style={styles} className="column-files"><ul className="list-unstyled">
                 {cellVal.map((item)=>{
                     let fileName = __fileCutName(item)
                     return <li className="text-truncate"><a href={'#!/Preview/' + item}>{fileName}</a></li>
                 })}</ul></div></td>)
         } else if (field.type == 'REFERENCE'){
-            return <td><div style={styles}><a href={'#!/View/' + cellVal[2][0] + '/' + cellVal[0]} onClick={() => this.clickView(cellVal)}>{cellVal[1]}</a></div></td>
+            return <td key={cellKey}><div style={styles}><a href={'#!/View/' + cellVal[2][0] + '/' + cellVal[0]} onClick={() => this.clickView(cellVal)}>{cellVal[1]}</a></div></td>
         } else if (field.field == this.props.config.nameField){
             cellVal = lastGhost
-            return <td><div style={styles}><a href={'#!/View/' + cellVal[2][0] + '/' + cellVal[0]} onClick={() => this.clickView(cellVal)} className="column-main">{cellVal[1]}</a></div></td>
+            return <td key={cellKey}><div style={styles}><a href={'#!/View/' + cellVal[2][0] + '/' + cellVal[0]} onClick={() => this.clickView(cellVal)} className="column-main">{cellVal[1]}</a></div></td>
         } else if (field.type == 'URL') {
-            return <td><div style={styles}><a href={rb.baseUrl + '/common/url-safe?url=' + encodeURIComponent(cellVal)} className="column-url" target="_blank">{cellVal}</a></div></td>
+            return <td key={cellKey}><div style={styles}><a href={rb.baseUrl + '/common/url-safe?url=' + encodeURIComponent(cellVal)} className="column-url" target="_blank">{cellVal}</a></div></td>
         } else if (field.type == 'EMAIL') {
-            return <td><div style={styles}><a href={'mailto:' + cellVal} className="column-url">{cellVal}</a></div></td>
+            return <td key={cellKey}><div style={styles}><a href={'mailto:' + cellVal} className="column-url">{cellVal}</a></div></td>
         } else {
-            return <td><div style={styles}>{cellVal}</div></td>
+            return <td key={cellKey}><div style={styles}>{cellVal}</div></td>
         }
     }
     
@@ -244,6 +249,11 @@ class RbList extends React.Component {
     }
     
     reload() {
+        this.fetchList()
+    }
+    
+    setAdvFilter(id) {
+        this.advFilter = id
         this.fetchList()
     }
     
@@ -442,7 +452,7 @@ const QuickFilter = {
     
     loadFilter() {
         let that = this
-        $.get(`${rb.baseUrl}/app/${this.entity}/advfilter/quick`, function(res){
+        $.get(`${rb.baseUrl}/app/${this.entity}/advfilter/quick-gets`, function(res){
             that.filterExp = res.data || { items: [] }
             let qFields = []
             that.filterExp.items.forEach(function(item){ qFields.push(item.label) })

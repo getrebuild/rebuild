@@ -48,11 +48,17 @@ class RbModal extends React.Component {
         })
     }
     hide(){
-        $(this.refs['rbmodal']).modal('hide')
-        let d = true
-        if (this.props.destroyOnHide == false) d = false
-        else $(this.refs['rbmodal']).modal('dispose')
-        this.setState({ isDestroy: d, inLoad: d  })
+        let root = $(this.refs['rbmodal'])
+        let warp = root.parent()
+        root.modal('hide')
+        let destroy = true
+        if (this.props.destroyOnHide == false) destroy = false
+        else root.modal('dispose')
+        this.setState({ isDestroy: destroy, inLoad: destroy  })
+        
+        if (this.props.destroyOnHide == true) {
+            setTimeout(() => { warp.remove() }, 200)
+        }
         
         // 如果还有其他 modal 处于 open 态， 则保持 modal-open，否则主窗口滚动条会消失
         if ($('.rbmodal.show').length > 0) $(document.body).addClass('modal-open')

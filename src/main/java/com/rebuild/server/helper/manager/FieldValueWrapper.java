@@ -23,6 +23,7 @@ import java.text.DecimalFormat;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
+import com.rebuild.server.Application;
 import com.rebuild.server.entityhub.DisplayType;
 import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -178,5 +179,27 @@ public class FieldValueWrapper {
 		} else {
 			return text;
 		}
+	}
+	
+	/**
+	 * 获取记录的 NAME 字段值
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public static String getLabel(ID id) {
+		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
+		Field nameField = entity.getNameField();
+		String sql = "select %s from %s where %s = '%s'";
+		sql = String.format(sql, nameField.getName(), entity.getName(), entity.getPrimaryField().getName(), id.toLiteral());
+		Object[] label = Application.getQueryFactory().createQueryNoFilter(sql).unique();
+		if (label == null) {
+			return null;
+		}
+		
+		// TODO 复杂值的 Label 处理
+		
+		Object labelVal = FieldValueWrapper.wrapFieldValue(label[0], nameField);
+		return labelVal == null ? null : labelVal.toString();
 	}
 }
