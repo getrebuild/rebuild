@@ -427,7 +427,7 @@ class RbFormImage extends RbFormElement {
         return (
             <div className="img-field">
                 {this.state.value.map((item) => {
-                    return (<span><a className="img-thumbnail img-upload"><img src={rb.storageUrl + item + '?imageView2/2/w/100/interlace/1/q/100'}/><b title="移除" onClick={()=>this.removeItem(item)}><span className="zmdi zmdi-delete"></span></b></a></span>)
+                    return (<span><a className="img-thumbnail img-upload"><img src={rb.storageUrl + item + '?imageView2/2/w/100/interlace/1/q/100'}/><b title="移除" onClick={()=>this.removeItem(item)}><span className="zmdi zmdi-close"></span></b></a></span>)
                 })}
                 <span title="选择图片">
                     <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} accept="image/*" />
@@ -491,7 +491,7 @@ class RbFormFile extends RbFormElement {
             <div className="file-field">
                 {this.state.value.map((item) => {
                     let fileName = __fileCutName(item)
-                    return (<div className="img-thumbnail"><i className={'ftype ' + __fileDetectingIcon(fileName)}/><span>{fileName}</span><b title="移除" onClick={()=>this.removeItem(item)}><span className="zmdi zmdi-delete"></span></b></div>)
+                    return (<div className="img-thumbnail"><i className={'ftype ' + __fileDetectingIcon(fileName)}/><span>{fileName}</span><b title="移除" onClick={()=>this.removeItem(item)}><span className="zmdi zmdi-close"></span></b></div>)
                 })}
                 <div className="file-select">
                     <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} />

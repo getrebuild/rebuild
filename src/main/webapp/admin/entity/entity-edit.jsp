@@ -42,7 +42,7 @@ a#entityIcon:hover{opacity:0.8}
 		<div class="page-head">
 			<div class="page-head-title">基本信息</div>
 		</div>
-		<div class="main-content container-fluid" style="padding-top:3px">
+		<div class="main-content container-fluid pt-1">
 			<div class="card">
 				<div class="card-body">
 					<form>
@@ -65,11 +65,11 @@ a#entityIcon:hover{opacity:0.8}
 							</div>
 						</div>
 						<div class="form-group row">
-							<label class="col-sm-2 col-form-label text-sm-right">主显示字段</label>
+							<label class="col-sm-2 col-form-label text-sm-right">主显字段</label>
 							<div class="col-lg-5 col-sm-8">
 								<select class="form-control form-control-sm" id="nameField">
 								</select>
-								<p class="form-text mb-0">主显字段应能够清晰的表示记录，如客户中的客户名称或订单中的订单编号</p>
+								<p class="form-text mb-0">好的主显字段应能够清晰的表示记录，如客户中的客户名称或订单中的订单编号</p>
 							</div>
 						</div>
 						<div class="form-group row">

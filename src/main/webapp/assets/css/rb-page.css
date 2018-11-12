@@ -277,7 +277,6 @@ a {
     cursor: default;
 }
 .img-field a.img-upload b, .file-field .img-thumbnail b {
-    display: none;
     position: absolute;
     bottom: 0;
     width: 100%;
@@ -288,6 +287,8 @@ a {
     background-color: rgba(0, 0, 0, 0.4);
     color: #fff;
     text-align: center;
+    line-height: 1;
+    display: none;
 }
 .img-field a.img-upload:hover b, .file-field .img-thumbnail:hover b {
     display: block;

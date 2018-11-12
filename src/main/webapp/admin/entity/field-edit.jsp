@@ -46,32 +46,32 @@
 		<div class="page-head">
 			<div class="page-head-title">字段信息</div>
 		</div>
-		<div class="main-content container-fluid" style="padding-top:3px">
+		<div class="main-content container-fluid pt-1">
 			<div class="card mb-0">
 				<div class="card-body">
 					<br>
 					<form>
 						<div class="form-group row">
 							<label class="col-sm-2 col-form-label text-sm-right">字段名称</label>
-							<div class="col-lg-4 col-sm-10">
+							<div class="col-lg-5 col-sm-10">
 								<input class="form-control form-control-sm" type="text" id="fieldLabel" value="${fieldLabel}" data-o="${fieldLabel}">
 							</div>
 						</div>
 						<div class="form-group row">
 							<label class="col-sm-2 col-form-label text-sm-right">内部标识</label>
-							<div class="col-lg-4 col-sm-10">
+							<div class="col-lg-5 col-sm-10">
 								<input class="form-control form-control-sm" type="text" readonly="readonly" value="${fieldName}">
 							</div>
 						</div>
 						<div class="form-group row">
 							<label class="col-sm-2 col-form-label text-sm-right">类型</label>
-							<div class="col-lg-4 col-sm-10">
+							<div class="col-lg-5 col-sm-10">
 								<input class="form-control form-control-sm" type="text" readonly="readonly" value="${fieldType}">
 							</div>
 						</div>
 						<div class="form-group row J_for-DECIMAL hide">
 							<label class="col-sm-2 col-form-label text-sm-right">小数位长度</label>
-							<div class="col-lg-4 col-sm-10">
+							<div class="col-lg-5 col-sm-10">
 								<select class="form-control form-control-sm" id="decimalFormat">
 									<option value="##,##0.0">1位</option>
 									<option value="##,##0.00" selected="selected">2位</option>
@@ -84,13 +84,13 @@
 						</div>
 						<div class="form-group row J_for-REFERENCE hide">
 							<label class="col-sm-2 col-form-label text-sm-right">引用实体</label>
-							<div class="col-lg-4 col-sm-10">
+							<div class="col-lg-5 col-sm-10">
 								<div class="form-control-plaintext"><a href="../../${fieldRefentity}/base">${fieldRefentityLabel} (${fieldRefentity})</a></div>
 							</div>
 						</div>
 						<div class="form-group row J_for-DATE hide">
 							<label class="col-sm-2 col-form-label text-sm-right">格式</label>
-							<div class="col-lg-4 col-sm-10">
+							<div class="col-lg-5 col-sm-10">
 								<select class="form-control form-control-sm" id="dateFormat">
 									<option value="yyyy">YYYY</option>
 									<option value="yyyy-MM">YYYY-MM</option>
@@ -100,7 +100,7 @@
 						</div>
 						<div class="form-group row J_for-DATETIME hide">
 							<label class="col-sm-2 col-form-label text-sm-right">格式</label>
-							<div class="col-lg-4 col-sm-10">
+							<div class="col-lg-5 col-sm-10">
 								<select class="form-control form-control-sm" id="datetimeFormat">
 									<option value="yyyy-MM-dd">YYYY-MM-DD</option>
 									<option value="yyyy-MM-dd HH:mm">YYYY-MM-DD HH:MM</option>
@@ -110,14 +110,14 @@
 						</div>
 						<div class="form-group row J_for-IMAGE J_for-FILE hide">
 							<label class="col-sm-2 col-form-label text-sm-right">允许上传数量</label>
-							<div class="col-lg-4 col-sm-10" style="padding-top:6px">
+							<div class="col-lg-5 col-sm-10" style="padding-top:6px">
 								<input class="bslider form-control" id="uploadNumber" type="text" data-slider-value="[1,5]" data-slider-step="1" data-slider-max="10" data-slider-min="0" data-slider-tooltip="show">
 								<div class="form-text J_minmax">最少上传 <b>1</b> 个，最多上传 <b>5</b> 个</div>
 							</div>
 						</div>
 						<div class="form-group row J_for-PICKLIST hide">
 							<label class="col-sm-2 col-form-label text-sm-right">列表选项</label>
-							<div class="col-lg-4 col-sm-10">
+							<div class="col-lg-5 col-sm-10">
 								<div class="rb-scroller sortable-box autoh">
 									<ol class="dd-list" id="picklist-items">
 										<li class="no-item">加载中</li>
@@ -128,7 +128,7 @@
 						</div>
 						<div class="form-group row">
 							<label class="col-sm-2 col-form-label text-sm-right">备注</label>
-							<div class="col-lg-4 col-sm-10">
+							<div class="col-lg-5 col-sm-10">
 								<textarea class="form-control form-control-sm row2x" id="comments" data-o="${fieldComments}">${fieldComments}</textarea>
 							</div>
 						</div>
@@ -143,7 +143,7 @@
 							</div>
 						</div>
 						<div class="form-group row footer">
-							<div class="col-lg-4 col-sm-10 offset-sm-2">
+							<div class="col-lg-5 col-sm-10 offset-sm-2">
 								<button class="btn btn-primary J_save" type="button">保存</button>
 								<div class="alert alert-warning alert-icon hide">
 									<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
