@@ -5,13 +5,13 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>实体管理</title>
 <style type="text/css">
+.card.entity{position:relative;}
 .card.entity:hover{background-color:rgba(255,255,255,.7)}
 .card.entity .card-body{padding:12px 20px;color:#333;}
-.card.entity .icon{font-size:32px;color:#4285f4;}
 .card.entity .card-body .float-left{width:30px;text-align:center;}
+.card.entity .icon{font-size:32px;color:#4285f4;}
+.card.entity .badge{position:absolute;top:11px;right:11px}
 .card.entity span{margin-top:2px;display:block;}
-.card.entity p{margin:0}
-.title{margin-left:45px}
 </style>
 </head>
 <body>
@@ -34,10 +34,7 @@
 	<a class="card entity">
 		<div class="card-body">
 			<div class="float-left"><i class="icon zmdi"></i></div>
-			<div class="title">
-				<span class="text-truncate">新建实体</span>
-				<p class="text-muted">新建一个实体</p>
-			</div>
+			<div class="ml-7"><span class="text-truncate"></span><p class="text-muted m-0"></p></div>
 			<div class="clearfix"></div>
 		</div>
 	</a>
@@ -47,21 +44,24 @@
 <script type="text/javascript">
 $(document).ready(function(){
 	$.get(rb.baseUrl + '/admin/entity/entity-list', function(res){
-		$(res.data).each(function(){
-			let tmp = $($('#entity-tmpl').html()).appendTo('#entityList')
-			tmp.find('a.card').attr('href', 'entity/' + this.entityName + '/base')
-			tmp.find('.icon').addClass('zmdi-' + this.icon)
-			tmp.find('.title span').text(this.entityLabel)
-			tmp.find('.title p').text(this.comments || '-')
-		});
+		$(res.data).each(function(){ if (this.builtin == true) render_entity(this) })
+		$(res.data).each(function(){ if (this.builtin == false) render_entity(this) })
 		
-		let tmp = $($('#entity-tmpl').html()).appendTo('#entityList')
-		tmp.find('.icon').addClass('zmdi-plus')
-		tmp.find('.card-body').click(function(){
+		let forNew = render_entity({ icon: 'plus', entityLabel: '新建实体', comments: '新建一个实体' })
+		forNew.find('a.card').attr('href', 'javascript:;').click(function(){
 			rb.modal(rb.baseUrl + '/admin/page/entity/entity-new', '新建实体')
 		})
 	})
 })
+let render_entity = function(item){
+	let tmp = $($('#entity-tmpl').html()).appendTo('#entityList')
+	tmp.find('a.card').attr('href', 'entity/' + item.entityName + '/base')
+	tmp.find('.icon').addClass('zmdi-' + item.icon)
+	tmp.find('span').text(item.entityLabel)
+	tmp.find('p').text(item.comments || '-')
+	if (item.builtin == true) $('<i class="badge badge-pill badge-secondary thin text-muted">内建</i>').appendTo(tmp.find('a.card'))
+	return tmp
+}
 </script>
 </body>
 </html>

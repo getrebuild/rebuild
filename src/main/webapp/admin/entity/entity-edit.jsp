@@ -48,37 +48,38 @@ a#entityIcon:hover{opacity:0.8}
 					<form>
 						<div class="form-group row">
 							<label class="col-sm-2 col-form-label text-sm-right">图标</label>
-							<div class="col-lg-4 col-sm-10">
+							<div class="col-lg-5 col-sm-10">
 								<a id="entityIcon" data-o="${icon}" title="更换图标"><i class="icon zmdi zmdi-${icon}"></i></a>
 							</div>
 						</div>
 						<div class="form-group row">
 							<label class="col-sm-2 col-form-label text-sm-right">实体名称</label>
-							<div class="col-lg-4 col-sm-10">
+							<div class="col-lg-5 col-sm-10">
 								<input class="form-control form-control-sm" type="text" id="entityLabel" value="${entityLabel}" data-o="${entityLabel}">
 							</div>
 						</div>
 						<div class="form-group row">
 							<label class="col-sm-2 col-form-label text-sm-right">内部标识</label>
-							<div class="col-lg-4 col-sm-10">
+							<div class="col-lg-5 col-sm-10">
 								<input class="form-control form-control-sm" type="text" readonly="readonly" id="entityName" value="${entityName}">
 							</div>
 						</div>
 						<div class="form-group row">
 							<label class="col-sm-2 col-form-label text-sm-right">主显示字段</label>
-							<div class="col-lg-4 col-sm-10">
+							<div class="col-lg-5 col-sm-8">
 								<select class="form-control form-control-sm" id="nameField">
 								</select>
+								<p class="form-text mb-0">主显字段应能够清晰的表示记录，如客户中的客户名称或订单中的订单编号</p>
 							</div>
 						</div>
 						<div class="form-group row">
 							<label class="col-sm-2 col-form-label text-sm-right">备注</label>
-							<div class="col-lg-4 col-sm-10">
+							<div class="col-lg-5 col-sm-10">
 								<textarea class="form-control form-control-sm row2x" id="comments" data-o="${comments}">${comments}</textarea>
 							</div>
 						</div>
 						<div class="form-group row footer">
-							<div class="col-lg-4 col-sm-10 offset-sm-2">
+							<div class="col-lg-5 col-sm-10 offset-sm-2">
 								<button class="btn btn-primary" type="button">保存</button>
 								<div class="alert alert-warning alert-icon" style="display:none">
 									<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>

@@ -37,7 +37,7 @@ import com.rebuild.server.entityhub.DisplayType;
 import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.helper.manager.PickListManager;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.PortalMetaSorter;
+import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.persist4j.Entity;
@@ -55,7 +55,7 @@ public class MetadataGet extends BaseControll {
 	@RequestMapping("entities")
 	public void entities(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		List<Map<String, String>> list = new ArrayList<>();
-		for (Entity e : PortalMetaSorter.sortEntities()) {
+		for (Entity e : MetadataSorter.sortEntities()) {
 			Map<String, String> map = new HashMap<>();
 			EasyMeta easy = new EasyMeta(e);
 			map.put("name", e.getName());
@@ -72,7 +72,7 @@ public class MetadataGet extends BaseControll {
 		Entity entityBase = MetadataHelper.getEntity(entity);
 		
 		List<Map<String, Object>> list = new ArrayList<>();
-		for (Field field : PortalMetaSorter.sortFields(entityBase)) {
+		for (Field field : MetadataSorter.sortFields(entityBase)) {
 			Map<String, Object> map = new HashMap<>();
 			map.put("name", field.getName());
 			EasyMeta easyMeta = new EasyMeta(field);

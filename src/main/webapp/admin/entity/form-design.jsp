@@ -48,8 +48,8 @@
 						</ul>
 		                <div class="tab-content">
 							<div class="tab-pane active">
-								<div class="form-preview view-preview dd-list connectedSortable">
-									<div class="nodata">拖动右侧字段到这里</div>
+								<div class="form-preview view-preview dd-list">
+									<div class="nodata">点击右侧字段添加到布局</div>
 								</div>
 								<div class="clearfix"></div>
 							</div>
@@ -59,11 +59,10 @@
 				<div class="col-12 col-sm-4">
 					<div class="card">
 						<div class="card-header">
-							字段列表
-							<div class="float-right"><span class="not-nullable">必填字段</span><span class="readonly">只读字段</span></div>
+							字段列表<div class="float-right"><span class="not-nullable">必填字段</span><span class="readonly">只读字段</span></div>
 						</div>
-						<div class="card-body" style="padding-top:6px">
-							<div class="field-list dd-list connectedSortable">
+						<div class="card-body" style="padding-top:7px">
+							<div class="field-list dd-list">
 								<div class="nodata">全部字段已布局</div>
 							</div>
 						</div>
@@ -78,36 +77,30 @@
 $(document).ready(function(){
 	const config = JSON.parse('${FormConfig}' || '[]');
 	$.get('../list-field?entity=${entityName}', function(res){
-		let validFields = {},
-			configFields = [];
-		$(config.elements).each(function(){
-			configFields.push(this.field);
-		});
+		let validFields = {}, configFields = []
+		$(config.elements).each(function(){ configFields.push(this.field) })
 		$(res.data).each(function(){
-			validFields[this.fieldName] = this;
-			if (configFields.contains(this.fieldName) == false){
-				render_item(this, '.field-list');
-			}
-		});
+			validFields[this.fieldName] = this
+			if (configFields.contains(this.fieldName) == false) render_unset(this, '.field-list')
+		})
 		
 		$(config.elements).each(function(){
 			let field = validFields[this.field]
 			if (this.field == '$DIVIDER$'){
-				render_item({ fieldName: this.field, fieldLabel: this.label || '分栏', isFull: true }, '.form-preview');
+				render_item({ fieldName: this.field, fieldLabel: this.label || '分栏', isFull: true }, '.form-preview')
 			} else if (!!!field){
-				$('<div class="dd-item"><div class="dd-handle J_field text-danger text-center">字段 [' + this.field.toUpperCase() + '] 已删除</div></div>').appendTo('.form-preview');
+				$('<div class="dd-item"><div class="dd-handle J_field text-danger text-center">字段 [' + this.field.toUpperCase() + '] 已删除</div></div>').appendTo('.form-preview')
 			} else {
-				render_item({ ...field, isFull: this.isFull || false }, '.form-preview');
+				render_item({ ...field, isFull: this.isFull || false }, '.form-preview')
 			}
 		});
 		
-	    checkEmpty()
-	    $('.form-preview, .field-list').sortable({
-			connectWith: '.connectedSortable',
+	    check_empty()
+	    $('.form-preview').sortable({
 			cursor: 'move',
 			placeholder: 'dd-placeholder',
 			cancel: '.nodata',
-			stop: checkEmpty
+			stop: check_empty
 		}).disableSelection();
 	});
 	
@@ -132,51 +125,60 @@ $(document).ready(function(){
 		});
 	});
 });
-const render_item = function(data, append) {
-	let item = $('<div class="dd-item"></div>').appendTo(append)
-	if (data.isFull == true) item.addClass('full')
+const render_item = function(data) {
+	let item = $('<div class="dd-item"></div>').appendTo('.form-preview')
+	if (data.isFull == true) item.addClass('w-100')
 	
 	let handle = $('<div class="dd-handle J_field" data-field="' + data.fieldName + '"><span>' + data.fieldLabel + '</span></div>').appendTo(item)
 	if (data.builtin == true) handle.addClass('readonly')
 	else if (data.nullable == false) handle.addClass('not-nullable')
 	
-	let actions = $('<div class="dd-action"></div>').appendTo(handle)
+	let action = $('<div class="dd-action"></div>').appendTo(handle)
 	if (data.displayType){
-		$('<a href="javascript:;" class="J_half-show" title="双列">[双]</a>').appendTo(actions).click(function(){
-			item.removeClass('full')
+		$('<span class="ft">' + data.displayType.split('(')[0].trim() + '</span>').appendTo(item)
+		$('<a>[双列]</a>').appendTo(action).click(function(){ item.removeClass('w-100') })
+		$('<a>[单列]</a>').appendTo(action).click(function(){ item.addClass('w-100') })
+		$('<a>[移除]</a>').appendTo(action).click(function(){
+			render_unset(data)
+			item.remove()
+			check_empty()
 		})
-		$('<a href="javascript:;" class="J_full-show" title="单列">[单]</a>').appendTo(actions).click(function(){
-			item.addClass('full')
-		})
-		$('<i>' + data.displayType.split('(')[0].trim() + '</i>').appendTo(actions)
 	}
 	
 	if (data.fieldName == '$DIVIDER$'){
 		item.addClass('divider')
-		$('<a href="javascript:;" title="修改分栏名称">[修改]</a>').appendTo(actions).click(function(){
-			let input = '<div style="width:360px;margin:0 auto;"><input type="text" class="form-control form-control-sm" placeholder="输入分栏名称"></div>'
-			rb.alert(input, '修改分栏名称', { html: true, confirm: function(){
-				this.hide()
-				let name = $(this.refs['rbalert']).find('input').val() || '分栏';
-				if (name){
-					handle.find('span').text(name)
-				}
-			} })
+		$('<a title="修改分栏名称">[修改]</a>').appendTo(action).click(function(){ modify_divider(handle) })
+		$('<a>[移除]</a>').appendTo(action).click(function(){
+			item.remove()
+			check_empty()
 		})
 	}
-	
-};
-const checkEmpty = function(){
-	if ($('.field-list .dd-item').length == 0){
-		$('.field-list .nodata').show()
-	}else{
-		$('.field-list .nodata').hide()
-	}
-	if ($('.form-preview .dd-item').length == 0){
-		$('.form-preview .nodata').show()
-	}else{
-		$('.form-preview .nodata').hide()
-	}
+}
+const render_unset = function(data){
+	let item = $('<li class="dd-item"><div class="dd-handle">' + data.fieldLabel + '</div></li>').appendTo('.field-list')
+	$('<span class="ft">' + data.displayType.split('(')[0].trim() + '</span>').appendTo(item)
+	if (data.builtin == true) item.find('.dd-handle').addClass('readonly')
+	else if (data.nullable == false) item.find('.dd-handle').addClass('not-nullable')
+	item.click(function() {
+		render_item(data)
+		item.remove()
+		check_empty()
+	})
+	return item
+}
+const check_empty = function(){
+	if ($('.field-list .dd-item').length == 0) $('.field-list .nodata').show()
+	else $('.field-list .nodata').hide()
+	if ($('.form-preview .dd-item').length == 0) $('.form-preview .nodata').show()
+	else $('.form-preview .nodata').hide()
+}
+const modify_divider = function(handle){
+	let input = '<div class="divider-name"><input type="text" class="form-control form-control-sm" placeholder="输入分栏名称"/></div>'
+	rb.alert(input, '修改分栏名称', { html: true, confirm: function(){
+		this.hide()
+		let name = $(this.refs['rbalert']).find('input').val() || '分栏';
+		if (name) handle.find('span').text(name)
+	} })
 }
 </script>
 </body>

@@ -59,9 +59,9 @@
 									<table class="table table-hover table-striped" id="dataList">
 										<thead>
 											<tr>
-												<th width="20%" data-filed="fieldLabel">字段名称</th>
-												<th width="20%" data-field="fieldName">内部标识</th>
-												<th width="20%" data-field="displayType">类型</th>
+												<th width="25%" data-filed="fieldLabel">字段名称</th>
+												<th width="16%" data-field="fieldName">内部标识</th>
+												<th width="16%" data-field="displayType">类型</th>
 												<th data-field="comments">备注</th>
 												<th width="100"></th>
 											</tr>
@@ -87,7 +87,8 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/rb-list.jsx" type="text/babel"></script>
 <script type="text/babel">
-var fields_data = null;
+let fields_data = null
+let name_field = '${nameField}'
 $(document).ready(function(){
 	$.get('../list-field?entity=${entityName}', function(res){
 		fields_data = res.data
@@ -107,25 +108,33 @@ $(document).ready(function(){
 });
 const render_list = function(q){
 	if (!fields_data) return
-	let tbody = $('#dataList tbody').empty();
+	let tbody = $('#dataList tbody').empty()
 	let size = 0
-	$(fields_data).each(function(){
+	$(fields_data).each(function(idx, item){
 		if (!!q){
-			if (!(this.fieldName.contains(q) || this.fieldLabel.contains(q))) return
+			if (!(item.fieldName.contains(q) || item.fieldLabel.contains(q))) return
 		}
-		let tr = $('<tr data-id="' + (this.fieldId || '') + '"></tr>').appendTo(tbody);
-		$('<td><a href="field/' + this.fieldName + '" class="column-main">' + this.fieldLabel + '</a></td>').appendTo(tr);
-		$('<td><div class="text-muted">' + this.fieldName + '</div></td>').appendTo(tr);
-		$('<td>' + this.displayType + '</td>').appendTo(tr);
-		$('<td><div>' + (this.comments || '') + '</div></td>').appendTo(tr);
-		let actions = $('<td class="actions"><a class="icon J_edit" href="field/' + this.fieldName + '"><i class="zmdi zmdi-settings"></i></a><a class="icon J_del"><i class="zmdi zmdi-delete"></i></a></td>').appendTo(tr);
-		actions.find('.J_del').click(function(){
-			if (!!!tr.data('id')){
-				rb.notice('系统内建字段，不允许删除')
-				return
-			}
+		let tr = $('<tr data-id="' + (item.fieldId || '') + '"></tr>').appendTo(tbody)
+		let name = $('<td><a href="field/' + item.fieldName + '" class="column-main">' + item.fieldLabel + '</a></td>').appendTo(tr)
+		if (item.fieldName == name_field){
+			tr.addClass('primary')
+			$('<span class="badge badge-pill badge-secondary thin ml-1">主显</span>').appendTo(name)
+		}
+		if (item.builtin == true || item.readonly == true){
+			if (item.fieldName != name_field )tr.addClass('muted')
+			$('<span class="badge badge-pill badge-secondary thin ml-1">只读</span>').appendTo(name)
+		}else if (item.nullable == false){
+			if (item.fieldName != name_field )tr.addClass('danger')
+			$('<span class="badge badge-pill badge-secondary thin ml-1">必填</span>').appendTo(name)
+		}
+		$('<td><div class="text-muted">' + item.fieldName + '</div></td>').appendTo(tr)
+		$('<td>' + item.displayType + '</td>').appendTo(tr)
+		$('<td><div>' + (item.comments || '') + '</div></td>').appendTo(tr)
+		let acts = $('<td class="actions"><a class="icon J_edit" href="field/' + item.fieldName + '"><i class="zmdi zmdi-settings"></i></a><a class="icon J_del"><i class="zmdi zmdi-delete"></i></a></td>').appendTo(tr)
+		acts.find('.J_del').click(function(){
+			if (item.builtin == true){ rb.notice('系统内建字段，不允许删除'); return }
 			rb.notice('字段暂不支持删除')
-		});
+		})
 		size++
 	});
 	

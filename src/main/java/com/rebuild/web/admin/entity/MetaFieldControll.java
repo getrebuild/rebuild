@@ -35,11 +35,12 @@ import org.springframework.web.servlet.ModelAndView;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.entityhub.DisplayType;
+import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.entityhub.Field2Schema;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.commons.web.ServletUtils;
@@ -63,6 +64,8 @@ public class MetaFieldControll extends BaseControll  {
 	public ModelAndView pageEntityFields(@PathVariable String entity, HttpServletRequest request) throws IOException {
 		ModelAndView mv = createModelAndView("/admin/entity/fields.jsp");
 		MetaEntityControll.setEntityBase(mv, entity);
+		String nameField = MetadataHelper.getEntity(entity).getNameField().getName();
+		mv.getModel().put("nameField", nameField);
 		return mv;
 	}
 	
@@ -76,12 +79,8 @@ public class MetaFieldControll extends BaseControll  {
 		}
 		
 		List<Map<String, Object>> ret = new ArrayList<>();
-		for (Field field : entity.getFields()) {
+		for (Field field : MetadataSorter.sortFields(entity)) {
 			EasyMeta easyMeta = new EasyMeta(field);
-			if (field.getType() == FieldType.PRIMARY) {
-				continue;
-			}
-			
 			Map<String, Object> map = new HashMap<>();
 			if (easyMeta.getMetaId() != null) {
 				map.put("fieldId", easyMeta.getMetaId().toLiteral());

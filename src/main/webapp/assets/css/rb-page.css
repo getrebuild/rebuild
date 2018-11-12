@@ -81,6 +81,16 @@
 	font-size: 13px;
 	padding-top: 0.15rem;
 }
+.badge.thin{
+	font-size: 12px;
+	font-weight: normal;
+	font-style: normal;
+	line-height: 1.45;
+}
+.table tbody tr.muted td:first-child {
+    border-left: 3px solid #bbb;
+    padding-left: 17px
+}
 .adv-search {
     margin-right: 10px;
     margin-bottom: 5px;

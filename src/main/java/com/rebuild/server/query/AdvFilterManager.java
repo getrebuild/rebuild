@@ -33,7 +33,7 @@ import com.rebuild.server.entityhub.DisplayType;
 import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.helper.manager.LayoutManager;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.PortalMetaSorter;
+import com.rebuild.server.metadata.MetadataSorter;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -148,7 +148,7 @@ public class AdvFilterManager {
 		if (field == null) {
 			return false;
 		}
-		if (PortalMetaSorter.isBizzFilter(field)) {
+		if (MetadataSorter.isBizzFilter(field)) {
 			return false;
 		}
 		

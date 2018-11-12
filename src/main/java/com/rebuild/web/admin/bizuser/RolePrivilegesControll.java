@@ -37,7 +37,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.bizz.RoleService;
 import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.PortalMetaSorter;
+import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 
@@ -77,7 +77,7 @@ public class RolePrivilegesControll extends BaseControll {
 	 */
 	private void setEntities(ModelAndView mv) {
 		List<String[]> entities = new ArrayList<>();
-		for (Entity e : PortalMetaSorter.sortEntities(true)) {
+		for (Entity e : MetadataSorter.sortEntities(true)) {
 			if (EntityHelper.hasPrivilegesField(e)) {
 				entities.add(new String[] { e.getEntityCode() + "", EasyMeta.getLabel(e) });
 			}

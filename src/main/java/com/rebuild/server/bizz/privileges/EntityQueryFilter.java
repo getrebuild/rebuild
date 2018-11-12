@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.MetadataSorter;
 
 import cn.devezhao.bizz.privileges.DepthEntry;
 import cn.devezhao.bizz.privileges.Permission;
@@ -90,7 +91,7 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 	@Override
 	public String evaluate(Entity entity) {
 		if (!EntityHelper.hasPrivilegesField(entity)) {
-			if (SecurityManager.isBizz(entity.getEntityCode())) {
+			if (MetadataSorter.isBizzFilter(entity.getEntityCode())) {
 				return ALLOWED.evaluate(null);
 			} else {
 				return DENIED.evaluate(null);

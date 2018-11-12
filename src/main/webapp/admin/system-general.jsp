@@ -70,7 +70,7 @@ h5{background-color:#eee;margin:0;padding:10px;}
 				</div>
 				<div class="col-3">
 					<div class="card">
-						<div class="card-header card-header-divider">关于 Rebuild</div>
+						<div class="card-header card-header-divider">关于 REBUILD</div>
 						<div class="card-body">
 							<p>版本 <a class="link" target="_blank" href="https://github.com/getrebuild/rebuild/releases"><%=Application.VER%></a></p>
 							<ul style="line-height:2">

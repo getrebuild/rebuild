@@ -39,7 +39,7 @@ import com.rebuild.server.helper.manager.DataListManager;
 import com.rebuild.server.helper.manager.LayoutManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.PortalMetaSorter;
+import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.query.AdvFilterManager;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.LayoutConfig;
@@ -101,7 +101,7 @@ public class QuickFilterControll extends BaseControll implements LayoutConfig {
 		Entity entityMeta = MetadataHelper.getEntity(entity);
 		
 		List<Map<String, Object>> fieldList = new ArrayList<>();
-		for (Field field : PortalMetaSorter.sortFields(entityMeta)) {
+		for (Field field : MetadataSorter.sortFields(entityMeta)) {
 			if (AdvFilterManager.allowedQuickFilter(field)) {
 				fieldList.add(DataListManager.formattedColumn(field));
 			}

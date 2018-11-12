@@ -35,17 +35,16 @@ import org.springframework.util.Assert;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.bizz.UserHelper;
 import com.rebuild.server.bizz.privileges.Department;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 
-import cn.devezhao.bizz.security.member.BusinessUnit;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.dialect.Type;
-import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 高级查询解析器
@@ -138,16 +137,14 @@ public class AdvFilterParser {
 			return null;
 		}
 		
-		final Field fieldMeta = rootEntity.getField(field);
+		final Field fieldMeta = rootEntity.getField(field);  // TODO 级联字段
 		final String op = item.getString("op");
 		
-		String oper = convOp(op);
 		StringBuffer sb = new StringBuffer(field)
 				.append(' ')
-				.append(oper)
+				.append(convOp(op))
 				.append(' ');
-		// is null / is not null
-		if (oper.contains("null")) {
+		if (op.equalsIgnoreCase("NL") || op.equalsIgnoreCase("NT")) {
 			return sb.toString();
 		}
 		
@@ -171,29 +168,19 @@ public class AdvFilterParser {
 		} else if ("SFU".equalsIgnoreCase(op)) {
 			value = Application.currentCallerUser().toLiteral();
 		} else if ("SFB".equalsIgnoreCase(op)) {
-			ID user = Application.currentCallerUser();
-			BusinessUnit bu = Application.getUserStore().getUser(user).getOwningBizUnit();
-			value = bu == null ? "NoBU" : bu.getIdentity().toString();
-			if (bu != null && fieldMeta.getReferenceEntities()[0].getEntityCode() == EntityHelper.User) {
+			Department dept = UserHelper.getDept(Application.currentCallerUser());
+			if (dept != null && fieldMeta.getReferenceEntities()[0].getEntityCode() == EntityHelper.User) {
 				sb.insert(sb.indexOf(" "), "." + EntityHelper.owningDept);
 			}
 		} else if ("SFD".equalsIgnoreCase(op)) {
-			ID user = Application.currentCallerUser();
-			Department bu = (Department) Application.getUserStore().getUser(user).getOwningBizUnit();
-			if (bu != null) {
-				Set<ID> bus = new HashSet<>();
-				bus.add((ID) bu.getIdentity());
-				for (BusinessUnit child : bu.getAllChildren()) {
-					bus.add((ID) child.getIdentity());
-				}
-				value = StringUtils.join(bus, "|");
-			} else {
-				value = "NoBU";
+			Department dept = UserHelper.getDept(Application.currentCallerUser());
+			if (dept != null) {
+				value = StringUtils.join(UserHelper.getAllChildrenId(dept), "|");
 			}
 		}
 				
 		if (StringUtils.isBlank(value)) {
-			LOG.warn("Invalid item of advfilter : " + item.toJSONString());
+			LOG.warn("Invalid item of AdvFilter : " + item.toJSONString());
 			return null;
 		}
 		
@@ -205,9 +192,9 @@ public class AdvFilterParser {
 			}
 			
 			String valHold = value.replaceAll("[\\{\\}]", "");
-			value = parseValue(values.get(valHold), oper, fieldMeta);
+			value = parseValue(values.get(valHold), op, fieldMeta);
 		} else {
-			value = parseValue(value, oper, fieldMeta);
+			value = parseValue(value, op, fieldMeta);
 		}
 		if (value == null) {
 			LOG.warn("Invalid item of advfilter : " + item.toJSONString());
@@ -215,17 +202,16 @@ public class AdvFilterParser {
 		}
 		
 		// 区间
-		boolean isBetween = oper.equals("between");
-		String value2 = isBetween ? parseValue(item.getString("value2"), oper, fieldMeta) : null;
+		boolean isBetween = op.equalsIgnoreCase("BW");
+		String value2 = isBetween ? parseValue(item.getString("value2"), op, fieldMeta) : null;
 		if (isBetween && value2 == null) {
 			value2 = value;
 		}
 		
-		if (oper.equals("in") || oper.equals("not in")) {
+		if (op.equalsIgnoreCase("IN") || op.equalsIgnoreCase("NIN")) {
 			sb.append(value);
 		} else {
-			// like / not like
-			if (oper.contains("like")) {
+			if (op.equalsIgnoreCase("LK") || op.equalsIgnoreCase("NLK")) {
 				value = '%' + value + '%';
 			}
 			sb.append(quoteValue(value, fieldMeta.getType()));
@@ -240,7 +226,7 @@ public class AdvFilterParser {
 	/**
 	 * @param val
 	 * @param op
-	 * @param type
+	 * @param field
 	 * @return
 	 */
 	private String parseValue(Object val, String op, Field field) {
@@ -260,7 +246,7 @@ public class AdvFilterParser {
 			}
 			
 			// 兼容 | 号分割
-			if (op.equals("in") || op.equals("not in")) {
+			if (op.equalsIgnoreCase("IN") || op.equalsIgnoreCase("NIN")) {
 				Set<String> inVals = new HashSet<>();
 				for (String v : value.split("\\|")) {
 					inVals.add(quoteValue(v, field.getType()));
@@ -269,19 +255,6 @@ public class AdvFilterParser {
 			}
 		}
 		return value;
-	}
-	
-	/**
-	 * TODO 优化 in 为 OR
-	 * 
-	 * @param inVals
-	 * @return
-	 */
-	private String optimizeIn(Set<String> inVals) {
-		if (inVals == null || inVals.isEmpty()) {
-			return null;
-		}
-		return "( " + StringUtils.join(inVals, ",") + " )";
 	}
 	
 	/**
@@ -296,6 +269,17 @@ public class AdvFilterParser {
 			return String.format("'%s'", StringEscapeUtils.escapeSql(val));
 		}
 		return "''";
+	}
+	
+	/**
+	 * @param inVals
+	 * @return
+	 */
+	private String optimizeIn(Set<String> inVals) {
+		if (inVals == null || inVals.isEmpty()) {
+			return null;
+		}
+		return "( " + StringUtils.join(inVals, ",") + " )";
 	}
 	
 	/**

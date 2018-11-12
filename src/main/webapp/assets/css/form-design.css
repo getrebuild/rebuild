@@ -1,83 +1,112 @@
 .form-preview {
-    margin: 0 auto
+    margin: 0 -0.5%
 }
-.dd-list .dd-item .dd-handle {
-    cursor: move
-}
-.dd-list .dd-item .dd-action {
-    float: right;
-    cursor: default
-}
-.dd-list .dd-item .dd-action i {
+.card-header .float-right>span {
     font-size: 12px;
-    color: #999;
-    font-style: normal;
-    background-color: #eee;
-    color: #999;
-    display: inline-block;
-    padding: 2px 3px;
-    line-height: 1;
-    border-radius: 2px;
-    margin-left: 2px;
+    padding-left: 4px;
+    font-weight: normal;
 }
-.nodata {
-    padding: 11px 0;
-    color: #999;
-    border: 1px dotted #dedede;
-    text-align: center;
-    display: none;
-    margin: 0;
-}
-.dd-list {
-    min-height: 200px
+.card-header .float-right>span+span {
+    margin-left: 10px;
 }
 .readonly {
-    border-left: 3px solid #dedede !important
+    border-left: 3px solid #bbb !important
 }
 .not-nullable {
     border-left: 3px solid #ea4335 !important
 }
-.card-header>div>span {
-    font-size: 12px;
-    font-weight: normal;
-    padding-left: 4px;
-    margin-right: 9px;
-    color: #888
+.dd-list {
+    min-height: 200px
 }
-.dd-placeholder {
-    height: 36px
-}
-.view-preview {
-    margin: 0 -0.5%;
-}
-.view-preview .dd-item, .view-preview .dd-placeholder {
-    width: 49%;
-    float: left;
-    margin-left: 0.5%;
-    margin-right: 0.5%
-}
-.view-preview .dd-item.full {
-    width: 99% !important;
-}
-.view-preview .dd-item.divider .dd-handle {
-    background-color: #eee;
-    color: #404040;
-}
-.view-preview .dd-item.divider .dd-action a {
-    color: #4285f4;
-}
-.dd-item .dd-action a {
+.dd-list .nodata {
+    padding: 12px 0;
+    color: #999;
+    border: 1px dotted #dedede;
+    text-align: center;
     display: none;
+    margin: 5px 0;
+}
+.dd-list .dd-item {
+    position: relative;
+}
+.dd-list .dd-item span.ft {
+    position: absolute;
+    top: 9px;
+    right: 9px;
+    font-size: 12px;
+    color: #999;
+    background-color: #eee;
+    display: inline-block;
+    padding: 3px 4px;
+    line-height: 1;
+    border-radius: 2px;
+}
+.dd-list .dd-item .dd-action {
+    float: right;
+    cursor: default;
+    display: none;
+}
+.dd-list .dd-item .dd-handle:hover .dd-action {
+    display: block;
+}
+.dd-list .dd-item .dd-action a {
     color: #fff;
     font-size: 12px;
     font-style: normal;
-}
-.dd-item .dd-action a, .dd-item .dd-action i {
-    margin-left: 6px !important;
-}
-.dd-item:hover .dd-action a {
     display: inline-block;
+    padding: 0 3px;
+    opacity: 0.8;
 }
-.field-list .dd-item .dd-action a {
-    display: none !important;
+.dd-list .dd-item .dd-action a:hover {
+    opacity: 1;
+}
+.dd-list .dd-item .dd-action a+a {
+    margin-left: 1px;
+}
+.form-preview .dd-item, .form-preview .dd-placeholder {
+    float: left;
+    width: 49%;
+    margin-left: 0.5%;
+    margin-right: 0.5%;
+}
+.form-preview .dd-placeholder {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    height: 36px;
+}
+.form-preview .dd-item.w-100 {
+    width: 99% !important;
+}
+.form-preview .dd-item span.ft {
+    top: 13px;
+}
+.form-preview .dd-item:hover span.ft {
+    display: none;
+}
+.form-preview .divider .dd-handle {
+    background-color: #eee;
+}
+.form-preview .dd-item, .form-preview .dd-handle {
+    cursor: move !important;
+}
+.divider-name {
+    width: 360px;
+    margin: 0 auto;
+}
+.field-list .dd-item .dd-handle {
+    cursor: pointer;
+}
+.field-list .dd-item .dd-handle::before {
+    content: '\f278';
+    font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
+    float: right;
+    font-size: 1.6rem;
+    color: #999;
+    float: right;
+}
+.field-list .dd-item:hover .dd-handle::before {
+    color: #fff;
+}
+.field-list .dd-item span.ft {
+    right: 32px;
 }

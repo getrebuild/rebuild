@@ -41,7 +41,7 @@ import com.rebuild.server.helper.manager.DataListManager;
 import com.rebuild.server.helper.manager.LayoutManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.PortalMetaSorter;
+import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.LayoutConfig;
 import com.rebuild.web.base.entity.datalist.DataListControl;
@@ -124,8 +124,8 @@ public class GeneralListControll extends BaseControll implements LayoutConfig {
 		Entity entityMeta = MetadataHelper.getEntity(entity);
 		
 		List<Map<String, Object>> fieldList = new ArrayList<>();
-		for (Field field : PortalMetaSorter.sortFields(entityMeta)) {
-			if (PortalMetaSorter.isBizzFilter(field)) {
+		for (Field field : MetadataSorter.sortFields(entityMeta)) {
+			if (MetadataSorter.isBizzFilter(field)) {
 				continue;
 			}
 			fieldList.add(DataListManager.formattedColumn(field));

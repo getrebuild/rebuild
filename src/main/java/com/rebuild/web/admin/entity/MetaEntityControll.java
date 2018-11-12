@@ -39,6 +39,7 @@ import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.entityhub.Entity2Schema;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.commons.web.ServletUtils;
@@ -70,16 +71,14 @@ public class MetaEntityControll extends BaseControll {
 	@RequestMapping("entity/entity-list")
 	public void listEntity(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		List<Map<String, Object>> ret = new ArrayList<>();
-		for (Entity entity : MetadataHelper.getEntities()) {
+		for (Entity entity : MetadataSorter.sortEntities(true)) {
 			EasyMeta easyMeta = new EasyMeta(entity);
-			if (easyMeta.isBuiltin()) {
-				continue;
-			}
 			Map<String, Object> map = new HashMap<>();
 			map.put("entityName", easyMeta.getName());
 			map.put("entityLabel", easyMeta.getLabel());
 			map.put("comments", easyMeta.getComments());
 			map.put("icon", easyMeta.getIcon());
+			map.put("builtin", easyMeta.isBuiltin() || MetadataSorter.isBizzFilter(entity.getEntityCode()));
 			ret.add(map);
 		}
 		writeSuccess(response, ret);

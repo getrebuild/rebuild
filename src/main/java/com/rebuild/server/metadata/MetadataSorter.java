@@ -23,6 +23,11 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.github.stuxuhai.jpinyin.PinyinFormat;
+import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.rebuild.server.entityhub.DisplayType;
 import com.rebuild.server.entityhub.EasyMeta;
 
@@ -38,7 +43,9 @@ import cn.devezhao.persist4j.metadata.BaseMeta;
  * @since 09/30/2018
  * @see EasyMeta
  */
-public class PortalMetaSorter {
+public class MetadataSorter {
+	
+	private static final Log LOG = LogFactory.getLog(MetadataSorter.class);
 
 	/**
 	 * @return
@@ -48,18 +55,17 @@ public class PortalMetaSorter {
 	}
 	
 	/**
-	 * @param fromAdmin
+	 * @param containsBizz
 	 * @return
 	 */
-	public static Entity[] sortEntities(boolean fromAdmin) {
+	public static Entity[] sortEntities(boolean containsBizz) {
 		Entity[] entities = MetadataHelper.getEntities();
 		sortBaseMeta(entities);
 		
 		List<Entity> list = new ArrayList<>();
 		for (Entity entity : entities) {
 			int ec = entity.getEntityCode();
-			if (EasyMeta.isBuiltin(entity) 
-					|| (!fromAdmin && (ec == EntityHelper.User || ec == EntityHelper.Department || ec == EntityHelper.Role))) {
+			if (EasyMeta.isBuiltin(entity)  || (!containsBizz && isBizzFilter(ec))) {
 			} else {
 				list.add(entity);
 			}
@@ -96,10 +102,9 @@ public class PortalMetaSorter {
 		if (dtAllowed == null || dtAllowed.length == 0) {
 			List<Field> list = new ArrayList<>();
 			for (Field field : fields) {
-				if (field.getType() == FieldType.PRIMARY) {
-					continue;
+				if (field.getType() != FieldType.PRIMARY) {
+					list.add(field);
 				}
-				list.add(field);
 			}
 			return list.toArray(new Field[list.size()]);
 		}
@@ -118,21 +123,28 @@ public class PortalMetaSorter {
 	}
 	
 	/**
-	 * 按 Label 排序
+	 * 按 Label 首字母排序
 	 * 
 	 * @param metas
 	 */
-	private static void sortBaseMeta(BaseMeta[] metas) {
+	public static void sortBaseMeta(BaseMeta[] metas) {
 		Arrays.sort(metas, new Comparator<BaseMeta>() {
 			@Override
-			public int compare(BaseMeta o1, BaseMeta o2) {
-				return EasyMeta.getLabel(o1).compareToIgnoreCase(EasyMeta.getLabel(o2));
+			public int compare(BaseMeta foo, BaseMeta bar) {
+				try {
+					String fooLetter = PinyinHelper.convertToPinyinString(EasyMeta.getLabel(foo), "", PinyinFormat.WITHOUT_TONE).toLowerCase();
+					String barLetter = PinyinHelper.convertToPinyinString(EasyMeta.getLabel(bar), "", PinyinFormat.WITHOUT_TONE).toLowerCase();
+					return fooLetter.compareTo(barLetter);
+				} catch (Exception e) {
+					LOG.error(null, e);
+					return 0;
+				}
 			}
 		});
 	}
 	
 	/**
-	 * 设置时过滤某些 Bizz 实体字段
+	 * 设置时过滤某些 Bizz 实体的字段
 	 * 
 	 * @param field
 	 * @return
@@ -144,5 +156,15 @@ public class PortalMetaSorter {
 			return "avatarUrl".equalsIgnoreCase(fn) || "password".equalsIgnoreCase(fn);
 		}
 		return false;
+	}
+	
+	/**
+	 * 是否 Bizz 实体
+	 * 
+	 * @param entityCode
+	 * @return
+	 */
+	public static boolean isBizzFilter(int entityCode) {
+		return entityCode == EntityHelper.User || entityCode == EntityHelper.Department || entityCode == EntityHelper.Role;
 	}
 }

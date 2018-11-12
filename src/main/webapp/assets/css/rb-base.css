@@ -10346,7 +10346,7 @@ a.avatar.x48 img {
     font-weight: 300;
     letter-spacing: -1px;
     font-size: 24px;
-    font-size: 21px;
+    font-size: 1.462rem;
     color: #6b6b6b;
     line-height: 36px
 }
@@ -10453,7 +10453,7 @@ a.avatar.x48 img {
     display: block;
     margin: 16px 0 0;
     font-size: 24px;
-    font-size: 21px;
+    font-size: 1.462rem;
     line-height: 27px;
     font-weight: 300
 }
