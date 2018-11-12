@@ -15,6 +15,12 @@ class AdvFilter extends React.Component {
         this.childrenRef = []
     }
     render() {
+        let OperBtns = (
+            <div className={this.props.inModal == true ? 'float-right' : 'item'}>
+                <button className="btn btn-primary" type="button" onClick={()=>this.confirm()}>{this.props.inModal == true ? '保存' : '应用'}</button>
+                <button className="btn btn-secondary" type="button" onClick={()=>this.cancel()}>取消</button>
+            </div>
+            )
         return (
             <div className={'adv-filter-warp ' + (this.props.inModal ? 'in-modal' : 'shadow rounded')}>
                 <div className="adv-filter">
@@ -28,30 +34,35 @@ class AdvFilter extends React.Component {
                     </div>
                 </div>
                 <div className="adv-filter">
-                    <div className="item mt-1">
-                        <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2">
-                            <input className="custom-control-input" type="checkbox" onClick={()=>this.toggleEquation()} checked={this.state.enableEquation == true} data-id="enableEquation" onChange={this.handleChange} />
-                            <span className="custom-control-label"> 启用高级表达式</span>
-                        </label>
-                    </div>
-                    {this.state.enableEquation !== true ? null :
-                    <div className="mb-3">
-                        <input className={'form-control form-control-sm' + (this.state.equationError ? ' is-invalid' : '')} value={this.state.equation || ''} data-id="equation" onChange={this.handleChange} />
-                    </div>
-                    }
-                    <div className="item">
-                        <div className="float-left">
-                            <button className="btn btn-primary" type="button" onClick={()=>this.confirm()}>确定</button>
-                            <button className="btn btn-secondary" type="button" onClick={()=>this.cancel()}>取消</button>
+                    <div className="mb-1">
+                        <div className="item mt-1">
+                            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2">
+                                <input className="custom-control-input" type="checkbox" checked={this.state.enableEquation == true} data-id="enableEquation" onChange={this.handleChange} />
+                                <span className="custom-control-label"> 启用高级表达式</span>
+                            </label>
                         </div>
-                        {this.state.inModal !== true ? null :
-                        <div className="float-left ml-4">
+                        {this.state.enableEquation !== true ? null :
+                        <div className="mb-3">
+                            <input className={'form-control form-control-sm' + (this.state.equationError ? ' is-invalid' : '')} value={this.state.equation || ''} data-id="equation" onChange={this.handleChange} />
+                        </div>
+                        }
+                    </div>
+                    {this.props.inModal == true ?
+                    <div className="item dialog-footer">
+                        {rb.isAdminUser !== true ? null :
+                        <div className="float-left">
+                            <label className="custom-control custom-checkbox custom-control-inline">
+                                <input className="custom-control-input" type="checkbox" checked={this.state.applyToAll == true} data-id="applyToAll" onChange={this.handleChange} />
+                                <span className="custom-control-label">共享给全部用户</span>
+                            </label>
+                        </div>}
+                        {OperBtns}
+                        <div className="float-right input mr-3">
                             <input className="form-control form-control-sm text" maxLength="20" value={this.state.filterName || ''} data-id="filterName" onChange={this.handleChange} placeholder="输入过滤项名称" />
                             <i className="zmdi zmdi-border-color float-right"></i>
                         </div>
-                        }
-                        <div className="clearfix"></div>
                     </div>
+                    : (<div>{OperBtns}</div>) }
                 </div>
             </div>
         )
@@ -79,27 +90,15 @@ class AdvFilter extends React.Component {
     handleChange = (e) => {
         let val = e.target.value
         let id = e.target.dataset.id
-        if (id == 'filterName'){
-            this.setState({ filterName: val })
-            return
-        } else if (id == 'enableEquation'){
-            return
+        if (id == 'enableEquation'){
+            this.setState({ enableEquation: this.state.enableEquation !== true })
+        } else if (id == 'applyToAll') {
+            this.setState({ applyToAll: this.state.applyToAll !== true })
+        } else {
+            let state = {}
+            state[id] = val
+            this.setState({ ...state })
         }
-        
-        let that = this
-        this.setState({ equation: val }, function(){
-            let token = val.toLowerCase().split(' ')
-            let hasError = false
-            for (let i = 0; i < token.length; i++) {
-                let t = $.trim(token[i])
-                if (!!!t) continue
-                if (!(t == '(' || t == ')' || t == 'or' || t == 'and' || (~~t > 0))) {
-                    hasError = true
-                    break
-                }
-            }
-            that.setState({ equationError: hasError })
-        })
     }
     
     addItem(cfg){
@@ -144,7 +143,7 @@ class AdvFilter extends React.Component {
     toggleEquation() {
         let enable = this.state.enableEquation !== true
         this.setState({ enableEquation: enable })
-        if (enable == true && !!!this.state.equation){
+        if (enable == true && !!!this.state.equation && this.state.items){
             let equation = [] 
             for (let i = 1; i <= this.state.items.length; i++) equation.push(i)
             this.setState({ equation: equation.join(' OR ') })
@@ -170,10 +169,11 @@ class AdvFilter extends React.Component {
     confirm() {
         let adv = this.toFilterJson()
         if (!!!adv) return
-        if (this.props.confirm) this.props.confirm(adv, this.state.filterName)
+        if (this.props.confirm) this.props.confirm(adv, this.state.filterName, this.state.applyToAll)
         else{
             $.post(rb.baseUrl + '/app/entity/advfilter/test-parse', JSON.stringify(adv), function(res){
-                console.log(JSON.stringify(adv) + ' >> ' + res.data)
+                if (res.error_code == 0) console.log(JSON.stringify(adv) + '\n>> ' + res.data)
+                else rb.notice(res.error_msg, 'danger')
             })
         }
     }
@@ -183,9 +183,9 @@ class AdvFilter extends React.Component {
     }
 }
 
-const OP_TYPE = { LK:'包含', NLK:'不包含', IN:'包含', NIN:'不包含', EQ:'等于', NEQ:'不等于', GT:'大于', LT:'小于', BW:'区间', NL:'为空', NT:'不为空', BFD:'...天前', BFM:'...月前', AFD:'...天后', AFM:'...月后', RED:'最近...天', REM:'最近...月', SELFU:'本人', SELFD:'本部门' }
+const OP_TYPE = { LK:'包含', NLK:'不包含', IN:'包含', NIN:'不包含', EQ:'等于', NEQ:'不等于', GT:'大于', LT:'小于', BW:'区间', NL:'为空', NT:'不为空', BFD:'...天前', BFM:'...月前', AFD:'...天后', AFM:'...月后', RED:'最近...天', REM:'最近...月', SFU:'本人', SFB:'本部门', SFD:'本部门及子部门' }
 const OP_DATE_NOPICKER = ['BFD','BFM','AFD','AFM','RED','REM']
-const OP_NOVALUE = ['NL','NT','SELFU','SELFD']
+const OP_NOVALUE = ['NL','NT','SFU','SFB','SFD']
 const PICKLIST_CACHE = {}
 const REFMETA_CACHE = {}
 const VALUE_HOLD = {}  // TODO
@@ -240,8 +240,10 @@ class FilterItem extends React.Component {
             op = []
         } else if (this.state.type == 'PICKLIST'){
             op = [ 'IN', 'NIN' ]
-        } else if (this.isBizzField()){
-            op = [ 'IN', 'NIN', 'SELFU', 'SELFD' ]
+        } else if (this.isBizzField('User')){
+            op = [ 'IN', 'NIN', 'SFU', 'SFB' ]
+        } else if (this.isBizzField('Department')){
+            op = [ 'IN', 'NIN', 'SFB', 'SFD' ]
         }
         op.push('NL', 'NT')
         this.__op = op
@@ -269,14 +271,14 @@ class FilterItem extends React.Component {
         }
         
         VALUE_HOLD[this.state.field] = this.state.value
-        console.log('VALUE_HOLD ... ' + JSON.stringify(VALUE_HOLD))
         return (val)
     }
     // 引用 User/Department
-    isBizzField() {
+    isBizzField(entity) {
         if (this.state.type == 'REFERENCE'){
             const fRef = REFMETA_CACHE[this.$$$entity + '.' + this.state.field]
-            return fRef && (fRef[0] == 'User' || fRef[0] == 'Department')
+            if (!!!entity) return fRef && (fRef[0] == 'User' || fRef[0] == 'Department')
+            else return fRef[0] == entity
         }
         return false
     }
@@ -601,15 +603,26 @@ rb.AdvFilter = {
             
             $(res.data).each(function(){
                 let item = $('<li class="dropdown-item" data-id="' + this[0] + '"><a class="text-truncate">' + this[1] + '</a></li>')
-                $('.adv-search .dropdown-item:eq(0)').after(item)
+                $('.adv-search .dropdown-divider').before(item)
                 
                 let data = this
                 if (data[2] == true){
-                    let action = $('<div class="action"><a title="修改"><i class="zmdi zmdi-edit"></i></a></div>').appendTo(item)
-                    action.find('a').click(function(){
-                        that.__cfgid = data[0]
-                        that.showAdvFilter(data[3], data[1])
+                    let action = $('<div class="action"><a title="修改"><i class="zmdi zmdi-edit"></i></a><a title="删除"><i class="zmdi zmdi-delete"></i></a></div>').appendTo(item)
+                    action.find('a:eq(0)').click(function(){
+                        that.showAdvFilter(data[0])
                         $('.adv-search .btn').dropdown('toggle')
+                        return false
+                    })
+                    action.find('a:eq(1)').click(function(){
+                        let _alert = rb.alert('确认删除此过滤项吗？', '删除确认', { type: 'danger', confirm:()=>{
+                            $.post(`${rb.baseUrl}/app/entity/advfilter/delete?id=${data[0]}`, (res)=>{
+                                if (res.error_code == 0){
+                                    _alert.hide()
+                                    rb.notice('过滤项已删除', 'success')
+                                    rb.AdvFilter.loadFilters()
+                                } else rb.notice(res.error_msg, 'danger')
+                            })
+                        } })
                         return false
                     })
                 }
@@ -622,11 +635,12 @@ rb.AdvFilter = {
         })
     },
     
-    saveFilter(cfg, name) {
-        if (!cfg) return
-        let url = `${rb.baseUrl}/app/${this.__entity}/advfilter/post?id=${rb.AdvFilter.__cfgid || ''}`
-        if (name) url += '&name=' + $encode(name)
-        $.post(url, JSON.stringify(cfg), function(res){
+    saveFilter(filter, name, toAll) {
+        if (!filter) return
+        let _url = `${rb.baseUrl}/app/${rb.AdvFilter.__entity}/advfilter/post?id=${rb.AdvFilter.__cfgid || ''}`
+        if (!!name)  _url += '&name=' + $encode(name)
+        if (toAll === true || toAll === false) _url += '&toAll=' + toAll
+        $.post(_url, JSON.stringify(filter), function(res){
             if (res.error_code == 0){
                 rb.notice('过滤项已保存', 'success')
                 rb.AdvFilter.hideModal()
@@ -635,9 +649,17 @@ rb.AdvFilter = {
         })
     },
     
-    showAdvFilter(filter, name) {
-        let title = (filter ? '修改' : '新增') + '过滤项'
-        this.__modal = renderRbcomp(<RbModal title={title} destroyOnHide={true}><AdvFilter entity={this.__entity} inModal={true} confirm={this.saveFilter} filter={filter} filterName={name} /></RbModal>)
+    showAdvFilter(id) {
+        this.__cfgid = id
+        if (!!!id){
+            this.__modal = renderRbcomp(<RbModal title="添加过滤项"><AdvFilter entity={this.__entity} inModal={true} confirm={this.saveFilter} /></RbModal>)
+        }else{
+            let that = this
+            $.get(rb.baseUrl + '/app/entity/advfilter/get?id=' + id, function(res){
+                let _data = res.data
+                that.__modal = renderRbcomp(<RbModal title="修改过滤项"><AdvFilter entity={that.__entity} inModal={true} confirm={that.saveFilter} filter={_data.filter} filterName={_data.name} applyToAll={_data.applyTo == 'ALL'} /></RbModal>)
+            })
+        }
     },
     hideModal() {
         if (this.__modal) this.__modal.hide()

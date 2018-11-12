@@ -17,7 +17,7 @@ final String showName = UserHelper.getShowName(currentUser);
 			<ul class="nav navbar-nav float-right rb-user-nav">
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle" href="${baseUrl}/me/profile" data-toggle="dropdown">
-						<img src="<%=UserHelper.getAvatarUrl(currentUser)%>" alt="Avatar">
+						<img src="<%=currentUser.getAvatarUrl(true)%>" alt="Avatar">
 						<span class="user-name"><%=showName%></span>
 					</a>
 					<div class="dropdown-menu">

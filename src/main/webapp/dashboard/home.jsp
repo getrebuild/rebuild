@@ -33,7 +33,7 @@
 <script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
 <script type="text/babel">
 $(document).ready(function(){
-	//renderRbcomp(<AdvFilter entity="kehu" trigger="" />, 'advfilter')
+	renderRbcomp(<AdvFilter entity="ceshiziduan" trigger="" />, 'advfilter')
 	//renderRbcomp(<RbModal><AdvFilter entity="kehu" inModal={true} /></RbModal>)
 })
 </script>

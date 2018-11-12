@@ -21,9 +21,7 @@ package com.rebuild.server.bizz;
 import org.apache.commons.lang.StringUtils;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.ServerListener;
 import com.rebuild.server.bizz.privileges.User;
-import com.rebuild.server.helper.SystemConfigurer;
 
 import cn.devezhao.persist4j.engine.ID;
 
@@ -36,6 +34,7 @@ public class UserHelper {
 
 	/**
 	 * 显示名
+	 * 
 	 * @param user
 	 * @return
 	 */
@@ -44,24 +43,23 @@ public class UserHelper {
 	}
 	
 	/**
-	 * 头像地址
-	 * @param user
-	 * @return
-	 */
-	public static String getAvatarUrl(User user) {
-		String url = user.getAvatarUrl();
-		if (StringUtils.isBlank(url)) {
-			return ServerListener.getContextPath() + "/assets/img/avatar.png";
-		}
-		return SystemConfigurer.getStorageUrl() + url + "?imageView2/2/w/100/interlace/1/q/100";
-	}
-	
-	/**
+	 * [显示名, 图像]
+	 * 
 	 * @param userId
 	 * @return
 	 */
-	public static String[] getShow(ID userId) {
+	public static String[] getShows(ID userId) {
 		User u = Application.getUserStore().getUser(userId);
-		return new String[] { getShowName(u), getAvatarUrl(u) };
-	} 
+		return new String[] { getShowName(u), u.getAvatarUrl(true) };
+	}
+	
+	/**
+	 * 是否管理员
+	 * 
+	 * @param user
+	 * @return
+	 */
+	public static boolean isAdmin(ID userId) {
+		return Application.getUserStore().getUser(userId).isAdmin();
+	}
 }

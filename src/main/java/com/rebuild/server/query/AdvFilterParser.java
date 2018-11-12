@@ -34,13 +34,18 @@ import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
+import com.rebuild.server.bizz.privileges.Department;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 
+import cn.devezhao.bizz.security.member.BusinessUnit;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.dialect.Type;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 高级查询解析器
@@ -147,6 +152,46 @@ public class AdvFilterParser {
 		}
 		
 		String value = item.getString("value");
+		
+		// TODO 自定义函数
+		String zeroTime = " 00:00:00";
+		String fullTime = " 23:59:59";
+		if ("BFD".equalsIgnoreCase(op)) {
+			value = CalendarUtils.getUTCDateFormat().format(CalendarUtils.addDay(-NumberUtils.toInt(value))) + fullTime;
+		} else if ("AFD".equalsIgnoreCase(op)) {
+			value = CalendarUtils.getUTCDateFormat().format(CalendarUtils.addDay(NumberUtils.toInt(value))) + zeroTime;
+		} else if ("BFM".equalsIgnoreCase(op)) {
+			value = CalendarUtils.getUTCDateFormat().format(CalendarUtils.addMonth(-NumberUtils.toInt(value))) + fullTime;
+		} else if ("AFM".equalsIgnoreCase(op)) {
+			value = CalendarUtils.getUTCDateFormat().format(CalendarUtils.addMonth(NumberUtils.toInt(value))) + zeroTime;
+		} else if ("RED".equalsIgnoreCase(op)) {
+			value = CalendarUtils.getUTCDateFormat().format(CalendarUtils.addDay(-NumberUtils.toInt(value))) + fullTime;
+		} else if ("REM".equalsIgnoreCase(op)) {
+			value = CalendarUtils.getUTCDateFormat().format(CalendarUtils.addMonth(-NumberUtils.toInt(value))) + fullTime;
+		} else if ("SFU".equalsIgnoreCase(op)) {
+			value = Application.currentCallerUser().toLiteral();
+		} else if ("SFB".equalsIgnoreCase(op)) {
+			ID user = Application.currentCallerUser();
+			BusinessUnit bu = Application.getUserStore().getUser(user).getOwningBizUnit();
+			value = bu == null ? "NoBU" : bu.getIdentity().toString();
+			if (bu != null && fieldMeta.getReferenceEntities()[0].getEntityCode() == EntityHelper.User) {
+				sb.insert(sb.indexOf(" "), "." + EntityHelper.owningDept);
+			}
+		} else if ("SFD".equalsIgnoreCase(op)) {
+			ID user = Application.currentCallerUser();
+			Department bu = (Department) Application.getUserStore().getUser(user).getOwningBizUnit();
+			if (bu != null) {
+				Set<ID> bus = new HashSet<>();
+				bus.add((ID) bu.getIdentity());
+				for (BusinessUnit child : bu.getAllChildren()) {
+					bus.add((ID) child.getIdentity());
+				}
+				value = StringUtils.join(bus, "|");
+			} else {
+				value = "NoBU";
+			}
+		}
+				
 		if (StringUtils.isBlank(value)) {
 			LOG.warn("Invalid item of advfilter : " + item.toJSONString());
 			return null;
@@ -167,17 +212,6 @@ public class AdvFilterParser {
 		if (value == null) {
 			LOG.warn("Invalid item of advfilter : " + item.toJSONString());
 			return null;
-		}
-		
-		// TODO 自定义函数
-		if ("BFD".equalsIgnoreCase(op)) {
-			value = CalendarUtils.getUTCDateFormat().format(CalendarUtils.addDay(-NumberUtils.toInt(value)));
-		} else if ("AFD".equalsIgnoreCase(op)) {
-			value = CalendarUtils.getUTCDateFormat().format(CalendarUtils.addDay(NumberUtils.toInt(value)));
-		} else if ("BFM".equalsIgnoreCase(op)) {
-			value = CalendarUtils.getUTCDateFormat().format(CalendarUtils.addMonth(-NumberUtils.toInt(value)));
-		} else if ("AFM".equalsIgnoreCase(op)) {
-			value = CalendarUtils.getUTCDateFormat().format(CalendarUtils.addMonth(NumberUtils.toInt(value)));
 		}
 		
 		// 区间
@@ -282,10 +316,15 @@ public class AdvFilterParser {
 		else if ("IN".equalsIgnoreCase(op)) return "in";
 		else if ("NIN".equalsIgnoreCase(op)) return "not in";
 		else if ("BW".equalsIgnoreCase(op)) return "between";
-		else if ("BFD".equalsIgnoreCase(op)) return "<"; //"$before_day(%d)";
-		else if ("BFM".equalsIgnoreCase(op)) return "<"; //"$before_month(%d)";
-		else if ("AFD".equalsIgnoreCase(op)) return ">"; //"$after_day(%d)";
-		else if ("AFM".equalsIgnoreCase(op)) return ">"; //"$after_month(%d)";
+		else if ("BFD".equalsIgnoreCase(op)) return "<="; //"$before_day(%d)";
+		else if ("BFM".equalsIgnoreCase(op)) return "<="; //"$before_month(%d)";
+		else if ("AFD".equalsIgnoreCase(op)) return ">="; //"$after_day(%d)";
+		else if ("AFM".equalsIgnoreCase(op)) return ">="; //"$after_month(%d)";
+		else if ("RED".equalsIgnoreCase(op)) return ">"; //"$recent_day(%d)";
+		else if ("REM".equalsIgnoreCase(op)) return ">"; //"$recent_month(%d)";
+		else if ("SFU".equalsIgnoreCase(op)) return "=";
+		else if ("SFB".equalsIgnoreCase(op)) return "=";
+		else if ("SFD".equalsIgnoreCase(op)) return "in";
 		throw new UnsupportedOperationException("Unsupported token [" + op + "]");
 	}
 	

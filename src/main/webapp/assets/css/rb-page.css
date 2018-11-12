@@ -755,7 +755,7 @@ i.split.ui-draggable-dragging {
 }
 .dept-tree li>a {
     display: block;
-    padding: 6px 9px;
+    padding: 7px 9px;
     cursor: default;
 }
 .dept-tree>ul>li>a {
@@ -763,34 +763,34 @@ i.split.ui-draggable-dragging {
 }
 .dept-tree li>a:hover {
     background-color: #eee;
-    border-radius: 3px
+    border-radius: 2px
 }
 .dept-tree li.active>a {
     color: #fff !important;
     background-color: #4285f4 !important;
-    border-radius: 3px
+    border-radius: 2px;
 }
 .dept-tree li>div.action, .adv-search .dropdown-item div.action {
     position: absolute;
     right: 0;
-    top: 1px;
+    top: 0;
     display: none;
     font-size: 0;
 }
 .dept-tree li>div.action a, .adv-search .dropdown-item div.action a {
     display: inline-block;
-    height: 30px;
-    line-height: 30px;
+    height: 34px;
+    line-height: 34px;
     width: 22px;
     text-align: center;
     font-size: 1.2rem;
     color: #fff !important;
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 2px;
+    background-color: rgba(0, 0, 0, 0.1);
     margin-left: 1px;
+    border-radius: 2px;
 }
 .dept-tree li>div.action a:hover {
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.3);
 }
 .dept-tree ul>li.active:hover>div.action, .adv-search .dropdown-item:hover div.action {
     display: block;
@@ -798,12 +798,11 @@ i.split.ui-draggable-dragging {
 .adv-search .dropdown-item div.action {
 }
 .adv-search .dropdown-item div.action a {
-	height: 32px;
-	line-height: 32px;
+	height: 34px;
+	line-height: 34px;
     background-color: #eee;
     color: #aaa !important;
     border-radius: 0;
-    width: 24px
 }
 .adv-search .dropdown-item div.action a:hover {
 	color: #4285f4 !important;
@@ -903,17 +902,21 @@ i.split.ui-draggable-dragging {
 	padding-left: 8px;
 	padding-right: 8px;
 }
-.adv-filter .float-left .btn+.btn{
+.adv-filter .btn+.btn{
 	margin-left: 10px;
 }
-.adv-filter .float-left .form-control-sm.text {
+.adv-filter .dialog-footer .form-control-sm.text {
 	width: 200px;
 	padding-right: 25px !important;
 }
-.adv-filter .float-left .zmdi-border-color {
+.adv-filter .dialog-footer .zmdi-border-color {
 	margin-top: -24px;
 	margin-right: 4px;
 	color: #bbb;
+}
+.adv-filter .item.dialog-footer {
+	margin: 0 -30px;
+	margin-bottom: -10px;
 }
 /* height = 34px 
 .adv-filter .select2-container--default .select2-selection--single, .adv-filter .select2-container--default .select2-selection--multiple {

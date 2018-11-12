@@ -29,7 +29,7 @@
 											<div class="dropdown-menu">
 												<li class="dropdown-item" data-id="$ALL$"><a>所有数据</a></li>
 												<div class="dropdown-divider"></div>
-												<a class="dropdown-item J_advfilter"><i class="icon zmdi zmdi-playlist-plus"></i>新增过滤项</a>
+												<a class="dropdown-item J_advfilter"><i class="icon zmdi zmdi-playlist-plus"></i>添加过滤项</a>
 											</div>
 										</div>
 									</div>

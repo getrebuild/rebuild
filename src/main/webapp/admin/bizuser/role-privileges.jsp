@@ -92,7 +92,7 @@
 								<label><i class="priv R0"></i> 无权限</label>
 								<label><i class="priv R1"></i> 本人</label>
 								<label><i class="priv R2"></i> 本部门</label>
-								<label><i class="priv R3"></i> 本部门及子级部门</label>
+								<label><i class="priv R3"></i> 本部门及子部门</label>
 								<label><i class="priv R4"></i> 全部</label>
 							</div>
 						</div>
@@ -232,7 +232,7 @@ const loadRoles = function() {
 		$(res.data).each(function(){
 			let _id = this.id
 			let item = $('<li><a class="text-truncate" href="' + rb.baseUrl + '/admin/bizuser/role/' + _id + '">' + this.name + '</a></li>').appendTo('.dept-tree ul')
-			let action = $('<div class="action"><a class="J_edit"><i class="zmdi zmdi-edit"></i></a><a class="J_del"><i class="zmdi zmdi-close"></i></a></div>').appendTo(item)
+			let action = $('<div class="action"><a class="J_edit"><i class="zmdi zmdi-edit"></i></a><a class="J_del"><i class="zmdi zmdi-delete"></i></a></div>').appendTo(item)
 			if (currentRoleId == this.id) item.addClass('active')
 			if (this.id == '003-0000000000000001') action.remove()
 

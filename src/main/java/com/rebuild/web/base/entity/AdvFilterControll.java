@@ -31,9 +31,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.bizz.UserHelper;
+import com.rebuild.server.helper.manager.LayoutManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.query.AdvFilterManager;
 import com.rebuild.server.query.AdvFilterParser;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.LayoutConfig;
 
@@ -58,8 +61,21 @@ public class AdvFilterControll extends BaseControll implements LayoutConfig {
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		ID filterId = getIdParameter(request, "id");
+		if (filterId != null) {
+			if (!isSelfFilter(user, filterId)) {
+				writeSuccess(response, "无权修改此过滤项");
+				return;
+			}
+		}
+		
 		String filterName = getParameter(request, "name");
 		JSON filter = ServletUtils.getRequestJson(request);
+		
+		Boolean toAll = getBoolParameter(request, "toAll");
+		// 非管理员只能设置自己
+		if (toAll != null && toAll) {
+			toAll = UserHelper.isAdmin(user);
+		}
 		
 		Record record = null;
 		if (filterId == null) {
@@ -74,6 +90,9 @@ public class AdvFilterControll extends BaseControll implements LayoutConfig {
 		
 		if (StringUtils.isNotBlank(filterName)) {
 			record.setString("filterName", filterName);
+		}
+		if (toAll != null) {
+			record.setString("applyTo", toAll ? LayoutManager.APPLY_ALL : LayoutManager.APPLY_SELF);
 		}
 		
 		record.setString("config", filter.toJSONString());
@@ -91,9 +110,25 @@ public class AdvFilterControll extends BaseControll implements LayoutConfig {
 		if (filter == null) {
 			writeFailure(response, "无效过滤条件");
 		} else {
-			JSONObject cfg = (JSONObject) filter[1];
-			writeSuccess(response, cfg);
+			filter[0] = filter.toString();
+			JSON ret = JSONUtils.toJSONObject(
+					new String[] { "id", "filter", "name", "applyTo" }, filter);
+			writeSuccess(response, ret);
 		}
+	}
+	
+	@RequestMapping("advfilter/delete")
+	public void delete(@PathVariable String entity, 
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getRequestUser(request);
+		ID filterId = getIdParameter(request, "id");
+		if (!isSelfFilter(user, filterId)) {
+			writeFailure(response, "无权删除此过滤项");
+			return;
+		}
+		
+		Application.getCommonService().delete(filterId);
+		writeSuccess(response);
 	}
 	
 	@RequestMapping("advfilter/list")
@@ -107,9 +142,27 @@ public class AdvFilterControll extends BaseControll implements LayoutConfig {
 	@RequestMapping("advfilter/test-parse")
 	public void testAdvfilter(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		JSON advfilter = ServletUtils.getRequestJson(request);
-		
-		AdvFilterParser filterParser = new AdvFilterParser((JSONObject) advfilter);
-		String sql = filterParser.toSqlWhere();
-		writeSuccess(response, sql);
+		try {
+			AdvFilterParser filterParser = new AdvFilterParser((JSONObject) advfilter);
+			String sql = filterParser.toSqlWhere();
+			writeSuccess(response, sql);
+		} catch (Exception ex) {
+			writeFailure(response, "语法错误:" + ex.getLocalizedMessage());
+		}
+	}
+	
+	/**
+	 * 是否自己的记录（管理员永远返回 true）
+	 * 
+	 * @param user
+	 * @param filter
+	 * @return
+	 */
+	private boolean isSelfFilter(ID user, ID filter) {
+		if (UserHelper.isAdmin(user)) {
+			return true;
+		}
+		Object[] raw = AdvFilterManager.getAdvFilterRaw(filter);
+		return raw != null && user.equals(raw[4]);
 	}
 }

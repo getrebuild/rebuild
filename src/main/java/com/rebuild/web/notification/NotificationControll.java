@@ -108,7 +108,7 @@ public class NotificationControll extends BaseControll {
 	 */
 	protected static Object[] formatMessage(Object[] message) {
 		ID from = (ID) message[0];
-		String fromShow[] = UserHelper.getShow(from);
+		String fromShow[] = UserHelper.getShows(from);
 		message[0] = fromShow;
 		message[3] = message[3].toString();
 		message[4] = CalendarUtils.getUTCDateTimeFormat().format(message[4]);

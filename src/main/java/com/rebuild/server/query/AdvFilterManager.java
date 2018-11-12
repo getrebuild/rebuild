@@ -169,15 +169,16 @@ public class AdvFilterManager {
 		Assert.notNull(entity, "[entity] not be null");
 		Assert.notNull(user, "[user] not be null");
 		
-		Object[][] array = Application.createQuery(
-				"select filterId,filterName,createdBy,config from FilterConfig where belongEntity = ? and filterName <> ? and ((applyTo = 'SELF' and createdBy = ?) or applyTo = 'ALL')")
+		Object[][] array = Application.createQueryNoFilter(
+				"select filterId,filterName,createdBy from FilterConfig"
+				+ " where belongEntity = ? and filterName <> ? and ((applyTo = 'SELF' and createdBy = ?) or applyTo = 'ALL')"
+				+ " order by filterName")
 				.setParameter(1, entity)
 				.setParameter(2, FILTER_QUICK)
 				.setParameter(3, user)
 				.array();
 		for (Object[] o : array) {
-			o[2] = o[2].equals(user);  // allow edit
-			o[3] = JSON.parseObject((String) o[3]);
+			o[2] = o[2].equals(user);  // allow edit?
 		}
 		return array;
 	}
@@ -190,11 +191,11 @@ public class AdvFilterManager {
 	 */
 	public static Object[] getAdvFilterRaw(ID filterId) {
 		Assert.notNull(filterId, "[filterId] not be null");
-		Object[] filter = Application.createQuery(
-				"select filterId,config from FilterConfig where filterId = ?")
+		Object[] filter = Application.createQueryNoFilter(
+				"select filterId,config,filterName,applyTo,createdBy from FilterConfig where filterId = ?")
 				.setParameter(1, filterId)
 				.unique();
-		if (filter == null || filter[1] == null) {
+		if (filter == null) {
 			return null;
 		}
 		

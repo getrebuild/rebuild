@@ -66,11 +66,10 @@ public class QuickFilterControll extends BaseControll implements LayoutConfig {
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		
-		boolean toAll = "true".equals(getParameter(request, "toAll"));
+		boolean toAll = getBoolParameter(request, "toAll");
 		// 非管理员只能设置自己
-		boolean isAdmin = Application.getUserStore().getUser(user).isAdmin();
-		if (!isAdmin) {
-			toAll = false;
+		if (toAll) {
+			toAll = Application.getUserStore().getUser(user).isAdmin();
 		}
 		
 		Entity entityMeta = MetadataHelper.getEntity(entity);

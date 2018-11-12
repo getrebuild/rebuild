@@ -130,21 +130,28 @@ $(document).ready(function(){
 		rb.modal(rb.baseUrl + '/page/commons/search-icon', '选择图标')
 	})
 	
-	$.get(rb.baseUrl + '/admin/entity/list-field?entity=${entityName}', function(d){
-		let results = d.data.map((item) => {
+	$.get(rb.baseUrl + '/commons/metadata/fields?entity=${entityName}', function(d){
+		let rs = d.data.map((item) => {
+			let not = notNameField(item)
 			return {
-				id: item.fieldName,
-				text: item.fieldLabel,
+				id: item.name,
+				text: item.label,
+				disabled: not,
+				title: not ? '此字段（类型）不能作为主显字段' : ''
 			}
 		});
 		$('#nameField').select2({
 			language: 'zh-CN',
 			placeholder: '选择字段',
 			allowClear: true,
-			data: results
+			data: rs
 		}).val('${nameField}').trigger('change')
 	})
 });
+// 不能作为名称字段
+function notNameField(item){
+	return item.type == 'REFERENCE' || item.type == 'NTEXT'
+}
 </script>
 </body>
 </html>
