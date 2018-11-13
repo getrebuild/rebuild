@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "build": "babel js -d lib",
-        "build2": "babel /data/eclipse-workspace/rebuild/src/main/webapp/assets/js -d lib"  // Unexpected token ... ???
+        "build2": "babel ../src/main/webapp/assets/js -d lib"
     },
     "author": "rebuild",
     "license": "GPL-3.0",
