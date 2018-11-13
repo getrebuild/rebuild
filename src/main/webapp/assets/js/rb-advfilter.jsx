@@ -597,12 +597,10 @@ rb.AdvFilter = {
     loadFilters() {
         let that = this
         $.get(`${rb.baseUrl}/app/${this.__entity}/advfilter/list`, function(res){
-            $('.adv-search li.dropdown-item').each(function(){
-                if ($(this).data('id') != '$ALL$') $(this).remove()
-            })
+            $('.adv-search .J_custom').each(function(){ $(this).remove() })
             
             $(res.data).each(function(){
-                let item = $('<div class="dropdown-item" data-id="' + this[0] + '"><a class="text-truncate">' + this[1] + '</a></div>')
+                let item = $('<div class="dropdown-item J_custom" data-id="' + this[0] + '"><a class="text-truncate">' + this[1] + '</a></div>')
                 $('.adv-search .dropdown-divider').before(item)
                 
                 let data = this
