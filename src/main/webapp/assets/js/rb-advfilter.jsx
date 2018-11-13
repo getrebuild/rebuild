@@ -602,7 +602,7 @@ rb.AdvFilter = {
             })
             
             $(res.data).each(function(){
-                let item = $('<li class="dropdown-item" data-id="' + this[0] + '"><a class="text-truncate">' + this[1] + '</a></li>')
+                let item = $('<div class="dropdown-item" data-id="' + this[0] + '"><a class="text-truncate">' + this[1] + '</a></div>')
                 $('.adv-search .dropdown-divider').before(item)
                 
                 let data = this
