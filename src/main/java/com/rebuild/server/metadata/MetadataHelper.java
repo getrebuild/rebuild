@@ -126,7 +126,7 @@ public class MetadataHelper {
 			}
 			
 			Entity ref = field.getReferenceEntities()[0];
-			if (ref.getEntityCode() == source.getEntityCode()) {
+			if (ref.getEntityCode().equals(source.getEntityCode())) {
 				fields.add(field);
 			}
 		}

@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.sql.DataSource;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import com.rebuild.server.helper.SystemConfigurer;
@@ -66,7 +67,7 @@ public class ServerStatus {
 	 */
 	public static boolean isStatusOK() {
 		for (Map.Entry<String, String> e : getLastStatus().entrySet()) {
-			if (e.getValue() != EMPTY) {
+			if (StringUtils.isNotBlank(e.getValue())) {
 				return false;
 			}
 		}
@@ -80,11 +81,11 @@ public class ServerStatus {
 	 */
 	public static boolean checkAll() {
 		String theDataSource = checkDataSource();
-		Application.LOG.info("Checking DataSource : " + (theDataSource == EMPTY ? "[ OK ]" : theDataSource));
+		Application.LOG.info("Checking DataSource : " + StringUtils.defaultIfBlank(theDataSource, "[ OK ]"));
 		LAST_STATUS.put("DataSource", theDataSource);
 		
 		String theCreateFile = checkCreateFile();
-		Application.LOG.info("Checking CreateFile : " + (theCreateFile == EMPTY ? "[ OK ]" : theCreateFile));
+		Application.LOG.info("Checking CreateFile : " + StringUtils.defaultIfBlank(theCreateFile, "[ OK ]"));
 		LAST_STATUS.put("CreateFile", theCreateFile);
 		
 		return isStatusOK();

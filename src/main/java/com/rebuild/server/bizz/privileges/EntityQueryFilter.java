@@ -98,8 +98,9 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 			}
 		}
 		
+		// 非权限实体总是拒绝
 		Privileges p = user.getOwningRole().getPrivileges(entity.getEntityCode());
-		if (p == BizzPermission.NONE) {
+		if (p == Privileges.NONE) {
 			return DENIED.evaluate(null);
 		}
 		

@@ -233,10 +233,7 @@ public abstract class BaseControll extends PageControll {
 	 */
 	protected Boolean getBoolParameter(HttpServletRequest req, String name) {
 		String v = req.getParameter(name);
-		if (v == null) {
-			return null;
-		}
-		return BooleanUtils.toBooleanObject(v);
+		return v == null ? null : BooleanUtils.toBooleanObject(v);
 	}
 	
 	/**
