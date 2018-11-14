@@ -3,7 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>视图相关项</title>
+<title>视图相关项配置</title>
 </head>
 <body class="dialog">
 <div class="main-content">
@@ -31,29 +31,29 @@
 <script src="${baseUrl}/assets/js/sortable.js"></script>
 <script type="text/javascript">
 $(document).ready(function(){
-	const entity = $urlp('entity')
-	$.get(rb.baseUrl + '/admin/entity/' + entity + '/viewtab-config', function(res){
+	const entity = $urlp('entity'), type = $urlp('type')
+	const _url = rb.baseUrl + '/admin/entity/' + entity + '/viewfeat-config?type=' + type
+	
+	$.get(_url, function(res){
 		$(res.data.refs).each(function(){ render_unset(this) })
 		$(res.data.config).each(function(){
 			$('.unset-list li[data-key="' + this + '"]').trigger('click')
 		})
-	});
+	})
 	
-	$('.J_save').click(function(){
-		let config = [];
+	let _btn = $('.J_save').click(function(){
+		let config = []
 		$('.J_config>li').each(function(){
-			let _this = $(this)
-			config.push(_this.data('key'))
-		});
+			config.push($(this).data('key'))
+		})
 		
-		let btn = $(this).button('loading')
-		$.post(rb.baseUrl + '/admin/entity/' + entity + '/viewtab-config', JSON.stringify(config), function(res){
-			btn.button('reset')
+		_btn.button('loading')
+		$.post(_url, JSON.stringify(config), function(res){
+			_btn.button('reset')
 			if (res.error_code == 0) parent.location.reload()
-		});
-	});
-});
-
+		})
+	})
+})
 </script>
 </body>
 </html>

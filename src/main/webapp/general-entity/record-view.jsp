@@ -23,7 +23,7 @@
 			<div class="tab-container">
 				<ul class="nav nav-tabs">
 					<li class="nav-item"><a class="nav-link active" href="#tab-rbview" data-toggle="tab">视图</a></li>
-					<a class="vtab-settings J_for-admin hide" title="配置显示项"><i class="zmdi zmdi-settings"></i></a>
+					<a class="vtab-settings J_for-admin J_view-feat hide" data-feat="TAB" title="配置显示项"><i class="zmdi zmdi-settings"></i></a>
 				</ul>
 				<div class="tab-content">
                     <div class="tab-pane active" id="tab-rbview"></div>
@@ -43,11 +43,11 @@
 						<a class="dropdown-item J_share"><i class="icon zmdi zmdi-slideshare"></i> 共享</a>
 					</div>
 				</div>
-				<div class="col-6 pr-1 mb-2 btn-group J_new">
+				<div class="col-6 pr-1 mb-2 btn-group J_adds">
 					<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-plus"></i> 新建相关</button>
 					<div class="dropdown-menu">
-						<div class="dropdown-divider J_for-admin hide"></div>
-						<a class="dropdown-item J_for-admin hide"><i class="icon zmdi zmdi-settings"></i> 配置新建</a>
+						<div class="dropdown-divider"></div>
+						<a class="dropdown-item J_for-admin J_view-feat" data-feat="ADD"><i class="icon zmdi zmdi-settings"></i> 配置新建项</a>
 					</div>
 				</div>
 			</div>
@@ -83,8 +83,9 @@
 <script type="text/babel">
 $(document).ready(function(){
 	RbViewPage.init('${id}', [ '${entityLabel}', '${entityName}', '${entityIcon}' ], ${entityPrivileges})
-	RbViewPage.initVTabs(${ViewTabs})
 	RbViewPage.initRecordMeta()
+	RbViewPage.initVTabs(${ViewTabs})
+	RbViewPage.initVAdds(${ViewAdds})
 });
 </script>
 </body>

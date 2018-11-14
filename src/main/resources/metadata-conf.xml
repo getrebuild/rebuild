@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE metadata-config PUBLIC "-//persist4j/Metadata 0.3"
 		"https://raw.githubusercontent.com/devezhao/persist4j/master/src/main/resources/metadata.dtd">
-<metadata-config schema-name-optimize="true" default-parent="SystemCommon">
+<metadata-config schema-name-optimize="true"
+	default-parent="SystemCommon">
 
 	<entity name="SystemCommon" type-code="000">
 		<field name="createdBy" type="reference" ref-entity="User" nullable="false" updatable="false" description="创建人" />
@@ -13,140 +14,142 @@
 	<entity name="User" type-code="001" description="用户" name-field="fullName">
 		<field name="userId" type="primary" />
 		<field name="loginName" type="string" max-length="100" nullable="false" updatable="false" description="登录名" />
-		<field name="email" type="string" max-length="100" description="邮箱"/>
+		<field name="email" type="string" max-length="100" description="邮箱" />
 		<field name="password" type="string" max-length="100" description="登录密码" updatable="false" />
-		<field name="fullName" type="string" max-length="100" description="姓名"/>
-		<field name="avatarUrl" type="string" max-length="300" description="头像"/>
-		<field name="jobTitle" type="string" max-length="100" description="职务"/>
-		<field name="deptId" type="reference" ref-entity="Department" cascade="remove-links" description="所在部门" nullable="false" updatable="false" />
-		<field name="roleId" type="reference" ref-entity="Role" cascade="remove-links" description="角色" nullable="false" updatable="false" />
-		<field name="isDisabled" type="bool" default-value="F" description="是否停用"/>
-		<index type="unique" field-list="loginName"/>
-		<index type="unique" field-list="email"/>
+		<field name="fullName" type="string" max-length="100" description="姓名" />
+		<field name="avatarUrl" type="string" max-length="300" description="头像" />
+		<field name="jobTitle" type="string" max-length="100" description="职务" />
+		<field name="deptId" type="reference" ref-entity="Department" cascade="remove-links" nullable="false" updatable="false" description="所在部门" />
+		<field name="roleId" type="reference" ref-entity="Role" cascade="remove-links" nullable="false" updatable="false" description="角色" />
+		<field name="isDisabled" type="bool" default-value="F" description="是否停用" />
+		<index type="unique" field-list="loginName" />
+		<index type="unique" field-list="email" />
 	</entity>
-	
+
 	<entity name="Department" type-code="002" description="部门" name-field="name">
 		<field name="deptId" type="primary" />
 		<field name="name" type="string" max-length="100" nullable="false" description="部门名称" />
 		<field name="parentDept" type="reference" ref-entity="Department" cascade="remove-links" description="父级部门" />
 		<field name="isDisabled" type="bool" default-value="F" description="是否停用" />
 	</entity>
-	
+
 	<entity name="Role" type-code="003" description="角色" name-field="name">
 		<field name="roleId" type="primary" />
 		<field name="name" type="string" max-length="100" nullable="false" description="角色名称" />
 		<field name="isDisabled" type="bool" default-value="F" description="是否停用" />
 	</entity>
-	
+
 	<entity name="RolePrivileges" type-code="004" parent="false">
 		<field name="privilegesId" type="primary" />
-		<field name="roleId" type="reference" ref-entity="Role" cascade="delete" nullable="false" />
-		<field name="entity" type="int" nullable="false" description="哪个实体" default-value="0"/>
-		<field name="zeroKey" type="string" description="其他权限KEY"/>
-		<field name="definition" type="string" max-length="100" description="权限定义"/>
-		<index field-list="roleId"/>
-		<index type="unique" field-list="roleId,entity,zeroKey"/>
+		<field name="roleId" type="reference" ref-entity="Role" cascade="delete" nullable="false" updatable="false" />
+		<field name="entity" type="int" default-value="0" nullable="false" updatable="false" description="哪个实体" />
+		<field name="zeroKey" type="string" description="其他权限KEY" />
+		<field name="definition" type="string" max-length="100" description="权限定义" />
+		<index field-list="roleId" />
+		<index type="unique" field-list="roleId,entity,zeroKey" />
 	</entity>
-	
+
 	<entity name="RoleMember" type-code="005" parent="false">
 		<field name="memberId" type="primary" />
 		<field name="roleId" type="reference" ref-entity="Role" />
 		<field name="userId" type="reference" ref-entity="User" />
 	</entity>
-	
+
 	<entity name="MetaEntity" type-code="010" name-field="entityName">
 		<field name="entityId" type="primary" />
-		<field name="typeCode" type="small-int" nullable="false" />
-		<field name="entityName" type="string" max-length="100" nullable="false" />
-		<field name="physicalName" type="string" max-length="100" nullable="false" />
-		<field name="entityLabel" type="string" max-length="100" nullable="false" description="for description"/>
-		<field name="comments" type="string" max-length="200"/>
-		<field name="icon" type="string" max-length="60"/>
+		<field name="typeCode" type="small-int" nullable="false" updatable="false" />
+		<field name="entityName" type="string" max-length="100" nullable="false" updatable="false" />
+		<field name="physicalName" type="string" max-length="100" nullable="false" updatable="false" />
+		<field name="entityLabel" type="string" max-length="100" nullable="false" description="for description" />
+		<field name="comments" type="string" max-length="200" />
+		<field name="icon" type="string" max-length="60" />
 		<field name="nameField" type="string" max-length="100" />
-		<index type="unique" field-list="typeCode"/>
-		<index type="unique" field-list="entityName"/>
-		<index type="unique" field-list="physicalName"/>
+		<index type="unique" field-list="typeCode" />
+		<index type="unique" field-list="entityName" />
+		<index type="unique" field-list="physicalName" />
 	</entity>
-	
+
 	<entity name="MetaField" type-code="011" name-field="fieldName">
 		<field name="fieldId" type="primary" />
-		<field name="belongEntity" type="string" max-length="100" nullable="false" />
-		<field name="fieldName" type="string" max-length="100" nullable="false" />
-		<field name="physicalName" type="string" max-length="100" nullable="false" />
-		<field name="fieldLabel" type="string" max-length="100" nullable="false" description="for description"/>
-		<field name="displayType" type="string" max-length="100" description="显示类型.如链接/QQ/电话其实都是文本"/>
-		<field name="nullable" type="bool" default-value="T"/>
-		<field name="creatable" type="bool" default-value="T"/>
-		<field name="updatable" type="bool" default-value="T"/>
-		<field name="precision" type="small-int" default-value="6"/>
-		<field name="defaultValue" type="string" max-length="200"/>
-		<field name="maxLength" type="small-int" default-value="600"/>
-		<field name="refEntity" type="string" max-length="100"/>
-		<field name="cascade" type="string" max-length="100" default-value="ignore"/>
-		<field name="comments" type="string" max-length="200"/>
-		<field name="extConfig" type="string" max-length="1000" description="更多扩展配置，JSON格式KV"/>
-		<index type="unique" field-list="belongEntity,fieldName"/>
-		<index type="unique" field-list="belongEntity,physicalName"/>
+		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
+		<field name="fieldName" type="string" max-length="100" nullable="false" updatable="false" />
+		<field name="physicalName" type="string" max-length="100" nullable="false" updatable="false" />
+		<field name="fieldLabel" type="string" max-length="100" nullable="false" description="for description" />
+		<field name="displayType" type="string" max-length="100" description="显示类型.如链接/QQ/电话其实都是文本" />
+		<field name="nullable" type="bool" default-value="T" />
+		<field name="creatable" type="bool" default-value="T" />
+		<field name="updatable" type="bool" default-value="T" />
+		<field name="precision" type="small-int" default-value="6" />
+		<field name="defaultValue" type="string" max-length="200" />
+		<field name="maxLength" type="small-int" default-value="600" />
+		<field name="refEntity" type="string" max-length="100" />
+		<field name="cascade" type="string" max-length="100" default-value="ignore" />
+		<field name="comments" type="string" max-length="200" />
+		<field name="extConfig" type="string" max-length="1000" description="更多扩展配置，JSON格式KV" />
+		<index type="unique" field-list="belongEntity,fieldName" />
+		<index type="unique" field-list="belongEntity,physicalName" />
 	</entity>
-	
+
 	<entity name="PickList" type-code="012" name-field="text" description="下拉列表配置选项">
-		<field name="itemId" type="primary"/>
+		<field name="itemId" type="primary" />
 		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
 		<field name="belongField" type="string" max-length="100" nullable="false" updatable="false" />
 		<field name="text" type="string" max-length="100" nullable="false" />
-		<field name="seq" type="int" description="排序,小到大" default-value="0"/>
-		<field name="isDefault" type="bool" default-value="F"/>
-		<field name="isHide" type="bool" default-value="F"/>
+		<field name="seq" type="int" default-value="0" description="排序,小到大" />
+		<field name="isDefault" type="bool" default-value="F" />
+		<field name="isHide" type="bool" default-value="F" />
 	</entity>
-	
+
 	<entity name="LayoutConfig" type-code="013" description="布局配置（表单/视图/列表）">
-		<field name="layoutId" type="primary"/>
-		<field name="belongEntity" type="string" max-length="100" nullable="false" />
-		<field name="type" type="string" max-length="20" description="FORM,DATALIST,NAVI" nullable="false"/>
-		<field name="config" type="text" description="JSON格式配置" nullable="false"/>
+		<field name="layoutId" type="primary" />
+		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
+		<field name="type" type="string" max-length="20" nullable="false" updatable="false" description="FORM,DATALIST,NAVI" />
+		<field name="config" type="text" description="JSON格式配置" nullable="false" />
 		<field name="applyTo" type="string" default-value="SELF" description="应用到哪些人，可选值: ALL/SELF/$MemberID(U/D/R)" />
 	</entity>
-	
+
 	<entity name="FilterConfig" type-code="014" description="过滤条件配置">
-		<field name="filterId" type="primary"/>
+		<field name="filterId" type="primary" />
 		<field name="filterName" type="string" max-length="100" nullable="false" />
-		<field name="belongEntity" type="string" max-length="100" nullable="false" />
-		<field name="config" type="text" description="JSON格式配置" nullable="false"/>
+		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
+		<field name="config" type="text" description="JSON格式配置" nullable="false" />
 		<field name="applyTo" type="string" default-value="SELF" description="共享给哪些人，可选值: ALL/SELF/$MemberID(U/D/R)" />
 	</entity>
-	
-	<entity name="ViewTabConfig" type-code="015" description="视图标签页配置">
-		<field name="viewTabId" type="primary"/>
-		<field name="belongEntity" type="string" max-length="100" nullable="false" />
-		<field name="config" type="text" description="JSON格式配置" nullable="false"/>
+
+	<entity name="ViewFeatConfig" type-code="015" description="视图页相关配置">
+		<field name="featId" type="primary" />
+		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
+		<field name="type" type="string" max-length="20" nullable="false" updatable="true" description="TAB,ADD" />
+		<field name="config" type="text" description="JSON格式配置" nullable="false" />
+		<index type="unique" field-list="belongEntity,type" />
 	</entity>
-	
+
 	<entity name="ShareAccess" type-code="020" description="记录共享">
 		<field name="accessId" type="primary" />
-		<field name="entity" type="int" nullable="false" description="哪个实体"/>
+		<field name="entity" type="int" nullable="false" updatable="false" description="哪个实体" />
 		<field name="recordId" type="string" max-length="20" nullable="false" updatable="false" description="记录ID" />
 		<field name="shareTo" type="string" max-length="20" nullable="false" updatable="false" description="共享给谁 (User/Dept/Role)" />
-		<field name="rights" type="int" nullable="false" default-value="0" description="共享权限(R=2,U=4,D=8,0=Auto)" />
-		<index field-list="entity,recordId,shareTo"/>
+		<field name="rights" type="int" default-value="0" nullable="false" description="共享权限(R=2,U=4,D=8,0=Auto)" />
+		<index field-list="entity,recordId,shareTo" />
 	</entity>
-	
-	<entity name="SystemConfig" type-code="021" parent="false" description="系统全局配置项">
+
+	<entity name="SystemConfig" type-code="021" parent="false" description="系统全局配置">
 		<field name="configId" type="primary" />
-		<field name="item" type="string" max-length="100" nullable="false" />
+		<field name="item" type="string" max-length="100" nullable="false" updatable="false" />
 		<field name="value" type="string" max-length="600" nullable="false" />
-		<index type="unique" field-list="item"/>
+		<index type="unique" field-list="item" />
 	</entity>
-	
+
 	<entity name="Notification" type-code="022" description="通知消息">
 		<field name="messageId" type="primary" />
-		<field name="messageType" type="small-int" default-value="0" />
+		<field name="messageType" type="small-int" default-value="0" updatable="false" />
 		<field name="fromUser" type="reference" ref-entity="User" nullable="false" updatable="false" />
 		<field name="toUser" type="reference" ref-entity="User" nullable="false" updatable="false" />
 		<field name="message" type="string" max-length="600" updatable="false" />
 		<field name="messageRich" type="text" max-length="6000" updatable="false" />
-		<field name="unread" type="bool" default-value="T"/>
-		<field name="relatedRecord" type="string" max-length="20" description="相关业务记录" updatable="false"/>
-		<index field-list="toUser,unread"/>
+		<field name="unread" type="bool" default-value="T" />
+		<field name="relatedRecord" type="string" max-length="20" updatable="false" description="相关业务记录" />
+		<index field-list="toUser,unread" />
 	</entity>
-	
+
 </metadata-config>

@@ -111,7 +111,7 @@ $(document).ready(function(){
 	let btn = $('.J_save').click(function(){
 		let elements = [];
 		$('.form-preview .J_field').each(function(){
-			let item = { field: $(this).data('field'), isFull: $(this).parent().hasClass('full') }
+			let item = { field: $(this).data('field'), isFull: $(this).parent().hasClass('w-100') }
 			if (item.field == '$DIVIDER$') item.label = $(this).find('span').text()
 			elements.push(item);
 		});
@@ -136,8 +136,8 @@ const render_item = function(data) {
 	let action = $('<div class="dd-action"></div>').appendTo(handle)
 	if (data.displayType){
 		$('<span class="ft">' + data.displayType.split('(')[0].trim() + '</span>').appendTo(item)
-		$('<a>[双列]</a>').appendTo(action).click(function(){ item.removeClass('w-100') })
-		$('<a>[单列]</a>').appendTo(action).click(function(){ item.addClass('w-100') })
+		$('<a class="rowspan">[双列]</a>').appendTo(action).click(function(){ item.removeClass('w-100') })
+		$('<a class="rowspan">[单列]</a>').appendTo(action).click(function(){ item.addClass('w-100') })
 		$('<a>[移除]</a>').appendTo(action).click(function(){
 			render_unset(data)
 			item.remove()

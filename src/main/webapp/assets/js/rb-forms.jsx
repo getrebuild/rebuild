@@ -549,7 +549,7 @@ class RbFormPickList extends RbFormElement {
         return (
             <select ref="field-value" className="form-control form-control-sm" value={this.state.value} onChange={this.handleChange}>
             {this.props.options.map((item) => {
-                return (<option value={item.id}>{item.text}</option>)
+                return (<option key={item.field + '-' + item.id} value={item.id}>{item.text}</option>)
             })}
             </select>
         )
@@ -658,7 +658,7 @@ class RbFormDivider extends React.Component {
 
 // 确定元素类型
 const detectElement = function(item){
-    if (!!!item.key) item.key = 'field-' + item.field
+    if (!!!item.key) item.key = 'field-' + (item.field == '$DIVIDER$' ? $random() : item.field)
     
     let isExtElement = detectElementExt(item)
     if (isExtElement != null) {

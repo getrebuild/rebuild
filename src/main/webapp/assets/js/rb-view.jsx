@@ -45,7 +45,7 @@ class RbViewForm extends React.Component {
 const detectViewElement = function(item){
     item.onView = true
     item.viewMode = true
-    item.key = 'col-' + item.field
+    item.key = 'col-' + (item.field == '$DIVIDER$' ? $random() : item.field)
     return (<div className={'col-12 col-sm-' + (item.isFull ? 12 : 6)} key={item.key}>{detectElement(item)}</div>)
 }
 
@@ -105,7 +105,6 @@ const RbViewPage = {
             
             // clear
             $cleanMenu('.J_action')
-            $cleanMenu('.J_new')
             $('.view-action .col-6').each(function(){ if ($(this).children().length == 0) $(this).remove() })
             if ($('.view-action').children().length == 0){
                 $('.view-action').addClass('noaction')
@@ -115,6 +114,23 @@ const RbViewPage = {
         
         $('.J_close').click(function(){
             if (parent && parent.rb.RbViewModalGet(id)) parent.rb.RbViewModalGet(id).hide()
+        })
+    },
+    
+    initRecordMeta() {
+        $.get(`${rb.baseUrl}/app/entity/record-meta?id=${this.__id}`, function(res){
+            if (res.error_code == 0) {
+                let _data = res.data
+                for (let k in _data) {
+                    if (k == 'owningUser'){
+                        $('<a href="#!/View/User/' + _data[k][0] + '" onclick="RbViewPage.clickView(this)">' + _data[k][1] + '</a>').appendTo('.J_' + k)
+                    } else if (k == 'shareTo'){
+                        $('<a>' + (_data[k] == 0 ? '无' : ('已共享给' + _data[k] + '位用户')) + '</a>').appendTo('.J_' + k)
+                    } else {
+                        $('<span>' + _data[k] + '</span>').appendTo('.J_' + k)
+                    }
+                }
+            }
         })
     },
     
@@ -156,8 +172,9 @@ const RbViewPage = {
             })
         }
         
-        $('.vtab-settings').click(function(){
-            rb.modal(`${rb.baseUrl}/page/admin/entity/viewtab-config?entity=${that.__entity[1]}`, '配置显示项')
+        $('.J_view-feat').click(function(){
+            let type = $(this).data('feat')
+            rb.modal(`${rb.baseUrl}/page/admin/entity/viewfeat-config?entity=${that.__entity[1]}&type=${type}`, '配置' + (type == 'TAB' ? '显示项' : '新建项'))
         })
     },
     
@@ -172,26 +189,24 @@ const RbViewPage = {
         })
     },
     
-    initRecordMeta() {
-        $.get(`${rb.baseUrl}/app/entity/record-meta?id=${this.__id}`, function(res){
-            if (res.error_code == 0) {
-                let _data = res.data
-                for (let k in _data) {
-                    if (k == 'owningUser'){
-                        $('<a href="#!/View/User/' + _data[k][0] + '" onclick="RbViewPage.clickView(this)">' + _data[k][1] + '</a>').appendTo('.J_' + k)
-                    } else if (k == 'shareTo'){
-                        $('<a>' + (_data[k] == 0 ? '无' : ('已共享给' + _data[k] + '位用户')) + '</a>').appendTo('.J_' + k)
-                    } else {
-                        $('<span>' + _data[k] + '</span>').appendTo('.J_' + k)
-                    }
-                }
-            }
+    initVAdds(config) {
+        let that = this
+        $(config).each(function(){
+            let entity = this
+            let item = $('<a class="dropdown-item"><i class="icon zmdi zmdi-' + entity[2] + '"></i>新建' + entity[1] + '</a>')
+            item.click(function(){
+                let fieldValue = {}
+                fieldValue['&' + that.__entity[1]] = that.__id
+                console.log(JSON.stringify(fieldValue))
+                rb.RbFormModal({ title: `新建${entity[1]}`, entity: entity[0], icon: entity[2], fieldValue: fieldValue })
+            })
+            $('.J_adds .dropdown-divider').before(item)
         })
+         $cleanMenu('.J_adds')
     },
     
     clickView(el) {
         let viewUrl = $(el).attr('href')
-        console.log(viewUrl)
         viewUrl = viewUrl.split('/')
         parent.rb.RbViewModal({ entity: viewUrl[2], id: viewUrl[3] }, true)
     },

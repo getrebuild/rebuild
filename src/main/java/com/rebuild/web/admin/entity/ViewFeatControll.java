@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.entityhub.EasyMeta;
-import com.rebuild.server.helper.manager.ViewTabManager;
+import com.rebuild.server.helper.manager.ViewFeatManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.JSONUtils;
@@ -47,28 +47,31 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * 视图-相关项显示
  * 
  * @author devezhao
  * @since 10/23/2018
  */
 @Controller
 @RequestMapping("/admin/entity/")
-public class ViewTabControll extends BaseControll implements LayoutConfig {
+public class ViewFeatControll extends BaseControll implements LayoutConfig {
 
-	@RequestMapping(value = "{entity}/viewtab-config", method = RequestMethod.POST)
+	@RequestMapping(value = "{entity}/viewfeat-config", method = RequestMethod.POST)
 	@Override
 	public void sets(@PathVariable String entity,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
+		String type = getParameter(request, "type", ViewFeatManager.TYPE_TAB);
 		JSON config = ServletUtils.getRequestJson(request);
 		
-		Object[] vtab = ViewTabManager.getRaw(entity);
+		Object[] feat = ViewFeatManager.getRaw(entity, type);
 		Record record = null;
-		if (vtab == null) {
-			record = EntityHelper.forNew(EntityHelper.ViewTabConfig, user);
+		if (feat == null) {
+			record = EntityHelper.forNew(EntityHelper.ViewFeatConfig, user);
+			record.setString("type", type);
 			record.setString("belongEntity", entity);
 		} else {
-			record = EntityHelper.forUpdate((ID) vtab[0], user);
+			record = EntityHelper.forUpdate((ID) feat[0], user);
 		}
 		record.setString("config", config.toJSONString());
 		Application.getCommonService().createOrUpdate(record);
@@ -76,11 +79,12 @@ public class ViewTabControll extends BaseControll implements LayoutConfig {
 		writeSuccess(response);
 	}
 	
-	@RequestMapping(value = "{entity}/viewtab-config", method = RequestMethod.GET)
+	@RequestMapping(value = "{entity}/viewfeat-config", method = RequestMethod.GET)
 	@Override
 	public void gets(@PathVariable String entity,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		Object[] vtab = ViewTabManager.getRaw(entity);
+		String type = getParameter(request, "type", ViewFeatManager.TYPE_TAB);
+		Object[] feat = ViewFeatManager.getRaw(entity, type);
 		
 		Entity entityMeta = MetadataHelper.getEntity(entity);
 		Set<String[]> refs = new HashSet<>();
@@ -91,7 +95,7 @@ public class ViewTabControll extends BaseControll implements LayoutConfig {
 		
 		JSON ret = JSONUtils.toJSONObject(
 				new String[] { "config", "refs" },
-				new Object[] { vtab == null ? null : vtab[1], refs });
+				new Object[] { feat == null ? null : feat[1], refs });
 		writeSuccess(response, ret);
 	}
 }
