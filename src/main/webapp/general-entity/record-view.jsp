@@ -45,7 +45,7 @@
 				</div>
 				<div class="col-6 pr-1 mb-2 btn-group J_new">
 					<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-plus"></i> 新建相关</button>
-					<div class="dropdown-menu dropdown-menu-right">
+					<div class="dropdown-menu">
 						<div class="dropdown-divider J_for-admin hide"></div>
 						<a class="dropdown-item J_for-admin hide"><i class="icon zmdi zmdi-settings"></i> 配置新建</a>
 					</div>

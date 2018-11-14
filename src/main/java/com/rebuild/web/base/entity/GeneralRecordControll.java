@@ -73,7 +73,7 @@ public class GeneralRecordControll extends BaseControll {
 				return;
 			}
 		} else if (!Application.getSecurityManager().allowedU(user, record.getPrimary())) {
-			writeFailure(response, "没有编辑此记录的权限");
+			writeFailure(response, "你没有编辑此记录的权限");
 			return;
 		}
 		
@@ -101,7 +101,7 @@ public class GeneralRecordControll extends BaseControll {
 			return;
 		}
 		if (ids.length == 1 && !Application.getSecurityManager().allowedD(user, firstId)) {
-			writeFailure(response, "没有删除此记录的权限");
+			writeFailure(response, "你没有删除此记录的权限");
 			return;
 		}
 		
@@ -139,7 +139,7 @@ public class GeneralRecordControll extends BaseControll {
 			return;
 		}
 		if (ids.length == 1 && !Application.getSecurityManager().allowedA(user, firstId)) {
-			writeFailure(response, "没有分派此记录的权限");
+			writeFailure(response, "你没有分派此记录的权限");
 			return;
 		}
 		
@@ -178,7 +178,7 @@ public class GeneralRecordControll extends BaseControll {
 			return;
 		}
 		if (ids.length == 1 && !Application.getSecurityManager().allowedS(user, firstId)) {
-			writeFailure(response, "没有共享此记录的权限");
+			writeFailure(response, "你没有共享此记录的权限");
 			return;
 		}
 		

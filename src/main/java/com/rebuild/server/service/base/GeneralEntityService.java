@@ -135,6 +135,7 @@ public class GeneralEntityService extends BaseService  {
 	 */
 	public int delete(ID record, String[] cascades) {
 		super.delete(record);
+		Application.getRecordOwningCache().cleanOwningUser(record);
 		
 		int affected = 1;
 		
@@ -171,6 +172,7 @@ public class GeneralEntityService extends BaseService  {
 		assigned.setID(EntityHelper.owningUser, (ID) toUser.getIdentity());
 		assigned.setID(EntityHelper.owningDept, (ID) toUser.getOwningDept().getIdentity());
 		super.update(assigned);
+		Application.getRecordOwningCache().cleanOwningUser(record);
 		
 		int affected = 1;
 		

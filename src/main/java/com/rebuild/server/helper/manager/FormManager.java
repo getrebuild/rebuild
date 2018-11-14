@@ -131,11 +131,11 @@ public class FormManager extends LayoutManager {
 		} else {
 			if (onView) {  // for R
 				if (!Application.getSecurityManager().allowedR(user, record)) {
-					return formatModelError("没有读取此记录的权限");
+					return formatModelError("你没有读取此记录的权限");
 				}
 			} else {  // for U
 				if (!Application.getSecurityManager().allowedU(user, record)) {
-					return formatModelError("没有编辑此记录的权限");
+					return formatModelError("你没有编辑此记录的权限");
 				}
 			}
 		}
@@ -144,7 +144,7 @@ public class FormManager extends LayoutManager {
 		JSONArray elements = config.getJSONArray("elements");
 		
 		if (elements == null || elements.isEmpty()) {
-			return formatModelError("表单布局尚未配置，请配置后使用");
+			return formatModelError("此表单布局尚未配置，请配置后使用");
 		}
 		
 		Record data = null;
