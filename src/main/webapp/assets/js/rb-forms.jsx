@@ -35,7 +35,8 @@ class RbFormModal extends React.Component {
         let that = this
         const entity = this.state.entity
         const id = this.state.id || ''
-        $.get(`${rb.baseUrl}/app/${entity}/form-model?id=${id}`, function(res){
+        const defaultValues = this.state.defaultValues || {}  // 默认值填充（仅新建有效）
+        $.post(`${rb.baseUrl}/app/${entity}/form-model?id=${id}`, JSON.stringify(defaultValues), function(res){
             // 包含错误
             if (res.error_code > 0 || !!res.data.error){
                 let error = res.data.error || res.error_msg
@@ -90,7 +91,7 @@ class RbFormModal extends React.Component {
     hide(destroy) {
         $(this.refs['rbmodal']).modal('hide')
         let state = { isDestroy: false }
-        if (destroy === true) state = { ...state, isDestroy: true }
+        if (destroy === true) state = { ...state, isDestroy: true, id: null }  // id > null 必须强制重获取 Model
         this.setState(state)
     }
 }
@@ -101,6 +102,8 @@ class RbForm extends React.Component {
         super(props)
         this.state = { ...props }
         
+        this.isNew = !!!props.$$$parent.state.id
+
         this.__FormData = {}
         this.setFieldValue = this.setFieldValue.bind(this)
     }
@@ -130,12 +133,28 @@ class RbForm extends React.Component {
             </div>
         )
     }
+
+    componentDidMount() {
+        if (this.isNew == true) {
+            let that = this
+            this.props.children.map((child) => {
+                let val = child.props.value
+                if (!!val) {
+                    console.log('init field-value ' + child.props.field + ' = ' + val)
+                    if ($.type(val) == 'array') val = val[0]  // 若为数组，第一个就是真实值
+                    that.setFieldValue(child.props.field, val)
+                }
+            })
+        }
+    }
     
     setFieldValue(field, value, error) {
         this.__FormData[field] = { value: value, error: error }
         console.log('Sets field-value ... ' + JSON.stringify(this.__FormData))
     }
+    // 避免无意义更新
     setFieldUnchanged(field) {
+        if (this.isNew == true) return
         delete this.__FormData[field]
         console.log('Unchanged field-value ... ' + JSON.stringify(this.__FormData))
     }
@@ -154,7 +173,7 @@ class RbForm extends React.Component {
         
         let btns = $(this.refs['rbform-action']).find('.btn').button('loading')
         let that = this
-        $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), function(res){
+        $.post(`${rb.baseUrl}/app/entity/record-save`, JSON.stringify(_data), function(res){
             btns.button('reset')
             if (res.error_code == 0){
                 rb.notice('保存成功', 'success')
@@ -272,7 +291,7 @@ class RbFormText extends RbFormElement {
     }
     renderElement() {
         return (
-            <input ref="field-value" className={'form-control form-control-sm ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} type="text" value={this.state.value} onChange={this.handleChange} onBlur={this.checkError} />
+            <input ref="field-value" className={'form-control form-control-sm ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} type="text" value={this.state.value || ''} onChange={this.handleChange} onBlur={this.checkError} />
         )
     }
 }
@@ -556,26 +575,29 @@ class RbFormPickList extends RbFormElement {
     }
     componentDidMount() {
         super.componentDidMount()
-        let that = this
         let select2 = $(this.refs['field-value']).select2({
             language: 'zh-CN',
-            placeholder: '选择' + that.props.label,
+            placeholder: '选择' + this.props.label,
             allowClear: true,
             width: '100%',
-        }).on('change.select2', function(e){
-            let opt = e.target.value
-            that.handleChange({ target:{ value: opt } }, true)
         })
         
-        let val = this.state.value
+        let that = this
         $setTimeout(function() {
-            if (!!val) {
+            // 没有值
+            if (that.props.$$$parent.isNew == false && !!!that.props.value) {
+                select2.val(null)
             }
-            select2.trigger("change")
+            select2.trigger('change')
+            select2.on('change.select2', function(e){
+                let val = e.target.value
+                that.handleChange({ target:{ value: val } }, true)
+            })
         }, 100)
+        this.__select2 = select2
     }
     componentWillUnmount() {
-        $(this.refs['field-value']).select2('destroy')
+        if (this.__select2) this.__select2.select2('destroy')
     }
 }
 
@@ -599,7 +621,7 @@ class RbFormReference extends RbFormElement {
         let that = this
         let select2 = $(this.refs['field-value']).select2({
             language: 'zh-CN',
-            placeholder: '选择' + that.props.label,
+            placeholder: '选择' + this.props.label,
             width: '100%',
             allowClear: true,
             minimumInputLength: 1,
@@ -622,21 +644,21 @@ class RbFormReference extends RbFormElement {
             }
         })
         
-        let val = this.state.value
         $setTimeout(function() {
-            if (val) {
+            let val = that.props.value
+            if (!!val) {
                 let option = new Option(val[1], val[0], true, true)
                 select2.append(option)
             }
             select2.trigger('change')
-            
             select2.on('change.select2', function(e){
                 that.handleChange({ target:{ value: e.target.value } }, true)
             })
         }, 100)
+        this.__select2 = select2
     }
     componentWillUnmount() {
-        $(this.refs['field-value']).select2('destroy')
+        if (this.__select2) this.__select2.select2('destroy')
     }
     clickView() {
         if (window.RbViewPage) window.RbViewPage.clickView($(this.refs['field-text']))

@@ -29,10 +29,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
+import com.rebuild.server.helper.manager.DefaultValueManager;
 import com.rebuild.server.helper.manager.FormManager;
 import com.rebuild.server.helper.manager.ViewFeatManager;
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.web.BaseControll;
 
+import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -68,6 +71,12 @@ public class GeneralEntityControll extends BaseControll {
 		ID user = getRequestUser(request);
 		ID record = getIdParameter(request, "id");  // New or Update
 		JSON model = FormManager.getFormModel(entity, user, record);
+		if (record == null) {
+			JSON defaultVal = ServletUtils.getRequestJson(request);
+			if (defaultVal != null) {
+				DefaultValueManager.setFieldsValue(MetadataHelper.getEntity(entity), model, defaultVal);
+			}
+		}
 		writeSuccess(response, model);
 	}
 	

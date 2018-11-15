@@ -263,6 +263,31 @@ public class EasyMeta implements BaseMeta {
 	// --
 	
 	/**
+	 * @param baseMeta
+	 * @return
+	 */
+	public static EasyMeta valueOf(BaseMeta baseMeta) {
+		return new EasyMeta(baseMeta);
+	}
+	
+	/**
+	 * @param entityCode
+	 * @return
+	 */
+	public static EasyMeta valueOf(int entityCode) {
+		return valueOf(MetadataHelper.getEntity(entityCode));
+	}
+	
+	/**
+	 * @param entityName
+	 * @return
+	 */
+	public static EasyMeta valueOf(String entityName) {
+		return valueOf(MetadataHelper.getEntity(entityName));
+	}
+	
+	
+	/**
 	 * @param field
 	 * @return
 	 */
@@ -279,15 +304,6 @@ public class EasyMeta implements BaseMeta {
 	}
 	
 	/**
-	 * @param entityCode
-	 * @return
-	 */
-	public static String getEntityLabel(int entityCode) {
-		Entity entity = MetadataHelper.getEntity(entityCode);
-		return getLabel(entity);
-	}
-	
-	/**
 	 * @param meta
 	 * @return
 	 */
@@ -301,5 +317,13 @@ public class EasyMeta implements BaseMeta {
 			return true;
 		}
 		return BUILTIN_FIELD.contains(metaName);
+	}
+	
+	/**
+	 * @return [Name, Label, Icon]
+	 */
+	public static String[] getEntityShows(Entity entity) {
+		EasyMeta easyMeta = valueOf(entity);
+		return new String[] { entity.getName(), easyMeta.getLabel(), easyMeta.getIcon() };
 	}
 }

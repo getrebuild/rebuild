@@ -130,7 +130,7 @@ public class RelatedListControll extends BaseControll {
 			baseSql = String.format(baseSql, "count(" + primaryField.getName() + ")");
 		} else {
 			baseSql = String.format(baseSql, primaryField.getName() + "," + namedField.getName() + "," + EntityHelper.modifiedOn);
-			baseSql += " order by " + namedField.getName() + " asc";
+			baseSql += " order by modifiedOn desc";
 		}
 		return baseSql;
 	}

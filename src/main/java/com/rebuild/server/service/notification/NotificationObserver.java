@@ -39,7 +39,7 @@ public class NotificationObserver extends OperateObserver {
 		
 		ID relatedRecordId = context.getRecordId();
 		String text = "@%s 分派了 1 条%s记录给你";
-		text = String.format(text, from, EasyMeta.getEntityLabel(relatedRecordId.getEntityCode()));
+		text = String.format(text, from, EasyMeta.valueOf(relatedRecordId.getEntityCode()).getLabel());
 		
 		Message message = new Message(from, to, text, relatedRecordId);
 		Application.getNotifications().send(message);
@@ -52,7 +52,7 @@ public class NotificationObserver extends OperateObserver {
 		
 		ID relatedRecordId = context.getRecordId();
 		String text = "@%s 共享了 1 条%s记录给你";
-		text = String.format(text, from, EasyMeta.getEntityLabel(relatedRecordId.getEntityCode()));
+		text = String.format(text, from, EasyMeta.valueOf(relatedRecordId.getEntityCode()).getLabel());
 		
 		Message message = new Message(from, ID.valueOf(to), text, relatedRecordId);
 		Application.getNotifications().send(message);

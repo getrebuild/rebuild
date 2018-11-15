@@ -346,15 +346,15 @@ const RbListPage = {
     _RbList: null,
     
     // @config - List config
-    // @entity - [Label, Name, Icon]
+    // @entity - [Name, Label, Icon]
     // @ep - Privileges of this entity
     init: function(config, entity, ep) {
         this._RbList = renderRbcomp(<RbList config={config} />, 'react-list')
         
-        QuickFilter.init('.input-search', entity[1]);
+        QuickFilter.init('.input-search', entity[0]);
         
         $('.J_new').click(function(){
-            rb.RbFormModal({ title: `新建${entity[0]}`, entity: entity[1], icon: entity[2] })
+            rb.RbFormModal({ title: `新建${entity[1]}`, entity: entity[0], icon: entity[2] })
         })
         
         let that = this
@@ -363,7 +363,7 @@ const RbListPage = {
             let selected = that._RbList.getSelectedRows()
             if (selected.length == 1) {
                 selected = selected[0]
-                rb.RbFormModal({ id: selected[0], title: `编辑${entity[0]}`, entity: entity[1], icon: entity[2] })
+                rb.RbFormModal({ id: selected[0], title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] })
             }
         })
         
@@ -393,23 +393,23 @@ const RbListPage = {
             let selected = that._RbList.getSelectedRows()
             if (selected.length == 1) {
                 selected = selected[0]
-                rb.RbViewModal({ id: selected[0], entity: entity[1] })
+                rb.RbViewModal({ id: selected[0], entity: entity[0] })
             }
         })
         
         $('.J_assign').click(function(){
             let ids = that._RbList.getSelectedIds()
             if (ids.length < 1) return
-            rb.AssignDialog({ entity: entity[1], ids: ids })
+            rb.AssignDialog({ entity: entity[0], ids: ids })
         })
         $('.J_share').click(function(){
             let ids = that._RbList.getSelectedIds()
             if (ids.length < 1) return
-            rb.ShareDialog({ entity: entity[1], ids: ids })
+            rb.ShareDialog({ entity: entity[0], ids: ids })
         })
         
         $('.J_columns').click(function(){
-            window.__currentModal = rb.modal(`${rb.baseUrl}/page/general-entity/show-fields?entity=${entity[1]}`, '设置列显示')
+            window.__currentModal = rb.modal(`${rb.baseUrl}/page/general-entity/show-fields?entity=${entity[0]}`, '设置列显示')
         })
         
         // Privileges

@@ -294,6 +294,8 @@ public class FormManager extends LayoutManager {
 	}
 	
 	/**
+	 * 封装表单/布局所用的字段值
+	 * 
 	 * @param data
 	 * @param field
 	 * @param onView
@@ -303,17 +305,27 @@ public class FormManager extends LayoutManager {
 		String fieldName = field.getName();
 		if (data.hasValue(fieldName)) {
 			Object value = data.getObjectValue(fieldName);
-			if (field.getDisplayType() == DisplayType.PICKLIST) {
+			DisplayType dt = field.getDisplayType();
+			if (dt == DisplayType.PICKLIST) {
 				ID pickValue = (ID) value;
 				return onView ? pickValue.getLabel() : pickValue.toLiteral();
 			} 
 			else if (value instanceof ID) {
 				ID idValue = (ID) value;
-				String belongEntity = MetadataHelper.getEntity(idValue.getEntityCode()).getName();
-				return new String[] { idValue.toLiteral(), idValue.getLabel(), belongEntity };
+				if (onView) {
+					String belongEntity = MetadataHelper.getEntity(idValue.getEntityCode()).getName();
+					return new String[] { idValue.toLiteral(), idValue.getLabel(), belongEntity };
+				} else {
+					return new String[] { idValue.toLiteral(), idValue.getLabel() };
+				}
 			} 
 			else {
-				return FieldValueWrapper.wrapFieldValue(value, field);
+				Object ret = FieldValueWrapper.wrapFieldValue(value, field);
+				// 编辑记录时要去除千分位
+				if (!onView && (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL)) {
+					ret = ret.toString().replace(",", "");
+				}
+				return ret;
 			}
 		}
 		return null;

@@ -61,10 +61,13 @@ rb.RbViewForm = function(props, target){
 const RbViewPage = {
     _RbViewForm:  null,
     
+    // @id - Record ID
+    // @entity - [Name, Label, Icon]
+    // @ep - Privileges of this entity
     init(id, entity, ep) {
         this.__id = id
         this.__entity = entity
-        this._RbViewForm = rb.RbViewForm({ entity: entity[1], id: id })
+        this._RbViewForm = rb.RbViewForm({ entity: entity[0], id: id })
         
         let that = this
         
@@ -86,14 +89,14 @@ const RbViewPage = {
         })
         
         $('.J_edit').click(function(){
-            rb.RbFormModal({ id: id, title: `编辑${entity[0]}`, entity: entity[1], icon: entity[2] })
+            rb.RbFormModal({ id: id, title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] })
         })
         
         $('.J_assign').click(function(){
-            rb.AssignDialog({ entity: entity[1], ids: [id] })
+            rb.AssignDialog({ entity: entity[0], ids: [id] })
         })
         $('.J_share').click(function(){
-            rb.ShareDialog({ entity: entity[1], ids: [id] })
+            rb.ShareDialog({ entity: entity[0], ids: [id] })
         })
         
         // Privileges
@@ -174,7 +177,7 @@ const RbViewPage = {
         
         $('.J_view-feat').click(function(){
             let type = $(this).data('feat')
-            rb.modal(`${rb.baseUrl}/page/admin/entity/viewfeat-config?entity=${that.__entity[1]}&type=${type}`, '配置' + (type == 'TAB' ? '显示项' : '新建项'))
+            rb.modal(`${rb.baseUrl}/page/admin/entity/viewfeat-config?entity=${that.__entity[0]}&type=${type}`, '配置' + (type == 'TAB' ? '显示项' : '新建项'))
         })
     },
     
@@ -195,10 +198,9 @@ const RbViewPage = {
             let entity = this
             let item = $('<a class="dropdown-item"><i class="icon zmdi zmdi-' + entity[2] + '"></i>新建' + entity[1] + '</a>')
             item.click(function(){
-                let fieldValue = {}
-                fieldValue['&' + that.__entity[1]] = that.__id
-                console.log(JSON.stringify(fieldValue))
-                rb.RbFormModal({ title: `新建${entity[1]}`, entity: entity[0], icon: entity[2], fieldValue: fieldValue })
+                let defaultValues = {}
+                defaultValues['&' + that.__entity[0]] = that.__id
+                rb.RbFormModal({ title: `新建${entity[1]}`, entity: entity[0], icon: entity[2], defaultValues: defaultValues })
             })
             $('.J_adds .dropdown-divider').before(item)
         })

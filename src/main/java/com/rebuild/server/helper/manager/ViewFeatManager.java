@@ -83,8 +83,7 @@ public class ViewFeatManager {
 			for (Field field : entityMeta.getReferenceToFields()) {
 				Entity e = field.getOwnEntity();
 				if (Application.getSecurityManager().allowed(user, e.getEntityCode(), RoC)) {
-					EasyMeta easyMeta = new EasyMeta(e);
-					refs.add(new String[] { easyMeta.getName(), easyMeta.getLabel(), easyMeta.getIcon() });
+					refs.add(EasyMeta.getEntityShows(e));
 				}
 			}
 			return (JSON) JSONArray.toJSON(refs);
@@ -96,8 +95,7 @@ public class ViewFeatManager {
 			if (MetadataHelper.containsEntity(e)) {
 				Entity entityMeta = MetadataHelper.getEntity(e);
 				if (Application.getSecurityManager().allowed(user, entityMeta.getEntityCode(), RoC)) {
-					EasyMeta easyMeta = new EasyMeta(entityMeta);
-					configured.add(new String[] { easyMeta.getName(), easyMeta.getLabel(), easyMeta.getIcon() });
+					configured.add(EasyMeta.getEntityShows(entityMeta));
 				}
 			}
 		}

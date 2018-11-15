@@ -82,7 +82,7 @@
 <script src="${baseUrl}/assets/js/assign-share.jsx" type="text/babel"></script>
 <script type="text/babel">
 $(document).ready(function(){
-	RbViewPage.init('${id}', [ '${entityLabel}', '${entityName}', '${entityIcon}' ], ${entityPrivileges})
+	RbViewPage.init('${id}', [ '${entityName}', '${entityLabel}', '${entityIcon}' ], ${entityPrivileges})
 	RbViewPage.initRecordMeta()
 	RbViewPage.initVTabs(${ViewTabs})
 	RbViewPage.initVAdds(${ViewAdds})
