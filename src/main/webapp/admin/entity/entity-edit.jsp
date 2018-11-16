@@ -31,9 +31,10 @@ a#entityIcon:hover{opacity:0.8}
 					</div>
 					<div class="aside-nav collapse">
 						<ul class="nav">
-							<li class="active"><a href="base"><i class="icon mdi mdi-inbox"></i>基本信息</a></li>
-							<li><a href="fields"><i class="icon mdi mdi-inbox"></i>管理字段</a></li>
-							<li><a href="form-design"><i class="icon mdi mdi-inbox"></i>配置布局</a></li>
+							<li class="active"><a href="base">基本信息</a></li>
+							<li><a href="fields">管理字段</a></li>
+							<li><a href="form-design">设计布局</a></li>
+							<li><a href="danger">高级配置</a></li>
 						</ul>
 					</div>
 				</div>
@@ -66,10 +67,16 @@ a#entityIcon:hover{opacity:0.8}
 						</div>
 						<div class="form-group row">
 							<label class="col-sm-2 col-form-label text-sm-right">主显字段</label>
-							<div class="col-lg-5 col-sm-8">
+							<div class="col-lg-5 col-sm-10">
 								<select class="form-control form-control-sm" id="nameField">
 								</select>
-								<p class="form-text mb-0">好的主显字段应能够清晰的表示记录，如客户中的客户名称或订单中的订单编号</p>
+								<p class="form-text mb-0">好的主显字段应能够清晰的表示记录本身，如客户中的客户名称或订单中的订单编号</p>
+							</div>
+						</div>
+						<div class="form-group row text hide J_masterEntity">
+							<label class="col-sm-2 col-form-label text-sm-right">主实体</label>
+							<div class="col-lg-5 col-sm-10">
+								<div class="form-control-plaintext"><a href="../${masterEntity}/base">${masterEntityLabel} (${masterEntity})</a></div>
 							</div>
 						</div>
 						<div class="form-group row">
@@ -80,8 +87,8 @@ a#entityIcon:hover{opacity:0.8}
 						</div>
 						<div class="form-group row footer">
 							<div class="col-lg-5 col-sm-10 offset-sm-2">
-								<button class="btn btn-primary" type="button">保存</button>
-								<div class="alert alert-warning alert-icon" style="display:none">
+								<button class="btn btn-primary J_save" type="button" data-loading-text="请稍后">保存</button>
+								<div class="alert alert-warning alert-icon hide">
 									<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
 									<div class="message">系统内建实体，不允许修改</div>
 								</div>
@@ -96,36 +103,34 @@ a#entityIcon:hover{opacity:0.8}
 <%@ include file="/_include/Foot.jsp"%>
 <script type="text/javascript">
 clickIcon = function(icon){
-	$('#entityIcon').attr('value', icon).find('i').attr('class', 'icon zmdi zmdi-' + icon);
+	$('#entityIcon').attr('value', icon).find('i').attr('class', 'icon zmdi zmdi-' + icon)
 	rb.modalHide()
 };
 $(document).ready(function(){
-	const metaId = '${entityMetaId}';
-	const btn = $('.btn-primary').click(function(){
-		if (!!!metaId) return;
+	const metaId = '${entityMetaId}'
+	if (!!!metaId){
+		$('.J_save').next().removeClass('hide')
+		$('.J_save').remove()
+	}
+	if (!!'${masterEntity}') $('.J_masterEntity').removeClass('hide')
+	
+	let _btn = $('.J_save').click(function(){
+		if (!!!metaId) return
 		let icon = $val('#entityIcon'),
 			label = $val('#entityLabel'),
 			comments = $val('#comments'),
-			nameField = $val('#nameField');
-		let _data = { icon:icon, entityLabel:label, comments:comments, nameField:nameField };
-		_data = $cleanMap(_data);
-		if (Object.keys(_data) == 0){
-			location.reload();
-			return;
-		}
+			nameField = $val('#nameField')
+		let _data = { icon:icon, entityLabel:label, comments:comments, nameField:nameField }
+		_data = $cleanMap(_data)
+		if (Object.keys(_data) == 0){ location.reload(); return }
 		
-		_data.metadata = { entity:'MetaEntity', id:metaId };
-		btn.button('loading');
+		_data.metadata = { entity:'MetaEntity', id:metaId }
+		_btn.button('loading')
 		$.post('../entity-update', JSON.stringify(_data), function(res){
-			if (res.error_code == 0) location.reload();
+			if (res.error_code == 0) location.reload()
 			else rb.notice(res.error_msg, 'danger')
-		});
-	});
-	
-	if (!!!metaId){
-		btn.next().show();
-		btn.remove();
-	}
+		})
+	})
 	
 	$('#entityIcon').click(function(){
 		rb.modal(rb.baseUrl + '/page/commons/search-icon', '选择图标')
@@ -133,7 +138,7 @@ $(document).ready(function(){
 	
 	$.get(rb.baseUrl + '/commons/metadata/fields?entity=${entityName}', function(d){
 		let rs = d.data.map((item) => {
-			let not = notNameField(item)
+			let not = item.type == 'REFERENCE' || item.type == 'NTEXT'
 			return {
 				id: item.name,
 				text: item.label,
@@ -144,15 +149,10 @@ $(document).ready(function(){
 		$('#nameField').select2({
 			language: 'zh-CN',
 			placeholder: '选择字段',
-			allowClear: true,
 			data: rs
 		}).val('${nameField}').trigger('change')
 	})
-});
-// 不能作为名称字段
-function notNameField(item){
-	return item.type == 'REFERENCE' || item.type == 'NTEXT'
-}
+})
 </script>
 </body>
 </html>

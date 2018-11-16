@@ -37,9 +37,13 @@
 		},
 		cache : false,
 		complete : function(xhr) {
-			if (xhr.status == 200){ }  // OK
-			else if (xhr.status == 403) rb.notice(xhr.responseText || '无权访问', 'danger')
-			else rb.notice((xhr.responseText || '系统繁忙，请稍后重试') + ' [' + xhr.status + ']', 'danger', { timeout: 6000 })
+			if (xhr.status == 200 || xhr.status == 0){ }  // OK
+			else if (xhr.status == 403 || xhr.status == 401) rb.notice(xhr.responseText || '无权访问', 'danger')
+			else{
+				let error = xhr.responseText
+				if (error && error.contains('Exception : ')) error = error.split('Exception : ')[1]
+				rb.notice((error || '系统繁忙，请稍后重试') + ' [' + xhr.status + ']', 'danger', { timeout: 6000 })
+			}
 		}
 	});
 	
@@ -122,11 +126,11 @@ const $val = function(el){
 	}
 	
 	let oVal = el.data('o') + '';
-	if (!!!oVal) return nVal || null;
+	if (!!!oVal) return $.trim(nVal) || null;
 	
 	if ((oVal || 666) === (nVal || 666)) return null;  // unmodified
 	if (!!oVal && !!!nVal) return '';  // new value is empty
-	else return nVal || null;
+	else return $.trim(nVal) || null;
 };
 
 /* 清理 Map 中的无效值（null、undefined）

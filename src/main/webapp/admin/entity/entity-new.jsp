@@ -10,14 +10,30 @@
 	<form>
 		<div class="form-group row">
 			<label class="col-sm-3 col-form-label text-sm-right">实体名称</label>
-			<div class="col-sm-7 col-lg-4">
+			<div class="col-sm-7">
 				<input class="form-control form-control-sm" type="text" id="entityLabel" maxlength="40">
 			</div>
 		</div>
 		<div class="form-group row">
 			<label class="col-sm-3 col-form-label text-sm-right">备注</label>
-			<div class="col-sm-7 col-lg-4">
+			<div class="col-sm-7">
 				<textarea class="form-control form-control-sm row2x" id="comments" maxlength="100" placeholder="可选"></textarea>
+			</div>
+		</div>
+		<div class="form-group row">
+			<label class="col-sm-3 col-form-label text-sm-right"></label>
+			<div class="col-sm-7">
+				<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+					<input class="custom-control-input" type="checkbox" id="isSlave"><span class="custom-control-label"> 这是一个明细实体</span>
+				</label>
+				<p class="form-text mb-0">通过明细实体可以更好的组织业务关系，例如订单明细通常是依附于订单，而非独立存在的</p>
+			</div>
+		</div>
+		<div class="form-group row J_masterEntity hide">
+			<label class="col-sm-3 col-form-label text-sm-right">选择主实体</label>
+			<div class="col-sm-7">
+				<select class="form-control form-control-sm" id="masterEntity">
+				</select>
 			</div>
 		</div>
 		<div class="form-group row footer">
@@ -31,22 +47,38 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script type="text/javascript">
 $(document).ready(function(){
-	let btn = $('.btn-primary').click(function(){
+	let sbtn = $('.btn-primary').click(function(){
 		let entityLabel = $val('#entityLabel'),
-			comments = $val('#comments');
-		if (!entityLabel){
-			rb.notice('请输入实体名称'); return;
-		}
+			comments = $val('#comments')
+		if (!entityLabel){ rb.notice('请输入实体名称'); return }
 		let _data = { label:entityLabel, comments:comments }
+		if ($('#isSlave').prop('checked') == true){
+			_data.masterEntity = $val('#masterEntity')
+			if (!_data.masterEntity){ rb.notice('请选择选择主实体'); return }
+		}
 		_data = JSON.stringify(_data)
 		
-		btn.button('loading');
+		sbtn.button('loading')
 		$.post(rb.baseUrl + '/admin/entity/entity-new', _data, function(res){
-			if (res.error_code == 0) parent.location.href = rb.baseUrl + '/admin/entity/' +res.data + '/base';
-			else rb.notice(res.error_msg, 'danger')
-		});
-	});
-});
+			if (res.error_code == 0) parent.location.href = rb.baseUrl + '/admin/entity/' +res.data + '/base'
+			else { sbrn.button('reset'); rb.notice(res.error_msg, 'danger') }
+		})
+	})
+	
+	let entitiesLoaded = false
+	$('#isSlave').click(function(){
+		$('.J_masterEntity').toggleClass('hide')
+		parent.rb.modalResize()
+		if (entitiesLoaded == false) {
+			entitiesLoaded = true
+			$.get(rb.baseUrl + '/commons/metadata/entities', function(res){
+				$(res.data).each(function(){
+					$('<option value="' + this.name + '">' + this.label + '</option>').appendTo('#masterEntity')
+				})
+			})
+		}
+	})
+})
 </script>
 </body>
 </html>

@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -65,6 +66,19 @@ public class MetaEntityControll extends BaseControll {
 	public ModelAndView pageEntityBase(@PathVariable String entity, HttpServletRequest request) throws IOException {
 		ModelAndView mv = createModelAndView("/admin/entity/entity-edit.jsp");
 		setEntityBase(mv, entity);
+		
+		Entity entityMeta = MetadataHelper.getEntity(entity);
+		if (entityMeta.getMasterEntity() != null) {
+			mv.getModel().put("masterEntity", entityMeta.getMasterEntity().getName());
+			mv.getModel().put("masterEntityLabel", EasyMeta.getLabel(entityMeta.getMasterEntity()));
+		}
+		
+		return mv;
+	}
+	@RequestMapping("entity/{entity}/danger")
+	public ModelAndView pageEntityDanger(@PathVariable String entity, HttpServletRequest request) throws IOException {
+		ModelAndView mv = createModelAndView("/admin/entity/entity-danger.jsp");
+		setEntityBase(mv, entity);
 		return mv;
 	}
 
@@ -79,6 +93,10 @@ public class MetaEntityControll extends BaseControll {
 			map.put("comments", easyMeta.getComments());
 			map.put("icon", easyMeta.getIcon());
 			map.put("builtin", easyMeta.isBuiltin() || MetadataSorter.isBizzFilter(entity.getEntityCode()));
+			if (entity.getMasterEntity() != null) {
+				map.put("masterEntity", entity.getMasterEntity());
+				map.put("masterEntityLabel", EasyMeta.getLabel(entity.getMasterEntity()));
+			}
 			ret.add(map);
 		}
 		writeSuccess(response, ret);
@@ -91,10 +109,15 @@ public class MetaEntityControll extends BaseControll {
 
 		String label = reqJson.getString("label");
 		String comments = reqJson.getString("comments");
+		String masterEntity = reqJson.getString("masterEntity");
+		if (StringUtils.isNotBlank(masterEntity) && !MetadataHelper.containsEntity(masterEntity)) {
+			writeFailure(response, "无效主实体 : " + masterEntity);
+			return;
+		}
 
 		String entityName = null;
 		try {
-			entityName = new Entity2Schema(user).create(label, comments);
+			entityName = new Entity2Schema(user).create(label, comments, masterEntity);
 			writeSuccess(response, entityName);
 		} catch (Exception ex) {
 			writeFailure(response, ex.getLocalizedMessage());
@@ -111,6 +134,25 @@ public class MetaEntityControll extends BaseControll {
 
 		Application.getMetadataFactory().refresh(false);
 		writeSuccess(response);
+	}
+	
+	@RequestMapping("entity/entity-drop")
+	public void entityDrop(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getRequestUser(request);
+		ID entityId = getIdParameterNotNull(request, "id");
+		
+		Object[] entityRecord = Application.createQueryNoFilter(
+				"select entityName from MetaEntity where entityId = ?")
+				.setParameter(1, entityId)
+				.unique();
+		Entity entity = MetadataHelper.getEntity((String) entityRecord[0]);
+		
+		boolean drop = new Entity2Schema(user).drop(entity);
+		if (drop) {
+			writeSuccess(response);
+		} else {
+			writeFailure(response, "删除失败，请确认该实体是否可删除");
+		}
 	}
 
 	/**

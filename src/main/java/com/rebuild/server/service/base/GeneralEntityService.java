@@ -203,10 +203,12 @@ public class GeneralEntityService extends BaseService  {
 	 * @return
 	 */
 	public int share(ID record, ID to, String[] cascades) {
+		String entityName = MetadataHelper.getEntityName(record);
 		Object[] exists = aPMFactory.createQuery(
-				"select accessId,rights from ShareAccess where recordId = ? and shareTo = ?")
-				.setParameter(1, record.toLiteral())
-				.setParameter(2, to.toLiteral())
+				"select accessId,rights from ShareAccess where belongEntity = ? and recordId = ? and shareTo = ?")
+				.setParameter(1, entityName)
+				.setParameter(2, record.toLiteral())
+				.setParameter(3, to.toLiteral())
 				.unique();
 		if (exists != null) {
 			LOG.warn("记录已分享过，忽略本次操作 : " + record);
@@ -216,7 +218,7 @@ public class GeneralEntityService extends BaseService  {
 		ID currentUser = Application.currentCallerUser();
 		
 		Record shared = EntityHelper.forNew(EntityHelper.ShareAccess, currentUser);
-		shared.setInt("entity", record.getEntityCode());
+		shared.setString("belongEntity", entityName);
 		shared.setString("recordId", record.toLiteral());
 		shared.setString("shareTo", to.toLiteral());
 		shared.setInt("rights", BizzPermission.READ.getMask());

@@ -21,6 +21,7 @@ package com.rebuild.server.entityhub;
 import com.rebuild.server.service.BaseService;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 
@@ -29,7 +30,13 @@ import cn.devezhao.persist4j.PersistManagerFactory;
  */
 public class MetaFieldService extends BaseService {
 
-	protected MetaFieldService(PersistManagerFactory persistManagerFactory) {
-		super(persistManagerFactory);
+	protected MetaFieldService(PersistManagerFactory aPMFactory) {
+		super(aPMFactory);
+	}
+	
+	@Override
+	public int delete(ID recordId) {
+		int del = super.delete(recordId);
+		return del;
 	}
 }

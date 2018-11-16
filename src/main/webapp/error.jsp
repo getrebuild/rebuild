@@ -30,7 +30,7 @@ errorCode = errorCode == null ? 400 : errorCode;
 				<div class="error-goback-button">
 					<a class="btn btn-xl btn-primary hide J_home" href="${baseUrl}/dashboard/home">返回首页</a>
 					&nbsp;
-					<a class="btn btn-xl btn-primary hide J_reload" href="javascript:;" onclick="location.reload(true)">重试</a>
+					<a class="btn btn-xl btn-primary hide" href="javascript:;" onclick="location.reload(true)">重试</a>
 				</div>
 			</div>
 		</div>

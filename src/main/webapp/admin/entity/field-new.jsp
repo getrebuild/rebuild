@@ -11,13 +11,13 @@
 	<form>
 		<div class="form-group row">
 			<label class="col-sm-3 col-form-label text-sm-right">字段名称</label>
-			<div class="col-sm-7 col-lg-4">
+			<div class="col-sm-7">
 				<input class="form-control form-control-sm" type="text" id="fieldLabel">
 			</div>
 		</div>
 		<div class="form-group row">
-			<label class="col-sm-3 col-form-label text-sm-right">类型</label>
-			<div class="col-sm-7 col-lg-4">
+			<label class="col-sm-3 col-form-label text-sm-right">字段类型</label>
+			<div class="col-sm-7">
 				<select class="form-control form-control-sm" id="type">
 					<option value="NUMBER">整数</option>
 					<option value="DECIMAL">货币</option>
@@ -37,14 +37,14 @@
 		</div>
 		<div class="form-group row hide J_dt-REFERENCE">
 			<label class="col-sm-3 col-form-label text-sm-right">选择引用实体</label>
-			<div class="col-sm-7 col-lg-4">
+			<div class="col-sm-7">
 				<select class="form-control form-control-sm" id="refEntity">
 				</select>
 			</div>
 		</div>
 		<div class="form-group row">
 			<label class="col-sm-3 col-form-label text-sm-right">备注</label>
-			<div class="col-sm-7 col-lg-4">
+			<div class="col-sm-7">
 				<textarea class="form-control form-control-sm row2x" id="comments" maxlength="100" placeholder="可选"></textarea>
 			</div>
 		</div>

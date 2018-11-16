@@ -33,6 +33,7 @@ import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
@@ -72,6 +73,11 @@ public class Field2Schema {
 	 * @return
 	 */
 	public String create(Entity entity, String fieldLabel, DisplayType type, String comments, String refEntity) {
+		long count = 0;
+		if ((count = checkRecordCount(entity)) > 50000) {
+			throw new ModificationMetadataException("本实体记录过大，增加字段可能导致表损坏 (" + entity.getName() + "=" + count + ")");
+		}
+		
 		String fieldName = toPinyinName(fieldLabel);
 		while (true) {
 			if (entity.containsField(fieldName)) {
@@ -81,7 +87,7 @@ public class Field2Schema {
 			}
 		}
 		
-		Field field = createField(entity, fieldName, fieldLabel, type, true, true, true, refEntity, comments);
+		Field field = createField(entity, fieldName, fieldLabel, type, true, true, true, comments, refEntity, CascadeModel.Ignore);
 		
 		boolean schemaReady = schema2Database(entity, field);
 		if (!schemaReady) {
@@ -95,17 +101,60 @@ public class Field2Schema {
 	
 	/**
 	 * @param field
+	 * @param force
+	 * @return
+	 */
+	public boolean drop(Field field, boolean force) {
+		EasyMeta easyMeta = EasyMeta.valueOf(field);
+		ID metaRecordId = easyMeta.getMetaId();
+		if (easyMeta.isBuiltin() || metaRecordId == null) {
+			throw new ModificationMetadataException("系统内建字段不允许删除");
+		}
+		
+		Entity entity = field.getOwnEntity();
+		if (force == false) {
+			long count = 0;
+			if ((count = checkRecordCount(entity)) > 50000) {
+				throw new ModificationMetadataException("本实体记录过大，删除字段可能导致表损坏 (" + entity.getName() + "=" + count + ")");
+			}
+		}
+		
+		String ddl = String.format("alter table `%s` drop column `%s`", entity.getPhysicalName(), field.getPhysicalName());
+		try {
+			Application.getSQLExecutor().execute(ddl);
+		} catch (Throwable ex) {
+			LOG.error("DDL Error : \n" + ddl, ex);
+			return false;
+		}
+		
+		Application.getBean(MetaFieldService.class).delete(metaRecordId);
+		Application.getMetadataFactory().refresh(false);
+		return true;
+	}
+	
+	/**
+	 * @param entity
+	 * @return
+	 */
+	protected long checkRecordCount(Entity entity) {
+		String sql = String.format("select count(%s) from %s", entity.getPrimaryField().getName(), entity.getName());
+		Object[] count = Application.createQueryNoFilter(sql).unique();
+		return ObjectUtils.toLong(count[0]);
+	}
+	
+	/**
+	 * @param field
 	 * @return
 	 */
 	private boolean schema2Database(Entity entity, Field field) {
 		Dialect dialect = Application.getPersistManagerFactory().getDialect();
 		Table table = new Table(entity, dialect);
-		StringBuilder ddlSql = new StringBuilder("alter table `" + entity.getPhysicalName() + "`\n  add column ");
-		table.generateFieldDDL(field, ddlSql);
+		StringBuilder ddl = new StringBuilder("alter table `" + entity.getPhysicalName() + "`\n  add column ");
+		table.generateFieldDDL(field, ddl);
 		try {
-			Application.getSQLExecutor().executeBatch(new String[] { ddlSql.toString() });
+			Application.getSQLExecutor().executeBatch(new String[] { ddl.toString() });
 		} catch (Throwable ex) {
-			LOG.error("DDL Error : \n" + ddlSql, ex);
+			LOG.error("DDL Error : \n" + ddl, ex);
 			return false;
 		}
 		return true;
@@ -119,12 +168,13 @@ public class Field2Schema {
 	 * @param nullable
 	 * @param creatable
 	 * @param updatable
-	 * @param refEntity
 	 * @param comments
+	 * @param refEntity
+	 * @param cascade
 	 * @return
 	 */
 	protected Field createField(Entity entity, String fieldName, String fieldLabel, DisplayType displayType,
-			boolean nullable, boolean creatable, boolean updatable, String refEntity, String comments) {
+			boolean nullable, boolean creatable, boolean updatable, String comments, String refEntity, CascadeModel cascade) {
 		Record record = EntityHelper.forNew(EntityHelper.MetaField, user);
 		record.setString("belongEntity", entity.getName());
 		record.setString("fieldName", fieldName);
@@ -143,6 +193,10 @@ public class Field2Schema {
 		}
 		if (StringUtils.isNotBlank(refEntity)) {
 			record.setString("refEntity", refEntity);
+			if (cascade != null) {
+				String cascadeAlias = cascade == CascadeModel.RemoveLinks ? "remove-links" : cascade.name().toLowerCase();
+				record.setString("cascade", cascadeAlias);
+			}
 		}
 		
 		if (displayType == DisplayType.REFERENCE && StringUtils.isBlank(refEntity)) {
@@ -181,7 +235,7 @@ public class Field2Schema {
 			throw new MetadataException(text, e);
 		}
 		if (StringUtils.isBlank(identifier)) {
-			throw new MetadataException("无效名称 : " + text);
+			throw new ModificationMetadataException("无效名称 : " + text);
 		}
 		
 		char start = identifier.charAt(0);
@@ -195,7 +249,7 @@ public class Field2Schema {
 		}
 		
 		if (!StringHelper.isIdentifier(identifier)) {
-			throw new MetadataException("无效名称 : " + text);
+			throw new ModificationMetadataException("无效名称 : " + text);
 		}
 		return identifier;
 	}

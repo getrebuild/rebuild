@@ -69,8 +69,11 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 	private void appendConfig4Db(Document config) {
 		final Element rootElement = config.getRootElement();
 		
+		ENTITY_EXTMETA.clear();
+		FIELD_EXTMETA.clear();
+		
 		Object[][] customEntity = Application.createQueryNoFilter(
-				"select typeCode,entityName,physicalName,entityLabel,entityId,comments,icon,nameField from MetaEntity order by createdOn")
+				"select typeCode,entityName,physicalName,entityLabel,entityId,comments,icon,nameField,masterEntity from MetaEntity order by createdOn")
 				.array();
 		for (Object[] custom : customEntity) {
 			String name = (String) custom[1];
@@ -80,7 +83,8 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 					.addAttribute("physical-name", (String) custom[2])
 					.addAttribute("description", (String) custom[3])
 					.addAttribute("parent", "false")
-					.addAttribute("name-field", (String) custom[7]);
+					.addAttribute("name-field", (String) custom[7])
+					.addAttribute("master", (String) custom[8]);
 			ENTITY_EXTMETA.put(name, new Object[] { custom[4], custom[5], custom[6] });
 		}
 		
@@ -93,7 +97,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 			String fieldName = (String) custom[1];
 			Element entityElement = (Element) rootElement.selectSingleNode("entity[@name='" + entityName + "']");
 			if (entityElement == null) {
-				LOG.warn("无效字段 [ " + fieldName + " ] 无有效依附实体");
+				LOG.warn("无效字段 [ " + entityName + "." + fieldName + " ] 无有效依附实体");
 				continue;
 			}
 			

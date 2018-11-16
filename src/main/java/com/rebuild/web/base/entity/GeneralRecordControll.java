@@ -221,9 +221,9 @@ public class GeneralRecordControll extends BaseControll {
 		recordMeta[2] = new Object[] { owning.getId().toLiteral(), owning.getFullName() };
 	
 		Object[] shareTo = Application.createQuery(
-				"select count(accessId) from ShareAccess where entity = ? and recordId = ?")
-				.setParameter(1, entity.getEntityCode())
-				.setParameter(2, id)
+				"select count(accessId) from ShareAccess where belongEntity = ? and recordId = ?")
+				.setParameter(1, entity.getName())
+				.setParameter(2, id.toLiteral())
 				.unique();
 		
 		JSON ret = JSONUtils.toJSONObject(

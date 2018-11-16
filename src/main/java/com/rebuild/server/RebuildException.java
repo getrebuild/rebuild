@@ -48,10 +48,10 @@ public class RebuildException extends NestableRuntimeException {
 	}
 	
 	public String toClientMsgString() {
-		return AppUtils.formatClientMsg(getErrCode(), this.getMessage());
+		return AppUtils.formatClientMsg(this.getBizCode(), this.getLocalizedMessage());
 	}
 	
-	protected int getErrCode() {
+	protected int getBizCode() {
 		return 500;
 	}
 }

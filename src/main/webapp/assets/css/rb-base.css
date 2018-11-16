@@ -18163,6 +18163,7 @@ form.dropzone .dz-preview .dz-error-message {
     font-size: 1.6rem;
     font-weight: 400;
     line-height: 37px;
+    line-height: 35px;
     color: #404040
 }
 .select2-container--default .select2-selection--multiple {

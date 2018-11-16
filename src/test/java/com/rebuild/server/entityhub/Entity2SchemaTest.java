@@ -21,7 +21,6 @@ package com.rebuild.server.entityhub;
 import org.junit.Test;
 
 import com.rebuild.server.bizz.UserService;
-import com.rebuild.server.entityhub.Entity2Schema;
 
 /**
  * 
@@ -32,6 +31,6 @@ public class Entity2SchemaTest {
 
 	@Test
 	public void testCreate() throws Exception {
-		new Entity2Schema(UserService.ADMIN_USER).create("测试一把", null);
+		new Entity2Schema(UserService.ADMIN_USER).create("测试一把", null, null);
 	}
 }

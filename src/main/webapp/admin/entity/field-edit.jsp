@@ -35,9 +35,10 @@
 					</div>
 					<div class="aside-nav collapse">
 						<ul class="nav">
-							<li><a href="../base"><i class="icon mdi mdi-inbox"></i>基本信息</a></li>
-							<li class="active"><a href="../fields"><i class="icon mdi mdi-inbox"></i>管理字段</a></li>
-							<li><a href="../form-design"><i class="icon mdi mdi-inbox"></i>配置布局</a></li>
+							<li><a href="../base">基本信息</a></li>
+							<li class="active"><a href="../fields">管理字段</a></li>
+							<li><a href="../form-design">设计布局</a></li>
+							<li><a href="../danger">高级配置</a></li>
 						</ul>
 					</div>
 				</div>
@@ -144,7 +145,7 @@
 						</div>
 						<div class="form-group row footer">
 							<div class="col-lg-5 col-sm-10 offset-sm-2">
-								<button class="btn btn-primary J_save" type="button">保存</button>
+								<button class="btn btn-primary J_save" type="button" data-loading-text="请稍后">保存</button>
 								<div class="alert alert-warning alert-icon hide">
 									<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
 									<div class="message">系统内建字段，不允许修改</div>

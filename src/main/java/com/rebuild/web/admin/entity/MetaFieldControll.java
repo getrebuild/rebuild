@@ -159,4 +159,23 @@ public class MetaFieldControll extends BaseControll  {
 		Application.getMetadataFactory().refresh(false);
 		writeSuccess(response);
 	}
+	
+	@RequestMapping("field-drop")
+	public void fieldDrop(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getRequestUser(request);
+		ID fieldId = getIdParameterNotNull(request, "id");
+		
+		Object[] fieldRecord = Application.createQueryNoFilter(
+				"select belongEntity,fieldName from MetaField where fieldId = ?")
+				.setParameter(1, fieldId)
+				.unique();
+		Field field = MetadataHelper.getEntity((String) fieldRecord[0]).getField((String) fieldRecord[1]);
+		
+		boolean drop = new Field2Schema(user).drop(field, false);
+		if (drop) {
+			writeSuccess(response);
+		} else {
+			writeFailure(response, "删除失败，请确认该字段是否可删除");
+		}
+	}
 }

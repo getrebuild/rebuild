@@ -34,7 +34,7 @@
 	<a class="card entity">
 		<div class="card-body">
 			<div class="float-left"><i class="icon zmdi"></i></div>
-			<div class="ml-7"><span class="text-truncate"></span><p class="text-muted m-0"></p></div>
+			<div class="ml-7"><span class="text-truncate"></span><p class="text-muted text-truncate m-0"></p></div>
 			<div class="clearfix"></div>
 		</div>
 	</a>
@@ -60,6 +60,7 @@ let render_entity = function(item){
 	tmp.find('span').text(item.entityLabel)
 	tmp.find('p').text(item.comments || '-')
 	if (item.builtin == true) $('<i class="badge badge-pill badge-secondary thin text-muted">内建</i>').appendTo(tmp.find('a.card'))
+	if (!!item.masterEntity) $('<i class="badge badge-pill badge-secondary thin text-muted">明细</i>').appendTo(tmp.find('a.card'))
 	return tmp
 }
 </script>

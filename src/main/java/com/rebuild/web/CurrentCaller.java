@@ -58,7 +58,7 @@ public class CurrentCaller {
 	public ID getCurrentCaller(boolean allowNull) throws InvalidRequestException {
 		ID user = CALLER.get();
 		if (user == null && allowNull == false) {
-			throw new InvalidRequestException(403, "无效请求用户");
+			throw new InvalidRequestException("无效请求用户", 403);
 		}
 		return user;
 	}

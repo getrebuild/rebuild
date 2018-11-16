@@ -51,10 +51,10 @@ public class SchemaGen {
 //		gen(EntityHelper.PickList);
 //		gen(EntityHelper.Role);
 //		gen(EntityHelper.RolePrivileges);
-		gen(EntityHelper.ViewFeatConfig);
+//		gen(EntityHelper.ViewFeatConfig);
 //		gen(EntityHelper.LayoutConfig);
 //		gen(EntityHelper.FilterConfig);
-//		gen(EntityHelper.ShareAccess);
+		gen(EntityHelper.ShareAccess);
 //		gen(EntityHelper.SystemConfig);
 //		gen(EntityHelper.Notification);
 		

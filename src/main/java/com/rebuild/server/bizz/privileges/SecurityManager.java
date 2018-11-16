@@ -22,6 +22,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.bizz.RoleService;
 import com.rebuild.server.bizz.UserService;
 import com.rebuild.server.helper.cache.RecordOwningCache;
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 
 import cn.devezhao.bizz.privileges.DepthEntry;
@@ -327,10 +328,10 @@ public class SecurityManager {
 		}
 		
 		Object[] rights = Application.createQueryNoFilter(
-				"select rights from ShareAccess where entity = ? and recordId = ? and shareTo = ?")
-				.setParameter(1, target.getEntityCode())
-				.setParameter(2, target)
-				.setParameter(3, user)
+				"select rights from ShareAccess where belongEntity = ? and recordId = ? and shareTo = ?")
+				.setParameter(1, MetadataHelper.getEntityName(target))
+				.setParameter(2, target.toLiteral())
+				.setParameter(3, user.toLiteral())
 				.unique();
 		int rightsVal = rights == null ? 0 : (int) rights[0];
 		if ((rightsVal & BizzPermission.READ.getMask()) != 0) {

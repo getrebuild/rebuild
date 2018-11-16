@@ -29,7 +29,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.RebuildException;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.ServerStatus;
 import com.rebuild.utils.AppUtils;
@@ -71,8 +70,8 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 			throws Exception {
 		super.afterCompletion(request, response, handler, exception);
 		
-		final ID CALLER = Application.getSessionStore().getCurrentCaller(true);
-		if (CALLER != null) {
+		ID caller = Application.getSessionStore().getCurrentCaller(true);
+		if (caller != null) {
 			Application.getSessionStore().clearCurrentCaller();
 		}
 		
@@ -80,23 +79,28 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 		
 		if (exception != null) {
 			Throwable rootCause = ThrowableUtils.getRootCause(exception);
-			String errorMsg = "系统繁忙！请稍后重试";
-			if (rootCause instanceof RebuildException) {
-				errorMsg = ((RebuildException) rootCause).toClientMsgString();
-			}
-			
 			StringBuffer sb = new StringBuffer()
 					.append("\n++ EXECUTE REQUEST ERROR(s) TRACE +++++++++++++++++++++++++++++++++++++++++++++")
-					.append("\nUser      : ").append(CALLER == null ? "-" : CALLER)
+					.append("\nUser      : ").append(caller == null ? "-" : caller)
 					.append("\nHandler   : ").append(request.getRequestURI() + " [ " + handler + " ]")
 					.append("\nIP        : ").append(ServletUtils.getRemoteAddr(request))
 					.append("\nReferer   : ").append(StringUtils.defaultIfEmpty(ServletUtils.getReferer(request), "-"))
 					.append("\nUserAgent : ").append(StringUtils.defaultIfEmpty(request.getHeader("user-agent"), "-"))
 					.append("\nCause     : ").append(rootCause.getClass().getName())
-					.append("\nMessage   : ").append(StringUtils.defaultIfBlank(rootCause.getMessage(), "-"));
+					.append("\nMessage   : ").append(StringUtils.defaultIfBlank(rootCause.getLocalizedMessage(), "-"));
 			LOG.error(sb, rootCause);
-			ServletUtils.writeJson(response, 
-					AppUtils.formatClientMsg(BaseControll.CODE_ERROR, errorMsg));
+			
+//			if (rootCause instanceof RebuildException) {
+//				String errorMsg = ((RebuildException) rootCause).toClientMsgString();
+//				ServletUtils.writeJson(response, errorMsg);
+//			} else {
+//				String errorMsg = "系统繁忙！请稍后重试";
+//				if (Application.devMode()) {
+//					errorMsg = rootCause.getLocalizedMessage();
+//				}
+//				ServletUtils.writeJson(response, 
+//						AppUtils.formatClientMsg(BaseControll.CODE_ERROR, errorMsg));
+//			}
 		}
 	}
 	
@@ -150,7 +154,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 			}
 			
 		} else {
-			if (!isIgnoreRes(requestUrl)) {
+			if (!inIgnoreRes(requestUrl)) {
 				LOG.warn("Unauthorized access [ " + requestUrl + " ] from [ " + ServletUtils.getReferer(request) + " ]");
 				if (ServletUtils.isAjaxRequest(request)) {
 					ServletUtils.writeJson(response, AppUtils.formatClientMsg(403, "未授权访问"));
@@ -163,7 +167,13 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 		return true;
 	}
 	
-	static boolean isIgnoreRes(String requestUrl) {
+	/**
+	 * 忽略权限验证
+	 * 
+	 * @param requestUrl
+	 * @return
+	 */
+	private static boolean inIgnoreRes(String requestUrl) {
 		if (requestUrl.contains("/user/") && !requestUrl.contains("/user/admin")) {
 			return true;
 		} if (requestUrl.contains("/gw/")) {

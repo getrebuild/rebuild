@@ -16,36 +16,20 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web;
+package com.rebuild.server.entityhub;
 
 import com.rebuild.server.RebuildException;
 
 /**
- * 无效请求。如参数错误等
+ * 修改元数据异常
  * 
- * @author zhaofang123@gmail.com
- * @since 05/19/2018
+ * @author devezhao
+ * @since 11/16/2018
  */
-public class InvalidRequestException extends RebuildException {
-	private static final long serialVersionUID = 1104144276994648297L;
-	
-	private int bizCode = 400;
+public class ModificationMetadataException extends RebuildException {
+	private static final long serialVersionUID = 1552569207578832059L;
 
-	public InvalidRequestException(String msg) {
-		super(msg);
-	}
-	
-	public InvalidRequestException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
-	
-	public InvalidRequestException(String msg, int bizCode) {
-		super(msg);
-		this.bizCode = bizCode;
-	}
-	
-	@Override
-	protected int getBizCode() {
-		return bizCode;
+	public ModificationMetadataException(String message) {
+		super(message);
 	}
 }

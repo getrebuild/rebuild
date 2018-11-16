@@ -26,9 +26,10 @@
 					</div>
 					<div class="aside-nav collapse">
 						<ul class="nav">
-							<li><a href="base"><i class="icon mdi mdi-inbox"></i>基本信息</a></li>
-							<li class="active"><a href="fields"><i class="icon mdi mdi-inbox"></i>管理字段</a></li>
-							<li><a href="form-design"><i class="icon mdi mdi-inbox"></i>配置布局</a></li>
+							<li><a href="base">基本信息</a></li>
+							<li class="active"><a href="fields">管理字段</a></li>
+							<li><a href="form-design">设计布局</a></li>
+							<li><a href="danger">高级配置</a></li>
 						</ul>
 					</div>
 				</div>

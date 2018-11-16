@@ -64,6 +64,7 @@
 		<field name="comments" type="string" max-length="200" />
 		<field name="icon" type="string" max-length="60" />
 		<field name="nameField" type="string" max-length="100" />
+		<field name="masterEntity" type="string" max-length="100" updatable="false" description="明细实体-所属主实体" />
 		<index type="unique" field-list="typeCode" />
 		<index type="unique" field-list="entityName" />
 		<index type="unique" field-list="physicalName" />
@@ -83,7 +84,7 @@
 		<field name="defaultValue" type="string" max-length="200" />
 		<field name="maxLength" type="small-int" default-value="600" />
 		<field name="refEntity" type="string" max-length="100" />
-		<field name="cascade" type="string" max-length="100" default-value="ignore" />
+		<field name="cascade" type="string" max-length="20" default-value="ignore" />
 		<field name="comments" type="string" max-length="200" />
 		<field name="extConfig" type="string" max-length="1000" description="更多扩展配置，JSON格式KV" />
 		<index type="unique" field-list="belongEntity,fieldName" />
@@ -126,11 +127,11 @@
 
 	<entity name="ShareAccess" type-code="020" description="记录共享">
 		<field name="accessId" type="primary" />
-		<field name="entity" type="int" nullable="false" updatable="false" description="哪个实体" />
+		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="哪个实体" />
 		<field name="recordId" type="string" max-length="20" nullable="false" updatable="false" description="记录ID" />
 		<field name="shareTo" type="string" max-length="20" nullable="false" updatable="false" description="共享给谁 (User/Dept/Role)" />
 		<field name="rights" type="int" default-value="0" nullable="false" description="共享权限(R=2,U=4,D=8,0=Auto)" />
-		<index field-list="entity,recordId,shareTo" />
+		<index field-list="belongEntity,recordId,shareTo" />
 	</entity>
 
 	<entity name="SystemConfig" type-code="021" parent="false" description="系统全局配置">

@@ -109,11 +109,19 @@
 		<aop:advisor pointcut-ref="servicesPoint" advice-ref="privilegesGuard" />
 	</aop:config>
 	
-	<bean class="com.rebuild.server.entityhub.PickListService">
+	<bean class="com.rebuild.server.service.CommonService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 	
-	<bean class="com.rebuild.server.service.CommonService">
+	<bean class="com.rebuild.server.entityhub.MetaEntityService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
+	
+	<bean class="com.rebuild.server.entityhub.MetaFieldService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
+	
+	<bean class="com.rebuild.server.entityhub.PickListService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 	
@@ -138,11 +146,9 @@
 	<bean class="com.rebuild.server.bizz.UserService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
-	
 	<bean class="com.rebuild.server.bizz.DepartmentService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
-	
 	<bean class="com.rebuild.server.bizz.RoleService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>

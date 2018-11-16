@@ -26,6 +26,7 @@ import com.rebuild.server.Application;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MetadataException;
 
 /**
@@ -102,6 +103,14 @@ public class MetadataHelper {
 	}
 	
 	/**
+	 * @param record
+	 * @return
+	 */
+	public static String getEntityName(ID record) {
+		return getMetadataFactory().getEntity(record.getEntityCode()).getName();
+	}
+	
+	/**
 	 * @param entityName
 	 * @param fieldName
 	 * @return
@@ -131,5 +140,21 @@ public class MetadataHelper {
 			}
 		}
 		return fields.toArray(new Field[fields.size()]);
+	}
+	
+	/**
+	 * 获取明细实体（如有）
+	 * 
+	 * @param master
+	 * @return
+	 */
+	public static Entity getSlaveEntity(Entity master) {
+		for (Entity entity : getEntities()) {
+			Entity hasMaster = entity.getMasterEntity();
+			if (hasMaster != null && master.equals(hasMaster)) {
+				return entity;
+			}
+		}
+		return null;
 	}
 }

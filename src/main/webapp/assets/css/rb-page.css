@@ -91,6 +91,9 @@
     border-left: 3px solid #bbb;
     padding-left: 17px
 }
+.form-group.row.text {
+	padding: 6px 0;
+}
 .adv-search {
     margin-right: 10px;
     margin-bottom: 5px;

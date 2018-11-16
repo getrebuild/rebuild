@@ -144,9 +144,9 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 	 * @return
 	 */
 	protected String appendShareFilter(Entity entity, String filtered) {
-		String shareFilter = "exists (select rights from ShareAccess where entity = %d and shareTo = '%s' and recordId = ^%s)";
+		String shareFilter = "exists (select rights from ShareAccess where belongEntity = '%s' and shareTo = '%s' and recordId = ^%s)";
 		shareFilter = String.format(shareFilter,
-				entity.getEntityCode(), user.getIdentity().toString(), entity.getPrimaryField().getName());
+				entity.getName(), user.getIdentity().toString(), entity.getPrimaryField().getName());
 		return "(" + filtered + " or " + shareFilter + ")";
 	}
 }

@@ -18,9 +18,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.entityhub;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.BaseService;
 
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 
@@ -28,8 +34,42 @@ import cn.devezhao.persist4j.PersistManagerFactory;
  * @since 08/03/2018
  */
 public class MetaEntityService extends BaseService {
+	
+	private static final Log LOG = LogFactory.getLog(MetaEntityService.class);
 
-	protected MetaEntityService(PersistManagerFactory persistManagerFactory) {
-		super(persistManagerFactory);
+	protected MetaEntityService(PersistManagerFactory aPMFactory) {
+		super(aPMFactory);
+	}
+	
+	@Override
+	public int delete(ID recordId) {
+		Object[] entityRecord = aPMFactory.createQuery(
+				"select entityName from MetaEntity where entityId = ?")
+				.setParameter(1, recordId)
+				.unique();
+		Entity entity = MetadataHelper.getEntity((String) entityRecord[0]);
+		
+		// 删除此实体的相关配置记录
+		String whoUsed[] = new String[] {
+				"MetaField", "PickList", "LayoutConfig", "FilterConfig", "ViewFeatConfig", "ShareAccess"
+		};
+		int del = 0;
+		for (String who : whoUsed) {
+			Entity whoEntity = MetadataHelper.getEntity(who);
+			if (!whoEntity.containsField("belongEntity")) {
+				continue;
+			}
+			
+			String sql = String.format("select %s from %s where belongEntity = '%s'", 
+					whoEntity.getPrimaryField().getName(), whoEntity.getName(), entity.getName());
+			Object[][] usedArray = aPMFactory.createQuery(sql).array();
+			for (Object[] used : usedArray) {
+				del += super.delete((ID) used[0]);
+			}
+			LOG.warn("deleted configuration [ " + who + " ] : " + usedArray.length);
+		}
+		
+		del += super.delete(recordId);
+		return del;
 	}
 }
