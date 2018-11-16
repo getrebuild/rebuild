@@ -56,6 +56,11 @@ public class MetadataGet extends BaseControll {
 	public void entities(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		List<Map<String, String>> list = new ArrayList<>();
 		for (Entity e : MetadataSorter.sortEntities()) {
+			// 不返回明细实体
+			if (e.getMasterEntity() != null) {
+				continue;
+			}
+			
 			Map<String, String> map = new HashMap<>();
 			EasyMeta easy = new EasyMeta(e);
 			map.put("name", e.getName());
