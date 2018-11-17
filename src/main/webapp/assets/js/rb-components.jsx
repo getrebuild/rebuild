@@ -141,7 +141,7 @@ class RbNotice extends React.Component {
         let that = this
         this.setState({ animatedClass: 'fadeOut' }, function(){
             setTimeout(function(){
-                $(that.refs['rbnotice']).parent().remove();
+                $(that.refs['rbnotice']).parent().remove()
             }, 1000)
         })
     }

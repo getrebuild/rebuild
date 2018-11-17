@@ -21,6 +21,3 @@ rb.storageUrl = '<%=SystemConfigurer.getStorageUrl()%>'
 rb.isAdminUser = <%=AppUtils.isAdminUser(request)%>
 rb.isAdminVerified = <%=AdminEntryControll.isAdminVerified(request)%>
 </script>
-<!--[if IE]>
-<script src="https://as.alipayobjects.com/g/component/??es6-shim/0.35.1/es6-sham.min.js,es6-shim/0.35.1/es6-shim.min.js"></script>
-<![endif]-->

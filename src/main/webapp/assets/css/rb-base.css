@@ -15463,6 +15463,7 @@ pre code {
 .custom-control {
     min-height: 1.7rem;
     min-width: 1.7rem;
+    cursor: pointer;
     margin-top: .1875rem;
     margin-bottom: 1.1105rem
 }

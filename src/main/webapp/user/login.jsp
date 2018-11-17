@@ -49,28 +49,25 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script type="text/javascript">
 $(document).ready(function() {
-	if (top != self) {
-		parent.location.reload()
-		return
-	}
+	if (top != self) { parent.location.reload(); return }
 	
 	$('#user,#passwd').keydown(function(e){
 		if (e.keyCode == 13) $('.J_login-btn').trigger('click')
-	});
-	$('.J_login-btn').click(function() {
+	})
+	let _btn = $('.J_login-btn').click(function() {
 		let user = $val('#user'), passwd = $val('#passwd')
 		if (!user || !passwd) return
 		
-		let btn = $(this).button('loading');
+		_btn.button('loading')
 		$.post(rb.baseUrl + '/user/user-login?user=' + $encode(user) + '&passwd=' + $encode(passwd) + '&autoLogin=' + $val('#autoLogin'), function(res) {
 			if (res.error_code == 0) location.replace($decode($urlp('nexturl') || '../dashboard/home'))
 			else{
 				rb.notice(res.error_msg || '登录失败，请稍后重试')
-				btn.button('reset')
+				_btn.button('reset')
 			}
-		});
-	});
-});
+		})
+	})
+})
 </script>
 </body>
 </html>
