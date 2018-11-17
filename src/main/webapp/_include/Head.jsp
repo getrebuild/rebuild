@@ -15,9 +15,12 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-base.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-page.css">
 <script>
-var rb = rb || {}
+window.rb = window.rb || {}
+rb.env = '<%=AppUtils.devMode() ? "dev" : "production"%>'
 rb.baseUrl = '${baseUrl}'
 rb.storageUrl = '<%=SystemConfiguration.getStorageUrl()%>'
-rb.isAdminUser = <%=AppUtils.isAdminUser(request)%>
-rb.isAdminVerified = <%=AdminEntryControll.isAdminVerified(request)%>
+<%if (AppUtils.isAdminUser(request)){%>
+rb.isAdminUser = true
+rb.isAdminVerified = <%=AppUtils.isAdminVerified(request)%>
+<%}%>
 </script>

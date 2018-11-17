@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.web.admin.AdminEntryControll;
 
 import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
@@ -33,11 +34,19 @@ import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * 封裝一些有用的工具方法
  * 
  * @author zhaofang123@gmail.com
  * @since 05/19/2018
  */
 public class AppUtils {
+	
+	/**
+	 * @return
+	 */
+	public static boolean devMode() {
+		return Application.devMode();
+	}
 
 	/**
 	 * 获取当前请求用户
@@ -60,6 +69,14 @@ public class AppUtils {
 			return false;
 		}
 		return Application.getUserStore().getUser(uid).isAdmin();
+	}
+	
+	/**
+	 * @param request
+	 * @return
+	 */
+	public static boolean isAdminVerified(HttpServletRequest request) {
+		return AdminEntryControll.isAdminVerified(request);
 	}
 	
 	/**
