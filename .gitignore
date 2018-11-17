@@ -32,4 +32,4 @@ hs_err_pid*
 /.babel/node_modules/
 /.babel/package-lock.json
 /.babel/js/
-/.babel/lib/
+/.babel/build/

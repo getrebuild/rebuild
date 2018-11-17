@@ -1,17 +1,21 @@
 {
     "name": "rebuild-babel",
     "version": "1.0.0",
-    "description": "rebuild jsx transform with babel",
-    "main": "index.js",
+    "description": "rebuild js/jsx compiler",
     "scripts": {
-        "build": "babel js -d lib",
-        "build2": "babel ../src/main/webapp/assets/js -d lib"
+        "build": "babel js/es6 -d js/es5"
     },
     "author": "rebuild",
     "license": "GPL-3.0",
     "devDependencies": {
-        "babel-preset-es2015": "^6.24.1",
-        "babel-preset-react": "^6.24.1",
-        "babel-preset-stage-2": "^6.24.1"
+        "@babel/cli": "^7.1.5",
+        "@babel/core": "^7.1.6",
+        "@babel/plugin-proposal-class-properties": "^7.1.0",
+        "@babel/preset-env": "^7.1.6",
+        "@babel/preset-react": "^7.0.0",
+        "gulp": "^3.9.1",
+        "gulp-babel": "^8.0.0",
+        "gulp-rename": "^1.4.0",
+        "gulp-uglify": "^3.0.1"
     }
 }
