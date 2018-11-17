@@ -2,11 +2,15 @@
     "name": "rebuild-babel",
     "version": "1.0.0",
     "description": "rebuild js/jsx compiler",
+    "author": "rebuild",
+    "license": "GPL-3.0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/getrebuild/rebuild.git"
+    },
     "scripts": {
         "build": "babel js/es6 -d js/es5"
     },
-    "author": "rebuild",
-    "license": "GPL-3.0",
     "devDependencies": {
         "@babel/cli": "^7.1.5",
         "@babel/core": "^7.1.6",
