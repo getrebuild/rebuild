@@ -42,7 +42,7 @@
 
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/sortable.js"></script>
-<script type="text/javascript">
+<script type="text/babel">
 let tmpid = new Date().getTime()
 let default_item
 $(document).ready(function(){

@@ -74,7 +74,7 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/javascript">
+<script type="text/babel">
 $(document).ready(function(){
 	const config = JSON.parse('${FormConfig}' || '[]');
 	$.get('../list-field?entity=${entityName}', function(res){

@@ -5,8 +5,10 @@
 <title>Rebuild</title>
 </head>
 <body>
-<script type="text/javascript">
-location.href = 'user/login';
+<script>
+(function(){
+	location.href = 'user/login'
+})()
 </script>
 </body>
 </html>

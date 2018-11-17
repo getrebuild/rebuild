@@ -31,7 +31,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.bizz.UserService;
-import com.rebuild.server.helper.SystemConfigurer;
+import com.rebuild.server.helper.SystemConfiguration;
 import com.rebuild.server.helper.VCode;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.web.BaseControll;
@@ -61,7 +61,7 @@ public class UserProfileControll extends BaseControll {
 	
 	@RequestMapping("/settings/send-email-vcode")
 	public void sendEmailVcode(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		if (SystemConfigurer.getEmailAccount() == null) {
+		if (SystemConfiguration.getEmailAccount() == null) {
 			writeFailure(response, "邮箱账户未配置，无法发送验证码");
 			return;
 		}

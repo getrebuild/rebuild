@@ -66,7 +66,7 @@ a#entityIcon:hover{opacity:0.8}
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/javascript">
+<script type="text/babel">
 $(document).ready(function(){
 	const metaId = '${entityMetaId}'
 	if (!!!metaId){

@@ -17,7 +17,7 @@
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/zmdi-icons.js"></script>
-<script type="text/javascript">
+<script type="text/babel">
 $(document).ready(function(){
 	let call = parent.clickIcon || function(icon){ console.log('请复写 clickIcon 方法') }
 	$(ZMDI_ICONS).each(function(){

@@ -56,7 +56,7 @@
 </div>
 </script>
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/javascript">
+<script type="text/babel">
 $(document).ready(function(){
 	let btns = $('.J_show-type .btn').click(function(){
 		btns.removeClass('active')

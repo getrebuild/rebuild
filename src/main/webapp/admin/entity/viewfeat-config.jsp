@@ -29,7 +29,7 @@
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/sortable.js"></script>
-<script type="text/javascript">
+<script type="text/babel">
 $(document).ready(function(){
 	const entity = $urlp('entity'), type = $urlp('type')
 	const _url = rb.baseUrl + '/admin/entity/' + entity + '/viewfeat-config?type=' + type

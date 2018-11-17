@@ -74,7 +74,7 @@
 <script src="${baseUrl}/assets/js/rb-list.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/bizuser/dept-tree.js" type="text/javascript"></script>
+<script src="${baseUrl}/assets/js/bizuser/dept-tree.js"></script>
 <script type="text/babel">
 let formPostType = 1
 RbForm.postAfter = function(){

@@ -28,7 +28,7 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/javascript">
+<script type="text/babel">
 $(document).ready(function() {
 });
 </script>

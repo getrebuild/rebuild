@@ -45,7 +45,7 @@
 	</form>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/javascript">
+<script type="text/babel">
 $(document).ready(function(){
 	let sbtn = $('.btn-primary').click(function(){
 		let entityLabel = $val('#entityLabel'),

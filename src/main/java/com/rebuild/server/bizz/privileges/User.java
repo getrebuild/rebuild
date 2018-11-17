@@ -23,7 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.bizz.RoleService;
 import com.rebuild.server.bizz.UserService;
-import com.rebuild.server.helper.SystemConfigurer;
+import com.rebuild.server.helper.SystemConfiguration;
 
 import cn.devezhao.persist4j.engine.ID;
 
@@ -70,7 +70,7 @@ public class User extends cn.devezhao.bizz.security.member.User {
 		if (avatarUrl == null) {
 			return ServerListener.getContextPath() + "/assets/img/avatar.png";
 		} else {
-			return SystemConfigurer.getStorageUrl() + getAvatarUrl() + "?imageView2/2/w/100/interlace/1/q/100";
+			return SystemConfiguration.getStorageUrl() + getAvatarUrl() + "?imageView2/2/w/100/interlace/1/q/100";
 		}
 	}
 	

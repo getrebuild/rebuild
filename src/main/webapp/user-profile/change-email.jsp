@@ -32,7 +32,7 @@
 	</form>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/javascript">
+<script type="text/babel">
 $(document).ready(function(){
 	let btn = $('.J_vcode').click(function(){
 		let email = $val('#newEmail')

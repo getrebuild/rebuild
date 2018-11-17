@@ -59,7 +59,7 @@ public class QiniuCloud {
 	 * 初始化
 	 */
 	synchronized public void init() {
-		String[] account = SystemConfigurer.getStorageAccount();
+		String[] account = SystemConfiguration.getStorageAccount();
 		if (account != null) {
 			this.auth = Auth.create(account[0], account[1]);
 			this.bucketName = account[2];
@@ -99,7 +99,7 @@ public class QiniuCloud {
 	 * @throws Exception
 	 */
 	public String upload(URL url) throws Exception {
-		File tmp = SystemConfigurer.getFileOfTemp("temp-" + System.currentTimeMillis());
+		File tmp = SystemConfiguration.getFileOfTemp("temp-" + System.currentTimeMillis());
 		boolean success = download(url, tmp);
 		if (!success) {
 			throw new RebuildException("无法从 URL 读取文件 : " + url);

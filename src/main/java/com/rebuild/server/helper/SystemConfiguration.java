@@ -42,7 +42,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 10/14/2018
  */
-public class SystemConfigurer {
+public class SystemConfiguration {
 	
 	/**
 	 * 系统配置项名称
@@ -61,7 +61,7 @@ public class SystemConfigurer {
 		CacheHost, CachePort, CacheUser, CachePassword,
 	}
 	
-	private static final Log LOG = LogFactory.getLog(SystemConfigurer.class);
+	private static final Log LOG = LogFactory.getLog(SystemConfiguration.class);
 	
 	/**
 	 * 临时目录/文件

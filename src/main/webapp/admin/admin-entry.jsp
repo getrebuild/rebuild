@@ -36,7 +36,7 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/javascript">
+<script type="text/babel">
 $(document).ready(function(){
 	let nexturl = decodeURIComponent($urlp('nexturl') || '../admin/systems')
 	$('.J_verify-btn').click(function(){

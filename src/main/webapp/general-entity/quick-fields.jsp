@@ -41,7 +41,7 @@
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/sortable.js"></script>
-<script type="text/javascript">
+<script type="text/babel">
 $(document).ready(function(){
 	const entity = $urlp('entity')
 	let cfgid = null

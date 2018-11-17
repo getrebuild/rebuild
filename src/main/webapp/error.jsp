@@ -37,7 +37,7 @@ errorCode = errorCode == null ? 400 : errorCode;
 	</div>
 </div>
 <script src="${baseUrl}/assets/lib/jquery.min.js"></script>
-<script type="text/javascript">
+<script>
 (function(){
 	if (self != top) $('.J_reload').removeClass('hide')
 	else $('.J_home').removeClass('hide')

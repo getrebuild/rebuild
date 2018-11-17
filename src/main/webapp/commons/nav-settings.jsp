@@ -68,7 +68,7 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/javascript">
+<script type="text/babel">
 const UNICON_NAME = 'texture'
 $(document).ready(function(){
 	$('.J_config').sortable({

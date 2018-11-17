@@ -33,7 +33,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
-import com.rebuild.server.helper.SystemConfigurer;
+import com.rebuild.server.helper.SystemConfiguration;
 
 import cn.devezhao.commons.ThrowableUtils;
 
@@ -111,7 +111,7 @@ public class ServerStatus {
 	protected static String checkCreateFile() {
 		FileWriter fw = null;
 		try {
-			File test = SystemConfigurer.getFileOfTemp("test");
+			File test = SystemConfiguration.getFileOfTemp("test");
 			fw = new FileWriter(test);
 			IOUtils.write("TestCreateFile", fw);
 			if (!test.exists()) {

@@ -35,7 +35,7 @@
 	</form>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/javascript">
+<script type="text/babel">
 $(document).ready(function(){
 	$('.J_save').click(function(){
 		let op = $val('#oldPasswd'),

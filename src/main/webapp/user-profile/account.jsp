@@ -110,7 +110,7 @@ User theUser = Application.getUserStore().getUser(AppUtils.getRequestUser(reques
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/javascript">
+<script type="text/babel">
 $(document).ready(function(){
 	if (location.hash == '#secure') $('.nav-tabs a:eq(1)').trigger('click')
 	

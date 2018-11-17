@@ -35,7 +35,7 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/javascript">
+<script type="text/babel">
 </script>
 </body>
 </html>

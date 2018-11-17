@@ -26,7 +26,7 @@
 	</form>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/javascript">
+<script type="text/babel">
 $(document).ready(function(){
 	let user = $urlp('user')
 	

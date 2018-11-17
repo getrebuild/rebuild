@@ -88,7 +88,7 @@ h5{background-color:#eee;margin:0;padding:10px;}
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/javascript">
+<script type="text/babel">
 </script>
 </body>
 </html>

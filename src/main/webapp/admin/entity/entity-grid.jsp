@@ -41,7 +41,7 @@
 </div>
 </script>
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/javascript">
+<script type="text/babel">
 $(document).ready(function(){
 	$.get(rb.baseUrl + '/admin/entity/entity-list', function(res){
 		$(res.data).each(function(){ if (this.builtin == true) render_entity(this) })

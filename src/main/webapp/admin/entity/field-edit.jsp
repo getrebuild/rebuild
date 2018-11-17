@@ -167,8 +167,8 @@
 </script>
 
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/javascript" src="${baseUrl}/assets/lib/widget/bootstrap-slider.min.js"></script>
-<script type="text/javascript">
+<script src="${baseUrl}/assets/lib/widget/bootstrap-slider.min.js"></script>
+<script type="text/babel">
 $(document).ready(function(){
 	const metaId = '${fieldMetaId}';
 	let dt = '${fieldType}';

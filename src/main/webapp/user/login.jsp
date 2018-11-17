@@ -47,7 +47,7 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/javascript">
+<script type="text/babel">
 $(document).ready(function() {
 	if (top != self) { parent.location.reload(); return }
 	
