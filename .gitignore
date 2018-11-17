@@ -29,7 +29,7 @@ hs_err_pid*
 /.project
 /bin/
 .DS_Store
-/.babel/node_modules/
-/.babel/package-lock.json
-/.babel/js/
-/.babel/build/
+/.production/node_modules/
+/.production/package-lock.json
+/.production/js/
+/.production/build/
