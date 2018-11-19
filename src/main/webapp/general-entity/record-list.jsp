@@ -79,7 +79,7 @@
 <script src="${baseUrl}/assets/js/assign-share.jsx" type="text/babel"></script>
 <script type="text/babel">
 $(document).ready(function(){
-	RbListPage.init(${DataListConfig}, [ '${entityName}', '${entityLabel}', '${entityIcon}' ], ${entityPrivileges})
+	RbListPage.init($.parseJSON('${DataListConfig}'), [ '${entityName}', '${entityLabel}', '${entityIcon}' ], $.parseJSON('${entityPrivileges}'))
 	rb.AdvFilter.init('.adv-search', '${entityName}')
 });
 </script>

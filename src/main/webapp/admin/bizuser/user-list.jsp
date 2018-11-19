@@ -81,9 +81,8 @@ RbForm.postAfter = function(){
 	if (formPostType == 1) RbListPage._RbList.reload()
 	else loadDeptTree()
 }
-
 $(document).ready(function(){
-	RbListPage.init(${DataListConfig}, ['${entityLabel}', 'User', '${entityIcon}'], ${entityPrivileges})
+	RbListPage.init($.parseJSON('${DataListConfig}'), ['${entityLabel}', 'User', '${entityIcon}'], $.parseJSON('${entityPrivileges}'))
 	loadDeptTree()
 
 	$('.J_new').click(function(){ formPostType = 1 })

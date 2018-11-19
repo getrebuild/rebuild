@@ -82,10 +82,10 @@
 <script src="${baseUrl}/assets/js/assign-share.jsx" type="text/babel"></script>
 <script type="text/babel">
 $(document).ready(function(){
-	RbViewPage.init('${id}', [ '${entityName}', '${entityLabel}', '${entityIcon}' ], ${entityPrivileges})
+	RbViewPage.init('${id}', [ '${entityName}', '${entityLabel}', '${entityIcon}' ], $.parseJSON('${entityPrivileges}'))
 	RbViewPage.initRecordMeta()
-	RbViewPage.initVTabs(${ViewTabs})
-	RbViewPage.initVAdds(${ViewAdds})
+	RbViewPage.initVTabs($.parseJSON('${ViewTabs}'))
+	RbViewPage.initVAdds($.parseJSON('${ViewAdds}'))
 });
 </script>
 </body>

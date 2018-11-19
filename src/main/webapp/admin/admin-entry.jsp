@@ -38,7 +38,7 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script type="text/babel">
 $(document).ready(function(){
-	let nexturl = decodeURIComponent($urlp('nexturl') || '../admin/systems')
+	let nexturl = $decode($urlp('nexturl') || '../admin/systems')
 	$('.J_verify-btn').click(function(){
 		let passwd = $val('#admin-passwd')
 		if (!!!passwd) return false

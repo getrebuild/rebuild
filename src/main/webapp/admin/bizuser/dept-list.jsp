@@ -73,9 +73,8 @@
 RbForm.postAfter = function(){
 	location.reload()
 }
-
 $(document).ready(function(){
-	RbListPage.init(${DataListConfig}, ['${entityLabel}', 'Department', '${entityIcon}'], ${entityPrivileges})
+	RbListPage.init($.parseJSON('${DataListConfig}'), ['${entityLabel}', 'Department', '${entityIcon}'], $.parseJSON('${entityPrivileges}'))
 	loadDeptTree()
 })
 clickDept = function(depts) {
