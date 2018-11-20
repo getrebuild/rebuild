@@ -17,16 +17,15 @@
         "@babel/plugin-proposal-class-properties": "^7.1.0",
         "@babel/preset-env": "^7.1.6",
         "@babel/preset-react": "^7.0.0",
-        "graceful-fs": "^4.1.15",
         "gulp": "^3.9.1",
         "gulp-babel": "^8.0.0",
         "gulp-clean-css": "^3.10.0",
         "gulp-cleanhtml": "^1.0.3",
         "gulp-debug": "^4.0.0",
-        "gulp-read": "^1.0.1",
         "gulp-rename": "^1.4.0",
         "gulp-replace": "^1.0.0",
-        "gulp-uglify": "^3.0.1",
-        "vinyl": "^2.2.0"
+        "gulp-rev": "^9.0.0",
+        "gulp-rev-replace": "^0.4.4",
+        "gulp-uglify": "^3.0.1"
     }
 }

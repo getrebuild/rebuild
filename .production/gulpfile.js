@@ -1,64 +1,61 @@
 const gulp = require('gulp')
 const babel = require('gulp-babel')
 const uglify = require('gulp-uglify')
-const cssclean = require('gulp-clean-css')
+const cleanCss = require('gulp-clean-css')
 const rename = require('gulp-rename')
 const replace = require('gulp-replace')
 const debug = require('gulp-debug')
-const fs = require('graceful-fs')
 const cleanhtml = require('gulp-cleanhtml')
+const babelCore = require('@babel/core')
+const rev = require('gulp-rev')
+const revReplace = require('gulp-rev-replace')
 
-// compress js (and ES6 > ES5)
-gulp.task('xjs', () => {
+// ES6 > ES5 & compress js 
+gulp.task('cjs', () => {
     return gulp.src('../src/main/webapp/assets/js/**/*.js?(x)')
-    	.pipe(gulp.dest('./js/es6'))
+    	.pipe(gulp.dest('./_temp/es6'))
     	.pipe(babel())
-    	.pipe(gulp.dest('./js/es5'))
-    	.pipe(uglify({ mangle: true }))
-    	.pipe(debug({ title: 'compress file : ' }))
+    	.pipe(gulp.dest('./_temp/es5'))
+    	.pipe(uglify())
+    	.pipe(debug({ title: 'compress js file : ' }))
     	//.pipe(rename({ extname: '.min.js' }))
-    	.pipe(gulp.dest('./build/js'))
+    	.pipe(gulp.dest('./build/assets/js'))
 })
 
 // compress css
-gulp.task('xcss', () => {
+gulp.task('ccss', () => {
     return gulp.src('../src/main/webapp/assets/css/**/*.css')
-    	.pipe(cssclean())
-    	.pipe(debug({ title: 'compress file : ' }))
+    	.pipe(cleanCss())
+    	.pipe(debug({ title: 'compress css file : ' }))
     	//.pipe(rename({ extname: '.min.css' }))
-    	.pipe(gulp.dest('./build/css'))
+    	.pipe(gulp.dest('./build/assets/css'))
 })
 
-// replace compressed js/css in jsp
-// compress and replace inline js
-gulp.task('xjsp', () => {
+// replace compressed js/css file in jsp
+// compress and replace inline js (babel)
+gulp.task('cjsp', () => {
 	return gulp.src('../src/main/webapp/**/*.jsp')
-		.pipe(debug({ title: 'compress file : ' }))
+		.pipe(debug({ title: 'compress jsp file : ' }))
 		.pipe(replace(/<script type="text\/babel">([\s]+[\d\D]*)<\/script>/igm, (m, p, o, s) => {
-			// console.log('ES6 >>>>>>>>>> ' + p)
-
-			let tmp = '__temp.js'
-			fs.unlinkSync(tmp)
-
-			fs.writeFileSync(tmp, p)
-			gulp.src(tmp)
-				.pipe(babel())
-				.pipe(uglify({ mangle: true }))
-				.pipe(gulp.dest('./build'))
-
-			let es5 = fs.readFileSync('./build/' + tmp)
-			// console.log('ES5 >>>>>>>>>> ' + es5)
-			// fs.unlinkSync(tmp)
-
+			p = p.trim()
+			if (p.length == 0) return '<script><!--NoCode--></script>'
+			let es5 = ''
+			try {
+				let r = babelCore.transformSync(p, { "presets": ["@babel/env", "@babel/react"], minified: true })
+				es5 = r.code
+			} catch (err){
+				console.log('Babel transform : ' + err)
+			}
 			return '<script>' + es5 + '</script>'
 		}))
 		.pipe(replace(/ type="text\/babel"/ig, ''))  // remove type="text/babel"
-		.pipe(replace(/\.jsx"><\/script>/ig, '.js"></script>'))  // replace suffix .jsx > .js
+		.pipe(replace(/\.jsx/g, '.js'))  // replace suffix .jsx > .js
 		.pipe(replace('<script src="${baseUrl}/assets/lib/react/babel.js"></script>', ''))  // remove babel lib
 		// .pipe(cleanhtml())
-		.pipe(gulp.dest('./build/jsp'))
+		// .pipe(rev())
+		// .pipe(revReplace())
+		.pipe(gulp.dest('./build'))
 })
 
 
-gulp.task('default', ['xjs'])
-gulp.task('all', ['xjs', 'xcss', 'xjsp'])
+gulp.task('default', [ 'cjs', 'ccss', 'cjsp' ])
