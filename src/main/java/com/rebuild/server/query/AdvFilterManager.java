@@ -148,7 +148,7 @@ public class AdvFilterManager {
 		if (field == null) {
 			return false;
 		}
-		if (MetadataSorter.isBizzFilter(field)) {
+		if (MetadataSorter.isFilterField(field)) {
 			return false;
 		}
 		

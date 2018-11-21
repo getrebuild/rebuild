@@ -43,7 +43,7 @@
 <script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
 <script type="text/babel">
 $(document).ready(function(){
-	RbViewPage.init('${id}', [ '${entityLabel}', 'Role', '${entityIcon}' ])
+	RbViewPage.init('${id}', ['Role','${entityLabel}','${entityIcon}'])
 	if (rb.isAdminUser == false || rb.isAdminVerified == false) $('.view-action').remove()
 });
 </script>

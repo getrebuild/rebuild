@@ -46,22 +46,10 @@ import cn.devezhao.persist4j.metadata.BaseMeta;
 public class EasyMeta implements BaseMeta {
 	private static final long serialVersionUID = -6463919098111506968L;
 	
-	public static final Set<String> BUILTIN_ENTITY = new HashSet<>();
-	public static final Set<String> BUILTIN_FIELD = new HashSet<>();
-	private static final Map<String, String[]> SYSENTITY_INFO = new HashMap<>();
+	private static final Set<String> BUILTIN_ENTITY = new HashSet<>();
+	private static final Set<String> BUILTIN_FIELD = new HashSet<>();
+	private static final Map<String, String[]> SYSENTITY_EXTMETA = new HashMap<>();
 	static {
-		BUILTIN_ENTITY.add("RolePrivileges");
-		BUILTIN_ENTITY.add("RoleMember");
-		BUILTIN_ENTITY.add("MetaEntity");
-		BUILTIN_ENTITY.add("MetaField");
-		BUILTIN_ENTITY.add("PickList");
-		BUILTIN_ENTITY.add("LayoutConfig");
-		BUILTIN_ENTITY.add("FilterConfig");
-		BUILTIN_ENTITY.add("ViewFeatConfig");
-		BUILTIN_ENTITY.add("ShareAccess");
-		BUILTIN_ENTITY.add("SystemConfig");
-		BUILTIN_ENTITY.add("Notification");
-		
 		BUILTIN_FIELD.add(EntityHelper.createdOn);
 		BUILTIN_FIELD.add(EntityHelper.createdBy);
 		BUILTIN_FIELD.add(EntityHelper.modifiedOn);
@@ -69,9 +57,9 @@ public class EasyMeta implements BaseMeta {
 		BUILTIN_FIELD.add(EntityHelper.owningUser);
 		BUILTIN_FIELD.add(EntityHelper.owningDept);
 		
-		SYSENTITY_INFO.put("User", new String[] { "account", "系统内建" });
-		SYSENTITY_INFO.put("Department", new String[] { "accounts", "系统内建" });
-		SYSENTITY_INFO.put("Role", new String[] { "lock", "系统内建" });
+		SYSENTITY_EXTMETA.put("User", new String[] { "account", "系统内建" });
+		SYSENTITY_EXTMETA.put("Department", new String[] { "accounts", "系统内建" });
+		SYSENTITY_EXTMETA.put("Role", new String[] { "lock", "系统内建" });
 	}
 
 	private BaseMeta baseMeta;
@@ -208,7 +196,7 @@ public class EasyMeta implements BaseMeta {
 	 * @return
 	 */
 	public String getComments() {
-		String def[] = SYSENTITY_INFO.get(getName());
+		String def[] = SYSENTITY_EXTMETA.get(getName());
 		String defComments = def == null ? null : def[1];
 		if (getMetaId() == null && defComments == null) {
 			defComments = "系统内建";
@@ -230,7 +218,7 @@ public class EasyMeta implements BaseMeta {
 			return null;
 		}
 		
-		String def[] = SYSENTITY_INFO.get(getName());
+		String def[] = SYSENTITY_EXTMETA.get(getName());
 		String defIcon = def == null ? null : def[0];
 		
 		String customIcon = null;

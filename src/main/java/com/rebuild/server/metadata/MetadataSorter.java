@@ -65,7 +65,10 @@ public class MetadataSorter {
 		List<Entity> list = new ArrayList<>();
 		for (Entity entity : entities) {
 			int ec = entity.getEntityCode();
-			if (EasyMeta.valueOf(ec).isBuiltin()  || (!containsBizz && isBizzFilter(ec))) {
+			if (EasyMeta.valueOf(ec).isBuiltin()) {
+				if (containsBizz && isBizzEntity(ec)) {
+					list.add(entity);
+				}
 			} else {
 				list.add(entity);
 			}
@@ -149,7 +152,7 @@ public class MetadataSorter {
 	 * @param field
 	 * @return
 	 */
-	public static boolean isBizzFilter(Field field) {
+	public static boolean isFilterField(Field field) {
 		int ec = field.getOwnEntity().getEntityCode();
 		String fn = field.getName();
 		if (ec == EntityHelper.User) {
@@ -164,7 +167,7 @@ public class MetadataSorter {
 	 * @param entityCode
 	 * @return
 	 */
-	public static boolean isBizzFilter(int entityCode) {
+	public static boolean isBizzEntity(int entityCode) {
 		return entityCode == EntityHelper.User || entityCode == EntityHelper.Department || entityCode == EntityHelper.Role;
 	}
 }

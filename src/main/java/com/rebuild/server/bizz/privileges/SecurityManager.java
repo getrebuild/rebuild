@@ -223,7 +223,7 @@ public class SecurityManager {
 			return true;
 		}
 		
-		if (action == BizzPermission.READ && MetadataSorter.isBizzFilter(entity)) {
+		if (action == BizzPermission.READ && MetadataSorter.isBizzEntity(entity)) {
 			return true;
 		}
 		
@@ -254,7 +254,7 @@ public class SecurityManager {
 		
 		int entity = target.getEntityCode();
 		
-		if (action == BizzPermission.READ && MetadataSorter.isBizzFilter(entity)) {
+		if (action == BizzPermission.READ && MetadataSorter.isBizzEntity(entity)) {
 			return true;
 		}
 		

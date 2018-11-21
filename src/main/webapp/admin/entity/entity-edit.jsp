@@ -44,8 +44,8 @@ a#entityIcon:hover{opacity:0.8}
 			<div class="page-head-title">基本信息</div>
 		</div>
 		<div class="main-content container-fluid pt-1">
-			<div class="card">
-				<div class="card-body">
+			<div class="card mb-0">
+				<div class="card-body pt-4">
 					<form>
 						<div class="form-group row">
 							<label class="col-sm-2 col-form-label text-sm-right">图标</label>
@@ -73,10 +73,16 @@ a#entityIcon:hover{opacity:0.8}
 								<p class="form-text mb-0">好的主显字段应能够清晰的表示记录本身，如客户中的客户名称或订单中的订单编号</p>
 							</div>
 						</div>
-						<div class="form-group row text hide J_masterEntity">
+						<div class="form-group row text ${masterEntity == null ? "hide" : ""}">
 							<label class="col-sm-2 col-form-label text-sm-right">主实体</label>
 							<div class="col-lg-5 col-sm-10">
 								<div class="form-control-plaintext"><a href="../${masterEntity}/base">${masterEntityLabel} (${masterEntity})</a></div>
+							</div>
+						</div>
+						<div class="form-group row text ${slaveEntity == null ? "hide" : ""}">
+							<label class="col-sm-2 col-form-label text-sm-right">明细实体</label>
+							<div class="col-lg-5 col-sm-10">
+								<div class="form-control-plaintext"><a href="../${slaveEntity}/base">${slaveEntityLabel} (${slaveEntity})</a></div>
 							</div>
 						</div>
 						<div class="form-group row">

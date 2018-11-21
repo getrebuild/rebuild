@@ -91,7 +91,7 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 	@Override
 	public String evaluate(Entity entity) {
 		if (!EntityHelper.hasPrivilegesField(entity)) {
-			if (MetadataSorter.isBizzFilter(entity.getEntityCode())) {
+			if (MetadataSorter.isBizzEntity(entity.getEntityCode())) {
 				return ALLOWED.evaluate(null);
 			} else {
 				return DENIED.evaluate(null);

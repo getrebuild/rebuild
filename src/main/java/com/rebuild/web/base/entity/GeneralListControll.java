@@ -37,6 +37,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.helper.manager.DataListManager;
 import com.rebuild.server.helper.manager.LayoutManager;
 import com.rebuild.server.metadata.EntityHelper;
@@ -69,6 +70,29 @@ public class GeneralListControll extends BaseControll implements LayoutConfig {
 		ModelAndView mv = createModelAndView("/general-entity/record-list.jsp", entity, user);
 		JSON config = DataListManager.getColumnLayout(entity, getRequestUser(request));
 		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
+		
+		EasyMeta master = null;
+		EasyMeta slave  = null;
+		Entity that = MetadataHelper.getEntity(entity);
+		if (that.getMasterEntity() != null) {
+			master = EasyMeta.valueOf(that.getMasterEntity());
+			slave = EasyMeta.valueOf(that);
+		} else if (that.getSlaveEntity() != null) {
+			master = EasyMeta.valueOf(that);
+			slave = EasyMeta.valueOf(that.getSlaveEntity());
+		} else {
+			mv.getModel().put("masterEntity", that.getName());
+		}
+		
+		if (master != null && slave != null) {
+			mv.getModel().put("masterEntity", master.getName());
+			mv.getModel().put("masterEntityLabel", master.getLabel());
+			mv.getModel().put("masterEntityIcon", master.getIcon());
+			mv.getModel().put("slaveEntity", slave.getName());
+			mv.getModel().put("slaveEntityLabel", slave.getLabel());
+			mv.getModel().put("slaveEntityIcon", slave.getIcon());
+		}
+		
 		return mv;
 	}
 	
@@ -125,7 +149,7 @@ public class GeneralListControll extends BaseControll implements LayoutConfig {
 		
 		List<Map<String, Object>> fieldList = new ArrayList<>();
 		for (Field field : MetadataSorter.sortFields(entityMeta)) {
-			if (MetadataSorter.isBizzFilter(field)) {
+			if (MetadataSorter.isFilterField(field)) {
 				continue;
 			}
 			fieldList.add(DataListManager.formattedColumn(field));

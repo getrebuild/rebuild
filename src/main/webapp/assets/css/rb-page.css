@@ -578,13 +578,14 @@ i.split.ui-draggable-dragging {
     -ms-user-select: none;
     user-select: none;
 }
-.main-content-list>.card-table {
-    border-top-left-radius: 0;
+.main-content>.nav-tabs-classic+.card.card-table {
+	border-top-left-radius: 0;
     border-top-right-radius: 0;
     border-top: 2px solid #4285f4;
 }
-.main-content-list>.nav-tabs>li.nav-item a.nav-link {
-    padding: 11px 15px
+.main-content>.nav-tabs-classic>li.nav-item a.nav-link {
+    padding: 11px 15px;
+    min-width: 101px;
 }
 .sortable-box-title {
     margin-top: 9px;

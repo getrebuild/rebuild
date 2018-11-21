@@ -84,7 +84,7 @@ $(document).ready(function(){
 		sbtn.button('loading')
 		$.post('../entity-drop?id=' + metaId, function(res){
 			if (res.error_code == 0){
-				sbtn.text('删除成功')
+				rb.notice('实体已删除', 'success')
 				setTimeout(function(){ location.replace('../../entities') }, 1500)
 			}else rb.notice(res.error_msg, 'danger')
 		})

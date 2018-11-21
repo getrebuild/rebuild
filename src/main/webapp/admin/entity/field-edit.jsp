@@ -49,8 +49,7 @@
 		</div>
 		<div class="main-content container-fluid pt-1">
 			<div class="card mb-0">
-				<div class="card-body">
-					<br>
+				<div class="card-body pt-4">
 					<form>
 						<div class="form-group row">
 							<label class="col-sm-2 col-form-label text-sm-right">字段名称</label>
@@ -245,18 +244,28 @@ $(document).ready(function(){
 			if (res.data.length > 5) $('#picklist-items').parent().removeClass('autoh')
 		})
 		
-		picklistModal = null
 		$('.J_picklist-edit').click(function(){
-			if (picklistModal) picklistModal.show()
-			else picklistModal = rb.modal(rb.baseUrl + '/admin/page/entity/picklist-config?entity=${entityName}&field=${fieldName}', '配置列表选项')
+			rb.modal(rb.baseUrl + '/admin/page/entity/picklist-config?entity=${entityName}&field=${fieldName}', '配置列表选项')
 		})
 	}
 	
-	if ('${isBuiltin}' == 'true') $('.footer .alert').removeClass('hide')
+	if ('${fieldBuildin}' == 'true') $('.footer .alert').removeClass('hide')
 	else $('.footer .J_action').removeClass('hide')
 
 	$('.J_del').click(function(){
-		rb.notice('暂不支持删除')
+		let alertExt = { type: 'danger', confirmText: '删除' }
+            alertExt.confirm = function(){
+                $(this.refs['rbalert']).find('.btn').button('loading')
+				let thatModal = this
+                $.post(rb.baseUrl + '/admin/entity/field-drop?id=' + metaId, function(res){
+                    if (res.error_code == 0){
+						thatModal.hide()
+						rb.notice('字段已删除', 'success')
+						setTimeout(function(){ location.replace('../fields') }, 1500)
+                    } else rb.notice(res.error_msg, 'danger')
+                })
+            }
+		rb.alert('字段删除后将无法恢复，请务必谨慎操作！确认删除吗？', '删除字段', alertExt)
 	})
 })
 const picklistItemRender = function(data){

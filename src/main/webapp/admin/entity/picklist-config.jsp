@@ -43,7 +43,6 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/sortable.js"></script>
 <script type="text/babel">
-let tmpid = new Date().getTime()
 let default_item
 $(document).ready(function(){
 	const entity = $urlp('entity'), field = $urlp('field')
@@ -68,7 +67,7 @@ $(document).ready(function(){
 		let id = $('.J_text').attr('attr-id')
 		$('.J_text').val('').attr('attr-id', '')
 		$('.J_confirm').text('添加')
-		if (!!!id) render_item([tmpid++, text])
+		if (!!!id) render_item([$random(), text])
 		else{
 			let item = $('.J_config li[data-key="' + id + '"]')
 			item.attr('data-key', id)

@@ -111,6 +111,7 @@ public class MetaFieldControll extends BaseControll  {
 		mv.getModel().put("fieldType", fieldEasyMeta.getDisplayType(true));
 		mv.getModel().put("fieldNullable", fieldMeta.isNullable());
 		mv.getModel().put("fieldUpdatable", fieldMeta.isUpdatable());
+		mv.getModel().put("fieldBuildin", fieldEasyMeta.isBuiltin());
 		
 		// 字段类型相关
 		Type ft = fieldMeta.getType();
@@ -121,7 +122,6 @@ public class MetaFieldControll extends BaseControll  {
 		} else {
 			mv.getModel().put("fieldExtConfig", fieldEasyMeta.getFieldExtConfig());
 		}
-		mv.getModel().put("isBuiltin", fieldEasyMeta.isBuiltin());
 		
 		return mv;
 	}

@@ -50,12 +50,12 @@
 <script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
 <script type="text/babel">
 $(document).ready(function(){
-	RbViewPage.init('${id}', [ '${entityLabel}', 'User', '${entityIcon}' ])
+	RbViewPage.init('${id}', ['User','${entityLabel}','${entityIcon}'])
 	if (rb.isAdminUser == false || rb.isAdminVerified == false) $('.view-action').remove()
 
 	$('.J_delete').off('click').click(function(){
 		rb.alert('我们建议你停用用户，而非删除', '删除用户', { confirmText: '停用', confirm: function(){
-			let _data = {isDisabled: true }
+			let _data = { isDisabled: true }
 			_data.metadata = { entity: 'User', id: '${id}' }
 			$.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), function(res){
             	if (res.error_code == 0){

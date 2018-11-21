@@ -47,7 +47,7 @@
 <script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
 <script type="text/babel">
 $(document).ready(function(){
-	RbViewPage.init('${id}', [ '${entityLabel}', 'Department', '${entityIcon}' ])
+	RbViewPage.init('${id}', ['Department','${entityLabel}','${entityIcon}'])
 	if (rb.isAdminUser == false || rb.isAdminVerified == false) $('.view-action').remove()
 
 	$('.J_delete').off('click').click(function(){

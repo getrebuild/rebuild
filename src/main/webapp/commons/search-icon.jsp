@@ -3,7 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>ICON</title>
+<title>图标</title>
 <style type="text/css">
 #icons a{display:inline-block;width:34px;height:34px;text-align:center;border-radius:2px;}
 #icons a i{font-size:21px;line-height:34px;}
@@ -26,6 +26,7 @@ $(document).ready(function(){
 			a.click(function(){ call($(this).data('icon')) })
 		}
 	})
+	parent.rb.modalResize()
 })
 </script>
 </body>

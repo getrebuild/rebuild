@@ -13,10 +13,20 @@
 		<jsp:param value="${entityLabel}列表" name="pageTitle"/>
 	</jsp:include>
 	<jsp:include page="/_include/NavLeft.jsp">
-		<jsp:param value="nav_entity-${entityName}" name="activeNav"/>
+		<jsp:param value="nav_entity-${masterEntity}" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
 		<div class="main-content container-fluid">
+			<%
+			String slaveEntity = (String) request.getAttribute("slaveEntity");
+			if (slaveEntity != null) {
+				boolean isSlave = slaveEntity.equals(request.getAttribute("entityName"));
+			%>
+			<ul class="nav nav-tabs nav-tabs-classic">
+				<li class="nav-item"><a href="../${masterEntity}/list" class="nav-link <%=isSlave ? "":"active"%>"><span class="icon zmdi zmdi-${masterEntityIcon}"></span> ${masterEntityLabel}</a></li>
+				<li class="nav-item"><a href="../${slaveEntity}/list" class="nav-link <%=isSlave ? "active":""%>"><span class="icon zmdi zmdi-${slaveEntityIcon}"></span> ${slaveEntityLabel}</a></li>
+			</ul>
+			<%} %>
 			<div class="card card-table">
 				<div class="card-body">
 					<div class="dataTables_wrapper container-fluid">

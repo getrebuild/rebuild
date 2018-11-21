@@ -120,13 +120,10 @@ const render_list = function(q){
 		if (item.fieldName == name_field){
 			tr.addClass('primary')
 			$('<span class="badge badge-pill badge-secondary thin ml-1">主显</span>').appendTo(name)
-		}
-		if (item.builtin == true || item.readonly == true){
-			if (item.fieldName != name_field )tr.addClass('muted')
-			$('<span class="badge badge-pill badge-secondary thin ml-1">只读</span>').appendTo(name)
-		}else if (item.nullable == false){
-			if (item.fieldName != name_field )tr.addClass('danger')
-			$('<span class="badge badge-pill badge-secondary thin ml-1">必填</span>').appendTo(name)
+		} else if (item.builtin == true){
+			tr.addClass('muted')
+		} else if (item.nullable == false){
+			tr.addClass('danger')
 		}
 		$('<td><div class="text-muted">' + item.fieldName + '</div></td>').appendTo(tr)
 		$('<td>' + item.displayType + '</td>').appendTo(tr)

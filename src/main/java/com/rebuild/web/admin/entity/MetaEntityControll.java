@@ -65,14 +65,16 @@ public class MetaEntityControll extends BaseControll {
 	@RequestMapping("entity/{entity}/base")
 	public ModelAndView pageEntityBase(@PathVariable String entity, HttpServletRequest request) throws IOException {
 		ModelAndView mv = createModelAndView("/admin/entity/entity-edit.jsp");
-		EasyMeta entityMeta = setEntityBase(mv, entity);
-		Entity entity2 = (Entity) entityMeta.getBaseMeta();
+		setEntityBase(mv, entity);
 		
-		mv.getModel().put("nameField", entity2.getNameField().getName());
-		
-		if (entity2.getMasterEntity() != null) {
-			mv.getModel().put("masterEntity", entity2.getMasterEntity().getName());
-			mv.getModel().put("masterEntityLabel", EasyMeta.getLabel(entity2.getMasterEntity()));
+		Entity entityMeta = MetadataHelper.getEntity(entity);
+		mv.getModel().put("nameField", entityMeta.getNameField().getName());
+		if (entityMeta.getMasterEntity() != null) {
+			mv.getModel().put("masterEntity", entityMeta.getMasterEntity().getName());
+			mv.getModel().put("masterEntityLabel", EasyMeta.getLabel(entityMeta.getMasterEntity()));
+		} else if (entityMeta.getSlaveEntity() != null) {
+			mv.getModel().put("slaveEntity", entityMeta.getSlaveEntity().getName());
+			mv.getModel().put("slaveEntityLabel", EasyMeta.getLabel(entityMeta.getSlaveEntity()));
 		}
 		
 		return mv;
@@ -94,7 +96,7 @@ public class MetaEntityControll extends BaseControll {
 			map.put("entityLabel", easyMeta.getLabel());
 			map.put("comments", easyMeta.getComments());
 			map.put("icon", easyMeta.getIcon());
-			map.put("builtin", easyMeta.isBuiltin() || MetadataSorter.isBizzFilter(entity.getEntityCode()));
+			map.put("builtin", easyMeta.isBuiltin());
 			if (entity.getMasterEntity() != null) {
 				map.put("masterEntity", entity.getMasterEntity());
 				map.put("masterEntityLabel", EasyMeta.getLabel(entity.getMasterEntity()));

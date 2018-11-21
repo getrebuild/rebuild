@@ -19,7 +19,7 @@
 				<div class="dept-tree"></div>
 			</div>
 		</aside>
-		<div class="main-content container-fluid main-content-list">
+		<div class="main-content container-fluid">
 			<ul class="nav nav-tabs nav-tabs-classic">
 				<li class="nav-item"><a href="users" class="nav-link active"><span class="icon zmdi zmdi-account"></span> ${entityLabel}列表</a></li>
 				<li class="nav-item"><a href="departments" class="nav-link"><span class="icon zmdi zmdi-accounts"></span> 部门列表</a></li>
@@ -82,7 +82,7 @@ RbForm.postAfter = function(){
 	else loadDeptTree()
 }
 $(document).ready(function(){
-	RbListPage.init($.parseJSON('${DataListConfig}'), ['${entityLabel}', 'User', '${entityIcon}'], $.parseJSON('${entityPrivileges}'))
+	RbListPage.init($.parseJSON('${DataListConfig}'), ['User','${entityLabel}','${entityIcon}'], $.parseJSON('${entityPrivileges}'))
 	loadDeptTree()
 
 	$('.J_new').click(function(){ formPostType = 1 })
