@@ -65,7 +65,7 @@ public class MetadataSorter {
 		List<Entity> list = new ArrayList<>();
 		for (Entity entity : entities) {
 			int ec = entity.getEntityCode();
-			if (EasyMeta.isBuiltin(entity)  || (!containsBizz && isBizzFilter(ec))) {
+			if (EasyMeta.valueOf(ec).isBuiltin()  || (!containsBizz && isBizzFilter(ec))) {
 			} else {
 				list.add(entity);
 			}

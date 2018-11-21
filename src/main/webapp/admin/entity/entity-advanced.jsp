@@ -34,7 +34,7 @@ a#entityIcon:hover{opacity:0.8}
 							<li><a href="base">基本信息</a></li>
 							<li><a href="fields">管理字段</a></li>
 							<li><a href="form-design">设计布局</a></li>
-							<li class="active"><a href="danger">高级配置</a></li>
+							<li class="active"><a href="advanced">高级配置</a></li>
 						</ul>
 					</div>
 				</div>
@@ -54,7 +54,7 @@ a#entityIcon:hover{opacity:0.8}
 						</label>
 					</div>
 					<div>
-						<button type="button" class="btn btn-danger J_drop-confirm" disabled="disabled" data-loading-text="删除中">确认删除</button>
+						<button type="button" class="btn btn-danger J_drop-confirm" disabled="disabled" data-loading-text="删除中"><i class="zmdi zmdi-delete icon"></i> 确认删除</button>
 						<div class="alert alert-warning alert-icon hide col-sm-6">
 							<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
 							<div class="message">系统内建实体，不允许删除</div>

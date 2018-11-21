@@ -30,7 +30,7 @@
 							<li><a href="base">基本信息</a></li>
 							<li><a href="fields">管理字段</a></li>
 							<li class="active"><a href="form-design">设计布局</a></li>
-							<li><a href="danger">高级配置</a></li>
+							<li><a href="advanced">高级配置</a></li>
 						</ul>
 					</div>
 				</div>

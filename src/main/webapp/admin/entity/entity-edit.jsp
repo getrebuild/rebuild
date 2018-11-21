@@ -34,7 +34,7 @@ a#entityIcon:hover{opacity:0.8}
 							<li class="active"><a href="base">基本信息</a></li>
 							<li><a href="fields">管理字段</a></li>
 							<li><a href="form-design">设计布局</a></li>
-							<li><a href="danger">高级配置</a></li>
+							<li><a href="advanced">高级配置</a></li>
 						</ul>
 					</div>
 				</div>
@@ -87,8 +87,10 @@ a#entityIcon:hover{opacity:0.8}
 						</div>
 						<div class="form-group row footer">
 							<div class="col-lg-5 col-sm-10 offset-sm-2">
-								<button class="btn btn-primary J_save" type="button" data-loading-text="请稍后">保存</button>
-								<div class="alert alert-warning alert-icon hide">
+								<div class="J_action hide">
+									<button class="btn btn-primary J_save" type="button" data-loading-text="请稍后">保存</button>
+								</div>
+								<div class="alert alert-warning alert-icon mb-0 hide">
 									<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
 									<div class="message">系统内建实体，不允许修改</div>
 								</div>
@@ -102,16 +104,14 @@ a#entityIcon:hover{opacity:0.8}
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script type="text/babel">
-clickIcon = function(icon){
+let clickIcon = function(icon){
 	$('#entityIcon').attr('value', icon).find('i').attr('class', 'icon zmdi zmdi-' + icon)
 	rb.modalHide()
-};
+}
 $(document).ready(function(){
 	const metaId = '${entityMetaId}'
-	if (!!!metaId){
-		$('.J_save').next().removeClass('hide')
-		$('.J_save').remove()
-	}
+	if (!!!metaId) $('.footer .alert').removeClass('hide')
+	else $('.footer .J_action').removeClass('hide')
 	if (!!'${masterEntity}') $('.J_masterEntity').removeClass('hide')
 	
 	let _btn = $('.J_save').click(function(){

@@ -29,7 +29,7 @@
 							<li><a href="base">基本信息</a></li>
 							<li class="active"><a href="fields">管理字段</a></li>
 							<li><a href="form-design">设计布局</a></li>
-							<li><a href="danger">高级配置</a></li>
+							<li><a href="advanced">高级配置</a></li>
 						</ul>
 					</div>
 				</div>
@@ -64,7 +64,7 @@
 												<th width="16%" data-field="fieldName">内部标识</th>
 												<th width="16%" data-field="displayType">类型</th>
 												<th data-field="comments">备注</th>
-												<th width="100"></th>
+												<th width="50"></th>
 											</tr>
 										</thead>
 										<tbody></tbody>
@@ -131,11 +131,7 @@ const render_list = function(q){
 		$('<td><div class="text-muted">' + item.fieldName + '</div></td>').appendTo(tr)
 		$('<td>' + item.displayType + '</td>').appendTo(tr)
 		$('<td><div>' + (item.comments || '') + '</div></td>').appendTo(tr)
-		let acts = $('<td class="actions"><a class="icon J_edit" href="field/' + item.fieldName + '"><i class="zmdi zmdi-settings"></i></a><a class="icon J_del"><i class="zmdi zmdi-delete"></i></a></td>').appendTo(tr)
-		acts.find('.J_del').click(function(){
-			if (item.builtin == true){ rb.notice('系统内建字段，不允许删除'); return }
-			rb.notice('字段暂不支持删除')
-		})
+		$('<td class="actions"><a class="icon J_edit" href="field/' + item.fieldName + '"><i class="zmdi zmdi-settings"></i></a></td>').appendTo(tr)
 		size++
 	});
 	

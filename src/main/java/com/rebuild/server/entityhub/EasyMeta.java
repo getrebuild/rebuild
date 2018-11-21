@@ -170,7 +170,26 @@ public class EasyMeta implements BaseMeta {
 	 * @return
 	 */
 	public boolean isBuiltin() {
-		return isBuiltin(baseMeta);
+		if (this.getMetaId() == null) {
+			return true;
+		}
+		
+		if (isField()) {
+			DisplayType dt = getDisplayType();
+			if (dt == DisplayType.ID || BUILTIN_FIELD.contains(getName())) {
+				return true;
+			} else if (dt == DisplayType.REFERENCE) {
+				Field field = (Field) this.baseMeta;
+				// 明细引用
+				if (field.getOwnEntity().getMasterEntity() != null
+						&& field.getOwnEntity().getMasterEntity().equals(field.getReferenceEntities()[0] )) {
+					return true;
+				}
+			}
+		} else {
+			return BUILTIN_ENTITY.contains(getName());
+		}
+		return false;
 	}
 	
 	/**
@@ -301,22 +320,6 @@ public class EasyMeta implements BaseMeta {
 	 */
 	public static String getLabel(BaseMeta meta) {
 		return meta.getDescription();
-	}
-	
-	/**
-	 * @param meta
-	 * @return
-	 */
-	public static boolean isBuiltin(BaseMeta meta) {
-		String metaName = meta.getName();
-		if (meta instanceof Entity) {
-			return BUILTIN_ENTITY.contains(metaName);
-		}
-		
-		if (((Field) meta).getType() == FieldType.PRIMARY) {
-			return true;
-		}
-		return BUILTIN_FIELD.contains(metaName);
 	}
 	
 	/**

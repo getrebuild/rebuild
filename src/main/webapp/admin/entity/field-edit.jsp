@@ -38,7 +38,7 @@
 							<li><a href="../base">基本信息</a></li>
 							<li class="active"><a href="../fields">管理字段</a></li>
 							<li><a href="../form-design">设计布局</a></li>
-							<li><a href="../danger">高级配置</a></li>
+							<li><a href="../advanced">高级配置</a></li>
 						</ul>
 					</div>
 				</div>
@@ -145,8 +145,11 @@
 						</div>
 						<div class="form-group row footer">
 							<div class="col-lg-5 col-sm-10 offset-sm-2">
-								<button class="btn btn-primary J_save" type="button" data-loading-text="请稍后">保存</button>
-								<div class="alert alert-warning alert-icon hide">
+								<div class="J_action hide">
+									<button class="btn btn-primary btn-space J_save" type="button" data-loading-text="请稍后">保存</button>
+									<button class="btn btn-danger bordered btn-space J_del" type="button" data-loading-text="请稍后"><i class="zmdi zmdi-delete icon"></i> 删除</button>
+								</div>
+								<div class="alert alert-warning alert-icon hide mb-0">
 									<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
 									<div class="message">系统内建字段，不允许修改</div>
 								</div>
@@ -165,73 +168,67 @@
 	<div class="dd3-action"><a href="javascript:;" class="J_default" title="设为默认">[默认]</a></div>
 </li>
 </script>
-
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/lib/widget/bootstrap-slider.min.js"></script>
 <script type="text/babel">
 $(document).ready(function(){
-	const metaId = '${fieldMetaId}';
-	let dt = '${fieldType}';
-	if (dt.indexOf('(') > -1) dt = dt.match('\\((.+?)\\)')[1];
-	const extConfigOld = JSON.parse('${fieldExtConfig}' || '{}');
+	const metaId = '${fieldMetaId}'
+	let dt = '${fieldType}'
+	if (dt.indexOf('(') > -1) dt = dt.match('\\((.+?)\\)')[1]
+	const extConfigOld = JSON.parse('${fieldExtConfig}' || '{}')
 	
 	const btn = $('.J_save').click(function(){
-		if (!!!metaId) return;
+		if (!!!metaId) return
 		let label = $val('#fieldLabel'),
 			comments = $val('#comments'),
 			nullable = $val('#fieldNullable'),
-			updatable = $val('#fieldUpdatable');
-		let _data = { fieldLabel:label, comments:comments, nullable:nullable, updatable:updatable };
+			updatable = $val('#fieldUpdatable')
+		let _data = { fieldLabel:label, comments:comments, nullable:nullable, updatable:updatable }
 		_data = $cleanMap(_data)
 		
-		let extConfig = {};
+		let extConfig = {}
 		$('.J_for-' + dt + ' .form-control').each(function(){
-			let k = $(this).attr('id');
-			let v = $val(this);
-			if (extConfigOld[k] != v) extConfig[k] = v;
-		});
+			let k = $(this).attr('id')
+			let v = $val(this)
+			if (extConfigOld[k] != v) extConfig[k] = v
+		})
 		
 		if (Object.keys(extConfig).length > 0){
-			_data['extConfig'] = JSON.stringify(extConfig);
+			_data['extConfig'] = JSON.stringify(extConfig)
 		}
 		
 		_data = $cleanMap(_data)
 		if (Object.keys(_data).length == 0){
-			location.href = '../fields';
-			return;
+			location.href = '../fields'
+			return
 		}
 		
-		_data.metadata = { entity:'MetaField', id:metaId||null };
-		_data = JSON.stringify(_data);
-		console.log(_data);
-		btn.button('loading');
+		_data.metadata = { entity:'MetaField', id:metaId||null }
+		_data = JSON.stringify(_data)
+		btn.button('loading')
 		$.post(rb.baseUrl +  '/admin/entity/field-update', _data, function(res){
-			if (res.error_code == 0) location.href = '../fields';
+			if (res.error_code == 0) location.href = '../fields'
 			else rb.notice(res.error_msg, 'danger')
-		});
-	});
-	if (!!!metaId){
-		btn.next().removeClass('hide');
-		btn.remove();
-	}
+		})
+	})
 	
 	$('#fieldNullable').attr('checked', $('#fieldNullable').data('o') == true)
 	$('#fieldUpdatable').attr('checked', $('#fieldUpdatable').data('o') == true)
 	
-	$('.J_for-' + dt).removeClass('hide');
+	$('.J_for-' + dt).removeClass('hide')
 	
-	let uploadNumber = [1, 5];
+	let uploadNumber = [1, 5]
 	for (let k in extConfigOld) {
 		if (k == 'uploadNumber'){
-			uploadNumber = extConfigOld[k].split(',');
-			uploadNumber[0] = ~~uploadNumber[0];
-			uploadNumber[1] = ~~uploadNumber[1];
+			uploadNumber = extConfigOld[k].split(',')
+			uploadNumber[0] = ~~uploadNumber[0]
+			uploadNumber[1] = ~~uploadNumber[1]
 			$('.J_minmax b').eq(0).text(uploadNumber[0])
 			$('.J_minmax b').eq(1).text(uploadNumber[1])
-		} else $('#' + k).val(extConfigOld[k]);
+		} else $('#' + k).val(extConfigOld[k])
 	}
 	$('input.bslider').slider({ value:uploadNumber }).on('change', function(e){
-		let v = e.value.newValue;
+		let v = e.value.newValue
 		$('.J_minmax b').eq(0).text(v[0])
 		$('.J_minmax b').eq(1).text(v[1])
 	})
@@ -239,26 +236,33 @@ $(document).ready(function(){
 	if (dt == 'PICKLIST'){
 		$.get(rb.baseUrl + '/admin/field/picklist-gets?entity=${entityName}&field=${fieldName}&isAll=false', function(res){
 			if (res.data.length == 0){
-				$('#picklist-items li').text('请添加选项'); return;
+				$('#picklist-items li').text('请添加选项'); return
 			}
-			$('#picklist-items').empty();
+			$('#picklist-items').empty()
 			$(res.data).each(function(){
 				picklistItemRender(this)
-			});
+			})
 			if (res.data.length > 5) $('#picklist-items').parent().removeClass('autoh')
-		});
+		})
 		
-		picklistModal = null;
+		picklistModal = null
 		$('.J_picklist-edit').click(function(){
 			if (picklistModal) picklistModal.show()
 			else picklistModal = rb.modal(rb.baseUrl + '/admin/page/entity/picklist-config?entity=${entityName}&field=${fieldName}', '配置列表选项')
 		})
 	}
-});
+	
+	if ('${isBuiltin}' == 'true') $('.footer .alert').removeClass('hide')
+	else $('.footer .J_action').removeClass('hide')
+
+	$('.J_del').click(function(){
+		rb.notice('暂不支持删除')
+	})
+})
 const picklistItemRender = function(data){
 	let item = $('<li class="dd-item" data-key="' + data.id + '"><div class="dd-handle">' + data.text + '</div></li>').appendTo('#picklist-items')
 	if (data['default'] == true) item.addClass('default').attr('title', '默认项')
-};
+}
 </script>
 </body>
 </html>

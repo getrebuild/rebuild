@@ -104,7 +104,7 @@ public class MetaFieldControll extends BaseControll  {
 		Field fieldMeta = ((Entity) easyMeta.getBaseMeta()).getField(field);
 		EasyMeta fieldEasyMeta = new EasyMeta(fieldMeta);
 		
-		mv.getModel().put("fieldMetaId", fieldEasyMeta.isBuiltin() ? null : fieldEasyMeta.getMetaId());
+		mv.getModel().put("fieldMetaId", fieldEasyMeta.getMetaId());
 		mv.getModel().put("fieldName", fieldEasyMeta.getName());
 		mv.getModel().put("fieldLabel", fieldEasyMeta.getLabel());
 		mv.getModel().put("fieldComments", fieldEasyMeta.getComments());
@@ -121,6 +121,7 @@ public class MetaFieldControll extends BaseControll  {
 		} else {
 			mv.getModel().put("fieldExtConfig", fieldEasyMeta.getFieldExtConfig());
 		}
+		mv.getModel().put("isBuiltin", fieldEasyMeta.isBuiltin());
 		
 		return mv;
 	}

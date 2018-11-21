@@ -65,19 +65,21 @@ public class MetaEntityControll extends BaseControll {
 	@RequestMapping("entity/{entity}/base")
 	public ModelAndView pageEntityBase(@PathVariable String entity, HttpServletRequest request) throws IOException {
 		ModelAndView mv = createModelAndView("/admin/entity/entity-edit.jsp");
-		setEntityBase(mv, entity);
+		EasyMeta entityMeta = setEntityBase(mv, entity);
+		Entity entity2 = (Entity) entityMeta.getBaseMeta();
 		
-		Entity entityMeta = MetadataHelper.getEntity(entity);
-		if (entityMeta.getMasterEntity() != null) {
-			mv.getModel().put("masterEntity", entityMeta.getMasterEntity().getName());
-			mv.getModel().put("masterEntityLabel", EasyMeta.getLabel(entityMeta.getMasterEntity()));
+		mv.getModel().put("nameField", entity2.getNameField().getName());
+		
+		if (entity2.getMasterEntity() != null) {
+			mv.getModel().put("masterEntity", entity2.getMasterEntity().getName());
+			mv.getModel().put("masterEntityLabel", EasyMeta.getLabel(entity2.getMasterEntity()));
 		}
 		
 		return mv;
 	}
-	@RequestMapping("entity/{entity}/danger")
+	@RequestMapping("entity/{entity}/advanced")
 	public ModelAndView pageEntityDanger(@PathVariable String entity, HttpServletRequest request) throws IOException {
-		ModelAndView mv = createModelAndView("/admin/entity/entity-danger.jsp");
+		ModelAndView mv = createModelAndView("/admin/entity/entity-advanced.jsp");
 		setEntityBase(mv, entity);
 		return mv;
 	}
@@ -161,14 +163,12 @@ public class MetaEntityControll extends BaseControll {
 	 * @return
 	 */
 	protected static EasyMeta setEntityBase(ModelAndView mv, String entity) {
-		Entity e = MetadataHelper.getEntity(entity);
-		EasyMeta entityMeta = new EasyMeta(e);
+		EasyMeta entityMeta = EasyMeta.valueOf(entity);
 		mv.getModel().put("entityMetaId", entityMeta.getMetaId());
 		mv.getModel().put("entityName", entityMeta.getName());
 		mv.getModel().put("entityLabel", entityMeta.getLabel());
 		mv.getModel().put("icon", entityMeta.getIcon());
 		mv.getModel().put("comments", entityMeta.getComments());
-		mv.getModel().put("nameField", e.getNameField().getName());
 		return entityMeta;
 	}
 }
