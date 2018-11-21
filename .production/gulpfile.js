@@ -37,7 +37,7 @@ const ASSETS_HEX = {}
 gulp.task('cjsp', () => {
     return gulp.src('../src/main/webapp/**/*.jsp')
     	.pipe(debug({ title: 'compress jsp file : ' }))
-    	.pipe(replace(/<script type="text\/babel">([\s]+[\d\D]*)<\/script>/igm, (m, p, o, s) => {
+    	.pipe(replace(/<script type="text\/babel">([\s\S]*)<\/script>/igm, (m, p, o, s) => {
             if (p.trim().length == 0) return '<!-- No scripts -->'
             let es5 = ''
             try {
@@ -46,7 +46,7 @@ gulp.task('cjsp', () => {
                     minified: true
                 }).code
             } catch (err) {
-                console.log('Babel transform : ' + err)
+                throw new Error('Babel transform :\n' + err)
             }
             return '<script>' + es5 + '</script>'
         }))

@@ -50,7 +50,7 @@
 <script type="text/babel">
 $(document).ready(function() {
 	if (top != self) { parent.location.reload(); return }
-	
+
 	$('#user,#passwd').keydown(function(e){
 		if (e.keyCode == 13) $('.J_login-btn').trigger('click')
 	})
