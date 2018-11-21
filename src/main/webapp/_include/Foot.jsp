@@ -13,4 +13,4 @@
 <script src="${baseUrl}/assets/lib/react/babel.js"></script>
 <script src="${baseUrl}/assets/lib/react/react.development.js"></script>
 <script src="${baseUrl}/assets/lib/react/react-dom.development.js"></script>
-<script src="${baseUrl}/assets/js/rb-components.jsx?t=181121" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-components.jsx" type="text/babel"></script>

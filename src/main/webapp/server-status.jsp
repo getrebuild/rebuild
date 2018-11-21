@@ -14,7 +14,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link rel="stylesheet" type="text/css" href="<%=ServerListener.getContextPath()%>/assets/css/rb-base.css">
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-base.css">
 <title>系统运行状态</title>
 <style type="text/css">
 .block{margin:0 auto;max-width:1000px;margin-bottom:32px;padding:0 14px}
