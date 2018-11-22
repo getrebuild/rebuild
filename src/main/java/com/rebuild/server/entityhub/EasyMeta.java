@@ -168,9 +168,9 @@ public class EasyMeta implements BaseMeta {
 				return true;
 			} else if (dt == DisplayType.REFERENCE) {
 				Field field = (Field) this.baseMeta;
-				// 明细引用
-				if (field.getOwnEntity().getMasterEntity() != null
-						&& field.getOwnEntity().getMasterEntity().equals(field.getReferenceEntities()[0] )) {
+				// 明细-引用主记录的字段也是内建
+				Entity hasMaster = field.getOwnEntity().getMasterEntity();
+				if (hasMaster != null && hasMaster.equals(field.getReferenceEntity()) && !field.isCreatable()) {
 					return true;
 				}
 			}

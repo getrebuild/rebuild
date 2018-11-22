@@ -21,7 +21,10 @@ package com.rebuild.server.metadata;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.util.Assert;
+
 import com.rebuild.server.Application;
+import com.rebuild.server.entityhub.EasyMeta;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -143,16 +146,22 @@ public class MetadataHelper {
 	}
 	
 	/**
-	 * 获取明细实体（如有）
+	 * 获取明细实体哪个字段引用自主实体
 	 * 
-	 * @param master
+	 * @param slave
 	 * @return
 	 */
-	public static Entity getSlaveEntity(Entity master) {
-		for (Entity entity : getEntities()) {
-			Entity hasMaster = entity.getMasterEntity();
-			if (hasMaster != null && master.equals(hasMaster)) {
-				return entity;
+	public static Field getSlaveToMasterField(Entity slave) {
+		Entity master = slave.getMasterEntity();
+		Assert.isTrue(master != null, "Non slave entity");
+		
+		for (Field field : slave.getFields()) {
+			if (field.getType() != FieldType.REFERENCE) {
+				continue;
+			}
+			// 内建的那个才是，因为明细的其他字段也可能引用主实体
+			if (master.equals(field.getReferenceEntity()) && EasyMeta.valueOf(field).isBuiltin()) {
+				return field;
 			}
 		}
 		return null;

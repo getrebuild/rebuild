@@ -141,8 +141,7 @@ public class Entity2Schema extends Field2Schema {
 			throw new ModificationMetadataException("系统内建实体不允许删除");
 		}
 		
-		Entity hasSlave = MetadataHelper.getSlaveEntity(entity);
-		if (hasSlave != null) {
+		if (entity.getSlaveEntity() != null) {
 			throw new ModificationMetadataException("不能删除主实体");
 		}
 		

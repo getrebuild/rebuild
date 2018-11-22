@@ -35,6 +35,7 @@ import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.bizz.security.QueryFilter;
 import cn.devezhao.bizz.security.member.BusinessUnit;
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Filter;
 
 /**
@@ -109,6 +110,7 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 		}
 		
 		// 未配置权限的默认拒绝
+		// 明细实体使用主实体权限
 		Privileges ep = user.getOwningRole().getPrivileges(
 				useMaster != null ? useMaster.getEntityCode() : entity.getEntityCode());
 		if (ep == Privileges.NONE) {
@@ -121,9 +123,13 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 		}
 		
 		String ownFormat = "%s = '%s'";
+		if (useMaster != null) {
+			Field toMasterField = MetadataHelper.getSlaveToMasterField(entity);
+			ownFormat = toMasterField.getName() + "." + ownFormat;
+		}
 		
 		if (de == BizzDepthEntry.PRIVATE) {
-			return appendShareFilter(entity, 
+			return appendShareFilter(entity, useMaster,
 					String.format(ownFormat, EntityHelper.owningUser, user.getIdentity()));
 		}
 		
@@ -131,7 +137,7 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 		String deptSql = String.format(ownFormat, EntityHelper.owningDept, dept.getIdentity());
 		
 		if (de == BizzDepthEntry.LOCAL) {
-			return appendShareFilter(entity, deptSql);
+			return appendShareFilter(entity, useMaster, deptSql);
 		}
 		
 		if (de == BizzDepthEntry.DEEPDOWN) {
@@ -141,20 +147,22 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 			for (BusinessUnit child : dept.getAllChildren()) {
 				sqls.add(String.format(ownFormat, EntityHelper.owningDept, child.getIdentity()));
 			}
-			return appendShareFilter(entity, "(" + StringUtils.join(sqls, " or ") + ")");
+			return appendShareFilter(entity, useMaster, "(" + StringUtils.join(sqls, " or ") + ")");
 		}
 
 		return DENIED.evaluate(null);
 	}
 	
 	/**
-	 * TODO 共享权限
+	 * TODO
+	 * 共享权限
 	 * 
 	 * @param entity
+	 * @param useMaster
 	 * @param filtered
 	 * @return
 	 */
-	protected String appendShareFilter(Entity entity, String filtered) {
+	protected String appendShareFilter(Entity entity, Entity useMaster, String filtered) {
 		String shareFilter = "exists (select rights from ShareAccess where belongEntity = '%s' and shareTo = '%s' and recordId = ^%s)";
 		shareFilter = String.format(shareFilter,
 				entity.getName(), user.getIdentity().toString(), entity.getPrimaryField().getName());
