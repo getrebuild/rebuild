@@ -1,6 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.util.Map"%>
-<%@ page import="java.util.List"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -64,26 +63,17 @@
 							</tr>
 						</thead>
 						<tbody>
-						<%
-						List<String[]> entities = (List<String[]>) request.getAttribute("Entities");
-						for (String[] e : entities) {
-							boolean noas = "/User/Department/Role/".contains("/" + e[0] + "/");
-						%>
+						<c:forEach items="${Entities}" var="e">
 							<tr>
-								<td class="name"><a data-name="<%=e[0]%>"><%=e[1]%></a></td>
+								<td class="name"><a data-name="${e[0]}">${e[1]}</a></td>
 								<td class="text-center"><i data-action="C" class="priv R0"></i></td>
 								<td class="text-center"><i data-action="R" class="priv R0"></i></td>
 								<td class="text-center"><i data-action="U" class="priv R0"></i></td>
 								<td class="text-center"><i data-action="D" class="priv R0"></i></td>
-								<% if (noas) { %>
-								<td class="text-center text-muted">-</td>
-								<td class="text-center text-muted">-</td>
-								<%} else { %>
 								<td class="text-center"><i data-action="A" class="priv R0"></i></td>
 								<td class="text-center"><i data-action="S" class="priv R0"></i></td>
-								<%} %>
 							</tr>
-						<%} %>
+						</c:forEach>
 						</tbody>
 						</table>
 						<div class="legend-warp">
@@ -163,7 +153,7 @@
 RbForm.postAfter = function(data){
 	location.href = rb.baseUrl + '/admin/bizuser/role/' + data.id
 }
-var currentRoleId
+let currentRoleId
 $(document).ready(function(){
 	$('.J_new-role').click(function(){
 		rb.RbFormModal({ title: '新建角色', entity: 'Role', icon: 'lock' })
@@ -257,7 +247,6 @@ const loadRoles = function() {
 		})
 	})
 }
-
 const loadPrivileges = function() {
 	$.get(rb.baseUrl + '/admin/bizuser/privileges-list?role=' + currentRoleId, function(res){
 		if (res.error_code == 0){
@@ -306,12 +295,11 @@ const updatePrivileges = function() {
 		rb.notice('保存成功', 'success')
 	})
 }
-
 const deleteRole = function(id){
 	$.post(rb.baseUrl + '/admin/bizuser/role-delete?transfer=&id=' + id, function(res){
 		if (res.error_code == 0) location.replace(rb.baseUrl + '/admin/bizuser/role-privileges')
 		else rb.notice(res.error_msg, 'danger')
-	});
+	})
 }
 </script>
 </body>

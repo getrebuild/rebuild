@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ page import="com.rebuild.web.admin.AdminEntryControll"%>
 <%@ page import="com.rebuild.utils.AppUtils"%>
 <%@ page import="com.rebuild.server.Application"%>
@@ -8,6 +9,7 @@
 <%
 final User currentUser = Application.getUserStore().getUser(AppUtils.getRequestUser(request));
 final String showName = UserHelper.getShowName(currentUser);
+final boolean isAdmin = currentUser.isAdmin();
 %>
 <nav class="navbar navbar-expand fixed-top rb-top-header">
 	<div class="container-fluid">
@@ -20,11 +22,11 @@ final String showName = UserHelper.getShowName(currentUser);
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle" href="${baseUrl}/me/profile" data-toggle="dropdown">
 						<img src="<%=currentUser.getAvatarUrl(true)%>" alt="Avatar">
-						<span class="user-name"><%=showName%></span>
+						<span class="user-name">${showName}</span>
 					</a>
 					<div class="dropdown-menu">
 						<div class="user-info">
-							<div class="user-name"><%=showName%></div>
+							<div class="user-name">${showName}</div>
 							<div class="user-id"><%=StringUtils.defaultIfBlank(currentUser.getEmail(), "邮箱未设置")%></div>
 						</div>
 						<a class="dropdown-item" href="${baseUrl}/settings/account"><i class="icon zmdi zmdi-account-box"></i>个人设置</a>
@@ -32,13 +34,13 @@ final String showName = UserHelper.getShowName(currentUser);
 					</div>
 				</li>
 			</ul>
-			<div class="page-title"><span><%=request.getParameter("pageTitle")%></span></div>
+			<div class="page-title"><span>${param['pageTitle']}</span></div>
 			<ul class="nav navbar-nav float-right rb-icons-nav">
-				<% if (currentUser.isAdmin()) { %>
+				<c:if test="${!isAdmin}">
 				<li class="nav-item dropdown J_admin-settings">
 					<a class="nav-link" href="${baseUrl}/admin/systems"><i class="icon zmdi zmdi-settings"></i></a>
 				</li>
-				<%} %>
+				</c:if>
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle" data-toggle="dropdown--disable" href="${baseUrl}/app/notifications"><i class="icon zmdi zmdi-notifications"></i><span class="indicator hide"></span></a>
 					<ul class="dropdown-menu rb-notifications">
@@ -52,8 +54,8 @@ final String showName = UserHelper.getShowName(currentUser);
 											<a href="${baseUrl}/app/notification/123">
 												<div class="image"><img src="${baseUrl}/assets/img/avatar.png" alt="Avatar"></div>
 												<div class="notification-info">
-													<div class="text"><span class="user-name">Jessica Caruso</span> accepted your invitation to join the team.</div>
-													<span class="date">2 min ago</span>
+													<div class="text"><span class="user-name">USER</span> MESSAGE.</div>
+													<span class="date">TIME</span>
 												</div>
 											</a>
 										</li>

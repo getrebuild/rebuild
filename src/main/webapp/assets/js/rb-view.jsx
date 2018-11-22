@@ -91,12 +91,17 @@ const RbViewPage = {
         $('.J_edit').click(function(){
             rb.RbFormModal({ id: id, title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] })
         })
-        
         $('.J_assign').click(function(){
             rb.AssignDialog({ entity: entity[0], ids: [id] })
         })
         $('.J_share').click(function(){
             rb.ShareDialog({ entity: entity[0], ids: [id] })
+        })
+        $('.J_adds-slave').click(function(){
+            let defaultValues = {}
+            defaultValues['&' + entity[0]] = id
+            let _this = $(this)
+            rb.RbFormModal({ title: '添加明细', entity: _this.data('entity'), icon: _this.data('icon'), defaultValues: defaultValues })
         })
         
         // Privileges
@@ -128,7 +133,7 @@ const RbViewPage = {
                     if (k == 'owningUser'){
                         $('<a href="#!/View/User/' + _data[k][0] + '" onclick="RbViewPage.clickView(this)">' + _data[k][1] + '</a>').appendTo('.J_' + k)
                     } else if (k == 'shareTo'){
-                        $('<a>' + (_data[k] == 0 ? '无' : ('已共享给' + _data[k] + '位用户')) + '</a>').appendTo('.J_' + k)
+                        $('<a>' + (_data[k] == 0 ? '无' : ('已共享给 <a>' + _data[k] + '</a> 位用户')) + '</a>').appendTo('.J_' + k)
                     } else {
                         $('<span>' + _data[k] + '</span>').appendTo('.J_' + k)
                     }

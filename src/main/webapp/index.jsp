@@ -2,13 +2,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Rebuild</title>
+<title>Loading</title>
 </head>
 <body>
 <script>
-(function(){
-	location.href = 'user/login'
-})()
+(function(){ location.href = 'user/login' })()
 </script>
 </body>
 </html>

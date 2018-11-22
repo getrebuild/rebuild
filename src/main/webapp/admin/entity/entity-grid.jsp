@@ -60,7 +60,7 @@ let render_entity = function(item){
 	tmp.find('span').text(item.entityLabel)
 	tmp.find('p').text(item.comments || '-')
 	if (item.builtin == true) $('<i class="badge badge-pill badge-secondary thin text-muted">内建</i>').appendTo(tmp.find('a.card'))
-	if (!!item.masterEntity) $('<i class="badge badge-pill badge-secondary thin text-muted">明细</i>').appendTo(tmp.find('a.card'))
+	if (!!item.slaveEntity) $('<i class="badge badge-pill badge-secondary thin text-muted">明细</i>').appendTo(tmp.find('a.card'))
 	return tmp
 }
 </script>

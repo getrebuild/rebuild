@@ -90,6 +90,10 @@ public class ViewFeatControll extends BaseControll implements LayoutConfig {
 		Set<String[]> refs = new HashSet<>();
 		for (Field field : entityMeta.getReferenceToFields()) {
 			Entity e = field.getOwnEntity();
+			// 过滤明细实体，因为明细实体会默认就有
+			if (e.getMasterEntity() != null) {
+				continue;
+			}
 			refs.add(new String[] { e.getName(), EasyMeta.getLabel(e) });
 		}
 		

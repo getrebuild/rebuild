@@ -26,6 +26,9 @@
 .btn.btn-link:hover {
     color: #0d5bdd !important;
 }
+.btn .icon.x14{
+	font-size: 1.431rem
+}
 .navbar-nav .dropdown>.nav-link:hover>.icon, .bottom-widget>a:hover>.icon {
     opacity: 0.8;
 }
@@ -214,6 +217,9 @@ a {
 }
 .hide {
     display: none !important;
+}
+.clearfix {
+	clear: both;
 }
 .mlr-auto {
 	margin-left: auto !important;
@@ -578,9 +584,12 @@ i.split.ui-draggable-dragging {
     -ms-user-select: none;
     user-select: none;
 }
-.main-content>.nav-tabs-classic+.card.card-table {
+.main-content>.nav-tabs-classic+.card {
 	border-top-left-radius: 0;
     border-top-right-radius: 0;
+    border-top: 2px solid #fff;
+}
+.main-content>.nav-tabs-classic+.card.card-table{
     border-top: 2px solid #4285f4;
 }
 .main-content>.nav-tabs-classic>li.nav-item a.nav-link {
@@ -953,7 +962,8 @@ i.split.ui-draggable-dragging {
 }
 .adv-filter .item.dialog-footer {
 	margin: 0 -30px;
-	margin-bottom: -10px;
+	margin-bottom: -5px;
+	padding-top: 20px;
 }
 /* height = 34px 
 .adv-filter .select2-container--default .select2-selection--single, .adv-filter .select2-container--default .select2-selection--multiple {

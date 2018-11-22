@@ -18,11 +18,11 @@ final String showName = UserHelper.getShowName(currentUser);
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle" href="${baseUrl}/me/profile" data-toggle="dropdown">
 						<img src="<%=currentUser.getAvatarUrl(true)%>" alt="Avatar">
-						<span class="user-name"><%=showName%></span>
+						<span class="user-name">${showName}</span>
 					</a>
 					<div class="dropdown-menu">
 						<div class="user-info">
-							<div class="user-name"><%=showName%></div>
+							<div class="user-name">${showName}</div>
 							<div class="user-id"><%=StringUtils.defaultIfBlank(currentUser.getEmail(), "邮箱未设置")%></div>
 						</div>
 						<a class="dropdown-item" href="${baseUrl}/me/profile"><span class="icon zmdi zmdi-account-box"></span>个人设置</a>

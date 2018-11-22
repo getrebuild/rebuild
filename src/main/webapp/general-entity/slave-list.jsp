@@ -1,5 +1,4 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,12 +15,10 @@
 	</jsp:include>
 	<div class="rb-content">
 		<div class="main-content container-fluid">
-			<c:if test="${slaveEntity != null}">
 			<ul class="nav nav-tabs nav-tabs-classic">
-				<li class="nav-item"><a class="nav-link active"><span class="icon zmdi zmdi-${masterEntityIcon}"></span> ${masterEntityLabel}</a></li>
-				<li class="nav-item"><a href="../${slaveEntity}/list" class="nav-link"><span class="icon zmdi zmdi-${slaveEntityIcon}"></span> ${slaveEntityLabel}</a></li>
+				<li class="nav-item"><a href="../${masterEntity}/list" class="nav-link"><span class="icon zmdi zmdi-${masterEntityIcon}"></span> ${masterEntityLabel}</a></li>
+				<li class="nav-item"><a class="nav-link active"><span class="icon zmdi zmdi-${slaveEntityIcon}"></span> ${slaveEntityLabel}</a></li>
 			</ul>
-			</c:if>
 			<div class="card card-table">
 				<div class="card-body">
 					<div class="dataTables_wrapper container-fluid">
@@ -34,14 +31,14 @@
 											<div class="dropdown-menu rb-scroller">
 												<div class="dropdown-item" data-id="$ALL$"><a>所有数据</a></div>
 												<div class="dropdown-divider"></div>
-												<div class="dropdown-item J_advfilter"><i class="icon zmdi zmdi-plus-circle-o"></i>添加过滤项</div>
+												<div class="dropdown-item J_advfilter"><i class="icon zmdi zmdi-playlist-plus"></i>添加过滤项</div>
 											</div>
 										</div>
 									</div>
 									<div class="input-group input-search">
 										<input class="form-control rounded-left J_search-text" placeholder="搜索 ..." type="text">
 										<span class="input-group-btn"><button class="btn btn-secondary J_search-btn" type="button"><i class="icon zmdi zmdi-search"></i></button></span>
-										<span class="input-group-btn plus"><button class="btn btn-secondary J_qfields" type="button" title="设置查询字段"><i class="icon zmdi zmdi-plus-circle-o"></i></button></span>
+										<span class="input-group-btn plus"><button class="btn btn-secondary J_qfields" type="button" title="设置查询字段"><i class="icon zmdi zmdi-playlist-plus"></i></button></span>
 									</div>
 								</div>
 							</div>
@@ -49,13 +46,10 @@
 								<div class="dataTables_oper">
 									<button class="btn btn-space btn-secondary J_view" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> 打开</button>
 									<button class="btn btn-space btn-secondary J_edit" disabled="disabled"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
-									<button class="btn btn-space btn-primary J_new" data-url="${baseUrl}/entity/${entity}/new"><i class="icon zmdi zmdi-plus"></i> 新建</button>
 									<div class="btn-group btn-space J_action">
 										<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-more-vert"></i></button>
 										<div class="dropdown-menu dropdown-menu-right">
 											<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
-											<a class="dropdown-item J_assign"><i class="icon zmdi zmdi-mail-reply-all"></i> 分派</a>
-											<a class="dropdown-item J_share"><i class="icon zmdi zmdi-slideshare"></i> 共享</a>
 											<div class="dropdown-divider"></div>
 											<a class="dropdown-item J_columns"><i class="icon zmdi zmdi-sort-amount-asc"></i> 列显示</a>
 										</div>

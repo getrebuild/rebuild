@@ -292,7 +292,7 @@ class RbListPagination extends React.Component {
         let props = this.props
         this.pageTotal = Math.ceil(props.rowTotal / props.pageSize)
         if (this.pageTotal <= 0) this.pageTotal = 1
-        const pages = $calcPages(this.pageTotal, props.pageNo)
+        const pages = $pages(this.pageTotal, props.pageNo)
         return (
             <div className="row rb-datatable-footer">
                 <div className="col-sm-5">

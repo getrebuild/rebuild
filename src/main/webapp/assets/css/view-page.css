@@ -95,22 +95,31 @@ html, body {
     color: #aaa;
     cursor: help;
 }
-.view-metas {
+.view-operating {
     padding-left: 30px;
 }
-.view-metas>div {
+.view-operating>div {
     margin-bottom: 15px !important;
 }
-.view-metas .row, .view-metas .form-line {
+.view-operating .row, .view-operating .form-line {
     margin-bottom: 10px;
 }
-.view-metas dt {
+.view-operating dt {
     font-weight: normal;
 }
 .view-action {
     margin-top: 33px;
 }
-.view-action .btn {
+.view-action .col-6 {
+	margin-bottom: .769231rem;
+}
+.view-action .col-6:nth-child(odd) {
+	padding-right: 0.384615rem;
+}
+.view-action .col-6:nth-child(even) {
+	padding-left: 0.384615rem;
+}
+.view-action .col-6 .btn {
     width: 100%
 }
 .view-action.noaction {

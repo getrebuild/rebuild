@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -44,6 +45,12 @@ a#entityIcon:hover{opacity:0.8}
 			<div class="page-head-title">基本信息</div>
 		</div>
 		<div class="main-content container-fluid pt-1">
+			<c:if test="${slaveEntity != null}">
+			<ul class="nav nav-tabs nav-tabs-classic">
+				<li class="nav-item J_tab-${masterEntity}"><a href="../${masterEntity}/base" class="nav-link">主实体</a></li>
+				<li class="nav-item J_tab-${slaveEntity}"><a href="../${slaveEntity}/base" class="nav-link">明细实体</a></li>
+			</ul>
+			</c:if>
 			<div class="card mb-0">
 				<div class="card-body pt-4">
 					<form>
@@ -71,18 +78,6 @@ a#entityIcon:hover{opacity:0.8}
 								<select class="form-control form-control-sm" id="nameField">
 								</select>
 								<p class="form-text mb-0">好的主显字段应能够清晰的表示记录本身，如客户中的客户名称或订单中的订单编号</p>
-							</div>
-						</div>
-						<div class="form-group row text ${masterEntity == null ? "hide" : ""}">
-							<label class="col-sm-2 col-form-label text-sm-right">主实体</label>
-							<div class="col-lg-5 col-sm-10">
-								<div class="form-control-plaintext"><a href="../${masterEntity}/base">${masterEntityLabel} (${masterEntity})</a></div>
-							</div>
-						</div>
-						<div class="form-group row text ${slaveEntity == null ? "hide" : ""}">
-							<label class="col-sm-2 col-form-label text-sm-right">明细实体</label>
-							<div class="col-lg-5 col-sm-10">
-								<div class="form-control-plaintext"><a href="../${slaveEntity}/base">${slaveEntityLabel} (${slaveEntity})</a></div>
 							</div>
 						</div>
 						<div class="form-group row">
@@ -118,7 +113,8 @@ $(document).ready(function(){
 	const metaId = '${entityMetaId}'
 	if (!!!metaId) $('.footer .alert').removeClass('hide')
 	else $('.footer .J_action').removeClass('hide')
-	if (!!'${masterEntity}') $('.J_masterEntity').removeClass('hide')
+
+	$('.J_tab-${entityName} a').addClass('active')
 	
 	let _btn = $('.J_save').click(function(){
 		if (!!!metaId) return
@@ -151,7 +147,7 @@ $(document).ready(function(){
 				disabled: not,
 				title: not ? '此字段（类型）不能作为主显字段' : ''
 			}
-		});
+		})
 		$('#nameField').select2({
 			language: 'zh-CN',
 			placeholder: '选择字段',

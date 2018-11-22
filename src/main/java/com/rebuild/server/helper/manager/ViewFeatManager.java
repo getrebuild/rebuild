@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.helper.manager;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -54,7 +55,17 @@ public class ViewFeatManager {
 	 * @return
 	 */
 	public static JSON getViewTab(String entity, ID user) {
-		return getViewFeat(entity, TYPE_TAB, user);
+		JSON tabs = getViewFeat(entity, TYPE_TAB, user);
+		
+		// 明细实体（如有）
+		Entity entityMeta = MetadataHelper.getEntity(entity);
+		if (entityMeta.getSlaveEntity() != null) {
+			String shows[] = EasyMeta.getEntityShows(entityMeta.getSlaveEntity());
+			JSON tabsAll = (JSON) JSON.toJSON(new String[][] { shows });
+			((JSONArray) tabsAll).fluentAddAll((Collection<?>) tabs);
+			tabs = tabsAll;
+		}
+		return tabs;
 	}
 	
 	/**
@@ -76,12 +87,17 @@ public class ViewFeatManager {
 		final Object FEAT[] = getRaw(entity, type);
 		final Permission RoC = TYPE_TAB.equals(type) ? BizzPermission.READ : BizzPermission.CREATE;
 		
-		// TODO 未配置则使用全部相关项 ???
+		// 未配置则使用全部相关项
 		if (FEAT == null) {
 			Entity entityMeta = MetadataHelper.getEntity(entity);
+			
 			Set<String[]> refs = new HashSet<>();
 			for (Field field : entityMeta.getReferenceToFields()) {
 				Entity e = field.getOwnEntity();
+				// 过滤明细实体
+				if (e.getMasterEntity() != null) {
+					continue;
+				}
 				if (Application.getSecurityManager().allowed(user, e.getEntityCode(), RoC)) {
 					refs.add(EasyMeta.getEntityShows(e));
 				}

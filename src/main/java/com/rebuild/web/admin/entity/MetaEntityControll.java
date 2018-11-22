@@ -69,12 +69,13 @@ public class MetaEntityControll extends BaseControll {
 		
 		Entity entityMeta = MetadataHelper.getEntity(entity);
 		mv.getModel().put("nameField", entityMeta.getNameField().getName());
+		
 		if (entityMeta.getMasterEntity() != null) {
 			mv.getModel().put("masterEntity", entityMeta.getMasterEntity().getName());
-			mv.getModel().put("masterEntityLabel", EasyMeta.getLabel(entityMeta.getMasterEntity()));
+			mv.getModel().put("slaveEntity", entityMeta.getName());
 		} else if (entityMeta.getSlaveEntity() != null) {
+			mv.getModel().put("masterEntity", entityMeta.getName());
 			mv.getModel().put("slaveEntity", entityMeta.getSlaveEntity().getName());
-			mv.getModel().put("slaveEntityLabel", EasyMeta.getLabel(entityMeta.getSlaveEntity()));
 		}
 		
 		return mv;
@@ -90,6 +91,10 @@ public class MetaEntityControll extends BaseControll {
 	public void listEntity(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		List<Map<String, Object>> ret = new ArrayList<>();
 		for (Entity entity : MetadataSorter.sortEntities(true)) {
+			if (entity.getMasterEntity() != null) {
+				continue;
+			}
+			
 			EasyMeta easyMeta = new EasyMeta(entity);
 			Map<String, Object> map = new HashMap<>();
 			map.put("entityName", easyMeta.getName());
@@ -97,9 +102,8 @@ public class MetaEntityControll extends BaseControll {
 			map.put("comments", easyMeta.getComments());
 			map.put("icon", easyMeta.getIcon());
 			map.put("builtin", easyMeta.isBuiltin());
-			if (entity.getMasterEntity() != null) {
-				map.put("masterEntity", entity.getMasterEntity());
-				map.put("masterEntityLabel", EasyMeta.getLabel(entity.getMasterEntity()));
+			if (entity.getSlaveEntity() != null) {
+				map.put("slaveEntity", entity.getSlaveEntity().getName());
 			}
 			ret.add(map);
 		}
@@ -114,9 +118,20 @@ public class MetaEntityControll extends BaseControll {
 		String label = reqJson.getString("label");
 		String comments = reqJson.getString("comments");
 		String masterEntity = reqJson.getString("masterEntity");
-		if (StringUtils.isNotBlank(masterEntity) && !MetadataHelper.containsEntity(masterEntity)) {
-			writeFailure(response, "无效主实体 : " + masterEntity);
-			return;
+		if (StringUtils.isNotBlank(masterEntity)) {
+			if (!MetadataHelper.containsEntity(masterEntity)) {
+				writeFailure(response, "无效主实体 : " + masterEntity);
+				return;
+			}
+			
+			Entity master = MetadataHelper.getEntity(masterEntity);
+			if (master.getMasterEntity() != null) {
+				writeFailure(response, "明细实体不能作为主实体");
+				return;
+			} else if (master.getSlaveEntity() != null) {
+				writeFailure(response, "选择的主实体已被 " + EasyMeta.getLabel(master.getSlaveEntity()) + " 使用");
+				return;
+			}
 		}
 
 		String entityName = null;

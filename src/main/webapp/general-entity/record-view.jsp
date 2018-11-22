@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -30,12 +31,12 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-sm-3 view-metas">
+		<div class="col-sm-3 view-operating">
 			<div class="view-action row">
-				<div class="col-6 pr-1 mb-2">
+				<div class="col-6">
 					<button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
 				</div>
-				<div class="col-6 pl-1 mb-2 btn-group J_action">
+				<div class="col-6 btn-group J_action">
 					<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-more-vert"></i> 更多</button>
 					<div class="dropdown-menu dropdown-menu-right">
 						<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
@@ -43,9 +44,14 @@
 						<a class="dropdown-item J_share"><i class="icon zmdi zmdi-slideshare"></i> 共享</a>
 					</div>
 				</div>
-				<div class="col-6 pr-1 mb-2 btn-group J_adds">
+				<c:if test="${slaveEntity != null}">
+				<div class="col-6">
+					<button class="btn btn-secondary J_adds-slave" type="button" data-entity="${slaveEntity}" data-label="${slaveEntityLabel}" data-icon="${slaveEntityIcon}"><i class="icon x14 zmdi zmdi-playlist-plus"></i> 添加明细</button>
+				</div>
+				</c:if>
+				<div class="col-6 btn-group J_adds">
 					<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-plus"></i> 新建相关</button>
-					<div class="dropdown-menu">
+					<div class="dropdown-menu dropdown-menu-right">
 						<div class="dropdown-divider"></div>
 						<a class="dropdown-item J_for-admin J_view-feat" data-feat="ADD"><i class="icon zmdi zmdi-settings"></i> 配置新建项</a>
 					</div>
@@ -82,11 +88,11 @@
 <script src="${baseUrl}/assets/js/assign-share.jsx" type="text/babel"></script>
 <script type="text/babel">
 $(document).ready(function(){
-	RbViewPage.init('${id}', [ '${entityName}', '${entityLabel}', '${entityIcon}' ], $.parseJSON('${entityPrivileges}'))
+	RbViewPage.init('${id}', ['${entityName}','${entityLabel}','${entityIcon}'], $.parseJSON('${entityPrivileges}'))
 	RbViewPage.initRecordMeta()
 	RbViewPage.initVTabs($.parseJSON('${ViewTabs}'))
 	RbViewPage.initVAdds($.parseJSON('${ViewAdds}'))
-});
+})
 </script>
 </body>
 </html>

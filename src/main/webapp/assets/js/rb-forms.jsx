@@ -101,9 +101,7 @@ class RbForm extends React.Component {
     constructor(props) {
         super(props)
         this.state = { ...props }
-        
         this.isNew = !!!props.$$$parent.state.id
-
         this.__FormData = {}
         this.setFieldValue = this.setFieldValue.bind(this)
     }
@@ -396,6 +394,8 @@ class RbFormDateTime extends RbFormElement {
     }
     componentDidMount() {
         super.componentDidMount()
+        if (this.state.viewMode == true) return
+        
         let format = (this.props.datetimeFormat || this.props.dateFormat).replace('mm', 'ii').toLowerCase()
         let minView = 0
         switch (format.length) {
@@ -465,6 +465,8 @@ class RbFormImage extends RbFormElement {
     }
     componentDidMount() {
         super.componentDidMount()
+        if (this.state.viewMode == true) return
+        
         let that = this
         let mprogress
         $(that.refs['upload-input']).html5Uploader({
@@ -530,6 +532,8 @@ class RbFormFile extends RbFormElement {
     }
     componentDidMount() {
         super.componentDidMount()
+        if (this.state.viewMode == true) return
+        
         let that = this
         let mprogress
         $(that.refs['upload-input']).html5Uploader({
@@ -575,6 +579,8 @@ class RbFormPickList extends RbFormElement {
     }
     componentDidMount() {
         super.componentDidMount()
+        if (this.state.viewMode == true) return
+        
         let select2 = $(this.refs['field-value']).select2({
             language: 'zh-CN',
             placeholder: '选择' + this.props.label,
@@ -618,6 +624,8 @@ class RbFormReference extends RbFormElement {
     }
     componentDidMount() {
         super.componentDidMount()
+        if (this.state.viewMode == true) return
+        
         let that = this
         let select2 = $(this.refs['field-value']).select2({
             language: 'zh-CN',

@@ -37,6 +37,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.bizz.UserHelper;
 import com.rebuild.server.bizz.privileges.Department;
+import com.rebuild.server.entityhub.DisplayType;
+import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 
@@ -138,6 +140,9 @@ public class AdvFilterParser {
 		}
 		
 		final Field fieldMeta = rootEntity.getField(field);  // TODO 级联字段
+		if (EasyMeta.valueOf(fieldMeta).getDisplayType() == DisplayType.PICKLIST) {
+			field = "&" + field;
+		}
 		final String op = item.getString("op");
 		
 		StringBuffer sb = new StringBuffer(field)
@@ -187,7 +192,7 @@ public class AdvFilterParser {
 		// 占位 {1}
 		if (value.matches("\\{\\d+\\}")) {
 			if (values == null) {
-				LOG.warn("Invalid item of advfilter : " + item.toJSONString());
+				LOG.warn("Invalid item of AdvFilter : " + item.toJSONString());
 				return null;
 			}
 			

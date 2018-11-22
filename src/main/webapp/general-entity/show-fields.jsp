@@ -43,7 +43,7 @@ $(document).ready(function(){
 		$(res.data['fieldList']).each(function(){ render_unset([this.field, this.label]) })
 		$(res.data['configList']).each(function(){ $('.unset-list li[data-key="' + this.field + '"]').trigger('click') })
 		cfgid = res.data['configId'] || ''
-	});
+	})
 	
 	$('.J_save').click(function(){
 		let config = [];

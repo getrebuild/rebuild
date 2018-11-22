@@ -33,3 +33,4 @@ hs_err_pid*
 /.production/package-lock.json
 /.production/_temp/
 /.production/build/
+/.production/

@@ -73,6 +73,11 @@ public class Entity2Schema extends Field2Schema {
 			}
 		}
 		
+		final boolean isSlave = StringUtils.isNotBlank(masterEntity);
+		if (isSlave && !MetadataHelper.containsEntity(masterEntity)) {
+			throw new ModificationMetadataException("无效主实体 : " + masterEntity);
+		}
+		
 		String physicalName = "T__" + entityName.toUpperCase();
 		
 		Object maxTypeCode[] = Application.createQueryNoFilter(
@@ -88,7 +93,7 @@ public class Entity2Schema extends Field2Schema {
 		if (StringUtils.isNotBlank(comments)) {
 			record.setString("comments", comments);
 		}
-		if (StringUtils.isNotBlank(masterEntity)) {
+		if (isSlave) {
 			record.setString("masterEntity", masterEntity);
 		}
 		record.setString("nameField", EntityHelper.createdOn);
@@ -103,14 +108,16 @@ public class Entity2Schema extends Field2Schema {
 		createBuiltinField(tempEntity, EntityHelper.createdOn, "创建时间", DisplayType.DATETIME, null, null, null);
 		createBuiltinField(tempEntity, EntityHelper.modifiedBy, "修改人", DisplayType.REFERENCE, null, "User", null);
 		createBuiltinField(tempEntity, EntityHelper.modifiedOn, "修改时间", DisplayType.DATETIME, null, null, null);
-		createBuiltinField(tempEntity, EntityHelper.owningUser, "所属用户", DisplayType.REFERENCE, null, "User", null);
-		createBuiltinField(tempEntity, EntityHelper.owningDept, "所属部门", DisplayType.REFERENCE, null, "Department", null);
 		
 		// 明细实体关联字段
-		if (masterEntity != null) {
+		// 明细实体无所属用户或部门，使用主实体的
+		if (isSlave) {
 			String masterLabel = EasyMeta.valueOf(masterEntity).getLabel();
 			String masterField = masterEntity + "Id";
 			createBuiltinField(tempEntity, masterField, masterLabel, DisplayType.REFERENCE, "引用主记录(" + masterLabel + ")", masterEntity, CascadeModel.Delete);
+		} else {
+			createBuiltinField(tempEntity, EntityHelper.owningUser, "所属用户", DisplayType.REFERENCE, null, "User", null);
+			createBuiltinField(tempEntity, EntityHelper.owningDept, "所属部门", DisplayType.REFERENCE, null, "Department", null);
 		}
 		
 		boolean schemaReady = schema2Database(tempEntity);

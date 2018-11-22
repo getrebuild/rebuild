@@ -75,12 +75,8 @@ public abstract class PageControll {
 	 */
 	protected ModelAndView createModelAndView(String page, String entity, ID user) {
 		ModelAndView mv = createModelAndView(page);
-		
 		Entity entityMeta = MetadataHelper.getEntity(entity);
-		EasyMeta easy = new EasyMeta(entityMeta);
-		mv.getModel().put("entityName", easy.getName());
-		mv.getModel().put("entityLabel", easy.getLabel());
-		mv.getModel().put("entityIcon", easy.getIcon());
+		putEntityMeta(mv, entityMeta);
 		
 		if (EntityHelper.hasPrivilegesField(entityMeta)) {
 			Privileges priv = Application.getSecurityManager().getPrivileges(user, entityMeta.getEntityCode());
@@ -111,16 +107,10 @@ public abstract class PageControll {
 	 */
 	protected ModelAndView createModelAndView(String page, ID record, ID user) {
 		ModelAndView mv = createModelAndView(page);
+		Entity entity = MetadataHelper.getEntity(record.getEntityCode());
+		putEntityMeta(mv, entity);
 		
-		Entity entityMeta = MetadataHelper.getEntity(record.getEntityCode());
-		EasyMeta easy = new EasyMeta(entityMeta);
-		mv.getModel().put("entityName", easy.getName());
-		mv.getModel().put("entityLabel", easy.getLabel());
-		mv.getModel().put("entityIcon", easy.getIcon());
-		
-		// TODO 验证记录权限
-		
-		if (EntityHelper.hasPrivilegesField(entityMeta)) {
+		if (EntityHelper.hasPrivilegesField(entity)) {
 			Permission[] actions = new Permission[] {
 					BizzPermission.CREATE,
 					BizzPermission.DELETE,
@@ -140,6 +130,38 @@ public abstract class PageControll {
 		return mv;
 	}
 	
+	/**
+	 * @param into
+	 * @param entity
+	 */
+	protected void putEntityMeta(ModelAndView into, Entity entity) {
+		EasyMeta easyMeta = EasyMeta.valueOf(entity);
+		into.getModel().put("entityName", easyMeta.getName());
+		into.getModel().put("entityLabel", easyMeta.getLabel());
+		into.getModel().put("entityIcon", easyMeta.getIcon());
+		
+		EasyMeta master = null;
+		EasyMeta slave = null;
+		if (entity.getMasterEntity() != null) {
+			master = EasyMeta.valueOf(entity.getMasterEntity());
+			slave = EasyMeta.valueOf(entity);
+		} else if (entity.getSlaveEntity() != null) {
+			master = EasyMeta.valueOf(entity);
+			slave = EasyMeta.valueOf(entity.getSlaveEntity());
+		} else {
+			into.getModel().put("masterEntity", easyMeta.getName());
+		}
+		
+		if (master != null && slave != null) {
+			into.getModel().put("masterEntity", master.getName());
+			into.getModel().put("masterEntityLabel", master.getLabel());
+			into.getModel().put("masterEntityIcon", master.getIcon());
+			into.getModel().put("slaveEntity", slave.getName());
+			into.getModel().put("slaveEntityLabel", slave.getLabel());
+			into.getModel().put("slaveEntityIcon", slave.getIcon());
+		}
+	}
+	
 	// --
 	
 	/**
@@ -156,7 +178,7 @@ public abstract class PageControll {
 	 * 
 	 * @param request
 	 */
-	public static void setPageAttribute(ModelAndView modelAndView) {
-		modelAndView.getModel().put("baseUrl", ServerListener.getContextPath());
+	public static void setPageAttribute(ModelAndView into) {
+		into.getModel().put("baseUrl", ServerListener.getContextPath());
 	}
 }

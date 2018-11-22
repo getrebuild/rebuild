@@ -28,6 +28,8 @@ import org.apache.commons.logging.LogFactory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.entityhub.DisplayType;
+import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.metadata.MetadataHelper;
 
 import cn.devezhao.persist4j.Entity;
@@ -50,8 +52,15 @@ public class DefaultValueManager {
 	 * @param defaultVals
 	 */
 	public static void setFieldsValue(Entity entity, JSON formModel, JSON defaultVals) {
-		Map<String, Object> valueReady = new HashMap<>();
+		final JSONArray elements = ((JSONObject) formModel).getJSONArray("elements");
+		// Invalid Model
+		if (elements == null) {
+			return;
+		}
 		
+		Map<String, Object> valuesReady = new HashMap<>();
+		
+		// 客户端传递
 		JSONObject fromClient = (JSONObject) defaultVals;
 		for (Map.Entry<String, Object> e : fromClient.entrySet()) {
 			String field = e.getKey();
@@ -61,38 +70,58 @@ public class DefaultValueManager {
 				continue;
 			}
 			
-			// 引用字段实体
+			// 引用字段实体。&EntityName
 			if (field.startsWith("&")) {
-				if (!ID.isId(value.toString())) {
+				final Object idLabel[] = readyReferenceValue(value);
+				if (idLabel == null) {
 					continue;
 				}
-				
-				ID sourceRecord = ID.valueOf(value.toString());
-				String recordLabel = FieldValueWrapper.getLabel(sourceRecord);
-				final Object idLabel[] = new Object[] { sourceRecord.toLiteral(), recordLabel };
 				
 				Entity source = MetadataHelper.getEntity(field.substring(1));
 				Field[] reftoFields = MetadataHelper.getReferenceToFields(source, entity);
 				for (Field rtf : reftoFields) {
-					valueReady.put(rtf.getName(), idLabel);
+					valuesReady.put(rtf.getName(), idLabel);
 				}
 			} else if (entity.containsField(field)) {
-				// TODO ...
+				EasyMeta fieldMeta = EasyMeta.valueOf(entity.getField(field));
+				if (fieldMeta.getDisplayType() == DisplayType.REFERENCE) {
+					final Object idLabel[] = readyReferenceValue(value);
+					if (idLabel != null) {
+						valuesReady.put(field, idLabel);
+					}
+				}
+				
+				// TODO 填充其他字段值 ...
 			}
 		}
 		
-		if (valueReady.isEmpty()) {
+		// TODO 后台设置的，应该在后台处理 ???
+		
+		if (valuesReady.isEmpty()) {
 			return;
 		}
-		
-		JSONArray elements = ((JSONObject) formModel).getJSONArray("elements");
 		for (Object o : elements) {
 			JSONObject item = (JSONObject) o;
 			String field = item.getString("field");
-			if (valueReady.containsKey(field)) {
-				item.put("value", valueReady.get(field));
+			if (valuesReady.containsKey(field)) {
+				item.put("value", valuesReady.get(field));
+				valuesReady.remove(field);
 			}
 		}
+	}
+	
+	/**
+	 * @param value
+	 * @return
+	 */
+	private static Object[] readyReferenceValue(Object value) {
+		if (!ID.isId(value.toString())) {
+			return null;
+		}
+		
+		ID id = ID.valueOf(value.toString());
+		String label = FieldValueWrapper.getLabel(id);
+		return new Object[] { id.toLiteral(), label };
 	}
 	
 }

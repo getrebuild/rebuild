@@ -62,7 +62,7 @@ $(document).ready(function(){
 		})
 	})
 })
-const deleteDept = function(){
+let deleteDept = function(){
 	$.post(rb.baseUrl + '/admin/bizuser/dept-delete?transfer=&id=${id}', function(res){
 		if (res.error_code == 0) parent.location.reload()
 		else rb.notice(res.error_msg, 'danger')

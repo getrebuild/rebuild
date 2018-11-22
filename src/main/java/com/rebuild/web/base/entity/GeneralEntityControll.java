@@ -36,6 +36,7 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -52,15 +53,21 @@ public class GeneralEntityControll extends BaseControll {
 	public ModelAndView pageView(@PathVariable String entity, @PathVariable String id,
 			HttpServletRequest request) throws IOException {
 		ID user = getRequestUser(request);
+		Entity thatEntity = MetadataHelper.getEntity(entity);
+		
 		ID record = ID.valueOf(id);
-		ModelAndView mv = createModelAndView("/general-entity/record-view.jsp", record, user);
+		ModelAndView mv = null;
+		if (thatEntity.getMasterEntity() != null) {
+			mv = createModelAndView("/general-entity/slave-view.jsp", record, user);
+		} else {
+			mv = createModelAndView("/general-entity/record-view.jsp", record, user);
+			
+			JSON vtab = ViewFeatManager.getViewTab(entity, user);
+			mv.getModel().put("ViewTabs", vtab);
+			JSON vadd = ViewFeatManager.getViewAdd(entity, user);
+			mv.getModel().put("ViewAdds", vadd);
+		}
 		mv.getModel().put("id", record);
-		
-		JSON vtab = ViewFeatManager.getViewTab(entity, user);
-		mv.getModel().put("ViewTabs", vtab);
-		
-		JSON vadd = ViewFeatManager.getViewAdd(entity, user);
-		mv.getModel().put("ViewAdds", vadd);
 		
 		return mv;
 	}

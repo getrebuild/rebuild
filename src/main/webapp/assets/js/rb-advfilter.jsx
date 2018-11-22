@@ -51,16 +51,17 @@ class AdvFilter extends React.Component {
                     <div className="item dialog-footer">
                         {rb.isAdminUser !== true ? null :
                         <div className="float-left">
-                            <label className="custom-control custom-checkbox custom-control-inline">
+                            <div className="float-left input">
+                                <input className="form-control form-control-sm text" maxLength="20" value={this.state.filterName || ''} data-id="filterName" onChange={this.handleChange} placeholder="输入过滤项名称" />
+                                <i className="zmdi zmdi-border-color float-right"></i>
+                            </div>
+                            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline ml-4 mt-2">
                                 <input className="custom-control-input" type="checkbox" checked={this.state.applyToAll == true} data-id="applyToAll" onChange={this.handleChange} />
                                 <span className="custom-control-label">共享给全部用户</span>
                             </label>
                         </div>}
                         {OperBtns}
-                        <div className="float-right input mr-3">
-                            <input className="form-control form-control-sm text" maxLength="20" value={this.state.filterName || ''} data-id="filterName" onChange={this.handleChange} placeholder="输入过滤项名称" />
-                            <i className="zmdi zmdi-border-color float-right"></i>
-                        </div>
+                        <div className="clearfix"/>
                     </div>
                     : (<div>{OperBtns}</div>) }
                 </div>
