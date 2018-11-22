@@ -90,34 +90,45 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 
 	@Override
 	public String evaluate(Entity entity) {
+		if (!user.isActive()) {
+			return DENIED.evaluate(null);
+		} else if (user.isAdmin()) {
+			return ALLOWED.evaluate(null);
+		}
+		
+		Entity useMaster = null;
 		if (!EntityHelper.hasPrivilegesField(entity)) {
+			// TODO BIZZ 实体全部用户可见 ???
 			if (MetadataSorter.isBizzEntity(entity.getEntityCode())) {
 				return ALLOWED.evaluate(null);
+			} else if (entity.getMasterEntity() != null) {
+				useMaster = entity.getMasterEntity();
 			} else {
 				return DENIED.evaluate(null);
 			}
 		}
 		
-		// 非权限实体总是拒绝
-		Privileges p = user.getOwningRole().getPrivileges(entity.getEntityCode());
-		if (p == Privileges.NONE) {
+		// 未配置权限的默认拒绝
+		Privileges ep = user.getOwningRole().getPrivileges(
+				useMaster != null ? useMaster.getEntityCode() : entity.getEntityCode());
+		if (ep == Privileges.NONE) {
 			return DENIED.evaluate(null);
 		}
 		
-		DepthEntry de = p.superlative(specAction);
+		DepthEntry de = ep.superlative(specAction);
 		if (de == BizzDepthEntry.GLOBAL) {
 			return ALLOWED.evaluate(null);
 		}
 		
-		String fvFormat = "%s = '%s'";
+		String ownFormat = "%s = '%s'";
 		
 		if (de == BizzDepthEntry.PRIVATE) {
 			return appendShareFilter(entity, 
-					String.format(fvFormat, EntityHelper.owningUser, user.getIdentity()));
+					String.format(ownFormat, EntityHelper.owningUser, user.getIdentity()));
 		}
 		
 		Department dept = user.getOwningDept();
-		String deptSql = String.format(fvFormat, EntityHelper.owningDept, dept.getIdentity());
+		String deptSql = String.format(ownFormat, EntityHelper.owningDept, dept.getIdentity());
 		
 		if (de == BizzDepthEntry.LOCAL) {
 			return appendShareFilter(entity, deptSql);
@@ -128,7 +139,7 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 			sqls.add(deptSql);
 			
 			for (BusinessUnit child : dept.getAllChildren()) {
-				sqls.add(String.format(fvFormat, EntityHelper.owningDept, child.getIdentity()));
+				sqls.add(String.format(ownFormat, EntityHelper.owningDept, child.getIdentity()));
 			}
 			return appendShareFilter(entity, "(" + StringUtils.join(sqls, " or ") + ")");
 		}
