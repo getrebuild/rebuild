@@ -98,10 +98,9 @@ const RbViewPage = {
             rb.ShareDialog({ entity: entity[0], ids: [id] })
         })
         $('.J_add-slave').click(function(){
-            let defaultValues = {}
-            defaultValues['$MASTER$'] = id
+            let dv = { '$MASTER$': id }
             let _this = $(this)
-            rb.RbFormModal({ title: '添加明细', entity: _this.data('entity'), icon: _this.data('icon'), defaultValues: defaultValues })
+            rb.RbFormModal({ title: '添加明细', entity: _this.data('entity'), icon: _this.data('icon'), defaultValues: dv })
         })
         
         // Privileges
@@ -146,9 +145,9 @@ const RbViewPage = {
             $('<div class="tab-pane" id="tab-' + this[0] + '"><div class="related-list rb-loading rb-loading-active"></div></div>').appendTo('.tab-content')
             rs.push(this[0])
         })
+        this.__vtab_es = rs
         
         let that = this
-        
         $('.nav-tabs li>a').on('click', function(e) {
             e.preventDefault()
             let _this = $(this)
@@ -166,20 +165,25 @@ const RbViewPage = {
             }
         })
         
-        if (rs.length > 0) {
-            $.get(rb.baseUrl + '/app/entity/related-counts?master=' + this.__id + '&relates=' + rs.join(','), function(res){
-                for (let k in res.data) {
-                    if (~~res.data[k] > 0) {
-                        let nav = $('.nav-tabs a[href="#tab-' + k + '"]')
-                        $('<span class="badge badge-pill badge-primary">' + res.data[k] + '</span>').appendTo(nav)
-                    }
-                }
-            })
-        }
-        
         $('.J_view-addons').click(function(){
             let type = $(this).data('type')
             rb.modal(`${rb.baseUrl}/p/admin/entity/view-addons?entity=${that.__entity[0]}&type=${type}`, '配置' + (type == 'TAB' ? '显示项' : '新建项'))
+        })
+        
+        this.updateVTabs()
+    },
+    
+    updateVTabs(es) {
+        es = es || this.__vtab_es
+        if (!!!es || es.length == 0) return
+        $.get(rb.baseUrl + '/app/entity/related-counts?master=' + this.__id + '&relates=' + es.join(','), function(res){
+            for (let k in res.data) {
+                if (~~res.data[k] > 0) {
+                    let tab = $('.nav-tabs a[href="#tab-' + k + '"]')
+                    if (tab.find('.badge').length > 0) tab.find('.badge').text(res.data[k])
+                    else $('<span class="badge badge-pill badge-primary">' + res.data[k] + '</span>').appendTo(tab)
+                }
+            }
         })
     },
     

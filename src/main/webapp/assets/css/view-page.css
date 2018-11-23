@@ -80,7 +80,8 @@ html, body {
     position: absolute;
     top: -1px;
     right: -4px;
-    font-size: 10px
+    font-size: .8462rem;
+    font-weight: normal;
 }
 .related-list {
     min-height: 200px

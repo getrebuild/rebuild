@@ -21,8 +21,8 @@
 		</aside>
 		<div class="main-content container-fluid main-content-list">
 			<ul class="nav nav-tabs nav-tabs-classic">
-				<li class="nav-item"><a href="users" class="nav-link"><span class="icon zmdi zmdi-account"></span> 用户列表</a></li>
-				<li class="nav-item"><a href="departments" class="nav-link active"><span class="icon zmdi zmdi-accounts"></span> ${entityLabel}列表</a></li>
+				<li class="nav-item"><a href="users" class="nav-link"><span class="icon zmdi zmdi-account"></span> 用户</a></li>
+				<li class="nav-item"><a href="departments" class="nav-link active"><span class="icon zmdi zmdi-accounts"></span> ${entityLabel}</a></li>
 			</ul>
 			<div class="card card-table">
 				<div class="card-body">

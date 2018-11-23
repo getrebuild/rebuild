@@ -251,6 +251,15 @@ public class FormManager extends LayoutManager {
 				
 			}
 		}
+		
+		if (entityMeta.getMasterEntity() != null) {
+			config.put("slave", true);
+		} else if (entityMeta.getSlaveEntity() != null) {
+			config.put("master", true);
+			config.put("slaveMeta", EasyMeta.getEntityShows(entityMeta.getSlaveEntity()));
+		}
+		
+		config.remove("id");
 		return config;
 	}
 	

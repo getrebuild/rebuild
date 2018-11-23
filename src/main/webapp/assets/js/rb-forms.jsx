@@ -49,7 +49,7 @@ class RbFormModal extends React.Component {
                     return detectElement(item)
                 })}
                 </RbForm>
-            that.setState({ formComponent: FORM }, function() {
+            that.setState({ formComponent: FORM, __formModel: res.data }, function() {
                 that.setState({ inLoad: false })
             })
         })
@@ -121,10 +121,24 @@ class RbForm extends React.Component {
         )
     }
     renderFormAction() {
+        let pmodel = this.props.$$$parent.state.__formModel
+        let saveBtns = (
+            <div className="btn-group dropup btn-space">
+                <button className="btn btn-primary" type="button" onClick={()=>this.post()}>保存</button>
+                <button className="btn btn-primary dropdown-toggle auto" type="button" data-toggle="dropdown"><span className="icon zmdi zmdi-chevron-up"></span></button>
+                <div className="dropdown-menu dropdown-menu-primary dropdown-menu-right">
+                    {pmodel.slave == true && <a className="dropdown-item" onClick={()=>this.post(111)}>保存并继续添加</a>}
+                    {pmodel.master == true && <a className="dropdown-item" onClick={()=>this.post(112)}>保存并添加明细</a>}
+                    {pmodel.slave != true && <a className="dropdown-item" onClick={()=>this.post(101)}>保存并继续新建</a>}
+                </div>
+            </div>
+        )
+        //saveBtns = <button className="btn btn-primary btn-space" type="button" onClick={()=>this.post()}>保存</button>
+        
         return (
             <div className="form-group row footer">
                 <div className="col-12 col-sm-8 offset-sm-3" ref="rbform-action">
-                    <button className="btn btn-primary btn-space" type="button" onClick={()=>this.post()}>保存</button>
+                    {saveBtns}
                     &nbsp;
                     <button className="btn btn-secondary btn-space" type="button" onClick={()=>this.props.$$$parent.hide()}>取消</button>
                 </div>
@@ -156,7 +170,7 @@ class RbForm extends React.Component {
         delete this.__FormData[field]
         console.log('Unchanged field-value ... ' + JSON.stringify(this.__FormData))
     }
-    post() {
+    post(next) {
         let _data = {}
         for (let k in this.__FormData) {
             let err = this.__FormData[k].error
@@ -164,7 +178,8 @@ class RbForm extends React.Component {
             else _data[k] = this.__FormData[k].value
         }
         
-        _data.metadata = { entity: this.state.entity, id: this.state.id }
+        let _entity = this.state.entity
+        _data.metadata = { entity: _entity, id: this.state.id }
         if (RbForm.postBefore(_data) == false) {
             return
         }
@@ -176,7 +191,19 @@ class RbForm extends React.Component {
             if (res.error_code == 0){
                 rb.notice('保存成功', 'success')
                 that.props.$$$parent.hide(true)
-                RbForm.postAfter(res.data)
+                
+                RbForm.postAfter(res.data, next == 111)
+                 
+                if (next == 101 || next == 111) {
+                    let pstate = that.props.$$$parent.state
+                    rb.RbFormModal({ title: pstate.title, entity: pstate.entity, icon: pstate.icon })
+                } else if (next == 112) {
+                    let dv = { '$MASTER$': res.data.id }
+                    let sm = that.props.$$$parent.state.__formModel.slaveMeta
+                    rb.RbFormModal({ title: `添加${sm[1]}`, entity: sm[0], icon: sm[2], defaultValues: dv })
+                }
+                if (next == 111 && window.RbViewPage) window.RbViewPage.updateVTabs([_entity])
+                
             }else{
                 rb.notice(res.error_msg || '保存失败，请稍后重试', 'danger')
             }
@@ -189,10 +216,10 @@ class RbForm extends React.Component {
         return true
     }
     // 保存后调用
-    static postAfter(data) {
+    static postAfter(data, notReload) {
         if (window.RbListPage) window.RbListPage._RbList.reload()
         else if (parent.RbListPage) parent.RbListPage._RbList.reload()
-        if (window.RbViewPage) location.reload()
+        if (window.RbViewPage && notReload != true) location.reload()
     }
 }
 
@@ -384,7 +411,7 @@ class RbFormDateTime extends RbFormElement {
     renderElement() {
         return (
             <div className="input-group datetime-field">
-                <input ref="field-value" className={'form-control form-control-sm ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} type="text" value={this.state.value}/>
+                <input ref="field-value" className={'form-control form-control-sm ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} type="text" value={this.state.value || ''}/>
                 <span className={'zmdi zmdi-close clean ' + (this.state.value ? '' : 'hide')} onClick={this.cleanValue}></span>
                 <div className="input-group-append">
                     <button className="btn btn-primary" type="button" ref="field-value-icon"><i className="icon zmdi zmdi-calendar"></i></button>

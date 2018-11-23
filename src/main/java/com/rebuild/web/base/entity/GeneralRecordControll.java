@@ -19,8 +19,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.web.base.entity;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -54,6 +56,7 @@ import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 记录操作
+ * TODO 检查权限重复，PrivilegesGuardInterceptor 中已检查
  * 
  * @author zhaofang123@gmail.com
  * @since 08/30/2018
@@ -68,15 +71,25 @@ public class GeneralRecordControll extends BaseControll {
 		JSON formJson = ServletUtils.getRequestJson(request);
 		
 		Record record = EntityHelper.parse((JSONObject) formJson, user);
-		if (record.getPrimary() == null) {
-			if (!Application.getSecurityManager().allowedC(user, record.getEntity().getEntityCode())) {
-				writeFailure(response, "没有新建权限");
-				return;
-			}
-		} else if (!Application.getSecurityManager().allowedU(user, record.getPrimary())) {
-			writeFailure(response, "你没有编辑此记录的权限");
-			return;
-		}
+//		if (record.getPrimary() == null) {
+//			Entity entity = record.getEntity();
+//			if (entity.getMasterEntity() != null) {
+//				Field field = MetadataHelper.getSlaveToMasterField(entity);
+//				ID masterId = record.getID(field.getName());
+//				if (masterId == null || !Application.getSecurityManager().allowedU(user, masterId)) {
+//					writeFailure(response, "没有添加权限");
+//					return;
+//				}
+//				
+//			} else if (!Application.getSecurityManager().allowedC(user, record.getEntity().getEntityCode())) {
+//				writeFailure(response, "没有新建权限");
+//				return;
+//			}
+//			
+//		} else if (!Application.getSecurityManager().allowedU(user, record.getPrimary())) {
+//			writeFailure(response, "你没有编辑此记录的权限");
+//			return;
+//		}
 		
 		record = Application.getGeneralEntityService(record.getEntity().getEntityCode()).createOrUpdate(record);
 		
@@ -157,7 +170,7 @@ public class GeneralRecordControll extends BaseControll {
 		}
 		
 		JSON ret = JSONUtils.toJSONObject(
-				new String[] { "shared", "requests" },
+				new String[] { "assigned", "requests" },
 				new Object[] { affected, ids.length });
 		writeSuccess(response, ret);
 	}
@@ -238,7 +251,7 @@ public class GeneralRecordControll extends BaseControll {
 	}
 	
 	/**
-	 * 操作ID列表
+	 * 操作 ID 列表
 	 * 
 	 * @param request
 	 * @return
@@ -271,10 +284,15 @@ public class GeneralRecordControll extends BaseControll {
 		if (StringUtils.isBlank(cascades)) {
 			return ArrayUtils.EMPTY_STRING_ARRAY;
 		}
-		String[] cass = cascades.split(",");
 		
-		// TODO 验证实体???
-		
-		return cass;
+		List<String> casList = new ArrayList<>();
+		for (String c : cascades.split(",")) {
+			if (MetadataHelper.containsEntity(c)) {
+				casList.add(c);
+			} else {
+				LOG.warn("Unknow entity in cascades : " + c);
+			}
+		}
+		return casList.toArray(new String[casList.size()]);
 	}
 }

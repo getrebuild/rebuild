@@ -33,6 +33,7 @@ import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
@@ -96,7 +97,17 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		
 		boolean isAllowed = false;
 		if (action == BizzPermission.CREATE) {
-			isAllowed = Application.getSecurityManager().allowed(caller, entity.getEntityCode(), action);
+			if (entity.getMasterEntity() != null) {
+				Field field = MetadataHelper.getSlaveToMasterField(entity);
+				ID masterId = ((Record) idOrRecord).getID(field.getName());
+				if (masterId == null || !Application.getSecurityManager().allowedU(caller, masterId)) {
+					throw new AccessDeniedException("没有添加明细的权限");
+				}
+				isAllowed = true;
+			} else {
+				isAllowed = Application.getSecurityManager().allowed(caller, entity.getEntityCode(), action);
+			}
+			
 		} else {
 			if (recordId == null) {
 			    throw new IllegalArgumentException("No primary in record!");

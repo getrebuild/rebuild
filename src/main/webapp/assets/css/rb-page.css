@@ -29,6 +29,9 @@
 .btn .icon.x14{
 	font-size: 1.431rem
 }
+.dropup .dropdown-toggle::after {
+	display: none;
+}
 .navbar-nav .dropdown>.nav-link:hover>.icon, .bottom-widget>a:hover>.icon {
     opacity: 0.8;
 }
@@ -85,7 +88,6 @@
 	padding-top: 0.15rem;
 }
 .badge.thin{
-	font-size: 12px;
 	font-weight: normal;
 	font-style: normal;
 	line-height: 1.45;

@@ -21,8 +21,8 @@
 		</aside>
 		<div class="main-content container-fluid">
 			<ul class="nav nav-tabs nav-tabs-classic">
-				<li class="nav-item"><a href="users" class="nav-link active"><span class="icon zmdi zmdi-account"></span> ${entityLabel}列表</a></li>
-				<li class="nav-item"><a href="departments" class="nav-link"><span class="icon zmdi zmdi-accounts"></span> 部门列表</a></li>
+				<li class="nav-item"><a href="users" class="nav-link active"><span class="icon zmdi zmdi-account"></span> ${entityLabel}</a></li>
+				<li class="nav-item"><a href="departments" class="nav-link"><span class="icon zmdi zmdi-accounts"></span> 部门</a></li>
 			</ul>
 			<div class="card card-table">
 				<div class="card-body">
@@ -43,7 +43,7 @@
 									<div class="btn-group btn-space">
 										<button class="btn btn-primary J_new" type="button"><i class="icon zmdi zmdi-account-add"></i> 新建${entityLabel}</button>
 										<button class="btn btn-primary dropdown-toggle auto" type="button" data-toggle="dropdown"><span class="icon zmdi zmdi-chevron-down"></span></button>
-										<div class="dropdown-menu dropdown-menu-right">
+										<div class="dropdown-menu dropdown-menu-primary dropdown-menu-right">
 											<a class="dropdown-item J_new-dept"><i class="icon zmdi zmdi-accounts-add"></i> 新建部门</a>
                       					</div>
 									</div>
