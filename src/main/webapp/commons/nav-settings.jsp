@@ -93,7 +93,7 @@ $(document).ready(function(){
 		}
 	})
 	$('.J_menuIcon').click(function(){
-		let url = rb.baseUrl + '/page/commons/search-icon'
+		let url = rb.baseUrl + '/p/commons/search-icon'
 		parent.clickIcon = function(s){
 			$('.J_menuIcon .zmdi').attr('class', 'zmdi zmdi-' + s)
 			parent.rb.modalHide(url)

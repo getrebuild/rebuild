@@ -135,7 +135,7 @@ $(document).ready(function(){
 	})
 	
 	$('#entityIcon').click(function(){
-		rb.modal(rb.baseUrl + '/page/commons/search-icon', '选择图标')
+		rb.modal(rb.baseUrl + '/p/commons/search-icon', '选择图标')
 	})
 	
 	$.get(rb.baseUrl + '/commons/metadata/fields?entity=${entityName}', function(d){

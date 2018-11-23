@@ -133,10 +133,10 @@ $(document).ready(function(){
     })
     
     $('.J_email').click(function(){
-    	rb.modal(rb.baseUrl + '/page/user-profile/change-email', '更改邮箱')
+    	rb.modal(rb.baseUrl + '/p/user-profile/change-email', '更改邮箱')
     })
     $('.J_passwd').click(function(){
-    	rb.modal(rb.baseUrl + '/page/user-profile/change-passwd', '更改密码')
+    	rb.modal(rb.baseUrl + '/p/user-profile/change-passwd', '更改密码')
     })
     
     $('.J_save').click(function(){

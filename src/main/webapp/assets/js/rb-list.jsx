@@ -409,7 +409,7 @@ const RbListPage = {
         })
         
         $('.J_columns').click(function(){
-            window.__currentModal = rb.modal(`${rb.baseUrl}/page/general-entity/show-fields?entity=${entity[0]}`, '设置列显示')
+            window.__currentModal = rb.modal(`${rb.baseUrl}/p/general-entity/show-fields?entity=${entity[0]}`, '设置列显示')
         })
         
         // Privileges
@@ -446,7 +446,7 @@ const QuickFilter = {
             if (event.which == 13) btn.trigger('click')
         })
         this.root.find('.J_qfields').click(function(event){
-            rb.modal(`${rb.baseUrl}/page/general-entity/quick-fields?entity=${that.entity}`, '设置快速查询字段')
+            rb.modal(`${rb.baseUrl}/p/general-entity/quick-fields?entity=${that.entity}`, '设置快速查询字段')
         })
     },
     

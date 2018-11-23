@@ -49,7 +49,7 @@ $(document).ready(function(){
 		
 		let forNew = render_entity({ icon: 'plus', entityLabel: '新建实体', comments: '新建一个实体' })
 		forNew.find('a.card').attr('href', 'javascript:;').click(function(){
-			rb.modal(rb.baseUrl + '/admin/page/entity/entity-new', '新建实体')
+			rb.modal(rb.baseUrl + '/admin/p/entity/entity-new', '新建实体')
 		})
 	})
 })

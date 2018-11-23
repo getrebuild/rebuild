@@ -35,12 +35,12 @@ import com.rebuild.web.PageControll;
 @Controller
 public class SimplePageForward extends PageControll {
 
-	@RequestMapping(value={ "/page/**/*", "/admin/page/**/*" }, method = RequestMethod.GET)
+	@RequestMapping(value={ "/p/**/*", "/admin/p/**/*" }, method = RequestMethod.GET)
 	public ModelAndView page(HttpServletRequest request) {
 		String path = request.getRequestURI().toString();
-		// remove `context path` and `/page/`
+		// remove `context path` and `/p/`
 		path = path.substring(ServerListener.getContextPath().length());
-		path = path.replace("/page/", "/");
+		path = path.replaceFirst("/p/", "/");
 		path = path + ".jsp";
 		
 		return createModelAndView(path);

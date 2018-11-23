@@ -66,10 +66,10 @@ $(document).ready(function(){
 		} })
 	})
 	$('.J_changeDept').click(function(){
-		rb.modal(rb.baseUrl + '/page/admin/bizuser/change-dept?user=${id}', '改变部门', { width:580 } )
+		rb.modal(rb.baseUrl + '/p/admin/bizuser/change-dept?user=${id}', '改变部门', { width:580 } )
 	})
 	$('.J_changeRole').click(function(){
-		rb.modal(rb.baseUrl + '/page/admin/bizuser/change-role?user=${id}', '改变角色', { width:580 } )
+		rb.modal(rb.baseUrl + '/p/admin/bizuser/change-role?user=${id}', '改变角色', { width:580 } )
 	})
 });
 </script>

@@ -104,7 +104,7 @@ $(document).ready(function(){
 	})
 
 	$('.J_new-field').click(function(){
-		rb.modal('${baseUrl}/admin/page/entity/field-new?entity=${entityName}', '新建字段')
+		rb.modal('${baseUrl}/admin/p/entity/field-new?entity=${entityName}', '新建字段')
 	})
 });
 const render_list = function(q){

@@ -112,7 +112,7 @@ const __initNavs = function(){
 	}
 	
 	$('.nav-settings').click(function(){
-		rb.modal(rb.baseUrl + '/page/commons/nav-settings', '设置导航菜单')
+		rb.modal(rb.baseUrl + '/p/commons/nav-settings', '设置导航菜单')
 	})
 }
 
