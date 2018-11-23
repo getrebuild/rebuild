@@ -16,7 +16,7 @@ final String showName = UserHelper.getShowName(currentUser);
 		<div class="rb-right-navbar">
 			<ul class="nav navbar-nav float-right rb-user-nav">
 				<li class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle" href="${baseUrl}/me/profile" data-toggle="dropdown">
+					<a class="nav-link dropdown-toggle" href="${baseUrl}/settings/account" data-toggle="dropdown">
 						<img src="<%=currentUser.getAvatarUrl(true)%>" alt="Avatar">
 						<span class="user-name">${showName}</span>
 					</a>
@@ -25,7 +25,7 @@ final String showName = UserHelper.getShowName(currentUser);
 							<div class="user-name">${showName}</div>
 							<div class="user-id"><%=StringUtils.defaultIfBlank(currentUser.getEmail(), "邮箱未设置")%></div>
 						</div>
-						<a class="dropdown-item" href="${baseUrl}/me/profile"><span class="icon zmdi zmdi-account-box"></span>个人设置</a>
+						<a class="dropdown-item" href="${baseUrl}/settings/account"><span class="icon zmdi zmdi-account-box"></span>个人设置</a>
 						<a class="dropdown-item" href="${baseUrl}/user/logout"><span class="icon zmdi zmdi-power"></span>退出</a>
 					</div>
 				</li>

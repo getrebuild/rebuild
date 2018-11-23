@@ -3,7 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>视图相关项配置</title>
+<title>视图配置</title>
 </head>
 <body class="dialog">
 <div class="main-content">
@@ -32,7 +32,7 @@
 <script type="text/babel">
 $(document).ready(function(){
 	const entity = $urlp('entity'), type = $urlp('type')
-	const _url = rb.baseUrl + '/admin/entity/' + entity + '/viewfeat-config?type=' + type
+	const _url = rb.baseUrl + '/admin/entity/' + entity + '/view-addons?type=' + type
 	
 	$.get(_url, function(res){
 		$(res.data.refs).each(function(){ render_unset(this) })

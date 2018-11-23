@@ -9,7 +9,6 @@
 <%
 final User currentUser = Application.getUserStore().getUser(AppUtils.getRequestUser(request));
 final String showName = UserHelper.getShowName(currentUser);
-final boolean isAdmin = currentUser.isAdmin();
 %>
 <nav class="navbar navbar-expand fixed-top rb-top-header">
 	<div class="container-fluid">
@@ -20,7 +19,7 @@ final boolean isAdmin = currentUser.isAdmin();
 		<div class="rb-right-navbar">
 			<ul class="nav navbar-nav float-right rb-user-nav">
 				<li class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle" href="${baseUrl}/me/profile" data-toggle="dropdown">
+					<a class="nav-link dropdown-toggle" href="${baseUrl}/settings/account" data-toggle="dropdown">
 						<img src="<%=currentUser.getAvatarUrl(true)%>" alt="Avatar">
 						<span class="user-name">${showName}</span>
 					</a>
@@ -36,11 +35,9 @@ final boolean isAdmin = currentUser.isAdmin();
 			</ul>
 			<div class="page-title"><span>${param['pageTitle']}</span></div>
 			<ul class="nav navbar-nav float-right rb-icons-nav">
-				<c:if test="${!isAdmin}">
-				<li class="nav-item dropdown J_admin-settings">
+				<li class="nav-item dropdown J_admin-settings <%=currentUser.isAdmin() ? "" : "hide"%>">
 					<a class="nav-link" href="${baseUrl}/admin/systems"><i class="icon zmdi zmdi-settings"></i></a>
 				</li>
-				</c:if>
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle" data-toggle="dropdown--disable" href="${baseUrl}/app/notifications"><i class="icon zmdi zmdi-notifications"></i><span class="indicator hide"></span></a>
 					<ul class="dropdown-menu rb-notifications">

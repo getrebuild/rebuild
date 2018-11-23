@@ -45,20 +45,20 @@ public class CurrentCaller {
 
 	/**
 	 * @return
-	 * @throws InvalidRequestException
+	 * @throws BadParameterException
 	 */
-	public ID getCurrentCaller() throws InvalidRequestException {
+	public ID getCurrentCaller() throws BadParameterException {
 		return getCurrentCaller(false);
 	}
 	
 	/**
 	 * @return
-	 * @throws InvalidRequestException
+	 * @throws BadParameterException
 	 */
-	public ID getCurrentCaller(boolean allowNull) throws InvalidRequestException {
+	public ID getCurrentCaller(boolean allowNull) throws BadParameterException {
 		ID user = CALLER.get();
 		if (user == null && allowNull == false) {
-			throw new InvalidRequestException("无效请求用户", 403);
+			throw new BadParameterException("无效请求用户", 403);
 		}
 		return user;
 	}

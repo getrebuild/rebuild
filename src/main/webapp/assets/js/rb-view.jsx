@@ -97,9 +97,9 @@ const RbViewPage = {
         $('.J_share').click(function(){
             rb.ShareDialog({ entity: entity[0], ids: [id] })
         })
-        $('.J_adds-slave').click(function(){
+        $('.J_add-slave').click(function(){
             let defaultValues = {}
-            defaultValues['&' + entity[0]] = id
+            defaultValues['$MASTER$'] = id
             let _this = $(this)
             rb.RbFormModal({ title: '添加明细', entity: _this.data('entity'), icon: _this.data('icon'), defaultValues: defaultValues })
         })
@@ -107,29 +107,26 @@ const RbViewPage = {
         // Privileges
         if (ep) {
             if (ep.D === false) $('.J_delete').remove()
-            if (ep.U === false) $('.J_edit').remove()
+            if (ep.U === false) $('.J_edit, .J_add-slave').remove()
             if (ep.A === false) $('.J_assign').remove()
             if (ep.S === false) $('.J_share').remove()
             
-            // clear
-            $cleanMenu('.J_action')
-            $('.view-action .col-6').each(function(){ if ($(this).children().length == 0) $(this).remove() })
-            if ($('.view-action').children().length == 0){
-                $('.view-action').addClass('noaction')
-                $('<div class="alert alert-light alert-icon alert-icon-colored min mb-2"><div class="icon"><i class="zmdi zmdi-info-outline"></i></div><div class="message">你对此记录无可操作权限</div></div>').appendTo('.view-action')
-            }
+            that.__cleanButton()
         }
         
         $('.J_close').click(function(){
             if (parent && parent.rb.RbViewModalGet(id)) parent.rb.RbViewModalGet(id).hide()
         })
+        
+        this.renderRecordMeta()
     },
     
-    initRecordMeta() {
+    renderRecordMeta() {
         $.get(`${rb.baseUrl}/app/entity/record-meta?id=${this.__id}`, function(res){
             if (res.error_code == 0) {
                 let _data = res.data
                 for (let k in _data) {
+                    if (!!!_data[k]) continue
                     if (k == 'owningUser'){
                         $('<a href="#!/View/User/' + _data[k][0] + '" onclick="RbViewPage.clickView(this)">' + _data[k][1] + '</a>').appendTo('.J_' + k)
                     } else if (k == 'shareTo'){
@@ -161,7 +158,7 @@ const RbViewPage = {
             if (pane.hasClass('rb-loading-active')) {
                 if (~~_this.find('.badge').text() > 0) {
                     ReactDOM.render(<RbSpinner/>, pane[0])
-                    that.renderRelatedList(pane, _this.attr('href').substr(5))
+                    that.renderRelatedGrid(pane, _this.attr('href').substr(5))
                 } else {
                     ReactDOM.render(<div className="list-nodata"><span className="zmdi zmdi-info-outline"/><p>没有相关数据</p></div>, pane[0])
                     pane.removeClass('rb-loading-active')
@@ -180,13 +177,13 @@ const RbViewPage = {
             })
         }
         
-        $('.J_view-feat').click(function(){
-            let type = $(this).data('feat')
-            rb.modal(`${rb.baseUrl}/page/admin/entity/viewfeat-config?entity=${that.__entity[0]}&type=${type}`, '配置' + (type == 'TAB' ? '显示项' : '新建项'))
+        $('.J_view-addons').click(function(){
+            let type = $(this).data('type')
+            rb.modal(`${rb.baseUrl}/p/admin/entity/view-addons?entity=${that.__entity[0]}&type=${type}`, '配置' + (type == 'TAB' ? '显示项' : '新建项'))
         })
     },
     
-    renderRelatedList(el, related, page) {
+    renderRelatedGrid(el, related, page) {
         page = page || 1
         $.get(rb.baseUrl + '/app/entity/related-list?master=' + this.__id + '&related=' + related + '&pageNo=' + page, function(res){
             el.removeClass('rb-loading-active')
@@ -209,13 +206,24 @@ const RbViewPage = {
             })
             $('.J_adds .dropdown-divider').before(item)
         })
-         $cleanMenu('.J_adds')
+        this.__cleanButton()
     },
     
     clickView(el) {
         let viewUrl = $(el).attr('href')
         viewUrl = viewUrl.split('/')
         parent.rb.RbViewModal({ entity: viewUrl[2], id: viewUrl[3] }, true)
+    },
+    
+    __cleanButton() {
+        $setTimeout(() => {
+            $cleanMenu('.view-action .J_mores')
+            $cleanMenu('.view-action .J_adds')
+            $('.view-action .col-6').each(function(){ if ($(this).children().length == 0) $(this).remove() })
+            if ($('.view-action').children().length == 0){
+                $('.view-action').addClass('empty').empty()
+            }
+        }, 100, '__cleanButton')
     },
     
     // 隐藏划出的 View

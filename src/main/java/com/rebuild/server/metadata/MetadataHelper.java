@@ -24,11 +24,13 @@ import java.util.List;
 import org.springframework.util.Assert;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.entityhub.DisplayType;
 import com.rebuild.server.entityhub.EasyMeta;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MetadataException;
 
@@ -146,6 +148,61 @@ public class MetadataHelper {
 	}
 	
 	/**
+	 * 设置时过滤某些 Bizz 实体的字段
+	 * 
+	 * @param field
+	 * @return
+	 */
+	public static boolean isFilterField(Field field) {
+		int ec = field.getOwnEntity().getEntityCode();
+		String fn = field.getName();
+		if (ec == EntityHelper.User) {
+			return "avatarUrl".equalsIgnoreCase(fn) || "password".equalsIgnoreCase(fn);
+		}
+		return false;
+	}
+	
+	/**
+	 * 是否 Bizz 实体
+	 * 
+	 * @param entityCode
+	 * @return
+	 */
+	public static boolean isBizzEntity(int entityCode) {
+		return entityCode == EntityHelper.User || entityCode == EntityHelper.Department || entityCode == EntityHelper.Role;
+	}
+	
+	/**
+	 * 获取内建实体的 DisplayType
+	 * 
+	 * @param field
+	 * @return
+	 */
+	public static DisplayType getBuiltinFieldType(Field field) {
+		int ec = field.getOwnEntity().getEntityCode();
+		String fn = field.getName();
+		if (ec == EntityHelper.User && "email".equals(fn)) {
+			return DisplayType.EMAIL;
+		}
+		
+		Type ft = field.getType();
+		if (ft == FieldType.PRIMARY) {
+			return DisplayType.ID;
+		} else if (ft == FieldType.REFERENCE) {
+			return DisplayType.REFERENCE;
+		} else if (ft == FieldType.TIMESTAMP) {
+			return DisplayType.DATETIME;
+		} else if (ft == FieldType.DATE) {
+			return DisplayType.DATE;
+		} else if (ft == FieldType.STRING) {
+			return DisplayType.TEXT;
+		} else if (ft == FieldType.BOOL) {
+			return DisplayType.BOOL;
+		}
+		return null;
+	}
+	
+	/**
 	 * 获取明细实体哪个字段引用自主实体
 	 * 
 	 * @param slave
@@ -165,5 +222,25 @@ public class MetadataHelper {
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * 是否主实体
+	 * 
+	 * @param entityCode
+	 * @return
+	 */
+	public static boolean isMasterEntity(int entityCode) {
+		return getEntity(entityCode).getSlaveEntity() != null;
+	}
+	
+	/**
+	 * 是否明细实体
+	 * 
+	 * @param entityCode
+	 * @return
+	 */
+	public static boolean isSlaveEntity(int entityCode) {
+		return getEntity(entityCode).getMasterEntity() != null;
 	}
 }

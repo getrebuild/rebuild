@@ -29,17 +29,28 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-sm-3 view-metas">
+		<div class="col-sm-3 view-operating">
 			<div class="view-action row">
-				<div class="col-6 pr-1 mb-2">
+				<div class="col-6 ">
 					<button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
 				</div>
-				<div class="col-6 pl-1 mb-2 btn-group J_action">
+				<div class="col-6 btn-group J_mores">
 					<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-more-vert"></i> 更多</button>
 					<div class="dropdown-menu dropdown-menu-right">
 						<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
 					</div>
 				</div>
+			</div>
+			<div class="view-date">
+				<div class="form-line"><fieldset><legend>日期</legend></fieldset></div>
+				<dl class="row">
+					<dt class="col-4 pr-0">创建时间</dt>
+					<dd class="col-8 pl-0 J_createdOn"></dd>
+				</dl>
+				<dl class="row">
+					<dt class="col-4 pr-0">修改时间</dt>
+					<dd class="col-8 pl-0 J_modifiedOn"></dd>
+				</dl>
 			</div>
 		</div>
 	</div>

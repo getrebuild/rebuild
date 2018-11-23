@@ -26,20 +26,20 @@ import com.rebuild.server.RebuildException;
  * @author zhaofang123@gmail.com
  * @since 05/19/2018
  */
-public class InvalidRequestException extends RebuildException {
+public class BadParameterException extends RebuildException {
 	private static final long serialVersionUID = 1104144276994648297L;
 	
 	private int bizCode = 400;
 
-	public InvalidRequestException(String msg) {
+	public BadParameterException(String msg) {
 		super(msg);
 	}
 	
-	public InvalidRequestException(String msg, Throwable cause) {
+	public BadParameterException(String msg, Throwable cause) {
 		super(msg, cause);
 	}
 	
-	public InvalidRequestException(String msg, int bizCode) {
+	public BadParameterException(String msg, int bizCode) {
 		super(msg);
 		this.bizCode = bizCode;
 	}

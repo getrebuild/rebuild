@@ -52,7 +52,7 @@ public abstract class PageControll {
 	protected ID getRequestUser(HttpServletRequest req) {
 		ID fansId = AppUtils.getRequestUser(req);
 		if (fansId == null) {
-			throw new InvalidRequestException("无效请求用户");
+			throw new BadParameterException("无效请求用户");
 		}
 		return fansId;
 	}
@@ -110,6 +110,10 @@ public abstract class PageControll {
 		Entity entity = MetadataHelper.getEntity(record.getEntityCode());
 		putEntityMeta(mv, entity);
 		
+		// 使用主实体权限
+		if (entity.getMasterEntity() != null) {
+			entity = entity.getMasterEntity();
+		}
 		if (EntityHelper.hasPrivilegesField(entity)) {
 			Permission[] actions = new Permission[] {
 					BizzPermission.CREATE,

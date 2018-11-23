@@ -24,7 +24,7 @@
 			<div class="tab-container">
 				<ul class="nav nav-tabs">
 					<li class="nav-item"><a class="nav-link active" href="#tab-rbview" data-toggle="tab">视图</a></li>
-					<a class="vtab-settings J_for-admin J_view-feat hide" data-feat="TAB" title="配置显示项"><i class="zmdi zmdi-settings"></i></a>
+					<a class="vtab-settings J_for-admin J_view-addons hide" data-type="TAB" title="配置显示项"><i class="zmdi zmdi-settings"></i></a>
 				</ul>
 				<div class="tab-content">
                     <div class="tab-pane active" id="tab-rbview"></div>
@@ -36,7 +36,7 @@
 				<div class="col-6">
 					<button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
 				</div>
-				<div class="col-6 btn-group J_action">
+				<div class="col-6 btn-group J_mores">
 					<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-more-vert"></i> 更多</button>
 					<div class="dropdown-menu dropdown-menu-right">
 						<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
@@ -46,14 +46,14 @@
 				</div>
 				<c:if test="${slaveEntity != null}">
 				<div class="col-6">
-					<button class="btn btn-secondary J_adds-slave" type="button" data-entity="${slaveEntity}" data-label="${slaveEntityLabel}" data-icon="${slaveEntityIcon}"><i class="icon x14 zmdi zmdi-playlist-plus"></i> 添加明细</button>
+					<button class="btn btn-secondary J_add-slave" type="button" data-entity="${slaveEntity}" data-label="${slaveEntityLabel}" data-icon="${slaveEntityIcon}"><i class="icon x14 zmdi zmdi-playlist-plus"></i> 添加明细</button>
 				</div>
 				</c:if>
 				<div class="col-6 btn-group J_adds">
 					<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-plus"></i> 新建相关</button>
 					<div class="dropdown-menu dropdown-menu-right">
 						<div class="dropdown-divider"></div>
-						<a class="dropdown-item J_for-admin J_view-feat" data-feat="ADD"><i class="icon zmdi zmdi-settings"></i> 配置新建项</a>
+						<a class="dropdown-item J_for-admin J_view-addons" data-type="ADD"><i class="icon zmdi zmdi-settings"></i> 配置新建项</a>
 					</div>
 				</div>
 			</div>
@@ -89,7 +89,6 @@
 <script type="text/babel">
 $(document).ready(function(){
 	RbViewPage.init('${id}', ['${entityName}','${entityLabel}','${entityIcon}'], $.parseJSON('${entityPrivileges}'))
-	RbViewPage.initRecordMeta()
 	RbViewPage.initVTabs($.parseJSON('${ViewTabs}'))
 	RbViewPage.initVAdds($.parseJSON('${ViewAdds}'))
 })

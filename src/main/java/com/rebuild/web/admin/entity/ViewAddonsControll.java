@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.entityhub.EasyMeta;
-import com.rebuild.server.helper.manager.ViewFeatManager;
+import com.rebuild.server.helper.manager.ViewAddonsManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.JSONUtils;
@@ -54,20 +54,20 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/admin/entity/")
-public class ViewFeatControll extends BaseControll implements LayoutConfig {
+public class ViewAddonsControll extends BaseControll implements LayoutConfig {
 
-	@RequestMapping(value = "{entity}/viewfeat-config", method = RequestMethod.POST)
+	@RequestMapping(value = "{entity}/view-addons", method = RequestMethod.POST)
 	@Override
 	public void sets(@PathVariable String entity,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		String type = getParameter(request, "type", ViewFeatManager.TYPE_TAB);
+		String type = getParameter(request, "type", ViewAddonsManager.TYPE_TAB);
 		JSON config = ServletUtils.getRequestJson(request);
 		
-		Object[] feat = ViewFeatManager.getRaw(entity, type);
+		Object[] feat = ViewAddonsManager.getRaw(entity, type);
 		Record record = null;
 		if (feat == null) {
-			record = EntityHelper.forNew(EntityHelper.ViewFeatConfig, user);
+			record = EntityHelper.forNew(EntityHelper.ViewAddonsConfig, user);
 			record.setString("type", type);
 			record.setString("belongEntity", entity);
 		} else {
@@ -79,18 +79,18 @@ public class ViewFeatControll extends BaseControll implements LayoutConfig {
 		writeSuccess(response);
 	}
 	
-	@RequestMapping(value = "{entity}/viewfeat-config", method = RequestMethod.GET)
+	@RequestMapping(value = "{entity}/view-addons", method = RequestMethod.GET)
 	@Override
 	public void gets(@PathVariable String entity,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String type = getParameter(request, "type", ViewFeatManager.TYPE_TAB);
-		Object[] feat = ViewFeatManager.getRaw(entity, type);
+		String type = getParameter(request, "type", ViewAddonsManager.TYPE_TAB);
+		Object[] feat = ViewAddonsManager.getRaw(entity, type);
 		
 		Entity entityMeta = MetadataHelper.getEntity(entity);
 		Set<String[]> refs = new HashSet<>();
 		for (Field field : entityMeta.getReferenceToFields()) {
 			Entity e = field.getOwnEntity();
-			// 过滤明细实体，因为明细实体会默认就有
+			// 过滤明细实体，因为明细实体默认就有
 			if (e.getMasterEntity() != null) {
 				continue;
 			}

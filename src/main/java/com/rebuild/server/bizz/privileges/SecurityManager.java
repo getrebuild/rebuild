@@ -21,16 +21,19 @@ package com.rebuild.server.bizz.privileges;
 import com.rebuild.server.Application;
 import com.rebuild.server.bizz.RoleService;
 import com.rebuild.server.bizz.UserService;
+import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.helper.cache.RecordOwningCache;
+import com.rebuild.server.helper.manager.FieldValueWrapper;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.MetadataSorter;
 
 import cn.devezhao.bizz.privileges.DepthEntry;
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.Privileges;
+import cn.devezhao.bizz.privileges.PrivilegesException;
 import cn.devezhao.bizz.privileges.impl.BizzDepthEntry;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.bizz.security.member.Role;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Filter;
 import cn.devezhao.persist4j.engine.ID;
 
@@ -47,23 +50,23 @@ import cn.devezhao.persist4j.engine.ID;
 public class SecurityManager {
 	
 	final private UserStore USER_STORE;
-	final private RecordOwningCache RECORDOWNING_CACHE;
+	final private RecordOwningCache RECORD_OWNING;
 
 	/**
 	 * @param us
 	 * @param roc
 	 */
-	public SecurityManager(UserStore us, RecordOwningCache roc) {
+	protected SecurityManager(UserStore us, RecordOwningCache roc) {
 		this.USER_STORE = us;
-		this.RECORDOWNING_CACHE = roc;
+		this.RECORD_OWNING = roc;
 	}
 	
 	/**
-	 * @param target
+	 * @param record
 	 * @return
 	 */
-	public ID getOwningUser(ID target) {
-		return RECORDOWNING_CACHE.getOwningUser(target);
+	public ID getOwningUser(ID record) {
+		return RECORD_OWNING.getOwningUser(record);
 	}
 	
 	/**
@@ -77,11 +80,21 @@ public class SecurityManager {
 		User u = USER_STORE.getUser(user);
 		if (!u.isActive()) {
 			return Privileges.NONE;
-		}
-		if (u.isAdmin()) {
+		} else if (u.isAdmin()) {
 			return Privileges.ROOT;
 		}
 		return u.getOwningRole().getPrivileges(entity);
+	}
+	
+	/**
+	 * 获取真实的权限实体
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	public int getPrivilegesEntity(int entity) {
+		Entity em = MetadataHelper.getEntity(entity);
+		return em.getMasterEntity() == null ? entity : em.getMasterEntity().getEntityCode();
 	}
 	
 	/**
@@ -221,14 +234,25 @@ public class SecurityManager {
 		Role role = USER_STORE.getUser(user).getOwningRole();
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
 			return true;
-		}
-		
-		if (action == BizzPermission.READ && MetadataSorter.isBizzEntity(entity)) {
+		} else if (action == BizzPermission.READ && MetadataHelper.isBizzEntity(entity)) {
 			return true;
 		}
 		
-		Privileges priv = role.getPrivileges(entity);
-		return priv.allowed(action);
+		if (MetadataHelper.isSlaveEntity(entity)) {
+			// 明细实体不能使用此方法检查创建权限
+			// 明细实体创建 = 主实体更新，因此应该检查主实体记录是否有更新权限
+			if (action == BizzPermission.CREATE) {
+				throw new PrivilegesException("Unsupported checks slave entity : " + entity);
+			}
+			// 明细无分派/共享
+			else if (action == BizzPermission.ASSIGN || action == BizzPermission.SHARE) {
+				return false;
+			}
+			action = convert2MasterAction(action);
+		}
+		
+		Privileges ep = role.getPrivileges(getPrivilegesEntity(entity));
+		return ep.allowed(action);
 	}
 	
 	/**
@@ -247,33 +271,40 @@ public class SecurityManager {
 		Role role = USER_STORE.getUser(user).getOwningRole();
 		if (role == null) {
 			return false;
-		}
-		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
+		} else if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
 			return true;
 		}
 		
 		int entity = target.getEntityCode();
 		
-		if (action == BizzPermission.READ && MetadataSorter.isBizzEntity(entity)) {
+		if (action == BizzPermission.READ && MetadataHelper.isBizzEntity(entity)) {
 			return true;
 		}
 		
-		Privileges priv = role.getPrivileges(entity);
-		boolean allowed = priv.allowed(action);
+		if (MetadataHelper.isSlaveEntity(entity)) {
+			// 明细无分派/共享
+			if (action == BizzPermission.ASSIGN || action == BizzPermission.SHARE) {
+				return false;
+			}
+			action = convert2MasterAction(action);
+		}
+		
+		Privileges ep = role.getPrivileges(getPrivilegesEntity(entity));
+		
+		boolean allowed = ep.allowed(action);
 		if (!allowed) {
 			return false;
 		}
 		
-		DepthEntry depth = priv.superlative(action);
+		DepthEntry depth = ep.superlative(action);
 		
 		if (BizzDepthEntry.NONE.equals(depth)) {
 			return false;
-		}
-		if (BizzDepthEntry.GLOBAL.equals(depth)) {
+		} else if (BizzDepthEntry.GLOBAL.equals(depth)) {
 			return true;
 		}
 		
-		ID targetUserId = RECORDOWNING_CACHE.getOwningUser(target);
+		ID targetUserId = RECORD_OWNING.getOwningUser(target);
 		
 		if (BizzDepthEntry.PRIVATE.equals(depth)) {
 			allowed = user.equals(targetUserId);
@@ -327,9 +358,20 @@ public class SecurityManager {
 			return false;
 		}
 		
+		Entity entity = MetadataHelper.getEntity(target.getEntityCode());
+		if (entity.getMasterEntity() != null) {
+			ID masterId = FieldValueWrapper.getMasterId(target);
+			if (masterId == null) {
+				throw new NoRecordFoundException("No record found by slave-id : " + target);
+			}
+			
+			target = masterId;
+			entity = entity.getMasterEntity();
+		}
+		
 		Object[] rights = Application.createQueryNoFilter(
 				"select rights from ShareAccess where belongEntity = ? and recordId = ? and shareTo = ?")
-				.setParameter(1, MetadataHelper.getEntityName(target))
+				.setParameter(1, entity.getName())
 				.setParameter(2, target.toLiteral())
 				.setParameter(3, user.toLiteral())
 				.unique();
@@ -339,6 +381,19 @@ public class SecurityManager {
 		}
 		
 		return false;
+	}
+	
+	/**
+	 * 转换明细实体的权限。<tt>删除/新建/更新</tt>明细记录，等于修改主实体，因此要转换成<tt>更新</tt>权限
+	 * 
+	 * @param slaveAction
+	 * @return
+	 */
+	private Permission convert2MasterAction(Permission slaveAction) {
+		if (slaveAction == BizzPermission.CREATE || slaveAction == BizzPermission.DELETE) {
+			return BizzPermission.UPDATE;
+		}
+		return slaveAction;
 	}
 	
 	/**

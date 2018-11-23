@@ -181,6 +181,8 @@ public class FieldValueWrapper {
 		}
 	}
 	
+	// --
+	
 	/**
 	 * 获取记录的 NAME 字段值
 	 * 
@@ -201,5 +203,22 @@ public class FieldValueWrapper {
 		
 		Object labelVal = FieldValueWrapper.wrapFieldValue(label[0], nameField);
 		return labelVal == null ? null : labelVal.toString();
+	}
+	
+	/**
+	 * 根据明细 ID 获取主记录 ID
+	 * 
+	 * @param slaveId
+	 * @return
+	 */
+	public static ID getMasterId(ID slaveId) {
+		Entity entity = MetadataHelper.getEntity(slaveId.getEntityCode());
+		Entity masterEntity = entity.getMasterEntity();
+		Assert.isTrue(masterEntity != null, "Non slave entty : " + slaveId);
+		
+		String sql = "select %s from %s where %s = '%s'";
+		sql = String.format(sql, masterEntity.getPrimaryField().getName(), entity.getName(), entity.getPrimaryField().getName(), slaveId.toLiteral());
+		Object[] primary = Application.getQueryFactory().createQueryNoFilter(sql).unique();
+		return primary == null ? null : (ID) primary[0];
 	}
 }

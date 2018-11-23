@@ -18,8 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.cache;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.cache.CacheManager;
 
 import com.rebuild.server.metadata.EntityHelper;
@@ -27,6 +25,7 @@ import com.rebuild.server.metadata.MetadataHelper;
 
 import cn.devezhao.bizz.privileges.PrivilegesException;
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
 
@@ -37,8 +36,6 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 10/12/2018
  */
 public class RecordOwningCache extends CacheTemplate<ID> {
-	
-	private static final Log LOG = LogFactory.getLog(RecordOwningCache.class);
 
 	final private PersistManagerFactory aPMFactory;
 	
@@ -48,33 +45,47 @@ public class RecordOwningCache extends CacheTemplate<ID> {
 	}
 	
 	/**
+	 * 获取记录的所属人。若是明细实体则获取其主记录的所属人
+	 * 
 	 * @param record
 	 * @return
+	 * @throws PrivilegesException
+	 * @throws NoRecordFoundException
 	 */
-	public ID getOwningUser(ID record) {
+	public ID getOwningUser(ID record) throws PrivilegesException, NoRecordFoundException {
 		final String recordKey = record.toLiteral();
 		
-		Object hit = get(recordKey);
-		if (hit != null) {
-			return (ID) hit;
+		Object hits = get(recordKey);
+		if (hits != null) {
+			return (ID) hits;
 		}
 		
 		Entity entity = MetadataHelper.getEntity(record.getEntityCode());
+		Entity useMaster = null;
 		if (!EntityHelper.hasPrivilegesField(entity)) {
-			throw new PrivilegesException("No has privileges : " + entity.getName());
+			useMaster = entity.getMasterEntity();
+			if (useMaster != null && EntityHelper.hasPrivilegesField(useMaster)) {
+			} else {
+				throw new PrivilegesException("Non privileges entity : " + entity.getName());
+			}
 		}
 		
-		String sql = "select %s from %s where %s = '%s'";
-		sql = String.format(sql, EntityHelper.owningUser, entity.getName(), entity.getPrimaryField().getName(), record.toLiteral());
-		Object[] own = aPMFactory.createQuery(sql).unique();
-		if (own == null) {
-			LOG.warn("No record found : " + record);
-			return null;
+		String sql = "select owningUser from %s where %s = '%s'";
+		// 使用主记录
+		if (useMaster != null) {
+			Field stm = MetadataHelper.getSlaveToMasterField(entity);
+			sql = sql.replaceFirst("owningUser", stm.getName() + ".owningUser");
+		}
+		sql = String.format(sql, entity.getName(), entity.getPrimaryField().getName(), record.toLiteral());
+		
+		Object[] owning = aPMFactory.createQuery(sql).unique();
+		if (owning == null) {
+			throw new NoRecordFoundException("No record found : " + record);
 		}
 		
-		ID ownUser = (ID) own[0];
-		put(recordKey, ownUser);
-		return ownUser;
+		ID ou = (ID) owning[0];
+		put(recordKey, ou);
+		return ou;
 	}
 	
 	/**

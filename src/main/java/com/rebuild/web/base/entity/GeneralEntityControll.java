@@ -29,9 +29,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.helper.manager.DefaultValueManager;
 import com.rebuild.server.helper.manager.FormManager;
-import com.rebuild.server.helper.manager.ViewFeatManager;
+import com.rebuild.server.helper.manager.ViewAddonsManager;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.web.BaseControll;
 
@@ -62,9 +63,9 @@ public class GeneralEntityControll extends BaseControll {
 		} else {
 			mv = createModelAndView("/general-entity/record-view.jsp", record, user);
 			
-			JSON vtab = ViewFeatManager.getViewTab(entity, user);
+			JSON vtab = ViewAddonsManager.getViewTab(entity, user);
 			mv.getModel().put("ViewTabs", vtab);
-			JSON vadd = ViewFeatManager.getViewAdd(entity, user);
+			JSON vadd = ViewAddonsManager.getViewAdd(entity, user);
 			mv.getModel().put("ViewAdds", vadd);
 		}
 		mv.getModel().put("id", record);
@@ -77,12 +78,23 @@ public class GeneralEntityControll extends BaseControll {
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		ID record = getIdParameter(request, "id");  // New or Update
-		JSON model = FormManager.getFormModel(entity, user, record);
+		
+		JSON defaultVal = null;
 		if (record == null) {
-			JSON defaultVal = ServletUtils.getRequestJson(request);
+			defaultVal = ServletUtils.getRequestJson(request);
 			if (defaultVal != null) {
-				DefaultValueManager.setFieldsValue(MetadataHelper.getEntity(entity), model, defaultVal);
+				// 创建明细实体必须制定主实体，以便验证权限
+				String master = ((JSONObject) defaultVal).getString(DefaultValueManager.DV_MASTER);
+				if (ID.isId(master)) {
+					FormManager.setCurrentMasterId(ID.valueOf(master));
+				}
 			}
+		}
+		
+		JSON model = FormManager.getFormModel(entity, user, record);
+		// 填充前端设定的默认值
+		if (record == null && defaultVal != null) {
+			DefaultValueManager.setFieldsValue(MetadataHelper.getEntity(entity), model, defaultVal);
 		}
 		writeSuccess(response, model);
 	}

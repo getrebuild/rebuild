@@ -41,11 +41,12 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.base.BulkContext;
 import com.rebuild.server.service.base.GeneralEntityService;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.web.BadParameterException;
 import com.rebuild.web.BaseControll;
-import com.rebuild.web.InvalidRequestException;
 
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
@@ -205,30 +206,34 @@ public class GeneralRecordControll extends BaseControll {
 		final ID id = getIdParameterNotNull(request, "id");
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		
-		if (!EntityHelper.hasPrivilegesField(entity)) {
-			writeFailure(response, "无权限实体");
-			return;
+		String sql = "select createdOn,modifiedOn from %s where %s = '%s'";
+		if (EntityHelper.hasPrivilegesField(entity)) {
+			sql = sql.replaceFirst("modifiedOn", "modifiedOn,owningUser");
 		}
 		
-		String sql = "select createdOn,modifiedOn,owningUser from %s where %s = '%s'";
 		sql = String.format(sql, entity.getName(), entity.getPrimaryField().getName(), id);
 		Object[] recordMeta = Application.getQueryFactory().createQueryNoFilter(sql).unique();
 		
 		recordMeta[0] = CalendarUtils.getUTCDateTimeFormat().format(recordMeta[0]);
 		recordMeta[1] = CalendarUtils.getUTCDateTimeFormat().format(recordMeta[1]);
 		
-		User owning = Application.getUserStore().getUser((ID) recordMeta[2]);
-		recordMeta[2] = new Object[] { owning.getId().toLiteral(), owning.getFullName() };
-	
-		Object[] shareTo = Application.createQuery(
-				"select count(accessId) from ShareAccess where belongEntity = ? and recordId = ?")
-				.setParameter(1, entity.getName())
-				.setParameter(2, id.toLiteral())
-				.unique();
+		Object[] owning = null;
+		int shares = 0;
+		if (recordMeta.length == 3) {
+			User user = Application.getUserStore().getUser((ID) recordMeta[2]);
+			owning = new Object[] { user.getId().toLiteral(), user.getFullName() };
+			
+			Object[] shareTo = Application.createQuery(
+					"select count(accessId) from ShareAccess where belongEntity = ? and recordId = ?")
+					.setParameter(1, entity.getName())
+					.setParameter(2, id.toLiteral())
+					.unique();
+			shares = ObjectUtils.toInt(shareTo[0]);
+		}
 		
 		JSON ret = JSONUtils.toJSONObject(
 				new String[] { "createdOn", "modifiedOn", "owningUser", "shareTo" },
-				new Object[] { recordMeta[0], recordMeta[1], recordMeta[2], shareTo[0] });
+				new Object[] { recordMeta[0], recordMeta[1], owning, shares });
 		writeSuccess(response, ret);
 	}
 	
@@ -248,7 +253,7 @@ public class GeneralRecordControll extends BaseControll {
 				sameEntityCode = id0.getEntityCode();
 			}
 			if (sameEntityCode != id0.getEntityCode()) {
-				throw new InvalidRequestException("只能批量删除同一实体的记录");
+				throw new BadParameterException("只能批量删除同一实体的记录");
 			}
 			idList.add(ID.valueOf(id));
 		}

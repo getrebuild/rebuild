@@ -53,6 +53,8 @@ public class FormManager extends LayoutManager {
 
 	private static final Log LOG = LogFactory.getLog(FormManager.class);
 	
+	private static final ThreadLocal<ID> MASTERID4NEWSLAVE = new ThreadLocal<>();
+	
 	/**
 	 * @param entity
 	 * @param user
@@ -125,15 +127,24 @@ public class FormManager extends LayoutManager {
 		
 		// 判断表单权限
 		if (record == null) {
-			if (!Application.getSecurityManager().allowedC(user, entityMeta.getEntityCode())) {  // for C
+			if (entityMeta.getMasterEntity() != null) {
+				ID masterId = MASTERID4NEWSLAVE.get();
+				Assert.notNull(masterId, "Call #setCurrentMasterId first");
+				MASTERID4NEWSLAVE.set(null);
+				
+				if (!Application.getSecurityManager().allowedU(user, masterId)) {
+					return formatModelError("你没有权限向此记录添加明细");
+				}
+			} else if (!Application.getSecurityManager().allowedC(user, entityMeta.getEntityCode())) {
 				return formatModelError("没有新建权限");
 			}
+			
 		} else {
-			if (onView) {  // for R
+			if (onView) {
 				if (!Application.getSecurityManager().allowedR(user, record)) {
 					return formatModelError("你没有读取此记录的权限");
 				}
-			} else {  // for U
+			} else {
 				if (!Application.getSecurityManager().allowedU(user, record)) {
 					return formatModelError("你没有编辑此记录的权限");
 				}
@@ -214,7 +225,7 @@ public class FormManager extends LayoutManager {
 			}
 			// 新建记录
 			else {
-				if (easyField.isBuiltin()) {
+				if (!fieldMeta.isCreatable()) {
 					el.put("readonly", true);
 					if (fieldName.equals(EntityHelper.createdOn) || fieldName.equals(EntityHelper.modifiedOn)) {
 						el.put("value", CalendarUtils.getUTCDateTimeFormat().format(now));
@@ -329,5 +340,12 @@ public class FormManager extends LayoutManager {
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * @param masterId
+	 */
+	public static void setCurrentMasterId(ID masterId) {
+		MASTERID4NEWSLAVE.set(masterId);
 	}
 }

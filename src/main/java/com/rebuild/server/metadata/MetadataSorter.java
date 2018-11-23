@@ -66,7 +66,7 @@ public class MetadataSorter {
 		for (Entity entity : entities) {
 			int ec = entity.getEntityCode();
 			if (EasyMeta.valueOf(ec).isBuiltin()) {
-				if (containsBizz && isBizzEntity(ec)) {
+				if (containsBizz && MetadataHelper.isBizzEntity(ec)) {
 					list.add(entity);
 				}
 			} else {
@@ -144,30 +144,5 @@ public class MetadataSorter {
 				}
 			}
 		});
-	}
-	
-	/**
-	 * 设置时过滤某些 Bizz 实体的字段
-	 * 
-	 * @param field
-	 * @return
-	 */
-	public static boolean isFilterField(Field field) {
-		int ec = field.getOwnEntity().getEntityCode();
-		String fn = field.getName();
-		if (ec == EntityHelper.User) {
-			return "avatarUrl".equalsIgnoreCase(fn) || "password".equalsIgnoreCase(fn);
-		}
-		return false;
-	}
-	
-	/**
-	 * 是否 Bizz 实体
-	 * 
-	 * @param entityCode
-	 * @return
-	 */
-	public static boolean isBizzEntity(int entityCode) {
-		return entityCode == EntityHelper.User || entityCode == EntityHelper.Department || entityCode == EntityHelper.Role;
 	}
 }

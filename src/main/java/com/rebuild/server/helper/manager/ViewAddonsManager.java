@@ -37,12 +37,12 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 视图-相关项
+ * 视图-相关项显示/新建相关
  * 
  * @author devezhao
  * @since 10/22/2018
  */
-public class ViewFeatManager {
+public class ViewAddonsManager {
 	
 	// 显示相关项
 	public static final String TYPE_TAB = "TAB";
@@ -55,7 +55,7 @@ public class ViewFeatManager {
 	 * @return
 	 */
 	public static JSON getViewTab(String entity, ID user) {
-		JSON tabs = getViewFeat(entity, TYPE_TAB, user);
+		JSON tabs = getViewAddons(entity, TYPE_TAB, user);
 		
 		// 明细实体（如有）
 		Entity entityMeta = MetadataHelper.getEntity(entity);
@@ -74,7 +74,7 @@ public class ViewFeatManager {
 	 * @return
 	 */
 	public static JSON getViewAdd(String entity, ID user) {
-		return getViewFeat(entity, TYPE_ADD, user);
+		return getViewAddons(entity, TYPE_ADD, user);
 	}
 	
 	/**
@@ -83,7 +83,7 @@ public class ViewFeatManager {
 	 * @param user
 	 * @return
 	 */
-	protected static JSON getViewFeat(String entity, String type, ID user) {
+	protected static JSON getViewAddons(String entity, String type, ID user) {
 		final Object FEAT[] = getRaw(entity, type);
 		final Permission RoC = TYPE_TAB.equals(type) ? BizzPermission.READ : BizzPermission.CREATE;
 		
@@ -125,7 +125,7 @@ public class ViewFeatManager {
 	 */
 	public static Object[] getRaw(String entity, String type) {
 		Object[] feat = Application.createQueryNoFilter(
-				"select featId,config from ViewFeatConfig where belongEntity = ? and type = ?")
+				"select addonsId,config from ViewAddonsConfig where belongEntity = ? and type = ?")
 				.setParameter(1, entity)
 				.setParameter(2, type)
 				.unique();

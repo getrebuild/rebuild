@@ -25,7 +25,6 @@ import org.apache.commons.lang.StringUtils;
 
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.MetadataSorter;
 
 import cn.devezhao.bizz.privileges.DepthEntry;
 import cn.devezhao.bizz.privileges.Permission;
@@ -99,8 +98,8 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 		
 		Entity useMaster = null;
 		if (!EntityHelper.hasPrivilegesField(entity)) {
-			// TODO BIZZ 实体全部用户可见 ???
-			if (MetadataSorter.isBizzEntity(entity.getEntityCode())) {
+			// NOTE BIZZ 实体全部用户可见
+			if (MetadataHelper.isBizzEntity(entity.getEntityCode())) {
 				return ALLOWED.evaluate(null);
 			} else if (entity.getMasterEntity() != null) {
 				useMaster = entity.getMasterEntity();
@@ -123,13 +122,14 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 		}
 		
 		String ownFormat = "%s = '%s'";
+		Field toMasterField = null;
 		if (useMaster != null) {
-			Field toMasterField = MetadataHelper.getSlaveToMasterField(entity);
+			toMasterField = MetadataHelper.getSlaveToMasterField(entity);
 			ownFormat = toMasterField.getName() + "." + ownFormat;
 		}
 		
 		if (de == BizzDepthEntry.PRIVATE) {
-			return appendShareFilter(entity, useMaster,
+			return appendShareFilter(entity, toMasterField,
 					String.format(ownFormat, EntityHelper.owningUser, user.getIdentity()));
 		}
 		
@@ -137,7 +137,7 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 		String deptSql = String.format(ownFormat, EntityHelper.owningDept, dept.getIdentity());
 		
 		if (de == BizzDepthEntry.LOCAL) {
-			return appendShareFilter(entity, useMaster, deptSql);
+			return appendShareFilter(entity, toMasterField, deptSql);
 		}
 		
 		if (de == BizzDepthEntry.DEEPDOWN) {
@@ -147,7 +147,7 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 			for (BusinessUnit child : dept.getAllChildren()) {
 				sqls.add(String.format(ownFormat, EntityHelper.owningDept, child.getIdentity()));
 			}
-			return appendShareFilter(entity, useMaster, "(" + StringUtils.join(sqls, " or ") + ")");
+			return appendShareFilter(entity, toMasterField, "(" + StringUtils.join(sqls, " or ") + ")");
 		}
 
 		return DENIED.evaluate(null);
@@ -158,14 +158,22 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 	 * 共享权限
 	 * 
 	 * @param entity
-	 * @param useMaster
+	 * @param slaveToMasterField
 	 * @param filtered
 	 * @return
 	 */
-	protected String appendShareFilter(Entity entity, Entity useMaster, String filtered) {
+	protected String appendShareFilter(Entity entity, Field slaveToMasterField, String filtered) {
 		String shareFilter = "exists (select rights from ShareAccess where belongEntity = '%s' and shareTo = '%s' and recordId = ^%s)";
 		shareFilter = String.format(shareFilter,
 				entity.getName(), user.getIdentity().toString(), entity.getPrimaryField().getName());
+		
+		// EXISTS 无法支持，使用 IN 语句
+		if (slaveToMasterField != null) {
+			shareFilter = "%s in (select recordId from ShareAccess where belongEntity = '%s' and shareTo = '%s')";
+			shareFilter = String.format(shareFilter,
+					slaveToMasterField.getName(), slaveToMasterField.getReferenceEntity().getName(), user.getIdentity().toString());
+		}
+		
 		return "(" + filtered + " or " + shareFilter + ")";
 	}
 }

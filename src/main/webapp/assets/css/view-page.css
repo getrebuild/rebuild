@@ -122,8 +122,6 @@ html, body {
 .view-action .col-6 .btn {
     width: 100%
 }
-.view-action.noaction {
-    padding-top: 2px;
-    margin-left: 0;
-    margin-right: 0;
+.view-action.empty {
+	margin-top: 4px;
 }

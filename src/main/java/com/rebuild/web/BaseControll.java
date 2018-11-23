@@ -197,7 +197,7 @@ public abstract class BaseControll extends PageControll {
 	protected String getParameterNotNull(HttpServletRequest req, String name) {
 		String v = req.getParameter(name);
 		if (StringUtils.isEmpty(v)) {
-			throw new InvalidRequestException("无效参数 [" + name + "=" + v + "]");
+			throw new BadParameterException("无效参数 [" + name + "=" + v + "]");
 		}
 		return v;
 	}
@@ -267,6 +267,6 @@ public abstract class BaseControll extends PageControll {
 		if (ID.isId(v)) {
 			return ID.valueOf(v);
 		}
-		throw new InvalidRequestException("无效ID参数 [" + name + "=" + v + "]");
+		throw new BadParameterException("无效ID参数 [" + name + "=" + v + "]");
 	}
 }

@@ -34,7 +34,6 @@ import com.rebuild.server.metadata.MetadataHelper;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
-import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.BaseMeta;
 
@@ -107,15 +106,12 @@ public class EasyMeta implements BaseMeta {
 	 * @return
 	 */
 	public String getDisplayType(boolean fullName) {
-		if (isField()) {
-			DisplayType dt = getDisplayType();
-			if (fullName) {
-				return dt.getDisplayName() + " (" + dt.name() + ")";
-			} else {
-				return dt.name();
-			}
+		DisplayType dt = getDisplayType();
+		if (fullName) {
+			return dt.getDisplayName() + " (" + dt.name() + ")";
+		} else {
+			return dt.name();
 		}
-		throw new UnsupportedOperationException("Non `field` entry");
 	}
 	
 	/**
@@ -129,27 +125,13 @@ public class EasyMeta implements BaseMeta {
 				return dt;
 			}
 			
-			Field field = (Field) baseMeta;
-			if (field.getOwnEntity().getEntityCode() == EntityHelper.User && "email".equals(field.getName())) {
-				return DisplayType.EMAIL;
-			}
-			
-			Type ft = field.getType();
-			if (ft == FieldType.PRIMARY) {
-				return DisplayType.ID;
-			} else if (ft == FieldType.REFERENCE) {
-				return DisplayType.REFERENCE;
-			} else if (ft == FieldType.TIMESTAMP) {
-				return DisplayType.DATETIME;
-			} else if (ft == FieldType.DATE) {
-				return DisplayType.DATE;
-			} else if (ft == FieldType.STRING) {
-				return DisplayType.TEXT;
-			} else if (ft == FieldType.BOOL) {
-				return DisplayType.BOOL;
-			}
+			DisplayType dt = MetadataHelper.getBuiltinFieldType((Field) baseMeta);
+			if (dt != null) {
+				return dt;
+			} 
+			throw new RebuildException("Unsupported field type : " + this.baseMeta);
 		}
-		throw new RebuildException("Unsupported field type : " + this.baseMeta);
+		throw new UnsupportedOperationException("Field only");
 	}
 	
 	/**
@@ -215,7 +197,7 @@ public class EasyMeta implements BaseMeta {
 	 */
 	public String getIcon() {
 		if (isField()) {
-			return null;
+			throw new UnsupportedOperationException("Entity only");
 		}
 		
 		String def[] = SYSENTITY_EXTMETA.get(getName());
@@ -227,22 +209,6 @@ public class EasyMeta implements BaseMeta {
 			customIcon = StringUtils.defaultIfBlank((String) ext[2], "texture");
 		}
 		return StringUtils.defaultIfBlank(customIcon, defIcon);
-	}
-	
-	/**
-	 * 字段扩展配置
-	 * 
-	 * @return
-	 */
-	public JSONObject getFieldExtConfig() {
-		if (isField()) {
-			Object[] ext = getMetaExt();
-			if (ext == null) {
-				return JSON.parseObject("{}");
-			}
-			return JSON.parseObject(StringUtils.defaultIfBlank((String) ext[3], "{}"));
-		}
-		return null;
 	}
 	
 	/**
@@ -258,6 +224,22 @@ public class EasyMeta implements BaseMeta {
 			ext = MetadataHelper.getEntityExtmeta((Entity) baseMeta);
 		}
 		return ext;
+	}
+	
+	/**
+	 * 字段扩展配置
+	 * 
+	 * @return
+	 */
+	public JSONObject getFieldExtConfig() {
+		if (isField()) {
+			Object[] ext = getMetaExt();
+			if (ext == null) {
+				return JSON.parseObject("{}");
+			}
+			return JSON.parseObject(StringUtils.defaultIfBlank((String) ext[3], "{}"));
+		}
+		throw new UnsupportedOperationException("Field only");
 	}
 	
 	/**
@@ -293,7 +275,6 @@ public class EasyMeta implements BaseMeta {
 		return valueOf(MetadataHelper.getEntity(entityName));
 	}
 	
-	
 	/**
 	 * @param field
 	 * @return
@@ -314,7 +295,7 @@ public class EasyMeta implements BaseMeta {
 	 * @return [Name, Label, Icon]
 	 */
 	public static String[] getEntityShows(Entity entity) {
-		EasyMeta easyMeta = valueOf(entity);
-		return new String[] { entity.getName(), easyMeta.getLabel(), easyMeta.getIcon() };
+		EasyMeta em = valueOf(entity);
+		return new String[] { entity.getName(), em.getLabel(), em.getIcon() };
 	}
 }

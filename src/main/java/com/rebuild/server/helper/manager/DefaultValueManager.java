@@ -30,7 +30,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.entityhub.DisplayType;
 import com.rebuild.server.entityhub.EasyMeta;
+import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.web.BadParameterException;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -45,6 +47,9 @@ import cn.devezhao.persist4j.engine.ID;
 public class DefaultValueManager {
 	
 	private static final Log LOG = LogFactory.getLog(DefaultValueManager.class);
+	
+	public static final String DV_MASTER = "$MASTER$";
+	public static final String DV_REFERENCE_PREFIX = "&";
 
 	/**
 	 * @param entity
@@ -71,24 +76,24 @@ public class DefaultValueManager {
 			}
 			
 			// 引用字段实体。&EntityName
-			if (field.startsWith("&")) {
-				final Object idLabel[] = readyReferenceValue(value);
-				if (idLabel == null) {
-					continue;
+			if (field.equals(DV_MASTER) || field.startsWith(DV_REFERENCE_PREFIX)) {
+				Object idLabel[] = readyReferenceValue(value);
+				
+				if (field.equals(DV_MASTER)) {
+					Field stm = MetadataHelper.getSlaveToMasterField(entity);
+					valuesReady.put(stm.getName(), idLabel);
+				} else {
+					Entity source = MetadataHelper.getEntity(field.substring(1));
+					Field[] reftoFields = MetadataHelper.getReferenceToFields(source, entity);
+					for (Field rtf : reftoFields) {
+						valuesReady.put(rtf.getName(), idLabel);
+					}
 				}
 				
-				Entity source = MetadataHelper.getEntity(field.substring(1));
-				Field[] reftoFields = MetadataHelper.getReferenceToFields(source, entity);
-				for (Field rtf : reftoFields) {
-					valuesReady.put(rtf.getName(), idLabel);
-				}
 			} else if (entity.containsField(field)) {
 				EasyMeta fieldMeta = EasyMeta.valueOf(entity.getField(field));
 				if (fieldMeta.getDisplayType() == DisplayType.REFERENCE) {
-					final Object idLabel[] = readyReferenceValue(value);
-					if (idLabel != null) {
-						valuesReady.put(field, idLabel);
-					}
+					valuesReady.put(field, readyReferenceValue(value));
 				}
 				
 				// TODO 填充其他字段值 ...
@@ -100,6 +105,7 @@ public class DefaultValueManager {
 		if (valuesReady.isEmpty()) {
 			return;
 		}
+		
 		for (Object o : elements) {
 			JSONObject item = (JSONObject) o;
 			String field = item.getString("field");
@@ -111,16 +117,19 @@ public class DefaultValueManager {
 	}
 	
 	/**
-	 * @param value
+	 * @param idVal
 	 * @return
 	 */
-	private static Object[] readyReferenceValue(Object value) {
-		if (!ID.isId(value.toString())) {
-			return null;
+	private static Object[] readyReferenceValue(Object idVal) {
+		if (!ID.isId(idVal.toString())) {
+			throw new BadParameterException("Bad ID : " + idVal);
 		}
 		
-		ID id = ID.valueOf(value.toString());
+		ID id = ID.valueOf(idVal.toString());
 		String label = FieldValueWrapper.getLabel(id);
+		if (label == null) {
+			throw new NoRecordFoundException("No record found : " + idVal);
+		}
 		return new Object[] { id.toLiteral(), label };
 	}
 	
