@@ -234,6 +234,7 @@ class RbFormElement extends React.Component {
         
         this.handleChange = this.handleChange.bind(this)
         this.checkError = this.checkError.bind(this)
+        this.handleClear = this.handleClear.bind(this)
     }
     
     render() {
@@ -272,6 +273,7 @@ class RbFormElement extends React.Component {
         let val = event.target.value
         let that = this
         this.setState({ value: val }, function(){ checkError == true && that.checkError() } )
+        console.log('handleChange ... ' + this.props.field + ' > ' + val)
     }
     checkError() {
         // Unchanged Uncheck
@@ -297,6 +299,11 @@ class RbFormElement extends React.Component {
             return !!!this.state.value ? '不能为空' : null
         }
         return null
+    }
+    // 清空值
+    handleClear() {
+        let that = this
+        this.setState({ value: '' }, function(){ that.checkError() } )
     }
 }
 
@@ -399,9 +406,7 @@ class RbFormTextarea extends RbFormElement {
         super(props)
     }
     renderElement() {
-        return (
-            <textarea ref="field-value" className={'form-control form-control-sm row3x ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} value={this.state.value} onChange={this.handleChange} onBlur={this.checkError} />
-        )
+        return (<textarea ref="field-value" className={'form-control form-control-sm row3x ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} value={this.state.value || ''} onChange={this.handleChange} onBlur={this.checkError} />)
     }
 }
 
@@ -409,13 +414,12 @@ class RbFormTextarea extends RbFormElement {
 class RbFormDateTime extends RbFormElement {
     constructor(props) {
         super(props)
-        this.cleanValue = this.cleanValue.bind(this)
     }
     renderElement() {
         return (
             <div className="input-group datetime-field">
-                <input ref="field-value" className={'form-control form-control-sm ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} type="text" value={this.state.value || ''}/>
-                <span className={'zmdi zmdi-close clean ' + (this.state.value ? '' : 'hide')} onClick={this.cleanValue}></span>
+                <input ref="field-value" className={'form-control form-control-sm ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} type="text" value={this.state.value || ''} onChange={this.handleChange} onBlur={this.checkError} />
+                <span className={'zmdi zmdi-close clean ' + (this.state.value ? '' : 'hide')} onClick={this.handleClear}></span>
                 <div className="input-group-append">
                     <button className="btn btn-primary" type="button" ref="field-value-icon"><i className="icon zmdi zmdi-calendar"></i></button>
                 </div>
@@ -460,9 +464,13 @@ class RbFormDateTime extends RbFormElement {
         $(this.refs['field-value-icon']).click(()=>{
             dtp.datetimepicker('show')
         })
+        this.__dtp = dtp
     }
-    cleanValue() {
-        this.handleChange({ target: { value: '' } }, true)
+    componentWillUnmount() {
+        if (this.__dtp) {
+            this.__dtp.datetimepicker('remove')
+            this.__dtp = null
+        }
     }
 }
 
@@ -476,7 +484,7 @@ class RbFormImage extends RbFormElement {
         return (
             <div className="img-field">
                 {this.state.value.map((item) => {
-                    return (<span><a className="img-thumbnail img-upload"><img src={rb.storageUrl + item + '?imageView2/2/w/100/interlace/1/q/100'}/><b title="移除" onClick={()=>this.removeItem(item)}><span className="zmdi zmdi-close"></span></b></a></span>)
+                    return (<span key={'file-' + item}><a className="img-thumbnail img-upload"><img src={rb.storageUrl + item + '?imageView2/2/w/100/interlace/1/q/100'}/><b title="移除" onClick={()=>this.removeItem(item)}><span className="zmdi zmdi-close"></span></b></a></span>)
                 })}
                 <span title="选择图片">
                     <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} accept="image/*" />
@@ -489,7 +497,7 @@ class RbFormImage extends RbFormElement {
     renderViewElement() {
         return (<div className="img-field">
             {this.state.value.map((item)=>{
-                return <span><a onClick={this.clickPreview.bind(this, item)} className="img-thumbnail img-upload zoom-in" href={rb.storageUrl + item} target="_blank"><img src={rb.storageUrl + item + '?imageView2/2/w/100/interlace/1/q/100'} /></a></span>
+                return <span key={'img-' + item}><a onClick={this.clickPreview.bind(this, item)} className="img-thumbnail img-upload zoom-in" href={rb.storageUrl + item} target="_blank"><img src={rb.storageUrl + item + '?imageView2/2/w/100/interlace/1/q/100'} /></a></span>
             })}
         </div>)
     }
@@ -542,7 +550,7 @@ class RbFormFile extends RbFormElement {
             <div className="file-field">
                 {this.state.value.map((item) => {
                     let fileName = __fileCutName(item)
-                    return (<div className="img-thumbnail"><i className={'ftype ' + __fileDetectingIcon(fileName)}/><span>{fileName}</span><b title="移除" onClick={()=>this.removeItem(item)}><span className="zmdi zmdi-close"></span></b></div>)
+                    return (<div key={'file-' + item} className="img-thumbnail"><i className={'ftype ' + __fileDetectingIcon(fileName)}/><span>{fileName}</span><b title="移除" onClick={()=>this.removeItem(item)}><span className="zmdi zmdi-close"></span></b></div>)
                 })}
                 <div className="file-select">
                     <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} />
@@ -556,7 +564,7 @@ class RbFormFile extends RbFormElement {
         return (<div className="file-field">
             {this.state.value.map((item)=>{
                 let fileName = __fileCutName(item)
-                return <a onClick={this.clickPreview.bind(this, item)} className="img-thumbnail" href={rb.storageUrl + item + '?attname=' + fileName} target="_blank"><i className={'ftype ' + __fileDetectingIcon(fileName)}/><span>{fileName}</span></a>
+                return <a key={'file-' + item} onClick={this.clickPreview.bind(this, item)} className="img-thumbnail" href={rb.storageUrl + item + '?attname=' + fileName} target="_blank"><i className={'ftype ' + __fileDetectingIcon(fileName)}/><span>{fileName}</span></a>
             })}
         </div>)
     }
@@ -600,7 +608,7 @@ class RbFormPickList extends RbFormElement {
     }
     renderElement() {
         return (
-            <select ref="field-value" className="form-control form-control-sm" value={this.state.value} onChange={this.handleChange}>
+            <select ref="field-value" className="form-control form-control-sm" value={this.state.value || ''} onChange={this.handleChange}>
             {this.props.options.map((item) => {
                 return (<option key={item.field + '-' + item.id} value={item.id}>{item.text}</option>)
             })}
@@ -617,6 +625,7 @@ class RbFormPickList extends RbFormElement {
             allowClear: true,
             width: '100%',
         })
+        this.__select2 = select2
         
         let that = this
         $setTimeout(function() {
@@ -630,10 +639,12 @@ class RbFormPickList extends RbFormElement {
                 that.handleChange({ target:{ value: val } }, true)
             })
         }, 100)
-        this.__select2 = select2
     }
     componentWillUnmount() {
-        if (this.__select2) this.__select2.select2('destroy')
+        if (this.__select2) {
+            this.__select2.select2('destroy')
+            this.__select2 = null
+        }
     }
 }
 
@@ -644,7 +655,7 @@ class RbFormReference extends RbFormElement {
     }
     renderElement() {
         return (
-            <select ref="field-value" className="form-control form-control-sm" onChange={this.handleChange} multiple="multiple" />
+            <select ref="field-value" className="form-control form-control-sm" multiple="multiple" />
         )
     }
     renderViewElement() {
@@ -681,6 +692,7 @@ class RbFormReference extends RbFormElement {
                 }
             }
         })
+        this.__select2 = select2
         
         $setTimeout(function() {
             let val = that.props.value
@@ -690,13 +702,16 @@ class RbFormReference extends RbFormElement {
             }
             select2.trigger('change')
             select2.on('change.select2', function(e){
+                // TODO Clear 触发两次 ???
                 that.handleChange({ target:{ value: e.target.value } }, true)
             })
         }, 100)
-        this.__select2 = select2
     }
     componentWillUnmount() {
-        if (this.__select2) this.__select2.select2('destroy')
+        if (this.__select2) {
+            this.__select2.select2('destroy')
+            this.__select2 = null
+        }
     }
     clickView() {
         if (window.RbViewPage) window.RbViewPage.clickView($(this.refs['field-text']))

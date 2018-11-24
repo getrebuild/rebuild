@@ -275,8 +275,8 @@ a {
     display: inline-block;
 }
 .img-field .img-upload {
-    width: 70px;
-    height: 70px;
+    width: 60px;
+    height: 60px;
     text-align: center;
     display: table-cell;
     vertical-align: middle;
