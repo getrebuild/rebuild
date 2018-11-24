@@ -35,7 +35,7 @@
 					<button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
 				</div>
 				<div class="col-6 btn-group J_mores">
-					<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-more-vert"></i> 更多</button>
+					<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-more-vert"></i></button>
 					<div class="dropdown-menu dropdown-menu-right">
 						<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
 					</div>
@@ -59,6 +59,7 @@
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
 <script type="text/babel">
+window.pageType = 'SlaveView'
 $(document).ready(function(){
 	RbViewPage.init('${id}', ['${entityName}','${entityLabel}','${entityIcon}'], $.parseJSON('${entityPrivileges}'))
 })

@@ -61,14 +61,14 @@ public class RelatedListControll extends BaseControll {
 
 	@RequestMapping("related-list")
 	public void relatedList(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID masterId = getIdParameterNotNull(request, "master");
+		ID masterId = getIdParameterNotNull(request, "masterId");
 		String related = getParameterNotNull(request, "related");
 		
 		Entity relatedEntity = MetadataHelper.getEntity(related);
-		String sql = genMasterSql(masterId, relatedEntity, false);
+		String sql = buildMasterSql(masterId, relatedEntity, false);
 		
 		int pn = NumberUtils.toInt(getParameter(request, "pageNo"), 1);
-		int ps = NumberUtils.toInt(getParameter(request, "pageSize"), 100);
+		int ps = NumberUtils.toInt(getParameter(request, "pageSize"), 200);
 		
 		// TODO 相关项列表分页
 		
@@ -76,7 +76,7 @@ public class RelatedListControll extends BaseControll {
 		for (Object[] o : array) {
 			o[0] = o[0].toString();
 			o[1] = FieldValueWrapper.wrapFieldValue(o[1], relatedEntity.getNameField());
-			if (StringUtils.EMPTY == o[1]) {
+			if (o[1] == null || StringUtils.isEmpty(o[1].toString())) {
 				o[1] = o[0].toString().toUpperCase();  // 使用ID值作为名称字段值
 			}
 			o[2] = CalendarUtils.getUTCDateTimeFormat().format(o[2]);
@@ -90,12 +90,12 @@ public class RelatedListControll extends BaseControll {
 	
 	@RequestMapping("related-counts")
 	public void relatedCounts(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID masterId = getIdParameterNotNull(request, "master");
-		String relates[] = getParameterNotNull(request, "relates").split(",");
+		ID masterId = getIdParameterNotNull(request, "masterId");
+		String relates[] = getParameterNotNull(request, "relateds").split(",");
 		
 		Map<String, Integer> countMap = new HashMap<>();
 		for (String related : relates) {
-			String sql = genMasterSql(masterId, MetadataHelper.getEntity(related), true);
+			String sql = buildMasterSql(masterId, MetadataHelper.getEntity(related), true);
 			Object[] count = Application.createQuery(sql).unique();
 			countMap.put(related, ObjectUtils.toInt(count[0]));
 		}
@@ -103,13 +103,13 @@ public class RelatedListControll extends BaseControll {
 	}
 	
 	/**
-	 * @param masterId
+	 * @param recordOfMain
 	 * @param relatedEntity
 	 * @param count
 	 * @return
 	 */
-	static String genMasterSql(ID masterId, Entity relatedEntity, boolean count) {
-		Entity masterEntity = MetadataHelper.getEntity(masterId.getEntityCode());
+	private String buildMasterSql(ID recordOfMain, Entity relatedEntity, boolean count) {
+		Entity masterEntity = MetadataHelper.getEntity(recordOfMain.getEntityCode());
 		Set<String> relatedFields = new HashSet<>();
 		for (Field field : relatedEntity.getFields()) {
 			if (field.getType() == FieldType.REFERENCE 
@@ -119,7 +119,7 @@ public class RelatedListControll extends BaseControll {
 		}
 		
 		String masterSql = "(" + StringUtils.join(relatedFields, " or ") + ")";
-		masterSql = MessageFormat.format(masterSql, masterId);
+		masterSql = MessageFormat.format(masterSql, recordOfMain);
 		
 		String baseSql = "select %s from " + relatedEntity.getName() + " where " + masterSql;
 		

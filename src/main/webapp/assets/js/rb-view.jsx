@@ -159,7 +159,7 @@ const RbViewPage = {
                     ReactDOM.render(<RbSpinner/>, pane[0])
                     that.renderRelatedGrid(pane, _this.attr('href').substr(5))
                 } else {
-                    ReactDOM.render(<div className="list-nodata"><span className="zmdi zmdi-info-outline"/><p>没有相关数据</p></div>, pane[0])
+                    ReactDOM.render(<div className="list-nodata"><span className="zmdi zmdi-info-outline"/><p>暂无数据</p></div>, pane[0])
                     pane.removeClass('rb-loading-active')
                 }
             }
@@ -176,7 +176,7 @@ const RbViewPage = {
     updateVTabs(es) {
         es = es || this.__vtab_es
         if (!!!es || es.length == 0) return
-        $.get(rb.baseUrl + '/app/entity/related-counts?master=' + this.__id + '&relates=' + es.join(','), function(res){
+        $.get(rb.baseUrl + '/app/entity/related-counts?masterId=' + this.__id + '&relateds=' + es.join(','), function(res){
             for (let k in res.data) {
                 if (~~res.data[k] > 0) {
                     let tab = $('.nav-tabs a[href="#tab-' + k + '"]')
@@ -189,7 +189,7 @@ const RbViewPage = {
     
     renderRelatedGrid(el, related, page) {
         page = page || 1
-        $.get(rb.baseUrl + '/app/entity/related-list?master=' + this.__id + '&related=' + related + '&pageNo=' + page, function(res){
+        $.get(rb.baseUrl + '/app/entity/related-list?masterId=' + this.__id + '&related=' + related + '&pageNo=' + page, function(res){
             el.removeClass('rb-loading-active')
             $(res.data.data).each(function(){
                 let h = '#!/View/' + related + '/' + this[0]

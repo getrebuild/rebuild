@@ -31,14 +31,14 @@
 											<div class="dropdown-menu rb-scroller">
 												<div class="dropdown-item" data-id="$ALL$"><a>所有数据</a></div>
 												<div class="dropdown-divider"></div>
-												<div class="dropdown-item J_advfilter"><i class="icon zmdi zmdi-playlist-plus"></i>添加过滤项</div>
+												<div class="dropdown-item J_advfilter"><i class="icon zmdi zmdi-plus"></i>添加过滤项</div>
 											</div>
 										</div>
 									</div>
 									<div class="input-group input-search">
 										<input class="form-control rounded-left J_search-text" placeholder="搜索 ..." type="text">
 										<span class="input-group-btn"><button class="btn btn-secondary J_search-btn" type="button"><i class="icon zmdi zmdi-search"></i></button></span>
-										<span class="input-group-btn plus"><button class="btn btn-secondary J_qfields" type="button" title="设置查询字段"><i class="icon zmdi zmdi-playlist-plus"></i></button></span>
+										<span class="input-group-btn plus"><button class="btn btn-secondary J_qfields" type="button" title="设置查询字段"><i class="icon zmdi zmdi-more"></i></button></span>
 									</div>
 								</div>
 							</div>
@@ -76,6 +76,7 @@
 <script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/assign-share.jsx" type="text/babel"></script>
 <script type="text/babel">
+window.pageType = 'SlaveList'
 $(document).ready(function(){
 	RbListPage.init($.parseJSON('${DataListConfig}'), ['${entityName}','${entityLabel}','${entityIcon}'], $.parseJSON('${entityPrivileges}'))
 	rb.AdvFilter.init('.adv-search', '${entityName}')

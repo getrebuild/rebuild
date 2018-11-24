@@ -133,13 +133,16 @@ class RbForm extends React.Component {
                 </div>
             </div>
         )
-        //saveBtns = <button className="btn btn-primary btn-space" type="button" onClick={()=>this.post()}>保存</button>
+        
+        let _entity = this.state.entity
+        if (_entity == 'User' || _entity == 'Department' || _entity == 'Role' || window.pageType == 'SlaveView'){
+            saveBtns = <button className="btn btn-primary btn-space" type="button" onClick={()=>this.post()}>保存</button>
+        }
         
         return (
             <div className="form-group row footer">
                 <div className="col-12 col-sm-8 offset-sm-3" ref="rbform-action">
                     {saveBtns}
-                    &nbsp;
                     <button className="btn btn-secondary btn-space" type="button" onClick={()=>this.props.$$$parent.hide()}>取消</button>
                 </div>
             </div>
@@ -202,7 +205,7 @@ class RbForm extends React.Component {
                     let sm = that.props.$$$parent.state.__formModel.slaveMeta
                     rb.RbFormModal({ title: `添加${sm[1]}`, entity: sm[0], icon: sm[2], defaultValues: dv })
                 }
-                if (next == 111 && window.RbViewPage) window.RbViewPage.updateVTabs([_entity])
+                //if (next == 111 && window.RbViewPage) window.RbViewPage.updateVTabs([_entity])
                 
             }else{
                 rb.notice(res.error_msg || '保存失败，请稍后重试', 'danger')

@@ -14,13 +14,13 @@
 	<entity name="User" type-code="001" description="用户" name-field="fullName">
 		<field name="userId" type="primary" />
 		<field name="loginName" type="string" max-length="100" nullable="false" updatable="false" description="登录名" />
+		<field name="password" type="string" max-length="100" nullable="false" updatable="false" description="登录密码" />
 		<field name="email" type="string" max-length="100" description="邮箱" />
-		<field name="password" type="string" max-length="100" description="登录密码" updatable="false" />
 		<field name="fullName" type="string" max-length="100" description="姓名" />
 		<field name="avatarUrl" type="string" max-length="300" description="头像" />
 		<field name="jobTitle" type="string" max-length="100" description="职务" />
-		<field name="deptId" type="reference" ref-entity="Department" cascade="remove-links" nullable="false" description="所在部门" />
-		<field name="roleId" type="reference" ref-entity="Role" cascade="remove-links" nullable="false" description="角色" />
+		<field name="deptId" type="reference" ref-entity="Department" cascade="remove-links" updatable="false" description="所在部门" />
+		<field name="roleId" type="reference" ref-entity="Role" cascade="remove-links" updatable="false" description="角色" />
 		<field name="isDisabled" type="bool" default-value="F" description="是否停用" />
 		<index type="unique" field-list="loginName" />
 		<index type="unique" field-list="email" />
