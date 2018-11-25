@@ -68,16 +68,16 @@ public class DepartmentControll extends BaseControll {
 	
 	@RequestMapping("dept-tree")
 	public void deptTreeGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		Object[][] topDepts = Application.createQuery(
+		Object[][] rootDepts = Application.createQuery(
 				"select deptId from Department where parentDept is null")
 				.array();
 		
-		JSONArray firsts = new JSONArray();
-		for (Object dept[] : topDepts) {
-			Department first = Application.getUserStore().getDepartment((ID) dept[0]);
-			firsts.add(recursiveDeptTree(first));
+		JSONArray roots = new JSONArray();
+		for (Object dept[] : rootDepts) {
+			Department root = Application.getUserStore().getDepartment((ID) dept[0]);
+			roots.add(recursiveDeptTree(root));
 		}
-		writeSuccess(response, firsts);
+		writeSuccess(response, roots);
 	}
 	
 	/**
@@ -89,6 +89,7 @@ public class DepartmentControll extends BaseControll {
 		JSONObject parentJson = new JSONObject();
 		parentJson.put("id", parent.getIdentity().toString());
 		parentJson.put("name", parent.getName());
+		parentJson.put("disabled", parent.isDisabled());
 		JSONArray children = new JSONArray();
 		for (BusinessUnit child : parent.getChildren()) {
 			children.add(recursiveDeptTree((Department) child));

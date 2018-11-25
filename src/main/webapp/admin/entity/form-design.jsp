@@ -131,7 +131,7 @@ const render_item = function(data) {
 	if (data.isFull == true) item.addClass('w-100')
 	
 	let handle = $('<div class="dd-handle J_field" data-field="' + data.fieldName + '"><span>' + data.fieldLabel + '</span></div>').appendTo(item)
-	if (data.builtin == true) handle.addClass('readonly')
+	if (data.creatable == false) handle.addClass('readonly')
 	else if (data.nullable == false) handle.addClass('not-nullable')
 	
 	let action = $('<div class="dd-action"></div>').appendTo(handle)
@@ -158,7 +158,7 @@ const render_item = function(data) {
 const render_unset = function(data){
 	let item = $('<li class="dd-item"><div class="dd-handle">' + data.fieldLabel + '</div></li>').appendTo('.field-list')
 	$('<span class="ft">' + data.displayType.split('(')[0].trim() + '</span>').appendTo(item)
-	if (data.builtin == true) item.find('.dd-handle').addClass('readonly')
+	if (data.creatable == false) item.find('.dd-handle').addClass('readonly')
 	else if (data.nullable == false) item.find('.dd-handle').addClass('not-nullable')
 	item.click(function() {
 		render_item(data)

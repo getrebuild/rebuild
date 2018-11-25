@@ -317,9 +317,10 @@ public class UserStore {
 			if (oldDept.getParent() == null && parent != null) {  // 新加入了部门
 				getDepartment(parent).addChild(newDept);
 			} else if (oldDept.getParent() != null && parent == null) {  // 离开了部门
-				getDepartment(parent).removeMember(oldDept);
-			} else if (oldDept.getParent() != null && parent != null && !oldDept.getIdentity().equals(parent)) {
-				getDepartment(deptId).removeMember(oldDept);
+				getDepartment((ID) oldDept.getParent().getIdentity()).removeChild(oldDept);
+			} else if (oldDept.getParent() != null && parent != null 
+					&& !oldDept.getParent().getIdentity().equals(parent)) {
+				getDepartment((ID) oldDept.getParent().getIdentity()).removeChild(oldDept);
 				getDepartment(parent).addChild(newDept);
 			}
 			
@@ -544,7 +545,7 @@ public class UserStore {
 	}
 	
 	// 统一化 Key
-	static private String normalIdentifier(String ident) {
+	private String normalIdentifier(String ident) {
 		return StringUtils.defaultIfEmpty(ident, "").toLowerCase();
 	}
 	

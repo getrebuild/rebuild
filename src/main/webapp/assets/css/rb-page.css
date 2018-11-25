@@ -49,6 +49,9 @@
     padding: 0.8rem;
     padding-left: 1.3rem;
 }
+.alert.min .close {
+	padding: 1.03rem 0;
+}
 .input-search, .input-search input {
     width: 220px;
     height: 2.8rem;

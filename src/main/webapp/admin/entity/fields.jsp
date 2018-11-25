@@ -120,7 +120,7 @@ const render_list = function(q){
 		if (item.fieldName == name_field){
 			tr.addClass('primary')
 			$('<span class="badge badge-pill badge-secondary thin ml-1">主显</span>').appendTo(name)
-		} else if (item.builtin == true){
+		} else if (item.creatable == false){
 			tr.addClass('muted')
 		} else if (item.nullable == false){
 			tr.addClass('danger')

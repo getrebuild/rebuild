@@ -15,6 +15,13 @@
 	</span>
 </div>
 <div class="main-content container-fluid">
+	<div class="alert alert-warning alert-icon alert-dismissible min">
+		<div class="icon"><span class="zmdi zmdi-info-outline"></span></div>
+		<div class="message">
+			<a class="close" data-dismiss="alert"><span class="zmdi zmdi-close"></span></a>
+			当前用户处于停用未激活状态，因为
+		</div>
+	</div>
 	<div class="row">
 		<div class="col-sm-9 pr-0">
 			<div class="tab-container">

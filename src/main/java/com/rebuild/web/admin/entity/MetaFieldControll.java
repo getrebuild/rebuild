@@ -91,6 +91,7 @@ public class MetaFieldControll extends BaseControll  {
 			map.put("displayType", easyMeta.getDisplayType(true));
 			map.put("nullable", field.isNullable());
 			map.put("builtin", easyMeta.isBuiltin());
+			map.put("creatable", field.isCreatable());
 			ret.add(map);
 		}
 		writeSuccess(response, ret);

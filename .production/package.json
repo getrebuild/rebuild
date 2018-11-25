@@ -19,6 +19,7 @@
         "@babel/preset-react": "^7.0.0",
         "gulp": "^3.9.1",
         "gulp-babel": "^8.0.0",
+        "gulp-cheerio": "^0.6.3",
         "gulp-clean-css": "^3.10.0",
         "gulp-cleanhtml": "^1.0.3",
         "gulp-debug": "^4.0.0",
