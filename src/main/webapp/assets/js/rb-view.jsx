@@ -143,15 +143,24 @@ const RbViewPage = {
     },
     
     initVTabs(config) {
+        let that = this
         let rs = []
         $(config).each(function(){
-            $('<li class="nav-item"><a class="nav-link" href="#tab-' + this[0] + '" data-toggle="tab">' + this[1] + '</a></li>').appendTo('.nav-tabs')
-            $('<div class="tab-pane" id="tab-' + this[0] + '"><div class="related-list rb-loading rb-loading-active"></div></div>').appendTo('.tab-content')
+            let entity = this[0]
+            $('<li class="nav-item"><a class="nav-link" href="#tab-' + entity + '">' + this[1] + '</a></li>').appendTo('.nav-tabs')
+            let rl = $('<div class="tab-pane" id="tab-' + entity + '"><div class="related-list rb-loading rb-loading-active"></div></div>').appendTo('.tab-content')
             rs.push(this[0])
+            
+            let mores = $('<div class="text-center J_mores mt-4 hide"><button type="button" class="btn btn-secondary load-mores">加载更多 ...</button></div>').appendTo(rl)
+            rl = rl.find('.related-list')
+            mores.find('.btn').on('click', function(){
+                let pno = ~~($(this).attr('data-pno') || 1) + 1
+                $(this).attr('data-pno', pno)
+                that.renderRelatedGrid(rl, entity, pno)
+            })
         })
         this.__vtab_es = rs
         
-        let that = this
         $('.nav-tabs li>a').on('click', function(e) {
             e.preventDefault()
             let _this = $(this)
@@ -193,12 +202,18 @@ const RbViewPage = {
     
     renderRelatedGrid(el, related, page) {
         page = page || 1
-        $.get(rb.baseUrl + '/app/entity/related-list?masterId=' + this.__id + '&related=' + related + '&pageNo=' + page, function(res){
+        let psize = 20
+        $.get(rb.baseUrl + '/app/entity/related-list?masterId=' + this.__id + '&related=' + related + '&pageNo=' + page + '&pageSize=' + psize, function(res){
             el.removeClass('rb-loading-active')
-            $(res.data.data).each(function(){
+            let _data = res.data.data
+            $(_data).each(function(){
                 let h = '#!/View/' + related + '/' + this[0]
                 $('<div class="card"><div class="float-left"><a href="' + h + '" onclick="RbViewPage.clickView(this)">' + this[1] + '</a></div><div class="float-right" title="修改时间">' + this[2] + '</div><div class="clearfix"></div></div>').appendTo(el)
             })
+            
+            let mores = $(el).next('.J_mores')
+            if (_data.length >= psize) mores.removeClass('hide')
+            else mores.find('.btn').attr({ disabled: true }).text('已加载全部')
         })
     },
     

@@ -126,3 +126,9 @@ html, body {
 .view-action.empty {
 	margin-top: 4px;
 }
+.btn.load-mores {
+	display: inline-block;
+	min-width: 200px;
+	line-height: 2.8rem;
+	border-radius: 99px;
+}
