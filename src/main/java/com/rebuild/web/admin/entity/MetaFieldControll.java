@@ -64,7 +64,7 @@ public class MetaFieldControll extends BaseControll  {
 	public ModelAndView pageEntityFields(@PathVariable String entity, HttpServletRequest request) throws IOException {
 		ModelAndView mv = createModelAndView("/admin/entity/fields.jsp");
 		MetaEntityControll.setEntityBase(mv, entity);
-		String nameField = MetadataHelper.getEntity(entity).getNameField().getName();
+		String nameField = MetadataHelper.getNameField(entity).getName();
 		mv.getModel().put("nameField", nameField);
 		return mv;
 	}

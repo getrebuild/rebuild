@@ -85,8 +85,9 @@ public class MetadataGet extends BaseControll {
 			DisplayType dt = easyMeta.getDisplayType();
 			map.put("type", dt.name());
 			if (dt == DisplayType.REFERENCE) {
-				Entity ref = field.getReferenceEntities()[0];
-				map.put("ref", new String[] { ref.getName(), EasyMeta.getDisplayType(ref.getNameField()).name() });
+				Entity refEntity = field.getReferenceEntity();
+				Field refNameField  = MetadataHelper.getNameField(refEntity);
+				map.put("ref", new String[] { refEntity.getName(), EasyMeta.getDisplayType(refNameField).name() });
 			}
 			list.add(map);
 		}

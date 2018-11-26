@@ -81,8 +81,7 @@ public class AdvFilterManager {
 		}
 		
 		if (cfgs == null) {
-			Entity entityMeta = MetadataHelper.getEntity(entity);
-			Field namedField = entityMeta.getNameField();
+			Field namedField = MetadataHelper.getNameField(entity);
 			if (allowedQuickFilter(namedField)) {
 				cfgs = new Object[] { null, null };
 				cfgs[1] = String.format("{items:[{ op:'lk', field:'%s', value:'{1}' }]}", namedField.getName());
@@ -99,6 +98,7 @@ public class AdvFilterManager {
 			String field = item.getString("field");
 			if (!metaEntity.containsField(field)) {
 				LOG.warn("Unknow field '" + field + "' in '" + entity + "'");
+				iter.remove();
 				continue;
 			}
 			

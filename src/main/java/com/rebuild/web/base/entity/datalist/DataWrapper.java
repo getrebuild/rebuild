@@ -68,7 +68,7 @@ public class DataWrapper extends FieldValueWrapper {
 	 * @return
 	 */
 	public JSON toJson() {
-		final Field namedFiled = entity.getNameField();
+		final Field namedFiled = MetadataHelper.getNameField(entity);
 		for (Object[] row : data) {
 			Object namedVal = null;
 			for (int i = 0; i < selectFields.length; i++) {
@@ -106,7 +106,7 @@ public class DataWrapper extends FieldValueWrapper {
 	 */
 	protected Object[] readReferenceNamed(ID idVal, Object namedVal) {
 		Entity entity = MetadataHelper.getEntity(idVal.getEntityCode());
-		Field nameField = entity.getNameField();
+		Field nameField = MetadataHelper.getNameField(entity);
 		
 		if (namedVal == null) {
 			String sql = String.format("select %s from %s where %s = ?",

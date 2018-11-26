@@ -67,7 +67,7 @@ public class ReferenceSearch extends BaseControll {
 		Entity entityMeta = MetadataHelper.getEntity(entity);
 		Field refField = entityMeta.getField(field);
 		Entity refEntity = refField.getReferenceEntities()[0];
-		Field nameField = refEntity.getNameField();
+		Field nameField = MetadataHelper.getNameField(refEntity);
 		if (nameField == null) {
 			writeSuccess(response, ArrayUtils.EMPTY_STRING_ARRAY);
 			return;

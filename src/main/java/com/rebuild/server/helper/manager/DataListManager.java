@@ -54,9 +54,7 @@ public class DataListManager extends LayoutManager {
 		
 		List<Map<String, Object>> columnList = new ArrayList<>();
 		Entity entityMeta = MetadataHelper.getEntity(entity);
-		
-		Field namedField = entityMeta.getNameField();
-		namedField = namedField == null ? entityMeta.getPrimaryField() : namedField;
+		Field namedField = MetadataHelper.getNameField(entityMeta);
 		
 		// 默认配置
 		if (cfgs == null) {

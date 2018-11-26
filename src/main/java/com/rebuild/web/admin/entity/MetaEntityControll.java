@@ -68,7 +68,7 @@ public class MetaEntityControll extends BaseControll {
 		setEntityBase(mv, entity);
 		
 		Entity entityMeta = MetadataHelper.getEntity(entity);
-		mv.getModel().put("nameField", entityMeta.getNameField().getName());
+		mv.getModel().put("nameField", MetadataHelper.getNameField(entityMeta).getName());
 		
 		if (entityMeta.getMasterEntity() != null) {
 			mv.getModel().put("masterEntity", entityMeta.getMasterEntity().getName());

@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.helper.manager;
 
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -166,13 +167,19 @@ public class FormManager extends LayoutManager {
 			}
 		}
 		
-		for (Object element : elements) {
-			JSONObject el = (JSONObject) element;
+		// clean
+		for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
+			JSONObject el = (JSONObject) iter.next();
 			String fieldName = el.getString("field");
 			
 			// 分割线
 			if (fieldName.equals("$DIVIDER$")) {
-				continue;
+				iter.remove();
+			}
+			// 已删除字段
+			else if (!entityMeta.containsField(fieldName)) {
+				LOG.warn("Unknow field '" + fieldName + "' in '" + entity + "'");
+				iter.remove();
 			}
 			
 			Field fieldMeta = entityMeta.getField(fieldName);

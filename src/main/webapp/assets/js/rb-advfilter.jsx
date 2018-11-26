@@ -71,7 +71,9 @@ class AdvFilter extends React.Component {
     componentDidMount() {
         let that = this
         $.get(rb.baseUrl + '/commons/metadata/fields?entity=' + this.props.entity, function(res){
+            let valideFs = []
             that.fields = res.data.map((item) => {
+                valideFs.push(item.name)
                 if (item.type == 'DATETIME') {
                     item.type = 'DATE'
                 } else if (item.type == 'REFERENCE') {
@@ -81,7 +83,9 @@ class AdvFilter extends React.Component {
             })
             
             if (that.__items){
-                $(that.__items).each((index, item) => { that.addItem(item) })
+                $(that.__items).each((index, item) => {
+                    if (valideFs.contains(item.field)) that.addItem(item)
+                })
             }
         })
     }

@@ -136,6 +136,7 @@ public class AdvFilterParser {
 	protected String parseItem(JSONObject item, JSONObject values) {
 		String field = item.getString("field");
 		if (!rootEntity.containsField(field)) {
+			LOG.warn("Unknow field '" + field + "' in '" + rootEntity.getName() + "'");
 			return null;
 		}
 		

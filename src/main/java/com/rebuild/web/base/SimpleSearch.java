@@ -63,7 +63,7 @@ public class SimpleSearch extends BaseControll {
 		
 		Entity entityMeta = MetadataHelper.getEntity(entity);
 		Field idFiled = entityMeta.getPrimaryField();
-		Field nameField = entityMeta.getNameField();
+		Field nameField = MetadataHelper.getNameField(entityMeta);
 		
 		String sql = "select %s,%s from %s";
 		sql = String.format(sql, idFiled.getName(), nameField.getName(), entityMeta.getName());

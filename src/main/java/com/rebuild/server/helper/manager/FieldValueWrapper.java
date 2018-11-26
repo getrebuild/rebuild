@@ -190,7 +190,7 @@ public class FieldValueWrapper {
 	 */
 	public static String getLabel(ID id) {
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
-		Field nameField = entity.getNameField();
+		Field nameField = MetadataHelper.getNameField(entity);
 		String sql = "select %s from %s where %s = '%s'";
 		sql = String.format(sql, nameField.getName(), entity.getName(), entity.getPrimaryField().getName(), id.toLiteral());
 		Object[] label = Application.getQueryFactory().createQueryNoFilter(sql).unique();

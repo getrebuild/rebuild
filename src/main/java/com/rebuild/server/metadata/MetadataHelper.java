@@ -126,6 +126,33 @@ public class MetadataHelper {
 	}
 	
 	/**
+	 * {@link Entity#getNameField()} 有可能返回空，应优先使用此方法
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	public static Field getNameField(Entity entity) {
+		Field hasName = entity.getNameField();
+		if (hasName != null) {
+			return hasName;
+		}
+		if (entity.containsField(EntityHelper.createdOn)) {
+			return entity.getField(EntityHelper.createdOn);
+		}
+		return entity.getPrimaryField();
+	}
+	
+	/**
+	 * {@link Entity#getNameField()} 有可能返回空，应优先使用此方法
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	public static Field getNameField(String entity) {
+		return getNameField(getEntity(entity));
+	}
+	
+	/**
 	 * <tt>reference</tt> 中的哪些字段引用了 <tt>source</tt>
 	 * 
 	 * @param source

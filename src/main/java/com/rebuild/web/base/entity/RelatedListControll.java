@@ -75,7 +75,7 @@ public class RelatedListControll extends BaseControll {
 		Object[][] array = Application.createQuery(sql).setLimit(ps, pn * ps - ps).array();
 		for (Object[] o : array) {
 			o[0] = o[0].toString();
-			o[1] = FieldValueWrapper.wrapFieldValue(o[1], relatedEntity.getNameField());
+			o[1] = FieldValueWrapper.wrapFieldValue(o[1], MetadataHelper.getNameField(relatedEntity));
 			if (o[1] == null || StringUtils.isEmpty(o[1].toString())) {
 				o[1] = o[0].toString().toUpperCase();  // 使用ID值作为名称字段值
 			}
@@ -124,7 +124,7 @@ public class RelatedListControll extends BaseControll {
 		String baseSql = "select %s from " + relatedEntity.getName() + " where " + masterSql;
 		
 		Field primaryField = relatedEntity.getPrimaryField();
-		Field namedField = relatedEntity.getNameField();
+		Field namedField = MetadataHelper.getNameField(relatedEntity);
 		
 		if (count) {
 			baseSql = String.format(baseSql, "count(" + primaryField.getName() + ")");
