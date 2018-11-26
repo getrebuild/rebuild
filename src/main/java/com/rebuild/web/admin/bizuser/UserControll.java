@@ -19,6 +19,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.web.admin.bizuser;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,13 +30,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.bizz.UserService;
+import com.rebuild.server.bizz.privileges.Department;
 import com.rebuild.server.bizz.privileges.User;
 import com.rebuild.server.helper.manager.DataListManager;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 
+import cn.devezhao.bizz.security.member.Role;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
@@ -56,16 +62,23 @@ public class UserControll extends BaseControll {
 		return mv;
 	}
 	
-	@RequestMapping("check-has-member")
-	public void checkHasMember(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@RequestMapping("check-user-status")
+	public void checkUserStatus(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID id = getIdParameterNotNull(request, "id");
-		int hasMember = -1;
-		if (id.getEntityCode() == EntityHelper.Role) {
-			hasMember = Application.getUserStore().getRole(id).getMembers().size();
-		} else if (id.getEntityCode() == EntityHelper.Department) {
-			hasMember = Application.getUserStore().getDepartment(id).getMembers().size();
+		User user = Application.getUserStore().getUser(id);
+		
+		Map<String, Object> ret = new HashMap<>();
+		ret.put("active", user.isActive());
+		
+		ret.put("disabled", user.isDisabled());
+		if (user.getOwningRole() != null) {
+			ret.put("role", user.getOwningRole().getIdentity().toString());
 		}
-		writeSuccess(response, hasMember);
+		if (user.getOwningDept() != null) {
+			ret.put("dept", user.getOwningDept().getIdentity().toString());
+		}
+		
+		writeSuccess(response, ret);
 	}
 	
 	@RequestMapping("change-dept")
@@ -98,5 +111,25 @@ public class UserControll extends BaseControll {
 		record.setID("roleId", roleNew);
 		Application.getBean(UserService.class).update(record);
 		writeSuccess(response);
+	}
+	
+	@RequestMapping("delete-checks")
+	public void deleteChecks(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID id = getIdParameterNotNull(request, "id");
+		
+		int hasMember = 0;
+		int hasChild = 0;
+		if (id.getEntityCode() == EntityHelper.Department) {
+			Department dept = Application.getUserStore().getDepartment(id);
+			hasMember = dept.getMembers().size();
+			hasChild = dept.getChildren().size();
+		} else if (id.getEntityCode() == EntityHelper.Role) {
+			Role role = Application.getUserStore().getRole(id);
+			hasMember = role.getMembers().size();
+		}
+		
+		JSONObject ret = JSONUtils.toJSONObject(new String[] { "hasMember", "hasChild" },
+				new Object[] { hasMember, hasChild });
+		writeSuccess(response, ret);
 	}
 }

@@ -9,7 +9,7 @@ const loadDeptTree = function() {
 	})
 }
 const renderDeptTree = function(dept, target) {
-	let child = $('<li data-id="' + dept.id + '"><a class="text-truncate">' + dept.name + ' ' + (dept.disabled ? '[已禁用]' : '') + '</a></li>').appendTo(target)
+	let child = $('<li data-id="' + dept.id + '"><a class="text-truncate">' + dept.name + ' ' + (dept.disabled ? '[已停用]' : '') + '</a></li>').appendTo(target)
 	child.find('a').click(function() {
 		$('.dept-tree li').removeClass('active')
 		child.addClass('active')

@@ -34,13 +34,11 @@ import org.apache.commons.logging.LogFactory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.RebuildException;
 
 import cn.devezhao.bizz.privileges.Privileges;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.bizz.security.EntityPrivileges;
 import cn.devezhao.bizz.security.member.BusinessUnit;
-import cn.devezhao.bizz.security.member.MemberGroup;
 import cn.devezhao.bizz.security.member.NoMemberFoundException;
 import cn.devezhao.bizz.security.member.Role;
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -298,55 +296,64 @@ public class UserStore {
 	}
 	
 	/**
-	 * 刷新部门缓存
-	 * 
-	 * @param deptId
-	 */
-	public void refreshDepartment(ID deptId) {
-		Department oldDept = DEPTs.get(deptId);
-		
-		Object[] o = aPMFactory.createQuery(
-				"select name,isDisabled,parentDept from Department where deptId = ?")
-				.setParameter(1, deptId)
-				.unique();
-		Department newDept = new Department(deptId, (String) o[0], (Boolean) o[1]);
-		store(newDept);
-		
-		ID parent = (ID) o[2];
-		if (oldDept != null) {
-			if (oldDept.getParent() == null && parent != null) {  // 新加入了部门
-				getDepartment(parent).addChild(newDept);
-			} else if (oldDept.getParent() != null && parent == null) {  // 离开了部门
-				getDepartment((ID) oldDept.getParent().getIdentity()).removeChild(oldDept);
-			} else if (oldDept.getParent() != null && parent != null 
-					&& !oldDept.getParent().getIdentity().equals(parent)) {
-				getDepartment((ID) oldDept.getParent().getIdentity()).removeChild(oldDept);
-				getDepartment(parent).addChild(newDept);
-			}
-			
-		} else if (parent != null) {
-			getDepartment(parent).addChild(newDept);
-		}
-	}
-
-	/**
 	 * @param roleId
 	 * @param transferTo
 	 */
 	public void removeRole(ID roleId, ID transferTo) {
 		Role role = getRole(roleId);
-		final Set<Principal> users = role.getMembers();
-		for (Principal u : users) {
-			((User) u).cleanOwningRole();
-		}
- 		ROLEs.remove(roleId);
- 		
- 		if (transferTo != null) {
+		Principal[] users = role.getMembers().toArray(new Principal[0]);
+		
+		if (transferTo != null) {
  			Role transferToRole = getRole(transferTo);
  			for (Principal user : users) {
  				transferToRole.addMember(user);
  	 		}
  		}
+		
+		for (Principal u : users) {
+			role.removeMember(u);
+		}
+ 		ROLEs.remove(roleId);
+	}
+	
+	/**
+	 * 刷新部门缓存
+	 * 
+	 * @param deptId
+	 */
+	public void refreshDepartment(ID deptId) {
+		Object[] o = aPMFactory.createQuery(
+				"select name,isDisabled,parentDept from Department where deptId = ?")
+				.setParameter(1, deptId)
+				.unique();
+		Department newDept = new Department(deptId, (String) o[0], (Boolean) o[1]);
+		ID parent = (ID) o[2];
+		
+		Department oldDept = DEPTs.get(deptId);
+		// 重新组织父子级部门关系
+		if (oldDept != null) {
+			BusinessUnit oldParent = oldDept.getParent();
+			if (oldParent != null) {
+				oldParent.removeChild(oldDept);
+				
+				if (oldParent.getIdentity().equals(parent)) {
+					oldParent.addChild(newDept);
+				} else if (parent != null) {
+					getDepartment(parent).addChild(newDept);
+				}
+			}
+			
+			for (BusinessUnit child : oldDept.getChildren()) {
+				oldDept.removeChild(child);
+				newDept.addChild(child);
+			}
+			
+			store(newDept);
+			
+		} else {
+			store(newDept);
+			getDepartment(parent).addChild(newDept);
+		}
 	}
 	
 	/**
@@ -355,36 +362,24 @@ public class UserStore {
 	 */
 	public void removeDepartment(ID deptId, ID transferTo) {
 		Department dept = getDepartment(deptId);
-		final Set<Principal> users = dept.getMembers();
+		Principal[] users = dept.getMembers().toArray(new Principal[0]);
 		
-		if (!users.isEmpty()) {
-			throw new RebuildException("Transfer member to another department after delete");
-		}
-		
-		for (Principal u : users) {
-			((User) u).cleanOwningDept();
-		}
-		DEPTs.remove(deptId);
-		
-		if (dept.getParent() != null) {
-			dept.getParent().removeChild(dept);
-		}
- 		
- 		if (transferTo != null) {
+		if (transferTo != null) {
  			Department transferToDept = getDepartment(transferTo);
  			for (Principal user : users) {
  				transferToDept.addMember(user);
  	 		}
  		}
+		
+		if (dept.getParent() != null) {
+			dept.getParent().removeChild(dept);
+		}
+		
+		for (Principal u : users) {
+			dept.removeMember(u);
+		}
+		DEPTs.remove(deptId);
 	}
-	
-	/**
-	 * @param from
-	 * @param to
-	 */
-	public void transferMember(MemberGroup from, MemberGroup to) {
-	}
-	
 	
 	private static final String USER_FS = "userId,loginName,email,fullName,avatarUrl,isDisabled,deptId,roleId";
 	/**

@@ -128,7 +128,7 @@ public class AppUtils {
 			if (sc == null) {
 				return "系统错误";
 			} else if (sc == 404) {
-				return "访问的页面不存在";
+				return "访问地址不存在";
 			} else {
 				return "系统错误 (" + sc + ")";
 			}

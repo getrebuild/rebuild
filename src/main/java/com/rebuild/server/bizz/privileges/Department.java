@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.bizz.privileges;
 
 import java.io.Serializable;
+import java.security.Principal;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -83,5 +84,11 @@ public class Department extends BusinessUnit {
 			children.addAll(((Department) child).getAllChildren());
 		}
 		return Collections.unmodifiableSet(children);
+	}
+	
+	protected void cleanMember() {
+		for (Principal u : allMembers) {
+			removeMember(u);
+		}
 	}
 }

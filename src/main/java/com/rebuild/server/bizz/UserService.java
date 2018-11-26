@@ -23,10 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.DataConstraintException;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.base.GeneralEntityService;
 
+import cn.devezhao.bizz.security.member.User;
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -70,6 +72,11 @@ public class UserService extends GeneralEntityService {
 		return r;
 	}
 	
+	@Override
+	public int delete(ID record) {
+		throw new DataConstraintException("Delete prohibited");
+	}
+	
 	private void saveBefore(Record record) {
 		if (record.hasValue("password")) {
 			String password = record.getString("password");
@@ -90,9 +97,17 @@ public class UserService extends GeneralEntityService {
 	 * @param newDept
 	 */
 	public void txChangeDept(ID user, ID newDept) {
+		User u = Application.getUserStore().getUser(user);
+		final ID oldDept = u.getOwningBizUnit() == null ? null : (ID) u.getOwningBizUnit().getIdentity();
+		
 		Record record = EntityHelper.forUpdate(user, Application.currentCallerUser());
 		record.setID("deptId", newDept);
 		update(record);
+		
+		// 无需改变记录的所属部门
+		if (oldDept == null) {
+			return;
+		}
 		
 		String updeptSql = "update `{0}` set OWNING_DEPT = ''%s'' where OWNING_USER = ''%s''";
 		updeptSql = String.format(updeptSql, newDept.toLiteral(), user.toLiteral());

@@ -19,6 +19,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.bizz;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.DataConstraintException;
+import com.rebuild.server.bizz.privileges.Department;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.base.GeneralEntityService;
 
@@ -55,13 +57,23 @@ public class DepartmentService extends GeneralEntityService {
 	}
 	
 	@Override
-	public int delete(ID record, String[] cascades) {
-		int a = super.delete(record, cascades);
-		Application.getUserStore().removeDepartment(record, null);
-		return a;
+	public int delete(ID deptId, String[] cascades) {
+		deleteAndTransfer(deptId, null);
+		return 1;
 	}
 	
-	public void delete(ID deptId, ID transferTo) {
+	/**
+	 * 删除后转移成员到其他部门
+	 * 
+	 * @param deptId
+	 * @param transferTo
+	 */
+	public void deleteAndTransfer(ID deptId, ID transferTo) {
+		Department dept = Application.getUserStore().getDepartment(deptId);
+		if (!dept.getChildren().isEmpty()) {
+			throw new DataConstraintException("Has children department");
+		}
+		
 		super.delete(deptId, null);
  		Application.getUserStore().removeDepartment(deptId, transferTo);
 	}

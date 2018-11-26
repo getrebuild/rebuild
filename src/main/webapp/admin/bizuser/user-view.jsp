@@ -15,12 +15,9 @@
 	</span>
 </div>
 <div class="main-content container-fluid">
-	<div class="alert alert-warning alert-icon alert-dismissible min">
+	<div class="alert alert-warning alert-icon alert-dismissible min hide J_tips">
 		<div class="icon"><span class="zmdi zmdi-info-outline"></span></div>
-		<div class="message">
-			<a class="close" data-dismiss="alert"><span class="zmdi zmdi-close"></span></a>
-			当前用户处于停用未激活状态，因为
-		</div>
+		<div class="message"><a class="close" data-dismiss="alert"><span class="zmdi zmdi-close"></span></a><p></p></div>
 	</div>
 	<div class="row">
 		<div class="col-sm-9 pr-0">
@@ -43,8 +40,8 @@
 					<div class="dropdown-menu dropdown-menu-right">
 						<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
 						<div class="dropdown-divider"></div>
-						<a class="dropdown-item J_changeDept"><i class="icon zmdi zmdi-accounts"></i> 改变部门</a>
-						<a class="dropdown-item J_changeRole"><i class="icon zmdi zmdi-lock"></i> 改变角色</a>
+						<a class="dropdown-item J_changeDept"><i class="icon zmdi zmdi-accounts"></i> 指定新部门</a>
+						<a class="dropdown-item J_changeRole"><i class="icon zmdi zmdi-lock"></i> 指定新角色</a>
 					</div>
 				</div>
 			</div>
@@ -73,10 +70,20 @@ $(document).ready(function(){
 		} })
 	})
 	$('.J_changeDept').click(function(){
-		rb.modal(rb.baseUrl + '/p/admin/bizuser/change-dept?user=${id}', '改变部门', { width:580 } )
+		rb.modal(rb.baseUrl + '/p/admin/bizuser/change-dept?user=${id}', '指定新部门', { width:580 } )
 	})
 	$('.J_changeRole').click(function(){
-		rb.modal(rb.baseUrl + '/p/admin/bizuser/change-role?user=${id}', '改变角色', { width:580 } )
+		rb.modal(rb.baseUrl + '/p/admin/bizuser/change-role?user=${id}', '指定新角色', { width:580 } )
+	})
+
+	$.get(rb.baseUrl + '/admin/bizuser/check-user-status?id=${id}', (res) => {
+		if (res.data.active == true) return
+
+		let reason = []
+		if (!res.data.role) reason.push('未指定角色')
+		if (!res.data.dept) reason.push('未指定部门')
+		if (res.data.disabled == true) reason.push('已停用')
+		$('.J_tips').removeClass('hide').find('.message p').text('当前用户处于未激活状态，因为其 ' + reason.join(' / '))
 	})
 });
 </script>

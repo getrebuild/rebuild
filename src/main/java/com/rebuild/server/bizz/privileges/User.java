@@ -78,6 +78,9 @@ public class User extends cn.devezhao.bizz.security.member.User {
 		return (Department) super.getOwningBizUnit();
 	}
 	
+	/**
+	 * 是否激活
+	 */
 	public boolean isActive() {
 		if (isDisabled()) {
 			return false;
@@ -98,13 +101,5 @@ public class User extends cn.devezhao.bizz.security.member.User {
 			return true;
 		}
 		return false;
-	}
-	
-	protected void cleanOwningRole() {
-		super.setOwningRole(null);
-	}
-	
-	protected void cleanOwningDept() {
-		super.setOwningBizUnit(null);
 	}
 }

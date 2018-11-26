@@ -62,7 +62,7 @@ public class DepartmentControll extends BaseControll {
 		ID dept = getIdParameterNotNull(request, "id");
 		ID transfer = getIdParameter(request, "transfer");  // TODO 转移到新部门
 		
-		Application.getBean(DepartmentService.class).delete(dept, transfer);
+		Application.getBean(DepartmentService.class).deleteAndTransfer(dept, transfer);
 		writeSuccess(response);
 	}
 	

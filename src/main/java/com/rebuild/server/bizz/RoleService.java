@@ -120,12 +120,17 @@ public class RoleService extends GeneralEntityService {
 	
 	@Override
 	public int delete(ID record, String[] cascades) {
-		int a = super.delete(record, cascades);
-		Application.getUserStore().removeRole(record, null);
-		return a;
+		deleteAndTransfer(record, null);
+		return 1;
 	}
 	
-	public void delete(ID roleId, ID transferTo) {
+	/**
+	 * 删除后转移成员到其他角色
+	 * 
+	 * @param roleId
+	 * @param transferTo
+	 */
+	public void deleteAndTransfer(ID roleId, ID transferTo) {
 		super.delete(roleId, null);
  		Application.getUserStore().removeRole(roleId, transferTo);
 	}

@@ -76,15 +76,14 @@ public class RolePrivilegesControll extends BaseControll {
 	 * @param mv
 	 */
 	private void setEntities(ModelAndView mv) {
-		List<String[]> entities = new ArrayList<>();
+		List<Object[]> entities = new ArrayList<>();
 		for (Entity e : MetadataSorter.sortEntities(true)) {
 			if (EntityHelper.hasPrivilegesField(e)) {
-				entities.add(new String[] { e.getEntityCode() + "", EasyMeta.getLabel(e) });
+				entities.add(new Object[] { e.getEntityCode(), EasyMeta.getLabel(e) });
 			}
 		}
 		mv.getModel().put("Entities", entities);
 	}
-	
 	
 	@RequestMapping("role-list")
 	public void roleList(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -128,7 +127,7 @@ public class RolePrivilegesControll extends BaseControll {
 		ID role = getIdParameterNotNull(request, "id");
 		ID transfer = getIdParameter(request, "transfer");  // TODO 转移到新角色
 		
-		Application.getBean(RoleService.class).delete(role, transfer);
+		Application.getBean(RoleService.class).deleteAndTransfer(role, transfer);
 		writeSuccess(response);
 	}
 }

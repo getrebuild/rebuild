@@ -51,13 +51,21 @@ $(document).ready(function(){
 	if (rb.isAdminUser == false || rb.isAdminVerified == false) $('.view-action').remove()
 
 	$('.J_delete').off('click').click(function(){
-		$.get(rb.baseUrl + '/admin/bizuser/check-has-member?id=${id}', function(res){
-			if (res.data == 0){
+		$.get(rb.baseUrl + '/admin/bizuser/delete-checks?id=${id}', function(res){
+			if (res.data.hasMember == 0 && res.data.hasChild == 0){
 				rb.alert('此部门可以被安全的删除', '删除部门', { type: 'danger', confirmText: '删除', confirm: deleteDept })
 			} else {
-				let url = rb.baseUrl + '/admin/bizuser/users#dept=${id}'
-				let msg = '此部门下有 <a href="' + url + '" target="_blank">' + res.data + '</a> 个用户<br>你需要先将这些用户转移到其他部门，然后才能删除'
-				rb.alert(msg, '删除部门', { type: 'danger', html: true })
+				let msg = '此部门下有 '
+				if (res.data.hasMember > 0){
+					let url = rb.baseUrl + '/admin/bizuser/users#!/Filter/deptId=${id}'
+					msg += '<a href="' + url + '" target="_blank">' + res.data.hasMember + '</a> 个用户 '
+				}
+				if (res.data.hasMember > 0){
+					let url = rb.baseUrl + '/admin/bizuser/users#!/Filter/parent=${id}'
+					msg += '<a href="' + url + '" target="_blank">' + res.data.hasMember + '</a> 个子部门'
+				}
+				msg += '<br>请将他们转移至其他部门，然后才能删除'
+				rb.alert(msg, '不能删除', { type: 'danger', html: true })
 			}
 		})
 	})
