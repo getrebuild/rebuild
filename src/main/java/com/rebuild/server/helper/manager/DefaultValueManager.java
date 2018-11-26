@@ -54,24 +54,23 @@ public class DefaultValueManager {
 	/**
 	 * @param entity
 	 * @param formModel
-	 * @param defaultVals
+	 * @param initialVal
 	 */
-	public static void setFieldsValue(Entity entity, JSON formModel, JSON defaultVals) {
+	public static void setFieldsValue(Entity entity, JSON formModel, JSON initialVal) {
 		final JSONArray elements = ((JSONObject) formModel).getJSONArray("elements");
-		// Invalid Model
 		if (elements == null) {
 			return;
 		}
 		
-		Map<String, Object> valuesReady = new HashMap<>();
+		Map<String, Object> valReady = new HashMap<>();
 		
 		// 客户端传递
-		JSONObject fromClient = (JSONObject) defaultVals;
+		JSONObject fromClient = (JSONObject) initialVal;
 		for (Map.Entry<String, Object> e : fromClient.entrySet()) {
 			String field = e.getKey();
 			Object value = e.getValue();
 			if (value == null || StringUtils.isBlank(value.toString())) {
-				LOG.warn("Invalid field-value : " + field + " = " + value);
+				LOG.warn("Invalid inital field-value : " + field + " = " + value);
 				continue;
 			}
 			
@@ -81,38 +80,53 @@ public class DefaultValueManager {
 				
 				if (field.equals(DV_MASTER)) {
 					Field stm = MetadataHelper.getSlaveToMasterField(entity);
-					valuesReady.put(stm.getName(), idLabel);
+					valReady.put(stm.getName(), idLabel);
 				} else {
 					Entity source = MetadataHelper.getEntity(field.substring(1));
 					Field[] reftoFields = MetadataHelper.getReferenceToFields(source, entity);
 					for (Field rtf : reftoFields) {
-						valuesReady.put(rtf.getName(), idLabel);
+						valReady.put(rtf.getName(), idLabel);
 					}
 				}
 				
 			} else if (entity.containsField(field)) {
 				EasyMeta fieldMeta = EasyMeta.valueOf(entity.getField(field));
 				if (fieldMeta.getDisplayType() == DisplayType.REFERENCE) {
-					valuesReady.put(field, readyReferenceValue(value));
+					valReady.put(field, readyReferenceValue(value));
 				}
 				
 				// TODO 填充其他字段值 ...
+			} else {
+				LOG.warn("Invalid inital field-value : " + field + " = " + value);
 			}
 		}
 		
 		// TODO 后台设置的，应该在后台处理 ???
 		
-		if (valuesReady.isEmpty()) {
+		if (valReady.isEmpty()) {
 			return;
 		}
 		
 		for (Object o : elements) {
 			JSONObject item = (JSONObject) o;
 			String field = item.getString("field");
-			if (valuesReady.containsKey(field)) {
-				item.put("value", valuesReady.get(field));
-				valuesReady.remove(field);
+			if (valReady.containsKey(field)) {
+				item.put("value", valReady.get(field));
+				valReady.remove(field);
 			}
+		}
+		
+		// 还有没布局出来的也返回
+		if (!valReady.isEmpty()) {
+			JSONObject inital = new JSONObject();
+			for (Map.Entry<String, Object> e : valReady.entrySet()) {
+				Object v = e.getValue();
+				if (v instanceof Object[]) {
+					v = ((Object[]) v)[0].toString();
+				}
+				inital.put(e.getKey(), v);
+			}
+			((JSONObject) formModel).put("initialValue", inital);
 		}
 	}
 	

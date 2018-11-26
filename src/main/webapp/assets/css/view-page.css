@@ -37,18 +37,18 @@ html, body {
 }
 .view-header>span>.close {
     font-size: 1.638rem;
-    opacity: .5;
+    opacity: .6;
     padding: 1rem;
     margin: -1rem -1rem -1rem auto;
     height: 40px;
     margin-top: -10px;
 }
-.view-header>span>.close.s {
-    font-size: 1.42rem;
-    margin-right: -10px;
+.view-header>span>.close.sm {
+    font-size: 1.5rem;
+    margin-right: -7px;
 }
 .view-header>span>.close:hover {
-    opacity: .75;
+    opacity: .8;
 }
 .nav-tabs>li.nav-item a.nav-link {
     padding: 11px 15px;

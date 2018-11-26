@@ -35,8 +35,8 @@ class RbFormModal extends React.Component {
         let that = this
         const entity = this.state.entity
         const id = this.state.id || ''
-        const defaultValues = this.state.defaultValues || {}  // 默认值填充（仅新建有效）
-        $.post(`${rb.baseUrl}/app/${entity}/form-model?id=${id}`, JSON.stringify(defaultValues), function(res){
+        const initialValue = this.state.initialValue || {}  // 默认值填充（仅新建有效）
+        $.post(`${rb.baseUrl}/app/${entity}/form-model?id=${id}`, JSON.stringify(initialValue), function(res){
             // 包含错误
             if (res.error_code > 0 || !!res.data.error){
                 let error = res.data.error || res.error_msg
@@ -101,8 +101,14 @@ class RbForm extends React.Component {
     constructor(props) {
         super(props)
         this.state = { ...props }
-        this.isNew = !!!props.$$$parent.state.id
+        
         this.__FormData = {}
+        let iv = props.$$$parent.state.__formModel.initialValue
+        if (iv){
+            for (let k in iv) this.__FormData[k] = { value: iv[k], error: null }
+        }
+        
+        this.isNew = !!!props.$$$parent.state.id
         this.setFieldValue = this.setFieldValue.bind(this)
     }
     render() {
@@ -135,7 +141,8 @@ class RbForm extends React.Component {
         )
         
         let _entity = this.state.entity
-        if (_entity == 'User' || _entity == 'Department' || _entity == 'Role' || window.pageType == 'SlaveView'){
+        if (_entity == 'User' || _entity == 'Department' || _entity == 'Role'
+            || window.pageType == 'SlaveView' || window.pageType == 'SlaveList'){
             saveBtns = <button className="btn btn-primary btn-space" type="button" onClick={()=>this.post()}>保存</button>
         }
         
@@ -193,19 +200,20 @@ class RbForm extends React.Component {
             btns.button('reset')
             if (res.error_code == 0){
                 rb.notice('保存成功', 'success')
-                that.props.$$$parent.hide(true)
-                
-                RbForm.postAfter(res.data, next == 111)
-                 
-                if (next == 101 || next == 111) {
-                    let pstate = that.props.$$$parent.state
-                    rb.RbFormModal({ title: pstate.title, entity: pstate.entity, icon: pstate.icon })
-                } else if (next == 112) {
-                    let dv = { '$MASTER$': res.data.id }
-                    let sm = that.props.$$$parent.state.__formModel.slaveMeta
-                    rb.RbFormModal({ title: `添加${sm[1]}`, entity: sm[0], icon: sm[2], defaultValues: dv })
-                }
-                //if (next == 111 && window.RbViewPage) window.RbViewPage.updateVTabs([_entity])
+                setTimeout(() => {
+                    that.props.$$$parent.hide(true)
+                    RbForm.postAfter(res.data, next == 111)
+                    
+                    if (next == 101 || next == 111) {
+                        let pstate = that.props.$$$parent.state
+                        rb.RbFormModal({ title: pstate.title, entity: pstate.entity, icon: pstate.icon })
+                    } else if (next == 112) {
+                        let iv = { '$MASTER$': res.data.id }
+                        let sm = that.props.$$$parent.state.__formModel.slaveMeta
+                        rb.RbFormModal({ title: `添加${sm[1]}`, entity: sm[0], icon: sm[2], initialValue: iv })
+                    }
+                    //if (next == 111 && window.RbViewPage) window.RbViewPage.updateVTabs([_entity])
+                }, 200)
                 
             }else{
                 rb.notice(res.error_msg || '保存失败，请稍后重试', 'danger')
@@ -220,8 +228,8 @@ class RbForm extends React.Component {
     }
     // 保存后调用
     static postAfter(data, notReload) {
-        if (window.RbListPage) window.RbListPage._RbList.reload()
-        else if (parent.RbListPage) parent.RbListPage._RbList.reload()
+        let rlp = window.RbListPage || parent.RbListPage
+        if (rlp) rlp._RbList.reload()
         if (window.RbViewPage && notReload != true) location.reload()
     }
 }
@@ -801,7 +809,8 @@ class RbViewModal extends React.Component {
     constructor(props) {
         super(props)
         this.state = { ...props, inLoad: true, isHide: true, isDestroy: false }
-        this.mcWidth = this.props.destroyOnHide == true ? 1170 : 1220
+        this.mcWidth = this.props.subView == true ? 1170 : 1220
+        this.mcWidth = 1220
     }
     render() {
         return (this.state.isDestroy == true ? null :
@@ -886,7 +895,8 @@ rb.__currentRbFormModalCache = {}
 rb.RbViewModal = function(props, subView) {
     let viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
     if (subView == true){
-        let m = renderRbcomp(<RbViewModal url={viewUrl} destroyOnHide={true} id={props.id} />)
+        rb.RbViewModalHide(props.id)
+        let m = renderRbcomp(<RbViewModal url={viewUrl} destroyOnHide={true} id={props.id} subView={true} />)
         rb.__currentRbFormModalCache[props.id] = m
         return m
     }
@@ -897,17 +907,17 @@ rb.RbViewModal = function(props, subView) {
     return rb.__currentRbViewModal
 }
 rb.RbViewModalGet = function(id){
-    return rb.__currentRbFormModalCache[id] || {}
+    return rb.__currentRbFormModalCache[id]
 }
 
 rb.RbViewModalHide = function(id){
     if (!!!id) {
         if (rb.__currentRbViewModal) rb.__currentRbViewModal.hide()
     } else {
-        let m =  rb.__currentRbFormModalCache[id]
-        if (m) {
-            m.hide()
-            //rb.__currentRbFormModalCache[id] = null
+        let cm =  rb.__currentRbFormModalCache[id]
+        if (cm) {
+            cm.hide()
+            rb.__currentRbFormModalCache[id] = null
         }
     }
 }

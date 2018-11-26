@@ -79,12 +79,12 @@ public class GeneralEntityControll extends BaseControll {
 		ID user = getRequestUser(request);
 		ID record = getIdParameter(request, "id");  // New or Update
 		
-		JSON defaultVal = null;
+		JSON initialVal = null;
 		if (record == null) {
-			defaultVal = ServletUtils.getRequestJson(request);
-			if (defaultVal != null) {
+			initialVal = ServletUtils.getRequestJson(request);
+			if (initialVal != null) {
 				// 创建明细实体必须制定主实体，以便验证权限
-				String master = ((JSONObject) defaultVal).getString(DefaultValueManager.DV_MASTER);
+				String master = ((JSONObject) initialVal).getString(DefaultValueManager.DV_MASTER);
 				if (ID.isId(master)) {
 					FormManager.setCurrentMasterId(ID.valueOf(master));
 				}
@@ -92,9 +92,9 @@ public class GeneralEntityControll extends BaseControll {
 		}
 		
 		JSON model = FormManager.getFormModel(entity, user, record);
-		// 填充前端设定的默认值
-		if (record == null && defaultVal != null) {
-			DefaultValueManager.setFieldsValue(MetadataHelper.getEntity(entity), model, defaultVal);
+		// 填充前端设定的初始值
+		if (record == null && initialVal != null) {
+			DefaultValueManager.setFieldsValue(MetadataHelper.getEntity(entity), model, initialVal);
 		}
 		writeSuccess(response, model);
 	}

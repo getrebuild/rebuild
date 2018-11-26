@@ -226,6 +226,10 @@ public class GeneralRecordControll extends BaseControll {
 		
 		sql = String.format(sql, entity.getName(), entity.getPrimaryField().getName(), id);
 		Object[] recordMeta = Application.getQueryFactory().createQueryNoFilter(sql).unique();
+		if (recordMeta == null) {
+			writeFailure(response, "记录不存在");
+			return;
+		}
 		
 		recordMeta[0] = CalendarUtils.getUTCDateTimeFormat().format(recordMeta[0]);
 		recordMeta[1] = CalendarUtils.getUTCDateTimeFormat().format(recordMeta[1]);

@@ -14,7 +14,8 @@
 	<h3 class="title">${entityLabel}视图</h3>
 	<span>
 		<a class="close J_close"><i class="zmdi zmdi-close"></i></a>
-		<a class="close s J_for-admin" href="${baseUrl}/admin/entity/${entityName}/form-design" title="配置布局" target="_blank"><i class="zmdi zmdi-settings"></i></a>
+		<a class="close sm J_reload"><i class="zmdi zmdi-refresh"></i></a>
+		<a class="close sm J_for-admin" href="${baseUrl}/admin/entity/${entityName}/form-design" title="配置布局" target="_blank"><i class="zmdi zmdi-settings"></i></a>
 	</span>
 </div>
 <div class="main-content container-fluid">
