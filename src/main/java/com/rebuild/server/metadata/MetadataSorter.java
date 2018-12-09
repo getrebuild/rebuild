@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -99,7 +100,22 @@ public class MetadataSorter {
 	 * @return
 	 */
 	public static Field[] sortFields(Field[] fields, DisplayType[] dtAllowed) {
-		sortBaseMeta(fields);
+		List<Field> sysFields = new ArrayList<>();
+		List<Field> simpleFields = new ArrayList<>();
+		for (Field field : fields) {
+			if (EasyMeta.valueOf(field).isBuiltin()) {
+				sysFields.add(field);
+			} else {
+				simpleFields.add(field);
+			}
+		}
+		
+		// 系统字段在后
+		Field[] sysFields2 = sysFields.toArray(new Field[sysFields.size()]);
+		Field[] simpleFields2 = simpleFields.toArray(new Field[simpleFields.size()]);
+		sortBaseMeta(sysFields2);
+		sortBaseMeta(simpleFields2);
+		fields = (Field[]) ArrayUtils.addAll(simpleFields2, sysFields2);
 
 		// 全部类型
 		if (dtAllowed == null || dtAllowed.length == 0) {
