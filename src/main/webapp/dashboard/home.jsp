@@ -21,7 +21,7 @@
 				<div class="col-sm-6">
 				</div>
 				<div class="col-sm-6 text-right">
-					<button type="button" class="btn btn-link"><i class="zmdi zmdi-plus icon"></i> 添加图表</button>
+					<button type="button" class="btn btn-link J_add-chart"><i class="zmdi zmdi-plus icon"></i> 添加图表</button>
 				</div>
 			</div>
 			<h3 class="text-center">首页可配置仪表盘</h3>
@@ -31,10 +31,11 @@
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
-<script type="text/babel">
+<script>
 $(document).ready(function(){
-	renderRbcomp(<AdvFilter entity="ceshiziduan" trigger="" />, 'advfilter')
-	//renderRbcomp(<RbModal><AdvFilter entity="kehu" inModal={true} /></RbModal>)
+	$('.J_add-chart').click(function(){
+		rb.modal(rb.baseUrl + '/p/dashboard/chart-type', '添加图表')
+	})
 })
 </script>
 </body>
