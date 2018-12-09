@@ -148,7 +148,8 @@ $(document).ready(function(){
     	if (fullName) _data.fullName = fullName
     	if (avatarUrl) _data.avatarUrl = avatarUrl
     	$.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), function(res){
-    		location.reload()
+			if (res.error_code == 0) location.reload()
+			else rb.notice(res.error_msg)
     	})
     })
 })

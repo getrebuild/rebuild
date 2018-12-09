@@ -21,8 +21,6 @@ package com.rebuild.server.bizz;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.rebuild.server.Application;
 import com.rebuild.server.bizz.privileges.Department;
 import com.rebuild.server.bizz.privileges.User;
@@ -38,16 +36,6 @@ import cn.devezhao.persist4j.engine.ID;
 public class UserHelper {
 
 	/**
-	 * 显示名
-	 * 
-	 * @param user
-	 * @return
-	 */
-	public static String getShowName(User user) {
-		return StringUtils.defaultIfBlank(user.getFullName(), user.getName());
-	}
-	
-	/**
 	 * [显示名, 图像]
 	 * 
 	 * @param userId
@@ -55,7 +43,7 @@ public class UserHelper {
 	 */
 	public static String[] getShows(ID userId) {
 		User u = Application.getUserStore().getUser(userId);
-		return new String[] { getShowName(u), u.getAvatarUrl(true) };
+		return new String[] { u.getFullName(), u.getAvatarUrl(true) };
 	}
 	
 	/**

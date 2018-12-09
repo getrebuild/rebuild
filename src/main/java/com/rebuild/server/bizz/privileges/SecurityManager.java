@@ -230,6 +230,9 @@ public class SecurityManager {
 		if (UserService.ADMIN_USER.equals(user)) {
 			return true;
 		}
+		if (!USER_STORE.getUser(user).isActive()) {
+			return false;
+		}
 		
 		Role role = USER_STORE.getUser(user).getOwningRole();
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
@@ -267,17 +270,22 @@ public class SecurityManager {
 		if (UserService.ADMIN_USER.equals(user)) {
 			return true;
 		}
-		
-		Role role = USER_STORE.getUser(user).getOwningRole();
-		if (role == null) {
+		if (!USER_STORE.getUser(user).isActive()) {
 			return false;
-		} else if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
+		}
+		 
+		Role role = USER_STORE.getUser(user).getOwningRole();
+		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
 			return true;
 		}
 		
 		int entity = target.getEntityCode();
 		
 		if (action == BizzPermission.READ && MetadataHelper.isBizzEntity(entity)) {
+			return true;
+		}
+		// 用户可修改自己
+		if (action == BizzPermission.UPDATE && target.equals(user)) {
 			return true;
 		}
 		

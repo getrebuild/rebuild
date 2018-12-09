@@ -101,6 +101,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		
 		boolean isAllowed = false;
 		if (action == BizzPermission.CREATE) {
+			// 明细实体
 			if (entity.getMasterEntity() != null) {
 				Field field = MetadataHelper.getSlaveToMasterField(entity);
 				ID masterId = ((Record) idOrRecord).getID(field.getName());

@@ -83,8 +83,13 @@ $(document).ready(function(){
 	})
 
 	$.get(rb.baseUrl + '/admin/bizuser/check-user-status?id=${id}', (res) => {
-		if (res.data.active == true) return
+		if (res.data.system == true){
+			$('.J_tips').removeClass('hide').find('.message p').text('系统内建用户，不允许修改')
+			$('.view-action').remove()
+			return
+		}
 
+		if (res.data.active == true) return
 		let reason = []
 		if (!res.data.role) reason.push('未指定角色')
 		if (!res.data.dept) reason.push('未指定部门')

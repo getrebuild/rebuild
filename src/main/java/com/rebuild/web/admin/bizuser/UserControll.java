@@ -65,17 +65,18 @@ public class UserControll extends BaseControll {
 	@RequestMapping("check-user-status")
 	public void checkUserStatus(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID id = getIdParameterNotNull(request, "id");
-		User user = Application.getUserStore().getUser(id);
+		User checked = Application.getUserStore().getUser(id);
 		
 		Map<String, Object> ret = new HashMap<>();
-		ret.put("active", user.isActive());
+		ret.put("active", checked.isActive());
+		ret.put("system", checked.getName().equals("system") || checked.getName().equals("admin"));
 		
-		ret.put("disabled", user.isDisabled());
-		if (user.getOwningRole() != null) {
-			ret.put("role", user.getOwningRole().getIdentity().toString());
+		ret.put("disabled", checked.isDisabled());
+		if (checked.getOwningRole() != null) {
+			ret.put("role", checked.getOwningRole().getIdentity().toString());
 		}
-		if (user.getOwningDept() != null) {
-			ret.put("dept", user.getOwningDept().getIdentity().toString());
+		if (checked.getOwningDept() != null) {
+			ret.put("dept", checked.getOwningDept().getIdentity().toString());
 		}
 		
 		writeSuccess(response, ret);
