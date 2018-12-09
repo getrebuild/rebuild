@@ -23,8 +23,11 @@ import java.security.Guard;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.base.BulkContext;
 import com.rebuild.server.service.base.GeneralEntityService;
@@ -45,7 +48,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 	
-//	private static final Log LOG = LogFactory.getLog(PrivilegesGuardInterceptor.class);
+	private static final Log LOG = LogFactory.getLog(PrivilegesGuardInterceptor.class);
 
 	@Override
 	public Object invoke(MethodInvocation invocation) throws Throwable {
@@ -64,15 +67,16 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		if (isBulk) {
 			Object first = invocation.getArguments()[0];
 			if (!(first instanceof BulkContext)) {
-				throw new IllegalArgumentException("First argument must be BulkContext");
+				throw new IllegalArgumentException("First argument must be BulkContext!");
 			}
 			
 			BulkContext context = (BulkContext) first;
 			ID caller = Application.currentCallerUser();
 			
-			if (!Application.getSecurityManager().allowed(caller, context.getMainEntity().getEntityCode(), context.getAction())) {
-				throw new AccessDeniedException(
-			    		"User [ " + caller + " ] not allowed execute action [ " + context.getAction() + " ]. Entity : " + context.getMainEntity());
+			Entity entity = context.getMainEntity();
+			if (!Application.getSecurityManager().allowed(caller, entity.getEntityCode(), context.getAction())) {
+				LOG.error("User [ " + caller + " ] not allowed execute action [ " + context.getAction() + " ]. Entity : " + context.getMainEntity());
+				throw new AccessDeniedException(formatHumanMessage(context.getAction(), entity, null));
 			}
 			return;
 		}
@@ -89,7 +93,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 			recordId = (ID) idOrRecord;
 			entity = MetadataHelper.getEntity(recordId.getEntityCode());
 		} else {
-			throw new IllegalArgumentException("First argument must be Record/ID");
+			throw new IllegalArgumentException("First argument must be Record/ID!");
 		}
 		
 		ID caller = Application.currentCallerUser();
@@ -101,7 +105,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 				Field field = MetadataHelper.getSlaveToMasterField(entity);
 				ID masterId = ((Record) idOrRecord).getID(field.getName());
 				if (masterId == null || !Application.getSecurityManager().allowedU(caller, masterId)) {
-					throw new AccessDeniedException("没有添加明细的权限");
+					throw new AccessDeniedException("你没有添加明细的权限");
 				}
 				isAllowed = true;
 			} else {
@@ -117,16 +121,32 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		}
 		
 		if (!isAllowed) {
-		    throw new AccessDeniedException(
-		    		"User [ " + caller + " ] not allowed execute action [ " + action + " ]. " + (recordId == null ? "Entity : " + entity : "Record : " + recordId));
+			LOG.error("User [ " + caller + " ] not allowed execute action [ " + action + " ]. " + (recordId == null ? "Entity : " + entity : "Record : " + recordId));
+		    throw new AccessDeniedException(formatHumanMessage(action, entity, recordId));
 		}
+	}
+	
+	/**
+	 * @param invocation
+	 * @return
+	 */
+	protected boolean isNeedCheck(MethodInvocation invocation) {
+		// 仅 GeneralEntityService 或其子类
+		if (!GeneralEntityService.class.isAssignableFrom(invocation.getThis().getClass())) {
+			return false;
+		}
+		
+		String act = invocation.getMethod().getName();
+		return act.startsWith("create") || act.startsWith("update") || act.startsWith("delete") 
+				|| act.startsWith("assign") || act.startsWith("share")
+				|| act.startsWith("bulk");
 	}
 	
 	/**
 	 * @param method
 	 * @return
 	 */
-	protected Permission getPermissionByMethod(Method method, boolean isNew) {
+	private Permission getPermissionByMethod(Method method, boolean isNew) {
 		String action = method.getName();
 		if (action.startsWith("createOrUpdate")) {
 			return isNew ? BizzPermission.CREATE : BizzPermission.UPDATE;
@@ -145,18 +165,28 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 	}
 	
 	/**
-	 * @param invocation
+	 * @param action
+	 * @param entity
+	 * @param target
 	 * @return
 	 */
-	protected boolean isNeedCheck(MethodInvocation invocation) {
-		// 仅 GeneralEntityService 或其子类
-		if (!GeneralEntityService.class.isAssignableFrom(invocation.getThis().getClass())) {
-			return false;
+	private String formatHumanMessage(Permission action, Entity entity, ID target) {
+		String actionHuman = null;
+		if (action == BizzPermission.CREATE) {
+			actionHuman = "新建";
+		} else if (action == BizzPermission.UPDATE) {
+			actionHuman = "修改";
+		} else if (action == BizzPermission.DELETE) {
+			actionHuman = "删除";
+		} else if (action == BizzPermission.ASSIGN) {
+			actionHuman = "分派";
+		} else if (action == BizzPermission.SHARE) {
+			actionHuman = "共享";
 		}
 		
-		String act = invocation.getMethod().getName();
-		return act.startsWith("create") || act.startsWith("update") || act.startsWith("delete") 
-				|| act.startsWith("assign") || act.startsWith("share")
-				|| act.startsWith("bulk");
+		if (target == null) {
+			return String.format("你没有%s%s权限", actionHuman, EasyMeta.getLabel(entity));
+		}
+		return String.format("你没有%s此记录权限", actionHuman);
 	}
 }

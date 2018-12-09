@@ -47,6 +47,7 @@ import com.rebuild.web.BadParameterException;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
@@ -71,27 +72,15 @@ public class GeneralRecordControll extends BaseControll {
 		JSON formJson = ServletUtils.getRequestJson(request);
 		
 		Record record = EntityHelper.parse((JSONObject) formJson, user);
-//		if (record.getPrimary() == null) {
-//			Entity entity = record.getEntity();
-//			if (entity.getMasterEntity() != null) {
-//				Field field = MetadataHelper.getSlaveToMasterField(entity);
-//				ID masterId = record.getID(field.getName());
-//				if (masterId == null || !Application.getSecurityManager().allowedU(user, masterId)) {
-//					writeFailure(response, "没有添加权限");
-//					return;
-//				}
-//				
-//			} else if (!Application.getSecurityManager().allowedC(user, record.getEntity().getEntityCode())) {
-//				writeFailure(response, "没有新建权限");
-//				return;
-//			}
-//			
-//		} else if (!Application.getSecurityManager().allowedU(user, record.getPrimary())) {
-//			writeFailure(response, "你没有编辑此记录的权限");
-//			return;
-//		}
 		
-		record = Application.getGeneralEntityService(record.getEntity().getEntityCode()).createOrUpdate(record);
+		// TODO 检查不可重复字段值
+		
+		try {
+			record = Application.getGeneralEntityService(record.getEntity().getEntityCode()).createOrUpdate(record);
+		} catch (AccessDeniedException know) {
+			writeFailure(response, know.getLocalizedMessage());
+			return;
+		}
 		
 		Map<String, Object> map = new HashMap<>();
 		map.put("id", record.getPrimary());
@@ -108,26 +97,22 @@ public class GeneralRecordControll extends BaseControll {
 		}
 		
 		final ID firstId = ids[0];
-		
-		Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
-		if (!Application.getSecurityManager().allowedD(user, entity.getEntityCode())) {
-			writeFailure(response, "没有删除权限");
-			return;
-		}
-		if (ids.length == 1 && !Application.getSecurityManager().allowedD(user, firstId)) {
-			writeFailure(response, "你没有删除此记录的权限");
-			return;
-		}
+		final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
 		
 		String[] cascades = parseCascades(request);
 		GeneralEntityService ges = Application.getGeneralEntityService(entity.getEntityCode());
 		
 		int affected = 0;
-		if (ids.length == 1) {
-			affected = ges.delete(firstId, cascades);
-		} else {
-			BulkContext context = new BulkContext(user, BizzPermission.DELETE, null, cascades, ids);
-			affected = ges.bulk(context);
+		try {
+			if (ids.length == 1) {
+				affected = ges.delete(firstId, cascades);
+			} else {
+				BulkContext context = new BulkContext(user, BizzPermission.DELETE, null, cascades, ids);
+				affected = ges.bulk(context);
+			}
+		} catch (AccessDeniedException know) {
+			writeFailure(response, know.getLocalizedMessage());
+			return;
 		}
 		
 		JSON ret = JSONUtils.toJSONObject(
@@ -146,27 +131,23 @@ public class GeneralRecordControll extends BaseControll {
 		}
 		
 		final ID firstId = ids[0];
-		
-		Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
-		if (!Application.getSecurityManager().allowedA(user, entity.getEntityCode())) {
-			writeFailure(response, "没有分派权限");
-			return;
-		}
-		if (ids.length == 1 && !Application.getSecurityManager().allowedA(user, firstId)) {
-			writeFailure(response, "你没有分派此记录的权限");
-			return;
-		}
+		final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
 		
 		ID assignTo = getIdParameterNotNull(request, "to");
 		String[] cascades = parseCascades(request);
 		GeneralEntityService ges = Application.getGeneralEntityService(entity.getEntityCode());
 		
 		int affected = 0;
-		if (ids.length == 1) {
-			affected = ges.assign(firstId, assignTo, cascades);
-		} else {
-			BulkContext context = new BulkContext(user, BizzPermission.ASSIGN, assignTo, cascades, ids);
-			affected = ges.bulk(context);
+		try {
+			if (ids.length == 1) {
+				affected = ges.assign(firstId, assignTo, cascades);
+			} else {
+				BulkContext context = new BulkContext(user, BizzPermission.ASSIGN, assignTo, cascades, ids);
+				affected = ges.bulk(context);
+			}
+		} catch (AccessDeniedException know) {
+			writeFailure(response, know.getLocalizedMessage());
+			return;
 		}
 		
 		JSON ret = JSONUtils.toJSONObject(
@@ -185,27 +166,23 @@ public class GeneralRecordControll extends BaseControll {
 		}
 		
 		final ID firstId = ids[0];
-		
-		Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
-		if (!Application.getSecurityManager().allowedA(user, entity.getEntityCode())) {
-			writeFailure(response, "没有共享权限");
-			return;
-		}
-		if (ids.length == 1 && !Application.getSecurityManager().allowedS(user, firstId)) {
-			writeFailure(response, "你没有共享此记录的权限");
-			return;
-		}
+		final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
 		
 		ID shareTo = getIdParameterNotNull(request, "to");
 		String[] cascades = parseCascades(request);
 		GeneralEntityService ges = Application.getGeneralEntityService(entity.getEntityCode());
 		
 		int affected = 0;
-		if (ids.length == 1) {
-			affected = ges.share(firstId, shareTo, cascades);
-		} else {
-			BulkContext context = new BulkContext(user, BizzPermission.SHARE, shareTo, cascades, ids);
-			affected = ges.bulk(context);
+		try {
+			if (ids.length == 1) {
+				affected = ges.share(firstId, shareTo, cascades);
+			} else {
+				BulkContext context = new BulkContext(user, BizzPermission.SHARE, shareTo, cascades, ids);
+				affected = ges.bulk(context);
+			}
+		} catch (AccessDeniedException know) {
+			writeFailure(response, know.getLocalizedMessage());
+			return;
 		}
 		
 		JSON ret = JSONUtils.toJSONObject(

@@ -373,7 +373,7 @@ const RbListPage = {
             
             let alertExt = { type: 'danger', confirmText: '删除' }
             alertExt.confirm = function(){
-                $(this.refs['rbalert']).find('.btn').button('loading')
+                let btns = $(this.refs['rbalert']).find('.btn').button('loading')
                 let thatModal = this
                 $.post(rb.baseUrl + '/app/entity/record-delete?id=' + ids.join(','), function(res){
                     if (res.error_code == 0){
@@ -384,6 +384,7 @@ const RbListPage = {
                     } else {
                         rb.notice(res.error_msg || '删除失败，请稍后重试', 'danger')
                     }
+                    btns.button('reset')
                 })
             }
             rb.alert('确认删除选中的 ' + ids.length + ' 条记录吗？', '删除确认', alertExt)
