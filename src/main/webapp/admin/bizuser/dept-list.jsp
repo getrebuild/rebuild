@@ -69,12 +69,20 @@
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/bizuser/dept-tree.js"></script>
+<script>
+window.__PageConfig = {
+	type: 'RecordList',
+	entity: ['Department','${entityLabel}','${entityIcon}'],
+	privileges: ${entityPrivileges},
+	listConfig: ${DataListConfig},
+	advFilter: false
+}
+</script>
 <script type="text/babel">
 RbForm.postAfter = function(){
 	location.reload()
 }
 $(document).ready(function(){
-	RbListPage.init($.parseJSON('${DataListConfig}'), ['Department','${entityLabel}','${entityIcon}'], $.parseJSON('${entityPrivileges}'))
 	loadDeptTree()
 })
 clickDept = function(depts) {

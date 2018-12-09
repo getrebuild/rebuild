@@ -52,9 +52,15 @@
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
+<script>
+window.__PageConfig = {
+	type: 'RecordView',
+	entity: ['User','${entityLabel}','${entityIcon}'],
+	recordId: '${id}'
+}
+</script>
 <script type="text/babel">
 $(document).ready(function(){
-	RbViewPage.init('${id}', ['User','${entityLabel}','${entityIcon}'])
 	if (rb.isAdminUser == false || rb.isAdminVerified == false) $('.view-action').remove()
 
 	$('.J_delete').off('click').click(function(){
@@ -85,7 +91,7 @@ $(document).ready(function(){
 		if (res.data.disabled == true) reason.push('已停用')
 		$('.J_tips').removeClass('hide').find('.message p').text('当前用户处于未激活状态，因为其 ' + reason.join(' / '))
 	})
-});
+})
 </script>
 </body>
 </html>

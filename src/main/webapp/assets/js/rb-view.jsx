@@ -120,11 +120,9 @@ const RbViewPage = {
         $('.J_reload').click(function(){
             location.reload()
         })
-        
-        this.renderRecordMeta()
     },
     
-    renderRecordMeta() {
+    initRecordMeta() {
         $.get(`${rb.baseUrl}/app/entity/record-meta?id=${this.__id}`, function(res){
             if (res.error_code == 0) {
                 let _data = res.data
@@ -258,3 +256,13 @@ const RbViewPage = {
         }
     }
 }
+
+// Init
+$(document).ready(function(){
+    let wpc = window.__PageConfig
+    if (!wpc) return
+    RbViewPage.init(wpc.recordId, wpc.entity, wpc.privileges)
+    RbViewPage.initRecordMeta()
+    if (!!wpc.viewTabs) RbViewPage.initVTabs(wpc.viewTabs)
+    if (!!wpc.viewAdds) RbViewPage.initVAdds(wpc.viewAdds)
+})

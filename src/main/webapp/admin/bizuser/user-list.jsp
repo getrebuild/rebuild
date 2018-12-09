@@ -74,6 +74,15 @@
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/bizuser/dept-tree.js"></script>
+<script>
+window.__PageConfig = {
+	type: 'RecordList',
+	entity: ['User','${entityLabel}','${entityIcon}'],
+	privileges: ${entityPrivileges},
+	listConfig: ${DataListConfig},
+	advFilter: false
+}
+</script>
 <script type="text/babel">
 let formPostType = 1
 RbForm.postAfter = function(){
@@ -81,7 +90,6 @@ RbForm.postAfter = function(){
 	else loadDeptTree()
 }
 $(document).ready(function(){
-	RbListPage.init($.parseJSON('${DataListConfig}'), ['User','${entityLabel}','${entityIcon}'], $.parseJSON('${entityPrivileges}'))
 	loadDeptTree()
 
 	$('.J_new').click(function(){ formPostType = 1 })

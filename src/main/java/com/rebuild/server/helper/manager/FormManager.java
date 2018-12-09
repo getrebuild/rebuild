@@ -180,6 +180,7 @@ public class FormManager extends LayoutManager {
 			else if (!entityMeta.containsField(fieldName)) {
 				LOG.warn("Unknow field '" + fieldName + "' in '" + entity + "'");
 				iter.remove();
+				continue;
 			}
 			
 			Field fieldMeta = entityMeta.getField(fieldName);

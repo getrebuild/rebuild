@@ -75,7 +75,7 @@ a#entityIcon:hover{opacity:0.8}
 						<div class="form-group row">
 							<label class="col-sm-2 col-form-label text-sm-right">主显字段</label>
 							<div class="col-lg-5 col-sm-10">
-								<select class="form-control form-control-sm" id="nameField">
+								<select class="form-control form-control-sm" id="nameField" data-o="${nameField}">
 								</select>
 								<p class="form-text mb-0">好的主显字段应能够清晰的表示记录本身，如客户中的客户名称或订单中的订单编号</p>
 							</div>
@@ -122,7 +122,8 @@ $(document).ready(function(){
 			label = $val('#entityLabel'),
 			comments = $val('#comments'),
 			nameField = $val('#nameField')
-		let _data = { icon:icon, entityLabel:label, comments:comments, nameField:nameField }
+		let _data = { entityLabel:label, comments:comments, nameField:nameField }
+		if (!!icon) data.icon = icon
 		_data = $cleanMap(_data)
 		if (Object.keys(_data) == 0){ location.reload(); return }
 		
@@ -140,12 +141,12 @@ $(document).ready(function(){
 	
 	$.get(rb.baseUrl + '/commons/metadata/fields?entity=${entityName}', function(d){
 		let rs = d.data.map((item) => {
-			let not = item.type == 'REFERENCE' || item.type == 'NTEXT'
+			let unName = item.type == 'REFERENCE' || item.type == 'NTEXT'
 			return {
 				id: item.name,
 				text: item.label,
-				disabled: not,
-				title: not ? '此字段（类型）不能作为主显字段' : ''
+				disabled: unName,
+				title: unName ? '此字段（类型）不能作为主显字段' : ''
 			}
 		})
 		$('#nameField').select2({

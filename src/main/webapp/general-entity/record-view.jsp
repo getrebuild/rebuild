@@ -87,13 +87,15 @@
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/assign-share.jsx" type="text/babel"></script>
-<script type="text/babel">
-window.pageType = 'RecordView'
-$(document).ready(function(){
-	RbViewPage.init('${id}', ['${entityName}','${entityLabel}','${entityIcon}'], $.parseJSON('${entityPrivileges}'))
-	RbViewPage.initVTabs($.parseJSON('${ViewTabs}'))
-	RbViewPage.initVAdds($.parseJSON('${ViewAdds}'))
-})
+<script>
+window.__PageConfig = {
+	type: 'RecordView',
+	entity: ['${entityName}','${entityLabel}','${entityIcon}'],
+	privileges: ${entityPrivileges},
+	viewTabs: ${ViewTabs},
+	viewAdds: ${ViewAdds},
+	recordId: '${id}'
+}
 </script>
 </body>
 </html>

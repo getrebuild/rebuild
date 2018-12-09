@@ -59,11 +59,13 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
-<script type="text/babel">
-window.pageType = 'SlaveView'
-$(document).ready(function(){
-	RbViewPage.init('${id}', ['${entityName}','${entityLabel}','${entityIcon}'], $.parseJSON('${entityPrivileges}'))
-})
+<script>
+window.__PageConfig = {
+	type: 'SlaveView',
+	entity: ['${entityName}','${entityLabel}','${entityIcon}'],
+	privileges: ${entityPrivileges},
+	recordId: '${id}'
+}
 </script>
 </body>
 </html>

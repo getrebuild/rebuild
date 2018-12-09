@@ -45,9 +45,15 @@
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
+<script>
+window.__PageConfig = {
+	type: 'RecordView',
+	entity: ['Department','${entityLabel}','${entityIcon}'],
+	recordId: '${id}'
+}
+</script>
 <script type="text/babel">
 $(document).ready(function(){
-	RbViewPage.init('${id}', ['Department','${entityLabel}','${entityIcon}'])
 	if (rb.isAdminUser == false || rb.isAdminVerified == false) $('.view-action').remove()
 
 	$('.J_delete').off('click').click(function(){

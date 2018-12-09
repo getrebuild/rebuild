@@ -81,12 +81,14 @@
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/assign-share.jsx" type="text/babel"></script>
-<script type="text/babel">
-window.pageType = 'RecordList'
-$(document).ready(function(){
-	RbListPage.init($.parseJSON('${DataListConfig}'), ['${entityName}','${entityLabel}','${entityIcon}'], $.parseJSON('${entityPrivileges}'))
-	rb.AdvFilter.init('.adv-search', '${entityName}')
-})
+<script>
+window.__PageConfig = {
+	type: 'RecordList',
+	entity: ['${entityName}','${entityLabel}','${entityIcon}'],
+	privileges: ${entityPrivileges},
+	listConfig: ${DataListConfig},
+	advFilter: true
+}
 </script>
 </body>
 </html>

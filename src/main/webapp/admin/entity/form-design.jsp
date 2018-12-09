@@ -74,9 +74,12 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
+<script>
+var FormConfig = ${FormConfig} || [];  // ES5:Unbabel
+</script>
 <script type="text/babel">
 $(document).ready(function(){
-	const config = JSON.parse('${FormConfig}' || '[]');
+	const config = FormConfig
 	$.get('../list-field?entity=${entityName}', function(res){
 		let validFields = {}, configFields = []
 		$(config.elements).each(function(){ configFields.push(this.field) })

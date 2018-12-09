@@ -472,4 +472,12 @@ const QuickFilter = {
     // 复写增加额外过滤条件
     mergeFilter() {
     }
-};
+}
+
+// Init
+$(document).ready(() => {
+    let wpc = window.__PageConfig
+    if (!wpc) return
+    RbListPage.init(wpc.listConfig, wpc.entity, wpc.privileges)
+    if (!(wpc.advFilter == false)) rb.AdvFilter.init('.adv-search', wpc.entity[0])
+})
