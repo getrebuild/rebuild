@@ -61,7 +61,8 @@ $(document).ready(function(){
 		sbtn.button('loading')
 		$.post(rb.baseUrl + '/admin/entity/entity-new', _data, function(res){
 			if (res.error_code == 0) parent.location.href = rb.baseUrl + '/admin/entity/' +res.data + '/base'
-			else { sbtn.button('reset'); rb.notice(res.error_msg, 'danger') }
+			else rb.notice(res.error_msg, 'danger')
+			sbtn.button('reset')
 		})
 	})
 	

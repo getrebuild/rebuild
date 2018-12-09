@@ -134,13 +134,12 @@ public class MetaEntityControll extends BaseControll {
 			}
 		}
 
-		String entityName = null;
 		try {
-			entityName = new Entity2Schema(user).create(label, comments, masterEntity);
+			String entityName = new Entity2Schema(user).create(label, comments, masterEntity);
 			writeSuccess(response, entityName);
 		} catch (Exception ex) {
+			LOG.error(null, ex);
 			writeFailure(response, ex.getLocalizedMessage());
-			return;
 		}
 	}
 

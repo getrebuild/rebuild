@@ -104,6 +104,8 @@ public class Entity2Schema extends Field2Schema {
 		
 		String primaryFiled = entityName + "Id";
 		createBuiltinField(tempEntity, primaryFiled, "ID", DisplayType.ID, null, null, null);
+		createBuiltinField(tempEntity, EntityHelper.autoId, "AUTOID", DisplayType.NUMBER, null, null, null);
+		
 		createBuiltinField(tempEntity, EntityHelper.createdBy, "创建人", DisplayType.REFERENCE, null, "User", null);
 		createBuiltinField(tempEntity, EntityHelper.createdOn, "创建时间", DisplayType.DATETIME, null, null, null);
 		createBuiltinField(tempEntity, EntityHelper.modifiedBy, "修改人", DisplayType.REFERENCE, null, "User", null);

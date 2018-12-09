@@ -49,6 +49,7 @@ public class EasyMeta implements BaseMeta {
 	private static final Set<String> BUILTIN_FIELD = new HashSet<>();
 	private static final Map<String, String[]> SYSENTITY_EXTMETA = new HashMap<>();
 	static {
+		BUILTIN_FIELD.add(EntityHelper.autoId);
 		BUILTIN_FIELD.add(EntityHelper.createdOn);
 		BUILTIN_FIELD.add(EntityHelper.createdBy);
 		BUILTIN_FIELD.add(EntityHelper.modifiedOn);
@@ -146,10 +147,10 @@ public class EasyMeta implements BaseMeta {
 		
 		if (isField()) {
 			DisplayType dt = getDisplayType();
+			Field field = (Field) this.baseMeta;
 			if (dt == DisplayType.ID || BUILTIN_FIELD.contains(getName())) {
 				return true;
 			} else if (dt == DisplayType.REFERENCE) {
-				Field field = (Field) this.baseMeta;
 				// 明细-引用主记录的字段也是内建
 				Entity hasMaster = field.getOwnEntity().getMasterEntity();
 				if (hasMaster != null && hasMaster.equals(field.getReferenceEntity()) && !field.isCreatable()) {

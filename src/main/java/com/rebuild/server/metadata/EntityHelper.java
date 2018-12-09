@@ -117,6 +117,7 @@ public class EntityHelper {
 	
 	// 公共字段
 	
+	public static final String autoId = "autoId";
 	public static final String createdOn = "createdOn";
 	public static final String createdBy = "createdBy";
 	public static final String modifiedOn = "modifiedOn";
