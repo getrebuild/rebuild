@@ -1,0 +1,111 @@
+.data-aside, .config-aside {
+	position: fixed;
+	height: 100%;
+	top: 0;
+	margin-top: 61px;
+    padding-bottom: 61px;
+    box-shadow: inset 0 -1px 0 0 rgba(10,18,32,.12);
+    background-color: #f5f5f5;
+}
+
+.data-aside {
+	left: 0;
+	border-right: 1px solid #e3e3e3;
+	width: 240px;
+}
+
+.config-aside {
+	right: 0;
+	border-left: 1px solid #e3e3e3;
+	width: 320px;
+}
+
+.rb-content .main-content {
+	margin-left: 240px;
+	margin-right: 320px;
+	width: auto;
+	padding: 0 15px;
+}
+
+.preview {
+	background-color: #fff;
+	box-shadow: 0 2px 4px 0 rgba(0,0,0,.1),0 16px 24px 0 rgba(81,129,228,.1);
+	padding: 32px 0;
+}
+
+.axis-warp {
+	margin-bottom: 15px;
+}
+
+.axis-warp .axis {
+	border-bottom: 1px solid rgba(0,0,0,.1);
+	padding: 10px 0;
+}
+
+.axis .axis-head {
+	color: #777;
+	float: left;
+	width: 65px;
+}
+
+.axis .axis-head > a {
+	display: inline-block;
+	padding: 0 3px;
+}
+
+.axis .axis-target {
+	margin-left: 65px;
+	min-height: 18px;
+}
+
+.axis-target .item {
+	background-color: #4285f4;
+	padding: 3px 6px;
+}
+
+.data-info {
+	padding: 0 15px;
+}
+
+.data-info+.data-info {
+	border-top: 1px solid rgba(0,0,0,.1);
+}
+
+.data-info > h5 {
+	color: #777;
+	margin: 10px 0;
+	line-height: 18px;
+}
+
+.data-info ul {
+	margin-bottom: 11px;
+}
+
+.data-info ul li>a, .data-info ul li>span {
+	display: block;
+	padding: 4px 6px;
+}
+
+.data-info ul li a:hover {
+	background-color: rgba(255,255,255,0.7)
+}
+
+.data-info ul li i.icon, .data-info ul.fields li a::before {
+	width: 16px;
+	display: inline-block;
+	color: #4285f4;
+}
+
+.data-info ul.fields li a::before {
+	font-size: 0.9rem;
+	content: '#';
+}
+.data-info .fields li.text a::before {
+	content: 'T';
+}
+.data-info .fields li.date a::before {
+	content: 'D';
+}
+.data-info .fields li.num a::before {
+	content: 'N';
+}

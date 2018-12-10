@@ -18,13 +18,23 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.dashboard;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.rebuild.server.entityhub.DisplayType;
+import com.rebuild.server.entityhub.EasyMeta;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.web.BaseControll;
+
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 
 /**
  * 
@@ -37,7 +47,27 @@ public class ChartDesignControll extends BaseControll {
 
 	@RequestMapping("/chart-design")
 	public ModelAndView pageHome(HttpServletRequest request) {
-		return createModelAndView("/dashboard/chart-design.jsp");
+		ModelAndView mv = createModelAndView("/dashboard/chart-design.jsp");
+		
+		String entity = getParameterNotNull(request, "source");
+		Entity entityMeta = MetadataHelper.getEntity(entity);
+		putEntityMeta(mv, entityMeta);
+
+		List<String[]> fields = new ArrayList<>();
+		for (Field field : MetadataSorter.sortFields(entityMeta)) {
+			EasyMeta easy = EasyMeta.valueOf(field);
+			DisplayType dt = easy.getDisplayType();
+			String type = "text";
+			if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
+				type = "date";
+			} else if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {
+				type = "num";
+			}
+			fields.add(new String[] { easy.getName(), easy.getLabel(), type });
+		}
+		mv.getModel().put("fields", fields);
+		
+		return mv;
 	}
 	
 }
