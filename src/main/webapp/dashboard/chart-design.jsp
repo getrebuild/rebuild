@@ -36,7 +36,23 @@
 		</aside>
 		<aside class="config-aside">
 			<div class="rb-scroller">
-				CONFIG
+				<div class="data-info">
+					<h5>图表标题</h5>
+					<div class="input">
+						<input class="form-control form-control-sm" placeholder="未命名图表">
+					</div>
+				</div>
+				<div class="data-info">
+					<h5>图表类型</h5>
+					<div class="chart-type">
+						<a title="表格" data-toggle="tooltip" class="J_ct-TABLE"><i class="C200"></i></a>
+						<a title="指标卡" data-toggle="tooltip" class="J_ct-INDEX"><i class="C310"></i></a>
+						<a title="折线图" data-toggle="tooltip" class="J_ct-LINE"><i class="C220"></i></a>
+						<a title="柱状图" data-toggle="tooltip" class="J_ct-BAR"><i class="C210"></i></a>
+						<a title="饼图" data-toggle="tooltip" class="J_ct-PIE"><i class="C230"></i></a>
+						<a title="漏斗图" data-toggle="tooltip" class="J_ct-FUNNEL"><i class="C330"></i></a>
+					</div>
+				</div>
 			</div>
 		</aside>
 		<div class="main-content container">
@@ -46,20 +62,45 @@
 						<span>纬度</span>
 						<a><i class="zmdi zmdi-edit"></i></a>
 					</div>
-					<div class="axis-target"></div>
+					<div class="axis-target J_axis-txt"></div>
 				</div>
 				<div class="axis">
 					<div class="axis-head">
 						<span>数值</span>
 						<a><i class="zmdi zmdi-edit"></i></a>
 					</div>
-					<div class="axis-target"></div>
+					<div class="axis-target J_axis-num"></div>
 				</div>
 			</div>
 			<div class="preview"></div>
 		</div>
 	</div>
 </div>
+<script type="text/plain" id="axis-ietm">
+<span>
+<div class="item" data-type="" data-field="" data-toggle="dropdown">
+	<a><i class="zmdi zmdi-chevron-down"></i></a>
+	<span></span>
+	<a class="del"><i class="zmdi zmdi-close-circle"></i></a>
+</div>
+<ul class="dropdown-menu">
+	<li class="dropdown-item J_num" data-calc="SUM">求和</li>
+	<li class="dropdown-item J_num" data-calc="AVG">平均值</li>
+	<li class="dropdown-item J_text" data-calc="COUNT">计数</li>
+	<li class="dropdown-item J_num" data-calc="MAX">最大值</li>
+	<li class="dropdown-item J_num" data-calc="MIN">最小值</li>
+	<li class="dropdown-item J_date" data-calc="Y">按年</li>
+	<li class="dropdown-item J_date" data-calc="Q">按季</li>
+	<li class="dropdown-item J_date" data-calc="M">按月</li>
+	<li class="dropdown-item J_date" data-calc="W">按周</li>
+	<li class="dropdown-item J_date" data-calc="D">按日</li>
+	<li class="dropdown-item J_date" data-calc="H">按时</li>
+	<li class="dropdown-divider"></li>
+	<li class="dropdown-item" data-sort="ASC">排序-升序</li>
+	<li class="dropdown-item" data-sort="DESC">排序-降序</li>
+</ul>
+</span>
+</script>
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/chart-design.jsx" type="text/babel"></script>
 <script type="text/babel">
