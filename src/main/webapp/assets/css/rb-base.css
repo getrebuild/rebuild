@@ -8854,7 +8854,8 @@ canvas {
 }
 .rb-offcanvas-menu .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar .icon {
     color: #737373;
-    font-size: 1.846rem
+    font-size: 1.846rem;
+    font-size: 1.615rem;
 }
 @media (max-width:767.98px) {
     .rb-offcanvas-menu .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar .icon {

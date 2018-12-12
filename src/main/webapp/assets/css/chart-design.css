@@ -11,7 +11,7 @@
 .data-aside {
 	left: 0;
 	border-right: 1px solid #e3e3e3;
-	width: 240px;
+	width: 230px;
 }
 
 .config-aside {
@@ -21,7 +21,7 @@
 }
 
 .rb-content .main-content {
-	margin-left: 240px;
+	margin-left: 230px;
 	margin-right: 326px;
 	width: auto;
 	padding: 0 15px;
