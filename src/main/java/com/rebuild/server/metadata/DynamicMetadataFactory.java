@@ -27,7 +27,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.entityhub.DisplayType;
+import com.rebuild.server.metadata.entityhub.DisplayType;
 
 import cn.devezhao.persist4j.dialect.Dialect;
 import cn.devezhao.persist4j.metadata.impl.ConfigurationMetadataFactory;

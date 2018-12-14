@@ -19,8 +19,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.service.notification;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.service.OperateContext;
 import com.rebuild.server.service.OperateObserver;
 

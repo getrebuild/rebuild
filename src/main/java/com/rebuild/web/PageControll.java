@@ -28,9 +28,9 @@ import org.springframework.web.servlet.ModelAndView;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
-import com.rebuild.server.entityhub.EasyMeta;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.utils.AppUtils;
 
 import cn.devezhao.bizz.privileges.Permission;

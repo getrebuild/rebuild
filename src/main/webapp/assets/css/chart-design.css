@@ -211,9 +211,8 @@ a.ui-draggable {
 }
 
 .chart-type>a.select {
-	box-shadow: 0 0 0 2px rgba(81, 130, 227, .06), inset 0 0 0 2px
-		rgba(81, 129, 228, .6);
-	background-color: #fff;
+	box-shadow: 0 0 0 2px rgba(81, 130, 227, .06), inset 0 0 0 2px rgba(81, 129, 228, .6);
+	background-color: #fff !important;
 }
 
 .chart-type>a.active {
