@@ -24,7 +24,7 @@ class RbModal extends React.Component {
 	}
 	componentDidMount() {
 	    if (this.props.children) this.setState({ inLoad: false })
-	    this.show()
+	    this.show(this.props.onShow)
     }
 	resize() {
         if (!!!this.state.url) return  // 非 iframe 无需 resize

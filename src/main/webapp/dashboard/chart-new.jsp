@@ -51,7 +51,7 @@ $(document).ready(function(){
 	$('.btn-primary').click(function(){
 		let source = $val('#sourceEntity'),
 			title = $val('#chartTitle')
-		parent.location.href = rb.baseUrl + '/dashboard/chart-design?source=' + source + '&title=' + title
+		parent.location.href = rb.baseUrl + '/dashboard/chart-design?source=' + source + '&title=' + title + '&das'
 	})
 })
 </script>

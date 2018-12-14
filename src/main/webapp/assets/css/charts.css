@@ -1,13 +1,25 @@
+.chart-box {
+	height: 100%;
+}
+
+.chart-box .chart-body {
+	height: 100%;
+	margin-top: -20px;
+	z-index: 1;
+}
+
 .chart-box .chart-head {
 	position: relative;
 	margin: 0;
+	z-index: 2;
+	background-color: #fff;
 }
 
 .chart-box .chart-head .chart-title {
 	cursor: move;
-	background-color: red;
 	margin-right: 80px;
 	font-weight: bold;
+	min-height: 20px;
 }
 
 .chart-box .chart-head .chart-oper {

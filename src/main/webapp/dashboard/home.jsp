@@ -12,6 +12,7 @@
 .chart-grid{overflow:scroll;overflow-x:hidden;padding:0 20px;padding-bottom:20px;padding-right:14px}
 .gridster ul,.gridster ul>li{margin:0;padding:0}
 .gridster ul>li{background-color:#fff;padding:20px 25px;}
+.gridster ul>li>div{height:100%}
 .gridster ul>li:hover{box-shadow:0 2px 4px 0 rgba(0, 0, 0, .1), 0 16px 24px 0 rgba(81, 129, 228, .1)}
 .gridster ul>li:hover .chart-oper{display:block;}
 </style>
@@ -38,29 +39,14 @@
 			</div>
 			<div class="chart-grid">
 				<div class="gridster">
-					<ul class="list-unstyled">
-						<li data-col="1" data-row="1" data-sizex="2" data-sizey="2">
-							<div class="chart-box">
-								<div class="chart-head">
-									<div class="chart-title text-truncate">未命名图表</div>
-									<div class="chart-oper">
-										<a><i class="zmdi zmdi-refresh"></i> </a>
-										<a><i class="zmdi zmdi-edit"></i> </a>
-										<a><i class="zmdi zmdi-delete"></i> </a>
-									</div>
-								</div>
-								<div class="chart">1</div>
-								<div class="handle-resize"></div>
-							</div>
-						</li>
-					</ul>
+					<ul class="list-unstyled"></ul>
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/lib/gridster/jquery.gridster.min.js"></script>
+<script src="${baseUrl}/assets/lib/gridster/jquery.gridster.js"></script>
 <script src="${baseUrl}/assets/js/charts/charts.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/charts/dashboard.jsx" type="text/babel"></script>
 </body>

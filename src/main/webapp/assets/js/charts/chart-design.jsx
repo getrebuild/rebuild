@@ -33,7 +33,7 @@ $(document).ready(() => {
 	    _data.metadata = { entity: 'ChartConfig', id: window.__chartId }
 	    
 	    console.log(JSON.stringify(_data))
-        $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), function(res){
+        $.post(rb.baseUrl + '/dashboard/chart-save?dashid=' + $urlp('dashid'), JSON.stringify(_data), function(res){
             if (res.error_code == 0){
                 window.__chartId = res.data.id
             }
