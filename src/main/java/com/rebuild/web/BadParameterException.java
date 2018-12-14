@@ -31,6 +31,10 @@ public class BadParameterException extends RebuildException {
 	
 	private int bizCode = 400;
 
+	public BadParameterException() {
+		this("无效请求参数");
+	}
+	
 	public BadParameterException(String msg) {
 		super(msg);
 	}

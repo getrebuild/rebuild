@@ -4,8 +4,16 @@
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <title>首页</title>
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/gridster/jquery.gridster.min.css">
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/charts.css">
 <style type="text/css">
-.tools-bar{border-bottom:1px solid rgba(0, 0, 0, .1);}
+.tools-bar{height:50px;padding:0 25px;padding-top:7px}
+.tools-bar h4{margin:10px 0}
+.chart-grid{overflow:scroll;overflow-x:hidden;padding:0 20px;padding-bottom:20px;padding-right:14px}
+.gridster ul,.gridster ul>li{margin:0;padding:0}
+.gridster ul>li{background-color:#fff;padding:20px 25px;}
+.gridster ul>li:hover{box-shadow:0 2px 4px 0 rgba(0, 0, 0, .1), 0 16px 24px 0 rgba(81, 129, 228, .1)}
+.gridster ul>li:hover .chart-oper{display:block;}
 </style>
 </head>
 <body>
@@ -17,22 +25,34 @@
 		<jsp:param value="dashboard-home" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
-		<div class="main-content container-fluid">
+		<div class="main-content container-fluid p-0">
 			<div class="tools-bar">
 				<div class="row">
 					<div class="col-sm-6">
+						<h4>默认仪表盘</h4>
 					</div>
 					<div class="col-sm-6 text-right">
-						<button type="button" class="btn btn-link J_add-chart"><i class="zmdi zmdi-plus icon"></i> 添加图表</button>
+						<button type="button" class="btn btn-link J_add-chart pr-0"><i class="zmdi zmdi-plus icon"></i> 添加图表</button>
 					</div>
 				</div>
 			</div>
 			<div class="chart-grid">
 				<div class="gridster">
-					<ul>
-						<li data-sizey="2" data-sizex="2" data-col="4" data-row="1"><div class="gridster-box"><div class="chart">1</div><div class="handle-resize"></div></div></li>
-						<li data-sizey="2" data-sizex="2" data-col="4" data-row="1"><div class="gridster-box"><div class="chart">2</div><div class="handle-resize"></div></div></li>
-						<li data-sizey="2" data-sizex="2" data-col="4" data-row="1"><div class="gridster-box"><div class="chart">3</div><div class="handle-resize"></div></div></li>
+					<ul class="list-unstyled">
+						<li data-col="1" data-row="1" data-sizex="2" data-sizey="2">
+							<div class="chart-box">
+								<div class="chart-head">
+									<div class="chart-title text-truncate">未命名图表</div>
+									<div class="chart-oper">
+										<a><i class="zmdi zmdi-refresh"></i> </a>
+										<a><i class="zmdi zmdi-edit"></i> </a>
+										<a><i class="zmdi zmdi-delete"></i> </a>
+									</div>
+								</div>
+								<div class="chart">1</div>
+								<div class="handle-resize"></div>
+							</div>
+						</li>
 					</ul>
 				</div>
 			</div>
@@ -40,8 +60,7 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/gridster/jquery.gridster.min.css">
-<script src="${baseUrl}/assets/lib/gridster/jquery.gridster.js"></script>
+<script src="${baseUrl}/assets/lib/gridster/jquery.gridster.min.js"></script>
 <script src="${baseUrl}/assets/js/charts/charts.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/charts/dashboard.jsx" type="text/babel"></script>
 </body>

@@ -1,0 +1,30 @@
+.chart-box .chart-head {
+	position: relative;
+	margin: 0;
+}
+
+.chart-box .chart-head .chart-title {
+	cursor: move;
+	background-color: red;
+	margin-right: 80px;
+	font-weight: bold;
+}
+
+.chart-box .chart-head .chart-oper {
+	position: absolute;
+	right: 0;
+	top: 0;
+	display: none;
+}
+
+.chart-box .chart-head .chart-oper a {
+	color: #999;
+	display: inline-block;
+	height: 20px;
+}
+
+.chart-box .chart-head .chart-oper a .zmdi {
+	font-size: 1.4rem;
+	vertical-align: middle;
+	margin-left: 8px
+}

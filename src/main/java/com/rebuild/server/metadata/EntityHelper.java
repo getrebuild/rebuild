@@ -139,6 +139,8 @@ public class EntityHelper {
 	public static final int LayoutConfig = 13;
 	public static final int FilterConfig = 14;
 	public static final int ViewAddonsConfig = 15;
+	public static final int DashboardConfig = 16;
+	public static final int ChartConfig = 17;
 	
 	public static final int ShareAccess = 20;
 	public static final int SystemConfig = 21;

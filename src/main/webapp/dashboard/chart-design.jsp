@@ -5,6 +5,7 @@
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/chart-design.css">
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/charts.css">
 <title>图表设计器</title>
 </head>
 <body>
@@ -39,7 +40,7 @@
 				<div class="data-info">
 					<h5>图表标题</h5>
 					<div class="input">
-						<input class="form-control form-control-sm" placeholder="未命名图表">
+						<input class="form-control form-control-sm" placeholder="未命名图表" id="chart-title" value="${chartTitle}">
 					</div>
 				</div>
 				<div class="data-info">
@@ -62,7 +63,7 @@
 						<span>纬度</span>
 						<a><i class="zmdi zmdi-edit"></i></a>
 					</div>
-					<div class="axis-target J_axis-txt"></div>
+					<div class="axis-target J_axis-dim"></div>
 				</div>
 				<div class="axis">
 					<div class="axis-head">
@@ -72,13 +73,15 @@
 					<div class="axis-target J_axis-num"></div>
 				</div>
 			</div>
-			<div class="preview"></div>
+			<div class="preview">
+				<div class="chart-box xs"></div>
+			</div>
 		</div>
 	</div>
 </div>
 <script type="text/plain" id="axis-ietm">
 <span>
-<div class="item" data-type="" data-field="" data-toggle="dropdown">
+<div class="item" data-toggle="dropdown">
 	<a><i class="zmdi zmdi-chevron-down"></i></a>
 	<span></span>
 	<a class="del"><i class="zmdi zmdi-close-circle"></i></a>
@@ -86,13 +89,12 @@
 <ul class="dropdown-menu">
 	<li class="dropdown-item J_num" data-calc="SUM">求和</li>
 	<li class="dropdown-item J_num" data-calc="AVG">平均值</li>
-	<li class="dropdown-item J_text" data-calc="COUNT">计数</li>
 	<li class="dropdown-item J_num" data-calc="MAX">最大值</li>
 	<li class="dropdown-item J_num" data-calc="MIN">最小值</li>
+	<li class="dropdown-item J_text" data-calc="COUNT">计数</li>
 	<li class="dropdown-item J_date" data-calc="Y">按年</li>
 	<li class="dropdown-item J_date" data-calc="Q">按季</li>
 	<li class="dropdown-item J_date" data-calc="M">按月</li>
-	<li class="dropdown-item J_date" data-calc="W">按周</li>
 	<li class="dropdown-item J_date" data-calc="D">按日</li>
 	<li class="dropdown-item J_date" data-calc="H">按时</li>
 	<li class="dropdown-divider"></li>
@@ -103,10 +105,10 @@
 </script>
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/charts/chart-design.jsx" type="text/babel"></script>
-<script type="text/babel">
+<script>
 window.__sourceEntity = '${entityName}'
-$(document).ready(function(){
-})
+window.__chartId = '${chartId}'
+window.__chartConfig = ${chartConfig}
 </script>
 </body>
 </html>

@@ -27,14 +27,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.rebuild.server.Application;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.web.BadParameterException;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 
@@ -49,8 +52,26 @@ public class ChartDesignControll extends BaseControll {
 	public ModelAndView pageHome(HttpServletRequest request) {
 		ModelAndView mv = createModelAndView("/dashboard/chart-design.jsp");
 		
-		String entity = getParameterNotNull(request, "source");
-		Entity entityMeta = MetadataHelper.getEntity(entity);
+		String entity = getParameter(request, "source");
+		ID chartId = getIdParameter(request, "id");
+		
+		Entity entityMeta = null;
+		if (chartId != null) {
+			Object[] config = Application.createQuery(
+					"select belongEntity,title,config from ChartConfig where chartId = ?")
+					.setParameter(1, chartId)
+					.unique();
+			mv.getModel().put("chartId", chartId);
+			mv.getModel().put("chartTitle", config[1]);
+			mv.getModel().put("chartConfig", config[2]);
+			
+			entityMeta = MetadataHelper.getEntity((String) config[0]);
+		} else if (entity != null) {
+			entityMeta = MetadataHelper.getEntity(entity);
+		} else {
+			throw new BadParameterException();
+		}
+		
 		putEntityMeta(mv, entityMeta);
 
 		List<String[]> fields = new ArrayList<>();
@@ -69,5 +90,6 @@ public class ChartDesignControll extends BaseControll {
 		
 		return mv;
 	}
+	
 	
 }
