@@ -135,6 +135,7 @@
 	<entity name="ChartConfig" type-code="017" description="图表配置">
 		<field name="chartId" type="primary" />
 		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
+		<field name="type" type="string" max-length="100" nullable="false" />
 		<field name="title" type="string" max-length="100" nullable="false" />
 		<field name="config" type="text" description="JSON格式配置" nullable="false" />
 	</entity>

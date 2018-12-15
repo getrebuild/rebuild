@@ -33,6 +33,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.business.charts.ChartData;
+import com.rebuild.server.business.charts.ChartDataBuilder;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
@@ -58,7 +60,7 @@ import cn.devezhao.persist4j.engine.ID;
 public class ChartDesignControll extends BaseControll {
 
 	@RequestMapping("/chart-design")
-	public ModelAndView pageHome(HttpServletRequest request) {
+	public ModelAndView pageDesign(HttpServletRequest request) {
 		ModelAndView mv = createModelAndView("/dashboard/chart-design.jsp");
 		
 		String entity = getParameter(request, "source");
@@ -99,6 +101,14 @@ public class ChartDesignControll extends BaseControll {
 		mv.getModel().put("fields", fields);
 		
 		return mv;
+	}
+	
+	@RequestMapping("/chart-preview")
+	public void dataPreview(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		JSON config = ServletUtils.getRequestJson(request);
+		ChartData chart = ChartDataBuilder.newChartData((JSONObject) config);
+		JSON data = chart.build();
+		writeSuccess(response, data);
 	}
 	
 	@RequestMapping("/chart-save")

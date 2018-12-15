@@ -7,6 +7,10 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/chart-design.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/charts.css">
 <title>图表设计器</title>
+<style type="text/css">
+.chart-box .chart-head .chart-title{display:none;}
+.chart-box .chart-body{margin-top:0;padding-top:0;}
+</style>
 </head>
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-offcanvas-menu">
@@ -73,8 +77,7 @@
 					<div class="axis-target J_axis-num"></div>
 				</div>
 			</div>
-			<div class="preview">
-				<div class="chart-box xs"></div>
+			<div id="chart-preview">
 			</div>
 		</div>
 	</div>
@@ -104,6 +107,7 @@
 </span>
 </script>
 <%@ include file="/_include/Foot.jsp"%>
+<script src="${baseUrl}/assets/js/charts/charts.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/charts/chart-design.jsx" type="text/babel"></script>
 <script>
 window.__sourceEntity = '${entityName}'

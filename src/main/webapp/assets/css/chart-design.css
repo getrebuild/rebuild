@@ -1,3 +1,9 @@
+#chart-preview {
+	background-color: #fff;
+	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1), 0 16px 24px 0 rgba(81, 129, 228, .1);
+	padding: 32px 0;
+}
+
 .data-aside, .config-aside {
 	position: fixed;
 	height: 100%;
@@ -25,13 +31,6 @@
 	margin-right: 326px;
 	width: auto;
 	padding: 0 15px;
-}
-
-.preview {
-	background-color: #fff;
-	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1), 0 16px 24px 0
-		rgba(81, 129, 228, .1);
-	padding: 32px 0;
 }
 
 .axis-warp {

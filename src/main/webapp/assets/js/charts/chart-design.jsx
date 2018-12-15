@@ -20,16 +20,17 @@ $(document).ready(() => {
 	})
 	
 	let ctas = $('.chart-type > a').click(function(){
-		let that = $(this)
-		if (that.hasClass('active') == false) return
+		let _this = $(this)
+		if (_this.hasClass('active') == false) return
 		ctas.removeClass('select')
-		that.addClass('select')
+		_this.addClass('select')
+		render_option()
 	})
 	
 	$('.rb-toggle-left-sidebar').attr('title', '保存并返回').off('click').on('click', () => {
 	    let cfg = build_config()
 	    if (!!!cfg) return
-	    let _data = { config: JSON.stringify(cfg), title: cfg.title, belongEntity: cfg.entity }
+	    let _data = { config: JSON.stringify(cfg), title: cfg.title, belongEntity: cfg.entity, type: cfg.type }
 	    _data.metadata = { entity: 'ChartConfig', id: window.__chartId }
 	    
 	    console.log(JSON.stringify(_data))
@@ -111,6 +112,7 @@ let add_axis = ((target, axis) => {
 	render_option()
 })
 
+// 图表选项
 let render_option = (() => {
 	$('.chart-type>a').removeClass('active')
 	let txtAxis = $('.J_axis-dim .item').length
@@ -121,31 +123,51 @@ let render_option = (() => {
 	let select = $('.chart-type>a.select')
 	if (!select.hasClass('active')) select.removeClass('select')
 	$('.chart-type>a.active').eq(0).addClass('active')
+	
+	render_preview()
 })
 
+// 生成预览
+let render_preview_timer = null
+let render_preview_chart = null
 let render_preview = (() => {
+    if (render_preview_timer){
+        clearTimeout(render_preview_timer)
+        render_preview_timer = null
+    }
     
+    render_preview_timer = setTimeout(()=>{
+        let cfg = build_config()
+        if (!cfg){
+            $('.preview .chart-box').html('<h3 class="undata">暂无预览</h3>')
+            return
+        }
+        
+        render_preview_chart = detectChart(cfg)
+        renderRbcomp(render_preview_chart, 'chart-preview')
+        
+    }, 500)
 })
 
 let build_config = (() => {
-    let cfg = { entity: window.__sourceEntity }
+    let cfg = { entity: window.__sourceEntity, title: $val('#chart-title') || '未命名图表' }
     cfg.type = $('.chart-type>a.select').data('type')
-    cfg.title = $val('#chart-title') || '未命名图表'
+    if (!cfg.type) return
     
-    let dimension = []
-    let numerical = []
+    let dims = []
+    let nums = []
     $('.J_axis-dim>span').each((idx, item) => {
-        dimension.push(build_axis_item(item, false))
+        dims.push(__build_axisItem(item, false))
     })
     $('.J_axis-num>span').each((idx, item) => {
-        numerical.push(build_axis_item(item, true))
+        nums.push(__build_axisItem(item, true))
     })
-    cfg.axis = { dimension: dimension, numerical: numerical }
+    if (dims.length == 0 && nums.length == 0) return
+    cfg.axis = { dimension: dims, numerical: nums }
     
     return cfg
 })
-
-let build_axis_item = ((item, isNum) => {
+let __build_axisItem = ((item, isNum) => {
     item = $(item)
     let x = { field: item.data('field'), sort: item.attr('data-sort') || '' }
     if (isNum){

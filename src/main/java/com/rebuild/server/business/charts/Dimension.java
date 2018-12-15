@@ -18,11 +18,17 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
+import cn.devezhao.persist4j.Field;
+
 /**
+ * 维度-轴
  * 
  * @author devezhao
  * @since 12/14/2018
  */
 public class Dimension extends Axis {
 
+	public Dimension(Field field, FormatSort sort) {
+		super(field, sort);
+	}
 }

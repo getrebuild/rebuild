@@ -9,7 +9,7 @@ $(document).ready(function(){
             renderRbcomp(<DlgAddChart dashid={d[0]} />)
         })
         dashid = d[0]
-        render_dashboard($.parseJSON(d[2]))
+        render_dashboard((d[2]))
     }))
 })
 $(window).resize(() => {
@@ -91,13 +91,10 @@ let render_dashboard = function(cfg){
     gridster.remove_all_widgets()
     //cfg = Gridster.sort_by_row_and_col_asc(cfg)
     $(cfg).each((idx, item)=>{
-        let el = '<li data-chart="' + item.chart + '"><div id="chart-' + item.chart + '"></div><div class="handle-resize"></div></li>'
-        gridster.add_widget(el, item.size_x||2, item.size_y||2, item.col||null, item.row||null)
-    })
-    
-    $('.gridster li').each(function(){
-        let chartid = $(this).data('chart')
-        renderRbcomp(<BaseChart id={chartid} />, 'chart-' + chartid)
+        let el_id = 'chart-' + item.chart
+        let el = '<li data-chart="' + item.chart + '"><div id="' + el_id + '"></div><span class="handle-resize"></span></li>'
+        gridster.add_widget(el, item.size_x || 2, item.size_y || 2, item.col || null, item.row || null)
+        renderRbcomp(detectChart(item, item.chart), el_id)
     })
 }
 

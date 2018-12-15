@@ -11,7 +11,7 @@
 .tools-bar h4{margin:10px 0}
 .chart-grid{overflow:scroll;overflow-x:hidden;padding:0 20px;padding-bottom:20px;padding-right:14px}
 .gridster ul,.gridster ul>li{margin:0;padding:0}
-.gridster ul>li{background-color:#fff;padding:20px 25px;}
+.gridster ul>li{background-color:#fff;}
 .gridster ul>li>div{height:100%}
 .gridster ul>li:hover{box-shadow:0 2px 4px 0 rgba(0, 0, 0, .1), 0 16px 24px 0 rgba(81, 129, 228, .1)}
 .gridster ul>li:hover .chart-oper{display:block;}

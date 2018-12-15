@@ -18,21 +18,49 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
+import java.text.DecimalFormat;
+
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
+import com.rebuild.utils.JSONUtils;
+
+import cn.devezhao.commons.ObjectUtils;
 
 /**
+ * 指标卡
  * 
  * @author devezhao
  * @since 12/14/2018
  */
 public class IndexChart extends ChartData {
-
+	
 	public IndexChart(JSONObject config) {
 		super(config);
 	}
 
 	@Override
-	public String toData() {
-		return null;
+	public JSON build() {
+		Numerical[] nums = getNumericals();
+
+		Numerical axis = nums[0];
+		Object[] o = Application.createQuery(buildSql(axis)).unique();
+		JSONObject index = JSONUtils.toJSONObject(
+				new String[] { "data", "style" },
+				new Object[] { new DecimalFormat("#,###.00").format(ObjectUtils.toDouble(o[0])), axis.getStyleSheet() });
+		
+		JSON data = JSONUtils.toJSONObject("index", index);
+		return data;
+	}
+	
+	protected String buildSql(Numerical axis) {
+		StringBuffer sql = new StringBuffer("select ");
+		
+		FormatCalc calc = axis.getFormatCalc();
+		sql.append(String.format("%s(%s)", calc.name(), axis.getField().getName()));
+		
+		sql.append(" from ").append(getSourceEntity().getName())
+			.append(" where ").append(getFilterSql());
+		return sql.toString();
 	}
 }

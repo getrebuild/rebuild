@@ -58,7 +58,7 @@ public class SchemaGen {
 //		gen(EntityHelper.SystemConfig);
 //		gen(EntityHelper.Notification);
 //		gen(EntityHelper.User);
-		gen(EntityHelper.DashboardConfig);
+//		gen(EntityHelper.DashboardConfig);
 		gen(EntityHelper.ChartConfig);
 		
 		System.exit(0);

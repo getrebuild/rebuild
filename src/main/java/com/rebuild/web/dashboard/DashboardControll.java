@@ -28,6 +28,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.web.BaseControll;
@@ -65,7 +67,22 @@ public class DashboardControll extends BaseControll {
 			record.setString("title", dname);
 			record.setString("config", "[]");
 			record = Application.getCommonService().create(record);
-			array = new Object[][] { new Object[] { record.getPrimary(), dname, null } };
+			array = new Object[][] { new Object[] { record.getPrimary(), dname, "[]" } };
+		} else {
+			// 补充标题
+			for (int i = 0; i < array.length; i++) {
+				JSONArray config = JSON.parseArray((String) array[i][2]);
+				for (Object o : config) {
+					JSONObject item = (JSONObject) o;
+					Object[] chart = Application.createQuery(
+							"select title,type from ChartConfig where chartId = ?")
+							.setParameter(1, ID.valueOf(item.getString("chart")))
+							.unique();
+					item.put("title", chart[0]);
+					item.put("type", chart[1]);
+				}
+				array[i][2] = config;
+			}
 		}
 		
 		writeSuccess(response, array);

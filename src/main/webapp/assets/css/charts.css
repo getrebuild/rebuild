@@ -1,11 +1,13 @@
 .chart-box {
 	height: 100%;
+	padding: 20px 25px;
 }
 
 .chart-box .chart-body {
 	height: 100%;
-	margin-top: -20px;
 	z-index: 1;
+	margin-top: -20px;
+	padding-top: 20px;
 }
 
 .chart-box .chart-head {
@@ -33,10 +35,42 @@
 	color: #999;
 	display: inline-block;
 	height: 20px;
+	margin-left: 12px;
+	padding-left: 3px;
 }
 
 .chart-box .chart-head .chart-oper a .zmdi {
 	font-size: 1.4rem;
 	vertical-align: middle;
-	margin-left: 8px
+}
+
+.chart-box .chart-head .chart-oper a:hover {
+	color: #5a5a5a;
+}
+
+.chart-body .undata {
+	text-align: center;
+}
+
+.chart-body .chart {
+	line-height: normal;
+}
+.chart.index {
+	height: 100%;
+	overflow: hidden;
+	position: relative;
+}
+.chart.index > .data-item {
+	display: inline-block;
+	text-align: left;
+	max-width: 100%;
+}
+.chart.index > .data-item p {
+	font-size: 1rem;
+	color: #888;
+	margin-bottom: 1px;
+}
+.chart.index > .data-item strong {
+	font-size: 3.68rem;
+	font-weight: lighter;
 }

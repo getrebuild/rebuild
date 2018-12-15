@@ -18,34 +18,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
-import cn.devezhao.persist4j.Field;
-
 /**
- * 轴
  * 
  * @author devezhao
- * @since 12/14/2018
+ * @since 12/15/2018
  */
-public class Axis {
+public enum FormatSort {
+
+	ASC, DESC, NONE
 	
-	private Field field;
-	private FormatSort sort;
-
-	/**
-	 * @param field
-	 * @param calc
-	 * @param sort
-	 */
-	protected Axis(Field field, FormatSort sort) {
-		this.field = field;
-		this.sort = sort;
-	}
-
-	public Field getField() {
-		return field;
-	}
-
-	public FormatSort getFormatSort() {
-		return sort;
-	}
 }
