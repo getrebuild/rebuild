@@ -48,8 +48,10 @@
 	color: #5a5a5a;
 }
 
-.chart-body .undata {
-	text-align: center;
+.chart-undata {
+	margin: 0;
+	color: #999;
+	display: inline-block;
 }
 
 .chart-body .chart {

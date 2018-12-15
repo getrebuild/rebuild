@@ -37,7 +37,7 @@ class BaseChart extends React.Component {
         this.setState({ chartdata: (<div>{JSON.stringify(data)}</div>) })
     }
     renderError(msg) {
-        this.setState({ chartdata: (<h3 className="undata">{msg || '图表加载错误'}</h3>) })
+        this.setState({ chartdata: (<h4 className="chart-undata">{msg || '图表加载失败'}</h4>) })
     }
 }
 

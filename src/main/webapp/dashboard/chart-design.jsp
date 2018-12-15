@@ -4,12 +4,10 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/chart-design.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/charts.css">
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/chart-design.css">
 <title>图表设计器</title>
 <style type="text/css">
-.chart-box .chart-head .chart-title{display:none;}
-.chart-box .chart-body{margin-top:0;padding-top:0;}
 </style>
 </head>
 <body>
@@ -50,12 +48,12 @@
 				<div class="data-info">
 					<h5>图表类型</h5>
 					<div class="chart-type">
-						<a title="表格" data-toggle="tooltip" data-type="TABLE" data-allow=""><i class="C200"></i></a>
-						<a title="指标卡" data-toggle="tooltip" data-type="INDEX" data-allow=""><i class="C310"></i></a>
-						<a title="折线图" data-toggle="tooltip" data-type="LINE" data-allow=""><i class="C220"></i></a>
-						<a title="柱状图" data-toggle="tooltip" data-type="BAR" data-allow=""><i class="C210"></i></a>
-						<a title="饼图" data-toggle="tooltip" data-type="PIE" data-allow=""><i class="C230"></i></a>
-						<a title="漏斗图" data-toggle="tooltip" data-type="FUNNEL" data-allow=""><i class="C330"></i></a>
+						<a title="表格" data-type="TABLE" data-allow-dims="0|3" data-allow-nums="1|9"><i class="C200"></i></a>
+						<a title="指标卡" data-type="INDEX" data-allow-dims="0|0" data-allow-nums="1|1"><i class="C310"></i></a>
+						<a title="折线图" data-type="LINE" data-allow-dims="1|1" data-allow-nums="1|9"><i class="C220"></i></a>
+						<a title="柱状图" data-type="BAR" data-allow-dims="1|1" data-allow-nums="1|9"><i class="C210"></i></a>
+						<a title="饼图" data-type="PIE" data-allow-dims="1|1" data-allow-nums="1|1"><i class="C230"></i></a>
+						<a title="漏斗图" data-toggle="tooltip" data-type="FUNNEL" data-allow-dims="1|1" data-allow-nums="1|1"><i class="C330"></i></a>
 					</div>
 				</div>
 			</div>

@@ -1,7 +1,17 @@
+.chart-box .chart-head .chart-title {
+	display: none;
+}
+.chart-box .chart-body {
+	margin-top: 0;
+	padding-top: 0;
+}
+
 #chart-preview {
 	background-color: #fff;
 	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1), 0 16px 24px 0 rgba(81, 129, 228, .1);
-	padding: 32px 0;
+	padding: 0;
+	position: relative;
+	min-height: 200px;
 }
 
 .data-aside, .config-aside {
@@ -24,6 +34,10 @@
 	right: 0;
 	border-left: 1px solid #e3e3e3;
 	width: 326px;
+}
+
+.config-aside .tooltip .tooltip-inner {
+	text-align: left;
 }
 
 .rb-content .main-content {
@@ -55,14 +69,14 @@
 
 .axis .axis-target {
 	margin-left: 65px;
-	min-height: 24px;
-	margin-top: -3px;
-	margin-bottom: -3px;
+	min-height: 26px;
+	margin-top: -4px;
+	margin-bottom: -4px;
 }
 
 .axis-target .item {
 	background-color: #4285f4;
-	padding: 3px 4px;
+	padding: 4px 4px;
 	color: #fff;
 	display: inline-block;
 	margin-right: 3px;
@@ -154,17 +168,19 @@
 }
 
 .data-info .input {
-	margin-bottom: 10px;
+	margin-bottom: 9px;
 	padding: 0 6px;
 }
 
 .data-info .input .form-control {
-	border-radius: 0;
 	border-width: 0;
-	border-bottom-width: 1px;
-	padding: 0;
+	padding: 0 6px;
 	background-color: transparent;
-	height: 28px !important;
+	background-color: rgba(255,255,255,.6);
+	height: 30px !important;
+}
+.data-info .input .form-control:focus{
+	background-color: #fff;
 }
 
 a.ui-draggable.ui-draggable-dragging {
@@ -207,10 +223,12 @@ a.ui-draggable {
 	margin: 4px 0;
 	margin-left: 6px;
 	cursor: default;
+	cursor: not-allowed;
 }
 
 .chart-type>a.select {
-	box-shadow: 0 0 0 2px rgba(81, 130, 227, .06), inset 0 0 0 2px rgba(81, 129, 228, .6);
+	box-shadow: 0 0 0 2px rgba(81, 130, 227, .06), inset 0 0 0 2px
+		rgba(81, 129, 228, .6);
 	background-color: #fff !important;
 }
 

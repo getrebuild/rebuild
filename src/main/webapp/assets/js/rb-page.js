@@ -58,6 +58,7 @@ const __initNavs = function(){
 			let collapsed = el.hasClass('rb-collapsible-sidebar-collapsed')
 			$storage.set('rb-sidebar-collapsed', collapsed)
 			$('.sidebar-elements>li>a').tooltip('toggleEnabled')
+			$(window).trigger('resize')
 		})
 		if ($storage.get('rb-sidebar-collapsed') == 'true'){
 			$('.rb-collapsible-sidebar').addClass('rb-collapsible-sidebar-collapsed')
@@ -96,7 +97,7 @@ const __initNavs = function(){
 		$(document.body).trigger('click')
 	}
 	
-	// At small-width
+	// When small-width
 	$('.left-sidebar-toggle').click(function(){
 		$('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
 		$('.left-sidebar-spacer').toggleClass('open')

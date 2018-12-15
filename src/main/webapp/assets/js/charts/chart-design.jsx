@@ -1,4 +1,8 @@
 $(document).ready(() => {
+    $(window).trigger('resize')
+    
+    $('.chart-type>a').tooltip({ html:true, container:'.config-aside' })
+    
 	let dragIsNum = false
     $('.fields a').draggable({
     	helper: 'clone',
@@ -19,10 +23,10 @@ $(document).ready(() => {
 		}
 	})
 	
-	let ctas = $('.chart-type > a').click(function(){
+	let cts = $('.chart-type > a').click(function(){
 		let _this = $(this)
 		if (_this.hasClass('active') == false) return
-		ctas.removeClass('select')
+		cts.removeClass('select')
 		_this.addClass('select')
 		render_option()
 	})
@@ -42,15 +46,16 @@ $(document).ready(() => {
 	    
 	}).find('.zmdi').addClass('zmdi-arrow-left')
 	
-	if (window.__chartConfig) {
-	    let _axis = window.__chartConfig.axis
-	    $(_axis.dimension).each((idx, item) => {
-	        add_axis('.J_axis-dim', item)
-	    })
-	    $(_axis.numerical).each((idx, item) => {
-	        add_axis('.J_axis-num', item)
-	    })
+	if (window.__chartConfig && window.__chartConfig.axis) {
+	    let cfg = window.__chartConfig
+	    $(cfg.axis.dimension).each((idx, item) => { add_axis('.J_axis-dim', item) })
+	    $(cfg.axis.numerical).each((idx, item) => { add_axis('.J_axis-num', item) })
+	    $('.chart-type>a[data-type="' + cfg.type + '"]').trigger('click')
 	}
+    if (!window.__chartId) $('<h4 class="chart-undata must-center">当前图表无数据</h4>').appendTo('#chart-preview')
+})
+$(window).resize(() => {
+    $('#chart-preview').height($(window).height() - 170)
 })
 
 const CTs = { SUM:'求和', AVG:'平均值', MAX:'最大值', MIN:'最小值', COUNT:'计数', Y:'按年', Q:'按季', M:'按月', D:'按日', H:'按时' }
@@ -101,6 +106,7 @@ let add_axis = ((target, axis) => {
 		} else if (sort){
 			el.attr('data-sort', sort)
 		}
+		render_option()
 	})
 	
 	el.attr({ 'data-type': fType, 'data-field': fName })
@@ -114,15 +120,22 @@ let add_axis = ((target, axis) => {
 
 // 图表选项
 let render_option = (() => {
-	$('.chart-type>a').removeClass('active')
-	let txtAxis = $('.J_axis-dim .item').length
-	let numAxis = $('.J_axis-num .item').length
+	let cts = $('.chart-type>a').removeClass('active')
+	let dimsAxis = $('.J_axis-dim .item').length
+	let numsAxis = $('.J_axis-num .item').length
 	
-	if (txtAxis > 0 || numAxis > 0) $('.chart-type>a').addClass('active')
+	cts.each(function(){
+	    let _this = $(this)
+	    let dims = (_this.data('allow-dims') || '0|0').split('|')
+	    let nums = (_this.data('allow-nums') || '0|0').split('|')
+	    if (dimsAxis >= ~~dims[0] && dimsAxis <= ~~dims[1] && numsAxis >= ~~nums[0] && numsAxis <= ~~nums[1]) _this.addClass('active')
+	})
 	
 	let select = $('.chart-type>a.select')
 	if (!select.hasClass('active')) select.removeClass('select')
-	$('.chart-type>a.active').eq(0).addClass('active')
+	
+	select = $('.chart-type>a.select')
+	if (select.length == 0) $('.chart-type>a.active').eq(0).addClass('select')
 	
 	render_preview()
 })
@@ -137,14 +150,21 @@ let render_preview = (() => {
     }
     
     render_preview_timer = setTimeout(()=>{
+        if (!!render_preview_chart){
+            ReactDOM.unmountComponentAtNode($('#chart-preview')[0])
+            render_preview_chart = null
+        }
+        
         let cfg = build_config()
         if (!cfg){
-            $('.preview .chart-box').html('<h3 class="undata">暂无预览</h3>')
+            $('#chart-preview').html('<h4 class="chart-undata must-center">当前图表无数据</h4>')
             return
         }
         
+        $('#chart-preview').empty()
         render_preview_chart = detectChart(cfg)
-        renderRbcomp(render_preview_chart, 'chart-preview')
+        if (!!render_preview_chart) renderRbcomp(render_preview_chart, 'chart-preview')
+        else $('#chart-preview').html('<h4 class="chart-undata must-center">不支持的图表类型</h4>')
         
     }, 500)
 })
