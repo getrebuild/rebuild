@@ -10,7 +10,7 @@ class BaseChart extends React.Component {
                 <div className="chart-oper">
                     <a onClick={()=>this.loadChartData()}><i className="zmdi zmdi-refresh"/></a>
                     <a href={'chart-design?id=' + this.props.id}><i className="zmdi zmdi-edit"/></a>
-                    <a onClick={()=>this.deleteChart()}><i className="zmdi zmdi-delete"/></a>
+                    <a onClick={()=>this.delete()}><i className="zmdi zmdi-delete"/></a>
                 </div>
             </div>
             <div className={'chart-body rb-loading ' + (!!!this.state.chartdata && ' rb-loading-active')}>{this.state.chartdata || <RbSpinner />}</div>
@@ -18,6 +18,9 @@ class BaseChart extends React.Component {
     }
     componentDidMount() {
         this.loadChartData()
+    }
+    componentWillUnmount(){
+        if (this.__echarts) this.__echarts.dispose()
     }
     loadChartData() {
         this.setState({ chartdata: null })
@@ -28,16 +31,18 @@ class BaseChart extends React.Component {
             else that.renderError(res.error_msg)
         })
     }
-    deleteChart() {
+    resize() {
+        if (this.__echarts) this.__echarts.resize()
+    }
+    delete() {
         if (!confirm('确认删除？')) return
-        
     }
     
-    renderChart(data) {
-        this.setState({ chartdata: (<div>{JSON.stringify(data)}</div>) })
-    }
     renderError(msg) {
         this.setState({ chartdata: (<h4 className="chart-undata">{msg || '图表加载失败'}</h4>) })
+    }
+    renderChart(data) {
+        this.setState({ chartdata: (<div>{JSON.stringify(data)}</div>) })
     }
 }
 
@@ -59,9 +64,150 @@ class ChartIndex extends BaseChart {
     }
 }
 
+// 表格
+class ChartTable extends BaseChart {
+    constructor(props) {
+        super(props)
+    }
+}
+
+// 折线图
+class ChartLine extends BaseChart {
+    constructor(props) {
+        super(props)
+    }
+    renderChart(data) {
+        let that = this
+        let elid = 'echarts-line-' + (this.state.id || 'id')
+        this.setState({ chartdata: (<div className="chart line" id={elid}></div>) }, ()=>{
+            for (let i = 0; i < data.yyyAxis.length; i++){
+                let yAxis = data.yyyAxis[i]
+                yAxis.type = 'line'
+                yAxis.smooth = true
+                data.yyyAxis[i] = yAxis
+            }
+            
+            let opt = {
+                xAxis: {
+                    type: 'category',
+                    data: data.xAxis
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: data.yyyAxis,
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b} : {c}',
+                    textStyle: {
+                        fontSize: 12, lineHeight: 1.3
+                    }
+                },
+                textStyle: {
+                    fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
+                }
+            }
+            let c = echarts.init(document.getElementById(elid), 'light')
+            c.setOption(opt)
+            that.__echarts = c
+        })
+    }
+}
+
+// 柱状图
+class ChartBar extends BaseChart {
+    constructor(props) {
+        super(props)
+    }
+    renderChart(data) {
+        let that = this
+        let elid = 'echarts-line-' + (this.state.id || 'id')
+        this.setState({ chartdata: (<div className="chart line" id={elid}></div>) }, ()=>{
+            for (let i = 0; i < data.yyyAxis.length; i++){
+                let yAxis = data.yyyAxis[i]
+                yAxis.type = 'bar'
+                yAxis.smooth = true
+                data.yyyAxis[i] = yAxis
+            }
+            
+            let opt = {
+                xAxis: {
+                    type: 'category',
+                    data: data.xAxis
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: data.yyyAxis,
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b} : {c}',
+                    textStyle: {
+                        fontSize: 12, lineHeight: 1.3
+                    }
+                },
+                textStyle: {
+                    fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
+                }
+            }
+            let c = echarts.init(document.getElementById(elid), 'light')
+            c.setOption(opt)
+            that.__echarts = c
+        })
+    }
+}
+
+// 饼图
+class ChartPie extends BaseChart {
+    constructor(props) {
+        super(props)
+    }
+    renderChart(data) {
+        let that = this
+        let elid = 'echarts-pie-' + (this.state.id || 'id')
+        this.setState({ chartdata: (<div className="chart pie" id={elid}></div>) }, ()=>{
+            data = { ...data, type: 'pie', radius: '55%' }
+            let opt = {
+                series: [ data ],
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b} : {c} ({d}%)',
+                    textStyle: {
+                        fontSize: 12, lineHeight: 1.3
+                    }
+                },
+                textStyle: {
+                    fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
+                }
+            }
+            let c = echarts.init(document.getElementById(elid), 'light')
+            c.setOption(opt)
+            that.__echarts = c
+        })
+    }
+}
+
+// 漏斗圖
+class ChartFunnel extends BaseChart {
+    constructor(props) {
+        super(props)
+    }
+}
+
 // 确定图表类型
 const detectChart = function(cfg, id){
+    let props = { config: cfg, id: id, title: cfg.title }
     if (cfg.type == 'INDEX'){
-        return <ChartIndex config={cfg} id={id} title={cfg.title} />
+        return <ChartIndex { ...props } />
+    } else if (cfg.type == 'TABLE'){
+        return <ChartTable { ...props } />
+    } else if (cfg.type == 'LINE'){
+        return <ChartLine { ...props } />
+    } else if (cfg.type == 'BAR'){
+        return <ChartBar { ...props } />
+    } else if (cfg.type == 'PIE'){
+        return <ChartPie { ...props } />
+    } else if (cfg.type == 'FUNNEL'){
+        return <ChartFunnel { ...props } />
     }
 }

@@ -18,14 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
-import java.text.DecimalFormat;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.utils.JSONUtils;
-
-import cn.devezhao.commons.ObjectUtils;
 
 /**
  * 指标卡
@@ -44,13 +40,14 @@ public class IndexChart extends ChartData {
 		Numerical[] nums = getNumericals();
 
 		Numerical axis = nums[0];
-		Object[] o = Application.createQuery(buildSql(axis)).unique();
+		Object[] dataRaw = Application.createQuery(buildSql(axis)).unique();
+		
 		JSONObject index = JSONUtils.toJSONObject(
 				new String[] { "data", "style" },
-				new Object[] { new DecimalFormat("#,###.00").format(ObjectUtils.toDouble(o[0])), axis.getStyleSheet() });
+				new Object[] { warpAxisValue(axis, dataRaw[0]), axis.getStyleSheet() });
 		
-		JSON data = JSONUtils.toJSONObject("index", index);
-		return data;
+		JSON ret = JSONUtils.toJSONObject("index", index);
+		return ret;
 	}
 	
 	protected String buildSql(Numerical axis) {

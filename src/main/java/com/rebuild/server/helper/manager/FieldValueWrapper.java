@@ -34,7 +34,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 字段值包装
+ * 字段值包装。例如 BOOL 类型的 T/F 将格式化为 是/否
  * 
  * @author zhaofang123@gmail.com
  * @since 09/23/2018
@@ -137,23 +137,25 @@ public class FieldValueWrapper {
 	/**
 	 * @param reference
 	 * @param field
-	 * @return
+	 * @return a String or an [Entity, Label, ID]
 	 */
 	public static Object wrapReference(Object reference, EasyMeta field) {
 		
-		// TODO 名称字段
+		// TODO 名称字段，例如 LABEL 又是一个引用字段
 		
 		if (!(reference instanceof Object[])) {
 			return reference.toString();
 		}
 		
 		Assert.isTrue(reference instanceof Object[], "Must be 'Object[]'");
-		Object[] referenceValue = (Object[]) reference;
+		Object[] idLabel = (Object[]) reference;
+		Assert.isTrue(idLabel.length == 2, "Must be '[ID, Label]' array");
+		
 		Object[] idNamed = new Object[3];
-		Entity idEntity = MetadataHelper.getEntity(((ID) referenceValue[0]).getEntityCode());
+		Entity idEntity = MetadataHelper.getEntity(((ID) idLabel[0]).getEntityCode());
 		idNamed[2] = idEntity.getName();
-		idNamed[1] = referenceValue[1] == null ? StringUtils.EMPTY : referenceValue[1].toString();
-		idNamed[0] = referenceValue[0].toString();
+		idNamed[1] = idLabel[1] == null ? StringUtils.EMPTY : idLabel[1].toString();
+		idNamed[0] = idLabel[0].toString();
 		return idNamed;
 	}
 	
@@ -183,7 +185,7 @@ public class FieldValueWrapper {
 	// --
 	
 	/**
-	 * 获取记录的 NAME 字段值
+	 * 获取记录的 NAME/LABEL 字段值
 	 * 
 	 * @param id
 	 * @return
@@ -202,22 +204,5 @@ public class FieldValueWrapper {
 		
 		Object labelVal = FieldValueWrapper.wrapFieldValue(label[0], nameField);
 		return labelVal == null ? null : labelVal.toString();
-	}
-	
-	/**
-	 * 根据明细 ID 获取主记录 ID
-	 * 
-	 * @param slaveId
-	 * @return
-	 */
-	public static ID getMasterId(ID slaveId) {
-		Entity entity = MetadataHelper.getEntity(slaveId.getEntityCode());
-		Entity masterEntity = entity.getMasterEntity();
-		Assert.isTrue(masterEntity != null, "Non slave entty : " + slaveId);
-		
-		String sql = "select %s from %s where %s = '%s'";
-		sql = String.format(sql, masterEntity.getPrimaryField().getName(), entity.getName(), entity.getPrimaryField().getName(), slaveId.toLiteral());
-		Object[] primary = Application.getQueryFactory().createQueryNoFilter(sql).unique();
-		return primary == null ? null : (ID) primary[0];
 	}
 }

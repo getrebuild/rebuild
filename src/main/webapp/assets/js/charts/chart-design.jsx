@@ -33,7 +33,10 @@ $(document).ready(() => {
 	
 	$('.rb-toggle-left-sidebar').attr('title', '保存并返回').off('click').on('click', () => {
 	    let cfg = build_config()
-	    if (!!!cfg) return
+	    if (!!!cfg){
+	        rb.notice('当前图表无数据')
+	        return
+	    }
 	    let _data = { config: JSON.stringify(cfg), title: cfg.title, belongEntity: cfg.entity, type: cfg.type }
 	    _data.metadata = { entity: 'ChartConfig', id: window.__chartId }
 	    
@@ -55,7 +58,10 @@ $(document).ready(() => {
     if (!window.__chartId) $('<h4 class="chart-undata must-center">当前图表无数据</h4>').appendTo('#chart-preview')
 })
 $(window).resize(() => {
-    $('#chart-preview').height($(window).height() - 170)
+    $setTimeout(()=>{
+        $('#chart-preview').height($(window).height() - 170)
+        if (render_preview_chart) render_preview_chart.resize()
+    }, 200, 'resize-chart-preview')
 })
 
 const CTs = { SUM:'求和', AVG:'平均值', MAX:'最大值', MIN:'最小值', COUNT:'计数', Y:'按年', Q:'按季', M:'按月', D:'按日', H:'按时' }
@@ -151,7 +157,7 @@ let render_preview = (() => {
     
     render_preview_timer = setTimeout(()=>{
         if (!!render_preview_chart){
-            ReactDOM.unmountComponentAtNode($('#chart-preview')[0])
+            ReactDOM.unmountComponentAtNode(document.getElementById('chart-preview'))
             render_preview_chart = null
         }
         
@@ -162,8 +168,8 @@ let render_preview = (() => {
         }
         
         $('#chart-preview').empty()
-        render_preview_chart = detectChart(cfg)
-        if (!!render_preview_chart) renderRbcomp(render_preview_chart, 'chart-preview')
+        let c = detectChart(cfg)
+        if (!!c) render_preview_chart = renderRbcomp(c, 'chart-preview')
         else $('#chart-preview').html('<h4 class="chart-undata must-center">不支持的图表类型</h4>')
         
     }, 500)

@@ -56,9 +56,10 @@
 
 .chart-body .chart {
 	line-height: normal;
-}
-.chart.index {
 	height: 100%;
+}
+
+.chart.index {
 	overflow: hidden;
 	position: relative;
 }
@@ -75,4 +76,7 @@
 .chart.index > .data-item strong {
 	font-size: 3.68rem;
 	font-weight: lighter;
+}
+
+.chart.pie {
 }

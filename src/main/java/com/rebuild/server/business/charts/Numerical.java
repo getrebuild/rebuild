@@ -46,4 +46,9 @@ public class Numerical extends Axis {
 	public JSON getStyleSheet() {
 		return style;
 	}
+	
+	@Override
+	public String getLabel() {
+		return super.getLabel() + getFormatCalc().getLabel();
+	}
 }

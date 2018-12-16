@@ -28,6 +28,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
 
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 列表项
@@ -85,5 +86,17 @@ public class PickListManager {
 			list.add(item);
 		}
 		return list;
+	}
+	
+	/**
+	 * @param itemId
+	 * @return
+	 */
+	public static String getLabel(ID itemId) {
+		Object[] item = Application.createQueryNoFilter(
+				"select text from PickList where itemId = ?")
+				.setParameter(1, itemId)
+				.unique();
+		return (String) item[0];
 	}
 }

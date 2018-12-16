@@ -47,6 +47,7 @@
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/lib/gridster/jquery.gridster.js"></script>
+<script src="${baseUrl}/assets/lib/chart/echarts.js"></script>
 <script src="${baseUrl}/assets/js/charts/charts.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/charts/dashboard.jsx" type="text/babel"></script>
 </body>

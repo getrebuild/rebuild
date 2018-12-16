@@ -18,8 +18,17 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
+import com.rebuild.utils.JSONUtils;
 
 /**
  * 曲线图
@@ -35,6 +44,59 @@ public class LineChart extends ChartData {
 
 	@Override
 	public JSON build() {
-		return null;
+		Dimension[] dims = getDimensions();
+		Numerical[] nums = getNumericals();
+		
+		Dimension dim1 = dims[0];
+		Object[][] dataRaw = Application.createQuery(buildSql(dim1, nums)).array();
+		
+		List<String> dimAxis = new ArrayList<>();
+		Object[] numsAxis = new Object[nums.length];
+		for (Object[] o : dataRaw) {
+			dimAxis.add(warpAxisValue(dim1, o[0]));
+			
+			for (int i = 0; i < nums.length; i++) {
+				@SuppressWarnings("unchecked")
+				List<String> numAxis = (List<String>) numsAxis[i];
+				if (numAxis == null) {
+					numAxis = new ArrayList<String>();
+					numsAxis[i] = numAxis;
+				}
+				numAxis.add(warpAxisValue(nums[i], o[i + 1]));
+			}
+		}
+		
+		JSONArray yyyAxis = new JSONArray();
+		for (int i = 0; i < nums.length; i++) {
+			Numerical axis = nums[i];
+			@SuppressWarnings("unchecked")
+			List<String> data = (List<String>) numsAxis[i];
+			
+			JSONObject map = new JSONObject();
+			map.put("name", axis.getLabel());
+			map.put("data", data);
+			yyyAxis.add(map);
+		}
+		
+		JSONObject ret = JSONUtils.toJSONObject(
+				new String[] { "xAxis", "yyyAxis" },
+				new Object[] { JSON.toJSON(dimAxis), JSON.toJSON(yyyAxis) });
+		return ret;
+	}
+	
+	protected String buildSql(Dimension dim, Numerical[] nums) {
+		List<String> numsItem = new ArrayList<>();
+		for (Numerical num : nums) {
+			numsItem.add(String.format("%s(%s)", num.getFormatCalc().name(), num.getField().getName()));
+		}
+		
+		String sql = "select {0}, {1} from {2} where {3} group by {0}";
+		String where = getFilterSql();
+		
+		sql = MessageFormat.format(sql, 
+				dim.getField().getName(),
+				StringUtils.join(numsItem, ", "),
+				getSourceEntity().getName(), where);
+		return sql;
 	}
 }

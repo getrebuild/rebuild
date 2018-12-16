@@ -52,11 +52,17 @@ public class ChartDataBuilder {
 		String type = chartConfig.getString("type");
 		if ("INDEX".equalsIgnoreCase(type)) {
 			return new IndexChart(chartConfig);
-		}
-		else if ("LINE".equalsIgnoreCase(type)) {
+		} else if ("TABLE".equalsIgnoreCase(type)) {
+			return new TableChart(chartConfig);
+		} else if ("LINE".equalsIgnoreCase(type)) {
 			return new LineChart(chartConfig);
+		} else if ("BAR".equalsIgnoreCase(type)) {
+			return new BarChart(chartConfig);
+		} else if ("PIE".equalsIgnoreCase(type)) {
+			return new PieChart(chartConfig);
+		} else if ("FUNNEL".equalsIgnoreCase(type)) {
+			return new FunnelChart(chartConfig);
 		}
-		
 		throw new UnsupportedOperationException(type);
 	}
 	

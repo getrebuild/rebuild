@@ -21,16 +21,20 @@ package com.rebuild.server.business.charts;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.helper.manager.FieldValueWrapper;
+import com.rebuild.server.helper.manager.PickListManager;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entityhub.DisplayType;
+import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.query.AdvFilterParser;
 
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 图表数据
@@ -69,18 +73,7 @@ public abstract class ChartData {
 	}
 	
 	/**
-	 * 数值
-	 * 
-	 * @return
-	 */
-	public Axis[] getAllAxis() {
-		Axis[] dims = getDimensions();
-		Axis[] nums = getNumericals();
-		return (Axis[]) ArrayUtils.add(dims, nums);
-	}
-	
-	/**
-	 * 维度
+	 * 维度轴
 	 * 
 	 * @return
 	 */
@@ -104,7 +97,7 @@ public abstract class ChartData {
 	}
 	
 	/**
-	 * 数值
+	 * 数值轴
 	 * 
 	 * @return
 	 */
@@ -130,6 +123,8 @@ public abstract class ChartData {
 	}
 	
 	/**
+	 * 获取过滤 SQL
+	 * 
 	 * @return
 	 */
 	protected String getFilterSql() {
@@ -140,6 +135,39 @@ public abstract class ChartData {
 		
 		AdvFilterParser filterParser = new AdvFilterParser(filterExp);
 		return filterParser.toSqlWhere();
+	}
+	
+	/**
+	 * 格式化值
+	 * 
+	 * @param axis
+	 * @param value
+	 * @return
+	 */
+	protected String warpAxisValue(Axis axis, Object value) {
+		if (value == null) {
+			return "无";
+		}
+		
+		EasyMeta axisField = EasyMeta.valueOf(axis.getField());
+		DisplayType axisType = axisField.getDisplayType();
+		
+		String label = null;
+		if (axisType == DisplayType.PICKLIST) {
+			label = PickListManager.getLabel((ID) value);
+		} else if (axisType == DisplayType.REFERENCE) {
+			label = FieldValueWrapper.getLabel((ID) value);
+		} else if (axisType == DisplayType.DATE) {
+			label = (String) FieldValueWrapper.wrapDate(value, axisField);
+		} else if (axisType == DisplayType.DATETIME) {
+			label = (String) FieldValueWrapper.wrapDatetime(value, axisField);
+		} else if (axisType == DisplayType.BOOL) {
+			label = (String) FieldValueWrapper.wrapBool(value, axisField);
+		} else {
+			label = value.toString();
+		}
+		
+		return label;
 	}
 	
 	/**

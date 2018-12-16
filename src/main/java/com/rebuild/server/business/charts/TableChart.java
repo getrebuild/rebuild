@@ -18,40 +18,22 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
-import com.rebuild.server.metadata.entityhub.EasyMeta;
-
-import cn.devezhao.persist4j.Field;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 
 /**
- * 轴
  * 
  * @author devezhao
- * @since 12/14/2018
+ * @since 12/15/2018
  */
-public class Axis {
-	
-	private Field field;
-	private FormatSort sort;
+public class TableChart extends ChartData {
 
-	/**
-	 * @param field
-	 * @param calc
-	 * @param sort
-	 */
-	protected Axis(Field field, FormatSort sort) {
-		this.field = field;
-		this.sort = sort;
+	public TableChart(JSONObject config) {
+		super(config);
 	}
 
-	public Field getField() {
-		return field;
-	}
-
-	public FormatSort getFormatSort() {
-		return sort;
-	}
-	
-	public String getLabel() {
-		return EasyMeta.getLabel(field);
+	@Override
+	public JSON build() {
+		return null;
 	}
 }

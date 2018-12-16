@@ -12,8 +12,12 @@ $(document).ready(function(){
         render_dashboard((d[2]))
     }))
 })
+let rendered_echarts = []
 $(window).resize(() => {
-    $('.chart-grid').height($(window).height() - 131)
+    $setTimeout(()=>{
+        $('.chart-grid').height($(window).height() - 131)
+        $(rendered_echarts).each((idx, item)=>{ item.resize() })
+    }, 200, 'resize-echarts')
 })
 
 class DlgAddChart extends React.Component {
@@ -68,6 +72,7 @@ let render_dashboard = function(cfg){
             enabled: true,
             min_size: [2, 2],
             stop: function(e, ui, $widget){
+                $(window).trigger('resize')
                 save_dashboard()
             }
         },
@@ -89,17 +94,19 @@ let render_dashboard = function(cfg){
     }).data('gridster')
     
     gridster.remove_all_widgets()
-    //cfg = Gridster.sort_by_row_and_col_asc(cfg)
+    rendered_echarts = []
     $(cfg).each((idx, item)=>{
         let el_id = 'chart-' + item.chart
         let el = '<li data-chart="' + item.chart + '"><div id="' + el_id + '"></div><span class="handle-resize"></span></li>'
         gridster.add_widget(el, item.size_x || 2, item.size_y || 2, item.col || null, item.row || null)
-        renderRbcomp(detectChart(item, item.chart), el_id)
+        let c = renderRbcomp(detectChart(item, item.chart), el_id)
+        rendered_echarts.push(c)
     })
 }
 
 let save_dashboard = function(){
     let s = gridster.serialize()
+    s = Gridster.sort_by_row_and_col_asc(s)
     console.log(s)
     $.post(rb.baseUrl + '/dashboard/dash-save?id=' + dashid, JSON.stringify(s), ((res) => {
         console.log(res)

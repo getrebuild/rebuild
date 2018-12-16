@@ -18,12 +18,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.bizz.privileges;
 
+import org.springframework.util.Assert;
+
 import com.rebuild.server.Application;
 import com.rebuild.server.bizz.RoleService;
 import com.rebuild.server.bizz.UserService;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.helper.cache.RecordOwningCache;
-import com.rebuild.server.helper.manager.FieldValueWrapper;
 import com.rebuild.server.metadata.MetadataHelper;
 
 import cn.devezhao.bizz.privileges.DepthEntry;
@@ -368,7 +369,7 @@ public class SecurityManager {
 		
 		Entity entity = MetadataHelper.getEntity(target.getEntityCode());
 		if (entity.getMasterEntity() != null) {
-			ID masterId = FieldValueWrapper.getMasterId(target);
+			ID masterId = getMasterRecordId(target);
 			if (masterId == null) {
 				throw new NoRecordFoundException("No record found by slave-id : " + target);
 			}
@@ -402,6 +403,23 @@ public class SecurityManager {
 			return BizzPermission.UPDATE;
 		}
 		return slaveAction;
+	}
+	
+	/**
+	 * 根据明细 ID 获取主记录 ID
+	 * 
+	 * @param slaveId
+	 * @return
+	 */
+	private ID getMasterRecordId(ID slaveId) {
+		Entity entity = MetadataHelper.getEntity(slaveId.getEntityCode());
+		Entity masterEntity = entity.getMasterEntity();
+		Assert.isTrue(masterEntity != null, "Non slave entty : " + slaveId);
+		
+		String sql = "select %s from %s where %s = '%s'";
+		sql = String.format(sql, masterEntity.getPrimaryField().getName(), entity.getName(), entity.getPrimaryField().getName(), slaveId.toLiteral());
+		Object[] primary = Application.getQueryFactory().createQueryNoFilter(sql).unique();
+		return primary == null ? null : (ID) primary[0];
 	}
 	
 	/**
