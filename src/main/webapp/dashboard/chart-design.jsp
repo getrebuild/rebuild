@@ -99,13 +99,19 @@
 	<li class="dropdown-item J_num" data-calc="MIN">最小值</li>
 	<li class="dropdown-item J_text" data-calc="COUNT">计数</li>
 	<li class="dropdown-item J_date" data-calc="Y">按年</li>
-	<li class="dropdown-item J_date" data-calc="Q">按季</li>
 	<li class="dropdown-item J_date" data-calc="M">按月</li>
 	<li class="dropdown-item J_date" data-calc="D">按日</li>
 	<li class="dropdown-item J_date" data-calc="H">按时</li>
 	<li class="dropdown-divider"></li>
-	<li class="dropdown-item" data-sort="ASC">排序-升序</li>
-	<li class="dropdown-item" data-sort="DESC">排序-降序</li>
+	<li class="dropdown-submenu">
+		<a class="dropdown-item">排序</a>
+		<ul class="dropdown-menu">
+			<li class="dropdown-item" data-sort="NONE">默认</li>
+			<li class="dropdown-item" data-sort="ASC">升序</li>
+			<li class="dropdown-item" data-sort="DESC">降序</li>
+		</ul>
+	</li>
+	<li class="dropdown-item">显示样式</li>
 </ul>
 </span>
 </script>

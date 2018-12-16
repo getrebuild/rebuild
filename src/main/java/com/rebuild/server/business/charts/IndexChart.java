@@ -18,6 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
+import java.text.MessageFormat;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
@@ -44,20 +46,19 @@ public class IndexChart extends ChartData {
 		
 		JSONObject index = JSONUtils.toJSONObject(
 				new String[] { "data", "style" },
-				new Object[] { warpAxisValue(axis, dataRaw[0]), axis.getStyleSheet() });
+				new Object[] { warpAxisValue(axis, dataRaw[0]), null });
 		
 		JSON ret = JSONUtils.toJSONObject("index", index);
 		return ret;
 	}
 	
 	protected String buildSql(Numerical axis) {
-		StringBuffer sql = new StringBuffer("select ");
+		String sql = "select {0} from {1} where {2}";
+		String where = getFilterSql();
 		
-		FormatCalc calc = axis.getFormatCalc();
-		sql.append(String.format("%s(%s)", calc.name(), axis.getField().getName()));
-		
-		sql.append(" from ").append(getSourceEntity().getName())
-			.append(" where ").append(getFilterSql());
-		return sql.toString();
+		sql = MessageFormat.format(sql, 
+				axis.getSqlName(),
+				getSourceEntity().getName(), where);
+		return sql;
 	}
 }

@@ -18,7 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
-import com.alibaba.fastjson.JSON;
+import org.apache.commons.lang.StringUtils;
+
+import com.rebuild.server.metadata.entityhub.DisplayType;
+import com.rebuild.server.metadata.entityhub.EasyMeta;
 
 import cn.devezhao.persist4j.Field;
 
@@ -30,25 +33,31 @@ import cn.devezhao.persist4j.Field;
  */
 public class Numerical extends Axis {
 
-	private FormatCalc calc;
-	private JSON style;
+	private int scale = 2;
 	
-	public Numerical(Field field, FormatSort sort, FormatCalc calc, JSON style) {
-		super(field, sort);
-		this.calc = calc;
-		this.style = style;
-	}
-
-	public FormatCalc getFormatCalc() {
-		return calc;
+	public Numerical(Field field, FormatSort sort, FormatCalc calc, String label, Integer scale) {
+		super(field, sort, calc, label);
+		if (scale != null) {
+			this.scale = scale;
+		}
 	}
 	
-	public JSON getStyleSheet() {
-		return style;
+	public int getScale() {
+		return scale;
 	}
 	
 	@Override
 	public String getLabel() {
-		return super.getLabel() + getFormatCalc().getLabel();
+		return StringUtils.defaultIfBlank(label, EasyMeta.getLabel(getField()) + getFormatCalc().getLabel());
+	}
+	
+	@Override
+	public String getSqlName() {
+		EasyMeta meta = EasyMeta.valueOf(getField());
+		if (meta.getDisplayType() == DisplayType.NUMBER || meta.getDisplayType() == DisplayType.DECIMAL) {
+			return String.format("%s(%s)", getFormatCalc().name(), meta.getName());
+		} else {
+			return String.format("%s(%s)", FormatCalc.COUNT, meta.getName());
+		}
 	}
 }

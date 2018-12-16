@@ -18,6 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
+import com.rebuild.server.metadata.entityhub.DisplayType;
+import com.rebuild.server.metadata.entityhub.EasyMeta;
+
 import cn.devezhao.persist4j.Field;
 
 /**
@@ -28,7 +31,25 @@ import cn.devezhao.persist4j.Field;
  */
 public class Dimension extends Axis {
 
-	public Dimension(Field field, FormatSort sort) {
-		super(field, sort);
+	public Dimension(Field field, FormatSort sort, FormatCalc calc, String label) {
+		super(field, sort, calc, label);
+	}
+	
+	@Override
+	public String getSqlName() {
+		EasyMeta meta = EasyMeta.valueOf(getField());
+		if (meta.getDisplayType() == DisplayType.DATE || meta.getDisplayType() == DisplayType.DATETIME) {
+			if (getFormatCalc() == FormatCalc.Y) {
+				return String.format("DATE_FORMAT(%s,'%s')", meta.getName(), "%Y");
+			} else if (getFormatCalc() == FormatCalc.M) {
+				return String.format("DATE_FORMAT(%s,'%s')", meta.getName(), "%Y-%m");
+			} else if (getFormatCalc() == FormatCalc.H) {
+				return String.format("DATE_FORMAT(%s,'%s')", meta.getName(), "%Y-%m-%d %H");
+			} else {
+				return String.format("DATE_FORMAT(%s,'%s')", meta.getName(), "%Y-%m-%d");
+			}
+		} else {
+			return meta.getName();
+		}
 	}
 }

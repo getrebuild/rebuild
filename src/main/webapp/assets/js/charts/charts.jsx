@@ -46,6 +46,26 @@ class BaseChart extends React.Component {
     }
 }
 
+// echarts
+const CHART_OPT = {
+    grid: {
+        left: 60, right: 30, top: 30, bottom: 30
+    },
+    animation: false,
+    tooltip: {
+        trigger: 'item',
+        formatter: '{a} <br/>{b} : {c} ({d}%)',
+        textStyle: {
+            fontSize: 12, lineHeight: 1.3, color: '#333'
+        },
+        backgroundColor: '#fff',
+        extraCssText: 'border-radius:0;box-shadow:0 0 6px 0 rgba(0, 0, 0, .1), 0 8px 10px 0 rgba(170, 182, 206, .2)'
+    },
+    textStyle: {
+        fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
+    }
+}
+
 // 指标卡
 class ChartIndex extends BaseChart {
     constructor(props) {
@@ -77,36 +97,59 @@ class ChartLine extends BaseChart {
         super(props)
     }
     renderChart(data) {
+        if (this.__echarts) this.__echarts.dispose()
         let that = this
         let elid = 'echarts-line-' + (this.state.id || 'id')
         this.setState({ chartdata: (<div className="chart line" id={elid}></div>) }, ()=>{
+            let formatter = []
             for (let i = 0; i < data.yyyAxis.length; i++){
                 let yAxis = data.yyyAxis[i]
                 yAxis.type = 'line'
                 yAxis.smooth = true
+                yAxis.lineStyle = { width: 3 }
+                yAxis.itemStyle = {
+                    normal: { borderWidth: 1 },
+                    emphasis: { borderWidth: 4 }
+                }
                 data.yyyAxis[i] = yAxis
+                formatter.push('{a' + i + '} : {c' + i + '}');
             }
             
+            let opt_axisLabel = {
+                textStyle: {
+                    color: '#555',
+                    fontSize: 12,
+                    fontWeight: 'lighter'
+                }
+            }
             let opt = {
                 xAxis: {
                     type: 'category',
-                    data: data.xAxis
-                },
-                yAxis: {
-                    type: 'value'
-                },
-                series: data.yyyAxis,
-                tooltip: {
-                    trigger: 'item',
-                    formatter: '{a} <br/>{b} : {c}',
-                    textStyle: {
-                        fontSize: 12, lineHeight: 1.3
+                    data: data.xAxis,
+                    axisLabel: opt_axisLabel,
+                    axisLine: {
+                        lineStyle: {
+                            color: '#ccc'
+                        }
                     }
                 },
-                textStyle: {
-                    fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
-                }
+                yAxis: {
+                    type: 'value',
+                    splitLine: { show: false },
+                    axisLabel: opt_axisLabel,
+                    axisLine: {
+                        lineStyle: {
+                            color: '#ccc',
+                            width: 0
+                        }
+                    }
+                },
+                series: data.yyyAxis
             }
+            opt = { ...opt, ...CHART_OPT }
+            opt.tooltip.trigger = 'axis'
+            opt.tooltip.formatter = '<b>{b}</b> <br> ' + formatter.join(' <br> ')
+            
             let c = echarts.init(document.getElementById(elid), 'light')
             c.setOption(opt)
             that.__echarts = c
@@ -120,6 +163,7 @@ class ChartBar extends BaseChart {
         super(props)
     }
     renderChart(data) {
+        if (this.__echarts) this.__echarts.dispose()
         let that = this
         let elid = 'echarts-line-' + (this.state.id || 'id')
         this.setState({ chartdata: (<div className="chart line" id={elid}></div>) }, ()=>{
@@ -131,6 +175,7 @@ class ChartBar extends BaseChart {
             }
             
             let opt = {
+                animation: false,
                 xAxis: {
                     type: 'category',
                     data: data.xAxis
@@ -163,23 +208,17 @@ class ChartPie extends BaseChart {
         super(props)
     }
     renderChart(data) {
+        if (this.__echarts) this.__echarts.dispose()
         let that = this
         let elid = 'echarts-pie-' + (this.state.id || 'id')
         this.setState({ chartdata: (<div className="chart pie" id={elid}></div>) }, ()=>{
             data = { ...data, type: 'pie', radius: '55%' }
             let opt = {
-                series: [ data ],
-                tooltip: {
-                    trigger: 'item',
-                    formatter: '{a} <br/>{b} : {c} ({d}%)',
-                    textStyle: {
-                        fontSize: 12, lineHeight: 1.3
-                    }
-                },
-                textStyle: {
-                    fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
-                }
+                series: [ data ]
             }
+            opt = { ...opt, ...CHART_OPT }
+            opt.tooltip.formatter = '<b>{b}</b> <br/>{c} ({d}%)'
+            
             let c = echarts.init(document.getElementById(elid), 'light')
             c.setOption(opt)
             that.__echarts = c

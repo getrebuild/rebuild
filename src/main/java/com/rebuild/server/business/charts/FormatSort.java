@@ -25,6 +25,8 @@ package com.rebuild.server.business.charts;
  */
 public enum FormatSort {
 
-	ASC, DESC, NONE
+	ASC, DESC,
+	
+	NONE,
 	
 }

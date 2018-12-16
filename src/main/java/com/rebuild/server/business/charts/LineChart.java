@@ -85,17 +85,17 @@ public class LineChart extends ChartData {
 	}
 	
 	protected String buildSql(Dimension dim, Numerical[] nums) {
-		List<String> numsItem = new ArrayList<>();
+		List<String> numSqlItems = new ArrayList<>();
 		for (Numerical num : nums) {
-			numsItem.add(String.format("%s(%s)", num.getFormatCalc().name(), num.getField().getName()));
+			numSqlItems.add(num.getSqlName());
 		}
 		
-		String sql = "select {0}, {1} from {2} where {3} group by {0}";
+		String sql = "select {0},{1} from {2} where {3} group by {0}";
 		String where = getFilterSql();
 		
 		sql = MessageFormat.format(sql, 
-				dim.getField().getName(),
-				StringUtils.join(numsItem, ", "),
+				dim.getSqlName(),
+				StringUtils.join(numSqlItems, ", "),
 				getSourceEntity().getName(), where);
 		return sql;
 	}

@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,9 +89,15 @@ public abstract class ChartData {
 		for (Object o : items) {
 			JSONObject item = (JSONObject) o;
 			String field = item.getString("field");
-			String sort = StringUtils.defaultIfBlank(item.getString("sort"), FormatSort.NONE.name());
-			
-			Dimension dim = new Dimension(getSourceEntity().getField(field), FormatSort.valueOf(sort));
+			FormatSort sort = FormatSort.NONE;
+			FormatCalc calc = FormatCalc.NONE;
+			if (StringUtils.isNotBlank(item.getString("sort"))) {
+				sort = FormatSort.valueOf(item.getString("sort"));
+			}
+			if (StringUtils.isNotBlank(item.getString("calc"))) {
+				calc = FormatCalc.valueOf(item.getString("calc"));
+			}
+			Dimension dim = new Dimension(getSourceEntity().getField(field), sort, calc, item.getString("label"));
 			list.add(dim);
 		}
 		return list.toArray(new Dimension[list.size()]);
@@ -112,11 +119,16 @@ public abstract class ChartData {
 		for (Object o : items) {
 			JSONObject item = (JSONObject) o;
 			String field = item.getString("field");
-			String sort = StringUtils.defaultIfBlank(item.getString("sort"), FormatSort.NONE.name());
-			String calc = item.getString("calc");
-			JSON style = item.getJSONObject("style");
+			FormatSort sort = FormatSort.NONE;
+			FormatCalc calc = FormatCalc.NONE;
+			if (StringUtils.isNotBlank(item.getString("sort"))) {
+				sort = FormatSort.valueOf(item.getString("sort"));
+			}
+			if (StringUtils.isNotBlank(item.getString("calc"))) {
+				calc = FormatCalc.valueOf(item.getString("calc"));
+			}
 			
-			Numerical num = new Numerical(getSourceEntity().getField(field), FormatSort.valueOf(sort), FormatCalc.valueOf(calc), style);
+			Numerical num = new Numerical(getSourceEntity().getField(field), sort, calc, item.getString("label"), item.getInteger("scale"));
 			list.add(num);
 		}
 		return list.toArray(new Numerical[list.size()]);
@@ -149,6 +161,16 @@ public abstract class ChartData {
 			return "无";
 		}
 		
+		if (axis instanceof Numerical) {
+			Numerical num = (Numerical) axis;
+			String format = "###";
+			if (num.getScale() > 0) {
+				format = "###.";
+				format = StringUtils.rightPad(format, format.length() + num.getScale(), "0");
+			}
+			return new DecimalFormat(format).format(value);
+		}
+		
 		EasyMeta axisField = EasyMeta.valueOf(axis.getField());
 		DisplayType axisType = axisField.getDisplayType();
 		
@@ -157,10 +179,8 @@ public abstract class ChartData {
 			label = PickListManager.getLabel((ID) value);
 		} else if (axisType == DisplayType.REFERENCE) {
 			label = FieldValueWrapper.getLabel((ID) value);
-		} else if (axisType == DisplayType.DATE) {
-			label = (String) FieldValueWrapper.wrapDate(value, axisField);
-		} else if (axisType == DisplayType.DATETIME) {
-			label = (String) FieldValueWrapper.wrapDatetime(value, axisField);
+		} else if (axisType == DisplayType.DATE || axisType == DisplayType.DATETIME) {
+			label = value.toString();
 		} else if (axisType == DisplayType.BOOL) {
 			label = (String) FieldValueWrapper.wrapBool(value, axisField);
 		} else {

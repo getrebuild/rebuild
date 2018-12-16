@@ -65,58 +65,73 @@ $(window).resize(() => {
 })
 
 const CTs = { SUM:'求和', AVG:'平均值', MAX:'最大值', MIN:'最小值', COUNT:'计数', Y:'按年', Q:'按季', M:'按月', D:'按日', H:'按时' }
+let axis_props = null
 let add_axis = ((target, axis) => {
 	let el = $($('#axis-ietm').html()).appendTo($(target))
 	let fName = null
 	let fLabel = null
 	let fType = null
-	let ct = null  // calc-type
+	let calc = null
+	let sort = null
 	
-	let isNum = $(target).hasClass('J_axis-num')
-	
+	let isNumAxis = $(target).hasClass('J_axis-num')
+	// in-load
 	if (!!axis.field){
 	    let field = $('.fields [data-field="' + axis.field + '"]')
 	    fName = axis.field
 	    fLabel = field.text()
 	    fType = field.data('type')
-	    ct = CTs[axis.calc]
-	    el.attr({ 'data-calc': axis.calc, 'data-sort': axis.sort })
-	} else{
+	    sort = axis.sort
+	    calc = axis.calc
+	    el.attr({ 'data-label': axis.label, 'data-scale': axis.scale })
+	} else {
 	    fName = axis.data('field')
 	    fLabel = axis.text()
 	    fType = axis.data('type')
-	    
-    	if (isNum) {
-    		if (fType == 'text' || fType == 'date') ct = '计数'
-    		else ct = '求和'
+	    sort = 'NONE'
+    	if (isNumAxis) {
+    		if (fType == 'text' || fType == 'date') calc = 'COUNT'
+    		else calc = 'SUM'
     	} else {
-    		if (fType == 'date') ct = '按日'
+    		if (fType == 'date') calc = 'D'
     	}
 	}
+	el.attr({ 'data-calc': calc, 'data-sort': sort })
 	
-	if (isNum) {
+	if (isNumAxis) {
         if (fType == 'date' || fType == 'text') el.find('.J_date, .J_num').remove()
         else el.find('.J_date').remove()
     } else {
         if (fType == 'date') el.find('.J_text, .J_num').remove()
         else el.find('.J_text, .J_num, .J_date, .dropdown-divider').remove()
     }
-	
-	el.find('.dropdown-item').click(function(){
-		let that = $(this)
-		let calc = that.data('calc')
-		let sort = that.data('sort')
+	let aopts = el.find('.dropdown-menu .dropdown-item').click(function(){
+		let _this = $(this)
+		let calc = _this.data('calc')
+		let sort = _this.data('sort')
 		if (calc){
-			el.find('span').text(fLabel + (' (' + that.text() + ')'))
+			el.find('span').text(fLabel + (' (' + _this.text() + ')'))
 			el.attr('data-calc', calc)
+			aopts.each(function(){ if (!!$(this).data('calc')) $(this).removeClass('text-primary') })
+			_this.addClass('text-primary')
+			render_option()
 		} else if (sort){
 			el.attr('data-sort', sort)
+			aopts.each(function(){ if (!!$(this).data('sort')) $(this).removeClass('text-primary') })
+            _this.addClass('text-primary')
+			render_option()
+		} else {
+		    let state = { axisEl: el, isNumAxis: isNumAxis, label: el.attr('data-label'), scale: el.attr('data-scale') }
+		    console.log(JSON.stringify(state))
+		    if (axis_props) axis_props.show(state)
+		    else axis_props = renderRbcomp(<DlgAxisProps { ...state }  />)
 		}
-		render_option()
 	})
+	if (!!calc) el.find('.dropdown-menu li[data-calc="' + calc + '"]').addClass('text-primary')
+	if (!!sort) el.find('.dropdown-menu li[data-sort="' + sort + '"]').addClass('text-primary')
 	
 	el.attr({ 'data-type': fType, 'data-field': fName })
-	el.find('span').text(fLabel + (ct ? (' (' + ct + ')') : ''))
+	el.find('span').text(fLabel + (calc ? (' (' + CTs[calc] + ')') : ''))
 	el.find('a.del').click(()=>{
 		el.remove()
 		render_option()
@@ -147,15 +162,9 @@ let render_option = (() => {
 })
 
 // 生成预览
-let render_preview_timer = null
 let render_preview_chart = null
 let render_preview = (() => {
-    if (render_preview_timer){
-        clearTimeout(render_preview_timer)
-        render_preview_timer = null
-    }
-    
-    render_preview_timer = setTimeout(()=>{
+    $setTimeout(()=>{
         if (!!render_preview_chart){
             ReactDOM.unmountComponentAtNode(document.getElementById('chart-preview'))
             render_preview_chart = null
@@ -166,13 +175,14 @@ let render_preview = (() => {
             $('#chart-preview').html('<h4 class="chart-undata must-center">当前图表无数据</h4>')
             return
         }
+        console.log(JSON.stringify(cfg))
         
         $('#chart-preview').empty()
         let c = detectChart(cfg)
         if (!!c) render_preview_chart = renderRbcomp(c, 'chart-preview')
         else $('#chart-preview').html('<h4 class="chart-undata must-center">不支持的图表类型</h4>')
         
-    }, 500)
+    }, 400, 'chart-preview')
 })
 
 let build_config = (() => {
@@ -182,12 +192,8 @@ let build_config = (() => {
     
     let dims = []
     let nums = []
-    $('.J_axis-dim>span').each((idx, item) => {
-        dims.push(__build_axisItem(item, false))
-    })
-    $('.J_axis-num>span').each((idx, item) => {
-        nums.push(__build_axisItem(item, true))
-    })
+    $('.J_axis-dim>span').each((idx, item) => { dims.push(__build_axisItem(item, false)) })
+    $('.J_axis-num>span').each((idx, item) => { nums.push(__build_axisItem(item, true)) })
     if (dims.length == 0 && nums.length == 0) return
     cfg.axis = { dimension: dims, numerical: nums }
     
@@ -195,11 +201,67 @@ let build_config = (() => {
 })
 let __build_axisItem = ((item, isNum) => {
     item = $(item)
-    let x = { field: item.data('field'), sort: item.attr('data-sort') || '' }
+    let x = { field: item.data('field'), sort: item.attr('data-sort') || '', label: item.attr('data-label') || '' }
     if (isNum){
-        x.calc = item.attr('data-calc') || 'SUM'
+        x.calc = item.attr('data-calc')
+        x.scale = item.attr('data-scale')
     } else if (item.data('type') == 'date'){
-        x.calc = item.attr('data-calc') || 'D'
+        x.calc = item.attr('data-calc')
     }
     return x
 })
+
+class DlgAxisProps extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = { ...props }
+        this.changeVal = this.changeVal.bind(this)
+    }
+    render() {
+        return (<RbModal title="显示样式" destroyOnHide={false} ref="dlg">
+                <form>
+                <div className="form-group row">
+                    <label className="col-sm-3 col-form-label text-sm-right">別名</label>
+                    <div className="col-sm-7">
+                        <input className="form-control form-control-sm" data-id="label" placeholder="默认" value={this.state.label || ''} onChange={this.changeVal} />
+                    </div>
+                </div>
+                {this.state.isNumAxis !== true ? null :
+                <div className="form-group row">
+                    <label className="col-sm-3 col-form-label text-sm-right">小数位</label>
+                    <div className="col-sm-7">
+                        <select className="form-control form-control-sm" data-id="scale" value={this.state.scale || 2} onChange={this.changeVal}>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                        </select>
+                    </div>
+                </div>
+                }
+                <div className="form-group row footer">
+                    <div className="col-sm-7 offset-sm-3">
+                        <button className="btn btn-primary" type="button" onClick={()=>this.saveProps()}>确定</button>
+                    </div>
+                </div>
+            </form>
+            </RbModal>)
+    }
+    changeVal(e) {
+        let id = e.target.dataset.id
+        let vvv = {}
+        vvv[id] = e.target.value
+        this.setState({ ...vvv  })
+    }
+    saveProps() {
+        this.state.axisEl.attr({ 'data-label': this.state['label'], 'data-scale': this.state['scale'] })
+        this.refs['dlg'].hide()
+        render_preview()
+    }
+    show(state) {
+        this.setState({ ...state }, () => {
+            this.refs['dlg'].show()
+        })
+    }
+}

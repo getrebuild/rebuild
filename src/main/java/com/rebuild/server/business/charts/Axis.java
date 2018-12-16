@@ -18,6 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 
 import cn.devezhao.persist4j.Field;
@@ -32,26 +34,53 @@ public class Axis {
 	
 	private Field field;
 	private FormatSort sort;
+	private FormatCalc calc;
+	protected String label;
 
 	/**
 	 * @param field
-	 * @param calc
 	 * @param sort
+	 * @param calc
 	 */
-	protected Axis(Field field, FormatSort sort) {
+	protected Axis(Field field, FormatSort sort, FormatCalc calc, String label) {
 		this.field = field;
+		this.calc = calc;
 		this.sort = sort;
+		this.label = label;
 	}
 
+	/**
+	 * @return
+	 */
 	public Field getField() {
 		return field;
 	}
-
+	
+	/**
+	 * @return
+	 */
 	public FormatSort getFormatSort() {
 		return sort;
 	}
+
+	/**
+	 * @return
+	 */
+	public FormatCalc getFormatCalc() {
+		return calc;
+	}
 	
+	/**
+	 * @return
+	 */
 	public String getLabel() {
-		return EasyMeta.getLabel(field);
+		return StringUtils.defaultIfBlank(label, EasyMeta.getLabel(field));
+	}
+	
+	/**
+	 * @return
+	 */
+	public String getSqlName() {
+		return field.getName();
 	}
 }

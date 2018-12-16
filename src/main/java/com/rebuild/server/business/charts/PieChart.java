@@ -56,6 +56,8 @@ public class PieChart extends ChartData {
 			dataJson.add(d);
 		}
 		
+		// TODO 排序
+		
 		JSONObject ret = JSONUtils.toJSONObject(
 				new String[] { "data", "name" },
 				new Object[] { dataJson, EasyMeta.getLabel(num1.getField()) + num1.getFormatCalc().getLabel() });
@@ -63,12 +65,12 @@ public class PieChart extends ChartData {
 	}
 	
 	protected String buildSql(Dimension dim, Numerical num) {
-		String sql = "select {0}, {1}({2}) from {3} where {4} group by {0}";
+		String sql = "select {0},{1} from {2} where {3} group by {0}";
 		String where = getFilterSql();
 		
 		sql = MessageFormat.format(sql, 
-				dim.getField().getName(),
-				num.getFormatCalc().name(), num.getField().getName(),
+				dim.getSqlName(),
+				num.getSqlName(),
 				getSourceEntity().getName(), where);
 		return sql;
 	}

@@ -54,14 +54,14 @@ class RbModal extends React.Component {
         let destroy = true
         if (this.props.destroyOnHide == false) destroy = false
         else root.modal('dispose')
-        this.setState({ isDestroy: destroy, inLoad: destroy  })
-        
-        if (this.props.destroyOnHide == true) {
-            setTimeout(() => { warp.remove() }, 200)
-        }
-        
-        // 如果还有其他 modal 处于 open 态， 则保持 modal-open，否则主窗口滚动条会消失
-        if ($('.rbmodal.show').length > 0) $(document.body).addClass('modal-open')
+        this.setState({ isDestroy: destroy, inLoad: destroy  }, ()=>{
+            if (destroy == true) {
+                setTimeout(() => { warp.remove() }, 200)
+            }
+            
+            // 如果还有其他 modal 处于 open 态， 则保持 modal-open，否则主窗口滚动条会消失
+            if ($('.rbmodal.show').length > 0) $(document.body).addClass('modal-open')
+        })
     }
 }
 
