@@ -46,26 +46,6 @@ class BaseChart extends React.Component {
     }
 }
 
-// echarts
-const CHART_OPT = {
-    grid: {
-        left: 60, right: 30, top: 30, bottom: 30
-    },
-    animation: false,
-    tooltip: {
-        trigger: 'item',
-        formatter: '{a} <br/> {b} : {c} ({d}%)',
-        textStyle: {
-            fontSize: 12, lineHeight: 1.3, color: '#333'
-        },
-        backgroundColor: '#fff',
-        extraCssText: 'border-radius:0;box-shadow:0 0 6px 0 rgba(0, 0, 0, .1), 0 8px 10px 0 rgba(170, 182, 206, .2)'
-    },
-    textStyle: {
-        fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
-    }
-}
-
 // 指标卡
 class ChartIndex extends BaseChart {
     constructor(props) {
@@ -87,7 +67,25 @@ class ChartIndex extends BaseChart {
 // 表格
 class ChartTable extends BaseChart {
     constructor(props) {
-        super(props)
+         super(props)
+    }
+}
+
+// for ECharts
+const CHART_OPT = {
+    grid: { left: 60, right: 30, top: 30, bottom: 30 },
+    animation: false,
+    tooltip: {
+        trigger: 'item',
+        formatter: '{a} <br/> {b} : {c} ({d}%)',
+        textStyle: {
+            fontSize: 12, lineHeight: 1.3, color: '#333'
+        },
+        backgroundColor: '#fff',
+        extraCssText: 'border-radius:0;box-shadow:0 0 6px 0 rgba(0, 0, 0, .1), 0 8px 10px 0 rgba(170, 182, 206, .2);'
+    },
+    textStyle: {
+        fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
     }
 }
 
@@ -165,7 +163,7 @@ class ChartBar extends BaseChart {
     renderChart(data) {
         if (this.__echarts) this.__echarts.dispose()
         let that = this
-        let elid = 'echarts-line-' + (this.state.id || 'id')
+        let elid = 'echarts-bar-' + (this.state.id || 'id')
         this.setState({ chartdata: (<div className="chart bar" id={elid}></div>) }, ()=>{
             let formatter = []
             for (let i = 0; i < data.yyyAxis.length; i++){
@@ -233,7 +231,7 @@ class ChartPie extends BaseChart {
         let that = this
         let elid = 'echarts-pie-' + (this.state.id || 'id')
         this.setState({ chartdata: (<div className="chart pie" id={elid}></div>) }, ()=>{
-            data = { ...data, type: 'pie', radius: '55%' }
+            data = { ...data, type: 'pie', radius: '71%' }
             let opt = {
                 series: [ data ]
             }
