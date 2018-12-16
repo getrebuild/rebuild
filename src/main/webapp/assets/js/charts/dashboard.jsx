@@ -1,7 +1,7 @@
 // $Id$
 let dashid = null
 $(document).ready(function(){
-    $(window).trigger('resize')
+    $('.chart-grid').height($(window).height() - 131)
     
     let dlg = null
     $.get(rb.baseUrl + '/dashboard/dash-gets', ((res) => {
@@ -19,7 +19,7 @@ $(window).resize(() => {
     $setTimeout(()=>{
         $('.chart-grid').height($(window).height() - 131)
         $(rendered_echarts).each((idx, item)=>{ item.resize() })
-    }, 200, 'resize-echarts')
+    }, 200, 'resize-charts')
 })
 
 let gridster = null
@@ -29,7 +29,7 @@ let render_dashboard = function(cfg){
         autogenerate_stylesheet: true,
         min_cols: 1,
         max_cols: 12,
-        widget_margins: [5, 5],
+        widget_margins: [10, 10],
         resize: {
             enabled: true,
             min_size: [2, 2],
@@ -64,6 +64,9 @@ let render_dashboard = function(cfg){
         let c = renderRbcomp(detectChart(item, item.chart), el_id)
         rendered_echarts.push(c)
     })
+    
+    $('.chart-grid').removeClass('invisible')
+    $('.J_dash-load').remove()
 }
 
 let save_dashboard = function(){

@@ -40,13 +40,13 @@ public class Dimension extends Axis {
 		EasyMeta meta = EasyMeta.valueOf(getField());
 		if (meta.getDisplayType() == DisplayType.DATE || meta.getDisplayType() == DisplayType.DATETIME) {
 			if (getFormatCalc() == FormatCalc.Y) {
-				return String.format("DATE_FORMAT(%s,'%s')", meta.getName(), "%Y");
+				return String.format("DATE_FORMAT(%s,'%s')", meta.getName(), "%Y年");
 			} else if (getFormatCalc() == FormatCalc.M) {
-				return String.format("DATE_FORMAT(%s,'%s')", meta.getName(), "%Y-%m");
+				return String.format("DATE_FORMAT(%s,'%s')", meta.getName(), "%Y年%m月");
 			} else if (getFormatCalc() == FormatCalc.H) {
-				return String.format("DATE_FORMAT(%s,'%s')", meta.getName(), "%Y-%m-%d %H");
+				return String.format("DATE_FORMAT(%s,'%s')", meta.getName(), "%Y年%m月%d日 %H时");
 			} else {
-				return String.format("DATE_FORMAT(%s,'%s')", meta.getName(), "%Y-%m-%d");
+				return String.format("DATE_FORMAT(%s,'%s')", meta.getName(), "%Y年%m月%d日");
 			}
 		} else {
 			return meta.getName();

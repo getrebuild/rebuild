@@ -4,12 +4,12 @@
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <title>首页</title>
-<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/gridster/jquery.gridster.min.css">
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/charts/jquery.gridster.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/charts.css">
 <style type="text/css">
 .tools-bar{height:50px;padding:0 25px;padding-top:7px}
 .tools-bar h4{margin:10px 0}
-.chart-grid{overflow:scroll;overflow-x:hidden;padding:0 20px;padding-bottom:20px;padding-right:14px}
+.chart-grid{overflow:scroll;overflow-x:hidden;padding:15px;padding-top:0;padding-right:9px}
 .gridster ul,.gridster ul>li{margin:0;padding:0}
 .gridster ul>li{background-color:#fff;}
 .gridster ul>li>div{height:100%}
@@ -25,6 +25,13 @@
 	<jsp:include page="/_include/NavLeft.jsp">
 		<jsp:param value="dashboard-home" name="activeNav"/>
 	</jsp:include>
+	<div class="rb-loading rb-loading-active must-center J_dash-load">
+		<div class="rb-spinner">
+	        <svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://-www.w3.org/2000/svg">
+	            <circle fill="none" stroke-width="4" stroke-linecap="round" cx="33" cy="33" r="30" class="circle"></circle>
+	        </svg>
+	    </div>
+	</div>
 	<div class="rb-content">
 		<div class="main-content container-fluid p-0">
 			<div class="tools-bar">
@@ -37,7 +44,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="chart-grid">
+			<div class="chart-grid invisible">
 				<div class="gridster">
 					<ul class="list-unstyled"></ul>
 				</div>
@@ -46,8 +53,8 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/lib/gridster/jquery.gridster.js"></script>
-<script src="${baseUrl}/assets/lib/chart/echarts.js"></script>
+<script src="${baseUrl}/assets/lib/charts/jquery.gridster.js"></script>
+<script src="${baseUrl}/assets/lib/charts/echarts.js"></script>
 <script src="${baseUrl}/assets/js/charts/charts.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/charts/dashboard.jsx" type="text/babel"></script>
 </body>
