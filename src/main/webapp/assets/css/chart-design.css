@@ -69,9 +69,11 @@
 
 .axis .axis-target {
 	margin-left: 65px;
-	min-height: 26px;
-	margin-top: -4px;
-	margin-bottom: -4px;
+	min-height: 30px;
+	margin-top: -6px;
+	margin-bottom: -6px;
+	padding: 2px 0;
+	padding-bottom: 0;
 }
 
 .axis-target .item {
@@ -80,6 +82,7 @@
 	color: #fff;
 	display: inline-block;
 	margin-right: 3px;
+	margin-bottom: 2px;
 	position: relative;
 	cursor: default;
 }
