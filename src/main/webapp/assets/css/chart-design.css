@@ -36,6 +36,11 @@
 	width: 326px;
 }
 
+.data-aside .rb-scroller, .config-aside .rb-scroller {
+	height: 100%;
+	width: 100%;
+}
+
 .config-aside .tooltip .tooltip-inner {
 	text-align: left;
 }
