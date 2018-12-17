@@ -45,8 +45,8 @@ public class IndexChart extends ChartData {
 		Object[] dataRaw = Application.createQuery(buildSql(axis)).unique();
 		
 		JSONObject index = JSONUtils.toJSONObject(
-				new String[] { "data", "style" },
-				new Object[] { warpAxisValue(axis, dataRaw[0]), null });
+				new String[] { "data", "label" },
+				new Object[] { warpAxisValue(axis, dataRaw[0]), axis.getLabel() });
 		
 		JSON ret = JSONUtils.toJSONObject("index", index);
 		return ret;

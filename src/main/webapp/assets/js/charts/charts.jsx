@@ -123,7 +123,7 @@ const ECHART_OPT = {
         extraCssText: 'border-radius:0;box-shadow:0 0 6px 0 rgba(0, 0, 0, .1), 0 8px 10px 0 rgba(170, 182, 206, .2);'
     },
     textStyle: {
-        fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
+        fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif'
     }
 }
 // 
@@ -131,7 +131,7 @@ const ECHART_AxisLabel = {
     textStyle: {
         color: '#555',
         fontSize: 12,
-        fontWeight: 'lighter'
+        fontWeight: '400'
     }
 }
 

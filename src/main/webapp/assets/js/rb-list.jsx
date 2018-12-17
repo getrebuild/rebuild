@@ -331,12 +331,12 @@ class RbListPagination extends React.Component {
 
 var rb = rb || {}
 
-// props = { config }
+// @props = { config }
 rb.RbList = function(props, target) {
     return renderRbcomp(<RbList {...props} />, target || 'react-list')
 }
 
-// props = { rowTotal, pageSize, pageNo }
+// @props = { rowTotal, pageSize, pageNo }
 rb.RbListPagination = function(props, target) {
     return renderRbcomp(<RbListPagination {...props} />, target || 'pagination')
 }

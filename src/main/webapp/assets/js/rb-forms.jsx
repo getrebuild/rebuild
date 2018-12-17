@@ -33,9 +33,9 @@ class RbFormModal extends React.Component {
     // 渲染表单
     getFormModel() {
         let that = this
-        const entity = this.state.entity
-        const id = this.state.id || ''
-        const initialValue = this.state.initialValue || {}  // 默认值填充（仅新建有效）
+        let entity = this.state.entity
+        let id = this.state.id || ''
+        let initialValue = this.state.initialValue || {}  // 默认值填充（仅新建有效）
         $.post(`${rb.baseUrl}/app/${entity}/form-model?id=${id}`, JSON.stringify(initialValue), function(res){
             // 包含错误
             if (res.error_code > 0 || !!res.data.error){
@@ -44,7 +44,7 @@ class RbFormModal extends React.Component {
                 return
             }
             
-            const FORM = <RbForm entity={entity} id={id} $$$parent={that}>
+            let FORM = <RbForm entity={entity} id={id} $$$parent={that}>
                 {res.data.elements.map((item) => {
                     return detectElement(item)
                 })}
@@ -90,8 +90,7 @@ class RbFormModal extends React.Component {
     
     hide(destroy) {
         $(this.refs['rbmodal']).modal('hide')
-        let state = { isDestroy: false }
-        if (destroy === true) state = { ...state, isDestroy: true, id: null }  // id > null 必须强制重获取 Model
+        let state = { isDestroy: destroy === true }
         this.setState(state)
     }
 }
@@ -140,8 +139,8 @@ class RbForm extends React.Component {
             </div>
         )
         
-        let _entity = this.state.entity
-        if (_entity == 'User' || _entity == 'Department' || _entity == 'Role'
+        let entity = this.state.entity
+        if (entity == 'User' || entity == 'Department' || entity == 'Role'
             || window.pageType == 'SlaveView' || window.pageType == 'SlaveList'){
             saveBtns = <button className="btn btn-primary btn-space" type="button" onClick={()=>this.post()}>保存</button>
         }
@@ -188,8 +187,7 @@ class RbForm extends React.Component {
             else _data[k] = this.__FormData[k].value
         }
         
-        let _entity = this.state.entity
-        _data.metadata = { entity: _entity, id: this.state.id }
+        _data.metadata = { entity: this.state.entity, id: this.state.id }
         if (RbForm.postBefore(_data) == false) {
             return
         }
@@ -212,7 +210,6 @@ class RbForm extends React.Component {
                         let sm = that.props.$$$parent.state.__formModel.slaveMeta
                         rb.RbFormModal({ title: `添加${sm[1]}`, entity: sm[0], icon: sm[2], initialValue: iv })
                     }
-                    //if (next == 111 && window.RbViewPage) window.RbViewPage.updateVTabs([_entity])
                 }, 200)
                 
             }else{
@@ -881,17 +878,17 @@ class RbViewModal extends React.Component {
 
 let rb = rb || {}
 
-// props = { id, entity, title, icon }
 rb.__currentRbFormModal
+// @props = { id, entity, title, icon }
 rb.RbFormModal = function(props) {
     if (rb.__currentRbFormModal) rb.__currentRbFormModal.show(props)
     else rb.__currentRbFormModal = renderRbcomp(<RbFormModal {...props} />)
     return rb.__currentRbFormModal
 }
 
-// props = { id, entity }
 rb.__currentRbViewModal
 rb.__currentRbFormModalCache = {}
+// @props = { id, entity }
 rb.RbViewModal = function(props, subView) {
     let viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
     if (subView == true){
