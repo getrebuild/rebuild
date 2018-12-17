@@ -158,14 +158,14 @@ public abstract class ChartData {
 	 */
 	protected String warpAxisValue(Axis axis, Object value) {
 		if (value == null) {
-			return "无";
+			return (axis instanceof Dimension) ? "无" : "0";
 		}
 		
 		if (axis instanceof Numerical) {
 			Numerical num = (Numerical) axis;
 			String format = "###";
 			if (num.getScale() > 0) {
-				format = "###.";
+				format = "##0.";
 				format = StringUtils.rightPad(format, format.length() + num.getScale(), "0");
 			}
 			return new DecimalFormat(format).format(value);

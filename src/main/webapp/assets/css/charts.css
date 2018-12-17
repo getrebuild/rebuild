@@ -8,6 +8,7 @@
 	z-index: 1;
 	margin-top: -20px;
 	padding-top: 20px;
+	overflow: hidden;
 }
 
 .chart-box .chart-head {
@@ -32,7 +33,7 @@
 }
 
 .chart-box .chart-head .chart-oper a {
-	color: #999;
+	color: #aaa;
 	display: inline-block;
 	height: 20px;
 	margin-left: 12px;
@@ -40,7 +41,7 @@
 }
 
 .chart-box .chart-head .chart-oper a .zmdi {
-	font-size: 1.4rem;
+	font-size: 1.3rem;
 	vertical-align: middle;
 }
 
@@ -62,6 +63,7 @@
 .chart.index {
 	overflow: hidden;
 	position: relative;
+	margin-top: -5px;
 }
 .chart.index > .data-item {
 	display: inline-block;
@@ -83,4 +85,26 @@
 .chart.line {
 }
 .chart.bar {
+}
+
+.chart.ctable {
+	position: relative;
+	width: 100%;
+	margin-top: 15px;
+}
+.chart.ctable .table {
+	margin: 0;
+	padding: 0;
+}
+.chart.ctable .table td {
+	padding: 8px 10px;
+	cursor: default;
+}
+.chart.ctable .table td.clk {
+	outline: 1px solid #4285f4;
+	background-color: #f5f8fd;
+}
+.chart.ctable .table thead tr td {
+	background-color: #eceff1;
+	border-width: 1px;
 }

@@ -29,26 +29,26 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 12/15/2018
  */
-public class ChartDataBuilder {
+public class ChartDataFactory {
 
 	/**
 	 * @param chartId
 	 * @return
 	 */
-	public static ChartData newChartData(ID chartId) {
+	public static ChartData create(ID chartId) {
 		Object[] chart = Application.createQuery(
 				"select config from ChartConfig where chartId = ?")
 				.setParameter(1, chartId)
 				.unique();
 		JSONObject config = JSON.parseObject((String) chart[0]);
-		return newChartData(config);
+		return create(config);
 	}
 	
 	/**
 	 * @param chartConfig
 	 * @return
 	 */
-	public static ChartData newChartData(JSONObject chartConfig) {
+	public static ChartData create(JSONObject chartConfig) {
 		String type = chartConfig.getString("type");
 		if ("INDEX".equalsIgnoreCase(type)) {
 			return new IndexChart(chartConfig);

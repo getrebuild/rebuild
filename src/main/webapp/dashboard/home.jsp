@@ -15,6 +15,8 @@
 .gridster ul>li>div{height:100%}
 .gridster ul>li:hover{box-shadow:0 2px 4px 0 rgba(0, 0, 0, .1), 0 16px 24px 0 rgba(81, 129, 228, .1)}
 .gridster ul>li:hover .chart-oper{display:block;}
+a.chart-add{display:block;text-align:center;height:100%;padding-top:50px;}
+a.chart-add i.zmdi{font-size:71px;color:#ddd;font-weight:lighter;}
 </style>
 </head>
 <body>

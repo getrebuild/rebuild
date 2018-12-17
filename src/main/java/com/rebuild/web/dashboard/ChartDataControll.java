@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.business.charts.ChartData;
-import com.rebuild.server.business.charts.ChartDataBuilder;
+import com.rebuild.server.business.charts.ChartDataFactory;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.persist4j.engine.ID;
@@ -45,7 +45,7 @@ public class ChartDataControll extends BaseControll {
 	@RequestMapping("/chart-data")
 	public void data(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID chartid = getIdParameterNotNull(request, "id");
-		ChartData chart = ChartDataBuilder.newChartData(chartid);
+		ChartData chart = ChartDataFactory.create(chartid);
 		JSON data = chart.build();
 		writeSuccess(response, data);
 	}

@@ -4,6 +4,7 @@ $(document).ready(() => {
     $('.chart-type>a').tooltip({ html:true, container:'.config-aside' })
     
 	let dragIsNum = false
+	let dargOnSort = false
     $('.fields a').draggable({
     	helper: 'clone',
     	appendTo: 'body',
@@ -12,16 +13,28 @@ $(document).ready(() => {
     	start: function(){
     		dragIsNum = $(this).data('type') == 'num'
     	}
-    })
+    }).disableSelection()
 	$('.axis-target').droppable({
 		accept: function(){
+		    if (dargOnSort == true) return false
 			if ($(this).hasClass('J_axis-dim')) return !dragIsNum
 			else return true
 		},
 		drop: function(event, ui){
-			add_axis(this, $(ui.draggable[0]))
+		    if (dargOnSort != true) add_axis(this, $(ui.draggable[0]))
 		}
 	})
+	$('.axis-target').sortable({
+        placeholder: 'ui-state-highlight',
+	    helper: 'clone',
+	    delay: 150,
+	    start: function(){
+	        dargOnSort = true
+	    },
+	    stop: function(){
+	        dargOnSort = false
+	    }
+    }).disableSelection()
 	
 	let cts = $('.chart-type > a').click(function(){
 		let _this = $(this)
@@ -40,11 +53,12 @@ $(document).ready(() => {
 	    let _data = { config: JSON.stringify(cfg), title: cfg.title, belongEntity: cfg.entity, type: cfg.type }
 	    _data.metadata = { entity: 'ChartConfig', id: window.__chartId }
 	    
-	    console.log(JSON.stringify(_data))
-        $.post(rb.baseUrl + '/dashboard/chart-save?dashid=' + $urlp('dashid'), JSON.stringify(_data), function(res){
+	    let dash = $urlp('dashid') || ''
+        $.post(rb.baseUrl + '/dashboard/chart-save?dashid=' + dash, JSON.stringify(_data), function(res){
             if (res.error_code == 0){
                 window.__chartId = res.data.id
-            }
+                location.href = !!dash ? ('home?d=' + dash) : 'home'
+            } else rb.notice(res.error_msg, 'danger')
         })
 	    
 	}).find('.zmdi').addClass('zmdi-arrow-left')
@@ -122,7 +136,6 @@ let add_axis = ((target, axis) => {
 			render_option()
 		} else {
 		    let state = { axisEl: el, isNumAxis: isNumAxis, label: el.attr('data-label'), scale: el.attr('data-scale') }
-		    console.log(JSON.stringify(state))
 		    if (axis_props) axis_props.show(state)
 		    else axis_props = renderRbcomp(<DlgAxisProps { ...state }  />)
 		}
@@ -196,7 +209,6 @@ let build_config = (() => {
     $('.J_axis-num>span').each((idx, item) => { nums.push(__build_axisItem(item, true)) })
     if (dims.length == 0 && nums.length == 0) return
     cfg.axis = { dimension: dims, numerical: nums }
-    
     return cfg
 })
 let __build_axisItem = ((item, isNum) => {

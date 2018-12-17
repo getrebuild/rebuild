@@ -202,7 +202,12 @@ rb.modalResize = function(url){
     }
 }
 
-rb.alert = function(message, title, ext){
+rb.alert = function(message, title0ext, ext){
+    let title = title0ext
+    if ($.type(title0ext) == 'object'){
+        title = null
+        ext = title0ext
+    }
     ext = ext || {}
     if (ext.html == true) return renderRbcomp(<RbAlert htmlMessage={message} title={title} type={ext.type} confirmText={ext.confirmText} confirm={ext.confirm} />)
     else return renderRbcomp(<RbAlert message={message} title={title} type={ext.type} confirmText={ext.confirmText} confirm={ext.confirm} />)

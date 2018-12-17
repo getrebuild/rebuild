@@ -18,10 +18,19 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
+import com.rebuild.utils.JSONUtils;
 
 /**
+ * 表格
  * 
  * @author devezhao
  * @since 12/15/2018
@@ -34,6 +43,42 @@ public class TableChart extends ChartData {
 
 	@Override
 	public JSON build() {
-		return null;
+		Dimension[] dims = getDimensions();
+		Numerical[] nums = getNumericals();
+		
+		String sql = buildSql(dims, nums);
+		Object[][] dataRaw = Application.createQuery(sql).array();
+		
+		String tableHtml = new TableBuilder(this, dataRaw).toHTML();
+		
+		JSONObject ret = JSONUtils.toJSONObject(
+				new String[] { "html" },
+				new Object[] { tableHtml });
+		return ret;
+	}
+	
+	protected String buildSql(Dimension[] dims, Numerical[] nums) {
+		List<String> dimSqlItems = new ArrayList<>();
+		for (Dimension dim : dims) {
+			dimSqlItems.add(dim.getSqlName());
+		}
+		
+		List<String> numSqlItems = new ArrayList<>();
+		for (Numerical num : nums) {
+			numSqlItems.add(num.getSqlName());
+		}
+		
+		String sql = "select {0},{1} from {2} where {3} group by {0}";
+		String where = getFilterSql();
+		
+		if (dimSqlItems.isEmpty()) {
+			sql = "select {1} from {2} where {3}";
+		}
+		
+		sql = MessageFormat.format(sql,
+				StringUtils.join(dimSqlItems, ", "),
+				StringUtils.join(numSqlItems, ", "),
+				getSourceEntity().getName(), where);
+		return sql;
 	}
 }

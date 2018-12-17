@@ -4,16 +4,16 @@ class BaseChart extends React.Component {
         this.state = { ...props }
     }
     render() {
-        return (<div className="chart-box">
+        return (<div className="chart-box" ref="box">
             <div className="chart-head">
                 <div className="chart-title text-truncate">{this.state.title}</div>
                 <div className="chart-oper">
                     <a onClick={()=>this.loadChartData()}><i className="zmdi zmdi-refresh"/></a>
                     <a href={'chart-design?id=' + this.props.id}><i className="zmdi zmdi-edit"/></a>
-                    <a onClick={()=>this.delete()}><i className="zmdi zmdi-delete"/></a>
+                    <a onClick={()=>this.remove()}><i className="zmdi zmdi-delete"/></a>
                 </div>
             </div>
-            <div className={'chart-body rb-loading ' + (!!!this.state.chartdata && ' rb-loading-active')}>{this.state.chartdata || <RbSpinner />}</div>
+            <div ref="body" className={'chart-body rb-loading ' + (!!!this.state.chartdata && ' rb-loading-active')}>{this.state.chartdata || <RbSpinner />}</div>
         </div>)
     }
     componentDidMount() {
@@ -34,8 +34,15 @@ class BaseChart extends React.Component {
     resize() {
         if (this.__echarts) this.__echarts.resize()
     }
-    delete() {
-        if (!confirm('确认删除？')) return
+    remove() {
+        if (!window.gridster) return  // Not in dash
+        let that = this
+        rb.alert('确认移除此图表？', { confirm: function(){
+            let $w = $(that.refs['box']).parent().parent()
+            gridster.remove_widget($w)
+            save_dashboard()
+            this.hide()
+        }})
     }
     
     renderError(msg) {
@@ -69,10 +76,38 @@ class ChartTable extends BaseChart {
     constructor(props) {
          super(props)
     }
+    renderChart(data) {
+        let chartdata = (<div className="chart ctable">
+            <div dangerouslySetInnerHTML={{ __html: data.html }}></div>
+        </div>)
+        
+        let that = this
+        let colLast = null
+        this.setState({ chartdata: chartdata }, ()=>{
+            let ct = $(that.refs['body'])
+            ct.find('.ctable').css('height', ct.height() - 20)
+                .perfectScrollbar()
+            
+            let cols = ct.find('tbody td').click(function(){
+                if (colLast == this){
+                    $(this).toggleClass('clk')
+                    return
+                }
+                colLast = this
+                cols.removeClass('clk')
+                $(this).addClass('clk')
+            })
+            that.__ctable = ct
+        })
+    }
+    resize() {
+        let ct = this.__ctable
+        if (ct) ct.find('.ctable').css('height', ct.height() - 20)
+    }
 }
 
 // for ECharts
-const CHART_OPT = {
+const ECHART_OPT = {
     grid: { left: 60, right: 30, top: 30, bottom: 30 },
     animation: false,
     tooltip: {
@@ -81,11 +116,22 @@ const CHART_OPT = {
         textStyle: {
             fontSize: 12, lineHeight: 1.3, color: '#333'
         },
+        axisPointer: {
+            lineStyle: { color: '#ddd' }
+        },
         backgroundColor: '#fff',
         extraCssText: 'border-radius:0;box-shadow:0 0 6px 0 rgba(0, 0, 0, .1), 0 8px 10px 0 rgba(170, 182, 206, .2);'
     },
     textStyle: {
         fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
+    }
+}
+// 
+const ECHART_AxisLabel = {
+    textStyle: {
+        color: '#555',
+        fontSize: 12,
+        fontWeight: 'lighter'
     }
 }
 
@@ -113,40 +159,28 @@ class ChartLine extends BaseChart {
                 formatter.push('{a' + i + '} : {c' + i + '}');
             }
             
-            let opt_axisLabel = {
-                textStyle: {
-                    color: '#555',
-                    fontSize: 12,
-                    fontWeight: 'lighter'
-                }
-            }
             let opt = {
                 xAxis: {
                     type: 'category',
                     data: data.xAxis,
-                    axisLabel: opt_axisLabel,
+                    axisLabel: ECHART_AxisLabel,
                     axisLine: {
-                        lineStyle: {
-                            color: '#ccc'
-                        }
+                        lineStyle: { color: '#ddd' }
                     }
                 },
                 yAxis: {
                     type: 'value',
                     splitLine: { show: false },
-                    axisLabel: opt_axisLabel,
+                    axisLabel: ECHART_AxisLabel,
                     axisLine: {
-                        lineStyle: {
-                            color: '#ccc',
-                            width: 0
-                        }
+                        lineStyle: { color: '#ddd', width: 0 }
                     }
                 },
                 series: data.yyyAxis
             }
-            opt = { ...opt, ...CHART_OPT }
-            opt.tooltip.trigger = 'axis'
+            opt = { ...opt, ...ECHART_OPT }
             opt.tooltip.formatter = '<b>{b}</b> <br> ' + formatter.join(' <br> ')
+            opt.tooltip.trigger = 'axis'
             
             let c = echarts.init(document.getElementById(elid), 'light')
             c.setOption(opt)
@@ -179,40 +213,28 @@ class ChartBar extends BaseChart {
                 formatter.push('{a' + i + '} : {c' + i + '}');
             }
             
-            let opt_axisLabel = {
-                textStyle: {
-                    color: '#555',
-                    fontSize: 12,
-                    fontWeight: 'lighter'
-                }
-            }
             let opt = {
                 xAxis: {
                     type: 'category',
                     data: data.xAxis,
-                    axisLabel: opt_axisLabel,
+                    axisLabel: ECHART_AxisLabel,
                     axisLine: {
-                        lineStyle: {
-                            color: '#ccc'
-                        }
+                        lineStyle: { color: '#ddd' }
                     }
                 },
                 yAxis: {
                     type: 'value',
                     splitLine: { show: false },
-                    axisLabel: opt_axisLabel,
+                    axisLabel: ECHART_AxisLabel,
                     axisLine: {
-                        lineStyle: {
-                            color: '#ccc',
-                            width: 0
-                        }
+                        lineStyle: { color: '#ddd', width: 0 }
                     }
                 },
                 series: data.yyyAxis
             }
-            opt = { ...opt, ...CHART_OPT }
-            opt.tooltip.trigger = 'axis'
+            opt = { ...opt, ...ECHART_OPT }
             opt.tooltip.formatter = '<b>{b}</b> <br> ' + formatter.join(' <br> ')
+            opt.tooltip.trigger = 'axis'
             
             let c = echarts.init(document.getElementById(elid), 'light')
             c.setOption(opt)
@@ -235,9 +257,10 @@ class ChartPie extends BaseChart {
             let opt = {
                 series: [ data ]
             }
-            opt = { ...opt, ...CHART_OPT }
+            opt = { ...opt, ...ECHART_OPT }
             opt.tooltip.formatter = '<b>{b}</b> <br/> {a} : {c} ({d}%)'
-            
+            opt.tooltip.trigger = 'item'
+                
             let c = echarts.init(document.getElementById(elid), 'light')
             c.setOption(opt)
             that.__echarts = c

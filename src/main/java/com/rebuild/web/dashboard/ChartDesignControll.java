@@ -34,7 +34,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.charts.ChartData;
-import com.rebuild.server.business.charts.ChartDataBuilder;
+import com.rebuild.server.business.charts.ChartDataFactory;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
@@ -106,7 +106,7 @@ public class ChartDesignControll extends BaseControll {
 	@RequestMapping("/chart-preview")
 	public void dataPreview(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		JSON config = ServletUtils.getRequestJson(request);
-		ChartData chart = ChartDataBuilder.newChartData((JSONObject) config);
+		ChartData chart = ChartDataFactory.create((JSONObject) config);
 		JSON data = chart.build();
 		writeSuccess(response, data);
 	}
@@ -132,6 +132,8 @@ public class ChartDesignControll extends BaseControll {
 			JSONArray config = JSON.parseArray((String) dash[0]);
 			
 			JSONObject item = JSONUtils.toJSONObject("chart", record.getPrimary().toLiteral());
+			item.put("size_y", 2);
+			item.put("size_x", 4);
 			config.add(item);
 			
 			Record record2 = EntityHelper.forUpdate(dashid, getRequestUser(request));

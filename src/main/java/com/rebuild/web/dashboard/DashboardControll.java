@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.web.dashboard;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -72,11 +73,17 @@ public class DashboardControll extends BaseControll {
 			// 补充标题
 			for (int i = 0; i < array.length; i++) {
 				JSONArray config = JSON.parseArray((String) array[i][2]);
-				for (Object o : config) {
-					JSONObject item = (JSONObject) o;
+				for (Iterator<Object> iter = config.iterator(); iter.hasNext(); ) {
+					JSONObject item = (JSONObject) iter.next();
+					String chartid = item.getString("chart");
+					if (!ID.isId(chartid)) {
+						iter.remove();
+						continue;
+					}
+					
 					Object[] chart = Application.createQuery(
 							"select title,type from ChartConfig where chartId = ?")
-							.setParameter(1, ID.valueOf(item.getString("chart")))
+							.setParameter(1, ID.valueOf(chartid))
 							.unique();
 					item.put("title", chart[0]);
 					item.put("type", chart[1]);
