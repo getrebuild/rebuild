@@ -351,7 +351,7 @@ const RbListPage = {
     init: function(config, entity, ep) {
         this._RbList = renderRbcomp(<RbList config={config} />, 'react-list')
         
-        QuickFilter.init('.input-search', entity[0]);
+        QuickFilters.init('.input-search', entity[0]);
         
         $('.J_new').click(function(){
             rb.RbFormModal({ title: `新建${entity[1]}`, entity: entity[0], icon: entity[2] })
@@ -426,18 +426,14 @@ const RbListPage = {
 }
 
 // 列表快速查询
-const QuickFilter = {
+const QuickFilters = {
 
     // @el - 控件
     // @entity - 实体
     init(el, entity) {
         this.root = $(el)
         this.entity = entity
-        this.initEvent()
-        this.loadFilter()
-    },
-    
-    initEvent() {
+
         let that = this
         let btn = this.root.find('.J_search-btn').click(function(){
             let val = $val(that.root.find('.J_search-text'))
@@ -449,6 +445,8 @@ const QuickFilter = {
         this.root.find('.J_qfields').click(function(event){
             rb.modal(`${rb.baseUrl}/p/general-entity/quick-fields?entity=${that.entity}`, '设置快速查询字段')
         })
+
+        this.loadFilter()
     },
     
     loadFilter() {
@@ -475,10 +473,99 @@ const QuickFilter = {
     }
 }
 
+// 列表高级查询
+const AdvFilters = {
+        
+    // @el - 控件
+    // @entity - 实体
+    init(el, entity) {
+        this.__el = $(el)
+        this.__entity = entity
+
+        let that = this
+        this.__el.find('.J_advfilter').click(()=>{ that.showAdvFilter() })
+        // $ALL$
+        $('.adv-search .dropdown-item:eq(0)').click(()=>{
+            $('.adv-search .J_name').text('所有数据')
+            RbListPage._RbList.setAdvFilter()
+        })
+
+        this.loadFilters()
+    },
+    
+    loadFilters() {
+        let that = this
+        $.get(`${rb.baseUrl}/app/${this.__entity}/advfilter/list`, function(res){
+            $('.adv-search .J_custom').each(function(){ $(this).remove() })
+            
+            $(res.data).each(function(){
+                let item = $('<div class="dropdown-item J_custom" data-id="' + this[0] + '"><a class="text-truncate">' + this[1] + '</a></div>')
+                $('.adv-search .dropdown-divider').before(item)
+                
+                let data = this
+                if (data[2] == true){
+                    let action = $('<div class="action"><a title="修改"><i class="zmdi zmdi-edit"></i></a><a title="删除"><i class="zmdi zmdi-delete"></i></a></div>').appendTo(item)
+                    action.find('a:eq(0)').click(function(){
+                        that.showAdvFilter(data[0])
+                        $('.adv-search .btn').dropdown('toggle')
+                        return false
+                    })
+                    action.find('a:eq(1)').click(function(){
+                        let _alert = rb.alert('确认删除此过滤项吗？', '删除确认', { confirm:()=>{
+                            $.post(`${rb.baseUrl}/app/entity/advfilter/delete?id=${data[0]}`, (res)=>{
+                                if (res.error_code == 0){
+                                    _alert.hide()
+                                    rb.notice('过滤项已删除', 'success')
+                                    that.loadFilters()
+                                } else rb.notice(res.error_msg, 'danger')
+                            })
+                        } })
+                        return false
+                    })
+                }
+                item.click(function(){
+                    $('.adv-search .J_name').text(data[1])
+                    RbListPage._RbList.setAdvFilter(data[0])
+                })
+            })
+            
+        })
+    },
+    
+    saveFilter(filter, name, toAll) {
+        if (!!!filter) return
+        let that = AdvFilters
+        let url = `${rb.baseUrl}/app/${that.__entity}/advfilter/post?id=${that.__cfgid || ''}`
+        if (!!name)  url += '&name=' + $encode(name)
+        if (toAll === true || toAll === false) url += '&toAll=' + toAll
+        $.post(url, JSON.stringify(filter), function(res){
+            if (res.error_code == 0){
+                rb.notice('过滤项已保存', 'success')
+                that.__modal.hide()
+                that.loadFilters()
+            } else rb.notice(res.error_msg, 'danger')
+        })
+    },
+    
+    showAdvFilter(id) {
+        this.__cfgid = id
+        let props = { entity: this.__entity, inModal: true, needSave: true, confirm: this.saveFilter, destroyOnHide: true }
+        if (!!!id){
+            this.__modal = renderRbcomp(<AdvFilter { ...props } title="添加过滤项" />)
+        }else{
+            let that = this
+            $.get(rb.baseUrl + '/app/entity/advfilter/get?id=' + id, function(res){
+                let _data = res.data
+                that.__modal = renderRbcomp(<AdvFilter { ...props } title="修改过滤项" filter={_data.filter} filterName={_data.name} applyToAll={_data.applyTo == 'ALL'} />)
+            })
+        }
+    }
+}
+
 // Init
-$(document).ready(() => {
+$(document).ready(()=>{
     let wpc = window.__PageConfig
     if (!wpc) return
     RbListPage.init(wpc.listConfig, wpc.entity, wpc.privileges)
-    if (!(wpc.advFilter == false)) rb.AdvFilter.init('.adv-search', wpc.entity[0])
+    if (!(wpc.advFilter == false)) AdvFilters.init('.adv-search', wpc.entity[0])
 })

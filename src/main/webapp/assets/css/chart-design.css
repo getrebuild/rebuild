@@ -175,6 +175,35 @@
 	background-color: rgba(255, 255, 255, 0.7)
 }
 
+.data-info .esource a {
+	position: relative;
+	cursor: default;
+}
+
+.data-info .esource a i.zmdi {
+	float: left;
+	font-size: 1.2rem;
+	line-height: 20px;
+}
+
+.data-info .esource a > span {
+	float: right;
+	display: none;
+}
+.data-info .esource a > span i.zmdi {
+	color: #777;
+	font-size: 1rem;
+}
+
+.data-info .esource a:hover > span {
+	display: block;
+	cursor: pointer;
+}
+
+.data-info .esource a:hover > span:hover{
+	opacity: 0.8;
+}
+
 .data-info .input {
 	margin-bottom: 9px;
 	padding: 0 6px;
@@ -183,12 +212,15 @@
 .data-info .input .form-control {
 	border-width: 0;
 	padding: 0 6px;
-	background-color: transparent;
 	background-color: rgba(255,255,255,.6);
 	height: 30px !important;
 }
 .input .form-control:hover, .input .form-control:focus {
 	background-color: #fff;
+}
+.input .form-control[disabled] {
+	background-color: rgba(255,255,255,.6) !important;
+	cursor: not-allowed;
 }
 
 a.ui-draggable.ui-draggable-dragging {
@@ -201,7 +233,7 @@ a.ui-draggable {
 }
 
 .data-info ul li i.icon, .data-info ul.fields li a::before {
-	width: 16px;
+	width: 18px;
 	display: inline-block;
 	color: #4285f4;
 }

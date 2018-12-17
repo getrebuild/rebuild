@@ -1,3 +1,4 @@
+let esourceFilter
 $(document).ready(() => {
     $(window).trigger('resize')
     
@@ -33,8 +34,20 @@ $(document).ready(() => {
 	    },
 	    stop: function(){
 	        dargOnSort = false
+            render_preview()
 	    }
     }).disableSelection()
+
+    let dlg_filter
+    let saveFilter = function(filter){
+        dlg_filter.hide()
+        esourceFilter = filter
+        render_preview()
+    }
+    $('.J_filter').click(()=>{
+        if (dlg_filter) dlg_filter.show()
+        else dlg_filter = renderRbcomp(<AdvFilter entity={window.__sourceEntity} filter={esourceFilter} inModal={true} destroyOnHide={false} confirm={saveFilter} />)
+    })
 	
 	let cts = $('.chart-type > a').click(function(){
 		let _this = $(this)
@@ -68,6 +81,7 @@ $(document).ready(() => {
 	    $(cfg.axis.dimension).each((idx, item) => { add_axis('.J_axis-dim', item) })
 	    $(cfg.axis.numerical).each((idx, item) => { add_axis('.J_axis-num', item) })
 	    $('.chart-type>a[data-type="' + cfg.type + '"]').trigger('click')
+        esourceFilter = cfg.filter
 	}
     if (!window.__chartId) $('<h4 class="chart-undata must-center">当前图表无数据</h4>').appendTo('#chart-preview')
 })
@@ -128,12 +142,12 @@ let add_axis = ((target, axis) => {
 			el.attr('data-calc', calc)
 			aopts.each(function(){ if (!!$(this).data('calc')) $(this).removeClass('text-primary') })
 			_this.addClass('text-primary')
-			render_option()
+			render_preview()
 		} else if (sort){
 			el.attr('data-sort', sort)
 			aopts.each(function(){ if (!!$(this).data('sort')) $(this).removeClass('text-primary') })
             _this.addClass('text-primary')
-			render_option()
+			render_preview()
 		} else {
 		    let state = { axisEl: el, isNumAxis: isNumAxis, label: el.attr('data-label'), scale: el.attr('data-scale') }
 		    if (axis_props) axis_props.show(state)
@@ -170,6 +184,13 @@ let render_option = (() => {
 	
 	select = $('.chart-type>a.select')
 	if (select.length == 0) $('.chart-type>a.active').eq(0).addClass('select')
+
+    let ct = $('.chart-type>a.select').data('type')
+    if (ct == 'INDEX'){
+        $('#chart-title').attr('disabled', true)
+    } else {
+        $('#chart-title').attr('disabled', false)
+    }
 	
 	render_preview()
 })
@@ -209,6 +230,8 @@ let build_config = (() => {
     $('.J_axis-num>span').each((idx, item) => { nums.push(__build_axisItem(item, true)) })
     if (dims.length == 0 && nums.length == 0) return
     cfg.axis = { dimension: dims, numerical: nums }
+
+    if (esourceFilter) cfg.filter = esourceFilter
     return cfg
 })
 let __build_axisItem = ((item, isNum) => {

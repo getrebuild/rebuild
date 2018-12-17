@@ -279,10 +279,12 @@ a {
     padding: 8px 0;
 }
 .form-control.text {
-	border-radius: 0;
 	border-width: 0;
-	border-bottom-width: 1px;
-	padding: 4px !important;
+	padding: 4px 8px !important;
+	background-color: rgba(0,0,0,0.03)
+}
+.form-control.text:hover, .form-control.text:focus {
+	background-color: rgba(0,0,0,0.05)
 }
 /* FormPage */
 .rbform>form>.alert {
@@ -999,12 +1001,8 @@ i.split.ui-draggable-dragging {
 }
 .adv-filter .dialog-footer .form-control-sm.text {
 	width: 200px;
-	padding-right: 25px !important;
-}
-.adv-filter .dialog-footer .zmdi-border-color {
-	margin-top: -24px;
-	margin-right: 4px;
-	color: #bbb;
+	height: 34px !important;
+	margin-top: 2px;
 }
 .adv-filter .item.dialog-footer {
 	margin: 0 -30px;

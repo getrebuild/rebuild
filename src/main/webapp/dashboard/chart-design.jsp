@@ -7,8 +7,6 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/charts.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/chart-design.css">
 <title>图表设计器</title>
-<style type="text/css">
-</style>
 </head>
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-offcanvas-menu">
@@ -23,8 +21,8 @@
 			<div class="rb-scroller">
 				<div class="data-info">
 					<h5>数据来源</h5>
-					<ul class="list-unstyled">
-						<li><span><i class="zmdi zmdi-${entityIcon} icon"></i>${entityLabel}</span></li>
+					<ul class="list-unstyled esource">
+						<li><a><i class="zmdi zmdi-${entityIcon} icon"></i>${entityLabel}<span class="J_filter" title="设置过滤"><i class="zmdi zmdi-settings"></i></span></a></li>
 					</ul>
 				</div>
 				<div class="data-info">
@@ -59,7 +57,10 @@
 					</div>
 				</div>
 				<div class="data-info mt-3">
-					<h5>图表选项</h5>
+					<h5>图表样式</h5>
+					<div class="J_unopt pl-1">
+						此图表无选项
+					</div>
 				</div>
 			</div>
 		</aside>
@@ -118,6 +119,7 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/lib/charts/echarts.js"></script>
 <script src="${baseUrl}/assets/js/charts/charts.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/charts/chart-design.jsx" type="text/babel"></script>
 <script>
 window.__sourceEntity = '${entityName}'

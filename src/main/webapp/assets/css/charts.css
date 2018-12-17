@@ -76,7 +76,7 @@
 }
 .chart.index > .data-item strong {
 	font-size: 3.68rem;
-	font-weight: lighter;
+	font-weight: 400;
 }
 
 .chart.pie {

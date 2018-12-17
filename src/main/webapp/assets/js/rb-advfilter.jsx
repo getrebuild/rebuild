@@ -15,13 +15,15 @@ class AdvFilter extends React.Component {
         this.childrenRef = []
     }
     render() {
-        let OperBtns = (
-            <div className={this.props.inModal == true ? 'float-right' : 'item'}>
-                <button className="btn btn-primary" type="button" onClick={()=>this.confirm()}>{this.props.inModal == true ? '保存' : '应用'}</button>
-                <button className="btn btn-secondary" type="button" onClick={()=>this.cancel()}>取消</button>
+        let needSave = this.props.needSave == true
+        let operBtns = (
+            <div className={needSave ? 'float-right' : 'item'}>
+                <button className="btn btn-primary" type="button" onClick={()=>this.confirm()}>{needSave ? '保存' : '确定'}</button>
+                <button className="btn btn-secondary" type="button" onClick={()=>this.hide(true)}>取消</button>
             </div>
             )
-        return (
+
+        let advFilter = (
             <div className={'adv-filter-warp ' + (this.props.inModal ? 'in-modal' : 'shadow rounded')}>
                 <div className="adv-filter">
                     <div className="filter-option">
@@ -47,26 +49,28 @@ class AdvFilter extends React.Component {
                         </div>
                         }
                     </div>
-                    {this.props.inModal == true ?
+                    {needSave ?
                     <div className="item dialog-footer">
                         {rb.isAdminUser !== true ? null :
                         <div className="float-left">
                             <div className="float-left input">
                                 <input className="form-control form-control-sm text" maxLength="20" value={this.state.filterName || ''} data-id="filterName" onChange={this.handleChange} placeholder="输入过滤项名称" />
-                                <i className="zmdi zmdi-border-color float-right"></i>
                             </div>
                             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline ml-4 mt-2">
                                 <input className="custom-control-input" type="checkbox" checked={this.state.applyToAll == true} data-id="applyToAll" onChange={this.handleChange} />
                                 <span className="custom-control-label">共享给全部用户</span>
                             </label>
                         </div>}
-                        {OperBtns}
+                        {operBtns}
                         <div className="clearfix"/>
                     </div>
-                    : (<div>{OperBtns}</div>) }
+                    : (<div>{operBtns}</div>) }
                 </div>
             </div>
-        )
+            )
+
+        if (this.props.inModal) return (<RbModal ref="dlg" title={this.props.title || '设置过滤条件'} destroyOnHide={this.props.destroyOnHide == true}>{advFilter}</RbModal>)
+        else return advFilter
     }
     componentDidMount() {
         let that = this
@@ -83,7 +87,7 @@ class AdvFilter extends React.Component {
             })
             
             if (that.__items){
-                $(that.__items).each((index, item) => {
+                $(that.__items).each((idx, item) => {
                     if (valideFs.contains(item.field)) that.addItem(item)
                 })
             }
@@ -109,7 +113,7 @@ class AdvFilter extends React.Component {
     addItem(cfg){
         if (!this.fields) return
         let _items = this.state.items || []
-        if (_items.length >= 10){ rb.notice('最多可添加10个条件'); return }
+        if (_items.length >= 9){ rb.notice('最多可添加9个条件'); return }
         
         let id = 'item-' + $random()
         let props = { fields: this.fields, $$$parent: this, key: id, id: id, onRef: this.onRef, index: _items.length + 1 }
@@ -182,9 +186,14 @@ class AdvFilter extends React.Component {
             })
         }
     }
-    cancel() {
-        if (this.props.cancel) this.props.cancel()
-        else if (rb.AdvFilter) rb.AdvFilter.hideModal()
+
+    show(state) {
+        if (this.props.inModal) this.refs['dlg'].show(state)
+    }
+    hide(callCancel) {
+        if (this.props.inModal) this.refs['dlg'].hide()
+        // callback
+        if (callCancel == true && this.props.cancel) this.props.cancel()
     }
 }
 
@@ -573,98 +582,5 @@ class FilterItem extends React.Component {
         if (s.value2) item.value2 = s.value2
         this.setState({ hasError: false })
         return item
-    }
-}
-
-// -- Usage
-
-rb.AdvFilter = {
-        
-    // @el - 控件
-    // @entity - 实体
-    init(el, entity) {
-        this.__el = $(el)
-        this.__entity = entity
-        this.initEvent()
-        this.loadFilters()
-    },
-    
-    initEvent() {
-        let that = this
-        this.__el.find('.J_advfilter').click(function(){ that.showAdvFilter() })
-        // $ALL$
-        $('.adv-search .dropdown-item:eq(0)').click(() => {
-            $('.adv-search .J_name').text('所有数据')
-            RbListPage._RbList.setAdvFilter()
-        })
-    },
-    
-    loadFilters() {
-        let that = this
-        $.get(`${rb.baseUrl}/app/${this.__entity}/advfilter/list`, function(res){
-            $('.adv-search .J_custom').each(function(){ $(this).remove() })
-            
-            $(res.data).each(function(){
-                let item = $('<div class="dropdown-item J_custom" data-id="' + this[0] + '"><a class="text-truncate">' + this[1] + '</a></div>')
-                $('.adv-search .dropdown-divider').before(item)
-                
-                let data = this
-                if (data[2] == true){
-                    let action = $('<div class="action"><a title="修改"><i class="zmdi zmdi-edit"></i></a><a title="删除"><i class="zmdi zmdi-delete"></i></a></div>').appendTo(item)
-                    action.find('a:eq(0)').click(function(){
-                        that.showAdvFilter(data[0])
-                        $('.adv-search .btn').dropdown('toggle')
-                        return false
-                    })
-                    action.find('a:eq(1)').click(function(){
-                        let _alert = rb.alert('确认删除此过滤项吗？', '删除确认', { type: 'danger', confirm:()=>{
-                            $.post(`${rb.baseUrl}/app/entity/advfilter/delete?id=${data[0]}`, (res)=>{
-                                if (res.error_code == 0){
-                                    _alert.hide()
-                                    rb.notice('过滤项已删除', 'success')
-                                    rb.AdvFilter.loadFilters()
-                                } else rb.notice(res.error_msg, 'danger')
-                            })
-                        } })
-                        return false
-                    })
-                }
-                item.click(function(){
-                    $('.adv-search .J_name').text(data[1])
-                    RbListPage._RbList.setAdvFilter(data[0])
-                })
-            })
-            
-        })
-    },
-    
-    saveFilter(filter, name, toAll) {
-        if (!filter) return
-        let _url = `${rb.baseUrl}/app/${rb.AdvFilter.__entity}/advfilter/post?id=${rb.AdvFilter.__cfgid || ''}`
-        if (!!name)  _url += '&name=' + $encode(name)
-        if (toAll === true || toAll === false) _url += '&toAll=' + toAll
-        $.post(_url, JSON.stringify(filter), function(res){
-            if (res.error_code == 0){
-                rb.notice('过滤项已保存', 'success')
-                rb.AdvFilter.hideModal()
-                rb.AdvFilter.loadFilters()
-            } else rb.notice(res.error_msg, 'danger')
-        })
-    },
-    
-    showAdvFilter(id) {
-        this.__cfgid = id
-        if (!!!id){
-            this.__modal = renderRbcomp(<RbModal title="添加过滤项"><AdvFilter entity={this.__entity} inModal={true} confirm={this.saveFilter} /></RbModal>)
-        }else{
-            let that = this
-            $.get(rb.baseUrl + '/app/entity/advfilter/get?id=' + id, function(res){
-                let _data = res.data
-                that.__modal = renderRbcomp(<RbModal title="修改过滤项"><AdvFilter entity={that.__entity} inModal={true} confirm={that.saveFilter} filter={_data.filter} filterName={_data.name} applyToAll={_data.applyTo == 'ALL'} /></RbModal>)
-            })
-        }
-    },
-    hideModal() {
-        if (this.__modal) this.__modal.hide()
     }
 }

@@ -123,7 +123,7 @@ $(document).ready(function(){
 			comments = $val('#comments'),
 			nameField = $val('#nameField')
 		let _data = { entityLabel:label, comments:comments, nameField:nameField }
-		if (!!icon) data.icon = icon
+		if (!!icon) _data.icon = icon
 		_data = $cleanMap(_data)
 		if (Object.keys(_data) == 0){ location.reload(); return }
 		

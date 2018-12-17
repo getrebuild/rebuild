@@ -31,7 +31,7 @@ import org.apache.commons.lang.StringUtils;
  * @since 12/17/2018
  */
 public class TableBuilder {
-	
+
 	private TableChart chart;
 	private Object[][] rows;
 
@@ -43,7 +43,7 @@ public class TableBuilder {
 		this.chart = chart;
 		this.rows = rows;
 	}
-	
+
 	/**
 	 * @return
 	 */
@@ -51,7 +51,7 @@ public class TableBuilder {
 		List<Axis> axisss = new ArrayList<>();
 		CollectionUtils.addAll(axisss, chart.getDimensions());
 		CollectionUtils.addAll(axisss, chart.getNumericals());
-		
+
 		TBODY thead = new TBODY();
 		TR htr = new TR();
 		thead.addChild(htr);
@@ -59,32 +59,54 @@ public class TableBuilder {
 			TD td = new TD(axis.getLabel());
 			htr.addChild(td);
 		}
-		
+
 		TBODY tbody = new TBODY();
 		for (Object[] row : rows) {
 			TR btr = new TR();
 			tbody.addChild(btr);
-			
+
 			for (int i = 0; i < row.length; i++) {
 				String text = chart.warpAxisValue(axisss.get(i), row[i]);
 				TD td = new TD(text);
 				btr.addChild(td);
 			}
 		}
-		
-		String table = String.format("<table class=\"table table-bordered\"><thead>%s</thead><tbody>%s</tbody></table>", thead.toString(), tbody.toString());
+
+		// 合并纬度单元格
+		for (int i = 0; i < chart.getDimensions().length; i++) {
+			TD last = null;
+			for (TR tr : tbody.children) {
+				TD current = tr.children.get(i);
+				if (last == null) {
+					last = current;
+					continue;
+				}
+
+				if (last.content.equals(current.content)) {
+					last.rowspan++;
+					current.rowspan = 0;
+				} else {
+					last = current;
+				}
+			}
+		}
+
+		String table = String.format("<table class=\"table table-bordered\"><thead>%s</thead><tbody>%s</tbody></table>",
+				thead.toString(), tbody.toString());
 		return table;
 	}
-	
+
 	// --
-	
+
 	class TBODY {
-		private List<TR> children = new ArrayList<>();
+		List<TR> children = new ArrayList<>();
+
 		TBODY addChild(TR c) {
 			c.parent = this;
 			children.add(c);
 			return this;
 		}
+
 		@Override
 		public String toString() {
 			StringBuffer sb = new StringBuffer();
@@ -95,15 +117,17 @@ public class TableBuilder {
 			return sb.toString();
 		}
 	}
-	
+
 	class TR {
 		TBODY parent = null;
-		private List<TD> children = new ArrayList<>();
+		List<TD> children = new ArrayList<>();
+
 		TR addChild(TD c) {
 			c.parent = this;
 			children.add(c);
 			return this;
 		}
+
 		@Override
 		public String toString() {
 			StringBuffer sb = new StringBuffer();
@@ -113,16 +137,25 @@ public class TableBuilder {
 			return String.format("<tr>%s</tr>", sb.toString());
 		}
 	}
-	
+
 	class TD {
 		TR parent = null;
-		private String content;
+		String content;
+		int rowspan = 1;
+
 		TD(String content) {
-			this.content = content;
+			this.content = StringUtils.defaultIfBlank(content, "");
 		}
+
 		@Override
 		public String toString() {
-			return String.format("<td>%s</td>", StringUtils.defaultIfBlank(content, ""));
+			if (rowspan == 0) {
+				return StringUtils.EMPTY;
+			} else if (rowspan > 1) {
+				return String.format("<td rowspan=\"%d\">%s</td>", rowspan, content);
+			} else {
+				return String.format("<td>%s</td>", content);
+			}
 		}
 	}
 }
