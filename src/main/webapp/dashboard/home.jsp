@@ -7,7 +7,7 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/charts/jquery.gridster.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/charts.css">
 <style type="text/css">
-.tools-bar{height:50px;padding:0 25px;padding-top:7px}
+.tools-bar{height:44px;padding:0 25px;padding-top:7px}
 .tools-bar h4{margin:10px 0}
 .chart-grid{overflow:scroll;overflow-x:hidden;padding:15px;padding-top:0;padding-right:9px}
 .gridster ul,.gridster ul>li{margin:0;padding:0}

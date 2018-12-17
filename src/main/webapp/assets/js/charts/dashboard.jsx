@@ -1,7 +1,7 @@
 // $Id$
 let dashid = null
 $(document).ready(function(){
-    $('.chart-grid').height($(window).height() - 131)
+    $('.chart-grid').height($(window).height() - 120)
     
     let dlg = null
     $.get(rb.baseUrl + '/dashboard/dash-gets', ((res) => {
@@ -14,7 +14,7 @@ $(document).ready(function(){
 let rendered_charts = []
 $(window).resize(() => {
     $setTimeout(()=>{
-        $('.chart-grid').height($(window).height() - 131)
+        $('.chart-grid').height($(window).height() - 120)
         $(rendered_charts).each((idx, item)=>{ item.resize() })
     }, 200, 'resize-charts')
 })
