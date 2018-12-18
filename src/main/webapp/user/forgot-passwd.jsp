@@ -4,8 +4,6 @@
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <title>重置密码</title>
-<style type="text/css">
-</style>
 </head>
 <body class="rb-splash-screen">
 <div class="rb-wrapper rb-login">
@@ -14,7 +12,7 @@
 			<div class="splash-container">
 				<div class="card card-border-color card-border-color-primary">
 					<div class="card-header">
-						<img class="logo-img" src="../assets/img/logo.png" alt="REBUILD">
+						<img class="logo-img" src="${baseUrl}/assets/img/logo.png" alt="REBUILD">
 					</div>
 					<div class="card-body">
 						<div class="form-group">
@@ -36,16 +34,16 @@
 <script type="text/babel">
 $(document).ready(function() {
 	$('.J_forgot-btn').click(function() {
-		let email = $('#email').val();
-		if (!email){ alert('请输入邮箱'); return; }
+		let email = $val('#email')
+		if (!email){ rb.notice('请输入邮箱'); return }
 		
-		let reqdata = { email: email };
+		let reqdata = { email: email }
 		$.post(__baseUrl + '/user/user-forgot-passwd', reqdata, function(res) {
-			if (res.error_code == 0) location.replace('../dashboard/home');
-			else alert(res.error_msg);
-		});
-	});
-});
+			if (res.error_code == 0) location.replace('../dashboard/home')
+			else alert(res.error_msg)
+		})
+	})
+})
 </script>
 </body>
 </html>

@@ -4,8 +4,6 @@
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <title>用户注册</title>
-<style type="text/css">
-</style>
 </head>
 <body class="rb-splash-screen">
 <div class="rb-wrapper rb-login">
@@ -14,10 +12,10 @@
 			<div class="splash-container">
 				<div class="card card-border-color card-border-color-primary">
 					<div class="card-header">
-						<img class="logo-img" src="../assets/img/logo.png" alt="REBUILD">
+						<img class="logo-img" src="${baseUrl}/assets/img/logo.png" alt="REBUILD">
 					</div>
 					<div class="card-body">
-						<h3 class="text-center mb-8 pb-2">暂未开放注册</h3>
+						<h3 class="text-center mb-8 pb-2">未开放注册</h3>
 					</div>
 				</div>
 				<div class="splash-footer">

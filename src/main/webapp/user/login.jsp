@@ -4,8 +4,6 @@
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <title>用户登录</title>
-<style type="text/css">
-</style>
 </head>
 <body class="rb-splash-screen">
 <div class="rb-wrapper rb-login">
@@ -14,7 +12,7 @@
 			<div class="splash-container">
 				<div class="card card-border-color card-border-color-primary">
 					<div class="card-header">
-						<img class="logo-img" src="../assets/img/logo.png" alt="REBUILD">
+						<img class="logo-img" src="${baseUrl}/assets/img/logo.png" alt="REBUILD">
 					</div>
 					<div class="card-body">
 						<div class="form-group">
@@ -40,7 +38,7 @@
 					</div>
 				</div>
 				<div class="splash-footer">
-					<span>&copy; 2018 <a href="https://getrebuild.com/" target="_blank">Rebuild</a></span>
+					<span>&copy; 2019 <a href="https://getrebuild.com/" target="_blank">rebuild</a></span>
 				</div>
 			</div>
 		</div>
@@ -56,7 +54,7 @@ $(document).ready(function() {
 	})
 	let _btn = $('.J_login-btn').click(function() {
 		let user = $val('#user'), passwd = $val('#passwd')
-		if (!user || !passwd) return
+		if (!user || !passwd){ rb.notice('请输入用户名和密码'); return }
 		
 		_btn.button('loading')
 		$.post(rb.baseUrl + '/user/user-login?user=' + $encode(user) + '&passwd=' + $encode(passwd) + '&autoLogin=' + $val('#autoLogin'), function(res) {
