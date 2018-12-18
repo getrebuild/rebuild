@@ -22,15 +22,20 @@
 hs_err_pid*
 
 # Eclipse
-/a.json
-/target/
-/.settings/
+
+/.settings
 /.classpath
 /.project
+/a.json
+/target/
 /bin/
-.DS_Store
 /.production/node_modules/
 /.production/package-lock.json
 /.production/_temp/
 /.production/build/
 /.production/
+
+
+# MacOS
+
+.DS_Store

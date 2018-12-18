@@ -13,7 +13,7 @@
         <dependent-module archiveName="bizz-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/bizz/bizz">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <property name="context-root" value="rebuild"/>
         <property name="java-output-path" value="/rebuild/target/classes"/>
+        <property name="context-root" value="rebuild"/>
     </wb-module>
 </project-modules>
