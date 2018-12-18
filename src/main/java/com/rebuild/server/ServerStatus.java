@@ -18,23 +18,21 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server;
 
-import static org.apache.commons.lang.StringUtils.EMPTY;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.List;
 
 import javax.sql.DataSource;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import com.rebuild.server.helper.SystemConfiguration;
 
+import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ThrowableUtils;
 
 /**
@@ -45,29 +43,26 @@ import cn.devezhao.commons.ThrowableUtils;
  */
 public class ServerStatus {
 
-	private static final Map<String, String> LAST_STATUS = new ConcurrentHashMap<>();
-	static {
-		LAST_STATUS.put("DataSource", EMPTY);
-		LAST_STATUS.put("CreateFile", EMPTY);
-		LAST_STATUS.put("StroageService", EMPTY);
-		LAST_STATUS.put("CacheService", EMPTY);
-	}
+	private static final List<State> LAST_STATUS = new ArrayList<>();
+	
 	/**
-	 * 最近检查状态
+	 * 最近状态
 	 * 
 	 * @return
 	 */
-	public static Map<String, String> getLastStatus() {
-		return Collections.unmodifiableMap(LAST_STATUS);
+	public static List<State> getLastStatus() {
+		synchronized (LAST_STATUS) {
+			return Collections.unmodifiableList(LAST_STATUS);
+		}
 	}
 	/**
-	 * 服务正常
+	 * 服务是否正常
 	 * 
 	 * @return
 	 */
 	public static boolean isStatusOK() {
-		for (Map.Entry<String, String> e : getLastStatus().entrySet()) {
-			if (StringUtils.isNotBlank(e.getValue())) {
+		for (State s : getLastStatus()) {
+			if (!s.success) {
 				return false;
 			}
 		}
@@ -80,51 +75,87 @@ public class ServerStatus {
 	 * @return
 	 */
 	public static boolean checkAll() {
-		String theDataSource = checkDataSource();
-		Application.LOG.info("Checking DataSource : " + StringUtils.defaultIfBlank(theDataSource, "[ OK ]"));
-		LAST_STATUS.put("DataSource", theDataSource);
+		List<State> last = new ArrayList<>();
 		
-		String theCreateFile = checkCreateFile();
-		Application.LOG.info("Checking CreateFile : " + StringUtils.defaultIfBlank(theCreateFile, "[ OK ]"));
-		LAST_STATUS.put("CreateFile", theCreateFile);
+		State stateDataSource = checkDataSource();
+		Application.LOG.info("Checking " + stateDataSource);
+		last.add(stateDataSource);
 		
+		State stateCreateFile = checkCreateFile();
+		Application.LOG.info("Checking " + stateCreateFile);
+		last.add(stateCreateFile);
+		
+		synchronized (LAST_STATUS) {
+			LAST_STATUS.clear();
+			LAST_STATUS.addAll(last);
+		}
 		return isStatusOK();
 	}
 
 	/**
+	 * 数据库连接
+	 * 
 	 * @return
 	 */
-	protected static String checkDataSource() {
+	protected static State checkDataSource() {
+		String name = "DataSource";
 		try {
 			DataSource ds = Application.getPersistManagerFactory().getDataSource();
 			Connection c = DataSourceUtils.getConnection(ds);
 			DataSourceUtils.releaseConnection(c, ds);
 		} catch (Exception ex) {
-			return ThrowableUtils.getRootCause(ex).getLocalizedMessage();
+			return State.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
 		}
-		return EMPTY;
+		return State.success(name);
 	}
 	
 	/**
+	 * 文件权限/磁盘空间
+	 * 
 	 * @return
 	 */
-	protected static String checkCreateFile() {
+	protected static State checkCreateFile() {
+		String name = "Create File";
 		FileWriter fw = null;
 		try {
 			File test = SystemConfiguration.getFileOfTemp("test");
 			fw = new FileWriter(test);
-			IOUtils.write("TestCreateFile", fw);
+			IOUtils.write(CodecUtils.randomCode(100), fw);
 			if (!test.exists()) {
-				return "Cloud't create file in temp Directory";
+				return State.error(name, "Cloud't create file in temp Directory");
 			} else {
 				test.delete();
 			}
 			
 		} catch (Exception ex) {
-			return ThrowableUtils.getRootCause(ex).getLocalizedMessage();
+			return State.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
 		} finally {
 			IOUtils.closeQuietly(fw);
 		}
-		return EMPTY;
+		return State.success(name);
+	}
+	
+	// 状态
+	public static class State {
+		final public String name;
+		final public boolean success;
+		final public String error;
+		@Override
+		public String toString() {
+			if (success) return String.format("%s : %s", name, "[ SUCCESS ]");
+			else return String.format("%s : %s", name, error);
+		}
+		
+		private State(String name, boolean success, String error) {
+			this.name = name;
+			this.success = success;
+			this.error = error;
+		}
+		private static State success(String name) {
+			return new State(name, true, null);
+		}
+		private static State error(String name, String error) {
+			return new State(name, false, error);
+		}
 	}
 }

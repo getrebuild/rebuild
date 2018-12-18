@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.rebuild.server.ServerListener;
+import com.rebuild.server.ServerStatus;
 import com.rebuild.web.PageControll;
 
 /**
@@ -48,6 +49,9 @@ public class SimplePageForward extends PageControll {
 	
 	@RequestMapping(value={ "/gw/server-status" }, method = RequestMethod.GET)
 	public ModelAndView pageServersStatus(HttpServletRequest request) {
+		if ("1".equals(request.getParameter("check"))) {
+			ServerStatus.checkAll();
+		}
 		return createModelAndView("/server-status.jsp");
 	}
 }

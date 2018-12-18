@@ -17,6 +17,7 @@
         "@babel/plugin-proposal-class-properties": "^7.1.0",
         "@babel/preset-env": "^7.1.6",
         "@babel/preset-react": "^7.0.0",
+        "del": "^3.0.0",
         "gulp": "^3.9.1",
         "gulp-babel": "^8.0.0",
         "gulp-cheerio": "^0.6.3",

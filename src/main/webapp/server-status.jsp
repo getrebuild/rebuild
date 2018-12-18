@@ -3,12 +3,10 @@
 <%@ page import="com.rebuild.server.helper.SystemConfiguration"%>
 <%@ page import="org.apache.commons.lang.SystemUtils"%>
 <%@ page import="cn.devezhao.commons.CalendarUtils"%>
-<%@ page import="java.util.Calendar"%>
 <%@ page import="com.rebuild.server.ServerListener"%>
 <%@ page import="com.rebuild.server.Application"%>
-<%@ page import="org.apache.commons.lang.StringUtils"%>
 <%@ page import="com.rebuild.server.ServerStatus"%>
-<%@ page import="java.util.Map"%>
+<%@ page import="com.rebuild.server.ServerStatus.State"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -25,14 +23,14 @@
 	<h5 class="text-bold">快速检查</h5>
 	<table class="table table-bordered table-sm">
 	<tbody>
-		<% for (Map.Entry<String, String> e : ServerStatus.getLastStatus().entrySet()) { %>
+		<% for (State e : ServerStatus.getLastStatus()) { %>
 		<tr>
-			<th><%=e.getKey()%></th>
-			<td><%=e.getValue() == StringUtils.EMPTY ? "OK" : e.getValue()%></td>
+			<th width="30%"><%=e.name%></th>
+			<td><%=e.success ? "OK" : e.error%></td>
 		</tr>
 		<% }%>
 		<tr>
-			<th width="30%">Memory Usage</th>
+			<th>Memory Usage</th>
 			<td>n/a</td>
 		</tr>
 		<tr>
@@ -80,7 +78,7 @@
 </div>
 <% } %>
 <div class="block">
-<div class="text-muted">&copy; 2018 <a href="https://getrebuild.com/">Rebuild</a></div>
+<div class="text-muted">&copy; 2018 <a href="https://getrebuild.com/">Rebuild</a> <a href="?check=1" style="color:transparent;">CHECK</a></div>
 </div>
 </body>
 </html>

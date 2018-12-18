@@ -9,9 +9,10 @@ const debug = require('gulp-debug')
 const babelCore = require('@babel/core')
 const fs = require('fs')
 const revHash = require('rev-hash')
+const del = require('del')
 
 // ES6 转码并压缩
-gulp.task('cjs', () => {
+gulp.task('xjs', () => {
     return gulp.src('../src/main/webapp/assets/js/**/*.js?(x)')
     	.pipe(gulp.dest('./_temp/es6'))
     	.pipe(babel())
@@ -23,7 +24,7 @@ gulp.task('cjs', () => {
 })
 
 // CSS 压缩
-gulp.task('ccss', () => {
+gulp.task('xcss', () => {
     return gulp.src('../src/main/webapp/assets/css/**/*.css')
     	.pipe(cleanCss())
     	.pipe(debug({ title: 'compress css file : ' }))
@@ -34,7 +35,7 @@ gulp.task('ccss', () => {
 // JSP 文件内的 ES6 转码并压缩
 // 去除 babel 标记并为 JS/CSS 添加版本号
 const ASSETS_HEX = {}
-gulp.task('cjsp', () => {
+gulp.task('xjsp', () => {
     return gulp.src('../src/main/webapp/**/*.jsp')
     	.pipe(debug({ title: 'compress jsp file : ' }))
     	.pipe(replace(/<script type="text\/babel">([\s\S]*)<\/script>/igm, (m, p, o, s) => {
@@ -42,8 +43,7 @@ gulp.task('cjsp', () => {
             let es5 = ''
             try {
                 es5 = babelCore.transformSync(p, {
-                    "presets": ["@babel/env", "@babel/react"],
-                    minified: true
+                    "presets": ["@babel/env", "@babel/react"], minified: !true
                 }).code
             } catch (err) {
                 throw new Error('Babel transform :\n' + err)
@@ -85,4 +85,8 @@ gulp.task('cjsp', () => {
 })
 
 
-gulp.task('default', gulpSequence(['cjs', 'ccss'], 'cjsp'))
+gulp.task('clean', () => {
+    del(['./_temp', './build'])
+})
+
+gulp.task('default', gulpSequence(['xjs', 'xcss'], 'xjsp'))
