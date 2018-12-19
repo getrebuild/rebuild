@@ -20,7 +20,16 @@
 				<textarea class="form-control form-control-sm row2x" id="comments" maxlength="100" placeholder="可选"></textarea>
 			</div>
 		</div>
-		<div class="form-group row">
+		<div class="form-group row pt-2">
+			<label class="col-sm-3 col-form-label text-sm-right"></label>
+			<div class="col-sm-7">
+				<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+					<input class="custom-control-input" type="checkbox" id="nameField"><span class="custom-control-label"> 添加主显字段（推荐）</span>
+				</label>
+				<p class="form-text mb-0">主显字段能清晰的标识记录本身，如客户中的客户名称或订单中的订单编号</p>
+			</div>
+		</div>
+		<div class="form-group row pt-1">
 			<label class="col-sm-3 col-form-label text-sm-right"></label>
 			<div class="col-sm-7">
 				<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
@@ -51,15 +60,15 @@ $(document).ready(function(){
 		let entityLabel = $val('#entityLabel'),
 			comments = $val('#comments')
 		if (!entityLabel){ rb.notice('请输入实体名称'); return }
-		let _data = { label:entityLabel, comments:comments }
-		if ($('#isSlave').prop('checked') == true){
+		let _data = { label: entityLabel, comments: comments }
+		if ($val('#isSlave') == 'true'){
 			_data.masterEntity = $val('#masterEntity')
 			if (!_data.masterEntity){ rb.notice('请选择选择主实体'); return }
 		}
 		_data = JSON.stringify(_data)
 		
 		sbtn.button('loading')
-		$.post(rb.baseUrl + '/admin/entity/entity-new', _data, function(res){
+		$.post(rb.baseUrl + '/admin/entity/entity-new?nameField=' + $val('#nameField'), _data, function(res){
 			if (res.error_code == 0) parent.location.href = rb.baseUrl + '/admin/entity/' +res.data + '/base'
 			else rb.notice(res.error_msg, 'danger')
 			sbtn.button('reset')

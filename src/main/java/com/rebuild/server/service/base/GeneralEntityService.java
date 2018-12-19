@@ -26,15 +26,19 @@ import java.util.Map;
 import java.util.Observer;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.rebuild.server.Application;
 import com.rebuild.server.bizz.privileges.PrivilegesGuardInterceptor;
 import com.rebuild.server.bizz.privileges.User;
 import com.rebuild.server.helper.BulkTaskExecutor;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entityhub.DisplayType;
+import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.service.BaseService;
 import com.rebuild.server.service.OperateContext;
 
@@ -59,10 +63,21 @@ public class GeneralEntityService extends BaseService  {
 	
 	private static final Log LOG = LogFactory.getLog(GeneralEntityService.class);
 	
+	/** 
+	 * 取消共享 */
+	public static final Permission UNSHARE  = new BizzPermission("X", 0, true);
+	
+	/**
+	 * @param aPMFactory
+	 */
 	protected GeneralEntityService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
 	}
 	
+	/**
+	 * @param aPMFactory
+	 * @param observers
+	 */
 	protected GeneralEntityService(PersistManagerFactory aPMFactory, List<Observer> observers) {
 		super(aPMFactory);
 		
@@ -79,6 +94,53 @@ public class GeneralEntityService extends BaseService  {
 	 */
 	public int getEntityCode() {
 		return 0;
+	}
+	
+	@Override
+	public Record create(Record record) {
+		setQuickCodeValue(record);
+		return super.create(record);
+	}
+	
+	@Override
+	public Record update(Record record) {
+		setQuickCodeValue(record);
+		return super.update(record);
+	}
+	
+	/**
+	 * 设置助记码字段值
+	 * 
+	 * @param record
+	 */
+	protected void setQuickCodeValue(Record record) {
+		if (!record.getEntity().containsField(EntityHelper.QuickCode)) {
+			return;
+		}
+		
+		Field nameField = record.getEntity().getNameField();
+		if (!record.hasValue(nameField.getName()) || record.hasValue(EntityHelper.QuickCode)) {
+			return;
+		}
+		
+		DisplayType dt = EasyMeta.getDisplayType(nameField);
+		if (dt == DisplayType.TEXT) {
+			String name = record.getString(nameField.getName());
+			String qcode = null;
+			if (StringUtils.isNotBlank(name)) {
+				try {
+					qcode = PinyinHelper.getShortPinyin(name).toUpperCase();
+				} catch (Exception e) {
+					LOG.error("ShortPinyin : " + name, e);
+				}
+			}
+			
+			if (StringUtils.isBlank(qcode)) {
+				record.setNull(EntityHelper.QuickCode);
+			} else {
+				record.setString(EntityHelper.QuickCode, qcode);
+			}
+		}
 	}
 	
 	/**
@@ -127,7 +189,7 @@ public class GeneralEntityService extends BaseService  {
 	}
 	
 	/**
-	 * 删除，带级联删除选项
+	 * 删除。带级联删除选项
 	 * 
 	 * @param record
 	 * @param cascades 级联删除的实体
@@ -171,6 +233,9 @@ public class GeneralEntityService extends BaseService  {
 		Record assigned = EntityHelper.forUpdate(record, (ID) toUser.getIdentity());
 		assigned.setID(EntityHelper.OwningUser, (ID) toUser.getIdentity());
 		assigned.setID(EntityHelper.OwningDept, (ID) toUser.getOwningDept().getIdentity());
+		
+		Record before = countObservers() > 0 ? getBeforeRecord(assigned) : null;
+		
 		super.update(assigned);
 		Application.getRecordOwningCache().cleanOwningUser(record);
 		
@@ -189,7 +254,7 @@ public class GeneralEntityService extends BaseService  {
 		
 		if (countObservers() > 0) {
 			setChanged();
-			notifyObservers(OperateContext.valueOf(Application.currentCallerUser(), BizzPermission.ASSIGN, getBeforeRecord(assigned), assigned));
+			notifyObservers(OperateContext.valueOf(Application.currentCallerUser(), BizzPermission.ASSIGN, before, assigned));
 		}
 		return affected;
 	}
@@ -239,10 +304,21 @@ public class GeneralEntityService extends BaseService  {
 		
 		if (countObservers() > 0) {
 			setChanged();
-			Record sharedRecord = EntityHelper.forUpdate(record, currentUser);
-			notifyObservers(OperateContext.valueOf(currentUser, BizzPermission.SHARE, sharedRecord, shared));
+			notifyObservers(OperateContext.valueOf(currentUser, BizzPermission.SHARE, null, shared));
 		}
 		return affected;
+	}
+	
+	/**
+	 * TODO 取消共享
+	 * 
+	 * @param record
+	 * @param to
+	 * @param cascades 级联共享的实体
+	 * @return
+	 */
+	public int unshare(ID record, ID to, String[] cascades) {
+		return 0;
 	}
 	
 	/**
@@ -282,6 +358,8 @@ public class GeneralEntityService extends BaseService  {
 			return new BulkAssign(context, this);
 		} else if (context.getAction() == BizzPermission.SHARE) {
 			return new BulkShare(context, this);
+		} else if (context.getAction() == UNSHARE) {
+			return new BulkDelete(context, this);
 		}
 		throw new UnsupportedOperationException("Unsupported bulk action : " + context.getAction());
 	}

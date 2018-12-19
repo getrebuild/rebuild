@@ -121,7 +121,7 @@ public class MetadataSorter {
 		if (dtAllowed == null || dtAllowed.length == 0) {
 			List<Field> list = new ArrayList<>();
 			for (Field field : fields) {
-				if (!(field.getType() == FieldType.PRIMARY || field.isAutoValue())) {
+				if (!(field.getType() == FieldType.PRIMARY || field.isAutoValue() || EntityHelper.QuickCode.equalsIgnoreCase(field.getName()))) {
 					list.add(field);
 				}
 			}

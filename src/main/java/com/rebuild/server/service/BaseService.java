@@ -20,6 +20,9 @@ package com.rebuild.server.service;
 
 import java.util.Observable;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 
@@ -36,6 +39,8 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public abstract class BaseService extends Observable {
 	
+	protected final Log LOG = LogFactory.getLog(getClass());
+	
 	final protected PersistManagerFactory aPMFactory;
 
 	protected BaseService(PersistManagerFactory aPMFactory) {
@@ -44,7 +49,7 @@ public abstract class BaseService extends Observable {
 	}
 
 	/**
-	 * 语法糖
+	 * 新建或更新
 	 * 
 	 * @param record
 	 * @return
@@ -56,51 +61,64 @@ public abstract class BaseService extends Observable {
 	}
 	
 	/**
+	 * 新建
+	 * 
 	 * @param record
 	 * @return
 	 */
 	public Record create(Record record) {
 		record = aPMFactory.createPersistManager().save(record);
+		
 		if (countObservers() > 0) {
 			setChanged();
-			notifyObservers(OperateContext.valueOf(record.getEditor(), BizzPermission.CREATE, null, record));
+			notifyObservers(OperateContext.valueOf(Application.currentCallerUser(), BizzPermission.CREATE, null, record));
 		}
 		return record;
 	}
 
 	/**
+	 * 更新
+	 * 
 	 * @param record
 	 * @return
 	 */
 	public Record update(Record record) {
+		Record before = countObservers() > 0 ? getBeforeRecord(record) : null;
+		
 		record = aPMFactory.createPersistManager().update(record);
+		
 		if (countObservers() > 0) {
 			setChanged();
-			notifyObservers(OperateContext.valueOf(record.getEditor(), BizzPermission.UPDATE, getBeforeRecord(record), record));
+			notifyObservers(OperateContext.valueOf(Application.currentCallerUser(), BizzPermission.UPDATE, before, record));
 		}
 		return record;
 	}
 
 	/**
+	 * 删除
+	 * 
 	 * @param recordId
 	 * @return 删除记录数量。包括关联的记录，自定义实体都选择了 remove-link 级联模式，因此基本不会自动关联删除
 	 */
 	public int delete(ID recordId) {
+		Record deleted = countObservers() > 0 ? getBeforeRecord(EntityHelper.forUpdate(recordId, null)) : null;
+		
 		int affected = aPMFactory.createPersistManager().delete(recordId);
+		
 		if (countObservers() > 0) {
 			setChanged();
-			Record deleted = EntityHelper.forUpdate(recordId, Application.currentCallerUser());
-			notifyObservers(OperateContext.valueOf(deleted.getEditor(), BizzPermission.DELETE, deleted, null));
+			notifyObservers(OperateContext.valueOf(Application.currentCallerUser(), BizzPermission.DELETE, deleted, null));
 		}
 		return affected;
 	}
 	
 	/**
-	 * 操作前获取记录
+	 * TODO 操作前获取记录
 	 * 
+	 * @param willOper
 	 * @return
 	 */
-	protected Record getBeforeRecord(Record willUpdate) {
+	protected Record getBeforeRecord(Record willOper) {
 		return null;
 	}
 }

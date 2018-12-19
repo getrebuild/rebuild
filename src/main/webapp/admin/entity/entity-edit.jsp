@@ -77,7 +77,7 @@ a#entityIcon:hover{opacity:0.8}
 							<div class="col-lg-5 col-sm-10">
 								<select class="form-control form-control-sm" id="nameField" data-o="${nameField}">
 								</select>
-								<p class="form-text mb-0">好的主显字段应能够清晰的表示记录本身，如客户中的客户名称或订单中的订单编号</p>
+								<p class="form-text mb-0">主显字段应能清晰的标识记录本身，如客户中的客户名称或订单中的订单编号</p>
 							</div>
 						</div>
 						<div class="form-group row">

@@ -64,6 +64,17 @@ public class Entity2Schema extends Field2Schema {
 	 * @return
 	 */
 	public String create(String entityLabel, String comments, String masterEntity) {
+		return create(entityLabel, comments, masterEntity, false);
+	}
+	
+	/**
+	 * @param entityLabel
+	 * @param comments
+	 * @param masterEntity
+	 * @param haveNameField
+	 * @return 实体名称
+	 */
+	public String create(String entityLabel, String comments, String masterEntity, boolean haveNameField) {
 		String entityName = toPinyinName(entityLabel);
 		while (true) {
 			if (MetadataHelper.containsEntity(entityName)) {
@@ -85,6 +96,12 @@ public class Entity2Schema extends Field2Schema {
 		int typeCode = maxTypeCode == null || ObjectUtils.toInt(maxTypeCode[0]) == 0 
 				? 999 : (ObjectUtils.toInt(maxTypeCode[0]) - 1);
 		
+		// 名称字段
+		String nameFiled = EntityHelper.CreatedOn;
+		if (haveNameField) {
+			nameFiled = entityName + "Name";
+		}
+		
 		Record record = EntityHelper.forNew(EntityHelper.MetaEntity, user);
 		record.setString("entityLabel", entityLabel);
 		record.setString("entityName", entityName);
@@ -96,30 +113,41 @@ public class Entity2Schema extends Field2Schema {
 		if (isSlave) {
 			record.setString("masterEntity", masterEntity);
 		}
-		record.setString("nameField", EntityHelper.CreatedOn);
+		record.setString("nameField", nameFiled);
 		record = Application.getCommonService().create(record);
 		tempMetaId.add(record.getPrimary());
 		
-		Entity tempEntity = new UnsafeEntity(entityName, physicalName, entityLabel, typeCode, EntityHelper.CreatedOn);
-		
-		String primaryFiled = entityName + "Id";
-		createBuiltinField(tempEntity, primaryFiled, "ID", DisplayType.ID, null, null, null);
-		createBuiltinField(tempEntity, EntityHelper.AutoId, "AUTOID", DisplayType.NUMBER, null, null, null);
-		
-		createBuiltinField(tempEntity, EntityHelper.CreatedBy, "创建人", DisplayType.REFERENCE, null, "User", null);
-		createBuiltinField(tempEntity, EntityHelper.CreatedOn, "创建时间", DisplayType.DATETIME, null, null, null);
-		createBuiltinField(tempEntity, EntityHelper.ModifiedBy, "修改人", DisplayType.REFERENCE, null, "User", null);
-		createBuiltinField(tempEntity, EntityHelper.ModifiedOn, "修改时间", DisplayType.DATETIME, null, null, null);
-		
-		// 明细实体关联字段
-		// 明细实体无所属用户或部门，使用主实体的
-		if (isSlave) {
-			String masterLabel = EasyMeta.valueOf(masterEntity).getLabel();
-			String masterField = masterEntity + "Id";
-			createBuiltinField(tempEntity, masterField, masterLabel, DisplayType.REFERENCE, "引用主记录(" + masterLabel + ")", masterEntity, CascadeModel.Delete);
-		} else {
-			createBuiltinField(tempEntity, EntityHelper.OwningUser, "所属用户", DisplayType.REFERENCE, null, "User", null);
-			createBuiltinField(tempEntity, EntityHelper.OwningDept, "所属部门", DisplayType.REFERENCE, null, "Department", null);
+		Entity tempEntity = new UnsafeEntity(entityName, physicalName, entityLabel, typeCode, nameFiled);
+		try {
+			String primaryFiled = entityName + "Id";
+			createBuiltinField(tempEntity, primaryFiled, "ID", DisplayType.ID, null, null, null);
+			// 数字自增 ID
+			createBuiltinField(tempEntity, EntityHelper.AutoId, "AUTOID", DisplayType.NUMBER, null, null, null);
+			// 助记码/搜索码
+			createField(tempEntity, EntityHelper.QuickCode, "QUICKCODE", DisplayType.TEXT, true, false, false, null, null, null);
+			
+			if (haveNameField) {
+				createField(tempEntity, nameFiled, entityLabel + "名称", DisplayType.TEXT, false, true, true, null, null, null);
+			}
+			
+			createBuiltinField(tempEntity, EntityHelper.CreatedBy, "创建人", DisplayType.REFERENCE, null, "User", null);
+			createBuiltinField(tempEntity, EntityHelper.CreatedOn, "创建时间", DisplayType.DATETIME, null, null, null);
+			createBuiltinField(tempEntity, EntityHelper.ModifiedBy, "修改人", DisplayType.REFERENCE, null, "User", null);
+			createBuiltinField(tempEntity, EntityHelper.ModifiedOn, "修改时间", DisplayType.DATETIME, null, null, null);
+			
+			// 明细实体关联字段
+			// 明细实体无所属用户或部门，使用主实体的
+			if (isSlave) {
+				String masterLabel = EasyMeta.valueOf(masterEntity).getLabel();
+				String masterField = masterEntity + "Id";
+				createBuiltinField(tempEntity, masterField, masterLabel, DisplayType.REFERENCE, "引用主记录(" + masterLabel + ")", masterEntity, CascadeModel.Delete);
+			} else {
+				createBuiltinField(tempEntity, EntityHelper.OwningUser, "所属用户", DisplayType.REFERENCE, null, "User", null);
+				createBuiltinField(tempEntity, EntityHelper.OwningDept, "所属部门", DisplayType.REFERENCE, null, "Department", null);
+			}
+		} catch (Throwable ex) {
+			Application.getCommonService().delete(tempMetaId.toArray(new ID[tempMetaId.size()]));
+			return null;
 		}
 		
 		boolean schemaReady = schema2Database(tempEntity);

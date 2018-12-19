@@ -133,9 +133,11 @@ public class MetaEntityControll extends BaseControll {
 				return;
 			}
 		}
+		
+		boolean nameField = getBoolParameter(request, "nameField");
 
 		try {
-			String entityName = new Entity2Schema(user).create(label, comments, masterEntity);
+			String entityName = new Entity2Schema(user).create(label, comments, masterEntity, nameField);
 			writeSuccess(response, entityName);
 		} catch (Exception ex) {
 			LOG.error(null, ex);

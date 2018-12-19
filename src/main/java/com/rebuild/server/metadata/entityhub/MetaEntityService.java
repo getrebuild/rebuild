@@ -51,7 +51,7 @@ public class MetaEntityService extends BaseService {
 		
 		// 删除此实体的相关配置记录
 		String whoUsed[] = new String[] {
-				"MetaField", "PickList", "LayoutConfig", "FilterConfig", "ViewAddonsConfig", "ShareAccess"
+				"MetaField", "PickList", "LayoutConfig", "FilterConfig", "ViewAddonsConfig", "ShareAccess", "ChartConfig"
 		};
 		int del = 0;
 		for (String who : whoUsed) {
@@ -66,7 +66,7 @@ public class MetaEntityService extends BaseService {
 			for (Object[] used : usedArray) {
 				del += super.delete((ID) used[0]);
 			}
-			LOG.warn("deleted configuration [ " + who + " ] : " + usedArray.length);
+			LOG.warn("deleted configuration [ " + entity.getName() + " ] from [ " + who + " ] : " + usedArray.length);
 		}
 		
 		del += super.delete(recordId);
