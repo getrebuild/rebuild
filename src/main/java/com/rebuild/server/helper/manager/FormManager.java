@@ -173,8 +173,9 @@ public class FormManager extends LayoutManager {
 			String fieldName = el.getString("field");
 			
 			// 分割线
-			if (fieldName.equals("$DIVIDER$")) {
+			if (fieldName.equalsIgnoreCase("$DIVIDER$")) {
 				iter.remove();
+				continue;
 			}
 			// 已删除字段
 			else if (!entityMeta.containsField(fieldName)) {

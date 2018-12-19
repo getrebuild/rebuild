@@ -56,7 +56,7 @@ public class DashboardControll extends BaseControll {
 	@RequestMapping("/dash-gets")
 	public void dashGets(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		Object[][] array = Application.createQuery(
+		Object[][] array = Application.createQueryNoFilter(
 				"select dashboardId,title,config from DashboardConfig where createdBy = ?")
 				.setParameter(1, user)
 				.array();
@@ -68,7 +68,7 @@ public class DashboardControll extends BaseControll {
 			record.setString("title", dname);
 			record.setString("config", "[]");
 			record = Application.getCommonService().create(record);
-			array = new Object[][] { new Object[] { record.getPrimary(), dname, "[]" } };
+			array = new Object[][] { new Object[] { record.getPrimary(), dname, null } };
 		} else {
 			// 补充标题
 			for (int i = 0; i < array.length; i++) {
@@ -81,7 +81,7 @@ public class DashboardControll extends BaseControll {
 						continue;
 					}
 					
-					Object[] chart = Application.createQuery(
+					Object[] chart = Application.createQueryNoFilter(
 							"select title,type from ChartConfig where chartId = ?")
 							.setParameter(1, ID.valueOf(chartid))
 							.unique();

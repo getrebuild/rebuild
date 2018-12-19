@@ -90,7 +90,7 @@ public class MetaEntityControll extends BaseControll {
 	@RequestMapping("entity/entity-list")
 	public void listEntity(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		List<Map<String, Object>> ret = new ArrayList<>();
-		for (Entity entity : MetadataSorter.sortEntities(true)) {
+		for (Entity entity : MetadataSorter.sortEntities()) {
 			if (entity.getMasterEntity() != null) {
 				continue;
 			}

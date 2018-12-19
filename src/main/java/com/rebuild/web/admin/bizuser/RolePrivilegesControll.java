@@ -77,7 +77,7 @@ public class RolePrivilegesControll extends BaseControll {
 	 */
 	private void setEntities(ModelAndView mv) {
 		List<Object[]> entities = new ArrayList<>();
-		for (Entity e : MetadataSorter.sortEntities(true)) {
+		for (Entity e : MetadataSorter.sortEntities()) {
 			if (EntityHelper.hasPrivilegesField(e)) {
 				entities.add(new Object[] { e.getEntityCode(), EasyMeta.getLabel(e) });
 			}

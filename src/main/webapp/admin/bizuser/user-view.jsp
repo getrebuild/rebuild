@@ -61,7 +61,7 @@ window.__PageConfig = {
 </script>
 <script type="text/babel">
 $(document).ready(function(){
-	if (rb.isAdminUser == false || rb.isAdminVerified == false) $('.view-action').remove()
+	if (rb.isAdminUser != true || rb.isAdminVerified == false) $('.view-action').remove()
 
 	$('.J_delete').off('click').click(function(){
 		rb.alert('我们建议你停用用户，而非删除', '删除用户', { confirmText: '停用', confirm: function(){
@@ -82,7 +82,7 @@ $(document).ready(function(){
 		rb.modal(rb.baseUrl + '/p/admin/bizuser/change-role?user=${id}', '指定新角色', { width:580 } )
 	})
 	
-	if (rb.isAdminActive){
+	if (rb.isAdminVerified){
 		$.get(rb.baseUrl + '/admin/bizuser/check-user-status?id=${id}', (res) => {
 			if (res.data.system == true){
 				$('.J_tips').removeClass('hide').find('.message p').text('系统内建用户，不允许修改')

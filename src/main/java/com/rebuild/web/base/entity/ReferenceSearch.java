@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.manager.FieldValueWrapper;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.web.BaseControll;
 
@@ -78,9 +79,17 @@ public class ReferenceSearch extends BaseControll {
 			nameField2str = "&" + nameField2str;
 		}
 		
-		String sql = "select %s,%s from %s where %s ";
-		sql = String.format(sql, refEntity.getPrimaryField().getName(), nameField2str, refEntity.getName(), nameField2str);
-		sql += "like '%" + q + "%' order by modifiedOn desc";
+		String sql = "select %s,%s from %s where ";
+		sql = String.format(sql, refEntity.getPrimaryField().getName(), nameField2str, refEntity.getName());
+		sql += String.format("( %s like '%%%s%%'", nameField2str, q);
+		if (entityMeta.containsField(EntityHelper.QuickCode)) {
+			sql += String.format(" or %s like '%s%%' )", EntityHelper.QuickCode, q);
+		} else {
+			sql += " )";
+		}
+		if (entityMeta.containsField(EntityHelper.ModifiedOn)) {
+			sql += " order by modifiedOn desc";
+		}
 		
 		Object[][] array = Application.createQuery(sql).setLimit(10).array();
 		List<Object> result = new ArrayList<>();
