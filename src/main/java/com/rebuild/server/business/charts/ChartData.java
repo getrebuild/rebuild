@@ -32,7 +32,7 @@ import com.rebuild.server.helper.manager.PickListManager;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.server.query.AdvFilterParser;
+import com.rebuild.server.service.query.AdvFilterParser;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;

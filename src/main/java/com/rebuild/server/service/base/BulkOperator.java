@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.helper.BulkTask;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.query.AdvFilterParser;
+import com.rebuild.server.service.query.AdvFilterParser;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;

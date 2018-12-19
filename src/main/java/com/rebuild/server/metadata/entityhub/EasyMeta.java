@@ -49,13 +49,14 @@ public class EasyMeta implements BaseMeta {
 	private static final Set<String> BUILTIN_FIELD = new HashSet<>();
 	private static final Map<String, String[]> SYSENTITY_EXTMETA = new HashMap<>();
 	static {
-		BUILTIN_FIELD.add(EntityHelper.autoId);
-		BUILTIN_FIELD.add(EntityHelper.createdOn);
-		BUILTIN_FIELD.add(EntityHelper.createdBy);
-		BUILTIN_FIELD.add(EntityHelper.modifiedOn);
-		BUILTIN_FIELD.add(EntityHelper.modifiedBy);
-		BUILTIN_FIELD.add(EntityHelper.owningUser);
-		BUILTIN_FIELD.add(EntityHelper.owningDept);
+		BUILTIN_FIELD.add(EntityHelper.AutoId);
+		BUILTIN_FIELD.add(EntityHelper.QuickCode);
+		BUILTIN_FIELD.add(EntityHelper.CreatedOn);
+		BUILTIN_FIELD.add(EntityHelper.CreatedBy);
+		BUILTIN_FIELD.add(EntityHelper.ModifiedOn);
+		BUILTIN_FIELD.add(EntityHelper.ModifiedBy);
+		BUILTIN_FIELD.add(EntityHelper.OwningUser);
+		BUILTIN_FIELD.add(EntityHelper.OwningDept);
 		
 		SYSENTITY_EXTMETA.put("User", new String[] { "account", "系统内建" });
 		SYSENTITY_EXTMETA.put("Department", new String[] { "accounts", "系统内建" });

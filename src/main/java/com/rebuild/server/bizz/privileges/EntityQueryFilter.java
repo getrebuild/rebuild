@@ -130,11 +130,11 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 		
 		if (de == BizzDepthEntry.PRIVATE) {
 			return appendShareFilter(entity, toMasterField,
-					String.format(ownFormat, EntityHelper.owningUser, user.getIdentity()));
+					String.format(ownFormat, EntityHelper.OwningUser, user.getIdentity()));
 		}
 		
 		Department dept = user.getOwningDept();
-		String deptSql = String.format(ownFormat, EntityHelper.owningDept, dept.getIdentity());
+		String deptSql = String.format(ownFormat, EntityHelper.OwningDept, dept.getIdentity());
 		
 		if (de == BizzDepthEntry.LOCAL) {
 			return appendShareFilter(entity, toMasterField, deptSql);
@@ -145,7 +145,7 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 			sqls.add(deptSql);
 			
 			for (BusinessUnit child : dept.getAllChildren()) {
-				sqls.add(String.format(ownFormat, EntityHelper.owningDept, child.getIdentity()));
+				sqls.add(String.format(ownFormat, EntityHelper.OwningDept, child.getIdentity()));
 			}
 			return appendShareFilter(entity, toMasterField, "(" + StringUtils.join(sqls, " or ") + ")");
 		}

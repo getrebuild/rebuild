@@ -96,20 +96,20 @@ public class Entity2Schema extends Field2Schema {
 		if (isSlave) {
 			record.setString("masterEntity", masterEntity);
 		}
-		record.setString("nameField", EntityHelper.createdOn);
+		record.setString("nameField", EntityHelper.CreatedOn);
 		record = Application.getCommonService().create(record);
 		tempMetaId.add(record.getPrimary());
 		
-		Entity tempEntity = new UnsafeEntity(entityName, physicalName, entityLabel, typeCode, EntityHelper.createdOn);
+		Entity tempEntity = new UnsafeEntity(entityName, physicalName, entityLabel, typeCode, EntityHelper.CreatedOn);
 		
 		String primaryFiled = entityName + "Id";
 		createBuiltinField(tempEntity, primaryFiled, "ID", DisplayType.ID, null, null, null);
-		createBuiltinField(tempEntity, EntityHelper.autoId, "AUTOID", DisplayType.NUMBER, null, null, null);
+		createBuiltinField(tempEntity, EntityHelper.AutoId, "AUTOID", DisplayType.NUMBER, null, null, null);
 		
-		createBuiltinField(tempEntity, EntityHelper.createdBy, "创建人", DisplayType.REFERENCE, null, "User", null);
-		createBuiltinField(tempEntity, EntityHelper.createdOn, "创建时间", DisplayType.DATETIME, null, null, null);
-		createBuiltinField(tempEntity, EntityHelper.modifiedBy, "修改人", DisplayType.REFERENCE, null, "User", null);
-		createBuiltinField(tempEntity, EntityHelper.modifiedOn, "修改时间", DisplayType.DATETIME, null, null, null);
+		createBuiltinField(tempEntity, EntityHelper.CreatedBy, "创建人", DisplayType.REFERENCE, null, "User", null);
+		createBuiltinField(tempEntity, EntityHelper.CreatedOn, "创建时间", DisplayType.DATETIME, null, null, null);
+		createBuiltinField(tempEntity, EntityHelper.ModifiedBy, "修改人", DisplayType.REFERENCE, null, "User", null);
+		createBuiltinField(tempEntity, EntityHelper.ModifiedOn, "修改时间", DisplayType.DATETIME, null, null, null);
 		
 		// 明细实体关联字段
 		// 明细实体无所属用户或部门，使用主实体的
@@ -118,8 +118,8 @@ public class Entity2Schema extends Field2Schema {
 			String masterField = masterEntity + "Id";
 			createBuiltinField(tempEntity, masterField, masterLabel, DisplayType.REFERENCE, "引用主记录(" + masterLabel + ")", masterEntity, CascadeModel.Delete);
 		} else {
-			createBuiltinField(tempEntity, EntityHelper.owningUser, "所属用户", DisplayType.REFERENCE, null, "User", null);
-			createBuiltinField(tempEntity, EntityHelper.owningDept, "所属部门", DisplayType.REFERENCE, null, "Department", null);
+			createBuiltinField(tempEntity, EntityHelper.OwningUser, "所属用户", DisplayType.REFERENCE, null, "User", null);
+			createBuiltinField(tempEntity, EntityHelper.OwningDept, "所属部门", DisplayType.REFERENCE, null, "Department", null);
 		}
 		
 		boolean schemaReady = schema2Database(tempEntity);

@@ -29,11 +29,11 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.rebuild.server.bizz.privileges.UserStore;
 import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.metadata.DynamicMetadataFactory;
-import com.rebuild.server.query.QueryFactory;
 import com.rebuild.server.service.CommonService;
 import com.rebuild.server.service.SQLExecutor;
 import com.rebuild.server.service.base.GeneralEntityService;
 import com.rebuild.server.service.notification.NotificationService;
+import com.rebuild.server.service.query.QueryFactory;
 import com.rebuild.web.OnlineSessionStore;
 
 import cn.devezhao.persist4j.PersistManagerFactory;

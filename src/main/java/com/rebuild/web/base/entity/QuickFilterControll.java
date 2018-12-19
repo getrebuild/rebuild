@@ -40,7 +40,7 @@ import com.rebuild.server.helper.manager.LayoutManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
-import com.rebuild.server.query.AdvFilterManager;
+import com.rebuild.server.service.query.AdvFilterManager;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.LayoutConfig;
 

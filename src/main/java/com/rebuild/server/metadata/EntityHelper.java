@@ -45,7 +45,7 @@ public class EntityHelper {
 	 * @return
 	 */
 	public static boolean hasPrivilegesField(Entity entity) {
-		if (entity.containsField(owningUser) && entity.containsField(owningDept)) {
+		if (entity.containsField(OwningUser) && entity.containsField(OwningDept)) {
 			return true;
 		}
 		return false;
@@ -117,13 +117,14 @@ public class EntityHelper {
 	
 	// 公共字段
 	
-	public static final String autoId = "autoId";
-	public static final String createdOn = "createdOn";
-	public static final String createdBy = "createdBy";
-	public static final String modifiedOn = "modifiedOn";
-	public static final String modifiedBy = "modifiedBy";
-	public static final String owningUser = "owningUser";
-	public static final String owningDept = "owningDept";
+	public static final String AutoId = "autoId";
+	public static final String QuickCode = "quickCode";
+	public static final String CreatedOn = "createdOn";
+	public static final String CreatedBy = "createdBy";
+	public static final String ModifiedOn = "modifiedOn";
+	public static final String ModifiedBy = "modifiedBy";
+	public static final String OwningUser = "owningUser";
+	public static final String OwningDept = "owningDept";
 	
 	// 系统实体
 

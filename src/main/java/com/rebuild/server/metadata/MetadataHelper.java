@@ -136,8 +136,8 @@ public class MetadataHelper {
 		if (hasName != null) {
 			return hasName;
 		}
-		if (entity.containsField(EntityHelper.createdOn)) {
-			return entity.getField(EntityHelper.createdOn);
+		if (entity.containsField(EntityHelper.CreatedOn)) {
+			return entity.getField(EntityHelper.CreatedOn);
 		}
 		return entity.getPrimaryField();
 	}

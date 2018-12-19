@@ -61,13 +61,13 @@ public class DataListManager extends LayoutManager {
 			columnList.add(formattedColumn(namedField));
 			
 			String namedFieldName = namedField.getName();
-			if (!StringUtils.equalsIgnoreCase(namedFieldName, EntityHelper.createdBy)
-					&& entityMeta.containsField(EntityHelper.createdBy)) {
-				columnList.add(formattedColumn(entityMeta.getField(EntityHelper.createdBy)));
+			if (!StringUtils.equalsIgnoreCase(namedFieldName, EntityHelper.CreatedBy)
+					&& entityMeta.containsField(EntityHelper.CreatedBy)) {
+				columnList.add(formattedColumn(entityMeta.getField(EntityHelper.CreatedBy)));
 			}
-			if (!StringUtils.equalsIgnoreCase(namedFieldName, EntityHelper.createdOn)
-					&& entityMeta.containsField(EntityHelper.createdOn)) {
-				columnList.add(formattedColumn(entityMeta.getField(EntityHelper.createdOn)));
+			if (!StringUtils.equalsIgnoreCase(namedFieldName, EntityHelper.CreatedOn)
+					&& entityMeta.containsField(EntityHelper.CreatedOn)) {
+				columnList.add(formattedColumn(entityMeta.getField(EntityHelper.CreatedOn)));
 			}
 		} else {
 			JSONArray config = (JSONArray) cfgs[1];

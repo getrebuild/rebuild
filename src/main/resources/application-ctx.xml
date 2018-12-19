@@ -54,7 +54,7 @@
 		</constructor-arg>
 	</bean>
 	
-	<bean class="com.rebuild.server.query.QueryFactory">
+	<bean class="com.rebuild.server.service.query.QueryFactory">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 

@@ -35,7 +35,7 @@ public class NotificationObserver extends OperateObserver {
 	@Override
 	public void onAssign(OperateContext context) {
 		ID from = context.getOperator();
-		ID to = context.getAfterRecord().getID(EntityHelper.owningUser);
+		ID to = context.getAfterRecord().getID(EntityHelper.OwningUser);
 		
 		ID relatedRecordId = context.getRecordId();
 		String text = "@%s 分派了 1 条%s记录给你";

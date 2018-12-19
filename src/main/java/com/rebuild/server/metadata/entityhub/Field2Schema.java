@@ -213,7 +213,7 @@ public class Field2Schema {
 		record = Application.getCommonService().create(record);
 		tempMetaId.add(record.getPrimary());
 		
-		boolean autoValue = EntityHelper.autoId.equals(fieldName);
+		boolean autoValue = EntityHelper.AutoId.equals(fieldName);
 		Field unsafeField = new FieldImpl(
 				fieldName, physicalName, fieldLabel, entity, displayType.getFieldType(), CascadeModel.Ignore, maxLength, 
 				nullable, creatable, updatable, true, 6, null, autoValue);

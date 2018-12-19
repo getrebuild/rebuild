@@ -169,8 +169,8 @@ public class GeneralEntityService extends BaseService  {
 		User toUser = Application.getUserStore().getUser(to);
 		
 		Record assigned = EntityHelper.forUpdate(record, (ID) toUser.getIdentity());
-		assigned.setID(EntityHelper.owningUser, (ID) toUser.getIdentity());
-		assigned.setID(EntityHelper.owningDept, (ID) toUser.getOwningDept().getIdentity());
+		assigned.setID(EntityHelper.OwningUser, (ID) toUser.getIdentity());
+		assigned.setID(EntityHelper.OwningDept, (ID) toUser.getOwningDept().getIdentity());
 		super.update(assigned);
 		Application.getRecordOwningCache().cleanOwningUser(record);
 		

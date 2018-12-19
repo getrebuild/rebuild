@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.query;
+package com.rebuild.server.service.query;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -176,7 +176,7 @@ public class AdvFilterParser {
 		} else if ("SFB".equalsIgnoreCase(op)) {
 			Department dept = UserHelper.getDept(Application.currentCallerUser());
 			if (dept != null && fieldMeta.getReferenceEntities()[0].getEntityCode() == EntityHelper.User) {
-				sb.insert(sb.indexOf(" "), "." + EntityHelper.owningDept);
+				sb.insert(sb.indexOf(" "), "." + EntityHelper.OwningDept);
 			}
 		} else if ("SFD".equalsIgnoreCase(op)) {
 			Department dept = UserHelper.getDept(Application.currentCallerUser());

@@ -62,25 +62,25 @@ public class ExtRecordCreator extends JSONRecordCreator {
 		final Entity entity = r.getEntity();
 		final User editor = Application.getUserStore().getUser(r.getEditor());
 		
-		if (entity.containsField(EntityHelper.modifiedOn)) {
-			r.setDate(EntityHelper.modifiedOn, now);
+		if (entity.containsField(EntityHelper.ModifiedOn)) {
+			r.setDate(EntityHelper.ModifiedOn, now);
 		}
-		if (entity.containsField(EntityHelper.modifiedBy)) {
-			r.setID(EntityHelper.modifiedBy, (ID) editor.getIdentity());
+		if (entity.containsField(EntityHelper.ModifiedBy)) {
+			r.setID(EntityHelper.ModifiedBy, (ID) editor.getIdentity());
 		}
 		
 		if (isNew) {
-			if (entity.containsField(EntityHelper.createdOn)) {
-				r.setDate(EntityHelper.createdOn, now);
+			if (entity.containsField(EntityHelper.CreatedOn)) {
+				r.setDate(EntityHelper.CreatedOn, now);
 			}
-			if (entity.containsField(EntityHelper.createdBy)) {
-				r.setID(EntityHelper.createdBy, (ID) editor.getIdentity());
+			if (entity.containsField(EntityHelper.CreatedBy)) {
+				r.setID(EntityHelper.CreatedBy, (ID) editor.getIdentity());
 			}
-			if (entity.containsField(EntityHelper.owningUser)) {
-				r.setID(EntityHelper.owningUser, (ID) editor.getIdentity());
+			if (entity.containsField(EntityHelper.OwningUser)) {
+				r.setID(EntityHelper.OwningUser, (ID) editor.getIdentity());
 			}
-			if (entity.containsField(EntityHelper.owningDept)) {
-				r.setID(EntityHelper.owningDept, (ID) editor.getOwningDept().getIdentity());
+			if (entity.containsField(EntityHelper.OwningDept)) {
+				r.setID(EntityHelper.OwningDept, (ID) editor.getOwningDept().getIdentity());
 			}
 		}
 	}

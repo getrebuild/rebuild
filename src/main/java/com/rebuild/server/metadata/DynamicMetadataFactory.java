@@ -113,7 +113,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 					.addAttribute("default-value", (String) custom[10])
 					.addAttribute("ref-entity", (String) custom[11])
 					.addAttribute("cascade", (String) custom[12]);
-			if (fieldName.equals(EntityHelper.autoId)) {
+			if (fieldName.equals(EntityHelper.AutoId)) {
 				field.addAttribute("auto-value", "true");
 			}
 			

@@ -31,8 +31,8 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.server.query.AdvFilterManager;
-import com.rebuild.server.query.AdvFilterParser;
+import com.rebuild.server.service.query.AdvFilterManager;
+import com.rebuild.server.service.query.AdvFilterParser;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -159,10 +159,10 @@ public class JSONQueryParser {
 		String sortNode = queryElement.getString("sort");
 		if (StringUtils.isNotBlank(sortNode)) {
 			sqlSort.append(parseSort(sortNode));
-		} else if (entity.containsField(EntityHelper.modifiedOn)) {
-			sqlSort.append(EntityHelper.modifiedOn + " desc");
-		} else if (entity.containsField(EntityHelper.createdOn)) {
-			sqlSort.append(EntityHelper.createdOn + " desc");
+		} else if (entity.containsField(EntityHelper.ModifiedOn)) {
+			sqlSort.append(EntityHelper.ModifiedOn + " desc");
+		} else if (entity.containsField(EntityHelper.CreatedOn)) {
+			sqlSort.append(EntityHelper.CreatedOn + " desc");
 		}
 		sqlBase.append(sqlSort);
 		
