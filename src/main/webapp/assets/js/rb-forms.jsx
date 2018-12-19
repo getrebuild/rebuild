@@ -69,7 +69,7 @@ class RbFormModal extends React.Component {
     show(state) {
         state = state || {}
         let that = this
-        if (state.id != this.state.id || state.entity != this.state.entity) {
+        if ((state.id != this.state.id || state.entity != this.state.entity) || this.state.isDestroy == true) {
             state = { ...state, isDestroy: true, formComponent: null, inLoad: true, id: state.id, entity: state.entity }
             this.setState(state, function(){
                 that.showAfter({ ...state, isDestroy: false }, true)
@@ -91,6 +91,7 @@ class RbFormModal extends React.Component {
     hide(destroy) {
         $(this.refs['rbmodal']).modal('hide')
         let state = { isDestroy: destroy === true }
+        if (destroy === true) state.id = null
         this.setState(state)
     }
 }
@@ -807,7 +808,8 @@ class RbViewModal extends React.Component {
         super(props)
         this.state = { ...props, inLoad: true, isHide: true, isDestroy: false }
         this.mcWidth = this.props.subView == true ? 1170 : 1220
-        this.mcWidth = 1220
+        if ($(window).width() < 1280) this.mcWidth -= 100
+        //this.mcWidth = 1220
     }
     render() {
         return (this.state.isDestroy == true ? null :
@@ -831,23 +833,28 @@ class RbViewModal extends React.Component {
         let root = $(this.refs['rbview'])
         let mc = root.find('.modal-content')
         root.on('hidden.bs.modal', function(){
-            mc.css({ 'margin-right': -1301 })
+            mc.css({ 'margin-right': -1500 })
             that.setState({ inLoad: true, isHide: true })
             
             // 如果还有其他 rbview 处于 open 态， 则保持 modal-open
-            if ($('.rbview.show').length > 0) $(document.body).addClass('modal-open').css({ 'padding-left': 17 })
-            // in subView
+            if ($('.rbview.show').length > 0) $(document.body).addClass('modal-open').css({ 'padding-right': 17 })
+            // subView always dispose
             if (that.state.destroyOnHide == true) {
                 root.modal('dispose')
                 let warp = root.parent().parent()
                 that.setState({ isDestroy: true }, function(){
                 	rb.__currentRbFormModalCache[that.state.id] = null
-                	$setTimeout(function(){ $(warp).remove() }, 200)
+                	setTimeout(function(){ warp.remove() }, 500)
                 })
             }
             
         }).on('shown.bs.modal', function(){
-            mc.animate({ 'margin-right': 0 }, 400)
+            mc.css('margin-right', 0)
+            let mcs = $('body>.modal-backdrop.show')
+            if (mcs.length > 1){
+                mcs.addClass('o')
+                mcs.eq(0).removeClass('o')
+            }
         })
         this.show()
     }

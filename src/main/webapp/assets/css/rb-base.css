@@ -4824,7 +4824,10 @@ button.close {
     opacity: 0
 }
 .modal-backdrop.show {
-    opacity: .4;
+    opacity: .2;
+}
+.modal-backdrop.show.o {
+    opacity: 0;
 }
 .modal-header {
     display: -webkit-box;
@@ -8411,7 +8414,7 @@ canvas {
     border: 0;
     margin-bottom: 0;
     border-bottom: 1px solid #e6e6e6;
-    padding: 0
+    padding: 0;
 }
 @media (max-width:767.98px) {
     .rb-top-header {

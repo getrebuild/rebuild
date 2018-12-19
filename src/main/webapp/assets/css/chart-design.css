@@ -123,8 +123,7 @@
 
 .axis-target .dropdown-menu {
 	min-width: 120px;
-	box-shadow: 0 0 6px 0 rgba(0, 0, 0, .1), 0 10px 12px 0
-		rgba(170, 182, 206, .36);
+	box-shadow: 0 0 6px 0 rgba(0, 0, 0, .1), 0 10px 12px 0 rgba(170, 182, 206, .36);
 	border-width: 0;
 	border-radius: 0;
 	padding: 4px 0;

@@ -38,7 +38,6 @@ class RbViewForm extends React.Component {
     
     hideLoading() {
         if (parent && parent.rb.RbViewModalGet(this.state.id)) parent.rb.RbViewModalGet(this.state.id).hideLoading()
-        
         $(this.refs['reviewForm']).find('.type-NTEXT .form-control-plaintext').perfectScrollbar()
     }
 }

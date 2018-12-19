@@ -81,21 +81,23 @@ $(document).ready(function(){
 	$('.J_changeRole').click(function(){
 		rb.modal(rb.baseUrl + '/p/admin/bizuser/change-role?user=${id}', '指定新角色', { width:580 } )
 	})
+	
+	if (rb.isAdminActive){
+		$.get(rb.baseUrl + '/admin/bizuser/check-user-status?id=${id}', (res) => {
+			if (res.data.system == true){
+				$('.J_tips').removeClass('hide').find('.message p').text('系统内建用户，不允许修改')
+				$('.view-action').remove()
+				return
+			}
 
-	$.get(rb.baseUrl + '/admin/bizuser/check-user-status?id=${id}', (res) => {
-		if (res.data.system == true){
-			$('.J_tips').removeClass('hide').find('.message p').text('系统内建用户，不允许修改')
-			$('.view-action').remove()
-			return
-		}
-
-		if (res.data.active == true) return
-		let reason = []
-		if (!res.data.role) reason.push('未指定角色')
-		if (!res.data.dept) reason.push('未指定部门')
-		if (res.data.disabled == true) reason.push('已停用')
-		$('.J_tips').removeClass('hide').find('.message p').text('当前用户处于未激活状态，因为其 ' + reason.join(' / '))
-	})
+			if (res.data.active == true) return
+			let reason = []
+			if (!res.data.role) reason.push('未指定角色')
+			if (!res.data.dept) reason.push('未指定部门')
+			if (res.data.disabled == true) reason.push('已停用')
+			$('.J_tips').removeClass('hide').find('.message p').text('当前用户处于未激活状态，因为其 ' + reason.join(' / '))
+		})
+	}
 })
 </script>
 </body>

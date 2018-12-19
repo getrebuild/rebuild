@@ -1,3 +1,8 @@
+.dropdown-menu {
+	box-shadow: 0 0 6px 0 rgba(0, 0, 0, .1), 0 10px 12px 0 rgba(170, 182, 206, .36);
+	border-width: 0;
+	border-radius: 0;
+}
 .dropdown-submenu {
     position: relative;
 }
@@ -97,6 +102,9 @@
     width: 220px;
     height: 2.8rem;
 }
+.input-search input:focus {
+	border-color: #bababa;
+}
 .input-search .input-group-btn button {
     height: 2.6rem;
     min-height: 2.6rem;
@@ -156,8 +164,13 @@
     text-align: left;
     height: 2.8rem;
     line-height: 2.7rem;
-    box-shadow: 0 0 0 #fff !important;
     position: relative;
+    border-color: #d5d8de;
+    box-shadow: 0 0 0 #fff !important;
+}
+.adv-search .btn-group.show .btn, .adv-search .btn:hover {
+	border-color: #bababa;
+	background-color: #f5f5f5;
 }
 .adv-search .btn>span {
     display: inline-block;
@@ -196,6 +209,9 @@
 }
 .rbmodal.show, .rbview.show {
     display: block !important;
+}
+.rbmodal.show, .rbview.show .modal-content {
+	transition: margin 0.4s;
 }
 .modal.rbalert .modal-dialog {
     max-width: 580px;

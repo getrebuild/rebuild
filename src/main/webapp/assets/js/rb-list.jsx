@@ -3,6 +3,7 @@ class RbList extends React.Component {
     constructor(props) {
         super(props)
         
+        this.__defaultFilterKey = 'AdvFilter-' + this.props.config.entity
         this.__sortFieldKey = 'SortField-' + this.props.config.entity
         this.__columnWidthKey = 'ColumnWidth-' + this.props.config.entity + '.'
         
@@ -22,6 +23,8 @@ class RbList extends React.Component {
         
         this.__defaultColumnWidth = $('#react-list').width() / 10
         if (this.__defaultColumnWidth < 130) this.__defaultColumnWidth = 130
+        
+        this.advFilter = $storage.get(this.__defaultFilterKey)
     }
     render() {
         let that = this;
@@ -255,6 +258,9 @@ class RbList extends React.Component {
     setAdvFilter(id) {
         this.advFilter = id
         this.fetchList()
+        
+        if (!!id) $storage.set(this.__defaultFilterKey, id)
+        else $storage.remove(this.__defaultFilterKey)
     }
     
     // 配置相关
@@ -487,13 +493,14 @@ const AdvFilters = {
         // $ALL$
         $('.adv-search .dropdown-item:eq(0)').click(()=>{
             $('.adv-search .J_name').text('所有数据')
-            RbListPage._RbList.setAdvFilter()
+            RbListPage._RbList.setAdvFilter(null)
         })
 
         this.loadFilters()
     },
     
     loadFilters() {
+        let dfilter = $storage.get(RbListPage._RbList.__defaultFilterKey)
         let that = this
         $.get(`${rb.baseUrl}/app/${this.__entity}/advfilter/list`, function(res){
             $('.adv-search .J_custom').each(function(){ $(this).remove() })
@@ -502,21 +509,27 @@ const AdvFilters = {
                 let item = $('<div class="dropdown-item J_custom" data-id="' + this[0] + '"><a class="text-truncate">' + this[1] + '</a></div>')
                 $('.adv-search .dropdown-divider').before(item)
                 
-                let data = this
-                if (data[2] == true){
+                let _data = this
+                if (_data[2] == true){
                     let action = $('<div class="action"><a title="修改"><i class="zmdi zmdi-edit"></i></a><a title="删除"><i class="zmdi zmdi-delete"></i></a></div>').appendTo(item)
                     action.find('a:eq(0)').click(function(){
-                        that.showAdvFilter(data[0])
+                        that.showAdvFilter(_data[0])
                         $('.adv-search .btn').dropdown('toggle')
                         return false
                     })
                     action.find('a:eq(1)').click(function(){
                         let _alert = rb.alert('确认删除此过滤项吗？', '删除确认', { confirm:()=>{
-                            $.post(`${rb.baseUrl}/app/entity/advfilter/delete?id=${data[0]}`, (res)=>{
+                            $.post(`${rb.baseUrl}/app/entity/advfilter/delete?id=${_data[0]}`, (res)=>{
                                 if (res.error_code == 0){
                                     _alert.hide()
                                     rb.notice('过滤项已删除', 'success')
                                     that.loadFilters()
+                                    
+                                    if (dfilter == _data[0]) {
+                                        RbListPage._RbList.setAdvFilter(null)
+                                        $('.adv-search .J_name').text('所有数据')
+                                    }
+                                    
                                 } else rb.notice(res.error_msg, 'danger')
                             })
                         } })
@@ -524,11 +537,14 @@ const AdvFilters = {
                     })
                 }
                 item.click(function(){
-                    $('.adv-search .J_name').text(data[1])
-                    RbListPage._RbList.setAdvFilter(data[0])
+                    $('.adv-search .J_name').text(_data[1])
+                    RbListPage._RbList.setAdvFilter(_data[0])
                 })
+                
+                if (dfilter == _data[0]) {
+                    $('.adv-search .J_name').text(_data[1])
+                }
             })
-            
         })
     },
     
