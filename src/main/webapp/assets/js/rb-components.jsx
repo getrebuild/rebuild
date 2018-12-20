@@ -65,6 +65,32 @@ class RbModal extends React.Component {
     }
 }
 
+// ~~ 表单值处理
+class RbFormHandler extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = { ...props }
+        
+        this.handleChange = this.handleChange.bind(this)
+        this.show = this.show.bind(this)
+        this.hide = this.hide.bind(this)
+    }
+    handleChange(e){
+        let target = e.target
+        let id = target.dataset.id
+        let val = target.type === 'checkbox' ? target.checked : target.value
+        let s = {}
+        s[id] = val
+        this.setState(s)
+    }
+    show() {
+        if (this.refs['dlg']) this.refs['dlg'].show()
+    }
+    hide() {
+        if (this.refs['dlg']) this.refs['dlg'].hide()
+    }
+}
+
 // ~~ 提示框
 class RbAlert extends React.Component {
     constructor(props) {

@@ -60,7 +60,7 @@ import cn.devezhao.persist4j.engine.ID;
 public class ChartDesignControll extends BaseControll {
 
 	@RequestMapping("/chart-design")
-	public ModelAndView pageDesign(HttpServletRequest request) {
+	public ModelAndView pageDesign(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ModelAndView mv = createModelAndView("/dashboard/chart-design.jsp");
 		
 		String entity = getParameter(request, "source");
@@ -68,15 +68,22 @@ public class ChartDesignControll extends BaseControll {
 		
 		Entity entityMeta = null;
 		if (chartId != null) {
-			Object[] config = Application.createQueryNoFilter(
-					"select belongEntity,title,config from ChartConfig where chartId = ?")
+			Object[] chart = Application.createQueryNoFilter(
+					"select belongEntity,title,config,createdBy from ChartConfig where chartId = ?")
 					.setParameter(1, chartId)
 					.unique();
-			mv.getModel().put("chartId", chartId);
-			mv.getModel().put("chartTitle", config[1]);
-			mv.getModel().put("chartConfig", config[2]);
 			
-			entityMeta = MetadataHelper.getEntity((String) config[0]);
+			// 不能修改他人的图表
+			// TODO 考虑自动复制图表
+			if (!getRequestUser(request).equals(chart[3])) {
+				response.sendError(403, "无权修改他人的图表");
+				return null;
+			}
+			
+			mv.getModel().put("chartId", chartId);
+			mv.getModel().put("chartTitle", chart[1]);
+			mv.getModel().put("chartConfig", chart[2]);
+			entityMeta = MetadataHelper.getEntity((String) chart[0]);
 		} else if (entity != null) {
 			mv.getModel().put("chartConfig", "{}");
 			entityMeta = MetadataHelper.getEntity(entity);

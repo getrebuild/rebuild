@@ -40,6 +40,9 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 09/29/2018
  */
 public class JSONUtils {
+	
+	public static final String EMPTY_OBJETC = "{}";
+	public static final String EMPTY_ARRAY = "[]";
 
 	/**
 	 * @param key

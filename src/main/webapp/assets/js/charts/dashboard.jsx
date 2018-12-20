@@ -1,5 +1,6 @@
 // $Id$
 let dashid = null
+let dashid_self = false
 $(document).ready(function(){
     $('.chart-grid').height($(window).height() - 120)
     
@@ -7,8 +8,14 @@ $(document).ready(function(){
     $.get(rb.baseUrl + '/dashboard/dash-gets', ((res) => {
         let d = res.data[0]  // default
         dashid = d[0]
+        dashid_self = d[3]
         render_dashboard(d[2])
+        
+        if (dashid_self == false) $('.J_dash-settings').remove()
+        $('.dash-list h4').text(d[1])
+        
         $('.J_add-chart').click(add_chart)
+        $('.J_dash-settings').click(()=>{ dash_settings(d[1], d[4] == 'ALL') })
     }))
 })
 let rendered_charts = []
@@ -23,6 +30,12 @@ let add_chart_dlg = null
 let add_chart = function(){
     if (add_chart_dlg) add_chart_dlg.show()
     else add_chart_dlg = renderRbcomp(<DlgAddChart dashid={dashid} />)
+}
+
+let dash_settings_dlg = null
+let dash_settings = function(t, s){
+    if (dash_settings_dlg) dash_settings_dlg.show()
+    else dash_settings_dlg = renderRbcomp(<DlgDashSettings dashid={dashid} title={t} shareToAll={s} />)
 }
 
 let gridster = null
@@ -81,17 +94,17 @@ let render_dashboard = function(cfg){
 }
 
 let save_dashboard = function(){
-    if (gridster_undata == true) return
+    if (gridster_undata == true || dashid_self == false) return
     $setTimeout(()=>{
         let s = gridster.serialize()
         s = Gridster.sort_by_row_and_col_asc(s)
-        $.post(rb.baseUrl + '/dashboard/dash-save?id=' + dashid, JSON.stringify(s), ((res) => {
+        $.post(rb.baseUrl + '/dashboard/dash-config?id=' + dashid, JSON.stringify(s), ((res) => {
             console.log(JSON.stringify(s) + ' > ' + JSON.stringify(res))
         }))
     }, 500, 'save-dashboard')
 }
 
-class DlgAddChart extends React.Component {
+class DlgAddChart extends RbFormHandler {
     constructor(props) {
         super(props)
     }
@@ -101,7 +114,7 @@ class DlgAddChart extends React.Component {
                 <div className="form-group row">
                     <label className="col-sm-3 col-form-label text-sm-right">图表数据来源</label>
                     <div className="col-sm-7">
-                        <select className="form-control form-control-sm" ref="sentity" />
+                        <select className="form-control form-control-sm" ref="entity" />
                     </div>
                 </div>
                 <div className="form-group row footer">
@@ -114,22 +127,63 @@ class DlgAddChart extends React.Component {
     }
     componentDidMount() {
         let that = this
-        let sentity = $(this.refs['sentity'])
-        $.get(rb.baseUrl + '/commons/metadata/entities', function(res){
+        let entity_el = $(this.refs['entity'])
+        $.get(rb.baseUrl + '/commons/metadata/entities', (res)=>{
             $(res.data).each(function(){
-                $('<option value="' + this.name + '">' + this.label + '</option>').appendTo(sentity)
+                $('<option value="' + this.name + '">' + this.label + '</option>').appendTo(entity_el)
             })
-            that.select2 = sentity.select2({
+            this.select2 = entity_el.select2({
                 language: 'zh-CN',
                 placeholder: '选择数据源',
                 width: '100%'
             })
         })
     }
-    show() {
-        this.refs['dlg'].show()
-    }
     next() {
-        location.href = rb.baseUrl + '/dashboard/chart-design?source=' + this.select2.val() + '&dashid=' + this.props.dashid
+        let e = this.select2.val()
+        if (!!!e) return
+        location.href = rb.baseUrl + '/dashboard/chart-design?source=' + e + '&dashid=' + this.props.dashid
+    }
+}
+
+class DlgDashSettings extends RbFormHandler {
+    constructor(props) {
+        super(props)
+    }
+    render() {
+        return (<RbModal title="仪表盘设置" ref="dlg" destroyOnHide={false}>
+                <form>
+                <div className="form-group row">
+                    <label className="col-sm-3 col-form-label text-sm-right">名称</label>
+                    <div className="col-sm-7">
+                        <input className="form-control form-control-sm" value={this.state.title || ''} placeholder="默认仪表盘" data-id="title" onChange={this.handleChange} maxLength="40" />
+                    </div>
+                </div>
+                <div className="form-group row">
+                    <label className="col-sm-3 col-form-label text-sm-right"></label>
+                    <div className="col-sm-7">
+                        <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0">
+                            <input className="custom-control-input" type="checkbox" checked={this.state.shareToAll == true} data-id="shareToAll" onChange={this.handleChange} />
+                            <span className="custom-control-label">共享此仪表盘给全部用户</span>
+                        </label>
+                    </div>
+                </div>
+                <div className="form-group row footer">
+                    <div className="col-sm-7 offset-sm-3">
+                        <button className="btn btn-primary" type="button" onClick={()=>this.save()}>确定</button>
+                    </div>
+                </div>
+            </form>
+            </RbModal>)
+    }
+    save() {
+        let _data = { shareTo: this.state.shareToAll == true ? 'ALL' : 'SELF', title: this.state.title || '默认仪表盘' }
+        _data.metadata = { id: this.props.dashid, entity: 'DashboardConfig' }
+        $.post(rb.baseUrl + '/dashboard/dash-update', JSON.stringify(_data), (res)=>{
+            if (res.error_code == 0){
+                rb.notice('设置已保存', 'success')
+                this.hide()
+            } else rb.notice(res.error_msg, 'danger')
+        })
     }
 }

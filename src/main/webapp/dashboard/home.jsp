@@ -17,6 +17,10 @@
 .gridster ul>li:hover .chart-oper{display:block;}
 a.chart-add{display:block;text-align:center;height:100%;padding-top:50px;}
 a.chart-add i.zmdi{font-size:71px;color:#ddd;font-weight:lighter;}
+.dash-list .dash{display:inline-block;padding-right:71px;position:relative;}
+.dash .dash-action{position:absolute;top:0;right:0;padding-top:9px;padding-left:6px;display:none;text-align:left;width:70px;}
+.dash:hover .dash-action{display:block;}
+.dash .dash-action a{padding:3px;margin-left:3px}
 </style>
 </head>
 <body>
@@ -38,8 +42,14 @@ a.chart-add i.zmdi{font-size:71px;color:#ddd;font-weight:lighter;}
 		<div class="main-content container-fluid p-0">
 			<div class="tools-bar">
 				<div class="row">
-					<div class="col-sm-6">
-						<h4>默认仪表盘</h4>
+					<div class="col-sm-6 dash-list">
+						<div class="dash">
+							<h4>默认仪表盘</h4>
+							<div class="dash-action">
+								<a class="zicon J_dash-settings" title="设置仪表盘"><i class="zmdi zmdi-settings"></i></a>
+								<a class="zicon J_dash-add" title="添加仪表盘"><i class="zmdi zmdi-plus-circle-o"></i></a>
+							</div>
+						</div>
 					</div>
 					<div class="col-sm-6 text-right">
 						<button type="button" class="btn btn-link J_add-chart pr-0"><i class="zmdi zmdi-plus icon"></i> 添加图表</button>

@@ -19,7 +19,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.web.dashboard;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,9 +28,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.manager.DashboardManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.web.BaseControll;
 
@@ -56,51 +55,36 @@ public class DashboardControll extends BaseControll {
 	@RequestMapping("/dash-gets")
 	public void dashGets(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		Object[][] array = Application.createQueryNoFilter(
-				"select dashboardId,title,config from DashboardConfig where createdBy = ?")
-				.setParameter(1, user)
-				.array();
-		
-		// 没有就初始化一个
-		if (array.length == 0) {
-			Record record = EntityHelper.forNew(EntityHelper.DashboardConfig, user);
-			String dname = "默认仪表盘";
-			record.setString("title", dname);
-			record.setString("config", "[]");
-			record = Application.getCommonService().create(record);
-			array = new Object[][] { new Object[] { record.getPrimary(), dname, null } };
-		} else {
-			// 补充标题
-			for (int i = 0; i < array.length; i++) {
-				JSONArray config = JSON.parseArray((String) array[i][2]);
-				for (Iterator<Object> iter = config.iterator(); iter.hasNext(); ) {
-					JSONObject item = (JSONObject) iter.next();
-					String chartid = item.getString("chart");
-					if (!ID.isId(chartid)) {
-						iter.remove();
-						continue;
-					}
-					
-					Object[] chart = Application.createQueryNoFilter(
-							"select title,type from ChartConfig where chartId = ?")
-							.setParameter(1, ID.valueOf(chartid))
-							.unique();
-					item.put("title", chart[0]);
-					item.put("type", chart[1]);
-				}
-				array[i][2] = config;
-			}
-		}
-		
-		writeSuccess(response, array);
+		JSON dashs = DashboardManager.getDashList(user);
+		writeSuccess(response, dashs);
 	}
 	
-	@RequestMapping("/dash-save")
-	public void dashSave(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@RequestMapping("/dash-update")
+	public void dashUpdate(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getRequestUser(request);
+		JSON formJson = ServletUtils.getRequestJson(request);
+		Record record = EntityHelper.parse((JSONObject) formJson, user);
+		
+		if (!DashboardManager.allowedUpdate(user, record.getPrimary())) {
+			writeFailure(response, "无权修改他人的仪表盘");
+			return;
+		}
+		
+		Application.getCommonService().update(record);
+		writeSuccess(response);
+	}
+	
+	@RequestMapping("/dash-config")
+	public void dashConfig(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID dashid = getIdParameterNotNull(request, "id");
 		ID user = getRequestUser(request);
-		JSON config = ServletUtils.getRequestJson(request);
 		
+		if (!DashboardManager.allowedUpdate(user, dashid)) {
+			writeFailure(response, "无权修改他人的仪表盘");
+			return;
+		}
+		
+		JSON config = ServletUtils.getRequestJson(request);
 		Record record = EntityHelper.forUpdate(dashid, user);
 		record.setString("config", config.toJSONString());
 		Application.getCommonService().update(record);

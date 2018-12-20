@@ -1059,3 +1059,11 @@ div.dataTables_wrapper div.paging_sizes select {
 	top: 50%;
 	transform: translate(-50%,-50%);
 }
+
+.zicon, .zicon .zmdi {
+	font-size: 1.231rem;
+	color: #888;
+}
+.zicon:hover {
+	opacity: 0.8;
+}
