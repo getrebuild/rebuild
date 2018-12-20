@@ -68,7 +68,7 @@ public class ChartDesignControll extends BaseControll {
 		
 		Entity entityMeta = null;
 		if (chartId != null) {
-			Object[] config = Application.createQuery(
+			Object[] config = Application.createQueryNoFilter(
 					"select belongEntity,title,config from ChartConfig where chartId = ?")
 					.setParameter(1, chartId)
 					.unique();
@@ -125,7 +125,7 @@ public class ChartDesignControll extends BaseControll {
 		
 		// 添加到仪表盘
 		if (dashid != null) {
-			Object[] dash = Application.createQuery(
+			Object[] dash = Application.createQueryNoFilter(
 					"select config from DashboardConfig where dashboardId = ?")
 					.setParameter(1, dashid)
 					.unique();

@@ -36,7 +36,7 @@ public class ChartDataFactory {
 	 * @return
 	 */
 	public static ChartData create(ID chartId) {
-		Object[] chart = Application.createQuery(
+		Object[] chart = Application.createQueryNoFilter(
 				"select config from ChartConfig where chartId = ?")
 				.setParameter(1, chartId)
 				.unique();

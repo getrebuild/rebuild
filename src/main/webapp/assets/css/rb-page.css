@@ -170,7 +170,7 @@
 }
 .adv-search .btn-group.show .btn, .adv-search .btn:hover {
 	border-color: #bababa;
-	background-color: #f5f5f5;
+	background-color: #fff;
 }
 .adv-search .btn>span {
     display: inline-block;

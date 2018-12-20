@@ -29,12 +29,14 @@ import org.apache.commons.logging.LogFactory;
 
 import com.github.stuxuhai.jpinyin.PinyinFormat;
 import com.github.stuxuhai.jpinyin.PinyinHelper;
+import com.rebuild.server.Application;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.BaseMeta;
 
 /**
@@ -49,17 +51,30 @@ public class MetadataSorter {
 	private static final Log LOG = LogFactory.getLog(MetadataSorter.class);
 
 	/**
+	 * 返回全部
+	 * 
 	 * @return
 	 */
 	public static Entity[] sortEntities() {
-		return sortEntities(false);
+		return sortEntities(null, true);
 	}
 	
 	/**
-	 * @param containsBizz
+	 * 带权限验证
+	 * 
+	 * @param user
 	 * @return
 	 */
-	public static Entity[] sortEntities(boolean containsBizz) {
+	public static Entity[] sortEntities(ID user) {
+		return sortEntities(user, false);
+	}
+	
+	/**
+	 * @param user
+	 * @param isAll
+	 * @return
+	 */
+	public static Entity[] sortEntities(ID user, boolean isAll) {
 		Entity[] entities = MetadataHelper.getEntities();
 		sortBaseMeta(entities);
 		
@@ -67,10 +82,12 @@ public class MetadataSorter {
 		for (Entity entity : entities) {
 			int ec = entity.getEntityCode();
 			if (EasyMeta.valueOf(ec).isBuiltin()) {
-				if (containsBizz && MetadataHelper.isBizzEntity(ec)) {
+				if (isAll && MetadataHelper.isBizzEntity(ec)) {
 					list.add(entity);
 				}
-			} else {
+			} else if (user == null) {
+				list.add(entity);
+			} else if (Application.getSecurityManager().allowedR(user, ec)) {
 				list.add(entity);
 			}
 		}

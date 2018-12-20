@@ -42,6 +42,7 @@ import com.rebuild.web.BaseControll;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 
@@ -54,8 +55,9 @@ public class MetadataGet extends BaseControll {
 
 	@RequestMapping("entities")
 	public void entities(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getRequestUser(request);
 		List<Map<String, String>> list = new ArrayList<>();
-		for (Entity e : MetadataSorter.sortEntities()) {
+		for (Entity e : MetadataSorter.sortEntities(user)) {
 			// 不返回明细实体
 			if (e.getMasterEntity() != null) {
 				continue;
