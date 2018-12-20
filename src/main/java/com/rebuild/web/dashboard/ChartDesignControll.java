@@ -76,7 +76,7 @@ public class ChartDesignControll extends BaseControll {
 			// 不能修改他人的图表
 			// TODO 考虑自动复制图表
 			if (!getRequestUser(request).equals(chart[3])) {
-				response.sendError(403, "无权修改他人的图表");
+				response.sendError(403, "你无权修改他人的图表");
 				return null;
 			}
 			
@@ -89,6 +89,11 @@ public class ChartDesignControll extends BaseControll {
 			entityMeta = MetadataHelper.getEntity(entity);
 		} else {
 			throw new BadParameterException();
+		}
+		
+		if (!Application.getSecurityManager().allowedD(getRequestUser(request), entityMeta.getEntityCode())) {
+			response.sendError(403, "你没有读取 [" + EasyMeta.getLabel(entityMeta) + "] 的权限，因此无法设计此图表");
+			return null;
 		}
 		
 		putEntityMeta(mv, entityMeta);

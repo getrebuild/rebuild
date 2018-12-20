@@ -21,7 +21,10 @@ package com.rebuild.server.business.charts;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entityhub.EasyMeta;
 
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -34,12 +37,17 @@ public class ChartDataFactory {
 	/**
 	 * @param chartId
 	 * @return
+	 * @throws ChartsException
 	 */
-	public static ChartData create(ID chartId) {
+	public static ChartData create(ID chartId) throws ChartsException {
 		Object[] chart = Application.createQueryNoFilter(
 				"select config from ChartConfig where chartId = ?")
 				.setParameter(1, chartId)
 				.unique();
+		if (chart == null) {
+			throw new ChartsException("无效图表");
+		}
+		
 		JSONObject config = JSON.parseObject((String) chart[0]);
 		return create(config);
 	}
@@ -47,8 +55,20 @@ public class ChartDataFactory {
 	/**
 	 * @param chartConfig
 	 * @return
+	 * @throws ChartsException
 	 */
-	public static ChartData create(JSONObject chartConfig) {
+	public static ChartData create(JSONObject chartConfig) throws ChartsException {
+		String e = chartConfig.getString("entity");
+		if (!MetadataHelper.containsEntity(e)) {
+			throw new ChartsException("源实体 [" + e.toUpperCase() + "] 不存在");
+		}
+		
+		ID user = Application.currentCallerUser();
+		Entity entity = MetadataHelper.getEntity(e);
+		if (!Application.getSecurityManager().allowedR(user, entity.getEntityCode())) {
+			throw new ChartsException("没有读取 [" + EasyMeta.getLabel(entity) + "] 的权限");
+		}
+		
 		String type = chartConfig.getString("type");
 		if ("INDEX".equalsIgnoreCase(type)) {
 			return new IndexChart(chartConfig);
@@ -63,7 +83,7 @@ public class ChartDataFactory {
 		} else if ("FUNNEL".equalsIgnoreCase(type)) {
 			return new FunnelChart(chartConfig);
 		}
-		throw new UnsupportedOperationException(type);
+		throw new ChartsException("未知的图表类型 : " + type.toUpperCase());
 	}
 	
 }

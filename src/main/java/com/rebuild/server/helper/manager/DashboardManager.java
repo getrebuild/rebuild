@@ -62,19 +62,24 @@ public class DashboardManager extends ApplyFor {
 		for (int i = 0; i < array.length; i++) {
 			JSONArray config = JSON.parseArray((String) array[i][2]);
 			for (Iterator<Object> iter = config.iterator(); iter.hasNext(); ) {
-				JSONObject chart = (JSONObject) iter.next();
-				String chartid = chart.getString("chart");
+				JSONObject item = (JSONObject) iter.next();
+				String chartid = item.getString("chart");
 				if (!ID.isId(chartid)) {
 					iter.remove();
 					continue;
 				}
 				
-				Object[] o = Application.createQueryNoFilter(
+				Object[] chart = Application.createQueryNoFilter(
 						"select title,type from ChartConfig where chartId = ?")
 						.setParameter(1, ID.valueOf(chartid))
 						.unique();
-				chart.put("title", o[0]);
-				chart.put("type", o[1]);
+				if (chart == null) {
+					iter.remove();
+					continue;
+				}
+				
+				item.put("title", chart[0]);
+				item.put("type", chart[1]);
 			}
 			
 			array[i][2] = config;

@@ -3,19 +3,35 @@ let dashid = null
 let dashid_self = false
 $(document).ready(function(){
     $('.chart-grid').height($(window).height() - 120)
+
+    let d = $urlp('d')
+    if (!!d) $storage.set('DashDefault', d)
     
-    let dlg = null
     $.get(rb.baseUrl + '/dashboard/dash-gets', ((res) => {
         let d = res.data[0]  // default
+        if (res.data.length > 1){
+            let dset = $storage.get('DashDefault')
+            if (dset) {
+                for (let i = 0; i < res.data.length; i++){
+                    if (res.data[i][0] == dset) {
+                        d = res.data[i]
+                        break
+                    }
+                }
+            }
+        }
+
         dashid = d[0]
         dashid_self = d[3]
         render_dashboard(d[2])
-        
-        if (dashid_self == false) $('.J_dash-settings').remove()
         $('.dash-list h4').text(d[1])
+
+        if (dashid_self) $('.J_dash-add').remove()
+        else $('.J_dash-edit').remove()
         
-        $('.J_add-chart').click(add_chart)
-        $('.J_dash-settings').click(()=>{ dash_settings(d[1], d[4] == 'ALL') })
+        $('.J_add-chart').click(()=>{ renderRbcomp(<DlgAddChart dashid={dashid} />) })
+        $('.J_dash-add').click( ()=>{ renderRbcomp(<DlgDashAdd />) })
+        $('.J_dash-edit').click(()=>{ renderRbcomp(<DlgDashSettings dashid={dashid} title={d[1]} shareToAll={d[4] == 'ALL'} />) })
     }))
 })
 let rendered_charts = []
@@ -25,18 +41,6 @@ $(window).resize(() => {
         $(rendered_charts).each((idx, item)=>{ item.resize() })
     }, 200, 'resize-charts')
 })
-
-let add_chart_dlg = null
-let add_chart = function(){
-    if (add_chart_dlg) add_chart_dlg.show()
-    else add_chart_dlg = renderRbcomp(<DlgAddChart dashid={dashid} />)
-}
-
-let dash_settings_dlg = null
-let dash_settings = function(t, s){
-    if (dash_settings_dlg) dash_settings_dlg.show()
-    else dash_settings_dlg = renderRbcomp(<DlgDashSettings dashid={dashid} title={t} shareToAll={s} />)
-}
 
 let gridster = null
 let gridster_undata = true
@@ -183,6 +187,50 @@ class DlgDashSettings extends RbFormHandler {
             if (res.error_code == 0){
                 rb.notice('设置已保存', 'success')
                 this.hide()
+            } else rb.notice(res.error_msg, 'danger')
+        })
+    }
+}
+
+class DlgDashAdd extends RbFormHandler {
+    constructor(props) {
+        super(props)
+    }
+    render() {
+        return (<RbModal title="添加仪表盘" ref="dlg" destroyOnHide={true}>
+                <form>
+                <div className="form-group row">
+                    <label className="col-sm-3 col-form-label text-sm-right">名称</label>
+                    <div className="col-sm-7">
+                        <input className="form-control form-control-sm" value={this.state.title || ''} placeholder="我的仪表盘" data-id="title" onChange={this.handleChange} maxLength="40" />
+                    </div>
+                </div>
+                <div className="form-group row">
+                    <label className="col-sm-3 col-form-label text-sm-right"></label>
+                    <div className="col-sm-7">
+                        <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0">
+                            <input className="custom-control-input" type="checkbox" checked={this.state.copy == true} data-id="copy" onChange={this.handleChange} />
+                            <span className="custom-control-label">复制当前仪表盘</span>
+                        </label>
+                    </div>
+                </div>
+                <div className="form-group row footer">
+                    <div className="col-sm-7 offset-sm-3">
+                        <button className="btn btn-primary" type="button" onClick={()=>this.save()}>确定</button>
+                    </div>
+                </div>
+            </form>
+            </RbModal>)
+    }
+    save() {
+        let _data = { title: this.state.title || '我的仪表盘' }
+        _data.metadata = { entity: 'DashboardConfig' }
+        if (this.state.copy == true) {
+            _data._copy = gridster.serialize()
+        }
+        $.post(rb.baseUrl + '/dashboard/dash-new', JSON.stringify(_data), (res)=>{
+            if (res.error_code == 0){
+                location.href = '?d=' + res.data.id
             } else rb.notice(res.error_msg, 'danger')
         })
     }

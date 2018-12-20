@@ -40,7 +40,7 @@
 					<div class="dropdown-menu dropdown-menu-right">
 						<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
 						<a class="dropdown-item J_enable"><i class="icon zmdi zmdi-minus-circle-outline"></i> 启用</a>
-						<a class="dropdown-item J_disable"><i class="icon zmdi zmdi-minus-circle-outline"></i> 禁用</a>
+						<a class="dropdown-item J_disable"><i class="icon zmdi zmdi-minus-circle-outline"></i> 停用</a>
 						<div class="dropdown-divider"></div>
 						<a class="dropdown-item J_changeDept"><i class="icon zmdi zmdi-accounts"></i> 指定新部门</a>
 						<a class="dropdown-item J_changeRole"><i class="icon zmdi zmdi-lock"></i> 指定新角色</a>

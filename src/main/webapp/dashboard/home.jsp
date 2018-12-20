@@ -44,9 +44,9 @@ a.chart-add i.zmdi{font-size:71px;color:#ddd;font-weight:lighter;}
 				<div class="row">
 					<div class="col-sm-6 dash-list">
 						<div class="dash">
-							<h4>默认仪表盘</h4>
+							<h4>仪表盘</h4>
 							<div class="dash-action">
-								<a class="zicon J_dash-settings" title="设置仪表盘"><i class="zmdi zmdi-settings"></i></a>
+								<a class="zicon J_dash-edit"><i class="zmdi zmdi-settings"></i></a>
 								<a class="zicon J_dash-add" title="添加仪表盘"><i class="zmdi zmdi-plus-circle-o"></i></a>
 							</div>
 						</div>

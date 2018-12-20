@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.web.dashboard;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,10 +29,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.manager.DashboardManager;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.commons.web.ServletUtils;
@@ -72,6 +75,43 @@ public class DashboardControll extends BaseControll {
 		
 		Application.getCommonService().update(record);
 		writeSuccess(response);
+	}
+	
+	@RequestMapping("/dash-new")
+	public void dashNew(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getRequestUser(request);
+		JSONObject formJson = (JSONObject) ServletUtils.getRequestJson(request);
+		JSONArray copyDash = formJson.getJSONArray("_copy");
+		if (copyDash != null) {
+			formJson.remove("_copy");
+		}
+		formJson.put("config", JSONUtils.EMPTY_ARRAY);
+		
+		Record record = EntityHelper.parse((JSONObject) formJson, user);
+		
+		if (copyDash != null) {
+			for (Object o : copyDash) {
+				JSONObject item = (JSONObject) o;
+				String chartId = item.getString("chart");
+				Record chart = Application.createQueryNoFilter(
+						"select belongEntity,type,title,config from ChartConfig where chartId = ?")
+						.setParameter(1, ID.valueOf(chartId))
+						.record();
+				Record chartCopy = EntityHelper.forNew(EntityHelper.ChartConfig, user);
+				for (Iterator<String> iter = chart.getAvailableFieldIterator(); iter.hasNext(); ) {
+					String field = iter.next();
+					chartCopy.setObjectValue(field, chart.getObjectValue(field));
+				}
+				chartCopy = Application.getCommonService().create(chartCopy);
+				item.put("chart", chartCopy.getPrimary().toLiteral());
+			}
+			record.setString("config", copyDash.toJSONString());
+		}
+		
+		record = Application.getCommonService().create(record);
+		
+		JSON ret = JSONUtils.toJSONObject("id", record.getPrimary().toLiteral());
+		writeSuccess(response, ret);
 	}
 	
 	@RequestMapping("/dash-config")
