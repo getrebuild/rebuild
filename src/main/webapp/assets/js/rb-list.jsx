@@ -15,16 +15,16 @@ class RbList extends React.Component {
             if (sort[0] == fields[i].field) fields[i].sort = sort[1]
         }
         props.config.fields = null
-        this.state = { ...props, fields: fields, rowData: [], noData: false, checkedAll: false, pageNo: 1, pageSize: 20 }
-        
-        this.toggleAllRow = this.toggleAllRow.bind(this)
-        this.setPageNo = this.setPageNo.bind(this)
-        this.setPageSize = this.setPageSize.bind(this)
+        this.state = { ...props, fields: fields, rowsData: [], noData: false, checkedAll: false, pageNo: 1, pageSize: 20 }
         
         this.__defaultColumnWidth = $('#react-list').width() / 10
         if (this.__defaultColumnWidth < 130) this.__defaultColumnWidth = 130
         
+        this.pageNo = 1
+        this.pageSize = $storage.get('ListPageSize') || 20
         this.advFilter = $storage.get(this.__defaultFilterKey)
+        
+        this.toggleAllRow = this.toggleAllRow.bind(this)
     }
     render() {
         let that = this;
@@ -44,13 +44,13 @@ class RbList extends React.Component {
                                 let cWidth = (item.width || that.__defaultColumnWidth)
                                 let styles = { width: cWidth + 'px' }
                                 let sortClazz = item.sort || ''
-                                return (<th key={'column-' + item.field} style={styles} className="sortable unselect" onClick={this.fieldSort.bind(this, item.field)}><div style={styles}><span style={{ width: (cWidth-8) + 'px' }}>{item.label}</span><i className={'zmdi ' + sortClazz}></i><i className="split" data-field={item.field}></i></div></th>)
+                                return (<th key={'column-' + item.field} style={styles} className="sortable unselect" onClick={this.sortField.bind(this, item.field)}><div style={styles}><span style={{ width: (cWidth-8) + 'px' }}>{item.label}</span><i className={'zmdi ' + sortClazz}></i><i className="split" data-field={item.field}></i></div></th>)
                             })}
                             <th className="column-empty"></th>
                         </tr>
                     </thead>
                     <tbody>
-                        {this.state.rowData.map((item, index) => {
+                        {this.state.rowsData.map((item, index) => {
                             let lastGhost = item[lastIndex]
                             let rowKey = 'row-' + lastGhost[0]
                             return (<tr key={rowKey} className={lastGhost[3] ? 'table-active' : ''} onClick={this.clickRow.bind(this, index, false)}>
@@ -68,8 +68,8 @@ class RbList extends React.Component {
                     {this.state.noData == true ? <div className="list-nodata"><span className="zmdi zmdi-info-outline"/><p>没有检索到数据</p></div> : null}
                 </div>
             </div></div>
-            <RbListPagination pageNo={this.state.pageNo} pageSize={this.state.pageSize} rowTotal={this.state.rowTotal} $$$parent={this} />
-        </div>);
+            {this.state.rowsTotal && <RbListPagination rowsTotal={this.state.rowsTotal} pageSize={this.pageSize} $$$parent={this} />}
+        </div>)
     }
     componentDidMount() {
         const scroller = $(this.refs['rblist-scroller'])
@@ -95,7 +95,7 @@ class RbList extends React.Component {
     componentDidUpdate() {
         let that = this
         this.__selectedRows = []
-        this.state.rowData.forEach((item) => {
+        this.state.rowsData.forEach((item) => {
             let lastGhost = item[that.state.fields.length]
             if (lastGhost[3] == true) that.__selectedRows.push(lastGhost)
         })
@@ -113,37 +113,43 @@ class RbList extends React.Component {
         this.state.fields.forEach(function(item){
             fields.push(item.field)
             if (!!item.sort) field_sort = item.field + ':' + item.sort.replace('sort-', '')
-        });
-        const entity = this.props.config.entity
+        })
+        
+        let entity = this.props.config.entity
         this.lastFilter = filter || this.lastFilter
         let query = {
             entity: entity,
             fields: fields,
-            pageNo: this.state.pageNo,
-            pageSize: this.state.pageSize,
-            sort: field_sort,
+            pageNo: this.pageNo,
+            pageSize: this.pageSize,
             filter: this.lastFilter,
             advFilter: this.advFilter,
-            reload: true,
-        };
-        let that = this;
+            sort: field_sort,
+            reload: this.pageNo == 1
+        }
+        
+        let that = this
         $('#react-list').addClass('rb-loading-active')
-        $.post(rb.baseUrl + '/app/' + entity + '/data-list', JSON.stringify(query), function(res){
+        $.post(`${rb.baseUrl}/app/${entity}/data-list`, JSON.stringify(query), function(res){
             if (res.error_code == 0){
-                let rowdata = res.data.data
-                if (rowdata.length > 0) {
-                    let lastIndex = rowdata[0].length - 1
-                    rowdata = rowdata.map((item) => {
+                let rowsdata = res.data.data || []
+                if (rowsdata.length > 0) {
+                    let lastIndex = rowsdata[0].length - 1
+                    rowsdata = rowsdata.map((item) => {
                         item[lastIndex][3] = false  // Checked?
                         return item
                     })
                 }
-                that.setState({ noData: rowdata.length == 0, rowData: rowdata, rowTotal: res.data.total })
+                
+                let state = { noData: rowsdata.length == 0, rowsData: rowsdata }
+                if (res.data.total > 0) state.rowsTotal = res.data.total
+                that.setState(state)
+                
             }else{
                 rb.notice(res.error_msg || '加载失败，请稍后重试', 'danger')
             }
             $('#react-list').removeClass('rb-loading-active')
-        });
+        })
     }
     
     // 渲染表格及相关事件处理
@@ -185,87 +191,41 @@ class RbList extends React.Component {
     
     toggleAllRow(e) {
         let checked = this.state.checkedAll == false
-        let _rowData = this.state.rowData
-        _rowData = _rowData.map((item) => {
+        let rowsdata = this.state.rowsData
+        rowsdata = rowsdata.map((item) => {
             item[item.length - 1][3] = checked  // Checked?
-            return item;
-        });
-        this.setState({ checkedAll: checked, rowData: _rowData })
-        return false;
+            return item
+        })
+        this.setState({ checkedAll: checked, rowsData: rowsdata })
+        return false
     }
     clickRow(rowIndex, holdOthers, e) {
         if (e.target.tagName == 'SPAN') return false
         e.stopPropagation()
         e.nativeEvent.stopImmediatePropagation()
         
-        let _rowData = this.state.rowData
-        let lastIndex = _rowData[0].length - 1
+        let rowsdata = this.state.rowsData
+        let lastIndex = rowsdata[0].length - 1
         if (holdOthers == true){
-            let item = _rowData[rowIndex];
+            let item = rowsdata[rowIndex]
             item[lastIndex][3] = item[lastIndex][3] == false  // Checked?
-            _rowData[rowIndex] = item
+            rowsdata[rowIndex] = item
         } else {
-            _rowData = _rowData.map((item, index) => {
+            rowsdata = rowsdata.map((item, index) => {
                 item[lastIndex][3] = index == rowIndex
                 return item
             })
         }
-        this.setState({ rowData: _rowData })
+        this.setState({ rowsData: rowsdata })
         return false
     }
     
     clickView(cellVal) {
         rb.RbViewModal({ id: cellVal[0], entity: cellVal[2][0] })
-        return false;
+        return false
     }
     
-    // 分页
-    
-    setPageNo(pageNo) {
-        let that = this
-        this.setState({ pageNo: pageNo || 1 }, function(){
-            that.fetchList()
-        })
-    }
-    setPageSize(pageSize) {
-        console.log(pageSize)
-        let that = this
-        this.setState({ pageNo: 1, pageSize: pageSize || 20 }, function(){
-            that.fetchList()
-        })
-    }
-    
-    // 外部接口
-    
-    getSelectedRows() {
-        return this.__selectedRows
-    }
-    
-    getSelectedIds() {
-        if (!this.__selectedRows || this.__selectedRows.length < 1) { rb.notice('未选中任何记录'); return [] }
-        let ids = this.__selectedRows.map((item) => { return item[0] })
-        return ids
-    }
-    
-    search(filter) {
-        this.fetchList(filter)
-    }
-    
-    reload() {
-        this.fetchList()
-    }
-    
-    setAdvFilter(id) {
-        this.advFilter = id
-        this.fetchList()
-        
-        if (!!id) $storage.set(this.__defaultFilterKey, id)
-        else $storage.remove(this.__defaultFilterKey)
-    }
-    
-    // 配置相关
-    
-    fieldSort(field, e) {
+    sortField(field, e) {
         let fields = this.state.fields;
         for (let i = 0; i < fields.length; i++){
             if (fields[i].field == field){
@@ -285,51 +245,106 @@ class RbList extends React.Component {
         e.nativeEvent.stopImmediatePropagation()
         return false
     }
+    
+    // 外部接口
+    
+    setPage(pageNo, pageSize) {
+        this.pageNo = pageNo || this.pageNo
+        if (pageSize) {
+            this.pageSize = pageSize
+            $storage.set('ListPageSize', pageSize)
+        }
+        this.fetchList()
+    }
+    
+    setAdvFilter(id) {
+        this.advFilter = id
+        this.fetchList()
+        
+        if (!!id) $storage.set(this.__defaultFilterKey, id)
+        else $storage.remove(this.__defaultFilterKey)
+    }
+    
+    getSelectedRows() {
+        return this.__selectedRows
+    }
+    getSelectedIds() {
+        if (!this.__selectedRows || this.__selectedRows.length < 1) { rb.notice('未选中任何记录'); return [] }
+        let ids = this.__selectedRows.map((item) => { return item[0] })
+        return ids
+    }
+    
+    search(filter) {
+        this.fetchList(filter)
+    }
+    reload() {
+        this.fetchList()
+    }
 }
 
 // 分页组件
 class RbListPagination extends React.Component {
     constructor(props) {
         super(props)
-        this.prev = this.prev.bind(this)
-        this.next = this.next.bind(this)
+        this.state = { ...props }
+        
+        this.state.pageNo = this.state.pageNo || 1
+        this.state.pageSize = this.state.pageSize || 20
+        this.state.rowsTotal = this.state.rowsTotal || 0
     }
     render() {
-        let props = this.props
-        this.pageTotal = Math.ceil(props.rowTotal / props.pageSize)
-        if (this.pageTotal <= 0) this.pageTotal = 1
-        const pages = $pages(this.pageTotal, props.pageNo)
+        console.log(`render pages ... ${this.state.pageNo} ${this.state.pageSize} ${this.state.rowsTotal}`)
+        this.__pageTotal = Math.ceil(this.state.rowsTotal / this.state.pageSize)
+        if (this.__pageTotal <= 0) this.__pageTotal = 1
+        let pages = this.__pageTotal <= 1 ? [1] : $pages(this.__pageTotal, this.state.pageNo)
         return (
             <div className="row rb-datatable-footer">
-                <div className="col-sm-5">
-                    <div className="dataTables_info">{props.rowTotal > 0 ? `共 ${props.rowTotal} 条数据` : ''}</div>
+                <div className="col-sm-3">
+                    <div className="dataTables_info">{this.state.rowsTotal > 0 ? `共 ${this.state.rowsTotal} 条数据` : ''}</div>
                 </div>
-                <div className="col-sm-7">
-                    <div className="dataTables_paginate paging_simple_numbers">
+                <div className="col-sm-9">
+                    <div className="float-right paging_sizes">
+                        <select className="form-control form-control-sm" title="每页显示" onChange={this.setPageSize} value={this.state.pageSize || 20}>
+                            <option value="20">20 条</option>
+                            <option value="40">40 条</option>
+                            <option value="80">80 条</option>
+                            <option value="100">100 条</option>
+                            <option value="200">200 条</option>
+                        </select>
+                    </div>
+                    <div className="float-right dataTables_paginate paging_simple_numbers">
                         <ul className="pagination">
-                            {props.pageNo > 1 && <li className="paginate_button page-item"><a className="page-link" onClick={this.prev}><span className="icon zmdi zmdi-chevron-left"></span></a></li>}
+                            {this.state.pageNo > 1 && <li className="paginate_button page-item"><a className="page-link" onClick={()=>this.prev()}><span className="icon zmdi zmdi-chevron-left"></span></a></li>}
                             {pages.map((item) => {
                                 if (item == '.') return <li key={'page-' + item} className="paginate_button page-item disabled"><a className="page-link">...</a></li>
-                                else return <li key={'page-' + item} className={'paginate_button page-item ' + (props.pageNo == item && 'active')}><a href="javascript:;" className="page-link" onClick={this.goto.bind(this, item)}>{item}</a></li>
+                                else return <li key={'page-' + item} className={'paginate_button page-item ' + (this.state.pageNo == item && 'active')}><a className="page-link" onClick={this.goto.bind(this, item)}>{item}</a></li>
                             })}
-                            {props.pageNo != this.pageTotal && <li className="paginate_button page-item"><a className="page-link" onClick={this.next}><span className="icon zmdi zmdi-chevron-right"></span></a></li>}
+                            {this.state.pageNo != this.__pageTotal && <li className="paginate_button page-item"><a className="page-link" onClick={()=>this.next()}><span className="icon zmdi zmdi-chevron-right"></span></a></li>}
                         </ul>
                     </div>
+                    <div className="clearfix" />
                 </div>
             </div>
         )
     }
     prev() {
-        if (this.props.pageNo == 1) return
-        else this.props.$$$parent.setPageNo(this.props.pageNo - 1)
+        if (this.state.pageNo == 1) return
+        this.goto(this.state.pageNo - 1)
     }
     next() {
-        if (this.props.pageNo == this.pageTotal) return
-        else this.props.$$$parent.setPageNo(this.props.pageNo + 1)
+        if (this.state.pageNo == this.__pageTotal) return
+        this.goto(this.state.pageNo + 1)
     }
     goto(pageNo) {
-        if (this.props.pageNo == pageNo) return
-        else this.props.$$$parent.setPageNo(pageNo)
+        this.setState({ pageNo: pageNo }, ()=>{
+            this.props.$$$parent.setPage(this.state.pageNo)
+        })
+    }
+    setPageSize = (e) => {
+        let s = e.target.value
+        this.setState({ pageSize: s }, ()=>{
+            this.props.$$$parent.setPage(1, s)
+        })
     }
 }
 
@@ -340,11 +355,6 @@ var rb = rb || {}
 // @props = { config }
 rb.RbList = function(props, target) {
     return renderRbcomp(<RbList {...props} />, target || 'react-list')
-}
-
-// @props = { rowTotal, pageSize, pageNo }
-rb.RbListPagination = function(props, target) {
-    return renderRbcomp(<RbListPagination {...props} />, target || 'pagination')
 }
 
 // 列表页面初始化

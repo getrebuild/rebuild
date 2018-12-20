@@ -4186,9 +4186,9 @@ input[type=button].btn-block, input[type=reset].btn-block, input[type=submit].bt
 }
 .page-item.active .page-link {
     z-index: 1;
-    color: #fff;
+    color: #fff !important;
     background-color: #4285f4;
-    border-color: #4285f4
+    border-color: #4285f4;
 }
 .page-item.disabled .page-link {
     color: #878787;
@@ -17585,8 +17585,10 @@ div.dataTables_wrapper div.dataTables_filter label select {
 .rb-datatable-footer {
     margin: 0;
     padding: 15px 3px 13px;
+    padding: 10px 3px;
     background-color: #f7f7f7;
-    border-top: 1px solid #dee2e6
+    border-top: 1px solid #dee2e6;
+    min-height: 60px;
 }
 .datetimepicker {
     padding: 4px 12px

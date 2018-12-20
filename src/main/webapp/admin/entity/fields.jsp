@@ -77,7 +77,11 @@
 								</div>
 							</div>
 						</div>
-						<div id="pagination"></div>
+						<div id="pagination">
+							<div class="row rb-datatable-footer">
+								<div class="col-sm-3"><div class="dataTables_info"></div></div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -132,7 +136,7 @@ const render_list = function(q){
 		size++
 	});
 	
-	rb.RbListPagination({ rowTotal:size, pageSize:1000, pageNo:1 })
+	$('.dataTables_info').text('共 ' + size + ' 个字段')
 	$('#dataList').parent().removeClass('rb-loading-active')
 }
 </script>

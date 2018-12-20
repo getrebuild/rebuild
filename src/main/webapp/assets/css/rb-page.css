@@ -1043,6 +1043,16 @@ i.split.ui-draggable-dragging {
 }
 */
 
+div.dataTables_wrapper div.paging_sizes {
+	padding-top: 2px;
+	padding-left: 9px;
+}
+div.dataTables_wrapper div.paging_sizes select {
+	height: 36px !important;
+	padding: 4px 6px;
+	width: 54px;
+}
+
 .must-center {
 	position: absolute;
 	left: 50%;
