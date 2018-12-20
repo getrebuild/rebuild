@@ -43,7 +43,7 @@ $(function(){
 
 // 导航菜单
 const __initNavs = function(){
-	let isOffcanvas = $('.rb-offcanvas-menu').length > 0
+	let isOffcanvas = $('.rb-offcanvas-menu').length > 0  // 浮动模式
 	
 	// Nav
 	if (isOffcanvas) {

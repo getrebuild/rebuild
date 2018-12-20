@@ -214,7 +214,7 @@
 	transition: margin 0.4s;
 }
 .modal.rbalert .modal-dialog {
-    max-width: 580px;
+    max-width: 551px;
 }
 .modal-body.iframe {
     padding: 0 !important;
@@ -532,7 +532,7 @@ a {
     cursor: default;
     white-space: nowrap;
     font-weight: normal;
-    padding: 10px;
+    padding: 9px 10px;
 }
 .data-list .table thead th {
     padding-top: 12px;
@@ -849,7 +849,7 @@ i.split.ui-draggable-dragging {
     box-shadow: 0 1px 0 rgba(0, 0, 0, .1);
 }
 .dept-tree {
-    padding: 25px 20px;
+    padding: 25px 18px;
 }
 .dept-tree .list-unstyled {
     margin: 0

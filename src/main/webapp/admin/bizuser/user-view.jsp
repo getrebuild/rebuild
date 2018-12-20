@@ -39,6 +39,8 @@
 					<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-more-vert"></i></button>
 					<div class="dropdown-menu dropdown-menu-right">
 						<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
+						<a class="dropdown-item J_enable"><i class="icon zmdi zmdi-minus-circle-outline"></i> 启用</a>
+						<a class="dropdown-item J_disable"><i class="icon zmdi zmdi-minus-circle-outline"></i> 禁用</a>
 						<div class="dropdown-divider"></div>
 						<a class="dropdown-item J_changeDept"><i class="icon zmdi zmdi-accounts"></i> 指定新部门</a>
 						<a class="dropdown-item J_changeRole"><i class="icon zmdi zmdi-lock"></i> 指定新角色</a>
@@ -64,17 +66,11 @@ $(document).ready(function(){
 	if (rb.isAdminUser != true || rb.isAdminVerified == false) $('.view-action').remove()
 
 	$('.J_delete').off('click').click(function(){
-		rb.alert('我们建议你停用用户，而非删除', '删除用户', { confirmText: '停用', confirm: function(){
-			let _data = { isDisabled: true }
-			_data.metadata = { entity: 'User', id: '${id}' }
-			$.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), function(res){
-            	if (res.error_code == 0){
-					rb.notice('用户已停用', 'success')
-					location.reload()
-				}
-        	})
-		} })
+		rb.alert('<b>暂不支持删除用户</b><br>我们建议你停用用户，而非将其删除', null, { html: true, confirmText: '停用', confirm:()=>{ toggleDisabled(true) } })
 	})
+	$('.J_enable').click(()=>{ toggleDisabled(false) })
+	$('.J_disable').click(()=>{ toggleDisabled(true) })
+
 	$('.J_changeDept').click(function(){
 		rb.modal(rb.baseUrl + '/p/admin/bizuser/change-dept?user=${id}', '指定新部门', { width:580 } )
 	})
@@ -90,6 +86,9 @@ $(document).ready(function(){
 				return
 			}
 
+			if (res.data.disabled == true) $('.J_disable').remove()
+			else $('.J_enable').remove()
+
 			if (res.data.active == true) return
 			let reason = []
 			if (!res.data.role) reason.push('未指定角色')
@@ -99,6 +98,16 @@ $(document).ready(function(){
 		})
 	}
 })
+let toggleDisabled = function(disabled){
+	let _data = { isDisabled: disabled }
+	_data.metadata = { entity: 'User', id: '${id}' }
+	$.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), function(res){
+		if (res.error_code == 0){
+			rb.notice('用户已' + (disabled ? '停用' : '启用'), 'success')
+			setTimeout(()=>{ location.reload() }, 500)
+		}
+	})
+}
 </script>
 </body>
 </html>

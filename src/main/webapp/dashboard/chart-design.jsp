@@ -117,7 +117,7 @@
 </span>
 </script>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/lib/charts/echarts.js"></script>
+<script src="${baseUrl}/assets/lib/charts/echarts.min.js"></script>
 <script src="${baseUrl}/assets/js/charts/charts.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/charts/chart-design.jsx" type="text/babel"></script>

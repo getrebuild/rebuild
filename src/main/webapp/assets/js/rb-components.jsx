@@ -79,15 +79,15 @@ class RbAlert extends React.Component {
             <div className="modal rbalert" ref="rbalert">
                 <div className="modal-dialog modal-dialog-centered">
                     <div className="modal-content">
-                        <div className="modal-header">
+                        <div className="modal-header pb-0">
                             <button className="close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
                         </div>
                         <div className="modal-body">
                             <div className="text-center">
                                 <div className={'text-' + type}><span className={'modal-main-icon zmdi zmdi-' + icon}></span></div>
-                                <h4>{this.props.title || '提示'}</h4>
+                                {this.props.title && <h4>{this.props.title}</h4>}
                                 {content}
-                                <div className="mt-6 mb-4">
+                                <div className="mt-4 mb-3">
                                     <button className="btn btn-space btn-secondary" type="button" onClick={()=>this.hide()}>取消</button>
                                     <button className={'btn btn-space btn-' + type} type="button" onClick={confirm}>{this.props.confirmText || '确定'}</button>
                                 </div>

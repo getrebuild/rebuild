@@ -16627,10 +16627,12 @@ pre code {
     margin-bottom: 0
 }
 .card-table tr td:first-child, .card-table tr th:first-child {
-    padding-left: 20px
+    padding-left: 20px;
+    padding-left: 18px;
 }
 .card-table tr td:last-child, .card-table tr th:last-child {
-    padding-right: 20px
+    padding-right: 20px;
+    padding-right: 18px;
 }
 .card-table thead tr th {
     padding-top: 15px;
@@ -17577,7 +17579,8 @@ div.dataTables_wrapper div.dataTables_filter label select {
     border-bottom: 1px solid #dee2e6;
     margin: 2px 0 0;
     margin: 0;
-    padding: 15px 10px 10px
+    padding: 15px 10px 10px;
+    padding-left: 8px;
 }
 .rb-datatable-header .dt-buttons .btn embed {
     outline: 0

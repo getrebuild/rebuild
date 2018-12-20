@@ -4,7 +4,7 @@
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <title>首页</title>
-<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/charts/jquery.gridster.css">
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/charts/jquery.gridster.min.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/charts.css">
 <style type="text/css">
 .tools-bar{height:44px;padding:0 25px;padding-top:7px}
@@ -55,8 +55,8 @@ a.chart-add i.zmdi{font-size:71px;color:#ddd;font-weight:lighter;}
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/lib/charts/jquery.gridster.js"></script>
-<script src="${baseUrl}/assets/lib/charts/echarts.js"></script>
+<script src="${baseUrl}/assets/lib/charts/jquery.gridster.min.js"></script>
+<script src="${baseUrl}/assets/lib/charts/echarts.min.js"></script>
 <script src="${baseUrl}/assets/js/charts/charts.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/charts/dashboard.jsx" type="text/babel"></script>
 </body>
