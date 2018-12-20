@@ -9,7 +9,7 @@
 <style type="text/css">
 .tools-bar{height:44px;padding:0 25px;padding-top:7px}
 .tools-bar h4{margin:10px 0}
-.chart-grid{overflow:scroll;overflow-x:hidden;padding:15px;padding-top:0;padding-right:9px}
+.chart-grid{overflow:scroll;overflow-x:hidden;padding:15px;padding-top:0;padding-right:2px}
 .gridster ul,.gridster ul>li{margin:0;padding:0}
 .gridster ul>li{background-color:#fff;}
 .gridster ul>li>div{height:100%}
