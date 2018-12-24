@@ -35,7 +35,6 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.record.JsonRecordCreator;
 
@@ -102,8 +101,7 @@ public class ExtRecordCreator extends JsonRecordCreator {
 		
 		List<String> notNulls = new ArrayList<String>();
 		for (Field field : entity.getFields()) {
-			String fieldName = field.getName();
-			if (FieldType.PRIMARY.equals(field.getType()) || field.isAutoValue() || fieldName.equalsIgnoreCase(EntityHelper.QuickCode)) {
+			if (MetadataHelper.isSystemField(field)) {
 				continue;
 			}
 			EasyMeta easy = EasyMeta.valueOf(field);

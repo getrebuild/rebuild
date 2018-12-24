@@ -117,14 +117,16 @@ public class EntityHelper {
 	
 	// 公共字段
 	
-	public static final String AutoId = "autoId";
-	public static final String QuickCode = "quickCode";
 	public static final String CreatedOn = "createdOn";
 	public static final String CreatedBy = "createdBy";
 	public static final String ModifiedOn = "modifiedOn";
 	public static final String ModifiedBy = "modifiedBy";
 	public static final String OwningUser = "owningUser";
 	public static final String OwningDept = "owningDept";
+	
+	public static final String AutoId = "autoId";
+	public static final String QuickCode = "quickCode";
+	public static final String IsDeleted = "isDeleted";
 	
 	// 系统实体
 

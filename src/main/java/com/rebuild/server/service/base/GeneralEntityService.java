@@ -126,22 +126,24 @@ public class GeneralEntityService extends BaseService  {
 		}
 		
 		DisplayType dt = EasyMeta.getDisplayType(nameField);
-		if (dt == DisplayType.TEXT) {
-			String name = record.getString(nameField.getName());
-			String qcode = null;
-			if (StringUtils.isNotBlank(name)) {
-				try {
-					qcode = PinyinHelper.getShortPinyin(name).toUpperCase();
-				} catch (Exception e) {
-					LOG.error("ShortPinyin : " + name, e);
-				}
+		if (dt != DisplayType.TEXT) {
+			return;
+		}
+		
+		String name = record.getString(nameField.getName());
+		String qcode = null;
+		if (StringUtils.isNotBlank(name)) {
+			try {
+				qcode = PinyinHelper.getShortPinyin(name).toUpperCase();
+			} catch (Exception e) {
+				LOG.error("QuickCode shorting error : " + name, e);
 			}
-			
-			if (StringUtils.isBlank(qcode)) {
-				record.setString(EntityHelper.QuickCode, StringUtils.EMPTY);
-			} else {
-				record.setString(EntityHelper.QuickCode, qcode);
-			}
+		}
+		
+		if (StringUtils.isBlank(qcode)) {
+			record.setString(EntityHelper.QuickCode, StringUtils.EMPTY);
+		} else {
+			record.setString(EntityHelper.QuickCode, qcode);
 		}
 	}
 	

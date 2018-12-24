@@ -35,7 +35,6 @@ import com.rebuild.server.metadata.entityhub.EasyMeta;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.BaseMeta;
 
@@ -138,7 +137,7 @@ public class MetadataSorter {
 		if (dtAllowed == null || dtAllowed.length == 0) {
 			List<Field> list = new ArrayList<>();
 			for (Field field : fields) {
-				if (!(field.getType() == FieldType.PRIMARY || field.isAutoValue() || EntityHelper.QuickCode.equalsIgnoreCase(field.getName()))) {
+				if (!MetadataHelper.isSystemField(field)) {
 					list.add(field);
 				}
 			}

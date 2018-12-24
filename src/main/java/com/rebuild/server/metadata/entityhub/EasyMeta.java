@@ -52,6 +52,7 @@ public class EasyMeta implements BaseMeta {
 	static {
 		BUILTIN_FIELD.add(EntityHelper.AutoId);
 		BUILTIN_FIELD.add(EntityHelper.QuickCode);
+		BUILTIN_FIELD.add(EntityHelper.IsDeleted);
 		BUILTIN_FIELD.add(EntityHelper.CreatedOn);
 		BUILTIN_FIELD.add(EntityHelper.CreatedBy);
 		BUILTIN_FIELD.add(EntityHelper.ModifiedOn);
@@ -138,7 +139,7 @@ public class EasyMeta implements BaseMeta {
 	}
 	
 	/**
-	 * 系统内建字段，一般系统用
+	 * 系统内建字段
 	 * 
 	 * @return
 	 */
@@ -148,11 +149,10 @@ public class EasyMeta implements BaseMeta {
 		}
 		
 		if (isField()) {
-			DisplayType dt = getDisplayType();
 			Field field = (Field) this.baseMeta;
-			if (dt == DisplayType.ID || BUILTIN_FIELD.contains(getName())) {
+			if (MetadataHelper.isSystemField(field) || BUILTIN_FIELD.contains(getName())) {
 				return true;
-			} else if (dt == DisplayType.REFERENCE) {
+			} else if (getDisplayType() == DisplayType.REFERENCE) {
 				// 明细-引用主记录的字段也是内建
 				Entity hasMaster = field.getOwnEntity().getMasterEntity();
 				if (hasMaster != null && hasMaster.equals(field.getReferenceEntity()) && !field.isCreatable()) {

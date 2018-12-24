@@ -121,10 +121,12 @@ public class Entity2Schema extends Field2Schema {
 		try {
 			String primaryFiled = entityName + "Id";
 			createBuiltinField(tempEntity, primaryFiled, "ID", DisplayType.ID, null, null, null);
-			// 数字自增 ID
+			// 自增ID
 			createBuiltinField(tempEntity, EntityHelper.AutoId, "AUTOID", DisplayType.NUMBER, null, null, null);
 			// 助记码/搜索码
 			createBuiltinField(tempEntity, EntityHelper.QuickCode, "QUICKCODE", DisplayType.TEXT, null, null, null);
+			// 是否删除
+			createBuiltinField(tempEntity, EntityHelper.IsDeleted, "ISDELETED", DisplayType.BOOL, null, null, null);
 			
 			if (haveNameField) {
 				createField(tempEntity, nameFiled, entityLabel + "名称", DisplayType.TEXT, false, true, true, null, null, null, false);

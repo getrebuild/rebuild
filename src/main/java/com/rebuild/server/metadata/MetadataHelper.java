@@ -190,6 +190,25 @@ public class MetadataHelper {
 	}
 	
 	/**
+	 * 仅供系统使用的字段
+	 * 
+	 * @param field
+	 * @return
+	 */
+	public static boolean isSystemField(Field field) {
+		String fieldName = field.getName();
+		if (EntityHelper.AutoId.equalsIgnoreCase(fieldName)
+				|| EntityHelper.QuickCode.equalsIgnoreCase(fieldName)
+				|| EntityHelper.IsDeleted.equalsIgnoreCase(fieldName)) {
+			return true;
+		}
+		if (field.getType() == FieldType.PRIMARY) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
 	 * 是否 Bizz 实体
 	 * 
 	 * @param entityCode

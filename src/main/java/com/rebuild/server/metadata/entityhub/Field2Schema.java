@@ -218,9 +218,11 @@ public class Field2Schema {
 		tempMetaId.add(record.getPrimary());
 		
 		boolean autoValue = EntityHelper.AutoId.equals(fieldName);
+		String defaultValue = EntityHelper.IsDeleted.equals(fieldName) ? "F" : null;
+		
 		Field unsafeField = new FieldImpl(
 				fieldName, physicalName, fieldLabel, entity, displayType.getFieldType(), CascadeModel.Ignore, displayType.getMaxLength(), 
-				dbNullable, creatable, updatable, true, 6, null, autoValue);
+				dbNullable, creatable, updatable, true, 6, defaultValue, autoValue);
 		if (entity instanceof UnsafeEntity) {
 			((UnsafeEntity) entity).addField(unsafeField);
 		}
