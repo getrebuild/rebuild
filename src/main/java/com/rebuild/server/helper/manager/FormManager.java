@@ -255,6 +255,9 @@ public class FormManager extends LayoutManager {
 						}
 					}
 				}
+				else if (dt == DisplayType.SERIES) {
+					el.put("value", "自动生成");
+				}
 				
 				// TODO 字段的默认值
 				

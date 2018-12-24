@@ -73,11 +73,11 @@ a#entityIcon:hover{opacity:0.8}
 							</div>
 						</div>
 						<div class="form-group row">
-							<label class="col-sm-2 col-form-label text-sm-right">主显字段</label>
+							<label class="col-sm-2 col-form-label text-sm-right">名称字段</label>
 							<div class="col-lg-5 col-sm-10">
 								<select class="form-control form-control-sm" id="nameField" data-o="${nameField}">
 								</select>
-								<p class="form-text mb-0">主显字段应能清晰的标识记录本身，如客户中的客户名称或订单中的订单编号</p>
+								<p class="form-text mb-0">名称字段应能清晰的标识记录本身，如客户中的客户名称或订单中的订单编号</p>
 							</div>
 						</div>
 						<div class="form-group row">

@@ -20,13 +20,19 @@ package com.rebuild.server.helper.manager;
 
 import java.util.Iterator;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
@@ -38,7 +44,11 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class DashboardManager extends ApplyFor {
 	
+	private static final Log LOG = LogFactory.getLog(DashboardManager.class);
+	
 	/**
+	 * 获取可用面板
+	 * 
 	 * @param user
 	 * @return
 	 */
@@ -53,9 +63,9 @@ public class DashboardManager extends ApplyFor {
 			Record record = EntityHelper.forNew(EntityHelper.DashboardConfig, user);
 			String dname = "默认仪表盘";
 			record.setString("title", dname);
-			record.setString("config", JSONUtils.EMPTY_ARRAY);
+			record.setString("config", JSONUtils.EMPTY_ARRAY_STR);
 			record = Application.getCommonService().create(record);
-			array = new Object[][] { new Object[] { record.getPrimary(), dname, JSONUtils.EMPTY_ARRAY, user, "SELF" } };
+			array = new Object[][] { new Object[] { record.getPrimary(), dname, JSONUtils.EMPTY_ARRAY_STR, user, "SELF" } };
 		}
 		
 		// 补充图表标题
@@ -85,6 +95,32 @@ public class DashboardManager extends ApplyFor {
 			array[i][2] = config;
 			array[i][0] = array[i][0].toString();
 			array[i][3] = array[i][3].equals(user);  // 本人的
+		}
+		
+		return (JSON) JSON.toJSON(array);
+	}
+	
+	/**
+	 * 获取可用图表
+	 * 
+	 * @param user
+	 * @return
+	 */
+	public static JSON getChartList(ID user) {
+		Object[][] array = Application.createQueryNoFilter(
+				"select chartId,belongEntity,type,title,modifiedOn from ChartConfig where createdBy = ?")
+				.setParameter(1, user)
+				.array();
+		for (Object[] chart : array) {
+			String belongEntity = (String) chart[1];
+			if (!MetadataHelper.containsEntity(belongEntity)) {
+				LOG.warn("No entity found : " + belongEntity);
+				continue;
+			}
+			
+			chart[0] = chart[0].toString();
+			chart[1] = EasyMeta.getLabel(MetadataHelper.getEntity(belongEntity));
+			chart[4] = CalendarUtils.getUTCDateTimeFormat().format(chart[4]);
 		}
 		
 		return (JSON) JSON.toJSON(array);

@@ -30,6 +30,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.RebuildException;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -237,9 +238,9 @@ public class EasyMeta implements BaseMeta {
 		if (isField()) {
 			Object[] ext = getMetaExt();
 			if (ext == null) {
-				return JSON.parseObject("{}");
+				return JSONUtils.EMPTY_OBJECT;
 			}
-			return JSON.parseObject(StringUtils.defaultIfBlank((String) ext[3], "{}"));
+			return JSON.parseObject(StringUtils.defaultIfBlank((String) ext[3], JSONUtils.EMPTY_OBJECT_STR));
 		}
 		throw new UnsupportedOperationException("Field only");
 	}

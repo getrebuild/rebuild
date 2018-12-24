@@ -41,8 +41,10 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class JSONUtils {
 	
-	public static final String EMPTY_OBJETC = "{}";
-	public static final String EMPTY_ARRAY = "[]";
+	public static final String EMPTY_OBJECT_STR = "{}";
+	public static final String EMPTY_ARRAY_STR = "[]";
+	public static final JSONObject EMPTY_OBJECT = JSON.parseObject(EMPTY_OBJECT_STR);
+	public static final JSONArray EMPTY_ARRAY = JSON.parseArray(EMPTY_ARRAY_STR);
 
 	/**
 	 * @param key

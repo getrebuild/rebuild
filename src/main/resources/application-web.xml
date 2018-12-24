@@ -12,7 +12,7 @@
 		http://www.springframework.org/schema/mvc
 		http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
 		http://www.springframework.org/schema/websocket   
-		http://www.springframework.org/schema/websocket/spring-websocket.xsd">
+		http://www.springframework.org/schema/websocket/spring-websocket.xsd" default-lazy-init="true">
 
 	<context:annotation-config />
 	<mvc:annotation-driven />

@@ -9,7 +9,7 @@
 <style type="text/css">
 .tools-bar{height:44px;padding:0 25px;padding-top:7px}
 .tools-bar h4{margin:10px 0}
-.chart-grid{overflow:scroll;overflow-x:hidden;padding:15px;padding-top:0;padding-right:2px}
+.chart-grid{overflow:scroll;overflow-x:hidden;padding:15px;padding-top:0;padding-right:0px}
 .gridster ul,.gridster ul>li{margin:0;padding:0}
 .gridster ul>li{background-color:#fff;}
 .gridster ul>li>div{height:100%}
@@ -21,6 +21,7 @@ a.chart-add i.zmdi{font-size:71px;color:#ddd;font-weight:lighter;}
 .dash .dash-action{position:absolute;top:0;right:0;padding-top:9px;padding-left:6px;display:none;text-align:left;width:70px;}
 .dash:hover .dash-action{display:block;}
 .dash .dash-action a{padding:3px;margin-left:3px}
+.J_dash-select:hover{cursor:pointer;opacity:0.8}
 </style>
 </head>
 <body>
@@ -44,15 +45,21 @@ a.chart-add i.zmdi{font-size:71px;color:#ddd;font-weight:lighter;}
 				<div class="row">
 					<div class="col-sm-6 dash-list">
 						<div class="dash">
-							<h4>仪表盘</h4>
+							<h4 class="J_dash-select--">仪表盘</h4>
 							<div class="dash-action">
 								<a class="zicon J_dash-edit"><i class="zmdi zmdi-settings"></i></a>
-								<a class="zicon J_dash-add" title="添加仪表盘"><i class="zmdi zmdi-plus-circle-o"></i></a>
+								<a class="zicon J_dash-new" title="添加仪表盘"><i class="zmdi zmdi-plus-circle-o"></i></a>
 							</div>
 						</div>
 					</div>
 					<div class="col-sm-6 text-right">
-						<button type="button" class="btn btn-link J_add-chart pr-0"><i class="zmdi zmdi-plus icon"></i> 添加图表</button>
+						<div class="btn-group" style="margin-top:7px;margin-right:3px">
+							<button type="button" class="btn btn-link pr-0 text-right" data-toggle="dropdown" style="min-height:24px;line-height:24px;"><i class="zmdi zmdi-plus icon"></i> 添加图表</button>
+							<div class="dropdown-menu dropdown-menu-right">
+								<a class="dropdown-item J_chart-new">添加新图表</a>
+								<a class="dropdown-item J_chart-select hide">从已有图表中添加</a>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>

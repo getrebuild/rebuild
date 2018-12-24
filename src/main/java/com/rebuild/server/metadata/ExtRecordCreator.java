@@ -18,23 +18,32 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.metadata;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.bizz.privileges.User;
+import com.rebuild.server.metadata.entityhub.DisplayType;
+import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.web.IllegalParameterException;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.persist4j.record.JSONRecordCreator;
+import cn.devezhao.persist4j.record.JsonRecordCreator;
 
 /**
  * @author Zhao Fangfang
  * @since 1.0, 2013-6-26
  */
-public class ExtRecordCreator extends JSONRecordCreator {
+public class ExtRecordCreator extends JsonRecordCreator {
 	
 	/**
 	 * @param entity
@@ -83,5 +92,34 @@ public class ExtRecordCreator extends JSONRecordCreator {
 				r.setID(EntityHelper.OwningDept, (ID) editor.getOwningDept().getIdentity());
 			}
 		}
+	}
+	
+	@Override
+	protected void verify(Record record, boolean isNew) {
+		if (!isNew) {
+			return;
+		}
+		
+		List<String> notNulls = new ArrayList<String>();
+		for (Field field : entity.getFields()) {
+			String fieldName = field.getName();
+			if (FieldType.PRIMARY.equals(field.getType()) || field.isAutoValue() || fieldName.equalsIgnoreCase(EntityHelper.QuickCode)) {
+				continue;
+			}
+			EasyMeta easy = EasyMeta.valueOf(field);
+			if (easy.getDisplayType() == DisplayType.SERIES) {
+				continue;
+			}
+			
+			Object hasVal = record.getObjectValue(field.getName());
+			if (hasVal == null && !field.isNullable()) {
+				notNulls.add(easy.getLabel());
+			}
+		}
+		
+		if (notNulls.isEmpty()) {
+			return;
+		}
+		throw new IllegalParameterException(StringUtils.join(notNulls, "/") + " 不能为空");
 	}
 }

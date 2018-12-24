@@ -62,6 +62,13 @@ public class DashboardControll extends BaseControll {
 		writeSuccess(response, dashs);
 	}
 	
+	@RequestMapping("/chart-gets")
+	public void chartGets(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getRequestUser(request);
+		JSON dashs = DashboardManager.getChartList(user);
+		writeSuccess(response, dashs);
+	}
+	
 	@RequestMapping("/dash-update")
 	public void dashUpdate(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
@@ -81,36 +88,43 @@ public class DashboardControll extends BaseControll {
 	public void dashNew(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		JSONObject formJson = (JSONObject) ServletUtils.getRequestJson(request);
-		JSONArray copyDash = formJson.getJSONArray("_copy");
-		if (copyDash != null) {
-			formJson.remove("_copy");
+		JSONArray dashCopy = formJson.getJSONArray("__copy");
+		if (dashCopy != null) {
+			formJson.remove("__copy");
 		}
-		formJson.put("config", JSONUtils.EMPTY_ARRAY);
+		formJson.put("config", JSONUtils.EMPTY_ARRAY_STR);
 		
-		Record record = EntityHelper.parse((JSONObject) formJson, user);
+		Record dashRecord = EntityHelper.parse((JSONObject) formJson, user);
 		
-		if (copyDash != null) {
-			for (Object o : copyDash) {
+		// 复制当前面板
+		if (dashCopy != null) {
+			for (Object o : dashCopy) {
 				JSONObject item = (JSONObject) o;
 				String chartId = item.getString("chart");
 				Record chart = Application.createQueryNoFilter(
-						"select belongEntity,type,title,config from ChartConfig where chartId = ?")
+						"select belongEntity,type,title,config,createdBy from ChartConfig where chartId = ?")
 						.setParameter(1, ID.valueOf(chartId))
 						.record();
-				Record chartCopy = EntityHelper.forNew(EntityHelper.ChartConfig, user);
+				// 自己的直接使用
+				if (user.equals(chart.getID("createdBy"))) {
+					continue;
+				}
+				
+				chart.removeValue("createdBy");
+				Record chartRecord = EntityHelper.forNew(EntityHelper.ChartConfig, user);
 				for (Iterator<String> iter = chart.getAvailableFieldIterator(); iter.hasNext(); ) {
 					String field = iter.next();
-					chartCopy.setObjectValue(field, chart.getObjectValue(field));
+					chartRecord.setObjectValue(field, chart.getObjectValue(field));
 				}
-				chartCopy = Application.getCommonService().create(chartCopy);
-				item.put("chart", chartCopy.getPrimary().toLiteral());
+				chartRecord = Application.getCommonService().create(chartRecord);
+				item.put("chart", chartRecord.getPrimary().toLiteral());
 			}
-			record.setString("config", copyDash.toJSONString());
+			dashRecord.setString("config", dashCopy.toJSONString());
 		}
 		
-		record = Application.getCommonService().create(record);
+		dashRecord = Application.getCommonService().create(dashRecord);
 		
-		JSON ret = JSONUtils.toJSONObject("id", record.getPrimary().toLiteral());
+		JSON ret = JSONUtils.toJSONObject("id", dashRecord.getPrimary().toLiteral());
 		writeSuccess(response, ret);
 	}
 	

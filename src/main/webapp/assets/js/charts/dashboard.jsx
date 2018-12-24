@@ -26,12 +26,15 @@ $(document).ready(function(){
         render_dashboard(d[2])
         $('.dash-list h4').text(d[1])
 
-        if (dashid_self) $('.J_dash-add').remove()
+        // 仅开放一个仪表盘
+        if (dashid_self) $('.J_dash-new').remove()
         else $('.J_dash-edit').remove()
         
-        $('.J_add-chart').click(()=>{ renderRbcomp(<DlgAddChart dashid={dashid} />) })
-        $('.J_dash-add').click( ()=>{ renderRbcomp(<DlgDashAdd />) })
+        $('.J_dash-select').click( ()=>{  })
+        $('.J_dash-new').click( ()=>{ renderRbcomp(<DlgDashAdd />) })
         $('.J_dash-edit').click(()=>{ renderRbcomp(<DlgDashSettings dashid={dashid} title={d[1]} shareToAll={d[4] == 'ALL'} />) })
+        $('.J_chart-new').click(()=>{ renderRbcomp(<DlgAddChart dashid={dashid} />) })
+        $('.J_chart-select').click(()=>{  })
     }))
 })
 let rendered_charts = []
@@ -225,9 +228,8 @@ class DlgDashAdd extends RbFormHandler {
     save() {
         let _data = { title: this.state.title || '我的仪表盘' }
         _data.metadata = { entity: 'DashboardConfig' }
-        if (this.state.copy == true) {
-            _data._copy = gridster.serialize()
-        }
+        if (this.state.copy == true) _data.__copy = gridster.serialize()
+        
         $.post(rb.baseUrl + '/dashboard/dash-new', JSON.stringify(_data), (res)=>{
             if (res.error_code == 0){
                 location.href = '?d=' + res.data.id

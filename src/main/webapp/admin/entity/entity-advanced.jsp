@@ -45,7 +45,7 @@ a#entityIcon:hover{opacity:0.8}
 		</div>
 		<div class="main-content container-fluid pt-1">
 			<div class="card">
-				<div class="card-header">删除实体</div>
+				<div class="card-header">删除${entityLabel}实体</div>
 				<div class="card-body">
 					<p><strong>实体删除后将无法恢复，请务必谨慎操作。</strong>删除前，必须将该实体下的记录全部清空。如果这是一个主实体，则需要先将明细实体删除。</p>
 					<div>
@@ -53,9 +53,9 @@ a#entityIcon:hover{opacity:0.8}
 							<input class="custom-control-input J_drop-check" type="checkbox"><span class="custom-control-label"> 我已知晓风险</span>
 						</label>
 					</div>
-					<div>
+					<div class="mb-1">
 						<button type="button" class="btn btn-danger J_drop-confirm" disabled="disabled" data-loading-text="删除中"><i class="zmdi zmdi-delete icon"></i> 确认删除</button>
-						<div class="alert alert-warning alert-icon hide col-sm-6">
+						<div class="alert alert-warning alert-icon hide col-sm-6 mb-0">
 							<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
 							<div class="message">系统内建实体，不允许删除</div>
 						</div>
@@ -80,14 +80,17 @@ $(document).ready(function(){
 		$('.J_drop-confirm').attr('disabled', $(this).prop('checked') == false)
 	})
 	
-	const sbtn = $('.J_drop-confirm').click(function(){
-		sbtn.button('loading')
-		$.post('../entity-drop?id=' + metaId, function(res){
-			if (res.error_code == 0){
-				rb.notice('实体已删除', 'success')
-				setTimeout(function(){ location.replace('../../entities') }, 1500)
-			}else rb.notice(res.error_msg, 'danger')
-		})
+	let sbtn = $('.J_drop-confirm').click(()=>{
+		rb.alert('实体删除后将无法恢复，请务必谨慎操作！确认删除吗？', '删除实体', { type: 'danger', confirmText: '删除', confirm:function(){
+			sbtn.button('loading')
+			$(this.refs['rbalert']).find('button').button('loading')
+			$.post('../entity-drop?id=' + metaId, function(res){
+				if (res.error_code == 0){
+					rb.notice('实体已删除', 'success')
+					setTimeout(function(){ location.replace('../../entities') }, 1500)
+				}else rb.notice(res.error_msg, 'danger')
+			})
+		} })
 	})
 })
 </script>

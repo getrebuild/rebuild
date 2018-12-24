@@ -52,7 +52,7 @@ public abstract class PageControll {
 	protected ID getRequestUser(HttpServletRequest req) {
 		ID fansId = AppUtils.getRequestUser(req);
 		if (fansId == null) {
-			throw new BadParameterException("无效请求用户");
+			throw new IllegalParameterException("无效请求用户");
 		}
 		return fansId;
 	}

@@ -28,7 +28,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.StandardRecord;
 import cn.devezhao.persist4j.record.FieldValueException;
-import cn.devezhao.persist4j.record.JSONRecordCreator;
+import cn.devezhao.persist4j.record.JsonRecordCreator;
 import cn.devezhao.persist4j.record.RecordCreator;
 
 /**
@@ -70,7 +70,7 @@ public class EntityHelper {
 	 * @return
 	 */
 	public static Record parse(JSONObject data, ID user) {
-		JSONObject metadata = data.getJSONObject(JSONRecordCreator.META_FIELD);
+		JSONObject metadata = data.getJSONObject(JsonRecordCreator.META_FIELD);
 		if (metadata == null) {
 			throw new FieldValueException("无效实体数据格式(1): " + data.toJSONString());
 		}

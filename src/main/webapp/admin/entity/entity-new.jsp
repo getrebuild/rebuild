@@ -24,9 +24,9 @@
 			<label class="col-sm-3 col-form-label text-sm-right"></label>
 			<div class="col-sm-7">
 				<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-					<input class="custom-control-input" type="checkbox" id="nameField"><span class="custom-control-label"> 添加主显字段（推荐）</span>
+					<input class="custom-control-input" type="checkbox" id="nameField"><span class="custom-control-label"> 添加名称字段（推荐）</span>
 				</label>
-				<p class="form-text mb-0">主显字段能清晰的标识记录本身，如客户中的客户名称或订单中的订单编号</p>
+				<p class="form-text mb-0">名称字段能清晰的标识记录本身，如客户中的客户名称或订单中的订单编号</p>
 			</div>
 		</div>
 		<div class="form-group row pt-1">

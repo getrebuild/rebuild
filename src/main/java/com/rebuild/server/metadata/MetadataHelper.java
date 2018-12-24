@@ -225,6 +225,10 @@ public class MetadataHelper {
 			return DisplayType.TEXT;
 		} else if (ft == FieldType.BOOL) {
 			return DisplayType.BOOL;
+		} else if (ft == FieldType.INT || ft == FieldType.SMALL_INT) {
+			return DisplayType.NUMBER;
+		} else if (ft == FieldType.TEXT) {
+			return DisplayType.NTEXT;
 		}
 		return null;
 	}

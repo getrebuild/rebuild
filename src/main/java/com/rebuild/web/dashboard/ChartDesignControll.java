@@ -41,7 +41,7 @@ import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.utils.JSONUtils;
-import com.rebuild.web.BadParameterException;
+import com.rebuild.web.IllegalParameterException;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.commons.web.ServletUtils;
@@ -88,7 +88,7 @@ public class ChartDesignControll extends BaseControll {
 			mv.getModel().put("chartConfig", "{}");
 			entityMeta = MetadataHelper.getEntity(entity);
 		} else {
-			throw new BadParameterException();
+			throw new IllegalParameterException();
 		}
 		
 		if (!Application.getSecurityManager().allowedD(getRequestUser(request), entityMeta.getEntityCode())) {

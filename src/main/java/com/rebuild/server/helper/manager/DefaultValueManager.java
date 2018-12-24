@@ -32,7 +32,7 @@ import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.web.BadParameterException;
+import com.rebuild.web.IllegalParameterException;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -136,7 +136,7 @@ public class DefaultValueManager {
 	 */
 	private static Object[] readyReferenceValue(Object idVal) {
 		if (!ID.isId(idVal.toString())) {
-			throw new BadParameterException("Bad ID : " + idVal);
+			throw new IllegalParameterException("Bad ID : " + idVal);
 		}
 		
 		ID id = ID.valueOf(idVal.toString());

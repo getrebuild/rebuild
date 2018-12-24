@@ -27,6 +27,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.rebuild.server.bizz.privileges.UserStore;
+import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.metadata.DynamicMetadataFactory;
 import com.rebuild.server.service.CommonService;
@@ -60,7 +61,7 @@ public final class Application {
 	// SPRING
 	private static ApplicationContext APPLICATION_CTX;
 	// 业务实体对应的服务类
-	private static Map<Integer, GeneralEntityService> ESS = new HashMap<>();
+	private static Map<Integer, GeneralEntityService> ESS = null;
 	
 	protected Application(ApplicationContext ctx) {
 		APPLICATION_CTX = ctx;
@@ -81,6 +82,7 @@ public final class Application {
 		((DynamicMetadataFactory) APPLICATION_CTX.getBean(PersistManagerFactory.class).getMetadataFactory()).refresh(false);
 		
 		// 实体对应的服务类
+		ESS = new HashMap<>();
 		for (Map.Entry<String, GeneralEntityService> es : APPLICATION_CTX.getBeansOfType(GeneralEntityService.class).entrySet()) {
 			GeneralEntityService ges = es.getValue();
 			if (ges.getEntityCode() > 0) {
@@ -92,11 +94,11 @@ public final class Application {
 	}
 	
 	/**
-	 * 非 Server 环境下启动
+	 * 非 SERVER 环境下启动
 	 * 
 	 * @return
 	 */
-	protected static ApplicationContext debug() {
+	public static ApplicationContext debug() {
 		if (APPLICATION_CTX == null) {
 			LOG.info("Rebuild Booting in DEBUG mode ...");
 			long at = System.currentTimeMillis();
@@ -126,6 +128,9 @@ public final class Application {
 	}
 	
 	public static <T> T getBean(Class<T> beanClazz) {
+		if (APPLICATION_CTX == null) {
+			throw new IllegalStateException("Rebuild unstarted");
+		}
 		return APPLICATION_CTX.getBean(beanClazz);
 	}
 
@@ -151,6 +156,10 @@ public final class Application {
 	
 	public static RecordOwningCache getRecordOwningCache() {
 		return getBean(RecordOwningCache.class);
+	}
+	
+	public static CommonCache getCommonCache() {
+		return getBean(CommonCache.class);
 	}
 
 	public static com.rebuild.server.bizz.privileges.SecurityManager getSecurityManager() {
@@ -182,6 +191,9 @@ public final class Application {
 	}
 
 	public static GeneralEntityService getGeneralEntityService(int entityCode) {
+		if (ESS == null) {
+			throw new IllegalStateException("Rebuild unstarted");
+		}
 		if (ESS.containsKey(entityCode)) {
 			return ESS.get(entityCode);
 		} else {

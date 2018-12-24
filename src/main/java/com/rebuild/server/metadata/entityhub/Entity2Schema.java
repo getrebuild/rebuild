@@ -124,10 +124,10 @@ public class Entity2Schema extends Field2Schema {
 			// 数字自增 ID
 			createBuiltinField(tempEntity, EntityHelper.AutoId, "AUTOID", DisplayType.NUMBER, null, null, null);
 			// 助记码/搜索码
-			createField(tempEntity, EntityHelper.QuickCode, "QUICKCODE", DisplayType.TEXT, true, false, false, null, null, null);
+			createBuiltinField(tempEntity, EntityHelper.QuickCode, "QUICKCODE", DisplayType.TEXT, null, null, null);
 			
 			if (haveNameField) {
-				createField(tempEntity, nameFiled, entityLabel + "名称", DisplayType.TEXT, false, true, true, null, null, null);
+				createField(tempEntity, nameFiled, entityLabel + "名称", DisplayType.TEXT, false, true, true, null, null, null, false);
 			}
 			
 			createBuiltinField(tempEntity, EntityHelper.CreatedBy, "创建人", DisplayType.REFERENCE, null, "User", null);
@@ -140,7 +140,7 @@ public class Entity2Schema extends Field2Schema {
 			if (isSlave) {
 				String masterLabel = EasyMeta.valueOf(masterEntity).getLabel();
 				String masterField = masterEntity + "Id";
-				createBuiltinField(tempEntity, masterField, masterLabel, DisplayType.REFERENCE, "引用主记录(" + masterLabel + ")", masterEntity, CascadeModel.Delete);
+				createBuiltinField(tempEntity, masterField, masterLabel, DisplayType.REFERENCE, "引用主记录(" + masterLabel + ")", masterEntity, CascadeModel.Delete); 
 			} else {
 				createBuiltinField(tempEntity, EntityHelper.OwningUser, "所属用户", DisplayType.REFERENCE, null, "User", null);
 				createBuiltinField(tempEntity, EntityHelper.OwningDept, "所属部门", DisplayType.REFERENCE, null, "Department", null);
@@ -184,7 +184,7 @@ public class Entity2Schema extends Field2Schema {
 		try {
 			Application.getSQLExecutor().execute(ddl);
 		} catch (Throwable ex) {
-			LOG.error("DDL Error : \n" + ddl, ex);
+			LOG.error("DDL ERROR : \n" + ddl, ex);
 			return false;
 		}
 		
@@ -206,7 +206,7 @@ public class Entity2Schema extends Field2Schema {
 	private Field createBuiltinField(Entity entity, String fieldName, String fieldLabel, DisplayType displayType, String comments,
 			String refEntity, CascadeModel cascade) {
 		comments = StringUtils.defaultIfBlank(comments, "系统内建");
-		return createField(entity, fieldName, fieldLabel, displayType, false, false, false, comments, refEntity, cascade);
+		return createField(entity, fieldName, fieldLabel, displayType, false, false, false, comments, refEntity, cascade, true);
 	}
 	
 	/**

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.3.xsd" default-lazy-init="true">
+		
+	<bean id="seriesZeroJob" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+				<property name="jobClass" value="com.rebuild.server.business.series.SeriesZeroJob" />
+			</bean>
+		</property>
+		<property name="cronExpression" value="0 0 0 * * ?" />
+	</bean>
+	
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="autoStartup" value="true"/>
+		<property name="startupDelay" value="10"/>
+		<property name="configLocation" value="classpath:quartz.properties"/>
+		<property name="triggers">
+			<list>
+				<ref bean="seriesZeroJob"/>
+			</list>
+		</property>
+	</bean>
+</beans>

@@ -16,40 +16,32 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web;
+package com.rebuild.server.business.series;
 
-import com.rebuild.server.RebuildException;
+import cn.devezhao.commons.CalendarUtils;
 
 /**
- * 无效请求。如参数错误等
+ * YYYY-MM-DD HH-II-SS
+ * yyyy-MM-dd HH-mm:ss
  * 
- * @author zhaofang123@gmail.com
- * @since 05/19/2018
+ * @author devezhao
+ * @since 12/24/2018
  */
-public class BadParameterException extends RebuildException {
-	private static final long serialVersionUID = 1104144276994648297L;
-	
-	private int bizCode = 400;
+public class TimeVar extends SeriesVar {
 
-	public BadParameterException() {
-		this("无效请求参数");
+	/**
+	 * @param symbols
+	 */
+	protected TimeVar(String symbols) {
+		super(symbols);
 	}
-	
-	public BadParameterException(String msg) {
-		super(msg);
-	}
-	
-	public BadParameterException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
-	
-	public BadParameterException(String msg, int bizCode) {
-		super(msg);
-		this.bizCode = bizCode;
-	}
-	
+
 	@Override
-	protected int getBizCode() {
-		return bizCode;
+	public String generate() {
+		String s = getSymbols().replace("Y", "y");
+		s = s.replace("D", "d");
+		s = s.replace("I", "m");
+		s = s.replace("S", "s");
+		return CalendarUtils.format(s, CalendarUtils.now());
 	}
 }

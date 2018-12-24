@@ -87,7 +87,7 @@ public class Field2Schema {
 			}
 		}
 		
-		Field field = createField(entity, fieldName, fieldLabel, type, true, true, true, comments, refEntity, CascadeModel.Ignore);
+		Field field = createField(entity, fieldName, fieldLabel, type, true, true, true, comments, refEntity, CascadeModel.Ignore, false);
 		
 		boolean schemaReady = schema2Database(entity, field);
 		if (!schemaReady) {
@@ -154,7 +154,7 @@ public class Field2Schema {
 		try {
 			Application.getSQLExecutor().executeBatch(new String[] { ddl.toString() });
 		} catch (Throwable ex) {
-			LOG.error("DDL Error : \n" + ddl, ex);
+			LOG.error("DDL ERROR : \n" + ddl, ex);
 			return false;
 		}
 		return true;
@@ -171,10 +171,21 @@ public class Field2Schema {
 	 * @param comments
 	 * @param refEntity
 	 * @param cascade
+	 * @param isBuiltin 内建字段
 	 * @return
 	 */
 	protected Field createField(Entity entity, String fieldName, String fieldLabel, DisplayType displayType,
-			boolean nullable, boolean creatable, boolean updatable, String comments, String refEntity, CascadeModel cascade) {
+			boolean nullable, boolean creatable, boolean updatable, String comments, String refEntity, CascadeModel cascade, boolean isBuiltin) {
+		// 在数据库中是否可为空
+		boolean dbNullable = !isBuiltin;
+		
+		if (displayType == DisplayType.SERIES) {
+			nullable = false;
+			creatable = false;
+			updatable = false;
+			dbNullable = false;
+		}
+		
 		Record record = EntityHelper.forNew(EntityHelper.MetaField, user);
 		record.setString("belongEntity", entity.getName());
 		record.setString("fieldName", fieldName);
@@ -200,14 +211,7 @@ public class Field2Schema {
 		}
 		
 		if (displayType == DisplayType.REFERENCE && StringUtils.isBlank(refEntity)) {
-			throw new MetadataException("引用字段必须指定引用实体");
-		}
-		
-		int maxLength = 767 / 2;
-		if (displayType == DisplayType.FILE || displayType == DisplayType.IMAGE) {
-			maxLength = 767;
-		} else if (displayType == DisplayType.NTEXT) {
-			maxLength = 65535;
+			throw new ModificationMetadataException("引用字段必须指定引用实体");
 		}
 		
 		record = Application.getCommonService().create(record);
@@ -215,8 +219,8 @@ public class Field2Schema {
 		
 		boolean autoValue = EntityHelper.AutoId.equals(fieldName);
 		Field unsafeField = new FieldImpl(
-				fieldName, physicalName, fieldLabel, entity, displayType.getFieldType(), CascadeModel.Ignore, maxLength, 
-				nullable, creatable, updatable, true, 6, null, autoValue);
+				fieldName, physicalName, fieldLabel, entity, displayType.getFieldType(), CascadeModel.Ignore, displayType.getMaxLength(), 
+				dbNullable, creatable, updatable, true, 6, null, autoValue);
 		if (entity instanceof UnsafeEntity) {
 			((UnsafeEntity) entity).addField(unsafeField);
 		}

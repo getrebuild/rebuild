@@ -27,41 +27,45 @@ import cn.devezhao.persist4j.dialect.Type;
  */
 public enum DisplayType {
 	
-	NUMBER("数字", FieldType.LONG, "##,###"),
-	DECIMAL("货币", FieldType.DECIMAL, "##,##0.00"),
+	NUMBER("数字", FieldType.LONG, 0, "##,###"),
+	DECIMAL("货币", FieldType.DECIMAL, 0, "##,##0.00"),
+	DATE("日期", FieldType.DATE, 0, "yyyy-MM-dd"),
+	DATETIME("日期时间", FieldType.TIMESTAMP, 0, "yyyy-MM-dd HH:mm:ss"),
+	TEXT("文本", FieldType.STRING, 300, null),
+	NTEXT("大文本", FieldType.TEXT, 6000, null),
+	EMAIL("邮箱", FieldType.STRING, 100, null),
+	URL("链接", FieldType.STRING, 300, null),
+	PHONE("电话", FieldType.STRING, 20, null),
+	SERIES("自动编号", FieldType.STRING, 40, "{YYYYMMDD}-{0000}"),
+	IMAGE("图片", FieldType.STRING, 700, null),
+	FILE("附件", FieldType.STRING, 700, null),
+	PICKLIST("列表", FieldType.REFERENCE),
+	REFERENCE("引用", FieldType.REFERENCE),
 	
-	DATE("日期", FieldType.DATE, "yyyy-MM-dd"),
-	DATETIME("日期时间", FieldType.TIMESTAMP, "yyyy-MM-dd HH:mm:ss"),
+	// 待启用/内部用
+	ID("主键", FieldType.PRIMARY),
+	BOOL("布尔", FieldType.BOOL),
+	LOCATION("位置", FieldType.STRING, 50, null),
 	
-	TEXT("文本", FieldType.STRING, null),
-	NTEXT("超大文本", FieldType.TEXT, null),
-	EMAIL("邮箱", FieldType.STRING, null),
-	URL("链接", FieldType.STRING, null),
-	PHONE("电话", FieldType.STRING, null),
-
-	IMAGE("图片", FieldType.STRING, null),
-	FILE("附件", FieldType.STRING, null),
-	
-	PICKLIST("列表", FieldType.REFERENCE, null),
-	REFERENCE("引用", FieldType.REFERENCE, null),
-	ID("主键", FieldType.PRIMARY, null),
-	
-	LOCATION("位置", FieldType.STRING, null),
-	
-	// 内部用
-	
-	BOOL("布尔", FieldType.BOOL, null);
+	;
 	
 	// --
 	
 	private String displayName;
 	private Type fieldType;
 	private String defaultFormat;
+	private int maxLength;
 	
-	private DisplayType(String displayName, Type fieldType, String defaultFormat) {
+	private DisplayType(String displayName, Type fieldType) {
+		this.displayName = displayName;
+		this.fieldType = fieldType;
+	}
+	
+	private DisplayType(String displayName, Type fieldType, int maxLength, String defaultFormat) {
 		this.displayName = displayName;
 		this.fieldType = fieldType;
 		this.defaultFormat = defaultFormat;
+		this.maxLength = maxLength;
 	}
 	
 	public String getDisplayName() {
@@ -74,6 +78,10 @@ public enum DisplayType {
 	
 	public String getDefaultFormat() {
 		return defaultFormat;
+	}
+	
+	public int getMaxLength() {
+		return maxLength;
 	}
 	
 	@Override

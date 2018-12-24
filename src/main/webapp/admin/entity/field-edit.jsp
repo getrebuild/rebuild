@@ -12,6 +12,7 @@
 .sortable-box .no-item{padding:9px;text-align:center;color:#999}
 .sortable-box.autoh,.sortable-box.autoh .dd-list{height:auto;}
 .sortable-box .default .dd-handle{background-color:#dedede !important;cursor:help;}
+.form-text.help code{cursor:help;font-weight:bold;}
 </style>
 </head>
 <body>
@@ -103,8 +104,8 @@
 							<div class="col-lg-5 col-sm-10">
 								<select class="form-control form-control-sm" id="datetimeFormat">
 									<option value="yyyy-MM-dd">YYYY-MM-DD</option>
-									<option value="yyyy-MM-dd HH:mm">YYYY-MM-DD HH:MM</option>
-									<option value="yyyy-MM-dd HH:mm:ss" selected="selected">YYYY-MM-DD HH:MM:SS</option>
+									<option value="yyyy-MM-dd HH:mm">YYYY-MM-DD HH:II</option>
+									<option value="yyyy-MM-dd HH:mm:ss" selected="selected">YYYY-MM-DD HH:II:SS</option>
 								</select>
 							</div>
 						</div>
@@ -124,6 +125,26 @@
 									</ol>
 								</div>
 								<button type="button" class="btn btn-secondary btn-sm J_picklist-edit" style="line-height:28px"><i class="zmdi zmdi-settings"></i> 添加/编辑选项</button>
+							</div>
+						</div>
+						<div class="J_for-SERIES hide">
+							<div class="form-group row">
+								<label class="col-sm-2 col-form-label text-sm-right">编号规则</label>
+								<div class="col-lg-5 col-sm-10">
+									<input class="form-control form-control-sm" type="text" id="seriesFormat" value="{YYYYMMDD}-{0000}">
+									<p class="form-text mb-0 help">内置变量使用 <code>{}</code> 包裹，如 <code title="年月日 20191231">{YYYYMMDD}</code> <code title="时分秒 235959">{HHIISS}</code> <code title="4位自增序号">{0000}</code></p>
+								</div>
+							</div>
+							<div class="form-group row">
+								<label class="col-sm-2 col-form-label text-sm-right">自增序号归零</label>
+								<div class="col-lg-5 col-sm-10">
+									<select class="form-control form-control-sm" id="seriesZero">
+										<option value="N" selected="selected">不归零</option>
+										<option value="D">每天归零</option>
+										<option value="M">每月归零</option>
+										<option value="Y">每年归零</option>
+									</select>
+								</div>
 							</div>
 						</div>
 						<div class="form-group row">
@@ -189,20 +210,22 @@ $(document).ready(function(){
 		$('.J_for-' + dt + ' .form-control').each(function(){
 			let k = $(this).attr('id')
 			let v = $val(this)
-			if (extConfigOld[k] != v) extConfig[k] = v
+			extConfig[k] = v
 		})
-		
-		if (Object.keys(extConfig).length > 0){
-			_data['extConfig'] = JSON.stringify(extConfig)
+		for (let k in extConfig){
+			if (extConfig[k] != extConfigOld[k]) {
+				_data['extConfig'] = JSON.stringify(extConfig)
+				break
+			}
 		}
-		
+
 		_data = $cleanMap(_data)
 		if (Object.keys(_data).length == 0){
 			location.href = '../fields'
 			return
 		}
-		
-		_data.metadata = { entity:'MetaField', id:metaId||null }
+
+		_data.metadata = { entity: 'MetaField', id: metaId || null }
 		_data = JSON.stringify(_data)
 		btn.button('loading')
 		$.post(rb.baseUrl +  '/admin/entity/field-update', _data, function(res){
@@ -247,6 +270,8 @@ $(document).ready(function(){
 		$('.J_picklist-edit').click(function(){
 			rb.modal(rb.baseUrl + '/admin/p/entity/picklist-config?entity=${entityName}&field=${fieldName}', '配置列表选项')
 		})
+	} else if (dt == 'SERIES'){
+		$('#fieldNullable, #fieldUpdatable').attr('disabled', true)
 	}
 	
 	if ('${fieldBuildin}' == 'true') $('.footer .alert').removeClass('hide')

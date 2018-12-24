@@ -111,8 +111,8 @@ class RbAlert extends React.Component {
                         <div className="modal-body">
                             <div className="text-center">
                                 <div className={'text-' + type}><span className={'modal-main-icon zmdi zmdi-' + icon}></span></div>
-                                {this.props.title && <h4>{this.props.title}</h4>}
-                                {content}
+                                {this.props.title && <h4 className="mb-2 mt-3">{this.props.title}</h4>}
+                                <div className={this.props.title ? '' : 'mt-3'}>{content}</div>
                                 <div className="mt-4 mb-3">
                                     <button className="btn btn-space btn-secondary" type="button" onClick={()=>this.hide()}>取消</button>
                                     <button className={'btn btn-space btn-' + type} type="button" onClick={confirm}>{this.props.confirmText || '确定'}</button>
@@ -228,11 +228,11 @@ rb.modalResize = function(url){
     }
 }
 
-rb.alert = function(message, title0ext, ext){
-    let title = title0ext
-    if ($.type(title0ext) == 'object'){
+rb.alert = function(message, title_ext, ext){
+    let title = title_ext
+    if ($.type(title_ext) == 'object'){
         title = null
-        ext = title0ext
+        ext = title_ext
     }
     ext = ext || {}
     if (ext.html == true) return renderRbcomp(<RbAlert htmlMessage={message} title={title} type={ext.type} confirmText={ext.confirmText} confirm={ext.confirm} />)

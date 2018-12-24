@@ -43,8 +43,8 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.base.BulkContext;
 import com.rebuild.server.service.base.GeneralEntityService;
 import com.rebuild.utils.JSONUtils;
-import com.rebuild.web.BadParameterException;
 import com.rebuild.web.BaseControll;
+import com.rebuild.web.IllegalParameterException;
 
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.bizz.security.AccessDeniedException;
@@ -71,7 +71,13 @@ public class GeneralRecordControll extends BaseControll {
 		ID user = getRequestUser(request);
 		JSON formJson = ServletUtils.getRequestJson(request);
 		
-		Record record = EntityHelper.parse((JSONObject) formJson, user);
+		Record record = null;
+		try {
+			record = EntityHelper.parse((JSONObject) formJson, user);
+		} catch (IllegalParameterException ex) {
+			writeFailure(response, ex.getLocalizedMessage());
+			return;
+		}
 		
 		// TODO 检查不可重复字段值
 		
@@ -247,7 +253,7 @@ public class GeneralRecordControll extends BaseControll {
 				sameEntityCode = id0.getEntityCode();
 			}
 			if (sameEntityCode != id0.getEntityCode()) {
-				throw new BadParameterException("只能批量删除同一实体的记录");
+				throw new IllegalParameterException("只能批量删除同一实体的记录");
 			}
 			idList.add(ID.valueOf(id));
 		}

@@ -93,6 +93,6 @@ public class AES {
 	
 	// for Encrypt
 	public static void main(String[] args) {
-		System.out.println(encrypt(""));
+		System.out.println(encrypt("crk2019rb"));
 	}
 }

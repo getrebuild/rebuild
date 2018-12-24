@@ -80,6 +80,10 @@
 		<constructor-arg index="0" ref="ehcacheManager" />
 		<constructor-arg index="1" ref="persistManagerFactory" />
 	</bean>
+	
+	<bean name="commonCache" class="com.rebuild.server.helper.cache.CommonCache">
+		<constructor-arg index="0" ref="ehcacheManager" />
+	</bean>
 
 	<bean class="com.rebuild.server.bizz.privileges.SecurityManager">
 		<constructor-arg index="0" ref="userStore" />
@@ -152,5 +156,7 @@
 	<bean class="com.rebuild.server.bizz.RoleService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
-
+	
+	<import resource="classpath:application-job.xml"/>
+	
 </beans>

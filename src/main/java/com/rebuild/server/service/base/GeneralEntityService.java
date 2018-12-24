@@ -34,6 +34,7 @@ import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.rebuild.server.Application;
 import com.rebuild.server.bizz.privileges.PrivilegesGuardInterceptor;
 import com.rebuild.server.bizz.privileges.User;
+import com.rebuild.server.business.series.SeriesGeneratorFactory;
 import com.rebuild.server.helper.BulkTaskExecutor;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -99,6 +100,7 @@ public class GeneralEntityService extends BaseService  {
 	@Override
 	public Record create(Record record) {
 		setQuickCodeValue(record);
+		setSeriesValue(record);
 		return super.create(record);
 	}
 	
@@ -109,7 +111,7 @@ public class GeneralEntityService extends BaseService  {
 	}
 	
 	/**
-	 * 设置助记码字段值
+	 * 设置助记码
 	 * 
 	 * @param record
 	 */
@@ -136,9 +138,24 @@ public class GeneralEntityService extends BaseService  {
 			}
 			
 			if (StringUtils.isBlank(qcode)) {
-				record.setNull(EntityHelper.QuickCode);
+				record.setString(EntityHelper.QuickCode, StringUtils.EMPTY);
 			} else {
 				record.setString(EntityHelper.QuickCode, qcode);
+			}
+		}
+	}
+	
+	/**
+	 * 设置自动编号
+	 * 
+	 * @param record
+	 */
+	protected void setSeriesValue(Record record) {
+		for (Field field : record.getEntity().getFields()) {
+			EasyMeta easy = EasyMeta.valueOf(field);
+			if (easy.getDisplayType() == DisplayType.SERIES) {
+				String series = SeriesGeneratorFactory.generate(field);
+				record.setString(field.getName(), series);
 			}
 		}
 	}

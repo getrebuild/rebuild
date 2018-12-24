@@ -123,7 +123,7 @@ const render_list = function(q){
 		let name = $('<td><a href="field/' + item.fieldName + '" class="column-main">' + item.fieldLabel + '</a></td>').appendTo(tr)
 		if (item.fieldName == name_field){
 			tr.addClass('primary')
-			$('<span class="badge badge-pill badge-secondary thin ml-1">主显</span>').appendTo(name)
+			$('<span class="badge badge-pill badge-secondary thin ml-1">名称</span>').appendTo(name)
 		} else if (item.creatable == false){
 			tr.addClass('muted')
 		} else if (item.nullable == false){

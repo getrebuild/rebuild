@@ -18,19 +18,30 @@
 			<label class="col-sm-3 col-form-label text-sm-right">字段类型</label>
 			<div class="col-sm-7">
 				<select class="form-control form-control-sm" id="type">
-					<option value="NUMBER">整数</option>
-					<option value="DECIMAL">货币</option>
-					<option value="DATE">日期</option>
-					<option value="DATETIME">日期时间</option>
-					<option value="TEXT">文本</option>
-					<option value="NTEXT">超大文本</option>
-					<option value="PHONE">电话</option>
-					<option value="EMAIL">邮箱</option>
-					<option value="URL">链接</option>
-					<option value="PICKLIST">列表</option>
-					<option value="IMAGE">图片</option>
-					<option value="FILE">文件</option>
-					<option value="REFERENCE">引用</option>
+					<optgroup label="数字">
+						<option value="NUMBER">整数</option>
+						<option value="DECIMAL">货币</option>
+					</optgroup>
+					<optgroup label="日期">
+						<option value="DATE">日期</option>
+						<option value="DATETIME">日期时间</option>
+					</optgroup>
+					<optgroup label="文本">
+						<option value="TEXT">文本</option>
+						<option value="NTEXT">大文本</option>
+						<option value="PHONE">电话</option>
+						<option value="EMAIL">邮箱</option>
+						<option value="URL">链接</option>
+						<option value="SERIES">自动编号</option>
+						<option value="PICKLIST">列表</option>
+					</optgroup>
+					<optgroup label="媒体">
+						<option value="IMAGE">图片</option>
+						<option value="FILE">文件</option>
+					</optgroup>
+					<optgroup label="关系">
+						<option value="REFERENCE">引用</option>
+					</optgroup>
 				</select>
 			</div>
 		</div>
