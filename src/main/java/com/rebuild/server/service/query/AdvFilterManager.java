@@ -144,12 +144,9 @@ public class AdvFilterManager {
 	 * @return
 	 */
 	public static boolean allowedQuickFilter(Field field) {
-		if (field == null || MetadataHelper.isFilterField(field)) {
-			return false;
-		}
-		
 		DisplayType dt = EasyMeta.getDisplayType(field);
-		return (dt == DisplayType.TEXT || dt == DisplayType.URL || dt == DisplayType.EMAIL || dt == DisplayType.PHONE || dt == DisplayType.PICKLIST);
+		return dt == DisplayType.TEXT || dt == DisplayType.URL || dt == DisplayType.EMAIL || dt == DisplayType.PHONE || dt == DisplayType.PICKLIST 
+				|| dt == DisplayType.SERIES;
 	}
 	
 	// --

@@ -139,9 +139,10 @@ public class EasyMeta implements BaseMeta {
 	}
 	
 	/**
-	 * 系统内建字段
+	 * 系统内建字段/实体，不可更改
 	 * 
 	 * @return
+	 * @see MetadataHelper#isSystemField(Field)
 	 */
 	public boolean isBuiltin() {
 		if (this.getMetaId() == null) {

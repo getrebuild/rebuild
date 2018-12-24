@@ -134,9 +134,6 @@ public class GeneralListControll extends BaseControll implements LayoutConfig {
 		
 		List<Map<String, Object>> fieldList = new ArrayList<>();
 		for (Field field : MetadataSorter.sortFields(entityMeta)) {
-			if (MetadataHelper.isFilterField(field)) {
-				continue;
-			}
 			fieldList.add(DataListManager.formattedColumn(field));
 		}
 		

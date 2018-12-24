@@ -61,7 +61,8 @@ public class FieldValueWrapper {
 		}
 		
 		// 密码型字段返回
-		if (field.getName().toLowerCase().contains("password")) {
+		String fieldName = field.getName().toLowerCase();
+		if (fieldName.contains("password")) {
 			return "******";
 		}
 		

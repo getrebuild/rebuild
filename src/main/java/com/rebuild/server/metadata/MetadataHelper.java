@@ -175,22 +175,7 @@ public class MetadataHelper {
 	}
 	
 	/**
-	 * 设置时过滤某些 Bizz 实体的字段
-	 * 
-	 * @param field
-	 * @return
-	 */
-	public static boolean isFilterField(Field field) {
-		int ec = field.getOwnEntity().getEntityCode();
-		String fn = field.getName();
-		if (ec == EntityHelper.User) {
-			return "avatarUrl".equalsIgnoreCase(fn) || "password".equalsIgnoreCase(fn);
-		}
-		return false;
-	}
-	
-	/**
-	 * 仅供系统使用的字段
+	 * 仅供系统使用的字段，用户不可见
 	 * 
 	 * @param field
 	 * @return
