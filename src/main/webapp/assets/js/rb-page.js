@@ -39,7 +39,13 @@ $(function(){
 	if ($('.rb-notifications').length > 0) {
 		setTimeout(__checkMessage, 1500)
 	}
+	
+	let keydown_times = 0
+	$(document.body).keydown((e)=>{
+		if (e.ctrlKey && e.altKey && e.which == 88) command_exec(++keydown_times)
+	})
 })
+command_exec = function(t){ }
 
 // 导航菜单
 const __initNavs = function(){

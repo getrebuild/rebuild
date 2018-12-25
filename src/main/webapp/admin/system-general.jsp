@@ -6,11 +6,11 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>通用配置</title>
 <style type="text/css">
-a.img-thumbnail{display:inline-block;padding:0.6rem;background-color:#fff;line-height:1;font-size:0;cursor:default;}
-a.img-thumbnail img{max-height:20px;}
-h5{background-color:#eee;margin:0;padding:10px;}
-.table td{padding:10px;}
-.table td p{margin:0;color:#999;font-weight:normal;font-size:12px;}
+.syscfg a.img-thumbnail{display:inline-block;padding:0.6rem;background-color:#fff;line-height:1;font-size:0;cursor:default;}
+.syscfg a.img-thumbnail img{max-height:20px;}
+.syscfg h5{background-color:#eee;margin:0;padding:10px;}
+.syscfg .table td{padding:10px;}
+.syscfg .table td p{margin:0;color:#999;font-weight:normal;font-size:12px;}
 </style>
 </head>
 <body>
@@ -22,7 +22,7 @@ h5{background-color:#eee;margin:0;padding:10px;}
 		<jsp:param value="systems" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
-		<div class="main-content container-fluid">
+		<div class="main-content container-fluid syscfg">
 			<div class="row">
 				<div class="col-9">
 					<div class="card">
@@ -44,7 +44,7 @@ h5{background-color:#eee;margin:0;padding:10px;}
 								</tr>
 								<tr>
 									<td>域名/主页地址</td>
-									<td><a id="sc-HomeURL" href="http://getrebuild.com/" class="link" target="_blank">http://getrebuild.com/</a></td>
+									<td><a id="sc-HomeURL" href="https://nightly.getrebuild.com/" class="link" target="_blank">https://nightly.getrebuild.com/</a></td>
 								</tr>
 								<tr>
 									<td>公开注册</td>
@@ -88,7 +88,5 @@ h5{background-color:#eee;margin:0;padding:10px;}
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/babel">
-</script>
 </body>
 </html>

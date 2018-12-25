@@ -20,8 +20,8 @@ package com.rebuild.server.helper;
 
 import java.io.File;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -44,23 +44,6 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class SystemConfiguration {
 	
-	/**
-	 * 系统配置项名称
-	 */
-	public static enum ItemName {
-		// 通用
-		AppName, LOGO, LOGOWhite, HomeURL, OpenSignUp,
-		
-		// 临时目录
-		TempDirectory,
-		
-		// 云存储
-		StorageURL, StorageApiKey, StorageApiSecret, StorageBucket,
-		
-		// 缓存服务
-		CacheHost, CachePort, CacheUser, CachePassword,
-	}
-	
 	private static final Log LOG = LogFactory.getLog(SystemConfiguration.class);
 	
 	/**
@@ -70,7 +53,7 @@ public class SystemConfiguration {
 	 * @return
 	 */
 	public static File getFileOfTemp(String file) {
-		String tmp = getItemFromBoth(ItemName.TempDirectory);
+		String tmp = getItem(SystemItem.TempDirectory);
 		File tmp2 = null;
 		if (tmp != null) {
 			tmp2 = new File(tmp);
@@ -90,89 +73,107 @@ public class SystemConfiguration {
 	 * @return
 	 */
 	public static String getStorageUrl() {
-		return getItemFromBoth(ItemName.StorageURL);
+		return getItem(SystemItem.StorageURL);
 	}
 	
 	/**
 	 * 云存储账号
 	 * 
-	 * @return
+	 * @return returns [StorageApiKey, StorageApiSecret, StorageBucket, StorageURL]
 	 */
 	public static String[] getStorageAccount() {
-		String key = getItemFromBoth(ItemName.StorageApiKey);
+		String key = getItem(SystemItem.StorageApiKey);
 		if (key == null) {
 			return null;
 		}
-		String secret = getItemFromBoth(ItemName.StorageApiSecret);
+		String secret = getItem(SystemItem.StorageApiSecret);
 		if (secret == null) {
 			return null;
 		}
-		String bucket = getItemFromBoth(ItemName.StorageBucket);
+		String bucket = getItem(SystemItem.StorageBucket);
 		if (bucket == null) {
 			return null;
 		}
-		return new String[] { key, secret, bucket };
+		return new String[] { key, secret, bucket, getStorageUrl() };
 	}
 	
 	/**
-	 * TODO 缓存服务账号
+	 * 缓存账号
 	 * 
-	 * @return
+	 * @return returns [CacheHost, CachePort, CacheUser, CachePassword]
 	 */
 	public static String[] getCacheAccount() {
-		String host = getItemFromBoth(ItemName.CacheHost);
+		String host = getItem(SystemItem.CacheHost);
 		if (host == null) {
 			return null;
 		}
-		String port = getItemFromBoth(ItemName.CachePort);
+		String port = getItem(SystemItem.CachePort);
 		if (port == null) {
 			return null;
 		}
-		String user = getItemFromBoth(ItemName.CacheUser);
-//		if (user == null) {
-//			return null;
-//		}
-		String password = getItemFromBoth(ItemName.CachePassword);
+		String password = getItem(SystemItem.CachePassword);
 		if (password == null) {
 			return null;
 		}
+		String user = getItem(SystemItem.CacheUser);
 		return new String[] { host, port, user, password };
 	}
 	
 	/**
-	 * @return
+	 * 邮件账号
+	 * 
+	 * @return returns [MailUser, MailPassword, MailAddr, MailName]
 	 */
 	public static String[] getEmailAccount() {
-		return null;
+		String user = getItem(SystemItem.MailUser);
+		if (user == null) {
+			return null;
+		}
+		String password = getItem(SystemItem.MailPassword);
+		if (password == null) {
+			return null;
+		}
+		String addr = getItem(SystemItem.MailAddr);
+		if (addr == null) {
+			return null;
+		}
+		String name = getItem(SystemItem.MailName);
+		if (name == null) {
+			return null;
+		}
+		return new String[] { user, password, addr, name };
 	}
 	
 	/**
-	 * @return
+	 * 短信账号
+	 * 
+	 * @return returns [SmsUser, SmsPassword, SmsSign]
 	 */
 	public static String[] getSmsAccount() {
-		return null;
-	}
-	
-	/*-
-	 * 从数据库-配置文件获取
-	 */
-	private static String getItemFromBoth(ItemName name) {
-		String s = getItem(name);
-		if (s == null) {
-			s = Application.getBean(AesPreferencesConfigurer.class).getItem(name.name());
+		String user = getItem(SystemItem.SmsUser);
+		if (user == null) {
+			return null;
 		}
-		return s;
+		String password = getItem(SystemItem.SmsPassword);
+		if (password == null) {
+			return null;
+		}
+		String sign = getItem(SystemItem.SmsSign);
+		if (sign == null) {
+			return null;
+		}
+		return new String[] { user, password, sign };
 	}
 	
 	// --
 	
-	private static final Map<String, String> CACHED = new ConcurrentHashMap<>();
+	private static final Map<String, String> CACHED = new CaseInsensitiveMap<>();
 	
 	/**
 	 * @param name
 	 * @return
 	 */
-	public static String getItem(ItemName name) {
+	public static String getItem(SystemItem name) {
 		return getItem(name, false);
 	}
 	
@@ -180,7 +181,7 @@ public class SystemConfiguration {
 	 * @param name
 	 * @return
 	 */
-	public static String getItem(ItemName name, boolean reload) {
+	public static String getItem(SystemItem name, boolean reload) {
 		String s = CACHED.get(name.name());
 		if (s != null && reload == false) {
 			return s;
@@ -191,6 +192,12 @@ public class SystemConfiguration {
 				.setParameter(1, name.name())
 				.unique();
 		s = value == null ? null : StringUtils.defaultIfBlank((String) value[0], null);
+		
+		// 从配置文件加载
+		if (s == null) {
+			s = Application.getBean(AesPreferencesConfigurer.class).getItem(name.name());
+		}
+		
 		if (s == null) {
 			CACHED.remove(name.name());
 		} else {
@@ -204,7 +211,7 @@ public class SystemConfiguration {
 	 * @param defaultValue
 	 * @return
 	 */
-	public static long getLongItem(ItemName name, long defaultValue) {
+	public static long getLongItem(SystemItem name, long defaultValue) {
 		String s = getItem(name);
 		return s == null ? defaultValue : NumberUtils.toLong(s);
 	}
@@ -214,7 +221,7 @@ public class SystemConfiguration {
 	 * @param defaultValue
 	 * @return
 	 */
-	public static boolean getBoolItem(ItemName name, boolean defaultValue) {
+	public static boolean getBoolItem(SystemItem name, boolean defaultValue) {
 		String s = getItem(name);
 		return s == null ? defaultValue : BooleanUtils.toBoolean(s);
 	}
@@ -224,7 +231,7 @@ public class SystemConfiguration {
 	 * @param value
 	 * @return
 	 */
-	public static void setItem(ItemName name, Object value) {
+	public static void setItem(SystemItem name, Object value) {
 		Object[] exists = Application.createQueryNoFilter(
 				"select configId from SystemConfig where item = ?")
 				.setParameter(1, name.name())

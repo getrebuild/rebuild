@@ -1,10 +1,14 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.rebuild.utils.StringsUtils"%>
 <!DOCTYPE html>
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <title>缓存系统配置</title>
 <style type="text/css">
+.syscfg h5{background-color:#eee;margin:0;padding:10px;}
+.syscfg .table td{padding:10px;}
+.syscfg .table td p{margin:0;color:#999;font-weight:normal;font-size:12px;}
 </style>
 </head>
 <body>
@@ -16,13 +20,37 @@
 		<jsp:param value="plugins-cache" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
-		<div class="main-content container-fluid">
-			<h3 class="text-center">暂未支持</h3>
+		<div class="main-content container-fluid syscfg">
+			<div class="row">
+				<div class="col-9">
+					<div class="card">
+						<div class="card-header card-header-divider">缓存系统</div>
+						<div class="card-body">
+							<h5>Redis</h5>
+							<% 
+							String account[] = SystemConfiguration.getCacheAccount();
+							%>
+							<table class="table">
+							<tbody>
+								<tr>
+									<td width="50%">缓存服务器</td>
+									<td><%=account == null ? "" : (account[0] + ":" + account[1])%></td>
+								</tr>
+								<tr>
+									<td>访问秘钥</td>
+									<td><%=account == null ? "" : StringsUtils.stars(account[3])%></td>
+								</tr>
+							</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<div class="col-3">
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/babel">
-</script>
 </body>
 </html>

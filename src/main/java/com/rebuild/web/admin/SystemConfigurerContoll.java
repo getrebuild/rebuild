@@ -49,13 +49,8 @@ public class SystemConfigurerContoll extends BaseControll {
 		return createModelAndView("/admin/plugins/cache-redis.jsp");
 	}
 	
-	@RequestMapping("plugins/sms")
-	public ModelAndView pagePluginsSms() {
-		return createModelAndView("/admin/plugins/sms-submail.jsp");
-	}
-	
-	@RequestMapping("plugins/mail")
-	public ModelAndView pagePluginsMail() {
-		return createModelAndView("/admin/plugins/mail-submail.jsp");
+	@RequestMapping("plugins/mails")
+	public ModelAndView pagePluginsMailSms() {
+		return createModelAndView("/admin/plugins/mails-submail.jsp");
 	}
 }

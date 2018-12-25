@@ -9,17 +9,16 @@
 					<li class="divider">系统</li>
 					<li class="${param['activeNav'] == 'systems' ? 'active' : ''}" id="nav_systems"><a href="${baseUrl}/admin/systems"><i class="icon zmdi zmdi-settings"></i><span>通用配置</span></a></li>
 					<li class="parent">
-						<a><i class="icon zmdi zmdi-cloud-done"></i><span>第三方服务集成</span></a>
+						<a><i class="icon zmdi zmdi-cloud-done"></i><span>三方服务集成</span></a>
 						<ul class="sub-menu">
-							<li class="title">第三方服务集成</li>
+							<li class="title">三方服务集成</li>
 							<li class="nav-items">
 								<div class="rb-scroller">
 									<div class="content">
 										<ul>
 											<li class="${param['activeNav'] == 'plugins-storage' ? 'active' : ''}" id="nav_plugins-storage"><a href="${baseUrl}/admin/plugins/storage">云存储</a></li>
 											<li class="${param['activeNav'] == 'plugins-cache' ? 'active' : ''}" id="nav_plugins-cache"><a href="${baseUrl}/admin/plugins/cache">缓存系统</a></li>
-											<li class="${param['activeNav'] == 'plugins-sms' ? 'active' : ''}" id="nav_plugins-sms"><a href="${baseUrl}/admin/plugins/sms">短信服务</a></li>
-											<li class="${param['activeNav'] == 'plugins-mail' ? 'active' : ''}" id="nav_plugins-mail"><a href="${baseUrl}/admin/plugins/mail">邮件服务</a></li>
+											<li class="${param['activeNav'] == 'plugins-mails' ? 'active' : ''}" id="nav_plugins-mails"><a href="${baseUrl}/admin/plugins/mails">短信/邮件</a></li>
 										</ul>
 									</div>
 								</div>
