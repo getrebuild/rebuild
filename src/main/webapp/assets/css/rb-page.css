@@ -248,10 +248,10 @@ body.dialog .main-content {
 }
 .dialog-footer>.float-left>.custom-control {
     margin: 0;
-    margin-top: 6px
+    margin-top: 4px
 }
 body.dialog .main-content .footer, .rbform .footer {
-    padding-bottom: 6px;
+    padding-bottom: 4px;
 }
 body.view-body {
     min-height: 100%;
@@ -329,7 +329,7 @@ a {
 .img-field {
     line-height: 1;
     font-size: 0;
-    margin-bottom: -4px;
+    margin-bottom: 6px;
 }
 .img-field>span {
     margin-right: 4px;

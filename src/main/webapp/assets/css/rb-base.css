@@ -1777,7 +1777,8 @@ pre code {
 }
 .form-control:disabled, .form-control[readonly] {
     background-color: #eee;
-    opacity: 1
+    opacity: 1;
+    cursor: default;
 }
 select.form-control:not([size]):not([multiple]) {
     height: 3.692rem
@@ -16957,7 +16958,8 @@ select.form-control-xs:not([size]):not([multiple]) {
 }
 .form-group.row {
     margin-bottom: 0;
-    padding: 12px 0
+    padding: 12px 0;
+    padding: 10px 0;
 }
 .form-horizontal .form-group.row .col-form-label {
     text-align: right

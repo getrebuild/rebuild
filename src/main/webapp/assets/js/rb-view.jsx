@@ -85,7 +85,7 @@ const RbViewPage = {
                     }
                 })
             }
-            rb.alert('确认删除当前记录吗？', '删除确认', alertExt)
+            rb.alert('确认删除当前记录吗？', alertExt)
         })
         
         $('.J_edit').click(function(){

@@ -302,7 +302,9 @@ class RbFormElement extends React.Component {
     }
     checkHasError(){
         if (this.props.nullable == false) {
-            return !!!this.state.value ? '不能为空' : null
+            let v = this.state.value
+            if (v && $.type(v) == 'array') return v.length == 0 ? '不能为空' : null
+            else return !!!v ? '不能为空' : null
         }
         return null
     }
