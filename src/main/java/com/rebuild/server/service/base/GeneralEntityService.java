@@ -40,7 +40,7 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.server.service.BaseService;
+import com.rebuild.server.service.AbstractBaseService;
 import com.rebuild.server.service.OperateContext;
 
 import cn.devezhao.bizz.privileges.Permission;
@@ -53,14 +53,14 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 业务实体用
- * - 会带有系统设置规则的执行，详见 {@link PrivilegesGuardInterceptor}
- * - 会开启一个事务，详见 <tt>application-ctx.xml</tt> 配置
+ * 业务实体服务
+ * <br>- 会带有系统设置规则的执行，详见 {@link PrivilegesGuardInterceptor}
+ * <br>- 会开启一个事务，详见 <tt>application-ctx.xml</tt> 配置
  * 
  * @author zhaofang123@gmail.com
  * @since 11/06/2017
  */
-public class GeneralEntityService extends BaseService  {
+public class GeneralEntityService extends AbstractBaseService  {
 	
 	private static final Log LOG = LogFactory.getLog(GeneralEntityService.class);
 	

@@ -18,17 +18,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.metadata.entityhub;
 
-import com.rebuild.server.service.BaseService;
+import com.rebuild.server.service.AbstractBaseService;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 
  * @author zhaofang123@gmail.com
  * @since 08/03/2018
  */
-public class MetaFieldService extends BaseService {
+public class MetaFieldService extends AbstractBaseService {
 
 	protected MetaFieldService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);

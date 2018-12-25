@@ -747,11 +747,12 @@ const detectElement = function(item){
     }
     
     if (item.onView === true) {
+        // 根据各组件渲染
     } else if (item.readonly == true) {
         return <RbFormReadonly {...item} />
     }
     
-    if (item.type == 'TEXT'){
+    if (item.type == 'TEXT' || item.type == 'SERIES'){
         return <RbFormText {...item} />
     } else if (item.type == 'NTEXT'){
         return <RbFormTextarea {...item} />

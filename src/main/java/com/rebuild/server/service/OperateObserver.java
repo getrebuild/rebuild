@@ -24,11 +24,13 @@ import java.util.Observer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.rebuild.server.service.base.GeneralEntityService;
+
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.ThreadPool;
 
 /**
- * 记录操作观察者
+ * 记录操作观察者。子类复写需要关注的操作即可
  * 
  * @author devezhao
  * @since 10/31/2018
@@ -47,7 +49,7 @@ public abstract class OperateObserver implements Observer {
 					try {
 						update(ctx);
 					} catch (Exception ex) {
-						LOG.error("AwareContext : " + ctx, ex);
+						LOG.error("OperateContext : " + ctx, ex);
 					}
 				}
 			});
@@ -69,34 +71,54 @@ public abstract class OperateObserver implements Observer {
 		} else if (ctx.getAction() == BizzPermission.ASSIGN) {
 			onAssign(ctx);
 		} else if (ctx.getAction() == BizzPermission.SHARE) {
-			onSahre(ctx);
-		}
+			onShare(ctx);
+		} else if (ctx.getAction() == GeneralEntityService.UNSHARE) {
+			onUnShare(ctx);
+		} 
 	}
 
 	/**
+	 * 是否异步执行
+	 * 
 	 * @return
 	 */
 	protected boolean isAsync() {
-		return true;
+		return false;
 	}
 	
 	public void onCreate(final OperateContext context) {
-		LOG.info("Only logging context - " + context);
+		if (LOG.isDebugEnabled()) {
+			LOG.info("onCreate - " + context);
+		}
 	}
 
 	public void onUpdate(final OperateContext context) {
-		LOG.info("Only logging context - " + context);
+		if (LOG.isDebugEnabled()) {
+			LOG.info("onUpdate - " + context);
+		}
 	}
 
 	public void onDelete(final OperateContext context) {
-		LOG.info("Only logging context - " + context);
+		if (LOG.isDebugEnabled()) {
+			LOG.info("onDelete - " + context);
+		}
 	}
 
 	public void onAssign(final OperateContext context) {
-		LOG.info("Only logging context - " + context);
+		if (LOG.isDebugEnabled()) {
+			LOG.info("onAssign - " + context);
+		}
 	}
 
-	public void onSahre(final OperateContext context) {
-		LOG.info("Only logging context - " + context);
+	public void onShare(final OperateContext context) {
+		if (LOG.isDebugEnabled()) {
+			LOG.info("onSahre - " + context);
+		}
+	}
+	
+	public void onUnShare(final OperateContext context) {
+		if (LOG.isDebugEnabled()) {
+			LOG.info("onUnShare - " + context);
+		}
 	}
 }

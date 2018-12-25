@@ -148,5 +148,7 @@ public class EntityHelper {
 	public static final int ShareAccess = 20;
 	public static final int SystemConfig = 21;
 	public static final int Notification = 22;
+	public static final int Attachment = 23;
+	public static final int AttachmentFolder = 24;
 	
 }

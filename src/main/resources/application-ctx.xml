@@ -135,14 +135,16 @@
 	
 	<!-- 记录操作观察者 -->
 	<bean name="notificationObserver" class="com.rebuild.server.service.notification.NotificationObserver" />
-	<bean name="auditLoggingObserver" class="com.rebuild.server.service.base.AuditLoggingObserver" />
+	<bean name="auditLoggingObserver" class="com.rebuild.server.service.base.obs.AuditLoggingObserver" />
+	<bean name="attchementAwareObserver" class="com.rebuild.server.service.base.obs.AttchementAwareObserver" />
 	
 	<bean name="generalEntityService" class="com.rebuild.server.service.base.GeneralEntityService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 		<constructor-arg index="1">
 			<list>
-				<ref bean="auditLoggingObserver"/>
 				<ref bean="notificationObserver"/>
+				<ref bean="auditLoggingObserver"/>
+				<ref bean="attchementAwareObserver"/>
 			</list>
 		</constructor-arg>
 	</bean>

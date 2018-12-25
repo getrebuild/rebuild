@@ -59,7 +59,9 @@ public class SchemaGen {
 //		gen(EntityHelper.Notification);
 //		gen(EntityHelper.User);
 //		gen(EntityHelper.DashboardConfig);
-		gen(EntityHelper.ChartConfig);
+//		gen(EntityHelper.ChartConfig);
+		gen(EntityHelper.Attachment);
+		gen(EntityHelper.AttachmentFolder);
 		
 		System.exit(0);
 	}

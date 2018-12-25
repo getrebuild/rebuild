@@ -19,7 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.service.notification;
 
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.BaseService;
+import com.rebuild.server.service.AbstractBaseService;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
@@ -30,7 +30,7 @@ import cn.devezhao.persist4j.Record;
  * @author devezhao
  * @since 10/17/2018
  */
-public class NotificationService extends BaseService {
+public class NotificationService extends AbstractBaseService {
 
 	protected NotificationService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);

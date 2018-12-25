@@ -46,7 +46,7 @@ public class NotificationObserver extends OperateObserver {
 	}
 	
 	@Override
-	public void onSahre(OperateContext context) {
+	public void onShare(OperateContext context) {
 		ID from = context.getOperator();
 		String to = context.getAfterRecord().getString("shareTo");
 		

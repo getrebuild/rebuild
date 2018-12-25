@@ -68,7 +68,7 @@ public class FileUploader extends HttpServlet {
 				if (uploadName.length() > 43) {
 					uploadName = uploadName.substring(0, 20) + "..." + uploadName.substring(uploadName.length() - 20);
 				}
-				uploadName = CalendarUtils.getDateFormat("hhMMssSSS").format(CalendarUtils.now()) + "__" + uploadName;
+				uploadName = CalendarUtils.getDateFormat("HHmmssSSS").format(CalendarUtils.now()) + "__" + uploadName;
 				
 				File temp = SystemConfiguration.getFileOfTemp(uploadName);
 				item.write(temp);

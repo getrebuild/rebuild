@@ -18,16 +18,23 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service;
 
+import org.springframework.util.Assert;
+
+import com.rebuild.server.bizz.privileges.PrivilegesGuardInterceptor;
+
 import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 普通的 CRUD 服务
+ * <br>- 此类有事物
+ * <br>- 此类不经过用户权限验证 {@link PrivilegesGuardInterceptor}
  * 
  * @author zhaofang123@gmail.com
  * @since 11/06/2017
  */
-public class CommonService extends BaseService {
+public class CommonService extends AbstractBaseService {
 
 	public CommonService(PersistManagerFactory factory) {
 		super(factory);
@@ -39,11 +46,42 @@ public class CommonService extends BaseService {
 	 * @param ids
 	 * @return
 	 */
-	public int delete(ID[] ids) {
+	public int delete(ID[] deletes) {
+		Assert.notNull(deletes, "'deletes' not be null");
 		int affected = 0;
-		for (ID id : ids) {
-			affected += delete(id);
+		for (ID id : deletes) {
+			affected += super.delete(id);
 		}
+		return affected;
+	}
+	
+	/**
+	 * 批量新建
+	 * 
+	 * @param records
+	 * @return
+	 */
+	public int createOrUpdate(Record[] records) {
+		Assert.notNull(records, "'records' not be null");
+		int affected = 0;
+		for (Record record : records) {
+			super.createOrUpdate(record);
+			affected++;
+		}
+		return affected;
+	}
+	
+	/**
+	 * 批量新建/更新/删除
+	 * 
+	 * @param records
+	 * @param deletes
+	 * @return
+	 */
+	public int createOrUpdate(Record[] records, ID[] deletes) {
+		int affected = 0;
+		affected += createOrUpdate(records);
+		affected += delete(deletes);
 		return affected;
 	}
 }

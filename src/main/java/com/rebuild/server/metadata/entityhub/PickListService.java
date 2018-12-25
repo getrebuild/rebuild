@@ -27,7 +27,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.BaseService;
+import com.rebuild.server.service.AbstractBaseService;
 
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -39,7 +39,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 09/07/2018
  */
-public class PickListService extends BaseService  {
+public class PickListService extends AbstractBaseService  {
 
 	protected PickListService(PersistManagerFactory persistManagerFactory) {
 		super(persistManagerFactory);

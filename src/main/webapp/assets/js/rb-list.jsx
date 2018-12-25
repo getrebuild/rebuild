@@ -165,15 +165,15 @@ class RbList extends React.Component {
         if (field.type == 'IMAGE') {
             cellVal = JSON.parse(cellVal || '[]')
             return (<td key={cellKey}><div style={styles} className="img-field column-imgs">
-                {cellVal.map((item)=>{
-                    return <span><a href={'#!/Preview/' + item} className="img-thumbnail img-upload"><img src={rb.storageUrl + item + '?imageView2/2/w/100/interlace/1/q/100'} /></a></span>
+                {cellVal.map((item, idx)=>{
+                    return <span key={cellKey + idx}><a href={'#!/Preview/' + item} className="img-thumbnail img-upload"><img src={rb.storageUrl + item + '?imageView2/2/w/100/interlace/1/q/100'} /></a></span>
                 })}<div className="clearfix" /></div></td>)
         } else if (field.type == 'FILE') {
             cellVal = JSON.parse(cellVal || '[]')
             return (<td key={cellKey}><div style={styles} className="column-files"><ul className="list-unstyled">
-                {cellVal.map((item)=>{
+                {cellVal.map((item, idx)=>{
                     let fileName = __fileCutName(item)
-                    return <li className="text-truncate"><a href={'#!/Preview/' + item}>{fileName}</a></li>
+                    return <li key={cellKey + idx} className="text-truncate"><a href={'#!/Preview/' + item}>{fileName}</a></li>
                 })}</ul></div></td>)
         } else if (field.type == 'REFERENCE'){
             return <td key={cellKey}><div style={styles}><a href={'#!/View/' + cellVal[2][0] + '/' + cellVal[0]} onClick={() => this.clickView(cellVal)}>{cellVal[1]}</a></div></td>
@@ -293,7 +293,6 @@ class RbListPagination extends React.Component {
         this.state.rowsTotal = this.state.rowsTotal || 0
     }
     render() {
-        console.log(`render pages ... ${this.state.pageNo} ${this.state.pageSize} ${this.state.rowsTotal}`)
         this.__pageTotal = Math.ceil(this.state.rowsTotal / this.state.pageSize)
         if (this.__pageTotal <= 0) this.__pageTotal = 1
         let pages = this.__pageTotal <= 1 ? [1] : $pages(this.__pageTotal, this.state.pageNo)
@@ -403,7 +402,7 @@ const RbListPage = {
                     btns.button('reset')
                 })
             }
-            rb.alert('确认删除选中的 ' + ids.length + ' 条记录吗？', '删除确认', alertExt)
+            rb.alert('确认删除选中的 ' + ids.length + ' 条记录吗？', alertExt)
         })
         
         $('.J_view').click(function(){

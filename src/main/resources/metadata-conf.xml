@@ -168,4 +168,21 @@
 		<index field-list="toUser,unread" />
 	</entity>
 	
+	<entity name="Attachment" type-code="023" description="附件">
+		<field name="attachmentId" type="primary" />
+		<field name="belongEntity" type="small-int" default-value="0" updatable="false" />
+		<field name="belongField" type="string" max-length="" updatable="false" />
+		<field name="relatedRecord" type="string" max-length="20" updatable="false" description="相关业务记录" />
+		<field name="filePath" type="string" max-length="100" nullable="false" />
+		<field name="fileType" type="string" max-length="20" />
+		<field name="fileSize" type="int" default-value="0" description="in KB" />
+		<field name="inFolder" type="reference" ref-entity="AttachmentFolder" cascade="remove-links" />
+	</entity>
+	
+	<entity name="AttachmentFolder" type-code="024" description="附件目录">
+		<field name="folderId" type="primary" />
+		<field name="name" type="string" max-length="100" nullable="false" />
+		<field name="parent" type="reference" ref-entity="AttachmentFolder" />
+	</entity>
+	
 </metadata-config>

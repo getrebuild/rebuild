@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.service.base;
+package com.rebuild.server.service.base.obs;
 
 import com.rebuild.server.service.OperateContext;
 import com.rebuild.server.service.OperateObserver;
@@ -50,7 +50,12 @@ public class AuditLoggingObserver extends OperateObserver {
 	}
 	
 	@Override
-	public void onSahre(OperateContext context) {
-		super.onSahre(context);
+	public void onShare(OperateContext context) {
+		super.onShare(context);
+	}
+	
+	@Override
+	public void onUnShare(OperateContext context) {
+		super.onUnShare(context);
 	}
 }
