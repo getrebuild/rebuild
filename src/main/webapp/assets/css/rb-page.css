@@ -499,7 +499,7 @@ a {
 /* for DataList page */
 
 .rb-datatable-body, .rb-datatable-body .rb-scroller, .rb-datatable-body .rb-loading {
-    min-height: 200px;
+    min-height: 300px;
 }
 .rb-datatable-body .table {
     min-width: 100%;
@@ -509,7 +509,7 @@ a {
 }
 .list-nodata {
     text-align: center;
-    padding-top: 36px;
+    padding-top: 81px;
 }
 .list-nodata .zmdi {
     font-size: 48px;
@@ -525,7 +525,7 @@ a {
 .data-list {
     position: relative;
     overflow: hidden;
-    min-height: 200px;
+    min-height: 300px;
     background-color: #fff;
 }
 .data-list .table th, .data-list .table td {

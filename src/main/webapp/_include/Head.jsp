@@ -13,13 +13,10 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/jquery-ui.min.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-base.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-page.css">
-<script>
-window.rb = window.rb || {}
-rb.env = '<%=AppUtils.devMode() ? "dev" : "production"%>'
-rb.baseUrl = '${baseUrl}'
-rb.storageUrl = '<%=SystemConfiguration.getStorageUrl()%>'
+<meta name="rb.env" content="<%=AppUtils.devMode() ? "dev" : "production"%>">
+<meta name="rb.baseUrl" content="${pageContext.request.contextPath}">
+<meta name="rb.storageUrl" content="<%=SystemConfiguration.getStorageUrl()%>">
 <%if (AppUtils.isAdminUser(request)){%>
-rb.isAdminUser = true
-rb.isAdminVerified = <%=AppUtils.isAdminVerified(request)%>
+<meta name="rb.isAdminUser" content="true">
+<meta name="rb.isAdminVerified" content="<%=AppUtils.isAdminVerified(request)%>">
 <%}%>
-</script>

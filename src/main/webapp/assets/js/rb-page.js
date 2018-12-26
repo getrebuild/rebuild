@@ -3,9 +3,7 @@ $(function(){
 	let t = $('.rb-scroller')
 	t.perfectScrollbar()
 	$(window).resize(function(){
-		$setTimeout(function(){
-			t.perfectScrollbar('update')
-		}, 500, 'rb-scroller-update')
+		$setTimeout(function(){ t.perfectScrollbar('update') }, 500, 'rb-scroller-update')
 	})
 	
 	// tooltip
@@ -19,11 +17,6 @@ $(function(){
 		})
 		__initNavs()
 	}
-	
-	// animate class
-	$setTimeout(function(){
-		$(document.body).addClass('rb-animate')
-	}, 1000)
 	
 	if (rb.isAdminUser == true) {
 		$('.J_for-admin').removeClass('hide')
