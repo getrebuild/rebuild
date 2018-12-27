@@ -24,11 +24,13 @@ import java.util.Set;
 import com.rebuild.server.Application;
 import com.rebuild.server.bizz.privileges.Department;
 import com.rebuild.server.bizz.privileges.User;
+import com.rebuild.server.metadata.EntityHelper;
 
 import cn.devezhao.bizz.security.member.BusinessUnit;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * 用户帮助类
  * 
  * @author devezhao
  * @since 10/14/2018
@@ -57,12 +59,39 @@ public class UserHelper {
 	}
 	
 	/**
+	 * 是否超级管理员
+	 * 
+	 * @param user
+	 * @return
+	 */
+	public static boolean isSuperAdmin(ID userId) {
+		return UserService.ADMIN_USER.equals(userId);
+	}
+	
+	/**
+	 * 是否激活
+	 * 
+	 * @param bizzId ID of User/Dept/Role
+	 * @return
+	 */
+	public static boolean isActive(ID bizzId) {
+		if (bizzId.getEntityCode() == EntityHelper.User) {
+			return Application.getUserStore().getUser(bizzId).isActive();
+		} else if (bizzId.getEntityCode() == EntityHelper.Department) {
+			return !Application.getUserStore().getDepartment(bizzId).isDisabled();
+		} else if (bizzId.getEntityCode() == EntityHelper.Role) {
+			return !Application.getUserStore().getRole(bizzId).isDisabled();
+		}
+		return false;
+	}
+	
+	/**
 	 * 获取用户部门
 	 * 
 	 * @param user
 	 * @return
 	 */
-	public static Department getDept(ID userId) {
+	public static Department getDepartment(ID userId) {
 		User u = Application.getUserStore().getUser(userId);
 		return u.getOwningDept();
 	}

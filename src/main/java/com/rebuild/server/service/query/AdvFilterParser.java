@@ -174,12 +174,12 @@ public class AdvFilterParser {
 		} else if ("SFU".equalsIgnoreCase(op)) {
 			value = Application.currentCallerUser().toLiteral();
 		} else if ("SFB".equalsIgnoreCase(op)) {
-			Department dept = UserHelper.getDept(Application.currentCallerUser());
+			Department dept = UserHelper.getDepartment(Application.currentCallerUser());
 			if (dept != null && fieldMeta.getReferenceEntities()[0].getEntityCode() == EntityHelper.User) {
 				sb.insert(sb.indexOf(" "), "." + EntityHelper.OwningDept);
 			}
 		} else if ("SFD".equalsIgnoreCase(op)) {
-			Department dept = UserHelper.getDept(Application.currentCallerUser());
+			Department dept = UserHelper.getDepartment(Application.currentCallerUser());
 			if (dept != null) {
 				value = StringUtils.join(UserHelper.getAllChildrenId(dept), "|");
 			}

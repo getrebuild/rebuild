@@ -119,6 +119,16 @@ public abstract class AbstractBaseService extends Observable {
 	}
 	
 	/**
+	 * 仅删除，无其他动作
+	 * 
+	 * @param recordId
+	 * @return
+	 */
+	protected int deletePure(ID recordId) {
+		return aPMFactory.createPersistManager().delete(recordId);
+	}
+	
+	/**
 	 * TODO 操作前获取记录
 	 * 
 	 * @param willRecord

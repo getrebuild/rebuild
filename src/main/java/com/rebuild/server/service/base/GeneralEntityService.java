@@ -329,15 +329,29 @@ public class GeneralEntityService extends AbstractBaseService  {
 	}
 	
 	/**
-	 * TODO 取消共享
+	 * 取消共享
 	 * 
 	 * @param record
-	 * @param to
-	 * @param cascades 级联共享的实体
+	 * @param accessId
 	 * @return
 	 */
-	public int unshare(ID record, ID to, String[] cascades) {
-		return 0;
+	public int unshare(ID record, ID accessId) {
+		ID currentUser = Application.currentCallerUser();
+		Record unshared = EntityHelper.forUpdate(accessId, currentUser);
+		if (countObservers() > 0) {
+			unshared.setString("belongEntity", "Fake");
+			unshared.setString("recordId", "Fake");
+			unshared.setString("shareTo", "Fake");
+			unshared = getBeforeRecord(unshared);
+		}
+		
+		super.deletePure(accessId);
+		
+		if (countObservers() > 0) {
+			setChanged();
+			notifyObservers(OperateContext.valueOf(currentUser, UNSHARE, null, unshared));
+		}
+		return 1;
 	}
 	
 	/**
@@ -378,7 +392,7 @@ public class GeneralEntityService extends AbstractBaseService  {
 		} else if (context.getAction() == BizzPermission.SHARE) {
 			return new BulkShare(context, this);
 		} else if (context.getAction() == UNSHARE) {
-			return new BulkDelete(context, this);
+			return new BulkUnshare(context, this);
 		}
 		throw new UnsupportedOperationException("Unsupported bulk action : " + context.getAction());
 	}

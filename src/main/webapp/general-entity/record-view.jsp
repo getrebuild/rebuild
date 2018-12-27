@@ -66,7 +66,7 @@
 				</dl>
 				<dl class="row">
 					<dt class="col-4 pr-0">共享用户</dt>
-					<dd class="col-8 pl-0 J_shareTo"></dd>
+					<dd class="col-8 pl-0 J_sharingList"></dd>
 				</dl>
 			</div>
 			<div class="view-date">

@@ -23,7 +23,7 @@ import com.rebuild.server.Application;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * TODO 取消共享
+ * 取消共享
  * 
  * @author devezhao
  * @since 12/19/2018
@@ -39,20 +39,21 @@ public class BulkUnshare extends BulkOperator {
 		ID[] records = getWillRecords();
 		
 		int complated = 0;
-		int deleted = 0;
+		int unshared = 0;
+
+		// 只需要验证主记录权限
+		if (!Application.getSecurityManager().allowedS(context.getOpUser(), context.getRecordMaster())) {
+			setComplete(records.length);
+			return unshared;
+		}
 		
 		for (ID id : records) {
-			if (Application.getSecurityManager().allowedD(context.getOpUser(), id)) {
-				int a = ges.unshare(id, context.getToUser(), context.getCascades());
-				deleted += (a > 0 ? 1 : 0);
-			} else {
-				LOG.warn("No have privileges to DELETE : " + context.getOpUser() + " > " + id);
-			}
-			
+			int a = ges.unshare(context.getRecordMaster(), id);
+			unshared += (a > 0 ? 1 : 0);
 			complated++;
 			setComplete(complated);
 		}
-		return deleted;
+		return unshared;
 	}
 
 }

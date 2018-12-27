@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.bizz.privileges.User;
+import com.rebuild.server.bizz.UserHelper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.base.BulkContext;
@@ -49,7 +49,6 @@ import com.rebuild.web.IllegalParameterException;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
@@ -197,6 +196,40 @@ public class GeneralRecordControll extends BaseControll {
 		writeSuccess(response, ret);
 	}
 	
+	@RequestMapping("record-unshare")
+	public void unshare(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		final ID user = getRequestUser(request);
+		final ID record = getIdParameterNotNull(request, "record");
+		final ID[] ids = parseIdList(request);
+		if (ids.length == 0) {
+			writeFailure(response, "没有要取消共享的记录");
+			return;
+		}
+		
+		final ID firstId = ids[0];
+		final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
+		
+		GeneralEntityService ges = Application.getGeneralEntityService(entity.getEntityCode());
+		
+		int affected = 0;
+		try {
+			if (ids.length == 1) {
+				affected = ges.unshare(record, ids[0]);
+			} else {
+				BulkContext context = new BulkContext(user, GeneralEntityService.UNSHARE, ids, record);
+				affected = ges.bulk(context);
+			}
+		} catch (AccessDeniedException know) {
+			writeFailure(response, know.getLocalizedMessage());
+			return;
+		}
+		
+		JSON ret = JSONUtils.toJSONObject(
+				new String[] { "unshared", "requests" },
+				new Object[] { affected, ids.length });
+		writeSuccess(response, ret);
+	}
+	
 	@RequestMapping("record-meta")
 	public void fetchRecordMeta(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		final ID id = getIdParameterNotNull(request, "id");
@@ -208,7 +241,7 @@ public class GeneralRecordControll extends BaseControll {
 		}
 		
 		sql = String.format(sql, entity.getName(), entity.getPrimaryField().getName(), id);
-		Object[] recordMeta = Application.getQueryFactory().createQueryNoFilter(sql).unique();
+		Object[] recordMeta = Application.createQueryNoFilter(sql).unique();
 		if (recordMeta == null) {
 			writeFailure(response, "记录不存在");
 			return;
@@ -217,24 +250,48 @@ public class GeneralRecordControll extends BaseControll {
 		recordMeta[0] = CalendarUtils.getUTCDateTimeFormat().format(recordMeta[0]);
 		recordMeta[1] = CalendarUtils.getUTCDateTimeFormat().format(recordMeta[1]);
 		
-		Object[] owning = null;
-		int shares = 0;
+		String[] owning = null;
+		List<String[]> sharingList = new ArrayList<>();
 		if (recordMeta.length == 3) {
-			User user = Application.getUserStore().getUser((ID) recordMeta[2]);
-			owning = new Object[] { user.getId().toLiteral(), user.getFullName() };
+			String shows[] = UserHelper.getShows((ID) recordMeta[2]);
+			owning = new String[] { recordMeta[2].toString(), shows[0], shows[1] };
 			
-			Object[] shareTo = Application.createQuery(
-					"select count(accessId) from ShareAccess where belongEntity = ? and recordId = ?")
+			Object[][] shareTo = Application.createQueryNoFilter(
+					"select shareTo from ShareAccess where belongEntity = ? and recordId = ?")
 					.setParameter(1, entity.getName())
 					.setParameter(2, id.toLiteral())
-					.unique();
-			shares = ObjectUtils.toInt(shareTo[0]);
+					.setLimit(9)
+					.array();
+			for (Object[] st : shareTo) {
+				String[] shows2 = UserHelper.getShows(ID.valueOf((String) st[0]));
+				shows2 = new String[] { st[0].toString(), shows2[0], shows2[1] };
+				sharingList.add(shows2);
+			}
 		}
 		
 		JSON ret = JSONUtils.toJSONObject(
-				new String[] { "createdOn", "modifiedOn", "owningUser", "shareTo" },
-				new Object[] { recordMeta[0], recordMeta[1], owning, shares });
+				new String[] { "createdOn", "modifiedOn", "owningUser", "sharingList" },
+				new Object[] { recordMeta[0], recordMeta[1], owning, sharingList });
 		writeSuccess(response, ret);
+	}
+	
+	@RequestMapping("sharing-list")
+	public void fetchSharingList(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID id = getIdParameterNotNull(request, "id");
+		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
+		
+		Object[][] array = Application.createQueryNoFilter(
+				"select shareTo,accessId,createdOn,createdBy from ShareAccess where belongEntity = ? and recordId = ?")
+				.setParameter(1, entity.getName())
+				.setParameter(2, id.toLiteral())
+				.array();
+		for (Object[] o : array) {
+			o[0] = UserHelper.getShows(ID.valueOf((String) o[0]));
+			o[1] = o[1].toString();
+			o[2] = CalendarUtils.getUTCDateTimeFormat().format(o[2]);
+			o[3] = UserHelper.getShows((ID) o[3]);
+		}
+		writeSuccess(response, array);
 	}
 	
 	/**

@@ -67,6 +67,7 @@ const RbViewPage = {
     init(id, entity, ep) {
         this.__id = id
         this.__entity = entity
+        this.__ep = ep
         this._RbViewForm = rb.RbViewForm({ entity: entity[0], id: id })
         
         let that = this
@@ -92,10 +93,10 @@ const RbViewPage = {
             rb.RbFormModal({ id: id, title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] })
         })
         $('.J_assign').click(function(){
-            rb.AssignDialog({ entity: entity[0], ids: [id] })
+            rb.DlgAssign({ entity: entity[0], ids: [id] })
         })
         $('.J_share').click(function(){
-            rb.ShareDialog({ entity: entity[0], ids: [id] })
+            rb.DlgShare({ entity: entity[0], ids: [id] })
         })
         $('.J_add-slave').click(function(){
             let iv = { '$MASTER$': id }
@@ -122,18 +123,35 @@ const RbViewPage = {
     },
     
     initRecordMeta() {
+        let that = this
         $.get(`${rb.baseUrl}/app/entity/record-meta?id=${this.__id}`, function(res){
-            if (res.error_code == 0) {
-                let _data = res.data
-                for (let k in _data) {
-                    if (_data[k] == undefined) return
-                    if (k == 'owningUser'){
-                        $('<a href="#!/View/User/' + _data[k][0] + '" onclick="RbViewPage.clickView(this)">' + _data[k][1] + '</a>').appendTo('.J_owningUser')
-                    } else if (k == 'shareTo'){
-                        $('<a>' + (_data[k] == 0 ? '无' : ('已共享给 <a>' + _data[k] + '</a> 位用户')) + '</a>').appendTo('.J_shareTo')
+            if (res.error_code != 0) return
+            for (let k in res.data) {
+                let v = res.data[k]
+                if (!v || v == undefined) return
+                if (k == 'owningUser'){
+                    renderRbcomp(<UserShow id={v[0]} name={v[1]} avatarUrl={v[2]} showName={true} onClick={()=>{ that.clickViewUser(v[0]) }} />, $('.J_owningUser')[0])
+                } else if (k == 'sharingList'){
+                    let list = $('<ul class="list-unstyled list-inline mb-0"></ul>').appendTo('.J_sharingList')
+                    $(v).each(function(){
+                        let _this = this
+                        let item = $('<li class="list-inline-item"></li>').appendTo(list)
+                        renderRbcomp(<UserShow id={_this[0]} name={_this[1]} avatarUrl={_this[2]} onClick={()=>{ that.clickViewUser(_this[0]) }} />, item[0])
+                    })
+                    
+                    if (that.__ep && that.__ep.S === true) {
+                        let item_op = $('<li class="list-inline-item"></li>').appendTo(list)[0]
+                        if (v.length == 0) renderRbcomp(<UserShow name="添加共享" icon="zmdi zmdi-plus" onClick={()=>{ $('.J_share').trigger('click') }} />, item_op)
+                        else renderRbcomp(<UserShow name="管理共享用户" icon="zmdi zmdi-more" onClick={()=>{ rb.DlgUnShare(that.__id) }} />, item_op)
+                    } else if (v.length > 0){
+                        let item_op = $('<li class="list-inline-item"></li>').appendTo(list)[0]
+                        renderRbcomp(<UserShow name="查看共享用户" icon="zmdi zmdi-more" onClick={()=>{ rb.DlgUnShare(that.__id, false) }} />, item_op)
                     } else {
-                        $('<span>' + _data[k] + '</span>').appendTo('.J_' + k)
+                        $('.J_sharingList').parent().remove()
                     }
+
+                } else {
+                    $('<span>' + v + '</span>').appendTo('.J_' + k)
                 }
             }
         })
@@ -233,6 +251,9 @@ const RbViewPage = {
         let viewUrl = $(el).attr('href')
         viewUrl = viewUrl.split('/')
         parent.rb.RbViewModal({ entity: viewUrl[2], id: viewUrl[3] }, true)
+    },
+    clickViewUser(id) {
+        parent.rb.RbViewModal({ entity: 'User', id: id }, true)
     },
     
     __cleanButton() {

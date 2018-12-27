@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.web.base.entity;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +35,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.bizz.UserHelper;
 import com.rebuild.server.helper.manager.FieldValueWrapper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -53,7 +55,49 @@ import cn.devezhao.persist4j.engine.ID;
 @Controller
 public class ReferenceSearch extends BaseControll {
 	
-	@RequestMapping({ "/app/entity/ref-search", "/app/entity/reference-search" })
+	@RequestMapping({ "/app/entity/search" })
+	public void search(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String entity = getParameterNotNull(request, "entity");
+		String qfields = getParameterNotNull(request, "qfields");
+		String q = getParameter(request, "q");
+		
+		if (StringUtils.isBlank(q)) {
+			writeSuccess(response, ArrayUtils.EMPTY_STRING_ARRAY);
+			return;
+		}
+		
+		Entity metaEntity = MetadataHelper.getEntity(entity);
+		Field nameField = MetadataHelper.getNameField(metaEntity);
+		if (nameField == null) {
+			writeSuccess(response, ArrayUtils.EMPTY_STRING_ARRAY);
+			return;
+		}
+		
+		List<String> or = new ArrayList<>();
+		for (String qfield : qfields.split(",")) {
+			if (!metaEntity.containsField(qfield)) {
+				LOG.warn("No field for search : " + qfield);
+			} else if (StringUtils.isNotBlank(q)) {
+				or.add(qfield + " like '%" + StringEscapeUtils.escapeSql(q) + "%'");
+			}
+		}
+		if (or.isEmpty()) {
+			writeSuccess(response, ArrayUtils.EMPTY_STRING_ARRAY);
+			return;
+		}
+		
+		String sql = "select {0},{1} from {2} where ({3})";
+		sql = MessageFormat.format(sql, 
+				metaEntity.getPrimaryField().getName(), nameField.getName(), metaEntity.getName(), StringUtils.join(or, " or "));
+		if (metaEntity.containsField(EntityHelper.ModifiedOn)) {
+			sql += " order by modifiedOn desc";
+		}
+		
+		List<Object> result = searchResult(metaEntity, sql);
+		writeSuccess(response, result);
+	}
+	
+	@RequestMapping({ "/app/entity/reference-search" })
 	public void referenceSearch(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
 		String field = getParameterNotNull(request, "field");
@@ -65,46 +109,74 @@ public class ReferenceSearch extends BaseControll {
 		}
 		q = StringEscapeUtils.escapeSql(q);
 		
-		Entity entityMeta = MetadataHelper.getEntity(entity);
-		Field refField = entityMeta.getField(field);
-		Entity refEntity = refField.getReferenceEntities()[0];
-		Field nameField = MetadataHelper.getNameField(refEntity);
+		Entity metaEntity = MetadataHelper.getEntity(entity);
+		Field metaField = metaEntity.getField(field);
+		if (metaField.getType() != FieldType.REFERENCE) {
+			writeSuccess(response, ArrayUtils.EMPTY_STRING_ARRAY);
+			return;
+		}
+		
+		Entity metaFieldEntity = metaField.getReferenceEntities()[0];
+		Field nameField = MetadataHelper.getNameField(metaFieldEntity);
 		if (nameField == null) {
 			writeSuccess(response, ArrayUtils.EMPTY_STRING_ARRAY);
 			return;
 		}
 		
-		String nameField2str = nameField.getName();
+		String nameField2 = nameField.getName();
 		if (nameField.getType() == FieldType.REFERENCE) {
-			nameField2str = "&" + nameField2str;
+			nameField2 = "&" + nameField2;
 		}
 		
-		String sql = "select %s,%s from %s where ";
-		sql = String.format(sql, refEntity.getPrimaryField().getName(), nameField2str, refEntity.getName());
-		sql += String.format("( %s like '%%%s%%'", nameField2str, q);
-		if (entityMeta.containsField(EntityHelper.QuickCode)) {
-			sql += String.format(" or %s like '%s%%' )", EntityHelper.QuickCode, q);
+		String sql = "select {0},{1} from {2} where ({1} like '%{3}%'";
+		sql = MessageFormat.format(sql, 
+				metaFieldEntity.getPrimaryField().getName(), nameField2, metaFieldEntity.getName(), q);
+		if (metaEntity.containsField(EntityHelper.QuickCode) && StringUtils.isAlphanumericSpace(q)) {
+			sql += MessageFormat.format(" or quickCode like '{0}%' )", q);
 		} else {
 			sql += " )";
 		}
-		if (entityMeta.containsField(EntityHelper.ModifiedOn)) {
+		if (metaEntity.containsField(EntityHelper.ModifiedOn)) {
 			sql += " order by modifiedOn desc";
 		}
 		
-		Object[][] array = Application.createQuery(sql).setLimit(10).array();
-		List<Object> result = new ArrayList<>();
-		for (Object[] o : array) {
-			Map<String, Object> map = new HashMap<>();
-			map.put("id", o[0].toString());
-			map.put("text", o[1]);
-			result.add(map);
-		}
+		List<Object> result = searchResult(metaEntity, sql);
 		writeSuccess(response, result);
 	}
 	
-	@RequestMapping({ "/app/entity/ref-label", "/app/entity/reference-label" })
+	/**
+	 * 查询结果
+	 * 
+	 * @param entity
+	 * @param sql
+	 * @return
+	 */
+	private List<Object> searchResult(Entity entity, String sql) {
+		Object[][] array = Application.createQuery(sql).setLimit(10).array();
+		List<Object> result = new ArrayList<>();
+		for (Object[] o : array) {
+			ID recordId = (ID) o[0];
+			if (EntityHelper.isBizzEntity(entity)) {
+				if (!UserHelper.isActive(recordId)) {
+					continue;
+				}
+			}
+			
+			Map<String, Object> map = new HashMap<>();
+			map.put("id", recordId.toString());
+			map.put("text", o[1]);
+			result.add(map);
+		}
+		return result;
+	}
+	
+	@RequestMapping({ "/app/entity/reference-label" })
 	public void referenceLabel(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String ids = getParameter(request, "ids", "");
+		String ids = getParameter(request, "ids", null);
+		if (ids == null) {
+			writeSuccess(response);
+			return;
+		}
 		
 		Map<String, String> labels = new HashMap<>();
 		for (String id : ids.split("\\|")) {

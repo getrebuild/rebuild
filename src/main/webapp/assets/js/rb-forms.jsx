@@ -684,7 +684,7 @@ class RbFormReference extends RbFormElement {
             minimumInputLength: 1,
             maximumSelectionLength: 1,
             ajax: {
-                url: rb.baseUrl + '/app/entity/ref-search',
+                url: rb.baseUrl + '/app/entity/reference-search',
                 delay: 300,
                 data: function(params) {
                     let query = {

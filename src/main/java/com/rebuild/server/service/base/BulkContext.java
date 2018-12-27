@@ -22,6 +22,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.RebuildException;
 import com.rebuild.server.metadata.MetadataHelper;
 
 import cn.devezhao.bizz.privileges.Permission;
@@ -40,13 +41,13 @@ public class BulkContext {
 	private Permission action;
 	// [目标用户]
 	private ID toUser;
-	
 	// 待操作记录
 	private ID[] records;
-	// 待操作过滤条件（通过条件确定记录）
+	// 待操作记录（通过过滤条件获得）
 	private JSONObject filterExp;
-	
-	// 级联操作实体
+	// [待操作记录所依附的主记录]
+	private ID recordMaster;
+	// [级联操作实体]
 	private String cascades[];
 	
 	private Entity mainEntity;
@@ -70,16 +71,15 @@ public class BulkContext {
 	/**
 	 * @param opUser
 	 * @param action
-	 * @param toUser
-	 * @param cascades
-	 * @param filterExp
+	 * @param records
+	 * @param recordMaster
 	 */
-	public BulkContext(ID opUser, Permission action, ID toUser, String cascades[], JSONObject filterExp) {
+	public BulkContext(ID opUser, Permission action, ID[] records, ID recordMaster) {
+		Assert.isTrue(records.length <= 200, "最多允许操作200条记录");
 		this.opUser = opUser;
 		this.action = action;
-		this.toUser = toUser;
-		this.cascades = cascades;
-		this.filterExp = filterExp;
+		this.records = records;
+		this.recordMaster = recordMaster;
 	}
 
 	public ID getOpUser() {
@@ -105,16 +105,24 @@ public class BulkContext {
 	public JSONObject getFilterExp() {
 		return filterExp;
 	}
+
+	public ID getRecordMaster() {
+		return recordMaster;
+	}
 	
 	public Entity getMainEntity() {
 		if (mainEntity != null) {
 			return mainEntity;
 		}
 		
-		if (records != null) {
+		if (recordMaster != null) {
+			mainEntity = MetadataHelper.getEntity(recordMaster.getEntityCode());
+		} else if (records != null) {
 			mainEntity = MetadataHelper.getEntity(records[0].getEntityCode());
-		} else {
+		} else if (filterExp != null) {
 			mainEntity = MetadataHelper.getEntity(filterExp.getString("entity"));
+		} else {
+			throw new RebuildException("No record for operate");
 		}
 		return mainEntity;
 	}

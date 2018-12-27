@@ -416,12 +416,12 @@ const RbListPage = {
         $('.J_assign').click(function(){
             let ids = that._RbList.getSelectedIds()
             if (ids.length < 1) return
-            rb.AssignDialog({ entity: entity[0], ids: ids })
+            rb.DlgAssign({ entity: entity[0], ids: ids })
         })
         $('.J_share').click(function(){
             let ids = that._RbList.getSelectedIds()
             if (ids.length < 1) return
-            rb.ShareDialog({ entity: entity[0], ids: ids })
+            rb.DlgShare({ entity: entity[0], ids: ids })
         })
         
         $('.J_columns').click(function(){

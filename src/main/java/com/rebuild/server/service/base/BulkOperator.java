@@ -46,7 +46,7 @@ public abstract class BulkOperator extends BulkTask {
 	
 	/**
 	 * @param context
-	 * @param ges
+	 * @param ges 可避免多次经由拦截器检查
 	 */
 	protected BulkOperator(BulkContext context, GeneralEntityService ges) {
 		super();

@@ -26,6 +26,7 @@ import com.rebuild.server.bizz.UserService;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.base.GeneralEntityService;
 
 import cn.devezhao.bizz.privileges.DepthEntry;
 import cn.devezhao.bizz.privileges.Permission;
@@ -240,6 +241,11 @@ public class SecurityManager {
 			return true;
 		} else if (action == BizzPermission.READ && MetadataHelper.isBizzEntity(entity)) {
 			return true;
+		}
+		
+		// 取消共享与共享公用权限
+		if (action == GeneralEntityService.UNSHARE) {
+			action = BizzPermission.SHARE;
 		}
 		
 		if (MetadataHelper.isSlaveEntity(entity)) {

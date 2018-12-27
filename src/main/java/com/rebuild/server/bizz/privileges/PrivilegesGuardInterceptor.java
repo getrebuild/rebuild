@@ -139,7 +139,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		
 		String act = invocation.getMethod().getName();
 		return act.startsWith("create") || act.startsWith("update") || act.startsWith("delete") 
-				|| act.startsWith("assign") || act.startsWith("share")
+				|| act.startsWith("assign") || act.startsWith("share") || act.startsWith("unshare")
 				|| act.startsWith("bulk");
 	}
 	
@@ -161,6 +161,8 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		    return BizzPermission.ASSIGN;
 		} else if (action.startsWith("share")) {
 		    return BizzPermission.SHARE;
+		} else if (action.startsWith("unshare")) {
+		    return GeneralEntityService.UNSHARE;
 		}
 		return null;
 	}
@@ -183,11 +185,13 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 			actionHuman = "分派";
 		} else if (action == BizzPermission.SHARE) {
 			actionHuman = "共享";
+		} else if (action == GeneralEntityService.UNSHARE) {
+			actionHuman = "取消共享";
 		}
 		
 		if (target == null) {
 			return String.format("你没有%s%s权限", actionHuman, EasyMeta.getLabel(entity));
 		}
-		return String.format("你没有%s此记录权限", actionHuman);
+		return String.format("你没有%s此记录的权限", actionHuman);
 	}
 }
