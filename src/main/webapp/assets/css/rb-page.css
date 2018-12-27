@@ -532,10 +532,10 @@ a {
     cursor: default;
     white-space: nowrap;
     font-weight: normal;
-    padding: 9px 10px;
+    padding: 8px 10px;
 }
 .data-list .table thead th {
-    padding-top: 12px;
+    padding-top: 9px;
 }
 .data-list .table thead th.sortable {
     cursor: pointer;
@@ -557,7 +557,7 @@ a {
 .data-list .table thead th>div>i {
     position: absolute;
     height: 20px;
-    top: -1px;
+    top: -1.5px;
     right: -10px;
 }
 .data-list .table thead th>div>i.split {
