@@ -38,12 +38,12 @@ $(document).ready(function(){
         maximumSelectionLength: 1,
         allowClear: true,
         ajax: {
-            url: rb.baseUrl + '/commons/search',
+            url: rb.baseUrl + '/app/entity/search',
             delay: 300,
             data: function(params) {
                 let query = {
                     entity: 'Department',
-                    fields: 'name',
+                    qfields: 'name',
                     q: params.term,
                 }
                 return query

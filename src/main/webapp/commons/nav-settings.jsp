@@ -36,7 +36,7 @@
 						<div class="tab-pane active" id="ENTITY">
 							<select class="form-control form-control-sm J_menuEntity">
 								<option value="">请选择关联项</option>
-								<optgroup label="实体"></optgroup>
+								<optgroup label="业务实体"></optgroup>
 							</select>
 						</div>
 						<div class="tab-pane" id="URL">

@@ -179,7 +179,7 @@ public class AttchementAwareObserver extends OperatingObserver {
 		Record att = EntityHelper.forNew(EntityHelper.Attachment, context.getOperator());
 		att.setInt("belongEntity", record.getEntity().getEntityCode());
 		att.setString("belongField", field.getName());
-		att.setString("relatedRecord", record.getPrimary().toLiteral());
+		att.setID("relatedRecord", record.getPrimary());
 		att.setString("filePath", filePath);
 		String ext = FilenameUtils.getExtension(filePath);
 		if (StringUtils.isNotBlank(ext)) {

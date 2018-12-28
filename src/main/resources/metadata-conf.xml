@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE metadata-config PUBLIC "-//persist4j/Metadata 0.3"
 		"https://raw.githubusercontent.com/devezhao/persist4j/master/src/main/resources/metadata.dtd">
-<metadata-config schema-name-optimize="true"
-	default-parent="SystemCommon">
+<metadata-config schema-name-optimize="true" default-parent="SystemCommon">
 
 	<entity name="SystemCommon" type-code="000">
 		<field name="createdBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="创建人" />
@@ -43,9 +42,8 @@
 		<field name="privilegesId" type="primary" />
 		<field name="roleId" type="reference" ref-entity="Role" cascade="delete" nullable="false" updatable="false" />
 		<field name="entity" type="int" default-value="0" nullable="false" updatable="false" description="哪个实体" />
-		<field name="zeroKey" type="string" description="其他权限KEY" />
+		<field name="zeroKey" type="string" max-length="50" description="其他权限KEY" />
 		<field name="definition" type="string" max-length="100" description="权限定义" />
-		<index field-list="roleId" />
 		<index type="unique" field-list="roleId,entity,zeroKey" />
 	</entity>
 
@@ -86,7 +84,7 @@
 		<field name="refEntity" type="string" max-length="100" />
 		<field name="cascade" type="string" max-length="20" default-value="ignore" />
 		<field name="comments" type="string" max-length="200" />
-		<field name="extConfig" type="string" max-length="1000" description="更多扩展配置，JSON格式KV" />
+		<field name="extConfig" type="string" max-length="600" description="更多扩展配置，JSON格式KV" />
 		<index type="unique" field-list="belongEntity,fieldName" />
 		<index type="unique" field-list="belongEntity,physicalName" />
 	</entity>
@@ -106,7 +104,7 @@
 		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
 		<field name="type" type="string" max-length="20" nullable="false" updatable="false" description="FORM,DATALIST,NAVI" />
 		<field name="config" type="text" description="JSON格式配置" nullable="false" />
-		<field name="applyTo" type="string" default-value="SELF" description="应用到哪些人，可选值: ALL/SELF/$MemberID(U/D/R)" />
+		<field name="applyTo" type="string" max-length="420" default-value="SELF" description="应用到哪些人，可选值: ALL/SELF/$MemberID(U/D/R)" />
 	</entity>
 
 	<entity name="FilterConfig" type-code="014" description="过滤条件配置">
@@ -114,7 +112,7 @@
 		<field name="filterName" type="string" max-length="100" nullable="false" />
 		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
 		<field name="config" type="text" description="JSON格式配置" nullable="false" />
-		<field name="applyTo" type="string" default-value="SELF" description="应用到哪些人，可选值: ALL/SELF/$MemberID(U/D/R)" />
+		<field name="applyTo" type="string" max-length="420" default-value="SELF" description="应用到哪些人，可选值: ALL/SELF/$MemberID(U/D/R)" />
 	</entity>
 
 	<entity name="ViewAddonsConfig" type-code="015" description="视图页相关配置">
@@ -129,7 +127,7 @@
 		<field name="dashboardId" type="primary" />
 		<field name="title" type="string" max-length="100" nullable="false" />
 		<field name="config" type="text" description="JSON格式配置" nullable="false" />
-		<field name="shareTo" type="string" default-value="SELF" description="共享给哪些人，可选值: ALL/SELF/$MemberID(U/D/R)" />
+		<field name="shareTo" type="string" max-length="420" default-value="SELF" description="共享给哪些人，可选值: ALL/SELF/$MemberID(U/D/R)" />
 	</entity>
 	
 	<entity name="ChartConfig" type-code="017" description="图表配置">
@@ -158,25 +156,26 @@
 
 	<entity name="Notification" type-code="022" description="通知消息">
 		<field name="messageId" type="primary" />
-		<field name="messageType" type="small-int" default-value="0" updatable="false" />
 		<field name="fromUser" type="reference" ref-entity="User" nullable="false" updatable="false" />
 		<field name="toUser" type="reference" ref-entity="User" nullable="false" updatable="false" />
-		<field name="message" type="string" max-length="600" updatable="false" />
-		<field name="messageRich" type="text" max-length="6000" updatable="false" />
+		<field name="message" type="string" max-length="1000" updatable="false" />
 		<field name="relatedRecord" type="any-reference" updatable="false" description="相关业务记录" />
 		<field name="unread" type="bool" default-value="T" />
-		<index field-list="toUser,unread" />
+		<index field-list="toUser,unread,createdOn" />
 	</entity>
 	
 	<entity name="Attachment" type-code="023" description="附件">
 		<field name="attachmentId" type="primary" />
 		<field name="belongEntity" type="small-int" default-value="0" updatable="false" />
-		<field name="belongField" type="string" max-length="" updatable="false" />
-		<field name="relatedRecord" type="string" max-length="20" updatable="false" description="相关业务记录" />
-		<field name="filePath" type="string" max-length="100" nullable="false" />
+		<field name="belongField" type="string" max-length="100" updatable="false" />
+		<field name="relatedRecord" type="any-reference" updatable="false" description="相关业务记录" />
+		<field name="filePath" type="string" max-length="200" nullable="false" />
 		<field name="fileType" type="string" max-length="20" />
 		<field name="fileSize" type="int" default-value="0" description="in KB" />
 		<field name="inFolder" type="reference" ref-entity="AttachmentFolder" cascade="remove-links" />
+		<index field-list="belongEntity,belongField,filePath"/>
+		<index field-list="relatedRecord"/>
+		<index field-list="inFolder,createdOn"/>
 	</entity>
 	
 	<entity name="AttachmentFolder" type-code="024" description="附件目录">

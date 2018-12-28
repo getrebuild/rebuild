@@ -136,7 +136,7 @@ public class MetadataSorter {
 		fields = (Field[]) ArrayUtils.addAll(simpleFields2, sysFields2);
 
 		// 返回全部类型
-		if (allowed == null) {
+		if (allowed == null || allowed.length == 0) {
 			List<Field> list = new ArrayList<>();
 			for (Field field : fields) {
 				if (!MetadataHelper.isSystemField(field)) {

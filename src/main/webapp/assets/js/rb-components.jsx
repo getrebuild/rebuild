@@ -6,7 +6,7 @@ class RbDialog extends React.Component {
     }
     render() {
         let inFrame = !!!this.props.children
-        return (<div className="modal rbmodal colored-header colored-header-primary" ref="rbmodal">
+        return (<div className="modal rbmodal colored-header colored-header-primary" tabIndex="-1" ref="rbmodal">
             <div className="modal-dialog" style={{ maxWidth:(this.props.width || 680) + 'px' }}>
                 <div className="modal-content">
                     <div className="modal-header modal-header-colored">

@@ -14,7 +14,7 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-base.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-page.css">
 <meta name="rb.env" content="<%=AppUtils.devMode() ? "dev" : "production"%>">
-<meta name="rb.baseUrl" content="${pageContext.request.contextPath}">
+<meta name="rb.baseUrl" content="${baseUrl}">
 <meta name="rb.storageUrl" content="<%=SystemConfiguration.getStorageUrl()%>">
 <%if (AppUtils.isAdminUser(request)){%>
 <meta name="rb.isAdminUser" content="true">

@@ -352,7 +352,9 @@ public class UserStore {
 			
 		} else {
 			store(newDept);
-			getDepartment(parent).addChild(newDept);
+			if (parent != null) {
+				getDepartment(parent).addChild(newDept);
+			}
 		}
 	}
 	
