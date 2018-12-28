@@ -233,6 +233,8 @@ public class MetadataHelper {
 			return DisplayType.NUMBER;
 		} else if (ft == FieldType.TEXT) {
 			return DisplayType.NTEXT;
+		} else if (ft == FieldType.ANY_REFERENCE) {
+			return DisplayType.ANYREFERENCE;
 		}
 		return null;
 	}

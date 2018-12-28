@@ -22,7 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.AbstractBaseService;
+import com.rebuild.server.service.BaseService;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -32,17 +32,17 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 08/03/2018
  */
-public class MetaEntityService extends AbstractBaseService {
+public class MetaEntityService extends BaseService {
 	
 	private static final Log LOG = LogFactory.getLog(MetaEntityService.class);
 
-	protected MetaEntityService(PersistManagerFactory aPMFactory) {
+	public MetaEntityService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
 	}
 	
 	@Override
 	public int delete(ID recordId) {
-		Object[] entityRecord = aPMFactory.createQuery(
+		Object[] entityRecord = getPMFactory().createQuery(
 				"select entityName from MetaEntity where entityId = ?")
 				.setParameter(1, recordId)
 				.unique();
@@ -61,7 +61,7 @@ public class MetaEntityService extends AbstractBaseService {
 			
 			String sql = String.format("select %s from %s where belongEntity = '%s'", 
 					whoEntity.getPrimaryField().getName(), whoEntity.getName(), entity.getName());
-			Object[][] usedArray = aPMFactory.createQuery(sql).array();
+			Object[][] usedArray = getPMFactory().createQuery(sql).array();
 			for (Object[] used : usedArray) {
 				del += super.delete((ID) used[0]);
 			}

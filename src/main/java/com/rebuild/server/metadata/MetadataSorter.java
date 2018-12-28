@@ -24,11 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-import com.github.stuxuhai.jpinyin.PinyinFormat;
-import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
@@ -47,10 +43,8 @@ import cn.devezhao.persist4j.metadata.BaseMeta;
  */
 public class MetadataSorter {
 	
-	private static final Log LOG = LogFactory.getLog(MetadataSorter.class);
-
 	/**
-	 * 返回全部
+	 * 全部实体
 	 * 
 	 * @return
 	 */
@@ -59,7 +53,7 @@ public class MetadataSorter {
 	}
 	
 	/**
-	 * 带权限验证
+	 * 用户权限内可用实体
 	 * 
 	 * @param user
 	 * @return
@@ -69,8 +63,10 @@ public class MetadataSorter {
 	}
 	
 	/**
+	 * 用户权限内可用实体
+	 * 
 	 * @param user
-	 * @param isAll
+	 * @param isAll 是否包括额外实体
 	 * @return
 	 */
 	public static Entity[] sortEntities(ID user, boolean isAll) {
@@ -94,28 +90,34 @@ public class MetadataSorter {
 	}
 	
 	/**
+	 * 获取字段
+	 * 
 	 * @param entity
 	 * @return
 	 */
 	public static Field[] sortFields(Entity entity) {
-		return sortFields(entity.getFields(), null);
+		return sortFields(entity.getFields());
 	}
 	
 	/**
+	 * 获取指定类型字段
+	 * 
 	 * @param entity
-	 * @param dtAllowed
+	 * @param allowed
 	 * @return
 	 */
-	public static Field[] sortFields(Entity entity, DisplayType[] dtAllowed) {
-		return sortFields(entity.getFields(), dtAllowed);
+	public static Field[] sortFields(Entity entity, DisplayType... allowed) {
+		return sortFields(entity.getFields(), allowed);
 	}
 	
 	/**
+	 * 获取指定类型字段
+	 * 
 	 * @param fields
-	 * @param dtAllowed
+	 * @param allowed
 	 * @return
 	 */
-	public static Field[] sortFields(Field[] fields, DisplayType[] dtAllowed) {
+	public static Field[] sortFields(Field[] fields, DisplayType... allowed) {
 		List<Field> sysFields = new ArrayList<>();
 		List<Field> simpleFields = new ArrayList<>();
 		for (Field field : fields) {
@@ -133,8 +135,8 @@ public class MetadataSorter {
 		sortBaseMeta(simpleFields2);
 		fields = (Field[]) ArrayUtils.addAll(simpleFields2, sysFields2);
 
-		// 全部类型
-		if (dtAllowed == null || dtAllowed.length == 0) {
+		// 返回全部类型
+		if (allowed == null) {
 			List<Field> list = new ArrayList<>();
 			for (Field field : fields) {
 				if (!MetadataHelper.isSystemField(field)) {
@@ -147,7 +149,7 @@ public class MetadataSorter {
 		List<Field> list = new ArrayList<>();
 		for (Field field : fields) {
 			DisplayType dtThat = EasyMeta.getDisplayType(field);
-			for (DisplayType dt : dtAllowed) {
+			for (DisplayType dt : allowed) {
 				if (dtThat == dt) {
 					list.add(field);
 					break;
@@ -158,7 +160,7 @@ public class MetadataSorter {
 	}
 	
 	/**
-	 * 按 Label 首字母排序
+	 * 按 Label 排序
 	 * 
 	 * @param metas
 	 */
@@ -166,14 +168,18 @@ public class MetadataSorter {
 		Arrays.sort(metas, new Comparator<BaseMeta>() {
 			@Override
 			public int compare(BaseMeta foo, BaseMeta bar) {
-				try {
-					String fooLetter = PinyinHelper.convertToPinyinString(EasyMeta.getLabel(foo), "", PinyinFormat.WITHOUT_TONE).toLowerCase();
-					String barLetter = PinyinHelper.convertToPinyinString(EasyMeta.getLabel(bar), "", PinyinFormat.WITHOUT_TONE).toLowerCase();
-					return fooLetter.compareTo(barLetter);
-				} catch (Exception e) {
-					LOG.error(null, e);
-					return 0;
-				}
+				String fooLetter = EasyMeta.getLabel(foo);
+				String barLetter = EasyMeta.getLabel(bar);
+				return fooLetter.compareTo(barLetter);
+				
+//				try {
+//					String fooLetter = PinyinHelper.convertToPinyinString(EasyMeta.getLabel(foo), "", PinyinFormat.WITHOUT_TONE).toLowerCase();
+//					String barLetter = PinyinHelper.convertToPinyinString(EasyMeta.getLabel(bar), "", PinyinFormat.WITHOUT_TONE).toLowerCase();
+//					return fooLetter.compareTo(barLetter);
+//				} catch (Exception e) {
+//					LOG.error(null, e);
+//					return 0;
+//				}
 			}
 		});
 	}

@@ -31,6 +31,9 @@ import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.metadata.DynamicMetadataFactory;
 import com.rebuild.server.service.CommonService;
+import com.rebuild.server.service.IEntityService;
+import com.rebuild.server.service.ObservableService;
+import com.rebuild.server.service.OperatingObserver;
 import com.rebuild.server.service.SQLExecutor;
 import com.rebuild.server.service.base.GeneralEntityService;
 import com.rebuild.server.service.notification.NotificationService;
@@ -61,7 +64,7 @@ public final class Application {
 	// SPRING
 	private static ApplicationContext APPLICATION_CTX;
 	// 业务实体对应的服务类
-	private static Map<Integer, GeneralEntityService> ESS = null;
+	private static Map<Integer, IEntityService> ESS = null;
 	
 	protected Application(ApplicationContext ctx) {
 		APPLICATION_CTX = ctx;
@@ -83,10 +86,18 @@ public final class Application {
 		
 		// 实体对应的服务类
 		ESS = new HashMap<>();
-		for (Map.Entry<String, GeneralEntityService> es : APPLICATION_CTX.getBeansOfType(GeneralEntityService.class).entrySet()) {
-			GeneralEntityService ges = es.getValue();
-			if (ges.getEntityCode() > 0) {
-				ESS.put(ges.getEntityCode(), ges);
+		for (Map.Entry<String, IEntityService> e : APPLICATION_CTX.getBeansOfType(IEntityService.class).entrySet()) {
+			IEntityService es = e.getValue();
+			if (es.getEntityCode() > 0) {
+				ESS.put(es.getEntityCode(), es);
+			}
+		}
+		
+		// 注入观察者
+		for (ObservableService es : APPLICATION_CTX.getBeansOfType(ObservableService.class).values()) {
+			for (OperatingObserver obs : APPLICATION_CTX.getBeansOfType(OperatingObserver.class).values()) {
+				es.addObserver(obs);
+				LOG.info(es + " add observer : " + obs);
 			}
 		}
 		
@@ -190,9 +201,9 @@ public final class Application {
 		return getBean(CommonService.class);
 	}
 
-	public static GeneralEntityService getGeneralEntityService(int entityCode) {
+	public static IEntityService getEntityService(int entityCode) {
 		if (ESS == null) {
-			throw new IllegalStateException("Rebuild unstarted");
+			throw new IllegalStateException("Unstarted");
 		}
 		if (ESS.containsKey(entityCode)) {
 			return ESS.get(entityCode);

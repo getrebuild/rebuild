@@ -44,6 +44,7 @@ public enum DisplayType {
 	
 	// 待启用/内部用
 	ID("主键", FieldType.PRIMARY),
+	ANYREFERENCE("任意引用", FieldType.ANY_REFERENCE),
 	BOOL("布尔", FieldType.BOOL),
 	LOCATION("位置", FieldType.STRING, 50, null),
 	

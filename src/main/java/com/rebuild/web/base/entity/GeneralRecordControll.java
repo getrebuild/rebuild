@@ -40,8 +40,8 @@ import com.rebuild.server.Application;
 import com.rebuild.server.bizz.UserHelper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.IEntityService;
 import com.rebuild.server.service.base.BulkContext;
-import com.rebuild.server.service.base.GeneralEntityService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.IllegalParameterException;
@@ -81,7 +81,7 @@ public class GeneralRecordControll extends BaseControll {
 		// TODO 检查不可重复字段值
 		
 		try {
-			record = Application.getGeneralEntityService(record.getEntity().getEntityCode()).createOrUpdate(record);
+			record = Application.getEntityService(record.getEntity().getEntityCode()).createOrUpdate(record);
 		} catch (AccessDeniedException know) {
 			writeFailure(response, know.getLocalizedMessage());
 			return;
@@ -105,15 +105,15 @@ public class GeneralRecordControll extends BaseControll {
 		final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
 		
 		String[] cascades = parseCascades(request);
-		GeneralEntityService ges = Application.getGeneralEntityService(entity.getEntityCode());
+		IEntityService ies = Application.getEntityService(entity.getEntityCode());
 		
 		int affected = 0;
 		try {
 			if (ids.length == 1) {
-				affected = ges.delete(firstId, cascades);
+				affected = ies.delete(firstId, cascades);
 			} else {
 				BulkContext context = new BulkContext(user, BizzPermission.DELETE, null, cascades, ids);
-				affected = ges.bulk(context);
+				affected = ies.bulk(context);
 			}
 		} catch (AccessDeniedException know) {
 			writeFailure(response, know.getLocalizedMessage());
@@ -140,15 +140,15 @@ public class GeneralRecordControll extends BaseControll {
 		
 		ID assignTo = getIdParameterNotNull(request, "to");
 		String[] cascades = parseCascades(request);
-		GeneralEntityService ges = Application.getGeneralEntityService(entity.getEntityCode());
+		IEntityService ies = Application.getEntityService(entity.getEntityCode());
 		
 		int affected = 0;
 		try {
 			if (ids.length == 1) {
-				affected = ges.assign(firstId, assignTo, cascades);
+				affected = ies.assign(firstId, assignTo, cascades);
 			} else {
 				BulkContext context = new BulkContext(user, BizzPermission.ASSIGN, assignTo, cascades, ids);
-				affected = ges.bulk(context);
+				affected = ies.bulk(context);
 			}
 		} catch (AccessDeniedException know) {
 			writeFailure(response, know.getLocalizedMessage());
@@ -175,15 +175,15 @@ public class GeneralRecordControll extends BaseControll {
 		
 		ID shareTo = getIdParameterNotNull(request, "to");
 		String[] cascades = parseCascades(request);
-		GeneralEntityService ges = Application.getGeneralEntityService(entity.getEntityCode());
+		IEntityService ies = Application.getEntityService(entity.getEntityCode());
 		
 		int affected = 0;
 		try {
 			if (ids.length == 1) {
-				affected = ges.share(firstId, shareTo, cascades);
+				affected = ies.share(firstId, shareTo, cascades);
 			} else {
 				BulkContext context = new BulkContext(user, BizzPermission.SHARE, shareTo, cascades, ids);
-				affected = ges.bulk(context);
+				affected = ies.bulk(context);
 			}
 		} catch (AccessDeniedException know) {
 			writeFailure(response, know.getLocalizedMessage());
@@ -209,15 +209,15 @@ public class GeneralRecordControll extends BaseControll {
 		final ID firstId = ids[0];
 		final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
 		
-		GeneralEntityService ges = Application.getGeneralEntityService(entity.getEntityCode());
+		IEntityService ies = Application.getEntityService(entity.getEntityCode());
 		
 		int affected = 0;
 		try {
 			if (ids.length == 1) {
-				affected = ges.unshare(record, ids[0]);
+				affected = ies.unshare(record, ids[0]);
 			} else {
-				BulkContext context = new BulkContext(user, GeneralEntityService.UNSHARE, ids, record);
-				affected = ges.bulk(context);
+				BulkContext context = new BulkContext(user, IEntityService.UNSHARE, ids, record);
+				affected = ies.bulk(context);
 			}
 		} catch (AccessDeniedException know) {
 			writeFailure(response, know.getLocalizedMessage());
@@ -259,11 +259,11 @@ public class GeneralRecordControll extends BaseControll {
 			Object[][] shareTo = Application.createQueryNoFilter(
 					"select shareTo from ShareAccess where belongEntity = ? and recordId = ?")
 					.setParameter(1, entity.getName())
-					.setParameter(2, id.toLiteral())
+					.setParameter(2, id)
 					.setLimit(9)
 					.array();
 			for (Object[] st : shareTo) {
-				String[] shows2 = UserHelper.getShows(ID.valueOf((String) st[0]));
+				String[] shows2 = UserHelper.getShows((ID) st[0]);
 				shows2 = new String[] { st[0].toString(), shows2[0], shows2[1] };
 				sharingList.add(shows2);
 			}
@@ -283,7 +283,7 @@ public class GeneralRecordControll extends BaseControll {
 		Object[][] array = Application.createQueryNoFilter(
 				"select shareTo,accessId,createdOn,createdBy from ShareAccess where belongEntity = ? and recordId = ?")
 				.setParameter(1, entity.getName())
-				.setParameter(2, id.toLiteral())
+				.setParameter(2, id)
 				.array();
 		for (Object[] o : array) {
 			o[0] = UserHelper.getShows(ID.valueOf((String) o[0]));

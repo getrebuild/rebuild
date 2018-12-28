@@ -19,7 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.service.notification;
 
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.AbstractBaseService;
+import com.rebuild.server.service.BaseService;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
@@ -30,9 +30,9 @@ import cn.devezhao.persist4j.Record;
  * @author devezhao
  * @since 10/17/2018
  */
-public class NotificationService extends AbstractBaseService {
+public class NotificationService extends BaseService {
 
-	protected NotificationService(PersistManagerFactory aPMFactory) {
+	public NotificationService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
 	}
 	
@@ -47,13 +47,8 @@ public class NotificationService extends AbstractBaseService {
 		record.setID("toUser", message.getToUser());
 		record.setString("message", message.getMessage());
 		if (message.getRelatedRecord() != null) {
-			record.setString("relatedRecord", message.getRelatedRecord().toLiteral());
+			record.setID("relatedRecord", message.getRelatedRecord());
 		}
 		create(record);
-	}
-	
-	@Override
-	public Record update(Record record) {
-		throw new UnsupportedOperationException();
 	}
 }

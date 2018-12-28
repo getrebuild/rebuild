@@ -24,8 +24,6 @@ import java.util.Observer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.rebuild.server.service.base.GeneralEntityService;
-
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.ThreadPool;
 
@@ -34,14 +32,20 @@ import cn.devezhao.commons.ThreadPool;
  * 
  * @author devezhao
  * @since 10/31/2018
+ * 
+ * @see ObservableService
  */
-public abstract class OperateObserver implements Observer {
+public abstract class OperatingObserver implements Observer {
 
 	protected final Log LOG = LogFactory.getLog(getClass());
 	
+	protected OperatingObserver() {
+		super();
+	}
+	
 	@Override
 	public void update(final Observable o, final Object arg) {
-		final OperateContext ctx = (OperateContext) arg;
+		final OperatingContext ctx = (OperatingContext) arg;
 		if (isAsync()) {
 			ThreadPool.exec(new Runnable() {
 				@Override
@@ -61,7 +65,7 @@ public abstract class OperateObserver implements Observer {
 	/**
 	 * @param ctx
 	 */
-	protected void update(OperateContext ctx) {
+	protected void update(OperatingContext ctx) {
 		if (ctx.getAction() == BizzPermission.CREATE) {
 			onCreate(ctx);
 		} else if (ctx.getAction() == BizzPermission.UPDATE) {
@@ -72,7 +76,7 @@ public abstract class OperateObserver implements Observer {
 			onAssign(ctx);
 		} else if (ctx.getAction() == BizzPermission.SHARE) {
 			onShare(ctx);
-		} else if (ctx.getAction() == GeneralEntityService.UNSHARE) {
+		} else if (ctx.getAction() == IEntityService.UNSHARE) {
 			onUnShare(ctx);
 		} 
 	}
@@ -86,39 +90,51 @@ public abstract class OperateObserver implements Observer {
 		return false;
 	}
 	
-	public void onCreate(final OperateContext context) {
-		if (LOG.isDebugEnabled()) {
-			LOG.info("onCreate - " + context);
-		}
+	/**
+	 * 新建时
+	 * 
+	 * @param context
+	 */
+	public void onCreate(final OperatingContext context) {
 	}
 
-	public void onUpdate(final OperateContext context) {
-		if (LOG.isDebugEnabled()) {
-			LOG.info("onUpdate - " + context);
-		}
+	/**
+	 * 更新时
+	 * 
+	 * @param context
+	 */
+	public void onUpdate(final OperatingContext context) {
 	}
 
-	public void onDelete(final OperateContext context) {
-		if (LOG.isDebugEnabled()) {
-			LOG.info("onDelete - " + context);
-		}
+	/**
+	 * 删除时
+	 * 
+	 * @param context
+	 */
+	public void onDelete(final OperatingContext context) {
 	}
 
-	public void onAssign(final OperateContext context) {
-		if (LOG.isDebugEnabled()) {
-			LOG.info("onAssign - " + context);
-		}
+	/**
+	 * 分派时
+	 * 
+	 * @param context
+	 */
+	public void onAssign(final OperatingContext context) {
 	}
 
-	public void onShare(final OperateContext context) {
-		if (LOG.isDebugEnabled()) {
-			LOG.info("onSahre - " + context);
-		}
+	/**
+	 * 共享时
+	 * 
+	 * @param context
+	 */
+	public void onShare(final OperatingContext context) {
 	}
 	
-	public void onUnShare(final OperateContext context) {
-		if (LOG.isDebugEnabled()) {
-			LOG.info("onUnShare - " + context);
-		}
+	/**
+	 * 取消共享时
+	 * 
+	 * @param context
+	 */
+	public void onUnShare(final OperatingContext context) {
 	}
 }

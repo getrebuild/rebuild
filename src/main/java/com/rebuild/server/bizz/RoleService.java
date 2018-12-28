@@ -24,25 +24,25 @@ import java.util.Map;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.base.GeneralEntityService;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * for Role
  * 
  * @author zhaofang123@gmail.com
  * @since 08/03/2018
  */
-public class RoleService extends GeneralEntityService {
+public class RoleService extends BizzEntityService {
 
 	/**
 	 * 管理员权限
 	 */
 	public static final ID ADMIN_ROLE = ID.valueOf("003-0000000000000001");
 	
-	protected RoleService(PersistManagerFactory aPMFactory) {
+	public RoleService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
 	}
 
@@ -58,11 +58,28 @@ public class RoleService extends GeneralEntityService {
 		return record;
 	}
 	
+	@Override
+	public int delete(ID roleId) {
+		deleteAndTransfer(roleId, null);
+		return 1;
+	}
+	
+	/**
+	 * TODO 删除后转移成员到其他角色
+	 * 
+	 * @param roleId
+	 * @param transferTo
+	 */
+	public void deleteAndTransfer(ID roleId, ID transferTo) {
+		super.delete(roleId);
+ 		Application.getUserStore().removeRole(roleId, transferTo);
+	}
+	
 	/**
 	 * @param roleId
 	 * @param definition
 	 */
-	public void txUpdatePrivileges(ID roleId, JSONObject definition) {
+	public void updatePrivileges(ID roleId, JSONObject definition) {
 		final ID user = Application.currentCallerUser();
 		
 		Object[][] array = Application.createQuery(
@@ -116,22 +133,5 @@ public class RoleService extends GeneralEntityService {
 		}
 		
 		Application.getUserStore().refreshRole(roleId, privilegesChanged);
-	}
-	
-	@Override
-	public int delete(ID record, String[] cascades) {
-		deleteAndTransfer(record, null);
-		return 1;
-	}
-	
-	/**
-	 * 删除后转移成员到其他角色
-	 * 
-	 * @param roleId
-	 * @param transferTo
-	 */
-	public void deleteAndTransfer(ID roleId, ID transferTo) {
-		super.delete(roleId, null);
- 		Application.getUserStore().removeRole(roleId, transferTo);
 	}
 }

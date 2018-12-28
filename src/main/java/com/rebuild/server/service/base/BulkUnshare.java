@@ -35,7 +35,7 @@ public class BulkUnshare extends BulkOperator {
 	}
 
 	@Override
-	public Object exec() {
+	public Object operate() {
 		ID[] records = getWillRecords();
 		
 		int complated = 0;

@@ -21,8 +21,6 @@ package com.rebuild.server.service;
 import java.util.Iterator;
 import java.util.Observable;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 import com.rebuild.server.Application;
@@ -34,74 +32,54 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 持久层服务基类
+ * 可注入观察者的服务
  * 
- * @author zhaofang123@gmail.com
- * @since 05/21/2017
+ * @author devezhao
+ * @since 12/28/2018
+ * 
+ * @see OperatingObserver
  */
-public abstract class AbstractBaseService extends Observable {
-	
-	protected final Log LOG = LogFactory.getLog(getClass());
-	
-	final protected PersistManagerFactory aPMFactory;
+public abstract class ObservableService extends Observable implements IEntityService {
 
-	protected AbstractBaseService(PersistManagerFactory aPMFactory) {
-		super();
-		this.aPMFactory = aPMFactory;
-	}
-
+	final protected IService delegate;
+	
 	/**
-	 * 新建或更新
-	 * 
-	 * @param record
-	 * @return
-	 * @see #create(Record)
-	 * @see #update(Record)
+	 * @param aPMFactory
 	 */
+	public ObservableService(PersistManagerFactory aPMFactory) {
+		this.delegate = new BaseService(aPMFactory);
+	}
+	
+	@Override
 	public Record createOrUpdate(Record record) {
 		return record.getPrimary() == null ? create(record) : update(record);
 	}
-	
-	/**
-	 * 新建
-	 * 
-	 * @param record
-	 * @return
-	 */
+
+	@Override
 	public Record create(Record record) {
-		record = aPMFactory.createPersistManager().save(record);
+		record = delegate.create(record);
 		
 		if (countObservers() > 0) {
 			setChanged();
-			notifyObservers(OperateContext.valueOf(Application.currentCallerUser(), BizzPermission.CREATE, null, record));
+			notifyObservers(OperatingContext.valueOf(Application.currentCallerUser(), BizzPermission.CREATE, null, record));
 		}
 		return record;
 	}
 
-	/**
-	 * 更新
-	 * 
-	 * @param record
-	 * @return
-	 */
+	@Override
 	public Record update(Record record) {
 		Record before = countObservers() > 0 ? getBeforeRecord(record) : null;
 		
-		record = aPMFactory.createPersistManager().update(record);
+		record = delegate.update(record);
 		
 		if (countObservers() > 0) {
 			setChanged();
-			notifyObservers(OperateContext.valueOf(Application.currentCallerUser(), BizzPermission.UPDATE, before, record));
+			notifyObservers(OperatingContext.valueOf(Application.currentCallerUser(), BizzPermission.UPDATE, before, record));
 		}
 		return record;
 	}
 
-	/**
-	 * 删除
-	 * 
-	 * @param recordId
-	 * @return 删除记录数量。包括关联的记录，自定义实体都选择了 remove-link 级联模式，因此基本不会自动关联删除
-	 */
+	@Override
 	public int delete(ID recordId) {
 		Record deleted = null;
 		if (countObservers() > 0) {
@@ -109,42 +87,32 @@ public abstract class AbstractBaseService extends Observable {
 			deleted = getBeforeRecord(deleted);
 		}
 		
-		int affected = aPMFactory.createPersistManager().delete(recordId);
+		int affected = delegate.delete(recordId);
 		
 		if (countObservers() > 0) {
 			setChanged();
-			notifyObservers(OperateContext.valueOf(Application.currentCallerUser(), BizzPermission.DELETE, deleted, null));
+			notifyObservers(OperatingContext.valueOf(Application.currentCallerUser(), BizzPermission.DELETE, deleted, null));
 		}
 		return affected;
 	}
 	
 	/**
-	 * 仅删除，无其他动作
+	 * 操作前获取记录
 	 * 
-	 * @param recordId
+	 * @param reflection
 	 * @return
 	 */
-	protected int deletePure(ID recordId) {
-		return aPMFactory.createPersistManager().delete(recordId);
-	}
-	
-	/**
-	 * TODO 操作前获取记录
-	 * 
-	 * @param willRecord
-	 * @return
-	 */
-	protected Record getBeforeRecord(Record willRecord) {
-		ID primary = willRecord.getPrimary();
+	protected Record getBeforeRecord(Record reflection) {
+		ID primary = reflection.getPrimary();
 		Assert.notNull(primary, "Record primary not be bull");
 		
 		StringBuffer sql = new StringBuffer("select ");
-		for (Iterator<String> iter = willRecord.getAvailableFieldIterator(); iter.hasNext(); ) {
+		for (Iterator<String> iter = reflection.getAvailableFieldIterator(); iter.hasNext(); ) {
 			sql.append(iter.next()).append(',');
 		}
 		sql.deleteCharAt(sql.length() - 1);
-		sql.append(" from ").append(willRecord.getEntity().getName());
-		sql.append(" where ").append(willRecord.getEntity().getPrimaryField().getName()).append(" = ?");
+		sql.append(" from ").append(reflection.getEntity().getName());
+		sql.append(" where ").append(reflection.getEntity().getPrimaryField().getName()).append(" = ?");
 		
 		Record before = Application.createQueryNoFilter(sql.toString()).setParameter(1, primary).record();
 		return before;

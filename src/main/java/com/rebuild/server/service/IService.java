@@ -16,32 +16,48 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.series;
+package com.rebuild.server.service;
 
-import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 时间系列
+ * 持久化基础服务接口
  * 
  * @author devezhao
- * @since 12/24/2018
+ * @since 12/28/2018
  */
-public class TimeVar extends SeriesVar {
-
+public interface IService {
+	
 	/**
-	 * @param symbols
+	 * 新建或更新
+	 * 
+	 * @param record
+	 * @return
 	 */
-	protected TimeVar(String symbols) {
-		super(symbols);
-	}
-
-	@Override
-	public String generate() {
-		String s = getSymbols().replace("Y", "y");
-		// YYYY-MM-DD HH-II-SS > yyyy-MM-dd HH-mm:ss
-		s = s.replace("D", "d");
-		s = s.replace("I", "m");
-		s = s.replace("S", "s");
-		return CalendarUtils.format(s, CalendarUtils.now());
-	}
+	Record createOrUpdate(Record record);
+	
+	/**
+	 * 新建
+	 * 
+	 * @param record
+	 * @return
+	 */
+	Record create(Record record);
+	
+	/**
+	 * 更新
+	 * 
+	 * @param record
+	 * @return
+	 */
+	Record update(Record record);
+	
+	/**
+	 * 删除
+	 * 
+	 * @param recordId
+	 * @return
+	 */
+	int delete(ID recordId);
 }

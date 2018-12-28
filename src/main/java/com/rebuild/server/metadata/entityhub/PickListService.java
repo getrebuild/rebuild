@@ -27,7 +27,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.AbstractBaseService;
+import com.rebuild.server.service.BaseService;
 
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -39,10 +39,10 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 09/07/2018
  */
-public class PickListService extends AbstractBaseService  {
+public class PickListService extends BaseService  {
 
-	protected PickListService(PersistManagerFactory persistManagerFactory) {
-		super(persistManagerFactory);
+	public PickListService(PersistManagerFactory aPMFactory) {
+		super(aPMFactory);
 	}
 
 	/**
@@ -51,12 +51,12 @@ public class PickListService extends AbstractBaseService  {
 	 * @param field
 	 * @param config
 	 */
-	public void txBatchUpdate(Field field, JSONObject config) {
+	public void updateBatch(Field field, JSONObject config) {
 		Assert.notNull(config, "无效配置");
 		ID user = Application.currentCallerUser();
 		
-		JSONArray showItem = config.getJSONArray("show");
-		JSONArray hideItem = config.getJSONArray("hide");
+		JSONArray showItems = config.getJSONArray("show");
+		JSONArray hideItems = config.getJSONArray("hide");
 		
 		Object[][] itemsHold = Application.createQueryNoFilter(
 				"select itemId from PickList where belongEntity = ? and belongField = ?")
@@ -68,7 +68,7 @@ public class PickListService extends AbstractBaseService  {
 			itemsHoldList.add((ID) o[0]);
 		}
 		
-		for (Object o : hideItem) {
+		for (Object o : hideItems) {
 			JSONObject item = (JSONObject) o;
 			String id = item.getString("id");
 			if (!ID.isId(id)) {
@@ -79,12 +79,12 @@ public class PickListService extends AbstractBaseService  {
 			Record r = EntityHelper.forUpdate(id2id, user);
 			r.setBoolean("isHide", true);
 			r.setString("text", item.getString("text"));
-			update(r);
+			super.update(r);
 			itemsHoldList.remove(id2id);
 		}
 		
 		int seq = 0;
-		for (Object o : showItem) {
+		for (Object o : showItems) {
 			JSONObject item = (JSONObject) o;
 			String id = item.getString("id");
 			ID id2id = ID.isId(id) ? ID.valueOf(id) : null;
@@ -99,15 +99,15 @@ public class PickListService extends AbstractBaseService  {
 				r.setString("belongEntity", field.getOwnEntity().getName());
 				r.setString("belongField", field.getName());
 			}
-			createOrUpdate(r);
+			super.createOrUpdate(r);
 			
 			if (id2id != null) {
 				itemsHoldList.remove(id2id);
 			}
 		}
 		
-		for (ID id : itemsHoldList) {
-			delete(id);
+		for (ID item : itemsHoldList) {
+			super.delete(item);
 		}
 	}
 }

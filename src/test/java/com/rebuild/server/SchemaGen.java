@@ -54,14 +54,14 @@ public class SchemaGen {
 //		gen(EntityHelper.ViewAddonsConfig);
 //		gen(EntityHelper.LayoutConfig);
 //		gen(EntityHelper.FilterConfig);
-//		gen(EntityHelper.ShareAccess);
+		gen(EntityHelper.ShareAccess);
 //		gen(EntityHelper.SystemConfig);
-//		gen(EntityHelper.Notification);
+		gen(EntityHelper.Notification);
 //		gen(EntityHelper.User);
 //		gen(EntityHelper.DashboardConfig);
 //		gen(EntityHelper.ChartConfig);
-		gen(EntityHelper.Attachment);
-		gen(EntityHelper.AttachmentFolder);
+//		gen(EntityHelper.Attachment);
+//		gen(EntityHelper.AttachmentFolder);
 		
 		System.exit(0);
 	}

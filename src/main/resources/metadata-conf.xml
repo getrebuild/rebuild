@@ -143,8 +143,8 @@
 	<entity name="ShareAccess" type-code="020" description="记录共享">
 		<field name="accessId" type="primary" />
 		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="哪个实体" />
-		<field name="recordId" type="string" max-length="20" nullable="false" updatable="false" description="记录ID" />
-		<field name="shareTo" type="string" max-length="20" nullable="false" updatable="false" description="共享给谁 (User/Dept/Role)" />
+		<field name="recordId" type="any-reference" ref-entity="*" nullable="false" updatable="false" description="记录ID" />
+		<field name="shareTo" type="any-reference" ref-entity="User,Department,Role" nullable="false" updatable="false" description="共享给谁 (U/D/R)" />
 		<field name="rights" type="int" default-value="0" nullable="false" description="共享权限(R=2,U=4,D=8,0=Auto)" />
 		<index field-list="belongEntity,recordId,shareTo" />
 	</entity>
@@ -163,8 +163,8 @@
 		<field name="toUser" type="reference" ref-entity="User" nullable="false" updatable="false" />
 		<field name="message" type="string" max-length="600" updatable="false" />
 		<field name="messageRich" type="text" max-length="6000" updatable="false" />
+		<field name="relatedRecord" type="any-reference" updatable="false" description="相关业务记录" />
 		<field name="unread" type="bool" default-value="T" />
-		<field name="relatedRecord" type="string" max-length="20" updatable="false" description="相关业务记录" />
 		<index field-list="toUser,unread" />
 	</entity>
 	

@@ -5,6 +5,15 @@
 		http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans-4.3.xsd" default-lazy-init="true">
 		
+	<bean id="bulkTaskExecutor" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+				<property name="jobClass" value="com.rebuild.server.job.BulkTaskExecutor" />
+			</bean>
+		</property>
+		<property name="cronExpression" value="0 31 * * * ?" />
+	</bean>
+	
 	<bean id="seriesZeroJob" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail">
 			<bean class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
@@ -20,6 +29,7 @@
 		<property name="configLocation" value="classpath:quartz.properties"/>
 		<property name="triggers">
 			<list>
+				<ref bean="bulkTaskExecutor"/>
 				<ref bean="seriesZeroJob"/>
 			</list>
 		</property>

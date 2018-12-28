@@ -18,8 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.base.obs;
 
-import com.rebuild.server.service.OperateContext;
-import com.rebuild.server.service.OperateObserver;
+import com.rebuild.server.service.OperatingContext;
+import com.rebuild.server.service.OperatingObserver;
 
 /**
  * TODO 记录审计日志
@@ -27,35 +27,35 @@ import com.rebuild.server.service.OperateObserver;
  * @author devezhao
  * @since 10/31/2018
  */
-public class AuditLoggingObserver extends OperateObserver {
+public class AuditLoggingObserver extends OperatingObserver {
 	
 	@Override
-	public void onCreate(OperateContext context) {
-		super.onCreate(context);
+	public void onCreate(OperatingContext context) {
+		LOG.warn(context);
 	}
 	
 	@Override
-	public void onUpdate(OperateContext context) {
-		super.onUpdate(context);
+	public void onUpdate(OperatingContext context) {
+		LOG.warn(context);
 	}
 	
 	@Override
-	public void onDelete(OperateContext context) {
-		super.onDelete(context);
+	public void onDelete(OperatingContext context) {
+		LOG.warn(context);
 	}
 	
 	@Override
-	public void onAssign(OperateContext context) {
-		super.onAssign(context);
+	public void onAssign(OperatingContext context) {
+		LOG.warn(context);
 	}
 	
 	@Override
-	public void onShare(OperateContext context) {
-		super.onShare(context);
+	public void onShare(OperatingContext context) {
+		LOG.warn(context);
 	}
 	
 	@Override
-	public void onUnShare(OperateContext context) {
-		super.onUnShare(context);
+	public void onUnShare(OperatingContext context) {
+		LOG.warn(context);
 	}
 }

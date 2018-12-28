@@ -31,11 +31,12 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
 
 /**
+ * 数字自增系列
  * 
  * @author devezhao
  * @since 12/24/2018
  */
-public class IncrementVar extends SeriesVar {
+public class IncreasingVar extends SeriesVar {
 	
 	private static final Map<String, Object> LOCKs = new HashMap<>();
 	
@@ -47,7 +48,7 @@ public class IncrementVar extends SeriesVar {
 	 * @param field
 	 * @param zeroFlag
 	 */
-	protected IncrementVar(String symbols, Field field, String zeroFlag) {
+	protected IncreasingVar(String symbols, Field field, String zeroFlag) {
 		super(symbols);
 		this.field = field;
 		this.zeroFlag = zeroFlag;
@@ -56,16 +57,16 @@ public class IncrementVar extends SeriesVar {
 	/**
 	 * @param field
 	 */
-	protected IncrementVar(Field field) {
+	protected IncreasingVar(Field field) {
 		super(null);
 		this.field = field;
 	}
 
 	@Override
 	public String generate() {
-		int iAuto = 1;
+		int intAuto = 1;
 		if (field != null) {
-			String key = ckey();
+			String key = theCacheKey();
 			Object keyLock = null;
 			synchronized (LOCKs) {
 				keyLock = LOCKs.get(key);
@@ -78,22 +79,22 @@ public class IncrementVar extends SeriesVar {
 			synchronized (keyLock) {
 				Object val = Application.getCommonCache().get(key);
 				if (val != null) {
-					iAuto = ObjectUtils.toInt(val);
+					intAuto = ObjectUtils.toInt(val);
 				} else {
-					iAuto = count();
+					intAuto = countByZero();
 				}
-				iAuto += 1;
-				Application.getCommonCache().put(key, iAuto);
+				intAuto += 1;
+				Application.getCommonCache().put(key, intAuto);
 			}
 		}
-		return StringUtils.leftPad(iAuto + "", getSymbols().length(), '0');
+		return StringUtils.leftPad(intAuto + "", getSymbols().length(), '0');
 	}
 	
 	/**
 	 * 清空序号缓存
 	 */
 	protected void clean() {
-		String key = ckey();
+		String key = theCacheKey();
 		Object keyLock = null;
 		synchronized (LOCKs) {
 			keyLock = LOCKs.get(key);
@@ -109,9 +110,12 @@ public class IncrementVar extends SeriesVar {
 	}
 	
 	/**
+	 * TODO 现在是放在缓存中，可能丢失。丢失后的系列可能不准，例如 100 条记录
+	 * 序号也为 100，但是删除了10条后，调用此方法所生产的序号只有 90（直接采用 count 记录数）
+	 * 
 	 * @return
 	 */
-	private int count() {
+	private int countByZero() {
 		String dateLimit = null;
 		if ("Y".equals(zeroFlag)) {
 			dateLimit = CalendarUtils.format("yyyy", CalendarUtils.now()) + "-01-01";
@@ -133,9 +137,11 @@ public class IncrementVar extends SeriesVar {
 	}
 	
 	/**
+	 * 缓存Key
+	 * 
 	 * @return
 	 */
-	private String ckey() {
+	private String theCacheKey() {
 		Assert.notNull(field, "'field' not be null");
 		return String.format("SERIES-%s-%s", field.getOwnEntity().getName(), field.getName());
 	}

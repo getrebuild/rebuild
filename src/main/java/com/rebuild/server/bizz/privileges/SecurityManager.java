@@ -26,7 +26,7 @@ import com.rebuild.server.bizz.UserService;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.base.GeneralEntityService;
+import com.rebuild.server.service.IEntityService;
 
 import cn.devezhao.bizz.privileges.DepthEntry;
 import cn.devezhao.bizz.privileges.Permission;
@@ -244,7 +244,7 @@ public class SecurityManager {
 		}
 		
 		// 取消共享与共享公用权限
-		if (action == GeneralEntityService.UNSHARE) {
+		if (action == IEntityService.UNSHARE) {
 			action = BizzPermission.SHARE;
 		}
 		

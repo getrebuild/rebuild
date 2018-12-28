@@ -33,7 +33,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 
 /**
- * 每日 00:00
+ * 数字系列归零。每日 00:00
  * 
  * @author devezhao
  * @since 12/25/2018
@@ -56,6 +56,7 @@ public class SeriesZeroJob extends QuartzJobBean {
 			if (EasyMeta.valueOf(entity).isBuiltin()) {
 				continue;
 			}
+			
 			for (Field field : entity.getFields()) {
 				EasyMeta easy = EasyMeta.valueOf(field);
 				if (easy.getDisplayType() == DisplayType.SERIES) {
@@ -66,6 +67,8 @@ public class SeriesZeroJob extends QuartzJobBean {
 						SeriesGeneratorFactory.zero(field);
 					} else if ("Y".equalsIgnoreCase(zeroFlag) && isYearFirst) {
 						SeriesGeneratorFactory.zero(field);
+					} else {
+						// No zero
 					}
 				}
 			}

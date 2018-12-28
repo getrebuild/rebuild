@@ -16,20 +16,20 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.helper;
+package com.rebuild.server.job;
 
 import java.util.Date;
 
 import cn.devezhao.commons.CalendarUtils;
 
 /**
- * 前台提交的耗时操作
+ * 耗时操作
  * 
  * @author devezhao
  * @since 09/29/2018
  */
 public abstract class BulkTask implements Runnable {
-
+	
 	private int total = -1;
 	private int complete = 0;
 	
@@ -53,6 +53,12 @@ public abstract class BulkTask implements Runnable {
 	 */
 	protected void setComplete(int complete) {
 		this.complete = complete;
+	}
+
+	/**
+	 * 执行完毕后调用
+	 */
+	protected void completeAfter() {
 	}
 	
 	/**

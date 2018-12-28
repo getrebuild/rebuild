@@ -18,6 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.notification;
 
+import com.rebuild.server.bizz.UserService;
+
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -35,8 +37,8 @@ public class Message {
 	
 	private String message;
 
-	public Message(ID fromUser, ID toUser, String message) {
-		this(fromUser, toUser, message, null);
+	public Message(ID toUser, String message, ID relatedRecord) {
+		this(UserService.SYSTEM_USER, toUser, message, null);
 	}
 
 	public Message(ID fromUser, ID toUser, String message, ID relatedRecord) {

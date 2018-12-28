@@ -21,8 +21,8 @@ package com.rebuild.server.service.notification;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.server.service.OperateContext;
-import com.rebuild.server.service.OperateObserver;
+import com.rebuild.server.service.OperatingContext;
+import com.rebuild.server.service.OperatingObserver;
 
 import cn.devezhao.persist4j.engine.ID;
 
@@ -30,15 +30,15 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 11/01/2018
  */
-public class NotificationObserver extends OperateObserver {
+public class NotificationObserver extends OperatingObserver {
 	
 	@Override
-	public void onAssign(OperateContext context) {
+	public void onAssign(OperatingContext context) {
 		ID from = context.getOperator();
 		ID to = context.getAfterRecord().getID(EntityHelper.OwningUser);
 		
 		ID relatedRecordId = context.getRecordId();
-		String text = "@%s 分派了 1 条%s记录给你";
+		String text = "@%s 分派了 1 条 %s 记录给你";
 		text = String.format(text, from, EasyMeta.valueOf(relatedRecordId.getEntityCode()).getLabel());
 		
 		Message message = new Message(from, to, text, relatedRecordId);
@@ -46,15 +46,15 @@ public class NotificationObserver extends OperateObserver {
 	}
 	
 	@Override
-	public void onShare(OperateContext context) {
+	public void onShare(OperatingContext context) {
 		ID from = context.getOperator();
-		String to = context.getAfterRecord().getString("shareTo");
+		ID to = context.getAfterRecord().getID("shareTo");
 		
 		ID relatedRecordId = context.getRecordId();
-		String text = "@%s 共享了 1 条%s记录给你";
+		String text = "@%s 共享了 1 条 %s 记录给你";
 		text = String.format(text, from, EasyMeta.valueOf(relatedRecordId.getEntityCode()).getLabel());
 		
-		Message message = new Message(from, ID.valueOf(to), text, relatedRecordId);
+		Message message = new Message(from, to, text, relatedRecordId);
 		Application.getNotifications().send(message);
 	}
 }

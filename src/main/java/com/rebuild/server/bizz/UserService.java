@@ -26,7 +26,6 @@ import com.rebuild.server.Application;
 import com.rebuild.server.DataConstraintException;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.base.GeneralEntityService;
 
 import cn.devezhao.bizz.security.member.User;
 import cn.devezhao.commons.EncryptUtils;
@@ -36,18 +35,19 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * for User
  * 
  * @author zhaofang123@gmail.com
  * @since 07/25/2018
  */
-public class UserService extends GeneralEntityService {
+public class UserService extends BizzEntityService {
 	
 	// 系统用户
 	public static final ID SYSTEM_USER = ID.valueOf("001-0000000000000000");
 	// 管理员
 	public static final ID ADMIN_USER = ID.valueOf("001-0000000000000001");
 	
-	protected UserService(PersistManagerFactory aPMFactory) {
+	public UserService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
 	}
 
@@ -74,9 +74,12 @@ public class UserService extends GeneralEntityService {
 	
 	@Override
 	public int delete(ID record) {
-		throw new DataConstraintException("Delete prohibited");
+		throw new DataConstraintException("Prohibited");
 	}
 	
+	/**
+	 * @param record
+	 */
 	private void saveBefore(Record record) {
 		if (record.hasValue("password")) {
 			String password = record.getString("password");
@@ -85,8 +88,11 @@ public class UserService extends GeneralEntityService {
 		}
 	}
 	
+	/**
+	 * @param record
+	 * @param isNew
+	 */
 	private void saveAfter(Record record, boolean isNew) {
-		// TODO 必要时才更新用户缓存
 		Application.getUserStore().refreshUser(record.getPrimary());
 	}
 	
@@ -94,23 +100,26 @@ public class UserService extends GeneralEntityService {
 	 * 改变部门
 	 * 
 	 * @param user
-	 * @param newDept
+	 * @param deptNew
 	 */
-	public void txChangeDept(ID user, ID newDept) {
+	public void updateDepartment(ID user, ID deptNew) {
 		User u = Application.getUserStore().getUser(user);
-		final ID oldDept = u.getOwningBizUnit() == null ? null : (ID) u.getOwningBizUnit().getIdentity();
+		final ID deptOld = u.getOwningBizUnit() == null ? null : (ID) u.getOwningBizUnit().getIdentity();
+		if (deptNew.equals(deptOld)) {
+			return;
+		}
 		
 		Record record = EntityHelper.forUpdate(user, Application.currentCallerUser());
-		record.setID("deptId", newDept);
-		update(record);
+		record.setID("deptId", deptNew);
+		super.update(record);
 		
 		// 无需改变记录的所属部门
-		if (oldDept == null) {
+		if (deptOld == null) {
 			return;
 		}
 		
 		String updeptSql = "update `{0}` set OWNING_DEPT = ''%s'' where OWNING_USER = ''%s''";
-		updeptSql = String.format(updeptSql, newDept.toLiteral(), user.toLiteral());
+		updeptSql = String.format(updeptSql, deptNew.toLiteral(), user.toLiteral());
 		
 		List<String> updeptSqls = new ArrayList<>();
 		for (Entity e : MetadataHelper.getEntities()) {
@@ -123,5 +132,4 @@ public class UserService extends GeneralEntityService {
 		// TODO 10M 超时，线程执行 ???
 		Application.getSQLExecutor().executeBatch(updeptSqls.toArray(new String[updeptSqls.size()]), 60 * 10);
 	}
-	
 }

@@ -13,7 +13,9 @@
         http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
         http://www.springframework.org/schema/tx
         http://www.springframework.org/schema/tx/spring-tx-4.3.xsd" default-lazy-init="true">
-
+	
+	<aop:aspectj-autoproxy proxy-target-class="true" />
+	
 	<bean class="com.rebuild.server.helper.AesPreferencesConfigurer">
 		<property name="locations">
 			<list>
@@ -95,13 +97,13 @@
 	</bean>
 	<tx:advice id="txAdvice" transaction-manager="txManager">
 		<tx:attributes>
-			<tx:method name="create*" propagation="REQUIRED" />
-			<tx:method name="delete*" propagation="REQUIRED" />
-			<tx:method name="update*" propagation="REQUIRED" />
-			<tx:method name="assign*" propagation="REQUIRED" />
-			<tx:method name="share*"  propagation="REQUIRED" />
-			<tx:method name="bulk*"   propagation="REQUIRED" />
-			<tx:method name="tx*"     propagation="REQUIRED" />
+			<tx:method name="create*"  propagation="REQUIRED" />
+			<tx:method name="delete*"  propagation="REQUIRED" />
+			<tx:method name="update*"  propagation="REQUIRED" />
+			<tx:method name="assign*"  propagation="REQUIRED" />
+			<tx:method name="share*"   propagation="REQUIRED" />
+			<tx:method name="unshare*" propagation="REQUIRED" />
+			<tx:method name="bulk*"    propagation="REQUIRED" />
 		</tx:attributes>
 	</tx:advice>
 	
@@ -133,22 +135,6 @@
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 	
-	<!-- 记录操作观察者 -->
-	<bean name="notificationObserver" class="com.rebuild.server.service.notification.NotificationObserver" />
-	<bean name="auditLoggingObserver" class="com.rebuild.server.service.base.obs.AuditLoggingObserver" />
-	<bean name="attchementAwareObserver" class="com.rebuild.server.service.base.obs.AttchementAwareObserver" />
-	
-	<bean name="generalEntityService" class="com.rebuild.server.service.base.GeneralEntityService">
-		<constructor-arg index="0" ref="persistManagerFactory" />
-		<constructor-arg index="1">
-			<list>
-				<ref bean="notificationObserver"/>
-				<ref bean="auditLoggingObserver"/>
-				<ref bean="attchementAwareObserver"/>
-			</list>
-		</constructor-arg>
-	</bean>
-	
 	<bean class="com.rebuild.server.bizz.UserService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
@@ -156,6 +142,15 @@
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 	<bean class="com.rebuild.server.bizz.RoleService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
+	
+	<!-- 记录操作观察者 -->
+	<bean class="com.rebuild.server.service.notification.NotificationObserver" />
+	<bean class="com.rebuild.server.service.base.obs.AuditLoggingObserver" />
+	<bean class="com.rebuild.server.service.base.obs.AttchementAwareObserver" />
+	
+	<bean name="generalEntityService" class="com.rebuild.server.service.base.GeneralEntityService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 	

@@ -22,7 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.helper.BulkTask;
+import com.rebuild.server.job.BulkTask;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.query.AdvFilterParser;
 
@@ -85,7 +85,7 @@ public abstract class BulkOperator extends BulkTask {
 	
 	@Override
 	public void run() {
-		this.exec();
+		this.operate();
 	}
 	
 	/**
@@ -93,6 +93,6 @@ public abstract class BulkOperator extends BulkTask {
 	 * 
 	 * @return
 	 */
-	abstract public Object exec();
+	abstract public Object operate();
 	
 }

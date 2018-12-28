@@ -34,10 +34,13 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 11/06/2017
  */
-public class CommonService extends AbstractBaseService {
+public class CommonService extends BaseService {
 
-	public CommonService(PersistManagerFactory factory) {
-		super(factory);
+	/**
+	 * @param aPMFactory
+	 */
+	public CommonService(PersistManagerFactory aPMFactory) {
+		super(aPMFactory);
 	}
 	
 	/**
@@ -46,25 +49,25 @@ public class CommonService extends AbstractBaseService {
 	 * @param ids
 	 * @return
 	 */
-	public int delete(ID[] deletes) {
-		Assert.notNull(deletes, "'deletes' not be null");
+	public int delete(ID[] deleted) {
+		Assert.notNull(deleted, "'deleted' not be null");
 		int affected = 0;
-		for (ID id : deletes) {
+		for (ID id : deleted) {
 			affected += super.delete(id);
 		}
 		return affected;
 	}
 	
 	/**
-	 * 批量新建
+	 * 批量新建/更新
 	 * 
-	 * @param records
+	 * @param saved
 	 * @return
 	 */
-	public int createOrUpdate(Record[] records) {
-		Assert.notNull(records, "'records' not be null");
+	public int createOrUpdate(Record[] saved) {
+		Assert.notNull(saved, "'saved' not be null");
 		int affected = 0;
-		for (Record record : records) {
+		for (Record record : saved) {
 			super.createOrUpdate(record);
 			affected++;
 		}
@@ -74,14 +77,14 @@ public class CommonService extends AbstractBaseService {
 	/**
 	 * 批量新建/更新/删除
 	 * 
-	 * @param records
-	 * @param deletes
+	 * @param saved
+	 * @param deleted
 	 * @return
 	 */
-	public int createOrUpdate(Record[] records, ID[] deletes) {
+	public int createOrUpdate(Record[] saved, ID[] deleted) {
 		int affected = 0;
-		affected += createOrUpdate(records);
-		affected += delete(deletes);
+		affected += createOrUpdate(saved);
+		affected += delete(deleted);
 		return affected;
 	}
 }

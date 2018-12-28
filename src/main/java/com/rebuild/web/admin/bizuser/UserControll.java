@@ -93,7 +93,7 @@ public class UserControll extends BaseControll {
 			return;
 		}
 		
-		Application.getBean(UserService.class).txChangeDept(user, deptNew);
+		Application.getBean(UserService.class).updateDepartment(user, deptNew);
 		writeSuccess(response);
 	}
 	

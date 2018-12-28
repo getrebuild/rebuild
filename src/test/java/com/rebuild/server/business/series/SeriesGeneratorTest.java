@@ -49,7 +49,7 @@ public class SeriesGeneratorTest {
 		Application.debug();
 		Field field = MetadataHelper.getEntity("ceshiziduan").getField("ZIDONGBIANHAO");
 		
-		IncrementVar var = new IncrementVar("0000", field, null);
+		IncreasingVar var = new IncreasingVar("0000", field, null);
 		System.out.println(var.generate());
 		System.out.println(var.generate());
 		System.out.println(var.generate());
@@ -57,7 +57,7 @@ public class SeriesGeneratorTest {
 	
 	@Test
 	public void testIncrementVarNThreads() throws Exception {
-		final IncrementVar var = new IncrementVar("0000", getSeriesField(), "Y");
+		final IncreasingVar var = new IncreasingVar("0000", getSeriesField(), "Y");
 		for (int i = 0; i < 2000; i++) {
 			ThreadPool.exec(new Runnable() {
 				@Override

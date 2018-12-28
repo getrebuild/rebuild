@@ -29,29 +29,32 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entityhub.DisplayType;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.server.service.OperateContext;
-import com.rebuild.server.service.OperateObserver;
+import com.rebuild.server.service.OperatingContext;
+import com.rebuild.server.service.OperatingObserver;
 import com.rebuild.utils.JSONUtils;
 
-import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 更新附件
+ * 更新媒体字段到附件表
  * 
  * @author devezhao
  * @since 12/25/2018
  */
-public class AttchementAwareObserver extends OperateObserver {
+public class AttchementAwareObserver extends OperatingObserver {
+	
+	public AttchementAwareObserver() {
+		super();
+	}
 	
 	@Override
-	public void onCreate(OperateContext context) {
+	public void onCreate(OperatingContext context) {
 		Record record = context.getAfterRecord();
-		Field[] attFields = getAttchementFields(record.getEntity());
+		Field[] attFields = MetadataSorter.sortFields(record.getEntity(), DisplayType.FILE, DisplayType.IMAGE);
 		if (attFields.length == 0) {
 			return;
 		}
@@ -75,9 +78,9 @@ public class AttchementAwareObserver extends OperateObserver {
 	}
 	
 	@Override
-	public void onUpdate(OperateContext context) {
+	public void onUpdate(OperatingContext context) {
 		Record record = context.getAfterRecord();
-		Field[] attFields = getAttchementFields(record.getEntity());
+		Field[] attFields = MetadataSorter.sortFields(record.getEntity(), DisplayType.FILE, DisplayType.IMAGE);
 		if (attFields.length == 0) {
 			return;
 		}
@@ -131,9 +134,9 @@ public class AttchementAwareObserver extends OperateObserver {
 	}
 	
 	@Override
-	public void onDelete(OperateContext context) {
+	public void onDelete(OperatingContext context) {
 		Record record = context.getBeforeRecord();
-		Field[] attFields = getAttchementFields(record.getEntity());
+		Field[] attFields = MetadataSorter.sortFields(record.getEntity(), DisplayType.FILE, DisplayType.IMAGE);
 		if (attFields.length == 0) {
 			return;
 		}
@@ -155,21 +158,6 @@ public class AttchementAwareObserver extends OperateObserver {
 	}
 	
 	/**
-	 * @param entity
-	 * @return
-	 */
-	private Field[] getAttchementFields(Entity entity) {
-		List<Field> fields = new ArrayList<>();
-		for (Field field : entity.getFields()) {
-			DisplayType dt = EasyMeta.valueOf(field).getDisplayType();
-			if (dt == DisplayType.FILE || dt == DisplayType.IMAGE) {
-				fields.add(field);
-			}
-		}
-		return fields.toArray(new Field[fields.size()]);
-	}
-	
-	/**
 	 * @param files
 	 * @return
 	 */
@@ -186,7 +174,7 @@ public class AttchementAwareObserver extends OperateObserver {
 	 * @param filePath
 	 * @return
 	 */
-	private Record createAttachment(OperateContext context, Field field, String filePath) {
+	private Record createAttachment(OperatingContext context, Field field, String filePath) {
 		Record record = context.getAfterRecord();
 		Record att = EntityHelper.forNew(EntityHelper.Attachment, context.getOperator());
 		att.setInt("belongEntity", record.getEntity().getEntityCode());

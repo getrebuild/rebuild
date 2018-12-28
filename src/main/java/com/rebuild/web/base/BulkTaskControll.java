@@ -27,7 +27,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSON;
-import com.rebuild.server.helper.BulkTaskExecutor;
+import com.rebuild.server.job.BulkTaskExecutor;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 

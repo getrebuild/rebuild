@@ -30,7 +30,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 10/31/2018
  */
-public class OperateContext {
+public class OperatingContext {
 
 	private ID operator;
 	private Permission action;
@@ -38,7 +38,7 @@ public class OperateContext {
 	private Record beforeRecord;
 	private Record afterRecord;
 
-	private OperateContext(ID operator, Permission action, Record beforeRecord, Record afterRecord) {
+	private OperatingContext(ID operator, Permission action, Record beforeRecord, Record afterRecord) {
 		this.operator = operator;
 		this.action = action;
 		
@@ -47,47 +47,22 @@ public class OperateContext {
 		this.afterRecord = afterRecord;
 	}
 
-	/**
-	 * 操作人
-	 * 
-	 * @return
-	 */
 	public ID getOperator() {
 		return operator;
 	}
 	
-	/**
-	 * 操作类型
-	 * 
-	 * @return
-	 */
 	public Permission getAction() {
 		return action;
 	}
 
-	/**
-	 * 操作执行*前*的记录
-	 * 
-	 * @return
-	 */
 	public Record getBeforeRecord() {
 		return beforeRecord;
 	}
 	
-	/**
-	 * 操作执行*后*的记录
-	 * 
-	 * @return
-	 */
 	public Record getAfterRecord() {
 		return afterRecord;
 	}
 	
-	/**
-	 * 记录ID
-	 * 
-	 * @return
-	 */
 	public ID getRecordId() {
 		return (getBeforeRecord() != null ? getBeforeRecord() : getAfterRecord()).getPrimary();
 	}
@@ -99,13 +74,13 @@ public class OperateContext {
 	}
 	
 	/**
-	 * @param operator
-	 * @param action
-	 * @param before
-	 * @param after
+	 * @param operator 操作人
+	 * @param action 动作
+	 * @param before 操作*前*记录
+	 * @param after 操作*后*记录
 	 * @return
 	 */
-	public static OperateContext valueOf(ID operator, Permission action, Record before, Record after) {
-		return new OperateContext(operator, action, before, after);
+	public static OperatingContext valueOf(ID operator, Permission action, Record before, Record after) {
+		return new OperatingContext(operator, action, before, after);
 	}
 }

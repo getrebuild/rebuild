@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.business.series;
 
 /**
+ * 系列变量
  * 
  * @author devezhao
  * @since 12/24/2018

@@ -81,14 +81,14 @@ public class SeriesGenerator {
 	 */
 	protected List<SeriesVar> explainVars(String format) {
 		List<SeriesVar> vars = new ArrayList<>();
-		Pattern pattern = Pattern.compile("\\{(\\w+)\\}");
-		Matcher matcher = pattern.matcher(format);
-		while (matcher.find()) {
-			String symbols = matcher.group(1);
-			if (symbols.substring(0, 1).equals("0")) {
-				vars.add(new IncrementVar(symbols, field, config.getString("seriesZero")));
+		Pattern varPattern = Pattern.compile("\\{(\\w+)\\}");
+		Matcher varMatcher = varPattern.matcher(format);
+		while (varMatcher.find()) {
+			String s = varMatcher.group(1);
+			if (s.substring(0, 1).equals("0")) {
+				vars.add(new IncreasingVar(s, field, config.getString("seriesZero")));
 			} else {
-				vars.add(new TimeVar(symbols));
+				vars.add(new TimeVar(s));
 			}
 		}
 		return vars;
