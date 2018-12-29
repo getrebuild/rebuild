@@ -128,11 +128,11 @@ public class ReferenceSearch extends BaseControll {
 			nameField2 = "&" + nameField2;
 		}
 		
-		String sql = "select {0},{1} from {2} where ({1} like '%{3}%'";
+		String sql = "select {0},{1} from {2} where ( {1} like ''%{3}%''";
 		sql = MessageFormat.format(sql, 
 				metaFieldEntity.getPrimaryField().getName(), nameField2, metaFieldEntity.getName(), q);
 		if (metaEntity.containsField(EntityHelper.QuickCode) && StringUtils.isAlphanumericSpace(q)) {
-			sql += MessageFormat.format(" or quickCode like '{0}%' )", q);
+			sql += MessageFormat.format(" or quickCode like ''{0}%'' )", q);
 		} else {
 			sql += " )";
 		}

@@ -33,7 +33,7 @@ $(document).ready(function(){
         $('.J_dash-select').click( ()=>{  })
         $('.J_dash-new').click( ()=>{ renderRbcomp(<DlgDashAdd />) })
         $('.J_dash-edit').click(()=>{ renderRbcomp(<DlgDashSettings dashid={dashid} title={d[1]} shareToAll={d[4] == 'ALL'} />) })
-        $('.J_chart-new').click(()=>{ renderRbcomp(<DlgAddChart dashid={dashid} />) })
+        $('.J_chart-new').click(()=>{ add_chart() })
         $('.J_chart-select').click(()=>{  })
     }))
 })
@@ -44,6 +44,10 @@ $(window).resize(() => {
         $(rendered_charts).each((idx, item)=>{ item.resize() })
     }, 200, 'resize-charts')
 })
+
+const add_chart = ()=>{
+    renderRbcomp(<DlgAddChart dashid={dashid} />)
+}
 
 let gridster = null
 let gridster_undata = true
@@ -116,7 +120,7 @@ class DlgAddChart extends RbFormHandler {
         super(props)
     }
     render() {
-        return (<RbModal title="添加图表" ref="dlg" destroyOnHide={false}>
+        return (<RbDialog title="添加图表" ref="dlg">
                 <form>
                 <div className="form-group row">
                     <label className="col-sm-3 col-form-label text-sm-right">图表数据来源</label>
@@ -130,7 +134,7 @@ class DlgAddChart extends RbFormHandler {
                     </div>
                 </div>
             </form>
-            </RbModal>)
+            </RbDialog>)
     }
     componentDidMount() {
         let that = this
@@ -139,15 +143,15 @@ class DlgAddChart extends RbFormHandler {
             $(res.data).each(function(){
                 $('<option value="' + this.name + '">' + this.label + '</option>').appendTo(entity_el)
             })
-            this.select2 = entity_el.select2({
+            this.__select2 = entity_el.select2({
                 language: 'zh-CN',
-                placeholder: '选择数据源',
+                placeholder: '选择数据来源',
                 width: '100%'
             })
         })
     }
     next() {
-        let e = this.select2.val()
+        let e = this.__select2.val()
         if (!!!e) return
         location.href = rb.baseUrl + '/dashboard/chart-design?source=' + e + '&dashid=' + this.props.dashid
     }
@@ -158,7 +162,7 @@ class DlgDashSettings extends RbFormHandler {
         super(props)
     }
     render() {
-        return (<RbModal title="仪表盘设置" ref="dlg" destroyOnHide={false}>
+        return (<RbDialog title="仪表盘设置" ref="dlg">
                 <form>
                 <div className="form-group row">
                     <label className="col-sm-3 col-form-label text-sm-right">名称</label>
@@ -181,7 +185,7 @@ class DlgDashSettings extends RbFormHandler {
                     </div>
                 </div>
             </form>
-            </RbModal>)
+            </RbDialog>)
     }
     save() {
         let _data = { shareTo: this.state.shareToAll == true ? 'ALL' : 'SELF', title: this.state.title || '默认仪表盘' }
@@ -200,7 +204,7 @@ class DlgDashAdd extends RbFormHandler {
         super(props)
     }
     render() {
-        return (<RbModal title="添加仪表盘" ref="dlg" destroyOnHide={true}>
+        return (<RbDialog title="添加仪表盘" ref="dlg">
                 <form>
                 <div className="form-group row">
                     <label className="col-sm-3 col-form-label text-sm-right">名称</label>
@@ -223,7 +227,7 @@ class DlgDashAdd extends RbFormHandler {
                     </div>
                 </div>
             </form>
-            </RbModal>)
+            </RbDialog>)
     }
     save() {
         let _data = { title: this.state.title || '我的仪表盘' }

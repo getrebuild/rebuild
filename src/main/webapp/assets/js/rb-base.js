@@ -4,29 +4,27 @@
 (function($) {
 	$.fn.extend({
 		'button': function(state) {
-			var el = $(this)
-			if (el.prop('nodeName') != 'BUTTON') return this
-			if (state == 'loading') {
-				el.attr('disabled', true)
-				var loadingText = el.data('loading-text')
-				if (loadingText){
-					var that = this
-					this.__loadingTextTimer = setTimeout(function(){
-						that.__textHold = el.html()
-						el.text(loadingText)
-					}, 200)
-				}
-			} else if (state == 'reset') {
-				el.attr('disabled', false)
-				if (this.__loadingTextTimer) {
-					clearTimeout(this.__loadingTextTimer)
-					this.__loadingTextTimer = null
-					if (this.__textHold) {
-						el.html(this.__textHold)
+			return this.each(function(){
+				var el = $(this)
+				if (el.prop('nodeName') != 'BUTTON') return
+				if (state == 'loading') {
+					el.attr('disabled', true)
+					var loadingText = el.data('loading-text')
+					if (loadingText){
+						this.__loadingTextTimer = setTimeout(()=>{
+							this.__textHold = el.html()
+							el.text(loadingText)
+						}, 200)
+					}
+				} else if (state == 'reset') {
+					el.attr('disabled', false)
+					if (this.__loadingTextTimer) {
+						clearTimeout(this.__loadingTextTimer)
+						this.__loadingTextTimer = null
+						if (this.__textHold) el.html(this.__textHold)
 					}
 				}
-			}
-			return this
+			})
 		}
 	})
 	
