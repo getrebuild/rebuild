@@ -532,10 +532,14 @@ a {
     cursor: default;
     white-space: nowrap;
     font-weight: normal;
-    padding: 8px 10px;
+    padding: 9px 10px;
 }
 .data-list .table thead th {
-    padding-top: 9px;
+    padding-top: 10px;
+    padding-bottom: 8px;
+}
+.data-list .table thead th.column-checkbox > div > .custom-control.custom-control-sm {
+	margin-top: -19px;
 }
 .data-list .table thead th.sortable {
     cursor: pointer;
