@@ -114,7 +114,7 @@ public class UserControll extends BaseControll {
 		writeSuccess(response);
 	}
 	
-	@RequestMapping("delete-checks")
+	@RequestMapping("deleting-checks")
 	public void deleteChecks(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID id = getIdParameterNotNull(request, "id");
 		

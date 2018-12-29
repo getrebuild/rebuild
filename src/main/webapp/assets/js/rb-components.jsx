@@ -6,7 +6,7 @@ class RbDialog extends React.Component {
     }
     render() {
         let inFrame = !!!this.props.children
-        return (<div className="modal rbmodal colored-header colored-header-primary" tabIndex="-1" ref="rbmodal">
+        return (<div className="modal rbmodal colored-header colored-header-primary" ref="rbmodal">
             <div className="modal-dialog" style={{ maxWidth:(this.props.width || 680) + 'px' }}>
                 <div className="modal-content">
                     <div className="modal-header modal-header-colored">
@@ -170,14 +170,14 @@ class RbAlert extends React.Component {
         let content = !!this.props.htmlMessage ? <div className="mt-3" style={{ lineHeight:1.8 }} dangerouslySetInnerHTML={{ __html : this.props.htmlMessage }}></div> : <p>{this.props.message || '提示内容'}</p>
         let confirm = (this.props.confirm || this.hide).bind(this)
         return (
-            <div className="modal rbalert" ref="rbalert">
+            <div className="modal rbalert" ref="rbalert" tabIndex="-1">
                 <div className="modal-dialog modal-dialog-centered">
                     <div className="modal-content">
                         <div className="modal-header pb-0">
                             <button className="close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
                         </div>
                         <div className="modal-body">
-                            <div className="text-center">
+                            <div className="text-center ml-6 mr-6">
                                 <div className={'text-' + type}><span className={'modal-main-icon zmdi zmdi-' + icon}></span></div>
                                 {this.props.title && <h4 className="mb-2 mt-3">{this.props.title}</h4>}
                                 <div className={this.props.title ? '' : 'mt-3'}>{content}</div>
@@ -225,15 +225,13 @@ class RbNotice extends React.Component {
     }
     componentDidMount() {
         if (this.props.closeAuto == false) return
-        let that = this
         let dTimeout = this.props.type == 'danger' ? 6000 : 3000
-        setTimeout(function(){ that.close() }, that.props.timeout || dTimeout)
+        setTimeout(()=>{ this.close() }, this.props.timeout || dTimeout)
     }
     close() {
-        let that = this
-        this.setState({ animatedClass: 'fadeOut' }, function(){
-            setTimeout(function(){
-                $(that.refs['rbnotice']).parent().remove()
+        this.setState({ animatedClass: 'fadeOut' }, ()=>{
+            setTimeout(()=>{
+                $(this.refs['rbnotice']).parent().remove()
             }, 1000)
         })
     }

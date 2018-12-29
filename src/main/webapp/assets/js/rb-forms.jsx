@@ -211,7 +211,7 @@ class RbForm extends React.Component {
                         let sm = that.props.$$$parent.state.__formModel.slaveMeta
                         rb.RbFormModal({ title: `添加${sm[1]}`, entity: sm[0], icon: sm[2], initialValue: iv })
                     }
-                }, 200)
+                }, 500)
                 
             }else{
                 rb.notice(res.error_msg || '保存失败，请稍后重试', 'danger')
@@ -812,7 +812,6 @@ class RbViewModal extends React.Component {
         this.state = { ...props, inLoad: true, isHide: true, isDestroy: false }
         this.mcWidth = this.props.subView == true ? 1170 : 1220
         if ($(window).width() < 1280) this.mcWidth -= 100
-        //this.mcWidth = 1220
     }
     render() {
         return (this.state.isDestroy == true ? null :
@@ -820,7 +819,6 @@ class RbViewModal extends React.Component {
             <div className="modal rbview" ref="rbview">
                 <div className="modal-dialog">
                     <div className="modal-content" style={{ width: this.mcWidth + 'px' }}>
-                        {this.state.showClose == true ? <div className="modal-header"><button className="close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button></div> : null}
                         <div className={'modal-body iframe rb-loading ' + (this.state.inLoad == true && 'rb-loading-active')}>
                             <iframe className={this.state.isHide ? 'invisible' : ''} src={this.state.showAfterUrl || 'about:blank'} frameBorder="0" scrolling="no"></iframe>
                             <RbSpinner />
@@ -872,8 +870,8 @@ class RbViewModal extends React.Component {
         let root = $(this.refs['rbview'])
         let that = this
         this.setState({ ...ext, url: url, inLoad: urlChanged, isHide: urlChanged }, function(){
-            root.modal({ show: true, backdrop: true, keyboard: true, focus: true })
-            $setTimeout(function(){
+            root.modal({ show: true, backdrop: true })
+            setTimeout(function(){
                 that.setState({ showAfterUrl: that.state.url })
             }, 400)
         })

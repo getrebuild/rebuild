@@ -58,7 +58,7 @@ public class ReferenceSearch extends BaseControll {
 	@RequestMapping({ "/app/entity/search" })
 	public void search(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
-		String qfields = getParameterNotNull(request, "qfields");
+		String qFields = getParameter(request, "qfields");
 		String q = getParameter(request, "q");
 		
 		if (StringUtils.isBlank(q)) {
@@ -72,13 +72,17 @@ public class ReferenceSearch extends BaseControll {
 			writeSuccess(response, ArrayUtils.EMPTY_STRING_ARRAY);
 			return;
 		}
+		if (StringUtils.isBlank(qFields)) {
+			qFields = nameField.getName();
+		}
 		
+		q = StringEscapeUtils.escapeSql(q);
 		List<String> or = new ArrayList<>();
-		for (String qfield : qfields.split(",")) {
-			if (!metaEntity.containsField(qfield)) {
-				LOG.warn("No field for search : " + qfield);
+		for (String field : qFields.split(",")) {
+			if (!metaEntity.containsField(field)) {
+				LOG.warn("No field for search : " + field);
 			} else if (StringUtils.isNotBlank(q)) {
-				or.add(qfield + " like '%" + StringEscapeUtils.escapeSql(q) + "%'");
+				or.add(field + " like '%" + q + "%'");
 			}
 		}
 		if (or.isEmpty()) {

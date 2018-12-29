@@ -73,8 +73,8 @@ public class GeneralRecordControll extends BaseControll {
 		Record record = null;
 		try {
 			record = EntityHelper.parse((JSONObject) formJson, user);
-		} catch (IllegalParameterException ex) {
-			writeFailure(response, ex.getLocalizedMessage());
+		} catch (IllegalParameterException know) {
+			writeFailure(response, know.getLocalizedMessage());
 			return;
 		}
 		
@@ -82,7 +82,7 @@ public class GeneralRecordControll extends BaseControll {
 		
 		try {
 			record = Application.getEntityService(record.getEntity().getEntityCode()).createOrUpdate(record);
-		} catch (AccessDeniedException know) {
+		} catch (AccessDeniedException | IllegalParameterException know) {
 			writeFailure(response, know.getLocalizedMessage());
 			return;
 		}

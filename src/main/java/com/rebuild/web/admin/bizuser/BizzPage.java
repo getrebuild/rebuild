@@ -32,6 +32,7 @@ import com.rebuild.web.PageControll;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * URL-Rewrite
  * 
  * @author devezhao
  * @since 11/01/2018
@@ -42,27 +43,24 @@ public class BizzPage extends PageControll {
 
 	@RequestMapping("User/view/{id}")
 	public ModelAndView userView(@PathVariable String id, HttpServletRequest request) throws IOException {
-		ID user = getRequestUser(request);
 		ID record = ID.valueOf(id);
-		ModelAndView mv = createModelAndView("/admin/bizuser/user-view.jsp", "User", user);
+		ModelAndView mv = createModelAndView("/admin/bizuser/user-view.jsp", "User", getRequestUser(request));
 		mv.getModel().put("id", record);
 		return mv;
 	}
 	
 	@RequestMapping("Department/view/{id}")
 	public ModelAndView deptView(@PathVariable String id, HttpServletRequest request) throws IOException {
-		ID user = getRequestUser(request);
 		ID record = ID.valueOf(id);
-		ModelAndView mv = createModelAndView("/admin/bizuser/dept-view.jsp", "Department", user);
+		ModelAndView mv = createModelAndView("/admin/bizuser/dept-view.jsp", "Department", getRequestUser(request));
 		mv.getModel().put("id", record);
 		return mv;
 	}
 	
 	@RequestMapping("Role/view/{id}")
 	public ModelAndView roleView(@PathVariable String id, HttpServletRequest request) throws IOException {
-		ID user = getRequestUser(request);
 		ID record = ID.valueOf(id);
-		ModelAndView mv = createModelAndView("/admin/bizuser/role-view.jsp", "Role", user);
+		ModelAndView mv = createModelAndView("/admin/bizuser/role-view.jsp", "Role", getRequestUser(request));
 		mv.getModel().put("id", record);
 		return mv;
 	}

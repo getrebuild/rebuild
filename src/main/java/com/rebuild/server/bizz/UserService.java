@@ -18,18 +18,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.bizz;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.rebuild.server.Application;
 import com.rebuild.server.DataConstraintException;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.web.IllegalParameterException;
 
 import cn.devezhao.bizz.security.member.User;
 import cn.devezhao.commons.EncryptUtils;
-import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -83,6 +78,9 @@ public class UserService extends BizzEntityService {
 	private void saveBefore(Record record) {
 		if (record.hasValue("password")) {
 			String password = record.getString("password");
+			if (password.length() < 6) {
+				throw new IllegalParameterException("密码不能小于6位");
+			}
 			password = EncryptUtils.toSHA256Hex(password);
 			record.setString("password", password);
 		}
@@ -112,24 +110,11 @@ public class UserService extends BizzEntityService {
 		Record record = EntityHelper.forUpdate(user, Application.currentCallerUser());
 		record.setID("deptId", deptNew);
 		super.update(record);
+		Application.getUserStore().refreshUser(user);
 		
-		// 无需改变记录的所属部门
-		if (deptOld == null) {
-			return;
+		// 改变记录的所属部门
+		if (deptOld != null) {
+			new ChangeDepartmentTask(user, deptNew).run();
 		}
-		
-		String updeptSql = "update `{0}` set OWNING_DEPT = ''%s'' where OWNING_USER = ''%s''";
-		updeptSql = String.format(updeptSql, deptNew.toLiteral(), user.toLiteral());
-		
-		List<String> updeptSqls = new ArrayList<>();
-		for (Entity e : MetadataHelper.getEntities()) {
-			if (EntityHelper.hasPrivilegesField(e)) {
-				String sql = MessageFormat.format(updeptSql, e.getPhysicalName());
-				updeptSqls.add(sql);
-			}
-		}
-		
-		// TODO 10M 超时，线程执行 ???
-		Application.getSQLExecutor().executeBatch(updeptSqls.toArray(new String[updeptSqls.size()]), 60 * 10);
 	}
 }

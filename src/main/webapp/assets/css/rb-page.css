@@ -383,6 +383,9 @@ a {
 .img-field a.img-upload:hover b:hover, .file-field .img-thumbnail:hover b:hover {
     background-color: rgba(0, 0, 0, 0.6);
 }
+.img-field.avatar, .img-field.avatar>span {
+	margin-bottom: 0;
+}
 .img-field.avatar img {
     width: 100%;
     height: 100%;
