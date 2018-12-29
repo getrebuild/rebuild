@@ -381,7 +381,7 @@ a {
     display: block;
 }
 .img-field a.img-upload:hover b:hover, .file-field .img-thumbnail:hover b:hover {
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.5);
 }
 .img-field.avatar, .img-field.avatar>span {
 	margin-bottom: 0;
@@ -420,12 +420,12 @@ a {
 }
 .file-field .img-thumbnail>i.ftype {
     float: left;
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     line-height: 1;
     background: url(../img/ft-icons/icon-txt.png) no-repeat center center;
-    background-size: 24px auto;
-    margin: 3px;
+    background-size: 28px auto;
+    margin: 1px;
 }
 .file-field .img-thumbnail>i.ftype.png {
     background-image: url(../img/ft-icons/icon-png.png)
@@ -449,9 +449,11 @@ a {
     margin-left: 32px;
     display: block;
     word-break: break-all;
-    min-height: 30px;
-    padding: 2px 4px;
+    height: 30px;
+    padding: 0 4px;
     padding-left: 2px;
+    line-height: 1.2rem;
+    vertical-align: middle;
 }
 .datetime-field .input-group-append button {
     min-width: 38px;
@@ -599,25 +601,34 @@ i.split.ui-draggable-dragging {
 .data-list .table td, .data-list .table td>div.nmw {
     max-width: 1000px;
 }
-.column-imgs.img-field {
-    margin-bottom: 0;
+.column-imgs, .column-files {
+	max-height: 32px;
+	overflow: hidden;
 }
-.column-imgs.img-field .img-upload {
-    width: 36px;
-    height: 36px;
+.column-imgs>a {
+	display: inline-block;
+	height: 100%;
+	font-size: 0;
+	line-height: 1;
+	cursor: default;
+	height: 32px;
 }
-.column-imgs.img-field>span {
-    margin-bottom: 0;
+.column-imgs>a img {
+	max-height: 100%;
+	max-width: 100%;
 }
-.column-files {
-    max-height: 36px
+.column-imgs>a+a{
+	margin-left: 3px;
 }
-.column-files ul {
+.column-files ul, .column-files ul>li {
     margin: 0;
-    line-height: 1.428571;
+	padding: 0;
 }
-.column-files ul a {
-    color: #777 !important;
+.column-files ul>li {
+    line-height: 1.42857143;
+}
+.column-files ul>li>a {
+	color: #404040;
     cursor: default;
 }
 .column-checkbox {
@@ -798,6 +809,9 @@ i.split.ui-draggable-dragging {
 }
 .rbview-form .form-group.row {
     padding: 3px 0;
+}
+.rbview-form .img-field .img-thumbnail:hover, .rbview-form .file-field .img-thumbnail:hover{
+	opacity: 0.8;
 }
 .rbview-form .form-control-plaintext:hover {
     background-color: #f8f8f8;

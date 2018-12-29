@@ -164,16 +164,17 @@ class RbList extends React.Component {
         let styles = { width: (this.state.fields[index].width || this.__defaultColumnWidth) + 'px' }
         if (field.type == 'IMAGE') {
             cellVal = JSON.parse(cellVal || '[]')
-            return (<td key={cellKey}><div style={styles} className="img-field column-imgs">
+            return (<td key={cellKey}><div style={styles} className="column-imgs">
                 {cellVal.map((item, idx)=>{
-                    return <span key={cellKey + idx}><a href={'#!/Preview/' + item} className="img-thumbnail img-upload"><img src={rb.storageUrl + item + '?imageView2/2/w/100/interlace/1/q/100'} /></a></span>
-                })}<div className="clearfix" /></div></td>)
+                    let imgName = __fileCutName(item)
+                    return <a key={cellKey + idx} href={'#!/Preview/' + item} title={imgName}><img src={rb.storageUrl + item + '?imageView2/2/w/100/interlace/1/q/100'} /></a>
+                })}</div></td>)
         } else if (field.type == 'FILE') {
             cellVal = JSON.parse(cellVal || '[]')
             return (<td key={cellKey}><div style={styles} className="column-files"><ul className="list-unstyled">
                 {cellVal.map((item, idx)=>{
                     let fileName = __fileCutName(item)
-                    return <li key={cellKey + idx} className="text-truncate"><a href={'#!/Preview/' + item}>{fileName}</a></li>
+                    return <li key={cellKey + idx} className="text-truncate"><a href={'#!/Preview/' + item} title={fileName}>{fileName}</a></li>
                 })}</ul></div></td>)
         } else if (field.type == 'REFERENCE'){
             return <td key={cellKey}><div style={styles}><a href={'#!/View/' + cellVal[2][0] + '/' + cellVal[0]} onClick={() => this.clickView(cellVal)}>{cellVal[1]}</a></div></td>
