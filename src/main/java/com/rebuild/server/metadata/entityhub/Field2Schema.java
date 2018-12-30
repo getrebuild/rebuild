@@ -171,14 +171,11 @@ public class Field2Schema {
 	 * @param comments
 	 * @param refEntity
 	 * @param cascade
-	 * @param isBuiltin 内建字段
+	 * @param dbNullable 在数据库中是否可为空，一般系统级字段不能为空
 	 * @return
 	 */
 	protected Field createField(Entity entity, String fieldName, String fieldLabel, DisplayType displayType,
-			boolean nullable, boolean creatable, boolean updatable, String comments, String refEntity, CascadeModel cascade, boolean isBuiltin) {
-		// 在数据库中是否可为空
-		boolean dbNullable = !isBuiltin;
-		
+			boolean nullable, boolean creatable, boolean updatable, String comments, String refEntity, CascadeModel cascade, boolean dbNullable) {
 		if (displayType == DisplayType.SERIES) {
 			nullable = false;
 			creatable = false;

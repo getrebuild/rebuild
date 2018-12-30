@@ -265,9 +265,9 @@ public class FormManager extends LayoutManager {
 		}
 		
 		if (entityMeta.getMasterEntity() != null) {
-			config.put("slave", true);
+			config.put("isSlave", true);
 		} else if (entityMeta.getSlaveEntity() != null) {
-			config.put("master", true);
+			config.put("isMaster", true);
 			config.put("slaveMeta", EasyMeta.getEntityShows(entityMeta.getSlaveEntity()));
 		}
 		

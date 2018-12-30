@@ -123,8 +123,6 @@ public class Entity2Schema extends Field2Schema {
 			createBuiltinField(tempEntity, primaryFiled, "ID", DisplayType.ID, null, null, null);
 			// 自增ID
 			createBuiltinField(tempEntity, EntityHelper.AutoId, "AUTOID", DisplayType.NUMBER, null, null, null);
-			// 助记码/搜索码
-			createBuiltinField(tempEntity, EntityHelper.QuickCode, "QUICKCODE", DisplayType.TEXT, null, null, null);
 			// 是否删除
 			createBuiltinField(tempEntity, EntityHelper.IsDeleted, "ISDELETED", DisplayType.BOOL, null, null, null);
 			
@@ -144,6 +142,10 @@ public class Entity2Schema extends Field2Schema {
 				String masterField = masterEntity + "Id";
 				createBuiltinField(tempEntity, masterField, masterLabel, DisplayType.REFERENCE, "引用主记录(" + masterLabel + ")", masterEntity, CascadeModel.Delete); 
 			} else {
+				// 助记码/搜索码
+//				createBuiltinField(tempEntity, EntityHelper.QuickCode, "QUICKCODE", DisplayType.TEXT, null, null, null);
+				createField(tempEntity, EntityHelper.QuickCode, "QUICKCODE", DisplayType.TEXT, true, false, false, null, null, null, true);
+				
 				createBuiltinField(tempEntity, EntityHelper.OwningUser, "所属用户", DisplayType.REFERENCE, null, "User", null);
 				createBuiltinField(tempEntity, EntityHelper.OwningDept, "所属部门", DisplayType.REFERENCE, null, "Department", null);
 			}
@@ -208,7 +210,7 @@ public class Entity2Schema extends Field2Schema {
 	private Field createBuiltinField(Entity entity, String fieldName, String fieldLabel, DisplayType displayType, String comments,
 			String refEntity, CascadeModel cascade) {
 		comments = StringUtils.defaultIfBlank(comments, "系统内建");
-		return createField(entity, fieldName, fieldLabel, displayType, false, false, false, comments, refEntity, cascade, true);
+		return createField(entity, fieldName, fieldLabel, displayType, false, false, false, comments, refEntity, cascade, false);
 	}
 	
 	/**

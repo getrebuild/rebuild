@@ -74,7 +74,7 @@
 						<div class="card-body">
 							<p>版本 <a class="link" target="_blank" href="https://github.com/getrebuild/rebuild/releases"><%=Application.VER%></a></p>
 							<ul style="line-height:2">
-								<li><a class="link" target="_blank" href="http://getrebuild.com/">帮助文档</a></li>
+								<li><a class="link" target="_blank" href="https://getrebuild.com/docs/">帮助文档</a></li>
 								<li><a class="link" target="_blank" href="mailto:getrebuild@sina.com?subject=技术支持">技术支持</a></li>
 								<li><a class="link" target="_blank" href="${baseUrl}/gw/server-status">系统运行状态</a></li>
 								<li><a class="link" target="_blank" href="https://github.com/getrebuild/rebuild">View on GitHub</a></li>

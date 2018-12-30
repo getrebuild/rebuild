@@ -78,7 +78,7 @@
 </div>
 <% } %>
 <div class="block">
-<div class="text-muted">&copy; 2018 <a href="https://getrebuild.com/">Rebuild</a> <a href="?check=1" style="color:transparent;">CHECK</a></div>
+<div class="text-muted">&copy; 2019 <a href="https://getrebuild.com/">Rebuild</a> <a href="?check=1" style="color:transparent;">CHECK</a></div>
 </div>
 </body>
 </html>

@@ -121,16 +121,6 @@
 								<td class="text-center"><i data-action="Z" class="priv R0"></i></td>
 								<td colspan="5">需具备相应实体的读取权限</td>
 							</tr>
-							<tr>
-								<td class="name"><a data-name="AllowCustomListColumn">允许自定义列显示</a></td>
-								<td class="text-center"><i data-action="Z" class="priv R0"></i></td>
-								<td colspan="5" class="text-muted">无</td>
-							</tr>
-							<tr>
-								<td class="name"><a data-name="AllowCustomQuickField">允许自定义查询字段</a></td>
-								<td class="text-center"><i data-action="Z" class="priv R0"></i></td>
-								<td colspan="5" class="text-muted">无</td>
-							</tr>
 						</tbody>
 						</table>
 						<div class="legend-warp">

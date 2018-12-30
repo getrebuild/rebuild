@@ -133,16 +133,17 @@ class RbForm extends React.Component {
                 <button className="btn btn-primary" type="button" onClick={()=>this.post()}>保存</button>
                 <button className="btn btn-primary dropdown-toggle auto" type="button" data-toggle="dropdown"><span className="icon zmdi zmdi-chevron-up"></span></button>
                 <div className="dropdown-menu dropdown-menu-primary dropdown-menu-right">
-                    {pmodel.slave == true && <a className="dropdown-item" onClick={()=>this.post(111)}>保存并继续添加</a>}
-                    {pmodel.master == true && <a className="dropdown-item" onClick={()=>this.post(112)}>保存并添加明细</a>}
-                    {pmodel.slave != true && <a className="dropdown-item" onClick={()=>this.post(101)}>保存并继续新建</a>}
+                    {pmodel.isSlave === true && <a className="dropdown-item" onClick={()=>this.post(101)}>保存并继续添加</a>}
+                    {pmodel.isMaster === true && <a className="dropdown-item" onClick={()=>this.post(102)}>保存并添加明细</a>}
+                    {pmodel.isSlave !== true && <a className="dropdown-item" onClick={()=>this.post(101)}>保存并继续新建</a>}
                 </div>
             </div>
         )
         
         let entity = this.state.entity
+        let wpc = window.__PageConfig
         if (entity == 'User' || entity == 'Department' || entity == 'Role'
-            || window.pageType == 'SlaveView' || window.pageType == 'SlaveList'){
+            || wpc.type == 'SlaveView' || wpc.type == 'SlaveList' || this.isNew != true) {
             saveBtns = <button className="btn btn-primary btn-space" type="button" onClick={()=>this.post()}>保存</button>
         }
         
@@ -201,12 +202,12 @@ class RbForm extends React.Component {
                 rb.notice('保存成功', 'success')
                 setTimeout(() => {
                     that.props.$$$parent.hide(true)
-                    RbForm.postAfter(res.data, next == 111)
+                    RbForm.postAfter(res.data, next == 101)
                     
-                    if (next == 101 || next == 111) {
+                    if (next == 101) {
                         let pstate = that.props.$$$parent.state
                         rb.RbFormModal({ title: pstate.title, entity: pstate.entity, icon: pstate.icon })
-                    } else if (next == 112) {
+                    } else if (next == 102) {
                         let iv = { '$MASTER$': res.data.id }
                         let sm = that.props.$$$parent.state.__formModel.slaveMeta
                         rb.RbFormModal({ title: `添加${sm[1]}`, entity: sm[0], icon: sm[2], initialValue: iv })
