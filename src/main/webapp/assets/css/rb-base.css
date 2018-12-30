@@ -9052,7 +9052,9 @@ canvas {
     min-width: 17px;
     height: 17px;
     text-align: center;
-    padding: 3px 6px
+    padding: 1px 6px;
+    padding-top: 3px;
+    font-weight: normal;
 }
 .rb-icons-nav>li.dropdown .dropdown-menu .title .badge-new {
     background-color: #4285f4;
@@ -9345,7 +9347,8 @@ a.avatar.x48 img {
 }
 .rb-notifications .rb-scroller {
     position: relative;
-    height: 222px
+    height: 222px;
+    height: 219px;
 }
 .rb-notifications .rb-scroller>.content>ul {
     list-style: none;
@@ -9356,7 +9359,7 @@ a.avatar.x48 img {
     border-bottom: 1px solid #ebebeb
 }
 .rb-notifications .notification>a {
-    padding: 15px;
+    padding: 10px 15px;
     display: block;
     overflow: hidden
 }
@@ -9367,18 +9370,24 @@ a.avatar.x48 img {
     background-color: #e4e4e4;
     float: left;
     text-align: center;
-    overflow: hidden
+    overflow: hidden;
+    height: 32px;
+    width: 32px;
 }
 .rb-notifications .notification>a .image img {
     height: 38px;
     width: 38px;
     font-size: 1.923rem;
     color: #979595;
-    line-height: 36px
+    line-height: 36px;
+    height: 32px;
+    width: 32px;
+    line-height: 32px;
 }
 .rb-notifications .notification>a .notification-info {
     padding-left: 50px;
-    line-height: 14px
+    line-height: 14px;
+    padding-left: 44px;
 }
 .rb-notifications .notification>a .notification-info .text {
     color: #8a8a8a;
@@ -9412,7 +9421,8 @@ a.avatar.x48 img {
     width: 6px;
     height: 6px;
     background-color: #4285f4;
-    border-radius: 50%
+    border-radius: 50%;
+    top: 12px;
 }
 .rb-notifications .notification:hover {
     background-color: #4285f4
@@ -9435,10 +9445,10 @@ a.avatar.x48 img {
 .rb-notifications .notification:hover>a:after {
     background-color: #fff
 }
-.rb-notifications .notification:last-child {
+.J_notifications-top .rb-notifications .notification:last-child {
     border-bottom: 0
 }
-.rb-notifications .rb-scroller-notifications>.content>ul {
+.rb-notifications .rb-scroller>.content>ul {
     list-style: none;
     padding-left: 0;
 }

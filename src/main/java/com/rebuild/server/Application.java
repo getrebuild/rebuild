@@ -125,7 +125,7 @@ public final class Application {
 	 * @return
 	 */
 	public static boolean devMode() {
-		return org.apache.commons.lang.SystemUtils.IS_OS_WINDOWS || "1".equals(System.getProperty("dev"));
+		return "1".equals(System.getProperty("dev"));
 	}
 	
 	/**

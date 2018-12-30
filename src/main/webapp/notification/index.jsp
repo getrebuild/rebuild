@@ -6,14 +6,14 @@
 <title>消息通知</title>
 <style type="text/css">
 .card-title{border-bottom:1px solid #ebebeb;}
-.item{border-bottom:1px dotted #eee;padding-bottom:6px;}
-.item .item-body{margin-left:40px;padding:6px;border-radius:3px;position:relative;}
-.item .item-body .time{color:#777;font-size:12px;line-height:1}
-.item .item-body .text{margin-bottom:3px;padding-right:10px}
-.item+.item{margin-top:9px}
-.item:hover .item-body{background-color:#f5f5f5}
-.item.unread .item-body .text{font-weight:bold;}
-.unread-flag{top:7px;cursor:help;width:8px;height:8px;}
+.card-body.rb-notifications{padding-left:3px;padding-right:3px;padding-bottom:7px}
+.card-body.rb-notifications .notification.notification-unread{background-color:#fff;}
+.card-body.rb-notifications .notification.notification-unread>a{cursor:pointer;}
+.card-body.rb-notifications .notification.notification-unread>a:after{background-color:#4285f4 !important}
+.card-body.rb-notifications .notification:hover{background-color:#ebf2fe !important;}
+.card-body.rb-notifications .notification>a{cursor:default;padding:15px 6px;}
+.card-body.rb-notifications .notification>a .text{color:#404040 !important;font-size:1rem;}
+.card-body.rb-notifications .notification>a .date{color:#8a8a8a !important;}
 </style>
 </head>
 <body>
@@ -31,8 +31,8 @@
 					<div class="card-title pb-2">
 						<div class="float-left">
 							<div class="btn-group btn-space J_show-type">
-								<button class="btn btn-secondary active" type="button">未读</button>
-								<button class="btn btn-secondary J_is-all" type="button">全部</button>
+								<button class="btn btn-secondary J_view-unread" type="button">未读</button>
+								<button class="btn btn-secondary J_view-all" type="button">全部</button>
 							</div>
 						</div>
 						<div class="float-right">
@@ -40,9 +40,10 @@
 						</div>
 						<div class="clearfix"></div>
 					</div>
-					<div class="card-body J_list" style="min-height:180px">
+					<div class="card-body rb-notifications J_list" style="min-height:300px">
+						<ul class="list-unstyled"></ul>
 					</div>
-					<div class="text-center J_mores hide"><a href="javascript:;">显示更多 ...</a></div>
+					<div class="text-center J_mores hide"><a href="javascript:;" style="padding-bottom:10px">显示更多 ...</a></div>
 				</div>
 			</div>
 		</div>
@@ -64,6 +65,8 @@ $(document).ready(function(){
 		current_page = 1
 		load_list()
 	})
+	if (!!$urlp('id', location.hash)) $('.J_view-unread').trigger('click')
+	else $('.J_view-all').trigger('click')
 	
 	$('.J_read-all').click(function(){
 		let ids = []
@@ -86,36 +89,37 @@ $(document).ready(function(){
 		current_page++
 		load_list()
 	})
-	
-	load_list()
 })
 let current_page = 1
 let load_list = function(){
-	let isAll = $('.J_is-all').hasClass('active')
-	$.get(rb.baseUrl + '/app/notification/list?isAll=' + isAll + '&page=' + current_page, function(res){
-		if (current_page == 1) $('.J_list').empty()
-		$(res.data).each(function(){
-			let tmp = $($('#item-tmpl').html()).appendTo('.J_list')
-			tmp.attr('data-id', this[3])
-			tmp.find('img').attr('src', this[0][1])
-			tmp.find('.item-body .text').html(this[1])
-			tmp.find('.item-body .time').html(this[4])
-			if (this[2] == true) {
-				$('<span class="unread-flag" title="未读消息"></span>').appendTo(tmp.find('.item-body'))
-				tmp.addClass('unread').click(function(){
-					tmp.off('click')
-					$.post(rb.baseUrl + '/app/notification/toggle-unread?state=read&id=' + tmp.data('id'), function(){
-						tmp.removeClass('unread')
-						tmp.find('.unread-flag').remove()
+	let isAll = $('.J_view-all').hasClass('active')
+	$.get(rb.baseUrl + '/app/notification/list?isAll=' + isAll + '&pageNo=' + current_page, function(res){
+		if (current_page == 1){
+			$('.list-nodata').remove()
+			$('.J_list ul').empty()
+		}
+		let _data = res.data || []
+		$(_data).each((idx, item)=>{
+			let o = $('<li class="notification"></li>').appendTo('.J_list ul')
+			if (item[3] == true){
+				let unread = o
+				o.addClass('notification-unread').attr('title', '点击设为已读').click(()=>{
+					$.post(rb.baseUrl + '/app/notification/toggle-unread?state=read&id=' + item[4], ()=>{
+						unread.removeClass('notification-unread')
 					})
 				})
 			}
+			o = $('<a></a>').appendTo(o)
+			$('<div class="image"><img src="' + item[0][1] + '" alt="Avatar"></div>').appendTo(o)
+			o = $('<div class="notification-info"></div>').appendTo(o)
+			$('<div class="text">' + item[1] + '</div>').appendTo(o)
+			$('<span class="date">' + item[2] + '</span>').appendTo(o)
 		})
-		
-		if (current_page == 1 && (!res.data || res.data.length == 0)) {
+
+		if (current_page == 1 && _data.length == 0) {
 			$('<div class="list-nodata"><span class="zmdi zmdi-info-outline"></span><p>暂无' + (isAll ? '' : '未读') + '消息</p></div>').appendTo('.J_list')
 		} else {
-			if (res.data.length >= 20) $('.J_mores').removeClass('hide')
+			if (_data.length >= 40) $('.J_mores').removeClass('hide')
 			else $('.J_mores').addClass('hide')
 		}
 	})

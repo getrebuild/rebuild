@@ -65,29 +65,20 @@ public class NotificationControll extends BaseControll {
 				.setParameter(1, user)
 				.unique();
 		
-		Object[][] last5Msg = Application.createQueryNoFilter(
-				"select fromUser,message,unread,messageId,createdOn from Notification where toUser = ? and unread = 'T' order by createdOn desc")
-				.setParameter(1, user)
-				.setLimit(5)
-				.array();
-		for (int i = 0; i < last5Msg.length; i++) {
-			last5Msg[i] = formatMessage(last5Msg[i]);
-		}
-		
 		JSON ret = JSONUtils.toJSONObject(
-				new String[] { "unread", "last" }, 
-				new Object[] { unread[0], last5Msg });
+				new String[] { "unread" }, 
+				new Object[] { unread[0] });
 		writeSuccess(response, ret);
 	}
 	
 	@RequestMapping("/app/notification/list")
 	public void list(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		int pn = getIntParameter(request, "page", 1);
-		int ps = 20;
+		int pn = getIntParameter(request, "pageNo", 1);
+		int ps = getIntParameter(request, "pageSize", 40);
 		
-		boolean isAll = getBoolParameter(request, "isAll");
-		String sql = "select fromUser,message,unread,messageId,createdOn from Notification where toUser = ? and (1=1) order by createdOn desc";
+		boolean isAll = getBoolParameter(request, "isAll", true);
+		String sql = "select fromUser,message,createdOn,unread,messageId from Notification where toUser = ? and (1=1) order by createdOn desc";
 		if (isAll == false) {
 			sql = sql.replace("(1=1)", "unread = 'T'");
 		}
@@ -106,15 +97,15 @@ public class NotificationControll extends BaseControll {
 	 * @param message
 	 * @return
 	 */
-	protected static Object[] formatMessage(Object[] message) {
+	private Object[] formatMessage(Object[] message) {
 		ID from = (ID) message[0];
-		String fromShow[] = UserHelper.getShows(from);
-		message[0] = fromShow;
-		message[3] = message[3].toString();
-		message[4] = CalendarUtils.getUTCDateTimeFormat().format(message[4]);
+		String fromShows[] = UserHelper.getShows(from);
+		message[0] = fromShows;
+		message[2] = CalendarUtils.getUTCDateTimeFormat().format(message[2]);
+		message[4] = message[4].toString();
 		
 		String text = (String) message[1];
-		text = text.replace("@" + from, "<a>" + fromShow[0] + "</a>");
+		text = text.replace("@" + from, "<a>" + fromShows[0] + "</a>");
 		message[1] = text;
 		return message;
 	}

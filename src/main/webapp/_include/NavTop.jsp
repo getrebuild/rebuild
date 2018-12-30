@@ -37,25 +37,15 @@ final User currentUser = Application.getUserStore().getUser(AppUtils.getRequestU
 				<li class="nav-item dropdown J_admin-settings <%=currentUser.isAdmin() ? "" : "hide"%>">
 					<a class="nav-link" href="${baseUrl}/admin/systems"><i class="icon zmdi zmdi-settings"></i></a>
 				</li>
-				<li class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle" data-toggle="dropdown--disable" href="${baseUrl}/app/notifications"><i class="icon zmdi zmdi-notifications"></i><span class="indicator hide"></span></a>
+				<li class="nav-item dropdown J_notifications-top">
+					<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="${baseUrl}/app/notifications"><i class="icon zmdi zmdi-notifications"></i><span class="indicator hide"></span></a>
 					<ul class="dropdown-menu rb-notifications">
 					<li>
 						<div class="title">未读 <span class="badge badge-pill">0</span></div>
 						<div class="list">
-							<div class="rb-scroller-notifications">
+							<div class="rb-scroller">
 								<div class="content">
-									<ul>
-										<li class="notification notification-unread">
-											<a href="${baseUrl}/app/notification/123">
-												<div class="image"><img src="${baseUrl}/assets/img/avatar.png" alt="Avatar"></div>
-												<div class="notification-info">
-													<div class="text"><span class="user-name">USER</span> MESSAGE.</div>
-													<span class="date">TIME</span>
-												</div>
-											</a>
-										</li>
-									</ul>
+									<ul></ul>
 								</div>
 							</div>
 						</div>

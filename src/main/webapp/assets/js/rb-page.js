@@ -29,8 +29,9 @@ $(function(){
 		$('.J_for-admin').remove()
 	}
 	
-	if ($('.rb-notifications').length > 0) {
+	if ($('.J_notifications-top').length > 0) {
 		setTimeout(__checkMessage, 1500)
+		$('.J_notifications-top').on('shown.bs.dropdown', __loadMessages)
 	}
 	
 	let keydown_times = 0
@@ -117,24 +118,38 @@ const __initNavs = function(){
 }
 
 // 检查消息
-let __checkMessage_status = 0
+let __checkMessage__state = 0
 const __checkMessage = function(){
 	$.get(rb.baseUrl + '/app/notification/check-message', function(res){
-		let show = $('.rb-notifications').prev()
+		$('.J_notifications-top .badge').text(res.data.unread)
 		if (res.data.unread > 0){
-			if (__checkMessage_status != res.data.unread) {
-				show.find('.indicator').removeClass('hide')
-				show.tooltip({ title: '有 ' + res.data.unread + ' 条未读消息', offset: -6 })
-				$('.rb-notifications span.badge').text(res.data.unread)
-				__checkMessage_status = res.data.unread
-			}
-		} else if (__checkMessage_status > 0) {
-			show.find('.indicator').addClass('hide')
-			show.attr('title', '').tooltip('dispose')
-			$('.rb-notifications span.badge').text('0')
-			__checkMessage_status = 0
+			$('.J_notifications-top .indicator').removeClass('hide')
+		} else {
+			$('J_notifications-top .indicator').addClass('hide')
 		}
+		if (__checkMessage__state != res.data.unread) __loadMessages__state = 0
+		__checkMessage__state = res.data.unread
 		setTimeout(__checkMessage, 3000 * (rb.env == 'dev' ? 10 : 1))
+	})
+}
+let __loadMessages__state = 0
+const __loadMessages = function(){
+	if (__loadMessages__state == 1) return
+	$.get(rb.baseUrl + '/app/notification/list?pageSize=10', (res)=>{
+		let el = $('.rb-notifications .content ul').empty()
+		$(res.data).each((idx, item)=>{
+			let o = $('<li class="notification"></li>').appendTo(el)
+			if (item[3] == true) o.addClass('notification-unread')
+			o = $('<a href="' + rb.baseUrl + '/app/notifications#id=' + item[4] + '"></a>').appendTo(o)
+			$('<div class="image"><img src="' + item[0][1] + '" alt="Avatar"></div>').appendTo(o)
+			o = $('<div class="notification-info"></div>').appendTo(o)
+			$('<div class="text text-truncate">' + item[1] + '</div>').appendTo(o)
+			$('<span class="date">' + item[2] + '</span>').appendTo(o)
+		})
+		__loadMessages__state = 1
+		if (res.data.length == 0){
+			$('<div class="must-center text-muted">暂无消息</div>').appendTo(el)
+		}
 	})
 }
 
