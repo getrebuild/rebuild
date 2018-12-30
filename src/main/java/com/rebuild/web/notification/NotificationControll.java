@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.web.notification;
 
 import java.io.IOException;
+import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,7 +36,7 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 
-import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.momentjava.Moment;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
@@ -101,7 +102,7 @@ public class NotificationControll extends BaseControll {
 		ID from = (ID) message[0];
 		String fromShows[] = UserHelper.getShows(from);
 		message[0] = fromShows;
-		message[2] = CalendarUtils.getUTCDateTimeFormat().format(message[2]);
+		message[2] = Moment.moment((Date) message[2]).fromNow();
 		message[4] = message[4].toString();
 		
 		String text = (String) message[1];
