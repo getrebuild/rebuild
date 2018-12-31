@@ -1,4 +1,4 @@
-// page initial
+// Page initial
 $(function(){
 	let t = $('.rb-scroller')
 	t.perfectScrollbar()
@@ -39,11 +39,14 @@ $(function(){
 		if (e.ctrlKey && e.altKey && e.which == 88) command_exec(++keydown_times)
 	})
 })
-command_exec = function(t){ }
+// Trigger on Ctrl+Alt+X
+// @t - trigger times
+let command_exec = function(t){
+}
 
-// 导航菜单
+// MainNav
 const __initNavs = function(){
-	let isOffcanvas = $('.rb-offcanvas-menu').length > 0  // 浮动模式
+	const isOffcanvas = $('.rb-offcanvas-menu').length > 0  // Float mode
 	
 	// Nav
 	if (isOffcanvas) {
@@ -117,7 +120,7 @@ const __initNavs = function(){
 	})
 }
 
-// 检查消息
+// Check notification
 let __checkMessage__state = 0
 const __checkMessage = function(){
 	$.get(rb.baseUrl + '/app/notification/check-message', function(res){
