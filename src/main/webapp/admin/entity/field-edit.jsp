@@ -194,10 +194,10 @@
 window.__PageConfig = {
 	metaId: '${fieldMetaId}',
 	fieldType: '${fieldType}',
-	extConfig: ${fieldExtConfig} || {},
+	extConfig: $.parseJSON('${fieldExtConfig}' || '{}'),
 	entityName: '${entityName}',
 	fieldName: '${fieldName}',
-	fieldBuildin: ${fieldBuildin} || false,
+	fieldBuildin: ${fieldBuildin}
 }
 </script>
 <script src="${baseUrl}/assets/js/entity/field-edit.js"></script>
