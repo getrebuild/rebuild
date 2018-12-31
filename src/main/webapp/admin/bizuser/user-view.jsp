@@ -52,10 +52,6 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/bizuser/user-view.jsx" type="text/babel"></script>
 <script>
 window.__PageConfig = {
 	type: 'RecordView',
@@ -63,5 +59,9 @@ window.__PageConfig = {
 	recordId: '${id}'
 }
 </script>
+<script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/bizuser/user-view.jsx" type="text/babel"></script>
 </body>
 </html>

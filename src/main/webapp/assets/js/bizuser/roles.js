@@ -1,11 +1,9 @@
 RbForm.postAfter = function(data){
     location.href = rb.baseUrl + '/admin/bizuser/role/' + data.id
 }
-let role_id
+const role_id = window.__PageConfig.recordId
 $(document).ready(function(){
-	role_id = window.__PageConfig.recordId
-
-	$('.J_new-role').click(function(){
+    $('.J_new-role').click(function(){
         rb.RbFormModal({ title: '新建角色', entity: 'Role', icon: 'lock' })
     })
     
