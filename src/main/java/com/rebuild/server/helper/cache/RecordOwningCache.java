@@ -28,6 +28,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
+import redis.clients.jedis.JedisPool;
 
 /**
  * 业务数据/记录所属
@@ -35,12 +36,12 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 10/12/2018
  */
-public class RecordOwningCache extends CacheTemplate<ID> {
+public class RecordOwningCache extends BaseCacheTemplate {
 
 	final private PersistManagerFactory aPMFactory;
 	
-	protected RecordOwningCache(CacheManager cacheManager, PersistManagerFactory aPMFactory) {
-		super(cacheManager);
+	protected RecordOwningCache(JedisPool jedisPool, CacheManager cacheManager, PersistManagerFactory aPMFactory) {
+		super(jedisPool, cacheManager, "rb.ou.");
 		this.aPMFactory = aPMFactory;
 	}
 	
@@ -84,7 +85,7 @@ public class RecordOwningCache extends CacheTemplate<ID> {
 		}
 		
 		ID ou = (ID) owning[0];
-		put(recordKey, ou);
+		putx(recordKey, ou);
 		return ou;
 	}
 	
@@ -93,10 +94,5 @@ public class RecordOwningCache extends CacheTemplate<ID> {
 	 */
 	public void cleanOwningUser(ID record) {
 		evict(record.toLiteral());
-	}
-	
-	@Override
-	protected String unityKey(Object key) {
-		return "OU__" + super.unityKey(key);
 	}
 }

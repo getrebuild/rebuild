@@ -43,11 +43,20 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer {
 	private void afterLoad(Properties props) {
 		final Object[] keys = props.keySet().toArray(new Object[0]);
 		for (Object key : keys) {
-			String key2 = key.toString();
-			if (key2.contains(".aes")) {
-				String val2 = props.getProperty(key2);
-				val2 = AES.decrypt(val2);
-				props.put(key2.replace(".aes", ""), val2);
+			String cleanKey = key.toString();
+			// AES decrypt by `.aes` suffix
+			if (cleanKey.contains(".aes")) {
+				String val = props.getProperty(cleanKey);
+				val = AES.decrypt(val);
+				
+				cleanKey = cleanKey.replace(".aes", "");
+				props.put(cleanKey, val);
+			}
+			
+			// Overrides by command-line
+			String valInCL = System.getProperty(cleanKey);
+			if (StringUtils.isNotBlank(valInCL)) {
+				props.put(cleanKey, valInCL);
 			}
 		}
 		propsHold = (Properties) props.clone();

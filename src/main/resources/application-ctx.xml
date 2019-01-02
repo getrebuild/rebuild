@@ -4,6 +4,7 @@
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:aop="http://www.springframework.org/schema/aop"
 	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:p="http://www.springframework.org/schema/p"
 	xsi:schemaLocation="
 		http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
@@ -12,7 +13,7 @@
         http://www.springframework.org/schema/aop
         http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
         http://www.springframework.org/schema/tx
-        http://www.springframework.org/schema/tx/spring-tx-4.3.xsd" default-lazy-init="true">
+        http://www.springframework.org/schema/tx/spring-tx-4.3.xsd" default-lazy-init="false">
 	
 	<aop:aspectj-autoproxy proxy-target-class="true" />
 	
@@ -77,14 +78,26 @@
 			</bean>
 		</property>
 	</bean>
+	<bean name="jedisPool" class="redis.clients.jedis.JedisPool">
+		<constructor-arg index="0">
+			<bean class="redis.clients.jedis.JedisPoolConfig">
+			</bean>
+		</constructor-arg>
+		<constructor-arg index="1" value="${CacheHost}" />
+		<constructor-arg index="2" value="${CachePort}" />
+		<constructor-arg index="3" value="3000" />
+		<constructor-arg index="4" value="${CachePassword}" />
+	</bean>
 	
 	<bean name="recordOwningCache" class="com.rebuild.server.helper.cache.RecordOwningCache">
-		<constructor-arg index="0" ref="ehcacheManager" />
-		<constructor-arg index="1" ref="persistManagerFactory" />
+		<constructor-arg index="0" ref="jedisPool" />
+		<constructor-arg index="1" ref="ehcacheManager" />
+		<constructor-arg index="2" ref="persistManagerFactory" />
 	</bean>
 	
 	<bean name="commonCache" class="com.rebuild.server.helper.cache.CommonCache">
-		<constructor-arg index="0" ref="ehcacheManager" />
+		<constructor-arg index="0" ref="jedisPool" />
+		<constructor-arg index="1" ref="ehcacheManager" />
 	</bean>
 
 	<bean class="com.rebuild.server.bizz.privileges.SecurityManager">

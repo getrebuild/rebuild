@@ -16,29 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.helper.cache;
-
-import java.io.Serializable;
+package com.rebuild.server;
 
 /**
  * @author devezhao
- * @since 10/12/2018
+ * @since 01/02/2019
  */
-public interface CacheTemplate {
+public interface Failover {
 
-	String get(String key);
-
-	void put(String key, String value);
-	
-	void put(String key, String value, int exp);
-
-	Serializable getx(String key);
-	
-	void putx(String key, Serializable value);
-	
-	void putx(String key, Serializable value, int exp);
-	
-	void evict(String key);
-	
-	String getKeyPrefix();
 }

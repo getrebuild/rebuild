@@ -30,7 +30,11 @@ import javax.sql.DataSource;
 import org.apache.commons.io.IOUtils;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
+import com.alibaba.fastjson.JSON;
 import com.rebuild.server.helper.SystemConfiguration;
+import com.rebuild.server.helper.cache.BaseCacheTemplate;
+import com.rebuild.server.helper.cache.CacheTemplate;
+import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ThrowableUtils;
@@ -77,13 +81,17 @@ public class ServerStatus {
 	public static boolean checkAll() {
 		List<State> last = new ArrayList<>();
 		
-		State stateDataSource = checkDataSource();
-		Application.LOG.info("Checking " + stateDataSource);
-		last.add(stateDataSource);
-		
 		State stateCreateFile = checkCreateFile();
 		Application.LOG.info("Checking " + stateCreateFile);
 		last.add(stateCreateFile);
+		
+		State stateDatabase = checkDatabase();
+		Application.LOG.info("Checking " + stateDatabase);
+		last.add(stateDatabase);
+		
+		State stateCacheService = checkCacheService();
+		Application.LOG.info("Checking " + stateCacheService);
+		last.add(stateCacheService);
 		
 		synchronized (LAST_STATUS) {
 			LAST_STATUS.clear();
@@ -97,8 +105,8 @@ public class ServerStatus {
 	 * 
 	 * @return
 	 */
-	protected static State checkDataSource() {
-		String name = "DataSource";
+	protected static State checkDatabase() {
+		String name = "Database";
 		try {
 			DataSource ds = Application.getPersistManagerFactory().getDataSource();
 			Connection c = DataSourceUtils.getConnection(ds);
@@ -115,7 +123,7 @@ public class ServerStatus {
 	 * @return
 	 */
 	protected static State checkCreateFile() {
-		String name = "Create File";
+		String name = "CreateFile";
 		FileWriter fw = null;
 		try {
 			File test = SystemConfiguration.getFileOfTemp("test");
@@ -135,6 +143,25 @@ public class ServerStatus {
 		return State.success(name);
 	}
 	
+	/**
+	 * 缓存系统
+	 * 
+	 * @return
+	 */
+	protected static State checkCacheService() {
+		String name = "Cache/";
+		CacheTemplate cacheTemplate = Application.getCommonCache();
+		String type = ((BaseCacheTemplate) cacheTemplate).isUseRedis() ? "REDIS" : "EHCACHE";
+		name += type;
+		
+		try {
+			cacheTemplate.putx("test", 1, 60);
+		} catch (Exception ex) {
+			return State.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+		}
+		return State.success(name);
+	}
+	
 	// 状态
 	public static class State {
 		final public String name;
@@ -144,6 +171,9 @@ public class ServerStatus {
 		public String toString() {
 			if (success) return String.format("%s : %s", name, "[ SUCCESS ]");
 			else return String.format("%s : %s", name, error);
+		}
+		public JSON toJson() {
+			return JSONUtils.toJSONObject(name, success ? true : error);
 		}
 		
 		private State(String name, boolean success, String error) {

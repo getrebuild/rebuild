@@ -19,15 +19,20 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.web.common;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.ServerStatus;
+import com.rebuild.server.ServerStatus.State;
 import com.rebuild.web.PageControll;
+
+import cn.devezhao.commons.web.ServletUtils;
 
 /**
  * @author zhaofang123@gmail.com
@@ -47,11 +52,24 @@ public class SimplePageForward extends PageControll {
 		return createModelAndView(path);
 	}
 	
-	@RequestMapping(value={ "/gw/server-status" }, method = RequestMethod.GET)
+	@RequestMapping(value="/gw/server-status", method = RequestMethod.GET)
 	public ModelAndView pageServersStatus(HttpServletRequest request) {
 		if ("1".equals(request.getParameter("check"))) {
 			ServerStatus.checkAll();
 		}
 		return createModelAndView("/server-status.jsp");
+	}
+	
+	@RequestMapping(value="/gw/server-status.json", method = RequestMethod.GET)
+	public void apiServersStatus(HttpServletRequest request, HttpServletResponse response) {
+		if ("1".equals(request.getParameter("check"))) {
+			ServerStatus.checkAll();
+		}
+		
+		JSONArray states = new JSONArray();
+		for (State s : ServerStatus.getLastStatus()) {
+			states.add(s.toJson());
+		}
+		ServletUtils.writeJson(response, states.toJSONString());
 	}
 }

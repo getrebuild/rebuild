@@ -16,29 +16,28 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.helper.cache;
+package com.rebuild.web.admin.datas;
 
-import java.io.Serializable;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.rebuild.web.BaseControll;
 
 /**
+ * 
  * @author devezhao
- * @since 10/12/2018
+ * @since 01/03/2019
  */
-public interface CacheTemplate {
+@Controller
+@RequestMapping("/admin/")
+public class DataImportsControll extends BaseControll {
 
-	String get(String key);
-
-	void put(String key, String value);
+	@RequestMapping("/data-imports")
+	public ModelAndView pageDataImports(HttpServletRequest request) {
+		return createModelAndView("/admin/datas/imports.jsp");
+	}
 	
-	void put(String key, String value, int exp);
-
-	Serializable getx(String key);
-	
-	void putx(String key, Serializable value);
-	
-	void putx(String key, Serializable value, int exp);
-	
-	void evict(String key);
-	
-	String getKeyPrefix();
 }

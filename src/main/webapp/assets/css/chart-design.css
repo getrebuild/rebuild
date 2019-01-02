@@ -1,3 +1,13 @@
+.rb-offcanvas-menu .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar .zmdi-arrow-left {
+	font-size: 1.91rem;
+}
+.rb-offcanvas-menu .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar:hover {
+	opacity: 0.8;
+}
+.rb-top-header .rb-navbar-header .navbar-brand {
+	cursor: default;
+}
+
 .chart-box .chart-head .chart-title {
 	display: none;
 }

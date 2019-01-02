@@ -57,7 +57,8 @@ $(document).ready(() => {
 		render_option()
 	})
 	
-	$('.rb-toggle-left-sidebar').attr('title', '保存并返回').off('click').on('click', () => {
+	$('.navbar-brand').removeAttr('href')
+	$('.rb-toggle-left-sidebar').attr('title', '完成').off('click').on('click', () => {
 	    let cfg = build_config()
 	    if (!!!cfg){
 	        rb.notice('当前图表无数据')

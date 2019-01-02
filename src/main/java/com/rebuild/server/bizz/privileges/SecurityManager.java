@@ -51,16 +51,16 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class SecurityManager {
 	
-	final private UserStore USER_STORE;
-	final private RecordOwningCache RECORD_OWNING;
+	final private UserStore theUserStore;
+	final private RecordOwningCache theRecordOwning;
 
 	/**
 	 * @param us
 	 * @param roc
 	 */
 	protected SecurityManager(UserStore us, RecordOwningCache roc) {
-		this.USER_STORE = us;
-		this.RECORD_OWNING = roc;
+		this.theUserStore = us;
+		this.theRecordOwning = roc;
 	}
 	
 	/**
@@ -68,7 +68,7 @@ public class SecurityManager {
 	 * @return
 	 */
 	public ID getOwningUser(ID record) {
-		return RECORD_OWNING.getOwningUser(record);
+		return theRecordOwning.getOwningUser(record);
 	}
 	
 	/**
@@ -79,7 +79,7 @@ public class SecurityManager {
 	 * @return
 	 */
 	public Privileges getPrivileges(ID user, int entity) {
-		User u = USER_STORE.getUser(user);
+		User u = theUserStore.getUser(user);
 		if (!u.isActive()) {
 			return Privileges.NONE;
 		} else if (u.isAdmin()) {
@@ -232,11 +232,11 @@ public class SecurityManager {
 		if (UserService.ADMIN_USER.equals(user)) {
 			return true;
 		}
-		if (!USER_STORE.getUser(user).isActive()) {
+		if (!theUserStore.getUser(user).isActive()) {
 			return false;
 		}
 		
-		Role role = USER_STORE.getUser(user).getOwningRole();
+		Role role = theUserStore.getUser(user).getOwningRole();
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
 			return true;
 		} else if (action == BizzPermission.READ && MetadataHelper.isBizzEntity(entity)) {
@@ -277,11 +277,11 @@ public class SecurityManager {
 		if (UserService.ADMIN_USER.equals(user)) {
 			return true;
 		}
-		if (!USER_STORE.getUser(user).isActive()) {
+		if (!theUserStore.getUser(user).isActive()) {
 			return false;
 		}
 		 
-		Role role = USER_STORE.getUser(user).getOwningRole();
+		Role role = theUserStore.getUser(user).getOwningRole();
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
 			return true;
 		}
@@ -319,7 +319,7 @@ public class SecurityManager {
 			return true;
 		}
 		
-		ID targetUserId = RECORD_OWNING.getOwningUser(target);
+		ID targetUserId = theRecordOwning.getOwningUser(target);
 		
 		if (BizzDepthEntry.PRIVATE.equals(depth)) {
 			allowed = user.equals(targetUserId);
@@ -329,8 +329,8 @@ public class SecurityManager {
 			return true;
 		}
 		
-		com.rebuild.server.bizz.privileges.User accessUser = USER_STORE.getUser(user);
-		com.rebuild.server.bizz.privileges.User targetUser = USER_STORE.getUser(targetUserId);
+		com.rebuild.server.bizz.privileges.User accessUser = theUserStore.getUser(user);
+		com.rebuild.server.bizz.privileges.User targetUser = theUserStore.getUser(targetUserId);
 		Department accessUserDept = (Department) accessUser.getOwningDept();
 		
 		if (BizzDepthEntry.LOCAL.equals(depth)) {
@@ -446,7 +446,7 @@ public class SecurityManager {
 	 * @return
 	 */
 	public Filter createQueryFilter(ID user, Permission action) {
-		User theUser = USER_STORE.getUser(user);
+		User theUser = theUserStore.getUser(user);
 		if (theUser.isAdmin()) {
 			return EntityQueryFilter.ALLOWED;
 		}

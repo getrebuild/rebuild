@@ -20,14 +20,15 @@ package com.rebuild.server.helper.cache;
 
 import org.springframework.cache.CacheManager;
 
+import redis.clients.jedis.JedisPool;
+
 /**
- * 
  * @author devezhao
  * @since 12/24/2018
  */
-public class CommonCache extends CacheTemplate<Object> {
+public class CommonCache extends BaseCacheTemplate {
 
-	protected CommonCache(CacheManager cacheManager) {
-		super(cacheManager);
+	protected CommonCache(JedisPool jedisPool, CacheManager cacheManager) {
+		super(jedisPool, cacheManager, "rb.");
 	}
 }

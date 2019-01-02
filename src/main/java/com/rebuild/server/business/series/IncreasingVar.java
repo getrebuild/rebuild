@@ -84,7 +84,7 @@ public class IncreasingVar extends SeriesVar {
 					intAuto = countByZero();
 				}
 				intAuto += 1;
-				Application.getCommonCache().put(key, intAuto);
+				Application.getCommonCache().putx(key, intAuto);
 			}
 		}
 		return StringUtils.leftPad(intAuto + "", getSymbols().length(), '0');
