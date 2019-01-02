@@ -65,10 +65,6 @@
 </div>
 
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/js/rb-list.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/bizuser/dept-tree.js"></script>
 <script>
 window.__PageConfig = {
 	type: 'RecordList',
@@ -78,6 +74,10 @@ window.__PageConfig = {
 	advFilter: false
 }
 </script>
+<script src="${baseUrl}/assets/js/rb-list.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/bizuser/dept-tree.js"></script>
 <script type="text/babel">
 RbForm.postAfter = function(){
 	location.reload()

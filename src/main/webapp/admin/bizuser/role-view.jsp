@@ -37,9 +37,6 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
 <script>
 window.__PageConfig = {
 	type: 'RecordView',
@@ -47,6 +44,9 @@ window.__PageConfig = {
 	recordId: '${id}'
 }
 </script>
+<script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
 <script type="text/babel">
 $(document).ready(function(){
 	if (rb.isAdminUser == false || rb.isAdminVerified == false) $('.view-action').remove()

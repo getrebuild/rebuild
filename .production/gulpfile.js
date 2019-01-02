@@ -43,7 +43,7 @@ gulp.task('xjsp', () => {
             let es5 = ''
             try {
                 es5 = babelCore.transformSync(p, {
-                    "presets": ["@babel/env", "@babel/react"], minified: !true
+                    "presets": ["@babel/env", "@babel/react"], minified: true
                 }).code
             } catch (err) {
                 throw new Error('Babel transform :\n' + err)

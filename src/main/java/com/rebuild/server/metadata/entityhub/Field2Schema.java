@@ -87,7 +87,7 @@ public class Field2Schema {
 			}
 		}
 		
-		Field field = createField(entity, fieldName, fieldLabel, type, true, true, true, comments, refEntity, CascadeModel.Ignore, false);
+		Field field = createField(entity, fieldName, fieldLabel, type, true, true, true, comments, refEntity, CascadeModel.Ignore, true);
 		
 		boolean schemaReady = schema2Database(entity, field);
 		if (!schemaReady) {

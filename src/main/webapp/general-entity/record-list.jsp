@@ -77,10 +77,6 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/js/rb-list.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/assign-share.jsx" type="text/babel"></script>
 <script>
 window.__PageConfig = {
 	type: 'RecordList',
@@ -90,5 +86,9 @@ window.__PageConfig = {
 	advFilter: true
 }
 </script>
+<script src="${baseUrl}/assets/js/rb-list.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/assign-share.jsx" type="text/babel"></script>
 </body>
 </html>
