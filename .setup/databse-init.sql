@@ -1,8 +1,13 @@
 -- Init db/user
 
-CREATE DATABASE `rebuild10`;
+CREATE DATABASE `rebuild10` DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
 CREATE USER 'rebuild'@'127.0.0.1' IDENTIFIED BY 'rebuild';
 GRANT ALL PRIVILEGES ON `rebuild10`.* TO 'rebuild'@'127.0.0.1';
+
+
+-- Init schemas
+-- Run SchemaGen.java
+
 
 -- Init data
 

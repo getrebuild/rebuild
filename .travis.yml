@@ -1,1 +1,4 @@
 language: java
+env:
+- DB=mysql
+- DB=redis
