@@ -493,7 +493,9 @@ class RbFormImage extends RbFormElement {
         return (
             <div className="img-field">
                 {this.state.value.map((item) => {
-                    return (<span key={'file-' + item}><a className="img-thumbnail img-upload"><img src={rb.storageUrl + item + '?imageView2/2/w/100/interlace/1/q/100'}/><b title="移除" onClick={()=>this.removeItem(item)}><span className="zmdi zmdi-close"></span></b></a></span>)
+                    let itemUrl = rb.baseUrl + '/cloud/img/' + item
+                    let fileName = __fileCutName(item)
+                    return (<span key={'file-' + item}><a title={fileName} className="img-thumbnail img-upload"><img src={itemUrl + '?imageView2/2/w/100/interlace/1/q/100'}/><b title="移除" onClick={()=>this.removeItem(item)}><span className="zmdi zmdi-close"></span></b></a></span>)
                 })}
                 <span title="选择图片">
                     <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} accept="image/*" />
@@ -506,7 +508,9 @@ class RbFormImage extends RbFormElement {
     renderViewElement() {
         return (<div className="img-field">
             {this.state.value.map((item)=>{
-                return <span key={'img-' + item}><a onClick={this.clickPreview.bind(this, item)} className="img-thumbnail img-upload zoom-in" href={rb.storageUrl + item} target="_blank"><img src={rb.storageUrl + item + '?imageView2/2/w/100/interlace/1/q/100'} /></a></span>
+                let itemUrl = rb.baseUrl + '/cloud/img/' + item
+                let fileName = __fileCutName(item)
+                return <span key={'img-' + item}><a title={fileName} onClick={this.clickPreview.bind(this, itemUrl)} className="img-thumbnail img-upload zoom-in" href={itemUrl} target="_blank"><img src={itemUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a></span>
             })}
         </div>)
     }
@@ -559,7 +563,8 @@ class RbFormFile extends RbFormElement {
             <div className="file-field">
                 {this.state.value.map((item) => {
                     let fileName = __fileCutName(item)
-                    return (<div key={'file-' + item} className="img-thumbnail"><i className={'ftype ' + __fileDetectingIcon(fileName)}/><span>{fileName}</span><b title="移除" onClick={()=>this.removeItem(item)}><span className="zmdi zmdi-close"></span></b></div>)
+                    let fileIcon = __fileDetectingIcon(fileName)
+                    return (<div key={'file-' + item} className="img-thumbnail" title={fileName}><i className={'ftype ' + fileIcon}/><span>{fileName}</span><b title="移除" onClick={()=>this.removeItem(item)}><span className="zmdi zmdi-close"></span></b></div>)
                 })}
                 <div className="file-select">
                     <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} />
@@ -572,8 +577,10 @@ class RbFormFile extends RbFormElement {
     renderViewElement() {
         return (<div className="file-field">
             {this.state.value.map((item)=>{
+                let itemUrl = rb.baseUrl + '/cloud/download/' + item
                 let fileName = __fileCutName(item)
-                return <a key={'file-' + item} onClick={this.clickPreview.bind(this, item)} className="img-thumbnail" href={rb.storageUrl + item + '?attname=' + fileName} target="_blank"><i className={'ftype ' + __fileDetectingIcon(fileName)}/><span>{fileName}</span></a>
+                let fileIcon = __fileDetectingIcon(fileName)
+                return <a key={'file-' + item} title={fileName} onClick={this.clickPreview.bind(this, itemUrl)} className="img-thumbnail" href={itemUrl} target="_blank"><i className={'ftype ' + fileIcon}/><span>{fileName}</span></a>
             })}
         </div>)
     }

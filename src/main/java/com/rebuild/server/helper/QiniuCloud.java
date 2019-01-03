@@ -112,6 +112,28 @@ public class QiniuCloud {
 	}
 	
 	/**
+	 * 生成访问 URL
+	 * 
+	 * @param filePath
+	 * @return
+	 */
+	public String url(String filePath) {
+		return url(filePath, 60 * 30);
+	}
+	
+	/**
+	 * 生成访问 URL
+	 * 
+	 * @param filePath
+	 * @param expires 秒
+	 * @return
+	 */
+	public String url(String filePath, int expires) {
+		String baseUrl = SystemConfiguration.getStorageUrl() + filePath;
+		return auth.privateDownloadUrl(baseUrl, expires);
+	}
+	
+	/**
 	 * 下载文件
 	 * 
 	 * @param url
