@@ -5,5 +5,5 @@
 [![License](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fgetrebuild%2Frebuild.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fgetrebuild%2Frebuild?ref=badge_shield)
 
 # What's rebuild? 
-* See [rebuild document](https://github.com/getrebuild/rebuild-docs) on GitHub
-* Or visit our [official website](https://getrebuild.com/)
+* Visit our [official website](https://getrebuild.com/) learn more
+* Or read [this document](https://getrebuild.com/docs/dev/) beginning development
