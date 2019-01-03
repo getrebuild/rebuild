@@ -2,6 +2,9 @@
 	height: 100%;
 	padding: 20px 25px;
 }
+.chart-box.high {
+	outline: 2px solid #4285f4;
+}
 
 .chart-box .chart-body {
 	height: 100%;

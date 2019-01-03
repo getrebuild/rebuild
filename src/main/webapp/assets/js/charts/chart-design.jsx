@@ -57,7 +57,6 @@ $(document).ready(() => {
 		render_option()
 	})
 	
-	$('.navbar-brand').removeAttr('href')
 	$('.rb-toggle-left-sidebar').attr('title', '完成').off('click').on('click', () => {
 	    let cfg = build_config()
 	    if (!!!cfg){
@@ -70,8 +69,8 @@ $(document).ready(() => {
 	    let dash = $urlp('dashid') || ''
         $.post(rb.baseUrl + '/dashboard/chart-save?dashid=' + dash, JSON.stringify(_data), function(res){
             if (res.error_code == 0){
-                window.__chartId = res.data.id
-                location.href = !!dash ? ('home?d=' + dash) : 'home'
+                // window.__chartId = res.data.id
+                location.href = (!!dash ? ('home?d=' + dash) : 'home') + '#' + res.data.id
             } else rb.notice(res.error_msg, 'danger')
         })
 	    

@@ -26,6 +26,13 @@ $(document).ready(function(){
         render_dashboard(d[2])
         $('.dash-list h4').text(d[1])
 
+        if (location.hash){
+            let high = $('#chart-' + location.hash.substr(1) + ' > .chart-box').addClass('high')
+            high.on('mouseleave', ()=>{
+                high.removeClass('high')
+            })
+        }
+
         // 仅开放一个仪表盘
         if (dashid_self) $('.J_dash-new').remove()
         else $('.J_dash-edit').remove()
