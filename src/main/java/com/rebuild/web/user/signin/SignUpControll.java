@@ -18,6 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.user.signin;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.rebuild.web.BaseControll;
+import com.wf.captcha.utils.CaptchaUtil;
 
 /**
  * 注册
@@ -40,5 +43,10 @@ public class SignUpControll extends BaseControll {
 	@RequestMapping("signup")
 	public ModelAndView pageSignup(HttpServletRequest request, HttpServletResponse response) {
 		return createModelAndView("/user/signup.jsp");
+	}
+	
+	@RequestMapping("captcha")
+	public void captcha(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		CaptchaUtil.outPng(150, 41, 6, request, response);
 	}
 }

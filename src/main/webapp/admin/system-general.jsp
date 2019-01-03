@@ -57,11 +57,11 @@
 							<tbody>
 								<tr>
 									<td width="50%">登录时需要验证码</td>
-									<td>3次以后</td>
+									<td>重试3次以后</td>
 								</tr>
 								<tr>
 									<td>登录密码安全策略</td>
-									<td>一般</td>
+									<td>一般（6位字符，无字符类型限制）</td>
 								</tr>
 							</tbody>
 							</table>

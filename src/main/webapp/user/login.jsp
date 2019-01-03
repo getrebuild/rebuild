@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -21,6 +22,16 @@
 						<div class="form-group">
 							<input class="form-control" id="passwd" type="password" placeholder="登录密码">
 						</div>
+						<c:if test="${sessionScope.needVcode != null}">
+						<div class="form-group row pt-0 mt-2">
+							<div class="col-sm-6">
+								<input class="form-control" id="vcode" type="text" placeholder="验证码">
+							</div>
+							<div class="col-sm-6">
+								<img style="height:41px" class="J_captcha">
+							</div>
+						</div>
+						</c:if>
 						<div class="form-group row login-tools">
 								
 							<div class="col-6 login-remember">
@@ -48,20 +59,30 @@
 <script type="text/babel">
 $(document).ready(function() {
 	if (top != self) { parent.location.reload(); return }
+	$('.J_captcha').click(function(){
+		$(this).attr('src', rb.baseUrl + '/user/captcha?' + $random())
+	}).trigger('click')
 
 	$('#user,#passwd').keydown(function(e){
 		if (e.keyCode == 13) $('.J_login-btn').trigger('click')
 	})
-	let _btn = $('.J_login-btn').click(function() {
-		let user = $val('#user'), passwd = $val('#passwd')
+	const btn = $('.J_login-btn').click(function() {
+		let user = $val('#user'), 
+			passwd = $val('#passwd'),
+			vcode = $val('#vcode')
 		if (!user || !passwd){ rb.notice('请输入用户名和密码'); return }
+		if ($('.J_captcha').length > 0 && !vcode){ rb.notice('请输入验证码'); return }
 		
-		_btn.button('loading')
-		$.post(rb.baseUrl + '/user/user-login?user=' + $encode(user) + '&passwd=' + $encode(passwd) + '&autoLogin=' + $val('#autoLogin'), function(res) {
+		btn.button('loading')
+		let url = rb.baseUrl + '/user/user-login?user=' + $encode(user) + '&passwd=' + $encode(passwd) + '&autoLogin=' + $val('#autoLogin')
+		if (!!vcode) url += '&vcode=' + vcode
+		$.post(url, function(res) {
 			if (res.error_code == 0) location.replace($decode($urlp('nexturl') || '../dashboard/home'))
+			else if (res.error_msg == 'VCODE') location.reload()
 			else{
+				$('.J_captcha').trigger('click')
 				rb.notice(res.error_msg || '登录失败，请稍后重试')
-				_btn.button('reset')
+				btn.button('reset')
 			}
 		})
 	})

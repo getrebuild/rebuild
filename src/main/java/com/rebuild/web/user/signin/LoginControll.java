@@ -32,6 +32,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.bizz.privileges.User;
 import com.rebuild.utils.AES;
 import com.rebuild.web.BaseControll;
+import com.wf.captcha.utils.CaptchaUtil;
 
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.EncryptUtils;
@@ -79,6 +80,19 @@ public class LoginControll extends BaseControll {
 		String user = getParameterNotNull(request, "user");
 		String passwd = getParameterNotNull(request, "passwd");
 		
+		String vcode = getParameter(request, "vcode");
+		if (StringUtils.isNotBlank(vcode) && !CaptchaUtil.ver(vcode, request)) {
+			writeFailure(response, "验证码错误");
+			return;
+		}
+		
+		int retry = getLoginRetry(user, 1);
+		if (retry >= 3 && StringUtils.isBlank(vcode)) {
+			ServletUtils.setSessionAttribute(request, "needVcode", retry);
+			writeFailure(response, "VCODE");
+			return;
+		}
+		
 		if (!Application.getUserStore().exists(user)) {
 			writeFailure(response, "用户名或密码错误");
 			return;
@@ -100,7 +114,26 @@ public class LoginControll extends BaseControll {
 		}
 		
 		loginSuccessed(request, response, (ID) foundUser[0], getBoolParameter(request, "autoLogin", false));
+		getLoginRetry(user, -1);
+		ServletUtils.setSessionAttribute(request, "needVcode", null);
+		
 		writeSuccess(response);
+	}
+	
+	private int getLoginRetry(String user, int state) {
+		String key = "LoginRetry-" + user;
+		if (state == -1) {
+			Application.getCommonCache().evict(key);
+			return 0;
+		}
+		
+		Integer retry = (Integer) Application.getCommonCache().getx(key);
+		retry = retry == null ? 0 : retry;
+		if (state == 1) {
+			retry += 1;
+			Application.getCommonCache().putx(key, retry);
+		}
+		return retry;
 	}
 	
 	/**
