@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="com.rebuild.utils.StringsUtils"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -27,21 +27,28 @@
 						<div class="card-header card-header-divider">缓存系统</div>
 						<div class="card-body">
 							<h5>Redis</h5>
-							<% 
-							String account[] = SystemConfiguration.getCacheAccount();
-							%>
-							<table class="table">
-							<tbody>
-								<tr>
-									<td width="50%">缓存服务器</td>
-									<td><%=account == null ? "" : (account[0] + ":" + account[1])%></td>
-								</tr>
-								<tr>
-									<td>访问秘钥</td>
-									<td><%=account == null ? "" : StringsUtils.stars(account[3])%></td>
-								</tr>
-							</tbody>
-							</table>
+							<c:choose>
+								<c:when test="${cacheAccount != null}">
+									<table class="table">
+									<tbody>
+										<tr>
+											<td width="50%">缓存服务器</td>
+											<td>${cacheAccount[0]}:${cacheAccount[1]}</td>
+										</tr>
+										<tr>
+											<td>访问秘钥</td>
+											<td>${cacheAccount[2]}</td>
+										</tr>
+									</tbody>
+									</table>
+								</c:when>
+								<c:otherwise>
+									<div class="alert alert-warning alert-icon mt-6">
+										<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
+										<div class="message">REDIS 缓存服务未配置，已启用 EHCACHE 内建缓存，生产环境下建议配置 REDIS</div>
+									</div>
+								</c:otherwise>
+							</c:choose>
 						</div>
 					</div>
 				</div>

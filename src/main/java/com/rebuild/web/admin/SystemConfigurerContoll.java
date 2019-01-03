@@ -22,6 +22,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.rebuild.server.helper.SystemConfiguration;
 import com.rebuild.web.BaseControll;
 
 /**
@@ -41,16 +42,23 @@ public class SystemConfigurerContoll extends BaseControll {
 	
 	@RequestMapping("plugins/storage")
 	public ModelAndView pagePluginsStorage() {
-		return createModelAndView("/admin/plugins/storage-qiniu.jsp");
+		ModelAndView mv = createModelAndView("/admin/plugins/storage-qiniu.jsp");
+		mv.getModel().put("storageAccount", SystemConfiguration.getStorageAccount());
+		return mv;
 	}
 	
 	@RequestMapping("plugins/cache")
 	public ModelAndView pagePluginsCache() {
-		return createModelAndView("/admin/plugins/cache-redis.jsp");
+		ModelAndView mv = createModelAndView("/admin/plugins/cache-redis.jsp");
+		mv.getModel().put("cacheAccount", SystemConfiguration.getCacheAccount());
+		return mv;
 	}
 	
-	@RequestMapping("plugins/mails")
+	@RequestMapping("plugins/submail")
 	public ModelAndView pagePluginsMailSms() {
-		return createModelAndView("/admin/plugins/mails-submail.jsp");
+		ModelAndView mv = createModelAndView("/admin/plugins/submail.jsp");
+		mv.getModel().put("smsAccount", SystemConfiguration.getSmsAccount());
+		mv.getModel().put("mailAccount", SystemConfiguration.getMailAccount());
+		return mv;
 	}
 }

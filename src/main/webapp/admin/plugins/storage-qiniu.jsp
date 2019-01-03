@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="com.rebuild.utils.StringsUtils"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -27,30 +27,36 @@
 						<div class="card-header card-header-divider">云存储</div>
 						<div class="card-body">
 							<h5>七牛云</h5>
-							<% 
-							String account[] = SystemConfiguration.getStorageAccount();
-							String domain = account == null ? "" : account[3];
-							%>
-							<table class="table">
-							<tbody>
-								<tr>
-									<td width="50%">访问域名</td>
-									<td><a href="<%=domain%>" class="link" target="_blank"><%=domain%></a></td>
-								</tr>
-								<tr>
-									<td>存储空间</td>
-									<td><%=account == null ? "" : account[2]%></td>
-								</tr>
-								<tr>
-									<td>秘钥 AK</td>
-									<td><%=account == null ? "" : StringsUtils.stars(account[0])%></td>
-								</tr>
-								<tr>
-									<td>秘钥 SK</td>
-									<td><%=account == null ? "" : StringsUtils.stars(account[1])%></td>
-								</tr>
-							</tbody>
-							</table>
+							<c:choose>
+								<c:when test="${storageAccount != null}">
+									<table class="table">
+									<tbody>
+										<tr>
+											<td width="50%">访问域名</td>
+											<td><a href="${storageAccount[3]}" class="link" target="_blank">${storageAccount[3]}</a></td>
+										</tr>
+										<tr>
+											<td>存储空间</td>
+											<td>${storageAccount[2]}</td>
+										</tr>
+										<tr>
+											<td>秘钥 AK</td>
+											<td>${storageAccount[0]}</td>
+										</tr>
+										<tr>
+											<td>秘钥 SK</td>
+											<td>${storageAccount[1]}</td>
+										</tr>
+									</tbody>
+									</table>
+								</c:when>
+								<c:otherwise>
+									<div class="alert alert-danger alert-icon mt-6">
+										<div class="icon"><span class="zmdi zmdi-close-circle-o"></span></div>
+										<div class="message">云存储账户未配置，文件/图片上传（下载）功能不可用</div>
+									</div>
+								</c:otherwise>
+							</c:choose>
 						</div>
 					</div>
 				</div>

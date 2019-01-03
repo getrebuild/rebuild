@@ -1,4 +1,3 @@
-<%@page import="org.apache.commons.lang.StringUtils"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.rebuild.server.bizz.privileges.User"%>
 <%@ page import="com.rebuild.server.Application"%>
@@ -8,7 +7,7 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>个人设置</title>
 <style type="text/css">
-form .form-group{border-bottom:1px solid #e6e9f0;}
+.tab-pane .form-group{border-bottom:1px solid #e6e9f0;}
 .avatar{position:relative;width:120px;height:120px;line-height:1;font-size:0;background-color:#eee;border-radius:4px;overflow:hidden;line-height:120px}
 .avatar>img{width:100%;}
 .avatar>label{position:absolute;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.4);display:none;font-size:14px;text-align:center;padding-top:36px;color:#fff !important;line-height:1.5}
@@ -85,7 +84,7 @@ User theUser = Application.getUserStore().getUser(AppUtils.getRequestUser(reques
 									<div class="form-group row">
 										<label class="col-sm-2 col-form-label text-left">更改邮箱</label>
 										<div class="col-sm-8 pl-0">
-											<div class="form-control-plaintext text-muted"><%=theUser.getEmail() == null ? "你当前未绑定邮箱" : ("当前绑定邮箱 <b class='J_email-account'>" + theUser.getEmail() + "</b>")%></div>
+											<div class="form-control-plaintext text-muted J_email-account"><%=theUser.getEmail() == null ? "你当前未绑定邮箱" : ("当前绑定邮箱 <b>" + theUser.getEmail() + "</b>")%></div>
 										</div>
 										<div class="col-sm-2 text-right">
 											<button class="btn btn-primary bordered J_email" type="button">更改</button>
@@ -110,49 +109,6 @@ User theUser = Application.getUserStore().getUser(AppUtils.getRequestUser(reques
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/babel">
-$(document).ready(function(){
-	if (location.hash == '#secure') $('.nav-tabs a:eq(1)').trigger('click')
-	
-	$('#avatar-input').html5Uploader({
-        name: 'avatar-input',
-        postUrl: rb.baseUrl + '/filex/upload?cloud=auto&type=image',
-        onClientLoad: function(e, file){
-            if (file.type.substr(0, 5) != 'image'){
-                rb.notice('请上传图片')
-                return false
-            }
-        },
-        onSuccess:function(d){
-            d = JSON.parse(d.currentTarget.response)
-            if (d.error_code == 0){
-            	let aUrl = rb.storageUrl + d.data + '?imageView2/2/w/100/interlace/1/q/100'
-            	$('.avatar img').attr({ 'src': aUrl, 'data-src': d.data })
-            } else rb.notice(d.error_msg || '上传失败，请稍后重试', 'danger')
-        }
-    })
-    
-    $('.J_email').click(function(){
-    	rb.modal(rb.baseUrl + '/p/user-profile/change-email', '更改邮箱')
-    })
-    $('.J_passwd').click(function(){
-    	rb.modal(rb.baseUrl + '/p/user-profile/change-passwd', '更改密码')
-    })
-    
-    $('.J_save').click(function(){
-    	let fullName = $val('#fullName'),
-    		avatarUrl = $('.avatar img').attr('data-src')
-    	if (!fullName && !avatarUrl){ location.reload(); return }
-    	
-    	let _data = { metadata: { entity: 'User', id: '<%=theUser.getId()%>' } }
-    	if (fullName) _data.fullName = fullName
-    	if (avatarUrl) _data.avatarUrl = avatarUrl
-    	$.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), function(res){
-			if (res.error_code == 0) location.reload()
-			else rb.notice(res.error_msg)
-    	})
-    })
-})
-</script>
+<script src="${baseUrl}/assets/js/user-settings.jsx" type="text/babel"></script>
 </body>
 </html>

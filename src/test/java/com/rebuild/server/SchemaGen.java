@@ -44,18 +44,19 @@ public class SchemaGen {
 		PMF = CTX.getBean(PersistManagerFactoryImpl.class);
 		
 		genAll();
+//		gen(EntityHelper.User);
+//		gen(EntityHelper.Department);
+//		gen(EntityHelper.Role);
+//		gen(EntityHelper.RolePrivileges);
 //		gen(EntityHelper.MetaEntity);
 //		gen(EntityHelper.MetaField);
 //		gen(EntityHelper.PickList);
-//		gen(EntityHelper.Role);
-//		gen(EntityHelper.RolePrivileges);
 //		gen(EntityHelper.ViewAddonsConfig);
 //		gen(EntityHelper.LayoutConfig);
 //		gen(EntityHelper.FilterConfig);
 //		gen(EntityHelper.ShareAccess);
 //		gen(EntityHelper.SystemConfig);
 //		gen(EntityHelper.Notification);
-//		gen(EntityHelper.User);
 //		gen(EntityHelper.DashboardConfig);
 //		gen(EntityHelper.ChartConfig);
 //		gen(EntityHelper.Attachment);

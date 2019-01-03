@@ -20,8 +20,10 @@ package com.rebuild.server.helper;
 
 import org.apache.commons.lang.math.RandomUtils;
 
+import com.rebuild.server.Application;
+
 /**
- * TODO 验证码
+ * 验证码
  * 
  * @author devezhao
  * @since 11/05/2018
@@ -35,6 +37,7 @@ public class VCode {
 	public static String random(String key) {
 		String vcode = RandomUtils.nextInt(999999999) + "888888";
 		vcode = vcode.substring(0, 6);
+		Application.getCommonCache().put(key, vcode, 10 * 60);
 		return vcode;
 	}
 	
@@ -44,6 +47,15 @@ public class VCode {
 	 * @return
 	 */
 	public static boolean verfiy(String key, String vcode) {
-		return true;
+		String exists = Application.getCommonCache().get(key);
+		if (exists == null) {
+			return false;
+		}
+		
+		if (exists.equalsIgnoreCase(vcode)) {
+			Application.getCommonCache().evict(key);
+			return true;
+		}
+		return false;
 	}
 }

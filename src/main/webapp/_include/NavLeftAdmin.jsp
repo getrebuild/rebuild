@@ -18,7 +18,7 @@
 										<ul>
 											<li class="${param['activeNav'] == 'plugins-storage' ? 'active' : ''}" id="nav_plugins-storage"><a href="${baseUrl}/admin/plugins/storage">云存储</a></li>
 											<li class="${param['activeNav'] == 'plugins-cache' ? 'active' : ''}" id="nav_plugins-cache"><a href="${baseUrl}/admin/plugins/cache">缓存系统</a></li>
-											<li class="${param['activeNav'] == 'plugins-mails' ? 'active' : ''}" id="nav_plugins-mails"><a href="${baseUrl}/admin/plugins/mails">短信/邮件</a></li>
+											<li class="${param['activeNav'] == 'plugins-submail' ? 'active' : ''}" id="nav_plugins-submail"><a href="${baseUrl}/admin/plugins/submail">短信/邮件</a></li>
 										</ul>
 									</div>
 								</div>

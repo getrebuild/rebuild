@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.userprofile;
+package com.rebuild.web.user.settings;
 
 import java.io.IOException;
 
@@ -25,12 +25,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.bizz.UserService;
+import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.SystemConfiguration;
 import com.rebuild.server.helper.VCode;
 import com.rebuild.server.metadata.EntityHelper;
@@ -45,27 +45,17 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 10/08/2018
  */
+@RequestMapping("/settings")
 @Controller
-public class UserProfileControll extends BaseControll {
+public class UserSettingsControll extends BaseControll {
 
-	@RequestMapping("/settings/account")
+	@RequestMapping("/account")
 	public ModelAndView pageView(HttpServletRequest request) throws IOException {
-		return createModelAndView("/user-profile/account.jsp", "User", getRequestUser(request));
+		return createModelAndView("/user-settings/account.jsp", "User", getRequestUser(request));
 	}
 	
-	@RequestMapping({ "/people/{user}", "/userhome/{user}" })
-	public ModelAndView pagePeople(@PathVariable String user, HttpServletRequest request) throws IOException {
-		// TODO 用户首页
-		return createModelAndView("/user-profile/user-home.jsp", "User", getRequestUser(request));
-	}
-	
-	@RequestMapping("/settings/send-email-vcode")
+	@RequestMapping("/account/send-email-vcode")
 	public void sendEmailVcode(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		if (SystemConfiguration.getEmailAccount() == null) {
-			writeFailure(response, "邮箱账户未配置，无法发送验证码");
-			return;
-		}
-		
 		String email = getParameterNotNull(request, "email");
 		if (Application.getUserStore().existsEmail(email)) {
 			writeFailure(response, "邮箱已被占用，请换用其他邮箱");
@@ -73,10 +63,20 @@ public class UserProfileControll extends BaseControll {
 		}
 		
 		String vcode = VCode.random(email);
-		writeSuccess(response, vcode);
+		String content = "<p>你的邮箱验证码是 <b>" + vcode + "</b><p>";
+		String sentid = SMSender.sendMail(email, "邮箱验证码", content);
+		if (sentid != null) {
+			writeSuccess(response);
+		} else {
+			if (SystemConfiguration.getMailAccount() == null) {
+				writeFailure(response, "邮件账户未配置，无法发送验证码");
+			} else {
+				writeFailure(response, "验证码发送失败，请稍后重试");
+			}
+		}
 	}
 	
-	@RequestMapping("/settings/save-email")
+	@RequestMapping("/account/save-email")
 	public void saveEmail(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		String email = getParameterNotNull(request, "email");
@@ -97,7 +97,7 @@ public class UserProfileControll extends BaseControll {
 		writeSuccess(response);
 	}
 	
-	@RequestMapping("/settings/save-passwd")
+	@RequestMapping("/account/save-passwd")
 	public void savePasswd(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		String oldp = getParameterNotNull(request, "oldp");
