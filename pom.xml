@@ -19,7 +19,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<argLine>-Dfile.encoding=UTF-8</argLine>
 		<skipTests>true</skipTests>
-		<spring.version>4.3.18.RELEASE</spring.version>
+		<spring.version>4.3.21.RELEASE</spring.version>
 	</properties>
 
 	<build>
@@ -37,14 +37,14 @@
 		</plugins>
 	</build>
 
-	<!-- Unpublish lib can be found on https://github.com/devezhao/  -->
+	<!-- Unpublish lib can be found on https://github.com/devezhao/ -->
 	<repositories>
 		<repository>
 			<id>jitpack.io</id>
 			<url>https://jitpack.io</url>
 		</repository>
 	</repositories>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>com.github.devezhao</groupId>
@@ -59,7 +59,7 @@
 		<dependency>
 			<groupId>com.github.devezhao</groupId>
 			<artifactId>persist4j</artifactId>
-			<version>b961030574</version>
+			<version>master-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.devezhao</groupId>
@@ -69,7 +69,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.11</version>
+			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -117,8 +117,6 @@
 			<artifactId>spring-websocket</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
-		<!-- <dependency> <groupId>org.springframework.data</groupId> <artifactId>spring-data-redis</artifactId> 
-			<version>2.1.2.RELEASE</version> </dependency> -->
 		<dependency>
 			<groupId>cglib</groupId>
 			<artifactId>cglib</artifactId>
@@ -127,15 +125,13 @@
 		<dependency>
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjweaver</artifactId>
-			<version>1.8.10</version>
+			<version>1.9.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.quartz-scheduler</groupId>
 			<artifactId>quartz</artifactId>
 			<version>2.3.0</version>
 		</dependency>
-		<!-- <dependency> <groupId>bouncycastle</groupId> <artifactId>bcprov-jdk16</artifactId> 
-			<version>140</version> </dependency> -->
 		<dependency>
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>
@@ -144,7 +140,7 @@
 		<dependency>
 			<groupId>com.qiniu</groupId>
 			<artifactId>qiniu-java-sdk</artifactId>
-			<version>7.2.17</version>
+			<version>7.2.18</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.stuxuhai</groupId>
@@ -154,12 +150,12 @@
 		<dependency>
 			<groupId>net.sf.ehcache</groupId>
 			<artifactId>ehcache</artifactId>
-			<version>2.10.5</version>
+			<version>2.10.6</version>
 		</dependency>
 		<dependency>
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
-			<version>2.9.0</version>
+			<version>2.10.1</version>
 		</dependency>
 		<dependency>
 			<groupId>jstl</groupId>
@@ -171,5 +167,17 @@
 			<artifactId>standard</artifactId>
 			<version>1.1.2</version>
 		</dependency>
+		<!--
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-redis</artifactId>
+			<version>2.1.2.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>bouncycastle</groupId>
+			<artifactId>bcprov-jdk16</artifactId>
+			<version>140</version>
+		</dependency>
+		-->
 	</dependencies>
 </project>
