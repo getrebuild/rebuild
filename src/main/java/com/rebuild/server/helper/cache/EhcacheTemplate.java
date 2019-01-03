@@ -30,7 +30,7 @@ import org.springframework.util.Assert;
  * @author devezhao
  * @since 01/02/2019
  */
-public class EhcacheTemplate implements CacheTemplate {
+public class EhcacheTemplate<V extends Serializable> implements CacheTemplate<V> {
 
 	private CacheManager ehcacheManager;
 	private String keyPrefix;
@@ -49,28 +49,30 @@ public class EhcacheTemplate implements CacheTemplate {
 
 	@Override
 	public void put(String key, String value) {
-		putx(key, value, -1);
+		put(key, value, -1);
 	}
 
 	@Override
 	public void put(String key, String value, int exp) {
-		putx(key, value, -1);
+		key = unityKey(key);
+		cache().put(key, value);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public Serializable getx(String key) {
+	public V getx(String key) {
 		key = unityKey(key);
 		ValueWrapper w = cache().get(key);
-		return w == null ? null : (Serializable) w.get();
+		return w == null ? null : (V) w.get();
 	}
 
 	@Override
-	public void putx(String key, Serializable value) {
+	public void putx(String key, V value) {
 		putx(key, value, -1);
 	}
 
 	@Override
-	public void putx(String key, Serializable value, int exp) {
+	public void putx(String key, V value, int exp) {
 		key = unityKey(key);
 		cache().put(key, value);
 	}

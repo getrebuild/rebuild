@@ -23,6 +23,7 @@ import com.rebuild.server.Application;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * 共享
  * 
  * @author devezhao
  * @since 09/29/2018

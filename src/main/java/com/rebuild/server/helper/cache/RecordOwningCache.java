@@ -36,7 +36,7 @@ import redis.clients.jedis.JedisPool;
  * @author devezhao
  * @since 10/12/2018
  */
-public class RecordOwningCache extends BaseCacheTemplate {
+public class RecordOwningCache extends BaseCacheTemplate<ID> {
 
 	final private PersistManagerFactory aPMFactory;
 	
@@ -56,9 +56,9 @@ public class RecordOwningCache extends BaseCacheTemplate {
 	public ID getOwningUser(ID record) throws PrivilegesException, NoRecordFoundException {
 		final String recordKey = record.toLiteral();
 		
-		Object hits = get(recordKey);
+		ID hits = getx(recordKey);
 		if (hits != null) {
-			return (ID) hits;
+			return hits;
 		}
 		
 		Entity entity = MetadataHelper.getEntity(record.getEntityCode());
@@ -84,9 +84,9 @@ public class RecordOwningCache extends BaseCacheTemplate {
 			throw new NoRecordFoundException("No record found : " + record);
 		}
 		
-		ID ou = (ID) owning[0];
-		putx(recordKey, ou);
-		return ou;
+		ID owningUser = (ID) owning[0];
+		putx(recordKey, owningUser);
+		return owningUser;
 	}
 	
 	/**

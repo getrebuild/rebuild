@@ -40,15 +40,17 @@ public class BulkUnshare extends BulkOperator {
 		
 		int complated = 0;
 		int unshared = 0;
+		
+		ID realTarget = context.getTargetRecord();
 
 		// 只需要验证主记录权限
-		if (!Application.getSecurityManager().allowedS(context.getOpUser(), context.getRecordMaster())) {
+		if (!Application.getSecurityManager().allowedS(context.getOpUser(), realTarget)) {
 			setComplete(records.length);
 			return unshared;
 		}
 		
 		for (ID id : records) {
-			int a = ges.unshare(context.getRecordMaster(), id);
+			int a = ges.unshare(realTarget, id);
 			unshared += (a > 0 ? 1 : 0);
 			complated++;
 			setComplete(complated);

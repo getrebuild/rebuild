@@ -19,7 +19,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.service.base;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.RebuildException;
@@ -30,6 +29,8 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * 批量操作上下文
+ * 
  * @author devezhao
  * @since 10/17/2018
  */
@@ -46,13 +47,35 @@ public class BulkContext {
 	// 待操作记录（通过过滤条件获得）
 	private JSONObject filterExp;
 	// [待操作记录所依附的主记录]
-	private ID recordMaster;
+	private ID targetRecord;
 	// [级联操作实体]
 	private String cascades[];
 	
-	private Entity mainEntity;
+	final private Entity mainEntity;
+	
+	/**
+	 * @param opUser
+	 * @param action
+	 * @param toUser
+	 * @param records
+	 * @param filterExp
+	 * @param recordMaster
+	 * @param cascades
+	 */
+	public BulkContext(ID opUser, Permission action, ID toUser, String[] cascades, ID[] records, JSONObject filterExp, ID recordMaster) {
+		this.opUser = opUser;
+		this.action = action;
+		this.toUser = toUser;
+		this.records = records;
+		this.filterExp = filterExp;
+		this.targetRecord = recordMaster;
+		this.cascades = cascades;
+		this.mainEntity = detecteMainEntity();
+	}
 
 	/**
+	 * 分派/共享/删除，有目标用户的
+	 * 
 	 * @param opUser
 	 * @param action
 	 * @param toUser
@@ -60,26 +83,17 @@ public class BulkContext {
 	 * @param records
 	 */
 	public BulkContext(ID opUser, Permission action, ID toUser, String cascades[], ID[] records) {
-		Assert.isTrue(records.length <= 200, "最多允许操作200条记录");
-		this.opUser = opUser;
-		this.action = action;
-		this.toUser = toUser;
-		this.cascades = cascades;
-		this.records = records;
+		this(opUser, action, toUser, cascades, records, null, null);
 	}
 	
 	/**
 	 * @param opUser
 	 * @param action
 	 * @param records
-	 * @param recordMaster
+	 * @param targetRecord
 	 */
-	public BulkContext(ID opUser, Permission action, ID[] records, ID recordMaster) {
-		Assert.isTrue(records.length <= 200, "最多允许操作200条记录");
-		this.opUser = opUser;
-		this.action = action;
-		this.records = records;
-		this.recordMaster = recordMaster;
+	public BulkContext(ID opUser, Permission action, ID[] records, ID targetRecord) {
+		this(opUser, action, null, null, records, null, targetRecord);
 	}
 
 	public ID getOpUser() {
@@ -106,24 +120,22 @@ public class BulkContext {
 		return filterExp;
 	}
 
-	public ID getRecordMaster() {
-		return recordMaster;
+	public ID getTargetRecord() {
+		return targetRecord;
 	}
 	
 	public Entity getMainEntity() {
-		if (mainEntity != null) {
-			return mainEntity;
-		}
-		
-		if (recordMaster != null) {
-			mainEntity = MetadataHelper.getEntity(recordMaster.getEntityCode());
-		} else if (records != null) {
-			mainEntity = MetadataHelper.getEntity(records[0].getEntityCode());
-		} else if (filterExp != null) {
-			mainEntity = MetadataHelper.getEntity(filterExp.getString("entity"));
-		} else {
-			throw new RebuildException("No record for operate");
-		}
 		return mainEntity;
+	}
+	
+	private Entity detecteMainEntity() {
+		if (targetRecord != null) {
+			return MetadataHelper.getEntity(targetRecord.getEntityCode());
+		} else if (records != null && records.length > 0) {
+			return MetadataHelper.getEntity(records[0].getEntityCode());
+		} else if (filterExp != null) {
+			return MetadataHelper.getEntity(filterExp.getString("entity"));
+		}
+		throw new RebuildException("No record for operate");
 	}
 }

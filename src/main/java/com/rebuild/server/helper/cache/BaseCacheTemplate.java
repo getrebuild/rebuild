@@ -33,9 +33,9 @@ import redis.clients.jedis.JedisPool;
  * @author devezhao
  * @since 01/02/2019
  */
-public abstract class BaseCacheTemplate implements CacheTemplate {
+public abstract class BaseCacheTemplate<V extends Serializable> implements CacheTemplate<V> {
 
-	final private CacheTemplate delegate;
+	final private CacheTemplate<V> delegate;
 	final private boolean useRedis;
 
 	/**
@@ -45,10 +45,10 @@ public abstract class BaseCacheTemplate implements CacheTemplate {
 	 */
 	protected BaseCacheTemplate(JedisPool jedisPool, CacheManager backup, String keyPrefix) {
 		if (testJedisPool(jedisPool)) {
-			this.delegate = new JedisCacheTemplate(jedisPool, keyPrefix);
+			this.delegate = new JedisCacheTemplate<V>(jedisPool, keyPrefix);
 			this.useRedis = true;
 		} else {
-			this.delegate = new EhcacheTemplate(backup, keyPrefix);
+			this.delegate = new EhcacheTemplate<V>(backup, keyPrefix);
 			this.useRedis = false;
 		}
 	}
@@ -77,17 +77,17 @@ public abstract class BaseCacheTemplate implements CacheTemplate {
 	}
 
 	@Override
-	public Serializable getx(String key) {
+	public V getx(String key) {
 		return delegate.getx(key);
 	}
 
 	@Override
-	public void putx(String key, Serializable value) {
+	public void putx(String key, V value) {
 		delegate.putx(key, value);
 	}
 
 	@Override
-	public void putx(String key, Serializable value, int exp) {
+	public void putx(String key, V value, int exp) {
 		delegate.putx(key, value, exp);
 	}
 
@@ -105,7 +105,7 @@ public abstract class BaseCacheTemplate implements CacheTemplate {
 	/**
 	 * @return
 	 */
-	public CacheTemplate getCacheTemplate() {
+	public CacheTemplate<V> getCacheTemplate() {
 		return delegate;
 	}
 	

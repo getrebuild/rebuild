@@ -24,7 +24,7 @@ import java.io.Serializable;
  * @author devezhao
  * @since 10/12/2018
  */
-public interface CacheTemplate {
+public interface CacheTemplate<V extends Serializable> {
 
 	String get(String key);
 
@@ -32,11 +32,11 @@ public interface CacheTemplate {
 	
 	void put(String key, String value, int exp);
 
-	Serializable getx(String key);
+	V getx(String key);
 	
-	void putx(String key, Serializable value);
+	void putx(String key, V value);
 	
-	void putx(String key, Serializable value, int exp);
+	void putx(String key, V value, int exp);
 	
 	void evict(String key);
 	

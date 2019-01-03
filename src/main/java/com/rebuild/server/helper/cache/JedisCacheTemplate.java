@@ -32,7 +32,7 @@ import redis.clients.jedis.JedisPool;
  * @author devezhao
  * @since 01/02/2019
  */
-public class JedisCacheTemplate implements CacheTemplate {
+public class JedisCacheTemplate<V extends Serializable> implements CacheTemplate<V> {
 
 	private JedisPool jedisPool;
 	private String keyPrefix;
@@ -74,25 +74,32 @@ public class JedisCacheTemplate implements CacheTemplate {
 	}
 
 	@Override
-	public Serializable getx(String key) {
+	@SuppressWarnings("unchecked")
+	public V getx(String key) {
 		key = unityKey(key);
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
 			byte bs[] = jedis.get(key.getBytes());
-			return bs == null ? null : (Serializable) SerializationUtils.deserialize(bs);
+			if (bs == null || bs.length == 0) {
+				return null;
+			}
+			
+			Object s = SerializationUtils.deserialize(bs);
+			// Check type of generic?
+			return (V) s;
 		} finally {
 			IOUtils.closeQuietly(jedis);
 		}
 	}
 
 	@Override
-	public void putx(String key, Serializable value) {
+	public void putx(String key, V value) {
 		putx(key, value, -1);
 	}
 
 	@Override
-	public void putx(String key, Serializable value, int exp) {
+	public void putx(String key, V value, int exp) {
 		key = unityKey(key);
 		Jedis jedis = null;
 		try {
