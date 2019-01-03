@@ -16,21 +16,30 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.metadata.entityhub;
+package com.rebuild.server;
 
-import org.junit.Test;
-
-import com.rebuild.server.bizz.UserService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 
 /**
  * 
- * @author zhaofang123@gmail.com
- * @since 08/03/2018
+ * @author devezhao
+ * @since 01/03/2019
  */
-public class Entity2SchemaTest {
+public class TestSupport {
+	
+	protected static final Log LOG = LogFactory.getLog(TestSupport.class);
 
-	@Test
-	public void testCreate() throws Exception {
-		new Entity2Schema(UserService.ADMIN_USER).create("测试一把", null, null);
+	@BeforeClass
+	public static void startup() {
+		LOG.warn("TESTING Startup ...");
+		Application.debug();
+	}
+	
+	@AfterClass
+	public static void shutdown() {
+		LOG.warn("TESTING Shutdown ...");
 	}
 }

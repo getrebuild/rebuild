@@ -13,7 +13,7 @@
         http://www.springframework.org/schema/aop
         http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
         http://www.springframework.org/schema/tx
-        http://www.springframework.org/schema/tx/spring-tx-4.3.xsd" default-lazy-init="false">
+        http://www.springframework.org/schema/tx/spring-tx-4.3.xsd" default-lazy-init="true">
 	
 	<aop:aspectj-autoproxy proxy-target-class="true" />
 	

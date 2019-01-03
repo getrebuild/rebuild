@@ -32,8 +32,7 @@ import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.helper.SystemConfiguration;
-import com.rebuild.server.helper.cache.BaseCacheTemplate;
-import com.rebuild.server.helper.cache.CacheTemplate;
+import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.commons.CodecUtils;
@@ -149,13 +148,11 @@ public class ServerStatus {
 	 * @return
 	 */
 	protected static State checkCacheService() {
-		String name = "Cache/";
-		CacheTemplate cacheTemplate = Application.getCommonCache();
-		String type = ((BaseCacheTemplate) cacheTemplate).isUseRedis() ? "REDIS" : "EHCACHE";
-		name += type;
+		CommonCache cache = Application.getCommonCache();
+		String name = "Cache/" + (cache.isUseRedis() ? "REDIS" : "EHCACHE");
 		
 		try {
-			cacheTemplate.putx("test", 1, 60);
+			cache.putx("test", 1, 60);
 		} catch (Exception ex) {
 			return State.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
 		}

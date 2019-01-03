@@ -19,13 +19,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.business.series;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.Application;
+import com.rebuild.server.TestSupport;
 import com.rebuild.server.metadata.MetadataHelper;
 
 import cn.devezhao.commons.ThreadPool;
@@ -36,7 +39,7 @@ import cn.devezhao.persist4j.Field;
  * @author devezhao
  * @since 12/24/2018
  */
-public class SeriesGeneratorTest {
+public class SeriesGeneratorTest extends TestSupport {
 
 	@Test
 	public void testTimeVar() throws Exception {
@@ -46,10 +49,7 @@ public class SeriesGeneratorTest {
 	
 	@Test
 	public void testIncrementVar() throws Exception {
-		Application.debug();
-		Field field = MetadataHelper.getEntity("ceshiziduan").getField("ZIDONGBIANHAO");
-		
-		IncreasingVar var = new IncreasingVar("0000", field, null);
+		IncreasingVar var = new IncreasingVar("0000", getSeriesField(), null);
 		System.out.println(var.generate());
 		System.out.println(var.generate());
 		System.out.println(var.generate());
@@ -58,15 +58,19 @@ public class SeriesGeneratorTest {
 	@Test
 	public void testIncrementVarNThreads() throws Exception {
 		final IncreasingVar var = new IncreasingVar("0000", getSeriesField(), "Y");
+		final Set<String> set = new HashSet<>();
 		for (int i = 0; i < 2000; i++) {
 			ThreadPool.exec(new Runnable() {
 				@Override
 				public void run() {
-					System.out.println(var.generate());
+					String s = var.generate();
+					set.add(s);
+					System.out.print(s + " ");
 				}
 			});
 		}
 		ThreadPool.waitFor(1000);
+		Assert.assertTrue(set.size() == 2000);
 	}
 	
 	@Test
@@ -82,7 +86,6 @@ public class SeriesGeneratorTest {
 	}
 	
 	private Field getSeriesField() {
-		Application.debug();
 		Field field = MetadataHelper.getEntity("ceshiziduan").getField("ZIDONGBIANHAO");
 		return field;
 	}

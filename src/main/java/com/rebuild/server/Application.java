@@ -138,11 +138,20 @@ public final class Application {
 		Runtime.getRuntime().addShutdownHook(hook);
 	}
 	
-	public static <T> T getBean(Class<T> beanClazz) {
+	/**
+	 * SPRING Context
+	 * 
+	 * @return
+	 */
+	public static ApplicationContext getApplicationContext() {
 		if (APPLICATION_CTX == null) {
 			throw new IllegalStateException("Rebuild unstarted");
 		}
-		return APPLICATION_CTX.getBean(beanClazz);
+		return APPLICATION_CTX;
+	}
+	
+	public static <T> T getBean(Class<T> beanClazz) {
+		return getApplicationContext().getBean(beanClazz);
 	}
 
 	public static OnlineSessionStore getSessionStore() {
@@ -202,13 +211,10 @@ public final class Application {
 	}
 
 	public static IEntityService getEntityService(int entityCode) {
-		if (ESS == null) {
-			throw new IllegalStateException("Unstarted");
-		}
-		if (ESS.containsKey(entityCode)) {
+		if (ESS != null && ESS.containsKey(entityCode)) {
 			return ESS.get(entityCode);
 		} else {
-			return (GeneralEntityService) APPLICATION_CTX.getBean("generalEntityService");
+			return (GeneralEntityService) getApplicationContext().getBean("generalEntityService");
 		}
 	}
 }

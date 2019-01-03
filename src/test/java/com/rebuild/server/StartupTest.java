@@ -25,11 +25,11 @@ import org.junit.Test;
  * @author zhaofang123@gmail.com
  * @since 05/19/2018
  */
-public class StartupTest {
+public class StartupTest extends TestSupport {
 	
 	@Test
-	public void startup() {
-		Application.debug();
-		Application.debug().getBeansOfType(Object.class);
+	public void initAllBeans() {
+		LOG.warn("Initialize all beans ^_^");
+		Application.getApplicationContext().getBeansOfType(Object.class);
 	}
 }

@@ -77,7 +77,7 @@ public class IncreasingVar extends SeriesVar {
 			}
 			
 			synchronized (keyLock) {
-				Object val = Application.getCommonCache().get(key);
+				Object val = Application.getCommonCache().getx(key);
 				if (val != null) {
 					intAuto = ObjectUtils.toInt(val);
 				} else {
