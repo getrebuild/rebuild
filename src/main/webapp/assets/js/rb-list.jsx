@@ -568,7 +568,6 @@ const AdvFilters = {
         $.post(url, JSON.stringify(filter), function(res){
             if (res.error_code == 0){
                 rb.notice('过滤项已保存', 'success')
-                that.__modal.hide()
                 that.loadFilters()
             } else rb.notice(res.error_msg, 'danger')
         })
@@ -576,14 +575,14 @@ const AdvFilters = {
     
     showAdvFilter(id) {
         this.__cfgid = id
-        let props = { entity: this.__entity, inModal: true, needSave: true, confirm: this.saveFilter, destroyOnHide: true }
+        let props = { entity: this.__entity, inModal: true, showSave: true, confirm: this.saveFilter }
         if (!!!id){
-            this.__modal = renderRbcomp(<AdvFilter { ...props } title="添加过滤项" />)
+            renderRbcomp(<AdvFilter { ...props } title="添加过滤项" />)
         }else{
             let that = this
             $.get(rb.baseUrl + '/app/entity/advfilter/get?id=' + id, function(res){
                 let _data = res.data
-                that.__modal = renderRbcomp(<AdvFilter { ...props } title="修改过滤项" filter={_data.filter} filterName={_data.name} applyToAll={_data.applyTo == 'ALL'} />)
+                renderRbcomp(<AdvFilter { ...props } title="修改过滤项" filter={_data.filter} filterName={_data.name} applyToAll={_data.applyTo == 'ALL'} />)
             })
         }
     }

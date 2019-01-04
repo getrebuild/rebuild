@@ -127,7 +127,7 @@ class DlgAddChart extends RbFormHandler {
         super(props)
     }
     render() {
-        return (<RbDialog title="添加图表" ref="dlg">
+        return (<RbModal title="添加图表" ref="dlg">
                 <form>
                 <div className="form-group row">
                     <label className="col-sm-3 col-form-label text-sm-right">图表数据来源</label>
@@ -141,7 +141,7 @@ class DlgAddChart extends RbFormHandler {
                     </div>
                 </div>
             </form>
-            </RbDialog>)
+            </RbModal>)
     }
     componentDidMount() {
         let that = this
@@ -169,7 +169,7 @@ class DlgDashSettings extends RbFormHandler {
         super(props)
     }
     render() {
-        return (<RbDialog title="仪表盘设置" ref="dlg">
+        return (<RbModal title="仪表盘设置" ref="dlg">
                 <form>
                 <div className="form-group row">
                     <label className="col-sm-3 col-form-label text-sm-right">名称</label>
@@ -192,7 +192,7 @@ class DlgDashSettings extends RbFormHandler {
                     </div>
                 </div>
             </form>
-            </RbDialog>)
+            </RbModal>)
     }
     save() {
         let _data = { shareTo: this.state.shareToAll == true ? 'ALL' : 'SELF', title: this.state.title || '默认仪表盘' }
@@ -211,7 +211,7 @@ class DlgDashAdd extends RbFormHandler {
         super(props)
     }
     render() {
-        return (<RbDialog title="添加仪表盘" ref="dlg">
+        return (<RbModal title="添加仪表盘" ref="dlg">
                 <form>
                 <div className="form-group row">
                     <label className="col-sm-3 col-form-label text-sm-right">名称</label>
@@ -234,7 +234,7 @@ class DlgDashAdd extends RbFormHandler {
                     </div>
                 </div>
             </form>
-            </RbDialog>)
+            </RbModal>)
     }
     save() {
         let _data = { title: this.state.title || '我的仪表盘' }

@@ -46,14 +46,14 @@ const toggleDisabled = function(disabled){
 }
 
 // 变更部门
-class DlgChangeDept extends RbDialogHandler {
+class DlgChangeDept extends RbModalHandler {
     constructor(props) {
         super(props)
         this.type = 'Department'
         this.typeName = '部门'
     }
     render(){
-        return (<RbDialog title={'变更' + this.typeName} ref="dlg" disposeOnHide={true}>
+        return (<RbModal title={'变更' + this.typeName} ref="dlg" disposeOnHide={true}>
             <form>
                 <div className="form-group row">
                     <label className="col-sm-3 col-form-label text-sm-right">选择新{this.typeName}</label>
@@ -68,7 +68,7 @@ class DlgChangeDept extends RbDialogHandler {
                     </div>
                 </div>
             </form>
-        </RbDialog>)
+        </RbModal>)
     }
     componentDidMount() {
         let that = this

@@ -15,10 +15,10 @@ class AdvFilter extends React.Component {
         this.childrenRef = []
     }
     render() {
-        let needSave = this.props.needSave == true
+        let showSave = this.props.showSave == true
         let operBtns = (
-            <div className={needSave ? 'float-right' : 'item'}>
-                <button className="btn btn-primary" type="button" onClick={()=>this.confirm()}>{needSave ? '保存' : '确定'}</button>
+            <div className={showSave ? 'float-right' : 'item'}>
+                <button className="btn btn-primary" type="button" onClick={()=>this.confirm()}>{showSave ? '保存' : '确定'}</button>
                 <button className="btn btn-secondary" type="button" onClick={()=>this.hide(true)}>取消</button>
             </div>
             )
@@ -49,7 +49,7 @@ class AdvFilter extends React.Component {
                         </div>
                         }
                     </div>
-                    {needSave ?
+                    {showSave ?
                     <div className="item dialog-footer">
                         {rb.isAdminUser !== true ? null :
                         <div className="float-left">
@@ -68,8 +68,7 @@ class AdvFilter extends React.Component {
                 </div>
             </div>
             )
-
-        if (this.props.inModal) return (<RbModal ref="dlg" title={this.props.title || '设置过滤条件'} destroyOnHide={this.props.destroyOnHide == true}>{advFilter}</RbModal>)
+        if (this.props.inModal) return <RbModal ref="dlg" title={this.props.title || '设置过滤条件'} disposeOnHide={true}>{advFilter}</RbModal>
         else return advFilter
     }
     componentDidMount() {
@@ -178,22 +177,22 @@ class AdvFilter extends React.Component {
     confirm() {
         let adv = this.toFilterJson()
         if (!!!adv) return
-        if (this.props.confirm) this.props.confirm(adv, this.state.filterName, this.state.applyToAll)
+        else if (this.props.confirm) this.props.confirm(adv, this.state.filterName, this.state.applyToAll)
         else{
             $.post(rb.baseUrl + '/app/entity/advfilter/test-parse', JSON.stringify(adv), function(res){
                 if (res.error_code == 0) console.log(JSON.stringify(adv) + '\n>> ' + res.data)
                 else rb.notice(res.error_msg, 'danger')
             })
         }
+        if (this.props.inModal) this.refs['dlg'].hide()
     }
 
     show(state) {
         if (this.props.inModal) this.refs['dlg'].show(state)
     }
-    hide(callCancel) {
+    hide() {
         if (this.props.inModal) this.refs['dlg'].hide()
-        // callback
-        if (callCancel == true && this.props.cancel) this.props.cancel()
+        if (this.props.cancel) this.props.cancel()
     }
 }
 

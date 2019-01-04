@@ -1,5 +1,5 @@
 // ~~ 分派
-class DlgAssign extends RbDialogHandler {
+class DlgAssign extends RbModalHandler {
     constructor(props) {
         super(props)
         this.onView = !!window.RbViewPage
@@ -7,7 +7,7 @@ class DlgAssign extends RbDialogHandler {
         this.typeName = '分派'
     }
     render() {
-        return (<RbDialog title={this.typeName} ref="dlg">
+        return (<RbModal title={this.typeName} ref="dlg">
             <form>
                 {this.onView == true ? null : (
                     <div className="form-group row">
@@ -44,7 +44,7 @@ class DlgAssign extends RbDialogHandler {
                     </div>
                 </div>
             </form>
-        </RbDialog>)
+        </RbModal>)
     }
     componentDidMount() {
         $(this.refs['toUser']).select2({
@@ -127,13 +127,13 @@ class DlgShare extends DlgAssign {
 }
 
 // ~~ 管理共享
-class DlgUnShare extends RbDialogHandler {
+class DlgUnShare extends RbModalHandler {
     constructor(props) {
         super(props)
         this.state.selectAccess = []
     }
     render(){
-        return (<RbDialog title={(this.props.unshare == true ? '管理' : '') + '共享用户'} ref="dlg">
+        return (<RbModal title={(this.props.unshare == true ? '管理' : '') + '共享用户'} ref="dlg">
             <div className="sharing-list">
                 <ul className="list-unstyled list-inline">
                 {(this.state.sharingList ||[]).map((item)=>{
@@ -150,7 +150,7 @@ class DlgUnShare extends RbDialogHandler {
                     <button className="btn btn-secondary btn-space" type="button" onClick={()=>this.hide()}>取消</button>
                 </div>
             </div>
-        </RbDialog>)
+        </RbModal>)
     }
     componentDidMount() {
         $.get(`${rb.baseUrl}/app/entity/sharing-list?id=${this.props.id}`, (res)=>{

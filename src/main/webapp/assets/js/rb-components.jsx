@@ -1,5 +1,5 @@
-// ~~ Dialog 兼容子元素和 iFrame
-class RbDialog extends React.Component {
+// ~~ Modal 兼容子元素和 iFrame
+class RbModal extends React.Component {
     constructor(props) {
         super(props)
         this.state = { ...props }
@@ -51,12 +51,12 @@ class RbDialog extends React.Component {
             else height += 45;  // .main-content's padding
             root.find('.modal-body').height(height)
             that.setState({ frameLoad: false })
-        }, 100, 'RbDialog-resize')
+        }, 100, 'RbModal-resize')
     }
 }
 
-//~~ Dialog 处理器
-class RbDialogHandler extends React.Component {
+//~~ Modal 处理器
+class RbModalHandler extends React.Component {
     constructor(props) {
         super(props)
         this.state = { ...props }
@@ -77,7 +77,7 @@ class RbDialogHandler extends React.Component {
 }
 
 // ~~ Form 处理器
-class RbFormHandler extends RbDialogHandler {
+class RbFormHandler extends RbModalHandler {
     constructor(props) {
         super(props)
         this.handleChange = this.handleChange.bind(this)
@@ -89,73 +89,6 @@ class RbFormHandler extends RbDialogHandler {
         let s = {}
         s[id] = val
         this.setState(s)
-    }
-}
-
-// ~~ 弹出窗口
-class RbModal extends React.Component {
-    constructor(props) {
-        super(props)
-        this.state = { ...props, inLoad: true, isDestroy: false }
-    }
-	render() {
-		return (this.state.isDestroy == true ? null :
-			<div className="modal rbmodal colored-header colored-header-primary" ref="rbmodal">
-		        <div className="modal-dialog" style={{ maxWidth:(this.props.width || 680) + 'px' }}>
-    		        <div className="modal-content">
-        		        <div className="modal-header modal-header-colored">
-            		        <h3 className="modal-title">{this.state.title || 'RbModal'}</h3>
-            		        <button className="close" type="button" onClick={()=>this.hide()}><span className="zmdi zmdi-close"></span></button>
-            		    </div>
-            		    <div className={'modal-body rb-loading' + (this.state.inLoad ? ' rb-loading-active' : '') + (this.state.url ? ' iframe' : '')}>
-            		        {this.props.children || <iframe src={this.state.url || 'about:blank'} frameBorder="0" scrolling="no" onLoad={()=>this.resize()}></iframe>}
-                            <RbSpinner />
-                        </div>
-    		        </div>
-		        </div>
-			</div>
-		)
-	}
-	componentDidMount() {
-	    if (this.props.children) this.setState({ inLoad: false })
-	    this.show(this.props.onShow)
-    }
-	resize() {
-        if (!!!this.state.url) return  // 非 iframe 无需 resize
-        
-        let root = $(this.refs['rbmodal'])
-        let that = this
-        $setTimeout(function(){
-            let iframe = root.find('iframe')
-            let height = iframe.contents().find('.main-content').height()
-            if (height == 0) height = iframe.contents().find('body').height()
-            else height += 45;  // .main-content's padding
-            root.find('.modal-body').height(height)
-            that.setState({ inLoad: false })
-        }, 100, 'RbModal-resize')
-    }
-	show(callback) {
-        let that = this
-	    this.setState({ isDestroy: false }, function(){
-	        $(that.refs['rbmodal']).modal({ show: true, backdrop: 'static' })
-            typeof callback == 'function' && callback(that)
-        })
-    }
-    hide(){
-        let root = $(this.refs['rbmodal'])
-        let warp = root.parent()
-        root.modal('hide')
-        let destroy = true
-        if (this.props.destroyOnHide == false) destroy = false
-        else root.modal('dispose')
-        this.setState({ isDestroy: destroy, inLoad: destroy  }, ()=>{
-            if (destroy == true) {
-                setTimeout(() => { warp.remove() }, 200)
-            }
-            
-            // 如果还有其他 modal 处于 open 态， 则保持 modal-open，否则主窗口滚动条会消失
-            if ($('.rbmodal.show').length > 0) $(document.body).addClass('modal-open')
-        })
     }
 }
 
@@ -267,23 +200,27 @@ let rb = rb || {}
 
 rb.__currentModal
 rb.__currentModalCache = {}
+// @url - URL in iframe
+// @title
+// @ext - more props
 rb.modal = function(url, title, ext) {
     ext = ext || {}
-    if (ext.destroyOnHide !== true) ext.destroyOnHide = false  // default false
-    if (ext.destroyOnHide === false && !!rb.__currentModalCache[url]) {
+    ext.disposeOnHide = ext.disposeOnHide === true  // default false
+    if (ext.disposeOnHide === false && !!rb.__currentModalCache[url]) {
         rb.__currentModal = rb.__currentModalCache[url]
         rb.__currentModal.show()
-        return rb.__currentModal
     } else {
-        rb.__currentModal = renderRbcomp(<RbModal url={url} title={title} width={ext.width} destroyOnHide={ext.destroyOnHide === false ? false : true } />)
-        if (ext.destroyOnHide === false) rb.__currentModalCache[url] = rb.__currentModal
-        return rb.__currentModal
+        rb.__currentModal = renderRbcomp(<RbModal url={url} title={title} width={ext.width} disposeOnHide={ext.disposeOnHide} />)
+        if (ext.disposeOnHide == false){ //  No cache
+            rb.__currentModalCache[url] = rb.__currentModal
+        }
     }
+    return rb.__currentModal
 }
 rb.modalHide = function(url){
     if (url){
-        let m = rb.__currentModalCache[url]
-        if (m) m.hide()
+        let c = rb.__currentModalCache[url]
+        if (c) c.hide()
         else console.warn('No Modal found by url-key : ' + url)
     } else if (rb.__currentModal) {
         rb.__currentModal.hide()
@@ -291,25 +228,31 @@ rb.modalHide = function(url){
 }
 rb.modalResize = function(url){
     if (url){
-        let m = rb.__currentModalCache[url]
-        if (m) m.resize()
+        let c = rb.__currentModalCache[url]
+        if (c) m.resize()
         else console.warn('No Modal found by url-key : ' + url)
     } else if (rb.__currentModal){
         rb.__currentModal.resize()
     }
 }
 
-rb.alert = function(message, title_ext, ext){
-    let title = title_ext
-    if ($.type(title_ext) == 'object'){
+// @message
+// @titleExt - title or ext
+// @ext - more props
+rb.alert = function(message, titleExt, ext){
+    let title = titleExt
+    if ($.type(titleExt) == 'object'){
         title = null
-        ext = title_ext
+        ext = titleExt
     }
     ext = ext || {}
     if (ext.html == true) return renderRbcomp(<RbAlert htmlMessage={message} title={title} type={ext.type} confirmText={ext.confirmText} confirm={ext.confirm} />)
     else return renderRbcomp(<RbAlert message={message} title={title} type={ext.type} confirmText={ext.confirmText} confirm={ext.confirm} />)
 }
 
+//@message
+//@type - danger, warning or null
+//@ext - more props
 rb.notice = function(message, type, ext){
     if (top != self && parent.rb && parent.rb.notice){
         parent.rb.notice(message, type, ext)

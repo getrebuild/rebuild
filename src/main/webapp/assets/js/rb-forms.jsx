@@ -848,7 +848,7 @@ class RbViewModal extends React.Component {
             // 如果还有其他 rbview 处于 open 态， 则保持 modal-open
             if ($('.rbview.show').length > 0) $(document.body).addClass('modal-open').css({ 'padding-right': 17 })
             // subView always dispose
-            if (that.state.destroyOnHide == true) {
+            if (that.state.disposeOnHide == true) {
                 root.modal('dispose')
                 let warp = root.parent().parent()
                 that.setState({ isDestroy: true }, function(){
@@ -909,7 +909,7 @@ rb.RbViewModal = function(props, subView) {
     let viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
     if (subView == true){
         rb.RbViewModalHide(props.id)
-        let m = renderRbcomp(<RbViewModal url={viewUrl} destroyOnHide={true} id={props.id} subView={true} />)
+        let m = renderRbcomp(<RbViewModal url={viewUrl} disposeOnHide={true} id={props.id} subView={true} />)
         rb.__currentRbFormModalCache[props.id] = m
         return m
     }

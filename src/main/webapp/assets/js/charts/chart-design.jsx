@@ -38,15 +38,12 @@ $(document).ready(() => {
 	    }
     }).disableSelection()
 
-    let dlg_filter
     let saveFilter = function(filter){
-        dlg_filter.hide()
         esourceFilter = filter
         render_preview()
     }
     $('.J_filter').click(()=>{
-        if (dlg_filter) dlg_filter.show()
-        else dlg_filter = renderRbcomp(<AdvFilter entity={window.__sourceEntity} filter={esourceFilter} inModal={true} destroyOnHide={false} confirm={saveFilter} />)
+        renderRbcomp(<AdvFilter entity={window.__sourceEntity} filter={esourceFilter} inModal={true} confirm={saveFilter} />)
     })
 	
 	let cts = $('.chart-type > a').click(function(){
@@ -93,7 +90,7 @@ $(window).resize(() => {
 })
 
 const CTs = { SUM:'求和', AVG:'平均值', MAX:'最大值', MIN:'最小值', COUNT:'计数', Y:'按年', Q:'按季', M:'按月', D:'按日', H:'按时' }
-let axis_props = null
+let dlgAxisProps
 let add_axis = ((target, axis) => {
 	let el = $($('#axis-ietm').html()).appendTo($(target))
 	let fName = null
@@ -149,9 +146,13 @@ let add_axis = ((target, axis) => {
             _this.addClass('text-primary')
 			render_preview()
 		} else {
-		    let state = { axisEl: el, isNumAxis: isNumAxis, label: el.attr('data-label'), scale: el.attr('data-scale') }
-		    if (axis_props) axis_props.show(state)
-		    else axis_props = renderRbcomp(<DlgAxisProps { ...state }  />)
+		    let state = { isNumAxis: isNumAxis, label: el.attr('data-label'), scale: el.attr('data-scale') }
+		    state.callback = (s)=>{
+		        el.attr({ 'data-label': s.label, 'data-scale': s.scale })
+		        render_preview()
+		    }
+		    if (dlgAxisProps) dlgAxisProps.show(state)
+		    else dlgAxisProps = renderRbcomp(<DlgAxisProps { ...state }  />)
 		}
 	})
 	if (!!calc) el.find('.dropdown-menu li[data-calc="' + calc + '"]').addClass('text-primary')
@@ -246,26 +247,24 @@ let __build_axisItem = ((item, isNum) => {
     return x
 })
 
-class DlgAxisProps extends React.Component {
+class DlgAxisProps extends RbFormHandler {
     constructor(props) {
         super(props)
-        this.state = { ...props }
-        this.changeVal = this.changeVal.bind(this)
     }
     render() {
-        return (<RbModal title="显示样式" destroyOnHide={false} ref="dlg">
-                <form>
+        return (<RbModal title="显示样式" ref="dlg">
+            <form>
                 <div className="form-group row">
                     <label className="col-sm-3 col-form-label text-sm-right">別名</label>
                     <div className="col-sm-7">
-                        <input className="form-control form-control-sm" data-id="label" placeholder="默认" value={this.state.label || ''} onChange={this.changeVal} />
+                        <input className="form-control form-control-sm" placeholder="默认" data-id="label" value={this.state.label || ''} onChange={this.handleChange} />
                     </div>
                 </div>
                 {this.state.isNumAxis !== true ? null :
                 <div className="form-group row">
                     <label className="col-sm-3 col-form-label text-sm-right">小数位</label>
                     <div className="col-sm-7">
-                        <select className="form-control form-control-sm" data-id="scale" value={this.state.scale || 2} onChange={this.changeVal}>
+                        <select className="form-control form-control-sm" value={this.state.scale || 2} data-id="scale" onChange={this.handleChange}>
                             <option value="0">0</option>
                             <option value="1">1</option>
                             <option value="2">2</option>
@@ -277,26 +276,15 @@ class DlgAxisProps extends React.Component {
                 }
                 <div className="form-group row footer">
                     <div className="col-sm-7 offset-sm-3">
-                        <button className="btn btn-primary" type="button" onClick={()=>this.saveProps()}>确定</button>
+                        <button className="btn btn-primary btn-space" type="button" onClick={()=>this.saveProps()}>确定</button>
+                        <a className="btn btn-link btn-space" onClick={()=>this.hide()}>取消</a>
                     </div>
                 </div>
             </form>
-            </RbModal>)
-    }
-    changeVal(e) {
-        let id = e.target.dataset.id
-        let vvv = {}
-        vvv[id] = e.target.value
-        this.setState({ ...vvv  })
+        </RbModal>)
     }
     saveProps() {
-        this.state.axisEl.attr({ 'data-label': this.state['label'], 'data-scale': this.state['scale'] })
-        this.refs['dlg'].hide()
-        render_preview()
-    }
-    show(state) {
-        this.setState({ ...state }, () => {
-            this.refs['dlg'].show()
-        })
+        this.state.callback(this.state)
+        this.hide()
     }
 }

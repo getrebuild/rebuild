@@ -43,7 +43,7 @@ class DlgChangePasswd extends RbFormHandler {
         super(props)
     }
     render(){
-        return (<RbDialog title="更改密码" ref="dlg" disposeOnHide={true}>
+        return (<RbModal title="更改密码" ref="dlg" disposeOnHide={true}>
             <form>
                 <div className="form-group row">
                     <label className="col-sm-3 col-form-label text-sm-right">原密码</label>
@@ -70,7 +70,7 @@ class DlgChangePasswd extends RbFormHandler {
                     </div>
                 </div>
             </form>
-        </RbDialog>)
+        </RbModal>)
     }
     post() {
         let s = this.state
@@ -94,7 +94,7 @@ class DlgChangeEmail extends RbFormHandler {
         this.state = { ...this.state, vcodeDisabled: false, vcodeCountdown: '获取验证码' }
     }
     render(){
-        return (<RbDialog title="更改邮箱" ref="dlg" disposeOnHide={true}>
+        return (<RbModal title="更改邮箱" ref="dlg" disposeOnHide={true}>
             <form>
                 <div className="form-group row">
                     <label className="col-sm-3 col-form-label text-sm-right">邮箱地址</label>
@@ -118,7 +118,7 @@ class DlgChangeEmail extends RbFormHandler {
                     </div>
                 </div>
             </form>
-        </RbDialog>)
+        </RbModal>)
     }
     sendVCode() {
         let s = this.state
