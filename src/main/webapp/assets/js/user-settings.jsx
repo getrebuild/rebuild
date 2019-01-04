@@ -27,7 +27,7 @@ $(document).ready(function(){
             avatarUrl = $('.avatar img').attr('data-src')
         if (!fullName && !avatarUrl){ location.reload(); return }
         
-        let _data = { metadata: { entity: 'User', id: '<%=theUser.getId()%>' } }
+        let _data = { metadata: { entity: 'User', id: window.__PageConfig.userid } }
         if (fullName) _data.fullName = fullName
         if (avatarUrl) _data.avatarUrl = avatarUrl
         $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), function(res){

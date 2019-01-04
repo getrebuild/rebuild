@@ -20,9 +20,7 @@
 </style>
 </head>
 <body>
-<%
-User theUser = Application.getUserStore().getUser(AppUtils.getRequestUser(request));
-%>
+<% final User theUser = Application.getUserStore().getUser(AppUtils.getRequestUser(request)); %>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-offcanvas-menu">
 	<jsp:include page="/_include/NavTop.jsp">
 		<jsp:param value="个人设置" name="pageTitle"/>
@@ -109,6 +107,9 @@ User theUser = Application.getUserStore().getUser(AppUtils.getRequestUser(reques
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
+<script>
+window.__PageConfig = { userid: '<%=theUser.getId()%>' }
+</script>
 <script src="${baseUrl}/assets/js/user-settings.jsx" type="text/babel"></script>
 </body>
 </html>
