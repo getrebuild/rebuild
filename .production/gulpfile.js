@@ -85,8 +85,17 @@ gulp.task('xjsp', () => {
 })
 
 
-gulp.task('clean', () => {
+gulp.task('clear', () => {
     del(['./_temp', './build'])
 })
 
+gulp.task('cp', () => {
+	gulp.src('./build/**')
+		.pipe(gulp.dest('/data/rebuild47070/webapps/ROOT'))
+})
+
 gulp.task('default', gulpSequence(['xjs', 'xcss'], 'xjsp'))
+
+gulp.task('all', gulpSequence(['xjs', 'xcss'], 'xjsp', 'cp'))
+
+

@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.rebuild.server.helper.SystemConfiguration;
+import com.rebuild.utils.StringsUtils;
 import com.rebuild.web.BaseControll;
 
 /**
@@ -43,22 +44,36 @@ public class SystemConfigurerContoll extends BaseControll {
 	@RequestMapping("plugins/storage")
 	public ModelAndView pagePluginsStorage() {
 		ModelAndView mv = createModelAndView("/admin/plugins/storage-qiniu.jsp");
-		mv.getModel().put("storageAccount", SystemConfiguration.getStorageAccount());
+		mv.getModel().put("storageAccount",
+				starsAccount(SystemConfiguration.getStorageAccount(), 0, 1));
 		return mv;
 	}
 	
 	@RequestMapping("plugins/cache")
 	public ModelAndView pagePluginsCache() {
 		ModelAndView mv = createModelAndView("/admin/plugins/cache-redis.jsp");
-		mv.getModel().put("cacheAccount", SystemConfiguration.getCacheAccount());
+		mv.getModel().put("cacheAccount", 
+				starsAccount(SystemConfiguration.getCacheAccount(), 2));
 		return mv;
 	}
 	
 	@RequestMapping("plugins/submail")
 	public ModelAndView pagePluginsMailSms() {
 		ModelAndView mv = createModelAndView("/admin/plugins/submail.jsp");
-		mv.getModel().put("smsAccount", SystemConfiguration.getSmsAccount());
-		mv.getModel().put("mailAccount", SystemConfiguration.getMailAccount());
+		mv.getModel().put("smsAccount", 
+				starsAccount(SystemConfiguration.getSmsAccount(), 1));
+		mv.getModel().put("mailAccount", 
+				starsAccount(SystemConfiguration.getMailAccount(), 1));
 		return mv;
+	}
+	
+	static String[] starsAccount(String account[], int ...index) {
+		if (account == null) {
+			return null;
+		}
+		for (int i : index) {
+			account[i] = StringsUtils.stars(account[i]);
+		}
+		return account;
 	}
 }
