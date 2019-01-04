@@ -4,6 +4,7 @@ CREATE DATABASE `rebuild10` DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
 CREATE USER 'rebuild'@'127.0.0.1' IDENTIFIED BY 'rebuild';
 GRANT ALL PRIVILEGES ON `rebuild10`.* TO 'rebuild'@'127.0.0.1';
 
+USE `rebuild10`;
 
 -- Init schemas
 -- Generate by SchemaGen.java
@@ -22,6 +23,7 @@ create table /*!32312 if not exists*/ `user` (
   `MODIFIED_ON`        timestamp not null default '0000-00-00 00:00:00' comment '修改时间',
   `CREATED_BY`         char(20) not null comment '创建人',
   `LOGIN_NAME`         varchar(100) not null comment '登录名',
+  `QUICK_CODE`         varchar(70),
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `IS_DISABLED`        char(1) default 'F' comment '是否停用',
   `EMAIL`              varchar(100) comment '邮箱',
@@ -29,6 +31,7 @@ create table /*!32312 if not exists*/ `user` (
   unique index `UIX1_user` (`LOGIN_NAME`),
   unique index `UIX2_user` (`EMAIL`)
 )Engine=InnoDB;
+
 -- ************ Entity [Department] DDL ************
 drop table if exists `department`;
 create table /*!32312 if not exists*/ `department` (
@@ -36,12 +39,14 @@ create table /*!32312 if not exists*/ `department` (
   `CREATED_BY`         char(20) not null comment '创建人',
   `DEPT_ID`            char(20) not null,
   `NAME`               varchar(100) not null comment '部门名称',
+  `QUICK_CODE`         varchar(70),
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `IS_DISABLED`        char(1) default 'F' comment '是否停用',
   `PARENT_DEPT`        char(20) comment '父级部门',
   `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
   primary key  (`DEPT_ID`)
 )Engine=InnoDB;
+
 -- ************ Entity [Role] DDL ************
 drop table if exists `role`;
 create table /*!32312 if not exists*/ `role` (
@@ -49,11 +54,13 @@ create table /*!32312 if not exists*/ `role` (
   `CREATED_BY`         char(20) not null comment '创建人',
   `ROLE_ID`            char(20) not null,
   `NAME`               varchar(100) not null comment '角色名称',
+  `QUICK_CODE`         varchar(70),
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `IS_DISABLED`        char(1) default 'F' comment '是否停用',
   `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
   primary key  (`ROLE_ID`)
 )Engine=InnoDB;
+
 -- ************ Entity [RolePrivileges] DDL ************
 drop table if exists `role_privileges`;
 create table /*!32312 if not exists*/ `role_privileges` (
@@ -65,6 +72,7 @@ create table /*!32312 if not exists*/ `role_privileges` (
   primary key  (`PRIVILEGES_ID`),
   unique index `UIX1_role_privileges` (`ROLE_ID`, `ENTITY`, `ZERO_KEY`)
 )Engine=InnoDB;
+
 -- ************ Entity [RoleMember] DDL ************
 drop table if exists `role_member`;
 create table /*!32312 if not exists*/ `role_member` (
@@ -73,6 +81,7 @@ create table /*!32312 if not exists*/ `role_member` (
   `MEMBER_ID`          char(20) not null,
   primary key  (`MEMBER_ID`)
 )Engine=InnoDB;
+
 -- ************ Entity [MetaEntity] DDL ************
 drop table if exists `meta_entity`;
 create table /*!32312 if not exists*/ `meta_entity` (
@@ -94,16 +103,17 @@ create table /*!32312 if not exists*/ `meta_entity` (
   unique index `UIX2_meta_entity` (`ENTITY_NAME`),
   unique index `UIX3_meta_entity` (`PHYSICAL_NAME`)
 )Engine=InnoDB;
+
 -- ************ Entity [MetaField] DDL ************
 drop table if exists `meta_field`;
 create table /*!32312 if not exists*/ `meta_field` (
   `FIELD_NAME`         varchar(100) not null,
-  `COMMENTS`           varchar(200),
+  `COMMENTS`           varchar(300),
   `NULLABLE`           char(1) default 'T',
-  `DEFAULT_VALUE`      varchar(200),
+  `DEFAULT_VALUE`      varchar(300),
   `CASCADE`            varchar(20) default 'ignore',
   `PRECISION`          smallint(6) default '6',
-  `EXT_CONFIG`         varchar(600) comment '更多扩展配置，JSON格式KV',
+  `EXT_CONFIG`         varchar(700) comment '更多扩展配置，JSON格式KV',
   `BELONG_ENTITY`      varchar(100) not null,
   `CREATABLE`          char(1) default 'T',
   `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
@@ -115,12 +125,13 @@ create table /*!32312 if not exists*/ `meta_field` (
   `REF_ENTITY`         varchar(100),
   `UPDATABLE`          char(1) default 'T',
   `MODIFIED_BY`        char(20) not null comment '修改人',
-  `MAX_LENGTH`         smallint(6) default '600',
+  `MAX_LENGTH`         smallint(6) default '300',
   `FIELD_ID`           char(20) not null,
   primary key  (`FIELD_ID`),
   unique index `UIX1_meta_field` (`BELONG_ENTITY`, `FIELD_NAME`),
   unique index `UIX2_meta_field` (`BELONG_ENTITY`, `PHYSICAL_NAME`)
 )Engine=InnoDB;
+
 -- ************ Entity [PickList] DDL ************
 drop table if exists `pick_list`;
 create table /*!32312 if not exists*/ `pick_list` (
@@ -137,6 +148,7 @@ create table /*!32312 if not exists*/ `pick_list` (
   `IS_HIDE`            char(1) default 'F',
   primary key  (`ITEM_ID`)
 )Engine=InnoDB;
+
 -- ************ Entity [LayoutConfig] DDL ************
 drop table if exists `layout_config`;
 create table /*!32312 if not exists*/ `layout_config` (
@@ -151,6 +163,7 @@ create table /*!32312 if not exists*/ `layout_config` (
   `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
   primary key  (`LAYOUT_ID`)
 )Engine=InnoDB;
+
 -- ************ Entity [FilterConfig] DDL ************
 drop table if exists `filter_config`;
 create table /*!32312 if not exists*/ `filter_config` (
@@ -165,6 +178,7 @@ create table /*!32312 if not exists*/ `filter_config` (
   `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
   primary key  (`FILTER_ID`)
 )Engine=InnoDB;
+
 -- ************ Entity [ViewAddonsConfig] DDL ************
 drop table if exists `view_addons_config`;
 create table /*!32312 if not exists*/ `view_addons_config` (
@@ -179,6 +193,7 @@ create table /*!32312 if not exists*/ `view_addons_config` (
   primary key  (`ADDONS_ID`),
   unique index `UIX1_view_addons_config` (`BELONG_ENTITY`, `TYPE`)
 )Engine=InnoDB;
+
 -- ************ Entity [DashboardConfig] DDL ************
 drop table if exists `dashboard_config`;
 create table /*!32312 if not exists*/ `dashboard_config` (
@@ -192,6 +207,7 @@ create table /*!32312 if not exists*/ `dashboard_config` (
   `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
   primary key  (`DASHBOARD_ID`)
 )Engine=InnoDB;
+
 -- ************ Entity [ChartConfig] DDL ************
 drop table if exists `chart_config`;
 create table /*!32312 if not exists*/ `chart_config` (
@@ -206,6 +222,7 @@ create table /*!32312 if not exists*/ `chart_config` (
   `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
   primary key  (`CHART_ID`)
 )Engine=InnoDB;
+
 -- ************ Entity [ShareAccess] DDL ************
 drop table if exists `share_access`;
 create table /*!32312 if not exists*/ `share_access` (
@@ -222,6 +239,7 @@ create table /*!32312 if not exists*/ `share_access` (
 )Engine=InnoDB;
 alter table `share_access`
   add index `IX1_share_access` (`BELONG_ENTITY`, `RECORD_ID`, `SHARE_TO`);
+
 -- ************ Entity [SystemConfig] DDL ************
 drop table if exists `system_config`;
 create table /*!32312 if not exists*/ `system_config` (
@@ -231,6 +249,7 @@ create table /*!32312 if not exists*/ `system_config` (
   primary key  (`CONFIG_ID`),
   unique index `UIX1_system_config` (`ITEM`)
 )Engine=InnoDB;
+
 -- ************ Entity [Notification] DDL ************
 drop table if exists `notification`;
 create table /*!32312 if not exists*/ `notification` (
@@ -248,6 +267,7 @@ create table /*!32312 if not exists*/ `notification` (
 )Engine=InnoDB;
 alter table `notification`
   add index `IX1_notification` (`TO_USER`, `UNREAD`, `CREATED_ON`);
+
 -- ************ Entity [Attachment] DDL ************
 drop table if exists `attachment`;
 create table /*!32312 if not exists*/ `attachment` (
@@ -269,6 +289,7 @@ alter table `attachment`
   add index `IX1_attachment` (`BELONG_ENTITY`, `BELONG_FIELD`, `FILE_PATH`),
   add index `IX2_attachment` (`RELATED_RECORD`),
   add index `IX3_attachment` (`IN_FOLDER`, `CREATED_ON`);
+
 -- ************ Entity [AttachmentFolder] DDL ************
 drop table if exists `attachment_folder`;
 create table /*!32312 if not exists*/ `attachment_folder` (
@@ -286,13 +307,13 @@ create table /*!32312 if not exists*/ `attachment_folder` (
 -- Init data
 
 -- User
-INSERT INTO `user` (`USER_ID`, `LOGIN_NAME`, `PASSWORD`, `FULL_NAME`, `DEPT_ID`, `ROLE_ID`, `IS_DISABLED`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`)
-  VALUES ('001-0000000000000000', 'system', 'system', '系统用户', '002-0000000000000001', '003-0000000000000001', 'T', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000');
-INSERT INTO `user` (`USER_ID`, `LOGIN_NAME`, `PASSWORD`, `FULL_NAME`, `DEPT_ID`, `ROLE_ID`, `IS_DISABLED`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`)
-  VALUES ('001-0000000000000001', 'admin', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', '超级管理员', '002-0000000000000001', '003-0000000000000001', 'F', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000');
+INSERT INTO `user` (`USER_ID`, `LOGIN_NAME`, `PASSWORD`, `FULL_NAME`, `DEPT_ID`, `ROLE_ID`, `IS_DISABLED`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`, `QUOCK_CODE`)
+  VALUES 
+  ('001-0000000000000000', 'system', 'system', '系统用户', '002-0000000000000001', '003-0000000000000001', 'T', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'XTYH'),
+  ('001-0000000000000001', 'admin', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', '超级管理员', '002-0000000000000001', '003-0000000000000001', 'F', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'CJGLY');
 -- Department
-INSERT INTO `department` (`DEPT_ID`, `NAME`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`)
-  VALUES ('002-0000000000000001', '总部', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000');
+INSERT INTO `department` (`DEPT_ID`, `NAME`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`, `QUOCK_CODE`)
+  VALUES ('002-0000000000000001', '总部', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'ZB');
 -- Role
-INSERT INTO `role` (`ROLE_ID`, `NAME`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`)
-  VALUES ('003-0000000000000001', '管理员', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000');
+INSERT INTO `role` (`ROLE_ID`, `NAME`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`, `QUOCK_CODE`)
+  VALUES ('003-0000000000000001', '管理员', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'GLY');
