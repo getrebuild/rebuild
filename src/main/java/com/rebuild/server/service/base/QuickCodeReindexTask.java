@@ -21,6 +21,7 @@ package com.rebuild.server.service.base;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 
 import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.rebuild.server.Application;
@@ -71,6 +72,9 @@ public class QuickCodeReindexTask extends BulkTask {
 			
 			this.setTotal(records.size() + this.getTotal() + 1);
 			for (Record o : records) {
+				if (this.isInterrupted()) {
+					break;
+				}
 				this.setCompleteOne();
 				
 				String quickCodeNew = generateQuickCode(o);
@@ -82,13 +86,17 @@ public class QuickCodeReindexTask extends BulkTask {
 				}
 				
 				Record record = EntityHelper.forUpdate(o.getPrimary(), UserService.SYSTEM_USER);
-				record.setString("quickCode", quickCodeNew);
+				if (StringUtils.isBlank(quickCodeNew)) {
+					record.setNull(EntityHelper.QuickCode);
+				} else {
+					record.setString(EntityHelper.QuickCode, quickCodeNew);
+				}
 				record.removeValue(EntityHelper.ModifiedBy);
 				record.removeValue(EntityHelper.ModifiedOn);
 				Application.getCommonService().update(record);
 			}
 			
-			if (records.size() < 1000) {
+			if (records.size() < 1000 || this.isInterrupted()) {
 				break;
 			}
 		}
@@ -131,6 +139,11 @@ public class QuickCodeReindexTask extends BulkTask {
 	}
 	
 	/**
+	 * 你好世界 - NHSJ
+	 * HelloWorld - HW
+	 * hello world - HW
+	 * 43284327432 - ""
+	 * 
 	 * @param nameVal
 	 * @return
 	 */
@@ -139,12 +152,31 @@ public class QuickCodeReindexTask extends BulkTask {
 			return StringUtils.EMPTY;
 		}
 		
+		// 提取 0-9+a-z+A-Z+中文+空格
+		nameVal = nameVal.replaceAll("[^a-zA-Z0-9\\s\u4e00-\u9fa5]", "");
+		
 		String quickCode = StringUtils.EMPTY;
-		try {
-			quickCode = PinyinHelper.getShortPinyin(nameVal).toUpperCase();
-		} catch (Exception e) {
-			LOG.error("QuickCode shorting error : " + nameVal, e);
+		if (nameVal.matches("[a-zA-Z0-9\\s]+")) {
+			String aplit[] = nameVal.split("(?=[A-Z\\s])");
+			StringBuffer sb = new StringBuffer();
+			for (String a : aplit) {
+				if (a.trim().length() > 0) {
+					sb.append(a.trim().substring(0, 1));
+				}
+			}
+			quickCode = sb.toString();
+		} else {
+			nameVal = nameVal.replaceAll(" ", "");
+			try {
+				quickCode = PinyinHelper.getShortPinyin(nameVal);
+			} catch (Exception e) {
+				LOG.error("QuickCode shorting error : " + nameVal, e);
+			}
 		}
-		return quickCode;
+		
+		if (NumberUtils.isDigits(quickCode)) {
+			quickCode = StringUtils.EMPTY;
+		}
+		return quickCode.toUpperCase();
 	}
 }

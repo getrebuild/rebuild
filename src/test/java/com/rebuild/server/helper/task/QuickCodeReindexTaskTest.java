@@ -18,9 +18,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.task;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.rebuild.server.TestSupport;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.base.QuickCodeReindexTask;
 
 /**
  * 
@@ -30,7 +33,24 @@ import com.rebuild.server.TestSupport;
 public class QuickCodeReindexTaskTest extends TestSupport {
 	
 	@Test
+	public void testGenerateQuickCode() throws Exception {
+		Assert.assertFalse("NHHSJ".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("你 好     hello      世 界")));
+		Assert.assertTrue("HW".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("hello     world     ........")));
+		Assert.assertTrue("HW".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("HelloWorld!")));
+		Assert.assertTrue("NHSJ".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("你好世界")));
+		Assert.assertTrue("NHSJ".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("你 好           世 界")));
+		Assert.assertTrue("".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("54325432543")));
+	}
+	
+	@Test
 	public void testReindex() throws Exception {
+		new QuickCodeReindexTask(MetadataHelper.getEntity("User")).run();
+		new QuickCodeReindexTask(MetadataHelper.getEntity("Role")).run();
+		new QuickCodeReindexTask(MetadataHelper.getEntity("Department")).run();
 		
+		String entity = "h45hy54hy";
+		if (MetadataHelper.containsEntity(entity)) {
+			new QuickCodeReindexTask(MetadataHelper.getEntity(entity)).run();
+		}
 	}
 }

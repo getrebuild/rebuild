@@ -65,6 +65,7 @@ public class ReferenceSearch extends BaseControll {
 			writeSuccess(response, ArrayUtils.EMPTY_STRING_ARRAY);
 			return;
 		}
+		q = StringEscapeUtils.escapeSql(q);
 		
 		Entity metaEntity = MetadataHelper.getEntity(entity);
 		Field nameField = MetadataHelper.getNameField(metaEntity);
@@ -74,14 +75,16 @@ public class ReferenceSearch extends BaseControll {
 		}
 		if (StringUtils.isBlank(qFields)) {
 			qFields = nameField.getName();
+			if (metaEntity.containsField(EntityHelper.QuickCode)) {
+				qFields += "," + EntityHelper.QuickCode;
+			}
 		}
 		
-		q = StringEscapeUtils.escapeSql(q);
 		List<String> or = new ArrayList<>();
 		for (String field : qFields.split(",")) {
 			if (!metaEntity.containsField(field)) {
 				LOG.warn("No field for search : " + field);
-			} else if (StringUtils.isNotBlank(q)) {
+			} else {
 				or.add(field + " like '%" + q + "%'");
 			}
 		}

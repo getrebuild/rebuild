@@ -60,7 +60,7 @@ class DlgAssign extends RbModalHandler {
                 data: function(params) {
                     let query = {
                         entity: 'User',
-                        qfields: 'loginName,fullName,email',
+                        qfields: 'loginName,fullName,email,quickCode',
                         q: params.term
                     }
                     return query

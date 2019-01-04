@@ -21,7 +21,7 @@
 		<field name="deptId" type="reference" ref-entity="Department" cascade="remove-links" updatable="false" description="部门" />
 		<field name="roleId" type="reference" ref-entity="Role" cascade="remove-links" updatable="false" description="角色" />
 		<field name="isDisabled" type="bool" default-value="F" description="是否停用" />
-		<field name="quickCode" type="string" max-length="100"/>
+		<field name="quickCode" type="string" max-length="70"/>
 		<index type="unique" field-list="loginName" />
 		<index type="unique" field-list="email" />
 	</entity>
@@ -31,12 +31,14 @@
 		<field name="name" type="string" max-length="100" nullable="false" description="部门名称" />
 		<field name="parentDept" type="reference" ref-entity="Department" cascade="remove-links" description="父级部门" />
 		<field name="isDisabled" type="bool" default-value="F" description="是否停用" />
+		<field name="quickCode" type="string" max-length="70"/>
 	</entity>
 
 	<entity name="Role" type-code="003" description="角色" name-field="name">
 		<field name="roleId" type="primary" />
 		<field name="name" type="string" max-length="100" nullable="false" description="角色名称" />
 		<field name="isDisabled" type="bool" default-value="F" description="是否停用" />
+		<field name="quickCode" type="string" max-length="70"/>
 	</entity>
 
 	<entity name="RolePrivileges" type-code="004" parent="false">
@@ -80,12 +82,12 @@
 		<field name="creatable" type="bool" default-value="T" />
 		<field name="updatable" type="bool" default-value="T" />
 		<field name="precision" type="small-int" default-value="6" />
-		<field name="defaultValue" type="string" max-length="200" />
-		<field name="maxLength" type="small-int" default-value="600" />
+		<field name="defaultValue" type="string" max-length="300" />
+		<field name="maxLength" type="small-int" default-value="300" />
 		<field name="refEntity" type="string" max-length="100" />
 		<field name="cascade" type="string" max-length="20" default-value="ignore" />
-		<field name="comments" type="string" max-length="200" />
-		<field name="extConfig" type="string" max-length="600" description="更多扩展配置，JSON格式KV" />
+		<field name="comments" type="string" max-length="300" />
+		<field name="extConfig" type="string" max-length="700" description="更多扩展配置，JSON格式KV" />
 		<index type="unique" field-list="belongEntity,fieldName" />
 		<index type="unique" field-list="belongEntity,physicalName" />
 	</entity>

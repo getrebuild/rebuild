@@ -27,10 +27,10 @@ import cn.devezhao.persist4j.dialect.Type;
  */
 public enum DisplayType {
 	
-	NUMBER("数字", FieldType.LONG, 0, "##,###"),
-	DECIMAL("货币", FieldType.DECIMAL, 0, "##,##0.00"),
-	DATE("日期", FieldType.DATE, 0, "yyyy-MM-dd"),
-	DATETIME("日期时间", FieldType.TIMESTAMP, 0, "yyyy-MM-dd HH:mm:ss"),
+	NUMBER("数字", FieldType.LONG, -1, "##,###"),
+	DECIMAL("货币", FieldType.DECIMAL, -1, "##,##0.00"),
+	DATE("日期", FieldType.DATE, -1, "yyyy-MM-dd"),
+	DATETIME("日期时间", FieldType.TIMESTAMP, -1, "yyyy-MM-dd HH:mm:ss"),
 	TEXT("文本", FieldType.STRING, 300, null),
 	NTEXT("大文本", FieldType.TEXT, 6000, null),
 	EMAIL("邮箱", FieldType.STRING, 100, null),
@@ -39,14 +39,14 @@ public enum DisplayType {
 	SERIES("自动编号", FieldType.STRING, 40, "{YYYYMMDD}-{0000}"),
 	IMAGE("图片", FieldType.STRING, 700, null),
 	FILE("附件", FieldType.STRING, 700, null),
-	PICKLIST("列表", FieldType.REFERENCE),
-	REFERENCE("引用", FieldType.REFERENCE),
+	PICKLIST("列表", FieldType.REFERENCE, -1, null),
+	REFERENCE("引用", FieldType.REFERENCE, -1, null),
 	
 	// 待启用/内部用
-	ID("主键", FieldType.PRIMARY),
-	ANYREFERENCE("任意引用", FieldType.ANY_REFERENCE),
-	BOOL("布尔", FieldType.BOOL),
-	LOCATION("位置", FieldType.STRING, 50, null),
+	ID("主键", FieldType.PRIMARY, -1, null),
+	ANYREFERENCE("任意引用", FieldType.ANY_REFERENCE, -1, null),
+	BOOL("布尔", FieldType.BOOL, -1, null),
+	LOCATION("位置", FieldType.STRING, 70, null),
 	
 	;
 	
