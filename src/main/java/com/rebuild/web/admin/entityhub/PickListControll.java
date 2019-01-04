@@ -58,9 +58,9 @@ public class PickListControll extends BaseControll {
 	
 	@RequestMapping("picklist-sets")
 	public void picklistSet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		JSONObject config = (JSONObject) ServletUtils.getRequestJson(request);
 		String entity = getParameterNotNull(request, "entity");
 		String field = getParameterNotNull(request, "field");
+		JSONObject config = (JSONObject) ServletUtils.getRequestJson(request);
 		
 		Field field2field = MetadataHelper.getField(entity, field);
 		Application.getBean(PickListService.class).updateBatch(field2field, config);

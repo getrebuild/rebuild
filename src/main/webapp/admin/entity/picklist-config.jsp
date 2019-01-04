@@ -45,8 +45,7 @@
 <script type="text/babel">
 let default_item
 $(document).ready(function(){
-	const entity = $urlp('entity'), field = $urlp('field')
-	const query = 'entity=' + entity + '&field=' + field
+	const query = 'entity=' + $urlp('entity') + '&field=' + $urlp('field')
 	
 	$.get(rb.baseUrl + '/admin/field/picklist-gets?isAll=true&' + query, function(res){
 		$(res.data).each(function(){
@@ -63,7 +62,7 @@ $(document).ready(function(){
 	
 	$('.J_confirm').click(function(){
 		let text = $val('.J_text');
-		if (!!!text){ rb.highbar('请输入选项文本'); return }
+		if (!!!text){ rb.highbar('请输入选项文本'); return false }
 		let id = $('.J_text').attr('attr-id')
 		$('.J_text').val('').attr('attr-id', '')
 		$('.J_confirm').text('添加')
@@ -102,7 +101,10 @@ $(document).ready(function(){
 })
 render_unset_after = function(item, data){
 	let del = $('<a href="javascript:;" class="action">[删除]</a>').appendTo(item.find('.dd-handle'))
-	
+	del.click(()=>{
+		item.remove()
+		return false
+	})
 }
 render_item_after = function(item, data){
 	let edit = $('<a href="javascript:;">[修改]</a>').appendTo(item.find('.dd3-action'))
@@ -117,6 +119,13 @@ render_item_after = function(item, data){
 		default0.parent().parent().addClass('active')
 		default_item = data[0]
 	})
+	
+	// 新增加的还未保存
+	if (data[0].substr(0, 4) != '012-'){
+		item.find('.dd3-action>a:eq(0)').off('click').click(()=>{
+			item.remove()
+		})
+	}
 }
 </script>
 </body>
