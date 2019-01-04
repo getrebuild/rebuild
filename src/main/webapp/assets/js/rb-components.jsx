@@ -138,8 +138,8 @@ class RbAlert extends React.Component {
     }
 }
 
-// ~~ 提示条
-class RbNotice extends React.Component {
+// ~~ 顶部提示条
+class RbHighbar extends React.Component {
     constructor(props) {
        super(props)
        this.state = { animatedClass: 'slideInDown' }
@@ -148,7 +148,7 @@ class RbNotice extends React.Component {
         let icon = this.props.type == 'success' ? 'check' : 'info-outline'
         icon = this.props.type == 'danger' ? 'close-circle-o' : icon
         let content = !!this.props.htmlMessage ? <div className="message" dangerouslySetInnerHTML={{ __html : this.props.htmlMessage }}></div> : <div className="message">{this.props.message}</div>
-        return (<div ref="rbnotice" className={'rbnotice animated faster ' + this.state.animatedClass}>
+        return (<div ref="rbhighbar" className={'rbhighbar animated faster ' + this.state.animatedClass}>
             <div className={'alert alert-dismissible alert-' + (this.props.type || 'warning')}>
                 <button className="close" type="button" onClick={()=>this.close()}><span className="zmdi zmdi-close"></span></button>
                 <div className="icon"><span className={'zmdi zmdi-' + icon}></span></div>
@@ -157,14 +157,12 @@ class RbNotice extends React.Component {
         </div>)
     }
     componentDidMount() {
-        if (this.props.closeAuto == false) return
-        let dTimeout = this.props.type == 'danger' ? 6000 : 3000
-        setTimeout(()=>{ this.close() }, this.props.timeout || dTimeout)
+        setTimeout(()=>{ this.close() }, this.props.timeout || 3000)
     }
     close() {
         this.setState({ animatedClass: 'fadeOut' }, ()=>{
             setTimeout(()=>{
-                $(this.refs['rbnotice']).parent().remove()
+                $(this.refs['rbhighbar']).parent().remove()
             }, 1000)
         })
     }
@@ -239,7 +237,7 @@ rb.modalResize = function(url){
 // @message
 // @titleExt - title or ext
 // @ext - more props
-rb.alert = function(message, titleExt, ext){
+rb.alert = (message, titleExt, ext)=>{
     let title = titleExt
     if ($.type(titleExt) == 'object'){
         title = null
@@ -253,12 +251,18 @@ rb.alert = function(message, titleExt, ext){
 //@message
 //@type - danger, warning or null
 //@ext - more props
-rb.notice = function(message, type, ext){
-    if (top != self && parent.rb && parent.rb.notice){
-        parent.rb.notice(message, type, ext)
-        return;
+rb.highbar = (message, type, ext)=>{
+    if (top != self && parent.rb && parent.rb.highbar){
+        parent.rb.highbar(message, type, ext)
+        return
     }
     ext = ext || {}
-    if (ext.html == true) return renderRbcomp(<RbNotice htmlMessage={message} type={type} timeout={ext.timeout} />)
-    else return renderRbcomp(<RbNotice message={message} type={type} timeout={ext.timeout} />)
+    if (ext.html == true) return renderRbcomp(<RbHighbar htmlMessage={message} type={type} timeout={ext.timeout} />)
+    else return renderRbcomp(<RbHighbar message={message} type={type} timeout={ext.timeout} />)
+}
+rb.hberror = (message)=>{
+    rb.highbar(message || '系统繁忙，请稍后重试', 'danger', { timeout: 6000 })
+}
+rb.hbsuccess = (message)=>{
+    rb.highbar(message || '操作成功', 'success')
 }

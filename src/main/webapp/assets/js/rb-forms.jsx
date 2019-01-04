@@ -185,7 +185,7 @@ class RbForm extends React.Component {
         let _data = {}
         for (let k in this.__FormData) {
             let err = this.__FormData[k].error
-            if (err){ rb.notice(err); return }
+            if (err){ rb.highbar(err); return }
             else _data[k] = this.__FormData[k].value
         }
         
@@ -199,7 +199,7 @@ class RbForm extends React.Component {
         $.post(`${rb.baseUrl}/app/entity/record-save`, JSON.stringify(_data), function(res){
             btns.button('reset')
             if (res.error_code == 0){
-                rb.notice('保存成功', 'success')
+                rb.highbar('保存成功', 'success')
                 setTimeout(() => {
                     that.props.$$$parent.hide(true)
                     RbForm.postAfter(res.data, next == 101)
@@ -215,7 +215,7 @@ class RbForm extends React.Component {
                 }, 500)
                 
             }else{
-                rb.notice(res.error_msg || '保存失败，请稍后重试', 'danger')
+                rb.hberror(res.error_msg)
             }
         })
     }
@@ -525,7 +525,7 @@ class RbFormImage extends RbFormElement {
             postUrl: rb.baseUrl + '/filex/upload?cloud=auto&type=image',
             onClientLoad: function(e, file){
                 if (file.type.substr(0, 5) != 'image'){
-                    rb.notice('请上传图片')
+                    rb.highbar('请上传图片')
                     return false
                 }
                 mprogress = new Mprogress({ template:3 })
@@ -539,7 +539,7 @@ class RbFormImage extends RbFormElement {
                     let paths = that.state.value
                     paths.push(d.data)
                     that.handleChange({ target:{ value: paths } }, true)
-                } else rb.notice(d.error_msg || '上传失败，请稍后重试', 'danger')
+                } else rb.highbar(d.error_msg || '上传失败，请稍后重试', 'danger')
             }
         })
     }
@@ -604,7 +604,7 @@ class RbFormFile extends RbFormElement {
                     let paths = that.state.value
                     paths.push(d.data)
                     that.handleChange({ target:{ value: paths } }, true)
-                } else rb.notice(d.error_msg || '上传失败，请稍后重试', 'danger')
+                } else rb.highbar(d.error_msg || '上传失败，请稍后重试', 'danger')
             }
         })
     }

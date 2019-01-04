@@ -51,7 +51,7 @@ $(document).ready(function(){
 			let _this = $(this)
 			config.push({ field: _this.data('key') })
 		});
-		if (config.length == 0){ rb.notice('请至少设置 1 个显示列'); return }
+		if (config.length == 0){ rb.highbar('请至少设置 1 个显示列'); return }
 		
 		let btn = $(this).button('loading')
 		let url = rb.baseUrl + '/app/' + entity + '/list-fields?cfgid=' + cfgid + '&toAll=' + $('#applyTo').prop('checked')

@@ -37,7 +37,7 @@ $(document).ready(function(){
 		btn.button('loading')
 		$.post(rb.baseUrl +  '/admin/entity/field-update', _data, function(res){
 			if (res.error_code == 0) location.href = '../fields'
-			else rb.notice(res.error_msg, 'danger')
+			else rb.hberror(res.error_msg)
 		})
 	})
 	
@@ -90,9 +90,9 @@ $(document).ready(function(){
                 $.post(`${rb.baseUrl}/admin/entity/field-drop?id=${wpc.metaId}`, function(res){
                     if (res.error_code == 0){
 						thatModal.hide()
-						rb.notice('字段已删除', 'success')
+						rb.hbsuccess('字段已删除')
 						setTimeout(function(){ location.replace('../fields') }, 1500)
-                    } else rb.notice(res.error_msg, 'danger')
+                    } else rb.hberror(res.error_msg)
                 })
             }
 		rb.alert('字段删除后将无法恢复，请务必谨慎操作！确认删除吗？', '删除字段', alertExt)

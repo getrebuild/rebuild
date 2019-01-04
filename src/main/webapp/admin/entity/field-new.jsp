@@ -75,12 +75,8 @@ $(document).ready(function(){
 			type = $val('#type'),
 			comments = $val('#comments'),
 			refEntity = $val('#refEntity');
-		if (!fieldLabel){
-			rb.notice('请输入字段名称'); return;
-		}
-		if (type == 'REFERENCE' && !refEntity){
-			rb.notice('请选择引用实体'); return;
-		}
+		if (!fieldLabel){ rb.highbar('请输入字段名称'); return }
+		if (type == 'REFERENCE' && !refEntity){ rb.highbar('请选择引用实体'); return }
 		
 		let _data = { entity:entity, label:fieldLabel, type:type, comments:comments, refEntity:refEntity };
 		_data = JSON.stringify(_data)
@@ -89,7 +85,7 @@ $(document).ready(function(){
 		$.post(rb.baseUrl + '/admin/entity/field-new', _data, function(res){
 			btn.button('reset')
 			if (res.error_code == 0) parent.location.href = rb.baseUrl + '/admin/entity/' + entity + '/field/' + res.data;
-			else rb.notice(res.error_msg, 'danger')
+			else rb.hberror(res.error_msg)
 		});
 	});
 	

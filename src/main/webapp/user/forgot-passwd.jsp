@@ -35,7 +35,7 @@
 $(document).ready(function() {
 	$('.J_forgot-btn').click(function() {
 		let email = $val('#email')
-		if (!email){ rb.notice('请输入邮箱'); return }
+		if (!email){ rb.highbar('请输入邮箱'); return }
 		
 		let reqdata = { email: email }
 		$.post(__baseUrl + '/user/user-forgot-passwd', reqdata, function(res) {

@@ -61,8 +61,8 @@ $(document).ready(function(){
 			let _this = $(this);
 			config.push({ field: _this.data('key'), op: 'lk', value: '{1}' });
 		});
-		if (config.length == 0){ rb.notice('请至少设置1个查询字段'); return }
-		if (config.length > 5){ rb.notice('最多设置5个查询字段'); return }
+		if (config.length == 0){ rb.highbar('请至少设置1个查询字段'); return }
+		if (config.length > 5){ rb.highbar('最多设置5个查询字段'); return }
 		config = { items: config }
 		
 		let btn = $(this).button('loading')

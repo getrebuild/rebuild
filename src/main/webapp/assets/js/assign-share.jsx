@@ -91,7 +91,7 @@ class DlgAssign extends RbModalHandler {
     
     post() {
         let tous = $(this.refs['toUser']).val()
-        if (!!!tous || tous.length == 0) { rb.notice('请选择' + this.typeName + '给谁'); return }
+        if (!!!tous || tous.length == 0) { rb.highbar('请选择' + this.typeName + '给谁'); return }
         if ($.type(tous) == 'array') tous = tous.join(',')
         let cass = this.state.cascadesShow == true ? $(this.refs['cascades']).val().join(',') : ''
         
@@ -102,14 +102,14 @@ class DlgAssign extends RbModalHandler {
                 $(this.refs['toUser'], this.refs['cascades']).val(null).trigger('change')
                 
                 this.hide()
-                rb.notice('已成功' + this.typeName + ' ' + (res.data.assigned || res.data.shared)  + ' 条记录', 'success')
+                rb.highbar('已成功' + this.typeName + ' ' + (res.data.assigned || res.data.shared)  + ' 条记录', 'success')
                 
                 setTimeout(()=>{
                     if (window.RbListPage) RbListPage._RbList.reload()
                     if (window.RbViewPage) location.reload()
                 }, 500)
             } else {
-                rb.notice(res.error_msg || ('操作失败，请稍后重试'), 'danger')
+                rb.hberror(res.error_msg)
             }
             btns.button('reset')
         })
@@ -166,19 +166,19 @@ class DlgUnShare extends RbModalHandler {
     }
     post() {
         let s = this.state.selectAccess
-        if (s.length == 0){ rb.notice('请选择需要取消共享的用户'); return }
+        if (s.length == 0){ rb.highbar('请选择需要取消共享的用户'); return }
         
         let btns = $(this.refs['btns']).button('loading')
         $.post(`${rb.baseUrl}/app/entity/record-unshare?id=${s.join(',')}&record=${this.props.id}`, (res)=>{
             if (res.error_code == 0){
                 this.hide()
-                rb.notice('已取消 ' + res.data.unshared  + ' 位用户的共享', 'success')
+                rb.highbar('已取消 ' + res.data.unshared  + ' 位用户的共享', 'success')
                 setTimeout(()=>{
                     if (window.RbListPage) RbListPage._RbList.reload()
                     if (window.RbViewPage) location.reload()
                 }, 500)
             } else {
-                rb.notice(res.error_msg || ('操作失败，请稍后重试'), 'danger')
+                rb.hberror(res.error_msg)
             }
             btns.button('reset')
         })

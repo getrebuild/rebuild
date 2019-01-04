@@ -199,9 +199,9 @@ class DlgDashSettings extends RbFormHandler {
         _data.metadata = { id: this.props.dashid, entity: 'DashboardConfig' }
         $.post(rb.baseUrl + '/dashboard/dash-update', JSON.stringify(_data), (res)=>{
             if (res.error_code == 0){
-                rb.notice('设置已保存', 'success')
+                rb.highbar('设置已保存', 'success')
                 this.hide()
-            } else rb.notice(res.error_msg, 'danger')
+            } else rb.hberror(res.error_msg)
         })
     }
 }
@@ -244,7 +244,7 @@ class DlgDashAdd extends RbFormHandler {
         $.post(rb.baseUrl + '/dashboard/dash-new', JSON.stringify(_data), (res)=>{
             if (res.error_code == 0){
                 location.href = '?d=' + res.data.id
-            } else rb.notice(res.error_msg, 'danger')
+            } else rb.hberror(res.error_msg)
         })
     }
 }

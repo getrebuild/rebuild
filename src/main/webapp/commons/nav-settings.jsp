@@ -103,16 +103,16 @@ $(document).ready(function(){
 	
 	$('.J_menuConfirm').click(function(){
 		let name = $val('.J_menuName')
-		if (!!!name) { rb.notice('请输入菜单名称'); return }
+		if (!!!name) { rb.highbar('请输入菜单名称'); return }
 		let type = $('.J_menuType.active').attr('href').substr(1)
 		let value;
 		if (type == 'ENTITY'){
 			value = $val('.J_menuEntity')
-			if (!!!value){ rb.notice('请选择实体'); return }
+			if (!!!value){ rb.highbar('请选择实体'); return }
 		} else {
 			value = $val('.J_menuUrl')
-			if (!!!value){ rb.notice('请输入 URL'); return }
-			else if (!!value && !$regex.isUrl(value)){ rb.notice('请输入有效的 URL'); return }
+			if (!!!value){ rb.highbar('请输入 URL'); return }
+			else if (!!value && !$regex.isUrl(value)){ rb.highbar('请输入有效的 URL'); return }
 		}
 		let icon = $('.J_menuIcon i').attr('class').replace('zmdi zmdi-', '')
 		render_item({ id: item_currentid, text: name, type: type, value: value, icon: icon })
@@ -130,7 +130,7 @@ $(document).ready(function(){
 			let item = build_item($(this), navs)
 			if (!!item) navs.push(item)
 		})
-		if (navs.length == 0) { rb.notice('请至少设置一个菜单项'); return }
+		if (navs.length == 0) { rb.highbar('请至少设置一个菜单项'); return }
 		
 		let btn = $(this).button('loading')
 		$.post(rb.baseUrl + '/app/settings/nav-settings?cfgid=' + cfgid + '&toAll=' + $('#applyTo').prop('checked'), JSON.stringify(navs), function(res){

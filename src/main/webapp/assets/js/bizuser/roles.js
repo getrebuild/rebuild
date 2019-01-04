@@ -107,7 +107,7 @@ const loadPrivileges = function() {
             })
         }else{
             $('.J_save').attr('disabled', true)
-            rb.notice(res.error_msg)
+            rb.highbar(res.error_msg)
         }
     })
 }
@@ -139,12 +139,12 @@ const updatePrivileges = function() {
     
     let priv = { entity: privEntity, zero: privZero }
     $.post(rb.baseUrl + '/admin/bizuser/privileges-update?role=' + role_id, JSON.stringify(priv), function(){
-        rb.notice('保存成功', 'success')
+    	rb.hbsuccess('保存成功')
     })
 }
 const deleteRole = function(id){
     $.post(rb.baseUrl + '/admin/bizuser/role-delete?transfer=&id=' + id, function(res){
         if (res.error_code == 0) location.replace(rb.baseUrl + '/admin/bizuser/role-privileges')
-        else rb.notice(res.error_msg, 'danger')
+        else rb.hberror(res.error_msg)
     })
 }

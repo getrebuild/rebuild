@@ -484,7 +484,7 @@ a {
     color: #878787;
     margin-top: 6px;
 }
-.rbnotice {
+.rbhighbar {
     position: fixed;
     min-width: 360px;
     top: 0;
@@ -492,7 +492,7 @@ a {
     margin-left: -180px;
     z-index: 1051;
 }
-.rbnotice a {
+.rbhighbar a {
     color: #fff
 }
 .ui-mprogress .bar-bg, .ui-mprogress .buffer-bg {

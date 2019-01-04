@@ -60,7 +60,7 @@ class RbFormAvatar extends RbFormElement {
             postUrl: rb.baseUrl + '/filex/upload?cloud=auto&type=image',
             onClientLoad: function(e, file){
                 if (file.type.substr(0, 5) != 'image'){
-                    rb.notice('请上传图片')
+                    rb.highbar('请上传图片')
                     return false
                 }
             },
@@ -68,7 +68,7 @@ class RbFormAvatar extends RbFormElement {
                 d = JSON.parse(d.currentTarget.response)
                 if (d.error_code == 0){
                     that.handleChange({ target:{ value: d.data } }, true)
-                } else rb.notice(d.error_msg || '上传失败，请稍后重试', 'danger')
+                } else rb.highbar(d.error_msg || '上传失败，请稍后重试', 'danger')
             }
         })
     }

@@ -79,10 +79,10 @@ const RbViewPage = {
                 let thatModal = this
                 $.post(`${rb.baseUrl}/app/entity/record-delete?id=${that.__id}`, function(res){
                     if (res.error_code == 0){
-                        rb.notice('删除成功', 'success')
+                        rb.highbar('删除成功', 'success')
                         that.hide(true)
                     } else {
-                        rb.notice(res.error_msg || '删除失败，请稍后重试', 'danger')
+                        rb.hberror(res.error_msg)
                     }
                 })
             }

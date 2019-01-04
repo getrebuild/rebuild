@@ -1,6 +1,6 @@
 // Page initial
 $(function(){
-	let t = $('.rb-scroller')
+	var t = $('.rb-scroller')
 	t.perfectScrollbar()
 	$(window).resize(function(){
 		$setTimeout(function(){ t.perfectScrollbar('update') }, 500, 'rb-scroller-update')
@@ -12,7 +12,7 @@ $(function(){
 	// In top-frame
 	if ($('.rb-left-sidebar').length > 0){
 		$('.sidebar-elements>li>a').each(function(){
-			let _this = $(this)
+			var _this = $(this)
 			_this.tooltip({ placement: 'right', title: _this.find('span').text().trim(), delay: 200 })
 		})
 		__initNavs()
@@ -34,19 +34,19 @@ $(function(){
 		$('.J_notifications-top').on('shown.bs.dropdown', __loadMessages)
 	}
 	
-	let keydown_times = 0
+	var keydown_times = 0
 	$(document.body).keydown((e)=>{
 		if (e.ctrlKey && e.altKey && e.which == 88) command_exec(++keydown_times)
 	})
 })
 // Trigger on Ctrl+Alt+X
 // @t - trigger times
-let command_exec = function(t){
+var command_exec = function(t){
 }
 
 // MainNav
-const __initNavs = function(){
-	const isOffcanvas = $('.rb-offcanvas-menu').length > 0  // Float mode
+var __initNavs = function(){
+	var isOffcanvas = $('.rb-offcanvas-menu').length > 0  // Float mode
 	
 	// Nav
 	if (isOffcanvas) {
@@ -57,8 +57,8 @@ const __initNavs = function(){
 		$('.sidebar-elements>li>a').tooltip('disable')
 	} else {
 		$('.rb-toggle-left-sidebar').click(function(){
-			let el = $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
-			let collapsed = el.hasClass('rb-collapsible-sidebar-collapsed')
+			var el = $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
+			var collapsed = el.hasClass('rb-collapsible-sidebar-collapsed')
 			$storage.set('rb-sidebar-collapsed', collapsed)
 			$('.sidebar-elements>li>a').tooltip('toggleEnabled')
 			$(window).trigger('resize')
@@ -71,9 +71,9 @@ const __initNavs = function(){
 	}
 	
 	// SubNavs
-	let currsntSubnav
+	var currsntSubnav
 	$('.sidebar-elements li.parent').click(function(e){
-		let _this = $(this)
+		var _this = $(this)
 		_this.toggleClass('open')
 		_this.find('.sub-menu').toggleClass('visible')
 		e.stopPropagation()
@@ -94,7 +94,7 @@ const __initNavs = function(){
 		}
 	})
 	
-	let activeNav = $('.sidebar-elements li.active')
+	var activeNav = $('.sidebar-elements li.active')
 	if (activeNav.parents('li.parent').length > 0) {
 		activeNav.parents('li.parent').addClass('active').first().trigger('click')
 		$(document.body).trigger('click')
@@ -107,7 +107,7 @@ const __initNavs = function(){
 	}).text($('.rb-right-navbar .page-title').text())
 	
 	// aside
-	let aside = $('.page-aside')
+	var aside = $('.page-aside')
 	if (aside.length > 0) {
 		$('.page-aside .aside-header').click(function(){
 			$(this).toggleClass('collapsed')
@@ -121,27 +121,25 @@ const __initNavs = function(){
 }
 
 // Check notification
-let __checkMessage__state = 0
-const __checkMessage = function(){
+var __checkMessage__state = 0
+var __checkMessage = function(){
 	$.get(rb.baseUrl + '/app/notification/check-message', function(res){
 		$('.J_notifications-top .badge').text(res.data.unread)
-		if (res.data.unread > 0){
-			$('.J_notifications-top .indicator').removeClass('hide')
-		} else {
-			$('J_notifications-top .indicator').addClass('hide')
-		}
+		if (res.data.unread > 0) $('.J_notifications-top .indicator').removeClass('hide')
+		else $('J_notifications-top .indicator').addClass('hide')
+		
 		if (__checkMessage__state != res.data.unread) __loadMessages__state = 0
 		__checkMessage__state = res.data.unread
 		setTimeout(__checkMessage, 3000 * (rb.env == 'dev' ? 10 : 1))
 	})
 }
-let __loadMessages__state = 0
-const __loadMessages = function(){
+var __loadMessages__state = 0
+var __loadMessages = function(){
 	if (__loadMessages__state == 1) return
-	$.get(rb.baseUrl + '/app/notification/list?pageSize=10', (res)=>{
-		let el = $('.rb-notifications .content ul').empty()
+	$.get(rb.baseUrl + '/app/notification/list?pageSize=10', function(res){
+		var el = $('.rb-notifications .content ul').empty()
 		$(res.data).each((idx, item)=>{
-			let o = $('<li class="notification"></li>').appendTo(el)
+			var o = $('<li class="notification"></li>').appendTo(el)
 			if (item[3] == true) o.addClass('notification-unread')
 			o = $('<a href="' + rb.baseUrl + '/app/notifications#id=' + item[4] + '"></a>').appendTo(o)
 			$('<div class="image"><img src="' + item[0][1] + '" alt="Avatar"></div>').appendTo(o)
@@ -157,16 +155,16 @@ const __loadMessages = function(){
 }
 
 // @mbg = .btn-group
-const $cleanMenu = function(mbg){
+var $cleanMenu = function(mbg){
 	mbg = $(mbg)
-	let mbgMenu = mbg.find('.dropdown-menu')
-	let first = mbgMenu.children().first()
+	var mbgMenu = mbg.find('.dropdown-menu')
+	var first = mbgMenu.children().first()
 	if (first.hasClass('dropdown-divider')) first.remove()
-	let last = mbgMenu.children().last()
+	var last = mbgMenu.children().last()
 	if (last.hasClass('dropdown-divider')) last.remove()
 	
 	$(mbgMenu.children()).each(function(){
-		let item = $(this)
+		var item = $(this)
 		if (item.hasClass('hide')) item.remove()
 	})
 	

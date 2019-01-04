@@ -73,7 +73,7 @@ $(document).ready(function(){
 		let unread = $('.J_list .unread').each(function(){
 			ids.push($(this).data('id'))
 		})
-		if (ids.length == 0){ rb.notice('所有消息已设为读', 'success'); return }
+		if (ids.length == 0){ rb.hbsuccess('所有消息已设为读'); return }
 		
 		unread.off('click')
 		$.post(rb.baseUrl + '/app/notification/toggle-unread?state=read&id=' + ids.join(','), function(res){
@@ -81,7 +81,7 @@ $(document).ready(function(){
 				$(this).removeClass('unread')
 				$(this).find('.unread-flag').remove()
 			})
-			rb.notice('所有消息已设为读', 'success')
+			rb.hbsuccess('所有消息已设为读')
 		})
 	})
 	

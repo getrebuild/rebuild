@@ -63,7 +63,7 @@ $(document).ready(function(){
 	
 	$('.J_confirm').click(function(){
 		let text = $val('.J_text');
-		if (!!!text){ rb.notice('请输入选项文本'); return; }
+		if (!!!text){ rb.highbar('请输入选项文本'); return }
 		let id = $('.J_text').attr('attr-id')
 		$('.J_text').val('').attr('attr-id', '')
 		$('.J_confirm').text('添加')
@@ -95,7 +95,7 @@ $(document).ready(function(){
 		let btn = $(this).button('loading')
 		$.post(rb.baseUrl + '/admin/field/picklist-sets?' + query, _data, function(res){
 			btn.button('reset')
-			if (res.error_code > 0) rb.notice(res.error_msg, 'danger')
+			if (res.error_code > 0) rb.hberror(res.error_msg)
 			else parent.location.reload()
 		})
 	})

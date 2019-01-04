@@ -25,7 +25,7 @@ $(document).ready(function(){
 		_btn.button('loading')
 		$.post('../entity-update', JSON.stringify(_data), function(res){
 			if (res.error_code == 0) location.reload()
-			else rb.notice(res.error_msg, 'danger')
+			else rb.hberror(res.error_msg)
 		})
 	})
 	

@@ -56,10 +56,7 @@ $(document).ready(() => {
 	
 	$('.rb-toggle-left-sidebar').attr('title', '完成').off('click').on('click', () => {
 	    let cfg = build_config()
-	    if (!!!cfg){
-	        rb.notice('当前图表无数据')
-	        return
-	    }
+	    if (!!!cfg){ rb.highbar('当前图表无数据'); return }
 	    let _data = { config: JSON.stringify(cfg), title: cfg.title, belongEntity: cfg.entity, type: cfg.type }
 	    _data.metadata = { entity: 'ChartConfig', id: window.__chartId }
 	    
@@ -68,7 +65,7 @@ $(document).ready(() => {
             if (res.error_code == 0){
                 // window.__chartId = res.data.id
                 location.href = (!!dash ? ('home?d=' + dash) : 'home') + '#' + res.data.id
-            } else rb.notice(res.error_msg, 'danger')
+            } else rb.hberror(res.error_msg)
         })
 	    
 	}).find('.zmdi').addClass('zmdi-arrow-left')

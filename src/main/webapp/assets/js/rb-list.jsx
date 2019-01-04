@@ -146,7 +146,7 @@ class RbList extends React.Component {
                 that.setState(state)
                 
             }else{
-                rb.notice(res.error_msg || '加载失败，请稍后重试', 'danger')
+                rb.hberror(res.error_msg)
             }
             $('#react-list').removeClass('rb-loading-active')
         })
@@ -271,7 +271,7 @@ class RbList extends React.Component {
         return this.__selectedRows
     }
     getSelectedIds() {
-        if (!this.__selectedRows || this.__selectedRows.length < 1) { rb.notice('未选中任何记录'); return [] }
+        if (!this.__selectedRows || this.__selectedRows.length < 1) { rb.highbar('未选中任何记录'); return [] }
         let ids = this.__selectedRows.map((item) => { return item[0] })
         return ids
     }
@@ -396,10 +396,10 @@ const RbListPage = {
                     if (res.error_code == 0){
                         that._RbList.reload()
                         thatModal.hide()
-                        if (res.data.deleted == res.data.requests) rb.notice('删除成功', 'success')
-                        else rb.notice('删除了 ' + res.data.deleted + ' 条记录', 'success')
+                        if (res.data.deleted == res.data.requests) rb.highbar('删除成功', 'success')
+                        else rb.highbar('删除了 ' + res.data.deleted + ' 条记录', 'success')
                     } else {
-                        rb.notice(res.error_msg || '删除失败，请稍后重试', 'danger')
+                        rb.hberror(res.error_msg)
                     }
                     btns.button('reset')
                 })
@@ -477,7 +477,7 @@ const QuickFilters = {
     },
     fireFilter(val) {
         if (!this.filterExp || this.filterExp.items.length == 0){
-            rb.notice('请先设置查询字段')
+            rb.highbar('请先设置查询字段')
             return
         }
         this.filterExp.values = { 1: val }
@@ -533,7 +533,7 @@ const AdvFilters = {
                             $.post(`${rb.baseUrl}/app/entity/advfilter/delete?id=${_data[0]}`, (res)=>{
                                 if (res.error_code == 0){
                                     _alert.hide()
-                                    rb.notice('过滤项已删除', 'success')
+                                    rb.highbar('过滤项已删除', 'success')
                                     that.loadFilters()
                                     
                                     if (dfilter == _data[0]) {
@@ -541,7 +541,7 @@ const AdvFilters = {
                                         $('.adv-search .J_name').text('所有数据')
                                     }
                                     
-                                } else rb.notice(res.error_msg, 'danger')
+                                } else rb.hberror(res.error_msg)
                             })
                         } })
                         return false
@@ -567,9 +567,9 @@ const AdvFilters = {
         if (toAll === true || toAll === false) url += '&toAll=' + toAll
         $.post(url, JSON.stringify(filter), function(res){
             if (res.error_code == 0){
-                rb.notice('过滤项已保存', 'success')
+                rb.highbar('过滤项已保存', 'success')
                 that.loadFilters()
-            } else rb.notice(res.error_msg, 'danger')
+            } else rb.hberror(res.error_msg)
         })
     },
     

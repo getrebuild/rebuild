@@ -70,8 +70,8 @@ $(document).ready(function() {
 		let user = $val('#user'), 
 			passwd = $val('#passwd'),
 			vcode = $val('#vcode')
-		if (!user || !passwd){ rb.notice('请输入用户名和密码'); return }
-		if ($('.J_captcha').length > 0 && !vcode){ rb.notice('请输入验证码'); return }
+		if (!user || !passwd){ rb.highbar('请输入用户名和密码'); return }
+		if ($('.J_captcha').length > 0 && !vcode){ rb.highbar('请输入验证码'); return }
 		
 		btn.button('loading')
 		let url = rb.baseUrl + '/user/user-login?user=' + $encode(user) + '&passwd=' + $encode(passwd) + '&autoLogin=' + $val('#autoLogin')
@@ -81,7 +81,7 @@ $(document).ready(function() {
 			else if (res.error_msg == 'VCODE') location.reload()
 			else{
 				$('.J_captcha').trigger('click')
-				rb.notice(res.error_msg || '登录失败，请稍后重试')
+				rb.highbar(res.error_msg || '登录失败，请稍后重试')
 				btn.button('reset')
 			}
 		})

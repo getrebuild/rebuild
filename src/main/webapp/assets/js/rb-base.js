@@ -35,11 +35,11 @@
 		cache : false,
 		complete : function(xhr) {
 			if (xhr.status == 200 || xhr.status == 0){ }  // OK
-			else if (xhr.status == 403 || xhr.status == 401) rb.notice(xhr.responseText || '无权访问', 'danger')
+			else if (xhr.status == 403 || xhr.status == 401) rb.hberror(xhr.responseText || '未授权访问')
 			else{
 				var error = xhr.responseText
 				if (error && error.contains('Exception : ')) error = error.split('Exception : ')[1]
-				rb.notice((error || '系统繁忙，请稍后重试') + ' [' + xhr.status + ']', 'danger', { timeout: 6000 })
+				rb.hberror(error)
 			}
 		}
 	})

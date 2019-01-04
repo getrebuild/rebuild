@@ -39,7 +39,7 @@ const toggleDisabled = function(disabled){
     _data.metadata = { entity: 'User', id: user_id }
     $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), function(res){
         if (res.error_code == 0){
-            rb.notice('用户已' + (disabled ? '停用' : '启用'), 'success')
+            rb.highbar('用户已' + (disabled ? '停用' : '启用'), 'success')
             setTimeout(()=>{ location.reload() }, 500)
         }
     })
@@ -93,11 +93,11 @@ class DlgChangeDept extends RbModalHandler {
     }
     post() {
         let dept = this.__select2.val()
-        if (!!!dept){ rb.notice('请选择新部门'); return }
+        if (!!!dept){ rb.highbar('请选择新部门'); return }
         let btns = $(this.refs['btns']).find('.btn').button('loading')
         $.post(rb.baseUrl + '/admin/bizuser/change-dept?dept=' + dept + '&user=' + this.props.user, (res)=>{
             if (res.error_code == 0) location.reload()
-            else rb.notice(res.error_msg, 'danger')
+            else rb.hberror(res.error_msg)
             btns.button('reset')
         })
     }
@@ -112,11 +112,11 @@ class DlgChangeRole extends DlgChangeDept {
     }
     post() {
         let role = this.__select2.val()
-        if (!!!role){ rb.notice('请选择新角色'); return }
+        if (!!!role){ rb.highbar('请选择新角色'); return }
         let btns = $(this.refs['btns']).find('.btn').button('loading')
         $.post(rb.baseUrl + '/admin/bizuser/change-role?role=' + role + '&user=' + this.props.user, (res)=>{
             if (res.error_code == 0) location.reload()
-            else rb.notice(res.error_msg, 'danger')
+            else rb.hberror(res.error_msg)
             btn.button('reset')
         })
     }

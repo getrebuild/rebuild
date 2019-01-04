@@ -47,7 +47,7 @@ $(document).ready(function(){
 		$.post('admin-verify?passwd=' + passwd, function(res) {
 			if (res.error_code == 0) location.replace(nexturl)
 			else{
-				rb.notice(res.error_msg)
+				rb.highbar(res.error_msg)
 				but.button('reset')
 			}
 		})

@@ -112,7 +112,7 @@ class AdvFilter extends React.Component {
     addItem(cfg){
         if (!this.fields) return
         let _items = this.state.items || []
-        if (_items.length >= 9){ rb.notice('最多可添加9个条件'); return }
+        if (_items.length >= 9){ rb.highbar('最多可添加9个条件'); return }
         
         let id = 'item-' + $random()
         let props = { fields: this.fields, $$$parent: this, key: id, id: id, onRef: this.onRef, index: _items.length + 1 }
@@ -166,8 +166,8 @@ class AdvFilter extends React.Component {
             if (!!!fj) hasError = true
             else filters.push(fj)
         }
-        if (hasError){ rb.notice('部分条件设置有误，请检查'); return }
-        if (filters.length == 0){ rb.notice('请至少添加1个条件'); return }
+        if (hasError){ rb.highbar('部分条件设置有误，请检查'); return }
+        if (filters.length == 0){ rb.highbar('请至少添加1个条件'); return }
         
         let adv = { entity: this.props.entity, items: filters }
         if (this.state.enableEquation == true) adv.equation = this.state.equation
@@ -181,7 +181,7 @@ class AdvFilter extends React.Component {
         else{
             $.post(rb.baseUrl + '/app/entity/advfilter/test-parse', JSON.stringify(adv), function(res){
                 if (res.error_code == 0) console.log(JSON.stringify(adv) + '\n>> ' + res.data)
-                else rb.notice(res.error_msg, 'danger')
+                else rb.hberror(res.error_msg)
             })
         }
         if (this.props.inModal) this.refs['dlg'].hide()
@@ -424,7 +424,7 @@ class FilterItem extends React.Component {
                         that.renderPickListAfter()
                     })
                 } else{
-                    rb.notice(res.error_msg, 'danger')
+                    rb.hberror(res.error_msg)
                 }
             })
         }

@@ -86,9 +86,9 @@ $(document).ready(function(){
 			$(this.refs['rbalert']).find('button').button('loading')
 			$.post('../entity-drop?id=' + metaId, function(res){
 				if (res.error_code == 0){
-					rb.notice('实体已删除', 'success')
+					rb.hbsuccess('实体已删除')
 					setTimeout(function(){ location.replace('../../entities') }, 1500)
-				}else rb.notice(res.error_msg, 'danger')
+				}else rb.hberror(res.error_msg)
 			})
 		} })
 	})
