@@ -36,7 +36,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 09/15/2018
  */
-public class LayoutManager {
+public class LayoutManager implements PortalsManager {
 	
 	protected static final Log LOG = LogFactory.getLog(LayoutManager.class);
 	

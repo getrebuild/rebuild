@@ -36,7 +36,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 09/06/2018
  */
-public class PickListManager {
+public class PickListManager implements PortalsManager {
 
 	/**
 	 * @param field

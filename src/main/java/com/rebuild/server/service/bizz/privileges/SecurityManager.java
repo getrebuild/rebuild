@@ -16,17 +16,17 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.bizz.privileges;
+package com.rebuild.server.service.bizz.privileges;
 
 import org.springframework.util.Assert;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.bizz.RoleService;
-import com.rebuild.server.bizz.UserService;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.IEntityService;
+import com.rebuild.server.service.bizz.RoleService;
+import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.bizz.privileges.DepthEntry;
 import cn.devezhao.bizz.privileges.Permission;
@@ -329,8 +329,8 @@ public class SecurityManager {
 			return true;
 		}
 		
-		com.rebuild.server.bizz.privileges.User accessUser = theUserStore.getUser(user);
-		com.rebuild.server.bizz.privileges.User targetUser = theUserStore.getUser(targetUserId);
+		com.rebuild.server.service.bizz.privileges.User accessUser = theUserStore.getUser(user);
+		com.rebuild.server.service.bizz.privileges.User targetUser = theUserStore.getUser(targetUserId);
 		Department accessUserDept = (Department) accessUser.getOwningDept();
 		
 		if (BizzDepthEntry.LOCAL.equals(depth)) {

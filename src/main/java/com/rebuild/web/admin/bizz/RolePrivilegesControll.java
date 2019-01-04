@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.admin.bizuser;
+package com.rebuild.web.admin.bizz;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,10 +34,10 @@ import org.springframework.web.servlet.ModelAndView;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.bizz.RoleService;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.service.bizz.RoleService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 

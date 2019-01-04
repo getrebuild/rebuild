@@ -21,7 +21,7 @@ package com.rebuild.server.service.query;
 import org.springframework.util.Assert;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.bizz.privileges.EntityQueryFilter;
+import com.rebuild.server.service.bizz.privileges.EntityQueryFilter;
 
 import cn.devezhao.persist4j.Filter;
 import cn.devezhao.persist4j.PersistManagerFactory;

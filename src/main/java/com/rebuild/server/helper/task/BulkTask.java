@@ -16,24 +16,31 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.job;
+package com.rebuild.server.helper.task;
 
 import java.util.Date;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import cn.devezhao.commons.CalendarUtils;
 
 /**
- * 耗时操作
+ * 耗时操作可通过此类进行，例如大批量删除/修改等。此类提供了进度相关的约定，如总计执行条目，已完成条目/百分比。
+ * 集成此类应该处理线程的 <code>isInterrupted</code> 方法，以便任务可以被终止 
  * 
  * @author devezhao
  * @since 09/29/2018
  */
 public abstract class BulkTask implements Runnable {
 	
+	protected final Log LOG = LogFactory.getLog(getClass());
+	
 	private int total = -1;
 	private int complete = 0;
 	
 	private Date beginTime;
+	private Date completedTime;
 	
 	/**
 	 */
@@ -42,26 +49,53 @@ public abstract class BulkTask implements Runnable {
 	}
 	
 	/**
-	 * @param totalQuantity
+	 * @param total
 	 */
 	protected void setTotal(int total) {
 		this.total = total;
 	}
 	
 	/**
-	 * @param completeQuantity
+	 * @param complete
 	 */
 	protected void setComplete(int complete) {
 		this.complete = complete;
 	}
+	
+	/**
+	 */
+	protected void setCompleteOne() {
+		this.complete++;
+	}
 
 	/**
-	 * 执行完毕后调用
+	 * 子类应该在执行完毕后调用此方法
 	 */
-	protected void completeAfter() {
+	protected void completedAfter() {
+		this.completedTime = CalendarUtils.now();
+	}
+
+	/**
+	 * 任务启动时间
+	 * 
+	 * @return
+	 */
+	protected Date getBeginTime() {
+		return beginTime;
 	}
 	
 	/**
+	 * 任务完成时间
+	 * 
+	 * @return
+	 */
+	protected Date getCompletedTime() {
+		return completedTime;
+	}
+	
+	/**
+	 * 总计执行条目
+	 * 
 	 * @return
 	 */
 	public int getTotal() {
@@ -69,6 +103,8 @@ public abstract class BulkTask implements Runnable {
 	}
 	
 	/**
+	 * 已完成条目
+	 * 
 	 * @return
 	 */
 	public int getComplete() {
@@ -76,7 +112,7 @@ public abstract class BulkTask implements Runnable {
 	}
 	
 	/**
-	 * 任务完成率
+	 * 完成率
 	 * 
 	 * @return
 	 */
@@ -106,5 +142,15 @@ public abstract class BulkTask implements Runnable {
 	 */
 	public long getElapsedTime() {
 		return CalendarUtils.now().getTime() - beginTime.getTime();
+	}
+	
+	// -- for Thread
+	
+	public void interrupt() {
+		Thread.currentThread().interrupt();
+	}
+	
+	public boolean isInterrupted() {
+		return Thread.currentThread().isInterrupted();
 	}
 }

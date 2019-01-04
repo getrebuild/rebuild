@@ -16,7 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.job;
+package com.rebuild.server.service.base;
+
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -24,8 +26,12 @@ import org.apache.commons.logging.LogFactory;
 
 import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.rebuild.server.Application;
-import com.rebuild.server.bizz.UserService;
+import com.rebuild.server.helper.manager.PickListManager;
+import com.rebuild.server.helper.task.BulkTask;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.entityhub.DisplayType;
+import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -33,7 +39,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * TODO QuickCode 重建
+ * QuickCode 重建
  * 
  * @author devezhao
  * @since 12/28/2018
@@ -63,29 +69,69 @@ public class QuickCodeReindexTask extends BulkTask {
 				entity.getPrimaryField().getName(), nameFiled.getName(), entity.getName());
 		int page = 1;
 		while (true) {
-			Object[][] array =  Application.createQueryNoFilter(sql)
+			List<Record> records =  Application.createQueryNoFilter(sql)
 					.setLimit(1000, page * 1000 - 1000)
-					.array();
-			for (Object[] o : array) {
-				String nameVal = (String) o[1];
-				String quickCodeNew = generateQuickCode(nameVal);
-				if (quickCodeNew.equals(o[2])) {
-					break;
+					.list();
+			
+			this.setTotal(records.size() + this.getTotal() + 1);
+			for (Record o : records) {
+				this.setCompleteOne();
+				
+				String quickCodeNew = generateQuickCode(o);
+				if (quickCodeNew == null) {
+					continue;
+				}
+				if (quickCodeNew.equals(o.getString(EntityHelper.QuickCode))) {
+					continue;
 				}
 				
-				Record record = EntityHelper.forUpdate((ID) o[0], UserService.SYSTEM_USER);
+				Record record = EntityHelper.forUpdate(o.getPrimary(), UserService.SYSTEM_USER);
 				record.setString("quickCode", quickCodeNew);
 				record.removeValue(EntityHelper.ModifiedBy);
 				record.removeValue(EntityHelper.ModifiedOn);
 				Application.getCommonService().update(record);
 			}
 			
-			if (array.length < 1000) {
+			if (records.size() < 1000) {
 				break;
 			}
 		}
 		
-		completeAfter();
+		this.setTotal(this.getTotal() - 1);
+		completedAfter();
+	}
+	
+	// --
+	
+	/**
+	 * @param record
+	 * @return
+	 */
+	public static String generateQuickCode(Record record) {
+		Entity entity = record.getEntity();
+		if (!entity.containsField(EntityHelper.QuickCode)) {
+			return null;
+		}
+		
+		Field nameField = entity.getNameField();
+		if (!record.hasValue(nameField.getName())) {
+			return null;
+		}
+		
+		DisplayType dt = EasyMeta.getDisplayType(nameField);
+		String nameVal = null;
+		if (dt == DisplayType.TEXT) {
+			nameVal = record.getString(nameField.getName());
+		} else if (dt == DisplayType.PICKLIST) {
+			ID plid = record.getID(nameField.getName());
+			nameVal = PickListManager.getLabel(plid);
+		}
+		
+		if (nameVal != null) {
+			return generateQuickCode(nameVal);
+		} else {
+			return null;
+		}
 	}
 	
 	/**

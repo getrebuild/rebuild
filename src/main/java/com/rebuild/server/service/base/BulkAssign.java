@@ -35,12 +35,11 @@ public class BulkAssign extends BulkOperator {
 	}
 
 	@Override
-	public Object operate() {
+	public Integer operate() {
 		ID[] records = getWillRecords();
+		this.setTotal(records.length);
 		
-		int complated = 0;
 		int assigned = 0;
-		
 		for (ID id : records) {
 			if (Application.getSecurityManager().allowedA(context.getOpUser(), id)) {
 				int a = ges.assign(id, context.getToUser(), context.getCascades());
@@ -48,10 +47,10 @@ public class BulkAssign extends BulkOperator {
 			} else {
 				LOG.warn("No have privileges to ASSIGN : " + context.getOpUser() + " > " + id);
 			}
-			
-			complated++;
-			setComplete(complated);
+			this.setCompleteOne();
 		}
+		
+		this.completedAfter();
 		return assigned;
 	}
 }

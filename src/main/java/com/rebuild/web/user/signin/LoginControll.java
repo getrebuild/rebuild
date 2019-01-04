@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.bizz.privileges.User;
+import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.utils.AES;
 import com.rebuild.web.BaseControll;
 import com.wf.captcha.utils.CaptchaUtil;

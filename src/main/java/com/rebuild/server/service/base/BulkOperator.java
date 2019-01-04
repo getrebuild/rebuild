@@ -22,7 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.job.BulkTask;
+import com.rebuild.server.helper.task.BulkTask;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.query.AdvFilterParser;
 
@@ -91,8 +91,8 @@ public abstract class BulkOperator extends BulkTask {
 	/**
 	 * 实际执行
 	 * 
-	 * @return
+	 * @return 执行数量
 	 */
-	abstract public Object operate();
+	abstract public Integer operate();
 	
 }

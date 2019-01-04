@@ -31,8 +31,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
-import com.rebuild.server.bizz.UserHelper;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 

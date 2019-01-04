@@ -16,37 +16,73 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.job;
+package com.rebuild.server.helper.task;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
 import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.ThreadPool;
 
 /**
- * 大任务执行调度
+ * 任务执行调度/管理
  * 
  * @author devezhao
  * @since 09/29/2018
  */
 public class BulkTaskExecutor extends QuartzJobBean {
-
+	
+	private static final int EXECS_MAX = 4;
+	private static final ExecutorService EXECS = Executors.newFixedThreadPool(EXECS_MAX);
+	
 	private static final Map<String, BulkTask> TASKS = new ConcurrentHashMap<>();
 	
 	/**
+	 * 提交给任务调度（异步执行）
+	 * 
 	 * @param task
-	 * @return
+	 * @return 任务 ID
 	 */
 	public static String submit(BulkTask task) {
+		ThreadPoolExecutor tpe = (ThreadPoolExecutor) EXECS;
+		if (tpe.getTaskCount() > EXECS_MAX * 5) {
+			throw new RejectedExecutionException("Too many task : " + tpe.getTaskCount());
+		}
+		
 		String taskid = task.getClass().getSimpleName() + "-" + CodecUtils.randomCode(20);
+		EXECS.execute(task);
 		TASKS.put(taskid, task);
-		ThreadPool.exec(task);
 		return taskid;
+	}
+	
+	/**
+	 * 取消执行
+	 * 
+	 * @param task
+	 */
+	public static boolean cancel(String taskid) {
+		BulkTask task = TASKS.get(taskid);
+		if (task == null) {
+			throw new RejectedExecutionException("No Task found : " + taskid);
+		}
+		task.interrupt();
+		return task.isInterrupted();
+	}
+	
+	/**
+	 * 直接执行此方法（同步方式）
+	 * 
+	 * @param task
+	 */
+	public static void run(BulkTask task) {
+		task.run();
 	}
 	
 	/**
@@ -61,8 +97,22 @@ public class BulkTaskExecutor extends QuartzJobBean {
 	
 	@Override
 	protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
-
-		// TODO 任务完成 2 小时了，移除
-		
+		for (Map.Entry<String, BulkTask> e : TASKS.entrySet()) {
+			BulkTask task = e.getValue();
+			if (!task.isCompleted()) {
+				continue;
+			}
+			
+			// 无完成时间不移除
+			if (task.getCompletedTime() == null) {
+				continue;
+			}
+			
+			long completedTime = (System.currentTimeMillis() - task.getCompletedTime().getTime()) / 1000;
+			if (completedTime > 60 * 120) {
+				TASKS.remove(e.getKey());
+				// TODO 任务完成后发内部通知
+			}
+		}
 	}
 }

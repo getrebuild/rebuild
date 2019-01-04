@@ -30,19 +30,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.bizz.privileges.PrivilegesGuardInterceptor;
-import com.rebuild.server.bizz.privileges.User;
 import com.rebuild.server.business.series.SeriesGeneratorFactory;
-import com.rebuild.server.job.BulkTaskExecutor;
-import com.rebuild.server.job.QuickCodeReindexTask;
+import com.rebuild.server.helper.task.BulkTaskExecutor;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entityhub.DisplayType;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.service.BaseService;
 import com.rebuild.server.service.ObservableService;
 import com.rebuild.server.service.OperatingContext;
+import com.rebuild.server.service.bizz.privileges.PrivilegesGuardInterceptor;
+import com.rebuild.server.service.bizz.privileges.User;
 
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
@@ -114,23 +112,13 @@ public class GeneralEntityService extends ObservableService  {
 	 * @param record
 	 */
 	protected void setQuickCodeValue(Record record) {
-		if (!record.getEntity().containsField(EntityHelper.QuickCode)) {
+		// 已设置了则不再设置
+		if (record.hasValue(EntityHelper.QuickCode)) {
 			return;
 		}
 		
-		Field nameField = record.getEntity().getNameField();
-		if (!record.hasValue(nameField.getName()) || record.hasValue(EntityHelper.QuickCode)) {
-			return;
-		}
-		
-		DisplayType dt = EasyMeta.getDisplayType(nameField);
-		String nameVal = null;
-		if (dt == DisplayType.TEXT) {
-			nameVal = record.getString(nameField.getName());
-		}
-		
-		if (nameVal != null) {
-			String quickCode = QuickCodeReindexTask.generateQuickCode(nameVal);
+		String quickCode = QuickCodeReindexTask.generateQuickCode(record);
+		if (quickCode != null) {
 			record.setString(EntityHelper.QuickCode, quickCode);
 		}
 	}

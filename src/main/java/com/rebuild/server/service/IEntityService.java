@@ -19,7 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.service;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.job.BulkTaskExecutor;
+import com.rebuild.server.helper.task.BulkTaskExecutor;
 import com.rebuild.server.service.base.BulkContext;
 
 import cn.devezhao.bizz.privileges.Permission;

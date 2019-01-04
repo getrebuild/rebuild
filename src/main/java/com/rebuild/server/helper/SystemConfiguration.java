@@ -30,8 +30,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.bizz.UserService;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;

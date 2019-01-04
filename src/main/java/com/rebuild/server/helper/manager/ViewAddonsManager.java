@@ -42,7 +42,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 10/22/2018
  */
-public class ViewAddonsManager {
+public class ViewAddonsManager implements PortalsManager {
 	
 	// 显示相关项
 	public static final String TYPE_TAB = "TAB";

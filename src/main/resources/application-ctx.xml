@@ -67,7 +67,7 @@
 	
 	<bean class="com.rebuild.web.OnlineSessionStore" />
 	
-	<bean name="userStore" class="com.rebuild.server.bizz.privileges.UserStore" init-method="init">
+	<bean name="userStore" class="com.rebuild.server.service.bizz.privileges.UserStore" init-method="init">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 	
@@ -100,7 +100,7 @@
 		<constructor-arg index="1" ref="ehcacheManager" />
 	</bean>
 
-	<bean class="com.rebuild.server.bizz.privileges.SecurityManager">
+	<bean class="com.rebuild.server.service.bizz.privileges.SecurityManager">
 		<constructor-arg index="0" ref="userStore" />
 		<constructor-arg index="1" ref="recordOwningCache" />
 	</bean>
@@ -120,7 +120,7 @@
 		</tx:attributes>
 	</tx:advice>
 	
-	<bean name="privilegesGuard" class="com.rebuild.server.bizz.privileges.PrivilegesGuardInterceptor" />
+	<bean name="privilegesGuard" class="com.rebuild.server.service.bizz.privileges.PrivilegesGuardInterceptor" />
 	
 	<aop:config>
 		<aop:pointcut id="servicesPoint" expression="execution(* com.rebuild.server..*Service.*(..))" />
@@ -148,13 +148,13 @@
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 	
-	<bean class="com.rebuild.server.bizz.UserService">
+	<bean class="com.rebuild.server.service.bizz.UserService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
-	<bean class="com.rebuild.server.bizz.DepartmentService">
+	<bean class="com.rebuild.server.service.bizz.DepartmentService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
-	<bean class="com.rebuild.server.bizz.RoleService">
+	<bean class="com.rebuild.server.service.bizz.RoleService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 	

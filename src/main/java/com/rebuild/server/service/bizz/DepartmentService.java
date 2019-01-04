@@ -16,12 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.bizz;
+package com.rebuild.server.service.bizz;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.DataConstraintException;
-import com.rebuild.server.bizz.privileges.Department;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.bizz.privileges.Department;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;

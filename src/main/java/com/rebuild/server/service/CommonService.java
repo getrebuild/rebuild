@@ -20,7 +20,7 @@ package com.rebuild.server.service;
 
 import org.springframework.util.Assert;
 
-import com.rebuild.server.bizz.privileges.PrivilegesGuardInterceptor;
+import com.rebuild.server.service.bizz.privileges.PrivilegesGuardInterceptor;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;

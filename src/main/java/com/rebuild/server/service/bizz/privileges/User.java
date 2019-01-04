@@ -16,14 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.bizz.privileges;
+package com.rebuild.server.service.bizz.privileges;
 
 import org.apache.commons.lang.StringUtils;
 
 import com.rebuild.server.ServerListener;
-import com.rebuild.server.bizz.RoleService;
-import com.rebuild.server.bizz.UserService;
 import com.rebuild.server.helper.SystemConfiguration;
+import com.rebuild.server.service.bizz.RoleService;
+import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.persist4j.engine.ID;
 

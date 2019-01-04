@@ -16,22 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.bizz.privileges;
-
-import cn.devezhao.bizz.privileges.Permission;
-import cn.devezhao.bizz.privileges.impl.BizzPermission;
+package com.rebuild.server.task;
 
 /**
  * 
  * @author devezhao
- * @since 10/12/2018
- * @see BizzPermission
+ * @since 01/04/2019
  */
-public class ZeroPermission {
+public class QuickCodeReindexTaskTest {
 
-	public static final Permission BATCH_UPDATE = new BizzPermission("BU", 0, true);
-	
-	public static final Permission BATCH_CREATE = new BizzPermission("BC", 0, true);
-	
-	public static final Permission BATCH_READ = new BizzPermission("BR", 0, true);
 }

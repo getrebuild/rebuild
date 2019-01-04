@@ -26,9 +26,9 @@ import org.apache.commons.lang.StringUtils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.bizz.privileges.User;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.web.IllegalParameterException;
 
 import cn.devezhao.commons.CalendarUtils;

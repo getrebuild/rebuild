@@ -29,11 +29,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.bizz.UserService;
 import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.SystemConfiguration;
 import com.rebuild.server.helper.VCode;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.commons.EncryptUtils;

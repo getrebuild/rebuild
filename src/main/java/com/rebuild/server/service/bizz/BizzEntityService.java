@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.bizz;
+package com.rebuild.server.service.bizz;
 
 import com.rebuild.server.service.BaseService;
 import com.rebuild.server.service.IEntityService;

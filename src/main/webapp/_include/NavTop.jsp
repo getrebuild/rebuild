@@ -3,8 +3,8 @@
 <%@ page import="com.rebuild.web.admin.AdminEntryControll"%>
 <%@ page import="com.rebuild.utils.AppUtils"%>
 <%@ page import="com.rebuild.server.Application"%>
-<%@ page import="com.rebuild.server.bizz.privileges.User"%>
-<%@ page import="com.rebuild.server.bizz.UserHelper"%>
+<%@ page import="com.rebuild.server.service.bizz.privileges.User"%>
+<%@ page import="com.rebuild.server.service.bizz.UserHelper"%>
 <%@ page import="org.apache.commons.lang.StringUtils"%>
 <%
 final User currentUser = Application.getUserStore().getUser(AppUtils.getRequestUser(request));

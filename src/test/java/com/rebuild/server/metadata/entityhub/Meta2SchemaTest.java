@@ -21,8 +21,8 @@ package com.rebuild.server.metadata.entityhub;
 import org.junit.Test;
 
 import com.rebuild.server.TestSupport;
-import com.rebuild.server.bizz.UserService;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.persist4j.Entity;
 

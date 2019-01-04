@@ -35,12 +35,11 @@ public class BulkDelete extends BulkOperator {
 	}
 
 	@Override
-	public Object operate() {
+	public Integer operate() {
 		ID[] records = getWillRecords();
+		this.setTotal(records.length);
 		
-		int complated = 0;
 		int deleted = 0;
-		
 		for (ID id : records) {
 			if (Application.getSecurityManager().allowedD(context.getOpUser(), id)) {
 				int a = ges.delete(id);
@@ -48,10 +47,10 @@ public class BulkDelete extends BulkOperator {
 			} else {
 				LOG.warn("No have privileges to DELETE : " + context.getOpUser() + " > " + id);
 			}
-			
-			complated++;
-			setComplete(complated);
+			this.setCompleteOne();
 		}
+		
+		this.completedAfter();
 		return deleted;
 	}
 }

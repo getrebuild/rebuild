@@ -26,7 +26,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.rebuild.server.bizz.privileges.UserStore;
 import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.metadata.DynamicMetadataFactory;
@@ -36,6 +35,7 @@ import com.rebuild.server.service.ObservableService;
 import com.rebuild.server.service.OperatingObserver;
 import com.rebuild.server.service.SQLExecutor;
 import com.rebuild.server.service.base.GeneralEntityService;
+import com.rebuild.server.service.bizz.privileges.UserStore;
 import com.rebuild.server.service.notification.NotificationService;
 import com.rebuild.server.service.query.QueryFactory;
 import com.rebuild.web.OnlineSessionStore;
@@ -182,8 +182,8 @@ public final class Application {
 		return getBean(CommonCache.class);
 	}
 
-	public static com.rebuild.server.bizz.privileges.SecurityManager getSecurityManager() {
-		return getBean(com.rebuild.server.bizz.privileges.SecurityManager.class);
+	public static com.rebuild.server.service.bizz.privileges.SecurityManager getSecurityManager() {
+		return getBean(com.rebuild.server.service.bizz.privileges.SecurityManager.class);
 	}
 
 	public static QueryFactory getQueryFactory() {

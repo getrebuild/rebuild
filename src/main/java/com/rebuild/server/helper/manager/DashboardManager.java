@@ -42,7 +42,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 12/20/2018
  */
-public class DashboardManager extends ApplyFor {
+public class DashboardManager implements PortalsManager {
 	
 	private static final Log LOG = LogFactory.getLog(DashboardManager.class);
 	

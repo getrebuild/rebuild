@@ -35,12 +35,11 @@ public class BulkShare extends BulkOperator {
 	}
 
 	@Override
-	public Object operate() {
+	public Integer operate() {
 		ID[] records = getWillRecords();
+		this.setTotal(records.length);
 		
-		int complated = 0;
 		int shared = 0;
-		
 		for (ID id : records) {
 			if (Application.getSecurityManager().allowedS(context.getOpUser(), id)) {
 				int a = ges.share(id, context.getToUser(), context.getCascades());
@@ -48,10 +47,10 @@ public class BulkShare extends BulkOperator {
 			} else {
 				LOG.warn("No have privileges to SHARE : " + context.getOpUser() + " > " + id);
 			}
-			
-			complated++;
-			setComplete(complated);
+			this.setCompleteOne();
 		}
+		
+		this.completedAfter();
 		return shared;
 	}
 }

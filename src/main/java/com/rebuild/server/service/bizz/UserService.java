@@ -16,10 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.bizz;
+package com.rebuild.server.service.bizz;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.DataConstraintException;
+import com.rebuild.server.helper.task.BulkTaskExecutor;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.web.IllegalParameterException;
 
@@ -114,7 +115,7 @@ public class UserService extends BizzEntityService {
 		
 		// 改变记录的所属部门
 		if (deptOld != null) {
-			new ChangeDepartmentTask(user, deptNew).run();
+			BulkTaskExecutor.submit(new ChangeOwningDeptTask(user, deptNew));
 		}
 	}
 }

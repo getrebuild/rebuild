@@ -8,10 +8,10 @@
 	<bean id="bulkTaskExecutor" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail">
 			<bean class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-				<property name="jobClass" value="com.rebuild.server.job.BulkTaskExecutor" />
+				<property name="jobClass" value="com.rebuild.server.helper.task.BulkTaskExecutor" />
 			</bean>
 		</property>
-		<property name="cronExpression" value="0 31 * * * ?" />
+		<property name="cronExpression" value="0 15,35,55 * * * ?" />
 	</bean>
 	
 	<bean id="seriesZeroJob" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">

@@ -16,14 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.bizz;
+package com.rebuild.server.service.bizz;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.job.BulkTask;
+import com.rebuild.server.helper.task.BulkTask;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 
@@ -36,7 +34,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 12/29/2018
  */
-public class ChangeDepartmentTask extends BulkTask {
+public class ChangeOwningDeptTask extends BulkTask {
 
 	final private ID user;
 	final private ID deptNew;
@@ -45,26 +43,33 @@ public class ChangeDepartmentTask extends BulkTask {
 	 * @param user
 	 * @param deptNew
 	 */
-	protected ChangeDepartmentTask(ID user, ID deptNew) {
+	protected ChangeOwningDeptTask(ID user, ID deptNew) {
 		this.user = user;
 		this.deptNew = deptNew;
 	}
 	
 	@Override
 	public void run() {
-		// TODO 变更部门 10M 超时，线程执行 ???
+		this.setTotal(MetadataHelper.getEntities().length);
 		
 		String updeptSql = "update `{0}` set OWNING_DEPT = ''%s'' where OWNING_USER = ''%s''";
 		updeptSql = String.format(updeptSql, deptNew.toLiteral(), user.toLiteral());
-		
-		List<String> updeptSqls = new ArrayList<>();
 		for (Entity e : MetadataHelper.getEntities()) {
-			if (EntityHelper.hasPrivilegesField(e)) {
-				String sql = MessageFormat.format(updeptSql, e.getPhysicalName());
-				updeptSqls.add(sql);
+			if (isInterrupted()) {
+				LOG.error("Task interrupted : " + user + " > " + deptNew);
+				break;
 			}
+			
+			if (!EntityHelper.hasPrivilegesField(e)) {
+				this.setCompleteOne();
+				continue;
+			}
+			
+			String sql = MessageFormat.format(updeptSql, e.getPhysicalName());
+			Application.getSQLExecutor().execute(sql, 60 * 10);
+			this.setCompleteOne();
 		}
 		
-		Application.getSQLExecutor().executeBatch(updeptSqls.toArray(new String[updeptSqls.size()]), 60 * 10);
+		this.completedAfter();
 	}
 }

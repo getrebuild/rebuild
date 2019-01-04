@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.bizz.privileges;
+package com.rebuild.server.service.bizz.privileges;
 
 import java.security.Principal;
 import java.util.ArrayList;

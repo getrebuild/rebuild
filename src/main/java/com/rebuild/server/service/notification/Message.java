@@ -18,7 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.notification;
 
-import com.rebuild.server.bizz.UserService;
+import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.persist4j.engine.ID;
 
