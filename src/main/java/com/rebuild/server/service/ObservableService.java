@@ -39,9 +39,9 @@ import cn.devezhao.persist4j.engine.ID;
  * 
  * @see OperatingObserver
  */
-public abstract class ObservableService extends Observable implements IEntityService {
+public abstract class ObservableService extends Observable implements EntityService {
 
-	final protected IService delegate;
+	final protected ServiceSpec delegate;
 	
 	/**
 	 * @param aPMFactory

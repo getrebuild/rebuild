@@ -30,7 +30,7 @@ import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.metadata.DynamicMetadataFactory;
 import com.rebuild.server.service.CommonService;
-import com.rebuild.server.service.IEntityService;
+import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.ObservableService;
 import com.rebuild.server.service.OperatingObserver;
 import com.rebuild.server.service.SQLExecutor;
@@ -64,7 +64,7 @@ public final class Application {
 	// SPRING
 	private static ApplicationContext APPLICATION_CTX;
 	// 业务实体对应的服务类
-	private static Map<Integer, IEntityService> ESS = null;
+	private static Map<Integer, EntityService> ESS = null;
 	
 	protected Application(ApplicationContext ctx) {
 		APPLICATION_CTX = ctx;
@@ -86,10 +86,14 @@ public final class Application {
 		
 		// 实体对应的服务类
 		ESS = new HashMap<>();
-		for (Map.Entry<String, IEntityService> e : APPLICATION_CTX.getBeansOfType(IEntityService.class).entrySet()) {
-			IEntityService es = e.getValue();
-			if (es.getEntityCode() > 0) {
-				ESS.put(es.getEntityCode(), es);
+		for (Map.Entry<String, EntityService> e : APPLICATION_CTX.getBeansOfType(EntityService.class).entrySet()) {
+			EntityService es = e.getValue();
+			int ec = es.getEntityCode();
+			if (ec > 0) {
+				ESS.put(ec, es);
+				if (devMode()) {
+					LOG.info("EntityService specification : " + ec + " > " + es);
+				}
 			}
 		}
 		
@@ -97,7 +101,9 @@ public final class Application {
 		for (ObservableService es : APPLICATION_CTX.getBeansOfType(ObservableService.class).values()) {
 			for (OperatingObserver obs : APPLICATION_CTX.getBeansOfType(OperatingObserver.class).values()) {
 				es.addObserver(obs);
-				LOG.info(es + " add observer : " + obs);
+				if (devMode()) {
+					LOG.info(es + " add observer : " + obs);
+				}
 			}
 		}
 		
@@ -210,7 +216,7 @@ public final class Application {
 		return getBean(CommonService.class);
 	}
 
-	public static IEntityService getEntityService(int entityCode) {
+	public static EntityService getEntityService(int entityCode) {
 		if (ESS != null && ESS.containsKey(entityCode)) {
 			return ESS.get(entityCode);
 		} else {

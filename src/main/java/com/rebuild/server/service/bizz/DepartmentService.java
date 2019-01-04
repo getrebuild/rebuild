@@ -21,6 +21,7 @@ package com.rebuild.server.service.bizz;
 import com.rebuild.server.Application;
 import com.rebuild.server.DataConstraintException;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.SystemEntityService;
 import com.rebuild.server.service.bizz.privileges.Department;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -33,7 +34,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 08/03/2018
  */
-public class DepartmentService extends BizzEntityService {
+public class DepartmentService extends SystemEntityService {
 	
 	/**
 	 * 根级部门

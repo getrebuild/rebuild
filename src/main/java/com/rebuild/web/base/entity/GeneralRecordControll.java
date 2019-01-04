@@ -39,7 +39,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.IEntityService;
+import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.base.BulkContext;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
@@ -105,7 +105,7 @@ public class GeneralRecordControll extends BaseControll {
 		final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
 		
 		String[] cascades = parseCascades(request);
-		IEntityService ies = Application.getEntityService(entity.getEntityCode());
+		EntityService ies = Application.getEntityService(entity.getEntityCode());
 		
 		int affected = 0;
 		try {
@@ -140,7 +140,7 @@ public class GeneralRecordControll extends BaseControll {
 		
 		ID assignTo = getIdParameterNotNull(request, "to");
 		String[] cascades = parseCascades(request);
-		IEntityService ies = Application.getEntityService(entity.getEntityCode());
+		EntityService ies = Application.getEntityService(entity.getEntityCode());
 		
 		int affected = 0;
 		try {
@@ -175,7 +175,7 @@ public class GeneralRecordControll extends BaseControll {
 		
 		ID shareTo = getIdParameterNotNull(request, "to");
 		String[] cascades = parseCascades(request);
-		IEntityService ies = Application.getEntityService(entity.getEntityCode());
+		EntityService ies = Application.getEntityService(entity.getEntityCode());
 		
 		int affected = 0;
 		try {
@@ -209,14 +209,14 @@ public class GeneralRecordControll extends BaseControll {
 		final ID firstId = ids[0];
 		final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
 		
-		IEntityService ies = Application.getEntityService(entity.getEntityCode());
+		EntityService ies = Application.getEntityService(entity.getEntityCode());
 		
 		int affected = 0;
 		try {
 			if (ids.length == 1) {
 				affected = ies.unshare(record, ids[0]);
 			} else {
-				BulkContext context = new BulkContext(user, IEntityService.UNSHARE, ids, record);
+				BulkContext context = new BulkContext(user, EntityService.UNSHARE, ids, record);
 				affected = ies.bulk(context);
 			}
 		} catch (AccessDeniedException know) {

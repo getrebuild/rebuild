@@ -29,7 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.server.service.IEntityService;
+import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.base.BulkContext;
 import com.rebuild.server.service.base.GeneralEntityService;
 
@@ -163,7 +163,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		} else if (action.startsWith("share")) {
 		    return BizzPermission.SHARE;
 		} else if (action.startsWith("unshare")) {
-		    return IEntityService.UNSHARE;
+		    return EntityService.UNSHARE;
 		}
 		return null;
 	}
@@ -186,7 +186,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 			actionHuman = "分派";
 		} else if (action == BizzPermission.SHARE) {
 			actionHuman = "共享";
-		} else if (action == IEntityService.UNSHARE) {
+		} else if (action == EntityService.UNSHARE) {
 			actionHuman = "取消共享";
 		}
 		

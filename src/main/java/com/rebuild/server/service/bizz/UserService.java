@@ -22,6 +22,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.DataConstraintException;
 import com.rebuild.server.helper.task.BulkTaskExecutor;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.SystemEntityService;
 import com.rebuild.web.IllegalParameterException;
 
 import cn.devezhao.bizz.security.member.User;
@@ -36,7 +37,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 07/25/2018
  */
-public class UserService extends BizzEntityService {
+public class UserService extends SystemEntityService {
 	
 	// 系统用户
 	public static final ID SYSTEM_USER = ID.valueOf("001-0000000000000000");

@@ -16,10 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.service.bizz;
+package com.rebuild.server.service;
 
-import com.rebuild.server.service.BaseService;
-import com.rebuild.server.service.IEntityService;
 import com.rebuild.server.service.base.BulkContext;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -27,11 +25,11 @@ import cn.devezhao.persist4j.engine.ID;
 
 /**
  * @author devezhao
- * @since 12/28/2018
+ * @since 01/04/2019
  */
-public abstract class BizzEntityService extends BaseService implements IEntityService {
+public abstract class SystemEntityService extends BaseService implements EntityService {
 
-	protected BizzEntityService(PersistManagerFactory aPMFactory) {
+	protected SystemEntityService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
 	}
 	

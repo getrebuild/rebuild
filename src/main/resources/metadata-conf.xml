@@ -21,6 +21,7 @@
 		<field name="deptId" type="reference" ref-entity="Department" cascade="remove-links" updatable="false" description="部门" />
 		<field name="roleId" type="reference" ref-entity="Role" cascade="remove-links" updatable="false" description="角色" />
 		<field name="isDisabled" type="bool" default-value="F" description="是否停用" />
+		<field name="quickCode" type="string" max-length="100"/>
 		<index type="unique" field-list="loginName" />
 		<index type="unique" field-list="email" />
 	</entity>

@@ -76,7 +76,7 @@ public abstract class OperatingObserver implements Observer {
 			onAssign(ctx);
 		} else if (ctx.getAction() == BizzPermission.SHARE) {
 			onShare(ctx);
-		} else if (ctx.getAction() == IEntityService.UNSHARE) {
+		} else if (ctx.getAction() == EntityService.UNSHARE) {
 			onUnShare(ctx);
 		} 
 	}

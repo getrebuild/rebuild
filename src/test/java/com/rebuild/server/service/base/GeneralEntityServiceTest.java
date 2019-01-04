@@ -24,7 +24,7 @@ import org.junit.Test;
 import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.IEntityService;
+import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.persist4j.Record;
@@ -39,7 +39,7 @@ public class GeneralEntityServiceTest extends TestSupport {
 	
 	@Test
 	public void testGetEntityService() throws Exception {
-		IEntityService ies = Application.getEntityService(EntityHelper.User);
+		EntityService ies = Application.getEntityService(EntityHelper.User);
 		Assert.assertTrue(ies.getEntityCode() == EntityHelper.User);
 	}
 

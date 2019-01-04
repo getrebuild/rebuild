@@ -24,7 +24,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.IEntityService;
+import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.bizz.RoleService;
 import com.rebuild.server.service.bizz.UserService;
 
@@ -244,7 +244,7 @@ public class SecurityManager {
 		}
 		
 		// 取消共享与共享公用权限
-		if (action == IEntityService.UNSHARE) {
+		if (action == EntityService.UNSHARE) {
 			action = BizzPermission.SHARE;
 		}
 		

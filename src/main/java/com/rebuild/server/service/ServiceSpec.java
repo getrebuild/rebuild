@@ -22,12 +22,12 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 持久化基础服务接口
+ * 持久化基础服务定义
  * 
  * @author devezhao
  * @since 12/28/2018
  */
-public interface IService {
+public interface ServiceSpec {
 	
 	/**
 	 * 新建或更新

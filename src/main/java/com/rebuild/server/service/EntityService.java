@@ -32,7 +32,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 12/28/2018
  */
-public interface IEntityService extends IService {
+public interface EntityService extends ServiceSpec {
 	
 	/**
 	 * 取消共享

@@ -33,7 +33,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 05/21/2017
  */
-public class BaseService implements IService {
+public class BaseService implements ServiceSpec {
 	
 	protected final Log LOG = LogFactory.getLog(getClass());
 	
