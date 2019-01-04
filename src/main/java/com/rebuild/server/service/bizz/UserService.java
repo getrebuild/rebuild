@@ -108,7 +108,7 @@ public class UserService extends BizzEntityService {
 			return;
 		}
 		
-		Record record = EntityHelper.forUpdate(user, Application.currentCallerUser());
+		Record record = EntityHelper.forUpdate(user, Application.getCurrentUser());
 		record.setID("deptId", deptNew);
 		super.update(record);
 		Application.getUserStore().refreshUser(user);

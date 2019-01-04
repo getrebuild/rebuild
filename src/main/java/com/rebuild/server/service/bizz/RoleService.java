@@ -52,8 +52,15 @@ public class RoleService extends BizzEntityService {
 	}
 	
 	@Override
-	public Record createOrUpdate(Record record) {
-		record = super.createOrUpdate(record);
+	public Record create(Record record) {
+		record = super.create(record);
+		Application.getUserStore().refreshRole(record.getPrimary(), false);
+		return record;
+	}
+	
+	@Override
+	public Record update(Record record) {
+		record = super.update(record);
 		Application.getUserStore().refreshRole(record.getPrimary(), false);
 		return record;
 	}
@@ -80,7 +87,7 @@ public class RoleService extends BizzEntityService {
 	 * @param definition
 	 */
 	public void updatePrivileges(ID roleId, JSONObject definition) {
-		final ID user = Application.currentCallerUser();
+		final ID user = Application.getCurrentUser();
 		
 		Object[][] array = Application.createQuery(
 				"select privilegesId,definition,entity,zeroKey from RolePrivileges where roleId = ?")

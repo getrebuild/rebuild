@@ -50,8 +50,15 @@ public class DepartmentService extends BizzEntityService {
 	}
 	
 	@Override
-	public Record createOrUpdate(Record record) {
-		record = super.createOrUpdate(record);
+	public Record create(Record record) {
+		record = super.create(record);
+		Application.getUserStore().refreshDepartment(record.getPrimary());
+		return record;
+	}
+	
+	@Override
+	public Record update(Record record) {
+		record = super.update(record);
 		Application.getUserStore().refreshDepartment(record.getPrimary());
 		return record;
 	}

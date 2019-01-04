@@ -172,14 +172,14 @@ public class AdvFilterParser {
 		} else if ("REM".equalsIgnoreCase(op)) {
 			value = CalendarUtils.getUTCDateFormat().format(CalendarUtils.addMonth(-NumberUtils.toInt(value))) + fullTime;
 		} else if ("SFU".equalsIgnoreCase(op)) {
-			value = Application.currentCallerUser().toLiteral();
+			value = Application.getCurrentUser().toLiteral();
 		} else if ("SFB".equalsIgnoreCase(op)) {
-			Department dept = UserHelper.getDepartment(Application.currentCallerUser());
+			Department dept = UserHelper.getDepartment(Application.getCurrentUser());
 			if (dept != null && fieldMeta.getReferenceEntities()[0].getEntityCode() == EntityHelper.User) {
 				sb.insert(sb.indexOf(" "), "." + EntityHelper.OwningDept);
 			}
 		} else if ("SFD".equalsIgnoreCase(op)) {
-			Department dept = UserHelper.getDepartment(Application.currentCallerUser());
+			Department dept = UserHelper.getDepartment(Application.getCurrentUser());
 			if (dept != null) {
 				value = StringUtils.join(UserHelper.getAllChildrenId(dept), "|");
 			}

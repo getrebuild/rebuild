@@ -158,8 +158,8 @@ public final class Application {
 		return getBean(OnlineSessionStore.class);
 	}
 	
-	public static ID currentCallerUser() {
-		return getSessionStore().getCurrentCaller();
+	public static ID getCurrentUser() {
+		return getSessionStore().get();
 	}
 
 	public static PersistManagerFactory getPersistManagerFactory() {

@@ -51,9 +51,9 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 08/30/2018
  */
-public class FormManager extends LayoutManager {
+public class FormsManager extends LayoutManager {
 
-	private static final Log LOG = LogFactory.getLog(FormManager.class);
+	private static final Log LOG = LogFactory.getLog(FormsManager.class);
 	
 	private static final ThreadLocal<ID> MASTERID4NEWSLAVE = new ThreadLocal<>();
 	
@@ -162,7 +162,7 @@ public class FormManager extends LayoutManager {
 		
 		Record data = null;
 		if (!elements.isEmpty() && record != null) {
-			data = queryRecord(record, elements);
+			data = record(record, user, elements);
 			if (data == null) {
 				return formatModelError("此记录已被删除，或你对此记录没有读取权限");
 			}
@@ -291,7 +291,7 @@ public class FormManager extends LayoutManager {
 	 * @param elements
 	 * @return
 	 */
-	protected static Record queryRecord(ID id, JSONArray elements) {
+	protected static Record record(ID id, ID user, JSONArray elements) {
 		if (elements.isEmpty()) {
 			return null;
 		}
@@ -323,7 +323,7 @@ public class FormManager extends LayoutManager {
 				.append(" where ").append(entity.getPrimaryField().getName())
 				.append(" = '").append(id).append("'");
 		
-		return Application.getQueryFactory().record(ajql.toString());
+		return Application.getQueryFactory().createQuery(ajql.toString(), user).record();
 	}
 	
 	/**

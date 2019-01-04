@@ -70,9 +70,9 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 			throws Exception {
 		super.afterCompletion(request, response, handler, exception);
 		
-		ID caller = Application.getSessionStore().getCurrentCaller(true);
+		ID caller = Application.getSessionStore().get(true);
 		if (caller != null) {
-			Application.getSessionStore().clearCurrentCaller();
+			Application.getSessionStore().clean();
 		}
 		
 		logProgressTime(request);
@@ -141,7 +141,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 		
 		ID user = AppUtils.getRequestUser(request);
 		if (user != null) {
-			Application.getSessionStore().setCurrentCaller(user);
+			Application.getSessionStore().set(user);
 			
 			// 管理后台访问
 			if (requestUrl.contains("/admin/") && !AdminEntryControll.isAdminVerified(request)) {

@@ -53,7 +53,7 @@ public class PickListService extends BaseService  {
 	 */
 	public void updateBatch(Field field, JSONObject config) {
 		Assert.notNull(config, "无效配置");
-		ID user = Application.currentCallerUser();
+		ID user = Application.getCurrentUser();
 		
 		JSONArray showItems = config.getJSONArray("show");
 		JSONArray hideItems = config.getJSONArray("hide");

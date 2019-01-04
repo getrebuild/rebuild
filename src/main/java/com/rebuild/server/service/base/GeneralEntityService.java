@@ -187,7 +187,7 @@ public class GeneralEntityService extends ObservableService  {
 		
 		if (countObservers() > 0) {
 			setChanged();
-			notifyObservers(OperatingContext.valueOf(Application.currentCallerUser(), BizzPermission.ASSIGN, before, assigned));
+			notifyObservers(OperatingContext.valueOf(Application.getCurrentUser(), BizzPermission.ASSIGN, before, assigned));
 		}
 		return affected;
 	}
@@ -206,7 +206,7 @@ public class GeneralEntityService extends ObservableService  {
 			return 1;
 		}
 		
-		ID currentUser = Application.currentCallerUser();
+		ID currentUser = Application.getCurrentUser();
 		
 		Record shared = EntityHelper.forNew(EntityHelper.ShareAccess, currentUser);
 		shared.setString("belongEntity", entityName);
@@ -238,7 +238,7 @@ public class GeneralEntityService extends ObservableService  {
 	public int unshare(ID record, ID accessId) {
 		// TODO 级联取消共享 ??
 		
-		ID currentUser = Application.currentCallerUser();
+		ID currentUser = Application.getCurrentUser();
 		Record unshared = EntityHelper.forUpdate(accessId, currentUser);
 		if (countObservers() > 0) {
 			unshared.setNull("belongEntity");
@@ -298,7 +298,7 @@ public class GeneralEntityService extends ObservableService  {
 			sql = sql.substring(0, sql.length() - 4);  // remove last ' or '
 			sql += " )";
 
-			Filter filter = Application.getSecurityManager().createQueryFilter(Application.currentCallerUser(), action);
+			Filter filter = Application.getSecurityManager().createQueryFilter(Application.getCurrentUser(), action);
 			Object[][] array = Application.getQueryFactory().createQuery(sql, filter).array();
 			
 			Set<ID> records = new HashSet<>();

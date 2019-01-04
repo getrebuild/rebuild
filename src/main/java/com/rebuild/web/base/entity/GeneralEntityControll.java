@@ -30,7 +30,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.helper.manager.FormManager;
+import com.rebuild.server.helper.manager.FormsManager;
 import com.rebuild.server.helper.manager.ViewAddonsManager;
 import com.rebuild.server.helper.manager.value.DefaultValueManager;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -86,12 +86,12 @@ public class GeneralEntityControll extends BaseControll {
 				// 创建明细实体必须制定主实体，以便验证权限
 				String master = ((JSONObject) initialVal).getString(DefaultValueManager.DV_MASTER);
 				if (ID.isId(master)) {
-					FormManager.setCurrentMasterId(ID.valueOf(master));
+					FormsManager.setCurrentMasterId(ID.valueOf(master));
 				}
 			}
 		}
 		
-		JSON model = FormManager.getFormModel(entity, user, record);
+		JSON model = FormsManager.getFormModel(entity, user, record);
 		// 填充前端设定的初始值
 		if (record == null && initialVal != null) {
 			DefaultValueManager.setFieldsValue(MetadataHelper.getEntity(entity), model, initialVal);
@@ -104,7 +104,7 @@ public class GeneralEntityControll extends BaseControll {
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		ID record = getIdParameterNotNull(request, "id");
-		JSON modal = FormManager.getViewModel(entity, user, record);
+		JSON modal = FormsManager.getViewModel(entity, user, record);
 		writeSuccess(response, modal);
 	}
 }

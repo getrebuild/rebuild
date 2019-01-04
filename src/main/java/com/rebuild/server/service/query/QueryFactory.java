@@ -53,7 +53,7 @@ public class QueryFactory {
 	 * @return
 	 */
 	public Query createQuery(String ajql) {
-		return createQuery(ajql, Application.currentCallerUser());
+		return createQuery(ajql, Application.getCurrentUser());
 	}
 	
 	/**

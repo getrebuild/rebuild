@@ -72,7 +72,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 			}
 			
 			BulkContext context = (BulkContext) first;
-			ID caller = Application.currentCallerUser();
+			ID caller = Application.getCurrentUser();
 			
 			Entity entity = context.getMainEntity();
 			if (!Application.getSecurityManager().allowed(caller, entity.getEntityCode(), context.getAction())) {
@@ -97,7 +97,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 			throw new IllegalArgumentException("First argument must be Record/ID!");
 		}
 		
-		ID caller = Application.currentCallerUser();
+		ID caller = Application.getCurrentUser();
 		Permission action = getPermissionByMethod(invocation.getMethod(), recordId == null);
 		
 		boolean isAllowed = false;

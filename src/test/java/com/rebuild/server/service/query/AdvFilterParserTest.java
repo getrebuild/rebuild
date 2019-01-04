@@ -16,13 +16,33 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.task;
+package com.rebuild.server.service.query;
+
+import org.junit.Test;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.TestSupport;
 
 /**
  * 
  * @author devezhao
  * @since 01/04/2019
  */
-public class QuickCodeReindexTaskTest {
+public class AdvFilterParserTest extends TestSupport {
 
+	@Test
+	public void testBaseParse() throws Exception {
+		JSONObject filterExp = new JSONObject();
+		filterExp.put("entity", "User");
+		JSONArray items = new JSONArray();
+		filterExp.put("items", items);
+		
+		// Filter entry
+		items.add(JSON.parseObject("{ op:'LK', field:'loginName', value:'admin' }"));
+		
+		String where = new AdvFilterParser(filterExp).toSqlWhere();
+		System.out.println(where);
+	}
 }

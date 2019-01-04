@@ -61,7 +61,7 @@ public abstract class ObservableService extends Observable implements IEntitySer
 		
 		if (countObservers() > 0) {
 			setChanged();
-			notifyObservers(OperatingContext.valueOf(Application.currentCallerUser(), BizzPermission.CREATE, null, record));
+			notifyObservers(OperatingContext.valueOf(Application.getCurrentUser(), BizzPermission.CREATE, null, record));
 		}
 		return record;
 	}
@@ -74,7 +74,7 @@ public abstract class ObservableService extends Observable implements IEntitySer
 		
 		if (countObservers() > 0) {
 			setChanged();
-			notifyObservers(OperatingContext.valueOf(Application.currentCallerUser(), BizzPermission.UPDATE, before, record));
+			notifyObservers(OperatingContext.valueOf(Application.getCurrentUser(), BizzPermission.UPDATE, before, record));
 		}
 		return record;
 	}
@@ -83,7 +83,7 @@ public abstract class ObservableService extends Observable implements IEntitySer
 	public int delete(ID recordId) {
 		Record deleted = null;
 		if (countObservers() > 0) {
-			deleted = EntityHelper.forUpdate(recordId, Application.currentCallerUser());
+			deleted = EntityHelper.forUpdate(recordId, Application.getCurrentUser());
 			deleted = getBeforeRecord(deleted);
 		}
 		
@@ -91,7 +91,7 @@ public abstract class ObservableService extends Observable implements IEntitySer
 		
 		if (countObservers() > 0) {
 			setChanged();
-			notifyObservers(OperatingContext.valueOf(Application.currentCallerUser(), BizzPermission.DELETE, deleted, null));
+			notifyObservers(OperatingContext.valueOf(Application.getCurrentUser(), BizzPermission.DELETE, deleted, null));
 		}
 		return affected;
 	}

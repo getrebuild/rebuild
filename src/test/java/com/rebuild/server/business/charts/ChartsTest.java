@@ -16,31 +16,30 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server;
+package com.rebuild.server.business.charts;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.Test;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
+import com.rebuild.server.TestSupport;
+import com.rebuild.server.service.bizz.UserService;
 
 /**
  * 
  * @author devezhao
- * @since 01/03/2019
+ * @since 01/04/2019
  */
-public class TestSupport {
-	
-	protected static final Log LOG = LogFactory.getLog(TestSupport.class);
+public class ChartsTest extends TestSupport {
 
-	@BeforeClass
-	public static void startup() {
-		LOG.warn("TESTING Startup ...");
-		Application.debug();
-	}
-	
-	@AfterClass
-	public static void shutdown() {
-		Application.getSessionStore().clean();
-		LOG.warn("TESTING Shutdown ...");
+	@Test
+	public void testIndex() throws Exception {
+		Application.getSessionStore().set(UserService.ADMIN_USER);
+		
+		JSONObject config = JSON.parseObject(
+				"{'entity':'User','title':'指标卡','type':'INDEX','axis':{'dimension':[],'numerical':[{'field':'userId','sort':'','calc':'COUNT'}]}}");
+		ChartData index = ChartDataFactory.create(config);
+		System.out.println(index.build());
 	}
 }

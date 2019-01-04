@@ -21,8 +21,6 @@ package com.rebuild.server.service.base;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.rebuild.server.Application;
@@ -39,16 +37,14 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * QuickCode 重建
+ * QuickCode 字段值重建
  * 
  * @author devezhao
  * @since 12/28/2018
  */
 public class QuickCodeReindexTask extends BulkTask {
 	
-	private static final Log LOG = LogFactory.getLog(QuickCodeReindexTask.class);
-	
-	private Entity entity;
+	final private Entity entity;
 
 	/**
 	 * @param entity

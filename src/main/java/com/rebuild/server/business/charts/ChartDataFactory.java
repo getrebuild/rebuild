@@ -63,7 +63,7 @@ public class ChartDataFactory {
 			throw new ChartsException("源实体 [" + e.toUpperCase() + "] 不存在");
 		}
 		
-		ID user = Application.currentCallerUser();
+		ID user = Application.getCurrentUser();
 		Entity entity = MetadataHelper.getEntity(e);
 		if (!Application.getSecurityManager().allowedR(user, entity.getEntityCode())) {
 			throw new ChartsException("没有读取 [" + EasyMeta.getLabel(entity) + "] 的权限");

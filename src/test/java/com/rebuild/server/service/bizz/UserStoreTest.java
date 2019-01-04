@@ -16,31 +16,30 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server;
+package com.rebuild.server.service.bizz;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.Test;
+
+import com.rebuild.server.Application;
+import com.rebuild.server.TestSupport;
 
 /**
  * 
  * @author devezhao
- * @since 01/03/2019
+ * @since 01/04/2019
  */
-public class TestSupport {
-	
-	protected static final Log LOG = LogFactory.getLog(TestSupport.class);
+public class UserStoreTest extends TestSupport {
 
-	@BeforeClass
-	public static void startup() {
-		LOG.warn("TESTING Startup ...");
-		Application.debug();
+	@Test
+	public void testStore() throws Exception {
+		Application.getUserStore().getAllUsers();
+		Application.getUserStore().getAllDepartments();
 	}
 	
-	@AfterClass
-	public static void shutdown() {
-		Application.getSessionStore().clean();
-		LOG.warn("TESTING Shutdown ...");
+	@Test
+	public void testRefresh() throws Exception {
+		Application.getUserStore().refreshUser(UserService.ADMIN_USER);
+		Application.getUserStore().refreshDepartment(DepartmentService.ROOT_DEPT);
+		Application.getUserStore().refreshRole(RoleService.ADMIN_ROLE, true);
 	}
 }

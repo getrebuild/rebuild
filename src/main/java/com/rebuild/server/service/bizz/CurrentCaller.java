@@ -16,8 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web;
+package com.rebuild.server.service.bizz;
 
+import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -31,35 +32,35 @@ public class CurrentCaller {
 	private static final ThreadLocal<ID> CALLER = new ThreadLocal<>();
 	
 	/**
-	 * @param user
+	 * @param caller
 	 */
-	protected void setCurrentCaller(ID user) {
-		CALLER.set(user);
+	public void set(ID caller) {
+		CALLER.set(caller);
 	}
 	
 	/**
 	 */
-	protected void clearCurrentCaller() {
+	public void clean() {
 		CALLER.remove();
 	}
 
 	/**
 	 * @return
-	 * @throws IllegalParameterException
 	 */
-	public ID getCurrentCaller() throws IllegalParameterException {
-		return getCurrentCaller(false);
+	public ID get() {
+		return get(false);
 	}
 	
 	/**
+	 * @param allowedNull
 	 * @return
-	 * @throws IllegalParameterException
+	 * @throws AccessDeniedException If caller not found
 	 */
-	public ID getCurrentCaller(boolean allowNull) throws IllegalParameterException {
-		ID user = CALLER.get();
-		if (user == null && allowNull == false) {
-			throw new IllegalParameterException("无效请求用户", 403);
+	public ID get(boolean allowedNull) throws AccessDeniedException {
+		ID caller = CALLER.get();
+		if (caller == null && allowedNull == false) {
+			throw new AccessDeniedException("无有效用户");
 		}
-		return user;
+		return caller;
 	}
 }

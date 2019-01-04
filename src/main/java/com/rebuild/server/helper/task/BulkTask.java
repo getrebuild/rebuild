@@ -34,7 +34,10 @@ import cn.devezhao.commons.CalendarUtils;
  */
 public abstract class BulkTask implements Runnable {
 	
-	protected final Log LOG = LogFactory.getLog(getClass());
+	protected static final Log LOG = LogFactory.getLog(BulkTask.class);
+	
+	volatile 
+	private boolean interrupt = false;
 	
 	private int total = -1;
 	private int complete = 0;
@@ -147,10 +150,10 @@ public abstract class BulkTask implements Runnable {
 	// -- for Thread
 	
 	public void interrupt() {
-		Thread.currentThread().interrupt();
+		this.interrupt = true;
 	}
 	
 	public boolean isInterrupted() {
-		return Thread.currentThread().isInterrupted();
+		return interrupt;
 	}
 }

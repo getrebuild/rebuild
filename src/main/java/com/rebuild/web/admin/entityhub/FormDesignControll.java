@@ -31,7 +31,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.manager.FormManager;
+import com.rebuild.server.helper.manager.FormsManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.LayoutConfig;
@@ -52,7 +52,7 @@ public class FormDesignControll extends BaseControll implements LayoutConfig {
 	public ModelAndView pageFormDesign(@PathVariable String entity, HttpServletRequest request) throws IOException {
 		ModelAndView mv = createModelAndView("/admin/entity/form-design.jsp");
 		MetaEntityControll.setEntityBase(mv, entity);
-		JSON cfg = FormManager.getFormLayout(entity, getRequestUser(request));
+		JSON cfg = FormsManager.getFormLayout(entity, getRequestUser(request));
 		if (cfg != null) {
 			request.setAttribute("FormConfig", cfg);
 		}
@@ -69,7 +69,7 @@ public class FormDesignControll extends BaseControll implements LayoutConfig {
 		JSON formJson = ServletUtils.getRequestJson(request);
 		Record record = EntityHelper.parse((JSONObject) formJson, getRequestUser(request));
 		if (record.getPrimary() == null) {
-			record.setString("applyTo", FormManager.APPLY_ALL);
+			record.setString("applyTo", FormsManager.APPLY_ALL);
 		}
 		
 		Application.getCommonService().createOrUpdate(record);
