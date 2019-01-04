@@ -57,7 +57,7 @@ public class UserService extends SystemEntityService {
 	public Record create(Record record) {
 		saveBefore(record);
 		Record r = super.create(record);
-		saveAfter(r, true);
+		Application.getUserStore().refreshUser(record.getPrimary());
 		return r;
 	}
 	
@@ -65,7 +65,7 @@ public class UserService extends SystemEntityService {
 	public Record update(Record record) {
 		saveBefore(record);
 		Record r = super.update(record);
-		saveAfter(r, false);
+		Application.getUserStore().refreshUser(record.getPrimary());
 		return r;
 	}
 	
@@ -86,14 +86,7 @@ public class UserService extends SystemEntityService {
 			password = EncryptUtils.toSHA256Hex(password);
 			record.setString("password", password);
 		}
-	}
-	
-	/**
-	 * @param record
-	 * @param isNew
-	 */
-	private void saveAfter(Record record, boolean isNew) {
-		Application.getUserStore().refreshUser(record.getPrimary());
+		setQuickCodeValue(record);
 	}
 	
 	/**

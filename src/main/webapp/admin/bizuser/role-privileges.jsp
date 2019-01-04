@@ -138,9 +138,7 @@
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script>
-window.__PageConfig = {
-	recordId: '${id}'
-}
+window.__PageConfig = { recordId: '${id}' }
 </script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>

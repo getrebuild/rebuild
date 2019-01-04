@@ -18,9 +18,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service;
 
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.base.BulkContext;
+import com.rebuild.server.service.base.QuickCodeReindexTask;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -31,6 +34,23 @@ public abstract class SystemEntityService extends BaseService implements EntityS
 
 	protected SystemEntityService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
+	}
+	
+	/**
+	 * 助记码
+	 * 
+	 * @param record
+	 */
+	protected void setQuickCodeValue(Record record) {
+		// 已设置了则不再设置
+		if (record.hasValue(EntityHelper.QuickCode)) {
+			return;
+		}
+		
+		String quickCode = QuickCodeReindexTask.generateQuickCode(record);
+		if (quickCode != null) {
+			record.setString(EntityHelper.QuickCode, quickCode);
+		}
 	}
 	
 	@Override

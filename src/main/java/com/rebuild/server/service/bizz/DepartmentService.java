@@ -52,6 +52,7 @@ public class DepartmentService extends SystemEntityService {
 	
 	@Override
 	public Record create(Record record) {
+		setQuickCodeValue(record);
 		record = super.create(record);
 		Application.getUserStore().refreshDepartment(record.getPrimary());
 		return record;
@@ -59,6 +60,7 @@ public class DepartmentService extends SystemEntityService {
 	
 	@Override
 	public Record update(Record record) {
+		setQuickCodeValue(record);
 		record = super.update(record);
 		Application.getUserStore().refreshDepartment(record.getPrimary());
 		return record;
