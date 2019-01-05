@@ -22,7 +22,7 @@
 	<div class="rb-content">
 		<div class="main-content container-fluid syscfg">
 			<div class="row">
-				<div class="col-9">
+				<div class="col-md-9 col-12">
 					<div class="card">
 						<div class="card-header card-header-divider">赛邮 SUBMAIL</div>
 						<div class="card-body">
@@ -87,7 +87,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="col-3">
+				<div class="col-md-3 col-12">
 				</div>
 			</div>
 		</div>
