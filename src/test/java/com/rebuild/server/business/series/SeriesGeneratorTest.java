@@ -49,6 +49,10 @@ public class SeriesGeneratorTest extends TestSupport {
 	
 	@Test
 	public void testIncrementVar() throws Exception {
+		if (getSeriesField() == null) {
+			return;
+		}
+		
 		IncreasingVar var = new IncreasingVar("0000", getSeriesField(), null);
 		System.out.println(var.generate());
 		System.out.println(var.generate());
@@ -57,6 +61,10 @@ public class SeriesGeneratorTest extends TestSupport {
 	
 	@Test
 	public void testIncrementVarNThreads() throws Exception {
+		if (getSeriesField() == null) {
+			return;
+		}
+		
 		final IncreasingVar var = new IncreasingVar("0000", getSeriesField(), "Y");
 		final Set<String> set = new HashSet<>();
 		for (int i = 0; i < 2000; i++) {
@@ -75,6 +83,10 @@ public class SeriesGeneratorTest extends TestSupport {
 	
 	@Test
 	public void testGenerate() throws Exception {
+		if (getSeriesField() == null) {
+			return;
+		}
+		
 		Map<String, String> config = new HashMap<>();
 		config.put("seriesFormat", "Y-{YYYYMMDD}-{0000}");
 		config.put("seriesZero", "M");
@@ -86,6 +98,9 @@ public class SeriesGeneratorTest extends TestSupport {
 	}
 	
 	private Field getSeriesField() {
+		if (!MetadataHelper.containsEntity("ceshiziduan")) {
+			return null;
+		}
 		Field field = MetadataHelper.getEntity("ceshiziduan").getField("ZIDONGBIANHAO");
 		return field;
 	}
