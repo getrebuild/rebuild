@@ -1,6 +1,7 @@
 .chart-box {
 	height: 100%;
 	padding: 20px 25px;
+	padding-top: 0;
 }
 .chart-box.high {
 	outline: 2px solid #4285f4;
@@ -24,13 +25,14 @@
 	cursor: move;
 	margin-right: 80px;
 	font-weight: bold;
-	min-height: 20px;
+	min-height: 40px;
+	padding-top: 20px;
 }
 
 .chart-box .chart-head .chart-oper {
 	position: absolute;
 	right: 0;
-	top: 0;
+	top: 19px;
 	display: none;
 }
 
@@ -61,12 +63,13 @@
 .chart-body .chart {
 	line-height: normal;
 	height: 100%;
+	cursor: default;
 }
 
 .chart.index {
 	overflow: hidden;
 	position: relative;
-	margin-top: -5px;
+	margin-top: -15px;
 }
 .chart.index > .data-item {
 	display: inline-block;
