@@ -492,11 +492,11 @@ const AdvFilters = {
                         return false
                     })
                     action.find('a:eq(1)').click(function(){
-                        let _alert = rb.alert('确认删除此过滤项吗？', '删除确认', { confirm:()=>{
+                        let _alert = rb.alert('确认要删除此过滤项吗？', { type: 'danger', confirm:()=>{
                             $.post(`${rb.baseUrl}/app/entity/advfilter/delete?id=${_data[0]}`, (res)=>{
                                 if (res.error_code == 0){
                                     _alert.hide()
-                                    rb.highbar('过滤项已删除', 'success')
+                                    rb.hbsuccess('过滤项已删除')
                                     that.loadFilters()
                                     
                                     if (dfilter == _data[0]) {
@@ -538,7 +538,7 @@ const AdvFilters = {
     
     showAdvFilter(id) {
         this.__cfgid = id
-        let props = { entity: this.__entity, inModal: true, showSave: true, confirm: this.saveFilter }
+        let props = { entity: this.__entity, inModal: true, fromList: true, confirm: this.saveFilter }
         if (!!!id){
             renderRbcomp(<AdvFilter { ...props } title="添加过滤项" />)
         }else{

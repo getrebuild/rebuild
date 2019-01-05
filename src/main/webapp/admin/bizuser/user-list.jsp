@@ -31,7 +31,7 @@
 							<div class="col-12 col-sm-6">
 								<div class="dataTables_filter">
 									<div class="input-group input-search">
-										<input class="form-control" type="text" placeholder="搜索${entityLabel}">
+										<input class="form-control" type="text" placeholder="查询${entityLabel}">
 										<span class="input-group-btn"><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button></span>
 									</div>
 								</div>
