@@ -66,6 +66,9 @@ a#entityIcon:hover{opacity:0.8}
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
+<script>
+window.__PageConfig = { isSuperAdmin: ${isSuperAdmin} }
+</script>
 <script type="text/babel">
 $(document).ready(function(){
 	const metaId = '${entityMetaId}'
@@ -81,6 +84,7 @@ $(document).ready(function(){
 	})
 	
 	let sbtn = $('.J_drop-confirm').click(()=>{
+		if (!window.__PageConfig.isSuperAdmin){ rb.hberror('仅超级管理员可删除实体'); return }
 		rb.alert('实体删除后将无法恢复，请务必谨慎操作！确认删除吗？', '删除实体', { type: 'danger', confirmText: '删除', confirm:function(){
 			sbtn.button('loading')
 			$(this.refs['rbalert']).find('button').button('loading')

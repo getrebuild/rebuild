@@ -99,6 +99,7 @@ class RbAlert extends React.Component {
     }
     render() {
         let icon = this.props.type == 'danger' ? 'alert-triangle' : 'info-outline'
+        icon = this.props.type == 'warning' ? 'alert-circle-o' : icon
         let type = this.props.type || 'primary'
         let content = !!this.props.htmlMessage ? <div className="mt-3" style={{ lineHeight:1.8 }} dangerouslySetInnerHTML={{ __html : this.props.htmlMessage }}></div> : <p>{this.props.message || '提示内容'}</p>
         let confirm = (this.props.confirm || this.hide).bind(this)
@@ -114,7 +115,7 @@ class RbAlert extends React.Component {
                                 <div className={'text-' + type}><span className={'modal-main-icon zmdi zmdi-' + icon}></span></div>
                                 {this.props.title && <h4 className="mb-2 mt-3">{this.props.title}</h4>}
                                 <div className={this.props.title ? '' : 'mt-3'}>{content}</div>
-                                <div className="mt-4 mb-3">
+                                <div className="mt-4 mb-3" ref="btns">
                                     <button className="btn btn-space btn-secondary" type="button" onClick={()=>this.hide()}>取消</button>
                                     <button className={'btn btn-space btn-' + type} type="button" onClick={confirm}>{this.props.confirmText || '确定'}</button>
                                 </div>

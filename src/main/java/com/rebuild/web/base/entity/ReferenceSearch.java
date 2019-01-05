@@ -39,6 +39,7 @@ import com.rebuild.server.helper.manager.value.FieldValueWrapper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.persist4j.Entity;
@@ -164,7 +165,7 @@ public class ReferenceSearch extends BaseControll {
 		for (Object[] o : array) {
 			ID recordId = (ID) o[0];
 			if (EntityHelper.isBizzEntity(entity)) {
-				if (!UserHelper.isActive(recordId)) {
+				if (!UserHelper.isActive(recordId) || recordId.equals(UserService.SYSTEM_USER)) {
 					continue;
 				}
 			}

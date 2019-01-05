@@ -32,6 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
@@ -80,7 +81,16 @@ public class AdvFilterParser {
 		this.filterExp = filterExp;
 	}
 	
+	/**
+	 * @return
+	 */
 	public String toSqlWhere() {
+		// 快速过滤自动确定查询项
+		if ("QUICK".equalsIgnoreCase(filterExp.getString("type"))) {
+			JSONArray items = this.getQuickFilterItems();
+			this.filterExp.put("items", items);
+		}
+		
 		JSONArray items = filterExp.getJSONArray("items");
 		JSONObject values = filterExp.getJSONObject("values");
 		String equation = StringUtils.defaultIfBlank(filterExp.getString("equation"), "OR");
@@ -133,7 +143,7 @@ public class AdvFilterParser {
 	 * @param values
 	 * @return
 	 */
-	protected String parseItem(JSONObject item, JSONObject values) {
+	private String parseItem(JSONObject item, JSONObject values) {
 		String field = item.getString("field");
 		if (!rootEntity.containsField(field)) {
 			LOG.warn("Unknow field '" + field + "' in '" + rootEntity.getName() + "'");
@@ -202,8 +212,9 @@ public class AdvFilterParser {
 		} else {
 			value = parseValue(value, op, fieldMeta);
 		}
+		
+		// No value
 		if (value == null) {
-			LOG.warn("Invalid item of advfilter : " + item.toJSONString());
 			return null;
 		}
 		
@@ -325,5 +336,30 @@ public class AdvFilterParser {
 	private boolean isNumberType(Type type) {
 		return type == FieldType.INT || type == FieldType.SMALL_INT || type == FieldType.LONG 
 				|| type == FieldType.DOUBLE || type == FieldType.DECIMAL;
+	}
+	
+	/**
+	 * @return
+	 */
+	private JSONArray getQuickFilterItems() {
+		Set<String> fields = new HashSet<>();
+		
+		Field nameField = rootEntity.getNameField();
+		DisplayType dt = EasyMeta.getDisplayType(nameField);
+		if (dt == DisplayType.PICKLIST || dt == DisplayType.REFERENCE) {
+			fields.add("&" + nameField.getName());
+		} else if (dt == DisplayType.TEXT || dt == DisplayType.EMAIL || dt == DisplayType.URL || dt == DisplayType.PHONE || dt == DisplayType.SERIES) {
+			fields.add(nameField.getName());
+		}
+		
+		if (rootEntity.containsField(EntityHelper.QuickCode)) {
+			fields.add(EntityHelper.QuickCode);
+		}
+		
+		JSONArray items = new JSONArray();
+		for (String field : fields) {
+			items.add(JSON.parseObject("{ op:'lk', value:'{1}', field:'" + field + "' }"));
+		}
+		return items;
 	}
 }

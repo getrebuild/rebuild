@@ -83,6 +83,7 @@ $(document).ready(function(){
 	else $('.footer .J_action').removeClass('hide')
 
 	$('.J_del').click(function(){
+		if (!wpc.isSuperAdmin){ rb.hberror('仅超级管理员可删除字段'); return }
 		let alertExt = { type: 'danger', confirmText: '删除' }
             alertExt.confirm = function(){
                 $(this.refs['rbalert']).find('.btn').button('loading')

@@ -15,14 +15,19 @@ class AdvFilter extends React.Component {
         this.childrenRef = []
     }
     render() {
-        let showSave = this.props.showSave == true
         let operBtns = (
-            <div className={showSave ? 'float-right' : 'item'}>
-                <button className="btn btn-primary" type="button" onClick={()=>this.confirm()}>{showSave ? '保存' : '确定'}</button>
+            <div className="item">
+                <button className="btn btn-primary" type="button" onClick={()=>this.confirm()}>确定</button>
                 <button className="btn btn-secondary" type="button" onClick={()=>this.hide(true)}>取消</button>
-            </div>
-            )
-
+            </div>)
+        if (this.props.fromList) {
+            operBtns = (
+                <div className="float-right">
+                    <button className="btn btn-primary" type="button" onClick={()=>this.confirm()}>保存</button>
+                    <button className="btn btn-secondary" type="button" onClick={()=>this.searchNow()}>立即查询</button>
+                </div>)
+        }
+            
         let advFilter = (
             <div className={'adv-filter-warp ' + (this.props.inModal ? 'in-modal' : 'shadow rounded')}>
                 <div className="adv-filter">
@@ -49,22 +54,22 @@ class AdvFilter extends React.Component {
                         </div>
                         }
                     </div>
-                    {showSave ?
+                    {this.props.fromList ?
                     <div className="item dialog-footer">
-                        {rb.isAdminUser !== true ? null :
                         <div className="float-left">
                             <div className="float-left input">
                                 <input className="form-control form-control-sm text" maxLength="20" value={this.state.filterName || ''} data-id="filterName" onChange={this.handleChange} placeholder="输入过滤项名称" />
                             </div>
+                            {rb.isAdminUser !== true ? null :
                             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline ml-4 mt-2">
                                 <input className="custom-control-input" type="checkbox" checked={this.state.applyToAll == true} data-id="applyToAll" onChange={this.handleChange} />
                                 <span className="custom-control-label">共享给全部用户</span>
-                            </label>
-                        </div>}
+                            </label>}
+                        </div>
                         {operBtns}
                         <div className="clearfix"/>
                     </div>
-                    : (<div>{operBtns}</div>) }
+                    : (<div>{operBtns}</div>)}
                 </div>
             </div>
             )
@@ -172,6 +177,10 @@ class AdvFilter extends React.Component {
         let adv = { entity: this.props.entity, items: filters }
         if (this.state.enableEquation == true) adv.equation = this.state.equation
         return adv
+    }
+    searchNow(){
+        let adv = this.toFilterJson()
+        if (!!adv && RbListPage) RbListPage._RbList.search(adv)
     }
     
     confirm() {

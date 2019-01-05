@@ -21,6 +21,7 @@ package com.rebuild.server;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
@@ -131,7 +132,7 @@ public final class Application {
 	 * @return
 	 */
 	public static boolean devMode() {
-		return "1".equals(System.getProperty("dev"));
+		return BooleanUtils.toBoolean(System.getProperty("rbdev"));
 	}
 	
 	/**

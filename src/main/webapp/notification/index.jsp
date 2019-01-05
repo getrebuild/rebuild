@@ -11,9 +11,9 @@
 .card-body.rb-notifications .notification.notification-unread>a{cursor:pointer;}
 .card-body.rb-notifications .notification.notification-unread>a:after{background-color:#4285f4 !important}
 .card-body.rb-notifications .notification:hover{background-color:#ebf2fe !important;}
-.card-body.rb-notifications .notification>a{cursor:default;padding:15px 6px;}
+.card-body.rb-notifications .notification>a{cursor:default;padding:13px 6px;}
 .card-body.rb-notifications .notification>a .text{color:#404040 !important;font-size:1rem;}
-.card-body.rb-notifications .notification>a .date{color:#8a8a8a !important;}
+.card-body.rb-notifications .notification>a .date{color:#8a8a8a !important;margin-top:4px;font-size:12px;}
 </style>
 </head>
 <body>

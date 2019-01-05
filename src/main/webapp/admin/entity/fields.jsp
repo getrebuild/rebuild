@@ -43,8 +43,8 @@
 							<div class="col-sm-6">
 								<div class="dataTables_filter">
 									<div class="input-group input-search">
-										<input class="form-control rounded" placeholder="搜索 字段名称/内部标识" type="text">
-										<span class="input-group-btn"><button class="btn btn-secondary"><i class="icon zmdi zmdi-search"></i></button></span>
+										<input class="form-control" type="text" placeholder="查询字段">
+										<span class="input-group-btn"><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button></span>
 									</div>
 								</div>
 							</div>
@@ -91,6 +91,9 @@
 
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/rb-list.jsx" type="text/babel"></script>
+<script>
+window.__PageConfig = { isSuperAdmin: ${isSuperAdmin} }
+</script>
 <script type="text/babel">
 let fields_data = null
 let name_field = '${nameField}'
@@ -108,7 +111,8 @@ $(document).ready(function(){
 	})
 
 	$('.J_new-field').click(function(){
-		rb.modal('${baseUrl}/admin/p/entity/field-new?entity=${entityName}', '新建字段')
+		if (window.__PageConfig.isSuperAdmin) rb.modal('${baseUrl}/admin/p/entity/field-new?entity=${entityName}', '新建字段')
+		else rb.hberror('仅超级管理员可新建字段')
 	})
 });
 const render_list = function(q){

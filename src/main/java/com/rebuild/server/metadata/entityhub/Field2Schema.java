@@ -26,12 +26,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 
 import com.github.stuxuhai.jpinyin.PinyinException;
 import com.github.stuxuhai.jpinyin.PinyinFormat;
 import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.bizz.UserHelper;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
@@ -62,6 +64,7 @@ public class Field2Schema {
 	 */
 	public Field2Schema(ID user) {
 		this.user = user;
+		Assert.isTrue(UserHelper.isSuperAdmin(user), "仅超级管理员可新建/删除元数据");
 	}
 	
 	/**

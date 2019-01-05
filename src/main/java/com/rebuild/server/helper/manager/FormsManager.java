@@ -345,12 +345,13 @@ public class FormsManager extends LayoutManager {
 			} 
 			else if (value instanceof ID) {
 				ID idValue = (ID) value;
-				if (onView) {
-					String belongEntity = MetadataHelper.getEntity(idValue.getEntityCode()).getName();
-					return new String[] { idValue.toLiteral(), idValue.getLabel(), belongEntity };
-				} else {
-					return new String[] { idValue.toLiteral(), idValue.getLabel() };
+				String idLabel = idValue.getLabel();
+				if (idLabel == null) {
+					idLabel = '[' + idValue.toLiteral().toUpperCase() + ']';
 				}
+				
+				String belongEntity = MetadataHelper.getEntityName(idValue);
+				return new String[] { idValue.toLiteral(), idLabel, belongEntity };
 			} 
 			else {
 				Object ret = FieldValueWrapper.wrapFieldValue(value, field);

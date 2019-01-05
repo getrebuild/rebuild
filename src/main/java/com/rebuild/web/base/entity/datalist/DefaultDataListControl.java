@@ -21,6 +21,8 @@ package com.rebuild.web.base.entity.datalist;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Query;
@@ -60,6 +62,12 @@ public class DefaultDataListControl implements DataListControl {
 
 	@Override
 	public String getDefaultFilter() {
+		
+		// TODO 可配置的列表过滤器
+		
+		if (queryParser.getEntity().getEntityCode() == EntityHelper.User) {
+			return String.format("userId <> '%s'", UserService.SYSTEM_USER);
+		}
 		return null;
 	}
 	

@@ -9403,7 +9403,9 @@ a.avatar.x48 img {
     display: block;
     font-size: .6923rem;
     margin-top: 4px;
-    text-transform: uppercase
+    text-transform: uppercase;
+    font-size: 11px;
+    margin-top: 2px;
 }
 .rb-notifications .notification.notification-unread {
     background-color: #ebf2fe;

@@ -41,6 +41,7 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.metadata.entityhub.Entity2Schema;
+import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.commons.web.ServletUtils;
@@ -59,7 +60,9 @@ public class MetaEntityControll extends BaseControll {
 
 	@RequestMapping("entities")
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
-		return createModelAndView("/admin/entity/entity-grid.jsp");
+		ModelAndView mv = createModelAndView("/admin/entity/entity-grid.jsp");
+		mv.getModel().put("isSuperAdmin", UserHelper.isSuperAdmin(getRequestUser(request)));
+		return mv;
 	}
 
 	@RequestMapping("entity/{entity}/base")
@@ -83,6 +86,7 @@ public class MetaEntityControll extends BaseControll {
 	@RequestMapping("entity/{entity}/advanced")
 	public ModelAndView pageEntityDanger(@PathVariable String entity, HttpServletRequest request) throws IOException {
 		ModelAndView mv = createModelAndView("/admin/entity/entity-advanced.jsp");
+		mv.getModel().put("isSuperAdmin", UserHelper.isSuperAdmin(getRequestUser(request)));
 		setEntityBase(mv, entity);
 		return mv;
 	}

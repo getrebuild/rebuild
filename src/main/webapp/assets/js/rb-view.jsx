@@ -34,6 +34,7 @@ class RbViewForm extends React.Component {
         that.setState({ formComponent: error }, function() {
             that.hideLoading()
         })
+        $('.view-operating .view-action').empty()
     }
     
     hideLoading() {
