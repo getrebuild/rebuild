@@ -388,7 +388,7 @@ const RbListPage = {
             
             let alertExt = { type: 'danger', confirmText: '删除' }
             alertExt.confirm = function(){
-                let btns = $(this.refs['rbalert']).find('.btn').button('loading')
+                let btns = $(this.refs['btns']).find('.btn').button('loading')
                 let thatModal = this
                 $.post(rb.baseUrl + '/app/entity/record-delete?id=' + ids.join(','), function(res){
                     if (res.error_code == 0){

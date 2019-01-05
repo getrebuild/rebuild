@@ -78,13 +78,13 @@ const loadRoles = function() {
             })
 
             action.find('a.J_del').click(function(){
-                let alertExt = { type: 'danger', confirmText: '删除', confirm: function(){ deleteRole(_id) } }
+                let alertExt = { type: 'danger', confirmText: '删除', confirm: function(){ deleteRole(_id, this) } }
                 $.get(rb.baseUrl + '/admin/bizuser/deleting-checks?id=' + _id, function(res){
                     if (res.data.hasMember == 0){
                         rb.alert('此角色可以被安全的删除', '删除角色', alertExt)
                     } else {
                         let url = rb.baseUrl + '/admin/bizuser/users#!/Filter/roleId=' + _id
-                        let msg = '有 <a href="' + url + '" target="_blank"><b>' + res.data.hasMember + '</b></a> 个用户使用了此角色。删除将导致这些用户被禁用，直到你为他们指定了新的角色'
+                        let msg = '有 <a href="' + url + '" target="_blank"><b>' + res.data.hasMember + '</b></a> 个用户使用了此角色<br>删除将导致这些用户被禁用，直到你为他们指定了新的角色'
                         alertExt.html = true
                         rb.alert(msg, '删除角色', alertExt)
                     }
@@ -142,9 +142,11 @@ const updatePrivileges = function() {
     	rb.hbsuccess('保存成功')
     })
 }
-const deleteRole = function(id){
-    $.post(rb.baseUrl + '/admin/bizuser/role-delete?transfer=&id=' + id, function(res){
+const deleteRole = function(id, dlg){
+	let btns = $(dlg.refs['btns']).find('.btn').button('loading')
+    $.post(rb.baseUrl + '/admin/bizuser/role-delete?transfer=&id=' + id, (res)=>{
         if (res.error_code == 0) location.replace(rb.baseUrl + '/admin/bizuser/role-privileges')
         else rb.hberror(res.error_msg)
+        btns.button('reset')
     })
 }

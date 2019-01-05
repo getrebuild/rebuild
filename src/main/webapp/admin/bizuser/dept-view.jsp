@@ -60,27 +60,23 @@ $(document).ready(function(){
 	$('.J_delete').off('click').click(function(){
 		$.get(rb.baseUrl + '/admin/bizuser/deleting-checks?id=${id}', function(res){
 			if (res.data.hasMember == 0 && res.data.hasChild == 0){
-				rb.alert('此部门可以被安全的删除', '删除部门', { type: 'danger', confirmText: '删除', confirm: deleteDept })
+				rb.alert('此部门可以被安全的删除', '删除部门', { type: 'danger', confirmText: '删除', confirm: function(){ deleteDept(this) } })
 			} else {
 				let msg = '此部门下有 '
-				if (res.data.hasMember > 0){
-					let url = rb.baseUrl + '/admin/bizuser/users#!/Filter/deptId=${id}'
-					msg += '<a href="' + url + '" target="_blank"><b>' + res.data.hasMember + '</a></b> 个用户' + (res.data.hasMember > 0 ? '和 ' : ' ')
-				}
-				if (res.data.hasMember > 0){
-					let url = rb.baseUrl + '/admin/bizuser/users#!/Filter/parent=${id}'
-					msg += '<a href="' + url + '" target="_blank"><b>' + res.data.hasMember + '</a></b> 个子部门'
-				}
-				msg += '。请将他们转移至其他部门，然后才能删除'
+				if (res.data.hasMember > 0) msg += '<b>' + res.data.hasMember + '</b> 个用户' + (res.data.hasMember > 0 ? '和 ' : ' ')
+				if (res.data.hasMember > 0) msg += '<b>' + res.data.hasMember + '</b> 个子部门'
+				msg += '<br>请先将他们转移至其他部门，然后才能删除'
 				rb.alert(msg, '无法删除', { type: 'warning', html: true })
 			}
 		})
 	})
 })
-let deleteDept = function(){
+let deleteDept = function(dlg){
+	let btns = $(dlg.refs['btns']).find('.btn').button('loading')
 	$.post(rb.baseUrl + '/admin/bizuser/dept-delete?transfer=&id=${id}', function(res){
 		if (res.error_code == 0) parent.location.reload()
 		else rb.hberror(res.error_msg)
+		btns.button('reset')
 	})
 }
 </script>

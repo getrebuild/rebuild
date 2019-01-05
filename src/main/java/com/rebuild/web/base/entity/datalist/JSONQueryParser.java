@@ -126,10 +126,12 @@ public class JSONQueryParser {
 		
 		// 过滤器
 		
-		// Default
 		StringBuffer sqlWhere = new StringBuffer(" where (1=1)");
-		if (dataListControl.getDefaultFilter() != null) {
-			sqlWhere.append('(').append(dataListControl.getDefaultFilter()).append(')');
+		
+		// Default
+		String defaultFilter = dataListControl.getDefaultFilter();
+		if (defaultFilter != null) {
+			sqlWhere.append(" and (").append(defaultFilter).append(')');
 		}
 		// Adv
 		String advExpId = queryElement.getString("advFilter");
@@ -150,13 +152,9 @@ public class JSONQueryParser {
 				sqlWhere.append(" and ").append(query);
 			}
 		}
-		
 		sqlBase.append(sqlWhere);
 		
 		StringBuffer sqlSort = new StringBuffer(" order by ");
-		if (dataListControl.getDefaultFilter() != null) {
-			sqlWhere.append('(').append(dataListControl.getDefaultFilter()).append(')');
-		}
 		
 		String sortNode = queryElement.getString("sort");
 		if (StringUtils.isNotBlank(sortNode)) {
