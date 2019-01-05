@@ -47,10 +47,5 @@ public class QuickCodeReindexTaskTest extends TestSupport {
 		new QuickCodeReindexTask(MetadataHelper.getEntity("User")).run();
 		new QuickCodeReindexTask(MetadataHelper.getEntity("Role")).run();
 		new QuickCodeReindexTask(MetadataHelper.getEntity("Department")).run();
-		
-		String entity = "h45hy54hy";
-		if (MetadataHelper.containsEntity(entity)) {
-			new QuickCodeReindexTask(MetadataHelper.getEntity(entity)).run();
-		}
 	}
 }

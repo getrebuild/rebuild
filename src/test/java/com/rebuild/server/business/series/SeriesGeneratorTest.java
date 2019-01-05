@@ -77,7 +77,7 @@ public class SeriesGeneratorTest extends TestSupport {
 				}
 			});
 		}
-		ThreadPool.waitFor(1000);
+		ThreadPool.waitFor(500);
 		Assert.assertTrue(set.size() == 2000);
 	}
 	
