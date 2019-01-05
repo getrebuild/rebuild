@@ -1,3 +1,4 @@
+const wpc = window.__PageConfig
 let esourceFilter
 $(document).ready(() => {
     $(window).trigger('resize')
@@ -43,7 +44,7 @@ $(document).ready(() => {
         render_preview()
     }
     $('.J_filter').click(()=>{
-        renderRbcomp(<AdvFilter entity={window.__sourceEntity} filter={esourceFilter} inModal={true} confirm={saveFilter} />)
+        renderRbcomp(<AdvFilter entity={wpc.sourceEntity} filter={esourceFilter} inModal={true} confirm={saveFilter} />)
     })
 	
 	let cts = $('.chart-type > a').click(function(){
@@ -58,32 +59,30 @@ $(document).ready(() => {
 	    let cfg = build_config()
 	    if (!!!cfg){ rb.highbar('当前图表无数据'); return }
 	    let _data = { config: JSON.stringify(cfg), title: cfg.title, belongEntity: cfg.entity, type: cfg.type }
-	    _data.metadata = { entity: 'ChartConfig', id: window.__chartId }
+	    _data.metadata = { entity: 'ChartConfig', id: wpc.chartId }
 	    
 	    let dash = $urlp('dashid') || ''
         $.post(rb.baseUrl + '/dashboard/chart-save?dashid=' + dash, JSON.stringify(_data), function(res){
             if (res.error_code == 0){
-                // window.__chartId = res.data.id
                 location.href = (!!dash ? ('home?d=' + dash) : 'home') + '#' + res.data.id
             } else rb.hberror(res.error_msg)
         })
 	    
 	}).find('.zmdi').addClass('zmdi-arrow-left')
 	
-	if (window.__chartConfig && window.__chartConfig.axis) {
-	    let cfg = window.__chartConfig
-	    $(cfg.axis.dimension).each((idx, item) => { add_axis('.J_axis-dim', item) })
-	    $(cfg.axis.numerical).each((idx, item) => { add_axis('.J_axis-num', item) })
-	    $('.chart-type>a[data-type="' + cfg.type + '"]').trigger('click')
-        esourceFilter = cfg.filter
+	if (wpc.chartConfig && wpc.chartConfig.axis) {
+	    $(wpc.chartConfig.axis.dimension).each((idx, item) => { add_axis('.J_axis-dim', item) })
+	    $(wpc.chartConfig.axis.numerical).each((idx, item) => { add_axis('.J_axis-num', item) })
+	    $('.chart-type>a[data-type="' + wpc.chartConfig.type + '"]').trigger('click')
+        esourceFilter = wpc.chartConfig.filter
 	}
-    if (!window.__chartId) $('<h4 class="chart-undata must-center">当前图表无数据</h4>').appendTo('#chart-preview')
+    if (!wpc.chartId) $('<h4 class="chart-undata must-center">当前图表无数据</h4>').appendTo('#chart-preview')
 })
 $(window).resize(() => {
     $setTimeout(()=>{
         $('#chart-preview').height($(window).height() - 170)
         if (render_preview_chart) render_preview_chart.resize()
-    }, 200, 'resize-chart-preview')
+    }, 200, 'ChartPreview-resize')
 })
 
 const CTs = { SUM:'求和', AVG:'平均值', MAX:'最大值', MIN:'最小值', COUNT:'计数', Y:'按年', Q:'按季', M:'按月', D:'按日', H:'按时' }
@@ -119,6 +118,8 @@ let add_axis = ((target, axis) => {
     	}
 	}
 	el.attr({ 'data-calc': calc, 'data-sort': sort })
+	
+	fLabel = fLabel || ('[' + fName.toUpperCase() + ']')
 	
 	if (isNumAxis) {
         if (fType == 'date' || fType == 'text') el.find('.J_date, .J_num').remove()
@@ -218,7 +219,7 @@ let render_preview = (() => {
 })
 
 let build_config = (() => {
-    let cfg = { entity: window.__sourceEntity, title: $val('#chart-title') || '未命名图表' }
+    let cfg = { entity: wpc.sourceEntity, title: $val('#chart-title') || '未命名图表' }
     cfg.type = $('.chart-type>a.select').data('type')
     if (!cfg.type) return
     

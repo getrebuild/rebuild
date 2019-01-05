@@ -107,7 +107,7 @@ class ChartTable extends BaseChart {
 }
 
 // for ECharts
-const ECHART_OPT = {
+const ECHART_Base = {
     grid: { left: 60, right: 30, top: 30, bottom: 30 },
     animation: false,
     tooltip: {
@@ -126,7 +126,6 @@ const ECHART_OPT = {
         fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif'
     }
 }
-// 
 const ECHART_AxisLabel = {
     textStyle: {
         color: '#555',
@@ -178,7 +177,7 @@ class ChartLine extends BaseChart {
                 },
                 series: data.yyyAxis
             }
-            opt = { ...opt, ...ECHART_OPT }
+            opt = { ...opt, ...ECHART_Base }
             opt.tooltip.formatter = '<b>{b}</b> <br> ' + formatter.join(' <br> ')
             opt.tooltip.trigger = 'axis'
             
@@ -232,7 +231,7 @@ class ChartBar extends BaseChart {
                 },
                 series: data.yyyAxis
             }
-            opt = { ...opt, ...ECHART_OPT }
+            opt = { ...opt, ...ECHART_Base }
             opt.tooltip.formatter = '<b>{b}</b> <br> ' + formatter.join(' <br> ')
             opt.tooltip.trigger = 'axis'
             
@@ -257,7 +256,7 @@ class ChartPie extends BaseChart {
             let opt = {
                 series: [ data ]
             }
-            opt = { ...opt, ...ECHART_OPT }
+            opt = { ...opt, ...ECHART_Base }
             opt.tooltip.formatter = '<b>{b}</b> <br/> {a} : {c} ({d}%)'
             opt.tooltip.trigger = 'item'
                 

@@ -35,14 +35,15 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.charts.ChartData;
 import com.rebuild.server.business.charts.ChartDataFactory;
+import com.rebuild.server.business.charts.ChartsException;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.utils.JSONUtils;
-import com.rebuild.web.IllegalParameterException;
 import com.rebuild.web.BaseControll;
+import com.rebuild.web.IllegalParameterException;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
@@ -118,8 +119,14 @@ public class ChartDesignControll extends BaseControll {
 	@RequestMapping("/chart-preview")
 	public void dataPreview(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		JSON config = ServletUtils.getRequestJson(request);
-		ChartData chart = ChartDataFactory.create((JSONObject) config);
-		JSON data = chart.build();
+		JSON data = null;
+		try {
+			ChartData chart = ChartDataFactory.create((JSONObject) config);
+			data = chart.build();
+		} catch (ChartsException ex) {
+			writeFailure(response, ex.getLocalizedMessage());
+			return;
+		}
 		writeSuccess(response, data);
 	}
 	

@@ -89,6 +89,10 @@ public abstract class ChartData {
 		for (Object o : items) {
 			JSONObject item = (JSONObject) o;
 			String field = item.getString("field");
+			if (!getSourceEntity().containsField(field)) {
+				throw new ChartsException("字段 [" + field.toUpperCase() + " ] 已被删除");
+			}
+			
 			FormatSort sort = FormatSort.NONE;
 			FormatCalc calc = FormatCalc.NONE;
 			if (StringUtils.isNotBlank(item.getString("sort"))) {
@@ -119,6 +123,10 @@ public abstract class ChartData {
 		for (Object o : items) {
 			JSONObject item = (JSONObject) o;
 			String field = item.getString("field");
+			if (!getSourceEntity().containsField(field)) {
+				throw new ChartsException("字段 [" + field.toUpperCase() + " ] 已被删除");
+			}
+			
 			FormatSort sort = FormatSort.NONE;
 			FormatCalc calc = FormatCalc.NONE;
 			if (StringUtils.isNotBlank(item.getString("sort"))) {

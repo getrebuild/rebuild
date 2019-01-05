@@ -1,7 +1,6 @@
 .chart-box {
 	height: 100%;
 	padding: 20px 25px;
-	padding-top: 0;
 }
 .chart-box.high {
 	outline: 2px solid #4285f4;
@@ -25,14 +24,13 @@
 	cursor: move;
 	margin-right: 80px;
 	font-weight: bold;
-	min-height: 40px;
-	padding-top: 20px;
+	min-height: 20px;
 }
 
 .chart-box .chart-head .chart-oper {
 	position: absolute;
 	right: 0;
-	top: 19px;
+	top: 0;
 	display: none;
 }
 
