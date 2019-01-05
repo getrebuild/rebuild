@@ -15,7 +15,7 @@ class RbList extends React.Component {
             if (sort[0] == fields[i].field) fields[i].sort = sort[1]
         }
         props.config.fields = null
-        this.state = { ...props, fields: fields, rowsData: [], noData: false, checkedAll: false, pageNo: 1, pageSize: 20 }
+        this.state = { ...props, fields: fields, rowsData: [], pageNo: 1, pageSize: 20, inLoad: true, checkedAll: false }
         
         this.__defaultColumnWidth = $('#react-list').width() / 10
         if (this.__defaultColumnWidth < 130) this.__defaultColumnWidth = 130
@@ -65,10 +65,11 @@ class RbList extends React.Component {
                         })}    
                     </tbody>
                     </table>
-                    {this.state.noData == true ? <div className="list-nodata"><span className="zmdi zmdi-info-outline"/><p>没有检索到数据</p></div> : null}
+                    {this.state.inLoad == false && this.state.rowsData.length == 0 ? <div className="list-nodata"><span className="zmdi zmdi-info-outline"/><p>没有检索到数据</p></div> : null}
                 </div>
             </div></div>
-            {this.state.rowsTotal && <RbListPagination rowsTotal={this.state.rowsTotal} pageSize={this.pageSize} $$$parent={this} />}
+            {this.state.rowsData.length > 0 ? <RbListPagination ref="pagination" rowsTotal={this.state.rowsTotal} pageSize={this.pageSize} $$$parent={this} /> : null}
+            {this.state.inLoad == true && <RbSpinner />}
         </div>)
     }
     componentDidMount() {
@@ -128,9 +129,11 @@ class RbList extends React.Component {
             reload: this.pageNo == 1
         }
         
-        let that = this
-        $('#react-list').addClass('rb-loading-active')
-        $.post(`${rb.baseUrl}/app/${entity}/data-list`, JSON.stringify(query), function(res){
+        let loadingTimer = setTimeout(()=>{
+            this.setState({ inLoad: true })
+            $('#react-list').addClass('rb-loading-active')
+        }, 400)
+        $.post(`${rb.baseUrl}/app/${entity}/data-list`, JSON.stringify(query), (res)=>{
             if (res.error_code == 0){
                 let rowsdata = res.data.data || []
                 if (rowsdata.length > 0) {
@@ -141,13 +144,14 @@ class RbList extends React.Component {
                     })
                 }
                 
-                let state = { noData: rowsdata.length == 0, rowsData: rowsdata }
-                if (res.data.total > 0) state.rowsTotal = res.data.total
-                that.setState(state)
+                this.setState({ rowsData: rowsdata, inLoad: false })
+                if (res.data.total > 0) this.refs['pagination'].setState({ rowsTotal: res.data.total })
                 
             }else{
                 rb.hberror(res.error_msg)
             }
+            
+            clearTimeout(loadingTimer)
             $('#react-list').removeClass('rb-loading-active')
         })
     }
@@ -301,11 +305,12 @@ class RbListPagination extends React.Component {
         return (
             <div className="row rb-datatable-footer">
                 <div className="col-sm-3">
-                    <div className="dataTables_info">{this.state.rowsTotal > 0 ? `共 ${this.state.rowsTotal} 条数据` : ''}</div>
+                    <div className="dataTables_info" key="page-rowsTotal">{this.state.rowsTotal > 0 ? `共 ${this.state.rowsTotal} 条数据` : ''}</div>
                 </div>
                 <div className="col-sm-9">
                     <div className="float-right paging_sizes">
                         <select className="form-control form-control-sm" title="每页显示" onChange={this.setPageSize} value={this.state.pageSize || 20}>
+                            {rb.env == 'dev' && <option value="5">5 条</option>}
                             <option value="20">20 条</option>
                             <option value="40">40 条</option>
                             <option value="80">80 条</option>

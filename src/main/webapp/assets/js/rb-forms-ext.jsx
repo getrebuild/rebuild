@@ -21,7 +21,6 @@ class RbFormBool extends RbFormElement {
     }
     changeValue(e) {
         let val = e.target.dataset.value
-        console.log(val)
         this.handleChange({ target:{ value: val } }, true)
     }
 }

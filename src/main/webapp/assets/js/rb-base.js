@@ -54,24 +54,24 @@
 		else if (v === 'false') v = false
 		window.rb[k] = v
 	})
-	if (rb.env == 'production') $(document.body).addClass('evn-production')
-//	$(document.body).addClass('rb-animate')
 	
+	if (rb.env == 'dev'){
+		setTimeout(()=>{
+			$('html').addClass('dev')
+			$(document.body).addClass('rb-animate')
+		}, 1000)
+	}
 })(jQuery)
 
 // extend Array
 Array.prototype.remove = function(item) {
 	var index = this.indexOf(item)
-	if(index >= 0){
-		this.splice(index, 1)
-	}
+	if(index >= 0) this.splice(index, 1)
 }
 Array.prototype.contains = function(item) {
     var i = this.length
     while (i--) {
-        if (this[i] === item) {
-            return true
-        }
+        if (this[i] === item) return true
     }
     return false
 }
@@ -92,8 +92,10 @@ String.prototype.contains = function(substr) {
 }
 
 var $setTimeout__timers = {}
-/* 不会重复执行的 setTimeout
- */
+// 不会重复执行的 setTimeout
+// @e - Function
+// @t - timeout
+// @id - unique id
 var $setTimeout = function(e, t, id){
 	if (id && $setTimeout__timers[id]){
 		clearTimeout($setTimeout__timers[id])
@@ -103,8 +105,7 @@ var $setTimeout = function(e, t, id){
 	if (id) $setTimeout__timers[id] = timer
 }
 
-/* 获取 URL 参数
- */
+// 获取 URL 参数
 var $urlp = function(key, qstr) {
 	qstr = qstr || window.location.search
 	if (!qstr) return (!key || key == '*') ? {} : null
@@ -119,9 +120,8 @@ var $urlp = function(key, qstr) {
 	return (!key || key == '*') ? map : map[key]
 }
 
-/* 获取元素值
- * 如有 data-o 属性：如当前值与原值（data-o）一致，则返回 undefined；如清空了值则返回 null
- */
+// 获取元素值
+// 如有 data-o 属性：如当前值与原值（data-o）一致，则返回 undefined；如清空了值则返回 null
 var $val = function(el){
 	el = $(el)
 	var nVal = null
@@ -144,8 +144,7 @@ var $val = function(el){
 	else return $.trim(nVal) || null
 }
 
-/* 清理 Map 中的无效值（null、undefined）
- */
+// 清理 Map 中的无效值（null、undefined）
 var $cleanMap = function(map) {
 	if ($.type(map) != 'object') throw Error('Unsupportted type ' + $.type(map))
 	var newMap = {}
@@ -228,10 +227,4 @@ var $pages = function(tp, cp){
 	if (end <= tp - 1) pages.push('.')
 	if (end <= tp) pages.push(tp)
 	return pages
-}
-
-// console.log(o)
-var $debug = function(o){
-	if (rb.env == 'production') return
-	console.log(o)
 }

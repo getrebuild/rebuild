@@ -1,14 +1,14 @@
-const wcf = window.__PageConfig
+const wpc = window.__PageConfig
 $(document).ready(function(){
-    $.get('../list-field?entity=' + wcf.entityName, function(res){
+    $.get('../list-field?entity=' + wpc.entityName, function(res){
         let validFields = {}, configFields = []
-        $(wcf.formConfig.elements).each(function(){ configFields.push(this.field) })
+        $(wpc.formConfig.elements).each(function(){ configFields.push(this.field) })
         $(res.data).each(function(){
             validFields[this.fieldName] = this
             if (configFields.contains(this.fieldName) == false) render_unset(this, '.field-list')
         })
         
-        $(wcf.formConfig.elements).each(function(){
+        $(wpc.formConfig.elements).each(function(){
             let field = validFields[this.field]
             if (this.field == '$DIVIDER$'){
                 render_item({ fieldName: this.field, fieldLabel: this.label || '分栏', isFull: true }, '.form-preview')
@@ -48,8 +48,8 @@ $(document).ready(function(){
         })
         if (elements.length == 0) { rb.highbar('请至少布局1个字段'); return }
         
-        let _data = { belongEntity: wcf.entityName, type: 'FORM', config: JSON.stringify(elements) }
-        _data.metadata = { entity:'LayoutConfig', id: wcf.formConfig.id || null }
+        let _data = { belongEntity: wpc.entityName, type: 'FORM', config: JSON.stringify(elements) }
+        _data.metadata = { entity:'LayoutConfig', id: wpc.formConfig.id || null }
         
         btn.button('loading')
         $.post('form-update', JSON.stringify(_data), function(res){
