@@ -35,14 +35,22 @@ $(document).ready(function(){
 	
 	$.get(rb.baseUrl + '/commons/metadata/fields?entity=' + wpc.entity, function(d){
 		let rs = d.data.map((item) => {
-			let unName = item.type == 'REFERENCE' || item.type == 'NTEXT'
+			let canName = item.type == 'NUMBER' || item.type == 'DECIMAL'
+				|| item.type == 'TEXT' || item.type == 'EMAIL' || item.type == 'URL' || item.type == 'PHONE' || item.type == 'SERIES'
+				|| item.type == 'PICKLIST' || item.type == 'REFERENCE' || item.type == 'DATE' || item.type == 'DATETIME'
 			return {
 				id: item.name,
 				text: item.label,
-				disabled: unName,
-				title: unName ? '此字段（类型）不能作为主显字段' : ''
+				disabled: canName == false,
+				title: canName == false ? '此字段（类型）不支持作为名称字段' : ''
 			}
 		})
+		// rs.sort((a, b)=>{ return a.disabled == true ? 1 : (b.disabled == true ? 0 : -1) })
+		let rsSort = []
+		rs.forEach((item)=>{ if (item.disabled == false) rsSort.push(item) })
+		rs.forEach((item)=>{ if (item.disabled == true) rsSort.push(item) })
+		rs = rsSort
+		
 		$('#nameField').select2({
 			language: 'zh-CN',
 			placeholder: '选择字段',

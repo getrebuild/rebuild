@@ -197,7 +197,8 @@ window.__PageConfig = {
 	extConfig: $.parseJSON('${fieldExtConfig}' || '{}'),
 	entityName: '${entityName}',
 	fieldName: '${fieldName}',
-	fieldBuildin: ${fieldBuildin}
+	fieldBuildin: ${fieldBuildin},
+	isSuperAdmin: ${isSuperAdmin}
 }
 </script>
 <script src="${baseUrl}/assets/js/entity/field-edit.js"></script>

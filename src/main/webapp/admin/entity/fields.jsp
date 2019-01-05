@@ -108,7 +108,8 @@ $(document).ready(function(){
 	})
 
 	$('.J_new-field').click(function(){
-		rb.modal('${baseUrl}/admin/p/entity/field-new?entity=${entityName}', '新建字段')
+		if (${isSuperAdmin}) rb.modal('${baseUrl}/admin/p/entity/field-new?entity=${entityName}', '新建字段')
+		else rb.hberror('仅超级管理员可新建字段')
 	})
 });
 const render_list = function(q){

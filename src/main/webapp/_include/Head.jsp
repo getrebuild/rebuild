@@ -1,5 +1,4 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="com.rebuild.server.helper.SystemConfiguration"%>
 <%@ page import="com.rebuild.utils.AppUtils"%>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -15,7 +14,6 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-page.css">
 <meta name="rb.env" content="<%=AppUtils.devMode() ? "dev" : "production"%>">
 <meta name="rb.baseUrl" content="${baseUrl}">
-<meta name="rb.storageUrl" content="<%=SystemConfiguration.getStorageUrl()%>">
 <%if (AppUtils.isAdminUser(request)){%>
 <meta name="rb.isAdminUser" content="true">
 <meta name="rb.isAdminVerified" content="<%=AppUtils.isAdminVerified(request)%>">

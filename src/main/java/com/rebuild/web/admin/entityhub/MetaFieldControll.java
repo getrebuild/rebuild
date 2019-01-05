@@ -41,6 +41,7 @@ import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.metadata.entityhub.Field2Schema;
+import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.commons.web.ServletUtils;
@@ -66,6 +67,7 @@ public class MetaFieldControll extends BaseControll  {
 		MetaEntityControll.setEntityBase(mv, entity);
 		String nameField = MetadataHelper.getNameField(entity).getName();
 		mv.getModel().put("nameField", nameField);
+		mv.getModel().put("isSuperAdmin", UserHelper.isSuperAdmin(getRequestUser(request)));
 		return mv;
 	}
 	
@@ -113,6 +115,7 @@ public class MetaFieldControll extends BaseControll  {
 		mv.getModel().put("fieldNullable", fieldMeta.isNullable());
 		mv.getModel().put("fieldUpdatable", fieldMeta.isUpdatable());
 		mv.getModel().put("fieldBuildin", fieldEasyMeta.isBuiltin());
+		mv.getModel().put("isSuperAdmin", UserHelper.isSuperAdmin(getRequestUser(request)));
 		
 		// 字段类型相关
 		Type ft = fieldMeta.getType();

@@ -348,8 +348,7 @@ public class AdvFilterParser {
 		DisplayType dt = EasyMeta.getDisplayType(nameField);
 		if (dt == DisplayType.PICKLIST || dt == DisplayType.REFERENCE) {
 			fields.add("&" + nameField.getName());
-		} else if (dt == DisplayType.TEXT || dt == DisplayType.EMAIL || dt == DisplayType.URL 
-				|| dt == DisplayType.PHONE || dt == DisplayType.SERIES) {
+		} else if (dt == DisplayType.TEXT || dt == DisplayType.EMAIL || dt == DisplayType.URL || dt == DisplayType.PHONE || dt == DisplayType.SERIES) {
 			fields.add(nameField.getName());
 		}
 		
