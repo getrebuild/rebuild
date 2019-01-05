@@ -41,6 +41,9 @@
 </div>
 </script>
 <%@ include file="/_include/Foot.jsp"%>
+<script>
+window.__PageConfig = { isSuperAdmin: ${isSuperAdmin} }
+</script>
 <script type="text/babel">
 $(document).ready(function(){
 	$.get(rb.baseUrl + '/admin/entity/entity-list', function(res){
@@ -49,7 +52,7 @@ $(document).ready(function(){
 		
 		let forNew = render_entity({ icon: 'plus', entityLabel: '新建实体', comments: '新建一个实体' })
 		forNew.find('a.card').attr('href', 'javascript:;').click(function(){
-			if (${isSuperAdmin}) rb.modal(rb.baseUrl + '/admin/p/entity/entity-new', '新建实体')
+			if (window.__PageConfig.isSuperAdmin) rb.modal(rb.baseUrl + '/admin/p/entity/entity-new', '新建实体')
 			else rb.hberror('仅超级管理员可新建实体')
 		})
 	})

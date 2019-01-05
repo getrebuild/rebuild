@@ -91,6 +91,9 @@
 
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/rb-list.jsx" type="text/babel"></script>
+<script>
+window.__PageConfig = { isSuperAdmin: ${isSuperAdmin} }
+</script>
 <script type="text/babel">
 let fields_data = null
 let name_field = '${nameField}'
@@ -108,7 +111,7 @@ $(document).ready(function(){
 	})
 
 	$('.J_new-field').click(function(){
-		if (${isSuperAdmin}) rb.modal('${baseUrl}/admin/p/entity/field-new?entity=${entityName}', '新建字段')
+		if (window.__PageConfig.isSuperAdmin) rb.modal('${baseUrl}/admin/p/entity/field-new?entity=${entityName}', '新建字段')
 		else rb.hberror('仅超级管理员可新建字段')
 	})
 });
