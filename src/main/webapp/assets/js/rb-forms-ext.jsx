@@ -32,7 +32,7 @@ class RbFormAvatar extends RbFormElement {
         super(props)
     }
     renderElement() {
-        let aUrl = this.state.value ? (rb.storageUrl + this.state.value + '?imageView2/2/w/100/interlace/1/q/100') : rb.baseUrl + '/assets/img/avatar.png'
+        let aUrl = rb.baseUrl + (this.state.value ? `/cloud/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` :  '/assets/img/avatar.png')
         return (
             <div className="img-field avatar">
                 <span title="选择头像图片">
@@ -45,7 +45,7 @@ class RbFormAvatar extends RbFormElement {
         )
     }
     renderViewElement() {
-        let aUrl = this.state.value ? (rb.storageUrl + this.state.value + '?imageView2/2/w/100/interlace/1/q/100') : rb.baseUrl + '/assets/img/avatar.png'
+        let aUrl = rb.baseUrl + (this.state.value ? `/cloud/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` :  '/assets/img/avatar.png')
         return (
             <div className="img-field avatar">
                 <a className="img-thumbnail img-upload"><img src={aUrl}/></a>
