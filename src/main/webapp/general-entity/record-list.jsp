@@ -39,9 +39,8 @@
 										</div>
 									</div>
 									<div class="input-group input-search">
-										<input class="form-control rounded-left J_search-text" placeholder="搜索 ..." type="text">
-										<span class="input-group-btn"><button class="btn btn-secondary J_search-btn" type="button"><i class="icon zmdi zmdi-search"></i></button></span>
-										<span class="input-group-btn plus"><button class="btn btn-secondary J_qfields" type="button" title="设置查询字段"><i class="icon zmdi zmdi-more"></i></button></span>
+										<input class="form-control" type="text" placeholder="搜索${entityLabel}">
+										<span class="input-group-btn"><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button></span>
 									</div>
 								</div>
 							</div>

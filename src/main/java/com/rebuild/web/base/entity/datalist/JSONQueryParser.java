@@ -124,12 +124,14 @@ public class JSONQueryParser {
 				.append(" from ")
 				.append(entity.getName());
 		
-		// Filter-Default
+		// 过滤器
+		
+		// Default
 		StringBuffer sqlWhere = new StringBuffer(" where (1=1)");
 		if (dataListControl.getDefaultFilter() != null) {
 			sqlWhere.append('(').append(dataListControl.getDefaultFilter()).append(')');
 		}
-		// Filter-Adv
+		// Adv
 		String advExpId = queryElement.getString("advFilter");
 		if (ID.isId(advExpId)) {
 			Object[] adv = AdvFilterManager.getAdvFilterRaw(ID.valueOf(advExpId));
@@ -140,7 +142,7 @@ public class JSONQueryParser {
 				}
 			}
 		}
-		// Filter-Quick
+		// Quick
 		JSONObject quickExp = queryElement.getJSONObject("filter");
 		if (quickExp != null) {
 			String query = new AdvFilterParser(entity, quickExp).toSqlWhere();

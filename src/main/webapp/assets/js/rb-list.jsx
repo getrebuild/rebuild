@@ -368,8 +368,6 @@ const RbListPage = {
     init: function(config, entity, ep) {
         this._RbList = renderRbcomp(<RbList config={config} />, 'react-list')
         
-        QuickFilters.init('.input-search', entity[0]);
-        
         $('.J_new').click(function(){
             rb.RbFormModal({ title: `新建${entity[1]}`, entity: entity[0], icon: entity[2] })
         })
@@ -427,7 +425,7 @@ const RbListPage = {
         })
         
         $('.J_columns').click(function(){
-            window.__currentModal = rb.modal(`${rb.baseUrl}/p/general-entity/show-fields?entity=${entity[0]}`, '设置列显示')
+            rb.modal(`${rb.baseUrl}/p/general-entity/show-fields?entity=${entity[0]}`, '设置列显示')
         })
         
         // Privileges
@@ -439,54 +437,19 @@ const RbListPage = {
             if (ep.S === false) $('.J_share').remove()
             $cleanMenu('.J_action')
         }
-    },
-}
-
-// 列表快速查询
-const QuickFilters = {
-
-    // @el - 控件
-    // @entity - 实体
-    init(el, entity) {
-        this.root = $(el)
-        this.entity = entity
-
-        let that = this
-        let btn = this.root.find('.J_search-btn').click(function(){
-            let val = $val(that.root.find('.J_search-text'))
-            that.fireFilter(val)
-        })
-        this.root.find('.J_search-text').keydown(function(event){
-            if (event.which == 13) btn.trigger('click')
-        })
-        this.root.find('.J_qfields').click(function(event){
-            rb.modal(`${rb.baseUrl}/p/general-entity/quick-fields?entity=${that.entity}`, '设置快速查询字段')
-        })
-
-        this.loadFilter()
+        
+        this.initQuickFilter(entity[0])
     },
     
-    loadFilter() {
-        let that = this
-        $.get(`${rb.baseUrl}/app/${this.entity}/advfilter/quick-gets`, function(res){
-            that.filterExp = res.data || { items: [] }
-            let qFields = []
-            that.filterExp.items.forEach(function(item){ qFields.push(item.label) })
-            that.root.find('.J_search-text').attr('placeholder', '搜索 ' + qFields.join('/'))
+    initQuickFilter: function(e){
+        let btn = $('.input-search .btn'),
+            input = $('.input-search input')
+        btn.click(()=>{
+            let q = $val(input)
+            let filterExp = { entity: e, type: 'QUICK', values: {1:q} }
+            this._RbList.search(filterExp)
         })
-    },
-    fireFilter(val) {
-        if (!this.filterExp || this.filterExp.items.length == 0){
-            rb.highbar('请先设置查询字段')
-            return
-        }
-        this.filterExp.values = { 1: val }
-        this.mergeFilter()
-        RbListPage._RbList.search(this.filterExp)
-    },
-    
-    // 复写增加额外过滤条件
-    mergeFilter() {
+        input.keydown((event)=>{ if (event.which == 13) btn.trigger('click') })
     }
 }
 

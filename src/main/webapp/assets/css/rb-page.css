@@ -102,6 +102,9 @@
     width: 220px;
     height: 2.8rem;
 }
+.input-search input {
+	border-radius: 2px;
+}
 .input-search input:focus {
 	border-color: #bababa;
 }
