@@ -888,8 +888,8 @@ i.split.ui-draggable-dragging {
 }
 .dept-tree li>a {
     display: block;
-    padding: 7px 9px;
-    cursor: default;
+    padding: 7px 7px;
+    cursor: pointer;
 }
 .dept-tree>ul>li>a {
     margin-left: 0;

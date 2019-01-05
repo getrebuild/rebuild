@@ -1,116 +1,169 @@
-.form-preview {
-    margin: 0 -0.5%
+.rb-content .main-content {
+	margin-right: 300px;
 }
-.card-header .float-right>span {
-    font-size: 12px;
-    padding-left: 4px;
-    font-weight: normal;
+.rb-right-sidebar.field-aside {
+	width: 300px;
 }
-.card-header .float-right>span+span {
-    margin-left: 10px;
-}
+
 .readonly {
-    border-left: 3px solid #bbb !important
+	border-left: 3px solid #bbb !important
 }
+
 .not-nullable {
-    border-left: 3px solid #ea4335 !important
+	border-left: 3px solid #ea4335 !important
 }
+
+.field-aside .rb-content {
+	padding: 18px 0;
+	margin: 0;
+}
+
+.field-head {
+	height: 44px;
+	padding: 0 20px;
+}
+
+.field-head .float-right {
+	margin-top: 17px;
+}
+
+.field-head .float-right>span {
+	padding-left: 4px;
+	font-size: 12px;
+}
+
+.field-head .float-right>span+span {
+	margin-left: 10px;
+}
+
 .dd-list {
-    min-height: 200px
+	min-height: 200px
 }
+
 .dd-list .nodata {
-    padding: 12px 0;
-    color: #999;
-    border: 1px dotted #dedede;
-    text-align: center;
-    display: none;
-    margin: 0;
+	padding: 12px 0;
+	color: #999;
+	border: 1px dotted #dedede;
+	text-align: center;
+	display: none;
+	margin: 0;
 }
+
 .dd-list .dd-item {
-    position: relative;
+	position: relative;
 }
+
 .dd-list .dd-item span.ft {
-    position: absolute;
-    top: 9px;
-    right: 9px;
-    font-size: 12px;
-    color: #999;
-    background-color: #eee;
-    display: inline-block;
-    padding: 3px 4px;
-    line-height: 1;
-    border-radius: 2px;
+	position: absolute;
+	top: 9px;
+	right: 9px;
+	font-size: 12px;
+	color: #999;
+	background-color: #eee;
+	display: inline-block;
+	padding: 3px 4px;
+	line-height: 1;
+	border-radius: 2px;
 }
+
 .dd-list .dd-item .dd-action {
-    float: right;
-    cursor: default;
-    margin-right: -1px;
-    display: none;
+	float: right;
+	cursor: default;
+	margin-right: -1px;
+	display: none;
 }
+
 .dd-list .dd-item .dd-handle:hover .dd-action {
-    display: block;
+	display: block;
 }
+
 .dd-list .dd-item .dd-action a {
-    color: #fff;
-    font-size: 12px;
-    font-style: normal;
-    display: inline-block;
-    padding: 0;
-    padding-left: 6px;
-    opacity: 0.8;
+	color: #fff;
+	font-size: 12px;
+	font-style: normal;
+	display: inline-block;
+	padding: 0;
+	padding-left: 6px;
+	opacity: 0.8;
 }
+
 .dd-list .dd-item .dd-action a:hover {
-    opacity: 1;
+	opacity: 1;
 }
+
 .dd-list .dd-item .dd-action a+a {
-    margin-left: 1px;
+	margin-left: 1px;
 }
+
 .form-preview .dd-item, .form-preview .dd-placeholder {
-    float: left;
-    width: 49%;
-    margin-left: 0.5%;
-    margin-right: 0.5%;
+	float: left;
+	width: 49%;
+	margin-left: 0.5%;
+	margin-right: 0.5%;
 }
+
 .form-preview .dd-placeholder {
-    margin-top: 5px;
-    margin-bottom: 5px;
-    height: 36px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	height: 36px;
 }
+
 .form-preview .dd-item.w-100 {
-    width: 99% !important;
+	width: 99% !important;
 }
+
 .form-preview .dd-item a.rowspan {
+	
 }
+
 .form-preview .dd-item span.ft {
-    top: 13px;
+	top: 13px;
 }
+
 .form-preview .dd-item:hover span.ft {
-    display: none;
+	display: none;
 }
+
 .form-preview .divider .dd-handle {
-    background-color: #eee;
+	background-color: #eee;
 }
+
 .form-preview .dd-item, .form-preview .dd-handle {
-    cursor: move !important;
+	cursor: move !important;
 }
+
 .divider-name {
-    width: 360px;
-    margin: 0 auto;
+	width: 360px;
+	margin: 0 auto;
 }
+
+.field-list {
+	padding: 0 20px;
+	padding-bottom: 15px;
+}
+
 .field-list .dd-item .dd-handle {
-    cursor: pointer;
+	cursor: pointer;
 }
+
 .field-list .dd-item .dd-handle::before {
-    content: '\f278';
-    font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
-    float: right;
-    font-size: 1.6rem;
-    color: #999;
-    float: right;
+	content: '\f278';
+	font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
+	float: right;
+	font-size: 1.6rem;
+	color: #999;
+	float: right;
 }
+
 .field-list .dd-item:hover .dd-handle::before {
-    color: #fff;
+	color: #fff;
 }
+
 .field-list .dd-item span.ft {
-    right: 32px;
+	right: 32px;
+}
+
+.field-list .nodata {
+	margin-top: 5px;
+	background-color: #fff;
 }

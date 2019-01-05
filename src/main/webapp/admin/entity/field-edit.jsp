@@ -51,28 +51,28 @@
 		<div class="main-content container-fluid pt-1">
 			<div class="card mb-0">
 				<div class="card-body pt-4">
-					<form>
+					<form style="max-width:888px">
 						<div class="form-group row">
-							<label class="col-sm-2 col-form-label text-sm-right">字段名称</label>
-							<div class="col-lg-5 col-sm-10">
+							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">字段名称</label>
+							<div class="col-md-12 col-xl-6 col-lg-8">
 								<input class="form-control form-control-sm" type="text" id="fieldLabel" value="${fieldLabel}" data-o="${fieldLabel}">
 							</div>
 						</div>
 						<div class="form-group row">
-							<label class="col-sm-2 col-form-label text-sm-right">内部标识</label>
-							<div class="col-lg-5 col-sm-10">
+							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">内部标识</label>
+							<div class="col-md-12 col-xl-6 col-lg-8">
 								<input class="form-control form-control-sm" type="text" readonly="readonly" value="${fieldName}">
 							</div>
 						</div>
 						<div class="form-group row">
-							<label class="col-sm-2 col-form-label text-sm-right">类型</label>
-							<div class="col-lg-5 col-sm-10">
+							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">类型</label>
+							<div class="col-md-12 col-xl-6 col-lg-8">
 								<input class="form-control form-control-sm" type="text" readonly="readonly" value="${fieldType}">
 							</div>
 						</div>
 						<div class="form-group row J_for-DECIMAL hide">
-							<label class="col-sm-2 col-form-label text-sm-right">小数位长度</label>
-							<div class="col-lg-5 col-sm-10">
+							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">小数位长度</label>
+							<div class="col-md-12 col-xl-6 col-lg-8">
 								<select class="form-control form-control-sm" id="decimalFormat">
 									<option value="##,##0.0">1位</option>
 									<option value="##,##0.00" selected="selected">2位</option>
@@ -84,14 +84,14 @@
 							</div>
 						</div>
 						<div class="form-group row J_for-REFERENCE hide">
-							<label class="col-sm-2 col-form-label text-sm-right">引用实体</label>
-							<div class="col-lg-5 col-sm-10">
+							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">引用实体</label>
+							<div class="col-md-12 col-xl-6 col-lg-8">
 								<div class="form-control-plaintext"><a href="../../${fieldRefentity}/base">${fieldRefentityLabel} (${fieldRefentity})</a></div>
 							</div>
 						</div>
 						<div class="form-group row J_for-DATE hide">
-							<label class="col-sm-2 col-form-label text-sm-right">格式</label>
-							<div class="col-lg-5 col-sm-10">
+							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">格式</label>
+							<div class="col-md-12 col-xl-6 col-lg-8">
 								<select class="form-control form-control-sm" id="dateFormat">
 									<option value="yyyy">YYYY</option>
 									<option value="yyyy-MM">YYYY-MM</option>
@@ -100,8 +100,8 @@
 							</div>
 						</div>
 						<div class="form-group row J_for-DATETIME hide">
-							<label class="col-sm-2 col-form-label text-sm-right">格式</label>
-							<div class="col-lg-5 col-sm-10">
+							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">格式</label>
+							<div class="col-md-12 col-xl-6 col-lg-8">
 								<select class="form-control form-control-sm" id="datetimeFormat">
 									<option value="yyyy-MM-dd">YYYY-MM-DD</option>
 									<option value="yyyy-MM-dd HH:mm">YYYY-MM-DD HH:II</option>
@@ -110,15 +110,15 @@
 							</div>
 						</div>
 						<div class="form-group row J_for-IMAGE J_for-FILE hide">
-							<label class="col-sm-2 col-form-label text-sm-right">允许上传数量</label>
-							<div class="col-lg-5 col-sm-10" style="padding-top:6px">
-								<input class="bslider form-control" id="uploadNumber" type="text" data-slider-value="[1,5]" data-slider-step="1" data-slider-max="10" data-slider-min="0" data-slider-tooltip="show">
+							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">允许上传数量</label>
+							<div class="col-md-12 col-xl-6 col-lg-8" style="padding-top:6px">
+								<input class="bslider form-control" id="uploadNumber" type="text" data-slider-value="[1,5]" data-slider-step="1" data-slider-max="9" data-slider-min="0" data-slider-tooltip="show">
 								<div class="form-text J_minmax">最少上传 <b>1</b> 个，最多上传 <b>5</b> 个</div>
 							</div>
 						</div>
 						<div class="form-group row J_for-PICKLIST hide">
-							<label class="col-sm-2 col-form-label text-sm-right">列表选项</label>
-							<div class="col-lg-5 col-sm-10">
+							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">列表选项</label>
+							<div class="col-md-12 col-xl-6 col-lg-8">
 								<div class="rb-scroller sortable-box autoh">
 									<ol class="dd-list" id="picklist-items">
 										<li class="no-item">加载中</li>
@@ -129,15 +129,15 @@
 						</div>
 						<div class="J_for-SERIES hide">
 							<div class="form-group row">
-								<label class="col-sm-2 col-form-label text-sm-right">编号规则</label>
-								<div class="col-lg-5 col-sm-10">
+								<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">编号规则</label>
+								<div class="col-md-12 col-xl-6 col-lg-8">
 									<input class="form-control form-control-sm" type="text" id="seriesFormat" value="{YYYYMMDD}-{0000}">
 									<p class="form-text mb-0 help">内置变量使用 <code>{}</code> 包裹，如 <code title="年月日 20191231">{YYYYMMDD}</code> <code title="时分秒 235959">{HHIISS}</code> <code title="4位自增序号">{0000}</code></p>
 								</div>
 							</div>
 							<div class="form-group row">
-								<label class="col-sm-2 col-form-label text-sm-right">自增序号归零</label>
-								<div class="col-lg-5 col-sm-10">
+								<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">自增序号归零</label>
+								<div class="col-md-12 col-xl-6 col-lg-8">
 									<select class="form-control form-control-sm" id="seriesZero">
 										<option value="N" selected="selected">不归零</option>
 										<option value="D">每天归零</option>
@@ -148,13 +148,13 @@
 							</div>
 						</div>
 						<div class="form-group row">
-							<label class="col-sm-2 col-form-label text-sm-right">备注</label>
-							<div class="col-lg-5 col-sm-10">
+							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">备注</label>
+							<div class="col-md-12 col-xl-6 col-lg-8">
 								<textarea class="form-control form-control-sm row2x" id="comments" data-o="${fieldComments}">${fieldComments}</textarea>
 							</div>
 						</div>
 						<div class="form-group row">
-							<div class="col-sm-10 offset-sm-2">
+							<div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
 								<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
 									<input class="custom-control-input" type="checkbox" id="fieldNullable" data-o="${fieldNullable}"><span class="custom-control-label"> 允许空值</span>
 								</label>
@@ -164,7 +164,7 @@
 							</div>
 						</div>
 						<div class="form-group row footer">
-							<div class="col-lg-5 col-sm-10 offset-sm-2">
+							<div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
 								<div class="J_action hide">
 									<button class="btn btn-primary btn-space J_save" type="button" data-loading-text="请稍后">保存</button>
 									<button class="btn btn-danger bordered btn-space J_del" type="button" data-loading-text="请稍后"><i class="zmdi zmdi-delete icon"></i> 删除</button>

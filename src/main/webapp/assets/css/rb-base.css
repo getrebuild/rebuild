@@ -10139,7 +10139,7 @@ a.avatar.x48 img {
         transform: translate3d(0, 0, 0)
     }
 }
-.rb-right-sidebar .sb-content {
+.rb-right-sidebar .rb-content {
     display: table;
     table-layout: fixed;
     height: 100%;

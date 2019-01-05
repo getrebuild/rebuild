@@ -54,6 +54,7 @@ $(document).ready(function(){
 		$('#nameField').select2({
 			language: 'zh-CN',
 			placeholder: '选择字段',
+			width: '100%',
 			data: rs
 		}).val(wpc.nameField).trigger('change')
 	})

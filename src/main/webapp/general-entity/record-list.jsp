@@ -26,7 +26,7 @@
 				<div class="card-body">
 					<div class="dataTables_wrapper container-fluid">
 						<div class="row rb-datatable-header">
-							<div class="col-12 col-sm-6">
+							<div class="col-12 col-md-6">
 								<div class="dataTables_filter">
 									<div class="adv-search float-left">
 										<div class="btn-group">
@@ -44,7 +44,7 @@
 									</div>
 								</div>
 							</div>
-							<div class="col-12 col-sm-6">
+							<div class="col-12 col-md-6">
 								<div class="dataTables_oper">
 									<button class="btn btn-space btn-secondary J_view" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> 打开</button>
 									<button class="btn btn-space btn-secondary J_edit" disabled="disabled"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>

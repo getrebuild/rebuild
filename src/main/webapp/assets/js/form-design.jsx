@@ -55,9 +55,15 @@ $(document).ready(function(){
         $.post('form-update', JSON.stringify(_data), function(res){
             if (res.error_code == 0) location.reload();
             else rb.hberror(res.error_msg)
-        });
-    });
-});
+        })
+    })
+    
+    $(window).resize(()=>{
+        $setTimeout(()=>{
+            $('.field-aside .rb-scroller').height($(window).height() - 123)
+        }, 200, 'FeildAslide-resize')
+    }).trigger('resize')
+})
 const render_item = function(data) {
     let item = $('<div class="dd-item"></div>').appendTo('.form-preview')
     if (data.isFull == true) item.addClass('w-100')

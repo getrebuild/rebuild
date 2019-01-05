@@ -53,41 +53,41 @@ a#entityIcon:hover{opacity:0.8}
 			</c:if>
 			<div class="card mb-0">
 				<div class="card-body pt-4">
-					<form>
+					<form style="max-width:888px">
 						<div class="form-group row">
-							<label class="col-sm-2 col-form-label text-sm-right">图标</label>
-							<div class="col-lg-5 col-sm-10">
+							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">图标</label>
+							<div class="col-md-12 col-xl-6 col-lg-8">
 								<a id="entityIcon" data-o="${icon}" title="更换图标"><i class="icon zmdi zmdi-${icon}"></i></a>
 							</div>
 						</div>
 						<div class="form-group row">
-							<label class="col-sm-2 col-form-label text-sm-right">实体名称</label>
-							<div class="col-lg-5 col-sm-10">
+							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">实体名称</label>
+							<div class="col-md-12 col-xl-6 col-lg-8">
 								<input class="form-control form-control-sm" type="text" id="entityLabel" value="${entityLabel}" data-o="${entityLabel}">
 							</div>
 						</div>
 						<div class="form-group row">
-							<label class="col-sm-2 col-form-label text-sm-right">内部标识</label>
-							<div class="col-lg-5 col-sm-10">
+							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">内部标识</label>
+							<div class="col-md-12 col-xl-6 col-lg-8">
 								<input class="form-control form-control-sm" type="text" readonly="readonly" id="entityName" value="${entityName}">
 							</div>
 						</div>
 						<div class="form-group row">
-							<label class="col-sm-2 col-form-label text-sm-right">名称字段</label>
-							<div class="col-lg-5 col-sm-10">
+							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">名称字段</label>
+							<div class="col-md-12 col-xl-6 col-lg-8">
 								<select class="form-control form-control-sm" id="nameField" data-o="${nameField}">
 								</select>
 								<p class="form-text mb-0">名称字段应能清晰的标识记录本身，如客户中的客户名称或订单中的订单编号</p>
 							</div>
 						</div>
 						<div class="form-group row">
-							<label class="col-sm-2 col-form-label text-sm-right">备注</label>
-							<div class="col-lg-5 col-sm-10">
+							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">备注</label>
+							<div class="col-md-12 col-xl-6 col-lg-8">
 								<textarea class="form-control form-control-sm row2x" id="comments" data-o="${comments}">${comments}</textarea>
 							</div>
 						</div>
 						<div class="form-group row footer">
-							<div class="col-lg-5 col-sm-10 offset-sm-2">
+							<div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
 								<div class="J_action hide">
 									<button class="btn btn-primary J_save" type="button" data-loading-text="请稍后">保存</button>
 								</div>

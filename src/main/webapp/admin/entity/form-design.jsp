@@ -6,7 +6,7 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/form-design.css">
 <title>设计布局</title>
 </head>
-<body>
+<body class="open-right-sidebar">
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header">
 	<jsp:include page="/_include/NavTop.jsp">
 		<jsp:param value="实体管理" name="pageTitle"/>
@@ -36,36 +36,35 @@
 				</div>
 			</div>
         </aside>
-		<div class="main-content container-fluid">
-			<div class="row">
-				<div class="col-12 col-sm-8">
-					<div class="float-right" style="margin-top:-1px">
-						<a class="btn btn-link J_add-divider">+ 添加分栏</a>
-						<button class="btn btn-primary J_save" type="button">保存配置</button>
-					</div>
-					<div class="tab-container">
-                		<ul class="nav nav-tabs nav-tabs-classic">
-							<li class="nav-item"><a class="nav-link active" href="#form-design">表单/视图布局</a></li>
-						</ul>
-		                <div class="tab-content">
-							<div class="tab-pane active">
-								<div class="form-preview view-preview dd-list">
-									<div class="nodata">点击右侧字段添加到布局</div>
-								</div>
-								<div class="clearfix"></div>
-							</div>
-						</div>
-					</div>
+        <div class="rb-right-sidebar field-aside">
+        	<div class="rb-content">
+	        	<div class="field-head">
+		        	<h4 class="float-left">字段列表</h4>
+		        	<div class="float-right"><span class="not-nullable">必填字段</span><span class="readonly">只读字段</span></div>
 				</div>
-				<div class="col-12 col-sm-4">
-					<div class="card">
-						<div class="card-header">
-							字段列表<div class="float-right"><span class="not-nullable">必填字段</span><span class="readonly">只读字段</span></div>
-						</div>
-						<div class="card-body" style="padding-top:7px">
-							<div class="field-list dd-list">
-								<div class="nodata">全部字段已布局</div>
+	        	<div class="rb-scroller">
+	        		<div class="field-list dd-list">
+						<div class="nodata">全部字段已布局</div>
+					</div>
+	        	</div>
+        	</div>
+        </div>
+		<div class="main-content container-fluid">
+			<div style="min-width:400px">
+				<div class="float-right" style="margin-top:-1px">
+					<a class="btn btn-link J_add-divider">+ 添加分栏</a>
+					<button class="btn btn-primary J_save" type="button">保存配置</button>
+				</div>
+				<div class="tab-container">
+               		<ul class="nav nav-tabs nav-tabs-classic">
+						<li class="nav-item"><a class="nav-link active" href="#form-design">表单/视图布局</a></li>
+					</ul>
+	                <div class="tab-content">
+						<div class="tab-pane active">
+							<div class="form-preview view-preview dd-list">
+								<div class="nodata">点击右侧字段添加到布局</div>
 							</div>
+							<div class="clearfix"></div>
 						</div>
 					</div>
 				</div>
