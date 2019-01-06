@@ -20,11 +20,18 @@ package com.rebuild.web.base.entity.datalist;
 
 import com.alibaba.fastjson.JSON;
 
+import cn.devezhao.persist4j.Entity;
+
 /**
  * @author Zhao Fangfang
  * @since 1.0, 2013-6-20
  */
 public interface DataListControl {
+	
+	/**
+	 * @return
+	 */
+	Entity getEntity();
 	
 	/**
 	 * 默认过滤条件
@@ -34,9 +41,9 @@ public interface DataListControl {
 	String getDefaultFilter();
 	
 	/**
-	 * 结果集
+	 * JSON 结果集
 	 * 
 	 * @return
 	 */
-	JSON getResult();
+	JSON getJSONResult();
 }

@@ -22,9 +22,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.engine.ID;
 
@@ -36,28 +38,23 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class DefaultDataListControl implements DataListControl {
 
-	protected static final int READ_TIMEOUT = 15 * 1000;
-	
+	private Entity entity;
 	private JSONQueryParser queryParser;
 	private ID user;
-
-	protected DefaultDataListControl() {
-	}
 	
 	/**
 	 * @param query
 	 * @param user
 	 */
 	public DefaultDataListControl(JSONObject query, ID user) {
+		this.entity = MetadataHelper.getEntity(query.getString("entity"));
 		this.queryParser = new JSONQueryParser(query, this);
 		this.user = user;
 	}
-
-	/**
-	 * @return
-	 */
-	public JSONQueryParser getQueryParser() {
-		return queryParser;
+	
+	@Override
+	public Entity getEntity() {
+		return entity;
 	}
 
 	@Override
@@ -72,10 +69,10 @@ public class DefaultDataListControl implements DataListControl {
 	}
 	
 	@Override
-	public JSON getResult() {
+	public JSON getJSONResult() {
 		int totalRows = 0;
 		if (queryParser.isNeedReload()) {
-			Object[] count = Application.getQueryFactory().createQuery(queryParser.toSqlCount(), user).unique();
+			Object[] count = Application.getQueryFactory().createQuery(queryParser.toCountSql(), user).unique();
 			totalRows = ObjectUtils.toInt(count[0]);
 		}
 		

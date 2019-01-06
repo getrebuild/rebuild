@@ -46,8 +46,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class JSONQueryParser {
 
-	protected JSONObject queryElement;
-	
+	protected JSONObject queryExpressie;
 	private DataListControl dataListControl;
 	
 	private Entity entity;
@@ -59,45 +58,71 @@ public class JSONQueryParser {
 	private boolean reload;
 	
 	/**
-	 * @param queryElement
+	 * @param queryExpressie
+	 */
+	public JSONQueryParser(JSONObject queryExpressie) {
+		this(queryExpressie, null);
+	}
+	
+	/**
+	 * @param queryExpressie
 	 * @param dataListControl
 	 */
-	public JSONQueryParser(JSONObject queryElement, DataListControl dataListControl) {
-		this.queryElement = queryElement;
+	public JSONQueryParser(JSONObject queryExpressie, DataListControl dataListControl) {
+		this.queryExpressie = queryExpressie;
 		this.dataListControl = dataListControl;
 		
-		this.entity = MetadataHelper.getEntity(queryElement.getString("entity"));
+		this.entity = dataListControl != null ? 
+				dataListControl.getEntity() : MetadataHelper.getEntity(queryExpressie.getString("entity"));
 		
-		JSONArray fieldsNode = queryElement.getJSONArray("fields");
+		JSONArray fieldsNode = queryExpressie.getJSONArray("fields");
 		for (Object o : fieldsNode) {
 			String field = o.toString().trim();
 			fieldList.add(entity.getField(field));
 		}
 	}
 	
-	public Entity getEntity() {
+	/**
+	 * @return
+	 */
+	protected Entity getEntity() {
 		return entity;
 	}
 	
-	public Field[] getFieldList() {
+	/**
+	 * @return
+	 */
+	protected Field[] getFieldList() {
 		return fieldList.toArray(new Field[fieldList.size()]);
 	}
 	
+	/**
+	 * @return
+	 */
 	public String toSql() {
 		doParseIfNeed();
 		return sql;
 	}
 	
-	public String toSqlCount() {
+	/**
+	 * @return
+	 */
+	public String toCountSql() {
 		doParseIfNeed();
 		return countSql;
 	}
 	
+	/**
+	 * @return
+	 */
 	public int[] getSqlLimit() {
 		doParseIfNeed();
 		return limit;
 	}
 	
+	/**
+	 * @return
+	 */
 	public boolean isNeedReload() {
 		doParseIfNeed();
 		return reload;
@@ -129,12 +154,12 @@ public class JSONQueryParser {
 		StringBuffer sqlWhere = new StringBuffer(" where (1=1)");
 		
 		// Default
-		String defaultFilter = dataListControl.getDefaultFilter();
+		String defaultFilter = dataListControl == null ? null : dataListControl.getDefaultFilter();
 		if (defaultFilter != null) {
 			sqlWhere.append(" and (").append(defaultFilter).append(')');
 		}
 		// Adv
-		String advExpId = queryElement.getString("advFilter");
+		String advExpId = queryExpressie.getString("advFilter");
 		if (ID.isId(advExpId)) {
 			Object[] adv = AdvFilterManager.getAdvFilterRaw(ID.valueOf(advExpId));
 			if (adv != null) {
@@ -145,7 +170,7 @@ public class JSONQueryParser {
 			}
 		}
 		// Quick
-		JSONObject quickExp = queryElement.getJSONObject("filter");
+		JSONObject quickExp = queryExpressie.getJSONObject("filter");
 		if (quickExp != null) {
 			String query = new AdvFilterParser(entity, quickExp).toSqlWhere();
 			if (StringUtils.isNotBlank(query)) {
@@ -154,9 +179,11 @@ public class JSONQueryParser {
 		}
 		sqlBase.append(sqlWhere);
 		
+		// 排序
+		
 		StringBuffer sqlSort = new StringBuffer(" order by ");
 		
-		String sortNode = queryElement.getString("sort");
+		String sortNode = queryExpressie.getString("sort");
 		if (StringUtils.isNotBlank(sortNode)) {
 			sqlSort.append(parseSort(sortNode));
 		} else if (entity.containsField(EntityHelper.ModifiedOn)) {
@@ -174,12 +201,12 @@ public class JSONQueryParser {
 				.append(sqlWhere)
 				.toString();
 		
-		int pageNo = NumberUtils.toInt(queryElement.getString("pageNo"), 1);
-		int pageSize = NumberUtils.toInt(queryElement.getString("pageSize"), 20);
+		int pageNo = NumberUtils.toInt(queryExpressie.getString("pageNo"), 1);
+		int pageSize = NumberUtils.toInt(queryExpressie.getString("pageSize"), 20);
 		this.limit = new int[] { pageSize, pageNo * pageSize - pageSize };
 		this.reload = limit[1] == 0;
 		if (!reload) {
-			reload = BooleanUtils.toBoolean(queryElement.getString("reload"));
+			reload = BooleanUtils.toBoolean(queryExpressie.getString("reload"));
 		}
 	}
 	
@@ -187,7 +214,7 @@ public class JSONQueryParser {
 	 * @param sortNode
 	 * @return
 	 */
-	protected String parseSort(String sort) {
+	private String parseSort(String sort) {
 		String[] sort_s = sort.split(":");
 		String sortField = sort_s[0];
 		return sortField + ("desc".equalsIgnoreCase(sort_s[1]) ? " desc" : " asc");

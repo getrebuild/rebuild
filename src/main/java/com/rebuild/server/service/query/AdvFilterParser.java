@@ -30,7 +30,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -59,16 +58,14 @@ public class AdvFilterParser {
 	
 	private static final Log LOG = LogFactory.getLog(AdvFilterParser.class);
 	
-	private Entity rootEntity;
 	private JSONObject filterExp;
+	private Entity rootEntity;
 	
 	/**
 	 * @param filterExp
 	 */
 	public AdvFilterParser(JSONObject filterExp) {
-		String entity = filterExp.getString("entity");
-		Assert.notNull(entity, "[entity] node can't be blank");
-		this.rootEntity = MetadataHelper.getEntity(entity);
+		this.rootEntity = MetadataHelper.getEntity(filterExp.getString("entity"));
 		this.filterExp = filterExp;
 	}
 	
@@ -317,12 +314,12 @@ public class AdvFilterParser {
 		else if ("IN".equalsIgnoreCase(op)) return "in";
 		else if ("NIN".equalsIgnoreCase(op)) return "not in";
 		else if ("BW".equalsIgnoreCase(op)) return "between";
-		else if ("BFD".equalsIgnoreCase(op)) return "<="; //"$before_day(%d)";
-		else if ("BFM".equalsIgnoreCase(op)) return "<="; //"$before_month(%d)";
-		else if ("AFD".equalsIgnoreCase(op)) return ">="; //"$after_day(%d)";
-		else if ("AFM".equalsIgnoreCase(op)) return ">="; //"$after_month(%d)";
-		else if ("RED".equalsIgnoreCase(op)) return ">"; //"$recent_day(%d)";
-		else if ("REM".equalsIgnoreCase(op)) return ">"; //"$recent_month(%d)";
+		else if ("BFD".equalsIgnoreCase(op)) return "<=";  // "$before_day(%d)";
+		else if ("BFM".equalsIgnoreCase(op)) return "<=";  // "$before_month(%d)";
+		else if ("AFD".equalsIgnoreCase(op)) return ">=";  // "$after_day(%d)";
+		else if ("AFM".equalsIgnoreCase(op)) return ">=";  // "$after_month(%d)";
+		else if ("RED".equalsIgnoreCase(op)) return ">";   // "$recent_day(%d)";
+		else if ("REM".equalsIgnoreCase(op)) return ">";   // "$recent_month(%d)";
 		else if ("SFU".equalsIgnoreCase(op)) return "=";
 		else if ("SFB".equalsIgnoreCase(op)) return "=";
 		else if ("SFD".equalsIgnoreCase(op)) return "in";

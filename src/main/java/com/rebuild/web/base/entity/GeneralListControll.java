@@ -86,7 +86,7 @@ public class GeneralListControll extends BaseControll implements LayoutConfig {
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		JSONObject query = (JSONObject) ServletUtils.getRequestJson(request);
 		DataListControl control = new DefaultDataListControl(query, getRequestUser(request));
-		JSON result = control.getResult();
+		JSON result = control.getJSONResult();
 		writeSuccess(response, result);
 	}
 	
