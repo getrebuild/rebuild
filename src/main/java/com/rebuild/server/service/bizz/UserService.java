@@ -19,11 +19,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.service.bizz;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.DataConstraintException;
 import com.rebuild.server.helper.task.BulkTaskExecutor;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.SystemEntityService;
-import com.rebuild.web.IllegalParameterException;
 
 import cn.devezhao.bizz.security.member.User;
 import cn.devezhao.commons.EncryptUtils;
@@ -71,7 +70,7 @@ public class UserService extends SystemEntityService {
 	
 	@Override
 	public int delete(ID record) {
-		throw new DataConstraintException("Prohibited");
+		throw new DataSpecificationException("Prohibited");
 	}
 	
 	/**
@@ -81,7 +80,7 @@ public class UserService extends SystemEntityService {
 		if (record.hasValue("password")) {
 			String password = record.getString("password");
 			if (password.length() < 6) {
-				throw new IllegalParameterException("密码不能小于6位");
+				throw new DataSpecificationException("密码不能小于6位");
 			}
 			password = EncryptUtils.toSHA256Hex(password);
 			record.setString("password", password);

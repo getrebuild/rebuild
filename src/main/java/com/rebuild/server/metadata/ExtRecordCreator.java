@@ -28,8 +28,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.bizz.privileges.User;
-import com.rebuild.web.IllegalParameterException;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
@@ -118,6 +118,6 @@ public class ExtRecordCreator extends JsonRecordCreator {
 		if (notNulls.isEmpty()) {
 			return;
 		}
-		throw new IllegalParameterException(StringUtils.join(notNulls, "/") + " 不能为空");
+		throw new DataSpecificationException(StringUtils.join(notNulls, "/") + " 不能为空");
 	}
 }

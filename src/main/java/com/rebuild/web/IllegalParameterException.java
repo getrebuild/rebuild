@@ -18,19 +18,17 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web;
 
-import com.rebuild.server.RebuildException;
+import com.rebuild.server.service.DataSpecificationException;
 
 /**
- * 无效请求参数。如参数错误等
+ * 无效请求参数
  * 
  * @author zhaofang123@gmail.com
  * @since 05/19/2018
  */
-public class IllegalParameterException extends RebuildException {
+public class IllegalParameterException extends DataSpecificationException {
 	private static final long serialVersionUID = 1104144276994648297L;
 	
-	private int bizCode = 400;
-
 	public IllegalParameterException() {
 		this("无效请求参数");
 	}
@@ -43,13 +41,7 @@ public class IllegalParameterException extends RebuildException {
 		super(msg, cause);
 	}
 	
-	public IllegalParameterException(String msg, int bizCode) {
-		super(msg);
-		this.bizCode = bizCode;
-	}
-	
-	@Override
-	protected int getBizCode() {
-		return bizCode;
+	public IllegalParameterException(int errorCode, String msg) {
+		super(errorCode, msg);
 	}
 }

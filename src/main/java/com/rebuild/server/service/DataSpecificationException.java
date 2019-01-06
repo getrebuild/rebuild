@@ -16,30 +16,44 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server;
+package com.rebuild.server.service;
+
+import com.rebuild.server.RebuildException;
 
 /**
- * 违反数据约束相关异常
+ * 违反数据约束相关异常。如非空/重复值/无效值等
  * 
  * @author devezhao
  * @since 11/26/2018
  */
-public class DataConstraintException extends RebuildException {
+public class DataSpecificationException extends RebuildException {
 	private static final long serialVersionUID = -1636949017780407060L;
 
-	public DataConstraintException() {
+	// 业务码
+	private int errorCode = 400;
+	
+	public DataSpecificationException() {
 		super();
 	}
 
-	public DataConstraintException(String msg, Throwable cause) {
+	public DataSpecificationException(String msg, Throwable cause) {
 		super(msg, cause);
 	}
 
-	public DataConstraintException(String msg) {
+	public DataSpecificationException(String msg) {
 		super(msg);
 	}
 
-	public DataConstraintException(Throwable cause) {
+	public DataSpecificationException(Throwable cause) {
 		super(cause);
+	}
+	
+	public DataSpecificationException(int errorCode, String msg) {
+		super(msg);
+		this.errorCode = errorCode;
+	}
+
+	public int getErrorCode() {
+		return errorCode;
 	}
 }

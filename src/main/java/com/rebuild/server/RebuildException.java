@@ -20,8 +20,6 @@ package com.rebuild.server;
 
 import org.apache.commons.lang.exception.NestableRuntimeException;
 
-import com.rebuild.utils.AppUtils;
-
 /**
  * RB Root Exception
  * 
@@ -45,13 +43,5 @@ public class RebuildException extends NestableRuntimeException {
 
 	public RebuildException(Throwable cause) {
 		super(cause);
-	}
-	
-	public String toClientMsgString() {
-		return AppUtils.formatClientMsg(this.getBizCode(), this.getLocalizedMessage());
-	}
-	
-	protected int getBizCode() {
-		return 500;
 	}
 }
