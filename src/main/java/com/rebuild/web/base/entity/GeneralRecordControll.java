@@ -39,6 +39,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.base.BulkContext;
 import com.rebuild.server.service.bizz.UserHelper;
@@ -73,7 +74,7 @@ public class GeneralRecordControll extends BaseControll {
 		Record record = null;
 		try {
 			record = EntityHelper.parse((JSONObject) formJson, user);
-		} catch (IllegalParameterException know) {
+		} catch (DataSpecificationException know) {
 			writeFailure(response, know.getLocalizedMessage());
 			return;
 		}
@@ -82,7 +83,7 @@ public class GeneralRecordControll extends BaseControll {
 		
 		try {
 			record = Application.getEntityService(record.getEntity().getEntityCode()).createOrUpdate(record);
-		} catch (AccessDeniedException | IllegalParameterException know) {
+		} catch (AccessDeniedException | DataSpecificationException know) {
 			writeFailure(response, know.getLocalizedMessage());
 			return;
 		}
@@ -115,7 +116,7 @@ public class GeneralRecordControll extends BaseControll {
 				BulkContext context = new BulkContext(user, BizzPermission.DELETE, null, cascades, ids);
 				affected = ies.bulk(context);
 			}
-		} catch (AccessDeniedException know) {
+		} catch (AccessDeniedException | DataSpecificationException know) {
 			writeFailure(response, know.getLocalizedMessage());
 			return;
 		}

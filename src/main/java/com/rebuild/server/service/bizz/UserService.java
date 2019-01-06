@@ -85,6 +85,16 @@ public class UserService extends SystemEntityService {
 			password = EncryptUtils.toSHA256Hex(password);
 			record.setString("password", password);
 		}
+		
+		if (record.hasValue("loginName")
+				&& Application.getUserStore().exists(record.getString("loginName"))) {
+			throw new DataSpecificationException("登陆名重复");
+		}
+		if (record.hasValue("email")
+				&& Application.getUserStore().exists(record.getString("email"))) {
+			throw new DataSpecificationException("邮箱重复");
+		}
+		
 		setQuickCodeValue(record);
 	}
 	
