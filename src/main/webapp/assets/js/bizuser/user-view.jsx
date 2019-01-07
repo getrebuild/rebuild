@@ -117,7 +117,7 @@ class DlgChangeRole extends DlgChangeDept {
         $.post(rb.baseUrl + '/admin/bizuser/change-role?role=' + role + '&user=' + this.props.user, (res)=>{
             if (res.error_code == 0) location.reload()
             else rb.hberror(res.error_msg)
-            btn.button('reset')
+            btns.button('reset')
         })
     }
 }

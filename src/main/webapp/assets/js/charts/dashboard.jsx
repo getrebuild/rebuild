@@ -107,7 +107,7 @@ let render_dashboard = function(cfg){
         rendered_charts.push(c)
     })
     if (rendered_charts.length == 0){
-        let el = '<li><a class="chart-add" onclick="show_dlg(\"DlgAddChart\")"><i class="zmdi zmdi-plus"></i><p>添加图表</p></a></li>'
+        let el = '<li><a class="chart-add" onclick="show_dlg(\'DlgAddChart\')"><i class="zmdi zmdi-plus"></i><p>添加图表</p></a></li>'
         gridster.add_widget(el, 2, 2)
         gridster.disable_resize()
     } else{

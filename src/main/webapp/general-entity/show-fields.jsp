@@ -26,7 +26,7 @@
 		<div class="float-left hide J_for-admin">
 			<label class="custom-control custom-checkbox custom-control-inline">
 				<input class="custom-control-input" type="checkbox" id="shareTo" value="ALL" checked="checked">
-				<span class="custom-control-label">应用到全部用户</span>
+				<span class="custom-control-label">共享给全部用户</span>
 			</label>
 		</div>
 		<button class="btn btn-primary J_save" type="button">保存</button>
@@ -43,7 +43,7 @@ $(document).ready(function(){
 		$(res.data['fieldList']).each(function(){ render_unset([this.field, this.label]) })
 		$(res.data['configList']).each(function(){ $('.unset-list li[data-key="' + this.field + '"]').trigger('click') })
 		cfgid = res.data['configId'] || ''
-		$('#shareTo').attr('checked', res.data['shareTo'] == 'ALL')
+		if (cfgid) $('#shareTo').attr('checked', res.data['shareTo'] == 'ALL')
 	})
 
 	$('.J_save').click(function(){

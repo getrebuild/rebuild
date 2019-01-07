@@ -27,9 +27,9 @@
 								<div class="dataTables_filter">
 									<div class="adv-search float-left">
 										<div class="btn-group">
-											<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="text-truncate J_name">所有数据</span><i class="icon zmdi zmdi-caret-down"></i></button>
+											<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="text-truncate J_name">全部数据</span><i class="icon zmdi zmdi-caret-down"></i></button>
 											<div class="dropdown-menu rb-scroller">
-												<div class="dropdown-item" data-id="$ALL$"><a>所有数据</a></div>
+												<div class="dropdown-item" data-id="$ALL$"><a>全部数据</a></div>
 												<div class="dropdown-divider"></div>
 												<div class="dropdown-item J_advfilter"><i class="icon zmdi zmdi-plus"></i>添加过滤项</div>
 											</div>

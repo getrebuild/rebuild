@@ -152,60 +152,60 @@ create table /*!32312 if not exists*/ `pick_list` (
 -- ************ Entity [LayoutConfig] DDL ************
 drop table if exists `layout_config`;
 create table /*!32312 if not exists*/ `layout_config` (
-  `APPLY_TO`           varchar(420) default 'SELF' comment '应用到哪些人，可选值: ALL/SELF/$MemberID(U/D/R)',
+  `APPLY_TYPE`         varchar(20) not null comment 'FORM,DATALIST,NAVI',
   `MODIFIED_ON`        timestamp not null default '0000-00-00 00:00:00' comment '修改时间',
   `CREATED_BY`         char(20) not null comment '创建人',
+  `CONFIG_ID`          char(20) not null,
+  `SHARE_TO`           varchar(420) default 'SELF' comment '共享给哪些人，可选值: ALL/SELF/$MemberID(U/D/R)',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `BELONG_ENTITY`      varchar(100) not null,
-  `TYPE`               varchar(20) not null comment 'FORM,DATALIST,NAVI',
-  `LAYOUT_ID`          char(20) not null,
   `CONFIG`             text(21845) not null comment 'JSON格式配置',
   `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
-  primary key  (`LAYOUT_ID`)
+  primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 
 -- ************ Entity [FilterConfig] DDL ************
 drop table if exists `filter_config`;
 create table /*!32312 if not exists*/ `filter_config` (
-  `FILTER_ID`          char(20) not null,
-  `APPLY_TO`           varchar(420) default 'SELF' comment '应用到哪些人，可选值: ALL/SELF/$MemberID(U/D/R)',
   `MODIFIED_ON`        timestamp not null default '0000-00-00 00:00:00' comment '修改时间',
   `CREATED_BY`         char(20) not null comment '创建人',
+  `CONFIG_ID`          char(20) not null,
   `FILTER_NAME`        varchar(100) not null,
+  `SHARE_TO`           varchar(420) default 'SELF' comment '共享给哪些人，可选值: ALL/SELF/$MemberID(U/D/R)',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `BELONG_ENTITY`      varchar(100) not null,
   `CONFIG`             text(21845) not null comment 'JSON格式配置',
   `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
-  primary key  (`FILTER_ID`)
+  primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 
 -- ************ Entity [ViewAddonsConfig] DDL ************
 drop table if exists `view_addons_config`;
 create table /*!32312 if not exists*/ `view_addons_config` (
+  `APPLY_TYPE`         varchar(20) not null comment 'TAB,ADD',
   `MODIFIED_ON`        timestamp not null default '0000-00-00 00:00:00' comment '修改时间',
   `CREATED_BY`         char(20) not null comment '创建人',
+  `CONFIG_ID`          char(20) not null,
   `MODIFIED_BY`        char(20) not null comment '修改人',
-  `ADDONS_ID`          char(20) not null,
   `BELONG_ENTITY`      varchar(100) not null,
-  `TYPE`               varchar(20) not null comment 'TAB,ADD',
   `CONFIG`             text(21845) not null comment 'JSON格式配置',
   `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
-  primary key  (`ADDONS_ID`),
-  unique index `UIX1_view_addons_config` (`BELONG_ENTITY`, `TYPE`)
+  primary key  (`CONFIG_ID`),
+  unique index `UIX1_view_addons_config` (`BELONG_ENTITY`, `APPLY_TYPE`)
 )Engine=InnoDB;
 
 -- ************ Entity [DashboardConfig] DDL ************
 drop table if exists `dashboard_config`;
 create table /*!32312 if not exists*/ `dashboard_config` (
   `MODIFIED_ON`        timestamp not null default '0000-00-00 00:00:00' comment '修改时间',
-  `DASHBOARD_ID`       char(20) not null,
   `CREATED_BY`         char(20) not null comment '创建人',
+  `CONFIG_ID`          char(20) not null,
   `SHARE_TO`           varchar(420) default 'SELF' comment '共享给哪些人，可选值: ALL/SELF/$MemberID(U/D/R)',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `TITLE`              varchar(100) not null,
   `CONFIG`             text(21845) not null comment 'JSON格式配置',
   `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
-  primary key  (`DASHBOARD_ID`)
+  primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 
 -- ************ Entity [ChartConfig] DDL ************
@@ -214,9 +214,9 @@ create table /*!32312 if not exists*/ `chart_config` (
   `MODIFIED_ON`        timestamp not null default '0000-00-00 00:00:00' comment '修改时间',
   `CHART_ID`           char(20) not null,
   `CREATED_BY`         char(20) not null comment '创建人',
+  `CHART_TYPE`         varchar(100) not null,
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `BELONG_ENTITY`      varchar(100) not null,
-  `TYPE`               varchar(100) not null,
   `TITLE`              varchar(100) not null,
   `CONFIG`             text(21845) not null comment 'JSON格式配置',
   `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',

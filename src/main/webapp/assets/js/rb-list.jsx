@@ -471,7 +471,7 @@ const AdvFilters = {
         this.__el.find('.J_advfilter').click(()=>{ that.showAdvFilter() })
         // $ALL$
         $('.adv-search .dropdown-item:eq(0)').click(()=>{
-            $('.adv-search .J_name').text('所有数据')
+            $('.adv-search .J_name').text('全部数据')
             RbListPage._RbList.setAdvFilter(null)
         })
 
@@ -506,7 +506,7 @@ const AdvFilters = {
                                     
                                     if (dfilter == _data[0]) {
                                         RbListPage._RbList.setAdvFilter(null)
-                                        $('.adv-search .J_name').text('所有数据')
+                                        $('.adv-search .J_name').text('全部数据')
                                     }
                                     
                                 } else rb.hberror(res.error_msg)
