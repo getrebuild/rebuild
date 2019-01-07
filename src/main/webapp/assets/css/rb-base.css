@@ -83,8 +83,7 @@ article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
 }
 body {
     margin: 0;
-    font-family: Roboto, Arial, sans-serif;
-    font-family: Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", 'microsoft yahei ui', 'microsoft yahei', sans-serif;
+    font-family: Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
     font-size: 1rem;
     font-weight: 400;
     line-height: 1.428571;
@@ -204,8 +203,7 @@ table {
     border-collapse: collapse
 }
 caption {
-    padding-top: 12px 10px;
-    padding-bottom: 12px 10px;
+    padding: 12px 0;
     color: #878787;
     text-align: left;
     caption-side: bottom
@@ -4917,8 +4915,7 @@ button.close {
     z-index: 1070;
     display: block;
     margin: 0;
-    font-family: Roboto, Arial, sans-serif;
-    font-family: Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", 'microsoft yahei ui', 'microsoft yahei', sans-serif;
+    font-family: Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
     font-style: normal;
     font-weight: 400;
     line-height: 1.428571;
@@ -5014,8 +5011,7 @@ button.close {
     z-index: 1060;
     display: block;
     max-width: 276px;
-    font-family: Roboto, Arial, sans-serif;
-    font-family: Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", 'microsoft yahei ui', 'microsoft yahei', sans-serif;
+    font-family: Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
     font-style: normal;
     font-weight: 400;
     line-height: 1.428571;
@@ -11204,7 +11200,7 @@ a.avatar.x48 img {
 }
 .rb-sub-header .navbar-nav>.nav-item>.nav-link:hover {
     background-color: transparent;
-    color: contrast-color(#4285f4)
+    color: #4285f4
 }
 @media (max-width:767.98px) {
     .rb-sub-header .navbar-nav>.nav-item>.nav-link:hover {
@@ -17246,7 +17242,7 @@ form.dropzone .dz-preview .dz-error-message {
     background-color: #f7f7f7
 }
 .full-calendar .fc-view-container .fc-cell-overlay {
-    background-color: fade(#4285f4, 50%)
+    background-color: #4285f4
 }
 .full-calendar .fc-button {
     color: #404040;
