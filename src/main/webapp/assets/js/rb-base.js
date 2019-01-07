@@ -55,12 +55,10 @@
 		window.rb[k] = v
 	})
 	
-	if (rb.env == 'dev'){
-		setTimeout(()=>{
-			$('html').addClass('dev')
-			$(document.body).addClass('rb-animate')
-		}, 1000)
-	}
+	setTimeout(()=>{
+		if (rb.env == 'dev') $('html').addClass('dev')
+		$(document.body).addClass('rb-animate')
+	}, 1000)
 })(jQuery)
 
 // extend Array

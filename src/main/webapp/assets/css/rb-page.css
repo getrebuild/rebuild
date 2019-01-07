@@ -1,9 +1,8 @@
-html.dev {
-}
+html.dev {}
 .dropdown-menu {
-	box-shadow: 0 0 6px 0 rgba(0, 0, 0, .1), 0 10px 12px 0 rgba(170, 182, 206, .36);
-	border-width: 0;
-	border-radius: 0;
+    box-shadow: 0 0 6px 0 rgba(0, 0, 0, .1), 0 10px 12px 0 rgba(170, 182, 206, .36);
+    border-width: 0;
+    border-radius: 0;
 }
 .dropdown-submenu {
     position: relative;
@@ -74,11 +73,11 @@ html.dev {
 .btn.btn-link:hover {
     color: #0d5bdd !important;
 }
-.btn .icon.x14{
-	font-size: 1.431rem
+.btn .icon.x14 {
+    font-size: 1.431rem
 }
 .dropup .dropdown-toggle::after {
-	display: none;
+    display: none;
 }
 .navbar-nav .dropdown>.nav-link:hover>.icon, .bottom-widget>a:hover>.icon {
     opacity: 0.8;
@@ -98,17 +97,17 @@ html.dev {
     padding-left: 1.3rem;
 }
 .alert.min .close {
-	padding: 1.03rem 0;
+    padding: 1.03rem 0;
 }
 .input-search, .input-search input {
     width: 220px;
     height: 2.8rem;
 }
 .input-search input {
-	border-radius: 2px;
+    border-radius: 2px;
 }
 .input-search input:focus {
-	border-color: #bababa;
+    border-color: #bababa;
 }
 .input-search .input-group-btn button {
     height: 2.6rem;
@@ -132,39 +131,39 @@ html.dev {
     border-left: 0 none
 }
 .custom-control-label {
-	line-height: 1.9;
+    line-height: 1.9;
 }
 .custom-control-sm .custom-control-label {
-	line-height: 1.6;
+    line-height: 1.6;
 }
-.custom-control.custom-control-sm{
-	padding-left: 1.9377rem;
+.custom-control.custom-control-sm {
+    padding-left: 1.9377rem;
 }
 .custom-radio.custom-control-sm .custom-control-input:checked~.custom-control-label::after {
-	font-size: 13px;
-	padding-top: 0.15rem;
+    font-size: 13px;
+    padding-top: 0.15rem;
 }
-.badge.thin{
-	font-weight: normal;
-	font-style: normal;
-	line-height: 1.45;
+.badge.thin {
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1.45;
 }
 .table tbody tr.muted td:first-child {
     border-left: 3px solid #bbb;
     padding-left: 17px
 }
 .form-group.row.text {
-	padding: 6px 0;
+    padding: 6px 0;
 }
 .adv-search {
     margin-right: 10px;
     margin-bottom: 5px;
 }
 .adv-search .btn-group, .adv-search .btn-group .dropdown-menu {
-	width: 220px;
+    width: 220px;
 }
 .adv-search .btn {
-	border-radius: 2px !important;
+    border-radius: 2px !important;
     width: 100%;
     text-align: left;
     height: 2.8rem;
@@ -174,8 +173,8 @@ html.dev {
     box-shadow: 0 0 0 #fff !important;
 }
 .adv-search .btn-group.show .btn, .adv-search .btn:hover {
-	border-color: #bababa;
-	background-color: #fff;
+    border-color: #bababa;
+    background-color: #fff;
 }
 .adv-search .btn>span {
     display: inline-block;
@@ -187,14 +186,14 @@ html.dev {
     right: 8px;
 }
 .adv-search .dropdown-menu.rb-scroller {
-	max-height: 402px;
+    max-height: 402px;
 }
 .adv-search .dropdown-item {
-	position: relative;
-	cursor: pointer;
+    position: relative;
+    cursor: pointer;
 }
 .adv-search .dropdown-item a {
-	width: 150px;
+    width: 150px;
 }
 .rb-aside .page-head {
     margin-left: 280px;
@@ -216,7 +215,7 @@ html.dev {
     display: block !important;
 }
 .rbmodal.show, .rbview.show .modal-content {
-	transition: margin 0.4s;
+    transition: margin 0.4s;
 }
 .modal.rbalert .modal-dialog {
     max-width: 551px;
@@ -268,8 +267,8 @@ body.view-body {
     width: 100%;
 }
 .select2-container--default .select2-selection--multiple .select2-selection__choice {
-	margin-top: 4px;
-	margin-right: 4px;
+    margin-top: 4px;
+    margin-right: 4px;
 }
 textarea.row2x {
     height: 52px !important;
@@ -286,11 +285,11 @@ a {
     display: none !important;
 }
 .clearfix {
-	clear: both;
+    clear: both;
 }
 .mlr-auto {
-	margin-left: auto !important;
-	margin-right: auto !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
 }
 .rb-scroller {
     position: relative;
@@ -300,14 +299,15 @@ a {
     padding: 8px 0;
 }
 .form-control.text {
-	border-width: 0;
-	padding: 4px 8px !important;
-	background-color: rgba(0,0,0,0.03)
+    border-width: 0;
+    padding: 4px 8px !important;
+    background-color: rgba(0, 0, 0, 0.03)
 }
 .form-control.text:hover, .form-control.text:focus {
-	background-color: rgba(0,0,0,0.05)
+    background-color: rgba(0, 0, 0, 0.05)
 }
 /* FormPage */
+
 .rbform>form>.alert {
     margin: 20px;
     margin-bottom: 0;
@@ -319,17 +319,17 @@ a {
     padding-bottom: 4px !important;
 }
 .rbform .select2-container--default .select2-selection--multiple .select2-selection__clear {
-	margin-right: 20px;
+    margin-right: 20px;
 }
 .rbform .select2-container--default .select2-selection--multiple::after {
-	content: '\f1c3';
+    content: '\f1c3';
     font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
-	font-size: 1.5rem;
-	font-weight: 400px;
-	color: #aaa;
-	position: absolute;
-	right: 8px;
-	top: 9px;
+    font-size: 1.5rem;
+    font-weight: 400px;
+    color: #aaa;
+    position: absolute;
+    right: 8px;
+    top: 9px;
 }
 .img-field {
     line-height: 1;
@@ -389,7 +389,7 @@ a {
     background-color: rgba(0, 0, 0, 0.5);
 }
 .img-field.avatar, .img-field.avatar>span {
-	margin-bottom: 0;
+    margin-bottom: 0;
 }
 .img-field.avatar img {
     width: 100%;
@@ -548,8 +548,8 @@ a {
     padding-top: 10px;
     padding-bottom: 8px;
 }
-.data-list .table thead th.column-checkbox > div > .custom-control.custom-control-sm {
-	margin-top: -19px;
+.data-list .table thead th.column-checkbox>div>.custom-control.custom-control-sm {
+    margin-top: -19px;
 }
 .data-list .table thead th.sortable {
     cursor: pointer;
@@ -607,33 +607,33 @@ i.split.ui-draggable-dragging {
     max-width: 1000px;
 }
 .column-imgs, .column-files {
-	max-height: 32px;
-	overflow: hidden;
+    max-height: 32px;
+    overflow: hidden;
 }
 .column-imgs>a {
-	display: inline-block;
-	height: 100%;
-	font-size: 0;
-	line-height: 1;
-	cursor: default;
-	height: 32px;
+    display: inline-block;
+    height: 100%;
+    font-size: 0;
+    line-height: 1;
+    cursor: default;
+    height: 32px;
 }
 .column-imgs>a img {
-	max-height: 100%;
-	max-width: 100%;
+    max-height: 100%;
+    max-width: 100%;
 }
-.column-imgs>a+a{
-	margin-left: 3px;
+.column-imgs>a+a {
+    margin-left: 3px;
 }
 .column-files ul, .column-files ul>li {
     margin: 0;
-	padding: 0;
+    padding: 0;
 }
 .column-files ul>li {
     line-height: 1.42857143;
 }
 .column-files ul>li>a {
-	color: #404040;
+    color: #404040;
     cursor: default;
 }
 .column-checkbox {
@@ -672,11 +672,11 @@ i.split.ui-draggable-dragging {
     user-select: none;
 }
 .main-content>.nav-tabs-classic+.card {
-	border-top-left-radius: 0;
+    border-top-left-radius: 0;
     border-top-right-radius: 0;
     border-top: 2px solid #fff;
 }
-.main-content>.nav-tabs-classic+.card.card-table{
+.main-content>.nav-tabs-classic+.card.card-table {
     border-top: 2px solid #4285f4;
 }
 .main-content>.nav-tabs-classic>li.nav-item a.nav-link {
@@ -815,8 +815,8 @@ i.split.ui-draggable-dragging {
 .rbview-form .form-group.row {
     padding: 3px 0;
 }
-.rbview-form .img-field .img-thumbnail:hover, .rbview-form .file-field .img-thumbnail:hover{
-	opacity: 0.8;
+.rbview-form .img-field .img-thumbnail:hover, .rbview-form .file-field .img-thumbnail:hover {
+    opacity: 0.8;
 }
 .rbview-form .form-control-plaintext:hover {
     background-color: #f8f8f8;
@@ -868,7 +868,7 @@ i.split.ui-draggable-dragging {
     color: #4c8bf5;
 }
 .btn-danger.bordered {
-	background-color: #fff;
+    background-color: #fff;
     color: #ea4335;
 }
 .btn-primary.bordered:hover, .btn-danger.bordered:hover {
@@ -928,27 +928,27 @@ i.split.ui-draggable-dragging {
 .dept-tree ul>li.active:hover>div.action, .adv-search .dropdown-item:hover div.action {
     display: block;
 }
-.adv-search .dropdown-item div.action {
-}
+.adv-search .dropdown-item div.action {}
 .adv-search .dropdown-item div.action a {
-	height: 34px;
-	line-height: 34px;
+    height: 34px;
+    line-height: 34px;
     background-color: #eee;
     color: #aaa !important;
     border-radius: 0;
 }
 .adv-search .dropdown-item div.action a:hover {
-	color: #4285f4 !important;
+    color: #4285f4 !important;
 }
 /* AdvFilter */
+
 .adv-filter-warp {
     background-color: #fff;
     padding: 20px;
     max-width: 560px;
 }
 .adv-filter-warp.in-modal {
-	max-width: 1000px;
-	padding: 10px;
+    max-width: 1000px;
+    padding: 10px;
 }
 .adv-filter {
     position: relative;
@@ -1031,65 +1031,63 @@ i.split.ui-draggable-dragging {
     padding-top: 8px;
     margin-top: 8px;
 }
-.adv-filter .form-control-sm,.adv-filter .select2-container--default .select2-selection--single .select2-selection__rendered, .adv-filter .select2-container--default .select2-selection--multiple .select2-selection__rendered {
-	padding-left: 8px;
-	padding-right: 8px;
+.adv-filter .form-control-sm, .adv-filter .select2-container--default .select2-selection--single .select2-selection__rendered, .adv-filter .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+    padding-left: 8px;
+    padding-right: 8px;
 }
 .adv-filter .select2-container--default .select2-selection--multiple .select2-selection__rendered {
-	line-height: 30px;
+    line-height: 30px;
 }
-.adv-filter .btn+.btn{
-	margin-left: 10px;
+.adv-filter .btn+.btn {
+    margin-left: 10px;
 }
 .adv-filter .dialog-footer .form-control-sm.text {
-	width: 200px;
-	height: 34px !important;
-	margin-top: 2px;
+    width: 200px;
+    height: 34px !important;
+    margin-top: 2px;
 }
 .adv-filter .item.dialog-footer {
-	margin: 0 -30px;
-	margin-bottom: -5px;
-	padding-top: 20px;
+    margin: 0 -30px;
+    margin-bottom: -5px;
+    padding-top: 20px;
 }
 /* height = 34px 
 .adv-filter .select2-container--default .select2-selection--single, .adv-filter .select2-container--default .select2-selection--multiple {
-	min-height: 34px;
+    min-height: 34px;
 }
 .adv-filter .select2-container--default .select2-selection--single .select2-selection__rendered, .adv-filter .select2-container--default .select2-selection--multiple .select2-selection__rendered {
-	line-height: 34px;
-	padding: 0 8px;
+    line-height: 34px;
+    padding: 0 8px;
 }
 .adv-filter .select2-container--default .select2-selection--single .select2-selection__arrow {
-	height: 34px;
-	top: -1px;
+    height: 34px;
+    top: -1px;
 }
 .adv-filter .form-control-sm {
-	height: 34px !important;
-	padding: 3px 8px;
+    height: 34px !important;
+    padding: 3px 8px;
 }
 */
 
 div.dataTables_wrapper div.paging_sizes {
-	padding-top: 2px;
-	padding-left: 9px;
+    padding-top: 2px;
+    padding-left: 9px;
 }
 div.dataTables_wrapper div.paging_sizes select {
-	height: 36px !important;
-	padding: 4px 6px;
-	width: 54px;
+    height: 36px !important;
+    padding: 4px 6px;
+    width: 54px;
 }
-
 .must-center {
-	position: absolute;
-	left: 50%;
-	top: 50%;
-	transform: translate(-50%,-50%);
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 }
-
 .zicon, .zicon .zmdi {
-	font-size: 1.231rem;
-	color: #888;
+    font-size: 1.231rem;
+    color: #888;
 }
 .zicon:hover {
-	opacity: 0.8;
+    opacity: 0.8;
 }
