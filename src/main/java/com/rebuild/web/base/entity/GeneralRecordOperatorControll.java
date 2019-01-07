@@ -57,14 +57,13 @@ import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 记录操作
- * TODO 检查权限重复，PrivilegesGuardInterceptor 中已检查
  * 
  * @author zhaofang123@gmail.com
  * @since 08/30/2018
  */
 @Controller
 @RequestMapping("/app/entity/")
-public class GeneralRecordControll extends BaseControll {
+public class GeneralRecordOperatorControll extends BaseControll {
 
 	@RequestMapping("record-save")
 	public void save(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -287,7 +286,7 @@ public class GeneralRecordControll extends BaseControll {
 				.setParameter(2, id)
 				.array();
 		for (Object[] o : array) {
-			o[0] = UserHelper.getShows(ID.valueOf((String) o[0]));
+			o[0] = UserHelper.getShows((ID) o[0]);
 			o[1] = o[1].toString();
 			o[2] = CalendarUtils.getUTCDateTimeFormat().format(o[2]);
 			o[3] = UserHelper.getShows((ID) o[3]);

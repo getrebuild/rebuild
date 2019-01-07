@@ -54,9 +54,10 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 08/24/2018
  */
 @Controller
+@RequestMapping("/app/entity/")
 public class ReferenceSearch extends BaseControll {
 	
-	@RequestMapping({ "/app/entity/search" })
+	@RequestMapping("search")
 	public void search(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
 		String qFields = getParameter(request, "qfields");
@@ -105,7 +106,7 @@ public class ReferenceSearch extends BaseControll {
 		writeSuccess(response, result);
 	}
 	
-	@RequestMapping({ "/app/entity/reference-search" })
+	@RequestMapping("reference-search")
 	public void referenceSearch(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
 		String field = getParameterNotNull(request, "field");
@@ -178,7 +179,7 @@ public class ReferenceSearch extends BaseControll {
 		return result;
 	}
 	
-	@RequestMapping({ "/app/entity/reference-label" })
+	@RequestMapping("reference-label")
 	public void referenceLabel(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String ids = getParameter(request, "ids", null);
 		if (ids == null) {

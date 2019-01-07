@@ -93,6 +93,19 @@ public class MetadataHelper {
 	
 	/**
 	 * @param entityName
+	 * @param fieldName
+	 * @return
+	 */
+	public static boolean containsField(String entityName, String fieldName) {
+		try {
+			return getEntity(entityName).containsField(fieldName);
+		} catch (MetadataException ex) {
+			return false;
+		}
+	}
+	
+	/**
+	 * @param entityName
 	 * @return
 	 */
 	public static Entity getEntity(String entityName) {

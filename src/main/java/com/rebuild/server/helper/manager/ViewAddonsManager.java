@@ -42,7 +42,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 10/22/2018
  */
-public class ViewAddonsManager implements PortalsManager {
+public class ViewAddonsManager implements PortalsConfiguration {
 	
 	// 显示相关项
 	public static final String TYPE_TAB = "TAB";
@@ -55,9 +55,9 @@ public class ViewAddonsManager implements PortalsManager {
 	 * @return
 	 */
 	public static JSON getViewTab(String entity, ID user) {
-		JSON tabs = getViewAddons(entity, TYPE_TAB, user);
+		JSON tabs = getViewAddons(entity, user, TYPE_TAB);
 		
-		// 明细实体（如有）
+		// 添加明细实体（如有）到第一个
 		Entity entityMeta = MetadataHelper.getEntity(entity);
 		if (entityMeta.getSlaveEntity() != null) {
 			String shows[] = EasyMeta.getEntityShows(entityMeta.getSlaveEntity());
@@ -74,21 +74,21 @@ public class ViewAddonsManager implements PortalsManager {
 	 * @return
 	 */
 	public static JSON getViewAdd(String entity, ID user) {
-		return getViewAddons(entity, TYPE_ADD, user);
+		return getViewAddons(entity, user, TYPE_ADD);
 	}
 	
 	/**
 	 * @param entity
-	 * @param type
 	 * @param user
+	 * @param type
 	 * @return
 	 */
-	protected static JSON getViewAddons(String entity, String type, ID user) {
-		final Object FEAT[] = getRaw(entity, type);
-		final Permission RoC = TYPE_TAB.equals(type) ? BizzPermission.READ : BizzPermission.CREATE;
+	private static JSON getViewAddons(String entity, ID user, String applyType) {
+		final Object addons[] = getConfig(entity, applyType);
+		final Permission RoC = TYPE_TAB.equals(applyType) ? BizzPermission.READ : BizzPermission.CREATE;
 		
 		// 未配置则使用全部相关项
-		if (FEAT == null) {
+		if (addons == null) {
 			Entity entityMeta = MetadataHelper.getEntity(entity);
 			
 			Set<String[]> refs = new HashSet<>();
@@ -106,7 +106,7 @@ public class ViewAddonsManager implements PortalsManager {
 		}
 		
 		List<String[]> configured = new ArrayList<>();
-		for (Object o : (JSONArray) FEAT[1]) {
+		for (Object o : (JSONArray) addons[1]) {
 			String e = (String) o;
 			if (MetadataHelper.containsEntity(e)) {
 				Entity entityMeta = MetadataHelper.getEntity(e);
@@ -120,18 +120,18 @@ public class ViewAddonsManager implements PortalsManager {
 	
 	/**
 	 * @param entity
-	 * @param type
+	 * @param applyType
 	 * @return
 	 */
-	public static Object[] getRaw(String entity, String type) {
-		Object[] feat = Application.createQueryNoFilter(
-				"select addonsId,config from ViewAddonsConfig where belongEntity = ? and type = ?")
+	public static Object[] getConfig(String entity, String applyType) {
+		Object[] config = Application.createQueryNoFilter(
+				"select configId,config from ViewAddonsConfig where belongEntity = ? and applyType = ?")
 				.setParameter(1, entity)
-				.setParameter(2, type)
+				.setParameter(2, applyType)
 				.unique();
-		if (feat != null) {
-			feat[1] = JSON.parseArray((String) feat[1]);
+		if (config != null) {
+			config[1] = JSON.parseArray((String) config[1]);
 		}
-		return feat;
+		return config;
 	}
 }

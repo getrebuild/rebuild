@@ -59,7 +59,7 @@
 	<div class="dialog-footer">	
 		<div class="float-left hide J_for-admin">
 			<label class="custom-control custom-checkbox custom-control-inline">
-				<input class="custom-control-input" type="checkbox" id="applyTo" value="ALL" checked="checked">
+				<input class="custom-control-input" type="checkbox" id="shareTo" value="ALL" checked="checked">
 				<span class="custom-control-label">应用到全部用户</span>
 			</label>
 		</div>
@@ -133,7 +133,7 @@ $(document).ready(function(){
 		if (navs.length == 0) { rb.highbar('请至少设置一个菜单项'); return }
 		
 		let btn = $(this).button('loading')
-		$.post(rb.baseUrl + '/app/settings/nav-settings?cfgid=' + cfgid + '&toAll=' + $('#applyTo').prop('checked'), JSON.stringify(navs), function(res){
+		$.post(rb.baseUrl + '/app/settings/nav-settings?cfgid=' + cfgid + '&toAll=' + $('#shareTo').prop('checked'), JSON.stringify(navs), function(res){
 			btn.button('reset')
 			if (res.error_code == 0) parent.location.reload()
 		})
@@ -151,6 +151,7 @@ $(document).ready(function(){
 					})
 				}
 			})
+			$('#shareTo').attr('checked', res.data.shareTo == 'ALL')
 		}
 	})
 })

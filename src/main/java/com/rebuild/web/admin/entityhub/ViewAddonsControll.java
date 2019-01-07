@@ -61,17 +61,18 @@ public class ViewAddonsControll extends BaseControll implements LayoutConfig {
 	public void sets(@PathVariable String entity,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		String type = getParameter(request, "type", ViewAddonsManager.TYPE_TAB);
+		String applyType = getParameter(request, "type", ViewAddonsManager.TYPE_TAB);
 		JSON config = ServletUtils.getRequestJson(request);
 		
-		Object[] feat = ViewAddonsManager.getRaw(entity, type);
+		Object[] addons = ViewAddonsManager.getConfig(entity, applyType);
+		
 		Record record = null;
-		if (feat == null) {
+		if (addons == null) {
 			record = EntityHelper.forNew(EntityHelper.ViewAddonsConfig, user);
-			record.setString("type", type);
 			record.setString("belongEntity", entity);
+			record.setString("applyType", applyType);
 		} else {
-			record = EntityHelper.forUpdate((ID) feat[0], user);
+			record = EntityHelper.forUpdate((ID) addons[0], user);
 		}
 		record.setString("config", config.toJSONString());
 		Application.getCommonService().createOrUpdate(record);
@@ -83,10 +84,11 @@ public class ViewAddonsControll extends BaseControll implements LayoutConfig {
 	@Override
 	public void gets(@PathVariable String entity,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String type = getParameter(request, "type", ViewAddonsManager.TYPE_TAB);
-		Object[] feat = ViewAddonsManager.getRaw(entity, type);
+		String applyType = getParameter(request, "type", ViewAddonsManager.TYPE_TAB);
 		
 		Entity entityMeta = MetadataHelper.getEntity(entity);
+		Object[] addons = ViewAddonsManager.getConfig(entity, applyType);
+		
 		Set<String[]> refs = new HashSet<>();
 		for (Field field : entityMeta.getReferenceToFields()) {
 			Entity e = field.getOwnEntity();
@@ -99,7 +101,7 @@ public class ViewAddonsControll extends BaseControll implements LayoutConfig {
 		
 		JSON ret = JSONUtils.toJSONObject(
 				new String[] { "config", "refs" },
-				new Object[] { feat == null ? null : feat[1], refs });
+				new Object[] { addons == null ? null : addons[1], refs });
 		writeSuccess(response, ret);
 	}
 }

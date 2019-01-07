@@ -4,14 +4,20 @@ class BaseChart extends React.Component {
         this.state = { ...props }
     }
     render() {
+        let opers = <div className="chart-oper">
+            <a onClick={()=>this.loadChartData()}><i className="zmdi zmdi-refresh"/></a>
+            <a href={'chart-design?id=' + this.props.id}><i className="zmdi zmdi-edit"/></a>
+            <a onClick={()=>this.remove()}><i className="zmdi zmdi-delete"/></a>
+        </div>
+        if (this.state.editable == false){
+            opers = <div className="chart-oper">
+                <a onClick={()=>this.loadChartData()}><i className="zmdi zmdi-refresh"/></a>
+            </div>
+        }
         return (<div className="chart-box" ref="box">
             <div className="chart-head">
                 <div className="chart-title text-truncate">{this.state.title}</div>
-                <div className="chart-oper">
-                    <a onClick={()=>this.loadChartData()}><i className="zmdi zmdi-refresh"/></a>
-                    <a href={'chart-design?id=' + this.props.id}><i className="zmdi zmdi-edit"/></a>
-                    <a onClick={()=>this.remove()}><i className="zmdi zmdi-delete"/></a>
-                </div>
+                {opers}
             </div>
             <div ref="body" className={'chart-body rb-loading ' + (!!!this.state.chartdata && ' rb-loading-active')}>{this.state.chartdata || <RbSpinner />}</div>
         </div>)
@@ -275,8 +281,8 @@ class ChartFunnel extends BaseChart {
 }
 
 // 确定图表类型
-const detectChart = function(cfg, id){
-    let props = { config: cfg, id: id, title: cfg.title }
+const detectChart = function(cfg, id, editable){
+    let props = { config: cfg, id: id, title: cfg.title, editable: editable != false }
     if (cfg.type == 'INDEX'){
         return <ChartIndex { ...props } />
     } else if (cfg.type == 'TABLE'){

@@ -47,10 +47,10 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 08/22/2018
  */
 @Controller
-@RequestMapping("/app/")
-public class GeneralEntityControll extends BaseControll {
+@RequestMapping("/app/{entity}/")
+public class GeneralModelControll extends BaseControll {
 
-	@RequestMapping("{entity}/view/{id}")
+	@RequestMapping("view/{id}")
 	public ModelAndView pageView(@PathVariable String entity, @PathVariable String id,
 			HttpServletRequest request) throws IOException {
 		ID user = getRequestUser(request);
@@ -73,7 +73,7 @@ public class GeneralEntityControll extends BaseControll {
 		return mv;
 	}
 	
-	@RequestMapping("{entity}/form-model")
+	@RequestMapping("form-model")
 	public void entityForm(@PathVariable String entity,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
@@ -83,7 +83,7 @@ public class GeneralEntityControll extends BaseControll {
 		if (record == null) {
 			initialVal = ServletUtils.getRequestJson(request);
 			if (initialVal != null) {
-				// 创建明细实体必须制定主实体，以便验证权限
+				// 创建明细实体必须指定主实体，以便验证权限
 				String master = ((JSONObject) initialVal).getString(DefaultValueManager.DV_MASTER);
 				if (ID.isId(master)) {
 					FormsManager.setCurrentMasterId(ID.valueOf(master));
@@ -99,7 +99,7 @@ public class GeneralEntityControll extends BaseControll {
 		writeSuccess(response, model);
 	}
 	
-	@RequestMapping("{entity}/view-model")
+	@RequestMapping("view-model")
 	public void entityView(@PathVariable String entity,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);

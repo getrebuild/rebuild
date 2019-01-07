@@ -27,11 +27,11 @@ import org.apache.commons.lang.math.NumberUtils;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.helper.manager.AdvFilterManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.server.service.query.AdvFilterManager;
 import com.rebuild.server.service.query.AdvFilterParser;
 
 import cn.devezhao.persist4j.Entity;
@@ -161,7 +161,7 @@ public class JSONQueryParser {
 		// Adv
 		String advExpId = queryExpressie.getString("advFilter");
 		if (ID.isId(advExpId)) {
-			Object[] adv = AdvFilterManager.getAdvFilterRaw(ID.valueOf(advExpId));
+			Object[] adv = AdvFilterManager.getAdvFilter(ID.valueOf(advExpId));
 			if (adv != null) {
 				String query = new AdvFilterParser(entity, (JSONObject) adv[1]).toSqlWhere();
 				if (StringUtils.isNotBlank(query)) {

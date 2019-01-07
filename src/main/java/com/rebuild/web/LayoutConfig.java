@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.PathVariable;
 
 /**
- * 布局配置标记接口
+ * 布局配置接口
  * 
  * @author devezhao
  * @since 10/14/2018

@@ -48,7 +48,7 @@ $(document).ready(function(){
         })
         if (elements.length == 0) { rb.highbar('请至少布局1个字段'); return }
         
-        let _data = { belongEntity: wpc.entityName, type: 'FORM', config: JSON.stringify(elements) }
+        let _data = { belongEntity: wpc.entityName, applyType: 'FORM', config: JSON.stringify(elements) }
         _data.metadata = { entity:'LayoutConfig', id: wpc.formConfig.id || null }
         
         btn.button('loading')

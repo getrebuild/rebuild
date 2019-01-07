@@ -58,7 +58,7 @@ $(document).ready(() => {
 	$('.rb-toggle-left-sidebar').attr('title', '完成').off('click').on('click', () => {
 	    let cfg = build_config()
 	    if (!!!cfg){ rb.highbar('当前图表无数据'); return }
-	    let _data = { config: JSON.stringify(cfg), title: cfg.title, belongEntity: cfg.entity, type: cfg.type }
+	    let _data = { config: JSON.stringify(cfg), title: cfg.title, belongEntity: cfg.entity, chartType: cfg.type }
 	    _data.metadata = { entity: 'ChartConfig', id: wpc.chartId }
 	    
 	    let dash = $urlp('dashid') || ''

@@ -31,10 +31,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.manager.LayoutManager;
+import com.rebuild.server.helper.manager.AdvFilterManager;
+import com.rebuild.server.helper.manager.SharableConfiguration;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
-import com.rebuild.server.service.query.AdvFilterManager;
 import com.rebuild.server.service.query.AdvFilterParser;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
@@ -62,8 +62,10 @@ public class AdvFilterControll extends BaseControll implements LayoutConfig {
 		ID user = getRequestUser(request);
 		ID filterId = getIdParameter(request, "id");
 		if (filterId != null) {
-			if (!isSelfFilter(user, filterId)) {
-				writeSuccess(response, "无权修改此过滤项");
+			if (UserHelper.isAdmin(user) || AdvFilterManager.isSelf(user, filterId)) {
+				// Okay
+			} else {
+				writeFailure(response, "无权修改此过滤项");
 				return;
 			}
 		}
@@ -71,9 +73,8 @@ public class AdvFilterControll extends BaseControll implements LayoutConfig {
 		String filterName = getParameter(request, "name");
 		JSON filter = ServletUtils.getRequestJson(request);
 		
-		Boolean toAll = getBoolParameter(request, "toAll");
-		// 非管理员只能设置自己
-		if (toAll != null && toAll) {
+		boolean toAll = getBoolParameter(request, "toAll", false);
+		if (toAll) {
 			toAll = UserHelper.isAdmin(user);
 		}
 		
@@ -91,11 +92,9 @@ public class AdvFilterControll extends BaseControll implements LayoutConfig {
 		if (StringUtils.isNotBlank(filterName)) {
 			record.setString("filterName", filterName);
 		}
-		if (toAll != null) {
-			record.setString("applyTo", toAll ? LayoutManager.APPLY_ALL : LayoutManager.APPLY_SELF);
-		}
 		
 		record.setString("config", filter.toJSONString());
+		record.setString("shareTo", toAll ? SharableConfiguration.SHARE_ALL : SharableConfiguration.SHARE_SELF);
 		Application.getCommonService().createOrUpdate(record);
 		
 		writeSuccess(response);
@@ -106,13 +105,13 @@ public class AdvFilterControll extends BaseControll implements LayoutConfig {
 	public void gets(@PathVariable String entity, 
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID filterId = getIdParameter(request, "id");
-		Object[] filter = AdvFilterManager.getAdvFilterRaw(filterId);
+		Object[] filter = AdvFilterManager.getAdvFilter(filterId);
 		if (filter == null) {
 			writeFailure(response, "无效过滤条件");
 		} else {
 			filter[0] = filter[0].toString();
 			JSON ret = JSONUtils.toJSONObject(
-					new String[] { "id", "filter", "name", "applyTo" }, filter);
+					new String[] { "id", "filter", "name", "shareTo" }, filter);
 			writeSuccess(response, ret);
 		}
 	}
@@ -122,7 +121,9 @@ public class AdvFilterControll extends BaseControll implements LayoutConfig {
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		ID filterId = getIdParameter(request, "id");
-		if (!isSelfFilter(user, filterId)) {
+		if (UserHelper.isAdmin(user) || AdvFilterManager.isSelf(user, filterId)) {
+			// Okay
+		} else {
 			writeFailure(response, "无权删除此过滤项");
 			return;
 		}
@@ -149,20 +150,5 @@ public class AdvFilterControll extends BaseControll implements LayoutConfig {
 		} catch (Exception ex) {
 			writeFailure(response, "语法错误:" + ex.getLocalizedMessage());
 		}
-	}
-	
-	/**
-	 * 是否自己的记录（管理员永远返回 true）
-	 * 
-	 * @param user
-	 * @param filter
-	 * @return
-	 */
-	private boolean isSelfFilter(ID user, ID filter) {
-		if (UserHelper.isAdmin(user)) {
-			return true;
-		}
-		Object[] raw = AdvFilterManager.getAdvFilterRaw(filter);
-		return raw != null && user.equals(raw[4]);
 	}
 }

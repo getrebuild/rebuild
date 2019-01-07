@@ -24,7 +24,7 @@ class AdvFilter extends React.Component {
             operBtns = (
                 <div className="float-right">
                     <button className="btn btn-primary" type="button" onClick={()=>this.confirm()}>保存</button>
-                    <button className="btn btn-secondary" type="button" onClick={()=>this.searchNow()}>立即查询</button>
+                    <button className="btn btn-primary bordered" type="button" onClick={()=>this.searchNow()}><i className="icon zmdi zmdi-search"/> 立即查询</button>
                 </div>)
         }
             
@@ -62,7 +62,7 @@ class AdvFilter extends React.Component {
                             </div>
                             {rb.isAdminUser !== true ? null :
                             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline ml-4 mt-2">
-                                <input className="custom-control-input" type="checkbox" checked={this.state.applyToAll == true} data-id="applyToAll" onChange={this.handleChange} />
+                                <input className="custom-control-input" type="checkbox" checked={this.state.shareToAll == true} data-id="shareToAll" onChange={this.handleChange} />
                                 <span className="custom-control-label">共享给全部用户</span>
                             </label>}
                         </div>
@@ -105,8 +105,8 @@ class AdvFilter extends React.Component {
         let id = e.target.dataset.id
         if (id == 'enableEquation'){
             this.setState({ enableEquation: this.state.enableEquation !== true })
-        } else if (id == 'applyToAll') {
-            this.setState({ applyToAll: this.state.applyToAll !== true })
+        } else if (id == 'shareToAll') {
+            this.setState({ shareToAll: this.state.shareToAll !== true })
         } else {
             let state = {}
             state[id] = val
@@ -186,7 +186,7 @@ class AdvFilter extends React.Component {
     confirm() {
         let adv = this.toFilterJson()
         if (!!!adv) return
-        else if (this.props.confirm) this.props.confirm(adv, this.state.filterName, this.state.applyToAll)
+        else if (this.props.confirm) this.props.confirm(adv, this.state.filterName, this.state.shareToAll)
         else{
             $.post(rb.baseUrl + '/app/entity/advfilter/test-parse', JSON.stringify(adv), function(res){
                 if (res.error_code == 0) console.log(JSON.stringify(adv) + '\n>> ' + res.data)

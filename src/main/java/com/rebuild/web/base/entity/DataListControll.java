@@ -31,7 +31,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -39,13 +38,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.manager.DataListManager;
 import com.rebuild.server.helper.manager.LayoutManager;
+import com.rebuild.server.helper.manager.SharableConfiguration;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
+import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.LayoutConfig;
-import com.rebuild.web.base.entity.datalist.DataListControl;
-import com.rebuild.web.base.entity.datalist.DefaultDataListControl;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
@@ -54,71 +53,45 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 数据列表
+ * 列表配置
  * 
- * @author zhaofang123@gmail.com
- * @since 08/22/2018
+ * @author devezhao
+ * @since 01/07/2019
  */
 @Controller
 @RequestMapping("/app/{entity}/")
-public class GeneralListControll extends BaseControll implements LayoutConfig {
+public class DataListControll extends BaseControll implements LayoutConfig {
 
-	@RequestMapping("list")
-	public ModelAndView pageList(@PathVariable String entity, HttpServletRequest request) throws IOException {
-		ID user = getRequestUser(request);
-		Entity thatEntity = MetadataHelper.getEntity(entity);
-		
-		ModelAndView mv = null;
-		if (thatEntity.getMasterEntity() != null) {
-			mv = createModelAndView("/general-entity/slave-list.jsp", entity, user);
-		} else {
-			mv = createModelAndView("/general-entity/record-list.jsp", entity, user);
-		}
-		
-		JSON config = DataListManager.getColumnLayout(entity, getRequestUser(request));
-		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
-		
-		return mv;
-	}
-	
-	@RequestMapping("data-list")
-	public void dataList(@PathVariable String entity,
-			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		JSONObject query = (JSONObject) ServletUtils.getRequestJson(request);
-		DataListControl control = new DefaultDataListControl(query, getRequestUser(request));
-		JSON result = control.getJSONResult();
-		writeSuccess(response, result);
-	}
-	
-	// --
-	
 	@RequestMapping(value = "list-fields", method = RequestMethod.POST)
 	@Override
 	public void sets(@PathVariable String entity,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		Entity entityMeta = MetadataHelper.getEntity(entity);
+		boolean toAll = getBoolParameter(request, "toAll", false);
+		if (toAll) {
+			toAll = UserHelper.isAdmin(user);
+		}
 		
-		boolean toAll = "true".equals(getParameter(request, "toAll"));
-		// 非管理员只能设置自己
-		boolean isAdmin = Application.getUserStore().getUser(user).isAdmin();
-		if (!isAdmin) {
-			toAll = false;
+		if (!MetadataHelper.containsEntity(entity)) {
+			writeFailure(response);
+			return;
 		}
 		
 		JSON config = ServletUtils.getRequestJson(request);
 		ID cfgid = getIdParameter(request, "cfgid");
-		ID cfgidDetected = DataListManager.detectConfigId(cfgid, toAll, entity, DataListManager.TYPE_DATALIST, user);
+		if (cfgid != null && !SharableConfiguration.isSelf(user, cfgid)) {
+			cfgid = null;
+		}
 		
 		Record record = null;
-		if (cfgidDetected == null) {
+		if (cfgid == null) {
 			record = EntityHelper.forNew(EntityHelper.LayoutConfig, user);
-			record.setString("belongEntity", entityMeta.getName());
-			record.setString("type", LayoutManager.TYPE_DATALIST);
-			record.setString("applyTo", toAll ? LayoutManager.APPLY_ALL : LayoutManager.APPLY_SELF);
+			record.setString("belongEntity", entity);
+			record.setString("applyType", LayoutManager.TYPE_DATALIST);
 		} else {
-			record = EntityHelper.forUpdate(cfgidDetected, user);
+			record = EntityHelper.forUpdate(cfgid, user);
 		}
+		record.setString("shareTo", toAll ? SharableConfiguration.SHARE_ALL : SharableConfiguration.SHARE_SELF);
 		record.setString("config", config.toJSONString());
 		Application.getCommonService().createOrUpdate(record);
 		
@@ -138,7 +111,7 @@ public class GeneralListControll extends BaseControll implements LayoutConfig {
 		}
 		
 		List<Map<String, Object>> configList = new ArrayList<>();
-		Object[] raw = DataListManager.getLayoutConfigRaw(entity, DataListManager.TYPE_DATALIST, user);
+		Object[] raw = DataListManager.getLayoutOfDatalist(user, entity);
 		if (raw != null) {
 			for (Object o : (JSONArray) raw[1]) {
 				JSONObject col = (JSONObject) o;
@@ -156,6 +129,7 @@ public class GeneralListControll extends BaseControll implements LayoutConfig {
 		ret.put("configList", configList);
 		if (raw != null) {
 			ret.put("configId", raw[0].toString());
+			ret.put("shareTo", raw[2]);
 		}
 		writeSuccess(response, ret);
 	}

@@ -1,6 +1,6 @@
 // $Id$
 let dashid = null
-let dashid_self = false
+let dash_editable = false
 $(document).ready(function(){
     $('.chart-grid').height($(window).height() - 120)
 
@@ -22,7 +22,7 @@ $(document).ready(function(){
         }
 
         dashid = d[0]
-        dashid_self = d[3]
+        dash_editable = d[3]
         render_dashboard(d[2])
         $('.dash-list h4').text(d[1])
 
@@ -34,13 +34,14 @@ $(document).ready(function(){
         }
 
         // 仅开放一个仪表盘
-        if (dashid_self) $('.J_dash-new').remove()
-        else $('.J_dash-edit').remove()
+        if (dash_editable) $('.J_dash-new').remove()
+        else $('.J_dash-edit, .J_chart-adds').remove()
         
+        $('.J_dash-new').click( ()=>{ show_dlg('DlgDashAdd') })
+        $('.J_dash-edit').click(()=>{ show_dlg('DlgDashSettings', { title: d[1], shareToAll: d[4] == 'ALL' }) })
+        $('.J_chart-new').click(()=>{ show_dlg('DlgAddChart') })
+        // TODO
         $('.J_dash-select').click( ()=>{  })
-        $('.J_dash-new').click( ()=>{ renderRbcomp(<DlgDashAdd />) })
-        $('.J_dash-edit').click(()=>{ renderRbcomp(<DlgDashSettings dashid={dashid} title={d[1]} shareToAll={d[4] == 'ALL'} />) })
-        $('.J_chart-new').click(()=>{ add_chart() })
         $('.J_chart-select').click(()=>{  })
     }))
 })
@@ -52,8 +53,14 @@ $(window).resize(() => {
     }, 200, 'resize-charts')
 })
 
-const add_chart = ()=>{
-    renderRbcomp(<DlgAddChart dashid={dashid} />)
+const dlg_cached = {}
+const show_dlg = (t, props)=>{
+    props = props || {}
+    props.dashid = props.dashid || dashid
+    if (dlg_cached[t]) dlg_cached[t].show()
+    else if (t == 'DlgAddChart') dlg_cached[t] = renderRbcomp(<DlgAddChart {...props} />)
+    else if (t == 'DlgDashAdd') dlg_cached[t] = renderRbcomp(<DlgDashAdd {...props} />)
+    else if (t == 'DlgDashSettings') dlg_cached[t] = renderRbcomp(<DlgDashSettings {...props} />)
 }
 
 let gridster = null
@@ -96,11 +103,11 @@ let render_dashboard = function(cfg){
         let elid = 'chart-' + item.chart
         let el = '<li data-chart="' + item.chart + '"><div id="' + elid + '"></div><span class="handle-resize"></span></li>'
         gridster.add_widget(el, item.size_x || 2, item.size_y || 2, item.col || null, item.row || null)
-        let c = renderRbcomp(detectChart(item, item.chart), elid)
+        let c = renderRbcomp(detectChart(item, item.chart, dash_editable), elid)
         rendered_charts.push(c)
     })
     if (rendered_charts.length == 0){
-        let el = '<li><a class="chart-add" onclick="add_chart()"><i class="zmdi zmdi-plus"></i><p>添加图表</p></a></li>'
+        let el = '<li><a class="chart-add" onclick="show_dlg(\"DlgAddChart\")"><i class="zmdi zmdi-plus"></i><p>添加图表</p></a></li>'
         gridster.add_widget(el, 2, 2)
         gridster.disable_resize()
     } else{
@@ -112,7 +119,7 @@ let render_dashboard = function(cfg){
 }
 
 let save_dashboard = function(){
-    if (gridster_undata == true || dashid_self == false) return
+    if (gridster_undata == true || dash_editable != true) return
     $setTimeout(()=>{
         let s = gridster.serialize()
         s = Gridster.sort_by_row_and_col_asc(s)
@@ -199,7 +206,8 @@ class DlgDashSettings extends RbFormHandler {
         _data.metadata = { id: this.props.dashid, entity: 'DashboardConfig' }
         $.post(rb.baseUrl + '/dashboard/dash-update', JSON.stringify(_data), (res)=>{
             if (res.error_code == 0){
-                rb.highbar('设置已保存', 'success')
+                rb.hbsuccess('设置已保存')
+                $('.dash-head h4').text(_data.title)
                 this.hide()
             } else rb.hberror(res.error_msg)
         })

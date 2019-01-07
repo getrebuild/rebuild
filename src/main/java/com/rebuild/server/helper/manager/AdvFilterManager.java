@@ -16,13 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.service.query;
+package com.rebuild.server.helper.manager;
 
 import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.manager.PortalsManager;
+import com.rebuild.server.service.bizz.RoleService;
+import com.rebuild.server.service.bizz.UserHelper;
 
 import cn.devezhao.persist4j.engine.ID;
 
@@ -31,7 +32,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 09/30/2018
  */
-public class AdvFilterManager implements PortalsManager {
+public class AdvFilterManager extends SharableConfiguration {
 	
 	/**
 	 * 获取高级查询列表
@@ -44,37 +45,38 @@ public class AdvFilterManager implements PortalsManager {
 		Assert.notNull(entity, "[entity] not be null");
 		Assert.notNull(user, "[user] not be null");
 		
-		Object[][] array = Application.createQueryNoFilter(
-				"select filterId,filterName,createdBy from FilterConfig"
-				+ " where belongEntity = ? and ((applyTo = 'SELF' and createdBy = ?) or applyTo = 'ALL')"
-				+ " order by filterName")
-				.setParameter(1, entity)
-				.setParameter(2, user)
-				.array();
+		boolean isAdmin = UserHelper.isAdmin(user);
+		String sql = "select configId,filterName,createdBy from FilterConfig where belongEntity = ? and ";
+		if (isAdmin) {
+			sql += String.format("createdBy.roleId = '%s'", RoleService.ADMIN_ROLE);
+		} else {
+			sql += String.format("((shareTo = 'SELF' and createdBy = '%s') or shareTo = 'ALL')", user);
+		}
+		sql += " order by filterName";
+		
+		Object[][] array = Application.createQueryNoFilter(sql).setParameter(1, entity).array();
 		for (Object[] o : array) {
-			o[2] = o[2].equals(user);  // allow edit?
+			o[2] = isSelf(user, (ID) o[2]);
 		}
 		return array;
 	}
 	
 	/**
-	 * 获取高级查询列表
+	 * 获取高级查询
 	 * 
-	 * @param filterId
+	 * @param configId
 	 * @return
 	 */
-	public static Object[] getAdvFilterRaw(ID filterId) {
-		Assert.notNull(filterId, "[filterId] not be null");
+	public static Object[] getAdvFilter(ID configId) {
+		Assert.notNull(configId, "[configId] not be null");
 		Object[] filter = Application.createQueryNoFilter(
-				"select filterId,config,filterName,applyTo,createdBy from FilterConfig where filterId = ?")
-				.setParameter(1, filterId)
+				"select configId,config,filterName,shareTo,createdBy from FilterConfig where configId = ?")
+				.setParameter(1, configId)
 				.unique();
 		if (filter == null) {
 			return null;
 		}
-		
-		String cfg = (String) filter[1];
-		filter[1] = JSON.parseObject(cfg);
+		filter[1] = JSON.parseObject((String) filter[1]);
 		return filter;
 	}
 }

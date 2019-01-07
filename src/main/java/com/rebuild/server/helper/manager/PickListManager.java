@@ -36,7 +36,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 09/06/2018
  */
-public class PickListManager implements PortalsManager {
+public class PickListManager implements PortalsConfiguration {
 
 	/**
 	 * @param field
@@ -49,22 +49,22 @@ public class PickListManager implements PortalsManager {
 	/**
 	 * @param entity
 	 * @param field
-	 * @param isAll
+	 * @param includeHide
 	 * @return
 	 */
-	public static JSONArray getPickList(String entity, String field, boolean isAll) {
-		List<Map<String, Object>> list = getRaw(entity, field, isAll, false);
+	public static JSONArray getPickList(String entity, String field, boolean includeHide) {
+		List<Map<String, Object>> list = getPickList(entity, field, includeHide, false);
 		return (JSONArray) JSON.toJSON(list);
 	}
 	
 	/**
 	 * @param entity
 	 * @param field
-	 * @param isAll
+	 * @param includeHide
 	 * @param reload
 	 * @return
 	 */
-	public static List<Map<String, Object>> getRaw(String entity, String field, boolean isAll, boolean reload) {
+	public static List<Map<String, Object>> getPickList(String entity, String field, boolean includeHide, boolean reload) {
 		Object[][] array = Application.createQueryNoFilter(
 				"select itemId,text,isDefault,isHide from PickList where belongEntity = ? and belongField = ? order by seq asc")
 				.setParameter(1, entity)
@@ -72,7 +72,7 @@ public class PickListManager implements PortalsManager {
 				.array();
 		List<Map<String, Object>> list = new ArrayList<>();
 		for (Object[] o : array) {
-			if (!isAll && (Boolean) o[3]) {
+			if (!includeHide && (Boolean) o[3]) {
 				continue;
 			}
 			
@@ -80,7 +80,7 @@ public class PickListManager implements PortalsManager {
 			item.put("id", o[0].toString());
 			item.put("text", o[1]);
 			item.put("default", o[2]);
-			if (isAll) {
+			if (includeHide) {
 				item.put("hide", o[3]);
 			}
 			list.add(item);
@@ -97,6 +97,6 @@ public class PickListManager implements PortalsManager {
 				"select text from PickList where itemId = ?")
 				.setParameter(1, itemId)
 				.unique();
-		return (String) item[0];
+		return item == null ? null : (String) item[0];
 	}
 }

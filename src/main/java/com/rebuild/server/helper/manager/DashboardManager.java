@@ -20,19 +20,14 @@ package com.rebuild.server.helper.manager;
 
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
@@ -42,9 +37,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 12/20/2018
  */
-public class DashboardManager implements PortalsManager {
-	
-	private static final Log LOG = LogFactory.getLog(DashboardManager.class);
+public class DashboardManager extends SharableConfiguration {
 	
 	/**
 	 * 获取可用面板
@@ -53,20 +46,23 @@ public class DashboardManager implements PortalsManager {
 	 * @return
 	 */
 	public static JSON getDashList(ID user) {
-		Object[][] array = Application.createQueryNoFilter(
-				"select dashboardId,title,config,createdBy,shareTo from DashboardConfig where createdBy = ? or shareTo = 'ALL'")
-				.setParameter(1, user)
-				.array();
+		ID configUsed = detectUseConfig(user, "DashboardConfig");
 		
 		// 没有就初始化一个
-		if (array.length == 0) {
+		if (configUsed == null) {
 			Record record = EntityHelper.forNew(EntityHelper.DashboardConfig, user);
-			String dname = "默认仪表盘";
-			record.setString("title", dname);
 			record.setString("config", JSONUtils.EMPTY_ARRAY_STR);
+			record.setString("title", "默认仪表盘");
+			record.setString("shareTo", UserHelper.isAdmin(user) ? SHARE_ALL : SHARE_SELF);
 			record = Application.getCommonService().create(record);
-			array = new Object[][] { new Object[] { record.getPrimary(), dname, JSONUtils.EMPTY_ARRAY_STR, user, "SELF" } };
+			configUsed = record.getPrimary();
 		}
+		
+		// TODO 多个仪表盘 ???
+		Object[][] array = Application.createQueryNoFilter(
+				"select configId,title,config,createdBy,shareTo from DashboardConfig where configId = ?")
+				.setParameter(1, configUsed)
+				.array();
 		
 		// 补充图表标题
 		for (int i = 0; i < array.length; i++) {
@@ -80,7 +76,7 @@ public class DashboardManager implements PortalsManager {
 				}
 				
 				Object[] chart = Application.createQueryNoFilter(
-						"select title,type from ChartConfig where chartId = ?")
+						"select title,chartType from ChartConfig where chartId = ?")
 						.setParameter(1, ID.valueOf(chartid))
 						.unique();
 				if (chart == null) {
@@ -93,34 +89,8 @@ public class DashboardManager implements PortalsManager {
 			}
 			
 			array[i][2] = config;
+			array[i][3] = allowedUpdate(user, (ID) array[i][0]);
 			array[i][0] = array[i][0].toString();
-			array[i][3] = array[i][3].equals(user);  // 本人的
-		}
-		
-		return (JSON) JSON.toJSON(array);
-	}
-	
-	/**
-	 * 获取可用图表
-	 * 
-	 * @param user
-	 * @return
-	 */
-	public static JSON getChartList(ID user) {
-		Object[][] array = Application.createQueryNoFilter(
-				"select chartId,belongEntity,type,title,modifiedOn from ChartConfig where createdBy = ?")
-				.setParameter(1, user)
-				.array();
-		for (Object[] chart : array) {
-			String belongEntity = (String) chart[1];
-			if (!MetadataHelper.containsEntity(belongEntity)) {
-				LOG.warn("No entity found : " + belongEntity);
-				continue;
-			}
-			
-			chart[0] = chart[0].toString();
-			chart[1] = EasyMeta.getLabel(MetadataHelper.getEntity(belongEntity));
-			chart[4] = CalendarUtils.getUTCDateTimeFormat().format(chart[4]);
 		}
 		
 		return (JSON) JSON.toJSON(array);
@@ -135,9 +105,17 @@ public class DashboardManager implements PortalsManager {
 	 */
 	public static boolean allowedUpdate(ID user, ID dashid) {
 		Object[] dash = Application.createQueryNoFilter(
-				"select createdBy from DashboardConfig where dashboardId = ?")
+				"select createdBy from DashboardConfig where configId = ?")
 				.setParameter(1, dashid)
 				.unique();
-		return user.equals(dash[0]);
+		if (dash == null) {
+			return false;
+		}
+		
+		if (UserHelper.isAdmin(user)) {
+			return UserHelper.isAdmin((ID) dash[0]);
+		} else {
+			return user.equals(dash[0]);
+		}
 	}
 }

@@ -69,7 +69,7 @@ public class FormDesignControll extends BaseControll implements LayoutConfig {
 		JSON formJson = ServletUtils.getRequestJson(request);
 		Record record = EntityHelper.parse((JSONObject) formJson, getRequestUser(request));
 		if (record.getPrimary() == null) {
-			record.setString("applyTo", FormsManager.APPLY_ALL);
+			record.setString("shareTo", FormsManager.SHARE_ALL);
 		}
 		
 		Application.getCommonService().createOrUpdate(record);

@@ -22,9 +22,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSON;
@@ -37,6 +34,7 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.service.bizz.privileges.User;
+import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
@@ -53,27 +51,23 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class FormsManager extends LayoutManager {
 
-	private static final Log LOG = LogFactory.getLog(FormsManager.class);
-	
-	private static final ThreadLocal<ID> MASTERID4NEWSLAVE = new ThreadLocal<>();
-	
 	/**
 	 * @param entity
 	 * @param user
 	 * @return
 	 */
 	public static JSON getFormLayout(String entity, ID user) {
-		JSONObject cfgsJson = new JSONObject();
-		cfgsJson.put("entity", entity);
+		JSONObject config = new JSONObject();
+		config.put("entity", entity);
 		
-		Object[] cfgs = getLayoutConfigRaw(entity, TYPE_FORM, user);
-		if (cfgs != null) {
-			cfgsJson.put("id", cfgs[0].toString());
-			cfgsJson.put("elements", cfgs[1]);
+		Object[] raw = getLayoutOfForm(user, entity);
+		if (raw != null) {
+			config.put("id", raw[0].toString());
+			config.put("elements", raw[1]);
 		} else {
-			cfgsJson.put("elements", ArrayUtils.EMPTY_STRING_ARRAY);
+			config.put("elements", JSONUtils.EMPTY_ARRAY);
 		}
-		return cfgsJson;
+		return config;
 	}
 	
 	/**
@@ -365,6 +359,7 @@ public class FormsManager extends LayoutManager {
 		return null;
 	}
 	
+	private static final ThreadLocal<ID> MASTERID4NEWSLAVE = new ThreadLocal<>();
 	/**
 	 * @param masterId
 	 */

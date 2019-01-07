@@ -19,10 +19,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.helper.manager;
 
 /**
- * 标记接口。意为前端配置管理器
+ * 前端配置管理器。标记接口
  * 
  * @author devezhao
  * @since 01/04/2019
  */
-public interface PortalsManager {
+public interface PortalsConfiguration {
 }

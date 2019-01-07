@@ -41,6 +41,7 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.IllegalParameterException;
@@ -64,6 +65,7 @@ public class ChartDesignControll extends BaseControll {
 	public ModelAndView pageDesign(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ModelAndView mv = createModelAndView("/dashboard/chart-design.jsp");
 		
+		ID user = getRequestUser(request);
 		String entity = getParameter(request, "source");
 		ID chartId = getIdParameter(request, "id");
 		
@@ -74,11 +76,12 @@ public class ChartDesignControll extends BaseControll {
 					.setParameter(1, chartId)
 					.unique();
 			
-			// 不能修改他人的图表
-			// TODO 考虑自动复制图表
-			if (!getRequestUser(request).equals(chart[3])) {
-				response.sendError(403, "你无权修改他人的图表");
-				return null;
+			if (!user.equals(chart[3])) {
+				if (UserHelper.isAdmin(user) && UserHelper.isAdmin((ID) chart[3])) {
+				} else {
+					response.sendError(403, "你无权修改他人的图表");
+					return null;
+				}
 			}
 			
 			mv.getModel().put("chartId", chartId);
@@ -86,7 +89,7 @@ public class ChartDesignControll extends BaseControll {
 			mv.getModel().put("chartConfig", chart[2]);
 			entityMeta = MetadataHelper.getEntity((String) chart[0]);
 		} else if (entity != null) {
-			mv.getModel().put("chartConfig", "{}");
+			mv.getModel().put("chartConfig", JSONUtils.EMPTY_OBJECT_STR);
 			entityMeta = MetadataHelper.getEntity(entity);
 		} else {
 			throw new IllegalParameterException();
@@ -145,7 +148,7 @@ public class ChartDesignControll extends BaseControll {
 		// 添加到仪表盘
 		if (dashid != null) {
 			Object[] dash = Application.createQueryNoFilter(
-					"select config from DashboardConfig where dashboardId = ?")
+					"select config from DashboardConfig where configId = ?")
 					.setParameter(1, dashid)
 					.unique();
 			JSONArray config = JSON.parseArray((String) dash[0]);

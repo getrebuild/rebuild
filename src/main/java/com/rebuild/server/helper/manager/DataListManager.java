@@ -50,14 +50,14 @@ public class DataListManager extends LayoutManager {
 	 * @return
 	 */
 	public static JSON getColumnLayout(String entity, ID user) {
-		Object[] cfgs = getLayoutConfigRaw(entity, TYPE_DATALIST, user);
+		Object[] config = getLayoutOfDatalist(user, entity);
 		
 		List<Map<String, Object>> columnList = new ArrayList<>();
 		Entity entityMeta = MetadataHelper.getEntity(entity);
 		Field namedField = MetadataHelper.getNameField(entityMeta);
 		
 		// 默认配置
-		if (cfgs == null) {
+		if (config == null) {
 			columnList.add(formattedColumn(namedField));
 			
 			String namedFieldName = namedField.getName();
@@ -70,13 +70,12 @@ public class DataListManager extends LayoutManager {
 				columnList.add(formattedColumn(entityMeta.getField(EntityHelper.CreatedOn)));
 			}
 		} else {
-			JSONArray config = (JSONArray) cfgs[1];
-			for (Object o : config) {
-				JSONObject col = (JSONObject) o;
-				String field = col.getString("field");
+			for (Object item : (JSONArray) config[1]) {
+				JSONObject column = (JSONObject) item;
+				String field = column.getString("field");
 				if (entityMeta.containsField(field)) {
 					Map<String, Object> map = formattedColumn(entityMeta.getField(field));
-					Integer width = col.getInteger("width");
+					Integer width = column.getInteger("width");
 					if (width != null) {
 						map.put("width", width);
 					}
@@ -101,5 +100,14 @@ public class DataListManager extends LayoutManager {
 		return JSONUtils.toJSONObject(
 				new String[] { "field", "label", "type" }, 
 				new Object[] { easyMeta.getName(), easyMeta.getLabel(), easyMeta.getDisplayType(false) });
+	}
+	
+	/**
+	 * @param user
+	 * @param belongEntity
+	 * @return
+	 */
+	public static ID detectUseConfig(ID user, String belongEntity) {
+		return detectUseConfig(user, "LayoutConfig", belongEntity, TYPE_DATALIST);
 	}
 }

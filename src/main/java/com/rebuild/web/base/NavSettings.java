@@ -31,7 +31,9 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.manager.LayoutManager;
 import com.rebuild.server.helper.manager.NavManager;
+import com.rebuild.server.helper.manager.SharableConfiguration;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.LayoutConfig;
 
@@ -57,28 +59,27 @@ public class NavSettings extends BaseControll implements LayoutConfig {
 	@RequestMapping(value = "nav-settings", method = RequestMethod.POST)
 	public void sets(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		
-		boolean toAll = "true".equals(getParameter(request, "toAll"));
-		// 非管理员只能设置自己
-		boolean isAdmin = Application.getUserStore().getUser(user).isAdmin();
-		if (!isAdmin) {
-			toAll = false;
+		boolean toAll = getBoolParameter(request, "toAll", false);
+		if (toAll) {
+			toAll = UserHelper.isAdmin(user);
 		}
 		
 		JSON config = ServletUtils.getRequestJson(request);
 		ID cfgid = getIdParameter(request, "cfgid");
-		ID cfgidDetected = NavManager.detectConfigId(cfgid, toAll, user);
+		if (cfgid != null && !SharableConfiguration.isSelf(user, cfgid)) {
+			cfgid = null;
+		}
 		
 		Record record = null;
-		if (cfgidDetected == null) {
+		if (cfgid == null) {
 			record = EntityHelper.forNew(EntityHelper.LayoutConfig, user);
 			record.setString("belongEntity", "N");
-			record.setString("type", LayoutManager.TYPE_NAVI);
-			record.setString("applyTo", toAll ? LayoutManager.APPLY_ALL : LayoutManager.APPLY_SELF);
+			record.setString("applyType", LayoutManager.TYPE_NAV);
 		} else {
-			record = EntityHelper.forUpdate(cfgidDetected, user);
+			record = EntityHelper.forUpdate(cfgid, user);
 		}
 		record.setString("config", config.toJSONString());
+		record.setString("shareTo", toAll ? SharableConfiguration.SHARE_ALL : SharableConfiguration.SHARE_SELF);
 		Application.getCommonService().createOrUpdate(record);
 		
 		writeSuccess(response);

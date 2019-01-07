@@ -51,7 +51,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/commons/metadata/")
-public class MetadataGet extends BaseControll {
+public class MetadataGetter extends BaseControll {
 
 	@RequestMapping("entities")
 	public void entities(HttpServletRequest request, HttpServletResponse response) throws IOException {

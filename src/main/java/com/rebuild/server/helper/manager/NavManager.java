@@ -50,14 +50,23 @@ public class NavManager extends LayoutManager {
 	 * @return
 	 */
 	public static JSON getNav(ID user) {
-		Object[] cfg = getLayoutConfigRaw("N", TYPE_NAVI, user);
-		if (cfg == null) {
+		Object[] config = getLayoutOfNav(user);
+		if (config == null) {
 			return null;
 		}
-		cfg[0] = cfg[0].toString();
-		JSONObject cfgJson = JSONUtils.toJSONObject(new String[] { "id", "config" }, cfg);
-		return cfgJson;
+		config[0] = config[0].toString();
+		return JSONUtils.toJSONObject(new String[] { "id", "config", "shareTo" }, config);
 	}
+	
+	/**
+	 * @param user
+	 * @return
+	 */
+	public static ID detectUseConfig(ID user) {
+		return detectUseConfig(user, "LayoutConfig", null, TYPE_NAV);
+	}
+	
+	// --
 	
 	/**
 	 * 页面用
@@ -66,32 +75,33 @@ public class NavManager extends LayoutManager {
 	 * @return
 	 */
 	public static JSONArray getNavForPortal(HttpServletRequest request) {
-		ID user = AppUtils.getRequestUser(request);
-		Object[] cfgs = getLayoutConfigRaw("N", TYPE_NAVI, user);
-		if (cfgs == null) {
-			return JSON.parseArray("[]");
+		final ID user = AppUtils.getRequestUser(request);
+		Object[] config = getLayoutOfNav(user);
+		if (config == null) {
+			return JSONUtils.EMPTY_ARRAY;
 		}
-	
+		
 		// 过滤
-		JSONArray navs = (JSONArray) cfgs[1];
+		JSONArray navs = (JSONArray) config[1];
 		for (Iterator<Object> iter = navs.iterator(); iter.hasNext(); ) {
 			JSONObject nav = (JSONObject) iter.next();
 			if (isFilterNav(nav, user)) {
 				iter.remove();
-			} else {
-				JSONArray subNavs = nav.getJSONArray("sub");
-				if (subNavs != null && !subNavs.isEmpty()) {
-					for (Iterator<Object> subIter = subNavs.iterator(); subIter.hasNext(); ) {
-						JSONObject subNav = (JSONObject) subIter.next();
-						if (isFilterNav(subNav, user)) {
-							subIter.remove();
-						}
+				continue;
+			}
+			
+			JSONArray subNavs = nav.getJSONArray("sub");
+			if (subNavs != null && !subNavs.isEmpty()) {
+				for (Iterator<Object> subIter = subNavs.iterator(); subIter.hasNext(); ) {
+					JSONObject subNav = (JSONObject) subIter.next();
+					if (isFilterNav(subNav, user)) {
+						subIter.remove();
 					}
-					
-					// 无子级，移除主菜单
-					if (subNavs.isEmpty()) {
-						iter.remove();
-					}
+				}
+				
+				// 无子级，移除主菜单
+				if (subNavs.isEmpty()) {
+					iter.remove();
 				}
 			}
 		}
@@ -123,23 +133,12 @@ public class NavManager extends LayoutManager {
 	}
 	
 	/**
-	 * @param cfgid
-	 * @param toAll
-	 * @param user
-	 * @return
-	 * @see LayoutManager#detectConfigId(ID, boolean, String, String, ID)
-	 */
-	public static ID detectConfigId(ID cfgid, boolean toAll, ID user) {
-		return LayoutManager.detectConfigId(cfgid, toAll, "N", TYPE_NAVI, user);
-	}
-	
-	/**
 	 * @param item
 	 * @param activeNav
-	 * @param isSub
+	 * @param isTop
 	 * @return
 	 */
-	public static String renderNavItem(JSONObject item, String activeNav, boolean is1Level) {
+	public static String renderNavItem(JSONObject item, String activeNav, boolean isTop) {
 		String navName = "nav_entity-" + item.getString("value");
 		boolean isUrlType = "URL".equals(item.getString("type"));
 		String navUrl = item.getString("value");
@@ -154,7 +153,7 @@ public class NavManager extends LayoutManager {
 		
 		boolean subHas = false;
 		JSONArray subNavs = null;
-		if (is1Level) {
+		if (isTop) {
 			subNavs = item.getJSONArray("sub");
 			if (subNavs != null && !subNavs.isEmpty()) {
 				subHas = true;

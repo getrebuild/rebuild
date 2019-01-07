@@ -530,9 +530,8 @@ const AdvFilters = {
     saveFilter(filter, name, toAll) {
         if (!!!filter) return
         let that = AdvFilters
-        let url = `${rb.baseUrl}/app/${that.__entity}/advfilter/post?id=${that.__cfgid || ''}`
+        let url = `${rb.baseUrl}/app/${that.__entity}/advfilter/post?id=${that.__cfgid || ''}&toAll=${toAll}`
         if (!!name)  url += '&name=' + $encode(name)
-        if (toAll === true || toAll === false) url += '&toAll=' + toAll
         $.post(url, JSON.stringify(filter), function(res){
             if (res.error_code == 0){
                 rb.highbar('过滤项已保存', 'success')
@@ -550,7 +549,7 @@ const AdvFilters = {
             let that = this
             $.get(rb.baseUrl + '/app/entity/advfilter/get?id=' + id, function(res){
                 let _data = res.data
-                renderRbcomp(<AdvFilter { ...props } title="修改过滤项" filter={_data.filter} filterName={_data.name} applyToAll={_data.applyTo == 'ALL'} />)
+                renderRbcomp(<AdvFilter { ...props } title="修改过滤项" filter={_data.filter} filterName={_data.name} shareToAll={_data.shareTo == 'ALL'} />)
             })
         }
     }

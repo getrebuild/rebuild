@@ -62,13 +62,6 @@ public class DashboardControll extends BaseControll {
 		writeSuccess(response, dashs);
 	}
 	
-	@RequestMapping("/chart-gets")
-	public void chartGets(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getRequestUser(request);
-		JSON dashs = DashboardManager.getChartList(user);
-		writeSuccess(response, dashs);
-	}
-	
 	@RequestMapping("/dash-update")
 	public void dashUpdate(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);

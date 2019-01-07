@@ -103,44 +103,44 @@
 	</entity>
 
 	<entity name="LayoutConfig" type-code="013" description="布局配置（表单/视图/列表）">
-		<field name="layoutId" type="primary" />
-		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
-		<field name="type" type="string" max-length="20" nullable="false" updatable="false" description="FORM,DATALIST,NAVI" />
+		<field name="configId" type="primary" />
 		<field name="config" type="text" description="JSON格式配置" nullable="false" />
-		<field name="applyTo" type="string" max-length="420" default-value="SELF" description="应用到哪些人，可选值: ALL/SELF/$MemberID(U/D/R)" />
+		<field name="shareTo" type="string" max-length="420" default-value="SELF" description="应用到哪些人，可选值: ALL/SELF/$MemberID(U/D/R)" />
+		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
+		<field name="applyType" type="string" max-length="20" nullable="false" updatable="false" description="FORM,DATALIST,NAVI" />
 	</entity>
-
+	
 	<entity name="FilterConfig" type-code="014" description="过滤条件配置">
-		<field name="filterId" type="primary" />
-		<field name="filterName" type="string" max-length="100" nullable="false" />
-		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
+		<field name="configId" type="primary" />
 		<field name="config" type="text" description="JSON格式配置" nullable="false" />
-		<field name="applyTo" type="string" max-length="420" default-value="SELF" description="应用到哪些人，可选值: ALL/SELF/$MemberID(U/D/R)" />
+		<field name="shareTo" type="string" max-length="420" default-value="SELF" description="应用到哪些人，可选值: ALL/SELF/$MemberID(U/D/R)" />
+		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
+		<field name="filterName" type="string" max-length="100" nullable="false" />
 	</entity>
 
 	<entity name="ViewAddonsConfig" type-code="015" description="视图页相关配置">
-		<field name="addonsId" type="primary" />
-		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
-		<field name="type" type="string" max-length="20" nullable="false" updatable="true" description="TAB,ADD" />
+		<field name="configId" type="primary" />
 		<field name="config" type="text" description="JSON格式配置" nullable="false" />
-		<index type="unique" field-list="belongEntity,type" />
+		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
+		<field name="applyType" type="string" max-length="20" nullable="false" updatable="true" description="TAB,ADD" />
+		<index type="unique" field-list="belongEntity,applyType" />
 	</entity>
 	
 	<entity name="DashboardConfig" type-code="016" description="仪表盘配置">
-		<field name="dashboardId" type="primary" />
-		<field name="title" type="string" max-length="100" nullable="false" />
+		<field name="configId" type="primary" />
 		<field name="config" type="text" description="JSON格式配置" nullable="false" />
 		<field name="shareTo" type="string" max-length="420" default-value="SELF" description="共享给哪些人，可选值: ALL/SELF/$MemberID(U/D/R)" />
+		<field name="title" type="string" max-length="100" nullable="false" />
 	</entity>
 	
 	<entity name="ChartConfig" type-code="017" description="图表配置">
 		<field name="chartId" type="primary" />
-		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
-		<field name="type" type="string" max-length="100" nullable="false" />
-		<field name="title" type="string" max-length="100" nullable="false" />
 		<field name="config" type="text" description="JSON格式配置" nullable="false" />
+		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
+		<field name="chartType" type="string" max-length="100" nullable="false" />
+		<field name="title" type="string" max-length="100" nullable="false" />
 	</entity>
-
+	
 	<entity name="ShareAccess" type-code="020" description="记录共享">
 		<field name="accessId" type="primary" />
 		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="哪个实体" />

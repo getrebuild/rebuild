@@ -7,21 +7,20 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/charts/jquery.gridster.min.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/charts.css">
 <style type="text/css">
-.tools-bar{height:44px;padding:0 25px;padding-top:7px}
-.tools-bar h4{margin:10px 0}
-.chart-grid{overflow:scroll;overflow-x:hidden;padding:15px;padding-top:0;padding-right:0px}
 .gridster ul,.gridster ul>li{margin:0;padding:0}
 .gridster ul>li{background-color:#fff;}
 .gridster ul>li>div{height:100%}
 .gridster ul>li:hover{box-shadow:0 2px 4px 0 rgba(0, 0, 0, .1), 0 16px 24px 0 rgba(81, 129, 228, .1)}
 .gridster ul>li:hover .chart-oper{display:block;}
-a.chart-add{display:block;text-align:center;height:100%;padding-top:50px;}
-a.chart-add i.zmdi{font-size:71px;color:#ddd;font-weight:lighter;}
-.dash-list .dash{display:inline-block;padding-right:71px;position:relative;}
-.dash .dash-action{position:absolute;top:0;right:0;padding-top:9px;padding-left:6px;display:none;text-align:left;width:70px;}
-.dash:hover .dash-action{display:block;}
-.dash .dash-action a{padding:3px;margin-left:3px}
-.J_dash-select:hover{cursor:pointer;opacity:0.8}
+.tools-bar{height:44px;padding:0 25px;padding-top:7px}
+.tools-bar h4{margin:10px 0}
+.chart-grid{overflow:scroll;overflow-x:hidden;padding:15px;padding-top:0;padding-right:0px}
+.chart-add{display:block;text-align:center;height:100%;padding-top:50px;}
+.chart-add i.zmdi{font-size:71px;color:#ddd;font-weight:lighter;}
+.dash-list .dash-head{display:inline-block;padding-right:71px;position:relative;}
+.dash-head .dash-action{position:absolute;top:0;right:0;padding-top:9px;padding-left:6px;display:none;text-align:left;width:70px;}
+.dash-head:hover .dash-action{display:block;}
+.dash-head .dash-action a{padding:3px;margin-left:3px}
 </style>
 </head>
 <body>
@@ -34,7 +33,7 @@ a.chart-add i.zmdi{font-size:71px;color:#ddd;font-weight:lighter;}
 	</jsp:include>
 	<div class="rb-loading rb-loading-active must-center J_dash-load">
 		<div class="rb-spinner">
-	        <svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://-www.w3.org/2000/svg">
+	        <svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
 	            <circle fill="none" stroke-width="4" stroke-linecap="round" cx="33" cy="33" r="30" class="circle"></circle>
 	        </svg>
 	    </div>
@@ -44,8 +43,8 @@ a.chart-add i.zmdi{font-size:71px;color:#ddd;font-weight:lighter;}
 			<div class="tools-bar">
 				<div class="row">
 					<div class="col-sm-6 dash-list">
-						<div class="dash">
-							<h4 class="J_dash-select--">仪表盘</h4>
+						<div class="dash-head">
+							<h4 class="J_dash-select">仪表盘</h4>
 							<div class="dash-action">
 								<a class="zicon J_dash-edit"><i class="zmdi zmdi-settings"></i></a>
 								<a class="zicon J_dash-new" title="添加仪表盘"><i class="zmdi zmdi-plus-circle-o"></i></a>
@@ -54,7 +53,7 @@ a.chart-add i.zmdi{font-size:71px;color:#ddd;font-weight:lighter;}
 					</div>
 					<div class="col-sm-6 text-right">
 						<div class="btn-group" style="margin-top:7px;margin-right:3px">
-							<button type="button" class="btn btn-link pr-0 text-right" data-toggle="dropdown" style="min-height:24px;line-height:24px;"><i class="zmdi zmdi-plus icon"></i> 添加图表</button>
+							<button type="button" class="btn btn-link pr-0 text-right J_chart-adds" data-toggle="dropdown" style="min-height:24px;line-height:24px;"><i class="zmdi zmdi-plus icon"></i> 添加图表</button>
 							<div class="dropdown-menu dropdown-menu-right">
 								<a class="dropdown-item J_chart-new">添加新图表</a>
 								<a class="dropdown-item J_chart-select hide">从已有图表中添加</a>

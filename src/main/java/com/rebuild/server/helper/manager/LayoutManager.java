@@ -18,16 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.manager;
 
-import java.util.Date;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
-
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -36,95 +29,60 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 09/15/2018
  */
-public class LayoutManager implements PortalsManager {
-	
-	protected static final Log LOG = LogFactory.getLog(LayoutManager.class);
+public class LayoutManager extends SharableConfiguration {
 	
 	// 表单
 	public static final String TYPE_FORM = "FORM";
 	// 数据列表
 	public static final String TYPE_DATALIST = "DATALIST";
 	// 导航
-	public static final String TYPE_NAVI = "NAVI";
-
-	// 私有配置
-	public static final String APPLY_SELF = "SELF";
-	// 全局配置
-	public static final String APPLY_ALL = "ALL";
+	public static final String TYPE_NAV = "NAV";
 	
 	/**
-	 * 获取配置
-	 * 
-	 * @param entity
-	 * @param type
+	 * @param user
+	 * @param belongEntity
+	 * @return
+	 */
+	public static Object[] getLayoutOfForm(ID user, String belongEntity) {
+		return getLayoutConfig(user, belongEntity, TYPE_FORM);
+	}
+	
+	/**
+	 * @param user
+	 * @param belongEntity
+	 * @return
+	 */
+	public static Object[] getLayoutOfDatalist(ID user, String belongEntity) {
+		return getLayoutConfig(user, belongEntity, TYPE_DATALIST);
+	}
+	
+	/**
 	 * @param user
 	 * @return
 	 */
-	public static Object[] getLayoutConfigRaw(String entity, String type, ID user) {
-		Assert.notNull(entity, "[entity] not be null");
-		Assert.notNull(type, "[type] not be null");
-		Assert.notNull(user, "[user] not be null");
-		
-		String sql = "select layoutId,config,modifiedOn from LayoutConfig where belongEntity = '%s' and type = '%s' and applyTo = ?";
-		sql = String.format(sql, entity, type);
+	public static Object[] getLayoutOfNav(ID user) {
+		return getLayoutConfig(user, null, TYPE_NAV);
+	}
 
-		Object[] myself = Application.createQueryNoFilter(sql + " and createdBy = ?")
-				.setParameter(1, APPLY_SELF)
-				.setParameter(2, user)
-				.unique();
-		Object[] global = Application.createQueryNoFilter(sql).setParameter(1, APPLY_ALL).unique();
-
-		Object[] cfgs = global;
-		
-		// 使用最近更新的
-		if (myself != null && global != null) {
-			cfgs = ((Date) myself[2]).getTime() > ((Date) global[2]).getTime() ? myself : global;
-		} else if (myself != null) {
-			cfgs = myself;
-		}
-		
-		if (cfgs == null) {
+	/**
+	 * 获取布局配置
+	 * 
+	 * @param user
+	 * @param belongEntity
+	 * @param applyType
+	 * @return [ID, JSONConfig]
+	 */
+	private static Object[] getLayoutConfig(ID user, String belongEntity, String applyType) {
+		ID configUsed = detectUseConfig(user, "LayoutConfig", belongEntity, applyType);
+		if (configUsed == null) {
 			return null;
 		}
-		cfgs[1] = JSON.parse((String) cfgs[1]);
-		cfgs[2] = CalendarUtils.getUTCDateTimeFormat().format(cfgs[2]);
-		return cfgs;
-	}
-	
-	/**
-	 * 查找配置ID
-	 * 
-	 * @param cfgid
-	 * @param toAll
-	 * @param entity
-	 * @param type
-	 * @param user
-	 * @return
-	 */
-	public static ID detectConfigId(ID cfgid, boolean toAll, String entity, String type, ID user) {
-		String sql = "select layoutId from LayoutConfig where belongEntity = '%s' and type = '%s'";
-		sql = String.format(sql, entity, type);
 		
-		boolean isAdmin = Application.getUserStore().getUser(user).isAdmin();
-		// 管理员有两种配置，一个全局一个自己
-		if (isAdmin) {
-			sql += " and applyTo = '%s'";
-			sql = String.format(sql, toAll ? APPLY_ALL : APPLY_SELF);
-		} else {
-			sql += " and applyTo = '%s' and createdBy = '%s'";
-			sql = String.format(sql, APPLY_SELF, user.toLiteral());
-		}
-		
-		Object[] detect = Application.createQueryNoFilter(sql).unique();
-		return detect == null ? null : (ID) detect[0];
-	}
-	
-	/**
-	 * TODO 清理配置缓存
-	 * 
-	 * @param entity
-	 * @param type
-	 */
-	public static void cleanLayoutConfig(String entity, String type, ID user) {
+		Object[] o = Application.createQueryNoFilter(
+				"select configId,config,shareTo from LayoutConfig where configId = ?")
+				.setParameter(1, configUsed)
+				.unique();
+		o[1] = JSON.parse((String) o[1]);
+		return o;
 	}
 }
