@@ -123,6 +123,7 @@ var __initNavs = function(){
 var __checkMessage__state = 0
 var __checkMessage = function(){
 	$.get(rb.baseUrl + '/app/notification/check-message', function(res){
+		if (res.error_code > 0) return
 		$('.J_notifications-top .badge').text(res.data.unread)
 		if (res.data.unread > 0) $('.J_notifications-top .indicator').removeClass('hide')
 		else $('J_notifications-top .indicator').addClass('hide')

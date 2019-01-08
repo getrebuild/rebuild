@@ -21,7 +21,7 @@ package com.rebuild.server.service.bizz.privileges;
 import org.apache.commons.lang.StringUtils;
 
 import com.rebuild.server.ServerListener;
-import com.rebuild.server.helper.SystemConfiguration;
+import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.service.bizz.RoleService;
 import com.rebuild.server.service.bizz.UserService;
 
@@ -70,7 +70,8 @@ public class User extends cn.devezhao.bizz.security.member.User {
 		if (avatarUrl == null) {
 			return ServerListener.getContextPath() + "/assets/img/avatar.png";
 		} else {
-			return SystemConfiguration.getStorageUrl() + getAvatarUrl() + "?imageView2/2/w/100/interlace/1/q/100";
+			String avatarUrl = getAvatarUrl() + "?imageView2/2/w/100/interlace/1/q/100";
+			return QiniuCloud.instance().url(avatarUrl);
 		}
 	}
 	

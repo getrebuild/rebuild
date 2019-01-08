@@ -72,19 +72,21 @@ public class FileUploader extends HttpServlet {
 				
 				File temp = SystemConfiguration.getFileOfTemp(uploadName);
 				item.write(temp);
+				if (!temp.exists()) {
+					ServletUtils.writeJson(resp, AppUtils.formatClientMsg(1000, "上传失败"));
+					return;
+				}
 				
 				String cloud = req.getParameter("cloud");
 				if ("true".equals(cloud) || "auto".equals(cloud)) {
 					uploadName = QiniuCloud.instance().upload(temp);
-					if (temp.exists()) {
-						temp.delete();
-					}
+					temp.delete();
 				}
 				break;
 			}
 			
 		} catch (Exception e) {
-			LOG.error(e);
+			LOG.error(null, e);
 			uploadName = null;
 		}
 		
