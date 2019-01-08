@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.ServerStatus;
 import com.rebuild.server.ServerStatus.State;
@@ -66,10 +67,13 @@ public class SimplePageForward extends PageControll {
 			ServerStatus.checkAll();
 		}
 		
-		JSONArray states = new JSONArray();
+		JSONObject state = new JSONObject();
+		state.put("ok", ServerStatus.isStatusOK());
+		JSONArray services = new JSONArray();
+		state.put("status", services);
 		for (State s : ServerStatus.getLastStatus()) {
-			states.add(s.toJson());
+			services.add(s.toJson());
 		}
-		ServletUtils.writeJson(response, states.toJSONString());
+		ServletUtils.writeJson(response, state.toJSONString());
 	}
 }

@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Loading</title>
+<title>REBUILD</title>
 </head>
 <body>
 <script>

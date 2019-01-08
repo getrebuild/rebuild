@@ -79,10 +79,9 @@
 <% } %>
 <div class="block">
 <div class="text-muted">
-	&copy; 2019 <a href="https://getrebuild.com/">rebuild</a>
+	&copy; 2019 <a href="https://getrebuild.com/">REBUILD</a>
 	&nbsp;·&nbsp;
 	<a href="server-status.json">Status Api</a>
-	<a href="?check=1" style="color:transparent;">CHECK</a>
 </div>
 </div>
 </body>

@@ -49,7 +49,7 @@
 					</div>
 				</div>
 				<div class="splash-footer">
-					<span>&copy; 2019 <a href="https://getrebuild.com/" target="_blank">rebuild</a></span>
+					<span>&copy; 2019 <a href="https://getrebuild.com/" target="_blank">REBUILD</a></span>
 				</div>
 			</div>
 		</div>
