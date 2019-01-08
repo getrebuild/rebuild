@@ -183,13 +183,6 @@ let render_option = (() => {
 	
 	select = $('.chart-type>a.select')
 	if (select.length == 0) $('.chart-type>a.active').eq(0).addClass('select')
-
-    let ct = $('.chart-type>a.select').data('type')
-    if (ct == 'INDEX'){
-        $('#chart-title').attr('disabled', true)
-    } else {
-        $('#chart-title').attr('disabled', false)
-    }
 	
 	render_preview()
 })
