@@ -33,6 +33,7 @@ import com.rebuild.web.BaseControll;
 import cn.devezhao.commons.web.ServletUtils;
 
 /**
+ * 云存储文件查看/下载
  * 
  * @author devezhao
  * @since 01/03/2019
@@ -62,6 +63,8 @@ public class CloudFileViewer extends BaseControll {
 		
 		String privateUrl = QiniuCloud.instance().url(filePath);
 		privateUrl += "&attname=" + parseFileName(filePath);
+		
+		ServletUtils.setNoCacheHeaders(response);
 		response.sendRedirect(privateUrl);
 	}
 	

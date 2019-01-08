@@ -118,7 +118,7 @@ public class QiniuCloud {
 	 * @return
 	 */
 	public String url(String filePath) {
-		return url(filePath, 60 * 30);
+		return url(filePath, 60 * 5);
 	}
 	
 	/**
@@ -130,6 +130,10 @@ public class QiniuCloud {
 	 */
 	public String url(String filePath, int expires) {
 		String baseUrl = SystemConfiguration.getStorageUrl() + filePath;
+		// default use HTTPS
+		if (baseUrl.startsWith("//")) {
+			baseUrl = "https:" + baseUrl;
+		}
 		return auth.privateDownloadUrl(baseUrl, expires);
 	}
 	
