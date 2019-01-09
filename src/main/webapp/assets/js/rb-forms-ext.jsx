@@ -67,7 +67,7 @@ class RbFormAvatar extends RbFormElement {
                 d = JSON.parse(d.currentTarget.response)
                 if (d.error_code == 0){
                     that.handleChange({ target:{ value: d.data } }, true)
-                } else rb.highbar(d.error_msg || '上传失败，请稍后重试', 'danger')
+                } else rb.hberror(d.error_msg || '上传失败，请稍后重试')
             }
         })
     }

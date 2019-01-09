@@ -15,7 +15,7 @@ $(document).ready(function(){
             if (d.error_code == 0){
                 let aUrl = `${rb.baseUrl}/cloud/img/${d.data}?imageView2/2/w/100/interlace/1/q/100`
                 $('.avatar img').attr({ 'src': aUrl, 'data-src': d.data })
-            } else rb.highbar(d.error_msg || '上传失败，请稍后重试', 'danger')
+            } else rb.hberror(d.error_msg || '上传失败，请稍后重试')
         }
     })
     

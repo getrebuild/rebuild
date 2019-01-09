@@ -539,7 +539,7 @@ class RbFormImage extends RbFormElement {
                     let paths = that.state.value
                     paths.push(d.data)
                     that.handleChange({ target:{ value: paths } }, true)
-                } else rb.highbar(d.error_msg || '上传失败，请稍后重试', 'danger')
+                } else rb.hberror(d.error_msg || '上传失败，请稍后重试')
             }
         })
     }
@@ -604,7 +604,7 @@ class RbFormFile extends RbFormElement {
                     let paths = that.state.value
                     paths.push(d.data)
                     that.handleChange({ target:{ value: paths } }, true)
-                } else rb.highbar(d.error_msg || '上传失败，请稍后重试', 'danger')
+                } else rb.hberror(d.error_msg || '上传失败，请稍后重试')
             }
         })
     }

@@ -1100,7 +1100,6 @@ form.dropzone {
     cursor: default;
 }
 form.dropzone:hover{
-	border-color: #4285f4;
 }
 form.dropzone .icon {
     background-color: #e6e6e6;
@@ -1108,7 +1107,7 @@ form.dropzone .icon {
     display: inline-block;
     height: 70px;
     width: 70px;
-    padding: 11px 0;
+    padding: 12px 0;
     text-align: center
 }
 form.dropzone .icon span {

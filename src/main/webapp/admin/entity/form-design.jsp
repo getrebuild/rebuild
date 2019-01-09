@@ -79,6 +79,6 @@ window.__PageConfig = {
 	entityName: '${entityName}'
 }
 </script>
-<script src="${baseUrl}/assets/js/form-design.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/entity/form-design.jsx" type="text/babel"></script>
 </body>
 </html>

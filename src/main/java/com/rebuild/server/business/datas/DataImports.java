@@ -16,28 +16,34 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.admin.datas;
+package com.rebuild.server.business.datas;
 
-import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
-import com.rebuild.web.BaseControll;
+import com.rebuild.server.helper.task.BulkTask;
 
 /**
+ * 数据导入
  * 
  * @author devezhao
- * @since 01/03/2019
+ * @since 01/09/2019
  */
-@Controller
-@RequestMapping("/admin/")
-public class DataImportsControll extends BaseControll {
-
-	@RequestMapping("/data-imports")
-	public ModelAndView pageDataImports(HttpServletRequest request) {
-		return createModelAndView("/admin/datas/imports.jsp");
+public class DataImports extends BulkTask {
+	
+	final private DataFileParser fileParser;
+	
+	public DataImports(File sourceFile) {
+		this.fileParser = new DataFileParser(sourceFile);
 	}
 	
+	/**
+	 * @return
+	 */
+	public DataFileParser getFileParser() {
+		return fileParser;
+	}
+
+	@Override
+	public void run() {
+	}
 }
