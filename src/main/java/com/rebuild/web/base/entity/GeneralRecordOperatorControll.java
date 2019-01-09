@@ -287,7 +287,6 @@ public class GeneralRecordOperatorControll extends BaseControll {
 				.array();
 		for (Object[] o : array) {
 			o[0] = UserHelper.getShows((ID) o[0]);
-			o[1] = o[1].toString();
 			o[2] = CalendarUtils.getUTCDateTimeFormat().format(o[2]);
 			o[3] = UserHelper.getShows((ID) o[3]);
 		}

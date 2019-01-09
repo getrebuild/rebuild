@@ -68,7 +68,7 @@ public class RolePrivilegesControll extends BaseControll {
 		ID roleId = ID.valueOf(id);
 		ModelAndView mv = createModelAndView("/admin/bizuser/role-privileges.jsp", "Role", user);
 		setEntities(mv);
-		mv.getModel().put("RoleId", roleId.toLiteral());
+		mv.getModel().put("RoleId", roleId);
 		return mv;
 	}
 	

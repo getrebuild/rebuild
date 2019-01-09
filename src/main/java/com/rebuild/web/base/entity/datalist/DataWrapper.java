@@ -122,6 +122,6 @@ public class DataWrapper extends FieldValueWrapper {
 		
 		nameVal = wrapFieldValue(nameVal, new EasyMeta(nameField));
 		String[] metadata = new String[] { entity.getName(), new EasyMeta(entity).getIcon() };
-		return new Object[] { idVal.toLiteral(), nameVal, metadata };
+		return new Object[] { idVal, nameVal, metadata };
 	}
 }

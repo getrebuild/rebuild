@@ -85,7 +85,7 @@ public class MetaFieldControll extends BaseControll  {
 			EasyMeta easyMeta = new EasyMeta(field);
 			Map<String, Object> map = new HashMap<>();
 			if (easyMeta.getMetaId() != null) {
-				map.put("fieldId", easyMeta.getMetaId().toLiteral());
+				map.put("fieldId", easyMeta.getMetaId());
 			}
 			map.put("fieldName", easyMeta.getName());
 			map.put("fieldLabel", easyMeta.getLabel());

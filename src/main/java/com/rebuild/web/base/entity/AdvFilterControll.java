@@ -109,7 +109,6 @@ public class AdvFilterControll extends BaseControll implements LayoutConfig {
 		if (filter == null) {
 			writeFailure(response, "无效过滤条件");
 		} else {
-			filter[0] = filter[0].toString();
 			JSON ret = JSONUtils.toJSONObject(
 					new String[] { "id", "filter", "name", "shareTo" }, filter);
 			writeSuccess(response, ret);

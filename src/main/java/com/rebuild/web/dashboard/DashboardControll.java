@@ -110,14 +110,14 @@ public class DashboardControll extends BaseControll {
 					chartRecord.setObjectValue(field, chart.getObjectValue(field));
 				}
 				chartRecord = Application.getCommonService().create(chartRecord);
-				item.put("chart", chartRecord.getPrimary().toLiteral());
+				item.put("chart", chartRecord.getPrimary());
 			}
 			dashRecord.setString("config", dashCopy.toJSONString());
 		}
 		
 		dashRecord = Application.getCommonService().create(dashRecord);
 		
-		JSON ret = JSONUtils.toJSONObject("id", dashRecord.getPrimary().toLiteral());
+		JSON ret = JSONUtils.toJSONObject("id", dashRecord.getPrimary());
 		writeSuccess(response, ret);
 	}
 	

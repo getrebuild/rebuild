@@ -73,10 +73,10 @@ public class UserControll extends BaseControll {
 		
 		ret.put("disabled", checked.isDisabled());
 		if (checked.getOwningRole() != null) {
-			ret.put("role", checked.getOwningRole().getIdentity().toString());
+			ret.put("role", checked.getOwningRole().getIdentity());
 		}
 		if (checked.getOwningDept() != null) {
-			ret.put("dept", checked.getOwningDept().getIdentity().toString());
+			ret.put("dept", checked.getOwningDept().getIdentity());
 		}
 		
 		writeSuccess(response, ret);

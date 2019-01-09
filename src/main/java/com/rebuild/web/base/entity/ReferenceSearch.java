@@ -172,7 +172,7 @@ public class ReferenceSearch extends BaseControll {
 			}
 			
 			Map<String, Object> map = new HashMap<>();
-			map.put("id", recordId.toString());
+			map.put("id", recordId);
 			map.put("text", o[1]);
 			result.add(map);
 		}

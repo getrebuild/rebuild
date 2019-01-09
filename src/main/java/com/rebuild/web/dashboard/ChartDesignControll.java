@@ -153,7 +153,7 @@ public class ChartDesignControll extends BaseControll {
 					.unique();
 			JSONArray config = JSON.parseArray((String) dash[0]);
 			
-			JSONObject item = JSONUtils.toJSONObject("chart", record.getPrimary().toLiteral());
+			JSONObject item = JSONUtils.toJSONObject("chart", record.getPrimary());
 			item.put("size_y", 2);
 			item.put("size_x", 4);
 			config.add(item);
@@ -163,7 +163,7 @@ public class ChartDesignControll extends BaseControll {
 			Application.getCommonService().createOrUpdate(record2);
 		}
 		
-		JSONObject ret = JSONUtils.toJSONObject("id", record.getPrimary().toLiteral());
+		JSONObject ret = JSONUtils.toJSONObject("id", record.getPrimary());
 		writeSuccess(response, ret);
 	}
 }

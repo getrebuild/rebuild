@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +28,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.metadata.DynamicMetadataFactory;
@@ -39,6 +42,7 @@ import com.rebuild.server.service.base.GeneralEntityService;
 import com.rebuild.server.service.bizz.privileges.UserStore;
 import com.rebuild.server.service.notification.NotificationService;
 import com.rebuild.server.service.query.QueryFactory;
+import com.rebuild.utils.RbDateCodec;
 import com.rebuild.web.OnlineSessionStore;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -61,7 +65,6 @@ public final class Application {
 	 */
 	public static final Log LOG = LogFactory.getLog(Application.class);
 	
-	
 	// SPRING
 	private static ApplicationContext APPLICATION_CTX;
 	// 业务实体对应的服务类
@@ -80,6 +83,10 @@ public final class Application {
 			LOG.info("Rebuild Booting failed!");
 			return;
 		}
+		
+		// fastjson Serialize
+		SerializeConfig.getGlobalInstance().put(ID.class, ToStringSerializer.instance);
+		SerializeConfig.getGlobalInstance().put(Date.class, RbDateCodec.instance);
 		
 		// 自定义实体
 		LOG.info("Loading customized entities ...");

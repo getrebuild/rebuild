@@ -87,7 +87,7 @@ public class DepartmentControll extends BaseControll {
 	 */
 	private JSONObject recursiveDeptTree(Department parent) {
 		JSONObject parentJson = new JSONObject();
-		parentJson.put("id", parent.getIdentity().toString());
+		parentJson.put("id", parent.getIdentity());
 		parentJson.put("name", parent.getName());
 		parentJson.put("disabled", parent.isDisabled());
 		JSONArray children = new JSONArray();

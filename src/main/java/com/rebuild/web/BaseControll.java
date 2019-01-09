@@ -18,7 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -35,7 +34,6 @@ import org.apache.commons.logging.LogFactory;
 
 import com.alibaba.fastjson.JSON;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -73,14 +71,9 @@ public abstract class BaseControll extends PageControll {
 		
 		Map<String, Object> data = new HashMap<String, Object>();
 		for (Iterator<String> iter = record.getAvailableFieldIterator(); iter.hasNext(); ) {
-			String f = iter.next();
-			Object v = record.getObjectValue(f);
-			if (v instanceof Date) {
-				v = CalendarUtils.getUTCDateTimeFormat().format(v);
-			} else if (v instanceof ID) {
-				v = v.toString();
-			}
-			data.put(f, v);
+			String field = iter.next();
+			Object value = record.getObjectValue(field);
+			data.put(field, value);
 		}
 		writeSuccess(resp, data);
 	}
@@ -94,41 +87,6 @@ public abstract class BaseControll extends PageControll {
 		map.put("error_code", CODE_OK);
 		map.put("error_msg", "调用成功");
 		if (data != null && data != ObjectUtils.NULL) {
-			// ID 类型不会 toString ???
-			if (Map.class.isAssignableFrom(data.getClass())) {
-				@SuppressWarnings("unchecked")
-				Map<Object, Object> dataMap = (Map<Object, Object>) data;
-				for (Object key : dataMap.keySet()) {
-					Object value = dataMap.get(key);
-					if (value != null && ID.class.isAssignableFrom(value.getClass())) {
-						dataMap.put(key, value.toString());
-					} else if (value != null && Date.class.isAssignableFrom(value.getClass())) {
-						dataMap.put(key, CalendarUtils.getUTCDateTimeFormat().format(value));
-					}
-				}
-			} else if (Object[][].class.isAssignableFrom(data.getClass())) {
-				Object[][] array = (Object[][]) data;
-				for (Object[] o : array) {
-					for (int i = 0; i < o.length; i++) {
-						Object value = o[i];
-						if (value != null && ID.class.isAssignableFrom(value.getClass())) {
-							o[i] = o[i].toString();
-						} else if (value != null && Date.class.isAssignableFrom(value.getClass())) {
-							o[i] = CalendarUtils.getUTCDateTimeFormat().format(o[i]);
-						}
-					}
-				}
-			} else if (Object[].class.isAssignableFrom(data.getClass())) {
-				Object[] o = (Object[]) data;
-				for (int i = 0; i < o.length; i++) {
-					Object value = o[i];
-					if (value != null && ID.class.isAssignableFrom(value.getClass())) {
-						o[i] = o[i].toString();
-					} else if (value != null && Date.class.isAssignableFrom(value.getClass())) {
-						o[i] = CalendarUtils.getUTCDateTimeFormat().format(o[i]);
-					}
-				}
-			}
 			map.put("data", data);
 		}
 		writeJSON(resp, map);

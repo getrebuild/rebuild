@@ -128,7 +128,7 @@ public class DataListControll extends BaseControll implements LayoutConfig {
 		ret.put("fieldList", fieldList);
 		ret.put("configList", configList);
 		if (raw != null) {
-			ret.put("configId", raw[0].toString());
+			ret.put("configId", raw[0]);
 			ret.put("shareTo", raw[2]);
 		}
 		writeSuccess(response, ret);

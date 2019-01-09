@@ -103,7 +103,6 @@ public class NotificationControll extends BaseControll {
 		String fromShows[] = UserHelper.getShows(from);
 		message[0] = fromShows;
 		message[2] = Moment.moment((Date) message[2]).fromNow();
-		message[4] = message[4].toString();
 		
 		String text = (String) message[1];
 		text = text.replace("@" + from, "<a>" + fromShows[0] + "</a>");
