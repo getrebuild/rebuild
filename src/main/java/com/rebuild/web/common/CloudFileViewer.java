@@ -50,7 +50,7 @@ public class CloudFileViewer extends BaseControll {
 			filePath += "?" + imageView2;
 		}
 		
-		int expires = 15;
+		int expires = 60;
 		String privateUrl = QiniuCloud.instance().url(filePath, expires * 60);
 		ServletUtils.addCacheHead(response, expires);
 		response.sendRedirect(privateUrl);

@@ -134,7 +134,12 @@ public class QiniuCloud {
 		if (baseUrl.startsWith("//")) {
 			baseUrl = "https:" + baseUrl;
 		}
-		return auth.privateDownloadUrl(baseUrl, expires);
+		
+		long deadline = System.currentTimeMillis() / 1000 + expires;
+		// use http cache
+		expires /= 1.5;
+		deadline = deadline / expires * expires;
+		return auth.privateDownloadUrlWithDeadline(baseUrl, deadline);
 	}
 	
 	/**
