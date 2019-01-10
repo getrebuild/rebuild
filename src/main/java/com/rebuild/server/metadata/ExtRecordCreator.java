@@ -94,7 +94,7 @@ public class ExtRecordCreator extends JsonRecordCreator {
 	}
 	
 	@Override
-	protected void verify(Record record, boolean isNew) {
+	public void verify(Record record, boolean isNew) {
 		if (!isNew) {
 			return;
 		}

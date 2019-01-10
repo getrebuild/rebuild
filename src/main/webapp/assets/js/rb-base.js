@@ -46,6 +46,10 @@
 	
 	$.cookie.defaults = { expires:14, path: '/' }
 	
+	$.fn.select2.defaults.set('width', '100%')
+	$.fn.select2.defaults.set('language', 'zh-CN')
+	$.fn.select2.defaults.set('allowClear', true)
+	
 	window.rb = window.rb || {}
 	$('meta[name^="rb."]').each((idx, item)=>{
 		var k = $(item).attr('name').substr(3)  // remove `rb.`

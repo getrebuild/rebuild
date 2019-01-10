@@ -35,6 +35,7 @@ import cn.devezhao.commons.excel.ExcelReaderFactory;
 public class DataFileParser {
 
 	final private File sourceFile;
+	final private String encoding;
 	private ExcelReader reader = null;
 	
 	/**
@@ -42,6 +43,16 @@ public class DataFileParser {
 	 */
 	public DataFileParser(File sourceFile) {
 		this.sourceFile = sourceFile;
+		this.encoding = "GBK";
+	}
+	
+	/**
+	 * @param sourceFile
+	 * @param encoding
+	 */
+	public DataFileParser(File sourceFile, String encoding) {
+		this.sourceFile = sourceFile;
+		this.encoding = encoding;
 	}
 	
 	/**
@@ -93,7 +104,7 @@ public class DataFileParser {
 	 */
 	protected ExcelReader getExcelReader() {
 		if (reader == null) {
-			reader = ExcelReaderFactory.create(sourceFile, "GBK");
+			reader = ExcelReaderFactory.create(sourceFile, encoding);
 		}
 		return reader;	
 	}

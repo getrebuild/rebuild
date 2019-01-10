@@ -96,7 +96,7 @@ public class MetadataGetter extends BaseControll {
 		writeSuccess(response, list);
 	}
 	
-	// 指定实体所引用的字段实体
+	// 哪些实体引用了指定实体
 	@RequestMapping("references")
 	public void references(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");

@@ -173,3 +173,18 @@ var $cleanMenu = function(mbg){
 		mbg.remove()
 	}
 }
+
+var $fileCutName = function(file) {
+    file = file.split('/')
+    file = file[file.length - 1]
+    return file.substr(file.indexOf('__') + 2)
+}
+var $fileDetectingIcon = function(file){
+    if (file.endsWith('.png') || file.endsWith('.gif') || file.endsWith('.jpg') || file.endsWith('.jpeg') || file.endsWith('.bmp')) return 'png';
+    else if (file.endsWith('.doc') || file.endsWith('.docx')) return 'word';
+    else if (file.endsWith('.ppt') || file.endsWith('.pptx')) return 'ppt';
+    else if (file.endsWith('.xls') || file.endsWith('.xlsx')) return 'excel';
+    else if (file.endsWith('.pdf')) return 'pdf';
+    else if (file.endsWith('.mp4') || file.endsWith('.rmvb') || file.endsWith('.rm') || file.endsWith('.avi') || file.endsWith('.flv')) return 'mp4';
+    return ''
+}

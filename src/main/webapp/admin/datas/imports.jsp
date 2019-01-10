@@ -6,8 +6,11 @@
 <title>数据导入</title>
 <style type="text/css">
 .fuelux .wizard .step-content{padding:30px}
-#preview-table .table th,#preview-table .table td{white-space:nowrap;font-size:12px;font-weight:normal;}
-#preview-table .table th{padding:7px;padding-top:9px;background-color:#eceff1;border-color:#eceff1}
+.fuelux .wizard>.steps-container>.steps li.complete{cursor:default;}
+#fieldsMapping th, #fieldsMapping td{padding:6px 0;vertical-align:middle;border-bottom:1px dotted #dee2e6;border-top:0 none;}
+#fieldsMapping thead th{border-bottom:1px solid #dee2e6;padding-top:9px;}
+#fieldsMapping td>em{font-style:normal;background-color:#eee;display:inline-block;min-width:30px;font-size:12px;text-align:center;margin-right:4px;padding-top:1px;color:#777}
+#fieldsMapping td>i.zmdi{float:right;color:#aaa;font-size:1.4rem;margin-right:10px}
 </style>
 </head>
 <body>
@@ -46,9 +49,10 @@
 											<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">上传数据文件</label>
 											<div class="col-md-12 col-xl-6 col-lg-8">
 												<div class="file-select">
-								                    <input type="file" class="inputfile" ref="upload-input" id="upload-input" />
+								                    <input type="file" class="inputfile" ref="upload-input" id="upload-input" accept=".xlsx, .xls, .csv" data-maxsize="20971520">
 								                    <label for="upload-input" class="btn-secondary"><i class="zmdi zmdi-upload"></i><span>选择文件</span></label>
 								                </div>
+								                <div class="text-bold J_upload-input"></div>
 								                <div class="form-text mb-0">
 									                <ul class="mb-0 pl-4">
 														<li>支持上传 Excel/CSV 文件，文件大小不超过 20M</li>
@@ -58,46 +62,84 @@
 								                </div>
 											</div>
 										</div>
-										<div class="form-group row pt-0 pb-0">
+										<div class="form-group row">
 											<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">遇到重复记录时</label>
-											<div class="col-md-12 col-xl-6 col-lg-8" style="padding-top:6px;">
-												<label class="custom-control custom-control-sm custom-radio custom-control-inline">
-													<input class="custom-control-input" type="radio" name="repeatOpt" value="1" checked="checked"><span class="custom-control-label">覆盖更新</span>
-												</label>
-												<label class="custom-control custom-control-sm custom-radio custom-control-inline">
-													<input class="custom-control-input" type="radio" name="repeatOpt" value="2"><span class="custom-control-label">忽略导入</span>
-												</label>
-												<label class="custom-control custom-control-sm custom-radio custom-control-inline">
-													<input class="custom-control-input" type="radio" name="repeatOpt" value="2"><span class="custom-control-label">仍旧导入</span>
-												</label>
+											<div class="col-md-12 col-xl-6 col-lg-8">
+												<div style="margin-top:6px;">
+													<label class="custom-control custom-control-sm custom-radio custom-control-inline">
+														<input class="custom-control-input" type="radio" name="repeatOpt" value="1" checked="checked"><span class="custom-control-label">覆盖</span>
+													</label>
+													<label class="custom-control custom-control-sm custom-radio custom-control-inline">
+														<input class="custom-control-input" type="radio" name="repeatOpt" value="2"><span class="custom-control-label">跳过</span>
+													</label>
+													<label class="custom-control custom-control-sm custom-radio custom-control-inline">
+														<input class="custom-control-input" type="radio" name="repeatOpt" value="3"><span class="custom-control-label">仍旧导入</span>
+													</label>
+												</div>
+												<div class="J_repeatFields">
+													<label class="text-bold">指定重复判断字段</label>
+													<select class="form-control form-control-sm" id="repeatFields" multiple="multiple">
+													</select>
+												</div>
 											</div>
 										</div>
 										<div class="form-group row">
-											<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">重复记录判断字段</label>
+											<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">记录所属用户</label>
 											<div class="col-md-12 col-xl-6 col-lg-8">
-												<select class="form-control form-control-sm" id="repeatField">
+												<select class="form-control form-control-sm" id="toUser">
 												</select>
+												<div class="form-text mb-0">
+													不选择则默认为当前用户，如字段映射中指定了用户则以映射为准
+								                </div>
 											</div>
 										</div>
 										<div class="form-group row footer">
 											<div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
-												<button class="btn btn-primary bordered" type="button">下一步</button>
+												<button class="btn btn-primary J_step1-btn" type="button">下一步</button>
 											</div>
 										</div>
 									</form>
 								</div>
 								<div data-step="2" class="step-pane">
-									<div class="rb-spinner text-center">
-								        <svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
-								            <circle fill="none" stroke-width="4" stroke-linecap="round" cx="33" cy="33" r="30" class="circle"></circle>
-								        </svg>
-								    </div>
-								    <div class="preview-data rb-scroller">
-								    	<div id="preview-table"></div>
-								    </div>
+									<form class="simple">
+										<div class="form-group row pt-0">
+											<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">设置字段映射</label>
+											<div class="col-md-12 col-xl-9 col-lg-8">
+												<table id="fieldsMapping" class="table table-hover">
+												<thead>
+													<tr>
+														<th width="240">数据列</th>
+														<th width="240">导入到字段</th>
+														<th></th>
+													</tr>
+												</thead>
+												<tbody>
+												</tbody>
+												</table>
+											</div>
+										</div>
+										<div class="form-group row footer">
+											<div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
+												<button class="btn btn-primary J_step2-btn" type="button">开始导入</button>
+												&nbsp;&nbsp;
+												<button class="btn btn-link J_step2-return" type="button">返回上一步</button>
+											</div>
+										</div>
+									</form>
 								</div>
 								<div data-step="3" class="step-pane">
-								3
+									<form class="simple" style="margin:30px auto">
+										<div class="row mb-2">
+											<div class="col-6"><h5 class="text-bold m-0 p-0 J_imports_state">正在准备数据 ...</h5></div>
+											<div class="col-6 text-right text-muted">剩余时间 <span class="J_imports_time">00:00:00</span></div>
+										</div>
+										<div class="progress">
+											<div class="progress-bar progress-bar-striped progress-bar-animated" style="width:10%"></div>
+										</div>
+										<div class="mt-3">
+											<button class="btn btn-danger J_step3-btn" type="button">终止导入</button>
+										</div>
+									</form>
 								</div>
 							</div>
 						</div>

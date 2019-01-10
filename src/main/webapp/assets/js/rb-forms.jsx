@@ -494,7 +494,7 @@ class RbFormImage extends RbFormElement {
             <div className="img-field">
                 {this.state.value.map((item) => {
                     let itemUrl = rb.baseUrl + '/cloud/img/' + item
-                    let fileName = __fileCutName(item)
+                    let fileName = $fileCutName(item)
                     return (<span key={'file-' + item}><a title={fileName} className="img-thumbnail img-upload"><img src={itemUrl + '?imageView2/2/w/100/interlace/1/q/100'}/><b title="移除" onClick={()=>this.removeItem(item)}><span className="zmdi zmdi-close"></span></b></a></span>)
                 })}
                 <span title="选择图片">
@@ -509,7 +509,7 @@ class RbFormImage extends RbFormElement {
         return (<div className="img-field">
             {this.state.value.map((item)=>{
                 let itemUrl = rb.baseUrl + '/cloud/img/' + item
-                let fileName = __fileCutName(item)
+                let fileName = $fileCutName(item)
                 return <span key={'img-' + item}><a title={fileName} onClick={this.clickPreview.bind(this, itemUrl)} className="img-thumbnail img-upload zoom-in" href={itemUrl} target="_blank"><img src={itemUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a></span>
             })}
         </div>)
@@ -562,8 +562,8 @@ class RbFormFile extends RbFormElement {
         return (
             <div className="file-field">
                 {this.state.value.map((item) => {
-                    let fileName = __fileCutName(item)
-                    let fileIcon = __fileDetectingIcon(fileName)
+                    let fileName = $fileCutName(item)
+                    let fileIcon = $fileDetectingIcon(fileName)
                     return (<div key={'file-' + item} className="img-thumbnail" title={fileName}><i className={'ftype ' + fileIcon}/><span>{fileName}</span><b title="移除" onClick={()=>this.removeItem(item)}><span className="zmdi zmdi-close"></span></b></div>)
                 })}
                 <div className="file-select">
@@ -578,8 +578,8 @@ class RbFormFile extends RbFormElement {
         return (<div className="file-field">
             {this.state.value.map((item)=>{
                 let itemUrl = rb.baseUrl + '/cloud/download/' + item
-                let fileName = __fileCutName(item)
-                let fileIcon = __fileDetectingIcon(fileName)
+                let fileName = $fileCutName(item)
+                let fileIcon = $fileDetectingIcon(fileName)
                 return <a key={'file-' + item} title={fileName} onClick={this.clickPreview.bind(this, itemUrl)} className="img-thumbnail" href={itemUrl} target="_blank"><i className={'ftype ' + fileIcon}/><span>{fileName}</span></a>
             })}
         </div>)
@@ -794,21 +794,6 @@ const detectElement = function(item){
 }
 var detectElementExt = function(item){
     return null
-}
-
-const __fileCutName = function(file) {
-    file = file.split('/')
-    file = file[file.length - 1]
-    return file.substr(file.indexOf('__') + 2)
-}
-const __fileDetectingIcon = function(file){
-    if (file.endsWith('.png') || file.endsWith('.gif') || file.endsWith('.jpg') || file.endsWith('.jpeg') || file.endsWith('.bmp')) return 'png';
-    else if (file.endsWith('.doc') || file.endsWith('.docx')) return 'word';
-    else if (file.endsWith('.ppt') || file.endsWith('.pptx')) return 'ppt';
-    else if (file.endsWith('.xls') || file.endsWith('.xlsx')) return 'excel';
-    else if (file.endsWith('.pdf')) return 'pdf';
-    else if (file.endsWith('.mp4') || file.endsWith('.rmvb') || file.endsWith('.rm') || file.endsWith('.avi') || file.endsWith('.flv')) return 'mp4';
-    return ''
 }
 
 // -- for View

@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.dataimports;
+package com.rebuild.server.business.datas;
 
 import java.io.File;
 import java.net.URL;
