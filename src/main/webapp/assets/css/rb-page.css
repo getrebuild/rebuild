@@ -1122,3 +1122,7 @@ form.dropzone .note {
     font-size: 1rem;
     color: #999;
 }
+
+form.simple {
+	max-width: 888px;
+}

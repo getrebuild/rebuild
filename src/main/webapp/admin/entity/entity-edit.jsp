@@ -53,7 +53,7 @@ a#entityIcon:hover{opacity:0.8}
 			</c:if>
 			<div class="card mb-0">
 				<div class="card-body pt-4">
-					<form style="max-width:888px">
+					<form class="simple">
 						<div class="form-group row">
 							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">图标</label>
 							<div class="col-md-12 col-xl-6 col-lg-8">

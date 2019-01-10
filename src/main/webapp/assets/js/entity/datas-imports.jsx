@@ -44,6 +44,9 @@ const step_preview = () =>{
     $('.steps li[data-step=2], .step-content .step-pane[data-step=2]').addClass('active')
     
     $.get(rb.baseUrl + '/admin/datas/imports-preview?file=' + $encode(upload_file), (res)=>{
+        
+        renderRbcomp(<PreviewTable data={res.data.rows_preview} />, 'preview-table')
+        
     })
 }
 const step_imports = () =>{
@@ -53,4 +56,29 @@ const step_imports = () =>{
     $('.steps li[data-step=3], .step-content .step-pane[data-step=3]').addClass('active')
     
     alert(upload_file)
+}
+
+class PreviewTable extends React.Component {
+    constructor(props) {
+        super(props)
+    }
+    render() {
+        let _data = this.props.data
+        let head_length = 0
+        let thead = (<thead>
+            <tr>
+            {_data[0].map((item)=>{
+                head_length++
+                return <th>{item}</th>
+            })}
+            </tr>
+        </thead>)
+        let tbody = (<tbody>
+            {_data.map((row, idx)=>{
+                if (idx == 0) return null
+                return <tr>{row.map((item)=>{ return <td>{item}</td> })}</tr>
+            })}
+        </tbody>)
+        return <table className="table table-bordered table-sm">{thead}{tbody}</table>
+    }
 }

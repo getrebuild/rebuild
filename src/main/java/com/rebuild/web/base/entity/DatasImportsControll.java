@@ -47,7 +47,7 @@ import cn.devezhao.commons.excel.Cell;
  */
 @Controller
 @RequestMapping("/admin/")
-public class DataImportsControll extends BasePageControll {
+public class DatasImportsControll extends BasePageControll {
 
 	@RequestMapping("/datas/imports")
 	public ModelAndView pageDataImports(HttpServletRequest request) {
@@ -74,8 +74,8 @@ public class DataImportsControll extends BasePageControll {
 		Map<String, Object> ret = new HashMap<>();
 		ret.put("rows_count", parser.getRowsCount());
 		ret.put("rows_preview", preview);
-		SerializeConfig.getGlobalInstance().put(Cell.class, ToStringSerializer.instance);
 		
+		SerializeConfig.getGlobalInstance().put(Cell.class, ToStringSerializer.instance);
 		writeSuccess(response, ret);
 	}
 	
