@@ -16,29 +16,41 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.admin.audit;
+package com.rebuild.api;
 
-import java.io.IOException;
+import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+import com.alibaba.fastjson.JSON;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
-import com.rebuild.web.BaseEntityControll;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * API 请求上下文
  * 
  * @author devezhao
- * @since 11/01/2018
+ * @since 01/10/2019
  */
-@Controller
-@RequestMapping("/admin/")
-public class AuditLoggingControll extends BaseEntityControll {
+public class ApiContext {
+	
+	final private ID apiUser;
+	final private Map<String, Object> reqParams;
+	final private JSON postData;
+	
+	public ApiContext(ID apiUser, Map<String, Object> reqParams, JSON postData) {
+		this.apiUser = apiUser;
+		this.reqParams = reqParams;
+		this.postData = postData;
+	}
 
-	@RequestMapping("audit-logging")
-	public ModelAndView pageLogging(HttpServletRequest request) throws IOException {
-		return createModelAndView("/admin/audit/logging.jsp");
+	public ID getApiUser() {
+		return apiUser;
+	}
+	
+	public Map<String, Object> getReqParams() {
+		return reqParams;
+	}
+	
+	public JSON getPostData() {
+		return postData;
 	}
 }

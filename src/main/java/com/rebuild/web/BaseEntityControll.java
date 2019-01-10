@@ -21,17 +21,13 @@ package com.rebuild.web;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
-import com.rebuild.server.ServerListener;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.utils.AppUtils;
 
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.Privileges;
@@ -40,33 +36,13 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * @author zhaofang123@gmail.com
- * @since 09/20/2018
+ * 页面上需要某个实体信息的  Controll
+ * 
+ * @author devezhao
+ * @since 01/10/2019
  */
-public abstract class PageControll {
+public abstract class BaseEntityControll extends BasePageControll {
 
-	/**
-	 * @param req
-	 * @return
-	 */
-	protected ID getRequestUser(HttpServletRequest req) {
-		ID fansId = AppUtils.getRequestUser(req);
-		if (fansId == null) {
-			throw new IllegalParameterException("无效请求用户");
-		}
-		return fansId;
-	}
-	
-	/**
-	 * @param page
-	 * @return
-	 */
-	protected ModelAndView createModelAndView(String page) {
-		ModelAndView mv = new ModelAndView(page);
-		setPageAttribute(mv);
-		return mv;
-	}
-	
 	/**
 	 * @param page
 	 * @param entity
@@ -164,25 +140,5 @@ public abstract class PageControll {
 			into.getModel().put("slaveEntityLabel", slave.getLabel());
 			into.getModel().put("slaveEntityIcon", slave.getIcon());
 		}
-	}
-	
-	// --
-	
-	/**
-	 * 页面公用属性
-	 * 
-	 * @param request
-	 */
-	public static void setPageAttribute(HttpServletRequest request) {
-		request.setAttribute("baseUrl", ServerListener.getContextPath());
-	}
-	
-	/**
-	 * 页面公用属性
-	 * 
-	 * @param request
-	 */
-	public static void setPageAttribute(ModelAndView into) {
-		into.getModel().put("baseUrl", ServerListener.getContextPath());
 	}
 }

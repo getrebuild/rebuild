@@ -16,13 +16,30 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.helper.manager;
+package com.rebuild.web;
+
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.web.bind.annotation.PathVariable;
+
+import com.rebuild.server.helper.manager.PortalsManager;
 
 /**
- * 前端配置管理器。标记接口
+ * 页面/界面相关配置接口规范
  * 
  * @author devezhao
- * @since 01/04/2019
+ * @since 10/14/2018
+ * @see PortalsManager
  */
 public interface PortalsConfiguration {
+	
+	void sets(@PathVariable String entity, 
+			HttpServletRequest request, HttpServletResponse response) throws IOException;
+	
+	void gets(@PathVariable String entity, 
+			HttpServletRequest request, HttpServletResponse response) throws IOException;
+	
 }

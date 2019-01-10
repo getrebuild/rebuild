@@ -18,114 +18,86 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import com.alibaba.fastjson.JSON;
+import com.rebuild.api.Controll;
+import com.rebuild.utils.AppUtils;
 
 import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 基础 Controll 类
+ * 基础 Controll
  * 
  * @author zhaofang123@gmail.com
  * @since 05/21/2017
  */
-public abstract class BaseControll extends PageControll {
-	
-	public static final int CODE_OK = 0;
-	public static final int CODE_FAIL = 1000;
-	public static final int CODE_ERROR = 2000;
-	
-	protected static Log LOG = LogFactory.getLog(BaseControll.class);
+public abstract class BaseControll extends Controll {
 	
 	/**
-	 * @param resp
+	 * @param request
+	 * @return
 	 */
-	protected void writeSuccess(HttpServletResponse resp) {
-		writeSuccess(resp, ObjectUtils.NULL);
-	}
-
-	/**
-	 * @param resp
-	 * @param record
-	 */
-	protected void writeSuccess(HttpServletResponse resp, Record record) {
-		if (record == null) {
-			writeFailure(resp, "无法找到记录");
-			return;
+	protected ID getRequestUser(HttpServletRequest request) {
+		ID userId = AppUtils.getRequestUser(request);
+		if (userId == null) {
+			throw new IllegalParameterException("无效请求用户");
 		}
-		
-		Map<String, Object> data = new HashMap<String, Object>();
-		for (Iterator<String> iter = record.getAvailableFieldIterator(); iter.hasNext(); ) {
-			String field = iter.next();
-			Object value = record.getObjectValue(field);
-			data.put(field, value);
-		}
-		writeSuccess(resp, data);
+		return userId;
 	}
 	
 	/**
-	 * @param resp
+	 * @param response
+	 */
+	protected void writeSuccess(HttpServletResponse response) {
+		writeSuccess(response, null);
+	}
+	
+	/**
+	 * @param response
 	 * @param data
 	 */
-	protected void writeSuccess(HttpServletResponse resp, Object data) {
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("error_code", CODE_OK);
-		map.put("error_msg", "调用成功");
-		if (data != null && data != ObjectUtils.NULL) {
-			map.put("data", data);
-		}
-		writeJSON(resp, map);
+	protected void writeSuccess(HttpServletResponse response, Object data) {
+		writeJSON(response, formatSuccess(data));
 	}
 	
 	/**
-	 * @param resp
+	 * @param response
 	 */
-	protected void writeFailure(HttpServletResponse resp) {
-		writeFailure(resp, null);
+	protected void writeFailure(HttpServletResponse response) {
+		writeFailure(response, null);
 	}
 	
 	/**
-	 * @param resp
+	 * @param response
 	 * @param message
 	 */
-	protected void writeFailure(HttpServletResponse resp, String message) {
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("error_code", CODE_FAIL);
-		map.put("error_msg", message == null ? "无效请求" : message);
-		writeJSON(resp, map);
+	protected void writeFailure(HttpServletResponse response, String message) {
+		writeJSON(response, formatFailure(message));
 	}
 	
 	/**
-	 * @param resp
-	 * @param json
+	 * @param response
+	 * @param aJson
 	 */
-	protected void writeJSON(HttpServletResponse resp, Object json) {
-		if (json == null) {
+	private void writeJSON(HttpServletResponse response, Object aJson) {
+		if (aJson == null) {
 			throw new IllegalArgumentException();
 		}
 		
-		String aJSONString = null;
-		if (json instanceof String) {
-			aJSONString = (String) json;
+		String aJsonString = null;
+		if (aJson instanceof String) {
+			aJsonString = (String) aJson;
 		} else {
-			aJSONString = JSON.toJSONString(json);
+			aJsonString = JSON.toJSONString(aJson);
 		}
-		ServletUtils.writeJson(resp, aJSONString);
+		ServletUtils.writeJson(response, aJsonString);
 	}
 	
 	/**

@@ -43,7 +43,7 @@ import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
-import com.rebuild.web.BaseControll;
+import com.rebuild.web.BaseEntityControll;
 import com.rebuild.web.IllegalParameterException;
 
 import cn.devezhao.commons.web.ServletUtils;
@@ -59,7 +59,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/dashboard")
-public class ChartDesignControll extends BaseControll {
+public class ChartDesignControll extends BaseEntityControll {
 
 	@RequestMapping("/chart-design")
 	public ModelAndView pageDesign(HttpServletRequest request, HttpServletResponse response) throws IOException {

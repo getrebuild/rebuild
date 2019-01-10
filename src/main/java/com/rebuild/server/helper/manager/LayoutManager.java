@@ -29,7 +29,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 09/15/2018
  */
-public class LayoutManager extends SharableConfiguration {
+public class LayoutManager extends SharableManager {
 	
 	// 表单
 	public static final String TYPE_FORM = "FORM";

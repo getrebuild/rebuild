@@ -41,9 +41,9 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 01/07/2019
  */
-public class SharableConfiguration implements PortalsConfiguration {
+public class SharableManager implements PortalsManager {
 	
-	protected static final Log LOG = LogFactory.getLog(SharableConfiguration.class);
+	protected static final Log LOG = LogFactory.getLog(SharableManager.class);
 	
 	// 共享给全部
 	public static final String SHARE_ALL = "ALL";

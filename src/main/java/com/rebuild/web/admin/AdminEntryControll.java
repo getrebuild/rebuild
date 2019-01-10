@@ -29,7 +29,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.service.bizz.privileges.User;
-import com.rebuild.web.BaseControll;
+import com.rebuild.web.BasePageControll;
 import com.rebuild.web.RequestWatchHandler;
 
 import cn.devezhao.commons.CalendarUtils;
@@ -43,7 +43,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 10/13/2018
  */
 @Controller
-public class AdminEntryControll extends BaseControll {
+public class AdminEntryControll extends BasePageControll {
 
 	@RequestMapping("/user/admin-entry")
 	public ModelAndView pageAdminEntry(HttpServletRequest request, HttpServletResponse response)

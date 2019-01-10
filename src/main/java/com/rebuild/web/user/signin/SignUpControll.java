@@ -27,7 +27,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.rebuild.web.BaseControll;
+import com.rebuild.web.BasePageControll;
 import com.wf.captcha.utils.CaptchaUtil;
 
 /**
@@ -38,7 +38,7 @@ import com.wf.captcha.utils.CaptchaUtil;
  */
 @Controller
 @RequestMapping("/user/")
-public class SignUpControll extends BaseControll {
+public class SignUpControll extends BasePageControll {
 	
 	@RequestMapping("signup")
 	public ModelAndView pageSignup(HttpServletRequest request, HttpServletResponse response) {

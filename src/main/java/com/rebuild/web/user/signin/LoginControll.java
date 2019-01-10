@@ -31,7 +31,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.rebuild.server.Application;
 import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.utils.AES;
-import com.rebuild.web.BaseControll;
+import com.rebuild.web.BasePageControll;
 import com.wf.captcha.utils.CaptchaUtil;
 
 import cn.devezhao.commons.CodecUtils;
@@ -46,7 +46,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/user/")
-public class LoginControll extends BaseControll {
+public class LoginControll extends BasePageControll {
 	
 	private static final String AUTOLOGIN_KEY = "rb.alt";
 

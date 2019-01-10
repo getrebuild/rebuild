@@ -24,7 +24,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.rebuild.server.helper.SystemConfiguration;
 import com.rebuild.utils.StringsUtils;
-import com.rebuild.web.BaseControll;
+import com.rebuild.web.BasePageControll;
 
 /**
  * 系统配置
@@ -34,7 +34,7 @@ import com.rebuild.web.BaseControll;
  */
 @Controller
 @RequestMapping("/admin/")
-public class SystemConfigurerContoll extends BaseControll {
+public class SystemConfigurerContoll extends BasePageControll {
 
 	@RequestMapping("systems")
 	public ModelAndView pageSystems() {

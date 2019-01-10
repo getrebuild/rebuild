@@ -32,7 +32,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 09/30/2018
  */
-public class AdvFilterManager extends SharableConfiguration {
+public class AdvFilterManager extends SharableManager {
 	
 	/**
 	 * 获取高级查询列表

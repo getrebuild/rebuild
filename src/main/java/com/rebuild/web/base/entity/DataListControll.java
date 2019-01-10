@@ -38,13 +38,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.manager.DataListManager;
 import com.rebuild.server.helper.manager.LayoutManager;
-import com.rebuild.server.helper.manager.SharableConfiguration;
+import com.rebuild.server.helper.manager.SharableManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.web.BaseControll;
-import com.rebuild.web.LayoutConfig;
+import com.rebuild.web.PortalsConfiguration;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
@@ -60,7 +60,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/app/{entity}/")
-public class DataListControll extends BaseControll implements LayoutConfig {
+public class DataListControll extends BaseControll implements PortalsConfiguration {
 
 	@RequestMapping(value = "list-fields", method = RequestMethod.POST)
 	@Override
@@ -79,7 +79,7 @@ public class DataListControll extends BaseControll implements LayoutConfig {
 		
 		JSON config = ServletUtils.getRequestJson(request);
 		ID cfgid = getIdParameter(request, "cfgid");
-		if (cfgid != null && !SharableConfiguration.isSelf(user, cfgid)) {
+		if (cfgid != null && !SharableManager.isSelf(user, cfgid)) {
 			cfgid = null;
 		}
 		
@@ -91,7 +91,7 @@ public class DataListControll extends BaseControll implements LayoutConfig {
 		} else {
 			record = EntityHelper.forUpdate(cfgid, user);
 		}
-		record.setString("shareTo", toAll ? SharableConfiguration.SHARE_ALL : SharableConfiguration.SHARE_SELF);
+		record.setString("shareTo", toAll ? SharableManager.SHARE_ALL : SharableManager.SHARE_SELF);
 		record.setString("config", config.toJSONString());
 		Application.getCommonService().createOrUpdate(record);
 		

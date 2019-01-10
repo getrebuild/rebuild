@@ -39,7 +39,7 @@ import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.service.bizz.RoleService;
 import com.rebuild.utils.JSONUtils;
-import com.rebuild.web.BaseControll;
+import com.rebuild.web.BaseEntityControll;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
@@ -52,7 +52,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/admin/bizuser/")
-public class RolePrivilegesControll extends BaseControll {
+public class RolePrivilegesControll extends BaseEntityControll {
 
 	@RequestMapping("role-privileges")
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {

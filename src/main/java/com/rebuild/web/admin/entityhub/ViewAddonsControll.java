@@ -38,7 +38,7 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
-import com.rebuild.web.LayoutConfig;
+import com.rebuild.web.PortalsConfiguration;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
@@ -54,7 +54,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/admin/entity/")
-public class ViewAddonsControll extends BaseControll implements LayoutConfig {
+public class ViewAddonsControll extends BaseControll implements PortalsConfiguration {
 
 	@RequestMapping(value = "{entity}/view-addons", method = RequestMethod.POST)
 	@Override

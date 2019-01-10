@@ -16,29 +16,39 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.admin.audit;
-
-import java.io.IOException;
+package com.rebuild.web;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.rebuild.web.BaseEntityControll;
+import com.rebuild.server.ServerListener;
 
 /**
+ * 页面 Controll
  * 
- * @author devezhao
- * @since 11/01/2018
+ * @author zhaofang123@gmail.com
+ * @since 09/20/2018
  */
-@Controller
-@RequestMapping("/admin/")
-public class AuditLoggingControll extends BaseEntityControll {
+public abstract class BasePageControll extends BaseControll {
 
-	@RequestMapping("audit-logging")
-	public ModelAndView pageLogging(HttpServletRequest request) throws IOException {
-		return createModelAndView("/admin/audit/logging.jsp");
+	/**
+	 * @param page
+	 * @return
+	 */
+	protected ModelAndView createModelAndView(String page) {
+		ModelAndView mv = new ModelAndView(page);
+		setPageAttribute(mv);
+		return mv;
+	}
+	
+	// -- 页面公用属性
+	
+	public static void setPageAttribute(HttpServletRequest into) {
+		into.setAttribute("baseUrl", ServerListener.getContextPath());
+	}
+	
+	public static void setPageAttribute(ModelAndView into) {
+		into.getModel().put("baseUrl", ServerListener.getContextPath());
 	}
 }

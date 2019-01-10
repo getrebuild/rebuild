@@ -31,9 +31,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.rebuild.server.business.datas.DataFileParser;
 import com.rebuild.server.helper.SystemConfiguration;
-import com.rebuild.web.BaseControll;
+import com.rebuild.web.BasePageControll;
 
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.excel.Cell;
@@ -45,7 +47,7 @@ import cn.devezhao.commons.excel.Cell;
  */
 @Controller
 @RequestMapping("/admin/")
-public class DataImportsControll extends BaseControll {
+public class DataImportsControll extends BasePageControll {
 
 	@RequestMapping("/datas/imports")
 	public ModelAndView pageDataImports(HttpServletRequest request) {
@@ -72,6 +74,7 @@ public class DataImportsControll extends BaseControll {
 		Map<String, Object> ret = new HashMap<>();
 		ret.put("rows_count", parser.getRowsCount());
 		ret.put("rows_preview", preview);
+		SerializeConfig.getGlobalInstance().put(Cell.class, ToStringSerializer.instance);
 		
 		writeSuccess(response, ret);
 	}

@@ -37,7 +37,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 12/20/2018
  */
-public class DashboardManager extends SharableConfiguration {
+public class DashboardManager extends SharableManager {
 	
 	/**
 	 * 获取可用面板

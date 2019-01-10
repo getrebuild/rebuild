@@ -31,11 +31,11 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.manager.LayoutManager;
 import com.rebuild.server.helper.manager.NavManager;
-import com.rebuild.server.helper.manager.SharableConfiguration;
+import com.rebuild.server.helper.manager.SharableManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.web.BaseControll;
-import com.rebuild.web.LayoutConfig;
+import com.rebuild.web.PortalsConfiguration;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
@@ -49,7 +49,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/app/settings/")
-public class NavSettings extends BaseControll implements LayoutConfig {
+public class NavSettings extends BaseControll implements PortalsConfiguration {
 	
 	@Override
 	public void sets(String entity, HttpServletRequest request, HttpServletResponse response) throws IOException { }
@@ -66,7 +66,7 @@ public class NavSettings extends BaseControll implements LayoutConfig {
 		
 		JSON config = ServletUtils.getRequestJson(request);
 		ID cfgid = getIdParameter(request, "cfgid");
-		if (cfgid != null && !SharableConfiguration.isSelf(user, cfgid)) {
+		if (cfgid != null && !SharableManager.isSelf(user, cfgid)) {
 			cfgid = null;
 		}
 		
@@ -79,7 +79,7 @@ public class NavSettings extends BaseControll implements LayoutConfig {
 			record = EntityHelper.forUpdate(cfgid, user);
 		}
 		record.setString("config", config.toJSONString());
-		record.setString("shareTo", toAll ? SharableConfiguration.SHARE_ALL : SharableConfiguration.SHARE_SELF);
+		record.setString("shareTo", toAll ? SharableManager.SHARE_ALL : SharableManager.SHARE_SELF);
 		Application.getCommonService().createOrUpdate(record);
 		
 		writeSuccess(response);

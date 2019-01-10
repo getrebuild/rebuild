@@ -34,7 +34,7 @@ import com.rebuild.server.helper.manager.FormsManager;
 import com.rebuild.server.helper.manager.ViewAddonsManager;
 import com.rebuild.server.helper.manager.value.DefaultValueManager;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.web.BaseControll;
+import com.rebuild.web.BaseEntityControll;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
@@ -48,7 +48,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/app/{entity}/")
-public class GeneralModelControll extends BaseControll {
+public class GeneralModelControll extends BaseEntityControll {
 
 	@RequestMapping("view/{id}")
 	public ModelAndView pageView(@PathVariable String entity, @PathVariable String id,

@@ -32,7 +32,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.helper.manager.DataListManager;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.web.BaseControll;
+import com.rebuild.web.BaseEntityControll;
 import com.rebuild.web.base.entity.datalist.DataListControl;
 import com.rebuild.web.base.entity.datalist.DefaultDataListControl;
 
@@ -48,7 +48,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/app/{entity}/")
-public class GeneralDataListControll extends BaseControll {
+public class GeneralDataListControll extends BaseEntityControll {
 
 	@RequestMapping("list")
 	public ModelAndView pageList(@PathVariable String entity, HttpServletRequest request) throws IOException {

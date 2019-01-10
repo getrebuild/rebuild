@@ -43,7 +43,6 @@ public class ServerListener extends ContextLoaderListener {
 	private static String CONTEXT_PATH = "";
 	private static Date STARTUP_TIME = CalendarUtils.now();
 	
-	
 	@Override
 	public void contextInitialized(ServletContextEvent event) {
 		long at = System.currentTimeMillis();

@@ -16,27 +16,24 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web;
+package com.rebuild.api;
 
-import java.io.IOException;
+import com.alibaba.fastjson.JSON;
+import com.rebuild.utils.JSONUtils;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.web.bind.annotation.PathVariable;
+import cn.devezhao.commons.CalendarUtils;
 
 /**
- * 布局配置接口
- * 
  * @author devezhao
- * @since 10/14/2018
+ * @since 01/10/2019
  */
-public interface LayoutConfig {
-	
-	void sets(@PathVariable String entity, 
-			HttpServletRequest request, HttpServletResponse response) throws IOException;
-	
-	void gets(@PathVariable String entity, 
-			HttpServletRequest request, HttpServletResponse response) throws IOException;
-	
+public class SystemTime extends BaseApi {
+
+	@Override
+	public JSON execute(ApiContext context) {
+		JSON data = JSONUtils.toJSONObject(
+				new String[] { "system_time" },
+				new Object[] { CalendarUtils.getDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(CalendarUtils.now()) });
+		return formatSuccess(data);
+	}
 }

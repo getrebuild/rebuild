@@ -34,7 +34,7 @@ import com.rebuild.server.helper.SystemConfiguration;
 import com.rebuild.server.helper.VCode;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserService;
-import com.rebuild.web.BaseControll;
+import com.rebuild.web.BaseEntityControll;
 
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.persist4j.Record;
@@ -47,7 +47,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @RequestMapping("/settings")
 @Controller
-public class UserSettingsControll extends BaseControll {
+public class UserSettingsControll extends BaseEntityControll {
 
 	@RequestMapping("/account")
 	public ModelAndView pageView(HttpServletRequest request) throws IOException {

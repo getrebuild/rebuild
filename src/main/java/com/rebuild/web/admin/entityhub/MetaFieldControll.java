@@ -42,7 +42,7 @@ import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.metadata.entityhub.Field2Schema;
 import com.rebuild.server.service.bizz.UserHelper;
-import com.rebuild.web.BaseControll;
+import com.rebuild.web.BasePageControll;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
@@ -59,7 +59,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/admin/entity/")
-public class MetaFieldControll extends BaseControll  {
+public class MetaFieldControll extends BasePageControll  {
 	
 	@RequestMapping("{entity}/fields")
 	public ModelAndView pageEntityFields(@PathVariable String entity, HttpServletRequest request) throws IOException {

@@ -42,7 +42,7 @@ import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.metadata.entityhub.Entity2Schema;
 import com.rebuild.server.service.bizz.UserHelper;
-import com.rebuild.web.BaseControll;
+import com.rebuild.web.BasePageControll;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
@@ -56,7 +56,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/admin/")
-public class MetaEntityControll extends BaseControll {
+public class MetaEntityControll extends BasePageControll {
 
 	@RequestMapping("entities")
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {

@@ -38,7 +38,7 @@ import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.bizz.privileges.Department;
 import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.utils.JSONUtils;
-import com.rebuild.web.BaseControll;
+import com.rebuild.web.BaseEntityControll;
 
 import cn.devezhao.bizz.security.member.Role;
 import cn.devezhao.persist4j.Record;
@@ -51,7 +51,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/admin/bizuser/")
-public class UserControll extends BaseControll {
+public class UserControll extends BaseEntityControll {
 	
 	@RequestMapping("users")
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {

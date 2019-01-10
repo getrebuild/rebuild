@@ -32,13 +32,13 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.manager.AdvFilterManager;
-import com.rebuild.server.helper.manager.SharableConfiguration;
+import com.rebuild.server.helper.manager.SharableManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.query.AdvFilterParser;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
-import com.rebuild.web.LayoutConfig;
+import com.rebuild.web.PortalsConfiguration;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
@@ -53,7 +53,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/app/{entity}/")
-public class AdvFilterControll extends BaseControll implements LayoutConfig {
+public class AdvFilterControll extends BaseControll implements PortalsConfiguration {
 
 	@RequestMapping("advfilter/post")
 	@Override
@@ -94,7 +94,7 @@ public class AdvFilterControll extends BaseControll implements LayoutConfig {
 		}
 		
 		record.setString("config", filter.toJSONString());
-		record.setString("shareTo", toAll ? SharableConfiguration.SHARE_ALL : SharableConfiguration.SHARE_SELF);
+		record.setString("shareTo", toAll ? SharableManager.SHARE_ALL : SharableManager.SHARE_SELF);
 		Application.getCommonService().createOrUpdate(record);
 		
 		writeSuccess(response);

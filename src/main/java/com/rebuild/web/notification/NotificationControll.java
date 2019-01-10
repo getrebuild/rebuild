@@ -34,7 +34,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
-import com.rebuild.web.BaseControll;
+import com.rebuild.web.BasePageControll;
 
 import cn.devezhao.momentjava.Moment;
 import cn.devezhao.persist4j.Record;
@@ -46,7 +46,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 11/01/2018
  */
 @Controller
-public class NotificationControll extends BaseControll {
+public class NotificationControll extends BasePageControll {
 
 	@RequestMapping("/app/notifications")
 	public ModelAndView pageIndex(HttpServletRequest request) throws IOException {

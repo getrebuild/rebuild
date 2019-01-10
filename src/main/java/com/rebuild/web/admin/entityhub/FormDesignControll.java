@@ -33,8 +33,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.manager.FormsManager;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.web.BaseControll;
-import com.rebuild.web.LayoutConfig;
+import com.rebuild.web.BasePageControll;
+import com.rebuild.web.PortalsConfiguration;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
@@ -46,7 +46,7 @@ import cn.devezhao.persist4j.Record;
  */
 @Controller
 @RequestMapping("/admin/entity/")
-public class FormDesignControll extends BaseControll implements LayoutConfig {
+public class FormDesignControll extends BasePageControll implements PortalsConfiguration {
 	
 	@RequestMapping("{entity}/form-design")
 	public ModelAndView pageFormDesign(@PathVariable String entity, HttpServletRequest request) throws IOException {

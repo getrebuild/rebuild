@@ -31,7 +31,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.ServerStatus;
 import com.rebuild.server.ServerStatus.State;
-import com.rebuild.web.PageControll;
+import com.rebuild.web.BasePageControll;
 
 import cn.devezhao.commons.web.ServletUtils;
 
@@ -40,7 +40,7 @@ import cn.devezhao.commons.web.ServletUtils;
  * @since 09/20/2018
  */
 @Controller
-public class SimplePageForward extends PageControll {
+public class SimplePageForward extends BasePageControll {
 
 	@RequestMapping(value={ "/p/**/*", "/admin/p/**/*" }, method = RequestMethod.GET)
 	public ModelAndView page(HttpServletRequest request) {

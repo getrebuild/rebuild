@@ -32,10 +32,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @since 05/19/2018
  */
 @Controller
-public class ApiGeteway {
+public class ApiGeteway extends Controll {
 	
 	@RequestMapping("/gw/api/{apiName}")
 	public void api(@PathVariable String apiName,
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
 	}
+	
 }

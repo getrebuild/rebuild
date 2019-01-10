@@ -35,7 +35,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.helper.manager.DataListManager;
 import com.rebuild.server.service.bizz.DepartmentService;
 import com.rebuild.server.service.bizz.privileges.Department;
-import com.rebuild.web.BaseControll;
+import com.rebuild.web.BaseEntityControll;
 
 import cn.devezhao.bizz.security.member.BusinessUnit;
 import cn.devezhao.persist4j.engine.ID;
@@ -46,7 +46,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/admin/bizuser/")
-public class DepartmentControll extends BaseControll {
+public class DepartmentControll extends BaseEntityControll {
 
 	@RequestMapping("departments")
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {

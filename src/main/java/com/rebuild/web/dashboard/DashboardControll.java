@@ -35,7 +35,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.helper.manager.DashboardManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.utils.JSONUtils;
-import com.rebuild.web.BaseControll;
+import com.rebuild.web.BasePageControll;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
@@ -48,7 +48,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/dashboard")
-public class DashboardControll extends BaseControll {
+public class DashboardControll extends BasePageControll {
 
 	@RequestMapping("/home")
 	public ModelAndView pageHome(HttpServletRequest request) {

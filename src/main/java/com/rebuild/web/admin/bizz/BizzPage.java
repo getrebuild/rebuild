@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.rebuild.web.PageControll;
+import com.rebuild.web.BaseEntityControll;
 
 import cn.devezhao.persist4j.engine.ID;
 
@@ -39,7 +39,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/app/")
-public class BizzPage extends PageControll {
+public class BizzPage extends BaseEntityControll {
 
 	@RequestMapping("User/view/{id}")
 	public ModelAndView userView(@PathVariable String id, HttpServletRequest request) throws IOException {
