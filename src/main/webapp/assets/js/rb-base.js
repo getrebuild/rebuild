@@ -166,7 +166,7 @@ var $regex = {
 	_Number:/^[-+]?[0-9]+$/,  // 数字
 	_Decimal:/^[-+]?\d*\.?\d+$/,  // 包括小数点的数字
 	_Mobile:/^(13[0-9]|15[0-9]|18[0-9]|17[0-9])\d{8}$/,
-	_Tel:/^[0-9-]{4,18}$/,
+	_Tel:/^[0-9-]{7,18}$/,
 	_Text:/^[a-z\d\u4E00-\u9FA5]+$/i,  // 不含特殊字符和标点
 	isDate:function(val){ return this._Date.test(val) },
 	isUTCDate:function(val){ return this._UTCDate.test(val) },

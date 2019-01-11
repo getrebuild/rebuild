@@ -43,10 +43,32 @@ $(document).ready(()=>{
         else $('.J_repeatFields').show()
     })
     
+    $('#toUser').select2({
+        placeholder: '默认',
+        minimumInputLength: 1,
+        ajax: {
+            url: rb.baseUrl + '/app/entity/search',
+            delay: 300,
+            data: function(params) {
+                let query = {
+                    entity: 'User',
+                    qfields: 'loginName,fullName,email,quickCode',
+                    q: params.term
+                }
+                return query
+            },
+            processResults: function(data){
+                let rs = data.data.map((item) => { return item })
+                return { results: rs }
+            }
+        }
+    }).on('change', function(){
+        owning_user = $(this).val() || null
+    })
+    
     $('.J_step1-btn').click(step_mapping)
     $('.J_step2-btn').click(step_imports)
     $('.J_step2-return').click(step_upload)
-    
 })
 
 const init_upload = ()=>{
@@ -105,17 +127,27 @@ const step_imports = () =>{
     })
     if (!!!fields_mapping) return
     
-    let data = {
+    let _data = {
         file: upload_file, entity: to_entity, 
         repeat_opt: repeat_opt, repeat_fields: repeat_fields, owning_user: owning_user,
         fields_mapping: fields_mapping
     }
-    console.log(JSON.stringify(data))
-    return
+    console.log(JSON.stringify(_data))
     
     $('.steps li, .step-content .step-pane').removeClass('active complete')
     $('.steps li[data-step=1], .steps li[data-step=2]').addClass('complete')
     $('.steps li[data-step=3], .step-content .step-pane[data-step=3]').addClass('active')
+    
+    $.post(rb.baseUrl + '/admin/datas/imports-submit', JSON.stringify(_data), function(res){
+        if (res.error_code == 0) imports_state(res.data.taskid)
+        else rb.hberror(res.error_msg)
+    })
+}
+
+const imports_state = (taskid) =>{
+    $.get(rb.baseUrl + '/admin/datas/imports-state?taskid=' + taskid, (res)=>{
+    })
+    J_imports-state
 }
 
 const render_fieldsMapping = (columns, fields) =>{

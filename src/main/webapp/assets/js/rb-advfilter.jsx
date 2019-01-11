@@ -319,8 +319,6 @@ class FilterItem extends React.Component {
         
         let that = this
         let s2field = $(this.refs['filter-field']).select2({
-            language: 'zh-CN',
-            width: '100%',
         }).on('change.select2', function(e){
             let ft = e.target.value.split('----')
             that.setState({ field: ft[0], type: ft[1] }, function(){
@@ -328,8 +326,6 @@ class FilterItem extends React.Component {
             })
         })
         let s2op = $(this.refs['filter-op']).select2({
-            language: 'zh-CN',
-            width: '100%',
         }).on('change.select2', function(e){
             that.setState({ op: e.target.value }, function(){
                 $setTimeout(function(){
@@ -442,8 +438,6 @@ class FilterItem extends React.Component {
         console.log('render PickList ...')
         let that = this
         let s2val = $(this.refs['filter-val']).select2({
-            language: 'zh-CN',
-            width: '100%',
         }).on('change.select2', function(e){
             let val = s2val.val()
             that.setState({ value: val.join('|') })
@@ -471,8 +465,6 @@ class FilterItem extends React.Component {
         console.log('render BizzSearch ...')
         let that = this
         let s2val = $(this.refs['filter-val']).select2({
-            language: 'zh-CN',
-            width: '100%',
             minimumInputLength: 1,
             ajax: {
                 url: rb.baseUrl + '/commons/search',

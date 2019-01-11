@@ -158,9 +158,7 @@ class DlgAddChart extends RbFormHandler {
                 $('<option value="' + this.name + '">' + this.label + '</option>').appendTo(entity_el)
             })
             this.__select2 = entity_el.select2({
-                language: 'zh-CN',
-                placeholder: '选择数据来源',
-                width: '100%'
+                placeholder: '选择数据来源'
             })
         })
     }

@@ -84,9 +84,13 @@ public class DatasImportsControll extends BasePageControll {
 				continue;
 			}
 			
+			EasyMeta easyMeta = new EasyMeta(field);
+			if (easyMeta.getDisplayType() == DisplayType.FILE || easyMeta.getDisplayType() == DisplayType.IMAGE) {
+				continue;
+			}
+			
 			Map<String, Object> map = new HashMap<>();
 			map.put("name", fieldName);
-			EasyMeta easyMeta = new EasyMeta(field);
 			map.put("label", easyMeta.getLabel());
 			map.put("type", easyMeta.getDisplayType().getDisplayName());
 			map.put("isNullable", field.isNullable());
@@ -164,8 +168,8 @@ public class DatasImportsControll extends BasePageControll {
 		}
 		
 		JSON ret = JSONUtils.toJSONObject(
-				new String[] { "total", "complete" }, 
-				new Object[] { task.getTotal(), task.getComplete() });
+				new String[] { "total", "complete", "isCompleted" }, 
+				new Object[] { task.getTotal(), task.getComplete(), task.isCompleted() });
 		writeSuccess(response, ret);
 	}
 	

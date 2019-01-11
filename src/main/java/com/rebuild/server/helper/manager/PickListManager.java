@@ -89,14 +89,29 @@ public class PickListManager implements PortalsManager {
 	}
 	
 	/**
-	 * @param itemId
+	 * @param item
 	 * @return
 	 */
-	public static String getLabel(ID itemId) {
-		Object[] item = Application.createQueryNoFilter(
+	public static String getLabel(ID item) {
+		Object[] o = Application.createQueryNoFilter(
 				"select text from PickList where itemId = ?")
-				.setParameter(1, itemId)
+				.setParameter(1, item)
 				.unique();
-		return item == null ? null : (String) item[0];
+		return o == null ? null : (String) o[0];
+	}
+	
+	/**
+	 * @param label
+	 * @param field
+	 * @return
+	 */
+	public static ID getIdByLabel(String label, Field field) {
+		Object[] o = Application.createQueryNoFilter(
+				"select itemId from PickList where belongEntity = ? and belongField = ? and text = ?")
+				.setParameter(1, field.getOwnEntity().getName())
+				.setParameter(2, field.getName())
+				.setParameter(3, label)
+				.unique();
+		return o == null ? null : (ID) o[0];
 	}
 }

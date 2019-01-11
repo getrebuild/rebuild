@@ -128,13 +128,13 @@
 									</form>
 								</div>
 								<div data-step="3" class="step-pane">
-									<form class="simple" style="margin:30px auto">
+									<form class="simple J_imports-state" style="margin:30px auto">
 										<div class="row mb-2">
 											<div class="col-6"><h5 class="text-bold m-0 p-0 J_imports_state">正在准备数据 ...</h5></div>
 											<div class="col-6 text-right text-muted">剩余时间 <span class="J_imports_time">00:00:00</span></div>
 										</div>
 										<div class="progress">
-											<div class="progress-bar progress-bar-striped progress-bar-animated" style="width:10%"></div>
+											<div class="progress-bar progress-bar-striped progress-bar-animated" style="width:0"></div>
 										</div>
 										<div class="mt-3">
 											<button class="btn btn-danger J_step3-btn" type="button">终止导入</button>

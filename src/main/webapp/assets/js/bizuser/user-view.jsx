@@ -73,10 +73,7 @@ class DlgChangeDept extends RbModalHandler {
     componentDidMount() {
         let that = this
         this.__select2 = $(this.refs['idNew']).select2({
-            language: 'zh-CN',
             placeholder: '选择' + this.typeName,
-            width: '100%',
-            allowClear: true,
             minimumInputLength: 1,
             ajax: {
                 url: rb.baseUrl + '/app/entity/search',

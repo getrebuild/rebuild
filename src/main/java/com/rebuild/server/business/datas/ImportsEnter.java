@@ -41,6 +41,10 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class ImportsEnter {
 
+	public static final int REPEAT_OPT_UPDATE = 1;
+	public static final int REPEAT_OPT_SKIP = 2;
+	public static final int REPEAT_OPT_IGNORE = 3;
+	
 	private File sourceFile;
 	private Entity toEntity;
 

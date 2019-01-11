@@ -18,21 +18,29 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.datas;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.manager.PickListManager;
 import com.rebuild.server.helper.task.BulkTask;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.ExtRecordCreator;
-import com.rebuild.server.service.DataSpecificationException;
+import com.rebuild.server.metadata.entityhub.DisplayType;
+import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 
+import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.excel.Cell;
 import cn.devezhao.commons.excel.ExcelReader;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.persist4j.record.FieldValueException;
 
 /**
  * 数据导入
@@ -63,24 +71,38 @@ public class DataImports extends BulkTask {
 	
 	@Override
 	public void run() {
-		DataFileParser fileParser = new DataFileParser(enter.getSourceFile());
-		setTotal(fileParser.getRowsCount() - 1);
+		ID ou = enter.getDefaultOwningUser();
+		ou = ou == null ? this.user : ou;
+		Application.getSessionStore().set(ou);
 		
-		ExcelReader reader = fileParser.getExcelReader();
-		reader.next();  // The head row
-		while (reader.hasNext()) {
-			try {
-				Cell[] cell = reader.next();
-				Record record = checkoutRecord(cell);
-				if (record != null) {
-					Application.getEntityService(enter.getToEntity().getEntityCode()).create(record);
+		ExcelReader reader = null;
+		try {
+			DataFileParser fileParser = new DataFileParser(enter.getSourceFile());
+			setTotal(fileParser.getRowsCount() - 1);
+			
+			reader = fileParser.getExcelReader();
+			reader.next();  // The head row
+			
+			while (reader.hasNext()) {
+				try {
+					Cell[] cell = reader.next();
+					Record record = checkoutRecord(cell);
+					if (record != null) {
+						Application.getEntityService(enter.getToEntity().getEntityCode()).createOrUpdate(record);
+					}
+				} catch (Exception ex) {
+					LOG.error(reader.getRowIndex() + " > " + ex);
+				} finally {
+					this.setCompleteOne();
 				}
-			} catch (DataSpecificationException ex1) {
-			} catch (FieldValueException ex2) {
-			} catch (Exception ex3) {
-			} finally {
-				this.setCompleteOne();
 			}
+		} finally {
+			Application.getSessionStore().clean();
+			if (reader != null) {
+				reader.close();
+			}
+			
+			completedAfter();
 		}
 	}
 	
@@ -89,24 +111,89 @@ public class DataImports extends BulkTask {
 	 * @return
 	 */
 	protected Record checkoutRecord(Cell cells[]) {
-		Record record = EntityHelper.forNew(
-				enter.getToEntity().getEntityCode(), 
-				enter.getDefaultOwningUser() != null ? enter.getDefaultOwningUser() : user);
+		ID ou = enter.getDefaultOwningUser();
+		ou = ou == null ? this.user : ou;
+		Record recordNew = EntityHelper.forNew(enter.getToEntity().getEntityCode(), ou);
 		
 		for (Map.Entry<Field, Integer> e : enter.getFiledsMapping().entrySet()) {
 			int cellIndex = e.getValue();
 			if (cells.length > cellIndex) {
 				Field field = e.getKey();
-				Object value = checkoutFieldValue(field, cells[cellIndex]);
+				Object value = checkoutFieldValue(field, cells[cellIndex], true);
 				if (value != null) {
-					record.setObjectValue(field.getName(), value);
+					recordNew.setObjectValue(field.getName(), value);
 				}
 			}
 		}
 		
-		ExtRecordCreator creator = new ExtRecordCreator(enter.getToEntity(), JSONUtils.EMPTY_OBJECT, null);
-		creator.verify(record, true);
+		Record record = recordNew;
+		
+		// 检查重复
+		if (enter.getRepeatOpt() < ImportsEnter.REPEAT_OPT_IGNORE) {
+			final ID repeat = getRepeatRecordId(enter.getRepeatFields(), recordNew);
+			
+			if (repeat != null && enter.getRepeatOpt() == ImportsEnter.REPEAT_OPT_SKIP) {
+				return null;
+			}
+			
+			if (repeat != null && enter.getRepeatOpt() == ImportsEnter.REPEAT_OPT_UPDATE) {
+				record = EntityHelper.forUpdate(repeat, ou);
+				for (Iterator<String> iter = recordNew.getAvailableFieldIterator(); iter.hasNext(); ) {
+					String field = iter.next();
+					if (EntityHelper.OwningUser.equals(field) || EntityHelper.OwningDept.equals(field)
+							|| EntityHelper.CreatedBy.equals(field) || EntityHelper.CreatedOn.equals(field)
+							|| EntityHelper.ModifiedBy.equals(field) || EntityHelper.ModifiedOn.equals(field)) {
+						continue;
+					}
+					record.setObjectValue(field, recordNew.getObjectValue(field));
+				}
+			}
+		}
+	
+		if (record.getPrimary() == null) {
+			ExtRecordCreator creator = new ExtRecordCreator(enter.getToEntity(), JSONUtils.EMPTY_OBJECT, null);
+			creator.verify(recordNew, true);
+		}
 		return record;
+	}
+	
+	/**
+	 * @param field
+	 * @param cell
+	 * @param validate
+	 * @return
+	 */
+	protected Object checkoutFieldValue(Field field, Cell cell, boolean validate) {
+		final DisplayType dt = EasyMeta.getDisplayType(field);
+		if (dt == DisplayType.NUMBER) {
+			return cell.asLong();
+		} else if (dt == DisplayType.DECIMAL) {
+			return cell.asDouble();
+		} else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
+			return cell.asDate();
+		} else if (dt == DisplayType.PICKLIST) {
+			return checkoutPickListValue(field, cell);
+		} else if (dt == DisplayType.REFERENCE) {
+			return checkoutReferenceValue(field, cell);
+		} else if (dt == DisplayType.BOOL) {
+			return cell.asBool();
+		}
+		
+		// 格式验证
+		if (validate) {
+			if (dt == DisplayType.EMAIL) {
+				String email = cell.asString();
+				return RegexUtils.isEMail(email) ? email : null;
+			} else if (dt == DisplayType.URL) {
+				String url = cell.asString();
+				return RegexUtils.isUrl(url) ? url : null;
+			} else if (dt == DisplayType.PHONE) {
+				String tel = cell.asString();
+				return RegexUtils.isCNMobile(tel) || RegexUtils.isTel(tel)? tel : null;
+			}
+		}
+		
+		return cell.asString();
 	}
 	
 	/**
@@ -114,10 +201,81 @@ public class DataImports extends BulkTask {
 	 * @param cell
 	 * @return
 	 */
-	protected Object checkoutFieldValue(Field field, Cell cell) {
+	private Object checkoutPickListValue(Field field, Cell cell) {
+		String val = cell.asString();
+		if (StringUtils.isBlank(val)) {
+			return null;
+		}
 		
-		// TODO checkoutFieldValue
+		// 支持ID
+		if (ID.isId(val) && ID.valueOf(val).getEntityCode() == EntityHelper.PickList) {
+			return ID.valueOf(val);
+		} else {
+			return PickListManager.getIdByLabel(val, field);
+		}
+	}
+	
+	/**
+	 * @param field
+	 * @param cell
+	 * @return
+	 */
+	private Object checkoutReferenceValue(Field field, Cell cell) {
+		String val = cell.asString();
+		if (StringUtils.isBlank(val)) {
+			return null;
+		}
 		
-		return null;
+		Entity oEntity = field.getReferenceEntity();
+		
+		// 支持ID
+		if (ID.isId(val) && ID.valueOf(val).getEntityCode() == oEntity.getEntityCode()) {
+			return ID.valueOf(val);
+		}
+		
+		Object typeVal = checkoutFieldValue(oEntity.getNameField(), cell, false);
+		if (typeVal == null) {
+			return null;
+		}
+		
+		String sql = String.format("select %s from %s where %s = ?",
+				oEntity.getPrimaryField().getName(), oEntity.getName(), oEntity.getNameField().getName());
+		Object[] exists = Application.createQueryNoFilter(sql).setParameter(1, typeVal).unique();
+		return exists == null ? null : exists[0];
+	}
+	
+	/**
+	 * @param checks
+	 * @param data
+	 * @return
+	 */
+	protected ID getRepeatRecordId(Field[] checks, Record data) {
+		Map<String, Object> wheres = new HashMap<>();
+		for (Field c : checks) {
+			String cName = c.getName();
+			if (data.hasValue(cName)) {
+				wheres.put(cName, data.getObjectValue(cName));
+			}
+		}
+		
+		LOG.info("Checking repeat : " + wheres);
+		if (wheres.isEmpty()) {
+			return null;
+		}
+		
+		Entity entity = data.getEntity();
+		String sql = String.format("select %s from %s where (1=1)", 
+				entity.getPrimaryField().getName(), entity.getName());
+		for (String c : wheres.keySet()) {
+			sql += " and " + c + " = :" + c;
+		}
+		
+		Query query = Application.createQueryNoFilter(sql);
+		for (Map.Entry<String, Object> e : wheres.entrySet()) {
+			query.setParameter(e.getKey(), e.getValue());
+		}
+		
+		Object[] exists = query.unique();
+		return exists == null ? null : (ID) exists[0];
 	}
 }

@@ -23,6 +23,7 @@ import org.junit.Test;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.TestSupport;
+import com.rebuild.server.service.bizz.UserService;
 
 /**
  * 
@@ -49,4 +50,12 @@ public class DataImportsTest extends TestSupport {
 		ImportsEnter.parse(rule);
 	}
 	
+	@Test
+	public void testImports() throws Exception {
+		JSONObject rule = JSON.parseObject("{'file':'204648874__dataimports-test.csv','entity':'h45hy54hy','repeat_opt':'2','repeat_fields':['h45hy54hyName'],'owning_user':'001-016792557d140002','fields_mapping':{'h45hy54hyName':5}}");
+		ImportsEnter importsEnter = ImportsEnter.parse(rule);
+		
+		DataImports dataImports = new DataImports(importsEnter, UserService.ADMIN_USER);
+		dataImports.run();
+	}
 }

@@ -48,10 +48,7 @@ class DlgAssign extends RbModalHandler {
     }
     componentDidMount() {
         $(this.refs['toUser']).select2({
-            language: 'zh-CN',
             placeholder: '选择用户',
-            width: '100%',
-            allowClear: true,
             multiple: this.multipleUser == true,
             minimumInputLength: 1,
             ajax: {
@@ -80,10 +77,7 @@ class DlgAssign extends RbModalHandler {
         $.get(rb.baseUrl + '/commons/metadata/references?entity=' + this.props.entity, function(res){
             that.setState({ cascadesShow: true, cascadesEntity: res.data }, function(){
                 $(that.refs['cascades']).select2({
-                     language: 'zh-CN',
-                     placeholder: '选择关联实体 (可选)',
-                     width: '100%',
-                     allowClear: true
+                     placeholder: '选择关联实体 (可选)'
                 }).val(null).trigger('change')
             })
         })
