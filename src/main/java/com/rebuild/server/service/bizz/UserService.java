@@ -94,6 +94,9 @@ public class UserService extends SystemEntityService {
 				&& Application.getUserStore().exists(record.getString("email"))) {
 			throw new DataSpecificationException("邮箱重复");
 		}
+		if (record.getPrimary() == null && !record.hasValue("fullName")) {
+			record.setString("fullName", record.getString("loginName").toUpperCase());
+		}
 		
 		setQuickCodeValue(record);
 	}

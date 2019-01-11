@@ -43,6 +43,7 @@ import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.base.BulkContext;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.IllegalParameterException;
@@ -253,8 +254,9 @@ public class GeneralRecordOperatorControll extends BaseControll {
 		String[] owning = null;
 		List<String[]> sharingList = new ArrayList<>();
 		if (recordMeta.length == 3) {
-			String shows[] = UserHelper.getShows((ID) recordMeta[2]);
-			owning = new String[] { recordMeta[2].toString(), shows[0], shows[1] };
+			User user = Application.getUserStore().getUser((ID) recordMeta[2]);
+			String dept = user.getOwningDept() == null ? null : user.getOwningDept().getName();
+			owning = new String[] { user.getIdentity().toString(), user.getFullName(), user.getAvatarUrl(true), dept };
 			
 			Object[][] shareTo = Application.createQueryNoFilter(
 					"select shareTo from ShareAccess where belongEntity = ? and recordId = ?")

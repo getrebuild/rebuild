@@ -1,11 +1,8 @@
 .rb-offcanvas-menu .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar .zmdi-arrow-left {
 	font-size: 2.11rem;
 }
-.rb-offcanvas-menu .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar:hover {
-	opacity: 0.8;
-}
-.rb-top-header .rb-navbar-header {
-	cursor: default;
+.rb-offcanvas-menu .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar:hover .zmdi-arrow-left {
+	color: #4285f4;
 }
 
 .chart-box .chart-head .chart-title {

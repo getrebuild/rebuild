@@ -92,7 +92,7 @@ public class ChartDesignControll extends BaseEntityControll {
 			mv.getModel().put("chartConfig", JSONUtils.EMPTY_OBJECT_STR);
 			entityMeta = MetadataHelper.getEntity(entity);
 		} else {
-			throw new IllegalParameterException();
+			throw new IllegalParameterException("无效图表参数");
 		}
 		
 		if (!Application.getSecurityManager().allowedD(getRequestUser(request), entityMeta.getEntityCode())) {
@@ -106,6 +106,9 @@ public class ChartDesignControll extends BaseEntityControll {
 		for (Field field : MetadataSorter.sortFields(entityMeta)) {
 			EasyMeta easy = EasyMeta.valueOf(field);
 			DisplayType dt = easy.getDisplayType();
+			if (dt == DisplayType.IMAGE || dt == DisplayType.FILE || dt == DisplayType.ANYREFERENCE) {
+				continue;
+			}
 			String type = "text";
 			if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
 				type = "date";

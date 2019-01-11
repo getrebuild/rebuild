@@ -2,6 +2,7 @@ const wpc = window.__PageConfig
 let esourceFilter
 $(document).ready(() => {
     $(window).trigger('resize')
+    //$('.navbar-brand').attr('href', 'javascript:;')
     
     $('.chart-type>a').tooltip({ html:true, container:'.config-aside' })
     
@@ -68,7 +69,7 @@ $(document).ready(() => {
             } else rb.hberror(res.error_msg)
         })
 	    
-	}).find('.zmdi').addClass('zmdi-arrow-left')
+	}).tooltip({ placement: 'right' }).find('.zmdi').addClass('zmdi-arrow-left')
 	
 	if (wpc.chartConfig && wpc.chartConfig.axis) {
 	    $(wpc.chartConfig.axis.dimension).each((idx, item) => { add_axis('.J_axis-dim', item) })

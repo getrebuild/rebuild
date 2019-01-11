@@ -38,7 +38,7 @@
 								<option value="">请选择关联项</option>
 								<optgroup label="业务实体"></optgroup>
 								<optgroup label="其他">
-									<option value="$PARENT$">父级菜单</option>
+									<option value="$PARENT$" data-icon="menu">父级菜单</option>
 								</optgroup>
 							</select>
 						</div>
@@ -105,7 +105,7 @@ $(document).ready(function(){
 		let value;
 		if (type == 'ENTITY'){
 			value = $val('.J_menuEntity')
-			if (!!!value){ rb.highbar('请选择实体'); return }
+			if (!!!value){ rb.highbar('请选择关联项'); return }
 		} else {
 			value = $val('.J_menuUrl')
 			if (!!!value){ rb.highbar('请输入 URL'); return }
@@ -196,6 +196,7 @@ const render_item = function(data, isNew, append2) {
 			let subUl = item.find('ul')
 			if (subUl.length == 0) {
 				subUl = $('<ul></ul>').appendTo(item)
+				add_sortable(subUl)
 			}
 			render_item({}, true, subUl)
 		})

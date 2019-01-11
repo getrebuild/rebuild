@@ -147,6 +147,7 @@ class ChartLine extends BaseChart {
     }
     renderChart(data) {
         if (this.__echarts) this.__echarts.dispose()
+        if (data.xAxis.length == 0){ this.renderError('暂无数据'); return }
         let that = this
         let elid = 'echarts-line-' + (this.state.id || 'id')
         this.setState({ chartdata: (<div className="chart line" id={elid}></div>) }, ()=>{
@@ -201,6 +202,7 @@ class ChartBar extends BaseChart {
     }
     renderChart(data) {
         if (this.__echarts) this.__echarts.dispose()
+        if (data.xAxis.length == 0){ this.renderError('暂无数据'); return }
         let that = this
         let elid = 'echarts-bar-' + (this.state.id || 'id')
         this.setState({ chartdata: (<div className="chart bar" id={elid}></div>) }, ()=>{
@@ -255,6 +257,7 @@ class ChartPie extends BaseChart {
     }
     renderChart(data) {
         if (this.__echarts) this.__echarts.dispose()
+        if (data.data.length == 0){ this.renderError('暂无数据'); return }
         let that = this
         let elid = 'echarts-pie-' + (this.state.id || 'id')
         this.setState({ chartdata: (<div className="chart pie" id={elid}></div>) }, ()=>{

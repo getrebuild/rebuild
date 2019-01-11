@@ -167,9 +167,15 @@ html, body {
 .user-show .name {
 	margin-left: 6px;
 	height: 30px;
+	line-height: 16px;
 	line-height: 30px;
-	color: #666;
 	color: #4285f4;
+}
+.user-show .name>em{
+	font-style: normal;
+	color: #777;
+	font-size: 12px;
+	display: block;
 }
 
 .view-operating>div.view-user {

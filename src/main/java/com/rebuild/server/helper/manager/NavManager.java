@@ -118,7 +118,9 @@ public class NavManager extends LayoutManager {
 		String type = nav.getString("type");
 		if ("ENTITY".equalsIgnoreCase(type)) {
 			String entity = nav.getString("value");
-			if (!MetadataHelper.containsEntity(entity)) {
+			if ("$PARENT$".equals(entity)) {
+				return true;
+			} else if (!MetadataHelper.containsEntity(entity)) {
 				LOG.warn("Unknow entity in nav : " + entity);
 				return true;
 			}
@@ -165,19 +167,18 @@ public class NavManager extends LayoutManager {
 			clazz += "parent";
 			isUrlType = false;
 			navUrl = "javascript:;";
-//			navUrl = "###" + navUrl;
 		}
 		navHtml = String.format(navHtml, navName, clazz, navUrl, isUrlType ? "_blank" : "_self", navIcon, navText);
 		
 		if (subHas) {
-			String subHtml = "<ul class=\"sub-menu\"><li class=\"title\">%s</li><li class=\"nav-items\"><div class=\"rb-scroller\"><div class=\"content\"><ul>";
+			String subHtml = "<ul class=\"sub-menu\"><li class=\"title\">%s</li><li class=\"nav-items\"><div class=\"content\"><ul>";
 			subHtml = String.format(subHtml, navText);
 			
 			for (Object o : subNavs) {
 				JSONObject subNav = (JSONObject) o;
 				subHtml += renderNavItem(subNav, activeNav, false);
 			}
-			subHtml += "</ul></div></div></li></ul>";
+			subHtml += "</ul></div></li></ul>";
 			navHtml += subHtml;
 		}
 		
