@@ -7,7 +7,7 @@
 <style type="text/css">
 .dd3-content>.zmdi{position:absolute;width:28px;height:28px;font-size:1.45rem;margin-left:-20px;margin-top:1px;}
 .dd3-content{padding-left:60px !important;cursor:default;}
-.dd-item>ul{padding-left:22px}
+.dd-item>ul{margin-left:22px;padding-left:0;position:relative;}
 .input-group-prepend .input-group-text{padding:0;width:37px;text-align:center;display:inline-block;overflow:hidden;padding-top:9px;background-color:#fff}
 .input-group-prepend .input-group-text:hover{background-color:#eee;cursor:pointer;}
 .input-group-prepend .input-group-text i.zmdi{font-size:1.5rem;}
@@ -37,6 +37,9 @@
 							<select class="form-control form-control-sm J_menuEntity">
 								<option value="">请选择关联项</option>
 								<optgroup label="业务实体"></optgroup>
+								<optgroup label="其他">
+									<option value="$PARENT$">父级菜单</option>
+								</optgroup>
 							</select>
 						</div>
 						<div class="tab-pane" id="URL">
@@ -71,17 +74,11 @@
 <script type="text/babel">
 const UNICON_NAME = 'texture'
 $(document).ready(function(){
-	$('.J_config').sortable({
-		placeholder: 'dd-placeholder',
-		handle: '.dd3-handle',
-		axis: 'y',
-	}).disableSelection()
-
 	$('.J_add-menu').click(function(){ render_item({}, true) })
-	
+
 	$.get(rb.baseUrl + '/commons/metadata/entities', function(res){
 		$(res.data).each(function(){
-			$('<option value="' + this.name + '" data-icon="' + this.icon + '">' + this.label + '</option>').appendTo('.J_menuEntity optgroup')
+			$('<option value="' + this.name + '" data-icon="' + this.icon + '">' + this.label + '</option>').appendTo('.J_menuEntity optgroup:eq(0)')
 		})
 	})
 	$('.J_menuEntity').change(function(){
@@ -139,6 +136,7 @@ $(document).ready(function(){
 		})
 	})
 	
+	add_sortable('.J_config')
 	$.get(rb.baseUrl + '/app/settings/nav-settings', function(res){
 		if (res.data){
 			cfgid = res.data.id
@@ -149,12 +147,20 @@ $(document).ready(function(){
 					$(this.sub).each(function(){
 						render_item(this, false, subUl)
 					})
+					add_sortable(subUl)
 				}
 			})
 			$('#shareTo').attr('checked', res.data.shareTo == 'ALL')
 		}
 	})
 })
+const add_sortable = function(el){
+	$(el).sortable({
+		placeholder: 'dd-placeholder',
+		handle: '>.dd3-handle',
+		axis: 'y'
+	}).disableSelection()
+}
 
 const build_item = function(item){
 	let data = { text: $.trim(item.find('.dd3-content').eq(0).text()), type: item.attr('attr-type'), value: item.attr('attr-value'), icon: item.attr('attr-icon') }

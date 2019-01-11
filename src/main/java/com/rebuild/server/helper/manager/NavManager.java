@@ -85,12 +85,8 @@ public class NavManager extends LayoutManager {
 		JSONArray navs = (JSONArray) config[1];
 		for (Iterator<Object> iter = navs.iterator(); iter.hasNext(); ) {
 			JSONObject nav = (JSONObject) iter.next();
-			if (isFilterNav(nav, user)) {
-				iter.remove();
-				continue;
-			}
-			
 			JSONArray subNavs = nav.getJSONArray("sub");
+			
 			if (subNavs != null && !subNavs.isEmpty()) {
 				for (Iterator<Object> subIter = subNavs.iterator(); subIter.hasNext(); ) {
 					JSONObject subNav = (JSONObject) subIter.next();
@@ -103,6 +99,9 @@ public class NavManager extends LayoutManager {
 				if (subNavs.isEmpty()) {
 					iter.remove();
 				}
+			} else if (isFilterNav(nav, user)) {
+				iter.remove();
+				continue;
 			}
 		}
 		return navs;
