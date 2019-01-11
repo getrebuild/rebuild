@@ -173,7 +173,11 @@ public class ReferenceSearch extends BaseControll {
 			
 			Map<String, Object> map = new HashMap<>();
 			map.put("id", recordId);
-			map.put("text", o[1]);
+			String text = o[1] == null ? recordId.toLiteral().toUpperCase() : o[1].toString();
+			if (StringUtils.isBlank(text)) {
+				text = recordId.toLiteral().toUpperCase();
+			}
+			map.put("text", text);
 			result.add(map);
 		}
 		return result;
