@@ -5002,7 +5002,10 @@ button.close {
     color: #fff;
     text-align: center;
     background-color: #000;
-    border-radius: 2px
+    border-radius: 2px;
+    max-width: 250px;
+    text-align: left;
+    font-size: 12px;
 }
 .popover {
     position: absolute;

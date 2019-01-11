@@ -12,6 +12,8 @@
 .card.entity .icon{font-size:32px;color:#4285f4;}
 .card.entity .badge{position:absolute;top:11px;right:11px}
 .card.entity span{margin-top:2px;display:block;}
+#entityList{margin:0 -10px}
+#entityList>div{padding-left:10px;padding-right:10px}
 </style>
 </head>
 <body>
