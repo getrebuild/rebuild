@@ -174,17 +174,18 @@ var $cleanMenu = function(mbg){
 	}
 }
 
-var $fileCutName = function(file) {
-    file = file.split('/')
-    file = file[file.length - 1]
-    return file.substr(file.indexOf('__') + 2)
+var $fileCutName = function(fileName) {
+    fileName = fileName.split('/')
+    fileName = fileName[fileName.length - 1]
+    return fileName.substr(fileName.indexOf('__') + 2)
 }
-var $fileDetectingIcon = function(file){
-    if (file.endsWith('.png') || file.endsWith('.gif') || file.endsWith('.jpg') || file.endsWith('.jpeg') || file.endsWith('.bmp')) return 'png';
-    else if (file.endsWith('.doc') || file.endsWith('.docx')) return 'word';
-    else if (file.endsWith('.ppt') || file.endsWith('.pptx')) return 'ppt';
-    else if (file.endsWith('.xls') || file.endsWith('.xlsx')) return 'excel';
-    else if (file.endsWith('.pdf')) return 'pdf';
-    else if (file.endsWith('.mp4') || file.endsWith('.rmvb') || file.endsWith('.rm') || file.endsWith('.avi') || file.endsWith('.flv')) return 'mp4';
+var $fileDetectingIcon = function(fileName){
+	fileName = fileName.toLowerCase()
+    if (fileName.endsWith('.png') || fileName.endsWith('.gif') || fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') || fileName.endsWith('.bmp')) return 'png';
+    else if (fileName.endsWith('.doc') || fileName.endsWith('.docx')) return 'word';
+    else if (fileName.endsWith('.ppt') || fileName.endsWith('.pptx')) return 'ppt';
+    else if (fileName.endsWith('.xls') || fileName.endsWith('.xlsx')) return 'excel';
+    else if (fileName.endsWith('.pdf')) return 'pdf';
+    else if (fileName.endsWith('.mp4') || fileName.endsWith('.rmvb') || fileName.endsWith('.rm') || fileName.endsWith('.avi') || fileName.endsWith('.flv')) return 'mp4';
     return ''
 }

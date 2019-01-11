@@ -523,11 +523,10 @@ class RbFormImage extends RbFormElement {
         $(that.refs['upload-input']).html5Uploader({
             name: that.props.field,
             postUrl: rb.baseUrl + '/filex/upload?cloud=auto&type=image',
+            onSelectError: function(field, error){
+                if (error == 'ErrorType') rb.highbar('请上传图片')
+            },
             onClientLoad: function(e, file){
-                if (file.type.substr(0, 5) != 'image'){
-                    rb.highbar('请上传图片')
-                    return false
-                }
                 mprogress = new Mprogress({ template:3 })
                 mprogress.start()
             },
@@ -636,10 +635,7 @@ class RbFormPickList extends RbFormElement {
         if (this.state.viewMode == true) return
         
         let select2 = $(this.refs['field-value']).select2({
-            language: 'zh-CN',
-            placeholder: '选择' + this.props.label,
-            allowClear: true,
-            width: '100%',
+            placeholder: '选择' + this.props.label
         })
         this.__select2 = select2
         
@@ -685,10 +681,7 @@ class RbFormReference extends RbFormElement {
         
         let that = this
         let select2 = $(this.refs['field-value']).select2({
-            language: 'zh-CN',
             placeholder: '选择' + this.props.label,
-            width: '100%',
-            allowClear: true,
             minimumInputLength: 1,
             maximumSelectionLength: 1,
             ajax: {

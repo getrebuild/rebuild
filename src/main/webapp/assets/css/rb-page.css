@@ -419,9 +419,11 @@ a {
     overflow: hidden;
     border: 0 none;
     color: #404040;
+    border-left: 2px solid #4285f4;
+    width: 205px;
 }
-.file-field .img-thumbnail:last-child {
-    margin-right: 0
+.file-field .img-thumbnail:nth-child(even) {
+	 margin-right: 0
 }
 .file-field .img-thumbnail>i.ftype {
     float: left;
@@ -459,6 +461,8 @@ a {
     padding-left: 2px;
     line-height: 1.2rem;
     vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .datetime-field .input-group-append button {
     min-width: 38px;
@@ -817,6 +821,10 @@ i.split.ui-draggable-dragging {
 }
 .rbview-form .img-field .img-thumbnail:hover, .rbview-form .file-field .img-thumbnail:hover {
     opacity: 0.8;
+}
+.rbview-form .file-field .img-thumbnail {
+	width: 100%;
+	margin: 0;
 }
 .rbview-form .form-control-plaintext:hover {
     background-color: #f8f8f8;

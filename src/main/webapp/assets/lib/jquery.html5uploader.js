@@ -67,6 +67,7 @@
         
         function checkAccept(file, accept) {
             if (!!!accept || accept == '*') return true;
+            if (accept.split('/')[0] == file.type.split('/')[0]) return true;
             var fileExt = file.name.split('.');
             fileExt = '.' + fileExt[fileExt.length - 1];
             var isAccept = false;

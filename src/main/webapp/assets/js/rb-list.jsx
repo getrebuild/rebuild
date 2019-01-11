@@ -171,14 +171,14 @@ class RbList extends React.Component {
             return (<td key={cellKey}><div style={styles} className="column-imgs">
                 {cellVal.map((item, idx)=>{
                     let imgUrl = rb.baseUrl + '/cloud/img/' + item
-                    let imgName = __fileCutName(item)
+                    let imgName = $fileCutName(item)
                     return <a key={cellKey + idx} href={'#!/Preview/' + item} title={imgName}><img src={imgUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a>
                 })}</div></td>)
         } else if (field.type == 'FILE') {
             cellVal = JSON.parse(cellVal || '[]')
             return (<td key={cellKey}><div style={styles} className="column-files"><ul className="list-unstyled">
                 {cellVal.map((item, idx)=>{
-                    let fileName = __fileCutName(item)
+                    let fileName = $fileCutName(item)
                     return <li key={cellKey + idx} className="text-truncate"><a href={'#!/Preview/' + item} title={fileName}>{fileName}</a></li>
                 })}</ul></div></td>)
         } else if (field.type == 'REFERENCE'){
