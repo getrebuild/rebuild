@@ -35,11 +35,11 @@ public class DataImportsTest extends TestSupport {
 	@Test
 	public void testParseEnter() throws Exception {
 		JSONObject rule = JSON.parseObject("{ file:'204648874__dataimports-test.csv', entity:'h45hy54hy', repeat_opt:3, fields_mapping:{ h45hy54hyName:5 } }");
-		ImportsEnter importsEnter = ImportsEnter.parse(rule);
+		ImportEnter importsEnter = ImportEnter.parse(rule);
 		System.out.println("ImportsEnter 1 : " + importsEnter);
 		
 		rule = JSON.parseObject("{ file:'204648874__dataimports-test.csv', entity:'h45hy54hy', repeat_opt:1, repeat_fields:['h45hy54hyName'], fields_mapping:{ h45hy54hyName:5 } }");
-		importsEnter = ImportsEnter.parse(rule);
+		importsEnter = ImportEnter.parse(rule);
 		System.out.println("ImportsEnter 2 : " + importsEnter);
 	}
 	
@@ -47,15 +47,15 @@ public class DataImportsTest extends TestSupport {
 	public void testErrorEnter() throws Exception {
 		JSONObject rule = JSON.parseObject("{ file:'204648874__dataimports-test.csv', entity:'h45hy54hy', repeat_opt:3, fields_mapping:{ h45hy54hyName:5 } }");
 		rule.remove("entity");
-		ImportsEnter.parse(rule);
+		ImportEnter.parse(rule);
 	}
 	
 	@Test
 	public void testImports() throws Exception {
 		JSONObject rule = JSON.parseObject("{'file':'204648874__dataimports-test.csv','entity':'h45hy54hy','repeat_opt':'2','repeat_fields':['h45hy54hyName'],'owning_user':'001-016792557d140002','fields_mapping':{'h45hy54hyName':5}}");
-		ImportsEnter importsEnter = ImportsEnter.parse(rule);
+		ImportEnter importsEnter = ImportEnter.parse(rule);
 		
-		DataImports dataImports = new DataImports(importsEnter, UserService.ADMIN_USER);
+		DataImporter dataImports = new DataImporter(importsEnter, UserService.ADMIN_USER);
 		dataImports.run();
 	}
 }

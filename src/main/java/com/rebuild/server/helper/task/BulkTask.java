@@ -135,7 +135,7 @@ public abstract class BulkTask implements Runnable {
 	 * @return
 	 */
 	public boolean isCompleted() {
-		return total == -1 || total == complete;
+		return total != -1 && getComplete() >= getTotal();
 	}
 	
 	/**

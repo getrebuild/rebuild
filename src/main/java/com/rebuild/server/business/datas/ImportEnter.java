@@ -39,7 +39,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 01/10/2019
  */
-public class ImportsEnter {
+public class ImportEnter {
 
 	public static final int REPEAT_OPT_UPDATE = 1;
 	public static final int REPEAT_OPT_SKIP = 2;
@@ -63,7 +63,7 @@ public class ImportsEnter {
 	 * @param defaultOwningUser
 	 * @param filedsMapping
 	 */
-	protected ImportsEnter(File sourceFile, Entity toEntity, int repeatOpt, Field[] repeatFields, ID defaultOwningUser,
+	protected ImportEnter(File sourceFile, Entity toEntity, int repeatOpt, Field[] repeatFields, ID defaultOwningUser,
 			Map<Field, Integer> filedsMapping) {
 		this.sourceFile = sourceFile;
 		this.toEntity = toEntity;
@@ -104,7 +104,7 @@ public class ImportsEnter {
 	 * @return
 	 * @throws IllegalArgumentException
 	 */
-	public static ImportsEnter parse(JSONObject json) throws IllegalArgumentException {
+	public static ImportEnter parse(JSONObject json) throws IllegalArgumentException {
 		Assert.notNull(json.getString("file"), "Node `file`");
 		Assert.notNull(json.getString("entity"), "Node `entity`");
 		Assert.notNull(json.getInteger("repeat_opt"), "Node `repeat_opt`");
@@ -137,6 +137,6 @@ public class ImportsEnter {
 			filedsMapping.put(entity.getField(e.getKey()), (Integer) e.getValue());
 		}
 		
-		return new ImportsEnter(file, entity, repeatOpt, repeatFields, ownUser, filedsMapping);
+		return new ImportEnter(file, entity, repeatOpt, repeatFields, ownUser, filedsMapping);
 	}
 }

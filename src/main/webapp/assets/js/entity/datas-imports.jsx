@@ -1,23 +1,24 @@
-let upload_file = '204648874__dataimports-test.csv'
+let upload_file
 let to_entity
-let fields_cached
-let repeat_opt = 3
+let repeat_opt = 1
 let repeat_fields
 let owning_user
+
+let fields_cached
 $(document).ready(()=>{
     init_upload()
     
     let fileds_render = (entity)=>{
         if (!!!entity) return
         let el = $('#repeatFields').empty()
-        $.get(rb.baseUrl + '/admin//datas/imports-fields?entity=' + entity, (res)=>{
+        $.get(rb.baseUrl + '/admin//datas/import-fields?entity=' + entity, (res)=>{
             $(res.data).each(function(){
                 if (this.name == 'createdBy' || this.name == 'createdOn' || this.name == 'modifiedOn' || this.name == 'modifiedBy') return
                 $('<option value="' + this.name + '">' + this.label + '</option>').appendTo(el)
             })
             el.select2({
                 maximumSelectionLength: 3,
-                placeholder: '选择判断字段'
+                placeholder: '选择字段'
             }).on('change', function(){
                 repeat_fields = $(this).val()
             })
@@ -67,7 +68,7 @@ $(document).ready(()=>{
     })
     
     $('.J_step1-btn').click(step_mapping)
-    $('.J_step2-btn').click(step_imports)
+    $('.J_step2-btn').click(step_import)
     $('.J_step2-return').click(step_upload)
 })
 
@@ -95,9 +96,11 @@ const step_upload = () =>{
 const step_mapping = () =>{
     if (!to_entity){ rb.highbar('请选择导入实体'); return }
     if (!upload_file){ rb.highbar('请上传数据文件'); return }
-    if (repeat_opt != 3 && (!repeat_fields || repeat_fields.length == 0)){ rb.highbar('请指定重复判断字段'); return }
+    if (repeat_opt != 3 && (!repeat_fields || repeat_fields.length == 0)){ rb.highbar('请选择重复判断字段'); return }
     
-    $.get(rb.baseUrl + '/admin/datas/imports-preview?file=' + $encode(upload_file), (res)=>{
+    let btn = $('.J_step1-btn').button('loading')
+    $.get(rb.baseUrl + '/admin/datas/import-preview?file=' + $encode(upload_file), (res)=>{
+        btn.button('reset')
         if (res.error_code > 0) { rb.highbar(res.error_msg); return }
         let _data = res.data
         if (_data.rows_count < 2 || _data.rows_preview[0].length == 0) { rb.highbar('上传的文件无有效数据'); return }
@@ -108,7 +111,7 @@ const step_mapping = () =>{
         $('.steps li[data-step=2], .step-content .step-pane[data-step=2]').addClass('active')
     })
 }
-const step_imports = () =>{
+const step_import = () =>{
     let fields_mapping = {}
     $('#fieldsMapping tbody>tr').each(function(){
         let _this = $(this)
@@ -138,16 +141,30 @@ const step_imports = () =>{
     $('.steps li[data-step=1], .steps li[data-step=2]').addClass('complete')
     $('.steps li[data-step=3], .step-content .step-pane[data-step=3]').addClass('active')
     
-    $.post(rb.baseUrl + '/admin/datas/imports-submit', JSON.stringify(_data), function(res){
-        if (res.error_code == 0) imports_state(res.data.taskid)
+    $.post(rb.baseUrl + '/admin/datas/import-submit', JSON.stringify(_data), function(res){
+        if (res.error_code == 0) import_state(res.data.taskid)
         else rb.hberror(res.error_msg)
     })
 }
 
-const imports_state = (taskid) =>{
-    $.get(rb.baseUrl + '/admin/datas/imports-state?taskid=' + taskid, (res)=>{
+const import_state = (taskid) =>{
+    $.get(rb.baseUrl + '/admin/datas/import-state?taskid=' + taskid, (res)=>{
+        let _data = res.data
+        if (_data && _data.isCompleted == true){
+            $('.J_import-bar').css('width', '100%')
+            $('.J_import_state').text('导入完成。共成功导入 ' + _data.success + ' 条数据')
+            $('.J_step3-btn').attr('disabled', true)
+            return
+        } 
+
+        if (!_data || _data.total == -1){
+            // init
+        } else {
+            $('.J_import_state').text('正在导入 ... ' + _data.complete + ' / ' + _data.total)
+            $('.J_import-bar').css('width', (_data.complete * 100 / _data.total) + '%')
+        }
+        setTimeout(()=>{ import_state(taskid) }, 500)
     })
-    J_imports-state
 }
 
 const render_fieldsMapping = (columns, fields) =>{

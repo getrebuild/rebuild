@@ -19,7 +19,7 @@
 		<jsp:param value="数据导入" name="pageTitle"/>
 	</jsp:include>
 	<jsp:include page="/_include/NavLeftAdmin.jsp">
-		<jsp:param value="data-imports" name="activeNav"/>
+		<jsp:param value="data-importer" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
 		<div class="page-head">
@@ -77,7 +77,7 @@
 													</label>
 												</div>
 												<div class="J_repeatFields">
-													<label class="text-bold">指定重复判断字段</label>
+													<label>重复判断字段<i class="zmdi zmdi-help zicon float-right ml-1" data-toggle="tooltip" title="选择的字段必须在字段映射中"></i></label>
 													<select class="form-control form-control-sm" id="repeatFields" multiple="multiple">
 													</select>
 												</div>
@@ -95,7 +95,7 @@
 										</div>
 										<div class="form-group row footer">
 											<div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
-												<button class="btn btn-primary J_step1-btn" type="button">下一步</button>
+												<button class="btn btn-primary J_step1-btn" type="button" data-loading-text="请稍后">下一步</button>
 											</div>
 										</div>
 									</form>
@@ -128,13 +128,13 @@
 									</form>
 								</div>
 								<div data-step="3" class="step-pane">
-									<form class="simple J_imports-state" style="margin:30px auto">
+									<form class="simple" style="margin:30px auto">
 										<div class="row mb-2">
-											<div class="col-6"><h5 class="text-bold m-0 p-0 J_imports_state">正在准备数据 ...</h5></div>
-											<div class="col-6 text-right text-muted">剩余时间 <span class="J_imports_time">00:00:00</span></div>
+											<div class="col-6"><h5 class="text-bold m-0 p-0 J_import_state">正在准备数据 ...</h5></div>
+											<div class="col-6 text-right text-muted">剩余时间 <span class="J_import_time">00:00:00</span></div>
 										</div>
 										<div class="progress">
-											<div class="progress-bar progress-bar-striped progress-bar-animated" style="width:0"></div>
+											<div class="progress-bar progress-bar-striped progress-bar-animated J_import-bar" style="width:0"></div>
 										</div>
 										<div class="mt-3">
 											<button class="btn btn-danger J_step3-btn" type="button">终止导入</button>

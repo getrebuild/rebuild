@@ -37,8 +37,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.rebuild.server.business.datas.DataFileParser;
-import com.rebuild.server.business.datas.DataImports;
-import com.rebuild.server.business.datas.ImportsEnter;
+import com.rebuild.server.business.datas.DataImporter;
+import com.rebuild.server.business.datas.ImportEnter;
 import com.rebuild.server.helper.SystemConfiguration;
 import com.rebuild.server.helper.task.BulkTask;
 import com.rebuild.server.helper.task.BulkTaskExecutor;
@@ -65,15 +65,15 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/admin/")
-public class DatasImportsControll extends BasePageControll {
+public class DataImportControll extends BasePageControll {
 
-	@RequestMapping("/datas/imports")
+	@RequestMapping("/datas/importer")
 	public ModelAndView pageDataImports(HttpServletRequest request) {
-		return createModelAndView("/admin/datas/imports.jsp");
+		return createModelAndView("/admin/datas/importer.jsp");
 	}
 	
-	@RequestMapping("/datas/imports-fields")
-	public void fields(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@RequestMapping("/datas/import-fields")
+	public void importFields(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
 		Entity entityBase = MetadataHelper.getEntity(entity);
 		
@@ -112,8 +112,8 @@ public class DatasImportsControll extends BasePageControll {
 	}
 	
 	// 预览
-	@RequestMapping("/datas/imports-preview")
-	public void importsPreview(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@RequestMapping("/datas/import-preview")
+	public void importPreview(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String file = getParameterNotNull(request, "file");
 		if (file.contains("%")) {
 			file = CodecUtils.urlDecode(file);
@@ -137,20 +137,20 @@ public class DatasImportsControll extends BasePageControll {
 	}
 	
 	// 开始导入
-	@RequestMapping("/datas/imports-submit")
-	public void importsSubmit(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@RequestMapping("/datas/import-submit")
+	public void importSubmit(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		JSONObject idata = (JSONObject) ServletUtils.getRequestJson(request);
 		
-		ImportsEnter ienter = null;
+		ImportEnter ienter = null;
 		try {
-			ienter = ImportsEnter.parse(idata);
+			ienter = ImportEnter.parse(idata);
 		} catch (IllegalArgumentException ex) {
 			writeFailure(response, ex.getLocalizedMessage());
 			return;
 		}
 		
-		DataImports dataImports = new DataImports(ienter, user);
+		DataImporter dataImports = new DataImporter(ienter, user);
 		String taskid = BulkTaskExecutor.submit(dataImports);
 		
 		JSON ret = JSONUtils.toJSONObject("taskid", taskid);
@@ -158,8 +158,8 @@ public class DatasImportsControll extends BasePageControll {
 	}
 	
 	// 导入状态
-	@RequestMapping("/datas/imports-state")
-	public void importsState(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@RequestMapping("/datas/import-state")
+	public void importState(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String taskid = getParameterNotNull(request, "taskid");
 		BulkTask task = BulkTaskExecutor.getTask(taskid);
 		if (task == null) {
@@ -168,14 +168,15 @@ public class DatasImportsControll extends BasePageControll {
 		}
 		
 		JSON ret = JSONUtils.toJSONObject(
-				new String[] { "total", "complete", "isCompleted" }, 
-				new Object[] { task.getTotal(), task.getComplete(), task.isCompleted() });
+				new String[] { "total", "complete", "success", "isCompleted" }, 
+				new Object[] { task.getTotal(), task.getComplete(),
+						((DataImporter) task).getSuccess(), task.isCompleted() });
 		writeSuccess(response, ret);
 	}
 	
 	// 导入取消
-	@RequestMapping("/datas/imports-cancel")
-	public void importsCancel(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@RequestMapping("/datas/import-cancel")
+	public void importCancel(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String taskid = getParameterNotNull(request, "taskid");
 		BulkTask task = BulkTaskExecutor.getTask(taskid);
 		if (task == null) {

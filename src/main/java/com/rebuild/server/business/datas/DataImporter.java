@@ -20,6 +20,7 @@ package com.rebuild.server.business.datas;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -48,16 +49,19 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 01/09/2019
  */
-public class DataImports extends BulkTask {
+public class DataImporter extends BulkTask {
 	
-	final private ImportsEnter enter;
+	final private ImportEnter enter;
 	final private ID user;
+	
+	private int success = 0;
+	private Map<Integer, Object> logging = new LinkedHashMap<>();
 	
 	/**
 	 * @param enter
 	 * @param user
 	 */
-	public DataImports(ImportsEnter enter, ID user) {
+	public DataImporter(ImportEnter enter, ID user) {
 		this.enter = enter;
 		this.user = user;
 	}
@@ -65,7 +69,7 @@ public class DataImports extends BulkTask {
 	/**
 	 * @return
 	 */
-	public ImportsEnter getImportsEnter() {
+	public ImportEnter getImportEnter() {
 		return enter;
 	}
 	
@@ -88,10 +92,13 @@ public class DataImports extends BulkTask {
 					Cell[] cell = reader.next();
 					Record record = checkoutRecord(cell);
 					if (record != null) {
-						Application.getEntityService(enter.getToEntity().getEntityCode()).createOrUpdate(record);
+						record = Application.getEntityService(enter.getToEntity().getEntityCode()).createOrUpdate(record);
+						this.success++;
+						logging.put(reader.getRowIndex(), record.getPrimary());
 					}
 				} catch (Exception ex) {
-					LOG.error(reader.getRowIndex() + " > " + ex);
+					logging.put(reader.getRowIndex(), ex.getLocalizedMessage());
+					LOG.warn(reader.getRowIndex() + " > " + ex);
 				} finally {
 					this.setCompleteOne();
 				}
@@ -104,6 +111,20 @@ public class DataImports extends BulkTask {
 			
 			completedAfter();
 		}
+	}
+	
+	/**
+	 * @return
+	 */
+	public int getSuccess() {
+		return success;
+	}
+
+	/**
+	 * @return
+	 */
+	public Map<Integer, Object> getLogging() {
+		return logging;
 	}
 	
 	/**
@@ -129,14 +150,14 @@ public class DataImports extends BulkTask {
 		Record record = recordNew;
 		
 		// 检查重复
-		if (enter.getRepeatOpt() < ImportsEnter.REPEAT_OPT_IGNORE) {
+		if (enter.getRepeatOpt() < ImportEnter.REPEAT_OPT_IGNORE) {
 			final ID repeat = getRepeatRecordId(enter.getRepeatFields(), recordNew);
 			
-			if (repeat != null && enter.getRepeatOpt() == ImportsEnter.REPEAT_OPT_SKIP) {
+			if (repeat != null && enter.getRepeatOpt() == ImportEnter.REPEAT_OPT_SKIP) {
 				return null;
 			}
 			
-			if (repeat != null && enter.getRepeatOpt() == ImportsEnter.REPEAT_OPT_UPDATE) {
+			if (repeat != null && enter.getRepeatOpt() == ImportEnter.REPEAT_OPT_UPDATE) {
 				record = EntityHelper.forUpdate(repeat, ou);
 				for (Iterator<String> iter = recordNew.getAvailableFieldIterator(); iter.hasNext(); ) {
 					String field = iter.next();
