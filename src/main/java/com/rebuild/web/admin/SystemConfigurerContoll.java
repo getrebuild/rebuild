@@ -41,25 +41,25 @@ public class SystemConfigurerContoll extends BasePageControll {
 		return createModelAndView("/admin/system-general.jsp");
 	}
 	
-	@RequestMapping("plugins/storage")
-	public ModelAndView pagePluginsStorage() {
-		ModelAndView mv = createModelAndView("/admin/plugins/storage-qiniu.jsp");
+	@RequestMapping("integration/storage")
+	public ModelAndView pageIntegrationStorage() {
+		ModelAndView mv = createModelAndView("/admin/integration/storage-qiniu.jsp");
 		mv.getModel().put("storageAccount",
 				starsAccount(SystemConfiguration.getStorageAccount(), 0, 1));
 		return mv;
 	}
 	
-	@RequestMapping("plugins/cache")
-	public ModelAndView pagePluginsCache() {
-		ModelAndView mv = createModelAndView("/admin/plugins/cache-redis.jsp");
+	@RequestMapping("integration/cache")
+	public ModelAndView pageIntegrationCache() {
+		ModelAndView mv = createModelAndView("/admin/integration/cache-redis.jsp");
 		mv.getModel().put("cacheAccount", 
 				starsAccount(SystemConfiguration.getCacheAccount(), 2));
 		return mv;
 	}
 	
-	@RequestMapping("plugins/submail")
-	public ModelAndView pagePluginsMailSms() {
-		ModelAndView mv = createModelAndView("/admin/plugins/submail.jsp");
+	@RequestMapping("integration/submail")
+	public ModelAndView pageIntegrationSubmail() {
+		ModelAndView mv = createModelAndView("/admin/integration/submail.jsp");
 		mv.getModel().put("smsAccount", 
 				starsAccount(SystemConfiguration.getSmsAccount(), 1));
 		mv.getModel().put("mailAccount", 
@@ -67,7 +67,12 @@ public class SystemConfigurerContoll extends BasePageControll {
 		return mv;
 	}
 	
-	static String[] starsAccount(String account[], int ...index) {
+	/**
+	 * @param account
+	 * @param index
+	 * @return
+	 */
+	private String[] starsAccount(String account[], int ...index) {
 		if (account == null) {
 			return null;
 		}

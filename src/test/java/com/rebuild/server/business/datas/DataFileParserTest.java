@@ -25,8 +25,6 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 
-import com.rebuild.server.business.datas.DataFileParser;
-
 import cn.devezhao.commons.excel.Cell;
 
 /**
@@ -34,13 +32,14 @@ import cn.devezhao.commons.excel.Cell;
  * @author devezhao
  * @since 01/09/2019
  */
-public class FileParserTest {
+public class DataFileParserTest {
 
 	@Test
 	public void testExcel() throws Exception {
-		URL testFile = FileParserTest.class.getResource("dataimports-test.xls");
+		URL testFile = DataFileParserTest.class.getResource("dataimports-test.xls");
 		DataFileParser fileParser = new DataFileParser(new File(testFile.toURI()));
 		
+		System.out.println(fileParser.getRowsCount());
 		List<Cell[]> rows = fileParser.parse(10);
 		for (Cell[] r : rows) {
 			System.out.println(StringUtils.join(r, " | "));
@@ -49,10 +48,23 @@ public class FileParserTest {
 	
 	@Test
 	public void testCSV() throws Exception {
-		URL testFile = FileParserTest.class.getResource("dataimports-test.csv");
+		URL testFile = DataFileParserTest.class.getResource("dataimports-test.csv");
 		DataFileParser fileParser = new DataFileParser(new File(testFile.toURI()));
 		
+		System.out.println(fileParser.getRowsCount());
 		List<Cell[]> rows = fileParser.parse(10);
+		for (Cell[] r : rows) {
+			System.out.println(StringUtils.join(r, " | "));
+		}
+	}
+	
+	@Test
+	public void testXExcel() throws Exception {
+		URL testFile = DataFileParserTest.class.getResource("dataimports-test.xlsx");
+		DataFileParser fileParser = new DataFileParser(new File(testFile.toURI()));
+		
+//		System.out.println(fileParser.getRowsCount());
+		List<Cell[]> rows = fileParser.parse(50);
 		for (Cell[] r : rows) {
 			System.out.println(StringUtils.join(r, " | "));
 		}

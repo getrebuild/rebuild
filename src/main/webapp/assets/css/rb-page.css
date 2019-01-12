@@ -47,7 +47,7 @@ html.dev {}
 }
 .btn {
     min-height: 2.8rem;
-    min-width: 88px;
+    min-width: 98px;
 }
 .btn.auto {
     min-width: auto;
@@ -1098,6 +1098,11 @@ div.dataTables_wrapper div.paging_sizes select {
 }
 .zicon:hover {
     opacity: 0.8;
+}
+.zicon.zmdi-help {
+	cursor: help;
+	float: right;
+	margin-left: .384615rem;
 }
 
 form.dropzone {

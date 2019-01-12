@@ -125,12 +125,22 @@ public class DataImportControll extends BasePageControll {
 			return;
 		}
 		
-		DataFileParser parser = new DataFileParser(tmp);
-		List<Cell[]> preview = parser.parse(1);
+		DataFileParser parser = null;
+		int count = 0;
+		List<Cell[]> preview = null;
+		try {
+			parser = new DataFileParser(tmp);
+			count = parser.getRowsCount();
+			preview = parser.parse(10);
+		} finally {
+			if (parser != null) {
+				parser.close();
+			}
+		}
 		
 		Map<String, Object> ret = new HashMap<>();
-		ret.put("rows_count", parser.getRowsCount());
-		ret.put("rows_preview", preview);
+		ret.put("count", count);
+		ret.put("preview", preview);
 		
 		SerializeConfig.getGlobalInstance().put(Cell.class, ToStringSerializer.instance);
 		writeSuccess(response, ret);

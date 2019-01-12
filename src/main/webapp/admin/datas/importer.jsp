@@ -77,7 +77,7 @@
 													</label>
 												</div>
 												<div class="J_repeatFields">
-													<label>重复判断字段<i class="zmdi zmdi-help zicon float-right ml-1" data-toggle="tooltip" title="选择的字段必须在字段映射中"></i></label>
+													<label>重复判断字段<i class="zmdi zmdi-help zicon" data-toggle="tooltip" title="选择的字段必须存在字段映射，否则会导致重复判断有误"></i></label>
 													<select class="form-control form-control-sm" id="repeatFields" multiple="multiple">
 													</select>
 												</div>
@@ -95,7 +95,7 @@
 										</div>
 										<div class="form-group row footer">
 											<div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
-												<button class="btn btn-primary J_step1-btn" type="button" data-loading-text="请稍后">下一步</button>
+												<button class="btn btn-primary J_step1-btn" type="button" data-loading-text="正在预处理">下一步</button>
 											</div>
 										</div>
 									</form>
@@ -150,6 +150,6 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/js/entity/datas-imports.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/entity/data-importer.jsx" type="text/babel"></script>
 </body>
 </html>

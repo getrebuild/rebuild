@@ -30,7 +30,7 @@ import com.rebuild.server.service.bizz.UserService;
  * @author devezhao
  * @since 01/10/2019
  */
-public class DataImportsTest extends TestSupport {
+public class DataImporterTest extends TestSupport {
 
 	@Test
 	public void testParseEnter() throws Exception {
@@ -41,6 +41,10 @@ public class DataImportsTest extends TestSupport {
 		rule = JSON.parseObject("{ file:'204648874__dataimports-test.csv', entity:'h45hy54hy', repeat_opt:1, repeat_fields:['h45hy54hyName'], fields_mapping:{ h45hy54hyName:5 } }");
 		importsEnter = ImportEnter.parse(rule);
 		System.out.println("ImportsEnter 2 : " + importsEnter);
+		
+		rule = JSON.parseObject("{ file:'173450661__丽珠需求--整理.xlsx', entity:'h45hy54hy', repeat_opt:1, repeat_fields:['h45hy54hyName'], fields_mapping:{ h45hy54hyName:5 } }");
+		importsEnter = ImportEnter.parse(rule);
+		System.out.println("ImportsEnter 2 : " + importsEnter);
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
@@ -48,6 +52,11 @@ public class DataImportsTest extends TestSupport {
 		JSONObject rule = JSON.parseObject("{ file:'204648874__dataimports-test.csv', entity:'h45hy54hy', repeat_opt:3, fields_mapping:{ h45hy54hyName:5 } }");
 		rule.remove("entity");
 		ImportEnter.parse(rule);
+	}
+	
+	@Test
+	public void testDataFileParser() throws Exception {
+		
 	}
 	
 	@Test

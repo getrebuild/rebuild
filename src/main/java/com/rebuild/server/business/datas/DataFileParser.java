@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.datas;
 
+import java.io.Closeable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,7 @@ import cn.devezhao.commons.excel.ExcelReaderFactory;
  * @author devezhao
  * @since 01/09/2019
  */
-public class DataFileParser {
+public class DataFileParser implements Closeable {
 
 	final private File sourceFile;
 	final private String encoding;
@@ -78,16 +79,15 @@ public class DataFileParser {
 		
 		List<Cell[]> rows = new ArrayList<>();
 		int rowNo = 1;
-		try {
-			while (reader.hasNext()) {
-				Cell[] row = reader.next();
+		while (reader.hasNext()) {
+			Cell[] row = reader.next();
+			if (row != null) {
 				rows.add(row);
-				if (rowNo++ >= maxRows) {
-					break;
-				}
 			}
-		} finally {
-			reader.close();
+			
+			if (rowNo++ >= maxRows) {
+				break;
+			}
 		}
 		return rows;
 	}
@@ -107,5 +107,12 @@ public class DataFileParser {
 			reader = ExcelReaderFactory.create(sourceFile, encoding);
 		}
 		return reader;	
+	}
+	
+	@Override
+	public void close() {
+		if (reader != null) {
+			reader.close();
+		}
 	}
 }

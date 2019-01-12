@@ -24,16 +24,16 @@
 			<label class="col-sm-3 col-form-label text-sm-right"></label>
 			<div class="col-sm-7">
 				<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-					<input class="custom-control-input" type="checkbox" id="nameField"><span class="custom-control-label"> 添加名称字段（推荐）</span>
+					<input class="custom-control-input" type="checkbox" id="nameField"><span class="custom-control-label"> 添加名称字段</span>
 				</label>
 			</div>
 		</div>
-		<div class="form-group row pt-1">
+		<div class="form-group row pt-0">
 			<label class="col-sm-3 col-form-label text-sm-right"></label>
 			<div class="col-sm-7">
 				<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
 					<input class="custom-control-input" type="checkbox" id="isSlave">
-					<span class="custom-control-label"> 这是一个明细实体 <i class="zmdi zmdi-help zicon float-right ml-1" data-toggle="tooltip" title="通过明细实体可以更好的组织业务关系。例如订单明细通常依附于订单，而非独立存在"></i></span>
+					<span class="custom-control-label"> 这是一个明细实体 <i class="zmdi zmdi-help zicon" data-toggle="tooltip" title="通过明细实体可以更好的组织业务关系。例如订单明细通常依附于订单，而非独立存在"></i></span>
 				</label>
 			</div>
 		</div>

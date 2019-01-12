@@ -79,17 +79,21 @@ public class DataImporter extends BulkTask {
 		ou = ou == null ? this.user : ou;
 		Application.getSessionStore().set(ou);
 		
-		ExcelReader reader = null;
+		DataFileParser fileParser = null;
 		try {
-			DataFileParser fileParser = new DataFileParser(enter.getSourceFile());
+			fileParser = new DataFileParser(enter.getSourceFile());
 			setTotal(fileParser.getRowsCount() - 1);
 			
-			reader = fileParser.getExcelReader();
-			reader.next();  // The head row
+			ExcelReader reader = fileParser.getExcelReader();
+			reader.next();  // Remove head row
 			
 			while (reader.hasNext()) {
 				try {
 					Cell[] cell = reader.next();
+					if (cell == null) {  // Last row is null ? (Only .xlsx)
+						continue;
+					}
+					
 					Record record = checkoutRecord(cell);
 					if (record != null) {
 						record = Application.getEntityService(enter.getToEntity().getEntityCode()).createOrUpdate(record);
@@ -105,10 +109,9 @@ public class DataImporter extends BulkTask {
 			}
 		} finally {
 			Application.getSessionStore().clean();
-			if (reader != null) {
-				reader.close();
+			if (fileParser != null) {
+				fileParser.close();
 			}
-			
 			completedAfter();
 		}
 	}

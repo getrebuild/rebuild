@@ -103,9 +103,9 @@ const step_mapping = () =>{
         btn.button('reset')
         if (res.error_code > 0) { rb.highbar(res.error_msg); return }
         let _data = res.data
-        if (_data.rows_count < 2 || _data.rows_preview[0].length == 0) { rb.highbar('上传的文件无有效数据'); return }
+        if (_data.count < 2 || _data.preview.length < 2 || _data.preview[0].length == 0) { rb.highbar('上传的文件无有效数据'); return }
         
-        render_fieldsMapping(_data.rows_preview[0], fields_cached)
+        render_fieldsMapping(_data.preview[0], fields_cached)
         $('.steps li, .step-content .step-pane').removeClass('active complete')
         $('.steps li[data-step=1]').addClass('complete')
         $('.steps li[data-step=2], .step-content .step-pane[data-step=2]').addClass('active')

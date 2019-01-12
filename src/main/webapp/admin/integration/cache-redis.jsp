@@ -17,7 +17,7 @@
 		<jsp:param value="缓存系统配置" name="pageTitle"/>
 	</jsp:include>
 	<jsp:include page="/_include/NavLeftAdmin.jsp">
-		<jsp:param value="plugins-cache" name="activeNav"/>
+		<jsp:param value="integration-cache" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
 		<div class="main-content container-fluid syscfg">
