@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.RandomUtils;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.manager.PickListManager;
@@ -35,6 +36,7 @@ import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.commons.RegexUtils;
+import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.commons.excel.Cell;
 import cn.devezhao.commons.excel.ExcelReader;
 import cn.devezhao.persist4j.Entity;
@@ -88,6 +90,12 @@ public class DataImporter extends BulkTask {
 			reader.next();  // Remove head row
 			
 			while (reader.hasNext()) {
+				if (isInterrupt()) {
+					this.setInterrupted();
+					break;
+				}
+				ThreadPool.waitFor(RandomUtils.nextInt(3000));
+				
 				try {
 					Cell[] cell = reader.next();
 					if (cell == null) {  // Last row is null ? (Only .xlsx)

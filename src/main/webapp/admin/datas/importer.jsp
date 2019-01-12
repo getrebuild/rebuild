@@ -6,7 +6,7 @@
 <title>数据导入</title>
 <style type="text/css">
 .fuelux .wizard .step-content{padding:30px}
-.fuelux .wizard>.steps-container>.steps li.complete{cursor:default;}
+.fuelux .wizard>.steps-container>.steps li.complete:hover{cursor:default;}
 #fieldsMapping th, #fieldsMapping td{padding:6px 0;vertical-align:middle;border-bottom:1px dotted #dee2e6;border-top:0 none;}
 #fieldsMapping thead th{border-bottom:1px solid #dee2e6;padding-top:9px;}
 #fieldsMapping td>em{font-style:normal;background-color:#eee;display:inline-block;min-width:30px;font-size:12px;text-align:center;margin-right:4px;padding-top:1px;color:#777}
@@ -134,10 +134,11 @@
 											<div class="col-6 text-right text-muted">剩余时间 <span class="J_import_time">00:00:00</span></div>
 										</div>
 										<div class="progress">
-											<div class="progress-bar progress-bar-striped progress-bar-animated J_import-bar" style="width:0"></div>
+											<div class="progress-bar progress-bar-animated J_import-bar" style="width:0"></div>
 										</div>
 										<div class="mt-3">
-											<button class="btn btn-danger J_step3-btn" type="button">终止导入</button>
+											<button class="btn btn-danger J_step3-cancel" type="button">终止导入</button>
+											<a class="btn btn-link J_step3-logs hide">查看详情</a>
 										</div>
 									</form>
 								</div>

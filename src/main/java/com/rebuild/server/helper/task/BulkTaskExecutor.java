@@ -30,6 +30,7 @@ import org.quartz.JobExecutionException;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
 import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.ThreadPool;
 
 /**
  * 任务执行调度/管理
@@ -75,6 +76,7 @@ public class BulkTaskExecutor extends QuartzJobBean {
 			throw new RejectedExecutionException("No Task found : " + taskid);
 		}
 		task.interrupt();
+		ThreadPool.waitFor(200);
 		return task.isInterrupted();
 	}
 	

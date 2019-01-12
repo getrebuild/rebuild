@@ -177,11 +177,7 @@ public class DataImportControll extends BasePageControll {
 			return;
 		}
 		
-		JSON ret = JSONUtils.toJSONObject(
-				new String[] { "total", "complete", "success", "isCompleted" }, 
-				new Object[] { task.getTotal(), task.getComplete(),
-						((DataImporter) task).getSuccess(), task.isCompleted() });
-		writeSuccess(response, ret);
+		writeSuccess(response, formatTaskState((DataImporter) task));
 	}
 	
 	// 导入取消
@@ -193,15 +189,31 @@ public class DataImportControll extends BasePageControll {
 			writeFailure(response, "无效任务 : " + taskid);
 			return;
 		}
+		if (task.isCompleted()) {
+			writeFailure(response, "无法终止，因为导入任务已执行完成");
+			return;
+		}
 		
 		task.interrupt();
 		for (int i = 0; i < 10; i++) {
-			ThreadPool.waitFor(200);
 			if (task.isInterrupted()) {
-				writeSuccess(response);
+				writeSuccess(response, formatTaskState((DataImporter) task));
 				return;
 			}
+			ThreadPool.waitFor(200);
 		}
 		writeFailure(response);
+	}
+	
+	/**
+	 * @param task
+	 * @return
+	 */
+	private JSON formatTaskState(DataImporter task) {
+		JSON state = JSONUtils.toJSONObject(
+				new String[] { "total", "complete", "success", "isCompleted", "isInterrupted" },
+				new Object[] { task.getTotal(), task.getComplete(),
+						((DataImporter) task).getSuccess(), task.isCompleted(), task.isInterrupted() });
+		return state;
 	}
 }

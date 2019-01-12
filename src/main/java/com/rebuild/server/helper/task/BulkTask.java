@@ -36,8 +36,8 @@ public abstract class BulkTask implements Runnable {
 	
 	protected static final Log LOG = LogFactory.getLog(BulkTask.class);
 	
-	volatile 
-	private boolean interrupt = false;
+	volatile private boolean interrupt = false;
+	volatile private boolean interruptState = false;
 	
 	private int total = -1;
 	private int complete = 0;
@@ -152,8 +152,14 @@ public abstract class BulkTask implements Runnable {
 	public void interrupt() {
 		this.interrupt = true;
 	}
-	
-	public boolean isInterrupted() {
+	protected boolean isInterrupt() {
 		return interrupt;
+	}
+	
+	protected void setInterrupted() {
+		this.interruptState = true;
+	}
+	public boolean isInterrupted() {
+		return interruptState;
 	}
 }

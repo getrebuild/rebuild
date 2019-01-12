@@ -1,10 +1,11 @@
-let upload_file
-let to_entity
-let repeat_opt = 1
-let repeat_fields
-let owning_user
-
+let to_entity,
+    upload_file,
+    repeat_opt = 1, 
+    repeat_fields,
+    owning_user
 let fields_cached
+let import_inprogress = false
+let import_taskid
 $(document).ready(()=>{
     init_upload()
     
@@ -70,6 +71,17 @@ $(document).ready(()=>{
     $('.J_step1-btn').click(step_mapping)
     $('.J_step2-btn').click(step_import)
     $('.J_step2-return').click(step_upload)
+    $('.J_step3-cancel').click(import_cancel)
+    
+    window.onbeforeunload = function(){
+        if (import_inprogress == true) return false
+    }
+    import_taskid = $urlp('task', location.hash)
+    if (!!import_taskid){
+        step_import_show()
+        import_inprogress = true
+        import_state(import_taskid, true)
+    }
 })
 
 const init_upload = ()=>{
@@ -136,34 +148,66 @@ const step_import = () =>{
         fields_mapping: fields_mapping
     }
     console.log(JSON.stringify(_data))
+    step_import_show()
     
+    $.post(rb.baseUrl + '/admin/datas/import-submit', JSON.stringify(_data), function(res){
+        if (res.error_code == 0){
+            import_inprogress = true
+            import_taskid = res.data.taskid
+            location.hash = '#task=' + import_taskid
+            import_state(import_taskid)
+        } else rb.hberror(res.error_msg)
+    })
+}
+const step_import_show = () =>{
     $('.steps li, .step-content .step-pane').removeClass('active complete')
     $('.steps li[data-step=1], .steps li[data-step=2]').addClass('complete')
     $('.steps li[data-step=3], .step-content .step-pane[data-step=3]').addClass('active')
-    
-    $.post(rb.baseUrl + '/admin/datas/import-submit', JSON.stringify(_data), function(res){
-        if (res.error_code == 0) import_state(res.data.taskid)
-        else rb.hberror(res.error_msg)
-    })
 }
-
-const import_state = (taskid) =>{
+const import_state = (taskid, inLoad) =>{
     $.get(rb.baseUrl + '/admin/datas/import-state?taskid=' + taskid, (res)=>{
+        if (res.error_code != 0){
+            if (inLoad == true) step_upload()
+            else rb.hberror(res.error_msg)
+            import_inprogress = false
+            return
+        }
+        if (!res.data){
+            setTimeout(()=>{ import_state(taskid) }, 1000)
+            return
+        }
+        
         let _data = res.data
-        if (_data && _data.isCompleted == true){
+        if (_data.isCompleted == true){
             $('.J_import-bar').css('width', '100%')
             $('.J_import_state').text('导入完成。共成功导入 ' + _data.success + ' 条数据')
-            $('.J_step3-btn').attr('disabled', true)
+        } else if (_data.isInterrupted == true){
+            $('.J_import_state').text('导入被终止。已成功导入 ' + _data.success + ' 条数据')
+        }
+        if (_data.isCompleted == true || _data.isInterrupted == true){
+            $('.J_step3-cancel').attr('disabled', true)
+            $('.J_step3-logs').removeClass('hide')
+            import_inprogress = false
             return
-        } 
-
-        if (!_data || _data.total == -1){
-            // init
-        } else {
+        }
+        
+        if (_data.total > -1){
             $('.J_import_state').text('正在导入 ... ' + _data.complete + ' / ' + _data.total)
             $('.J_import-bar').css('width', (_data.complete * 100 / _data.total) + '%')
         }
         setTimeout(()=>{ import_state(taskid) }, 500)
+    })
+}
+const import_cancel = ()=>{
+    rb.alert('确认要终止导入？请注意已导入数据无法自动删除', {
+        type: 'danger',
+        confirm: '确认终止',
+        confirm: function(){
+            $.post(rb.baseUrl + '/admin/datas/import-cancel?taskid=' + import_taskid, (res)=>{
+                if (res.error_code > 0) rb.hberror(res.error_msg)
+            })
+            this.hide()
+        }
     })
 }
 

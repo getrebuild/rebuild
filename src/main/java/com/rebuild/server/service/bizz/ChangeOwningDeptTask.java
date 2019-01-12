@@ -55,7 +55,8 @@ public class ChangeOwningDeptTask extends BulkTask {
 		String updeptSql = "update `{0}` set OWNING_DEPT = ''%s'' where OWNING_USER = ''%s''";
 		updeptSql = String.format(updeptSql, deptNew.toLiteral(), user.toLiteral());
 		for (Entity e : MetadataHelper.getEntities()) {
-			if (this.isInterrupted()) {
+			if (this.isInterrupt()) {
+				this.setInterrupted();
 				LOG.error("Task interrupted : " + user + " > " + deptNew);
 				break;
 			}

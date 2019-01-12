@@ -44,6 +44,7 @@ public class DataFileParserTest {
 		for (Cell[] r : rows) {
 			System.out.println(StringUtils.join(r, " | "));
 		}
+		fileParser.close();
 	}
 	
 	@Test
@@ -56,6 +57,7 @@ public class DataFileParserTest {
 		for (Cell[] r : rows) {
 			System.out.println(StringUtils.join(r, " | "));
 		}
+		fileParser.close();
 	}
 	
 	@Test
@@ -63,10 +65,11 @@ public class DataFileParserTest {
 		URL testFile = DataFileParserTest.class.getResource("dataimports-test.xlsx");
 		DataFileParser fileParser = new DataFileParser(new File(testFile.toURI()));
 		
-//		System.out.println(fileParser.getRowsCount());
+		System.out.println(fileParser.getRowsCount());
 		List<Cell[]> rows = fileParser.parse(50);
 		for (Cell[] r : rows) {
 			System.out.println(StringUtils.join(r, " | "));
 		}
+		fileParser.close();
 	}
 }

@@ -72,28 +72,32 @@ public class QuickCodeReindexTask extends BulkTask {
 			
 			this.setTotal(records.size() + this.getTotal() + 1);
 			for (Record o : records) {
-				if (this.isInterrupted()) {
+				if (this.isInterrupt()) {
+					this.setInterrupted();
 					break;
 				}
-				this.setCompleteOne();
 				
-				String quickCodeNew = generateQuickCode(o);
-				if (quickCodeNew == null) {
-					continue;
+				try {
+					String quickCodeNew = generateQuickCode(o);
+					if (quickCodeNew == null) {
+						continue;
+					}
+					if (quickCodeNew.equals(o.getString(EntityHelper.QuickCode))) {
+						continue;
+					}
+					
+					Record record = EntityHelper.forUpdate(o.getPrimary(), UserService.SYSTEM_USER);
+					if (StringUtils.isBlank(quickCodeNew)) {
+						record.setNull(EntityHelper.QuickCode);
+					} else {
+						record.setString(EntityHelper.QuickCode, quickCodeNew);
+					}
+					record.removeValue(EntityHelper.ModifiedBy);
+					record.removeValue(EntityHelper.ModifiedOn);
+					Application.getCommonService().update(record);
+				} finally {
+					this.setCompleteOne();
 				}
-				if (quickCodeNew.equals(o.getString(EntityHelper.QuickCode))) {
-					continue;
-				}
-				
-				Record record = EntityHelper.forUpdate(o.getPrimary(), UserService.SYSTEM_USER);
-				if (StringUtils.isBlank(quickCodeNew)) {
-					record.setNull(EntityHelper.QuickCode);
-				} else {
-					record.setString(EntityHelper.QuickCode, quickCodeNew);
-				}
-				record.removeValue(EntityHelper.ModifiedBy);
-				record.removeValue(EntityHelper.ModifiedOn);
-				Application.getCommonService().update(record);
 			}
 			
 			if (records.size() < 1000 || this.isInterrupted()) {
