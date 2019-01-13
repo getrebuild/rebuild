@@ -19,6 +19,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.business.datas;
 
 import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -35,6 +37,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * 导入规则
  * 
  * @author devezhao
  * @since 01/10/2019
@@ -100,38 +103,47 @@ public class ImportEnter {
 	// --
 
 	/**
-	 * @param json
+	 * @param rule
 	 * @return
 	 * @throws IllegalArgumentException
 	 */
-	public static ImportEnter parse(JSONObject json) throws IllegalArgumentException {
-		Assert.notNull(json.getString("file"), "Node `file`");
-		Assert.notNull(json.getString("entity"), "Node `entity`");
-		Assert.notNull(json.getInteger("repeat_opt"), "Node `repeat_opt`");
-		Assert.notNull(json.getJSONObject("fields_mapping"), "Node `fields_mapping`");
+	public static ImportEnter parse(JSONObject rule) throws IllegalArgumentException {
+		Assert.notNull(rule.getString("entity"), "Node `entity`");
+		Assert.notNull(rule.getString("file"), "Node `file`");
+		Assert.notNull(rule.getInteger("repeat_opt"), "Node `repeat_opt`");
+		Assert.notNull(rule.getJSONObject("fields_mapping"), "Node `fields_mapping`");
 
-		File file = SystemConfiguration.getFileOfTemp(json.getString("file"));
+		Entity entity = MetadataHelper.getEntity(rule.getString("entity"));
+		
+		File file = SystemConfiguration.getFileOfTemp(rule.getString("file"));
 		if (!file.exists()) {
-			throw new IllegalArgumentException("File unexists : " + file);
+			URL classpathFile = ImportEnter.class.getResource(rule.getString("file"));
+			try {
+				file = new File(classpathFile.toURI());
+			} catch (URISyntaxException e) {
+				throw new IllegalArgumentException("File not found : " + file, e);
+			}
 		}
-		Entity entity = MetadataHelper.getEntity(json.getString("entity"));
+		if (!file.exists()) {
+			throw new IllegalArgumentException("File not found : " + file);
+		}
 
-		int repeatOpt = json.getIntValue("repeat_opt");
+		int repeatOpt = rule.getIntValue("repeat_opt");
 		Field[] repeatFields = null;
 		if (repeatOpt != 3) {
-			Assert.notNull(json.getJSONArray("repeat_fields"), "Node `repeat_fields`");
+			Assert.notNull(rule.getJSONArray("repeat_fields"), "Node `repeat_fields`");
 			Set<Field> rfs = new HashSet<>();
-			for (Object field : json.getJSONArray("repeat_fields")) {
+			for (Object field : rule.getJSONArray("repeat_fields")) {
 				rfs.add(entity.getField((String) field));
 			}
 			Assert.isTrue(!rfs.isEmpty(), "Node `repeat_fields`");
 			repeatFields = rfs.toArray(new Field[rfs.size()]);
 		}
 		
-		String user = json.getString("owning_user");
+		String user = rule.getString("owning_user");
 		ID ownUser = ID.isId(user) ? ID.valueOf(user) : null;
 
-		JSONObject fm = json.getJSONObject("fields_mapping");
+		JSONObject fm = rule.getJSONObject("fields_mapping");
 		Map<Field, Integer> filedsMapping = new HashMap<>();
 		for (Map.Entry<String, Object> e : fm.entrySet()) {
 			filedsMapping.put(entity.getField(e.getKey()), (Integer) e.getValue());

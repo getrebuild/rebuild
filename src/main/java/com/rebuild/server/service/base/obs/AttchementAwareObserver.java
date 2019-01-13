@@ -143,7 +143,7 @@ public class AttchementAwareObserver extends OperatingObserver {
 		
 		Object[][] array = Application.createQueryNoFilter(
 				"select attachmentId from Attachment where relatedRecord = ?")
-				.setParameter(1, record.getPrimary().toLiteral())
+				.setParameter(1, record.getPrimary())
 				.array();
 		List<ID> deleteWill = new ArrayList<>();
 		for (Object[] o : array) {
