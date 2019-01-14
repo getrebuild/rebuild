@@ -49,7 +49,7 @@
 											<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">上传数据文件</label>
 											<div class="col-md-12 col-xl-6 col-lg-8">
 												<div class="file-select">
-								                    <input type="file" class="inputfile" ref="upload-input" id="upload-input" accept=".xlsx,.xls,.csv" data-maxsize="20971520">
+								                    <input type="file" class="inputfile" id="upload-input" accept=".xlsx,.xls,.csv" data-maxsize="20971520">
 								                    <label for="upload-input" class="btn-secondary"><i class="zmdi zmdi-upload"></i><span>选择文件</span></label>
 								                </div>
 								                <div class="text-bold J_upload-input"></div>
