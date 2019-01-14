@@ -130,20 +130,13 @@ public class AppUtils {
 			} else if (sc == 404) {
 				return "访问的地址/资源不存在";
 			} else {
-				return "系统错误 (" + sc + ")";
+				return "系统错误 [" + sc + "]";
 			}
 		} else if (ex instanceof AccessDeniedException) {
-			String msg = StringUtils.defaultIfEmpty(ex.getLocalizedMessage(), "");
-			if (msg.contains("AJAX403")) {
-				return "AJAX403";
-			}
 			return "权限不足，无法访问";
 		}
 		
-		if (Application.devMode()) {
-			return ex.getClass().getSimpleName() + " : " + ex.getLocalizedMessage();
-		} else {
-			return ex.getLocalizedMessage();
-		}
+		errorMsg = StringUtils.defaultIfBlank(ex.getLocalizedMessage(), "系统错误");
+		return ex.getClass().getSimpleName() + " : " + errorMsg;
 	}
 }

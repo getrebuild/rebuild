@@ -38,7 +38,7 @@
 			else if (xhr.status == 403 || xhr.status == 401) rb.hberror(xhr.responseText || '未授权访问')
 			else{
 				var error = xhr.responseText
-				if (error && error.contains('Exception : ')) error = error.split('Exception : ')[1]
+				if (rb.env != 'dev' && error && error.contains('Exception : ')) error = error.split('Exception : ')[1]
 				rb.hberror(error)
 			}
 		}

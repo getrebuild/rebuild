@@ -87,18 +87,6 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 					.append("\nCause     : ").append(rootCause.getClass().getName())
 					.append("\nMessage   : ").append(StringUtils.defaultIfBlank(rootCause.getLocalizedMessage(), "-"));
 			LOG.error(sb, rootCause);
-			
-//			if (rootCause instanceof RebuildException) {
-//				String errorMsg = ((RebuildException) rootCause).toClientMsgString();
-//				ServletUtils.writeJson(response, errorMsg);
-//			} else {
-//				String errorMsg = "系统繁忙！请稍后重试";
-//				if (Application.devMode()) {
-//					errorMsg = rootCause.getLocalizedMessage();
-//				}
-//				ServletUtils.writeJson(response, 
-//						AppUtils.formatClientMsg(BaseControll.CODE_ERROR, errorMsg));
-//			}
 		}
 	}
 	
@@ -107,7 +95,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	 * 
 	 * @param request
 	 */
-	protected void logProgressTime(HttpServletRequest request) {
+	private void logProgressTime(HttpServletRequest request) {
 		Long startTime = (Long) request.getAttribute(TIMEOUT_KEY);
 		startTime = System.currentTimeMillis() - startTime;
 		if (startTime > 500) {

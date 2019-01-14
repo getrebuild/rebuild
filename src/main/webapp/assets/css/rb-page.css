@@ -281,12 +281,6 @@ textarea.row3x {
 a {
     cursor: pointer;
 }
-.hide {
-    display: none !important;
-}
-.clearfix {
-    clear: both;
-}
 .mlr-auto {
     margin-left: auto !important;
     margin-right: auto !important;

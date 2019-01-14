@@ -28,4 +28,7 @@
 			<bean class="com.rebuild.web.RequestWatchHandler"></bean>
 		</mvc:interceptor>
 	</mvc:interceptors>
+	
+	<bean class="com.rebuild.web.RebuildExceptionResolver"></bean>
+	
 </beans>
