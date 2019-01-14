@@ -35,6 +35,19 @@ gulp.task('xcss', () => {
 // JSP 文件内的 ES6 转码并压缩
 // 去除 babel 标记并为 JS/CSS 添加版本号
 const ASSETS_HEX = {}
+const fileHex = (file) => {
+    let hex = ASSETS_HEX[file]
+    if (!!!hex) {
+        try {
+            hex = revHash(fs.readFileSync(file.replace('${baseUrl}', './build')))
+        } catch (err) {
+            hex = revHash(fs.readFileSync(file.replace('${pageContext.request.contextPath}', './build')))
+        }
+        ASSETS_HEX[file] = hex
+    }
+    return hex
+}
+
 gulp.task('xjsp', () => {
     return gulp.src('../src/main/webapp/**/*.jsp')
     	.pipe(debug({ title: 'compress jsp file : ' }))
@@ -59,12 +72,7 @@ gulp.task('xjsp', () => {
             	return '<script src="' + file + '"></script>'
             }
             file = file.replace('.jsx', '.js').split('?')[0]
-            let fileHex = ASSETS_HEX[file]
-            if (!!!fileHex) {
-                fileHex = revHash(fs.readFileSync(file.replace('${baseUrl}', './build')))
-                ASSETS_HEX[file] = fileHex
-            }
-            file += '?v=' + fileHex
+            file += '?v=' + fileHex(file)
             console.log(p + ' >> ' + file)
             return '<script src="' + file + '"></script>'
         }))
@@ -72,12 +80,7 @@ gulp.task('xjsp', () => {
             let file = p
             if (file.includes('/lib/')) return '<link rel="stylesheet" type="text/css" href="' + file + '">'
             file = file.split('?')[0]
-            let fileHex = ASSETS_HEX[file]
-            if (!!!fileHex) {
-                fileHex = revHash(fs.readFileSync(file.replace('${baseUrl}', './build')))
-                ASSETS_HEX[p] = fileHex
-            }
-            file += '?v=' + fileHex
+            file += '?v=' + fileHex(file)
             console.log(p + ' >> ' + file)
             return '<link rel="stylesheet" type="text/css" href="' + file + '">'
         }))
