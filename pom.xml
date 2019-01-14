@@ -18,11 +18,10 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<argLine>-Dfile.encoding=UTF-8</argLine>
-		<argLine>-Drbpass=REBUILD20199</argLine>
-		<skipTests>false</skipTests>
+		<skipTests>true</skipTests>
 		<spring.version>4.3.21.RELEASE</spring.version>
 	</properties>
-
+	
 	<build>
 		<finalName>rebuild</finalName>
 		<plugins>

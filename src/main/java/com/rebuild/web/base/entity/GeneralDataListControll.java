@@ -33,8 +33,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.helper.manager.DataListManager;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.web.BaseEntityControll;
-import com.rebuild.web.base.entity.datalist.DataListControl;
-import com.rebuild.web.base.entity.datalist.DefaultDataListControl;
+import com.rebuild.web.base.entity.datalist.DataList;
+import com.rebuild.web.base.entity.datalist.DefaultDataList;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
@@ -72,7 +72,7 @@ public class GeneralDataListControll extends BaseEntityControll {
 	public void dataList(@PathVariable String entity,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		JSONObject query = (JSONObject) ServletUtils.getRequestJson(request);
-		DataListControl control = new DefaultDataListControl(query, getRequestUser(request));
+		DataList control = new DefaultDataList(query, getRequestUser(request));
 		JSON result = control.getJSONResult();
 		writeSuccess(response, result);
 	}

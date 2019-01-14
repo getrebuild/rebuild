@@ -36,7 +36,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author Zhao Fangfang
  * @since 1.0, 2013-6-20
  */
-public class DefaultDataListControl implements DataListControl {
+public class DefaultDataList implements DataList {
 
 	private Entity entity;
 	private JSONQueryParser queryParser;
@@ -46,7 +46,7 @@ public class DefaultDataListControl implements DataListControl {
 	 * @param query
 	 * @param user
 	 */
-	public DefaultDataListControl(JSONObject query, ID user) {
+	public DefaultDataList(JSONObject query, ID user) {
 		this.entity = MetadataHelper.getEntity(query.getString("entity"));
 		this.queryParser = new JSONQueryParser(query, this);
 		this.user = user;

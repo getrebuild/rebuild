@@ -30,7 +30,6 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
-import com.rebuild.server.ServerStatus;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.admin.AdminEntryControll;
 
@@ -40,6 +39,8 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * Controll 请求拦截
+ * 
  * @author Zhao Fangfang
  * @since 1.0, 2013-6-24
  */
@@ -50,10 +51,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
 			Object handler) throws Exception {
-		if (!ServerStatus.isStatusOK()) {
-			response.sendRedirect(ServerListener.getContextPath() + "/gw/server-status");
-			return false;
-		}
+		response.setCharacterEncoding("utf-8");
 		
 		Application.getSessionStore().storeLastActive(request);
 		
@@ -155,7 +153,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 			
 		} else {
 			if (!inIgnoreRes(requestUrl)) {
-				LOG.warn("Unauthorized access [ " + requestUrl + " ] from [ " + ServletUtils.getReferer(request) + " ]");
+				LOG.warn("Unauthorized access [ " + requestUrl + " ] from [ " + StringUtils.defaultIfBlank(ServletUtils.getReferer(request), "<unknow>") + " ]");
 				if (ServletUtils.isAjaxRequest(request)) {
 					ServletUtils.writeJson(response, AppUtils.formatClientMsg(403, "未授权访问"));
 				} else {

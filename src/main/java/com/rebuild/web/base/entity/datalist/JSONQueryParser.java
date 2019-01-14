@@ -47,7 +47,7 @@ import cn.devezhao.persist4j.engine.ID;
 public class JSONQueryParser {
 
 	protected JSONObject queryExpressie;
-	private DataListControl dataListControl;
+	private DataList dataListControl;
 	
 	private Entity entity;
 	private List<Field> fieldList = new ArrayList<>();
@@ -68,7 +68,7 @@ public class JSONQueryParser {
 	 * @param queryExpressie
 	 * @param dataListControl
 	 */
-	public JSONQueryParser(JSONObject queryExpressie, DataListControl dataListControl) {
+	public JSONQueryParser(JSONObject queryExpressie, DataList dataListControl) {
 		this.queryExpressie = queryExpressie;
 		this.dataListControl = dataListControl;
 		

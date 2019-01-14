@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.user.entity.datalist;
+package com.rebuild.web.base.entity;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -25,8 +25,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.service.bizz.UserService;
-import com.rebuild.web.base.entity.datalist.DataListControl;
-import com.rebuild.web.base.entity.datalist.DefaultDataListControl;
+import com.rebuild.web.base.entity.datalist.DataList;
+import com.rebuild.web.base.entity.datalist.DefaultDataList;
 import com.rebuild.web.base.entity.datalist.JSONQueryParser;
 
 /**
@@ -35,12 +35,12 @@ import com.rebuild.web.base.entity.datalist.JSONQueryParser;
  * @author zhaofang123@gmail.com
  * @since Jan 6, 2019
  */
-public class DataListControlTest extends TestSupport {
+public class DataListTest extends TestSupport {
 
 	private JSONObject queryExpressie = null;
 	
 	@Before
-	public void setUp() {
+	public void setup() {
 		queryExpressie = JSON.parseObject("{ entity:'User' }");
 		JSON fields = JSON.parseArray("[ 'userId', 'loginName', 'createdOn', 'createdBy' ]");
 		queryExpressie.put("fields", fields);
@@ -61,7 +61,7 @@ public class DataListControlTest extends TestSupport {
 	
 	@Test
 	public void testBase() throws Exception {
-		DataListControl dlc = new DefaultDataListControl(queryExpressie, UserService.ADMIN_USER);
+		DataList dlc = new DefaultDataList(queryExpressie, UserService.ADMIN_USER);
 		System.out.println(dlc.getJSONResult());
 	}
 }

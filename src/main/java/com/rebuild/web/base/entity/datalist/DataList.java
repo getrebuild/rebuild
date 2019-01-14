@@ -26,7 +26,7 @@ import cn.devezhao.persist4j.Entity;
  * @author Zhao Fangfang
  * @since 1.0, 2013-6-20
  */
-public interface DataListControl {
+public interface DataList {
 	
 	/**
 	 * @return

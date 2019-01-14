@@ -60,7 +60,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/app/{entity}/")
-public class DataListControll extends BaseControll implements PortalsConfiguration {
+public class DataListSettingsControll extends BaseControll implements PortalsConfiguration {
 
 	@RequestMapping(value = "list-fields", method = RequestMethod.POST)
 	@Override

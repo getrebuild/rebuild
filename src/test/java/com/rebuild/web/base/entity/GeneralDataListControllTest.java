@@ -16,39 +16,23 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.user;
+package com.rebuild.web.base.entity;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.rebuild.web.MvcTestSupport;
 
 /**
+ * 
  * @author devezhao
  * @since 01/14/2019
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-public class SigninControllTest extends MvcTestSupport {
+public class GeneralDataListControllTest extends MvcTestSupport {
 
 	@Test
-	public void testLogin() throws Exception {
-		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
-				.post("/user/user-login?user=admin&passwd=111111");
-		System.out.println(perform(builder, null));
-	}
-	
-	@Test
-	public void testPages() throws Exception {
-		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get("/user/login");
-		System.out.println(perform(builder, null));
-		
-		builder = MockMvcRequestBuilders.get("/user/forgot-passwd");
-		System.out.println(perform(builder, null));
-		
-		builder = MockMvcRequestBuilders.get("/user/logout");
-		System.out.println(performRedirection(builder));
+	public void testGetListData() throws Exception {
 	}
 }
