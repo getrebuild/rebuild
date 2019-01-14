@@ -74,6 +74,9 @@ public class ChartDataFactory {
 		}
 		
 		Entity entity = MetadataHelper.getEntity(e);
+		if (user == null) {
+			user = Application.getCurrentUser();
+		}
 		if (!Application.getSecurityManager().allowedR(user, entity.getEntityCode())) {
 			throw new ChartsException("没有读取 [" + EasyMeta.getLabel(entity) + "] 的权限");
 		}

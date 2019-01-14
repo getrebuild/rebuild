@@ -1,3 +1,4 @@
+<%@page import="com.rebuild.server.ServerListener"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
@@ -48,8 +49,9 @@
 						</div>
 					</div>
 				</div>
-				<div class="splash-footer">
+				<div class="splash-footer text-muted">
 					<span>&copy; 2019 <a href="https://getrebuild.com/" target="_blank">REBUILD</a></span>
+					<br><span style="font-size:11px">Built on <%=ServerListener.getStartupTime() %></span>
 				</div>
 			</div>
 		</div>

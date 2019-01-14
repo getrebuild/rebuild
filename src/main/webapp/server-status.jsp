@@ -12,7 +12,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-base.css">
+<link rel="shortcut icon" href="${pageContext.request.contextPath}/assets/img/favicon.png" type="image/x-icon">
+<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/css/rb-base.css">
 <title>系统运行状态</title>
 <style type="text/css">
 .block{margin:0 auto;max-width:1000px;margin-bottom:32px;padding:0 14px}
@@ -80,8 +81,10 @@
 <div class="block">
 <div class="text-muted">
 	&copy; 2019 <a href="https://getrebuild.com/">REBUILD</a>
+	<% if (AppUtils.getRequestUser(request) != null) { %>
 	&nbsp;·&nbsp;
 	<a href="server-status.json">Status Api</a>
+	<% } %>
 </div>
 </div>
 </body>
