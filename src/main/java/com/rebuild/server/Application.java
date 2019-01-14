@@ -61,11 +61,16 @@ public final class Application {
 	 */
 	public static final Log LOG = LogFactory.getLog(Application.class);
 	
+	private static boolean debugMode = false;
+	
 	// SPRING
 	private static ApplicationContext APPLICATION_CTX;
 	// 业务实体对应的服务类
 	private static Map<Integer, EntityService> ESS = null;
 	
+	/**
+	 * @param ctx
+	 */
 	protected Application(ApplicationContext ctx) {
 		APPLICATION_CTX = ctx;
 	}
@@ -111,11 +116,11 @@ public final class Application {
 	}
 	
 	/**
-	 * 非 SERVER 环境下启动
-	 * 
+	 * For testing
 	 * @return
 	 */
 	public static ApplicationContext debug() {
+		debugMode = true;
 		if (APPLICATION_CTX == null) {
 			LOG.info("Rebuild Booting in DEBUG mode ...");
 			long at = System.currentTimeMillis();
@@ -131,7 +136,7 @@ public final class Application {
 	 * @return
 	 */
 	public static boolean devMode() {
-		return BooleanUtils.toBoolean(System.getProperty("rbdev"));
+		return BooleanUtils.toBoolean(System.getProperty("rbdev")) || debugMode;
 	}
 	
 	/**
@@ -198,6 +203,10 @@ public final class Application {
 	
 	public static Query createQuery(String ajql) {
 		return getQueryFactory().createQuery(ajql);
+	}
+	
+	public static Query createQuery(String ajql, ID user) {
+		return getQueryFactory().createQuery(ajql, user);
 	}
 	
 	public static Query createQueryNoFilter(String ajql) {

@@ -36,30 +36,27 @@ public class Meta2SchemaTest extends TestSupport {
 	@Test
 	public void testCreateEntity() throws Exception {
 		String newEntityName = new Entity2Schema(UserService.ADMIN_USER).create("测试实体", null, null);
-		System.out.println("New entity is created : " + newEntityName);
+		System.out.println("New Entity is created : " + newEntityName);
 		
 		Entity newEntity = MetadataHelper.getEntity(newEntityName);
 		boolean drop = new Entity2Schema(UserService.ADMIN_USER).drop(newEntity);
-		System.out.println("New entity is clear : " + newEntityName + " > " + drop);
+		System.out.println("New Entity is dropped : " + newEntityName + " > " + drop);
 	}
 	
 	@Test
 	public void testCreateField() throws Exception {
-		createField("数字", DisplayType.NUMBER, null);
-		createField("货币", DisplayType.DECIMAL, null);
+		String newEntityName = new Entity2Schema(UserService.ADMIN_USER).create("测试字段", null, null);
+		Entity newEntity = MetadataHelper.getEntity(newEntityName);
 		
-		boolean drop = new Entity2Schema(UserService.ADMIN_USER).drop(entity);
-		System.out.println("Field entity is clear : " + entity + " > " + drop);
-	}
-	
-	static Entity entity;
-	static String createField(String fieldLabel, DisplayType type, String refEntity) {
-		if (entity == null) {
-			String newEntityName = new Entity2Schema(UserService.ADMIN_USER).create("测试字段实体", null, null);
-			entity = MetadataHelper.getEntity(newEntityName);
-		}
-		String fieldName = new Field2Schema(UserService.ADMIN_USER).create(entity, fieldLabel, type, null, refEntity);
-		System.out.println("New field is create : " + fieldName + " < " + fieldLabel);
-		return fieldName;
+		String newFiled = new Field2Schema(UserService.ADMIN_USER).create(newEntity, "数字", DisplayType.NUMBER, null, null);
+		System.out.println("New Field is created : " + newFiled);
+		
+		newEntity = MetadataHelper.getEntity(newEntityName);
+		
+		boolean drop = new Field2Schema(UserService.ADMIN_USER).drop(newEntity.getField(newFiled), true);
+		System.out.println("New Field is dropped : " + newFiled + " > " + drop);
+		
+		drop = new Entity2Schema(UserService.ADMIN_USER).drop(newEntity);
+		System.out.println("New Entity (for Field) is dropped : " + newEntityName + " > " + drop);
 	}
 }

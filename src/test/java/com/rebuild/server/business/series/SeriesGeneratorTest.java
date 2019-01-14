@@ -30,6 +30,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entityhub.DisplayType;
 
 import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.Field;
@@ -49,10 +50,6 @@ public class SeriesGeneratorTest extends TestSupport {
 	
 	@Test
 	public void testIncrementVar() throws Exception {
-		if (getSeriesField() == null) {
-			return;
-		}
-		
 		IncreasingVar var = new IncreasingVar("0000", getSeriesField(), null);
 		System.out.println(var.generate());
 		System.out.println(var.generate());
@@ -61,13 +58,10 @@ public class SeriesGeneratorTest extends TestSupport {
 	
 	@Test
 	public void testIncrementVarNThreads() throws Exception {
-		if (getSeriesField() == null) {
-			return;
-		}
-		
 		final IncreasingVar var = new IncreasingVar("0000", getSeriesField(), "Y");
 		final Set<String> set = new HashSet<>();
-		for (int i = 0; i < 2000; i++) {
+		final int N = 500;
+		for (int i = 0; i < N; i++) {
 			ThreadPool.exec(new Runnable() {
 				@Override
 				public void run() {
@@ -77,16 +71,13 @@ public class SeriesGeneratorTest extends TestSupport {
 				}
 			});
 		}
-		ThreadPool.waitFor(500);
-		Assert.assertTrue(set.size() == 2000);
+		ThreadPool.waitFor(200);
+		System.out.println();
+		Assert.assertTrue(set.size() == N);
 	}
 	
 	@Test
 	public void testGenerate() throws Exception {
-		if (getSeriesField() == null) {
-			return;
-		}
-		
 		Map<String, String> config = new HashMap<>();
 		config.put("seriesFormat", "Y-{YYYYMMDD}-{0000}");
 		config.put("seriesZero", "M");
@@ -97,11 +88,12 @@ public class SeriesGeneratorTest extends TestSupport {
 		System.out.println(generator.generate());
 	}
 	
+	/**
+	 * @return
+	 * @see DisplayType#SERIES
+	 */
 	private Field getSeriesField() {
-		if (!MetadataHelper.containsEntity("ceshiziduan")) {
-			return null;
-		}
-		Field field = MetadataHelper.getEntity("ceshiziduan").getField("ZIDONGBIANHAO");
-		return field;
+		Field seriesField = MetadataHelper.getField(TEST_ENTITY, "series");
+		return seriesField;
 	}
 }

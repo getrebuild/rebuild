@@ -30,6 +30,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.utils.JSONUtils;
 
+import cn.devezhao.persist4j.engine.ID;
+
 /**
  * 曲线图
  * 
@@ -38,8 +40,8 @@ import com.rebuild.utils.JSONUtils;
  */
 public class LineChart extends ChartData {
 
-	public LineChart(JSONObject config) {
-		super(config);
+	protected LineChart(JSONObject config, ID user) {
+		super(config, user);
 	}
 
 	@Override
@@ -48,7 +50,7 @@ public class LineChart extends ChartData {
 		Numerical[] nums = getNumericals();
 		
 		Dimension dim1 = dims[0];
-		Object[][] dataRaw = Application.createQuery(buildSql(dim1, nums)).array();
+		Object[][] dataRaw = Application.createQuery(buildSql(dim1, nums), user).array();
 		
 		List<String> dimAxis = new ArrayList<>();
 		Object[] numsAxis = new Object[nums.length];

@@ -21,6 +21,8 @@ package com.rebuild.server.business.charts;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
+import cn.devezhao.persist4j.engine.ID;
+
 /**
  * 
  * @author devezhao
@@ -28,8 +30,8 @@ import com.alibaba.fastjson.JSONObject;
  */
 public class FunnelChart extends ChartData {
 
-	public FunnelChart(JSONObject config) {
-		super(config);
+	protected FunnelChart(JSONObject config, ID user) {
+		super(config, user);
 	}
 
 	@Override

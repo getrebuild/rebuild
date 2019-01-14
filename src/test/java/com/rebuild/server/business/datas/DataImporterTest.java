@@ -26,7 +26,6 @@ import com.rebuild.server.TestSupport;
 import com.rebuild.server.service.bizz.UserService;
 
 /**
- * 
  * @author devezhao
  * @since 01/10/2019
  */
@@ -34,29 +33,30 @@ public class DataImporterTest extends TestSupport {
 
 	@Test
 	public void testParseEnter() throws Exception {
-		JSONObject rule = JSON.parseObject("{ file:'dataimports-test.csv', entity:'h45hy54hy', repeat_opt:3, fields_mapping:{ h45hy54hyName:5 } }");
+		JSONObject rule = JSON.parseObject("{ file:'dataimports-test.csv', entity:'TestAllFields', repeat_opt:3, fields_mapping:{TestAllFieldsName:5} }");
 		ImportEnter importsEnter = ImportEnter.parse(rule);
 		System.out.println("ImportsEnter 1 : " + importsEnter);
 		
-		rule = JSON.parseObject("{ file:'dataimports-test.csv', entity:'h45hy54hy', repeat_opt:1, repeat_fields:['h45hy54hyName'], fields_mapping:{ h45hy54hyName:5 } }");
+		rule = JSON.parseObject("{ file:'dataimports-test.csv', entity:'TestAllFields', repeat_opt:1, repeat_fields:['TestAllFieldsName'], fields_mapping:{TestAllFieldsName:5} }");
 		importsEnter = ImportEnter.parse(rule);
 		System.out.println("ImportsEnter 2 : " + importsEnter);
 		
-		rule = JSON.parseObject("{ file:'dataimports-test.xlsx', entity:'h45hy54hy', repeat_opt:1, repeat_fields:['h45hy54hyName'], fields_mapping:{ h45hy54hyName:5 } }");
+		rule = JSON.parseObject("{ file:'dataimports-test.xlsx', entity:'TestAllFields', repeat_opt:1, repeat_fields:['TestAllFieldsName'], fields_mapping:{TestAllFieldsName:5} }");
 		importsEnter = ImportEnter.parse(rule);
 		System.out.println("ImportsEnter 3 : " + importsEnter);
 	}
 	
+	// No `repeat_fields`
 	@Test(expected=IllegalArgumentException.class)
 	public void testErrorEnter() throws Exception {
-		JSONObject rule = JSON.parseObject("{ file:'dataimports-test.csv', entity:'h45hy54hy', repeat_opt:3, fields_mapping:{ h45hy54hyName:5 } }");
+		JSONObject rule = JSON.parseObject("{ file:'dataimports-test.csv', entity:'TestAllFieldsName', repeat_opt:3, fields_mapping:{ TestAllFieldsName:5 } }");
 		rule.remove("entity");
 		ImportEnter.parse(rule);
 	}
 	
 	@Test
 	public void testImports() throws Exception {
-		JSONObject rule = JSON.parseObject("{'file':'dataimports-test.csv','entity':'h45hy54hy','repeat_opt':'2','repeat_fields':['h45hy54hyName'],'owning_user':'001-016792557d140002','fields_mapping':{'h45hy54hyName':5}}");
+		JSONObject rule = JSON.parseObject("{ file:'dataimports-test.csv', entity:'TestAllFields', repeat_opt:2, repeat_fields:['TestAllFieldsName'], owning_user:'001-0000000000000001', fields_mapping:{TestAllFieldsName:5} }");
 		ImportEnter importsEnter = ImportEnter.parse(rule);
 		
 		DataImporter dataImports = new DataImporter(importsEnter, UserService.ADMIN_USER);

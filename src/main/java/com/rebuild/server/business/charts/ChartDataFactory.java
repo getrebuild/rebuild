@@ -49,39 +49,48 @@ public class ChartDataFactory {
 		}
 		
 		JSONObject config = JSON.parseObject((String) chart[0]);
-		return create(config);
+		return create(config, Application.getCurrentUser());
 	}
 	
 	/**
-	 * @param chartConfig
+	 * @param config
 	 * @return
 	 * @throws ChartsException
 	 */
-	public static ChartData create(JSONObject chartConfig) throws ChartsException {
-		String e = chartConfig.getString("entity");
+	public static ChartData create(JSONObject config) throws ChartsException {
+		return create(config, null);
+	}
+	
+	/**
+	 * @param config
+	 * @param user
+	 * @return
+	 * @throws ChartsException
+	 */
+	public static ChartData create(JSONObject config, ID user) throws ChartsException {
+		String e = config.getString("entity");
 		if (!MetadataHelper.containsEntity(e)) {
 			throw new ChartsException("源实体 [" + e.toUpperCase() + "] 不存在");
 		}
 		
-		ID user = Application.getCurrentUser();
 		Entity entity = MetadataHelper.getEntity(e);
 		if (!Application.getSecurityManager().allowedR(user, entity.getEntityCode())) {
 			throw new ChartsException("没有读取 [" + EasyMeta.getLabel(entity) + "] 的权限");
 		}
 		
-		String type = chartConfig.getString("type");
+		String type = config.getString("type");
 		if ("INDEX".equalsIgnoreCase(type)) {
-			return new IndexChart(chartConfig);
+			return new IndexChart(config, user);
 		} else if ("TABLE".equalsIgnoreCase(type)) {
-			return new TableChart(chartConfig);
+			return new TableChart(config, user);
 		} else if ("LINE".equalsIgnoreCase(type)) {
-			return new LineChart(chartConfig);
+			return new LineChart(config, user);
 		} else if ("BAR".equalsIgnoreCase(type)) {
-			return new BarChart(chartConfig);
+			return new BarChart(config, user);
 		} else if ("PIE".equalsIgnoreCase(type)) {
-			return new PieChart(chartConfig);
+			return new PieChart(config, user);
 		} else if ("FUNNEL".equalsIgnoreCase(type)) {
-			return new FunnelChart(chartConfig);
+			return new FunnelChart(config, user);
 		}
 		throw new ChartsException("未知的图表类型 : " + type.toUpperCase());
 	}

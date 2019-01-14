@@ -25,6 +25,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.utils.JSONUtils;
 
+import cn.devezhao.persist4j.engine.ID;
+
 /**
  * 指标卡
  * 
@@ -33,8 +35,8 @@ import com.rebuild.utils.JSONUtils;
  */
 public class IndexChart extends ChartData {
 	
-	public IndexChart(JSONObject config) {
-		super(config);
+	protected IndexChart(JSONObject config, ID user) {
+		super(config, user);
 	}
 
 	@Override
@@ -42,7 +44,7 @@ public class IndexChart extends ChartData {
 		Numerical[] nums = getNumericals();
 
 		Numerical axis = nums[0];
-		Object[] dataRaw = Application.createQuery(buildSql(axis)).unique();
+		Object[] dataRaw = Application.createQuery(buildSql(axis), user).unique();
 		
 		JSONObject index = JSONUtils.toJSONObject(
 				new String[] { "data", "label" },

@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.base.entity.datalist;
+package com.rebuild.web.user.entity.datalist;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +25,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.service.bizz.UserService;
+import com.rebuild.web.base.entity.datalist.DataListControl;
+import com.rebuild.web.base.entity.datalist.DefaultDataListControl;
+import com.rebuild.web.base.entity.datalist.JSONQueryParser;
 
 /**
  * TODO

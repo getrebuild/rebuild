@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
 import com.rebuild.server.helper.manager.PickListManager;
 import com.rebuild.server.helper.manager.value.FieldValueWrapper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -45,13 +46,23 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public abstract class ChartData {
 	
-	protected JSONObject config;
+	protected final JSONObject config;
+	protected final ID user;
 	
 	/**
 	 * @param config
 	 */
 	protected ChartData(JSONObject config) {
+		this(config, Application.getCurrentUser());
+	}
+	
+	/**
+	 * @param config
+	 * @param user
+	 */
+	protected ChartData(JSONObject config, ID user) {
 		this.config = config;
+		this.user = user;
 	}
 	
 	/**

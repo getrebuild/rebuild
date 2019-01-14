@@ -23,6 +23,14 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entityhub.DisplayType;
+import com.rebuild.server.metadata.entityhub.Entity2Schema;
+import com.rebuild.server.metadata.entityhub.Field2Schema;
+import com.rebuild.server.service.bizz.UserService;
+
+import cn.devezhao.persist4j.Entity;
+
 /**
  * 
  * @author devezhao
@@ -31,16 +39,51 @@ import org.junit.BeforeClass;
 public class TestSupport {
 	
 	protected static final Log LOG = LogFactory.getLog(TestSupport.class);
+	
+	protected static final String TEST_ENTITY = "TestAllFields";
 
 	@BeforeClass
 	public static void startup() {
 		LOG.warn("TESTING Startup ...");
 		Application.debug();
+		addTestEntityIfNeed();
 	}
 	
 	@AfterClass
 	public static void shutdown() {
 		Application.getSessionStore().clean();
 		LOG.warn("TESTING Shutdown ...");
+	}
+	
+	/**
+	 * 测试实体
+	 * 
+	 * @see DisplayType
+	 */
+	private static void addTestEntityIfNeed() {
+		if (MetadataHelper.containsEntity(TEST_ENTITY)) {
+			return;
+		}
+		
+		LOG.warn("Adding test entity : " + TEST_ENTITY);
+		
+		Entity2Schema entity2Schema = new Entity2Schema(UserService.ADMIN_USER);
+		String entityName = entity2Schema.create(TEST_ENTITY, null, null, true);
+		Entity testEntity = MetadataHelper.getEntity(entityName);
+		
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "number", DisplayType.NUMBER, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "decimal", DisplayType.DECIMAL, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "date", DisplayType.DATE, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "datetime", DisplayType.DATETIME, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "text", DisplayType.TEXT, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "ntext", DisplayType.NTEXT, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "email", DisplayType.EMAIL, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "url", DisplayType.URL, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "phone", DisplayType.PHONE, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "series", DisplayType.SERIES, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "image", DisplayType.IMAGE, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "file", DisplayType.FILE, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "picklist", DisplayType.PICKLIST, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "reference", DisplayType.REFERENCE, null, entityName);
 	}
 }

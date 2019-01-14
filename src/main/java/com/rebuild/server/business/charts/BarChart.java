@@ -20,6 +20,8 @@ package com.rebuild.server.business.charts;
 
 import com.alibaba.fastjson.JSONObject;
 
+import cn.devezhao.persist4j.engine.ID;
+
 /**
  * 柱状图
  * 
@@ -28,7 +30,7 @@ import com.alibaba.fastjson.JSONObject;
  */
 public class BarChart extends LineChart {
 
-	public BarChart(JSONObject config) {
-		super(config);
+	protected BarChart(JSONObject config, ID user) {
+		super(config, user);
 	}
 }

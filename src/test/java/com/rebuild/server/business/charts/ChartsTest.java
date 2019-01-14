@@ -22,7 +22,6 @@ import org.junit.Test;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.service.bizz.UserService;
 
@@ -35,11 +34,9 @@ public class ChartsTest extends TestSupport {
 
 	@Test
 	public void testIndex() throws Exception {
-		Application.getSessionStore().set(UserService.ADMIN_USER);
-		
 		JSONObject config = JSON.parseObject(
-				"{'entity':'User','title':'指标卡','type':'INDEX','axis':{'dimension':[],'numerical':[{'field':'userId','sort':'','calc':'COUNT'}]}}");
-		ChartData index = ChartDataFactory.create(config);
+				"{ entity:'User', title:'指标卡', type:'INDEX', axis:{dimension:[], numerical:[{ field:'userId', sort:'', calc:'COUNT' }]}}");
+		ChartData index = ChartDataFactory.create(config, UserService.ADMIN_USER);
 		System.out.println(index.build());
 	}
 }

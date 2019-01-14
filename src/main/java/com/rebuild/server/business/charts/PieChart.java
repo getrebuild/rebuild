@@ -27,6 +27,8 @@ import com.rebuild.server.Application;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 
+import cn.devezhao.persist4j.engine.ID;
+
 /**
  * 饼图
  * 
@@ -35,8 +37,8 @@ import com.rebuild.utils.JSONUtils;
  */
 public class PieChart extends ChartData {
 
-	public PieChart(JSONObject config) {
-		super(config);
+	protected PieChart(JSONObject config, ID user) {
+		super(config, user);
 	}
 
 	@Override
@@ -46,7 +48,7 @@ public class PieChart extends ChartData {
 		
 		Dimension dim1 = dims[0];
 		Numerical num1 = nums[0];
-		Object[][] dataRaw = Application.createQuery(buildSql(dim1, num1)).array();
+		Object[][] dataRaw = Application.createQuery(buildSql(dim1, num1), user).array();
 		
 		JSONArray dataJson = new JSONArray();
 		for (Object[] o : dataRaw) {

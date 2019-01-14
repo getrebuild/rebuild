@@ -29,6 +29,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.utils.JSONUtils;
 
+import cn.devezhao.persist4j.engine.ID;
+
 /**
  * 表格
  * 
@@ -37,8 +39,8 @@ import com.rebuild.utils.JSONUtils;
  */
 public class TableChart extends ChartData {
 
-	public TableChart(JSONObject config) {
-		super(config);
+	protected TableChart(JSONObject config, ID user) {
+		super(config, user);
 	}
 
 	@Override
@@ -47,7 +49,7 @@ public class TableChart extends ChartData {
 		Numerical[] nums = getNumericals();
 		
 		String sql = buildSql(dims, nums);
-		Object[][] dataRaw = Application.createQuery(sql).array();
+		Object[][] dataRaw = Application.createQuery(sql, user).array();
 		
 		String tableHtml = new TableBuilder(this, dataRaw).toHTML();
 		
