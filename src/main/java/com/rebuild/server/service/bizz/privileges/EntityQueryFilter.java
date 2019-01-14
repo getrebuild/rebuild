@@ -154,7 +154,6 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 	}
 	
 	/**
-	 * TODO
 	 * 共享权限
 	 * 
 	 * @param entity
@@ -164,14 +163,15 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 	 */
 	protected String appendShareFilter(Entity entity, Field slaveToMasterField, String filtered) {
 		String shareFilter = "exists (select rights from ShareAccess where belongEntity = '%s' and shareTo = '%s' and recordId = ^%s)";
-		shareFilter = String.format(shareFilter,
-				entity.getName(), user.getIdentity().toString(), entity.getPrimaryField().getName());
 		
-		// EXISTS 无法支持，使用 IN 语句
+		// 子实体。使用主实体的共享
 		if (slaveToMasterField != null) {
-			shareFilter = "%s in (select recordId from ShareAccess where belongEntity = '%s' and shareTo = '%s')";
 			shareFilter = String.format(shareFilter,
-					slaveToMasterField.getName(), slaveToMasterField.getReferenceEntity().getName(), user.getIdentity().toString());
+					slaveToMasterField.getOwnEntity().getMasterEntity().getName(),
+					user.getId(), slaveToMasterField.getName());
+		} else {
+			shareFilter = String.format(shareFilter,
+					entity.getName(), user.getId(), entity.getPrimaryField().getName());
 		}
 		
 		return "(" + filtered + " or " + shareFilter + ")";

@@ -51,8 +51,14 @@ import cn.devezhao.persist4j.engine.ID;
 public class GeneralDataListControll extends BaseEntityControll {
 
 	@RequestMapping("list")
-	public ModelAndView pageList(@PathVariable String entity, HttpServletRequest request) throws IOException {
+	public ModelAndView pageList(@PathVariable String entity, 
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
+		if (!MetadataHelper.containsEntity(entity)) {
+			response.sendError(404);
+			return null;
+		}
+		
 		Entity thatEntity = MetadataHelper.getEntity(entity);
 		
 		ModelAndView mv = null;

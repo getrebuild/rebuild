@@ -128,7 +128,7 @@ public class AppUtils {
 			if (sc == null) {
 				return "系统错误";
 			} else if (sc == 404) {
-				return "访问地址不存在";
+				return "访问的地址/资源不存在";
 			} else {
 				return "系统错误 (" + sc + ")";
 			}
@@ -137,7 +137,7 @@ public class AppUtils {
 			if (msg.contains("AJAX403")) {
 				return "AJAX403";
 			}
-			return "权限不足";
+			return "权限不足，无法访问";
 		}
 		
 		if (Application.devMode()) {

@@ -98,7 +98,6 @@ public abstract class BaseCacheTemplate<V extends Serializable> implements Cache
 	
 	@Override
 	public String getKeyPrefix() {
-		// TODO Auto-generated method stub
 		return delegate.getKeyPrefix();
 	}
 	
