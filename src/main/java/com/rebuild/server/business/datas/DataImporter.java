@@ -259,7 +259,7 @@ public class DataImporter extends BulkTask {
 		Entity oEntity = field.getReferenceEntity();
 		
 		// 支持ID
-		if (ID.isId(val) && ID.valueOf(val).getEntityCode() == oEntity.getEntityCode()) {
+		if (ID.isId(val) && ID.valueOf(val).getEntityCode().intValue() == oEntity.getEntityCode().intValue()) {
 			return ID.valueOf(val);
 		}
 		
