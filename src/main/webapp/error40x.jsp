@@ -1,4 +1,4 @@
-<%@ page isErrorPage="true"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isErrorPage="true" trimDirectiveWhitespaces="true"%>
 <%@ page import="com.rebuild.utils.AppUtils"%>
 <%@ page import="cn.devezhao.commons.web.ServletUtils"%>
 <%

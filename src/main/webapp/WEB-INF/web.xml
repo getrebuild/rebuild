@@ -1,22 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
-                      http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" version="3.1">
-                      
-	<display-name>REBUILD</display-name>
-	<description>Building your system freely</description>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+	version="3.1">
+	
+	<display-name>Rebuild</display-name>
 	
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>classpath:application-ctx.xml</param-value>
 	</context-param>
-	
 	<listener>
 		<listener-class>com.rebuild.server.ServerListener</listener-class>
-	</listener>
-	<listener>
-		<listener-class>com.rebuild.web.OnlineSessionStore</listener-class>
 	</listener>
 	
 	<filter>
@@ -107,17 +102,11 @@
 		<location>/error40x.jsp</location>
 	</error-page>
 	
+	<listener>
+		<listener-class>com.rebuild.web.OnlineSessionStore</listener-class>
+	</listener>
+	
 	<session-config>
 		<session-timeout>120</session-timeout>
 	</session-config>
-	
-	<jsp-config>
-		<jsp-property-group>
-			<url-pattern>*.jsp</url-pattern>
-			<page-encoding>utf-8</page-encoding>
-			<trim-directive-whitespaces>true</trim-directive-whitespaces>
-			<default-content-type>text/html; charset=utf-8</default-content-type>
-		</jsp-property-group>
-	</jsp-config>
-	
 </web-app>
