@@ -11,8 +11,9 @@
 					el.attr('disabled', true)
 					var loadingText = el.data('loading-text')
 					if (loadingText){
-						this.__loadingTextTimer = setTimeout(()=>{
-							this.__textHold = el.html()
+						var _this = this
+						this.__loadingTextTimer = setTimeout(function(){
+							_this.__textHold = el.html()
 							el.text(loadingText)
 						}, 200)
 					}
@@ -51,7 +52,7 @@
 	$.fn.select2.defaults.set('allowClear', true)
 	
 	window.rb = window.rb || {}
-	$('meta[name^="rb."]').each((idx, item)=>{
+	$('meta[name^="rb."]').each(function(idx, item){
 		var k = $(item).attr('name').substr(3)  // remove `rb.`
 		var v = $(item).attr('content')
 		if (v === 'true') v = true
@@ -59,7 +60,7 @@
 		window.rb[k] = v
 	})
 	
-	setTimeout(()=>{
+	setTimeout(function(){
 		if (rb.env == 'dev') $('html').addClass('dev')
 		$(document.body).addClass('rb-animate')
 	}, 1000)

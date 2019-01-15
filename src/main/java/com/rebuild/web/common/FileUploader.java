@@ -73,7 +73,7 @@ public class FileUploader extends HttpServlet {
 				File temp = SystemConfiguration.getFileOfTemp(uploadName);
 				item.write(temp);
 				if (!temp.exists()) {
-					ServletUtils.writeJson(resp, AppUtils.formatClientMsg(1000, "上传失败"));
+					ServletUtils.writeJson(resp, AppUtils.formatControllMsg(1000, "上传失败"));
 					return;
 				}
 				
@@ -91,9 +91,9 @@ public class FileUploader extends HttpServlet {
 		}
 		
 		if (uploadName != null) {
-			ServletUtils.writeJson(resp, AppUtils.formatClientMsg(0, uploadName));
+			ServletUtils.writeJson(resp, AppUtils.formatControllMsg(0, uploadName));
 		} else {
-			ServletUtils.writeJson(resp, AppUtils.formatClientMsg(1000, "上传失败"));
+			ServletUtils.writeJson(resp, AppUtils.formatControllMsg(1000, "上传失败"));
 		}
 	}
 	

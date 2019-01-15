@@ -18676,12 +18676,15 @@ div.table-responsive>div.dataTables_wrapper>div.row>div[class^="col-"]:last-chil
 }
 
 .rb-error .error-number {
-	font-size: 2.81rem;
+	font-size: 2.51rem;
 	font-weight: 400;
 	line-height: 1
 }
+.rb-error .error-number .zmdi {
+	font-size: 7.91rem;
+}
 .rb-error .error-description {
-	font-size: 1.81rem;
+	font-size: 1.71rem;
 	font-weight: 400;
 }
 .rb-error .error-description pre{

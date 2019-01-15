@@ -3,8 +3,12 @@ $(function(){
 	var t = $('.rb-scroller')
 	t.perfectScrollbar()
 	$(window).resize(function(){
-		$setTimeout(function(){ t.perfectScrollbar('update') }, 500, 'rb-scroller-update')
+		$setTimeout(function(){ 
+			if (window.ltIE11 == true) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
+			t.perfectScrollbar('update') 
+		}, 500, 'rb-scroller-update')
 	})
+	if (window.ltIE11 == true) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
 	
 	// tooltip
 	$('[data-toggle="tooltip"]').tooltip()
@@ -34,7 +38,7 @@ $(function(){
 	}
 	
 	var keydown_times = 0
-	$(document.body).keydown((e)=>{
+	$(document.body).keydown(function(e){
 		if (e.ctrlKey && e.altKey && e.which == 88) command_exec(++keydown_times)
 	})
 })
@@ -138,7 +142,7 @@ var __loadMessages = function(){
 	if (__loadMessages__state == 1) return
 	$.get(rb.baseUrl + '/app/notification/list?pageSize=10', function(res){
 		var el = $('.rb-notifications .content ul').empty()
-		$(res.data).each((idx, item)=>{
+		$(res.data).each(function(idx, item){
 			var o = $('<li class="notification"></li>').appendTo(el)
 			if (item[3] == true) o.addClass('notification-unread')
 			o = $('<a href="' + rb.baseUrl + '/app/notifications#id=' + item[4] + '"></a>').appendTo(o)

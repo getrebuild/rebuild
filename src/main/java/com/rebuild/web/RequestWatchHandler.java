@@ -132,7 +132,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 			// 管理后台访问
 			if (requestUrl.contains("/admin/") && !AdminEntryControll.isAdminVerified(request)) {
 				if (ServletUtils.isAjaxRequest(request)) {
-					ServletUtils.writeJson(response, AppUtils.formatClientMsg(403, "请验证管理员访问权限"));
+					ServletUtils.writeJson(response, AppUtils.formatControllMsg(403, "请验证管理员访问权限"));
 				} else {
 					response.sendRedirect(ServerListener.getContextPath() + "/user/admin-entry?nexturl=" + CodecUtils.urlEncode(requestUrl));
 				}
@@ -143,7 +143,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 			if (!inIgnoreRes(requestUrl)) {
 				LOG.warn("Unauthorized access [ " + requestUrl + " ] from [ " + StringUtils.defaultIfBlank(ServletUtils.getReferer(request), "<unknow>") + " ]");
 				if (ServletUtils.isAjaxRequest(request)) {
-					ServletUtils.writeJson(response, AppUtils.formatClientMsg(403, "未授权访问"));
+					ServletUtils.writeJson(response, AppUtils.formatControllMsg(403, "未授权访问"));
 				} else {
 					response.sendRedirect(ServerListener.getContextPath() + "/user/login?nexturl=" + CodecUtils.urlEncode(requestUrl));
 				}
@@ -162,9 +162,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	private static boolean inIgnoreRes(String requestUrl) {
 		if (requestUrl.contains("/user/") && !requestUrl.contains("/user/admin")) {
 			return true;
-		} if (requestUrl.contains("/gw/")) {
-			return true;
-		} else if (requestUrl.contains("/assets")) {
+		} if (requestUrl.contains("/gw/") || requestUrl.contains("/assets/") || requestUrl.contains("/error/")) {
 			return true;
 		}
 		return false;

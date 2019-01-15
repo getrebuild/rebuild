@@ -40,7 +40,7 @@ import cn.devezhao.commons.web.ServletUtils;
  * @since 09/20/2018
  */
 @Controller
-public class SimplePageForward extends BasePageControll {
+public class MiscPagesForward extends BasePageControll {
 
 	@RequestMapping(value={ "/p/**/*", "/admin/p/**/*" }, method = RequestMethod.GET)
 	public ModelAndView page(HttpServletRequest request) {
@@ -49,7 +49,6 @@ public class SimplePageForward extends BasePageControll {
 		path = path.substring(ServerListener.getContextPath().length());
 		path = path.replaceFirst("/p/", "/");
 		path = path + ".jsp";
-		
 		return createModelAndView(path);
 	}
 	
@@ -75,5 +74,10 @@ public class SimplePageForward extends BasePageControll {
 			services.add(s.toJson());
 		}
 		ServletUtils.writeJson(response, state.toJSONString());
+	}
+	
+	@RequestMapping(value= { "/error/*"}, method = RequestMethod.GET)
+	public ModelAndView pageError(HttpServletRequest request) {
+		return createModelAndView("/error40x.jsp");
 	}
 }

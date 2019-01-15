@@ -18,3 +18,10 @@
 <meta name="rb.isAdminUser" content="true">
 <meta name="rb.isAdminVerified" content="<%=AppUtils.isAdminVerified(request)%>">
 <%}%>
+<!--[if lt IE 11]>
+<script>ltIE11 = true</script>
+<script src="//cdn.staticfile.org/babel-polyfill/7.2.5/polyfill.min.js"></script>
+<![endif]-->
+<!--[if lt IE 10]>
+<script>location.href='${baseUrl}/error/unsupported-browser'</script>
+<![endif]-->

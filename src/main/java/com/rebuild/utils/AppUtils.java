@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.Controll;
 import com.rebuild.server.Application;
 import com.rebuild.web.admin.AdminEntryControll;
 
@@ -80,23 +81,24 @@ public class AppUtils {
 	}
 	
 	/**
-	 * 格式化客户端消息
+	 * 格式化标准的客户端消息
 	 * 
-	 * @param errCode
-	 * @param errMsgOrData
+	 * @param errorCode
+	 * @param errorMsg
 	 * @return
+	 * @see Controll
 	 */
-	public static String formatClientMsg(int errCode, String errMsgOrData) {
-		JSONObject jo = new JSONObject();
-		jo.put("error_code", errCode);
-		if (errMsgOrData != null) {
-			if (errCode == 0) {
-				jo.put("data", errMsgOrData);
+	public static String formatControllMsg(int errorCode, String errorMsg) {
+		JSONObject map = new JSONObject();
+		map.put("error_code", errorCode);
+		if (errorMsg != null) {
+			if (errorCode == 0) {
+				map.put("data", errorMsg);
 			} else {
-				jo.put("error_msg", errMsgOrData);
+				map.put("error_msg", errorMsg);
 			}
 		}
-		return jo.toJSONString();
+		return map.toJSONString();
 	}
 	
 	/**
@@ -124,19 +126,17 @@ public class AppUtils {
 		}
 		
 		if (ex == null) {
-			Integer sc = (Integer) request.getAttribute(ServletUtils.ERROR_STATUS_CODE);
-			if (sc == null) {
-				return "系统错误";
-			} else if (sc == 404) {
+			Integer state = (Integer) request.getAttribute(ServletUtils.ERROR_STATUS_CODE);
+			if (state != null && state == 404) {
 				return "访问的地址/资源不存在";
 			} else {
-				return "系统错误 [" + sc + "]";
+				return "系统繁忙，请稍后重试";
 			}
 		} else if (ex instanceof AccessDeniedException) {
-			return "权限不足，无法访问";
+			return "权限不足，访问被阻止";
 		}
 		
-		errorMsg = StringUtils.defaultIfBlank(ex.getLocalizedMessage(), "系统错误");
+		errorMsg = StringUtils.defaultIfBlank(ex.getLocalizedMessage(), "未知系统错误");
 		return ex.getClass().getSimpleName() + " : " + errorMsg;
 	}
 }

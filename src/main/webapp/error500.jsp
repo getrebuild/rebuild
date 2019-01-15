@@ -13,17 +13,18 @@ if (ServletUtils.isAjaxRequest(request)) {
 <html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <link rel="shortcut icon" href="${pageContext.request.contextPath}/assets/img/favicon.png" type="image/x-icon">
+<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/lib/material-design-iconic-font.min.css">
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/css/rb-base.css">
-<title>错误</title>
+<title>系统错误</title>
 </head>
 <body class="rb-splash-screen">
 <div class="rb-wrapper rb-error">
 	<div class="rb-content m-0">
 		<div class="main-content container">
 			<div class="error-container">
-				<div class="error-number mb-0">系统错误</div>
+				<div class="error-number mb-0"><i class="zmdi zmdi-close-circle text-danger"></i></div>
 				<div class="error-description"><%=errorMsg.split("\n")[0]%></div>
 				<div class="error-description text-left <%=AppUtils.devMode() ? "" : "hide"%> "><pre><%=StringEscapeUtils.escapeHtml(errorMsg)%></pre></div>
 				<div class="error-goback-button">
