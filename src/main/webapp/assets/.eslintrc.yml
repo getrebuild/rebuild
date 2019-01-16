@@ -12,6 +12,7 @@ globals:
   $setTimeout: true
   $random: true
   $regex: true
+  $storage: true
   rb: true
   renderRbcomp: true
   React: true
