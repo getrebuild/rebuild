@@ -9,14 +9,13 @@ parserOptions:
     jsx: true
   ecmaVersion: 2018
 globals:
-  rb: true
   $setTimeout: true
+  $random: true
+  $regex: true
+  rb: true
+  renderRbcomp: true
   React: true
   ReactDOM: true
-  RbModal: true
-  RbAlert: true
-  RbHighbar: true
-  RbSpinner: true
 plugins:
   - react
 rules:
