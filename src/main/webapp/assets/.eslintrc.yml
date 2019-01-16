@@ -1,0 +1,34 @@
+env:
+  browser: true
+  es6: true
+  jquery: true
+extends: 
+  - 'eslint:recommended'
+parserOptions:
+  ecmaFeatures:
+    jsx: true
+  ecmaVersion: 2018
+globals:
+  rb: true
+  $setTimeout: true
+  React: true
+  ReactDOM: true
+  RbModal: true
+  RbAlert: true
+  RbHighbar: true
+  RbSpinner: true
+plugins:
+  - react
+rules:
+  indent:
+    - error
+    - 2
+  linebreak-style:
+    - error
+    - unix
+  quotes:
+    - error
+    - single
+  semi:
+    - error
+    - never
