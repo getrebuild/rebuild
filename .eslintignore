@@ -1,0 +1,6 @@
+**/assets/lib/*
+**/assets/img/*
+**/assets/css/*
+**/node_modules/*
+target/*
+.production/*
