@@ -51,24 +51,30 @@ public class LoginControll extends BasePageControll {
 	private static final String AUTOLOGIN_KEY = "rb.alt";
 
 	@RequestMapping("login")
-	public ModelAndView checkLogin(HttpServletRequest request, HttpServletResponse response) {
+	public ModelAndView checkLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String alt = ServletUtils.readCookie(request, AUTOLOGIN_KEY);
 		if (StringUtils.isNotBlank(alt)) {
+			ID altUser = null;
 			try {
 				alt = AES.decrypt(alt);
-				String alt_s[] = alt.split(",");
-				ID user = ID.valueOf(alt_s[0]);
-				if (Application.getUserStore().exists(user)) {
-					loginSuccessed(request, response, user, true);
-					
-					// TODO 安全性检查
-					
-					String nexturl = StringUtils.defaultIfBlank(request.getParameter("nexturl"), "../dashboard/home");
-					nexturl = CodecUtils.urlDecode(nexturl);
-					response.sendRedirect(nexturl);
-				}
+				String alts[] = alt.split(",");
+				altUser = ID.isId(alts[0]) ? ID.valueOf(alts[0]) : null;
+				
+				// TODO 自动登陆码安全性检查
+				
 			} catch (Exception ex) {
-				LOG.error("自动登录失败 : " + alt, ex);
+				LOG.error("Could't decrypt User in alt : " + alt, ex);
+			}
+			
+			if (altUser != null && Application.getUserStore().exists(altUser)) {
+				loginSuccessed(request, response, altUser, true);
+				
+				String nexturl = StringUtils.defaultIfBlank(request.getParameter("nexturl"), "../dashboard/home");
+				nexturl = CodecUtils.urlDecode(nexturl);
+				response.sendRedirect(nexturl);
+				return null;
+			} else {
+				ServletUtils.setSessionAttribute(request, "needVcode", 1);
 			}
 		}
 		
@@ -77,18 +83,21 @@ public class LoginControll extends BasePageControll {
 	
 	@RequestMapping("user-login")
 	public void userLogin(HttpServletRequest request, HttpServletResponse response) {
+		String vcode = getParameter(request, "vcode");
+		Boolean needVcode = (Boolean) ServletUtils.getSessionAttribute(request, "needVcode");
+		if (needVcode != null && needVcode) {
+			if (StringUtils.isBlank(vcode) || !CaptchaUtil.ver(vcode, request)) {
+				writeFailure(response, "验证码错误");
+				return;
+			}
+		}
+		
 		String user = getParameterNotNull(request, "user");
 		String passwd = getParameterNotNull(request, "passwd");
 		
-		String vcode = getParameter(request, "vcode");
-		if (StringUtils.isNotBlank(vcode) && !CaptchaUtil.ver(vcode, request)) {
-			writeFailure(response, "验证码错误");
-			return;
-		}
-		
 		int retry = getLoginRetry(user, 1);
-		if (retry >= 3 && StringUtils.isBlank(vcode)) {
-			ServletUtils.setSessionAttribute(request, "needVcode", retry);
+		if (retry > 3 && StringUtils.isBlank(vcode)) {
+			ServletUtils.setSessionAttribute(request, "needVcode", true);
 			writeFailure(response, "VCODE");
 			return;
 		}

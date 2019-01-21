@@ -65,7 +65,7 @@ $(document).ready(function() {
 		$(this).attr('src', rb.baseUrl + '/user/captcha?' + $random())
 	}).trigger('click')
 
-	$('#user,#passwd').keydown(function(e){
+	$('#user,#passwd,#vcode').keydown(function(e){
 		if (e.keyCode == 13) $('.J_login-btn').trigger('click')
 	})
 	const btn = $('.J_login-btn').click(function() {
