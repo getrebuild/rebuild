@@ -4,12 +4,20 @@
         "es6": true,
         "jquery": true
     },
-    "extends": ["eslint:recommended"],
+    "plugins": ["react"],
+    "extends": ["eslint:recommended", "plugin:react/recommended"],
+    "parser": "babel-eslint",
     "parserOptions": {
         "ecmaFeatures": {
             "jsx": true
         },
-        "ecmaVersion": 2018
+        "ecmaVersion": 2018,
+        "sourceType": "script"
+    },
+    "settings": {
+        "react": {
+            "version": "16.4.0"
+        }
     },
     "globals": {
         "$setTimeout": true,
@@ -25,12 +33,12 @@
         "React": true,
         "ReactDOM": true
     },
-    "plugins": ["react"],
     "rules": {
-        "indent": [1, 2],
-        "linebreak-style": [1, "unix"],
-        "quotes": [1, "single"],
-        "semi": [1, "never"],
+        "strict": 0,
+        "indent": [2, 2],
+        "linebreak-style": [2, "unix"],
+        "quotes": [2, "single"],
+        "semi": [2, "never"],
         "eqeqeq": [2, "always"]
     }
 }
