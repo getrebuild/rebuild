@@ -36,11 +36,13 @@ import org.springframework.web.servlet.ModelAndView;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.task.BulkTaskExecutor;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.metadata.entityhub.Entity2Schema;
+import com.rebuild.server.service.base.QuickCodeReindexTask;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.web.BasePageControll;
 
@@ -154,9 +156,29 @@ public class MetaEntityControll extends BasePageControll {
 		ID user = getRequestUser(request);
 		JSON formJson = ServletUtils.getRequestJson(request);
 		Record record = EntityHelper.parse((JSONObject) formJson, user);
+		
+		// 修改了名称字段
+		String needReindex = null;
+		String nameField = record.getString("nameField");
+		if (nameField != null) {
+			Object[] nameFieldOld = Application.createQueryNoFilter(
+					"select nameField,entityName from MetaEntity where entityId = ?")
+					.setParameter(1, record.getPrimary())
+					.unique();
+			if (!nameField.equalsIgnoreCase((String) nameFieldOld[0])) {
+				needReindex = (String) nameFieldOld[1];
+			}
+		}
+		
 		Application.getCommonService().update(record);
-
 		Application.getMetadataFactory().refresh(false);
+		
+		if (needReindex != null) {
+			Entity entity = MetadataHelper.getEntity(needReindex);
+			QuickCodeReindexTask reindexTask = new QuickCodeReindexTask(entity);
+			BulkTaskExecutor.submit(reindexTask);
+		}
+		
 		writeSuccess(response);
 	}
 	

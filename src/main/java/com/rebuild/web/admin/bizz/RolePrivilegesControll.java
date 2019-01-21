@@ -96,7 +96,7 @@ public class RolePrivilegesControll extends BaseEntityControll {
 	public void privilegesList(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID roleId = getIdParameterNotNull(request, "role");
 		if (RoleService.ADMIN_ROLE.equals(roleId)) {
-			writeFailure(response, "管理员权限不允许修改");
+			writeFailure(response, "系统内建角色，不允许修改");
 			return;
 		}
 		

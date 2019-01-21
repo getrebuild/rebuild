@@ -115,6 +115,10 @@ public class Field2Schema {
 		}
 		
 		Entity entity = field.getOwnEntity();
+		if (entity.getNameField().equals(field)) {
+			throw new ModificationMetadataException("名称字段不允许被删除");
+		}
+		
 		if (force == false) {
 			long count = 0;
 			if ((count = checkRecordCount(entity)) > 50000) {
