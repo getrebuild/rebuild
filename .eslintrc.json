@@ -28,10 +28,25 @@
         "$urlp": true,
         "$encode": true,
         "$decode": true,
+        "$fileCutName": true,
+        "$fileDetectingIcon": true,
+        "$cleanMenu": true,
         "rb": true,
         "renderRbcomp": true,
         "React": true,
-        "ReactDOM": true
+        "ReactDOM": true,
+        "PropTypes": true,
+        "RbSpinner": true,
+        "RbModal": true,
+        "RbModalHandler": true,
+        "RbFrom": true,
+        "RbFormHandler": true,
+        "RbList": true,
+        "RbListPage": true,
+        "AdvFilter": true,
+        "UserShow": true,
+        "AdvFilter": true
+        
     },
     "rules": {
         "strict": 0,
