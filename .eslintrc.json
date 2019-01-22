@@ -41,12 +41,11 @@
         "RbModalHandler": true,
         "RbFrom": true,
         "RbFormHandler": true,
+        "RbFormElement": true,
         "RbList": true,
         "RbListPage": true,
         "AdvFilter": true,
-        "UserShow": true,
-        "AdvFilter": true
-        
+        "UserShow": true
     },
     "rules": {
         "strict": 0,
