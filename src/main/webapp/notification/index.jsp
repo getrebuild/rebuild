@@ -76,7 +76,7 @@ $(document).ready(function(){
 		if (ids.length == 0){ rb.hbsuccess('所有消息已设为读'); return }
 		
 		unread.off('click')
-		$.post(rb.baseUrl + '/app/notification/toggle-unread?state=read&id=' + ids.join(','), function(res){
+		$.post(rb.baseUrl + '/notification/toggle-unread?state=read&id=' + ids.join(','), function(res){
 			unread.each(function(){
 				$(this).removeClass('unread')
 				$(this).find('.unread-flag').remove()
@@ -93,7 +93,7 @@ $(document).ready(function(){
 let current_page = 1
 let load_list = function(){
 	let isAll = $('.J_view-all').hasClass('active')
-	$.get(rb.baseUrl + '/app/notification/list?isAll=' + isAll + '&pageNo=' + current_page, function(res){
+	$.get(rb.baseUrl + '/notification/list?isAll=' + isAll + '&pageNo=' + current_page, function(res){
 		if (current_page == 1){
 			$('.list-nodata').remove()
 			$('.J_list ul').empty()
@@ -104,7 +104,7 @@ let load_list = function(){
 			if (item[3] == true){
 				let unread = o
 				o.addClass('notification-unread').attr('title', '点击设为已读').click(()=>{
-					$.post(rb.baseUrl + '/app/notification/toggle-unread?state=read&id=' + item[4], ()=>{
+					$.post(rb.baseUrl + '/notification/toggle-unread?state=read&id=' + item[4], ()=>{
 						unread.removeClass('notification-unread')
 					})
 				})

@@ -22,7 +22,7 @@
 				<div class="card-body">
 					<div class="card-title pb-2">
 						<div class="float-left">
-							<button class="btn btn-secondary btn-space" onclick="location.href='${baseUrl}/app/notifications'" type="button"><i class="zmdi zmdi-long-arrow-left icon"></i> 返回列表</button>
+							<button class="btn btn-secondary btn-space" onclick="location.href='${baseUrl}/notifications'" type="button"><i class="zmdi zmdi-long-arrow-left icon"></i> 返回列表</button>
 						</div>
 						<div class="float-right">
 							<button class="btn btn-secondary btn-space" type="button"><i class="zmdi zmdi-notifications-active icon"></i> 设为未读</button>

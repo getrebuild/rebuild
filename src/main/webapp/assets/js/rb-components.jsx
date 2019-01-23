@@ -1,35 +1,37 @@
+/* eslint-disable react/no-string-refs */
+/* eslint-disable react/prop-types */
 // ~~ Modal 兼容子元素和 iFrame
 class RbModal extends React.Component {  // eslint-disable-line
-  constructor (props) {
+  constructor(props) {
     super(props)
     this.state = { ...props }
   }
-  render () {
+  render() {
     let inFrame = !this.props.children
-    return (<div className='modal rbmodal colored-header colored-header-primary' ref='rbmodal'>
-      <div className='modal-dialog' style={{ maxWidth: (this.props.width || 680) + 'px' }}>
-        <div className='modal-content'>
-          <div className='modal-header modal-header-colored'>
-            <h3 className='modal-title'>{this.props.title || '无标题'}</h3>
-            <button className='close' type='button' onClick={() => this.hide()}><span className='zmdi zmdi-close' /></button>
+    return (<div className="modal rbmodal colored-header colored-header-primary" ref="rbmodal">
+      <div className="modal-dialog" style={{ maxWidth: (this.props.width || 680) + 'px' }}>
+        <div className="modal-content">
+          <div className="modal-header modal-header-colored">
+            <h3 className="modal-title">{this.props.title || '无标题'}</h3>
+            <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
           </div>
           <div className={'modal-body' + (inFrame ? ' iframe rb-loading' : '') + (inFrame && this.state.frameLoad !== false ? ' rb-loading-active' : '')}>
-            {this.props.children || <iframe src={this.props.url} frameBorder='0' scrolling='no' onLoad={() => this.resize()} />}
+            {this.props.children || <iframe src={this.props.url} frameBorder="0" scrolling="no" onLoad={() => this.resize()} />}
             {inFrame && <RbSpinner />}
           </div>
         </div>
       </div>
     </div>)
   }
-  componentDidMount () {
+  componentDidMount() {
     this.show()
   }
-  show () {
+  show() {
     let root = $(this.refs['rbmodal'])
-    root.modal({ show: true, backdrop: 'static' })
+    root.modal({ show: true, backdrop: 'static', keyboard: false })
     typeof this.props.onShow === 'function' && this.props.onShow(this)
   }
-  hide () {
+  hide() {
     let root = $(this.refs['rbmodal'])
     root.modal('hide')
     if (this.props.disposeOnHide === true) {
@@ -40,14 +42,14 @@ class RbModal extends React.Component {  // eslint-disable-line
     }
     typeof this.props.onHide === 'function' && this.props.onHide(this)
   }
-  resize () {
+  resize() {
     if (this.props.children) return
     let root = $(this.refs['rbmodal'])
     let that = this
     $setTimeout(function () {
       let iframe = root.find('iframe')
       let height = iframe.contents().find('.main-content').height()
-      if (height == 0) height = iframe.contents().find('body').height()
+      if (height === 0) height = iframe.contents().find('body').height()
       else height += 45 // .main-content's padding
       root.find('.modal-body').height(height)
       that.setState({ frameLoad: false })
@@ -57,32 +59,32 @@ class RbModal extends React.Component {  // eslint-disable-line
 
 // ~~ Modal 处理器
 class RbModalHandler extends React.Component {  // eslint-disable-line
-  constructor (props) {
+  constructor(props) {
     super(props)
     this.state = { ...props }
     this.show = this.show.bind(this)
     this.hide = this.hide.bind(this)
   }
-  show (state, call) {
+  show(state, call) {
     let callback = () => {
       if (this.refs['dlg']) this.refs['dlg'].show()
       typeof call === 'function' && call(this)
     }
-    if (state && $.type(state) == 'object') this.setState(state, callback)
+    if (state && $.type(state) === 'object') this.setState(state, callback)
     else callback()
   }
-  hide () {
+  hide() {
     if (this.refs['dlg']) this.refs['dlg'].hide()
   }
 }
 
 // ~~ Form 处理器
 class RbFormHandler extends RbModalHandler {  // eslint-disable-line
-  constructor (props) {
+  constructor(props) {
     super(props)
     this.handleChange = this.handleChange.bind(this)
   }
-  handleChange (e) {
+  handleChange(e) {
     let target = e.target
     let id = target.dataset.id
     let val = target.type === 'checkbox' ? target.checked : target.value
@@ -94,30 +96,30 @@ class RbFormHandler extends RbModalHandler {  // eslint-disable-line
 
 // ~~ 提示框
 class RbAlert extends React.Component {  // eslint-disable-line
-  constructor (props) {
+  constructor(props) {
     super(props)
   }
-  render () {
-    let icon = this.props.type == 'danger' ? 'alert-triangle' : 'info-outline'
-    icon = this.props.type == 'warning' ? 'alert-circle-o' : icon
+  render() {
+    let icon = this.props.type === 'danger' ? 'alert-triangle' : 'info-outline'
+    icon = this.props.type === 'warning' ? 'alert-circle-o' : icon
     let type = this.props.type || 'primary'
-    let content = this.props.htmlMessage ? <div className='mt-3' style={{ lineHeight: 1.8 }} dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} /> : <p>{this.props.message || '提示内容'}</p>
+    let content = this.props.htmlMessage ? <div className="mt-3" style={{ lineHeight: 1.8 }} dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} /> : <p>{this.props.message || '提示内容'}</p>
     let confirm = (this.props.confirm || this.hide).bind(this)
     return (
-      <div className='modal rbalert' ref='rbalert' tabIndex='-1'>
-        <div className='modal-dialog modal-dialog-centered'>
-          <div className='modal-content'>
-            <div className='modal-header pb-0'>
-              <button className='close' type='button' onClick={() => this.hide()}><span className='zmdi zmdi-close' /></button>
+      <div className="modal rbalert" ref="rbalert" tabIndex="-1">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header pb-0">
+              <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
             </div>
-            <div className='modal-body'>
-              <div className='text-center ml-6 mr-6'>
+            <div className="modal-body">
+              <div className="text-center ml-6 mr-6">
                 <div className={'text-' + type}><span className={'modal-main-icon zmdi zmdi-' + icon} /></div>
-                {this.props.title && <h4 className='mb-2 mt-3'>{this.props.title}</h4>}
+                {this.props.title && <h4 className="mb-2 mt-3">{this.props.title}</h4>}
                 <div className={this.props.title ? '' : 'mt-3'}>{content}</div>
-                <div className='mt-4 mb-3' ref='btns'>
-                  <button className='btn btn-space btn-secondary' type='button' onClick={() => this.hide()}>取消</button>
-                  <button className={'btn btn-space btn-' + type} type='button' onClick={confirm}>{this.props.confirmText || '确定'}</button>
+                <div className="mt-4 mb-3" ref="btns">
+                  <button className="btn btn-space btn-secondary" type="button" onClick={() => this.hide()}>取消</button>
+                  <button className={'btn btn-space btn-' + type} type="button" onClick={confirm}>{this.props.confirmText || '确定'}</button>
                 </div>
               </div>
             </div>
@@ -126,10 +128,10 @@ class RbAlert extends React.Component {  // eslint-disable-line
       </div>
     )
   }
-  componentDidMount () {
+  componentDidMount() {
     $(this.refs['rbalert']).modal({ show: true, keyboard: true })
   }
-  hide () {
+  hide() {
     let root = $(this.refs['rbalert'])
     root.modal('hide')
     setTimeout(function () {
@@ -141,26 +143,26 @@ class RbAlert extends React.Component {  // eslint-disable-line
 
 // ~~ 顶部提示条
 class RbHighbar extends React.Component {  // eslint-disable-line
-  constructor (props) {
+  constructor(props) {
     super(props)
     this.state = { animatedClass: 'slideInDown' }
   }
-  render () {
-    let icon = this.props.type == 'success' ? 'check' : 'info-outline'
-    icon = this.props.type == 'danger' ? 'close-circle-o' : icon
-    let content = this.props.htmlMessage ? <div className='message' dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} /> : <div className='message'>{this.props.message}</div>
-    return (<div ref='rbhighbar' className={'rbhighbar animated faster ' + this.state.animatedClass}>
+  render() {
+    let icon = this.props.type === 'success' ? 'check' : 'info-outline'
+    icon = this.props.type === 'danger' ? 'close-circle-o' : icon
+    let content = this.props.htmlMessage ? <div className="message" dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} /> : <div className="message">{this.props.message}</div>
+    return (<div ref="rbhighbar" className={'rbhighbar animated faster ' + this.state.animatedClass}>
       <div className={'alert alert-dismissible alert-' + (this.props.type || 'warning')}>
-        <button className='close' type='button' onClick={() => this.close()}><span className='zmdi zmdi-close' /></button>
-        <div className='icon'><span className={'zmdi zmdi-' + icon} /></div>
+        <button className="close" type="button" onClick={() => this.close()}><span className="zmdi zmdi-close" /></button>
+        <div className="icon"><span className={'zmdi zmdi-' + icon} /></div>
         {content}
       </div>
     </div>)
   }
-  componentDidMount () {
+  componentDidMount() {
     setTimeout(() => { this.close() }, this.props.timeout || 3000)
   }
-  close () {
+  close() {
     this.setState({ animatedClass: 'fadeOut' }, () => {
       setTimeout(() => {
         $(this.refs['rbhighbar']).parent().remove()
@@ -170,10 +172,10 @@ class RbHighbar extends React.Component {  // eslint-disable-line
 }
 
 // ~~ 加载条
-function RbSpinner (props) {  // eslint-disable-line
-  return <div className='rb-spinner'>
-    <svg width='40px' height='40px' viewBox='0 0 66 66' xmlns='http://www.w3.org/2000/svg'>
-      <circle fill='none' strokeWidth='4' strokeLinecap='round' cx='33' cy='33' r='30' className='circle' />
+function RbSpinner(props) {  // eslint-disable-line
+  return <div className="rb-spinner">
+    <svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
+      <circle fill="none" strokeWidth="4" strokeLinecap="round" cx="33" cy="33" r="30" className="circle" />
     </svg>
   </div>
 }
@@ -183,14 +185,14 @@ let renderRbcomp__counter = new Date().getTime()
 // @target id or Element
 const renderRbcomp = function (jsx, target) {
   target = target || ('react-comps-' + renderRbcomp__counter++)
-  if ($.type(target) == 'string') { // element id
+  if ($.type(target) === 'string') { // element id
     let container = document.getElementById(target)
     if (!container) target = $('<div id="' + target + '"></div>').appendTo(document.body)[0]
     else target = container
   } else {
     // Element object
   }
-  return ReactDOM.render(jsx, target)
+  return ReactDOM.render(jsx, target)  // eslint-disable-line react/no-render-return-value
 }
 
 // -- Usage
@@ -210,7 +212,7 @@ rb.modal = function (url, title, ext) {
     rb.__currentModal.show()
   } else {
     rb.__currentModal = renderRbcomp(<RbModal url={url} title={title} width={ext.width} disposeOnHide={ext.disposeOnHide} />)
-    if (ext.disposeOnHide == false) { //  No cache
+    if (ext.disposeOnHide === false) { //  No cache
       rb.__currentModalCache[url] = rb.__currentModal
     }
   }
@@ -238,12 +240,12 @@ rb.modalResize = function (url) {
 // @ext - more props
 rb.alert = (message, titleExt, ext) => {
   let title = titleExt
-  if ($.type(titleExt) == 'object') {
+  if ($.type(titleExt) === 'object') {
     title = null
     ext = titleExt
   }
   ext = ext || {}
-  if (ext.html == true) return renderRbcomp(<RbAlert htmlMessage={message} title={title} type={ext.type} confirmText={ext.confirmText} confirm={ext.confirm} />)
+  if (ext.html === true) return renderRbcomp(<RbAlert htmlMessage={message} title={title} type={ext.type} confirmText={ext.confirmText} confirm={ext.confirm} />)
   else return renderRbcomp(<RbAlert message={message} title={title} type={ext.type} confirmText={ext.confirmText} confirm={ext.confirm} />)
 }
 
@@ -251,12 +253,12 @@ rb.alert = (message, titleExt, ext) => {
 // @type - danger, warning or null
 // @ext - more props
 rb.highbar = (message, type, ext) => {
-  if (top != self && parent.rb && parent.rb.highbar) {
+  if (top !== self && parent.rb && parent.rb.highbar) {
     parent.rb.highbar(message, type, ext)
     return
   }
   ext = ext || {}
-  if (ext.html == true) return renderRbcomp(<RbHighbar htmlMessage={message} type={type} timeout={ext.timeout} />)
+  if (ext.html === true) return renderRbcomp(<RbHighbar htmlMessage={message} type={type} timeout={ext.timeout} />)
   else return renderRbcomp(<RbHighbar message={message} type={type} timeout={ext.timeout} />)
 }
 rb.hberror = (message) => {

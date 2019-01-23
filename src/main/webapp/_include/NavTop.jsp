@@ -38,7 +38,7 @@ final User currentUser = Application.getUserStore().getUser(AppUtils.getRequestU
 					<a class="nav-link" href="${baseUrl}/admin/systems"><i class="icon zmdi zmdi-settings"></i></a>
 				</li>
 				<li class="nav-item dropdown J_notifications-top">
-					<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="${baseUrl}/app/notifications"><i class="icon zmdi zmdi-notifications"></i><span class="indicator hide"></span></a>
+					<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="${baseUrl}/notifications"><i class="icon zmdi zmdi-notifications"></i><span class="indicator hide"></span></a>
 					<ul class="dropdown-menu rb-notifications">
 					<li>
 						<div class="title">未读 <span class="badge badge-pill">0</span></div>
@@ -49,7 +49,7 @@ final User currentUser = Application.getUserStore().getUser(AppUtils.getRequestU
 								</div>
 							</div>
 						</div>
-						<div class="footer"><a href="${baseUrl}/app/notifications">查看全部</a></div>
+						<div class="footer"><a href="${baseUrl}/notifications">查看全部</a></div>
 					</li>
 					</ul>
 				</li>

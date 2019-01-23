@@ -1,0 +1,61 @@
+{
+    "env": {
+        "browser": true,
+        "es6": true,
+        "jquery": true
+    },
+    "plugins": ["react"],
+    "extends": ["eslint:recommended", "plugin:react/recommended"],
+    "parser": "babel-eslint",
+    "parserOptions": {
+        "ecmaFeatures": {
+            "jsx": true
+        },
+        "ecmaVersion": 2018,
+        "sourceType": "script"
+    },
+    "settings": {
+        "react": {
+            "version": "16.4.0"
+        }
+    },
+    "globals": {
+        "$setTimeout": true,
+        "$random": true,
+        "$regex": true,
+        "$storage": true,
+        "$val": true,
+        "$urlp": true,
+        "$encode": true,
+        "$decode": true,
+        "$fileCutName": true,
+        "$fileDetectingIcon": true,
+        "$cleanMenu": true,
+        "$cleanMap": true,
+        "$pages": true,
+        "rb": true,
+        "renderRbcomp": true,
+        "React": true,
+        "ReactDOM": true,
+        "PropTypes": true,
+        "RbSpinner": true,
+        "RbModal": true,
+        "RbModalHandler": true,
+        "RbFrom": true,
+        "RbFormHandler": true,
+        "RbFormElement": true,
+        "RbList": true,
+        "RbListPage": true,
+        "AdvFilter": true,
+        "UserShow": true,
+        "Mprogress": true
+    },
+    "rules": {
+        "strict": 0,
+        "indent": [2, 2],
+        "linebreak-style": [2, "unix"],
+        "quotes": [2, "single"],
+        "semi": [2, "never"],
+        "eqeqeq": [2, "always"]
+    }
+}

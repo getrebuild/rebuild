@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.user.settings;
+package com.rebuild.web.user.account;
 
 import java.io.IOException;
 
@@ -41,17 +41,18 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * User acciunt
  * 
  * @author devezhao
  * @since 10/08/2018
  */
 @RequestMapping("/settings")
 @Controller
-public class UserSettingsControll extends BaseEntityControll {
+public class AccountControll extends BaseEntityControll {
 
 	@RequestMapping("/account")
 	public ModelAndView pageView(HttpServletRequest request) throws IOException {
-		return createModelAndView("/user-settings/account.jsp", "User", getRequestUser(request));
+		return createModelAndView("/account/settings.jsp", "User", getRequestUser(request));
 	}
 	
 	@RequestMapping("/account/send-email-vcode")
