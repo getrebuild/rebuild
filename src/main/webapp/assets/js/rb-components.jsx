@@ -1,3 +1,5 @@
+/* eslint-disable react/no-string-refs */
+/* eslint-disable react/prop-types */
 // ~~ Modal 兼容子元素和 iFrame
 class RbModal extends React.Component {  // eslint-disable-line
   constructor(props) {
@@ -68,7 +70,7 @@ class RbModalHandler extends React.Component {  // eslint-disable-line
       if (this.refs['dlg']) this.refs['dlg'].show()
       typeof call === 'function' && call(this)
     }
-    if (state && $.type(state) == 'object') this.setState(state, callback)
+    if (state && $.type(state) === 'object') this.setState(state, callback)
     else callback()
   }
   hide() {
@@ -99,7 +101,7 @@ class RbAlert extends React.Component {  // eslint-disable-line
   }
   render() {
     let icon = this.props.type === 'danger' ? 'alert-triangle' : 'info-outline'
-    icon = this.props.type == 'warning' ? 'alert-circle-o' : icon
+    icon = this.props.type === 'warning' ? 'alert-circle-o' : icon
     let type = this.props.type || 'primary'
     let content = this.props.htmlMessage ? <div className="mt-3" style={{ lineHeight: 1.8 }} dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} /> : <p>{this.props.message || '提示内容'}</p>
     let confirm = (this.props.confirm || this.hide).bind(this)
@@ -147,7 +149,7 @@ class RbHighbar extends React.Component {  // eslint-disable-line
   }
   render() {
     let icon = this.props.type === 'success' ? 'check' : 'info-outline'
-    icon = this.props.type == 'danger' ? 'close-circle-o' : icon
+    icon = this.props.type === 'danger' ? 'close-circle-o' : icon
     let content = this.props.htmlMessage ? <div className="message" dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} /> : <div className="message">{this.props.message}</div>
     return (<div ref="rbhighbar" className={'rbhighbar animated faster ' + this.state.animatedClass}>
       <div className={'alert alert-dismissible alert-' + (this.props.type || 'warning')}>
@@ -190,7 +192,7 @@ const renderRbcomp = function (jsx, target) {
   } else {
     // Element object
   }
-  return ReactDOM.render(jsx, target)
+  return ReactDOM.render(jsx, target)  // eslint-disable-line react/no-render-return-value
 }
 
 // -- Usage

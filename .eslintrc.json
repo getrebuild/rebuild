@@ -31,6 +31,8 @@
         "$fileCutName": true,
         "$fileDetectingIcon": true,
         "$cleanMenu": true,
+        "$cleanMap": true,
+        "$pages": true,
         "rb": true,
         "renderRbcomp": true,
         "React": true,
@@ -45,7 +47,8 @@
         "RbList": true,
         "RbListPage": true,
         "AdvFilter": true,
-        "UserShow": true
+        "UserShow": true,
+        "Mprogress": true
     },
     "rules": {
         "strict": 0,

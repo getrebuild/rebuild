@@ -1,4 +1,3 @@
 // for dialog
-$(function(){
-
-});
+$(function () {
+})
