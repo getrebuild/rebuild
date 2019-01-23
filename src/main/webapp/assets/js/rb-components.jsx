@@ -28,7 +28,7 @@ class RbModal extends React.Component {  // eslint-disable-line
   }
   show() {
     let root = $(this.refs['rbmodal'])
-    root.modal({ show: true, backdrop: 'static' })
+    root.modal({ show: true, backdrop: 'static', keyboard: false })
     typeof this.props.onShow === 'function' && this.props.onShow(this)
   }
   hide() {

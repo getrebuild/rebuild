@@ -128,7 +128,7 @@ var __initNavs = function () {
 // Check notification
 var __checkMessage__state = 0
 var __checkMessage = function () {
-  $.get(rb.baseUrl + '/app/notification/check-message', function (res) {
+  $.get(rb.baseUrl + '/notification/check-message', function (res) {
     if (res.error_code > 0) return
     $('.J_notifications-top .badge').text(res.data.unread)
     if (res.data.unread > 0) $('.J_notifications-top .indicator').removeClass('hide')
@@ -142,12 +142,12 @@ var __checkMessage = function () {
 var __loadMessages__state = 0
 var __loadMessages = function () {
   if (__loadMessages__state === 1) return
-  $.get(rb.baseUrl + '/app/notification/list?pageSize=10', function (res) {
+  $.get(rb.baseUrl + '/notification/list?pageSize=10', function (res) {
     var el = $('.rb-notifications .content ul').empty()
     $(res.data).each(function (idx, item) {
       var o = $('<li class="notification"></li>').appendTo(el)
       if (item[3] === true) o.addClass('notification-unread')
-      o = $('<a href="' + rb.baseUrl + '/app/notifications#id=' + item[4] + '"></a>').appendTo(o)
+      o = $('<a href="' + rb.baseUrl + '/notifications#id=' + item[4] + '"></a>').appendTo(o)
       $('<div class="image"><img src="' + item[0][1] + '" alt="Avatar"></div>').appendTo(o)
       o = $('<div class="notification-info"></div>').appendTo(o)
       $('<div class="text text-truncate">' + item[1] + '</div>').appendTo(o)

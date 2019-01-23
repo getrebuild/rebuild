@@ -48,17 +48,17 @@ import cn.devezhao.persist4j.engine.ID;
 @Controller
 public class NotificationControll extends BasePageControll {
 
-	@RequestMapping("/app/notifications")
+	@RequestMapping("/notifications")
 	public ModelAndView pageIndex(HttpServletRequest request) throws IOException {
 		return createModelAndView("/notification/index.jsp");
 	}
 	
-	@RequestMapping("/app/notification/{id}")
+	@RequestMapping("/notification/{id}")
 	public ModelAndView pageDetails(@PathVariable String id, HttpServletRequest request) throws IOException {
 		return createModelAndView("/notification/details.jsp");
 	}
 	
-	@RequestMapping("/app/notification/check-message")
+	@RequestMapping("/notification/check-message")
 	public void checkMessage(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		Object[] unread = Application.createQueryNoFilter(
@@ -72,7 +72,7 @@ public class NotificationControll extends BasePageControll {
 		writeSuccess(response, ret);
 	}
 	
-	@RequestMapping("/app/notification/list")
+	@RequestMapping("/notification/list")
 	public void list(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		int pn = getIntParameter(request, "pageNo", 1);
@@ -110,7 +110,7 @@ public class NotificationControll extends BasePageControll {
 		return message;
 	}
 	
-	@RequestMapping("/app/notification/toggle-unread")
+	@RequestMapping("/notification/toggle-unread")
 	public void toggleUnread(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		String ids = getParameter(request, "id");
