@@ -1,7 +1,8 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/no-string-refs */
 /* eslint-disable react/prop-types */
 // ~~ Modal 兼容子元素和 iFrame
-class RbModal extends React.Component {  // eslint-disable-line
+class RbModal extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
@@ -58,7 +59,7 @@ class RbModal extends React.Component {  // eslint-disable-line
 }
 
 // ~~ Modal 处理器
-class RbModalHandler extends React.Component {  // eslint-disable-line
+class RbModalHandler extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
@@ -79,7 +80,7 @@ class RbModalHandler extends React.Component {  // eslint-disable-line
 }
 
 // ~~ Form 处理器
-class RbFormHandler extends RbModalHandler {  // eslint-disable-line
+class RbFormHandler extends RbModalHandler {
   constructor(props) {
     super(props)
     this.handleChange = this.handleChange.bind(this)
@@ -95,7 +96,7 @@ class RbFormHandler extends RbModalHandler {  // eslint-disable-line
 }
 
 // ~~ 提示框
-class RbAlert extends React.Component {  // eslint-disable-line
+class RbAlert extends React.Component {
   constructor(props) {
     super(props)
   }
@@ -142,7 +143,7 @@ class RbAlert extends React.Component {  // eslint-disable-line
 }
 
 // ~~ 顶部提示条
-class RbHighbar extends React.Component {  // eslint-disable-line
+class RbHighbar extends React.Component {
   constructor(props) {
     super(props)
     this.state = { animatedClass: 'slideInDown' }
@@ -172,7 +173,7 @@ class RbHighbar extends React.Component {  // eslint-disable-line
 }
 
 // ~~ 加载条
-function RbSpinner(props) {  // eslint-disable-line
+function RbSpinner() {
   return <div className="rb-spinner">
     <svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
       <circle fill="none" strokeWidth="4" strokeLinecap="round" cx="33" cy="33" r="30" className="circle" />
