@@ -1,9 +1,12 @@
-let to_entity,
-  upload_file,
-  repeat_opt = 1,
-  repeat_fields,
-  owning_user
 let fields_cached
+let ientry = {
+  file: null,
+  entity: null,
+  repeat_opt: 1,
+  repeat_fields: null,
+  owning_user: null,
+  fields_mapping: null
+}
 let import_inprogress = false
 let import_taskid
 $(document).ready(() => {
@@ -12,20 +15,21 @@ $(document).ready(() => {
   let fileds_render = (entity) => {
     if (!entity) return
     let el = $('#repeatFields').empty()
-    $.get(rb.baseUrl + '/admin//datas/import-fields?entity=' + entity, (res) => {
+    $.get(`${rb.baseUrl}/admin/datas/import-fields?entity=${entity}`, (res) => {
       $(res.data).each(function () {
         if (this.name === 'createdBy' || this.name === 'createdOn' || this.name === 'modifiedOn' || this.name === 'modifiedBy') return
         $('<option value="' + this.name + '">' + this.label + '</option>').appendTo(el)
       })
+
       el.select2({
         maximumSelectionLength: 3,
         placeholder: '选择字段'
       }).on('change', function () {
-        repeat_fields = $(this).val()
+        ientry.repeat_fields = $(this).val()
       })
 
       fields_cached = res.data
-      to_entity = entity
+      ientry.entity = entity
     })
   }
   $.get(rb.baseUrl + '/commons/metadata/entities', (res) => {
@@ -40,8 +44,8 @@ $(document).ready(() => {
   })
 
   $('input[name=repeatOpt]').click(function () {
-    repeat_opt = $(this).val()
-    if (repeat_opt === 3) $('.J_repeatFields').hide()
+    ientry.repeat_opt = ~~$(this).val()
+    if (ientry.repeat_opt === 3) $('.J_repeatFields').hide()
     else $('.J_repeatFields').show()
   })
 
@@ -65,7 +69,7 @@ $(document).ready(() => {
       }
     }
   }).on('change', function () {
-    owning_user = $(this).val() || null
+    ientry.owning_user = $(this).val() || null
   })
 
   $('.J_step1-btn').click(step_mapping)
@@ -94,8 +98,8 @@ const init_upload = () => {
     onSuccess: function (d) {
       d = JSON.parse(d.currentTarget.response)
       if (d.error_code === 0) {
-        upload_file = d.data
-        $('.J_upload-input').text($fileCutName(upload_file))
+        ientry.file = d.data
+        $('.J_upload-input').text($fileCutName(ientry.file))
       } else rb.hberror('上传失败，请稍后重试')
     }
   })
@@ -106,12 +110,12 @@ const step_upload = () => {
   $('.steps li[data-step=1], .step-content .step-pane[data-step=1]').addClass('active')
 }
 const step_mapping = () => {
-  if (!to_entity) { rb.highbar('请选择导入实体'); return }
-  if (!upload_file) { rb.highbar('请上传数据文件'); return }
-  if (repeat_opt !== 3 && (!repeat_fields || repeat_fields.length === 0)) { rb.highbar('请选择重复判断字段'); return }
+  if (!ientry.entity) { rb.highbar('请选择导入实体'); return }
+  if (!ientry.file) { rb.highbar('请上传数据文件'); return }
+  if (ientry.repeat_opt !== 3 && (!ientry.repeat_fields || ientry.repeat_fields.length === 0)) { rb.highbar('请选择重复判断字段'); return }
 
   let btn = $('.J_step1-btn').button('loading')
-  $.get(rb.baseUrl + '/admin/datas/import-preview?file=' + $encode(upload_file), (res) => {
+  $.get(rb.baseUrl + '/admin/datas/import-preview?file=' + $encode(ientry.file), (res) => {
     btn.button('reset')
     if (res.error_code > 0) { rb.highbar(res.error_msg); return }
     let _data = res.data
@@ -124,32 +128,27 @@ const step_mapping = () => {
   })
 }
 const step_import = () => {
-  let fields_mapping = {}
+  let fm = {}
   $('#fieldsMapping tbody>tr').each(function () {
     let _this = $(this)
     let col = _this.data('col')
     let field = _this.find('select').val()
-    if (field) fields_mapping[field] = col
+    if (field) fm[field] = col
   })
   $(fields_cached).each((idx, item) => {
     if (item.isNullable === true || !!item.defaultValue) {
       // Not be must
-    } else if (fields_mapping[item.name] === undefined) {
+    } else if (fm[item.name] === undefined) {
       rb.highbar(item.label + ' 为必填字段，请选择')
-      fields_mapping = null
+      fm = null
       return false
     }
   })
-  if (!fields_mapping) return
+  if (!fm) return
+  ientry.fields_mapping = fm
 
-  let _data = {
-    file: upload_file, entity: to_entity,
-    repeat_opt: repeat_opt, repeat_fields: repeat_fields, owning_user: owning_user,
-    fields_mapping: fields_mapping
-  }
   step_import_show()
-
-  $.post(rb.baseUrl + '/admin/datas/import-submit', JSON.stringify(_data), function (res) {
+  $.post(rb.baseUrl + '/admin/datas/import-submit', JSON.stringify(ientry), function (res) {
     if (res.error_code === 0) {
       import_inprogress = true
       import_taskid = res.data.taskid
@@ -185,7 +184,7 @@ const import_state = (taskid, inLoad) => {
     }
     if (_data.isCompleted === true || _data.isInterrupted === true) {
       $('.J_step3-cancel').attr('disabled', true)
-      $('.J_step3-logs').removeClass('hide')
+      // $('.J_step3-logs').removeClass('hide')
       import_inprogress = false
       return
     }
