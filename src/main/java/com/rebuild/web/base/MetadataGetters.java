@@ -45,13 +45,14 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * 元数据获取
  * 
  * @author zhaofang123@gmail.com
  * @since 09/19/2018
  */
 @Controller
 @RequestMapping("/commons/metadata/")
-public class MetadataGetter extends BaseControll {
+public class MetadataGetters extends BaseControll {
 
 	@RequestMapping("entities")
 	public void entities(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -103,11 +104,11 @@ public class MetadataGetter extends BaseControll {
 		Entity entityMeta = MetadataHelper.getEntity(entity);
 		
 		Set<Entity> references = new HashSet<>();
-		
-		Field[] rtFields = entityMeta.getReferenceToFields();
-		for (Field field : rtFields) {
+		for (Field field : entityMeta.getReferenceToFields()) {
 			Entity own = field.getOwnEntity();
-			references.add(own);
+			if (!MetadataHelper.isSlaveEntity(own.getEntityCode())) {
+				references.add(own);
+			}
 		}
 		
 		List<String[]> list = new ArrayList<>();

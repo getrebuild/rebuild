@@ -107,7 +107,7 @@ class RbAlert extends React.Component {
     let content = this.props.htmlMessage ? <div className="mt-3" style={{ lineHeight: 1.8 }} dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} /> : <p>{this.props.message || '提示内容'}</p>
     let confirm = (this.props.confirm || this.hide).bind(this)
     return (
-      <div className="modal rbalert" ref="rbalert" tabIndex="-1">
+      <div className="modal rbalert" ref="dlg" tabIndex="-1">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
@@ -130,10 +130,10 @@ class RbAlert extends React.Component {
     )
   }
   componentDidMount() {
-    $(this.refs['rbalert']).modal({ show: true, keyboard: true })
+    $(this.refs['dlg']).modal({ show: true, keyboard: true })
   }
   hide() {
-    let root = $(this.refs['rbalert'])
+    let root = $(this.refs['dlg'])
     root.modal('hide')
     setTimeout(function () {
       root.modal('dispose')

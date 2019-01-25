@@ -350,12 +350,12 @@ class RbListPagination extends React.Component {
       this.props.$$$parent.setPage(this.state.pageNo)
     })
   }
-    setPageSize = (e) => {
-      let s = e.target.value
-      this.setState({ pageSize: s }, () => {
-        this.props.$$$parent.setPage(1, s)
-      })
-    }
+  setPageSize = (e) => {
+    let s = e.target.value
+    this.setState({ pageSize: s }, () => {
+      this.props.$$$parent.setPage(1, s)
+    })
+  }
 }
 
 // -- Usage
@@ -377,60 +377,41 @@ const RbListPage = {
   init: function (config, entity, ep) {
     this._RbList = renderRbcomp(<RbList config={config} />, 'react-list')
 
-    $('.J_new').click(function () {
+    const that = this
+
+    $('.J_new').click(() => {
       rb.RbFormModal({ title: `新建${entity[1]}`, entity: entity[0], icon: entity[2] })
     })
-
-    let that = this
-
-    $('.J_edit').click(function () {
-      let selected = that._RbList.getSelectedRows()
+    $('.J_edit').click(() => {
+      let selected = this._RbList.getSelectedRows()
       if (selected.length === 1) {
         selected = selected[0]
         rb.RbFormModal({ id: selected[0], title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] })
       }
     })
-
-    $('.J_delete').click(function () {
-      let ids = that._RbList.getSelectedIds()
+    $('.J_delete').click(() => {
+      let ids = this._RbList.getSelectedIds()
       if (ids.length < 1) return
-
-      let alertExt = { type: 'danger', confirmText: '删除' }
-      alertExt.confirm = function () {
-        let btns = $(this.refs['btns']).find('.btn').button('loading')
-        let thatModal = this
-        $.post(rb.baseUrl + '/app/entity/record-delete?id=' + ids.join(','), function (res) {
-          if (res.error_code === 0) {
-            that._RbList.reload()
-            thatModal.hide()
-            if (res.data.deleted === res.data.requests) rb.highbar('删除成功', 'success')
-            else rb.highbar('删除了 ' + res.data.deleted + ' 条记录', 'success')
-          } else {
-            rb.hberror(res.error_msg)
-          }
-          btns.button('reset')
-        })
+      let deleteAfter = function () {
+        that._RbList.reload()
       }
-      rb.alert('确认删除选中的 ' + ids.length + ' 条记录吗？', alertExt)
+      // eslint-disable-next-line react/jsx-no-undef
+      renderRbcomp(<DeleteConfirm ids={ids} entity={entity[0]} deleteAfter={deleteAfter} />)
     })
-
-    $('.J_view').click(function () {
-      let selected = that._RbList.getSelectedRows()
+    $('.J_view').click(() => {
+      let selected = this._RbList.getSelectedRows()
       if (selected.length === 1) {
         selected = selected[0]
         rb.RbViewModal({ id: selected[0], entity: entity[0] })
       }
     })
-
-    $('.J_assign').click(function () {
-      let ids = that._RbList.getSelectedIds()
-      if (ids.length < 1) return
-      rb.DlgAssign({ entity: entity[0], ids: ids })
+    $('.J_assign').click(() => {
+      let ids = this._RbList.getSelectedIds()
+      if (ids.length > 0) rb.DlgAssign({ entity: entity[0], ids: ids })
     })
-    $('.J_share').click(function () {
-      let ids = that._RbList.getSelectedIds()
-      if (ids.length < 1) return
-      rb.DlgShare({ entity: entity[0], ids: ids })
+    $('.J_share').click(() => {
+      let ids = this._RbList.getSelectedIds()
+      if (ids.length > 0) rb.DlgShare({ entity: entity[0], ids: ids })
     })
 
     $('.J_columns').click(function () {
@@ -444,6 +425,7 @@ const RbListPage = {
       if (ep.U === false) $('.J_edit').remove()
       if (ep.A === false) $('.J_assign').remove()
       if (ep.S === false) $('.J_share').remove()
+
       $cleanMenu('.J_action')
     }
 
