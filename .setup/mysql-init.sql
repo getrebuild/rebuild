@@ -299,3 +299,8 @@ INSERT INTO `department` (`DEPT_ID`, `NAME`, `CREATED_ON`, `CREATED_BY`, `MODIFI
 -- Role
 INSERT INTO `role` (`ROLE_ID`, `NAME`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`, `QUICK_CODE`)
   VALUES ('003-0000000000000001', '管理员', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'GLY');
+
+-- Optional data
+INSERT INTO `layout_config` (`CONFIG_ID`, `BELONG_ENTITY`, `APPLY_TYPE`, `CONFIG`, `SHARE_TO`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`) VALUES ('013-016870a743fb0000', 'User', 'FORM', '[{"field":"fullName","isFull":false},{"field":"email","isFull":false},{"field":"loginName","isFull":false},{"field":"password","isFull":false},{"field":"$DIVIDER$","isFull":true,"label":"分栏"},{"field":"deptId","isFull":false},{"field":"roleId","isFull":false},{"field":"isDisabled","isFull":false}]', 'ALL', '2019-01-21 21:43:57', '001-0000000000000001', '2019-01-26 16:09:07', '001-0000000000000001');
+INSERT INTO `layout_config` (`CONFIG_ID`, `BELONG_ENTITY`, `APPLY_TYPE`, `CONFIG`, `SHARE_TO`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`) VALUES ('013-016870aa702a0001', 'Department', 'FORM', '[{"field":"name","isFull":false},{"field":"parentDept","isFull":false},{"field":"isDisabled","isFull":false}]', 'ALL', '2019-01-21 21:47:25', '001-0000000000000001', '2019-01-26 16:09:50', '001-0000000000000001');
+INSERT INTO `layout_config` (`CONFIG_ID`, `BELONG_ENTITY`, `APPLY_TYPE`, `CONFIG`, `SHARE_TO`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`) VALUES ('013-0168893255a50016', 'Role', 'FORM', '[{"field":"name","isFull":false},{"field":"isDisabled","isFull":false}]', 'ALL', '2019-01-26 16:06:44', '001-0000000000000001', '2019-01-26 16:10:11', '001-0000000000000001');
