@@ -38,6 +38,10 @@ import cn.devezhao.persist4j.Entity;
  */
 public class TestSupport {
 	
+	static {
+		System.setProperty("catalina.home", "/data/");
+	}
+	
 	protected static final Log LOG = LogFactory.getLog(TestSupport.class);
 	
 	protected static final String TEST_ENTITY = "TestAllFieldsRB10";
