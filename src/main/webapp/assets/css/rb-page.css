@@ -1,4 +1,16 @@
-html.dev {}
+.dev-show {
+    display: none;
+}
+html.dev .dev-show {
+    display: block;
+}
+.admin-show {
+    display: none;
+}
+html.admin .admin-show {
+    display: block;
+}
+
 .dropdown-menu {
     box-shadow: 0 0 6px 0 rgba(0, 0, 0, .1), 0 10px 12px 0 rgba(170, 182, 206, .36);
     border-width: 0;

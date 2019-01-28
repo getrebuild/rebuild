@@ -24,14 +24,12 @@ $(function () {
   }
 
   if (rb.isAdminUser === true) {
-    $('.J_for-admin').removeClass('hide')
-    if (location.href.indexOf('/admin/') === -1) {
-      if (rb.isAdminVerified === true) {
-        // TODO
-      }
+    $('html').addClass('admin')
+    if (rb.isAdminVerified === true && location.href.indexOf('/admin/') === -1) {
+      // TODO
     }
   } else {
-    $('.J_for-admin').remove()
+    $('.admin-show').remove()
   }
 
   if ($('.J_notifications-top').length > 0) {

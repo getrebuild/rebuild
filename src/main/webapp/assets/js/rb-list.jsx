@@ -395,8 +395,11 @@ const RbListPage = {
       let deleteAfter = function () {
         that._RbList.reload()
       }
+
+      const wpc = window.__PageConfig
+      const needEntity = (wpc.type === 'SlaveList' || wpc.type === 'SlaveView') ? null : entity[0]
       // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<DeleteConfirm ids={ids} entity={entity[0]} deleteAfter={deleteAfter} />)
+      renderRbcomp(<DeleteConfirm ids={ids} entity={needEntity} deleteAfter={deleteAfter} />)
     })
     $('.J_view').click(() => {
       let selected = this._RbList.getSelectedRows()
@@ -544,7 +547,7 @@ const AdvFilters = {
 
 // Init
 $(document).ready(() => {
-  let wpc = window.__PageConfig
+  const wpc = window.__PageConfig
   if (!wpc) return
   RbListPage.init(wpc.listConfig, wpc.entity, wpc.privileges)
   if (!(wpc.advFilter === false)) AdvFilters.init('.adv-search', wpc.entity[0])

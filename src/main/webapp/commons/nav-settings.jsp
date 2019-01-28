@@ -60,7 +60,7 @@
 		</div>
 	</div>
 	<div class="dialog-footer">	
-		<div class="float-left hide J_for-admin">
+		<div class="float-left admin-show">
 			<label class="custom-control custom-checkbox custom-control-inline">
 				<input class="custom-control-input" type="checkbox" id="shareTo" value="ALL" checked="checked">
 				<span class="custom-control-label">共享给全部用户</span>

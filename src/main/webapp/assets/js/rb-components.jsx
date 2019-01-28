@@ -188,7 +188,10 @@ const renderRbcomp = function (jsx, target) {
   target = target || ('react-comps-' + renderRbcomp__counter++)
   if ($.type(target) === 'string') { // element id
     let container = document.getElementById(target)
-    if (!container) target = $('<div id="' + target + '"></div>').appendTo(document.body)[0]
+    if (!container) {
+      if (!target.startsWith('react-comps-')) throw 'No element found : ' + target
+      else target = $('<div id="' + target + '"></div>').appendTo(document.body)[0]
+    }
     else target = container
   } else {
     // Element object

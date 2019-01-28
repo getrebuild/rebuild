@@ -6,8 +6,6 @@
 <%@ include file="/_include/Head.jsp"%>
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/view-page.css">
 <title>${entityLabel}视图</title>
-<style type="text/css">
-</style>
 </head>
 <body class="view-body">
 <div class="view-header">
@@ -16,7 +14,7 @@
 	<span>
 		<a class="close J_close"><i class="zmdi zmdi-close"></i></a>
 		<a class="close sm J_reload"><i class="zmdi zmdi-refresh"></i></a>
-		<a class="close sm J_for-admin" href="${baseUrl}/admin/entity/${entityName}/form-design" title="配置布局" target="_blank"><i class="zmdi zmdi-settings"></i></a>
+		<a class="close sm admin-show" href="${baseUrl}/admin/entity/${entityName}/form-design" title="配置布局" target="_blank"><i class="zmdi zmdi-settings"></i></a>
 	</span>
 </div>
 <div class="main-content container-fluid">
@@ -25,7 +23,7 @@
 			<div class="tab-container">
 				<ul class="nav nav-tabs">
 					<li class="nav-item"><a class="nav-link active" href="#tab-rbview">视图</a></li>
-					<a class="vtab-settings J_for-admin J_view-addons hide" data-type="TAB" title="配置显示项"><i class="zmdi zmdi-settings"></i></a>
+					<a class="vtab-settings admin-show J_view-addons" data-type="TAB" title="配置显示项"><i class="zmdi zmdi-settings"></i></a>
 				</ul>
 				<div class="tab-content">
                     <div class="tab-pane active" id="tab-rbview"></div>
@@ -54,7 +52,7 @@
 					<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-plus"></i> 新建相关</button>
 					<div class="dropdown-menu dropdown-menu-right">
 						<div class="dropdown-divider"></div>
-						<a class="dropdown-item J_for-admin J_view-addons" data-type="ADD"><i class="icon zmdi zmdi-settings"></i> 配置新建项</a>
+						<a class="dropdown-item admin-show J_view-addons" data-type="ADD"><i class="icon zmdi zmdi-settings"></i> 配置新建项</a>
 					</div>
 				</div>
 			</div>

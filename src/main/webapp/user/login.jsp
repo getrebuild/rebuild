@@ -51,7 +51,7 @@
 				</div>
 				<div class="splash-footer text-muted">
 					<span>&copy; 2019 <a href="https://getrebuild.com/" target="_blank">REBUILD</a></span>
-					<br><span style="font-size:11px">Built on <%=ServerListener.getStartupTime() %></span>
+					<div class="dev-show" style="font-size:11px">Built on <%=ServerListener.getStartupTime()%></div>
 				</div>
 			</div>
 		</div>

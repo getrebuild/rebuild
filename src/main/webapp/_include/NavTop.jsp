@@ -34,7 +34,7 @@ final User currentUser = Application.getUserStore().getUser(AppUtils.getRequestU
 			</ul>
 			<div class="page-title hide"><span>${param['pageTitle']}</span></div>
 			<ul class="nav navbar-nav float-right rb-icons-nav">
-				<li class="nav-item dropdown J_admin-settings <%=currentUser.isAdmin() ? "" : "hide"%>">
+				<li class="nav-item dropdown admin-show">
 					<a class="nav-link" href="${baseUrl}/admin/systems"><i class="icon zmdi zmdi-settings"></i></a>
 				</li>
 				<li class="nav-item dropdown J_notifications-top">
