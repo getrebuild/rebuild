@@ -161,7 +161,7 @@ class RbHighbar extends React.Component {
     </div>)
   }
   componentDidMount() {
-    setTimeout(() => { this.close() }, this.props.timeout || 3000)
+    setTimeout(() => { this.close() }, this.props.timeout || 2000)
   }
   close() {
     this.setState({ animatedClass: 'fadeOut' }, () => {
