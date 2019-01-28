@@ -231,7 +231,7 @@ public class DataImporter extends BulkTask {
 	 * @param cell
 	 * @return
 	 */
-	private Object checkoutPickListValue(Field field, Cell cell) {
+	private ID checkoutPickListValue(Field field, Cell cell) {
 		String val = cell.asString();
 		if (StringUtils.isBlank(val)) {
 			return null;
@@ -250,7 +250,7 @@ public class DataImporter extends BulkTask {
 	 * @param cell
 	 * @return
 	 */
-	private Object checkoutReferenceValue(Field field, Cell cell) {
+	private ID checkoutReferenceValue(Field field, Cell cell) {
 		String val = cell.asString();
 		if (StringUtils.isBlank(val)) {
 			return null;
@@ -271,7 +271,7 @@ public class DataImporter extends BulkTask {
 		String sql = String.format("select %s from %s where %s = ?",
 				oEntity.getPrimaryField().getName(), oEntity.getName(), oEntity.getNameField().getName());
 		Object[] exists = Application.createQueryNoFilter(sql).setParameter(1, typeVal).unique();
-		return exists == null ? null : exists[0];
+		return exists == null ? null : (ID) exists[0];
 	}
 	
 	/**
