@@ -29,9 +29,5 @@ import cn.devezhao.bizz.privileges.impl.BizzPermission;
  */
 public class ZeroPermission {
 
-	public static final Permission BATCH_UPDATE = new BizzPermission("BU", 0, true);
-	
-	public static final Permission BATCH_CREATE = new BizzPermission("BC", 0, true);
-	
-	public static final Permission BATCH_READ = new BizzPermission("BR", 0, true);
+	public static final Permission ZERO = new BizzPermission("ZERO", 0, true);
 }

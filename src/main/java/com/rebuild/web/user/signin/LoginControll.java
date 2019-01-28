@@ -30,6 +30,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.service.bizz.privileges.User;
+import com.rebuild.server.service.bizz.privileges.ZeroPrivileges;
 import com.rebuild.utils.AES;
 import com.rebuild.web.BasePageControll;
 import com.wf.captcha.utils.CaptchaUtil;
@@ -119,6 +120,10 @@ public class LoginControll extends BasePageControll {
 		User loginUser = Application.getUserStore().getUser((ID) foundUser[0]);
 		if (!loginUser.isActive()) {
 			writeFailure(response, "用户未激活");
+			return;
+		}
+		if (!Application.getSecurityManager().allowedZero(loginUser.getId(), ZeroPrivileges.AllowLogin)) {
+			writeFailure(response, "用户无登录权限");
 			return;
 		}
 		
