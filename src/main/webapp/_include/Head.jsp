@@ -14,6 +14,7 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-page.css">
 <meta name="rb.env" content="<%=AppUtils.devMode() ? "dev" : "production"%>">
 <meta name="rb.baseUrl" content="${baseUrl}">
+<meta name="rb.appName" content="REBUILD">
 <%if (AppUtils.isAdminUser(request)){%>
 <meta name="rb.isAdminUser" content="true">
 <meta name="rb.isAdminVerified" content="<%=AppUtils.isAdminVerified(request)%>">
