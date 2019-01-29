@@ -27,11 +27,11 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import com.alibaba.fastjson.JSON;
-import com.rebuild.server.helper.SystemConfiguration;
 import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.utils.JSONUtils;
 
@@ -73,24 +73,16 @@ public class ServerStatus {
 	}
 
 	/**
-	 * 启动检查
+	 * 系统状态检查
 	 * 
 	 * @return
 	 */
 	public static boolean checkAll() {
 		List<State> last = new ArrayList<>();
 		
-		State stateCreateFile = checkCreateFile();
-		Application.LOG.info("Checking " + stateCreateFile);
-		last.add(stateCreateFile);
-		
-		State stateDatabase = checkDatabase();
-		Application.LOG.info("Checking " + stateDatabase);
-		last.add(stateDatabase);
-		
-		State stateCacheService = checkCacheService();
-		Application.LOG.info("Checking " + stateCacheService);
-		last.add(stateCacheService);
+		last.add(checkCreateFile());
+		last.add(checkDatabase());
+		last.add(checkCacheService());
 		
 		synchronized (LAST_STATUS) {
 			LAST_STATUS.clear();
@@ -125,9 +117,9 @@ public class ServerStatus {
 		String name = "CreateFile";
 		FileWriter fw = null;
 		try {
-			File test = SystemConfiguration.getFileOfTemp("test");
+			File test = new File(FileUtils.getTempDirectory(), "ServerStatus.test");
 			fw = new FileWriter(test);
-			IOUtils.write(CodecUtils.randomCode(100), fw);
+			IOUtils.write(CodecUtils.randomCode(1024), fw);
 			if (!test.exists()) {
 				return State.error(name, "Cloud't create file in temp Directory");
 			} else {
@@ -152,7 +144,7 @@ public class ServerStatus {
 		String name = "Cache/" + (cache.isUseRedis() ? "REDIS" : "EHCACHE");
 		
 		try {
-			cache.putx("test", 1, 60);
+			cache.putx("ServerStatus.test", 1, 60);
 		} catch (Exception ex) {
 			return State.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
 		}
@@ -166,8 +158,8 @@ public class ServerStatus {
 		final public String error;
 		@Override
 		public String toString() {
-			if (success) return String.format("%s : %s", name, "[ SUCCESS ]");
-			else return String.format("%s : %s", name, error);
+			if (success) return String.format("%s : [ OK ]", name);
+			else return String.format("%s : [ ERROR ] %s", name, error);
 		}
 		public JSON toJson() {
 			return JSONUtils.toJSONObject(name, success ? true : error);
@@ -177,6 +169,12 @@ public class ServerStatus {
 			this.name = name;
 			this.success = success;
 			this.error = error;
+			
+			if (success) {
+				Application.LOG.info("Checking " + toString());
+			} else {
+				Application.LOG.error("Checking " + toString());
+			}
 		}
 		private static State success(String name) {
 			return new State(name, true, null);

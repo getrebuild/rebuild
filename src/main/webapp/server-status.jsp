@@ -14,12 +14,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link rel="shortcut icon" href="${pageContext.request.contextPath}/assets/img/favicon.png" type="image/x-icon">
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/css/rb-base.css">
-<title>系统运行状态</title>
+<title>系统状态</title>
 <style type="text/css">
-.block{margin:0 auto;max-width:1000px;margin-bottom:32px;padding:0 14px}
+.block{margin:0 auto;max-width:1000px;padding:0 14px;margin-top:30px;}
+.error{background-color:#ea4335;color:#fff;padding:18px 0;}
+.error a{color:#fff;text-decoration:underline;}
 </style>
 </head>
 <body>
+<% if (!ServerStatus.isStatusOK()) { %>
+<div class="error">
+<div class="block mt-0">
+	<h4 class="mt-0">系统故障</h4>
+	<div>部分服务未能正常启动，请通过快速检查列表排除故障，故障排除后建议重启服务。你也可以获取 <a href="mailto:getrebuild@sina.com?subject=系统故障">技术支持</a></div>
+</div>
+</div>
+<% } %>
 <div class="block">
 	<h5 class="text-bold">快速检查</h5>
 	<table class="table table-bordered table-sm">
@@ -27,9 +37,9 @@
 		<% for (State e : ServerStatus.getLastStatus()) { %>
 		<tr>
 			<th width="30%"><%=e.name%></th>
-			<td><%=e.success ? "OK" : e.error%></td>
+			<td class="text-danger"><%=e.success ? "<span class='text-success'>OK<span>" : ("ERROR : " + e.error)%></td>
 		</tr>
-		<% }%>
+		<% } %>
 		<tr>
 			<th>Memory Usage</th>
 			<td>n/a</td>

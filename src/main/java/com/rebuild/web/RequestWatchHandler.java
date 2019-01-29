@@ -53,6 +53,14 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 			Object handler) throws Exception {
 		response.setCharacterEncoding("utf-8");
 		
+		String requestUrl = request.getRequestURI();
+		if (!requestUrl.contains("/gw/server-status")) {
+			if (!Application.serversReady()) {
+				response.sendRedirect(ServerListener.getContextPath() + "/gw/server-status?s=" + CodecUtils.urlEncode(requestUrl));
+				return false;
+			}
+		}
+		
 		Application.getSessionStore().storeLastActive(request);
 		
 		boolean chain = super.preHandle(request, response, handler);
