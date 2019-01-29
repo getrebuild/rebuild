@@ -28,6 +28,7 @@ if (ServletUtils.isAjaxRequest(request)) {
 				<div class="error-description"><%=errorMsg%></div>
 				<div class="error-goback-button">
 					<a class="btn btn-xl btn-primary" href="${pageContext.request.contextPath}/dashboard/home">返回首页</a>
+					<div class="mt-4"><a href="https://github.com/getrebuild/rebuild/issues/new?title=error-40x" target="_blank">报告此问题</a></div>
 				</div>
 			</div>
 		</div>
