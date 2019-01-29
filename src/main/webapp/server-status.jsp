@@ -10,10 +10,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link rel="shortcut icon" href="${pageContext.request.contextPath}/assets/img/favicon.png" type="image/x-icon">
-<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/css/rb-base.css">
+<%@ include file="/_include/Head.jsp"%>
 <title>系统状态</title>
 <style type="text/css">
 .block{margin:0 auto;max-width:1000px;padding:0 14px;margin-top:30px;}

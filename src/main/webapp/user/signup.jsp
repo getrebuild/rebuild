@@ -11,7 +11,7 @@
 		<div class="main-content container-fluid">
 			<div class="splash-container">
 				<div class="card card-border-color card-border-color-primary">
-					<div class="card-header"><i class="logo-img"></i></div>
+					<div class="card-header"><a class="logo-img"></a></div>
 					<div class="card-body">
 						<div class="form-group">
 							<input class="form-control" id="user" type="text" placeholder="用户名" autocomplete="off">
