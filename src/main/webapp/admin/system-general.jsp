@@ -6,8 +6,8 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>通用配置</title>
 <style type="text/css">
-.syscfg a.img-thumbnail{display:inline-block;padding:0.6rem;background-color:#fff;line-height:1;font-size:0;cursor:default;}
-.syscfg a.img-thumbnail img{max-height:20px;}
+.syscfg a.img-thumbnail{display:inline-block;padding:0.3rem 0;background-color:#fff;line-height:1;font-size:0;cursor:default;}
+.syscfg a.img-thumbnail .logo-img{transform:scale(0.8);}
 .syscfg h5{background-color:#eee;margin:0;padding:10px;}
 .syscfg .table td{padding:10px;}
 .syscfg .table td p{margin:0;color:#999;font-weight:normal;font-size:12px;}
@@ -38,8 +38,8 @@
 								<tr>
 									<td>LOGO</td>
 									<td>
-										<a class="img-thumbnail"><img id="sc-LOGO" alt="LOGO" src="../assets/img/logo.png"></a>
-										<a class="img-thumbnail bg-primary"><img id="sc-LOGOWhite" alt="浅色 LOGO" src="../assets/img/logo-white.png"></a>
+										<a class="img-thumbnail"><i class="logo-img"></i></a>
+										<a class="img-thumbnail bg-primary"><i class="logo-img white"></i></a>
 									</td>
 								</tr>
 								<tr>

@@ -98,7 +98,27 @@ html.admin .admin-show {
     color: rgba(255, 255, 255, .6)
 }
 .logo-img {
-    max-height: 24px;
+	height: 32px;
+    margin: 0 auto;
+    display: block;
+    background: url(../img/logo.svg) 0 0 no-repeat;
+    width: 161px;
+    background-size: 242px auto;
+    background-position: -40px -95px;
+    display: inline-block;
+}
+.logo-img.white, .rb-color-header .navbar-brand .logo-img {
+	background-position: -40px -49px;
+}
+.navbar-brand {
+	background: none !important;
+	width: 161px !important;
+}
+.navbar-brand .logo-img {
+	margin-top: 14px;
+	transform: scale(0.938);
+	-webkit-transform: scale(0.938);
+	-moz-transform: scale(0.938)
 }
 .alert-icon.min>.icon {
     width: 42px;

@@ -11,9 +11,7 @@
 		<div class="main-content container-fluid">
 			<div class="splash-container">
 				<div class="card card-border-color card-border-color-primary">
-					<div class="card-header">
-						<img class="logo-img" src="${baseUrl}/assets/img/logo.png" alt="REBUILD">
-					</div>
+					<div class="card-header"><i class="logo-img"></i></div>
 					<div class="card-body">
 						<h3 class="text-center mb-8 pb-2">未开放注册</h3>
 					</div>

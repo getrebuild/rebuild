@@ -11,9 +11,7 @@
 		<div class="main-content container-fluid">
 			<div class="splash-container">
 				<div class="card card-border-color card-border-color-primary">
-					<div class="card-header">
-						<img class="logo-img" src="${baseUrl}/assets/img/logo.png" alt="REBUILD">
-					</div>
+					<div class="card-header"><i class="logo-img"></i></div>
 					<div class="card-body">
 						<div class="form-group">
 							<input class="form-control" id="email" type="text" placeholder="邮箱" autocomplete="off">
