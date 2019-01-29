@@ -10,7 +10,6 @@ html.dev .dev-show {
 html.admin .admin-show {
     display: block;
 }
-
 .dropdown-menu {
     box-shadow: 0 0 6px 0 rgba(0, 0, 0, .1), 0 10px 12px 0 rgba(170, 182, 206, .36);
     border-width: 0;
@@ -99,26 +98,15 @@ html.admin .admin-show {
 }
 .logo-img {
 	height: 32px;
-    margin: 0 auto;
-    display: block;
-    background: url(../img/logo.svg) 0 0 no-repeat;
-    width: 161px;
-    background-size: 242px auto;
-    background-position: -40px -95px;
-    display: inline-block;
+	width: 163px;
+	background: url(../img/logo.png) 0 center no-repeat;
+	background-size: auto 32px;
+	display: block;
+	margin: 0 auto;
+	cursor: default;
 }
-.logo-img.white, .rb-color-header .navbar-brand .logo-img {
-	background-position: -40px -49px;
-}
-.navbar-brand {
-	background: none !important;
-	width: 161px !important;
-}
-.navbar-brand .logo-img {
-	margin-top: 14px;
-	transform: scale(0.938);
-	-webkit-transform: scale(0.938);
-	-moz-transform: scale(0.938)
+.logo-img.white {
+	background-image: url(../img/logo-white.png);
 }
 .alert-icon.min>.icon {
     width: 42px;

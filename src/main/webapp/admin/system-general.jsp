@@ -7,7 +7,7 @@
 <title>通用配置</title>
 <style type="text/css">
 .syscfg a.img-thumbnail{display:inline-block;padding:0.3rem 0;background-color:#fff;line-height:1;font-size:0;cursor:default;}
-.syscfg a.img-thumbnail .logo-img{transform:scale(0.8);}
+.syscfg a.img-thumbnail .logo-img{transform: scale(0.8);}
 .syscfg h5{background-color:#eee;margin:0;padding:10px;}
 .syscfg .table td{padding:10px;}
 .syscfg .table td p{margin:0;color:#999;font-weight:normal;font-size:12px;}

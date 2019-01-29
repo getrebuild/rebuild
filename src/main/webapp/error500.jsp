@@ -14,7 +14,8 @@ if (ServletUtils.isAjaxRequest(request)) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<link rel="shortcut icon" href="${pageContext.request.contextPath}/assets/img/favicon.png" type="image/x-icon">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<link rel="shortcut icon" href="${pageContext.request.contextPath}/assets/img/favicon.png">
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/lib/material-design-iconic-font.min.css">
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/css/rb-base.css">
 <title>系统错误</title>
@@ -31,6 +32,7 @@ if (ServletUtils.isAjaxRequest(request)) {
 					<a class="btn btn-xl btn-primary" href="${pageContext.request.contextPath}/dashboard/home">返回首页</a>
 					&nbsp;
 					<a class="btn btn-xl btn-primary" href="javascript:;" onclick="location.reload(true)">重试</a>
+					<div class="mt-4"><a href="https://github.com/getrebuild/rebuild/issues/new?title=error-500" target="_blank">报告此问题</a></div>
 				</div>
 			</div>
 		</div>

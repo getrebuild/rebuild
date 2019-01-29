@@ -8464,20 +8464,14 @@ canvas {
 .rb-top-header .rb-navbar-header .navbar-brand {
     line-height: 60px;
     height: 60px;
-    width: 146px;
+    width: 160px;
     background-image: url(../img/logo.png);
     background-repeat: no-repeat;
     background-position: 20px center;
-    background-size: auto 20px;
+    background-size: auto 26px;
     padding: 0 20px;
     margin: 0;
     display: block
-}
-@media (-webkit-min-device-pixel-ratio:2), (min-resolution:192dpi) {
-    .rb-top-header .rb-navbar-header .navbar-brand {
-        background-image: url(../img/logo-xx.png);
-        background-size: 102px 27px
-    }
 }
 @media (max-width:767.98px) {
     .rb-top-header .rb-navbar-header .navbar-brand {
@@ -8890,11 +8884,6 @@ canvas {
 }
 .rb-color-header .rb-top-header .rb-navbar-header .navbar-brand {
     background-image: url(../img/logo-white.png)
-}
-@media (-webkit-min-device-pixel-ratio:2), (min-resolution:192dpi) {
-    .rb-color-header .rb-top-header .rb-navbar-header .navbar-brand {
-        background-image: url(../img/logo-white-xx.png)
-    }
 }
 .rb-color-header .rb-top-header .page-title {
     color: #fff
@@ -9578,7 +9567,8 @@ a.avatar.x48 img {
     bottom: 0;
     left: 0;
     right: 0;
-    padding-top: 8px
+    padding-top: 8px;
+    background-color: #f5f5f5;
 }
 .rb-collapsible-sidebar-collapsed .rb-left-sidebar .left-sidebar-content {
     padding-top: 20px;
@@ -10094,8 +10084,9 @@ a.avatar.x48 img {
 .rb-left-sidebar .bottom-widget {
     padding: 20px;
     cursor: default;
-    background-color: #f0f0f0;
     margin-top: 0;
+    background-color: #f0f0f0;
+    background-color: #f5f5f5;
 }
 @media (max-width:767.98px) {
     .rb-left-sidebar .bottom-widget {
