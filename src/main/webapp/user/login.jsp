@@ -32,7 +32,6 @@
 						</div>
 						</c:if>
 						<div class="form-group row login-tools">
-								
 							<div class="col-6 login-remember">
 								<label class="custom-control custom-checkbox custom-control-inline mb-0">
 									<input class="custom-control-input" type="checkbox" id="autoLogin"><span class="custom-control-label"> 记住登录</span>

@@ -13,7 +13,18 @@
 				<div class="card card-border-color card-border-color-primary">
 					<div class="card-header"><i class="logo-img"></i></div>
 					<div class="card-body">
-						<h3 class="text-center mb-8 pb-2">未开放注册</h3>
+						<div class="form-group">
+							<input class="form-control" id="user" type="text" placeholder="用户名" autocomplete="off">
+						</div>
+						<div class="form-group">
+							<input class="form-control" id="user" type="text" placeholder="注册邮箱" autocomplete="off">
+						</div>
+						<div class="form-group">
+							<input class="form-control" id="passwd" type="password" placeholder="登录密码">
+						</div>
+						<div class="form-group login-submit">
+							<button class="btn btn-primary btn-xl J_login-btn" disabled="disabled">未开放注册</button>
+						</div>
 					</div>
 				</div>
 				<div class="splash-footer">
