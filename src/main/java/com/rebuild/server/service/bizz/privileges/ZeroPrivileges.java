@@ -39,13 +39,13 @@ public class ZeroPrivileges implements Privileges {
 	// ZERO 权限
 	
 	// 登录
-	public static final String AllowLogin = "0-AllowLogin";
+	public static final String AllowLogin = "AllowLogin";
 	// 批量修改
-	public static final String AllowBatchUpdate = "0-AllowBatchUpdate";
+	public static final String AllowBatchUpdate = "AllowBatchUpdate";
 	// 数据导入
-	public static final String AllowDataImport = "0-AllowDataImport";
+	public static final String AllowDataImport = "AllowDataImport";
 	// 数据导出
-	public static final String AllowDataOutput = "0-AllowDataOutput";
+	public static final String AllowDataOutput = "AllowDataOutput";
 	
 	// ----
 

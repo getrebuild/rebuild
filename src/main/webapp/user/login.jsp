@@ -13,9 +13,7 @@
 		<div class="main-content container-fluid">
 			<div class="splash-container">
 				<div class="card card-border-color card-border-color-primary">
-					<div class="card-header">
-						<img class="logo-img" src="${baseUrl}/assets/img/logo.png" alt="REBUILD">
-					</div>
+					<div class="card-header"><a class="logo-img"></a></div>
 					<div class="card-body">
 						<div class="form-group">
 							<input class="form-control" id="user" type="text" placeholder="用户名 (或邮箱)" autocomplete="off">
@@ -34,7 +32,6 @@
 						</div>
 						</c:if>
 						<div class="form-group row login-tools">
-								
 							<div class="col-6 login-remember">
 								<label class="custom-control custom-checkbox custom-control-inline mb-0">
 									<input class="custom-control-input" type="checkbox" id="autoLogin"><span class="custom-control-label"> 记住登录</span>
@@ -51,7 +48,7 @@
 				</div>
 				<div class="splash-footer text-muted">
 					<span>&copy; 2019 <a href="https://getrebuild.com/" target="_blank">REBUILD</a></span>
-					<br><span style="font-size:11px">Built on <%=ServerListener.getStartupTime() %></span>
+					<div class="dev-show" style="font-size:11px">Built on <%=ServerListener.getStartupTime()%></div>
 				</div>
 			</div>
 		</div>

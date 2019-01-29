@@ -1,4 +1,15 @@
-html.dev {}
+.dev-show {
+    display: none;
+}
+html.dev .dev-show {
+    display: block;
+}
+.admin-show {
+    display: none;
+}
+html.admin .admin-show {
+    display: block;
+}
 .dropdown-menu {
     box-shadow: 0 0 6px 0 rgba(0, 0, 0, .1), 0 10px 12px 0 rgba(170, 182, 206, .36);
     border-width: 0;
@@ -86,7 +97,16 @@ html.dev {}
     color: rgba(255, 255, 255, .6)
 }
 .logo-img {
-    max-height: 24px;
+	height: 32px;
+	width: 163px;
+	background: url(../img/logo.png) 0 center no-repeat;
+	background-size: auto 32px;
+	display: block;
+	margin: 0 auto;
+	cursor: default;
+}
+.logo-img.white {
+	background-image: url(../img/logo-white.png);
 }
 .alert-icon.min>.icon {
     width: 42px;

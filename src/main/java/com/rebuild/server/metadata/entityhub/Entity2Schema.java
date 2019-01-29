@@ -26,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
@@ -169,6 +170,10 @@ public class Entity2Schema extends Field2Schema {
 	 * @return
 	 */
 	public boolean drop(Entity entity) {
+		if (!user.equals(UserService.ADMIN_USER)) {
+			throw new ModificationMetadataException("仅超级管理员可删除实体");
+		}
+		
 		EasyMeta easyMeta = EasyMeta.valueOf(entity);
 		ID metaRecordId = easyMeta.getMetaId();
 		if (easyMeta.isBuiltin() || metaRecordId == null) {

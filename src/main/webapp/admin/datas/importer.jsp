@@ -58,6 +58,7 @@
 														<li>支持上传 Excel/CSV 文件，文件大小不超过 20M</li>
 														<li>有合并单元格的数据请处理过后再上传，否则可能出现表头识别有误</li>
 														<li>系统默认仅识别第一个 SHEET，且会将首行识别为表头</li>
+														<li>更多导入帮助请 <a href="https://getrebuild.com/docs/manual/data-import.html" target="_blank">参考文档</a></li>
 													</ul>
 								                </div>
 											</div>

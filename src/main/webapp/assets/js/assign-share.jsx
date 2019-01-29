@@ -30,15 +30,15 @@ class DlgAssign extends RbModalHandler {
             <div className="col-sm-7 offset-sm-3"><a href="javascript:;" onClick={() => this.showCascades()}>同时{this.typeName}关联记录</a></div>
           </div>
         ) : (
-          <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">选择关联记录</label>
-            <div className="col-sm-7">
-              <select className="form-control form-control-sm" ref="cascades" multiple="multiple">
-                {(this.state.cascadesEntity || []).map((item) => { return <option key={'option-' + item[0]} value={item[0]}>{item[1]}</option> })}
-              </select>
+            <div className="form-group row">
+              <label className="col-sm-3 col-form-label text-sm-right">选择关联记录</label>
+              <div className="col-sm-7">
+                <select className="form-control form-control-sm" ref="cascades" multiple="multiple">
+                  {(this.state.cascadesEntity || []).map((item) => { return <option key={'option-' + item[0]} value={item[0]}>{item[1]}</option> })}
+                </select>
+              </div>
             </div>
-          </div>
-        )}
+          )}
         <div className="form-group row footer">
           <div className="col-sm-7 offset-sm-3" ref="btns">
             <button className="btn btn-primary btn-space" type="button" data-loading-text="请稍后" onClick={() => this.post()}>确定</button>
@@ -179,14 +179,6 @@ class DlgUnShare extends RbModalHandler {
       btns.button('reset')
     })
   }
-}
-
-const UserShow = function (props) {
-  let viewUrl = props.id ? ('#!/View/User/' + props.id) : null
-  return (<a href={viewUrl} className="user-show" title={props.name} onClick={props.onClick}>
-    <div className={'avatar' + (props.showName === true ? ' float-left' : '')}>{props.icon ? <i className={props.icon} /> : <img src={props.avatarUrl} />}</div>
-    {props.showName === true ? <div className="name">{props.name}{props.deptName ? <em>{props.deptName}</em> : null}</div> : null}
-  </a>)
 }
 
 // -- Usage

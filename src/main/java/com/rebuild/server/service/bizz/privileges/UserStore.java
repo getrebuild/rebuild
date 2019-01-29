@@ -528,14 +528,14 @@ public class UserStore {
 				"select entity,definition,zeroKey from RolePrivileges where roleId = ?")
 				.setParameter(1, role.getIdentity())
 				.array();
-		for (Object[] e : definition) {
-			int entity = (int) e[0];
+		for (Object[] d : definition) {
+			int entity = (int) d[0];
 			if (entity == 0) {
-				Privileges p = new ZeroPrivileges((String) e[2], (String) e[1]);
+				Privileges p = new ZeroPrivileges((String) d[2], (String) d[1]);
 				role.addPrivileges(p);
 			} else {
 				Privileges p = new EntityPrivileges(
-						entity, converEntityPrivilegesDefinition((String) e[1]));
+						entity, converEntityPrivilegesDefinition((String) d[1]));
 				role.addPrivileges(p);
 			}
 		}

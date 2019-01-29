@@ -34,6 +34,7 @@ import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
@@ -108,6 +109,10 @@ public class Field2Schema {
 	 * @return
 	 */
 	public boolean drop(Field field, boolean force) {
+		if (!user.equals(UserService.ADMIN_USER)) {
+			throw new ModificationMetadataException("仅超级管理员可删除字段");
+		}
+		
 		EasyMeta easyMeta = EasyMeta.valueOf(field);
 		ID metaRecordId = easyMeta.getMetaId();
 		if (easyMeta.isBuiltin() || metaRecordId == null) {

@@ -452,4 +452,30 @@ public class SecurityManager {
 		}
 		return new EntityQueryFilter(theUser, action);
 	}
+	
+	/**
+	 * 扩展权限
+	 * 
+	 * @param user
+	 * @param zeroKey
+	 * @return
+	 * @see ZeroPrivileges
+	 * @see ZeroPermission
+	 */
+	public boolean allowedZero(ID user, String zeroKey) {
+		if (UserService.ADMIN_USER.equals(user)) {
+			return true;
+		}
+		if (!theUserStore.getUser(user).isActive()) {
+			return false;
+		}
+		 
+		Role role = theUserStore.getUser(user).getOwningRole();
+		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
+			return true;
+		}
+		
+		return role.hasPrivileges(zeroKey) 
+				&& role.getPrivileges(zeroKey).allowed(ZeroPermission.ZERO);
+	}
 }

@@ -22,8 +22,6 @@ import org.dom4j.Element;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.rebuild.server.metadata.EntityHelper;
-
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.PersistManagerFactoryImpl;
@@ -45,26 +43,8 @@ public class SchemaGen {
 		CTX = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml", });
 		PMF = CTX.getBean(PersistManagerFactoryImpl.class);
 		
-//		genAll();
-//		gen(EntityHelper.User);
-//		gen(EntityHelper.Department);
-//		gen(EntityHelper.Role);
-//		gen(EntityHelper.RolePrivileges);
-//		gen(EntityHelper.MetaEntity);
-//		gen(EntityHelper.MetaField);
-//		gen(EntityHelper.ShareAccess);
-//		gen(EntityHelper.PickList);
-		
-//		gen(EntityHelper.SystemConfig);
-//		gen(EntityHelper.Notification);
-//		gen(EntityHelper.Attachment);
-//		gen(EntityHelper.AttachmentFolder);
-		
-		gen(EntityHelper.LayoutConfig);
-		gen(EntityHelper.FilterConfig);
-		gen(EntityHelper.ViewAddonsConfig);
-		gen(EntityHelper.DashboardConfig);
-		gen(EntityHelper.ChartConfig);
+		genAll();
+//		gen(EntityHelper.ChartConfig);
 		
 		System.exit(0);
 	}
@@ -83,7 +63,7 @@ public class SchemaGen {
 				PMF.getDialect(),
 				root.selectSingleNode("//entity[@name='" + entity.getName() + "']").selectNodes("index"));
 		
-		String[] ddl = table.generateDDL(true, false);
+		String[] ddl = table.generateDDL(false, false);
 		
 		StringBuffer sb = new StringBuffer();
 		sb.append("-- ************ Entity [" + entity.getName() + "] DDL ************\n");

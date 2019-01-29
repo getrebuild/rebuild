@@ -53,6 +53,14 @@ const detectViewElement = function (item) {
   return (<div className={'col-12 col-sm-' + (item.isFull ? 12 : 6)} key={item.key}>{window.detectElement(item)}</div>)
 }
 
+const UserShow = function (props) {
+  let viewUrl = props.id ? ('#!/View/User/' + props.id) : null
+  return (<a href={viewUrl} className="user-show" title={props.name} onClick={props.onClick}>
+    <div className={'avatar' + (props.showName === true ? ' float-left' : '')}>{props.icon ? <i className={props.icon} /> : <img src={props.avatarUrl} />}</div>
+    {props.showName === true ? <div className="name">{props.name}{props.deptName ? <em>{props.deptName}</em> : null}</div> : null}
+  </a>)
+}
+
 // -- Usage
 
 let rb = rb || {}
@@ -74,31 +82,22 @@ const RbViewPage = {
     this.__ep = ep
     this._RbViewForm = rb.RbViewForm({ entity: entity[0], id: id })
 
-    let that = this
+    const that = this
 
-    $('.J_delete').click(function () {
-      let alertExt = { type: 'danger', confirmText: '删除' }
-      alertExt.confirm = function () {
-        $(this.refs['rbalert']).find('.btn').button('loading')
-        $.post(`${rb.baseUrl}/app/entity/record-delete?id=${that.__id}`, function (res) {
-          if (res.error_code === 0) {
-            rb.highbar('删除成功', 'success')
-            that.hide(true)
-          } else {
-            rb.hberror(res.error_msg)
-          }
-        })
+    $('.J_delete').click(() => {
+      let deleteAfter = function () {
+        that.hide(true)
       }
-      rb.alert('确认删除当前记录吗？', alertExt)
+      // eslint-disable-next-line react/jsx-no-undef
+      renderRbcomp(<DeleteConfirm id={this.__id} entity={entity[0]} deleteAfter={deleteAfter} />)
     })
-
-    $('.J_edit').click(function () {
+    $('.J_edit').click(() => {
       rb.RbFormModal({ id: id, title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] })
     })
-    $('.J_assign').click(function () {
+    $('.J_assign').click(() => {
       rb.DlgAssign({ entity: entity[0], ids: [id] })
     })
-    $('.J_share').click(function () {
+    $('.J_share').click(() => {
       rb.DlgShare({ entity: entity[0], ids: [id] })
     })
     $('.J_add-slave').click(function () {
@@ -117,42 +116,40 @@ const RbViewPage = {
       that.__cleanButton()
     }
 
-    $('.J_close').click(function () {
+    $('.J_close').click(() => {
       if (parent && parent.rb.RbViewModalGet(id)) parent.rb.RbViewModalGet(id).hide()
     })
-    $('.J_reload').click(function () {
+    $('.J_reload').click(() => {
       location.reload()
     })
   },
 
   initRecordMeta() {
-    let that = this
-    $.get(`${rb.baseUrl}/app/entity/record-meta?id=${this.__id}`, function (res) {
+    $.get(`${rb.baseUrl}/app/entity/record-meta?id=${this.__id}`, (res) => {
       if (res.error_code !== 0) return
       for (let k in res.data) {
         let v = res.data[k]
         if (!v || v === undefined) return
         if (k === 'owningUser') {
-          renderRbcomp(<UserShow id={v[0]} name={v[1]} avatarUrl={v[2]} showName={true} deptName2={v[3]} onClick={() => { that.clickViewUser(v[0]) }} />, $('.J_owningUser')[0])
+          renderRbcomp(<UserShow id={v[0]} name={v[1]} avatarUrl={v[2]} showName={true} deptName2={v[3]} onClick={() => { this.clickViewUser(v[0]) }} />, $('.J_owningUser')[0])
         } else if (k === 'sharingList') {
           let list = $('<ul class="list-unstyled list-inline mb-0"></ul>').appendTo('.J_sharingList')
           $(v).each(function () {
             let _this = this
             let item = $('<li class="list-inline-item"></li>').appendTo(list)
-            renderRbcomp(<UserShow id={_this[0]} name={_this[1]} avatarUrl={_this[2]} onClick={() => { that.clickViewUser(_this[0]) }} />, item[0])
+            renderRbcomp(<UserShow id={_this[0]} name={_this[1]} avatarUrl={_this[2]} onClick={() => { this.clickViewUser(_this[0]) }} />, item[0])
           })
 
-          if (that.__ep && that.__ep.S === true) {
+          if (this.__ep && this.__ep.S === true) {
             let item_op = $('<li class="list-inline-item"></li>').appendTo(list)[0]
             if (v.length === 0) renderRbcomp(<UserShow name="添加共享" icon="zmdi zmdi-plus" onClick={() => { $('.J_share').trigger('click') }} />, item_op)
-            else renderRbcomp(<UserShow name="管理共享用户" icon="zmdi zmdi-more" onClick={() => { rb.DlgUnShare(that.__id) }} />, item_op)
+            else renderRbcomp(<UserShow name="管理共享用户" icon="zmdi zmdi-more" onClick={() => { rb.DlgUnShare(this.__id) }} />, item_op)
           } else if (v.length > 0) {
             let item_op = $('<li class="list-inline-item"></li>').appendTo(list)[0]
-            renderRbcomp(<UserShow name="查看共享用户" icon="zmdi zmdi-more" onClick={() => { rb.DlgUnShare(that.__id, false) }} />, item_op)
+            renderRbcomp(<UserShow name="查看共享用户" icon="zmdi zmdi-more" onClick={() => { rb.DlgUnShare(this.__id, false) }} />, item_op)
           } else {
             $('.J_sharingList').parent().remove()
           }
-
         } else {
           $('<span>' + v + '</span>').appendTo('.J_' + k)
         }

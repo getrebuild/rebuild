@@ -252,7 +252,7 @@ public class GeneralRecordOperatorControll extends BaseControll {
 		recordMeta[1] = CalendarUtils.getUTCDateTimeFormat().format(recordMeta[1]);
 		
 		String[] owning = null;
-		List<String[]> sharingList = new ArrayList<>();
+		List<String[]> sharingList = null;
 		if (recordMeta.length == 3) {
 			User user = Application.getUserStore().getUser((ID) recordMeta[2]);
 			String dept = user.getOwningDept() == null ? null : user.getOwningDept().getName();
@@ -264,6 +264,7 @@ public class GeneralRecordOperatorControll extends BaseControll {
 					.setParameter(2, id)
 					.setLimit(9)
 					.array();
+			sharingList = new ArrayList<>();
 			for (Object[] st : shareTo) {
 				String[] shows2 = UserHelper.getShows((ID) st[0]);
 				shows2 = new String[] { st[0].toString(), shows2[0], shows2[1] };

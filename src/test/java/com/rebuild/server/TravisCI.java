@@ -16,18 +16,28 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.service.bizz.privileges;
+package com.rebuild.server;
 
-import cn.devezhao.bizz.privileges.Permission;
-import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * 
  * @author devezhao
- * @since 10/12/2018
- * @see BizzPermission
+ * @since 01/26/2019
  */
-public class ZeroPermission {
-
-	public static final Permission ZERO = new BizzPermission("ZERO", 0, true);
+public class TravisCI {
+	
+	private static final Log LOG = LogFactory.getLog(TravisCI.class);
+	
+	/**
+	 * travis-ci install
+	 */
+	public static void install() throws Exception {
+		LOG.warn("Preparing travis-ci TODO ...");
+		
+//		Class.forName(Driver.class.getName());
+//		Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:4653/test", "root", "");
+//		Statement stmt = conn.createStatement();
+	}
 }

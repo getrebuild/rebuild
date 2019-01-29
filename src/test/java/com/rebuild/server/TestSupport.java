@@ -38,13 +38,21 @@ import cn.devezhao.persist4j.Entity;
  */
 public class TestSupport {
 	
+	static {
+		System.setProperty("catalina.home", "/data/");
+	}
+	
 	protected static final Log LOG = LogFactory.getLog(TestSupport.class);
 	
-	protected static final String TEST_ENTITY = "TestAllFields";
+	protected static final String TEST_ENTITY = "TestAllFieldsRB10";
 
 	@BeforeClass
-	public static void startup() {
+	public static void startup() throws Exception {
 		LOG.warn("TESTING Startup ...");
+		if ("travis-ci".equals(System.getProperty("env"))) {
+			TravisCI.install();
+		}
+		
 		Application.debug();
 		addTestEntityIfNeed();
 	}

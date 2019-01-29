@@ -55,13 +55,15 @@ public final class Application {
 	
 	/** Rebuild Version
 	 */
-	public static final String VER = "1.0.0-SNAPSHOT";
+	public static final String VER = "1.0.0-PREVIEW";
 	
 	/** Logging for Global
 	 */
 	public static final Log LOG = LogFactory.getLog(Application.class);
 	
 	private static boolean debugMode = false;
+	
+	private static boolean serversReady = false;
 	
 	// SPRING
 	private static ApplicationContext APPLICATION_CTX;
@@ -77,11 +79,13 @@ public final class Application {
 	
 	/**
 	 * 初始化
+	 * 
+	 * @param startingAt
 	 */
-	protected void init(long startingAt) {
-		boolean serversReady = ServerStatus.checkAll();
+	void init(long startingAt) {
+		serversReady = ServerStatus.checkAll();
 		if (!serversReady) {
-			LOG.info("Rebuild Booting failed!");
+			LOG.error("Rebuild Booting failure during status checks !!!");
 			return;
 		}
 		
@@ -137,6 +141,15 @@ public final class Application {
 	 */
 	public static boolean devMode() {
 		return BooleanUtils.toBoolean(System.getProperty("rbdev")) || debugMode;
+	}
+	
+	/**
+	 * 服务是否正常启动
+	 * 
+	 * @return
+	 */
+	public static boolean serversReady() {
+		return serversReady;
 	}
 	
 	/**

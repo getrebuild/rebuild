@@ -10,7 +10,7 @@ final User currentUser = Application.getUserStore().getUser(AppUtils.getRequestU
 <nav class="navbar navbar-expand fixed-top rb-top-header">
 	<div class="container-fluid">
 		<div class="rb-navbar-header">
-			<a class="navbar-brand" href="${baseUrl}/dashboard/home" title="返回首页"></a>
+			<a class="navbar-brand" href="${baseUrl}/dashboard/home"></a>
 		</div>
 		<div class="rb-right-navbar">
 			<ul class="nav navbar-nav float-right rb-user-nav">

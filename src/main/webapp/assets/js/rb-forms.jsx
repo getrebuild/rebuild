@@ -441,14 +441,14 @@ class RbFormDateTime extends RbFormElement {
     let format = (this.props.datetimeFormat || this.props.dateFormat).replace('mm', 'ii').toLowerCase()
     let minView = 0
     switch (format.length) {
-    case 7:
-      minView = 'year'
-      break
-    case 10:
-      minView = 'month'
-      break
-    default:
-      break
+      case 7:
+        minView = 'year'
+        break
+      case 10:
+        minView = 'month'
+        break
+      default:
+        break
     }
 
     let that = this
@@ -864,6 +864,85 @@ class RbViewModal extends React.Component {
   hide() {
     let root = $(this.refs['rbview'])
     root.modal('hide')
+  }
+}
+
+// eslint-disable-next-line no-undef
+class DeleteConfirm extends RbAlert {
+  constructor(props) {
+    super(props)
+    this.state = { enableCascades: false }
+  }
+  render() {
+    let message = this.props.message
+    if (!message) message = this.props.ids ? `确认删除选中的 ${this.props.ids.length} 条记录？` : '确认删除当前记录？'
+    return (
+      <div className="modal rbalert" ref="dlg" tabIndex="-1">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header pb-0">
+              <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
+            </div>
+            <div className="modal-body">
+              <div className="text-center ml-6 mr-6">
+                <div className="text-danger"><span className="modal-main-icon zmdi zmdi-alert-triangle" /></div>
+                <div className="mt-3 text-bold">{message}</div>
+                {!this.props.entity ? null :
+                  <div className="mt-2">
+                    <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2">
+                      <input className="custom-control-input" type="checkbox" checked={this.state.enableCascade === true} onChange={() => this.enableCascade()} />
+                      <span className="custom-control-label"> 同时删除关联记录</span>
+                    </label>
+                    <div className={' ' + (this.state.enableCascade ? '' : 'hide')}>
+                      <select className="form-control form-control-sm" ref="cascades" multiple="multiple">
+                        {(this.state.cascadesEntity || []).map((item) => { return <option key={'option-' + item[0]} value={item[0]}>{item[1]}</option> })}
+                      </select>
+                    </div>
+                  </div>
+                }
+                <div className="mt-4 mb-3" ref="btns">
+                  <button className="btn btn-space btn-secondary" type="button" onClick={() => this.hide()}>取消</button>
+                  <button className="btn btn-space btn-danger" type="button" onClick={() => this.deleteAction()}>删除</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  enableCascade() {
+    this.setState({ enableCascade: !this.state.enableCascade })
+
+    if (!this.state.cascadesEntity) {
+      $.get(rb.baseUrl + '/commons/metadata/references?entity=' + this.props.entity, (res) => {
+        this.setState({ cascadesEntity: res.data }, () => {
+          this.__select2 = $(this.refs['cascades']).select2({
+            placeholder: '选择关联实体 (可选)'
+          }).val(null).trigger('change')
+        })
+      })
+    }
+  }
+  deleteAction() {
+    let ids = this.props.ids || this.props.id
+    if (!ids || ids.length === 0) return
+    if (typeof ids === 'object') ids = ids.join(',')
+    let cascades = this.__select2 ? this.__select2.val().join(',') : ''
+
+    let btns = $(this.refs['btns']).find('.btn').button('loading')
+    $.post(rb.baseUrl + '/app/entity/record-delete?id=' + ids + '&cascades=' + cascades, (res) => {
+      if (res.error_code === 0) {
+        if (res.data.deleted === res.data.requests) rb.hbsuccess('删除成功')
+        else rb.hbsuccess('已成功删除 ' + res.data.deleted + ' 条记录')
+
+        this.hide()
+        typeof this.props.deleteAfter === 'function' && this.props.deleteAfter()
+      } else {
+        rb.hberror(res.error_msg)
+        btns.button('reset')
+      }
+    })
   }
 }
 

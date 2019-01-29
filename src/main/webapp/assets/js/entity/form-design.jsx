@@ -116,7 +116,7 @@ const modify_divider = function (handle) {
   rb.alert(input, '修改分栏名称', {
     html: true, confirm: function () {
       this.hide()
-      let name = $(this.refs['rbalert']).find('input').val() || '分栏'
+      let name = $(this.refs['dlg']).find('input').val() || '分栏'
       if (name) handle.find('span').text(name)
     }
   })

@@ -132,6 +132,9 @@ public class DataImportControll extends BasePageControll {
 			parser = new DataFileParser(tmp);
 			count = parser.getRowsCount();
 			preview = parser.parse(10);
+		} catch (Exception ex) {
+			writeFailure(response, "无法解析数据，请检查数据文件格式");
+			return;
 		} finally {
 			if (parser != null) {
 				parser.close();

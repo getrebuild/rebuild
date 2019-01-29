@@ -86,7 +86,7 @@ $(document).ready(function () {
     if (!wpc.isSuperAdmin) { rb.hberror('仅超级管理员可删除字段'); return }
     let alertExt = { type: 'danger', confirmText: '删除' }
     alertExt.confirm = function () {
-      $(this.refs['rbalert']).find('.btn').button('loading')
+      $(this.refs['btns']).find('.btn').button('loading')
       let thatModal = this
       $.post(`${rb.baseUrl}/admin/entity/field-drop?id=${wpc.metaId}`, function (res) {
         if (res.error_code === 0) {
