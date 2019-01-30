@@ -118,15 +118,14 @@ public class ImportEnter {
 		
 		// for TestCase
 		if (!file.exists()) {
-			URL classpathFile = ImportEnter.class.getClassLoader().getResource("com/rebuild/server/business/datas/" + rule.getString("file"));
-			try {
-				file = new File(classpathFile.toURI());
-			} catch (URISyntaxException e) {
-				throw new IllegalArgumentException("File not found : " + file, e);
+			URL testFile = ImportEnter.class.getClassLoader().getResource("com/rebuild/server/business/datas/" + rule.getString("file"));
+			if (testFile != null) {
+				try {
+					file = new File(testFile.toURI());
+				} catch (URISyntaxException e) {
+					throw new IllegalArgumentException("File not found : " + file, e);
+				}
 			}
-		}
-		if (!file.exists()) {
-			throw new IllegalArgumentException("File not found : " + file);
 		}
 
 		int repeatOpt = rule.getIntValue("repeat_opt");
