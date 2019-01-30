@@ -38,8 +38,8 @@ public class MiscTest {
 		System.out.println(JSON.toJSONString(ID.newId(0)));
 		System.out.println(JSON.toJSONString(new Date()));
 
-		System.out.println(System.getenv("rbpass"));
-		System.out.println(System.getProperty("rbpass"));
+		System.out.println(System.getenv());
+		System.out.println(System.getProperties());
 		
 	}
 }

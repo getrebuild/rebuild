@@ -39,7 +39,7 @@ import cn.devezhao.persist4j.Entity;
 public class TestSupport {
 	
 	static {
-		System.setProperty("catalina.home", "/data/");
+		System.setProperty("catalina.home", System.getProperty("java.io.tmpdir"));
 	}
 	
 	protected static final Log LOG = LogFactory.getLog(TestSupport.class);
@@ -49,8 +49,8 @@ public class TestSupport {
 	@BeforeClass
 	public static void startup() throws Exception {
 		LOG.warn("TESTING Startup ...");
-		if ("true".equals(System.getProperty("TRAVIS"))) {
-			LOG.warn("TESTING in travis-ci ...");
+		if ("true".equals(System.getenv("TRAVIS"))) {
+			LOG.warn("TESTING in TravisCI ...");
 		}
 		
 		Application.debug();

@@ -37,7 +37,7 @@
 		<property name="acquireIncrement" value="${db.acquireIncrement}" />
 		<property name="acquireRetryAttempts" value="${db.acquireRetryAttempts}" />
 		<property name="acquireRetryDelay" value="${db.acquireRetryDelay}" />
-		<property name="checkoutTimeout" value="500" />
+		<property name="checkoutTimeout" value="3000" />
 		<property name="numHelperThreads" value="3" />
 		<property name="idleConnectionTestPeriod" value="1800" />
 		<property name="testConnectionOnCheckout" value="true" />
