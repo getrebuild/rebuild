@@ -44,7 +44,7 @@ public class TestSupport {
 	
 	protected static final Log LOG = LogFactory.getLog(TestSupport.class);
 	
-	protected static final String TEST_ENTITY = "TestAllFieldsRB10";
+	protected static final String TEST_ENTITY = "TestAllFields";
 
 	@BeforeClass
 	public static void startup() throws Exception {

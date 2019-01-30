@@ -59,6 +59,14 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer {
 				props.put(cleanKey, valInCL);
 			}
 		}
+		
+		String mysqlPort = System.getProperty("mysql.port");
+		if (StringUtils.isNotBlank(mysqlPort)) {
+			String dbUrl = props.getProperty("db.url");
+			dbUrl = dbUrl.replace("3306", "4653");
+			props.put("db.url", dbUrl);
+		}
+		
 		propsHold = (Properties) props.clone();
 	}
 	
