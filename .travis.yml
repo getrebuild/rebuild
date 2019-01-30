@@ -1,13 +1,15 @@
 language: java
 sudo: false
-script: mvn install -DskipTests=true -Denv=travis-ci -B -V
+script: mvn clean install -DskipTests=false -B -V
 
 services:
   - mysql
+  - redis
 
 before_install:
-#  - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
-  - mysql -e "CREATE DATABASE `rebuild10` DEFAULT CHARSET utf8 COLLATE utf8_general_ci; CREATE USER 'rebuild'@'127.0.0.1' IDENTIFIED BY 'rebuild'; GRANT ALL PRIVILEGES ON `rebuild10`.* TO 'rebuild'@'127.0.0.1';"
+  - mysql -e "CREATE DATABASE rebuild10 DEFAULT CHARSET utf8 COLLATE utf8_general_ci;"
+  - mysql -e "CREATE USER 'rebuild'@'127.0.0.1' IDENTIFIED BY 'rebuild'; GRANT ALL PRIVILEGES ON rebuild10.* TO 'rebuild'@'127.0.0.1'; FLUSH PRIVILEGES;"
+  - mysql -D rebuild10 < .setup/mysql-init.sql
 
 #script: "mvn cobertura:cobertura"
 #after_success:

@@ -19,11 +19,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.business.datas;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
+
+import com.rebuild.server.TestSupport;
 
 import cn.devezhao.commons.excel.Cell;
 
@@ -32,12 +35,14 @@ import cn.devezhao.commons.excel.Cell;
  * @author devezhao
  * @since 01/09/2019
  */
-public class DataFileParserTest {
+public class DataFileParserTest extends TestSupport {
 
 	@Test
 	public void testExcel() throws Exception {
-		URL testFile = DataFileParserTest.class.getResource("dataimports-test.xls");
-		DataFileParser fileParser = new DataFileParser(new File(testFile.toURI()));
+		DataFileParser fileParser = getDataFileParser("dataimports-test.xls");
+		if (fileParser == null) {
+			return;
+		}
 		
 		System.out.println(fileParser.getRowsCount());
 		List<Cell[]> rows = fileParser.parse(10);
@@ -49,8 +54,10 @@ public class DataFileParserTest {
 	
 	@Test
 	public void testCSV() throws Exception {
-		URL testFile = DataFileParserTest.class.getResource("dataimports-test.csv");
-		DataFileParser fileParser = new DataFileParser(new File(testFile.toURI()));
+		DataFileParser fileParser = getDataFileParser("dataimports-test.csv");
+		if (fileParser == null) {
+			return;
+		}
 		
 		System.out.println(fileParser.getRowsCount());
 		List<Cell[]> rows = fileParser.parse(10);
@@ -62,8 +69,10 @@ public class DataFileParserTest {
 	
 	@Test
 	public void testXExcel() throws Exception {
-		URL testFile = DataFileParserTest.class.getResource("dataimports-test.xlsx");
-		DataFileParser fileParser = new DataFileParser(new File(testFile.toURI()));
+		DataFileParser fileParser = getDataFileParser("dataimports-test.xlsx");
+		if (fileParser == null) {
+			return;
+		}
 		
 		System.out.println(fileParser.getRowsCount());
 		List<Cell[]> rows = fileParser.parse(50);
@@ -71,5 +80,14 @@ public class DataFileParserTest {
 			System.out.println(StringUtils.join(r, " | "));
 		}
 		fileParser.close();
+	}
+	
+	static DataFileParser getDataFileParser(String fileName) throws URISyntaxException {
+		URL testFile = DataFileParserTest.class.getClassLoader().getResource(fileName);
+		if (testFile == null) {
+			LOG.warn("No file found : " + fileName);
+			return null;
+		}
+		return new DataFileParser(new File(testFile.toURI()));
 	}
 }

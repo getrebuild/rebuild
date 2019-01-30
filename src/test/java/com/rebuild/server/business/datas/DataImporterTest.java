@@ -37,7 +37,7 @@ public class DataImporterTest extends TestSupport {
 		ImportEnter importsEnter = ImportEnter.parse(rule);
 		System.out.println("ImportsEnter 1 : " + importsEnter);
 		
-		rule = JSON.parseObject("{ file:'dataimports-test.csv', entity:'TestAllFields', repeat_opt:1, repeat_fields:['TestAllFieldsName'], fields_mapping:{TestAllFieldsName:5} }");
+		rule = JSON.parseObject("{ file:'dataimports-test.xls', entity:'TestAllFields', repeat_opt:1, repeat_fields:['TestAllFieldsName'], fields_mapping:{TestAllFieldsName:5} }");
 		importsEnter = ImportEnter.parse(rule);
 		System.out.println("ImportsEnter 2 : " + importsEnter);
 		

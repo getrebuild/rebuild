@@ -26,6 +26,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSONObject;
@@ -43,6 +45,8 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 01/10/2019
  */
 public class ImportEnter {
+	
+	private static final Log LOG = LogFactory.getLog(ImportEnter.class);
 
 	public static final int REPEAT_OPT_UPDATE = 1;
 	public static final int REPEAT_OPT_SKIP = 2;
@@ -103,6 +107,8 @@ public class ImportEnter {
 	// --
 
 	/**
+	 * 解析导入规则
+	 * 
 	 * @param rule
 	 * @return
 	 * @throws IllegalArgumentException
@@ -114,20 +120,24 @@ public class ImportEnter {
 		Assert.notNull(rule.getJSONObject("fields_mapping"), "Node `fields_mapping`");
 
 		Entity entity = MetadataHelper.getEntity(rule.getString("entity"));
-		
 		File file = SystemConfiguration.getFileOfTemp(rule.getString("file"));
-		if (!file.exists()) {
-			URL classpathFile = ImportEnter.class.getResource(rule.getString("file"));
-			try {
-				file = new File(classpathFile.toURI());
-			} catch (URISyntaxException e) {
-				throw new IllegalArgumentException("File not found : " + file, e);
+		
+		// from TestCase
+		if (file == null || !file.exists()) {
+			URL testFile = ImportEnter.class.getClassLoader().getResource(rule.getString("file"));
+			if (testFile != null) {
+				try {
+					file = new File(testFile.toURI());
+				} catch (URISyntaxException e) {
+					throw new IllegalArgumentException("File not found : " + file, e);
+				}
 			}
+			LOG.warn("Use file from TestCase : " + file);
 		}
-		if (!file.exists()) {
+		if (file == null || !file.exists()) {
 			throw new IllegalArgumentException("File not found : " + file);
 		}
-
+		
 		int repeatOpt = rule.getIntValue("repeat_opt");
 		Field[] repeatFields = null;
 		if (repeatOpt != 3) {

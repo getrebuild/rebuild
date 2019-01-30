@@ -86,7 +86,8 @@ public class AES {
 	 * @return
 	 */
 	public static String getPassKey() {
-		String key = StringUtils.defaultIfEmpty(System.getProperty("rbpass"), "REBUILD2018");
+		String key = StringUtils.defaultIfEmpty(System.getenv("rbpass"), System.getProperty("rbpass"));
+		key = StringUtils.defaultIfEmpty(key, "REBUILD2018");
 		key = StringUtils.leftPad(key, 16, "0").substring(0, 16);
 		return key;
 	}
