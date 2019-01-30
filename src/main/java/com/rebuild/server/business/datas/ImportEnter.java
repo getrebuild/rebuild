@@ -114,10 +114,11 @@ public class ImportEnter {
 		Assert.notNull(rule.getJSONObject("fields_mapping"), "Node `fields_mapping`");
 
 		Entity entity = MetadataHelper.getEntity(rule.getString("entity"));
-		
 		File file = SystemConfiguration.getFileOfTemp(rule.getString("file"));
+		
+		// for TestCase
 		if (!file.exists()) {
-			URL classpathFile = ImportEnter.class.getResource(rule.getString("file"));
+			URL classpathFile = ImportEnter.class.getClassLoader().getResource("com/rebuild/server/business/datas/" + rule.getString("file"));
 			try {
 				file = new File(classpathFile.toURI());
 			} catch (URISyntaxException e) {

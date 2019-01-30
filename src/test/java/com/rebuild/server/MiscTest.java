@@ -20,12 +20,12 @@ package com.rebuild.server;
 
 import java.util.Date;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.alibaba.fastjson.JSON;
 
 import cn.devezhao.persist4j.engine.ID;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 
 /**
  * 
