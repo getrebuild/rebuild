@@ -44,6 +44,7 @@ public class AppUtils {
 	
 	/**
 	 * @return
+	 * @see Application#devMode()
 	 */
 	public static boolean devMode() {
 		return Application.devMode();
