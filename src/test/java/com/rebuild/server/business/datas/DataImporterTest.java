@@ -18,6 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.datas;
 
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
+
 import org.junit.Test;
 
 import com.alibaba.fastjson.JSON;
@@ -34,15 +38,15 @@ public class DataImporterTest extends TestSupport {
 	@Test
 	public void testParseEnter() throws Exception {
 		JSONObject rule = JSON.parseObject("{ file:'dataimports-test.csv', entity:'TestAllFields', repeat_opt:3, fields_mapping:{TestAllFieldsName:5} }");
-		ImportEnter importsEnter = ImportEnter.parse(rule);
+		ImportEnter importsEnter = ImportEnter.parse(rule, getFile("dataimports-test.csv"));
 		System.out.println("ImportsEnter 1 : " + importsEnter);
 		
-		rule = JSON.parseObject("{ file:'dataimports-test.csv', entity:'TestAllFields', repeat_opt:1, repeat_fields:['TestAllFieldsName'], fields_mapping:{TestAllFieldsName:5} }");
-		importsEnter = ImportEnter.parse(rule);
+		rule = JSON.parseObject("{ file:'dataimports-test.xls', entity:'TestAllFields', repeat_opt:1, repeat_fields:['TestAllFieldsName'], fields_mapping:{TestAllFieldsName:5} }");
+		importsEnter = ImportEnter.parse(rule, getFile("dataimports-test.xls"));
 		System.out.println("ImportsEnter 2 : " + importsEnter);
 		
 		rule = JSON.parseObject("{ file:'dataimports-test.xlsx', entity:'TestAllFields', repeat_opt:1, repeat_fields:['TestAllFieldsName'], fields_mapping:{TestAllFieldsName:5} }");
-		importsEnter = ImportEnter.parse(rule);
+		importsEnter = ImportEnter.parse(rule, getFile("dataimports-test.xlsx"));
 		System.out.println("ImportsEnter 3 : " + importsEnter);
 	}
 	
@@ -51,15 +55,24 @@ public class DataImporterTest extends TestSupport {
 	public void testErrorEnter() throws Exception {
 		JSONObject rule = JSON.parseObject("{ file:'dataimports-test.csv', entity:'TestAllFieldsName', repeat_opt:3, fields_mapping:{ TestAllFieldsName:5 } }");
 		rule.remove("entity");
-		ImportEnter.parse(rule);
+		ImportEnter.parse(rule, getFile("dataimports-test.csv"));
 	}
 	
 	@Test
 	public void testImports() throws Exception {
 		JSONObject rule = JSON.parseObject("{ file:'dataimports-test.csv', entity:'TestAllFields', repeat_opt:2, repeat_fields:['TestAllFieldsName'], owning_user:'001-0000000000000001', fields_mapping:{TestAllFieldsName:5} }");
-		ImportEnter importsEnter = ImportEnter.parse(rule);
+		ImportEnter importsEnter = ImportEnter.parse(rule, getFile("dataimports-test.csv"));
 		
 		DataImporter dataImports = new DataImporter(importsEnter, UserService.ADMIN_USER);
 		dataImports.run();
+	}
+	
+	static File getFile(String fileName) throws URISyntaxException {
+		URL testFile = DataImporterTest.class.getClassLoader().getResource("com/rebuild/server/business/datas/" + fileName);
+		if (testFile == null) {
+			LOG.warn("No file found : " + fileName);
+			return null;
+		}
+		return new File(testFile.toURI());
 	}
 }
