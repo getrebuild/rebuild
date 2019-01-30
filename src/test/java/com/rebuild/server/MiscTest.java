@@ -25,6 +25,7 @@ import org.junit.Test;
 import com.alibaba.fastjson.JSON;
 
 import cn.devezhao.persist4j.engine.ID;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 
 /**
  * 
@@ -33,6 +34,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class MiscTest {
 
+	@Ignore
 	@Test
 	public void testJson2String() throws Exception {
 		System.out.println(JSON.toJSONString(ID.newId(0)));
