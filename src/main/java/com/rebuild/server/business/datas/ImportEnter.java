@@ -24,6 +24,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSONObject;
@@ -41,6 +43,8 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 01/10/2019
  */
 public class ImportEnter {
+	
+	private static final Log LOG = LogFactory.getLog(ImportEnter.class);
 
 	public static final int REPEAT_OPT_UPDATE = 1;
 	public static final int REPEAT_OPT_SKIP = 2;
@@ -125,10 +129,11 @@ public class ImportEnter {
 		File file = SystemConfiguration.getFileOfTemp(rule.getString("file"));
 		
 		// for TestCase
-		if (!file.exists()) {
+		if (file == null || !file.exists()) {
 			file = forTest;
+			LOG.warn("Use file from TestCase : " + file);
 		}
-		if (!file.exists()) {
+		if (file == null || !file.exists()) {
 			throw new IllegalArgumentException("File not found : " + file);
 		}
 
