@@ -49,8 +49,8 @@ public class TestSupport {
 	@BeforeClass
 	public static void startup() throws Exception {
 		LOG.warn("TESTING Startup ...");
-		if ("travis-ci".equals(System.getProperty("env"))) {
-			TravisCI.install();
+		if ("true".equals(System.getProperty("TRAVIS"))) {
+			LOG.warn("TESTING in travis-ci ...");
 		}
 		
 		Application.debug();

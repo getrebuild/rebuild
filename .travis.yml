@@ -1,6 +1,6 @@
 language: java
 sudo: false
-script: mvn install -DskipTests=false -Denv=travis-ci -B -V
+script: mvn install -DskipTests=false -B -V
 
 services:
   - mysql
