@@ -37,5 +37,9 @@ public class MiscTest {
 	public void testJson2String() throws Exception {
 		System.out.println(JSON.toJSONString(ID.newId(0)));
 		System.out.println(JSON.toJSONString(new Date()));
+
+		System.out.println(System.getenv("rbpass"));
+		System.out.println(System.getProperty("rbpass"));
+		
 	}
 }
