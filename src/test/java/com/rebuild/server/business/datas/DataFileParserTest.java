@@ -83,7 +83,7 @@ public class DataFileParserTest extends TestSupport {
 	}
 	
 	static DataFileParser getDataFileParser(String fileName) throws URISyntaxException {
-		URL testFile = DataFileParserTest.class.getClassLoader().getResource("com/rebuild/server/business/datas/" + fileName);
+		URL testFile = DataFileParserTest.class.getClassLoader().getResource(fileName);
 		if (testFile == null) {
 			LOG.warn("No file found : " + fileName);
 			return null;

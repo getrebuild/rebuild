@@ -19,6 +19,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.business.datas;
 
 import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -105,21 +107,13 @@ public class ImportEnter {
 	// --
 
 	/**
+	 * 解析导入规则
+	 * 
 	 * @param rule
 	 * @return
 	 * @throws IllegalArgumentException
 	 */
 	public static ImportEnter parse(JSONObject rule) throws IllegalArgumentException {
-		return parse(rule, null);
-	}
-	
-	/**
-	 * @param rule
-	 * @param forTest
-	 * @return
-	 * @throws IllegalArgumentException
-	 */
-	protected static ImportEnter parse(JSONObject rule, File forTest) throws IllegalArgumentException {
 		Assert.notNull(rule.getString("entity"), "Node `entity`");
 		Assert.notNull(rule.getString("file"), "Node `file`");
 		Assert.notNull(rule.getInteger("repeat_opt"), "Node `repeat_opt`");
@@ -128,15 +122,22 @@ public class ImportEnter {
 		Entity entity = MetadataHelper.getEntity(rule.getString("entity"));
 		File file = SystemConfiguration.getFileOfTemp(rule.getString("file"));
 		
-		// for TestCase
+		// from TestCase
 		if (file == null || !file.exists()) {
-			file = forTest;
+			URL testFile = ImportEnter.class.getClassLoader().getResource(rule.getString("file"));
+			if (testFile != null) {
+				try {
+					file = new File(testFile.toURI());
+				} catch (URISyntaxException e) {
+					throw new IllegalArgumentException("File not found : " + file, e);
+				}
+			}
 			LOG.warn("Use file from TestCase : " + file);
 		}
 		if (file == null || !file.exists()) {
 			throw new IllegalArgumentException("File not found : " + file);
 		}
-
+		
 		int repeatOpt = rule.getIntValue("repeat_opt");
 		Field[] repeatFields = null;
 		if (repeatOpt != 3) {
