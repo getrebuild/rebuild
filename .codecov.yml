@@ -1,0 +1,8 @@
+coverage:
+  range: 60..100
+  round: down
+  precision: 2
+
+ignore:
+  - "src/test/**/*"
+  - "src/main/webapp/assets/lib/**/*"
