@@ -39,7 +39,7 @@ import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.rebuild.server.business.datas.DataFileParser;
 import com.rebuild.server.business.datas.DataImporter;
 import com.rebuild.server.business.datas.ImportEnter;
-import com.rebuild.server.helper.SystemConfiguration;
+import com.rebuild.server.helper.SystemConfig;
 import com.rebuild.server.helper.task.BulkTask;
 import com.rebuild.server.helper.task.BulkTaskExecutor;
 import com.rebuild.server.metadata.EntityHelper;
@@ -119,7 +119,7 @@ public class DataImportControll extends BasePageControll {
 			file = CodecUtils.urlDecode(file);
 			file = CodecUtils.urlDecode(file);
 		}
-		File tmp = SystemConfiguration.getFileOfTemp(file);
+		File tmp = SystemConfig.getFileOfTemp(file);
 		if (!tmp.exists() || tmp.isDirectory()) {
 			writeFailure(response, "无效文件");
 			return;

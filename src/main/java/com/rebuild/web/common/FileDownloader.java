@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 
-import com.rebuild.server.helper.SystemConfiguration;
+import com.rebuild.server.helper.SystemConfig;
 
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
@@ -56,7 +56,7 @@ public class FileDownloader extends HttpServlet {
 			fileName = CodecUtils.urlDecode(fileName);
 		}
 		
-		File temp = SystemConfiguration.getFileOfTemp(fileName);
+		File temp = SystemConfig.getFileOfTemp(fileName);
 		if (!temp.exists() && !temp.isDirectory()) {
 			resp.sendError(404, "未找到文件 : " + fileName);
 			return;

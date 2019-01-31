@@ -85,7 +85,12 @@ public final class Application {
 	void init(long startingAt) {
 		serversReady = ServerStatus.checkAll();
 		if (!serversReady) {
-			LOG.error("Rebuild Booting failure during status checks !!!");
+			LOG.fatal("\n#############################################################"
+					+ "\n\n  REBUILD BOOTING FAILURE DURING STATUS CHECKS"
+					+ "\n  Version : " + VER
+					+ "\n  Report an issue?"
+					+ "\n  https://github.com/getrebuild/rebuild/issues/new?title=error-boot"
+					+ "\n\n#############################################################");
 			return;
 		}
 		

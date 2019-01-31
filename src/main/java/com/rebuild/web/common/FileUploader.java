@@ -37,7 +37,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.rebuild.server.helper.QiniuCloud;
-import com.rebuild.server.helper.SystemConfiguration;
+import com.rebuild.server.helper.SystemConfig;
 import com.rebuild.utils.AppUtils;
 
 import cn.devezhao.commons.CalendarUtils;
@@ -70,7 +70,7 @@ public class FileUploader extends HttpServlet {
 				}
 				uploadName = CalendarUtils.getDateFormat("HHmmssSSS").format(CalendarUtils.now()) + "__" + uploadName;
 				
-				File temp = SystemConfiguration.getFileOfTemp(uploadName);
+				File temp = SystemConfig.getFileOfTemp(uploadName);
 				item.write(temp);
 				if (!temp.exists()) {
 					ServletUtils.writeJson(resp, AppUtils.formatControllMsg(1000, "上传失败"));
@@ -104,7 +104,7 @@ public class FileUploader extends HttpServlet {
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		File track = SystemConfiguration.getFileOfTemp("track");
+		File track = SystemConfig.getFileOfTemp("track");
 		if (!track.exists() || !track.isDirectory()) {
 			boolean mked = track.mkdir();
 			if (!mked) {

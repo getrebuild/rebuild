@@ -37,14 +37,14 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 系统配置
+ * 全局系统配置
  * 
  * @author devezhao
  * @since 10/14/2018
  */
-public class SystemConfiguration {
+public class SystemConfig {
 	
-	private static final Log LOG = LogFactory.getLog(SystemConfiguration.class);
+	private static final Log LOG = LogFactory.getLog(SystemConfig.class);
 	
 	/**
 	 * 临时目录/文件
@@ -53,7 +53,7 @@ public class SystemConfiguration {
 	 * @return
 	 */
 	public static File getFileOfTemp(String file) {
-		String tmp = get(SystemItem.TempDirectory);
+		String tmp = get(ConfigItem.TempDirectory);
 		File tmpFile = null;
 		if (tmp != null) {
 			tmpFile = new File(tmp);
@@ -84,7 +84,7 @@ public class SystemConfiguration {
 	 */
 	public static String[] getStorageAccount() {
 		return getsNoUnset(
-				SystemItem.StorageApiKey, SystemItem.StorageApiSecret, SystemItem.StorageBucket, SystemItem.StorageURL);
+				ConfigItem.StorageApiKey, ConfigItem.StorageApiSecret, ConfigItem.StorageBucket, ConfigItem.StorageURL);
 	}
 	
 	/**
@@ -94,7 +94,7 @@ public class SystemConfiguration {
 	 */
 	public static String[] getCacheAccount() {
 		return getsNoUnset(
-				SystemItem.CacheHost, SystemItem.CachePort, SystemItem.CachePassword);
+				ConfigItem.CacheHost, ConfigItem.CachePort, ConfigItem.CachePassword);
 	}
 	
 	/**
@@ -104,7 +104,7 @@ public class SystemConfiguration {
 	 */
 	public static String[] getMailAccount() {
 		return getsNoUnset(
-				SystemItem.MailUser, SystemItem.MailPassword, SystemItem.MailAddr, SystemItem.MailName);
+				ConfigItem.MailUser, ConfigItem.MailPassword, ConfigItem.MailAddr, ConfigItem.MailName);
 	}
 	
 	/**
@@ -114,7 +114,7 @@ public class SystemConfiguration {
 	 */
 	public static String[] getSmsAccount() {
 		return getsNoUnset(
-				SystemItem.SmsUser, SystemItem.SmsPassword, SystemItem.SmsSign);
+				ConfigItem.SmsUser, ConfigItem.SmsPassword, ConfigItem.SmsSign);
 	}
 	
 	/**
@@ -123,9 +123,9 @@ public class SystemConfiguration {
 	 * @param items
 	 * @return
 	 */
-	static String[] getsNoUnset(SystemItem... items) {
+	static String[] getsNoUnset(ConfigItem... items) {
 		List<String> list = new ArrayList<>();
-		for (SystemItem item : items) {
+		for (ConfigItem item : items) {
 			String v = get(item);
 			if (v == null) {
 				return null;
@@ -141,7 +141,7 @@ public class SystemConfiguration {
 	 * @param name
 	 * @return
 	 */
-	public static String get(SystemItem name) {
+	public static String get(ConfigItem name) {
 		return get(name, false);
 	}
 	
@@ -150,7 +150,7 @@ public class SystemConfiguration {
 	 * @param reload
 	 * @return
 	 */
-	public static String get(SystemItem name, boolean reload) {
+	public static String get(ConfigItem name, boolean reload) {
 		final String key = name.name();
 		String s = Application.getCommonCache().get(key);
 		if (s != null && reload == false) {
@@ -181,7 +181,7 @@ public class SystemConfiguration {
 	 * @param defaultValue
 	 * @return
 	 */
-	public static long getLong(SystemItem name, long defaultValue) {
+	public static long getLong(ConfigItem name, long defaultValue) {
 		String s = get(name);
 		return s == null ? defaultValue : NumberUtils.toLong(s);
 	}
@@ -191,7 +191,7 @@ public class SystemConfiguration {
 	 * @param defaultValue
 	 * @return
 	 */
-	public static boolean getBool(SystemItem name, boolean defaultValue) {
+	public static boolean getBool(ConfigItem name, boolean defaultValue) {
 		String s = get(name);
 		return s == null ? defaultValue : BooleanUtils.toBoolean(s);
 	}
@@ -201,7 +201,7 @@ public class SystemConfiguration {
 	 * @param value
 	 * @return
 	 */
-	public static void set(SystemItem name, Object value) {
+	public static void set(ConfigItem name, Object value) {
 		Object[] exists = Application.createQueryNoFilter(
 				"select configId from SystemConfig where item = ?")
 				.setParameter(1, name.name())

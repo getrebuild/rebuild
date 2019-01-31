@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.rebuild.utils.AppUtils"%>
-<%@ page import="com.rebuild.server.helper.SystemConfiguration"%>
+<%@ page import="com.rebuild.server.helper.SystemConfig"%>
 <%@ page import="org.apache.commons.lang.SystemUtils"%>
 <%@ page import="cn.devezhao.commons.CalendarUtils"%>
 <%@ page import="com.rebuild.server.ServerListener"%>
@@ -19,24 +19,32 @@
 </style>
 </head>
 <body>
-<% if (!ServerStatus.isStatusOK()) { %>
+<%
+	if (!ServerStatus.isStatusOK()) {
+%>
 <div class="error">
 <div class="block mt-0">
 	<h4 class="mt-0">系统故障</h4>
 	<div>部分服务未能正常启动，请通过快速检查列表排除故障，故障排除后建议重启服务。你也可以获取 <a href="mailto:getrebuild@sina.com?subject=系统故障">技术支持</a></div>
 </div>
 </div>
-<% } %>
+<%
+	}
+%>
 <div class="block">
 	<h5 class="text-bold">快速检查</h5>
 	<table class="table table-bordered table-sm">
 	<tbody>
-		<% for (State e : ServerStatus.getLastStatus()) { %>
+		<%
+			for (State e : ServerStatus.getLastStatus()) {
+		%>
 		<tr>
 			<th width="30%"><%=e.name%></th>
 			<td class="text-danger"><%=e.success ? "<span class='text-success'>OK<span>" : ("ERROR : " + e.error)%></td>
 		</tr>
-		<% } %>
+		<%
+			}
+		%>
 		<tr>
 			<th>Memory Usage</th>
 			<td>n/a</td>
@@ -48,7 +56,9 @@
 	</tbody>
 	</table>
 </div>
-<% if (AppUtils.getRequestUser(request) != null) { %>
+<%
+	if (AppUtils.getRequestUser(request) != null) {
+%>
 <div class="block">
 	<h5 class="text-bold">系统信息</h5>
 	<table class="table table-bordered table-sm">
@@ -79,7 +89,7 @@
 		</tr>
 		<tr>
 			<th>Temp Directory</th>
-			<td><%=SystemConfiguration.getFileOfTemp("/")%></td>
+			<td><%=SystemConfig.getFileOfTemp("/")%></td>
 		</tr>
 	</tbody>
 	</table>

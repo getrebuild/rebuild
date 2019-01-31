@@ -70,7 +70,7 @@ public class SMSender {
 	 * @return <tt>null</tt> if failed or SENDID
 	 */
 	public static String sendMail(String to, String subject, String content, boolean isHtml) {
-		String account[] = SystemConfiguration.getMailAccount();
+		String account[] = SystemConfig.getMailAccount();
 		if (account == null) {
 			LOG.error("Mail send failed : " + to + " > " + subject + "\nError : No account set");
 			return null;
@@ -116,7 +116,7 @@ public class SMSender {
 	 * @return <tt>null</tt> if failed or SENDID
 	 */
 	public static String sendSMS(String to, String content) {
-		String account[] = SystemConfiguration.getSmsAccount();
+		String account[] = SystemConfig.getSmsAccount();
 		if (account == null) {
 			LOG.error("SMS send failed : " + to + " > " + content + "\nError : No account set");
 			return null;

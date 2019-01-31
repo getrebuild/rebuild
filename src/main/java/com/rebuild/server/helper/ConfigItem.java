@@ -18,44 +18,31 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper;
 
-import org.apache.commons.lang.math.RandomUtils;
-
-import com.rebuild.server.Application;
-
 /**
- * 验证码
+ * 预置系统配置项
  * 
  * @author devezhao
- * @since 11/05/2018
+ * @since 12/25/2018
  */
-public class VCode {
+public enum ConfigItem {
 
-	/**
-	 * @param key
-	 * @return
-	 */
-	public static String generate(String key) {
-		String vcode = RandomUtils.nextInt(999999999) + "888888";
-		vcode = vcode.substring(0, 6);
-		Application.getCommonCache().put(key, vcode, 10 * 60);
-		return vcode;
-	}
+	// 通用
+	AppName, LOGO, LOGOWhite, HomeURL, OpenSignUp,
 	
-	/**
-	 * @param key
-	 * @param vcode
-	 * @return
-	 */
-	public static boolean verfiy(String key, String vcode) {
-		String exists = Application.getCommonCache().get(key);
-		if (exists == null) {
-			return false;
-		}
-		
-		if (exists.equalsIgnoreCase(vcode)) {
-			Application.getCommonCache().evict(key);
-			return true;
-		}
-		return false;
-	}
+	// 临时目录
+	TempDirectory,
+	
+	// 云存储
+	StorageURL, StorageApiKey, StorageApiSecret, StorageBucket,
+	
+	// 缓存服务
+	CacheHost, CachePort, CacheUser, CachePassword,
+	
+	// 邮件
+	MailUser, MailPassword, MailAddr, MailName,
+	
+	// 短信
+	SmsUser, SmsPassword, SmsSign,
+	
+	;
 }
