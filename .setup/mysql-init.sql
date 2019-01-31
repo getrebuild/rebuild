@@ -1,11 +1,11 @@
 -- #1 database/user
--- NOTE : UNCOMMENT IF NEEDED
+-- UNCOMMENT IF YOU NEEDED DB/USER
 /* 
-CREATE DATABASE `rebuild10` DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+CREATE DATABASE rebuild10 DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
 CREATE USER 'rebuild'@'127.0.0.1' IDENTIFIED BY 'rebuild';
-GRANT ALL PRIVILEGES ON `rebuild10`.* TO 'rebuild'@'127.0.0.1';
+GRANT ALL PRIVILEGES ON rebuild10.* TO 'rebuild'@'127.0.0.1';
 FLUSH PRIVILEGES;
-USE `rebuild10`;
+USE rebuild10;
 */
 
 -- #2 schemas
