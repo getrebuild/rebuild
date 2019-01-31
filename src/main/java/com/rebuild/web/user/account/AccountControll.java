@@ -30,7 +30,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.SMSender;
-import com.rebuild.server.helper.SystemConfiguration;
+import com.rebuild.server.helper.SystemConfig;
 import com.rebuild.server.helper.VCode;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserService;
@@ -63,13 +63,13 @@ public class AccountControll extends BaseEntityControll {
 			return;
 		}
 		
-		String vcode = VCode.random(email);
+		String vcode = VCode.generate(email);
 		String content = "<p>你的邮箱验证码是 <b>" + vcode + "</b><p>";
 		String sentid = SMSender.sendMail(email, "邮箱验证码", content);
 		if (sentid != null) {
 			writeSuccess(response);
 		} else {
-			if (SystemConfiguration.getMailAccount() == null) {
+			if (SystemConfig.getMailAccount() == null) {
 				writeFailure(response, "邮件账户未配置，无法发送验证码");
 			} else {
 				writeFailure(response, "验证码发送失败，请稍后重试");

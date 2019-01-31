@@ -16,32 +16,39 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.helper;
+package com.rebuild.utils;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
 
 /**
- * 系统配置项
  * 
  * @author devezhao
- * @since 12/25/2018
+ * @since 01/31/2019
  */
-public enum SystemItem {
+public class CommonsUtilsTest {
 
-	// 通用
-	AppName, LOGO, LOGOWhite, HomeURL, OpenSignUp,
+	@Test
+	public void testIsPlainText() {
+		assertTrue(CommonsUtils.isPlainText("123abc你好_-"));
+		assertTrue(CommonsUtils.isPlainText("123abc-_"));
+		assertFalse(CommonsUtils.isPlainText("123abc-_&)"));
+		assertFalse(CommonsUtils.isPlainText("123 abc"));
+	}
 	
-	// 临时目录
-	TempDirectory,
-	
-	// 云存储
-	StorageURL, StorageApiKey, StorageApiSecret, StorageBucket,
-	
-	// 缓存服务
-	CacheHost, CachePort, CacheUser, CachePassword,
-	
-	// 邮件
-	MailUser, MailPassword, MailAddr, MailName,
-	
-	// 短信
-	SmsUser, SmsPassword, SmsSign
-			
+	@Test
+	public void testStars() {
+		String ts[] = new String[] {
+				"ab",
+				"abc",
+				"abcd",
+				"abc5943j958923574353524325",
+				"abc5943j95892357fdsaFAFDS4353524325",
+		};
+		for (String t : ts) {
+			System.out.println(t + " > " + CommonsUtils.stars(t));
+		}
+	}
 }

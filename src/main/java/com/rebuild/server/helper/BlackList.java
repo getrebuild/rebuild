@@ -18,44 +18,50 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper;
 
-import org.apache.commons.lang.math.RandomUtils;
+import java.io.IOException;
+import java.net.URL;
 
+import org.apache.commons.io.IOUtils;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
+import com.rebuild.utils.JSONUtils;
 
 /**
- * 验证码
+ * 黑名单
  * 
  * @author devezhao
- * @since 11/05/2018
+ * @since 01/31/2019
  */
-public class VCode {
-
+public class BlackList {
+	
+	private static JSONArray BLACKLIST = null;
+	
 	/**
-	 * @param key
+	 * @param name
 	 * @return
 	 */
-	public static String generate(String key) {
-		String vcode = RandomUtils.nextInt(999999999) + "888888";
-		vcode = vcode.substring(0, 6);
-		Application.getCommonCache().put(key, vcode, 10 * 60);
-		return vcode;
+	public static boolean isBlack(String name) {
+		loadBlackListIfNeed();
+		return BLACKLIST.contains(name.toLowerCase());
 	}
 	
 	/**
-	 * @param key
-	 * @param vcode
-	 * @return
+	 * 加载黑名单列表
 	 */
-	public static boolean verfiy(String key, String vcode) {
-		String exists = Application.getCommonCache().get(key);
-		if (exists == null) {
-			return false;
+	private static void loadBlackListIfNeed() {
+		if (BLACKLIST != null) {
+			return;
 		}
 		
-		if (exists.equalsIgnoreCase(vcode)) {
-			Application.getCommonCache().evict(key);
-			return true;
+		URL url = BlackList.class.getClassLoader().getResource("blacklist.json");
+		try {
+			String s = IOUtils.toString(url, "UTF-8");
+			BLACKLIST = JSON.parseArray(s);
+		} catch (IOException e) {
+			Application.LOG.error("Cloud't load blacklist! The feature is missed : " + e);
+			BLACKLIST = JSONUtils.EMPTY_ARRAY;
 		}
-		return false;
 	}
 }

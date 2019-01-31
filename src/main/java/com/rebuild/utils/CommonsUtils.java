@@ -18,17 +18,31 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.utils;
 
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang.StringUtils;
 
 /**
+ * 通用工具类
  * 
  * @author devezhao
- * @since 12/25/2018
+ * @since 01/31/2019
  */
-public class StringsUtils {
+public class CommonsUtils {
 
+	private static final Pattern PLAIN_PATTERN = Pattern.compile("[A-Za-z0-9_\\-\\u4e00-\\u9fa5]+");
 	/**
-	 * 加星号/打码
+	 * 不含特殊字符。不允许除 数字 字母 中文 及  _ - 以外的字符，包括空格
+	 * 
+	 * @param text
+	 * @return
+	 */
+	public static boolean isPlainText(String text) {
+		return !text.contains(" ") && PLAIN_PATTERN.matcher(text).matches();
+	}
+	
+	/**
+	 * 给敏感文本加星号/打码
 	 * 
 	 * @param text
 	 * @return
@@ -51,5 +65,4 @@ public class StringsUtils {
 			return text.substring(0, 4) + "********************" + text.substring(textLen - 4);
 		}
 	}
-	
 }

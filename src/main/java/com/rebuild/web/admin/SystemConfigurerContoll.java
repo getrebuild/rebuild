@@ -22,8 +22,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.rebuild.server.helper.SystemConfiguration;
-import com.rebuild.utils.StringsUtils;
+import com.rebuild.server.helper.SystemConfig;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BasePageControll;
 
 /**
@@ -45,7 +45,7 @@ public class SystemConfigurerContoll extends BasePageControll {
 	public ModelAndView pageIntegrationStorage() {
 		ModelAndView mv = createModelAndView("/admin/integration/storage-qiniu.jsp");
 		mv.getModel().put("storageAccount",
-				starsAccount(SystemConfiguration.getStorageAccount(), 0, 1));
+				starsAccount(SystemConfig.getStorageAccount(), 0, 1));
 		return mv;
 	}
 	
@@ -53,7 +53,7 @@ public class SystemConfigurerContoll extends BasePageControll {
 	public ModelAndView pageIntegrationCache() {
 		ModelAndView mv = createModelAndView("/admin/integration/cache-redis.jsp");
 		mv.getModel().put("cacheAccount", 
-				starsAccount(SystemConfiguration.getCacheAccount(), 2));
+				starsAccount(SystemConfig.getCacheAccount(), 2));
 		return mv;
 	}
 	
@@ -61,9 +61,9 @@ public class SystemConfigurerContoll extends BasePageControll {
 	public ModelAndView pageIntegrationSubmail() {
 		ModelAndView mv = createModelAndView("/admin/integration/submail.jsp");
 		mv.getModel().put("smsAccount", 
-				starsAccount(SystemConfiguration.getSmsAccount(), 1));
+				starsAccount(SystemConfig.getSmsAccount(), 1));
 		mv.getModel().put("mailAccount", 
-				starsAccount(SystemConfiguration.getMailAccount(), 1));
+				starsAccount(SystemConfig.getMailAccount(), 1));
 		return mv;
 	}
 	
@@ -77,7 +77,7 @@ public class SystemConfigurerContoll extends BasePageControll {
 			return null;
 		}
 		for (int i : index) {
-			account[i] = StringsUtils.stars(account[i]);
+			account[i] = CommonsUtils.stars(account[i]);
 		}
 		return account;
 	}

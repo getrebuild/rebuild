@@ -19,10 +19,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.service.bizz;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.BlackList;
 import com.rebuild.server.helper.task.BulkTaskExecutor;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.SystemEntityService;
+import com.rebuild.utils.CommonsUtils;
 
 import cn.devezhao.bizz.security.member.User;
 import cn.devezhao.commons.EncryptUtils;
@@ -76,29 +78,50 @@ public class UserService extends SystemEntityService {
 	/**
 	 * @param record
 	 */
-	private void saveBefore(Record record) {
-		if (record.hasValue("password")) {
-			String password = record.getString("password");
-			if (password.length() < 6) {
-				throw new DataSpecificationException("密码不能小于6位");
-			}
-			password = EncryptUtils.toSHA256Hex(password);
-			record.setString("password", password);
+	protected void saveBefore(Record record) {
+		if (record.hasValue("loginName")) {
+			checkLoginName(record.getString("loginName"));
 		}
 		
-		if (record.hasValue("loginName")
-				&& Application.getUserStore().exists(record.getString("loginName"))) {
-			throw new DataSpecificationException("登陆名重复");
+		if (record.hasValue("password")) {
+			record.setString("password", checkPassword(record.getString("password")));
 		}
-		if (record.hasValue("email")
-				&& Application.getUserStore().exists(record.getString("email"))) {
+		
+		if (record.hasValue("email") && Application.getUserStore().exists(record.getString("email"))) {
 			throw new DataSpecificationException("邮箱重复");
 		}
+		
 		if (record.getPrimary() == null && !record.hasValue("fullName")) {
 			record.setString("fullName", record.getString("loginName").toUpperCase());
 		}
 		
 		setQuickCodeValue(record);
+	}
+	
+	/**
+	 * @param loginName
+	 * @throws DataSpecificationException
+	 */
+	private void checkLoginName(String loginName) throws DataSpecificationException {
+		if (Application.getUserStore().exists(loginName)) {
+			throw new DataSpecificationException("登陆名重复");
+		}
+		if (!CommonsUtils.isPlainText(loginName) || BlackList.isBlack(loginName)) {
+			throw new DataSpecificationException("无效登陆名");
+		}
+	}
+	
+	/**
+	 * @param password
+	 * @return
+	 * @throws DataSpecificationException
+	 */
+	private String checkPassword(String password) throws DataSpecificationException {
+		if (password.length() < 6) {
+			throw new DataSpecificationException("密码不能小于6位");
+		}
+		password = EncryptUtils.toSHA256Hex(password);
+		return password;
 	}
 	
 	/**
