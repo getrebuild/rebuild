@@ -6,7 +6,7 @@
 	<groupId>com.rebuild</groupId>
 	<artifactId>rebuild</artifactId>
 	<packaging>war</packaging>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0-beta</version>
 	<name>rebuild</name>
 	<description>Building your system free!</description>
 	<url>https://getrebuild.com/</url>

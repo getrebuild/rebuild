@@ -55,9 +55,9 @@ public final class Application {
 	
 	/** Rebuild Version
 	 */
-	public static final String VER = "1.0.0-SNAPSHOT";
+	public static final String VER = "1.0.0-beta";
 	
-	/** Logging for Global
+	/** Logging for Global, If you want to be lazy ^_^
 	 */
 	public static final Log LOG = LogFactory.getLog(Application.class);
 	
