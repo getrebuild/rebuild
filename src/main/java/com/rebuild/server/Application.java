@@ -129,8 +129,8 @@ public final class Application {
 	 * @return
 	 */
 	public static ApplicationContext debug() {
-		debugMode = true;
 		if (APPLICATION_CTX == null) {
+			debugMode = true;
 			LOG.info("Rebuild Booting in DEBUG mode ...");
 			long at = System.currentTimeMillis();
 			ApplicationContext ctx = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml" });

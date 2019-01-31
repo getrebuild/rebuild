@@ -1,18 +1,22 @@
-language: java
 sudo: false
-script: mvn clean install -DskipTests=false -B -V
+language: java
+jdk:
+  - oraclejdk8
+script: mvn cobertura:cobertura -DskipTests=false
 
 services:
   - mysql
-#  - redis
+  - redis
 
-before_install:
+#branches:
+#  only:
+#    - master
+
+before_script:
   - mysql -e "CREATE DATABASE rebuild10 DEFAULT CHARSET utf8 COLLATE utf8_general_ci;"
   - mysql -e "CREATE USER 'rebuild'@'127.0.0.1' IDENTIFIED BY 'rebuild'; GRANT ALL PRIVILEGES ON rebuild10.* TO 'rebuild'@'127.0.0.1'; FLUSH PRIVILEGES;"
   - mysql -D rebuild10 < .setup/mysql-init.sql
 
-#script: "mvn cobertura:cobertura"
-#after_success:
-#  - bash <(curl -s https://codecov.io/bash)
-
-# IN RESEARCH ...
+# codecov
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

@@ -39,6 +39,7 @@ import cn.devezhao.persist4j.Entity;
 public class TestSupport {
 	
 	static {
+		// See log4j.properties
 		System.setProperty("catalina.home", System.getProperty("java.io.tmpdir"));
 	}
 	

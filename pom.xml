@@ -2,7 +2,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
+	
 	<groupId>com.rebuild</groupId>
 	<artifactId>rebuild</artifactId>
 	<packaging>war</packaging>
@@ -10,7 +10,7 @@
 	<name>rebuild</name>
 	<description>Building your system free!</description>
 	<url>https://getrebuild.com/</url>
-	
+
 	<issueManagement>
 		<system>GitHub</system>
 		<url>https://github.com/getrebuild/rebuild/issues</url>
@@ -22,7 +22,7 @@
 		<skipTests>true</skipTests>
 		<spring.version>4.3.21.RELEASE</spring.version>
 	</properties>
-	
+
 	<build>
 		<finalName>rebuild</finalName>
 		<plugins>
