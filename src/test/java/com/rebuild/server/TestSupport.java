@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -37,10 +37,6 @@ import cn.devezhao.persist4j.Entity;
  * @since 01/03/2019
  */
 public class TestSupport {
-	
-	static {
-		System.setProperty("catalina.home", System.getProperty("java.io.tmpdir"));
-	}
 	
 	protected static final Log LOG = LogFactory.getLog(TestSupport.class);
 	

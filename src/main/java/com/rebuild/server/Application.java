@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -55,9 +55,9 @@ public final class Application {
 	
 	/** Rebuild Version
 	 */
-	public static final String VER = "1.0.0-SNAPSHOT";
+	public static final String VER = "1.1.0-SNAPSHOT";
 	
-	/** Logging for Global
+	/** Logging for Global, If you want to be lazy ^_^
 	 */
 	public static final Log LOG = LogFactory.getLog(Application.class);
 	
@@ -129,8 +129,8 @@ public final class Application {
 	 * @return
 	 */
 	public static ApplicationContext debug() {
-		debugMode = true;
 		if (APPLICATION_CTX == null) {
+			debugMode = true;
 			LOG.info("Rebuild Booting in DEBUG mode ...");
 			long at = System.currentTimeMillis();
 			ApplicationContext ctx = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml" });
