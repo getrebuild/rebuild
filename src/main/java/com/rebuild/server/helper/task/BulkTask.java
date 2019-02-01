@@ -144,7 +144,11 @@ public abstract class BulkTask implements Runnable {
 	 * @return
 	 */
 	public long getElapsedTime() {
-		return CalendarUtils.now().getTime() - beginTime.getTime();
+		if (completedTime != null) {
+			return completedTime.getTime() - beginTime.getTime();
+		} else {
+			return CalendarUtils.now().getTime() - beginTime.getTime();
+		}
 	}
 	
 	// -- for Thread

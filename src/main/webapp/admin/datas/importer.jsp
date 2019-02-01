@@ -132,14 +132,14 @@
 									<form class="simple" style="margin:30px auto">
 										<div class="row mb-2">
 											<div class="col-6"><h5 class="text-bold m-0 p-0 J_import_state">正在准备数据 ...</h5></div>
-											<div class="col-6 text-right text-muted">剩余时间 <span class="J_import_time">00:00:00</span></div>
+											<div class="col-6 text-right text-muted">耗时 <span class="J_import_time">00:00:00</span></div>
 										</div>
 										<div class="progress">
 											<div class="progress-bar progress-bar-animated J_import-bar" style="width:0"></div>
 										</div>
 										<div class="mt-3">
 											<button class="btn btn-danger J_step3-cancel" type="button">终止导入</button>
-											<a class="btn btn-link J_step3-logs hide">查看详情</a>
+											<a class="btn btn-link J_step3-logs hide" href="importer">继续导入</a>
 										</div>
 									</form>
 								</div>

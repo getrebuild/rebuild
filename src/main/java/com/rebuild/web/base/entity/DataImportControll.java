@@ -214,9 +214,9 @@ public class DataImportControll extends BasePageControll {
 	 */
 	private JSON formatTaskState(DataImporter task) {
 		JSON state = JSONUtils.toJSONObject(
-				new String[] { "total", "complete", "success", "isCompleted", "isInterrupted" },
+				new String[] { "total", "complete", "success", "isCompleted", "isInterrupted", "elapsedTime" },
 				new Object[] { task.getTotal(), task.getComplete(),
-						((DataImporter) task).getSuccess(), task.isCompleted(), task.isInterrupted() });
+						((DataImporter) task).getSuccess(), task.isCompleted(), task.isInterrupted(), task.getElapsedTime() });
 		return state;
 	}
 }

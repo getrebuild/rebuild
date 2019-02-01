@@ -176,6 +176,8 @@ const import_state = (taskid, inLoad) => {
     }
 
     let _data = res.data
+    $('.J_import_time').text(sec_to_time(~~_data.elapsedTime / 1000))
+
     if (_data.isCompleted === true) {
       $('.J_import-bar').css('width', '100%')
       $('.J_import_state').text('导入完成。共成功导入 ' + _data.success + ' 条数据')
@@ -183,8 +185,8 @@ const import_state = (taskid, inLoad) => {
       $('.J_import_state').text('导入被终止。已成功导入 ' + _data.success + ' 条数据')
     }
     if (_data.isCompleted === true || _data.isInterrupted === true) {
-      $('.J_step3-cancel').attr('disabled', true)
-      // $('.J_step3-logs').removeClass('hide')
+      $('.J_step3-cancel').attr('disabled', true).text('导入完成')
+      $('.J_step3-logs').removeClass('hide')
       import_inprogress = false
       return
     }
@@ -242,4 +244,15 @@ const render_fieldsMapping = (columns, fields) => {
       toel.text('')
     }
   })
+}
+
+var sec_to_time = function (s) {
+  if (!s || s <= 0) return '00:00:00'
+  let hh = Math.floor(s / 3600)
+  let mm = Math.floor(s / 60) % 60
+  let ss = ~~(s % 60)
+  if (hh < 10) hh = '0' + hh
+  if (mm < 10) mm = '0' + mm
+  if (ss < 10) ss = '0' + ss
+  return hh + ':' + mm + ':' + ss
 }

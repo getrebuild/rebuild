@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.datas;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -34,6 +35,7 @@ import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.excel.Cell;
 import cn.devezhao.commons.excel.ExcelReader;
@@ -200,7 +202,7 @@ public class DataImporter extends BulkTask {
 		} else if (dt == DisplayType.DECIMAL) {
 			return cell.asDouble();
 		} else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
-			return cell.asDate();
+			return checkoutDateValue(field, cell);
 		} else if (dt == DisplayType.PICKLIST) {
 			return checkoutPickListValue(field, cell);
 		} else if (dt == DisplayType.REFERENCE) {
@@ -222,7 +224,6 @@ public class DataImporter extends BulkTask {
 				return RegexUtils.isCNMobile(tel) || RegexUtils.isTel(tel)? tel : null;
 			}
 		}
-		
 		return cell.asString();
 	}
 	
@@ -272,6 +273,36 @@ public class DataImporter extends BulkTask {
 				oEntity.getPrimaryField().getName(), oEntity.getName(), oEntity.getNameField().getName());
 		Object[] exists = Application.createQueryNoFilter(sql).setParameter(1, typeVal).unique();
 		return exists == null ? null : (ID) exists[0];
+	}
+	
+	/**
+	 * @param field
+	 * @param cell
+	 * @return
+	 */
+	private Date checkoutDateValue(Field field, Cell cell) {
+		Date date = cell.asDate();
+		if (date != null) {
+			return date;
+		}
+		if (cell.isEmpty()) {
+			return null;
+		}
+		
+		String date2str = cell.asString();
+		// 2017/11/19 11:07
+		if (date2str.contains("/")) {
+			int strLen = date2str.length();
+			if (strLen <= 10) {
+				return CalendarUtils.parse(date2str, CalendarUtils.getDateFormat("yyyy/M/d"));
+			} else {
+				if (StringUtils.countMatches(date2str, ":") == 1) {
+					date2str += ":00";
+				}
+				return CalendarUtils.parse(date2str, CalendarUtils.getDateFormat("yyyy/M/d H:m:s"));
+			}
+		}
+		return null;
 	}
 	
 	/**
