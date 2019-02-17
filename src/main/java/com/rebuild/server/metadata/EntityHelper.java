@@ -150,5 +150,6 @@ public class EntityHelper {
 	public static final int Notification = 22;
 	public static final int Attachment = 23;
 	public static final int AttachmentFolder = 24;
+	public static final int LoginLog = 25;
 	
 }

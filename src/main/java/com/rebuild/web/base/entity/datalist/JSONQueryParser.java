@@ -191,7 +191,9 @@ public class JSONQueryParser {
 		} else if (entity.containsField(EntityHelper.CreatedOn)) {
 			sqlSort.append(EntityHelper.CreatedOn + " desc");
 		}
-		sqlBase.append(sqlSort);
+		if (sqlSort.length() > 10) {
+			sqlBase.append(sqlSort);
+		}
 		
 		this.sql = sqlBase.toString();
 		this.countSql = new StringBuffer("select ")

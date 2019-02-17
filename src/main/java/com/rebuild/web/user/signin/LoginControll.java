@@ -29,17 +29,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.server.service.bizz.privileges.ZeroPrivileges;
 import com.rebuild.utils.AES;
 import com.rebuild.web.BasePageControll;
 import com.wf.captcha.utils.CaptchaUtil;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import eu.bitwalker.useragentutils.Browser;
+import eu.bitwalker.useragentutils.UserAgent;
 
 /**
  * @author zhaofang123@gmail.com
@@ -168,8 +174,29 @@ public class LoginControll extends BasePageControll {
 			ServletUtils.removeCookie(request, response, AUTOLOGIN_KEY);
 		}
 		
+		loginLog(request, user);
+		
 		ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, user);
 		Application.getSessionStore().storeLoginSuccessed(request);
+	}
+	
+	/**
+	 * @param request
+	 * @param user
+	 * @return
+	 */
+	private ID loginLog(HttpServletRequest request, ID user) {
+		String ipAddr = ServletUtils.getRemoteAddr(request);
+		String userAgent = request.getHeader("user-agent");
+		UserAgent ua = UserAgent.parseUserAgentString(userAgent);
+		
+		Record record = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
+		record.setID("user", user);
+		record.setString("ipAddr", ipAddr);
+		record.setString("userAgent", ua.toString());
+		record.setDate("loginTime", CalendarUtils.now());
+		record = Application.getCommonService().create(record);
+		return record.getPrimary();
 	}
 	
 	@RequestMapping("logout")
