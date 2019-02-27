@@ -1,6 +1,6 @@
 ---
 name: issue-template
-about: ''
+about: 'No about'
 title: ''
 labels: ''
 assignees: ''
