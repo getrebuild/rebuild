@@ -1,6 +1,6 @@
 ---
 name: issue-template
-about: No About
+about: ''
 title: ''
 labels: ''
 assignees: ''
