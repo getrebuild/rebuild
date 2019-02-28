@@ -27,7 +27,7 @@
 					</li>
 					<li class="divider">业务/实体</li>
 					<li class="${param['activeNav'] == 'entities' ? 'active' : ''}"><a href="${baseUrl}/admin/entities"><i class="icon zmdi zmdi-widgets"></i><span>实体管理</span></a></li>
-					<li class="${param['activeNav'] == 'data-importer' ? 'active' : ''}"><a href="${baseUrl}/admin/datas/importer"><i class="icon zmdi zmdi-cloud-upload"></i><span>数据导入</span></a></li>
+					<li class="${param['activeNav'] == 'data-importer' ? 'active' : ''}"><a href="${baseUrl}/admin/dataio/importer"><i class="icon zmdi zmdi-cloud-upload"></i><span>数据导入</span></a></li>
 					<li class="${param['activeNav'] == 'audit-logging' ? 'active' : ''} hide"><a href="${baseUrl}/admin/audit-logging"><i class="icon zmdi zmdi-assignment-check"></i><span>数据审计</span></a></li>
 					<li class="divider">用户</li>
 					<li class="${param['activeNav'] == 'users' ? 'active' : ''}"><a href="${baseUrl}/admin/bizuser/users"><i class="icon zmdi zmdi-accounts"></i><span>部门用户</span></a></li>

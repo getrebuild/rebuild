@@ -15,7 +15,7 @@ $(document).ready(() => {
   let fileds_render = (entity) => {
     if (!entity) return
     let el = $('#repeatFields').empty()
-    $.get(`${rb.baseUrl}/admin/datas/import-fields?entity=${entity}`, (res) => {
+    $.get(`${rb.baseUrl}/admin/dataio/import-fields?entity=${entity}`, (res) => {
       $(res.data).each(function () {
         if (this.name === 'createdBy' || this.name === 'createdOn' || this.name === 'modifiedOn' || this.name === 'modifiedBy') return
         $('<option value="' + this.name + '">' + this.label + '</option>').appendTo(el)
@@ -115,7 +115,7 @@ const step_mapping = () => {
   if (ientry.repeat_opt !== 3 && (!ientry.repeat_fields || ientry.repeat_fields.length === 0)) { rb.highbar('请选择重复判断字段'); return }
 
   let btn = $('.J_step1-btn').button('loading')
-  $.get(rb.baseUrl + '/admin/datas/import-preview?file=' + $encode(ientry.file), (res) => {
+  $.get(rb.baseUrl + '/admin/dataio/import-preview?file=' + $encode(ientry.file), (res) => {
     btn.button('reset')
     if (res.error_code > 0) { rb.highbar(res.error_msg); return }
     let _data = res.data
@@ -148,7 +148,7 @@ const step_import = () => {
   ientry.fields_mapping = fm
 
   step_import_show()
-  $.post(rb.baseUrl + '/admin/datas/import-submit', JSON.stringify(ientry), function (res) {
+  $.post(rb.baseUrl + '/admin/dataio/import-submit', JSON.stringify(ientry), function (res) {
     if (res.error_code === 0) {
       import_inprogress = true
       import_taskid = res.data.taskid
@@ -163,7 +163,7 @@ const step_import_show = () => {
   $('.steps li[data-step=3], .step-content .step-pane[data-step=3]').addClass('active')
 }
 const import_state = (taskid, inLoad) => {
-  $.get(rb.baseUrl + '/admin/datas/import-state?taskid=' + taskid, (res) => {
+  $.get(rb.baseUrl + '/admin/dataio/import-state?taskid=' + taskid, (res) => {
     if (res.error_code !== 0) {
       if (inLoad === true) step_upload()
       else rb.hberror(res.error_msg)
@@ -203,7 +203,7 @@ const import_cancel = () => {
     type: 'danger',
     confirmText: '确认终止',
     confirm: function () {
-      $.post(rb.baseUrl + '/admin/datas/import-cancel?taskid=' + import_taskid, (res) => {
+      $.post(rb.baseUrl + '/admin/dataio/import-cancel?taskid=' + import_taskid, (res) => {
         if (res.error_code > 0) rb.hberror(res.error_msg)
       })
       this.hide()
