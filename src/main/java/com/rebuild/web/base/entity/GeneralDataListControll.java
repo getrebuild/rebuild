@@ -30,11 +30,11 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.business.datalist.DataList;
+import com.rebuild.server.business.datalist.DefaultDataList;
 import com.rebuild.server.helper.manager.DataListManager;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.web.BaseEntityControll;
-import com.rebuild.web.base.entity.datalist.DataList;
-import com.rebuild.web.base.entity.datalist.DefaultDataList;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;

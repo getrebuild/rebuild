@@ -24,6 +24,7 @@ import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer;
 
+import com.rebuild.server.Application;
 import com.rebuild.utils.AES;
 
 /**
@@ -68,6 +69,10 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer {
 		}
 		
 		propsHold = (Properties) props.clone();
+		
+		if (Application.devMode()) {
+			Application.LOG.info("System properties : " + propsHold);
+		}
 	}
 	
 	/**
