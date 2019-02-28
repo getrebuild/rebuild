@@ -54,11 +54,13 @@ import eu.bitwalker.useragentutils.UserAgent;
 @RequestMapping("/user/")
 public class LoginControll extends BasePageControll {
 	
-	private static final String AUTOLOGIN_KEY = "rb.alt";
+	public static final String CK_AUTOLOGIN = "rb.alt";
+	
+	public static final String SK_LOGINID = WebUtils.KEY_PREFIX + ".LOGINID";
 
 	@RequestMapping("login")
 	public ModelAndView checkLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String alt = ServletUtils.readCookie(request, AUTOLOGIN_KEY);
+		String alt = ServletUtils.readCookie(request, CK_AUTOLOGIN);
 		if (StringUtils.isNotBlank(alt)) {
 			ID altUser = null;
 			try {
@@ -168,15 +170,16 @@ public class LoginControll extends BasePageControll {
 		if (autoLogin) {
 			String alt = user + "," + System.currentTimeMillis();
 			alt = AES.encrypt(alt);
-			ServletUtils.addCookie(response, AUTOLOGIN_KEY, alt, 60 * 60 * 24 * 30, null, "/");
+			ServletUtils.addCookie(response, CK_AUTOLOGIN, alt, 60 * 60 * 24 * 30, null, "/");
 		} else {
-			ServletUtils.removeCookie(request, response, AUTOLOGIN_KEY);
+			ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
 		}
 		
-		loginLog(request, user);
+		ID loginId = loginLog(request, user);
+		ServletUtils.setSessionAttribute(request, SK_LOGINID, loginId);
 		
 		ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, user);
-		Application.getSessionStore().storeLoginSuccessed(request);
+		Application.getSessionStore().storeLoginSuccessed(request);	
 	}
 	
 	/**
@@ -188,11 +191,13 @@ public class LoginControll extends BasePageControll {
 		String ipAddr = ServletUtils.getRemoteAddr(request);
 		String userAgent = request.getHeader("user-agent");
 		UserAgent ua = UserAgent.parseUserAgentString(userAgent);
+		String uaClean = String.format("%s-%s (%s)", ua.getBrowser(),
+				ua.getBrowserVersion().getMajorVersion(), ua.getOperatingSystem());
 		
 		Record record = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
 		record.setID("user", user);
 		record.setString("ipAddr", ipAddr);
-		record.setString("userAgent", ua.toString());
+		record.setString("userAgent", uaClean);
 		record.setDate("loginTime", CalendarUtils.now());
 		record = Application.getCommonService().create(record);
 		return record.getPrimary();
@@ -200,7 +205,7 @@ public class LoginControll extends BasePageControll {
 	
 	@RequestMapping("logout")
 	public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ServletUtils.removeCookie(request, response, AUTOLOGIN_KEY);
+		ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
 		ServletUtils.getSession(request).invalidate();
 		response.sendRedirect("login?exit=0");
 	}
