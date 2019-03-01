@@ -128,7 +128,7 @@ public class ChartDesignControll extends BaseEntityControll {
 		JSON data = null;
 		try {
 			ChartData chart = ChartDataFactory.create((JSONObject) config);
-			data = chart.build();
+			data = chart.build(true);
 		} catch (ChartsException ex) {
 			writeFailure(response, ex.getLocalizedMessage());
 			return;
