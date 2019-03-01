@@ -20,7 +20,9 @@ package com.rebuild.server.business.charts;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -193,11 +195,17 @@ public abstract class ChartData {
 	 * @return
 	 */
 	protected String getSortSql() {
-		List<String> sorts = new ArrayList<>();
-		for (Dimension dim : getDimensions()) {
+		Set<String> sorts = new HashSet<>();
+		for (Axis dim : getDimensions()) {
 			FormatSort fs = dim.getFormatSort();
 			if (fs != FormatSort.NONE) {
 				sorts.add(dim.getSqlName() + " " + fs.toString().toLowerCase());
+			}
+		}
+		for (Numerical num : getNumericals()) {
+			FormatSort fs = num.getFormatSort();
+			if (fs != FormatSort.NONE) {
+				sorts.add(num.getSqlName() + " " + fs.toString().toLowerCase());
 			}
 		}
 		

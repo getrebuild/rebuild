@@ -66,6 +66,7 @@ $(document).ready(() => {
     let dash = $urlp('dashid') || ''
     $.post(rb.baseUrl + '/dashboard/chart-save?dashid=' + dash, JSON.stringify(_data), function (res) {
       if (res.error_code === 0) {
+        wpc.chartConfig = cfg
         location.href = (dash ? ('home?d=' + dash) : 'home') + '#' + res.data.id
       } else rb.hberror(res.error_msg)
     })
@@ -79,6 +80,13 @@ $(document).ready(() => {
     esourceFilter = wpc.chartConfig.filter
   }
   if (!wpc.chartId) $('<h4 class="chart-undata must-center">当前图表无数据</h4>').appendTo('#chart-preview')
+
+  window.onbeforeunload = function () {
+    let ccfg = build_config()
+    if (!ccfg && !wpc.chartId);  // New and unconfig
+    else if (JSON.stringify(ccfg) === JSON.stringify(wpc.chartConfig));  // Unchanged
+    else return false
+  }
 })
 $(window).resize(() => {
   $setTimeout(() => {
