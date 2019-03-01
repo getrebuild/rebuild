@@ -33,6 +33,14 @@ import com.rebuild.server.service.bizz.UserService;
 public class ChartsTest extends TestSupport {
 
 	@Test
+	public void testTable() throws Exception {
+		JSONObject config = JSON.parseObject(
+				"{'entity':'kehu','title':'表格','type':'TABLE','axis':{'dimension':[{'field':'modifiedOn','sort':'DESC','label':'','calc':'D'}],'numerical':[{'field':'kehumingcheng','sort':'NONE','label':'','calc':'COUNT'}]}}");
+		ChartData index = ChartDataFactory.create(config, UserService.ADMIN_USER);
+		System.out.println(index.build());
+	}
+	
+	@Test
 	public void testIndex() throws Exception {
 		JSONObject config = JSON.parseObject(
 				"{ entity:'User', title:'指标卡', type:'INDEX', axis:{dimension:[], numerical:[{ field:'userId', sort:'', calc:'COUNT' }]}}");

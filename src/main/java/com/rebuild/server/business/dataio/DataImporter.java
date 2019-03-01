@@ -162,7 +162,7 @@ public class DataImporter extends BulkTask {
 		
 		// 检查重复
 		if (enter.getRepeatOpt() < ImportEnter.REPEAT_OPT_IGNORE) {
-			final ID repeat = getRepeatRecordId(enter.getRepeatFields(), recordNew);
+			final ID repeat = getRepeatedRecordId(enter.getRepeatFields(), recordNew);
 			
 			if (repeat != null && enter.getRepeatOpt() == ImportEnter.REPEAT_OPT_SKIP) {
 				return null;
@@ -306,20 +306,20 @@ public class DataImporter extends BulkTask {
 	}
 	
 	/**
-	 * @param checks
+	 * @param repeatFields
 	 * @param data
 	 * @return
 	 */
-	protected ID getRepeatRecordId(Field[] checks, Record data) {
+	protected ID getRepeatedRecordId(Field[] repeatFields, Record data) {
 		Map<String, Object> wheres = new HashMap<>();
-		for (Field c : checks) {
+		for (Field c : repeatFields) {
 			String cName = c.getName();
 			if (data.hasValue(cName)) {
 				wheres.put(cName, data.getObjectValue(cName));
 			}
 		}
 		
-		LOG.info("Checking repeat : " + wheres);
+		LOG.info("Checking repeated : " + wheres);
 		if (wheres.isEmpty()) {
 			return null;
 		}

@@ -169,6 +169,26 @@ public abstract class ChartData {
 	}
 	
 	/**
+	 * 获取排序 SQL
+	 * 
+	 * @return
+	 */
+	protected String getSortSql() {
+		List<String> sorts = new ArrayList<>();
+		for (Dimension dim : getDimensions()) {
+			FormatSort fs = dim.getFormatSort();
+			if (fs != FormatSort.NONE) {
+				sorts.add(dim.getSqlName() + " " + fs.toString().toLowerCase());
+			}
+		}
+		
+		if (sorts.isEmpty()) {
+			return null;
+		}
+		return String.join(", ", sorts);
+	}
+	
+	/**
 	 * 格式化值
 	 * 
 	 * @param axis

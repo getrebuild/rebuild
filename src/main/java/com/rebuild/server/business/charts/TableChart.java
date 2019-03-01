@@ -71,7 +71,9 @@ public class TableChart extends ChartData {
 		}
 		
 		String sql = "select {0},{1} from {2} where {3} group by {0}";
+//		String sql = "select {0},{1} from {2} where {3} group by {0} with rollup";
 		String where = getFilterSql();
+		String order = getSortSql();
 		
 		if (dimSqlItems.isEmpty()) {
 			sql = "select {1} from {2} where {3}";
@@ -81,6 +83,10 @@ public class TableChart extends ChartData {
 				StringUtils.join(dimSqlItems, ", "),
 				StringUtils.join(numSqlItems, ", "),
 				getSourceEntity().getName(), where);
+		
+		if (order != null) {
+			sql += " order by " + order;
+		}
 		return sql;
 	}
 }
