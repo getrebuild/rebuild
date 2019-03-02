@@ -1,6 +1,7 @@
 .rb-offcanvas-menu .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar .zmdi-arrow-left {
 	font-size: 2.11rem;
 }
+
 .rb-offcanvas-menu .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar:hover .zmdi-arrow-left {
 	color: #4285f4;
 }
@@ -8,6 +9,7 @@
 .chart-box .chart-head .chart-title {
 	display: none;
 }
+
 .chart-box .chart-body {
 	margin-top: 0;
 	padding-top: 0;
@@ -21,7 +23,8 @@
 	min-height: 200px;
 }
 
-.data-aside, .config-aside {
+.data-aside,
+.config-aside {
 	position: fixed;
 	height: 100%;
 	top: 0;
@@ -43,7 +46,8 @@
 	width: 326px;
 }
 
-.data-aside .rb-scroller, .config-aside .rb-scroller {
+.data-aside .rb-scroller,
+.config-aside .rb-scroller {
 	height: 100%;
 	width: 100%;
 }
@@ -171,13 +175,15 @@
 	margin-bottom: 11px;
 }
 
-.data-info ul li>a, .data-info ul li>span, a.ui-draggable.ui-draggable-dragging
-	{
+.data-info ul li>a,
+.data-info ul li>span,
+a.ui-draggable.ui-draggable-dragging {
 	display: block;
 	padding: 4px 6px;
 }
 
-.data-info ul li a:hover, a.ui-draggable.ui-draggable-dragging {
+.data-info ul li a:hover,
+a.ui-draggable.ui-draggable-dragging {
 	background-color: rgba(255, 255, 255, 0.7)
 }
 
@@ -192,21 +198,22 @@
 	line-height: 20px;
 }
 
-.data-info .esource a > span {
+.data-info .esource a>span {
 	float: right;
 	display: none;
 }
-.data-info .esource a > span i.zmdi {
+
+.data-info .esource a>span i.zmdi {
 	color: #777;
 	font-size: 1rem;
 }
 
-.data-info .esource a:hover > span {
+.data-info .esource a:hover>span {
 	display: block;
 	cursor: pointer;
 }
 
-.data-info .esource a:hover > span:hover{
+.data-info .esource a:hover>span:hover {
 	opacity: 0.8;
 }
 
@@ -218,14 +225,17 @@
 .data-info .input .form-control {
 	border-width: 0;
 	padding: 0 6px;
-	background-color: rgba(255,255,255,.6);
+	background-color: rgba(255, 255, 255, .6);
 	height: 30px !important;
 }
-.input .form-control:hover, .input .form-control:focus {
+
+.input .form-control:hover,
+.input .form-control:focus {
 	background-color: #fff;
 }
+
 .input .form-control[disabled] {
-	background-color: rgba(255,255,255,.6) !important;
+	background-color: rgba(255, 255, 255, .6) !important;
 	cursor: not-allowed;
 }
 
@@ -234,11 +244,10 @@ a.ui-draggable.ui-draggable-dragging {
 	border-radius: 2px;
 }
 
-a.ui-draggable {
-	
-}
+a.ui-draggable {}
 
-.data-info ul li i.icon, .data-info ul.fields li a::before {
+.data-info ul li i.icon,
+.data-info ul.fields li a::before {
 	width: 18px;
 	display: inline-block;
 	color: #4285f4;
@@ -273,8 +282,7 @@ a.ui-draggable {
 }
 
 .chart-type>a.select {
-	box-shadow: 0 0 0 2px rgba(81, 130, 227, .06), inset 0 0 0 2px
-		rgba(81, 129, 228, .6);
+	box-shadow: 0 0 0 2px rgba(81, 130, 227, .06), inset 0 0 0 2px rgba(81, 129, 228, .6);
 	background-color: #fff !important;
 }
 
@@ -339,4 +347,12 @@ a.ui-draggable {
 
 .chart-type>a.active>i.C330 {
 	background-position: -1120px -1306px;
+}
+
+.chart-option>div {
+	display: none;
+}
+
+.chart-option>div.active {
+	display: block;
 }

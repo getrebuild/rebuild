@@ -58,8 +58,20 @@
 				</div>
 				<div class="data-info mt-3">
 					<h5>图表样式</h5>
-					<div class="J_unopt pl-1">
-						此图表无选项
+					<div class="pl-1 mt-3 chart-option">
+						<div class="J_opt-UNDEF active">
+							此图表无选项
+						</div>
+						<div class="J_opt-TABLE">
+							<label class="custom-control custom-control-sm custom-checkbox mb-2">
+								<input class="custom-control-input" type="checkbox" data-name="showLineNumber">
+								<span class="custom-control-label"> 显示行号</span>
+							</label>
+							<label class="custom-control custom-control-sm custom-checkbox">
+								<input class="custom-control-input" type="checkbox" data-name="showSums">
+								<span class="custom-control-label"> 显示汇总</span>
+							</label>
+						</div>
 					</div>
 				</div>
 			</div>

@@ -6,6 +6,6 @@
         "**/.settings": true,
         "**/.factorypath": true
     },
-    "editor.tabSize": 2,
-    "eslint.autoFixOnSave": true
+    "eslint.autoFixOnSave": true,
+    "editor.fontSize": 13
 }

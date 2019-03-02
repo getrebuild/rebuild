@@ -2,6 +2,7 @@
 	height: 100%;
 	padding: 20px 25px;
 }
+
 .chart-box.high {
 	outline: 2px solid #4285f4;
 }
@@ -69,48 +70,65 @@
 	position: relative;
 	margin-top: -15px;
 }
-.chart.index > .data-item {
+
+.chart.index>.data-item {
 	display: inline-block;
 	text-align: left;
 	max-width: 100%;
 }
-.chart.index > .data-item p {
+
+.chart.index>.data-item p {
 	font-size: 1rem;
 	color: #888;
 	margin-bottom: 1px;
 }
-.chart.index > .data-item strong {
+
+.chart.index>.data-item strong {
 	font-size: 3.68rem;
 	font-weight: 400;
 }
 
-.chart.pie {
-}
-.chart.line {
-}
-.chart.bar {
-}
+.chart.pie {}
+
+.chart.line {}
+
+.chart.bar {}
 
 .chart.ctable {
 	position: relative;
 	width: 100%;
 	margin-top: 15px;
 }
+
 .chart.ctable .table {
 	margin: 0;
 	padding: 0;
 }
-.chart.ctable .table td {
+
+.chart.ctable .table td,
+.chart.ctable .table th {
 	padding: 8px 10px;
 	cursor: default;
 	font-size: 1rem;
 }
+
 .chart.ctable .table td.clk {
 	outline: 1px solid #4285f4;
 	background-color: #f5f8fd;
 }
-.chart.ctable .table thead tr td {
+
+.chart.ctable .table th {
 	background-color: #dee2e6;
 	background-color: #eceff1;
 	border-width: 1px;
+	font-weight: normal;
+}
+
+.chart.ctable .table.line-number thead th:first-child,
+.chart.ctable .table.line-number tbody th:first-child {
+	width: 50px;
+}
+
+.chart.ctable .table.sums tbody tr:last-child td {
+	font-weight: bold;
 }

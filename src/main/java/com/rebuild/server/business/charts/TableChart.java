@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.utils.JSONUtils;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -38,9 +40,18 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 12/15/2018
  */
 public class TableChart extends ChartData {
+	
+	private boolean showLineNumber = false;
+	private boolean showSums = false;
 
 	protected TableChart(JSONObject config, ID user) {
 		super(config, user);
+		
+		JSONObject option = config.getJSONObject("option");
+		if (option != null) {
+			this.showLineNumber = option.getBooleanValue("showLineNumber");
+			this.showSums = option.getBooleanValue("showSums");
+		}
 	}
 
 	@Override
@@ -51,12 +62,55 @@ public class TableChart extends ChartData {
 		String sql = buildSql(dims, nums);
 		Object[][] dataRaw = Application.createQuery(sql, user).array();
 		
+		if (this.showLineNumber && dataRaw.length > 0) {
+			for (int i = 0; i < dataRaw.length; i++) {
+				Object[] row = dataRaw[i];
+				Object[] rowLN = new Object[row.length + 1];
+				System.arraycopy(row, 0, rowLN, 1, row.length);
+				rowLN[0] = i + 1;
+				dataRaw[i] = rowLN;
+			}
+		}
+		if (this.showSums && dataRaw.length > 0) {
+			Object[][] dataRawNew = new Object[dataRaw.length + 1][];
+			System.arraycopy(dataRaw, 0, dataRawNew, 0, dataRaw.length);
+			
+			int colLength = dataRaw[0].length;
+			Object sumsRow[] = new Object[colLength];
+			int numericalIndexStart = dims.length + (this.showLineNumber ? 1 : 0);
+			for (int i = 0; i < numericalIndexStart; i++) {
+				if (i == 0 && this.showLineNumber) {
+					sumsRow[i] = StringUtils.EMPTY;
+				} else {
+					sumsRow[i] = dataRawNew.length - (this.showLineNumber ? 1 : 0);
+				}
+			}
+			for (int i = numericalIndexStart; i < colLength; i++) {
+				BigDecimal sum = new BigDecimal(0);
+				for (Object[] row : dataRaw) {
+					sum = sum.add(BigDecimal.valueOf(ObjectUtils.toDouble(row[i])));
+				}
+				sumsRow[i] = sum.doubleValue();
+			}
+			
+			dataRawNew[dataRaw.length] = sumsRow;
+			dataRaw = dataRawNew;
+		}
+		
 		String tableHtml = new TableBuilder(this, dataRaw).toHTML();
 		
 		JSONObject ret = JSONUtils.toJSONObject(
 				new String[] { "html" },
 				new Object[] { tableHtml });
 		return ret;
+	}
+	
+	protected boolean isShowLineNumber() {
+		return showLineNumber;
+	}
+	
+	protected boolean isShowSums() {
+		return showSums;
 	}
 	
 	protected String buildSql(Dimension[] dims, Numerical[] nums) {
@@ -71,7 +125,6 @@ public class TableChart extends ChartData {
 		}
 		
 		String sql = "select {0},{1} from {2} where {3} group by {0}";
-//		String sql = "select {0},{1} from {2} where {3} group by {0} with rollup";
 		String where = getFilterSql();
 		String order = getSortSql();
 		
