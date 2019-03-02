@@ -225,8 +225,12 @@ public class MetadataHelper {
 	public static DisplayType getBuiltinFieldType(Field field) {
 		int ec = field.getOwnEntity().getEntityCode();
 		String fn = field.getName();
-		if (ec == EntityHelper.User && "email".equals(fn)) {
-			return DisplayType.EMAIL;
+		if (ec == EntityHelper.User) {
+			if ("email".equals(fn)) {
+				return DisplayType.EMAIL;
+			} else if ("avatarUrl".equals(fn)) {
+				return DisplayType.AVATAR;
+			}
 		}
 		
 		Type ft = field.getType();
