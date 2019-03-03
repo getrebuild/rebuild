@@ -1,5 +1,5 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable react/no-string-refs */
-// $Id$
 let dashid = null
 let dash_editable = false
 $(document).ready(function () {
@@ -8,8 +8,10 @@ $(document).ready(function () {
   let d = $urlp('d')
   if (d) $storage.set('DashDefault', d)
 
+  let dash_list = null
   $.get(rb.baseUrl + '/dashboard/dash-gets', ((res) => {
-    let d = res.data[0]  // default
+    dash_list = res.data
+    let d = dash_list[0]  // default
     if (res.data.length > 1) {
       let dset = $storage.get('DashDefault')
       if (dset) {
@@ -27,23 +29,25 @@ $(document).ready(function () {
     render_dashboard(d[2])
     $('.dash-list h4').text(d[1])
 
-    if (location.hash) {
-      let high = $('#chart-' + location.hash.substr(1) + ' > .chart-box').addClass('high')
-      high.on('mouseleave', () => {
-        high.removeClass('high')
-      })
+    if (location.hash && location.hash.length > 20) {
+      if (location.hash.substr(0, 5) === '#del=') {
+        rb.hbsuccess('仪表盘已删除')
+        location.hash = ''
+      } else {
+        let high = $('#chart-' + location.hash.substr(1) + ' > .chart-box').addClass('high')
+        high.on('mouseleave', () => {
+          high.removeClass('high')
+        })
+      }
     }
 
-    // 仅开放一个仪表盘
-    if (dash_editable) $('.J_dash-new').remove()
-    else $('.J_dash-edit, .J_chart-adds').remove()
+    if (dash_editable !== true) $('.J_dash-edit, .J_chart-adds').remove()
 
     $('.J_dash-new').click(() => { show_dlg('DlgDashAdd') })
     $('.J_dash-edit').click(() => { show_dlg('DlgDashSettings', { title: d[1], shareToAll: d[4] === 'ALL' }) })
     $('.J_chart-new').click(() => { show_dlg('DlgAddChart') })
-    // TODO
-    $('.J_dash-select').click(() => { })
-    $('.J_chart-select').click(() => { })
+    $('.J_dash-select').click(() => { show_dlg('DashSelect', { dashList: dash_list }) })
+    $('.J_chart-select').click(() => { show_dlg('ChartSelect', { dlgClazz: 'dlg-chart-select', dlgTitle: '选择图表' }) })
   }))
 })
 let rendered_charts = []
@@ -62,6 +66,8 @@ const show_dlg = (t, props) => {
   else if (t === 'DlgAddChart') dlg_cached[t] = renderRbcomp(<DlgAddChart {...props} />)
   else if (t === 'DlgDashAdd') dlg_cached[t] = renderRbcomp(<DlgDashAdd {...props} />)
   else if (t === 'DlgDashSettings') dlg_cached[t] = renderRbcomp(<DlgDashSettings {...props} />)
+  else if (t === 'DashSelect') dlg_cached[t] = renderRbcomp(<DashSelect {...props} />)
+  else if (t === 'ChartSelect') dlg_cached[t] = renderRbcomp(<ChartSelect {...props} />)
 }
 
 let gridster = null
@@ -172,6 +178,7 @@ class DlgAddChart extends RbFormHandler {
   }
 }
 
+
 class DlgDashSettings extends RbFormHandler {
   constructor(props) {
     super(props)
@@ -185,32 +192,48 @@ class DlgDashSettings extends RbFormHandler {
             <input className="form-control form-control-sm" value={this.state.title || ''} placeholder="默认仪表盘" data-id="title" onChange={this.handleChange} maxLength="40" />
           </div>
         </div>
-        <div className="form-group row">
-          <label className="col-sm-3 col-form-label text-sm-right"></label>
-          <div className="col-sm-7">
-            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0">
-              <input className="custom-control-input" type="checkbox" checked={this.state.shareToAll === true} data-id="shareToAll" onChange={this.handleChange} />
-              <span className="custom-control-label">共享此仪表盘给全部用户</span>
-            </label>
+        {rb.isAdminUser !== true ? null :
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right"></label>
+            <div className="col-sm-7">
+              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0">
+                <input className="custom-control-input" type="checkbox" checked={this.state.shareToAll === true} data-id="shareToAll" onChange={this.handleChange} />
+                <span className="custom-control-label">共享此仪表盘给全部用户</span>
+              </label>
+            </div>
           </div>
-        </div>
+        }
         <div className="form-group row footer">
           <div className="col-sm-7 offset-sm-3">
-            <button className="btn btn-primary" type="button" onClick={() => this.save()}>确定</button>
+            <button className="btn btn-primary btn-space" type="button" onClick={() => this.save()}>确定</button>
+            <button className="btn btn-secondary btn-space" type="button" onClick={() => this.delete()}><i className="zmdi zmdi-delete icon" /> 删除</button>
           </div>
         </div>
       </form>
-    </RbModal>)
+    </RbModal >)
   }
   save() {
     let _data = { shareTo: this.state.shareToAll === true ? 'ALL' : 'SELF', title: this.state.title || '默认仪表盘' }
     _data.metadata = { id: this.props.dashid, entity: 'DashboardConfig' }
     $.post(rb.baseUrl + '/dashboard/dash-update', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
-        rb.hbsuccess('设置已保存')
+        // rb.hbsuccess('设置已保存')
         $('.dash-head h4').text(_data.title)
+        if (dlg_cached['DashSelect']) {
+          dlg_cached['DashSelect'].setState({ 'dashTitle': _data.title })
+        }
         this.hide()
       } else rb.hberror(res.error_msg)
+    })
+  }
+  delete() {
+    rb.alert('确认删除此仪表盘？', {
+      confirm: function () {
+        $.post(rb.baseUrl + '/dashboard/dash-delete?id=' + dashid, function (res) {
+          if (res.error_code === 0) location.replace('home#del=' + dashid)
+          else rb.hberror(res.error_msg)
+        })
+      }
     })
   }
 }
@@ -255,5 +278,78 @@ class DlgDashAdd extends RbFormHandler {
         location.href = '?d=' + res.data.id
       } else rb.hberror(res.error_msg)
     })
+  }
+}
+
+class DashPanel extends React.Component {
+  constructor(props) {
+    super(props)
+  }
+  render() {
+    return (
+      <div className={'modal ' + (this.props.dlgClazz || 'dlg-dash-select')} ref="dlg" tabIndex="-1">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header pb-0">
+              <h4>{this.props.dlgTitle || ''}</h4>
+              <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
+            </div>
+            <div className="modal-body">
+              {this.renderPanel()}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  renderPanel() {
+    return (<ul className="list-unstyled">
+      {(this.props.dashList || []).map((item) => {
+        let title = item[1]
+        if (item[0] === dashid) title = this.state.dashTitle || $('.dash-head h4').text() || title
+        return <li key={'dash-' + item[0]}><a href={'?d=' + item[0]}>{title}<i className="icon zmdi zmdi-arrow-right"></i></a></li>
+      })}
+    </ul>)
+  }
+  componentDidMount() {
+    this.show()
+  }
+  hide() {
+    $(this.refs['dlg']).modal('hide')
+  }
+  show() {
+    $(this.refs['dlg']).modal({ show: true, keyboard: true })
+  }
+}
+
+class DashSelect extends DashPanel {
+  constructor(props) {
+    super(props)
+    this.state = { dashTitle: null }
+  }
+  renderPanel() {
+    return (
+      <ul className="list-unstyled">
+        {(this.props.dashList || []).map((item) => {
+          let title = item[1]
+          if (item[0] === dashid) title = this.state.dashTitle || $('.dash-head h4').text() || title
+          return <li key={'dash-' + item[0]}><a href={'?d=' + item[0]}>{title}<i className="icon zmdi zmdi-arrow-right"></i></a></li>
+        })}
+      </ul>
+    )
+  }
+}
+
+// TODO 从已有图表中选择图表
+// 添加的图表会在多个仪表盘共享（本身就是一个），修改时会同步修改
+class ChartSelect extends DashPanel {
+  constructor(props) {
+    super(props)
+  }
+  renderPanel() {
+    return (<a>TODO</a>)
+  }
+  componentDidMount() {
+    super.componentDidMount()
   }
 }

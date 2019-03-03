@@ -25,6 +25,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.bizz.RoleService;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
 
@@ -46,23 +47,25 @@ public class DashboardManager extends SharableManager {
 	 * @return
 	 */
 	public static JSON getDashList(ID user) {
-		ID configUsed = detectUseConfig(user, "DashboardConfig");
-		
+		ID configHas = detectUseConfig(user, "DashboardConfig");
 		// 没有就初始化一个
-		if (configUsed == null) {
+		if (configHas == null) {
 			Record record = EntityHelper.forNew(EntityHelper.DashboardConfig, user);
 			record.setString("config", JSONUtils.EMPTY_ARRAY_STR);
-			record.setString("title", "默认仪表盘");
+			record.setString("title", UserHelper.isAdmin(user) ? "默认仪表盘" : "我的仪表盘");
 			record.setString("shareTo", UserHelper.isAdmin(user) ? SHARE_ALL : SHARE_SELF);
 			record = Application.getCommonService().create(record);
-			configUsed = record.getPrimary();
+			configHas = record.getPrimary();
 		}
 		
-		// TODO 多个仪表盘 ???
-		Object[][] array = Application.createQueryNoFilter(
-				"select configId,title,config,createdBy,shareTo from DashboardConfig where configId = ?")
-				.setParameter(1, configUsed)
-				.array();
+		String sql = "select configId,title,config,createdBy,shareTo from DashboardConfig where ";
+		if (UserHelper.isAdmin(user)) {
+			sql += String.format("createdBy.roleId = '%s'", RoleService.ADMIN_ROLE.toLiteral());
+		} else {
+			sql += String.format("createdBy = '%s' or shareTo = 'ALL'", user.toLiteral());
+		}
+		sql += " order by title asc";
+		Object[][] array = Application.createQueryNoFilter(sql).array();
 		
 		// 补充图表标题
 		for (int i = 0; i < array.length; i++) {
