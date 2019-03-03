@@ -1,0 +1,113 @@
+.gridster ul,
+.gridster ul>li {
+    margin: 0;
+    padding: 0
+}
+
+.gridster ul>li {
+    background-color: #fff;
+}
+
+.gridster ul>li>div {
+    height: 100%
+}
+
+.gridster ul>li:hover {
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1), 0 16px 24px 0 rgba(81, 129, 228, .1)
+}
+
+.gridster ul>li:hover .chart-oper {
+    display: block;
+}
+
+.tools-bar {
+    height: 44px;
+    padding: 0 25px;
+    padding-top: 7px
+}
+
+.tools-bar h4 {
+    margin: 10px 0;
+    cursor: pointer;
+}
+
+.tools-bar h4:hover {
+    opacity: 0.8
+}
+
+.chart-grid {
+    overflow: scroll;
+    overflow-x: hidden;
+    padding: 15px;
+    padding-top: 0;
+    padding-right: 0px
+}
+
+.chart-add {
+    display: block;
+    text-align: center;
+    height: 100%;
+    padding-top: 50px;
+}
+
+.chart-add i.zmdi {
+    font-size: 71px;
+    color: #ddd;
+    font-weight: lighter;
+}
+
+.dash-list .dash-head {
+    display: inline-block;
+    padding-right: 71px;
+    position: relative;
+}
+
+.dash-head .dash-action {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding-top: 9px;
+    padding-left: 6px;
+    display: none;
+    text-align: left;
+    width: 70px;
+}
+
+.dash-head:hover .dash-action {
+    display: block;
+}
+
+.dash-head .dash-action a {
+    padding: 3px;
+    margin-left: 3px
+}
+
+.dlg-dash-select .modal-dialog {
+    max-width: 420px;
+}
+
+.dlg-dash-select .modal-dialog ul li+li {
+    margin-top: 6px;
+}
+
+.dlg-dash-select .modal-dialog ul li a {
+    display: block;
+    border: 1px solid #eee;
+    padding: 10px 12px;
+}
+
+.dlg-dash-select .modal-dialog ul li a>.icon {
+    display: none;
+}
+
+.dlg-dash-select .modal-dialog ul li a:hover {
+    color: #fff;
+    background-color: #4285f4
+}
+
+.dlg-dash-select .modal-dialog ul li a:hover>.icon {
+    float: right;
+    font-size: 1.3rem;
+    display: block;
+    margin-top: 2px;
+}
