@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -29,17 +29,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.server.service.bizz.privileges.ZeroPrivileges;
 import com.rebuild.utils.AES;
 import com.rebuild.web.BasePageControll;
 import com.wf.captcha.utils.CaptchaUtil;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import eu.bitwalker.useragentutils.UserAgent;
 
 /**
  * @author zhaofang123@gmail.com
@@ -49,11 +54,13 @@ import cn.devezhao.persist4j.engine.ID;
 @RequestMapping("/user/")
 public class LoginControll extends BasePageControll {
 	
-	private static final String AUTOLOGIN_KEY = "rb.alt";
+	public static final String CK_AUTOLOGIN = "rb.alt";
+	
+	public static final String SK_LOGINID = WebUtils.KEY_PREFIX + ".LOGINID";
 
 	@RequestMapping("login")
 	public ModelAndView checkLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String alt = ServletUtils.readCookie(request, AUTOLOGIN_KEY);
+		String alt = ServletUtils.readCookie(request, CK_AUTOLOGIN);
 		if (StringUtils.isNotBlank(alt)) {
 			ID altUser = null;
 			try {
@@ -163,18 +170,42 @@ public class LoginControll extends BasePageControll {
 		if (autoLogin) {
 			String alt = user + "," + System.currentTimeMillis();
 			alt = AES.encrypt(alt);
-			ServletUtils.addCookie(response, AUTOLOGIN_KEY, alt, 60 * 60 * 24 * 30, null, "/");
+			ServletUtils.addCookie(response, CK_AUTOLOGIN, alt, 60 * 60 * 24 * 30, null, "/");
 		} else {
-			ServletUtils.removeCookie(request, response, AUTOLOGIN_KEY);
+			ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
 		}
 		
+		ID loginId = loginLog(request, user);
+		ServletUtils.setSessionAttribute(request, SK_LOGINID, loginId);
+		
 		ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, user);
-		Application.getSessionStore().storeLoginSuccessed(request);
+		Application.getSessionStore().storeLoginSuccessed(request);	
+	}
+	
+	/**
+	 * @param request
+	 * @param user
+	 * @return
+	 */
+	private ID loginLog(HttpServletRequest request, ID user) {
+		String ipAddr = ServletUtils.getRemoteAddr(request);
+		String userAgent = request.getHeader("user-agent");
+		UserAgent ua = UserAgent.parseUserAgentString(userAgent);
+		String uaClean = String.format("%s-%s (%s)", ua.getBrowser(),
+				ua.getBrowserVersion().getMajorVersion(), ua.getOperatingSystem());
+		
+		Record record = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
+		record.setID("user", user);
+		record.setString("ipAddr", ipAddr);
+		record.setString("userAgent", uaClean);
+		record.setDate("loginTime", CalendarUtils.now());
+		record = Application.getCommonService().create(record);
+		return record.getPrimary();
 	}
 	
 	@RequestMapping("logout")
 	public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ServletUtils.removeCookie(request, response, AUTOLOGIN_KEY);
+		ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
 		ServletUtils.getSession(request).invalidate();
 		response.sendRedirect("login?exit=0");
 	}

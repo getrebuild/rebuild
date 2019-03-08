@@ -6,22 +6,7 @@
 <title>首页</title>
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/charts/jquery.gridster.min.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/charts.css">
-<style type="text/css">
-.gridster ul,.gridster ul>li{margin:0;padding:0}
-.gridster ul>li{background-color:#fff;}
-.gridster ul>li>div{height:100%}
-.gridster ul>li:hover{box-shadow:0 2px 4px 0 rgba(0, 0, 0, .1), 0 16px 24px 0 rgba(81, 129, 228, .1)}
-.gridster ul>li:hover .chart-oper{display:block;}
-.tools-bar{height:44px;padding:0 25px;padding-top:7px}
-.tools-bar h4{margin:10px 0}
-.chart-grid{overflow:scroll;overflow-x:hidden;padding:15px;padding-top:0;padding-right:0px}
-.chart-add{display:block;text-align:center;height:100%;padding-top:50px;}
-.chart-add i.zmdi{font-size:71px;color:#ddd;font-weight:lighter;}
-.dash-list .dash-head{display:inline-block;padding-right:71px;position:relative;}
-.dash-head .dash-action{position:absolute;top:0;right:0;padding-top:9px;padding-left:6px;display:none;text-align:left;width:70px;}
-.dash-head:hover .dash-action{display:block;}
-.dash-head .dash-action a{padding:3px;margin-left:3px}
-</style>
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/dashboard.css">
 </head>
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo">
@@ -40,7 +25,7 @@
 				<div class="row">
 					<div class="col-sm-6 dash-list">
 						<div class="dash-head">
-							<h4 class="J_dash-select">仪表盘</h4>
+							<h4 class="J_dash-select hover">仪表盘</h4>
 							<div class="dash-action">
 								<a class="zicon J_dash-edit"><i class="zmdi zmdi-settings"></i></a>
 								<a class="zicon J_dash-new" title="添加仪表盘"><i class="zmdi zmdi-plus-circle-o"></i></a>

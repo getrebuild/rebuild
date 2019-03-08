@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -41,6 +41,7 @@ public enum DisplayType {
 	FILE("附件", FieldType.STRING, 700, null),
 	PICKLIST("列表", FieldType.REFERENCE, -1, null),
 	REFERENCE("引用", FieldType.REFERENCE, -1, null),
+	AVATAR("头像", FieldType.STRING, 300, null),
 	
 	// 待启用/内部用
 	ID("主键", FieldType.PRIMARY, -1, null),

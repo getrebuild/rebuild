@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -144,7 +144,11 @@ public abstract class BulkTask implements Runnable {
 	 * @return
 	 */
 	public long getElapsedTime() {
-		return CalendarUtils.now().getTime() - beginTime.getTime();
+		if (completedTime != null) {
+			return completedTime.getTime() - beginTime.getTime();
+		} else {
+			return CalendarUtils.now().getTime() - beginTime.getTime();
+		}
 	}
 	
 	// -- for Thread

@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -35,6 +35,7 @@ public class VCode {
 	 * @return
 	 */
 	public static String generate(String key) {
+		key = "VCode-" + key;
 		String vcode = RandomUtils.nextInt(999999999) + "888888";
 		vcode = vcode.substring(0, 6);
 		Application.getCommonCache().put(key, vcode, 10 * 60);
@@ -47,6 +48,7 @@ public class VCode {
 	 * @return
 	 */
 	public static boolean verfiy(String key, String vcode) {
+		key = "VCode-" + key;
 		String exists = Application.getCommonCache().get(key);
 		if (exists == null) {
 			return false;

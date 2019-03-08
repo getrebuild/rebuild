@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -32,6 +32,11 @@ import org.apache.commons.lang.StringUtils;
  */
 public class TableBuilder {
 
+	/**
+	 * 行号
+	 */
+	protected static final Axis LINE_NUMBER = new Axis(null, null, null, "#");
+	
 	private TableChart chart;
 	private Object[][] rows;
 
@@ -48,27 +53,36 @@ public class TableBuilder {
 	 * @return
 	 */
 	public String toHTML() {
-		List<Axis> axisss = new ArrayList<>();
-		CollectionUtils.addAll(axisss, chart.getDimensions());
-		CollectionUtils.addAll(axisss, chart.getNumericals());
+		List<Axis> axes = new ArrayList<>();
+		if (chart.isShowLineNumber()) {
+			axes.add(LINE_NUMBER);
+		}
+		CollectionUtils.addAll(axes, chart.getDimensions());
+		CollectionUtils.addAll(axes, chart.getNumericals());
 
-		TBODY thead = new TBODY();
-		TR htr = new TR();
-		thead.addChild(htr);
-		for (Axis axis : axisss) {
-			TD td = new TD(axis.getLabel());
-			htr.addChild(td);
+		TBODY thead = new TBODY("thead");
+		TR ths = new TR();
+		thead.addChild(ths);
+		for (Axis axis : axes) {
+			TD th = new TD(axis.getLabel(), "th");
+			ths.addChild(th);
 		}
 
 		TBODY tbody = new TBODY();
 		for (Object[] row : rows) {
-			TR btr = new TR();
-			tbody.addChild(btr);
+			TR tds = new TR();
+			tbody.addChild(tds);
 
 			for (int i = 0; i < row.length; i++) {
-				String text = chart.warpAxisValue(axisss.get(i), row[i]);
-				TD td = new TD(text);
-				btr.addChild(td);
+				Axis axis = axes.get(i);
+				TD td = null;
+				if (axis == LINE_NUMBER) {
+					td = new TD(row[i] + "", "th");
+				} else {
+					String text = chart.warpAxisValue(axis, row[i]);
+					td = new TD(text);
+				}
+				tds.addChild(td);
 			}
 		}
 
@@ -90,44 +104,46 @@ public class TableBuilder {
 				}
 			}
 		}
-
-		String table = String.format("<table class=\"table table-bordered\"><thead>%s</thead><tbody>%s</tbody></table>",
-				thead.toString(), tbody.toString());
+		
+		String tClazz = (chart.isShowLineNumber() ? "line-number " : "") + (chart.isShowSums() ? "sums" : "");
+		String table = String.format("<table class=\"table table-bordered %s\">%s%s</table>",
+				tClazz, thead.toString(), tbody.toString());
 		return table;
 	}
 
 	// --
 
-	class TBODY {
+	static class TBODY {
+		String tag = "tbody";
 		List<TR> children = new ArrayList<>();
-
+		TBODY() {
+		}
+		TBODY(String tag) {
+			this.tag = tag;
+		}
 		TBODY addChild(TR c) {
 			c.parent = this;
 			children.add(c);
 			return this;
 		}
-
 		@Override
 		public String toString() {
 			StringBuffer sb = new StringBuffer();
 			for (TR c : children) {
 				sb.append(c.toString());
 			}
-//			return String.format("<tbody>%s</tbody>", sb.toString());
-			return sb.toString();
+			return String.format("<%s>%s</%s>", tag, sb.toString(), tag);
 		}
 	}
 
-	class TR {
+	static class TR {
 		TBODY parent = null;
 		List<TD> children = new ArrayList<>();
-
 		TR addChild(TD c) {
 			c.parent = this;
 			children.add(c);
 			return this;
 		}
-
 		@Override
 		public String toString() {
 			StringBuffer sb = new StringBuffer();
@@ -138,23 +154,26 @@ public class TableBuilder {
 		}
 	}
 
-	class TD {
+	static class TD {
+		String tag = null;
 		TR parent = null;
 		String content;
 		int rowspan = 1;
-
 		TD(String content) {
-			this.content = StringUtils.defaultIfBlank(content, "");
+			this(content, "td");
 		}
-
+		TD(String content, String tag) {
+			this.content = StringUtils.defaultIfBlank(content, "");
+			this.tag = tag;
+		}
 		@Override
 		public String toString() {
 			if (rowspan == 0) {
 				return StringUtils.EMPTY;
 			} else if (rowspan > 1) {
-				return String.format("<td rowspan=\"%d\">%s</td>", rowspan, content);
+				return String.format("<%s rowspan=\"%d\">%s</%s>", tag, rowspan, content, tag);
 			} else {
-				return String.format("<td>%s</td>", content);
+				return String.format("<%s>%s</%s>", tag, content, tag);
 			}
 		}
 	}

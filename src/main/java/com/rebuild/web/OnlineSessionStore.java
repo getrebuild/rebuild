@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -33,10 +33,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
+import com.rebuild.server.Application;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.CurrentCaller;
+import com.rebuild.server.service.bizz.UserService;
+import com.rebuild.web.user.signin.LoginControll;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.WebUtils;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -76,6 +81,14 @@ public class OnlineSessionStore extends CurrentCaller implements HttpSessionList
 					break;
 				}
 			}
+		}
+		
+		// Logout time
+		ID loginId = (ID) s.getAttribute(LoginControll.SK_LOGINID);
+		if (loginId != null) {
+			Record logout = EntityHelper.forUpdate(loginId, UserService.SYSTEM_USER);
+			logout.setDate("logoutTime", CalendarUtils.now());
+			Application.getCommonService().update(logout);
 		}
 	}
 	

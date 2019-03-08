@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -34,6 +34,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.manager.DashboardManager;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 
@@ -95,11 +96,13 @@ public class DashboardControll extends BasePageControll {
 				JSONObject item = (JSONObject) o;
 				String chartId = item.getString("chart");
 				Record chart = Application.createQueryNoFilter(
-						"select belongEntity,type,title,config,createdBy from ChartConfig where chartId = ?")
+						"select config,belongEntity,chartType,title,createdBy from ChartConfig where chartId = ?")
 						.setParameter(1, ID.valueOf(chartId))
 						.record();
 				// 自己的直接使用
-				if (user.equals(chart.getID("createdBy"))) {
+				ID createdBy = chart.getID("createdBy");
+				if (user.equals(createdBy)
+						|| (UserHelper.isAdmin(createdBy) && UserHelper.isAdmin(user))) {
 					continue;
 				}
 				
@@ -135,6 +138,20 @@ public class DashboardControll extends BasePageControll {
 		Record record = EntityHelper.forUpdate(dashid, user);
 		record.setString("config", config.toJSONString());
 		Application.getCommonService().update(record);
+		writeSuccess(response);
+	}
+	
+	@RequestMapping("/dash-delete")
+	public void dashDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID dashid = getIdParameterNotNull(request, "id");
+		ID user = getRequestUser(request);
+		
+		if (!DashboardManager.allowedUpdate(user, dashid)) {
+			writeFailure(response, "无权删除他人的仪表盘");
+			return;
+		}
+		
+		Application.getCommonService().delete(dashid);
 		writeSuccess(response);
 	}
 }

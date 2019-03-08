@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -74,7 +74,10 @@ public class Axis {
 	 * @return
 	 */
 	public String getLabel() {
-		return StringUtils.defaultIfBlank(label, EasyMeta.getLabel(field));
+		if (StringUtils.isNotBlank(label)) {
+			return label;
+		}
+		return EasyMeta.getLabel(field);
 	}
 	
 	/**

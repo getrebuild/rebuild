@@ -25,6 +25,8 @@
         }
     },
     "globals": {
+        "define": true,
+        "require": true,
         "$setTimeout": true,
         "$random": true,
         "$regex": true,

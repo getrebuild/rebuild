@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -20,7 +20,9 @@ package com.rebuild.server.business.charts;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -30,11 +32,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.manager.PickListManager;
 import com.rebuild.server.helper.manager.value.FieldValueWrapper;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.service.query.AdvFilterParser;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 
@@ -48,6 +52,8 @@ public abstract class ChartData {
 	
 	protected final JSONObject config;
 	protected final ID user;
+	
+	private boolean fromPreview = false;
 	
 	/**
 	 * @param config
@@ -63,6 +69,10 @@ public abstract class ChartData {
 	protected ChartData(JSONObject config, ID user) {
 		this.config = config;
 		this.user = user;
+	}
+	
+	protected boolean isFromPreview() {
+		return fromPreview;
 	}
 	
 	/**
@@ -159,13 +169,50 @@ public abstract class ChartData {
 	 * @return
 	 */
 	protected String getFilterSql() {
+		String previewFilter = StringUtils.EMPTY;
+		// 限制预览数据量
+		if (isFromPreview() && getSourceEntity().containsField(EntityHelper.AutoId)) {
+			String maxAidSql = String.format("select max(%s) from %s", EntityHelper.AutoId, getSourceEntity().getName());
+			Object[] o = Application.createQueryNoFilter(maxAidSql).unique();
+			long maxAid = ObjectUtils.toLong(o[0]);
+			if (maxAid > 5000) {
+				previewFilter = String.format("(%s >= %d) and ", EntityHelper.AutoId, Math.max(maxAid - 2000, 0));
+			}
+		}
+		
 		JSONObject filterExp = config.getJSONObject("filter");
 		if (filterExp == null) {
-			return "(1=1)";
+			return previewFilter + "(1=1)";
 		}
 		
 		AdvFilterParser filterParser = new AdvFilterParser(filterExp);
-		return filterParser.toSqlWhere();
+		return previewFilter + filterParser.toSqlWhere();
+	}
+	
+	/**
+	 * 获取排序 SQL
+	 * 
+	 * @return
+	 */
+	protected String getSortSql() {
+		Set<String> sorts = new HashSet<>();
+		for (Axis dim : getDimensions()) {
+			FormatSort fs = dim.getFormatSort();
+			if (fs != FormatSort.NONE) {
+				sorts.add(dim.getSqlName() + " " + fs.toString().toLowerCase());
+			}
+		}
+		for (Numerical num : getNumericals()) {
+			FormatSort fs = num.getFormatSort();
+			if (fs != FormatSort.NONE) {
+				sorts.add(num.getSqlName() + " " + fs.toString().toLowerCase());
+			}
+		}
+		
+		if (sorts.isEmpty()) {
+			return null;
+		}
+		return String.join(", ", sorts);
 	}
 	
 	/**
@@ -212,8 +259,22 @@ public abstract class ChartData {
 	/**
 	 * 构建数据
 	 * 
+	 * @param fromPreview
+	 * @return
+	 */
+	public JSON build(boolean fromPreview) {
+		this.fromPreview = fromPreview;
+		try {
+			return this.build();
+		} finally {
+			this.fromPreview = false;
+		}
+	}
+	
+	/**
+	 * 构建数据
+	 * 
 	 * @return
 	 */
 	abstract public JSON build();
-	
 }

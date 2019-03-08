@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -32,6 +32,14 @@ import com.rebuild.server.service.bizz.UserService;
  */
 public class ChartsTest extends TestSupport {
 
+	@Test
+	public void testTable() throws Exception {
+		JSONObject config = JSON.parseObject(
+				"{'entity':'kehu','title':'表格','type':'TABLE','axis':{'dimension':[{'field':'modifiedOn','sort':'DESC','label':'','calc':'D'}],'numerical':[{'field':'kehumingcheng','sort':'NONE','label':'','calc':'COUNT'}]}}");
+		ChartData index = ChartDataFactory.create(config, UserService.ADMIN_USER);
+		System.out.println(index.build());
+	}
+	
 	@Test
 	public void testIndex() throws Exception {
 		JSONObject config = JSON.parseObject(

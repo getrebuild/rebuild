@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -22,6 +22,8 @@ import org.dom4j.Element;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.rebuild.server.metadata.EntityHelper;
+
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.PersistManagerFactoryImpl;
@@ -43,8 +45,8 @@ public class SchemaGen {
 		CTX = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml", });
 		PMF = CTX.getBean(PersistManagerFactoryImpl.class);
 		
-		genAll();
-//		gen(EntityHelper.ChartConfig);
+//		genAll();
+		gen(EntityHelper.LoginLog);
 		
 		System.exit(0);
 	}

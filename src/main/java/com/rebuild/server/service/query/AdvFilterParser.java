@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -142,15 +142,22 @@ public class AdvFilterParser {
 	 */
 	private String parseItem(JSONObject item, JSONObject values) {
 		String field = item.getString("field");
+		boolean hasAndFlag = field.startsWith("&");
+		if (hasAndFlag) {
+			field = field.substring(1);
+		}
+		
 		if (!rootEntity.containsField(field)) {
 			LOG.warn("Unknow field '" + field + "' in '" + rootEntity.getName() + "'");
 			return null;
 		}
 		
 		final Field fieldMeta = rootEntity.getField(field);  // TODO 级联字段
-		if (EasyMeta.valueOf(fieldMeta).getDisplayType() == DisplayType.PICKLIST) {
+		final DisplayType fieldType = EasyMeta.getDisplayType(fieldMeta);
+		if (fieldType == DisplayType.PICKLIST || hasAndFlag) {
 			field = "&" + field;
 		}
+		
 		final String op = item.getString("op");
 		
 		StringBuffer sb = new StringBuffer(field)

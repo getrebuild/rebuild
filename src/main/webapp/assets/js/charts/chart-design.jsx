@@ -56,6 +56,9 @@ $(document).ready(() => {
     _this.addClass('select')
     render_option()
   })
+  $('.chart-option .custom-control').click(function () {
+    render_option()
+  })
 
   $('.rb-toggle-left-sidebar').attr('title', '完成').off('click').on('click', () => {
     let cfg = build_config()
@@ -66,6 +69,7 @@ $(document).ready(() => {
     let dash = $urlp('dashid') || ''
     $.post(rb.baseUrl + '/dashboard/chart-save?dashid=' + dash, JSON.stringify(_data), function (res) {
       if (res.error_code === 0) {
+        wpc.chartConfig = cfg
         location.href = (dash ? ('home?d=' + dash) : 'home') + '#' + res.data.id
       } else rb.hberror(res.error_msg)
     })
@@ -77,8 +81,26 @@ $(document).ready(() => {
     $(wpc.chartConfig.axis.numerical).each((idx, item) => { add_axis('.J_axis-num', item) })
     $('.chart-type>a[data-type="' + wpc.chartConfig.type + '"]').trigger('click')
     esourceFilter = wpc.chartConfig.filter
+
+    let option = wpc.chartConfig.option || {}
+    for (let k in option) {
+      let opt = $('.chart-option input[data-name=' + k + ']')
+      if (opt.length > 0) {
+        if (opt.attr('type') === 'checkbox') {
+          if (option[k] === 'true') opt.trigger('click')
+        }
+        else opt.val(option[k])
+      }
+    }
   }
   if (!wpc.chartId) $('<h4 class="chart-undata must-center">当前图表无数据</h4>').appendTo('#chart-preview')
+
+  window.onbeforeunload = function () {
+    let ccfg = build_config()
+    if (!ccfg && !wpc.chartId);  // New and unconfig
+    else if (JSON.stringify(ccfg) === JSON.stringify(wpc.chartConfig));  // Unchanged
+    else return false
+  }
 })
 $(window).resize(() => {
   $setTimeout(() => {
@@ -184,7 +206,12 @@ let render_option = (() => {
   if (!select.hasClass('active')) select.removeClass('select')
 
   select = $('.chart-type>a.select')
-  if (select.length === 0) $('.chart-type>a.active').eq(0).addClass('select')
+  if (select.length === 0) select = $('.chart-type>a.active').eq(0).addClass('select')
+
+  $('.chart-option>div').removeClass('active')
+  let ctOpt = $('.J_opt-' + select.data('type'))
+  if (ctOpt.length === 0) $('.chart-option>.J_opt-NO').addClass('active')
+  else ctOpt.addClass('active')
 
   render_preview()
 })
@@ -225,7 +252,16 @@ let build_config = (() => {
   if (dims.length === 0 && nums.length === 0) return
   cfg.axis = { dimension: dims, numerical: nums }
 
+  let opts = {}
+  $('.chart-option>div.active input').each(function () {
+    let name = $(this).data('name')
+    if (name) opts[name] = $val(this)
+  })
+  cfg.option = opts
+
   if (esourceFilter) cfg.filter = esourceFilter
+  // eslint-disable-next-line no-console
+  console.log(cfg)
   return cfg
 })
 let __build_axisItem = ((item, isNum) => {

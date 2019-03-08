@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -36,9 +36,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
-import com.rebuild.server.business.datas.DataFileParser;
-import com.rebuild.server.business.datas.DataImporter;
-import com.rebuild.server.business.datas.ImportEnter;
+import com.rebuild.server.business.dataio.DataFileParser;
+import com.rebuild.server.business.dataio.DataImporter;
+import com.rebuild.server.business.dataio.ImportEnter;
 import com.rebuild.server.helper.SystemConfig;
 import com.rebuild.server.helper.task.BulkTask;
 import com.rebuild.server.helper.task.BulkTaskExecutor;
@@ -67,12 +67,12 @@ import cn.devezhao.persist4j.engine.ID;
 @RequestMapping("/admin/")
 public class DataImportControll extends BasePageControll {
 
-	@RequestMapping("/datas/importer")
+	@RequestMapping("/dataio/importer")
 	public ModelAndView pageDataImports(HttpServletRequest request) {
-		return createModelAndView("/admin/datas/importer.jsp");
+		return createModelAndView("/admin/dataio/importer.jsp");
 	}
 	
-	@RequestMapping("/datas/import-fields")
+	@RequestMapping("/dataio/import-fields")
 	public void importFields(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
 		Entity entityBase = MetadataHelper.getEntity(entity);
@@ -112,7 +112,7 @@ public class DataImportControll extends BasePageControll {
 	}
 	
 	// 预览
-	@RequestMapping("/datas/import-preview")
+	@RequestMapping("/dataio/import-preview")
 	public void importPreview(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String file = getParameterNotNull(request, "file");
 		if (file.contains("%")) {
@@ -150,7 +150,7 @@ public class DataImportControll extends BasePageControll {
 	}
 	
 	// 开始导入
-	@RequestMapping("/datas/import-submit")
+	@RequestMapping("/dataio/import-submit")
 	public void importSubmit(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		JSONObject idata = (JSONObject) ServletUtils.getRequestJson(request);
@@ -171,7 +171,7 @@ public class DataImportControll extends BasePageControll {
 	}
 	
 	// 导入状态
-	@RequestMapping("/datas/import-state")
+	@RequestMapping("/dataio/import-state")
 	public void importState(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String taskid = getParameterNotNull(request, "taskid");
 		BulkTask task = BulkTaskExecutor.getTask(taskid);
@@ -184,7 +184,7 @@ public class DataImportControll extends BasePageControll {
 	}
 	
 	// 导入取消
-	@RequestMapping("/datas/import-cancel")
+	@RequestMapping("/dataio/import-cancel")
 	public void importCancel(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String taskid = getParameterNotNull(request, "taskid");
 		BulkTask task = BulkTaskExecutor.getTask(taskid);
@@ -214,9 +214,9 @@ public class DataImportControll extends BasePageControll {
 	 */
 	private JSON formatTaskState(DataImporter task) {
 		JSON state = JSONUtils.toJSONObject(
-				new String[] { "total", "complete", "success", "isCompleted", "isInterrupted" },
+				new String[] { "total", "complete", "success", "isCompleted", "isInterrupted", "elapsedTime" },
 				new Object[] { task.getTotal(), task.getComplete(),
-						((DataImporter) task).getSuccess(), task.isCompleted(), task.isInterrupted() });
+						((DataImporter) task).getSuccess(), task.isCompleted(), task.isInterrupted(), task.getElapsedTime() });
 		return state;
 	}
 }

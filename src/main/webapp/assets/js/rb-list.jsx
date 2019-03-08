@@ -194,6 +194,9 @@ class RbList extends React.Component {
       return <td key={cellKey}><div style={styles}><a href={rb.baseUrl + '/common/url-safe?url=' + encodeURIComponent(cellVal)} className="column-url" target="_blank" rel="noopener noreferrer">{cellVal}</a></div></td>
     } else if (field.type === 'EMAIL') {
       return <td key={cellKey}><div style={styles}><a href={'mailto:' + cellVal} className="column-url">{cellVal}</a></div></td>
+    } else if (field.type === 'AVATAR') {
+      let imgUrl = rb.baseUrl + '/cloud/img/' + cellVal + '?imageView2/2/w/100/interlace/1/q/100'
+      return <td key={cellKey} className="user-avatar"><img src={imgUrl} alt="Avatar" /></td>
     } else {
       return <td key={cellKey}><div style={styles}>{cellVal}</div></td>
     }

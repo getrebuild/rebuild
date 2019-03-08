@@ -6,10 +6,17 @@
 	<groupId>com.rebuild</groupId>
 	<artifactId>rebuild</artifactId>
 	<packaging>war</packaging>
-	<version>1.0.0-beta</version>
+	<version>1.1.0-SNAPSHOT</version>
 	<name>rebuild</name>
-	<description>Building your system free!</description>
+	<description>Building your business-systems free!</description>
 	<url>https://getrebuild.com/</url>
+
+	<licenses>
+		<license>
+			<name>GPL-3.0</name>
+			<url>https://www.gnu.org/licenses/</url>
+		</license>
+	</licenses>
 
 	<issueManagement>
 		<system>GitHub</system>
@@ -198,6 +205,11 @@
 			<groupId>com.github.stuxuhai</groupId>
 			<artifactId>jpinyin</artifactId>
 			<version>1.1.8</version>
+		</dependency>
+		<dependency>
+			<groupId>eu.bitwalker</groupId>
+			<artifactId>UserAgentUtils</artifactId>
+			<version>1.21</version>
 		</dependency>
 		<!--
 		<dependency>

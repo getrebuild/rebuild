@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -16,8 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.datas;
+package com.rebuild.server.business.dataio;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -34,6 +35,7 @@ import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.excel.Cell;
 import cn.devezhao.commons.excel.ExcelReader;
@@ -160,7 +162,7 @@ public class DataImporter extends BulkTask {
 		
 		// 检查重复
 		if (enter.getRepeatOpt() < ImportEnter.REPEAT_OPT_IGNORE) {
-			final ID repeat = getRepeatRecordId(enter.getRepeatFields(), recordNew);
+			final ID repeat = getRepeatedRecordId(enter.getRepeatFields(), recordNew);
 			
 			if (repeat != null && enter.getRepeatOpt() == ImportEnter.REPEAT_OPT_SKIP) {
 				return null;
@@ -200,7 +202,7 @@ public class DataImporter extends BulkTask {
 		} else if (dt == DisplayType.DECIMAL) {
 			return cell.asDouble();
 		} else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
-			return cell.asDate();
+			return checkoutDateValue(field, cell);
 		} else if (dt == DisplayType.PICKLIST) {
 			return checkoutPickListValue(field, cell);
 		} else if (dt == DisplayType.REFERENCE) {
@@ -222,7 +224,6 @@ public class DataImporter extends BulkTask {
 				return RegexUtils.isCNMobile(tel) || RegexUtils.isTel(tel)? tel : null;
 			}
 		}
-		
 		return cell.asString();
 	}
 	
@@ -275,20 +276,50 @@ public class DataImporter extends BulkTask {
 	}
 	
 	/**
-	 * @param checks
+	 * @param field
+	 * @param cell
+	 * @return
+	 */
+	private Date checkoutDateValue(Field field, Cell cell) {
+		Date date = cell.asDate();
+		if (date != null) {
+			return date;
+		}
+		if (cell.isEmpty()) {
+			return null;
+		}
+		
+		String date2str = cell.asString();
+		// 2017/11/19 11:07
+		if (date2str.contains("/")) {
+			int strLen = date2str.length();
+			if (strLen <= 10) {
+				return CalendarUtils.parse(date2str, CalendarUtils.getDateFormat("yyyy/M/d"));
+			} else {
+				if (StringUtils.countMatches(date2str, ":") == 1) {
+					date2str += ":00";
+				}
+				return CalendarUtils.parse(date2str, CalendarUtils.getDateFormat("yyyy/M/d H:m:s"));
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * @param repeatFields
 	 * @param data
 	 * @return
 	 */
-	protected ID getRepeatRecordId(Field[] checks, Record data) {
+	protected ID getRepeatedRecordId(Field[] repeatFields, Record data) {
 		Map<String, Object> wheres = new HashMap<>();
-		for (Field c : checks) {
+		for (Field c : repeatFields) {
 			String cName = c.getName();
 			if (data.hasValue(cName)) {
 				wheres.put(cName, data.getObjectValue(cName));
 			}
 		}
 		
-		LOG.info("Checking repeat : " + wheres);
+		LOG.info("Checking repeated : " + wheres);
 		if (wheres.isEmpty()) {
 			return null;
 		}

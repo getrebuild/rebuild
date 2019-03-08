@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -128,7 +128,7 @@ public class ChartDesignControll extends BaseEntityControll {
 		JSON data = null;
 		try {
 			ChartData chart = ChartDataFactory.create((JSONObject) config);
-			data = chart.build();
+			data = chart.build(true);
 		} catch (ChartsException ex) {
 			writeFailure(response, ex.getLocalizedMessage());
 			return;
