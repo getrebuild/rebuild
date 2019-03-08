@@ -42,8 +42,7 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
-			<!-- run `mvn cobertura:cobertura -DskipTests=false -Drbpass=PASSKEY` & `bash <(curl -s https://codecov.io/bash) -t TOKEN` -->
-			<!-- NOTE: remove the `slf4j-log4j12` artifact run before -->
+			<!-- manual run `mvn cobertura:cobertura -DskipTests=false -Drbpass=PASSKEY` & `bash <(curl -s https://codecov.io/bash) -t TOKEN` -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>cobertura-maven-plugin</artifactId>
