@@ -29,7 +29,7 @@ import com.rebuild.server.Application;
 import com.rebuild.utils.JSONUtils;
 
 /**
- * 黑名单
+ * 黑名单 src/main/resources/blacklist.json
  * 
  * @author devezhao
  * @since 01/31/2019
@@ -60,7 +60,7 @@ public class BlackList {
 			String s = IOUtils.toString(url, "UTF-8");
 			BLACKLIST = JSON.parseArray(s);
 		} catch (IOException e) {
-			Application.LOG.error("Cloud't load blacklist! The feature is missed : " + e);
+			Application.LOG.error("Cloud't load [blacklist.json] file! This feature is missed : " + e);
 			BLACKLIST = JSONUtils.EMPTY_ARRAY;
 		}
 	}
