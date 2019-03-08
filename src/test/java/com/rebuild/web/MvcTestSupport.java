@@ -21,6 +21,7 @@ package com.rebuild.web;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -47,6 +48,8 @@ import cn.devezhao.persist4j.engine.ID;
 @ContextConfiguration("classpath:application-web.xml")
 @WebAppConfiguration
 public class MvcTestSupport extends TestSupport {
+	
+	public static final String UA_WIN10_CHROME = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36";
 
 	@Autowired
 	private WebApplicationContext context;
@@ -87,7 +90,8 @@ public class MvcTestSupport extends TestSupport {
 	 */
 	protected MvcResponse perform(MockHttpServletRequestBuilder builder, ID user, boolean redirection) throws Exception {
 		builder.contentType("text/plain; charset=utf-8")
-				.accept(MediaType.APPLICATION_JSON_UTF8);
+				.accept(MediaType.APPLICATION_JSON_UTF8)
+				.header(HttpHeaders.USER_AGENT, UA_WIN10_CHROME);
 		if (user != null) {
 			builder.sessionAttr(WebUtils.CURRENT_USER, user);
 		}
