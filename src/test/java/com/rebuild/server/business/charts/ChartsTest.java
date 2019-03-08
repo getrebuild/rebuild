@@ -47,4 +47,20 @@ public class ChartsTest extends TestSupport {
 		ChartData index = ChartDataFactory.create(config, UserService.ADMIN_USER);
 		System.out.println(index.build());
 	}
+	
+	@Test
+	public void testPie() throws Exception {
+		JSONObject config = JSON.parseObject(
+				"{'entity':'testallfields','title':'未命名图表','type':'PIE','axis':{'dimension':[{'field':'testallfieldsName','sort':'NONE','label':''}],'numerical':[{'field':'testallfieldsName','sort':'NONE','label':'','calc':'COUNT'}]},'option':{}}");
+		ChartData pie = ChartDataFactory.create(config, UserService.ADMIN_USER);
+		System.out.println(pie.build());
+	}
+	
+	@Test
+	public void testLine() throws Exception {
+		JSONObject config = JSON.parseObject(
+				"{'entity':'testallfields','title':'未命名图表','type':'LINE','axis':{'dimension':[{'field':'createdOn','sort':'NONE','label':'','calc':'H'}],'numerical':[{'field':'testallfieldsName','sort':'NONE','label':'','calc':'COUNT'}]},'option':{}}");
+		ChartData line = ChartDataFactory.create(config, UserService.ADMIN_USER);
+		System.out.println(line.build());
+	}
 }

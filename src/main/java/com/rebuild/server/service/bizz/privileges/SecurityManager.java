@@ -387,8 +387,8 @@ public class SecurityManager {
 		Object[] rights = Application.createQueryNoFilter(
 				"select rights from ShareAccess where belongEntity = ? and recordId = ? and shareTo = ?")
 				.setParameter(1, entity.getName())
-				.setParameter(2, target.toLiteral())
-				.setParameter(3, user.toLiteral())
+				.setParameter(2, target)
+				.setParameter(3, user)
 				.unique();
 		int rightsVal = rights == null ? 0 : (int) rights[0];
 		if ((rightsVal & BizzPermission.READ.getMask()) != 0) {

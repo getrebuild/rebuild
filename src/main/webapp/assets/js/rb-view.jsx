@@ -134,10 +134,11 @@ const RbViewPage = {
           renderRbcomp(<UserShow id={v[0]} name={v[1]} avatarUrl={v[2]} showName={true} deptName2={v[3]} onClick={() => { this.clickViewUser(v[0]) }} />, $('.J_owningUser')[0])
         } else if (k === 'sharingList') {
           let list = $('<ul class="list-unstyled list-inline mb-0"></ul>').appendTo('.J_sharingList')
+          let _this = this
           $(v).each(function () {
-            let _this = this
+            let $v = this
             let item = $('<li class="list-inline-item"></li>').appendTo(list)
-            renderRbcomp(<UserShow id={_this[0]} name={_this[1]} avatarUrl={_this[2]} onClick={() => { this.clickViewUser(_this[0]) }} />, item[0])
+            renderRbcomp(<UserShow id={$v[0]} name={$v[1]} avatarUrl={$v[2]} onClick={() => { _this.clickViewUser($v[0]) }} />, item[0])
           })
 
           if (this.__ep && this.__ep.S === true) {
