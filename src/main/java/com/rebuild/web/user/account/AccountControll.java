@@ -41,7 +41,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * User acciunt
+ * User account
  * 
  * @author devezhao
  * @since 10/08/2018

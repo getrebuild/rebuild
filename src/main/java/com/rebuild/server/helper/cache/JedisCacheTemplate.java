@@ -47,7 +47,7 @@ public class JedisCacheTemplate<V extends Serializable> implements CacheTemplate
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
-			return jedis.get(unityKey(key));
+			return jedis.get(key);
 		} finally {
 			IOUtils.closeQuietly(jedis);
 		}
