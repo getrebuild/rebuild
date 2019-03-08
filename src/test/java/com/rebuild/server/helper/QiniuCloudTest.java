@@ -42,5 +42,8 @@ public class QiniuCloudTest extends TestSupport {
 		
 		String downloadUrl = QiniuCloud.instance().url(uploadKey);
 		System.out.println("downloadUrl ... " + downloadUrl);
+		
+		QiniuCloud.instance().delete(uploadKey);
+		
 	}
 }

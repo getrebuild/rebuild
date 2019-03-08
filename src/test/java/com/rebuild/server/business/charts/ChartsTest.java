@@ -35,7 +35,7 @@ public class ChartsTest extends TestSupport {
 	@Test
 	public void testTable() throws Exception {
 		JSONObject config = JSON.parseObject(
-				"{'entity':'kehu','title':'表格','type':'TABLE','axis':{'dimension':[{'field':'modifiedOn','sort':'DESC','label':'','calc':'D'}],'numerical':[{'field':'kehumingcheng','sort':'NONE','label':'','calc':'COUNT'}]}}");
+				"{'entity':'testallfields','title':'未命名图表','type':'TABLE','axis':{'dimension':[],'numerical':[{'field':'testallfieldsName','sort':'NONE','label':'','calc':'COUNT'}]},'option':{'showLineNumber':'false','showSums':'false'}}");
 		ChartData index = ChartDataFactory.create(config, UserService.ADMIN_USER);
 		System.out.println(index.build());
 	}
