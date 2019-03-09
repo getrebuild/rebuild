@@ -29,6 +29,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.web.MvcResponse;
 import com.rebuild.web.MvcTestSupport;
@@ -66,7 +67,6 @@ public class GeneralRecordOperatorControllTest extends MvcTestSupport {
 		if (lastSaveId == null) {
 			return;
 		}
-		
 		JSONObject fromJson = JSON.parseObject("{ TestAllFieldsName:'test2', metadata:{ entity:'TestAllFields', id:'' } }");
 		fromJson.getJSONObject("metadata").put("id", lastSaveId.toLiteral());
 		
@@ -91,6 +91,34 @@ public class GeneralRecordOperatorControllTest extends MvcTestSupport {
 	public void test4Share() throws Exception {
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
 				.post("/app/entity/record-share?id=" + lastSaveId + "&to=" + UserService.SYSTEM_USER);
+		MvcResponse resp = perform(builder, UserService.ADMIN_USER);
+		System.out.println(resp);
+		Assert.assertTrue(resp.isSuccess());
+	}
+	
+	@Test
+	public void test5Unshare() throws Exception {
+		Object[] accessId = Application.createQueryNoFilter(
+				"select accessId from ShareAccess where belongEntity = ? and recordId = ? and shareTo = ?")
+				.setParameter(1, "TestAllFields")
+				.setParameter(2, lastSaveId)
+				.setParameter(3, UserService.SYSTEM_USER)
+				.unique();
+		if (accessId == null) {
+			return;
+		}
+		
+		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
+				.post("/app/entity/record-unshare?record=" + lastSaveId + "&id=" + accessId[0]);
+		MvcResponse resp = perform(builder, UserService.ADMIN_USER);
+		System.out.println(resp);
+		Assert.assertTrue(resp.isSuccess());
+	}
+	
+	@Test
+	public void test6FetchRecordMeta() throws Exception {
+		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
+				.post("/app/entity/record-meta?id=" + lastSaveId);
 		MvcResponse resp = perform(builder, UserService.ADMIN_USER);
 		System.out.println(resp);
 		Assert.assertTrue(resp.isSuccess());

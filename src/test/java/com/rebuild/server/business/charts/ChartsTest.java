@@ -35,7 +35,7 @@ public class ChartsTest extends TestSupport {
 	@Test
 	public void testTable() throws Exception {
 		JSONObject config = JSON.parseObject(
-				"{'entity':'kehu','title':'表格','type':'TABLE','axis':{'dimension':[{'field':'modifiedOn','sort':'DESC','label':'','calc':'D'}],'numerical':[{'field':'kehumingcheng','sort':'NONE','label':'','calc':'COUNT'}]}}");
+				"{'entity':'testallfields','title':'未命名图表','type':'TABLE','axis':{'dimension':[],'numerical':[{'field':'testallfieldsName','sort':'NONE','label':'','calc':'COUNT'}]},'option':{'showLineNumber':'false','showSums':'false'}}");
 		ChartData index = ChartDataFactory.create(config, UserService.ADMIN_USER);
 		System.out.println(index.build());
 	}
@@ -46,5 +46,21 @@ public class ChartsTest extends TestSupport {
 				"{ entity:'User', title:'指标卡', type:'INDEX', axis:{dimension:[], numerical:[{ field:'userId', sort:'', calc:'COUNT' }]}}");
 		ChartData index = ChartDataFactory.create(config, UserService.ADMIN_USER);
 		System.out.println(index.build());
+	}
+	
+	@Test
+	public void testPie() throws Exception {
+		JSONObject config = JSON.parseObject(
+				"{'entity':'testallfields','title':'未命名图表','type':'PIE','axis':{'dimension':[{'field':'testallfieldsName','sort':'NONE','label':''}],'numerical':[{'field':'testallfieldsName','sort':'NONE','label':'','calc':'COUNT'}]},'option':{}}");
+		ChartData pie = ChartDataFactory.create(config, UserService.ADMIN_USER);
+		System.out.println(pie.build());
+	}
+	
+	@Test
+	public void testLine() throws Exception {
+		JSONObject config = JSON.parseObject(
+				"{'entity':'testallfields','title':'未命名图表','type':'LINE','axis':{'dimension':[{'field':'createdOn','sort':'NONE','label':'','calc':'H'}],'numerical':[{'field':'testallfieldsName','sort':'NONE','label':'','calc':'COUNT'}]},'option':{}}");
+		ChartData line = ChartDataFactory.create(config, UserService.ADMIN_USER);
+		System.out.println(line.build());
 	}
 }

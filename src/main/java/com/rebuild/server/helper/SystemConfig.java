@@ -41,6 +41,7 @@ import cn.devezhao.persist4j.engine.ID;
  * 
  * @author devezhao
  * @since 10/14/2018
+ * @see ConfigItem
  */
 public class SystemConfig {
 	

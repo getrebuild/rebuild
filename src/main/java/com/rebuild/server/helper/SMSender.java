@@ -126,9 +126,9 @@ public class SMSender {
 		params.put("appid", account[0]);
 		params.put("signature", account[1]);
 		params.put("to", to);
-		// Auto append sign
-		if (!content.endsWith("]")) {
-			content += "[" + account[2] + "";
+		// Auto appended the SMS-Sign (China only?)
+		if (!content.startsWith("【")) {
+			content = "【" + account[2] + "】" + content;
 		}
 		params.put("content", content);
 		

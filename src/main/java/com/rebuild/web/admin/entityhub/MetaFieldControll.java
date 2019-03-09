@@ -100,7 +100,7 @@ public class MetaFieldControll extends BasePageControll  {
 	}
 
 	@RequestMapping("{entity}/field/{field}")
-	public ModelAndView pageEntityFields(@PathVariable String entity, @PathVariable String field, HttpServletRequest request) throws IOException {
+	public ModelAndView pageEntityField(@PathVariable String entity, @PathVariable String field, HttpServletRequest request) throws IOException {
 		ModelAndView mv = createModelAndView("/admin/entity/field-edit.jsp");
 		EasyMeta easyMeta = MetaEntityControll.setEntityBase(mv, entity);
 		

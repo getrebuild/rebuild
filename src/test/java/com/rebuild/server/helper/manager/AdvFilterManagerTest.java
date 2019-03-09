@@ -1,6 +1,6 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+rebuild - Building your system freely.
+Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,33 +16,22 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.helper;
+package com.rebuild.server.helper.manager;
+
+import org.junit.Test;
+
+import com.rebuild.server.TestSupport;
+import com.rebuild.server.service.bizz.UserService;
 
 /**
- * 预置系统配置项，所有配置应在此处声明
- * 
- * @author devezhao
- * @since 12/25/2018
+ * @author devezhao zhaofang123@gmail.com
+ * @since 2019/03/09
  */
-public enum ConfigItem {
+public class AdvFilterManagerTest extends TestSupport {
 
-	// 通用
-	AppName, LOGO, LOGOWhite, HomeURL, OpenSignUp,
-	
-	// 临时目录
-	TempDirectory,
-	
-	// 云存储
-	StorageURL, StorageApiKey, StorageApiSecret, StorageBucket,
-	
-	// 缓存服务
-	CacheHost, CachePort, CacheUser, CachePassword,
-	
-	// 邮件
-	MailUser, MailPassword, MailAddr, MailName,
-	
-	// 短信
-	SmsUser, SmsPassword, SmsSign,
-	
-	;
+	@Test
+	public void testGetAdvFilterList() throws Exception {
+		Object[][] list = AdvFilterManager.getAdvFilterList("User", UserService.ADMIN_USER);
+		System.out.println("AdvFilterManager : " + list.length);
+	}
 }

@@ -200,8 +200,8 @@ public class GeneralRecordOperatorControll extends BaseControll {
 	@RequestMapping("record-unshare")
 	public void unshare(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		final ID user = getRequestUser(request);
-		final ID record = getIdParameterNotNull(request, "record");
-		final ID[] ids = parseIdList(request);
+		final ID record = getIdParameterNotNull(request, "record");  // Record ID
+		final ID[] ids = parseIdList(request);  // ShareAccess IDs
 		if (ids.length == 0) {
 			writeFailure(response, "没有要取消共享的记录");
 			return;
