@@ -19,10 +19,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.web.base.entity;
 
 import org.junit.Assert;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -39,7 +37,6 @@ import com.rebuild.web.MvcTestSupport;
  * @since 2019/03/09
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class RelatedListControllTest extends MvcTestSupport {
 
 	@Test

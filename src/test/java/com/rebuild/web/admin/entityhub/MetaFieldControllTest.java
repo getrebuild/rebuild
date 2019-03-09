@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.base.entity;
+package com.rebuild.web.admin.entityhub;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,6 +29,8 @@ import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.web.MvcResponse;
 import com.rebuild.web.MvcTestSupport;
 
+import cn.devezhao.commons.web.WebUtils;
+
 /**
  * TODO
  * 
@@ -36,12 +38,36 @@ import com.rebuild.web.MvcTestSupport;
  * @since 2019/03/09
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-public class ReferenceSearchTest extends MvcTestSupport {
+public class MetaFieldControllTest extends MvcTestSupport {
 
 	@Test
-	public void testSearch() throws Exception {
+	public void testPageFields() throws Exception {
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
-				.post("/app/entity/search?entity=User&q=admin&qfields=loginName");
+				.get("/admin/entity/User/fields")
+				.sessionAttr(WebUtils.KEY_PREFIX + "-AdminVerified", "Mock");
+		
+		MvcResponse resp = perform(builder, UserService.ADMIN_USER);
+		System.out.println(resp);
+		Assert.assertTrue(resp.isSuccess());
+	}
+	
+	@Test
+	public void testListField() throws Exception {
+		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
+				.post("/admin/entity/list-field?entity=User")
+				.sessionAttr(WebUtils.KEY_PREFIX + "-AdminVerified", "Mock");
+		
+		MvcResponse resp = perform(builder, UserService.ADMIN_USER);
+		System.out.println(resp);
+		Assert.assertTrue(resp.isSuccess());
+	}
+	
+	@Test
+	public void testPageEntityField() throws Exception {
+		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
+				.get("/admin/entity/User/field/loginName")
+				.sessionAttr(WebUtils.KEY_PREFIX + "-AdminVerified", "Mock");
+		
 		MvcResponse resp = perform(builder, UserService.ADMIN_USER);
 		System.out.println(resp);
 		Assert.assertTrue(resp.isSuccess());

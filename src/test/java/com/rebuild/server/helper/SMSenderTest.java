@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.rebuild.server.TestSupport;
@@ -28,6 +29,7 @@ import com.rebuild.server.TestSupport;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/08
  */
+@Ignore
 public class SMSenderTest extends TestSupport {
 
 	@Test
