@@ -24,8 +24,6 @@ import com.rebuild.server.TestSupport;
 import com.rebuild.server.service.bizz.UserService;
 
 /**
- * TODO
- * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/09
  */

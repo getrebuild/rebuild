@@ -30,6 +30,7 @@ import com.rebuild.utils.JSONUtils;
 
 /**
  * 黑名单 src/main/resources/blacklist.json
+ * More details https://github.com/fighting41love/funNLP
  * 
  * @author devezhao
  * @since 01/31/2019
