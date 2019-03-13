@@ -19,6 +19,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.helper;
 
 import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +50,7 @@ public class SystemConfig {
 	private static final Log LOG = LogFactory.getLog(SystemConfig.class);
 	
 	/**
-	 * 临时目录/文件
+	 * 获取临时文件（或目录）
 	 * 
 	 * @param file
 	 * @return
@@ -66,6 +68,22 @@ public class SystemConfig {
 			tmpFile = FileUtils.getTempDirectory();
 		}
 		return new File(tmpFile, file);
+	}
+	
+	/**
+	 * 获取配置文件 
+	 * 
+	 * @param file
+	 * @return
+	 */
+	public static File getFileOfRes(String file) {
+		URL fileUrl = SystemConfig.class.getClassLoader().getResource(file);
+		try {
+			File resFile = new File(fileUrl.toURI());
+			return resFile;
+		} catch (URISyntaxException e) {
+			throw new IllegalArgumentException("Bad file path or name : " + file);
+		}
 	}
 	
 	/**
@@ -124,7 +142,7 @@ public class SystemConfig {
 	 * @param items
 	 * @return
 	 */
-	static String[] getsNoUnset(ConfigItem... items) {
+	private static String[] getsNoUnset(ConfigItem... items) {
 		List<String> list = new ArrayList<>();
 		for (ConfigItem item : items) {
 			String v = get(item);
