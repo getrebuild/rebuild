@@ -19,11 +19,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.helper;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -43,21 +47,9 @@ public class SMSender {
 	
 	/**
 	 * @param to
-	 * @param htmlTemplate
-	 * @return
-	 * @see #sendMail(String, String, String, boolean)
-	 */
-	public static String sendMail(String to, File htmlTemplate) {
-		throw new UnsupportedOperationException();
-	}
-	
-	/**
-	 * 
-	 * @param to
 	 * @param subject
 	 * @param content
 	 * @return
-	 * @see #sendMail(String, String, String, boolean)
 	 */
 	public static String sendMail(String to, String subject, String content) {
 		return sendMail(to, subject, content, true);
@@ -67,9 +59,10 @@ public class SMSender {
 	 * @param to
 	 * @param subject
 	 * @param content
+	 * @param useTemplate
 	 * @return <tt>null</tt> if failed or SENDID
 	 */
-	public static String sendMail(String to, String subject, String content, boolean isHtml) {
+	public static String sendMail(String to, String subject, String content, boolean useTemplate) {
 		String account[] = SystemConfig.getMailAccount();
 		if (account == null) {
 			LOG.error("Mail send failed : " + to + " > " + subject + "\nError : No account set");
@@ -83,8 +76,18 @@ public class SMSender {
 		params.put("from", account[2]);
 		params.put("from_name", account[3]);
 		params.put("subject", subject);
-		if (isHtml) {
-			params.put("html", content);
+		if (useTemplate) {
+			Element mailbody = null;
+			try {
+				mailbody = getMailTemplate();
+			} catch (IOException e) {
+				LOG.error("Cloud't load mail template", e);
+				return null;
+			}
+			
+			mailbody.selectFirst(".rb-title").text(subject);
+			mailbody.selectFirst(".rb-content").html(content);
+			params.put("html", mailbody.html());
 		} else {
 			params.put("text", content);
 		}
@@ -108,6 +111,16 @@ public class SMSender {
 			LOG.error("Mail send failed : " + to + " > " + subject + "\nError : " + r);
 		}
 		return null;
+	}
+	
+	/**
+	 * @return
+	 * @throws IOException
+	 */
+	protected static Element getMailTemplate() throws IOException {
+		File temp = SystemConfig.getFileOfRes("locales/mail-notify.html");
+		Document html = Jsoup.parse(temp, "utf-8");
+		return html.body();
 	}
 	
 	/**
