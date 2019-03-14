@@ -28,8 +28,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.SMSender;
+import com.rebuild.server.helper.VCode;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.server.service.bizz.privileges.ZeroPrivileges;
@@ -219,5 +223,43 @@ public class LoginControll extends BasePageControll {
 	
 	@RequestMapping("user-forgot-passwd")
 	public void userForgotPasswd(HttpServletRequest request, HttpServletResponse response) {
+		String email = getParameterNotNull(request, "email");
+		if (!Application.getUserStore().existsEmail(email)) {
+			writeFailure(response, "邮箱无效");
+			return;
+		}
+		
+		String vcode = VCode.generate(email, 2);
+		String content = "<p>你的重置密码验证码是 <b>" + vcode + "</b><p>";
+		String sentid = SMSender.sendMail(email, "重置密码", content);
+		if (sentid != null) {
+			writeSuccess(response);
+		} else {
+			writeFailure(response, "无法发送重置密码验证码，请稍后重试");
+		}
+	}
+	
+	@RequestMapping("user-confirm-passwd")
+	public void userConfirmPasswd(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
+		
+		String email = data.getString("email");
+		String vcode = data.getString("vcode");
+		if (!VCode.verfiy(email, vcode, true)) {
+			writeFailure(response, "验证码无效");
+			return;
+		}
+		
+		String newpwd = data.getString("newpwd");
+		User user = Application.getUserStore().getUserByEmail(email);
+		Record record = EntityHelper.forUpdate(user.getId(), user.getId());
+		record.setString("password", newpwd);
+		try {
+			Application.getBean(UserService.class).update(record);
+			writeSuccess(response);
+			VCode.clean(email);
+		} catch (DataSpecificationException ex) {
+			writeFailure(response, ex.getLocalizedMessage());
+		}
 	}
 }

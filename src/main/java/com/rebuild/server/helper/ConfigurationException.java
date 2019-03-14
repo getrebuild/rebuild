@@ -18,25 +18,30 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper;
 
-import org.junit.Ignore;
-import org.junit.Test;
-
-import com.rebuild.server.TestSupport;
+import com.rebuild.server.RebuildException;
 
 /**
+ * Exception when configuration unset or incorrect
+ * 
  * @author devezhao zhaofang123@gmail.com
- * @since 2019/03/08
+ * @since 2019/03/14
  */
-@Ignore
-public class SMSenderTest extends TestSupport {
+public class ConfigurationException extends RebuildException {
+	private static final long serialVersionUID = -329453920432770209L;
 
-	@Test
-	public void testSendSMS() throws Exception {
-		SMSender.sendSMS("17187472172", "SMSenderTest#testSendSMS");
+	public ConfigurationException() {
+		super();
 	}
-	
-	@Test
-	public void testSendMail() throws Exception {
-		SMSender.sendMail("getrebuild@sina.com", "SMSenderTest#testSendMail", "test content");
+
+	public ConfigurationException(String msg, Throwable cause) {
+		super(msg, cause);
+	}
+
+	public ConfigurationException(String msg) {
+		super(msg);
+	}
+
+	public ConfigurationException(Throwable cause) {
+		super(cause);
 	}
 }
