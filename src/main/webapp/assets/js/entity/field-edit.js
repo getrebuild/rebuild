@@ -4,13 +4,18 @@ $(document).ready(function () {
   if (dt.indexOf('(') > -1) dt = dt.match('\\((.+?)\\)')[1]
   const extConfigOld = wpc.extConfig
 
-  const btn = $('.J_save').click(function () {
+  $('.J_save').click(function () {
     if (!wpc.metaId) return
     let label = $val('#fieldLabel'),
       comments = $val('#comments'),
       nullable = $val('#fieldNullable'),
       updatable = $val('#fieldUpdatable')
-    let _data = { fieldLabel: label, comments: comments, nullable: nullable, updatable: updatable }
+    let _data = {
+      fieldLabel: label,
+      comments: comments,
+      nullable: nullable,
+      updatable: updatable
+    }
     _data = $cleanMap(_data)
 
     let extConfig = {}
@@ -18,7 +23,13 @@ $(document).ready(function () {
       let k = $(this).attr('id')
       let v = $val(this)
       extConfig[k] = v
+      if ('defaultValue' === k && checkDefaultValue(v, dt) === false) {
+        extConfig = null
+        return false
+      }
     })
+    if (!extConfig) return
+
     for (let k in extConfig) {
       if (extConfig[k] !== extConfigOld[k]) {
         _data['extConfig'] = JSON.stringify(extConfig)
@@ -32,12 +43,20 @@ $(document).ready(function () {
       return
     }
 
-    _data.metadata = { entity: 'MetaField', id: wpc.metaId }
+    _data.metadata = {
+      entity: 'MetaField',
+      id: wpc.metaId
+    }
     _data = JSON.stringify(_data)
-    btn.button('loading')
+
+    let _btn = $(this).button('loading')
     $.post(rb.baseUrl + '/admin/entity/field-update', _data, function (res) {
-      if (res.error_code === 0) location.href = '../fields'
-      else rb.hberror(res.error_msg)
+      if (res.error_code === 0) {
+        location.href = '../fields'
+      } else {
+        _btn.button('reset')
+        rb.hberror(res.error_msg)
+      }
     })
   })
 
@@ -56,7 +75,9 @@ $(document).ready(function () {
       $('.J_minmax b').eq(1).text(uploadNumber[1])
     } else $('#' + k).val(extConfigOld[k])
   }
-  $('input.bslider').slider({ value: uploadNumber }).on('change', function (e) {
+  $('input.bslider').slider({
+    value: uploadNumber
+  }).on('change', function (e) {
     let v = e.value.newValue
     $('.J_minmax b').eq(0).text(v[0])
     $('.J_minmax b').eq(1).text(v[1])
@@ -65,17 +86,20 @@ $(document).ready(function () {
   if (dt === 'PICKLIST') {
     $.get(`${rb.baseUrl}/admin/field/picklist-gets?entity=${wpc.entityName}&field=${wpc.fieldName}&isAll=false`, function (res) {
       if (res.data.length === 0) {
-        $('#picklist-items li').text('请添加选项'); return
+        $('#picklist-items li').text('请添加选项');
+        return
       }
       $('#picklist-items').empty()
-      $(res.data).each(function () { picklistItemRender(this) })
+      $(res.data).each(function () {
+        picklistItemRender(this)
+      })
       if (res.data.length > 5) $('#picklist-items').parent().removeClass('autoh')
     })
 
     $('.J_picklist-edit').click(function () {
       rb.modal(`${rb.baseUrl}/admin/p/entity/picklist-config?entity=${wpc.entityName}&field=${wpc.fieldName}`, '配置列表选项')
     })
-  } else if (dt === 'SERIES') {
+  } else if (dt === 'SERIES' || wpc.fieldBuildin === true) {
     $('#fieldNullable, #fieldUpdatable').attr('disabled', true)
   }
 
@@ -83,8 +107,14 @@ $(document).ready(function () {
   else $('.footer .J_action').removeClass('hide')
 
   $('.J_del').click(function () {
-    if (!wpc.isSuperAdmin) { rb.hberror('仅超级管理员可删除字段'); return }
-    let alertExt = { type: 'danger', confirmText: '删除' }
+    if (!wpc.isSuperAdmin) {
+      rb.hberror('仅超级管理员可删除字段');
+      return
+    }
+    let alertExt = {
+      type: 'danger',
+      confirmText: '删除'
+    }
     alertExt.confirm = function () {
       $(this.refs['btns']).find('.btn').button('loading')
       let thatModal = this
@@ -92,14 +122,35 @@ $(document).ready(function () {
         if (res.error_code === 0) {
           thatModal.hide()
           rb.hbsuccess('字段已删除')
-          setTimeout(function () { location.replace('../fields') }, 1500)
+          setTimeout(function () {
+            location.replace('../fields')
+          }, 1500)
         } else rb.hberror(res.error_msg)
       })
     }
     rb.alert('字段删除后将无法恢复，请务必谨慎操作！确认删除吗？', '删除字段', alertExt)
   })
 })
+
+// Render item to PickList box
 const picklistItemRender = function (data) {
   let item = $('<li class="dd-item" data-key="' + data.id + '"><div class="dd-handle">' + data.text + '</div></li>').appendTo('#picklist-items')
-  if (data['default'] === true) item.addClass('default').attr('title', '默认项')
+  if (data['default'] === true) item.addClass('default')
+}
+
+// Check incorrect?
+// Also see RbFormElement#checkHasError in rb-forms.jsx
+const checkDefaultValue = function (v, t) {
+  let valid = true
+  if (t === 'NUMBER' || t === 'DECIMAL') {
+    valid = !isNaN(v)
+  } else if (t === 'URL') {
+    valid = $regex.isUrl(v)
+  } else if (t === 'EMAIL') {
+    valid = $regex.isMail(v)
+  } else if (t === 'PHONE') {
+    valid = $regex.isTel(v)
+  }
+  if (valid === false) rb.highbar('默认值设置有误')
+  return valid
 }

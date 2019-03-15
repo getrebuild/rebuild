@@ -32,6 +32,7 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.portals.value.DefaultValueManager;
 import com.rebuild.server.portals.value.FieldValueWrapper;
 import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.utils.JSONUtils;
@@ -223,7 +224,6 @@ public class FormsManager extends BaseLayoutManager {
 					if (dt == DisplayType.BOOL && !onView) {
 						value = "是".equals(value) ? "T" : "F";
 					}
-					
 					el.put("value", value);
 				}
 			}
@@ -243,19 +243,20 @@ public class FormsManager extends BaseLayoutManager {
 				if (dt == DisplayType.PICKLIST) {
 					JSONArray options = el.getJSONArray("options");
 					for (Object o : options) {
-						JSONObject opt = (JSONObject) o;
-						if (opt.getBooleanValue("default")) {
-							el.put("value", opt.getString("id"));
+						JSONObject item = (JSONObject) o;
+						if (item.getBooleanValue("default")) {
+							el.put("value", item.getString("id"));
 							break;
 						}
 					}
-				}
-				else if (dt == DisplayType.SERIES) {
+				} else if (dt == DisplayType.SERIES) {
 					el.put("value", "自动值 (保存后显示)");
+				} else {
+					Object dv = DefaultValueManager.exprDefaultValue(fieldMeta, el.getString("defaultValue"));
+					if (dv != null) {
+						el.put("value", dv);
+					}
 				}
-				
-				// TODO 字段的默认值
-				
 			}
 		}
 		

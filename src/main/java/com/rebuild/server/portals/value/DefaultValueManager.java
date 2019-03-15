@@ -50,19 +50,34 @@ public class DefaultValueManager {
 	
 	public static final String DV_MASTER = "$MASTER$";
 	public static final String DV_REFERENCE_PREFIX = "&";
+	
+	/**
+	 * @param field
+	 * @param valueExpr
+	 * @return
+	 */
+	public static Object exprDefaultValue(Field field, String valueExpr) {
+		if (StringUtils.isBlank(valueExpr)) {
+			return null;
+		}
+		
+		// TODO 复杂值计算
+		
+		return valueExpr;
+	}
 
 	/**
 	 * @param entity
 	 * @param formModel
-	 * @param initialVal
+	 * @param initialVal 此值优先级大于 defaultValue
 	 */
-	public static void setFieldsValue(Entity entity, JSON formModel, JSON initialVal) {
+	public static void setValueFromClient(Entity entity, JSON formModel, JSON initialVal) {
 		final JSONArray elements = ((JSONObject) formModel).getJSONArray("elements");
 		if (elements == null) {
 			return;
 		}
 		
-		Map<String, Object> valReady = new HashMap<>();
+		Map<String, Object> valuesReady = new HashMap<>();
 		
 		// 客户端传递
 		JSONObject fromClient = (JSONObject) initialVal;
@@ -80,22 +95,20 @@ public class DefaultValueManager {
 				
 				if (field.equals(DV_MASTER)) {
 					Field stm = MetadataHelper.getSlaveToMasterField(entity);
-					valReady.put(stm.getName(), idLabel);
+					valuesReady.put(stm.getName(), idLabel);
 				} else {
 					Entity source = MetadataHelper.getEntity(field.substring(1));
 					Field[] reftoFields = MetadataHelper.getReferenceToFields(source, entity);
 					for (Field rtf : reftoFields) {
-						valReady.put(rtf.getName(), idLabel);
+						valuesReady.put(rtf.getName(), idLabel);
 					}
 				}
 				
 			} else if (entity.containsField(field)) {
 				EasyMeta fieldMeta = EasyMeta.valueOf(entity.getField(field));
 				if (fieldMeta.getDisplayType() == DisplayType.REFERENCE) {
-					valReady.put(field, readyReferenceValue(value));
+					valuesReady.put(field, readyReferenceValue(value));
 				}
-				
-				// TODO 填充其他字段值 ...
 			} else {
 				LOG.warn("Invalid inital field-value : " + field + " = " + value);
 			}
@@ -103,23 +116,23 @@ public class DefaultValueManager {
 		
 		// TODO 后台设置的，应该在后台处理 ???
 		
-		if (valReady.isEmpty()) {
+		if (valuesReady.isEmpty()) {
 			return;
 		}
 		
 		for (Object o : elements) {
 			JSONObject item = (JSONObject) o;
 			String field = item.getString("field");
-			if (valReady.containsKey(field)) {
-				item.put("value", valReady.get(field));
-				valReady.remove(field);
+			if (valuesReady.containsKey(field)) {
+				item.put("value", valuesReady.get(field));
+				valuesReady.remove(field);
 			}
 		}
 		
 		// 还有没布局出来的也返回
-		if (!valReady.isEmpty()) {
+		if (!valuesReady.isEmpty()) {
 			JSONObject inital = new JSONObject();
-			for (Map.Entry<String, Object> e : valReady.entrySet()) {
+			for (Map.Entry<String, Object> e : valuesReady.entrySet()) {
 				Object v = e.getValue();
 				if (v instanceof Object[]) {
 					v = ((Object[]) v)[0].toString();

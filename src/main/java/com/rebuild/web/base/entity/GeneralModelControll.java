@@ -94,7 +94,7 @@ public class GeneralModelControll extends BaseEntityControll {
 		JSON model = FormsManager.getFormModel(entity, user, record);
 		// 填充前端设定的初始值
 		if (record == null && initialVal != null) {
-			DefaultValueManager.setFieldsValue(MetadataHelper.getEntity(entity), model, initialVal);
+			DefaultValueManager.setValueFromClient(MetadataHelper.getEntity(entity), model, initialVal);
 		}
 		writeSuccess(response, model);
 	}

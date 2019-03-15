@@ -11,7 +11,7 @@
 .sortable-box .dd-list .dd-item, .sortable-box .dd-list .dd-handle{background-color:#fff !important;color:#404040 !important}
 .sortable-box .no-item{padding:9px;text-align:center;color:#999}
 .sortable-box.autoh,.sortable-box.autoh .dd-list{height:auto;}
-.sortable-box .default .dd-handle{background-color:#dedede !important;cursor:help;}
+.sortable-box .default .dd-handle::after{content:'默认值';float:right;color:#777;font-size:12px;font-style:italic;}
 .form-text.help code{cursor:help;font-weight:bold;}
 </style>
 </head>
@@ -145,6 +145,12 @@
 										<option value="Y">每年归零</option>
 									</select>
 								</div>
+							</div>
+						</div>
+						<div class="form-group row J_for-TEXT J_for-NTEXT J_for-EMAIL J_for-PHONE J_for-URL J_for-NUMBER J_for-DECIMAL hide">
+							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">默认值</label>
+							<div class="col-md-12 col-xl-6 col-lg-8">
+								<input class="form-control form-control-sm" type="text" id="defaultValue" value="${defaultValue}" data-o="${defaultValue}" placeholder="无">
 							</div>
 						</div>
 						<div class="form-group row">
