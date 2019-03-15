@@ -16,26 +16,32 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.helper.manager;
+package com.rebuild.server.helper;
 
-import org.junit.Test;
-
-import com.alibaba.fastjson.JSON;
-import com.rebuild.server.TestSupport;
-import com.rebuild.server.metadata.MetadataHelper;
-
-import cn.devezhao.persist4j.Field;
+import com.rebuild.server.RebuildException;
 
 /**
+ * Exception when configuration unset or incorrect
+ * 
  * @author devezhao zhaofang123@gmail.com
- * @since 2019/03/09
+ * @since 2019/03/14
  */
-public class PickListManagerTest extends TestSupport {
+public class ConfigurationException extends RebuildException {
+	private static final long serialVersionUID = -329453920432770209L;
 
-	@Test
-	public void testGetPickList() throws Exception {
-		Field picklist = MetadataHelper.getEntity(TEST_ENTITY).getField("picklist");
-		JSON list = PickListManager.getPickList(picklist);
-		System.out.println(list.toJSONString());
+	public ConfigurationException() {
+		super();
+	}
+
+	public ConfigurationException(String msg, Throwable cause) {
+		super(msg, cause);
+	}
+
+	public ConfigurationException(String msg) {
+		super(msg);
+	}
+
+	public ConfigurationException(Throwable cause) {
+		super(cause);
 	}
 }

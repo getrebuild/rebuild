@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.helper.manager;
+package com.rebuild.server.portals;
 
 import org.springframework.util.Assert;
 
@@ -28,6 +28,7 @@ import com.rebuild.server.service.bizz.UserHelper;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * 高级过滤器
  * 
  * @author devezhao
  * @since 09/30/2018

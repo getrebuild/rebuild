@@ -16,34 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.datalist;
-
-import com.alibaba.fastjson.JSON;
-
-import cn.devezhao.persist4j.Entity;
+package com.rebuild.server.portals;
 
 /**
- * @author Zhao Fangfang
- * @since 1.0, 2013-6-20
+ * 前端配置管理器。标记接口
+ * 
+ * @author devezhao
+ * @since 01/04/2019
  */
-public interface DataList {
-	
-	/**
-	 * @return
-	 */
-	Entity getEntity();
-	
-	/**
-	 * 默认过滤条件
-	 * 
-	 * @return
-	 */
-	String getDefaultFilter();
-	
-	/**
-	 * JSON 结果集
-	 * 
-	 * @return
-	 */
-	JSON getJSONResult();
+public interface PortalsManager {
 }

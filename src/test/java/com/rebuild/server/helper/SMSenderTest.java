@@ -32,7 +32,7 @@ public class SMSenderTest extends TestSupport {
 
 	@Test
 	public void testSendSMS() throws Exception {
-		SMSender.sendSMS("17301829039", "SMSenderTest#testSendSMS");
+		SMSender.sendSMS("17187472172", "SMSenderTest#testSendSMS");
 	}
 	
 	@Test

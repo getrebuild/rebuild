@@ -61,12 +61,12 @@ public class SMSender {
 	 * @param content
 	 * @param useTemplate
 	 * @return <tt>null</tt> if failed or SENDID
+	 * @throws ConfigurationException If mail-account unset
 	 */
-	public static String sendMail(String to, String subject, String content, boolean useTemplate) {
+	public static String sendMail(String to, String subject, String content, boolean useTemplate) throws ConfigurationException {
 		String account[] = SystemConfig.getMailAccount();
 		if (account == null) {
-			LOG.error("Mail send failed : " + to + " > " + subject + "\nError : No account set");
-			return null;
+			throw new ConfigurationException("邮箱账户未配置");
 		}
 		
 		Map<String, Object> params = new HashMap<>();
@@ -95,7 +95,7 @@ public class SMSender {
 		
 		String r = HttpClientEx.instance().post("https://api.mysubmail.com/mail/send.json", params);
 		if (r == null) {
-			LOG.error("Mail send failed : " + to + " > " + subject + "\nError : No response");
+			LOG.error("Mail failed : " + to + " > " + subject + "\nError : No response");
 			return null;
 		}
 		
@@ -103,12 +103,12 @@ public class SMSender {
 		if ("success".equals(rJson.getString("status"))) {
 			JSONArray returns = rJson.getJSONArray("return");
 			if (returns.isEmpty()) {
-				LOG.error("Mail send failed : " + to + " > " + subject + "\nError : " + r);
+				LOG.error("Mail failed : " + to + " > " + subject + "\nError : " + r);
 				return null;
 			}
 			return ((JSONObject) returns.get(0)).getString("send_id");
 		} else {
-			LOG.error("Mail send failed : " + to + " > " + subject + "\nError : " + r);
+			LOG.error("Mail failed : " + to + " > " + subject + "\nError : " + r);
 		}
 		return null;
 	}
@@ -127,12 +127,12 @@ public class SMSender {
 	 * @param to
 	 * @param content
 	 * @return <tt>null</tt> if failed or SENDID
+	 * @throws ConfigurationException If sms-account unset
 	 */
-	public static String sendSMS(String to, String content) {
+	public static String sendSMS(String to, String content) throws ConfigurationException {
 		String account[] = SystemConfig.getSmsAccount();
 		if (account == null) {
-			LOG.error("SMS send failed : " + to + " > " + content + "\nError : No account set");
-			return null;
+			throw new ConfigurationException("短信账户未配置");
 		}
 		
 		Map<String, Object> params = new HashMap<>();
@@ -147,7 +147,7 @@ public class SMSender {
 		
 		String r = HttpClientEx.instance().post("https://api.mysubmail.com/message/send.json", params);
 		if (r == null) {
-			LOG.error("SMS send failed : " + to + " > " + content + "\nError : No response");
+			LOG.error("SMS failed : " + to + " > " + content + "\nError : No response");
 			return null;
 		}
 		
@@ -155,7 +155,7 @@ public class SMSender {
 		if ("success".equals(rJson.getString("status"))) {
 			return rJson.getString("send_id");
 		} else {
-			LOG.error("SMS send failed : " + to + " > " + content + "\nError : " + r);
+			LOG.error("SMS failed : " + to + " > " + content + "\nError : " + r);
 		}
 		return null;
 	}

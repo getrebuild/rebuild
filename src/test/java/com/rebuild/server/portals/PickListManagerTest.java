@@ -16,23 +16,27 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.helper.manager;
+package com.rebuild.server.portals;
 
 import org.junit.Test;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.TestSupport;
-import com.rebuild.server.service.bizz.UserService;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.portals.PickListManager;
+
+import cn.devezhao.persist4j.Field;
 
 /**
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/09
  */
-public class DashboardManagerTest extends TestSupport {
+public class PickListManagerTest extends TestSupport {
 
 	@Test
-	public void testGetList() throws Exception {
-		JSON dashs = DashboardManager.getDashList(UserService.ADMIN_USER);
-		System.out.println(dashs.toJSONString());
+	public void testGetPickList() throws Exception {
+		Field picklist = MetadataHelper.getEntity(TEST_ENTITY).getField("picklist");
+		JSON list = PickListManager.getPickList(picklist);
+		System.out.println(list.toJSONString());
 	}
 }

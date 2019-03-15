@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.helper.manager;
+package com.rebuild.server.portals;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -84,7 +84,7 @@ public class SharableManager implements PortalsManager {
 		
 		// 目前只有一个配置的实体
 		if ("ViewAddonsConfig".equalsIgnoreCase(configEntity)
-				|| ("LayoutConfig".equalsIgnoreCase(configEntity) && LayoutManager.TYPE_FORM.equals(applyType))) {
+				|| ("LayoutConfig".equalsIgnoreCase(configEntity) && BaseLayoutManager.TYPE_FORM.equals(applyType))) {
 			Object[] o = Application.createQueryNoFilter(sqlBase).unique();
 			return o == null ? null : (ID) o[0];
 		}

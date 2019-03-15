@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.helper.manager;
+package com.rebuild.server.portals;
 
 import java.util.Iterator;
 
@@ -43,7 +43,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 09/20/2018
  */
-public class NavManager extends LayoutManager {
+public class NavManager extends BaseLayoutManager {
 
 	/**
 	 * @param user
