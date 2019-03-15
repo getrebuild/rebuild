@@ -27,7 +27,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.manager.PickListManager;
+import com.rebuild.server.helper.portals.PickListManager;
 import com.rebuild.server.helper.task.BulkTask;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.ExtRecordCreator;

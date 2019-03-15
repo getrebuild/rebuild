@@ -16,22 +16,24 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.helper.manager;
+package com.rebuild.server.helper.portals;
 
 import org.junit.Test;
 
+import com.alibaba.fastjson.JSON;
 import com.rebuild.server.TestSupport;
+import com.rebuild.server.helper.portals.DashboardManager;
 import com.rebuild.server.service.bizz.UserService;
 
 /**
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/09
  */
-public class AdvFilterManagerTest extends TestSupport {
+public class DashboardManagerTest extends TestSupport {
 
 	@Test
-	public void testGetAdvFilterList() throws Exception {
-		Object[][] list = AdvFilterManager.getAdvFilterList("User", UserService.ADMIN_USER);
-		System.out.println("AdvFilterManager : " + list.length);
+	public void testGetList() throws Exception {
+		JSON dashs = DashboardManager.getDashList(UserService.ADMIN_USER);
+		System.out.println(dashs.toJSONString());
 	}
 }

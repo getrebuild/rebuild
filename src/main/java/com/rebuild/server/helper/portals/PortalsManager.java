@@ -16,33 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.helper.manager;
-
-import org.junit.Test;
-
-import com.alibaba.fastjson.JSON;
-import com.rebuild.server.TestSupport;
-import com.rebuild.server.service.bizz.UserService;
+package com.rebuild.server.helper.portals;
 
 /**
+ * 前端配置管理器。标记接口
  * 
  * @author devezhao
  * @since 01/04/2019
  */
-public class FormsManagerTest extends TestSupport {
-
-	@Test
-	public void testModel() throws Exception {
-		JSON newModel = FormsManager.getFormModel("User", UserService.ADMIN_USER);
-		System.out.println(newModel);
-		
-		JSON editModel = FormsManager.getFormModel("User", UserService.ADMIN_USER, UserService.SYSTEM_USER);
-		System.out.println(editModel);
-	}
-	
-	@Test
-	public void testViewModel() throws Exception {
-		JSON viewModel = FormsManager.getViewModel("User", UserService.ADMIN_USER, UserService.SYSTEM_USER);
-		System.out.println(viewModel);
-	}
+public interface PortalsManager {
 }

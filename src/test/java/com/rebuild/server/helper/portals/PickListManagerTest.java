@@ -16,12 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.helper.manager;
+package com.rebuild.server.helper.portals;
 
 import org.junit.Test;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.TestSupport;
+import com.rebuild.server.helper.portals.PickListManager;
 import com.rebuild.server.metadata.MetadataHelper;
 
 import cn.devezhao.persist4j.Field;

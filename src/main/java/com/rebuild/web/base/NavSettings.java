@@ -29,9 +29,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.manager.LayoutManager;
-import com.rebuild.server.helper.manager.NavManager;
-import com.rebuild.server.helper.manager.SharableManager;
+import com.rebuild.server.helper.portals.LayoutManager;
+import com.rebuild.server.helper.portals.NavManager;
+import com.rebuild.server.helper.portals.SharableManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.web.BaseControll;
