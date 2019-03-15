@@ -1,3 +1,4 @@
+/* eslint-disable react/no-string-refs */
 const wpc = window.__PageConfig
 $(document).ready(function () {
   let dt = wpc.fieldType
@@ -86,7 +87,7 @@ $(document).ready(function () {
   if (dt === 'PICKLIST') {
     $.get(`${rb.baseUrl}/admin/field/picklist-gets?entity=${wpc.entityName}&field=${wpc.fieldName}&isAll=false`, function (res) {
       if (res.data.length === 0) {
-        $('#picklist-items li').text('请添加选项');
+        $('#picklist-items li').text('请添加选项')
         return
       }
       $('#picklist-items').empty()
@@ -119,8 +120,10 @@ $(document).ready(function () {
       keyboardNavigation: false,
       minuteStep: 5,
     }).on('changeDate', function () {
-      let val = $(this).val()
+    })
 
+    $('#defaultValue').next().removeClass('hide').find('button').click(() => {
+      renderRbcomp(<AdvDateDefaultValue />)
     })
   }
 
@@ -129,7 +132,7 @@ $(document).ready(function () {
 
   $('.J_del').click(function () {
     if (!wpc.isSuperAdmin) {
-      rb.hberror('仅超级管理员可删除字段');
+      rb.hberror('仅超级管理员可删除字段')
       return
     }
     let alertExt = {
@@ -174,4 +177,85 @@ const checkDefaultValue = function (v, t) {
   }
   if (valid === false) rb.highbar('默认值设置有误')
   return valid
+}
+
+// ~~ 提示框
+class AdvDateDefaultValue extends RbFormHandler {
+  constructor(props) {
+    super(props)
+  }
+  render() {
+    return (
+      <div className="modal rbalert" ref="dlg" tabIndex="-1">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header pb-0">
+              <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
+            </div>
+            <div className="modal-body">
+              <div className="text-center ml-6 mr-6">
+                <h4 className="mb-4 mt-3">高级默认值</h4>
+                <div className="row calc-expr">
+                  <div className="col-4">
+                    <select className="form-control form-control-sm">
+                      <option>当前时间</option>
+                    </select>
+                  </div>
+                  <div className="col-4">
+                    <select className="form-control form-control-sm" data-id="op" onChange={this.handleChange}>
+                      <option value="">不计算</option>
+                      <option value="+D">加 X 天</option>
+                      <option value="-D">减 X 天</option>
+                      <option value="+M">加 X 月</option>
+                      <option value="-M">减 X 月</option>
+                      <option value="+Y">加 X 年</option>
+                      <option value="-Y">减 X 年</option>
+                      <option value="+H">加 X 小时</option>
+                      <option value="-H">减 X 小时</option>
+                    </select>
+                  </div>
+                  <div className="col-4">
+                    <input type="number" ref={(i) => this.input = i} className="form-control form-control-sm" data-id="num" onChange={this.handleChange} />
+                  </div>
+                </div>
+                <div className="mt-4 mb-3" ref="btns">
+                  <button className="btn btn-space btn-primary" type="button" onClick={() => this.confirm()}>确定</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  componentDidMount() {
+    $(this.refs['dlg']).modal({ show: true, keyboard: true })
+  }
+  hide() {
+    let root = $(this.refs['dlg'])
+    root.modal('hide')
+    setTimeout(function () {
+      root.modal('dispose')
+      root.parent().remove()
+    }, 1000)
+  }
+  handleChange(e) {
+    super.handleChange(e)
+    if (e.target.dataset.id === 'op') {
+      this.input.focus()
+    }
+  }
+  confirm() {
+    let expr = 'NOW'
+    if (this.state.op) {
+      let op = this.state.op
+      let num = this.state.num || 0
+      if (!isNaN(num) && num > 0) {
+        op = op.substr(0, 1) + ' ' + num + op.substr(1)
+        expr += ' ' + op
+      }
+    }
+    $('#defaultValue').val('{' + expr + '}')
+    this.hide()
+  }
 }

@@ -115,7 +115,9 @@ class RbAlert extends React.Component {
             </div>
             <div className="modal-body">
               <div className="text-center ml-6 mr-6">
-                <div className={'text-' + type}><span className={'modal-main-icon zmdi zmdi-' + icon} /></div>
+                {this.props.showIcon === false ? null :
+                  <div className={'text-' + type}><span className={'modal-main-icon zmdi zmdi-' + icon} /></div>
+                }
                 {this.props.title && <h4 className="mb-2 mt-3">{this.props.title}</h4>}
                 <div className={this.props.title ? '' : 'mt-3'}>{content}</div>
                 <div className="mt-4 mb-3" ref="btns">
@@ -249,8 +251,10 @@ rb.alert = (message, titleExt, ext) => {
     ext = titleExt
   }
   ext = ext || {}
-  if (ext.html === true) return renderRbcomp(<RbAlert htmlMessage={message} title={title} type={ext.type} confirmText={ext.confirmText} confirm={ext.confirm} />)
-  else return renderRbcomp(<RbAlert message={message} title={title} type={ext.type} confirmText={ext.confirmText} confirm={ext.confirm} />)
+  let props = { title: title, type: ext.type, confirmText: ext.confirmText, confirm: ext.confirm, showIcon: ext.showIcon }
+  if (ext.html === true) props.htmlMessage = message
+  else props.message = message
+  return renderRbcomp(<RbAlert {...props} />)
 }
 
 // @message

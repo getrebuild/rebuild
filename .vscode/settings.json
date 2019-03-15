@@ -1,5 +1,4 @@
 {
-    "java.configuration.updateBuildConfiguration": "interactive",
     "files.exclude": {
         "**/.classpath": true,
         "**/.project": true,
@@ -7,5 +6,5 @@
         "**/.factorypath": true
     },
     "eslint.autoFixOnSave": true,
-    "editor.fontSize": 13
+    "editor.fontSize": 12
 }

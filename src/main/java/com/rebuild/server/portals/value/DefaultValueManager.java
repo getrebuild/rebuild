@@ -18,8 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.portals.value;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -34,8 +37,11 @@ import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.web.IllegalParameterException;
 
+import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -61,9 +67,39 @@ public class DefaultValueManager {
 			return null;
 		}
 		
-		// TODO 复杂值计算
-		
-		return valueExpr;
+		if (field.getType() == FieldType.TIMESTAMP || field.getType() == FieldType.DATE) {
+			// {NOW} {NOW-1D} {NOW+6Y}
+			if (valueExpr.startsWith("{") && valueExpr.endsWith("}")) {
+				valueExpr = valueExpr.replace("NOW", "").replace(" ", "");
+				Pattern numPattern = Pattern.compile("[^0-9]");
+				String num = numPattern.matcher(valueExpr).replaceAll("").trim();
+				int numAct = ObjectUtils.toInt(num);
+				numAct = valueExpr.contains("+") ? numAct : - numAct;
+				
+				Date date = null;
+				if (numAct == 0) {
+					date = CalendarUtils.now();
+				} else if (valueExpr.contains("Y")) {
+					date = CalendarUtils.add(numAct, Calendar.YEAR);
+				} else if (valueExpr.contains("M")) {
+					date = CalendarUtils.add(numAct, Calendar.MONTH);
+				} else if (valueExpr.contains("D")) {
+					date = CalendarUtils.add(numAct, Calendar.DAY_OF_MONTH);
+				} else if (valueExpr.contains("H")) {
+					date = CalendarUtils.add(numAct, Calendar.HOUR_OF_DAY);
+				}
+				
+				if (date != null) {
+					return CalendarUtils.getUTCDateTimeFormat().format(date);
+				} else {
+					return null;
+				}
+			} else {
+				return valueExpr;
+			}
+		} else {
+			return valueExpr;
+		}
 	}
 
 	/**

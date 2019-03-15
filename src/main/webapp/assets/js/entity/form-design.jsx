@@ -114,7 +114,7 @@ const check_empty = function () {
 const modify_divider = function (handle) {
   let input = '<div class="divider-name"><input type="text" class="form-control form-control-sm" placeholder="输入分栏名称"/></div>'
   rb.alert(input, '修改分栏名称', {
-    html: true, confirm: function () {
+    html: true, showIcon: false, confirm: function () {
       this.hide()
       let name = $(this.refs['dlg']).find('input').val() || '分栏'
       if (name) handle.find('span').text(name)

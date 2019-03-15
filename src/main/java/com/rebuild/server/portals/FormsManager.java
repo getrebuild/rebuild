@@ -202,6 +202,8 @@ public class FormsManager extends BaseLayoutManager {
 			
 			// 不同类型的处理
 			
+			int dateLength = -1;
+			
 			if (dt == DisplayType.PICKLIST) {
 				JSONArray options = PickListManager.getPickList(fieldMeta);
 				el.put("options", options);
@@ -210,11 +212,13 @@ public class FormsManager extends BaseLayoutManager {
 				if (!el.containsKey("datetimeFormat")) {
 					el.put("datetimeFormat", DisplayType.DATETIME.getDefaultFormat());
 				}
+				dateLength = el.getString("datetimeFormat").length();
 			}
 			else if (dt == DisplayType.DATE) {
 				if (!el.containsKey("dateFormat")) {
 					el.put("dateFormat", DisplayType.DATE.getDefaultFormat());
 				}
+				dateLength = el.getString("dateFormat").length();
 			}
 			
 			// 编辑/视图
@@ -254,6 +258,9 @@ public class FormsManager extends BaseLayoutManager {
 				} else {
 					Object dv = DefaultValueManager.exprDefaultValue(fieldMeta, el.getString("defaultValue"));
 					if (dv != null) {
+						if (dateLength > -1) {
+							dv = dv.toString().substring(0, dateLength);
+						}
 						el.put("value", dv);
 					}
 				}
