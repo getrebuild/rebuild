@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.alibaba.fastjson.JSONObject"%>
 <%@ page import="com.alibaba.fastjson.JSONArray"%>
-<%@ page import="com.rebuild.server.helper.portals.NavManager"%>
+<%@ page import="com.rebuild.server.portals.NavManager"%>
 <%
 final String activeNav = request.getParameter("activeNav");
 final JSONArray navArray = NavManager.getNavForPortal(request);

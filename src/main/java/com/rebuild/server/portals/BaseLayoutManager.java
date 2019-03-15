@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.helper.portals;
+package com.rebuild.server.portals;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
@@ -24,12 +24,12 @@ import com.rebuild.server.Application;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 布局管理
+ * 基础布局管理
  * 
  * @author zhaofang123@gmail.com
  * @since 09/15/2018
  */
-public class LayoutManager extends SharableManager {
+public abstract class BaseLayoutManager extends SharableManager {
 	
 	// 表单
 	public static final String TYPE_FORM = "FORM";

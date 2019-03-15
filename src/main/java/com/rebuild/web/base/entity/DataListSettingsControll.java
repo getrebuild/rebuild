@@ -36,12 +36,12 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.portals.DataListManager;
-import com.rebuild.server.helper.portals.LayoutManager;
-import com.rebuild.server.helper.portals.SharableManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
+import com.rebuild.server.portals.BaseLayoutManager;
+import com.rebuild.server.portals.DataListManager;
+import com.rebuild.server.portals.SharableManager;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.PortalsConfiguration;
@@ -87,7 +87,7 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 		if (cfgid == null) {
 			record = EntityHelper.forNew(EntityHelper.LayoutConfig, user);
 			record.setString("belongEntity", entity);
-			record.setString("applyType", LayoutManager.TYPE_DATALIST);
+			record.setString("applyType", BaseLayoutManager.TYPE_DATALIST);
 		} else {
 			record = EntityHelper.forUpdate(cfgid, user);
 		}

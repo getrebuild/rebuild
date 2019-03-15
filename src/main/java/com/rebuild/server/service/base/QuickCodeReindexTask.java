@@ -25,11 +25,11 @@ import org.apache.commons.lang.math.NumberUtils;
 
 import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.portals.PickListManager;
 import com.rebuild.server.helper.task.BulkTask;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.portals.PickListManager;
 import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.persist4j.Entity;

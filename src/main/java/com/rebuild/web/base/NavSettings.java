@@ -29,10 +29,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.portals.LayoutManager;
-import com.rebuild.server.helper.portals.NavManager;
-import com.rebuild.server.helper.portals.SharableManager;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.portals.BaseLayoutManager;
+import com.rebuild.server.portals.NavManager;
+import com.rebuild.server.portals.SharableManager;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.PortalsConfiguration;
@@ -74,7 +74,7 @@ public class NavSettings extends BaseControll implements PortalsConfiguration {
 		if (cfgid == null) {
 			record = EntityHelper.forNew(EntityHelper.LayoutConfig, user);
 			record.setString("belongEntity", "N");
-			record.setString("applyType", LayoutManager.TYPE_NAV);
+			record.setString("applyType", BaseLayoutManager.TYPE_NAV);
 		} else {
 			record = EntityHelper.forUpdate(cfgid, user);
 		}

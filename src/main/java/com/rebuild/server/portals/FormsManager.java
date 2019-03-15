@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.helper.portals;
+package com.rebuild.server.portals;
 
 import java.util.Date;
 import java.util.Iterator;
@@ -28,11 +28,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.portals.value.FieldValueWrapper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.portals.value.FieldValueWrapper;
 import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.utils.JSONUtils;
 
@@ -49,7 +49,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 08/30/2018
  */
-public class FormsManager extends LayoutManager {
+public class FormsManager extends BaseLayoutManager {
 
 	/**
 	 * @param entity
@@ -147,8 +147,8 @@ public class FormsManager extends LayoutManager {
 			}
 		}
 		
-		JSONObject config = (JSONObject) getFormLayout(entity, user);
-		JSONArray elements = config.getJSONArray("elements");
+		JSONObject model = (JSONObject) getFormLayout(entity, user);
+		JSONArray elements = model.getJSONArray("elements");
 		
 		if (elements == null || elements.isEmpty()) {
 			return formatModelError("此表单布局尚未配置，请配置后使用");
@@ -162,7 +162,7 @@ public class FormsManager extends LayoutManager {
 			}
 		}
 		
-		// clean
+		// Check and clean
 		for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
 			JSONObject el = (JSONObject) iter.next();
 			String fieldName = el.getString("field");
@@ -199,7 +199,7 @@ public class FormsManager extends LayoutManager {
 				el.put(e.getKey(), e.getValue());
 			}
 			
-			// 不同类型的特殊处理
+			// 不同类型的处理
 			
 			if (dt == DisplayType.PICKLIST) {
 				JSONArray options = PickListManager.getPickList(fieldMeta);
@@ -260,14 +260,15 @@ public class FormsManager extends LayoutManager {
 		}
 		
 		if (entityMeta.getMasterEntity() != null) {
-			config.put("isSlave", true);
+			model.put("isSlave", true);
 		} else if (entityMeta.getSlaveEntity() != null) {
-			config.put("isMaster", true);
-			config.put("slaveMeta", EasyMeta.getEntityShows(entityMeta.getSlaveEntity()));
+			model.put("isMaster", true);
+			model.put("slaveMeta", EasyMeta.getEntityShows(entityMeta.getSlaveEntity()));
 		}
 		
-		config.remove("id");
-		return config;
+		model.remove("id");  // form's configId
+		
+		return model;
 	}
 	
 	/**
@@ -282,6 +283,7 @@ public class FormsManager extends LayoutManager {
 	
 	/**
 	 * @param id
+	 * @param user
 	 * @param elements
 	 * @return
 	 */

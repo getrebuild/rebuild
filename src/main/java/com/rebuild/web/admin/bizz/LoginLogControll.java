@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
-import com.rebuild.server.helper.portals.DataListManager;
+import com.rebuild.server.portals.DataListManager;
 import com.rebuild.web.BaseEntityControll;
 
 import cn.devezhao.persist4j.engine.ID;
