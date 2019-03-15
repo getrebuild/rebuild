@@ -266,8 +266,7 @@ public class FormsManager extends BaseLayoutManager {
 			model.put("slaveMeta", EasyMeta.getEntityShows(entityMeta.getSlaveEntity()));
 		}
 		
-		model.remove("id");  // form's configId
-		
+		model.remove("id");  // form's ID of config
 		return model;
 	}
 	
