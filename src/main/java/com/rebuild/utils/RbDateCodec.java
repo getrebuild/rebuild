@@ -66,10 +66,10 @@ public class RbDateCodec extends DateCodec {
 			return null;
 		}
 
-		if (val instanceof java.util.Date) {
+		if (val instanceof Date) {
 			return (T) val;
 		} else if (val instanceof Number) {
-			return (T) new java.util.Date(((Number) val).longValue());
+			return (T) new Date(((Number) val).longValue());
 		} else if (val instanceof String) {
 			Date date = CalendarUtils.parse((String) val);
 			return (T) date;
