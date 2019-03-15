@@ -101,6 +101,27 @@ $(document).ready(function () {
     })
   } else if (dt === 'SERIES' || wpc.fieldBuildin === true) {
     $('#fieldNullable, #fieldUpdatable').attr('disabled', true)
+    $('#defaultValue').parents('.form-group').remove()
+  } else if (dt === 'DATE' || dt === 'DATETIME') {
+    $('#defaultValue').datetimepicker({
+      componentIcon: 'zmdi zmdi-calendar',
+      navIcons: {
+        rightIcon: 'zmdi zmdi-chevron-right',
+        leftIcon: 'zmdi zmdi-chevron-left'
+      },
+      format: dt === 'DATE' ? 'yyyy-mm-dd' : 'yyyy-mm-dd hh:ii:ss',
+      minView: dt === 'DATE' ? 2 : 0,
+      weekStart: 1,
+      autoclose: true,
+      language: 'zh',
+      todayHighlight: false,
+      showMeridian: false,
+      keyboardNavigation: false,
+      minuteStep: 5,
+    }).on('changeDate', function () {
+      let val = $(this).val()
+
+    })
   }
 
   if (wpc.fieldBuildin === true) $('.footer .alert').removeClass('hide')

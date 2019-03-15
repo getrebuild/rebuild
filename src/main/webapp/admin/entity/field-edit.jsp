@@ -147,10 +147,10 @@
 								</div>
 							</div>
 						</div>
-						<div class="form-group row J_for-TEXT J_for-NTEXT J_for-EMAIL J_for-PHONE J_for-URL J_for-NUMBER J_for-DECIMAL hide">
+						<div class="form-group row J_for-TEXT J_for-NTEXT J_for-EMAIL J_for-PHONE J_for-URL J_for-NUMBER J_for-DECIMAL J_for-DATE J_for-DATETIME hide">
 							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">默认值</label>
 							<div class="col-md-12 col-xl-6 col-lg-8">
-								<input class="form-control form-control-sm" type="text" id="defaultValue" value="${defaultValue}" data-o="${defaultValue}" placeholder="无">
+								<input class="form-control form-control-sm" type="text" id="defaultValue" value="${defaultValue}" data-o="${defaultValue}" placeholder="无" autocomplete="off">
 							</div>
 						</div>
 						<div class="form-group row">
