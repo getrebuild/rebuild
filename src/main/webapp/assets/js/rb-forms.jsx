@@ -502,7 +502,7 @@ class RbFormImage extends RbFormElement {
           return (<span key={'file-' + item}><a title={fileName} className="img-thumbnail img-upload"><img src={itemUrl + '?imageView2/2/w/100/interlace/1/q/100'} /><b title="移除" onClick={() => this.removeItem(item)}><span className="zmdi zmdi-close"></span></b></a></span>)
         })}
         {this.state.showUploader === false ? null :
-          <span title="选择图片">
+          <span title={'上传图片。需要 ' + this.__minUpload + '～' + this.__maxUpload + ' 张'}>
             <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} accept="image/*" />
             <label htmlFor={this.props.field + '-input'} className="img-thumbnail img-upload"><span className="zmdi zmdi-image-alt"></span></label>
           </span>
@@ -560,8 +560,8 @@ class RbFormImage extends RbFormElement {
     if (err) return err
     let ups = (this.state.value || []).length
     this.setState({ showUploader: this.__maxUpload > ups })
-    if (this.__minUpload > 0 && ups < this.__minUpload) return `至少需要上传 ${this.__minUpload} 个图片`
-    if (this.__maxUpload < ups) return `最多允许上传 ${this.__maxUpload} 个图片`
+    if (this.__minUpload > 0 && ups < this.__minUpload) return `至少需要上传 ${this.__minUpload} 张图片`
+    if (this.__maxUpload < ups) return `最多允许上传 ${this.__maxUpload} 张图片`
   }
 }
 
@@ -588,8 +588,8 @@ class RbFormFile extends RbFormElement {
         {this.state.showUploader === false ? null :
           <div className="file-select">
             <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} />
-            <label htmlFor={this.props.field + '-input'} className="btn-secondary">
-              <i className="zmdi zmdi-upload"></i><span>选择文件</span>
+            <label title={'上传文件。需要 ' + this.__minUpload + '～' + this.__maxUpload + ' 个'} htmlFor={this.props.field + '-input'} className="btn-secondary">
+              <i className="zmdi zmdi-upload"></i><span>上传文件</span>
             </label>
           </div>
         }
