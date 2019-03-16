@@ -113,8 +113,8 @@
 						<div class="form-group row J_for-IMAGE J_for-FILE hide">
 							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">允许上传数量</label>
 							<div class="col-md-12 col-xl-6 col-lg-8" style="padding-top:6px">
-								<input class="bslider form-control" id="uploadNumber" type="text" data-slider-value="[1,5]" data-slider-step="1" data-slider-max="9" data-slider-min="0" data-slider-tooltip="show">
-								<div class="form-text J_minmax">最少上传 <b>1</b> 个，最多上传 <b>5</b> 个</div>
+								<input class="bslider form-control" id="uploadNumber" type="text" data-slider-value="[0,9]" data-slider-step="1" data-slider-max="9" data-slider-min="0" data-slider-tooltip="show">
+								<div class="form-text J_minmax">最少上传 <b>0</b> 个，最多上传 <b>9</b> 个</div>
 							</div>
 						</div>
 						<div class="form-group row J_for-PICKLIST hide">
@@ -168,10 +168,10 @@
 						<div class="form-group row">
 							<div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
 								<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-									<input class="custom-control-input" type="checkbox" id="fieldNullable" data-o="${fieldNullable}"><span class="custom-control-label"> 允许空值</span>
+									<input class="custom-control-input" type="checkbox" id="fieldNullable" data-o="${fieldNullable}"><span class="custom-control-label"> 允许为空</span>
 								</label>
 								<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-									<input class="custom-control-input" type="checkbox" id="fieldUpdatable" data-o="${fieldUpdatable}"><span class="custom-control-label"> 允许修改值</span>
+									<input class="custom-control-input" type="checkbox" id="fieldUpdatable" data-o="${fieldUpdatable}"><span class="custom-control-label"> 允许修改</span>
 								</label>
 							</div>
 						</div>

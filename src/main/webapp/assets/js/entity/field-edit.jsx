@@ -66,24 +66,6 @@ $(document).ready(function () {
 
   $('.J_for-' + dt).removeClass('hide')
 
-  let uploadNumber = [1, 5]
-  for (let k in extConfigOld) {
-    if (k === 'uploadNumber') {
-      uploadNumber = extConfigOld[k].split(',')
-      uploadNumber[0] = ~~uploadNumber[0]
-      uploadNumber[1] = ~~uploadNumber[1]
-      $('.J_minmax b').eq(0).text(uploadNumber[0])
-      $('.J_minmax b').eq(1).text(uploadNumber[1])
-    } else $('#' + k).val(extConfigOld[k])
-  }
-  $('input.bslider').slider({
-    value: uploadNumber
-  }).on('change', function (e) {
-    let v = e.value.newValue
-    $('.J_minmax b').eq(0).text(v[0])
-    $('.J_minmax b').eq(1).text(v[1])
-  })
-
   if (dt === 'PICKLIST') {
     $.get(`${rb.baseUrl}/admin/field/picklist-gets?entity=${wpc.entityName}&field=${wpc.fieldName}&isAll=false`, function (res) {
       if (res.data.length === 0) {
@@ -125,6 +107,28 @@ $(document).ready(function () {
     $('#defaultValue').next().removeClass('hide').find('button').click(() => {
       renderRbcomp(<AdvDateDefaultValue />)
     })
+  } else if (dt === 'FILE' || dt === 'IMAGE') {
+    let uploadNumber = [0, 9]
+    for (let k in extConfigOld) {
+      if (k === 'uploadNumber') {
+        uploadNumber = extConfigOld[k].split(',')
+        uploadNumber[0] = ~~uploadNumber[0]
+        uploadNumber[1] = ~~uploadNumber[1]
+        $('.J_minmax b').eq(0).text(uploadNumber[0])
+        $('.J_minmax b').eq(1).text(uploadNumber[1])
+      } else $('#' + k).val(extConfigOld[k])
+    }
+    $('input.bslider').slider({
+      value: uploadNumber
+    }).on('change', function (e) {
+      let v = e.value.newValue
+      $setTimeout(() => {
+        $('.J_minmax b').eq(0).text(v[0])
+        $('.J_minmax b').eq(1).text(v[1])
+        $('#fieldNullable').attr('checked', v[0] <= 0)
+      }, 200, 'bslider-change')
+    })
+    $('#fieldNullable').attr('disabled', true)
   }
 
   if (wpc.fieldBuildin === true) $('.footer .alert').removeClass('hide')

@@ -277,3 +277,12 @@ var $pages = function (tp, cp) {
   if (end <= tp) pages.push(tp)
   return pages
 }
+
+/**
+ */
+var $same = function(a, b) {
+	if (!a && !b) return true
+	if (a && $.type(a) === 'array') a = a.join(',')
+	if (b && $.type(b) === 'array') b = b.join(',')
+	return a === b
+}

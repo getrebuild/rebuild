@@ -278,22 +278,23 @@ class RbFormElement extends React.Component {
   // 表单组件（字段）值变化应调用此方法
   handleChange(event, checkError) {
     let val = event.target.value
-    let that = this
-    this.setState({ value: val }, function () { checkError === true && that.checkError() })
+    this.setState({ value: val }, () => { checkError === true && this.checkError() })
   }
   checkError() {
-    // Unchanged Uncheck
-    if (this.state.value && this.props.value === this.state.value) {
-      if (this.__lastValue !== this.props.value) {
+    // Unchanged
+    if (this.state.value && $same(this.props.value, this.state.value)) {
+      // Clean change status
+      if (!$same(this.__lastValue, this.props.value)) {
         this.props.$$$parent.setFieldUnchanged(this.props.field)
         this.__lastValue = this.props.value
       }
       return
     }
-    if (this.__lastValue && this.__lastValue === this.state.value) {
+    if (this.__lastValue && $same(this.__lastValue, this.state.value)) {
       return
     }
-    this.__lastValue = this.state.value
+    // If it's array, using clones
+    this.__lastValue = $.type(this.state.value) === 'array' ? this.state.value.concat() : this.state.value
 
     let err = this.checkHasError()
     this.setState({ hasError: err })
@@ -306,12 +307,10 @@ class RbFormElement extends React.Component {
       if (v && $.type(v) === 'array') return v.length === 0 ? '不能为空' : null
       else return !v ? '不能为空' : null
     }
-    return null
   }
   // 清空值
   handleClear() {
-    let that = this
-    this.setState({ value: '' }, function () { that.checkError() })
+    this.setState({ value: '' }, () => { this.checkError() })
   }
 }
 
@@ -487,6 +486,12 @@ class RbFormImage extends RbFormElement {
   constructor(props) {
     super(props)
     this.state.value = JSON.parse(props.value || '[]')
+    this.__minUpload = 0
+    this.__maxUpload = 9
+    if (this.props.uploadNumber) {
+      this.__minUpload = ~~(this.props.uploadNumber.split(',')[0] || 0)
+      this.__maxUpload = ~~(this.props.uploadNumber.split(',')[1] || 9)
+    }
   }
   renderElement() {
     return (
@@ -496,10 +501,12 @@ class RbFormImage extends RbFormElement {
           let fileName = $fileCutName(item)
           return (<span key={'file-' + item}><a title={fileName} className="img-thumbnail img-upload"><img src={itemUrl + '?imageView2/2/w/100/interlace/1/q/100'} /><b title="移除" onClick={() => this.removeItem(item)}><span className="zmdi zmdi-close"></span></b></a></span>)
         })}
-        <span title="选择图片">
-          <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} accept="image/*" />
-          <label htmlFor={this.props.field + '-input'} className="img-thumbnail img-upload"><span className="zmdi zmdi-image-alt"></span></label>
-        </span>
+        {this.state.showUploader === false ? null :
+          <span title="选择图片">
+            <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} accept="image/*" />
+            <label htmlFor={this.props.field + '-input'} className="img-thumbnail img-upload"><span className="zmdi zmdi-image-alt"></span></label>
+          </span>
+        }
         <input ref="field-value" type="hidden" value={this.state.value} />
       </div>
     )
@@ -548,6 +555,14 @@ class RbFormImage extends RbFormElement {
   }
   clickPreview() {
   }
+  checkHasError() {
+    let err = super.checkHasError()
+    if (err) return err
+    let ups = (this.state.value || []).length
+    this.setState({ showUploader: this.__maxUpload > ups })
+    if (this.__minUpload > 0 && ups < this.__minUpload) return `至少需要上传 ${this.__minUpload} 个图片`
+    if (this.__maxUpload < ups) return `最多允许上传 ${this.__maxUpload} 个图片`
+  }
 }
 
 // 文件
@@ -555,6 +570,12 @@ class RbFormFile extends RbFormElement {
   constructor(props) {
     super(props)
     this.state.value = JSON.parse(props.value || '[]')
+    this.__minUpload = 0
+    this.__maxUpload = 9
+    if (this.props.uploadNumber) {
+      this.__minUpload = ~~(this.props.uploadNumber.split(',')[0] || 0)
+      this.__maxUpload = ~~(this.props.uploadNumber.split(',')[1] || 9)
+    }
   }
   renderElement() {
     return (
@@ -564,10 +585,14 @@ class RbFormFile extends RbFormElement {
           let fileIcon = $fileDetectingIcon(fileName)
           return (<div key={'file-' + item} className="img-thumbnail" title={fileName}><i className={'ftype ' + fileIcon} /><span>{fileName}</span><b title="移除" onClick={() => this.removeItem(item)}><span className="zmdi zmdi-close"></span></b></div>)
         })}
-        <div className="file-select">
-          <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} />
-          <label htmlFor={this.props.field + '-input'} className="btn-secondary"><i className="zmdi zmdi-upload"></i><span>选择文件</span></label>
-        </div>
+        {this.state.showUploader === false ? null :
+          <div className="file-select">
+            <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} />
+            <label htmlFor={this.props.field + '-input'} className="btn-secondary">
+              <i className="zmdi zmdi-upload"></i><span>选择文件</span>
+            </label>
+          </div>
+        }
         <input ref="field-value" type="hidden" value={this.state.value} />
       </div>
     )
@@ -612,6 +637,14 @@ class RbFormFile extends RbFormElement {
     this.handleChange({ target: { value: paths } }, true)
   }
   clickPreview() {
+  }
+  checkHasError() {
+    let err = super.checkHasError()
+    if (err) return err
+    let ups = (this.state.value || []).length
+    this.setState({ showUploader: this.__maxUpload > ups })
+    if (this.__minUpload > 0 && ups < this.__minUpload) return `至少需要上传 ${this.__minUpload} 个文件`
+    if (this.__maxUpload < ups) return `最多允许上传 ${this.__maxUpload} 个文件`
   }
 }
 
