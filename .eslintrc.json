@@ -40,6 +40,7 @@
         "$cleanMenu": true,
         "$cleanMap": true,
         "$pages": true,
+        "$same": true,
         "rb": true,
         "renderRbcomp": true,
         "React": true,

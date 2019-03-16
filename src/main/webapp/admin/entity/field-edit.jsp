@@ -11,8 +11,9 @@
 .sortable-box .dd-list .dd-item, .sortable-box .dd-list .dd-handle{background-color:#fff !important;color:#404040 !important}
 .sortable-box .no-item{padding:9px;text-align:center;color:#999}
 .sortable-box.autoh,.sortable-box.autoh .dd-list{height:auto;}
-.sortable-box .default .dd-handle{background-color:#dedede !important;cursor:help;}
+.sortable-box .default .dd-handle::after{content:'默认值';float:right;color:#777;font-size:12px;font-style:italic;}
 .form-text.help code{cursor:help;font-weight:bold;}
+.calc-expr{border-radius:3px;padding:10px 0;background-color:#eee}
 </style>
 </head>
 <body>
@@ -112,8 +113,8 @@
 						<div class="form-group row J_for-IMAGE J_for-FILE hide">
 							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">允许上传数量</label>
 							<div class="col-md-12 col-xl-6 col-lg-8" style="padding-top:6px">
-								<input class="bslider form-control" id="uploadNumber" type="text" data-slider-value="[1,5]" data-slider-step="1" data-slider-max="9" data-slider-min="0" data-slider-tooltip="show">
-								<div class="form-text J_minmax">最少上传 <b>1</b> 个，最多上传 <b>5</b> 个</div>
+								<input class="bslider form-control" id="uploadNumber" type="text" data-slider-value="[0,9]" data-slider-step="1" data-slider-max="9" data-slider-min="0" data-slider-tooltip="show">
+								<div class="form-text J_minmax">最少上传 <b>0</b> 个，最多上传 <b>9</b> 个</div>
 							</div>
 						</div>
 						<div class="form-group row J_for-PICKLIST hide">
@@ -147,6 +148,17 @@
 								</div>
 							</div>
 						</div>
+						<div class="form-group row J_for-TEXT J_for-NTEXT J_for-EMAIL J_for-PHONE J_for-URL J_for-NUMBER J_for-DECIMAL J_for-DATE J_for-DATETIME hide">
+							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">默认值</label>
+							<div class="col-md-12 col-xl-6 col-lg-8">
+								<div class="input-group">
+									<input class="form-control form-control-sm" type="text" id="defaultValue" value="${defaultValue}" data-o="${defaultValue}" placeholder="无" autocomplete="off">
+        							<div class="input-group-append hide">
+          								<button class="btn btn-primary" title="设置高级默认值" type="button" style="min-width:auto;"><i class="icon zmdi zmdi-hdr-strong"></i></button>
+									</div>
+								</div>
+							</div>
+						</div>
 						<div class="form-group row">
 							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">备注</label>
 							<div class="col-md-12 col-xl-6 col-lg-8">
@@ -156,10 +168,10 @@
 						<div class="form-group row">
 							<div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
 								<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-									<input class="custom-control-input" type="checkbox" id="fieldNullable" data-o="${fieldNullable}"><span class="custom-control-label"> 允许空值</span>
+									<input class="custom-control-input" type="checkbox" id="fieldNullable" data-o="${fieldNullable}"><span class="custom-control-label"> 允许为空</span>
 								</label>
 								<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-									<input class="custom-control-input" type="checkbox" id="fieldUpdatable" data-o="${fieldUpdatable}"><span class="custom-control-label"> 允许修改值</span>
+									<input class="custom-control-input" type="checkbox" id="fieldUpdatable" data-o="${fieldUpdatable}"><span class="custom-control-label"> 允许修改</span>
 								</label>
 							</div>
 						</div>
@@ -201,6 +213,6 @@ window.__PageConfig = {
 	isSuperAdmin: ${isSuperAdmin}
 }
 </script>
-<script src="${baseUrl}/assets/js/entity/field-edit.js"></script>
+<script type="text/babel" src="${baseUrl}/assets/js/entity/field-edit.jsx"></script>
 </body>
 </html>

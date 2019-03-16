@@ -75,19 +75,19 @@ public class TestSupport {
 		String entityName = entity2Schema.create(TEST_ENTITY, null, null, true);
 		Entity testEntity = MetadataHelper.getEntity(entityName);
 		
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "number", DisplayType.NUMBER, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "decimal", DisplayType.DECIMAL, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "date", DisplayType.DATE, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "datetime", DisplayType.DATETIME, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "text", DisplayType.TEXT, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "ntext", DisplayType.NTEXT, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "email", DisplayType.EMAIL, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "url", DisplayType.URL, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "phone", DisplayType.PHONE, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "series", DisplayType.SERIES, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "image", DisplayType.IMAGE, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "file", DisplayType.FILE, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "picklist", DisplayType.PICKLIST, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "reference", DisplayType.REFERENCE, null, entityName);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "NUMBER", DisplayType.NUMBER, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "DECIMAL", DisplayType.DECIMAL, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "DATE", DisplayType.DATE, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "DATETIME", DisplayType.DATETIME, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "TEXT", DisplayType.TEXT, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "NTEXT", DisplayType.NTEXT, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "EMAIL", DisplayType.EMAIL, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "URL", DisplayType.URL, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "PHONE", DisplayType.PHONE, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "SERIES", DisplayType.SERIES, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "IMAGE", DisplayType.IMAGE, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "FILE", DisplayType.FILE, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "PICKLIST", DisplayType.PICKLIST, null, null);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "REFERENCE", DisplayType.REFERENCE, null, entityName);
 	}
 }

@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isErrorPage="true" trimDirectiveWhitespaces="true"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isErrorPage="true"%>
 <%@ page import="com.rebuild.utils.AppUtils"%>
 <%@ page import="cn.devezhao.commons.web.ServletUtils"%>
 <%
@@ -36,7 +36,7 @@ if (ServletUtils.isAjaxRequest(request)) {
 </div>
 <script src="${pageContext.request.contextPath}/assets/lib/jquery.min.js"></script>
 <script>
-if (location.href.indexOf('unsupported-browser') > -1) $('.error-description').text('不支持 IE10 以下的浏览器，请使用 Edge、Chrome 或 Firefox')
+if (location.href.indexOf('unsupported-browser') > -1) $('.error-description').html('不支持 IE10 以下的浏览器<br>请使用 Chrome、Firefox 或 IE Edge/10/11')
 </script>
 </body>
 </html>
