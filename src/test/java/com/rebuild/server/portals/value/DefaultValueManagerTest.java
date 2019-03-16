@@ -42,5 +42,7 @@ public class DefaultValueManagerTest extends TestSupport {
 		System.out.println(DefaultValueManager.exprDefaultValue(date, "{NOW}"));
 		System.out.println(DefaultValueManager.exprDefaultValue(date, "{NOW - 1H}"));
 		System.out.println(DefaultValueManager.exprDefaultValue(date, "{NOW + 1M}"));
+		System.out.println(DefaultValueManager.exprDefaultValue(date, "2019-09-01"));
+		System.out.println(DefaultValueManager.exprDefaultValue(date, "2019-09-01 01:01"));
 	}
 }

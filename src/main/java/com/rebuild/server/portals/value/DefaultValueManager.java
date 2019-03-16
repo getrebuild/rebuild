@@ -22,6 +22,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
@@ -68,36 +69,45 @@ public class DefaultValueManager {
 		}
 		
 		if (field.getType() == FieldType.TIMESTAMP || field.getType() == FieldType.DATE) {
-			// {NOW} {NOW-1D} {NOW+6Y}
-			if (valueExpr.startsWith("{") && valueExpr.endsWith("}")) {
-				valueExpr = valueExpr.replace("NOW", "").replace(" ", "");
-				Pattern numPattern = Pattern.compile("[^0-9]");
-				String num = numPattern.matcher(valueExpr).replaceAll("").trim();
-				int numAct = ObjectUtils.toInt(num);
-				numAct = valueExpr.contains("+") ? numAct : - numAct;
-				
-				Date date = null;
-				if (numAct == 0) {
-					date = CalendarUtils.now();
-				} else if (valueExpr.contains("Y")) {
-					date = CalendarUtils.add(numAct, Calendar.YEAR);
-				} else if (valueExpr.contains("M")) {
-					date = CalendarUtils.add(numAct, Calendar.MONTH);
-				} else if (valueExpr.contains("D")) {
-					date = CalendarUtils.add(numAct, Calendar.DAY_OF_MONTH);
-				} else if (valueExpr.contains("H")) {
-					date = CalendarUtils.add(numAct, Calendar.HOUR_OF_DAY);
+			if ("{NOW}".equals(valueExpr)) {
+				return CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now());
+			}
+			
+			Pattern exprPattern = Pattern.compile("\\{NOW([-+])([0-9]{1,9})([YMDH])\\}");
+			Matcher exprMatcher = exprPattern.matcher(StringUtils.remove(valueExpr, " "));
+			if (exprMatcher.matches()) {
+				String op = exprMatcher.group(1);
+				String num = exprMatcher.group(2);
+				String unit = exprMatcher.group(3);
+				int num2int = ObjectUtils.toInt(num);
+				if (op.equals("-")) {
+					num2int = -num2int;
 				}
 				
-				if (date != null) {
-					return CalendarUtils.getUTCDateTimeFormat().format(date);
+				Date date = null;
+				if (num2int == 0) {
+					date = CalendarUtils.now();
+				} else if (unit.equals("Y")) {
+					date = CalendarUtils.add(num2int, Calendar.YEAR);
+				} else if (unit.equals("M")) {
+					date = CalendarUtils.add(num2int, Calendar.MONTH);
+				} else if (unit.equals("D")) {
+					date = CalendarUtils.add(num2int, Calendar.DAY_OF_MONTH);
+				} else if (unit.equals("H")) {
+					date = CalendarUtils.add(num2int, Calendar.HOUR_OF_DAY);
+				}
+				return date == null ? null : CalendarUtils.getUTCDateTimeFormat().format(date);
+			} else {
+				String format = "yyyy-MM-dd HH:mm:ss".substring(0, valueExpr.length());
+				if (CalendarUtils.parse(valueExpr, format) != null) {
+					return valueExpr;
 				} else {
 					return null;
 				}
-			} else {
-				return valueExpr;
 			}
-		} else {
+		}
+		// Others here
+		else {
 			return valueExpr;
 		}
 	}
