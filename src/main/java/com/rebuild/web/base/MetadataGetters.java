@@ -29,7 +29,6 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.devezhao.persist4j.dialect.FieldType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -83,10 +82,11 @@ public class MetadataGetters extends BaseControll {
 		List<Map<String, Object>> list = new ArrayList<>();
 		putFields(list, entityBase, null);
 
-		if ("2".equals(getParameter(request,"deep"))) {
+		if ("2".equals(getParameter(request, "deep"))) {
 			for (Field field : entityBase.getFields()) {
 				EasyMeta easyField = EasyMeta.valueOf(field);
-				if (easyField.getDisplayType() == DisplayType.REFERENCE) {
+				if (easyField.getDisplayType() == DisplayType.REFERENCE
+						&& !MetadataHelper.isBizzEntity(field.getReferenceEntity().getEntityCode())) {
 					putFields(list, field.getReferenceEntity(), easyField);
 				}
 			}
