@@ -230,8 +230,8 @@ class DlgDashSettings extends RbFormHandler {
     rb.alert('确认删除此仪表盘？', {
       confirm: function () {
         $.post(rb.baseUrl + '/dashboard/dash-delete?id=' + dashid, function (res) {
-          if (res.error_code === 0) location.replace('home#del=' + dashid)  // Chrome no refresh?
-          // if (res.error_code === 0) location.reload()
+          // if (res.error_code === 0) location.replace('home#del=' + dashid)  // Chrome no refresh?
+          if (res.error_code === 0) location.reload()
           else rb.hberror(res.error_msg)
         })
       }
