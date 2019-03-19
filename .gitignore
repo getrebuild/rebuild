@@ -21,10 +21,13 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
+# IDE
 /.classpath
 /.project
-/a.json
+/.idea/
 /.settings/
+
+# Bin
 /target/
 /bin/
 /.production/node_modules/
@@ -34,6 +37,8 @@ hs_err_pid*
 /.production/
 /src/main/webapp/assets/node_modules/
 /src/main/webapp/assets/package-lock.json
+/a.json
+
 
 
 # MacOS
