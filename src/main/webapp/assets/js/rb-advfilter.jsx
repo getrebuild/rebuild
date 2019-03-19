@@ -81,7 +81,7 @@ class AdvFilter extends React.Component {
   }
   componentDidMount() {
     let that = this
-    $.get(rb.baseUrl + '/commons/metadata/fields?entity=' + this.props.entity, function (res) {
+    $.get(rb.baseUrl + '/commons/metadata/fields?deep=2&entity=' + this.props.entity, function (res) {
       let valideFs = []
       that.fields = res.data.map((item) => {
         valideFs.push(item.name)
@@ -100,111 +100,112 @@ class AdvFilter extends React.Component {
       }
     })
   }
-    onRef = (child) => {
-      this.childrenRef.push(child)
+  onRef = (child) => {
+    this.childrenRef.push(child)
+  }
+  handleChange = (e) => {
+    let val = e.target.value
+    let id = e.target.dataset.id
+    if (id === 'enableEquation') {
+      this.setState({ enableEquation: this.state.enableEquation !== true })
+    } else if (id === 'shareToAll') {
+      this.setState({ shareToAll: this.state.shareToAll !== true })
+    } else {
+      let state = {}
+      state[id] = val
+      this.setState({ ...state })
     }
-    handleChange = (e) => {
-      let val = e.target.value
-      let id = e.target.dataset.id
-      if (id === 'enableEquation') {
-        this.setState({ enableEquation: this.state.enableEquation !== true })
-      } else if (id === 'shareToAll') {
-        this.setState({ shareToAll: this.state.shareToAll !== true })
-      } else {
-        let state = {}
-        state[id] = val
-        this.setState({ ...state })
-      }
-    }
+  }
 
-    addItem(cfg) {
-      if (!this.fields) return
-      let _items = this.state.items || []
-      if (_items.length >= 9) { rb.highbar('最多可添加9个条件'); return }
+  addItem(cfg) {
+    if (!this.fields) return
+    let _items = this.state.items || []
+    if (_items.length >= 9) { rb.highbar('最多可添加9个条件'); return }
 
-      let id = 'item-' + $random()
-      let props = { fields: this.fields, $$$parent: this, key: id, id: id, onRef: this.onRef, index: _items.length + 1 }
-      if (cfg) props = { ...props, ...cfg }
-      _items.push(<FilterItem {...props} />)
+    let id = 'item-' + $random()
+    let props = { fields: this.fields, $$$parent: this, key: id, id: id, onRef: this.onRef, index: _items.length + 1 }
+    if (cfg) props = { ...props, ...cfg }
+    _items.push(<FilterItem {...props} />)
 
-      if (!cfg) {
-        let equation = []
-        for (let i = 1; i <= _items.length; i++) equation.push(i)
-        this.setState({ items: _items, equation: equation.join(' OR ') })
-      } else {
-        this.setState({ items: _items })
-      }
-    }
-    removeItem(id) {
-      let _items = []
-      this.state.items.forEach((item) => {
-        if (item.props.id !== id) _items.push(item)
-      })
-      let _children = []
-      this.childrenRef.forEach((item) => {
-        if (item.props.id !== id) _children.push(item)
-      })
-      this.childrenRef = _children
-
-      let that = this
+    if (!cfg) {
       let equation = []
       for (let i = 1; i <= _items.length; i++) equation.push(i)
-      this.setState({ items: _items, equation: equation.join(' OR ') }, () => {
-        that.childrenRef.forEach((child, idx) => {
-          child.setIndex(idx + 1)
-        })
+      this.setState({ items: _items, equation: equation.join(' OR ') })
+    } else {
+      this.setState({ items: _items })
+    }
+  }
+  removeItem(id) {
+    let _items = []
+    this.state.items.forEach((item) => {
+      if (item.props.id !== id) _items.push(item)
+    })
+    let _children = []
+    this.childrenRef.forEach((item) => {
+      if (item.props.id !== id) _children.push(item)
+    })
+    this.childrenRef = _children
+
+    let that = this
+    let equation = []
+    for (let i = 1; i <= _items.length; i++) equation.push(i)
+    this.setState({ items: _items, equation: equation.join(' OR ') }, () => {
+      that.childrenRef.forEach((child, idx) => {
+        child.setIndex(idx + 1)
+      })
+    })
+  }
+
+  toggleEquation() {
+    let enable = this.state.enableEquation !== true
+    this.setState({ enableEquation: enable })
+    if (enable === true && !this.state.equation && this.state.items) {
+      let equation = []
+      for (let i = 1; i <= this.state.items.length; i++) equation.push(i)
+      this.setState({ equation: equation.join(' OR ') })
+    }
+  }
+
+  toFilterJson() {
+    let filters = []
+    let hasError = false
+    for (let i = 0; i < this.childrenRef.length; i++) {
+      let fj = this.childrenRef[i].getFilterJson()
+      if (!fj) hasError = true
+      else filters.push(fj)
+    }
+    if (hasError) { rb.highbar('部分条件设置有误，请检查'); return }
+    if (filters.length === 0) { rb.highbar('请至少添加1个条件'); return }
+
+    let adv = { entity: this.props.entity, items: filters }
+    if (this.state.enableEquation === true) adv.equation = this.state.equation
+    return adv
+  }
+  searchNow() {
+    let adv = this.toFilterJson()
+    if (!!adv && RbListPage) RbListPage._RbList.search(adv)
+  }
+
+  confirm() {
+    let adv = this.toFilterJson()
+    if (!adv) return
+    else if (this.props.confirm) {
+      this.props.confirm(adv, this.state.filterName, this.state.shareToAll)
+    } else {
+      $.post(rb.baseUrl + '/app/entity/advfilter/test-parse', JSON.stringify(adv), function (res) {
+        if (res.error_code !== 0) rb.hberror(res.error_msg)
       })
     }
+    if (this.props.inModal) this.refs['dlg'].hide()
+  }
 
-    toggleEquation() {
-      let enable = this.state.enableEquation !== true
-      this.setState({ enableEquation: enable })
-      if (enable === true && !this.state.equation && this.state.items) {
-        let equation = []
-        for (let i = 1; i <= this.state.items.length; i++) equation.push(i)
-        this.setState({ equation: equation.join(' OR ') })
-      }
-    }
-
-    toFilterJson() {
-      let filters = []
-      let hasError = false
-      for (let i = 0; i < this.childrenRef.length; i++) {
-        let fj = this.childrenRef[i].getFilterJson()
-        if (!fj) hasError = true
-        else filters.push(fj)
-      }
-      if (hasError) { rb.highbar('部分条件设置有误，请检查'); return }
-      if (filters.length === 0) { rb.highbar('请至少添加1个条件'); return }
-
-      let adv = { entity: this.props.entity, items: filters }
-      if (this.state.enableEquation === true) adv.equation = this.state.equation
-      return adv
-    }
-    searchNow() {
-      let adv = this.toFilterJson()
-      if (!!adv && RbListPage) RbListPage._RbList.search(adv)
-    }
-
-    confirm() {
-      let adv = this.toFilterJson()
-      if (!adv) return
-      else if (this.props.confirm) this.props.confirm(adv, this.state.filterName, this.state.shareToAll)
-      else {
-        $.post(rb.baseUrl + '/app/entity/advfilter/test-parse', JSON.stringify(adv), function (res) {
-          if (res.error_code !== 0) rb.hberror(res.error_msg)
-        })
-      }
-      if (this.props.inModal) this.refs['dlg'].hide()
-    }
-
-    show(state) {
-      if (this.props.inModal) this.refs['dlg'].show(state)
-    }
-    hide() {
-      if (this.props.inModal) this.refs['dlg'].hide()
-      if (this.props.cancel) this.props.cancel()
-    }
+  show(state) {
+    if (this.props.inModal) this.refs['dlg'].show(state)
+  }
+  hide() {
+    if (this.props.inModal) this.refs['dlg'].hide()
+    if (this.props.cancel) this.props.cancel()
+  }
 }
 
 const OP_TYPE = { LK: '包含', NLK: '不包含', IN: '包含', NIN: '不包含', EQ: '等于', NEQ: '不等于', GT: '大于', LT: '小于', BW: '区间', NL: '为空', NT: '不为空', BFD: '...天前', BFM: '...月前', AFD: '...天后', AFM: '...月后', RED: '最近...天', REM: '最近...月', SFU: '本人', SFB: '本部门', SFD: '本部门及子部门' }
@@ -331,7 +332,7 @@ class FilterItem extends React.Component {
     }).on('change.select2', function (e) {
       that.setState({ op: e.target.value }, function () {
         $setTimeout(function () {
-          //ReactDOM.findDOMNode(that.refs['filter-val']).focus()
+          // ReactDOM.findDOMNode(that.refs['filter-val']).focus()
         }, 200, 'filter-val-focus')
       })
     })
