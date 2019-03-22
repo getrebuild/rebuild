@@ -20,6 +20,7 @@ package com.rebuild.server;
 
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 
 import com.rebuild.server.helper.upgrade.DbScriptsReader;
@@ -30,10 +31,12 @@ import com.rebuild.server.helper.upgrade.DbScriptsReader;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/22
  */
-public class UpgradeDatabaseTest extends TestSupport {
+public class UpgradeDatabaseTest {
 	
 	@Test
 	public void testUpgrade() throws Exception {
+		Application.debug();
+		
 		// It's okay
 		UpgradeDatabase.getInstance().upgrade();
 		// It's okay too
@@ -42,16 +45,16 @@ public class UpgradeDatabaseTest extends TestSupport {
 
 	@Test
 	public void testRead() throws Exception {
-		Map<Integer, String> sqls = new DbScriptsReader().read();
+		Map<Integer, String[]> sqls = new DbScriptsReader().read();
 		
 		int verIdx = 1;
 		while (true) {
-			String sql = sqls.get(verIdx);
+			String sql[] = sqls.get(verIdx);
 			if (sql == null) {
 				break;
 			}
 			System.out.println("-- #" + verIdx);
-			System.out.println(sql);
+			System.out.println(StringUtils.join(sql, "\n-- NewLine\n"));
 			verIdx++;
 		}
 	}

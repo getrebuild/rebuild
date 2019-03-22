@@ -20,6 +20,7 @@ package com.rebuild.server.helper.upgrade;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,14 +53,15 @@ public class DbScriptsReader {
 	 * @return
 	 * @throws IOException
 	 */
-	public Map<Integer, String> read() throws IOException {
+	public Map<Integer, String[]> read() throws IOException {
 		InputStream is = DbScriptsReader.class.getClassLoader().getResourceAsStream("scripts/db-upgrade.sql");
 		List<String> sqlLines = IOUtils.readLines(is);
 		
-		Map<Integer, String> sqls = new HashMap<>();
+		Map<Integer, String[]> sqls = new HashMap<>();
 		
 		int oneVer = -1;
-		StringBuffer oneSql = new StringBuffer();
+		List<String> sqlBatch = new ArrayList<>();
+		StringBuffer sqlOne = new StringBuffer();
 		
 		for (String sl : sqlLines) {
 			if (Application.devMode()) {
@@ -71,21 +73,30 @@ public class DbScriptsReader {
 			
 			if (sl.startsWith(TAG_STARTS)) {
 				if (oneVer > -1) {
-					sqls.put(oneVer, oneSql.toString());
+					sqls.put(oneVer, sqlBatch.toArray(new String[sqlBatch.size()]));
 				}
 				
+				// reset
 				String ver = sl.substring(TAG_STARTS.length()).split(" ")[0];  // eg: -- #2 abc
 				oneVer = ObjectUtils.toInt(ver);
-				oneSql = new StringBuffer();
+				sqlBatch = new ArrayList<>();
+				
 			} else if (sl.startsWith(TAG_COMMENT)) {
 				// Nothing todo
 			} else {
-				oneSql.append(sl).append("\n");
+				sqlOne.append(sl).append("\n");
+				if (sl.endsWith(";")) {
+					sqlBatch.add(sqlOne.toString());
+					sqlOne = new StringBuffer();
+				}
 			}
 		}
 		
+		if (sqlOne != null && sqlOne.length() > 0) {
+			sqlBatch.add(sqlOne.toString());
+		}
 		if (oneVer > -1) {
-			sqls.put(oneVer, oneSql.toString());
+			sqls.put(oneVer, sqlBatch.toArray(new String[sqlBatch.size()]));
 		}
 		
 		return sqls;

@@ -80,10 +80,10 @@ public final class Application {
 	/**
 	 * 初始化
 	 * 
-	 * @param startingAt
+	 * @param startAt
 	 */
 	synchronized
-	protected void init(long startingAt) {
+	protected void init(long startAt) {
 		serversReady = ServerStatus.checkAll();
 		if (!serversReady) {
 			LOG.fatal("\n#############################################################"
@@ -125,7 +125,7 @@ public final class Application {
 			}
 		}
 		
-		LOG.info("Rebuild Boot successful in " + (System.currentTimeMillis() - startingAt) + " ms");
+		LOG.info("Rebuild Boot successful in " + (System.currentTimeMillis() - startAt) + " ms");
 	}
 	
 	/**

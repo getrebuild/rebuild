@@ -21,7 +21,6 @@ package com.rebuild.server;
 import java.sql.SQLException;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -35,7 +34,7 @@ import com.rebuild.server.helper.upgrade.DbScriptsReader;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/22
  */
-public class UpgradeDatabase {
+public final class UpgradeDatabase {
 	
 	private static final Log LOG = LogFactory.getLog(UpgradeDatabase.class);
 	
@@ -43,21 +42,21 @@ public class UpgradeDatabase {
 	 * @throws SQLException
 	 */
 	protected void upgrade() throws Exception {
-		final Map<Integer, String> scripts = new DbScriptsReader().read();
+		final Map<Integer, String[]> scripts = new DbScriptsReader().read();
 		final int dbVer = getDbVer();
 		
 		int verNo = dbVer;
 		try {
 			while (true) {
-				String sql = scripts.get(verNo + 1);
+				String sql[] = scripts.get(verNo + 1);
 				if (sql == null) {
 					break;
-				} else if (StringUtils.isBlank(sql)) {
+				} else if (sql.length == 0) {
 					verNo++;
 					continue;
 				}
 				
-				Application.getSQLExecutor().execute(sql, 60 * 1);
+				Application.getSQLExecutor().executeBatch(sql, 60);
 				verNo++;
 			}
 		} finally {
