@@ -28,8 +28,6 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
-import com.rebuild.server.Application;
-
 import cn.devezhao.commons.ObjectUtils;
 
 /**
@@ -64,9 +62,6 @@ public class DbScriptsReader {
 		StringBuffer sqlOne = new StringBuffer();
 		
 		for (String sl : sqlLines) {
-			if (Application.devMode()) {
-				Application.LOG.info("> " + sl);
-			}
 			if (StringUtils.isBlank(sl)) {
 				continue;
 			}

@@ -21,6 +21,7 @@ package com.rebuild.server;
 import java.sql.SQLException;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -56,7 +57,8 @@ public final class UpgradeDatabase {
 					continue;
 				}
 				
-				Application.getSQLExecutor().executeBatch(sql, 60);
+				LOG.info("Upgrade SQL(#" + (verNo + 1) + ") > \n" + StringUtils.join(sql, "\n"));
+				Application.getSQLExecutor().executeBatch(sql, 60 * 2);
 				verNo++;
 			}
 		} finally {
