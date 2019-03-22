@@ -82,7 +82,8 @@ public final class Application {
 	 * 
 	 * @param startingAt
 	 */
-	void init(long startingAt) {
+	synchronized
+	protected void init(long startingAt) {
 		serversReady = ServerStatus.checkAll();
 		if (!serversReady) {
 			LOG.fatal("\n#############################################################"
@@ -93,6 +94,9 @@ public final class Application {
 					+ "\n\n#############################################################");
 			return;
 		}
+		
+		// 升级数据库
+		UpgradeDatabase.getInstance().upgradeQuietly();
 		
 		// 自定义实体
 		LOG.info("Loading customized entities ...");
@@ -125,10 +129,11 @@ public final class Application {
 	}
 	
 	/**
-	 * For testing
+	 * FOR TESTING ONLY
+	 * 
 	 * @return
 	 */
-	public static ApplicationContext debug() {
+	protected static ApplicationContext debug() {
 		if (APPLICATION_CTX == null) {
 			debugMode = true;
 			LOG.info("Rebuild Booting in DEBUG mode ...");

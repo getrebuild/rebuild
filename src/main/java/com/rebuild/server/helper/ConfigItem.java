@@ -44,5 +44,8 @@ public enum ConfigItem {
 	// 短信
 	SmsUser, SmsPassword, SmsSign,
 	
+	// Build-in
+	DBVer
+	
 	;
 }
