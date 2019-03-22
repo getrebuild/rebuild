@@ -95,6 +95,10 @@ public class DashboardControll extends BasePageControll {
 			for (Object o : dashCopy) {
 				JSONObject item = (JSONObject) o;
 				String chartId = item.getString("chart");
+				if (!ID.isId(chartId)) {
+					continue;
+				}
+				
 				Record chart = Application.createQueryNoFilter(
 						"select config,belongEntity,chartType,title,createdBy from ChartConfig where chartId = ?")
 						.setParameter(1, ID.valueOf(chartId))

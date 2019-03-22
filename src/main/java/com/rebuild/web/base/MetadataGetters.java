@@ -80,7 +80,28 @@ public class MetadataGetters extends BaseControll {
 		Entity entityBase = MetadataHelper.getEntity(entity);
 		
 		List<Map<String, Object>> list = new ArrayList<>();
-		for (Field field : MetadataSorter.sortFields(entityBase)) {
+		putFields(list, entityBase, null);
+
+		if ("2".equals(getParameter(request, "deep"))) {
+			for (Field field : entityBase.getFields()) {
+				EasyMeta easyField = EasyMeta.valueOf(field);
+				if (easyField.getDisplayType() == DisplayType.REFERENCE
+						&& !MetadataHelper.isBizzEntity(field.getReferenceEntity().getEntityCode())) {
+					putFields(list, field.getReferenceEntity(), easyField);
+				}
+			}
+		}
+
+		writeSuccess(response, list);
+	}
+
+	/**
+	 * @param dest
+	 * @param entity
+	 * @param parentField
+	 */
+	private void putFields(List<Map<String, Object>> dest, Entity entity, EasyMeta parentField) {
+		for (Field field : MetadataSorter.sortFields(entity)) {
 			Map<String, Object> map = new HashMap<>();
 			map.put("name", field.getName());
 			EasyMeta easyMeta = new EasyMeta(field);
@@ -92,9 +113,14 @@ public class MetadataGetters extends BaseControll {
 				Field refNameField  = MetadataHelper.getNameField(refEntity);
 				map.put("ref", new String[] { refEntity.getName(), EasyMeta.getDisplayType(refNameField).name() });
 			}
-			list.add(map);
+
+			if (parentField != null) {
+				map.put("name", parentField.getName() + "." + map.get("name"));
+				map.put("label", parentField.getLabel() + "." + map.get("label"));
+			}
+
+			dest.add(map);
 		}
-		writeSuccess(response, list);
 	}
 	
 	// 哪些实体引用了指定实体

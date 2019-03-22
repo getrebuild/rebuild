@@ -24,6 +24,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.TestSupport;
+import com.rebuild.web.IllegalParameterException;
 
 /**
  * 
@@ -38,9 +39,25 @@ public class AdvFilterParserTest extends TestSupport {
 		filterExp.put("entity", "User");
 		JSONArray items = new JSONArray();
 		filterExp.put("items", items);
+		filterExp.put("equation", "(1 AND 2) or (1 OR 2)");
 		
-		// Filter entry
+		// Filter items
 		items.add(JSON.parseObject("{ op:'LK', field:'loginName', value:'admin' }"));
+		items.add(JSON.parseObject("{ op:'EQ', field:'deptId.name', value:'总部' }"));  // Joins
+		
+		String where = new AdvFilterParser(filterExp).toSqlWhere();
+		System.out.println(where);
+	}
+	
+	@Test(expected = IllegalParameterException.class)
+	public void testBadJoinsParse() throws Exception {
+		JSONObject filterExp = new JSONObject();
+		filterExp.put("entity", "User");
+		JSONArray items = new JSONArray();
+		filterExp.put("items", items);
+		
+		// Filter item
+		items.add(JSON.parseObject("{ op:'LK', field:'loginName.name', value:'总部' }"));
 		
 		String where = new AdvFilterParser(filterExp).toSqlWhere();
 		System.out.println(where);

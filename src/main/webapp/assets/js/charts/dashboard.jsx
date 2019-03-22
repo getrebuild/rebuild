@@ -230,7 +230,8 @@ class DlgDashSettings extends RbFormHandler {
     rb.alert('确认删除此仪表盘？', {
       confirm: function () {
         $.post(rb.baseUrl + '/dashboard/dash-delete?id=' + dashid, function (res) {
-          if (res.error_code === 0) location.replace('home#del=' + dashid)
+          // if (res.error_code === 0) location.replace('home#del=' + dashid)  // Chrome no refresh?
+          if (res.error_code === 0) location.reload()
           else rb.hberror(res.error_msg)
         })
       }
@@ -329,14 +330,20 @@ class DashSelect extends DashPanel {
   }
   renderPanel() {
     return (
-      <ul className="list-unstyled">
-        {(this.props.dashList || []).map((item) => {
-          let title = item[1]
-          if (item[0] === dashid) title = this.state.dashTitle || $('.dash-head h4').text() || title
-          return <li key={'dash-' + item[0]}><a href={'?d=' + item[0]}>{title}<i className="icon zmdi zmdi-arrow-right"></i></a></li>
-        })}
-      </ul>
+      <div ref={s => this._scrollbar = s}>
+        <ul className="list-unstyled">
+          {(this.props.dashList || []).map((item) => {
+            let title = item[1]
+            if (item[0] === dashid) title = this.state.dashTitle || $('.dash-head h4').text() || title
+            return <li key={'dash-' + item[0]}><a href={'?d=' + item[0]}>{title}<i className="icon zmdi zmdi-arrow-right"></i></a></li>
+          })}
+        </ul>
+      </div>
     )
+  }
+  componentDidMount() {
+    super.componentDidMount()
+    $(this._scrollbar).perfectScrollbar()
   }
 }
 

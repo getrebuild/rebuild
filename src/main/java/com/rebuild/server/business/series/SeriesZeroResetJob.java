@@ -33,42 +33,38 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 
 /**
- * 数字系列归零。每日 00:00
+ * 数字系列归零。每日 00:00 执行
  * 
  * @author devezhao
  * @since 12/25/2018
  */
-public class SeriesZeroJob extends QuartzJobBean {
+public class SeriesZeroResetJob extends QuartzJobBean {
 
 	@Override
 	protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
-		boolean isYearFirst = false;
-		boolean isMonthFirst = false;
-		Calendar now = CalendarUtils.getInstance();
+		boolean isFirstDayOfYear = false;
+		boolean isFirstDayOfMonth = false;
+		final Calendar now = CalendarUtils.getInstance();
 		if (now.get(Calendar.DAY_OF_MONTH) == 1) {
-			isMonthFirst = true;
+			isFirstDayOfMonth = true;
 			if (now.get(Calendar.MONTH) == Calendar.JANUARY) {
-				isYearFirst = true;
+				isFirstDayOfYear = true;
 			}
 		}
 		
 		for (Entity entity : MetadataHelper.getEntities()) {
-			if (EasyMeta.valueOf(entity).isBuiltin()) {
-				continue;
-			}
-			
 			for (Field field : entity.getFields()) {
 				EasyMeta easy = EasyMeta.valueOf(field);
 				if (easy.getDisplayType() == DisplayType.SERIES) {
 					String zeroFlag = easy.getFieldExtConfig().getString("seriesZero");
 					if ("D".equalsIgnoreCase(zeroFlag)) {
 						SeriesGeneratorFactory.zero(field);
-					} else if ("M".equalsIgnoreCase(zeroFlag) && isMonthFirst) {
+					} else if ("M".equalsIgnoreCase(zeroFlag) && isFirstDayOfMonth) {
 						SeriesGeneratorFactory.zero(field);
-					} else if ("Y".equalsIgnoreCase(zeroFlag) && isYearFirst) {
+					} else if ("Y".equalsIgnoreCase(zeroFlag) && isFirstDayOfYear) {
 						SeriesGeneratorFactory.zero(field);
 					} else {
-						// No zero
+						// Not to zero
 					}
 				}
 			}

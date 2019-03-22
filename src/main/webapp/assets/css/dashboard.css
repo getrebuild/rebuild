@@ -111,3 +111,7 @@
     display: block;
     margin-top: 2px;
 }
+
+.dlg-dash-select .modal-dialog .modal-body>div {
+    max-height: 475px;
+}
