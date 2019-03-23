@@ -37,8 +37,17 @@ public class OperatingContext {
 	
 	private Record beforeRecord;
 	private Record afterRecord;
+	
+	private ID[] affected;
 
-	private OperatingContext(ID operator, Permission action, Record beforeRecord, Record afterRecord) {
+	/**
+	 * @param operator
+	 * @param action
+	 * @param beforeRecord
+	 * @param afterRecord
+	 * @param affected
+	 */
+	private OperatingContext(ID operator, Permission action, Record beforeRecord, Record afterRecord, ID[] affected) {
 		this.operator = operator;
 		this.action = action;
 		
@@ -63,24 +72,41 @@ public class OperatingContext {
 		return afterRecord;
 	}
 	
-	public ID getRecordId() {
-		return (getBeforeRecord() != null ? getBeforeRecord() : getAfterRecord()).getPrimary();
+	public Record getAnyRecord() {
+		return getBeforeRecord() != null ? getBeforeRecord() : getAfterRecord();
+	}
+	
+	public ID[] getAffected() {
+		return affected;
 	}
 	
 	@Override
 	public String toString() {
 		String astr = "{ Operator: %s, Action: %s, Record: %s }";
-		return String.format(astr, getOperator(), getAction().getName(), getRecordId());
+		return String.format(astr, getOperator(), getAction().getName(), getAnyRecord().getPrimary());
+	}
+	
+	/**
+	 * @param operator
+	 * @param action
+	 * @param before
+	 * @param after
+	 * @return
+	 * @see #create(ID, Permission, Record, Record, ID[])
+	 */
+	public static OperatingContext create(ID operator, Permission action, Record before, Record after) {
+		return create(operator, action, before, after, null);
 	}
 	
 	/**
 	 * @param operator 操作人
 	 * @param action 动作
-	 * @param before 操作*前*记录
-	 * @param after 操作*后*记录
+	 * @param before 操作前的记录
+	 * @param after 操作后的记录
+	 * @param affected 影响的记录
 	 * @return
 	 */
-	public static OperatingContext create(ID operator, Permission action, Record before, Record after) {
-		return new OperatingContext(operator, action, before, after);
+	public static OperatingContext create(ID operator, Permission action, Record before, Record after, ID[] affected) {
+		return new OperatingContext(operator, action, before, after, affected);
 	}
 }

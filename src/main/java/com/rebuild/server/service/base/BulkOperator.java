@@ -24,8 +24,11 @@ import org.apache.commons.logging.LogFactory;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.helper.task.BulkTask;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.OperatingContext;
+import com.rebuild.server.service.notification.NotificationObserver;
 import com.rebuild.server.service.query.AdvFilterParser;
 
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 
@@ -43,6 +46,7 @@ public abstract class BulkOperator extends BulkTask {
 	final protected GeneralEntityService ges;
 	
 	private ID[] records;
+	private int affected = 0;
 	
 	/**
 	 * @param context
@@ -83,9 +87,32 @@ public abstract class BulkOperator extends BulkTask {
 		throw new UnsupportedOperationException();
 	}
 	
+	/**
+	 * 影响的记录数
+	 * 
+	 * @return
+	 */
+	public int getAffected() {
+		return affected;
+	}
+	
 	@Override
 	public void run() {
-		this.operate();
+		// 分派/共享消息合并发送
+		if (context.getAction() == BizzPermission.ASSIGN || context.getAction() == BizzPermission.SHARE) {
+			BulkOperatorTx.begin();
+			try {
+				affected = this.operate();
+			} finally {
+				BulkOperatorTx.end();
+				
+				OperatingContext operatingContext = OperatingContext.create(
+						context.getOpUser(), context.getAction(), null, null, context.getRecords());
+				new NotificationObserver().update(null, operatingContext);
+			}
+		} else {
+			affected = this.operate();
+		}
 	}
 	
 	/**
@@ -94,5 +121,4 @@ public abstract class BulkOperator extends BulkTask {
 	 * @return 执行数量
 	 */
 	abstract public Integer operate();
-	
 }

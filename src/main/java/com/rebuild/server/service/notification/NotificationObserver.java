@@ -23,6 +23,7 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.OperatingObserver;
+import com.rebuild.server.service.base.BulkOperatorTx;
 
 import cn.devezhao.persist4j.engine.ID;
 
@@ -34,27 +35,35 @@ public class NotificationObserver extends OperatingObserver {
 	
 	@Override
 	public void onAssign(OperatingContext context) {
+		if (BulkOperatorTx.isInTx()) {
+			return;
+		}
+		
 		ID from = context.getOperator();
 		ID to = context.getAfterRecord().getID(EntityHelper.OwningUser);
+		ID related = context.getAnyRecord().getPrimary();
 		
-		ID relatedRecord = context.getRecordId();
 		String text = "@%s 分派了 1 条%s记录给你。@%s";
-		text = String.format(text, from, getLabel(relatedRecord), relatedRecord);
+		text = String.format(text, from, getLabel(related), related);
 		
-		Message message = new Message(from, to, text, relatedRecord);
+		Message message = new Message(from, to, text, related);
 		Application.getNotifications().send(message);
 	}
 	
 	@Override
 	public void onShare(OperatingContext context) {
+		if (BulkOperatorTx.isInTx()) {
+			return;
+		}
+		
 		ID from = context.getOperator();
 		ID to = context.getAfterRecord().getID("shareTo");
+		ID related = context.getAfterRecord().getID("recordId");
 		
-		ID relatedRecord = context.getAfterRecord().getID("recordId");
 		String text = "@%s 共享了 1 条%s记录给你。@%s";
-		text = String.format(text, from, getLabel(relatedRecord), relatedRecord);
+		text = String.format(text, from, getLabel(related), related);
 		
-		Message message = new Message(from, to, text, relatedRecord);
+		Message message = new Message(from, to, text, related);
 		Application.getNotifications().send(message);
 	}
 	

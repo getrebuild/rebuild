@@ -259,8 +259,8 @@ public class GeneralEntityService extends ObservableService  {
 	@Override
 	public int bulk(BulkContext context) {
 		BulkOperator operator = buildBulkOperator(context);
-		Object affected = operator.operate();
-		return (Integer) affected;
+		operator.run();
+		return operator.getAffected();
 	}
 	
 	@Override
