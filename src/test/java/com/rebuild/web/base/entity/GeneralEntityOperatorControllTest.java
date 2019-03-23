@@ -43,7 +43,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class GeneralRecordOperatorControllTest extends MvcTestSupport {
+public class GeneralEntityOperatorControllTest extends MvcTestSupport {
 
 	private static ID lastSaveId = ID.newId(999);  // It's fake
 	

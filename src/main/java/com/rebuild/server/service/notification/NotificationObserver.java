@@ -101,7 +101,7 @@ public class NotificationObserver extends OperatingObserver {
 			String atrs = StringUtils.join(ArrayUtils.subarray(affected, 0, 10), " @");
 			msg += atrs;
 			if (affected.length > 10) {
-				msg += " 等。";
+				msg += " 等";
 			}
 		} else {
 			msg += related;
