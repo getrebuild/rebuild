@@ -37,11 +37,11 @@ public class NotificationObserver extends OperatingObserver {
 		ID from = context.getOperator();
 		ID to = context.getAfterRecord().getID(EntityHelper.OwningUser);
 		
-		ID relatedRecordId = context.getRecordId();
-		String text = "@%s 分派了 1 条%s记录给你";
-		text = String.format(text, from, EasyMeta.valueOf(relatedRecordId.getEntityCode()).getLabel());
+		ID relatedRecord = context.getRecordId();
+		String text = "@%s 分派了 1 条%s记录给你。@%s";
+		text = String.format(text, from, getLabel(relatedRecord), relatedRecord);
 		
-		Message message = new Message(from, to, text, relatedRecordId);
+		Message message = new Message(from, to, text, relatedRecord);
 		Application.getNotifications().send(message);
 	}
 	
@@ -51,10 +51,14 @@ public class NotificationObserver extends OperatingObserver {
 		ID to = context.getAfterRecord().getID("shareTo");
 		
 		ID relatedRecord = context.getAfterRecord().getID("recordId");
-		String text = "@%s 共享了 1 条%s记录给你";
-		text = String.format(text, from, EasyMeta.valueOf(relatedRecord.getEntityCode()).getLabel());
+		String text = "@%s 共享了 1 条%s记录给你。@%s";
+		text = String.format(text, from, getLabel(relatedRecord), relatedRecord);
 		
 		Message message = new Message(from, to, text, relatedRecord);
 		Application.getNotifications().send(message);
+	}
+	
+	private String getLabel(ID rid) {
+		return EasyMeta.valueOf(rid.getEntityCode()).getLabel();
 	}
 }

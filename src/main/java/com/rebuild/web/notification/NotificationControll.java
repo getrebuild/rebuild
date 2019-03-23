@@ -33,6 +33,7 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.notification.MessageFormat;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 
@@ -88,26 +89,14 @@ public class NotificationControll extends BasePageControll {
 				.setLimit(ps, pn * ps - ps)
 				.array();
 		for (int i = 0; i < array.length; i++) {
-			array[i] = formatMessage(array[i]);
+			Object[] message = array[i];
+			message[0] = UserHelper.getShows((ID) message[0]);
+			message[1] = MessageFormat.formatMessage((String) message[1]);
+			message[2] = Moment.moment((Date) message[2]).fromNow();
+			array[i] = message;
 		}
 		
 		writeSuccess(response, array);
-	}
-	
-	/**
-	 * @param message
-	 * @return
-	 */
-	private Object[] formatMessage(Object[] message) {
-		ID from = (ID) message[0];
-		String fromShows[] = UserHelper.getShows(from);
-		message[0] = fromShows;
-		message[2] = Moment.moment((Date) message[2]).fromNow();
-		
-		String text = (String) message[1];
-		text = text.replace("@" + from, "<a>" + fromShows[0] + "</a>");
-		message[1] = text;
-		return message;
 	}
 	
 	@RequestMapping("/notification/toggle-unread")

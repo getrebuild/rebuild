@@ -187,7 +187,7 @@ public class GeneralEntityService extends ObservableService  {
 		
 		if (countObservers() > 0) {
 			setChanged();
-			notifyObservers(OperatingContext.valueOf(Application.getCurrentUser(), BizzPermission.ASSIGN, before, assigned));
+			notifyObservers(OperatingContext.create(Application.getCurrentUser(), BizzPermission.ASSIGN, before, assigned));
 		}
 		return affected;
 	}
@@ -229,7 +229,7 @@ public class GeneralEntityService extends ObservableService  {
 		
 		if (countObservers() > 0) {
 			setChanged();
-			notifyObservers(OperatingContext.valueOf(currentUser, BizzPermission.SHARE, null, shared));
+			notifyObservers(OperatingContext.create(currentUser, BizzPermission.SHARE, null, shared));
 		}
 		return affected;
 	}
@@ -251,7 +251,7 @@ public class GeneralEntityService extends ObservableService  {
 		
 		if (countObservers() > 0) {
 			setChanged();
-			notifyObservers(OperatingContext.valueOf(currentUser, UNSHARE, null, unshared));
+			notifyObservers(OperatingContext.create(currentUser, UNSHARE, null, unshared));
 		}
 		return 1;
 	}

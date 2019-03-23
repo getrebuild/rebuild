@@ -80,7 +80,7 @@ public class OperatingContext {
 	 * @param after 操作*后*记录
 	 * @return
 	 */
-	public static OperatingContext valueOf(ID operator, Permission action, Record before, Record after) {
+	public static OperatingContext create(ID operator, Permission action, Record before, Record after) {
 		return new OperatingContext(operator, action, before, after);
 	}
 }

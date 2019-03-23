@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.Controll;
 import com.rebuild.server.Application;
+import com.rebuild.server.ServerListener;
 import com.rebuild.web.admin.AdminEntryControll;
 
 import cn.devezhao.commons.ThrowableUtils;
@@ -48,6 +49,14 @@ public class AppUtils {
 	 */
 	public static boolean devMode() {
 		return Application.devMode();
+	}
+	
+	/**
+	 * @return
+	 * @see ServerListener#getContextPath()
+	 */
+	public static String getContextPath() {
+		return ServerListener.getContextPath();
 	}
 
 	/**

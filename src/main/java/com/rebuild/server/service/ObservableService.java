@@ -61,7 +61,7 @@ public abstract class ObservableService extends Observable implements EntityServ
 		
 		if (countObservers() > 0) {
 			setChanged();
-			notifyObservers(OperatingContext.valueOf(Application.getCurrentUser(), BizzPermission.CREATE, null, record));
+			notifyObservers(OperatingContext.create(Application.getCurrentUser(), BizzPermission.CREATE, null, record));
 		}
 		return record;
 	}
@@ -74,7 +74,7 @@ public abstract class ObservableService extends Observable implements EntityServ
 		
 		if (countObservers() > 0) {
 			setChanged();
-			notifyObservers(OperatingContext.valueOf(Application.getCurrentUser(), BizzPermission.UPDATE, before, record));
+			notifyObservers(OperatingContext.create(Application.getCurrentUser(), BizzPermission.UPDATE, before, record));
 		}
 		return record;
 	}
@@ -91,7 +91,7 @@ public abstract class ObservableService extends Observable implements EntityServ
 		
 		if (countObservers() > 0) {
 			setChanged();
-			notifyObservers(OperatingContext.valueOf(Application.getCurrentUser(), BizzPermission.DELETE, deleted, null));
+			notifyObservers(OperatingContext.create(Application.getCurrentUser(), BizzPermission.DELETE, deleted, null));
 		}
 		return affected;
 	}
