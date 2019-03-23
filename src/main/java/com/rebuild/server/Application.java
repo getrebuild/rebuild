@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
@@ -86,12 +87,14 @@ public final class Application {
 	protected void init(long startAt) {
 		serversReady = ServerStatus.checkAll();
 		if (!serversReady) {
-			LOG.fatal("\n#############################################################"
-					+ "\n\n  REBUILD BOOTING FAILURE DURING STATUS CHECKS"
+			LOG.fatal("\n###################################################################\n"
+					+ "\n  REBUILD BOOTING FAILURE DURING THE STATUS CHECKS."
+					+ "\n  PLEASE VIEW BOOTING LOGS."
 					+ "\n  Version : " + VER
-					+ "\n  Report an issue?"
+					+ "\n  OS      : " + SystemUtils.OS_NAME + " " + SystemUtils.OS_ARCH
+					+ "\n  Report an issue : "
 					+ "\n  https://github.com/getrebuild/rebuild/issues/new?title=error-boot"
-					+ "\n\n#############################################################");
+					+ "\n\n###################################################################");
 			return;
 		}
 		

@@ -101,6 +101,11 @@ public final class ServerStatus {
 		try {
 			DataSource ds = Application.getPersistManagerFactory().getDataSource();
 			Connection c = DataSourceUtils.getConnection(ds);
+			
+//			DatabaseMetaData dmd = c.getMetaData();
+//			String dbName = dmd.getDatabaseProductName() + dmd.getDatabaseProductVersion();
+//			name += "/" + dbName;
+			
 			DataSourceUtils.releaseConnection(c, ds);
 		} catch (Exception ex) {
 			return State.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
