@@ -45,10 +45,7 @@ public class EntityHelper {
 	 * @return
 	 */
 	public static boolean hasPrivilegesField(Entity entity) {
-		if (entity.containsField(OwningUser) && entity.containsField(OwningDept)) {
-			return true;
-		}
-		return false;
+		return entity.containsField(OwningUser) && entity.containsField(OwningDept);
 	}
 	
 	/**

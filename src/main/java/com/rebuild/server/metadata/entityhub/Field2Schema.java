@@ -124,7 +124,7 @@ public class Field2Schema {
 			throw new ModificationMetadataException("名称字段不允许被删除");
 		}
 		
-		if (force == false) {
+		if (!force) {
 			long count = 0;
 			if ((count = checkRecordCount(entity)) > 50000) {
 				throw new ModificationMetadataException("本实体记录过大，删除字段可能导致表损坏 (" + entity.getName() + "=" + count + ")");
