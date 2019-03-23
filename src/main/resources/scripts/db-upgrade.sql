@@ -1,7 +1,5 @@
--- Upgrade SQL scripts for rebuild 1.x
+-- Database upgrade scripts for rebuild 1.x
 -- Each upgraded starts with `-- #VERSION`
-
--- #2 Add new scripts below
 
 -- #1 Add LoginLog table (v1.1)
 create table if not exists `login_log` (

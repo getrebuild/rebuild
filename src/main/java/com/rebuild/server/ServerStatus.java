@@ -39,12 +39,12 @@ import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ThrowableUtils;
 
 /**
- * 各服务状态
+ * 服务状态检查/监控
  * 
  * @author devezhao
  * @since 10/31/2018
  */
-public class ServerStatus {
+public final class ServerStatus {
 
 	private static final List<State> LAST_STATUS = new ArrayList<>();
 	
@@ -101,6 +101,11 @@ public class ServerStatus {
 		try {
 			DataSource ds = Application.getPersistManagerFactory().getDataSource();
 			Connection c = DataSourceUtils.getConnection(ds);
+			
+//			DatabaseMetaData dmd = c.getMetaData();
+//			String dbName = dmd.getDatabaseProductName() + dmd.getDatabaseProductVersion();
+//			name += "/" + dbName;
+			
 			DataSourceUtils.releaseConnection(c, ds);
 		} catch (Exception ex) {
 			return State.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());

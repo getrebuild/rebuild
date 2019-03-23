@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
@@ -80,19 +81,25 @@ public final class Application {
 	/**
 	 * 初始化
 	 * 
-	 * @param startingAt
+	 * @param startAt
 	 */
-	void init(long startingAt) {
+	synchronized
+	protected void init(long startAt) {
 		serversReady = ServerStatus.checkAll();
 		if (!serversReady) {
-			LOG.fatal("\n#############################################################"
-					+ "\n\n  REBUILD BOOTING FAILURE DURING STATUS CHECKS"
+			LOG.fatal("\n###################################################################\n"
+					+ "\n  REBUILD BOOTING FAILURE DURING THE STATUS CHECKS."
+					+ "\n  PLEASE VIEW BOOTING LOGS."
 					+ "\n  Version : " + VER
-					+ "\n  Report an issue?"
+					+ "\n  OS      : " + SystemUtils.OS_NAME + " " + SystemUtils.OS_ARCH
+					+ "\n  Report an issue : "
 					+ "\n  https://github.com/getrebuild/rebuild/issues/new?title=error-boot"
-					+ "\n\n#############################################################");
+					+ "\n\n###################################################################");
 			return;
 		}
+		
+		// 升级数据库
+		UpgradeDatabase.getInstance().upgradeQuietly();
 		
 		// 自定义实体
 		LOG.info("Loading customized entities ...");
@@ -121,14 +128,15 @@ public final class Application {
 			}
 		}
 		
-		LOG.info("Rebuild Boot successful in " + (System.currentTimeMillis() - startingAt) + " ms");
+		LOG.info("Rebuild Boot successful in " + (System.currentTimeMillis() - startAt) + " ms");
 	}
 	
 	/**
-	 * For testing
+	 * FOR TESTING ONLY
+	 * 
 	 * @return
 	 */
-	public static ApplicationContext debug() {
+	protected static ApplicationContext debug() {
 		if (APPLICATION_CTX == null) {
 			debugMode = true;
 			LOG.info("Rebuild Booting in DEBUG mode ...");
