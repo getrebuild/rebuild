@@ -36,7 +36,7 @@ public class BulkDelete extends BulkOperator {
 
 	@Override
 	public Integer operate() {
-		ID[] records = getWillRecords();
+		ID[] records = prepareRecords();
 		this.setTotal(records.length);
 		
 		int deleted = 0;

@@ -18,20 +18,30 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.base;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import cn.devezhao.persist4j.engine.ID;
+
 /**
- * TODO
- * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/23
  */
 public class BulkOperatorTx {
 	
-	private static final ThreadLocal<Object> STATE = new ThreadLocal<>();
+	private static final ThreadLocal<Set<ID>> STATE = new ThreadLocal<>();
 
 	/**
 	 */
 	public static void begin() {
-		STATE.set(new Object());
+		STATE.set(new LinkedHashSet<ID>());
+	}
+	
+	/**
+	 * @return
+	 */
+	public static Set<ID> getInTxSet() {
+		return STATE.get();
 	}
 	
 	/**

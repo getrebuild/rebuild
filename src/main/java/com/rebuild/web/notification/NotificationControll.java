@@ -33,7 +33,7 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
-import com.rebuild.server.service.notification.MessageFormat;
+import com.rebuild.server.service.notification.MessageHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 
@@ -51,7 +51,7 @@ public class NotificationControll extends BasePageControll {
 
 	@RequestMapping("/notifications")
 	public ModelAndView pageIndex(HttpServletRequest request) throws IOException {
-		return createModelAndView("/notification/index.jsp");
+		return createModelAndView("/notification/list.jsp");
 	}
 	
 	@RequestMapping("/notification/{id}")
@@ -91,7 +91,7 @@ public class NotificationControll extends BasePageControll {
 		for (int i = 0; i < array.length; i++) {
 			Object[] message = array[i];
 			message[0] = UserHelper.getShows((ID) message[0]);
-			message[1] = MessageFormat.formatMessage((String) message[1]);
+			message[1] = MessageHelper.formatMessage((String) message[1]);
 			message[2] = Moment.moment((Date) message[2]).fromNow();
 			array[i] = message;
 		}

@@ -64,7 +64,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/app/entity/")
-public class GeneralRecordOperatorControll extends BaseControll {
+public class GeneralEntityOperatorControll extends BaseControll {
 
 	@RequestMapping("record-save")
 	public void save(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -145,7 +145,8 @@ public class GeneralRecordOperatorControll extends BaseControll {
 		
 		int affected = 0;
 		try {
-			if (ids.length == 1) {
+			// 仅涉及一条记录
+			if (ids.length == 1 && cascades.length == 0) {
 				affected = ies.assign(firstId, assignTo, cascades);
 			} else {
 				BulkContext context = new BulkContext(user, BizzPermission.ASSIGN, assignTo, cascades, ids);
@@ -180,7 +181,8 @@ public class GeneralRecordOperatorControll extends BaseControll {
 		
 		int affected = 0;
 		try {
-			if (ids.length == 1) {
+			// 仅涉及一条记录
+			if (ids.length == 1 && cascades.length == 0) {
 				affected = ies.share(firstId, shareTo, cascades);
 			} else {
 				BulkContext context = new BulkContext(user, BizzPermission.SHARE, shareTo, cascades, ids);

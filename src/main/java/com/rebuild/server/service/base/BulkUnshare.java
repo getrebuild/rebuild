@@ -36,7 +36,7 @@ public class BulkUnshare extends BulkOperator {
 
 	@Override
 	public Integer operate() {
-		ID[] records = getWillRecords();
+		ID[] records = prepareRecords();
 		this.setTotal(records.length);
 		
 		int unshared = 0;

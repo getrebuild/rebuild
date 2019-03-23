@@ -54,36 +54,56 @@ public class OperatingContext {
 		Assert.isTrue(beforeRecord != null || afterRecord != null, "'beforeRecord' 或 'afterRecord' 至少有一个不为空");
 		this.beforeRecord = beforeRecord;
 		this.afterRecord = afterRecord;
+		this.affected = affected;
 	}
 
+	/**
+	 * @return
+	 */
 	public ID getOperator() {
 		return operator;
 	}
 	
+	/**
+	 * @return
+	 */
 	public Permission getAction() {
 		return action;
 	}
 
+	/**
+	 * @return
+	 */
 	public Record getBeforeRecord() {
 		return beforeRecord;
 	}
 	
+	/**
+	 * @return
+	 */
 	public Record getAfterRecord() {
 		return afterRecord;
 	}
 	
+	/**
+	 * @return
+	 */
 	public Record getAnyRecord() {
 		return getBeforeRecord() != null ? getBeforeRecord() : getAfterRecord();
 	}
 	
+	/**
+	 * @return
+	 */
 	public ID[] getAffected() {
-		return affected;
+		return affected == null ? new ID[] { getAnyRecord().getPrimary() } : affected;
 	}
 	
 	@Override
 	public String toString() {
-		String astr = "{ Operator: %s, Action: %s, Record: %s }";
-		return String.format(astr, getOperator(), getAction().getName(), getAnyRecord().getPrimary());
+		String clearTxt = "{ Operator: %s, Action: %s, Record(s): %s(%d) }";
+		return String.format(clearTxt,
+				getOperator(), getAction().getName(), getAnyRecord().getPrimary(), getAffected().length);
 	}
 	
 	/**

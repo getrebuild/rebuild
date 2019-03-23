@@ -92,27 +92,27 @@ public abstract class OperatingObserver implements Observer {
 	
 	// -- 根据需要复写以下方法
 	
+	// 新建时
 	protected void onCreate(final OperatingContext context) {
-		// 新建时
 	}
 
+	// 更新时
 	protected void onUpdate(final OperatingContext context) {
-		// 更新时
 	}
 
+	// 删除时
 	protected void onDelete(final OperatingContext context) {
-		// 删除时
-	}
-
-	protected void onAssign(final OperatingContext context) {
-		// 分派时
-	}
-
-	protected void onShare(final OperatingContext context) {
-		// 共享时
 	}
 	
+	// 分派时
+	protected void onAssign(final OperatingContext context) {
+	}
+
+	// 共享时
+	protected void onShare(final OperatingContext context) {
+	}
+	
+	// 取消共享时
 	protected void onUnshare(final OperatingContext context) {
-		// 取消共享时
 	}
 }

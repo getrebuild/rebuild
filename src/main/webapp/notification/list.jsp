@@ -15,6 +15,7 @@
 .card-body.rb-notifications .notification>a .text{color:#404040 !important;font-size:1rem;}
 .card-body.rb-notifications .notification>a .date{color:#8a8a8a !important;margin-top:4px;font-size:12px;}
 .notification-unread .notification-info .text{font-weight:bold;}
+.card-body.rb-notifications .notification .text a.record{text-decoration:underline;padding:0 1px;} 
 </style>
 </head>
 <body>
@@ -52,7 +53,7 @@
 </div>
 <script type="text/palin" id="item-tmpl">
 <div class="item">
-	<div class="float-left"><a class="avatar "><img src="" alt="Avatar"></a></div>
+	<div class="float-left"><a class="avatar"><img src="" alt="Avatar"></a></div>
 	<div class="item-body"><div class="text"></div><div class="time"></div></div>
 	<div class="clearfix"></div>
 </div>

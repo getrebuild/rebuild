@@ -18,12 +18,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.notification;
 
+import java.text.MessageFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.portals.value.FieldValueWrapper;
 import com.rebuild.utils.AppUtils;
 
 import cn.devezhao.persist4j.Entity;
@@ -33,7 +35,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/23
  */
-public class MessageFormat {
+public class MessageHelper {
 
 	/**
 	 * 格式化通知消息
@@ -46,31 +48,39 @@ public class MessageFormat {
 		Pattern atPattern = Pattern.compile("(\\@[0-9a-z\\-]{20})");
 		Matcher atMatcher = atPattern.matcher(message);
 		while (atMatcher.find()) {
-			String atAny = atMatcher.group();
-			String atText = parseAtAny(atAny.substring(1));
-			if (atText != null && !atText.equals(atAny)) {
-				message = message.replace(atAny, atText);
+			String atId = atMatcher.group();
+			String atText = parseAtId(atId.substring(1));
+			if (atText != null && !atText.equals(atId)) {
+				message = message.replace(atId, atText);
 			}
 		}
 		return message;
 	}
 	
-	private static String parseAtAny(String atAny) {
-		if (!ID.isId(atAny)) {
-			return atAny;
+	/**
+	 * @param atId
+	 * @return
+	 */
+	private static String parseAtId(String atId) {
+		if (!ID.isId(atId)) {
+			return atId;
 		}
 		
-		ID atId = ID.valueOf(atAny);
-		if (atId.getEntityCode() == EntityHelper.User) {
-			if (Application.getUserStore().exists(atId)) {
-				return Application.getUserStore().getUser(atId).getFullName();
+		ID theId = ID.valueOf(atId);
+		if (theId.getEntityCode() == EntityHelper.User) {
+			if (Application.getUserStore().exists(theId)) {
+				return Application.getUserStore().getUser(theId).getFullName();
 			} else {
 				return "[无效用户]";
 			}
 		}
 		
-		Entity entity = MetadataHelper.getEntity(atId.getEntityCode());
-		return java.text.MessageFormat.format("<a href=\"{0}/app/{1}/list#!/View/{1}/{2}\">点击查看</a>",
-				AppUtils.getContextPath(), entity.getName(), atId);
+		Entity entity = MetadataHelper.getEntity(theId.getEntityCode());
+		String recordLabel = FieldValueWrapper.getLabel(theId);
+		if (recordLabel == null) {
+			recordLabel = "[无效记录]";
+		}
+		return MessageFormat.format("<a title=\"点击查看\" class=\"record\" href=\"{0}/app/{1}/list#!/View/{1}/{2}\">{3}</a>",
+				AppUtils.getContextPath(), entity.getName(), theId, recordLabel);
 	}
 }
