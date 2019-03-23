@@ -55,10 +55,8 @@ public class EntityHelper {
 	 * @return
 	 */
 	public static boolean isBizzEntity(Entity entity) {
-		if (entity.getEntityCode() <= 5) {
-			return true;
-		}
-		return false;
+		// see metadata-conf.xml
+		return entity.getEntityCode() <= 5;
 	}
 	
 	/**

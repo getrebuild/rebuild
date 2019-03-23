@@ -172,7 +172,7 @@ public class SystemConfig {
 	public static String get(ConfigItem name, boolean reload) {
 		final String key = name.name();
 		String s = Application.getCommonCache().get(key);
-		if (s != null && reload == false) {
+		if (s != null && !reload) {
 			return s;
 		}
 		

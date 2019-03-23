@@ -80,7 +80,7 @@ public class NotificationControll extends BasePageControll {
 		
 		boolean isAll = getBoolParameter(request, "isAll", true);
 		String sql = "select fromUser,message,createdOn,unread,messageId from Notification where toUser = ? and (1=1) order by createdOn desc";
-		if (isAll == false) {
+		if (!isAll) {
 			sql = sql.replace("(1=1)", "unread = 'T'");
 		}
 		Object[][] array = Application.createQueryNoFilter(sql)

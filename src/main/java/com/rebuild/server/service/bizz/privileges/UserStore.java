@@ -281,7 +281,7 @@ public class UserStore {
 				.unique();
 		Role role = new Role(roleId, (String) o[1], (Boolean) o[2]);
 		
-		if (reloadPrivileges == false) {
+		if (!reloadPrivileges) {
 			if (oldRole != null) {
 				for (Privileges priv : oldRole.getAllPrivileges()) {
 					role.addPrivileges(priv);
