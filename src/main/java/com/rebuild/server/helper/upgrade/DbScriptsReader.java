@@ -53,7 +53,12 @@ public class DbScriptsReader {
 	 */
 	public Map<Integer, String[]> read() throws IOException {
 		InputStream is = DbScriptsReader.class.getClassLoader().getResourceAsStream("scripts/db-upgrade.sql");
-		List<String> sqlLines = IOUtils.readLines(is);
+		List<String> sqlScripts = null;
+		try {
+			sqlScripts = IOUtils.readLines(is);
+		} finally {
+			IOUtils.closeQuietly(is);
+		}
 		
 		Map<Integer, String[]> sqls = new HashMap<>();
 		
@@ -61,7 +66,7 @@ public class DbScriptsReader {
 		List<String> sqlBatch = new ArrayList<>();
 		StringBuffer sqlOne = new StringBuffer();
 		
-		for (String sl : sqlLines) {
+		for (String sl : sqlScripts) {
 			if (StringUtils.isBlank(sl)) {
 				continue;
 			}
@@ -77,10 +82,10 @@ public class DbScriptsReader {
 				sqlBatch = new ArrayList<>();
 				
 			} else if (sl.startsWith(TAG_COMMENT)) {
-				// Nothing todo
+				// Ignore comments
 			} else {
 				sqlOne.append(sl).append("\n");
-				if (sl.endsWith(";")) {
+				if (sl.endsWith(";")) {  // SQL end by `;`
 					sqlBatch.add(sqlOne.toString());
 					sqlOne = new StringBuffer();
 				}
