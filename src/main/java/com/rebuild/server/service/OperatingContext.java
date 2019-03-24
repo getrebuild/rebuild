@@ -32,13 +32,13 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class OperatingContext {
 
-	private ID operator;
-	private Permission action;
+	final private ID operator;
+	final private Permission action;
 	
-	private Record beforeRecord;
-	private Record afterRecord;
+	final private Record beforeRecord;
+	final private Record afterRecord;
 	
-	private ID[] affected;
+	final private ID[] affected;
 
 	/**
 	 * @param operator
@@ -54,7 +54,7 @@ public class OperatingContext {
 		Assert.isTrue(beforeRecord != null || afterRecord != null, "'beforeRecord' 或 'afterRecord' 至少有一个不为空");
 		this.beforeRecord = beforeRecord;
 		this.afterRecord = afterRecord;
-		this.affected = affected;
+		this.affected = affected == null ? new ID[] { getAnyRecord().getPrimary() } : affected;;
 	}
 
 	/**
@@ -96,7 +96,7 @@ public class OperatingContext {
 	 * @return
 	 */
 	public ID[] getAffected() {
-		return affected == null ? new ID[] { getAnyRecord().getPrimary() } : affected;
+		return affected;
 	}
 	
 	@Override

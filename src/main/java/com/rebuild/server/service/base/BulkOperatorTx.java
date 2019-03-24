@@ -24,6 +24,12 @@ import java.util.Set;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * Using:
+ * <tt>begin</tt>
+ * <tt>[getInTxSet]</tt>
+ * <tt>[isInTx]</tt>
+ * <tt>end</tt>
+ * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/23
  */

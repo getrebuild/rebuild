@@ -43,7 +43,7 @@ public class MessageHelper {
 	 * @param message
 	 * @return
 	 */
-	public static String formatMessage(String message) {
+	public static String formatHtml(String message) {
 		// Matchs any `@ID`
 		Pattern atPattern = Pattern.compile("(\\@[0-9a-z\\-]{20})");
 		Matcher atMatcher = atPattern.matcher(message);

@@ -91,7 +91,7 @@ public class NotificationControll extends BasePageControll {
 		for (int i = 0; i < array.length; i++) {
 			Object[] message = array[i];
 			message[0] = UserHelper.getShows((ID) message[0]);
-			message[1] = MessageHelper.formatMessage((String) message[1]);
+			message[1] = MessageHelper.formatHtml((String) message[1]);
 			message[2] = Moment.moment((Date) message[2]).fromNow();
 			array[i] = message;
 		}
