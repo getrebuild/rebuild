@@ -233,14 +233,18 @@ html.admin .admin-show {
 }
 
 .adv-search .btn {
-    border-radius: 2px !important;
-    width: 100%;
+    border-radius: 0 2px 2px 0 !important;
     text-align: left;
     height: 2.8rem;
     line-height: 2.7rem;
     position: relative;
     border-color: #d5d8de;
     box-shadow: 0 0 0 #fff !important;
+    min-width: 0;
+}
+.adv-search .btn.dropdown-toggle {
+    width: 100%;
+    border-radius: 2px 0 0 2px !important;
 }
 
 .adv-search .btn-group.show .btn,
@@ -254,10 +258,15 @@ html.admin .admin-show {
     max-width: 185px;
 }
 
-.adv-search .btn .icon {
+.adv-search .btn.dropdown-toggle .icon {
     position: absolute;
     margin-top: 10px;
     right: 8px;
+}
+
+.adv-search .J_advfilter .icon {
+    margin-top: -3px;
+    font-size: 1.45rem !important;
 }
 
 .adv-search .dropdown-menu.rb-scroller {
