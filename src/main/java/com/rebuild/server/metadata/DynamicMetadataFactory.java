@@ -55,7 +55,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 	@Override
 	protected Document readConfiguration(boolean initState) {
 		Document config = super.readConfiguration(initState);
-		if (initState == false) {
+		if (!initState) {
 			appendConfig4Db(config);
 		}
 		return config;

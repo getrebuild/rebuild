@@ -59,7 +59,7 @@ public abstract class BulkOperator extends BulkTask {
 	 * 
 	 * @return
 	 */
-	protected ID[] getWillRecords() {
+	protected ID[] prepareRecords() {
 		if (this.records != null) {
 			return this.records;
 		}
@@ -82,7 +82,7 @@ public abstract class BulkOperator extends BulkTask {
 		// TODO 解析过滤并查询结果
 		throw new UnsupportedOperationException();
 	}
-	
+
 	@Override
 	public void run() {
 		this.operate();
@@ -94,5 +94,4 @@ public abstract class BulkOperator extends BulkTask {
 	 * @return 执行数量
 	 */
 	abstract public Integer operate();
-	
 }

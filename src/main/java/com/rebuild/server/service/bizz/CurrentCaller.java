@@ -58,7 +58,7 @@ public class CurrentCaller {
 	 */
 	public ID get(boolean allowedNull) throws AccessDeniedException {
 		ID caller = CALLER.get();
-		if (caller == null && allowedNull == false) {
+		if (caller == null && !allowedNull) {
 			throw new AccessDeniedException("无有效用户");
 		}
 		return caller;

@@ -45,10 +45,7 @@ public class EntityHelper {
 	 * @return
 	 */
 	public static boolean hasPrivilegesField(Entity entity) {
-		if (entity.containsField(OwningUser) && entity.containsField(OwningDept)) {
-			return true;
-		}
-		return false;
+		return entity.containsField(OwningUser) && entity.containsField(OwningDept);
 	}
 	
 	/**
@@ -58,10 +55,8 @@ public class EntityHelper {
 	 * @return
 	 */
 	public static boolean isBizzEntity(Entity entity) {
-		if (entity.getEntityCode() <= 5) {
-			return true;
-		}
-		return false;
+		// see metadata-conf.xml
+		return entity.getEntityCode() <= 5;
 	}
 	
 	/**

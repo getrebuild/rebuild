@@ -14,6 +14,8 @@
 .card-body.rb-notifications .notification>a{cursor:default;padding:13px 6px;}
 .card-body.rb-notifications .notification>a .text{color:#404040 !important;font-size:1rem;}
 .card-body.rb-notifications .notification>a .date{color:#8a8a8a !important;margin-top:4px;font-size:12px;}
+.notification-unread .notification-info .text{font-weight:bold;}
+.card-body.rb-notifications .notification .text a.record{text-decoration:underline;padding:0 1px;} 
 </style>
 </head>
 <body>
@@ -51,7 +53,7 @@
 </div>
 <script type="text/palin" id="item-tmpl">
 <div class="item">
-	<div class="float-left"><a class="avatar "><img src="" alt="Avatar"></a></div>
+	<div class="float-left"><a class="avatar"><img src="" alt="Avatar"></a></div>
 	<div class="item-body"><div class="text"></div><div class="time"></div></div>
 	<div class="clearfix"></div>
 </div>
@@ -70,7 +72,7 @@ $(document).ready(function(){
 	
 	$('.J_read-all').click(function(){
 		let ids = []
-		let unread = $('.J_list .unread').each(function(){
+		let unread = $('.J_list .notification-unread').each(function(){
 			ids.push($(this).data('id'))
 		})
 		if (ids.length == 0){ rb.hbsuccess('所有消息已设为读'); return }
@@ -78,8 +80,7 @@ $(document).ready(function(){
 		unread.off('click')
 		$.post(rb.baseUrl + '/notification/toggle-unread?state=read&id=' + ids.join(','), function(res){
 			unread.each(function(){
-				$(this).removeClass('unread')
-				$(this).find('.unread-flag').remove()
+				$(this).removeClass('notification-unread').removeAttr('title')
 			})
 			rb.hbsuccess('所有消息已设为读')
 		})
@@ -101,6 +102,7 @@ let load_list = function(){
 		let _data = res.data || []
 		$(_data).each((idx, item)=>{
 			let o = $('<li class="notification"></li>').appendTo('.J_list ul')
+			o.attr('data-id', item[4])
 			if (item[3] == true){
 				let unread = o
 				o.addClass('notification-unread').attr('title', '点击设为已读').click(()=>{

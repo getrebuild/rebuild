@@ -260,6 +260,7 @@ body {
 	cursor: pointer;
 	position: relative;
 	height: 44px;
+	background-color: #eee;
 }
 
 .sharing-list ul>li>div:hover {
@@ -269,9 +270,10 @@ body {
 .sharing-list ul>li>div .zmdi {
 	position: absolute;
 	right: 8px;
-	top: 11px;
-	font-size: 1.4rem;
-	color: #4285f4
+	top: 12px;
+	font-size: 1.3rem;
+	color: #4285f4;
+	color: #ea4335;
 }
 
 .sharing-list ul>li>div .user-show .name {

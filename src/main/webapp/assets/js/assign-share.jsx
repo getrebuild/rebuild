@@ -98,7 +98,9 @@ class DlgAssign extends RbModalHandler {
         $(this.refs['toUser'], this.refs['cascades']).val(null).trigger('change')
 
         this.hide()
-        rb.highbar('已成功' + this.typeName + ' ' + (res.data.assigned || res.data.shared) + ' 条记录', 'success')
+        let affected = res.data.assigned || res.data.shared || 0
+        if (affected > 0 && rb.env === 'dev') rb.hbsuccess('已成功' + this.typeName + ' ' + affected + ' 条记录')
+        else rb.hbsuccess('记录已' + this.typeName)
 
         setTimeout(() => {
           if (window.RbListPage) RbListPage._RbList.reload()
@@ -136,7 +138,7 @@ class DlgUnShare extends RbModalHandler {
             return (<li className="list-inline-item" key={'user-' + item[1]}>
               <div onClick={() => this.clickUser(item[1])} title={'由 ' + item[3][0] + ' 共享于 ' + item[2]}>
                 <UserShow name={item[0][0]} avatarUrl={item[0][1]} showName={true} />
-                {this.state.selectAccess.contains(item[1]) && <i className="zmdi zmdi-check-circle" />}
+                {this.state.selectAccess.contains(item[1]) && <i className="zmdi zmdi-delete" />}
               </div>
             </li>)
           })}
@@ -168,7 +170,8 @@ class DlgUnShare extends RbModalHandler {
     $.post(`${rb.baseUrl}/app/entity/record-unshare?id=${s.join(',')}&record=${this.props.id}`, (res) => {
       if (res.error_code === 0) {
         this.hide()
-        rb.highbar('已取消 ' + res.data.unshared + ' 位用户的共享', 'success')
+        if (rb.env === 'dev') rb.hbsuccess('已取消 ' + res.data.unshared + ' 位用户的共享')
+        else rb.hbsuccess('共享已取消')
         setTimeout(() => {
           if (window.RbListPage) RbListPage._RbList.reload()
           if (window.RbViewPage) location.reload()

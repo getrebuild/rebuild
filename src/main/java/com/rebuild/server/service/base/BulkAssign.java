@@ -18,8 +18,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.base;
 
-import com.rebuild.server.Application;
+import java.util.Set;
 
+import com.rebuild.server.Application;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.OperatingContext;
+import com.rebuild.server.service.notification.NotificationObserver;
+
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -36,18 +43,37 @@ public class BulkAssign extends BulkOperator {
 
 	@Override
 	public Integer operate() {
-		ID[] records = getWillRecords();
+		ID[] records = prepareRecords();
 		this.setTotal(records.length);
 		
 		int assigned = 0;
+		ID firstAssigned = null;
+		BulkOperatorTx.begin();
 		for (ID id : records) {
 			if (Application.getSecurityManager().allowedA(context.getOpUser(), id)) {
 				int a = ges.assign(id, context.getToUser(), context.getCascades());
-				assigned += (a > 0 ? 1 : 0);
+				if (a > 0) {
+					assigned += a;
+					if (firstAssigned == null) {
+						firstAssigned = id;
+					}
+				}
 			} else {
 				LOG.warn("No have privileges to ASSIGN : " + context.getOpUser() + " > " + id);
 			}
 			this.setCompleteOne();
+		}
+		
+		Set<ID> affected = BulkOperatorTx.getInTxSet();
+		BulkOperatorTx.end();
+		
+		if (firstAssigned != null && !affected.isEmpty()) {
+			Record notificationNeeds = EntityHelper.forUpdate(firstAssigned, context.getOpUser());
+			notificationNeeds.setID(EntityHelper.OwningUser, context.getToUser());
+			// Once notification
+			OperatingContext operatingContext = OperatingContext.create(
+					context.getOpUser(), BizzPermission.ASSIGN, null, notificationNeeds, affected.toArray(new ID[affected.size()]));
+			new NotificationObserver().update(null, operatingContext);
 		}
 		
 		this.completedAfter();

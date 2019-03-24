@@ -18,8 +18,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.base;
 
-import com.rebuild.server.Application;
+import java.util.Set;
 
+import com.rebuild.server.Application;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.OperatingContext;
+import com.rebuild.server.service.notification.NotificationObserver;
+
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -36,18 +43,38 @@ public class BulkShare extends BulkOperator {
 
 	@Override
 	public Integer operate() {
-		ID[] records = getWillRecords();
+		ID[] records = prepareRecords();
 		this.setTotal(records.length);
 		
 		int shared = 0;
+		ID firstShared = null;
+		BulkOperatorTx.begin();
 		for (ID id : records) {
 			if (Application.getSecurityManager().allowedS(context.getOpUser(), id)) {
 				int a = ges.share(id, context.getToUser(), context.getCascades());
-				shared += (a > 0 ? 1 : 0);
+				if (a > 0) {
+					shared += a;
+					if (firstShared == null) {
+						firstShared = id;
+					}
+				}
 			} else {
 				LOG.warn("No have privileges to SHARE : " + context.getOpUser() + " > " + id);
 			}
 			this.setCompleteOne();
+		}
+		
+		Set<ID> affected = BulkOperatorTx.getInTxSet();
+		BulkOperatorTx.end();
+		
+		if (firstShared != null && !affected.isEmpty()) {
+			Record notificationNeeds = EntityHelper.forNew(EntityHelper.ShareAccess, context.getOpUser());
+			notificationNeeds.setID("shareTo", context.getToUser());
+			notificationNeeds.setID("recordId", firstShared);
+			// Once notification
+			OperatingContext operatingContext = OperatingContext.create(
+					context.getOpUser(), BizzPermission.SHARE, null, notificationNeeds, affected.toArray(new ID[affected.size()]));
+			new NotificationObserver().update(null, operatingContext);
 		}
 		
 		this.completedAfter();

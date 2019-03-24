@@ -347,7 +347,7 @@ public class SecurityManager {
 			}
 			
 			allowed = accessUserDept.isChildrenAll((Department) targetUser.getOwningDept());
-			if (allowed == false) {
+			if (!allowed) {
 				return allowedViaShare(user, target, action);
 			}
 			return true;
