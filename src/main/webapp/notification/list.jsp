@@ -12,7 +12,7 @@
 .card-body.rb-notifications .notification.notification-unread>a:after{background-color:#4285f4 !important}
 .card-body.rb-notifications .notification:hover{background-color:#ebf2fe !important;}
 .card-body.rb-notifications .notification>a{cursor:default;padding:13px 6px;}
-.card-body.rb-notifications .notification>a .text{color:#404040 !important;font-size:1rem;}
+.card-body.rb-notifications .notification>a .text{color:#404040 !important;font-size:1rem;padding-right:20px;line-height:1.4}
 .card-body.rb-notifications .notification>a .date{color:#8a8a8a !important;margin-top:4px;font-size:12px;}
 .notification-unread .notification-info .text{font-weight:bold;}
 .card-body.rb-notifications .notification .text a.record{text-decoration:underline;padding:0 1px;} 
