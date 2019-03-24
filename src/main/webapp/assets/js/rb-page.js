@@ -33,7 +33,7 @@ $(function () {
   }
 
   if ($('.J_notifications-top').length > 0) {
-    setTimeout(__checkMessage, 1500)
+    setTimeout(__checkMessage, 2000)
     $('.J_notifications-top').on('shown.bs.dropdown', __loadMessages)
   }
 
@@ -134,7 +134,7 @@ var __checkMessage = function () {
 
     if (__checkMessage__state !== res.data.unread) __loadMessages__state = 0
     __checkMessage__state = res.data.unread
-    setTimeout(__checkMessage, 3000 * (rb.env === 'dev' ? 10 : 1))
+    setTimeout(__checkMessage, 2000)
   })
 }
 var __loadMessages__state = 0

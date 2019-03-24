@@ -99,7 +99,7 @@ class DlgAssign extends RbModalHandler {
 
         this.hide()
         let affected = res.data.assigned || res.data.shared || 0
-        if (affected > 0) rb.hbsuccess('已成功' + this.typeName + ' ' + affected + ' 条记录')
+        if (affected > 0 && rb.env === 'dev') rb.hbsuccess('已成功' + this.typeName + ' ' + affected + ' 条记录')
         else rb.hbsuccess('记录已' + this.typeName)
 
         setTimeout(() => {
@@ -170,7 +170,8 @@ class DlgUnShare extends RbModalHandler {
     $.post(`${rb.baseUrl}/app/entity/record-unshare?id=${s.join(',')}&record=${this.props.id}`, (res) => {
       if (res.error_code === 0) {
         this.hide()
-        rb.highbar('已取消 ' + res.data.unshared + ' 位用户的共享', 'success')
+        if (rb.env === 'dev') rb.hbsuccess('已取消 ' + res.data.unshared + ' 位用户的共享')
+        else rb.hbsuccess('共享已取消')
         setTimeout(() => {
           if (window.RbListPage) RbListPage._RbList.reload()
           if (window.RbViewPage) location.reload()
