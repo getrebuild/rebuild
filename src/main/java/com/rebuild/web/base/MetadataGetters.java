@@ -79,15 +79,16 @@ public class MetadataGetters extends BaseControll {
 		String entity = getParameterNotNull(request, "entity");
 		Entity entityBase = MetadataHelper.getEntity(entity);
 		
+		boolean deep = "2".equals(getParameter(request, "deep"));
 		List<Map<String, Object>> list = new ArrayList<>();
-		putFields(list, entityBase, null);
+		putFields(list, entityBase, deep, null);
 
-		if ("2".equals(getParameter(request, "deep"))) {
+		if (deep) {
 			for (Field field : entityBase.getFields()) {
 				EasyMeta easyField = EasyMeta.valueOf(field);
 				if (easyField.getDisplayType() == DisplayType.REFERENCE
 						&& !MetadataHelper.isBizzEntity(field.getReferenceEntity().getEntityCode())) {
-					putFields(list, field.getReferenceEntity(), easyField);
+					putFields(list, field.getReferenceEntity(), false, easyField);
 				}
 			}
 		}
@@ -98,9 +99,10 @@ public class MetadataGetters extends BaseControll {
 	/**
 	 * @param dest
 	 * @param entity
+	 * @param onlyBizzRefField
 	 * @param parentField
 	 */
-	private void putFields(List<Map<String, Object>> dest, Entity entity, EasyMeta parentField) {
+	private void putFields(List<Map<String, Object>> dest, Entity entity, boolean onlyBizzRefField, EasyMeta parentField) {
 		for (Field field : MetadataSorter.sortFields(entity)) {
 			Map<String, Object> map = new HashMap<>();
 			map.put("name", field.getName());
@@ -110,8 +112,17 @@ public class MetadataGetters extends BaseControll {
 			map.put("type", dt.name());
 			if (dt == DisplayType.REFERENCE) {
 				Entity refEntity = field.getReferenceEntity();
+				boolean isBizz = MetadataHelper.isBizzEntity(refEntity.getEntityCode());
+				if (onlyBizzRefField && !isBizz) {
+					continue;
+				}
+				
 				Field refNameField  = MetadataHelper.getNameField(refEntity);
 				map.put("ref", new String[] { refEntity.getName(), EasyMeta.getDisplayType(refNameField).name() });
+				// Fix fieldType to nameField
+				if (!isBizz) {
+					map.put("type", EasyMeta.getDisplayType(refNameField));
+				}
 			}
 
 			if (parentField != null) {

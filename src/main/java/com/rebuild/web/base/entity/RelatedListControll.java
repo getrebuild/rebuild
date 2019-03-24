@@ -70,8 +70,6 @@ public class RelatedListControll extends BaseControll {
 		int pn = NumberUtils.toInt(getParameter(request, "pageNo"), 1);
 		int ps = NumberUtils.toInt(getParameter(request, "pageSize"), 200);
 		
-		// TODO 相关项列表分页
-		
 		Object[][] array = Application.createQuery(sql).setLimit(ps, pn * ps - ps).array();
 		for (Object[] o : array) {
 			o[1] = FieldValueWrapper.wrapFieldValue(o[1], MetadataHelper.getNameField(relatedEntity));
