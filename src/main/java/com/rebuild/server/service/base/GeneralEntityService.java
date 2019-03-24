@@ -162,13 +162,15 @@ public class GeneralEntityService extends ObservableService  {
 		assigned.setID(EntityHelper.OwningDept, (ID) toUser.getOwningDept().getIdentity());
 		
 		int affected = 0;
+		boolean assignChange = false;
 		if (to.equals(Application.getRecordOwningCache().getOwningUser(record))) {
-			LOG.warn("记录所属人未变化，忽略本次操作 : " + record);
+			LOG.warn("记录所属人未变化，忽略 : " + record);
 			// 还要继续，因为可能存在关联记录
 		} else {
 			((BaseService) this.delegate).update(assigned);
 			Application.getRecordOwningCache().cleanOwningUser(record);
 			affected = 1;
+			assignChange = true;
 		}
 		
 		Map<String, Set<ID>> cass = getCascadeRecords(record, cascades, BizzPermission.ASSIGN);
@@ -177,11 +179,11 @@ public class GeneralEntityService extends ObservableService  {
 				LOG.debug("级联分派 - " + e.getKey() + " > " + e.getValue());
 			}
 			for (ID casid : e.getValue()) {
-				affected += (assign(casid, to, null) > 0 ? 1 : 0);
+				affected += assign(casid, to, null);
 			}
 		}
 		
-		if (countObservers() > 0 && affected > 0) {
+		if (countObservers() > 0 && assignChange) {
 			setChanged();
 			Record before = getBeforeRecord(assigned);
 			notifyObservers(OperatingContext.create(Application.getCurrentUser(), BizzPermission.ASSIGN, before, assigned));
@@ -200,7 +202,7 @@ public class GeneralEntityService extends ObservableService  {
 		shared.setString("belongEntity", entityName);
 		shared.setInt("rights", BizzPermission.READ.getMask());
 		
-		Object[] isShared = ((BaseService) this.delegate).getPMFactory().createQuery(
+		Object[] hasShared = ((BaseService) this.delegate).getPMFactory().createQuery(
 				"select accessId from ShareAccess where belongEntity = ? and recordId = ? and shareTo = ?")
 				.setParameter(1, entityName)
 				.setParameter(2, record)
@@ -208,14 +210,16 @@ public class GeneralEntityService extends ObservableService  {
 				.unique();
 		
 		int affected = 0;
-		if (isShared != null) {
-			LOG.warn("记录已共享过，忽略本次操作 : " + record);
+		boolean shareChange = false;
+		if (hasShared != null) {
+			LOG.warn("记录已共享过，忽略 : " + record);
 			// 还要继续，因为可能存在关联记录
 		} else if (to.equals(Application.getRecordOwningCache().getOwningUser(record))) {
-			LOG.warn("共享至与记录所属为同一用户，忽略本次操作 : " + record);
+			LOG.warn("共享至与记录所属为同一用户，忽略 : " + record);
 		} else {
 			((BaseService) this.delegate).create(shared);
 			affected = 1;
+			shareChange = true;
 		}
 		
 		Map<String, Set<ID>> cass = getCascadeRecords(record, cascades, BizzPermission.SHARE);
@@ -228,7 +232,7 @@ public class GeneralEntityService extends ObservableService  {
 			}
 		}
 		
-		if (countObservers() > 0 && affected > 0) {
+		if (countObservers() > 0 && shareChange) {
 			setChanged();
 			notifyObservers(OperatingContext.create(currentUser, BizzPermission.SHARE, null, shared));
 		}
@@ -237,8 +241,6 @@ public class GeneralEntityService extends ObservableService  {
 	
 	@Override
 	public int unshare(ID record, ID accessId) {
-		// TODO 级联取消共享 ??
-		
 		ID currentUser = Application.getCurrentUser();
 		Record unshared = EntityHelper.forUpdate(accessId, currentUser);
 		if (countObservers() > 0) {
