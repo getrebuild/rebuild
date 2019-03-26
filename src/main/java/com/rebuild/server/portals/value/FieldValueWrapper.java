@@ -201,8 +201,6 @@ public class FieldValueWrapper {
 			return null;
 		}
 		
-		// TODO 复杂值的 Label 处理
-		
 		Object labelVal = FieldValueWrapper.wrapFieldValue(label[0], nameField);
 		return labelVal == null ? null : labelVal.toString();
 	}

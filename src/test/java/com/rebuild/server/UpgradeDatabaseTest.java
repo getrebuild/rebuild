@@ -26,8 +26,6 @@ import org.junit.Test;
 import com.rebuild.server.helper.upgrade.DbScriptsReader;
 
 /**
- * TODO
- * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/22
  */
