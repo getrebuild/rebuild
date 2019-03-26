@@ -25824,7 +25824,6 @@ div.dataTables_scrollFoot>.dataTables_scrollFootInner>table {
 }
 
 @media screen and (max-width: 767px) {
-
     div.dataTables_wrapper div.dataTables_oper,
     div.dataTables_wrapper div.dataTables_filter,
     div.dataTables_wrapper div.dataTables_info,
