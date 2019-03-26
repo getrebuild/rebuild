@@ -46,7 +46,7 @@ public class TestSupport {
 	public static void startup() throws Exception {
 		LOG.warn("TESTING Startup ...");
 		if ("true".equals(System.getenv("TRAVIS"))) {
-			LOG.warn("TESTING in TravisCI ...");
+			LOG.info("TESTING in TravisCI ...");
 		}
 		
 		Application.debug();
@@ -62,11 +62,11 @@ public class TestSupport {
 	/**
 	 * 测试实体
 	 * 
-	 * @see DisplayType
+	 * @return
 	 */
-	private static void addTestEntityIfNeed() {
+	protected static Entity addTestEntityIfNeed() {
 		if (MetadataHelper.containsEntity(TEST_ENTITY)) {
-			return;
+			return MetadataHelper.getEntity(TEST_ENTITY);
 		}
 		
 		LOG.warn("Adding test entity : " + TEST_ENTITY);
@@ -89,5 +89,7 @@ public class TestSupport {
 		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "FILE", DisplayType.FILE, null, null);
 		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "PICKLIST", DisplayType.PICKLIST, null, null);
 		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "REFERENCE", DisplayType.REFERENCE, null, entityName);
+		
+		return MetadataHelper.getEntity(TEST_ENTITY);
 	}
 }
