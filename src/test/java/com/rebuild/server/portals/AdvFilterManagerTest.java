@@ -21,7 +21,6 @@ package com.rebuild.server.portals;
 import org.junit.Test;
 
 import com.rebuild.server.TestSupport;
-import com.rebuild.server.portals.AdvFilterManager;
 import com.rebuild.server.service.bizz.UserService;
 
 /**

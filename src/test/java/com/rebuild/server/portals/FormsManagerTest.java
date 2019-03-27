@@ -22,7 +22,6 @@ import org.junit.Test;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.TestSupport;
-import com.rebuild.server.portals.FormsManager;
 import com.rebuild.server.service.bizz.UserService;
 
 /**

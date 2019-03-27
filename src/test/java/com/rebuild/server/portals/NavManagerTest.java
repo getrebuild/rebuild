@@ -29,7 +29,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.TestSupport;
-import com.rebuild.server.portals.NavManager;
 import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.commons.web.WebUtils;
