@@ -30,10 +30,10 @@
 		</div>
 		<div class="col-sm-3 view-operating">
 			<div class="view-action row">
-				<div class="col-6 ">
+				<div class="col-12 col-lg-6">
 					<button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
 				</div>
-				<div class="col-6 btn-group J_mores">
+				<div class="col-12 col-lg-6 btn-group J_mores">
 					<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-more-vert"></i></button>
 					<div class="dropdown-menu dropdown-menu-right">
 						<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
@@ -43,12 +43,12 @@
 			<div class="view-date">
 				<div class="form-line"><fieldset><legend>日期</legend></fieldset></div>
 				<dl class="row">
-					<dt class="col-4 pr-0">创建时间</dt>
-					<dd class="col-8 pl-0 J_createdOn"></dd>
+					<dt class="col-12 col-md-4 pr-0">创建时间</dt>
+					<dd class="col-12 col-md-4 pl-0 J_createdOn"></dd>
 				</dl>
 				<dl class="row">
-					<dt class="col-4 pr-0">修改时间</dt>
-					<dd class="col-8 pl-0 J_modifiedOn"></dd>
+					<dt class="col-12 col-md-4 pr-0">修改时间</dt>
+					<dd class="col-12 col-md-4 pl-0 J_modifiedOn"></dd>
 				</dl>
 			</div>
 		</div>

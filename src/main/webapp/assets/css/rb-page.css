@@ -222,9 +222,11 @@ html.admin .admin-show {
     padding: 6px 0;
 }
 
+div.dataTables_wrapper div.dataTables_filter {
+	margin-bottom: 5px;
+}
 .adv-search {
     margin-right: 10px;
-    margin-bottom: 5px;
 }
 
 .adv-search .btn-group,

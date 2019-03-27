@@ -14,10 +14,10 @@
 		<jsp:param value="login-logs" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
-		<div class="main-content container-fluid main-content-list">
+		<div class="main-content container-fluid">
 			<div class="card card-table">
 				<div class="card-body">
-					<div class="dataTables_wrapper">
+					<div class="dataTables_wrapper container-fluid">
 						<div class="row rb-datatable-header">
 							<div class="col-12 col-md-6">
 								<div class="dataTables_filter">
