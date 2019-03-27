@@ -42,6 +42,7 @@ public enum DisplayType {
 	PICKLIST("列表", FieldType.REFERENCE, -1, null),
 	REFERENCE("引用", FieldType.REFERENCE, -1, null),
 	AVATAR("头像", FieldType.STRING, 300, null),
+	CLASSIFICATION("分类", FieldType.REFERENCE, -1, null),
 	
 	// 待启用/内部用
 	ID("主键", FieldType.PRIMARY, -1, null),

@@ -32,8 +32,9 @@
 						<option value="PHONE">电话</option>
 						<option value="EMAIL">邮箱</option>
 						<option value="URL">链接</option>
-						<option value="SERIES">自动编号</option>
 						<option value="PICKLIST">列表</option>
+						<option value="CLASSIFICATION">分类</option>
+						<option value="SERIES">自动编号</option>
 					</optgroup>
 					<optgroup label="媒体">
 						<option value="IMAGE">图片</option>

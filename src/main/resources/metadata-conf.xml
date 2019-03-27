@@ -92,7 +92,7 @@
 		<index type="unique" field-list="belongEntity,physicalName" />
 	</entity>
 
-	<entity name="PickList" type-code="012" name-field="text" description="下拉列表配置选项">
+	<entity name="PickList" type-code="012" name-field="text" description="下拉列表字段配置选项">
 		<field name="itemId" type="primary" />
 		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
 		<field name="belongField" type="string" max-length="100" nullable="false" updatable="false" />
@@ -139,6 +139,21 @@
 		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
 		<field name="chartType" type="string" max-length="100" nullable="false" />
 		<field name="title" type="string" max-length="100" nullable="false" />
+	</entity>
+	
+	<entity name="Classification" type-code="018" name-field="name" description="分类">
+		<field name="dataId" type="primary" />
+		<field name="name" type="string" max-length="100" nullable="false" />
+		<field name="description" type="string" max-length="600" />
+	</entity>
+	
+	<entity name="ClassificationData" type-code="019" name-field="name" description="分类明细数据">
+		<field name="itemId" type="primary" />
+		<field name="dataId" type="reference" ref-entity="Classification" nullable="false" cascade="delete" />
+		<field name="code" type="string" max-length="50" />
+		<field name="name" type="string" max-length="100" nullable="false" />
+		<field name="parent" type="reference" ref-entity="ClassificationData" />
+		<index field-list="parent,name,code"/>
 	</entity>
 	
 	<entity name="ShareAccess" type-code="020" description="记录共享">
