@@ -89,5 +89,7 @@ public class TestSupport {
 		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "FILE", DisplayType.FILE, null, null);
 		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "PICKLIST", DisplayType.PICKLIST, null, null);
 		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "REFERENCE", DisplayType.REFERENCE, null, entityName);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "AVATAR", DisplayType.AVATAR, null, entityName);
+		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "CLASSIFICATION", DisplayType.CLASSIFICATION, null, entityName);
 	}
 }

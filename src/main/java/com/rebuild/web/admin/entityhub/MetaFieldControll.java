@@ -63,7 +63,7 @@ public class MetaFieldControll extends BasePageControll  {
 	
 	@RequestMapping("{entity}/fields")
 	public ModelAndView pageEntityFields(@PathVariable String entity, HttpServletRequest request) throws IOException {
-		ModelAndView mv = createModelAndView("/admin/entity/fields.jsp");
+		ModelAndView mv = createModelAndView("/admin/entityhub/fields.jsp");
 		MetaEntityControll.setEntityBase(mv, entity);
 		String nameField = MetadataHelper.getNameField(entity).getName();
 		mv.getModel().put("nameField", nameField);
@@ -101,7 +101,7 @@ public class MetaFieldControll extends BasePageControll  {
 
 	@RequestMapping("{entity}/field/{field}")
 	public ModelAndView pageEntityField(@PathVariable String entity, @PathVariable String field, HttpServletRequest request) throws IOException {
-		ModelAndView mv = createModelAndView("/admin/entity/field-edit.jsp");
+		ModelAndView mv = createModelAndView("/admin/entityhub/field-edit.jsp");
 		EasyMeta easyMeta = MetaEntityControll.setEntityBase(mv, entity);
 		
 		Field fieldMeta = ((Entity) easyMeta.getBaseMeta()).getField(field);

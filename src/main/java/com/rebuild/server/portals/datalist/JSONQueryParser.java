@@ -138,7 +138,7 @@ public class JSONQueryParser {
 		
 		StringBuffer sqlBase = new StringBuffer("select ");
 		for (Field field : fieldList) {
-			if (EasyMeta.getDisplayType(field) == DisplayType.PICKLIST) {
+			if (EasyMeta.getDisplayType(field) == DisplayType.PICKLIST) {  // TODO CLASSIFICATION
 				sqlBase.append('&');
 			}
 			sqlBase.append(field.getName()).append(',');

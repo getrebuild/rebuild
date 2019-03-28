@@ -203,7 +203,7 @@ public class DataImporter extends BulkTask {
 			return cell.asDouble();
 		} else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
 			return checkoutDateValue(field, cell);
-		} else if (dt == DisplayType.PICKLIST) {
+		} else if (dt == DisplayType.PICKLIST) {  // TODO CLASSIFICATION
 			return checkoutPickListValue(field, cell);
 		} else if (dt == DisplayType.REFERENCE) {
 			return checkoutReferenceValue(field, cell);

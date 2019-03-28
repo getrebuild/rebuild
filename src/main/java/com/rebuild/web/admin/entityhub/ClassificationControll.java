@@ -23,9 +23,11 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.rebuild.server.Application;
 import com.rebuild.web.BasePageControll;
 
 /**
@@ -35,11 +37,22 @@ import com.rebuild.web.BasePageControll;
  * @since 2019/03/27
  */
 @Controller
-@RequestMapping("/admin/")
+@RequestMapping("/admin/entityhub/")
 public class ClassificationControll extends BasePageControll {
 	
 	@RequestMapping("classifications")
 	public ModelAndView pageIndex(HttpServletRequest request) throws IOException {
-		return createModelAndView("/admin/classification/index.jsp");
+		Object[][] array = Application.createQuery(
+				"select dataId,name,description from Classification order by name")
+				.array();
+		request.setAttribute("classifications", array);
+		
+		return createModelAndView("/admin/entityhub/classification/list.jsp");
+	}
+	
+	@RequestMapping("classification/{id}")
+	public ModelAndView pageData(@PathVariable String id,
+			HttpServletRequest request) throws IOException {
+		return createModelAndView("/admin/entityhub/classification/editor.jsp");
 	}
 }

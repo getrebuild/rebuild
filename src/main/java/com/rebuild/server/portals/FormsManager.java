@@ -204,7 +204,7 @@ public class FormsManager extends BaseLayoutManager {
 			
 			int dateLength = -1;
 			
-			if (dt == DisplayType.PICKLIST) {
+			if (dt == DisplayType.PICKLIST) {  // TODO CLASSIFICATION
 				JSONArray options = PickListManager.getPickList(fieldMeta);
 				el.put("options", options);
 			}
@@ -342,7 +342,7 @@ public class FormsManager extends BaseLayoutManager {
 		if (data.hasValue(fieldName)) {
 			Object value = data.getObjectValue(fieldName);
 			DisplayType dt = field.getDisplayType();
-			if (dt == DisplayType.PICKLIST) {
+			if (dt == DisplayType.PICKLIST) {  // TODO CLASSIFICATION
 				ID pickValue = (ID) value;
 				return onView ? pickValue.getLabel() : pickValue.toLiteral();
 			} 

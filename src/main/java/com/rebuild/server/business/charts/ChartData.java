@@ -241,7 +241,7 @@ public abstract class ChartData {
 		DisplayType axisType = axisField.getDisplayType();
 		
 		String label = null;
-		if (axisType == DisplayType.PICKLIST) {
+		if (axisType == DisplayType.PICKLIST) {  // TODO CLASSIFICATION
 			label = PickListManager.getLabel((ID) value);
 		} else if (axisType == DisplayType.REFERENCE) {
 			label = FieldValueWrapper.getLabel((ID) value);

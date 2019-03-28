@@ -130,7 +130,7 @@ public class QuickCodeReindexTask extends BulkTask {
 		String nameVal = null;
 		if (dt == DisplayType.TEXT) {
 			nameVal = record.getString(nameField.getName());
-		} else if (dt == DisplayType.PICKLIST) {
+		} else if (dt == DisplayType.PICKLIST) {  // TODO CLASSIFICATION
 			ID plid = record.getID(nameField.getName());
 			nameVal = PickListManager.getLabel(plid);
 		}

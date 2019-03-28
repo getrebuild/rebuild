@@ -211,6 +211,8 @@ public class Field2Schema {
 		
 		if (displayType == DisplayType.PICKLIST) {
 			refEntity = "PickList";
+		} else if (displayType == DisplayType.CLASSIFICATION) {
+			refEntity = "ClassificationData";
 		}
 		if (StringUtils.isNotBlank(refEntity)) {
 			record.setString("refEntity", refEntity);

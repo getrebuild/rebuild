@@ -183,7 +183,7 @@ public class AdvFilterParser {
 		}
 		
 		DisplayType fieldType = EasyMeta.getDisplayType(fieldMeta);
-		if (fieldType == DisplayType.PICKLIST || hasAndFlag) {
+		if (fieldType == DisplayType.PICKLIST || hasAndFlag) {  // TODO CLASSIFICATION
 			field = "&" + field;
 		}
 		
@@ -379,7 +379,7 @@ public class AdvFilterParser {
 		
 		Field nameField = rootEntity.getNameField();
 		DisplayType dt = EasyMeta.getDisplayType(nameField);
-		if (dt == DisplayType.PICKLIST || dt == DisplayType.REFERENCE) {
+		if (dt == DisplayType.PICKLIST || dt == DisplayType.REFERENCE) {  // TODO CLASSIFICATION
 			fields.add("&" + nameField.getName());
 		} else if (dt == DisplayType.TEXT || dt == DisplayType.EMAIL || dt == DisplayType.URL || dt == DisplayType.PHONE || dt == DisplayType.SERIES) {
 			fields.add(nameField.getName());

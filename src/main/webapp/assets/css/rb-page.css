@@ -1439,3 +1439,8 @@ form.dropzone .note {
 form.simple {
     max-width: 888px;
 }
+
+.rb-left-sidebar .sidebar-elements>li>a .icon.x21,
+.rb-left-sidebar .sidebar-elements .sub-menu li>a .icon.x21 {
+    font-size: 21px;
+}
