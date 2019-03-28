@@ -37,11 +37,29 @@
 							<li class="nav-item"><a class="nav-link active" href="#base" data-toggle="tab">个人信息</a></li>
 							<li class="nav-item"><a class="nav-link" href="#secure" data-toggle="tab">安全设置</a></li>
 						</ul>
-						<div class="tab-content">
+						<div class="tab-content mb-0">
 							<div class="tab-pane active" id="base">
 								<div class="row">
-									<div class="col-sm-6">
+									<div class="col-12 col-sm-8">
 										<form>
+											<div class="form-group row">
+												<label class="col-sm-4 col-form-label text-left">账号 (登录名)</label>
+												<div class="col-sm-8 pl-0">
+													<div class="form-control-plaintext"><%=theUser.getName()%></div>
+												</div>
+											</div>
+											<div class="form-group row">
+												<label class="col-sm-4 col-form-label text-left">所在部门</label>
+												<div class="col-sm-8 pl-0">
+													<div class="form-control-plaintext"><%=theUser.getOwningBizUnit() == null ? "<em>未设置</em>" : theUser.getOwningBizUnit().getName()%></div>
+												</div>
+											</div>
+											<div class="form-group row">
+												<label class="col-sm-4 col-form-label text-left">系统角色</label>
+												<div class="col-sm-8 pl-0">
+													<div class="form-control-plaintext"><%=theUser.getOwningRole() == null ? "<em>未设置</em>" : theUser.getOwningRole().getName()%></div>
+												</div>
+											</div>
 											<div class="form-group row">
 												<label class="col-sm-4 col-form-label text-left">姓名</label>
 												<div class="col-sm-8 pl-0">
@@ -55,23 +73,13 @@
 											</div>
 										</form>
 									</div>
-									<div class="col-sm-5 offset-sm-1">
-										<div class="avatar float-left">
+									<div class="col-12 col-sm-4">
+										<div class="avatar float-right">
 											<img alt="Avatar" src="<%=theUser.getAvatarUrl(true)%>">
 											<label>
-												<i class="zmdi zmdi-camera"></i><br>上传头像
+												<i class="zmdi zmdi-camera"></i><br>更改头像
 												<input type="file" id="avatar-input" accept="image/*">
 											</label>
-										</div>
-										<div>
-											<dl class="row userinfo">
-												<dt class="col-3 offset-1">账号</dt>
-												<dd class="col-8"><%=theUser.getName()%></dd>
-												<dt class="col-3 offset-1">部门</dt>
-												<dd class="col-8"><%=theUser.getOwningBizUnit() == null ? "<em>未设置</em>" : theUser.getOwningBizUnit().getName()%></dd>
-												<dt class="col-3 offset-1">角色</dt>
-												<dd class="col-8"><%=theUser.getOwningRole() == null ? "<em>未设置</em>" : theUser.getOwningRole().getName()%></dd>
-											</dl>
 										</div>
 										<div class="clearfix"></div>
 									</div>
@@ -81,19 +89,19 @@
 								<form>
 									<div class="form-group row">
 										<label class="col-sm-2 col-form-label text-left">更改邮箱</label>
-										<div class="col-sm-8 pl-0">
+										<div class="col-sm-7 pl-0">
 											<div class="form-control-plaintext text-muted J_email-account"><%=theUser.getEmail() == null ? "你当前未绑定邮箱" : ("当前绑定邮箱 <b>" + theUser.getEmail() + "</b>")%></div>
 										</div>
-										<div class="col-sm-2 text-right">
+										<div class="col-sm-3 text-right">
 											<button class="btn btn-primary bordered J_email" type="button">更改</button>
 										</div>
 									</div>
 									<div class="form-group row">
 										<label class="col-sm-2 col-form-label text-left">更改密码</label>
-										<div class="col-sm-8 pl-0">
+										<div class="col-sm-7 pl-0">
 											<div class="form-control-plaintext text-muted">建议90天更改一次密码</div>
 										</div>
-										<div class="col-sm-2 text-right">
+										<div class="col-sm-3 text-right">
 											<button class="btn btn-primary bordered J_passwd" type="button">更改</button>
 										</div>
 									</div>

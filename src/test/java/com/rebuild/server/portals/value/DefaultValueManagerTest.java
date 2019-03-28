@@ -27,8 +27,6 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 
 /**
- * TODO
- * 
  * @author devezhao-mac zhaofang123@gmail.com
  * @since 2019/03/16
  */

@@ -39,6 +39,8 @@ public final class UpgradeDatabase {
 	
 	private static final Log LOG = LogFactory.getLog(UpgradeDatabase.class);
 	
+	private int upgradingVer = 0;
+	
 	/**
 	 * @throws SQLException
 	 */
@@ -46,25 +48,25 @@ public final class UpgradeDatabase {
 		final Map<Integer, String[]> scripts = new DbScriptsReader().read();
 		final int dbVer = getDbVer();
 		
-		int verNo = dbVer;
+		upgradingVer = dbVer;
 		try {
 			while (true) {
-				String sql[] = scripts.get(verNo + 1);
+				String sql[] = scripts.get(upgradingVer + 1);
 				if (sql == null) {
 					break;
 				} else if (sql.length == 0) {
-					verNo++;
+					upgradingVer++;
 					continue;
 				}
 				
-				LOG.info("Upgrade SQL(#" + (verNo + 1) + ") > \n" + StringUtils.join(sql, "\n"));
+				LOG.info("Upgrade SQL(#" + (upgradingVer + 1) + ") > \n" + StringUtils.join(sql, "\n"));
 				Application.getSQLExecutor().executeBatch(sql, 60 * 2);
-				verNo++;
+				upgradingVer++;
 			}
 		} finally {
-			if (dbVer != verNo) {
-				SystemConfig.set(ConfigItem.DBVer, verNo);
-				LOG.info("Upgrade database version : " + verNo);
+			if (dbVer != upgradingVer) {
+				SystemConfig.set(ConfigItem.DBVer, upgradingVer);
+				LOG.info("Upgrade database version : " + upgradingVer);
 			}
 		}
 	}
@@ -75,7 +77,7 @@ public final class UpgradeDatabase {
 		try {
 			upgrade();
 		} catch (Exception ex) {
-			LOG.error("Upgrade database failure!", ex);
+			LOG.error("Upgrade database failed! Already upgraded?", ex);
 		}
 	}
 	

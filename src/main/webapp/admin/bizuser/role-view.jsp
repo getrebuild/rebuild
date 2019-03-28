@@ -8,7 +8,7 @@
 </head>
 <body class="view-body">
 <div class="view-header">
-	<span class="header-icon zmdi zmdi-${entityIcon}"></span>
+	<i class="header-icon zmdi zmdi-${entityIcon}"></i>
 	<h3 class="title">${entityLabel}视图</h3>
 	<span>
 		<a class="close J_close"><i class="zmdi zmdi-close"></i></a>
@@ -27,9 +27,9 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-sm-3 view-metas">
+		<div class="col-sm-3 view-operating">
 			<div class="view-action row">
-				<div class="col-6 pr-1 mb-2">
+				<div class="col-12 col-lg-6">
 					<button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
 				</div>
 			</div>
@@ -47,7 +47,7 @@ window.__PageConfig = {
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
-<script type="text/babel">
+<script>
 $(document).ready(function(){
 	if (rb.isAdminUser == false || rb.isAdminVerified == false) $('.view-action').remove()
 })

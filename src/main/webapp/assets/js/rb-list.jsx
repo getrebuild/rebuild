@@ -459,8 +459,7 @@ const AdvFilters = {
     this.__el = $(el)
     this.__entity = entity
 
-    let that = this
-    this.__el.find('.J_advfilter').click(() => { that.showAdvFilter() })
+    this.__el.find('.J_advfilter').click(() => { this.showAdvFilter() })
     // $ALL$
     $('.adv-search .dropdown-item:eq(0)').click(() => {
       $('.adv-search .J_name').text('全部数据')
@@ -477,15 +476,13 @@ const AdvFilters = {
       $('.adv-search .J_custom').each(function () { $(this).remove() })
 
       $(res.data).each(function () {
-        let item = $('<div class="dropdown-item J_custom" data-id="' + this[0] + '"><a class="text-truncate">' + this[1] + '</a></div>')
-        $('.adv-search .dropdown-divider').before(item)
-
+        let item = $('<div class="dropdown-item J_custom" data-id="' + this[0] + '"><a class="text-truncate">' + this[1] + '</a></div>').appendTo('.adv-search .dropdown-menu')
         let _data = this
         if (_data[2] === true) {
           let action = $('<div class="action"><a title="修改"><i class="zmdi zmdi-edit"></i></a><a title="删除"><i class="zmdi zmdi-delete"></i></a></div>').appendTo(item)
           action.find('a:eq(0)').click(function () {
             that.showAdvFilter(_data[0])
-            $('.adv-search .btn').dropdown('toggle')
+            $('.adv-search .btn.dropdown-toggle').dropdown('toggle')
             return false
           })
           action.find('a:eq(1)').click(function () {
@@ -538,11 +535,12 @@ const AdvFilters = {
     this.__cfgid = id
     let props = { entity: this.__entity, inModal: true, fromList: true, confirm: this.saveFilter }
     if (!id) {
-      renderRbcomp(<AdvFilter {...props} title="添加过滤项" />)
+      if (this.__showHolder) this.__showHolder.show()
+      else this.__showHolder = renderRbcomp(<AdvFilter {...props} title="高级查询" />)
     } else {
       $.get(rb.baseUrl + '/app/entity/advfilter/get?id=' + id, function (res) {
         let _data = res.data
-        renderRbcomp(<AdvFilter {...props} title="修改过滤项" filter={_data.filter} filterName={_data.name} shareToAll={_data.shareTo === 'ALL'} />)
+        renderRbcomp(<AdvFilter {...props} title="修改查询条件" filter={_data.filter} filterName={_data.name} shareToAll={_data.shareTo === 'ALL'} />)
       })
     }
   }

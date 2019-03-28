@@ -49,7 +49,7 @@ public class GeneralEntityOperatorControllTest extends MvcTestSupport {
 	
 	@Test
 	public void test1Save() throws Exception {
-		JSONObject fromJson = JSON.parseObject("{ TestAllFieldsName:'test', metadata:{ entity:'TestAllFields' } }");
+		JSONObject fromJson = JSON.parseObject("{ TestAllFieldsName:'Name" + System.currentTimeMillis() + "', metadata:{ entity:'TestAllFields' } }");
 		
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
 				.post("/app/entity/record-save")
@@ -79,7 +79,7 @@ public class GeneralEntityOperatorControllTest extends MvcTestSupport {
 	}
 	
 	@Test
-	public void test3Share() throws Exception {
+	public void test3Assgin() throws Exception {
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
 				.post("/app/entity/record-assign?id=" + lastSaveId + "&to=" + UserService.SYSTEM_USER);
 		MvcResponse resp = perform(builder, UserService.ADMIN_USER);
