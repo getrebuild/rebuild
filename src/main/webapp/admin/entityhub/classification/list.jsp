@@ -18,7 +18,11 @@
 	</jsp:include>
 	<div class="rb-content">
 		<div class="page-head">
-			<div class="page-head-title">分类数据</div>
+			<div class="float-left"><div class="page-head-title">分类数据</div></div>
+			<div class="float-right pt-1">
+				<button class="btn btn-light J_add" type="button">新建</button>
+			</div>
+			<div class="clearfix"></div>
 		</div>
 		<div class="main-content container-fluid">
 			<button class="J_add">添加</button>

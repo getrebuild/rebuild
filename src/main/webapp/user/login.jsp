@@ -47,9 +47,12 @@
 						</div>
 					</div>
 				</div>
-				<div class="splash-footer text-muted">
-					<span>&copy; 2019 <a href="https://getrebuild.com/" target="_blank">REBUILD</a></span>
-					<div class="dev-show" style="font-size:11px">Built on <%=ServerListener.getStartupTime()%> (<%=Application.VER%>)</div>
+				<div class="splash-footer">
+					<div class="mb-1">还没有账号? <a href="signup">立即注册</a></div>
+					<div class="text-muted">
+						<span>&copy; 2019 <a class="text-muted" href="https://getrebuild.com/" target="_blank">REBUILD</a></span>
+						<div class="dev-show" style="font-size:11px">Built on <%=ServerListener.getStartupTime()%> (<%=Application.VER%>)</div>
+					</div>
 				</div>
 			</div>
 		</div>

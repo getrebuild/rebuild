@@ -23,7 +23,7 @@
 							<input class="form-control" id="passwd" type="password" placeholder="登录密码">
 						</div>
 						<div class="form-group login-submit">
-							<button class="btn btn-primary btn-xl J_login-btn" disabled="disabled">未开放注册</button>
+							<button class="btn btn-primary btn-xl J_login-btn" disabled="disabled">自助注册未开放</button>
 						</div>
 					</div>
 				</div>

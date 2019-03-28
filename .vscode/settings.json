@@ -10,5 +10,6 @@
         ".eclipse/**": true
     },
     "eslint.autoFixOnSave": true,
-    "editor.fontSize": 12
+    "editor.fontSize": 12,
+    "editor.formatOnSave": true
 }
