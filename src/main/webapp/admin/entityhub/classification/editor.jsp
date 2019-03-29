@@ -31,7 +31,8 @@
 		</div>
 		<div class="main-content container-fluid pt-1">
 			<div class="card">
-				<div class="card-body" id="boxes">
+				<div class="card-body rb-loading rb-loading-active" id="boxes" style="min-height:300px">
+					<%@ include file="/_include/spinner.jsp"%>
 				</div>
 			</div>
 		</div>

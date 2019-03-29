@@ -119,12 +119,12 @@ public class ClassificationControll extends BasePageControll {
 		Object[][] child = null;
 		if (parent != null) {
 			child = Application.createQuery(
-					"select itemId,name,code from ClassificationData where parent = ?")
+					"select itemId,name,code from ClassificationData where parent = ? order by name")
 					.setParameter(1, parent)
 					.array();
 		} else if (dataId != null) {
 			child = Application.createQuery(
-					"select itemId,name,code from ClassificationData where dataId = ? and parent is null")
+					"select itemId,name,code from ClassificationData where dataId = ? and parent is null order by name")
 					.setParameter(1, dataId)
 					.array();
 		} else {

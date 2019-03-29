@@ -146,7 +146,7 @@
 		<field name="name" type="string" max-length="100" nullable="false" />
 		<field name="description" type="string" max-length="600" />
 		<field name="isDisabled" type="bool" default-value="F" />
-		<field name="openLevel" type="small-int" default-value="1"/>
+		<field name="openLevel" type="small-int" default-value="0"/>
 	</entity>
 	
 	<entity name="ClassificationData" type-code="019" name-field="name" description="分类明细数据">
@@ -154,7 +154,7 @@
 		<field name="dataId" type="reference" ref-entity="Classification" nullable="false" cascade="delete" />
 		<field name="code" type="string" max-length="50" />
 		<field name="name" type="string" max-length="100" nullable="false" />
-		<field name="parent" type="reference" ref-entity="ClassificationData" />
+		<field name="parent" type="reference" ref-entity="ClassificationData" cascade="delete" />
 		<index field-list="dataId,parent,name"/>
 	</entity>
 	

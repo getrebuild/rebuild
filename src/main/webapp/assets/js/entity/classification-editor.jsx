@@ -20,14 +20,20 @@ class LevelBoxes extends React.Component {
   }
   componentDidMount() {
     this.notifyToggle(openLevel + 1, true)
+    $('.rb-loading-active').removeClass('rb-loading-active')
   }
 
   notifyItemActive(level, id) {
     if (level < 3) {
       this.boxes[level + 1].loadItems(id)
       for (let i = level + 2; i <= 3; i++) {
-        this.boxes[i].setState({ items: [] })
+        this.boxes[i].clear(true)
       }
+    }
+  }
+  notifyItemClean(level) {
+    for (let i = level + 1; i <= 3; i++) {
+      this.boxes[i].clear(true)
     }
   }
   notifyToggle(level, c) {
@@ -91,11 +97,13 @@ class LevelBox extends React.Component {
   }
 
   loadItems(p) {
+    this.parentId = p
+    this.clear()
+
     let url = `${rb.baseUrl}/admin/entityhub/classification/load-data-items?data_id=${dataId}&parent=${p || ''}`
     $.get(url, (res) => {
       this.setState({ items: res.data, activeId: null })
     })
-    this.parentId = p
   }
   clickItem(id) {
     this.setState({ activeId: id })
@@ -117,10 +125,23 @@ class LevelBox extends React.Component {
   }
   saveItem = (e) => {
     e.preventDefault()
-    let name = this.state.itemName
+    let name = $.trim(this.state.itemName)
     if (!name) return
     if (this.props.level >= 1 && !this.parentId) {
       rb.highbar('请先选择上级分类项')
+      return
+    }
+
+    let hasRe = false
+    let that = this
+    $(this.state.items).each(function () {
+      if (this[1] === name && this[0] !== that.state.itemId) {
+        hasRe = true
+        return false
+      }
+    })
+    if (hasRe) {
+      rb.highbar('存在同名分类项')
       return
     }
 
@@ -135,7 +156,7 @@ class LevelBox extends React.Component {
             if (i[0] === this.state.itemId) i[1] = name
           })
         } else {
-          items.push([res.data, name])
+          items.insert(0, [res.data, name])
         }
         this.setState({ items: items, itemName: null, itemId: null })
       } else rb.hberror(res.error_msg)
@@ -160,18 +181,25 @@ class LevelBox extends React.Component {
           that.state.items.forEach((i) => {
             if (i[0] !== item[0]) items.push(i)
           })
-          that.setState({ items: items })
+          that.setState({ items: items }, () => {
+            that.props.$$$parent.notifyItemClean(that.props.level)
+          })
         })
         return false
       }
     })
+  }
+
+  clear(isAll) {
+    if (isAll === true) this.parentId = null
+    this.setState({ items: [], itemId: null, itemName: null, activeId: null })
   }
 }
 
 var saveOpenLevel_last = openLevel
 var saveOpenLevel = function () {
   $setTimeout(() => {
-    let level = $('.switch-button input:checkbox:checked:last').attr('id') || 't-1'
+    let level = $('.switch-button input:checkbox:checked:last').attr('id') || 't-0'
     level = ~~level.split('-')[1]
     if (saveOpenLevel_last === level) return
 
