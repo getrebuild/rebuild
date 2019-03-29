@@ -1,146 +1,185 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-undef */
 $(document).ready(function () {
-  // let tmplBox = $('.level-boxes>.col-md-3').eq(0)
-  // init_levelbox(tmplBox)
-  // init_levelbox($(tmplBox.clone(false)).appendTo('.level-boxes'), 2)
-  // init_levelbox($(tmplBox.clone(false)).appendTo('.level-boxes'), 3)
-  // init_levelbox($(tmplBox.clone(false)).appendTo('.level-boxes'), 4)
-
-  // load_items(null, tmplBox)
-  renderRbcomp(<LevelBoxes id={rb.classificationId} />, 'boxes')
+  renderRbcomp(<LevelBoxes id={dataId} />, 'boxes')
 })
 
 class LevelBoxes extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
+    this.boxes = []
   }
   render() {
-    let L4 = <LevelBox level={4} />
-    let L3 = <LevelBox level={3} next={L4} />
-    let L2 = <LevelBox level={2} next={L3} />
-    let L1 = <LevelBox level={1} next={L2} />
     return (<div className="row level-boxes">
-      {L1}
-      {L2}
-      {L3}
-      {L4}
+      <LevelBox level={0} $$$parent={this} ref={(c) => this.boxes[0] = c} />
+      <LevelBox level={1} $$$parent={this} ref={(c) => this.boxes[1] = c} />
+      <LevelBox level={2} $$$parent={this} ref={(c) => this.boxes[2] = c} />
+      <LevelBox level={3} $$$parent={this} ref={(c) => this.boxes[3] = c} />
     </div>)
+  }
+  componentDidMount() {
+    this.notifyToggle(openLevel + 1, true)
+  }
+
+  notifyItemActive(level, id) {
+    if (level < 3) {
+      this.boxes[level + 1].loadItems(id)
+      for (let i = level + 2; i <= 3; i++) {
+        this.boxes[i].setState({ items: [] })
+      }
+    }
+  }
+  notifyToggle(level, c) {
+    let e = { target: { checked: c } }
+    if (c === true) {
+      for (let i = 1; i < level; i++) {
+        this.boxes[i].turnToggle(e, true)
+      }
+    } else {
+      for (let i = level + 1; i <= 3; i++) {
+        this.boxes[i].turnToggle(e, true)
+      }
+    }
   }
 }
 
-const LNAME = { 1: '一', 2: '二', 3: '三', 4: '四' }
+const LNAME = ['一', '二', '三', '四']
 class LevelBox extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { ...props }
-    this.trunOn = this.trunOn.bind(this)
+    this.state = { ...props, turnOn: props.level === 0 }
   }
   render() {
-    let trunId = 'trunOn' + this.props.level
+    let forId = 'turnOn-' + this.props.level
     return (
-      <div className="col-md-3">
+      <div className={'col-md-3 ' + (this.state.turnOn === true ? '' : 'off')}>
         <div className="float-left"><h5>{LNAME[this.props.level]}级分类</h5></div>
-        {this.props.level <= 1 ? null :
+        {this.props.level < 1 ? null :
           <div className="float-right">
             <div className="switch-button switch-button-xs">
-              <input type="checkbox" id={trunId} onChange={this.trunOn} />
-              <span><label htmlFor={trunId} title="启用/禁用"></label></span>
+              <input type="checkbox" id={forId} onChange={this.turnToggle} checked={this.state.turnOn} />
+              <span><label htmlFor={forId} title="启用/禁用"></label></span>
             </div>
           </div>}
         <div className="clearfix"></div>
-        <form className="mt-1">
+        <form className="mt-1" onSubmit={this.saveItem}>
           <div className="input-group input-group-sm">
-            <input className="form-control J_name" type="text" maxlength="50" placeholder="名称" />
-            <div className="input-group-append"><button class="btn btn-primary J_save" type="submit">添加</button></div>
+            <input className="form-control" type="text" maxLength="50" placeholder="名称" value={this.state.itemName || ''} data-id="itemName" onChange={this.changeVal} />
+            <div className="input-group-append"><button className="btn btn-primary" type="submit">{this.state.itemId ? '保存' : '添加'}</button></div>
           </div>
         </form>
         <ol className="dd-list unset-list mt-3">
-          {(this.state.items || []).each(() => {
-            <li className="dd-item">
-            </li>
+          {(this.state.items || []).map((item) => {
+            let active = this.state.activeId === item[0]
+            return (
+              <li className={'dd-item ' + (active && 'active')} key={item[0]} onClick={() => this.clickItem(item[0])}>
+                <div className="dd-handle">{item[1]}</div>
+                <div className="dd-action">
+                  <a><i className="zmdi zmdi-edit" onClick={(e) => this.editItem(item, e)}></i></a>
+                  <a><i className="zmdi zmdi-delete" onClick={(e) => this.delItem(item, e)}></i></a>
+                </div>
+                {active && <span className="zmdi zmdi-caret-right arrow hide"></span>}
+              </li>
+            )
           })}
         </ol>
       </div>)
   }
   componentDidMount() {
+    if (this.props.level === 0) this.loadItems()
   }
 
-  trunOn(e) {
+  loadItems(p) {
+    let url = `${rb.baseUrl}/admin/entityhub/classification/load-data-items?data_id=${dataId}&parent=${p || ''}`
+    $.get(url, (res) => {
+      this.setState({ items: res.data, activeId: null })
+    })
+    this.parentId = p
   }
-}
+  clickItem(id) {
+    this.setState({ activeId: id })
+    this.props.$$$parent.notifyItemActive(this.props.level, id)
+  }
 
+  turnToggle = (e, stop) => {
+    let c = e.target.checked
+    this.setState({ turnOn: c })
+    if (stop !== true) {
+      this.props.$$$parent.notifyToggle(this.props.level, c)
+    }
+    saveOpenLevel()
+  }
+  changeVal = (e) => {
+    let s = {}
+    s[e.target.dataset.id] = e.target.value
+    this.setState(s)
+  }
+  saveItem = (e) => {
+    e.preventDefault()
+    let name = this.state.itemName
+    if (!name) return
+    if (this.props.level >= 1 && !this.parentId) {
+      rb.highbar('请先选择上级分类项')
+      return
+    }
 
-
-let init_levelbox = function (box, level) {
-  box.attr('data-level', level || 1)
-  if (level > 1) {
-    box.addClass('off')
-    box.find('h5').text(LNAME[level])
-    let newFor = 'trunOn' + level
-    box.find('.turn-on label').attr('for', newFor)
-    box.find('.turn-on input').attr('id', newFor).change(function () {
-      let chk = $(this).prop('checked') === true
-      for (let i = 2; i <= level; i++) {
-        let $box = $('.level-boxes>div[data-level=' + i + ']')
-        if (chk) $box.removeClass('off')
-        else $box.addClass('off')
+    let url = `${rb.baseUrl}/admin/entityhub/classification/save-data-item?data_id=${dataId}&name=${name}`
+    if (this.state.itemId) url += `&item_id=${this.state.itemId}`
+    else url += `&parent=${this.parentId}`
+    $.post(url, (res) => {
+      if (res.error_code === 0) {
+        let items = this.state.items || []
+        if (this.state.itemId) {
+          items.forEach((i) => {
+            if (i[0] === this.state.itemId) i[1] = name
+          })
+        } else {
+          items.push([res.data, name])
+        }
+        this.setState({ items: items, itemName: null, itemId: null })
+      } else rb.hberror(res.error_msg)
+    })
+  }
+  editItem(item, e) {
+    e.stopPropagation()
+    this.setState({ itemName: item[1], itemId: item[0] })
+  }
+  delItem(item, e) {
+    e.stopPropagation()
+    let that = this
+    rb.alert('删除后其子级分类也将一并删除。确认删除此分类项？', {
+      confirm: function () {
+        $.post(`${rb.baseUrl}/app/entity/record-delete?id=${item[0]}`, (res) => {
+          this.hide()
+          if (res.error_code !== 0) {
+            rb.hberror(res.error_msg)
+            return
+          }
+          let items = []
+          that.state.items.forEach((i) => {
+            if (i[0] !== item[0]) items.push(i)
+          })
+          that.setState({ items: items })
+        })
+        return false
       }
     })
   }
-
-  box.find('.dd-list').sortable({
-    placeholder: 'dd-placeholder',
-    handle: '.dd-handle',
-    axis: 'y',
-  }).disableSelection()
-
-  box.find('.J_save').click(() => {
-    let name = box.find('.J_name').val()
-    if (name) {
-      let url = rb.baseUrl + '/admin/entityhub/classification/save-data-item?data_id=' + rb.classificationId
-      url += '&name=' + $encode(name)
-      $.post(url, (res) => {
-        if (res.error_code == 0) {
-          render_unset([res.data, name], box.find('.dd-list'))
-          box.find('.J_name').val('')
-        } else rb.hberror(res.error_msg)
-      })
-    }
-    return false
-  })
 }
 
-let load_items = function (parent, destBox) {
-  let url = rb.baseUrl + '/admin/entityhub/classification/load-data-items?data_id=' + rb.classificationId
-  if (parent) url += '&parent=' + parent
-  $.get(url, (res) => {
-    $(res.data).each(function () {
-      render_unset([this[0], this[1]], destBox.find('.dd-list'))
+var saveOpenLevel_last = openLevel
+var saveOpenLevel = function () {
+  $setTimeout(() => {
+    let level = $('.switch-button input:checkbox:checked:last').attr('id') || 't-1'
+    level = ~~level.split('-')[1]
+    if (saveOpenLevel_last === level) return
+
+    let data = { openLevel: level }
+    data.metadata = { entity: 'Classification', id: dataId }
+    $.post(`${rb.baseUrl}/app/entity/record-save`, JSON.stringify(data), (res) => {
+      if (res.error_code > 0) rb.hberror(res.error_msg)
+      saveOpenLevel_last = level
     })
-  })
-}
-
-// Over sortable.js
-render_unset_after = function (item, data) {
-  let $box = $(item).parents('.col-md-3')
-  item.off('click').click(function () {
-    let $this = $(this)
-    if ($this.hasClass('active')) {
-      $this.removeClass('active')
-    } else {
-      $box.find('li').removeClass('active')
-      $this.addClass('active')
-    }
-  })
-
-  let acts = $('<div class="dd-action"><a><i class="zmdi zmdi-edit"></i></a><a><i class="zmdi zmdi-delete"></i></a></div>').appendTo(item)
-  acts.find('a').eq(0).click(() => {
-    let $form = $box.find('form')
-    $form.find('button').text('保存')
-    $form.find('input').val(data[1]).focus()
-  })
-  acts.find('a').eq(1).click(() => {
-
-  })
+  }, 500, 'saveOpenLevel')
 }

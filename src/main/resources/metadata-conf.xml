@@ -146,6 +146,7 @@
 		<field name="name" type="string" max-length="100" nullable="false" />
 		<field name="description" type="string" max-length="600" />
 		<field name="isDisabled" type="bool" default-value="F" />
+		<field name="openLevel" type="small-int" default-value="1"/>
 	</entity>
 	
 	<entity name="ClassificationData" type-code="019" name-field="name" description="分类明细数据">

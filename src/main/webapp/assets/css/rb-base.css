@@ -23290,12 +23290,13 @@ select.form-control-xs:not([size]):not([multiple]) {
 
 .rb-error .error-container {
     text-align: center;
-    margin-top: 80px
+    max-width: 70%;
+    margin: 80px auto;
 }
 
 @media (max-width:767.98px) {
     .rb-error .error-container {
-        margin-top: 50px
+        margin: 50px 90%;
     }
 }
 

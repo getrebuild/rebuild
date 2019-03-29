@@ -59,9 +59,20 @@ public class ClassificationControll extends BasePageControll {
 	
 	@RequestMapping("classification/{id}")
 	public ModelAndView pageData(@PathVariable String id,
-			HttpServletRequest request) throws IOException {
+			HttpServletRequest request, HttpServletResponse resp) throws IOException {
+		Object[] data = Application.createQuery(
+				"select name,openLevel from Classification where dataId = ?")
+				.setParameter(1, ID.valueOf(id))
+				.unique();
+		if (data == null) {
+			resp.sendError(404, "分类数据不存在");
+			return null;
+		}
+		
 		ModelAndView mv = createModelAndView("/admin/entityhub/classification/editor.jsp");
 		mv.getModel().put("dataId", id);
+		mv.getModel().put("name", data[0]);
+		mv.getModel().put("openLevel", data[1]);
 		return mv;
 	}
 	
@@ -106,15 +117,15 @@ public class ClassificationControll extends BasePageControll {
 		ID parent = getIdParameter(request, "parent");
 		
 		Object[][] child = null;
-		if (dataId != null) {
-			child = Application.createQuery(
-					"select itemId,name,code from ClassificationData where dataId = ? and parent is null")
-					.setParameter(1, dataId)
-					.array();
-		} else if (parent != null) {
+		if (parent != null) {
 			child = Application.createQuery(
 					"select itemId,name,code from ClassificationData where parent = ?")
 					.setParameter(1, parent)
+					.array();
+		} else if (dataId != null) {
+			child = Application.createQuery(
+					"select itemId,name,code from ClassificationData where dataId = ? and parent is null")
+					.setParameter(1, dataId)
 					.array();
 		} else {
 			writeFailure(resp, "无效参数");

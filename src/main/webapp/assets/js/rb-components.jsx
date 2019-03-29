@@ -101,10 +101,12 @@ class RbAlert extends React.Component {
     super(props)
   }
   render() {
-    let icon = this.props.type === 'danger' ? 'alert-triangle' : 'info-outline'
-    icon = this.props.type === 'warning' ? 'alert-circle-o' : icon
+    let icon = this.props.type === 'danger' ? 'alert-triangle' : 'help-outline'
+    if (this.props.type === 'warning') icon = 'alert-circle-o'
     let type = this.props.type || 'primary'
-    let content = this.props.htmlMessage ? <div className="mt-3" style={{ lineHeight: 1.8 }} dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} /> : <p>{this.props.message || '提示内容'}</p>
+    let content = this.props.htmlMessage ?
+      <div className="mt-3" style={{ lineHeight: 1.8 }} dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} />
+      : <p>{this.props.message || '提示内容'}</p>
     let confirm = (this.props.confirm || this.hide).bind(this)
     return (
       <div className="modal rbalert" ref="dlg" tabIndex="-1">

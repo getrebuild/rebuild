@@ -38,22 +38,16 @@
 }
 
 .dd-list .dd-item .dd-action a {
+  font-size: 1.23rem;
+  margin-top: 1px;
   display: inline-block;
-  height: 32px;
-  line-height: 32px;
-  width: 22px;
-  text-align: center;
-  font-size: 1.2rem;
-  color: #fff !important;
-  background-color: #4285f4;
-  margin-left: 1px;
-  margin-top: 2px;
-  border-radius: 2px;
-  opacity: 0.7
+  padding: 7px 1px;
+  margin-right: 6px;
+  opacity: 0.7;
 }
 
 .dd-list .dd-item .dd-action a:hover {
-  opacity: 1
+  opacity: 1;
 }
 
 .dd-list .dd-item .dd-handle:hover {
@@ -64,4 +58,16 @@
 
 .dd-list .dd-item.active .dd-handle {
   background: #dedede !important;
+}
+
+.dd-list .dd-item .arrow {
+  position: absolute;
+  right: -7px;
+  top: 1px;
+  font-size: 34px;
+  color: #dedede;
+}
+
+.dd-list:empty {
+  display: none;
 }

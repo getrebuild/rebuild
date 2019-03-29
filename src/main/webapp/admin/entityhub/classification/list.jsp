@@ -10,7 +10,7 @@
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header">
 	<jsp:include page="/_include/NavTop.jsp">
-		<jsp:param value="审计日志" name="pageTitle"/>
+		<jsp:param value="分类数据" name="pageTitle"/>
 	</jsp:include>
 	<jsp:include page="/_include/NavLeftAdmin.jsp">
 		<jsp:param value="classifications" name="activeNav"/>
@@ -19,7 +19,7 @@
 		<div class="page-head">
 			<div class="float-left"><div class="page-head-title">分类数据</div></div>
 			<div class="float-right pt-1">
-				<button class="btn btn-secondary J_add" type="button">新建</button>
+				<button class=" btn btn-primary J_add" type="button"><i class="icon zmdi zmdi-plus"></i> 新建</button>
 			</div>
 			<div class="clearfix"></div>
 		</div>

@@ -3,7 +3,6 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<meta name="rb.classificationId" content="${dataId}">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/classification.css">
 <title>分类数据编辑</title>
 </head>
@@ -17,9 +16,16 @@
 	</jsp:include>
 	<div class="rb-content">
 		<div class="page-head">
-			<div class="float-left"><div class="page-head-title">分类数据编辑</div></div>
-			<div class="float-right pt-1">
-				<button class="btn btn-secondary" type="button"><i class="zmdi zmdi-cloud"></i> 导入</button>
+			<div class="float-left">
+				<nav class="mt-1">
+					<ol class="breadcrumb page-head-nav">
+						<li class="breadcrumb-item"><a href="../classifications">分类数据</a></li>
+						<li class="breadcrumb-item active">${name}</li>
+					</ol>
+				</nav>
+			</div>
+			<div class="float-right" style="margin-top:-3px">
+				<button class="btn btn-secondary" type="button"><i class="zmdi zmdi-cloud-download"></i> 公共数据</button>
 			</div>
 			<div class="clearfix"></div>
 		</div>
@@ -32,7 +38,9 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/js/sortable.js"></script>
+<script>
+var dataId = '${dataId}', name = '${name}', openLevel = ${openLevel}
+</script>
 <script src="${baseUrl}/assets/js/entity/classification-editor.jsx" type="text/babel"></script>
 </body>
 </html>
