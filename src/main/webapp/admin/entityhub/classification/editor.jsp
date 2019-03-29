@@ -3,14 +3,9 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
+<meta name="rb.classificationId" content="${dataId}">
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/classification.css">
 <title>分类数据编辑</title>
-<style type="text/css">
-.level-boxes .col-md-3{margin-top:15px}
-.level-boxes .col-md-3 ol{background-color:#eee;padding:1px 5px;border-radius:3px}
-.level-boxes .col-md-3 h5{margin-top:3px}
-.level-boxes .col-md-3.off>form,.level-boxes .col-md-3.off>ol{display:none;}
-.level-boxes .col-md-3:first-child .turn-on{display:none;}
-</style>
 </head>
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header">
@@ -24,32 +19,13 @@
 		<div class="page-head">
 			<div class="float-left"><div class="page-head-title">分类数据编辑</div></div>
 			<div class="float-right pt-1">
-				<button class="btn btn-primary J_save" type="button">保存</button>
+				<button class="btn btn-secondary" type="button"><i class="zmdi zmdi-cloud"></i> 导入</button>
 			</div>
 			<div class="clearfix"></div>
 		</div>
 		<div class="main-content container-fluid pt-1">
 			<div class="card">
-				<div class="card-body">
-					<div class="row level-boxes">
-						<div class="col-md-3">
-							<div class="float-left"><h5>一级分类</h5></div>
-							<div class="float-right turn-on">
-								<div class="switch-button switch-button-xs">
-	                          		<input type="checkbox" id="trunOn1">
-	                          		<span><label for="trunOn1" title="启用/禁用"></label></span>
-	                        	</div>
-							</div>
-							<div class="clearfix"></div>
-							<form class="mt-1">
-								<div class="input-group input-group-sm">
-									<input class="form-control J_name" type="text" maxlength="50">
-									<div class="input-group-append"><button class="btn btn-secondary J_confirm" type="submit">添加</button></div>
-								</div>
-							</form>
-							<ol class="dd-list unset-list mt-3"></ol>
-						</div>
-					</div>
+				<div class="card-body" id="boxes">
 				</div>
 			</div>
 		</div>

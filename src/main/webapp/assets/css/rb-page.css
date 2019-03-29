@@ -941,7 +941,8 @@ i.split.ui-draggable-dragging {
     white-space: nowrap
 }
 
-.sortable-box .dd-list .dd3-action {
+.sortable-box .dd-list .dd3-action,
+.dd-list .dd-item .dd-action {
     position: absolute;
     right: 0;
     top: 0;
@@ -965,7 +966,8 @@ i.split.ui-draggable-dragging {
     color: #4285f4;
 }
 
-.sortable-box .dd-list .dd3-item:hover>.dd3-action {
+.sortable-box .dd-list .dd3-item:hover>.dd3-action,
+.dd-list .dd-item:hover .dd-action {
     display: block;
 }
 

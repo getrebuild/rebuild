@@ -4,9 +4,8 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/classification.css">
 <title>分类数据</title>
-<style type="text/css">
-</style>
 </head>
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header">
@@ -20,12 +19,11 @@
 		<div class="page-head">
 			<div class="float-left"><div class="page-head-title">分类数据</div></div>
 			<div class="float-right pt-1">
-				<button class="btn btn-light J_add" type="button">新建</button>
+				<button class="btn btn-secondary J_add" type="button">新建</button>
 			</div>
 			<div class="clearfix"></div>
 		</div>
 		<div class="main-content container-fluid">
-			<button class="J_add">添加</button>
 			<div>
 			<c:forEach items="${classifications}" var="item">
 				<a href="classification/${item[0]}"><strong>${item[1]}</strong><p>${item[2]}</p></a>
