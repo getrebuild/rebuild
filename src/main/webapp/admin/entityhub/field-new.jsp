@@ -53,6 +53,13 @@
 				</select>
 			</div>
 		</div>
+		<div class="form-group row hide J_dt-CLASSIFICATION">
+			<label class="col-sm-3 col-form-label text-sm-right">选择分类数据</label>
+			<div class="col-sm-7">
+				<select class="form-control form-control-sm" id="dataId">
+				</select>
+			</div>
+		</div>
 		<div class="form-group row">
 			<label class="col-sm-3 col-form-label text-sm-right">备注</label>
 			<div class="col-sm-7">
@@ -68,46 +75,6 @@
 	</form>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/babel">
-$(document).ready(function(){
-	const entity = $urlp('entity');
-	let btn = $('.btn-primary').click(function(){
-		let fieldLabel = $val('#fieldLabel'),
-			type = $val('#type'),
-			comments = $val('#comments'),
-			refEntity = $val('#refEntity');
-		if (!fieldLabel){ rb.highbar('请输入字段名称'); return }
-		if (type == 'REFERENCE' && !refEntity){ rb.highbar('请选择引用实体'); return }
-		
-		let _data = { entity:entity, label:fieldLabel, type:type, comments:comments, refEntity:refEntity };
-		_data = JSON.stringify(_data)
-		
-		btn.button('loading');
-		$.post(rb.baseUrl + '/admin/entity/field-new', _data, function(res){
-			btn.button('reset')
-			if (res.error_code == 0) parent.location.href = rb.baseUrl + '/admin/entity/' + entity + '/field/' + res.data;
-			else rb.hberror(res.error_msg)
-		});
-	});
-	
-	let referenceLoaded = false;
-	$('#type').change(function(){
-		parent.rb.modalResize()
-		if ($(this).val() == 'REFERENCE'){
-			$('.J_dt-REFERENCE').removeClass('hide');
-			if (referenceLoaded == false){
-				referenceLoaded = true;
-				$.get(rb.baseUrl + '/admin/entity/entity-list', function(res){
-					$(res.data).each(function(){
-						$('<option value="' + this.entityName + '">' + this.entityLabel + '</option>').appendTo('#refEntity');
-					})
-				});
-			}
-		}else{
-			$('.J_dt-REFERENCE').addClass('hide');
-		}
-	});
-});
-</script>
+<script src="${baseUrl}/assets/js/entity/field-new.js"></script>
 </body>
 </html>

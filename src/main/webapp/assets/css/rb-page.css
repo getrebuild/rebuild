@@ -1446,3 +1446,20 @@ form.simple {
 .rb-left-sidebar .sidebar-elements .sub-menu li>a .icon.x21 {
     font-size: 21px;
 }
+
+.fs-14 {
+    font-size: 14px;
+}
+
+.fs-16 {
+    font-size: 16px;
+}
+
+.fs-18 {
+    font-size: 18px;
+}
+
+.mw-auto {
+    min-width: auto;
+    max-width: auto;
+}

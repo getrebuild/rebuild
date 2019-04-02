@@ -29,25 +29,27 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * TODO
+ * 分类数据管理
  * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/27
  */
 @Controller
-@RequestMapping("/admin/entityhub/")
+@RequestMapping("/admin/")
 public class ClassificationControll extends BasePageControll {
 	
 	@RequestMapping("classifications")
-	public ModelAndView pageIndex(HttpServletRequest request) throws IOException {
+	public ModelAndView pageList(HttpServletRequest request) throws IOException {
 		Object[][] array = Application.createQuery(
 				"select dataId,name,description from Classification order by name")
 				.array();
@@ -74,6 +76,29 @@ public class ClassificationControll extends BasePageControll {
 		mv.getModel().put("name", data[0]);
 		mv.getModel().put("openLevel", data[1]);
 		return mv;
+	}
+	
+	@RequestMapping("classification/list")
+	public void list(HttpServletRequest request, HttpServletResponse resp) throws IOException {
+		Object[][] array = Application.createQuery(
+				"select dataId,name,description from Classification where isDisabled = 'F' order by name")
+				.array();
+		JSON ret = JSONUtils.toJSONArray(new String[] { "dataId", "name", "description" }, array);
+		writeSuccess(resp, ret);
+	}
+	
+	@RequestMapping("classification/info")
+	public void info(HttpServletRequest request, HttpServletResponse resp) throws IOException {
+		ID dataId = getIdParameterNotNull(request, "id");
+		Object[] data = Application.createQuery(
+				"select name from Classification where dataId = ?")
+				.setParameter(1, dataId)
+				.unique();
+		if (data == null) {
+			writeFailure(resp, "分类数据不存在");
+			return;
+		}
+		writeSuccess(resp, JSONUtils.toJSONObject("name", data[0]));
 	}
 	
 	@RequestMapping("classification/save-data-item")

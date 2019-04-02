@@ -9,7 +9,16 @@
         ".production/**": true,
         ".eclipse/**": true
     },
-    "eslint.autoFixOnSave": true,
     "editor.fontSize": 12,
-    "editor.formatOnSave": true
+    "editor.formatOnSave": false,
+
+    "eslint.options": {
+        "configFile": "./.eslintrc.json"
+    },
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "html"
+    ],
+    "eslint.autoFixOnSave": true
 }

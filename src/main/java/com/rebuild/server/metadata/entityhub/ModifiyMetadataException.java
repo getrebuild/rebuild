@@ -26,10 +26,10 @@ import com.rebuild.server.RebuildException;
  * @author devezhao
  * @since 11/16/2018
  */
-public class ModificationMetadataException extends RebuildException {
+public class ModifiyMetadataException extends RebuildException {
 	private static final long serialVersionUID = 1552569207578832059L;
 
-	public ModificationMetadataException(String message) {
+	public ModifiyMetadataException(String message) {
 		super(message);
 	}
 }

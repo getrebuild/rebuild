@@ -100,7 +100,7 @@ class LevelBox extends React.Component {
     this.parentId = p
     this.clear()
 
-    let url = `${rb.baseUrl}/admin/entityhub/classification/load-data-items?data_id=${dataId}&parent=${p || ''}`
+    let url = `${rb.baseUrl}/admin/classification/load-data-items?data_id=${dataId}&parent=${p || ''}`
     $.get(url, (res) => {
       this.setState({ items: res.data, activeId: null })
     })
@@ -145,7 +145,7 @@ class LevelBox extends React.Component {
       return
     }
 
-    let url = `${rb.baseUrl}/admin/entityhub/classification/save-data-item?data_id=${dataId}&name=${name}`
+    let url = `${rb.baseUrl}/admin/classification/save-data-item?data_id=${dataId}&name=${name}`
     if (this.state.itemId) url += `&item_id=${this.state.itemId}`
     else url += `&parent=${this.parentId}`
     $.post(url, (res) => {

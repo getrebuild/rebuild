@@ -129,6 +129,14 @@ $(document).ready(function () {
       }, 200, 'bslider-change')
     })
     $('#fieldNullable').attr('disabled', true)
+  } else if (dt === 'CLASSIFICATION') {
+    $.get(`${rb.baseUrl}/admin/classification/info?id=${extConfigOld.classification}`, function (res) {
+      if (res.error_code === 0) {
+        $('#useClassification a').attr({
+          href: '../../../classification/' + extConfigOld.classification
+        }).text(res.data.name)
+      }
+    })
   }
 
   if (wpc.fieldBuildin === true) $('.footer .alert').removeClass('hide')
@@ -198,14 +206,14 @@ class AdvDateDefaultValue extends RbFormHandler {
             </div>
             <div className="modal-body">
               <div className="text-center ml-6 mr-6">
-                <h4 className="mb-4 mt-3">高级默认值</h4>
+                <h4 className="mb-4 mt-3">设置高级默认值</h4>
                 <div className="row calc-expr">
                   <div className="col-4">
                     <select className="form-control form-control-sm">
                       <option>当前时间</option>
                     </select>
                   </div>
-                  <div className="col-4">
+                  <div className="col-4 pl-0 pr-0">
                     <select className="form-control form-control-sm" data-id="op" onChange={this.handleChange}>
                       <option value="">不计算</option>
                       <option value="+D">加 X 天</option>

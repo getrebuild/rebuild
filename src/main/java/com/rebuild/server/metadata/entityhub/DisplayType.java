@@ -40,15 +40,15 @@ public enum DisplayType {
 	IMAGE("图片", FieldType.STRING, 700, null),
 	FILE("附件", FieldType.STRING, 700, null),
 	PICKLIST("列表", FieldType.REFERENCE, -1, null),
-	REFERENCE("引用", FieldType.REFERENCE, -1, null),
-	AVATAR("头像", FieldType.STRING, 300, null),
 	CLASSIFICATION("分类", FieldType.REFERENCE, -1, null),
+	REFERENCE("引用", FieldType.REFERENCE, -1, null),
 	
 	// 待启用/内部用
 	ID("主键", FieldType.PRIMARY, -1, null),
 	ANYREFERENCE("任意引用", FieldType.ANY_REFERENCE, -1, null),
 	BOOL("布尔", FieldType.BOOL, -1, null),
 	LOCATION("位置", FieldType.STRING, 70, null),
+	AVATAR("头像", FieldType.STRING, 300, null),
 	
 	;
 	

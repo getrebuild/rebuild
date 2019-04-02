@@ -23,6 +23,7 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -54,7 +55,8 @@ public class Entity2Schema extends Field2Schema {
 	}
 	
 	@Override
-	public String create(Entity entity, String fieldLabel, DisplayType type, String comments, String refEntity) {
+	public String create(Entity entity, String fieldLabel, DisplayType type, String comments, String refEntity,
+			JSON extConfig) {
 		throw new UnsupportedOperationException();
 	}
 	
@@ -87,7 +89,7 @@ public class Entity2Schema extends Field2Schema {
 		
 		final boolean isSlave = StringUtils.isNotBlank(masterEntity);
 		if (isSlave && !MetadataHelper.containsEntity(masterEntity)) {
-			throw new ModificationMetadataException("无效主实体 : " + masterEntity);
+			throw new ModifiyMetadataException("无效主实体 : " + masterEntity);
 		}
 		
 		String physicalName = "T__" + entityName.toUpperCase();
@@ -128,7 +130,7 @@ public class Entity2Schema extends Field2Schema {
 			createBuiltinField(tempEntity, EntityHelper.IsDeleted, "ISDELETED", DisplayType.BOOL, null, null, null);
 			
 			if (haveNameField) {
-				createField(tempEntity, nameFiled, entityLabel + "名称", DisplayType.TEXT, false, true, true, null, null, null, true);
+				createField(tempEntity, nameFiled, entityLabel + "名称", DisplayType.TEXT, false, true, true, null, null, null, true, null);
 			}
 			
 			createBuiltinField(tempEntity, EntityHelper.CreatedBy, "创建人", DisplayType.REFERENCE, null, "User", null);
@@ -145,7 +147,7 @@ public class Entity2Schema extends Field2Schema {
 			} else {
 				// 助记码/搜索码
 //				createBuiltinField(tempEntity, EntityHelper.QuickCode, "QUICKCODE", DisplayType.TEXT, null, null, null);
-				createField(tempEntity, EntityHelper.QuickCode, "QUICKCODE", DisplayType.TEXT, true, false, false, null, null, null, true);
+				createField(tempEntity, EntityHelper.QuickCode, "QUICKCODE", DisplayType.TEXT, true, false, false, null, null, null, true, null);
 				
 				createBuiltinField(tempEntity, EntityHelper.OwningUser, "所属用户", DisplayType.REFERENCE, null, "User", null);
 				createBuiltinField(tempEntity, EntityHelper.OwningDept, "所属部门", DisplayType.REFERENCE, null, "Department", null);
@@ -171,22 +173,22 @@ public class Entity2Schema extends Field2Schema {
 	 */
 	public boolean drop(Entity entity) {
 		if (!user.equals(UserService.ADMIN_USER)) {
-			throw new ModificationMetadataException("仅超级管理员可删除实体");
+			throw new ModifiyMetadataException("仅超级管理员可删除实体");
 		}
 		
 		EasyMeta easyMeta = EasyMeta.valueOf(entity);
 		ID metaRecordId = easyMeta.getMetaId();
 		if (easyMeta.isBuiltin() || metaRecordId == null) {
-			throw new ModificationMetadataException("系统内建实体不允许删除");
+			throw new ModifiyMetadataException("系统内建实体不允许删除");
 		}
 		
 		if (entity.getSlaveEntity() != null) {
-			throw new ModificationMetadataException("不能删除主实体");
+			throw new ModifiyMetadataException("不能删除主实体");
 		}
 		
 		long count = 0;
 		if ((count = checkRecordCount(entity)) > 0) {
-			throw new ModificationMetadataException("不能删除有记录的实体 (" + entity.getName() + "=" + count + ")");
+			throw new ModifiyMetadataException("不能删除有记录的实体 (" + entity.getName() + "=" + count + ")");
 		}
 		
 		String ddl = String.format("drop table if exists `%s`", entity.getPhysicalName());
@@ -215,7 +217,7 @@ public class Entity2Schema extends Field2Schema {
 	private Field createBuiltinField(Entity entity, String fieldName, String fieldLabel, DisplayType displayType, String comments,
 			String refEntity, CascadeModel cascade) {
 		comments = StringUtils.defaultIfBlank(comments, "系统内建");
-		return createField(entity, fieldName, fieldLabel, displayType, false, false, false, comments, refEntity, cascade, false);
+		return createField(entity, fieldName, fieldLabel, displayType, false, false, false, comments, refEntity, cascade, false, null);
 	}
 	
 	/**
