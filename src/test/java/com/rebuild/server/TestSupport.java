@@ -50,7 +50,7 @@ public class TestSupport {
 		}
 		
 		Application.debug();
-		addTestEntityIfNeed();
+		addTestEntityIfNeed(true);
 	}
 	
 	@AfterClass
@@ -60,36 +60,39 @@ public class TestSupport {
 	}
 	
 	/**
-	 * 测试实体
+	 * 初始化测试实体
 	 * 
+	 * @param deleteExists
 	 * @see DisplayType
 	 */
-	private static void addTestEntityIfNeed() {
+	private static void addTestEntityIfNeed(boolean deleteExists) {
 		if (MetadataHelper.containsEntity(TEST_ENTITY)) {
-			return;
+			if (deleteExists) {
+				LOG.warn("Dropping test entity : " + TEST_ENTITY);
+				new Entity2Schema(UserService.ADMIN_USER).drop(MetadataHelper.getEntity(TEST_ENTITY), true);
+			} else {
+				return;
+			}
 		}
 		
 		LOG.warn("Adding test entity : " + TEST_ENTITY);
 		
 		Entity2Schema entity2Schema = new Entity2Schema(UserService.ADMIN_USER);
-		String entityName = entity2Schema.create(TEST_ENTITY, null, null, true);
+		String entityName = entity2Schema.create(TEST_ENTITY.toUpperCase(), null, null, true);
 		Entity testEntity = MetadataHelper.getEntity(entityName);
 		
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "NUMBER", DisplayType.NUMBER, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "DECIMAL", DisplayType.DECIMAL, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "DATE", DisplayType.DATE, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "DATETIME", DisplayType.DATETIME, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "TEXT", DisplayType.TEXT, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "NTEXT", DisplayType.NTEXT, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "EMAIL", DisplayType.EMAIL, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "URL", DisplayType.URL, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "PHONE", DisplayType.PHONE, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "SERIES", DisplayType.SERIES, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "IMAGE", DisplayType.IMAGE, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "FILE", DisplayType.FILE, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "PICKLIST", DisplayType.PICKLIST, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "REFERENCE", DisplayType.REFERENCE, null, entityName);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "AVATAR", DisplayType.AVATAR, null, entityName);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "CLASSIFICATION", DisplayType.CLASSIFICATION, null, entityName);
+		for (DisplayType dt : DisplayType.values()) {
+			if (dt == DisplayType.ID || dt == DisplayType.LOCATION || dt == DisplayType.ANYREFERENCE
+					|| dt == DisplayType.BOOL || dt == DisplayType.AVATAR) {
+				continue;
+			}
+			
+			String fieldName = dt.name().toUpperCase();
+			if (dt == DisplayType.REFERENCE) {
+				new Field2Schema(UserService.ADMIN_USER).create(testEntity, fieldName, dt, null, entityName, null);
+			} else {
+				new Field2Schema(UserService.ADMIN_USER).create(testEntity, fieldName, dt, null);
+			}
+		}
 	}
 }

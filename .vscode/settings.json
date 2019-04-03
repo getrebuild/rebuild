@@ -10,7 +10,7 @@
         ".eclipse/**": true
     },
     "editor.fontSize": 12,
-    "editor.formatOnSave": false,
+    "editor.formatOnSave": true,
 
     "eslint.options": {
         "configFile": "./.eslintrc.json"

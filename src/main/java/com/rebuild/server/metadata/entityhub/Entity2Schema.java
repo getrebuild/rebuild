@@ -172,6 +172,15 @@ public class Entity2Schema extends Field2Schema {
 	 * @return
 	 */
 	public boolean drop(Entity entity) {
+		return drop(entity, false);
+	}
+	
+	/**
+	 * @param entity
+	 * @param force
+	 * @return
+	 */
+	public boolean drop(Entity entity, boolean force) {
 		if (!user.equals(UserService.ADMIN_USER)) {
 			throw new ModifiyMetadataException("仅超级管理员可删除实体");
 		}
@@ -186,9 +195,11 @@ public class Entity2Schema extends Field2Schema {
 			throw new ModifiyMetadataException("不能删除主实体");
 		}
 		
-		long count = 0;
-		if ((count = checkRecordCount(entity)) > 0) {
-			throw new ModifiyMetadataException("不能删除有记录的实体 (" + entity.getName() + "=" + count + ")");
+		if (!force) {
+			long count = 0;
+			if ((count = checkRecordCount(entity)) > 0) {
+				throw new ModifiyMetadataException("不能删除有记录的实体 (" + entity.getName() + "=" + count + ")");
+			}
 		}
 		
 		String ddl = String.format("drop table if exists `%s`", entity.getPhysicalName());

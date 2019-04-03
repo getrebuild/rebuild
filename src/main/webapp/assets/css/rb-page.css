@@ -1463,3 +1463,26 @@ form.simple {
     min-width: auto;
     max-width: auto;
 }
+
+.modal-dialog.selector.show {
+    display: block !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1050;
+}
+
+.modal.selector .modal-content {
+    max-width: 400px;
+    margin-top: 98px;
+}
+
+.modal.selector .modal-content .modal-body {
+    padding: 20px 30px;
+    padding-top: 10px;
+}
+
+.modal.selector .modal-content .modal-body>div {
+    margin-bottom: 10px;
+}

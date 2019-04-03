@@ -130,13 +130,17 @@ $(document).ready(function () {
     })
     $('#fieldNullable').attr('disabled', true)
   } else if (dt === 'CLASSIFICATION') {
-    $.get(`${rb.baseUrl}/admin/classification/info?id=${extConfigOld.classification}`, function (res) {
-      if (res.error_code === 0) {
-        $('#useClassification a').attr({
-          href: '../../../classification/' + extConfigOld.classification
-        }).text(res.data.name)
-      }
-    })
+    if (extConfigOld.classification) {
+      $.get(`${rb.baseUrl}/admin/classification/info?id=${extConfigOld.classification}`, function (res) {
+        if (res.error_code === 0) {
+          $('#useClassification a').attr({
+            href: '../../../classification/' + extConfigOld.classification
+          }).text(res.data.name)
+        }
+      })
+    } else {
+      $('#useClassification a').text('无效分类数据').addClass('text-warning')
+    }
   }
 
   if (wpc.fieldBuildin === true) $('.footer .alert').removeClass('hide')

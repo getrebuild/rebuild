@@ -807,6 +807,47 @@ class RbFormAvatar extends RbFormElement {
   }
 }
 
+// 分类数据
+class RbFormClassification extends RbFormElement {
+  constructor(props) {
+    super(props)
+  }
+  renderElement() {
+    return (
+      <div className="input-group datetime-field">
+        <select ref={(c) => this._fvalue = c} className="form-control form-control-sm">
+          {this.state.data && <option value={this.state.data.id}>{this.state.data.text}</option>}
+        </select>
+        <span className={'zmdi zmdi-close clean ' + (this.state.value ? '' : 'hide')} onClick={this.handleClear}></span>
+        <div className="input-group-append">
+          <button className="btn btn-secondary" type="button" onClick={() => this.showSelector()}><i className="icon zmdi zmdi-search" /></button>
+        </div>
+      </div>
+    )
+  }
+  componentDidMount() {
+    super.componentDidMount()
+    if (this.state.viewMode === true) return
+
+    this._select2 = $(this._fvalue).select2({
+      placeholder: '选择'
+    })
+  }
+  componentWillUnmount() {
+  }
+
+  showSelector() {
+    if (this.__selector) {
+      this.__selector.show()
+    } else {
+      this.__selector = renderRbcomp(<ClassificationSelector entity={this.props.$$$parent.state.entity} field={this.props.field} $$$parent={this} />)
+    }
+  }
+  giveValue(s) {
+    this.setState({ data: s })
+  }
+}
+
 // 分割线
 class RbFormDivider extends React.Component {
   constructor(props) {
@@ -817,6 +858,19 @@ class RbFormDivider extends React.Component {
     if (label === '分栏') label = null
     if (this.props.onView === true) return <div className="form-line"><fieldset>{label ? (<legend>{label}</legend>) : null}</fieldset></div>
     else return <div />  // TODO 编辑页暂无分割线
+  }
+}
+
+// 不支持/未开放的字段
+class RbFormUnsupportted extends RbFormElement {
+  constructor(props) {
+    super(props)
+  }
+  renderElement() {
+    return <div className="form-control-plaintext text-warning">UNSUPPORTTED</div>
+  }
+  renderViewElement() {
+    return this.renderElement()
   }
 }
 
@@ -861,10 +915,13 @@ const detectElement = function (item) {
     return <RbFormReference {...item} />
   } else if (item.type === 'AVATAR') {
     return <RbFormAvatar {...item} />
+  } else if (item.type === 'CLASSIFICATION') {
+    return <RbFormClassification {...item} />
   } else if (item.field === '$LINE$' || item.field === '$DIVIDER$') {
     return <RbFormDivider {...item} />
   } else {
-    throw new Error('Unknow element : ' + JSON.stringify(item))
+    // throw new Error('Unknow element : ' + JSON.stringify(item))
+    return <RbFormUnsupportted {...item} />
   }
 }
 var detectElementExt = function (item) {
@@ -996,7 +1053,6 @@ class DeleteConfirm extends RbAlert {
   }
   enableCascade() {
     this.setState({ enableCascade: !this.state.enableCascade })
-
     if (!this.state.cascadesEntity) {
       $.get(rb.baseUrl + '/commons/metadata/references?entity=' + this.props.entity, (res) => {
         this.setState({ cascadesEntity: res.data }, () => {
@@ -1026,6 +1082,117 @@ class DeleteConfirm extends RbAlert {
         btns.button('reset')
       }
     })
+  }
+}
+
+// 分类数据选择
+class ClassificationSelector extends React.Component {
+  constructor(props) {
+    super(props)
+    this._select = []
+    this._select2 = []
+    this.state = { openLevel: 1, datas: [] }
+  }
+  render() {
+    return (
+      <div className="modal selector" ref={(c) => this._dlg = c} tabIndex="-1">
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header pb-0">
+              <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
+            </div>
+            <div className="modal-body">
+              <h5 className="mt-0">选择</h5>
+              <div>
+                <select ref={(c) => this._select.push(c)} className="form-control form-control-sm">
+                  {(this.state.datas[0] || []).map((item) => {
+                    return <option key={'item-' + item[0]} value={item[0]}>{item[1]}</option>
+                  })}
+                </select>
+              </div>
+              {this.state.openLevel >= 1 &&
+                <div>
+                  <select ref={(c) => this._select.push(c)} className="form-control form-control-sm">
+                    {(this.state.datas[1] || []).map((item) => {
+                      return <option key={'item-' + item[0]} value={item[0]}>{item[1]}</option>
+                    })}
+                  </select>
+                </div>}
+              {this.state.openLevel >= 2 &&
+                <div>
+                  <select ref={(c) => this._select.push(c)} className="form-control form-control-sm">
+                    {(this.state.datas[2] || []).map((item) => {
+                      return <option key={'item-' + item[0]} value={item[0]}>{item[1]}</option>
+                    })}
+                  </select>
+                </div>}
+              {this.state.openLevel >= 3 &&
+                <div>
+                  <select ref={(c) => this._select.push(c)} className="form-control form-control-sm">
+                    {(this.state.datas[3] || []).map((item) => {
+                      return <option key={'item-' + item[0]} value={item[0]}>{item[1]}</option>
+                    })}
+                  </select>
+                </div>}
+              <div>
+                <button className="btn btn-primary" onClick={() => this.confirm()}>确定</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  componentDidMount() {
+    this.show()
+
+    let LN = ['一', '二', '三', '四']
+    let that = this
+    $(this._select).each(function (idx) {
+      let s = $(this).select2({
+        placeholder: '选择' + LN[idx] + '分类',
+        allowClear: false
+      }).on('change', () => {
+        let p = $(s).val()
+        if (p) {
+          if (s.__level < that.state.openLevel) {
+            that.loadData(s.__level + 1, p)  // Load next-level
+          }
+        }
+      })
+      s.__level = idx
+      that._select2.push(s)
+    })
+    this.loadData(0)
+  }
+  loadData(level, p) {
+    $.get(`${rb.baseUrl}/app/entity/classification?entity=${this.props.entity}&field=${this.props.field}&parent=${p || ''}`, (res) => {
+      let s = this.state.datas
+      s[level] = res.data
+      this.setState({ datas: s }, () => {
+        this._select2[level].trigger('change')
+      })
+    })
+  }
+  confirm() {
+    let last = this._select2[this.state.openLevel]
+    let v = last.val()
+    if (!v) {
+      rb.highbar('选择有误')
+    } else {
+      let text = []
+      $(this._select2).each(function () {
+        text.push(this.select2('data')[0].text)
+      })
+      this.props.$$$parent.giveValue({ id: v, text: text.join('.') })
+      this.hide()
+    }
+  }
+  show() {
+    $(this._dlg).modal({ show: true, keyboard: true })
+  }
+  hide() {
+    $(this._dlg).modal('hide')
   }
 }
 

@@ -74,11 +74,10 @@ public class Field2Schema {
 	 * @param fieldLabel
 	 * @param type
 	 * @param comments
-	 * @param refEntity
 	 * @return
 	 */
-	public String create(Entity entity, String fieldLabel, DisplayType type, String comments, String refEntity) {
-		return create(entity, fieldLabel, type, comments, refEntity, null);
+	public String create(Entity entity, String fieldLabel, DisplayType type, String comments) {
+		return create(entity, fieldLabel, type, comments, null, null);
 	}
 	
 	/**
@@ -115,6 +114,14 @@ public class Field2Schema {
 		
 		Application.getMetadataFactory().refresh(false);
 		return fieldName;
+	}
+	
+	/**
+	 * @param field
+	 * @return
+	 */
+	public boolean drop(Field field) {
+		return drop(field, false);
 	}
 	
 	/**
@@ -197,17 +204,17 @@ public class Field2Schema {
 	 * @param comments
 	 * @param refEntity
 	 * @param cascade
-	 * @param dbNullable 在数据库中是否可为空，一般系统级字段不能为空
+	 * @param nullableInDb 在数据库中是否可为空，一般系统级字段不能为空
 	 * @param extConfig
 	 * @return
 	 */
 	protected Field createField(Entity entity, String fieldName, String fieldLabel, DisplayType displayType,
-			boolean nullable, boolean creatable, boolean updatable, String comments, String refEntity, CascadeModel cascade, boolean dbNullable, JSON extConfig) {
+			boolean nullable, boolean creatable, boolean updatable, String comments, String refEntity, CascadeModel cascade, boolean nullableInDb, JSON extConfig) {
 		if (displayType == DisplayType.SERIES) {
 			nullable = false;
 			creatable = false;
 			updatable = false;
-			dbNullable = false;
+			nullableInDb = false;
 		}
 		
 		Record recordOfField = EntityHelper.forNew(EntityHelper.MetaField, user);
@@ -228,7 +235,7 @@ public class Field2Schema {
 			refEntity = "PickList";
 		} else if (displayType == DisplayType.CLASSIFICATION) {
 			refEntity = "ClassificationData";
-			recordOfField.setString("extConfig", extConfig.toJSONString());
+			recordOfField.setString("extConfig", extConfig == null ? "{}" : extConfig.toJSONString());
 		}
 		if (StringUtils.isNotBlank(refEntity)) {
 			recordOfField.setString("refEntity", refEntity);
@@ -256,7 +263,7 @@ public class Field2Schema {
 		
 		Field unsafeField = new FieldImpl(
 				fieldName, physicalName, fieldLabel, entity, displayType.getFieldType(), CascadeModel.Ignore, maxLength, 
-				dbNullable, creatable, updatable, true, 6, defaultValue, autoValue);
+				nullableInDb, creatable, updatable, true, 6, defaultValue, autoValue);
 		if (entity instanceof UnsafeEntity) {
 			((UnsafeEntity) entity).addField(unsafeField);
 		}
