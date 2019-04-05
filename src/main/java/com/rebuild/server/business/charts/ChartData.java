@@ -241,18 +241,15 @@ public abstract class ChartData {
 		DisplayType axisType = axisField.getDisplayType();
 		
 		String label = null;
-		if (axisType == DisplayType.PICKLIST) {  // TODO CLASSIFICATION
-			label = PickListManager.getLabel((ID) value);
-		} else if (axisType == DisplayType.REFERENCE) {
+		if (axisType == DisplayType.REFERENCE) {
 			label = FieldValueWrapper.getLabel((ID) value);
-		} else if (axisType == DisplayType.DATE || axisType == DisplayType.DATETIME) {
-			label = value.toString();
-		} else if (axisType == DisplayType.BOOL) {
-			label = (String) FieldValueWrapper.wrapBool(value, axisField);
+		} else if (axisType == DisplayType.BOOL 
+				|| axisType == DisplayType.PICKLIST 
+				|| axisType == DisplayType.CLASSIFICATION) {
+			label = (String) FieldValueWrapper.wrapFieldValue(value, axisField);
 		} else {
 			label = value.toString();
 		}
-		
 		return label;
 	}
 	
