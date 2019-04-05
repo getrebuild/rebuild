@@ -42,7 +42,9 @@ public class NavManagerTest extends TestSupport {
 	@Test
 	public void testGetNav() throws Exception {
 		JSON nav = NavManager.getNav(UserService.ADMIN_USER);
-		System.out.println("testGetNav .......... \n" + nav.toJSONString());
+		if (nav != null) {
+			System.out.println("testGetNav .......... \n" + nav.toJSONString());
+		}
 	}
 	
 	@Test

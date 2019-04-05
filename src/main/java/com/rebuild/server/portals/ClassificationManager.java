@@ -18,6 +18,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.portals;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+
+import com.rebuild.server.Application;
+
+import cn.devezhao.persist4j.engine.ID;
+
 /**
  * TODO
  * 
@@ -25,5 +35,24 @@ package com.rebuild.server.portals;
  * @since 2019/03/28
  */
 public class ClassificationManager implements PortalsManager {
-	
+
+	/**
+	 * @param itemId
+	 * @return
+	 */
+	public static String getFullName(ID itemId) {
+		List<String> names = new ArrayList<>();
+		while (itemId != null) {
+			Object[] o = Application.createQueryNoFilter(
+					"select name, parent from ClassificationData where itemId = ?")
+					.setParameter(1, itemId)
+					.unique();
+			names.add((String) o[0]);
+			itemId = (ID) o[1];
+		}
+		
+		String namesArr[] = names.toArray(new String[names.size()]);
+		ArrayUtils.reverse(namesArr);
+		return StringUtils.join(namesArr, ".");
+	}
 }

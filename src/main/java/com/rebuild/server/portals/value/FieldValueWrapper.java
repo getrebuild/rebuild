@@ -27,6 +27,10 @@ import com.rebuild.server.Application;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.portals.ClassificationManager;
+import com.rebuild.server.portals.FormsManager;
+import com.rebuild.server.portals.PickListManager;
+import com.rebuild.server.portals.datalist.DataWrapper;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
@@ -34,10 +38,14 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 字段值包装。例如 BOOL 类型的 T/F 将格式化为 是/否
+ * 字段值包装。例如 BOOL 类型的 T/F 将格式化为 是/否。
+ * 表单/视图/列表等均调用此类，仅在处理特定情景下的特定字段时才需要特殊处理
  * 
  * @author zhaofang123@gmail.com
  * @since 09/23/2018
+ * 
+ * @see FormsManager
+ * @see DataWrapper
  */
 public class FieldValueWrapper {
 
@@ -77,11 +85,15 @@ public class FieldValueWrapper {
 			return wrapDecimal(value, field);
 		} else if (dt == DisplayType.REFERENCE) {
 			return wrapReference(value, field);
-		} else if (dt == DisplayType.PICKLIST || dt == DisplayType.IMAGE || dt == DisplayType.FILE || dt == DisplayType.LOCATION) {  // TODO CLASSIFICATION
+		} else if (dt == DisplayType.IMAGE || dt == DisplayType.FILE || dt == DisplayType.LOCATION) {  // TODO CLASSIFICATION
 			// 无需处理
 			return value;
 		} else if (dt == DisplayType.BOOL) {
 			return wrapBool(value, field);
+		} else if (dt == DisplayType.PICKLIST) {
+			return wrapPickList(value, field);
+		} else if (dt == DisplayType.CLASSIFICATION) {
+			return wrapClassification(value, field);
 		} else {
 			return wrapSimple(value, field);
 		}
@@ -141,9 +153,6 @@ public class FieldValueWrapper {
 	 * @return a String or an [Entity, Label, ID]
 	 */
 	public static Object wrapReference(Object reference, EasyMeta field) {
-		
-		// TODO 名称字段，例如 LABEL 又是一个引用字段
-		
 		if (!(reference instanceof Object[])) {
 			return reference.toString();
 		}
@@ -167,6 +176,26 @@ public class FieldValueWrapper {
 	 */
 	public static String wrapBool(Object bool, EasyMeta field) {
 		return ((Boolean) bool) ? "是" : "否";
+	}
+	
+	/**
+	 * @param item
+	 * @param field
+	 * @return
+	 * @see PickListManager
+	 */
+	public static String wrapPickList(Object item, EasyMeta field) {
+		return PickListManager.getLabel((ID) item);
+	}
+	
+	/**
+	 * @param item
+	 * @param field
+	 * @return
+	 * @see ClassificationManager
+	 */
+	public static String wrapClassification(Object item, EasyMeta field) {
+		return ClassificationManager.getFullName((ID) item);
 	}
 	
 	/**

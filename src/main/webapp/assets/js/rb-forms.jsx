@@ -175,6 +175,10 @@ class RbForm extends React.Component {
 
   setFieldValue(field, value, error) {
     this.__FormData[field] = { value: value, error: error }
+    if (rb.env === 'dev') {
+      // eslint-disable-next-line no-console
+      console.log('FV ... ' + JSON.stringify(this.__FormData))
+    }
   }
   // 避免无意义更新
   setFieldUnchanged(field) {
@@ -512,6 +516,9 @@ class RbFormImage extends RbFormElement {
     )
   }
   renderViewElement() {
+    if (this.state.value.length === 0) {
+      return <div className="form-control-plaintext"><span className="text-muted">无</span></div>
+    }
     return (<div className="img-field">
       {this.state.value.map((item) => {
         let itemUrl = rb.baseUrl + '/cloud/img/' + item
@@ -598,6 +605,9 @@ class RbFormFile extends RbFormElement {
     )
   }
   renderViewElement() {
+    if (this.state.value.length === 0) {
+      return <div className="form-control-plaintext"><span className="text-muted">无</span></div>
+    }
     return (<div className="file-field">
       {this.state.value.map((item) => {
         let itemUrl = rb.baseUrl + '/cloud/download/' + item
@@ -811,14 +821,12 @@ class RbFormAvatar extends RbFormElement {
 class RbFormClassification extends RbFormElement {
   constructor(props) {
     super(props)
+    // TODO histroy values?
   }
   renderElement() {
     return (
       <div className="input-group datetime-field">
-        <select ref={(c) => this._fvalue = c} className="form-control form-control-sm">
-          {this.state.data && <option value={this.state.data.id}>{this.state.data.text}</option>}
-        </select>
-        <span className={'zmdi zmdi-close clean ' + (this.state.value ? '' : 'hide')} onClick={this.handleClear}></span>
+        <select ref={(c) => this._fvalue = c} className="form-control form-control-sm" />
         <div className="input-group-append">
           <button className="btn btn-secondary" type="button" onClick={() => this.showSelector()}><i className="icon zmdi zmdi-search" /></button>
         </div>
@@ -828,23 +836,40 @@ class RbFormClassification extends RbFormElement {
   componentDidMount() {
     super.componentDidMount()
     if (this.state.viewMode === true) return
-
-    this._select2 = $(this._fvalue).select2({
+    this.__select2 = $(this._fvalue).select2({
       placeholder: '选择'
+    })
+
+    let iv = this.state.value
+    if (iv) {
+      this.giveValue({ id: iv[0], text: iv[1] })
+    }
+
+    this.__select2.on('change', () => {
+      this.handleChange({ target: { value: this.__select2.val() } }, true)
     })
   }
   componentWillUnmount() {
+    if (this.__select2) {
+      this.__select2.select2('destroy')
+      delete this.__select2
+    }
   }
 
   showSelector() {
-    if (this.__selector) {
-      this.__selector.show()
-    } else {
-      this.__selector = renderRbcomp(<ClassificationSelector entity={this.props.$$$parent.state.entity} field={this.props.field} $$$parent={this} />)
-    }
+    if (this.__selector) this.__selector.show()
+    else this.__selector = renderRbcomp(<ClassificationSelector entity={this.props.$$$parent.state.entity} field={this.props.field} $$$parent={this} />)
   }
   giveValue(s) {
-    this.setState({ data: s })
+    let data = this.__data || {}
+    if (data[s.id]) {
+      this.__select2.val(s.id).trigger('change')
+    } else {
+      let o = new Option(s.text, s.id, true, true)
+      $(this._fvalue).append(o).trigger('change')
+      data[s.id] = s.text
+      this.__data = data
+    }
   }
 }
 
@@ -1144,7 +1169,11 @@ class ClassificationSelector extends React.Component {
     )
   }
   componentDidMount() {
-    this.show()
+    let m = this.show()
+    m.on('hidden.bs.modal', () => {
+      $(document.body).addClass('modal-open')  // keep scroll
+    }).on('shown.bs.modal', () => {
+    })
 
     let LN = ['一', '二', '三', '四']
     let that = this
@@ -1189,7 +1218,7 @@ class ClassificationSelector extends React.Component {
     }
   }
   show() {
-    $(this._dlg).modal({ show: true, keyboard: true })
+    return $(this._dlg).modal({ show: true, keyboard: true })
   }
   hide() {
     $(this._dlg).modal('hide')

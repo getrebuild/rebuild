@@ -157,7 +157,7 @@ public class FormsManager extends BaseLayoutManager {
 		
 		Record data = null;
 		if (!elements.isEmpty() && record != null) {
-			data = record(record, user, elements);
+			data = findRecord(record, user, elements);
 			if (data == null) {
 				return formatModelError("此记录已被删除，或你对此记录没有读取权限");
 			}
@@ -282,7 +282,7 @@ public class FormsManager extends BaseLayoutManager {
 	 * @param error
 	 * @return
 	 */
-	protected static JSONObject formatModelError(String error) {
+	private static JSONObject formatModelError(String error) {
 		JSONObject cfg = new JSONObject();
 		cfg.put("error", error);
 		return cfg;
@@ -294,7 +294,7 @@ public class FormsManager extends BaseLayoutManager {
 	 * @param elements
 	 * @return
 	 */
-	protected static Record record(ID id, ID user, JSONArray elements) {
+	private static Record findRecord(ID id, ID user, JSONArray elements) {
 		if (elements.isEmpty()) {
 			return null;
 		}
@@ -314,9 +314,12 @@ public class FormsManager extends BaseLayoutManager {
 			
 			Field fieldMeta = entity.getField(field);
 			
-			// PICKLIST and REFERENCE
+			// REFERENCE
 			if (fieldMeta.getType() == FieldType.REFERENCE) {
-				ajql.append('&').append(field).append(',');
+				int ec = fieldMeta.getReferenceEntity().getEntityCode();
+				if (!(ec == EntityHelper.ClassificationData || ec == EntityHelper.PickList)) {
+					ajql.append('&').append(field).append(',');
+				}
 			}
 			
 			ajql.append(field).append(',');
@@ -336,15 +339,27 @@ public class FormsManager extends BaseLayoutManager {
 	 * @param field
 	 * @param onView
 	 * @return
+	 * 
+	 * @see FieldValueWrapper
+	 * @see #findRecord(ID, ID, JSONArray)
 	 */
 	protected static Object wrapFieldValue(Record data, EasyMeta field, boolean onView) {
 		String fieldName = field.getName();
 		if (data.hasValue(fieldName)) {
 			Object value = data.getObjectValue(fieldName);
 			DisplayType dt = field.getDisplayType();
-			if (dt == DisplayType.PICKLIST) {  // TODO CLASSIFICATION
+			if (dt == DisplayType.PICKLIST) {
 				ID pickValue = (ID) value;
-				return onView ? pickValue.getLabel() : pickValue.toLiteral();
+				if (onView) {
+					return PickListManager.getLabel(pickValue);
+				} else {
+					return pickValue.toLiteral();
+				}
+			}
+			else if (dt == DisplayType.CLASSIFICATION) {
+				ID itemValue = (ID) value;
+				String itemName = ClassificationManager.getFullName(itemValue);
+				return onView ? itemName : new String[] { itemValue.toLiteral(), itemName };
 			} 
 			else if (value instanceof ID) {
 				ID idValue = (ID) value;
@@ -370,6 +385,8 @@ public class FormsManager extends BaseLayoutManager {
 	
 	private static final ThreadLocal<ID> MASTERID4NEWSLAVE = new ThreadLocal<>();
 	/**
+	 * 创建明细实体必须指定主实体，以便验证权限
+	 * 
 	 * @param masterId
 	 */
 	public static void setCurrentMasterId(ID masterId) {

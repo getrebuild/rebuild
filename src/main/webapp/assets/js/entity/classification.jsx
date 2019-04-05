@@ -10,7 +10,7 @@ class DlgAddOne extends RbFormHandler {
   }
   render() {
     return (<RbModal title="添加分类数据" ref="dlg">
-      <form>
+      <form onSubmit={this.save}>
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">名称</label>
           <div className="col-sm-7">
@@ -19,13 +19,14 @@ class DlgAddOne extends RbFormHandler {
         </div>
         <div className="form-group row footer">
           <div className="col-sm-7 offset-sm-3">
-            <button className="btn btn-primary" type="button" onClick={() => this.save()}>确定</button>
+            <button className="btn btn-primary" type="submit">确定</button>
           </div>
         </div>
       </form>
     </RbModal>)
   }
-  save() {
+  save = (e) => {
+    e.preventDefault()
     if (!this.state.name) { rb.highbar('请输入名称'); return }
     let _data = { name: this.state.name }
     _data.metadata = { entity: 'Classification' }
