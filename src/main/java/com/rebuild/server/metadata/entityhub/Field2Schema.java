@@ -34,6 +34,7 @@ import com.github.stuxuhai.jpinyin.PinyinFormat;
 import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.UserService;
 
@@ -104,7 +105,7 @@ public class Field2Schema {
 			}
 		}
 		
-		Field field = createField(entity, fieldName, fieldLabel, type, true, true, true, comments, refEntity, CascadeModel.Ignore, true, extConfig);
+		Field field = createField(entity, fieldName, fieldLabel, type, true, true, true, comments, refEntity, null, true, extConfig);
 		
 		boolean schemaReady = schema2Database(entity, field);
 		if (!schemaReady) {
@@ -237,11 +238,17 @@ public class Field2Schema {
 			refEntity = "ClassificationData";
 			recordOfField.setString("extConfig", extConfig == null ? "{}" : extConfig.toJSONString());
 		}
+		
 		if (StringUtils.isNotBlank(refEntity)) {
+			if (!MetadataHelper.containsEntity(refEntity)) {
+				throw new ModifiyMetadataException("Unknow ref-entity : " + refEntity);
+			}
 			recordOfField.setString("refEntity", refEntity);
 			if (cascade != null) {
 				String cascadeAlias = cascade == CascadeModel.RemoveLinks ? "remove-links" : cascade.name().toLowerCase();
 				recordOfField.setString("cascade", cascadeAlias);
+			} else {
+				recordOfField.setString("cascade", CascadeModel.Ignore.name().toLowerCase());
 			}
 		}
 		

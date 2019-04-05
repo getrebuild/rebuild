@@ -34,7 +34,6 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.server.portals.PickListManager;
 import com.rebuild.server.portals.value.FieldValueWrapper;
 import com.rebuild.server.service.query.AdvFilterParser;
 

@@ -85,7 +85,7 @@
 		<field name="defaultValue" type="string" max-length="300" />
 		<field name="maxLength" type="small-int" default-value="300" />
 		<field name="refEntity" type="string" max-length="100" />
-		<field name="cascade" type="string" max-length="20" default-value="ignore" />
+		<field name="cascade" type="string" max-length="20" />
 		<field name="comments" type="string" max-length="300" />
 		<field name="extConfig" type="string" max-length="700" description="更多扩展配置，JSON格式KV" />
 		<index type="unique" field-list="belongEntity,fieldName" />
