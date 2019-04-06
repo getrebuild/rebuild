@@ -23,10 +23,26 @@
 			</div>
 			<div class="clearfix"></div>
 		</div>
-		<div class="main-content container-fluid">
-			<div>
+		<div class="main-content container-fluid pt-0">
+			<div class="class-list row">
 			<c:forEach items="${classifications}" var="item">
-				<a href="classification/${item[0]}"><strong>${item[1]}</strong><p>${item[2]}</p></a>
+				<div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+					<div class="card" data-id="${item[0]}" data-disabled="${item[2]}">
+						<div class="card-body">
+							<a href="classification/${item[0]}">${item[1]}</a>
+						</div>
+						<div class="card-footer card-footer-contrast text-muted">
+							<div class="float-left">
+								<a class="J_edit" href="javascript:;"><i class="zmdi zmdi-edit"></i></a>
+								<a class="J_del" href="javascript:;"><i class="zmdi zmdi-delete"></i></a>
+							</div>
+							<div class="float-right fs-12 text-warning">
+								${item[2] ? "已禁用" : ""}
+							</div>
+							<div class="clearfix"></div>
+						</div>
+					</div>
+				</div>
 			</c:forEach>
 			</div>
 		</div>

@@ -144,10 +144,9 @@ const updatePrivileges = function () {
   })
 }
 const deleteRole = function (id, dlg) {
-  let btns = $(dlg.refs['btns']).find('.btn').button('loading')
+  dlg.disabled(true)
   $.post(rb.baseUrl + '/admin/bizuser/role-delete?transfer=&id=' + id, (res) => {
     if (res.error_code === 0) location.replace(rb.baseUrl + '/admin/bizuser/role-privileges')
     else rb.hberror(res.error_msg)
-    btns.button('reset')
   })
 }

@@ -72,11 +72,10 @@ $(document).ready(function(){
 	})
 })
 let deleteDept = function(dlg){
-	let btns = $(dlg.refs['btns']).find('.btn').button('loading')
+	dlg.disabled(true)
 	$.post(rb.baseUrl + '/admin/bizuser/dept-delete?transfer=&id=${id}', function(res){
 		if (res.error_code == 0) parent.location.reload()
 		else rb.hberror(res.error_msg)
-		btns.button('reset')
 	})
 }
 </script>

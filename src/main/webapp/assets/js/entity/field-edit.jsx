@@ -158,15 +158,12 @@ $(document).ready(function () {
       confirmText: '删除'
     }
     alertExt.confirm = function () {
-      $(this.refs['btns']).find('.btn').button('loading')
-      let thatModal = this
-      $.post(`${rb.baseUrl}/admin/entity/field-drop?id=${wpc.metaId}`, function (res) {
+      this.disabled(true)
+      $.post(`${rb.baseUrl}/admin/entity/field-drop?id=${wpc.metaId}`, (res) => {
         if (res.error_code === 0) {
-          thatModal.hide()
+          this.hide()
           rb.hbsuccess('字段已删除')
-          setTimeout(function () {
-            location.replace('../fields')
-          }, 1500)
+          setTimeout(function () { location.replace('../fields') }, 1500)
         } else rb.hberror(res.error_msg)
       })
     }

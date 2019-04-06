@@ -51,7 +51,7 @@ public class ClassificationControll extends BasePageControll {
 	@RequestMapping("classifications")
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
 		Object[][] array = Application.createQuery(
-				"select dataId,name,description from Classification order by name")
+				"select dataId,name,isDisabled from Classification order by name")
 				.array();
 		
 		ModelAndView mv = createModelAndView("/admin/entityhub/classification/list.jsp");
@@ -85,6 +85,25 @@ public class ClassificationControll extends BasePageControll {
 				.array();
 		JSON ret = JSONUtils.toJSONArray(new String[] { "dataId", "name", "description" }, array);
 		writeSuccess(resp, ret);
+	}
+	
+	@RequestMapping("classification/delete")
+	public void delete(HttpServletRequest request, HttpServletResponse resp) throws IOException {
+		ID id = getIdParameterNotNull(request, "id");
+		
+		// 检查是否被使用
+		Object[][] used = Application.createQueryNoFilter(
+				"select extConfig from MetaField where displayType = 'CLASSIFICATION'")
+				.array();
+		for (Object[] o : used) {
+			if (StringUtils.contains((String) o[0], id.toLiteral())) {
+				writeFailure(resp, "此分类数据正在被使用，不能删除");
+				return;
+			}
+		}
+		
+		Application.getCommonService().delete(id);
+		writeSuccess(resp);
 	}
 	
 	@RequestMapping("classification/info")
