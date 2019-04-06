@@ -85,7 +85,7 @@ public class FieldValueWrapper {
 			return wrapDecimal(value, field);
 		} else if (dt == DisplayType.REFERENCE) {
 			return wrapReference(value, field);
-		} else if (dt == DisplayType.IMAGE || dt == DisplayType.FILE || dt == DisplayType.LOCATION) {  // TODO CLASSIFICATION
+		} else if (dt == DisplayType.IMAGE || dt == DisplayType.FILE || dt == DisplayType.LOCATION) {
 			// 无需处理
 			return value;
 		} else if (dt == DisplayType.BOOL) {

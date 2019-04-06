@@ -29,6 +29,7 @@ import com.rebuild.server.helper.task.BulkTask;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.portals.ClassificationManager;
 import com.rebuild.server.portals.PickListManager;
 import com.rebuild.server.service.bizz.UserService;
 
@@ -130,9 +131,12 @@ public class QuickCodeReindexTask extends BulkTask {
 		String nameVal = null;
 		if (dt == DisplayType.TEXT) {
 			nameVal = record.getString(nameField.getName());
-		} else if (dt == DisplayType.PICKLIST) {  // TODO CLASSIFICATION
-			ID plid = record.getID(nameField.getName());
-			nameVal = PickListManager.getLabel(plid);
+		} else if (dt == DisplayType.PICKLIST) {
+			ID itemId = record.getID(nameField.getName());
+			nameVal = PickListManager.getLabel(itemId);
+		} else if (dt == DisplayType.CLASSIFICATION) {
+			ID itemId = record.getID(nameField.getName());
+			nameVal = ClassificationManager.getName(itemId);
 		}
 		
 		if (nameVal != null) {

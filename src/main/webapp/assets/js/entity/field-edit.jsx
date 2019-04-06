@@ -139,7 +139,9 @@ $(document).ready(function () {
         }
       })
     } else {
-      $('#useClassification a').text('无效分类数据').addClass('text-warning')
+      $('#useClassification a').attr({
+        href: '../../../classifications'
+      }).text('无效分类数据').addClass('text-danger')
     }
   }
 

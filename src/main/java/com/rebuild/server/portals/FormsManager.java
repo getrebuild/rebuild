@@ -204,7 +204,7 @@ public class FormsManager extends BaseLayoutManager {
 			
 			int dateLength = -1;
 			
-			if (dt == DisplayType.PICKLIST) {  // TODO CLASSIFICATION
+			if (dt == DisplayType.PICKLIST) {
 				JSONArray options = PickListManager.getPickList(fieldMeta);
 				el.put("options", options);
 			}

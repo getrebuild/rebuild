@@ -50,7 +50,7 @@ public class TestSupport {
 		}
 		
 		Application.debug();
-		addTestEntityIfNeed(true);
+		addTestEntityIfNeed(false);
 	}
 	
 	@AfterClass

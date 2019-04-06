@@ -32,6 +32,7 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.ExtRecordCreator;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.portals.ClassificationManager;
 import com.rebuild.server.portals.PickListManager;
 import com.rebuild.utils.JSONUtils;
 
@@ -50,6 +51,8 @@ import cn.devezhao.persist4j.engine.ID;
  * 
  * @author devezhao
  * @since 01/09/2019
+ * 
+ * @see DisplayType
  */
 public class DataImporter extends BulkTask {
 	
@@ -203,8 +206,10 @@ public class DataImporter extends BulkTask {
 			return cell.asDouble();
 		} else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
 			return checkoutDateValue(field, cell);
-		} else if (dt == DisplayType.PICKLIST) {  // TODO CLASSIFICATION
+		} else if (dt == DisplayType.PICKLIST) {
 			return checkoutPickListValue(field, cell);
+		} else if (dt == DisplayType.CLASSIFICATION) {
+			return checkoutClassificationValue(field, cell);
 		} else if (dt == DisplayType.REFERENCE) {
 			return checkoutReferenceValue(field, cell);
 		} else if (dt == DisplayType.BOOL) {
@@ -243,6 +248,25 @@ public class DataImporter extends BulkTask {
 			return ID.valueOf(val);
 		} else {
 			return PickListManager.getIdByLabel(val, field);
+		}
+	}
+	
+	/**
+	 * @param field
+	 * @param cell
+	 * @return
+	 */
+	private ID checkoutClassificationValue(Field field, Cell cell) {
+		String val = cell.asString();
+		if (StringUtils.isBlank(val)) {
+			return null;
+		}
+		
+		// 支持ID
+		if (ID.isId(val) && ID.valueOf(val).getEntityCode() == EntityHelper.ClassificationData) {
+			return ID.valueOf(val);
+		} else {
+			return ClassificationManager.findByName(val, field);
 		}
 	}
 	

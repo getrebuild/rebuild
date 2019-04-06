@@ -23,19 +23,37 @@ import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.metadata.entityhub.EasyMeta;
 
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * TODO
+ * 分类数据。TODO 缓存
  * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/28
  */
 public class ClassificationManager implements PortalsManager {
 
+	private static final Log LOG = LogFactory.getLog(ClassificationManager.class);
+	
+	/**
+	 * @param itemId
+	 * @return
+	 */
+	public static String getName(ID itemId) {
+		Object[] o = Application.createQueryNoFilter(
+				"select name from ClassificationData where itemId = ?")
+				.setParameter(1, itemId)
+				.unique();
+		return o == null ? null : (String) o[0];
+	}
+	
 	/**
 	 * @param itemId
 	 * @return
@@ -44,7 +62,7 @@ public class ClassificationManager implements PortalsManager {
 		List<String> names = new ArrayList<>();
 		while (itemId != null) {
 			Object[] o = Application.createQueryNoFilter(
-					"select name, parent from ClassificationData where itemId = ?")
+					"select name,parent from ClassificationData where itemId = ?")
 					.setParameter(1, itemId)
 					.unique();
 			names.add((String) o[0]);
@@ -54,5 +72,66 @@ public class ClassificationManager implements PortalsManager {
 		String namesArr[] = names.toArray(new String[names.size()]);
 		ArrayUtils.reverse(namesArr);
 		return StringUtils.join(namesArr, ".");
+	}
+	
+	/**
+	 * 从最后一级开始查找，向上匹配两级
+	 * 
+	 * @param name
+	 * @param field
+	 * @return
+	 */
+	public static ID findByName(String name, Field field) {
+		String use = EasyMeta.valueOf(field).getFieldExtConfig().getString("classification");
+		ID dataId = ID.isId(use) ? ID.valueOf(use) : null;
+		if (dataId == null) {
+			LOG.error("Field [ " + field + " ] unconfig classification");
+			return null;
+		}
+		
+		String[] names = name.split("\\.");
+		String baseSql = String.format("select itemId,parent,parent.name from ClassificationData where dataId = '%s' and name = ?", dataId);
+		
+		Object[][] hasMany = Application.createQueryNoFilter(baseSql)
+			.setParameter(1, names[names.length - 1])
+			.array();
+		if (hasMany.length == 1) {
+			ID itemId = (ID) hasMany[0][0];
+			return isFinalLevel(itemId) ? itemId : null;
+		} else if (hasMany.length == 0) {
+			return null;
+		}
+		
+		if (names.length < 2) {
+			return null;
+		}
+		
+		// 有多个匹配
+		for (Object o[] : hasMany) {
+			String parentName = (String) o[2];
+			if (parentName.equalsIgnoreCase(names[names.length - 2])) {
+				ID itemId = (ID) o[0];
+				if (isFinalLevel(itemId)) {
+					return itemId;
+				}
+			}
+		}
+		
+		// 仅查找最后两级
+		return null;
+	}
+	
+	/**
+	 * 是否最后一级。仅最后一级才可以被使用
+	 * 
+	 * @param itemId
+	 * @return
+	 */
+	public static boolean isFinalLevel(ID itemId) {
+		Object noChild = Application.createQueryNoFilter(
+				"select itemId from ClassificationData where parent = ?")
+				.setParameter(1, itemId)
+				.unique();
+		return noChild == null;
 	}
 }
