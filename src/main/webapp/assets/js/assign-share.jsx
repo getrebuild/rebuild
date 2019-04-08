@@ -10,7 +10,7 @@ class DlgAssign extends RbModalHandler {
   }
   render() {
     return (<RbModal title={this.typeName} ref="dlg">
-      <form>
+      <div className="form">
         {this.onView === true ? null : (
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{this.typeName}哪些记录</label>
@@ -45,7 +45,7 @@ class DlgAssign extends RbModalHandler {
             <a className="btn btn-link btn-space" onClick={() => this.hide()}>取消</a>
           </div>
         </div>
-      </form>
+      </div>
     </RbModal>)
   }
   componentDidMount() {

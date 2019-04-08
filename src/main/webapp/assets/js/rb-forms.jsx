@@ -118,15 +118,15 @@ class RbForm extends React.Component {
     let that = this
     return (
       <div className="rbform">
-        <form>
+        <div className="form">
           {this.props.children.map((child) => {
             return React.cloneElement(child, { $$$parent: that })
             // Has error in strict-mode
             //child.$$$parent = that; return child
           })}
           {this.renderFormAction()}
-        </form>
-      </div>
+        </div>
+      </div >
     )
   }
   renderFormAction() {

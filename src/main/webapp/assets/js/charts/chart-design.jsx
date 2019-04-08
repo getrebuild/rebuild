@@ -281,8 +281,8 @@ class DlgAxisProps extends RbFormHandler {
     super(props)
   }
   render() {
-    return (<RbModal title="显示样式" ref="dlg">
-      <form>
+    return (<RbModal title="显示样式" ref={(c) => this._dlg = c}>
+      <div className="form">
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">別名</label>
           <div className="col-sm-7">
@@ -299,6 +299,8 @@ class DlgAxisProps extends RbFormHandler {
                 <option value="2">2</option>
                 <option value="3">3</option>
                 <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
               </select>
             </div>
           </div>
@@ -309,7 +311,7 @@ class DlgAxisProps extends RbFormHandler {
             <a className="btn btn-link btn-space" onClick={() => this.hide()}>取消</a>
           </div>
         </div>
-      </form>
+      </div>
     </RbModal>)
   }
   saveProps() {
