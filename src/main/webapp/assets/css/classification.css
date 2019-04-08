@@ -106,3 +106,24 @@
 .dd-list:empty {
   display: none;
 }
+
+/* Imports */
+.indexes>div {
+  border: 2px solid #eee;
+  margin: 15px;
+  padding: 15px;
+  border-radius: 3px;
+}
+
+.indexes>div h5 {
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 0;
+  margin-bottom: 6px;
+}
+
+.indexes>div .text-muted,
+.indexes>div .text-muted a {
+  font-size: 12px;
+  color: #777 !important;
+}

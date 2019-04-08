@@ -2,6 +2,9 @@
 /* eslint-disable no-undef */
 $(document).ready(function () {
   renderRbcomp(<LevelBoxes id={dataId} />, 'boxes')
+  $('.J_imports').click(() => {
+    renderRbcomp(<DlgImports id={dataId} />)
+  })
 })
 
 class LevelBoxes extends React.Component {
@@ -210,4 +213,60 @@ var saveOpenLevel = function () {
       saveOpenLevel_last = level
     })
   }, 500, 'saveOpenLevel')
+}
+
+let import_mprogress
+class DlgImports extends RbModalHandler {
+  constructor(props) {
+    super(props)
+  }
+  render() {
+    return <RbModal title="导入公共数据" ref={(c) => this._dlg = c}>
+      {this.state.indexes ? <div className="indexes">{this.state.indexes.map((item) => {
+        return (<div key={'index' + item.file}>
+          <div className="float-left">
+            <h5>{item.name}</h5>
+            <div className="text-muted">数据来源 <a target="_blank" rel="noopener noreferrer" href={item.source}>{item.source}</a></div>
+          </div>
+          <div className="float-right pt-1">
+            <button className="btn btn-sm btn-primary" data-file={item.file} data-name={item.name} onClick={this.imports}>导入</button>
+          </div>
+          <div className="clearfix"></div>
+        </div>)
+      })}</div>
+        : <RbSpinner fully={true} />}
+    </RbModal>
+  }
+  componentDidMount() {
+    $.get(`${rb.baseUrl}/admin/classification/imports/load-index`, (res) => {
+      this.setState({
+        indexes: res.data
+      })
+    })
+  }
+
+  imports = (e) => {
+    let file = e.currentTarget.dataset.file
+    let name = e.currentTarget.dataset.name
+    let url = `${rb.baseUrl}/admin/classification/imports/starts?dest=${this.props.id}&file=${$encode(file)}`
+    let that = this
+    rb.alert(`<strong>${name}</strong><br>导入将导致现有数据被清空。立即开始导入吗？`, {
+      html: true,
+      confirm: function () {
+        this.hide()
+        that.hide()
+        import_mprogress = new Mprogress({ template: 3 })
+        import_mprogress.start()
+
+        $.post(url, (res) => {
+          if (res.error_code === 0) rb.hbsuccess('导入完成')
+          else rb.hbsuccess(res.error_msg || '导入失败')
+
+          import_mprogress.end()
+          setTimeout(() => { location.reload() }, 1500)
+        })
+      }
+    })
+  }
+
 }

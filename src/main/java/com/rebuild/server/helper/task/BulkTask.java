@@ -23,7 +23,12 @@ import java.util.Date;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.rebuild.server.Application;
+import com.rebuild.server.service.bizz.CurrentCaller;
+import com.rebuild.web.OnlineSessionStore;
+
 import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 耗时操作可通过此类进行，例如大批量删除/修改等。此类提供了进度相关的约定，如总计执行条目，已完成条目/百分比。
@@ -45,10 +50,25 @@ public abstract class BulkTask implements Runnable {
 	private Date beginTime;
 	private Date completedTime;
 	
+	private ID userInThread;
+	
 	/**
 	 */
 	protected BulkTask() {
 		this.beginTime = CalendarUtils.now();
+	}
+	
+	/**
+	 * 设置线程用户
+	 * 
+	 * @param user
+	 * @see CurrentCaller
+	 * @see OnlineSessionStore
+	 * @see #completedAfter()
+	 */
+	protected void setThreadUser(ID user) {
+		this.userInThread = user;
+		Application.getSessionStore().set(user);
 	}
 	
 	/**
@@ -72,10 +92,13 @@ public abstract class BulkTask implements Runnable {
 	}
 
 	/**
-	 * 子类应该在执行完毕后调用此方法
+	 * 子类应该在执行完毕后调用此方法。任何清空下，都应保证此方法被调用！
 	 */
 	protected void completedAfter() {
 		this.completedTime = CalendarUtils.now();
+		if (this.userInThread != null) {
+			Application.getSessionStore().clean();
+		}
 	}
 
 	/**

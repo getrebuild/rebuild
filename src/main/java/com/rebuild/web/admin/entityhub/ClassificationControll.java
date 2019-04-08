@@ -163,12 +163,12 @@ public class ClassificationControll extends BasePageControll {
 		Object[][] child = null;
 		if (parent != null) {
 			child = Application.createQuery(
-					"select itemId,name,code from ClassificationData where parent = ? order by name")
+					"select itemId,name,code from ClassificationData where parent = ? order by code,name")
 					.setParameter(1, parent)
 					.array();
 		} else if (dataId != null) {
 			child = Application.createQuery(
-					"select itemId,name,code from ClassificationData where dataId = ? and parent is null order by name")
+					"select itemId,name,code from ClassificationData where dataId = ? and parent is null order by code,name")
 					.setParameter(1, dataId)
 					.array();
 		} else {

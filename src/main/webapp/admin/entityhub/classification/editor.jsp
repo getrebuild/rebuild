@@ -25,7 +25,7 @@
 				</nav>
 			</div>
 			<div class="float-right" style="margin-top:-3px">
-				<button class="btn btn-secondary" type="button"><i class="zmdi zmdi-cloud-download"></i> 公共数据</button>
+				<button class="btn btn-secondary J_imports" type="button"><i class="zmdi zmdi-cloud-download"></i> 导入</button>
 			</div>
 			<div class="clearfix"></div>
 		</div>
