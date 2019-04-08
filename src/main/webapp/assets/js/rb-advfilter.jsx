@@ -469,12 +469,12 @@ class FilterItem extends React.Component {
       placeholder: '',  // DON'T REMOVE!
       minimumInputLength: 1,
       ajax: {
-        url: rb.baseUrl + '/app/entity/search',
+        url: rb.baseUrl + '/commons/search/search',
         delay: 300,
         data: function (params) {
           let query = {
             entity: entity,
-            fields: entity === 'User' ? 'loginName,fullName,email' : 'name',
+            qfields: entity === 'User' ? 'loginName,fullName,email' : 'name',
             q: params.term
           }
           return query
@@ -492,7 +492,7 @@ class FilterItem extends React.Component {
 
     // Load
     if (this.props.value && this.loadedBizzSearch === false) {
-      $.get(rb.baseUrl + '/app/entity/reference-label?ids=' + $encode(this.props.value), function (res) {
+      $.get(`${rb.baseUrl}/commons/search/read-labels?ids=${$encode(this.props.value)}`, (res) => {
         for (let kid in res.data) {
           let option = new Option(res.data[kid], kid, true, true)
           s2val.append(option)

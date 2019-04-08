@@ -77,7 +77,7 @@ class DlgChangeDept extends RbModalHandler {
       placeholder: '选择' + this.typeName,
       minimumInputLength: 1,
       ajax: {
-        url: rb.baseUrl + '/app/entity/search',
+        url: rb.baseUrl + '/commons/search/search',
         delay: 300,
         data: function (params) {
           return { entity: that.type, q: params.term }

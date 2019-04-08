@@ -719,13 +719,13 @@ class RbFormReference extends RbFormElement {
       minimumInputLength: 1,
       maximumSelectionLength: 1,
       ajax: {
-        url: rb.baseUrl + '/app/entity/reference-search',
+        url: rb.baseUrl + '/commons/search/reference',
         delay: 300,
         data: function (params) {
           let query = {
             entity: that.props.$$$parent.props.entity,
             field: that.props.field,
-            q: params.term,
+            q: params.term
           }
           return query
         },

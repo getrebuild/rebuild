@@ -54,7 +54,7 @@ class DlgAssign extends RbModalHandler {
       multiple: this.multipleUser === true,
       minimumInputLength: 1,
       ajax: {
-        url: rb.baseUrl + '/app/entity/search',
+        url: rb.baseUrl + '/commons/search/search',
         delay: 300,
         data: function (params) {
           let query = {

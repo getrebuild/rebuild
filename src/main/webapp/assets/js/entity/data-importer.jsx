@@ -53,7 +53,7 @@ $(document).ready(() => {
     placeholder: '默认',
     minimumInputLength: 1,
     ajax: {
-      url: rb.baseUrl + '/app/entity/search',
+      url: rb.baseUrl + '/commons/search/search',
       delay: 300,
       data: function (params) {
         let query = {
