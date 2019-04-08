@@ -146,10 +146,10 @@ public abstract class BulkTask implements Runnable {
 		if (total == -1 || complete == 0) {
 			return 0;
 		}
-		if (total == complete) {
+		if (complete >= total) {
 			return 1;
 		}
-		return complete / total;
+		return complete * 1d / total;
 	}
 	
 	/**

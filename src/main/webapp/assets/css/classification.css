@@ -109,10 +109,11 @@
 
 /* Imports */
 .indexes>div {
-  border: 2px solid #eee;
   margin: 15px;
   padding: 15px;
+  padding-bottom: 13px;
   border-radius: 3px;
+  background-color: #eee;
 }
 
 .indexes>div h5 {
@@ -126,4 +127,8 @@
 .indexes>div .text-muted a {
   font-size: 12px;
   color: #777 !important;
+}
+
+.modal-body .rb-loading {
+  min-height: 162px;
 }

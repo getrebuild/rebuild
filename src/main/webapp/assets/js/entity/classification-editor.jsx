@@ -215,7 +215,6 @@ var saveOpenLevel = function () {
   }, 500, 'saveOpenLevel')
 }
 
-let import_mprogress
 class DlgImports extends RbModalHandler {
   constructor(props) {
     super(props)
@@ -223,13 +222,13 @@ class DlgImports extends RbModalHandler {
   render() {
     return <RbModal title="导入公共数据" ref={(c) => this._dlg = c}>
       {this.state.indexes ? <div className="indexes">{this.state.indexes.map((item) => {
-        return (<div key={'index' + item.file}>
+        return (<div key={'data-' + item.file}>
           <div className="float-left">
             <h5>{item.name}</h5>
             <div className="text-muted">数据来源 <a target="_blank" rel="noopener noreferrer" href={item.source}>{item.source}</a></div>
           </div>
           <div className="float-right pt-1">
-            <button className="btn btn-sm btn-primary" data-file={item.file} data-name={item.name} onClick={this.imports}>导入</button>
+            <button disabled={this.state.inProgress === true} className="btn btn-sm btn-primary" data-file={item.file} data-name={item.name} onClick={this.imports}>导入</button>
           </div>
           <div className="clearfix"></div>
         </div>)
@@ -239,9 +238,11 @@ class DlgImports extends RbModalHandler {
   }
   componentDidMount() {
     $.get(`${rb.baseUrl}/admin/classification/imports/load-index`, (res) => {
-      this.setState({
-        indexes: res.data
-      })
+      if (res.error_code === 0) {
+        this.setState({ indexes: res.data })
+      } else {
+        rb.hberror(res.error_msg)
+      }
     })
   }
 
@@ -254,19 +255,29 @@ class DlgImports extends RbModalHandler {
       html: true,
       confirm: function () {
         this.hide()
-        that.hide()
-        import_mprogress = new Mprogress({ template: 3 })
-        import_mprogress.start()
-
+        that.setState({ inProgress: true })
+        that.__mpro = new Mprogress({ template: 2, start: true, parent: '.rbmodal .modal-body' })
         $.post(url, (res) => {
-          if (res.error_code === 0) rb.hbsuccess('导入完成')
+          if (res.error_code === 0) that.__checkState(res.data)
           else rb.hbsuccess(res.error_msg || '导入失败')
-
-          import_mprogress.end()
-          setTimeout(() => { location.reload() }, 1500)
         })
       }
     })
   }
 
+  __checkState(taskid) {
+    $.get(`${rb.baseUrl}/commons/task/state?taskid=${taskid}`, (res) => {
+      if (res.error_code === 0) {
+        let cp = res.data.complete
+        if (cp >= 1) {
+          rb.hbsuccess('导入完成')
+          this.__mpro.end()
+          setTimeout(() => { location.reload() }, 1500)
+        } else {
+          this.__mpro.set(cp)
+          setTimeout(() => { this.__checkState(taskid) }, 1000)
+        }
+      }
+    })
+  }
 }

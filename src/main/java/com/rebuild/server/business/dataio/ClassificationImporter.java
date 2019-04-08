@@ -83,21 +83,43 @@ public class ClassificationImporter extends BulkTask {
 		this.setThreadUser(user);
 		
 		this.setTotal(data.size());
+		ID firstOne = null;
 		try {
 			for (Object o : data) {
-				addNOne((JSONObject) o, null);
+				ID id = addNOne((JSONObject) o, null);
+				if (firstOne == null) {
+					firstOne = id;
+				}
 				this.setCompleteOne();
 			}
 		} finally {
 			this.completedAfter();
 		}
+		
+		// 更新开放级别
+		int openLevel = 0;
+		while (firstOne != null) {
+			Object[] hasp = Application.createQueryNoFilter(
+					"select itemId from ClassificationData where parent = ?")
+					.setParameter(1, firstOne)
+					.unique();
+			if (hasp != null) {
+				openLevel++;
+			}
+			firstOne = hasp == null ? null : (ID) hasp[0];
+		}
+		
+		Record record = EntityHelper.forUpdate(dest, user);
+		record.setInt("openLevel", openLevel);
+		Application.getCommonService().update(record);
 	}
 	
 	/**
 	 * @param node
 	 * @param parent
+	 * @return
 	 */
-	private void addNOne(JSONObject node, ID parent) {
+	private ID addNOne(JSONObject node, ID parent) {
 		String code = node.getString("code");
 		String name = node.getString("name");
 		
@@ -118,6 +140,7 @@ public class ClassificationImporter extends BulkTask {
 				addNOne((JSONObject) o, item.getPrimary());
 			}
 		}
+		return item.getPrimary();
 	}
 	
 	// -- Helper

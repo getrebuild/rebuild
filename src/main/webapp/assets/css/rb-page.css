@@ -1490,3 +1490,9 @@ form.simple {
 .modal.selector .modal-content .modal-body>div {
     margin-bottom: 10px;
 }
+
+.form,
+form {
+    display: block;
+    margin: 0;
+}

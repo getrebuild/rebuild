@@ -15572,7 +15572,7 @@ a.avatar.x48 img {
 }
 
 .rb-loading {
-    position: relative
+    position: relative;
 }
 
 .rb-loading:after {

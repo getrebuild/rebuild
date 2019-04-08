@@ -7,7 +7,7 @@
 </head>
 <body class="dialog">
 <div class="main-content">
-	<form>
+	<div class="form">
 		<div class="form-group row">
 			<label class="col-sm-3 col-form-label text-sm-right">实体名称</label>
 			<div class="col-sm-7">
@@ -50,7 +50,7 @@
 				<a class="btn btn-link" onclick="parent.rb.modalHide()">取消</a>
 			</div>
 		</div>
-	</form>
+	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/entity/entity-new.js"></script>

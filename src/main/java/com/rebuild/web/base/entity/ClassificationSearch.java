@@ -42,7 +42,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 2019/04/03
  */
 @Controller
-@RequestMapping("/app/entity/")
+@RequestMapping("/commons/search/")
 public class ClassificationSearch extends BaseControll {
 	
 	@RequestMapping("classification")
@@ -71,5 +71,4 @@ public class ClassificationSearch extends BaseControll {
 		
 		writeSuccess(response, data);
 	}
-	
 }

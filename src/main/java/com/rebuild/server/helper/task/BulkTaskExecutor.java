@@ -54,7 +54,6 @@ public class BulkTaskExecutor extends QuartzJobBean {
 	public static String submit(BulkTask task) {
 		ThreadPoolExecutor tpe = (ThreadPoolExecutor) EXECS;
 		int queueSize = tpe.getQueue().size();
-		System.out.println(queueSize);
 		if (queueSize > EXECS_MAX * 5) {
 			throw new RejectedExecutionException("Too many task : " + tpe.getTaskCount());
 		}

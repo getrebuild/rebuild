@@ -40,7 +40,7 @@ class DlgEdit extends RbFormHandler {
   }
   render() {
     return (<RbModal title="添加分类数据" ref={(c) => this._dlg = c}>
-      <form onSubmit={this.save}>
+      <div className="form">
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">名称</label>
           <div className="col-sm-7">
@@ -59,10 +59,10 @@ class DlgEdit extends RbFormHandler {
         }
         <div className="form-group row footer">
           <div className="col-sm-7 offset-sm-3">
-            <button className="btn btn-primary" type="submit">确定</button>
+            <button className="btn btn-primary" type="button" onClick={this.save}>确定</button>
           </div>
         </div>
-      </form>
+      </div>
     </RbModal>)
   }
   save = (e) => {

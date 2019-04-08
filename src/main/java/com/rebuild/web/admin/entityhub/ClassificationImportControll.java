@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.business.dataio.ClassificationImporter;
+import com.rebuild.server.helper.task.BulkTaskExecutor;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.persist4j.engine.ID;
@@ -61,7 +62,7 @@ public class ClassificationImportControll extends BaseControll {
 		String fileUrl = getParameterNotNull(request, "file");
 		
 		ClassificationImporter importer = new ClassificationImporter(user, dest, fileUrl);
-		importer.run();  // No thread
-		writeSuccess(response);
+		String taskid = BulkTaskExecutor.submit(importer);
+		writeSuccess(response, taskid);
 	}
 }
