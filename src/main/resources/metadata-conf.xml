@@ -81,7 +81,7 @@
 		<field name="nullable" type="bool" default-value="T" />
 		<field name="creatable" type="bool" default-value="T" />
 		<field name="updatable" type="bool" default-value="T" />
-		<field name="precision" type="small-int" default-value="6" />
+		<field name="precision" type="small-int" />
 		<field name="defaultValue" type="string" max-length="300" />
 		<field name="maxLength" type="small-int" default-value="300" />
 		<field name="refEntity" type="string" max-length="100" />

@@ -135,7 +135,7 @@ public class ClassificationManager implements PortalsManager {
 					"select parent from ClassificationData where itemId = ?")
 					.setParameter(1, parent)
 					.unique();
-			if (o[0] != null) {
+			if (o != null && o[0] != null) {
 				level++;
 				parent = (ID) o[0];
 			} else {

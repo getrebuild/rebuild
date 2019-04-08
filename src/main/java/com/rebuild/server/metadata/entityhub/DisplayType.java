@@ -59,11 +59,6 @@ public enum DisplayType {
 	private String defaultFormat;
 	private int maxLength;
 	
-	private DisplayType(String displayName, Type fieldType) {
-		this.displayName = displayName;
-		this.fieldType = fieldType;
-	}
-	
 	private DisplayType(String displayName, Type fieldType, int maxLength, String defaultFormat) {
 		this.displayName = displayName;
 		this.fieldType = fieldType;

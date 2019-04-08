@@ -232,7 +232,9 @@ public class Field2Schema {
 			recordOfField.setString("comments", comments);
 		}
 		
-		if (displayType == DisplayType.PICKLIST) {
+		if (displayType == DisplayType.DECIMAL) {
+			recordOfField.setInt("precision", 8);
+		} else if (displayType == DisplayType.PICKLIST) {
 			refEntity = "PickList";
 		} else if (displayType == DisplayType.CLASSIFICATION) {
 			refEntity = "ClassificationData";
@@ -270,7 +272,7 @@ public class Field2Schema {
 		
 		Field unsafeField = new FieldImpl(
 				fieldName, physicalName, fieldLabel, entity, displayType.getFieldType(), CascadeModel.Ignore, maxLength, 
-				nullableInDb, creatable, updatable, true, 6, defaultValue, autoValue);
+				nullableInDb, creatable, updatable, true, 8, defaultValue, autoValue);
 		if (entity instanceof UnsafeEntity) {
 			((UnsafeEntity) entity).addField(unsafeField);
 		}

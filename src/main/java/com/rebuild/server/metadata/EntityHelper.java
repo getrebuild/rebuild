@@ -110,7 +110,7 @@ public class EntityHelper {
 		return record;
 	}
 	
-	// 公共字段
+	// 公共字段/保留字段
 	
 	public static final String CreatedOn = "createdOn";
 	public static final String CreatedBy = "createdBy";
