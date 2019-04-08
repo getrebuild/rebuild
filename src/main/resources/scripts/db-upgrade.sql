@@ -15,7 +15,6 @@ create table if not exists `classification` (
   `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
   primary key  (`DATA_ID`)
 )Engine=InnoDB;
-
 -- ************ Entity [ClassificationData] DDL ************
 create table if not exists `classification_data` (
   `ITEM_ID`            char(20) not null,
@@ -32,7 +31,6 @@ create table if not exists `classification_data` (
 alter table `classification_data`
   add index `IX1_classification_data` (`DATA_ID`, `PARENT`, `NAME`);
 
-  
 -- #1 Add LoginLog table (v1.1)
 create table if not exists `login_log` (
   `LOG_ID`             char(20) not null,

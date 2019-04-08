@@ -353,7 +353,8 @@ INSERT INTO `layout_config` (`CONFIG_ID`, `BELONG_ENTITY`, `CONFIG`, `APPLY_TYPE
   VALUES 
   (CONCAT('013-',SUBSTRING(MD5(RAND()),1,16)), 'Department', '[{"field":"name","isFull":false},{"field":"parentDept","isFull":false},{"field":"isDisabled","isFull":false}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
   (CONCAT('013-',SUBSTRING(MD5(RAND()),1,16)), 'User', '[{"field":"fullName","isFull":false},{"field":"email","isFull":false},{"field":"loginName","isFull":false},{"field":"password","isFull":false},{"field":"$DIVIDER$","isFull":true,"label":"分栏"},{"field":"deptId","isFull":false},{"field":"roleId","isFull":false},{"field":"isDisabled","isFull":false}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
-  (CONCAT('013-',SUBSTRING(MD5(RAND()),1,16)), 'Role', '[{"field":"name","isFull":false},{"field":"isDisabled","isFull":false}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001');
+  (CONCAT('013-',SUBSTRING(MD5(RAND()),1,16)), 'Role', '[{"field":"name","isFull":false},{"field":"isDisabled","isFull":false}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
+  (CONCAT('013-',SUBSTRING(MD5(RAND()),1,16)), 'LoginLog', '[{"field":"user"},{"field":"loginTime"},{"field":"userAgent"},{"field":"ipAddr"},{"field":"logoutTime"}]', 'DATALIST', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001');
 
 -- DB Version
 INSERT INTO `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`) 
