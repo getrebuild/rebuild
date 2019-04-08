@@ -36,6 +36,13 @@ import cn.devezhao.persist4j.engine.ID;
 public class ClassificationManagerTest extends TestSupport {
 
 	@Test
+	public void testGetItemLevel() {
+		System.out.println(ClassificationManager.getItemLevel(ID.valueOf("019-0169fdc8dba32b18")));  // 0
+		System.out.println(ClassificationManager.getItemLevel(ID.valueOf("019-0169fdc8dba42b19")));  // 1
+		System.out.println(ClassificationManager.getItemLevel(ID.valueOf("019-0169fdc8dba52b1a")));  // 2
+	}
+	
+	@Test
 	public void testFindByName() throws Exception {
 		Entity test = MetadataHelper.getEntity(TEST_ENTITY);
 		Field classification = test.getField("classification");

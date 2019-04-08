@@ -443,16 +443,8 @@ class RbFormDateTime extends RbFormElement {
 
     let format = (this.props.datetimeFormat || this.props.dateFormat).replace('mm', 'ii').toLowerCase()
     let minView = 0
-    switch (format.length) {
-    case 7:
-      minView = 'year'
-      break
-    case 10:
-      minView = 'month'
-      break
-    default:
-      break
-    }
+    if (format.length === 7) minView = 'year'
+    else if (format.length === 10) minView = 'month'
 
     let that = this
     let dtp = $(this.refs['field-value']).datetimepicker({
@@ -840,10 +832,9 @@ class RbFormClassification extends RbFormElement {
       placeholder: '选择'
     })
 
+    // In edits
     let iv = this.state.value
-    if (iv) {
-      this.giveValue({ id: iv[0], text: iv[1] })
-    }
+    if (iv) this.giveValue({ id: iv[0], text: iv[1] })
 
     this.__select2.on('change', () => {
       this.handleChange({ target: { value: this.__select2.val() } }, true)
@@ -858,7 +849,10 @@ class RbFormClassification extends RbFormElement {
 
   showSelector() {
     if (this.__selector) this.__selector.show()
-    else this.__selector = renderRbcomp(<ClassificationSelector entity={this.props.$$$parent.state.entity} field={this.props.field} $$$parent={this} />)
+    else {
+      let p = this.props
+      this.__selector = renderRbcomp(<ClassificationSelector entity={p.$$$parent.state.entity} field={p.field} label={p.label} openLevel={p.openLevel} $$$parent={this} />)
+    }
   }
   giveValue(s) {
     let data = this.__data || {}
@@ -1116,18 +1110,18 @@ class ClassificationSelector extends React.Component {
     super(props)
     this._select = []
     this._select2 = []
-    this.state = { openLevel: 1, datas: [] }
+    this.state = { openLevel: props.openLevel || 0, datas: [] }
   }
   render() {
     return (
-      <div className="modal selector" ref={(c) => this._dlg = c} tabIndex="-1">
+      <div className="modal selector" ref={(c) => this._dlg = c}>
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header pb-0">
               <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
             </div>
             <div className="modal-body">
-              <h5 className="mt-0">选择</h5>
+              <h5 className="mt-0">选择{this.props.label}</h5>
               <div>
                 <select ref={(c) => this._select.push(c)} className="form-control form-control-sm">
                   {(this.state.datas[0] || []).map((item) => {
@@ -1172,7 +1166,6 @@ class ClassificationSelector extends React.Component {
     let m = this.show()
     m.on('hidden.bs.modal', () => {
       $(document.body).addClass('modal-open')  // keep scroll
-    }).on('shown.bs.modal', () => {
     })
 
     let LN = ['一', '二', '三', '四']

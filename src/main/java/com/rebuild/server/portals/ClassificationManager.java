@@ -43,6 +43,8 @@ public class ClassificationManager implements PortalsManager {
 	private static final Log LOG = LogFactory.getLog(ClassificationManager.class);
 	
 	/**
+	 * 获取名称
+	 * 
 	 * @param itemId
 	 * @return
 	 */
@@ -55,6 +57,8 @@ public class ClassificationManager implements PortalsManager {
 	}
 	
 	/**
+	 * 获取全名称（包括父级，用 . 分割）
+	 * 
 	 * @param itemId
 	 * @return
 	 */
@@ -75,17 +79,15 @@ public class ClassificationManager implements PortalsManager {
 	}
 	
 	/**
-	 * 从最后一级开始查找，向上匹配两级
+	 * 从最后一级开始查找，最多向上匹配两级
 	 * 
 	 * @param name
 	 * @param field
 	 * @return
 	 */
 	public static ID findByName(String name, Field field) {
-		String use = EasyMeta.valueOf(field).getFieldExtConfig().getString("classification");
-		ID dataId = ID.isId(use) ? ID.valueOf(use) : null;
+		ID dataId = getUseClassification(field);
 		if (dataId == null) {
-			LOG.error("Field [ " + field + " ] unconfig classification");
 			return null;
 		}
 		
@@ -97,7 +99,7 @@ public class ClassificationManager implements PortalsManager {
 			.array();
 		if (hasMany.length == 1) {
 			ID itemId = (ID) hasMany[0][0];
-			return isFinalLevel(itemId) ? itemId : null;
+			return itemId;
 		} else if (hasMany.length == 0) {
 			return null;
 		}
@@ -111,9 +113,7 @@ public class ClassificationManager implements PortalsManager {
 			String parentName = (String) o[2];
 			if (parentName.equalsIgnoreCase(names[names.length - 2])) {
 				ID itemId = (ID) o[0];
-				if (isFinalLevel(itemId)) {
-					return itemId;
-				}
+				return itemId;
 			}
 		}
 		
@@ -122,16 +122,66 @@ public class ClassificationManager implements PortalsManager {
 	}
 	
 	/**
-	 * 是否最后一级。仅最后一级才可以被使用
+	 * 获取指定项目的所处等级（注意从 0 开始）
 	 * 
 	 * @param itemId
 	 * @return
 	 */
-	public static boolean isFinalLevel(ID itemId) {
-		Object noChild = Application.createQueryNoFilter(
-				"select itemId from ClassificationData where parent = ?")
-				.setParameter(1, itemId)
+	public static int getItemLevel(ID itemId) {
+		int level = 0;
+		ID parent = itemId;
+		while (parent != null) {
+			Object o[] = Application.createQueryNoFilter(
+					"select parent from ClassificationData where itemId = ?")
+					.setParameter(1, parent)
+					.unique();
+			if (o[0] != null) {
+				level++;
+				parent = (ID) o[0];
+			} else {
+				parent = null;
+			}
+		}
+		return level;
+	}
+	
+	/**
+	 * 获取开放级别（注意从 0 开始）
+	 * 
+	 * @param field
+	 * @return
+	 */
+	public static int getOpenLevel(Field field) {
+		ID dataId = getUseClassification(field);
+		if (dataId == null) {
+			return 0;
+		}
+		
+		Object[] o = Application.createQueryNoFilter(
+				"select openLevel from Classification where dataId = ?")
+				.setParameter(1, dataId)
 				.unique();
-		return noChild == null;
+		return o == null ? 0 : (Integer) o[0];
+	}
+	
+	/**
+	 * @param field
+	 * @return
+	 */
+	private static ID getUseClassification(Field field) {
+		String use = EasyMeta.valueOf(field).getFieldExtConfig().getString("classification");
+		ID dataId = ID.isId(use) ? ID.valueOf(use) : null;
+		if (dataId == null) {
+			LOG.error("Field [ " + field + " ] unconfig classification");
+		}
+		return dataId;
+	}
+	
+	/**
+	 * TODO 清理缓存
+	 * 
+	 * @param dataOrItem
+	 */
+	public static void clearCache(ID dataOrItem) {
 	}
 }

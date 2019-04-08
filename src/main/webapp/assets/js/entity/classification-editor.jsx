@@ -101,10 +101,9 @@ class LevelBox extends React.Component {
 
   loadItems(p) {
     this.parentId = p
-    this.clear()
-
     let url = `${rb.baseUrl}/admin/classification/load-data-items?data_id=${dataId}&parent=${p || ''}`
     $.get(url, (res) => {
+      this.clear()
       this.setState({ items: res.data, activeId: null })
     })
   }
@@ -135,15 +134,15 @@ class LevelBox extends React.Component {
       return
     }
 
-    let hasRe = false
+    let hasRepeat = false
     let that = this
     $(this.state.items).each(function () {
       if (this[1] === name && this[0] !== that.state.itemId) {
-        hasRe = true
+        hasRepeat = true
         return false
       }
     })
-    if (hasRe) {
+    if (hasRepeat) {
       rb.highbar('存在同名分类项')
       return
     }

@@ -103,8 +103,12 @@
   color: #dedede;
 }
 
-.dd-list:empty {
-  display: none;
+.dd-list:empty::after {
+  content: '选择上级分类后查看';
+  text-align: center;
+  color: #aaa;
+  padding: 7px;
+  display: block;
 }
 
 /* Imports */

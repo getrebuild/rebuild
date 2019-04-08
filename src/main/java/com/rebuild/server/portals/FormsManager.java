@@ -220,6 +220,9 @@ public class FormsManager extends BaseLayoutManager {
 				}
 				dateLength = el.getString("dateFormat").length();
 			}
+			else if (dt == DisplayType.CLASSIFICATION) {
+				el.put("openLevel", ClassificationManager.getOpenLevel(fieldMeta));
+			}
 			
 			// 编辑/视图
 			if (data != null) {
