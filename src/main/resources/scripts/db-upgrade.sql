@@ -30,7 +30,11 @@ create table if not exists `classification_data` (
 )Engine=InnoDB;
 alter table `classification_data`
   add index `IX1_classification_data` (`DATA_ID`, `PARENT`, `NAME`);
-
+INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `IS_DISABLED`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`) 
+  VALUES
+  ('018-0000000000000001', '地区', NULL, 2, 'F', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
+  ('018-0000000000000002', '行业', NULL, 1, 'F', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001');
+  
 -- #1 Add LoginLog table (v1.1)
 create table if not exists `login_log` (
   `LOG_ID`             char(20) not null,

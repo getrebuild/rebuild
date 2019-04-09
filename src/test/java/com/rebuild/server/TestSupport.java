@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
+import com.alibaba.fastjson.JSON;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.Entity2Schema;
@@ -90,6 +91,9 @@ public class TestSupport {
 			String fieldName = dt.name().toUpperCase();
 			if (dt == DisplayType.REFERENCE) {
 				new Field2Schema(UserService.ADMIN_USER).create(testEntity, fieldName, dt, null, entityName, null);
+			} else if (dt == DisplayType.CLASSIFICATION) {
+				JSON area = JSON.parseObject("{classification:'018-0000000000000001'}");
+				new Field2Schema(UserService.ADMIN_USER).create(testEntity, fieldName, dt, null, entityName, area);
 			} else {
 				new Field2Schema(UserService.ADMIN_USER).create(testEntity, fieldName, dt, null);
 			}

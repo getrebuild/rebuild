@@ -104,7 +104,7 @@
 }
 
 .dd-list:empty::after {
-  content: '选择上级分类后查看';
+  content: '暂无分类项';
   text-align: center;
   color: #aaa;
   padding: 7px;

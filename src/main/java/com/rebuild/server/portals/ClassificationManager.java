@@ -80,6 +80,7 @@ public class ClassificationManager implements PortalsManager {
 	
 	/**
 	 * 从最后一级开始查找，最多向上匹配两级
+	 * TODO 更优的查询方式
 	 * 
 	 * @param name
 	 * @param field
