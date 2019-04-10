@@ -14,10 +14,10 @@
 		<jsp:param value="login-logs" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
-		<div class="main-content container-fluid main-content-list">
+		<div class="main-content container-fluid">
 			<div class="card card-table">
 				<div class="card-body">
-					<div class="dataTables_wrapper">
+					<div class="dataTables_wrapper container-fluid">
 						<div class="row rb-datatable-header">
 							<div class="col-12 col-md-6">
 								<div class="dataTables_filter">
@@ -32,7 +32,7 @@
 									<div class="btn-group btn-space">
 										<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-more-vert"></i></button>
 										<div class="dropdown-menu dropdown-menu-right">
-											<a class="dropdown-item J_columns"><i class="icon zmdi zmdi-sort-amount-asc"></i> 列显示</a>
+											<a class="dropdown-item J_columns"><i class="icon zmdi zmdi-code-setting"></i> 列显示</a>
 										</div>
 									</div>
 								</div>

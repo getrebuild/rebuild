@@ -76,7 +76,7 @@ class AdvFilter extends React.Component {
         </div>
       </div>
     )
-    if (this.props.inModal) return <RbModal ref="dlg" title={this.props.title || '设置过滤条件'} disposeOnHide={true}>{advFilter}</RbModal>
+    if (this.props.inModal) return <RbModal ref="dlg" title={this.props.title || '设置查询条件'} disposeOnHide={!!this.props.filter}>{advFilter}</RbModal>
     else return advFilter
   }
   componentDidMount() {
@@ -123,7 +123,7 @@ class AdvFilter extends React.Component {
     if (_items.length >= 9) { rb.highbar('最多可添加9个条件'); return }
 
     let id = 'item-' + $random()
-    let props = { fields: this.fields, $$$parent: this, key: id, id: id, onRef: this.onRef, index: _items.length + 1 }
+    let props = { fields: this.fields, $$$parent: this, key: 'key-' + id, id: id, onRef: this.onRef, index: _items.length + 1 }
     if (cfg) props = { ...props, ...cfg }
     _items.push(<FilterItem {...props} />)
 
@@ -257,14 +257,15 @@ class FilterItem extends React.Component {
     )
   }
   selectOp() {
+    let fieldType = this.state.type
     let op = ['LK', 'NLK', 'EQ', 'NEQ']
-    if (this.state.type === 'NUMBER' || this.state.type === 'DECIMAL') {
+    if (fieldType === 'NUMBER' || fieldType === 'DECIMAL') {
       op = ['GT', 'LT', 'BW', 'EQ']
-    } else if (this.state.type === 'DATE' || this.state.type === 'DATETIME') {
+    } else if (fieldType === 'DATE' || fieldType === 'DATETIME') {
       op = ['GT', 'LT', 'BW', 'RED', 'REM', 'BFD', 'BFM', 'AFD', 'AFM']
-    } else if (this.state.type === 'FILE' || this.state.type === 'IMAGE') {
+    } else if (fieldType === 'FILE' || fieldType === 'IMAGE') {
       op = []
-    } else if (this.state.type === 'PICKLIST') {
+    } else if (fieldType === 'PICKLIST') {
       op = ['IN', 'NIN']
     } else if (this.isBizzField('User')) {
       op = ['IN', 'NIN', 'SFU', 'SFB']
@@ -344,7 +345,7 @@ class FilterItem extends React.Component {
     // Load
     if (this.props.field) {
       let field = this.props.field
-      $(this.state.fields).each(function () {
+      $(this.props.fields).each(function () {
         if (this.name === field) {
           field = [field, this.type].join('----')
           return false
@@ -442,6 +443,7 @@ class FilterItem extends React.Component {
   renderPickListAfter() {
     let that = this
     let s2val = $(this.refs['filter-val']).select2({
+      placeholder: ''
     }).on('change.select2', function () {
       let val = s2val.val()
       that.setState({ value: val.join('|') })
@@ -474,7 +476,7 @@ class FilterItem extends React.Component {
         data: function (params) {
           let query = {
             entity: entity,
-            qfields: entity === 'User' ? 'loginName,fullName,email' : 'name',
+            qfields: entity === 'User' ? 'loginName,fullName,email,quickCode' : 'name,quickCode',
             q: params.term
           }
           return query

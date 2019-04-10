@@ -138,24 +138,31 @@ body {
 	margin-top: 33px;
 }
 
-.view-action .col-6 {
+.view-action .col-lg-6 {
 	margin-bottom: .769231rem;
 }
 
-.view-action .col-6:nth-child(odd) {
+.view-action .col-lg-6:nth-child(odd) {
 	padding-right: 0.384615rem;
 }
 
-.view-action .col-6:nth-child(even) {
+.view-action .col-lg-6:nth-child(even) {
 	padding-left: 0.384615rem;
 }
 
-.view-action .col-6 .btn {
+.view-action .col-lg-6 .btn {
 	width: 100%
 }
 
 .view-action.empty {
 	margin-top: 4px;
+}
+
+@media screen and (max-width: 991px) {
+	.view-action .col-lg-6 {
+		padding-left: 15px !important;
+		padding-right: 15px !important;
+	}
 }
 
 .btn.load-mores {
@@ -221,7 +228,7 @@ body {
 	margin-bottom: 0px !important;
 }
 
-.view-user .row .col-8 {
+.view-user .row .col-md-8 {
 	min-height: 30px;
 	margin-top: -6px;
 	margin-bottom: 0;
