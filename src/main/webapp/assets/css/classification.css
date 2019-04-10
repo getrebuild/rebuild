@@ -55,8 +55,8 @@
   margin-top: 3px
 }
 
-.level-boxes .col-md-3.off>form,
-.level-boxes .col-md-3.off>ol {
+.level-boxes .col-md-3.off form,
+.level-boxes .col-md-3.off ol {
   display: none;
 }
 

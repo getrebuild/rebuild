@@ -115,7 +115,8 @@ public class ClassificationControll extends BasePageControll {
 		Record record = EntityHelper.parse((JSONObject) formJson, getRequestUser(request));
 		try {
 			record = Application.getBean(ClassificationService.class).createOrUpdate(record);
-			writeSuccess(response);
+			JSON ret = JSONUtils.toJSONObject("id", record.getPrimary());
+			writeSuccess(response, ret);
 		} catch (DataSpecificationException know) {
 			writeFailure(response, know.getLocalizedMessage());
 		}

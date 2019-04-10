@@ -21,7 +21,9 @@ class LevelBoxes extends React.Component {
   }
   componentDidMount() {
     this.notifyToggle(openLevel + 1, true)
-    $('.rb-loading-active').removeClass('rb-loading-active')
+    $('#boxes').removeClass('rb-loading-active')
+    let wh = $(window).height() - 287
+    $('#boxes .rb-scroller').css('max-height', wh).perfectScrollbar()
   }
 
   notifyItemActive(level, id) {
@@ -76,21 +78,23 @@ class LevelBox extends React.Component {
             <div className="input-group-append"><button className="btn btn-primary" type="submit" disabled={this.state.inSave === true}>{this.state.itemId ? '保存' : '添加'}</button></div>
           </div>
         </form>
-        <ol className="dd-list unset-list mt-3">
-          {(this.state.items || []).map((item) => {
-            let active = this.state.activeId === item[0]
-            return (
-              <li className={'dd-item ' + (active && 'active')} key={item[0]} onClick={() => this.clickItem(item[0])}>
-                <div className="dd-handle">{item[1]}</div>
-                <div className="dd-action">
-                  <a><i className="zmdi zmdi-edit" onClick={(e) => this.editItem(item, e)}></i></a>
-                  <a><i className="zmdi zmdi-delete" onClick={(e) => this.delItem(item, e)}></i></a>
-                </div>
-                {active && <span className="zmdi zmdi-caret-right arrow hide"></span>}
-              </li>
-            )
-          })}
-        </ol>
+        <div className="rb-scroller mt-3">
+          <ol className="dd-list unset-list">
+            {(this.state.items || []).map((item) => {
+              let active = this.state.activeId === item[0]
+              return (
+                <li className={'dd-item ' + (active && 'active')} key={item[0]} onClick={() => this.clickItem(item[0])}>
+                  <div className="dd-handle">{item[1]}</div>
+                  <div className="dd-action">
+                    <a><i className="zmdi zmdi-edit" onClick={(e) => this.editItem(item, e)}></i></a>
+                    <a><i className="zmdi zmdi-delete" onClick={(e) => this.delItem(item, e)}></i></a>
+                  </div>
+                  {active && <span className="zmdi zmdi-caret-right arrow hide"></span>}
+                </li>
+              )
+            })}
+          </ol>
+        </div>
       </div>)
   }
   componentDidMount() {

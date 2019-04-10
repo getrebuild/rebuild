@@ -30,7 +30,7 @@
 			<div class="clearfix"></div>
 		</div>
 		<div class="main-content container-fluid pt-1">
-			<div class="card">
+			<div class="card mb-0">
 				<div class="card-body rb-loading rb-loading-active" id="boxes">
 					<%@ include file="/_include/spinner.jsp"%>
 				</div>
