@@ -106,21 +106,21 @@ public class ClassificationImporter extends BulkTask {
 		}
 		
 		// 更新开放级别
-		int openLevel = 0;
-		while (firstOne != null) {
-			Object[] hasp = Application.createQueryNoFilter(
-					"select itemId from ClassificationData where parent = ?")
-					.setParameter(1, firstOne)
-					.unique();
-			if (hasp != null) {
-				openLevel++;
-			}
-			firstOne = hasp == null ? null : (ID) hasp[0];
-		}
-		
-		Record record = EntityHelper.forUpdate(dest, user);
-		record.setInt("openLevel", openLevel);
-		Application.getCommonService().update(record);
+//		int openLevel = 0;
+//		while (firstOne != null) {
+//			Object[] hasp = Application.createQueryNoFilter(
+//					"select itemId from ClassificationData where parent = ?")
+//					.setParameter(1, firstOne)
+//					.unique();
+//			if (hasp != null) {
+//				openLevel++;
+//			}
+//			firstOne = hasp == null ? null : (ID) hasp[0];
+//		}
+//		
+//		Record record = EntityHelper.forUpdate(dest, user);
+//		record.setInt("openLevel", openLevel);
+//		Application.getCommonService().update(record);
 	}
 	
 	/**

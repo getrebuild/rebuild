@@ -86,13 +86,25 @@ public class EntityHelper {
 	 * @return
 	 */
 	public static Record forUpdate(ID recordId, ID user) {
+		return forUpdate(recordId, user, true);
+	}
+	
+	/**
+	 * @param recordId
+	 * @param user
+	 * @param bindCommons 是否自动补充公共字段
+	 * @return
+	 */
+	public static Record forUpdate(ID recordId, ID user, boolean bindCommons) {
 		Assert.notNull(recordId, "[recordId] not be bull");
 		Assert.notNull(recordId, "[user] not be bull");
 		
 		Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 		Record record = new StandardRecord(entity, user);
 		record.setID(entity.getPrimaryField().getName(), recordId);
-		ExtRecordCreator.bindCommonsFieldsValue(record, false);
+		if (bindCommons) {
+			ExtRecordCreator.bindCommonsFieldsValue(record, false);
+		}
 		return record;
 	}
 	

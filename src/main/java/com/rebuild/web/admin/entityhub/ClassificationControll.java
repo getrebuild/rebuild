@@ -170,14 +170,15 @@ public class ClassificationControll extends BasePageControll {
 	
 	@RequestMapping("classification/load-data-items")
 	public void loadDataItems(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID dataId = getIdParameter(request, "data_id");
+		ID dataId = getIdParameterNotNull(request, "data_id");
 		ID parent = getIdParameter(request, "parent");
 		
 		Object[][] child = null;
 		if (parent != null) {
 			child = Application.createQuery(
-					"select itemId,name,code from ClassificationData where parent = ? order by code,name")
-					.setParameter(1, parent)
+					"select itemId,name,code from ClassificationData where dataId = ? and parent = ? order by code,name")
+					.setParameter(1, dataId)
+					.setParameter(2, parent)
 					.array();
 		} else if (dataId != null) {
 			child = Application.createQuery(

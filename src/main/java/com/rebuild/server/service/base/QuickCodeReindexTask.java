@@ -87,14 +87,12 @@ public class QuickCodeReindexTask extends BulkTask {
 						continue;
 					}
 					
-					Record record = EntityHelper.forUpdate(o.getPrimary(), UserService.SYSTEM_USER);
+					Record record = EntityHelper.forUpdate(o.getPrimary(), UserService.SYSTEM_USER, false);
 					if (StringUtils.isBlank(quickCodeNew)) {
 						record.setNull(EntityHelper.QuickCode);
 					} else {
 						record.setString(EntityHelper.QuickCode, quickCodeNew);
 					}
-					record.removeValue(EntityHelper.ModifiedBy);
-					record.removeValue(EntityHelper.ModifiedOn);
 					Application.getCommonService().update(record, false);
 				} finally {
 					this.setCompleteOne();
