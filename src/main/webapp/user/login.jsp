@@ -16,6 +16,7 @@
 				<div class="card card-border-color card-border-color-primary">
 					<div class="card-header"><a class="logo-img"></a></div>
 					<div class="card-body">
+						<form id="login-form">
 						<div class="form-group">
 							<input class="form-control" id="user" type="text" placeholder="用户名 (或邮箱)" autocomplete="off">
 						</div>
@@ -43,13 +44,17 @@
 							</div>
 						</div>
 						<div class="form-group login-submit">
-							<button class="btn btn-primary btn-xl J_login-btn" data-loading-text="登录中">登录</button>
+							<button class="btn btn-primary btn-xl" type="submit" data-loading-text="登录中">登录</button>
 						</div>
+						</form>
 					</div>
 				</div>
-				<div class="splash-footer text-muted">
-					<span>&copy; 2019 <a href="https://getrebuild.com/" target="_blank">REBUILD</a></span>
-					<div class="dev-show" style="font-size:11px">Built on <%=ServerListener.getStartupTime()%> (<%=Application.VER%>)</div>
+				<div class="splash-footer">
+					<div class="mb-1">还没有账号? <a href="signup">立即注册</a></div>
+					<div class="text-muted">
+						<span>&copy; 2019 <a class="text-muted" href="https://getrebuild.com/" target="_blank">REBUILD</a></span>
+						<div class="dev-show" style="font-size:11px">Built on <%=ServerListener.getStartupTime()%> (<%=Application.VER%>)</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -63,17 +68,15 @@ $(document).ready(function() {
 		$(this).attr('src', rb.baseUrl + '/user/captcha?' + $random())
 	}).trigger('click')
 
-	$('#user,#passwd,#vcode').keydown(function(e){
-		if (e.keyCode == 13) $('.J_login-btn').trigger('click')
-	})
-	const btn = $('.J_login-btn').click(function() {
+	$('#login-form').on('submit', function(e) {
+		e.preventDefault()
 		let user = $val('#user'), 
 			passwd = $val('#passwd'),
 			vcode = $val('#vcode')
 		if (!user || !passwd){ rb.highbar('请输入用户名和密码'); return }
 		if ($('.J_captcha').length > 0 && !vcode){ rb.highbar('请输入验证码'); return }
 		
-		btn.button('loading')
+		let btn = $('.login-submit button').button('loading')
 		let url = rb.baseUrl + '/user/user-login?user=' + $encode(user) + '&passwd=' + $encode(passwd) + '&autoLogin=' + $val('#autoLogin')
 		if (!!vcode) url += '&vcode=' + vcode
 		$.post(url, function(res) {

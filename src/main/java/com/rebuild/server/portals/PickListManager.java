@@ -31,7 +31,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 列表项
+ * 列表项。TODO 缓存
  * 
  * @author zhaofang123@gmail.com
  * @since 09/06/2018
@@ -105,7 +105,7 @@ public class PickListManager implements PortalsManager {
 	 * @param field
 	 * @return
 	 */
-	public static ID getIdByLabel(String label, Field field) {
+	public static ID findItemByLabel(String label, Field field) {
 		Object[] o = Application.createQueryNoFilter(
 				"select itemId from PickList where belongEntity = ? and belongField = ? and text = ?")
 				.setParameter(1, field.getOwnEntity().getName())

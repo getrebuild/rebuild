@@ -85,6 +85,9 @@ Array.prototype.contains = function (item) {
   }
   return false
 }
+Array.prototype.insert = function (index, item) {
+	 this.splice(index, 0, item)
+}
 // extends String
 String.prototype.startsWith = function (substr) {
   if (!substr) return false

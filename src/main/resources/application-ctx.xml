@@ -117,6 +117,7 @@
 			<tx:method name="share*"   propagation="REQUIRED" />
 			<tx:method name="unshare*" propagation="REQUIRED" />
 			<tx:method name="bulk*"    propagation="REQUIRED" />
+			<tx:method name="save*"    propagation="REQUIRED" />
 		</tx:attributes>
 	</tx:advice>
 	
@@ -139,6 +140,9 @@
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 	<bean class="com.rebuild.server.metadata.entityhub.PickListService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
+	<bean class="com.rebuild.server.metadata.entityhub.ClassificationService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 	

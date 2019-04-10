@@ -23,7 +23,6 @@ import org.junit.Test;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.portals.PickListManager;
 
 import cn.devezhao.persist4j.Field;
 

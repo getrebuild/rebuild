@@ -80,7 +80,7 @@ $(document).ready(function () {
     })
 
     $('.J_picklist-edit').click(function () {
-      rb.modal(`${rb.baseUrl}/admin/p/entity/picklist-config?entity=${wpc.entityName}&field=${wpc.fieldName}`, '配置列表选项')
+      rb.modal(`${rb.baseUrl}/admin/p/entityhub/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}`, '配置列表选项')
     })
   } else if (dt === 'SERIES' || wpc.fieldBuildin === true) {
     $('#fieldNullable, #fieldUpdatable').attr('disabled', true)
@@ -129,6 +129,20 @@ $(document).ready(function () {
       }, 200, 'bslider-change')
     })
     $('#fieldNullable').attr('disabled', true)
+  } else if (dt === 'CLASSIFICATION') {
+    if (extConfigOld.classification) {
+      $.get(`${rb.baseUrl}/admin/classification/info?id=${extConfigOld.classification}`, function (res) {
+        if (res.error_code === 0) {
+          $('#useClassification a').attr({
+            href: '../../../classification/' + extConfigOld.classification
+          }).text(res.data.name)
+        }
+      })
+    } else {
+      $('#useClassification a').attr({
+        href: '../../../classifications'
+      }).text('无效分类数据').addClass('text-danger')
+    }
   }
 
   if (wpc.fieldBuildin === true) $('.footer .alert').removeClass('hide')
@@ -144,15 +158,12 @@ $(document).ready(function () {
       confirmText: '删除'
     }
     alertExt.confirm = function () {
-      $(this.refs['btns']).find('.btn').button('loading')
-      let thatModal = this
-      $.post(`${rb.baseUrl}/admin/entity/field-drop?id=${wpc.metaId}`, function (res) {
+      this.disabled(true)
+      $.post(`${rb.baseUrl}/admin/entity/field-drop?id=${wpc.metaId}`, (res) => {
         if (res.error_code === 0) {
-          thatModal.hide()
+          this.hide()
           rb.hbsuccess('字段已删除')
-          setTimeout(function () {
-            location.replace('../fields')
-          }, 1500)
+          setTimeout(function () { location.replace('../fields') }, 1500)
         } else rb.hberror(res.error_msg)
       })
     }
@@ -198,14 +209,14 @@ class AdvDateDefaultValue extends RbFormHandler {
             </div>
             <div className="modal-body">
               <div className="text-center ml-6 mr-6">
-                <h4 className="mb-4 mt-3">高级默认值</h4>
+                <h4 className="mb-4 mt-3">设置高级默认值</h4>
                 <div className="row calc-expr">
                   <div className="col-4">
                     <select className="form-control form-control-sm">
                       <option>当前时间</option>
                     </select>
                   </div>
-                  <div className="col-4">
+                  <div className="col-4 pl-0 pr-0">
                     <select className="form-control form-control-sm" data-id="op" onChange={this.handleChange}>
                       <option value="">不计算</option>
                       <option value="+D">加 X 天</option>

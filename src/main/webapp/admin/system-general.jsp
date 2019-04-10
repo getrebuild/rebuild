@@ -24,7 +24,7 @@
 	<div class="rb-content">
 		<div class="main-content container-fluid syscfg">
 			<div class="row">
-				<div class="col-md-9 col-12">
+				<div class="col-lg-9 col-12">
 					<div class="card">
 						<div class="card-header card-header-divider">通用配置</div>
 						<div class="card-body">
@@ -68,7 +68,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="col-md-3 col-12">
+				<div class="col-lg-3 col-12">
 					<div class="card">
 						<div class="card-header card-header-divider">关于 REBUILD</div>
 						<div class="card-body">

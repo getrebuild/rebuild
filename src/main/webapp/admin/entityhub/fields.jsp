@@ -106,7 +106,7 @@ $(document).ready(function(){
 	})
 
 	$('.J_new-field').click(function(){
-		if (window.__PageConfig.isSuperAdmin) rb.modal('${baseUrl}/admin/p/entity/field-new?entity=${entityName}', '新建字段')
+		if (window.__PageConfig.isSuperAdmin) rb.modal('${baseUrl}/admin/p/entityhub/field-new?entity=${entityName}', '新建字段')
 		else rb.hberror('仅超级管理员可新建字段')
 	})
 });

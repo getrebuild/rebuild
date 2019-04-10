@@ -108,17 +108,22 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 					.addAttribute("nullable", custom[5].toString())
 					.addAttribute("creatable", custom[6].toString())
 					.addAttribute("updatable", custom[7].toString())
-					.addAttribute("decimal-scale", custom[8].toString())
 					.addAttribute("max-length", custom[9].toString())
-					.addAttribute("default-value", (String) custom[10])
-					.addAttribute("ref-entity", (String) custom[11])
-					.addAttribute("cascade", (String) custom[12]);
+					.addAttribute("default-value", (String) custom[10]);
 			if (fieldName.equals(EntityHelper.AutoId)) {
 				field.addAttribute("auto-value", "true");
 			}
 			
 			DisplayType dt = DisplayType.valueOf((String) custom[4]);
 			field.addAttribute("type", dt.getFieldType().getName());
+			
+			if (dt == DisplayType.DECIMAL) {
+				field.addAttribute("decimal-scale", custom[8].toString());
+			} else if (dt == DisplayType.ANYREFERENCE || dt == DisplayType.REFERENCE 
+					|| dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION) {
+				field.addAttribute("ref-entity", (String) custom[11])
+						.addAttribute("cascade", (String) custom[12]);
+			}
 			
 			FIELD_EXTMETA.put(entityName + "." + fieldName, new Object[] { custom[13], custom[14], dt, custom[15] });
 		}

@@ -80,20 +80,20 @@ public class DefaultValueManager {
 				String num = exprMatcher.group(2);
 				String unit = exprMatcher.group(3);
 				int num2int = ObjectUtils.toInt(num);
-				if (op.equals("-")) {
+				if ("-".equals(op)) {
 					num2int = -num2int;
 				}
 				
 				Date date = null;
 				if (num2int == 0) {
 					date = CalendarUtils.now();
-				} else if (unit.equals("Y")) {
+				} else if ("Y".equals(unit)) {
 					date = CalendarUtils.add(num2int, Calendar.YEAR);
-				} else if (unit.equals("M")) {
+				} else if ("M".equals(unit)) {
 					date = CalendarUtils.add(num2int, Calendar.MONTH);
-				} else if (unit.equals("D")) {
+				} else if ("D".equals(unit)) {
 					date = CalendarUtils.add(num2int, Calendar.DAY_OF_MONTH);
-				} else if (unit.equals("H")) {
+				} else if ("H".equals(unit)) {
 					date = CalendarUtils.add(num2int, Calendar.HOUR_OF_DAY);
 				}
 				return date == null ? null : CalendarUtils.getUTCDateTimeFormat().format(date);

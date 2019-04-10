@@ -29,8 +29,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entityhub.DisplayType;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.portals.AdvFilterManager;
 import com.rebuild.server.service.query.AdvFilterParser;
 
@@ -138,9 +136,6 @@ public class JSONQueryParser {
 		
 		StringBuffer sqlBase = new StringBuffer("select ");
 		for (Field field : fieldList) {
-			if (EasyMeta.getDisplayType(field) == DisplayType.PICKLIST) {
-				sqlBase.append('&');
-			}
 			sqlBase.append(field.getName()).append(',');
 		}
 		// 最后增加一个主键列

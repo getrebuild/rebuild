@@ -952,7 +952,8 @@ i.split.ui-draggable-dragging {
     white-space: nowrap
 }
 
-.sortable-box .dd-list .dd3-action {
+.sortable-box .dd-list .dd3-action,
+.dd-list .dd-item .dd-action {
     position: absolute;
     right: 0;
     top: 0;
@@ -976,7 +977,8 @@ i.split.ui-draggable-dragging {
     color: #4285f4;
 }
 
-.sortable-box .dd-list .dd3-item:hover>.dd3-action {
+.sortable-box .dd-list .dd3-item:hover>.dd3-action,
+.dd-list .dd-item:hover .dd-action {
     display: block;
 }
 
@@ -1449,4 +1451,59 @@ form.dropzone .note {
 
 form.simple {
     max-width: 888px;
+}
+
+.rb-left-sidebar .sidebar-elements>li>a .icon.x21,
+.rb-left-sidebar .sidebar-elements .sub-menu li>a .icon.x21 {
+    font-size: 21px;
+}
+
+.fs-12 {
+    font-size: 12px;
+}
+
+.fs-14 {
+    font-size: 14px;
+}
+
+.fs-16 {
+    font-size: 16px;
+}
+
+.fs-18 {
+    font-size: 18px;
+}
+
+.mw-auto {
+    min-width: auto;
+    max-width: auto;
+}
+
+.modal-dialog.selector.show {
+    display: block !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1050;
+}
+
+.modal.selector .modal-content {
+    max-width: 400px;
+    margin-top: 98px;
+}
+
+.modal.selector .modal-content .modal-body {
+    padding: 20px 30px;
+    padding-top: 10px;
+}
+
+.modal.selector .modal-content .modal-body>div {
+    margin-bottom: 10px;
+}
+
+.form,
+form {
+    display: block;
+    margin: 0;
 }

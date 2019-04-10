@@ -42,6 +42,7 @@ import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.metadata.entityhub.Field2Schema;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 
 import cn.devezhao.commons.web.ServletUtils;
@@ -63,7 +64,7 @@ public class MetaFieldControll extends BasePageControll  {
 	
 	@RequestMapping("{entity}/fields")
 	public ModelAndView pageEntityFields(@PathVariable String entity, HttpServletRequest request) throws IOException {
-		ModelAndView mv = createModelAndView("/admin/entity/fields.jsp");
+		ModelAndView mv = createModelAndView("/admin/entityhub/fields.jsp");
 		MetaEntityControll.setEntityBase(mv, entity);
 		String nameField = MetadataHelper.getNameField(entity).getName();
 		mv.getModel().put("nameField", nameField);
@@ -101,7 +102,7 @@ public class MetaFieldControll extends BasePageControll  {
 
 	@RequestMapping("{entity}/field/{field}")
 	public ModelAndView pageEntityField(@PathVariable String entity, @PathVariable String field, HttpServletRequest request) throws IOException {
-		ModelAndView mv = createModelAndView("/admin/entity/field-edit.jsp");
+		ModelAndView mv = createModelAndView("/admin/entityhub/field-edit.jsp");
 		EasyMeta easyMeta = MetaEntityControll.setEntityBase(mv, entity);
 		
 		Field fieldMeta = ((Entity) easyMeta.getBaseMeta()).getField(field);
@@ -123,9 +124,8 @@ public class MetaFieldControll extends BasePageControll  {
 			Entity refentity = fieldMeta.getReferenceEntities()[0];
 			mv.getModel().put("fieldRefentity", refentity.getName());
 			mv.getModel().put("fieldRefentityLabel", new EasyMeta(refentity).getLabel());
-		} else {
-			mv.getModel().put("fieldExtConfig", fieldEasyMeta.getFieldExtConfig());
 		}
+		mv.getModel().put("fieldExtConfig", fieldEasyMeta.getFieldExtConfig());
 		
 		return mv;
 	}
@@ -140,13 +140,20 @@ public class MetaFieldControll extends BasePageControll  {
 		String type = reqJson.getString("type");
 		String comments = reqJson.getString("comments");
 		String refEntity = reqJson.getString("refEntity");
+		String useClassification = reqJson.getString("dataId");
 		
 		Entity entity = MetadataHelper.getEntity(entityName);
 		DisplayType dt = DisplayType.valueOf(type);
 		
+		JSON extConfig = null;
+		if (dt == DisplayType.CLASSIFICATION) {
+			ID dataId = ID.valueOf(useClassification);
+			extConfig = JSONUtils.toJSONObject("classification", dataId);
+		}
+		
 		String fieldName = null;
 		try {
-			fieldName = new Field2Schema(user).create(entity, label, dt, comments, refEntity);
+			fieldName = new Field2Schema(user).create(entity, label, dt, comments, refEntity, extConfig);
 			writeSuccess(response, fieldName);
 		} catch (Exception ex) {
 			writeFailure(response, ex.getLocalizedMessage());

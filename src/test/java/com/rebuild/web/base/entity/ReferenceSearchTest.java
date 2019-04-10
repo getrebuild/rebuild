@@ -39,7 +39,7 @@ public class ReferenceSearchTest extends MvcTestSupport {
 	@Test
 	public void testSearch() throws Exception {
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
-				.post("/app/entity/search?entity=User&q=admin&qfields=loginName");
+				.post("/commons/search/search?entity=User&q=admin&qfields=loginName");
 		MvcResponse resp = perform(builder, UserService.ADMIN_USER);
 		System.out.println(resp);
 		Assert.assertTrue(resp.isSuccess());

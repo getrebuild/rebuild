@@ -29,7 +29,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.TestSupport;
-import com.rebuild.server.portals.NavManager;
 import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.commons.web.WebUtils;
@@ -43,7 +42,9 @@ public class NavManagerTest extends TestSupport {
 	@Test
 	public void testGetNav() throws Exception {
 		JSON nav = NavManager.getNav(UserService.ADMIN_USER);
-		System.out.println("testGetNav .......... \n" + nav.toJSONString());
+		if (nav != null) {
+			System.out.println("testGetNav .......... \n" + nav.toJSONString());
+		}
 	}
 	
 	@Test

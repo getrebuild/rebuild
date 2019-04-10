@@ -237,7 +237,15 @@ public class MetadataHelper {
 		if (ft == FieldType.PRIMARY) {
 			return DisplayType.ID;
 		} else if (ft == FieldType.REFERENCE) {
+			int rec = field.getReferenceEntity().getEntityCode();
+			if (rec == EntityHelper.PickList) {
+				return DisplayType.PICKLIST;
+			} else if (rec == EntityHelper.Classification) {
+				return DisplayType.CLASSIFICATION;
+			} 
 			return DisplayType.REFERENCE;
+		} else if (ft == FieldType.ANY_REFERENCE) {
+			return DisplayType.ANYREFERENCE;
 		} else if (ft == FieldType.TIMESTAMP) {
 			return DisplayType.DATETIME;
 		} else if (ft == FieldType.DATE) {
@@ -250,8 +258,6 @@ public class MetadataHelper {
 			return DisplayType.NUMBER;
 		} else if (ft == FieldType.TEXT) {
 			return DisplayType.NTEXT;
-		} else if (ft == FieldType.ANY_REFERENCE) {
-			return DisplayType.ANYREFERENCE;
 		}
 		return null;
 	}

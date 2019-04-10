@@ -32,6 +32,7 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.ExtRecordCreator;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.portals.ClassificationManager;
 import com.rebuild.server.portals.PickListManager;
 import com.rebuild.utils.JSONUtils;
 
@@ -50,6 +51,8 @@ import cn.devezhao.persist4j.engine.ID;
  * 
  * @author devezhao
  * @since 01/09/2019
+ * 
+ * @see DisplayType
  */
 public class DataImporter extends BulkTask {
 	
@@ -205,6 +208,8 @@ public class DataImporter extends BulkTask {
 			return checkoutDateValue(field, cell);
 		} else if (dt == DisplayType.PICKLIST) {
 			return checkoutPickListValue(field, cell);
+		} else if (dt == DisplayType.CLASSIFICATION) {
+			return checkoutClassificationValue(field, cell);
 		} else if (dt == DisplayType.REFERENCE) {
 			return checkoutReferenceValue(field, cell);
 		} else if (dt == DisplayType.BOOL) {
@@ -240,9 +245,40 @@ public class DataImporter extends BulkTask {
 		
 		// 支持ID
 		if (ID.isId(val) && ID.valueOf(val).getEntityCode() == EntityHelper.PickList) {
-			return ID.valueOf(val);
+			ID iid = ID.valueOf(val);
+			if (PickListManager.getLabel(iid) != null) {
+				return iid;
+			} else {
+				LOG.warn("No item of PickList found by ID : " + iid);
+				return null;
+			}
 		} else {
-			return PickListManager.getIdByLabel(val, field);
+			return PickListManager.findItemByLabel(val, field);
+		}
+	}
+	
+	/**
+	 * @param field
+	 * @param cell
+	 * @return
+	 */
+	private ID checkoutClassificationValue(Field field, Cell cell) {
+		String val = cell.asString();
+		if (StringUtils.isBlank(val)) {
+			return null;
+		}
+		
+		// 支持ID
+		if (ID.isId(val) && ID.valueOf(val).getEntityCode() == EntityHelper.ClassificationData) {
+			ID iid = ID.valueOf(val);
+			if (ClassificationManager.getName(iid) != null) {
+				return iid;
+			} else {
+				LOG.warn("No item of Classification found by ID : " + iid);
+				return null;
+			}
+		} else {
+			return ClassificationManager.findItemByName(val, field);
 		}
 	}
 	
@@ -260,7 +296,7 @@ public class DataImporter extends BulkTask {
 		Entity oEntity = field.getReferenceEntity();
 		
 		// 支持ID
-		if (ID.isId(val) && ID.valueOf(val).getEntityCode().intValue() == oEntity.getEntityCode().intValue()) {
+		if (ID.isId(val) && ID.valueOf(val).getEntityCode().intValue() == oEntity.getEntityCode()) {
 			return ID.valueOf(val);
 		}
 		

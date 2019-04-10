@@ -30,10 +30,12 @@ import com.rebuild.server.helper.SystemConfig;
 import com.rebuild.server.helper.upgrade.DbScriptsReader;
 
 /**
- * Automatically update SQL scripts
+ * Automatically update database
  * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/22
+ * 
+ * @see DbScriptsReader
  */
 public final class UpgradeDatabase {
 	

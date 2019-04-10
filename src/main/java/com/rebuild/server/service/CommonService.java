@@ -20,8 +20,12 @@ package com.rebuild.server.service;
 
 import org.springframework.util.Assert;
 
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.privileges.PrivilegesGuardInterceptor;
 
+import cn.devezhao.bizz.privileges.PrivilegesException;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -30,6 +34,7 @@ import cn.devezhao.persist4j.engine.ID;
  * 普通的 CRUD 服务
  * <br>- 此类有事物
  * <br>- 此类不经过用户权限验证 {@link PrivilegesGuardInterceptor}
+ * <br>- 有权限的实体不能使用此类 {@link EntityHelper#hasPrivilegesField(Entity)}
  * 
  * @author zhaofang123@gmail.com
  * @since 11/06/2017
@@ -43,6 +48,36 @@ public class CommonService extends BaseService {
 		super(aPMFactory);
 	}
 	
+	@Override
+	public Record create(Record record) {
+		tryIfWithPrivileges(record);
+		return super.create(record);
+	}
+	
+	@Override
+	public int delete(ID recordId) {
+		tryIfWithPrivileges(recordId);
+		return super.delete(recordId);
+	}
+	
+	@Override
+	public Record update(Record record) {
+		return update(record, true);
+	}
+	
+	/**
+	 * @param record
+	 * @param strictMode 会进行一定的约束检查
+	 * @return
+	 * @see #tryIfWithPrivileges(Object) 约束检查
+	 */
+	public Record update(Record record, boolean strictMode) {
+		if (strictMode) {
+			tryIfWithPrivileges(record);
+		}
+		return super.update(record);
+	}
+	
 	/**
 	 * 批量删除
 	 * 
@@ -50,10 +85,10 @@ public class CommonService extends BaseService {
 	 * @return
 	 */
 	public int delete(ID[] deleted) {
-		Assert.notNull(deleted, "'deleted' not be null");
+		Assert.notNull(deleted, "`deleted` cannot be null");
 		int affected = 0;
 		for (ID id : deleted) {
-			affected += super.delete(id);
+			affected += delete(id);
 		}
 		return affected;
 	}
@@ -65,10 +100,10 @@ public class CommonService extends BaseService {
 	 * @return
 	 */
 	public int createOrUpdate(Record[] saved) {
-		Assert.notNull(saved, "'saved' not be null");
+		Assert.notNull(saved, "`saved` cannot be null");
 		int affected = 0;
 		for (Record record : saved) {
-			super.createOrUpdate(record);
+			createOrUpdate(record);
 			affected++;
 		}
 		return affected;
@@ -86,5 +121,27 @@ public class CommonService extends BaseService {
 		affected += createOrUpdate(saved);
 		affected += delete(deleted);
 		return affected;
+	}
+	
+	/**
+	 * @param idOrRecord
+	 * @throws PrivilegesException
+	 */
+	private void tryIfWithPrivileges(Object idOrRecord) throws PrivilegesException {
+		Entity entity = null;
+		if (idOrRecord instanceof ID) {
+			entity = MetadataHelper.getEntity(((ID) idOrRecord).getEntityCode());
+		} else {
+			entity = ((Record) idOrRecord).getEntity();
+		}
+		
+		// 使用主实体
+		if (MetadataHelper.isSlaveEntity(entity.getEntityCode())) {
+			entity = entity.getMasterEntity();
+		}
+		
+		if (EntityHelper.hasPrivilegesField(entity)) {
+			throw new PrivilegesException("Entities with privileges cannot use this class(methods) : " + entity.getName());
+		}
 	}
 }

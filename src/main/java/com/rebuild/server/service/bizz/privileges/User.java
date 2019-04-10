@@ -98,9 +98,6 @@ public class User extends cn.devezhao.bizz.security.member.User {
 		if (getIdentity().equals(UserService.ADMIN_USER)) {
 			return true;
 		}
-		if (getOwningRole() != null && getOwningRole().getIdentity().equals(RoleService.ADMIN_ROLE)) {
-			return true;
-		}
-		return false;
+		return getOwningRole() != null && getOwningRole().getIdentity().equals(RoleService.ADMIN_ROLE);
 	}
 }

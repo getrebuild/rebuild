@@ -83,16 +83,16 @@ $(document).ready(function(){
 		$('.J_drop-confirm').attr('disabled', $(this).prop('checked') == false)
 	})
 	
-	let sbtn = $('.J_drop-confirm').click(()=>{
+	let sbtn = $('.J_drop-confirm').click(() => {
 		if (!window.__PageConfig.isSuperAdmin){ rb.hberror('仅超级管理员可删除实体'); return }
-		rb.alert('实体删除后将无法恢复，请务必谨慎操作！确认删除吗？', '删除实体', { type: 'danger', confirmText: '删除', confirm:function(){
+		rb.alert('实体删除后将无法恢复，请务必谨慎操作！确认删除吗？', '删除实体', { type: 'danger', confirmText: '删除', confirm: function(){
 			sbtn.button('loading')
-			$(this.refs['btns']).find('.btn').button('loading')
-			$.post('../entity-drop?id=' + metaId, function(res){
-				if (res.error_code == 0){
+			this.disabled(true)
+			$.post('../entity-drop?id=' + metaId, (res) => {
+				if (res.error_code == 0) {
 					rb.hbsuccess('实体已删除')
-					setTimeout(function(){ location.replace('../../entities') }, 1500)
-				}else rb.hberror(res.error_msg)
+					setTimeout(function() { location.replace('../../entities') }, 1500)
+				} else rb.hberror(res.error_msg)
 			})
 		} })
 	})

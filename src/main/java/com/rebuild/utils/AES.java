@@ -24,6 +24,8 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 
+import com.rebuild.server.RebuildException;
+
 /**
  * @author Zhao Fangfang
  * @since 2017-1-2
@@ -51,7 +53,7 @@ public class AES {
 			cipher.init(Cipher.ENCRYPT_MODE, skey);
 			crypted = cipher.doFinal(input.getBytes());
 		} catch (Exception ex) {
-			throw new RuntimeException("加密失败", ex);
+			throw new RebuildException("加密失败", ex);
 		}
 		return new String(Base64.encodeBase64(crypted));
 	}
@@ -77,7 +79,7 @@ public class AES {
 			cipher.init(Cipher.DECRYPT_MODE, skey);
 			output = cipher.doFinal(Base64.decodeBase64(input));
 		} catch (Exception ex) {
-			throw new RuntimeException("解密失败", ex);
+			throw new RebuildException("解密失败", ex);
 		}
 		return new String(output);
 	}

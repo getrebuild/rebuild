@@ -169,9 +169,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	private static boolean inIgnoreRes(String requestUrl) {
 		if (requestUrl.contains("/user/") && !requestUrl.contains("/user/admin")) {
 			return true;
-		} if (requestUrl.contains("/gw/") || requestUrl.contains("/assets/") || requestUrl.contains("/error/")) {
-			return true;
 		}
-		return false;
+		return requestUrl.contains("/gw/") || requestUrl.contains("/assets/") || requestUrl.contains("/error/");
 	}
 }

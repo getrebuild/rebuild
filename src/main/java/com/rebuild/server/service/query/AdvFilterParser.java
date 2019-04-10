@@ -83,9 +83,9 @@ public class AdvFilterParser {
 	 * @return
 	 */
 	public String toSqlWhere() {
-		// 快速过滤自动确定查询项
+		// 快速过滤模式，自动确定查询项
 		if ("QUICK".equalsIgnoreCase(filterExp.getString("type"))) {
-			JSONArray items = this.getQuickFilterItems();
+			JSONArray items = buildQuickFilterItems();
 			this.filterExp.put("items", items);
 		}
 		
@@ -182,8 +182,9 @@ public class AdvFilterParser {
 			fieldMeta = fieldMeta.getReferenceEntity().getField(fieldPath[1]);
 		}
 		
-		DisplayType fieldType = EasyMeta.getDisplayType(fieldMeta);
-		if (fieldType == DisplayType.PICKLIST || hasAndFlag) {
+		DisplayType dt = EasyMeta.getDisplayType(fieldMeta);
+		// TODO 分类字段仅能查询最后一级
+		if (dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION || hasAndFlag) {
 			field = "&" + field;
 		}
 		
@@ -374,12 +375,12 @@ public class AdvFilterParser {
 	/**
 	 * @return
 	 */
-	private JSONArray getQuickFilterItems() {
+	private JSONArray buildQuickFilterItems() {
 		Set<String> fields = new HashSet<>();
 		
 		Field nameField = rootEntity.getNameField();
 		DisplayType dt = EasyMeta.getDisplayType(nameField);
-		if (dt == DisplayType.PICKLIST || dt == DisplayType.REFERENCE) {
+		if (dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION) {
 			fields.add("&" + nameField.getName());
 		} else if (dt == DisplayType.TEXT || dt == DisplayType.EMAIL || dt == DisplayType.URL || dt == DisplayType.PHONE || dt == DisplayType.SERIES) {
 			fields.add(nameField.getName());

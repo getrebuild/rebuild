@@ -145,7 +145,7 @@ class DlgAddChart extends RbFormHandler {
   }
   render() {
     return (<RbModal title="添加图表" ref="dlg">
-      <form>
+      <div className="form">
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">图表数据来源</label>
           <div className="col-sm-7">
@@ -157,7 +157,7 @@ class DlgAddChart extends RbFormHandler {
             <button className="btn btn-primary" type="button" onClick={() => this.next()}>下一步</button>
           </div>
         </div>
-      </form>
+      </div>
     </RbModal>)
   }
   componentDidMount() {
@@ -185,7 +185,7 @@ class DlgDashSettings extends RbFormHandler {
   }
   render() {
     return (<RbModal title="仪表盘设置" ref="dlg">
-      <form>
+      <div className="form">
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">名称</label>
           <div className="col-sm-7">
@@ -209,7 +209,7 @@ class DlgDashSettings extends RbFormHandler {
             <button className="btn btn-secondary btn-space" type="button" onClick={() => this.delete()}><i className="zmdi zmdi-delete icon" /> 删除</button>
           </div>
         </div>
-      </form>
+      </div>
     </RbModal >)
   }
   save() {
@@ -245,7 +245,7 @@ class DlgDashAdd extends RbFormHandler {
   }
   render() {
     return (<RbModal title="添加仪表盘" ref="dlg">
-      <form>
+      <div className="form">
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">名称</label>
           <div className="col-sm-7">
@@ -263,13 +263,13 @@ class DlgDashAdd extends RbFormHandler {
         </div>
         <div className="form-group row footer">
           <div className="col-sm-7 offset-sm-3">
-            <button className="btn btn-primary" type="button" onClick={() => this.save()}>确定</button>
+            <button className="btn btn-primary" type="button" onClick={this.save}>确定</button>
           </div>
         </div>
-      </form>
+      </div>
     </RbModal>)
   }
-  save() {
+  save = () => {
     let _data = { title: this.state.title || '我的仪表盘' }
     _data.metadata = { entity: 'DashboardConfig' }
     if (this.state.copy === true) _data.__copy = gridster.serialize()

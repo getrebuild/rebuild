@@ -133,6 +133,7 @@ public class GeneralEntityService extends ObservableService  {
 		for (Field field : seriesFields) {
 			String series = SeriesGeneratorFactory.generate(field);
 			record.setString(field.getName(), series);
+			// TODO 仅支持一个自动编号?
 			break;
 		}
 	}

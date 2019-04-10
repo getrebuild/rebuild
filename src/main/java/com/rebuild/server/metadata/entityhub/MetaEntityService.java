@@ -36,7 +36,7 @@ public class MetaEntityService extends BaseService {
 	
 	private static final Log LOG = LogFactory.getLog(MetaEntityService.class);
 
-	public MetaEntityService(PersistManagerFactory aPMFactory) {
+	protected MetaEntityService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
 	}
 	
