@@ -47,7 +47,7 @@ public class TestSupport {
 	public static void startup() throws Exception {
 		LOG.warn("TESTING Startup ...");
 		if ("true".equals(System.getenv("TRAVIS"))) {
-			LOG.warn("TESTING in TravisCI ...");
+			LOG.info("TESTING in TravisCI ...");
 		}
 		
 		Application.debug();

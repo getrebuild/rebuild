@@ -32,7 +32,7 @@
 							<table class="table">
 							<tbody>
 								<tr>
-									<td width="50%">名称<p>这将完全替换 REBUILD 的品牌名称</p></td>
+									<td width="40%">名称<p>这将完全替换 REBUILD 的品牌名称</p></td>
 									<td id="sc-AppName">REBUILD</td>
 								</tr>
 								<tr>
@@ -56,7 +56,7 @@
 							<table class="table">
 							<tbody>
 								<tr>
-									<td width="50%">登录时需要验证码</td>
+									<td width="40%">登录时需要验证码</td>
 									<td>重试3次以后</td>
 								</tr>
 								<tr>

@@ -20,6 +20,7 @@ package com.rebuild.web.base.entity;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -52,6 +53,7 @@ import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.momentjava.Moment;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -250,8 +252,8 @@ public class GeneralEntityOperatorControll extends BaseControll {
 			return;
 		}
 		
-		recordMeta[0] = CalendarUtils.getUTCDateTimeFormat().format(recordMeta[0]);
-		recordMeta[1] = CalendarUtils.getUTCDateTimeFormat().format(recordMeta[1]);
+		recordMeta[0] = Moment.moment((Date) recordMeta[0]).fromNow();
+		recordMeta[1] = Moment.moment((Date) recordMeta[1]).fromNow();
 		
 		String[] owning = null;
 		List<String[]> sharingList = null;

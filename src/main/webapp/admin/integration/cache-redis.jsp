@@ -32,7 +32,7 @@
 									<table class="table">
 									<tbody>
 										<tr>
-											<td width="50%">缓存服务器</td>
+											<td width="40%">缓存服务器</td>
 											<td>${cacheAccount[0]}:${cacheAccount[1]}</td>
 										</tr>
 										<tr>

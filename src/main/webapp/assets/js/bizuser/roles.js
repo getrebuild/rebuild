@@ -91,7 +91,6 @@ const loadRoles = function () {
           }
         })
       })
-
     })
   })
 }

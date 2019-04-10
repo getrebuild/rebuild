@@ -31,11 +31,8 @@
 									<div class="adv-search float-left">
 										<div class="btn-group">
 											<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="text-truncate J_name">全部数据</span><i class="icon zmdi zmdi-caret-down"></i></button>
-											<div class="dropdown-menu rb-scroller">
-												<div class="dropdown-item" data-id="$ALL$"><a>全部数据</a></div>
-												<div class="dropdown-divider"></div>
-												<div class="dropdown-item J_advfilter"><i class="icon zmdi zmdi-plus"></i>添加过滤项</div>
-											</div>
+											<div class="dropdown-menu rb-scroller"><div class="dropdown-item" data-id="$ALL$"><a>全部数据</a></div></div>
+											<div class="input-group-append"><button title="高级查询" class="btn btn-secondary J_advfilter" type="button"><i class="icon zmdi zmdi-filter-list"></i></button></div>
 										</div>
 									</div>
 									<div class="input-group input-search">
@@ -56,7 +53,7 @@
 											<a class="dropdown-item J_assign"><i class="icon zmdi zmdi-mail-reply-all"></i> 分派</a>
 											<a class="dropdown-item J_share"><i class="icon zmdi zmdi-share"></i> 共享</a>
 											<div class="dropdown-divider"></div>
-											<a class="dropdown-item J_columns"><i class="icon zmdi zmdi-sort-amount-asc"></i> 列显示</a>
+											<a class="dropdown-item J_columns"><i class="icon zmdi zmdi-code-setting"></i> 列显示</a>
 										</div>
 									</div>
 								</div>
