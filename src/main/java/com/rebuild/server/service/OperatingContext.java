@@ -54,7 +54,7 @@ public class OperatingContext {
 		Assert.isTrue(beforeRecord != null || afterRecord != null, "'beforeRecord' 或 'afterRecord' 至少有一个不为空");
 		this.beforeRecord = beforeRecord;
 		this.afterRecord = afterRecord;
-		this.affected = affected == null ? new ID[] { getAnyRecord().getPrimary() } : affected;;
+		this.affected = affected == null ? new ID[] { getAnyRecord().getPrimary() } : affected;
 	}
 
 	/**

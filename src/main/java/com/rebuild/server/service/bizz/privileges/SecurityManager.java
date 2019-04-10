@@ -391,11 +391,7 @@ public class SecurityManager {
 				.setParameter(3, user)
 				.unique();
 		int rightsVal = rights == null ? 0 : (int) rights[0];
-		if ((rightsVal & BizzPermission.READ.getMask()) != 0) {
-			return true;
-		}
-		
-		return false;
+		return (rightsVal & BizzPermission.READ.getMask()) != 0;
 	}
 	
 	/**
