@@ -149,7 +149,7 @@
 		<field name="openLevel" type="small-int" default-value="0"/>
 	</entity>
 	
-	<entity name="ClassificationData" type-code="019" name-field="name" description="分类明细数据">
+	<entity name="ClassificationData" type-code="019" name-field="fullName" description="分类明细数据">
 		<field name="itemId" type="primary" />
 		<field name="dataId" type="reference" ref-entity="Classification" nullable="false" cascade="delete" />
 		<field name="code" type="string" max-length="50" />
