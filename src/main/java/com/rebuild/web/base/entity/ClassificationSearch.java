@@ -66,7 +66,7 @@ public class ClassificationSearch extends BaseControll {
 		} else {
 			sql += "parent is null";
 		}
-		sql += " order by name";
+		sql += " order by code, name";
 		Object[][] data = Application.createQueryNoFilter(sql).setParameter(1, ID.valueOf(dataId)).array();
 		
 		writeSuccess(response, data);
