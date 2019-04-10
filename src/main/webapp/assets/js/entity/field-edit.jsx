@@ -80,7 +80,7 @@ $(document).ready(function () {
     })
 
     $('.J_picklist-edit').click(function () {
-      rb.modal(`${rb.baseUrl}/admin/p/entityhub/picklist-config?entity=${wpc.entityName}&field=${wpc.fieldName}`, '配置列表选项')
+      rb.modal(`${rb.baseUrl}/admin/p/entityhub/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}`, '配置列表选项')
     })
   } else if (dt === 'SERIES' || wpc.fieldBuildin === true) {
     $('#fieldNullable, #fieldUpdatable').attr('disabled', true)

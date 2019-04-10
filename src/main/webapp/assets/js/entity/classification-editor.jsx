@@ -2,9 +2,7 @@
 /* eslint-disable no-undef */
 $(document).ready(function () {
   renderRbcomp(<LevelBoxes id={dataId} />, 'boxes')
-  $('.J_imports').click(() => {
-    renderRbcomp(<DlgImports id={dataId} />)
-  })
+  $('.J_imports').click(() => { renderRbcomp(<DlgImports id={dataId} />) })
 })
 
 class LevelBoxes extends React.Component {
@@ -75,7 +73,7 @@ class LevelBox extends React.Component {
         <form className="mt-1" onSubmit={this.saveItem}>
           <div className="input-group input-group-sm">
             <input className="form-control" type="text" maxLength="50" placeholder="名称" value={this.state.itemName || ''} data-id="itemName" onChange={this.changeVal} />
-            <div className="input-group-append"><button className="btn btn-primary" type="submit">{this.state.itemId ? '保存' : '添加'}</button></div>
+            <div className="input-group-append"><button className="btn btn-primary" type="submit" disabled={this.state.inSave === true}>{this.state.itemId ? '保存' : '添加'}</button></div>
           </div>
         </form>
         <ol className="dd-list unset-list mt-3">
@@ -150,6 +148,7 @@ class LevelBox extends React.Component {
     let url = `${rb.baseUrl}/admin/classification/save-data-item?data_id=${dataId}&name=${name}`
     if (this.state.itemId) url += `&item_id=${this.state.itemId}`
     else url += `&parent=${this.parentId}`
+    this.setState({ inSave: true })
     $.post(url, (res) => {
       if (res.error_code === 0) {
         let items = this.state.items || []
@@ -160,7 +159,7 @@ class LevelBox extends React.Component {
         } else {
           items.insert(0, [res.data, name])
         }
-        this.setState({ items: items, itemName: null, itemId: null })
+        this.setState({ items: items, itemName: null, itemId: null, inSave: false })
       } else rb.hberror(res.error_msg)
     })
   }
@@ -171,7 +170,8 @@ class LevelBox extends React.Component {
   delItem(item, e) {
     e.stopPropagation()
     let that = this
-    rb.alert('删除后其子级分类也将一并删除。确认删除此分类项？', {
+    rb.alert('删除后其子级分类项也将被一并删除。<br>同时，已经使用了这些分类项的数据（字段）也将无法显示。<br>确定要删除吗？', {
+      html: true,
       confirm: function () {
         $.post(`${rb.baseUrl}/app/entity/record-delete?id=${item[0]}`, (res) => {
           this.hide()

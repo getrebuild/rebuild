@@ -1,4 +1,4 @@
-/* List */
+/* List Page */
 
 .class-list>div {
   padding-left: 10px;
@@ -35,7 +35,11 @@
   padding-top: 3px;
 }
 
-/* Editor */
+/* Editor Page */
+
+#boxes {
+  min-height: 300px;
+}
 
 .level-boxes .col-md-3 {
   margin-top: 15px

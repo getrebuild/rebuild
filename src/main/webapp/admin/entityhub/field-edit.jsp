@@ -11,7 +11,7 @@
 .sortable-box .dd-list .dd-item, .sortable-box .dd-list .dd-handle{background-color:#fff !important;color:#404040 !important}
 .sortable-box .no-item{padding:9px;text-align:center;color:#999}
 .sortable-box.autoh,.sortable-box.autoh .dd-list{height:auto;}
-.sortable-box .default .dd-handle::after{content:'默认值';float:right;color:#777;font-size:12px;font-style:italic;}
+.sortable-box .default .dd-handle{background-color:#dedede !important}
 .form-text.help code{cursor:help;font-weight:bold;}
 .calc-expr{border-radius:3px;padding:10px 0;background-color:#eee}
 .calc-expr .col-4{padding-left:10px;padding-right:10px;}
