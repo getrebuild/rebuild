@@ -244,6 +244,8 @@ public class MetadataHelper {
 				return DisplayType.CLASSIFICATION;
 			} 
 			return DisplayType.REFERENCE;
+		} else if (ft == FieldType.ANY_REFERENCE) {
+			return DisplayType.ANYREFERENCE;
 		} else if (ft == FieldType.TIMESTAMP) {
 			return DisplayType.DATETIME;
 		} else if (ft == FieldType.DATE) {
@@ -256,8 +258,6 @@ public class MetadataHelper {
 			return DisplayType.NUMBER;
 		} else if (ft == FieldType.TEXT) {
 			return DisplayType.NTEXT;
-		} else if (ft == FieldType.ANY_REFERENCE) {
-			return DisplayType.ANYREFERENCE;
 		}
 		return null;
 	}

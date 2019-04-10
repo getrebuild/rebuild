@@ -105,7 +105,7 @@ public class PickListManager implements PortalsManager {
 	 * @param field
 	 * @return
 	 */
-	public static ID getIdByLabel(String label, Field field) {
+	public static ID findItemByLabel(String label, Field field) {
 		Object[] o = Application.createQueryNoFilter(
 				"select itemId from PickList where belongEntity = ? and belongField = ? and text = ?")
 				.setParameter(1, field.getOwnEntity().getName())

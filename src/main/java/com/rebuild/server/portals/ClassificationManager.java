@@ -29,7 +29,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 分类数据。TODO 缓存
+ * 分类数据
  * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/28

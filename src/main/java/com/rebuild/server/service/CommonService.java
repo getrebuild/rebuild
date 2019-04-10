@@ -67,9 +67,9 @@ public class CommonService extends BaseService {
 	
 	/**
 	 * @param record
-	 * @param strictMode 会执行一定的额规则检查
+	 * @param strictMode 会进行一定的约束检查
 	 * @return
-	 * @see #tryIfWithPrivileges(Object)
+	 * @see #tryIfWithPrivileges(Object) 约束检查
 	 */
 	public Record update(Record record, boolean strictMode) {
 		if (strictMode) {
@@ -133,6 +133,11 @@ public class CommonService extends BaseService {
 			entity = MetadataHelper.getEntity(((ID) idOrRecord).getEntityCode());
 		} else {
 			entity = ((Record) idOrRecord).getEntity();
+		}
+		
+		// 使用主实体
+		if (MetadataHelper.isSlaveEntity(entity.getEntityCode())) {
+			entity = entity.getMasterEntity();
 		}
 		
 		if (EntityHelper.hasPrivilegesField(entity)) {

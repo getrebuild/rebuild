@@ -84,8 +84,8 @@ public class DataWrapper extends FieldValueWrapper {
 				}
 				
 				if (field.getType() == FieldType.REFERENCE) {
-					int ec = field.getReferenceEntity().getEntityCode();
-					if (ec == EntityHelper.ClassificationData || ec == EntityHelper.PickList) {
+					int rec = field.getReferenceEntity().getEntityCode();
+					if (rec == EntityHelper.ClassificationData || rec == EntityHelper.PickList) {
 						row[i] = wrapFieldValue(row[i], EasyMeta.valueOf(field));
 					} else {
 						row[i] = readReferenceValue((ID) row[i], null);

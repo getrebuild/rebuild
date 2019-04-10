@@ -245,9 +245,15 @@ public class DataImporter extends BulkTask {
 		
 		// 支持ID
 		if (ID.isId(val) && ID.valueOf(val).getEntityCode() == EntityHelper.PickList) {
-			return ID.valueOf(val);
+			ID iid = ID.valueOf(val);
+			if (PickListManager.getLabel(iid) != null) {
+				return iid;
+			} else {
+				LOG.warn("No item of PickList found by ID : " + iid);
+				return null;
+			}
 		} else {
-			return PickListManager.getIdByLabel(val, field);
+			return PickListManager.findItemByLabel(val, field);
 		}
 	}
 	
@@ -264,7 +270,13 @@ public class DataImporter extends BulkTask {
 		
 		// 支持ID
 		if (ID.isId(val) && ID.valueOf(val).getEntityCode() == EntityHelper.ClassificationData) {
-			return ID.valueOf(val);
+			ID iid = ID.valueOf(val);
+			if (ClassificationManager.getName(iid) != null) {
+				return iid;
+			} else {
+				LOG.warn("No item of Classification found by ID : " + iid);
+				return null;
+			}
 		} else {
 			return ClassificationManager.findItemByName(val, field);
 		}
@@ -284,7 +296,7 @@ public class DataImporter extends BulkTask {
 		Entity oEntity = field.getReferenceEntity();
 		
 		// 支持ID
-		if (ID.isId(val) && ID.valueOf(val).getEntityCode().intValue() == oEntity.getEntityCode().intValue()) {
+		if (ID.isId(val) && ID.valueOf(val).getEntityCode().intValue() == oEntity.getEntityCode()) {
 			return ID.valueOf(val);
 		}
 		
