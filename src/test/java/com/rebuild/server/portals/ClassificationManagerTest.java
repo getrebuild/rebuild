@@ -36,28 +36,21 @@ import cn.devezhao.persist4j.engine.ID;
 public class ClassificationManagerTest extends TestSupport {
 
 	@Test
-	public void testGetItemLevel() {
-		System.out.println(ClassificationManager.getItemLevel(ID.valueOf("019-0169fdc8dba32b18")));  // 0
-		System.out.println(ClassificationManager.getItemLevel(ID.valueOf("019-0169fdc8dba42b19")));  // 1
-		System.out.println(ClassificationManager.getItemLevel(ID.valueOf("019-0169fdc8dba52b1a")));  // 2
-	}
-	
-	@Test
 	public void testFindByName() throws Exception {
 		Entity test = MetadataHelper.getEntity(TEST_ENTITY);
 		Field classification = test.getField("classification");
 		
-		ID itemId = ClassificationManager.findByName("南京", classification);
+		ID itemId = ClassificationManager.findItemByName("南京", classification);
 		if (itemId != null) {
 			String fullName = ClassificationManager.getFullName(itemId);
 			System.out.println(itemId + " > " + fullName);
 		}
 		System.out.println(itemId);
 		
-		itemId = ClassificationManager.findByName("江苏.南京", classification);
+		itemId = ClassificationManager.findItemByName("江苏.南京", classification);
 		System.out.println(itemId);
 		
-		itemId = ClassificationManager.findByName("江苏.无效的", classification);
+		itemId = ClassificationManager.findItemByName("江苏.无效的", classification);
 		System.out.println(itemId);
 	}
 }

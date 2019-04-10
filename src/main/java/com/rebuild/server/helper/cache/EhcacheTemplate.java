@@ -53,7 +53,7 @@ public class EhcacheTemplate<V extends Serializable> implements CacheTemplate<V>
 	}
 
 	@Override
-	public void put(String key, String value, int exp) {
+	public void put(String key, String value, int seconds) {
 		key = unityKey(key);
 		cache().put(key, value);
 	}
@@ -72,7 +72,7 @@ public class EhcacheTemplate<V extends Serializable> implements CacheTemplate<V>
 	}
 
 	@Override
-	public void putx(String key, V value, int exp) {
+	public void putx(String key, V value, int seconds) {
 		key = unityKey(key);
 		cache().put(key, value);
 	}

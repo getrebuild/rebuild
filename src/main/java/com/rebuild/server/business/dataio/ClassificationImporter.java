@@ -36,6 +36,8 @@ import com.rebuild.server.helper.SystemConfig;
 import com.rebuild.server.helper.task.BulkTask;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entityhub.ClassificationService;
+import com.rebuild.server.portals.ClassificationManager;
 
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.persist4j.Record;
@@ -76,6 +78,13 @@ public class ClassificationImporter extends BulkTask {
 			return;
 		}
 		
+		Object[][] olds = Application.createQueryNoFilter(
+				"select itemId from ClassificationData where dataId = ?")
+				.setParameter(1, dest)
+				.array();
+		for (Object[] o : olds) {
+			ClassificationManager.cleanCache((ID) o[0]);
+		}
 		String delSql = String.format("delete from `%s` where `DATA_ID` = '%s'",
 				MetadataHelper.getEntity(EntityHelper.ClassificationData).getPhysicalName(), dest);
 		Application.getSQLExecutor().execute(delSql);
@@ -132,7 +141,7 @@ public class ClassificationImporter extends BulkTask {
 		if (parent != null) {
 			item.setID("parent", parent);
 		}
-		item = Application.getCommonService().create(item);
+		item = Application.getBean(ClassificationService.class).saveItem(item);
 		
 		JSONArray children = node.getJSONArray("children");
 		if (children != null) {

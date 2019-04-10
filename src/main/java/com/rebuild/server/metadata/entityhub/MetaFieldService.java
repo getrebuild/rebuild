@@ -28,7 +28,7 @@ import cn.devezhao.persist4j.PersistManagerFactory;
  */
 public class MetaFieldService extends BaseService {
 
-	public MetaFieldService(PersistManagerFactory aPMFactory) {
+	protected MetaFieldService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
 	}
 }

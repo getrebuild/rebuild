@@ -95,7 +95,7 @@ public class QuickCodeReindexTask extends BulkTask {
 					}
 					record.removeValue(EntityHelper.ModifiedBy);
 					record.removeValue(EntityHelper.ModifiedOn);
-					Application.getCommonService().update(record);
+					Application.getCommonService().update(record, false);
 				} finally {
 					this.setCompleteOne();
 				}

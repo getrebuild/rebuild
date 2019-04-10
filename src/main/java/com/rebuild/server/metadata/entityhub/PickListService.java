@@ -35,13 +35,14 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * 下拉列表
  * 
  * @author zhaofang123@gmail.com
  * @since 09/07/2018
  */
 public class PickListService extends BaseService  {
 
-	public PickListService(PersistManagerFactory aPMFactory) {
+	protected PickListService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
 	}
 

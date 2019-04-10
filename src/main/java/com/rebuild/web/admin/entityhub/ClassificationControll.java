@@ -30,11 +30,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.entityhub.ClassificationService;
+import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
+import com.rebuild.web.base.entity.GeneralEntityOperatorControll;
 
+import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
@@ -87,25 +92,6 @@ public class ClassificationControll extends BasePageControll {
 		writeSuccess(resp, ret);
 	}
 	
-	@RequestMapping("classification/delete")
-	public void delete(HttpServletRequest request, HttpServletResponse resp) throws IOException {
-		ID id = getIdParameterNotNull(request, "id");
-		
-		// 检查是否被使用
-		Object[][] used = Application.createQueryNoFilter(
-				"select extConfig from MetaField where displayType = 'CLASSIFICATION'")
-				.array();
-		for (Object[] o : used) {
-			if (StringUtils.contains((String) o[0], id.toLiteral())) {
-				writeFailure(resp, "此分类数据正在被使用，不能删除");
-				return;
-			}
-		}
-		
-		Application.getCommonService().delete(id);
-		writeSuccess(resp);
-	}
-	
 	@RequestMapping("classification/info")
 	public void info(HttpServletRequest request, HttpServletResponse resp) throws IOException {
 		ID dataId = getIdParameterNotNull(request, "id");
@@ -120,8 +106,37 @@ public class ClassificationControll extends BasePageControll {
 		writeSuccess(resp, JSONUtils.toJSONObject("name", data[0]));
 	}
 	
+	/**
+	 * @see {@link GeneralEntityOperatorControll#save(HttpServletRequest, HttpServletResponse)}
+	 */
+	@RequestMapping("classification/save")
+	public void save(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		JSON formJson = ServletUtils.getRequestJson(request);
+		Record record = EntityHelper.parse((JSONObject) formJson, getRequestUser(request));
+		try {
+			record = Application.getBean(ClassificationService.class).createOrUpdate(record);
+			writeSuccess(response);
+		} catch (DataSpecificationException know) {
+			writeFailure(response, know.getLocalizedMessage());
+		}
+	}
+	
+	/**
+	 * @see {@link GeneralEntityOperatorControll#delete(HttpServletRequest, HttpServletResponse)}
+	 */
+	@RequestMapping("classification/delete")
+	public void delete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID dataId = getIdParameterNotNull(request, "id");
+		try {
+			Application.getBean(ClassificationService.class).delete(dataId);
+			writeSuccess(response);
+		} catch (DataSpecificationException know) {
+			writeFailure(response, know.getLocalizedMessage());
+		}
+	}
+	
 	@RequestMapping("classification/save-data-item")
-	public void saveDataItem(HttpServletRequest request, HttpServletResponse resp) throws IOException {
+	public void saveDataItem(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		ID itemId = getIdParameter(request, "item_id");
 		ID dataId = getIdParameter(request, "data_id");
@@ -137,26 +152,24 @@ public class ClassificationControll extends BasePageControll {
 				item.setID("parent", parent);
 			}
 		} else {
-			writeFailure(resp, "无效参数");
+			writeFailure(response, "无效参数");
 			return;
 		}
 		
 		String code = getParameter(request, "code");
 		String name = getParameter(request, "name");
-		
 		if (StringUtils.isNotBlank(code)) {
 			item.setString("code", code);
 		}
 		if (StringUtils.isNotBlank(name)) {
 			item.setString("name", name);
 		}
-		item = Application.getCommonService().createOrUpdate(item);
-		
-		writeSuccess(resp, item.getPrimary());
+		item = Application.getBean(ClassificationService.class).saveItem(item);
+		writeSuccess(response, item.getPrimary());
 	}
 	
 	@RequestMapping("classification/load-data-items")
-	public void loadDataItems(HttpServletRequest request, HttpServletResponse resp) throws IOException {
+	public void loadDataItems(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID dataId = getIdParameter(request, "data_id");
 		ID parent = getIdParameter(request, "parent");
 		
@@ -172,10 +185,9 @@ public class ClassificationControll extends BasePageControll {
 					.setParameter(1, dataId)
 					.array();
 		} else {
-			writeFailure(resp, "无效参数");
+			writeFailure(response, "无效参数");
 			return;
 		}
-		
-		writeSuccess(resp, child);
+		writeSuccess(response, child);
 	}
 }

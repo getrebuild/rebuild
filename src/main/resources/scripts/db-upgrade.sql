@@ -24,12 +24,14 @@ create table if not exists `classification_data` (
   `DATA_ID`            char(20) not null,
   `CREATED_BY`         char(20) not null comment '创建人',
   `NAME`               varchar(100) not null,
+  `FULL_NAME`          varchar(300) not null comment '包括父级名称, 用 . 分割',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
   primary key  (`ITEM_ID`)
 )Engine=InnoDB;
 alter table `classification_data`
-  add index `IX1_classification_data` (`DATA_ID`, `PARENT`, `NAME`);
+  add index `IX1_classification_data` (`DATA_ID`, `PARENT`, `NAME`),
+  add index `IX2_classification_data` (`DATA_ID`, `FULL_NAME`);
 INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `IS_DISABLED`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`) 
   VALUES
   ('018-0000000000000001', '地区', NULL, 2, 'F', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),

@@ -266,7 +266,7 @@ public class DataImporter extends BulkTask {
 		if (ID.isId(val) && ID.valueOf(val).getEntityCode() == EntityHelper.ClassificationData) {
 			return ID.valueOf(val);
 		} else {
-			return ClassificationManager.findByName(val, field);
+			return ClassificationManager.findItemByName(val, field);
 		}
 	}
 	

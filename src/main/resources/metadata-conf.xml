@@ -154,8 +154,10 @@
 		<field name="dataId" type="reference" ref-entity="Classification" nullable="false" cascade="delete" />
 		<field name="code" type="string" max-length="50" />
 		<field name="name" type="string" max-length="100" nullable="false" />
+		<field name="fullName" type="string" max-length="300" nullable="false" description="包括父级名称, 用点号分割" />
 		<field name="parent" type="reference" ref-entity="ClassificationData" cascade="delete" />
 		<index field-list="dataId,parent,name"/>
+		<index field-list="dataId,fullName"/>
 	</entity>
 	
 	<entity name="ShareAccess" type-code="020" description="记录共享">

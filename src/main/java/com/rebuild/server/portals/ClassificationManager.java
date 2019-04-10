@@ -18,15 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.portals;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 
 import cn.devezhao.persist4j.Field;
@@ -49,11 +45,8 @@ public class ClassificationManager implements PortalsManager {
 	 * @return
 	 */
 	public static String getName(ID itemId) {
-		Object[] o = Application.createQueryNoFilter(
-				"select name from ClassificationData where itemId = ?")
-				.setParameter(1, itemId)
-				.unique();
-		return o == null ? null : (String) o[0];
+		String[] ns = getItemNames(itemId);
+		return ns == null ? null : ns[0];
 	}
 	
 	/**
@@ -63,87 +56,57 @@ public class ClassificationManager implements PortalsManager {
 	 * @return
 	 */
 	public static String getFullName(ID itemId) {
-		List<String> names = new ArrayList<>();
-		while (itemId != null) {
-			Object[] o = Application.createQueryNoFilter(
-					"select name,parent from ClassificationData where itemId = ?")
-					.setParameter(1, itemId)
-					.unique();
-			names.add((String) o[0]);
-			itemId = (ID) o[1];
-		}
-		
-		String namesArr[] = names.toArray(new String[names.size()]);
-		ArrayUtils.reverse(namesArr);
-		return StringUtils.join(namesArr, ".");
+		String[] ns = getItemNames(itemId);
+		return ns == null ? null : ns[1];
 	}
 	
 	/**
-	 * 从最后一级开始查找，最多向上匹配两级
-	 * TODO 更优的查询方式
+	 * @param itemId
+	 * @return [名称, 全名称]
+	 */
+	private static String[] getItemNames(ID itemId) {
+		final String ckey = "NAME-" + itemId;
+		String[] cval = (String[]) Application.getCommonCache().getx(ckey);
+		if (cval != null) {
+			return cval;
+		}
+		
+		Object[] o = Application.createQueryNoFilter(
+				"select name,fullName from ClassificationData where itemId = ?")
+				.setParameter(1, itemId)
+				.unique();
+		if (o != null) {
+			cval = new String[] { (String) o[0], (String) o[1] };
+			Application.getCommonCache().putx(ckey, cval);
+		}
+		return cval;
+	}
+	
+	/**
+	 * 根据名称搜索对应的分类项 ID（后段匹配优先）
 	 * 
 	 * @param name
 	 * @param field
 	 * @return
 	 */
-	public static ID findByName(String name, Field field) {
+	public static ID findItemByName(String name, Field field) {
 		ID dataId = getUseClassification(field);
 		if (dataId == null) {
 			return null;
 		}
 		
-		String[] names = name.split("\\.");
-		String baseSql = String.format("select itemId,parent,parent.name from ClassificationData where dataId = '%s' and name = ?", dataId);
-		
-		Object[][] hasMany = Application.createQueryNoFilter(baseSql)
-			.setParameter(1, names[names.length - 1])
-			.array();
-		if (hasMany.length == 1) {
-			ID itemId = (ID) hasMany[0][0];
-			return itemId;
-		} else if (hasMany.length == 0) {
+		// 后匹配
+		String ql = String.format(
+				"select itemId from ClassificationData where dataId = '%s' and fullName like '%%%s'", dataId, name);
+		Object[][] hasMany = Application.createQueryNoFilter(ql).array();
+		if (hasMany.length == 0) {
 			return null;
+		} else if (hasMany.length == 1) {
+			return (ID) hasMany[0][0];
+		} else {
+			// TODO 多个匹配
+			return (ID) hasMany[0][0];
 		}
-		
-		if (names.length < 2) {
-			return null;
-		}
-		
-		// 有多个匹配
-		for (Object o[] : hasMany) {
-			String parentName = (String) o[2];
-			if (parentName.equalsIgnoreCase(names[names.length - 2])) {
-				ID itemId = (ID) o[0];
-				return itemId;
-			}
-		}
-		
-		// 仅查找最后两级
-		return null;
-	}
-	
-	/**
-	 * 获取指定项目的所处等级（注意从 0 开始）
-	 * 
-	 * @param itemId
-	 * @return
-	 */
-	public static int getItemLevel(ID itemId) {
-		int level = 0;
-		ID parent = itemId;
-		while (parent != null) {
-			Object o[] = Application.createQueryNoFilter(
-					"select parent from ClassificationData where itemId = ?")
-					.setParameter(1, parent)
-					.unique();
-			if (o != null && o[0] != null) {
-				level++;
-				parent = (ID) o[0];
-			} else {
-				parent = null;
-			}
-		}
-		return level;
 	}
 	
 	/**
@@ -158,18 +121,30 @@ public class ClassificationManager implements PortalsManager {
 			return 0;
 		}
 		
+		String ckey = "LEVEL-" + dataId;
+		Integer cval = (Integer) Application.getCommonCache().getx(ckey);
+		if (cval != null) {
+			return cval;
+		}
+		
 		Object[] o = Application.createQueryNoFilter(
 				"select openLevel from Classification where dataId = ?")
 				.setParameter(1, dataId)
 				.unique();
-		return o == null ? 0 : (Integer) o[0];
+		if (o != null) {
+			cval = (Integer) o[0];
+			Application.getCommonCache().putx(ckey, cval);
+		}
+		return cval;
 	}
 	
 	/**
+	 * 获取指定字段所使用的分类
+	 * 
 	 * @param field
 	 * @return
 	 */
-	private static ID getUseClassification(Field field) {
+	public static ID getUseClassification(Field field) {
 		String use = EasyMeta.valueOf(field).getFieldExtConfig().getString("classification");
 		ID dataId = ID.isId(use) ? ID.valueOf(use) : null;
 		if (dataId == null) {
@@ -179,10 +154,18 @@ public class ClassificationManager implements PortalsManager {
 	}
 	
 	/**
-	 * TODO 清理缓存
+	 *  清理缓存
 	 * 
 	 * @param dataOrItem
+	 * @see #getName(ID)
+	 * @see #getFullName(ID)
+	 * @see #getOpenLevel(Field)
 	 */
-	public static void clearCache(ID dataOrItem) {
+	public static void cleanCache(ID dataOrItem) {
+		if (dataOrItem.getEntityCode() == EntityHelper.ClassificationData) {
+			Application.getCommonCache().evict("NAME-" + dataOrItem);
+		} else if (dataOrItem.getEntityCode() == EntityHelper.Classification) {
+			Application.getCommonCache().evict("LEVEL-" + dataOrItem);
+		}
 	}
 }

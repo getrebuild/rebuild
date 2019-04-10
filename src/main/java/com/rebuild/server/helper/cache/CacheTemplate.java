@@ -30,13 +30,13 @@ public interface CacheTemplate<V extends Serializable> {
 
 	void put(String key, String value);
 	
-	void put(String key, String value, int exp);
+	void put(String key, String value, int seconds);
 
 	V getx(String key);
 	
 	void putx(String key, V value);
 	
-	void putx(String key, V value, int exp);
+	void putx(String key, V value, int seconds);
 	
 	void evict(String key);
 	

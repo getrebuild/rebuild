@@ -62,7 +62,19 @@ public class CommonService extends BaseService {
 	
 	@Override
 	public Record update(Record record) {
-		tryIfWithPrivileges(record);
+		return update(record, true);
+	}
+	
+	/**
+	 * @param record
+	 * @param strictMode 会执行一定的额规则检查
+	 * @return
+	 * @see #tryIfWithPrivileges(Object)
+	 */
+	public Record update(Record record, boolean strictMode) {
+		if (strictMode) {
+			tryIfWithPrivileges(record);
+		}
 		return super.update(record);
 	}
 	

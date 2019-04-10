@@ -654,6 +654,17 @@ class RbFormFile extends RbFormElement {
 class RbFormPickList extends RbFormElement {
   constructor(props) {
     super(props)
+
+    if (props.options && props.value) {  // Value already deleted
+      let deleted = true
+      $(props.options).each(function () {
+        if (this.id === props.value) {
+          deleted = false
+          return false
+        }
+      })
+      if (deleted) props.options.push({ id: props.value, text: '[DELETED]' })
+    }
   }
   renderElement() {
     return (

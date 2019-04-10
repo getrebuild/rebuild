@@ -59,14 +59,14 @@ public class JedisCacheTemplate<V extends Serializable> implements CacheTemplate
 	}
 
 	@Override
-	public void put(String key, String value, int exp) {
+	public void put(String key, String value, int seconds) {
 		key = unityKey(key);
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
 			jedis.set(key, value);
-			if (exp > 0) {
-				jedis.expire(value, exp);
+			if (seconds > 0) {
+				jedis.expire(value, seconds);
 			}
 		} finally {
 			IOUtils.closeQuietly(jedis);
@@ -99,15 +99,15 @@ public class JedisCacheTemplate<V extends Serializable> implements CacheTemplate
 	}
 
 	@Override
-	public void putx(String key, V value, int exp) {
+	public void putx(String key, V value, int seconds) {
 		key = unityKey(key);
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
 			byte[] bKey = key.getBytes();
 			jedis.set(bKey, SerializationUtils.serialize(value));
-			if (exp > 0) {
-				jedis.expire(bKey, exp);
+			if (seconds > 0) {
+				jedis.expire(bKey, seconds);
 			}
 		} finally {
 			IOUtils.closeQuietly(jedis);

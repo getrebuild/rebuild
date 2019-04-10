@@ -72,8 +72,8 @@ public abstract class BaseCacheTemplate<V extends Serializable> implements Cache
 	}
 
 	@Override
-	public void put(String key, String value, int exp) {
-		delegate.put(key, value, exp);
+	public void put(String key, String value, int seconds) {
+		delegate.put(key, value, seconds);
 	}
 
 	@Override
@@ -87,8 +87,8 @@ public abstract class BaseCacheTemplate<V extends Serializable> implements Cache
 	}
 
 	@Override
-	public void putx(String key, V value, int exp) {
-		delegate.putx(key, value, exp);
+	public void putx(String key, V value, int seconds) {
+		delegate.putx(key, value, seconds);
 	}
 
 	@Override

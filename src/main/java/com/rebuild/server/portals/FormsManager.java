@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSON;
@@ -354,7 +355,8 @@ public class FormsManager extends BaseLayoutManager {
 			if (dt == DisplayType.PICKLIST) {
 				ID pickValue = (ID) value;
 				if (onView) {
-					return PickListManager.getLabel(pickValue);
+					return StringUtils.defaultIfBlank(
+							PickListManager.getLabel(pickValue), FieldValueWrapper.MISS_LABEL_PLACE);
 				} else {
 					return pickValue.toLiteral();
 				}
@@ -362,6 +364,7 @@ public class FormsManager extends BaseLayoutManager {
 			else if (dt == DisplayType.CLASSIFICATION) {
 				ID itemValue = (ID) value;
 				String itemName = ClassificationManager.getFullName(itemValue);
+				itemName = StringUtils.defaultIfBlank(itemName, FieldValueWrapper.MISS_LABEL_PLACE);
 				return onView ? itemName : new String[] { itemValue.toLiteral(), itemName };
 			} 
 			else if (value instanceof ID) {

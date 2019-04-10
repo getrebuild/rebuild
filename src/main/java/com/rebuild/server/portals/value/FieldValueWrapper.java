@@ -48,6 +48,11 @@ import cn.devezhao.persist4j.engine.ID;
  * @see DataWrapper
  */
 public class FieldValueWrapper {
+	
+	/**
+	 * 引用值被删除时的默认显示
+	 */
+	public static final String MISS_LABEL_PLACE = "[DELETED]";
 
 	/**
 	 * @param value
@@ -185,7 +190,7 @@ public class FieldValueWrapper {
 	 * @see PickListManager
 	 */
 	public static String wrapPickList(Object item, EasyMeta field) {
-		return PickListManager.getLabel((ID) item);
+		return StringUtils.defaultIfBlank(PickListManager.getLabel((ID) item), MISS_LABEL_PLACE);
 	}
 	
 	/**
@@ -195,7 +200,7 @@ public class FieldValueWrapper {
 	 * @see ClassificationManager
 	 */
 	public static String wrapClassification(Object item, EasyMeta field) {
-		return ClassificationManager.getFullName((ID) item);
+		return StringUtils.defaultIfBlank(ClassificationManager.getFullName((ID) item), MISS_LABEL_PLACE);
 	}
 	
 	/**
