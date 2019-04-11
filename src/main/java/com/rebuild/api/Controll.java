@@ -63,7 +63,10 @@ public abstract class Controll {
 	 */
 	public static final int CODE_ERROR = 999;
 	
-	protected static Log LOG = LogFactory.getLog(BaseControll.class);
+	/**
+	 * Logging
+	 */
+	protected final static Log LOG = LogFactory.getLog(Controll.class);
 	
 	/**
 	 * @param data

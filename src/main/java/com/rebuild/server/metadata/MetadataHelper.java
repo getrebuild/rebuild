@@ -200,10 +200,7 @@ public class MetadataHelper {
 				|| EntityHelper.IsDeleted.equalsIgnoreCase(fieldName)) {
 			return true;
 		}
-		if (field.getType() == FieldType.PRIMARY) {
-			return true;
-		}
-		return false;
+		return field.getType() == FieldType.PRIMARY;
 	}
 	
 	/**
