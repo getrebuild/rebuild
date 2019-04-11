@@ -18,7 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.api;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -28,13 +27,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.SerializeConfig;
-import com.alibaba.fastjson.serializer.ToStringSerializer;
-import com.rebuild.utils.RbDateCodec;
-import com.rebuild.web.BaseControll;
 
 import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 响应前端/外部请求
@@ -44,12 +38,6 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public abstract class Controll {
 
-	static {
-		// for fastjson Serialize
-		SerializeConfig.getGlobalInstance().put(ID.class, ToStringSerializer.instance);
-		SerializeConfig.getGlobalInstance().put(Date.class, RbDateCodec.instance);
-	}
-	
 	/**
 	 * OK
 	 */
