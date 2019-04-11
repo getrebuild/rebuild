@@ -1,12 +1,12 @@
-<%@page import="com.rebuild.server.Application"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ page import="com.rebuild.server.Application"%>
 <%@ page import="com.rebuild.server.ServerListener"%>
 <!DOCTYPE html>
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>用户登录</title>
+<title>登录</title>
 </head>
 <body class="rb-splash-screen">
 <div class="rb-wrapper rb-login">
@@ -18,7 +18,7 @@
 					<div class="card-body">
 						<form id="login-form">
 						<div class="form-group">
-							<input class="form-control" id="user" type="text" placeholder="用户名 (或邮箱)" autocomplete="off">
+							<input class="form-control" id="user" type="text" placeholder="用户名 (或邮箱)">
 						</div>
 						<div class="form-group">
 							<input class="form-control" id="passwd" type="password" placeholder="登录密码">

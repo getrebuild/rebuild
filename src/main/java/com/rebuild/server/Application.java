@@ -56,7 +56,7 @@ public final class Application {
 	
 	/** Rebuild Version
 	 */
-	public static final String VER = "1.1.0-SNAPSHOT";
+	public static final String VER = "1.2.0";
 	
 	/** Logging for Global, If you want to be lazy ^_^
 	 */
