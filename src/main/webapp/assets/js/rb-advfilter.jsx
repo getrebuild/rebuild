@@ -74,7 +74,7 @@ class AdvFilter extends React.Component {
         </div>
       </div>
     )
-    if (this.props.inModal) return <RbModal ref="dlg" title={this.props.title || '设置查询条件'} disposeOnHide={!!this.props.filter}>{advFilter}</RbModal>
+    if (this.props.inModal) return <RbModal ref="dlg" title={this.props.title || '高级查询'} disposeOnHide={!!this.props.filter}>{advFilter}</RbModal>
     else return advFilter
   }
   componentDidMount() {
@@ -181,7 +181,7 @@ class AdvFilter extends React.Component {
   }
 
   searchByKey = (e) => {
-    if (this.props.fromList !== true && e.which !== 13) return  // Not [enter]
+    if (this.props.fromList !== true || e.which !== 13) return  // Not [enter]
     this.searchNow()
   }
   searchNow = () => {

@@ -46,7 +46,7 @@ $(document).ready(() => {
     render_preview()
   }
   $('.J_filter').click(() => {
-    renderRbcomp(<AdvFilter entity={wpc.sourceEntity} filter={esourceFilter} inModal={true} confirm={saveFilter} />)
+    renderRbcomp(<AdvFilter title="设置过滤条件" entity={wpc.sourceEntity} filter={esourceFilter} inModal={true} confirm={saveFilter} />)
   })
 
   let cts = $('.chart-type > a').click(function () {
