@@ -30,7 +30,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.ServerStatus;
-import com.rebuild.server.ServerStatus.State;
+import com.rebuild.server.ServerStatus.Status;
 import com.rebuild.web.BasePageControll;
 
 import cn.devezhao.commons.web.ServletUtils;
@@ -70,7 +70,7 @@ public class MiscPagesForward extends BasePageControll {
 		state.put("ok", ServerStatus.isStatusOK());
 		JSONArray services = new JSONArray();
 		state.put("status", services);
-		for (State s : ServerStatus.getLastStatus()) {
+		for (Status s : ServerStatus.getLastStatus()) {
 			services.add(s.toJson());
 		}
 		ServletUtils.writeJson(response, state.toJSONString());
