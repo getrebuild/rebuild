@@ -172,7 +172,7 @@ class RbList extends React.Component {
     let styles = { width: (this.state.fields[index].width || this.__defaultColumnWidth) + 'px' }
     if (field.type === 'IMAGE') {
       cellVal = JSON.parse(cellVal || '[]')
-      return (<td key={cellKey}><div style={styles} className="column-imgs">
+      return (<td key={cellKey} className="td-img"><div style={styles} className="column-imgs">
         {cellVal.map((item, idx) => {
           let imgUrl = rb.baseUrl + '/cloud/img/' + item
           let imgName = $fileCutName(item)
