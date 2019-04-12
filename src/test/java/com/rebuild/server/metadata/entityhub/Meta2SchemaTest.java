@@ -48,7 +48,7 @@ public class Meta2SchemaTest extends TestSupport {
 		String newEntityName = new Entity2Schema(UserService.ADMIN_USER).create("测试字段", null, null);
 		Entity newEntity = MetadataHelper.getEntity(newEntityName);
 		
-		String newFiled = new Field2Schema(UserService.ADMIN_USER).create(newEntity, "数字", DisplayType.NUMBER, null, null);
+		String newFiled = new Field2Schema(UserService.ADMIN_USER).create(newEntity, "数字", DisplayType.NUMBER, null);
 		System.out.println("New Field is created : " + newFiled);
 		
 		newEntity = MetadataHelper.getEntity(newEntityName);

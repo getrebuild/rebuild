@@ -46,7 +46,8 @@ public class SchemaGen {
 		PMF = CTX.getBean(PersistManagerFactoryImpl.class);
 		
 //		genAll();
-		gen(EntityHelper.LoginLog);
+		gen(EntityHelper.Classification);
+		gen(EntityHelper.ClassificationData);
 		
 		System.exit(0);
 	}
@@ -65,7 +66,7 @@ public class SchemaGen {
 				PMF.getDialect(),
 				root.selectSingleNode("//entity[@name='" + entity.getName() + "']").selectNodes("index"));
 		
-		String[] ddl = table.generateDDL(false, false);
+		String[] ddl = table.generateDDL(true, false);
 		
 		StringBuffer sb = new StringBuffer();
 		sb.append("-- ************ Entity [" + entity.getName() + "] DDL ************\n");

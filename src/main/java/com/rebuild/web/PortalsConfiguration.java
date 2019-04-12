@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.web.bind.annotation.PathVariable;
 
-import com.rebuild.server.helper.manager.PortalsManager;
+import com.rebuild.server.portals.PortalsManager;
 
 /**
  * 页面/界面相关配置接口规范

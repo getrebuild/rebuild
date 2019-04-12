@@ -31,9 +31,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.manager.AdvFilterManager;
-import com.rebuild.server.helper.manager.SharableManager;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.portals.AdvFilterManager;
+import com.rebuild.server.portals.SharableManager;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.query.AdvFilterParser;
 import com.rebuild.utils.JSONUtils;
@@ -120,10 +120,8 @@ public class AdvFilterControll extends BaseControll implements PortalsConfigurat
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		ID filterId = getIdParameter(request, "id");
-		if (UserHelper.isAdmin(user) || AdvFilterManager.isSelf(user, filterId)) {
-			// Okay
-		} else {
-			writeFailure(response, "无权删除此过滤项");
+		if (!(UserHelper.isAdmin(user) || AdvFilterManager.isSelf(user, filterId))) {
+			writeFailure(response, "无权删除");
 			return;
 		}
 		

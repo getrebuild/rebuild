@@ -1,8 +1,8 @@
 coverage:
-  range: 60..100
+  range: "40...75"
   round: down
   precision: 2
 
 ignore:
   - "src/test/**/*"
-  - "src/main/webapp/assets/lib/**/*"
+  - "src/main/webapp/**/*"

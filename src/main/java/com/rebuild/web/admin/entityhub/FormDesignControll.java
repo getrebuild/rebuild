@@ -31,8 +31,8 @@ import org.springframework.web.servlet.ModelAndView;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.manager.FormsManager;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.portals.FormsManager;
 import com.rebuild.web.BasePageControll;
 import com.rebuild.web.PortalsConfiguration;
 
@@ -50,7 +50,7 @@ public class FormDesignControll extends BasePageControll implements PortalsConfi
 	
 	@RequestMapping("{entity}/form-design")
 	public ModelAndView pageFormDesign(@PathVariable String entity, HttpServletRequest request) throws IOException {
-		ModelAndView mv = createModelAndView("/admin/entity/form-design.jsp");
+		ModelAndView mv = createModelAndView("/admin/entityhub/form-design.jsp");
 		MetaEntityControll.setEntityBase(mv, entity);
 		JSON cfg = FormsManager.getFormLayout(entity, getRequestUser(request));
 		if (cfg != null) {

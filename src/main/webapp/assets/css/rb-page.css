@@ -222,9 +222,12 @@ html.admin .admin-show {
     padding: 6px 0;
 }
 
+div.dataTables_wrapper div.dataTables_filter {
+    margin-bottom: 5px;
+}
+
 .adv-search {
     margin-right: 10px;
-    margin-bottom: 5px;
 }
 
 .adv-search .btn-group,
@@ -233,14 +236,19 @@ html.admin .admin-show {
 }
 
 .adv-search .btn {
-    border-radius: 2px !important;
-    width: 100%;
+    border-radius: 0 2px 2px 0 !important;
     text-align: left;
     height: 2.8rem;
     line-height: 2.7rem;
     position: relative;
     border-color: #d5d8de;
     box-shadow: 0 0 0 #fff !important;
+    min-width: 0;
+}
+
+.adv-search .btn.dropdown-toggle {
+    width: 100%;
+    border-radius: 2px 0 0 2px !important;
 }
 
 .adv-search .btn-group.show .btn,
@@ -254,10 +262,15 @@ html.admin .admin-show {
     max-width: 185px;
 }
 
-.adv-search .btn .icon {
+.adv-search .btn.dropdown-toggle .icon {
     position: absolute;
     margin-top: 10px;
     right: 8px;
+}
+
+.adv-search .J_advfilter .icon {
+    margin-top: -3px;
+    font-size: 1.45rem !important;
 }
 
 .adv-search .dropdown-menu.rb-scroller {
@@ -770,6 +783,10 @@ i.split.ui-draggable-dragging {
     content: '\f2f9';
 }
 
+.data-list .table tr:last-child td {
+    border-bottom: 1px solid #dee2e6;
+}
+
 .data-list .table td,
 .data-list .table td>div {
     white-space: nowrap;
@@ -781,9 +798,14 @@ i.split.ui-draggable-dragging {
     white-space: nowrap;
 }
 
+
 .data-list .table td,
 .data-list .table td>div.nmw {
     max-width: 1000px;
+}
+
+.table td.td-min {
+    padding: 3px 10px;
 }
 
 .column-imgs,
@@ -792,13 +814,18 @@ i.split.ui-draggable-dragging {
     overflow: hidden;
 }
 
+.column-imgs a:hover,
+.column-files a:hover {
+    opacity: 0.8;
+}
+
 .column-imgs>a {
     display: inline-block;
     height: 100%;
     font-size: 0;
     line-height: 1;
     cursor: default;
-    height: 32px;
+    height: 30px;
 }
 
 .column-imgs>a img {
@@ -817,7 +844,7 @@ i.split.ui-draggable-dragging {
 }
 
 .column-files ul>li {
-    line-height: 1.42857143;
+    line-height: 1.35;
 }
 
 .column-files ul>li>a {
@@ -854,7 +881,9 @@ i.split.ui-draggable-dragging {
     text-decoration: underline;
 }
 
-.column-empty {}
+.column-empty {
+    padding: 8px !important;
+}
 
 .text-3dot {
     overflow: hidden;
@@ -941,7 +970,8 @@ i.split.ui-draggable-dragging {
     white-space: nowrap
 }
 
-.sortable-box .dd-list .dd3-action {
+.sortable-box .dd-list .dd3-action,
+.dd-list .dd-item .dd-action {
     position: absolute;
     right: 0;
     top: 0;
@@ -965,7 +995,8 @@ i.split.ui-draggable-dragging {
     color: #4285f4;
 }
 
-.sortable-box .dd-list .dd3-item:hover>.dd3-action {
+.sortable-box .dd-list .dd3-item:hover>.dd3-action,
+.dd-list .dd-item:hover .dd-action {
     display: block;
 }
 
@@ -1438,4 +1469,59 @@ form.dropzone .note {
 
 form.simple {
     max-width: 888px;
+}
+
+.rb-left-sidebar .sidebar-elements>li>a .icon.x21,
+.rb-left-sidebar .sidebar-elements .sub-menu li>a .icon.x21 {
+    font-size: 21px;
+}
+
+.fs-12 {
+    font-size: 12px;
+}
+
+.fs-14 {
+    font-size: 14px;
+}
+
+.fs-16 {
+    font-size: 16px;
+}
+
+.fs-18 {
+    font-size: 18px;
+}
+
+.mw-auto {
+    min-width: auto;
+    max-width: auto;
+}
+
+.modal-dialog.selector.show {
+    display: block !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1050;
+}
+
+.modal.selector .modal-content {
+    max-width: 400px;
+    margin-top: 98px;
+}
+
+.modal.selector .modal-content .modal-body {
+    padding: 20px 30px;
+    padding-top: 10px;
+}
+
+.modal.selector .modal-content .modal-body>div {
+    margin-bottom: 10px;
+}
+
+.form,
+form {
+    display: block;
+    margin: 0;
 }

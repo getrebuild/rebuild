@@ -1,0 +1,142 @@
+/* List Page */
+
+.class-list>div {
+  padding-left: 10px;
+  padding-right: 10px
+}
+
+.class-list>div .card-body {
+  padding: 9px 15px;
+}
+
+.class-list>div .card-body>a {
+  display: inline-block;
+  height: 36px;
+  overflow: hidden;
+  padding-top: 3px;
+}
+
+.class-list>div .card-footer {
+  padding: 6px 15px;
+}
+
+.class-list>div .card-footer a {
+  color: #999;
+  font-size: 1.1rem;
+  display: inline-block;
+  padding: 1px 3px;
+}
+
+.class-list>div .card-footer a:hover {
+  color: #666;
+}
+
+.class-list>div .card-footer .float-right {
+  padding-top: 3px;
+}
+
+/* Editor Page */
+
+#boxes {
+  min-height: 300px;
+}
+
+.level-boxes .col-md-3 {
+  margin-top: 15px
+}
+
+.level-boxes .col-md-3 ol {
+  background-color: #eee;
+  padding: 3px 5px;
+  border-radius: 3px
+}
+
+.level-boxes .col-md-3 h5 {
+  margin-top: 3px
+}
+
+.level-boxes .col-md-3.off form,
+.level-boxes .col-md-3.off ol {
+  display: none;
+}
+
+.level-boxes .col-md-3:first-child .turn-on {
+  display: none;
+}
+
+.dd-list .dd-item.active>.dd-content {
+  background-color: #dedede !important
+}
+
+.dd-list .dd-item .dd-handle {
+  margin: 3px 0;
+}
+
+.dd-list .dd-item .dd-action {
+  padding-right: 2px;
+}
+
+.dd-list .dd-item .dd-action a {
+  font-size: 1.23rem;
+  margin-top: 1px;
+  display: inline-block;
+  padding: 7px 1px;
+  margin-right: 6px;
+  opacity: 0.7;
+}
+
+.dd-list .dd-item .dd-action a:hover {
+  opacity: 1;
+}
+
+.dd-list .dd-item .dd-handle:hover {
+  color: #404040;
+  background: #fff;
+  border-color: #dedede
+}
+
+.dd-list .dd-item.active .dd-handle {
+  background: #dedede !important;
+}
+
+.dd-list .dd-item .arrow {
+  position: absolute;
+  right: -7px;
+  top: 1px;
+  font-size: 34px;
+  color: #dedede;
+}
+
+.dd-list:empty::after {
+  content: '暂无分类项';
+  text-align: center;
+  color: #aaa;
+  padding: 7px;
+  display: block;
+}
+
+/* Imports */
+.indexes>div {
+  margin: 15px;
+  padding: 15px;
+  padding-bottom: 13px;
+  border-radius: 3px;
+  background-color: #eee;
+}
+
+.indexes>div h5 {
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 0;
+  margin-bottom: 6px;
+}
+
+.indexes>div .text-muted,
+.indexes>div .text-muted a {
+  font-size: 12px;
+  color: #777 !important;
+}
+
+.modal-body .rb-loading {
+  min-height: 162px;
+}

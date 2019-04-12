@@ -30,12 +30,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.manager.PickListManager;
-import com.rebuild.server.helper.manager.value.FieldValueWrapper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.portals.value.FieldValueWrapper;
 import com.rebuild.server.service.query.AdvFilterParser;
 
 import cn.devezhao.commons.ObjectUtils;
@@ -241,18 +240,15 @@ public abstract class ChartData {
 		DisplayType axisType = axisField.getDisplayType();
 		
 		String label = null;
-		if (axisType == DisplayType.PICKLIST) {
-			label = PickListManager.getLabel((ID) value);
-		} else if (axisType == DisplayType.REFERENCE) {
+		if (axisType == DisplayType.REFERENCE) {
 			label = FieldValueWrapper.getLabel((ID) value);
-		} else if (axisType == DisplayType.DATE || axisType == DisplayType.DATETIME) {
-			label = value.toString();
-		} else if (axisType == DisplayType.BOOL) {
-			label = (String) FieldValueWrapper.wrapBool(value, axisField);
+		} else if (axisType == DisplayType.BOOL 
+				|| axisType == DisplayType.PICKLIST 
+				|| axisType == DisplayType.CLASSIFICATION) {
+			label = (String) FieldValueWrapper.wrapFieldValue(value, axisField);
 		} else {
 			label = value.toString();
 		}
-		
 		return label;
 	}
 	

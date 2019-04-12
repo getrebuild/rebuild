@@ -45,7 +45,7 @@ class DlgChangePasswd extends RbFormHandler {
   }
   render() {
     return (<RbModal title="更改密码" ref="dlg" disposeOnHide={true}>
-      <form>
+      <div className="form">
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">原密码</label>
           <div className="col-sm-7">
@@ -70,7 +70,7 @@ class DlgChangePasswd extends RbFormHandler {
             <a className="btn btn-link btn-space" onClick={() => this.hide()}>取消</a>
           </div>
         </div>
-      </form>
+      </div>
     </RbModal>)
   }
   post() {
@@ -96,7 +96,7 @@ class DlgChangeEmail extends RbFormHandler {
   }
   render() {
     return (<RbModal title="更改邮箱" ref="dlg" disposeOnHide={true}>
-      <form>
+      <div className="form">
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">邮箱地址</label>
           <div className="col-sm-7">
@@ -118,7 +118,7 @@ class DlgChangeEmail extends RbFormHandler {
             <a className="btn btn-link btn-space" onClick={() => this.hide()}>取消</a>
           </div>
         </div>
-      </form>
+      </div>
     </RbModal>)
   }
   sendVCode() {

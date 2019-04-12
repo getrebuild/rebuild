@@ -48,7 +48,7 @@ public class ChartDataControll extends BaseControll {
 		ID chartid = getIdParameterNotNull(request, "id");
 		JSON data = null;
 		try {
-			ChartData chart = ChartDataFactory.create(chartid);;
+			ChartData chart = ChartDataFactory.create(chartid);
 			data = chart.build();
 		} catch (ChartsException ex) {
 			writeFailure(response, ex.getLocalizedMessage());

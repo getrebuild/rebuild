@@ -45,10 +45,7 @@ public class EntityHelper {
 	 * @return
 	 */
 	public static boolean hasPrivilegesField(Entity entity) {
-		if (entity.containsField(OwningUser) && entity.containsField(OwningDept)) {
-			return true;
-		}
-		return false;
+		return entity.containsField(OwningUser) && entity.containsField(OwningDept);
 	}
 	
 	/**
@@ -58,10 +55,8 @@ public class EntityHelper {
 	 * @return
 	 */
 	public static boolean isBizzEntity(Entity entity) {
-		if (entity.getEntityCode() <= 5) {
-			return true;
-		}
-		return false;
+		// see metadata-conf.xml
+		return entity.getEntityCode() <= 5;
 	}
 	
 	/**
@@ -91,13 +86,25 @@ public class EntityHelper {
 	 * @return
 	 */
 	public static Record forUpdate(ID recordId, ID user) {
+		return forUpdate(recordId, user, true);
+	}
+	
+	/**
+	 * @param recordId
+	 * @param user
+	 * @param bindCommons 是否自动补充公共字段
+	 * @return
+	 */
+	public static Record forUpdate(ID recordId, ID user, boolean bindCommons) {
 		Assert.notNull(recordId, "[recordId] not be bull");
 		Assert.notNull(recordId, "[user] not be bull");
 		
 		Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 		Record record = new StandardRecord(entity, user);
 		record.setID(entity.getPrimaryField().getName(), recordId);
-		ExtRecordCreator.bindCommonsFieldsValue(record, false);
+		if (bindCommons) {
+			ExtRecordCreator.bindCommonsFieldsValue(record, false);
+		}
 		return record;
 	}
 	
@@ -115,7 +122,7 @@ public class EntityHelper {
 		return record;
 	}
 	
-	// 公共字段
+	// 公共字段/保留字段
 	
 	public static final String CreatedOn = "createdOn";
 	public static final String CreatedBy = "createdBy";
@@ -144,6 +151,8 @@ public class EntityHelper {
 	public static final int ViewAddonsConfig = 15;
 	public static final int DashboardConfig = 16;
 	public static final int ChartConfig = 17;
+	public static final int Classification = 18;
+	public static final int ClassificationData = 19;
 	
 	public static final int ShareAccess = 20;
 	public static final int SystemConfig = 21;

@@ -33,11 +33,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSON;
-import com.rebuild.server.helper.manager.PickListManager;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.portals.PickListManager;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.persist4j.Entity;
@@ -79,8 +79,31 @@ public class MetadataGetters extends BaseControll {
 		String entity = getParameterNotNull(request, "entity");
 		Entity entityBase = MetadataHelper.getEntity(entity);
 		
+		boolean deep = "2".equals(getParameter(request, "deep"));
 		List<Map<String, Object>> list = new ArrayList<>();
-		for (Field field : MetadataSorter.sortFields(entityBase)) {
+		putFields(list, entityBase, deep, null);
+
+		if (deep) {
+			for (Field field : entityBase.getFields()) {
+				EasyMeta easyField = EasyMeta.valueOf(field);
+				if (easyField.getDisplayType() == DisplayType.REFERENCE
+						&& !MetadataHelper.isBizzEntity(field.getReferenceEntity().getEntityCode())) {
+					putFields(list, field.getReferenceEntity(), false, easyField);
+				}
+			}
+		}
+
+		writeSuccess(response, list);
+	}
+
+	/**
+	 * @param dest
+	 * @param entity
+	 * @param onlyBizzRefField
+	 * @param parentField
+	 */
+	private void putFields(List<Map<String, Object>> dest, Entity entity, boolean onlyBizzRefField, EasyMeta parentField) {
+		for (Field field : MetadataSorter.sortFields(entity)) {
 			Map<String, Object> map = new HashMap<>();
 			map.put("name", field.getName());
 			EasyMeta easyMeta = new EasyMeta(field);
@@ -89,12 +112,26 @@ public class MetadataGetters extends BaseControll {
 			map.put("type", dt.name());
 			if (dt == DisplayType.REFERENCE) {
 				Entity refEntity = field.getReferenceEntity();
+				boolean isBizz = MetadataHelper.isBizzEntity(refEntity.getEntityCode());
+				if (onlyBizzRefField && !isBizz) {
+					continue;
+				}
+				
 				Field refNameField  = MetadataHelper.getNameField(refEntity);
 				map.put("ref", new String[] { refEntity.getName(), EasyMeta.getDisplayType(refNameField).name() });
+				// Fix fieldType to nameField
+				if (!isBizz) {
+					map.put("type", EasyMeta.getDisplayType(refNameField));
+				}
 			}
-			list.add(map);
+
+			if (parentField != null) {
+				map.put("name", parentField.getName() + "." + map.get("name"));
+				map.put("label", parentField.getLabel() + "." + map.get("label"));
+			}
+
+			dest.add(map);
 		}
-		writeSuccess(response, list);
 	}
 	
 	// 哪些实体引用了指定实体

@@ -26,8 +26,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
 import com.qiniu.http.Response;
+import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
@@ -46,7 +48,9 @@ public class QiniuCloud {
 
 	private static final Log LOG = LogFactory.getLog(QiniuCloud.class);
 	
-	private final UploadManager UPLOAD_MANAGER = new UploadManager(new Configuration(Zone.autoZone()));
+	private final Configuration CONFIGURATION = new Configuration(Zone.autoZone());
+	
+	private final UploadManager UPLOAD_MANAGER = new UploadManager(CONFIGURATION);
 	
 	private Auth auth;
 	private String bucketName;
@@ -125,20 +129,20 @@ public class QiniuCloud {
 	 * 生成访问 URL
 	 * 
 	 * @param filePath
-	 * @param expires 秒
+	 * @param seconds 过期时间
 	 * @return
 	 */
-	public String url(String filePath, int expires) {
+	public String url(String filePath, int seconds) {
 		String baseUrl = SystemConfig.getStorageUrl() + filePath;
-		// default use HTTPS
+		// default use HTTP
 		if (baseUrl.startsWith("//")) {
-			baseUrl = "https:" + baseUrl;
+			baseUrl = "http:" + baseUrl;
 		}
 		
-		long deadline = System.currentTimeMillis() / 1000 + expires;
-		// use http cache
-		expires /= 1.5;
-		deadline = deadline / expires * expires;
+		long deadline = System.currentTimeMillis() / 1000 + seconds;
+		// Use http cache
+		seconds /= 1.5;
+		deadline = deadline / seconds * seconds;
 		return auth.privateDownloadUrlWithDeadline(baseUrl, deadline);
 	}
 	
@@ -154,6 +158,27 @@ public class QiniuCloud {
 		byte[] bs = HttpClientEx.instance().readBinary(url.toString(), 60 * 1000);
 		FileUtils.writeByteArrayToFile(dest, bs);
 		return true;
+	}
+	
+	/**
+	 * 删除文件
+	 * 
+	 * @param key
+	 * @return
+	 */
+	protected boolean delete(String key) {
+		BucketManager bucketManager = new BucketManager(auth, CONFIGURATION);
+		Response resp = null;
+		try {
+			resp = bucketManager.delete(this.bucketName, key);
+			if (resp.isOK()) {
+				return true;
+			} else {
+				throw new RebuildException("删除文件失败 : " + this.bucketName + " < " + key + " : " + resp.bodyString());
+			}
+		} catch (QiniuException e) {
+			throw new RebuildException("删除文件失败 : " + this.bucketName + " < " + key, e);
+		}
 	}
 	
 	// --

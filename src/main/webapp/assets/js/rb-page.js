@@ -18,7 +18,11 @@ $(function () {
   if ($('.rb-left-sidebar').length > 0) {
     $('.sidebar-elements>li>a').each(function () {
       var _this = $(this)
-      _this.tooltip({ placement: 'right', title: _this.find('span').text().trim(), delay: 200 })
+      _this.tooltip({
+        placement: 'right',
+        title: _this.find('span').text().trim(),
+        delay: 200
+      })
     })
     __initNavs()
   }
@@ -33,7 +37,7 @@ $(function () {
   }
 
   if ($('.J_notifications-top').length > 0) {
-    setTimeout(__checkMessage, 1500)
+    setTimeout(__checkMessage, 2000)
     $('.J_notifications-top').on('shown.bs.dropdown', __loadMessages)
   }
 
@@ -44,12 +48,11 @@ $(function () {
 })
 // Trigger on Ctrl+Alt+X
 // @t - trigger times
-var command_exec = function (t) {
-}
+var command_exec = function (t) {}
 
 // MainNav
 var __initNavs = function () {
-  var isOffcanvas = $('.rb-offcanvas-menu').length > 0  // Float mode
+  var isOffcanvas = $('.rb-offcanvas-menu').length > 0 // Float mode
 
   // Nav
   if (isOffcanvas) {
@@ -134,7 +137,7 @@ var __checkMessage = function () {
 
     if (__checkMessage__state !== res.data.unread) __loadMessages__state = 0
     __checkMessage__state = res.data.unread
-    setTimeout(__checkMessage, 3000 * (rb.env === 'dev' ? 10 : 1))
+    setTimeout(__checkMessage, rb.env === 'dev' ? 30000 : 2000)
   })
 }
 var __loadMessages__state = 0

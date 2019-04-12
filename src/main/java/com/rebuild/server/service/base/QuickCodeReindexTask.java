@@ -25,11 +25,12 @@ import org.apache.commons.lang.math.NumberUtils;
 
 import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.manager.PickListManager;
 import com.rebuild.server.helper.task.BulkTask;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.portals.ClassificationManager;
+import com.rebuild.server.portals.PickListManager;
 import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.persist4j.Entity;
@@ -86,15 +87,13 @@ public class QuickCodeReindexTask extends BulkTask {
 						continue;
 					}
 					
-					Record record = EntityHelper.forUpdate(o.getPrimary(), UserService.SYSTEM_USER);
+					Record record = EntityHelper.forUpdate(o.getPrimary(), UserService.SYSTEM_USER, false);
 					if (StringUtils.isBlank(quickCodeNew)) {
 						record.setNull(EntityHelper.QuickCode);
 					} else {
 						record.setString(EntityHelper.QuickCode, quickCodeNew);
 					}
-					record.removeValue(EntityHelper.ModifiedBy);
-					record.removeValue(EntityHelper.ModifiedOn);
-					Application.getCommonService().update(record);
+					Application.getCommonService().update(record, false);
 				} finally {
 					this.setCompleteOne();
 				}
@@ -122,7 +121,7 @@ public class QuickCodeReindexTask extends BulkTask {
 		}
 		
 		Field nameField = entity.getNameField();
-		if (!record.hasValue(nameField.getName())) {
+		if (!record.hasValue(nameField.getName(), false)) {
 			return null;
 		}
 		
@@ -131,8 +130,11 @@ public class QuickCodeReindexTask extends BulkTask {
 		if (dt == DisplayType.TEXT) {
 			nameVal = record.getString(nameField.getName());
 		} else if (dt == DisplayType.PICKLIST) {
-			ID plid = record.getID(nameField.getName());
-			nameVal = PickListManager.getLabel(plid);
+			ID itemId = record.getID(nameField.getName());
+			nameVal = PickListManager.getLabel(itemId);
+		} else if (dt == DisplayType.CLASSIFICATION) {
+			ID itemId = record.getID(nameField.getName());
+			nameVal = ClassificationManager.getFullName(itemId);
 		}
 		
 		if (nameVal != null) {

@@ -1,11 +1,24 @@
 {
-    "java.configuration.updateBuildConfiguration": "interactive",
     "files.exclude": {
         "**/.classpath": true,
         "**/.project": true,
         "**/.settings": true,
-        "**/.factorypath": true
+        "**/.factorypath": true,
+        "target/**": true,
+        ".github/**": true,
+        ".production/**": true,
+        ".eclipse/**": true
     },
-    "eslint.autoFixOnSave": true,
-    "editor.fontSize": 13
+    "editor.fontSize": 12,
+    "editor.formatOnSave": true,
+
+    "eslint.options": {
+        "configFile": "./.eslintrc.json"
+    },
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "html"
+    ],
+    "eslint.autoFixOnSave": true
 }

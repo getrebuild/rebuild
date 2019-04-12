@@ -19,7 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.helper;
 
 /**
- * 预置系统配置项
+ * 预置系统配置项，所有配置应在此处声明
  * 
  * @author devezhao
  * @since 12/25/2018
@@ -43,6 +43,9 @@ public enum ConfigItem {
 	
 	// 短信
 	SmsUser, SmsPassword, SmsSign,
+	
+	// Build-in
+	DBVer
 	
 	;
 }

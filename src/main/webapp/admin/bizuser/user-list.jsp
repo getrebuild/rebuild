@@ -26,9 +26,9 @@
 			</ul>
 			<div class="card card-table">
 				<div class="card-body">
-					<div class="dataTables_wrapper">
+					<div class="dataTables_wrapper container-fluid">
 						<div class="row rb-datatable-header">
-							<div class="col-12 col-md-6">
+							<div class="col-12 col-lg-6">
 								<div class="dataTables_filter">
 									<div class="input-group input-search">
 										<input class="form-control" type="text" placeholder="查询${entityLabel}">
@@ -36,7 +36,7 @@
 									</div>
 								</div>
 							</div>
-							<div class="col-12 col-md-6">
+							<div class="col-12 col-lg-6">
 								<div class="dataTables_oper">
 									<button class="btn btn-space btn-secondary J_view" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> 打开</button>
 									<div class="btn-group btn-space">
@@ -49,7 +49,7 @@
 									<div class="btn-group btn-space">
 										<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-more-vert"></i></button>
 										<div class="dropdown-menu dropdown-menu-right">
-											<a class="dropdown-item J_columns"><i class="icon zmdi zmdi-sort-amount-asc"></i> 列显示</a>
+											<a class="dropdown-item J_columns"><i class="icon zmdi zmdi-code-setting"></i> 列显示</a>
 										</div>
 									</div>
 								</div>

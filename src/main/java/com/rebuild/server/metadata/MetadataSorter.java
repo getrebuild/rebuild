@@ -111,7 +111,7 @@ public class MetadataSorter {
 	}
 	
 	/**
-	 * 获取指定类型字段
+	 * 字段排序，同时可过滤字段（根据类型）
 	 * 
 	 * @param fields
 	 * @param allowed
@@ -129,16 +129,16 @@ public class MetadataSorter {
 		}
 		
 		// 系统字段在后
-		Field[] sysFields2 = sysFields.toArray(new Field[sysFields.size()]);
-		Field[] simpleFields2 = simpleFields.toArray(new Field[simpleFields.size()]);
-		sortBaseMeta(sysFields2);
-		sortBaseMeta(simpleFields2);
-		fields = (Field[]) ArrayUtils.addAll(simpleFields2, sysFields2);
+		Field[] sysFieldsAry = sysFields.toArray(new Field[sysFields.size()]);
+		Field[] simpleFieldsAry = simpleFields.toArray(new Field[simpleFields.size()]);
+		sortBaseMeta(sysFieldsAry);
+		sortBaseMeta(simpleFieldsAry);
+		Field[] allFields = (Field[]) ArrayUtils.addAll(simpleFieldsAry, sysFieldsAry);
 
 		// 返回全部类型
 		if (allowed == null || allowed.length == 0) {
 			List<Field> list = new ArrayList<>();
-			for (Field field : fields) {
+			for (Field field : allFields) {
 				if (!MetadataHelper.isSystemField(field)) {
 					list.add(field);
 				}
@@ -147,10 +147,10 @@ public class MetadataSorter {
 		}
 		
 		List<Field> list = new ArrayList<>();
-		for (Field field : fields) {
+		for (Field field : allFields) {
 			DisplayType dtThat = EasyMeta.getDisplayType(field);
 			for (DisplayType dt : allowed) {
-				if (dtThat == dt) {
+				if (dtThat.equals(dt)) {
 					list.add(field);
 					break;
 				}

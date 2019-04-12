@@ -1,131 +1,170 @@
-html, body {
-    overflow: auto;
-    height: 100%;
+html,
+body {
+	overflow: auto;
+	height: 100%;
 }
+
 .main-content {
-    margin-top: 60px;
+	margin-top: 60px;
 }
+
 .tab-container {
-    margin-top: -8px
+	margin-top: -8px
 }
+
 .tab-content {
-    padding: 0;
-    margin: 0;
-    padding-top: 13px
+	padding: 0;
+	margin: 0;
+	padding-top: 13px
 }
+
 .view-header {
-    padding: 15px 20px;
-    height: 60px;
-    border-bottom: 1px solid #e3e3e3;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1001;
-    background-color: rgba(255, 255, 255, .8);
-    background-color: #fff;
+	padding: 15px 20px;
+	height: 60px;
+	border-bottom: 1px solid #e3e3e3;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	z-index: 1001;
+	background-color: rgba(255, 255, 255, .8);
+	background-color: #fff;
 }
+
 .view-header .header-icon {
-    float: left;
+	float: left;
 }
+
 .view-header .title {
-    line-height: 1.428571;
-    display: inline-block;
-    margin: 0;
-    font-weight: 300;
-    font-size: 1.538rem
+	line-height: 1.428571;
+	display: inline-block;
+	margin: 0;
+	font-weight: 300;
+	font-size: 1.538rem
 }
+
 .view-header>span>.close {
-    font-size: 1.638rem;
-    opacity: .6;
-    padding: 1rem;
-    margin: -1rem -1rem -1rem auto;
-    height: 40px;
-    margin-top: -10px;
+	font-size: 1.638rem;
+	opacity: .6;
+	padding: 1rem;
+	margin: -1rem -1rem -1rem auto;
+	height: 40px;
+	margin-top: -10px;
 }
+
 .view-header>span>.close.sm {
-    font-size: 1.45rem;
-    margin-right: -7px;
+	font-size: 1.45rem;
+	margin-right: -7px;
 }
+
 .view-header>span>.close:hover {
-    opacity: .8;
+	opacity: .8;
 }
+
 .nav-tabs>li.nav-item a.nav-link {
-    padding: 11px 15px;
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+	padding: 11px 15px;
+	max-width: 120px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
-.nav-tabs, .nav-tabs>li.nav-item {
-    position: relative;
+
+.nav-tabs,
+.nav-tabs>li.nav-item {
+	position: relative;
 }
+
 .nav-tabs .vtab-settings {
-    position: absolute;
-    right: 0;
-    top: 4px;
-    display: inline-block;
-    padding: 9px 8px;
-    font-size: 15px;
-    opacity: 0.6;
-    display: none;
+	position: absolute;
+	right: 0;
+	top: 4px;
+	display: inline-block;
+	padding: 9px 8px;
+	font-size: 15px;
+	opacity: 0.6;
+	display: none !important;
 }
+
 .nav-tabs .vtab-settings:hover {
-    opacity: 0.8
+	opacity: 0.8
 }
+
 .nav-tabs:hover .vtab-settings {
-    display: inline-block;
+	display: inline-block !important;
 }
+
 .nav-tabs .badge {
-    position: absolute;
-    top: -1px;
-    right: -4px;
-    font-size: .8462rem;
-    font-weight: normal;
+	position: absolute;
+	top: -1px;
+	right: -4px;
+	font-size: .8462rem;
+	font-weight: normal;
 }
+
 .related-list {
-    min-height: 200px
+	min-height: 200px
 }
+
 .related-list .card {
-    border: 1px solid #ebebeb;
-    box-shadow: 0 0 4px 0 rgba(0, 0, 0, .04);
-    padding: 10px 15px;
-    margin-bottom: 9px;
+	border: 1px solid #ebebeb;
+	box-shadow: 0 0 4px 0 rgba(0, 0, 0, .04);
+	padding: 10px 15px;
+	margin-bottom: 9px;
 }
+
 .related-list .card .float-right {
-    color: #aaa;
-    cursor: help;
+	color: #aaa;
+	cursor: help;
 }
+
 .view-operating {
-    padding-left: 30px;
+	padding-left: 30px;
 }
+
 .view-operating>div {
-    margin-bottom: 15px !important;
+	margin-bottom: 15px !important;
 }
-.view-operating .row, .view-operating .form-line {
-    margin-bottom: 10px;
+
+.view-operating .row,
+.view-operating .form-line {
+	margin-bottom: 10px;
 }
+
 .view-operating dt {
-    font-weight: normal;
+	font-weight: normal;
 }
+
 .view-action {
-    margin-top: 33px;
+	margin-top: 33px;
 }
-.view-action .col-6 {
+
+.view-action .col-lg-6 {
 	margin-bottom: .769231rem;
 }
-.view-action .col-6:nth-child(odd) {
+
+.view-action .col-lg-6:nth-child(odd) {
 	padding-right: 0.384615rem;
 }
-.view-action .col-6:nth-child(even) {
+
+.view-action .col-lg-6:nth-child(even) {
 	padding-left: 0.384615rem;
 }
-.view-action .col-6 .btn {
-    width: 100%
+
+.view-action .col-lg-6 .btn {
+	width: 100%
 }
+
 .view-action.empty {
 	margin-top: 4px;
 }
+
+@media screen and (max-width: 991px) {
+	.view-action .col-lg-6 {
+		padding-left: 15px !important;
+		padding-right: 15px !important;
+	}
+}
+
 .btn.load-mores {
 	display: inline-block;
 	min-width: 200px;
@@ -138,12 +177,15 @@ html, body {
 	margin: 0;
 	padding: 0;
 }
-.user-show:hover{
+
+.user-show:hover {
 	opacity: 0.8;
 }
-.user-show>div{
+
+.user-show>div {
 	display: inline-block;
 }
+
 .user-show .avatar {
 	overflow: hidden;
 	font-size: 0;
@@ -154,16 +196,19 @@ html, body {
 	text-align: center;
 	vertical-align: middle;
 }
-.user-show .avatar > img {
+
+.user-show .avatar>img {
 	display: inline-block;
 	width: 100%;
 	height: 100%;
 }
-.user-show .avatar > i.zmdi {
+
+.user-show .avatar>i.zmdi {
 	font-size: 1.7rem;
 	margin-top: 4px;
 	color: #666;
 }
+
 .user-show .name {
 	margin-left: 6px;
 	height: 30px;
@@ -171,7 +216,8 @@ html, body {
 	line-height: 30px;
 	color: #4285f4;
 }
-.user-show .name>em{
+
+.user-show .name>em {
 	font-style: normal;
 	color: #777;
 	font-size: 12px;
@@ -181,18 +227,22 @@ html, body {
 .view-operating>div.view-user {
 	margin-bottom: 0px !important;
 }
-.view-user .row .col-8 {
+
+.view-user .row .col-md-8 {
 	min-height: 30px;
 	margin-top: -6px;
 	margin-bottom: 0;
 }
+
 .view-user .row ul>li {
 	margin-bottom: 6px;
 	margin-right: 6px;
 }
-.view-user .row ul>li:last-child{
+
+.view-user .row ul>li:last-child {
 	margin-right: 0;
 }
+
 .view-user .row:last-child {
 	margin-bottom: 0;
 	margin-top: 18px;
@@ -204,10 +254,12 @@ html, body {
 	margin-right: 0;
 	margin-bottom: 21px;
 }
-.sharing-list ul > li {
+
+.sharing-list ul>li {
 	margin-bottom: 0.5rem;
 }
-.sharing-list ul > li > div {
+
+.sharing-list ul>li>div {
 	border: 1px solid #eee;
 	padding: 6px 10px;
 	border-radius: 2px;
@@ -215,24 +267,30 @@ html, body {
 	cursor: pointer;
 	position: relative;
 	height: 44px;
+	background-color: #eee;
 }
-.sharing-list ul > li > div:hover {
-	border-color: #eee;
+
+.sharing-list ul>li>div:hover {
+	border: 1px solid #4285f4;
 }
-.sharing-list ul > li > div .zmdi {
+
+.sharing-list ul>li>div .zmdi {
 	position: absolute;
 	right: 8px;
-	top: 11px;
-	font-size: 1.4rem;
-	color: #4285f4
+	top: 12px;
+	font-size: 1.3rem;
+	color: #4285f4;
+	color: #ea4335;
 }
-.sharing-list ul > li > div .user-show .name {
+
+.sharing-list ul>li>div .user-show .name {
 	color: #555;
 	max-width: 90px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
+
 .sharing-list .dialog-footer {
 	margin-left: -20px;
 	margin-right: -25px;

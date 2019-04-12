@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
+import com.alibaba.fastjson.JSON;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.Entity2Schema;
@@ -46,11 +47,11 @@ public class TestSupport {
 	public static void startup() throws Exception {
 		LOG.warn("TESTING Startup ...");
 		if ("true".equals(System.getenv("TRAVIS"))) {
-			LOG.warn("TESTING in TravisCI ...");
+			LOG.info("TESTING in TravisCI ...");
 		}
 		
 		Application.debug();
-		addTestEntityIfNeed();
+		addTestEntityIfNeed(false);
 	}
 	
 	@AfterClass
@@ -60,34 +61,42 @@ public class TestSupport {
 	}
 	
 	/**
-	 * 测试实体
+	 * 初始化测试实体
 	 * 
+	 * @param deleteExists
 	 * @see DisplayType
 	 */
-	private static void addTestEntityIfNeed() {
+	private static void addTestEntityIfNeed(boolean deleteExists) {
 		if (MetadataHelper.containsEntity(TEST_ENTITY)) {
-			return;
+			if (deleteExists) {
+				LOG.warn("Dropping test entity : " + TEST_ENTITY);
+				new Entity2Schema(UserService.ADMIN_USER).drop(MetadataHelper.getEntity(TEST_ENTITY), true);
+			} else {
+				return;
+			}
 		}
 		
 		LOG.warn("Adding test entity : " + TEST_ENTITY);
 		
 		Entity2Schema entity2Schema = new Entity2Schema(UserService.ADMIN_USER);
-		String entityName = entity2Schema.create(TEST_ENTITY, null, null, true);
+		String entityName = entity2Schema.create(TEST_ENTITY.toUpperCase(), null, null, true);
 		Entity testEntity = MetadataHelper.getEntity(entityName);
 		
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "number", DisplayType.NUMBER, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "decimal", DisplayType.DECIMAL, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "date", DisplayType.DATE, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "datetime", DisplayType.DATETIME, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "text", DisplayType.TEXT, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "ntext", DisplayType.NTEXT, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "email", DisplayType.EMAIL, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "url", DisplayType.URL, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "phone", DisplayType.PHONE, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "series", DisplayType.SERIES, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "image", DisplayType.IMAGE, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "file", DisplayType.FILE, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "picklist", DisplayType.PICKLIST, null, null);
-		new Field2Schema(UserService.ADMIN_USER).create(testEntity, "reference", DisplayType.REFERENCE, null, entityName);
+		for (DisplayType dt : DisplayType.values()) {
+			if (dt == DisplayType.ID || dt == DisplayType.LOCATION || dt == DisplayType.ANYREFERENCE
+					|| dt == DisplayType.BOOL || dt == DisplayType.AVATAR) {
+				continue;
+			}
+			
+			String fieldName = dt.name().toUpperCase();
+			if (dt == DisplayType.REFERENCE) {
+				new Field2Schema(UserService.ADMIN_USER).create(testEntity, fieldName, dt, null, entityName, null);
+			} else if (dt == DisplayType.CLASSIFICATION) {
+				JSON area = JSON.parseObject("{classification:'018-0000000000000001'}");
+				new Field2Schema(UserService.ADMIN_USER).create(testEntity, fieldName, dt, null, entityName, area);
+			} else {
+				new Field2Schema(UserService.ADMIN_USER).create(testEntity, fieldName, dt, null);
+			}
+		}
 	}
 }

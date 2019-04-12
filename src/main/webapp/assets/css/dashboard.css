@@ -92,7 +92,7 @@
 
 .dlg-dash-select .modal-dialog ul li a {
     display: block;
-    border: 1px solid #eee;
+    border: 1px solid #4285f4;
     padding: 10px 12px;
 }
 
@@ -110,4 +110,8 @@
     font-size: 1.3rem;
     display: block;
     margin-top: 2px;
+}
+
+.dlg-dash-select .modal-dialog .modal-body>div {
+    max-height: 475px;
 }

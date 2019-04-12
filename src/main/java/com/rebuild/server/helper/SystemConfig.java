@@ -43,6 +43,7 @@ import cn.devezhao.persist4j.engine.ID;
  * 
  * @author devezhao
  * @since 10/14/2018
+ * @see ConfigItem
  */
 public class SystemConfig {
 	
@@ -171,7 +172,7 @@ public class SystemConfig {
 	public static String get(ConfigItem name, boolean reload) {
 		final String key = name.name();
 		String s = Application.getCommonCache().get(key);
-		if (s != null && reload == false) {
+		if (s != null && !reload) {
 			return s;
 		}
 		

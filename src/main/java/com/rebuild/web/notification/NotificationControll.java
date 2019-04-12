@@ -33,6 +33,7 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.notification.MessageHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 
@@ -50,7 +51,7 @@ public class NotificationControll extends BasePageControll {
 
 	@RequestMapping("/notifications")
 	public ModelAndView pageIndex(HttpServletRequest request) throws IOException {
-		return createModelAndView("/notification/index.jsp");
+		return createModelAndView("/notification/list.jsp");
 	}
 	
 	@RequestMapping("/notification/{id}")
@@ -80,7 +81,7 @@ public class NotificationControll extends BasePageControll {
 		
 		boolean isAll = getBoolParameter(request, "isAll", true);
 		String sql = "select fromUser,message,createdOn,unread,messageId from Notification where toUser = ? and (1=1) order by createdOn desc";
-		if (isAll == false) {
+		if (!isAll) {
 			sql = sql.replace("(1=1)", "unread = 'T'");
 		}
 		Object[][] array = Application.createQueryNoFilter(sql)
@@ -88,26 +89,14 @@ public class NotificationControll extends BasePageControll {
 				.setLimit(ps, pn * ps - ps)
 				.array();
 		for (int i = 0; i < array.length; i++) {
-			array[i] = formatMessage(array[i]);
+			Object[] message = array[i];
+			message[0] = UserHelper.getShows((ID) message[0]);
+			message[1] = MessageHelper.formatHtml((String) message[1]);
+			message[2] = Moment.moment((Date) message[2]).fromNow();
+			array[i] = message;
 		}
 		
 		writeSuccess(response, array);
-	}
-	
-	/**
-	 * @param message
-	 * @return
-	 */
-	private Object[] formatMessage(Object[] message) {
-		ID from = (ID) message[0];
-		String fromShows[] = UserHelper.getShows(from);
-		message[0] = fromShows;
-		message[2] = Moment.moment((Date) message[2]).fromNow();
-		
-		String text = (String) message[1];
-		text = text.replace("@" + from, "<a>" + fromShows[0] + "</a>");
-		message[1] = text;
-		return message;
 	}
 	
 	@RequestMapping("/notification/toggle-unread")

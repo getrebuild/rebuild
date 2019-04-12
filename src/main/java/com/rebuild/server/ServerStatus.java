@@ -39,21 +39,21 @@ import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ThrowableUtils;
 
 /**
- * 各服务状态
+ * 服务状态检查/监控
  * 
  * @author devezhao
  * @since 10/31/2018
  */
-public class ServerStatus {
+public final class ServerStatus {
 
-	private static final List<State> LAST_STATUS = new ArrayList<>();
+	private static final List<Status> LAST_STATUS = new ArrayList<>();
 	
 	/**
 	 * 最近状态
 	 * 
 	 * @return
 	 */
-	public static List<State> getLastStatus() {
+	public static List<Status> getLastStatus() {
 		synchronized (LAST_STATUS) {
 			return Collections.unmodifiableList(LAST_STATUS);
 		}
@@ -64,7 +64,7 @@ public class ServerStatus {
 	 * @return
 	 */
 	public static boolean isStatusOK() {
-		for (State s : getLastStatus()) {
+		for (Status s : getLastStatus()) {
 			if (!s.success) {
 				return false;
 			}
@@ -78,7 +78,7 @@ public class ServerStatus {
 	 * @return
 	 */
 	public static boolean checkAll() {
-		List<State> last = new ArrayList<>();
+		List<Status> last = new ArrayList<>();
 		
 		last.add(checkCreateFile());
 		last.add(checkDatabase());
@@ -96,16 +96,21 @@ public class ServerStatus {
 	 * 
 	 * @return
 	 */
-	protected static State checkDatabase() {
+	protected static Status checkDatabase() {
 		String name = "Database";
 		try {
 			DataSource ds = Application.getPersistManagerFactory().getDataSource();
 			Connection c = DataSourceUtils.getConnection(ds);
+			
+//			DatabaseMetaData dmd = c.getMetaData();
+//			String dbName = dmd.getDatabaseProductName() + dmd.getDatabaseProductVersion();
+//			name += "/" + dbName;
+			
 			DataSourceUtils.releaseConnection(c, ds);
 		} catch (Exception ex) {
-			return State.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+			return Status.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
 		}
-		return State.success(name);
+		return Status.success(name);
 	}
 	
 	/**
@@ -113,7 +118,7 @@ public class ServerStatus {
 	 * 
 	 * @return
 	 */
-	protected static State checkCreateFile() {
+	protected static Status checkCreateFile() {
 		String name = "CreateFile";
 		FileWriter fw = null;
 		try {
@@ -121,17 +126,17 @@ public class ServerStatus {
 			fw = new FileWriter(test);
 			IOUtils.write(CodecUtils.randomCode(1024), fw);
 			if (!test.exists()) {
-				return State.error(name, "Cloud't create file in temp Directory");
+				return Status.error(name, "Cloud't create file in temp Directory");
 			} else {
 				test.delete();
 			}
 			
 		} catch (Exception ex) {
-			return State.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+			return Status.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
 		} finally {
 			IOUtils.closeQuietly(fw);
 		}
-		return State.success(name);
+		return Status.success(name);
 	}
 	
 	/**
@@ -139,20 +144,20 @@ public class ServerStatus {
 	 * 
 	 * @return
 	 */
-	protected static State checkCacheService() {
+	protected static Status checkCacheService() {
 		CommonCache cache = Application.getCommonCache();
 		String name = "Cache/" + (cache.isUseRedis() ? "REDIS" : "EHCACHE");
 		
 		try {
 			cache.putx("ServerStatus.test", 1, 60);
 		} catch (Exception ex) {
-			return State.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+			return Status.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
 		}
-		return State.success(name);
+		return Status.success(name);
 	}
 	
 	// 状态
-	public static class State {
+	public static class Status {
 		final public String name;
 		final public boolean success;
 		final public String error;
@@ -165,7 +170,7 @@ public class ServerStatus {
 			return JSONUtils.toJSONObject(name, success ? true : error);
 		}
 		
-		private State(String name, boolean success, String error) {
+		private Status(String name, boolean success, String error) {
 			this.name = name;
 			this.success = success;
 			this.error = error;
@@ -176,11 +181,11 @@ public class ServerStatus {
 				Application.LOG.error("Checking " + toString());
 			}
 		}
-		private static State success(String name) {
-			return new State(name, true, null);
+		private static Status success(String name) {
+			return new Status(name, true, null);
 		}
-		private static State error(String name, String error) {
-			return new State(name, false, error);
+		private static Status error(String name, String error) {
+			return new Status(name, false, error);
 		}
 	}
 }

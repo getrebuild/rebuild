@@ -28,11 +28,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
+import com.alibaba.fastjson.JSON;
 import com.github.stuxuhai.jpinyin.PinyinException;
 import com.github.stuxuhai.jpinyin.PinyinFormat;
 import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.UserService;
 
@@ -73,13 +75,25 @@ public class Field2Schema {
 	 * @param fieldLabel
 	 * @param type
 	 * @param comments
-	 * @param refEntity
 	 * @return
 	 */
-	public String create(Entity entity, String fieldLabel, DisplayType type, String comments, String refEntity) {
+	public String create(Entity entity, String fieldLabel, DisplayType type, String comments) {
+		return create(entity, fieldLabel, type, comments, null, null);
+	}
+	
+	/**
+	 * @param entity
+	 * @param fieldLabel
+	 * @param type
+	 * @param comments
+	 * @param refEntity
+	 * @param extConfig
+	 * @return
+	 */
+	public String create(Entity entity, String fieldLabel, DisplayType type, String comments, String refEntity, JSON extConfig) {
 		long count = 0;
 		if ((count = checkRecordCount(entity)) > 50000) {
-			throw new ModificationMetadataException("本实体记录过大，增加字段可能导致表损坏 (" + entity.getName() + "=" + count + ")");
+			throw new ModifiyMetadataException("本实体记录过大，增加字段可能导致表损坏 (" + entity.getName() + "=" + count + ")");
 		}
 		
 		String fieldName = toPinyinName(fieldLabel);
@@ -91,7 +105,7 @@ public class Field2Schema {
 			}
 		}
 		
-		Field field = createField(entity, fieldName, fieldLabel, type, true, true, true, comments, refEntity, CascadeModel.Ignore, true);
+		Field field = createField(entity, fieldName, fieldLabel, type, true, true, true, comments, refEntity, null, true, extConfig);
 		
 		boolean schemaReady = schema2Database(entity, field);
 		if (!schemaReady) {
@@ -105,29 +119,37 @@ public class Field2Schema {
 	
 	/**
 	 * @param field
+	 * @return
+	 */
+	public boolean drop(Field field) {
+		return drop(field, false);
+	}
+	
+	/**
+	 * @param field
 	 * @param force
 	 * @return
 	 */
 	public boolean drop(Field field, boolean force) {
 		if (!user.equals(UserService.ADMIN_USER)) {
-			throw new ModificationMetadataException("仅超级管理员可删除字段");
+			throw new ModifiyMetadataException("仅超级管理员可删除字段");
 		}
 		
 		EasyMeta easyMeta = EasyMeta.valueOf(field);
 		ID metaRecordId = easyMeta.getMetaId();
 		if (easyMeta.isBuiltin() || metaRecordId == null) {
-			throw new ModificationMetadataException("系统内建字段不允许删除");
+			throw new ModifiyMetadataException("系统内建字段不允许删除");
 		}
 		
 		Entity entity = field.getOwnEntity();
 		if (entity.getNameField().equals(field)) {
-			throw new ModificationMetadataException("名称字段不允许被删除");
+			throw new ModifiyMetadataException("名称字段不允许被删除");
 		}
 		
-		if (force == false) {
+		if (!force) {
 			long count = 0;
 			if ((count = checkRecordCount(entity)) > 50000) {
-				throw new ModificationMetadataException("本实体记录过大，删除字段可能导致表损坏 (" + entity.getName() + "=" + count + ")");
+				throw new ModifiyMetadataException("本实体记录过大，删除字段可能导致表损坏 (" + entity.getName() + "=" + count + ")");
 			}
 		}
 		
@@ -183,40 +205,52 @@ public class Field2Schema {
 	 * @param comments
 	 * @param refEntity
 	 * @param cascade
-	 * @param dbNullable 在数据库中是否可为空，一般系统级字段不能为空
+	 * @param nullableInDb 在数据库中是否可为空，一般系统级字段不能为空
+	 * @param extConfig
 	 * @return
 	 */
 	protected Field createField(Entity entity, String fieldName, String fieldLabel, DisplayType displayType,
-			boolean nullable, boolean creatable, boolean updatable, String comments, String refEntity, CascadeModel cascade, boolean dbNullable) {
+			boolean nullable, boolean creatable, boolean updatable, String comments, String refEntity, CascadeModel cascade, boolean nullableInDb, JSON extConfig) {
 		if (displayType == DisplayType.SERIES) {
 			nullable = false;
 			creatable = false;
 			updatable = false;
-			dbNullable = false;
+			nullableInDb = false;
 		}
 		
-		Record record = EntityHelper.forNew(EntityHelper.MetaField, user);
-		record.setString("belongEntity", entity.getName());
-		record.setString("fieldName", fieldName);
+		Record recordOfField = EntityHelper.forNew(EntityHelper.MetaField, user);
+		recordOfField.setString("belongEntity", entity.getName());
+		recordOfField.setString("fieldName", fieldName);
 		String physicalName = fieldName.toUpperCase();
-		record.setString("physicalName", physicalName);
-		record.setString("fieldLabel", fieldLabel);
-		record.setString("displayType", displayType.name());
-		record.setBoolean("nullable", nullable);
-		record.setBoolean("creatable", creatable);
-		record.setBoolean("updatable", updatable);
+		recordOfField.setString("physicalName", physicalName);
+		recordOfField.setString("fieldLabel", fieldLabel);
+		recordOfField.setString("displayType", displayType.name());
+		recordOfField.setBoolean("nullable", nullable);
+		recordOfField.setBoolean("creatable", creatable);
+		recordOfField.setBoolean("updatable", updatable);
 		if (StringUtils.isNotBlank(comments)) {
-			record.setString("comments", comments);
+			recordOfField.setString("comments", comments);
 		}
 		
-		if (displayType == DisplayType.PICKLIST) {
+		if (displayType == DisplayType.DECIMAL) {
+			recordOfField.setInt("precision", 8);
+		} else if (displayType == DisplayType.PICKLIST) {
 			refEntity = "PickList";
+		} else if (displayType == DisplayType.CLASSIFICATION) {
+			refEntity = "ClassificationData";
+			recordOfField.setString("extConfig", extConfig == null ? "{}" : extConfig.toJSONString());
 		}
+		
 		if (StringUtils.isNotBlank(refEntity)) {
-			record.setString("refEntity", refEntity);
+			if (!MetadataHelper.containsEntity(refEntity)) {
+				throw new ModifiyMetadataException("Unknow ref-entity : " + refEntity);
+			}
+			recordOfField.setString("refEntity", refEntity);
 			if (cascade != null) {
 				String cascadeAlias = cascade == CascadeModel.RemoveLinks ? "remove-links" : cascade.name().toLowerCase();
-				record.setString("cascade", cascadeAlias);
+				recordOfField.setString("cascade", cascadeAlias);
+			} else {
+				recordOfField.setString("cascade", CascadeModel.Ignore.name().toLowerCase());
 			}
 		}
 		
@@ -224,21 +258,21 @@ public class Field2Schema {
 		if (EntityHelper.QuickCode.equals(fieldName)) {
 			maxLength = 70;
 		}
-		record.setInt("maxLength", maxLength);
+		recordOfField.setInt("maxLength", maxLength);
 		
 		if (displayType == DisplayType.REFERENCE && StringUtils.isBlank(refEntity)) {
-			throw new ModificationMetadataException("引用字段必须指定引用实体");
+			throw new ModifiyMetadataException("引用字段必须指定引用实体");
 		}
 		
-		record = Application.getCommonService().create(record);
-		tempMetaId.add(record.getPrimary());
+		recordOfField = Application.getCommonService().create(recordOfField);
+		tempMetaId.add(recordOfField.getPrimary());
 		
 		boolean autoValue = EntityHelper.AutoId.equals(fieldName);
 		String defaultValue = EntityHelper.IsDeleted.equals(fieldName) ? "F" : null;
 		
 		Field unsafeField = new FieldImpl(
 				fieldName, physicalName, fieldLabel, entity, displayType.getFieldType(), CascadeModel.Ignore, maxLength, 
-				dbNullable, creatable, updatable, true, 6, defaultValue, autoValue);
+				nullableInDb, creatable, updatable, true, 8, defaultValue, autoValue);
 		if (entity instanceof UnsafeEntity) {
 			((UnsafeEntity) entity).addField(unsafeField);
 		}
@@ -260,7 +294,7 @@ public class Field2Schema {
 			throw new MetadataException(text, e);
 		}
 		if (StringUtils.isBlank(identifier)) {
-			throw new ModificationMetadataException("无效名称 : " + text);
+			throw new ModifiyMetadataException("无效名称 : " + text);
 		}
 		
 		char start = identifier.charAt(0);
@@ -274,7 +308,7 @@ public class Field2Schema {
 		}
 		
 		if (!StringHelper.isIdentifier(identifier)) {
-			throw new ModificationMetadataException("无效名称 : " + text);
+			throw new ModifiyMetadataException("无效名称 : " + text);
 		}
 		return identifier;
 	}

@@ -8,7 +8,7 @@
 </head>
 <body class="view-body">
 <div class="view-header">
-	<span class="header-icon zmdi zmdi-${entityIcon}"></span>
+	<i class="header-icon zmdi zmdi-${entityIcon}"></i>
 	<h3 class="title">${entityLabel}视图</h3>
 	<span>
 		<a class="close J_close"><i class="zmdi zmdi-close"></i></a>
@@ -27,12 +27,12 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-sm-3 view-metas">
+		<div class="col-sm-3 view-operating">
 			<div class="view-action row">
-				<div class="col-6 pr-1 mb-2">
+				<div class="col-12 col-lg-6">
 					<button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
 				</div>
-				<div class="col-6 pl-1 mb-2 btn-group J_action">
+				<div class="col-12 col-lg-6 btn-group J_mores">
 					<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-more-vert"></i></button>
 					<div class="dropdown-menu dropdown-menu-right">
 						<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
@@ -55,8 +55,10 @@ window.__PageConfig = {
 <script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
 <script type="text/babel">
 $(document).ready(function(){
-	if (rb.isAdminUser == false || rb.isAdminVerified == false) $('.view-action').remove()
-
+	if (rb.isAdminUser == false || rb.isAdminVerified == false) {
+		$('.view-action').remove(); 
+		return
+	}
 	$('.J_delete').off('click').click(function(){
 		$.get(rb.baseUrl + '/admin/bizuser/deleting-checks?id=${id}', function(res){
 			if (res.data.hasMember == 0 && res.data.hasChild == 0){
@@ -72,11 +74,10 @@ $(document).ready(function(){
 	})
 })
 let deleteDept = function(dlg){
-	let btns = $(dlg.refs['btns']).find('.btn').button('loading')
+	dlg.disabled(true)
 	$.post(rb.baseUrl + '/admin/bizuser/dept-delete?transfer=&id=${id}', function(res){
 		if (res.error_code == 0) parent.location.reload()
 		else rb.hberror(res.error_msg)
-		btns.button('reset')
 	})
 }
 </script>

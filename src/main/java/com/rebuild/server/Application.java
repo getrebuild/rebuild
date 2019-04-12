@@ -18,15 +18,19 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.metadata.DynamicMetadataFactory;
@@ -39,6 +43,7 @@ import com.rebuild.server.service.base.GeneralEntityService;
 import com.rebuild.server.service.bizz.privileges.UserStore;
 import com.rebuild.server.service.notification.NotificationService;
 import com.rebuild.server.service.query.QueryFactory;
+import com.rebuild.utils.RbDateCodec;
 import com.rebuild.web.OnlineSessionStore;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -55,15 +60,16 @@ public final class Application {
 	
 	/** Rebuild Version
 	 */
-	public static final String VER = "1.1.0-SNAPSHOT";
+	public static final String VER = "1.1.0";
 	
 	/** Logging for Global, If you want to be lazy ^_^
 	 */
 	public static final Log LOG = LogFactory.getLog(Application.class);
 	
+	// 调试模式
 	private static boolean debugMode = false;
-	
-	private static boolean serversReady = false;
+	// 服务启动正常
+	private static boolean serverReady = false;
 	
 	// SPRING
 	private static ApplicationContext APPLICATION_CTX;
@@ -80,19 +86,29 @@ public final class Application {
 	/**
 	 * 初始化
 	 * 
-	 * @param startingAt
+	 * @param startAt
 	 */
-	void init(long startingAt) {
-		serversReady = ServerStatus.checkAll();
-		if (!serversReady) {
-			LOG.fatal("\n#############################################################"
-					+ "\n\n  REBUILD BOOTING FAILURE DURING STATUS CHECKS"
+	synchronized
+	protected void init(long startAt) {
+		serverReady = ServerStatus.checkAll();
+		if (!serverReady) {
+			LOG.fatal("\n###################################################################\n"
+					+ "\n  REBUILD BOOTING FAILURE DURING THE STATUS CHECKS."
+					+ "\n  PLEASE VIEW BOOTING LOGS."
 					+ "\n  Version : " + VER
-					+ "\n  Report an issue?"
+					+ "\n  OS      : " + SystemUtils.OS_NAME + " " + SystemUtils.OS_ARCH
+					+ "\n  Report an issue : "
 					+ "\n  https://github.com/getrebuild/rebuild/issues/new?title=error-boot"
-					+ "\n\n#############################################################");
+					+ "\n\n###################################################################");
 			return;
 		}
+		
+		// for fastjson Serialize
+		SerializeConfig.getGlobalInstance().put(ID.class, ToStringSerializer.instance);
+		SerializeConfig.getGlobalInstance().put(Date.class, RbDateCodec.instance);
+		
+		// 升级数据库
+		UpgradeDatabase.getInstance().upgradeQuietly();
 		
 		// 自定义实体
 		LOG.info("Loading customized entities ...");
@@ -121,14 +137,15 @@ public final class Application {
 			}
 		}
 		
-		LOG.info("Rebuild Boot successful in " + (System.currentTimeMillis() - startingAt) + " ms");
+		LOG.info("Rebuild Boot successful in " + (System.currentTimeMillis() - startAt) + " ms");
 	}
 	
 	/**
-	 * For testing
+	 * FOR TESTING ONLY
+	 * 
 	 * @return
 	 */
-	public static ApplicationContext debug() {
+	protected static ApplicationContext debug() {
 		if (APPLICATION_CTX == null) {
 			debugMode = true;
 			LOG.info("Rebuild Booting in DEBUG mode ...");
@@ -149,12 +166,12 @@ public final class Application {
 	}
 	
 	/**
-	 * 服务是否正常启动
+	 * 各项服务是否正常启动
 	 * 
 	 * @return
 	 */
 	public static boolean serversReady() {
-		return serversReady;
+		return serverReady;
 	}
 	
 	/**

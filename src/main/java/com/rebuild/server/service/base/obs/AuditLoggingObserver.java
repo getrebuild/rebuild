@@ -55,7 +55,7 @@ public class AuditLoggingObserver extends OperatingObserver {
 	}
 	
 	@Override
-	public void onUnShare(OperatingContext context) {
+	public void onUnshare(OperatingContext context) {
 		LOG.warn(context);
 	}
 }

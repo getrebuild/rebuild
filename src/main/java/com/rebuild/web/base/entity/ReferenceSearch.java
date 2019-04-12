@@ -35,9 +35,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.manager.value.FieldValueWrapper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.portals.value.FieldValueWrapper;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.web.BaseControll;
@@ -54,14 +54,16 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 08/24/2018
  */
 @Controller
-@RequestMapping("/app/entity/")
+@RequestMapping("/commons/search/")
 public class ReferenceSearch extends BaseControll {
 	
+	// 指定字段搜索
 	@RequestMapping("search")
 	public void search(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
-		String qFields = getParameter(request, "qfields");
 		String q = getParameter(request, "q");
+		// 查询字段，未指定则查询名称
+		String qfields = getParameter(request, "qfields");
 		
 		if (StringUtils.isBlank(q)) {
 			writeSuccess(response, ArrayUtils.EMPTY_STRING_ARRAY);
@@ -75,15 +77,15 @@ public class ReferenceSearch extends BaseControll {
 			writeSuccess(response, ArrayUtils.EMPTY_STRING_ARRAY);
 			return;
 		}
-		if (StringUtils.isBlank(qFields)) {
-			qFields = nameField.getName();
+		if (StringUtils.isBlank(qfields)) {
+			qfields = nameField.getName();
 			if (metaEntity.containsField(EntityHelper.QuickCode)) {
-				qFields += "," + EntityHelper.QuickCode;
+				qfields += "," + EntityHelper.QuickCode;
 			}
 		}
 		
 		List<String> or = new ArrayList<>();
-		for (String field : qFields.split(",")) {
+		for (String field : qfields.split(",")) {
 			if (!metaEntity.containsField(field)) {
 				LOG.warn("No field for search : " + field);
 			} else {
@@ -106,7 +108,8 @@ public class ReferenceSearch extends BaseControll {
 		writeSuccess(response, result);
 	}
 	
-	@RequestMapping("reference-search")
+	// 搜索引用字段
+	@RequestMapping({ "reference", "quick" })
 	public void referenceSearch(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
 		String field = getParameterNotNull(request, "field");
@@ -154,7 +157,7 @@ public class ReferenceSearch extends BaseControll {
 	}
 	
 	/**
-	 * 查询结果
+	 * 封装查询结果
 	 * 
 	 * @param entity
 	 * @param sql
@@ -183,7 +186,7 @@ public class ReferenceSearch extends BaseControll {
 		return result;
 	}
 	
-	@RequestMapping("reference-label")
+	@RequestMapping("read-labels")
 	public void referenceLabel(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String ids = getParameter(request, "ids", null);
 		if (ids == null) {

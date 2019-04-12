@@ -64,37 +64,40 @@ public class IncreasingVar extends SeriesVar {
 
 	@Override
 	public String generate() {
-		int intAuto = 1;
-		if (field != null) {
-			String key = theCacheKey();
-			Object keyLock = null;
-			synchronized (LOCKs) {
-				keyLock = LOCKs.get(key);
-				if (keyLock == null) {
-					keyLock = new Object();
-					LOCKs.put(key, keyLock);
-				}
-			}
-			
-			synchronized (keyLock) {
-				Object val = Application.getCommonCache().getx(key);
-				if (val != null) {
-					intAuto = ObjectUtils.toInt(val);
-				} else {
-					intAuto = countByZero();
-				}
-				intAuto += 1;
-				Application.getCommonCache().putx(key, intAuto);
+		// Preview mode
+		if (field == null) {
+			return StringUtils.leftPad("1", getSymbols().length(), '0');
+		}
+		
+		final String key = theCacheKey();
+		Object keyLock = null;
+		synchronized (LOCKs) {
+			keyLock = LOCKs.get(key);
+			if (keyLock == null) {
+				keyLock = new Object();
+				LOCKs.put(key, keyLock);
 			}
 		}
-		return StringUtils.leftPad(intAuto + "", getSymbols().length(), '0');
+		
+		int autoVal = 1;
+		synchronized (keyLock) {
+			Object val = Application.getCommonCache().getx(key);
+			if (val != null) {
+				autoVal = ObjectUtils.toInt(val);
+			} else {
+				autoVal = countFromDb();
+			}
+			autoVal += 1;
+			Application.getCommonCache().putx(key, autoVal);
+		}
+		return StringUtils.leftPad(autoVal + "", getSymbols().length(), '0');
 	}
 	
 	/**
 	 * 清空序号缓存
 	 */
 	protected void clean() {
-		String key = theCacheKey();
+		final String key = theCacheKey();
 		Object keyLock = null;
 		synchronized (LOCKs) {
 			keyLock = LOCKs.get(key);
@@ -110,12 +113,12 @@ public class IncreasingVar extends SeriesVar {
 	}
 	
 	/**
-	 * TODO 现在是放在缓存中，可能丢失。丢失后的系列可能不准，例如 100 条记录
-	 * 序号也为 100，但是删除了10条后，调用此方法所生产的序号只有 90（直接采用 count 记录数）
+	 * 例如有100条记录，序号也为100。
+	 * 但是删除了10条后，调用此方法所生产的序号只有 90（直接采用 count 记录数）
 	 * 
 	 * @return
 	 */
-	private int countByZero() {
+	private int countFromDb() {
 		String dateLimit = null;
 		if ("Y".equals(zeroFlag)) {
 			dateLimit = CalendarUtils.format("yyyy", CalendarUtils.now()) + "-01-01";

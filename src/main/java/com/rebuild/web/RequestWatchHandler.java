@@ -54,11 +54,10 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 		response.setCharacterEncoding("utf-8");
 		
 		String requestUrl = request.getRequestURI();
-		if (!requestUrl.contains("/gw/server-status")) {
-			if (!Application.serversReady()) {
-				response.sendRedirect(ServerListener.getContextPath() + "/gw/server-status?s=" + CodecUtils.urlEncode(requestUrl));
-				return false;
-			}
+		// If server status is not passed
+		if (!requestUrl.contains("/gw/server-status") && !Application.serversReady()) {
+			response.sendRedirect(ServerListener.getContextPath() + "/gw/server-status?s=" + CodecUtils.urlEncode(requestUrl));
+			return false;
 		}
 		
 		Application.getSessionStore().storeLastActive(request);
@@ -170,9 +169,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	private static boolean inIgnoreRes(String requestUrl) {
 		if (requestUrl.contains("/user/") && !requestUrl.contains("/user/admin")) {
 			return true;
-		} if (requestUrl.contains("/gw/") || requestUrl.contains("/assets/") || requestUrl.contains("/error/")) {
-			return true;
 		}
-		return false;
+		return requestUrl.contains("/gw/") || requestUrl.contains("/assets/") || requestUrl.contains("/error/");
 	}
 }

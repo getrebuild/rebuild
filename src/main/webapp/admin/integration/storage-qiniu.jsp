@@ -32,7 +32,7 @@
 									<table class="table">
 									<tbody>
 										<tr>
-											<td width="50%">访问域名</td>
+											<td width="40%">访问域名</td>
 											<td><a href="${storageAccount[3]}" class="link" target="_blank">${storageAccount[3]}</a></td>
 										</tr>
 										<tr>

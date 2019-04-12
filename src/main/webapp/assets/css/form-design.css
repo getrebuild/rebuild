@@ -69,7 +69,8 @@
 .dd-list .dd-item .dd-action {
 	float: right;
 	cursor: default;
-	margin-right: -1px;
+	margin-top: 13px;
+	margin-right: 6px;
 	display: none;
 }
 

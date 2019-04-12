@@ -35,7 +35,7 @@ public class TableBuilder {
 	/**
 	 * 行号
 	 */
-	protected static final Axis LINE_NUMBER = new Axis(null, null, null, "#");
+	protected static final Axis LN_REF = new Axis(null, null, null, "#");
 	
 	private TableChart chart;
 	private Object[][] rows;
@@ -55,7 +55,7 @@ public class TableBuilder {
 	public String toHTML() {
 		List<Axis> axes = new ArrayList<>();
 		if (chart.isShowLineNumber()) {
-			axes.add(LINE_NUMBER);
+			axes.add(LN_REF);
 		}
 		CollectionUtils.addAll(axes, chart.getDimensions());
 		CollectionUtils.addAll(axes, chart.getNumericals());
@@ -76,7 +76,7 @@ public class TableBuilder {
 			for (int i = 0; i < row.length; i++) {
 				Axis axis = axes.get(i);
 				TD td = null;
-				if (axis == LINE_NUMBER) {
+				if (axis == LN_REF) {
 					td = new TD(row[i] + "", "th");
 				} else {
 					String text = chart.warpAxisValue(axis, row[i]);
@@ -112,17 +112,18 @@ public class TableBuilder {
 	}
 
 	// --
+	// HTML Table structure
 
-	static class TBODY {
-		String tag = "tbody";
-		List<TR> children = new ArrayList<>();
-		TBODY() {
+	// <tbody> or <thead>
+	private static class TBODY {
+		private String tag = "tbody";
+		private List<TR> children = new ArrayList<>();
+		private TBODY() {
 		}
-		TBODY(String tag) {
+		private TBODY(String tag) {
 			this.tag = tag;
 		}
-		TBODY addChild(TR c) {
-			c.parent = this;
+		private TBODY addChild(TR c) {
 			children.add(c);
 			return this;
 		}
@@ -136,11 +137,10 @@ public class TableBuilder {
 		}
 	}
 
-	static class TR {
-		TBODY parent = null;
-		List<TD> children = new ArrayList<>();
-		TR addChild(TD c) {
-			c.parent = this;
+	// <tr>
+	private static class TR {
+		private List<TD> children = new ArrayList<>();
+		private TR addChild(TD c) {
 			children.add(c);
 			return this;
 		}
@@ -154,17 +154,17 @@ public class TableBuilder {
 		}
 	}
 
-	static class TD {
-		String tag = null;
-		TR parent = null;
-		String content;
-		int rowspan = 1;
-		TD(String content) {
-			this(content, "td");
+	// <td> or <th>
+	private static class TD {
+		private String tag = null;
+		private String content;
+		private int rowspan = 1;
+		private TD(String content) {
+			this(content, null);
 		}
-		TD(String content, String tag) {
+		private TD(String content, String tag) {
 			this.content = StringUtils.defaultIfBlank(content, "");
-			this.tag = tag;
+			this.tag = StringUtils.defaultIfBlank(tag, "td");
 		}
 		@Override
 		public String toString() {

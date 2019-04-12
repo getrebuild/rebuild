@@ -57,12 +57,12 @@ public class BulkContext {
 	 * @param opUser
 	 * @param action
 	 * @param toUser
+	 * @param cascades
 	 * @param records
 	 * @param filterExp
 	 * @param recordMaster
-	 * @param cascades
 	 */
-	public BulkContext(ID opUser, Permission action, ID toUser, String[] cascades, ID[] records, JSONObject filterExp, ID recordMaster) {
+	private BulkContext(ID opUser, Permission action, ID toUser, String[] cascades, ID[] records, JSONObject filterExp, ID recordMaster) {
 		this.opUser = opUser;
 		this.action = action;
 		this.toUser = toUser;
@@ -74,7 +74,7 @@ public class BulkContext {
 	}
 
 	/**
-	 * 分派/共享/删除，有目标用户的
+	 * 有目标用户的，如分派/共享/删除
 	 * 
 	 * @param opUser
 	 * @param action
@@ -87,6 +87,8 @@ public class BulkContext {
 	}
 	
 	/**
+	 * 无目标用户的，如取消共享
+	 * 
 	 * @param opUser
 	 * @param action
 	 * @param records

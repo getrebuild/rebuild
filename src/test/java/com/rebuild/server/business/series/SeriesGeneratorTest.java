@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.series;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -59,8 +60,8 @@ public class SeriesGeneratorTest extends TestSupport {
 	@Test
 	public void testIncrementVarNThreads() throws Exception {
 		final IncreasingVar var = new IncreasingVar("0000", getSeriesField(), "Y");
-		final Set<String> set = new HashSet<>();
-		final int N = 500;
+		final Set<String> set = Collections.synchronizedSet(new HashSet<>());
+		final int N = 200;
 		for (int i = 0; i < N; i++) {
 			ThreadPool.exec(new Runnable() {
 				@Override

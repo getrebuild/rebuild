@@ -22,6 +22,8 @@ import org.apache.commons.lang.math.RandomUtils;
 
 import com.rebuild.server.Application;
 
+import cn.devezhao.commons.CodecUtils;
+
 /**
  * 验证码
  * 
@@ -35,10 +37,26 @@ public class VCode {
 	 * @return
 	 */
 	public static String generate(String key) {
-		key = "VCode-" + key;
-		String vcode = RandomUtils.nextInt(999999999) + "888888";
-		vcode = vcode.substring(0, 6);
-		Application.getCommonCache().put(key, vcode, 10 * 60);
+		return generate(key, 1);
+	}
+	
+	/**
+	 * @param key
+	 * @param level complexity 1<2<3
+	 * @return
+	 */
+	public static String generate(String key, int level) {
+		String vcode = null;
+		if (level == 3) {
+			vcode = CodecUtils.randomCode(20);
+		} else if (level == 2) {
+			vcode = CodecUtils.randomCode(8);
+		} else {
+			vcode = RandomUtils.nextInt(999999999) + "888888";
+			vcode = vcode.substring(0, 6);
+		}
+		
+		Application.getCommonCache().put("VCode-" + key, vcode, 10 * 60);
 		return vcode;
 	}
 	
@@ -48,16 +66,37 @@ public class VCode {
 	 * @return
 	 */
 	public static boolean verfiy(String key, String vcode) {
-		key = "VCode-" + key;
-		String exists = Application.getCommonCache().get(key);
+		return verfiy(key, vcode, false);
+	}
+	
+	/**
+	 * @param key
+	 * @param vcode
+	 * @param keepAlive
+	 * @return
+	 * @see #clean(String)
+	 */
+	public static boolean verfiy(String key, String vcode, boolean keepAlive) {
+		String ckey = "VCode-" + key;
+		String exists = Application.getCommonCache().get(ckey);
 		if (exists == null) {
 			return false;
 		}
 		
 		if (exists.equalsIgnoreCase(vcode)) {
-			Application.getCommonCache().evict(key);
+			if (!keepAlive) {
+				Application.getCommonCache().evict(ckey);
+			}
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * @param key
+	 * @return
+	 */
+	public static void clean(String key) {
+		Application.getCommonCache().evict("VCode-" + key);
 	}
 }

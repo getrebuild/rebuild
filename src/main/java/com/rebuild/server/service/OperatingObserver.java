@@ -51,21 +51,21 @@ public abstract class OperatingObserver implements Observer {
 				@Override
 				public void run() {
 					try {
-						update(ctx);
+						updateByAction(ctx);
 					} catch (Exception ex) {
 						LOG.error("OperateContext : " + ctx, ex);
 					}
 				}
 			});
 		} else {
-			update(ctx);
+			updateByAction(ctx);
 		}
 	}
 	
 	/**
 	 * @param ctx
 	 */
-	protected void update(OperatingContext ctx) {
+	protected void updateByAction(OperatingContext ctx) {
 		if (ctx.getAction() == BizzPermission.CREATE) {
 			onCreate(ctx);
 		} else if (ctx.getAction() == BizzPermission.UPDATE) {
@@ -77,8 +77,8 @@ public abstract class OperatingObserver implements Observer {
 		} else if (ctx.getAction() == BizzPermission.SHARE) {
 			onShare(ctx);
 		} else if (ctx.getAction() == EntityService.UNSHARE) {
-			onUnShare(ctx);
-		} 
+			onUnshare(ctx);
+		}
 	}
 
 	/**
@@ -90,51 +90,47 @@ public abstract class OperatingObserver implements Observer {
 		return false;
 	}
 	
+	// -- 根据需要复写以下方法
+	
 	/**
 	 * 新建时
-	 * 
 	 * @param context
 	 */
-	public void onCreate(final OperatingContext context) {
+	protected void onCreate(final OperatingContext context) {
 	}
 
 	/**
 	 * 更新时
-	 * 
 	 * @param context
 	 */
-	public void onUpdate(final OperatingContext context) {
+	protected void onUpdate(final OperatingContext context) {
 	}
 
 	/**
 	 * 删除时
-	 * 
 	 * @param context
 	 */
-	public void onDelete(final OperatingContext context) {
+	protected void onDelete(final OperatingContext context) {
 	}
-
+	
 	/**
 	 * 分派时
-	 * 
 	 * @param context
 	 */
-	public void onAssign(final OperatingContext context) {
+	protected void onAssign(final OperatingContext context) {
 	}
 
 	/**
 	 * 共享时
-	 * 
 	 * @param context
 	 */
-	public void onShare(final OperatingContext context) {
+	protected void onShare(final OperatingContext context) {
 	}
 	
 	/**
 	 * 取消共享时
-	 * 
 	 * @param context
 	 */
-	public void onUnShare(final OperatingContext context) {
+	protected void onUnshare(final OperatingContext context) {
 	}
 }

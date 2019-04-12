@@ -32,7 +32,7 @@
 									<table class="table">
 									<tbody>
 										<tr>
-											<td width="50%">APPID</td>
+											<td width="40%">APPID</td>
 											<td>${mailAccount[0]}</td>
 										</tr>
 										<tr>

@@ -32,13 +32,12 @@ public class Message {
 
 	private ID fromUser;
 	private ID toUser;
+	private String message;
 	
 	private ID relatedRecord;
-	
-	private String message;
 
 	public Message(ID toUser, String message, ID relatedRecord) {
-		this(UserService.SYSTEM_USER, toUser, message, null);
+		this(UserService.SYSTEM_USER, toUser, message, relatedRecord);
 	}
 
 	public Message(ID fromUser, ID toUser, String message, ID relatedRecord) {

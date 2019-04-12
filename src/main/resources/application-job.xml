@@ -14,10 +14,10 @@
 		<property name="cronExpression" value="0 15,35,55 * * * ?" />
 	</bean>
 	
-	<bean id="seriesZeroJob" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+	<bean id="seriesZeroResetJob" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail">
 			<bean class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-				<property name="jobClass" value="com.rebuild.server.business.series.SeriesZeroJob" />
+				<property name="jobClass" value="com.rebuild.server.business.series.SeriesZeroResetJob" />
 			</bean>
 		</property>
 		<property name="cronExpression" value="0 0 0 * * ?" />
@@ -25,12 +25,12 @@
 	
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="autoStartup" value="true"/>
-		<property name="startupDelay" value="10"/>
+		<property name="startupDelay" value="60000"/>
 		<property name="configLocation" value="classpath:quartz.properties"/>
 		<property name="triggers">
 			<list>
-				<ref bean="bulkTaskExecutor"/>
-				<ref bean="seriesZeroJob"/>
+				<ref bean="bulkTaskExecutor" />
+				<ref bean="seriesZeroResetJob" />
 			</list>
 		</property>
 	</bean>

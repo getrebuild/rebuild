@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-unused-vars
-let clickIcon = function (icon) {
+// eslint-disable-next-line no-undef
+clickIcon = function (icon) {
   $('#entityIcon').attr('value', icon).find('i').attr('class', 'icon zmdi zmdi-' + icon)
   rb.modalHide()
 }
@@ -20,7 +21,10 @@ $(document).ready(function () {
     let _data = { entityLabel: label, comments: comments, nameField: nameField }
     if (icon) _data.icon = icon
     _data = $cleanMap(_data)
-    if (Object.keys(_data) === 0) { location.reload(); return }
+    if (Object.keys(_data) === 0) {
+      location.reload()
+      return
+    }
 
     _data.metadata = { entity: 'MetaEntity', id: wpc.metaId }
     _btn.button('loading')
@@ -36,17 +40,17 @@ $(document).ready(function () {
 
   $.get(rb.baseUrl + '/commons/metadata/fields?entity=' + wpc.entity, function (d) {
     let rs = d.data.map((item) => {
-      let canName = item.type === 'NUMBER' || item.type === 'DECIMAL'
-				|| item.type === 'TEXT' || item.type === 'EMAIL' || item.type === 'URL' || item.type === 'PHONE' || item.type === 'SERIES'
-				|| item.type === 'PICKLIST' || item.type === 'REFERENCE' || item.type === 'DATE' || item.type === 'DATETIME'
+      let canName = item.type === 'NUMBER' || item.type === 'DECIMAL' ||
+        item.type === 'TEXT' || item.type === 'EMAIL' || item.type === 'URL' || item.type === 'PHONE' ||
+        item.type === 'SERIES' || item.type === 'PICKLIST' || item.type === 'CLASSIFICATION' ||
+        item.type === 'DATE' || item.type === 'DATETIME'
       return {
         id: item.name,
         text: item.label,
         disabled: canName === false,
-        title: canName === false ? '此字段（类型）不支持作为名称字段' : ''
+        title: canName === false ? '此字段（类型）不支持作为名称字段使用' : ''
       }
     })
-    // rs.sort((a, b)=>{ return a.disabled === true ? 1 : (b.disabled === true ? 0 : -1) })
     let rsSort = []
     rs.forEach((item) => { if (item.disabled === false) rsSort.push(item) })
     rs.forEach((item) => { if (item.disabled === true) rsSort.push(item) })

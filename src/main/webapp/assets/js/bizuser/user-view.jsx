@@ -55,7 +55,7 @@ class DlgChangeDept extends RbModalHandler {
   }
   render() {
     return (<RbModal title={'变更' + this.typeName} ref="dlg" disposeOnHide={true}>
-      <form>
+      <div className="form">
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">选择新{this.typeName}</label>
           <div className="col-sm-7">
@@ -68,7 +68,7 @@ class DlgChangeDept extends RbModalHandler {
             <a className="btn btn-link btn-space" onClick={() => this.hide()}>取消</a>
           </div>
         </div>
-      </form>
+      </div>
     </RbModal>)
   }
   componentDidMount() {
@@ -77,7 +77,7 @@ class DlgChangeDept extends RbModalHandler {
       placeholder: '选择' + this.typeName,
       minimumInputLength: 1,
       ajax: {
-        url: rb.baseUrl + '/app/entity/search',
+        url: rb.baseUrl + '/commons/search/search',
         delay: 300,
         data: function (params) {
           return { entity: that.type, q: params.term }

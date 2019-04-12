@@ -62,14 +62,14 @@ public class MetaEntityControll extends BasePageControll {
 
 	@RequestMapping("entities")
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
-		ModelAndView mv = createModelAndView("/admin/entity/entity-grid.jsp");
+		ModelAndView mv = createModelAndView("/admin/entityhub/entity-grid.jsp");
 		mv.getModel().put("isSuperAdmin", UserHelper.isSuperAdmin(getRequestUser(request)));
 		return mv;
 	}
 
 	@RequestMapping("entity/{entity}/base")
 	public ModelAndView pageEntityBase(@PathVariable String entity, HttpServletRequest request) throws IOException {
-		ModelAndView mv = createModelAndView("/admin/entity/entity-edit.jsp");
+		ModelAndView mv = createModelAndView("/admin/entityhub/entity-edit.jsp");
 		setEntityBase(mv, entity);
 		
 		Entity entityMeta = MetadataHelper.getEntity(entity);
@@ -87,7 +87,7 @@ public class MetaEntityControll extends BasePageControll {
 	}
 	@RequestMapping("entity/{entity}/advanced")
 	public ModelAndView pageEntityDanger(@PathVariable String entity, HttpServletRequest request) throws IOException {
-		ModelAndView mv = createModelAndView("/admin/entity/entity-advanced.jsp");
+		ModelAndView mv = createModelAndView("/admin/entityhub/entity-advanced.jsp");
 		mv.getModel().put("isSuperAdmin", UserHelper.isSuperAdmin(getRequestUser(request)));
 		setEntityBase(mv, entity);
 		return mv;

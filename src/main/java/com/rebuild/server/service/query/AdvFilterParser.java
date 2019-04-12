@@ -41,6 +41,7 @@ import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.privileges.Department;
+import com.rebuild.web.IllegalParameterException;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
@@ -82,9 +83,9 @@ public class AdvFilterParser {
 	 * @return
 	 */
 	public String toSqlWhere() {
-		// 快速过滤自动确定查询项
+		// 快速过滤模式，自动确定查询项
 		if ("QUICK".equalsIgnoreCase(filterExp.getString("type"))) {
-			JSONArray items = this.getQuickFilterItems();
+			JSONArray items = buildQuickFilterItems();
 			this.filterExp.put("items", items);
 		}
 		
@@ -122,6 +123,18 @@ public class AdvFilterParser {
 				if (StringUtils.isBlank(token)) {
 					continue;
 				}
+				
+				boolean hasRP = false;  // the `)`
+				if (token.length() > 1) {
+					if (token.startsWith("(")) {
+						itemSqls.add("(");
+						token = token.substring(1);
+					} else if (token.endsWith(")")) {
+						hasRP = true;
+						token = token.substring(0, token.length() - 1);
+					}
+				}
+				
 				if (NumberUtils.isDigits(token)) {
 					String itemSql = StringUtils.defaultIfBlank(indexItemSqls.get(Integer.valueOf(token)), "(9=9)");
 					itemSqls.add(itemSql);
@@ -129,6 +142,10 @@ public class AdvFilterParser {
 					itemSqls.add(token);
 				} else {
 					LOG.warn("Ignore equation token : " + token);
+				}
+				
+				if (hasRP) {
+					itemSqls.add(")");
 				}
 			}
 			return "( " + StringUtils.join(itemSqls, " ") + " )";
@@ -147,14 +164,27 @@ public class AdvFilterParser {
 			field = field.substring(1);
 		}
 		
-		if (!rootEntity.containsField(field)) {
+		final String[] fieldPath = field.split("\\.");
+		if (fieldPath.length > 2) {
+			throw new IllegalParameterException("Unsupportted joins : " + field);
+		}
+		
+		if (!rootEntity.containsField(fieldPath[0])) {
 			LOG.warn("Unknow field '" + field + "' in '" + rootEntity.getName() + "'");
 			return null;
 		}
 		
-		final Field fieldMeta = rootEntity.getField(field);  // TODO 级联字段
-		final DisplayType fieldType = EasyMeta.getDisplayType(fieldMeta);
-		if (fieldType == DisplayType.PICKLIST || hasAndFlag) {
+		Field fieldMeta = rootEntity.getField(fieldPath[0]);
+		if (fieldPath.length > 1) {
+			if (EasyMeta.getDisplayType(fieldMeta) != DisplayType.REFERENCE) {
+				throw new IllegalParameterException("Non reference-field : " + field);
+			}
+			fieldMeta = fieldMeta.getReferenceEntity().getField(fieldPath[1]);
+		}
+		
+		DisplayType dt = EasyMeta.getDisplayType(fieldMeta);
+		// TODO 分类字段仅能查询最后一级
+		if (dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION || hasAndFlag) {
 			field = "&" + field;
 		}
 		
@@ -345,12 +375,12 @@ public class AdvFilterParser {
 	/**
 	 * @return
 	 */
-	private JSONArray getQuickFilterItems() {
+	private JSONArray buildQuickFilterItems() {
 		Set<String> fields = new HashSet<>();
 		
 		Field nameField = rootEntity.getNameField();
 		DisplayType dt = EasyMeta.getDisplayType(nameField);
-		if (dt == DisplayType.PICKLIST || dt == DisplayType.REFERENCE) {
+		if (dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION) {
 			fields.add("&" + nameField.getName());
 		} else if (dt == DisplayType.TEXT || dt == DisplayType.EMAIL || dt == DisplayType.URL || dt == DisplayType.PHONE || dt == DisplayType.SERIES) {
 			fields.add(nameField.getName());
