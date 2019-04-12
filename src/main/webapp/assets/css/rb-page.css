@@ -876,7 +876,10 @@ i.split.ui-draggable-dragging {
     text-decoration: underline;
 }
 
-.column-empty {}
+.column-empty {
+    width: 1px;
+    padding: 8px !important;
+}
 
 .text-3dot {
     overflow: hidden;
