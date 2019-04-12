@@ -77,8 +77,7 @@ public class ChartDesignControll extends BaseEntityControll {
 					.unique();
 			
 			if (!user.equals(chart[3])) {
-				if (UserHelper.isAdmin(user) && UserHelper.isAdmin((ID) chart[3])) {
-				} else {
+				if (!(UserHelper.isAdmin(user) && UserHelper.isAdmin((ID) chart[3]))) {
 					response.sendError(403, "你无权修改他人的图表");
 					return null;
 				}

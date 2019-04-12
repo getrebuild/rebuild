@@ -35,7 +35,7 @@ public class TableBuilder {
 	/**
 	 * 行号
 	 */
-	protected static final Axis LINE_NUMBER = new Axis(null, null, null, "#");
+	protected static final Axis LN_REF = new Axis(null, null, null, "#");
 	
 	private TableChart chart;
 	private Object[][] rows;
@@ -55,7 +55,7 @@ public class TableBuilder {
 	public String toHTML() {
 		List<Axis> axes = new ArrayList<>();
 		if (chart.isShowLineNumber()) {
-			axes.add(LINE_NUMBER);
+			axes.add(LN_REF);
 		}
 		CollectionUtils.addAll(axes, chart.getDimensions());
 		CollectionUtils.addAll(axes, chart.getNumericals());
@@ -76,7 +76,7 @@ public class TableBuilder {
 			for (int i = 0; i < row.length; i++) {
 				Axis axis = axes.get(i);
 				TD td = null;
-				if (axis == LINE_NUMBER) {
+				if (axis == LN_REF) {
 					td = new TD(row[i] + "", "th");
 				} else {
 					String text = chart.warpAxisValue(axis, row[i]);

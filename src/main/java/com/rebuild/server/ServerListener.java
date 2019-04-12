@@ -59,7 +59,6 @@ public class ServerListener extends ContextLoaderListener {
 			STARTUP_TIME = CalendarUtils.now();
 		} catch (Throwable ex) {
 			LOG.fatal("Rebuild Booting failure!!!", ex);
-			System.exit(-1);
 		}
 	}
 

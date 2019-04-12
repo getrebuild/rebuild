@@ -18,7 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server;
 
-import java.sql.SQLException;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -41,39 +40,42 @@ public final class UpgradeDatabase {
 	
 	private static final Log LOG = LogFactory.getLog(UpgradeDatabase.class);
 	
-	private int upgradingVer = 0;
-	
 	/**
-	 * @throws SQLException
+	 * 开始升级
+	 * 
+	 * @throws Exception
 	 */
 	protected void upgrade() throws Exception {
 		final Map<Integer, String[]> scripts = new DbScriptsReader().read();
 		final int dbVer = getDbVer();
 		
-		upgradingVer = dbVer;
+		int upgradeVer = dbVer;
 		try {
 			while (true) {
-				String sql[] = scripts.get(upgradingVer + 1);
+				String sql[] = scripts.get(upgradeVer + 1);
 				if (sql == null) {
 					break;
 				} else if (sql.length == 0) {
-					upgradingVer++;
+					upgradeVer++;
 					continue;
 				}
 				
-				LOG.info("Upgrade SQL(#" + (upgradingVer + 1) + ") > \n" + StringUtils.join(sql, "\n"));
+				LOG.info("Upgrade SQL(#" + (upgradeVer + 1) + ") > \n" + StringUtils.join(sql, "\n"));
 				Application.getSQLExecutor().executeBatch(sql, 60 * 2);
-				upgradingVer++;
+				upgradeVer++;
 			}
 		} finally {
-			if (dbVer != upgradingVer) {
-				SystemConfig.set(ConfigItem.DBVer, upgradingVer);
-				LOG.info("Upgrade database version : " + upgradingVer);
+			if (dbVer != upgradeVer) {
+				SystemConfig.set(ConfigItem.DBVer, upgradeVer);
+				LOG.info("Upgrade database version : " + upgradeVer);
 			}
 		}
 	}
 	
 	/**
+	 * 静默升级。不抛出异常
+	 * 
+	 * @see #upgrade()
 	 */
 	protected void upgradeQuietly() {
 		try {
@@ -93,7 +95,6 @@ public final class UpgradeDatabase {
 	private static final UpgradeDatabase INSTANCE = new UpgradeDatabase();
 	private UpgradeDatabase() {
 	}
-	
 	/**
 	 * @return
 	 */

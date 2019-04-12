@@ -63,8 +63,6 @@ public class SeriesZeroResetJob extends QuartzJobBean {
 						SeriesGeneratorFactory.zero(field);
 					} else if ("Y".equalsIgnoreCase(zeroFlag) && isFirstDayOfYear) {
 						SeriesGeneratorFactory.zero(field);
-					} else {
-						// Not to zero
 					}
 				}
 			}

@@ -26,6 +26,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.util.Assert;
 
 /**
+ * Ehcache
  * 
  * @author devezhao
  * @since 01/02/2019
@@ -42,8 +43,7 @@ public class EhcacheTemplate<V extends Serializable> implements CacheTemplate<V>
 	
 	@Override
 	public String get(String key) {
-		key = unityKey(key);
-		ValueWrapper w = cache().get(key);
+		ValueWrapper w = cache().get(unityKey(key));
 		return w == null ? null : (String) w.get();
 	}
 
@@ -54,15 +54,13 @@ public class EhcacheTemplate<V extends Serializable> implements CacheTemplate<V>
 
 	@Override
 	public void put(String key, String value, int seconds) {
-		key = unityKey(key);
-		cache().put(key, value);
+		cache().put(unityKey(key), value);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public V getx(String key) {
-		key = unityKey(key);
-		ValueWrapper w = cache().get(key);
+		ValueWrapper w = cache().get(unityKey(key));
 		return w == null ? null : (V) w.get();
 	}
 
@@ -73,14 +71,13 @@ public class EhcacheTemplate<V extends Serializable> implements CacheTemplate<V>
 
 	@Override
 	public void putx(String key, V value, int seconds) {
-		key = unityKey(key);
-		cache().put(key, value);
+		cache().put(unityKey(key), value);
 	}
 
 	@Override
 	public void evict(String key) {
-		key = unityKey(key);
-		cache().evict(key);
+		String ckey = unityKey(key);
+		cache().evict(ckey);
 	}
 	
 	/**

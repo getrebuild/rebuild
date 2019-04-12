@@ -335,7 +335,7 @@ public class SecurityManager {
 		
 		if (BizzDepthEntry.LOCAL.equals(depth)) {
 			allowed = accessUserDept.equals(targetUser.getOwningDept());
-			if (allowed == false) {
+			if (!allowed) {
 				return allowedViaShare(user, target, action);
 			}
 			return true;

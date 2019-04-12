@@ -66,9 +66,10 @@ public final class Application {
 	 */
 	public static final Log LOG = LogFactory.getLog(Application.class);
 	
+	// 调试模式
 	private static boolean debugMode = false;
-	
-	private static boolean serversReady = false;
+	// 服务启动正常
+	private static boolean serverReady = false;
 	
 	// SPRING
 	private static ApplicationContext APPLICATION_CTX;
@@ -89,8 +90,8 @@ public final class Application {
 	 */
 	synchronized
 	protected void init(long startAt) {
-		serversReady = ServerStatus.checkAll();
-		if (!serversReady) {
+		serverReady = ServerStatus.checkAll();
+		if (!serverReady) {
 			LOG.fatal("\n###################################################################\n"
 					+ "\n  REBUILD BOOTING FAILURE DURING THE STATUS CHECKS."
 					+ "\n  PLEASE VIEW BOOTING LOGS."
@@ -165,12 +166,12 @@ public final class Application {
 	}
 	
 	/**
-	 * 服务是否正常启动
+	 * 各项服务是否正常启动
 	 * 
 	 * @return
 	 */
 	public static boolean serversReady() {
-		return serversReady;
+		return serverReady;
 	}
 	
 	/**

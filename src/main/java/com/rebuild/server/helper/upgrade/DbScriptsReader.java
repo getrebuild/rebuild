@@ -42,12 +42,6 @@ public class DbScriptsReader {
 	private static String TAG_COMMENT = "--";
 	
 	/**
-	 */
-	public DbScriptsReader() {
-		super();
-	}
-	
-	/**
 	 * @return
 	 * @throws IOException
 	 */

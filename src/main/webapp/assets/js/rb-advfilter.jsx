@@ -59,7 +59,7 @@ class AdvFilter extends React.Component {
             <div className="item dialog-footer">
               <div className="float-left">
                 <div className="float-left input">
-                  <input className="form-control form-control-sm text" maxLength="20" value={this.state.filterName || ''} data-id="filterName" onChange={this.handleChange} placeholder="输入过滤项名称" />
+                  <input className="form-control form-control-sm text" maxLength="20" value={this.state.filterName || ''} data-id="filterName" onChange={this.handleChange} placeholder="输入名称保存" />
                 </div>
                 {rb.isAdminUser !== true ? null :
                   <label className="custom-control custom-control-sm custom-checkbox custom-control-inline ml-4 mt-2">

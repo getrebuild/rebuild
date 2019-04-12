@@ -28,6 +28,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 /**
+ * redis
  * 
  * @author devezhao
  * @since 01/02/2019
@@ -43,11 +44,11 @@ public class JedisCacheTemplate<V extends Serializable> implements CacheTemplate
 	}
 
 	public String get(String key) {
-		key = unityKey(key);
+		String ckey = unityKey(key);
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
-			return jedis.get(key);
+			return jedis.get(ckey);
 		} finally {
 			IOUtils.closeQuietly(jedis);
 		}
@@ -60,11 +61,10 @@ public class JedisCacheTemplate<V extends Serializable> implements CacheTemplate
 
 	@Override
 	public void put(String key, String value, int seconds) {
-		key = unityKey(key);
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
-			jedis.set(key, value);
+			jedis.set(unityKey(key), value);
 			if (seconds > 0) {
 				jedis.expire(value, seconds);
 			}
@@ -76,11 +76,11 @@ public class JedisCacheTemplate<V extends Serializable> implements CacheTemplate
 	@Override
 	@SuppressWarnings("unchecked")
 	public V getx(String key) {
-		key = unityKey(key);
+		String ckey = unityKey(key);
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
-			byte bs[] = jedis.get(key.getBytes());
+			byte bs[] = jedis.get(ckey.getBytes());
 			if (bs == null || bs.length == 0) {
 				return null;
 			}
@@ -100,11 +100,11 @@ public class JedisCacheTemplate<V extends Serializable> implements CacheTemplate
 
 	@Override
 	public void putx(String key, V value, int seconds) {
-		key = unityKey(key);
+		String ckey = unityKey(key);
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
-			byte[] bKey = key.getBytes();
+			byte[] bKey = ckey.getBytes();
 			jedis.set(bKey, SerializationUtils.serialize(value));
 			if (seconds > 0) {
 				jedis.expire(bKey, seconds);
@@ -116,11 +116,11 @@ public class JedisCacheTemplate<V extends Serializable> implements CacheTemplate
 
 	@Override
 	public void evict(String key) {
-		key = unityKey(key);
+		String ckey = unityKey(key);
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
-			jedis.del(key);
+			jedis.del(ckey);
 		} finally {
 			IOUtils.closeQuietly(jedis);
 		}

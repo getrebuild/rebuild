@@ -56,8 +56,7 @@ public class VCode {
 			vcode = vcode.substring(0, 6);
 		}
 		
-		key = "VCode-" + key;
-		Application.getCommonCache().put(key, vcode, 10 * 60);
+		Application.getCommonCache().put("VCode-" + key, vcode, 10 * 60);
 		return vcode;
 	}
 	
@@ -78,15 +77,15 @@ public class VCode {
 	 * @see #clean(String)
 	 */
 	public static boolean verfiy(String key, String vcode, boolean keepAlive) {
-		key = "VCode-" + key;
-		String exists = Application.getCommonCache().get(key);
+		String ckey = "VCode-" + key;
+		String exists = Application.getCommonCache().get(ckey);
 		if (exists == null) {
 			return false;
 		}
 		
 		if (exists.equalsIgnoreCase(vcode)) {
 			if (!keepAlive) {
-				Application.getCommonCache().evict(key);
+				Application.getCommonCache().evict(ckey);
 			}
 			return true;
 		}
@@ -98,7 +97,6 @@ public class VCode {
 	 * @return
 	 */
 	public static void clean(String key) {
-		key = "VCode-" + key;
-		Application.getCommonCache().evict(key);
+		Application.getCommonCache().evict("VCode-" + key);
 	}
 }

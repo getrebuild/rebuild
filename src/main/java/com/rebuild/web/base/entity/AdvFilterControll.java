@@ -120,10 +120,8 @@ public class AdvFilterControll extends BaseControll implements PortalsConfigurat
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		ID filterId = getIdParameter(request, "id");
-		if (UserHelper.isAdmin(user) || AdvFilterManager.isSelf(user, filterId)) {
-			// Okay
-		} else {
-			writeFailure(response, "无权删除此过滤项");
+		if (!(UserHelper.isAdmin(user) || AdvFilterManager.isSelf(user, filterId))) {
+			writeFailure(response, "无权删除");
 			return;
 		}
 		
