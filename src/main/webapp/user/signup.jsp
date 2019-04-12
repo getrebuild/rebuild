@@ -14,16 +14,16 @@
 					<div class="card-header"><a class="logo-img"></a></div>
 					<div class="card-body">
 						<div class="form-group">
-							<input class="form-control" id="user" type="text" placeholder="用户名" autocomplete="off">
+							<input class="form-control" id="sName" type="text" placeholder="用户名" autocomplete="off">
 						</div>
 						<div class="form-group">
-							<input class="form-control" id="user" type="text" placeholder="注册邮箱" autocomplete="off">
+							<input class="form-control" id="sEmail" type="email" placeholder="注册邮箱" autocomplete="off">
 						</div>
 						<div class="form-group">
-							<input class="form-control" id="passwd" type="password" placeholder="登录密码">
+							<input class="form-control" id="sPasswd" type="password" placeholder="登录密码">
 						</div>
 						<div class="form-group login-submit">
-							<button class="btn btn-primary btn-xl J_login-btn" disabled="disabled">自助注册未开放</button>
+							<button class="btn btn-primary btn-xl" type="button" disabled="disabled">自助注册未开放</button>
 						</div>
 					</div>
 				</div>

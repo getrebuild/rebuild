@@ -7,7 +7,9 @@
 ![License](https://img.shields.io/github/license/getrebuild/rebuild.svg)
 ![Downloads](https://img.shields.io/github/downloads/getrebuild/rebuild/total.svg)
 
-## What's rebuild? 
-* Visit our [official website](https://getrebuild.com/) learn more
-* Or read [this document](https://getrebuild.com/docs/dev/) beginning development
-* Or trial [nightly build](https://nightly.getrebuild.com/) (user/password: admid/admin)
+## 快速开始
+
+- 在线试用（用户名密码均为 admin）https://nightly.getrebuild.com/
+- 搭建开发环境 https://getrebuild.com/docs/dev/
+- 版本更新日志 https://getrebuild.com/docs/dev/changelog.html
+- 访问 RB 官网了解更多 https://getrebuild.com/

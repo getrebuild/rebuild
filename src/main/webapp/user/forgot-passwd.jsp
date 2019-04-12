@@ -11,9 +11,7 @@
 		<div class="main-content container-fluid">
 			<div class="splash-container">
 				<div class="card card-border-color card-border-color-primary">
-					<div class="card-header">
-						<a class="logo-img"></a>
-					</div>
+					<div class="card-header"><a class="logo-img"></a></div>
 					<div class="card-body J_step1">
 						<div class="form-group">
 							<input class="form-control" id="email" type="text" placeholder="邮箱" autocomplete="off">

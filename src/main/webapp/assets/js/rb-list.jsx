@@ -172,19 +172,22 @@ class RbList extends React.Component {
     let styles = { width: (this.state.fields[index].width || this.__defaultColumnWidth) + 'px' }
     if (field.type === 'IMAGE') {
       cellVal = JSON.parse(cellVal || '[]')
-      return (<td key={cellKey}><div style={styles} className="column-imgs">
-        {cellVal.map((item, idx) => {
-          let imgUrl = rb.baseUrl + '/cloud/img/' + item
-          let imgName = $fileCutName(item)
-          return <a key={cellKey + idx} href={'#!/Preview/' + item} title={imgName}><img src={imgUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a>
-        })}</div></td>)
+      return (<td key={cellKey} className="td-min">
+        <div style={styles} className="column-imgs" title={cellVal.length + ' 个图片'}>
+          {cellVal.map((item, idx) => {
+            let imgUrl = rb.baseUrl + '/cloud/img/' + item
+            let imgName = $fileCutName(item)
+            return <a key={cellKey + idx} href={'#!/Preview/' + item} title={imgName}><img src={imgUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a>
+          })}</div></td>)
     } else if (field.type === 'FILE') {
       cellVal = JSON.parse(cellVal || '[]')
-      return (<td key={cellKey}><div style={styles} className="column-files"><ul className="list-unstyled">
-        {cellVal.map((item, idx) => {
-          let fileName = $fileCutName(item)
-          return <li key={cellKey + idx} className="text-truncate"><a href={'#!/Preview/' + item} title={fileName}>{fileName}</a></li>
-        })}</ul></div></td>)
+      return (<td key={cellKey} className="td-min"><div style={styles} className="column-files">
+        <ul className="list-unstyled" title={cellVal.length + ' 个文件'}>
+          {cellVal.map((item, idx) => {
+            let fileName = $fileCutName(item)
+            return <li key={cellKey + idx} className="text-truncate"><a href={'#!/Preview/' + item} title={fileName}>{fileName}</a></li>
+          })}</ul>
+      </div></td>)
     } else if (field.type === 'REFERENCE') {
       return <td key={cellKey}><div style={styles}><a href={'#!/View/' + cellVal[2][0] + '/' + cellVal[0]} onClick={() => this.clickView(cellVal)}>{cellVal[1]}</a></div></td>
     } else if (field.field === this.props.config.nameField) {

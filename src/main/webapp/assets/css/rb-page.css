@@ -223,8 +223,9 @@ html.admin .admin-show {
 }
 
 div.dataTables_wrapper div.dataTables_filter {
-	margin-bottom: 5px;
+    margin-bottom: 5px;
 }
+
 .adv-search {
     margin-right: 10px;
 }
@@ -244,6 +245,7 @@ div.dataTables_wrapper div.dataTables_filter {
     box-shadow: 0 0 0 #fff !important;
     min-width: 0;
 }
+
 .adv-search .btn.dropdown-toggle {
     width: 100%;
     border-radius: 2px 0 0 2px !important;
@@ -781,6 +783,10 @@ i.split.ui-draggable-dragging {
     content: '\f2f9';
 }
 
+.data-list .table tr:last-child td {
+    border-bottom: 1px solid #dee2e6;
+}
+
 .data-list .table td,
 .data-list .table td>div {
     white-space: nowrap;
@@ -792,9 +798,14 @@ i.split.ui-draggable-dragging {
     white-space: nowrap;
 }
 
+
 .data-list .table td,
 .data-list .table td>div.nmw {
     max-width: 1000px;
+}
+
+.table td.td-min {
+    padding: 3px 10px;
 }
 
 .column-imgs,
@@ -803,13 +814,18 @@ i.split.ui-draggable-dragging {
     overflow: hidden;
 }
 
+.column-imgs a:hover,
+.column-files a:hover {
+    opacity: 0.8;
+}
+
 .column-imgs>a {
     display: inline-block;
     height: 100%;
     font-size: 0;
     line-height: 1;
     cursor: default;
-    height: 32px;
+    height: 30px;
 }
 
 .column-imgs>a img {
@@ -828,7 +844,7 @@ i.split.ui-draggable-dragging {
 }
 
 .column-files ul>li {
-    line-height: 1.42857143;
+    line-height: 1.35;
 }
 
 .column-files ul>li>a {
@@ -865,7 +881,9 @@ i.split.ui-draggable-dragging {
     text-decoration: underline;
 }
 
-.column-empty {}
+.column-empty {
+    padding: 8px !important;
+}
 
 .text-3dot {
     overflow: hidden;

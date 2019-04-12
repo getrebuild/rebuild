@@ -88,10 +88,10 @@ public class DataWrapper extends FieldValueWrapper {
 					if (rec == EntityHelper.ClassificationData || rec == EntityHelper.PickList) {
 						row[i] = wrapFieldValue(row[i], EasyMeta.valueOf(field));
 					} else {
-						row[i] = readReferenceValue((ID) row[i], null);
+						row[i] = readReferenceRichs((ID) row[i], null);
 					}
 				} else if (field.getType() == FieldType.PRIMARY) {  // Last index always
-					row[i] = readReferenceValue((ID) row[i], namedVal);
+					row[i] = readReferenceRichs((ID) row[i], namedVal);
 				} else {
 					row[i] = wrapFieldValue(row[i], new EasyMeta(field));
 				}
@@ -104,20 +104,19 @@ public class DataWrapper extends FieldValueWrapper {
 	}
 	
 	/**
-	 * 读取 ID 型字段
+	 * 读取引用型字段
 	 * 
 	 * @param idVal
 	 * @param nameVal
-	 * @return
+	 * @return Returns [ID, Name(Field), EntityMeta[Name, Icon]]
 	 */
-	protected Object[] readReferenceValue(ID idVal, Object nameVal) {
+	private Object[] readReferenceRichs(ID idVal, Object nameVal) {
 		Entity entity = MetadataHelper.getEntity(idVal.getEntityCode());
 		Field nameField = MetadataHelper.getNameField(entity);
 		
 		if (nameVal == null) {
 			String sql = String.format("select %s from %s where %s = ?",
-					(nameField.getType() == FieldType.REFERENCE ? "&" : "") + nameField.getName(),
-					entity.getName(), entity.getPrimaryField().getName());
+					nameField.getName(), entity.getName(), entity.getPrimaryField().getName());
 			Object[] named = Application.createQueryNoFilter(sql).setParameter(1, idVal).unique();
 			if (named == null) {
 				LOG.debug("Reference is deleted : " + idVal);

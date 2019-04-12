@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +29,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.metadata.DynamicMetadataFactory;
@@ -40,6 +43,7 @@ import com.rebuild.server.service.base.GeneralEntityService;
 import com.rebuild.server.service.bizz.privileges.UserStore;
 import com.rebuild.server.service.notification.NotificationService;
 import com.rebuild.server.service.query.QueryFactory;
+import com.rebuild.utils.RbDateCodec;
 import com.rebuild.web.OnlineSessionStore;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -56,7 +60,7 @@ public final class Application {
 	
 	/** Rebuild Version
 	 */
-	public static final String VER = "1.1.0-SNAPSHOT";
+	public static final String VER = "1.1.0";
 	
 	/** Logging for Global, If you want to be lazy ^_^
 	 */
@@ -97,6 +101,10 @@ public final class Application {
 					+ "\n\n###################################################################");
 			return;
 		}
+		
+		// for fastjson Serialize
+		SerializeConfig.getGlobalInstance().put(ID.class, ToStringSerializer.instance);
+		SerializeConfig.getGlobalInstance().put(Date.class, RbDateCodec.instance);
 		
 		// 升级数据库
 		UpgradeDatabase.getInstance().upgradeQuietly();

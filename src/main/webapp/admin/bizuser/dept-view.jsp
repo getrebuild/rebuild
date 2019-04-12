@@ -55,7 +55,10 @@ window.__PageConfig = {
 <script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
 <script type="text/babel">
 $(document).ready(function(){
-	if (rb.isAdminUser == false || rb.isAdminVerified == false) $('.view-action').remove()
+	if (rb.isAdminUser == false || rb.isAdminVerified == false) {
+		$('.view-action').remove(); 
+		return
+	}
 	$('.J_delete').off('click').click(function(){
 		$.get(rb.baseUrl + '/admin/bizuser/deleting-checks?id=${id}', function(res){
 			if (res.data.hasMember == 0 && res.data.hasChild == 0){

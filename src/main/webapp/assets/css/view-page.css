@@ -82,7 +82,7 @@ body {
 	padding: 9px 8px;
 	font-size: 15px;
 	opacity: 0.6;
-	display: none;
+	display: none !important;
 }
 
 .nav-tabs .vtab-settings:hover {
@@ -90,7 +90,7 @@ body {
 }
 
 .nav-tabs:hover .vtab-settings {
-	display: inline-block;
+	display: inline-block !important;
 }
 
 .nav-tabs .badge {

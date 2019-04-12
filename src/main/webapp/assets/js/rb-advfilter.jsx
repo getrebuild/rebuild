@@ -34,9 +34,7 @@ class AdvFilter extends React.Component {
     let advFilter = (
       <div className={'adv-filter-warp ' + (this.props.inModal ? 'in-modal' : 'shadow rounded')}>
         <div className="adv-filter">
-          <div className="filter-option">
-          </div>
-          <div className="filter-items" ref="items">
+          <div className="filter-items" ref="items" onKeyPress={this.searchByKey}>
             {(this.state.items || []).map((item) => {
               return item
             })}
@@ -76,7 +74,7 @@ class AdvFilter extends React.Component {
         </div>
       </div>
     )
-    if (this.props.inModal) return <RbModal ref="dlg" title={this.props.title || '设置查询条件'} disposeOnHide={!!this.props.filter}>{advFilter}</RbModal>
+    if (this.props.inModal) return <RbModal ref="dlg" title={this.props.title || '高级查询'} disposeOnHide={!!this.props.filter}>{advFilter}</RbModal>
     else return advFilter
   }
   componentDidMount() {
@@ -166,7 +164,7 @@ class AdvFilter extends React.Component {
     }
   }
 
-  toFilterJson() {
+  toFilterJson(canNoFilters) {
     let filters = []
     let hasError = false
     for (let i = 0; i < this.childrenRef.length; i++) {
@@ -175,14 +173,19 @@ class AdvFilter extends React.Component {
       else filters.push(fj)
     }
     if (hasError) { rb.highbar('部分条件设置有误，请检查'); return }
-    if (filters.length === 0) { rb.highbar('请至少添加1个条件'); return }
+    if (filters.length === 0 && canNoFilters !== true) { rb.highbar('请至少添加1个条件'); return }
 
     let adv = { entity: this.props.entity, items: filters }
     if (this.state.enableEquation === true) adv.equation = this.state.equation
     return adv
   }
-  searchNow() {
-    let adv = this.toFilterJson()
+
+  searchByKey = (e) => {
+    if (this.props.fromList !== true || e.which !== 13) return  // Not [enter]
+    this.searchNow()
+  }
+  searchNow = () => {
+    let adv = this.toFilterJson(true)
     if (!!adv && RbListPage) RbListPage._RbList.search(adv)
   }
 

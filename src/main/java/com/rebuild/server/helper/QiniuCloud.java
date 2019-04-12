@@ -129,20 +129,20 @@ public class QiniuCloud {
 	 * 生成访问 URL
 	 * 
 	 * @param filePath
-	 * @param expires 秒
+	 * @param seconds 过期时间
 	 * @return
 	 */
-	public String url(String filePath, int expires) {
+	public String url(String filePath, int seconds) {
 		String baseUrl = SystemConfig.getStorageUrl() + filePath;
-		// default use HTTPS
+		// default use HTTP
 		if (baseUrl.startsWith("//")) {
-			baseUrl = "https:" + baseUrl;
+			baseUrl = "http:" + baseUrl;
 		}
 		
-		long deadline = System.currentTimeMillis() / 1000 + expires;
-		// use http cache
-		expires /= 1.5;
-		deadline = deadline / expires * expires;
+		long deadline = System.currentTimeMillis() / 1000 + seconds;
+		// Use http cache
+		seconds /= 1.5;
+		deadline = deadline / seconds * seconds;
 		return auth.privateDownloadUrlWithDeadline(baseUrl, deadline);
 	}
 	

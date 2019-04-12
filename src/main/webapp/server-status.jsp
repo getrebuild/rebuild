@@ -6,7 +6,7 @@
 <%@ page import="com.rebuild.server.ServerListener"%>
 <%@ page import="com.rebuild.server.Application"%>
 <%@ page import="com.rebuild.server.ServerStatus"%>
-<%@ page import="com.rebuild.server.ServerStatus.State"%>
+<%@ page import="com.rebuild.server.ServerStatus.Status"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -29,12 +29,12 @@
 <% } %>
 <div class="block">
 	<h5 class="text-bold">快速检查</h5>
-	<table class="table table-bordered table-sm">
+	<table class="table table-bordered table-sm table-hover">
 	<tbody>
-		<% for (State e : ServerStatus.getLastStatus()) { %>
+		<% for (Status s : ServerStatus.getLastStatus()) { %>
 		<tr>
-			<th width="30%"><%=e.name%></th>
-			<td class="text-danger"><%=e.success ? "<span class='text-success'>OK<span>" : ("ERROR : " + e.error)%></td>
+			<th width="30%"><%=s.name%></th>
+			<td class="text-danger"><%=s.success ? "<span class='text-success'>OK<span>" : ("ERROR : " + s.error)%></td>
 		</tr>
 		<% } %>
 		<tr>
@@ -51,7 +51,7 @@
 <% if (AppUtils.getRequestUser(request) != null) { %>
 <div class="block">
 	<h5 class="text-bold">系统信息</h5>
-	<table class="table table-bordered table-sm">
+	<table class="table table-bordered table-sm table-hover">
 	<tbody>
 		<tr>
 			<th width="30%">Application Version</th>
@@ -86,13 +86,13 @@
 </div>
 <% } %>
 <div class="block">
-<div class="text-muted">
-	&copy; 2019 <a href="https://getrebuild.com/">REBUILD</a>
-	<% if (AppUtils.getRequestUser(request) != null) { %>
-	&nbsp;·&nbsp;
-	<a href="server-status.json">Status Api</a>
-	<% } %>
-</div>
+	<div class="text-muted">
+		&copy; 2019 <a href="https://getrebuild.com/">REBUILD</a>
+		<% if (AppUtils.getRequestUser(request) != null) { %>
+		&nbsp;·&nbsp;
+		<a href="server-status.json">Status Api</a>
+		<% } %>
+	</div>
 </div>
 </body>
 </html>

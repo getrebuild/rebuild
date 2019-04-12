@@ -121,7 +121,7 @@ public class QuickCodeReindexTask extends BulkTask {
 		}
 		
 		Field nameField = entity.getNameField();
-		if (!record.hasValue(nameField.getName())) {
+		if (!record.hasValue(nameField.getName(), false)) {
 			return null;
 		}
 		
@@ -134,7 +134,7 @@ public class QuickCodeReindexTask extends BulkTask {
 			nameVal = PickListManager.getLabel(itemId);
 		} else if (dt == DisplayType.CLASSIFICATION) {
 			ID itemId = record.getID(nameField.getName());
-			nameVal = ClassificationManager.getName(itemId);
+			nameVal = ClassificationManager.getFullName(itemId);
 		}
 		
 		if (nameVal != null) {

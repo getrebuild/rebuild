@@ -22506,6 +22506,10 @@ fieldset[disabled] .btn-color.btn-evernote:hover {
     margin-left: 6px;
 }
 
+.table tbody tr td.user-avatar {
+    padding: 6px 10px;
+}
+
 .table tbody tr td.user-avatar img {
     height: 30px;
     width: 30px;
@@ -25825,6 +25829,7 @@ div.dataTables_scrollFoot>.dataTables_scrollFootInner>table {
 }
 
 @media screen and (max-width: 767px) {
+
     div.dataTables_wrapper div.dataTables_oper,
     div.dataTables_wrapper div.dataTables_filter,
     div.dataTables_wrapper div.dataTables_info,
