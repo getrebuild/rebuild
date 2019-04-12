@@ -50,9 +50,9 @@ public class CloudFileViewer extends BaseControll {
 			filePath += "?" + imageView2;
 		}
 		
-		int expires = 60;
-		String privateUrl = QiniuCloud.instance().url(filePath, expires * 60);
-		ServletUtils.addCacheHead(response, expires);
+		int exp = 60;
+		String privateUrl = QiniuCloud.instance().url(filePath, exp * 60);
+		ServletUtils.addCacheHead(response, exp);
 		response.sendRedirect(privateUrl);
 	}
 	
@@ -63,12 +63,13 @@ public class CloudFileViewer extends BaseControll {
 		
 		String privateUrl = QiniuCloud.instance().url(filePath);
 		privateUrl += "&attname=" + parseFileName(filePath);
-		
 		ServletUtils.setNoCacheHeaders(response);
 		response.sendRedirect(privateUrl);
 	}
 	
 	/**
+	 * 解析上传文件名称
+	 * 
 	 * @param filePath
 	 * @return
 	 */
