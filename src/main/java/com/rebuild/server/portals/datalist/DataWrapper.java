@@ -88,10 +88,10 @@ public class DataWrapper extends FieldValueWrapper {
 					if (rec == EntityHelper.ClassificationData || rec == EntityHelper.PickList) {
 						row[i] = wrapFieldValue(row[i], EasyMeta.valueOf(field));
 					} else {
-						row[i] = readReferenceValue((ID) row[i], null);
+						row[i] = readReferenceRichs((ID) row[i], null);
 					}
 				} else if (field.getType() == FieldType.PRIMARY) {  // Last index always
-					row[i] = readReferenceValue((ID) row[i], namedVal);
+					row[i] = readReferenceRichs((ID) row[i], namedVal);
 				} else {
 					row[i] = wrapFieldValue(row[i], new EasyMeta(field));
 				}
@@ -104,13 +104,13 @@ public class DataWrapper extends FieldValueWrapper {
 	}
 	
 	/**
-	 * 读取 ID 型字段
+	 * 读取引用型字段
 	 * 
 	 * @param idVal
 	 * @param nameVal
-	 * @return [ID, Name, EntityMeta]
+	 * @return Returns [ID, Name(Field), EntityMeta[Name, Icon]]
 	 */
-	private Object[] readReferenceValue(ID idVal, Object nameVal) {
+	private Object[] readReferenceRichs(ID idVal, Object nameVal) {
 		Entity entity = MetadataHelper.getEntity(idVal.getEntityCode());
 		Field nameField = MetadataHelper.getNameField(entity);
 		
