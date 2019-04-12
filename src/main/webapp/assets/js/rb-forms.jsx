@@ -432,7 +432,7 @@ class RbFormDateTime extends RbFormElement {
         <input ref="field-value" className={'form-control form-control-sm ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} type="text" value={this.state.value || ''} onChange={this.handleChange} onBlur={this.checkError} />
         <span className={'zmdi zmdi-close clean ' + (this.state.value ? '' : 'hide')} onClick={this.handleClear}></span>
         <div className="input-group-append">
-          <button className="btn btn-primary" type="button" ref="field-value-icon"><i className="icon zmdi zmdi-calendar"></i></button>
+          <button className="btn btn-secondary" type="button" ref="field-value-icon"><i className="icon zmdi zmdi-calendar"></i></button>
         </div>
       </div>
     )
@@ -1047,7 +1047,7 @@ class DeleteConfirm extends RbAlert {
     let message = this.props.message
     if (!message) message = this.props.ids ? `确认删除选中的 ${this.props.ids.length} 条记录？` : '确认删除当前记录？'
     return (
-      <div className="modal rbalert" ref="dlg" tabIndex="-1">
+      <div className="modal rbalert" ref={(c) => this._dlg = c} tabIndex="-1">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
@@ -1064,13 +1064,13 @@ class DeleteConfirm extends RbAlert {
                       <span className="custom-control-label"> 同时删除关联记录</span>
                     </label>
                     <div className={' ' + (this.state.enableCascade ? '' : 'hide')}>
-                      <select className="form-control form-control-sm" ref="cascades" multiple="multiple">
+                      <select className="form-control form-control-sm" ref={(c) => this._cascades = c} multiple="multiple">
                         {(this.state.cascadesEntity || []).map((item) => { return <option key={'option-' + item[0]} value={item[0]}>{item[1]}</option> })}
                       </select>
                     </div>
                   </div>
                 }
-                <div className="mt-4 mb-3" ref="btns">
+                <div className="mt-4 mb-3" ref={(c) => this._btns = c}>
                   <button className="btn btn-space btn-secondary" type="button" onClick={() => this.hide()}>取消</button>
                   <button className="btn btn-space btn-danger" type="button" onClick={() => this.deleteAction()}>删除</button>
                 </div>
@@ -1086,7 +1086,7 @@ class DeleteConfirm extends RbAlert {
     if (!this.state.cascadesEntity) {
       $.get(rb.baseUrl + '/commons/metadata/references?entity=' + this.props.entity, (res) => {
         this.setState({ cascadesEntity: res.data }, () => {
-          this.__select2 = $(this.refs['cascades']).select2({
+          this.__select2 = $(this._cascades).select2({
             placeholder: '选择关联实体 (可选)'
           }).val(null).trigger('change')
         })
@@ -1099,7 +1099,7 @@ class DeleteConfirm extends RbAlert {
     if (typeof ids === 'object') ids = ids.join(',')
     let cascades = this.__select2 ? this.__select2.val().join(',') : ''
 
-    let btns = $(this.refs['btns']).find('.btn').button('loading')
+    let btns = $(this._btns).find('.btn').button('loading')
     $.post(rb.baseUrl + '/app/entity/record-delete?id=' + ids + '&cascades=' + cascades, (res) => {
       if (res.error_code === 0) {
         if (res.data.deleted === res.data.requests) rb.hbsuccess('删除成功')

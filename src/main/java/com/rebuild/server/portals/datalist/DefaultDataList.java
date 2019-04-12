@@ -60,7 +60,7 @@ public class DefaultDataList implements DataList {
 	@Override
 	public String getDefaultFilter() {
 		
-		// TODO 可配置的列表过滤器
+		// TODO 可配置的列表默认过滤
 		
 		if (queryParser.getEntity().getEntityCode() == EntityHelper.User) {
 			return String.format("userId <> '%s'", UserService.SYSTEM_USER);

@@ -108,16 +108,15 @@ public class DataWrapper extends FieldValueWrapper {
 	 * 
 	 * @param idVal
 	 * @param nameVal
-	 * @return
+	 * @return [ID, Name, EntityMeta]
 	 */
-	protected Object[] readReferenceValue(ID idVal, Object nameVal) {
+	private Object[] readReferenceValue(ID idVal, Object nameVal) {
 		Entity entity = MetadataHelper.getEntity(idVal.getEntityCode());
 		Field nameField = MetadataHelper.getNameField(entity);
 		
 		if (nameVal == null) {
 			String sql = String.format("select %s from %s where %s = ?",
-					(nameField.getType() == FieldType.REFERENCE ? "&" : "") + nameField.getName(),
-					entity.getName(), entity.getPrimaryField().getName());
+					nameField.getName(), entity.getName(), entity.getPrimaryField().getName());
 			Object[] named = Application.createQueryNoFilter(sql).setParameter(1, idVal).unique();
 			if (named == null) {
 				LOG.debug("Reference is deleted : " + idVal);
