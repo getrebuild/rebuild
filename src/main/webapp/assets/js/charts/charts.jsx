@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-/* eslint-disable react/no-string-refs */
 /* globals gridster, echarts */
 class BaseChart extends React.Component {
   constructor(props) {
@@ -17,12 +16,12 @@ class BaseChart extends React.Component {
         <a onClick={() => this.loadChartData()}><i className="zmdi zmdi-refresh" /></a>
       </div>
     }
-    return (<div className="chart-box" ref="box">
+    return (<div className="chart-box" ref={(c) => this._box = c}>
       <div className="chart-head">
         <div className="chart-title text-truncate">{this.state.title}</div>
         {opers}
       </div>
-      <div ref="body" className={'chart-body rb-loading ' + (!this.state.chartdata && ' rb-loading-active')}>{this.state.chartdata || <RbSpinner />}</div>
+      <div ref={(c) => this._body = c} className={'chart-body rb-loading ' + (!this.state.chartdata && ' rb-loading-active')}>{this.state.chartdata || <RbSpinner />}</div>
     </div>)
   }
   componentDidMount() {
@@ -48,8 +47,8 @@ class BaseChart extends React.Component {
     let that = this
     rb.alert('确认移除此图表？', {
       confirm: function () {
-        let $w = $(that.refs['box']).parent().parent()
-        gridster.remove_widget($w) 
+        let $w = $(that._box).parent().parent()
+        gridster.remove_widget($w)
         save_dashboard()  // eslint-disable-line no-undef
         this.hide()
       }
@@ -95,7 +94,7 @@ class ChartTable extends BaseChart {
     let that = this
     let colLast = null
     this.setState({ chartdata: chartdata }, () => {
-      let ct = $(that.refs['body'])
+      let ct = $(that._body)
       ct.find('.ctable').css('height', ct.height() - 20)
         .perfectScrollbar()
 
@@ -281,15 +280,42 @@ class ChartPie extends BaseChart {
   }
 }
 
-// 漏斗圖
+// 漏斗图
 class ChartFunnel extends BaseChart {
   constructor(props) {
     super(props)
   }
 }
 
+// 树图
+class ChartTreemap extends BaseChart {
+  constructor(props) {
+    super(props)
+  }
+  renderChart(data) {
+    if (this.__echarts) this.__echarts.dispose()
+    if (data.data.length === 0) { this.renderError('暂无数据'); return }
+    let that = this
+    let elid = 'echarts-treemap-' + (this.state.id || 'id')
+    this.setState({ chartdata: (<div className="chart treemap" id={elid}></div>) }, () => {
+      data = { ...data, type: 'treemap', nodeClick: false, breadcrumb: { show: false } }
+      let opt = {
+        series: [data]
+      }
+      opt = { ...opt, ...ECHART_Base }
+      opt.tooltip.formatter = '<b>{b}</b> <br/> {a} : {c}'
+      console.log(JSON.stringify(opt))
+
+      let c = echarts.init(document.getElementById(elid), 'light')
+      c.setOption(opt)
+      that.__echarts = c
+    })
+  }
+}
+
 // 确定图表类型
-const detectChart = function (cfg, id, editable) {  // eslint-disable-line no-unused-vars
+// eslint-disable-next-line no-unused-vars
+const detectChart = function (cfg, id, editable) {
   let props = { config: cfg, id: id, title: cfg.title, editable: editable !== false }
   if (cfg.type === 'INDEX') {
     return <ChartIndex {...props} />
@@ -303,5 +329,7 @@ const detectChart = function (cfg, id, editable) {  // eslint-disable-line no-un
     return <ChartPie {...props} />
   } else if (cfg.type === 'FUNNEL') {
     return <ChartFunnel {...props} />
+  } else if (cfg.type === 'TREEMAP') {
+    return <ChartTreemap {...props} />
   }
 }

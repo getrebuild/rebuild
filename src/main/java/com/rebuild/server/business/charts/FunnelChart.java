@@ -24,6 +24,7 @@ import com.alibaba.fastjson.JSONObject;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * 漏斗图
  * 
  * @author devezhao
  * @since 12/15/2018

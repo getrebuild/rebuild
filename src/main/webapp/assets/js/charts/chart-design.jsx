@@ -210,7 +210,7 @@ let render_option = (() => {
 
   $('.chart-option>div').removeClass('active')
   let ctOpt = $('.J_opt-' + select.data('type'))
-  if (ctOpt.length === 0) $('.chart-option>.J_opt-NO').addClass('active')
+  if (ctOpt.length === 0) $('.chart-option>.J_opt-UNDEF').addClass('active')
   else ctOpt.addClass('active')
 
   render_preview()

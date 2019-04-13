@@ -94,6 +94,8 @@ public class ChartDataFactory {
 			return new PieChart(config, user);
 		} else if ("FUNNEL".equalsIgnoreCase(type)) {
 			return new FunnelChart(config, user);
+		} else if ("TREEMAP".equalsIgnoreCase(type)) {
+			return new TreemapChart(config, user);
 		}
 		throw new ChartsException("未知的图表类型 : " + type.toUpperCase());
 	}

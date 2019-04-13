@@ -233,6 +233,10 @@ public abstract class ChartData {
 				format = "##0.";
 				format = StringUtils.rightPad(format, format.length() + num.getScale(), "0");
 			}
+			
+			if (ID.isId(value)) {
+				value = 1;
+			}
 			return new DecimalFormat(format).format(value);
 		}
 		

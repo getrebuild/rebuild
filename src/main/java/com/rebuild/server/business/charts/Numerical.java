@@ -35,7 +35,21 @@ public class Numerical extends Axis {
 
 	private int scale = 2;
 	
-	public Numerical(Field field, FormatSort sort, FormatCalc calc, String label, Integer scale) {
+	/**
+	 * @param field
+	 */
+	protected Numerical(Field field) {
+		this(field, FormatSort.NONE, FormatCalc.NONE, null, 0);
+	}
+	
+	/**
+	 * @param field
+	 * @param sort
+	 * @param calc
+	 * @param label
+	 * @param scale
+	 */
+	protected Numerical(Field field, FormatSort sort, FormatCalc calc, String label, Integer scale) {
 		super(field, sort, calc, label);
 		if (scale != null) {
 			this.scale = scale;
@@ -48,11 +62,18 @@ public class Numerical extends Axis {
 	
 	@Override
 	public String getLabel() {
+		if (FormatCalc.NONE == getFormatCalc()) {
+			return StringUtils.defaultIfBlank(label, "数值");
+		}
 		return StringUtils.defaultIfBlank(label, EasyMeta.getLabel(getField()) + getFormatCalc().getLabel());
 	}
 	
 	@Override
 	public String getSqlName() {
+		if (FormatCalc.NONE == getFormatCalc()) {
+			return getField().getName();
+		}
+		
 		EasyMeta meta = EasyMeta.valueOf(getField());
 		if (meta.getDisplayType() == DisplayType.NUMBER || meta.getDisplayType() == DisplayType.DECIMAL) {
 			return String.format("%s(%s)", getFormatCalc().name(), meta.getName());
