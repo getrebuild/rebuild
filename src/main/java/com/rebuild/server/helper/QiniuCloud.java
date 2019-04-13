@@ -134,9 +134,9 @@ public class QiniuCloud {
 	 */
 	public String url(String filePath, int seconds) {
 		String baseUrl = SystemConfig.getStorageUrl() + filePath;
-		// default use HTTP
+		// default use HTTPS
 		if (baseUrl.startsWith("//")) {
-			baseUrl = "http:" + baseUrl;
+			baseUrl = "https:" + baseUrl;
 		}
 		
 		long deadline = System.currentTimeMillis() / 1000 + seconds;

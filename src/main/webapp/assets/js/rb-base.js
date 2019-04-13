@@ -56,6 +56,7 @@
   $.fn.select2.defaults.set('width', '100%')
   $.fn.select2.defaults.set('language', 'zh-CN')
   $.fn.select2.defaults.set('allowClear', true)
+  $.fn.select2.defaults.set('placeholder', '')
 
   window.rb = window.rb || {}
   $('meta[name^="rb."]').each(function (idx, item) {

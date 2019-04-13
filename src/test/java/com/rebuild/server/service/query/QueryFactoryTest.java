@@ -23,10 +23,14 @@ import org.junit.Test;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.bizz.security.AccessDeniedException;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Filter;
+import cn.devezhao.persist4j.dialect.FieldType;
 
 /**
  * 
@@ -37,9 +41,29 @@ public class QueryFactoryTest extends TestSupport {
 	
 	@Test
 	public void testBaseQuery() throws Exception {
+		String sql = "select loginName from User";
 		Filter filter = Application.getSecurityManager().createQueryFilter(UserService.SYSTEM_USER);
-		Object[][] array = Application.getQueryFactory().createQuery("select loginName from User", filter).array();
+		
+		Object[][] array = Application.getQueryFactory().createQuery(sql, filter).array();
 		Assert.assertTrue(array.length > 0);
+	}
+	
+	@Test
+	public void testQueryAllDT() throws Exception {
+ 		Entity allDT = MetadataHelper.getEntity(TEST_ENTITY);
+ 		StringBuffer sql = new StringBuffer("select ");
+ 		for (Field f : allDT.getFields()) {
+ 			sql.append(f.getName()).append(',');
+ 			if (f.getType() == FieldType.REFERENCE) {
+ 				sql.append("&" + f.getName()).append(',');
+ 			}
+ 		}
+ 		sql.deleteCharAt(sql.length() - 1);
+ 		sql.append(" from ").append(allDT.getName());
+ 		System.out.println("Query : " + sql);
+		
+		Filter filter = Application.getSecurityManager().createQueryFilter(EXAMPLE_USER);
+		Application.getQueryFactory().createQuery(sql.toString(), filter).array();
 	}
 	
 	@Test(expected=AccessDeniedException.class)

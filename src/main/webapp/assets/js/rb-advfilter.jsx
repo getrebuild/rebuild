@@ -186,7 +186,7 @@ class AdvFilter extends React.Component {
   }
   searchNow = () => {
     let adv = this.toFilterJson(true)
-    if (!!adv && RbListPage) RbListPage._RbList.search(adv)
+    if (!!adv && RbListPage) RbListPage._RbList.search(adv, true)
   }
 
   confirm() {
@@ -216,7 +216,7 @@ const OP_DATE_NOPICKER = ['BFD', 'BFM', 'AFD', 'AFM', 'RED', 'REM']
 const OP_NOVALUE = ['NL', 'NT', 'SFU', 'SFB', 'SFD']
 const PICKLIST_CACHE = {}
 const REFMETA_CACHE = {}
-const VALUE_HOLD = {}  // TODO
+const INPUTS_HOLD = {}  // 输入值保持
 
 // 过滤项
 class FilterItem extends React.Component {
@@ -232,7 +232,7 @@ class FilterItem extends React.Component {
     this.loadedPickList = false
     this.loadedBizzSearch = false
 
-    if (props.field && props.value) VALUE_HOLD[props.field] = props.value
+    if (props.field && props.value) INPUTS_HOLD[props.field] = props.value
   }
   render() {
     return (
@@ -270,10 +270,18 @@ class FilterItem extends React.Component {
       op = []
     } else if (fieldType === 'PICKLIST') {
       op = ['IN', 'NIN']
-    } else if (this.isBizzField('User')) {
-      op = ['IN', 'NIN', 'SFU', 'SFB']
-    } else if (this.isBizzField('Department')) {
-      op = ['IN', 'NIN', 'SFB', 'SFD']
+    } else if (fieldType === 'CLASSIFICATION') {
+      op = ['LK', 'NLK']
+    } else if (fieldType === 'REFERENCE') {
+      if (this.isBizzField('User')) {
+        op = ['IN', 'NIN', 'SFU', 'SFB']
+      } else if (this.isBizzField('Department')) {
+        op = ['IN', 'NIN', 'SFB', 'SFD']
+      } else if (this.isBizzField('Role')) {
+        op = ['IN', 'NIN']
+      } else {
+        op = []
+      }
     }
     op.push('NL', 'NT')
     this.__op = op
@@ -300,15 +308,15 @@ class FilterItem extends React.Component {
       val = <select className="form-control form-control-sm" multiple="true" ref="filter-val" />
     }
 
-    VALUE_HOLD[this.state.field] = this.state.value
+    INPUTS_HOLD[this.state.field] = this.state.value
     return (val)
   }
-  // 引用 User/Department
+  // 引用 User/Department/Role
   isBizzField(entity) {
     if (this.state.type === 'REFERENCE') {
       const fRef = REFMETA_CACHE[this.$$$entity + '.' + this.state.field]
-      if (!entity) return fRef && (fRef[0] === 'User' || fRef[0] === 'Department')
-      else return fRef[0] === entity
+      if (!entity) return fRef && (fRef[0] === 'User' || fRef[0] === 'Department' || fRef[0] === 'Role')
+      else return fRef && fRef[0] === entity
     }
     return false
   }
@@ -446,7 +454,6 @@ class FilterItem extends React.Component {
   renderPickListAfter() {
     let that = this
     let s2val = $(this.refs['filter-val']).select2({
-      placeholder: ''
     }).on('change.select2', function () {
       let val = s2val.val()
       that.setState({ value: val.join('|') })
@@ -471,7 +478,6 @@ class FilterItem extends React.Component {
   renderBizzSearch(entity) {
     let that = this
     let s2val = $(this.refs['filter-val']).select2({
-      placeholder: '',  // DON'T REMOVE!
       minimumInputLength: 1,
       ajax: {
         url: rb.baseUrl + '/commons/search/search',

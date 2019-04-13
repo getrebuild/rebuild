@@ -62,10 +62,8 @@ public class AdvFilterControll extends BaseControll implements PortalsConfigurat
 		ID user = getRequestUser(request);
 		ID filterId = getIdParameter(request, "id");
 		if (filterId != null) {
-			if (UserHelper.isAdmin(user) || AdvFilterManager.isSelf(user, filterId)) {
-				// Okay
-			} else {
-				writeFailure(response, "无权修改此过滤项");
+			if (!(UserHelper.isAdmin(user) || AdvFilterManager.isSelf(user, filterId))) {
+				writeFailure(response, "无权修改");
 				return;
 			}
 		}
@@ -83,7 +81,7 @@ public class AdvFilterControll extends BaseControll implements PortalsConfigurat
 			record = EntityHelper.forNew(EntityHelper.FilterConfig, user);
 			record.setString("belongEntity", entity);
 			if (StringUtils.isBlank(filterName)) {
-				filterName = "过滤项-" + CalendarUtils.getPlainDateFormat().format(CalendarUtils.now());
+				filterName = "查询-" + CalendarUtils.getPlainDateFormat().format(CalendarUtils.now());
 			}
 		} else {
 			record = EntityHelper.forUpdate(filterId, user);

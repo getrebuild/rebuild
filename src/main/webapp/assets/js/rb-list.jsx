@@ -290,8 +290,11 @@ class RbList extends React.Component {
     return ids
   }
 
-  search(filter) {
+  search(filter, noHold) {
     this.fetchList(filter)
+    if (noHold === true) {
+      this.lastFilter = null
+    }
   }
   reload() {
     this.fetchList()
@@ -494,7 +497,6 @@ const AdvFilters = {
                 $.post(`${rb.baseUrl}/app/entity/advfilter/delete?id=${_data[0]}`, (res) => {
                   if (res.error_code === 0) {
                     _alert.hide()
-                    rb.hbsuccess('过滤项已删除')
                     that.loadFilters()
 
                     if (dfilter === _data[0]) {
@@ -509,6 +511,7 @@ const AdvFilters = {
             return false
           })
         }
+
         item.click(function () {
           $('.adv-search .J_name').text(_data[1])
           RbListPage._RbList.setAdvFilter(_data[0])
@@ -528,7 +531,6 @@ const AdvFilters = {
     if (name) url += '&name=' + $encode(name)
     $.post(url, JSON.stringify(filter), function (res) {
       if (res.error_code === 0) {
-        rb.highbar('过滤项已保存', 'success')
         that.loadFilters()
       } else rb.hberror(res.error_msg)
     })

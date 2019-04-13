@@ -32,28 +32,16 @@ import cn.devezhao.bizz.security.EntityPrivileges;
  * @author devezhao
  * @since 10/11/2018
  * @see EntityPrivileges
+ * @see ZeroEntry
  */
 public class ZeroPrivileges implements Privileges {
 	private static final long serialVersionUID = 7185091441777921842L;
 	
-	// ZERO 权限
-	
-	// 登录
-	public static final String AllowLogin = "AllowLogin";
-	// 批量修改
-	public static final String AllowBatchUpdate = "AllowBatchUpdate";
-	// 数据导入
-	public static final String AllowDataImport = "AllowDataImport";
-	// 数据导出
-	public static final String AllowDataOutput = "AllowDataOutput";
-	
-	// ----
-
 	private final String zreoKey;
 	private final String definition;
 	
 	/**
-	 * @param zreoKey
+	 * @param zreoKey {@link ZeroEntry}
 	 * @param definition
 	 */
 	public ZeroPrivileges(String zreoKey, String definition) {
