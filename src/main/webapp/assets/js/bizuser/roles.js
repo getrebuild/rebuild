@@ -5,7 +5,11 @@ RbForm.postAfter = function (data) {
 const role_id = window.__PageConfig.recordId
 $(document).ready(function () {
   $('.J_new-role').click(function () {
-    rb.RbFormModal({ title: '新建角色', entity: 'Role', icon: 'lock' })
+    rb.RbFormModal({
+      title: '新建角色',
+      entity: 'Role',
+      icon: 'lock'
+    })
   })
 
   if (role_id) {
@@ -75,11 +79,22 @@ const loadRoles = function () {
       if (this.id === '003-0000000000000001') action.remove()
 
       action.find('a.J_edit').click(function () {
-        rb.RbFormModal({ title: '编辑角色', entity: 'Role', icon: 'lock', id: _id })
+        rb.RbFormModal({
+          title: '编辑角色',
+          entity: 'Role',
+          icon: 'lock',
+          id: _id
+        })
       })
 
       action.find('a.J_del').click(function () {
-        let alertExt = { type: 'danger', confirmText: '删除', confirm: function () { deleteRole(_id, this) } }
+        let alertExt = {
+          type: 'danger',
+          confirmText: '删除',
+          confirm: function () {
+            deleteRole(_id, this)
+          }
+        }
         $.get(rb.baseUrl + '/admin/bizuser/deleting-checks?id=' + _id, function (res) {
           if (res.data.hasMember === 0) {
             rb.alert('此角色可以被安全的删除', '删除角色', alertExt)
@@ -107,7 +122,7 @@ const loadPrivileges = function () {
       })
     } else {
       $('.J_save').attr('disabled', true)
-      rb.highbar(res.error_msg)
+      $('.J_tips').removeClass('hide').find('.message p').text(res.error_msg)
     }
   })
 }
@@ -133,11 +148,18 @@ const updatePrivileges = function () {
   $('#priv-zero tbody>tr').each(function () {
     let etr = $(this)
     let name = etr.find('td.name a').data('name')
-    let definition = etr.find('i.priv').hasClass('R0') ? { Z: 0 } : { Z: 4 }
+    let definition = etr.find('i.priv').hasClass('R0') ? {
+      Z: 0
+    } : {
+      Z: 4
+    }
     privZero[name] = definition
   })
 
-  let priv = { entity: privEntity, zero: privZero }
+  let priv = {
+    entity: privEntity,
+    zero: privZero
+  }
   $.post(rb.baseUrl + '/admin/bizuser/privileges-update?role=' + role_id, JSON.stringify(priv), function () {
     rb.hbsuccess('保存成功')
   })

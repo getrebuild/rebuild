@@ -39,6 +39,10 @@
 			</div>
 		</aside>
 		<div class="main-content container-fluid">
+			<div class="alert alert-warning alert-icon alert-dismissible min hide J_tips">
+				<div class="icon"><span class="zmdi zmdi-info-outline"></span></div>
+				<div class="message"><a class="close" data-dismiss="alert"><span class="zmdi zmdi-close"></span></a><p>1</p></div>
+			</div>
 			<div class="float-right" style="margin-top:-1px">
 				<button class="btn btn-secondary btn-space J_new-role" type="button"><i class="icon zmdi zmdi-plus"></i> 新建角色</button>
 				<button class="btn btn-primary btn-space J_save mr-0" type="button" disabled="disabled">保存</button>

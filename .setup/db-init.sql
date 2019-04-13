@@ -371,4 +371,4 @@ INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version
 INSERT INTO `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`) 
-  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 2);
+  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 3);
