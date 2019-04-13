@@ -25,6 +25,9 @@ import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
 import org.springframework.util.Assert;
 
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+
 /**
  * Ehcache
  * 
@@ -54,7 +57,11 @@ public class EhcacheTemplate<V extends Serializable> implements CacheTemplate<V>
 
 	@Override
 	public void put(String key, String value, int seconds) {
-		cache().put(unityKey(key), value);
+		Element el = new Element(unityKey(key), value);
+		if (seconds > -1) {
+			el.setTimeToLive(seconds);
+		}
+		((Ehcache) cache().getNativeCache()).put(el);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -71,7 +78,11 @@ public class EhcacheTemplate<V extends Serializable> implements CacheTemplate<V>
 
 	@Override
 	public void putx(String key, V value, int seconds) {
-		cache().put(unityKey(key), value);
+		Element el = new Element(unityKey(key), value);
+		if (seconds > -1) {
+			el.setTimeToLive(seconds);
+		}
+		((Ehcache) cache().getNativeCache()).put(el);
 	}
 
 	@Override

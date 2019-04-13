@@ -53,19 +53,20 @@ public class TreemapChart extends ChartData {
 		Object[][] dataRaw = Application.createQuery(buildSql(dims, num1), user).array();
 		
 		JSONArray treeJson = new JSONArray();
+		double xAmount = 0d;
 		for (Object[] o : dataRaw) {
 			o[0] = warpAxisValue(dims[0], o[0]);
 			o[1] = warpAxisValue(num1, o[1]);
-			JSON d = JSONUtils.toJSONObject(new String[] { "name", "value" }, o);
+			JSONObject d = JSONUtils.toJSONObject(new String[] { "name", "value" }, o);
 			treeJson.add(d);
+			
+			double v = Double.parseDouble(((String) o[1]).replaceAll(",", ""));
+			xAmount += v;
 		}
 		
-		List<String> numAxis = new ArrayList<>();
-		numAxis.add(num1.getLabel());
-		
 		JSONObject ret = JSONUtils.toJSONObject(
-				new String[] { "data", "yyyAxis" },
-				new Object[] { treeJson, JSON.toJSON(numAxis) });
+				new String[] { "data", "xLabel", "xAmount" },
+				new Object[] { treeJson, num1.getLabel(), xAmount });
 		return ret;
 	}
 	
@@ -95,7 +96,6 @@ public class TreemapChart extends ChartData {
 		return sql;
 	}
 	
-	private JSONObject buildTreeNode(Object[] o, JSON parent) {
-		return null;
+	private void buildTreeNode(Dimension[] dims, Numerical num, JSON parent) {
 	}
 }

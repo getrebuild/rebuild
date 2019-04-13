@@ -190,7 +190,7 @@ class AdvFilter extends React.Component {
   }
 
   confirm() {
-    let adv = this.toFilterJson()
+    let adv = this.toFilterJson(this.props.canNoFilters)
     if (!adv) return
     else if (this.props.confirm) {
       this.props.confirm(adv, this.state.filterName, this.state.shareToAll)

@@ -171,6 +171,7 @@ public abstract class ChartData {
 		String previewFilter = StringUtils.EMPTY;
 		// 限制预览数据量
 		if (isFromPreview() && getSourceEntity().containsField(EntityHelper.AutoId)) {
+			
 			String maxAidSql = String.format("select max(%s) from %s", EntityHelper.AutoId, getSourceEntity().getName());
 			Object[] o = Application.createQueryNoFilter(maxAidSql).unique();
 			long maxAid = ObjectUtils.toLong(o[0]);
@@ -185,7 +186,11 @@ public abstract class ChartData {
 		}
 		
 		AdvFilterParser filterParser = new AdvFilterParser(filterExp);
-		return previewFilter + filterParser.toSqlWhere();
+		String sqlWhere = filterParser.toSqlWhere();
+		if (sqlWhere != null) {
+			sqlWhere = previewFilter + sqlWhere;
+		}
+		return StringUtils.defaultIfBlank(sqlWhere, "(1=1)");
 	}
 	
 	/**
@@ -215,29 +220,49 @@ public abstract class ChartData {
 	}
 	
 	/**
-	 * 格式化值
-	 * 
 	 * @param axis
 	 * @param value
 	 * @return
 	 */
 	protected String warpAxisValue(Axis axis, Object value) {
+		return axis instanceof Numerical ? warpAxisValue((Numerical) axis, value)
+				: warpAxisValue((Dimension) axis, value);  
+	}
+	
+	/**
+	 * 格式化数值
+	 * 
+	 * @param axis
+	 * @param value
+	 * @return
+	 */
+	protected String warpAxisValue(Numerical axis, Object value) {
 		if (value == null) {
-			return (axis instanceof Dimension) ? "无" : "0";
+			return "0";
 		}
 		
-		if (axis instanceof Numerical) {
-			Numerical num = (Numerical) axis;
-			String format = "###";
-			if (num.getScale() > 0) {
-				format = "##0.";
-				format = StringUtils.rightPad(format, format.length() + num.getScale(), "0");
-			}
-			
-			if (ID.isId(value)) {
-				value = 1;
-			}
-			return new DecimalFormat(format).format(value);
+		String format = "###";
+		if (axis.getScale() > 0) {
+			format = "##0.";
+			format = StringUtils.rightPad(format, format.length() + axis.getScale(), "0");
+		}
+		
+		if (ID.isId(value)) {
+			value = 1;
+		}
+		return new DecimalFormat(format).format(value);
+	}
+	
+	/**
+	 * 获取纬度标签
+	 * 
+	 * @param axis
+	 * @param value
+	 * @return
+	 */
+	protected String warpAxisValue(Dimension axis, Object value) {
+		if (value == null) {
+			return "无";
 		}
 		
 		EasyMeta axisField = EasyMeta.valueOf(axis.getField());

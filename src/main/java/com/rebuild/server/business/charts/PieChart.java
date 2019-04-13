@@ -24,7 +24,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.persist4j.engine.ID;
@@ -62,7 +61,7 @@ public class PieChart extends ChartData {
 		
 		JSONObject ret = JSONUtils.toJSONObject(
 				new String[] { "data", "name" },
-				new Object[] { dataJson, EasyMeta.getLabel(num1.getField()) + num1.getFormatCalc().getLabel() });
+				new Object[] { dataJson,  num1.getLabel() });
 		return ret;
 	}
 	

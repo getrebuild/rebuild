@@ -298,13 +298,23 @@ class ChartTreemap extends BaseChart {
     let that = this
     let elid = 'echarts-treemap-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart treemap" id={elid}></div>) }, () => {
-      data = { ...data, type: 'treemap', nodeClick: false, breadcrumb: { show: false } }
       let opt = {
-        series: [data]
+        series: [{
+          data: data.data,
+          type: 'treemap',
+          width: '100%',
+          height: '100%',
+          top: window.render_preview_chart ? 0 : 15,  // preview
+          breadcrumb: { show: false }
+        }]
       }
-      opt = { ...opt, ...ECHART_Base }
-      opt.tooltip.formatter = '<b>{b}</b> <br/> {a} : {c}'
       console.log(JSON.stringify(opt))
+      opt = { ...opt, ...ECHART_Base }
+      opt.tooltip.formatter = function (i) {
+        let p = 0
+        if (i.value > 0) p = (i.value * 100 / data.xAmount).toFixed(2)
+        return `<b>${i.name}</b> <br/> ${data.xLabel} : ${i.value} (${p}%)`
+      }
 
       let c = echarts.init(document.getElementById(elid), 'light')
       c.setOption(opt)
