@@ -36,7 +36,7 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.bizz.privileges.User;
-import com.rebuild.server.service.bizz.privileges.ZeroPrivileges;
+import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.utils.AES;
 import com.rebuild.web.BasePageControll;
 import com.wf.captcha.utils.CaptchaUtil;
@@ -133,7 +133,7 @@ public class LoginControll extends BasePageControll {
 			writeFailure(response, "用户未激活");
 			return;
 		}
-		if (!Application.getSecurityManager().allowedZero(loginUser.getId(), ZeroPrivileges.AllowLogin)) {
+		if (!Application.getSecurityManager().allowed(loginUser.getId(), ZeroEntry.AllowLogin)) {
 			writeFailure(response, "用户无登录权限");
 			return;
 		}
