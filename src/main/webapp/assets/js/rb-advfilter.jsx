@@ -186,7 +186,7 @@ class AdvFilter extends React.Component {
   }
   searchNow = () => {
     let adv = this.toFilterJson(true)
-    if (!!adv && RbListPage) RbListPage._RbList.search(adv)
+    if (!!adv && RbListPage) RbListPage._RbList.search(adv, true)
   }
 
   confirm() {
@@ -268,8 +268,10 @@ class FilterItem extends React.Component {
       op = ['GT', 'LT', 'BW', 'RED', 'REM', 'BFD', 'BFM', 'AFD', 'AFM']
     } else if (fieldType === 'FILE' || fieldType === 'IMAGE') {
       op = []
-    } else if (fieldType === 'PICKLIST' || fieldType === 'CLASSIFICATION') {
+    } else if (fieldType === 'PICKLIST') {
       op = ['IN', 'NIN']
+    } else if (fieldType === 'CLASSIFICATION') {
+      op = ['LK', 'NLK']
     } else if (fieldType === 'REFERENCE') {
       if (this.isBizzField('User')) {
         op = ['IN', 'NIN', 'SFU', 'SFB']
