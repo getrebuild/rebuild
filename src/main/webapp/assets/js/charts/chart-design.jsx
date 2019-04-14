@@ -227,7 +227,7 @@ let render_preview = (() => {
 
     let cfg = build_config()
     if (!cfg) {
-      $('#chart-preview').html('<h4 class="chart-undata must-center">' + (cfg === false ? '无可用图表类型' : '当前图表无数据') + '</h4>')
+      $('#chart-preview').html('<h4 class="chart-undata must-center">当前图表无数据</h4>')
       return
     }
 
@@ -243,7 +243,7 @@ let render_preview = (() => {
 let build_config = (() => {
   let cfg = { entity: wpc.sourceEntity, title: $val('#chart-title') || '未命名图表' }
   cfg.type = $('.chart-type>a.select').data('type')
-  if (!cfg.type) return false
+  if (!cfg.type) return
 
   let dims = []
   let nums = []
