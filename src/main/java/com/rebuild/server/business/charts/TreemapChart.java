@@ -25,11 +25,11 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.utils.JSONUtils;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -52,21 +52,23 @@ public class TreemapChart extends ChartData {
 		Numerical num1 = nums[0];
 		Object[][] dataRaw = Application.createQuery(buildSql(dims, num1), user).array();
 		
-		JSONArray treeJson = new JSONArray();
 		double xAmount = 0d;
-		for (Object[] o : dataRaw) {
-			o[0] = warpAxisValue(dims[0], o[0]);
-			o[1] = warpAxisValue(num1, o[1]);
-			JSONObject d = JSONUtils.toJSONObject(new String[] { "name", "value" }, o);
-			treeJson.add(d);
-			
-			double v = Double.parseDouble(((String) o[1]).replaceAll(",", ""));
+		for (int i = 0; i < dataRaw.length; i++) {
+			Object o[] = dataRaw[i];
+			double v = ObjectUtils.toDouble(o[o.length - 1]);
+			o[o.length - 1] = v;
 			xAmount += v;
+			
+			for (int j = 0; j < o.length - 1; j++) {
+				o[j] = warpAxisValue(dims[j], o[j]);
+			}
 		}
+		
+		TreeBuilder builder = new TreeBuilder(dataRaw, this);
 		
 		JSONObject ret = JSONUtils.toJSONObject(
 				new String[] { "data", "xLabel", "xAmount" },
-				new Object[] { treeJson, num1.getLabel(), xAmount });
+				new Object[] { builder.toJSON(), num1.getLabel(), xAmount });
 		return ret;
 	}
 	
@@ -94,8 +96,5 @@ public class TreemapChart extends ChartData {
 				getSourceEntity().getName(),
 				where);
 		return sql;
-	}
-	
-	private void buildTreeNode(Dimension[] dims, Numerical num, JSON parent) {
 	}
 }

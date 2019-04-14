@@ -44,7 +44,7 @@ public class TableBuilder {
 	 * @param chart
 	 * @param rows
 	 */
-	public TableBuilder(TableChart chart, Object[][] rows) {
+	protected TableBuilder(TableChart chart, Object[][] rows) {
 		this.chart = chart;
 		this.rows = rows;
 	}
