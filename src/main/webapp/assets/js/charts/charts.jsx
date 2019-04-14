@@ -308,12 +308,17 @@ class ChartTreemap extends BaseChart {
           breadcrumb: { show: false }
         }]
       }
-      console.log(JSON.stringify(opt))
       opt = { ...opt, ...ECHART_Base }
       opt.tooltip.formatter = function (i) {
         let p = 0
         if (i.value > 0) p = (i.value * 100 / data.xAmount).toFixed(2)
-        return `<b>${i.name}</b> <br/> ${data.xLabel} : ${i.value} (${p}%)`
+        return `<b>${i.name.split('--------').join('<br/>')}</b> <br/> ${data.xLabel} : ${i.value} (${p}%)`
+      }
+      opt.label = {
+        formatter: function (i) {
+          let ns = i.name.split('--------')
+          return ns[ns.length - 1]
+        }
       }
 
       let c = echarts.init(document.getElementById(elid), 'light')

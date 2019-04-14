@@ -131,8 +131,9 @@ public class TreeBuilder {
 		}
 		
 		protected String getName() {
-			String[] names = name.split(NAME_SPEA);
-			return names[names.length - 1];
+			return name;
+//			String[] names = name.split(NAME_SPEA);
+//			return names[names.length - 1];
 		}
 		protected double getValue() {
 			if (this.children.isEmpty()) {
