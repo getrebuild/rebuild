@@ -36,8 +36,9 @@ $(document).ready(function () {
       } else {
         let high = $('#chart-' + location.hash.substr(1) + ' > .chart-box').addClass('high')
         high.on('mouseleave', () => {
-          high.removeClass('high')
+          high.removeClass('high').off('mouseleave')
         })
+        $gotoSection(high.offset().top - 115, '.chart-grid')
       }
     }
 
