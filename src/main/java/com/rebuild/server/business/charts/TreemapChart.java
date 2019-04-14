@@ -52,11 +52,12 @@ public class TreemapChart extends ChartData {
 		Numerical num1 = nums[0];
 		Object[][] dataRaw = Application.createQuery(buildSql(dims, num1), user).array();
 		
+		int lastIndex = dataRaw.length > 0 ? dataRaw[0].length - 1 : 0;
 		double xAmount = 0d;
 		for (int i = 0; i < dataRaw.length; i++) {
 			Object o[] = dataRaw[i];
-			double v = ObjectUtils.toDouble(o[o.length - 1]);
-			o[o.length - 1] = v;
+			double v = ID.isId(o[lastIndex]) ? 1d : ObjectUtils.toDouble(o[lastIndex]);
+			o[lastIndex] = v;
 			xAmount += v;
 			
 			for (int j = 0; j < o.length - 1; j++) {
