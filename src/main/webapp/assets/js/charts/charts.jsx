@@ -270,8 +270,9 @@ class ChartPie extends BaseChart {
         series: [data]
       }
       opt = { ...opt, ...ECHART_Base }
-      opt.tooltip.formatter = '<b>{b}</b> <br/> {a} : {c} ({d}%)'
       opt.tooltip.trigger = 'item'
+      opt.tooltip.formatter = '<b>{b}</b> <br/> {a} : {c} ({d}%)'
+      // opt.label = { formatter: '{b} {c}' }
 
       let c = echarts.init(document.getElementById(elid), 'light')
       c.setOption(opt)
@@ -307,9 +308,7 @@ class ChartFunnel extends BaseChart {
         if (data.xLabel) return `<b>${i.name}</b> <br/> ${data.xLabel} : ${i.value}`
         else return `<b>${i.name}</b> <br/> ${i.value}`
       }
-      opt.label = {
-        formatter: '{b} {c}'
-      }
+      // opt.label = { formatter: '{b} {c}' }
 
       let c = echarts.init(document.getElementById(elid), 'light')
       c.setOption(opt)
@@ -335,8 +334,9 @@ class ChartTreemap extends BaseChart {
           type: 'treemap',
           width: '100%',
           height: '100%',
-          top: window.render_preview_chart ? 0 : 15,  // preview
-          breadcrumb: { show: false }
+          top: window.render_preview_chart ? 0 : 15,  // In preview
+          breadcrumb: { show: false },
+          roam: false  // Disabled drag and mouse wheel
         }]
       }
       opt = { ...opt, ...ECHART_Base }
