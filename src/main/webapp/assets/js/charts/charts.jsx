@@ -296,6 +296,8 @@ class ChartFunnel extends BaseChart {
           type: 'funnel',
           sort: 'none',
           gap: 2,
+          top: 30,
+          bottom: 20,
           data: data.data
         }]
       }
