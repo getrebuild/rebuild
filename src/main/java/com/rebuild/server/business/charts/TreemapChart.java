@@ -26,7 +26,6 @@ import org.apache.commons.lang.StringUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.Application;
 import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.commons.ObjectUtils;
@@ -50,7 +49,7 @@ public class TreemapChart extends ChartData {
 		Numerical[] nums = getNumericals();
 		
 		Numerical num1 = nums[0];
-		Object[][] dataRaw = Application.createQuery(buildSql(dims, num1), user).array();
+		Object[][] dataRaw = createQuery(buildSql(dims, num1)).array();
 		
 		int lastIndex = dataRaw.length > 0 ? dataRaw[0].length - 1 : 0;
 		double xAmount = 0d;
@@ -89,13 +88,11 @@ public class TreemapChart extends ChartData {
 		}
 		
 		String sql = "select {0},{1} from {2} where {3} group by {0}";
-		String where = getFilterSql();
-		
 		sql = MessageFormat.format(sql, 
 				StringUtils.join(dimSqlItems, ", "),
 				num.getSqlName(),
 				getSourceEntity().getName(),
-				where);
+				getFilterSql());
 		return sql;
 	}
 }

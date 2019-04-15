@@ -53,6 +53,10 @@ public class TableBuilder {
 	 * @return
 	 */
 	public String toHTML() {
+		if (rows.length == 0) {
+			return null;
+		}
+		
 		List<Axis> axes = new ArrayList<>();
 		if (chart.isShowLineNumber()) {
 			axes.add(LN_REF);

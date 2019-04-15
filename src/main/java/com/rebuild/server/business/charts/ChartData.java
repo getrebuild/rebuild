@@ -35,10 +35,13 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.portals.value.FieldValueWrapper;
+import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.query.AdvFilterParser;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -294,6 +297,31 @@ public abstract class ChartData {
 		} finally {
 			this.fromPreview = false;
 		}
+	}
+	
+	/**
+	 * 创建查询。会自动处理权限选项
+	 * 
+	 * @param sql
+	 * @return
+	 */
+	protected Query createQuery(String sql) {
+		if (this.fromPreview) {
+			return Application.createQuery(sql, user);
+		}
+		
+		boolean noPrivileges = false;
+		JSONObject option = config.getJSONObject("option");
+		if (option != null) {
+			noPrivileges = option.getBooleanValue("noPrivileges");
+		}
+		String co = config.getString("chartOwning");
+		ID chartOwning = ID.isId(co) ? ID.valueOf(co) : null;
+		
+		if (chartOwning == null || !noPrivileges) {
+			return Application.createQuery(sql, user);
+		}
+		return Application.createQuery(sql, UserHelper.isAdmin(chartOwning) ? UserService.SYSTEM_USER : user);
 	}
 	
 	/**

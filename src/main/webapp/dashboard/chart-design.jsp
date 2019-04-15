@@ -46,7 +46,7 @@
 				<div class="data-info">
 					<h5>图表类型</h5>
 					<div class="chart-type">
-						<a title="表格" data-type="TABLE" data-allow-dims="0|3" data-allow-nums="1|9"><i class="C200"></i></a>
+						<a title="表格" data-type="TABLE" data-allow-dims="0|3" data-allow-nums="0|9"><i class="C200"></i></a>
 						<a title="指标卡" data-type="INDEX" data-allow-dims="0|0" data-allow-nums="1|1"><i class="C310"></i></a>
 						<a title="折线图" data-type="LINE" data-allow-dims="1|1" data-allow-nums="1|9"><i class="C220"></i></a>
 						<a title="柱状图" data-type="BAR" data-allow-dims="1|1" data-allow-nums="1|9"><i class="C210"></i></a>
@@ -56,10 +56,16 @@
 					</div>
 				</div>
 				<div class="data-info mt-3">
-					<h5>图表样式</h5>
+					<h5>图表选项</h5>
 					<div class="pl-1 mt-3 chart-option">
 						<div class="J_opt-UNDEF active">
 							此图表无选项
+						</div>
+						<div class="admin-show J_opt-TABLE J_opt-INDEX J_opt-LINE J_opt-BAR J_opt-PIE J_opt-FUNNEL J_opt-TREEMAP">
+							<label class="custom-control custom-control-sm custom-checkbox mb-2">
+								<input class="custom-control-input" type="checkbox" data-name="noPrivileges">
+								<span class="custom-control-label"> 使用全部数据 <i class="zmdi zmdi-help zicon" title="不启用则仅能使用权限范围内的数据"></i></span>
+							</label>
 						</div>
 						<div class="J_opt-TABLE">
 							<label class="custom-control custom-control-sm custom-checkbox mb-2">
@@ -132,7 +138,8 @@
 window.__PageConfig = {
 	sourceEntity: '${entityName}',
 	chartId: '${chartId}',
-	chartConfig: ${chartConfig} || {}
+	chartConfig: ${chartConfig} || {},
+	chartOwningAdmin: ${chartOwningAdmin}
 }
 </script>
 <script src="${baseUrl}/assets/lib/charts/echarts.min.js"></script>

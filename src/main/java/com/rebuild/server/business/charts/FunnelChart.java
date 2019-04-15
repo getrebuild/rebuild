@@ -29,7 +29,6 @@ import org.apache.commons.lang.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.Application;
 import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.persist4j.engine.ID;
@@ -53,7 +52,7 @@ public class FunnelChart extends ChartData {
 		
 		JSONArray dataJson = new JSONArray();
 		if (nums.length > 1) {
-			Object[] dataRaw = Application.createQuery(buildSql(nums), user).unique();
+			Object[] dataRaw = createQuery(buildSql(nums)).unique();
 			for (int i = 0; i < nums.length; i++) {
 				JSONObject d = JSONUtils.toJSONObject(
 						new String[] { "name", "value" },
@@ -62,7 +61,7 @@ public class FunnelChart extends ChartData {
 			}
 		} else if (nums.length >= 1 && dims.length >= 1) {
 			Dimension dim1 = dims[0];
-			Object[][] dataRaw = Application.createQuery(buildSql(dim1, nums[0]), user).array();
+			Object[][] dataRaw = createQuery(buildSql(dim1, nums[0])).array();
 			for (Object[] o : dataRaw) {
 				JSONObject d = JSONUtils.toJSONObject(
 						new String[] { "name", "value" },

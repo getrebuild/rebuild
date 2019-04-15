@@ -5,7 +5,8 @@ $(document).ready(() => {
   $(window).trigger('resize')
   //$('.navbar-brand').attr('href', 'javascript:;')
 
-  $('.chart-type>a').tooltip({ html: true, container: '.config-aside' })
+  $('.chart-type>a, .chart-option .zicon').tooltip({ html: true, container: '.config-aside' })
+  if (wpc.chartOwningAdmin !== true) $('.admin-show').remove()
 
   let dragIsNum = false
   let dargOnSort = false

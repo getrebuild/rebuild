@@ -87,6 +87,7 @@ class ChartTable extends BaseChart {
     super(props)
   }
   renderChart(data) {
+    if (!data.html) { this.renderError('暂无数据'); return }
     let chartdata = (<div className="chart ctable">
       <div dangerouslySetInnerHTML={{ __html: data.html }}></div>
     </div>)
