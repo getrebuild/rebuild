@@ -217,6 +217,10 @@ let render_option = (() => {
   if (ctOpt.length === 0) $('.chart-option>.J_opt-UNDEF').addClass('active')
   else ctOpt.addClass('active')
 
+  let sorts = $('.axis-editor .J_sort').removeClass('disabled')
+  let ct = select.data('type')
+  if (ct === 'INDEX') sorts.addClass('disabled')
+
   render_preview()
 })
 

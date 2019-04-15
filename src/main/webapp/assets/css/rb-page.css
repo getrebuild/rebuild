@@ -39,6 +39,16 @@ html.admin .admin-show {
     display: block;
 }
 
+.dropdown-submenu.disabled>.dropdown-menu {
+    display: none !important;
+}
+
+.dropdown-submenu.disabled>.dropdown-item {
+    color: #878787 !important;
+    background-color: transparent !important;
+    cursor: not-allowed !important;
+}
+
 .dropdown-submenu>a:after {
     display: block;
     content: " ";

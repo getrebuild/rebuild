@@ -82,7 +82,7 @@
 			</div>
 		</aside>
 		<div class="main-content container-fluid">
-			<div class="axis-warp">
+			<div class="axis-editor">
 				<div class="axis">
 					<div class="axis-head">
 						<span>纬度</span>
@@ -121,7 +121,7 @@
 	<li class="dropdown-item J_date" data-calc="D">按日</li>
 	<li class="dropdown-item J_date" data-calc="H">按时</li>
 	<li class="dropdown-divider"></li>
-	<li class="dropdown-submenu">
+	<li class="dropdown-submenu J_sort">
 		<a class="dropdown-item">排序</a>
 		<ul class="dropdown-menu">
 			<li class="dropdown-item" data-sort="NONE">默认</li>

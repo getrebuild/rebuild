@@ -67,11 +67,11 @@
 	padding: 0 15px;
 }
 
-.axis-warp {
+.axis-editor {
 	margin-bottom: 15px;
 }
 
-.axis-warp .axis {
+.axis-editor .axis {
 	border-bottom: 1px solid rgba(0, 0, 0, .1);
 	padding: 10px 0;
 }
