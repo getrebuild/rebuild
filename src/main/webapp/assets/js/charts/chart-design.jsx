@@ -201,6 +201,9 @@ let render_option = (() => {
     let nums = (_this.data('allow-nums') || '0|0').split('|')
     if (dimsAxis >= ~~dims[0] && dimsAxis <= ~~dims[1] && numsAxis >= ~~nums[0] && numsAxis <= ~~nums[1]) _this.addClass('active')
   })
+  // FUNNEL
+  if ((dimsAxis === 1 && numsAxis === 1) || (dimsAxis === 0 && numsAxis > 1));
+  else $('.chart-type>a[data-type="FUNNEL"]').removeClass('active')
 
   let select = $('.chart-type>a.select')
   if (!select.hasClass('active')) select.removeClass('select')

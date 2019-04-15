@@ -285,6 +285,35 @@ class ChartFunnel extends BaseChart {
   constructor(props) {
     super(props)
   }
+  renderChart(data) {
+    if (this.__echarts) this.__echarts.dispose()
+    if (data.data.length === 0) { this.renderError('暂无数据'); return }
+    let that = this
+    let elid = 'echarts-funnel-' + (this.state.id || 'id')
+    this.setState({ chartdata: (<div className="chart funnel" id={elid}></div>) }, () => {
+      let opt = {
+        series: [{
+          type: 'funnel',
+          sort: 'none',
+          gap: 2,
+          data: data.data
+        }]
+      }
+      opt = { ...opt, ...ECHART_Base }
+      opt.tooltip.trigger = 'item'
+      opt.tooltip.formatter = function (i) {
+        if (data.xLabel) return `<b>${i.name}</b> <br/> ${data.xLabel} : ${i.value}`
+        else return `<b>${i.name}</b> <br/> ${i.value}`
+      }
+      opt.label = {
+        formatter: '{b} {c}'
+      }
+
+      let c = echarts.init(document.getElementById(elid), 'light')
+      c.setOption(opt)
+      that.__echarts = c
+    })
+  }
 }
 
 // 树图
@@ -309,6 +338,7 @@ class ChartTreemap extends BaseChart {
         }]
       }
       opt = { ...opt, ...ECHART_Base }
+      opt.tooltip.trigger = 'item'
       opt.tooltip.formatter = function (i) {
         let p = 0
         if (i.value > 0) p = (i.value * 100 / data.xAmount).toFixed(2)

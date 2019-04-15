@@ -18,8 +18,19 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
+import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.persist4j.engine.ID;
 
@@ -37,6 +48,72 @@ public class FunnelChart extends ChartData {
 
 	@Override
 	public JSON build() {
-		return null;
+		Dimension[] dims = getDimensions();
+		Numerical[] nums = getNumericals();
+		
+		JSONArray dataJson = new JSONArray();
+		if (nums.length > 1) {
+			Object[] dataRaw = Application.createQuery(buildSql(nums), user).unique();
+			for (int i = 0; i < nums.length; i++) {
+				JSONObject d = JSONUtils.toJSONObject(
+						new String[] { "name", "value" },
+						new Object[] { nums[i].getLabel(), warpAxisValue(nums[i], dataRaw[i]) });
+				dataJson.add(d);
+			}
+		} else if (nums.length >= 1 && dims.length >= 1) {
+			Dimension dim1 = dims[0];
+			Object[][] dataRaw = Application.createQuery(buildSql(dim1, nums[0]), user).array();
+			for (Object[] o : dataRaw) {
+				JSONObject d = JSONUtils.toJSONObject(
+						new String[] { "name", "value" },
+						new Object[] { o[0] = warpAxisValue(dim1, o[0]), warpAxisValue(nums[0], o[1]) });
+				dataJson.add(d);
+			}
+			
+			if (dim1.getFormatSort() != FormatSort.NONE) {
+				Collections.sort(dataJson, new Comparator<Object>() {
+					@Override
+					public int compare(Object a, Object b) {
+						String aName = ((JSONObject) a).getString("name");
+						String bName = ((JSONObject) b).getString("name");
+						if (dim1.getFormatSort() == FormatSort.ASC) {
+							return aName.compareTo(bName);
+						} else {
+							return bName.compareTo(aName);
+						}
+					}
+				});
+			}
+		}
+		
+		JSONObject ret = JSONUtils.toJSONObject(
+				new String[] { "data" },
+				new Object[] { dataJson });
+		if (nums.length >= 1 && dims.length >= 1) {
+			ret.put("xLabel", nums[0].getLabel());
+		}
+		return ret;
+	}
+	
+	protected String buildSql(Numerical[] nums) {
+		List<String> numSqlItems = new ArrayList<>();
+		for (Numerical num : nums) {
+			numSqlItems.add(num.getSqlName());
+		}
+		
+		String sql = "select {0} from {1} where {2}";
+		sql = MessageFormat.format(sql,
+				StringUtils.join(numSqlItems, ", "),
+				getSourceEntity().getName(), getFilterSql());
+		return sql;
+	}
+	
+	protected String buildSql(Dimension dim, Numerical num) {
+		String sql = "select {0},{1} from {2} where {3} group by {0}";
+		sql = MessageFormat.format(sql, 
+				dim.getSqlName(),
+				num.getSqlName(),
+				getSourceEntity().getName(), getFilterSql());
+		return sql;
 	}
 }
