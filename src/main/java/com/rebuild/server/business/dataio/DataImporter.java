@@ -295,20 +295,25 @@ public class DataImporter extends BulkTask {
 		
 		Entity oEntity = field.getReferenceEntity();
 		
-		// 支持ID
+		// 支持ID导入
 		if (ID.isId(val) && ID.valueOf(val).getEntityCode().intValue() == oEntity.getEntityCode()) {
 			return ID.valueOf(val);
 		}
 		
-		Object typeVal = checkoutFieldValue(oEntity.getNameField(), cell, false);
-		if (typeVal == null) {
+		Object textVal = checkoutFieldValue(oEntity.getNameField(), cell, false);
+		if (textVal == null) {
 			return null;
 		}
 		
-		String sql = String.format("select %s from %s where %s = ?",
-				oEntity.getPrimaryField().getName(), oEntity.getName(), oEntity.getNameField().getName());
-		Object[] exists = Application.createQueryNoFilter(sql).setParameter(1, typeVal).unique();
-		return exists == null ? null : (ID) exists[0];
+		String sql = null;
+		if (oEntity.getEntityCode() == EntityHelper.User) {
+			sql = String.format("select userId from User where loginName = '%s' or email = '%s'", textVal, textVal);
+		} else {
+			sql = String.format("select %s from %s where %s = '%s'",
+					oEntity.getPrimaryField().getName(), oEntity.getName(), oEntity.getNameField().getName());
+		}
+		Object[] found = Application.createQueryNoFilter(sql).setParameter(1, textVal).unique();
+		return found == null ? null : (ID) found[0];
 	}
 	
 	/**

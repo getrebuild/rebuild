@@ -90,9 +90,11 @@ public class DataImportControll extends BasePageControll {
 		
 		DataFileParser parser = null;
 		int count = 0;
+		List<Cell[]> preview = null;
 		try {
 			parser = new DataFileParser(tmp);
 			count = parser.getRowsCount();
+			preview = parser.parse(10);
 		} catch (Exception ex) {
 			LOG.error("Parse excel error : " + file, ex);
 			writeFailure(response, "无法解析数据，请检查数据文件格式");
@@ -101,7 +103,8 @@ public class DataImportControll extends BasePageControll {
 			IOUtils.closeQuietly(parser);
 		}
 		
-		JSON ret = JSONUtils.toJSONObject("count", count);
+		JSON ret = JSONUtils.toJSONObject(
+				new String[] { "count", "preview" }, new Object[] { count, preview });
 		writeSuccess(response, ret);
 	}
 	

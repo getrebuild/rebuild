@@ -122,7 +122,7 @@ const check_ouser0 = () => {
     } else {
       $('.J_step1-btn').attr('disabled', false)
       if (hasError.length > 0) {
-        renderRbcomp(<RbAlertBox message={'选择的用户无' + hasError.join('/') + '权限，可能导致导入失败'} />, 'ouser-warn')
+        renderRbcomp(<RbAlertBox message={'选择的用户无' + hasError.join('/') + '权限，可能导致部分数据导入失败'} />, 'ouser-warn')
       } else {
         $('#ouser-warn').empty()
       }
