@@ -23,7 +23,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
-import com.github.stuxuhai.jpinyin.PinyinHelper;
+import com.hankcs.hanlp.HanLP;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.task.BulkTask;
 import com.rebuild.server.metadata.EntityHelper;
@@ -174,7 +174,7 @@ public class QuickCodeReindexTask extends BulkTask {
 		} else {
 			nameVal = nameVal.replaceAll(" ", "");
 			try {
-				quickCode = PinyinHelper.getShortPinyin(nameVal);
+				quickCode = HanLP.convertToPinyinFirstCharString(nameVal, "", false);
 			} catch (Exception e) {
 				LOG.error("QuickCode shorting error : " + nameVal, e);
 			}
