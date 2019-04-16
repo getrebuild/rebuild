@@ -41,6 +41,7 @@ public class Axis {
 	 * @param field
 	 * @param sort
 	 * @param calc
+	 * @param label
 	 */
 	protected Axis(Field field, FormatSort sort, FormatCalc calc, String label) {
 		this.field = field;

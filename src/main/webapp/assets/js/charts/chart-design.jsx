@@ -5,7 +5,8 @@ $(document).ready(() => {
   $(window).trigger('resize')
   //$('.navbar-brand').attr('href', 'javascript:;')
 
-  $('.chart-type>a').tooltip({ html: true, container: '.config-aside' })
+  $('.chart-type>a, .chart-option .zicon').tooltip({ html: true, container: '.config-aside' })
+  if (wpc.chartOwningAdmin !== true) $('.admin-show').remove()
 
   let dragIsNum = false
   let dargOnSort = false
@@ -46,7 +47,7 @@ $(document).ready(() => {
     render_preview()
   }
   $('.J_filter').click(() => {
-    renderRbcomp(<AdvFilter title="设置过滤条件" entity={wpc.sourceEntity} filter={esourceFilter} inModal={true} confirm={saveFilter} />)
+    renderRbcomp(<AdvFilter title="设置过滤条件" entity={wpc.sourceEntity} filter={esourceFilter} inModal={true} confirm={saveFilter} canNoFilters={true} />)
   })
 
   let cts = $('.chart-type > a').click(function () {
@@ -201,17 +202,30 @@ let render_option = (() => {
     let nums = (_this.data('allow-nums') || '0|0').split('|')
     if (dimsAxis >= ~~dims[0] && dimsAxis <= ~~dims[1] && numsAxis >= ~~nums[0] && numsAxis <= ~~nums[1]) _this.addClass('active')
   })
+  // FUNNEL
+  if ((dimsAxis === 1 && numsAxis === 1) || (dimsAxis === 0 && numsAxis > 1));
+  else $('.chart-type>a[data-type="FUNNEL"]').removeClass('active')
 
+  // Active
   let select = $('.chart-type>a.select')
   if (!select.hasClass('active')) select.removeClass('select')
-
   select = $('.chart-type>a.select')
   if (select.length === 0) select = $('.chart-type>a.active').eq(0).addClass('select')
 
+  const ct = select.data('type')
+  // Option
   $('.chart-option>div').removeClass('active')
-  let ctOpt = $('.J_opt-' + select.data('type'))
-  if (ctOpt.length === 0) $('.chart-option>.J_opt-NO').addClass('active')
+  let ctOpt = $('.J_opt-' + ct)
+  if (ctOpt.length === 0) $('.chart-option>.J_opt-UNDEF').addClass('active')
   else ctOpt.addClass('active')
+
+  // Sort
+  let sorts = $('.axis-editor .J_sort').removeClass('disabled')
+  if (ct === 'INDEX') sorts.addClass('disabled')
+  else if (ct === 'FUNNEL') {
+    if (numsAxis >= 1 && dimsAxis >= 1) $('.J_numerical .J_sort').addClass('disabled')
+    else sorts.addClass('disabled')
+  }
 
   render_preview()
 })
@@ -261,7 +275,7 @@ let build_config = (() => {
 
   if (esourceFilter) cfg.filter = esourceFilter
   // eslint-disable-next-line no-console
-  console.log(cfg)
+  if (rb.env === 'dev') console.log(cfg)
   return cfg
 })
 let __build_axisItem = ((item, isNum) => {

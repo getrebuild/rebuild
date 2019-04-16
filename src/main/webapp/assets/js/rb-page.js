@@ -196,3 +196,7 @@ var $fileDetectingIcon = function (fileName) {
   else if (fileName.endsWith('.mp4') || fileName.endsWith('.rmvb') || fileName.endsWith('.rm') || fileName.endsWith('.avi') || fileName.endsWith('.flv')) return 'mp4'
   return ''
 }
+
+var $gotoSection = function (top, target) {
+	$(target || 'body').animate({ scrollTop: top || 0 }, 600)
+}

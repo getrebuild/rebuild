@@ -132,3 +132,5 @@
 .chart.ctable .table.sums tbody tr:last-child td {
 	font-weight: bold;
 }
+
+.chart.treemap {}

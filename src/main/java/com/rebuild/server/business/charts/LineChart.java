@@ -27,7 +27,6 @@ import org.apache.commons.lang.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.Application;
 import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.persist4j.engine.ID;
@@ -50,7 +49,7 @@ public class LineChart extends ChartData {
 		Numerical[] nums = getNumericals();
 		
 		Dimension dim1 = dims[0];
-		Object[][] dataRaw = Application.createQuery(buildSql(dim1, nums), user).array();
+		Object[][] dataRaw = createQuery(buildSql(dim1, nums)).array();
 		
 		List<String> dimAxis = new ArrayList<>();
 		Object[] numsAxis = new Object[nums.length];
@@ -93,12 +92,15 @@ public class LineChart extends ChartData {
 		}
 		
 		String sql = "select {0},{1} from {2} where {3} group by {0}";
-		String where = getFilterSql();
-		
 		sql = MessageFormat.format(sql, 
 				dim.getSqlName(),
 				StringUtils.join(numSqlItems, ", "),
-				getSourceEntity().getName(), where);
+				getSourceEntity().getName(), getFilterSql());
+		
+		String sorts = getSortSql();
+		if (sorts != null) {
+			sql += " order by " + sorts;
+		}
 		return sql;
 	}
 }

@@ -27,7 +27,6 @@ import org.apache.commons.lang.StringUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.Application;
 import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.commons.ObjectUtils;
@@ -60,7 +59,7 @@ public class TableChart extends ChartData {
 		Numerical[] nums = getNumericals();
 		
 		String sql = buildSql(dims, nums);
-		Object[][] dataRaw = Application.createQuery(sql, user).array();
+		Object[][] dataRaw = createQuery(sql).array();
 		
 		if (this.showLineNumber && dataRaw.length > 0) {
 			for (int i = 0; i < dataRaw.length; i++) {
@@ -118,27 +117,25 @@ public class TableChart extends ChartData {
 		for (Dimension dim : dims) {
 			dimSqlItems.add(dim.getSqlName());
 		}
-		
 		List<String> numSqlItems = new ArrayList<>();
 		for (Numerical num : nums) {
 			numSqlItems.add(num.getSqlName());
 		}
 		
 		String sql = "select {0},{1} from {2} where {3} group by {0}";
-		String where = getFilterSql();
-		String order = getSortSql();
-		
 		if (dimSqlItems.isEmpty()) {
 			sql = "select {1} from {2} where {3}";
+		} else if (numSqlItems.isEmpty()) {
+			sql = "select {0} from {2} where {3}";
 		}
-		
 		sql = MessageFormat.format(sql,
 				StringUtils.join(dimSqlItems, ", "),
 				StringUtils.join(numSqlItems, ", "),
-				getSourceEntity().getName(), where);
+				getSourceEntity().getName(), getFilterSql());
 		
-		if (order != null) {
-			sql += " order by " + order;
+		String sorts = getSortSql();
+		if (sorts != null) {
+			sql += " order by " + sorts;
 		}
 		return sql;
 	}

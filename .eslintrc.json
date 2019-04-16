@@ -37,6 +37,7 @@
         "$decode": true,
         "$fileCutName": true,
         "$fileDetectingIcon": true,
+        "$gotoSection": true,
         "$cleanMenu": true,
         "$cleanMap": true,
         "$pages": true,
