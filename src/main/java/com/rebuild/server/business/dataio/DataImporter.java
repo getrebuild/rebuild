@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.rebuild.server.Application;
@@ -36,7 +37,6 @@ import com.rebuild.server.portals.ClassificationManager;
 import com.rebuild.server.portals.PickListManager;
 import com.rebuild.utils.JSONUtils;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.excel.Cell;
 import cn.devezhao.commons.excel.ExcelReader;
@@ -57,10 +57,18 @@ import cn.devezhao.persist4j.engine.ID;
 public class DataImporter extends BulkTask {
 	
 	final private ImportEnter enter;
-	final private ID user;
+	
+	final private ID owningUser;
 	
 	private int success = 0;
 	private Map<Integer, Object> logging = new LinkedHashMap<>();
+	
+	/**
+	 * @param enter
+	 */
+	public DataImporter(ImportEnter enter) {
+		this(enter, Application.getCurrentUser());
+	}
 	
 	/**
 	 * @param enter
@@ -68,7 +76,7 @@ public class DataImporter extends BulkTask {
 	 */
 	public DataImporter(ImportEnter enter, ID user) {
 		this.enter = enter;
-		this.user = user;
+		this.owningUser = enter.getDefaultOwningUser() == null ? user : enter.getDefaultOwningUser();
 	}
 	
 	/**
@@ -80,10 +88,6 @@ public class DataImporter extends BulkTask {
 	
 	@Override
 	public void run() {
-		ID ou = enter.getDefaultOwningUser();
-		ou = ou == null ? this.user : ou;
-		Application.getSessionStore().set(ou);
-		
 		DataFileParser fileParser = null;
 		try {
 			fileParser = new DataFileParser(enter.getSourceFile());
@@ -92,12 +96,12 @@ public class DataImporter extends BulkTask {
 			ExcelReader reader = fileParser.getExcelReader();
 			reader.next();  // Remove head row
 			
+			setThreadUser(this.owningUser);
 			while (reader.hasNext()) {
 				if (isInterrupt()) {
 					this.setInterrupted();
 					break;
 				}
-//				ThreadPool.waitFor(RandomUtils.nextInt(1500));
 				
 				try {
 					Cell[] cell = reader.next();
@@ -119,10 +123,7 @@ public class DataImporter extends BulkTask {
 				}
 			}
 		} finally {
-			Application.getSessionStore().clean();
-			if (fileParser != null) {
-				fileParser.close();
-			}
+			IOUtils.closeQuietly(fileParser);
 			completedAfter();
 		}
 	}
@@ -146,9 +147,7 @@ public class DataImporter extends BulkTask {
 	 * @return
 	 */
 	protected Record checkoutRecord(Cell cells[]) {
-		ID ou = enter.getDefaultOwningUser();
-		ou = ou == null ? this.user : ou;
-		Record recordNew = EntityHelper.forNew(enter.getToEntity().getEntityCode(), ou);
+		Record recordNew = EntityHelper.forNew(enter.getToEntity().getEntityCode(), this.owningUser);
 		
 		for (Map.Entry<Field, Integer> e : enter.getFiledsMapping().entrySet()) {
 			int cellIndex = e.getValue();
@@ -172,7 +171,7 @@ public class DataImporter extends BulkTask {
 			}
 			
 			if (repeat != null && enter.getRepeatOpt() == ImportEnter.REPEAT_OPT_UPDATE) {
-				record = EntityHelper.forUpdate(repeat, ou);
+				record = EntityHelper.forUpdate(repeat, this.owningUser);
 				for (Iterator<String> iter = recordNew.getAvailableFieldIterator(); iter.hasNext(); ) {
 					String field = iter.next();
 					if (EntityHelper.OwningUser.equals(field) || EntityHelper.OwningDept.equals(field)
@@ -185,9 +184,10 @@ public class DataImporter extends BulkTask {
 			}
 		}
 	
+		// Verify new record
 		if (record.getPrimary() == null) {
-			ExtRecordCreator creator = new ExtRecordCreator(enter.getToEntity(), JSONUtils.EMPTY_OBJECT, null);
-			creator.verify(recordNew, true);
+			ExtRecordCreator verifier = new ExtRecordCreator(enter.getToEntity(), JSONUtils.EMPTY_OBJECT, null);
+			verifier.verify(recordNew, true);
 		}
 		return record;
 	}
@@ -328,15 +328,7 @@ public class DataImporter extends BulkTask {
 		String date2str = cell.asString();
 		// 2017/11/19 11:07
 		if (date2str.contains("/")) {
-			int strLen = date2str.length();
-			if (strLen <= 10) {
-				return CalendarUtils.parse(date2str, CalendarUtils.getDateFormat("yyyy/M/d"));
-			} else {
-				if (StringUtils.countMatches(date2str, ":") == 1) {
-					date2str += ":00";
-				}
-				return CalendarUtils.parse(date2str, CalendarUtils.getDateFormat("yyyy/M/d H:m:s"));
-			}
+			return cell.asDate(new String[] { "yyyy/M/d H:m:s", "yyyy/M/d H:m", "yyyy/M/d" });
 		}
 		return null;
 	}

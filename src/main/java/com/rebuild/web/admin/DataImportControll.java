@@ -133,6 +133,7 @@ public class DataImportControll extends BasePageControll {
 			count = parser.getRowsCount();
 			preview = parser.parse(10);
 		} catch (Exception ex) {
+			LOG.error("Parse excel error : " + file, ex);
 			writeFailure(response, "无法解析数据，请检查数据文件格式");
 			return;
 		} finally {

@@ -58,7 +58,7 @@ public class DataImporterTest extends TestSupport {
 	
 	@Test
 	public void testImports() throws Exception {
-		JSONObject rule = JSON.parseObject("{ file:'dataimports-test.csv', entity:'TestAllFields', repeat_opt:2, repeat_fields:['TestAllFieldsName'], owning_user:'001-0000000000000001', fields_mapping:{TestAllFieldsName:5} }");
+		JSONObject rule = JSON.parseObject("{ file:'dataimports-test.xlsx', entity:'TestAllFields', repeat_opt:2, repeat_fields:['TestAllFieldsName'], owning_user:'001-0000000000000001', fields_mapping:{TestAllFieldsName:5} }");
 		ImportEnter importsEnter = ImportEnter.parse(rule);
 		
 		DataImporter dataImports = new DataImporter(importsEnter, UserService.ADMIN_USER);
