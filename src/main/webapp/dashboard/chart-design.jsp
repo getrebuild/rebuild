@@ -83,14 +83,14 @@
 		</aside>
 		<div class="main-content container-fluid">
 			<div class="axis-editor">
-				<div class="axis">
+				<div class="axis J_dimension">
 					<div class="axis-head">
 						<span>纬度</span>
 						<a><i class="zmdi zmdi-edit"></i></a>
 					</div>
 					<div class="axis-target J_axis-dim"></div>
 				</div>
-				<div class="axis">
+				<div class="axis J_numerical">
 					<div class="axis-head">
 						<span>数值</span>
 						<a><i class="zmdi zmdi-edit"></i></a>

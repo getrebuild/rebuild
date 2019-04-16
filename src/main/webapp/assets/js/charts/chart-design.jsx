@@ -206,20 +206,26 @@ let render_option = (() => {
   if ((dimsAxis === 1 && numsAxis === 1) || (dimsAxis === 0 && numsAxis > 1));
   else $('.chart-type>a[data-type="FUNNEL"]').removeClass('active')
 
+  // Active
   let select = $('.chart-type>a.select')
   if (!select.hasClass('active')) select.removeClass('select')
-
   select = $('.chart-type>a.select')
   if (select.length === 0) select = $('.chart-type>a.active').eq(0).addClass('select')
 
+  const ct = select.data('type')
+  // Option
   $('.chart-option>div').removeClass('active')
-  let ctOpt = $('.J_opt-' + select.data('type'))
+  let ctOpt = $('.J_opt-' + ct)
   if (ctOpt.length === 0) $('.chart-option>.J_opt-UNDEF').addClass('active')
   else ctOpt.addClass('active')
 
+  // Sort
   let sorts = $('.axis-editor .J_sort').removeClass('disabled')
-  let ct = select.data('type')
   if (ct === 'INDEX') sorts.addClass('disabled')
+  else if (ct === 'FUNNEL') {
+    if (numsAxis >= 1 && dimsAxis >= 1) $('.J_numerical .J_sort').addClass('disabled')
+    else sorts.addClass('disabled')
+  }
 
   render_preview()
 })

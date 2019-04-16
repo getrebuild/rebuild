@@ -203,21 +203,21 @@ public abstract class ChartData {
 	 */
 	protected String getSortSql() {
 		Set<String> sorts = new HashSet<>();
-		for (Numerical num : getNumericals()) {
-			FormatSort fs = num.getFormatSort();
-			if (fs != FormatSort.NONE) {
-				sorts.add(num.getSqlName() + " " + fs.toString().toLowerCase());
-			}
-		}
-		// 优先数值排序
-		if (!sorts.isEmpty()) {
-			return String.join(", ", sorts);
-		}
-		
 		for (Axis dim : getDimensions()) {
 			FormatSort fs = dim.getFormatSort();
 			if (fs != FormatSort.NONE) {
 				sorts.add(dim.getSqlName() + " " + fs.toString().toLowerCase());
+			}
+		}
+		// 优先维度排序
+		if (!sorts.isEmpty()) {
+			return String.join(", ", sorts);
+		}
+		
+		for (Numerical num : getNumericals()) {
+			FormatSort fs = num.getFormatSort();
+			if (fs != FormatSort.NONE) {
+				sorts.add(num.getSqlName() + " " + fs.toString().toLowerCase());
 			}
 		}
 		return sorts.isEmpty() ? null : String.join(", ", sorts);

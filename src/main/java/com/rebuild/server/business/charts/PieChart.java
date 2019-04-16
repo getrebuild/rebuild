@@ -70,6 +70,11 @@ public class PieChart extends ChartData {
 				dim.getSqlName(),
 				num.getSqlName(),
 				getSourceEntity().getName(), getFilterSql());
+		
+		String sorts = getSortSql();
+		if (sorts != null) {
+			sql += " order by " + sorts;
+		}
 		return sql;
 	}
 }

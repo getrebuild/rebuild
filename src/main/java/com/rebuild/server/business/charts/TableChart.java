@@ -133,9 +133,9 @@ public class TableChart extends ChartData {
 				StringUtils.join(numSqlItems, ", "),
 				getSourceEntity().getName(), getFilterSql());
 		
-		String order = getSortSql();
-		if (order != null) {
-			sql += " order by " + order;
+		String sorts = getSortSql();
+		if (sorts != null) {
+			sql += " order by " + sorts;
 		}
 		return sql;
 	}

@@ -96,6 +96,11 @@ public class LineChart extends ChartData {
 				dim.getSqlName(),
 				StringUtils.join(numSqlItems, ", "),
 				getSourceEntity().getName(), getFilterSql());
+		
+		String sorts = getSortSql();
+		if (sorts != null) {
+			sql += " order by " + sorts;
+		}
 		return sql;
 	}
 }
