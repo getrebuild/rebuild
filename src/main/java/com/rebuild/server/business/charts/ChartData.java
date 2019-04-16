@@ -174,7 +174,6 @@ public abstract class ChartData {
 		String previewFilter = StringUtils.EMPTY;
 		// 限制预览数据量
 		if (isFromPreview() && getSourceEntity().containsField(EntityHelper.AutoId)) {
-			
 			String maxAidSql = String.format("select max(%s) from %s", EntityHelper.AutoId, getSourceEntity().getName());
 			Object[] o = Application.createQueryNoFilter(maxAidSql).unique();
 			long maxAid = ObjectUtils.toLong(o[0]);
