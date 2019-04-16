@@ -197,6 +197,19 @@ function RbSpinner(props) {
   return spinner
 }
 
+// ~~ 提示条
+function RbAlertBox(props) {
+  let icon = props.type === 'success' ? 'check' : 'info-outline'
+  if (props.type === 'danger') icon = 'close-circle-o'
+  return (<div className={'alert alert-icon alert-dismissible min alert-' + (props.type || 'warning')} >
+    <div className="icon"><span className={'zmdi zmdi-' + icon} /></div>
+    <div className="message">
+      <a className="close" data-dismiss="alert"><span className="zmdi zmdi-close" /></a>
+      <p>{props.message}</p>
+    </div>
+  </div>)
+}
+
 let renderRbcomp__counter = new Date().getTime()
 // @jsx
 // @target id or Element
