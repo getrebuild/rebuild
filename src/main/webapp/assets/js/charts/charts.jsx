@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-/* globals gridster, echarts */
 class BaseChart extends React.Component {
   constructor(props) {
     super(props)

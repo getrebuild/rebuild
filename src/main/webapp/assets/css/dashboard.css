@@ -1,22 +1,18 @@
-.gridster ul,
-.gridster ul>li {
+.grid-stack .grid-stack-item {
+    padding: 0;
     margin: 0;
-    padding: 0
 }
 
-.gridster ul>li {
+.grid-stack .grid-stack-item>div {
     background-color: #fff;
+    height: 100%;
 }
 
-.gridster ul>li>div {
-    height: 100%
-}
-
-.gridster ul>li:hover {
+.grid-stack .grid-stack-item>div:hover {
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1), 0 16px 24px 0 rgba(81, 129, 228, .1)
 }
 
-.gridster ul>li:hover .chart-oper {
+.grid-stack .grid-stack-item>div:hover .chart-oper {
     display: block;
 }
 
@@ -39,8 +35,7 @@
     overflow: scroll;
     overflow-x: hidden;
     padding: 15px;
-    padding-top: 0;
-    padding-right: 0px
+    padding-right: 5px;
 }
 
 .chart-add {

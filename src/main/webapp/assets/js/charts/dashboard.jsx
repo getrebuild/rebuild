@@ -71,9 +71,38 @@ const show_dlg = (t, props) => {
   else if (t === 'ChartSelect') dlg_cached[t] = renderRbcomp(<ChartSelect {...props} />)
 }
 
+let gridstack
+let render_dashboard = function (cfg) {
+  gridstack = $('.grid-stack').gridstack({
+    cellHeight: 100,
+    handleClass: 'chart-title'
+  }).data('gridstack')
+
+  rendered_charts = []
+  $(cfg).each((idx, item) => {
+    let chid = 'chart-' + item.chart
+    let gsi = '<div class="grid-stack-item"><div id="' + chid + '" class="grid-stack-item-content"></div><span class="handle-resize"></span></div>'
+    gridstack.addWidget(gsi, item.col - 1, item.row - 1, item.size_x || 2, item.size_y || 2)
+    // eslint-disable-next-line no-undef
+    let c = renderRbcomp(detectChart(item, item.chart, dash_editable), chid)
+    rendered_charts.push(c)
+  })
+
+  // if (rendered_charts.length === 0) {
+  //   let el = '<li><a class="chart-add" onclick="show_dlg(\'DlgAddChart\')"><i class="zmdi zmdi-plus"></i><p>添加图表</p></a></li>'
+  //   gridster.add_widget(el, 2, 2)
+  //   gridster.disable_resize()
+  // } else {
+  //   gridster_undata = false
+  // }
+
+  $('.chart-grid').removeClass('invisible')
+  $('.J_dash-load').remove()
+}
+
 let gridster = null
 let gridster_undata = true
-let render_dashboard = function (cfg) {
+let render_dashboard11 = function (cfg) {
   gridster = $('.gridster ul').gridster({
     widget_base_dimensions: ['auto', 100],
     autogenerate_stylesheet: true,

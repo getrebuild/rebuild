@@ -57,7 +57,9 @@
         "RbListPage": true,
         "AdvFilter": true,
         "UserShow": true,
-        "Mprogress": true
+        "Mprogress": true,
+        "gridster": true,
+        "echarts": true
     },
     "rules": {
         "strict": 0,
