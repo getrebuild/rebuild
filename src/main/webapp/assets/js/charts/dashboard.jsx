@@ -3,7 +3,7 @@
 let dashid = null
 let dash_editable = false
 $(document).ready(function () {
-  win_resize(20)
+  win_resize(100)
 
   let d = $urlp('d')
   if (d) $storage.set('DashDefault', d)
@@ -60,18 +60,21 @@ $(document).ready(function () {
       dlg.setState({ appended: appended })
     })
   }))
+
+  $(window).resize(win_resize)
 })
 
+let on_resizestart = false
 let rendered_charts = []
 let win_resize = function (t) {
+  if (on_resizestart === true) return
   $setTimeout(() => {
     let cg = $('.chart-grid')
     if ($(window).width() >= 768) cg.height($(window).height() - 142)
     else cg.height('auto')
     $(rendered_charts).each((idx, item) => { item.resize() })
-  }, t || 200, 'resize-charts')
+  }, t || 400, 'resize-charts')
 }
-$(window).resize(win_resize)
 
 const dlg_cached = {}
 const show_dlg = (t, props) => {
@@ -116,8 +119,11 @@ let render_dashboard = function (init) {
       }
     })
     save_dashboard()
+  }).on('resizestart', function () {
+    on_resizestart = true
   }).on('gsresizestop', function () {
     $(rendered_charts).each((idx, item) => { item.resize() })
+    on_resizestart = false
   })
 
   $('.chart-grid').removeClass('invisible')
@@ -131,7 +137,7 @@ let add_widget = function (item) {
   let chart_add = $('#chart-add')
   if (chart_add.length > 0) gridstack.removeWidget(chart_add.parent())
 
-  let gsi = '<div class="grid-stack-item"><div id="' + chid + '" class="grid-stack-item-content"></div><span class="handle-resize"></span></div>'
+  let gsi = '<div class="grid-stack-item"><div id="' + chid + '" class="grid-stack-item-content"></div></div>'
   // Use gridstar
   if (item.size_x || item.size_y) {
     gridstack.addWidget(gsi, (item.col || 1) - 1, (item.row || 1) - 1, item.size_x || 2, item.size_y || 2)
@@ -155,7 +161,7 @@ let save_dashboard = function () {
   })
   gridstack_serialize = s
   $setTimeout(() => {
-    $.post(rb.baseUrl + '/dashboard/dash-config?id=' + dashid, JSON.stringify(gridstack_serialize), (res) => {
+    $.post(rb.baseUrl + '/dashboard/dash-config?id=' + dashid, JSON.stringify(gridstack_serialize), () => {
       // eslint-disable-next-line no-console
       console.log('Saved dashboard: ' + JSON.stringify(gridstack_serialize))
     })

@@ -19,6 +19,10 @@
 	padding-top: 0;
 }
 
+.chart-box.TREEMAP {
+	padding-top: 25px;
+}
+
 #chart-preview {
 	background-color: #fff;
 	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1), 0 16px 24px 0 rgba(81, 129, 228, .1);
@@ -247,8 +251,6 @@ a.ui-draggable.ui-draggable-dragging {
 	min-width: 150px;
 	border-radius: 2px;
 }
-
-a.ui-draggable {}
 
 .data-info ul li i.icon,
 .data-info ul.fields li a::before {
