@@ -93,9 +93,11 @@ let gridstack
 let gridstack_serialize
 let render_dashboard = function (init) {
   gridstack = $('.grid-stack').gridstack({
-    cellHeight: 100,
+    cellHeight: 60,
     handleClass: 'chart-title',
-    animate: true
+    animate: true,
+    auto: false,
+    verticalMargin: 20
   }).data('gridstack')
 
   gridstack_serialize = init
@@ -107,17 +109,7 @@ let render_dashboard = function (init) {
   }
 
   // When resize/re-postion/remove
-  $('.grid-stack').on('change', function (event, items) {
-    gridstack_serialize = (items || []).map((item) => {
-      let chid = item.el.find('.grid-stack-item-content').attr('id')
-      return {
-        x: item.x,
-        y: item.y,
-        w: item.width,
-        h: item.height,
-        chart: chid.substr(6)
-      }
-    })
+  $('.grid-stack').on('change', function () {
     save_dashboard()
   }).on('resizestart', function () {
     on_resizestart = true
@@ -140,9 +132,9 @@ let add_widget = function (item) {
   let gsi = '<div class="grid-stack-item"><div id="' + chid + '" class="grid-stack-item-content"></div></div>'
   // Use gridstar
   if (item.size_x || item.size_y) {
-    gridstack.addWidget(gsi, (item.col || 1) - 1, (item.row || 1) - 1, item.size_x || 2, item.size_y || 2)
+    gridstack.addWidget(gsi, (item.col || 1) - 1, (item.row || 1) - 1, item.size_x || 2, item.size_y || 2, 2, 12, 2, 12)
   } else {
-    gridstack.addWidget(gsi, item.x, item.y, item.w, item.h, item.x === undefined)
+    gridstack.addWidget(gsi, item.x, item.y, item.w, item.h, item.x === undefined, 2, 12, 2, 12)
   }
   // eslint-disable-next-line no-undef
   let c = renderRbcomp(detectChart(item, item.chart, dash_editable), chid)
@@ -156,7 +148,13 @@ let save_dashboard = function () {
     let $this = $(this)
     let chid = $this.find('.grid-stack-item-content').attr('id')
     if (chid && chid.length > 20) {
-      s.push({ x: $this.data('gs-x'), y: $this.data('gs-y'), w: $this.data('gs-width'), h: $this.data('gs-height'), chart: chid.substr(6) })
+      s.push({
+        x: $this.attr('data-gs-x'),
+        y: $this.attr('data-gs-y'),
+        w: $this.attr('data-gs-width'),
+        h: $this.attr('data-gs-height'),
+        chart: chid.substr(6)
+      })
     }
   })
   gridstack_serialize = s

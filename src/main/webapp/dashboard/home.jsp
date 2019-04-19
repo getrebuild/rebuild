@@ -52,7 +52,7 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="https://cdn.staticfile.org/lodash.js/4.17.11/lodash.min.js"></script>
+<script src="${baseUrl}/assets/lib/charts/lodash.min.js"></script>
 <script src="${baseUrl}/assets/lib/charts/gridstack.all.js"></script>
 <script src="${baseUrl}/assets/lib/charts/echarts.min.js"></script>
 <script src="${baseUrl}/assets/js/charts/charts.jsx" type="text/babel"></script>

@@ -7,6 +7,10 @@
 	padding-bottom: 25px;
 }
 
+.chart-box.INDEX {
+	padding-bottom: 0px;
+}
+
 .chart-box.high {
 	outline: 2px solid #4285f4;
 }
