@@ -3,7 +3,7 @@
 let dashid = null
 let dash_editable = false
 $(document).ready(function () {
-  $('.chart-grid').height($(window).height() - 142)
+  win_resize(20)
 
   let d = $urlp('d')
   if (d) $storage.set('DashDefault', d)
@@ -35,10 +35,12 @@ $(document).ready(function () {
         location.hash = ''
       } else {
         let high = $('#chart-' + location.hash.substr(1)).addClass('high')
-        high.on('mouseleave', () => {
-          high.removeClass('high').off('mouseleave')
-        })
-        $gotoSection(high.offset().top - 115, '.chart-grid')
+        if (high.length > 0) {
+          high.on('mouseleave', () => {
+            high.removeClass('high').off('mouseleave')
+          })
+          $gotoSection(high.offset().top - 115, '.chart-grid')
+        }
       }
     }
 
@@ -48,17 +50,28 @@ $(document).ready(function () {
     $('.J_dash-edit').click(() => { show_dlg('DlgDashSettings', { title: d[1], shareToAll: d[4] === 'ALL' }) })
     $('.J_chart-new').click(() => { show_dlg('DlgAddChart') })
     $('.J_dash-select').click(() => { show_dlg('DashSelect', { dashList: dash_list }) })
-    $('.J_chart-select').click(() => { show_dlg('ChartSelect', { dlgClazz: 'dlg-chart-select', dlgTitle: '选择图表' }) })
+    $('.J_chart-select').click(() => {
+      let dlg = show_dlg('ChartSelect')
+      let appended = []
+      $('.grid-stack-item-content').each(function () {
+        let chid = $(this).attr('id').substr(6)
+        appended.push(chid)
+      })
+      dlg.setState({ appended: appended })
+    })
   }))
 })
 
 let rendered_charts = []
-$(window).resize(() => {
+let win_resize = function (t) {
   $setTimeout(() => {
-    $('.chart-grid').height($(window).height() - 142)
+    let cg = $('.chart-grid')
+    if ($(window).width() >= 768) cg.height($(window).height() - 142)
+    else cg.height('auto')
     $(rendered_charts).each((idx, item) => { item.resize() })
-  }, 200, 'resize-charts')
-})
+  }, t || 200, 'resize-charts')
+}
+$(window).resize(win_resize)
 
 const dlg_cached = {}
 const show_dlg = (t, props) => {
@@ -70,34 +83,22 @@ const show_dlg = (t, props) => {
   else if (t === 'DlgDashSettings') dlg_cached[t] = renderRbcomp(<DlgDashSettings {...props} />)
   else if (t === 'DashSelect') dlg_cached[t] = renderRbcomp(<DashSelect {...props} />)
   else if (t === 'ChartSelect') dlg_cached[t] = renderRbcomp(<ChartSelect {...props} />)
+  return dlg_cached[t]
 }
 
 let gridstack
 let gridstack_serialize
-let render_dashboard = function (cfg) {
+let render_dashboard = function (init) {
   gridstack = $('.grid-stack').gridstack({
     cellHeight: 100,
     handleClass: 'chart-title',
     animate: true
   }).data('gridstack')
 
-  gridstack_serialize = cfg
-  rendered_charts = []
-  $(cfg).each((idx, item) => {
-    let chid = 'chart-' + item.chart
-    let gsi = '<div class="grid-stack-item"><div id="' + chid + '" class="grid-stack-item-content"></div><span class="handle-resize"></span></div>'
-    // Use gridstar
-    if (item.size_x || item.size_y) {
-      gridstack.addWidget(gsi, (item.col || 1) - 1, (item.row || 1) - 1, item.size_x || 2, item.size_y || 2)
-    } else {
-      gridstack.addWidget(gsi, item.x, item.y, item.w, item.h, item.x === undefined)
-    }
-    // eslint-disable-next-line no-undef
-    let c = renderRbcomp(detectChart(item, item.chart, dash_editable), chid)
-    rendered_charts.push(c)
-  })
+  gridstack_serialize = init
+  $(init).each((idx, item) => { add_widget(item) })
   if (rendered_charts.length === 0) {
-    let gsi = '<div class="grid-stack-item"><div class="grid-stack-item-content"><a class="chart-add" onclick="show_dlg(\'DlgAddChart\')"><i class="zmdi zmdi-plus"></i><p>添加图表</p></a></div></div>'
+    let gsi = '<div class="grid-stack-item"><div id="chart-add" class="grid-stack-item-content"><a class="chart-add" onclick="show_dlg(\'DlgAddChart\')"><i class="zmdi zmdi-plus"></i><p>添加图表</p></a></div></div>'
     gridstack.addWidget(gsi, 0, 0, 2, 2)
     gridstack.disable()
   }
@@ -123,10 +124,41 @@ let render_dashboard = function (cfg) {
   $('.J_dash-load').remove()
 }
 
+let add_widget = function (item) {
+  let chid = 'chart-' + item.chart
+  if ($('#' + chid).length > 0) return false
+
+  let chart_add = $('#chart-add')
+  if (chart_add.length > 0) gridstack.removeWidget(chart_add.parent())
+
+  let gsi = '<div class="grid-stack-item"><div id="' + chid + '" class="grid-stack-item-content"></div><span class="handle-resize"></span></div>'
+  // Use gridstar
+  if (item.size_x || item.size_y) {
+    gridstack.addWidget(gsi, (item.col || 1) - 1, (item.row || 1) - 1, item.size_x || 2, item.size_y || 2)
+  } else {
+    gridstack.addWidget(gsi, item.x, item.y, item.w, item.h, item.x === undefined)
+  }
+  // eslint-disable-next-line no-undef
+  let c = renderRbcomp(detectChart(item, item.chart, dash_editable), chid)
+  rendered_charts.push(c)
+}
+
 let save_dashboard = function () {
   if (dash_editable !== true) return
+  let s = []
+  $('.chart-grid .grid-stack-item').each(function () {
+    let $this = $(this)
+    let chid = $this.find('.grid-stack-item-content').attr('id')
+    if (chid && chid.length > 20) {
+      s.push({ x: $this.data('gs-x'), y: $this.data('gs-y'), w: $this.data('gs-width'), h: $this.data('gs-height'), chart: chid.substr(6) })
+    }
+  })
+  gridstack_serialize = s
   $setTimeout(() => {
-    $.post(rb.baseUrl + '/dashboard/dash-config?id=' + dashid, JSON.stringify(gridstack_serialize))
+    $.post(rb.baseUrl + '/dashboard/dash-config?id=' + dashid, JSON.stringify(gridstack_serialize), (res) => {
+      // eslint-disable-next-line no-console
+      console.log('Saved dashboard: ' + JSON.stringify(gridstack_serialize))
+    })
   }, 500, 'save-dashboard')
 }
 
@@ -158,9 +190,7 @@ class DlgAddChart extends RbFormHandler {
       $(res.data).each(function () {
         $('<option value="' + this.name + '">' + this.label + '</option>').appendTo(entity_el)
       })
-      this.__select2 = entity_el.select2({
-        placeholder: '选择数据来源'
-      })
+      this.__select2 = entity_el.select2({ placeholder: '选择数据来源' })
     })
   }
   next() {
@@ -275,8 +305,8 @@ class DlgDashAdd extends RbFormHandler {
   }
 }
 
-// 面板基类
-class DashPanel extends React.Component {
+// 选择默认面板
+class DashSelect extends React.Component {
   constructor(props) {
     super(props)
   }
@@ -286,25 +316,21 @@ class DashPanel extends React.Component {
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <h4>{this.props.dlgTitle || ''}</h4>
               <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
             </div>
             <div className="modal-body">
-              {this.renderPanel()}
+              <div ref={s => this._scrollbar = s}>
+                <ul className="list-unstyled">
+                  {(this.props.dashList || []).map((item) => {
+                    return <li key={'dash-' + item[0]}><a href={'?d=' + item[0]}>{item[1]}<i className="icon zmdi zmdi-arrow-right"></i></a></li>
+                  })}
+                </ul>
+              </div>
             </div>
           </div>
         </div>
       </div>
     )
-  }
-  renderPanel() {
-    return (<ul className="list-unstyled">
-      {(this.props.dashList || []).map((item) => {
-        let title = item[1]
-        if (item[0] === dashid) title = this.state.dashTitle || $('.dash-head h4').text() || title
-        return <li key={'dash-' + item[0]}><a href={'?d=' + item[0]}>{title}<i className="icon zmdi zmdi-arrow-right"></i></a></li>
-      })}
-    </ul>)
   }
   componentDidMount() {
     this.show()
@@ -317,41 +343,43 @@ class DashPanel extends React.Component {
   }
 }
 
-// 选择默认面板
-class DashSelect extends DashPanel {
-  constructor(props) {
-    super(props)
-    this.state = { dashTitle: null }
-  }
-  renderPanel() {
-    return (
-      <div ref={s => this._scrollbar = s}>
-        <ul className="list-unstyled">
-          {(this.props.dashList || []).map((item) => {
-            let title = item[1]
-            if (item[0] === dashid) title = this.state.dashTitle || $('.dash-head h4').text() || title
-            return <li key={'dash-' + item[0]}><a href={'?d=' + item[0]}>{title}<i className="icon zmdi zmdi-arrow-right"></i></a></li>
-          })}
-        </ul>
-      </div>
-    )
-  }
-  componentDidMount() {
-    super.componentDidMount()
-    $(this._scrollbar).perfectScrollbar()
-  }
-}
-
-// TODO 从已有图表中选择图表
+// 从已有图表中选择图表
 // 添加的图表会在多个仪表盘共享（本身就是一个），修改时会同步修改
-class ChartSelect extends DashPanel {
+class ChartSelect extends RbModalHandler {
   constructor(props) {
     super(props)
+    this.state = { chartList: [], appended: props.appended || [] }
   }
-  renderPanel() {
-    return (<a>TODO</a>)
+  render() {
+    return (<RbModal ref={(c) => this._dlg = c} title="添加已有图表">
+      <div className="chart-list">
+        {this.state.chartList.map((item) => {
+          return (<div key={'k-' + item[0]}>
+            <span className="float-left chart-icon"><i className={item[2]}></i></span>
+            <span className="float-left title">
+              <strong>{item[1]}</strong>
+              <p className="text-muted fs-12">{item[3]}</p>
+            </span>
+            <span className="float-right">
+              {this.state.appended.contains(item[0])
+                ? <a className='btn disabled' data-id={item[0]}>已添加</a>
+                : <a className='btn' onClick={() => this.chartAppend(item)} >添加</a>}
+            </span>
+            <div className="clearfix"></div>
+          </div>)
+        })}
+      </div>
+    </RbModal>)
   }
   componentDidMount() {
-    super.componentDidMount()
+    $.get(rb.baseUrl + '/dashboard/chart-list', (res) => {
+      this.setState({ chartList: res.data })
+    })
+  }
+  chartAppend(item) {
+    add_widget({ chart: item[0], title: item[1], type: item[2], w: 4, h: 4 })
+    let s = this.state.appended
+    s.push(item[0])
+    this.setState({ appended: s })
   }
 }

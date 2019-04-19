@@ -48,6 +48,10 @@
 	vertical-align: middle;
 }
 
+.chart-box .chart-head .chart-oper a .zmdi-close {
+	font-size: 1.43rem;
+}
+
 .chart-box .chart-head .chart-oper a:hover {
 	color: #5a5a5a;
 }

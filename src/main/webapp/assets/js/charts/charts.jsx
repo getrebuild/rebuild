@@ -8,7 +8,7 @@ class BaseChart extends React.Component {
     let opers = <div className="chart-oper">
       <a onClick={() => this.loadChartData()}><i className="zmdi zmdi-refresh" /></a>
       <a href={'chart-design?id=' + this.props.id}><i className="zmdi zmdi-edit" /></a>
-      <a onClick={() => this.remove()}><i className="zmdi zmdi-delete" /></a>
+      <a onClick={() => this.remove()}><i className="zmdi zmdi-close" /></a>
     </div>
     if (this.state.editable === false) {
       opers = <div className="chart-oper">

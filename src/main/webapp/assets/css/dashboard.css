@@ -68,6 +68,14 @@
     margin-top: 8px;
 }
 
+@media (max-width:768px) {
+    .chart-grid {
+        overflow: hidden;
+        padding-bottom: 5px;
+        padding-right: 15px;
+    }
+}
+
 .chart-add {
     display: block;
     text-align: center;
@@ -139,4 +147,87 @@
 
 .dlg-dash-select .modal-dialog .modal-body>div {
     max-height: 475px;
+}
+
+.chart-list {}
+
+.chart-list>div {
+    border: 1px solid #eee;
+    padding: 0;
+    margin: 6px;
+    max-height: 48px;
+    overflow: hidden;
+    cursor: default;
+}
+
+.chart-list>div:hover {
+    border-color: #4285f4;
+}
+
+.chart-list>div .title {
+    margin-top: 7px;
+}
+
+.chart-list>div .title strong,
+.chart-list>div .title p {
+    margin: 0;
+    padding: 0;
+    line-height: 1.4;
+    font-weight: normal;
+}
+
+.chart-list>div .btn {
+    min-width: 0;
+    height: 48px;
+    line-height: 48px;
+    width: 60px;
+    background-color: #eee;
+    border-radius: 0;
+    border: 0 none;
+}
+
+.chart-list>div:hover .btn {
+    background-color: #4285f4;
+    color: #fff;
+}
+
+.chart-list>div .chart-icon {
+    width: 48px;
+    text-align: center;
+}
+
+.chart-list>div .chart-icon>i {
+    width: 32px;
+    height: 32px;
+    display: inline-block;
+    background: url(../img/charts-sprite-1.2.svg) 0 0 no-repeat;
+    margin-top: 7px;
+}
+
+.chart-list>div .chart-icon>i.TABLE {
+    background-position: -832px -1520px;
+}
+
+.chart-list>div .chart-icon>i.INDEX {
+    background-position: -813px -1238px;
+}
+
+.chart-list>div .chart-icon>i.LINE {
+    background-position: -1144px -1456px;
+}
+
+.chart-list>div .chart-icon>i.BAR {
+    background-position: -64px -1520px;
+}
+
+.chart-list>div .chart-icon>i.PIE {
+    background-position: -1016px -1456px;
+}
+
+.chart-list>div .chart-icon>i.FUNNEL {
+    background-position: -768px -871px;
+}
+
+.chart-list>div .chart-icon>i.TREEMAP {
+    background-position: -864px -1520px;
 }
