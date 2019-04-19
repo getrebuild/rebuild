@@ -37,7 +37,7 @@
 							<button type="button" class="btn btn-link pr-0 text-right J_chart-adds" data-toggle="dropdown" style="min-height:24px;line-height:24px;"><i class="zmdi zmdi-plus icon"></i> 添加图表</button>
 							<div class="dropdown-menu dropdown-menu-right">
 								<a class="dropdown-item J_chart-new">添加新图表</a>
-								<a class="dropdown-item J_chart-select hide">从已有图表中添加</a>
+								<a class="dropdown-item J_chart-select">从已有图表中添加</a>
 							</div>
 						</div>
 					</div>
@@ -52,9 +52,8 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.5.0/lodash.min.js"></script>
-<script src="${baseUrl}/assets/lib/charts/gridstack.js"></script>
-<script src="${baseUrl}/assets/lib/charts/gridstack.jQueryUI.js"></script>
+<script src="https://cdn.staticfile.org/lodash.js/4.17.11/lodash.min.js"></script>
+<script src="${baseUrl}/assets/lib/charts/gridstack.all.js"></script>
 <script src="${baseUrl}/assets/lib/charts/echarts.min.js"></script>
 <script src="${baseUrl}/assets/js/charts/charts.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/charts/dashboard.jsx" type="text/babel"></script>

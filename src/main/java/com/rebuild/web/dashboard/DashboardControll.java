@@ -158,4 +158,28 @@ public class DashboardControll extends BasePageControll {
 		Application.getCommonService().delete(dashid);
 		writeSuccess(response);
 	}
+	
+	@RequestMapping("/chart-list")
+	public void chartList(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getRequestUser(request);
+		Object[] charts = Application.createQueryNoFilter(
+				"select chartId,title,modifiedOn from ChartConfig where createdBy = ?")
+				.setParameter(1, user)
+				.unique();
+		writeSuccess(response, charts);
+	}
+	
+	@RequestMapping("/chart-append")
+	public void chartAppend(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID dashid = getIdParameterNotNull(request, "id");
+		ID user = getRequestUser(request);
+		
+		if (!DashboardManager.allowedUpdate(user, dashid)) {
+			writeFailure(response, "无权删除他人的仪表盘");
+			return;
+		}
+		
+		Application.getCommonService().delete(dashid);
+		writeSuccess(response);
+	}
 }

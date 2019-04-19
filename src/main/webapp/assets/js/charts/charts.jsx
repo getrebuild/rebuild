@@ -42,13 +42,11 @@ class BaseChart extends React.Component {
     if (this.__echarts) this.__echarts.resize()
   }
   remove() {
-    if (!window.gridster) return  // Not in dash
+    if (!window.gridstack) return  // Not in dashboard
     let that = this
     rb.alert('确认移除此图表？', {
       confirm: function () {
-        let $w = $(that._box).parent().parent()
-        gridster.remove_widget($w)
-        save_dashboard()  // eslint-disable-line no-undef
+        window.gridstack.removeWidget($(that._box).parent().parent())
         this.hide()
       }
     })

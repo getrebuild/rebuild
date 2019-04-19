@@ -3,7 +3,7 @@
 let dashid = null
 let dash_editable = false
 $(document).ready(function () {
-  $('.chart-grid').height($(window).height() - 120)
+  $('.chart-grid').height($(window).height() - 142)
 
   let d = $urlp('d')
   if (d) $storage.set('DashDefault', d)
@@ -34,7 +34,7 @@ $(document).ready(function () {
         rb.hbsuccess('仪表盘已删除')
         location.hash = ''
       } else {
-        let high = $('#chart-' + location.hash.substr(1) + ' > .chart-box').addClass('high')
+        let high = $('#chart-' + location.hash.substr(1)).addClass('high')
         high.on('mouseleave', () => {
           high.removeClass('high').off('mouseleave')
         })
@@ -51,10 +51,11 @@ $(document).ready(function () {
     $('.J_chart-select').click(() => { show_dlg('ChartSelect', { dlgClazz: 'dlg-chart-select', dlgTitle: '选择图表' }) })
   }))
 })
+
 let rendered_charts = []
 $(window).resize(() => {
   $setTimeout(() => {
-    $('.chart-grid').height($(window).height() - 120)
+    $('.chart-grid').height($(window).height() - 142)
     $(rendered_charts).each((idx, item) => { item.resize() })
   }, 200, 'resize-charts')
 })
@@ -72,103 +73,64 @@ const show_dlg = (t, props) => {
 }
 
 let gridstack
+let gridstack_serialize
 let render_dashboard = function (cfg) {
   gridstack = $('.grid-stack').gridstack({
     cellHeight: 100,
-    handleClass: 'chart-title'
+    handleClass: 'chart-title',
+    animate: true
   }).data('gridstack')
 
+  gridstack_serialize = cfg
   rendered_charts = []
   $(cfg).each((idx, item) => {
     let chid = 'chart-' + item.chart
     let gsi = '<div class="grid-stack-item"><div id="' + chid + '" class="grid-stack-item-content"></div><span class="handle-resize"></span></div>'
-    gridstack.addWidget(gsi, item.col - 1, item.row - 1, item.size_x || 2, item.size_y || 2)
+    // Use gridstar
+    if (item.size_x || item.size_y) {
+      gridstack.addWidget(gsi, (item.col || 1) - 1, (item.row || 1) - 1, item.size_x || 2, item.size_y || 2)
+    } else {
+      gridstack.addWidget(gsi, item.x, item.y, item.w, item.h, item.x === undefined)
+    }
     // eslint-disable-next-line no-undef
     let c = renderRbcomp(detectChart(item, item.chart, dash_editable), chid)
     rendered_charts.push(c)
   })
-
-  // if (rendered_charts.length === 0) {
-  //   let el = '<li><a class="chart-add" onclick="show_dlg(\'DlgAddChart\')"><i class="zmdi zmdi-plus"></i><p>添加图表</p></a></li>'
-  //   gridster.add_widget(el, 2, 2)
-  //   gridster.disable_resize()
-  // } else {
-  //   gridster_undata = false
-  // }
-
-  $('.chart-grid').removeClass('invisible')
-  $('.J_dash-load').remove()
-}
-
-let gridster = null
-let gridster_undata = true
-let render_dashboard11 = function (cfg) {
-  gridster = $('.gridster ul').gridster({
-    widget_base_dimensions: ['auto', 100],
-    autogenerate_stylesheet: true,
-    min_cols: 1,
-    max_cols: 12,
-    widget_margins: [10, 10],
-    resize: {
-      enabled: true,
-      min_size: [2, 2],
-      // eslint-disable-next-line no-unused-vars
-      stop: function (e, ui, $widget) {
-        $(window).trigger('resize')
-        save_dashboard()
-      }
-    },
-    draggable: {
-      handle: '.chart-title',
-      // eslint-disable-next-line no-unused-vars
-      stop: function (e, ui, $widget) {
-        save_dashboard()
-      }
-    },
-    serialize_params: function ($w, wgd) {
-      return {
-        col: wgd.col,
-        row: wgd.row,
-        size_x: wgd.size_x,
-        size_y: wgd.size_y,
-        chart: $w.data('chart')
-      }
-    }
-  }).data('gridster')
-
-  gridster.remove_all_widgets()
-  rendered_charts = []
-  $(cfg).each((idx, item) => {
-    let elid = 'chart-' + item.chart
-    let el = '<li data-chart="' + item.chart + '"><div id="' + elid + '"></div><span class="handle-resize"></span></li>'
-    gridster.add_widget(el, item.size_x || 2, item.size_y || 2, item.col || null, item.row || null)
-    // eslint-disable-next-line no-undef
-    let c = renderRbcomp(detectChart(item, item.chart, dash_editable), elid)
-    rendered_charts.push(c)
-  })
   if (rendered_charts.length === 0) {
-    let el = '<li><a class="chart-add" onclick="show_dlg(\'DlgAddChart\')"><i class="zmdi zmdi-plus"></i><p>添加图表</p></a></li>'
-    gridster.add_widget(el, 2, 2)
-    gridster.disable_resize()
-  } else {
-    gridster_undata = false
+    let gsi = '<div class="grid-stack-item"><div class="grid-stack-item-content"><a class="chart-add" onclick="show_dlg(\'DlgAddChart\')"><i class="zmdi zmdi-plus"></i><p>添加图表</p></a></div></div>'
+    gridstack.addWidget(gsi, 0, 0, 2, 2)
+    gridstack.disable()
   }
+
+  // When resize/re-postion/remove
+  $('.grid-stack').on('change', function (event, items) {
+    gridstack_serialize = (items || []).map((item) => {
+      let chid = item.el.find('.grid-stack-item-content').attr('id')
+      return {
+        x: item.x,
+        y: item.y,
+        w: item.width,
+        h: item.height,
+        chart: chid.substr(6)
+      }
+    })
+    save_dashboard()
+  }).on('gsresizestop', function () {
+    $(rendered_charts).each((idx, item) => { item.resize() })
+  })
 
   $('.chart-grid').removeClass('invisible')
   $('.J_dash-load').remove()
 }
 
 let save_dashboard = function () {
-  if (gridster_undata === true || dash_editable !== true) return
+  if (dash_editable !== true) return
   $setTimeout(() => {
-    let s = gridster.serialize()
-    // eslint-disable-next-line no-undef
-    s = Gridster.sort_by_row_and_col_asc(s)
-    $.post(rb.baseUrl + '/dashboard/dash-config?id=' + dashid, JSON.stringify(s), (() => {
-    }))
+    $.post(rb.baseUrl + '/dashboard/dash-config?id=' + dashid, JSON.stringify(gridstack_serialize))
   }, 500, 'save-dashboard')
 }
 
+// 添加图表
 class DlgAddChart extends RbFormHandler {
   constructor(props) {
     super(props)
@@ -208,7 +170,7 @@ class DlgAddChart extends RbFormHandler {
   }
 }
 
-
+// 面板设置
 class DlgDashSettings extends RbFormHandler {
   constructor(props) {
     super(props)
@@ -269,6 +231,7 @@ class DlgDashSettings extends RbFormHandler {
   }
 }
 
+// 添加面板
 class DlgDashAdd extends RbFormHandler {
   constructor(props) {
     super(props)
@@ -302,7 +265,7 @@ class DlgDashAdd extends RbFormHandler {
   save = () => {
     let _data = { title: this.state.title || '我的仪表盘' }
     _data.metadata = { entity: 'DashboardConfig' }
-    if (this.state.copy === true) _data.__copy = gridster.serialize()
+    if (this.state.copy === true) _data.__copy = gridstack_serialize
 
     $.post(rb.baseUrl + '/dashboard/dash-new', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
@@ -312,6 +275,7 @@ class DlgDashAdd extends RbFormHandler {
   }
 }
 
+// 面板基类
 class DashPanel extends React.Component {
   constructor(props) {
     super(props)
@@ -353,6 +317,7 @@ class DashPanel extends React.Component {
   }
 }
 
+// 选择默认面板
 class DashSelect extends DashPanel {
   constructor(props) {
     super(props)
