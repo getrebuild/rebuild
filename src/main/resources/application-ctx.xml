@@ -26,6 +26,7 @@
 		</property>
 	</bean>
 
+	<!--
 	<bean name="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
 		<property name="driverClass" value="${db.driver}" />
 		<property name="jdbcUrl" value="${db.url}" />
@@ -43,7 +44,26 @@
 		<property name="testConnectionOnCheckout" value="true" />
 		<property name="preferredTestQuery" value="select 1" />
 	</bean>
-
+	-->
+	<bean name="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+		<property name="url" value="${db.url}" />
+		<property name="username" value="${db.user}" />
+		<property name="password" value="${db.passwd}" />
+		<property name="initialSize" value="5" />
+		<property name="minIdle" value="5" />
+		<property name="maxActive" value="50" />
+		<property name="maxWait" value="5000" />
+		<property name="timeBetweenEvictionRunsMillis" value="60000" />
+		<property name="minEvictableIdleTimeMillis" value="300000" />
+		<property name="testWhileIdle" value="true" />
+		<property name="testOnBorrow" value="false" />
+		<property name="testOnReturn" value="false" />
+		<property name="poolPreparedStatements" value="true" />
+		<property name="maxOpenPreparedStatements" value="20" />
+		<property name="asyncInit" value="false" />
+		<property name="filters" value="stat" />
+	</bean>
+	
 	<bean name="dialect" class="cn.devezhao.persist4j.dialect.MySQL5Dialect" />
 	
 	<bean name="persistManagerFactory" class="cn.devezhao.persist4j.engine.PersistManagerFactoryImpl">
