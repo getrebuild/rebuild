@@ -48,6 +48,7 @@
         "ReactDOM": true,
         "PropTypes": true,
         "RbSpinner": true,
+        "RbAlertBox": true,
         "RbModal": true,
         "RbModalHandler": true,
         "RbFrom": true,

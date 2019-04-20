@@ -11,6 +11,7 @@
 #fieldsMapping thead th{border-bottom:1px solid #dee2e6;padding-top:9px;}
 #fieldsMapping td>em{font-style:normal;background-color:#eee;display:inline-block;min-width:30px;font-size:12px;text-align:center;margin-right:4px;padding-top:1px;color:#777}
 #fieldsMapping td>i.zmdi{float:right;color:#aaa;font-size:1.4rem;margin-right:10px}
+#ouser-warn .alert{margin-top:10px;margin-bottom:0}
 </style>
 </head>
 <body>
@@ -92,6 +93,7 @@
 												<div class="form-text mb-0">
 													不选择则默认为当前用户，如字段映射中指定了用户则以映射为准
 								                </div>
+								                <div id="ouser-warn"></div>
 											</div>
 										</div>
 										<div class="form-group row footer">

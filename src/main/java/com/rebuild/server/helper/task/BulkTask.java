@@ -59,7 +59,7 @@ public abstract class BulkTask implements Runnable {
 	}
 	
 	/**
-	 * 设置线程用户
+	 * 设置当前线程用户
 	 * 
 	 * @param user
 	 * @see CurrentCaller
