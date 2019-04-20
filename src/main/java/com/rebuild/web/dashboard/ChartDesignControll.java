@@ -157,8 +157,8 @@ public class ChartDesignControll extends BaseEntityControll {
 			JSONArray config = JSON.parseArray((String) dash[0]);
 			
 			JSONObject item = JSONUtils.toJSONObject("chart", record.getPrimary());
-			item.put("size_y", 2);
-			item.put("size_x", 4);
+			item.put("w", 4);
+			item.put("h", 4);
 			config.add(item);
 			
 			Record record2 = EntityHelper.forUpdate(dashid, getRequestUser(request));

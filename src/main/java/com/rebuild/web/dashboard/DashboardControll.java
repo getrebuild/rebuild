@@ -34,6 +34,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.portals.DashboardManager;
+import com.rebuild.server.service.bizz.RoleService;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
@@ -157,5 +158,23 @@ public class DashboardControll extends BasePageControll {
 		
 		Application.getCommonService().delete(dashid);
 		writeSuccess(response);
+	}
+	
+	@RequestMapping("/chart-list")
+	public void chartList(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getRequestUser(request);
+		Object[][] charts = null;
+		if (UserHelper.isAdmin(user)) {
+			charts = Application.createQueryNoFilter(
+					"select chartId,title,chartType,modifiedOn from ChartConfig where createdBy.roleId = ? order by modifiedOn desc")
+					.setParameter(1, RoleService.ADMIN_ROLE)
+					.array();
+		} else {
+			charts = Application.createQueryNoFilter(
+					"select chartId,title,chartType,modifiedOn from ChartConfig where createdBy = ? order by modifiedOn desc")
+					.setParameter(1, user)
+					.array();
+		}
+		writeSuccess(response, charts);
 	}
 }

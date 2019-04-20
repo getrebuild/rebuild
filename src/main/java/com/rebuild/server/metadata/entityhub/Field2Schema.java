@@ -29,9 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSON;
-import com.github.stuxuhai.jpinyin.PinyinException;
-import com.github.stuxuhai.jpinyin.PinyinFormat;
-import com.github.stuxuhai.jpinyin.PinyinHelper;
+import com.hankcs.hanlp.HanLP;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -45,7 +43,6 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.Dialect;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.CascadeModel;
-import cn.devezhao.persist4j.metadata.MetadataException;
 import cn.devezhao.persist4j.metadata.impl.FieldImpl;
 import cn.devezhao.persist4j.util.StringHelper;
 import cn.devezhao.persist4j.util.support.Table;
@@ -280,19 +277,14 @@ public class Field2Schema {
 	}
 	
 	/**
-	 * 中文 -> 拼音（去除空格）
+	 * 中文 -> 拼音（仅保留字母数字）
 	 * 
 	 * @param text
 	 * @return
 	 */
 	protected String toPinyinName(final String text) {
-		String identifier = text;
-		try {
-			identifier = PinyinHelper.convertToPinyinString(text, "", PinyinFormat.WITHOUT_TONE);
-			identifier = identifier.replaceAll("[^a-zA-Z0-9]", "");
-		} catch (PinyinException e) {
-			throw new MetadataException(text, e);
-		}
+		String identifier = HanLP.convertToPinyinString(text, "", false);
+		identifier = identifier.replaceAll("[^a-zA-Z0-9]", "");
 		if (StringUtils.isBlank(identifier)) {
 			throw new ModifiyMetadataException("无效名称 : " + text);
 		}

@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-/* globals gridster, echarts */
 class BaseChart extends React.Component {
   constructor(props) {
     super(props)
@@ -9,19 +8,19 @@ class BaseChart extends React.Component {
     let opers = <div className="chart-oper">
       <a onClick={() => this.loadChartData()}><i className="zmdi zmdi-refresh" /></a>
       <a href={'chart-design?id=' + this.props.id}><i className="zmdi zmdi-edit" /></a>
-      <a onClick={() => this.remove()}><i className="zmdi zmdi-delete" /></a>
+      <a onClick={() => this.remove()}><i className="zmdi zmdi-close" /></a>
     </div>
     if (this.state.editable === false) {
       opers = <div className="chart-oper">
         <a onClick={() => this.loadChartData()}><i className="zmdi zmdi-refresh" /></a>
       </div>
     }
-    return (<div className="chart-box" ref={(c) => this._box = c}>
+    return (<div className={'chart-box ' + this.props.type} ref={(c) => this._box = c}>
       <div className="chart-head">
         <div className="chart-title text-truncate">{this.state.title}</div>
         {opers}
       </div>
-      <div ref={(c) => this._body = c} className={'chart-body rb-loading ' + (!this.state.chartdata && ' rb-loading-active')}>{this.state.chartdata || <RbSpinner />}</div>
+      <div ref={(c) => this._body = c} className={'chart-body rb-loading ' + (!this.state.chartdata && 'rb-loading-active')}>{this.state.chartdata || <RbSpinner />}</div>
     </div>)
   }
   componentDidMount() {
@@ -40,16 +39,18 @@ class BaseChart extends React.Component {
     })
   }
   resize() {
-    if (this.__echarts) this.__echarts.resize()
+    if (this.__echarts) {
+      $setTimeout(() => {
+        this.__echarts.resize()
+      }, 400, 'resize-chart-' + this.state.id)
+    }
   }
   remove() {
-    if (!window.gridster) return  // Not in dash
+    if (!window.gridstack) return  // Not in dashboard
     let that = this
     rb.alert('确认移除此图表？', {
       confirm: function () {
-        let $w = $(that._box).parent().parent()
-        gridster.remove_widget($w)
-        save_dashboard()  // eslint-disable-line no-undef
+        window.gridstack.removeWidget($(that._box).parent().parent())
         this.hide()
       }
     })
@@ -364,7 +365,7 @@ class ChartTreemap extends BaseChart {
 // 确定图表类型
 // eslint-disable-next-line no-unused-vars
 const detectChart = function (cfg, id, editable) {
-  let props = { config: cfg, id: id, title: cfg.title, editable: editable !== false }
+  let props = { config: cfg, id: id, title: cfg.title, editable: editable !== false, type: cfg.type }
   if (cfg.type === 'INDEX') {
     return <ChartIndex {...props} />
   } else if (cfg.type === 'TABLE') {

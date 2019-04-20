@@ -4,7 +4,7 @@
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <title>首页</title>
-<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/charts/jquery.gridster.min.css">
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/charts/gridstack.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/charts.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/dashboard.css">
 </head>
@@ -37,22 +37,23 @@
 							<button type="button" class="btn btn-link pr-0 text-right J_chart-adds" data-toggle="dropdown" style="min-height:24px;line-height:24px;"><i class="zmdi zmdi-plus icon"></i> 添加图表</button>
 							<div class="dropdown-menu dropdown-menu-right">
 								<a class="dropdown-item J_chart-new">添加新图表</a>
-								<a class="dropdown-item J_chart-select hide">从已有图表中添加</a>
+								<a class="dropdown-item J_chart-select">从已有图表中添加</a>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 			<div class="chart-grid invisible">
-				<div class="gridster">
-					<ul class="list-unstyled"></ul>
+				<div class="grid-stack">
+					<!-- grid-stack-item in here -->
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/lib/charts/jquery.gridster.min.js"></script>
+<script src="${baseUrl}/assets/lib/charts/lodash.min.js"></script>
+<script src="${baseUrl}/assets/lib/charts/gridstack.all.js"></script>
 <script src="${baseUrl}/assets/lib/charts/echarts.min.js"></script>
 <script src="${baseUrl}/assets/js/charts/charts.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/charts/dashboard.jsx" type="text/babel"></script>

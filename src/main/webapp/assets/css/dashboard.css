@@ -1,23 +1,47 @@
-.gridster ul,
-.gridster ul>li {
+.grid-stack .grid-stack-item {
+    padding: 0;
     margin: 0;
-    padding: 0
 }
 
-.gridster ul>li {
+.grid-stack .grid-stack-item .grid-stack-item-content {
     background-color: #fff;
+    height: 100%;
 }
 
-.gridster ul>li>div {
-    height: 100%
-}
-
-.gridster ul>li:hover {
+.grid-stack .grid-stack-item .grid-stack-item-content.high,
+.grid-stack .grid-stack-item .grid-stack-item-content:hover {
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1), 0 16px 24px 0 rgba(81, 129, 228, .1)
 }
 
-.gridster ul>li:hover .chart-oper {
+.grid-stack .grid-stack-item .grid-stack-item-content.high {
+    outline: 2px solid #4285f4;
+}
+
+.grid-stack .grid-stack-item .grid-stack-item-content:hover .chart-oper {
     display: block;
+}
+
+.grid-stack>.grid-stack-item>.ui-resizable-se,
+.grid-stack>.grid-stack-item>.ui-resizable-sw {
+    background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pg08IS0tIEdlbmVyYXRvcjogQWRvYmUgRmlyZXdvcmtzIENTNiwgRXhwb3J0IFNWRyBFeHRlbnNpb24gYnkgQWFyb24gQmVhbGwgKGh0dHA6Ly9maXJld29ya3MuYWJlYWxsLmNvbSkgLiBWZXJzaW9uOiAwLjYuMSAgLS0+DTwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DTxzdmcgaWQ9IlVudGl0bGVkLVBhZ2UlMjAxIiB2aWV3Qm94PSIwIDAgNiA2IiBzdHlsZT0iYmFja2dyb3VuZC1jb2xvcjojZmZmZmZmMDAiIHZlcnNpb249IjEuMSINCXhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHhtbDpzcGFjZT0icHJlc2VydmUiDQl4PSIwcHgiIHk9IjBweCIgd2lkdGg9IjZweCIgaGVpZ2h0PSI2cHgiDT4NCTxnIG9wYWNpdHk9IjAuMzAyIj4NCQk8cGF0aCBkPSJNIDYgNiBMIDAgNiBMIDAgNC4yIEwgNCA0LjIgTCA0LjIgNC4yIEwgNC4yIDAgTCA2IDAgTCA2IDYgTCA2IDYgWiIgZmlsbD0iIzAwMDAwMCIvPg0JPC9nPg08L3N2Zz4=);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+}
+
+.grid-stack>.grid-stack-item>.grid-stack-item-content {
+    overflow: hidden;
+}
+
+.grid-stack .grid-stack-placeholder>.placeholder-content {
+    background-color: #fff;
+    border-color: #fff;
+    opacity: .3
 }
 
 .tools-bar {
@@ -38,9 +62,18 @@
 .chart-grid {
     overflow: scroll;
     overflow-x: hidden;
-    padding: 15px;
-    padding-top: 0;
-    padding-right: 0px
+    padding: 2px 15px;
+    padding-right: 5px;
+    padding-bottom: 25px;
+    margin-top: 8px;
+}
+
+@media (max-width:768px) {
+    .chart-grid {
+        overflow: hidden;
+        padding-bottom: 5px;
+        padding-right: 15px;
+    }
 }
 
 .chart-add {
@@ -114,4 +147,87 @@
 
 .dlg-dash-select .modal-dialog .modal-body>div {
     max-height: 475px;
+}
+
+.chart-list {}
+
+.chart-list>div {
+    border: 1px solid #eee;
+    padding: 0;
+    margin: 6px;
+    max-height: 48px;
+    overflow: hidden;
+    cursor: default;
+}
+
+.chart-list>div:hover {
+    border-color: #4285f4;
+}
+
+.chart-list>div .title {
+    margin-top: 7px;
+}
+
+.chart-list>div .title strong,
+.chart-list>div .title p {
+    margin: 0;
+    padding: 0;
+    line-height: 1.4;
+    font-weight: normal;
+}
+
+.chart-list>div .btn {
+    min-width: 0;
+    height: 48px;
+    line-height: 48px;
+    width: 60px;
+    background-color: #eee;
+    border-radius: 0;
+    border: 0 none;
+}
+
+.chart-list>div:hover .btn {
+    background-color: #4285f4;
+    color: #fff;
+}
+
+.chart-list>div .chart-icon {
+    width: 48px;
+    text-align: center;
+}
+
+.chart-list>div .chart-icon>i {
+    width: 32px;
+    height: 32px;
+    display: inline-block;
+    background: url(../img/charts-sprite-1.2.svg) 0 0 no-repeat;
+    margin-top: 7px;
+}
+
+.chart-list>div .chart-icon>i.TABLE {
+    background-position: -832px -1520px;
+}
+
+.chart-list>div .chart-icon>i.INDEX {
+    background-position: -813px -1238px;
+}
+
+.chart-list>div .chart-icon>i.LINE {
+    background-position: -1144px -1456px;
+}
+
+.chart-list>div .chart-icon>i.BAR {
+    background-position: -64px -1520px;
+}
+
+.chart-list>div .chart-icon>i.PIE {
+    background-position: -1016px -1456px;
+}
+
+.chart-list>div .chart-icon>i.FUNNEL {
+    background-position: -768px -871px;
+}
+
+.chart-list>div .chart-icon>i.TREEMAP {
+    background-position: -864px -1520px;
 }
