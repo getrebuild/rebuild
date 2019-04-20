@@ -84,6 +84,11 @@
 		</dependency>
 		<dependency>
 			<groupId>com.github.devezhao</groupId>
+			<artifactId>commons</artifactId>
+			<version>13f64c7191</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.devezhao</groupId>
 			<artifactId>persist4j</artifactId>
 			<version>2f3936598d</version>
 		</dependency>

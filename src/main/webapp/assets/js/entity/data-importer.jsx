@@ -40,6 +40,7 @@ $(document).ready(() => {
       allowClear: false
     }).on('change', function () {
       fileds_render($(this).val())
+      check_ouser()
     }).trigger('change')
   })
 
@@ -70,6 +71,7 @@ $(document).ready(() => {
     }
   }).on('change', function () {
     ientry.owning_user = $(this).val() || null
+    check_ouser()
   })
 
   $('.J_step1-btn').click(step_mapping)
@@ -105,6 +107,29 @@ const init_upload = () => {
   })
 }
 
+const check_ouser = () => {
+  $setTimeout(check_ouser0, 200, 'check_ouser')
+}
+const check_ouser0 = () => {
+  if (!(ientry.entity && ientry.owning_user)) return
+  $.get(`${rb.baseUrl}/admin/dataio/check-user-privileges?ouser=${ientry.owning_user}&entity=${ientry.entity}`, (res) => {
+    let hasError = []
+    if (res.data.canCreate !== true) hasError.push('新建')
+    if (res.data.canUpdate !== true) hasError.push('更新')
+    if (hasError.length >= 2) {
+      $('.J_step1-btn').attr('disabled', true)
+      renderRbcomp(<RbAlertBox type="danger" message={'选择的用户无' + hasError.join('及') + '权限，请选择其他用户'} />, 'ouser-warn')
+    } else {
+      $('.J_step1-btn').attr('disabled', false)
+      if (hasError.length > 0) {
+        renderRbcomp(<RbAlertBox message={'选择的用户无' + hasError.join('/') + '权限，可能导致部分数据导入失败'} />, 'ouser-warn')
+      } else {
+        $('#ouser-warn').empty()
+      }
+    }
+  })
+}
+
 const step_upload = () => {
   $('.steps li, .step-content .step-pane').removeClass('active complete')
   $('.steps li[data-step=1], .step-content .step-pane[data-step=1]').addClass('active')
@@ -115,7 +140,7 @@ const step_mapping = () => {
   if (ientry.repeat_opt !== 3 && (!ientry.repeat_fields || ientry.repeat_fields.length === 0)) { rb.highbar('请选择重复判断字段'); return }
 
   let btn = $('.J_step1-btn').button('loading')
-  $.get(rb.baseUrl + '/admin/dataio/import-preview?file=' + $encode(ientry.file), (res) => {
+  $.get(rb.baseUrl + '/admin/dataio/check-file?file=' + $encode(ientry.file), (res) => {
     btn.button('reset')
     if (res.error_code > 0) { rb.highbar(res.error_msg); return }
     let _data = res.data

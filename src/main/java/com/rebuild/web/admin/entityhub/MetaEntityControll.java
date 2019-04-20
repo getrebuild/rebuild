@@ -140,10 +140,9 @@ public class MetaEntityControll extends BasePageControll {
 			}
 		}
 		
-		boolean nameField = getBoolParameter(request, "nameField");
-
 		try {
-			String entityName = new Entity2Schema(user).create(label, comments, masterEntity, nameField);
+			String entityName = new Entity2Schema(user)
+					.create(label, comments, masterEntity, getBoolParameter(request, "nameField"));
 			writeSuccess(response, entityName);
 		} catch (Exception ex) {
 			LOG.error(null, ex);

@@ -161,9 +161,9 @@ public abstract class BaseControll extends Controll {
 	 * @param name
 	 * @return
 	 */
-	protected Boolean getBoolParameter(HttpServletRequest req, String name) {
+	protected boolean getBoolParameter(HttpServletRequest req, String name) {
 		String v = req.getParameter(name);
-		return v == null ? null : BooleanUtils.toBooleanObject(v);
+		return v == null ? false : BooleanUtils.toBoolean(v);
 	}
 	
 	/**
@@ -172,9 +172,9 @@ public abstract class BaseControll extends Controll {
 	 * @param defaultValue
 	 * @return
 	 */
-	protected Boolean getBoolParameter(HttpServletRequest req, String name, boolean defaultValue) {
-		Boolean v = getBoolParameter(req, name);
-		return v == null ? (defaultValue) : v;
+	protected boolean getBoolParameter(HttpServletRequest req, String name, boolean defaultValue) {
+		String v = req.getParameter(name);
+		return v == null ? defaultValue : BooleanUtils.toBoolean(v);
 	}
 	
 	/**

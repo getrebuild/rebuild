@@ -131,10 +131,12 @@ public class GeneralEntityService extends ObservableService  {
 	protected void setSeriesValue(Record record) {
 		Field[] seriesFields = MetadataSorter.sortFields(record.getEntity(), DisplayType.SERIES);
 		for (Field field : seriesFields) {
-			String series = SeriesGeneratorFactory.generate(field);
-			record.setString(field.getName(), series);
-			// TODO 仅支持一个自动编号?
-			break;
+			// 导入
+			if (record.hasValue(field.getName())) {
+				continue;
+			}
+			
+			record.setString(field.getName(), SeriesGeneratorFactory.generate(field));
 		}
 	}
 	
