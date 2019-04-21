@@ -23,13 +23,13 @@
 						<div class="form-group">
 							<input class="form-control" id="passwd" type="password" placeholder="登录密码">
 						</div>
-						<c:if test="${sessionScope.needVcode != null}">
+						<c:if test="${sessionScope.needLoginVCode != null}">
 						<div class="form-group row pt-0 mt-2">
 							<div class="col-sm-6">
-								<input class="form-control" id="vcode" type="text" placeholder="验证码">
+								<input class="form-control" id="vcode" type="text" placeholder="输入右侧验证码">
 							</div>
-							<div class="col-sm-6">
-								<img style="height:41px" class="J_captcha">
+							<div class="col-sm-6 text-right">
+								<img style="height:41px;max-width:100%;cursor:pointer;" class="J_captcha" alt="验证码" title="点击刷新">
 							</div>
 						</div>
 						</c:if>

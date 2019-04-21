@@ -61,7 +61,9 @@ public class LoginControll extends BasePageControll {
 	public static final String CK_AUTOLOGIN = "rb.alt";
 	
 	public static final String SK_LOGINID = WebUtils.KEY_PREFIX + ".LOGINID";
-
+	
+	private static final String NEED_VCODE = "needLoginVCode";
+	
 	@RequestMapping("login")
 	public ModelAndView checkLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String alt = ServletUtils.readCookie(request, CK_AUTOLOGIN);
@@ -75,7 +77,7 @@ public class LoginControll extends BasePageControll {
 				// TODO 自动登陆码安全性检查
 				
 			} catch (Exception ex) {
-				LOG.error("Could't decrypt User in alt : " + alt, ex);
+				LOG.error("Can't decrypt User from alt : " + alt, ex);
 			}
 			
 			if (altUser != null && Application.getUserStore().exists(altUser)) {
@@ -86,7 +88,7 @@ public class LoginControll extends BasePageControll {
 				response.sendRedirect(nexturl);
 				return null;
 			} else {
-				ServletUtils.setSessionAttribute(request, "needVcode", 1);
+				ServletUtils.setSessionAttribute(request, NEED_VCODE, 1);
 			}
 		}
 		
@@ -96,7 +98,7 @@ public class LoginControll extends BasePageControll {
 	@RequestMapping("user-login")
 	public void userLogin(HttpServletRequest request, HttpServletResponse response) {
 		String vcode = getParameter(request, "vcode");
-		Boolean needVcode = (Boolean) ServletUtils.getSessionAttribute(request, "needVcode");
+		Boolean needVcode = (Boolean) ServletUtils.getSessionAttribute(request, NEED_VCODE);
 		if (needVcode != null && needVcode) {
 			if (StringUtils.isBlank(vcode) || !CaptchaUtil.ver(vcode, request)) {
 				writeFailure(response, "验证码错误");
@@ -104,12 +106,12 @@ public class LoginControll extends BasePageControll {
 			}
 		}
 		
-		String user = getParameterNotNull(request, "user");
-		String passwd = getParameterNotNull(request, "passwd");
+		final String user = getParameterNotNull(request, "user");
+		final String passwd = getParameterNotNull(request, "passwd");
 		
 		int retry = getLoginRetry(user, 1);
 		if (retry > 3 && StringUtils.isBlank(vcode)) {
-			ServletUtils.setSessionAttribute(request, "needVcode", true);
+			ServletUtils.setSessionAttribute(request, NEED_VCODE, true);
 			writeFailure(response, "VCODE");
 			return;
 		}
@@ -139,12 +141,19 @@ public class LoginControll extends BasePageControll {
 		}
 		
 		loginSuccessed(request, response, (ID) foundUser[0], getBoolParameter(request, "autoLogin", false));
+		
+		// 清理
 		getLoginRetry(user, -1);
-		ServletUtils.setSessionAttribute(request, "needVcode", null);
+		ServletUtils.setSessionAttribute(request, NEED_VCODE, null);
 		
 		writeSuccess(response);
 	}
 	
+	/**
+	 * @param user
+	 * @param state
+	 * @return
+	 */
 	private int getLoginRetry(String user, int state) {
 		String key = "LoginRetry-" + user;
 		if (state == -1) {
@@ -156,7 +165,7 @@ public class LoginControll extends BasePageControll {
 		retry = retry == null ? 0 : retry;
 		if (state == 1) {
 			retry += 1;
-			Application.getCommonCache().putx(key, retry);
+			Application.getCommonCache().putx(key, retry, 60);
 		}
 		return retry;
 	}
@@ -187,6 +196,8 @@ public class LoginControll extends BasePageControll {
 	}
 	
 	/**
+	 * 创建登陆日志
+	 * 
 	 * @param request
 	 * @param user
 	 * @return
