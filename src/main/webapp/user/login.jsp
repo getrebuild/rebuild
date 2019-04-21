@@ -6,6 +6,9 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
+<style type="text/css">
+#login-form>.row{margin-left:-15px !important;margin-right:-15px !important}
+</style>
 <title>登录</title>
 </head>
 <body class="rb-splash-screen">
@@ -23,16 +26,14 @@
 						<div class="form-group">
 							<input class="form-control" id="passwd" type="password" placeholder="登录密码">
 						</div>
-						<c:if test="${sessionScope.needLoginVCode != null}">
-						<div class="form-group row pt-0 mt-2">
-							<div class="col-sm-6">
-								<input class="form-control" id="vcode" type="text" placeholder="输入右侧验证码">
+						<div class="form-group row pt-0 hide J_vcode" data-state="${sessionScope.needLoginVCode}">
+							<div class="col-6">
+								<input class="form-control" type="text" placeholder="输入右侧验证码">
 							</div>
-							<div class="col-sm-6 text-right">
-								<img style="height:41px;max-width:100%;cursor:pointer;" class="J_captcha" alt="验证码" title="点击刷新">
+							<div class="col-6 text-right pl-0">
+								<img style="height:41px;max-width:100%;cursor:pointer;" alt="验证码" title="点击刷新">
 							</div>
 						</div>
-						</c:if>
 						<div class="form-group row login-tools">
 							<div class="col-6 login-remember">
 								<label class="custom-control custom-checkbox custom-control-inline mb-0">
@@ -64,26 +65,35 @@
 <script type="text/babel">
 $(document).ready(function() {
 	if (top != self) { parent.location.reload(); return }
-	$('.J_captcha').click(function(){
+	$('.J_vcode img').click(function(){
 		$(this).attr('src', rb.baseUrl + '/user/captcha?' + $random())
-	}).trigger('click')
+	})
+
+	let vcodeState = $('.J_vcode').data('state')
+	if (vcodeState == 1) {
+		$('.J_vcode').removeClass('hide').find('img').trigger('click')
+	}
 
 	$('#login-form').on('submit', function(e) {
 		e.preventDefault()
 		let user = $val('#user'), 
 			passwd = $val('#passwd'),
-			vcode = $val('#vcode')
+			vcode = $val('.J_vcode input')
 		if (!user || !passwd){ rb.highbar('请输入用户名和密码'); return }
-		if ($('.J_captcha').length > 0 && !vcode){ rb.highbar('请输入验证码'); return }
+		if (vcodeState == 1 && !vcode){ rb.highbar('请输入验证码'); return }
 		
 		let btn = $('.login-submit button').button('loading')
 		let url = rb.baseUrl + '/user/user-login?user=' + $encode(user) + '&passwd=' + $encode(passwd) + '&autoLogin=' + $val('#autoLogin')
 		if (!!vcode) url += '&vcode=' + vcode
 		$.post(url, function(res) {
-			if (res.error_code == 0) location.replace($decode($urlp('nexturl') || '../dashboard/home'))
-			else if (res.error_msg == 'VCODE') location.reload()
-			else{
-				$('.J_captcha').trigger('click')
+			if (res.error_code == 0){
+				location.replace($decode($urlp('nexturl') || '../dashboard/home'))
+			} else if (res.error_msg == 'VCODE') {
+				vcodeState = 1
+				$('.J_vcode').removeClass('hide').find('img').trigger('click')
+				btn.button('reset')
+			} else {
+				$('.J_vcode img').trigger('click')
 				rb.highbar(res.error_msg || '登录失败，请稍后重试')
 				btn.button('reset')
 			}

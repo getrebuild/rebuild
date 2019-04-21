@@ -165,7 +165,7 @@ public class LoginControll extends BasePageControll {
 		retry = retry == null ? 0 : retry;
 		if (state == 1) {
 			retry += 1;
-			Application.getCommonCache().putx(key, retry, 60);
+			Application.getCommonCache().putx(key, retry, 60 * 30);  // cache 30 minutes
 		}
 		return retry;
 	}
