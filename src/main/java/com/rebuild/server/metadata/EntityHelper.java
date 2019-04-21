@@ -49,17 +49,6 @@ public class EntityHelper {
 	}
 	
 	/**
-	 * 是否是权限相关实体（用户/部门/角色 等）
-	 * 
-	 * @param entity
-	 * @return
-	 */
-	public static boolean isBizzEntity(Entity entity) {
-		// see metadata-conf.xml
-		return entity.getEntityCode() <= 5;
-	}
-	
-	/**
 	 * @param data
 	 * @param user
 	 * @return

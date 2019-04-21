@@ -168,7 +168,7 @@ public class ReferenceSearch extends BaseControll {
 		List<Object> result = new ArrayList<>();
 		for (Object[] o : array) {
 			ID recordId = (ID) o[0];
-			if (EntityHelper.isBizzEntity(entity)) {
+			if (MetadataHelper.isBizzEntity(entity.getEntityCode())) {
 				if (!UserHelper.isActive(recordId) || recordId.equals(UserService.SYSTEM_USER)) {
 					continue;
 				}

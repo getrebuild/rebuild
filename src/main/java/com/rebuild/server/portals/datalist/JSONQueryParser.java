@@ -18,9 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.portals.datalist;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -33,7 +30,6 @@ import com.rebuild.server.portals.AdvFilterManager;
 import com.rebuild.server.service.query.AdvFilterParser;
 
 import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -48,7 +44,6 @@ public class JSONQueryParser {
 	private DataList dataListControl;
 	
 	private Entity entity;
-	private List<Field> fieldList = new ArrayList<>();
 	
 	private String sql;
 	private String countSql;
@@ -72,12 +67,6 @@ public class JSONQueryParser {
 		
 		this.entity = dataListControl != null ? 
 				dataListControl.getEntity() : MetadataHelper.getEntity(queryExpressie.getString("entity"));
-		
-		JSONArray fieldsNode = queryExpressie.getJSONArray("fields");
-		for (Object o : fieldsNode) {
-			String field = o.toString().trim();
-			fieldList.add(entity.getField(field));
-		}
 	}
 	
 	/**
@@ -85,13 +74,6 @@ public class JSONQueryParser {
 	 */
 	protected Entity getEntity() {
 		return entity;
-	}
-	
-	/**
-	 * @return
-	 */
-	protected Field[] getFieldList() {
-		return fieldList.toArray(new Field[fieldList.size()]);
 	}
 	
 	/**
@@ -135,9 +117,13 @@ public class JSONQueryParser {
 		}
 		
 		StringBuffer sqlBase = new StringBuffer("select ");
-		for (Field field : fieldList) {
-			sqlBase.append(field.getName()).append(',');
+		
+		JSONArray fieldsNode = queryExpressie.getJSONArray("fields");
+		for (Object o : fieldsNode) {
+			String field = o.toString().trim();
+			sqlBase.append(field).append(',');
 		}
+		
 		// 最后增加一个主键列
 		String pkName = entity.getPrimaryField().getName();
 		sqlBase.append(pkName)

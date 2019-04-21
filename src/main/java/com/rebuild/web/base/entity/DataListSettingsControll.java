@@ -39,6 +39,8 @@ import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
+import com.rebuild.server.metadata.entityhub.DisplayType;
+import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.portals.BaseLayoutManager;
 import com.rebuild.server.portals.DataListManager;
 import com.rebuild.server.portals.SharableManager;
@@ -109,6 +111,17 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 		for (Field field : MetadataSorter.sortFields(entityMeta)) {
 			fieldList.add(DataListManager.formattedColumn(field));
 		}
+		// 引用实体的字段
+		for (Field field : MetadataSorter.sortFields(entityMeta, DisplayType.REFERENCE)) {
+			// 过滤所属用户/所属部门等系统字段
+			if (EasyMeta.valueOf(field).isBuiltin()) {
+				continue;
+			}
+			Entity refEntity = field.getReferenceEntity();
+			for (Field field4Ref : MetadataSorter.sortFields(refEntity)) {
+				fieldList.add(DataListManager.formattedColumn(field4Ref, field));
+			}
+		}
 		
 		List<Map<String, Object>> configList = new ArrayList<>();
 		Object[] raw = DataListManager.getLayoutOfDatalist(user, entity);
@@ -116,10 +129,22 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 			for (Object o : (JSONArray) raw[1]) {
 				JSONObject col = (JSONObject) o;
 				String field = col.getString("field");
-				if (entityMeta.containsField(field)) {
-					configList.add(DataListManager.formattedColumn(entityMeta.getField(field)));
-				} else {
+				String fieldPaths[] = field.split("\\.");
+				if (!entityMeta.containsField(fieldPaths[0])) {
 					LOG.warn("Unknow field '" + field + "' in '" + entity + "'");
+					continue;
+				}
+				
+				Field fieldMeta = entityMeta.getField(fieldPaths[0]);
+				if (fieldPaths.length == 1) {
+					configList.add(DataListManager.formattedColumn(fieldMeta));
+				} else {
+					Entity refEntity = fieldMeta.getReferenceEntity();
+					if (refEntity != null && refEntity.containsField(fieldPaths[1])) {
+						configList.add(DataListManager.formattedColumn(entityMeta.getField(fieldPaths[1]), fieldMeta));
+					} else {
+						LOG.warn("Unknow field '" + field + "' in '" + entity + "'");
+					}
 				}
 			}
 		}
