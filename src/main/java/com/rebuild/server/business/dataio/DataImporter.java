@@ -56,8 +56,9 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class DataImporter extends BulkTask {
 	
-	final private ImportEnter enter;
+	private static final ThreadLocal<ID> IN_IMPORTING = new ThreadLocal<>();
 	
+	final private ImportEnter enter;
 	final private ID owningUser;
 	
 	private int success = 0;
@@ -97,6 +98,7 @@ public class DataImporter extends BulkTask {
 			reader.next();  // Remove head row
 			
 			setThreadUser(this.owningUser);
+			IN_IMPORTING.set(owningUser);
 			while (reader.hasNext()) {
 				if (isInterrupt()) {
 					this.setInterrupted();
@@ -124,6 +126,7 @@ public class DataImporter extends BulkTask {
 			}
 		} finally {
 			IOUtils.closeQuietly(fileParser);
+			IN_IMPORTING.remove();
 			completedAfter();
 		}
 	}
@@ -183,7 +186,7 @@ public class DataImporter extends BulkTask {
 				}
 			}
 		}
-	
+		
 		// Verify new record
 		if (record.getPrimary() == null) {
 			ExtRecordCreator verifier = new ExtRecordCreator(enter.getToEntity(), JSONUtils.EMPTY_OBJECT, null);
@@ -371,5 +374,16 @@ public class DataImporter extends BulkTask {
 		
 		Object[] exists = query.unique();
 		return exists == null ? null : (ID) exists[0];
+	}
+	
+	// --
+	
+	/**
+	 * 是否导入模式
+	 * 
+	 * @return
+	 */
+	public static boolean isInImporting() {
+		return IN_IMPORTING.get() != null;
 	}
 }
