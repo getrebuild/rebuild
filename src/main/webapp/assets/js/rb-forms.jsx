@@ -1065,7 +1065,9 @@ class DeleteConfirm extends RbAlert {
                     </label>
                     <div className={' ' + (this.state.enableCascade ? '' : 'hide')}>
                       <select className="form-control form-control-sm" ref={(c) => this._cascades = c} multiple="multiple">
-                        {(this.state.cascadesEntity || []).map((item) => { return <option key={'option-' + item[0]} value={item[0]}>{item[1]}</option> })}
+                        {(this.state.cascadesEntity || []).map((item) => {
+                          return <option key={'option-' + item[0]} value={item[0]}>{item[1]}</option>
+                        })}
                       </select>
                     </div>
                   </div>
@@ -1087,7 +1089,8 @@ class DeleteConfirm extends RbAlert {
       $.get(rb.baseUrl + '/commons/metadata/references?entity=' + this.props.entity, (res) => {
         this.setState({ cascadesEntity: res.data }, () => {
           this.__select2 = $(this._cascades).select2({
-            placeholder: '选择关联实体 (可选)'
+            placeholder: '选择关联实体 (可选)',
+            width: '88%'
           }).val(null).trigger('change')
         })
       })

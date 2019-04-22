@@ -425,6 +425,10 @@ const RbListPage = {
       let ids = this._RbList.getSelectedIds()
       if (ids.length > 0) rb.DlgShare({ entity: entity[0], ids: ids })
     })
+    $('.J_unshare').click(() => {
+      let ids = this._RbList.getSelectedIds()
+      if (ids.length > 0) rb.DlgUnShareBatch({ entity: entity[0], ids: ids })
+    })
 
     $('.J_columns').click(function () {
       rb.modal(`${rb.baseUrl}/p/general-entity/show-fields?entity=${entity[0]}`, '设置列显示')
@@ -436,7 +440,7 @@ const RbListPage = {
       if (ep.D === false) $('.J_delete').remove()
       if (ep.U === false) $('.J_edit').remove()
       if (ep.A === false) $('.J_assign').remove()
-      if (ep.S === false) $('.J_share').remove()
+      if (ep.S === false) $('.J_share, .J_unshare').remove()
 
       $cleanMenu('.J_action')
     }

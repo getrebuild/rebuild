@@ -33,8 +33,10 @@ class DlgAssign extends RbModalHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">选择关联记录</label>
             <div className="col-sm-7">
-              <select className="form-control form-control-sm" ref="cascades" multiple="multiple">
-                {(this.state.cascadesEntity || []).map((item) => { return <option key={'option-' + item[0]} value={item[0]}>{item[1]}</option> })}
+              <select className="form-control form-control-sm" ref="cascades">
+                {(this.state.cascadesEntity || []).map((item) => {
+                  return <option key={'option-' + item[0]} value={item[0]}>{item[1]}</option>
+                })}
               </select>
             </div>
           </div>
@@ -49,27 +51,7 @@ class DlgAssign extends RbModalHandler {
     </RbModal>)
   }
   componentDidMount() {
-    $(this.refs['toUser']).select2({
-      placeholder: '选择用户',
-      multiple: this.multipleUser === true,
-      minimumInputLength: 1,
-      ajax: {
-        url: rb.baseUrl + '/commons/search/search',
-        delay: 300,
-        data: function (params) {
-          let query = {
-            entity: 'User',
-            qfields: 'loginName,fullName,email,quickCode',
-            q: params.term
-          }
-          return query
-        },
-        processResults: function (data) {
-          let rs = data.data.map((item) => { return item })
-          return { results: rs }
-        }
-      }
-    })
+    __initUserSelect(this.refs['toUser'])
   }
   componentWillUnmount() {
     $(this.refs['toUser'], this.refs['cascades']).select2('destroy')
@@ -184,6 +166,69 @@ class DlgUnShare extends RbModalHandler {
   }
 }
 
+// ~~ 批量取消共享
+class DlgUnShareBatch extends RbModalHandler {
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+    return (<RbModal title="取消共享" ref={(c) => this._dlg = c}>
+      <div className="form">
+        <div className="form-group row">
+          <label className="col-sm-3 col-form-label text-sm-right">取消共享哪些记录</label>
+          <div className="col-sm-7">
+            <div className="form-control-plaintext">{'选中的记录 (' + this.state.ids.length + '条)'}</div>
+          </div>
+        </div>
+        <div className="form-group row">
+          <label className="col-sm-3 col-form-label text-sm-right">取消哪些用户</label>
+          <div className="col-sm-7">
+            <select className="form-control form-control-sm" ref={(c) => this._unusers = c} multiple="multiple" />
+          </div>
+        </div>
+        <div className="form-group row footer">
+          <div className="col-sm-7 offset-sm-3" ref="btns">
+            <button className="btn btn-primary btn-space" type="button" data-loading-text="请稍后" onClick={() => this.post()}>确定</button>
+            <a className="btn btn-link btn-space" onClick={() => this.hide()}>取消</a>
+          </div>
+        </div>
+      </div>
+    </RbModal>)
+  }
+  componentDidMount() {
+    __initUserSelect(this._unusers)
+  }
+
+  post() {
+
+  }
+}
+
+// 用户选择组件 select2
+let __initUserSelect = function (el) {
+  $(el).select2({
+    placeholder: '选择用户',
+    minimumInputLength: 1,
+    ajax: {
+      url: rb.baseUrl + '/commons/search/search',
+      delay: 300,
+      data: function (params) {
+        let query = {
+          entity: 'User',
+          qfields: 'loginName,fullName,email,quickCode',
+          q: params.term
+        }
+        return query
+      },
+      processResults: function (data) {
+        let rs = data.data.map((item) => { return item })
+        return { results: rs }
+      }
+    }
+  })
+}
+
 // -- Usage
 
 let rb = rb || {}
@@ -212,4 +257,12 @@ rb.DlgUnShare = function (id, unshare) {
   if (rb.DlgUnShare__holder) rb.DlgUnShare__holder.show(props)
   else rb.DlgUnShare__holder = renderRbcomp(<DlgUnShare {...props} />)
   return rb.DlgUnShare__holder
+}
+
+rb.DlgUnShareBatch__holder = null
+// @props - { ids, entity }
+rb.DlgUnShareBatch = function (props) {
+  if (rb.DlgUnShareBatch__holder) rb.DlgUnShareBatch__holder.show(props)
+  else rb.DlgUnShareBatch__holder = renderRbcomp(<DlgUnShareBatch {...props} />)
+  return rb.DlgUnShareBatch__holder
 }
