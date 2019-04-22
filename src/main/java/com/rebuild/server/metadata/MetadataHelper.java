@@ -302,6 +302,9 @@ public class MetadataHelper {
 	}
 	
 	/**
+	 * 点连接字段（如 owningUser.loginName），获取最后一个字段。
+	 * 此方法也可以用来判断点连接字段是否是有效的字段
+	 * 
 	 * @param entity
 	 * @param fieldPath
 	 * @return

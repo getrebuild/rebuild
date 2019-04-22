@@ -8,6 +8,7 @@
 <%@ include file="/_include/Head.jsp"%>
 <style type="text/css">
 #login-form>.row{margin-left:-15px !important;margin-right:-15px !important}
+.vcode-row{height:41px;max-width:100%;cursor:pointer;}
 </style>
 <title>登录</title>
 </head>
@@ -26,12 +27,12 @@
 						<div class="form-group">
 							<input class="form-control" id="passwd" type="password" placeholder="登录密码">
 						</div>
-						<div class="form-group row pt-0 hide J_vcode" data-state="${sessionScope.needLoginVCode}">
+						<div class="form-group row pt-0 hide vcode-row" data-state="${sessionScope.needLoginVCode}">
 							<div class="col-6">
 								<input class="form-control" type="text" placeholder="输入右侧验证码">
 							</div>
 							<div class="col-6 text-right pl-0">
-								<img style="height:41px;max-width:100%;cursor:pointer;" alt="验证码" title="点击刷新">
+								<img style="" alt="验证码" title="点击刷新">
 							</div>
 						</div>
 						<div class="form-group row login-tools">
@@ -65,20 +66,20 @@
 <script type="text/babel">
 $(document).ready(function() {
 	if (top != self) { parent.location.reload(); return }
-	$('.J_vcode img').click(function(){
+	$('.vcode-row img').click(function(){
 		$(this).attr('src', rb.baseUrl + '/user/captcha?' + $random())
 	})
 
-	let vcodeState = $('.J_vcode').data('state')
+	let vcodeState = $('.vcode-row').data('state')
 	if (vcodeState == 1) {
-		$('.J_vcode').removeClass('hide').find('img').trigger('click')
+		$('.vcode-row').removeClass('hide').find('img').trigger('click')
 	}
 
 	$('#login-form').on('submit', function(e) {
 		e.preventDefault()
 		let user = $val('#user'), 
 			passwd = $val('#passwd'),
-			vcode = $val('.J_vcode input')
+			vcode = $val('.vcode-row input')
 		if (!user || !passwd){ rb.highbar('请输入用户名和密码'); return }
 		if (vcodeState == 1 && !vcode){ rb.highbar('请输入验证码'); return }
 		
@@ -90,10 +91,10 @@ $(document).ready(function() {
 				location.replace($decode($urlp('nexturl') || '../dashboard/home'))
 			} else if (res.error_msg == 'VCODE') {
 				vcodeState = 1
-				$('.J_vcode').removeClass('hide').find('img').trigger('click')
+				$('.vcode-row').removeClass('hide').find('img').trigger('click')
 				btn.button('reset')
 			} else {
-				$('.J_vcode img').trigger('click')
+				$('.vcode-row img').trigger('click')
 				rb.highbar(res.error_msg || '登录失败，请稍后重试')
 				btn.button('reset')
 			}

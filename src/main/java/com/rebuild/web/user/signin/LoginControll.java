@@ -77,7 +77,7 @@ public class LoginControll extends BasePageControll {
 				// TODO 自动登陆码安全性检查
 				
 			} catch (Exception ex) {
-				LOG.error("Can't decrypt User from alt : " + alt, ex);
+				LOG.error("Can't decode User from alt : " + alt, ex);
 			}
 			
 			if (altUser != null && Application.getUserStore().exists(altUser)) {
@@ -109,7 +109,7 @@ public class LoginControll extends BasePageControll {
 		final String user = getParameterNotNull(request, "user");
 		final String passwd = getParameterNotNull(request, "passwd");
 		
-		int retry = getLoginRetry(user, 1);
+		int retry = getLoginRetryTimes(user, 1);
 		if (retry > 3 && StringUtils.isBlank(vcode)) {
 			ServletUtils.setSessionAttribute(request, NEED_VCODE, true);
 			writeFailure(response, "VCODE");
@@ -143,7 +143,7 @@ public class LoginControll extends BasePageControll {
 		loginSuccessed(request, response, (ID) foundUser[0], getBoolParameter(request, "autoLogin", false));
 		
 		// 清理
-		getLoginRetry(user, -1);
+		getLoginRetryTimes(user, -1);
 		ServletUtils.setSessionAttribute(request, NEED_VCODE, null);
 		
 		writeSuccess(response);
@@ -154,7 +154,7 @@ public class LoginControll extends BasePageControll {
 	 * @param state
 	 * @return
 	 */
-	private int getLoginRetry(String user, int state) {
+	private int getLoginRetryTimes(String user, int state) {
 		String key = "LoginRetry-" + user;
 		if (state == -1) {
 			Application.getCommonCache().evict(key);
