@@ -21,7 +21,6 @@ package com.rebuild.server.service.base;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
 
 import com.hankcs.hanlp.HanLP;
 import com.rebuild.server.Application;
@@ -33,6 +32,8 @@ import com.rebuild.server.portals.ClassificationManager;
 import com.rebuild.server.portals.PickListManager;
 import com.rebuild.server.service.bizz.UserService;
 
+import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
@@ -125,20 +126,24 @@ public class QuickCodeReindexTask extends BulkTask {
 			return null;
 		}
 		
+		Object nameValue = record.getObjectValue(nameField.getName());
 		DisplayType dt = EasyMeta.getDisplayType(nameField);
-		String nameVal = null;
-		if (dt == DisplayType.TEXT) {
-			nameVal = record.getString(nameField.getName());
+		if (dt == DisplayType.TEXT || dt == DisplayType.SERIES
+				|| dt == DisplayType.EMAIL || dt == DisplayType.PHONE || dt == DisplayType.URL
+				|| dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {
+			nameValue = nameValue.toString();
 		} else if (dt == DisplayType.PICKLIST) {
-			ID itemId = record.getID(nameField.getName());
-			nameVal = PickListManager.getLabel(itemId);
+			nameValue = PickListManager.getLabel((ID) nameValue);
 		} else if (dt == DisplayType.CLASSIFICATION) {
-			ID itemId = record.getID(nameField.getName());
-			nameVal = ClassificationManager.getFullName(itemId);
+			nameValue = ClassificationManager.getFullName((ID) nameValue);
+		} else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
+			nameValue = CalendarUtils.getPlainDateTimeFormat().format(nameValue);
+		} else {
+			nameValue = null;
 		}
 		
-		if (nameVal != null) {
-			return generateQuickCode(nameVal);
+		if (nameValue != null) {
+			return generateQuickCode((String) nameValue);
 		} else {
 			return null;
 		}
@@ -158,19 +163,33 @@ public class QuickCodeReindexTask extends BulkTask {
 			return StringUtils.EMPTY;
 		}
 		
+		if (nameVal.length() > 100) {
+			nameVal = nameVal.substring(0, 100);
+		}
+		
+		if (RegexUtils.isTel(nameVal) || RegexUtils.isEMail(nameVal) || RegexUtils.isUrl(nameVal)) {
+			return nameVal.toUpperCase();
+		}
+		
 		// 提取 0-9+a-z+A-Z+中文+空格
 		nameVal = nameVal.replaceAll("[^a-zA-Z0-9\\s\u4e00-\u9fa5]", "");
 		
 		String quickCode = StringUtils.EMPTY;
+		// 仅包含字母数字或空格
 		if (nameVal.matches("[a-zA-Z0-9\\s]+")) {
-			String aplit[] = nameVal.split("(?=[A-Z\\s])");
-			StringBuffer sb = new StringBuffer();
-			for (String a : aplit) {
-				if (a.trim().length() > 0) {
-					sb.append(a.trim().substring(0, 1));
+			// 提取英文单词的首字母
+			String asplit[] = nameVal.split("(?=[A-Z\\s])");
+			if (asplit.length == 1) {
+				quickCode = nameVal;
+			} else {
+				StringBuffer sb = new StringBuffer();
+				for (String a : asplit) {
+					if (a.trim().length() > 0) {
+						sb.append(a.trim().substring(0, 1));
+					}
 				}
+				quickCode = sb.toString();
 			}
-			quickCode = sb.toString();
 		} else {
 			nameVal = nameVal.replaceAll(" ", "");
 			try {
@@ -180,9 +199,6 @@ public class QuickCodeReindexTask extends BulkTask {
 			}
 		}
 		
-		if (NumberUtils.isDigits(quickCode)) {
-			quickCode = StringUtils.EMPTY;
-		}
 		return quickCode.toUpperCase();
 	}
 }
