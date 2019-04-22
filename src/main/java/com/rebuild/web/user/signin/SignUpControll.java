@@ -18,11 +18,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.user.signin;
 
+import java.awt.Font;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.math.RandomUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -47,6 +49,7 @@ public class SignUpControll extends BasePageControll {
 	
 	@RequestMapping("captcha")
 	public void captcha(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		CaptchaUtil.outPng(150, 41, 6, request, response);
+		Font font = new Font(Font.SERIF, Font.ITALIC, 20 + RandomUtils.nextInt(10));
+		CaptchaUtil.outPng(160, 41, 6, font, request, response);
 	}
 }

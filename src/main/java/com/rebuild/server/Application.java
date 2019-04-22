@@ -60,9 +60,9 @@ public final class Application {
 	
 	/** Rebuild Version
 	 */
-	public static final String VER = "1.1.0";
+	public static final String VER = "1.2.0-dev";
 	
-	/** Logging for Global, If you want to be lazy ^_^
+	/** Logging for Global
 	 */
 	public static final Log LOG = LogFactory.getLog(Application.class);
 	

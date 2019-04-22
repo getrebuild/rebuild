@@ -35,7 +35,7 @@ import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.BaseMeta;
 
 /**
- * 前端配置时的元数据过滤、排序
+ * 元数据辅助类，支持过滤/排序字段或实体
  * 
  * @author devezhao
  * @since 09/30/2018
@@ -53,7 +53,7 @@ public class MetadataSorter {
 	}
 	
 	/**
-	 * 用户权限内可用实体
+	 * 用户权限内可见实体（具备读取权限）
 	 * 
 	 * @param user
 	 * @return
@@ -66,10 +66,10 @@ public class MetadataSorter {
 	 * 用户权限内可用实体
 	 * 
 	 * @param user
-	 * @param isAll 是否包括额外实体
+	 * @param containsBizz 是否包括内建 BIZZ 实体
 	 * @return
 	 */
-	public static Entity[] sortEntities(ID user, boolean isAll) {
+	public static Entity[] sortEntities(ID user, boolean containsBizz) {
 		Entity[] entities = MetadataHelper.getEntities();
 		sortBaseMeta(entities);
 		
@@ -77,7 +77,7 @@ public class MetadataSorter {
 		for (Entity entity : entities) {
 			int ec = entity.getEntityCode();
 			if (EasyMeta.valueOf(ec).isBuiltin()) {
-				if (isAll && MetadataHelper.isBizzEntity(ec)) {
+				if (containsBizz && MetadataHelper.isBizzEntity(ec)) {
 					list.add(entity);
 				}
 			} else if (user == null) {
@@ -93,31 +93,21 @@ public class MetadataSorter {
 	 * 获取字段
 	 * 
 	 * @param entity
+	 * @param allowedTypes 仅返回指定的类型
 	 * @return
 	 */
-	public static Field[] sortFields(Entity entity) {
-		return sortFields(entity.getFields());
+	public static Field[] sortFields(Entity entity, DisplayType... allowedTypes) {
+		return sortFields(entity.getFields(), allowedTypes);
 	}
 	
 	/**
-	 * 获取指定类型字段
-	 * 
-	 * @param entity
-	 * @param allowed
-	 * @return
-	 */
-	public static Field[] sortFields(Entity entity, DisplayType... allowed) {
-		return sortFields(entity.getFields(), allowed);
-	}
-	
-	/**
-	 * 字段排序，同时可过滤字段（根据类型）
+	 * 获取字段
 	 * 
 	 * @param fields
-	 * @param allowed
+	 * @param allowedTypes 仅返回指定的类型
 	 * @return
 	 */
-	public static Field[] sortFields(Field[] fields, DisplayType... allowed) {
+	public static Field[] sortFields(Field[] fields, DisplayType... allowedTypes) {
 		List<Field> sysFields = new ArrayList<>();
 		List<Field> simpleFields = new ArrayList<>();
 		for (Field field : fields) {
@@ -136,7 +126,7 @@ public class MetadataSorter {
 		Field[] allFields = (Field[]) ArrayUtils.addAll(simpleFieldsAry, sysFieldsAry);
 
 		// 返回全部类型
-		if (allowed == null || allowed.length == 0) {
+		if (allowedTypes == null || allowedTypes.length == 0) {
 			List<Field> list = new ArrayList<>();
 			for (Field field : allFields) {
 				if (!MetadataHelper.isSystemField(field)) {
@@ -149,7 +139,7 @@ public class MetadataSorter {
 		List<Field> list = new ArrayList<>();
 		for (Field field : allFields) {
 			DisplayType dtThat = EasyMeta.getDisplayType(field);
-			for (DisplayType dt : allowed) {
+			for (DisplayType dt : allowedTypes) {
 				if (dtThat.equals(dt)) {
 					list.add(field);
 					break;
@@ -164,22 +154,13 @@ public class MetadataSorter {
 	 * 
 	 * @param metas
 	 */
-	public static void sortBaseMeta(BaseMeta[] metas) {
+	private static void sortBaseMeta(BaseMeta[] metas) {
 		Arrays.sort(metas, new Comparator<BaseMeta>() {
 			@Override
 			public int compare(BaseMeta foo, BaseMeta bar) {
 				String fooLetter = EasyMeta.getLabel(foo);
 				String barLetter = EasyMeta.getLabel(bar);
 				return fooLetter.compareTo(barLetter);
-				
-//				try {
-//					String fooLetter = PinyinHelper.convertToPinyinString(EasyMeta.getLabel(foo), "", PinyinFormat.WITHOUT_TONE).toLowerCase();
-//					String barLetter = PinyinHelper.convertToPinyinString(EasyMeta.getLabel(bar), "", PinyinFormat.WITHOUT_TONE).toLowerCase();
-//					return fooLetter.compareTo(barLetter);
-//				} catch (Exception e) {
-//					LOG.error(null, e);
-//					return 0;
-//				}
 			}
 		});
 	}
