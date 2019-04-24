@@ -98,13 +98,13 @@ public class GeneralEntityOperatorControll extends BaseControll {
 	@RequestMapping("record-delete")
 	public void delete(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		final ID user = getRequestUser(request);
-		final ID[] ids = parseIdList(request);
-		if (ids.length == 0) {
+		final ID[] records = parseIdList(request);
+		if (records.length == 0) {
 			writeFailure(response, "没有要删除的记录");
 			return;
 		}
 		
-		final ID firstId = ids[0];
+		final ID firstId = records[0];
 		final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
 		
 		String[] cascades = parseCascades(request);
@@ -112,10 +112,10 @@ public class GeneralEntityOperatorControll extends BaseControll {
 		
 		int affected = 0;
 		try {
-			if (ids.length == 1) {
+			if (records.length == 1) {
 				affected = ies.delete(firstId, cascades);
 			} else {
-				BulkContext context = new BulkContext(user, BizzPermission.DELETE, null, cascades, ids);
+				BulkContext context = new BulkContext(user, BizzPermission.DELETE, null, cascades, records);
 				affected = ies.bulk(context);
 			}
 		} catch (AccessDeniedException | DataSpecificationException know) {
@@ -125,20 +125,20 @@ public class GeneralEntityOperatorControll extends BaseControll {
 		
 		JSON ret = JSONUtils.toJSONObject(
 				new String[] { "deleted", "requests" },
-				new Object[] { affected, ids.length });
+				new Object[] { affected, records.length });
 		writeSuccess(response, ret);
 	}
 	
 	@RequestMapping("record-assign")
 	public void assign(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		final ID user = getRequestUser(request);
-		final ID[] ids = parseIdList(request);
-		if (ids.length == 0) {
+		final ID[] records = parseIdList(request);
+		if (records.length == 0) {
 			writeFailure(response, "没有要分派的记录");
 			return;
 		}
 		
-		final ID firstId = ids[0];
+		final ID firstId = records[0];
 		final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
 		
 		ID assignTo = getIdParameterNotNull(request, "to");
@@ -147,11 +147,11 @@ public class GeneralEntityOperatorControll extends BaseControll {
 		
 		int affected = 0;
 		try {
-			// 仅涉及一条记录
-			if (ids.length == 1 && cascades.length == 0) {
+			// 仅一条记录
+			if (records.length == 1) {
 				affected = ies.assign(firstId, assignTo, cascades);
 			} else {
-				BulkContext context = new BulkContext(user, BizzPermission.ASSIGN, assignTo, cascades, ids);
+				BulkContext context = new BulkContext(user, BizzPermission.ASSIGN, assignTo, cascades, records);
 				affected = ies.bulk(context);
 			}
 		} catch (AccessDeniedException know) {
@@ -161,34 +161,41 @@ public class GeneralEntityOperatorControll extends BaseControll {
 		
 		JSON ret = JSONUtils.toJSONObject(
 				new String[] { "assigned", "requests" },
-				new Object[] { affected, ids.length });
+				new Object[] { affected, records.length });
 		writeSuccess(response, ret);
 	}
 	
 	@RequestMapping("record-share")
 	public void share(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		final ID user = getRequestUser(request);
-		final ID[] ids = parseIdList(request);
-		if (ids.length == 0) {
+		final ID[] records = parseIdList(request);
+		if (records.length == 0) {
 			writeFailure(response, "没有要共享的记录");
 			return;
 		}
 		
-		final ID firstId = ids[0];
+		final ID[] toUsers = parseUserList(request);
+		if (toUsers.length == 0) {
+			writeFailure(response, "没有要共享的用户");
+			return;
+		}
+		
+		final ID firstId = records[0];
 		final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
 		
-		ID shareTo = getIdParameterNotNull(request, "to");
 		String[] cascades = parseCascades(request);
 		EntityService ies = Application.getEntityService(entity.getEntityCode());
 		
 		int affected = 0;
 		try {
-			// 仅涉及一条记录
-			if (ids.length == 1 && cascades.length == 0) {
-				affected = ies.share(firstId, shareTo, cascades);
-			} else {
-				BulkContext context = new BulkContext(user, BizzPermission.SHARE, shareTo, cascades, ids);
-				affected = ies.bulk(context);
+			for (ID to : toUsers) {
+				// 一条记录
+				if (records.length == 1) {
+					affected += ies.share(firstId, to, cascades);
+				} else {
+					BulkContext context = new BulkContext(user, BizzPermission.SHARE, to, cascades, records);
+					affected += ies.bulk(context);
+				}
 			}
 		} catch (AccessDeniedException know) {
 			writeFailure(response, know.getLocalizedMessage());
@@ -197,31 +204,31 @@ public class GeneralEntityOperatorControll extends BaseControll {
 		
 		JSON ret = JSONUtils.toJSONObject(
 				new String[] { "shared", "requests" },
-				new Object[] { affected, ids.length });
+				new Object[] { affected, records.length });
 		writeSuccess(response, ret);
 	}
 	
 	@RequestMapping("record-unshare")
-	public void unshare(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void unsharesa(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		final ID user = getRequestUser(request);
 		final ID record = getIdParameterNotNull(request, "record");  // Record ID
-		final ID[] ids = parseIdList(request);  // ShareAccess IDs
-		if (ids.length == 0) {
+		final ID[] accessIds = parseIdList(request);  // ShareAccess IDs
+		if (accessIds.length == 0) {
 			writeFailure(response, "没有要取消共享的记录");
 			return;
 		}
 		
-		final ID firstId = ids[0];
+		final ID firstId = accessIds[0];
 		final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
 		
 		EntityService ies = Application.getEntityService(entity.getEntityCode());
 		
 		int affected = 0;
 		try {
-			if (ids.length == 1) {
-				affected = ies.unshare(record, ids[0]);
+			if (accessIds.length == 1) {
+				affected = ies.unshare(record, accessIds[0]);
 			} else {
-				BulkContext context = new BulkContext(user, EntityService.UNSHARE, ids, record);
+				BulkContext context = new BulkContext(user, EntityService.UNSHARE, accessIds, record);
 				affected = ies.bulk(context);
 			}
 		} catch (AccessDeniedException know) {
@@ -231,8 +238,33 @@ public class GeneralEntityOperatorControll extends BaseControll {
 		
 		JSON ret = JSONUtils.toJSONObject(
 				new String[] { "unshared", "requests" },
-				new Object[] { affected, ids.length });
+				new Object[] { affected, accessIds.length });
 		writeSuccess(response, ret);
+	}
+	
+	@RequestMapping("record-unshare-batch")
+	public void unshareBatch(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		final ID user = getRequestUser(request);
+		final ID[] records = parseIdList(request);
+		if (records.length == 0) {
+			writeFailure(response, "没有要取消共享的记录");
+			return;
+		}
+		
+		final ID[] toUsers = parseUserList(request);
+		if (toUsers.length == 0) {
+			writeFailure(response, "没有要取消共享的用户");
+			return;
+		}
+		
+		final ID firstId = records[0];
+		final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
+		
+		String[] cascades = parseCascades(request);
+		EntityService ies = Application.getEntityService(entity.getEntityCode());
+		
+		// TODO 查询出所有共享
+		
 	}
 	
 	@RequestMapping("record-meta")
@@ -321,6 +353,27 @@ public class GeneralEntityOperatorControll extends BaseControll {
 			idList.add(ID.valueOf(id));
 		}
 		return idList.toArray(new ID[idList.size()]);
+	}
+	
+	/**
+	 * 用户列表
+	 * 
+	 * @param request
+	 * @return
+	 */
+	private ID[] parseUserList(HttpServletRequest request) {
+		String to = getParameterNotNull(request, "to");
+		Set<ID> toList = new HashSet<>();
+		for (String id : to.split(",")) {
+			if (ID.isId(id)) {
+				ID uid = ID.valueOf(id);
+				if (uid.getEntityCode() != EntityHelper.User) {
+					throw new IllegalParameterException("无效用户:" + uid);
+				}
+				toList.add(uid);
+			}
+		}
+		return toList.toArray(new ID[toList.size()]);
 	}
 	
 	/**

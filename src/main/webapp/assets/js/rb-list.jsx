@@ -427,7 +427,7 @@ const RbListPage = {
     })
     $('.J_unshare').click(() => {
       let ids = this._RbList.getSelectedIds()
-      if (ids.length > 0) rb.DlgUnShareBatch({ entity: entity[0], ids: ids })
+      if (ids.length > 0) rb.DlgUnshare({ entity: entity[0], ids: ids })
     })
 
     $('.J_columns').click(function () {

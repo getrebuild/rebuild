@@ -28,7 +28,7 @@
 				<div class="card-body">
 					<div class="dataTables_wrapper container-fluid">
 						<div class="row rb-datatable-header">
-							<div class="col-12 col-lg-6">
+							<div class="col-12 col-lg-5">
 								<div class="dataTables_filter">
 									<div class="input-group input-search">
 										<input class="form-control" type="text" placeholder="查询${entityLabel}">
@@ -36,7 +36,7 @@
 									</div>
 								</div>
 							</div>
-							<div class="col-12 col-lg-6">
+							<div class="col-12 col-lg-7">
 								<div class="dataTables_oper">
 									<button class="btn btn-space btn-secondary J_view" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> 打开</button>
 									<div class="btn-group btn-space">
