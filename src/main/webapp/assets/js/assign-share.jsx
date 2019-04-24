@@ -7,7 +7,7 @@ class DlgAssign extends RbModalHandler {
     this.types = ['assign', '分派']
   }
   render() {
-    return (<RbModal title={this.typeName} ref={(c) => this._dlg = c}>
+    return (<RbModal title={this.types[1]} ref={(c) => this._dlg = c}>
       <div className="form">
         {this.onView === true ? null : (
           <div className="form-group row">
@@ -28,17 +28,17 @@ class DlgAssign extends RbModalHandler {
             <div className="col-sm-7 offset-sm-3"><a href="javascript:;" onClick={() => this.showCascades()}>同时{this.types[1]}关联记录</a></div>
           </div>
         ) : (
-            <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right">选择关联记录</label>
-              <div className="col-sm-7">
-                <select className="form-control form-control-sm" ref={(c) => this._cascades = c}>
-                  {(this.state.cascadesEntity || []).map((item) => {
-                    return <option key={'option-' + item[0]} value={item[0]}>{item[1]}</option>
-                  })}
-                </select>
-              </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">选择关联记录</label>
+            <div className="col-sm-7">
+              <select className="form-control form-control-sm" ref={(c) => this._cascades = c}>
+                {(this.state.cascadesEntity || []).map((item) => {
+                  return <option key={'option-' + item[0]} value={item[0]}>{item[1]}</option>
+                })}
+              </select>
             </div>
-          )}
+          </div>
+        )}
         <div className="form-group row footer">
           <div className="col-sm-7 offset-sm-3" ref={(c) => this._btns = c}>
             <button className="btn btn-primary btn-space" type="button" data-loading-text="请稍后" onClick={() => this.post()}>确定</button>
