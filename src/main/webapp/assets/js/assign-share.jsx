@@ -28,17 +28,17 @@ class DlgAssign extends RbModalHandler {
             <div className="col-sm-7 offset-sm-3"><a href="javascript:;" onClick={() => this.showCascades()}>同时{this.types[1]}关联记录</a></div>
           </div>
         ) : (
-          <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">选择关联记录</label>
-            <div className="col-sm-7">
-              <select className="form-control form-control-sm" ref={(c) => this._cascades = c}>
-                {(this.state.cascadesEntity || []).map((item) => {
-                  return <option key={'option-' + item[0]} value={item[0]}>{item[1]}</option>
-                })}
-              </select>
+            <div className="form-group row">
+              <label className="col-sm-3 col-form-label text-sm-right">选择关联记录</label>
+              <div className="col-sm-7">
+                <select className="form-control form-control-sm" ref={(c) => this._cascades = c}>
+                  {(this.state.cascadesEntity || []).map((item) => {
+                    return <option key={'option-' + item[0]} value={item[0]}>{item[1]}</option>
+                  })}
+                </select>
+              </div>
             </div>
-          </div>
-        )}
+          )}
         <div className="form-group row footer">
           <div className="col-sm-7 offset-sm-3" ref={(c) => this._btns = c}>
             <button className="btn btn-primary btn-space" type="button" data-loading-text="请稍后" onClick={() => this.post()}>确定</button>
@@ -102,11 +102,89 @@ class DlgShare extends DlgAssign {
   }
 }
 
-// ~~ 取消共享（批量）
-class DlgUnshare extends DlgAssign {
+// ~~ 取消共享（批量模式）
+class DlgUnshare extends RbModalHandler {
   constructor(props) {
     super(props)
-    this.types = ['unshare', '取消共享', true]
+    this.state.whichUsers = 'ALL'
+  }
+  render() {
+    return (<RbModal title="取消共享" ref={(c) => this._dlg = c}>
+      <div className="form">
+        <div className="form-group row">
+          <label className="col-sm-3 col-form-label text-sm-right">取消共享哪些记录</label>
+          <div className="col-sm-7">
+            <div className="form-control-plaintext">{'选中的记录 (' + this.state.ids.length + '条)'}</div>
+          </div>
+        </div>
+        <div className="form-group row pt-0 pb-0">
+          <label className="col-sm-3 col-form-label text-sm-right">取消哪些用户</label>
+          <div className="col-sm-7">
+            <div className="mt-1">
+              <label className="custom-control custom-control-sm custom-radio custom-control-inline">
+                <input className="custom-control-input" name="whichUsers" type="radio" checked={this.state.whichUsers === 'ALL'} onChange={() => this.whichMode(true)} />
+                <span className="custom-control-label">全部用户</span>
+              </label>
+              <label className="custom-control custom-control-sm custom-radio custom-control-inline">
+                <input className="custom-control-input" name="whichUsers" type="radio" checked={this.state.whichUsers === 'SPEC'} onChange={() => this.whichMode()} />
+                <span className="custom-control-label">指定用户</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div className={'form-group row pt-0 ' + (this.state.whichUsers === 'ALL' ? 'hide' : '')}>
+          <label className="col-sm-3 col-form-label text-sm-right"></label>
+          <div className="col-sm-7">
+            <select className="form-control form-control-sm" ref={(c) => this._toUser = c} />
+          </div>
+        </div>
+        <div className="form-group row footer">
+          <div className="col-sm-7 offset-sm-3" ref={(c) => this._btns = c}>
+            <button className="btn btn-primary btn-space" type="button" data-loading-text="请稍后" onClick={() => this.post()}>确定</button>
+            <a className="btn btn-link btn-space" onClick={() => this.hide()}>取消</a>
+          </div>
+        </div>
+      </div>
+    </RbModal>)
+  }
+  componentWillUnmount() {
+    if (this.__select2) $(this._toUser).select2('destroy')
+  }
+  whichMode(isAll) {
+    this.setState({ whichUsers: isAll === true ? 'ALL' : 'SPEC' }, () => {
+      if (isAll !== true && !this.__select2) {
+        this.__select2 = __initUserSelect2(this._toUser, true)
+      }
+    })
+  }
+
+  post() {
+    let users = $(this._toUser).val()
+    if (this.state.whichUsers === 'ALL') {
+      users = '$ALL$'
+    } else {
+      if (!users || users.length === 0) { rb.highbar('请选择' + this.types[1] + '给谁'); return }
+      users = users.join(',')
+    }
+
+    let btns = $(this._btns).find('.btn').button('loading')
+    $.post(`${rb.baseUrl}/app/entity/record-unshare-batch?id=${this.state.ids.join(',')}&to=${users}`, (res) => {
+      if (res.error_code === 0) {
+        $(this._toUser).val(null).trigger('change')
+
+        this.hide()
+        let affected = res.data.assigned || res.data.shared || 0
+        if (affected > 0 && rb.env === 'dev') rb.hbsuccess('成功取消共享 ' + affected + ' 条记录')
+        else rb.hbsuccess('已取消共享')
+
+        setTimeout(() => {
+          if (window.RbListPage) RbListPage._RbList.reload()
+        }, 500)
+      } else {
+        rb.hberror(res.error_msg)
+      }
+      btns.button('reset')
+    })
   }
 }
 
@@ -172,7 +250,7 @@ class DlgShareManager extends RbModalHandler {
 
 // 用户选择组件 select2
 let __initUserSelect2 = function (el, multiple) {
-  $(el).select2({
+  let s = $(el).select2({
     placeholder: '选择用户',
     minimumInputLength: 1,
     multiple: multiple === true,
@@ -193,6 +271,7 @@ let __initUserSelect2 = function (el, multiple) {
       }
     }
   })
+  return s
 }
 
 // -- Usage

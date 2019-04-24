@@ -251,20 +251,59 @@ public class GeneralEntityOperatorControll extends BaseControll {
 			return;
 		}
 		
-		final ID[] toUsers = parseUserList(request);
-		if (toUsers.length == 0) {
-			writeFailure(response, "没有要取消共享的用户");
+		// 查询共享记录ID
+		String sql = String.format(
+				"select recordId,accessId from ShareAccess where recordId in ('%s')", StringUtils.join(records, "','"));
+		String to = getParameterNotNull(request, "to");
+		if (!"$ALL$".equals(to)) {
+			ID[] toUsers = parseUserList(request);
+			if (toUsers.length == 0) {
+				writeFailure(response, "没有要取消共享的用户");
+				return;
+			}
+			sql += String.format(" and shareTo in ('%s')", StringUtils.join(toUsers, "','"));
+		}
+		
+		Object[][] accessArray = Application.createQueryNoFilter(sql).array();
+		if (accessArray.length == 0) {
+			JSON ret = JSONUtils.toJSONObject(
+					new String[] { "unshared", "requests" },
+					new Object[] { 0, 0 });
+			writeSuccess(response, ret);
 			return;
 		}
 		
-		final ID firstId = records[0];
-		final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
+		Map<ID, Set<ID>> accessMap = new HashMap<>();
+		for (Object[] o : accessArray) {
+			ID record = (ID) o[0];
+			Set<ID> access = accessMap.get(record);
+			if (access == null) {
+				access = new HashSet<>();
+				accessMap.put(record, access);
+			}
+			access.add((ID) o[1]);
+		}
 		
-		String[] cascades = parseCascades(request);
-		EntityService ies = Application.getEntityService(entity.getEntityCode());
+		EntityService ies = Application.getEntityService(records[0].getEntityCode());
 		
-		// TODO 查询出所有共享
+		int affected = 0;
+		try {
+			for (Map.Entry<ID, Set<ID>> e : accessMap.entrySet()) {
+				ID record = e.getKey();
+				Set<ID> access = e.getValue();
+				BulkContext context = new BulkContext(
+						user, EntityService.UNSHARE, access.toArray(new ID[access.size()]), record);
+				affected += ies.bulk(context);
+			}
+		} catch (AccessDeniedException know) {
+			writeFailure(response, know.getLocalizedMessage());
+			return;
+		}
 		
+		JSON ret = JSONUtils.toJSONObject(
+				new String[] { "unshared", "requests" },
+				new Object[] { affected, records.length });
+		writeSuccess(response, ret);
 	}
 	
 	@RequestMapping("record-meta")
