@@ -726,6 +726,7 @@ class RbFormReference extends RbFormElement {
 
     let that = this
     const entity = this.props.$$$parent.props.entity
+    let select2_input = null
     let select2 = $(this.refs['field-value']).select2({
       placeholder: '选择' + this.props.label,
       minimumInputLength: 0,
@@ -739,11 +740,18 @@ class RbFormReference extends RbFormElement {
             field: that.props.field,
             q: params.term
           }
+          select2_input = params.term
           return query
         },
         processResults: function (data) {
           return { results: data.data }
         }
+      },
+      language: {
+        noResults: () => { return (select2_input || '').length > 0 ? '未找到结果' : '输入关键词搜索' },
+        inputTooShort: () => { return '输入关键词搜索' },
+        searching: () => { return '搜索中...' },
+        maximumSelected: () => { return '只能选择 1 项' }
       }
     })
     this.__select2 = select2

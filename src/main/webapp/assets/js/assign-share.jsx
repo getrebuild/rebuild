@@ -248,9 +248,10 @@ class DlgShareManager extends RbModalHandler {
 
 // 用户选择组件 select2
 let __initUserSelect2 = function (el, multiple) {
+  let s_input = null
   let s = $(el).select2({
     placeholder: '选择用户',
-    minimumInputLength: 1,
+    minimumInputLength: 0,
     multiple: multiple === true,
     ajax: {
       url: rb.baseUrl + '/commons/search/search',
@@ -259,16 +260,27 @@ let __initUserSelect2 = function (el, multiple) {
         let query = {
           entity: 'User',
           qfields: 'loginName,fullName,email,quickCode',
-          q: params.term
+          q: params.term,
+          type: 'UDR'
         }
+        s_input = params.term
         return query
       },
       processResults: function (data) {
-        let rs = data.data.map((item) => { return item })
-        return { results: rs }
+        return { results: data.data }
       }
+    },
+    language: {
+      noResults: () => { return (s_input || '').length > 0 ? '未找到结果' : '输入用户名/邮箱搜索' },
+      inputTooShort: () => { return '输入用户名/邮箱搜索' },
+      searching: () => { return '搜索中...' }
     }
   })
+  s.on('change.select2', (e) => {
+    let v = e.target.value
+    if (v) $.post(`${rb.baseUrl}/commons/search/recently-add?id=${v}&type=UDR`)
+  })
+
   return s
 }
 

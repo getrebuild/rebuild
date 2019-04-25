@@ -63,10 +63,20 @@ public class ReferenceSearch extends BaseControll {
 	// 指定字段搜索
 	@RequestMapping("search")
 	public void search(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String entity = getParameterNotNull(request, "entity");
+		final ID user = getRequestUser(request);
+		final String entity = getParameterNotNull(request, "entity");
+		
 		String q = getParameter(request, "q");
+		// 为空则加载最近使用的
 		if (StringUtils.isBlank(q)) {
-			writeSuccess(response, JSONUtils.EMPTY_ARRAY);
+			String type = getParameter(request, "type");
+			ID[] recently = Application.getRecentlySearchCache().gets(user, entity, type);
+			if (recently.length == 0) {
+				writeSuccess(response, JSONUtils.EMPTY_ARRAY);
+			} else {
+				writeSuccess(response, 
+						RecentlySearchControll.formatSelect2(recently, true));
+			}
 			return;
 		}
 		q = StringEscapeUtils.escapeSql(q);
@@ -74,11 +84,12 @@ public class ReferenceSearch extends BaseControll {
 		Entity metaEntity = MetadataHelper.getEntity(entity);
 		Field nameField = MetadataHelper.getNameField(metaEntity);
 		if (nameField == null) {
+			LOG.warn("No name-field found : " + entity);
 			writeSuccess(response, ArrayUtils.EMPTY_STRING_ARRAY);
 			return;
 		}
 		
-		// 查询字段，未指定则查询名称
+		// 查询字段，未指定则使用名称字段和 quickCode
 		String qfields = getParameter(request, "qfields");
 		if (StringUtils.isBlank(qfields)) {
 			qfields = nameField.getName();
@@ -114,6 +125,7 @@ public class ReferenceSearch extends BaseControll {
 	// 搜索引用字段
 	@RequestMapping({ "reference", "quick" })
 	public void referenceSearch(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		final ID user = getRequestUser(request);
 		final String entity = getParameterNotNull(request, "entity");
 		final String field = getParameterNotNull(request, "field");
 		
@@ -127,6 +139,7 @@ public class ReferenceSearch extends BaseControll {
 		Entity referenceEntity = referenceField.getReferenceEntity();
 		Field referenceNameField = MetadataHelper.getNameField(referenceEntity);
 		if (referenceNameField == null) {
+			LOG.warn("No name-field found : " + referenceEntity.getName());
 			writeSuccess(response, JSONUtils.EMPTY_ARRAY);
 			return;
 		}
@@ -134,7 +147,8 @@ public class ReferenceSearch extends BaseControll {
 		String q = getParameter(request, "q");
 		// 为空则加载最近使用的
 		if (StringUtils.isBlank(q)) {
-			ID[] recently = Application.getRecentlySearchCache().gets(getRequestUser(request), referenceEntity.getName(), null);
+			String type = getParameter(request, "type");
+			ID[] recently = Application.getRecentlySearchCache().gets(user, referenceEntity.getName(), type);
 			if (recently.length == 0) {
 				writeSuccess(response, JSONUtils.EMPTY_ARRAY);
 			} else {
