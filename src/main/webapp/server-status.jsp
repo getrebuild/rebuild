@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.rebuild.utils.AppUtils"%>
-<%@ page import="com.rebuild.server.helper.SystemConfig"%>
+<%@ page import="com.rebuild.server.helper.SysConfiguration"%>
 <%@ page import="org.apache.commons.lang.SystemUtils"%>
 <%@ page import="cn.devezhao.commons.CalendarUtils"%>
 <%@ page import="com.rebuild.server.ServerListener"%>
@@ -79,7 +79,7 @@
 		</tr>
 		<tr>
 			<th>Temp Directory</th>
-			<td><%=SystemConfig.getFileOfTemp("/")%></td>
+			<td><%=SysConfiguration.getFileOfTemp("/")%></td>
 		</tr>
 	</tbody>
 	</table>

@@ -43,11 +43,11 @@ import cn.devezhao.persist4j.engine.ID;
  * 
  * @author devezhao
  * @since 10/14/2018
- * @see ConfigItem
+ * @see ConfigurableItem
  */
-public class SystemConfig {
+public class SysConfiguration {
 	
-	private static final Log LOG = LogFactory.getLog(SystemConfig.class);
+	private static final Log LOG = LogFactory.getLog(SysConfiguration.class);
 	
 	/**
 	 * 获取临时文件（或目录）
@@ -56,7 +56,7 @@ public class SystemConfig {
 	 * @return
 	 */
 	public static File getFileOfTemp(String file) {
-		String tmp = get(ConfigItem.TempDirectory);
+		String tmp = get(ConfigurableItem.TempDirectory, null);
 		File tmpFile = null;
 		if (tmp != null) {
 			tmpFile = new File(tmp);
@@ -77,7 +77,7 @@ public class SystemConfig {
 	 * @return
 	 */
 	public static File getFileOfRes(String file) {
-		URL fileUrl = SystemConfig.class.getClassLoader().getResource(file);
+		URL fileUrl = SysConfiguration.class.getClassLoader().getResource(file);
 		try {
 			File resFile = new File(fileUrl.toURI());
 			return resFile;
@@ -103,7 +103,7 @@ public class SystemConfig {
 	 */
 	public static String[] getStorageAccount() {
 		return getsNoUnset(
-				ConfigItem.StorageApiKey, ConfigItem.StorageApiSecret, ConfigItem.StorageBucket, ConfigItem.StorageURL);
+				ConfigurableItem.StorageApiKey, ConfigurableItem.StorageApiSecret, ConfigurableItem.StorageBucket, ConfigurableItem.StorageURL);
 	}
 	
 	/**
@@ -113,7 +113,7 @@ public class SystemConfig {
 	 */
 	public static String[] getCacheAccount() {
 		return getsNoUnset(
-				ConfigItem.CacheHost, ConfigItem.CachePort, ConfigItem.CachePassword);
+				ConfigurableItem.CacheHost, ConfigurableItem.CachePort, ConfigurableItem.CachePassword);
 	}
 	
 	/**
@@ -123,7 +123,7 @@ public class SystemConfig {
 	 */
 	public static String[] getMailAccount() {
 		return getsNoUnset(
-				ConfigItem.MailUser, ConfigItem.MailPassword, ConfigItem.MailAddr, ConfigItem.MailName);
+				ConfigurableItem.MailUser, ConfigurableItem.MailPassword, ConfigurableItem.MailAddr, ConfigurableItem.MailName);
 	}
 	
 	/**
@@ -133,7 +133,7 @@ public class SystemConfig {
 	 */
 	public static String[] getSmsAccount() {
 		return getsNoUnset(
-				ConfigItem.SmsUser, ConfigItem.SmsPassword, ConfigItem.SmsSign);
+				ConfigurableItem.SmsUser, ConfigurableItem.SmsPassword, ConfigurableItem.SmsSign);
 	}
 	
 	/**
@@ -142,10 +142,10 @@ public class SystemConfig {
 	 * @param items
 	 * @return
 	 */
-	private static String[] getsNoUnset(ConfigItem... items) {
+	private static String[] getsNoUnset(ConfigurableItem... items) {
 		List<String> list = new ArrayList<>();
-		for (ConfigItem item : items) {
-			String v = get(item);
+		for (ConfigurableItem item : items) {
+			String v = get(item, false);
 			if (v == null) {
 				return null;
 			}
@@ -158,18 +158,10 @@ public class SystemConfig {
 	
 	/**
 	 * @param name
-	 * @return
-	 */
-	public static String get(ConfigItem name) {
-		return get(name, false);
-	}
-	
-	/**
-	 * @param name
 	 * @param reload
 	 * @return
 	 */
-	public static String get(ConfigItem name, boolean reload) {
+	public static String get(ConfigurableItem name, boolean reload) {
 		final String key = name.name();
 		String s = Application.getCommonCache().get(key);
 		if (s != null && !reload) {
@@ -190,7 +182,7 @@ public class SystemConfig {
 		if (s == null) {
 			Application.getCommonCache().evict(key);
 		} else {
-			Application.getCommonCache().put(key, s);
+			Application.getCommonCache().put(key, s, 2 * 60 * 60);
 		}
 		return s;
 	}
@@ -200,9 +192,13 @@ public class SystemConfig {
 	 * @param defaultValue
 	 * @return
 	 */
-	public static long getLong(ConfigItem name, long defaultValue) {
-		String s = get(name);
-		return s == null ? defaultValue : NumberUtils.toLong(s);
+	public static String get(ConfigurableItem name, String defaultValue) {
+		String s = get(name, false);
+		if (s == null) {
+			Object v = defaultValue != null ? defaultValue : name.getDefaultValue();
+			return v == null ? null : v.toString();
+		}
+		return s;
 	}
 	
 	/**
@@ -210,9 +206,25 @@ public class SystemConfig {
 	 * @param defaultValue
 	 * @return
 	 */
-	public static boolean getBool(ConfigItem name, boolean defaultValue) {
-		String s = get(name);
-		return s == null ? defaultValue : BooleanUtils.toBoolean(s);
+	public static long getLong(ConfigurableItem name, Long defaultValue) {
+		String s = get(name, false);
+		if (s == null) {
+			return defaultValue != null ? defaultValue : (Long) name.getDefaultValue();
+		}
+		return NumberUtils.toLong(s);
+	}
+	
+	/**
+	 * @param name
+	 * @param defaultValue
+	 * @return
+	 */
+	public static boolean getBool(ConfigurableItem name, Boolean defaultValue) {
+		String s = get(name, false);
+		if (s == null) {
+			return defaultValue != null ? defaultValue : (Boolean) name.getDefaultValue();
+		}
+		return BooleanUtils.toBoolean(s);
 	}
 	
 	/**
@@ -220,7 +232,7 @@ public class SystemConfig {
 	 * @param value
 	 * @return
 	 */
-	public static void set(ConfigItem name, Object value) {
+	public static void set(ConfigurableItem name, Object value) {
 		Object[] exists = Application.createQueryNoFilter(
 				"select configId from SystemConfig where item = ?")
 				.setParameter(1, name.name())

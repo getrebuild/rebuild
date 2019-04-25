@@ -27,8 +27,6 @@ import com.rebuild.server.metadata.MetadataHelper;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 
 /**
- * TODO
- * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/04/13
  */

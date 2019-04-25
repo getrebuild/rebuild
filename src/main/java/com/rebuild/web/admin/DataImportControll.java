@@ -40,8 +40,8 @@ import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.dataio.DataFileParser;
 import com.rebuild.server.business.dataio.DataImporter;
-import com.rebuild.server.business.dataio.ImportEnter;
-import com.rebuild.server.helper.SystemConfig;
+import com.rebuild.server.business.dataio.ImportRule;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.task.BulkTask;
 import com.rebuild.server.helper.task.BulkTaskExecutor;
 import com.rebuild.server.metadata.EntityHelper;
@@ -165,15 +165,15 @@ public class DataImportControll extends BasePageControll {
 	@RequestMapping("/dataio/import-submit")
 	public void importSubmit(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		JSONObject idata = (JSONObject) ServletUtils.getRequestJson(request);
-		ImportEnter ienter = null;
+		ImportRule irule = null;
 		try {
-			ienter = ImportEnter.parse(idata);
+			irule = ImportRule.parse(idata);
 		} catch (IllegalArgumentException ex) {
 			writeFailure(response, ex.getLocalizedMessage());
 			return;
 		}
 		
-		DataImporter importer = new DataImporter(ienter, getRequestUser(request));
+		DataImporter importer = new DataImporter(irule, getRequestUser(request));
 		if (getBoolParameter(request, "preview")) {
 			// TODO 导入预览
 		} else {
@@ -242,7 +242,7 @@ public class DataImportControll extends BasePageControll {
 			file = CodecUtils.urlDecode(file);
 			file = CodecUtils.urlDecode(file);
 		}
-		File tmp = SystemConfig.getFileOfTemp(file);
+		File tmp = SysConfiguration.getFileOfTemp(file);
 		return (!tmp.exists() || tmp.isDirectory()) ? null : tmp;
 	}
 }

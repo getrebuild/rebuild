@@ -64,7 +64,7 @@ public class SMSender {
 	 * @throws ConfigurationException If mail-account unset
 	 */
 	public static String sendMail(String to, String subject, String content, boolean useTemplate) throws ConfigurationException {
-		String account[] = SystemConfig.getMailAccount();
+		String account[] = SysConfiguration.getMailAccount();
 		if (account == null) {
 			throw new ConfigurationException("邮箱账户未配置");
 		}
@@ -118,7 +118,7 @@ public class SMSender {
 	 * @throws IOException
 	 */
 	protected static Element getMailTemplate() throws IOException {
-		File temp = SystemConfig.getFileOfRes("locales/mail-notify.html");
+		File temp = SysConfiguration.getFileOfRes("locales/mail-notify.html");
 		Document html = Jsoup.parse(temp, "utf-8");
 		return html.body();
 	}
@@ -130,7 +130,7 @@ public class SMSender {
 	 * @throws ConfigurationException If sms-account unset
 	 */
 	public static String sendSMS(String to, String content) throws ConfigurationException {
-		String account[] = SystemConfig.getSmsAccount();
+		String account[] = SysConfiguration.getSmsAccount();
 		if (account == null) {
 			throw new ConfigurationException("短信账户未配置");
 		}

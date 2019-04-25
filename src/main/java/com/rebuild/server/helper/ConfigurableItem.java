@@ -19,15 +19,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.helper;
 
 /**
- * 预置系统配置项，所有配置应在此处声明
+ * 可配置系统项，所有配置应在此处声明
  * 
  * @author devezhao
  * @since 12/25/2018
  */
-public enum ConfigItem {
+public enum ConfigurableItem {
 
 	// 通用
-	AppName, LOGO, LOGOWhite, HomeURL, OpenSignUp,
+	AppName("REBUILD"), LOGO, LOGOWhite, HomeURL, OpenSignUp(false),
 	
 	// 临时目录
 	TempDirectory,
@@ -45,7 +45,23 @@ public enum ConfigItem {
 	SmsUser, SmsPassword, SmsSign,
 	
 	// Build-in
-	DBVer
+	DBVer,
+	
+	// 启用最近搜素缓存
+	TurnRecentlySearch(true)
 	
 	;
+	
+	private Object defaultVal;
+	
+	private ConfigurableItem() {
+	}
+	
+	private ConfigurableItem(Object defaultVal) {
+		this.defaultVal = defaultVal;
+	}
+	
+	public Object getDefaultValue() {
+		return defaultVal;
+	}
 }

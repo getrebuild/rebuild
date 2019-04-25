@@ -22,7 +22,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.rebuild.server.helper.SystemConfig;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BasePageControll;
 
@@ -31,10 +31,11 @@ import com.rebuild.web.BasePageControll;
  * 
  * @author zhaofang123@gmail.com
  * @since 09/20/2018
+ * @see SysConfiguration
  */
 @Controller
 @RequestMapping("/admin/")
-public class SystemConfigurerContoll extends BasePageControll {
+public class SysConfigControll extends BasePageControll {
 
 	@RequestMapping("systems")
 	public ModelAndView pageSystems() {
@@ -45,7 +46,7 @@ public class SystemConfigurerContoll extends BasePageControll {
 	public ModelAndView pageIntegrationStorage() {
 		ModelAndView mv = createModelAndView("/admin/integration/storage-qiniu.jsp");
 		mv.getModel().put("storageAccount",
-				starsAccount(SystemConfig.getStorageAccount(), 0, 1));
+				starsAccount(SysConfiguration.getStorageAccount(), 0, 1));
 		return mv;
 	}
 	
@@ -53,7 +54,7 @@ public class SystemConfigurerContoll extends BasePageControll {
 	public ModelAndView pageIntegrationCache() {
 		ModelAndView mv = createModelAndView("/admin/integration/cache-redis.jsp");
 		mv.getModel().put("cacheAccount", 
-				starsAccount(SystemConfig.getCacheAccount(), 2));
+				starsAccount(SysConfiguration.getCacheAccount(), 2));
 		return mv;
 	}
 	
@@ -61,9 +62,9 @@ public class SystemConfigurerContoll extends BasePageControll {
 	public ModelAndView pageIntegrationSubmail() {
 		ModelAndView mv = createModelAndView("/admin/integration/submail.jsp");
 		mv.getModel().put("smsAccount", 
-				starsAccount(SystemConfig.getSmsAccount(), 1));
+				starsAccount(SysConfiguration.getSmsAccount(), 1));
 		mv.getModel().put("mailAccount", 
-				starsAccount(SystemConfig.getMailAccount(), 1));
+				starsAccount(SysConfiguration.getMailAccount(), 1));
 		return mv;
 	}
 	

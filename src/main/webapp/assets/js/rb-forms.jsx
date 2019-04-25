@@ -725,25 +725,33 @@ class RbFormReference extends RbFormElement {
     if (this.state.viewMode === true) return
 
     let that = this
+    const entity = this.props.$$$parent.props.entity
+    let select2_input = null
     let select2 = $(this.refs['field-value']).select2({
       placeholder: '选择' + this.props.label,
-      minimumInputLength: 1,
+      minimumInputLength: 0,
       maximumSelectionLength: 1,
       ajax: {
         url: rb.baseUrl + '/commons/search/reference',
         delay: 300,
         data: function (params) {
           let query = {
-            entity: that.props.$$$parent.props.entity,
+            entity: entity,
             field: that.props.field,
             q: params.term
           }
+          select2_input = params.term
           return query
         },
         processResults: function (data) {
-          let rs = data.data.map((item) => { return item })
-          return { results: rs }
+          return { results: data.data }
         }
+      },
+      language: {
+        noResults: () => { return (select2_input || '').length > 0 ? '未找到结果' : '输入关键词搜索' },
+        inputTooShort: () => { return '输入关键词搜索' },
+        searching: () => { return '搜索中...' },
+        maximumSelected: () => { return '只能选择 1 项' }
       }
     })
     this.__select2 = select2
@@ -756,8 +764,11 @@ class RbFormReference extends RbFormElement {
       }
       select2.trigger('change')
       select2.on('change.select2', function (e) {
-        // TODO Clear 触发两次 ???
-        that.handleChange({ target: { value: e.target.value } }, true)
+        let v = e.target.value
+        if (v) {
+          $.post(`${rb.baseUrl}/commons/search/recently-add?id=${v}`)
+        }
+        that.handleChange({ target: { value: v } }, true)
       })
     }, 100)
   }

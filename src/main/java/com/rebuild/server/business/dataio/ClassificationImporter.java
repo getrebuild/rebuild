@@ -32,7 +32,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
 import com.rebuild.server.helper.QiniuCloud;
-import com.rebuild.server.helper.SystemConfig;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.task.BulkTask;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -171,7 +171,7 @@ public class ClassificationImporter extends BulkTask {
 			fileUrl = DATA_REPO + fileUrl;
 		}
 		
-		File tmp = SystemConfig.getFileOfTemp("classifications.tmp." + CodecUtils.randomCode(6));
+		File tmp = SysConfiguration.getFileOfTemp("classifications.tmp." + CodecUtils.randomCode(6));
 		JSON d = null;
 		try {
 			if (QiniuCloud.instance().download(new URL(fileUrl), tmp)) {

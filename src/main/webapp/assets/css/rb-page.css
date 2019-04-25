@@ -399,6 +399,19 @@ body.view-body {
     max-width: 200px;
 }
 
+.select2-container--default .select2-results__group {
+    color: #888;
+    font-size: 12px;
+    font-weight: normal;
+}
+
+.select2-container--default .select2-results__group::after {
+    content: '';
+    display: block;
+    float: right;
+    color: #4285f4;
+}
+
 textarea.row2x {
     height: 52px !important;
     resize: none;

@@ -63,7 +63,7 @@ public class QiniuCloud {
 	 * 初始化
 	 */
 	synchronized public void init() {
-		String[] account = SystemConfig.getStorageAccount();
+		String[] account = SysConfiguration.getStorageAccount();
 		if (account != null) {
 			this.auth = Auth.create(account[0], account[1]);
 			this.bucketName = account[2];
@@ -103,7 +103,7 @@ public class QiniuCloud {
 	 * @throws Exception
 	 */
 	public String upload(URL url) throws Exception {
-		File tmp = SystemConfig.getFileOfTemp("temp-" + System.currentTimeMillis());
+		File tmp = SysConfiguration.getFileOfTemp("temp-" + System.currentTimeMillis());
 		boolean success = download(url, tmp);
 		if (!success) {
 			throw new RebuildException("无法从 URL 读取文件 : " + url);
@@ -133,7 +133,7 @@ public class QiniuCloud {
 	 * @return
 	 */
 	public String url(String filePath, int seconds) {
-		String baseUrl = SystemConfig.getStorageUrl() + filePath;
+		String baseUrl = SysConfiguration.getStorageUrl() + filePath;
 		// default use HTTPS
 		if (baseUrl.startsWith("//")) {
 			baseUrl = "https:" + baseUrl;
