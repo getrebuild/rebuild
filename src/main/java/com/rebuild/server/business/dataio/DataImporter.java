@@ -58,40 +58,40 @@ public class DataImporter extends BulkTask {
 	
 	private static final ThreadLocal<ID> IN_IMPORTING = new ThreadLocal<>();
 	
-	final private ImportEnter enter;
+	final private ImportRule rule;
 	final private ID owningUser;
 	
 	private int success = 0;
 	private Map<Integer, Object> logging = new LinkedHashMap<>();
 	
 	/**
-	 * @param enter
+	 * @param rule
 	 */
-	public DataImporter(ImportEnter enter) {
-		this(enter, Application.getCurrentUser());
+	public DataImporter(ImportRule rule) {
+		this(rule, Application.getCurrentUser());
 	}
 	
 	/**
-	 * @param enter
+	 * @param rule
 	 * @param user
 	 */
-	public DataImporter(ImportEnter enter, ID user) {
-		this.enter = enter;
-		this.owningUser = enter.getDefaultOwningUser() == null ? user : enter.getDefaultOwningUser();
+	public DataImporter(ImportRule rule, ID user) {
+		this.rule = rule;
+		this.owningUser = rule.getDefaultOwningUser() == null ? user : rule.getDefaultOwningUser();
 	}
 	
 	/**
 	 * @return
 	 */
-	public ImportEnter getImportEnter() {
-		return enter;
+	protected ImportRule getImportRule() {
+		return rule;
 	}
 	
 	@Override
 	public void run() {
 		DataFileParser fileParser = null;
 		try {
-			fileParser = new DataFileParser(enter.getSourceFile());
+			fileParser = new DataFileParser(rule.getSourceFile());
 			setTotal(fileParser.getRowsCount() - 1);
 			
 			ExcelReader reader = fileParser.getExcelReader();
@@ -113,7 +113,7 @@ public class DataImporter extends BulkTask {
 					
 					Record record = checkoutRecord(cell);
 					if (record != null) {
-						record = Application.getEntityService(enter.getToEntity().getEntityCode()).createOrUpdate(record);
+						record = Application.getEntityService(rule.getToEntity().getEntityCode()).createOrUpdate(record);
 						this.success++;
 						logging.put(reader.getRowIndex(), record.getPrimary());
 					}
@@ -150,9 +150,9 @@ public class DataImporter extends BulkTask {
 	 * @return
 	 */
 	protected Record checkoutRecord(Cell cells[]) {
-		Record recordNew = EntityHelper.forNew(enter.getToEntity().getEntityCode(), this.owningUser);
+		Record recordNew = EntityHelper.forNew(rule.getToEntity().getEntityCode(), this.owningUser);
 		
-		for (Map.Entry<Field, Integer> e : enter.getFiledsMapping().entrySet()) {
+		for (Map.Entry<Field, Integer> e : rule.getFiledsMapping().entrySet()) {
 			int cellIndex = e.getValue();
 			if (cells.length > cellIndex) {
 				Field field = e.getKey();
@@ -166,14 +166,14 @@ public class DataImporter extends BulkTask {
 		Record record = recordNew;
 		
 		// 检查重复
-		if (enter.getRepeatOpt() < ImportEnter.REPEAT_OPT_IGNORE) {
-			final ID repeat = getRepeatedRecordId(enter.getRepeatFields(), recordNew);
+		if (rule.getRepeatOpt() < ImportRule.REPEAT_OPT_IGNORE) {
+			final ID repeat = getRepeatedRecordId(rule.getRepeatFields(), recordNew);
 			
-			if (repeat != null && enter.getRepeatOpt() == ImportEnter.REPEAT_OPT_SKIP) {
+			if (repeat != null && rule.getRepeatOpt() == ImportRule.REPEAT_OPT_SKIP) {
 				return null;
 			}
 			
-			if (repeat != null && enter.getRepeatOpt() == ImportEnter.REPEAT_OPT_UPDATE) {
+			if (repeat != null && rule.getRepeatOpt() == ImportRule.REPEAT_OPT_UPDATE) {
 				record = EntityHelper.forUpdate(repeat, this.owningUser);
 				for (Iterator<String> iter = recordNew.getAvailableFieldIterator(); iter.hasNext(); ) {
 					String field = iter.next();
@@ -189,7 +189,7 @@ public class DataImporter extends BulkTask {
 		
 		// Verify new record
 		if (record.getPrimary() == null) {
-			ExtRecordCreator verifier = new ExtRecordCreator(enter.getToEntity(), JSONUtils.EMPTY_OBJECT, null);
+			ExtRecordCreator verifier = new ExtRecordCreator(rule.getToEntity(), JSONUtils.EMPTY_OBJECT, null);
 			verifier.verify(recordNew, true);
 		}
 		return record;

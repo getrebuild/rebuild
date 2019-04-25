@@ -44,9 +44,9 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 01/10/2019
  */
-public class ImportEnter {
+public class ImportRule {
 	
-	private static final Log LOG = LogFactory.getLog(ImportEnter.class);
+	private static final Log LOG = LogFactory.getLog(ImportRule.class);
 
 	public static final int REPEAT_OPT_UPDATE = 1;
 	public static final int REPEAT_OPT_SKIP = 2;
@@ -70,7 +70,7 @@ public class ImportEnter {
 	 * @param defaultOwningUser
 	 * @param filedsMapping
 	 */
-	protected ImportEnter(File sourceFile, Entity toEntity, int repeatOpt, Field[] repeatFields, ID defaultOwningUser,
+	protected ImportRule(File sourceFile, Entity toEntity, int repeatOpt, Field[] repeatFields, ID defaultOwningUser,
 			Map<Field, Integer> filedsMapping) {
 		this.sourceFile = sourceFile;
 		this.toEntity = toEntity;
@@ -113,7 +113,7 @@ public class ImportEnter {
 	 * @return
 	 * @throws IllegalArgumentException
 	 */
-	public static ImportEnter parse(JSONObject rule) throws IllegalArgumentException {
+	public static ImportRule parse(JSONObject rule) throws IllegalArgumentException {
 		Assert.notNull(rule.getString("entity"), "Node `entity`");
 		Assert.notNull(rule.getString("file"), "Node `file`");
 		Assert.notNull(rule.getInteger("repeat_opt"), "Node `repeat_opt`");
@@ -124,7 +124,7 @@ public class ImportEnter {
 		
 		// from TestCase
 		if (file == null || !file.exists()) {
-			URL testFile = ImportEnter.class.getClassLoader().getResource(rule.getString("file"));
+			URL testFile = ImportRule.class.getClassLoader().getResource(rule.getString("file"));
 			if (testFile != null) {
 				try {
 					file = new File(testFile.toURI());
@@ -159,6 +159,6 @@ public class ImportEnter {
 			filedsMapping.put(entity.getField(e.getKey()), (Integer) e.getValue());
 		}
 		
-		return new ImportEnter(file, entity, repeatOpt, repeatFields, ownUser, filedsMapping);
+		return new ImportRule(file, entity, repeatOpt, repeatFields, ownUser, filedsMapping);
 	}
 }
