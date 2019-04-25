@@ -19,12 +19,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.helper;
 
 /**
- * 预置系统配置项，所有配置应在此处声明
+ * 可配置系统项，所有配置应在此处声明
  * 
  * @author devezhao
  * @since 12/25/2018
  */
-public enum ConfigurationItem {
+public enum ConfigurableItem {
 
 	// 通用
 	AppName("REBUILD"), LOGO, LOGOWhite, HomeURL, OpenSignUp(false),
@@ -54,10 +54,10 @@ public enum ConfigurationItem {
 	
 	private Object defaultVal;
 	
-	private ConfigurationItem() {
+	private ConfigurableItem() {
 	}
 	
-	private ConfigurationItem(Object defaultVal) {
+	private ConfigurableItem(Object defaultVal) {
 		this.defaultVal = defaultVal;
 	}
 	

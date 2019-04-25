@@ -26,7 +26,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.rebuild.server.helper.ConfigurationItem;
+import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.portals.value.FieldValueWrapper;
@@ -161,6 +161,6 @@ public class RecentlySearchCache {
 	 * @return
 	 */
 	private boolean isTurnOn() {
-		return SysConfiguration.getBool(ConfigurationItem.TurnRecentlySearch, true);
+		return SysConfiguration.getBool(ConfigurableItem.TurnRecentlySearch, true);
 	}
 }

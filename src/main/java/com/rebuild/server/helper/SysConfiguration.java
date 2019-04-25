@@ -43,7 +43,7 @@ import cn.devezhao.persist4j.engine.ID;
  * 
  * @author devezhao
  * @since 10/14/2018
- * @see ConfigurationItem
+ * @see ConfigurableItem
  */
 public class SysConfiguration {
 	
@@ -56,7 +56,7 @@ public class SysConfiguration {
 	 * @return
 	 */
 	public static File getFileOfTemp(String file) {
-		String tmp = get(ConfigurationItem.TempDirectory, null);
+		String tmp = get(ConfigurableItem.TempDirectory, null);
 		File tmpFile = null;
 		if (tmp != null) {
 			tmpFile = new File(tmp);
@@ -103,7 +103,7 @@ public class SysConfiguration {
 	 */
 	public static String[] getStorageAccount() {
 		return getsNoUnset(
-				ConfigurationItem.StorageApiKey, ConfigurationItem.StorageApiSecret, ConfigurationItem.StorageBucket, ConfigurationItem.StorageURL);
+				ConfigurableItem.StorageApiKey, ConfigurableItem.StorageApiSecret, ConfigurableItem.StorageBucket, ConfigurableItem.StorageURL);
 	}
 	
 	/**
@@ -113,7 +113,7 @@ public class SysConfiguration {
 	 */
 	public static String[] getCacheAccount() {
 		return getsNoUnset(
-				ConfigurationItem.CacheHost, ConfigurationItem.CachePort, ConfigurationItem.CachePassword);
+				ConfigurableItem.CacheHost, ConfigurableItem.CachePort, ConfigurableItem.CachePassword);
 	}
 	
 	/**
@@ -123,7 +123,7 @@ public class SysConfiguration {
 	 */
 	public static String[] getMailAccount() {
 		return getsNoUnset(
-				ConfigurationItem.MailUser, ConfigurationItem.MailPassword, ConfigurationItem.MailAddr, ConfigurationItem.MailName);
+				ConfigurableItem.MailUser, ConfigurableItem.MailPassword, ConfigurableItem.MailAddr, ConfigurableItem.MailName);
 	}
 	
 	/**
@@ -133,7 +133,7 @@ public class SysConfiguration {
 	 */
 	public static String[] getSmsAccount() {
 		return getsNoUnset(
-				ConfigurationItem.SmsUser, ConfigurationItem.SmsPassword, ConfigurationItem.SmsSign);
+				ConfigurableItem.SmsUser, ConfigurableItem.SmsPassword, ConfigurableItem.SmsSign);
 	}
 	
 	/**
@@ -142,9 +142,9 @@ public class SysConfiguration {
 	 * @param items
 	 * @return
 	 */
-	private static String[] getsNoUnset(ConfigurationItem... items) {
+	private static String[] getsNoUnset(ConfigurableItem... items) {
 		List<String> list = new ArrayList<>();
-		for (ConfigurationItem item : items) {
+		for (ConfigurableItem item : items) {
 			String v = get(item, false);
 			if (v == null) {
 				return null;
@@ -161,7 +161,7 @@ public class SysConfiguration {
 	 * @param reload
 	 * @return
 	 */
-	public static String get(ConfigurationItem name, boolean reload) {
+	public static String get(ConfigurableItem name, boolean reload) {
 		final String key = name.name();
 		String s = Application.getCommonCache().get(key);
 		if (s != null && !reload) {
@@ -192,7 +192,7 @@ public class SysConfiguration {
 	 * @param defaultValue
 	 * @return
 	 */
-	public static String get(ConfigurationItem name, String defaultValue) {
+	public static String get(ConfigurableItem name, String defaultValue) {
 		String s = get(name, false);
 		if (s == null) {
 			Object v = defaultValue != null ? defaultValue : name.getDefaultValue();
@@ -206,7 +206,7 @@ public class SysConfiguration {
 	 * @param defaultValue
 	 * @return
 	 */
-	public static long getLong(ConfigurationItem name, Long defaultValue) {
+	public static long getLong(ConfigurableItem name, Long defaultValue) {
 		String s = get(name, false);
 		if (s == null) {
 			return defaultValue != null ? defaultValue : (Long) name.getDefaultValue();
@@ -219,7 +219,7 @@ public class SysConfiguration {
 	 * @param defaultValue
 	 * @return
 	 */
-	public static boolean getBool(ConfigurationItem name, Boolean defaultValue) {
+	public static boolean getBool(ConfigurableItem name, Boolean defaultValue) {
 		String s = get(name, false);
 		if (s == null) {
 			return defaultValue != null ? defaultValue : (Boolean) name.getDefaultValue();
@@ -232,7 +232,7 @@ public class SysConfiguration {
 	 * @param value
 	 * @return
 	 */
-	public static void set(ConfigurationItem name, Object value) {
+	public static void set(ConfigurableItem name, Object value) {
 		Object[] exists = Application.createQueryNoFilter(
 				"select configId from SystemConfig where item = ?")
 				.setParameter(1, name.name())
