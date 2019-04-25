@@ -27,7 +27,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.persist4j.engine.ID;
@@ -48,11 +50,7 @@ public class RecentlySearchControll extends BaseControll {
 		String entity = getParameterNotNull(request, "entity");
 		String type = getParameter(request, "type");
 		ID recently[] = Application.getRecentlySearchCache().gets(getRequestUser(request), entity, type);
-		JSONArray data = new JSONArray();
-		for (ID id : recently) {
-			data.add(new String[] { id.toLiteral(), id.getLabel() });
-		}
-		writeSuccess(response, data);
+		writeSuccess(response, formatSelect2(recently, true));
 	}
 	
 	@RequestMapping("recently-add")
@@ -69,5 +67,33 @@ public class RecentlySearchControll extends BaseControll {
 		String type = getParameter(request, "type");
 		Application.getRecentlySearchCache().clean(getRequestUser(request),entity, type);
 		writeSuccess(response);
+	}
+	
+	/**
+	 * 格式化成前端 select2 组件数据格式
+	 * 
+	 * @param recently
+	 * @param useGroup
+	 * @return
+	 */
+	protected static JSONArray formatSelect2(ID[] recently, boolean useGroup) {
+		JSONArray data = new JSONArray();
+		for (ID id : recently) {
+			data.add(JSONUtils.toJSONObject(
+					new String[] { "id", "text" }, 
+					new String[] { id.toLiteral(), id.getLabel() }));
+		}
+		
+		if (useGroup) {
+			JSONObject group = new JSONObject();
+			group.put("text", "最近使用");
+			group.put("children", data);
+			
+			JSONArray array = new JSONArray();
+			array.add(group);
+			data = array;
+		}
+		
+		return data;
 	}
 }

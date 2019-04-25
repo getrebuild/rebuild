@@ -34,7 +34,6 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -131,19 +130,14 @@ public class ReferenceSearch extends BaseControll {
 		}
 		
 		String q = getParameter(request, "q");
-		// 加载最近使用的
+		// 为空则加载最近使用的
 		if (StringUtils.isBlank(q)) {
 			ID[] recently = Application.getRecentlySearchCache().gets(getRequestUser(request), referenceEntity.getName(), null);
 			if (recently.length == 0) {
 				writeSuccess(response, JSONUtils.EMPTY_ARRAY);
 			} else {
-				JSONArray ret = new JSONArray();
-				for (ID id : recently) {
-					ret.add(JSONUtils.toJSONObject(
-							new String[] { "id", "text" }, 
-							new String[] { id.toLiteral(), id.getLabel() }));
-				}
-				writeSuccess(response, ret);
+				writeSuccess(response, 
+						RecentlySearchControll.formatSelect2(recently, true));
 			}
 			return;
 		}

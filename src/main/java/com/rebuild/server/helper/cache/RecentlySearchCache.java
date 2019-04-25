@@ -48,7 +48,7 @@ public class RecentlySearchCache {
 	}
 	
 	/**
-	 * 获取最近使用
+	 * 获取最近使用（最多10个）
 	 * 
 	 * @param user
 	 * @param entity
@@ -56,7 +56,7 @@ public class RecentlySearchCache {
 	 * @return
 	 */
 	public ID[] gets(ID user, String entity, String type) {
-		return gets(user, entity, type, 5);
+		return gets(user, entity, type, 10);
 	}
 	
 	/**

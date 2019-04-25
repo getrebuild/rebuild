@@ -742,8 +742,7 @@ class RbFormReference extends RbFormElement {
           return query
         },
         processResults: function (data) {
-          let rs = data.data.map((item) => { return item })
-          return { results: rs }
+          return { results: data.data }
         }
       }
     })
