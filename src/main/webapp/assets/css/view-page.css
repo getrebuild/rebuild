@@ -212,9 +212,9 @@ body {
 .user-show .name {
 	margin-left: 6px;
 	height: 30px;
-	line-height: 16px;
 	line-height: 30px;
 	color: #4285f4;
+	max-width: 131px;
 }
 
 .user-show .name>em {

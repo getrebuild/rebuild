@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.helper.task;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.rebuild.server.TestSupport;
@@ -39,9 +40,20 @@ public class QuickCodeReindexTaskTest extends TestSupport {
 		Assert.assertTrue("HW".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("HelloWorld!")));
 		Assert.assertTrue("NHSJ".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("你好世界")));
 		Assert.assertTrue("NHSJ".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("你 好           世 界")));
-		Assert.assertTrue("".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("54325432543")));
+		Assert.assertTrue("54325432543".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("54325432543")));
 	}
 	
+	@Test
+	public void testGenerateQuickCode2() throws Exception {
+		// Phone, contains `-`
+		Assert.assertTrue("021-123-123".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("021-123-123")));
+		// EMail, contains `@` and `.`
+		Assert.assertTrue("1234@getrebuild.com".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("1234@getrebuild.com")));
+		// URL
+		Assert.assertTrue("http://getrebuild.com/aswell".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("http://getrebuild.com/aswell")));
+	}
+	
+	@Ignore
 	@Test
 	public void testReindex() throws Exception {
 		new QuickCodeReindexTask(MetadataHelper.getEntity("User")).run();

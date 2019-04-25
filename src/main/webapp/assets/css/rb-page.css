@@ -393,6 +393,10 @@ body.view-body {
 .select2-container--default .select2-selection--multiple .select2-selection__choice {
     margin-top: 4px;
     margin-right: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 200px;
 }
 
 .select2-container--default .select2-results__group {

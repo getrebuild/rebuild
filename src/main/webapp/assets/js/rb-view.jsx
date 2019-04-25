@@ -57,7 +57,7 @@ const UserShow = function (props) {
   let viewUrl = props.id ? ('#!/View/User/' + props.id) : null
   return (<a href={viewUrl} className="user-show" title={props.name} onClick={props.onClick}>
     <div className={'avatar' + (props.showName === true ? ' float-left' : '')}>{props.icon ? <i className={props.icon} /> : <img src={props.avatarUrl} />}</div>
-    {props.showName === true ? <div className="name">{props.name}{props.deptName ? <em>{props.deptName}</em> : null}</div> : null}
+    {props.showName === true ? <div className="name text-truncate">{props.name}{props.deptName ? <em>{props.deptName}</em> : null}</div> : null}
   </a>)
 }
 
@@ -144,10 +144,10 @@ const RbViewPage = {
           if (this.__ep && this.__ep.S === true) {
             let item_op = $('<li class="list-inline-item"></li>').appendTo(list)[0]
             if (v.length === 0) renderRbcomp(<UserShow name="添加共享" icon="zmdi zmdi-plus" onClick={() => { $('.J_share').trigger('click') }} />, item_op)
-            else renderRbcomp(<UserShow name="管理共享用户" icon="zmdi zmdi-more" onClick={() => { rb.DlgUnShare(this.__id) }} />, item_op)
+            else renderRbcomp(<UserShow name="管理共享用户" icon="zmdi zmdi-more" onClick={() => { rb.DlgShareManager(this.__id) }} />, item_op)
           } else if (v.length > 0) {
             let item_op = $('<li class="list-inline-item"></li>').appendTo(list)[0]
-            renderRbcomp(<UserShow name="查看共享用户" icon="zmdi zmdi-more" onClick={() => { rb.DlgUnShare(this.__id, false) }} />, item_op)
+            renderRbcomp(<UserShow name="查看共享用户" icon="zmdi zmdi-more" onClick={() => { rb.DlgShareManager(this.__id, false) }} />, item_op)
           } else {
             $('.J_sharingList').parent().remove()
           }

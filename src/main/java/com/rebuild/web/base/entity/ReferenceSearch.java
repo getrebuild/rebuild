@@ -53,6 +53,8 @@ import cn.devezhao.persist4j.engine.ID;
  * 
  * @author zhaofang123@gmail.com
  * @since 08/24/2018
+ * 
+ * @see ClassificationSearch
  */
 @Controller
 @RequestMapping("/commons/search/")
@@ -159,6 +161,28 @@ public class ReferenceSearch extends BaseControll {
 		writeSuccess(response, result);
 	}
 	
+	// 获取记录的名称字段值
+	@RequestMapping("read-labels")
+	public void referenceLabel(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String ids = getParameter(request, "ids", null);
+		if (ids == null) {
+			writeSuccess(response);
+			return;
+		}
+		
+		Map<String, String> labels = new HashMap<>();
+		for (String id : ids.split("\\|")) {
+			if (!ID.isId(id)) {
+				continue;
+			}
+			String label = FieldValueWrapper.getLabel(ID.valueOf(id));
+			if (label != null) {
+				labels.put(id, label);
+			}
+		}
+		writeSuccess(response, labels);
+	}
+	
 	/**
 	 * 封装查询结果
 	 * 
@@ -187,23 +211,5 @@ public class ReferenceSearch extends BaseControll {
 			result.add(map);
 		}
 		return result;
-	}
-	
-	@RequestMapping("read-labels")
-	public void referenceLabel(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String ids = getParameter(request, "ids", null);
-		if (ids == null) {
-			writeSuccess(response);
-			return;
-		}
-		
-		Map<String, String> labels = new HashMap<>();
-		for (String id : ids.split("\\|")) {
-			if (!ID.isId(id)) {
-				continue;
-			}
-			labels.put(id, FieldValueWrapper.getLabel(ID.valueOf(id)));
-		}
-		writeSuccess(response, labels);
 	}
 }

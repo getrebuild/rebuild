@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.business.dataio.DataImporter;
 import com.rebuild.server.business.series.SeriesGeneratorFactory;
 import com.rebuild.server.helper.task.BulkTaskExecutor;
 import com.rebuild.server.metadata.EntityHelper;
@@ -131,11 +132,10 @@ public class GeneralEntityService extends ObservableService  {
 	protected void setSeriesValue(Record record) {
 		Field[] seriesFields = MetadataSorter.sortFields(record.getEntity(), DisplayType.SERIES);
 		for (Field field : seriesFields) {
-			// 导入
-			if (record.hasValue(field.getName())) {
+			// 导入模式，不强制生成
+			if (record.hasValue(field.getName()) && DataImporter.isInImporting()) {
 				continue;
 			}
-			
 			record.setString(field.getName(), SeriesGeneratorFactory.generate(field));
 		}
 	}
