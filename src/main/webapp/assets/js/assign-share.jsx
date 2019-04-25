@@ -173,8 +173,7 @@ class DlgUnshare extends RbModalHandler {
         $(this._toUser).val(null).trigger('change')
 
         this.hide()
-        let affected = res.data.assigned || res.data.shared || 0
-        if (affected > 0 && rb.env === 'dev') rb.hbsuccess('成功取消共享 ' + affected + ' 条记录')
+        if (res.data.unshared > 0 && rb.env === 'dev') rb.hbsuccess('成功取消共享 ' + res.data.unshared + ' 条记录')
         else rb.hbsuccess('已取消共享')
 
         setTimeout(() => {
@@ -237,7 +236,6 @@ class DlgShareManager extends RbModalHandler {
         if (rb.env === 'dev') rb.hbsuccess('已取消 ' + res.data.unshared + ' 位用户的共享')
         else rb.hbsuccess('共享已取消')
         setTimeout(() => {
-          if (window.RbListPage) RbListPage._RbList.reload()
           if (window.RbViewPage) location.reload()
         }, 500)
       } else {

@@ -141,7 +141,7 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 				} else {
 					Entity refEntity = fieldMeta.getReferenceEntity();
 					if (refEntity != null && refEntity.containsField(fieldPaths[1])) {
-						configList.add(DataListManager.formattedColumn(entityMeta.getField(fieldPaths[1]), fieldMeta));
+						configList.add(DataListManager.formattedColumn(refEntity.getField(fieldPaths[1]), fieldMeta));
 					} else {
 						LOG.warn("Unknow field '" + field + "' in '" + entity + "'");
 					}

@@ -57,7 +57,7 @@ const UserShow = function (props) {
   let viewUrl = props.id ? ('#!/View/User/' + props.id) : null
   return (<a href={viewUrl} className="user-show" title={props.name} onClick={props.onClick}>
     <div className={'avatar' + (props.showName === true ? ' float-left' : '')}>{props.icon ? <i className={props.icon} /> : <img src={props.avatarUrl} />}</div>
-    {props.showName === true ? <div className="name">{props.name}{props.deptName ? <em>{props.deptName}</em> : null}</div> : null}
+    {props.showName === true ? <div className="name text-truncate">{props.name}{props.deptName ? <em>{props.deptName}</em> : null}</div> : null}
   </a>)
 }
 
