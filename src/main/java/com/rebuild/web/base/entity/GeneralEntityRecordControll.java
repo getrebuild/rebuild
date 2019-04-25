@@ -353,8 +353,8 @@ public class GeneralEntityRecordControll extends BaseControll {
 		writeSuccess(response, ret);
 	}
 	
-	@RequestMapping("sharing-list")
-	public void fetchSharingList(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@RequestMapping("shared-list")
+	public void fetchSharedList(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID id = getIdParameterNotNull(request, "id");
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		

@@ -43,7 +43,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class GeneralEntityOperatorControllTest extends MvcTestSupport {
+public class GeneralEntityRecordControllTest extends MvcTestSupport {
 
 	private static ID lastSaveId = ID.newId(999);  // It's fake
 	
@@ -97,7 +97,16 @@ public class GeneralEntityOperatorControllTest extends MvcTestSupport {
 	}
 	
 	@Test
-	public void test5Unshare() throws Exception {
+	public void test5UnshareBatch() throws Exception {
+		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
+				.post("/app/entity/record-unshare-batch?id=" + lastSaveId + "&to=" + UserService.SYSTEM_USER);
+		MvcResponse resp = perform(builder, UserService.ADMIN_USER);
+		System.out.println(resp);
+		Assert.assertTrue(resp.isSuccess());
+	}
+	
+	@Test
+	public void test6Unshare() throws Exception {
 		Object[] accessId = Application.createQueryNoFilter(
 				"select accessId from ShareAccess where belongEntity = ? and recordId = ? and shareTo = ?")
 				.setParameter(1, "TestAllFields")
@@ -116,7 +125,7 @@ public class GeneralEntityOperatorControllTest extends MvcTestSupport {
 	}
 	
 	@Test
-	public void test6FetchRecordMeta() throws Exception {
+	public void test7FetchRecordMeta() throws Exception {
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
 				.post("/app/entity/record-meta?id=" + lastSaveId);
 		MvcResponse resp = perform(builder, UserService.ADMIN_USER);

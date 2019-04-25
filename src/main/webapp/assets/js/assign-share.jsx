@@ -214,7 +214,7 @@ class DlgShareManager extends RbModalHandler {
     </RbModal>)
   }
   componentDidMount() {
-    $.get(`${rb.baseUrl}/app/entity/sharing-list?id=${this.props.id}`, (res) => {
+    $.get(`${rb.baseUrl}/app/entity/shared-list?id=${this.props.id}`, (res) => {
       this.setState({ sharingList: res.data })
     })
   }
