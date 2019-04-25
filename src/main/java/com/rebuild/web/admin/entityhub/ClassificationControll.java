@@ -37,7 +37,7 @@ import com.rebuild.server.metadata.entityhub.ClassificationService;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
-import com.rebuild.web.base.entity.GeneralEntityOperatorControll;
+import com.rebuild.web.base.entity.GeneralEntityRecordControll;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
@@ -107,7 +107,7 @@ public class ClassificationControll extends BasePageControll {
 	}
 	
 	/**
-	 * @see {@link GeneralEntityOperatorControll#save(HttpServletRequest, HttpServletResponse)}
+	 * @see {@link GeneralEntityRecordControll#save(HttpServletRequest, HttpServletResponse)}
 	 */
 	@RequestMapping("classification/save")
 	public void save(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -123,7 +123,7 @@ public class ClassificationControll extends BasePageControll {
 	}
 	
 	/**
-	 * @see {@link GeneralEntityOperatorControll#delete(HttpServletRequest, HttpServletResponse)}
+	 * @see {@link GeneralEntityRecordControll#delete(HttpServletRequest, HttpServletResponse)}
 	 */
 	@RequestMapping("classification/delete")
 	public void delete(HttpServletRequest request, HttpServletResponse response) throws IOException {

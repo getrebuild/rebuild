@@ -51,7 +51,8 @@
 										<div class="dropdown-menu dropdown-menu-right">
 											<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
 											<a class="dropdown-item J_assign"><i class="icon zmdi zmdi-mail-reply-all"></i> 分派</a>
-											<a class="dropdown-item J_share"><i class="icon zmdi zmdi-share"></i> 共享</a>
+											<a class="dropdown-item J_share"><i class="icon zmdi zmdi-portable-wifi"></i> 共享</a>
+											<a class="dropdown-item J_unshare"><i class="icon zmdi zmdi-portable-wifi-off"></i> 取消共享</a>
 											<div class="dropdown-divider"></div>
 											<a class="dropdown-item J_columns"><i class="icon zmdi zmdi-code-setting"></i> 列显示</a>
 										</div>

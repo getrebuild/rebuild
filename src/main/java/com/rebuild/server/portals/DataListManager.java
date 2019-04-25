@@ -86,7 +86,7 @@ public class DataListManager extends BaseLayoutManager {
 				} else {
 					Entity refEntity = fieldMeta.getReferenceEntity();
 					if (refEntity != null && refEntity.containsField(fieldPaths[1])) {
-						formatted = formattedColumn(entityMeta.getField(fieldPaths[1]), fieldMeta);
+						formatted = formattedColumn(refEntity.getField(fieldPaths[1]), fieldMeta);
 					} else {
 						LOG.warn("Unknow field '" + field + "' in '" + entity + "'");
 					}

@@ -38,6 +38,7 @@ import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.utils.AES;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BasePageControll;
 import com.wf.captcha.utils.CaptchaUtil;
 
@@ -66,6 +67,11 @@ public class LoginControll extends BasePageControll {
 	
 	@RequestMapping("login")
 	public ModelAndView checkLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		if (AppUtils.getRequestUser(request) != null) {
+			response.sendRedirect("../dashboard/home");
+			return null;
+		}
+		
 		String alt = ServletUtils.readCookie(request, CK_AUTOLOGIN);
 		if (StringUtils.isNotBlank(alt)) {
 			ID altUser = null;
