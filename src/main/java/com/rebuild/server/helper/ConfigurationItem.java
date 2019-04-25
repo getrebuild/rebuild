@@ -24,7 +24,7 @@ package com.rebuild.server.helper;
  * @author devezhao
  * @since 12/25/2018
  */
-public enum ConfigItem {
+public enum ConfigurationItem {
 
 	// 通用
 	AppName("REBUILD"), LOGO, LOGOWhite, HomeURL, OpenSignUp(false),
@@ -54,10 +54,10 @@ public enum ConfigItem {
 	
 	private Object defaultVal;
 	
-	private ConfigItem() {
+	private ConfigurationItem() {
 	}
 	
-	private ConfigItem(Object defaultVal) {
+	private ConfigurationItem(Object defaultVal) {
 		this.defaultVal = defaultVal;
 	}
 	

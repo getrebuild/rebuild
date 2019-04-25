@@ -43,11 +43,11 @@ import cn.devezhao.persist4j.engine.ID;
  * 
  * @author devezhao
  * @since 10/14/2018
- * @see ConfigItem
+ * @see ConfigurationItem
  */
-public class SystemConfig {
+public class SysConfiguration {
 	
-	private static final Log LOG = LogFactory.getLog(SystemConfig.class);
+	private static final Log LOG = LogFactory.getLog(SysConfiguration.class);
 	
 	/**
 	 * 获取临时文件（或目录）
@@ -56,7 +56,7 @@ public class SystemConfig {
 	 * @return
 	 */
 	public static File getFileOfTemp(String file) {
-		String tmp = get(ConfigItem.TempDirectory, null);
+		String tmp = get(ConfigurationItem.TempDirectory, null);
 		File tmpFile = null;
 		if (tmp != null) {
 			tmpFile = new File(tmp);
@@ -77,7 +77,7 @@ public class SystemConfig {
 	 * @return
 	 */
 	public static File getFileOfRes(String file) {
-		URL fileUrl = SystemConfig.class.getClassLoader().getResource(file);
+		URL fileUrl = SysConfiguration.class.getClassLoader().getResource(file);
 		try {
 			File resFile = new File(fileUrl.toURI());
 			return resFile;
@@ -103,7 +103,7 @@ public class SystemConfig {
 	 */
 	public static String[] getStorageAccount() {
 		return getsNoUnset(
-				ConfigItem.StorageApiKey, ConfigItem.StorageApiSecret, ConfigItem.StorageBucket, ConfigItem.StorageURL);
+				ConfigurationItem.StorageApiKey, ConfigurationItem.StorageApiSecret, ConfigurationItem.StorageBucket, ConfigurationItem.StorageURL);
 	}
 	
 	/**
@@ -113,7 +113,7 @@ public class SystemConfig {
 	 */
 	public static String[] getCacheAccount() {
 		return getsNoUnset(
-				ConfigItem.CacheHost, ConfigItem.CachePort, ConfigItem.CachePassword);
+				ConfigurationItem.CacheHost, ConfigurationItem.CachePort, ConfigurationItem.CachePassword);
 	}
 	
 	/**
@@ -123,7 +123,7 @@ public class SystemConfig {
 	 */
 	public static String[] getMailAccount() {
 		return getsNoUnset(
-				ConfigItem.MailUser, ConfigItem.MailPassword, ConfigItem.MailAddr, ConfigItem.MailName);
+				ConfigurationItem.MailUser, ConfigurationItem.MailPassword, ConfigurationItem.MailAddr, ConfigurationItem.MailName);
 	}
 	
 	/**
@@ -133,7 +133,7 @@ public class SystemConfig {
 	 */
 	public static String[] getSmsAccount() {
 		return getsNoUnset(
-				ConfigItem.SmsUser, ConfigItem.SmsPassword, ConfigItem.SmsSign);
+				ConfigurationItem.SmsUser, ConfigurationItem.SmsPassword, ConfigurationItem.SmsSign);
 	}
 	
 	/**
@@ -142,9 +142,9 @@ public class SystemConfig {
 	 * @param items
 	 * @return
 	 */
-	private static String[] getsNoUnset(ConfigItem... items) {
+	private static String[] getsNoUnset(ConfigurationItem... items) {
 		List<String> list = new ArrayList<>();
-		for (ConfigItem item : items) {
+		for (ConfigurationItem item : items) {
 			String v = get(item, false);
 			if (v == null) {
 				return null;
@@ -161,7 +161,7 @@ public class SystemConfig {
 	 * @param reload
 	 * @return
 	 */
-	public static String get(ConfigItem name, boolean reload) {
+	public static String get(ConfigurationItem name, boolean reload) {
 		final String key = name.name();
 		String s = Application.getCommonCache().get(key);
 		if (s != null && !reload) {
@@ -192,7 +192,7 @@ public class SystemConfig {
 	 * @param defaultValue
 	 * @return
 	 */
-	public static String get(ConfigItem name, String defaultValue) {
+	public static String get(ConfigurationItem name, String defaultValue) {
 		String s = get(name, false);
 		if (s == null) {
 			Object v = defaultValue != null ? defaultValue : name.getDefaultValue();
@@ -206,7 +206,7 @@ public class SystemConfig {
 	 * @param defaultValue
 	 * @return
 	 */
-	public static long getLong(ConfigItem name, Long defaultValue) {
+	public static long getLong(ConfigurationItem name, Long defaultValue) {
 		String s = get(name, false);
 		if (s == null) {
 			return defaultValue != null ? defaultValue : (Long) name.getDefaultValue();
@@ -219,7 +219,7 @@ public class SystemConfig {
 	 * @param defaultValue
 	 * @return
 	 */
-	public static boolean getBool(ConfigItem name, Boolean defaultValue) {
+	public static boolean getBool(ConfigurationItem name, Boolean defaultValue) {
 		String s = get(name, false);
 		if (s == null) {
 			return defaultValue != null ? defaultValue : (Boolean) name.getDefaultValue();
@@ -232,7 +232,7 @@ public class SystemConfig {
 	 * @param value
 	 * @return
 	 */
-	public static void set(ConfigItem name, Object value) {
+	public static void set(ConfigurationItem name, Object value) {
 		Object[] exists = Application.createQueryNoFilter(
 				"select configId from SystemConfig where item = ?")
 				.setParameter(1, name.name())

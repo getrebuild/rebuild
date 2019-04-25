@@ -24,8 +24,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.rebuild.server.helper.ConfigItem;
-import com.rebuild.server.helper.SystemConfig;
+import com.rebuild.server.helper.ConfigurationItem;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.upgrade.DbScriptsReader;
 
 /**
@@ -66,7 +66,7 @@ public final class UpgradeDatabase {
 			}
 		} finally {
 			if (dbVer != upgradeVer) {
-				SystemConfig.set(ConfigItem.DBVer, upgradeVer);
+				SysConfiguration.set(ConfigurationItem.DBVer, upgradeVer);
 				LOG.info("Upgrade database version : " + upgradeVer);
 			}
 		}
@@ -89,7 +89,7 @@ public final class UpgradeDatabase {
 	 * @return
 	 */
 	public int getDbVer() {
-		return (int) SystemConfig.getLong(ConfigItem.DBVer, 0L);
+		return (int) SysConfiguration.getLong(ConfigurationItem.DBVer, 0L);
 	}
 	
 	private static final UpgradeDatabase INSTANCE = new UpgradeDatabase();

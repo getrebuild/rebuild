@@ -31,7 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.helper.SystemConfig;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.metadata.MetadataHelper;
 
 import cn.devezhao.persist4j.Entity;
@@ -120,7 +120,7 @@ public class ImportEnter {
 		Assert.notNull(rule.getJSONObject("fields_mapping"), "Node `fields_mapping`");
 
 		Entity entity = MetadataHelper.getEntity(rule.getString("entity"));
-		File file = SystemConfig.getFileOfTemp(rule.getString("file"));
+		File file = SysConfiguration.getFileOfTemp(rule.getString("file"));
 		
 		// from TestCase
 		if (file == null || !file.exists()) {
