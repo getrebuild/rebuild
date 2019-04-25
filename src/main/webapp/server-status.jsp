@@ -19,32 +19,24 @@
 </style>
 </head>
 <body>
-<%
-	if (!ServerStatus.isStatusOK()) {
-%>
+<% if (!ServerStatus.isStatusOK()) { %>
 <div class="error">
 <div class="block mt-0">
 	<h4 class="mt-0">系统故障</h4>
 	<div>部分服务未能正常启动，请通过快速检查列表排除故障，故障排除后建议重启服务。你也可以获取 <a href="mailto:getrebuild@sina.com?subject=系统故障">技术支持</a></div>
 </div>
 </div>
-<%
-	}
-%>
+<% } %>
 <div class="block">
 	<h5 class="text-bold">快速检查</h5>
 	<table class="table table-bordered table-sm table-hover">
 	<tbody>
-		<%
-			for (Status s : ServerStatus.getLastStatus()) {
-		%>
+		<% for (Status s : ServerStatus.getLastStatus()) { %>
 		<tr>
 			<th width="30%"><%=s.name%></th>
 			<td class="text-danger"><%=s.success ? "<span class='text-success'>OK<span>" : ("ERROR : " + s.error)%></td>
 		</tr>
-		<%
-			}
-		%>
+		<% } %>
 		<tr>
 			<th>Memory Usage</th>
 			<td>n/a</td>
@@ -56,9 +48,7 @@
 	</tbody>
 	</table>
 </div>
-<%
-	if (AppUtils.getRequestUser(request) != null) {
-%>
+<% if (AppUtils.getRequestUser(request) != null) { %>
 <div class="block">
 	<h5 class="text-bold">系统信息</h5>
 	<table class="table table-bordered table-sm table-hover">
