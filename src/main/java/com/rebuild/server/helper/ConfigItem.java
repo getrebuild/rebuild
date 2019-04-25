@@ -27,7 +27,7 @@ package com.rebuild.server.helper;
 public enum ConfigItem {
 
 	// 通用
-	AppName, LOGO, LOGOWhite, HomeURL, OpenSignUp,
+	AppName("REBUILD"), LOGO, LOGOWhite, HomeURL, OpenSignUp(false),
 	
 	// 临时目录
 	TempDirectory,
@@ -45,7 +45,23 @@ public enum ConfigItem {
 	SmsUser, SmsPassword, SmsSign,
 	
 	// Build-in
-	DBVer
+	DBVer,
+	
+	// 启用最近搜素缓存
+	TurnRecentlySearch(true)
 	
 	;
+	
+	private Object defaultVal;
+	
+	private ConfigItem() {
+	}
+	
+	private ConfigItem(Object defaultVal) {
+		this.defaultVal = defaultVal;
+	}
+	
+	public Object getDefaultValue() {
+		return defaultVal;
+	}
 }

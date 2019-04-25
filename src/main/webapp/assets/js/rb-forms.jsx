@@ -725,16 +725,17 @@ class RbFormReference extends RbFormElement {
     if (this.state.viewMode === true) return
 
     let that = this
+    const entity = this.props.$$$parent.props.entity
     let select2 = $(this.refs['field-value']).select2({
       placeholder: '选择' + this.props.label,
-      minimumInputLength: 1,
+      minimumInputLength: 0,
       maximumSelectionLength: 1,
       ajax: {
         url: rb.baseUrl + '/commons/search/reference',
         delay: 300,
         data: function (params) {
           let query = {
-            entity: that.props.$$$parent.props.entity,
+            entity: entity,
             field: that.props.field,
             q: params.term
           }
@@ -756,8 +757,11 @@ class RbFormReference extends RbFormElement {
       }
       select2.trigger('change')
       select2.on('change.select2', function (e) {
-        // TODO Clear 触发两次 ???
-        that.handleChange({ target: { value: e.target.value } }, true)
+        let v = e.target.value
+        if (v) {
+          $.post(`${rb.baseUrl}/commons/search/recently-add?id=${v}`)
+        }
+        that.handleChange({ target: { value: v } }, true)
       })
     }, 100)
   }

@@ -25,7 +25,7 @@ import org.springframework.cache.CacheManager;
 import redis.clients.jedis.JedisPool;
 
 /**
- * Cache for 
+ * Cache for all
  * 
  * @author devezhao
  * @since 12/24/2018

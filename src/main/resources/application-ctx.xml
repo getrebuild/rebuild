@@ -121,6 +121,10 @@
 		<constructor-arg index="0" ref="jedisPool" />
 		<constructor-arg index="1" ref="ehcacheManager" />
 	</bean>
+	
+	<bean class="com.rebuild.server.helper.cache.RecentlySearchCache">
+		<constructor-arg index="0" ref="commonCache" />
+	</bean>
 
 	<bean class="com.rebuild.server.service.bizz.privileges.SecurityManager">
 		<constructor-arg index="0" ref="userStore" />

@@ -56,7 +56,7 @@ public class SystemConfig {
 	 * @return
 	 */
 	public static File getFileOfTemp(String file) {
-		String tmp = get(ConfigItem.TempDirectory);
+		String tmp = get(ConfigItem.TempDirectory, null);
 		File tmpFile = null;
 		if (tmp != null) {
 			tmpFile = new File(tmp);
@@ -145,7 +145,7 @@ public class SystemConfig {
 	private static String[] getsNoUnset(ConfigItem... items) {
 		List<String> list = new ArrayList<>();
 		for (ConfigItem item : items) {
-			String v = get(item);
+			String v = get(item, false);
 			if (v == null) {
 				return null;
 			}
@@ -155,14 +155,6 @@ public class SystemConfig {
 	}
 	
 	// --
-	
-	/**
-	 * @param name
-	 * @return
-	 */
-	public static String get(ConfigItem name) {
-		return get(name, false);
-	}
 	
 	/**
 	 * @param name
@@ -190,7 +182,7 @@ public class SystemConfig {
 		if (s == null) {
 			Application.getCommonCache().evict(key);
 		} else {
-			Application.getCommonCache().put(key, s);
+			Application.getCommonCache().put(key, s, 2 * 60 * 60);
 		}
 		return s;
 	}
@@ -200,9 +192,13 @@ public class SystemConfig {
 	 * @param defaultValue
 	 * @return
 	 */
-	public static long getLong(ConfigItem name, long defaultValue) {
-		String s = get(name);
-		return s == null ? defaultValue : NumberUtils.toLong(s);
+	public static String get(ConfigItem name, String defaultValue) {
+		String s = get(name, false);
+		if (s == null) {
+			Object v = defaultValue != null ? defaultValue : name.getDefaultValue();
+			return v == null ? null : v.toString();
+		}
+		return s;
 	}
 	
 	/**
@@ -210,9 +206,25 @@ public class SystemConfig {
 	 * @param defaultValue
 	 * @return
 	 */
-	public static boolean getBool(ConfigItem name, boolean defaultValue) {
-		String s = get(name);
-		return s == null ? defaultValue : BooleanUtils.toBoolean(s);
+	public static long getLong(ConfigItem name, Long defaultValue) {
+		String s = get(name, false);
+		if (s == null) {
+			return defaultValue != null ? defaultValue : (Long) name.getDefaultValue();
+		}
+		return NumberUtils.toLong(s);
+	}
+	
+	/**
+	 * @param name
+	 * @param defaultValue
+	 * @return
+	 */
+	public static boolean getBool(ConfigItem name, Boolean defaultValue) {
+		String s = get(name, false);
+		if (s == null) {
+			return defaultValue != null ? defaultValue : (Boolean) name.getDefaultValue();
+		}
+		return BooleanUtils.toBoolean(s);
 	}
 	
 	/**
