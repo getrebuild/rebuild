@@ -88,7 +88,6 @@ const RbViewPage = {
       let deleteAfter = function () {
         that.hide(true)
       }
-      // eslint-disable-next-line react/jsx-no-undef
       renderRbcomp(<DeleteConfirm id={this.__id} entity={entity[0]} deleteAfter={deleteAfter} />)
     })
     $('.J_edit').click(() => {
