@@ -85,7 +85,7 @@ public class AdvFilterParser {
 	public String toSqlWhere() {
 		// 快速过滤模式，自动确定查询项
 		if ("QUICK".equalsIgnoreCase(filterExp.getString("type"))) {
-			JSONArray items = buildQuickFilterItems();
+			JSONArray items = buildQuickFilterItems(filterExp.getString("qfields"));
 			this.filterExp.put("items", items);
 		}
 		
@@ -373,25 +373,39 @@ public class AdvFilterParser {
 	}
 	
 	/**
+	 * @param qFields
 	 * @return
 	 */
-	private JSONArray buildQuickFilterItems() {
-		Set<String> fields = new HashSet<>();
+	private JSONArray buildQuickFilterItems(String qFields) {
+		final Set<String> fieldItems = new HashSet<>();
 		
+		// 指定字段
+		if (StringUtils.isNotBlank(qFields)) {
+			for (String field : qFields.split(",")) {
+				field = field.trim();
+				if (rootEntity.containsField(field.replaceFirst("&", ""))) {
+					fieldItems.add(field);
+				} else {
+					LOG.warn("No field found by QuickFilter : " + field + " in " + rootEntity.getName());
+				}
+			}
+		}
+		
+		// 追加名称字段和 quickCode
 		Field nameField = rootEntity.getNameField();
 		DisplayType dt = EasyMeta.getDisplayType(nameField);
-		if (dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION) {
-			fields.add("&" + nameField.getName());
+		if (dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION || dt == DisplayType.REFERENCE) {
+			fieldItems.add("&" + nameField.getName());
 		} else if (dt == DisplayType.TEXT || dt == DisplayType.EMAIL || dt == DisplayType.URL || dt == DisplayType.PHONE || dt == DisplayType.SERIES) {
-			fields.add(nameField.getName());
+			fieldItems.add(nameField.getName());
 		}
 		
 		if (rootEntity.containsField(EntityHelper.QuickCode)) {
-			fields.add(EntityHelper.QuickCode);
+			fieldItems.add(EntityHelper.QuickCode);
 		}
 		
 		JSONArray items = new JSONArray();
-		for (String field : fields) {
+		for (String field : fieldItems) {
 			items.add(JSON.parseObject("{ op:'lk', value:'{1}', field:'" + field + "' }"));
 		}
 		return items;

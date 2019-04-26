@@ -453,7 +453,7 @@ const RbListPage = {
       input = $('.input-search input')
     btn.click(() => {
       let q = $val(input)
-      let filterExp = { entity: e, type: 'QUICK', values: { 1: q } }
+      let filterExp = { entity: e, type: 'QUICK', values: { 1: q }, qfields: $('.input-search').data('qfields') }
       this._RbList.search(filterExp)
     })
     input.keydown((event) => { if (event.which === 13) btn.trigger('click') })

@@ -21,8 +21,8 @@
 						<div class="row rb-datatable-header">
 							<div class="col-12 col-md-6">
 								<div class="dataTables_filter">
-									<div class="input-group input-search">
-										<input class="form-control" type="text" placeholder="查询${entityLabel}">
+									<div class="input-group input-search" data-qfields="&user,ipAddr">
+										<input class="form-control" type="text" placeholder="查询${entityLabel}" maxlength="40">
 										<span class="input-group-btn"><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button></span>
 									</div>
 								</div>
@@ -56,7 +56,7 @@ window.__PageConfig = {
 	advFilter: false
 }
 </script>
-<script src="${baseUrl}/assets/js/rb-list.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-datalist.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script type="text/babel">
 $(document).ready(function(){
