@@ -31,7 +31,7 @@
 							<div class="col-12 col-lg-6">
 								<div class="dataTables_filter">
 									<div class="input-group input-search">
-										<input class="form-control" type="text" placeholder="查询${entityLabel}">
+										<input class="form-control" type="text" placeholder="查询${entityLabel}" maxlength="40">
 										<span class="input-group-btn"><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button></span>
 									</div>
 								</div>
@@ -68,7 +68,7 @@ window.__PageConfig = {
 	advFilter: false
 }
 </script>
-<script src="${baseUrl}/assets/js/rb-list.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-datalist.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/bizuser/dept-tree.js"></script>

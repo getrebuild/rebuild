@@ -407,7 +407,6 @@ const RbListPage = {
 
       const wpc = window.__PageConfig
       const needEntity = (wpc.type === 'SlaveList' || wpc.type === 'SlaveView') ? null : entity[0]
-      // eslint-disable-next-line react/jsx-no-undef
       renderRbcomp(<DeleteConfirm ids={ids} entity={needEntity} deleteAfter={deleteAfter} />)
     })
     $('.J_view').click(() => {
@@ -453,7 +452,7 @@ const RbListPage = {
       input = $('.input-search input')
     btn.click(() => {
       let q = $val(input)
-      let filterExp = { entity: e, type: 'QUICK', values: { 1: q } }
+      let filterExp = { entity: e, type: 'QUICK', values: { 1: q }, qfields: $('.input-search').data('qfields') }
       this._RbList.search(filterExp)
     })
     input.keydown((event) => { if (event.which === 13) btn.trigger('click') })

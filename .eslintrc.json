@@ -60,7 +60,8 @@
         "UserShow": true,
         "Mprogress": true,
         "gridster": true,
-        "echarts": true
+        "echarts": true,
+        "DeleteConfirm": true
     },
     "rules": {
         "strict": 0,
