@@ -59,7 +59,10 @@ class MetaschemaList extends React.Component {
         return (<div key={'data-' + item.file}>
           <div className="float-left">
             <h5>{item.name}</h5>
-            <div className="text-muted">数据来源 <a target="_blank" rel="noopener noreferrer" href={item.source}>{item.author || item.source}</a></div>
+            <div className="text-muted">
+              数据来源 <a target="_blank" rel="noopener noreferrer" href={item.source}>{item.author || item.source}</a>
+              {item.updated && (' · ' + item.updated)}
+            </div>
           </div>
           <div className="float-right pt-1">
             <button disabled={this.state.inProgress === true} className="btn btn-sm btn-primary" data-file={item.file} data-name={item.name} onClick={this.imports}>导入</button>

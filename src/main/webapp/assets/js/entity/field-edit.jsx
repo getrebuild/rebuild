@@ -21,12 +21,14 @@ $(document).ready(function () {
 
     let extConfig = {}
     $('.J_for-' + dt + ' .form-control').each(function () {
-      let k = $(this).attr('id')
       let v = $val(this)
-      extConfig[k] = v
-      if ('defaultValue' === k && checkDefaultValue(v, dt) === false) {
-        extConfig = null
-        return false
+      if (v) {
+        let k = $(this).attr('id')
+        extConfig[k] = v
+        if ('defaultValue' === k && checkDefaultValue(v, dt) === false) {
+          extConfig = null
+          return false
+        }
       }
     })
     if (!extConfig) return

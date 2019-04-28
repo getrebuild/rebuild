@@ -289,6 +289,11 @@ public class Field2Schema {
 	 * @return
 	 */
 	protected String toPinyinName(final String text) {
+		// 全英文直接返回
+		if (text.matches("[a-zA-Z]+")) {
+			return text;
+		}
+		
 		String identifier = HanLP.convertToPinyinString(text, "", false);
 		identifier = identifier.replaceAll("[^a-zA-Z0-9]", "");
 		if (StringUtils.isBlank(identifier)) {

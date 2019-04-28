@@ -51,7 +51,7 @@ public class MetaschemaControll extends BaseControll {
 			Object entityName = importer.exec();
 			writeSuccess(response, entityName);
 		} catch (Exception ex) {
-			writeFailure(response, "导入失败: " + ex.getLocalizedMessage());
+			writeFailure(response, ex.getLocalizedMessage());
 		}
 	}
 }

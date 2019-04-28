@@ -22,7 +22,6 @@ import org.junit.Test;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.TestSupport;
-import com.rebuild.server.business.rbstores.MetaSchemaGenerator;
 import com.rebuild.server.metadata.MetadataHelper;
 
 import cn.devezhao.persist4j.Entity;
@@ -45,9 +44,10 @@ public class MetaSchemaGeneratorTest extends TestSupport {
 	
 	@Test
 	public void testGenerateHaveSlave() throws Exception {
+		String maybe = "Account";
 		Entity test = null;
-		if (MetadataHelper.containsEntity("dingdan")) {
-			test = MetadataHelper.getEntity("dingdan"); 
+		if (MetadataHelper.containsEntity(maybe)) {
+			test = MetadataHelper.getEntity(maybe); 
 			MetaSchemaGenerator generator = new MetaSchemaGenerator(test);
 			JSON schema = generator.generate();
 			System.out.println(JSON.toJSONString(schema, true));
