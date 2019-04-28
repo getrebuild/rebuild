@@ -43,9 +43,10 @@ public class EntityHelper {
 	 * 
 	 * @param entity
 	 * @return
+	 * @see MetadataHelper#hasPrivilegesField(Entity)
 	 */
 	public static boolean hasPrivilegesField(Entity entity) {
-		return entity.containsField(OwningUser) && entity.containsField(OwningDept);
+		return MetadataHelper.hasPrivilegesField(entity);
 	}
 	
 	/**
