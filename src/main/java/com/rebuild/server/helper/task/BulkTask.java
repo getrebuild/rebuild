@@ -209,7 +209,7 @@ public abstract class BulkTask implements Runnable {
 	 * 
 	 * @return 由具体子类决定返回值（类型）
 	 */
-	protected Object exec() {
+	public Object exec() {
 		return null;
 	}
 }

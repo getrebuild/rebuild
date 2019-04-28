@@ -18,10 +18,18 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.admin.rbstore;
 
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.rebuild.server.business.rbstores.MetaschemaImporter;
 import com.rebuild.web.BaseControll;
+
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * TODO
@@ -30,6 +38,20 @@ import com.rebuild.web.BaseControll;
  * @since 2019/04/28
  */
 @Controller
-@RequestMapping("/admin/")
+@RequestMapping("/admin/metaschema")
 public class MetaschemaControll extends BaseControll {
+	
+	@RequestMapping("/imports")
+	public void imports(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getRequestUser(request);
+		String fileUrl = getParameterNotNull(request, "file");
+		
+		MetaschemaImporter importer = new MetaschemaImporter(user, fileUrl);
+		try {
+			Object entityName = importer.exec();
+			writeSuccess(response, entityName);
+		} catch (Exception ex) {
+			writeFailure(response, "导入失败: " + ex.getLocalizedMessage());
+		}
+	}
 }

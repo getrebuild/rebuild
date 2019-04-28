@@ -37,13 +37,13 @@ import com.rebuild.web.BasePageControll;
  * @since 2019/04/28
  */
 @Controller
-@RequestMapping("/admin/rbstore")
+@RequestMapping("/admin/rbstores")
 public class RBStoresControll extends BasePageControll {
 
 	@RequestMapping("load-index")
 	public void loadDataIndex(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String path = getParameterNotNull(request, "path");
-		JSON index = RBStores.fetchRemoteJson(path);
+		String type = getParameterNotNull(request, "type");
+		JSON index = RBStores.fetchRemoteJson(type + "/index.json");
 		if (index == null) {
 			writeSuccess(response, "无法获取索引数据");
 		} else {

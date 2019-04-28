@@ -47,12 +47,14 @@ class RbModal extends React.Component {
     let root = $(this._rbmodal)
     $setTimeout(() => {
       let iframe = root.find('iframe')
-      let height = iframe.contents().find('.main-content').height()
+      let height = iframe.contents().find('.main-content').outerHeight()
       if (height === 0) height = iframe.contents().find('body').height()
-      else height += 45 // .main-content's padding
+      // else height += 45 // .main-content's padding
       root.find('.modal-body').height(height)
       this.setState({ frameLoad: false })
-    }, 100, 'RbModal-resize')
+      // eslint-disable-next-line no-console
+      console.log('RbModal resize trigger ... ' + height)
+    }, 20, 'RbModal-resize')
   }
 }
 

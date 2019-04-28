@@ -81,7 +81,7 @@ public class MetaschemaImporter extends BulkTask {
 	}
 	
 	@Override
-	protected Object exec() {
+	public Object exec() {
 		JSONObject data = orData;
 		if (data == null) {
 			data = (JSONObject) RBStores.fetchMetaschema(fileUrl);
