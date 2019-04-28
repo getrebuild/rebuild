@@ -42,8 +42,10 @@ public class MetaschemaImporterTest extends TestSupport {
 		URL dataUrl = MetaschemaImporterTest.class.getClassLoader().getResource("metaschema-test.json");
 		String text = FileUtils.readFileToString(new File(dataUrl.toURI()), "utf-8");
 		JSONObject data = JSON.parseObject(text);
+		data.put("entity", data.getString("entity") + System.currentTimeMillis());
 		
 		MetaschemaImporter importer = new MetaschemaImporter(UserService.ADMIN_USER, data);
-		importer.exec();
+		Object name = importer.exec();
+		System.out.println("IMPORTED ... " + name);
 	}
 }

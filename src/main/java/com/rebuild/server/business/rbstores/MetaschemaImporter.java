@@ -26,14 +26,17 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.task.BulkTask;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
+import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.metadata.entityhub.Entity2Schema;
 import com.rebuild.server.metadata.entityhub.Field2Schema;
 import com.rebuild.server.metadata.entityhub.ModifiyMetadataException;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.Dialect;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.util.support.Table;
@@ -155,6 +158,14 @@ public class MetaschemaImporter extends BulkTask {
 			entity2Schema.drop(entity, true);
 			
 			throw new ModifiyMetadataException(ex);
+		}
+		
+		String nameField = schemaEntity.getString("nameField");
+		if (nameField != null) {
+			EasyMeta easyMeta = EasyMeta.valueOf(entity);
+			Record updateNameField = EntityHelper.forUpdate(easyMeta.getMetaId(), this.user, false);
+			updateNameField.setString("nameField", nameField);
+			Application.getCommonService().update(updateNameField);
 		}
 		
 		Application.getMetadataFactory().refresh(false);
