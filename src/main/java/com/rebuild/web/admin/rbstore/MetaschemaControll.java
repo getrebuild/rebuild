@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -16,14 +16,20 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.metaschema;
+package com.rebuild.web.admin.rbstore;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.rebuild.web.BaseControll;
 
 /**
  * TODO
  * 
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/04/28
  */
-public class MetaSchemaParser {
-
+@Controller
+@RequestMapping("/admin/")
+public class MetaschemaControll extends BaseControll {
 }

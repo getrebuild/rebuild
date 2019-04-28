@@ -67,7 +67,7 @@ public class Entity2Schema extends Field2Schema {
 	 * @return
 	 */
 	public String create(String entityLabel, String comments, String masterEntity) {
-		return create(entityLabel, comments, masterEntity, false);
+		return createEntity(null, entityLabel, comments, masterEntity, false);
 	}
 	
 	/**
@@ -75,15 +75,33 @@ public class Entity2Schema extends Field2Schema {
 	 * @param comments
 	 * @param masterEntity
 	 * @param haveNameField
-	 * @return 实体名称
+	 * @return
 	 */
 	public String create(String entityLabel, String comments, String masterEntity, boolean haveNameField) {
-		String entityName = toPinyinName(entityLabel);
-		while (true) {
+		return createEntity(null, entityLabel, comments, masterEntity, haveNameField);
+	}
+	
+	/**
+	 * @param entityName
+	 * @param entityLabel
+	 * @param comments
+	 * @param masterEntity
+	 * @param haveNameField
+	 * @return 实体名称
+	 */
+	public String createEntity(String entityName, String entityLabel, String comments, String masterEntity, boolean haveNameField) {
+		if (entityName != null) {
 			if (MetadataHelper.containsEntity(entityName)) {
-				entityName += (10 + RandomUtils.nextInt(89));
-			} else {
-				break;
+				throw new ModifiyMetadataException("重复实体名称 : " + entityName); 
+			}
+		} else {
+			entityName = toPinyinName(entityLabel);
+			while (true) {
+				if (MetadataHelper.containsEntity(entityName)) {
+					entityName += (10 + RandomUtils.nextInt(89));
+				} else {
+					break;
+				}
 			}
 		}
 		
@@ -130,7 +148,8 @@ public class Entity2Schema extends Field2Schema {
 			createBuiltinField(tempEntity, EntityHelper.IsDeleted, "ISDELETED", DisplayType.BOOL, null, null, null);
 			
 			if (haveNameField) {
-				createField(tempEntity, nameFiled, entityLabel + "名称", DisplayType.TEXT, false, true, true, null, null, null, true, null);
+				createUnsafeField(
+						tempEntity, nameFiled, entityLabel + "名称", DisplayType.TEXT, false, true, true, null, null, null, true, null);
 			}
 			
 			createBuiltinField(tempEntity, EntityHelper.CreatedBy, "创建人", DisplayType.REFERENCE, null, "User", null);
@@ -146,8 +165,8 @@ public class Entity2Schema extends Field2Schema {
 				createBuiltinField(tempEntity, masterField, masterLabel, DisplayType.REFERENCE, "引用主记录(" + masterLabel + ")", masterEntity, CascadeModel.Delete); 
 			} else {
 				// 助记码/搜索码
-//				createBuiltinField(tempEntity, EntityHelper.QuickCode, "QUICKCODE", DisplayType.TEXT, null, null, null);
-				createField(tempEntity, EntityHelper.QuickCode, "QUICKCODE", DisplayType.TEXT, true, false, false, null, null, null, true, null);
+				createUnsafeField(
+						tempEntity, EntityHelper.QuickCode, "QUICKCODE", DisplayType.TEXT, true, false, false, null, null, null, true, null);
 				
 				createBuiltinField(tempEntity, EntityHelper.OwningUser, "所属用户", DisplayType.REFERENCE, null, "User", null);
 				createBuiltinField(tempEntity, EntityHelper.OwningDept, "所属部门", DisplayType.REFERENCE, null, "Department", null);
@@ -215,26 +234,13 @@ public class Entity2Schema extends Field2Schema {
 		return true;
 	}
 	
-	/**
-	 * @param entity
-	 * @param fieldName
-	 * @param fieldLabel
-	 * @param displayType
-	 * @param comments
-	 * @param refEntity
-	 * @param cascade
-	 * @return
-	 */
 	private Field createBuiltinField(Entity entity, String fieldName, String fieldLabel, DisplayType displayType, String comments,
 			String refEntity, CascadeModel cascade) {
 		comments = StringUtils.defaultIfBlank(comments, "系统内建");
-		return createField(entity, fieldName, fieldLabel, displayType, false, false, false, comments, refEntity, cascade, false, null);
+		return createUnsafeField(
+				entity, fieldName, fieldLabel, displayType, false, false, false, comments, refEntity, cascade, false, null);
 	}
 	
-	/**
-	 * @param entity
-	 * @return
-	 */
 	private boolean schema2Database(Entity entity) {
 		Dialect dialect = Application.getPersistManagerFactory().getDialect();
 		Table table = new Table(entity, dialect);

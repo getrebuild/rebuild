@@ -223,7 +223,7 @@ class DlgImports extends RbModalHandler {
     super(props)
   }
   render() {
-    return <RbModal title="导入公共数据" ref={(c) => this._dlg = c}>
+    return <RbModal title="导入分类数据 - RBStore" ref={(c) => this._dlg = c}>
       {this.state.indexes ? <div className="indexes">{this.state.indexes.map((item) => {
         return (<div key={'data-' + item.file}>
           <div className="float-left">

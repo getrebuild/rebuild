@@ -1,0 +1,125 @@
+{
+	"entity": "testallfields999",
+	"entityLabel": "TESTALLFIELDS",
+	"nameField": "testallfieldsName",
+	"fields": [
+		{
+			"field": "date",
+			"fieldLabel": "DATE",
+			"displayType": "DATE",
+			"nullable": true,
+			"updatable": true
+		},
+		{
+			"field": "picklist",
+			"fieldLabel": "PICKLIST",
+			"displayType": "PICKLIST",
+			"nullable": true,
+			"updatable": true,
+			"items": []
+		},
+		{
+			"field": "reference",
+			"fieldLabel": "REFERENCE",
+			"displayType": "REFERENCE",
+			"nullable": true,
+			"updatable": true,
+			"refEntity": "testallfields",
+			"refEntityLabel": "TESTALLFIELDS"
+		},
+		{
+			"field": "number",
+			"fieldLabel": "NUMBER",
+			"displayType": "NUMBER",
+			"nullable": true,
+			"updatable": true
+		},
+		{
+			"field": "datetime",
+			"fieldLabel": "DATETIME",
+			"displayType": "DATETIME",
+			"nullable": true,
+			"updatable": true
+		},
+		{
+			"field": "file",
+			"fieldLabel": "FILE",
+			"displayType": "FILE",
+			"nullable": true,
+			"updatable": true
+		},
+		{
+			"field": "text",
+			"fieldLabel": "TEXT",
+			"displayType": "TEXT",
+			"nullable": true,
+			"updatable": true
+		},
+		{
+			"field": "email",
+			"fieldLabel": "EMAIL",
+			"displayType": "EMAIL",
+			"nullable": true,
+			"updatable": true
+		},
+		{
+			"field": "ntext",
+			"fieldLabel": "NTEXT",
+			"displayType": "NTEXT",
+			"nullable": true,
+			"updatable": true
+		},
+		{
+			"field": "testallfieldsName",
+			"fieldLabel": "TESTALLFIELDS名称",
+			"displayType": "TEXT",
+			"nullable": false,
+			"updatable": true
+		},
+		{
+			"field": "image",
+			"fieldLabel": "IMAGE",
+			"displayType": "IMAGE",
+			"nullable": true,
+			"updatable": true
+		},
+		{
+			"field": "classification",
+			"fieldLabel": "CLASSIFICATION",
+			"displayType": "CLASSIFICATION",
+			"nullable": true,
+			"updatable": true,
+			"extConfig": {
+				"classification": "018-0000000000000001"
+			}
+		},
+		{
+			"field": "url",
+			"fieldLabel": "URL",
+			"displayType": "URL",
+			"nullable": true,
+			"updatable": true
+		},
+		{
+			"field": "phone",
+			"fieldLabel": "PHONE",
+			"displayType": "PHONE",
+			"nullable": true,
+			"updatable": true
+		},
+		{
+			"field": "series",
+			"fieldLabel": "SERIES",
+			"displayType": "SERIES",
+			"nullable": false,
+			"updatable": false
+		},
+		{
+			"field": "decimal",
+			"fieldLabel": "DECIMAL",
+			"displayType": "DECIMAL",
+			"nullable": true,
+			"updatable": true
+		}
+	]
+}

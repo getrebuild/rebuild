@@ -68,6 +68,14 @@ public class Field2Schema {
 	}
 	
 	/**
+	 * @param user
+	 */
+	public Field2Schema(ID user, boolean refer) {
+		this.user = user;
+		Assert.isTrue(UserHelper.isSuperAdmin(user), "仅超级管理员可新建/删除元数据");
+	}
+	
+	/**
 	 * @param entity
 	 * @param fieldLabel
 	 * @param type
@@ -102,7 +110,8 @@ public class Field2Schema {
 			}
 		}
 		
-		Field field = createField(entity, fieldName, fieldLabel, type, true, true, true, comments, refEntity, null, true, extConfig);
+		Field field = createUnsafeField(
+				entity, fieldName, fieldLabel, type, true, true, true, comments, refEntity, null, true, extConfig);
 		
 		boolean schemaReady = schema2Database(entity, field);
 		if (!schemaReady) {
@@ -154,7 +163,7 @@ public class Field2Schema {
 		try {
 			Application.getSQLExecutor().execute(ddl);
 		} catch (Throwable ex) {
-			LOG.error("DDL Error : \n" + ddl, ex);
+			LOG.error("DDL ERROR : \n" + ddl, ex);
 			return false;
 		}
 		
@@ -173,10 +182,6 @@ public class Field2Schema {
 		return ObjectUtils.toLong(count[0]);
 	}
 	
-	/**
-	 * @param field
-	 * @return
-	 */
 	private boolean schema2Database(Entity entity, Field field) {
 		Dialect dialect = Application.getPersistManagerFactory().getDialect();
 		Table table = new Table(entity, dialect);
@@ -192,6 +197,7 @@ public class Field2Schema {
 	}
 	
 	/**
+	 * 
 	 * @param entity
 	 * @param fieldName
 	 * @param fieldLabel
@@ -206,7 +212,7 @@ public class Field2Schema {
 	 * @param extConfig
 	 * @return
 	 */
-	protected Field createField(Entity entity, String fieldName, String fieldLabel, DisplayType displayType,
+	public Field createUnsafeField(Entity entity, String fieldName, String fieldLabel, DisplayType displayType,
 			boolean nullable, boolean creatable, boolean updatable, String comments, String refEntity, CascadeModel cascade, boolean nullableInDb, JSON extConfig) {
 		if (displayType == DisplayType.SERIES) {
 			nullable = false;

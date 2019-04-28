@@ -62,6 +62,7 @@ public abstract class BulkTask implements Runnable {
 	 * 设置当前线程用户
 	 * 
 	 * @param user
+	 * 
 	 * @see CurrentCaller
 	 * @see OnlineSessionStore
 	 * @see #completedAfter()
@@ -174,7 +175,7 @@ public abstract class BulkTask implements Runnable {
 		}
 	}
 	
-	// -- for Thread
+	// 中断处理。是否允许中断由子类决定
 	
 	public void interrupt() {
 		this.interrupt = true;
@@ -188,5 +189,27 @@ public abstract class BulkTask implements Runnable {
 	}
 	public boolean isInterrupted() {
 		return interruptState;
+	}
+	
+	// New execute mode
+	
+	@Override
+	public void run() {
+		try {
+			exec();
+		} catch (Exception ex) {
+			LOG.error("Exception during exec", ex);
+		} finally {
+			completedAfter();
+		}
+	}
+	
+	/**
+	 * 子类复写此方法进行实际的任务执行
+	 * 
+	 * @return 由具体子类决定返回值（类型）
+	 */
+	protected Object exec() {
+		return null;
 	}
 }

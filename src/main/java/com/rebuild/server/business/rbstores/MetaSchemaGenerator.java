@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.metaschema;
+package com.rebuild.server.business.rbstores;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,10 +37,12 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 
 /**
- * TODO 元数据模型生成
+ * 元数据模型生成
  * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/04/28
+ * 
+ * @see MetaschemaImporter
  */
 public class MetaSchemaGenerator {
 	
@@ -76,24 +78,32 @@ public class MetaSchemaGenerator {
 	
 	/**
 	 * @param entity
-	 * @param slave
+	 * @param isSlave
 	 * @return
 	 */
 	private JSON performEntity(Entity entity, boolean isSlave) {
 		JSONObject schemaEntity = new JSONObject(true);
 		
 		// 实体
+		EasyMeta easyEntity = EasyMeta.valueOf(entity);
 		schemaEntity.put("entity", entity.getName());
-		schemaEntity.put("entityLabel", EasyMeta.getLabel(entity));
+		schemaEntity.put("entityLabel", easyEntity.getLabel());
+		if (easyEntity.getComments() != null) {
+			schemaEntity.put("comments", easyEntity.getComments());
+		}
+		schemaEntity.put("nameField", entity.getNameField().getName());
+		
 		JSONArray metaFields = new JSONArray();
 		for (Field field : entity.getFields()) {
-			if (MetadataHelper.isCommonsField(field)) {
+			if (MetadataHelper.isCommonsField(field)
+					|| (isSlave && MetadataHelper.getSlaveToMasterField(entity).equals(field))) {
 				continue;
 			}
 			metaFields.add(performField(field));
 		}
 		schemaEntity.put("fields", metaFields);
 		
+		// TODO
 		// 表单
 		// 列表
 		// 过滤器
@@ -118,7 +128,6 @@ public class MetaSchemaGenerator {
 			schemaField.put("comments", easyField.getComments());
 		}
 		schemaField.put("nullable", field.isNullable());
-		schemaField.put("creatable", field.isCreatable());
 		schemaField.put("updatable", field.isUpdatable());
 		
 		if (dt == DisplayType.REFERENCE) {
