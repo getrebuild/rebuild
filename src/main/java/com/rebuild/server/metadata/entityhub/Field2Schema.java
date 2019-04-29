@@ -251,7 +251,7 @@ public class Field2Schema {
 		
 		if (StringUtils.isNotBlank(refEntity)) {
 			if (!MetadataHelper.containsEntity(refEntity)) {
-				throw new ModifiyMetadataException("Unknow ref-entity : " + refEntity);
+				throw new ModifiyMetadataException("无效引用实体: " + refEntity);
 			}
 			recordOfField.setString("refEntity", refEntity);
 			if (cascade != null) {
