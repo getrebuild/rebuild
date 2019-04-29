@@ -110,7 +110,6 @@ create table if not exists `meta_field` (
   `NULLABLE`           char(1) default 'T',
   `DEFAULT_VALUE`      varchar(300),
   `CASCADE`            varchar(20),
-  `PRECISION`          smallint(6),
   `EXT_CONFIG`         varchar(700) comment '更多扩展配置, JSON格式KV',
   `BELONG_ENTITY`      varchar(100) not null,
   `CREATABLE`          char(1) default 'T',
