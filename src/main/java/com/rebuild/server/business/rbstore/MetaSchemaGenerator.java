@@ -24,14 +24,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.portals.PickListManager;
+import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -102,12 +105,24 @@ public class MetaSchemaGenerator {
 			metaFields.add(performField(field));
 		}
 		schemaEntity.put("fields", metaFields);
+
+		// 布局相关
+		JSONObject putLayouts = new JSONObject();
+		Object layouts[][] = Application.createQueryNoFilter(
+				"select applyType,config from LayoutConfig where belongEntity = ? and createdBy = ?")
+				.setParameter(1, entity.getName())
+				.setParameter(2, UserService.ADMIN_USER)
+				.array();
+		for (Object[] layout : layouts) {
+			String type = (String) layout[0];
+			JSONArray config = JSON.parseArray((String) layout[1]);
+			if (!config.isEmpty()) {
+				putLayouts.put(type, config);
+			}
+		}
+		schemaEntity.put("layouts", putLayouts);
 		
-		// TODO
-		// 表单
-		// 列表
-		// 过滤器
-		// 视图相关
+		// TODO 过滤器
 		
 		return schemaEntity;
 	}
@@ -129,8 +144,9 @@ public class MetaSchemaGenerator {
 		}
 		schemaField.put("nullable", field.isNullable());
 		schemaField.put("updatable", field.isUpdatable());
-		if (field.getDefaultValue() != null) {
-			schemaField.put("defaultValue", field.getDefaultValue());
+		Object defaultVal = field.getDefaultValue();
+		if (defaultVal != null && StringUtils.isNotBlank((String) defaultVal)) {
+			schemaField.put("defaultValue", defaultVal);
 		}
 		
 		if (dt == DisplayType.REFERENCE) {

@@ -114,7 +114,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 			JSONObject field = (JSONObject) o;
 			if (DisplayType.REFERENCE.name().equalsIgnoreCase(field.getString("displayType"))) {
 				String refEntity = field.getString("refEntity");
-				if (!MetadataHelper.containsEntity(refEntity)) {
+				if (!entityName.equals(refEntity) && !MetadataHelper.containsEntity(refEntity)) {
 					return "缺少必要的引用实体: " + entityName;
 				}
 			}

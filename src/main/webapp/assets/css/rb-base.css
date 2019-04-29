@@ -23299,12 +23299,6 @@ select.form-control-xs:not([size]):not([multiple]) {
     margin: 80px auto;
 }
 
-@media (max-width:767.98px) {
-    .rb-error .error-container {
-        margin: 50px 90%;
-    }
-}
-
 .rb-error .error-number {
     display: block;
     font-size: 6.923rem;
