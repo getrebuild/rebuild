@@ -106,7 +106,7 @@ public class MetaSchemaGenerator {
 		}
 		schemaEntity.put("fields", metaFields);
 
-		// 布局相关
+		// 布局相关（仅管理员）
 		JSONObject putLayouts = new JSONObject();
 		Object layouts[][] = Application.createQueryNoFilter(
 				"select applyType,config from LayoutConfig where belongEntity = ? and createdBy = ?")
@@ -122,7 +122,24 @@ public class MetaSchemaGenerator {
 		}
 		schemaEntity.put("layouts", putLayouts);
 		
-		// TODO 过滤器
+		// 过滤器（仅管理员）
+		Object filters[][] = Application.createQueryNoFilter(
+				"select filterName,config from FilterConfig where belongEntity = ? and createdBy = ?")
+				.setParameter(1, entity.getName())
+				.setParameter(2, UserService.ADMIN_USER)
+				.array();
+		JSONArray putFilters = new JSONArray();
+		for (Object[] filter : filters) {
+			String name = (String) filter[0];
+			JSONObject config = JSON.parseObject((String) filter[1]);
+			if (!config.isEmpty()) {
+				JSONArray item = new JSONArray();
+				item.add(name);
+				item.add(config);
+				putFilters.add(item);
+			}
+		}
+		schemaEntity.put("filters", putFilters);
 		
 		return schemaEntity;
 	}
