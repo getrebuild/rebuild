@@ -174,8 +174,9 @@ class LevelBox extends React.Component {
   delItem(item, e) {
     e.stopPropagation()
     let that = this
-    rb.alert('删除后其子级分类项也将被一并删除。<br>同时，已经使用了这些分类项的数据（字段）也将无法显示。<br>确定要删除吗？', {
+    rb.alert('删除后其子分类也将被一并删除。<br>同时，已经使用了这些分类项的数据（字段）也将无法显示。<br>确定要删除吗？', {
       html: true,
+      type: 'danger',
       confirm: function () {
         $.post(`${rb.baseUrl}/app/entity/record-delete?id=${item[0]}`, (res) => {
           this.hide()
@@ -254,7 +255,7 @@ class DlgImports extends RbModalHandler {
     let name = e.currentTarget.dataset.name
     let url = `${rb.baseUrl}/admin/classification/imports/starts?dest=${this.props.id}&file=${$encode(file)}`
     let that = this
-    rb.alert(`<strong>${name}</strong><br>导入将导致现有数据被清空。立即开始导入吗？`, {
+    rb.alert(`<strong>${name}</strong><br>导入会导致现有数据被清空。立即开始导入吗？`, {
       html: true,
       confirm: function () {
         this.hide()

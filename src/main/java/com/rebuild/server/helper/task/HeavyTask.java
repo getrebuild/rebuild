@@ -37,9 +37,9 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 09/29/2018
  */
-public abstract class BulkTask implements Runnable {
+public abstract class HeavyTask implements Runnable {
 	
-	protected static final Log LOG = LogFactory.getLog(BulkTask.class);
+	protected static final Log LOG = LogFactory.getLog(HeavyTask.class);
 	
 	volatile private boolean interrupt = false;
 	volatile private boolean interruptState = false;
@@ -52,9 +52,11 @@ public abstract class BulkTask implements Runnable {
 	
 	private ID userInThread;
 	
+	private String errorMessage;
+	
 	/**
 	 */
-	protected BulkTask() {
+	protected HeavyTask() {
 		this.beginTime = CalendarUtils.now();
 	}
 	
@@ -159,7 +161,7 @@ public abstract class BulkTask implements Runnable {
 	 * @return
 	 */
 	public boolean isCompleted() {
-		return total != -1 && getComplete() >= getTotal();
+		return completedTime != null || (total != -1 && getComplete() >= getTotal());
 	}
 	
 	/**
@@ -198,7 +200,8 @@ public abstract class BulkTask implements Runnable {
 		try {
 			exec();
 		} catch (Exception ex) {
-			LOG.error("Exception during exec", ex);
+			LOG.error("Exception during task execute", ex);
+			this.errorMessage = ex.getLocalizedMessage();
 		} finally {
 			completedAfter();
 		}
@@ -207,9 +210,24 @@ public abstract class BulkTask implements Runnable {
 	/**
 	 * 子类复写此方法进行实际的任务执行
 	 * 
-	 * @return 由具体子类决定返回值（类型）
+	 * @return
+	 * @throws Exception
 	 */
-	public Object exec() {
+	public Object exec() throws Exception {
 		return null;
+	}
+	
+	/**
+	 * @return
+	 */
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+	
+	/**
+	 * @return
+	 */
+	public boolean hasError() {
+		return errorMessage != null;
 	}
 }

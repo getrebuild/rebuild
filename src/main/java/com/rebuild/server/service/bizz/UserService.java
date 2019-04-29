@@ -20,7 +20,7 @@ package com.rebuild.server.service.bizz;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.BlackList;
-import com.rebuild.server.helper.task.BulkTaskExecutor;
+import com.rebuild.server.helper.task.TaskExecutor;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.SystemEntityService;
@@ -144,7 +144,7 @@ public class UserService extends SystemEntityService {
 		
 		// 改变记录的所属部门
 		if (deptOld != null) {
-			BulkTaskExecutor.submit(new ChangeOwningDeptTask(user, deptNew));
+			TaskExecutor.submit(new ChangeOwningDeptTask(user, deptNew));
 		}
 	}
 }

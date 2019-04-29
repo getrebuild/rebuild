@@ -27,7 +27,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSON;
-import com.rebuild.server.helper.task.BulkTaskExecutor;
+import com.rebuild.server.helper.task.TaskExecutor;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 
@@ -44,7 +44,7 @@ public class BulkTaskControll extends BaseControll {
 	public void checkState(HttpServletRequest request, HttpServletResponse response)
 			throws IOException {
 		String taskid = getParameterNotNull(request, "taskid");
-		double cp = BulkTaskExecutor.getTask(taskid).getCompletePercent();
+		double cp = TaskExecutor.getTask(taskid).getCompletePercent();
 		JSON ret = JSONUtils.toJSONObject(new String[] { "taskid", "complete" }, new Object[] { taskid, cp });
 		writeSuccess(response, ret);
 	}

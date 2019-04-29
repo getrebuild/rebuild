@@ -28,7 +28,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.task.BulkTask;
+import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.ExtRecordCreator;
 import com.rebuild.server.metadata.entityhub.DisplayType;
@@ -54,7 +54,7 @@ import cn.devezhao.persist4j.engine.ID;
  * 
  * @see DisplayType
  */
-public class DataImporter extends BulkTask {
+public class DataImporter extends HeavyTask {
 	
 	private static final ThreadLocal<ID> IN_IMPORTING = new ThreadLocal<>();
 	

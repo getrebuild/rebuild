@@ -21,7 +21,7 @@ package com.rebuild.server.service.bizz;
 import java.text.MessageFormat;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.task.BulkTask;
+import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 
@@ -34,7 +34,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 12/29/2018
  */
-public class ChangeOwningDeptTask extends BulkTask {
+public class ChangeOwningDeptTask extends HeavyTask {
 
 	final private ID user;
 	final private ID deptNew;

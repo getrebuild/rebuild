@@ -55,7 +55,7 @@ class MetaschemaList extends React.Component {
   }
   render() {
     return <div>
-      {this.state.indexes ? <div className="rbs-indexes">{this.state.indexes.map((item) => {
+      {this.state.indexes ? <div className="rbs-indexes ">{this.state.indexes.map((item) => {
         return (<div key={'data-' + item.file}>
           <div className="float-left">
             <h5>{item.name}</h5>
@@ -85,7 +85,7 @@ class MetaschemaList extends React.Component {
     let name = e.currentTarget.dataset.name
     let url = `${rb.baseUrl}/admin/metaschema/imports?file=${$encode(file)}`
     let that = this
-    rb.alert(`<strong>${name}</strong><br>你可在导入后进行适当调整。立即开始导入吗？`, {
+    parent.rb.alert(`<strong>${name}</strong><br>你可在导入后进行适当调整。立即开始导入吗？`, {
       html: true,
       confirm: function () {
         this.hide()
@@ -95,7 +95,7 @@ class MetaschemaList extends React.Component {
           mpro.end()
           if (res.error_code === 0) {
             rb.hbsuccess('导入完成')
-            setTimeout(() => { parent.location.href = `entity/${res.data}/base` }, 1500)
+            setTimeout(() => { parent.location.href = `../../entity/${res.data}/base` }, 1500)
           } else rb.hberror(res.error_msg || '导入失败')
         })
       }

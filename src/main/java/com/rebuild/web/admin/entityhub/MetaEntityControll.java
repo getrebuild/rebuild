@@ -36,7 +36,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.task.BulkTaskExecutor;
+import com.rebuild.server.helper.task.TaskExecutor;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
@@ -175,7 +175,7 @@ public class MetaEntityControll extends BasePageControll {
 		if (needReindex != null) {
 			Entity entity = MetadataHelper.getEntity(needReindex);
 			QuickCodeReindexTask reindexTask = new QuickCodeReindexTask(entity);
-			BulkTaskExecutor.submit(reindexTask);
+			TaskExecutor.submit(reindexTask);
 		}
 		
 		writeSuccess(response);

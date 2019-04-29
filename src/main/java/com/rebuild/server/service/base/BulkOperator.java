@@ -22,7 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.helper.task.BulkTask;
+import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.query.AdvFilterParser;
 
@@ -35,7 +35,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 10/16/2018
  */
-public abstract class BulkOperator extends BulkTask {
+public abstract class BulkOperator extends HeavyTask {
 
 	protected static final Log LOG = LogFactory.getLog(BulkOperator.class);
 	

@@ -42,8 +42,8 @@ import com.rebuild.server.business.dataio.DataFileParser;
 import com.rebuild.server.business.dataio.DataImporter;
 import com.rebuild.server.business.dataio.ImportRule;
 import com.rebuild.server.helper.SysConfiguration;
-import com.rebuild.server.helper.task.BulkTask;
-import com.rebuild.server.helper.task.BulkTaskExecutor;
+import com.rebuild.server.helper.task.HeavyTask;
+import com.rebuild.server.helper.task.TaskExecutor;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
@@ -177,7 +177,7 @@ public class DataImportControll extends BasePageControll {
 		if (getBoolParameter(request, "preview")) {
 			// TODO 导入预览
 		} else {
-			String taskid = BulkTaskExecutor.submit(importer);
+			String taskid = TaskExecutor.submit(importer);
 			JSON ret = JSONUtils.toJSONObject("taskid", taskid);
 			writeSuccess(response, ret);
 		}
@@ -187,7 +187,7 @@ public class DataImportControll extends BasePageControll {
 	@RequestMapping("/dataio/import-state")
 	public void importState(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String taskid = getParameterNotNull(request, "taskid");
-		BulkTask task = BulkTaskExecutor.getTask(taskid);
+		HeavyTask task = TaskExecutor.getTask(taskid);
 		if (task == null) {
 			writeFailure(response, "无效任务 : " + taskid);
 			return;
@@ -200,7 +200,7 @@ public class DataImportControll extends BasePageControll {
 	@RequestMapping("/dataio/import-cancel")
 	public void importCancel(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String taskid = getParameterNotNull(request, "taskid");
-		BulkTask task = BulkTaskExecutor.getTask(taskid);
+		HeavyTask task = TaskExecutor.getTask(taskid);
 		if (task == null) {
 			writeFailure(response, "无效任务 : " + taskid);
 			return;

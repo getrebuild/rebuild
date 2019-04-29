@@ -47,6 +47,12 @@ public class MetaschemaControll extends BaseControll {
 		
 		MetaschemaImporter importer = new MetaschemaImporter(user, fileUrl);
 		try {
+			String hasError = importer.verfiy();
+			if (hasError != null) {
+				writeFailure(response, hasError);
+				return;
+			}
+			
 			Object entityName = importer.exec();
 			writeSuccess(response, entityName);
 		} catch (Exception ex) {

@@ -24,7 +24,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.hankcs.hanlp.HanLP;
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.task.BulkTask;
+import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
@@ -45,7 +45,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 12/28/2018
  */
-public class QuickCodeReindexTask extends BulkTask {
+public class QuickCodeReindexTask extends HeavyTask {
 	
 	final private Entity entity;
 

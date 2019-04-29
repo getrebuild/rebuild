@@ -18,28 +18,18 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.rbstore;
 
-import java.io.File;
-import java.net.URL;
-
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.RebuildException;
-import com.rebuild.server.helper.QiniuCloud;
-import com.rebuild.server.helper.SysConfiguration;
-import com.rebuild.server.helper.task.BulkTask;
+import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.ClassificationService;
+import com.rebuild.server.metadata.entityhub.ModifiyMetadataException;
 import com.rebuild.server.portals.ClassificationManager;
 
-import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
@@ -49,13 +39,13 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/04/08
  */
-public class ClassificationImporter extends BulkTask {
+public class ClassificationImporter extends HeavyTask {
 	
-	private static final Log LOG = LogFactory.getLog(ClassificationImporter.class);
+	final private ID user;
+	final private ID dest;
+	final private String fileUrl;
 	
-	private ID user;
-	private ID dest;
-	private String fileUrl;
+	private boolean forceClean = false;
 	
 	/**
 	 * @param user
@@ -67,72 +57,52 @@ public class ClassificationImporter extends BulkTask {
 		this.dest = dest;
 		this.fileUrl = fileUrl;
 	}
-
+	
+	public void setForceClean(boolean forceClean) {
+		this.forceClean = forceClean;
+	}
+	
 	@Override
-	public void run() {
-		JSONArray data = null;
-		try {
-			data = (JSONArray) fetchRemoteJson(fileUrl);
-		} catch (RebuildException e) {
-			this.completedAfter();
-			return;
-		}
+	public Object exec() throws Exception {
+		final JSONArray data = (JSONArray) RBStore.fetchClassification(fileUrl);
 		
-		Object[][] olds = Application.createQueryNoFilter(
+		Object[][] exists = Application.createQueryNoFilter(
 				"select itemId from ClassificationData where dataId = ?")
 				.setParameter(1, dest)
 				.array();
-		for (Object[] o : olds) {
-			ClassificationManager.cleanCache((ID) o[0]);
+		if (exists.length > 0) {
+			if (this.forceClean) {
+				for (Object[] o : exists) {
+					ClassificationManager.cleanCache((ID) o[0]);
+				}
+				String delSql = String.format("delete from `%s` where `DATA_ID` = '%s'",
+						MetadataHelper.getEntity(EntityHelper.ClassificationData).getPhysicalName(), dest);
+				Application.getSQLExecutor().execute(delSql);
+			} else {
+				throw new ModifiyMetadataException("必须清空当前分类数据才能导入");
+			}
 		}
-		String delSql = String.format("delete from `%s` where `DATA_ID` = '%s'",
-				MetadataHelper.getEntity(EntityHelper.ClassificationData).getPhysicalName(), dest);
-		Application.getSQLExecutor().execute(delSql);
 		
 		this.setThreadUser(user);
-		
 		this.setTotal(data.size());
+		
 		ID firstOne = null;
-		try {
-			for (Object o : data) {
-				ID id = addNOne((JSONObject) o, null);
-				if (firstOne == null) {
-					firstOne = id;
-				}
-				this.setCompleteOne();
+		for (Object o : data) {
+			ID id = addNItem((JSONObject) o, null);
+			if (firstOne == null) {
+				firstOne = id;
 			}
-		} finally {
-			this.completedAfter();
+			this.setCompleteOne();
 		}
 		
-		// 更新开放级别
-//		int openLevel = 0;
-//		while (firstOne != null) {
-//			Object[] hasp = Application.createQueryNoFilter(
-//					"select itemId from ClassificationData where parent = ?")
-//					.setParameter(1, firstOne)
-//					.unique();
-//			if (hasp != null) {
-//				openLevel++;
-//			}
-//			firstOne = hasp == null ? null : (ID) hasp[0];
-//		}
-//		
-//		Record record = EntityHelper.forUpdate(dest, user);
-//		record.setInt("openLevel", openLevel);
-//		Application.getCommonService().update(record);
+		return null;
 	}
-	
-	/**
-	 * @param node
-	 * @param parent
-	 * @return
-	 */
-	private ID addNOne(JSONObject node, ID parent) {
+
+	private ID addNItem(JSONObject node, ID parent) {
 		String code = node.getString("code");
 		String name = node.getString("name");
 		
-		Record item = EntityHelper.forNew(EntityHelper.ClassificationData, Application.getCurrentUser());
+		Record item = EntityHelper.forNew(EntityHelper.ClassificationData, this.user);
 		item.setString("name", name);
 		if (StringUtils.isNotBlank(code)) {
 			item.setString("code", code);
@@ -146,45 +116,9 @@ public class ClassificationImporter extends BulkTask {
 		JSONArray children = node.getJSONArray("children");
 		if (children != null) {
 			for (Object o : children) {
-				addNOne((JSONObject) o, item.getPrimary());
+				addNItem((JSONObject) o, item.getPrimary());
 			}
 		}
 		return item.getPrimary();
-	}
-	
-	// -- Helper
-	
-	/**
-	 * 远程仓库
-	 */
-	public static final String DATA_REPO = "https://raw.githubusercontent.com/getrebuild/rebuild-datas/master/classifications/";
-
-	/**
-	 * 远程读取 JSON 文件
-	 * 
-	 * @param fileUrl
-	 * @return
-	 * @throws RebuildException 如果读取失败
-	 */
-	public static JSON fetchRemoteJson(String fileUrl) throws RebuildException {
-		if (!fileUrl.startsWith("http")) {
-			fileUrl = DATA_REPO + fileUrl;
-		}
-		
-		File tmp = SysConfiguration.getFileOfTemp("classifications.tmp." + CodecUtils.randomCode(6));
-		JSON d = null;
-		try {
-			if (QiniuCloud.instance().download(new URL(fileUrl), tmp)) {
-				String t2str = FileUtils.readFileToString(tmp, "utf-8");
-				d = (JSON) JSON.parse(t2str);
-			}
-		} catch (Exception e) {
-			LOG.error("Fetch failure from URL : " + fileUrl, e);
-		}
-		
-		if (d == null) {
-			throw new RebuildException("无法读取远程数据");
-		}
-		return d;
 	}
 }

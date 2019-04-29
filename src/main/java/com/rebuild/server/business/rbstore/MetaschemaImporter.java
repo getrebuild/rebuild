@@ -25,7 +25,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.task.BulkTask;
+import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
@@ -49,14 +49,14 @@ import cn.devezhao.persist4j.util.support.Table;
  * 
  * @see MetaSchemaGenerator
  */
-public class MetaschemaImporter extends BulkTask {
+public class MetaschemaImporter extends HeavyTask {
 	
 	private static final Log LOG = LogFactory.getLog(MetaschemaImporter.class);
 	
 	final private ID user;
 	
 	final private String fileUrl;
-	final private JSONObject orData;
+	private JSONObject remoteData;
 	
 	/**
 	 * @param user
@@ -65,7 +65,7 @@ public class MetaschemaImporter extends BulkTask {
 	public MetaschemaImporter(ID user, String fileUrl) {
 		this.user = user;
 		this.fileUrl = fileUrl;
-		this.orData = null;
+		this.remoteData = null;
 	}
 	
 	/**
@@ -77,26 +77,71 @@ public class MetaschemaImporter extends BulkTask {
 	protected MetaschemaImporter(ID user, JSONObject data) {
 		this.user = user;
 		this.fileUrl = null;
-		this.orData = data;
+		this.remoteData = data;
+	}
+	
+	/**
+	 * 验证导入
+	 * 
+	 * @return 错误消息，返回 null 表示验证通过
+	 */
+	public String verfiy() {
+		this.readyRemoteData();
+		
+		String hasError = verfiyEntity(remoteData);
+		if (hasError != null) {
+			return hasError;
+		}
+		
+		JSONObject slave = remoteData.getJSONObject("slave");
+		if (slave != null) {
+			hasError = verfiyEntity(slave);
+			if (hasError != null) {
+				return hasError;
+			}
+		}
+		
+		return null;
+	}
+	
+	private String verfiyEntity(JSONObject entity) {
+		String entityName = entity.getString("entity");
+		if (MetadataHelper.containsEntity(entityName)) {
+			return "实体名称重复: " + entityName;
+		}
+		
+		for (Object o : entity.getJSONArray("fields")) {
+			JSONObject field = (JSONObject) o;
+			if (DisplayType.REFERENCE.name().equalsIgnoreCase(field.getString("displayType"))) {
+				String refEntity = field.getString("refEntity");
+				if (!MetadataHelper.containsEntity(refEntity)) {
+					return "缺少必要的引用实体: " + entityName;
+				}
+			}
+		}
+		return null;
+	}
+	
+	private void readyRemoteData() {
+		if (this.remoteData == null) {
+			this.remoteData = (JSONObject) RBStore.fetchMetaschema(fileUrl);
+		}
 	}
 	
 	@Override
-	public Object exec() {
-		JSONObject data = orData;
-		if (data == null) {
-			data = (JSONObject) RBStore.fetchMetaschema(fileUrl);
-		}
-		
+	public Object exec() throws Exception {
+		this.readyRemoteData();
 		setTotal(100);
+		setThreadUser(this.user);
 		
-		String entityName = performEntity(data, null);
+		String entityName = performEntity(remoteData, null);
 		Entity createdEntity = MetadataHelper.getEntity(entityName);
 		setComplete(50);
 		
-		JSONObject slave = data.getJSONObject("slave");
+		JSONObject slave = remoteData.getJSONObject("slave");
 		if (slave != null) {
 			try {
-				performEntity(data, createdEntity.getName());
+				performEntity(remoteData, createdEntity.getName());
 				setComplete(100);
 			} catch (ModifiyMetadataException ex) {
 				// 出现异常，删除主实体
@@ -123,6 +168,7 @@ public class MetaschemaImporter extends BulkTask {
 		entity2Schema.createEntity(
 				entityName, entityLabel, schemaEntity.getString("comments"), masterEntityName, false);
 		Entity entity = MetadataHelper.getEntity(entityName);
+		this.setComplete((int) (this.getComplete() * 1.5));
 		
 		// to DB
 		Dialect dialect = Application.getPersistManagerFactory().getDialect();
@@ -139,7 +185,6 @@ public class MetaschemaImporter extends BulkTask {
 				ddl.append(",");
 				
 			} catch (Exception ex) {
-				LOG.error("Create field failure : " + field, ex);
 				entity2Schema.drop(entity, true);
 				
 				if (ex instanceof ModifiyMetadataException) {
