@@ -173,20 +173,6 @@ create table if not exists `filter_config` (
   primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 
--- ************ Entity [ViewAddonsConfig] DDL ************
-create table if not exists `view_addons_config` (
-  `APPLY_TYPE`         varchar(20) not null comment 'TAB,ADD',
-  `MODIFIED_ON`        timestamp not null default '0000-00-00 00:00:00' comment '修改时间',
-  `CREATED_BY`         char(20) not null comment '创建人',
-  `CONFIG_ID`          char(20) not null,
-  `MODIFIED_BY`        char(20) not null comment '修改人',
-  `BELONG_ENTITY`      varchar(100) not null,
-  `CONFIG`             text(21845) not null comment 'JSON格式配置',
-  `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
-  primary key  (`CONFIG_ID`),
-  unique index `UIX1_view_addons_config` (`BELONG_ENTITY`, `APPLY_TYPE`)
-)Engine=InnoDB;
-
 -- ************ Entity [DashboardConfig] DDL ************
 create table if not exists `dashboard_config` (
   `MODIFIED_ON`        timestamp not null default '0000-00-00 00:00:00' comment '修改时间',

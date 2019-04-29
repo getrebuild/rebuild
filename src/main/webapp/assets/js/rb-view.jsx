@@ -195,7 +195,7 @@ const RbViewPage = {
 
     $('.J_view-addons').click(function () {
       let type = $(this).data('type')
-      rb.modal(`${rb.baseUrl}/p/admin/entity/view-addons?entity=${that.__entity[0]}&type=${type}`, '配置' + (type === 'TAB' ? '显示项' : '新建项'))
+      rb.modal(`${rb.baseUrl}/p/admin/entityhub/view-addons?entity=${that.__entity[0]}&type=${type}`, '配置' + (type === 'TAB' ? '显示项' : '新建项'))
     })
 
     this.updateVTabs()
