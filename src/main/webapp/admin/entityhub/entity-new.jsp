@@ -5,7 +5,7 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>新建实体</title>
 <style type="text/css">
-#metaschemas,#metaschemas .rb-loading{min-height:150px}
+#metaschemas,#metaschemas .rb-loading{min-height:200px}
 .indexes>div {
   margin: 15px 0;
   padding: 15px;
