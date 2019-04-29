@@ -26,22 +26,21 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.rebuild.server.business.rbstores.MetaschemaImporter;
+import com.rebuild.server.business.rbstore.MetaschemaImporter;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * TODO
+ *  导入元数据模型
  * 
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/04/28
  */
 @Controller
-@RequestMapping("/admin/metaschema")
 public class MetaschemaControll extends BaseControll {
 	
-	@RequestMapping("/imports")
+	@RequestMapping("/admin/metaschema/imports")
 	public void imports(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		String fileUrl = getParameterNotNull(request, "file");

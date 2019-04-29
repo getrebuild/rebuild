@@ -111,7 +111,7 @@ public class Field2Schema {
 		}
 		
 		Field field = createUnsafeField(
-				entity, fieldName, fieldLabel, type, true, true, true, comments, refEntity, null, true, extConfig);
+				entity, fieldName, fieldLabel, type, true, true, true, comments, refEntity, null, true, extConfig, null);
 		
 		boolean schemaReady = schema2Database(entity, field);
 		if (!schemaReady) {
@@ -210,10 +210,12 @@ public class Field2Schema {
 	 * @param cascade
 	 * @param nullableInDb 在数据库中是否可为空，一般系统级字段不能为空
 	 * @param extConfig
+	 * @param defaultValue
 	 * @return
 	 */
 	public Field createUnsafeField(Entity entity, String fieldName, String fieldLabel, DisplayType displayType,
-			boolean nullable, boolean creatable, boolean updatable, String comments, String refEntity, CascadeModel cascade, boolean nullableInDb, JSON extConfig) {
+			boolean nullable, boolean creatable, boolean updatable, String comments, String refEntity, CascadeModel cascade,
+			boolean nullableInDb, JSON extConfig, String defaultValue) {
 		if (displayType == DisplayType.SERIES) {
 			nullable = false;
 			creatable = false;
@@ -234,14 +236,17 @@ public class Field2Schema {
 		if (StringUtils.isNotBlank(comments)) {
 			recordOfField.setString("comments", comments);
 		}
+		if (StringUtils.isNotBlank(defaultValue)) {
+			recordOfField.setString("defaultValue", defaultValue);
+		}
 		
-		if (displayType == DisplayType.DECIMAL) {
-			recordOfField.setInt("precision", 8);
-		} else if (displayType == DisplayType.PICKLIST) {
+		if (displayType == DisplayType.PICKLIST) {
 			refEntity = "PickList";
 		} else if (displayType == DisplayType.CLASSIFICATION) {
 			refEntity = "ClassificationData";
-			recordOfField.setString("extConfig", extConfig == null ? "{}" : extConfig.toJSONString());
+			if (extConfig != null) {
+				recordOfField.setString("extConfig", extConfig.toJSONString());
+			}
 		}
 		
 		if (StringUtils.isNotBlank(refEntity)) {
@@ -271,7 +276,7 @@ public class Field2Schema {
 		tempMetaId.add(recordOfField.getPrimary());
 		
 		boolean autoValue = EntityHelper.AutoId.equals(fieldName);
-		String defaultValue = EntityHelper.IsDeleted.equals(fieldName) ? "F" : null;
+		defaultValue = EntityHelper.IsDeleted.equals(fieldName) ? "F" : null;
 		
 		Field unsafeField = new FieldImpl(
 				fieldName, physicalName, fieldLabel, entity, displayType.getFieldType(), CascadeModel.Ignore, maxLength, 

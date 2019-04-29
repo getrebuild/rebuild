@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.rbstores;
+package com.rebuild.server.business.rbstore;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -84,7 +84,7 @@ public class MetaschemaImporter extends BulkTask {
 	public Object exec() {
 		JSONObject data = orData;
 		if (data == null) {
-			data = (JSONObject) RBStores.fetchMetaschema(fileUrl);
+			data = (JSONObject) RBStore.fetchMetaschema(fileUrl);
 		}
 		
 		setTotal(100);
@@ -177,7 +177,7 @@ public class MetaschemaImporter extends BulkTask {
 		String fieldLabel = schemaField.getString("fieldLabel");
 		String displayType = schemaField.getString("displayType");
 		JSON extConfig = schemaField.getJSONObject("extConfig");
-
+		
 		Field unsafeField = new Field2Schema(this.user).createUnsafeField(
 				belong, fieldName, fieldLabel, DisplayType.valueOf(displayType),
 				schemaField.getBooleanValue("nullable"),
@@ -185,7 +185,8 @@ public class MetaschemaImporter extends BulkTask {
 				schemaField.getBooleanValue("updatable"),
 				schemaField.getString("comments"),
 				schemaField.getString("refEntity"),
-				null, true, extConfig);
+				null, true, extConfig, 
+				schemaField.getString("defaultValue"));
 		return unsafeField;
 	}
 }

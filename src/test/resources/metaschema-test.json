@@ -2,13 +2,16 @@
 	"entity": "testallfields",
 	"entityLabel": "TESTALLFIELDS",
 	"nameField": "testallfieldsName",
-	"fields": [
-		{
+	"fields": [{
 			"field": "date",
 			"fieldLabel": "DATE",
 			"displayType": "DATE",
-			"nullable": true,
-			"updatable": true
+			"nullable": false,
+			"updatable": false,
+			"defaultValue": "{NOW + 5D}",
+			"extConfig": {
+				"dateFormat": "yyyy-MM-dd"
+			}
 		},
 		{
 			"field": "picklist",
@@ -16,7 +19,25 @@
 			"displayType": "PICKLIST",
 			"nullable": true,
 			"updatable": true,
-			"items": []
+			"defaultValue": "",
+			"items": [
+				[
+					"A",
+					false
+				],
+				[
+					"B",
+					true
+				],
+				[
+					"C",
+					false
+				],
+				[
+					"D",
+					false
+				]
+			]
 		},
 		{
 			"field": "reference",
@@ -24,6 +45,7 @@
 			"displayType": "REFERENCE",
 			"nullable": true,
 			"updatable": true,
+			"defaultValue": "",
 			"refEntity": "testallfields",
 			"refEntityLabel": "TESTALLFIELDS"
 		},
@@ -32,56 +54,68 @@
 			"fieldLabel": "NUMBER",
 			"displayType": "NUMBER",
 			"nullable": true,
-			"updatable": true
+			"updatable": true,
+			"defaultValue": "123123.123"
 		},
 		{
 			"field": "datetime",
 			"fieldLabel": "DATETIME",
 			"displayType": "DATETIME",
+			"comments": "哈哈哈",
 			"nullable": true,
-			"updatable": true
+			"updatable": true,
+			"defaultValue": "2019-04-29 00:00:59",
+			"extConfig": {
+				"datetimeFormat": "yyyy-MM-dd HH:mm:ss"
+			}
 		},
 		{
 			"field": "file",
 			"fieldLabel": "FILE",
 			"displayType": "FILE",
 			"nullable": true,
-			"updatable": true
+			"updatable": true,
+			"defaultValue": ""
 		},
 		{
 			"field": "text",
 			"fieldLabel": "TEXT",
 			"displayType": "TEXT",
 			"nullable": true,
-			"updatable": true
+			"updatable": true,
+			"defaultValue": ""
 		},
 		{
 			"field": "email",
 			"fieldLabel": "EMAIL",
 			"displayType": "EMAIL",
 			"nullable": true,
-			"updatable": true
+			"updatable": true,
+			"defaultValue": ""
 		},
 		{
 			"field": "ntext",
 			"fieldLabel": "NTEXT",
 			"displayType": "NTEXT",
 			"nullable": true,
-			"updatable": true
+			"updatable": true,
+			"defaultValue": "大文本 (NTEXT)"
 		},
 		{
 			"field": "testallfieldsName",
 			"fieldLabel": "TESTALLFIELDS名称",
 			"displayType": "TEXT",
 			"nullable": false,
-			"updatable": true
+			"updatable": true,
+			"defaultValue": "文本 (TEXT)"
 		},
 		{
 			"field": "image",
 			"fieldLabel": "IMAGE",
 			"displayType": "IMAGE",
 			"nullable": true,
-			"updatable": true
+			"updatable": true,
+			"defaultValue": ""
 		},
 		{
 			"field": "classification",
@@ -89,6 +123,7 @@
 			"displayType": "CLASSIFICATION",
 			"nullable": true,
 			"updatable": true,
+			"defaultValue": "",
 			"extConfig": {
 				"classification": "018-0000000000000001"
 			}
@@ -98,28 +133,35 @@
 			"fieldLabel": "URL",
 			"displayType": "URL",
 			"nullable": true,
-			"updatable": true
+			"updatable": true,
+			"defaultValue": ""
 		},
 		{
 			"field": "phone",
 			"fieldLabel": "PHONE",
 			"displayType": "PHONE",
 			"nullable": true,
-			"updatable": true
+			"updatable": true,
+			"defaultValue": "543543534"
 		},
 		{
 			"field": "series",
 			"fieldLabel": "SERIES",
 			"displayType": "SERIES",
 			"nullable": false,
-			"updatable": false
+			"updatable": false,
+			"defaultValue": ""
 		},
 		{
 			"field": "decimal",
 			"fieldLabel": "DECIMAL",
 			"displayType": "DECIMAL",
 			"nullable": true,
-			"updatable": true
+			"updatable": true,
+			"defaultValue": "999.9999",
+			"extConfig": {
+				"decimalFormat": "##,##0.00"
+			}
 		}
 	]
 }

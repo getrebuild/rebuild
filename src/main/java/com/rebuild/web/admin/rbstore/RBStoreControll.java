@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.admin.entityhub;
+package com.rebuild.web.admin.rbstore;
 
 import java.io.IOException;
 
@@ -27,42 +27,27 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSON;
-import com.rebuild.server.business.dataio.ClassificationImporter;
-import com.rebuild.server.helper.task.BulkTaskExecutor;
-import com.rebuild.web.BaseControll;
-
-import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.business.rbstore.RBStore;
+import com.rebuild.web.BasePageControll;
 
 /**
- * 分类数据导入
+ * TODO
  * 
- * @author devezhao zhaofang123@gmail.com
- * @since 2019/04/08
- * 
- * @see ClassificationImporter
+ * @author devezhao-mbp zhaofang123@gmail.com
+ * @since 2019/04/28
  */
-@RequestMapping("/admin/classification/")
 @Controller
-public class ClassificationImportControll extends BaseControll {
-	
-	@RequestMapping("/imports/load-index")
+@RequestMapping("/admin/rbstore")
+public class RBStoreControll extends BasePageControll {
+
+	@RequestMapping("load-index")
 	public void loadDataIndex(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		JSON index = ClassificationImporter.fetchRemoteJson("index.json");
+		String type = getParameterNotNull(request, "type");
+		JSON index = RBStore.fetchRemoteJson(type + "/index.json");
 		if (index == null) {
 			writeSuccess(response, "无法获取索引数据");
 		} else {
 			writeSuccess(response, index);
 		}
-	}
-
-	@RequestMapping("/imports/starts")
-	public void starts(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getRequestUser(request);
-		ID dest = getIdParameterNotNull(request, "dest");
-		String fileUrl = getParameterNotNull(request, "file");
-		
-		ClassificationImporter importer = new ClassificationImporter(user, dest, fileUrl);
-		String taskid = BulkTaskExecutor.submit(importer);
-		writeSuccess(response, taskid);
 	}
 }

@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.rbstores;
+package com.rebuild.server.business.rbstore;
 
 import java.io.File;
 import java.net.URL;
@@ -38,9 +38,9 @@ import cn.devezhao.commons.CodecUtils;
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/04/28
  */
-public class RBStores {
+public class RBStore {
 	
-	private static final Log LOG = LogFactory.getLog(RBStores.class);
+	private static final Log LOG = LogFactory.getLog(RBStore.class);
 
 	public static final String DATA_REPO = "https://raw.githubusercontent.com/getrebuild/rebuild-datas/master/";
 

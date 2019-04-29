@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.rbstores;
+package com.rebuild.server.business.rbstore;
 
 import java.io.File;
 import java.net.URL;
@@ -27,6 +27,7 @@ import org.junit.Test;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.TestSupport;
+import com.rebuild.server.business.rbstore.MetaschemaImporter;
 import com.rebuild.server.service.bizz.UserService;
 
 /**

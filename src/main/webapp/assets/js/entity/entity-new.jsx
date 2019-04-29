@@ -55,7 +55,7 @@ class MetaschemaList extends React.Component {
   }
   render() {
     return <div>
-      {this.state.indexes ? <div className="indexes">{this.state.indexes.map((item) => {
+      {this.state.indexes ? <div className="rbs-indexes">{this.state.indexes.map((item) => {
         return (<div key={'data-' + item.file}>
           <div className="float-left">
             <h5>{item.name}</h5>
@@ -74,7 +74,7 @@ class MetaschemaList extends React.Component {
     </div>
   }
   componentDidMount() {
-    $.get(`${rb.baseUrl}/admin/rbstores/load-index?type=metaschemas`, (res) => {
+    $.get(`${rb.baseUrl}/admin/rbstore/load-index?type=metaschemas`, (res) => {
       if (res.error_code === 0) this.setState({ indexes: res.data }, () => { parent.rb.modalResize() })
       else rb.hberror(res.error_msg)
     })

@@ -5,27 +5,7 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>新建实体</title>
 <style type="text/css">
-#metaschemas,#metaschemas .rb-loading{min-height:200px}
-.indexes>div {
-  margin: 15px 0;
-  padding: 15px;
-  padding-bottom: 13px;
-  border-radius: 3px;
-  background-color: #eee;
-}
-.indexes>div:first-child{margin-top:10px}
-.indexes>div:last-child{margin-bottom:10px}
-.indexes>div h5 {
-  font-size: 1rem;
-  font-weight: bold;
-  margin: 0;
-  margin-bottom: 6px;
-}
-.indexes>div .text-muted,
-.indexes>div .text-muted a {
-  font-size: 12px;
-  color: #777 !important;
-}
+#metaschemas,#metaschemas .rb-loading{min-height:256px}
 </style>
 </head>
 <body class="dialog">

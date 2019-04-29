@@ -1,5 +1,5 @@
 /*
-rebuild - Building your business-systems freely.
+rebuild - Building your system freely.
 Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -26,28 +26,31 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.alibaba.fastjson.JSON;
-import com.rebuild.server.business.rbstores.RBStores;
-import com.rebuild.web.BasePageControll;
+import com.rebuild.server.business.rbstore.ClassificationImporter;
+import com.rebuild.server.helper.task.BulkTaskExecutor;
+import com.rebuild.web.BaseControll;
+
+import cn.devezhao.persist4j.engine.ID;
 
 /**
- * TODO
+ * 分类数据导入
  * 
- * @author devezhao-mbp zhaofang123@gmail.com
- * @since 2019/04/28
+ * @author devezhao zhaofang123@gmail.com
+ * @since 2019/04/08
+ * 
+ * @see ClassificationImporter
  */
 @Controller
-@RequestMapping("/admin/rbstores")
-public class RBStoresControll extends BasePageControll {
+public class ClassificationImportControll extends BaseControll {
 
-	@RequestMapping("load-index")
-	public void loadDataIndex(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String type = getParameterNotNull(request, "type");
-		JSON index = RBStores.fetchRemoteJson(type + "/index.json");
-		if (index == null) {
-			writeSuccess(response, "无法获取索引数据");
-		} else {
-			writeSuccess(response, index);
-		}
+	@RequestMapping("/admin/classification//imports/starts")
+	public void starts(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getRequestUser(request);
+		ID dest = getIdParameterNotNull(request, "dest");
+		String fileUrl = getParameterNotNull(request, "file");
+		
+		ClassificationImporter importer = new ClassificationImporter(user, dest, fileUrl);
+		String taskid = BulkTaskExecutor.submit(importer);
+		writeSuccess(response, taskid);
 	}
 }
