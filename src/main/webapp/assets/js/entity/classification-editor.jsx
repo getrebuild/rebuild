@@ -174,7 +174,7 @@ class LevelBox extends React.Component {
   delItem(item, e) {
     e.stopPropagation()
     let that = this
-    rb.alert('删除后其子分类也将被一并删除。<br>同时，已经使用了这些分类项的数据（字段）也将无法显示。<br>确定要删除吗？', {
+    rb.alert('删除后其子分类也将被一并删除。<br>同时已经使用了这些分类的数据（字段）也将无法显示。<br>确定要删除吗？', {
       html: true,
       type: 'danger',
       confirm: function () {
@@ -255,7 +255,7 @@ class DlgImports extends RbModalHandler {
     let name = e.currentTarget.dataset.name
     let url = `${rb.baseUrl}/admin/classification/imports/starts?dest=${this.props.id}&file=${$encode(file)}`
     let that = this
-    rb.alert(`<strong>${name}</strong><br>导入会导致现有数据被清空。立即开始导入吗？`, {
+    rb.alert(`<strong>${name}</strong><br>请注意，导入将导致现有数据被清空。<br>如当前分类数据正在使用则不建议导入。确认导入吗？`, {
       html: true,
       confirm: function () {
         this.hide()
@@ -272,7 +272,13 @@ class DlgImports extends RbModalHandler {
   __checkState(taskid) {
     $.get(`${rb.baseUrl}/commons/task/state?taskid=${taskid}`, (res) => {
       if (res.error_code === 0) {
-        let cp = res.data.complete
+        if (res.data.hasError) {
+          this.__mpro.end()
+          rb.hberror(res.data.hasError)
+          return
+        }
+
+        let cp = res.data.completed
         if (cp >= 1) {
           rb.hbsuccess('导入完成')
           this.__mpro.end()

@@ -27,6 +27,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSON;
+import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
@@ -44,8 +45,10 @@ public class HeavyTaskControll extends BaseControll {
 	public void checkState(HttpServletRequest request, HttpServletResponse response)
 			throws IOException {
 		String taskid = getParameterNotNull(request, "taskid");
-		double cp = TaskExecutors.getTask(taskid).getCompletedPercent();
-		JSON ret = JSONUtils.toJSONObject(new String[] { "taskid", "complete" }, new Object[] { taskid, cp });
+		HeavyTask<?> task = TaskExecutors.getTask(taskid);
+		JSON ret = JSONUtils.toJSONObject(
+				new String[] { "taskid", "completed", "hasError" },
+				new Object[] { taskid, task.getCompletedPercent(), task.getErrorMessage() });
 		writeSuccess(response, ret);
 	}
 }
