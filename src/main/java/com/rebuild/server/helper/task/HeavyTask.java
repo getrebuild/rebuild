@@ -45,7 +45,7 @@ public abstract class HeavyTask<T> implements Runnable {
 	volatile private boolean interruptState = false;
 	
 	private int total = -1;
-	private int complete = 0;
+	private int completed = 0;
 	
 	private Date beginTime;
 	private Date completedTime;
@@ -82,16 +82,16 @@ public abstract class HeavyTask<T> implements Runnable {
 	}
 	
 	/**
-	 * @param complete
+	 * @param completed
 	 */
-	protected void setComplete(int complete) {
-		this.complete = complete;
+	protected void setCompleted(int completed) {
+		this.completed = completed;
 	}
 	
 	/**
 	 */
-	protected void setCompleteOne() {
-		this.complete++;
+	protected void addCompleted() {
+		this.completed++;
 	}
 
 	/**
@@ -136,8 +136,8 @@ public abstract class HeavyTask<T> implements Runnable {
 	 * 
 	 * @return
 	 */
-	public int getComplete() {
-		return complete;
+	public int getCompleted() {
+		return completed;
 	}
 	
 	/**
@@ -145,14 +145,14 @@ public abstract class HeavyTask<T> implements Runnable {
 	 * 
 	 * @return
 	 */
-	public double getCompletePercent() {
-		if (total == -1 || complete == 0) {
+	public double getCompletedPercent() {
+		if (total == -1 || completed == 0) {
 			return 0;
 		}
-		if (complete >= total) {
+		if (completed >= total) {
 			return 1;
 		}
-		return complete * 1d / total;
+		return completed * 1d / total;
 	}
 	
 	/**
@@ -161,7 +161,7 @@ public abstract class HeavyTask<T> implements Runnable {
 	 * @return
 	 */
 	public boolean isCompleted() {
-		return completedTime != null || (total != -1 && getComplete() >= getTotal());
+		return completedTime != null || (total != -1 && getCompleted() >= getTotal());
 	}
 	
 	/**

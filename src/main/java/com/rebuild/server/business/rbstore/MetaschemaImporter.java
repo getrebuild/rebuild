@@ -136,13 +136,13 @@ public class MetaschemaImporter extends HeavyTask<String> {
 		
 		String entityName = performEntity(remoteData, null);
 		Entity createdEntity = MetadataHelper.getEntity(entityName);
-		setComplete(50);
+		setCompleted(50);
 		
 		JSONObject slave = remoteData.getJSONObject("slave");
 		if (slave != null) {
 			try {
 				performEntity(remoteData, createdEntity.getName());
-				setComplete(100);
+				setCompleted(100);
 			} catch (ModifiyMetadataException ex) {
 				// 出现异常，删除主实体
 				new Entity2Schema(this.user).drop(createdEntity, true);
@@ -168,7 +168,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 		entity2Schema.createEntity(
 				entityName, entityLabel, schemaEntity.getString("comments"), masterEntityName, false);
 		Entity entity = MetadataHelper.getEntity(entityName);
-		this.setComplete((int) (this.getComplete() * 1.5));
+		this.setCompleted((int) (this.getCompleted() * 1.5));
 		
 		// to DB
 		Dialect dialect = Application.getPersistManagerFactory().getDialect();

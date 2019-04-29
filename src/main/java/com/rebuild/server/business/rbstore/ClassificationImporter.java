@@ -92,7 +92,7 @@ public class ClassificationImporter extends HeavyTask<Void> {
 			if (firstOne == null) {
 				firstOne = id;
 			}
-			this.setCompleteOne();
+			this.addCompleted();
 		}
 		
 		return null;

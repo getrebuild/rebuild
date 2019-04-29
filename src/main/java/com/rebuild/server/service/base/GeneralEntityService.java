@@ -33,7 +33,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
 import com.rebuild.server.business.dataio.DataImporter;
 import com.rebuild.server.business.series.SeriesGeneratorFactory;
-import com.rebuild.server.helper.task.TaskExecutor;
+import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
@@ -280,7 +280,7 @@ public class GeneralEntityService extends ObservableService  {
 	@Override
 	public String bulkAsync(BulkContext context) {
 		BulkOperator operator = buildBulkOperator(context);
-		String taskid = TaskExecutor.submit(operator);
+		String taskid = TaskExecutors.submit(operator);
 		return taskid;
 	}
 	

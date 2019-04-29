@@ -27,7 +27,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.rebuild.server.business.rbstore.ClassificationImporter;
-import com.rebuild.server.helper.task.TaskExecutor;
+import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.persist4j.engine.ID;
@@ -50,7 +50,7 @@ public class ClassificationImportControll extends BaseControll {
 		String fileUrl = getParameterNotNull(request, "file");
 		
 		ClassificationImporter importer = new ClassificationImporter(user, dest, fileUrl);
-		String taskid = TaskExecutor.submit(importer);
+		String taskid = TaskExecutors.submit(importer);
 		writeSuccess(response, taskid);
 	}
 }

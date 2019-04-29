@@ -29,6 +29,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
+import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
 
 import cn.devezhao.commons.CodecUtils;
@@ -40,7 +41,7 @@ import cn.devezhao.commons.ThreadPool;
  * @author devezhao
  * @since 09/29/2018
  */
-public class TaskExecutor extends QuartzJobBean {
+public class TaskExecutors extends QuartzJobBean {
 	
 	private static final int EXECS_MAX = 4;
 	private static final ExecutorService EXECS = Executors.newFixedThreadPool(EXECS_MAX);
@@ -104,19 +105,14 @@ public class TaskExecutor extends QuartzJobBean {
 	protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
 		for (Map.Entry<String, HeavyTask<?>> e : TASKS.entrySet()) {
 			HeavyTask<?> task = e.getValue();
-			if (!task.isCompleted()) {
+			if (task.getCompletedTime() == null || !task.isCompleted()) {
 				continue;
 			}
 			
-			// 无完成时间不移除
-			if (task.getCompletedTime() == null) {
-				continue;
-			}
-			
-			long completedTime = (System.currentTimeMillis() - task.getCompletedTime().getTime()) / 1000;
-			if (completedTime > 60 * 120) {
+			long leftTime = (System.currentTimeMillis() - task.getCompletedTime().getTime()) / 1000;
+			if (leftTime > 60 * 120) {
 				TASKS.remove(e.getKey());
-				// TODO 任务完成后发内部通知
+				Application.LOG.info("HeavyTask self-destroying : " + e.getKey());
 			}
 		}
 	}

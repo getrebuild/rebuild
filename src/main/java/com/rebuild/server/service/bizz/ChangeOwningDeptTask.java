@@ -65,7 +65,7 @@ public class ChangeOwningDeptTask extends HeavyTask<Integer> {
 			if (EntityHelper.hasPrivilegesField(e)) {
 				String sql = MessageFormat.format(updeptSql, e.getPhysicalName());
 				Application.getSQLExecutor().execute(sql, 60 * 10);
-				this.setCompleteOne();
+				this.addCompleted();
 				changed++;
 			}
 		}

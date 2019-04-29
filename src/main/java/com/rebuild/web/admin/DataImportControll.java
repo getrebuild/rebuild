@@ -43,7 +43,7 @@ import com.rebuild.server.business.dataio.DataImporter;
 import com.rebuild.server.business.dataio.ImportRule;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.task.HeavyTask;
-import com.rebuild.server.helper.task.TaskExecutor;
+import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
@@ -177,7 +177,7 @@ public class DataImportControll extends BasePageControll {
 		if (getBoolParameter(request, "preview")) {
 			// TODO 导入预览
 		} else {
-			String taskid = TaskExecutor.submit(importer);
+			String taskid = TaskExecutors.submit(importer);
 			JSON ret = JSONUtils.toJSONObject("taskid", taskid);
 			writeSuccess(response, ret);
 		}
@@ -187,7 +187,7 @@ public class DataImportControll extends BasePageControll {
 	@RequestMapping("/dataio/import-state")
 	public void importState(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String taskid = getParameterNotNull(request, "taskid");
-		HeavyTask task = TaskExecutor.getTask(taskid);
+		HeavyTask<?> task = TaskExecutors.getTask(taskid);
 		if (task == null) {
 			writeFailure(response, "无效任务 : " + taskid);
 			return;
@@ -200,7 +200,7 @@ public class DataImportControll extends BasePageControll {
 	@RequestMapping("/dataio/import-cancel")
 	public void importCancel(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String taskid = getParameterNotNull(request, "taskid");
-		HeavyTask task = TaskExecutor.getTask(taskid);
+		HeavyTask<?> task = TaskExecutors.getTask(taskid);
 		if (task == null) {
 			writeFailure(response, "无效任务 : " + taskid);
 			return;
@@ -228,8 +228,8 @@ public class DataImportControll extends BasePageControll {
 	private JSON formatTaskState(DataImporter task) {
 		JSON state = JSONUtils.toJSONObject(
 				new String[] { "total", "complete", "success", "isCompleted", "isInterrupted", "elapsedTime" },
-				new Object[] { task.getTotal(), task.getComplete(),
-						((DataImporter) task).getSuccess(), task.isCompleted(), task.isInterrupted(), task.getElapsedTime() });
+				new Object[] { task.getTotal(), task.getCompleted(),
+						((DataImporter) task).getSuccessed(), task.isCompleted(), task.isInterrupted(), task.getElapsedTime() });
 		return state;
 	}
 	

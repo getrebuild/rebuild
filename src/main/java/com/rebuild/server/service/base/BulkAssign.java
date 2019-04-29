@@ -61,7 +61,7 @@ public class BulkAssign extends BulkOperator {
 			} else {
 				LOG.warn("No have privileges to ASSIGN : " + context.getOpUser() + " > " + id);
 			}
-			this.setCompleteOne();
+			this.addCompleted();
 		}
 		
 		Set<ID> affected = BulkOperatorTx.getInTxSet();

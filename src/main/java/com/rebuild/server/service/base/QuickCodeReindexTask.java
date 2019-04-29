@@ -96,7 +96,7 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
 					}
 					Application.getCommonService().update(record, false);
 				} finally {
-					this.setCompleteOne();
+					this.addCompleted();
 				}
 			}
 			

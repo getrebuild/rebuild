@@ -60,7 +60,7 @@ public class DataImporter extends HeavyTask<Integer> {
 	final private ImportRule rule;
 	final private ID owningUser;
 	
-	private int success = 0;
+	private int successed = 0;
 	private Map<Integer, Object> logging = new LinkedHashMap<>();
 	
 	/**
@@ -105,27 +105,27 @@ public class DataImporter extends HeavyTask<Integer> {
 					Record record = checkoutRecord(cell);
 					if (record != null) {
 						record = Application.getEntityService(rule.getToEntity().getEntityCode()).createOrUpdate(record);
-						this.success++;
+						this.successed++;
 						logging.put(reader.getRowIndex(), record.getPrimary());
 					}
 				} catch (Exception ex) {
 					logging.put(reader.getRowIndex(), ex.getLocalizedMessage());
 					LOG.warn(reader.getRowIndex() + " > " + ex);
 				} finally {
-					this.setCompleteOne();
+					this.addCompleted();
 				}
 			}
 		} finally {
 			IN_IMPORTING.remove();
 		}
-		return this.success;
+		return this.successed;
 	}
 	
 	/**
 	 * @return
 	 */
-	public int getSuccess() {
-		return success;
+	public int getSuccessed() {
+		return successed;
 	}
 
 	/**
