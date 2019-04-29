@@ -1,3 +1,4 @@
+const L4 = ['一', '二', '三', '四']
 $(document).ready(function () {
   $('.J_add').click(() => {
     renderRbcomp(<DlgEdit />)
@@ -30,6 +31,9 @@ $(document).ready(function () {
     $this.find('.J_edit').click(() => {
       renderRbcomp(<DlgEdit id={id} isDisabled={$this.data('disabled')} name={$this.find('.card-body>a').text()} />)
     })
+
+    let ol = $this.find('p.text-muted span')
+    ol.text(L4[ol.text()])
   })
 })
 
