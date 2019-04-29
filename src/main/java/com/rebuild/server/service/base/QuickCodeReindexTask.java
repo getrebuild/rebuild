@@ -45,7 +45,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 12/28/2018
  */
-public class QuickCodeReindexTask extends HeavyTask {
+public class QuickCodeReindexTask extends HeavyTask<Integer> {
 	
 	final private Entity entity;
 
@@ -58,7 +58,7 @@ public class QuickCodeReindexTask extends HeavyTask {
 	}
 	
 	@Override
-	public void run() {
+	public Integer exec() throws Exception {
 		if (!entity.containsField(EntityHelper.QuickCode)) {
 			throw new IllegalArgumentException("No QuickCode field found : " + entity);
 		}
@@ -106,7 +106,7 @@ public class QuickCodeReindexTask extends HeavyTask {
 		}
 		
 		this.setTotal(this.getTotal() - 1);
-		completedAfter();
+		return this.getTotal();
 	}
 	
 	// --

@@ -37,7 +37,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 09/29/2018
  */
-public abstract class HeavyTask implements Runnable {
+public abstract class HeavyTask<T> implements Runnable {
 	
 	protected static final Log LOG = LogFactory.getLog(HeavyTask.class);
 	
@@ -196,7 +196,7 @@ public abstract class HeavyTask implements Runnable {
 	// New execute mode
 	
 	@Override
-	public void run() {
+	final public void run() {
 		try {
 			exec();
 		} catch (Exception ex) {
@@ -213,9 +213,7 @@ public abstract class HeavyTask implements Runnable {
 	 * @return
 	 * @throws Exception
 	 */
-	public Object exec() throws Exception {
-		return null;
-	}
+	abstract public T exec() throws Exception;
 	
 	/**
 	 * @return

@@ -42,7 +42,7 @@ public class BulkAssign extends BulkOperator {
 	}
 
 	@Override
-	public Integer operate() {
+	public Integer exec() {
 		ID[] records = prepareRecords();
 		this.setTotal(records.length);
 		
@@ -76,7 +76,6 @@ public class BulkAssign extends BulkOperator {
 			new NotificationObserver().update(null, operatingContext);
 		}
 		
-		this.completedAfter();
 		return assigned;
 	}
 }

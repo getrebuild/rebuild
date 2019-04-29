@@ -63,7 +63,7 @@ public class BulkTaskTest {
 		ThreadPool.waitFor(1 * 1000);
 	}
 	
-	static class TestTask extends HeavyTask {
+	static class TestTask extends HeavyTask<Void> {
 		private String name;
 		private int number;
 		protected TestTask(String name, int number) {
@@ -71,7 +71,7 @@ public class BulkTaskTest {
 			this.number = number;
 		}
 		@Override
-		public void run() {
+		public Void exec() throws Exception {
 			this.setTotal(this.number);
 			for (int i = 0; i < this.number; i++) {
 				if (this.isInterrupted()) {
@@ -83,7 +83,7 @@ public class BulkTaskTest {
 				System.out.println(this.name + "Mock ... " + i);
 				this.setCompleteOne();
 			}
-			this.completedAfter();
+			return null;
 		}
 	}
 }

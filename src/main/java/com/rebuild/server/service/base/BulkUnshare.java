@@ -35,7 +35,7 @@ public class BulkUnshare extends BulkOperator {
 	}
 
 	@Override
-	public Integer operate() {
+	public Integer exec() {
 		ID[] records = prepareRecords();
 		this.setTotal(records.length);
 		

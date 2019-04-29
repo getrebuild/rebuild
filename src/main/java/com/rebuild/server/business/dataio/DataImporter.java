@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.rebuild.server.Application;
@@ -54,7 +53,7 @@ import cn.devezhao.persist4j.engine.ID;
  * 
  * @see DisplayType
  */
-public class DataImporter extends HeavyTask {
+public class DataImporter extends HeavyTask<Integer> {
 	
 	private static final ThreadLocal<ID> IN_IMPORTING = new ThreadLocal<>();
 	
@@ -80,25 +79,17 @@ public class DataImporter extends HeavyTask {
 		this.owningUser = rule.getDefaultOwningUser() == null ? user : rule.getDefaultOwningUser();
 	}
 	
-	/**
-	 * @return
-	 */
-	protected ImportRule getImportRule() {
-		return rule;
-	}
-	
 	@Override
-	public void run() {
-		DataFileParser fileParser = null;
-		try {
-			fileParser = new DataFileParser(rule.getSourceFile());
-			setTotal(fileParser.getRowsCount() - 1);
+	public Integer exec() throws Exception {
+		try (DataFileParser fileParser = new DataFileParser(rule.getSourceFile())) {
+			this.setTotal(fileParser.getRowsCount() - 1);
 			
 			ExcelReader reader = fileParser.getExcelReader();
 			reader.next();  // Remove head row
 			
 			setThreadUser(this.owningUser);
 			IN_IMPORTING.set(owningUser);
+			
 			while (reader.hasNext()) {
 				if (isInterrupt()) {
 					this.setInterrupted();
@@ -125,10 +116,9 @@ public class DataImporter extends HeavyTask {
 				}
 			}
 		} finally {
-			IOUtils.closeQuietly(fileParser);
 			IN_IMPORTING.remove();
-			completedAfter();
 		}
+		return this.success;
 	}
 	
 	/**

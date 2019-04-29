@@ -39,7 +39,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/04/08
  */
-public class ClassificationImporter extends HeavyTask {
+public class ClassificationImporter extends HeavyTask<Void> {
 	
 	final private ID user;
 	final private ID dest;
@@ -63,7 +63,7 @@ public class ClassificationImporter extends HeavyTask {
 	}
 	
 	@Override
-	public Object exec() throws Exception {
+	public Void exec() throws Exception {
 		final JSONArray data = (JSONArray) RBStore.fetchClassification(fileUrl);
 		
 		Object[][] exists = Application.createQueryNoFilter(

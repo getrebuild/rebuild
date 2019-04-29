@@ -49,7 +49,7 @@ import cn.devezhao.persist4j.util.support.Table;
  * 
  * @see MetaSchemaGenerator
  */
-public class MetaschemaImporter extends HeavyTask {
+public class MetaschemaImporter extends HeavyTask<String> {
 	
 	private static final Log LOG = LogFactory.getLog(MetaschemaImporter.class);
 	
@@ -129,7 +129,7 @@ public class MetaschemaImporter extends HeavyTask {
 	}
 	
 	@Override
-	public Object exec() throws Exception {
+	public String exec() throws Exception {
 		this.readyRemoteData();
 		setTotal(100);
 		setThreadUser(this.user);

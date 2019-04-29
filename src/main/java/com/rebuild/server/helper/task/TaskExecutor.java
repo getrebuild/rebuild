@@ -45,7 +45,7 @@ public class TaskExecutor extends QuartzJobBean {
 	private static final int EXECS_MAX = 4;
 	private static final ExecutorService EXECS = Executors.newFixedThreadPool(EXECS_MAX);
 	
-	private static final Map<String, HeavyTask> TASKS = new ConcurrentHashMap<>();
+	private static final Map<String, HeavyTask<?>> TASKS = new ConcurrentHashMap<>();
 	
 	/**
 	 * 提交给任务调度（异步执行）
@@ -53,7 +53,7 @@ public class TaskExecutor extends QuartzJobBean {
 	 * @param task
 	 * @return 任务 ID
 	 */
-	public static String submit(HeavyTask task) {
+	public static String submit(HeavyTask<?> task) {
 		ThreadPoolExecutor tpe = (ThreadPoolExecutor) EXECS;
 		int queueSize = tpe.getQueue().size();
 		if (queueSize > EXECS_MAX * 5) {
@@ -72,7 +72,7 @@ public class TaskExecutor extends QuartzJobBean {
 	 * @param task
 	 */
 	public static boolean cancel(String taskid) {
-		HeavyTask task = TASKS.get(taskid);
+		HeavyTask<?> task = TASKS.get(taskid);
 		if (task == null) {
 			throw new RebuildException("No Task found : " + taskid);
 		}
@@ -86,7 +86,7 @@ public class TaskExecutor extends QuartzJobBean {
 	 * 
 	 * @param task
 	 */
-	public static void run(HeavyTask task) {
+	public static void run(HeavyTask<?> task) {
 		task.run();
 	}
 	
@@ -94,7 +94,7 @@ public class TaskExecutor extends QuartzJobBean {
 	 * @param taskid
 	 * @return
 	 */
-	public static HeavyTask getTask(String taskid) {
+	public static HeavyTask<?> getTask(String taskid) {
 		return TASKS.get(taskid);
 	}
 	
@@ -102,8 +102,8 @@ public class TaskExecutor extends QuartzJobBean {
 	
 	@Override
 	protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
-		for (Map.Entry<String, HeavyTask> e : TASKS.entrySet()) {
-			HeavyTask task = e.getValue();
+		for (Map.Entry<String, HeavyTask<?>> e : TASKS.entrySet()) {
+			HeavyTask<?> task = e.getValue();
 			if (!task.isCompleted()) {
 				continue;
 			}

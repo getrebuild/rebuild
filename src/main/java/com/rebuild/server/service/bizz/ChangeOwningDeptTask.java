@@ -34,7 +34,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 12/29/2018
  */
-public class ChangeOwningDeptTask extends HeavyTask {
+public class ChangeOwningDeptTask extends HeavyTask<Integer> {
 
 	final private ID user;
 	final private ID deptNew;
@@ -49,11 +49,12 @@ public class ChangeOwningDeptTask extends HeavyTask {
 	}
 	
 	@Override
-	public void run() {
+	public Integer exec() throws Exception {
 		this.setTotal(MetadataHelper.getEntities().length);
 		
 		String updeptSql = "update `{0}` set OWNING_DEPT = ''%s'' where OWNING_USER = ''%s''";
 		updeptSql = String.format(updeptSql, deptNew.toLiteral(), user.toLiteral());
+		int changed = 0;
 		for (Entity e : MetadataHelper.getEntities()) {
 			if (this.isInterrupt()) {
 				this.setInterrupted();
@@ -61,16 +62,13 @@ public class ChangeOwningDeptTask extends HeavyTask {
 				break;
 			}
 			
-			if (!EntityHelper.hasPrivilegesField(e)) {
+			if (EntityHelper.hasPrivilegesField(e)) {
+				String sql = MessageFormat.format(updeptSql, e.getPhysicalName());
+				Application.getSQLExecutor().execute(sql, 60 * 10);
 				this.setCompleteOne();
-				continue;
+				changed++;
 			}
-			
-			String sql = MessageFormat.format(updeptSql, e.getPhysicalName());
-			Application.getSQLExecutor().execute(sql, 60 * 10);
-			this.setCompleteOne();
 		}
-		
-		this.completedAfter();
+		return changed;
 	}
 }
