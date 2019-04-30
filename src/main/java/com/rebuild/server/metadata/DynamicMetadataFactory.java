@@ -73,12 +73,12 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 		FIELD_EXTMETA.clear();
 		
 		Object[][] customEntity = Application.createQueryNoFilter(
-				"select typeCode,entityName,physicalName,entityLabel,entityId,comments,icon,nameField,masterEntity from MetaEntity order by createdOn")
+				"select typeCode,entityName,physicalName,entityLabel,entityId,comments,icon,nameField,masterEntity from MetaEntity")
 				.array();
 		for (Object[] custom : customEntity) {
 			String name = (String) custom[1];
 			Element entity = rootElement.addElement("entity");
-			entity.addAttribute("type-code", custom[0] + "")
+			entity.addAttribute("type-code", custom[0].toString())
 					.addAttribute("name", name)
 					.addAttribute("physical-name", (String) custom[2])
 					.addAttribute("description", (String) custom[3])
@@ -90,7 +90,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 		
 		Object[][] customFields = Application.createQueryNoFilter(
 				"select belongEntity,fieldName,physicalName,fieldLabel,displayType,nullable,creatable,updatable,"
-				+ "maxLength,defaultValue,refEntity,cascade,fieldId,comments,extConfig from MetaField order by createdOn")
+				+ "maxLength,defaultValue,refEntity,cascade,fieldId,comments,extConfig from MetaField")
 				.array();
 		for (Object[] custom : customFields) {
 			String entityName = (String) custom[0];

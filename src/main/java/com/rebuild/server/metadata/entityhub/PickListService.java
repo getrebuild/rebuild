@@ -69,19 +69,21 @@ public class PickListService extends BaseService  {
 			itemsHoldList.add((ID) o[0]);
 		}
 		
-		for (Object o : hideItems) {
-			JSONObject item = (JSONObject) o;
-			String id = item.getString("id");
-			if (!ID.isId(id)) {
-				continue;
+		if (hideItems != null) {
+			for (Object o : hideItems) {
+				JSONObject item = (JSONObject) o;
+				String id = item.getString("id");
+				if (!ID.isId(id)) {
+					continue;
+				}
+				
+				ID id2id = ID.valueOf(id);
+				Record r = EntityHelper.forUpdate(id2id, user);
+				r.setBoolean("isHide", true);
+				r.setString("text", item.getString("text"));
+				super.update(r);
+				itemsHoldList.remove(id2id);
 			}
-			
-			ID id2id = ID.valueOf(id);
-			Record r = EntityHelper.forUpdate(id2id, user);
-			r.setBoolean("isHide", true);
-			r.setString("text", item.getString("text"));
-			super.update(r);
-			itemsHoldList.remove(id2id);
 		}
 		
 		int seq = 0;

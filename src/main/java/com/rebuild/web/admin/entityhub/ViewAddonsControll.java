@@ -36,6 +36,7 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.portals.ViewAddonsManager;
+import com.rebuild.server.service.portals.LayoutConfigService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.PortalsConfiguration;
@@ -75,7 +76,7 @@ public class ViewAddonsControll extends BaseControll implements PortalsConfigura
 			record = EntityHelper.forUpdate(configId, user);
 		}
 		record.setString("config", config.toJSONString());
-		Application.getCommonService().createOrUpdate(record);
+		Application.getBean(LayoutConfigService.class).createOrUpdate(record);
 		
 		writeSuccess(response);
 	}

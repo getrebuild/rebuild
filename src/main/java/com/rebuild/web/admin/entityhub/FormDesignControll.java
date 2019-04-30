@@ -33,6 +33,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.portals.FormsManager;
+import com.rebuild.server.service.portals.LayoutConfigService;
 import com.rebuild.web.BasePageControll;
 import com.rebuild.web.PortalsConfiguration;
 
@@ -72,7 +73,7 @@ public class FormDesignControll extends BasePageControll implements PortalsConfi
 			record.setString("shareTo", FormsManager.SHARE_ALL);
 		}
 		
-		Application.getCommonService().createOrUpdate(record);
+		Application.getBean(LayoutConfigService.class).createOrUpdate(record);
 		writeSuccess(response);
 	}
 }

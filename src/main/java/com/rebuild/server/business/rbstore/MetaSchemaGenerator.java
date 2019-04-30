@@ -128,15 +128,12 @@ public class MetaSchemaGenerator {
 				.setParameter(1, entity.getName())
 				.setParameter(2, UserService.ADMIN_USER)
 				.array();
-		JSONArray putFilters = new JSONArray();
+		JSONObject putFilters = new JSONObject();
 		for (Object[] filter : filters) {
 			String name = (String) filter[0];
 			JSONObject config = JSON.parseObject((String) filter[1]);
 			if (!config.isEmpty()) {
-				JSONArray item = new JSONArray();
-				item.add(name);
-				item.add(config);
-				putFilters.add(item);
+				putFilters.put(name, config);
 			}
 		}
 		schemaEntity.put("filters", putFilters);
@@ -186,7 +183,8 @@ public class MetaSchemaGenerator {
 	 * @return
 	 */
 	private JSON performPickList(Field field) {
-		List<Map<String, Object>> picklist = PickListManager.getPickList(field.getOwnEntity().getName(), field.getName(), false, false);
+		List<Map<String, Object>> picklist = PickListManager.getPickList(
+				field.getOwnEntity().getName(), field.getName(), false, false);
 		JSONArray items = new JSONArray();
 		for (Map<String, Object> item : picklist) {
 			items.add(new Object[] { item.get("text"), item.get("default") });

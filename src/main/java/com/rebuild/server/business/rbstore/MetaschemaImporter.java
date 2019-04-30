@@ -18,6 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.rbstore;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -33,6 +37,11 @@ import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.metadata.entityhub.Entity2Schema;
 import com.rebuild.server.metadata.entityhub.Field2Schema;
 import com.rebuild.server.metadata.entityhub.ModifiyMetadataException;
+import com.rebuild.server.metadata.entityhub.PickListService;
+import com.rebuild.server.portals.SharableManager;
+import com.rebuild.server.service.portals.AdvFilterService;
+import com.rebuild.server.service.portals.LayoutConfigService;
+import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -57,6 +66,8 @@ public class MetaschemaImporter extends HeavyTask<String> {
 	
 	final private String fileUrl;
 	private JSONObject remoteData;
+	
+	private List<Object[]> picklistHolders = new ArrayList<>();
 	
 	/**
 	 * @param user
@@ -151,6 +162,10 @@ public class MetaschemaImporter extends HeavyTask<String> {
 			}
 		}
 		
+		for (Object[] picklist : picklistHolders) {
+			Application.getBean(PickListService.class).updateBatch((Field) picklist[0], (JSONObject) picklist[1]);
+		}
+		
 		return entityName;
 	}
 	
@@ -213,6 +228,20 @@ public class MetaschemaImporter extends HeavyTask<String> {
 			Application.getCommonService().update(updateNameField);
 		}
 		
+		JSONObject layouts = schemaEntity.getJSONObject("layouts");
+		if (layouts != null) {
+			for (Map.Entry<String, Object> e : layouts.entrySet()) {
+				performLayout(entityName, e.getKey(), (JSON) e.getValue());
+			}
+		}
+		
+		JSONObject filters = schemaEntity.getJSONObject("filters");
+		if (filters != null) {
+			for (Map.Entry<String, Object> e : filters.entrySet()) {
+				performFilter(entityName, e.getKey(), (JSON) e.getValue());
+			}
+		}
+		
 		Application.getMetadataFactory().refresh(false);
 		return entityName;
 	}
@@ -223,8 +252,9 @@ public class MetaschemaImporter extends HeavyTask<String> {
 		String displayType = schemaField.getString("displayType");
 		JSON extConfig = schemaField.getJSONObject("extConfig");
 		
+		DisplayType dt = DisplayType.valueOf(displayType);
 		Field unsafeField = new Field2Schema(this.user).createUnsafeField(
-				belong, fieldName, fieldLabel, DisplayType.valueOf(displayType),
+				belong, fieldName, fieldLabel, dt,
 				schemaField.getBooleanValue("nullable"),
 				true,
 				schemaField.getBooleanValue("updatable"),
@@ -232,6 +262,43 @@ public class MetaschemaImporter extends HeavyTask<String> {
 				schemaField.getString("refEntity"),
 				null, true, extConfig, 
 				schemaField.getString("defaultValue"));
+		
+		if (DisplayType.PICKLIST == dt) {
+			picklistHolders.add(
+					new Object[] { unsafeField, readyPickList(schemaField.getJSONArray("items")) });
+		}
+		
 		return unsafeField;
+	}
+	
+	private JSONObject readyPickList(JSONArray items) {
+		JSONArray show = new JSONArray();
+		for (Object o : items) {
+			JSONArray item = (JSONArray) o;
+			show.add(JSONUtils.toJSONObject(new String[] { "text", "default" },
+					new Object[] { item.get(0), item.get(1) }));
+		}
+		
+		JSONObject config = new JSONObject();
+		config.put("show", show);
+		return config;
+	}
+	
+	private void performLayout(String entity, String type, JSON config) {
+		Record record = EntityHelper.forNew(EntityHelper.LayoutConfig, user);
+		record.setString("belongEntity", entity);
+		record.setString("applyType", type);
+		record.setString("config", config.toJSONString());
+		record.setString("shareTo", SharableManager.SHARE_ALL);
+		Application.getBean(LayoutConfigService.class).create(record);
+	}
+	
+	private void performFilter(String entity, String filterName, JSON config) {
+		Record record = EntityHelper.forNew(EntityHelper.FilterConfig, user);
+		record.setString("belongEntity", entity);
+		record.setString("filterName", filterName);
+		record.setString("config", config.toJSONString());
+		record.setString("shareTo", SharableManager.SHARE_ALL);
+		Application.getBean(AdvFilterService.class).create(record);	
 	}
 }
