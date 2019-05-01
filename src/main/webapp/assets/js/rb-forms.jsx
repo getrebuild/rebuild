@@ -488,6 +488,7 @@ class RbFormImage extends RbFormElement {
       this.__minUpload = ~~(this.props.uploadNumber.split(',')[0] || 0)
       this.__maxUpload = ~~(this.props.uploadNumber.split(',')[1] || 9)
     }
+    this.__typeName = '张图片'
   }
   renderElement() {
     return (
@@ -524,27 +525,15 @@ class RbFormImage extends RbFormElement {
     if (this.state.viewMode === true) return
 
     let that = this
-    let mprogress
-    $(that.refs['upload-input']).html5Uploader({
-      name: that.props.field,
-      postUrl: rb.baseUrl + '/filex/upload?cloud=auto&type=image',
-      onSelectError: function (field, error) {
-        if (error === 'ErrorType') rb.highbar('请上传图片')
-      },
-      onClientLoad: function (e, file) {
-        mprogress = new Mprogress({ template: 3 })
-        mprogress.start()
-      },
-      onSuccess: function (d) {
-        if (mprogress === null) return false
-        mprogress.end()
-        d = JSON.parse(d.currentTarget.response)
-        if (d.error_code === 0) {
-          let paths = that.state.value
-          paths.push(d.data)
-          that.handleChange({ target: { value: paths } }, true)
-        } else rb.hberror(d.error_msg || '上传失败，请稍后重试')
-      }
+    let mp
+    $createUploader(this.refs['upload-input'], function (res) {
+      if (!mp) mp = new Mprogress({ template: 1, start: true })
+      mp.set(res.percent / 100)
+      console.log(res.percent)
+    }, function (res) {
+      let paths = that.state.value
+      paths.push(res.key)
+      that.handleChange({ target: { value: paths } }, true)
     })
   }
   removeItem(item) {
@@ -559,22 +548,16 @@ class RbFormImage extends RbFormElement {
     if (err) return err
     let ups = (this.state.value || []).length
     this.setState({ showUploader: this.__maxUpload > ups })
-    if (this.__minUpload > 0 && ups < this.__minUpload) return `至少需要上传 ${this.__minUpload} 张图片`
-    if (this.__maxUpload < ups) return `最多允许上传 ${this.__maxUpload} 张图片`
+    if (this.__minUpload > 0 && ups < this.__minUpload) return `至少需要上传 ${this.__minUpload} ${this.__typeName}`
+    if (this.__maxUpload < ups) return `最多允许上传 ${this.__maxUpload} ${this.__typeName}`
   }
 }
 
 // 文件
-class RbFormFile extends RbFormElement {
+class RbFormFile extends RbFormImage {
   constructor(props) {
     super(props)
-    this.state.value = JSON.parse(props.value || '[]')
-    this.__minUpload = 0
-    this.__maxUpload = 9
-    if (this.props.uploadNumber) {
-      this.__minUpload = ~~(this.props.uploadNumber.split(',')[0] || 0)
-      this.__maxUpload = ~~(this.props.uploadNumber.split(',')[1] || 9)
-    }
+    this.__typeName = '个文件'
   }
   renderElement() {
     return (
@@ -608,45 +591,6 @@ class RbFormFile extends RbFormElement {
         return <a key={'file-' + item} title={fileName} onClick={this.clickPreview.bind(this, itemUrl)} className="img-thumbnail" href={itemUrl} target="_blank" rel="noopener noreferrer"><i className={'ftype ' + fileIcon} /><span>{fileName}</span></a>
       })}
     </div>)
-  }
-  componentDidMount() {
-    super.componentDidMount()
-    if (this.state.viewMode === true) return
-
-    let that = this
-    let mprogress
-    $(that.refs['upload-input']).html5Uploader({
-      name: that.props.field,
-      postUrl: rb.baseUrl + '/filex/upload?cloud=auto',
-      onClientLoad: function (e, file) {
-        mprogress = new Mprogress({ template: 3 })
-        mprogress.start()
-      },
-      onSuccess: function (d) {
-        mprogress.end()
-        d = JSON.parse(d.currentTarget.response)
-        if (d.error_code === 0) {
-          let paths = that.state.value
-          paths.push(d.data)
-          that.handleChange({ target: { value: paths } }, true)
-        } else rb.hberror(d.error_msg || '上传失败，请稍后重试')
-      }
-    })
-  }
-  removeItem(item) {
-    let paths = this.state.value
-    paths.remove(item)
-    this.handleChange({ target: { value: paths } }, true)
-  }
-  clickPreview() {
-  }
-  checkHasError() {
-    let err = super.checkHasError()
-    if (err) return err
-    let ups = (this.state.value || []).length
-    this.setState({ showUploader: this.__maxUpload > ups })
-    if (this.__minUpload > 0 && ups < this.__minUpload) return `至少需要上传 ${this.__minUpload} 个文件`
-    if (this.__maxUpload < ups) return `最多允许上传 ${this.__maxUpload} 个文件`
   }
 }
 

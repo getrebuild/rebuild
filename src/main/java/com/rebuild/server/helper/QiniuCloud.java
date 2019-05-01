@@ -25,6 +25,7 @@ import java.net.URL;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
@@ -33,6 +34,7 @@ import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
+import com.qiniu.util.StringMap;
 import com.rebuild.server.RebuildException;
 
 import cn.devezhao.commons.CalendarUtils;
@@ -49,27 +51,26 @@ public class QiniuCloud {
 	private static final Log LOG = LogFactory.getLog(QiniuCloud.class);
 	
 	private final Configuration CONFIGURATION = new Configuration(Zone.autoZone());
-	
 	private final UploadManager UPLOAD_MANAGER = new UploadManager(CONFIGURATION);
 	
 	private Auth auth;
 	private String bucketName;
 
 	private QiniuCloud() {
-		init();
-	}
-	
-	/**
-	 * 初始化
-	 */
-	synchronized public void init() {
 		String[] account = SysConfiguration.getStorageAccount();
 		if (account != null) {
 			this.auth = Auth.create(account[0], account[1]);
 			this.bucketName = account[2];
 		} else {
-			LOG.error("云存储账户未配置，文件上传功能不可用");
+			LOG.warn("No QiniuCloud configuration! Using local storage.");
 		}
+	}
+	
+	/**
+	 * @return
+	 */
+	public boolean available() {
+		return this.auth != null;
 	}
 	
 	/**
@@ -80,12 +81,8 @@ public class QiniuCloud {
 	 * @throws IOException
 	 */
 	public String upload(File file) throws IOException {
-		if (auth == null) {
-			return null;
-		}
-		
-		String key = String.format("rebuild/%s/%s", 
-				CalendarUtils.getPlainDateFormat().format(CalendarUtils.now()), file.getName());
+		Assert.notNull(auth, "云存储账户未配置");
+		String key = formatFileKey(file.getName()); 
 		Response resp = UPLOAD_MANAGER.put(file, key, auth.uploadToken(bucketName));
 		if (resp.isOK()) {
 			return key;
@@ -103,11 +100,13 @@ public class QiniuCloud {
 	 * @throws Exception
 	 */
 	public String upload(URL url) throws Exception {
+		Assert.notNull(auth, "云存储账户未配置");
 		File tmp = SysConfiguration.getFileOfTemp("temp-" + System.currentTimeMillis());
 		boolean success = download(url, tmp);
 		if (!success) {
 			throw new RebuildException("无法从 URL 读取文件 : " + url);
 		}
+		
 		try {
 			return upload(tmp);
 		} finally {
@@ -133,6 +132,7 @@ public class QiniuCloud {
 	 * @return
 	 */
 	public String url(String filePath, int seconds) {
+		Assert.notNull(auth, "云存储账户未配置");
 		String baseUrl = SysConfiguration.getStorageUrl() + filePath;
 		// default use HTTPS
 		if (baseUrl.startsWith("//")) {
@@ -147,26 +147,13 @@ public class QiniuCloud {
 	}
 	
 	/**
-	 * 下载文件
-	 * 
-	 * @param url
-	 * @param dest
-	 * @return
-	 * @throws Exception
-	 */
-	public boolean download(URL url, File dest) throws Exception {
-		byte[] bs = HttpClientEx.instance().readBinary(url.toString(), 60 * 1000);
-		FileUtils.writeByteArrayToFile(dest, bs);
-		return true;
-	}
-	
-	/**
 	 * 删除文件
 	 * 
 	 * @param key
 	 * @return
 	 */
 	protected boolean delete(String key) {
+		Assert.notNull(auth, "云存储账户未配置");
 		BucketManager bucketManager = new BucketManager(auth, CONFIGURATION);
 		Response resp = null;
 		try {
@@ -179,6 +166,48 @@ public class QiniuCloud {
 		} catch (QiniuException e) {
 			throw new RebuildException("删除文件失败 : " + this.bucketName + " < " + key, e);
 		}
+	}
+	
+	/**
+	 * 下载文件
+	 * 
+	 * @param url
+	 * @param dest
+	 * @return
+	 * @throws IOException
+	 */
+	public boolean download(URL url, File dest) throws IOException {
+		byte[] bs = HttpClientEx.instance().readBinary(url.toString(), 120 * 1000);
+		FileUtils.writeByteArrayToFile(dest, bs);
+		return true;
+	}
+	
+	/**
+	 * @param fileName
+	 * @return
+	 */
+	public String formatFileKey(String fileName) {
+		if (fileName.contains("__")) {
+			fileName = fileName.replace("__", "_");
+		}
+		if (fileName.length() > 43) {
+			fileName = fileName.substring(0, 20) + "..." + fileName.substring(fileName.length() - 20);
+		}
+		
+		String datetime = CalendarUtils.getDateFormat("yyyyMMddHHmmssSSS").format(CalendarUtils.now());
+		fileName = String.format("rb/%s/%s__%s", datetime.substring(0, 8), datetime.substring(8), fileName);
+		return fileName;
+	}
+	
+	/**
+	 * @param fileKey
+	 * @return
+	 * @see #formatFileKey(String)
+	 */
+	public String getUploadToken(String fileKey) {
+		// 上传策略参见 https://developer.qiniu.com/kodo/manual/1206/put-policy
+		StringMap policy = new StringMap().put("fsizeLimit", 1024 * 1024 * 200);  // 200M
+		return auth.uploadToken(bucketName, fileKey, 60, policy);
 	}
 	
 	// --

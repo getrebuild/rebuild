@@ -33,6 +33,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -40,7 +41,6 @@ import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.utils.AppUtils;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
 
 /**
@@ -65,22 +65,13 @@ public class FileUploader extends HttpServlet {
 					continue;
 				}
 				
-				if (uploadName.length() > 43) {
-					uploadName = uploadName.substring(0, 20) + "..." + uploadName.substring(uploadName.length() - 20);
-				}
-				uploadName = CalendarUtils.getDateFormat("HHmmssSSS").format(CalendarUtils.now()) + "__" + uploadName;
-				
-				File temp = SysConfiguration.getFileOfTemp(uploadName);
-				item.write(temp);
-				if (!temp.exists()) {
+				uploadName = QiniuCloud.instance().formatFileKey(uploadName);
+				File file = SysConfiguration.getFileOfTemp(uploadName);
+				FileUtils.forceMkdir(file.getParentFile());
+				item.write(file);
+				if (!file.exists()) {
 					ServletUtils.writeJson(resp, AppUtils.formatControllMsg(1000, "上传失败"));
 					return;
-				}
-				
-				String cloud = req.getParameter("cloud");
-				if ("true".equals(cloud) || "auto".equals(cloud)) {
-					uploadName = QiniuCloud.instance().upload(temp);
-					temp.delete();
 				}
 				break;
 			}
