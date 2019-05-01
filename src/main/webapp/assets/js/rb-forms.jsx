@@ -527,9 +527,8 @@ class RbFormImage extends RbFormElement {
     let that = this
     let mp
     $createUploader(this.refs['upload-input'], function (res) {
-      if (!mp) mp = new Mprogress({ template: 1, start: true })
+      if (!mp) mp = new Mprogress({ template: 2, start: true })
       mp.set(res.percent / 100)
-      console.log(res.percent)
     }, function (res) {
       let paths = that.state.value
       paths.push(res.key)

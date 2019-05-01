@@ -1582,3 +1582,21 @@ form {
     font-size: 12px;
     color: #777 !important;
 }
+
+.ui-mprogress .bar-bg,
+.ui-mprogress .buffer-bg,
+.ui-mprogress .deter-bar,
+.ui-mprogress .indeter-bar,
+.ui-mprogress .mp-ui-dashed,
+.ui-mprogress .query-bar {
+    z-index: 1092;
+}
+
+.ui-mprogress .bar-bg,
+.ui-mprogress .buffer-bg {
+    z-index: 1091;
+}
+
+.ui-mprogress .mp-ui-dashed {
+    z-index: 1090;
+}
