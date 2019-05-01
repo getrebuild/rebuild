@@ -52,8 +52,6 @@ class RbModal extends React.Component {
       // else height += 45 // .main-content's padding
       root.find('.modal-body').height(height)
       this.setState({ frameLoad: false })
-      // eslint-disable-next-line no-console
-      console.log('RbModal resize trigger ... ' + height)
     }, 20, 'RbModal-resize')
   }
 }
