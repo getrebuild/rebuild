@@ -45,6 +45,7 @@ import com.rebuild.server.portals.BaseLayoutManager;
 import com.rebuild.server.portals.DataListManager;
 import com.rebuild.server.portals.SharableManager;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.portals.LayoutConfigService;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.PortalsConfiguration;
 
@@ -95,7 +96,7 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 		}
 		record.setString("shareTo", toAll ? SharableManager.SHARE_ALL : SharableManager.SHARE_SELF);
 		record.setString("config", config.toJSONString());
-		Application.getCommonService().createOrUpdate(record);
+		Application.getBean(LayoutConfigService.class).createOrUpdate(record);
 		
 		writeSuccess(response);
 	}

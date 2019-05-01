@@ -260,7 +260,7 @@ public class FormsManager extends BaseLayoutManager {
 				} else if (dt == DisplayType.SERIES) {
 					el.put("value", "自动值 (保存后显示)");
 				} else {
-					Object dv = DefaultValueManager.exprDefaultValue(fieldMeta, el.getString("defaultValue"));
+					Object dv = DefaultValueManager.exprDefaultValue(fieldMeta);
 					if (dv != null) {
 						if (dateLength > -1) {
 							dv = dv.toString().substring(0, dateLength);

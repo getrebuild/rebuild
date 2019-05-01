@@ -186,6 +186,13 @@
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 	
+	<bean class="com.rebuild.server.service.portals.AdvFilterService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
+	<bean class="com.rebuild.server.service.portals.LayoutConfigService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
+	
 	<!-- 记录操作观察者 -->
 	<bean class="com.rebuild.server.service.notification.NotificationObserver" />
 	<bean class="com.rebuild.server.service.base.obs.AuditLoggingObserver" />

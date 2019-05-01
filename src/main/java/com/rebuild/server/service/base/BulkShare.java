@@ -42,7 +42,7 @@ public class BulkShare extends BulkOperator {
 	}
 
 	@Override
-	public Integer operate() {
+	public Integer exec() {
 		ID[] records = prepareRecords();
 		this.setTotal(records.length);
 		
@@ -61,7 +61,7 @@ public class BulkShare extends BulkOperator {
 			} else {
 				LOG.warn("No have privileges to SHARE : " + context.getOpUser() + " > " + id);
 			}
-			this.setCompleteOne();
+			this.addCompleted();
 		}
 		
 		Set<ID> affected = BulkOperatorTx.getInTxSet();

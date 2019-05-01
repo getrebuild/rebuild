@@ -29,6 +29,9 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
+import com.rebuild.server.Application;
+import com.rebuild.server.RebuildException;
+
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ThreadPool;
 
@@ -38,12 +41,12 @@ import cn.devezhao.commons.ThreadPool;
  * @author devezhao
  * @since 09/29/2018
  */
-public class BulkTaskExecutor extends QuartzJobBean {
+public class TaskExecutors extends QuartzJobBean {
 	
 	private static final int EXECS_MAX = 4;
 	private static final ExecutorService EXECS = Executors.newFixedThreadPool(EXECS_MAX);
 	
-	private static final Map<String, BulkTask> TASKS = new ConcurrentHashMap<>();
+	private static final Map<String, HeavyTask<?>> TASKS = new ConcurrentHashMap<>();
 	
 	/**
 	 * 提交给任务调度（异步执行）
@@ -51,7 +54,7 @@ public class BulkTaskExecutor extends QuartzJobBean {
 	 * @param task
 	 * @return 任务 ID
 	 */
-	public static String submit(BulkTask task) {
+	public static String submit(HeavyTask<?> task) {
 		ThreadPoolExecutor tpe = (ThreadPoolExecutor) EXECS;
 		int queueSize = tpe.getQueue().size();
 		if (queueSize > EXECS_MAX * 5) {
@@ -70,12 +73,12 @@ public class BulkTaskExecutor extends QuartzJobBean {
 	 * @param task
 	 */
 	public static boolean cancel(String taskid) {
-		BulkTask task = TASKS.get(taskid);
+		HeavyTask<?> task = TASKS.get(taskid);
 		if (task == null) {
-			throw new RejectedExecutionException("No Task found : " + taskid);
+			throw new RebuildException("No Task found : " + taskid);
 		}
 		task.interrupt();
-		ThreadPool.waitFor(200);
+		ThreadPool.waitFor(500);
 		return task.isInterrupted();
 	}
 	
@@ -84,7 +87,7 @@ public class BulkTaskExecutor extends QuartzJobBean {
 	 * 
 	 * @param task
 	 */
-	public static void run(BulkTask task) {
+	public static void run(HeavyTask<?> task) {
 		task.run();
 	}
 	
@@ -92,7 +95,7 @@ public class BulkTaskExecutor extends QuartzJobBean {
 	 * @param taskid
 	 * @return
 	 */
-	public static BulkTask getTask(String taskid) {
+	public static HeavyTask<?> getTask(String taskid) {
 		return TASKS.get(taskid);
 	}
 	
@@ -100,21 +103,16 @@ public class BulkTaskExecutor extends QuartzJobBean {
 	
 	@Override
 	protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
-		for (Map.Entry<String, BulkTask> e : TASKS.entrySet()) {
-			BulkTask task = e.getValue();
-			if (!task.isCompleted()) {
+		for (Map.Entry<String, HeavyTask<?>> e : TASKS.entrySet()) {
+			HeavyTask<?> task = e.getValue();
+			if (task.getCompletedTime() == null || !task.isCompleted()) {
 				continue;
 			}
 			
-			// 无完成时间不移除
-			if (task.getCompletedTime() == null) {
-				continue;
-			}
-			
-			long completedTime = (System.currentTimeMillis() - task.getCompletedTime().getTime()) / 1000;
-			if (completedTime > 60 * 120) {
+			long leftTime = (System.currentTimeMillis() - task.getCompletedTime().getTime()) / 1000;
+			if (leftTime > 60 * 120) {
 				TASKS.remove(e.getKey());
-				// TODO 任务完成后发内部通知
+				Application.LOG.info("HeavyTask self-destroying : " + e.getKey());
 			}
 		}
 	}

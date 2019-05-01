@@ -24,7 +24,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.hankcs.hanlp.HanLP;
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.task.BulkTask;
+import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
@@ -45,7 +45,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 12/28/2018
  */
-public class QuickCodeReindexTask extends BulkTask {
+public class QuickCodeReindexTask extends HeavyTask<Integer> {
 	
 	final private Entity entity;
 
@@ -58,7 +58,7 @@ public class QuickCodeReindexTask extends BulkTask {
 	}
 	
 	@Override
-	public void run() {
+	public Integer exec() throws Exception {
 		if (!entity.containsField(EntityHelper.QuickCode)) {
 			throw new IllegalArgumentException("No QuickCode field found : " + entity);
 		}
@@ -96,7 +96,7 @@ public class QuickCodeReindexTask extends BulkTask {
 					}
 					Application.getCommonService().update(record, false);
 				} finally {
-					this.setCompleteOne();
+					this.addCompleted();
 				}
 			}
 			
@@ -106,7 +106,7 @@ public class QuickCodeReindexTask extends BulkTask {
 		}
 		
 		this.setTotal(this.getTotal() - 1);
-		completedAfter();
+		return this.getTotal();
 	}
 	
 	// --

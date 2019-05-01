@@ -286,7 +286,16 @@ var $pages = function (tp, cp) {
  */
 var $same = function(a, b) {
 	if (!a && !b) return true
-	if (a && $.type(a) === 'array') a = a.join(',')
-	if (b && $.type(b) === 'array') b = b.join(',')
+	if (a && b) {
+		if ($.type(a) === 'object' && $.type(b) === 'object') {
+			for (var k in a) {
+				if (a[k] !== b[k]) return false
+			}
+			return true
+		} else if ($.type(a) === 'array' && $.type(b) === 'array') {
+			a = a.join(',')
+			b = b.join(',')
+		}
+	}
 	return a === b
 }

@@ -24,11 +24,10 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.task.BulkTask;
+import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.ExtRecordCreator;
 import com.rebuild.server.metadata.entityhub.DisplayType;
@@ -54,14 +53,14 @@ import cn.devezhao.persist4j.engine.ID;
  * 
  * @see DisplayType
  */
-public class DataImporter extends BulkTask {
+public class DataImporter extends HeavyTask<Integer> {
 	
 	private static final ThreadLocal<ID> IN_IMPORTING = new ThreadLocal<>();
 	
 	final private ImportRule rule;
 	final private ID owningUser;
 	
-	private int success = 0;
+	private int successed = 0;
 	private Map<Integer, Object> logging = new LinkedHashMap<>();
 	
 	/**
@@ -80,25 +79,17 @@ public class DataImporter extends BulkTask {
 		this.owningUser = rule.getDefaultOwningUser() == null ? user : rule.getDefaultOwningUser();
 	}
 	
-	/**
-	 * @return
-	 */
-	protected ImportRule getImportRule() {
-		return rule;
-	}
-	
 	@Override
-	public void run() {
-		DataFileParser fileParser = null;
-		try {
-			fileParser = new DataFileParser(rule.getSourceFile());
-			setTotal(fileParser.getRowsCount() - 1);
+	public Integer exec() throws Exception {
+		try (DataFileParser fileParser = new DataFileParser(rule.getSourceFile())) {
+			this.setTotal(fileParser.getRowsCount() - 1);
 			
 			ExcelReader reader = fileParser.getExcelReader();
 			reader.next();  // Remove head row
 			
 			setThreadUser(this.owningUser);
 			IN_IMPORTING.set(owningUser);
+			
 			while (reader.hasNext()) {
 				if (isInterrupt()) {
 					this.setInterrupted();
@@ -114,28 +105,27 @@ public class DataImporter extends BulkTask {
 					Record record = checkoutRecord(cell);
 					if (record != null) {
 						record = Application.getEntityService(rule.getToEntity().getEntityCode()).createOrUpdate(record);
-						this.success++;
+						this.successed++;
 						logging.put(reader.getRowIndex(), record.getPrimary());
 					}
 				} catch (Exception ex) {
 					logging.put(reader.getRowIndex(), ex.getLocalizedMessage());
 					LOG.warn(reader.getRowIndex() + " > " + ex);
 				} finally {
-					this.setCompleteOne();
+					this.addCompleted();
 				}
 			}
 		} finally {
-			IOUtils.closeQuietly(fileParser);
 			IN_IMPORTING.remove();
-			completedAfter();
 		}
+		return this.successed;
 	}
 	
 	/**
 	 * @return
 	 */
-	public int getSuccess() {
-		return success;
+	public int getSuccessed() {
+		return successed;
 	}
 
 	/**

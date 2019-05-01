@@ -344,6 +344,10 @@ div.dataTables_wrapper div.dataTables_filter {
     position: relative;
 }
 
+.iframe.rb-loading:after {
+    background: #fff;
+}
+
 body.dialog,
 body.view-body {
     background-color: #fff;
@@ -1549,4 +1553,32 @@ form.simple {
 form {
     display: block;
     margin: 0;
+}
+
+.rbs-indexes {
+    padding: 10px 0;
+}
+
+.rbs-indexes>div {
+    padding: 15px;
+    padding-bottom: 13px;
+    border-radius: 3px;
+    background-color: #eee;
+}
+
+.rbs-indexes>div+div {
+    margin-top: 15px;
+}
+
+.rbs-indexes>div h5 {
+    font-size: 1rem;
+    font-weight: bold;
+    margin: 0;
+    margin-bottom: 6px;
+}
+
+.rbs-indexes>div .text-muted,
+.rbs-indexes>div .text-muted a {
+    font-size: 12px;
+    color: #777 !important;
 }

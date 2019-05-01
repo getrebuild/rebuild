@@ -73,8 +73,9 @@ $(document).ready(function () {
     }
 
     if (force_del > 0) {
-      rb.alert('将删除部分选项，已使用这些选项的数据（字段）将无法显示。<br>确定要删除吗？', {
+      rb.alert('将删除部分选项，使用了这些选项的数据（字段）将无法显示。<br>确定要删除吗？', {
         html: true,
+        type: 'danger',
         confirm: del_confirm
       })
     } else {

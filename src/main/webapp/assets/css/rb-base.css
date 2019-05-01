@@ -15586,7 +15586,7 @@ a.avatar.x48 img {
     left: 0;
     height: 100%;
     width: 100%;
-    background: rgba(255, 255, 255, .7);
+    background: rgba(255, 255, 255, .6);
     -webkit-transition: all .2s ease;
     transition: all .2s ease;
     z-index: 2
@@ -23297,12 +23297,6 @@ select.form-control-xs:not([size]):not([multiple]) {
     text-align: center;
     max-width: 70%;
     margin: 80px auto;
-}
-
-@media (max-width:767.98px) {
-    .rb-error .error-container {
-        margin: 50px 90%;
-    }
 }
 
 .rb-error .error-number {

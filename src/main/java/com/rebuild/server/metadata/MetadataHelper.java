@@ -192,15 +192,29 @@ public class MetadataHelper {
 	 * 
 	 * @param field
 	 * @return
+	 * @see #isCommonsField(Field)
 	 */
 	public static boolean isSystemField(Field field) {
-		String fieldName = field.getName();
-		if (EntityHelper.AutoId.equalsIgnoreCase(fieldName)
-				|| EntityHelper.QuickCode.equalsIgnoreCase(fieldName)
-				|| EntityHelper.IsDeleted.equalsIgnoreCase(fieldName)) {
+		final String FN = field.getName();
+		return EntityHelper.AutoId.equalsIgnoreCase(FN) || EntityHelper.QuickCode.equalsIgnoreCase(FN)
+				|| EntityHelper.IsDeleted.equalsIgnoreCase(FN) || field.getType() == FieldType.PRIMARY;
+	}
+	
+	/**
+	 * 是否系统级字段
+	 * 
+	 * @param field
+	 * @return
+	 * @see #isSystemField(Field)
+	 */
+	public static boolean isCommonsField(Field field) {
+		if (isSystemField(field)) {
 			return true;
 		}
-		return field.getType() == FieldType.PRIMARY;
+		final String FN = field.getName();
+		return EntityHelper.OwningUser.equalsIgnoreCase(FN) || EntityHelper.OwningDept.equalsIgnoreCase(FN)
+				|| EntityHelper.CreatedOn.equalsIgnoreCase(FN) || EntityHelper.CreatedBy.equalsIgnoreCase(FN)
+				|| EntityHelper.ModifiedOn.equalsIgnoreCase(FN) || EntityHelper.ModifiedBy.equalsIgnoreCase(FN);
 	}
 	
 	/**
@@ -211,6 +225,16 @@ public class MetadataHelper {
 	 */
 	public static boolean isBizzEntity(int entityCode) {
 		return entityCode == EntityHelper.User || entityCode == EntityHelper.Department || entityCode == EntityHelper.Role;
+	}
+	
+	/**
+	 * 实体是否具备权限字段
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	public static boolean hasPrivilegesField(Entity entity) {
+		return  entity.containsField(EntityHelper.OwningUser) && entity.containsField(EntityHelper.OwningDept);
 	}
 	
 	/**

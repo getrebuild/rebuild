@@ -36,6 +36,7 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.portals.ViewAddonsManager;
+import com.rebuild.server.service.portals.LayoutConfigService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.PortalsConfiguration;
@@ -64,18 +65,18 @@ public class ViewAddonsControll extends BaseControll implements PortalsConfigura
 		String applyType = getParameter(request, "type", ViewAddonsManager.TYPE_TAB);
 		JSON config = ServletUtils.getRequestJson(request);
 		
-		Object[] addons = ViewAddonsManager.getConfig(entity, applyType);
-		
+		ID configId = ViewAddonsManager.detectUseConfig(user, entity, applyType);
 		Record record = null;
-		if (addons == null) {
-			record = EntityHelper.forNew(EntityHelper.ViewAddonsConfig, user);
+		if (configId == null) {
+			record = EntityHelper.forNew(EntityHelper.LayoutConfig, user);
 			record.setString("belongEntity", entity);
 			record.setString("applyType", applyType);
+			record.setString("shareTo", ViewAddonsManager.SHARE_ALL);
 		} else {
-			record = EntityHelper.forUpdate((ID) addons[0], user);
+			record = EntityHelper.forUpdate(configId, user);
 		}
 		record.setString("config", config.toJSONString());
-		Application.getCommonService().createOrUpdate(record);
+		Application.getBean(LayoutConfigService.class).createOrUpdate(record);
 		
 		writeSuccess(response);
 	}
@@ -85,9 +86,9 @@ public class ViewAddonsControll extends BaseControll implements PortalsConfigura
 	public void gets(@PathVariable String entity,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String applyType = getParameter(request, "type", ViewAddonsManager.TYPE_TAB);
-		
+
 		Entity entityMeta = MetadataHelper.getEntity(entity);
-		Object[] addons = ViewAddonsManager.getConfig(entity, applyType);
+		Object[] addons = ViewAddonsManager.getLayoutConfig(null, entity, applyType);
 		
 		Set<String[]> refs = new HashSet<>();
 		for (Field field : entityMeta.getReferenceToFields()) {

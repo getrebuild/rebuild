@@ -116,6 +116,7 @@ public class MetaFieldControll extends BasePageControll  {
 		mv.getModel().put("fieldNullable", fieldMeta.isNullable());
 		mv.getModel().put("fieldUpdatable", fieldMeta.isUpdatable());
 		mv.getModel().put("fieldBuildin", fieldEasyMeta.isBuiltin());
+		mv.getModel().put("fieldDefaultValue", fieldMeta.getDefaultValue());
 		mv.getModel().put("isSuperAdmin", UserHelper.isSuperAdmin(getRequestUser(request)));
 		
 		// 字段类型相关

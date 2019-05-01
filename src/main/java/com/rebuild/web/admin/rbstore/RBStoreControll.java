@@ -1,6 +1,6 @@
 /*
 rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.base;
+package com.rebuild.web.admin.rbstore;
 
 import java.io.IOException;
 
@@ -27,25 +27,25 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSON;
-import com.rebuild.server.helper.task.BulkTaskExecutor;
-import com.rebuild.utils.JSONUtils;
-import com.rebuild.web.BaseControll;
+import com.rebuild.server.business.rbstore.RBStore;
+import com.rebuild.web.BasePageControll;
 
 /**
- * 
- * @author devezhao
- * @since 09/29/2018
+ * @author devezhao-mbp zhaofang123@gmail.com
+ * @since 2019/04/28
  */
-@RequestMapping("/commons/task/")
 @Controller
-public class BulkTaskControll extends BaseControll {
+@RequestMapping("/admin/rbstore")
+public class RBStoreControll extends BasePageControll {
 
-	@RequestMapping("state")
-	public void checkState(HttpServletRequest request, HttpServletResponse response)
-			throws IOException {
-		String taskid = getParameterNotNull(request, "taskid");
-		double cp = BulkTaskExecutor.getTask(taskid).getCompletePercent();
-		JSON ret = JSONUtils.toJSONObject(new String[] { "taskid", "complete" }, new Object[] { taskid, cp });
-		writeSuccess(response, ret);
+	@RequestMapping("load-index")
+	public void loadDataIndex(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String type = getParameterNotNull(request, "type");
+		JSON index = RBStore.fetchRemoteJson(type + "/index.json");
+		if (index == null) {
+			writeSuccess(response, "无法获取索引数据");
+		} else {
+			writeSuccess(response, index);
+		}
 	}
 }

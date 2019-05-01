@@ -3,7 +3,7 @@
 <%@ page import="cn.devezhao.commons.web.ServletUtils"%>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%
-String errorMsg = AppUtils.getErrorMessage(request, exception);
+final String errorMsg = AppUtils.getErrorMessage(request, exception);
 if (ServletUtils.isAjaxRequest(request)) {
 	out.print(errorMsg);
 	return;
@@ -27,16 +27,23 @@ if (ServletUtils.isAjaxRequest(request)) {
 			<div class="error-container">
 				<div class="error-number mb-0"><i class="zmdi zmdi-close-circle text-danger"></i></div>
 				<div class="error-description"><%=errorMsg.split("\n")[0]%></div>
-				<div class="error-description text-left <%=AppUtils.devMode() ? "" : "hide"%> "><pre><%=StringEscapeUtils.escapeHtml(errorMsg)%></pre></div>
+				<div class="error-description text-left <%=AppUtils.devMode() ? "" : "hide"%> ">
+					<pre><%=StringEscapeUtils.escapeHtml(errorMsg)%></pre>
+				</div>
 				<div class="error-goback-button">
-					<a class="btn btn-xl btn-secondary" href="${pageContext.request.contextPath}/dashboard/home">返回首页</a>
-					&nbsp;
-					<a class="btn btn-xl btn-primary" href="javascript:;" onclick="location.reload(true)">重试</a>
-					<div class="mt-4"><a href="https://github.com/getrebuild/rebuild/issues/new?title=error-500" target="_blank">报告此问题</a></div>
+					<a class="btn btn-xl btn-space btn-secondary" href="${pageContext.request.contextPath}/dashboard/home">返回首页</a>
+					<a class="btn btn-xl btn-space btn-primary" href="javascript:;" onclick="location.reload(true)">重试</a>
+					<div class="mt-4">
+						<a href="https://github.com/getrebuild/rebuild/issues/new?title=error-500" target="_blank">报告此问题</a>
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
+<script src="${pageContext.request.contextPath}/assets/lib/jquery.min.js"></script>
+<script>
+if (self != top) $('.btn-secondary').remove()
+</script>
 </body>
 </html>

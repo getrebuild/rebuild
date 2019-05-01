@@ -29,14 +29,14 @@ import cn.devezhao.commons.ThreadPool;
  * @author devezhao
  * @since 01/04/2019
  */
-public class BulkTaskTest {
+public class HeacyTaskTest {
 
 	@Test
 	public void testTask() throws Exception {
-		String taskid1 = BulkTaskExecutor.submit(new TestTask("testTask1", 5));
+		String taskid1 = TaskExecutors.submit(new TestTask("testTask1", 5));
 		System.out.println("Submit Task1 : " + taskid1);
 		
-		String taskid2 = BulkTaskExecutor.submit(new TestTask("testTask2",5));
+		String taskid2 = TaskExecutors.submit(new TestTask("testTask2",5));
 		System.out.println("Submit Task2 : " + taskid2);
 		
 		ThreadPool.waitFor(2 * 1000);
@@ -45,7 +45,7 @@ public class BulkTaskTest {
 	@Test(expected=RejectedExecutionException.class)
 	public void testRejected() throws Exception {
 		for (int i = 0; i < 30; i++) {
-			BulkTaskExecutor.submit(new TestTask("testRejected", 2));
+			TaskExecutors.submit(new TestTask("testRejected", 2));
 		}
 	}
 	
@@ -53,17 +53,17 @@ public class BulkTaskTest {
 	public void testCancel() throws Exception {
 		ThreadPool.waitFor(1 * 1000);  // Wait testRejected
 		
-		String taskid = BulkTaskExecutor.submit(new TestTask("testCancel", 100));
+		String taskid = TaskExecutors.submit(new TestTask("testCancel", 100));
 		System.out.println("Submit Task : " + taskid);
 		
 		ThreadPool.waitFor(1000 * 2);
-		boolean cancel = BulkTaskExecutor.cancel(taskid);
+		boolean cancel = TaskExecutors.cancel(taskid);
 		System.out.println("Cancel Task : " + taskid + " > " + cancel);
 		
 		ThreadPool.waitFor(1 * 1000);
 	}
 	
-	static class TestTask extends BulkTask {
+	static class TestTask extends HeavyTask<Void> {
 		private String name;
 		private int number;
 		protected TestTask(String name, int number) {
@@ -71,19 +71,19 @@ public class BulkTaskTest {
 			this.number = number;
 		}
 		@Override
-		public void run() {
+		public Void exec() throws Exception {
 			this.setTotal(this.number);
 			for (int i = 0; i < this.number; i++) {
 				if (this.isInterrupted()) {
-					System.err.println(this.name + "Interrupted : " + this.getComplete() + " / " + this.getTotal());
+					System.err.println(this.name + "Interrupted : " + this.getCompleted() + " / " + this.getTotal());
 					break;
 				}
 				
 				ThreadPool.waitFor(200);  // Mock time
 				System.out.println(this.name + "Mock ... " + i);
-				this.setCompleteOne();
+				this.addCompleted();
 			}
-			this.completedAfter();
+			return null;
 		}
 	}
 }

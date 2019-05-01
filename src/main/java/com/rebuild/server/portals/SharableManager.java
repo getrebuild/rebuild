@@ -82,9 +82,10 @@ public class SharableManager implements PortalsManager {
 			sqlBase += String.format(" and applyType = '%s'", applyType);
 		}
 		
-		// 目前只有一个配置的实体
-		if ("ViewAddonsConfig".equalsIgnoreCase(configEntity)
-				|| ("LayoutConfig".equalsIgnoreCase(configEntity) && BaseLayoutManager.TYPE_FORM.equals(applyType))) {
+		// 只会有一个配置（管理员配置）
+		if (BaseLayoutManager.TYPE_FORM.equals(applyType)
+				|| BaseLayoutManager.TYPE_TAB.equals(applyType)
+				|| BaseLayoutManager.TYPE_ADD.equals(applyType)) {
 			Object[] o = Application.createQueryNoFilter(sqlBase).unique();
 			return o == null ? null : (ID) o[0];
 		}

@@ -37,24 +37,26 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 09/29/2018
  */
-public abstract class BulkTask implements Runnable {
+public abstract class HeavyTask<T> implements Runnable {
 	
-	protected static final Log LOG = LogFactory.getLog(BulkTask.class);
+	protected static final Log LOG = LogFactory.getLog(HeavyTask.class);
 	
 	volatile private boolean interrupt = false;
 	volatile private boolean interruptState = false;
 	
 	private int total = -1;
-	private int complete = 0;
+	private int completed = 0;
 	
 	private Date beginTime;
 	private Date completedTime;
 	
 	private ID userInThread;
 	
+	private String errorMessage;
+	
 	/**
 	 */
-	protected BulkTask() {
+	protected HeavyTask() {
 		this.beginTime = CalendarUtils.now();
 	}
 	
@@ -62,6 +64,7 @@ public abstract class BulkTask implements Runnable {
 	 * 设置当前线程用户
 	 * 
 	 * @param user
+	 * 
 	 * @see CurrentCaller
 	 * @see OnlineSessionStore
 	 * @see #completedAfter()
@@ -79,16 +82,16 @@ public abstract class BulkTask implements Runnable {
 	}
 	
 	/**
-	 * @param complete
+	 * @param completed
 	 */
-	protected void setComplete(int complete) {
-		this.complete = complete;
+	protected void setCompleted(int completed) {
+		this.completed = completed;
 	}
 	
 	/**
 	 */
-	protected void setCompleteOne() {
-		this.complete++;
+	protected void addCompleted() {
+		this.completed++;
 	}
 
 	/**
@@ -133,8 +136,8 @@ public abstract class BulkTask implements Runnable {
 	 * 
 	 * @return
 	 */
-	public int getComplete() {
-		return complete;
+	public int getCompleted() {
+		return completed;
 	}
 	
 	/**
@@ -142,14 +145,14 @@ public abstract class BulkTask implements Runnable {
 	 * 
 	 * @return
 	 */
-	public double getCompletePercent() {
-		if (total == -1 || complete == 0) {
+	public double getCompletedPercent() {
+		if (total == -1 || completed == 0) {
 			return 0;
 		}
-		if (complete >= total) {
+		if (completed >= total) {
 			return 1;
 		}
-		return complete * 1d / total;
+		return completed * 1d / total;
 	}
 	
 	/**
@@ -158,7 +161,7 @@ public abstract class BulkTask implements Runnable {
 	 * @return
 	 */
 	public boolean isCompleted() {
-		return total != -1 && getComplete() >= getTotal();
+		return completedTime != null || (total != -1 && getCompleted() >= getTotal());
 	}
 	
 	/**
@@ -174,7 +177,7 @@ public abstract class BulkTask implements Runnable {
 		}
 	}
 	
-	// -- for Thread
+	// 中断处理。是否允许中断由子类决定
 	
 	public void interrupt() {
 		this.interrupt = true;
@@ -188,5 +191,41 @@ public abstract class BulkTask implements Runnable {
 	}
 	public boolean isInterrupted() {
 		return interruptState;
+	}
+	
+	// New execute mode
+	
+	@Override
+	final public void run() {
+		try {
+			exec();
+		} catch (Exception ex) {
+			LOG.error("Exception during task execute", ex);
+			this.errorMessage = ex.getLocalizedMessage();
+		} finally {
+			completedAfter();
+		}
+	}
+	
+	/**
+	 * 子类复写此方法进行实际的任务执行
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	abstract public T exec() throws Exception;
+	
+	/**
+	 * @return
+	 */
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+	
+	/**
+	 * @return
+	 */
+	public boolean hasError() {
+		return errorMessage != null;
 	}
 }

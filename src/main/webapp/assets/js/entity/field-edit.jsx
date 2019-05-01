@@ -7,35 +7,28 @@ $(document).ready(function () {
 
   $('.J_save').click(function () {
     if (!wpc.metaId) return
-    let label = $val('#fieldLabel'),
-      comments = $val('#comments'),
-      nullable = $val('#fieldNullable'),
-      updatable = $val('#fieldUpdatable')
     let _data = {
-      fieldLabel: label,
-      comments: comments,
-      nullable: nullable,
-      updatable: updatable
+      fieldLabel: $val('#fieldLabel'),
+      comments: $val('#comments'),
+      nullable: $val('#fieldNullable'),
+      updatable: $val('#fieldUpdatable')
     }
-    _data = $cleanMap(_data)
+    let dv = $val('#defaultValue')
+    if (dv) {
+      if (checkDefaultValue(dv, dt) === false) return
+      else _data.defaultValue = dv
+    }
 
     let extConfig = {}
     $('.J_for-' + dt + ' .form-control').each(function () {
       let k = $(this).attr('id')
-      let v = $val(this)
-      extConfig[k] = v
-      if ('defaultValue' === k && checkDefaultValue(v, dt) === false) {
-        extConfig = null
-        return false
+      if ('defaultValue' !== k) {
+        extConfig[k] = $val(this)
       }
     })
-    if (!extConfig) return
-
-    for (let k in extConfig) {
-      if (extConfig[k] !== extConfigOld[k]) {
-        _data['extConfig'] = JSON.stringify(extConfig)
-        break
-      }
+    if (!$same(extConfig, extConfigOld)) {
+      _data['extConfig'] = JSON.stringify(extConfig)
+      if (Object.keys(extConfig).length === 0) _data['extConfig'] = ''
     }
 
     _data = $cleanMap(_data)
@@ -44,14 +37,9 @@ $(document).ready(function () {
       return
     }
 
-    _data.metadata = {
-      entity: 'MetaField',
-      id: wpc.metaId
-    }
-    _data = JSON.stringify(_data)
-
+    _data.metadata = { entity: 'MetaField', id: wpc.metaId }
     let _btn = $(this).button('loading')
-    $.post(rb.baseUrl + '/admin/entity/field-update', _data, function (res) {
+    $.post(rb.baseUrl + '/admin/entity/field-update', JSON.stringify(_data), function (res) {
       if (res.error_code === 0) {
         location.href = '../fields'
       } else {

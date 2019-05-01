@@ -56,8 +56,15 @@ public class ClassificationControll extends BasePageControll {
 	@RequestMapping("classifications")
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
 		Object[][] array = Application.createQuery(
-				"select dataId,name,isDisabled from Classification order by name")
+				"select dataId,name,isDisabled,openLevel,openLevel from Classification order by name")
 				.array();
+		for (Object[] o : array) {
+			Object[] count = Application.createQueryNoFilter(
+					"select count(itemId) from ClassificationData where dataId = ?")
+					.setParameter(1, o[0])
+					.unique();
+			o[4] = count[0];
+		}
 		
 		ModelAndView mv = createModelAndView("/admin/entityhub/classification/list.jsp");
 		mv.getModel().put("classifications", array);

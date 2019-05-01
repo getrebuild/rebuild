@@ -59,6 +59,14 @@ public class DefaultValueManager {
 	
 	/**
 	 * @param field
+	 * @return
+	 */
+	public static Object exprDefaultValue(Field field) {
+		return exprDefaultValue(field, (String) field.getDefaultValue());
+	}
+	
+	/**
+	 * @param field
 	 * @param valueExpr
 	 * @return
 	 */

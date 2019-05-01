@@ -159,7 +159,7 @@
 							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">默认值</label>
 							<div class="col-md-12 col-xl-6 col-lg-8">
 								<div class="input-group">
-									<input class="form-control form-control-sm" type="text" id="defaultValue" value="${defaultValue}" data-o="${defaultValue}" placeholder="无" autocomplete="off">
+									<input class="form-control form-control-sm" type="text" id="defaultValue" value="${fieldDefaultValue}" data-o="${fieldDefaultValue}" placeholder="无" autocomplete="off">
         							<div class="input-group-append hide">
           								<button class="btn btn-primary mw-auto" title="设置高级默认值" type="button"><i class="icon zmdi zmdi-hdr-strong"></i></button>
 									</div>

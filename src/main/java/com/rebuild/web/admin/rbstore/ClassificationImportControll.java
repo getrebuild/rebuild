@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.admin.entityhub;
+package com.rebuild.web.admin.rbstore;
 
 import java.io.IOException;
 
@@ -26,9 +26,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.alibaba.fastjson.JSON;
-import com.rebuild.server.business.dataio.ClassificationImporter;
-import com.rebuild.server.helper.task.BulkTaskExecutor;
+import com.rebuild.server.business.rbstore.ClassificationImporter;
+import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.persist4j.engine.ID;
@@ -41,28 +40,17 @@ import cn.devezhao.persist4j.engine.ID;
  * 
  * @see ClassificationImporter
  */
-@RequestMapping("/admin/classification/")
 @Controller
 public class ClassificationImportControll extends BaseControll {
-	
-	@RequestMapping("/imports/load-index")
-	public void loadDataIndex(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		JSON index = ClassificationImporter.fetchRemoteJson("index.json");
-		if (index == null) {
-			writeSuccess(response, "无法获取索引数据");
-		} else {
-			writeSuccess(response, index);
-		}
-	}
 
-	@RequestMapping("/imports/starts")
+	@RequestMapping("/admin/classification/imports/starts")
 	public void starts(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		ID dest = getIdParameterNotNull(request, "dest");
 		String fileUrl = getParameterNotNull(request, "file");
 		
 		ClassificationImporter importer = new ClassificationImporter(user, dest, fileUrl);
-		String taskid = BulkTaskExecutor.submit(importer);
+		String taskid = TaskExecutors.submit(importer);
 		writeSuccess(response, taskid);
 	}
 }
