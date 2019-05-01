@@ -105,11 +105,10 @@ public class LoginControll extends BasePageControll {
 	public void userLogin(HttpServletRequest request, HttpServletResponse response) {
 		String vcode = getParameter(request, "vcode");
 		Boolean needVcode = (Boolean) ServletUtils.getSessionAttribute(request, NEED_VCODE);
-		if (needVcode != null && needVcode) {
-			if (StringUtils.isBlank(vcode) || !CaptchaUtil.ver(vcode, request)) {
-				writeFailure(response, "验证码错误");
-				return;
-			}
+		if (needVcode != null && needVcode
+				&& (StringUtils.isBlank(vcode) || !CaptchaUtil.ver(vcode, request))) {
+			writeFailure(response, "验证码错误");
+			return;
 		}
 		
 		final String user = getParameterNotNull(request, "user");
