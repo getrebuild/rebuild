@@ -268,12 +268,10 @@ public class GeneralEntityService extends ObservableService  {
 		BulkOperator operator = buildBulkOperator(context);
 		try {
 			return operator.exec();
+		} catch (RebuildException ex) {
+			throw (RebuildException) ex;
 		} catch (Exception ex) {
-			if (ex instanceof RebuildException) {
-				throw (RebuildException) ex;
-			} else {
-				throw new RebuildException(ex);
-			}
+			throw new RebuildException(ex);
 		}
 	}
 	

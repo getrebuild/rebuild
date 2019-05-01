@@ -68,14 +68,6 @@ public class Field2Schema {
 	}
 	
 	/**
-	 * @param user
-	 */
-	public Field2Schema(ID user, boolean refer) {
-		this.user = user;
-		Assert.isTrue(UserHelper.isSuperAdmin(user), "仅超级管理员可新建/删除元数据");
-	}
-	
-	/**
 	 * @param entity
 	 * @param fieldLabel
 	 * @param type
