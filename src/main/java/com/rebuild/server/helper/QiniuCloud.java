@@ -183,11 +183,25 @@ public class QiniuCloud {
 	}
 	
 	/**
+	 * @param fileKey
+	 * @return
+	 * @see #formatFileKey(String)
+	 */
+	public String getUploadToken(String fileKey) {
+		// 上传策略参见 https://developer.qiniu.com/kodo/manual/1206/put-policy
+		StringMap policy = new StringMap().put("fsizeLimit", 1024 * 1024 * 200);  // 200M
+		return auth.uploadToken(bucketName, fileKey, 60, policy);
+	}
+	
+	// --
+	
+	/**
 	 * @param fileName
 	 * @return
+	 * @see #parseFileName(String)
 	 */
-	public String formatFileKey(String fileName) {
-		if (fileName.contains("__")) {
+	public static String formatFileKey(String fileName) {
+		while (fileName.contains("__")) {
 			fileName = fileName.replace("__", "_");
 		}
 		if (fileName.contains("+")) {
@@ -206,17 +220,18 @@ public class QiniuCloud {
 	}
 	
 	/**
-	 * @param fileKey
+	 * 解析上传文件名称
+	 * 
+	 * @param filePath
 	 * @return
 	 * @see #formatFileKey(String)
 	 */
-	public String getUploadToken(String fileKey) {
-		// 上传策略参见 https://developer.qiniu.com/kodo/manual/1206/put-policy
-		StringMap policy = new StringMap().put("fsizeLimit", 1024 * 1024 * 200);  // 200M
-		return auth.uploadToken(bucketName, fileKey, 60, policy);
+	public static String parseFileName(String filePath) {
+		String filePath_s[] = filePath.split("/");
+		String fileName = filePath_s[filePath_s.length - 1];
+		fileName = fileName.substring(fileName.indexOf("__") + 2);
+		return fileName;
 	}
-	
-	// --
 	
 	private static final QiniuCloud INSTANCE = new QiniuCloud();
 	/**

@@ -25,7 +25,7 @@
 					<div class="card">
 						<div class="card-header card-header-divider">缓存系统</div>
 						<div class="card-body">
-							<h5><a class="cl-base" href="https://redis.io/" target="_blank" rel="noopener noreferrer">Redis</a></h5>
+							<h5><a class="cl-base" href="https://redis.io/?utm_source=getrebuild.com" target="_blank" rel="noopener noreferrer">Redis</a></h5>
 							<c:choose>
 								<c:when test="${cacheAccount != null}">
 									<table class="table">

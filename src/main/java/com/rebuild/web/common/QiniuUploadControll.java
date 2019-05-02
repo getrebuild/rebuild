@@ -46,7 +46,7 @@ public class QiniuUploadControll extends BaseControll {
 	public void getUploadKeys(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String fileName = getParameterNotNull(request, "file");
 		
-		String fileKey = QiniuCloud.instance().formatFileKey(fileName);
+		String fileKey = QiniuCloud.formatFileKey(fileName);
 		String token = QiniuCloud.instance().getUploadToken(fileKey);
 		
 		JSON ret = JSONUtils.toJSONObject(

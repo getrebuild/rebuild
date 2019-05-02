@@ -46,19 +46,19 @@ import cn.devezhao.commons.web.ServletUtils;
  */
 @RequestMapping("/filex/")
 @Controller
-public class FileViewerControll extends BaseControll {
+public class FileDownloader extends BaseControll {
 	
 	@RequestMapping(value={ "img/**" }, method=RequestMethod.GET)
 	public void viewImg(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String filePath = request.getRequestURI();
 		filePath = filePath.split("/filex/img/")[1];
 		
-		int minutes = 24 * 60;
+		final int minutes = 60 * 24;
 		ServletUtils.addCacheHead(response, minutes);
 		
 		// Local storage
 		if (!QiniuCloud.instance().available()) {
-			String fileName = parseFileName(filePath);
+			String fileName = QiniuCloud.parseFileName(filePath);
 			String mimeType = request.getServletContext().getMimeType(fileName);
 			if (mimeType != null) {
 				response.setContentType(mimeType);
@@ -83,7 +83,7 @@ public class FileViewerControll extends BaseControll {
 		
 		// Local storage
 		if (!QiniuCloud.instance().available()) {
-			String fileName = parseFileName(filePath);
+			String fileName = QiniuCloud.parseFileName(filePath);
 			response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
 			
 			ServletUtils.setNoCacheHeaders(response);
@@ -92,28 +92,15 @@ public class FileViewerControll extends BaseControll {
 		}
 		
 		String privateUrl = QiniuCloud.instance().url(filePath);
-		privateUrl += "&attname=" + parseFileName(filePath);
+		privateUrl += "&attname=" + QiniuCloud.parseFileName(filePath);
 		response.sendRedirect(privateUrl);
-	}
-	
-	/**
-	 * 解析上传文件名称
-	 * 
-	 * @param filePath
-	 * @return
-	 */
-	protected static String parseFileName(String filePath) {
-		String filePath_s[] = filePath.split("/");
-		String fileName = filePath_s[filePath_s.length - 1];
-		fileName = fileName.substring(fileName.indexOf("__") + 2);
-		return fileName;
 	}
 	
 	/**
 	 * @param filePath
 	 * @param response
 	 */
-	protected static boolean writeLocalFile(String filePath, HttpServletResponse response) throws IOException {
+	private boolean writeLocalFile(String filePath, HttpServletResponse response) throws IOException {
 		filePath = CodecUtils.urlDecode(filePath);
 		File tmp = SysConfiguration.getFileOfTemp(filePath);
 		if (!tmp.exists()) {

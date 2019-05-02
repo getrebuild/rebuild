@@ -65,7 +65,7 @@ public class FileUploader extends HttpServlet {
 					continue;
 				}
 				
-				uploadName = QiniuCloud.instance().formatFileKey(uploadName);
+				uploadName = QiniuCloud.formatFileKey(uploadName);
 				File file = SysConfiguration.getFileOfTemp(uploadName);
 				FileUtils.forceMkdir(file.getParentFile());
 				item.write(file);

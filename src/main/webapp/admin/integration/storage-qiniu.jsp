@@ -26,7 +26,7 @@
 					<div class="card">
 						<div class="card-header card-header-divider">云存储</div>
 						<div class="card-body">
-							<h5><a class="cl-base" href="https://portal.qiniu.com/signup?code=3letk048wdsnm" target="_blank" rel="noopener noreferrer">七牛云</a></h5>
+							<h5><a class="cl-base" href="https://portal.qiniu.com/signup?utm_source=getrebuild.com&code=3letk048wdsnm" target="_blank" rel="noopener noreferrer">七牛云</a></h5>
 							<c:choose>
 								<c:when test="${storageAccount != null}">
 									<table class="table">
