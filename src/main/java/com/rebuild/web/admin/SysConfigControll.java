@@ -22,6 +22,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.rebuild.server.Application;
+import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BasePageControll;
@@ -47,6 +49,7 @@ public class SysConfigControll extends BasePageControll {
 		ModelAndView mv = createModelAndView("/admin/integration/storage-qiniu.jsp");
 		mv.getModel().put("storageAccount",
 				starsAccount(SysConfiguration.getStorageAccount(), 0, 1));
+		mv.getModel().put("storageStatus", QiniuCloud.instance().available());
 		return mv;
 	}
 	
@@ -55,6 +58,7 @@ public class SysConfigControll extends BasePageControll {
 		ModelAndView mv = createModelAndView("/admin/integration/cache-redis.jsp");
 		mv.getModel().put("cacheAccount", 
 				starsAccount(SysConfiguration.getCacheAccount(), 2));
+		mv.getModel().put("cacheStatus", Application.getCommonCache().isUseRedis());
 		return mv;
 	}
 	

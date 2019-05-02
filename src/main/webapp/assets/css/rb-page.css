@@ -1526,6 +1526,10 @@ form.simple {
     max-width: auto;
 }
 
+.cl-base {
+    color: #404040;
+}
+
 .modal-dialog.selector.show {
     display: block !important;
     position: absolute;
@@ -1581,4 +1585,22 @@ form {
 .rbs-indexes>div .text-muted a {
     font-size: 12px;
     color: #777 !important;
+}
+
+.ui-mprogress .bar-bg,
+.ui-mprogress .buffer-bg,
+.ui-mprogress .deter-bar,
+.ui-mprogress .indeter-bar,
+.ui-mprogress .mp-ui-dashed,
+.ui-mprogress .query-bar {
+    z-index: 1092;
+}
+
+.ui-mprogress .bar-bg,
+.ui-mprogress .buffer-bg {
+    z-index: 1091;
+}
+
+.ui-mprogress .mp-ui-dashed {
+    z-index: 1090;
 }

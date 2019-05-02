@@ -323,7 +323,7 @@ public class SecurityManager {
 		
 		if (BizzDepthEntry.PRIVATE.equals(depth)) {
 			allowed = user.equals(targetUserId);
-			if (allowed == false) {
+			if (!allowed) {
 				return allowedViaShare(user, target, action);
 			}
 			return true;

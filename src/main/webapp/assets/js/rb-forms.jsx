@@ -488,12 +488,13 @@ class RbFormImage extends RbFormElement {
       this.__minUpload = ~~(this.props.uploadNumber.split(',')[0] || 0)
       this.__maxUpload = ~~(this.props.uploadNumber.split(',')[1] || 9)
     }
+    this.__typeName = '张图片'
   }
   renderElement() {
     return (
       <div className="img-field">
         {this.state.value.map((item) => {
-          let itemUrl = rb.baseUrl + '/cloud/img/' + item
+          let itemUrl = rb.baseUrl + '/filex/img/' + item
           let fileName = $fileCutName(item)
           return (<span key={'file-' + item}><a title={fileName} className="img-thumbnail img-upload"><img src={itemUrl + '?imageView2/2/w/100/interlace/1/q/100'} /><b title="移除" onClick={() => this.removeItem(item)}><span className="zmdi zmdi-close"></span></b></a></span>)
         })}
@@ -513,7 +514,7 @@ class RbFormImage extends RbFormElement {
     }
     return (<div className="img-field">
       {this.state.value.map((item) => {
-        let itemUrl = rb.baseUrl + '/cloud/img/' + item
+        let itemUrl = rb.baseUrl + '/filex/img/' + item
         let fileName = $fileCutName(item)
         return <span key={'img-' + item}><a title={fileName} onClick={this.clickPreview.bind(this, itemUrl)} className="img-thumbnail img-upload zoom-in" href={itemUrl} target="_blank" rel="noopener noreferrer"><img src={itemUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a></span>
       })}
@@ -524,27 +525,15 @@ class RbFormImage extends RbFormElement {
     if (this.state.viewMode === true) return
 
     let that = this
-    let mprogress
-    $(that.refs['upload-input']).html5Uploader({
-      name: that.props.field,
-      postUrl: rb.baseUrl + '/filex/upload?cloud=auto&type=image',
-      onSelectError: function (field, error) {
-        if (error === 'ErrorType') rb.highbar('请上传图片')
-      },
-      onClientLoad: function (e, file) {
-        mprogress = new Mprogress({ template: 3 })
-        mprogress.start()
-      },
-      onSuccess: function (d) {
-        if (mprogress === null) return false
-        mprogress.end()
-        d = JSON.parse(d.currentTarget.response)
-        if (d.error_code === 0) {
-          let paths = that.state.value
-          paths.push(d.data)
-          that.handleChange({ target: { value: paths } }, true)
-        } else rb.hberror(d.error_msg || '上传失败，请稍后重试')
-      }
+    let mp
+    $createUploader(this.refs['upload-input'], function (res) {
+      if (!mp) mp = new Mprogress({ template: 1, start: true })
+      mp.set(res.percent / 100)  // 0.x
+    }, function (res) {
+      if (mp) mp.end()
+      let paths = that.state.value
+      paths.push(res.key)
+      that.handleChange({ target: { value: paths } }, true)
     })
   }
   removeItem(item) {
@@ -559,22 +548,16 @@ class RbFormImage extends RbFormElement {
     if (err) return err
     let ups = (this.state.value || []).length
     this.setState({ showUploader: this.__maxUpload > ups })
-    if (this.__minUpload > 0 && ups < this.__minUpload) return `至少需要上传 ${this.__minUpload} 张图片`
-    if (this.__maxUpload < ups) return `最多允许上传 ${this.__maxUpload} 张图片`
+    if (this.__minUpload > 0 && ups < this.__minUpload) return `至少需要上传 ${this.__minUpload} ${this.__typeName}`
+    if (this.__maxUpload < ups) return `最多允许上传 ${this.__maxUpload} ${this.__typeName}`
   }
 }
 
 // 文件
-class RbFormFile extends RbFormElement {
+class RbFormFile extends RbFormImage {
   constructor(props) {
     super(props)
-    this.state.value = JSON.parse(props.value || '[]')
-    this.__minUpload = 0
-    this.__maxUpload = 9
-    if (this.props.uploadNumber) {
-      this.__minUpload = ~~(this.props.uploadNumber.split(',')[0] || 0)
-      this.__maxUpload = ~~(this.props.uploadNumber.split(',')[1] || 9)
-    }
+    this.__typeName = '个文件'
   }
   renderElement() {
     return (
@@ -602,51 +585,12 @@ class RbFormFile extends RbFormElement {
     }
     return (<div className="file-field">
       {this.state.value.map((item) => {
-        let itemUrl = rb.baseUrl + '/cloud/download/' + item
+        let itemUrl = rb.baseUrl + '/filex/download/' + item
         let fileName = $fileCutName(item)
         let fileIcon = $fileDetectingIcon(fileName)
         return <a key={'file-' + item} title={fileName} onClick={this.clickPreview.bind(this, itemUrl)} className="img-thumbnail" href={itemUrl} target="_blank" rel="noopener noreferrer"><i className={'ftype ' + fileIcon} /><span>{fileName}</span></a>
       })}
     </div>)
-  }
-  componentDidMount() {
-    super.componentDidMount()
-    if (this.state.viewMode === true) return
-
-    let that = this
-    let mprogress
-    $(that.refs['upload-input']).html5Uploader({
-      name: that.props.field,
-      postUrl: rb.baseUrl + '/filex/upload?cloud=auto',
-      onClientLoad: function (e, file) {
-        mprogress = new Mprogress({ template: 3 })
-        mprogress.start()
-      },
-      onSuccess: function (d) {
-        mprogress.end()
-        d = JSON.parse(d.currentTarget.response)
-        if (d.error_code === 0) {
-          let paths = that.state.value
-          paths.push(d.data)
-          that.handleChange({ target: { value: paths } }, true)
-        } else rb.hberror(d.error_msg || '上传失败，请稍后重试')
-      }
-    })
-  }
-  removeItem(item) {
-    let paths = this.state.value
-    paths.remove(item)
-    this.handleChange({ target: { value: paths } }, true)
-  }
-  clickPreview() {
-  }
-  checkHasError() {
-    let err = super.checkHasError()
-    if (err) return err
-    let ups = (this.state.value || []).length
-    this.setState({ showUploader: this.__maxUpload > ups })
-    if (this.__minUpload > 0 && ups < this.__minUpload) return `至少需要上传 ${this.__minUpload} 个文件`
-    if (this.__maxUpload < ups) return `最多允许上传 ${this.__maxUpload} 个文件`
   }
 }
 
@@ -789,11 +733,11 @@ class RbFormAvatar extends RbFormElement {
     super(props)
   }
   renderElement() {
-    let aUrl = rb.baseUrl + (this.state.value ? `/cloud/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
+    let aUrl = rb.baseUrl + (this.state.value ? `/filex/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
     return (
       <div className="img-field avatar">
         <span title="选择头像图片">
-          <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} accept="image/*" />
+          <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} accept="image/png,image/jpeg,image/gif" />
           <label htmlFor={this.props.field + '-input'} className="img-thumbnail img-upload">
             <img src={aUrl} />
           </label>
@@ -802,7 +746,7 @@ class RbFormAvatar extends RbFormElement {
     )
   }
   renderViewElement() {
-    let aUrl = rb.baseUrl + (this.state.value ? `/cloud/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
+    let aUrl = rb.baseUrl + (this.state.value ? `/filex/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
     return (
       <div className="img-field avatar">
         <a className="img-thumbnail img-upload"><img src={aUrl} /></a>
@@ -812,21 +756,13 @@ class RbFormAvatar extends RbFormElement {
   componentDidMount() {
     super.componentDidMount()
     let that = this
-    $(that.refs['upload-input']).html5Uploader({
-      name: that.props.field,
-      postUrl: rb.baseUrl + '/filex/upload?cloud=auto&type=image',
-      onClientLoad: function (e, file) {
-        if (file.type.substr(0, 5) !== 'image') {
-          rb.highbar('请上传图片')
-          return false
-        }
-      },
-      onSuccess: function (d) {
-        d = JSON.parse(d.currentTarget.response)
-        if (d.error_code === 0) {
-          that.handleChange({ target: { value: d.data } }, true)
-        } else rb.hberror(d.error_msg || '上传失败，请稍后重试')
-      }
+    let mp
+    $createUploader(this.refs['upload-input'], function (res) {
+      if (!mp) mp = new Mprogress({ template: 1, start: true })
+      mp.set(res.percent / 100)  // 0.x
+    }, function (res) {
+      if (mp) mp.end()
+      that.handleChange({ target: { value: res.key } }, true)
     })
   }
 }

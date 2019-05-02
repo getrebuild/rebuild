@@ -48,7 +48,7 @@ $(function () {
 })
 // Trigger on Ctrl+Alt+X
 // @t - trigger times
-var command_exec = function (t) {}
+var command_exec = function (t) { }
 
 // MainNav
 var __initNavs = function () {
@@ -198,5 +198,75 @@ var $fileDetectingIcon = function (fileName) {
 }
 
 var $gotoSection = function (top, target) {
-	$(target || 'body').animate({ scrollTop: top || 0 }, 600)
+  $(target || 'body').animate({ scrollTop: top || 0 }, 600)
+}
+
+// Use H5 or Qiuniu
+var $createUploader = function (input, next, complete, error) {
+  input = $(input).off('change')
+  var imgOnly = input.attr('accept') === 'image/*'
+  if (window.qiniu && rb.storageUrl) {
+    input.on('change', function () {
+      var file = this.files[0]
+      var putExtra = imgOnly ? { mimeType: ['image/png', 'image/jpeg', 'image/gif', 'image/bmp', 'image/tiff'] } : null
+      $.get(rb.baseUrl + '/filex/qiniu/upload-keys?file=' + $encode(file.name), function (res) {
+        var o = qiniu.upload(file, res.data.key, res.data.token, putExtra)
+        o.subscribe({
+          next: function (res) {
+            typeof next === 'function' && next({ percent: res.total.percent })
+          },
+          error: function (err) {
+            var msg = (err.message || 'UnknowError').toUpperCase()
+            if (imgOnly && msg.contains('FILE TYPE')) {
+              rb.highbar('请上传图片')
+              return false
+            } else if (msg.contains('EXCEED FSIZELIMIT')) {
+              rb.highbar('超出文件大小限制')
+              return false
+            }
+            if (error) error({ error: msg })
+            else rb.hberror('上传失败: ' + msg)
+          },
+          complete: function (res) {
+            typeof complete === 'function' && complete({ key: res.key })
+          }
+        })
+      })
+    })
+  }
+  else {
+    input.html5Uploader({
+      name: input.attr('id') || input.attr('name') || 'H5Upload',
+      postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file'),
+      onSelectError: function (file, err) {
+        if (err === 'ErrorType') {
+          rb.highbar('请上传图片')
+          return false
+        } else if (err === 'ErrorMaxSize') {
+          rb.highbar('超出文件大小限制')
+          return false
+        }
+      },
+      onClientLoad: function (e, file) {
+      },
+      onClientProgress: function (e, file) {
+        typeof next === 'function' && next({ percent: e.loaded * 100 / e.total })
+      },
+      onSuccess: function (d) {
+        d = $.parseJSON(d.currentTarget.response)
+        if (d.error_code === 0) {
+          complete({ key: d.data })
+        } else {
+          var msg = d.error_msg || '上传失败，请稍后重试'
+          if (error) error({ error: msg })
+          else rb.hberror(msg)
+        }
+      },
+      onClientError: function (e, file) {
+        var msg = '上传失败，请稍后重试'
+        if (error) error({ error: msg })
+        else rb.hberror(msg)
+      }
+    })
+  }
 }

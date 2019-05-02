@@ -2,22 +2,9 @@
 $(document).ready(function () {
   if (location.hash === '#secure') $('.nav-tabs a:eq(1)').trigger('click')
 
-  $('#avatar-input').html5Uploader({
-    name: 'avatar-input',
-    postUrl: rb.baseUrl + '/filex/upload?cloud=auto&type=image',
-    onClientLoad: function (e, file) {
-      if (file.type.substr(0, 5) !== 'image') {
-        rb.highbar('请上传图片')
-        return false
-      }
-    },
-    onSuccess: function (d) {
-      d = JSON.parse(d.currentTarget.response)
-      if (d.error_code === 0) {
-        let aUrl = `${rb.baseUrl}/cloud/img/${d.data}?imageView2/2/w/100/interlace/1/q/100`
-        $('.avatar img').attr({ 'src': aUrl, 'data-src': d.data })
-      } else rb.hberror(d.error_msg || '上传失败，请稍后重试')
-    }
+  $createUploader('#avatar-input', null, function (res) {
+    let aUrl = `${rb.baseUrl}/filex/img/${res.key}?imageView2/2/w/100/interlace/1/q/100`
+    $('.avatar img').attr({ 'src': aUrl, 'data-src': res.key })
   })
 
   $('.J_email').click(() => { renderRbcomp(<DlgChangeEmail />) })

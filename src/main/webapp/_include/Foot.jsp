@@ -6,6 +6,7 @@
 <script src="${baseUrl}/assets/lib/widget/mprogress.min.js"></script>
 <script src="${baseUrl}/assets/lib/widget/bootstrap-datetimepicker.min.js"></script>
 <script src="${baseUrl}/assets/lib/jquery.html5uploader.js"></script>
+<script src="${baseUrl}/assets/lib/qiniu.min.js"></script>
 <script src="${baseUrl}/assets/lib/widget/select2.min.js"></script>
 <script src="${baseUrl}/assets/lib/jquery-ui.min.js"></script>
 <script src="${baseUrl}/assets/lib/react/babel.js"></script>

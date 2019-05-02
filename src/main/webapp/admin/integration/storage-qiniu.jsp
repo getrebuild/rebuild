@@ -26,37 +26,33 @@
 					<div class="card">
 						<div class="card-header card-header-divider">云存储</div>
 						<div class="card-body">
-							<h5>七牛云</h5>
-							<c:choose>
-								<c:when test="${storageAccount != null}">
-									<table class="table">
-									<tbody>
-										<tr>
-											<td width="40%">访问域名</td>
-											<td><a href="${storageAccount[3]}" class="link" target="_blank">${storageAccount[3]}</a></td>
-										</tr>
-										<tr>
-											<td>存储空间</td>
-											<td>${storageAccount[2]}</td>
-										</tr>
-										<tr>
-											<td>秘钥 AK</td>
-											<td>${storageAccount[0]}</td>
-										</tr>
-										<tr>
-											<td>秘钥 SK</td>
-											<td>${storageAccount[1]}</td>
-										</tr>
-									</tbody>
-									</table>
-								</c:when>
-								<c:otherwise>
-									<div class="alert alert-danger alert-icon mt-6">
-										<div class="icon"><span class="zmdi zmdi-close-circle-o"></span></div>
-										<div class="message">云存储账户未配置，文件/图片上传（下载）功能不可用</div>
-									</div>
-								</c:otherwise>
-							</c:choose>
+							<h5><a class="cl-base" href="https://portal.qiniu.com/signup?utm_source=getrebuild.com&code=3letk048wdsnm" target="_blank" rel="noopener noreferrer">七牛云</a></h5>
+							<table class="table">
+							<tbody>
+								<tr>
+									<td width="40%">访问域名</td>
+									<td>${storageAccount == null ? "未配置" : storageAccount[3]}</td>
+								</tr>
+								<tr>
+									<td>存储空间</td>
+									<td>${storageAccount == null ? "未配置" : storageAccount[2]}</td>
+								</tr>
+								<tr>
+									<td>秘钥 AK</td>
+									<td>${storageAccount == null ? "未配置" : storageAccount[0]}</td>
+								</tr>
+								<tr>
+									<td>秘钥 SK</td>
+									<td>${storageAccount == null ? "未配置" : storageAccount[1]}</td>
+								</tr>
+							</tbody>
+							</table>
+							<c:if test="${!storageStatus}">
+								<div class="alert alert-warning alert-icon mt-6">
+									<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
+									<div class="message">七牛云存储账户配置有误，当前已启用本地文件存储</div>
+								</div>
+							</c:if>
 						</div>
 					</div>
 				</div>

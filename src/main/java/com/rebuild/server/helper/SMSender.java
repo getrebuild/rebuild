@@ -28,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -65,9 +66,7 @@ public class SMSender {
 	 */
 	public static String sendMail(String to, String subject, String content, boolean useTemplate) throws ConfigurationException {
 		String account[] = SysConfiguration.getMailAccount();
-		if (account == null) {
-			throw new ConfigurationException("邮箱账户未配置");
-		}
+		Assert.notNull(account, "邮箱账户未配置");
 		
 		Map<String, Object> params = new HashMap<>();
 		params.put("appid", account[0]);
@@ -131,9 +130,7 @@ public class SMSender {
 	 */
 	public static String sendSMS(String to, String content) throws ConfigurationException {
 		String account[] = SysConfiguration.getSmsAccount();
-		if (account == null) {
-			throw new ConfigurationException("短信账户未配置");
-		}
+		Assert.notNull(account, "短信账户未配置");
 		
 		Map<String, Object> params = new HashMap<>();
 		params.put("appid", account[0]);
@@ -158,5 +155,19 @@ public class SMSender {
 			LOG.error("SMS failed : " + to + " > " + content + "\nError : " + r);
 		}
 		return null;
+	}
+	
+	/**
+	 * @return
+	 */
+	public static boolean availableSMS() {
+		return SysConfiguration.getSmsAccount() != null;
+	}
+	
+	/**
+	 * @return
+	 */
+	public static boolean availableMail() {
+		return SysConfiguration.getMailAccount() != null;
 	}
 }

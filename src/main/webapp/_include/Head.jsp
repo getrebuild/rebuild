@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.rebuild.utils.AppUtils"%>
+<%@ page import="com.rebuild.server.helper.SysConfiguration"%>
+<%@ page import="com.rebuild.server.helper.QiniuCloud"%>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -16,6 +18,9 @@
 <meta name="rb.env" content="<%=AppUtils.devMode() ? "dev" : "production"%>">
 <meta name="rb.baseUrl" content="${baseUrl}">
 <meta name="rb.appName" content="REBUILD">
+<%if (QiniuCloud.instance().available()) {%>
+<meta name="rb.storageUrl" content="<%=SysConfiguration.getStorageUrl()%>">
+<%}%>
 <%if (AppUtils.isAdminUser(request)){%>
 <meta name="rb.isAdminUser" content="true">
 <meta name="rb.isAdminVerified" content="<%=AppUtils.isAdminVerified(request)%>">

@@ -75,11 +75,9 @@ public class ChartDesignControll extends BaseEntityControll {
 					"select belongEntity,title,config,createdBy from ChartConfig where chartId = ?")
 					.setParameter(1, chartId)
 					.unique();
-			if (!UserHelper.isAdmin(user)) {
-				if (!user.equals(chart[3])) {
-					response.sendError(403, "你不能修改他人的图表");
-					return null;
-				}
+			if (!UserHelper.isAdmin(user) && !user.equals(chart[3])) {
+				response.sendError(403, "你不能修改他人的图表");
+				return null;
 			}
 			
 			mv.getModel().put("chartId", chartId);
