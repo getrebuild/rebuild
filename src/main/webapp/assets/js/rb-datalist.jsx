@@ -175,7 +175,7 @@ class RbList extends React.Component {
       return (<td key={cellKey} className="td-min">
         <div style={styles} className="column-imgs" title={cellVal.length + ' 个图片'}>
           {cellVal.map((item, idx) => {
-            let imgUrl = rb.baseUrl + '/cloud/img/' + item
+            let imgUrl = rb.baseUrl + '/filex/img/' + item
             let imgName = $fileCutName(item)
             return <a key={cellKey + idx} href={'#!/Preview/' + item} title={imgName}><img src={imgUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a>
           })}</div></td>)
@@ -198,7 +198,7 @@ class RbList extends React.Component {
     } else if (field.type === 'EMAIL') {
       return <td key={cellKey}><div style={styles}><a href={'mailto:' + cellVal} className="column-url">{cellVal}</a></div></td>
     } else if (field.type === 'AVATAR') {
-      let imgUrl = rb.baseUrl + '/cloud/img/' + cellVal + '?imageView2/2/w/100/interlace/1/q/100'
+      let imgUrl = rb.baseUrl + '/filex/img/' + cellVal + '?imageView2/2/w/100/interlace/1/q/100'
       return <td key={cellKey} className="user-avatar"><img src={imgUrl} alt="Avatar" /></td>
     } else {
       return <td key={cellKey}><div style={styles}>{cellVal}</div></td>

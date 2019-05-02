@@ -494,7 +494,7 @@ class RbFormImage extends RbFormElement {
     return (
       <div className="img-field">
         {this.state.value.map((item) => {
-          let itemUrl = rb.baseUrl + '/cloud/img/' + item
+          let itemUrl = rb.baseUrl + '/filex/img/' + item
           let fileName = $fileCutName(item)
           return (<span key={'file-' + item}><a title={fileName} className="img-thumbnail img-upload"><img src={itemUrl + '?imageView2/2/w/100/interlace/1/q/100'} /><b title="移除" onClick={() => this.removeItem(item)}><span className="zmdi zmdi-close"></span></b></a></span>)
         })}
@@ -514,7 +514,7 @@ class RbFormImage extends RbFormElement {
     }
     return (<div className="img-field">
       {this.state.value.map((item) => {
-        let itemUrl = rb.baseUrl + '/cloud/img/' + item
+        let itemUrl = rb.baseUrl + '/filex/img/' + item
         let fileName = $fileCutName(item)
         return <span key={'img-' + item}><a title={fileName} onClick={this.clickPreview.bind(this, itemUrl)} className="img-thumbnail img-upload zoom-in" href={itemUrl} target="_blank" rel="noopener noreferrer"><img src={itemUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a></span>
       })}
@@ -584,7 +584,7 @@ class RbFormFile extends RbFormImage {
     }
     return (<div className="file-field">
       {this.state.value.map((item) => {
-        let itemUrl = rb.baseUrl + '/cloud/download/' + item
+        let itemUrl = rb.baseUrl + '/filex/download/' + item
         let fileName = $fileCutName(item)
         let fileIcon = $fileDetectingIcon(fileName)
         return <a key={'file-' + item} title={fileName} onClick={this.clickPreview.bind(this, itemUrl)} className="img-thumbnail" href={itemUrl} target="_blank" rel="noopener noreferrer"><i className={'ftype ' + fileIcon} /><span>{fileName}</span></a>
@@ -732,7 +732,7 @@ class RbFormAvatar extends RbFormElement {
     super(props)
   }
   renderElement() {
-    let aUrl = rb.baseUrl + (this.state.value ? `/cloud/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
+    let aUrl = rb.baseUrl + (this.state.value ? `/filex/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
     return (
       <div className="img-field avatar">
         <span title="选择头像图片">
@@ -745,7 +745,7 @@ class RbFormAvatar extends RbFormElement {
     )
   }
   renderViewElement() {
-    let aUrl = rb.baseUrl + (this.state.value ? `/cloud/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
+    let aUrl = rb.baseUrl + (this.state.value ? `/filex/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
     return (
       <div className="img-field avatar">
         <a className="img-thumbnail img-upload"><img src={aUrl} /></a>

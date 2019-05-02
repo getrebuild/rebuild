@@ -18,52 +18,75 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.common;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.rebuild.server.helper.QiniuCloud;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.commons.web.ServletUtils;
 
 /**
- * 云存储文件查看/下载
+ * 文件下载/查看
  * 
  * @author devezhao
  * @since 01/03/2019
  */
+@RequestMapping("/filex/")
 @Controller
-public class CloudFileViewer extends BaseControll {
+public class FileViewerControll extends BaseControll {
 	
-	@RequestMapping(value={ "/cloud/img/**" }, method=RequestMethod.GET)
+	@RequestMapping(value={ "img/**" }, method=RequestMethod.GET)
 	public void viewImg(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String filePath = request.getRequestURI();
-		filePath = filePath.split("/cloud/img/")[1];
+		filePath = filePath.split("/filex/img/")[1];
+		
+		int minutes = 60;
+		ServletUtils.addCacheHead(response, minutes);
+		
+		// Local storage
+		if (!QiniuCloud.instance().available()) {
+			response.setContentType("image/jpeg");
+			writeLocalFile(filePath, response);
+			return;
+		}
+		
 		String imageView2 = request.getQueryString();
 		if (imageView2 != null && imageView2.startsWith("imageView2")) {
 			filePath += "?" + imageView2;
 		}
-		
-		int exp = 60;
-		String privateUrl = QiniuCloud.instance().url(filePath, exp * 60);
-		ServletUtils.addCacheHead(response, exp);
+		String privateUrl = QiniuCloud.instance().url(filePath, minutes * 60);
 		response.sendRedirect(privateUrl);
 	}
 	
-	@RequestMapping(value="/cloud/download/**", method=RequestMethod.GET)
+	@RequestMapping(value="download/**", method=RequestMethod.GET)
 	public void download(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String filePath = request.getRequestURI();
-		filePath = filePath.split("/cloud/download/")[1];
+		filePath = filePath.split("/filex/download/")[1];
+		
+		// Local storage
+		if (!QiniuCloud.instance().available()) {
+			String fileName = parseFileName(filePath);
+			response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
+			ServletUtils.setNoCacheHeaders(response);
+			writeLocalFile(filePath, response);
+			return;
+		}
 		
 		String privateUrl = QiniuCloud.instance().url(filePath);
 		privateUrl += "&attname=" + parseFileName(filePath);
-		ServletUtils.setNoCacheHeaders(response);
 		response.sendRedirect(privateUrl);
 	}
 	
@@ -73,10 +96,36 @@ public class CloudFileViewer extends BaseControll {
 	 * @param filePath
 	 * @return
 	 */
-	public static String parseFileName(String filePath) {
+	protected static String parseFileName(String filePath) {
 		String filePath_s[] = filePath.split("/");
 		String fileName = filePath_s[filePath_s.length - 1];
 		fileName = fileName.substring(fileName.indexOf("__") + 2);
 		return fileName;
+	}
+	
+	/**
+	 * @param filePath
+	 * @param response
+	 */
+	protected static boolean writeLocalFile(String filePath, HttpServletResponse response) throws IOException {
+		File tmp = SysConfiguration.getFileOfTemp(filePath);
+		if (!tmp.exists()) {
+			response.sendError(404);
+			return false;
+		}
+		
+		try (InputStream fis = new FileInputStream(tmp)) {
+			OutputStream os = response.getOutputStream();
+			try {
+				int count = 0;
+				byte[] buffer = new byte[1024 * 1024];
+				while ((count = fis.read(buffer)) != -1) {
+					os.write(buffer, 0, count);
+				}
+			} finally {
+				IOUtils.closeQuietly(os);
+			}
+			return true;
+		}
 	}
 }

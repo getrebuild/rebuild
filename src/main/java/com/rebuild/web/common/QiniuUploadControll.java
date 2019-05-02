@@ -39,7 +39,7 @@ import com.rebuild.web.BaseControll;
  */
 @Controller
 @RequestMapping("/filex/qiniu")
-public class QiniuUploader extends BaseControll {
+public class QiniuUploadControll extends BaseControll {
 
 	// 获取上传参数
 	@RequestMapping("upload-keys")

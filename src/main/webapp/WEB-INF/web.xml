@@ -68,14 +68,6 @@
 		<servlet-name>FileUploader</servlet-name>
 		<url-pattern>/filex/upload</url-pattern>
 	</servlet-mapping>
-	<servlet>
-		<servlet-name>FileDownloader</servlet-name>
-		<servlet-class>com.rebuild.web.common.FileDownloader</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>FileDownloader</servlet-name>
-		<url-pattern>/filex/download/*</url-pattern>
-	</servlet-mapping>
 	
 	<servlet-mapping>
 		<servlet-name>default</servlet-name>
