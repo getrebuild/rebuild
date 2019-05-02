@@ -1526,6 +1526,10 @@ form.simple {
     max-width: auto;
 }
 
+.cl-base {
+    color: #404040;
+}
+
 .modal-dialog.selector.show {
     display: block !important;
     position: absolute;

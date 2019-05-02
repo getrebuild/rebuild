@@ -26,7 +26,7 @@
 					<div class="card">
 						<div class="card-header card-header-divider">云存储</div>
 						<div class="card-body">
-							<h5>七牛云</h5>
+							<h5><a class="cl-base" href="https://portal.qiniu.com/signup?code=3letk048wdsnm" target="_blank" rel="noopener noreferrer">七牛云</a></h5>
 							<c:choose>
 								<c:when test="${storageAccount != null}">
 									<table class="table">
@@ -51,9 +51,9 @@
 									</table>
 								</c:when>
 								<c:otherwise>
-									<div class="alert alert-danger alert-icon mt-6">
-										<div class="icon"><span class="zmdi zmdi-close-circle-o"></span></div>
-										<div class="message">云存储账户未配置，文件/图片上传（下载）功能不可用</div>
+									<div class="alert alert-warning alert-icon mt-6">
+										<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
+										<div class="message">七牛云存储账户未配置，已启用本地文件存储</div>
 									</div>
 								</c:otherwise>
 							</c:choose>

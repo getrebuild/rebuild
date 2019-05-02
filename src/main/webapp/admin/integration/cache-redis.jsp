@@ -7,7 +7,6 @@
 <title>缓存系统配置</title>
 <style type="text/css">
 .syscfg h5{background-color:#eee;margin:0;padding:10px;}
-.syscfg .table td{padding:10px;}
 .syscfg .table td p{margin:0;color:#999;font-weight:normal;font-size:12px;}
 </style>
 </head>
@@ -26,7 +25,7 @@
 					<div class="card">
 						<div class="card-header card-header-divider">缓存系统</div>
 						<div class="card-body">
-							<h5>Redis</h5>
+							<h5><a class="cl-base" href="https://redis.io/" target="_blank" rel="noopener noreferrer">Redis</a></h5>
 							<c:choose>
 								<c:when test="${cacheAccount != null}">
 									<table class="table">
@@ -45,7 +44,7 @@
 								<c:otherwise>
 									<div class="alert alert-warning alert-icon mt-6">
 										<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
-										<div class="message">REDIS 缓存服务未配置，已启用 EHCACHE 内建缓存，生产环境下建议配置 REDIS</div>
+										<div class="message">REDIS 缓存服务未配置，已启用 EHCACHE 内建缓存。生产环境建议配置 REDIS</div>
 									</div>
 								</c:otherwise>
 							</c:choose>

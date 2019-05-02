@@ -24,7 +24,7 @@
 			<div class="row">
 				<div class="col-md-9 col-12">
 					<div class="card">
-						<div class="card-header card-header-divider">赛邮 SUBMAIL</div>
+						<div class="card-header card-header-divider"><a class="cl-base" href="https://www.mysubmail.com/" target="_blank" rel="noopener noreferrer">赛邮 SUBMAIL</a></div>
 						<div class="card-body">
 							<h5>邮件服务</h5>
 							<c:choose>
@@ -63,7 +63,7 @@
 									<table class="table">
 									<tbody>
 										<tr>
-											<td width="50%">APPID</td>
+											<td width="40%">APPID</td>
 											<td>${smsAccount[0]}</td>
 										</tr>
 										<tr>
