@@ -190,8 +190,14 @@ public class QiniuCloud {
 		if (fileName.contains("__")) {
 			fileName = fileName.replace("__", "_");
 		}
-		if (fileName.length() > 43) {
-			fileName = fileName.substring(0, 20) + "..." + fileName.substring(fileName.length() - 20);
+		if (fileName.contains("+")) {
+			fileName = fileName.replace("+", "");
+		}
+		if (fileName.contains("#")) {
+			fileName = fileName.replace("#", "");
+		}
+		if (fileName.length() > 41) {
+			fileName = fileName.substring(0, 20) + "-" + fileName.substring(fileName.length() - 20);
 		}
 		
 		String datetime = CalendarUtils.getDateFormat("yyyyMMddHHmmssSSS").format(CalendarUtils.now());

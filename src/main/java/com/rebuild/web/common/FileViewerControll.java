@@ -27,7 +27,6 @@ import java.io.OutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -36,6 +35,7 @@ import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.web.BaseControll;
 
+import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
 
 /**
@@ -53,12 +53,17 @@ public class FileViewerControll extends BaseControll {
 		String filePath = request.getRequestURI();
 		filePath = filePath.split("/filex/img/")[1];
 		
-		int minutes = 60;
+		int minutes = 24 * 60;
 		ServletUtils.addCacheHead(response, minutes);
 		
 		// Local storage
 		if (!QiniuCloud.instance().available()) {
-			response.setContentType("image/jpeg");
+			String fileName = parseFileName(filePath);
+			String mimeType = request.getServletContext().getMimeType(fileName);
+			if (mimeType != null) {
+				response.setContentType(mimeType);
+			}
+			
 			writeLocalFile(filePath, response);
 			return;
 		}
@@ -80,6 +85,7 @@ public class FileViewerControll extends BaseControll {
 		if (!QiniuCloud.instance().available()) {
 			String fileName = parseFileName(filePath);
 			response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
+			
 			ServletUtils.setNoCacheHeaders(response);
 			writeLocalFile(filePath, response);
 			return;
@@ -108,22 +114,21 @@ public class FileViewerControll extends BaseControll {
 	 * @param response
 	 */
 	protected static boolean writeLocalFile(String filePath, HttpServletResponse response) throws IOException {
+		filePath = CodecUtils.urlDecode(filePath);
 		File tmp = SysConfiguration.getFileOfTemp(filePath);
 		if (!tmp.exists()) {
-			response.sendError(404);
+			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return false;
 		}
 		
 		try (InputStream fis = new FileInputStream(tmp)) {
+			response.setContentLength(fis.available());
+			
 			OutputStream os = response.getOutputStream();
-			try {
-				int count = 0;
-				byte[] buffer = new byte[1024 * 1024];
-				while ((count = fis.read(buffer)) != -1) {
-					os.write(buffer, 0, count);
-				}
-			} finally {
-				IOUtils.closeQuietly(os);
+			int count = 0;
+			byte[] buffer = new byte[1024 * 1024];
+			while ((count = fis.read(buffer)) != -1) {
+				os.write(buffer, 0, count);
 			}
 			return true;
 		}

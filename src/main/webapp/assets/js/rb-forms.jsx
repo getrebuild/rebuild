@@ -527,9 +527,10 @@ class RbFormImage extends RbFormElement {
     let that = this
     let mp
     $createUploader(this.refs['upload-input'], function (res) {
-      if (!mp) mp = new Mprogress({ template: 2, start: true })
-      mp.set(res.percent / 100)
+      if (!mp) mp = new Mprogress({ template: 1, start: true })
+      mp.set(res.percent / 100)  // 0.x
     }, function (res) {
+      if (mp) mp.end()
       let paths = that.state.value
       paths.push(res.key)
       that.handleChange({ target: { value: paths } }, true)
@@ -736,7 +737,7 @@ class RbFormAvatar extends RbFormElement {
     return (
       <div className="img-field avatar">
         <span title="选择头像图片">
-          <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} accept="image/*" />
+          <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} accept="image/png,image/jpeg,image/gif" />
           <label htmlFor={this.props.field + '-input'} className="img-thumbnail img-upload">
             <img src={aUrl} />
           </label>
@@ -755,21 +756,13 @@ class RbFormAvatar extends RbFormElement {
   componentDidMount() {
     super.componentDidMount()
     let that = this
-    $(that.refs['upload-input']).html5Uploader({
-      name: that.props.field,
-      postUrl: rb.baseUrl + '/filex/upload?cloud=auto&type=image',
-      onClientLoad: function (e, file) {
-        if (file.type.substr(0, 5) !== 'image') {
-          rb.highbar('请上传图片')
-          return false
-        }
-      },
-      onSuccess: function (d) {
-        d = JSON.parse(d.currentTarget.response)
-        if (d.error_code === 0) {
-          that.handleChange({ target: { value: d.data } }, true)
-        } else rb.hberror(d.error_msg || '上传失败，请稍后重试')
-      }
+    let mp
+    $createUploader(this.refs['upload-input'], function (res) {
+      if (!mp) mp = new Mprogress({ template: 1, start: true })
+      mp.set(res.percent / 100)  // 0.x
+    }, function (res) {
+      if (mp) mp.end()
+      that.handleChange({ target: { value: res.key } }, true)
     })
   }
 }
