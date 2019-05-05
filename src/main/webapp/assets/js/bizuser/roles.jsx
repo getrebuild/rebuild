@@ -5,11 +5,7 @@ RbForm.postAfter = function (data) {
 const role_id = window.__PageConfig.recordId
 $(document).ready(function () {
   $('.J_new-role').click(function () {
-    rb.RbFormModal({
-      title: '新建角色',
-      entity: 'Role',
-      icon: 'lock'
-    })
+    rb.RbFormModal({ title: '新建角色', entity: 'Role', icon: 'lock' })
   })
 
   if (role_id) {
@@ -70,28 +66,22 @@ const clickPriv = function (elements, action) {
 }
 const loadRoles = function () {
   $.get(rb.baseUrl + '/admin/bizuser/role-list', function (res) {
+    $('.dept-tree .ph-item').remove()
     $('.dept-tree ul').empty()
     $(res.data).each(function () {
       let _id = this.id
-      let item = $('<li><a class="text-truncate" href="' + rb.baseUrl + '/admin/bizuser/role/' + _id + '">' + this.name + '</a></li>').appendTo('.dept-tree ul')
+      let item = $('<li><a class="text-truncate" href="' + rb.baseUrl + '/admin/bizuser/role/' + _id + '">' + this.name + (this.disabled ? ' [已停用]' : '') + '</a></li>').appendTo('.dept-tree ul')
       let action = $('<div class="action"><a class="J_edit"><i class="zmdi zmdi-edit"></i></a><a class="J_del"><i class="zmdi zmdi-delete"></i></a></div>').appendTo(item)
       if (role_id === this.id) item.addClass('active')
       if (this.id === '003-0000000000000001') action.remove()
 
       action.find('a.J_edit').click(function () {
-        rb.RbFormModal({
-          title: '编辑角色',
-          entity: 'Role',
-          icon: 'lock',
-          id: _id
-        })
+        rb.RbFormModal({ title: '编辑角色', entity: 'Role', icon: 'lock', id: _id })
       })
 
       action.find('a.J_del').click(function () {
         let alertExt = {
-          type: 'danger',
-          confirmText: '删除',
-          confirm: function () {
+          type: 'danger', confirmText: '删除', confirm: function () {
             deleteRole(_id, this)
           }
         }
@@ -148,19 +138,12 @@ const updatePrivileges = function () {
   $('#priv-zero tbody>tr').each(function () {
     let etr = $(this)
     let name = etr.find('td.name a').data('name')
-    let definition = etr.find('i.priv').hasClass('R0') ? {
-      Z: 0
-    } : {
-      Z: 4
-    }
+    let definition = etr.find('i.priv').hasClass('R0') ? { Z: 0 } : { Z: 4 }
     privZero[name] = definition
   })
 
-  let priv = {
-    entity: privEntity,
-    zero: privZero
-  }
-  $.post(rb.baseUrl + '/admin/bizuser/privileges-update?role=' + role_id, JSON.stringify(priv), function () {
+  let _data = { entity: privEntity, zero: privZero }
+  $.post(rb.baseUrl + '/admin/bizuser/privileges-update?role=' + role_id, JSON.stringify(_data), () => {
     rb.hbsuccess('保存成功')
   })
 }

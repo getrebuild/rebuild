@@ -16,7 +16,16 @@
 	<div class="rb-content">
 		<aside class="page-aside">
 			<div class="rb-scroller">
-				<div class="dept-tree"></div>
+				<div class="dept-tree">
+					<div class="ph-item rb">
+						<div class="ph-col-12 p-0">
+							<div class="ph-row">
+								<div class="ph-col-12 big"></div>
+								<div class="ph-col-12 big"></div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</aside>
 		<div class="main-content container-fluid">

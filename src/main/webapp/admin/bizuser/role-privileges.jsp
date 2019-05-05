@@ -34,6 +34,14 @@
 		<aside class="page-aside">
 			<div class="rb-scroller">
 				<div class="dept-tree">
+					<div class="ph-item rb">
+						<div class="ph-col-12 p-0">
+							<div class="ph-row">
+								<div class="ph-col-12 big"></div>
+								<div class="ph-col-12 big"></div>
+							</div>
+						</div>
+					</div>
 					<ul class="list-unstyled"></ul>
 				</div>
 			</div>
@@ -148,6 +156,6 @@ window.__PageConfig = { recordId: '${id}' }
 </script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/bizuser/roles.js" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/bizuser/roles.jsx" type="text/babel"></script>
 </body>
 </html>

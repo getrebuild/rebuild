@@ -37,7 +37,7 @@ class AdvFilter extends React.Component {
             {(this.state.items || []).map((item) => {
               return item
             })}
-            <div className="item plus"><a href="javascript:;" onClick={() => this.addItem()}><i className="zmdi zmdi-plus-circle icon"></i> 添加条件</a></div>
+            <div className="item plus"><a onClick={() => this.addItem()} tabIndex="-1"><i className="zmdi zmdi-plus-circle icon"></i> 添加条件</a></div>
           </div>
         </div>
         <div className="adv-filter">

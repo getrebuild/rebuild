@@ -835,8 +835,16 @@ i.split.ui-draggable-dragging {
     max-width: 1000px;
 }
 
-.table td.td-min {
+.data-list .table td.td-min {
     padding: 3px 10px;
+}
+
+.data-list .table tbody tr td.user-avatar {
+    padding: 6px 10px;
+}
+
+.data-list .table tbody tr td.user-avatar img {
+    margin-right: 0;
 }
 
 .column-imgs,

@@ -1,6 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 // eslint-disable-next-line no-undef
-clickIcon = function (icon) {
+// eslint-disable-next-line no-unused-vars
+window.clickIcon = function (icon) {
   $('#entityIcon').attr('value', icon).find('i').attr('class', 'icon zmdi zmdi-' + icon)
   rb.modalHide()
 }
@@ -18,7 +19,11 @@ $(document).ready(function () {
       label = $val('#entityLabel'),
       comments = $val('#comments'),
       nameField = $val('#nameField')
-    let _data = { entityLabel: label, comments: comments, nameField: nameField }
+    let _data = {
+      entityLabel: label,
+      comments: comments,
+      nameField: nameField
+    }
     if (icon) _data.icon = icon
     _data = $cleanMap(_data)
     if (Object.keys(_data) === 0) {
@@ -26,7 +31,10 @@ $(document).ready(function () {
       return
     }
 
-    _data.metadata = { entity: 'MetaEntity', id: wpc.metaId }
+    _data.metadata = {
+      entity: 'MetaEntity',
+      id: wpc.metaId
+    }
     _btn.button('loading')
     $.post('../entity-update', JSON.stringify(_data), function (res) {
       if (res.error_code === 0) location.reload()
@@ -52,8 +60,12 @@ $(document).ready(function () {
       }
     })
     let rsSort = []
-    rs.forEach((item) => { if (item.disabled === false) rsSort.push(item) })
-    rs.forEach((item) => { if (item.disabled === true) rsSort.push(item) })
+    rs.forEach((item) => {
+      if (item.disabled === false) rsSort.push(item)
+    })
+    rs.forEach((item) => {
+      if (item.disabled === true) rsSort.push(item)
+    })
     rs = rsSort
 
     $('#nameField').select2({
