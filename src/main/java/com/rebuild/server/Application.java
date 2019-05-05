@@ -32,6 +32,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.rebuild.server.helper.cache.CommonCache;
+import com.rebuild.server.helper.cache.EhcacheTemplate;
 import com.rebuild.server.helper.cache.RecentlySearchCache;
 import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.metadata.DynamicMetadataFactory;
@@ -136,6 +137,17 @@ public final class Application {
 					LOG.info(es + " add observer : " + obs);
 				}
 			}
+		}
+		
+		// 若使用 Ehcache 则添加持久化钩子
+		final CommonCache ccache = APPLICATION_CTX.getBean(CommonCache.class);
+		if (!ccache.isUseRedis()) {
+			addShutdownHook(new Thread("ehcache-persistent") {
+				@Override
+				public void run() {
+					((EhcacheTemplate<?>) ccache.getCacheTemplate()).shutdown();
+				}
+			});
 		}
 		
 		LOG.info("Rebuild Boot successful in " + (System.currentTimeMillis() - startAt) + " ms");
