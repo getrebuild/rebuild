@@ -499,7 +499,7 @@ class RbFormImage extends RbFormElement {
           return (<span key={'file-' + item}><a title={fileName} className="img-thumbnail img-upload"><img src={itemUrl + '?imageView2/2/w/100/interlace/1/q/100'} /><b title="移除" onClick={() => this.removeItem(item)}><span className="zmdi zmdi-close"></span></b></a></span>)
         })}
         {this.state.showUploader === false ? null :
-          <span title={'上传图片。需要 ' + this.__minUpload + '～' + this.__maxUpload + ' 张'}>
+          <span title={'上传图片。需要 ' + this.__minUpload + '~' + this.__maxUpload + ' 张'}>
             <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} accept="image/*" />
             <label htmlFor={this.props.field + '-input'} className="img-thumbnail img-upload"><span className="zmdi zmdi-image-alt"></span></label>
           </span>
@@ -564,13 +564,16 @@ class RbFormFile extends RbFormImage {
       <div className="file-field">
         {this.state.value.map((item) => {
           let fileName = $fileCutName(item)
-          let fileIcon = $fileDetectingIcon(fileName)
-          return (<div key={'file-' + item} className="img-thumbnail" title={fileName}><i className={'ftype ' + fileIcon} /><span>{fileName}</span><b title="移除" onClick={() => this.removeItem(item)}><span className="zmdi zmdi-close"></span></b></div>)
+          let fileExt = $fileExtName(fileName)
+          return (<div key={'file-' + item} className="img-thumbnail" title={fileName}>
+            <i className="file-icon" data-type={fileExt} /><span>{fileName}</span>
+            <b title="移除" onClick={() => this.removeItem(item)}><span className="zmdi zmdi-close"></span></b>
+          </div>)
         })}
         {this.state.showUploader === false ? null :
           <div className="file-select">
             <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} />
-            <label title={'上传文件。需要 ' + this.__minUpload + '～' + this.__maxUpload + ' 个'} htmlFor={this.props.field + '-input'} className="btn-secondary">
+            <label title={'上传文件。需要 ' + this.__minUpload + '~' + this.__maxUpload + ' 个'} htmlFor={this.props.field + '-input'} className="btn-secondary">
               <i className="zmdi zmdi-upload"></i><span>上传文件</span>
             </label>
           </div>
@@ -587,8 +590,10 @@ class RbFormFile extends RbFormImage {
       {this.state.value.map((item) => {
         let itemUrl = rb.baseUrl + '/filex/download/' + item
         let fileName = $fileCutName(item)
-        let fileIcon = $fileDetectingIcon(fileName)
-        return <a key={'file-' + item} title={fileName} onClick={this.clickPreview.bind(this, itemUrl)} className="img-thumbnail" href={itemUrl} target="_blank" rel="noopener noreferrer"><i className={'ftype ' + fileIcon} /><span>{fileName}</span></a>
+        let fileExt = $fileExtName(fileName)
+        return <a key={'file-' + item} title={fileName} onClick={this.clickPreview.bind(this, itemUrl)} className="img-thumbnail" href={itemUrl} target="_blank" rel="noopener noreferrer">
+          <i className="file-icon" data-type={fileExt} /><span>{fileName}</span>
+        </a>
       })}
     </div>)
   }

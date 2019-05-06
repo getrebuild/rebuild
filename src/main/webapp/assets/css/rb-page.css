@@ -601,51 +601,27 @@ a {
     margin-right: 0
 }
 
-.file-field .img-thumbnail>i.ftype {
+.file-field .img-thumbnail>i.file-icon {
     float: left;
-    width: 28px;
-    height: 28px;
-    line-height: 1;
-    background: url(../img/ft-icons/icon-txt.png) no-repeat center center;
-    background-size: 28px auto;
-    margin: 1px;
+    margin-left: 2px;
 }
 
-.file-field .img-thumbnail>i.ftype.png {
-    background-image: url(../img/ft-icons/icon-png.png)
-}
-
-.file-field .img-thumbnail>i.ftype.word {
-    background-image: url(../img/ft-icons/icon-word.png)
-}
-
-.file-field .img-thumbnail>i.ftype.ppt {
-    background-image: url(../img/ft-icons/icon-ppt.png)
-}
-
-.file-field .img-thumbnail>i.ftype.excel {
-    background-image: url(../img/ft-icons/icon-excel.png)
-}
-
-.file-field .img-thumbnail>i.ftype.pdf {
-    background-image: url(../img/ft-icons/icon-pdf.png)
-}
-
-.file-field .img-thumbnail>i.ftype.mp4 {
-    background-image: url(../img/ft-icons/icon-mp4.png)
+.file-field .img-thumbnail>i.file-icon::after {
+    padding: 0;
+    padding-left: 2px
 }
 
 .file-field .img-thumbnail>span {
-    margin-left: 32px;
+    margin-left: 30px;
     display: block;
     word-break: break-all;
     height: 30px;
-    padding: 0 4px;
+    padding: 1px 4px;
     padding-left: 2px;
-    line-height: 1.2rem;
-    vertical-align: middle;
+    line-height: 1.15rem;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: 12px;
 }
 
 .datetime-field .input-group-append button {

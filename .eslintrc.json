@@ -36,7 +36,7 @@
         "$encode": true,
         "$decode": true,
         "$fileCutName": true,
-        "$fileDetectingIcon": true,
+        "$fileExtName": true,
         "$gotoSection": true,
         "$createUploader": true,
         "$cleanMenu": true,
