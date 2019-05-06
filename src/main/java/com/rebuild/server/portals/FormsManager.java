@@ -278,6 +278,10 @@ public class FormsManager extends BaseLayoutManager {
 			model.put("slaveMeta", EasyMeta.getEntityShows(entityMeta.getSlaveEntity()));
 		}
 		
+		if (data != null && data.hasValue(EntityHelper.ModifiedOn)) {
+			model.put("lastModified", data.getDate(EntityHelper.ModifiedOn).getTime());
+		}
+		
 		model.remove("id");  // form's ID of config
 		return model;
 	}
@@ -328,7 +332,13 @@ public class FormsManager extends BaseLayoutManager {
 			
 			ajql.append(field).append(',');
 		}
-		ajql.deleteCharAt(ajql.length() - 1);
+		
+		if (entity.containsField(EntityHelper.ModifiedOn)) {
+			ajql.append(EntityHelper.ModifiedOn);
+		} else {
+			ajql.deleteCharAt(ajql.length() - 1);
+		}
+		
 		ajql.append(" from ").append(entity.getName())
 				.append(" where ").append(entity.getPrimaryField().getName())
 				.append(" = '").append(id).append("'");

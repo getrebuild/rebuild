@@ -55,6 +55,7 @@ class RbFormModal extends React.Component {
       that.setState({ formComponent: FORM, __formModel: res.data }, function () {
         that.setState({ inLoad: false })
       })
+      that.__lastModified = res.data.lastModified || 0
     })
   }
   renderFromError(message) {
@@ -63,31 +64,32 @@ class RbFormModal extends React.Component {
       <div className="message" dangerouslySetInnerHTML={{ __html: '<strong>抱歉!</strong> ' + message }}></div>
     </div>
 
-    let that = this
-    that.setState({ formComponent: error }, function () {
-      that.setState({ inLoad: false })
+    this.setState({ formComponent: error }, () => {
+      this.setState({ inLoad: false })
     })
   }
 
   show(state) {
     state = state || {}
-    let that = this
     if ((state.id !== this.state.id || state.entity !== this.state.entity) || this.state.isDestroy === true) {
       state = { ...state, isDestroy: true, formComponent: null, inLoad: true, id: state.id, entity: state.entity }
-      this.setState(state, function () {
-        that.showAfter({ ...state, isDestroy: false }, true)
+      this.setState(state, () => {
+        this.showAfter({ ...state, isDestroy: false }, true)
       })
     } else {
       this.showAfter({ ...state, isDestroy: false })
+      this.checkDrityData()
     }
   }
   showAfter(state, modelChanged) {
-    let that = this
-    this.setState(state, function () {
-      $(that.refs['rbmodal']).modal({ show: true, backdrop: 'static' })
-      if (modelChanged === true) {
-        that.getFormModel()
-      }
+    this.setState(state, () => {
+      $(this.refs['rbmodal']).modal({ show: true, backdrop: 'static' })
+      if (modelChanged === true) this.getFormModel()
+    })
+  }
+  checkDrityData() {
+    if (!this.__lastModified || !this.state.id) return
+    $.get(`${rb.baseUrl}/app/entity/record-lastModified?id=${this.state.id}`, (res) => {
     })
   }
 
