@@ -506,11 +506,7 @@ a {
     position: relative;
     border: 0 none;
     padding: 0;
-}
-
-.img-field .img-upload>img {
-    max-width: 100%;
-    max-height: 100%;
+    overflow: hidden;
 }
 
 .img-field label.img-upload {
@@ -593,8 +589,14 @@ a {
     overflow: hidden;
     border: 0 none;
     color: #404040;
-    border-left: 2px solid #4285f4;
+    border-left: 2px solid #ccc;
     width: 205px;
+    border-radius: 2px;
+    max-height: 38px;
+}
+
+.file-field .img-thumbnail:hover {
+    border-color: #4285f4;
 }
 
 .file-field .img-thumbnail:nth-child(even) {
@@ -613,15 +615,17 @@ a {
 
 .file-field .img-thumbnail>span {
     margin-left: 30px;
-    display: block;
     word-break: break-all;
     height: 30px;
     padding: 1px 4px;
-    padding-left: 2px;
+    padding-left: 6px;
+    line-height: 15px;
     line-height: 1.15rem;
     overflow: hidden;
     text-overflow: ellipsis;
     font-size: 12px;
+    display: table-cell;
+    vertical-align: middle;
 }
 
 .datetime-field .input-group-append button {

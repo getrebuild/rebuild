@@ -393,10 +393,9 @@ const RbListPage = {
       rb.RbFormModal({ title: `新建${entity[1]}`, entity: entity[0], icon: entity[2] })
     })
     $('.J_edit').click(() => {
-      let selected = this._RbList.getSelectedRows()
-      if (selected.length === 1) {
-        selected = selected[0]
-        rb.RbFormModal({ id: selected[0], title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] })
+      let ids = this._RbList.getSelectedIds()
+      if (ids.length >= 1) {
+        rb.RbFormModal({ id: ids[0], title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] })
       }
     })
     $('.J_delete').click(() => {

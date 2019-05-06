@@ -951,7 +951,7 @@ class RbViewModal extends React.Component {
         root.modal('dispose')
         let warp = root.parent().parent()
         that.setState({ isDestroy: true }, function () {
-          rb.__currentRbFormModalCache[that.state.id] = null
+          rb.__currentRbFormModalHolds[that.state.id] = null
           setTimeout(function () { warp.remove() }, 500)
         })
       }
@@ -1197,34 +1197,34 @@ rb.RbFormModal = function (props) {
 }
 
 rb.__currentRbViewModal
-rb.__currentRbFormModalCache = {}
+rb.__currentRbFormModalHolds = {}
 // @props = { id, entity }
 rb.RbViewModal = function (props, subView) {
   let viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
   if (subView === true) {
     rb.RbViewModalHide(props.id)
     let m = renderRbcomp(<RbViewModal url={viewUrl} disposeOnHide={true} id={props.id} subView={true} />)
-    rb.__currentRbFormModalCache[props.id] = m
+    rb.__currentRbFormModalHolds[props.id] = m
     return m
   }
 
   if (rb.__currentRbViewModal) rb.__currentRbViewModal.show(viewUrl)
   else rb.__currentRbViewModal = renderRbcomp(<RbViewModal url={viewUrl} />)
-  rb.__currentRbFormModalCache[props.id] = rb.__currentRbViewModal
+  rb.__currentRbFormModalHolds[props.id] = rb.__currentRbViewModal
   return rb.__currentRbViewModal
 }
 rb.RbViewModalGet = function (id) {
-  return rb.__currentRbFormModalCache[id]
+  return rb.__currentRbFormModalHolds[id]
 }
 
 rb.RbViewModalHide = function (id) {
   if (!id) {
     if (rb.__currentRbViewModal) rb.__currentRbViewModal.hide()
   } else {
-    let cm = rb.__currentRbFormModalCache[id]
+    let cm = rb.__currentRbFormModalHolds[id]
     if (cm) {
       cm.hide()
-      rb.__currentRbFormModalCache[id] = null
+      rb.__currentRbFormModalHolds[id] = null
     }
   }
 }
@@ -1232,7 +1232,7 @@ rb.RbViewModalHideLoading = function (id) {
   if (!id) {
     if (rb.__currentRbViewModal) rb.__currentRbViewModal.hideLoading()
   } else {
-    let m = rb.__currentRbFormModalCache[id]
+    let m = rb.__currentRbFormModalHolds[id]
     if (m) m.hideLoading()
   }
 }
