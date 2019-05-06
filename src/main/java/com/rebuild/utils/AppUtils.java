@@ -34,8 +34,6 @@ import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
-import eu.bitwalker.useragentutils.Browser;
-import eu.bitwalker.useragentutils.UserAgent;
 
 /**
  * 封裝一些有用的工具方法
@@ -160,8 +158,6 @@ public class AppUtils {
 	 */
 	public static boolean isLessIE11(HttpServletRequest request) {
 		String userAgent = request.getHeader("user-agent");
-		UserAgent UA = UserAgent.parseUserAgentString(userAgent);
-		return UA.getBrowser() == Browser.IE10 || UA.getBrowser() == Browser.IE9 
-				|| UA.getBrowser() == Browser.IE8 || UA.getBrowser() == Browser.IE7;
+		return (userAgent != null && userAgent.toUpperCase().contains("MSIE 10"));
 	}
 }
