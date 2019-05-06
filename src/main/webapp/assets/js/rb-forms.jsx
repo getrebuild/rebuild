@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 /* eslint-disable react/no-string-refs */
@@ -10,16 +11,17 @@ class RbFormModal extends React.Component {
   render() {
     return (this.state.isDestroy === true ? null :
       <div className="modal-warpper">
-        <div className="modal rbmodal colored-header colored-header-primary" ref="rbmodal">
+        <div className="modal rbmodal colored-header colored-header-primary" ref={(c) => this._rbmodal = c}>
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header modal-header-colored">
                 {this.state.icon ? (<span className={'icon zmdi zmdi-' + this.state.icon}></span>) : ''}
                 <h3 className="modal-title">{this.state.title || '新建'}</h3>
-                {rb.isAdminUser ? <a className="close s" href={rb.baseUrl + '/admin/entity/' + this.state.entity + '/form-design'} title="配置布局" target="_blank" rel="noopener noreferrer"><span className="zmdi zmdi-settings"></span></a> : null}
+                {rb.isAdminUser ? <a className="close s" href={rb.baseUrl + '/admin/entity/' + this.state.entity + '/form-design'} title="配置布局" target="_blank"><span className="zmdi zmdi-settings"></span></a> : null}
                 <button className="close md-close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close"></span></button>
               </div>
               <div className={'modal-body rb-loading' + (this.state.inLoad ? ' rb-loading-active' : '')}>
+                {this.state.alertMessage && (<div className="alert alert-warning rbform-alert">{this.state.alertMessage}</div>)}
                 {this.state.formComponent}
                 {this.state.inLoad && <RbSpinner />}
               </div>
@@ -72,9 +74,9 @@ class RbFormModal extends React.Component {
   show(state) {
     state = state || {}
     if ((state.id !== this.state.id || state.entity !== this.state.entity) || this.state.isDestroy === true) {
-      state = { ...state, isDestroy: true, formComponent: null, inLoad: true, id: state.id, entity: state.entity }
+      state = { ...state, formComponent: null, inLoad: true, id: state.id, entity: state.entity }
       this.setState(state, () => {
-        this.showAfter({ ...state, isDestroy: false }, true)
+        this.showAfter({ isDestroy: false }, true)
       })
     } else {
       this.showAfter({ ...state, isDestroy: false })
@@ -83,18 +85,30 @@ class RbFormModal extends React.Component {
   }
   showAfter(state, modelChanged) {
     this.setState(state, () => {
-      $(this.refs['rbmodal']).modal({ show: true, backdrop: 'static' })
+      $(this._rbmodal).modal({ show: true, backdrop: 'static', keyboard: false })
       if (modelChanged === true) this.getFormModel()
     })
   }
   checkDrityData() {
     if (!this.__lastModified || !this.state.id) return
     $.get(`${rb.baseUrl}/app/entity/record-lastModified?id=${this.state.id}`, (res) => {
+      if (res.error_code === 0) {
+        if (res.data.lastModified !== this.__lastModified) {
+          // this.setState({ alertMessage: <p>记录已由其他用户编辑过，<a onClick={() => this.__refresh()}>点击此处</a>查看最新数据</p> })
+          this.__refresh()
+        }
+      } else if (res.error_msg === 'NO_EXISTS') {
+        this.setState({ alertMessage: '记录已经不存在，可能已被其他用户删除' })
+      }
     })
+  }
+  __refresh() {
+    let hold = { id: this.state.id, entity: this.state.entity }
+    this.setState({ id: null, alertMessage: null }, () => { this.show(hold) })
   }
 
   hide(destroy) {
-    $(this.refs['rbmodal']).modal('hide')
+    $(this._rbmodal).modal('hide')
     let state = { isDestroy: destroy === true }
     if (destroy === true) state.id = null
     this.setState(state)
@@ -914,6 +928,7 @@ var detectElementExt = function (item) {
 
 // -- for View
 
+const VIEW_LOAD_DELAY = 200  // 0.2s in rb-page.css '.rbview.show .modal-content'
 //~~ 右侧滑出视图窗口
 class RbViewModal extends React.Component {
   constructor(props) {
@@ -925,7 +940,7 @@ class RbViewModal extends React.Component {
   render() {
     return (this.state.isDestroy === true ? null :
       <div className="modal-warpper">
-        <div className="modal rbview" ref="rbview">
+        <div className="modal rbview" ref={(c) => this._rbview = c}>
           <div className="modal-dialog">
             <div className="modal-content" style={{ width: this.mcWidth + 'px' }}>
               <div className={'modal-body iframe rb-loading ' + (this.state.inLoad === true && 'rb-loading-active')}>
@@ -939,9 +954,9 @@ class RbViewModal extends React.Component {
     )
   }
   componentDidMount() {
-    let that = this
-    let root = $(this.refs['rbview'])
+    let root = $(this._rbview)
     let mc = root.find('.modal-content')
+    let that = this
     root.on('hidden.bs.modal', function () {
       mc.css({ 'margin-right': -1500 })
       that.setState({ inLoad: true, isHide: true })
@@ -960,6 +975,12 @@ class RbViewModal extends React.Component {
 
     }).on('shown.bs.modal', function () {
       mc.css('margin-right', 0)
+      if (that.__urlChanged === false) {
+        let cw = mc.find('iframe')[0].contentWindow
+        if (cw.RbViewPage && cw.RbViewPage._RbViewForm) cw.RbViewPage._RbViewForm.showAgain(that)
+        this.__urlChanged = true
+      }
+
       let mcs = $('body>.modal-backdrop.show')
       if (mcs.length > 1) {
         mcs.addClass('o')
@@ -971,22 +992,24 @@ class RbViewModal extends React.Component {
   hideLoading() {
     this.setState({ inLoad: false, isHide: false })
   }
+  showLoading() {
+    this.setState({ inLoad: true, isHide: true })
+  }
   show(url, ext) {
     let urlChanged = true
     if (url && url === this.state.url) urlChanged = false
     ext = ext || {}
     url = url || this.state.url
-    let root = $(this.refs['rbview'])
-    let that = this
-    this.setState({ ...ext, url: url, inLoad: urlChanged, isHide: urlChanged }, function () {
-      root.modal({ show: true, backdrop: true })
-      setTimeout(function () {
-        that.setState({ showAfterUrl: that.state.url })
-      }, 400)
+    this.__urlChanged = urlChanged
+    this.setState({ ...ext, url: url, inLoad: urlChanged, isHide: urlChanged }, () => {
+      $(this._rbview).modal({ show: true, backdrop: true, keyboard: false })
+      setTimeout(() => {
+        this.setState({ showAfterUrl: this.state.url })
+      }, VIEW_LOAD_DELAY)
     })
   }
   hide() {
-    let root = $(this.refs['rbview'])
+    let root = $(this._rbview)
     root.modal('hide')
   }
 }
@@ -1202,7 +1225,7 @@ rb.__currentRbViewModal
 rb.__currentRbFormModalHolds = {}
 // @props = { id, entity }
 rb.RbViewModal = function (props, subView) {
-  let viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
+  const viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
   if (subView === true) {
     rb.RbViewModalHide(props.id)
     let m = renderRbcomp(<RbViewModal url={viewUrl} disposeOnHide={true} id={props.id} subView={true} />)
@@ -1223,9 +1246,9 @@ rb.RbViewModalHide = function (id) {
   if (!id) {
     if (rb.__currentRbViewModal) rb.__currentRbViewModal.hide()
   } else {
-    let cm = rb.__currentRbFormModalHolds[id]
-    if (cm) {
-      cm.hide()
+    let c = rb.__currentRbFormModalHolds[id]
+    if (c) {
+      c.hide()
       rb.__currentRbFormModalHolds[id] = null
     }
   }

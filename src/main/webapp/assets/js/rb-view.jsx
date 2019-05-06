@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-/* eslint-disable react/no-string-refs */
 //~~ 视图
 class RbViewForm extends React.Component {
   constructor(props) {
@@ -7,24 +6,24 @@ class RbViewForm extends React.Component {
     this.state = { ...props }
   }
   render() {
-    return (<div className="rbview-form" ref="reviewForm">{this.state.formComponent}</div>)
+    return (<div className="rbview-form" ref={(c) => this._viewForm = c}>{this.state.formComponent}</div>)
   }
   componentDidMount() {
-    let that = this
-    $.get(rb.baseUrl + '/app/' + this.props.entity + '/view-model?id=' + this.props.id, function (res) {
-      // 包含错误
+    $.get(`${rb.baseUrl}/app/${this.props.entity}/view-model?id=${this.props.id}`, (res) => {
+      // 有错误
       if (res.error_code > 0 || !!res.data.error) {
-        let error = res.data.error || res.error_msg
-        that.renderViewError(error)
+        let err = res.data.error || res.error_msg
+        this.renderViewError(err)
         return
       }
 
-      const FORM = <div className="row">{res.data.elements.map((item) => {
+      let vform = <div className="row">{res.data.elements.map((item) => {
         return detectViewElement(item)
       })}</div>
-      that.setState({ formComponent: FORM }, function () {
-        that.hideLoading()
+      this.setState({ formComponent: vform }, () => {
+        this.hideLoading()
       })
+      this.__lastModified = res.data.lastModified || 0
     })
   }
   renderViewError(message) {
@@ -32,16 +31,33 @@ class RbViewForm extends React.Component {
       <div className="icon"><i className="zmdi zmdi-alert-triangle"></i></div>
       <div className="message" dangerouslySetInnerHTML={{ __html: '<strong>抱歉!</strong> ' + message }}></div>
     </div>
-    let that = this
-    that.setState({ formComponent: error }, function () {
-      that.hideLoading()
+    this.setState({ formComponent: error }, () => {
+      this.hideLoading()
     })
     $('.view-operating .view-action').empty()
   }
 
   hideLoading() {
     if (parent && parent.rb.RbViewModalGet(this.state.id)) parent.rb.RbViewModalGet(this.state.id).hideLoading()
-    $(this.refs['reviewForm']).find('.type-NTEXT .form-control-plaintext').perfectScrollbar()
+    $(this._viewForm).find('.type-NTEXT .form-control-plaintext').perfectScrollbar()
+  }
+
+  showAgain(handle) {
+    this.checkDrityData(handle)
+  }
+  checkDrityData(handle) {
+    if (!this.__lastModified || !this.state.id) return
+    $.get(`${rb.baseUrl}/app/entity/record-lastModified?id=${this.state.id}`, (res) => {
+      if (res.error_code === 0) {
+        if (res.data.lastModified !== this.__lastModified) {
+          handle.showLoading()
+          setTimeout(() => { location.reload() }, window.VIEW_LOAD_DELAY || 200)
+        }
+      } else if (res.error_msg === 'NO_EXISTS') {
+        this.renderViewError('此记录已被删除')
+        $('.view-operating').empty()
+      }
+    })
   }
 }
 
@@ -61,15 +77,7 @@ const UserShow = function (props) {
   </a>)
 }
 
-// -- Usage
-
 let rb = rb || {}
-
-// props = { entity, recordId }
-rb.RbViewForm = function (props, target) {
-  return renderRbcomp(<RbViewForm {...props} />, target || 'tab-rbview')
-}
-
 const RbViewPage = {
   _RbViewForm: null,
 
@@ -80,7 +88,7 @@ const RbViewPage = {
     this.__id = id
     this.__entity = entity
     this.__ep = ep
-    this._RbViewForm = rb.RbViewForm({ entity: entity[0], id: id })
+    this._RbViewForm = renderRbcomp(<RbViewForm entity={entity[0]} id={id} />, 'tab-rbview')
 
     const that = this
 

@@ -324,7 +324,7 @@ div.dataTables_wrapper div.dataTables_filter {
 
 .rbmodal.show,
 .rbview.show .modal-content {
-    transition: margin 0.4s;
+    transition: margin 0.2s;
 }
 
 .modal.rbalert .modal-dialog {
@@ -460,6 +460,19 @@ a {
 .rbform>form>.alert {
     margin: 20px;
     margin-bottom: 0;
+}
+
+.rbform-alert {
+    margin: -20px;
+    margin-bottom: 20px;
+    text-align: center;
+    padding: 0.5em;
+    border-radius: 0;
+    color: #856404;
+}
+
+.rbform-alert p {
+    margin: 0
 }
 
 .rbform .type-IMAGE {

@@ -362,10 +362,14 @@ public class GeneralEntityRecordControll extends BaseControll {
 				entity.getName(), entity.getPrimaryField().getName(), id);
 		Object[] recordMeta = Application.createQueryNoFilter(sql).unique();
 		if (recordMeta == null) {
-			writeFailure(response, "记录不存在");
+			writeFailure(response, "NO_EXISTS");
 			return;
 		}
-		writeSuccess(response, ((Date) recordMeta[0]).getTime());
+		
+		JSON ret = JSONUtils.toJSONObject(
+				new String[] { "lastModified" },
+				new Object[] { ((Date) recordMeta[0]).getTime() });
+		writeSuccess(response, ret);
 	}
 	
 	@RequestMapping("shared-list")
