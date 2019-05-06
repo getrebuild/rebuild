@@ -411,10 +411,10 @@ const RbListPage = {
       renderRbcomp(<DeleteConfirm ids={ids} entity={needEntity} deleteAfter={deleteAfter} />)
     })
     $('.J_view').click(() => {
-      let selected = this._RbList.getSelectedRows()
-      if (selected.length === 1) {
-        selected = selected[0]
-        rb.RbViewModal({ id: selected[0], entity: entity[0] })
+      let ids = this._RbList.getSelectedIds()
+      if (ids.length >= 1) {
+        location.hash = '!/View/' + entity[0] + '/' + ids[0]
+        rb.RbViewModal({ id: ids[0], entity: entity[0] })
       }
     })
     $('.J_assign').click(() => {
