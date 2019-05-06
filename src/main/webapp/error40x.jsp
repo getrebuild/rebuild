@@ -39,7 +39,7 @@ if (ServletUtils.isAjaxRequest(request)) {
 <script src="${pageContext.request.contextPath}/assets/lib/jquery.min.js"></script>
 <script>
 if (self != top) $('.btn-secondary').remove()
-if (location.href.indexOf('unsupported-browser') > -1) $('.error-description').html('不支持 IE10 以下的浏览器<br>请使用 Chrome、Firefox 或 IE Edge/10/11')
+if (location.href.indexOf('unsupported-browser') > -1) $('.error-description').html('不支持 IE10 以下的浏览器<br>推荐使用 Chrome、Firefox 或 IE Edge/11/10')
 </script>
 </body>
 </html>

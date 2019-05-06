@@ -25,10 +25,10 @@
 <meta name="rb.isAdminUser" content="true">
 <meta name="rb.isAdminVerified" content="<%=AppUtils.isAdminVerified(request)%>">
 <%}%>
-<!--[if lt IE 11]>
-<script>ltIE11 = true</script>
+<%if (AppUtils.isLessIE11(request)){%>
+<script>window.lessIE11 = true</script>
 <script src="${baseUrl}/assets/lib/react/polyfill.min.js"></script>
-<![endif]-->
+<%}%>
 <!--[if lt IE 10]>
 <script>location.href='${baseUrl}/error/unsupported-browser'</script>
 <![endif]-->

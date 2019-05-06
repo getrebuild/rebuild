@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<script src="${baseUrl}/assets/lib/jquery.min.js"></script>
+<script src="${baseUrl}/assets/lib/jquery.min.js?v=3.4.1"></script>
 <script src="${baseUrl}/assets/lib/popper.min.js"></script>
 <script src="${baseUrl}/assets/lib/bootstrap.min.js"></script>
 <script src="${baseUrl}/assets/lib/widget/perfect-scrollbar.jquery.min.js"></script>

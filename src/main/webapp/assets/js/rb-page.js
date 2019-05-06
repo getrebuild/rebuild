@@ -5,11 +5,14 @@ $(function () {
   t.perfectScrollbar()
   $(window).resize(function () {
     $setTimeout(function () {
-      if (window.ltIE11 === true) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
+      if (window.lessIE11) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
       t.perfectScrollbar('update')
     }, 500, 'rb-scroller-update')
   })
-  if (window.ltIE11 === true) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
+  if (window.lessIE11) {
+	  $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
+	  $('html').addClass('ie10')
+  }
 
   // tooltip
   $('[data-toggle="tooltip"]').tooltip()
