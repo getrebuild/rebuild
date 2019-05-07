@@ -29,8 +29,8 @@ public enum ConfigurableItem {
 	// 通用
 	AppName("REBUILD"), LOGO, LOGOWhite, HomeURL, OpenSignUp(false),
 	
-	// 临时目录
-	TempDirectory,
+	// 数据目录
+	DataDirectory,
 	
 	// 云存储
 	StorageURL, StorageApiKey, StorageApiSecret, StorageBucket,

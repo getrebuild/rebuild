@@ -50,24 +50,41 @@ public class SysConfiguration {
 	private static final Log LOG = LogFactory.getLog(SysConfiguration.class);
 	
 	/**
-	 * 获取临时文件（或目录）
+	 * 获取数据目录下的文件（或目录）
 	 * 
 	 * @param file
 	 * @return
 	 */
-	public static File getFileOfTemp(String file) {
-		String tmp = get(ConfigurableItem.TempDirectory, null);
-		File tmpFile = null;
-		if (tmp != null) {
-			tmpFile = new File(tmp);
-			if (!tmpFile.exists()) {
-				LOG.warn("TempDirectory not exists : " + tmp);
-				tmpFile = FileUtils.getTempDirectory();
+	public static File getFileOfData(String file) {
+		String d = get(ConfigurableItem.DataDirectory, null);
+		File dFile = null;
+		if (d != null) {
+			dFile = new File(d);
+			if (!dFile.exists()) {
+				if (!dFile.mkdirs()) {
+					LOG.warn("TempDirectory not exists : " + d);
+					dFile = FileUtils.getTempDirectory();
+				}
 			}
 		} else {
-			tmpFile = FileUtils.getTempDirectory();
+			dFile = FileUtils.getTempDirectory();
 		}
-		return new File(tmpFile, file);
+		return new File(dFile, file);
+	}
+	
+	/**
+	 * 获取临时文件（或目录）
+	 * 
+	 * @param file
+	 * @return
+	 * @see #getFileOfData(String)
+	 */
+	public static File getFileOfTemp(String file) {
+		File tFile = getFileOfData("tmp");
+		if (!tFile.exists()) {
+			tFile.mkdirs();
+		}
+		return new File(tFile, file);
 	}
 	
 	/**
@@ -168,15 +185,21 @@ public class SysConfiguration {
 			return s;
 		}
 		
-		Object[] value = Application.createQueryNoFilter(
+		// 1. 首先从数据库
+		Object[] fromDb = Application.createQueryNoFilter(
 				"select value from SystemConfig where item = ?")
 				.setParameter(1, name.name())
 				.unique();
-		s = value == null ? null : StringUtils.defaultIfBlank((String) value[0], null);
+		s = fromDb == null ? null : StringUtils.defaultIfBlank((String) fromDb[0], null);
 		
-		// 从配置文件加载
+		// 2. 从配置文件加载
 		if (s == null) {
 			s = Application.getBean(AesPreferencesConfigurer.class).getItem(key);
+		}
+		
+		// 3. 默认值
+		if (s == null && name.getDefaultValue() != null) {
+			s = name.getDefaultValue().toString();
 		}
 		
 		if (s == null) {

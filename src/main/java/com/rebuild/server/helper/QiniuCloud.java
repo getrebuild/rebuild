@@ -101,7 +101,7 @@ public class QiniuCloud {
 	 */
 	public String upload(URL url) throws Exception {
 		Assert.notNull(auth, "云存储账户未配置");
-		File tmp = SysConfiguration.getFileOfTemp("temp-" + System.currentTimeMillis());
+		File tmp = SysConfiguration.getFileOfTemp("download." + System.currentTimeMillis());
 		boolean success = download(url, tmp);
 		if (!success) {
 			throw new RebuildException("无法从 URL 读取文件 : " + url);

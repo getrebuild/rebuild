@@ -35,7 +35,11 @@ import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.commons.SystemUtils;
 import cn.devezhao.commons.ThrowableUtils;
+import cn.devezhao.commons.runtime.MemoryInformation;
+import cn.devezhao.commons.runtime.MemoryInformationBean;
 import cn.devezhao.persist4j.util.SqlHelper;
 
 /**
@@ -199,5 +203,23 @@ public final class ServerStatus {
 		private static Status error(String name, String error) {
 			return new Status(name, false, error);
 		}
+	}
+	
+	// -- 
+	
+	/**
+	 * 内存用量
+	 * 
+	 * @return [已用%, 总计M]
+	 */
+	public static double[] getHeapMemoryUsed() {
+		for (MemoryInformation i : SystemUtils.getMemoryStatistics(false)) {
+			if ("Heap".equalsIgnoreCase(i.getName())) {
+				double t = i.getTotal();
+				double p = ObjectUtils.round(i.getUsed() * 100 / t, 2);
+				return new double[] { (int) (t / MemoryInformationBean.MEGABYTES), p };
+			}
+		}
+		return new double[] { 0, 0 };
 	}
 }

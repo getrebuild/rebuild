@@ -21,7 +21,7 @@
 		<property name="locations">
 			<list>
 				<value>classpath:jdbc.properties</value>
-				<value>classpath:cloud-3rd.properties</value>
+				<value>classpath:application.properties</value>
 			</list>
 		</property>
 	</bean>

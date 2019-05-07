@@ -43,7 +43,8 @@
 		<% } %>
 		<tr>
 			<th>Memory Usage</th>
-			<td>n/a</td>
+			<% double memoryUsed[] = ServerStatus.getHeapMemoryUsed(); %>
+			<td><%=memoryUsed[1]%>% (<%=memoryUsed[0]%>M)</td>
 		</tr>
 		<tr>
 			<th>CPU Usage</th>
@@ -82,8 +83,8 @@
 			<td><%=System.getProperty("catalina.base")%></td>
 		</tr>
 		<tr>
-			<th>Temp Directory</th>
-			<td><%=SysConfiguration.getFileOfTemp("/")%></td>
+			<th>Data Directory</th>
+			<td><%=SysConfiguration.getFileOfData("/")%></td>
 		</tr>
 	</tbody>
 	</table>

@@ -55,10 +55,11 @@ public class FileUploader extends HttpServlet {
 	private static final Log LOG = LogFactory.getLog(FileUploader.class);
 	
 	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		String uploadName = null;
 		try {
-			List<FileItem> fileItems = parseFileItem(req);
+			List<FileItem> fileItems = parseFileItem(request);
 			for (FileItem item : fileItems) {
 				uploadName = item.getName();
 				if (uploadName == null) {
@@ -66,11 +67,19 @@ public class FileUploader extends HttpServlet {
 				}
 				
 				uploadName = QiniuCloud.formatFileKey(uploadName);
-				File file = SysConfiguration.getFileOfTemp(uploadName);
-				FileUtils.forceMkdir(file.getParentFile());
+				File file = null;
+				// 上传临时文件
+				if ("1".equals(request.getParameter("temp"))) {
+					uploadName = uploadName.split("/")[2];
+					file = SysConfiguration.getFileOfTemp(uploadName);
+				} else {
+					file = SysConfiguration.getFileOfData(uploadName);
+					FileUtils.forceMkdir(file.getParentFile());
+				}
+				
 				item.write(file);
 				if (!file.exists()) {
-					ServletUtils.writeJson(resp, AppUtils.formatControllMsg(1000, "上传失败"));
+					ServletUtils.writeJson(response, AppUtils.formatControllMsg(1000, "上传失败"));
 					return;
 				}
 				break;
@@ -82,9 +91,9 @@ public class FileUploader extends HttpServlet {
 		}
 		
 		if (uploadName != null) {
-			ServletUtils.writeJson(resp, AppUtils.formatControllMsg(0, uploadName));
+			ServletUtils.writeJson(response, AppUtils.formatControllMsg(0, uploadName));
 		} else {
-			ServletUtils.writeJson(resp, AppUtils.formatControllMsg(1000, "上传失败"));
+			ServletUtils.writeJson(response, AppUtils.formatControllMsg(1000, "上传失败"));
 		}
 	}
 	

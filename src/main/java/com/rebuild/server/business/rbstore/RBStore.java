@@ -76,7 +76,7 @@ public class RBStore {
 			fileUrl = DATA_REPO + fileUrl;
 		}
 		
-		File tmp = SysConfiguration.getFileOfTemp("rbstore.data." + CodecUtils.randomCode(6));
+		File tmp = SysConfiguration.getFileOfTemp("rbstore." + CodecUtils.randomCode(6));
 		JSON d = null;
 		try {
 			if (QiniuCloud.instance().download(new URL(fileUrl), tmp)) {

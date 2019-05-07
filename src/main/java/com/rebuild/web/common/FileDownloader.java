@@ -102,7 +102,7 @@ public class FileDownloader extends BaseControll {
 	 */
 	private boolean writeLocalFile(String filePath, HttpServletResponse response) throws IOException {
 		filePath = CodecUtils.urlDecode(filePath);
-		File tmp = SysConfiguration.getFileOfTemp(filePath);
+		File tmp = SysConfiguration.getFileOfData(filePath);
 		if (!tmp.exists()) {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return false;
