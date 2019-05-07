@@ -48,11 +48,23 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 
 	private static final Log LOG = LogFactory.getLog(RequestWatchHandler.class);
 	
+	// 设置页面无缓存
+	// 如果使用了第三方缓存策略（如 nginx 的 etag），可以将此值设为 false
+	private boolean noCache = true;
+	
+	public void setNoCache(boolean noCache) {
+		this.noCache = noCache;
+	}
+	
+	public boolean isNoCache() {
+		return noCache;
+	}
+	
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
 			Object handler) throws Exception {
 		response.setCharacterEncoding("utf-8");
-		if (!ServletUtils.isAjaxRequest(request)) {
+		if (noCache && !ServletUtils.isAjaxRequest(request)) {
 			ServletUtils.setNoCacheHeaders(response);
 		}
 		

@@ -25,7 +25,9 @@
 	<mvc:interceptors>
 		<mvc:interceptor>
 			<mvc:mapping path="/**" />
-			<bean class="com.rebuild.web.RequestWatchHandler"></bean>
+			<bean class="com.rebuild.web.RequestWatchHandler">
+				<property name="noCache" value="true" />
+			</bean>
 		</mvc:interceptor>
 	</mvc:interceptors>
 	
