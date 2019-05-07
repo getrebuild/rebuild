@@ -64,11 +64,12 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
 			Object handler) throws Exception {
 		response.setCharacterEncoding("utf-8");
-		if (noCache && !ServletUtils.isAjaxRequest(request)) {
+		
+		final String requestUrl = request.getRequestURI();
+		if (noCache && !(ServletUtils.isAjaxRequest(request) || requestUrl.contains("/filex/img/"))) {
 			ServletUtils.setNoCacheHeaders(response);
 		}
 		
-		String requestUrl = request.getRequestURI();
 		// If server status is not passed
 		if (!requestUrl.contains("/gw/server-status") && !Application.serversReady()) {
 			response.sendRedirect(ServerListener.getContextPath() + "/gw/server-status?s=" + CodecUtils.urlEncode(requestUrl));
