@@ -249,7 +249,7 @@ class RbForm extends React.Component {
   static postAfter(data, notReload) {
     let rlp = window.RbListPage || parent.RbListPage
     if (rlp) rlp._RbList.reload()
-    if (window.RbViewPage && notReload !== true) location.reload()
+    if (window.RbViewPage && notReload !== true) window.RbViewPage.reload()
   }
 }
 

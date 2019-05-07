@@ -50,7 +50,7 @@ class RbViewForm extends React.Component {
     $.get(`${rb.baseUrl}/app/entity/record-lastModified?id=${this.state.id}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.lastModified !== this.__lastModified) {
-          handle.showLoading()
+          handle && handle.showLoading()
           setTimeout(() => { location.reload() }, window.VIEW_LOAD_DELAY || 200)
         }
       } else if (res.error_msg === 'NO_EXISTS') {
@@ -123,12 +123,8 @@ const RbViewPage = {
       that.__cleanButton()
     }
 
-    $('.J_close').click(() => {
-      if (parent && parent.rb.RbViewModalGet(id)) parent.rb.RbViewModalGet(id).hide()
-    })
-    $('.J_reload').click(() => {
-      location.reload()
-    })
+    $('.J_close').click(() => { this.hide() })
+    $('.J_reload').click(() => { this.reload() })
   },
 
   initRecordMeta() {
@@ -282,6 +278,12 @@ const RbViewPage = {
       if (parent.RbListPage) parent.RbListPage._RbList.reload()
       else setTimeout(function () { parent.location.reload() }, 1000)
     }
+  },
+
+  // 重新加載
+  reload() {
+    if (parent && parent.rb.RbViewModalGet(this.__id)) parent.rb.RbViewModalGet(this.__id).showLoading()
+    setTimeout(() => { location.reload() }, 20)
   }
 }
 
