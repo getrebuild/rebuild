@@ -52,6 +52,9 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
 			Object handler) throws Exception {
 		response.setCharacterEncoding("utf-8");
+		if (!ServletUtils.isAjaxRequest(request)) {
+			ServletUtils.setNoCacheHeaders(response);
+		}
 		
 		String requestUrl = request.getRequestURI();
 		// If server status is not passed
