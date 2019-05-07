@@ -232,7 +232,7 @@ class RbForm extends React.Component {
             let sm = that.props.$$$parent.state.__formModel.slaveMeta
             rb.RbFormModal({ title: `添加${sm[1]}`, entity: sm[0], icon: sm[2], initialValue: iv })
           }
-        }, 500)
+        }, 100)
 
       } else {
         rb.hberror(res.error_msg)
