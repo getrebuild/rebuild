@@ -45,16 +45,16 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 10/08/2018
  */
-@RequestMapping("/settings")
+@RequestMapping("/account")
 @Controller
 public class AccountControll extends BaseEntityControll {
 
-	@RequestMapping("/account")
+	@RequestMapping("/settings")
 	public ModelAndView pageView(HttpServletRequest request) throws IOException {
 		return createModelAndView("/account/settings.jsp", "User", getRequestUser(request));
 	}
 	
-	@RequestMapping("/account/send-email-vcode")
+	@RequestMapping("/settings/send-email-vcode")
 	public void sendEmailVcode(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String email = getParameterNotNull(request, "email");
 		if (Application.getUserStore().existsEmail(email)) {
@@ -72,7 +72,7 @@ public class AccountControll extends BaseEntityControll {
 		}
 	}
 	
-	@RequestMapping("/account/save-email")
+	@RequestMapping("/settings/save-email")
 	public void saveEmail(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		String email = getParameterNotNull(request, "email");
@@ -93,7 +93,7 @@ public class AccountControll extends BaseEntityControll {
 		writeSuccess(response);
 	}
 	
-	@RequestMapping("/account/save-passwd")
+	@RequestMapping("/settings/save-passwd")
 	public void savePasswd(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		String oldp = getParameterNotNull(request, "oldp");

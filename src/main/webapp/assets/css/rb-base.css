@@ -12302,6 +12302,8 @@ a.avatar img {
     border-radius: 50%;
     background-color: #ccc;
     display: inline-block;
+    overflow: hidden;
+    font-size: 12px;
 }
 
 a.avatar.x48 img {
