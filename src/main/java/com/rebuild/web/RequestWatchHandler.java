@@ -49,7 +49,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	private static final Log LOG = LogFactory.getLog(RequestWatchHandler.class);
 	
 	// 设置页面无缓存
-	// 如果使用了第三方缓存策略（如 nginx 的 etag），可以将此值设为 false
+	// 如果使用了第三方缓存策略（如 nginx），可以将此值设为 false
 	private boolean noCache = true;
 	
 	public void setNoCache(boolean noCache) {
@@ -66,9 +66,12 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 		response.setCharacterEncoding("utf-8");
 		
 		final String requestUrl = request.getRequestURI();
-		if (noCache && !(ServletUtils.isAjaxRequest(request) || requestUrl.contains("/filex/img/"))) {
+		if (noCache && !(ServletUtils.isAjaxRequest(request) 
+				|| requestUrl.contains("/filex/img/") || requestUrl.contains("/account/user-avatar/"))) {
 			ServletUtils.setNoCacheHeaders(response);
 		}
+		
+		System.err.println(requestUrl);
 		
 		// If server status is not passed
 		if (!requestUrl.contains("/gw/server-status") && !Application.serversReady()) {

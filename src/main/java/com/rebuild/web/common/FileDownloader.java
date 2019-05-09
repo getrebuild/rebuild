@@ -48,7 +48,7 @@ import cn.devezhao.commons.web.ServletUtils;
 @Controller
 public class FileDownloader extends BaseControll {
 	
-	@RequestMapping(value={ "img/**" }, method=RequestMethod.GET)
+	@RequestMapping(value = "img/**", method = RequestMethod.GET)
 	public void viewImg(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String filePath = request.getRequestURI();
 		filePath = filePath.split("/filex/img/")[1];
@@ -76,7 +76,7 @@ public class FileDownloader extends BaseControll {
 		response.sendRedirect(privateUrl);
 	}
 	
-	@RequestMapping(value="download/**", method=RequestMethod.GET)
+	@RequestMapping(value = "download/**", method = RequestMethod.GET)
 	public void download(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String filePath = request.getRequestURI();
 		filePath = filePath.split("/filex/download/")[1];
