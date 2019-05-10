@@ -6,7 +6,7 @@
 	<groupId>com.rebuild</groupId>
 	<artifactId>rebuild</artifactId>
 	<packaging>war</packaging>
-	<version>1.2.0-dev</version>
+	<version>1.2.0-beta</version>
 	<name>rebuild</name>
 	<description>Building your business-systems free!</description>
 	<url>https://getrebuild.com/</url>
@@ -85,12 +85,12 @@
 		<dependency>
 			<groupId>com.github.devezhao</groupId>
 			<artifactId>commons</artifactId>
-			<version>13f64c7191</version>
+			<version>1.1.4</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.devezhao</groupId>
 			<artifactId>persist4j</artifactId>
-			<version>2f3936598d</version>
+			<version>1.2.4</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
