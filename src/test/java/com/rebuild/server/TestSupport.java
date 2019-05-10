@@ -31,8 +31,10 @@ import com.rebuild.server.metadata.entityhub.Field2Schema;
 import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * 测试基类
  * 
  * @author devezhao
  * @since 01/03/2019
@@ -41,8 +43,16 @@ public class TestSupport {
 	
 	protected static final Log LOG = LogFactory.getLog(TestSupport.class);
 	
+	// 测试实体
 	protected static final String TEST_ENTITY = "TestAllFields";
-
+	
+	// 示例用户
+	protected static final ID SIMPLE_USER = ID.valueOf("001-9000000000000001");
+	// 示例部门
+	protected static final ID SIMPLE_DEPT = ID.valueOf("002-9000000000000001");
+	// 示例角色（无任何权限）
+	protected static final ID SIMPLE_ROLE = ID.valueOf("003-9000000000000001");
+	
 	@BeforeClass
 	public static void startup() throws Exception {
 		LOG.warn("TESTING Startup ...");

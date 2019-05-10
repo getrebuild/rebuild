@@ -41,7 +41,7 @@ public class ChartDataFactory {
 	 */
 	public static ChartData create(ID chartId) throws ChartsException {
 		Object[] chart = Application.createQueryNoFilter(
-				"select config from ChartConfig where chartId = ?")
+				"select config,createdBy from ChartConfig where chartId = ?")
 				.setParameter(1, chartId)
 				.unique();
 		if (chart == null) {
@@ -49,16 +49,8 @@ public class ChartDataFactory {
 		}
 		
 		JSONObject config = JSON.parseObject((String) chart[0]);
+		config.put("chartOwning", chart[1]);
 		return create(config, Application.getCurrentUser());
-	}
-	
-	/**
-	 * @param config
-	 * @return
-	 * @throws ChartsException
-	 */
-	public static ChartData create(JSONObject config) throws ChartsException {
-		return create(config, null);
 	}
 	
 	/**
@@ -74,10 +66,7 @@ public class ChartDataFactory {
 		}
 		
 		Entity entity = MetadataHelper.getEntity(e);
-		if (user == null) {
-			user = Application.getCurrentUser();
-		}
-		if (!Application.getSecurityManager().allowedR(user, entity.getEntityCode())) {
+		if (user == null || !Application.getSecurityManager().allowedR(user, entity.getEntityCode())) {
 			throw new ChartsException("没有读取 [" + EasyMeta.getLabel(entity) + "] 的权限");
 		}
 		
@@ -94,6 +83,8 @@ public class ChartDataFactory {
 			return new PieChart(config, user);
 		} else if ("FUNNEL".equalsIgnoreCase(type)) {
 			return new FunnelChart(config, user);
+		} else if ("TREEMAP".equalsIgnoreCase(type)) {
+			return new TreemapChart(config, user);
 		}
 		throw new ChartsException("未知的图表类型 : " + type.toUpperCase());
 	}

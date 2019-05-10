@@ -188,19 +188,33 @@ public class MetadataHelper {
 	}
 	
 	/**
-	 * 仅供系统使用的字段，用户不可见
+	 * 仅供系统使用的字段，用户不可见/不可用
 	 * 
 	 * @param field
 	 * @return
+	 * @see #isCommonsField(Field)
 	 */
 	public static boolean isSystemField(Field field) {
-		String fieldName = field.getName();
-		if (EntityHelper.AutoId.equalsIgnoreCase(fieldName)
-				|| EntityHelper.QuickCode.equalsIgnoreCase(fieldName)
-				|| EntityHelper.IsDeleted.equalsIgnoreCase(fieldName)) {
+		final String FN = field.getName();
+		return EntityHelper.AutoId.equalsIgnoreCase(FN) || EntityHelper.QuickCode.equalsIgnoreCase(FN)
+				|| EntityHelper.IsDeleted.equalsIgnoreCase(FN) || field.getType() == FieldType.PRIMARY;
+	}
+	
+	/**
+	 * 是否系统级字段
+	 * 
+	 * @param field
+	 * @return
+	 * @see #isSystemField(Field)
+	 */
+	public static boolean isCommonsField(Field field) {
+		if (isSystemField(field)) {
 			return true;
 		}
-		return field.getType() == FieldType.PRIMARY;
+		final String FN = field.getName();
+		return EntityHelper.OwningUser.equalsIgnoreCase(FN) || EntityHelper.OwningDept.equalsIgnoreCase(FN)
+				|| EntityHelper.CreatedOn.equalsIgnoreCase(FN) || EntityHelper.CreatedBy.equalsIgnoreCase(FN)
+				|| EntityHelper.ModifiedOn.equalsIgnoreCase(FN) || EntityHelper.ModifiedBy.equalsIgnoreCase(FN);
 	}
 	
 	/**
@@ -211,6 +225,16 @@ public class MetadataHelper {
 	 */
 	public static boolean isBizzEntity(int entityCode) {
 		return entityCode == EntityHelper.User || entityCode == EntityHelper.Department || entityCode == EntityHelper.Role;
+	}
+	
+	/**
+	 * 实体是否具备权限字段
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	public static boolean hasPrivilegesField(Entity entity) {
+		return  entity.containsField(EntityHelper.OwningUser) && entity.containsField(EntityHelper.OwningDept);
 	}
 	
 	/**
@@ -299,5 +323,32 @@ public class MetadataHelper {
 	 */
 	public static boolean isSlaveEntity(int entityCode) {
 		return getEntity(entityCode).getMasterEntity() != null;
+	}
+	
+	/**
+	 * 点连接字段（如 owningUser.loginName），获取最后一个字段。
+	 * 此方法也可以用来判断点连接字段是否是有效的字段
+	 * 
+	 * @param entity
+	 * @param fieldPath
+	 * @return
+	 */
+	public static Field getLastField(Entity entity, String fieldPath) {
+		String[] paths = fieldPath.split(".");
+		Field lastField = null;
+		Entity father = entity;
+		for (String field : paths) {
+			if (father != null && father.containsField(field)) {
+				lastField = father.getField(field);
+				if (lastField.getType() == FieldType.REFERENCE) {
+					father = lastField.getReferenceEntity();
+				} else {
+					father = null;
+				}
+			} else {
+				return null;
+			}
+		}
+		return lastField;
 	}
 }

@@ -22,7 +22,6 @@ import java.text.MessageFormat;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.Application;
 import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.persist4j.engine.ID;
@@ -44,7 +43,7 @@ public class IndexChart extends ChartData {
 		Numerical[] nums = getNumericals();
 
 		Numerical axis = nums[0];
-		Object[] dataRaw = Application.createQuery(buildSql(axis), user).unique();
+		Object[] dataRaw = createQuery(buildSql(axis)).unique();
 		
 		JSONObject index = JSONUtils.toJSONObject(
 				new String[] { "data", "label" },

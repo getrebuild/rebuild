@@ -32,4 +32,12 @@ public class ModifiyMetadataException extends RebuildException {
 	public ModifiyMetadataException(String message) {
 		super(message);
 	}
+
+	public ModifiyMetadataException(Throwable cause) {
+		super(cause);
+	}
+	
+	public ModifiyMetadataException(String msg, Throwable cause) {
+		super(msg, cause);
+	}
 }

@@ -27,8 +27,10 @@ if (ServletUtils.isAjaxRequest(request)) {
 				<div class="error-number mb-0"><i class="zmdi zmdi-alert-circle text-primary"></i></div>
 				<div class="error-description"><%=errorMsg%></div>
 				<div class="error-goback-button">
-					<a class="btn btn-xl btn-secondary" href="${pageContext.request.contextPath}/dashboard/home">返回首页</a>
-					<div class="mt-4"><a href="https://github.com/getrebuild/rebuild/issues/new?title=error-40x" target="_blank">报告此问题</a></div>
+					<a class="btn btn-xl btn-space btn-secondary" href="${pageContext.request.contextPath}/dashboard/home">返回首页</a>
+					<div class="mt-4">
+						<a href="https://github.com/getrebuild/rebuild/issues/new?title=error-40x" target="_blank">报告此问题</a>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -36,7 +38,8 @@ if (ServletUtils.isAjaxRequest(request)) {
 </div>
 <script src="${pageContext.request.contextPath}/assets/lib/jquery.min.js"></script>
 <script>
-if (location.href.indexOf('unsupported-browser') > -1) $('.error-description').html('不支持 IE10 以下的浏览器<br>请使用 Chrome、Firefox 或 IE Edge/10/11')
+if (self != top) $('.btn-secondary').remove()
+if (location.href.indexOf('unsupported-browser') > -1) $('.error-description').html('不支持 IE10 以下的浏览器<br>推荐使用 Chrome、Firefox 或 IE Edge/11/10')
 </script>
 </body>
 </html>

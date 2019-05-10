@@ -149,4 +149,15 @@ public class AppUtils {
 		errorMsg = StringUtils.defaultIfBlank(ex.getLocalizedMessage(), "未知系统错误");
 		return ex.getClass().getSimpleName() + " : " + errorMsg;
 	}
+	
+	/**
+	 * 是否低于 IE11
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public static boolean isLessIE11(HttpServletRequest request) {
+		String userAgent = request.getHeader("user-agent");
+		return (userAgent != null && userAgent.toUpperCase().contains("MSIE 10"));
+	}
 }

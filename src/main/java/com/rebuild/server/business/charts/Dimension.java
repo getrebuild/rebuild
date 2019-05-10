@@ -31,7 +31,13 @@ import cn.devezhao.persist4j.Field;
  */
 public class Dimension extends Axis {
 
-	public Dimension(Field field, FormatSort sort, FormatCalc calc, String label) {
+	/**
+	 * @param field
+	 * @param sort
+	 * @param calc
+	 * @param label
+	 */
+	protected Dimension(Field field, FormatSort sort, FormatCalc calc, String label) {
 		super(field, sort, calc, label);
 	}
 	

@@ -73,12 +73,12 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 		FIELD_EXTMETA.clear();
 		
 		Object[][] customEntity = Application.createQueryNoFilter(
-				"select typeCode,entityName,physicalName,entityLabel,entityId,comments,icon,nameField,masterEntity from MetaEntity order by createdOn")
+				"select typeCode,entityName,physicalName,entityLabel,entityId,comments,icon,nameField,masterEntity from MetaEntity")
 				.array();
 		for (Object[] custom : customEntity) {
 			String name = (String) custom[1];
 			Element entity = rootElement.addElement("entity");
-			entity.addAttribute("type-code", custom[0] + "")
+			entity.addAttribute("type-code", custom[0].toString())
 					.addAttribute("name", name)
 					.addAttribute("physical-name", (String) custom[2])
 					.addAttribute("description", (String) custom[3])
@@ -89,8 +89,8 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 		}
 		
 		Object[][] customFields = Application.createQueryNoFilter(
-				"select belongEntity,fieldName,physicalName,fieldLabel,displayType,nullable,creatable,updatable,precision,"
-				+ "maxLength,defaultValue,refEntity,cascade,fieldId,comments,extConfig from MetaField order by createdOn")
+				"select belongEntity,fieldName,physicalName,fieldLabel,displayType,nullable,creatable,updatable,"
+				+ "maxLength,defaultValue,refEntity,cascade,fieldId,comments,extConfig from MetaField")
 				.array();
 		for (Object[] custom : customFields) {
 			String entityName = (String) custom[0];
@@ -108,8 +108,8 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 					.addAttribute("nullable", custom[5].toString())
 					.addAttribute("creatable", custom[6].toString())
 					.addAttribute("updatable", custom[7].toString())
-					.addAttribute("max-length", custom[9].toString())
-					.addAttribute("default-value", (String) custom[10]);
+					.addAttribute("max-length", custom[8].toString())
+					.addAttribute("default-value", (String) custom[9]);
 			if (fieldName.equals(EntityHelper.AutoId)) {
 				field.addAttribute("auto-value", "true");
 			}
@@ -118,14 +118,14 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 			field.addAttribute("type", dt.getFieldType().getName());
 			
 			if (dt == DisplayType.DECIMAL) {
-				field.addAttribute("decimal-scale", custom[8].toString());
+				field.addAttribute("decimal-scale", "8");
 			} else if (dt == DisplayType.ANYREFERENCE || dt == DisplayType.REFERENCE 
 					|| dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION) {
-				field.addAttribute("ref-entity", (String) custom[11])
-						.addAttribute("cascade", (String) custom[12]);
+				field.addAttribute("ref-entity", (String) custom[10])
+						.addAttribute("cascade", (String) custom[11]);
 			}
 			
-			FIELD_EXTMETA.put(entityName + "." + fieldName, new Object[] { custom[13], custom[14], dt, custom[15] });
+			FIELD_EXTMETA.put(entityName + "." + fieldName, new Object[] { custom[12], custom[13], dt, custom[14] });
 		}
 		
 		if (LOG.isDebugEnabled()) {

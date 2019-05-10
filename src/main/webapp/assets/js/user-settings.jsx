@@ -2,22 +2,9 @@
 $(document).ready(function () {
   if (location.hash === '#secure') $('.nav-tabs a:eq(1)').trigger('click')
 
-  $('#avatar-input').html5Uploader({
-    name: 'avatar-input',
-    postUrl: rb.baseUrl + '/filex/upload?cloud=auto&type=image',
-    onClientLoad: function (e, file) {
-      if (file.type.substr(0, 5) !== 'image') {
-        rb.highbar('请上传图片')
-        return false
-      }
-    },
-    onSuccess: function (d) {
-      d = JSON.parse(d.currentTarget.response)
-      if (d.error_code === 0) {
-        let aUrl = `${rb.baseUrl}/cloud/img/${d.data}?imageView2/2/w/100/interlace/1/q/100`
-        $('.avatar img').attr({ 'src': aUrl, 'data-src': d.data })
-      } else rb.hberror(d.error_msg || '上传失败，请稍后重试')
-    }
+  $createUploader('#avatar-input', null, function (res) {
+    let aUrl = `${rb.baseUrl}/filex/img/${res.key}?imageView2/2/w/100/interlace/1/q/100`
+    $('.avatar img').attr({ 'src': aUrl, 'data-src': res.key })
   })
 
   $('.J_email').click(() => { renderRbcomp(<DlgChangeEmail />) })
@@ -79,7 +66,7 @@ class DlgChangePasswd extends RbFormHandler {
     if (!s.newPasswd) { rb.highbar('请输入新密码'); return }
     if (s.newPasswd !== s.newPasswdAgain) { rb.highbar('两次输入的新密码不一致'); return }
     let btns = $(this.refs['btns']).find('.btn').button('loading')
-    $.post(rb.baseUrl + '/settings/account/save-passwd?oldp=' + $encode(s.oldPasswd) + '&newp=' + $encode(s.newPasswd), (res) => {
+    $.post(rb.baseUrl + '/account/settings/save-passwd?oldp=' + $encode(s.oldPasswd) + '&newp=' + $encode(s.newPasswd), (res) => {
       btns.button('reset')
       if (res.error_code === 0) {
         this.hide()
@@ -125,7 +112,7 @@ class DlgChangeEmail extends RbFormHandler {
     let s = this.state
     if (!s.newEmail || !$regex.isMail(s.newEmail)) { rb.highbar('请输入有效的邮箱地址'); return }
     this.setState({ vcodeDisabled: true })
-    $.post(rb.baseUrl + '/settings/account/send-email-vcode?email=' + $encode(s.newEmail), (res) => {
+    $.post(rb.baseUrl + '/account/settings/send-email-vcode?email=' + $encode(s.newEmail), (res) => {
       if (res.error_code === 0) this.vcodeResend()
       else rb.highbar(res.error_msg)
     })
@@ -145,7 +132,7 @@ class DlgChangeEmail extends RbFormHandler {
     if (!s.newEmail || !$regex.isMail(s.newEmail)) { rb.highbar('请输入有效的邮箱地址'); return }
     if (!s.newEmail || !s.vcode) { rb.highbar('请输入邮箱地址和验证码'); return }
     let btns = $(this.refs['btns']).find('.btn').button('loading')
-    $.post(rb.baseUrl + '/settings/account/save-email?email=' + $encode(s.newEmail) + '&vcode=' + $encode(s.vcode), (res) => {
+    $.post(rb.baseUrl + '/account/settings/save-email?email=' + $encode(s.newEmail) + '&vcode=' + $encode(s.vcode), (res) => {
       btns.button('reset')
       if (res.error_code === 0) {
         this.hide()

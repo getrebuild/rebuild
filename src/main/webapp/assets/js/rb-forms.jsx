@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 /* eslint-disable react/no-string-refs */
@@ -10,16 +11,17 @@ class RbFormModal extends React.Component {
   render() {
     return (this.state.isDestroy === true ? null :
       <div className="modal-warpper">
-        <div className="modal rbmodal colored-header colored-header-primary" ref="rbmodal">
+        <div className="modal rbmodal colored-header colored-header-primary" ref={(c) => this._rbmodal = c}>
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header modal-header-colored">
                 {this.state.icon ? (<span className={'icon zmdi zmdi-' + this.state.icon}></span>) : ''}
                 <h3 className="modal-title">{this.state.title || '新建'}</h3>
-                {rb.isAdminUser ? <a className="close s" href={rb.baseUrl + '/admin/entity/' + this.state.entity + '/form-design'} title="配置布局" target="_blank" rel="noopener noreferrer"><span className="zmdi zmdi-settings"></span></a> : null}
+                {rb.isAdminUser ? <a className="close s" href={rb.baseUrl + '/admin/entity/' + this.state.entity + '/form-design'} title="配置布局" target="_blank"><span className="zmdi zmdi-settings"></span></a> : null}
                 <button className="close md-close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close"></span></button>
               </div>
               <div className={'modal-body rb-loading' + (this.state.inLoad ? ' rb-loading-active' : '')}>
+                {this.state.alertMessage && (<div className="alert alert-warning rbform-alert">{this.state.alertMessage}</div>)}
                 {this.state.formComponent}
                 {this.state.inLoad && <RbSpinner />}
               </div>
@@ -55,6 +57,7 @@ class RbFormModal extends React.Component {
       that.setState({ formComponent: FORM, __formModel: res.data }, function () {
         that.setState({ inLoad: false })
       })
+      that.__lastModified = res.data.lastModified || 0
     })
   }
   renderFromError(message) {
@@ -63,36 +66,49 @@ class RbFormModal extends React.Component {
       <div className="message" dangerouslySetInnerHTML={{ __html: '<strong>抱歉!</strong> ' + message }}></div>
     </div>
 
-    let that = this
-    that.setState({ formComponent: error }, function () {
-      that.setState({ inLoad: false })
+    this.setState({ formComponent: error }, () => {
+      this.setState({ inLoad: false })
     })
   }
 
   show(state) {
     state = state || {}
-    let that = this
     if ((state.id !== this.state.id || state.entity !== this.state.entity) || this.state.isDestroy === true) {
-      state = { ...state, isDestroy: true, formComponent: null, inLoad: true, id: state.id, entity: state.entity }
-      this.setState(state, function () {
-        that.showAfter({ ...state, isDestroy: false }, true)
+      state = { ...state, formComponent: null, inLoad: true, id: state.id, entity: state.entity }
+      this.setState(state, () => {
+        this.showAfter({ isDestroy: false }, true)
       })
     } else {
       this.showAfter({ ...state, isDestroy: false })
+      this.checkDrityData()
     }
   }
   showAfter(state, modelChanged) {
-    let that = this
-    this.setState(state, function () {
-      $(that.refs['rbmodal']).modal({ show: true, backdrop: 'static' })
-      if (modelChanged === true) {
-        that.getFormModel()
+    this.setState(state, () => {
+      $(this._rbmodal).modal({ show: true, backdrop: 'static', keyboard: false })
+      if (modelChanged === true) this.getFormModel()
+    })
+  }
+  checkDrityData() {
+    if (!this.__lastModified || !this.state.id) return
+    $.get(`${rb.baseUrl}/app/entity/record-lastModified?id=${this.state.id}`, (res) => {
+      if (res.error_code === 0) {
+        if (res.data.lastModified !== this.__lastModified) {
+          // this.setState({ alertMessage: <p>记录已由其他用户编辑过，<a onClick={() => this.__refresh()}>点击此处</a>查看最新数据</p> })
+          this.__refresh()
+        }
+      } else if (res.error_msg === 'NO_EXISTS') {
+        this.setState({ alertMessage: '记录已经不存在，可能已被其他用户删除' })
       }
     })
   }
+  __refresh() {
+    let hold = { id: this.state.id, entity: this.state.entity }
+    this.setState({ id: null, alertMessage: null }, () => { this.show(hold) })
+  }
 
   hide(destroy) {
-    $(this.refs['rbmodal']).modal('hide')
+    $(this._rbmodal).modal('hide')
     let state = { isDestroy: destroy === true }
     if (destroy === true) state.id = null
     this.setState(state)
@@ -216,7 +232,7 @@ class RbForm extends React.Component {
             let sm = that.props.$$$parent.state.__formModel.slaveMeta
             rb.RbFormModal({ title: `添加${sm[1]}`, entity: sm[0], icon: sm[2], initialValue: iv })
           }
-        }, 500)
+        }, 100)
 
       } else {
         rb.hberror(res.error_msg)
@@ -233,7 +249,7 @@ class RbForm extends React.Component {
   static postAfter(data, notReload) {
     let rlp = window.RbListPage || parent.RbListPage
     if (rlp) rlp._RbList.reload()
-    if (window.RbViewPage && notReload !== true) location.reload()
+    if (window.RbViewPage && notReload !== true) window.RbViewPage.reload()
   }
 }
 
@@ -488,17 +504,18 @@ class RbFormImage extends RbFormElement {
       this.__minUpload = ~~(this.props.uploadNumber.split(',')[0] || 0)
       this.__maxUpload = ~~(this.props.uploadNumber.split(',')[1] || 9)
     }
+    this.__typeName = '张图片'
   }
   renderElement() {
     return (
       <div className="img-field">
         {this.state.value.map((item) => {
-          let itemUrl = rb.baseUrl + '/cloud/img/' + item
+          let itemUrl = rb.baseUrl + '/filex/img/' + item
           let fileName = $fileCutName(item)
           return (<span key={'file-' + item}><a title={fileName} className="img-thumbnail img-upload"><img src={itemUrl + '?imageView2/2/w/100/interlace/1/q/100'} /><b title="移除" onClick={() => this.removeItem(item)}><span className="zmdi zmdi-close"></span></b></a></span>)
         })}
         {this.state.showUploader === false ? null :
-          <span title={'上传图片。需要 ' + this.__minUpload + '～' + this.__maxUpload + ' 张'}>
+          <span title={'上传图片。需要 ' + this.__minUpload + '~' + this.__maxUpload + ' 张'}>
             <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} accept="image/*" />
             <label htmlFor={this.props.field + '-input'} className="img-thumbnail img-upload"><span className="zmdi zmdi-image-alt"></span></label>
           </span>
@@ -513,7 +530,7 @@ class RbFormImage extends RbFormElement {
     }
     return (<div className="img-field">
       {this.state.value.map((item) => {
-        let itemUrl = rb.baseUrl + '/cloud/img/' + item
+        let itemUrl = rb.baseUrl + '/filex/img/' + item
         let fileName = $fileCutName(item)
         return <span key={'img-' + item}><a title={fileName} onClick={this.clickPreview.bind(this, itemUrl)} className="img-thumbnail img-upload zoom-in" href={itemUrl} target="_blank" rel="noopener noreferrer"><img src={itemUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a></span>
       })}
@@ -524,27 +541,15 @@ class RbFormImage extends RbFormElement {
     if (this.state.viewMode === true) return
 
     let that = this
-    let mprogress
-    $(that.refs['upload-input']).html5Uploader({
-      name: that.props.field,
-      postUrl: rb.baseUrl + '/filex/upload?cloud=auto&type=image',
-      onSelectError: function (field, error) {
-        if (error === 'ErrorType') rb.highbar('请上传图片')
-      },
-      onClientLoad: function (e, file) {
-        mprogress = new Mprogress({ template: 3 })
-        mprogress.start()
-      },
-      onSuccess: function (d) {
-        if (mprogress === null) return false
-        mprogress.end()
-        d = JSON.parse(d.currentTarget.response)
-        if (d.error_code === 0) {
-          let paths = that.state.value
-          paths.push(d.data)
-          that.handleChange({ target: { value: paths } }, true)
-        } else rb.hberror(d.error_msg || '上传失败，请稍后重试')
-      }
+    let mp
+    $createUploader(this.refs['upload-input'], function (res) {
+      if (!mp) mp = new Mprogress({ template: 1, start: true })
+      mp.set(res.percent / 100)  // 0.x
+    }, function (res) {
+      if (mp) mp.end()
+      let paths = that.state.value
+      paths.push(res.key)
+      that.handleChange({ target: { value: paths } }, true)
     })
   }
   removeItem(item) {
@@ -559,35 +564,32 @@ class RbFormImage extends RbFormElement {
     if (err) return err
     let ups = (this.state.value || []).length
     this.setState({ showUploader: this.__maxUpload > ups })
-    if (this.__minUpload > 0 && ups < this.__minUpload) return `至少需要上传 ${this.__minUpload} 张图片`
-    if (this.__maxUpload < ups) return `最多允许上传 ${this.__maxUpload} 张图片`
+    if (this.__minUpload > 0 && ups < this.__minUpload) return `至少需要上传 ${this.__minUpload} ${this.__typeName}`
+    if (this.__maxUpload < ups) return `最多允许上传 ${this.__maxUpload} ${this.__typeName}`
   }
 }
 
 // 文件
-class RbFormFile extends RbFormElement {
+class RbFormFile extends RbFormImage {
   constructor(props) {
     super(props)
-    this.state.value = JSON.parse(props.value || '[]')
-    this.__minUpload = 0
-    this.__maxUpload = 9
-    if (this.props.uploadNumber) {
-      this.__minUpload = ~~(this.props.uploadNumber.split(',')[0] || 0)
-      this.__maxUpload = ~~(this.props.uploadNumber.split(',')[1] || 9)
-    }
+    this.__typeName = '个文件'
   }
   renderElement() {
     return (
       <div className="file-field">
         {this.state.value.map((item) => {
           let fileName = $fileCutName(item)
-          let fileIcon = $fileDetectingIcon(fileName)
-          return (<div key={'file-' + item} className="img-thumbnail" title={fileName}><i className={'ftype ' + fileIcon} /><span>{fileName}</span><b title="移除" onClick={() => this.removeItem(item)}><span className="zmdi zmdi-close"></span></b></div>)
+          let fileExt = $fileExtName(fileName)
+          return (<div key={'file-' + item} className="img-thumbnail" title={fileName}>
+            <i className="file-icon" data-type={fileExt} /><span>{fileName}</span>
+            <b title="移除" onClick={() => this.removeItem(item)}><span className="zmdi zmdi-close"></span></b>
+          </div>)
         })}
         {this.state.showUploader === false ? null :
           <div className="file-select">
             <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} />
-            <label title={'上传文件。需要 ' + this.__minUpload + '～' + this.__maxUpload + ' 个'} htmlFor={this.props.field + '-input'} className="btn-secondary">
+            <label title={'上传文件。需要 ' + this.__minUpload + '~' + this.__maxUpload + ' 个'} htmlFor={this.props.field + '-input'} className="btn-secondary">
               <i className="zmdi zmdi-upload"></i><span>上传文件</span>
             </label>
           </div>
@@ -602,51 +604,14 @@ class RbFormFile extends RbFormElement {
     }
     return (<div className="file-field">
       {this.state.value.map((item) => {
-        let itemUrl = rb.baseUrl + '/cloud/download/' + item
+        let itemUrl = rb.baseUrl + '/filex/download/' + item
         let fileName = $fileCutName(item)
-        let fileIcon = $fileDetectingIcon(fileName)
-        return <a key={'file-' + item} title={fileName} onClick={this.clickPreview.bind(this, itemUrl)} className="img-thumbnail" href={itemUrl} target="_blank" rel="noopener noreferrer"><i className={'ftype ' + fileIcon} /><span>{fileName}</span></a>
+        let fileExt = $fileExtName(fileName)
+        return <a key={'file-' + item} title={fileName} onClick={this.clickPreview.bind(this, itemUrl)} className="img-thumbnail" href={itemUrl} target="_blank" rel="noopener noreferrer">
+          <i className="file-icon" data-type={fileExt} /><span>{fileName}</span>
+        </a>
       })}
     </div>)
-  }
-  componentDidMount() {
-    super.componentDidMount()
-    if (this.state.viewMode === true) return
-
-    let that = this
-    let mprogress
-    $(that.refs['upload-input']).html5Uploader({
-      name: that.props.field,
-      postUrl: rb.baseUrl + '/filex/upload?cloud=auto',
-      onClientLoad: function (e, file) {
-        mprogress = new Mprogress({ template: 3 })
-        mprogress.start()
-      },
-      onSuccess: function (d) {
-        mprogress.end()
-        d = JSON.parse(d.currentTarget.response)
-        if (d.error_code === 0) {
-          let paths = that.state.value
-          paths.push(d.data)
-          that.handleChange({ target: { value: paths } }, true)
-        } else rb.hberror(d.error_msg || '上传失败，请稍后重试')
-      }
-    })
-  }
-  removeItem(item) {
-    let paths = this.state.value
-    paths.remove(item)
-    this.handleChange({ target: { value: paths } }, true)
-  }
-  clickPreview() {
-  }
-  checkHasError() {
-    let err = super.checkHasError()
-    if (err) return err
-    let ups = (this.state.value || []).length
-    this.setState({ showUploader: this.__maxUpload > ups })
-    if (this.__minUpload > 0 && ups < this.__minUpload) return `至少需要上传 ${this.__minUpload} 个文件`
-    if (this.__maxUpload < ups) return `最多允许上传 ${this.__maxUpload} 个文件`
   }
 }
 
@@ -725,25 +690,33 @@ class RbFormReference extends RbFormElement {
     if (this.state.viewMode === true) return
 
     let that = this
+    const entity = this.props.$$$parent.props.entity
+    let select2_input = null
     let select2 = $(this.refs['field-value']).select2({
       placeholder: '选择' + this.props.label,
-      minimumInputLength: 1,
+      minimumInputLength: 0,
       maximumSelectionLength: 1,
       ajax: {
         url: rb.baseUrl + '/commons/search/reference',
         delay: 300,
         data: function (params) {
           let query = {
-            entity: that.props.$$$parent.props.entity,
+            entity: entity,
             field: that.props.field,
             q: params.term
           }
+          select2_input = params.term
           return query
         },
         processResults: function (data) {
-          let rs = data.data.map((item) => { return item })
-          return { results: rs }
+          return { results: data.data }
         }
+      },
+      language: {
+        noResults: () => { return (select2_input || '').length > 0 ? '未找到结果' : '输入关键词搜索' },
+        inputTooShort: () => { return '输入关键词搜索' },
+        searching: () => { return '搜索中...' },
+        maximumSelected: () => { return '只能选择 1 项' }
       }
     })
     this.__select2 = select2
@@ -756,8 +729,11 @@ class RbFormReference extends RbFormElement {
       }
       select2.trigger('change')
       select2.on('change.select2', function (e) {
-        // TODO Clear 触发两次 ???
-        that.handleChange({ target: { value: e.target.value } }, true)
+        let v = e.target.value
+        if (v) {
+          $.post(`${rb.baseUrl}/commons/search/recently-add?id=${v}`)
+        }
+        that.handleChange({ target: { value: v } }, true)
       })
     }, 100)
   }
@@ -778,11 +754,11 @@ class RbFormAvatar extends RbFormElement {
     super(props)
   }
   renderElement() {
-    let aUrl = rb.baseUrl + (this.state.value ? `/cloud/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
+    let aUrl = rb.baseUrl + (this.state.value ? `/filex/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
     return (
       <div className="img-field avatar">
         <span title="选择头像图片">
-          <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} accept="image/*" />
+          <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} accept="image/png,image/jpeg,image/gif" />
           <label htmlFor={this.props.field + '-input'} className="img-thumbnail img-upload">
             <img src={aUrl} />
           </label>
@@ -791,7 +767,7 @@ class RbFormAvatar extends RbFormElement {
     )
   }
   renderViewElement() {
-    let aUrl = rb.baseUrl + (this.state.value ? `/cloud/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
+    let aUrl = rb.baseUrl + (this.state.value ? `/filex/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
     return (
       <div className="img-field avatar">
         <a className="img-thumbnail img-upload"><img src={aUrl} /></a>
@@ -801,21 +777,13 @@ class RbFormAvatar extends RbFormElement {
   componentDidMount() {
     super.componentDidMount()
     let that = this
-    $(that.refs['upload-input']).html5Uploader({
-      name: that.props.field,
-      postUrl: rb.baseUrl + '/filex/upload?cloud=auto&type=image',
-      onClientLoad: function (e, file) {
-        if (file.type.substr(0, 5) !== 'image') {
-          rb.highbar('请上传图片')
-          return false
-        }
-      },
-      onSuccess: function (d) {
-        d = JSON.parse(d.currentTarget.response)
-        if (d.error_code === 0) {
-          that.handleChange({ target: { value: d.data } }, true)
-        } else rb.hberror(d.error_msg || '上传失败，请稍后重试')
-      }
+    let mp
+    $createUploader(this.refs['upload-input'], function (res) {
+      if (!mp) mp = new Mprogress({ template: 1, start: true })
+      mp.set(res.percent / 100)  // 0.x
+    }, function (res) {
+      if (mp) mp.end()
+      that.handleChange({ target: { value: res.key } }, true)
     })
   }
 }
@@ -960,6 +928,7 @@ var detectElementExt = function (item) {
 
 // -- for View
 
+const VIEW_LOAD_DELAY = 200  // 0.2s in rb-page.css '.rbview.show .modal-content'
 //~~ 右侧滑出视图窗口
 class RbViewModal extends React.Component {
   constructor(props) {
@@ -971,7 +940,7 @@ class RbViewModal extends React.Component {
   render() {
     return (this.state.isDestroy === true ? null :
       <div className="modal-warpper">
-        <div className="modal rbview" ref="rbview">
+        <div className="modal rbview" ref={(c) => this._rbview = c}>
           <div className="modal-dialog">
             <div className="modal-content" style={{ width: this.mcWidth + 'px' }}>
               <div className={'modal-body iframe rb-loading ' + (this.state.inLoad === true && 'rb-loading-active')}>
@@ -985,9 +954,9 @@ class RbViewModal extends React.Component {
     )
   }
   componentDidMount() {
-    let that = this
-    let root = $(this.refs['rbview'])
+    let root = $(this._rbview)
     let mc = root.find('.modal-content')
+    let that = this
     root.on('hidden.bs.modal', function () {
       mc.css({ 'margin-right': -1500 })
       that.setState({ inLoad: true, isHide: true })
@@ -999,13 +968,19 @@ class RbViewModal extends React.Component {
         root.modal('dispose')
         let warp = root.parent().parent()
         that.setState({ isDestroy: true }, function () {
-          rb.__currentRbFormModalCache[that.state.id] = null
+          rb.__currentRbFormModalHolds[that.state.id] = null
           setTimeout(function () { warp.remove() }, 500)
         })
       }
 
     }).on('shown.bs.modal', function () {
       mc.css('margin-right', 0)
+      if (that.__urlChanged === false) {
+        let cw = mc.find('iframe')[0].contentWindow
+        if (cw.RbViewPage && cw.RbViewPage._RbViewForm) cw.RbViewPage._RbViewForm.showAgain(that)
+        this.__urlChanged = true
+      }
+
       let mcs = $('body>.modal-backdrop.show')
       if (mcs.length > 1) {
         mcs.addClass('o')
@@ -1017,22 +992,24 @@ class RbViewModal extends React.Component {
   hideLoading() {
     this.setState({ inLoad: false, isHide: false })
   }
+  showLoading() {
+    this.setState({ inLoad: true, isHide: true })
+  }
   show(url, ext) {
     let urlChanged = true
     if (url && url === this.state.url) urlChanged = false
     ext = ext || {}
     url = url || this.state.url
-    let root = $(this.refs['rbview'])
-    let that = this
-    this.setState({ ...ext, url: url, inLoad: urlChanged, isHide: urlChanged }, function () {
-      root.modal({ show: true, backdrop: true })
-      setTimeout(function () {
-        that.setState({ showAfterUrl: that.state.url })
-      }, 400)
+    this.__urlChanged = urlChanged
+    this.setState({ ...ext, url: url, inLoad: urlChanged, isHide: urlChanged }, () => {
+      $(this._rbview).modal({ show: true, backdrop: true, keyboard: false })
+      setTimeout(() => {
+        this.setState({ showAfterUrl: this.state.url })
+      }, VIEW_LOAD_DELAY)
     })
   }
   hide() {
-    let root = $(this.refs['rbview'])
+    let root = $(this._rbview)
     root.modal('hide')
   }
 }
@@ -1065,7 +1042,9 @@ class DeleteConfirm extends RbAlert {
                     </label>
                     <div className={' ' + (this.state.enableCascade ? '' : 'hide')}>
                       <select className="form-control form-control-sm" ref={(c) => this._cascades = c} multiple="multiple">
-                        {(this.state.cascadesEntity || []).map((item) => { return <option key={'option-' + item[0]} value={item[0]}>{item[1]}</option> })}
+                        {(this.state.cascadesEntity || []).map((item) => {
+                          return <option key={'option-' + item[0]} value={item[0]}>{item[1]}</option>
+                        })}
                       </select>
                     </div>
                   </div>
@@ -1087,7 +1066,8 @@ class DeleteConfirm extends RbAlert {
       $.get(rb.baseUrl + '/commons/metadata/references?entity=' + this.props.entity, (res) => {
         this.setState({ cascadesEntity: res.data }, () => {
           this.__select2 = $(this._cascades).select2({
-            placeholder: '选择关联实体 (可选)'
+            placeholder: '选择关联实体 (可选)',
+            width: '88%'
           }).val(null).trigger('change')
         })
       })
@@ -1242,34 +1222,34 @@ rb.RbFormModal = function (props) {
 }
 
 rb.__currentRbViewModal
-rb.__currentRbFormModalCache = {}
+rb.__currentRbFormModalHolds = {}
 // @props = { id, entity }
 rb.RbViewModal = function (props, subView) {
-  let viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
+  const viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
   if (subView === true) {
     rb.RbViewModalHide(props.id)
     let m = renderRbcomp(<RbViewModal url={viewUrl} disposeOnHide={true} id={props.id} subView={true} />)
-    rb.__currentRbFormModalCache[props.id] = m
+    rb.__currentRbFormModalHolds[props.id] = m
     return m
   }
 
   if (rb.__currentRbViewModal) rb.__currentRbViewModal.show(viewUrl)
   else rb.__currentRbViewModal = renderRbcomp(<RbViewModal url={viewUrl} />)
-  rb.__currentRbFormModalCache[props.id] = rb.__currentRbViewModal
+  rb.__currentRbFormModalHolds[props.id] = rb.__currentRbViewModal
   return rb.__currentRbViewModal
 }
 rb.RbViewModalGet = function (id) {
-  return rb.__currentRbFormModalCache[id]
+  return rb.__currentRbFormModalHolds[id]
 }
 
 rb.RbViewModalHide = function (id) {
   if (!id) {
     if (rb.__currentRbViewModal) rb.__currentRbViewModal.hide()
   } else {
-    let cm = rb.__currentRbFormModalCache[id]
-    if (cm) {
-      cm.hide()
-      rb.__currentRbFormModalCache[id] = null
+    let c = rb.__currentRbFormModalHolds[id]
+    if (c) {
+      c.hide()
+      rb.__currentRbFormModalHolds[id] = null
     }
   }
 }
@@ -1277,7 +1257,7 @@ rb.RbViewModalHideLoading = function (id) {
   if (!id) {
     if (rb.__currentRbViewModal) rb.__currentRbViewModal.hideLoading()
   } else {
-    let m = rb.__currentRbFormModalCache[id]
+    let m = rb.__currentRbFormModalHolds[id]
     if (m) m.hideLoading()
   }
 }

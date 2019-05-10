@@ -23,9 +23,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -33,14 +30,18 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.rebuild.server.helper.QiniuCloud;
-import com.rebuild.server.helper.SystemConfig;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.utils.AppUtils;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
 
 /**
@@ -49,38 +50,38 @@ import cn.devezhao.commons.web.ServletUtils;
  * @author zhaofang123@gmail.com
  * @since 11/06/2017
  */
-public class FileUploader extends HttpServlet {
-	private static final long serialVersionUID = 5264645972230896850L;
+@RequestMapping("/filex/")
+@Controller
+public class FileUploader {
 	
 	private static final Log LOG = LogFactory.getLog(FileUploader.class);
 	
-	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	@RequestMapping(value = "upload", method = RequestMethod.POST)
+	public void upload(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String uploadName = null;
 		try {
-			List<FileItem> fileItems = parseFileItem(req);
+			List<FileItem> fileItems = parseFileItem(request);
 			for (FileItem item : fileItems) {
 				uploadName = item.getName();
 				if (uploadName == null) {
 					continue;
 				}
 				
-				if (uploadName.length() > 43) {
-					uploadName = uploadName.substring(0, 20) + "..." + uploadName.substring(uploadName.length() - 20);
+				uploadName = QiniuCloud.formatFileKey(uploadName);
+				File file = null;
+				// 上传临时文件
+				if (BooleanUtils.toBoolean(request.getParameter("temp"))) {
+					uploadName = uploadName.split("/")[2];
+					file = SysConfiguration.getFileOfTemp(uploadName);
+				} else {
+					file = SysConfiguration.getFileOfData(uploadName);
+					FileUtils.forceMkdir(file.getParentFile());
 				}
-				uploadName = CalendarUtils.getDateFormat("HHmmssSSS").format(CalendarUtils.now()) + "__" + uploadName;
 				
-				File temp = SystemConfig.getFileOfTemp(uploadName);
-				item.write(temp);
-				if (!temp.exists()) {
-					ServletUtils.writeJson(resp, AppUtils.formatControllMsg(1000, "上传失败"));
+				item.write(file);
+				if (!file.exists()) {
+					ServletUtils.writeJson(response, AppUtils.formatControllMsg(1000, "上传失败"));
 					return;
-				}
-				
-				String cloud = req.getParameter("cloud");
-				if ("true".equals(cloud) || "auto".equals(cloud)) {
-					uploadName = QiniuCloud.instance().upload(temp);
-					temp.delete();
 				}
 				break;
 			}
@@ -91,23 +92,19 @@ public class FileUploader extends HttpServlet {
 		}
 		
 		if (uploadName != null) {
-			ServletUtils.writeJson(resp, AppUtils.formatControllMsg(0, uploadName));
+			ServletUtils.writeJson(response, AppUtils.formatControllMsg(0, uploadName));
 		} else {
-			ServletUtils.writeJson(resp, AppUtils.formatControllMsg(1000, "上传失败"));
+			ServletUtils.writeJson(response, AppUtils.formatControllMsg(1000, "上传失败"));
 		}
 	}
 	
 	// ----
 	
-	private FileItemFactory fileItemFactory;
-	
-	@Override
-	public void init(ServletConfig config) throws ServletException {
-		super.init(config);
-		File track = SystemConfig.getFileOfTemp("track");
+	private static FileItemFactory fileItemFactory;
+	static {
+		File track = SysConfiguration.getFileOfTemp("track");
 		if (!track.exists() || !track.isDirectory()) {
-			boolean mked = track.mkdir();
-			if (!mked) {
+			if (!track.mkdirs()) {
 				throw new ExceptionInInitializerError("Could't mkdir track repository");
 			}
 		}
@@ -115,21 +112,25 @@ public class FileUploader extends HttpServlet {
 				DiskFileItemFactory.DEFAULT_SIZE_THRESHOLD * 2/*20MB*/, track);
 	}
 	
-	/*-
+	/**
 	 * 读取上传的文件列表
+	 * 
+	 * @param request
+	 * @return
+	 * @throws Exception
 	 */
-	private List<FileItem> parseFileItem(HttpServletRequest request) throws Exception {
+	private static List<FileItem> parseFileItem(HttpServletRequest request) throws Exception {
 		if (!ServletFileUpload.isMultipartContent(request)) {
 			return Collections.<FileItem>emptyList();
 		}
 		
-		ServletFileUpload upload = new ServletFileUpload(this.fileItemFactory);
+		ServletFileUpload upload = new ServletFileUpload(fileItemFactory);
 		List<FileItem> files = null;
 		try {
 			files = upload.parseRequest(request);
 		} catch (Exception ex) {
 			if (ex instanceof IOException || ex.getCause() instanceof IOException) {
-				LOG.warn("I/O, 传输意外中断, 客户端取消???", ex);
+				LOG.warn("传输意外中断", ex);
 				return Collections.<FileItem>emptyList();
 			}
 			throw ex;

@@ -26,14 +26,14 @@
 							<div class="col-12 col-md-6">
 								<div class="dataTables_filter">
 									<div class="adv-search float-left">
-										<div class="btn-group">
+										<div class="btn-group btn-space">
 											<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="text-truncate J_name">全部数据</span><i class="icon zmdi zmdi-caret-down"></i></button>
 											<div class="dropdown-menu rb-scroller"><div class="dropdown-item" data-id="$ALL$"><a>全部数据</a></div></div>
 											<div class="input-group-append"><button title="高级查询" class="btn btn-secondary J_advfilter" type="button"><i class="icon zmdi zmdi-filter-list"></i></button></div>
 										</div>
 									</div>
 									<div class="input-group input-search">
-										<input class="form-control" type="text" placeholder="查询${entityLabel}">
+										<input class="form-control" type="text" placeholder="查询${entityLabel}" maxlength="40">
 										<span class="input-group-btn"><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button></span>
 									</div>
 								</div>
@@ -72,9 +72,9 @@ window.__PageConfig = {
 	advFilter: true
 }
 </script>
-<script src="${baseUrl}/assets/js/rb-list.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-datalist.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/assign-share.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-assignshare.jsx" type="text/babel"></script>
 </body>
 </html>

@@ -30,8 +30,8 @@ public class SystemConfigTest extends TestSupport {
 
 	@Test
 	public void testKnowConfig() throws Exception {
-		for (ConfigItem item : ConfigItem.values()) {
-			String v = SystemConfig.get(item);
+		for (ConfigurableItem item : ConfigurableItem.values()) {
+			String v = SysConfiguration.get(item, null);
 			System.out.println(item + " = " + v);
 		}
 	}

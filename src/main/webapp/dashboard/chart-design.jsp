@@ -46,21 +46,26 @@
 				<div class="data-info">
 					<h5>图表类型</h5>
 					<div class="chart-type">
-						<a title="表格" data-type="TABLE" data-allow-dims="0|3" data-allow-nums="1|9"><i class="C200"></i></a>
+						<a title="表格" data-type="TABLE" data-allow-dims="0|3" data-allow-nums="0|9"><i class="C200"></i></a>
 						<a title="指标卡" data-type="INDEX" data-allow-dims="0|0" data-allow-nums="1|1"><i class="C310"></i></a>
 						<a title="折线图" data-type="LINE" data-allow-dims="1|1" data-allow-nums="1|9"><i class="C220"></i></a>
 						<a title="柱状图" data-type="BAR" data-allow-dims="1|1" data-allow-nums="1|9"><i class="C210"></i></a>
 						<a title="饼图" data-type="PIE" data-allow-dims="1|1" data-allow-nums="1|1"><i class="C230"></i></a>
-						<!--
-						<a title="漏斗图" data-toggle="tooltip" data-type="FUNNEL" data-allow-dims="1|1" data-allow-nums="1|1"><i class="C330"></i></a>
-						-->
+						<a title="漏斗图" data-type="FUNNEL" data-allow-dims="0|1" data-allow-nums="1|9"><i class="C330"></i></a>
+						<a title="树图" data-type="TREEMAP" data-allow-dims="1|3" data-allow-nums="0|1"><i class="C370"></i></a>
 					</div>
 				</div>
 				<div class="data-info mt-3">
-					<h5>图表样式</h5>
+					<h5>图表选项</h5>
 					<div class="pl-1 mt-3 chart-option">
 						<div class="J_opt-UNDEF active">
 							此图表无选项
+						</div>
+						<div class="admin-show J_opt-TABLE J_opt-INDEX J_opt-LINE J_opt-BAR J_opt-PIE J_opt-FUNNEL J_opt-TREEMAP">
+							<label class="custom-control custom-control-sm custom-checkbox mb-2">
+								<input class="custom-control-input" type="checkbox" data-name="noPrivileges">
+								<span class="custom-control-label"> 使用全部数据 <i class="zmdi zmdi-help zicon" title="不启用则仅能使用权限范围内的数据"></i></span>
+							</label>
 						</div>
 						<div class="J_opt-TABLE">
 							<label class="custom-control custom-control-sm custom-checkbox mb-2">
@@ -77,15 +82,15 @@
 			</div>
 		</aside>
 		<div class="main-content container-fluid">
-			<div class="axis-warp">
-				<div class="axis">
+			<div class="axis-editor">
+				<div class="axis J_dimension">
 					<div class="axis-head">
 						<span>纬度</span>
 						<a><i class="zmdi zmdi-edit"></i></a>
 					</div>
 					<div class="axis-target J_axis-dim"></div>
 				</div>
-				<div class="axis">
+				<div class="axis J_numerical">
 					<div class="axis-head">
 						<span>数值</span>
 						<a><i class="zmdi zmdi-edit"></i></a>
@@ -116,7 +121,7 @@
 	<li class="dropdown-item J_date" data-calc="D">按日</li>
 	<li class="dropdown-item J_date" data-calc="H">按时</li>
 	<li class="dropdown-divider"></li>
-	<li class="dropdown-submenu">
+	<li class="dropdown-submenu J_sort">
 		<a class="dropdown-item">排序</a>
 		<ul class="dropdown-menu">
 			<li class="dropdown-item" data-sort="NONE">默认</li>
@@ -133,7 +138,8 @@
 window.__PageConfig = {
 	sourceEntity: '${entityName}',
 	chartId: '${chartId}',
-	chartConfig: ${chartConfig} || {}
+	chartConfig: ${chartConfig} || {},
+	chartOwningAdmin: ${chartOwningAdmin}
 }
 </script>
 <script src="${baseUrl}/assets/lib/charts/echarts.min.js"></script>

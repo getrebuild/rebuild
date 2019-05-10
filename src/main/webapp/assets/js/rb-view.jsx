@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-/* eslint-disable react/no-string-refs */
 //~~ 视图
 class RbViewForm extends React.Component {
   constructor(props) {
@@ -7,24 +6,24 @@ class RbViewForm extends React.Component {
     this.state = { ...props }
   }
   render() {
-    return (<div className="rbview-form" ref="reviewForm">{this.state.formComponent}</div>)
+    return (<div className="rbview-form" ref={(c) => this._viewForm = c}>{this.state.formComponent}</div>)
   }
   componentDidMount() {
-    let that = this
-    $.get(rb.baseUrl + '/app/' + this.props.entity + '/view-model?id=' + this.props.id, function (res) {
-      // 包含错误
+    $.get(`${rb.baseUrl}/app/${this.props.entity}/view-model?id=${this.props.id}`, (res) => {
+      // 有错误
       if (res.error_code > 0 || !!res.data.error) {
-        let error = res.data.error || res.error_msg
-        that.renderViewError(error)
+        let err = res.data.error || res.error_msg
+        this.renderViewError(err)
         return
       }
 
-      const FORM = <div className="row">{res.data.elements.map((item) => {
+      let vform = <div className="row">{res.data.elements.map((item) => {
         return detectViewElement(item)
       })}</div>
-      that.setState({ formComponent: FORM }, function () {
-        that.hideLoading()
+      this.setState({ formComponent: vform }, () => {
+        this.hideLoading()
       })
+      this.__lastModified = res.data.lastModified || 0
     })
   }
   renderViewError(message) {
@@ -32,16 +31,33 @@ class RbViewForm extends React.Component {
       <div className="icon"><i className="zmdi zmdi-alert-triangle"></i></div>
       <div className="message" dangerouslySetInnerHTML={{ __html: '<strong>抱歉!</strong> ' + message }}></div>
     </div>
-    let that = this
-    that.setState({ formComponent: error }, function () {
-      that.hideLoading()
+    this.setState({ formComponent: error }, () => {
+      this.hideLoading()
     })
     $('.view-operating .view-action').empty()
   }
 
   hideLoading() {
     if (parent && parent.rb.RbViewModalGet(this.state.id)) parent.rb.RbViewModalGet(this.state.id).hideLoading()
-    $(this.refs['reviewForm']).find('.type-NTEXT .form-control-plaintext').perfectScrollbar()
+    $(this._viewForm).find('.type-NTEXT .form-control-plaintext').perfectScrollbar()
+  }
+
+  showAgain(handle) {
+    this.checkDrityData(handle)
+  }
+  checkDrityData(handle) {
+    if (!this.__lastModified || !this.state.id) return
+    $.get(`${rb.baseUrl}/app/entity/record-lastModified?id=${this.state.id}`, (res) => {
+      if (res.error_code === 0) {
+        if (res.data.lastModified !== this.__lastModified) {
+          handle && handle.showLoading()
+          setTimeout(() => { location.reload() }, window.VIEW_LOAD_DELAY || 200)
+        }
+      } else if (res.error_msg === 'NO_EXISTS') {
+        this.renderViewError('此记录已被删除')
+        $('.view-operating').empty()
+      }
+    })
   }
 }
 
@@ -57,19 +73,11 @@ const UserShow = function (props) {
   let viewUrl = props.id ? ('#!/View/User/' + props.id) : null
   return (<a href={viewUrl} className="user-show" title={props.name} onClick={props.onClick}>
     <div className={'avatar' + (props.showName === true ? ' float-left' : '')}>{props.icon ? <i className={props.icon} /> : <img src={props.avatarUrl} />}</div>
-    {props.showName === true ? <div className="name">{props.name}{props.deptName ? <em>{props.deptName}</em> : null}</div> : null}
+    {props.showName === true ? <div className="name text-truncate">{props.name}{props.deptName ? <em>{props.deptName}</em> : null}</div> : null}
   </a>)
 }
 
-// -- Usage
-
 let rb = rb || {}
-
-// props = { entity, recordId }
-rb.RbViewForm = function (props, target) {
-  return renderRbcomp(<RbViewForm {...props} />, target || 'tab-rbview')
-}
-
 const RbViewPage = {
   _RbViewForm: null,
 
@@ -80,7 +88,7 @@ const RbViewPage = {
     this.__id = id
     this.__entity = entity
     this.__ep = ep
-    this._RbViewForm = rb.RbViewForm({ entity: entity[0], id: id })
+    this._RbViewForm = renderRbcomp(<RbViewForm entity={entity[0]} id={id} />, 'tab-rbview')
 
     const that = this
 
@@ -88,7 +96,6 @@ const RbViewPage = {
       let deleteAfter = function () {
         that.hide(true)
       }
-      // eslint-disable-next-line react/jsx-no-undef
       renderRbcomp(<DeleteConfirm id={this.__id} entity={entity[0]} deleteAfter={deleteAfter} />)
     })
     $('.J_edit').click(() => {
@@ -116,12 +123,8 @@ const RbViewPage = {
       that.__cleanButton()
     }
 
-    $('.J_close').click(() => {
-      if (parent && parent.rb.RbViewModalGet(id)) parent.rb.RbViewModalGet(id).hide()
-    })
-    $('.J_reload').click(() => {
-      location.reload()
-    })
+    $('.J_close').click(() => { this.hide() })
+    $('.J_reload').click(() => { this.reload() })
   },
 
   initRecordMeta() {
@@ -144,10 +147,10 @@ const RbViewPage = {
           if (this.__ep && this.__ep.S === true) {
             let item_op = $('<li class="list-inline-item"></li>').appendTo(list)[0]
             if (v.length === 0) renderRbcomp(<UserShow name="添加共享" icon="zmdi zmdi-plus" onClick={() => { $('.J_share').trigger('click') }} />, item_op)
-            else renderRbcomp(<UserShow name="管理共享用户" icon="zmdi zmdi-more" onClick={() => { rb.DlgUnShare(this.__id) }} />, item_op)
+            else renderRbcomp(<UserShow name="管理共享用户" icon="zmdi zmdi-more" onClick={() => { rb.DlgShareManager(this.__id) }} />, item_op)
           } else if (v.length > 0) {
             let item_op = $('<li class="list-inline-item"></li>').appendTo(list)[0]
-            renderRbcomp(<UserShow name="查看共享用户" icon="zmdi zmdi-more" onClick={() => { rb.DlgUnShare(this.__id, false) }} />, item_op)
+            renderRbcomp(<UserShow name="查看共享用户" icon="zmdi zmdi-more" onClick={() => { rb.DlgShareManager(this.__id, false) }} />, item_op)
           } else {
             $('.J_sharingList').parent().remove()
           }
@@ -196,7 +199,7 @@ const RbViewPage = {
 
     $('.J_view-addons').click(function () {
       let type = $(this).data('type')
-      rb.modal(`${rb.baseUrl}/p/admin/entity/view-addons?entity=${that.__entity[0]}&type=${type}`, '配置' + (type === 'TAB' ? '显示项' : '新建项'))
+      rb.modal(`${rb.baseUrl}/p/admin/entityhub/view-addons?entity=${that.__entity[0]}&type=${type}`, '配置' + (type === 'TAB' ? '显示项' : '新建项'))
     })
 
     this.updateVTabs()
@@ -275,6 +278,12 @@ const RbViewPage = {
       if (parent.RbListPage) parent.RbListPage._RbList.reload()
       else setTimeout(function () { parent.location.reload() }, 1000)
     }
+  },
+
+  // 重新加載
+  reload() {
+    if (parent && parent.rb.RbViewModalGet(this.__id)) parent.rb.RbViewModalGet(this.__id).showLoading()
+    setTimeout(() => { location.reload() }, 20)
   }
 }
 

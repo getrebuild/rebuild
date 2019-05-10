@@ -3,7 +3,7 @@
 let dashid = null
 let dash_editable = false
 $(document).ready(function () {
-  $('.chart-grid').height($(window).height() - 120)
+  win_resize(100)
 
   let d = $urlp('d')
   if (d) $storage.set('DashDefault', d)
@@ -34,10 +34,13 @@ $(document).ready(function () {
         rb.hbsuccess('仪表盘已删除')
         location.hash = ''
       } else {
-        let high = $('#chart-' + location.hash.substr(1) + ' > .chart-box').addClass('high')
-        high.on('mouseleave', () => {
-          high.removeClass('high')
-        })
+        let high = $('#chart-' + location.hash.substr(1)).addClass('high')
+        if (high.length > 0) {
+          high.on('mouseleave', () => {
+            high.removeClass('high').off('mouseleave')
+          })
+          $gotoSection(high.offset().top - 115, '.chart-grid')
+        }
       }
     }
 
@@ -47,16 +50,31 @@ $(document).ready(function () {
     $('.J_dash-edit').click(() => { show_dlg('DlgDashSettings', { title: d[1], shareToAll: d[4] === 'ALL' }) })
     $('.J_chart-new').click(() => { show_dlg('DlgAddChart') })
     $('.J_dash-select').click(() => { show_dlg('DashSelect', { dashList: dash_list }) })
-    $('.J_chart-select').click(() => { show_dlg('ChartSelect', { dlgClazz: 'dlg-chart-select', dlgTitle: '选择图表' }) })
+    $('.J_chart-select').click(() => {
+      let dlg = show_dlg('ChartSelect')
+      let appended = []
+      $('.grid-stack-item-content').each(function () {
+        let chid = $(this).attr('id').substr(6)
+        appended.push(chid)
+      })
+      dlg.setState({ appended: appended })
+    })
   }))
+
+  $(window).resize(win_resize)
 })
+
+let on_resizestart = false
 let rendered_charts = []
-$(window).resize(() => {
+let win_resize = function (t) {
+  if (on_resizestart === true) return
   $setTimeout(() => {
-    $('.chart-grid').height($(window).height() - 120)
+    let cg = $('.chart-grid')
+    if ($(window).width() >= 768) cg.height($(window).height() - 142)
+    else cg.height('auto')
     $(rendered_charts).each((idx, item) => { item.resize() })
-  }, 200, 'resize-charts')
-})
+  }, t || 400, 'resize-charts')
+}
 
 const dlg_cached = {}
 const show_dlg = (t, props) => {
@@ -68,77 +86,87 @@ const show_dlg = (t, props) => {
   else if (t === 'DlgDashSettings') dlg_cached[t] = renderRbcomp(<DlgDashSettings {...props} />)
   else if (t === 'DashSelect') dlg_cached[t] = renderRbcomp(<DashSelect {...props} />)
   else if (t === 'ChartSelect') dlg_cached[t] = renderRbcomp(<ChartSelect {...props} />)
+  return dlg_cached[t]
 }
 
-let gridster = null
-let gridster_undata = true
-let render_dashboard = function (cfg) {
-  gridster = $('.gridster ul').gridster({
-    widget_base_dimensions: ['auto', 100],
-    autogenerate_stylesheet: true,
-    min_cols: 1,
-    max_cols: 12,
-    widget_margins: [10, 10],
-    resize: {
-      enabled: true,
-      min_size: [2, 2],
-      // eslint-disable-next-line no-unused-vars
-      stop: function (e, ui, $widget) {
-        $(window).trigger('resize')
-        save_dashboard()
-      }
-    },
-    draggable: {
-      handle: '.chart-title',
-      // eslint-disable-next-line no-unused-vars
-      stop: function (e, ui, $widget) {
-        save_dashboard()
-      }
-    },
-    serialize_params: function ($w, wgd) {
-      return {
-        col: wgd.col,
-        row: wgd.row,
-        size_x: wgd.size_x,
-        size_y: wgd.size_y,
-        chart: $w.data('chart')
-      }
-    }
-  }).data('gridster')
+let gridstack
+let gridstack_serialize
+let render_dashboard = function (init) {
+  gridstack = $('.grid-stack').gridstack({
+    cellHeight: 60,
+    handleClass: 'chart-title',
+    animate: true,
+    auto: false,
+    verticalMargin: 20
+  }).data('gridstack')
 
-  gridster.remove_all_widgets()
-  rendered_charts = []
-  $(cfg).each((idx, item) => {
-    let elid = 'chart-' + item.chart
-    let el = '<li data-chart="' + item.chart + '"><div id="' + elid + '"></div><span class="handle-resize"></span></li>'
-    gridster.add_widget(el, item.size_x || 2, item.size_y || 2, item.col || null, item.row || null)
-    // eslint-disable-next-line no-undef
-    let c = renderRbcomp(detectChart(item, item.chart, dash_editable), elid)
-    rendered_charts.push(c)
-  })
+  gridstack_serialize = init
+  $(init).each((idx, item) => { add_widget(item) })
   if (rendered_charts.length === 0) {
-    let el = '<li><a class="chart-add" onclick="show_dlg(\'DlgAddChart\')"><i class="zmdi zmdi-plus"></i><p>添加图表</p></a></li>'
-    gridster.add_widget(el, 2, 2)
-    gridster.disable_resize()
-  } else {
-    gridster_undata = false
+    let gsi = '<div class="grid-stack-item"><div id="chart-add" class="grid-stack-item-content"><a class="chart-add" onclick="show_dlg(\'DlgAddChart\')"><i class="zmdi zmdi-plus"></i><p>添加图表</p></a></div></div>'
+    gridstack.addWidget(gsi, 0, 0, 2, 2)
+    gridstack.disable()
   }
+
+  // When resize/re-postion/remove
+  $('.grid-stack').on('change', function () {
+    save_dashboard()
+  }).on('resizestart', function () {
+    on_resizestart = true
+  }).on('gsresizestop', function () {
+    $(rendered_charts).each((idx, item) => { item.resize() })
+    on_resizestart = false
+  })
 
   $('.chart-grid').removeClass('invisible')
   $('.J_dash-load').remove()
 }
 
+let add_widget = function (item) {
+  let chid = 'chart-' + item.chart
+  if ($('#' + chid).length > 0) return false
+
+  let chart_add = $('#chart-add')
+  if (chart_add.length > 0) gridstack.removeWidget(chart_add.parent())
+
+  let gsi = '<div class="grid-stack-item"><div id="' + chid + '" class="grid-stack-item-content"></div></div>'
+  // Use gridstar
+  if (item.size_x || item.size_y) {
+    gridstack.addWidget(gsi, (item.col || 1) - 1, (item.row || 1) - 1, item.size_x || 2, item.size_y || 2, 2, 12, 2, 12)
+  } else {
+    gridstack.addWidget(gsi, item.x, item.y, item.w, item.h, item.x === undefined, 2, 12, 2, 12)
+  }
+  // eslint-disable-next-line no-undef
+  let c = renderRbcomp(detectChart(item, item.chart, dash_editable), chid)
+  rendered_charts.push(c)
+}
+
 let save_dashboard = function () {
-  if (gridster_undata === true || dash_editable !== true) return
+  if (dash_editable !== true) return
+  let s = []
+  $('.chart-grid .grid-stack-item').each(function () {
+    let $this = $(this)
+    let chid = $this.find('.grid-stack-item-content').attr('id')
+    if (chid && chid.length > 20) {
+      s.push({
+        x: $this.attr('data-gs-x'),
+        y: $this.attr('data-gs-y'),
+        w: $this.attr('data-gs-width'),
+        h: $this.attr('data-gs-height'),
+        chart: chid.substr(6)
+      })
+    }
+  })
+  gridstack_serialize = s
   $setTimeout(() => {
-    let s = gridster.serialize()
-    // eslint-disable-next-line no-undef
-    s = Gridster.sort_by_row_and_col_asc(s)
-    $.post(rb.baseUrl + '/dashboard/dash-config?id=' + dashid, JSON.stringify(s), (() => {
-    }))
+    $.post(rb.baseUrl + '/dashboard/dash-config?id=' + dashid, JSON.stringify(gridstack_serialize), () => {
+      // eslint-disable-next-line no-console
+      console.log('Saved dashboard: ' + JSON.stringify(gridstack_serialize))
+    })
   }, 500, 'save-dashboard')
 }
 
+// 添加图表
 class DlgAddChart extends RbFormHandler {
   constructor(props) {
     super(props)
@@ -166,9 +194,7 @@ class DlgAddChart extends RbFormHandler {
       $(res.data).each(function () {
         $('<option value="' + this.name + '">' + this.label + '</option>').appendTo(entity_el)
       })
-      this.__select2 = entity_el.select2({
-        placeholder: '选择数据来源'
-      })
+      this.__select2 = entity_el.select2({ placeholder: '选择数据来源' })
     })
   }
   next() {
@@ -178,7 +204,7 @@ class DlgAddChart extends RbFormHandler {
   }
 }
 
-
+// 面板设置
 class DlgDashSettings extends RbFormHandler {
   constructor(props) {
     super(props)
@@ -239,6 +265,7 @@ class DlgDashSettings extends RbFormHandler {
   }
 }
 
+// 添加面板
 class DlgDashAdd extends RbFormHandler {
   constructor(props) {
     super(props)
@@ -272,7 +299,7 @@ class DlgDashAdd extends RbFormHandler {
   save = () => {
     let _data = { title: this.state.title || '我的仪表盘' }
     _data.metadata = { entity: 'DashboardConfig' }
-    if (this.state.copy === true) _data.__copy = gridster.serialize()
+    if (this.state.copy === true) _data.__copy = gridstack_serialize
 
     $.post(rb.baseUrl + '/dashboard/dash-new', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
@@ -282,7 +309,8 @@ class DlgDashAdd extends RbFormHandler {
   }
 }
 
-class DashPanel extends React.Component {
+// 选择默认面板
+class DashSelect extends React.Component {
   constructor(props) {
     super(props)
   }
@@ -292,25 +320,21 @@ class DashPanel extends React.Component {
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <h4>{this.props.dlgTitle || ''}</h4>
               <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
             </div>
             <div className="modal-body">
-              {this.renderPanel()}
+              <div ref={s => this._scrollbar = s}>
+                <ul className="list-unstyled">
+                  {(this.props.dashList || []).map((item) => {
+                    return <li key={'dash-' + item[0]}><a href={'?d=' + item[0]}>{item[1]}<i className="icon zmdi zmdi-arrow-right"></i></a></li>
+                  })}
+                </ul>
+              </div>
             </div>
           </div>
         </div>
       </div>
     )
-  }
-  renderPanel() {
-    return (<ul className="list-unstyled">
-      {(this.props.dashList || []).map((item) => {
-        let title = item[1]
-        if (item[0] === dashid) title = this.state.dashTitle || $('.dash-head h4').text() || title
-        return <li key={'dash-' + item[0]}><a href={'?d=' + item[0]}>{title}<i className="icon zmdi zmdi-arrow-right"></i></a></li>
-      })}
-    </ul>)
   }
   componentDidMount() {
     this.show()
@@ -323,40 +347,43 @@ class DashPanel extends React.Component {
   }
 }
 
-class DashSelect extends DashPanel {
-  constructor(props) {
-    super(props)
-    this.state = { dashTitle: null }
-  }
-  renderPanel() {
-    return (
-      <div ref={s => this._scrollbar = s}>
-        <ul className="list-unstyled">
-          {(this.props.dashList || []).map((item) => {
-            let title = item[1]
-            if (item[0] === dashid) title = this.state.dashTitle || $('.dash-head h4').text() || title
-            return <li key={'dash-' + item[0]}><a href={'?d=' + item[0]}>{title}<i className="icon zmdi zmdi-arrow-right"></i></a></li>
-          })}
-        </ul>
-      </div>
-    )
-  }
-  componentDidMount() {
-    super.componentDidMount()
-    $(this._scrollbar).perfectScrollbar()
-  }
-}
-
-// TODO 从已有图表中选择图表
+// 从已有图表中选择图表
 // 添加的图表会在多个仪表盘共享（本身就是一个），修改时会同步修改
-class ChartSelect extends DashPanel {
+class ChartSelect extends RbModalHandler {
   constructor(props) {
     super(props)
+    this.state = { chartList: [], appended: props.appended || [] }
   }
-  renderPanel() {
-    return (<a>TODO</a>)
+  render() {
+    return (<RbModal ref={(c) => this._dlg = c} title="添加已有图表">
+      <div className="chart-list">
+        {this.state.chartList.map((item) => {
+          return (<div key={'k-' + item[0]}>
+            <span className="float-left chart-icon"><i className={item[2]}></i></span>
+            <span className="float-left title">
+              <strong>{item[1]}</strong>
+              <p className="text-muted fs-12">{item[3]}</p>
+            </span>
+            <span className="float-right">
+              {this.state.appended.contains(item[0])
+                ? <a className='btn disabled' data-id={item[0]}>已添加</a>
+                : <a className='btn' onClick={() => this.chartAppend(item)} >添加</a>}
+            </span>
+            <div className="clearfix"></div>
+          </div>)
+        })}
+      </div>
+    </RbModal>)
   }
   componentDidMount() {
-    super.componentDidMount()
+    $.get(rb.baseUrl + '/dashboard/chart-list', (res) => {
+      this.setState({ chartList: res.data })
+    })
+  }
+  chartAppend(item) {
+    add_widget({ chart: item[0], title: item[1], type: item[2], w: 4, h: 4 })
+    let s = this.state.appended
+    s.push(item[0])
+    this.setState({ appended: s })
   }
 }

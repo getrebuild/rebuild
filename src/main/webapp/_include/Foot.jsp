@@ -1,11 +1,12 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<script src="${baseUrl}/assets/lib/jquery.min.js"></script>
+<script src="${baseUrl}/assets/lib/jquery.min.js?v=3.4.1"></script>
 <script src="${baseUrl}/assets/lib/popper.min.js"></script>
 <script src="${baseUrl}/assets/lib/bootstrap.min.js"></script>
 <script src="${baseUrl}/assets/lib/widget/perfect-scrollbar.jquery.min.js"></script>
 <script src="${baseUrl}/assets/lib/widget/mprogress.min.js"></script>
 <script src="${baseUrl}/assets/lib/widget/bootstrap-datetimepicker.min.js"></script>
 <script src="${baseUrl}/assets/lib/jquery.html5uploader.js"></script>
+<script src="${baseUrl}/assets/lib/qiniu.min.js"></script>
 <script src="${baseUrl}/assets/lib/widget/select2.min.js"></script>
 <script src="${baseUrl}/assets/lib/jquery-ui.min.js"></script>
 <script src="${baseUrl}/assets/lib/react/babel.js"></script>

@@ -1,6 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 // eslint-disable-next-line no-undef
-clickIcon = function (icon) {
+// eslint-disable-next-line no-unused-vars
+window.clickIcon = function (icon) {
   $('#entityIcon').attr('value', icon).find('i').attr('class', 'icon zmdi zmdi-' + icon)
   rb.modalHide()
 }

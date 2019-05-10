@@ -3,6 +3,14 @@
 	padding: 20px 25px;
 }
 
+.chart-box.TREEMAP {
+	padding-bottom: 25px;
+}
+
+.chart-box.INDEX {
+	padding-bottom: 0px;
+}
+
 .chart-box.high {
 	outline: 2px solid #4285f4;
 }
@@ -48,6 +56,10 @@
 	vertical-align: middle;
 }
 
+.chart-box .chart-head .chart-oper a .zmdi-close {
+	font-size: 1.43rem;
+}
+
 .chart-box .chart-head .chart-oper a:hover {
 	color: #5a5a5a;
 }
@@ -87,12 +99,6 @@
 	font-size: 3.68rem;
 	font-weight: 400;
 }
-
-.chart.pie {}
-
-.chart.line {}
-
-.chart.bar {}
 
 .chart.ctable {
 	position: relative;

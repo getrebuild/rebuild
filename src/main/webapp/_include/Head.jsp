@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.rebuild.utils.AppUtils"%>
+<%@ page import="com.rebuild.server.helper.SysConfiguration"%>
+<%@ page import="com.rebuild.server.helper.QiniuCloud"%>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -15,15 +17,18 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-page.css">
 <meta name="rb.env" content="<%=AppUtils.devMode() ? "dev" : "production"%>">
 <meta name="rb.baseUrl" content="${baseUrl}">
-<meta name="rb.appName" content="REBUILD">
+<meta name="rb.appName" content="${appName}">
+<%if (QiniuCloud.instance().available()) {%>
+<meta name="rb.storageUrl" content="<%=SysConfiguration.getStorageUrl()%>">
+<%}%>
 <%if (AppUtils.isAdminUser(request)){%>
 <meta name="rb.isAdminUser" content="true">
 <meta name="rb.isAdminVerified" content="<%=AppUtils.isAdminVerified(request)%>">
 <%}%>
-<!--[if lt IE 11]>
-<script>ltIE11 = true</script>
+<%if (AppUtils.isLessIE11(request)){%>
+<script>window.lessIE11 = true</script>
 <script src="${baseUrl}/assets/lib/react/polyfill.min.js"></script>
-<![endif]-->
+<%}%>
 <!--[if lt IE 10]>
 <script>location.href='${baseUrl}/error/unsupported-browser'</script>
 <![endif]-->

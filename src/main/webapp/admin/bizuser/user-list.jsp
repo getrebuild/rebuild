@@ -16,7 +16,16 @@
 	<div class="rb-content">
 		<aside class="page-aside">
 			<div class="rb-scroller">
-				<div class="dept-tree"></div>
+				<div class="dept-tree">
+					<div class="ph-item rb">
+						<div class="ph-col-12 p-0">
+							<div class="ph-row">
+								<div class="ph-col-12 big"></div>
+								<div class="ph-col-12 big"></div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</aside>
 		<div class="main-content container-fluid">
@@ -28,15 +37,15 @@
 				<div class="card-body">
 					<div class="dataTables_wrapper container-fluid">
 						<div class="row rb-datatable-header">
-							<div class="col-12 col-lg-6">
+							<div class="col-12 col-lg-5">
 								<div class="dataTables_filter">
-									<div class="input-group input-search">
-										<input class="form-control" type="text" placeholder="查询${entityLabel}">
+									<div class="input-group input-search" data-qfields="loginName,fullName,email,quickCode">
+										<input class="form-control" type="text" placeholder="查询${entityLabel}" maxlength="40">
 										<span class="input-group-btn"><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button></span>
 									</div>
 								</div>
 							</div>
-							<div class="col-12 col-lg-6">
+							<div class="col-12 col-lg-7">
 								<div class="dataTables_oper">
 									<button class="btn btn-space btn-secondary J_view" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> 打开</button>
 									<div class="btn-group btn-space">
@@ -74,7 +83,7 @@ window.__PageConfig = {
 	advFilter: false
 }
 </script>
-<script src="${baseUrl}/assets/js/rb-list.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-datalist.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/bizuser/dept-tree.js"></script>

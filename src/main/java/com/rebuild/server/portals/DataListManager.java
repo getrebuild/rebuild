@@ -73,15 +73,31 @@ public class DataListManager extends BaseLayoutManager {
 			for (Object item : (JSONArray) config[1]) {
 				JSONObject column = (JSONObject) item;
 				String field = column.getString("field");
-				if (entityMeta.containsField(field)) {
-					Map<String, Object> map = formattedColumn(entityMeta.getField(field));
+				String fieldPaths[] = field.split("\\.");
+				if (!entityMeta.containsField(fieldPaths[0])) {
+					LOG.warn("Unknow field '" + field + "' in '" + entity + "'");
+					continue;
+				}
+				
+				Field fieldMeta = entityMeta.getField(fieldPaths[0]);
+				Map<String, Object> formatted = null;
+				if (fieldPaths.length == 1) {
+					formatted = formattedColumn(fieldMeta);
+				} else {
+					Entity refEntity = fieldMeta.getReferenceEntity();
+					if (refEntity != null && refEntity.containsField(fieldPaths[1])) {
+						formatted = formattedColumn(refEntity.getField(fieldPaths[1]), fieldMeta);
+					} else {
+						LOG.warn("Unknow field '" + field + "' in '" + entity + "'");
+					}
+				}
+				
+				if (formatted != null) {
 					Integer width = column.getInteger("width");
 					if (width != null) {
-						map.put("width", width);
+						formatted.put("width", width);
 					}
-					columnList.add(map);
-				} else {
-					LOG.warn("Unknow field '" + field + "' in '" + entity + "'");
+					columnList.add(formatted);
 				}
 			}
 		}
@@ -96,10 +112,21 @@ public class DataListManager extends BaseLayoutManager {
 	 * @return
 	 */
 	public static Map<String, Object> formattedColumn(Field field) {
-		EasyMeta easyMeta = new EasyMeta(field);
+		return formattedColumn(field, null);
+	}
+	
+	/**
+	 * @param field
+	 * @param parent
+	 * @return
+	 */
+	public static Map<String, Object> formattedColumn(Field field, Field parent) {
+		String parentField = parent == null ? "" : (parent.getName() + ".");
+		String parentLabel = parent == null ? "" : (EasyMeta.getLabel(parent) + ".");
+		EasyMeta easyField = new EasyMeta(field);
 		return JSONUtils.toJSONObject(
-				new String[] { "field", "label", "type" }, 
-				new Object[] { easyMeta.getName(), easyMeta.getLabel(), easyMeta.getDisplayType(false) });
+				new String[] { "field", "label", "type" },
+				new Object[] { parentField + easyField.getName(), parentLabel + easyField.getLabel(), easyField.getDisplayType(false) });
 	}
 	
 	/**

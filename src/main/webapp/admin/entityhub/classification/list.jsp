@@ -30,15 +30,14 @@
 					<div class="card" data-id="${item[0]}" data-disabled="${item[2]}">
 						<div class="card-body">
 							<a href="classification/${item[0]}">${item[1]}</a>
+							<p class="text-muted m-0 fs-12">${item[3]}级 · ${item[4]} 项数据</p>
 						</div>
 						<div class="card-footer card-footer-contrast text-muted">
 							<div class="float-left">
 								<a class="J_edit" href="javascript:;"><i class="zmdi zmdi-edit"></i></a>
 								<a class="J_del" href="javascript:;"><i class="zmdi zmdi-delete"></i></a>
 							</div>
-							<div class="float-right fs-12 text-warning">
-								${item[2] ? "已禁用" : ""}
-							</div>
+							<div class="float-right fs-12 text-warning">${item[2] ? "已禁用" : ""}</div>
 							<div class="clearfix"></div>
 						</div>
 					</div>

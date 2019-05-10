@@ -21,22 +21,26 @@ package com.rebuild.server;
 import java.io.File;
 import java.io.FileWriter;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import com.alibaba.fastjson.JSON;
+import com.rebuild.server.helper.AesPreferencesConfigurer;
 import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.commons.SystemUtils;
 import cn.devezhao.commons.ThrowableUtils;
+import cn.devezhao.commons.runtime.MemoryInformation;
+import cn.devezhao.commons.runtime.MemoryInformationBean;
+import cn.devezhao.persist4j.util.SqlHelper;
 
 /**
  * 服务状态检查/监控
@@ -90,7 +94,13 @@ public final class ServerStatus {
 		}
 		return isStatusOK();
 	}
-
+	
+	static {
+		try {
+			Class.forName(com.mysql.jdbc.Driver.class.getName());
+		} catch (ClassNotFoundException e) {
+		}
+	}
 	/**
 	 * 数据库连接
 	 * 
@@ -99,14 +109,11 @@ public final class ServerStatus {
 	protected static Status checkDatabase() {
 		String name = "Database";
 		try {
-			DataSource ds = Application.getPersistManagerFactory().getDataSource();
-			Connection c = DataSourceUtils.getConnection(ds);
-			
-//			DatabaseMetaData dmd = c.getMetaData();
-//			String dbName = dmd.getDatabaseProductName() + dmd.getDatabaseProductVersion();
-//			name += "/" + dbName;
-			
-			DataSourceUtils.releaseConnection(c, ds);
+			Connection c = DriverManager.getConnection(
+					Application.getBean(AesPreferencesConfigurer.class).getItem("db.url"), 
+					Application.getBean(AesPreferencesConfigurer.class).getItem("db.user"),
+					Application.getBean(AesPreferencesConfigurer.class).getItem("db.passwd"));
+			SqlHelper.close(c);
 		} catch (Exception ex) {
 			return Status.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
 		}
@@ -187,5 +194,23 @@ public final class ServerStatus {
 		private static Status error(String name, String error) {
 			return new Status(name, false, error);
 		}
+	}
+	
+	// -- 
+	
+	/**
+	 * 内存用量
+	 * 
+	 * @return [已用%, 总计M]
+	 */
+	public static double[] getHeapMemoryUsed() {
+		for (MemoryInformation i : SystemUtils.getMemoryStatistics(false)) {
+			if ("Heap".equalsIgnoreCase(i.getName())) {
+				double t = i.getTotal();
+				double p = ObjectUtils.round(i.getUsed() * 100 / t, 2);
+				return new double[] { (int) (t / MemoryInformationBean.MEGABYTES), p };
+			}
+		}
+		return new double[] { 0, 0 };
 	}
 }

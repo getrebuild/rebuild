@@ -18,8 +18,8 @@ final User currentUser = Application.getUserStore().getUser(AppUtils.getRequestU
 		<div class="rb-right-navbar">
 			<ul class="nav navbar-nav float-right rb-user-nav">
 				<li class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle" href="${baseUrl}/settings/account" data-toggle="dropdown">
-						<img src="<%=currentUser.getAvatarUrl(true)%>" alt="Avatar">
+					<a class="nav-link dropdown-toggle" href="${baseUrl}/account/settings" data-toggle="dropdown">
+						<img src="${baseUrl}/account/user-avatar" alt="Avatar">
 						<span class="user-name"><%=currentUser.getFullName()%></span>
 					</a>
 					<div class="dropdown-menu">
@@ -27,7 +27,7 @@ final User currentUser = Application.getUserStore().getUser(AppUtils.getRequestU
 							<div class="user-name"><%=currentUser.getFullName()%></div>
 							<div class="user-id"><%=StringUtils.defaultIfBlank(currentUser.getEmail(), "邮箱未设置")%></div>
 						</div>
-						<a class="dropdown-item" href="${baseUrl}/settings/account"><i class="icon zmdi zmdi-account-box"></i>个人设置</a>
+						<a class="dropdown-item" href="${baseUrl}/account/settings"><i class="icon zmdi zmdi-account-box"></i>个人设置</a>
 						<a class="dropdown-item" href="${baseUrl}/user/logout"><i class="icon zmdi zmdi-power"></i>退出</a>
 					</div>
 				</li>

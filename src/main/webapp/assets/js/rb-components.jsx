@@ -47,12 +47,12 @@ class RbModal extends React.Component {
     let root = $(this._rbmodal)
     $setTimeout(() => {
       let iframe = root.find('iframe')
-      let height = iframe.contents().find('.main-content').height()
+      let height = iframe.contents().find('.main-content').outerHeight()
       if (height === 0) height = iframe.contents().find('body').height()
-      else height += 45 // .main-content's padding
+      // else height += 45 // .main-content's padding
       root.find('.modal-body').height(height)
       this.setState({ frameLoad: false })
-    }, 100, 'RbModal-resize')
+    }, 20, 'RbModal-resize')
   }
 }
 
@@ -195,6 +195,19 @@ function RbSpinner(props) {
   </div>
   if (props && props.fully === true) return <div className="rb-loading rb-loading-active">{spinner}</div>
   return spinner
+}
+
+// ~~ 提示条
+function RbAlertBox(props) {
+  let icon = props.type === 'success' ? 'check' : 'info-outline'
+  if (props.type === 'danger') icon = 'close-circle-o'
+  return (<div className={'alert alert-icon alert-dismissible min alert-' + (props.type || 'warning')} >
+    <div className="icon"><span className={'zmdi zmdi-' + icon} /></div>
+    <div className="message">
+      <a className="close" data-dismiss="alert"><span className="zmdi zmdi-close" /></a>
+      <p>{props.message}</p>
+    </div>
+  </div>)
 }
 
 let renderRbcomp__counter = new Date().getTime()

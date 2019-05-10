@@ -40,6 +40,7 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.portals.value.FieldValueWrapper;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.UserService;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.persist4j.Entity;
@@ -52,6 +53,8 @@ import cn.devezhao.persist4j.engine.ID;
  * 
  * @author zhaofang123@gmail.com
  * @since 08/24/2018
+ * 
+ * @see ClassificationSearch
  */
 @Controller
 @RequestMapping("/commons/search/")
@@ -60,13 +63,20 @@ public class ReferenceSearch extends BaseControll {
 	// 指定字段搜索
 	@RequestMapping("search")
 	public void search(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String entity = getParameterNotNull(request, "entity");
-		String q = getParameter(request, "q");
-		// 查询字段，未指定则查询名称
-		String qfields = getParameter(request, "qfields");
+		final ID user = getRequestUser(request);
+		final String entity = getParameterNotNull(request, "entity");
 		
+		String q = getParameter(request, "q");
+		// 为空则加载最近使用的
 		if (StringUtils.isBlank(q)) {
-			writeSuccess(response, ArrayUtils.EMPTY_STRING_ARRAY);
+			String type = getParameter(request, "type");
+			ID[] recently = Application.getRecentlySearchCache().gets(user, entity, type);
+			if (recently.length == 0) {
+				writeSuccess(response, JSONUtils.EMPTY_ARRAY);
+			} else {
+				writeSuccess(response, 
+						RecentlySearchControll.formatSelect2(recently, true));
+			}
 			return;
 		}
 		q = StringEscapeUtils.escapeSql(q);
@@ -74,9 +84,13 @@ public class ReferenceSearch extends BaseControll {
 		Entity metaEntity = MetadataHelper.getEntity(entity);
 		Field nameField = MetadataHelper.getNameField(metaEntity);
 		if (nameField == null) {
+			LOG.warn("No name-field found : " + entity);
 			writeSuccess(response, ArrayUtils.EMPTY_STRING_ARRAY);
 			return;
 		}
+		
+		// 查询字段，未指定则使用名称字段和 quickCode
+		String qfields = getParameter(request, "qfields");
 		if (StringUtils.isBlank(qfields)) {
 			qfields = nameField.getName();
 			if (metaEntity.containsField(EntityHelper.QuickCode)) {
@@ -111,44 +125,49 @@ public class ReferenceSearch extends BaseControll {
 	// 搜索引用字段
 	@RequestMapping({ "reference", "quick" })
 	public void referenceSearch(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String entity = getParameterNotNull(request, "entity");
-		String field = getParameterNotNull(request, "field");
-		String q = getParameter(request, "q");
+		final ID user = getRequestUser(request);
+		final String entity = getParameterNotNull(request, "entity");
+		final String field = getParameterNotNull(request, "field");
 		
+		Entity metaEntity = MetadataHelper.getEntity(entity);
+		Field referenceField = metaEntity.getField(field);
+		if (referenceField.getType() != FieldType.REFERENCE) {
+			writeSuccess(response, JSONUtils.EMPTY_ARRAY);
+			return;
+		}
+		
+		Entity referenceEntity = referenceField.getReferenceEntity();
+		Field referenceNameField = MetadataHelper.getNameField(referenceEntity);
+		if (referenceNameField == null) {
+			LOG.warn("No name-field found : " + referenceEntity.getName());
+			writeSuccess(response, JSONUtils.EMPTY_ARRAY);
+			return;
+		}
+		
+		String q = getParameter(request, "q");
+		// 为空则加载最近使用的
 		if (StringUtils.isBlank(q)) {
-			writeSuccess(response, ArrayUtils.EMPTY_STRING_ARRAY);
+			String type = getParameter(request, "type");
+			ID[] recently = Application.getRecentlySearchCache().gets(user, referenceEntity.getName(), type);
+			if (recently.length == 0) {
+				writeSuccess(response, JSONUtils.EMPTY_ARRAY);
+			} else {
+				writeSuccess(response, 
+						RecentlySearchControll.formatSelect2(recently, true));
+			}
 			return;
 		}
 		q = StringEscapeUtils.escapeSql(q);
 		
-		Entity metaEntity = MetadataHelper.getEntity(entity);
-		Field metaField = metaEntity.getField(field);
-		if (metaField.getType() != FieldType.REFERENCE) {
-			writeSuccess(response, ArrayUtils.EMPTY_STRING_ARRAY);
-			return;
-		}
-		
-		Entity metaFieldEntity = metaField.getReferenceEntities()[0];
-		Field nameField = MetadataHelper.getNameField(metaFieldEntity);
-		if (nameField == null) {
-			writeSuccess(response, ArrayUtils.EMPTY_STRING_ARRAY);
-			return;
-		}
-		
-		String nameField2 = nameField.getName();
-		if (nameField.getType() == FieldType.REFERENCE) {
-			nameField2 = "&" + nameField2;
-		}
-		
 		String sql = "select {0},{1} from {2} where ( {1} like ''%{3}%''";
 		sql = MessageFormat.format(sql, 
-				metaFieldEntity.getPrimaryField().getName(), nameField2, metaFieldEntity.getName(), q);
-		if (metaFieldEntity.containsField(EntityHelper.QuickCode) && StringUtils.isAlphanumericSpace(q)) {
-			sql += MessageFormat.format(" or quickCode like ''{0}%'' )", q);
+				referenceEntity.getPrimaryField().getName(), referenceNameField.getName(), referenceEntity.getName(), q);
+		if (referenceEntity.containsField(EntityHelper.QuickCode) && StringUtils.isAlphanumericSpace(q)) {
+			sql += MessageFormat.format(" or quickCode like ''%{0}%'' )", q);
 		} else {
 			sql += " )";
 		}
-		if (metaFieldEntity.containsField(EntityHelper.ModifiedOn)) {
+		if (referenceEntity.containsField(EntityHelper.ModifiedOn)) {
 			sql += " order by modifiedOn desc";
 		}
 		
@@ -156,36 +175,7 @@ public class ReferenceSearch extends BaseControll {
 		writeSuccess(response, result);
 	}
 	
-	/**
-	 * 封装查询结果
-	 * 
-	 * @param entity
-	 * @param sql
-	 * @return
-	 */
-	private List<Object> searchResult(Entity entity, String sql) {
-		Object[][] array = Application.createQuery(sql).setLimit(10).array();
-		List<Object> result = new ArrayList<>();
-		for (Object[] o : array) {
-			ID recordId = (ID) o[0];
-			if (EntityHelper.isBizzEntity(entity)) {
-				if (!UserHelper.isActive(recordId) || recordId.equals(UserService.SYSTEM_USER)) {
-					continue;
-				}
-			}
-			
-			Map<String, Object> map = new HashMap<>();
-			map.put("id", recordId);
-			String text = o[1] == null ? recordId.toLiteral().toUpperCase() : o[1].toString();
-			if (StringUtils.isBlank(text)) {
-				text = recordId.toLiteral().toUpperCase();
-			}
-			map.put("text", text);
-			result.add(map);
-		}
-		return result;
-	}
-	
+	// 获取记录的名称字段值
 	@RequestMapping("read-labels")
 	public void referenceLabel(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String ids = getParameter(request, "ids", null);
@@ -205,5 +195,34 @@ public class ReferenceSearch extends BaseControll {
 			}
 		}
 		writeSuccess(response, labels);
+	}
+	
+	/**
+	 * 封装查询结果
+	 * 
+	 * @param entity
+	 * @param sql
+	 * @return
+	 */
+	private List<Object> searchResult(Entity entity, String sql) {
+		Object[][] array = Application.createQuery(sql).setLimit(10).array();
+		List<Object> result = new ArrayList<>();
+		for (Object[] o : array) {
+			ID recordId = (ID) o[0];
+			if (MetadataHelper.isBizzEntity(entity.getEntityCode())
+					&& (!UserHelper.isActive(recordId) || recordId.equals(UserService.SYSTEM_USER))) {
+				continue;
+			}
+			
+			Map<String, Object> map = new HashMap<>();
+			map.put("id", recordId);
+			String text = o[1] == null ? recordId.toLiteral().toUpperCase() : o[1].toString();
+			if (StringUtils.isBlank(text)) {
+				text = recordId.toLiteral().toUpperCase();
+			}
+			map.put("text", text);
+			result.add(map);
+		}
+		return result;
 	}
 }

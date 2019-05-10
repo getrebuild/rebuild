@@ -42,12 +42,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 10/22/2018
  */
-public class ViewAddonsManager implements PortalsManager {
-	
-	// 显示相关项
-	public static final String TYPE_TAB = "TAB";
-	// 新建相关记录
-	public static final String TYPE_ADD = "ADD";
+public class ViewAddonsManager extends BaseLayoutManager {
 	
 	/**
 	 * @param entity
@@ -78,18 +73,18 @@ public class ViewAddonsManager implements PortalsManager {
 	}
 	
 	/**
-	 * @param entity
+	 * @param belongEntity
 	 * @param user
 	 * @param type
 	 * @return
 	 */
-	private static JSON getViewAddons(String entity, ID user, String applyType) {
-		final Object addons[] = getConfig(entity, applyType);
-		final Permission RoC = TYPE_TAB.equals(applyType) ? BizzPermission.READ : BizzPermission.CREATE;
+	private static JSON getViewAddons(String belongEntity, ID user, String applyType) {
+		final Object addons[] = getLayoutConfig(user, belongEntity, applyType);
+		final Permission useAction = TYPE_TAB.equals(applyType) ? BizzPermission.READ : BizzPermission.CREATE;
 		
 		// 未配置则使用全部相关项
 		if (addons == null) {
-			Entity entityMeta = MetadataHelper.getEntity(entity);
+			Entity entityMeta = MetadataHelper.getEntity(belongEntity);
 			
 			Set<String[]> refs = new HashSet<>();
 			for (Field field : entityMeta.getReferenceToFields()) {
@@ -98,7 +93,7 @@ public class ViewAddonsManager implements PortalsManager {
 				if (e.getMasterEntity() != null) {
 					continue;
 				}
-				if (Application.getSecurityManager().allowed(user, e.getEntityCode(), RoC)) {
+				if (Application.getSecurityManager().allowed(user, e.getEntityCode(), useAction)) {
 					refs.add(EasyMeta.getEntityShows(e));
 				}
 			}
@@ -110,28 +105,11 @@ public class ViewAddonsManager implements PortalsManager {
 			String e = (String) o;
 			if (MetadataHelper.containsEntity(e)) {
 				Entity entityMeta = MetadataHelper.getEntity(e);
-				if (Application.getSecurityManager().allowed(user, entityMeta.getEntityCode(), RoC)) {
+				if (Application.getSecurityManager().allowed(user, entityMeta.getEntityCode(), useAction)) {
 					configured.add(EasyMeta.getEntityShows(entityMeta));
 				}
 			}
 		}
 		return (JSON) JSON.toJSON(configured);
-	}
-	
-	/**
-	 * @param entity
-	 * @param applyType
-	 * @return
-	 */
-	public static Object[] getConfig(String entity, String applyType) {
-		Object[] config = Application.createQueryNoFilter(
-				"select configId,config from ViewAddonsConfig where belongEntity = ? and applyType = ?")
-				.setParameter(1, entity)
-				.setParameter(2, applyType)
-				.unique();
-		if (config != null) {
-			config[1] = JSON.parseArray((String) config[1]);
-		}
-		return config;
 	}
 }

@@ -35,7 +35,7 @@ public class ChartsTest extends TestSupport {
 	@Test
 	public void testTable() throws Exception {
 		JSONObject config = JSON.parseObject(
-				"{'entity':'testallfields','title':'未命名图表','type':'TABLE','axis':{'dimension':[],'numerical':[{'field':'testallfieldsName','sort':'NONE','label':'','calc':'COUNT'}]},'option':{'showLineNumber':'false','showSums':'false'}}");
+				"{'entity':'testallfields','title':'表格','type':'TABLE','axis':{'dimension':[],'numerical':[{'field':'testallfieldsName','sort':'NONE','label':'','calc':'COUNT'}]},'option':{'showLineNumber':'false','showSums':'false'}}");
 		ChartData index = ChartDataFactory.create(config, UserService.ADMIN_USER);
 		System.out.println(index.build());
 	}
@@ -51,7 +51,7 @@ public class ChartsTest extends TestSupport {
 	@Test
 	public void testPie() throws Exception {
 		JSONObject config = JSON.parseObject(
-				"{'entity':'testallfields','title':'未命名图表','type':'PIE','axis':{'dimension':[{'field':'testallfieldsName','sort':'NONE','label':''}],'numerical':[{'field':'testallfieldsName','sort':'NONE','label':'','calc':'COUNT'}]},'option':{}}");
+				"{'entity':'testallfields','title':'饼图','type':'PIE','axis':{'dimension':[{'field':'testallfieldsName','sort':'NONE','label':''}],'numerical':[{'field':'testallfieldsName','sort':'NONE','label':'','calc':'COUNT'}]},'option':{}}");
 		ChartData pie = ChartDataFactory.create(config, UserService.ADMIN_USER);
 		System.out.println(pie.build());
 	}
@@ -59,7 +59,23 @@ public class ChartsTest extends TestSupport {
 	@Test
 	public void testLine() throws Exception {
 		JSONObject config = JSON.parseObject(
-				"{'entity':'testallfields','title':'未命名图表','type':'LINE','axis':{'dimension':[{'field':'createdOn','sort':'NONE','label':'','calc':'H'}],'numerical':[{'field':'testallfieldsName','sort':'NONE','label':'','calc':'COUNT'}]},'option':{}}");
+				"{'entity':'testallfields','title':'折线图','type':'LINE','axis':{'dimension':[{'field':'createdOn','sort':'NONE','label':'','calc':'H'}],'numerical':[{'field':'testallfieldsName','sort':'NONE','label':'','calc':'COUNT'}]},'option':{}}");
+		ChartData line = ChartDataFactory.create(config, UserService.ADMIN_USER);
+		System.out.println(line.build());
+	}
+	
+	@Test
+	public void testTreemap() throws Exception {
+		JSONObject config = JSON.parseObject(
+				"{'entity':'testallfields','title':'矩形树图','type':'TREEMAP','axis':{'dimension':[{'field':'createdOn','sort':'NONE','label':'','calc':'D'}],'numerical':[{'field':'testallfieldsName','sort':'NONE','label':'','calc':'COUNT'}]},'option':{}}");
+		ChartData line = ChartDataFactory.create(config, UserService.ADMIN_USER);
+		System.out.println(line.build());
+	}
+	
+	@Test
+	public void testFunnel() throws Exception {
+		JSONObject config = JSON.parseObject(
+				"{'entity':'testallfields','title':'漏斗图','type':'FUNNEL','axis':{'dimension':[{'field':'picklist','sort':'NONE','label':''}],'numerical':[{'field':'testallfieldsName','sort':'NONE','label':'','calc':'COUNT'}]},'option':{}}");
 		ChartData line = ChartDataFactory.create(config, UserService.ADMIN_USER);
 		System.out.println(line.build());
 	}

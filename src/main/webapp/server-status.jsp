@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.rebuild.utils.AppUtils"%>
-<%@ page import="com.rebuild.server.helper.SystemConfig"%>
+<%@ page import="com.rebuild.server.helper.SysConfiguration"%>
 <%@ page import="org.apache.commons.lang.SystemUtils"%>
 <%@ page import="cn.devezhao.commons.CalendarUtils"%>
 <%@ page import="com.rebuild.server.ServerListener"%>
@@ -10,7 +10,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-<%@ include file="/_include/Head.jsp"%>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<link rel="shortcut icon" href="${pageContext.request.contextPath}/assets/img/favicon.png">
+<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/css/rb-base.css">
 <title>系统状态</title>
 <style type="text/css">
 .block{margin:0 auto;max-width:1000px;padding:0 14px;margin-top:30px;}
@@ -39,7 +43,8 @@
 		<% } %>
 		<tr>
 			<th>Memory Usage</th>
-			<td>n/a</td>
+			<% double memoryUsed[] = ServerStatus.getHeapMemoryUsed(); %>
+			<td><%=memoryUsed[1]%>% (<%=memoryUsed[0]%>M)</td>
 		</tr>
 		<tr>
 			<th>CPU Usage</th>
@@ -78,8 +83,8 @@
 			<td><%=System.getProperty("catalina.base")%></td>
 		</tr>
 		<tr>
-			<th>Temp Directory</th>
-			<td><%=SystemConfig.getFileOfTemp("/")%></td>
+			<th>Data Directory</th>
+			<td><%=SysConfiguration.getFileOfData("/")%></td>
 		</tr>
 	</tbody>
 	</table>

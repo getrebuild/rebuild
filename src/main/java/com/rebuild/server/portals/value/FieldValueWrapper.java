@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
@@ -224,15 +225,16 @@ public class FieldValueWrapper {
 	 * 
 	 * @param id
 	 * @return
+	 * @throws NoRecordFoundException If no record found
 	 */
-	public static String getLabel(ID id) {
+	public static String getLabel(ID id) throws NoRecordFoundException {
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		Field nameField = MetadataHelper.getNameField(entity);
 		String sql = "select %s from %s where %s = '%s'";
 		sql = String.format(sql, nameField.getName(), entity.getName(), entity.getPrimaryField().getName(), id.toLiteral());
 		Object[] label = Application.getQueryFactory().createQueryNoFilter(sql).unique();
 		if (label == null) {
-			return null;
+			throw new NoRecordFoundException("No label found by ID : " + id);
 		}
 		
 		Object labelVal = FieldValueWrapper.wrapFieldValue(label[0], nameField);

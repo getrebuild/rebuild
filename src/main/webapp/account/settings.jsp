@@ -78,7 +78,7 @@
 											<img alt="Avatar" src="<%=theUser.getAvatarUrl(true)%>">
 											<label>
 												<i class="zmdi zmdi-camera"></i><br>更改头像
-												<input type="file" id="avatar-input" accept="image/*">
+												<input type="file" id="avatar-input" accept="image/png,image/jpeg,image/gif">
 											</label>
 										</div>
 										<div class="clearfix"></div>

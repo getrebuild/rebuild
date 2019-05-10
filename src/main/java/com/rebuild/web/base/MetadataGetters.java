@@ -88,6 +88,13 @@ public class MetadataGetters extends BaseControll {
 				EasyMeta easyField = EasyMeta.valueOf(field);
 				if (easyField.getDisplayType() == DisplayType.REFERENCE
 						&& !MetadataHelper.isBizzEntity(field.getReferenceEntity().getEntityCode())) {
+					// 显示父级字段
+					Map<String, Object> parent = new HashMap<>();
+					parent.put("name", field.getName());
+					parent.put("label", easyField.getLabel());
+					parent.put("type", easyField.getDisplayType().name());
+					list.add(parent);
+					
 					putFields(list, field.getReferenceEntity(), false, easyField);
 				}
 			}

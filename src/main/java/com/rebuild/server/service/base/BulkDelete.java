@@ -35,7 +35,7 @@ public class BulkDelete extends BulkOperator {
 	}
 
 	@Override
-	public Integer operate() {
+	public Integer exec() {
 		ID[] records = prepareRecords();
 		this.setTotal(records.length);
 		
@@ -47,7 +47,7 @@ public class BulkDelete extends BulkOperator {
 			} else {
 				LOG.warn("No have privileges to DELETE : " + context.getOpUser() + " > " + id);
 			}
-			this.setCompleteOne();
+			this.addCompleted();
 		}
 		
 		this.completedAfter();

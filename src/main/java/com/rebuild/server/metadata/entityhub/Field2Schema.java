@@ -29,9 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSON;
-import com.github.stuxuhai.jpinyin.PinyinException;
-import com.github.stuxuhai.jpinyin.PinyinFormat;
-import com.github.stuxuhai.jpinyin.PinyinHelper;
+import com.hankcs.hanlp.HanLP;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -45,7 +43,6 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.Dialect;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.CascadeModel;
-import cn.devezhao.persist4j.metadata.MetadataException;
 import cn.devezhao.persist4j.metadata.impl.FieldImpl;
 import cn.devezhao.persist4j.util.StringHelper;
 import cn.devezhao.persist4j.util.support.Table;
@@ -105,7 +102,8 @@ public class Field2Schema {
 			}
 		}
 		
-		Field field = createField(entity, fieldName, fieldLabel, type, true, true, true, comments, refEntity, null, true, extConfig);
+		Field field = createUnsafeField(
+				entity, fieldName, fieldLabel, type, true, true, true, comments, refEntity, null, true, extConfig, null);
 		
 		boolean schemaReady = schema2Database(entity, field);
 		if (!schemaReady) {
@@ -157,7 +155,7 @@ public class Field2Schema {
 		try {
 			Application.getSQLExecutor().execute(ddl);
 		} catch (Throwable ex) {
-			LOG.error("DDL Error : \n" + ddl, ex);
+			LOG.error("DDL ERROR : \n" + ddl, ex);
 			return false;
 		}
 		
@@ -176,10 +174,6 @@ public class Field2Schema {
 		return ObjectUtils.toLong(count[0]);
 	}
 	
-	/**
-	 * @param field
-	 * @return
-	 */
 	private boolean schema2Database(Entity entity, Field field) {
 		Dialect dialect = Application.getPersistManagerFactory().getDialect();
 		Table table = new Table(entity, dialect);
@@ -195,6 +189,7 @@ public class Field2Schema {
 	}
 	
 	/**
+	 * 
 	 * @param entity
 	 * @param fieldName
 	 * @param fieldLabel
@@ -207,10 +202,12 @@ public class Field2Schema {
 	 * @param cascade
 	 * @param nullableInDb 在数据库中是否可为空，一般系统级字段不能为空
 	 * @param extConfig
+	 * @param defaultValue
 	 * @return
 	 */
-	protected Field createField(Entity entity, String fieldName, String fieldLabel, DisplayType displayType,
-			boolean nullable, boolean creatable, boolean updatable, String comments, String refEntity, CascadeModel cascade, boolean nullableInDb, JSON extConfig) {
+	public Field createUnsafeField(Entity entity, String fieldName, String fieldLabel, DisplayType displayType,
+			boolean nullable, boolean creatable, boolean updatable, String comments, String refEntity, CascadeModel cascade,
+			boolean nullableInDb, JSON extConfig, String defaultValue) {
 		if (displayType == DisplayType.SERIES) {
 			nullable = false;
 			creatable = false;
@@ -231,19 +228,22 @@ public class Field2Schema {
 		if (StringUtils.isNotBlank(comments)) {
 			recordOfField.setString("comments", comments);
 		}
+		if (StringUtils.isNotBlank(defaultValue)) {
+			recordOfField.setString("defaultValue", defaultValue);
+		}
 		
-		if (displayType == DisplayType.DECIMAL) {
-			recordOfField.setInt("precision", 8);
-		} else if (displayType == DisplayType.PICKLIST) {
+		if (displayType == DisplayType.PICKLIST) {
 			refEntity = "PickList";
 		} else if (displayType == DisplayType.CLASSIFICATION) {
 			refEntity = "ClassificationData";
-			recordOfField.setString("extConfig", extConfig == null ? "{}" : extConfig.toJSONString());
+			if (extConfig != null) {
+				recordOfField.setString("extConfig", extConfig.toJSONString());
+			}
 		}
 		
 		if (StringUtils.isNotBlank(refEntity)) {
 			if (!MetadataHelper.containsEntity(refEntity)) {
-				throw new ModifiyMetadataException("Unknow ref-entity : " + refEntity);
+				throw new ModifiyMetadataException("无效引用实体: " + refEntity);
 			}
 			recordOfField.setString("refEntity", refEntity);
 			if (cascade != null) {
@@ -268,7 +268,7 @@ public class Field2Schema {
 		tempMetaId.add(recordOfField.getPrimary());
 		
 		boolean autoValue = EntityHelper.AutoId.equals(fieldName);
-		String defaultValue = EntityHelper.IsDeleted.equals(fieldName) ? "F" : null;
+		defaultValue = EntityHelper.IsDeleted.equals(fieldName) ? "F" : null;
 		
 		Field unsafeField = new FieldImpl(
 				fieldName, physicalName, fieldLabel, entity, displayType.getFieldType(), CascadeModel.Ignore, maxLength, 
@@ -280,19 +280,19 @@ public class Field2Schema {
 	}
 	
 	/**
-	 * 中文 -> 拼音（去除空格）
+	 * 中文 -> 拼音（仅保留字母数字）
 	 * 
 	 * @param text
 	 * @return
 	 */
 	protected String toPinyinName(final String text) {
-		String identifier = text;
-		try {
-			identifier = PinyinHelper.convertToPinyinString(text, "", PinyinFormat.WITHOUT_TONE);
-			identifier = identifier.replaceAll("[^a-zA-Z0-9]", "");
-		} catch (PinyinException e) {
-			throw new MetadataException(text, e);
+		// 全英文直接返回
+		if (text.matches("[a-zA-Z]+")) {
+			return text;
 		}
+		
+		String identifier = HanLP.convertToPinyinString(text, "", false);
+		identifier = identifier.replaceAll("[^a-zA-Z0-9]", "");
 		if (StringUtils.isBlank(identifier)) {
 			throw new ModifiyMetadataException("无效名称 : " + text);
 		}

@@ -23,8 +23,6 @@ import java.text.MessageFormat;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.Application;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.persist4j.engine.ID;
@@ -48,7 +46,7 @@ public class PieChart extends ChartData {
 		
 		Dimension dim1 = dims[0];
 		Numerical num1 = nums[0];
-		Object[][] dataRaw = Application.createQuery(buildSql(dim1, num1), user).array();
+		Object[][] dataRaw = createQuery(buildSql(dim1, num1)).array();
 		
 		JSONArray dataJson = new JSONArray();
 		for (Object[] o : dataRaw) {
@@ -62,18 +60,21 @@ public class PieChart extends ChartData {
 		
 		JSONObject ret = JSONUtils.toJSONObject(
 				new String[] { "data", "name" },
-				new Object[] { dataJson, EasyMeta.getLabel(num1.getField()) + num1.getFormatCalc().getLabel() });
+				new Object[] { dataJson,  num1.getLabel() });
 		return ret;
 	}
 	
 	protected String buildSql(Dimension dim, Numerical num) {
 		String sql = "select {0},{1} from {2} where {3} group by {0}";
-		String where = getFilterSql();
-		
 		sql = MessageFormat.format(sql, 
 				dim.getSqlName(),
 				num.getSqlName(),
-				getSourceEntity().getName(), where);
+				getSourceEntity().getName(), getFilterSql());
+		
+		String sorts = getSortSql();
+		if (sorts != null) {
+			sql += " order by " + sorts;
+		}
 		return sql;
 	}
 }

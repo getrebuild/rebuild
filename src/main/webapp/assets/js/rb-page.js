@@ -5,11 +5,14 @@ $(function () {
   t.perfectScrollbar()
   $(window).resize(function () {
     $setTimeout(function () {
-      if (window.ltIE11 === true) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
+      if (window.lessIE11) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
       t.perfectScrollbar('update')
     }, 500, 'rb-scroller-update')
   })
-  if (window.ltIE11 === true) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
+  if (window.lessIE11) {
+	  $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
+	  $('html').addClass('ie10')
+  }
 
   // tooltip
   $('[data-toggle="tooltip"]').tooltip()
@@ -137,7 +140,7 @@ var __checkMessage = function () {
 
     if (__checkMessage__state !== res.data.unread) __loadMessages__state = 0
     __checkMessage__state = res.data.unread
-    setTimeout(__checkMessage, rb.env === 'dev' ? 30000 : 2000)
+    setTimeout(__checkMessage, rb.env === 'dev' ? 60 * 10000 : 2000)
   })
 }
 var __loadMessages__state = 0
@@ -186,13 +189,81 @@ var $fileCutName = function (fileName) {
   fileName = fileName[fileName.length - 1]
   return fileName.substr(fileName.indexOf('__') + 2)
 }
-var $fileDetectingIcon = function (fileName) {
-  fileName = fileName.toLowerCase()
-  if (fileName.endsWith('.png') || fileName.endsWith('.gif') || fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') || fileName.endsWith('.bmp')) return 'png'
-  else if (fileName.endsWith('.doc') || fileName.endsWith('.docx')) return 'word'
-  else if (fileName.endsWith('.ppt') || fileName.endsWith('.pptx')) return 'ppt'
-  else if (fileName.endsWith('.xls') || fileName.endsWith('.xlsx')) return 'excel'
-  else if (fileName.endsWith('.pdf')) return 'pdf'
-  else if (fileName.endsWith('.mp4') || fileName.endsWith('.rmvb') || fileName.endsWith('.rm') || fileName.endsWith('.avi') || fileName.endsWith('.flv')) return 'mp4'
-  return ''
+var $fileExtName = function (fileName) {
+  fileName = (fileName || '').toLowerCase()
+  fileName = fileName.split('.')
+  return fileName[fileName.length - 1] || ''
+}
+
+var $gotoSection = function (top, target) {
+  $(target || 'body').animate({ scrollTop: top || 0 }, 600)
+}
+
+// Use H5 or Qiuniu
+var $createUploader = function (input, next, complete, error) {
+  input = $(input).off('change')
+  var imgOnly = input.attr('accept') === 'image/*'
+  if (window.qiniu && rb.storageUrl) {
+    input.on('change', function () {
+      var file = this.files[0]
+      var putExtra = imgOnly ? { mimeType: ['image/png', 'image/jpeg', 'image/gif', 'image/bmp', 'image/tiff'] } : null
+      $.get(rb.baseUrl + '/filex/qiniu/upload-keys?file=' + $encode(file.name), function (res) {
+        var o = qiniu.upload(file, res.data.key, res.data.token, putExtra)
+        o.subscribe({
+          next: function (res) {
+            typeof next === 'function' && next({ percent: res.total.percent })
+          },
+          error: function (err) {
+            var msg = (err.message || 'UnknowError').toUpperCase()
+            if (imgOnly && msg.contains('FILE TYPE')) {
+              rb.highbar('请上传图片')
+              return false
+            } else if (msg.contains('EXCEED FSIZELIMIT')) {
+              rb.highbar('超出文件大小限制')
+              return false
+            }
+            if (error) error({ error: msg })
+            else rb.hberror('上传失败: ' + msg)
+          },
+          complete: function (res) {
+            typeof complete === 'function' && complete({ key: res.key })
+          }
+        })
+      })
+    })
+  }
+  else {
+    input.html5Uploader({
+      name: input.attr('id') || input.attr('name') || 'H5Upload',
+      postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file'),
+      onSelectError: function (file, err) {
+        if (err === 'ErrorType') {
+          rb.highbar('请上传图片')
+          return false
+        } else if (err === 'ErrorMaxSize') {
+          rb.highbar('超出文件大小限制')
+          return false
+        }
+      },
+      onClientLoad: function (e, file) {},
+      onClientProgress: function (e, file) {
+        typeof next === 'function' && next({ percent: e.loaded * 100 / e.total })
+      },
+      onSuccess: function (d) {
+        d = $.parseJSON(d.currentTarget.response)
+        if (d.error_code === 0) {
+          complete({ key: d.data })
+        } else {
+          var msg = d.error_msg || '上传失败，请稍后重试'
+          if (error) error({ error: msg })
+          else rb.hberror(msg)
+        }
+      },
+      onClientError: function (e, file) {
+        var msg = '上传失败，请稍后重试'
+        if (error) error({ error: msg })
+        else rb.hberror(msg)
+      }
+    })
+  }
 }

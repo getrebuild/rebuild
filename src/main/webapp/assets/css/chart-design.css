@@ -19,6 +19,10 @@
 	padding-top: 0;
 }
 
+.chart-box.TREEMAP {
+	padding-top: 25px;
+}
+
 #chart-preview {
 	background-color: #fff;
 	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1), 0 16px 24px 0 rgba(81, 129, 228, .1);
@@ -67,11 +71,11 @@
 	padding: 0 15px;
 }
 
-.axis-warp {
+.axis-editor {
 	margin-bottom: 15px;
 }
 
-.axis-warp .axis {
+.axis-editor .axis {
 	border-bottom: 1px solid rgba(0, 0, 0, .1);
 	padding: 10px 0;
 }
@@ -248,8 +252,6 @@ a.ui-draggable.ui-draggable-dragging {
 	border-radius: 2px;
 }
 
-a.ui-draggable {}
-
 .data-info ul li i.icon,
 .data-info ul.fields li a::before {
 	width: 18px;
@@ -302,55 +304,63 @@ a.ui-draggable {}
 	width: 32px;
 	height: 32px;
 	display: inline-block;
-	background: url(../img/charts-sprite.svg) 0 0 no-repeat;
+	background: url(../img/charts-sprite-1.2.svg) 0 0 no-repeat;
 }
 
 .chart-type>a>i.C200 {
-	background-position: -680px -671px;
+	background-position: -896px -1520px;
 }
 
 .chart-type>a.active>i.C200 {
-	background-position: -712px -671px;
+	background-position: -832px -1520px;
 }
 
 .chart-type>a>i.C310 {
-	background-position: -960px -1306px;
+	background-position: -845px -1238px;
 }
 
 .chart-type>a.active>i.C310 {
-	background-position: -992px -1306px;
+	background-position: -813px -1238px;
 }
 
 .chart-type>a>i.C220 {
-	background-position: -1200px -1102px;
+	background-position: -1176px -1456px;
 }
 
 .chart-type>a.active>i.C220 {
-	background-position: -1200px -1198px;
+	background-position: -1144px -1456px;
 }
 
 .chart-type>a>i.C210 {
-	background-position: -768px -871px;
+	background-position: -800px -1520px;
 }
 
 .chart-type>a.active>i.C210 {
-	background-position: -800px -871px;
+	background-position: -64px -1520px;
 }
 
 .chart-type>a>i.C230 {
-	background-position: -1347px -352px;
+	background-position: -1048px -1456px;
 }
 
 .chart-type>a.active>i.C230 {
-	background-position: -1300px -1238px;
+	background-position: -1016px -1456px;
 }
 
 .chart-type>a>i.C330 {
-	background-position: -1088px -1306px;
+	background-position: -800px -871px;
 }
 
 .chart-type>a.active>i.C330 {
-	background-position: -1120px -1306px;
+	background-position: -768px -871px;
+}
+
+.chart-type>a>i.C370 {
+	background-position: -1056px -1520px;
+}
+
+.chart-type>a.active>i.C370 {
+	background-position: -864px -1520px;
 }
 
 .chart-option>div {

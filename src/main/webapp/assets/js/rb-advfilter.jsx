@@ -1,6 +1,5 @@
-/* eslint-disable react/no-string-refs */
-/* eslint-disable react/prop-types */
 // ~~ 高级过滤器
+/* eslint-disable react/prop-types */
 // eslint-disable-next-line no-unused-vars
 class AdvFilter extends React.Component {
   constructor(props) {
@@ -34,11 +33,11 @@ class AdvFilter extends React.Component {
     let advFilter = (
       <div className={'adv-filter-warp ' + (this.props.inModal ? 'in-modal' : 'shadow rounded')}>
         <div className="adv-filter">
-          <div className="filter-items" ref="items" onKeyPress={this.searchByKey}>
+          <div className="filter-items" onKeyPress={this.searchByKey}>
             {(this.state.items || []).map((item) => {
               return item
             })}
-            <div className="item plus"><a href="javascript:;" onClick={() => this.addItem()}><i className="zmdi zmdi-plus-circle icon"></i> 添加条件</a></div>
+            <div className="item plus"><a onClick={() => this.addItem()} tabIndex="-1"><i className="zmdi zmdi-plus-circle icon"></i> 添加条件</a></div>
           </div>
         </div>
         <div className="adv-filter">
@@ -51,7 +50,7 @@ class AdvFilter extends React.Component {
             </div>
             {this.state.enableEquation !== true ? null :
               <div className="mb-3">
-                <input className={'form-control form-control-sm' + (this.state.equationError ? ' is-invalid' : '')} value={this.state.equation || ''} data-id="equation" onChange={this.handleChange} />
+                <input className={'form-control form-control-sm' + (this.state.equationError ? ' is-invalid' : '')} value={this.state.equation || ''} placeholder={this.state.equationDef || ''} data-id="equation" onChange={this.handleChange} />
               </div>
             }
           </div>
@@ -74,26 +73,25 @@ class AdvFilter extends React.Component {
         </div>
       </div>
     )
-    if (this.props.inModal) return <RbModal ref="dlg" title={this.props.title || '高级查询'} disposeOnHide={!!this.props.filter}>{advFilter}</RbModal>
+    if (this.props.inModal) return <RbModal ref={(c) => this._dlg = c} title={this.props.title || '高级查询'} disposeOnHide={!!this.props.filter}>{advFilter}</RbModal>
     else return advFilter
   }
   componentDidMount() {
-    let that = this
-    $.get(rb.baseUrl + '/commons/metadata/fields?deep=2&entity=' + this.props.entity, function (res) {
+    $.get(rb.baseUrl + '/commons/metadata/fields?deep=2&entity=' + this.props.entity, (res) => {
       let valideFs = []
-      that.fields = res.data.map((item) => {
+      this.fields = res.data.map((item) => {
         valideFs.push(item.name)
         if (item.type === 'DATETIME') {
           item.type = 'DATE'
         } else if (item.type === 'REFERENCE') {
-          REFMETA_CACHE[that.props.entity + '.' + item.name] = item.ref
+          REFMETA_CACHE[this.props.entity + '.' + item.name] = item.ref
         }
         return item
       })
 
-      if (that.__items) {
-        $(that.__items).each((idx, item) => {
-          if (valideFs.contains(item.field)) that.addItem(item)
+      if (this.__items) {
+        $(this.__items).each((idx, item) => {
+          if (valideFs.contains(item.field)) this.addItem(item)
         })
       }
     })
@@ -115,23 +113,19 @@ class AdvFilter extends React.Component {
     }
   }
 
-  addItem(cfg) {
+  addItem(props) {
     if (!this.fields) return
     let _items = this.state.items || []
     if (_items.length >= 9) { rb.highbar('最多可添加9个条件'); return }
 
     let id = 'item-' + $random()
-    let props = { fields: this.fields, $$$parent: this, key: 'key-' + id, id: id, onRef: this.onRef, index: _items.length + 1 }
-    if (cfg) props = { ...props, ...cfg }
-    _items.push(<FilterItem {...props} />)
+    let itemProps = { fields: this.fields, $$$parent: this, key: 'key-' + id, id: id, onRef: this.onRef, index: _items.length + 1 }
+    if (props) itemProps = { ...itemProps, ...props }
+    _items.push(<FilterItem {...itemProps} />)
 
-    if (!cfg) {
-      let equation = []
-      for (let i = 1; i <= _items.length; i++) equation.push(i)
-      this.setState({ items: _items, equation: equation.join(' OR ') })
-    } else {
-      this.setState({ items: _items })
-    }
+    this.setState({ items: _items }, () => {
+      this.renderEquation()
+    })
   }
   removeItem(id) {
     let _items = []
@@ -144,24 +138,18 @@ class AdvFilter extends React.Component {
     })
     this.childrenRef = _children
 
-    let that = this
-    let equation = []
-    for (let i = 1; i <= _items.length; i++) equation.push(i)
-    this.setState({ items: _items, equation: equation.join(' OR ') }, () => {
-      that.childrenRef.forEach((child, idx) => {
+    this.setState({ items: _items }, () => {
+      this.childrenRef.forEach((child, idx) => {
         child.setIndex(idx + 1)
       })
+      this.renderEquation()
     })
   }
 
-  toggleEquation() {
-    let enable = this.state.enableEquation !== true
-    this.setState({ enableEquation: enable })
-    if (enable === true && !this.state.equation && this.state.items) {
-      let equation = []
-      for (let i = 1; i <= this.state.items.length; i++) equation.push(i)
-      this.setState({ equation: equation.join(' OR ') })
-    }
+  renderEquation() {
+    let exp = []
+    for (let i = 1; i <= (this.state.items || []).length; i++) exp.push(i)
+    this.setState({ equationDef: exp.join(' OR ') })
   }
 
   toFilterJson(canNoFilters) {
@@ -186,11 +174,11 @@ class AdvFilter extends React.Component {
   }
   searchNow = () => {
     let adv = this.toFilterJson(true)
-    if (!!adv && RbListPage) RbListPage._RbList.search(adv)
+    if (!!adv && window.RbListPage) RbListPage._RbList.search(adv, true)
   }
 
   confirm() {
-    let adv = this.toFilterJson()
+    let adv = this.toFilterJson(this.props.canNoFilters)
     if (!adv) return
     else if (this.props.confirm) {
       this.props.confirm(adv, this.state.filterName, this.state.shareToAll)
@@ -199,14 +187,14 @@ class AdvFilter extends React.Component {
         if (res.error_code !== 0) rb.hberror(res.error_msg)
       })
     }
-    if (this.props.inModal) this.refs['dlg'].hide()
+    if (this.props.inModal) this._dlg.hide()
   }
 
   show(state) {
-    if (this.props.inModal) this.refs['dlg'].show(state)
+    if (this.props.inModal) this._dlg.show(state)
   }
   hide() {
-    if (this.props.inModal) this.refs['dlg'].hide()
+    if (this.props.inModal) this._dlg.hide()
     if (this.props.cancel) this.props.cancel()
   }
 }
@@ -216,23 +204,19 @@ const OP_DATE_NOPICKER = ['BFD', 'BFM', 'AFD', 'AFM', 'RED', 'REM']
 const OP_NOVALUE = ['NL', 'NT', 'SFU', 'SFB', 'SFD']
 const PICKLIST_CACHE = {}
 const REFMETA_CACHE = {}
-const VALUE_HOLD = {}  // TODO
+const INPUTVALS_HOLD = {}  // 输入值保持
 
 // 过滤项
 class FilterItem extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
-
     this.$$$entity = this.props.$$$parent.props.entity
-
-    this.valueHandle = this.valueHandle.bind(this)
-    this.valueCheck = this.valueCheck.bind(this)
 
     this.loadedPickList = false
     this.loadedBizzSearch = false
 
-    if (props.field && props.value) VALUE_HOLD[props.field] = props.value
+    if (props.field && props.value) INPUTVALS_HOLD[props.field] = props.value
   }
   render() {
     return (
@@ -240,14 +224,14 @@ class FilterItem extends React.Component {
         <div className="col-sm-5 field">
           <em>{this.state.index}</em>
           <i className="zmdi zmdi-minus-circle" title="移除条件" onClick={() => this.props.$$$parent.removeItem(this.props.id)}></i>
-          <select className="form-control form-control-sm" ref="filter-field">
+          <select className="form-control form-control-sm" ref={(c) => this._filterField = c}>
             {this.state.fields.map((item) => {
               return <option value={item.name + '----' + item.type} key={'field-' + item.name}>{item.label}</option>
             })}
           </select>
         </div>
         <div className="col-sm-2 op">
-          <select className="form-control form-control-sm" ref="filter-op">
+          <select className="form-control form-control-sm" ref={(c) => this._filterOp = c}>
             {this.selectOp().map((item) => {
               return <option value={item} key={'op-' + item}>{OP_TYPE[item]}</option>
             })}
@@ -270,45 +254,53 @@ class FilterItem extends React.Component {
       op = []
     } else if (fieldType === 'PICKLIST') {
       op = ['IN', 'NIN']
-    } else if (this.isBizzField('User')) {
-      op = ['IN', 'NIN', 'SFU', 'SFB']
-    } else if (this.isBizzField('Department')) {
-      op = ['IN', 'NIN', 'SFB', 'SFD']
+    } else if (fieldType === 'CLASSIFICATION') {
+      op = ['LK', 'NLK']
+    } else if (fieldType === 'REFERENCE') {
+      if (this.isBizzField('User')) {
+        op = ['IN', 'NIN', 'SFU', 'SFB']
+      } else if (this.isBizzField('Department')) {
+        op = ['IN', 'NIN', 'SFB', 'SFD']
+      } else if (this.isBizzField('Role')) {
+        op = ['IN', 'NIN']
+      } else {
+        op = []
+      }
     }
     op.push('NL', 'NT')
     this.__op = op
     return op
   }
   renderValue() {
-    let val = <input className="form-control form-control-sm" ref="filter-val" onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
+    let val = <input className="form-control form-control-sm" ref={(c) => this._filterVal = c} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
     if (this.state.op === 'BW') {
       val = (
         <div className="val-range">
-          <input className="form-control form-control-sm" ref="filter-val" onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
-          <input className="form-control form-control-sm" ref="filter-val2" onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value2 || ''} data-at="2" />
+          <input className="form-control form-control-sm" ref={(c) => this._filterVal = c} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
+          <input className="form-control form-control-sm" ref={(c) => this._filterVal2 = c} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value2 || ''} data-at="2" />
           <span>起</span>
           <span className="end">止</span>
         </div>)
     } else if (this.state.type === 'PICKLIST') {
       val = (
-        <select className="form-control form-control-sm" multiple="true" ref="filter-val">
+        <select className="form-control form-control-sm" multiple="true" ref={(c) => this._filterVal = c}>
           {(this.state.picklist || []).map((item) => {
             return <option value={item.id} key={'val-' + item.id}>{item.text}</option>
           })}
         </select>)
     } else if (this.isBizzField()) {
-      val = <select className="form-control form-control-sm" multiple="true" ref="filter-val" />
+      val = <select className="form-control form-control-sm" multiple="true" ref={(c) => this._filterVal = c} />
     }
 
-    VALUE_HOLD[this.state.field] = this.state.value
-    return (val)
+    INPUTVALS_HOLD[this.state.field] = this.state.value
+    return val
   }
-  // 引用 User/Department
+  // 引用 User/Department/Role
   isBizzField(entity) {
     if (this.state.type === 'REFERENCE') {
       const fRef = REFMETA_CACHE[this.$$$entity + '.' + this.state.field]
-      if (!entity) return fRef && (fRef[0] === 'User' || fRef[0] === 'Department')
-      else return fRef[0] === entity
+      if (!entity) return fRef && (fRef[0] === 'User' || fRef[0] === 'Department' || fRef[0] === 'Role')
+      else return fRef && fRef[0] === entity
     }
     return false
   }
@@ -326,7 +318,7 @@ class FilterItem extends React.Component {
     this.props.onRef(this)
 
     let that = this
-    let s2field = $(this.refs['filter-field']).select2({
+    let s2field = $(this._filterField).select2({
       allowClear: false
     }).on('change.select2', function (e) {
       let ft = e.target.value.split('----')
@@ -334,13 +326,13 @@ class FilterItem extends React.Component {
         s2op.val(that.__op[0]).trigger('change')
       })
     })
-    let s2op = $(this.refs['filter-op']).select2({
+    let s2op = $(this._filterOp).select2({
       allowClear: false
     }).on('change.select2', function (e) {
       that.setState({ op: e.target.value }, function () {
-        $setTimeout(function () {
-          // ReactDOM.findDOMNode(that.refs['filter-val']).focus()
-        }, 200, 'filter-val-focus')
+        // $setTimeout(function () {
+        // ReactDOM.findDOMNode(that._filterVal).focus()
+        // }, 200, 'filter-val-focus')
       })
     })
     this.__select2 = [s2field, s2op]
@@ -361,21 +353,21 @@ class FilterItem extends React.Component {
     }
   }
   componentDidUpdate() {
-    let state = this.state
-    let thisEnter = [state.field, state.type, state.op === 'BW', OP_DATE_NOPICKER.contains(state.op)].join('----')
+    let _state = this.state
+    let thisEnter = [_state.field, _state.type, _state.op === 'BW', OP_DATE_NOPICKER.contains(_state.op)].join('----')
     if (this.__lastEnter === thisEnter) return
     let lastType = this.__lastEnter ? this.__lastEnter.split('----')[1] : null
     this.__lastEnter = thisEnter
 
-    if (state.type === 'PICKLIST') {
-      this.renderPickList(state.field)
+    if (_state.type === 'PICKLIST') {
+      this.renderPickList(_state.field)
     } else if (lastType === 'PICKLIST') {
       this.removePickList()
     }
 
-    if (state.type === 'DATE') {
+    if (_state.type === 'DATE') {
       this.removeDatepicker()
-      if (OP_DATE_NOPICKER.contains(state.op)) {
+      if (OP_DATE_NOPICKER.contains(_state.op)) {
         // 无需日期组件
       } else {
         this.renderDatepicker()
@@ -385,14 +377,14 @@ class FilterItem extends React.Component {
     }
 
     if (this.isBizzField()) {
-      let fRef = REFMETA_CACHE[this.$$$entity + '.' + state.field]
+      let fRef = REFMETA_CACHE[this.$$$entity + '.' + _state.field]
       this.renderBizzSearch(fRef[0])
     } else if (lastType === 'REFERENCE') {
       this.removeBizzSearch()
     }
 
-    if (state.value) this.valueCheck($(this.refs['filter-val']))
-    if (state.value2 && this.refs['filter-val2']) this.valueCheck($(this.refs['filter-val2']))
+    if (_state.value) this.valueCheck($(this._filterVal))
+    if (_state.value2 && this._filterVal2) this.valueCheck($(this._filterVal2))
   }
   componentWillUnmount() {
     this.__select2.forEach((item) => { item.select2('destroy') })
@@ -402,13 +394,13 @@ class FilterItem extends React.Component {
     this.removeBizzSearch()
   }
 
-  valueHandle(e) {
+  valueHandle = (e) => {
     let val = e.target.value
-    if (e.target.dataset.at === 2) this.setState({ value2: val })
+    if (~~e.target.dataset.at === 2) this.setState({ value2: val })
     else this.setState({ value: val })
   }
   // @e = el or event
-  valueCheck(e) {
+  valueCheck = (e) => {
     let el = e.target ? $(e.target) : e
     let val = e.target ? e.target.value : e.val()
     el.removeClass('is-invalid')
@@ -445,8 +437,7 @@ class FilterItem extends React.Component {
   }
   renderPickListAfter() {
     let that = this
-    let s2val = $(this.refs['filter-val']).select2({
-      placeholder: ''
+    let s2val = $(this._filterVal).select2({
     }).on('change.select2', function () {
       let val = s2val.val()
       that.setState({ value: val.join('|') })
@@ -470,8 +461,7 @@ class FilterItem extends React.Component {
 
   renderBizzSearch(entity) {
     let that = this
-    let s2val = $(this.refs['filter-val']).select2({
-      placeholder: '',  // DON'T REMOVE!
+    let s2val = $(this._filterVal).select2({
       minimumInputLength: 1,
       ajax: {
         url: rb.baseUrl + '/commons/search/search',
@@ -530,19 +520,19 @@ class FilterItem extends React.Component {
     }
 
     let that = this
-    let dp1 = $(this.refs['filter-val']).datetimepicker(cfg)
+    let dp1 = $(this._filterVal).datetimepicker(cfg)
     dp1.on('change.select2', function (e) {
       that.setState({ value: e.target.value }, () => {
-        that.valueCheck($(that.refs['filter-val']))
+        that.valueCheck($(that._filterVal))
       })
     })
     this.__datepicker = [dp1]
 
-    if (this.refs['filter-val2']) {
-      let dp2 = $(this.refs['filter-val2']).datetimepicker(cfg)
+    if (this._filterVal2) {
+      let dp2 = $(this._filterVal2).datetimepicker(cfg)
       dp2.on('change.select2', function (e) {
         that.setState({ value2: e.target.value }, () => {
-          that.valueCheck($(that.refs['filter-val2']))
+          that.valueCheck($(that._filterVal2))
         })
       })
       this.__datepicker.push(dp2)
@@ -576,7 +566,7 @@ class FilterItem extends React.Component {
       return
     }
 
-    if (!!s.value && ($(this.refs['filter-val']).hasClass('is-invalid') || $(this.refs['filter-val2']).hasClass('is-invalid'))) {
+    if (!!s.value && ($(this._filterVal).hasClass('is-invalid') || $(this._filterVal2).hasClass('is-invalid'))) {
       return
     }
 

@@ -31,13 +31,17 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public abstract class BaseLayoutManager extends SharableManager {
 	
-	// 表单
-	public static final String TYPE_FORM = "FORM";
-	// 数据列表
-	public static final String TYPE_DATALIST = "DATALIST";
 	// 导航
 	public static final String TYPE_NAV = "NAV";
-	
+	// 表单
+	public static final String TYPE_FORM = "FORM";
+	// 列表
+	public static final String TYPE_DATALIST = "DATALIST";
+	// 视图（相关项）
+	public static final String TYPE_TAB = "TAB";
+	// 视图（新建相关）
+	public static final String TYPE_ADD = "ADD";
+		
 	/**
 	 * @param user
 	 * @param belongEntity
@@ -63,7 +67,23 @@ public abstract class BaseLayoutManager extends SharableManager {
 	public static Object[] getLayoutOfNav(ID user) {
 		return getLayoutConfig(user, null, TYPE_NAV);
 	}
-
+	
+	/**
+	 * @param user
+	 * @return
+	 */
+	public static Object[] getLayoutOfTab(ID user) {
+		return getLayoutConfig(user, null, TYPE_TAB);
+	}
+	
+	/**
+	 * @param user
+	 * @return
+	 */
+	public static Object[] getLayoutOfAdd(ID user) {
+		return getLayoutConfig(user, null, TYPE_ADD);
+	}
+	
 	/**
 	 * 获取布局配置
 	 * 
@@ -72,8 +92,8 @@ public abstract class BaseLayoutManager extends SharableManager {
 	 * @param applyType
 	 * @return [ID, JSONConfig]
 	 */
-	private static Object[] getLayoutConfig(ID user, String belongEntity, String applyType) {
-		ID configUsed = detectUseConfig(user, "LayoutConfig", belongEntity, applyType);
+	public static Object[] getLayoutConfig(ID user, String belongEntity, String applyType) {
+		ID configUsed = detectUseConfig(user, belongEntity, applyType);
 		if (configUsed == null) {
 			return null;
 		}
@@ -84,5 +104,15 @@ public abstract class BaseLayoutManager extends SharableManager {
 				.unique();
 		o[1] = JSON.parse((String) o[1]);
 		return o;
+	}
+	
+	/**
+	 * @param user
+	 * @param belongEntity
+	 * @param applyType
+	 * @return
+	 */
+	public static ID detectUseConfig(ID user, String belongEntity, String applyType) {
+		return detectUseConfig(user, "LayoutConfig", belongEntity, applyType);
 	}
 }

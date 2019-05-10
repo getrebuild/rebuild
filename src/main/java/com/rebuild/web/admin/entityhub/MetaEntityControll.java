@@ -36,7 +36,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.task.BulkTaskExecutor;
+import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
@@ -140,10 +140,9 @@ public class MetaEntityControll extends BasePageControll {
 			}
 		}
 		
-		boolean nameField = getBoolParameter(request, "nameField");
-
 		try {
-			String entityName = new Entity2Schema(user).create(label, comments, masterEntity, nameField);
+			String entityName = new Entity2Schema(user)
+					.create(label, comments, masterEntity, getBoolParameter(request, "nameField"));
 			writeSuccess(response, entityName);
 		} catch (Exception ex) {
 			LOG.error(null, ex);
@@ -176,7 +175,7 @@ public class MetaEntityControll extends BasePageControll {
 		if (needReindex != null) {
 			Entity entity = MetadataHelper.getEntity(needReindex);
 			QuickCodeReindexTask reindexTask = new QuickCodeReindexTask(entity);
-			BulkTaskExecutor.submit(reindexTask);
+			TaskExecutors.submit(reindexTask);
 		}
 		
 		writeSuccess(response);

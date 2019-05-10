@@ -28,6 +28,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -36,12 +37,13 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
+import com.rebuild.server.Application;
 import com.rebuild.server.business.dataio.DataFileParser;
 import com.rebuild.server.business.dataio.DataImporter;
-import com.rebuild.server.business.dataio.ImportEnter;
-import com.rebuild.server.helper.SystemConfig;
-import com.rebuild.server.helper.task.BulkTask;
-import com.rebuild.server.helper.task.BulkTaskExecutor;
+import com.rebuild.server.business.dataio.ImportRule;
+import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.server.helper.task.HeavyTask;
+import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
@@ -66,10 +68,58 @@ import cn.devezhao.persist4j.engine.ID;
 @Controller
 @RequestMapping("/admin/")
 public class DataImportControll extends BasePageControll {
+	
+	static {
+		SerializeConfig.getGlobalInstance().put(Cell.class, ToStringSerializer.instance);
+	}
 
 	@RequestMapping("/dataio/importer")
 	public ModelAndView pageDataImports(HttpServletRequest request) {
 		return createModelAndView("/admin/dataio/importer.jsp");
+	}
+	
+	// 检查导入文件
+	@RequestMapping("/dataio/check-file")
+	public void checkFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String file = getParameterNotNull(request, "file");
+		File tmp = getFileOfImport(file);
+		if (tmp == null) {
+			writeFailure(response, "无效数据文件");
+			return;
+		}
+		
+		DataFileParser parser = null;
+		int count = 0;
+		List<Cell[]> preview = null;
+		try {
+			parser = new DataFileParser(tmp);
+			count = parser.getRowsCount();
+			preview = parser.parse(10);
+		} catch (Exception ex) {
+			LOG.error("Parse excel error : " + file, ex);
+			writeFailure(response, "无法解析数据，请检查数据文件格式");
+			return;
+		} finally {
+			IOUtils.closeQuietly(parser);
+		}
+		
+		JSON ret = JSONUtils.toJSONObject(
+				new String[] { "count", "preview" }, new Object[] { count, preview });
+		writeSuccess(response, ret);
+	}
+	
+	@RequestMapping("/dataio/check-user-privileges")
+	public void checkUserPrivileges(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID ouser = getIdParameterNotNull(request, "ouser");
+		String entity = getParameterNotNull(request, "entity");
+		
+		Entity entityMeta = MetadataHelper.getEntity(entity);
+		boolean canCreated = Application.getSecurityManager().allowedC(ouser, entityMeta.getEntityCode());
+		boolean canUpdated = Application.getSecurityManager().allowedU(ouser, entityMeta.getEntityCode());
+		
+		JSON ret = JSONUtils.toJSONObject(
+				new String[] { "canCreate", "canUpdate" }, new Object[] { canCreated, canUpdated });
+		writeSuccess(response, ret);
 	}
 	
 	@RequestMapping("/dataio/import-fields")
@@ -111,70 +161,33 @@ public class DataImportControll extends BasePageControll {
 		writeSuccess(response, list);
 	}
 	
-	// 预览
-	@RequestMapping("/dataio/import-preview")
-	public void importPreview(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String file = getParameterNotNull(request, "file");
-		if (file.contains("%")) {
-			file = CodecUtils.urlDecode(file);
-			file = CodecUtils.urlDecode(file);
-		}
-		File tmp = SystemConfig.getFileOfTemp(file);
-		if (!tmp.exists() || tmp.isDirectory()) {
-			writeFailure(response, "无效文件");
-			return;
-		}
-		
-		DataFileParser parser = null;
-		int count = 0;
-		List<Cell[]> preview = null;
-		try {
-			parser = new DataFileParser(tmp);
-			count = parser.getRowsCount();
-			preview = parser.parse(10);
-		} catch (Exception ex) {
-			writeFailure(response, "无法解析数据，请检查数据文件格式");
-			return;
-		} finally {
-			if (parser != null) {
-				parser.close();
-			}
-		}
-		
-		Map<String, Object> ret = new HashMap<>();
-		ret.put("count", count);
-		ret.put("preview", preview);
-		
-		SerializeConfig.getGlobalInstance().put(Cell.class, ToStringSerializer.instance);
-		writeSuccess(response, ret);
-	}
-	
 	// 开始导入
 	@RequestMapping("/dataio/import-submit")
 	public void importSubmit(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getRequestUser(request);
 		JSONObject idata = (JSONObject) ServletUtils.getRequestJson(request);
-		
-		ImportEnter ienter = null;
+		ImportRule irule = null;
 		try {
-			ienter = ImportEnter.parse(idata);
+			irule = ImportRule.parse(idata);
 		} catch (IllegalArgumentException ex) {
 			writeFailure(response, ex.getLocalizedMessage());
 			return;
 		}
 		
-		DataImporter dataImports = new DataImporter(ienter, user);
-		String taskid = BulkTaskExecutor.submit(dataImports);
-		
-		JSON ret = JSONUtils.toJSONObject("taskid", taskid);
-		writeSuccess(response, ret);
+		DataImporter importer = new DataImporter(irule, getRequestUser(request));
+		if (getBoolParameter(request, "preview")) {
+			// TODO 导入预览
+		} else {
+			String taskid = TaskExecutors.submit(importer);
+			JSON ret = JSONUtils.toJSONObject("taskid", taskid);
+			writeSuccess(response, ret);
+		}
 	}
 	
 	// 导入状态
 	@RequestMapping("/dataio/import-state")
 	public void importState(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String taskid = getParameterNotNull(request, "taskid");
-		BulkTask task = BulkTaskExecutor.getTask(taskid);
+		HeavyTask<?> task = TaskExecutors.getTask(taskid);
 		if (task == null) {
 			writeFailure(response, "无效任务 : " + taskid);
 			return;
@@ -187,7 +200,7 @@ public class DataImportControll extends BasePageControll {
 	@RequestMapping("/dataio/import-cancel")
 	public void importCancel(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String taskid = getParameterNotNull(request, "taskid");
-		BulkTask task = BulkTaskExecutor.getTask(taskid);
+		HeavyTask<?> task = TaskExecutors.getTask(taskid);
 		if (task == null) {
 			writeFailure(response, "无效任务 : " + taskid);
 			return;
@@ -215,8 +228,21 @@ public class DataImportControll extends BasePageControll {
 	private JSON formatTaskState(DataImporter task) {
 		JSON state = JSONUtils.toJSONObject(
 				new String[] { "total", "complete", "success", "isCompleted", "isInterrupted", "elapsedTime" },
-				new Object[] { task.getTotal(), task.getComplete(),
-						((DataImporter) task).getSuccess(), task.isCompleted(), task.isInterrupted(), task.getElapsedTime() });
+				new Object[] { task.getTotal(), task.getCompleted(),
+						((DataImporter) task).getSuccessed(), task.isCompleted(), task.isInterrupted(), task.getElapsedTime() });
 		return state;
+	}
+	
+	/**
+	 * @param file
+	 * @return
+	 */
+	private File getFileOfImport(String file) {
+		if (file.contains("%")) {
+			file = CodecUtils.urlDecode(file);
+			file = CodecUtils.urlDecode(file);
+		}
+		File tmp = SysConfiguration.getFileOfTemp(file);
+		return (!tmp.exists() || tmp.isDirectory()) ? null : tmp;
 	}
 }

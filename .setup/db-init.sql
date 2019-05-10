@@ -110,7 +110,6 @@ create table if not exists `meta_field` (
   `NULLABLE`           char(1) default 'T',
   `DEFAULT_VALUE`      varchar(300),
   `CASCADE`            varchar(20),
-  `PRECISION`          smallint(6),
   `EXT_CONFIG`         varchar(700) comment '更多扩展配置, JSON格式KV',
   `BELONG_ENTITY`      varchar(100) not null,
   `CREATABLE`          char(1) default 'T',
@@ -172,20 +171,6 @@ create table if not exists `filter_config` (
   `CONFIG`             text(21845) not null comment 'JSON格式配置',
   `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
   primary key  (`CONFIG_ID`)
-)Engine=InnoDB;
-
--- ************ Entity [ViewAddonsConfig] DDL ************
-create table if not exists `view_addons_config` (
-  `APPLY_TYPE`         varchar(20) not null comment 'TAB,ADD',
-  `MODIFIED_ON`        timestamp not null default '0000-00-00 00:00:00' comment '修改时间',
-  `CREATED_BY`         char(20) not null comment '创建人',
-  `CONFIG_ID`          char(20) not null,
-  `MODIFIED_BY`        char(20) not null comment '修改人',
-  `BELONG_ENTITY`      varchar(100) not null,
-  `CONFIG`             text(21845) not null comment 'JSON格式配置',
-  `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
-  primary key  (`CONFIG_ID`),
-  unique index `UIX1_view_addons_config` (`BELONG_ENTITY`, `APPLY_TYPE`)
 )Engine=InnoDB;
 
 -- ************ Entity [DashboardConfig] DDL ************
@@ -340,15 +325,20 @@ alter table `login_log`
 
 -- User
 INSERT INTO `user` (`USER_ID`, `LOGIN_NAME`, `PASSWORD`, `FULL_NAME`, `DEPT_ID`, `ROLE_ID`, `IS_DISABLED`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`, `QUICK_CODE`)
-  VALUES 
+  VALUES
   ('001-0000000000000000', 'system', 'system', '系统用户', '002-0000000000000001', '003-0000000000000001', 'T', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'XTYH'),
-  ('001-0000000000000001', 'admin', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', '超级管理员', '002-0000000000000001', '003-0000000000000001', 'F', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'CJGLY');
+  ('001-0000000000000001', 'admin', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', '超级管理员', '002-0000000000000001', '003-0000000000000001', 'F', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'CJGLY'),
+  ('001-9000000000000001', 'rebuild', 'cf44886e54f424ce136dc38e4d9ef5b4b556d06060705262d6fcce02b4322539', 'RB示例用户', '002-9000000000000001', '003-9000000000000001', 'F', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'RBSLYH');
 -- Department
 INSERT INTO `department` (`DEPT_ID`, `NAME`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`, `QUICK_CODE`)
-  VALUES ('002-0000000000000001', '总部', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'ZB');
+  VALUES
+  ('002-0000000000000001', '总部', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'ZB'),
+  ('002-9000000000000001', 'RB示例部门', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'RBSLBM');
 -- Role
 INSERT INTO `role` (`ROLE_ID`, `NAME`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`, `QUICK_CODE`)
-  VALUES ('003-0000000000000001', '管理员', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'GLY');
+  VALUES
+  ('003-0000000000000001', '管理员', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'GLY'),
+  ('003-9000000000000001', 'RB示例角色', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'RBSLJS');
 
 -- Layouts
 INSERT INTO `layout_config` (`CONFIG_ID`, `BELONG_ENTITY`, `CONFIG`, `APPLY_TYPE`, `SHARE_TO`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`)
@@ -366,4 +356,4 @@ INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version
 INSERT INTO `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`) 
-  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 2);
+  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 3);

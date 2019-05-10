@@ -35,7 +35,7 @@ public class BulkUnshare extends BulkOperator {
 	}
 
 	@Override
-	public Integer operate() {
+	public Integer exec() {
 		ID[] records = prepareRecords();
 		this.setTotal(records.length);
 		
@@ -44,14 +44,14 @@ public class BulkUnshare extends BulkOperator {
 
 		// 只需要验证主记录权限
 		if (!Application.getSecurityManager().allowedS(context.getOpUser(), realTarget)) {
-			this.setComplete(records.length);
+			this.setCompleted(records.length);
 			return unshared;
 		}
 		
 		for (ID id : records) {
 			int a = ges.unshare(realTarget, id);
 			unshared += (a > 0 ? 1 : 0);
-			this.setCompleteOne();
+			this.addCompleted();
 		}
 		
 		this.completedAfter();

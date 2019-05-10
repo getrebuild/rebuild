@@ -44,7 +44,7 @@ public class TableBuilder {
 	 * @param chart
 	 * @param rows
 	 */
-	public TableBuilder(TableChart chart, Object[][] rows) {
+	protected TableBuilder(TableChart chart, Object[][] rows) {
 		this.chart = chart;
 		this.rows = rows;
 	}
@@ -53,6 +53,10 @@ public class TableBuilder {
 	 * @return
 	 */
 	public String toHTML() {
+		if (rows.length == 0) {
+			return null;
+		}
+		
 		List<Axis> axes = new ArrayList<>();
 		if (chart.isShowLineNumber()) {
 			axes.add(LN_REF);

@@ -40,7 +40,7 @@
 					<div class="dropdown-menu dropdown-menu-right">
 						<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
 						<a class="dropdown-item J_assign"><i class="icon zmdi zmdi-mail-reply-all"></i> 分派</a>
-						<a class="dropdown-item J_share"><i class="icon zmdi zmdi-share"></i> 共享</a>
+						<a class="dropdown-item J_share"><i class="icon zmdi zmdi-portable-wifi"></i> 共享</a>
 					</div>
 				</div>
 				<c:if test="${slaveEntity != null}">
@@ -94,6 +94,6 @@ window.__PageConfig = {
 </script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/assign-share.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-assignshare.jsx" type="text/babel"></script>
 </body>
 </html>

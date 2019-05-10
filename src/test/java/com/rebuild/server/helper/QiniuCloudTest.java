@@ -18,6 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.net.URL;
 
@@ -42,6 +44,18 @@ public class QiniuCloudTest extends TestSupport {
 		System.out.println("downloadUrl ... " + downloadUrl);
 		
 		QiniuCloud.instance().delete(uploadKey);
+	}
+	
+	@Test
+	public void testFormatKey() throws Exception {
+		String fileName = "imtestfile.txt";
+		String fileKey = QiniuCloud.formatFileKey(fileName);
+		System.out.println("File key ... " + fileKey);
+		String fileName2 = QiniuCloud.parseFileName(fileKey);
+		assertEquals(fileName, fileName2);
 		
+		System.out.println("File2 key ... " + QiniuCloud.formatFileKey("_____1123++545#e+++?&&f  d  fefe.txt"));
+		System.out.println("File3 key ... " + QiniuCloud.formatFileKey("_____1123++545#e+++?&&f  d  fefe.txt", false));
+		System.out.println("File4 key ... " + QiniuCloud.formatFileKey("_____1123++545#e+++?&&f  d  fefe", false));
 	}
 }

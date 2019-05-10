@@ -35,6 +35,7 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.portals.AdvFilterManager;
 import com.rebuild.server.portals.SharableManager;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.portals.AdvFilterService;
 import com.rebuild.server.service.query.AdvFilterParser;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
@@ -61,13 +62,10 @@ public class AdvFilterControll extends BaseControll implements PortalsConfigurat
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		ID filterId = getIdParameter(request, "id");
-		if (filterId != null) {
-			if (UserHelper.isAdmin(user) || AdvFilterManager.isSelf(user, filterId)) {
-				// Okay
-			} else {
-				writeFailure(response, "无权修改此过滤项");
-				return;
-			}
+		if (filterId != null
+				&& (!(UserHelper.isAdmin(user) || AdvFilterManager.isSelf(user, filterId)))) {
+			writeFailure(response, "无权修改");
+			return;
 		}
 		
 		String filterName = getParameter(request, "name");
@@ -83,7 +81,7 @@ public class AdvFilterControll extends BaseControll implements PortalsConfigurat
 			record = EntityHelper.forNew(EntityHelper.FilterConfig, user);
 			record.setString("belongEntity", entity);
 			if (StringUtils.isBlank(filterName)) {
-				filterName = "过滤项-" + CalendarUtils.getPlainDateFormat().format(CalendarUtils.now());
+				filterName = "查询-" + CalendarUtils.getPlainDateFormat().format(CalendarUtils.now());
 			}
 		} else {
 			record = EntityHelper.forUpdate(filterId, user);
@@ -95,7 +93,7 @@ public class AdvFilterControll extends BaseControll implements PortalsConfigurat
 		
 		record.setString("config", filter.toJSONString());
 		record.setString("shareTo", toAll ? SharableManager.SHARE_ALL : SharableManager.SHARE_SELF);
-		Application.getCommonService().createOrUpdate(record);
+		Application.getBean(AdvFilterService.class).createOrUpdate(record);
 		
 		writeSuccess(response);
 	}
@@ -125,7 +123,7 @@ public class AdvFilterControll extends BaseControll implements PortalsConfigurat
 			return;
 		}
 		
-		Application.getCommonService().delete(filterId);
+		Application.getBean(AdvFilterService.class).delete(filterId);
 		writeSuccess(response);
 	}
 	

@@ -42,6 +42,5 @@ public class MiscTest {
 
 		System.out.println(System.getenv());
 		System.out.println(System.getProperties());
-		
 	}
 }

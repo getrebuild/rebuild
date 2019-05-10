@@ -32,7 +32,6 @@ import org.apache.commons.logging.LogFactory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
@@ -57,6 +56,14 @@ public class DefaultValueManager {
 	
 	public static final String DV_MASTER = "$MASTER$";
 	public static final String DV_REFERENCE_PREFIX = "&";
+	
+	/**
+	 * @param field
+	 * @return
+	 */
+	public static Object exprDefaultValue(Field field) {
+		return exprDefaultValue(field, (String) field.getDefaultValue());
+	}
 	
 	/**
 	 * @param field
@@ -199,11 +206,7 @@ public class DefaultValueManager {
 		}
 		
 		ID id = ID.valueOf(idVal.toString());
-		String label = FieldValueWrapper.getLabel(id);
-		if (label == null) {
-			throw new NoRecordFoundException("No record found : " + idVal);
-		}
-		return new Object[] { id.toLiteral(), label };
+		return new Object[] { id.toLiteral(), FieldValueWrapper.getLabel(id) };
 	}
 	
 }

@@ -30,8 +30,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.RebuildException;
+import com.rebuild.server.business.dataio.DataImporter;
 import com.rebuild.server.business.series.SeriesGeneratorFactory;
-import com.rebuild.server.helper.task.BulkTaskExecutor;
+import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
@@ -131,10 +133,11 @@ public class GeneralEntityService extends ObservableService  {
 	protected void setSeriesValue(Record record) {
 		Field[] seriesFields = MetadataSorter.sortFields(record.getEntity(), DisplayType.SERIES);
 		for (Field field : seriesFields) {
-			String series = SeriesGeneratorFactory.generate(field);
-			record.setString(field.getName(), series);
-			// TODO 仅支持一个自动编号?
-			break;
+			// 导入模式，不强制生成
+			if (record.hasValue(field.getName()) && DataImporter.isInImporting()) {
+				continue;
+			}
+			record.setString(field.getName(), SeriesGeneratorFactory.generate(field));
 		}
 	}
 	
@@ -263,13 +266,19 @@ public class GeneralEntityService extends ObservableService  {
 	@Override
 	public int bulk(BulkContext context) {
 		BulkOperator operator = buildBulkOperator(context);
-		return operator.operate();
+		try {
+			return operator.exec();
+		} catch (RebuildException ex) {
+			throw (RebuildException) ex;
+		} catch (Exception ex) {
+			throw new RebuildException(ex);
+		}
 	}
 	
 	@Override
 	public String bulkAsync(BulkContext context) {
 		BulkOperator operator = buildBulkOperator(context);
-		String taskid = BulkTaskExecutor.submit(operator);
+		String taskid = TaskExecutors.submit(operator);
 		return taskid;
 	}
 	

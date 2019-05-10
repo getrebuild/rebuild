@@ -323,7 +323,7 @@ public class SecurityManager {
 		
 		if (BizzDepthEntry.PRIVATE.equals(depth)) {
 			allowed = user.equals(targetUserId);
-			if (allowed == false) {
+			if (!allowed) {
 				return allowedViaShare(user, target, action);
 			}
 			return true;
@@ -453,12 +453,12 @@ public class SecurityManager {
 	 * 扩展权限
 	 * 
 	 * @param user
-	 * @param zeroKey
+	 * @param entry
 	 * @return
 	 * @see ZeroPrivileges
 	 * @see ZeroPermission
 	 */
-	public boolean allowedZero(ID user, String zeroKey) {
+	public boolean allowed(ID user, ZeroEntry entry) {
 		if (UserService.ADMIN_USER.equals(user)) {
 			return true;
 		}
@@ -471,7 +471,9 @@ public class SecurityManager {
 			return true;
 		}
 		
-		return role.hasPrivileges(zeroKey) 
-				&& role.getPrivileges(zeroKey).allowed(ZeroPermission.ZERO);
+		if (role.hasPrivileges(entry.name())) {
+			return role.getPrivileges(entry.name()).allowed(ZeroPermission.ZERO);
+		}
+		return entry.getDefaultVal();
 	}
 }

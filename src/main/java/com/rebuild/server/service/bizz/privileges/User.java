@@ -20,10 +20,10 @@ package com.rebuild.server.service.bizz.privileges;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.rebuild.server.ServerListener;
 import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.service.bizz.RoleService;
 import com.rebuild.server.service.bizz.UserService;
+import com.rebuild.utils.AppUtils;
 
 import cn.devezhao.persist4j.engine.ID;
 
@@ -67,11 +67,16 @@ public class User extends cn.devezhao.bizz.security.member.User {
 		if (!fullUrl) {
 			return getAvatarUrl();
 		}
+		
 		if (avatarUrl == null) {
-			return ServerListener.getContextPath() + "/assets/img/avatar.png";
+			return AppUtils.getContextPath() + "/assets/img/avatar.png";
 		} else {
 			String avatarUrl = getAvatarUrl() + "?imageView2/2/w/100/interlace/1/q/100";
-			return QiniuCloud.instance().url(avatarUrl);
+			if (QiniuCloud.instance().available()) {
+				return QiniuCloud.instance().url(avatarUrl);
+			} else {
+				return AppUtils.getContextPath() + "/filex/img/" + avatarUrl;
+			}
 		}
 	}
 	

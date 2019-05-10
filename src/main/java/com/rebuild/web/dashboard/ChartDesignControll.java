@@ -75,26 +75,25 @@ public class ChartDesignControll extends BaseEntityControll {
 					"select belongEntity,title,config,createdBy from ChartConfig where chartId = ?")
 					.setParameter(1, chartId)
 					.unique();
-			
-			if (!user.equals(chart[3])) {
-				if (!(UserHelper.isAdmin(user) && UserHelper.isAdmin((ID) chart[3]))) {
-					response.sendError(403, "你无权修改他人的图表");
-					return null;
-				}
+			if (!UserHelper.isAdmin(user) && !user.equals(chart[3])) {
+				response.sendError(403, "你不能修改他人的图表");
+				return null;
 			}
 			
 			mv.getModel().put("chartId", chartId);
 			mv.getModel().put("chartTitle", chart[1]);
 			mv.getModel().put("chartConfig", chart[2]);
+			mv.getModel().put("chartOwningAdmin", UserHelper.isAdmin((ID) chart[3]));
 			entityMeta = MetadataHelper.getEntity((String) chart[0]);
 		} else if (entity != null) {
 			mv.getModel().put("chartConfig", JSONUtils.EMPTY_OBJECT_STR);
+			mv.getModel().put("chartOwningAdmin", UserHelper.isAdmin(user));
 			entityMeta = MetadataHelper.getEntity(entity);
 		} else {
 			throw new IllegalParameterException("无效图表参数");
 		}
 		
-		if (!Application.getSecurityManager().allowedD(getRequestUser(request), entityMeta.getEntityCode())) {
+		if (!Application.getSecurityManager().allowedR(getRequestUser(request), entityMeta.getEntityCode())) {
 			response.sendError(403, "你没有读取 [" + EasyMeta.getLabel(entityMeta) + "] 的权限，因此无法设计此图表");
 			return null;
 		}
@@ -126,7 +125,7 @@ public class ChartDesignControll extends BaseEntityControll {
 		JSON config = ServletUtils.getRequestJson(request);
 		JSON data = null;
 		try {
-			ChartData chart = ChartDataFactory.create((JSONObject) config);
+			ChartData chart = ChartDataFactory.create((JSONObject) config, getRequestUser(request));
 			data = chart.build(true);
 		} catch (ChartsException ex) {
 			writeFailure(response, ex.getLocalizedMessage());
@@ -156,8 +155,8 @@ public class ChartDesignControll extends BaseEntityControll {
 			JSONArray config = JSON.parseArray((String) dash[0]);
 			
 			JSONObject item = JSONUtils.toJSONObject("chart", record.getPrimary());
-			item.put("size_y", 2);
-			item.put("size_x", 4);
+			item.put("w", 4);
+			item.put("h", 4);
 			config.add(item);
 			
 			Record record2 = EntityHelper.forUpdate(dashid, getRequestUser(request));

@@ -43,20 +43,10 @@ public class EntityHelper {
 	 * 
 	 * @param entity
 	 * @return
+	 * @see MetadataHelper#hasPrivilegesField(Entity)
 	 */
 	public static boolean hasPrivilegesField(Entity entity) {
-		return entity.containsField(OwningUser) && entity.containsField(OwningDept);
-	}
-	
-	/**
-	 * 是否是权限相关实体（用户/部门/角色 等）
-	 * 
-	 * @param entity
-	 * @return
-	 */
-	public static boolean isBizzEntity(Entity entity) {
-		// see metadata-conf.xml
-		return entity.getEntityCode() <= 5;
+		return MetadataHelper.hasPrivilegesField(entity);
 	}
 	
 	/**
@@ -148,7 +138,6 @@ public class EntityHelper {
 	public static final int PickList = 12;
 	public static final int LayoutConfig = 13;
 	public static final int FilterConfig = 14;
-	public static final int ViewAddonsConfig = 15;
 	public static final int DashboardConfig = 16;
 	public static final int ChartConfig = 17;
 	public static final int Classification = 18;

@@ -23,6 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.portals.value.FieldValueWrapper;
@@ -76,8 +77,10 @@ public class MessageHelper {
 		}
 		
 		Entity entity = MetadataHelper.getEntity(theId.getEntityCode());
-		String recordLabel = FieldValueWrapper.getLabel(theId);
-		if (recordLabel == null) {
+		String recordLabel = null;
+		try {
+			recordLabel = FieldValueWrapper.getLabel(theId);
+		} catch (NoRecordFoundException ex) {
 			recordLabel = "[无效记录]";
 		}
 		return MessageFormat.format("<a title=\"点击查看\" class=\"record\" href=\"{0}/app/{1}/list#!/View/{1}/{2}\">{3}</a>",

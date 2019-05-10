@@ -174,8 +174,9 @@ class LevelBox extends React.Component {
   delItem(item, e) {
     e.stopPropagation()
     let that = this
-    rb.alert('删除后其子级分类项也将被一并删除。<br>同时，已经使用了这些分类项的数据（字段）也将无法显示。<br>确定要删除吗？', {
+    rb.alert('删除后其子分类也将被一并删除。<br>同时已经使用了这些分类的数据（字段）也将无法显示。<br>确定要删除吗？', {
       html: true,
+      type: 'danger',
       confirm: function () {
         $.post(`${rb.baseUrl}/app/entity/record-delete?id=${item[0]}`, (res) => {
           this.hide()
@@ -223,12 +224,15 @@ class DlgImports extends RbModalHandler {
     super(props)
   }
   render() {
-    return <RbModal title="导入公共数据" ref={(c) => this._dlg = c}>
-      {this.state.indexes ? <div className="indexes">{this.state.indexes.map((item) => {
+    return <RbModal title="导入分类数据" ref={(c) => this._dlg = c}>
+      {this.state.indexes ? <div className="rbs-indexes">{this.state.indexes.map((item) => {
         return (<div key={'data-' + item.file}>
           <div className="float-left">
             <h5>{item.name}</h5>
-            <div className="text-muted">数据来源 <a target="_blank" rel="noopener noreferrer" href={item.source}>{item.source}</a></div>
+            <div className="text-muted">
+              数据来源 <a target="_blank" rel="noopener noreferrer" href={item.source}>{item.author || item.source}</a>
+              {item.updated && (' · ' + item.updated)}
+            </div>
           </div>
           <div className="float-right pt-1">
             <button disabled={this.state.inProgress === true} className="btn btn-sm btn-primary" data-file={item.file} data-name={item.name} onClick={this.imports}>导入</button>
@@ -240,12 +244,9 @@ class DlgImports extends RbModalHandler {
     </RbModal>
   }
   componentDidMount() {
-    $.get(`${rb.baseUrl}/admin/classification/imports/load-index`, (res) => {
-      if (res.error_code === 0) {
-        this.setState({ indexes: res.data })
-      } else {
-        rb.hberror(res.error_msg)
-      }
+    $.get(`${rb.baseUrl}/admin/rbstore/load-index?type=classifications`, (res) => {
+      if (res.error_code === 0) this.setState({ indexes: res.data })
+      else rb.hberror(res.error_msg)
     })
   }
 
@@ -254,7 +255,7 @@ class DlgImports extends RbModalHandler {
     let name = e.currentTarget.dataset.name
     let url = `${rb.baseUrl}/admin/classification/imports/starts?dest=${this.props.id}&file=${$encode(file)}`
     let that = this
-    rb.alert(`<strong>${name}</strong><br>导入将导致现有数据被清空。立即开始导入吗？`, {
+    rb.alert(`<strong>${name}</strong><br>请注意，导入将导致现有数据被清空。<br>如当前分类数据正在使用则不建议导入。确认导入吗？`, {
       html: true,
       confirm: function () {
         this.hide()
@@ -262,7 +263,7 @@ class DlgImports extends RbModalHandler {
         that.__mpro = new Mprogress({ template: 2, start: true, parent: '.rbmodal .modal-body' })
         $.post(url, (res) => {
           if (res.error_code === 0) that.__checkState(res.data)
-          else rb.hbsuccess(res.error_msg || '导入失败')
+          else rb.hberror(res.error_msg || '导入失败')
         })
       }
     })
@@ -271,7 +272,13 @@ class DlgImports extends RbModalHandler {
   __checkState(taskid) {
     $.get(`${rb.baseUrl}/commons/task/state?taskid=${taskid}`, (res) => {
       if (res.error_code === 0) {
-        let cp = res.data.complete
+        if (res.data.hasError) {
+          this.__mpro.end()
+          rb.hberror(res.data.hasError)
+          return
+        }
+
+        let cp = res.data.completed
         if (cp >= 1) {
           rb.hbsuccess('导入完成')
           this.__mpro.end()

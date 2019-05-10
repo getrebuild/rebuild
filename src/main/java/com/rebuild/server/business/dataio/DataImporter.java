@@ -27,7 +27,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.task.BulkTask;
+import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.ExtRecordCreator;
 import com.rebuild.server.metadata.entityhub.DisplayType;
@@ -36,7 +36,6 @@ import com.rebuild.server.portals.ClassificationManager;
 import com.rebuild.server.portals.PickListManager;
 import com.rebuild.utils.JSONUtils;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.excel.Cell;
 import cn.devezhao.commons.excel.ExcelReader;
@@ -54,50 +53,48 @@ import cn.devezhao.persist4j.engine.ID;
  * 
  * @see DisplayType
  */
-public class DataImporter extends BulkTask {
+public class DataImporter extends HeavyTask<Integer> {
 	
-	final private ImportEnter enter;
-	final private ID user;
+	private static final ThreadLocal<ID> IN_IMPORTING = new ThreadLocal<>();
 	
-	private int success = 0;
+	final private ImportRule rule;
+	final private ID owningUser;
+	
+	private int successed = 0;
 	private Map<Integer, Object> logging = new LinkedHashMap<>();
 	
 	/**
-	 * @param enter
-	 * @param user
+	 * @param rule
 	 */
-	public DataImporter(ImportEnter enter, ID user) {
-		this.enter = enter;
-		this.user = user;
+	public DataImporter(ImportRule rule) {
+		this(rule, Application.getCurrentUser());
 	}
 	
 	/**
-	 * @return
+	 * @param rule
+	 * @param user
 	 */
-	public ImportEnter getImportEnter() {
-		return enter;
+	public DataImporter(ImportRule rule, ID user) {
+		this.rule = rule;
+		this.owningUser = rule.getDefaultOwningUser() == null ? user : rule.getDefaultOwningUser();
 	}
 	
 	@Override
-	public void run() {
-		ID ou = enter.getDefaultOwningUser();
-		ou = ou == null ? this.user : ou;
-		Application.getSessionStore().set(ou);
-		
-		DataFileParser fileParser = null;
-		try {
-			fileParser = new DataFileParser(enter.getSourceFile());
-			setTotal(fileParser.getRowsCount() - 1);
+	public Integer exec() throws Exception {
+		try (DataFileParser fileParser = new DataFileParser(rule.getSourceFile())) {
+			this.setTotal(fileParser.getRowsCount() - 1);
 			
 			ExcelReader reader = fileParser.getExcelReader();
 			reader.next();  // Remove head row
+			
+			setThreadUser(this.owningUser);
+			IN_IMPORTING.set(owningUser);
 			
 			while (reader.hasNext()) {
 				if (isInterrupt()) {
 					this.setInterrupted();
 					break;
 				}
-//				ThreadPool.waitFor(RandomUtils.nextInt(1500));
 				
 				try {
 					Cell[] cell = reader.next();
@@ -107,31 +104,28 @@ public class DataImporter extends BulkTask {
 					
 					Record record = checkoutRecord(cell);
 					if (record != null) {
-						record = Application.getEntityService(enter.getToEntity().getEntityCode()).createOrUpdate(record);
-						this.success++;
+						record = Application.getEntityService(rule.getToEntity().getEntityCode()).createOrUpdate(record);
+						this.successed++;
 						logging.put(reader.getRowIndex(), record.getPrimary());
 					}
 				} catch (Exception ex) {
 					logging.put(reader.getRowIndex(), ex.getLocalizedMessage());
 					LOG.warn(reader.getRowIndex() + " > " + ex);
 				} finally {
-					this.setCompleteOne();
+					this.addCompleted();
 				}
 			}
 		} finally {
-			Application.getSessionStore().clean();
-			if (fileParser != null) {
-				fileParser.close();
-			}
-			completedAfter();
+			IN_IMPORTING.remove();
 		}
+		return this.successed;
 	}
 	
 	/**
 	 * @return
 	 */
-	public int getSuccess() {
-		return success;
+	public int getSuccessed() {
+		return successed;
 	}
 
 	/**
@@ -146,11 +140,9 @@ public class DataImporter extends BulkTask {
 	 * @return
 	 */
 	protected Record checkoutRecord(Cell cells[]) {
-		ID ou = enter.getDefaultOwningUser();
-		ou = ou == null ? this.user : ou;
-		Record recordNew = EntityHelper.forNew(enter.getToEntity().getEntityCode(), ou);
+		Record recordNew = EntityHelper.forNew(rule.getToEntity().getEntityCode(), this.owningUser);
 		
-		for (Map.Entry<Field, Integer> e : enter.getFiledsMapping().entrySet()) {
+		for (Map.Entry<Field, Integer> e : rule.getFiledsMapping().entrySet()) {
 			int cellIndex = e.getValue();
 			if (cells.length > cellIndex) {
 				Field field = e.getKey();
@@ -164,15 +156,15 @@ public class DataImporter extends BulkTask {
 		Record record = recordNew;
 		
 		// 检查重复
-		if (enter.getRepeatOpt() < ImportEnter.REPEAT_OPT_IGNORE) {
-			final ID repeat = getRepeatedRecordId(enter.getRepeatFields(), recordNew);
+		if (rule.getRepeatOpt() < ImportRule.REPEAT_OPT_IGNORE) {
+			final ID repeat = getRepeatedRecordId(rule.getRepeatFields(), recordNew);
 			
-			if (repeat != null && enter.getRepeatOpt() == ImportEnter.REPEAT_OPT_SKIP) {
+			if (repeat != null && rule.getRepeatOpt() == ImportRule.REPEAT_OPT_SKIP) {
 				return null;
 			}
 			
-			if (repeat != null && enter.getRepeatOpt() == ImportEnter.REPEAT_OPT_UPDATE) {
-				record = EntityHelper.forUpdate(repeat, ou);
+			if (repeat != null && rule.getRepeatOpt() == ImportRule.REPEAT_OPT_UPDATE) {
+				record = EntityHelper.forUpdate(repeat, this.owningUser);
 				for (Iterator<String> iter = recordNew.getAvailableFieldIterator(); iter.hasNext(); ) {
 					String field = iter.next();
 					if (EntityHelper.OwningUser.equals(field) || EntityHelper.OwningDept.equals(field)
@@ -184,10 +176,11 @@ public class DataImporter extends BulkTask {
 				}
 			}
 		}
-	
+		
+		// Verify new record
 		if (record.getPrimary() == null) {
-			ExtRecordCreator creator = new ExtRecordCreator(enter.getToEntity(), JSONUtils.EMPTY_OBJECT, null);
-			creator.verify(recordNew, true);
+			ExtRecordCreator verifier = new ExtRecordCreator(rule.getToEntity(), JSONUtils.EMPTY_OBJECT, null);
+			verifier.verify(recordNew, true);
 		}
 		return record;
 	}
@@ -295,20 +288,25 @@ public class DataImporter extends BulkTask {
 		
 		Entity oEntity = field.getReferenceEntity();
 		
-		// 支持ID
+		// 支持ID导入
 		if (ID.isId(val) && ID.valueOf(val).getEntityCode().intValue() == oEntity.getEntityCode()) {
 			return ID.valueOf(val);
 		}
 		
-		Object typeVal = checkoutFieldValue(oEntity.getNameField(), cell, false);
-		if (typeVal == null) {
+		Object textVal = checkoutFieldValue(oEntity.getNameField(), cell, false);
+		if (textVal == null) {
 			return null;
 		}
 		
-		String sql = String.format("select %s from %s where %s = ?",
-				oEntity.getPrimaryField().getName(), oEntity.getName(), oEntity.getNameField().getName());
-		Object[] exists = Application.createQueryNoFilter(sql).setParameter(1, typeVal).unique();
-		return exists == null ? null : (ID) exists[0];
+		String sql = null;
+		if (oEntity.getEntityCode() == EntityHelper.User) {
+			sql = String.format("select userId from User where loginName = '%s' or email = '%s'", textVal, textVal);
+		} else {
+			sql = String.format("select %s from %s where %s = '%s'",
+					oEntity.getPrimaryField().getName(), oEntity.getName(), oEntity.getNameField().getName());
+		}
+		Object[] found = Application.createQueryNoFilter(sql).setParameter(1, textVal).unique();
+		return found == null ? null : (ID) found[0];
 	}
 	
 	/**
@@ -328,15 +326,7 @@ public class DataImporter extends BulkTask {
 		String date2str = cell.asString();
 		// 2017/11/19 11:07
 		if (date2str.contains("/")) {
-			int strLen = date2str.length();
-			if (strLen <= 10) {
-				return CalendarUtils.parse(date2str, CalendarUtils.getDateFormat("yyyy/M/d"));
-			} else {
-				if (StringUtils.countMatches(date2str, ":") == 1) {
-					date2str += ":00";
-				}
-				return CalendarUtils.parse(date2str, CalendarUtils.getDateFormat("yyyy/M/d H:m:s"));
-			}
+			return cell.asDate(new String[] { "yyyy/M/d H:m:s", "yyyy/M/d H:m", "yyyy/M/d" });
 		}
 		return null;
 	}
@@ -374,5 +364,16 @@ public class DataImporter extends BulkTask {
 		
 		Object[] exists = query.unique();
 		return exists == null ? null : (ID) exists[0];
+	}
+	
+	// --
+	
+	/**
+	 * 是否导入模式
+	 * 
+	 * @return
+	 */
+	public static boolean isInImporting() {
+		return IN_IMPORTING.get() != null;
 	}
 }
