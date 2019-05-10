@@ -19,7 +19,7 @@ final User currentUser = Application.getUserStore().getUser(AppUtils.getRequestU
 			<ul class="nav navbar-nav float-right rb-user-nav">
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle" href="${baseUrl}/account/settings" data-toggle="dropdown">
-						<img src="<%=currentUser.getAvatarUrl(true)%>" alt="Avatar">
+						<img src="${baseUrl}/account/user-avatar" alt="Avatar">
 						<span class="user-name"><%=currentUser.getFullName()%></span>
 					</a>
 					<div class="dropdown-menu">

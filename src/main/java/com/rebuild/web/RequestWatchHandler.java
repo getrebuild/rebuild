@@ -71,8 +71,6 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 			ServletUtils.setNoCacheHeaders(response);
 		}
 		
-		System.err.println(requestUrl);
-		
 		// If server status is not passed
 		if (!requestUrl.contains("/gw/server-status") && !Application.serversReady()) {
 			response.sendRedirect(ServerListener.getContextPath() + "/gw/server-status?s=" + CodecUtils.urlEncode(requestUrl));

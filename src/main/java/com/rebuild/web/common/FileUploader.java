@@ -31,6 +31,7 @@ import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
@@ -69,7 +70,7 @@ public class FileUploader {
 				uploadName = QiniuCloud.formatFileKey(uploadName);
 				File file = null;
 				// 上传临时文件
-				if ("1".equals(request.getParameter("temp"))) {
+				if (BooleanUtils.toBoolean(request.getParameter("temp"))) {
 					uploadName = uploadName.split("/")[2];
 					file = SysConfiguration.getFileOfTemp(uploadName);
 				} else {

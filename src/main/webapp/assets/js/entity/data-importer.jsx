@@ -92,7 +92,7 @@ $(document).ready(() => {
 
 const init_upload = () => {
   $('#upload-input').html5Uploader({
-    postUrl: rb.baseUrl + '/filex/upload?temp=1',
+    postUrl: rb.baseUrl + '/filex/upload?temp=yes',
     onSelectError: function (field, error) {
       if (error === 'ErrorType') rb.highbar('请上传 Excel/CSV 文件')
       else if (error === 'ErrorMaxSize') rb.highbar('文件不能大于 20M')

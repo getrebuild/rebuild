@@ -33,6 +33,7 @@ import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseControll;
 
+import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -75,11 +76,15 @@ public class UserAvatar extends BaseControll {
 			return;
 		}
 		
+		final int minutes = 15;
+		ServletUtils.addCacheHead(response, minutes);
+		
 		String avatarUrl = realUser.getAvatarUrl();
+		avatarUrl = QiniuCloud.encodeUrl(avatarUrl);
 		if (avatarUrl != null) {
 			avatarUrl = avatarUrl + "?imageView2/2/w/100/interlace/1/q/100";
 			if (QiniuCloud.instance().available()) {
-				avatarUrl = QiniuCloud.instance().url(avatarUrl);
+				avatarUrl = QiniuCloud.instance().url(avatarUrl, minutes * 60);
 			} else {
 				avatarUrl = AppUtils.getContextPath() + "/filex/img/" + avatarUrl;
 			}
