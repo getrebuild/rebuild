@@ -62,7 +62,7 @@ public final class Application {
 	
 	/** Rebuild Version
 	 */
-	public static final String VER = "1.2.0-beta";
+	public static final String VER = "1.3.0-dev";
 	
 	/** Logging for Global
 	 */
