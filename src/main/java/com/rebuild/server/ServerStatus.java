@@ -75,13 +75,6 @@ public final class ServerStatus {
 		}
 		return true;
 	}
-	
-	/**
-	 * @return
-	 */
-	public static boolean isDatabaseOK() {
-		return checkDatabase().success;
-	}
 
 	/**
 	 * 系统状态检查
@@ -102,6 +95,12 @@ public final class ServerStatus {
 		return isStatusOK();
 	}
 	
+	static {
+		try {
+			Class.forName(com.mysql.jdbc.Driver.class.getName());
+		} catch (ClassNotFoundException e) {
+		}
+	}
 	/**
 	 * 数据库连接
 	 * 
@@ -110,19 +109,11 @@ public final class ServerStatus {
 	protected static Status checkDatabase() {
 		String name = "Database";
 		try {
-			Class.forName(com.mysql.jdbc.Driver.class.getName());
 			Connection c = DriverManager.getConnection(
 					Application.getBean(AesPreferencesConfigurer.class).getItem("db.url"), 
 					Application.getBean(AesPreferencesConfigurer.class).getItem("db.user"),
 					Application.getBean(AesPreferencesConfigurer.class).getItem("db.passwd"));
 			SqlHelper.close(c);
-			
-//			DataSource ds = Application.getPersistManagerFactory().getDataSource();
-//			Connection c = DataSourceUtils.getConnection(ds);
-//			DatabaseMetaData dmd = c.getMetaData();
-//			String dbName = dmd.getDatabaseProductName() + dmd.getDatabaseProductVersion();
-//			name += "/" + dbName;
-//			DataSourceUtils.releaseConnection(c, ds);
 		} catch (Exception ex) {
 			return Status.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
 		}

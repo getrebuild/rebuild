@@ -48,12 +48,12 @@ public class UserAvatar extends BaseControll {
 	
 	@RequestMapping("/user-avatar")
 	public void renderAvatat(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		renderAvatat(getRequestUser(request), response);
+		renderUserAvatat(getRequestUser(request), response);
 	}
 	
 	@RequestMapping("/user-avatar/{user}")
 	public void renderAvatat(@PathVariable String user, HttpServletResponse response) throws IOException {
-		renderAvatat(user, response);
+		renderUserAvatat(user, response);
 	}
 	
 	/**
@@ -61,10 +61,12 @@ public class UserAvatar extends BaseControll {
 	 * @param response
 	 * @throws IOException
 	 */
-	protected void renderAvatat(Object user, HttpServletResponse response) throws IOException {
+	protected void renderUserAvatat(Object user, HttpServletResponse response) throws IOException {
 		User realUser = null;
 		if (user instanceof ID) {
 			realUser = Application.getUserStore().getUser((ID) user);
+		} if (ID.isId(user)) {
+			realUser = Application.getUserStore().getUser(ID.valueOf(user.toString()));
 		} else if (Application.getUserStore().existsName((String) user)) {
 			realUser = Application.getUserStore().getUserByName((String) user);
 		} else if (Application.getUserStore().existsEmail((String) user)) {
