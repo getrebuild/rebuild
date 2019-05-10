@@ -18,8 +18,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.user.account;
 
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.rebuild.web.BasePageControll;
 
@@ -29,8 +36,12 @@ import com.rebuild.web.BasePageControll;
  * @author devezhao-mac zhaofang123@gmail.com
  * @since 2019/01/24
  */
-@RequestMapping("/people")
 @Controller
 public class PeopleControll extends BasePageControll {
-	
+
+	@RequestMapping("/account/{user}/home")
+	public ModelAndView peopleView(@PathVariable String user,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		return null;
+	}
 }

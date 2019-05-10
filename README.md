@@ -5,7 +5,13 @@
 [![Build Status](https://travis-ci.org/getrebuild/rebuild.svg?branch=master)](https://travis-ci.org/getrebuild/rebuild)
 [![License](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fgetrebuild%2Frebuild.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fgetrebuild%2Frebuild?ref=badge_shield)
 ![License](https://img.shields.io/github/license/getrebuild/rebuild.svg)
-![Downloads](https://img.shields.io/github/downloads/getrebuild/rebuild/total.svg)
+
+
+## Quick Start
+- Trial nightly build (username and password are both `admin`) https://nightly.getrebuild.com/
+- Build development environment https://getrebuild.com/docs/dev/
+- Version update logs https://getrebuild.com/docs/dev/changelog.html
+- Visit the RB website to learn more https://getrebuild.com/
 
 ## 快速开始
 

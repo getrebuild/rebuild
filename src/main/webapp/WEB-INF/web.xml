@@ -36,15 +36,6 @@
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
 	
-	<filter>
-		<filter-name>etagFilter</filter-name>
-		<filter-class>org.springframework.web.filter.ShallowEtagHeaderFilter</filter-class>
-	</filter>
-	<filter-mapping>
-		<filter-name>etagFilter</filter-name>
-		<url-pattern>/user/*</url-pattern>
-	</filter-mapping>
-	
 	<servlet>
 		<servlet-name>DispatcherServlet</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
@@ -58,15 +49,6 @@
 	<servlet-mapping>
 		<servlet-name>DispatcherServlet</servlet-name>
 		<url-pattern>/</url-pattern>
-	</servlet-mapping>
-	
-	<servlet>
-		<servlet-name>FileUploader</servlet-name>
-		<servlet-class>com.rebuild.web.common.FileUploader</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>FileUploader</servlet-name>
-		<url-pattern>/filex/upload</url-pattern>
 	</servlet-mapping>
 	
 	<servlet-mapping>

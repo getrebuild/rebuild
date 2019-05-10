@@ -17,7 +17,7 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-page.css">
 <meta name="rb.env" content="<%=AppUtils.devMode() ? "dev" : "production"%>">
 <meta name="rb.baseUrl" content="${baseUrl}">
-<meta name="rb.appName" content="REBUILD">
+<meta name="rb.appName" content="${appName}">
 <%if (QiniuCloud.instance().available()) {%>
 <meta name="rb.storageUrl" content="<%=SysConfiguration.getStorageUrl()%>">
 <%}%>
@@ -25,10 +25,10 @@
 <meta name="rb.isAdminUser" content="true">
 <meta name="rb.isAdminVerified" content="<%=AppUtils.isAdminVerified(request)%>">
 <%}%>
-<!--[if lt IE 11]>
-<script>ltIE11 = true</script>
+<%if (AppUtils.isLessIE11(request)){%>
+<script>window.lessIE11 = true</script>
 <script src="${baseUrl}/assets/lib/react/polyfill.min.js"></script>
-<![endif]-->
+<%}%>
 <!--[if lt IE 10]>
 <script>location.href='${baseUrl}/error/unsupported-browser'</script>
 <![endif]-->

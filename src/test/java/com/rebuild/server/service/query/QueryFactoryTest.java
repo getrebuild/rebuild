@@ -62,7 +62,7 @@ public class QueryFactoryTest extends TestSupport {
  		sql.append(" from ").append(allDT.getName());
  		System.out.println("Query : " + sql);
 		
-		Filter filter = Application.getSecurityManager().createQueryFilter(EXAMPLE_USER);
+		Filter filter = Application.getSecurityManager().createQueryFilter(SIMPLE_USER);
 		Application.getQueryFactory().createQuery(sql.toString(), filter).array();
 	}
 	

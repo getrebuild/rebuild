@@ -21,8 +21,10 @@ package com.rebuild.server.helper;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
@@ -38,6 +40,7 @@ import com.qiniu.util.StringMap;
 import com.rebuild.server.RebuildException;
 
 import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.http4.HttpClientEx;
 
 /**
@@ -101,7 +104,7 @@ public class QiniuCloud {
 	 */
 	public String upload(URL url) throws Exception {
 		Assert.notNull(auth, "云存储账户未配置");
-		File tmp = SysConfiguration.getFileOfTemp("temp-" + System.currentTimeMillis());
+		File tmp = SysConfiguration.getFileOfTemp("download." + System.currentTimeMillis());
 		boolean success = download(url, tmp);
 		if (!success) {
 			throw new RebuildException("无法从 URL 读取文件 : " + url);
@@ -201,17 +204,38 @@ public class QiniuCloud {
 	 * @see #parseFileName(String)
 	 */
 	public static String formatFileKey(String fileName) {
-		while (fileName.contains("__")) {
-			fileName = fileName.replace("__", "_");
-		}
-		if (fileName.contains("+")) {
-			fileName = fileName.replace("+", "");
-		}
-		if (fileName.contains("#")) {
-			fileName = fileName.replace("#", "");
-		}
-		if (fileName.length() > 41) {
-			fileName = fileName.substring(0, 20) + "-" + fileName.substring(fileName.length() - 20);
+		return formatFileKey(fileName, true);
+	}
+	
+	/**
+	 * @param fileName
+	 * @param keepName
+	 * @return
+	 * @see #parseFileName(String)
+	 */
+	public static String formatFileKey(String fileName, boolean keepName) {
+		if (!keepName) {
+			String fileName_s[] = fileName.split("\\.");
+			fileName = UUID.randomUUID().toString().replace("-", "");
+			if (fileName_s.length > 1 && StringUtils.isNotBlank(fileName_s[fileName_s.length - 1])) {
+				fileName += "." + fileName_s[fileName_s.length - 1];
+			}
+		} else {
+			while (fileName.contains("__")) {
+				fileName = fileName.replace("__", "_");
+			}
+			if (fileName.contains("+")) {
+				fileName = fileName.replace("+", "");
+			}
+			if (fileName.contains("#")) {
+				fileName = fileName.replace("#", "");
+			}
+			if (fileName.contains("?")) {
+				fileName = fileName.replace("?", "");
+			}
+			if (fileName.length() > 41) {
+				fileName = fileName.substring(0, 20) + "-" + fileName.substring(fileName.length() - 20);
+			}
 		}
 		
 		String datetime = CalendarUtils.getDateFormat("yyyyMMddHHmmssSSS").format(CalendarUtils.now());
@@ -231,6 +255,28 @@ public class QiniuCloud {
 		String fileName = filePath_s[filePath_s.length - 1];
 		fileName = fileName.substring(fileName.indexOf("__") + 2);
 		return fileName;
+	}
+	
+	/**
+	 * URL 编码（中文或特殊字符）
+	 * 
+	 * @param url
+	 * @return
+	 */
+	public static String encodeUrl(String url) {
+		if (StringUtils.isBlank(url)) {
+			return url;
+		}
+		
+		String url_s[] = url.split("/");
+		for (int i = 0; i < url_s.length; i++) {
+			String e = CodecUtils.urlEncode(url_s[i]);
+			if (e.contains("+")) {
+				e = e.replace("+", "%20");
+			}
+			url_s[i] = e;
+		}
+		return StringUtils.join(url_s, "/");
 	}
 	
 	private static final QiniuCloud INSTANCE = new QiniuCloud();

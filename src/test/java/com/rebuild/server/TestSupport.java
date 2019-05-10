@@ -47,11 +47,11 @@ public class TestSupport {
 	protected static final String TEST_ENTITY = "TestAllFields";
 	
 	// 示例用户
-	protected static final ID EXAMPLE_USER = ID.valueOf("001-9000000000000001");
+	protected static final ID SIMPLE_USER = ID.valueOf("001-9000000000000001");
 	// 示例部门
-	protected static final ID EXAMPLE_DEPT = ID.valueOf("002-9000000000000001");
+	protected static final ID SIMPLE_DEPT = ID.valueOf("002-9000000000000001");
 	// 示例角色（无任何权限）
-	protected static final ID EXAMPLE_ROLE = ID.valueOf("003-9000000000000001");
+	protected static final ID SIMPLE_ROLE = ID.valueOf("003-9000000000000001");
 	
 	@BeforeClass
 	public static void startup() throws Exception {

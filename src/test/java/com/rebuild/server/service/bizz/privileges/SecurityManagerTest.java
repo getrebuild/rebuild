@@ -36,16 +36,16 @@ public class SecurityManagerTest extends TestSupport {
 	public void testEntityPrivileges() throws Exception {
 		int entity = MetadataHelper.getEntity(TEST_ENTITY).getEntityCode();
 		
-		Application.getSecurityManager().allowed(EXAMPLE_USER, entity, BizzPermission.CREATE);
-		Application.getSecurityManager().allowed(EXAMPLE_USER, entity, BizzPermission.DELETE);
-		Application.getSecurityManager().allowed(EXAMPLE_USER, entity, BizzPermission.UPDATE);
-		Application.getSecurityManager().allowed(EXAMPLE_USER, entity, BizzPermission.READ);
-		Application.getSecurityManager().allowed(EXAMPLE_USER, entity, BizzPermission.ASSIGN);
-		Application.getSecurityManager().allowed(EXAMPLE_USER, entity, BizzPermission.SHARE);
+		Application.getSecurityManager().allowed(SIMPLE_USER, entity, BizzPermission.CREATE);
+		Application.getSecurityManager().allowed(SIMPLE_USER, entity, BizzPermission.DELETE);
+		Application.getSecurityManager().allowed(SIMPLE_USER, entity, BizzPermission.UPDATE);
+		Application.getSecurityManager().allowed(SIMPLE_USER, entity, BizzPermission.READ);
+		Application.getSecurityManager().allowed(SIMPLE_USER, entity, BizzPermission.ASSIGN);
+		Application.getSecurityManager().allowed(SIMPLE_USER, entity, BizzPermission.SHARE);
 	}
 	
 	@Test
 	public void testZero() throws Exception {
-		Application.getSecurityManager().allowed(EXAMPLE_USER, ZeroEntry.AllowLogin);
+		Application.getSecurityManager().allowed(SIMPLE_USER, ZeroEntry.AllowLogin);
 	}
 }

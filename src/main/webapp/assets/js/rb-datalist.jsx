@@ -1,6 +1,7 @@
 /* eslint-disable react/no-string-refs */
 /* eslint-disable react/prop-types */
 // ~~ 数据列表
+const COLUMN_MIN_WIDTH = 30
 class RbList extends React.Component {
   constructor(props) {
     super(props)
@@ -13,7 +14,7 @@ class RbList extends React.Component {
     let fields = props.config.fields
     for (let i = 0; i < fields.length; i++) {
       let cw = $storage.get(this.__columnWidthKey + fields[i].field)
-      if (!!cw && ~~cw >= 48) fields[i].width = ~~cw
+      if (!!cw && ~~cw >= COLUMN_MIN_WIDTH) fields[i].width = ~~cw
       if (sort[0] === fields[i].field) fields[i].sort = sort[1]
     }
     props.config.fields = null
@@ -83,7 +84,7 @@ class RbList extends React.Component {
       containment: '.rb-datatable-body', axis: 'x', helper: 'clone', stop: function (event, ui) {
         let field = $(event.target).data('field')
         let left = ui.position.left - 2
-        if (left < 48) left = 48  // min
+        if (left < COLUMN_MIN_WIDTH) left = COLUMN_MIN_WIDTH
         let fields = that.state.fields
         for (let i = 0; i < fields.length; i++) {
           if (fields[i].field === field) {
@@ -392,10 +393,9 @@ const RbListPage = {
       rb.RbFormModal({ title: `新建${entity[1]}`, entity: entity[0], icon: entity[2] })
     })
     $('.J_edit').click(() => {
-      let selected = this._RbList.getSelectedRows()
-      if (selected.length === 1) {
-        selected = selected[0]
-        rb.RbFormModal({ id: selected[0], title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] })
+      let ids = this._RbList.getSelectedIds()
+      if (ids.length >= 1) {
+        rb.RbFormModal({ id: ids[0], title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] })
       }
     })
     $('.J_delete').click(() => {
@@ -410,10 +410,10 @@ const RbListPage = {
       renderRbcomp(<DeleteConfirm ids={ids} entity={needEntity} deleteAfter={deleteAfter} />)
     })
     $('.J_view').click(() => {
-      let selected = this._RbList.getSelectedRows()
-      if (selected.length === 1) {
-        selected = selected[0]
-        rb.RbViewModal({ id: selected[0], entity: entity[0] })
+      let ids = this._RbList.getSelectedIds()
+      if (ids.length >= 1) {
+        location.hash = '!/View/' + entity[0] + '/' + ids[0]
+        rb.RbViewModal({ id: ids[0], entity: entity[0] })
       }
     })
     $('.J_assign').click(() => {

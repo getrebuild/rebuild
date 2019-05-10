@@ -5,11 +5,14 @@ $(function () {
   t.perfectScrollbar()
   $(window).resize(function () {
     $setTimeout(function () {
-      if (window.ltIE11 === true) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
+      if (window.lessIE11) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
       t.perfectScrollbar('update')
     }, 500, 'rb-scroller-update')
   })
-  if (window.ltIE11 === true) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
+  if (window.lessIE11) {
+	  $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
+	  $('html').addClass('ie10')
+  }
 
   // tooltip
   $('[data-toggle="tooltip"]').tooltip()
@@ -48,7 +51,7 @@ $(function () {
 })
 // Trigger on Ctrl+Alt+X
 // @t - trigger times
-var command_exec = function (t) { }
+var command_exec = function (t) {}
 
 // MainNav
 var __initNavs = function () {
@@ -137,7 +140,7 @@ var __checkMessage = function () {
 
     if (__checkMessage__state !== res.data.unread) __loadMessages__state = 0
     __checkMessage__state = res.data.unread
-    setTimeout(__checkMessage, rb.env === 'dev' ? 30000 : 2000)
+    setTimeout(__checkMessage, rb.env === 'dev' ? 60 * 10000 : 2000)
   })
 }
 var __loadMessages__state = 0
@@ -186,15 +189,10 @@ var $fileCutName = function (fileName) {
   fileName = fileName[fileName.length - 1]
   return fileName.substr(fileName.indexOf('__') + 2)
 }
-var $fileDetectingIcon = function (fileName) {
-  fileName = fileName.toLowerCase()
-  if (fileName.endsWith('.png') || fileName.endsWith('.gif') || fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') || fileName.endsWith('.bmp')) return 'png'
-  else if (fileName.endsWith('.doc') || fileName.endsWith('.docx')) return 'word'
-  else if (fileName.endsWith('.ppt') || fileName.endsWith('.pptx')) return 'ppt'
-  else if (fileName.endsWith('.xls') || fileName.endsWith('.xlsx')) return 'excel'
-  else if (fileName.endsWith('.pdf')) return 'pdf'
-  else if (fileName.endsWith('.mp4') || fileName.endsWith('.rmvb') || fileName.endsWith('.rm') || fileName.endsWith('.avi') || fileName.endsWith('.flv')) return 'mp4'
-  return ''
+var $fileExtName = function (fileName) {
+  fileName = (fileName || '').toLowerCase()
+  fileName = fileName.split('.')
+  return fileName[fileName.length - 1] || ''
 }
 
 var $gotoSection = function (top, target) {
@@ -247,8 +245,7 @@ var $createUploader = function (input, next, complete, error) {
           return false
         }
       },
-      onClientLoad: function (e, file) {
-      },
+      onClientLoad: function (e, file) {},
       onClientProgress: function (e, file) {
         typeof next === 'function' && next({ percent: e.loaded * 100 / e.total })
       },

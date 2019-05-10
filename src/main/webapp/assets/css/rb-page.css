@@ -324,7 +324,7 @@ div.dataTables_wrapper div.dataTables_filter {
 
 .rbmodal.show,
 .rbview.show .modal-content {
-    transition: margin 0.4s;
+    transition: margin 0.2s;
 }
 
 .modal.rbalert .modal-dialog {
@@ -462,6 +462,19 @@ a {
     margin-bottom: 0;
 }
 
+.rbform-alert {
+    margin: -20px;
+    margin-bottom: 20px;
+    text-align: center;
+    padding: 0.5em;
+    border-radius: 0;
+    color: #856404;
+}
+
+.rbform-alert p {
+    margin: 0
+}
+
 .rbform .type-IMAGE {
     padding-bottom: 1px !important;
 }
@@ -506,11 +519,7 @@ a {
     position: relative;
     border: 0 none;
     padding: 0;
-}
-
-.img-field .img-upload>img {
-    max-width: 100%;
-    max-height: 100%;
+    overflow: hidden;
 }
 
 .img-field label.img-upload {
@@ -593,59 +602,43 @@ a {
     overflow: hidden;
     border: 0 none;
     color: #404040;
-    border-left: 2px solid #4285f4;
+    border-left: 2px solid #ccc;
     width: 205px;
+    border-radius: 2px;
+    max-height: 38px;
+}
+
+.file-field .img-thumbnail:hover {
+    border-color: #4285f4;
 }
 
 .file-field .img-thumbnail:nth-child(even) {
     margin-right: 0
 }
 
-.file-field .img-thumbnail>i.ftype {
+.file-field .img-thumbnail>i.file-icon {
     float: left;
-    width: 28px;
-    height: 28px;
-    line-height: 1;
-    background: url(../img/ft-icons/icon-txt.png) no-repeat center center;
-    background-size: 28px auto;
-    margin: 1px;
+    margin-left: 2px;
 }
 
-.file-field .img-thumbnail>i.ftype.png {
-    background-image: url(../img/ft-icons/icon-png.png)
-}
-
-.file-field .img-thumbnail>i.ftype.word {
-    background-image: url(../img/ft-icons/icon-word.png)
-}
-
-.file-field .img-thumbnail>i.ftype.ppt {
-    background-image: url(../img/ft-icons/icon-ppt.png)
-}
-
-.file-field .img-thumbnail>i.ftype.excel {
-    background-image: url(../img/ft-icons/icon-excel.png)
-}
-
-.file-field .img-thumbnail>i.ftype.pdf {
-    background-image: url(../img/ft-icons/icon-pdf.png)
-}
-
-.file-field .img-thumbnail>i.ftype.mp4 {
-    background-image: url(../img/ft-icons/icon-mp4.png)
+.file-field .img-thumbnail>i.file-icon::after {
+    padding: 0;
+    padding-left: 2px
 }
 
 .file-field .img-thumbnail>span {
-    margin-left: 32px;
-    display: block;
+    margin-left: 30px;
     word-break: break-all;
     height: 30px;
-    padding: 0 4px;
-    padding-left: 2px;
-    line-height: 1.2rem;
-    vertical-align: middle;
+    padding: 1px 4px;
+    padding-left: 6px;
+    line-height: 15px;
+    line-height: 1.15rem;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: 12px;
+    display: table-cell;
+    vertical-align: middle;
 }
 
 .datetime-field .input-group-append button {
@@ -835,8 +828,16 @@ i.split.ui-draggable-dragging {
     max-width: 1000px;
 }
 
-.table td.td-min {
+.data-list .table td.td-min {
     padding: 3px 10px;
+}
+
+.data-list .table tbody tr td.user-avatar {
+    padding: 6px 10px;
+}
+
+.data-list .table tbody tr td.user-avatar img {
+    margin-right: 0;
 }
 
 .column-imgs,
@@ -875,7 +876,7 @@ i.split.ui-draggable-dragging {
 }
 
 .column-files ul>li {
-    line-height: 1.35;
+    line-height: 1.3;
 }
 
 .column-files ul>li>a {

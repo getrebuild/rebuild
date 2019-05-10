@@ -353,6 +353,25 @@ public class GeneralEntityRecordControll extends BaseControll {
 		writeSuccess(response, ret);
 	}
 	
+	@RequestMapping("record-lastModified")
+	public void fetchRecordLastModified(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		final ID id = getIdParameterNotNull(request, "id");
+		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
+		
+		String sql = String.format("select modifiedOn from %s where %s = '%s'",
+				entity.getName(), entity.getPrimaryField().getName(), id);
+		Object[] recordMeta = Application.createQueryNoFilter(sql).unique();
+		if (recordMeta == null) {
+			writeFailure(response, "NO_EXISTS");
+			return;
+		}
+		
+		JSON ret = JSONUtils.toJSONObject(
+				new String[] { "lastModified" },
+				new Object[] { ((Date) recordMeta[0]).getTime() });
+		writeSuccess(response, ret);
+	}
+	
 	@RequestMapping("shared-list")
 	public void fetchSharedList(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID id = getIdParameterNotNull(request, "id");

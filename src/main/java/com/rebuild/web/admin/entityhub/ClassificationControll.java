@@ -64,6 +64,12 @@ public class ClassificationControll extends BasePageControll {
 					.setParameter(1, o[0])
 					.unique();
 			o[4] = count[0];
+			
+			int level = (int) o[3];
+			if (level == 0) o[3] = "一";
+			else if (level == 1) o[3] = "二";
+			else if (level == 2) o[3] = "三";
+			else if (level == 3) o[3] = "四";
 		}
 		
 		ModelAndView mv = createModelAndView("/admin/entityhub/classification/list.jsp");

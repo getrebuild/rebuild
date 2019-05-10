@@ -23,7 +23,10 @@ import java.io.Serializable;
 import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.ehcache.EhCacheCacheManager;
 import org.springframework.util.Assert;
+
+import com.rebuild.server.Application;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -110,5 +113,13 @@ public class EhcacheTemplate<V extends Serializable> implements CacheTemplate<V>
 	protected String unityKey(String key) {
 		Assert.notNull(key, "[key] not be null");
 		return (getKeyPrefix() + key).toLowerCase();
+	}
+	
+	/**
+	 * 关闭 Ehcache 以便将缓存持久化到硬盘
+	 */
+	public void shutdown() {
+		Application.LOG.info("Ehcache shutdown ...");
+		((EhCacheCacheManager) ehcacheManager).getCacheManager().shutdown();
 	}
 }
