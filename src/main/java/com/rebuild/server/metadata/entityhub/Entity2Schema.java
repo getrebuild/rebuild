@@ -214,10 +214,16 @@ public class Entity2Schema extends Field2Schema {
 			throw new ModifiyMetadataException("不能删除主实体");
 		}
 		
+		for (Field whoRef : entity.getReferenceToFields()) {
+			if (!whoRef.getOwnEntity().equals(entity)) {
+				throw new ModifiyMetadataException("实体已被引用 (引用实体: " + EasyMeta.getLabel(whoRef.getOwnEntity()) + ")");
+			}
+		}
+		
 		if (!force) {
 			long count = 0;
 			if ((count = checkRecordCount(entity)) > 0) {
-				throw new ModifiyMetadataException("不能删除有记录的实体 (" + entity.getName() + "=" + count + ")");
+				throw new ModifiyMetadataException("不能删除有数据的实体 (数量: " + count + ")");
 			}
 		}
 		

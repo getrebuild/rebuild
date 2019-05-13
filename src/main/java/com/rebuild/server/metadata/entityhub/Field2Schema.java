@@ -90,7 +90,7 @@ public class Field2Schema {
 	public String create(Entity entity, String fieldLabel, DisplayType type, String comments, String refEntity, JSON extConfig) {
 		long count = 0;
 		if ((count = checkRecordCount(entity)) > 50000) {
-			throw new ModifiyMetadataException("本实体记录过大，增加字段可能导致表损坏 (" + entity.getName() + "=" + count + ")");
+			throw new ModifiyMetadataException("本实体记录过大，增加字段可能导致表损坏 (记录数: " + count + ")");
 		}
 		
 		String fieldName = toPinyinName(fieldLabel);
@@ -108,7 +108,7 @@ public class Field2Schema {
 		boolean schemaReady = schema2Database(entity, field);
 		if (!schemaReady) {
 			Application.getCommonService().delete(tempMetaId.toArray(new ID[tempMetaId.size()]));
-			return null;
+			throw new ModifiyMetadataException("无法创建字段到数据库");
 		}
 		
 		Application.getMetadataFactory().refresh(false);

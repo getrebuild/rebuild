@@ -1,15 +1,10 @@
-.dev-show {
+.dev-show,
+.admin-show,
+.bosskey-show {
     display: none;
 }
 
-html.dev .dev-show {
-    display: block;
-}
-
-.admin-show {
-    display: none;
-}
-
+html.dev .dev-show,
 html.admin .admin-show {
     display: block;
 }

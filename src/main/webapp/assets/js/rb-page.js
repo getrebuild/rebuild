@@ -10,8 +10,8 @@ $(function () {
     }, 500, 'rb-scroller-update')
   })
   if (window.lessIE11) {
-	  $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
-	  $('html').addClass('ie10')
+    $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
+    $('html').addClass('ie10')
   }
 
   // tooltip
@@ -44,9 +44,12 @@ $(function () {
     $('.J_notifications-top').on('shown.bs.dropdown', __loadMessages)
   }
 
-  var keydown_times = 0
+  var bkeydown_times = 0
   $(document.body).keydown(function (e) {
-    if (e.ctrlKey && e.altKey && e.which === 88) command_exec(++keydown_times)
+    if (e.ctrlKey && e.altKey && e.which === 88) {
+      if (++bkeydown_times === 6) $('.bosskey-show').show()
+      command_exec(bkeydown_times)
+    }
   })
 })
 // Trigger on Ctrl+Alt+X
@@ -196,7 +199,9 @@ var $fileExtName = function (fileName) {
 }
 
 var $gotoSection = function (top, target) {
-  $(target || 'body').animate({ scrollTop: top || 0 }, 600)
+  $(target || 'body').animate({
+    scrollTop: top || 0
+  }, 600)
 }
 
 // Use H5 or Qiuniu
@@ -206,12 +211,16 @@ var $createUploader = function (input, next, complete, error) {
   if (window.qiniu && rb.storageUrl) {
     input.on('change', function () {
       var file = this.files[0]
-      var putExtra = imgOnly ? { mimeType: ['image/png', 'image/jpeg', 'image/gif', 'image/bmp', 'image/tiff'] } : null
+      var putExtra = imgOnly ? {
+        mimeType: ['image/png', 'image/jpeg', 'image/gif', 'image/bmp', 'image/tiff']
+      } : null
       $.get(rb.baseUrl + '/filex/qiniu/upload-keys?file=' + $encode(file.name), function (res) {
         var o = qiniu.upload(file, res.data.key, res.data.token, putExtra)
         o.subscribe({
           next: function (res) {
-            typeof next === 'function' && next({ percent: res.total.percent })
+            typeof next === 'function' && next({
+              percent: res.total.percent
+            })
           },
           error: function (err) {
             var msg = (err.message || 'UnknowError').toUpperCase()
@@ -222,17 +231,20 @@ var $createUploader = function (input, next, complete, error) {
               rb.highbar('超出文件大小限制')
               return false
             }
-            if (error) error({ error: msg })
+            if (error) error({
+              error: msg
+            })
             else rb.hberror('上传失败: ' + msg)
           },
           complete: function (res) {
-            typeof complete === 'function' && complete({ key: res.key })
+            typeof complete === 'function' && complete({
+              key: res.key
+            })
           }
         })
       })
     })
-  }
-  else {
+  } else {
     input.html5Uploader({
       name: input.attr('id') || input.attr('name') || 'H5Upload',
       postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file'),
@@ -247,21 +259,29 @@ var $createUploader = function (input, next, complete, error) {
       },
       onClientLoad: function (e, file) {},
       onClientProgress: function (e, file) {
-        typeof next === 'function' && next({ percent: e.loaded * 100 / e.total })
+        typeof next === 'function' && next({
+          percent: e.loaded * 100 / e.total
+        })
       },
       onSuccess: function (d) {
         d = $.parseJSON(d.currentTarget.response)
         if (d.error_code === 0) {
-          complete({ key: d.data })
+          complete({
+            key: d.data
+          })
         } else {
           var msg = d.error_msg || '上传失败，请稍后重试'
-          if (error) error({ error: msg })
+          if (error) error({
+            error: msg
+          })
           else rb.hberror(msg)
         }
       },
       onClientError: function (e, file) {
         var msg = '上传失败，请稍后重试'
-        if (error) error({ error: msg })
+        if (error) error({
+          error: msg
+        })
         else rb.hberror(msg)
       }
     })

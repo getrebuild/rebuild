@@ -59,4 +59,13 @@ public class Meta2SchemaTest extends TestSupport {
 		drop = new Entity2Schema(UserService.ADMIN_USER).drop(newEntity);
 		System.out.println("New Entity (for Field) is dropped : " + newEntityName + " > " + drop);
 	}
+	
+	@Test
+	public void testForceDropEntity() throws Exception {
+		String entityName = "dingdan";
+		if (!MetadataHelper.containsEntity(entityName)) {
+			return;
+		}
+		new Entity2Schema(UserService.ADMIN_USER).drop(MetadataHelper.getEntity("kehu"), true);
+	}
 }

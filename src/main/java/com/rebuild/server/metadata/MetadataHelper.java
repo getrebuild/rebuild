@@ -333,7 +333,7 @@ public class MetadataHelper {
 	 * @param fieldPath
 	 * @return
 	 */
-	public static Field getLastField(Entity entity, String fieldPath) {
+	public static Field getLastJoinField(Entity entity, String fieldPath) {
 		String[] paths = fieldPath.split(".");
 		Field lastField = null;
 		Entity father = entity;
