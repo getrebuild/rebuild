@@ -671,11 +671,18 @@ a {
 
 .rbhighbar {
     position: fixed;
-    min-width: 360px;
+    min-width: 420px;
     top: 0;
     left: 50%;
-    margin-left: -180px;
+    margin-left: -210px;
     z-index: 1051;
+}
+
+@media (max-width:440px) {
+    .rbhighbar {
+        min-width: 320px;
+        margin-left: -160px;
+    }
 }
 
 .rbhighbar a {

@@ -20,10 +20,13 @@ package com.rebuild.server.service.bizz;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.BlackList;
+import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.SystemEntityService;
+import com.rebuild.server.service.notification.Message;
 import com.rebuild.utils.CommonsUtils;
 
 import cn.devezhao.bizz.security.member.User;
@@ -146,5 +149,24 @@ public class UserService extends SystemEntityService {
 		if (deptOld != null) {
 			TaskExecutors.submit(new ChangeOwningDeptTask(user, deptNew));
 		}
+	}
+	
+	/**
+	 * 用户注册
+	 * 
+	 * @param record
+	 */
+	public void txSignUp(Record record) {
+		if (!SysConfiguration.getBool(ConfigurableItem.OpenSignUp, false)) {
+			throw new DataSpecificationException("管理员未开放公开注册");
+		}
+		
+		record = this.create(record);
+		
+		String content = String.format(
+				"用户 @%s 提交了注册申请。请验证用户有效性后为其启用并指定部门和角色，以便用户登录使用。如果这是一个无效的注册申请请忽略。",
+				record.getPrimary());
+		Message message = new Message(ADMIN_USER, content, record.getPrimary());
+		Application.getNotifications().send(message);
 	}
 }

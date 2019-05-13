@@ -9,6 +9,7 @@
 <style type="text/css">
 #login-form>.row{margin-left:-15px !important;margin-right:-15px !important}
 .vcode-row{height:41px;max-width:100%;cursor:pointer;}
+.J_alert-box{text-align:center;padding:9px 15px}
 </style>
 <title>登录</title>
 </head>
@@ -66,6 +67,8 @@
 <script type="text/babel">
 $(document).ready(function() {
 	if (top != self) { parent.location.reload(); return }
+	if ($urlp('x') == 99) rb.highbar('注册申请已提交，请等待管理员审核', 'success', { timeout: 999999 })
+
 	$('.vcode-row img').click(function(){
 		$(this).attr('src', rb.baseUrl + '/user/captcha?' + $random())
 	})
