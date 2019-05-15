@@ -962,7 +962,11 @@ class RbViewModal extends React.Component {
       that.setState({ inLoad: true, isHide: true })
 
       // 如果还有其他 rbview 处于 open 态， 则保持 modal-open
-      if ($('.rbview.show').length > 0) $(document.body).addClass('modal-open').css({ 'padding-right': 17 })
+      if ($('.rbview.show').length > 0) {
+        $(document.body).addClass('modal-open').css({ 'padding-right': 17 })
+      } else {
+        location.hash = '!/View/'
+      }
       // subView always dispose
       if (that.state.disposeOnHide === true) {
         root.modal('dispose')
@@ -1261,3 +1265,15 @@ rb.RbViewModalHideLoading = function (id) {
     if (m) m.hideLoading()
   }
 }
+
+$(window).on('load', () => {
+  let viewHash = location.hash
+  if (viewHash && viewHash.startsWith('#!/View/')) {
+    viewHash = viewHash.split('/')
+    if (viewHash.length === 4 && viewHash[3].length === 20) {
+      setTimeout(() => {
+        rb.RbViewModal({ entity: viewHash[2], id: viewHash[3] })
+      }, 500)
+    }
+  }
+})

@@ -15,7 +15,7 @@ $(document).ready(function () {
 
   if (rb.isAdminVerified === true) {
     $.get(rb.baseUrl + '/admin/bizuser/check-user-status?id=' + user_id, (res) => {
-      if (res.data.system === true) {
+      if (res.data.system === true && rb.isAdminVerified === true) {
         $('.J_tips').removeClass('hide').find('.message p').text('系统内建用户，不允许修改。管理员用户拥有系统最高级权限，请谨慎使用')
         $('.view-action').remove()
         return

@@ -1612,3 +1612,8 @@ form {
 .ui-mprogress .mp-ui-dashed {
     z-index: 1090;
 }
+
+.rb-notifications .notification>a .notification-info .text>p,
+.card-body.rb-notifications .notification>a .text>p {
+    margin: 0;
+}

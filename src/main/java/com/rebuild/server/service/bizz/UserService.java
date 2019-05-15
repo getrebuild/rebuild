@@ -27,6 +27,7 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.SystemEntityService;
 import com.rebuild.server.service.notification.Message;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 
 import cn.devezhao.bizz.security.member.User;
@@ -204,8 +205,9 @@ public class UserService extends SystemEntityService {
 		record = this.create(record);
 		
 		String content = String.format(
-				"用户 @%s 提交了注册申请。请验证用户有效性后为其启用并指定部门和角色，以便用户登录使用。如果这是一个无效的注册申请请忽略。",
-				record.getPrimary());
+				"用户 @%s 提交了注册申请。请验证用户有效性后为其启用并指定部门和角色，以便用户登录使用。如果这是一个无效的注册申请请忽略。"
+				+ "[点击此处](%s/admin/bizuser/users#!/View/User/%s) 开始激活。",
+				record.getPrimary(), AppUtils.getContextPath(), record.getPrimary());
 		Message message = new Message(ADMIN_USER, content, record.getPrimary());
 		Application.getNotifications().send(message);
 	}

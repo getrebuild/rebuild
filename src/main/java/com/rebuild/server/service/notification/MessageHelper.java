@@ -28,6 +28,7 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.portals.value.FieldValueWrapper;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.MarkdownUtils;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
@@ -55,6 +56,8 @@ public class MessageHelper {
 				message = message.replace(atId, atText);
 			}
 		}
+		
+		message = MarkdownUtils.parse(message);
 		return message;
 	}
 	
@@ -83,7 +86,7 @@ public class MessageHelper {
 		} catch (NoRecordFoundException ex) {
 			recordLabel = "[无效记录]";
 		}
-		return MessageFormat.format("<a title=\"点击查看\" class=\"record\" href=\"{0}/app/{1}/list#!/View/{1}/{2}\">{3}</a>",
+		return MessageFormat.format("[{3}]({0}/app/{1}/list#!/View/{1}/{2})",
 				AppUtils.getContextPath(), entity.getName(), theId, recordLabel);
 	}
 }
