@@ -15,9 +15,16 @@
 		http://www.springframework.org/schema/websocket/spring-websocket.xsd" default-lazy-init="true">
 
 	<context:annotation-config />
+	
 	<mvc:annotation-driven>
 		<mvc:path-matching suffix-pattern="false"/>
 	</mvc:annotation-driven>
+	
+	<mvc:default-servlet-handler />
+	
+	<mvc:resources location="/assest/" mapping="/assest/**">
+		<mvc:cache-control cache-public="true" />
+	</mvc:resources>
 	
 	<context:component-scan base-package="com.rebuild">
 		<context:include-filter type="regex" expression=".web.*" />
