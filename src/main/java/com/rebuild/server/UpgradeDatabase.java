@@ -89,7 +89,7 @@ public final class UpgradeDatabase {
 	 * @return
 	 */
 	public int getDbVer() {
-		return (int) SysConfiguration.getLong(ConfigurableItem.DBVer, 0L);
+		return (int) SysConfiguration.getLong(ConfigurableItem.DBVer);
 	}
 	
 	private static final UpgradeDatabase INSTANCE = new UpgradeDatabase();

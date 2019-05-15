@@ -134,14 +134,54 @@ public class UserService extends SystemEntityService {
 	 * @param deptNew
 	 */
 	public void updateDepartment(ID user, ID deptNew) {
+		updateEnableUser(user, deptNew, null, null);
+	}
+	
+	/**
+	 * 改变角色
+	 * 
+	 * @param user
+	 * @param roleNew
+	 */
+	public void updateRole(ID user, ID roleNew) {
+		updateEnableUser(user, null, roleNew, null);
+	}
+
+	/**
+	 * 入参值为 null 表示不做修改
+	 * 
+	 * @param user
+	 * @param deptNew
+	 * @param roleNew
+	 * @param enableNew
+	 */
+	public void updateEnableUser(ID user, ID deptNew, ID roleNew, Boolean enableNew) {
 		User u = Application.getUserStore().getUser(user);
-		final ID deptOld = u.getOwningBizUnit() == null ? null : (ID) u.getOwningBizUnit().getIdentity();
-		if (deptNew.equals(deptOld)) {
-			return;
+		ID deptOld = null;
+		// 检查是否需要更新部门
+		if (deptNew != null) {
+			deptOld = u.getOwningBizUnit() == null ? null : (ID) u.getOwningBizUnit().getIdentity();
+			if (deptNew.equals(deptOld)) {
+				deptNew = null;
+				deptOld = null;
+			}
+		}
+		
+		// 检查是否需要更新角色
+		if (u.getOwningRole() != null && u.getOwningRole().getIdentity().equals(roleNew)) {
+			roleNew = null;
 		}
 		
 		Record record = EntityHelper.forUpdate(user, Application.getCurrentUser());
-		record.setID("deptId", deptNew);
+		if (deptNew != null) {
+			record.setID("deptId", deptNew);
+		}
+		if (roleNew != null) {
+			record.setID("roleId", roleNew);
+		}
+		if (enableNew != null) {
+			record.setBoolean("isDisabled", !enableNew);
+		}
 		super.update(record);
 		Application.getUserStore().refreshUser(user);
 		
@@ -157,7 +197,7 @@ public class UserService extends SystemEntityService {
 	 * @param record
 	 */
 	public void txSignUp(Record record) {
-		if (!SysConfiguration.getBool(ConfigurableItem.OpenSignUp, false)) {
+		if (!SysConfiguration.getBool(ConfigurableItem.OpenSignUp)) {
 			throw new DataSpecificationException("管理员未开放公开注册");
 		}
 		

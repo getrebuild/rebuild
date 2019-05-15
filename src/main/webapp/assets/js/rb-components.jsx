@@ -186,7 +186,7 @@ class RbHighbar extends React.Component {
   }
 }
 
-// ~~ 加载条
+// ~~ 加载界面
 function RbSpinner(props) {
   let spinner = <div className="rb-spinner">
     <svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
@@ -197,7 +197,7 @@ function RbSpinner(props) {
   return spinner
 }
 
-// ~~ 提示条
+// ~~ 提示条幅
 function RbAlertBox(props) {
   let icon = props.type === 'success' ? 'check' : 'info-outline'
   if (props.type === 'danger') icon = 'close-circle-o'

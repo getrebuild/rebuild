@@ -30,7 +30,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSONObject;
+import com.hankcs.hanlp.HanLP;
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.BlackList;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.SysConfiguration;
@@ -56,11 +58,11 @@ import cn.devezhao.persist4j.Record;
 public class SignUpControll extends BasePageControll {
 	
 	private static final String MSG_VCODE = "<p>你的注册邮箱验证码是 <b>%s</b></p>";
-	private static final String MSG_PENDING = "<p>%s 欢迎注册！以下为你的登录信息，请妥善保管。</p><div style='margin:10px 0'>登录账号 <b>%s</b><br>登录密码 <b>%s</b><br>登录地址 <a>%s</a></div><p>目前你还无法登录系统，因为系统管理员正在审核你的注册信息。完成后会通过邮件通知你，请耐心等待。</p>";
+	private static final String MSG_PENDING = "<p>%s 欢迎注册！以下为你的登录信息，请妥善保管。</p><div style='margin:10px 0'>登录账号 <b>%s</b><br>登录密码 <b>%s</b><br>登录地址 <a href='%s'>%s</a></div><p>目前你还无法登录系统，因为系统管理员正在审核你的注册信息。完成后会通过邮件通知你，请耐心等待。</p>";
 	
 	@RequestMapping("signup")
 	public ModelAndView pageSignup(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		if (!SysConfiguration.getBool(ConfigurableItem.OpenSignUp, false)) {
+		if (!SysConfiguration.getBool(ConfigurableItem.OpenSignUp)) {
 			response.sendError(400, "管理员未开放公开注册");
 			return null;
 		}
@@ -119,14 +121,41 @@ public class SignUpControll extends BasePageControll {
 		try {
 			Application.getBean(UserService.class).txSignUp(userNew);
 			
+			String homeUrl = SysConfiguration.get(ConfigurableItem.HomeURL, null);
 			String content = String.format(MSG_PENDING, 
-					fullName, loginName, passwd, SysConfiguration.get(ConfigurableItem.HomeURL, null));
+					fullName, loginName, passwd, homeUrl, homeUrl);
 			SMSender.sendMail(email, "管理员正在审核你的注册信息", content);
 			writeSuccess(response);
 		} catch (DataSpecificationException ex) {
 			writeFailure(response, ex.getLocalizedMessage());
 			return;
 		}
+	}
+	
+	@RequestMapping("checkout-name")
+	public void checkoutName(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String fullName = getParameterNotNull(request, "fullName");
+		
+		fullName = fullName.replaceAll("[^a-zA-Z0-9\u4e00-\u9fa5]", "");
+		String loginName = HanLP.convertToPinyinString(fullName, "", false);
+		if (loginName.length() > 20) {
+			loginName = loginName.substring(0, 20);
+		}
+		if (BlackList.isBlack(loginName)) {
+			writeSuccess(response);
+			return;
+		}
+		
+		for (int i = 0; i < 100; i++) {
+			if (Application.getUserStore().existsName(loginName)) {
+				loginName += RandomUtils.nextInt(99);
+			} else {
+				break;
+			}
+		}
+		
+		loginName = loginName.toLowerCase();
+		writeSuccess(response, loginName);
 	}
 	
 	@RequestMapping("captcha")

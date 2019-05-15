@@ -34,6 +34,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.commons.http4.HttpClientEx;
 
 /**
@@ -54,6 +55,24 @@ public class SMSender {
 	 */
 	public static String sendMail(String to, String subject, String content) {
 		return sendMail(to, subject, content, true);
+	}
+	
+	/**
+	 * @param to
+	 * @param subject
+	 * @param content
+	 */
+	public static void sendMailAsync(String to, String subject, String content) {
+		ThreadPool.exec(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					sendMail(to, subject, content, true);
+				} catch (Exception ex) {
+					LOG.error("Mail send failure: " + to + " < " + subject, ex);
+				}
+			}
+		});
 	}
 	
 	/**
@@ -155,6 +174,23 @@ public class SMSender {
 			LOG.error("SMS failed : " + to + " > " + content + "\nError : " + r);
 		}
 		return null;
+	}
+	
+	/**
+	 * @param to
+	 * @param content
+	 */
+	public static void sendSMSAsync(String to, String content) {
+		ThreadPool.exec(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					sendSMS(to, content);
+				} catch (Exception ex) {
+					LOG.error("SMS send failure: " + to, ex);
+				}
+			}
+		});
 	}
 	
 	/**

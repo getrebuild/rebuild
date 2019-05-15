@@ -39,13 +39,13 @@ public enum ConfigurableItem {
 	CacheHost, CachePort, CacheUser, CachePassword,
 	
 	// 邮件
-	MailUser, MailPassword, MailAddr, MailName,
+	MailUser, MailPassword, MailAddr, MailName(AppName),
 	
 	// 短信
-	SmsUser, SmsPassword, SmsSign,
+	SmsUser, SmsPassword, SmsSign(AppName),
 	
-	// Build-in
-	DBVer,
+	// Database schema version
+	DBVer(0L),
 	
 	// 启用最近搜素缓存
 	TurnRecentlySearch(true)
@@ -61,7 +61,15 @@ public enum ConfigurableItem {
 		this.defaultVal = defaultVal;
 	}
 	
+	/**
+	 * 默认值
+	 * 
+	 * @return
+	 */
 	public Object getDefaultValue() {
+		if (defaultVal != null && defaultVal instanceof ConfigurableItem) {
+			((ConfigurableItem) defaultVal).getDefaultValue();
+		}
 		return defaultVal;
 	}
 }

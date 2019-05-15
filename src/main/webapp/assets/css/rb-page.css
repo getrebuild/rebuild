@@ -678,6 +678,11 @@ a {
     z-index: 1051;
 }
 
+.rbhighbar.faster {
+    -webkit-animation-duration: 200ms;
+    animation-duration: 200ms
+}
+
 @media (max-width:440px) {
     .rbhighbar {
         min-width: 320px;

@@ -161,6 +161,6 @@ public class RecentlySearchCache {
 	 * @return
 	 */
 	private boolean isTurnOn() {
-		return SysConfiguration.getBool(ConfigurableItem.TurnRecentlySearch, true);
+		return SysConfiguration.getBool(ConfigurableItem.TurnRecentlySearch);
 	}
 }
