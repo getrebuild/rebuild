@@ -32,5 +32,12 @@ public class MarkdownUtilsTest {
 	public void testParse() throws Exception {
 		String md = "[Click here](/admin/)";
 		System.out.println(MarkdownUtils.parse(md));
+		
+		md = "\n"
+				+ "|COL1|COL2|COL3|"
+				+ "\n|---|---|---|"
+				+ "\n|data|data||"
+				+ "\n[Table 1. caption]";
+		System.out.println(MarkdownUtils.parse(md));
 	}
 }

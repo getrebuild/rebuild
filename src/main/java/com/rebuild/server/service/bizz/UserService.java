@@ -133,6 +133,7 @@ public class UserService extends SystemEntityService {
 	 * 
 	 * @param user
 	 * @param deptNew
+	 * @see #updateEnableUser(ID, ID, ID, Boolean)
 	 */
 	public void updateDepartment(ID user, ID deptNew) {
 		updateEnableUser(user, deptNew, null, null);
@@ -143,6 +144,7 @@ public class UserService extends SystemEntityService {
 	 * 
 	 * @param user
 	 * @param roleNew
+	 * @see #updateEnableUser(ID, ID, ID, Boolean)
 	 */
 	public void updateRole(ID user, ID roleNew) {
 		updateEnableUser(user, null, roleNew, null);

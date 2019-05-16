@@ -262,7 +262,12 @@
 		</dependency>
 		<dependency>
 			<groupId>com.vladsch.flexmark</groupId>
-			<artifactId>flexmark-all</artifactId>
+			<artifactId>flexmark</artifactId>
+			<version>0.50.4</version>
+		</dependency>
+		<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-ext-tables</artifactId>
 			<version>0.50.4</version>
 		</dependency>
 		<!--
