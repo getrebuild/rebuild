@@ -1,8 +1,9 @@
 coverage:
-  range: "40...75"
+  range: "40...90"
   round: down
   precision: 2
 
 ignore:
   - "src/test/**/*"
   - "src/main/webapp/**/*"
+  - "src/main/java/com/rebuild/web/**/*"
