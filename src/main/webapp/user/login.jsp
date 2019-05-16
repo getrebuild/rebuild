@@ -9,7 +9,6 @@
 <style type="text/css">
 #login-form>.row{margin-left:-15px !important;margin-right:-15px !important}
 .vcode-row{height:41px;max-width:100%;cursor:pointer;}
-.J_alert-box{text-align:center;padding:9px 15px}
 </style>
 <title>登录</title>
 </head>
