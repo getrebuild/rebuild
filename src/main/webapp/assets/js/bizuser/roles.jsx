@@ -85,7 +85,7 @@ const loadRoles = function () {
             deleteRole(_id, this)
           }
         }
-        $.get(rb.baseUrl + '/admin/bizuser/deleting-checks?id=' + _id, function (res) {
+        $.get(rb.baseUrl + '/admin/bizuser/delete-checks?id=' + _id, function (res) {
           if (res.data.hasMember === 0) {
             rb.alert('此角色可以被安全的删除', '删除角色', alertExt)
           } else {

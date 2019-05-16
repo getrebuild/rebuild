@@ -1,4 +1,3 @@
-/* eslint-disable react/no-string-refs */
 const user_id = window.__PageConfig.recordId
 $(document).ready(function () {
   if (rb.isAdminUser !== true || rb.isAdminVerified === false) $('.view-action').remove()
@@ -11,19 +10,25 @@ $(document).ready(function () {
   })
   $('.J_enable').click(() => { toggleDisabled(false) })
 
-  $('.J_changeRole').click(() => { renderRbcomp(<DlgChangeRole user={user_id} />) })
-  $('.J_changeDept').click(() => { renderRbcomp(<DlgChangeDept user={user_id} />) })
+  $('.J_changeRole').click(() => { renderRbcomp(<DlgEnableUser user={user_id} role={true} />) })
+  $('.J_changeDept').click(() => { renderRbcomp(<DlgEnableUser user={user_id} dept={true} />) })
 
   if (rb.isAdminVerified === true) {
     $.get(rb.baseUrl + '/admin/bizuser/check-user-status?id=' + user_id, (res) => {
-      if (res.data.system === true) {
+      if (res.data.system === true && rb.isAdminVerified === true) {
         $('.J_tips').removeClass('hide').find('.message p').text('系统内建用户，不允许修改。管理员用户拥有系统最高级权限，请谨慎使用')
         $('.view-action').remove()
         return
       }
 
-      if (res.data.disabled === true) $('.J_disable').remove()
-      else $('.J_enable').remove()
+      if (res.data.disabled === true) {
+        $('.J_disable').remove()
+        if (!res.data.role || !res.data.dept) {
+          $('.J_enable').off('click').click(() => {
+            renderRbcomp(<DlgEnableUser enable={true} user={user_id} dept={!res.data.dept} role={!res.data.role} />)
+          })
+        }
+      } else $('.J_enable').remove()
 
       if (res.data.active === true) return
       let reason = []
@@ -35,10 +40,10 @@ $(document).ready(function () {
   }
 })
 
+// 启用/禁用
 const toggleDisabled = function (disabled) {
-  let _data = { isDisabled: disabled }
-  _data.metadata = { entity: 'User', id: user_id }
-  $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), function (res) {
+  let _data = { user: user_id, enable: !disabled }
+  $.post(rb.baseUrl + '/admin/bizuser/enable-user', JSON.stringify(_data), (res) => {
     if (res.error_code === 0) {
       rb.highbar('用户已' + (disabled ? '停用' : '启用'), 'success')
       setTimeout(() => { location.reload() }, 500)
@@ -46,41 +51,52 @@ const toggleDisabled = function (disabled) {
   })
 }
 
-// 变更部门
-class DlgChangeDept extends RbModalHandler {
+// 激活用户/变更部门/角色
+class DlgEnableUser extends RbModalHandler {
   constructor(props) {
     super(props)
-    this.type = 'Department'
-    this.typeName = '部门'
+    this.__title = '用户激活'
+    if (!props.enable) this.__title = '变更' + (props.dept === true ? '部门' : '角色')
   }
   render() {
-    return (<RbModal title={'变更' + this.typeName} ref="dlg" disposeOnHide={true}>
+    return (<RbModal title={this.__title} ref={(c) => this._dlg = c} disposeOnHide={true}>
       <div className="form">
-        <div className="form-group row">
-          <label className="col-sm-3 col-form-label text-sm-right">选择新{this.typeName}</label>
-          <div className="col-sm-7">
-            <select className="form-control form-control-sm" ref="idNew" />
-          </div>
-        </div>
+        {this.props.dept === true &&
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">用户部门</label>
+            <div className="col-sm-7">
+              <select className="form-control form-control-sm" ref={(c) => this._deptNew = c} />
+            </div>
+          </div>}
+        {this.props.role === true &&
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">用户角色</label>
+            <div className="col-sm-7">
+              <select className="form-control form-control-sm" ref={(c) => this._roleNew = c} />
+            </div>
+          </div>}
         <div className="form-group row footer">
-          <div className="col-sm-7 offset-sm-3" ref="btns">
+          <div className="col-sm-7 offset-sm-3" ref={(c) => this._btns = c}>
             <button className="btn btn-primary btn-space" type="button" data-loading-text="请稍后" onClick={() => this.post()}>确定</button>
             <a className="btn btn-link btn-space" onClick={() => this.hide()}>取消</a>
           </div>
         </div>
       </div>
-    </RbModal>)
+    </RbModal >)
   }
   componentDidMount() {
-    let that = this
-    this.__select2 = $(this.refs['idNew']).select2({
-      placeholder: '选择' + this.typeName,
+    if (this._deptNew) this.__s2dept = this.__initSelect2(this._deptNew, ['Department', '部门'])
+    if (this._roleNew) this.__s2role = this.__initSelect2(this._roleNew, ['Role', '角色'])
+  }
+  __initSelect2(el, type) {
+    return $(el).select2({
+      placeholder: '选择' + type[1],
       minimumInputLength: 1,
       ajax: {
         url: rb.baseUrl + '/commons/search/search',
         delay: 300,
         data: function (params) {
-          return { entity: that.type, q: params.term }
+          return { entity: type[0], q: params.term }
         },
         processResults: function (data) {
           let rs = data.data.map((item) => { return item })
@@ -90,31 +106,27 @@ class DlgChangeDept extends RbModalHandler {
     })
   }
   post() {
-    let dept = this.__select2.val()
-    if (!dept) { rb.highbar('请选择新部门'); return }
-    let btns = $(this.refs['btns']).find('.btn').button('loading')
-    $.post(rb.baseUrl + '/admin/bizuser/change-dept?dept=' + dept + '&user=' + this.props.user, (res) => {
-      if (res.error_code === 0) location.reload()
-      else rb.hberror(res.error_msg)
-      btns.button('reset')
-    })
-  }
-}
+    let data = { user: this.props.user }
+    if (this.props.enable === true) data.enable = true
+    if (this.__s2dept) {
+      let v = this.__s2dept.val()
+      if (!v) { rb.highbar('请选择部门'); return }
+      data.dept = v
+    }
+    if (this.__s2role) {
+      let v = this.__s2role.val()
+      if (!v) { rb.highbar('请选择角色'); return }
+      data.role = v
+    }
 
-// 变更角色
-class DlgChangeRole extends DlgChangeDept {
-  constructor(props) {
-    super(props)
-    this.type = 'Role'
-    this.typeName = '角色'
-  }
-  post() {
-    let role = this.__select2.val()
-    if (!role) { rb.highbar('请选择新角色'); return }
-    let btns = $(this.refs['btns']).find('.btn').button('loading')
-    $.post(rb.baseUrl + '/admin/bizuser/change-role?role=' + role + '&user=' + this.props.user, (res) => {
-      if (res.error_code === 0) location.reload()
-      else rb.hberror(res.error_msg)
+    let btns = $(this._btns).find('.btn').button('loading')
+    $.post(rb.baseUrl + '/admin/bizuser/enable-user', JSON.stringify(data), (res) => {
+      if (res.error_code === 0) {
+        if (data.enable === true) {
+          rb.hbsuccess('用户已激活')
+          setTimeout(() => { location.reload() }, 500)
+        } else location.reload()
+      } else rb.hberror(res.error_msg)
       btns.button('reset')
     })
   }

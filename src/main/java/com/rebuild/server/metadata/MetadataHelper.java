@@ -228,6 +228,16 @@ public class MetadataHelper {
 	}
 	
 	/**
+	 * 是否 Bizz 实体
+	 * 
+	 * @param entityCode
+	 * @return
+	 */
+	public static boolean isBizzEntity(String entityName) {
+		return "User".equalsIgnoreCase(entityName) || "Role".equalsIgnoreCase(entityName) || "Department".equalsIgnoreCase(entityName);
+	}
+	
+	/**
 	 * 实体是否具备权限字段
 	 * 
 	 * @param entity
@@ -333,7 +343,7 @@ public class MetadataHelper {
 	 * @param fieldPath
 	 * @return
 	 */
-	public static Field getLastField(Entity entity, String fieldPath) {
+	public static Field getLastJoinField(Entity entity, String fieldPath) {
 		String[] paths = fieldPath.split(".");
 		Field lastField = null;
 		Entity father = entity;

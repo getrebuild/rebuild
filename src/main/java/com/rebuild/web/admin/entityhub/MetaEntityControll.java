@@ -185,6 +185,7 @@ public class MetaEntityControll extends BasePageControll {
 	public void entityDrop(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		ID entityId = getIdParameterNotNull(request, "id");
+		boolean force = getBoolParameter(request, "force", false);
 		
 		Object[] entityRecord = Application.createQueryNoFilter(
 				"select entityName from MetaEntity where entityId = ?")
@@ -192,7 +193,7 @@ public class MetaEntityControll extends BasePageControll {
 				.unique();
 		Entity entity = MetadataHelper.getEntity((String) entityRecord[0]);
 		
-		boolean drop = new Entity2Schema(user).drop(entity);
+		boolean drop = new Entity2Schema(user).drop(entity, force);
 		if (drop) {
 			writeSuccess(response);
 		} else {

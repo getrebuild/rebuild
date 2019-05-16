@@ -1,15 +1,10 @@
-.dev-show {
+.dev-show,
+.admin-show,
+.bosskey-show {
     display: none;
 }
 
-html.dev .dev-show {
-    display: block;
-}
-
-.admin-show {
-    display: none;
-}
-
+html.dev .dev-show,
 html.admin .admin-show {
     display: block;
 }
@@ -676,11 +671,23 @@ a {
 
 .rbhighbar {
     position: fixed;
-    min-width: 360px;
+    min-width: 420px;
     top: 0;
     left: 50%;
-    margin-left: -180px;
+    margin-left: -210px;
     z-index: 1051;
+}
+
+.rbhighbar.faster {
+    -webkit-animation-duration: 200ms;
+    animation-duration: 200ms
+}
+
+@media (max-width:440px) {
+    .rbhighbar {
+        min-width: 320px;
+        margin-left: -160px;
+    }
 }
 
 .rbhighbar a {
@@ -1604,4 +1611,9 @@ form {
 
 .ui-mprogress .mp-ui-dashed {
     z-index: 1090;
+}
+
+.rb-notifications .notification>a .notification-info .text>p,
+.card-body.rb-notifications .notification>a .text>p {
+    margin: 0;
 }

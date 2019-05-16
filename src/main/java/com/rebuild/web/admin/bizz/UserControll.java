@@ -32,6 +32,9 @@ import org.springframework.web.servlet.ModelAndView;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.SMSender;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.portals.DataListManager;
 import com.rebuild.server.service.bizz.UserService;
@@ -41,7 +44,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseEntityControll;
 
 import cn.devezhao.bizz.security.member.Role;
-import cn.devezhao.persist4j.Record;
+import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -52,6 +55,8 @@ import cn.devezhao.persist4j.engine.ID;
 @Controller
 @RequestMapping("/admin/bizuser/")
 public class UserControll extends BaseEntityControll {
+	
+	private static final String MSG_ENABLED = "<p>%s 你的账户已激活！现在你可以登陆并使用系统。</p><div style='margin:10px 0'>登录地址 <a href='%s'>%s</a></div><p>首次登陆，建议你立即修改密码！如有任何登陆或使用问题，请与系统管理员联系。</p>";
 	
 	@RequestMapping("users")
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
@@ -82,39 +87,54 @@ public class UserControll extends BaseEntityControll {
 		writeSuccess(response, ret);
 	}
 	
-	@RequestMapping("change-dept")
-	public void changeDept(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getIdParameterNotNull(request, "user");
-		ID deptNew = getIdParameterNotNull(request, "dept");
+	@RequestMapping("enable-user")
+	public void enableUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
 		
+		ID user = ID.valueOf(data.getString("user"));
 		User u = Application.getUserStore().getUser(user);
-		if (u.getOwningDept() != null && u.getOwningDept().getIdentity().equals(deptNew)) {
-			writeSuccess(response);
-			return;
+		final boolean isDisabled = u.isDisabled();
+		
+		ID deptNew = null;
+		ID roleNew = null;
+		if (data.containsKey("dept")) {
+			deptNew = ID.valueOf(data.getString("dept"));
+			if (u.getOwningDept() != null && u.getOwningDept().getIdentity().equals(deptNew)) {
+				deptNew = null;
+			}
+		}
+		if (data.containsKey("role")) {
+			roleNew = ID.valueOf(data.getString("role"));
+			if (u.getOwningRole() != null && u.getOwningRole().getIdentity().equals(roleNew)) {
+				roleNew = null;
+			}
 		}
 		
-		Application.getBean(UserService.class).updateDepartment(user, deptNew);
+		Boolean enableNew = null;
+		if (data.containsKey("enable")) {
+			enableNew = data.getBoolean("enable");
+		}
+		
+		Application.getBean(UserService.class).updateEnableUser(user, deptNew, roleNew, enableNew);
+	
+		// 是否发送激活通知
+		u = Application.getUserStore().getUser(user);
+		if (isDisabled && u.isActive() && SMSender.availableMail()) {
+			Object did = Application.createQuery(
+					"select logId from LoginLog where user = ?")
+					.setParameter(1, u.getId())
+					.unique();
+			if (did == null) {
+				String homeUrl = SysConfiguration.get(ConfigurableItem.HomeURL, null);
+				String content = String.format(MSG_ENABLED, u.getFullName(), homeUrl, homeUrl);
+				SMSender.sendMailAsync(u.getEmail(), "你的账户已激活", content);
+			}
+		}
+		
 		writeSuccess(response);
 	}
 	
-	@RequestMapping("change-role")
-	public void changeRole(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getIdParameterNotNull(request, "user");
-		ID roleNew = getIdParameterNotNull(request, "role");
-		
-		User u = Application.getUserStore().getUser(user);
-		if (u.getOwningRole() != null && u.getOwningRole().getIdentity().equals(roleNew)) {
-			writeSuccess(response);
-			return;
-		}
-		
-		Record record = EntityHelper.forUpdate(user, getRequestUser(request));
-		record.setID("roleId", roleNew);
-		Application.getBean(UserService.class).update(record);
-		writeSuccess(response);
-	}
-	
-	@RequestMapping("deleting-checks")
+	@RequestMapping("delete-checks")
 	public void deleteChecks(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID id = getIdParameterNotNull(request, "id");
 		
@@ -133,4 +153,6 @@ public class UserControll extends BaseEntityControll {
 				new Object[] { hasMember, hasChild });
 		writeSuccess(response, ret);
 	}
+	
+	
 }

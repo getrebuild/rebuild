@@ -60,7 +60,7 @@ $(document).ready(function(){
 		return
 	}
 	$('.J_delete').off('click').click(function(){
-		$.get(rb.baseUrl + '/admin/bizuser/deleting-checks?id=${id}', function(res){
+		$.get(rb.baseUrl + '/admin/bizuser/delete-checks?id=${id}', function(res){
 			if (res.data.hasMember == 0 && res.data.hasChild == 0){
 				rb.alert('此部门可以被安全的删除', '删除部门', { type: 'danger', confirmText: '删除', confirm: function(){ deleteDept(this) } })
 			} else {

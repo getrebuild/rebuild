@@ -66,6 +66,8 @@
 <script type="text/babel">
 $(document).ready(function() {
 	if (top != self) { parent.location.reload(); return }
+	if ($urlp('t') == 99) rb.highbar('注册申请已提交，请等待管理员审核', 'success', { timeout: 999999 })
+
 	$('.vcode-row img').click(function(){
 		$(this).attr('src', rb.baseUrl + '/user/captcha?' + $random())
 	})

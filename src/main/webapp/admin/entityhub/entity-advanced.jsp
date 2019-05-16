@@ -52,6 +52,9 @@ a#entityIcon:hover{opacity:0.8}
 						<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2">
 							<input class="custom-control-input J_drop-check" type="checkbox"><span class="custom-control-label"> 我已知晓风险</span>
 						</label>
+						<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2 bosskey-show">
+							<input class="custom-control-input J_drop-force" type="checkbox"><span class="custom-control-label"> 强制删除</span>
+						</label>
 					</div>
 					<div class="mb-1">
 						<button type="button" class="btn btn-danger J_drop-confirm" disabled="disabled" data-loading-text="删除中"><i class="zmdi zmdi-delete icon"></i> 确认删除</button>
@@ -84,11 +87,12 @@ $(document).ready(function(){
 	})
 	
 	let sbtn = $('.J_drop-confirm').click(() => {
+		if ($('.J_drop-check').prop('checked') == false) return
 		if (!window.__PageConfig.isSuperAdmin){ rb.hberror('仅超级管理员可删除实体'); return }
-		rb.alert('实体删除后将无法恢复，请务必谨慎操作！确认删除吗？', '删除实体', { type: 'danger', confirmText: '删除', confirm: function(){
+		rb.alert('实体删除后将无法恢复，请务必谨慎操作！确认删除吗？', '删除实体', { type: 'danger', confirmText: '删除', confirm: function () {
 			sbtn.button('loading')
 			this.disabled(true)
-			$.post('../entity-drop?id=' + metaId, (res) => {
+			$.post('../entity-drop?id=' + metaId + '&force=' + $('.J_drop-force').prop('checked'), (res) => {
 				if (res.error_code == 0) {
 					rb.hbsuccess('实体已删除')
 					setTimeout(function() { location.replace('../../entities') }, 1500)

@@ -10,8 +10,8 @@ $(function () {
     }, 500, 'rb-scroller-update')
   })
   if (window.lessIE11) {
-	  $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
-	  $('html').addClass('ie10')
+    $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
+    $('html').addClass('ie10')
   }
 
   // tooltip
@@ -44,9 +44,12 @@ $(function () {
     $('.J_notifications-top').on('shown.bs.dropdown', __loadMessages)
   }
 
-  var keydown_times = 0
+  var bkeydown_times = 0
   $(document.body).keydown(function (e) {
-    if (e.ctrlKey && e.altKey && e.which === 88) command_exec(++keydown_times)
+    if (e.ctrlKey && e.altKey && e.which === 88) {
+      if (++bkeydown_times === 6) $('.bosskey-show').show()
+      command_exec(bkeydown_times)
+    }
   })
 })
 // Trigger on Ctrl+Alt+X
@@ -158,9 +161,7 @@ var __loadMessages = function () {
       $('<span class="date">' + item[2] + '</span>').appendTo(o)
     })
     __loadMessages__state = 1
-    if (res.data.length === 0) {
-      $('<div class="must-center text-muted">暂无消息</div>').appendTo(el)
-    }
+    if (res.data.length === 0) $('<div class="must-center text-muted">暂无消息</div>').appendTo(el)
   })
 }
 
@@ -179,9 +180,7 @@ var $cleanMenu = function (mbg) {
   })
 
   // remove btn
-  if (mbgMenu.children().length === 0) {
-    mbg.remove()
-  }
+  if (mbgMenu.children().length === 0) mbg.remove()
 }
 
 var $fileCutName = function (fileName) {
@@ -231,8 +230,7 @@ var $createUploader = function (input, next, complete, error) {
         })
       })
     })
-  }
-  else {
+  } else {
     input.html5Uploader({
       name: input.attr('id') || input.attr('name') || 'H5Upload',
       postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file'),
