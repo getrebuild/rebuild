@@ -7,6 +7,7 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>表单回填配置</title>
 <style type="text/css">
+code.badge{font-size:1rem;padding:4px 10px}
 </style>
 </head>
 <body>
@@ -50,8 +51,11 @@
 			<div class="card mb-0">
 				<div class="card-body">
 					<div class="dataTables_wrapper container-fluid">
-						<div class="row rb-datatable-header pr-0">
-							<div class="col-sm-6">
+						<div class="row rb-datatable-header pl-0 pr-0">
+							<div class="col-sm-6 pl-0 pt-1">
+								<code class="badge badge-warning">${entityLabel}</code>
+								<span class="zmdi zmdi-forward zmdi-hc-rotate-180 text-muted ml-1 mr-1"></span>
+								<code class="badge badge-warning">${referenceEntityLabel}</code>
 							</div>
 							<div class="col-sm-6">
 								<div class="dataTables_oper">
@@ -65,21 +69,17 @@
 									<table class="table table-hover table-striped" id="dataList">
 										<thead>
 											<tr>
-												<th>源字段</th>
 												<th>目标字段</th>
+												<th>源字段</th>
 												<th width="30%">回填规则</th>
-												<th width="50"></th>
+												<th width="100"></th>
 											</tr>
 										</thead>
 										<tbody></tbody>
 									</table>
 									<%@ include file="/_include/spinner.jsp"%>
+									<div class="list-nodata hide"><span class="zmdi zmdi-info-outline"></span><p>暂无配置</p></div>
 								</div>
-							</div>
-						</div>
-						<div id="pagination">
-							<div class="row rb-datatable-footer">
-								<div class="col-sm-3"><div class="dataTables_info"></div></div>
 							</div>
 						</div>
 					</div>
@@ -93,7 +93,7 @@
 window.__PageConfig = {
 	entityName: '${entityName}',
 	fieldName: '${fieldName}',
-	fieldLabel: '${fieldLabel}'
+	referenceEntity: '${referenceEntity}'
 }
 </script>
 <script type="text/babel" src="${baseUrl}/assets/js/entity/auto-fillin.jsx"></script>

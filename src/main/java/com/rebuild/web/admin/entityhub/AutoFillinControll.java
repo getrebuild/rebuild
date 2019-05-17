@@ -21,17 +21,30 @@ package com.rebuild.web.admin.entityhub;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entityhub.AutoFillinConfigService;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
+import com.rebuild.web.PortalsConfiguration;
 
+import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * TODO
@@ -40,10 +53,10 @@ import cn.devezhao.persist4j.Field;
  * @since 2019/05/17
  */
 @Controller
-@RequestMapping("/admin/entity/")
-public class AutoFillinControll extends BasePageControll {
+@RequestMapping("/admin/entity/{entity}/field/")
+public class AutoFillinControll extends BasePageControll implements PortalsConfiguration {
 	
-	@RequestMapping("{entity}/field/{field}/auto-fillin")
+	@RequestMapping("{field}/auto-fillin")
 	public ModelAndView page(@PathVariable String entity, @PathVariable String field,
 			HttpServletRequest request) throws IOException {
 		ModelAndView mv = createModelAndView("/admin/entityhub/auto-fillin.jsp");
@@ -52,7 +65,98 @@ public class AutoFillinControll extends BasePageControll {
 		Field fieldMeta = ((Entity) easyMeta.getBaseMeta()).getField(field);
 		EasyMeta fieldEasyMeta = new EasyMeta(fieldMeta);
 		mv.getModel().put("fieldName", fieldEasyMeta.getName());
-		mv.getModel().put("fieldLabel", fieldEasyMeta.getLabel());
+		mv.getModel().put("referenceEntity", fieldMeta.getReferenceEntity().getName());
+		mv.getModel().put("referenceEntityLabel", EasyMeta.getLabel(fieldMeta.getReferenceEntity()));
 		return mv;
+	}
+
+	@RequestMapping("auto-fillin-save")
+	@Override
+	public void sets(@PathVariable String entity,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getRequestUser(request);
+		JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
+		final String field = data.getString("field");
+		
+		Record record = null;
+		if (ID.isId(data.getString("id"))) {
+			record = EntityHelper.forUpdate(ID.valueOf(data.getString("id")), user);
+		} else {
+			record = EntityHelper.forNew(EntityHelper.AutoFillinConfig, user);
+			record.setString("belongEntity", entity);
+			record.setString("belongField", field);
+		}
+		
+		if (data.containsKey("sourceField")) {
+			record.setString("sourceField", data.getString("sourceField"));
+		}
+		if (data.containsKey("targetField")) {
+			String targetField = data.getString("targetField");
+			Object[] exists = Application.createQuery(
+					"select configId from AutoFillinConfig where belongEntity = ? and belongField = ? and targetField = ?")
+					.setParameter(1, entity)
+					.setParameter(2, field)
+					.setParameter(3, targetField)
+					.unique();
+			if (exists != null) {
+				if (record.getPrimary() == null || !exists[0].equals(record.getPrimary())) {
+					writeFailure(response, "目标字段冲突");
+					return;
+				}
+			}
+			
+			record.setString("targetField", targetField);
+		}
+		record.setString("extConfig", data.getString("extConfig"));
+		
+		Application.getBean(AutoFillinConfigService.class).createOrUpdate(record);
+		writeSuccess(response);
+	}
+	
+	@RequestMapping("auto-fillin-list")
+	@Override
+	public void gets(@PathVariable String entity,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String belongField = getParameterNotNull(request, "field");
+		Field field = MetadataHelper.getField(entity, belongField);
+		Entity sourceEntity = field.getReferenceEntity();
+		Entity targetEntity = field.getOwnEntity();
+		
+		Object[][] array = Application.createQueryNoFilter(
+				"select configId,sourceField,targetField,extConfig from AutoFillinConfig where belongEntity = ? and belongField = ? order by modifiedOn desc")
+				.setParameter(1, entity)
+				.setParameter(2, belongField)
+				.array();
+		
+		JSONArray rules = new JSONArray();
+		for (Object[] o : array) {
+			String sf = (String) o[1];
+			String tf = (String) o[2];
+			if (!sourceEntity.containsField(sf)) {
+				LOG.warn("Unknow field '" + sf + "' in '" + sourceEntity.getName() + "'");
+				continue;
+			}
+			if (!targetEntity.containsField(tf)) {
+				LOG.warn("Unknow field '" + tf + "' in '" + targetEntity.getName() + "'");
+				continue;
+			}
+			
+			JSON rule = JSONUtils.toJSONObject(
+					new String[] { "id", "sourceField", "sourceFieldLabel", "targetField", "targetFieldLabel", "extConfig" }, 
+					new Object[] { o[0], 
+							sf, EasyMeta.getLabel(sourceEntity.getField(sf)), 
+							tf, EasyMeta.getLabel(targetEntity.getField(tf)), 
+							JSON.parse((String) o[3]) });
+			rules.add(rule);
+		}
+		writeSuccess(response, rules);
+	}
+	
+	@RequestMapping("auto-fillin-delete")
+	public void delete(@PathVariable String entity,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID configId = getIdParameterNotNull(request, "id");
+		Application.getBean(AutoFillinConfigService.class).delete(configId);
+		writeSuccess(response);
 	}
 }
