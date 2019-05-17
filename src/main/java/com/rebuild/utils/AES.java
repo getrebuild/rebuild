@@ -24,9 +24,12 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 
+import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
 
 /**
+ * AES 加/解密
+ * 
  * @author Zhao Fangfang
  * @since 2017-1-2
  */
@@ -35,8 +38,9 @@ public class AES {
 	/**
 	 * @param input
 	 * @return
+	 * @throws RebuildException
 	 */
-	public static String encrypt(String input) {
+	public static String encrypt(String input) throws RebuildException {
 		return encrypt(input, getPassKey());
 	}
 
@@ -44,8 +48,9 @@ public class AES {
 	 * @param input
 	 * @param key
 	 * @return
+	 * @throws RebuildException
 	 */
-	public static String encrypt(String input, String key) {
+	public static String encrypt(String input, String key) throws RebuildException {
 		byte[] crypted = null;
 		try {
 			SecretKeySpec skey = new SecretKeySpec(key.getBytes(), "AES");
@@ -61,8 +66,9 @@ public class AES {
 	/**
 	 * @param input
 	 * @return
+	 * @throws RebuildException
 	 */
-	public static String decrypt(String input) {
+	public static String decrypt(String input) throws RebuildException {
 		return decrypt(input, getPassKey());
 	}
 	
@@ -70,8 +76,9 @@ public class AES {
 	 * @param input
 	 * @param key
 	 * @return
+	 * @throws RebuildException
 	 */
-	public static String decrypt(String input, String key) {
+	public static String decrypt(String input, String key) throws RebuildException {
 		byte[] output = null;
 		try {
 			SecretKeySpec skey = new SecretKeySpec(key.getBytes(), "AES");
@@ -79,12 +86,27 @@ public class AES {
 			cipher.init(Cipher.DECRYPT_MODE, skey);
 			output = cipher.doFinal(Base64.decodeBase64(input));
 		} catch (Exception ex) {
-			throw new RebuildException("解密失败", ex);
+			throw new RebuildException("Decrypting Error", ex);
 		}
 		return new String(output);
 	}
 	
 	/**
+	 * @param input
+	 * @return
+	 */
+	public static String decryptNothrow(String input) {
+		try {
+			return decrypt(input);
+		} catch (RebuildException ex) {
+			Application.LOG.warn("Decrypting Error! Use input: " + input);
+			return input;
+		}
+	}
+	
+	/**
+	 * 通过 `-Drbpass=XXX` 指定 AES 秘钥
+	 * 
 	 * @return
 	 */
 	public static String getPassKey() {
