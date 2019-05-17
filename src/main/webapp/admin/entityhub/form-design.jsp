@@ -4,7 +4,7 @@
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/form-design.css">
-<title>设计布局</title>
+<title>表单布局</title>
 </head>
 <body class="open-right-sidebar">
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header">
@@ -29,7 +29,7 @@
 						<ul class="nav">
 							<li><a href="base">基本信息</a></li>
 							<li><a href="fields">管理字段</a></li>
-							<li class="active"><a href="form-design">设计布局</a></li>
+							<li class="active"><a href="form-design">表单布局</a></li>
 							<li><a href="advanced">高级配置</a></li>
 						</ul>
 					</div>

@@ -207,4 +207,11 @@
 		<index field-list="user,loginTime" />
 	</entity>
 	
+	<entity name="AutoFillinConfig" type-code="026" description="字段自动回填配置">
+		<field name="configId" type="primary" />
+		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
+		<field name="belongField" type="string" max-length="100" nullable="false" updatable="false" />
+		<field name="config" type="text" description="JSON格式配置" nullable="false" />
+	</entity>
+	
 </metadata-config>
