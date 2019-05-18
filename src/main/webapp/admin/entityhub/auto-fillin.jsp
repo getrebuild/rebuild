@@ -7,7 +7,7 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>表单回填配置</title>
 <style type="text/css">
-code.badge{font-size:1rem;padding:4px 10px}
+span.badge{font-size:1rem;padding:4px 10px}
 </style>
 </head>
 <body>
@@ -53,9 +53,9 @@ code.badge{font-size:1rem;padding:4px 10px}
 					<div class="dataTables_wrapper container-fluid">
 						<div class="row rb-datatable-header pl-0 pr-0">
 							<div class="col-sm-6 pl-0 pt-1">
-								<code class="badge badge-warning">${entityLabel}</code>
+								<span class="badge badge-warning">${entityLabel}</span>
 								<span class="zmdi zmdi-forward zmdi-hc-rotate-180 text-muted ml-1 mr-1"></span>
-								<code class="badge badge-warning">${referenceEntityLabel}</code>
+								<span class="badge badge-warning">${referenceEntityLabel}</span>
 							</div>
 							<div class="col-sm-6">
 								<div class="dataTables_oper">
