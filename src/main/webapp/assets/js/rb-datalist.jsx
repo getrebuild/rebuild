@@ -291,9 +291,14 @@ class RbList extends React.Component {
     return ids
   }
 
-  search(filter, noHold) {
+  search(filter, fromAdv) {
+    let afHold = this.advFilter
+    if (fromAdv === true) this.advFilter = null
     this.fetchList(filter)
-    if (noHold === true) {
+
+    // Not keep last filter
+    if (fromAdv === true) {
+      this.advFilter = afHold
       this.lastFilter = null
     }
   }
@@ -468,7 +473,7 @@ const AdvFilters = {
     this.__el = $(el)
     this.__entity = entity
 
-    this.__el.find('.J_advfilter').click(() => { this.showAdvFilter() })
+    this.__el.find('.J_advfilter').click(() => { this.showAdvFilter(null, this.current) })
     // $ALL$
     $('.adv-search .dropdown-item:eq(0)').click(() => {
       $('.adv-search .J_name').text('全部数据')
@@ -479,14 +484,25 @@ const AdvFilters = {
   },
 
   loadFilters() {
-    let dfilter = $storage.get(RbListPage._RbList.__defaultFilterKey)
+    let dFilter = $storage.get(RbListPage._RbList.__defaultFilterKey)
     let that = this
     $.get(`${rb.baseUrl}/app/${this.__entity}/advfilter/list`, function (res) {
       $('.adv-search .J_custom').each(function () { $(this).remove() })
 
       $(res.data).each(function () {
         let item = $('<div class="dropdown-item J_custom" data-id="' + this[0] + '"><a class="text-truncate">' + this[1] + '</a></div>').appendTo('.adv-search .dropdown-menu')
-        let _data = this
+
+        const _data = this
+        item.click(function () {
+          $('.adv-search .J_name').text(_data[1])
+          RbListPage._RbList.setAdvFilter(_data[0])
+        })
+        if (dFilter === _data[0]) {
+          $('.adv-search .J_name').text(_data[1])
+          that.current = _data[0]
+        }
+
+        // 可修改
         if (_data[2] === true) {
           let action = $('<div class="action"><a title="修改"><i class="zmdi zmdi-edit"></i></a><a title="删除"><i class="zmdi zmdi-delete"></i></a></div>').appendTo(item)
           action.find('a:eq(0)').click(function () {
@@ -502,7 +518,7 @@ const AdvFilters = {
                     _alert.hide()
                     that.loadFilters()
 
-                    if (dfilter === _data[0]) {
+                    if (dFilter === _data[0]) {
                       RbListPage._RbList.setAdvFilter(null)
                       $('.adv-search .J_name').text('全部数据')
                     }
@@ -514,43 +530,45 @@ const AdvFilters = {
             return false
           })
         }
-
-        item.click(function () {
-          $('.adv-search .J_name').text(_data[1])
-          RbListPage._RbList.setAdvFilter(_data[0])
-        })
-
-        if (dfilter === _data[0]) {
-          $('.adv-search .J_name').text(_data[1])
-        }
       })
     })
   },
 
   saveFilter(filter, name, toAll) {
     if (!filter) return
-    let that = AdvFilters
-    let url = `${rb.baseUrl}/app/${that.__entity}/advfilter/post?id=${that.__cfgid || ''}&toAll=${toAll}`
+    let url = `${rb.baseUrl}/app/${this.__entity}/advfilter/post?id=${this.current || ''}&toAll=${toAll}`
     if (name) url += '&name=' + $encode(name)
-    $.post(url, JSON.stringify(filter), function (res) {
-      if (res.error_code === 0) {
-        that.loadFilters()
-      } else rb.hberror(res.error_msg)
+    $.post(url, JSON.stringify(filter), (res) => {
+      if (res.error_code === 0) this.loadFilters()
+      else rb.hberror(res.error_msg)
     })
   },
 
-  showAdvFilter(id) {
-    this.__cfgid = id
+  showAdvFilter(id, copyId) {
+    this.current = id
     let props = { entity: this.__entity, inModal: true, fromList: true, confirm: this.saveFilter }
     if (!id) {
-      if (this.__showHolder) this.__showHolder.show()
-      else this.__showHolder = renderRbcomp(<AdvFilter {...props} title="高级查询" />)
+      if (this.__customAdv) this.__customAdv.show()
+      else {
+        if (copyId) {
+          this.__getFilter(copyId, (res) => {
+            this.__customAdv = renderRbcomp(<AdvFilter {...props} title="高级查询" filter={res.filter} />)
+          })
+        } else {
+          this.__customAdv = renderRbcomp(<AdvFilter {...props} title="高级查询" />)
+        }
+      }
     } else {
-      $.get(rb.baseUrl + '/app/entity/advfilter/get?id=' + id, function (res) {
-        let _data = res.data
-        renderRbcomp(<AdvFilter {...props} title="修改查询条件" filter={_data.filter} filterName={_data.name} shareToAll={_data.shareTo === 'ALL'} />)
+      this.__getFilter(id, (res) => {
+        renderRbcomp(<AdvFilter {...props} title="修改查询条件" filter={res.filter} filterName={res.name} shareToAll={res.shareTo === 'ALL'} />)
       })
     }
+  },
+
+  __getFilter(id, call) {
+    $.get(`${rb.baseUrl}/app/entity/advfilter/get?id=${id}`, (res) => {
+      call(res.data)
+    })
   }
 }
 

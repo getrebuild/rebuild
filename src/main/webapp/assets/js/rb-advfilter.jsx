@@ -73,7 +73,7 @@ class AdvFilter extends React.Component {
         </div>
       </div>
     )
-    if (this.props.inModal) return <RbModal ref={(c) => this._dlg = c} title={this.props.title || '高级查询'} disposeOnHide={!!this.props.filter}>{advFilter}</RbModal>
+    if (this.props.inModal) return <RbModal ref={(c) => this._dlg = c} title={this.props.title || '高级查询'} disposeOnHide={!!this.props.filterName}>{advFilter}</RbModal>
     else return advFilter
   }
   componentDidMount() {
