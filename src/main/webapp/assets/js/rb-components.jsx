@@ -36,9 +36,7 @@ class RbModal extends React.Component {
     root.modal('hide')
     if (this.props.disposeOnHide === true) {
       root.modal('dispose')
-      let container = root.parent()
-      ReactDOM.unmountComponentAtNode(container[0])
-      setTimeout(() => { container.remove() }, 200)
+      $unmount(root.parent())
     }
     typeof this.props.onHide === 'function' && this.props.onHide(this)
   }
@@ -95,6 +93,15 @@ class RbFormHandler extends RbModalHandler {
     s[id] = val
     this.setState(s)
   }
+  componentWillUnmount() {
+    // Auto destroy select2
+    let ss = this.__select2
+    if (ss) {
+      if ($.type(ss) === 'array') $(ss).each(function () { this.select2('destroy') })
+      else ss.select2('destroy')
+      this.__select2 = null
+    }
+  }
 }
 
 // ~~ 提示框
@@ -143,10 +150,8 @@ class RbAlert extends React.Component {
   hide() {
     let root = $(this._dlg)
     root.modal('hide')
-    setTimeout(function () {
-      root.modal('dispose')
-      root.parent().remove()
-    }, 1000)
+    root.modal('dispose')
+    $unmount(root.parent())
   }
   disabled(d) {
     d = d === true
@@ -179,9 +184,7 @@ class RbHighbar extends React.Component {
   }
   close() {
     this.setState({ animatedClass: 'fadeOut' }, () => {
-      setTimeout(() => {
-        $(this._rbhighbar).parent().remove()
-      }, 1000)
+      $unmount($(this._rbhighbar).parent())
     })
   }
 }

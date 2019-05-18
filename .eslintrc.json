@@ -43,6 +43,7 @@
         "$cleanMap": true,
         "$pages": true,
         "$same": true,
+        "$unmount": true,
         "rb": true,
         "renderRbcomp": true,
         "React": true,

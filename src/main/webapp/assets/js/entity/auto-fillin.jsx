@@ -49,7 +49,7 @@ class DlgRuleEdit extends RbFormHandler {
     this.state = { ...this.state, whenCreate: true, updateIfnull: true }
   }
   render() {
-    return (<RbModal title="回填规则" ref={(c) => this._dlg = c}>
+    return (<RbModal title="回填规则" ref={(c) => this._dlg = c} disposeOnHide={true}>
       <div className="form">
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">源字段</label>
@@ -103,6 +103,7 @@ class DlgRuleEdit extends RbFormHandler {
   }
 
   componentDidMount() {
+    this.__select2 = []
     // #1
     $.get(`${rb.baseUrl}/commons/metadata/fields?entity=${this.props.targetEntity}`, (res) => {
       this.__targetFieldsCache = res.data
@@ -110,6 +111,8 @@ class DlgRuleEdit extends RbFormHandler {
         placeholder: '选择字段',
         allowClear: false
       })
+      this.__select2.push(s2target)
+
       // #2
       $.get(`${rb.baseUrl}/commons/metadata/fields?entity=${this.props.sourceEntity}`, (res) => {
         for (let i = 0; i < res.data.length; i++) {
@@ -125,6 +128,7 @@ class DlgRuleEdit extends RbFormHandler {
           }).on('change', (e) => {
             this.__renderTargetFields(e.target.value)
           })
+          this.__select2.push(s2source)
 
           if (this.props.sourceField) {
             s2source.val(this.props.sourceField).trigger('change')
@@ -136,7 +140,6 @@ class DlgRuleEdit extends RbFormHandler {
       })
     })
   }
-
   __renderTargetFields(s) {
     let source = null
     $(this.__sourceFieldsCache).each(function () {

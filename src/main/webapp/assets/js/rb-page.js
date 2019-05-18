@@ -265,3 +265,13 @@ var $createUploader = function (input, next, complete, error) {
     })
   }
 }
+
+// Clear React node
+var $unmount = function (container, delay) {
+  if (container && container[0]) {
+    setTimeout(function () {
+      ReactDOM.unmountComponentAtNode(container[0])
+      container.remove()
+    }, delay || 1000)
+  }
+}

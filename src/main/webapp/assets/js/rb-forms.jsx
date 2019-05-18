@@ -210,9 +210,7 @@ class RbForm extends React.Component {
     }
 
     _data.metadata = { entity: this.state.entity, id: this.state.id }
-    if (RbForm.postBefore(_data) === false) {
-      return
-    }
+    if (RbForm.postBefore(_data) === false) return
 
     let btns = $(this.refs['rbform-action']).find('.btn').button('loading')
     let that = this
@@ -620,7 +618,7 @@ class RbFormPickList extends RbFormElement {
   constructor(props) {
     super(props)
 
-    if (props.options && props.value) {  // Value already deleted
+    if (props.options && props.value) {  // Value has been deleted?
       let deleted = true
       $(props.options).each(function () {
         if (this.id === props.value) {
@@ -635,7 +633,7 @@ class RbFormPickList extends RbFormElement {
     return (
       <select ref="field-value" className="form-control form-control-sm" value={this.state.value || ''} onChange={this.handleChange}>
         {this.props.options.map((item) => {
-          return (<option key={item.field + '-' + item.id} value={item.id}>{item.text}</option>)
+          return (<option key={'opt-' + item.id} value={item.id}>{item.text}</option>)
         })}
       </select>
     )
@@ -655,11 +653,11 @@ class RbFormPickList extends RbFormElement {
       if (that.props.$$$parent.isNew === false && !that.props.value) {
         select2.val(null)
       }
-      select2.trigger('change')
+      // select2.trigger('change')
       select2.on('change.select2', function (e) {
         let val = e.target.value
         that.handleChange({ target: { value: val } }, true)
-      })
+      }).trigger('change')
     }, 100)
   }
   componentWillUnmount() {
@@ -808,7 +806,7 @@ class RbFormClassification extends RbFormElement {
     super.componentDidMount()
     if (this.state.viewMode === true) return
     this.__select2 = $(this._fvalue).select2({
-      placeholder: '选择'
+      placeholder: '选择' + this.props.label
     })
 
     // In edits
@@ -822,7 +820,11 @@ class RbFormClassification extends RbFormElement {
   componentWillUnmount() {
     if (this.__select2) {
       this.__select2.select2('destroy')
-      delete this.__select2
+      this.__select2 = null
+    }
+    if (this.__selector) {
+      this.__selector.hide(true)
+      this.__selector = null
     }
   }
 
@@ -970,10 +972,9 @@ class RbViewModal extends React.Component {
       // subView always dispose
       if (that.state.disposeOnHide === true) {
         root.modal('dispose')
-        let warp = root.parent().parent()
         that.setState({ isDestroy: true }, function () {
           rb.__currentRbFormModalHolds[that.state.id] = null
-          setTimeout(function () { warp.remove() }, 500)
+          $unmount(root.parent().parent())
         })
       }
 
@@ -1208,8 +1209,9 @@ class ClassificationSelector extends React.Component {
   show() {
     return $(this._dlg).modal({ show: true, keyboard: true })
   }
-  hide() {
+  hide(dispose) {
     $(this._dlg).modal('hide')
+    if (dispose === true) $unmount($(this._dlg).parent())
   }
 }
 
