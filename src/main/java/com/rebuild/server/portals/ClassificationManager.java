@@ -135,7 +135,7 @@ public class ClassificationManager implements PortalsManager {
 			cval = (Integer) o[0];
 			Application.getCommonCache().putx(ckey, cval);
 		}
-		return cval;
+		return cval == null ? 0 : cval;
 	}
 	
 	/**

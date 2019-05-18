@@ -68,7 +68,7 @@ public enum ConfigurableItem {
 	 */
 	public Object getDefaultValue() {
 		if (defaultVal != null && defaultVal instanceof ConfigurableItem) {
-			((ConfigurableItem) defaultVal).getDefaultValue();
+			return ((ConfigurableItem) defaultVal).getDefaultValue();
 		}
 		return defaultVal;
 	}
