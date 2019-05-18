@@ -118,7 +118,7 @@ public class ReferenceSearch extends BaseControll {
 			sql += " order by modifiedOn desc";
 		}
 		
-		List<Object> result = searchResult(metaEntity, sql);
+		List<Object> result = searchResult(metaEntity, nameField, sql);
 		writeSuccess(response, result);
 	}
 	
@@ -171,7 +171,7 @@ public class ReferenceSearch extends BaseControll {
 			sql += " order by modifiedOn desc";
 		}
 		
-		List<Object> result = searchResult(metaEntity, sql);
+		List<Object> result = searchResult(metaEntity, referenceNameField, sql);
 		writeSuccess(response, result);
 	}
 	
@@ -201,10 +201,11 @@ public class ReferenceSearch extends BaseControll {
 	 * 封装查询结果
 	 * 
 	 * @param entity
+	 * @param nameField
 	 * @param sql
 	 * @return
 	 */
-	private List<Object> searchResult(Entity entity, String sql) {
+	private List<Object> searchResult(Entity entity, Field nameField, String sql) {
 		Object[][] array = Application.createQuery(sql).setLimit(10).array();
 		List<Object> result = new ArrayList<>();
 		for (Object[] o : array) {
@@ -214,14 +215,13 @@ public class ReferenceSearch extends BaseControll {
 				continue;
 			}
 			
-			Map<String, Object> map = new HashMap<>();
-			map.put("id", recordId);
-			String text = o[1] == null ? recordId.toLiteral().toUpperCase() : o[1].toString();
-			if (StringUtils.isBlank(text)) {
-				text = recordId.toLiteral().toUpperCase();
+			String label = null;
+			if (o[1] == null || StringUtils.isBlank(o[1].toString())) {
+				label = recordId.toLiteral().toUpperCase();
+			} else {
+				label = (String) FieldValueWrapper.wrapFieldValue(o[1], nameField);
 			}
-			map.put("text", text);
-			result.add(map);
+			result.add(JSONUtils.toJSONObject(new String[] { "id", "text" }, new Object[] { recordId, label }));
 		}
 		return result;
 	}
