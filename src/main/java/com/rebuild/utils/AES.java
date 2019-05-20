@@ -105,7 +105,7 @@ public class AES {
 	}
 	
 	/**
-	 * 通过 `-Drbpass=XXX` 指定 AES 秘钥
+	 * 通过 `-Drbpass=KEY` 指定 AES 秘钥
 	 * 
 	 * @return
 	 */
