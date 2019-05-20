@@ -72,9 +72,13 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 		}
 		
 		// If server status is not passed
-		if (!requestUrl.contains("/gw/server-status") && !Application.serversReady()) {
-			response.sendRedirect(ServerListener.getContextPath() + "/gw/server-status?s=" + CodecUtils.urlEncode(requestUrl));
-			return false;
+		if (!Application.serversReady()) {
+			LOG.error("Server Unavailable : " + requestUrl);
+			
+			if (!requestUrl.contains("/gw/server-status")) {
+				response.sendRedirect(ServerListener.getContextPath() + "/gw/server-status?s=" + CodecUtils.urlEncode(requestUrl));
+				return false;
+			} 
 		}
 		
 		Application.getSessionStore().storeLastActive(request);

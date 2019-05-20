@@ -19,7 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.portals;
 
 /**
- * 前端配置管理器。标记接口
+ * 前端配置管理器。标记接口。TODO 缓存
  * 
  * @author devezhao
  * @since 01/04/2019

@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.common;
+package com.rebuild.web.base.entity;
 
 import java.io.IOException;
 
@@ -27,29 +27,30 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSON;
-import com.rebuild.server.helper.QiniuCloud;
-import com.rebuild.utils.JSONUtils;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.portals.AutoFillinManager;
 import com.rebuild.web.BaseControll;
 
+import cn.devezhao.persist4j.engine.ID;
+
 /**
- * @author devezhao-mbp zhaofang123@gmail.com
- * @since 2019/05/02
+ * TODO
+ * 
+ * @author devezhao zhaofang123@gmail.com
+ * @since 2019/05/20
  */
 @Controller
-@RequestMapping("/filex/qiniu")
-public class QiniuUploadControll extends BaseControll {
-
-	// 获取上传参数
-	@RequestMapping("upload-keys")
-	public void getUploadKeys(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String fileName = getParameterNotNull(request, "file");
+@RequestMapping("/app/entity/extras/")
+public class FormExtrasControll extends BaseControll {
+	
+	// 引用字段回填值
+	@RequestMapping("fillin-value")
+	public void getFillinValue(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String entity = getParameterNotNull(request, "entity");
+		String field = getParameterNotNull(request, "field");
+		ID source = getIdParameterNotNull(request, "source");
 		
-		String fileKey = QiniuCloud.formatFileKey(fileName);
-		String token = QiniuCloud.instance().getUploadToken(fileKey);
-		
-		JSON ret = JSONUtils.toJSONObject(
-				new String[] { "key", "token" }, new String[] { fileKey, token });
+		JSON ret = AutoFillinManager.getFillinValue(MetadataHelper.getField(entity, field), source);
 		writeSuccess(response, ret);
 	}
-
 }
