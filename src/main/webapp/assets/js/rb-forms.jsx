@@ -131,12 +131,11 @@ class RbForm extends React.Component {
     this.setFieldValue = this.setFieldValue.bind(this)
   }
   render() {
-    let that = this
     return (
       <div className="rbform">
-        <div className="form">
+        <div className="form" ref={(c) => this._form = c}>
           {this.props.children.map((child) => {
-            return React.cloneElement(child, { $$$parent: that })
+            return React.cloneElement(child, { $$$parent: this, ref: 'ref-' + child.props.field })
             // Has error in strict-mode
             //child.$$$parent = that; return child
           })}
@@ -201,6 +200,20 @@ class RbForm extends React.Component {
     if (this.isNew === true) return
     delete this.__FormData[field]
   }
+
+  // 设置表单回填
+  setAutoFillin(data) {
+    data.forEach((item, idx) => {
+      let ref = this.refs['ref-' + item.target]
+      if (ref) {
+        if (item.fillinForce !== true && !!ref.getValue()) return
+        if ((this.isNew === true && item.whenCreate === true) || (this.isNew !== true && item.whenUpdate === true)) {
+          ref.setValue(item.value)
+        }
+      }
+    })
+  }
+
   post(next) {
     let _data = {}
     for (let k in this.__FormData) {
@@ -329,6 +342,15 @@ class RbFormElement extends React.Component {
   // 清空值
   handleClear() {
     this.setState({ value: '' }, () => { this.checkError() })
+  }
+
+  // Getter / Setter
+
+  setValue(val) {
+    this.setState({ value: val })
+  }
+  getValue() {
+    return this.state.value
   }
 }
 
@@ -565,6 +587,11 @@ class RbFormImage extends RbFormElement {
     if (this.__minUpload > 0 && ups < this.__minUpload) return `至少需要上传 ${this.__minUpload} ${this.__typeName}`
     if (this.__maxUpload < ups) return `最多允许上传 ${this.__maxUpload} ${this.__typeName}`
   }
+
+  getValue() {
+  }
+  setValue() {
+  }
 }
 
 // 文件
@@ -610,6 +637,11 @@ class RbFormFile extends RbFormImage {
         </a>
       })}
     </div>)
+  }
+
+  getValue() {
+  }
+  setValue() {
   }
 }
 
@@ -665,6 +697,11 @@ class RbFormPickList extends RbFormElement {
       this.__select2.select2('destroy')
       this.__select2 = null
     }
+  }
+
+  getValue() {
+  }
+  setValue() {
   }
 }
 
@@ -730,6 +767,9 @@ class RbFormReference extends RbFormElement {
         let v = e.target.value
         if (v) {
           $.post(`${rb.baseUrl}/commons/search/recently-add?id=${v}`)
+          $.post(`${rb.baseUrl}/app/entity/extras/fillin-value?entity=${entity}&field=${that.props.field}&source=${v}`, (res) => {
+            if (res.error_code === 0 && res.data.length > 0) that.props.$$$parent.setAutoFillin(res.data)
+          })
         }
         that.handleChange({ target: { value: v } }, true)
       })
@@ -743,6 +783,11 @@ class RbFormReference extends RbFormElement {
   }
   clickView() {
     if (window.RbViewPage) window.RbViewPage.clickView($(this.refs['field-text']))
+  }
+
+  getValue() {
+  }
+  setValue() {
   }
 }
 
@@ -783,6 +828,11 @@ class RbFormAvatar extends RbFormElement {
       if (mp) mp.end()
       that.handleChange({ target: { value: res.key } }, true)
     })
+  }
+
+  getValue() {
+  }
+  setValue() {
   }
 }
 
@@ -845,6 +895,11 @@ class RbFormClassification extends RbFormElement {
       data[s.id] = s.text
       this.__data = data
     }
+  }
+
+  getValue() {
+  }
+  setValue() {
   }
 }
 

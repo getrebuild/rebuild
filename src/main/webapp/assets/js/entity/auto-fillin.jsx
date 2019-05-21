@@ -46,7 +46,7 @@ const loadRules = () => {
 class DlgRuleEdit extends RbFormHandler {
   constructor(props) {
     super(props)
-    this.state = { ...this.state, whenCreate: true, updateIfnull: true }
+    if (!props.id) this.state = { ...this.state, whenCreate: true }
   }
   render() {
     return (<RbModal title="回填规则" ref={(c) => this._dlg = c} disposeOnHide={true}>

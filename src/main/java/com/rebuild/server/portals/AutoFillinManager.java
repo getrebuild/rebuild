@@ -19,14 +19,21 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.portals;
 
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entityhub.DisplayType;
+import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.portals.value.FieldValueWrapper;
 import com.rebuild.utils.JSONUtils;
 
@@ -43,6 +50,8 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class AutoFillinManager implements PortalsManager {
 	
+	private static final Log LOG = LogFactory.getLog(AutoFillinManager.class);
+	
 	/**
 	 * 获取回填值
 	 * 
@@ -53,32 +62,49 @@ public class AutoFillinManager implements PortalsManager {
 	public static JSONArray getFillinValue(Field field, ID source) {
 		Map<String, ConfigEntry> config = getConfig(field);
 		
-		StringBuffer sourceFields = new StringBuffer();
-		for (ConfigEntry e : config.values()) {
-			sourceFields.append(e.getString("source")).append(",");
-		}
-//		if (sourceFields.length() == 0) {
-//			return JSONUtils.EMPTY_ARRAY;
-//		}
-		sourceFields.deleteCharAt(sourceFields.length() - 1);
-		
 		Entity sourceEntity = MetadataHelper.getEntity(source.getEntityCode());
+		Set<String> sourceFields = new HashSet<>();
+		for (ConfigEntry e : config.values()) {
+			String sourceField = e.getString("source");
+			if (!sourceEntity.containsField(sourceField)) {
+				LOG.warn("Unknow field '" + sourceField + "' in '" + sourceEntity.getName() + "'");
+				continue;
+			} 
+			
+			Field sourceField2 = sourceEntity.getField(sourceField);
+			if (EasyMeta.getDisplayType(sourceField2) == DisplayType.REFERENCE) {
+				sourceFields.add("&" + sourceField);
+			}
+			sourceFields.add(sourceField);
+		}
+		if (sourceFields.isEmpty()) {
+			return JSONUtils.EMPTY_ARRAY;
+		}
+		
 		String ql = String.format("select %s from %s where %s = ?",
-				sourceFields.toString(), sourceEntity.getName(), sourceEntity.getPrimaryField().getName());
-		Record sourceRecord = Application.createQuery(ql).record();
+				StringUtils.join(sourceFields, ","),
+				sourceEntity.getName(),
+				sourceEntity.getPrimaryField().getName());
+		Record sourceRecord = Application.createQuery(ql).setParameter(1, source).record();
 		if (sourceRecord == null) {
 			return JSONUtils.EMPTY_ARRAY;
 		}
 		
 		JSONArray fillin = new JSONArray();
-		for (Iterator<String> iter = sourceRecord.getAvailableFieldIterator(); iter.hasNext(); ) {
-			String f = iter.next();
-			Object v = sourceRecord.getObjectValue(f);
-			Field sourceField = sourceEntity.getField(f);
-			Object formatted = FieldValueWrapper.wrapFieldValue(v, sourceField);
+		for (ConfigEntry e : config.values()) {
+			String sourceField = e.getString("source");
+			Object formatted = null;
+			if (sourceRecord.hasValue(sourceField)) {
+				Object v = sourceRecord.getObjectValue(sourceField);
+				if (v instanceof ID) {
+					v = new Object[] { v, ((ID) v).getLabel() };
+				}
+				formatted = FieldValueWrapper.wrapFieldValue(v, sourceEntity.getField(sourceField));
+			}
 			
-			ConfigEntry c = config.get(f).clone().set("value", formatted);
-			fillin.add(c.toJSON());
+			ConfigEntry clone = e.clone().set("value", formatted == null ? "" : formatted);
+			clone.set("source", null);
+			fillin.add(clone.toJSON());
 		}
 		return fillin;
 	}
@@ -87,7 +113,7 @@ public class AutoFillinManager implements PortalsManager {
 	 * @param field
 	 * @return
 	 */
-	protected static Map<String, ConfigEntry> getConfig(Field field) {
+	private static Map<String, ConfigEntry> getConfig(Field field) {
 		Object[][] array = Application.createQueryNoFilter(
 				"select sourceField,targetField,extConfig from AutoFillinConfig where belongEntity = ? and belongField = ?")
 				.setParameter(1, field.getOwnEntity().getName())

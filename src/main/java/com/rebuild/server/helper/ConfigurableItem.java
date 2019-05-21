@@ -48,7 +48,7 @@ public enum ConfigurableItem {
 	DBVer(0L),
 	
 	// 启用最近搜素缓存
-	TurnRecentlySearch(true)
+	EnableRecentlyUsed(true)
 	
 	;
 	

@@ -34,7 +34,7 @@ import com.rebuild.web.BaseControll;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * TODO
+ * 表单功能扩展
  * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/20
@@ -43,7 +43,9 @@ import cn.devezhao.persist4j.engine.ID;
 @RequestMapping("/app/entity/extras/")
 public class FormExtrasControll extends BaseControll {
 	
-	// 引用字段回填值
+	// --
+	// -- AUTOFILLIN
+	
 	@RequestMapping("fillin-value")
 	public void getFillinValue(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");

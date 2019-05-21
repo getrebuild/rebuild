@@ -122,7 +122,7 @@
 		<constructor-arg index="1" ref="ehcacheManager" />
 	</bean>
 	
-	<bean class="com.rebuild.server.helper.cache.RecentlySearchCache">
+	<bean class="com.rebuild.server.helper.cache.RecentlyUsedCache">
 		<constructor-arg index="0" ref="commonCache" />
 	</bean>
 

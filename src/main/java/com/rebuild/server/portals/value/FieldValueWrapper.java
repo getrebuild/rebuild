@@ -53,8 +53,13 @@ public class FieldValueWrapper {
 	/**
 	 * 引用值被删除时的默认显示
 	 */
-	public static final String MISS_LABEL_PLACE = "[DELETED]";
-
+	public static final String MISS_REF_PLACE = "[DELETED]";
+	
+	/**
+	 * 名称字段为空时，采用 @+ID 的方式显示
+	 */
+	public static final String NO_LABEL_PREFIX = "@";
+	
 	/**
 	 * @param value
 	 * @param field
@@ -91,7 +96,8 @@ public class FieldValueWrapper {
 			return wrapDecimal(value, field);
 		} else if (dt == DisplayType.REFERENCE) {
 			return wrapReference(value, field);
-		} else if (dt == DisplayType.IMAGE || dt == DisplayType.FILE || dt == DisplayType.LOCATION) {
+		} else if (dt == DisplayType.IMAGE || dt == DisplayType.AVATAR
+				|| dt == DisplayType.FILE || dt == DisplayType.LOCATION) {
 			// 无需处理
 			return value;
 		} else if (dt == DisplayType.BOOL) {
@@ -154,16 +160,15 @@ public class FieldValueWrapper {
 	}
 
 	/**
-	 * @param reference
+	 * @param reference 接受参数：1.ID; 2.[ID,Label]数组
 	 * @param field
-	 * @return a String or an [Entity, Label, ID]
+	 * @return a String of ID or an array [Entity, Label, ID]
 	 */
 	public static Object wrapReference(Object reference, EasyMeta field) {
 		if (!(reference instanceof Object[])) {
 			return reference.toString();
 		}
 		
-		Assert.isTrue(reference instanceof Object[], "Must be 'Object[]'");
 		Object[] idLabel = (Object[]) reference;
 		Assert.isTrue(idLabel.length == 2, "Must be '[ID, Label]' array");
 		
@@ -191,7 +196,7 @@ public class FieldValueWrapper {
 	 * @see PickListManager
 	 */
 	public static String wrapPickList(Object item, EasyMeta field) {
-		return StringUtils.defaultIfBlank(PickListManager.getLabel((ID) item), MISS_LABEL_PLACE);
+		return StringUtils.defaultIfBlank(PickListManager.getLabel((ID) item), MISS_REF_PLACE);
 	}
 	
 	/**
@@ -201,7 +206,7 @@ public class FieldValueWrapper {
 	 * @see ClassificationManager
 	 */
 	public static String wrapClassification(Object item, EasyMeta field) {
-		return StringUtils.defaultIfBlank(ClassificationManager.getFullName((ID) item), MISS_LABEL_PLACE);
+		return StringUtils.defaultIfBlank(ClassificationManager.getFullName((ID) item), MISS_REF_PLACE);
 	}
 	
 	/**

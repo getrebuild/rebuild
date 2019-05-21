@@ -42,10 +42,18 @@ public class ConfigEntry {
 		this.entry = new HashMap<String, Object>();
 	}
 	
+	/**
+	 * @param name
+	 * @param value Remove if null
+	 * @return
+	 */
 	public ConfigEntry set(String name, Object value) {
 		Assert.notNull(name, "'name' must not be null");
-		Assert.notNull(value, "'value' must not be null");
-		entry.put(name, value);
+		if (value == null) {
+			entry.remove(name);
+		} else {
+			entry.put(name, value);
+		}
 		return this;
 	}
 	
