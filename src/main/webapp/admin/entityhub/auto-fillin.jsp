@@ -7,7 +7,7 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>表单回填配置</title>
 <style type="text/css">
-span.badge{font-size:1rem;padding:4px 10px}
+span.badge{font-size:1rem;padding:4px 10px;font-weight:normal;}
 </style>
 </head>
 <body>

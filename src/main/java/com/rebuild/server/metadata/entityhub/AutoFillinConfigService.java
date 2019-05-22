@@ -18,9 +18,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.metadata.entityhub;
 
+import com.rebuild.server.Application;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.portals.AutoFillinManager;
 import com.rebuild.server.service.BaseService;
 
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * TODO
@@ -34,4 +40,28 @@ public class AutoFillinConfigService extends BaseService {
 		super(aPMFactory);
 	}
 
+	@Override
+	public Record createOrUpdate(Record record) {
+		record = super.createOrUpdate(record);
+		cleanCache(record.getPrimary());
+		return record;
+	}
+	
+	@Override
+	public int delete(ID recordId) {
+		cleanCache(recordId);
+		int del = super.delete(recordId);
+		return del;
+	}
+	
+	private void cleanCache(ID configId) {
+		Object[] cfg = Application.createQueryNoFilter(
+				"select belongEntity,belongField from AutoFillinConfig where configId = ?")
+				.setParameter(1, configId)
+				.unique();
+		if (cfg != null) {
+			Field dest = MetadataHelper.getField((String) cfg[0], (String) cfg[1]);
+			AutoFillinManager.instance.clean(dest);
+		}
+	}
 }

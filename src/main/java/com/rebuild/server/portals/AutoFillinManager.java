@@ -52,6 +52,9 @@ public class AutoFillinManager implements PortalsManager {
 	
 	private static final Log LOG = LogFactory.getLog(AutoFillinManager.class);
 	
+	public static final AutoFillinManager instance = new AutoFillinManager();
+	private AutoFillinManager() { }
+	
 	/**
 	 * 获取回填值
 	 * 
@@ -59,7 +62,7 @@ public class AutoFillinManager implements PortalsManager {
 	 * @param source
 	 * @return
 	 */
-	public static JSONArray getFillinValue(Field field, ID source) {
+	public JSONArray getFillinValue(Field field, ID source) {
 		final List<ConfigEntry> config = getConfig(field);
 		if (config.isEmpty()) {
 			return JSONUtils.EMPTY_ARRAY;
@@ -130,7 +133,7 @@ public class AutoFillinManager implements PortalsManager {
 	 * @param value
 	 * @return
 	 */
-	protected static Object conversionCompatibleValue(Field source, Field target, Object value) {
+	protected Object conversionCompatibleValue(Field source, Field target, Object value) {
 		DisplayType sourceType = EasyMeta.getDisplayType(source);
 		DisplayType targetType = EasyMeta.getDisplayType(target);
 		boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
@@ -174,14 +177,21 @@ public class AutoFillinManager implements PortalsManager {
 	 * @param field
 	 * @return
 	 */
-	private static List<ConfigEntry> getConfig(Field field) {
+	@SuppressWarnings("unchecked")
+	private List<ConfigEntry> getConfig(Field field) {
+		final String cKey = "AutoFillinManager-" + field.getOwnEntity().getName() + "." + field.getName();
+		Object cVal = Application.getCommonCache().getx(cKey);
+		if (cVal != null) {
+			return (List<ConfigEntry>) cVal;
+		}
+		
 		Object[][] array = Application.createQueryNoFilter(
 				"select sourceField,targetField,extConfig from AutoFillinConfig where belongEntity = ? and belongField = ?")
 				.setParameter(1, field.getOwnEntity().getName())
 				.setParameter(2, field.getName())
 				.array();
 		
-		List<ConfigEntry> entries = new ArrayList<ConfigEntry>();
+		ArrayList<ConfigEntry> entries = new ArrayList<ConfigEntry>();
 		for (Object[] o : array) {
 			ConfigEntry entry = new ConfigEntry()
 					.set("source", o[0])
@@ -192,6 +202,16 @@ public class AutoFillinManager implements PortalsManager {
 					.set("fillinForce", ext.getBoolean("fillinForce"));
 			entries.add(entry);
 		}
+		
+		Application.getCommonCache().putx(cKey, entries);
 		return entries;
+	}
+	
+	/**
+	 * @param cacheKey
+	 */
+	public void clean(Field cacheKey) {
+		final String cKey = "AutoFillinManager-" + cacheKey.getOwnEntity().getName() + "." + cacheKey.getName();
+		Application.getCommonCache().evict(cKey);
 	}
 }

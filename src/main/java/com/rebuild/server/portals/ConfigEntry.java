@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.portals;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +35,8 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/20
  */
-public class ConfigEntry {
+public class ConfigEntry implements Serializable {
+	private static final long serialVersionUID = -2618040374508703332L;
 	
 	private Map<String, Object> entry = null;
 

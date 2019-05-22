@@ -52,7 +52,7 @@ public class FormExtrasControll extends BaseControll {
 		String field = getParameterNotNull(request, "field");
 		ID source = getIdParameterNotNull(request, "source");
 		
-		JSON ret = AutoFillinManager.getFillinValue(MetadataHelper.getField(entity, field), source);
+		JSON ret = AutoFillinManager.instance.getFillinValue(MetadataHelper.getField(entity, field), source);
 		writeSuccess(response, ret);
 	}
 }
