@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -16,28 +16,28 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.helper;
+package com.rebuild.server.portals.value;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.rebuild.server.TestSupport;
+import com.rebuild.server.helper.cache.NoRecordFoundException;
+
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * @author devezhao zhaofang123@gmail.com
- * @since 2019/03/08
+ * @since 2019/05/22
  */
+public class FieldValueWrapperTest extends TestSupport {
 
-public class SMSenderTest extends TestSupport {
-
-	@Ignore
 	@Test
-	public void testSendSMS() throws Exception {
-		SMSender.sendSMS("17187472172", "SMSenderTest#testSendSMS");
+	public void testGetLabel() throws Exception {
+		System.out.println(FieldValueWrapper.getLabel(SIMPLE_USER));
 	}
 	
-	@Test
-	public void testSendMail() throws Exception {
-		SMSender.sendMail("getrebuild@sina.com", "SMSenderTest#testSendMail", "test content");
+	@Test(expected = NoRecordFoundException.class)
+	public void testGetLabelThrow() throws Exception {
+		System.out.println(FieldValueWrapper.getLabel(ID.newId(1)));
 	}
 }

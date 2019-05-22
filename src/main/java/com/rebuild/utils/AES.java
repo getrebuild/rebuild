@@ -51,6 +51,7 @@ public class AES {
 	 * @throws RebuildException
 	 */
 	public static String encrypt(String input, String key) throws RebuildException {
+		key = StringUtils.leftPad(key, 16, "0").substring(0, 16);
 		byte[] crypted = null;
 		try {
 			SecretKeySpec skey = new SecretKeySpec(key.getBytes(), "AES");
@@ -79,6 +80,7 @@ public class AES {
 	 * @throws RebuildException
 	 */
 	public static String decrypt(String input, String key) throws RebuildException {
+		key = StringUtils.leftPad(key, 16, "0").substring(0, 16);
 		byte[] output = null;
 		try {
 			SecretKeySpec skey = new SecretKeySpec(key.getBytes(), "AES");
@@ -112,7 +114,6 @@ public class AES {
 	public static String getPassKey() {
 		String key = StringUtils.defaultIfEmpty(System.getenv("rbpass"), System.getProperty("rbpass"));
 		key = StringUtils.defaultIfEmpty(key, "REBUILD2018");
-		key = StringUtils.leftPad(key, 16, "0").substring(0, 16);
 		return key;
 	}
 	

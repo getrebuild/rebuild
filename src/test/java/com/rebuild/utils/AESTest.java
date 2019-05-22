@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -16,28 +16,29 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.helper;
+package com.rebuild.utils;
 
-import org.junit.Ignore;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
-import com.rebuild.server.TestSupport;
-
 /**
+ * TODO
+ * 
  * @author devezhao zhaofang123@gmail.com
- * @since 2019/03/08
+ * @since 2019/05/22
  */
+public class AESTest {
 
-public class SMSenderTest extends TestSupport {
-
-	@Ignore
 	@Test
-	public void testSendSMS() throws Exception {
-		SMSender.sendSMS("17187472172", "SMSenderTest#testSendSMS");
-	}
-	
-	@Test
-	public void testSendMail() throws Exception {
-		SMSender.sendMail("getrebuild@sina.com", "SMSenderTest#testSendMail", "test content");
+	public void test() throws Exception {
+		String rbpass = "imrbpass";
+		String input = "明文1234abcd";
+		
+		String en = AES.encrypt(input, rbpass);
+		System.out.println(input + " > " + en);
+		
+		String de = AES.decrypt(en, rbpass);
+		assertEquals(input, de);
 	}
 }

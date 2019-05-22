@@ -140,13 +140,13 @@ public class AppUtils {
 			if (state != null && state == 404) {
 				return "访问的地址/资源不存在";
 			} else {
-				return "系统繁忙，请稍后重试";
+				return "未知错误，请稍后重试";
 			}
 		} else if (ex instanceof AccessDeniedException) {
 			return "权限不足，访问被阻止";
 		}
 		
-		errorMsg = StringUtils.defaultIfBlank(ex.getLocalizedMessage(), "未知系统错误");
+		errorMsg = StringUtils.defaultIfBlank(ex.getLocalizedMessage(), "未知错误，请稍后重试");
 		return ex.getClass().getSimpleName() + " : " + errorMsg;
 	}
 	
