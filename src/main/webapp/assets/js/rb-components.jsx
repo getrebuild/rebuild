@@ -85,13 +85,13 @@ class RbFormHandler extends RbModalHandler {
     super(props)
     this.handleChange = this.handleChange.bind(this)
   }
-  handleChange(e) {
+  handleChange(e, call) {
     let target = e.target
     let id = target.dataset.id
     let val = target.type === 'checkbox' ? target.checked : target.value
     let s = {}
     s[id] = val
-    this.setState(s)
+    this.setState(s, call)
   }
   componentWillUnmount() {
     // Auto destroy select2

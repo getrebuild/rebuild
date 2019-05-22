@@ -89,7 +89,7 @@ class DlgRuleEdit extends RbFormHandler {
           <div className="col-sm-7">
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
               <input className="custom-control-input" type="checkbox" checked={this.state.fillinForce === true} data-id="fillinForce" onChange={this.handleChange} />
-              <span className="custom-control-label">仍旧回填</span>
+              <span className="custom-control-label">强制回填</span>
             </label>
           </div>
         </div>
@@ -101,7 +101,6 @@ class DlgRuleEdit extends RbFormHandler {
       </div>
     </RbModal>)
   }
-
   componentDidMount() {
     this.__select2 = []
     // #1
@@ -175,6 +174,14 @@ class DlgRuleEdit extends RbFormHandler {
       }
     })
     this.setState({ targetFields: tFields })
+  }
+
+  handleChange(e) {
+    super.handleChange(e, () => {
+      if (this.state.whenCreate === false && this.state.whenUpdate === false) {
+        this.setState({ whenCreate: true })
+      }
+    })
   }
 
   save = () => {
