@@ -33,7 +33,7 @@ import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.helper.cache.EhcacheTemplate;
-import com.rebuild.server.helper.cache.RecentlySearchCache;
+import com.rebuild.server.helper.cache.RecentlyUsedCache;
 import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.metadata.DynamicMetadataFactory;
 import com.rebuild.server.service.CommonService;
@@ -237,8 +237,8 @@ public final class Application {
 		return getBean(RecordOwningCache.class);
 	}
 	
-	public static RecentlySearchCache getRecentlySearchCache() {
-		return getBean(RecentlySearchCache.class);
+	public static RecentlyUsedCache getRecentlyUsedCache() {
+		return getBean(RecentlyUsedCache.class);
 	}
 	
 	public static CommonCache getCommonCache() {

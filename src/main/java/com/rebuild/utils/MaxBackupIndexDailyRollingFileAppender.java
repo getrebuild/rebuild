@@ -67,7 +67,7 @@ public class MaxBackupIndexDailyRollingFileAppender extends DailyRollingFileAppe
 		
 		File file = new File(fileName);
 		File[] logs = file.getParentFile().listFiles(new LogFileFilter(file.getName()));
-		if (maxBackupIndex >= logs.length) {
+		if (logs == null || maxBackupIndex >= logs.length) {
 			return;
 		}
 		

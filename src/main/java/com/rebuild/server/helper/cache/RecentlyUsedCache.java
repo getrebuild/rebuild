@@ -34,16 +34,16 @@ import com.rebuild.server.portals.value.FieldValueWrapper;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 最近使用（搜索）的数据
+ * 最近使用的数据（引用搜索）
  * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/04/25
  */
-public class RecentlySearchCache {
+public class RecentlyUsedCache {
 	
 	final private CommonCache cacheManager;
 
-	protected RecentlySearchCache(CommonCache commonCache) {
+	protected RecentlyUsedCache(CommonCache commonCache) {
 		this.cacheManager = commonCache;
 	}
 	
@@ -69,7 +69,7 @@ public class RecentlySearchCache {
 	 * @return
 	 */
 	public ID[] gets(ID user, String entity, String type, int limit) {
-		if (!isTurnOn()) {
+		if (!isEnabled()) {
 			return ID.EMPTY_ID_ARRAY;
 		}
 		
@@ -110,7 +110,7 @@ public class RecentlySearchCache {
 	 * @param type
 	 */
 	public void addOne(ID user, ID id, String type) {
-		if (!isTurnOn()) {
+		if (!isEnabled()) {
 			return;
 		}
 		
@@ -138,7 +138,7 @@ public class RecentlySearchCache {
 	 * @param type
 	 */
 	public void clean(ID user, String entity, String type) {
-		if (!isTurnOn()) {
+		if (!isEnabled()) {
 			return;
 		}
 		
@@ -155,12 +155,7 @@ public class RecentlySearchCache {
 		return String.format("RSR.%s-%s-%s", user, entity, StringUtils.defaultIfBlank(type, StringUtils.EMPTY));
 	}
 	
-	/**
-	 * 是否启用
-	 * 
-	 * @return
-	 */
-	private boolean isTurnOn() {
-		return SysConfiguration.getBool(ConfigurableItem.TurnRecentlySearch);
+	private boolean isEnabled() {
+		return SysConfiguration.getBool(ConfigurableItem.EnableRecentlyUsed);
 	}
 }

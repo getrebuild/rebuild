@@ -271,6 +271,10 @@ public class FormsManager extends BaseLayoutManager {
 			}
 		}
 		
+		if (elements.isEmpty()) {
+			return formatModelError("此表单布局尚未配置，请配置后使用");
+		}
+		
 		if (entityMeta.getMasterEntity() != null) {
 			model.put("isSlave", true);
 		} else if (entityMeta.getSlaveEntity() != null) {
@@ -366,7 +370,7 @@ public class FormsManager extends BaseLayoutManager {
 				ID pickValue = (ID) value;
 				if (onView) {
 					return StringUtils.defaultIfBlank(
-							PickListManager.getLabel(pickValue), FieldValueWrapper.MISS_LABEL_PLACE);
+							PickListManager.getLabel(pickValue), FieldValueWrapper.MISS_REF_PLACE);
 				} else {
 					return pickValue.toLiteral();
 				}
@@ -374,7 +378,7 @@ public class FormsManager extends BaseLayoutManager {
 			else if (dt == DisplayType.CLASSIFICATION) {
 				ID itemValue = (ID) value;
 				String itemName = ClassificationManager.getFullName(itemValue);
-				itemName = StringUtils.defaultIfBlank(itemName, FieldValueWrapper.MISS_LABEL_PLACE);
+				itemName = StringUtils.defaultIfBlank(itemName, FieldValueWrapper.MISS_REF_PLACE);
 				return onView ? itemName : new String[] { itemValue.toLiteral(), itemName };
 			} 
 			else if (value instanceof ID) {

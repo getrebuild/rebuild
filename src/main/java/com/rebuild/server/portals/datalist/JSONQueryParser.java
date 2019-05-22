@@ -39,7 +39,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 1.0, 2013-6-20
  */
 public class JSONQueryParser {
-
+	
 	protected JSONObject queryExpressie;
 	private DataList dataListControl;
 	
@@ -144,18 +144,18 @@ public class JSONQueryParser {
 		if (ID.isId(advExpId)) {
 			Object[] adv = AdvFilterManager.getAdvFilter(ID.valueOf(advExpId));
 			if (adv != null) {
-				String query = new AdvFilterParser(entity, (JSONObject) adv[1]).toSqlWhere();
-				if (StringUtils.isNotBlank(query)) {
-					sqlWhere.append(" and ").append(query);
+				String where = new AdvFilterParser(entity, (JSONObject) adv[1]).toSqlWhere();
+				if (StringUtils.isNotBlank(where)) {
+					sqlWhere.append(" and ").append(where);
 				}
 			}
 		}
 		// Quick
 		JSONObject quickExp = queryExpressie.getJSONObject("filter");
 		if (quickExp != null) {
-			String query = new AdvFilterParser(entity, quickExp).toSqlWhere();
-			if (StringUtils.isNotBlank(query)) {
-				sqlWhere.append(" and ").append(query);
+			String where = new AdvFilterParser(entity, quickExp).toSqlWhere();
+			if (StringUtils.isNotBlank(where)) {
+				sqlWhere.append(" and ").append(where);
 			}
 		}
 		sqlBase.append(sqlWhere);

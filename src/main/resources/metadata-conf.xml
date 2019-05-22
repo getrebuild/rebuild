@@ -207,4 +207,13 @@
 		<index field-list="user,loginTime" />
 	</entity>
 	
+	<entity name="AutoFillinConfig" type-code="026" description="字段自动回填配置">
+		<field name="configId" type="primary" />
+		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
+		<field name="belongField" type="string" max-length="100" nullable="false" updatable="false" />
+		<field name="sourceField" type="string" max-length="100" nullable="false" description="引用实体的字段" />
+		<field name="targetField" type="string" max-length="100" nullable="false" description="当前实体的字段" />
+		<field name="extConfig" type="string" max-length="700" description="更多扩展配置, JSON格式KV" />
+	</entity>
+	
 </metadata-config>

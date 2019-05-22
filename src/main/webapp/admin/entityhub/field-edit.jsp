@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -40,7 +41,7 @@
 						<ul class="nav">
 							<li><a href="../base">基本信息</a></li>
 							<li class="active"><a href="../fields">管理字段</a></li>
-							<li><a href="../form-design">设计布局</a></li>
+							<li><a href="../form-design">表单布局</a></li>
 							<li><a href="../advanced">高级配置</a></li>
 						</ul>
 					</div>
@@ -51,6 +52,12 @@
 			<div class="page-head-title">字段信息</div>
 		</div>
 		<div class="main-content container-fluid pt-1">
+			<c:if test="${fieldType == 'REFERENCE' && fieldBuildin != true}">
+			<ul class="nav nav-tabs nav-tabs-classic">
+				<li class="nav-item"><a href="./${fieldName}" class="nav-link active">字段信息</a></li>
+				<li class="nav-item"><a href="./${fieldName}/auto-fillin" class="nav-link">表单回填配置</a></li>
+			</ul>
+			</c:if>
 			<div class="card mb-0">
 				<div class="card-body pt-4">
 					<form class="simple">
@@ -69,7 +76,7 @@
 						<div class="form-group row">
 							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">类型</label>
 							<div class="col-md-12 col-xl-6 col-lg-8">
-								<input class="form-control form-control-sm" type="text" readonly="readonly" value="${fieldType}">
+								<input class="form-control form-control-sm" type="text" readonly="readonly" value="${fieldTypeLabel}">
 							</div>
 						</div>
 						<div class="form-group row J_for-DECIMAL hide">
@@ -85,7 +92,7 @@
 								</select>
 							</div>
 						</div>
-						<div class="form-group row J_for-REFERENCE hide">
+						<div class="form-group row J_for-REFERENCE hide pt-0 pb-0">
 							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">引用实体</label>
 							<div class="col-md-12 col-xl-6 col-lg-8">
 								<div class="form-control-plaintext"><a href="../../${fieldRefentity}/base">${fieldRefentityLabel} (${fieldRefentity})</a></div>
@@ -149,7 +156,7 @@
 								</div>
 							</div>
 						</div>
-						<div class="form-group row J_for-CLASSIFICATION hide">
+						<div class="form-group row J_for-CLASSIFICATION pt-0 pb-0 hide">
 							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">分类数据</label>
 							<div class="col-md-12 col-xl-6 col-lg-8">
 								<div class="form-control-plaintext" id="useClassification"><a title="查看/编辑分类数据">加载中</a><i class="zmdi zmdi-layers fs-14 ml-1 text-muted"></i></div>

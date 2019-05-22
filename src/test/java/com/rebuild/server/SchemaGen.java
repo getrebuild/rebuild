@@ -46,8 +46,7 @@ public class SchemaGen {
 		PMF = CTX.getBean(PersistManagerFactoryImpl.class);
 		
 //		genAll();
-		gen(EntityHelper.Classification);
-		gen(EntityHelper.ClassificationData);
+		gen(EntityHelper.AutoFillinConfig);
 		
 		System.exit(0);
 	}

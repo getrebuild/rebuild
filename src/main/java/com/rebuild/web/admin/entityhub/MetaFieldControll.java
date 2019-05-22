@@ -112,7 +112,8 @@ public class MetaFieldControll extends BasePageControll  {
 		mv.getModel().put("fieldName", fieldEasyMeta.getName());
 		mv.getModel().put("fieldLabel", fieldEasyMeta.getLabel());
 		mv.getModel().put("fieldComments", fieldEasyMeta.getComments());
-		mv.getModel().put("fieldType", fieldEasyMeta.getDisplayType(true));
+		mv.getModel().put("fieldType", fieldEasyMeta.getDisplayType(false));
+		mv.getModel().put("fieldTypeLabel", fieldEasyMeta.getDisplayType(true));
 		mv.getModel().put("fieldNullable", fieldMeta.isNullable());
 		mv.getModel().put("fieldUpdatable", fieldMeta.isUpdatable());
 		mv.getModel().put("fieldBuildin", fieldEasyMeta.isBuiltin());

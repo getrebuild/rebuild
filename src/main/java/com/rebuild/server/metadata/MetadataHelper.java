@@ -344,7 +344,7 @@ public class MetadataHelper {
 	 * @return
 	 */
 	public static Field getLastJoinField(Entity entity, String fieldPath) {
-		String[] paths = fieldPath.split(".");
+		String[] paths = fieldPath.split("\\.");
 		Field lastField = null;
 		Entity father = entity;
 		for (String field : paths) {
