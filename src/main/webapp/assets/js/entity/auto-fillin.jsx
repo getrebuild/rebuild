@@ -136,6 +136,11 @@ class DlgRuleEdit extends RbFormHandler {
           } else {
             s2source.trigger('change')
           }
+
+          if (this.props.id && rb.env !== 'dev') {
+            s2target.prop('disabled', true)
+            s2source.prop('disabled', true)
+          }
         })
       })
     })
@@ -153,10 +158,10 @@ class DlgRuleEdit extends RbFormHandler {
     canFillinByType.push('TEXT')
     canFillinByType.push('NTEXT')
 
-    // 兼容的字段类型
+    // 显示兼容的目标字段
     let tFields = []
     $(this.__targetFieldsCache).each(function () {
-      if (!this.creatable) return
+      if (!this.creatable || this.name === wpc.fieldName) return
       if (source.type === 'FILE' && this.type !== 'FILE') return
       if (source.type === 'IMAGE' && this.type !== 'IMAGE') return
       if (source.type === this.type || canFillinByType.contains(this.type)) {

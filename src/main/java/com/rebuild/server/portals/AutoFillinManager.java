@@ -61,6 +61,9 @@ public class AutoFillinManager implements PortalsManager {
 	 */
 	public static JSONArray getFillinValue(Field field, ID source) {
 		final List<ConfigEntry> config = getConfig(field);
+		if (config.isEmpty()) {
+			return JSONUtils.EMPTY_ARRAY;
+		}
 		
 		Entity sourceEntity = MetadataHelper.getEntity(source.getEntityCode());
 		Entity targetEntity = field.getOwnEntity();
@@ -107,6 +110,11 @@ public class AutoFillinManager implements PortalsManager {
 						sourceRecord.getObjectValue(sourceField));
 			}
 			
+			// NOTE 忽略空值
+			if (value == null || StringUtils.isBlank(value.toString())) {
+				continue;
+			}
+			
 			ConfigEntry clone = e.clone().set("value", value == null ? StringUtils.EMPTY : value);
 			clone.set("source", null);
 			fillin.add(clone.toJSON());
@@ -122,9 +130,42 @@ public class AutoFillinManager implements PortalsManager {
 	 * @param value
 	 * @return
 	 */
-	private static Object conversionCompatibleValue(Field source, Field target, Object value) {
-		Object formatted = FieldValueWrapper.wrapFieldValue(value, source);
-		return formatted;
+	protected static Object conversionCompatibleValue(Field source, Field target, Object value) {
+		DisplayType sourceType = EasyMeta.getDisplayType(source);
+		DisplayType targetType = EasyMeta.getDisplayType(target);
+		boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
+		
+		Object compatibleValue = null;
+		if (sourceType == DisplayType.REFERENCE) {
+			if (is2Text) {
+				compatibleValue = ((ID) value).getLabel();
+			} else {
+				Object[] idAndLabel = new Object[] { value, ((ID) value).getLabel() };
+				compatibleValue = FieldValueWrapper.wrapFieldValue(idAndLabel, source);
+			}
+		} else if (sourceType == DisplayType.CLASSIFICATION) {
+			// Label
+			compatibleValue = FieldValueWrapper.wrapFieldValue(value, source);
+			if (!is2Text) {
+				compatibleValue = new Object[] { value, compatibleValue };  // [ID, Label]
+			}
+		} else if (sourceType == DisplayType.PICKLIST) {
+			if (is2Text) {
+				compatibleValue = FieldValueWrapper.wrapFieldValue(value, source);
+			} else {
+				compatibleValue = value;
+			}
+		} else if (sourceType == DisplayType.DATETIME && targetType == DisplayType.DATE) {
+			String datetime = (String) FieldValueWrapper.wrapFieldValue(value, source);
+			compatibleValue = datetime.split(" ")[0];
+		} else if (sourceType == DisplayType.DATE && targetType == DisplayType.DATETIME) {
+			String date = (String) FieldValueWrapper.wrapFieldValue(value, source);
+			compatibleValue = date + " 00:00:00";
+		} else {
+			compatibleValue = FieldValueWrapper.wrapFieldValue(value, source);
+		}
+		
+		return compatibleValue;
 	}
 	
 	/**

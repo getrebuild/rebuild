@@ -162,7 +162,7 @@ public class FieldValueWrapper {
 	/**
 	 * @param reference 接受参数：1.ID; 2.[ID,Label]数组
 	 * @param field
-	 * @return a String of ID or an array [Entity, Label, ID]
+	 * @return a String of ID or an array [ID, Label, Entity]
 	 */
 	public static Object wrapReference(Object reference, EasyMeta field) {
 		if (!(reference instanceof Object[])) {

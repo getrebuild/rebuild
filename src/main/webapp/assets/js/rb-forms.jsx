@@ -347,7 +347,7 @@ class RbFormElement extends React.Component {
   // Getter / Setter
 
   setValue(val) {
-    this.setState({ value: val })
+    this.handleChange({ target: { value: val } }, true)
   }
   getValue() {
     return this.state.value
@@ -363,6 +363,12 @@ class RbFormReadonly extends RbFormElement {
     let text = this.props.value
     if (this.props.type === 'REFERENCE' && text) text = text[1]
     return <input className="form-control form-control-sm" type="text" readOnly="true" value={text} />
+  }
+  setValue() {
+    // DO NOTING
+  }
+  getValue() {
+    return this.props.value
   }
 }
 
@@ -587,10 +593,10 @@ class RbFormImage extends RbFormElement {
     if (this.__minUpload > 0 && ups < this.__minUpload) return `至少需要上传 ${this.__minUpload} ${this.__typeName}`
     if (this.__maxUpload < ups) return `最多允许上传 ${this.__maxUpload} ${this.__typeName}`
   }
-
-  getValue() {
-  }
-  setValue() {
+  setValue(val) {
+    val = JSON.parse(val || '[]')
+    // TODO 检查数量限制
+    this.handleChange({ target: { value: val } }, true)
   }
 }
 
@@ -638,11 +644,6 @@ class RbFormFile extends RbFormImage {
       })}
     </div>)
   }
-
-  getValue() {
-  }
-  setValue() {
-  }
 }
 
 // 列表
@@ -674,19 +675,18 @@ class RbFormPickList extends RbFormElement {
     super.componentDidMount()
     if (this.state.viewMode === true) return
 
-    let select2 = $(this.refs['field-value']).select2({
+    const s2 = $(this.refs['field-value']).select2({
       placeholder: '选择' + this.props.label
     })
-    this.__select2 = select2
+    this.__select2 = s2
 
     let that = this
     $setTimeout(function () {
       // 没有值
       if (that.props.$$$parent.isNew === false && !that.props.value) {
-        select2.val(null)
+        s2.val(null)
       }
-      // select2.trigger('change')
-      select2.on('change.select2', function (e) {
+      s2.on('change', function (e) {
         let val = e.target.value
         that.handleChange({ target: { value: val } }, true)
       }).trigger('change')
@@ -698,10 +698,8 @@ class RbFormPickList extends RbFormElement {
       this.__select2 = null
     }
   }
-
-  getValue() {
-  }
-  setValue() {
+  setValue(val) {
+    this.__select2.val(val).trigger('change')
   }
 }
 
@@ -712,7 +710,7 @@ class RbFormReference extends RbFormElement {
   }
   renderElement() {
     return (
-      <select ref="field-value" className="form-control form-control-sm" multiple="multiple" />
+      <select ref={(c) => this._fvalue = c} className="form-control form-control-sm" multiple="multiple" />
     )
   }
   renderViewElement() {
@@ -726,8 +724,8 @@ class RbFormReference extends RbFormElement {
 
     let that = this
     const entity = this.props.$$$parent.props.entity
-    let select2_input = null
-    let select2 = $(this.refs['field-value']).select2({
+    let search_input = null
+    const s2 = $(this._fvalue).select2({
       placeholder: '选择' + this.props.label,
       minimumInputLength: 0,
       maximumSelectionLength: 1,
@@ -740,7 +738,7 @@ class RbFormReference extends RbFormElement {
             field: that.props.field,
             q: params.term
           }
-          select2_input = params.term
+          search_input = params.term
           return query
         },
         processResults: function (data) {
@@ -748,22 +746,22 @@ class RbFormReference extends RbFormElement {
         }
       },
       language: {
-        noResults: () => { return (select2_input || '').length > 0 ? '未找到结果' : '输入关键词搜索' },
+        noResults: () => { return (search_input || '').length > 0 ? '未找到结果' : '输入关键词搜索' },
         inputTooShort: () => { return '输入关键词搜索' },
         searching: () => { return '搜索中...' },
         maximumSelected: () => { return '只能选择 1 项' }
       }
     })
-    this.__select2 = select2
+    this.__select2 = s2
 
     $setTimeout(function () {
       let val = that.props.value
       if (val) {
-        let option = new Option(val[1], val[0], true, true)
-        select2.append(option)
+        let o = new Option(val[1], val[0], true, true)
+        s2.append(o)
       }
-      select2.trigger('change')
-      select2.on('change.select2', function (e) {
+      s2.trigger('change')
+      s2.on('change', function (e) {
         let v = e.target.value
         if (v) {
           $.post(`${rb.baseUrl}/commons/search/recently-add?id=${v}`)
@@ -784,10 +782,12 @@ class RbFormReference extends RbFormElement {
   clickView() {
     if (window.RbViewPage) window.RbViewPage.clickView($(this.refs['field-text']))
   }
-
-  getValue() {
-  }
-  setValue() {
+  setValue(val) {
+    if (val) {
+      let o = new Option(val[1], val[0], true, true)
+      this.__select2.append(o)
+      this.handleChange({ target: { value: val[0] } }, true)
+    } else this.__select2.val(null).trigger('change')
   }
 }
 
@@ -830,10 +830,9 @@ class RbFormAvatar extends RbFormElement {
     })
   }
 
-  getValue() {
-  }
-  setValue() {
-  }
+  // Not implemented
+  setValue() { }
+  getValue() { }
 }
 
 // 分类数据
@@ -896,10 +895,9 @@ class RbFormClassification extends RbFormElement {
       this.__data = data
     }
   }
-
-  getValue() {
-  }
-  setValue() {
+  setValue(val) {
+    if (val) this.giveValue({ id: val[0], text: val[1] })
+    else this.__select2.val(null).trigger('change')
   }
 }
 
