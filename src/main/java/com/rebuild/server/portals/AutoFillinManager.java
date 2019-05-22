@@ -97,7 +97,7 @@ public class AutoFillinManager implements PortalsManager {
 				StringUtils.join(sourceFields, ","),
 				sourceEntity.getName(),
 				sourceEntity.getPrimaryField().getName());
-		Record sourceRecord = Application.createQuery(ql).setParameter(1, source).record();
+		Record sourceRecord = Application.createQueryNoFilter(ql).setParameter(1, source).record();
 		if (sourceRecord == null) {
 			return JSONUtils.EMPTY_ARRAY;
 		}
