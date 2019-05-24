@@ -1,0 +1,54 @@
+/* Editor Page */
+
+.timeline.spare {
+  max-width: 2000px;
+  padding-bottom: 0;
+  margin-bottom: 20px;
+}
+
+.timeline.spare form.simple {
+  max-width: 2000px;
+}
+
+.timeline.spare form.simple .col-form-label {
+  max-width: 200px
+}
+
+.timeline.spare .timeline-content {
+  padding: 0;
+}
+
+.timeline.spare .timeline-content {
+  box-shadow: 0 0 0 #fff;
+}
+
+.timeline.spare form.simple .form-group:first-child {
+  padding-top: 26px;
+}
+
+.timeline.spare .timeline-item {
+  margin-bottom: 10px;
+}
+
+.timeline.spare .timeline-item.last {
+  margin-bottom: 0;
+}
+
+.timeline.spare .timeline-item.last::before {
+  display: none;
+}
+
+#react-content {
+  background-color: #eee;
+  border-radius: 3px;
+  padding: 20px;
+}
+
+.counts-slave {
+  max-width: 720px;
+}
+
+.counts-slave p {
+  margin: 0;
+  margin-bottom: 6px;
+}
