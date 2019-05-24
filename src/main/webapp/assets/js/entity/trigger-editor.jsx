@@ -3,29 +3,52 @@ const wpc = window.__PageConfig
 $(document).ready(() => {
   let contentComp
   if (wpc.operatorType === 'COUNTSSLAVE') {
-    contentComp = renderRbcomp(<ContentCountsSlave sourceEntity={wpc.sourceEntity} />, 'react-content')
+    contentComp = renderRbcomp(<ContentCountsSlave sourceEntity={wpc.sourceEntity} content={wpc.operatorContent} />, 'react-content')
   }
 
-  let advFilter
-  $('.J_whenFilter .btn').click(() => {
-    if (advFilter) advFilter.show()
-    else advFilter = renderRbcomp(<AdvFilter title="设置过滤条件" entity={wpc.sourceEntity} inModal={true} confirm={saveFilter} canNoFilters={true} />)
-  })
+  if (wpc.when > 0) {
+    $([1, 2, 4, 16, 32, 64]).each(function () {
+      let mask = this
+      // eslint-disable-next-line eqeqeq
+      if ((wpc.when & mask) != 0) $('.J_when input[value=' + mask + ']').prop('checked', true)
+    })
+  }
 
-  $('.J_save').click(() => {
+  // let advFilter
+  $('.J_whenFilter .btn').click(() => {
+    // if (advFilter) advFilter.show()
+    // else advFilter = renderRbcomp(<AdvFilter title="设置过滤条件" entity={wpc.sourceEntity} filter={wpc.whenFilter} inModal={true} confirm={saveFilter} canNoFilters={true} />)
+    renderRbcomp(<AdvFilter title="设置过滤条件" entity={wpc.sourceEntity} filter={wpc.whenFilter} inModal={true} confirm={saveFilter} canNoFilters={true} />)
+  })
+  saveFilter(wpc.whenFilter)
+
+  let _btn = $('.J_save').click(() => {
     let when = 0
     $('.J_when input:checked').each(function () {
       when += ~~$(this).val()
     })
-    alert(when)
 
     let content = contentComp.buildContent()
     if (content === false) return
+
+    let _data = { when: when, whenFilter: wpc.whenFilter || null, operatorContent: content }
+    let p = $val('#priority')
+    if (p) _data.priority = p
+    _data.metadata = { entity: 'RobotTriggerConfig', id: wpc.configId }
+
+    _btn.button('loading')
+    $.post(`${rb.baseUrl}/admin/robot/trigger/save`, JSON.stringify(_data), (res) => {
+      if (res.error_code === 0) location.reload()
+      else rb.hberror(res.error_msg)
+      _btn.button('reset')
+    })
   })
 })
 
 const saveFilter = function (res) {
   wpc.whenFilter = res
+  if (wpc.whenFilter && wpc.whenFilter.items && wpc.whenFilter.items.length > 0) $('.J_whenFilter a span').text('(已配置过滤)')
+  else $('.J_whenFilter a span').text('(无)')
 }
 
 // 明细汇总
@@ -67,23 +90,27 @@ class ContentCountsSlave extends React.Component {
     </div>
   }
   componentDidMount() {
+    this.__select2 = []
     $.get(`${rb.baseUrl}/admin/robot/trigger/counts-slave-fields?sourceEntity=${this.props.sourceEntity}`, (res) => {
       this.setState({ sourceFields: res.data.slave, targetFields: res.data.master }, () => {
-        $(this._sourceField).select2({
-          placeholder: '选择源字段',
-          allowClear: false
-        })
-        $(this._calcMode).select2({
-          allowClear: false
-        })
-        $(this._targetField).select2({
-          placeholder: '选择目标字段',
-          allowClear: false
-        })
+        let s2sf = $(this._sourceField).select2({ placeholder: '选择源字段', allowClear: false })
+        let s2cm = $(this._calcMode).select2({ placeholder: '选择计算方式', allowClear: false })
+        let s2tf = $(this._targetField).select2({ placeholder: '选择目标字段', allowClear: false })
+        this.__select2.push(s2sf)
+        this.__select2.push(s2cm)
+        this.__select2.push(s2tf)
+        if (this.props.content && this.props.calcMode) {
+          s2sf.val(this.props.content.sourceField).trigger('change')
+          s2cm.val(this.props.content.calcMode).trigger('change')
+          s2tf.val(this.props.content.targetField).trigger('change')
+        }
       })
     })
   }
   buildContent() {
-    return false
+    let _data = { sourceField: $(this._sourceField).val(), calcMode: $(this._calcMode).val(), targetField: $(this._targetField).val() }
+    if (!_data.sourceField) { rb.highbar('源字段不能为空'); return false }
+    if (!_data.targetField) { rb.highbar('目标字段不能为空'); return false }
+    return _data
   }
 }

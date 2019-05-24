@@ -25,6 +25,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -72,7 +73,7 @@ public class RobotTriggerControll extends BasePageControll {
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID configId = ID.valueOf(id);
 		Object[] config = Application.createQuery(
-				"select belongEntity,operatorType from RobotTriggerConfig where configId = ?")
+				"select belongEntity,operatorType,when,whenFilter,operatorContent,priority from RobotTriggerConfig where configId = ?")
 				.setParameter(1, configId)
 				.unique();
 		if (config == null) {
@@ -89,6 +90,10 @@ public class RobotTriggerControll extends BasePageControll {
 		mv.getModel().put("sourceEntityLabel", EasyMeta.getLabel(sourceEntity));
 		mv.getModel().put("operatorType", operatorType.name());
 		mv.getModel().put("operatorTypeLabel", operatorType.getDisplayName());
+		mv.getModel().put("when", config[2]);
+		mv.getModel().put("whenFilter", StringUtils.defaultIfBlank((String) config[3], JSONUtils.EMPTY_OBJECT_STR));
+		mv.getModel().put("operatorContent", StringUtils.defaultIfBlank((String) config[4], JSONUtils.EMPTY_OBJECT_STR));
+		mv.getModel().put("priority", config[5]);
 		return mv;
 	}
 	

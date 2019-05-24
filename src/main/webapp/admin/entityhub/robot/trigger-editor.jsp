@@ -55,10 +55,10 @@
 										</label>
 										<div class="mt-1">
 											<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-												<input class="custom-control-input" type="checkbox" value="8" ><span class="custom-control-label"> 分派时</span>
+												<input class="custom-control-input" type="checkbox" value="16" ><span class="custom-control-label"> 分派时</span>
 											</label>
 											<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-												<input class="custom-control-input" type="checkbox" value="16"><span class="custom-control-label"> 共享时</span>
+												<input class="custom-control-input" type="checkbox" value="32"><span class="custom-control-label"> 共享时</span>
 											</label>
 											<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
 												<input class="custom-control-input" type="checkbox" value="64"><span class="custom-control-label"> 取消共享时</span>
@@ -69,7 +69,7 @@
 								<div class="form-group row">
 									<label class="col-md-12 col-lg-4 col-form-label text-lg-right">附加过滤条件</label>
 									<div class="col-md-12 col-lg-8 J_whenFilter">
-										<a class="btn btn-link pl-0"><i class="icon zmdi zmdi-filter-list"></i> 点击配置</a>
+										<a class="btn btn-link pl-0 text-left"><i class="icon zmdi zmdi-filter-list"></i> 点击配置 <span></span></a>
 										<p class="form-text mb-0 mt-0">符合过滤条件的数据才会被触发</p>
 									</div>
 								</div>
@@ -90,6 +90,13 @@
 									<label class="col-md-12 col-lg-4 col-form-label text-lg-right">操作内容</label>
 									<div class="col-md-12 col-lg-8">
 										<div id="react-content">加载中 ...</div>
+									</div>
+								</div>
+								<div class="form-group row">
+									<label class="col-md-12 col-lg-4 col-form-label text-lg-right">优先级</label>
+									<div class="col-md-12 col-lg-8">
+										<input type="text" class="form-control form-control-sm" id="priority" value="${priority}" data-o="${priority}" style="max-width:200px" />
+										<p class="form-text mb-0">优先级高的会先被执行</p>
 									</div>
 								</div>
 							</form>
@@ -116,9 +123,12 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script>
 window.__PageConfig = {
-	id: '${configId}',
+	configId: '${configId}',
 	operatorType: '${operatorType}',
-	sourceEntity: '${sourceEntity}'
+	sourceEntity: '${sourceEntity}',
+	when: ${when},
+	whenFilter: ${whenFilter},
+	operatorContent: ${operatorContent}
 }
 </script>
 <script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
