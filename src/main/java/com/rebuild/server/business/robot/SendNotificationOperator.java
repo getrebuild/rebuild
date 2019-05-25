@@ -22,8 +22,25 @@ package com.rebuild.server.business.robot;
  * TODO
  * 
  * @author devezhao zhaofang123@gmail.com
- * @since 2019/05/23
+ * @since 2019/05/25
  */
-public enum ExpressionType {
+public class SendNotificationOperator implements Operator {
 
+	@Override
+	public OperatorType getType() {
+		return OperatorType.SENDNOTIFICATION;
+	}
+
+	@Override
+	public boolean isUsableSourceEntity(int entityCode) {
+		return true;
+	}
+
+	@Override
+	public void operate(Object context) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	
 }

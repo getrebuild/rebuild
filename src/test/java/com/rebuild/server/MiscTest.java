@@ -43,4 +43,13 @@ public class MiscTest {
 		System.out.println(System.getenv());
 		System.out.println(System.getProperties());
 	}
+	
+	@Test
+	public void testMask() throws Exception {
+		long mask = 1;
+		for (int i = 0; i < 64; i++) {
+			System.out.println(mask);
+			mask *= 2;
+		}
+	}
 }

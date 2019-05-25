@@ -114,6 +114,14 @@ public class RobotTriggerControll extends BasePageControll {
 		
 		List<String[]> list = new ArrayList<String[]>();
 		for (Entity e : MetadataHelper.getEntities()) {
+			if (!MetadataHelper.hasPrivilegesField(e)) {
+				if (MetadataHelper.isBizzEntity(e.getEntityCode()) || e.getMasterEntity() != null) {
+					// 允许 BIZZ 和明细
+				} else {
+					continue;
+				}
+			}
+			
 			if (op.isUsableSourceEntity(e.getEntityCode())) {
 				list.add(new String[] { e.getName(), EasyMeta.getLabel(e) });
 			}

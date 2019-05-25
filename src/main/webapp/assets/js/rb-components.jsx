@@ -302,3 +302,90 @@ rb.hberror = (message) => {
 rb.hbsuccess = (message) => {
   rb.highbar(message || '操作成功', 'success')
 }
+
+// ~ 用户选择器
+class UserSelector extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { dropdownOpen: false }
+    this.__cdatas = {}
+  }
+  render() {
+    return <div className="user-selector">
+      <span className="select2 select2-container select2-container--default select2-container--below">
+        <span className="selection">
+          <span className="select2-selection select2-selection--multiple">
+            <ul className="select2-selection__rendered">
+              {(this.state.selected || []).map((item) => {
+                return (<li key={'s-' + item.id} className="select2-selection__choice"><span className="select2-selection__choice__remove">×</span>{item.text}</li>)
+              })}
+              <span className="select2-selection__add" onClick={this.openDropdown}><i className="zmdi zmdi-plus"></i> 添加</span>
+              <span className="select2-selection__clear" onClick={this.clearSelection}>×</span>
+            </ul>
+          </span>
+        </span>
+        <span className={'dropdown-wrapper ' + (this.state.dropdownOpen === false && 'hide')} onClick={(e) => { this.stopClickEvent(e); return false }}>
+          <div className="selector-search">
+            <div>
+              <input type="search" className="form-control" placeholder="输入关键词搜索" ref={(c) => this._searchInput = c} />
+            </div>
+          </div>
+          <div className="tab-container">
+            <ul className="nav nav-tabs nav-tabs-classic">
+              <li className="nav-item"><a onClick={() => this.switchTab('User')} className={'nav-link ' + (this.state.tabType === 'User' && 'active')}>用户</a></li>
+              <li className="nav-item"><a onClick={() => this.switchTab('Department')} className={'nav-link ' + (this.state.tabType === 'Department' && 'active')}>部门</a></li>
+              <li className="nav-item"><a onClick={() => this.switchTab('Role')} className={'nav-link ' + (this.state.tabType === 'Role' && 'active')}>角色</a></li>
+            </ul>
+            <div className="tab-content">
+              <div className="tab-pane active">
+                <div className="rb-scroller" ref={(c) => this._scroller = c}>
+                  <ul className="select2-results__options">
+                    {(this.state.items || []).map((item) => {
+                      return (<li key={'o-' + item.id} className="select2-results__option" data-id={item.id} onClick={(e) => this.clickItem(e)}><span className={'zmdi ' + (item.s && 'zmdi-check')}></span>{item.text}</li>)
+                    })}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </span>
+      </span>
+    </div >
+  }
+  componentDidMount() {
+    document.body.addEventListener('click', e => {
+      this.__dropdownCloseWait = setTimeout(() => {
+        this.setState({ dropdownOpen: false })
+      }, 100)
+    })
+    $(this._scroller).perfectScrollbar()
+  }
+  clearSelection = () => {
+    this.setState({ items: null })
+  }
+
+  openDropdown = (e) => {
+    this.setState({ dropdownOpen: true }, () => {
+      $(this._searchInput).focus()
+      if (!this.state.tabType) this.switchTab('User')
+    })
+    if (this.__dropdownCloseWait) clearTimeout(this.__dropdownCloseWait)
+  }
+  stopClickEvent = (e) => {
+    if (this.__dropdownCloseWait) clearTimeout(this.__dropdownCloseWait)
+  }
+  switchTab(type) {
+    this.setState({ tabType: type, items: this.__cdatas[type] }, () => {
+      if (!this.__cdatas[type]) {
+        $.get(`${rb.baseUrl}/commons/search/users?type=${type}`, (res) => {
+          this.__cdatas[type] = res.data
+          this.switchTab(type)
+        })
+      }
+    })
+  }
+
+  clickItem(e) {
+    console.log(e.target)
+  }
+}

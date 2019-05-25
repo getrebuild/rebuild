@@ -3,7 +3,15 @@
 $(document).ready(function () {
   renderRbcomp(<LevelBoxes id={dataId} />, 'boxes')
   $('.J_imports').click(() => { renderRbcomp(<DlgImports id={dataId} />) })
+  $(window).on('resize', () => {
+    $setTimeout(resize_boxes, 100, 'resize-boxes')
+  })
 })
+
+const resize_boxes = function () {
+  let wh = $(window).height() - 287
+  $('#boxes .rb-scroller').css('max-height', wh)
+}
 
 class LevelBoxes extends React.Component {
   constructor(props) {
@@ -22,8 +30,8 @@ class LevelBoxes extends React.Component {
   componentDidMount() {
     this.notifyToggle(openLevel + 1, true)
     $('#boxes').removeClass('rb-loading-active')
-    let wh = $(window).height() - 287
-    $('#boxes .rb-scroller').css('max-height', wh).perfectScrollbar()
+    resize_boxes()
+    $('#boxes .rb-scroller').perfectScrollbar()
   }
 
   notifyItemActive(level, id) {

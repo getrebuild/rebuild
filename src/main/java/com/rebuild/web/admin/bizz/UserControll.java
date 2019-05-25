@@ -153,6 +153,4 @@ public class UserControll extends BaseEntityControll {
 				new Object[] { hasMember, hasChild });
 		writeSuccess(response, ret);
 	}
-	
-	
 }

@@ -28,7 +28,9 @@ public enum OperatorType {
 	
 	EXPRESSION("计算表达式"),
 	
-	COUNTSSLAVE("明细汇总至主实体"),
+	COUNTSSLAVE("明细实体汇总至主实体"),
+	
+	SENDNOTIFICATION("发送通知"),
 	
 	;
 	

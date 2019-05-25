@@ -30,7 +30,7 @@ public class OperatorFactory {
 	 * @return
 	 */
 	public static OperatorType[] getAvailableOperators() {
-		return new OperatorType[] { OperatorType.COUNTSSLAVE };
+		return new OperatorType[] { OperatorType.COUNTSSLAVE, OperatorType.SENDNOTIFICATION };
 	}
 	
 	/**
@@ -48,6 +48,8 @@ public class OperatorFactory {
 	public static Operator createOperator(OperatorType type) {
 		if (type == OperatorType.COUNTSSLAVE) {
 			return new CountsSlaveOperator();
+		} else if (type == OperatorType.SENDNOTIFICATION) {
+			return new SendNotificationOperator();
 		}
 		throw new TriggerException("未知的预定义触发类型");
 	}

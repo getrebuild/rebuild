@@ -77,11 +77,11 @@
 							</div>
 						</li>
 						<li class="timeline-item">
-							<div class="timeline-date"><span>就触发操作</span></div>
+							<div class="timeline-date"><span>就执行操作</span></div>
 							<div class="timeline-content">
 							<form class="simple">
 								<div class="form-group row">
-									<label class="col-md-12 col-lg-4 col-form-label text-lg-right">触发操作</label>
+									<label class="col-md-12 col-lg-4 col-form-label text-lg-right">执行操作</label>
 									<div class="col-md-12 col-lg-8">
 										<div class="form-control-plaintext text-bold">${operatorTypeLabel}</div>
 									</div>
@@ -93,10 +93,10 @@
 									</div>
 								</div>
 								<div class="form-group row">
-									<label class="col-md-12 col-lg-4 col-form-label text-lg-right">优先级</label>
+									<label class="col-md-12 col-lg-4 col-form-label text-lg-right">执行优先级</label>
 									<div class="col-md-12 col-lg-8">
 										<input type="text" class="form-control form-control-sm" id="priority" value="${priority}" data-o="${priority}" style="max-width:200px" />
-										<p class="form-text mb-0">优先级高的会先被执行</p>
+										<p class="form-text mb-0">优先级高的会被先执行</p>
 									</div>
 								</div>
 							</form>
@@ -108,7 +108,7 @@
 								<div class="form-group row footer">
 									<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right"></label>
 									<div class="col-md-12 col-xl-6 col-lg-8">
-										<button class="btn btn-primary J_save" type="button" data-loading-text="请稍后">保存</button>
+										<button class="btn btn-primary J_save" type="button">保存</button>
 									</div>
 								</div>
 							</form>

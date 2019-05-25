@@ -207,6 +207,13 @@ public class UserStore {
 	}
 	
 	/**
+	 * @return
+	 */
+	public Role[] getAllRoles() {
+		return ROLEs.values().toArray(new Role[ROLEs.size()]);
+	}
+	
+	/**
 	 * 刷新用户缓存
 	 * 
 	 * @param userId
