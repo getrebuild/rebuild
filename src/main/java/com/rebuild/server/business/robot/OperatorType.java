@@ -26,11 +26,9 @@ package com.rebuild.server.business.robot;
  */
 public enum OperatorType {
 	
-	EXPRESSION("计算表达式"),
-	
 	COUNTSSLAVE("明细实体汇总至主实体"),
 	
-	SENDNOTIFICATION("发送通知"),
+	SENDNOTIFICATION("发送内部通知"),
 	
 	;
 	

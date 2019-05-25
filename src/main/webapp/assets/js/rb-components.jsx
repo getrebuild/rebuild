@@ -307,41 +307,50 @@ rb.hbsuccess = (message) => {
 class UserSelector extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { dropdownOpen: false }
-    this.__cdatas = {}
+    this.state = { dropdownOpen: false, selected: props.selected || [] }
+
+    this.cached = {}
+    this.tabTypes = []
+    if (props.hideUser !== true) this.tabTypes.push(['User', '用户'])
+    if (props.hideDepartment !== true) this.tabTypes.push(['Department', '部门'])
+    if (props.hideRole !== true) this.tabTypes.push(['Role', '角色'])
   }
   render() {
+    let noResult = null
+    if (!this.state.items) noResult = noResult = <li className="select2-results__option un-hover text-muted">搜索中...</li>
+    else if (this.state.items.length === 0) noResult = <li className="select2-results__option un-hover">未找到结果</li>
+
     return <div className="user-selector">
       <span className="select2 select2-container select2-container--default select2-container--below">
         <span className="selection">
           <span className="select2-selection select2-selection--multiple">
             <ul className="select2-selection__rendered">
-              {(this.state.selected || []).map((item) => {
-                return (<li key={'s-' + item.id} className="select2-selection__choice"><span className="select2-selection__choice__remove">×</span>{item.text}</li>)
+              {this.state.selected.length > 0 && <span className="select2-selection__clear" onClick={this.clearSelection}>×</span>}
+              {(this.state.selected).map((item) => {
+                return (<li key={'s-' + item.id} className="select2-selection__choice"><span className="select2-selection__choice__remove" data-id={item.id} onClick={(e) => this.removeItem(e)}>×</span>{item.text}</li>)
               })}
-              <span className="select2-selection__add" onClick={this.openDropdown}><i className="zmdi zmdi-plus"></i> 添加</span>
-              <span className="select2-selection__clear" onClick={this.clearSelection}>×</span>
+              <li className="select2-selection__choice abtn" onClick={this.openDropdown}><a><i className="zmdi zmdi-plus"></i> 添加</a></li>
             </ul>
           </span>
         </span>
         <span className={'dropdown-wrapper ' + (this.state.dropdownOpen === false && 'hide')} onClick={(e) => { this.stopClickEvent(e); return false }}>
           <div className="selector-search">
             <div>
-              <input type="search" className="form-control" placeholder="输入关键词搜索" ref={(c) => this._searchInput = c} />
+              <input type="search" className="form-control" placeholder="输入关键词搜索" value={this.state.query || ''} onChange={(e) => this.searchItems(e)} />
             </div>
           </div>
           <div className="tab-container">
             <ul className="nav nav-tabs nav-tabs-classic">
-              <li className="nav-item"><a onClick={() => this.switchTab('User')} className={'nav-link ' + (this.state.tabType === 'User' && 'active')}>用户</a></li>
-              <li className="nav-item"><a onClick={() => this.switchTab('Department')} className={'nav-link ' + (this.state.tabType === 'Department' && 'active')}>部门</a></li>
-              <li className="nav-item"><a onClick={() => this.switchTab('Role')} className={'nav-link ' + (this.state.tabType === 'Role' && 'active')}>角色</a></li>
+              {this.tabTypes.map((item) => {
+                return <li className="nav-item" key={'t-' + item[0]}><a onClick={() => this.switchTab(item[0])} className={'nav-link' + (this.state.tabType === item[0] ? ' active' : '')}>{item[1]}</a></li>
+              })}
             </ul>
             <div className="tab-content">
               <div className="tab-pane active">
                 <div className="rb-scroller" ref={(c) => this._scroller = c}>
                   <ul className="select2-results__options">
-                    {(this.state.items || []).map((item) => {
-                      return (<li key={'o-' + item.id} className="select2-results__option" data-id={item.id} onClick={(e) => this.clickItem(e)}><span className={'zmdi ' + (item.s && 'zmdi-check')}></span>{item.text}</li>)
+                    {noResult ? noResult : this.state.items.map((item) => {
+                      return (<li key={'o-' + item.id} className="select2-results__option" data-id={item.id} onClick={(e) => this.clickItem(e)}><span className={'zmdi' + (this.containsItem(item.id) ? ' zmdi-check' : '')}></span>{item.text}</li>)
                     })}
                   </ul>
                 </div>
@@ -360,10 +369,10 @@ class UserSelector extends React.Component {
     })
     $(this._scroller).perfectScrollbar()
   }
-  clearSelection = () => {
-    this.setState({ items: null })
-  }
 
+  clearSelection = () => {
+    this.setState({ selected: [] })
+  }
   openDropdown = (e) => {
     this.setState({ dropdownOpen: true }, () => {
       $(this._searchInput).focus()
@@ -374,18 +383,60 @@ class UserSelector extends React.Component {
   stopClickEvent = (e) => {
     if (this.__dropdownCloseWait) clearTimeout(this.__dropdownCloseWait)
   }
+
   switchTab(type) {
-    this.setState({ tabType: type, items: this.__cdatas[type] }, () => {
-      if (!this.__cdatas[type]) {
-        $.get(`${rb.baseUrl}/commons/search/users?type=${type}`, (res) => {
-          this.__cdatas[type] = res.data
+    type = type || this.state.tabType
+    const cacheKey = type + '-' + this.state.query
+    this.setState({ tabType: type, items: this.cached[cacheKey] }, () => {
+      if (!this.cached[cacheKey]) {
+        $.get(`${rb.baseUrl}/commons/search/users?type=${type}&q=${$encode(this.state.query)}`, (res) => {
+          this.cached[cacheKey] = res.data
           this.switchTab(type)
         })
       }
+      $(this._scroller).perfectScrollbar('update')
+    })
+  }
+  searchItems(e) {
+    this.setState({ query: e.target.value }, () => {
+      $setTimeout(() => {
+        this.switchTab()
+      }, 300, 'us-searchItems')
     })
   }
 
   clickItem(e) {
-    console.log(e.target)
+    let id = e.target.dataset.id
+    let exists = false
+    let ns = this.state.selected.filter((item) => {
+      if (item.id === id) {
+        exists = true
+        return false
+      }
+      return true
+    })
+
+    if (exists === false) {
+      ns.push({ id: id, text: $(e.target).text() })
+    }
+    this.setState({ selected: ns, dropdownOpen: this.props.closeOnSelect !== true })
+  }
+  removeItem(e) {
+    this.clickItem(e)
+  }
+  containsItem(id) {
+    let s = this.state.selected
+    for (let i = 0; i < s.length; i++) {
+      if (s[i].id === id) return true
+    }
+    return false
+  }
+
+  getSelected() {
+    let ids = []
+    this.state.selected.forEach((item) => {
+      ids.push(item.id)
+    })
+    return ids
   }
 }

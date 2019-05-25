@@ -40,7 +40,7 @@ $(document).ready(() => {
 
     let _data = { when: when, whenFilter: wpc.whenFilter || null, operatorContent: content }
     let p = $val('#priority')
-    if (p) _data.priority = p
+    if (p) _data.priority = ~~p || 1
     _data.metadata = { entity: 'RobotTriggerConfig', id: wpc.configId }
 
     _btn.button('loading')
@@ -58,14 +58,25 @@ const saveFilter = function (res) {
   else $('.J_whenFilter a span').text('(无)')
 }
 
-class ContentCountsSlave extends React.Component {
+class OperatorContentSpec extends React.Component {
   constructor(props) {
     super(props)
     this.state = {}
   }
+  // 子类复写返回操作内容
+  buildContent() {
+    return false
+  }
+}
+
+// ~~ 明细汇总
+class ContentCountsSlave extends OperatorContentSpec {
+  constructor(props) {
+    super(props)
+  }
   render() {
     return <div className="counts-slave">
-      <div className="row">
+      <div className="row pt-1 pb-1">
         <div className="col-5">
           <p>源字段 (明细实体)</p>
           <select className="form-control form-control-sm" ref={(c) => this._sourceField = c}>
@@ -121,36 +132,81 @@ class ContentCountsSlave extends React.Component {
   }
 }
 
-class ContentSendNotification extends React.Component {
+// ~~ 发送通知
+class ContentSendNotification extends OperatorContentSpec {
   constructor(props) {
     super(props)
-    this.state = {}
   }
   render() {
     return <div className="send-notification">
       <form className="simple">
-        <div className="form-group row">
-          <label className="col-md-12 col-lg-2 col-form-label text-lg-right">发送给谁</label>
-          <div className="col-md-12 col-lg-8">
-            <UserSelector ref={(c) => this._sendTo = c} />
+        <div className="form-group row pt-1">
+          <label className="col-12 col-lg-2 col-form-label text-lg-right">发送给谁</label>
+          <div className="col-12 col-lg-8">
+            <UserSelectorExt ref={(c) => this._sendTo = c} />
           </div>
         </div>
-        <div className="form-group row">
-          <label className="col-md-12 col-lg-2 col-form-label text-lg-right">发送内容</label>
-          <div className="col-md-12 col-lg-8">
-            <textarea className="form-control form-control-sm row3x"></textarea>
+        <div className="form-group row pb-1">
+          <label className="col-12 col-lg-2 col-form-label text-lg-right">发送内容</label>
+          <div className="col-12 col-lg-8">
+            <textarea className="form-control form-control-sm row3x" ref={(c) => this._content = c} maxLength="600"></textarea>
           </div>
         </div>
       </form>
     </div>
   }
   componentDidMount() {
-    this.__select2 = []
+    if (this.props.content && this.props.content.sendTo) {
+      $.post(`${rb.baseUrl}/admin/robot/trigger/send-notification-sendtos?entity=${this.props.sourceEntity}`, JSON.stringify(this.props.content.sendTo), (res) => {
+        if (res.error_code === 0 && res.data.length > 0) this._sendTo.setState({ selected: res.data })
+      })
+    }
+    $(this._content).val(this.props.content.content || '')
   }
   buildContent() {
-    let _data = { sourceField: $(this._sourceField).val(), calcMode: $(this._calcMode).val(), targetField: $(this._targetField).val() }
-    if (!_data.sourceField) { rb.highbar('源字段不能为空'); return false }
-    if (!_data.targetField) { rb.highbar('目标字段不能为空'); return false }
+    let _data = { sendTo: this._sendTo.getSelected(), content: $(this._content).val() }
+    if (!_data.sendTo || _data.sendTo.length === 0) { rb.highbar('请选择发送给谁'); return false }
+    if (!_data.content) { rb.highbar('发送内容不能为空'); return false }
     return _data
+  }
+}
+class UserSelectorExt extends UserSelector {
+  constructor(props) {
+    super(props)
+    this.tabTypes.push(['FIELDS', '使用字段'])
+  }
+  componentDidMount() {
+    super.componentDidMount()
+
+    this.__fields = []
+    $.get(`${rb.baseUrl}/commons/metadata/fields?deep=2&entity=${wpc.sourceEntity}`, (res) => {
+      $(res.data).each((idx, item) => {
+        if (item.type === 'REFERENCE' && item.ref && (item.ref[0] === 'User' || item.ref[0] === 'Department' || item.ref[0] === 'Role')) {
+          this.__fields.push({ id: item.name, text: item.label })
+        }
+      })
+    })
+  }
+  switchTab(type) {
+    type = type || this.state.tabType
+    if (type === 'FIELDS') {
+      const q = this.state.query
+      const cacheKey = type + '-' + q
+      this.setState({ tabType: type, items: this.cached[cacheKey] }, () => {
+        if (!this.cached[cacheKey]) {
+          if (!q) this.cached[cacheKey] = this.__fields
+          else {
+            let fs = []
+            $(this.__fields).each(function () {
+              if (this.text.contains(q)) fs.push(this)
+            })
+            this.cached[cacheKey] = fs
+          }
+          this.switchTab(type)
+        }
+      })
+    } else {
+      super.switchTab(type)
+    }
   }
 }

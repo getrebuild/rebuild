@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.admin.entityhub;
+package com.rebuild.web.admin.robot;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,8 +39,6 @@ import com.rebuild.server.business.robot.OperatorFactory;
 import com.rebuild.server.business.robot.OperatorType;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.MetadataSorter;
-import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.metadata.entityhub.RobotTriggerConfigService;
 import com.rebuild.utils.JSONUtils;
@@ -48,13 +46,10 @@ import com.rebuild.web.BasePageControll;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * TODO
- * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/23
  */
@@ -136,26 +131,5 @@ public class RobotTriggerControll extends BasePageControll {
 		Record record = EntityHelper.parse((JSONObject) formJson, user);
 		record = Application.getBean(RobotTriggerConfigService.class).createOrUpdate(record);
 		writeSuccess(response, JSONUtils.toJSONObject("id", record.getPrimary()));
-	}
-	
-	@RequestMapping("trigger/counts-slave-fields")
-	public void getCountsSlaveFields(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String sourceEntity = getParameterNotNull(request, "sourceEntity");
-		Entity slave = MetadataHelper.getEntity(sourceEntity);
-		Entity master = slave.getMasterEntity();
-
-		List<String[]> slaveFields = new ArrayList<String[]>();
-		List<String[]> masterFields = new ArrayList<String[]>();
-		for (Field field : MetadataSorter.sortFields(slave.getFields(), DisplayType.NUMBER, DisplayType.DECIMAL)) {
-			slaveFields.add(new String[] { field.getName(), EasyMeta.getLabel(field) });
-		}
-		for (Field field : MetadataSorter.sortFields(master.getFields(), DisplayType.NUMBER, DisplayType.DECIMAL)) {
-			masterFields.add(new String[] { field.getName(), EasyMeta.getLabel(field) });
-		}
-		
-		JSON data = JSONUtils.toJSONObject(
-				new String[] { "slave", "master" }, 
-				new Object[] { slaveFields.toArray(new String[slaveFields.size()][]), masterFields.toArray(new String[masterFields.size()][]) });
-		writeSuccess(response, data);
 	}
 }

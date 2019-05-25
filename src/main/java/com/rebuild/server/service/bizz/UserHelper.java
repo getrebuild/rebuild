@@ -27,6 +27,7 @@ import com.rebuild.server.service.bizz.privileges.Department;
 import com.rebuild.server.service.bizz.privileges.User;
 
 import cn.devezhao.bizz.security.member.BusinessUnit;
+import cn.devezhao.bizz.security.member.NoMemberFoundException;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -38,12 +39,13 @@ import cn.devezhao.persist4j.engine.ID;
 public class UserHelper {
 
 	/**
-	 * [显示名, 图像]
+	 * [显示名, 头像]
 	 * 
 	 * @param userId
 	 * @return
+	 * @throws NoMemberFoundException
 	 */
-	public static String[] getShows(ID userId) {
+	public static String[] getShows(ID userId) throws NoMemberFoundException {
 		User u = Application.getUserStore().getUser(userId);
 		return new String[] { u.getFullName(), u.getAvatarUrl(true) };
 	}
@@ -51,10 +53,11 @@ public class UserHelper {
 	/**
 	 * 是否管理员
 	 * 
-	 * @param user
+	 * @param userId
 	 * @return
+	 * @throws NoMemberFoundException
 	 */
-	public static boolean isAdmin(ID userId) {
+	public static boolean isAdmin(ID userId) throws NoMemberFoundException {
 		return Application.getUserStore().getUser(userId).isAdmin();
 	}
 	
@@ -71,10 +74,11 @@ public class UserHelper {
 	/**
 	 * 是否激活
 	 * 
-	 * @param bizzId ID of User/Dept/Role
+	 * @param bizzId
 	 * @return
+	 * @throws NoMemberFoundException
 	 */
-	public static boolean isActive(ID bizzId) {
+	public static boolean isActive(ID bizzId) throws NoMemberFoundException {
 		if (bizzId.getEntityCode() == EntityHelper.User) {
 			return Application.getUserStore().getUser(bizzId).isActive();
 		} else if (bizzId.getEntityCode() == EntityHelper.Department) {
@@ -82,16 +86,17 @@ public class UserHelper {
 		} else if (bizzId.getEntityCode() == EntityHelper.Role) {
 			return !Application.getUserStore().getRole(bizzId).isDisabled();
 		}
-		return false;
+		throw new NoMemberFoundException("Illegal ID for bizz: " + bizzId);
 	}
 	
 	/**
 	 * 获取用户部门
 	 * 
-	 * @param user
+	 * @param userId
 	 * @return
+	 * @throws NoMemberFoundException
 	 */
-	public static Department getDepartment(ID userId) {
+	public static Department getDepartment(ID userId) throws NoMemberFoundException {
 		User u = Application.getUserStore().getUser(userId);
 		return u.getOwningDept();
 	}
@@ -109,5 +114,23 @@ public class UserHelper {
 			children.add((ID) child.getIdentity());
 		}
 		return children;
+	}
+	
+	/**
+	 * 获取名称
+	 * 
+	 * @param bizzId
+	 * @return
+	 * @throws NoMemberFoundException
+	 */
+	public static String getName(ID bizzId) throws NoMemberFoundException {
+		if (bizzId.getEntityCode() == EntityHelper.User) {
+			return Application.getUserStore().getUser(bizzId).getFullName();
+		} else if (bizzId.getEntityCode() == EntityHelper.Department) {
+			return Application.getUserStore().getDepartment(bizzId).getName();
+		} else if (bizzId.getEntityCode() == EntityHelper.Role) {
+			return Application.getUserStore().getRole(bizzId).getName();
+		}
+		throw new NoMemberFoundException("Illegal ID for bizz: " + bizzId);
 	}
 }

@@ -296,6 +296,23 @@ public class EasyMeta implements BaseMeta {
 	}
 	
 	/**
+	 * @param entity
+	 * @param fields
+	 * @return
+	 */
+	public static String getLabel(Entity entity, String fields) {
+		String[] fieldPath = fields.split("//.");
+		Field firstField = entity.getField(fieldPath[0]);
+		if (fieldPath.length == 1) {
+			return getLabel(firstField);
+		}
+		
+		Entity refEntity = firstField.getOwnEntity();
+		Field secondField = refEntity.getField(fieldPath[1]);
+		return String.format("%s.%s", getLabel(refEntity), getLabel(secondField));
+	}
+	
+	/**
 	 * @return [Name, Label, Icon]
 	 */
 	public static String[] getEntityShows(Entity entity) {

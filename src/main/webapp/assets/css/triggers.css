@@ -11,13 +11,7 @@
 }
 
 .timeline.spare form.simple .col-form-label {
-  max-width: 200px
-}
-
-@media (max-width:992px) {
-  .timeline.spare form.simple .col-form-label {
-    max-width: 120px
-  }
+  max-width: 160px
 }
 
 .timeline.spare .timeline-content {
@@ -57,4 +51,8 @@
 .counts-slave p {
   margin: 0;
   margin-bottom: 6px;
+}
+
+.send-notification {
+  max-width: 800px;
 }

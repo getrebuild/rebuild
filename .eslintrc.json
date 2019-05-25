@@ -63,7 +63,8 @@
         "gridster": true,
         "echarts": true,
         "qiniu": true,
-        "DeleteConfirm": true
+        "DeleteConfirm": true,
+        "UserSelector": true
     },
     "rules": {
         "strict": 0,
