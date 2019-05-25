@@ -19,7 +19,7 @@
 		<div class="page-head">
 			<div class="float-left"><div class="page-head-title">分类数据</div></div>
 			<div class="float-right pt-1">
-				<button class=" btn btn-primary J_add" type="button"><i class="icon zmdi zmdi-plus"></i> 新建</button>
+				<button class=" btn btn-primary J_add" type="button"><i class="icon zmdi zmdi-plus"></i> 添加</button>
 			</div>
 			<div class="clearfix"></div>
 		</div>
