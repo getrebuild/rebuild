@@ -10,7 +10,7 @@ class DlgEdit extends RbFormHandler {
     super(props)
   }
   render() {
-    return (<RbModal title="添加触发器" ref={(c) => this._dlg = c}>
+    return (<RbModal title="添加规则触发" ref={(c) => this._dlg = c}>
       <div className="form">
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">触发类型</label>

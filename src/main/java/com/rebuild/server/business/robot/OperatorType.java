@@ -26,7 +26,7 @@ package com.rebuild.server.business.robot;
  */
 public enum OperatorType {
 	
-	COUNTSSLAVE("明细实体汇总至主实体"),
+	COUNTSSLAVE("明细汇总至主实体"),
 	
 	SENDNOTIFICATION("发送内部通知"),
 	

@@ -1,4 +1,7 @@
 /* List Page */
+.class-list {
+  margin: 4px -10px;
+}
 
 .class-list>div {
   padding-left: 10px;

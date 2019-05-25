@@ -27,6 +27,19 @@
 	<div class="rb-content">
 		<div class="main-content container-fluid">
 			<div class="row" id="entityList">
+				<div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+					<a class="card entity">
+						<div class="ph-item pt-3 pb-1">
+							<div class="ph-col-12">
+								<div class="ph-row">
+									<div class="ph-col-6"></div>
+									<div class="ph-col-6 empty"></div>
+									<div class="ph-col-12"></div>
+								</div>
+							</div>
+						</div>
+					</a>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -49,9 +62,9 @@ window.__PageConfig = { isSuperAdmin: ${isSuperAdmin} }
 <script type="text/babel">
 $(document).ready(function(){
 	$.get(rb.baseUrl + '/admin/entity/entity-list', function(res){
+		$('#entityList').empty()
 		$(res.data).each(function(){ if (this.builtin == true) render_entity(this) })
 		$(res.data).each(function(){ if (this.builtin == false) render_entity(this) })
-		
 		let forNew = render_entity({ icon: 'plus', entityLabel: '新建实体', comments: '新建一个实体' })
 		forNew.find('a.card').attr('href', 'javascript:;').click(function(){
 			if (window.__PageConfig.isSuperAdmin) rb.modal(rb.baseUrl + '/admin/p/entityhub/entity-new', '新建实体')
