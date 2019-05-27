@@ -1,8 +1,7 @@
 /* eslint-disable react/no-string-refs */
 const wpc = window.__PageConfig
 $(document).ready(function () {
-  let dt = wpc.fieldType
-  if (dt.indexOf('(') > -1) dt = dt.match('\\((.+?)\\)')[1]
+  const dt = wpc.fieldType
   const extConfigOld = wpc.extConfig
 
   $('.J_save').click(function () {

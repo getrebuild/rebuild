@@ -122,7 +122,7 @@
 		<constructor-arg index="1" ref="ehcacheManager" />
 	</bean>
 	
-	<bean class="com.rebuild.server.helper.cache.RecentlySearchCache">
+	<bean class="com.rebuild.server.helper.cache.RecentlyUsedCache">
 		<constructor-arg index="0" ref="commonCache" />
 	</bean>
 
@@ -171,7 +171,16 @@
 	<bean class="com.rebuild.server.metadata.entityhub.ClassificationService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
+	<bean class="com.rebuild.server.metadata.entityhub.AutoFillinConfigService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
 	<bean class="com.rebuild.server.metadata.entityhub.RobotTriggerConfigService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
+	<bean class="com.rebuild.server.service.portals.AdvFilterService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
+	<bean class="com.rebuild.server.service.portals.LayoutConfigService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 	
@@ -186,13 +195,6 @@
 	</bean>
 	
 	<bean class="com.rebuild.server.service.notification.NotificationService">
-		<constructor-arg index="0" ref="persistManagerFactory" />
-	</bean>
-	
-	<bean class="com.rebuild.server.service.portals.AdvFilterService">
-		<constructor-arg index="0" ref="persistManagerFactory" />
-	</bean>
-	<bean class="com.rebuild.server.service.portals.LayoutConfigService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 	

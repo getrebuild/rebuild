@@ -179,6 +179,11 @@ public class SysConfiguration {
 	 * @return
 	 */
 	public static String get(ConfigurableItem name, boolean reload) {
+		if (!Application.serversReady()) {
+			Object v = name.getDefaultValue();
+			return v == null ? null : v.toString();
+		}
+		
 		final String key = name.name();
 		String s = Application.getCommonCache().get(key);
 		if (s != null && !reload) {

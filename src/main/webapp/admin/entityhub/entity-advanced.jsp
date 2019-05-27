@@ -33,7 +33,7 @@ a#entityIcon:hover{opacity:0.8}
 						<ul class="nav">
 							<li><a href="base">基本信息</a></li>
 							<li><a href="fields">管理字段</a></li>
-							<li><a href="form-design">设计布局</a></li>
+							<li><a href="form-design">表单布局</a></li>
 							<li class="active"><a href="advanced">高级配置</a></li>
 						</ul>
 					</div>

@@ -48,7 +48,7 @@ public enum ConfigurableItem {
 	DBVer(0L),
 	
 	// 启用最近搜素缓存
-	TurnRecentlySearch(true)
+	EnableRecentlyUsed(true)
 	
 	;
 	
@@ -68,7 +68,7 @@ public enum ConfigurableItem {
 	 */
 	public Object getDefaultValue() {
 		if (defaultVal != null && defaultVal instanceof ConfigurableItem) {
-			((ConfigurableItem) defaultVal).getDefaultValue();
+			return ((ConfigurableItem) defaultVal).getDefaultValue();
 		}
 		return defaultVal;
 	}

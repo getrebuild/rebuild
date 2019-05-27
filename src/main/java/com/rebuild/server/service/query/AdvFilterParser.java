@@ -184,7 +184,7 @@ public class AdvFilterParser {
 		
 		DisplayType dt = EasyMeta.getDisplayType(fieldMeta);
 		// TODO 分类字段仅能查询最后一级
-		if (dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION || hasAndFlag) {
+		if (dt == DisplayType.CLASSIFICATION || hasAndFlag) {
 			field = "&" + field;
 		}
 		
@@ -219,13 +219,24 @@ public class AdvFilterParser {
 			value = Application.getCurrentUser().toLiteral();
 		} else if ("SFB".equalsIgnoreCase(op)) {
 			Department dept = UserHelper.getDepartment(Application.getCurrentUser());
-			if (dept != null && fieldMeta.getReferenceEntities()[0].getEntityCode() == EntityHelper.User) {
-				sb.insert(sb.indexOf(" "), "." + EntityHelper.OwningDept);
+			if (dept != null) {
+				value = dept.getIdentity().toString();
+				int refe = fieldMeta.getReferenceEntity().getEntityCode();
+				if (refe == EntityHelper.User) {
+					sb.insert(sb.indexOf(" "), ".deptId");
+				} else if (refe == EntityHelper.Department) {
+					// Nothings
+				} else {
+					value = null;
+				}
 			}
 		} else if ("SFD".equalsIgnoreCase(op)) {
 			Department dept = UserHelper.getDepartment(Application.getCurrentUser());
 			if (dept != null) {
-				value = StringUtils.join(UserHelper.getAllChildrenId(dept), "|");
+				int refe = fieldMeta.getReferenceEntity().getEntityCode();
+				if (refe == EntityHelper.Department) {
+					value = StringUtils.join(UserHelper.getAllChildrenId(dept), "|");
+				}
 			}
 		}
 				
@@ -259,7 +270,7 @@ public class AdvFilterParser {
 			value2 = value;
 		}
 		
-		if (op.equalsIgnoreCase("IN") || op.equalsIgnoreCase("NIN")) {
+		if (op.equalsIgnoreCase("IN") || op.equalsIgnoreCase("NIN") || op.equalsIgnoreCase("SFD")) {
 			sb.append(value);
 		} else {
 			if (op.equalsIgnoreCase("LK") || op.equalsIgnoreCase("NLK")) {
@@ -297,7 +308,7 @@ public class AdvFilterParser {
 			}
 			
 			// 兼容 | 号分割
-			if (op.equalsIgnoreCase("IN") || op.equalsIgnoreCase("NIN")) {
+			if (op.equalsIgnoreCase("IN") || op.equalsIgnoreCase("NIN") || op.equalsIgnoreCase("SFD")) {
 				Set<String> inVals = new HashSet<>();
 				for (String v : value.split("\\|")) {
 					inVals.add(quoteValue(v, field.getType()));
@@ -394,7 +405,12 @@ public class AdvFilterParser {
 		// 追加名称字段和 quickCode
 		Field nameField = rootEntity.getNameField();
 		DisplayType dt = EasyMeta.getDisplayType(nameField);
-		if (dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION || dt == DisplayType.REFERENCE) {
+		
+		// 引用字段不能作为名称字段，此处的处理是因为某些系统实体有用到
+		// 请主要要保证其兼容 LIKE 条件的语法要求
+		if (dt == DisplayType.REFERENCE) {
+			fieldItems.add("&" + nameField.getName());
+		} else if (dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION) {
 			fieldItems.add("&" + nameField.getName());
 		} else if (dt == DisplayType.TEXT || dt == DisplayType.EMAIL || dt == DisplayType.URL || dt == DisplayType.PHONE || dt == DisplayType.SERIES) {
 			fieldItems.add(nameField.getName());

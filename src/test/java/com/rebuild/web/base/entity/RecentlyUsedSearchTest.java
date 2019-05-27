@@ -36,7 +36,7 @@ import com.rebuild.web.MvcTestSupport;
  * @since 2019/04/25
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-public class RecentlySearchControllTest extends MvcTestSupport {
+public class RecentlyUsedSearchTest extends MvcTestSupport {
 
 	@Test
 	public void testAdd() throws Exception {

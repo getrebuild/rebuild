@@ -52,7 +52,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/commons/metadata/")
-public class MetadataGetters extends BaseControll {
+public class MetadataGetting extends BaseControll {
 
 	@RequestMapping("entities")
 	public void entities(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -93,6 +93,7 @@ public class MetadataGetters extends BaseControll {
 					parent.put("name", field.getName());
 					parent.put("label", easyField.getLabel());
 					parent.put("type", easyField.getDisplayType().name());
+					parent.put("creatable", field.isCreatable());
 					list.add(parent);
 					
 					putFields(list, field.getReferenceEntity(), false, easyField);
@@ -113,6 +114,7 @@ public class MetadataGetters extends BaseControll {
 		for (Field field : MetadataSorter.sortFields(entity)) {
 			Map<String, Object> map = new HashMap<>();
 			map.put("name", field.getName());
+			map.put("creatable", field.isCreatable());
 			EasyMeta easyMeta = new EasyMeta(field);
 			map.put("label", easyMeta.getLabel());
 			DisplayType dt = easyMeta.getDisplayType();

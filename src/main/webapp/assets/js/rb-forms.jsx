@@ -131,12 +131,11 @@ class RbForm extends React.Component {
     this.setFieldValue = this.setFieldValue.bind(this)
   }
   render() {
-    let that = this
     return (
       <div className="rbform">
-        <div className="form">
+        <div className="form" ref={(c) => this._form = c}>
           {this.props.children.map((child) => {
-            return React.cloneElement(child, { $$$parent: that })
+            return React.cloneElement(child, { $$$parent: this, ref: 'ref-' + child.props.field })
             // Has error in strict-mode
             //child.$$$parent = that; return child
           })}
@@ -198,9 +197,26 @@ class RbForm extends React.Component {
   }
   // 避免无意义更新
   setFieldUnchanged(field) {
-    if (this.isNew === true) return
     delete this.__FormData[field]
+    if (rb.env === 'dev') {
+      // eslint-disable-next-line no-console
+      console.log('FV ... ' + JSON.stringify(this.__FormData))
+    }
   }
+
+  // 设置表单回填
+  setAutoFillin(data) {
+    data.forEach((item, idx) => {
+      let ref = this.refs['ref-' + item.target]
+      if (ref) {
+        if (item.fillinForce !== true && !!ref.getValue()) return
+        if ((this.isNew === true && item.whenCreate === true) || (this.isNew !== true && item.whenUpdate === true)) {
+          ref.setValue(item.value)
+        }
+      }
+    })
+  }
+
   post(next) {
     let _data = {}
     for (let k in this.__FormData) {
@@ -210,9 +226,7 @@ class RbForm extends React.Component {
     }
 
     _data.metadata = { entity: this.state.entity, id: this.state.id }
-    if (RbForm.postBefore(_data) === false) {
-      return
-    }
+    if (RbForm.postBefore(_data) === false) return
 
     let btns = $(this.refs['rbform-action']).find('.btn').button('loading')
     let that = this
@@ -260,7 +274,7 @@ class RbFormElement extends React.Component {
     this.state = { ...props }
 
     this.handleChange = this.handleChange.bind(this)
-    this.checkError = this.checkError.bind(this)
+    this.checkValue = this.checkValue.bind(this)
     this.handleClear = this.handleClear.bind(this)
   }
 
@@ -296,41 +310,43 @@ class RbFormElement extends React.Component {
   }
 
   // 表单组件（字段）值变化应调用此方法
-  handleChange(event, checkError) {
+  handleChange(event, checkValue) {
     let val = event.target.value
-    this.setState({ value: val }, () => { checkError === true && this.checkError() })
+    this.setState({ value: val }, () => { checkValue === true && this.checkValue() })
   }
-  checkError() {
-    // Unchanged
-    if (this.state.value && $same(this.props.value, this.state.value)) {
-      // Clean change status
-      if (!$same(this.__lastValue, this.props.value)) {
-        this.props.$$$parent.setFieldUnchanged(this.props.field)
-        this.__lastValue = this.props.value
-      }
-      return
+  // 清空值
+  handleClear() {
+    this.setState({ value: '' }, () => { this.checkValue() })
+  }
+  checkValue() {
+    if (this.isValueUnchanged()) {
+      this.props.$$$parent.setFieldUnchanged(this.props.field)
+      return false
     }
-    if (this.__lastValue && $same(this.__lastValue, this.state.value)) {
-      return
-    }
-    // If it's array, using clones
-    this.__lastValue = $.type(this.state.value) === 'array' ? this.state.value.concat() : this.state.value
 
-    let err = this.checkHasError()
+    let err = this.isValueError()
     this.setState({ hasError: err })
     let errMsg = err ? (this.props.label + err) : null
     this.props.$$$parent.setFieldValue(this.props.field, this.state.value, errMsg)
   }
-  checkHasError() {
+  isValueError() {
     if (this.props.nullable === false) {
       let v = this.state.value
       if (v && $.type(v) === 'array') return v.length === 0 ? '不能为空' : null
       else return !v ? '不能为空' : null
     }
   }
-  // 清空值
-  handleClear() {
-    this.setState({ value: '' }, () => { this.checkError() })
+  isValueUnchanged() {
+    return $same(this.props.value || '', this.state.value || '')
+  }
+
+  // Getter / Setter
+
+  setValue(val) {
+    this.handleChange({ target: { value: val } }, true)
+  }
+  getValue() {
+    return this.state.value
   }
 }
 
@@ -344,6 +360,12 @@ class RbFormReadonly extends RbFormElement {
     if (this.props.type === 'REFERENCE' && text) text = text[1]
     return <input className="form-control form-control-sm" type="text" readOnly="true" value={text} />
   }
+  setValue() {
+    // DO NOTING
+  }
+  getValue() {
+    return this.props.value
+  }
 }
 
 // 文本
@@ -353,7 +375,7 @@ class RbFormText extends RbFormElement {
   }
   renderElement() {
     return (
-      <input ref="field-value" className={'form-control form-control-sm ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} type="text" value={this.state.value || ''} onChange={this.handleChange} onBlur={this.checkError} />
+      <input ref="field-value" className={'form-control form-control-sm ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} type="text" value={this.state.value || ''} onChange={this.handleChange} onBlur={this.checkValue} />
     )
   }
 }
@@ -368,8 +390,8 @@ class RbFormUrl extends RbFormText {
     let clickUrl = rb.baseUrl + '/commons/url-safe?url=' + encodeURIComponent(this.state.value)
     return (<div className="form-control-plaintext"><a href={clickUrl} className="link" target="_blank" rel="noopener noreferrer">{this.state.value}</a></div>)
   }
-  checkHasError() {
-    let err = super.checkHasError()
+  isValueError() {
+    let err = super.isValueError()
     if (err) return err
     return (!!this.state.value && $regex.isUrl(this.state.value) === false) ? '链接格式不正确' : null
   }
@@ -384,8 +406,8 @@ class RbFormEMail extends RbFormText {
     if (!this.state.value) return super.renderViewElement()
     return (<div className="form-control-plaintext"><a href={'mailto:' + this.state.value} className="link">{this.state.value}</a></div>)
   }
-  checkHasError() {
-    let err = super.checkHasError()
+  isValueError() {
+    let err = super.isValueError()
     if (err) return err
     return (!!this.state.value && $regex.isMail(this.state.value) === false) ? '邮箱格式不正确' : null
   }
@@ -396,8 +418,8 @@ class RbFormPhone extends RbFormText {
   constructor(props) {
     super(props)
   }
-  checkHasError() {
-    let err = super.checkHasError()
+  isValueError() {
+    let err = super.isValueError()
     if (err) return err
     return (!!this.state.value && $regex.isTel(this.state.value) === false) ? '电话/手机格式不正确' : null
   }
@@ -408,8 +430,8 @@ class RbFormNumber extends RbFormText {
   constructor(props) {
     super(props)
   }
-  checkHasError() {
-    let err = super.checkHasError()
+  isValueError() {
+    let err = super.isValueError()
     if (err) return err
     return (!!this.state.value && $regex.isNumber(this.state.value) === false) ? '整数格式不正确' : null
   }
@@ -420,8 +442,8 @@ class RbFormDecimal extends RbFormText {
   constructor(props) {
     super(props)
   }
-  checkHasError() {
-    let err = super.checkHasError()
+  isValueError() {
+    let err = super.isValueError()
     if (err) return err
     return (!!this.state.value && $regex.isDecimal(this.state.value) === false) ? '货币格式不正确' : null
   }
@@ -433,7 +455,7 @@ class RbFormTextarea extends RbFormElement {
     super(props)
   }
   renderElement() {
-    return (<textarea ref="field-value" className={'form-control form-control-sm row3x ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} value={this.state.value || ''} onChange={this.handleChange} onBlur={this.checkError} />)
+    return (<textarea ref="field-value" className={'form-control form-control-sm row3x ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} value={this.state.value || ''} onChange={this.handleChange} onBlur={this.checkValue} />)
   }
 }
 
@@ -445,7 +467,7 @@ class RbFormDateTime extends RbFormElement {
   renderElement() {
     return (
       <div className="input-group datetime-field">
-        <input ref="field-value" className={'form-control form-control-sm ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} type="text" value={this.state.value || ''} onChange={this.handleChange} onBlur={this.checkError} />
+        <input ref="field-value" className={'form-control form-control-sm ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} type="text" value={this.state.value || ''} onChange={this.handleChange} onBlur={this.checkValue} />
         <span className={'zmdi zmdi-close clean ' + (this.state.value ? '' : 'hide')} onClick={this.handleClear}></span>
         <div className="input-group-append">
           <button className="btn btn-secondary" type="button" ref="field-value-icon"><i className="icon zmdi zmdi-calendar"></i></button>
@@ -540,16 +562,15 @@ class RbFormImage extends RbFormElement {
     super.componentDidMount()
     if (this.state.viewMode === true) return
 
-    let that = this
     let mp
-    $createUploader(this.refs['upload-input'], function (res) {
+    $createUploader(this.refs['upload-input'], (res) => {
       if (!mp) mp = new Mprogress({ template: 1, start: true })
       mp.set(res.percent / 100)  // 0.x
-    }, function (res) {
+    }, (res) => {
       if (mp) mp.end()
-      let paths = that.state.value
+      let paths = this.state.value
       paths.push(res.key)
-      that.handleChange({ target: { value: paths } }, true)
+      this.handleChange({ target: { value: paths } }, true)
     })
   }
   removeItem(item) {
@@ -559,13 +580,18 @@ class RbFormImage extends RbFormElement {
   }
   clickPreview() {
   }
-  checkHasError() {
-    let err = super.checkHasError()
+  isValueError() {
+    let err = super.isValueError()
     if (err) return err
     let ups = (this.state.value || []).length
     this.setState({ showUploader: this.__maxUpload > ups })
     if (this.__minUpload > 0 && ups < this.__minUpload) return `至少需要上传 ${this.__minUpload} ${this.__typeName}`
     if (this.__maxUpload < ups) return `最多允许上传 ${this.__maxUpload} ${this.__typeName}`
+  }
+  setValue(val) {
+    val = JSON.parse(val || '[]')
+    // TODO 检查数量限制
+    this.handleChange({ target: { value: val } }, true)
   }
 }
 
@@ -620,7 +646,7 @@ class RbFormPickList extends RbFormElement {
   constructor(props) {
     super(props)
 
-    if (props.options && props.value) {  // Value already deleted
+    if (props.options && props.value) {  // Value has been deleted?
       let deleted = true
       $(props.options).each(function () {
         if (this.id === props.value) {
@@ -635,7 +661,7 @@ class RbFormPickList extends RbFormElement {
     return (
       <select ref="field-value" className="form-control form-control-sm" value={this.state.value || ''} onChange={this.handleChange}>
         {this.props.options.map((item) => {
-          return (<option key={item.field + '-' + item.id} value={item.id}>{item.text}</option>)
+          return (<option key={'opt-' + item.id} value={item.id}>{item.text}</option>)
         })}
       </select>
     )
@@ -644,22 +670,21 @@ class RbFormPickList extends RbFormElement {
     super.componentDidMount()
     if (this.state.viewMode === true) return
 
-    let select2 = $(this.refs['field-value']).select2({
+    const s2 = $(this.refs['field-value']).select2({
       placeholder: '选择' + this.props.label
     })
-    this.__select2 = select2
+    this.__select2 = s2
 
     let that = this
     $setTimeout(function () {
-      // 没有值
+      // No value
       if (that.props.$$$parent.isNew === false && !that.props.value) {
-        select2.val(null)
+        s2.val(null)
       }
-      select2.trigger('change')
-      select2.on('change.select2', function (e) {
+      s2.on('change', function (e) {
         let val = e.target.value
         that.handleChange({ target: { value: val } }, true)
-      })
+      }).trigger('change')
     }, 100)
   }
   componentWillUnmount() {
@@ -667,6 +692,9 @@ class RbFormPickList extends RbFormElement {
       this.__select2.select2('destroy')
       this.__select2 = null
     }
+  }
+  setValue(val) {
+    this.__select2.val(val).trigger('change')
   }
 }
 
@@ -677,7 +705,7 @@ class RbFormReference extends RbFormElement {
   }
   renderElement() {
     return (
-      <select ref="field-value" className="form-control form-control-sm" multiple="multiple" />
+      <select ref={(c) => this._fvalue = c} className="form-control form-control-sm" multiple="multiple" />
     )
   }
   renderViewElement() {
@@ -689,10 +717,10 @@ class RbFormReference extends RbFormElement {
     super.componentDidMount()
     if (this.state.viewMode === true) return
 
-    let that = this
     const entity = this.props.$$$parent.props.entity
-    let select2_input = null
-    let select2 = $(this.refs['field-value']).select2({
+    let that = this
+    let search_input = null
+    const s2 = $(this._fvalue).select2({
       placeholder: '选择' + this.props.label,
       minimumInputLength: 0,
       maximumSelectionLength: 1,
@@ -705,7 +733,7 @@ class RbFormReference extends RbFormElement {
             field: that.props.field,
             q: params.term
           }
-          select2_input = params.term
+          search_input = params.term
           return query
         },
         processResults: function (data) {
@@ -713,25 +741,28 @@ class RbFormReference extends RbFormElement {
         }
       },
       language: {
-        noResults: () => { return (select2_input || '').length > 0 ? '未找到结果' : '输入关键词搜索' },
+        noResults: () => { return (search_input || '').length > 0 ? '未找到结果' : '输入关键词搜索' },
         inputTooShort: () => { return '输入关键词搜索' },
         searching: () => { return '搜索中...' },
         maximumSelected: () => { return '只能选择 1 项' }
       }
     })
-    this.__select2 = select2
+    this.__select2 = s2
 
     $setTimeout(function () {
       let val = that.props.value
       if (val) {
-        let option = new Option(val[1], val[0], true, true)
-        select2.append(option)
+        let o = new Option(val[1], val[0], true, true)
+        s2.append(o).trigger('change')
       }
-      select2.trigger('change')
-      select2.on('change.select2', function (e) {
+
+      s2.on('change', function (e) {
         let v = e.target.value
         if (v) {
           $.post(`${rb.baseUrl}/commons/search/recently-add?id=${v}`)
+          $.post(`${rb.baseUrl}/app/entity/extras/fillin-value?entity=${entity}&field=${that.props.field}&source=${v}`, (res) => {
+            if (res.error_code === 0 && res.data.length > 0) that.props.$$$parent.setAutoFillin(res.data)
+          })
         }
         that.handleChange({ target: { value: v } }, true)
       })
@@ -743,8 +774,19 @@ class RbFormReference extends RbFormElement {
       this.__select2 = null
     }
   }
+  isValueUnchanged() {
+    let oldv = this.props.value ? this.props.value[0] : ''
+    return $same(oldv, this.state.value || '')
+  }
   clickView() {
     if (window.RbViewPage) window.RbViewPage.clickView($(this.refs['field-text']))
+  }
+  setValue(val) {
+    if (val) {
+      let o = new Option(val[1], val[0], true, true)
+      this.__select2.append(o)
+      this.handleChange({ target: { value: val[0] } }, true)
+    } else this.__select2.val(null).trigger('change')
   }
 }
 
@@ -786,6 +828,10 @@ class RbFormAvatar extends RbFormElement {
       that.handleChange({ target: { value: res.key } }, true)
     })
   }
+
+  // Not implemented
+  setValue() { }
+  getValue() { }
 }
 
 // 分类数据
@@ -808,7 +854,7 @@ class RbFormClassification extends RbFormElement {
     super.componentDidMount()
     if (this.state.viewMode === true) return
     this.__select2 = $(this._fvalue).select2({
-      placeholder: '选择'
+      placeholder: '选择' + this.props.label
     })
 
     // In edits
@@ -822,8 +868,20 @@ class RbFormClassification extends RbFormElement {
   componentWillUnmount() {
     if (this.__select2) {
       this.__select2.select2('destroy')
-      delete this.__select2
+      this.__select2 = null
     }
+    if (this.__selector) {
+      this.__selector.hide(true)
+      this.__selector = null
+    }
+  }
+  isValueUnchanged() {
+    let oldv = this.props.value ? this.props.value[0] : ''
+    return $same(oldv, this.state.value || '')
+  }
+  setValue(val) {
+    if (val) this.giveValue({ id: val[0], text: val[1] })
+    else this.__select2.val(null).trigger('change')
   }
 
   showSelector() {
@@ -970,10 +1028,9 @@ class RbViewModal extends React.Component {
       // subView always dispose
       if (that.state.disposeOnHide === true) {
         root.modal('dispose')
-        let warp = root.parent().parent()
         that.setState({ isDestroy: true }, function () {
           rb.__currentRbFormModalHolds[that.state.id] = null
-          setTimeout(function () { warp.remove() }, 500)
+          $unmount(root.parent().parent())
         })
       }
 
@@ -1208,8 +1265,9 @@ class ClassificationSelector extends React.Component {
   show() {
     return $(this._dlg).modal({ show: true, keyboard: true })
   }
-  hide() {
+  hide(dispose) {
     $(this._dlg).modal('hide')
+    if (dispose === true) $unmount($(this._dlg).parent())
   }
 }
 

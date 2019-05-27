@@ -21,6 +21,7 @@ package com.rebuild.server.metadata.entityhub;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.rebuild.server.Application;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.BaseService;
 
@@ -46,11 +47,12 @@ public class MetaEntityService extends BaseService {
 				"select entityName from MetaEntity where entityId = ?")
 				.setParameter(1, recordId)
 				.unique();
-		Entity entity = MetadataHelper.getEntity((String) entityRecord[0]);
+		final Entity entity = MetadataHelper.getEntity((String) entityRecord[0]);
 		
 		// 删除此实体的相关配置记录
 		String whoUsed[] = new String[] {
-				"MetaField", "PickList", "LayoutConfig", "FilterConfig", "ShareAccess", "ChartConfig"
+				"MetaField", "PickList", "LayoutConfig", "FilterConfig", "ShareAccess", "ChartConfig", 
+				"Attachment", "AutoFillinConfig"
 		};
 		int del = 0;
 		for (String who : whoUsed) {
@@ -63,9 +65,15 @@ public class MetaEntityService extends BaseService {
 					whoEntity.getPrimaryField().getName(), whoEntity.getName(), entity.getName());
 			Object[][] usedArray = getPMFactory().createQuery(sql).array();
 			for (Object[] used : usedArray) {
-				del += super.delete((ID) used[0]);
+				if ("MetaField".equalsIgnoreCase(who)) {
+					del += Application.getBean(MetaFieldService.class).delete((ID) used[0]);
+				} else {
+					del += super.delete((ID) used[0]);
+				}
 			}
-			LOG.warn("deleted configuration [ " + entity.getName() + " ] from [ " + who + " ] : " + usedArray.length);
+			if (usedArray.length > 0) {
+				LOG.warn("deleted configuration of entity [ " + entity.getName() + " ] in [ " + who + " ] : " + usedArray.length);
+			}
 		}
 		
 		del += super.delete(recordId);
