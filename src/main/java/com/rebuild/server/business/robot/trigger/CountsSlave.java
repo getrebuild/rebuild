@@ -16,21 +16,36 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.metadata.entityhub;
+package com.rebuild.server.business.robot.trigger;
 
-import com.rebuild.server.service.BaseService;
-
-import cn.devezhao.persist4j.PersistManagerFactory;
+import com.rebuild.server.business.robot.ActionContext;
+import com.rebuild.server.business.robot.ActionType;
+import com.rebuild.server.business.robot.TriggerAction;
+import com.rebuild.server.metadata.MetadataHelper;
 
 /**
- * TODO
- * 
  * @author devezhao zhaofang123@gmail.com
- * @since 2019/05/24
+ * @since 2019/05/23
  */
-public class RobotTriggerConfigService extends BaseService {
-
-	protected RobotTriggerConfigService(PersistManagerFactory aPMFactory) {
-		super(aPMFactory);
+public class CountsSlave implements TriggerAction {
+	
+	final private ActionContext context;
+	
+	public CountsSlave(ActionContext context) {
+		this.context = context;
+	}
+	
+	@Override
+	public ActionType getType() {
+		return ActionType.COUNTSSLAVE;
+	}
+	
+	@Override
+	public boolean isUsableSourceEntity(int entityCode) {
+		return MetadataHelper.isSlaveEntity(entityCode);
+	}
+	
+	@Override
+	public void execute() {
 	}
 }

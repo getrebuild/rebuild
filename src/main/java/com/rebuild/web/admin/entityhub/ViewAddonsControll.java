@@ -36,7 +36,7 @@ import com.rebuild.server.configuration.portals.ViewAddonsManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.server.service.portals.LayoutConfigService;
+import com.rebuild.server.service.configuration.LayoutConfigService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.PortalsConfiguration;

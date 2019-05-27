@@ -18,6 +18,22 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
+import com.rebuild.server.business.robot.ActionContext;
+import com.rebuild.server.business.robot.ActionFactory;
+import com.rebuild.server.business.robot.TriggerAction;
+import com.rebuild.server.business.robot.TriggerWhen;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.query.AdvFilterParser;
+
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.engine.ID;
+
 /**
  * TODO
  * 
@@ -25,4 +41,131 @@ package com.rebuild.server.configuration;
  * @since 2019/05/27
  */
 public class RobotTriggerManager implements ConfigManager {
+
+	public static final RobotTriggerManager instance = new RobotTriggerManager();
+	private RobotTriggerManager() {}
+
+	/**
+	 * @param source
+	 * @param when
+	 * @return
+	 */
+	public TriggerAction[] getActions(ID source, TriggerWhen... when) {
+		return filterActions(MetadataHelper.getEntity(source.getEntityCode()), source, when);
+	}
+	
+	/**
+	 * @param entity
+	 * @param when
+	 * @return
+	 */
+	public TriggerAction[] getActions(Entity entity, TriggerWhen... when) {
+		return filterActions(entity, null, when);
+	}
+	
+	/**
+	 * @param source
+	 * @param entity
+	 * @param when
+	 * @return
+	 */
+	private TriggerAction[] filterActions(Entity entity, ID source, TriggerWhen... when) {
+		final List<ConfigEntry> entries = getConfig(entity);
+		List<TriggerAction> operators = new ArrayList<>();
+		for (ConfigEntry e : entries) {
+			if (allowedWhen(e, when)) {
+				ActionContext ctx = new ActionContext(entity, source, e.getJSON("operatorContent"));
+				TriggerAction o = null;
+				if (source == null) {
+					o = ActionFactory.createOperator(e.getString("operatorType"), ctx);
+				} else if (allowedFilter(e, source)) {
+					o = ActionFactory.createOperator(e.getString("operatorType"), ctx);
+				}
+				operators.add(o);
+			}
+		}
+		return operators.toArray(new TriggerAction[operators.size()]);
+	}
+	
+	/**
+	 * 允许的动作
+	 * 
+	 * @param entry
+	 * @param when
+	 * @return
+	 */
+	private boolean allowedWhen(ConfigEntry entry, TriggerWhen... when) {
+		if (when.length == 0) {
+			return true;
+		}
+		int whenMask = entry.getInteger("when");
+		for (TriggerWhen w : when) {
+			if ((whenMask & w.getMaskValue()) != 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * 过滤条件
+	 * 
+	 * @param entry
+	 * @param record
+	 * @return
+	 */
+	private boolean allowedFilter(ConfigEntry entry, ID record) {
+		JSONObject whenFilter = (JSONObject) entry.getJSON("whenFilter");
+		if (whenFilter == null || whenFilter.isEmpty()) {
+			return true;
+		}
+		
+		Entity entity = MetadataHelper.getEntity(record.getEntityCode());
+		AdvFilterParser filterParser = new AdvFilterParser(whenFilter);
+		String sqlWhere = filterParser.toSqlWhere();
+		String sql = String.format(
+				"select {0} from {1} where ({0} = ?) and ({2})",
+				entity.getPrimaryField().getName(), entity.getName(), sqlWhere);
+		Object matchs = Application.createQueryNoFilter(sql).setParameter(1, record).unique();
+		return matchs != null;
+	}
+	
+	/**
+	 * @param entity
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	protected List<ConfigEntry> getConfig(Entity entity) {
+		final String cKey = "RobotTriggerManager-" + entity.getName();
+		Object cVal = Application.getCommonCache().getx(cKey);
+		if (cVal != null) {
+			return (List<ConfigEntry>) cVal;
+		}
+		
+		Object[][] array = Application.createQueryNoFilter(
+				"select when,whenFilter,operatorType,operatorContent from RobotTriggerConfig where belongEntity = ? and when > 0 order by priority desc")
+				.setParameter(1, entity.getName())
+				.array();
+		
+		ArrayList<ConfigEntry> entries = new ArrayList<ConfigEntry>();
+		for (Object[] o : array) {
+			ConfigEntry entry = new ConfigEntry()
+					.set("when", o[0])
+					.set("whenFilter", JSON.parseObject((String) o[1]))
+					.set("operatorType", o[2])
+					.set("operatorContent", JSON.parseObject((String) o[3]));
+			entries.add(entry);
+		}
+		
+		Application.getCommonCache().putx(cKey, entries);
+		return entries;
+	}
+	
+	/**
+	 * @param cacheKey
+	 */
+	public void clean(Entity cacheKey) {
+		final String cKey = "RobotTriggerManager-" + cacheKey.getName();
+		Application.getCommonCache().evict(cKey);
+	}
 }

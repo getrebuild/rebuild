@@ -36,7 +36,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/22
  */
-public class AutoFillinManagerTest extends TestSupport  {
+public class AutoFillinManagerTest extends TestSupport {
 
 	@Test
 	public void testConversionCompatibleValue() throws Exception {

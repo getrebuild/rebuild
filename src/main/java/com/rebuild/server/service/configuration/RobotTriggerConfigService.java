@@ -16,7 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.robot;
+package com.rebuild.server.service.configuration;
+
+import com.rebuild.server.service.BaseService;
+
+import cn.devezhao.persist4j.PersistManagerFactory;
 
 /**
  * TODO
@@ -24,33 +28,9 @@ package com.rebuild.server.business.robot;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/24
  */
-public class OperatorFactory {
-	
-	/**
-	 * @return
-	 */
-	public static OperatorType[] getAvailableOperators() {
-		return new OperatorType[] { OperatorType.COUNTSSLAVE, OperatorType.SENDNOTIFICATION };
-	}
-	
-	/**
-	 * @param type
-	 * @return
-	 */
-	public static Operator createOperator(String type) {
-		return createOperator(OperatorType.valueOf(type));
-	}
-	
-	/**
-	 * @param type
-	 * @return
-	 */
-	public static Operator createOperator(OperatorType type) {
-		if (type == OperatorType.COUNTSSLAVE) {
-			return new CountsSlaveOperator();
-		} else if (type == OperatorType.SENDNOTIFICATION) {
-			return new SendNotificationOperator();
-		}
-		throw new TriggerException("未知的预定义触发类型");
+public class RobotTriggerConfigService extends BaseService {
+
+	protected RobotTriggerConfigService(PersistManagerFactory aPMFactory) {
+		super(aPMFactory);
 	}
 }

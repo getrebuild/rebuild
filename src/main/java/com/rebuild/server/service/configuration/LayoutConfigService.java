@@ -16,37 +16,22 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.robot;
+package com.rebuild.server.service.configuration;
+
+import com.rebuild.server.service.BaseService;
+
+import cn.devezhao.persist4j.PersistManagerFactory;
 
 /**
- * 执行类定义
+ * TODO
  * 
- * @author devezhao zhaofang123@gmail.com
- * @since 2019/05/23
+ * @author devezhao-mbp zhaofang123@gmail.com
+ * @since 2019/04/30
  */
-public interface Operator {
-	
-	/**
-	 * 操作类型
-	 * 
-	 * @return
-	 */
-	OperatorType getType();
-	
-	/**
-	 * 源实体过滤
-	 * 
-	 * @param entityCode
-	 * @return
-	 */
-	boolean isUsableSourceEntity(int entityCode);
-	
-	/**
-	 * 操作执行
-	 * 
-	 * @param context
-	 */
-	void operate(Object context);
-	
+public class LayoutConfigService extends BaseService {
+
+	protected LayoutConfigService(PersistManagerFactory aPMFactory) {
+		super(aPMFactory);
+	}
 	
 }

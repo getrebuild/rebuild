@@ -34,13 +34,13 @@ import org.springframework.web.servlet.ModelAndView;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.business.robot.Operator;
-import com.rebuild.server.business.robot.OperatorFactory;
-import com.rebuild.server.business.robot.OperatorType;
+import com.rebuild.server.business.robot.ActionFactory;
+import com.rebuild.server.business.robot.ActionType;
+import com.rebuild.server.business.robot.TriggerAction;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.server.metadata.entityhub.RobotTriggerConfigService;
+import com.rebuild.server.service.configuration.RobotTriggerConfigService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 
@@ -77,7 +77,7 @@ public class RobotTriggerControll extends BasePageControll {
 		}
 		
 		Entity sourceEntity = MetadataHelper.getEntity((String) config[0]);
-		OperatorType operatorType = OperatorType.valueOf((String) config[1]);
+		ActionType operatorType = ActionType.valueOf((String) config[1]);
 		
 		ModelAndView mv = createModelAndView("/admin/entityhub/robot/trigger-editor.jsp");
 		mv.getModel().put("configId", configId);
@@ -94,9 +94,9 @@ public class RobotTriggerControll extends BasePageControll {
 	
 	@RequestMapping("trigger/available-operators")
 	public void getAvailableOperators(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		OperatorType[] ts = OperatorFactory.getAvailableOperators();
+		ActionType[] ts = ActionFactory.getAvailableOperators();
 		List<String[]> list = new ArrayList<String[]>();
-		for (OperatorType t : ts) {
+		for (ActionType t : ts) {
 			list.add(new String[] { t.name(), t.getDisplayName() });
 		}
 		writeSuccess(response, list);
@@ -105,7 +105,7 @@ public class RobotTriggerControll extends BasePageControll {
 	@RequestMapping("trigger/available-entities")
 	public void getAvailableEntities(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String operatorType = getParameterNotNull(request, "operator");
-		Operator op = OperatorFactory.createOperator(operatorType);
+		TriggerAction op = ActionFactory.createOperator(operatorType);
 		
 		List<String[]> list = new ArrayList<String[]>();
 		for (Entity e : MetadataHelper.getEntities()) {

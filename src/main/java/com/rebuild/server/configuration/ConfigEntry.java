@@ -69,6 +69,10 @@ public class ConfigEntry implements Serializable {
 		return (Boolean) entry.get(name);
 	}
 	
+	public Integer getInteger(String name) {
+		return (Integer) entry.get(name);
+	}
+	
 	public JSON getJSON(String name) {
 		return (JSON) entry.get(name);
 	}

@@ -35,7 +35,7 @@ import com.rebuild.server.configuration.portals.AdvFilterManager;
 import com.rebuild.server.configuration.portals.SharableManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
-import com.rebuild.server.service.portals.AdvFilterService;
+import com.rebuild.server.service.configuration.AdvFilterService;
 import com.rebuild.server.service.query.AdvFilterParser;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;

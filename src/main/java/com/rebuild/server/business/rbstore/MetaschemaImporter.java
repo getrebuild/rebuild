@@ -38,9 +38,9 @@ import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.metadata.entityhub.Entity2Schema;
 import com.rebuild.server.metadata.entityhub.Field2Schema;
 import com.rebuild.server.metadata.entityhub.ModifiyMetadataException;
-import com.rebuild.server.metadata.entityhub.PickListService;
-import com.rebuild.server.service.portals.AdvFilterService;
-import com.rebuild.server.service.portals.LayoutConfigService;
+import com.rebuild.server.service.configuration.AdvFilterService;
+import com.rebuild.server.service.configuration.LayoutConfigService;
+import com.rebuild.server.service.configuration.PickListService;
 import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.persist4j.Entity;

@@ -18,23 +18,43 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.robot;
 
+import com.alibaba.fastjson.JSON;
+
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.engine.ID;
+
 /**
+ * 触发动作执行上下文
+ * 
  * @author devezhao zhaofang123@gmail.com
- * @since 2019/05/25
+ * @since 2019/05/27
  */
-public class SendNotificationOperator implements Operator {
-
-	@Override
-	public OperatorType getType() {
-		return OperatorType.SENDNOTIFICATION;
+public class ActionContext {
+	
+	final private Entity sourceEntity;
+	final private ID sourceRecord;
+	final private JSON operatorContent;
+	
+	/**
+	 * @param sourceEntity
+	 * @param sourceRecord
+	 * @param operatorContent
+	 */
+	public ActionContext(Entity sourceEntity, ID sourceRecord, JSON operatorContent) {
+		this.sourceEntity = sourceEntity;
+		this.sourceRecord = sourceRecord;
+		this.operatorContent = operatorContent;
 	}
-
-	@Override
-	public boolean isUsableSourceEntity(int entityCode) {
-		return true;
+	
+	public Entity getSourceEntity() {
+		return sourceEntity;
 	}
-
-	@Override
-	public void operate(Object context) {
+	
+	public ID getSourceRecord() {
+		return sourceRecord;
+	}
+	
+	public JSON getOperatorContent() {
+		return operatorContent;
 	}
 }

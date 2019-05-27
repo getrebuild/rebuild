@@ -16,32 +16,15 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.metadata.entityhub;
+package com.rebuild.server.configuration;
 
-import org.junit.Test;
-import org.springframework.util.StopWatch;
-
-import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
 
-import cn.devezhao.persist4j.engine.ID;
-
 /**
- * @author devezhao-mbp zhaofang123@gmail.com
- * @since 2019/04/10
+ * TODO
+ * 
+ * @author devezhao zhaofang123@gmail.com
+ * @since 2019/05/27
  */
-public class ClassificationServiceTest extends TestSupport {
-
-	@Test
-	public void testReindexFullName() throws Exception {
-		StopWatch stopWatch = new StopWatch();
-		stopWatch.start("REINDEX FULLNAME");
-		
-		ID itemId = ID.valueOf("019-016a07d47aea0076");
-		int reindex = Application.getBean(ClassificationService.class).reindexFullNameByParent(itemId, ID.valueOf("018-0000000000000001"));
-		stopWatch.stop();
-		System.out.println("REINDEX : " + reindex);
-		System.out.println(stopWatch.prettyPrint());
-	}
-	
+public class RobotTriggerManagerTest extends TestSupport {
 }

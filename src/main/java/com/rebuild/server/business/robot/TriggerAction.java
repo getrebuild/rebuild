@@ -16,22 +16,40 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.service.portals;
+package com.rebuild.server.business.robot;
 
-import com.rebuild.server.service.BaseService;
-
-import cn.devezhao.persist4j.PersistManagerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
- * TODO
+ * 触发动作/操作定义
  * 
- * @author devezhao-mbp zhaofang123@gmail.com
- * @since 2019/04/30
+ * @author devezhao zhaofang123@gmail.com
+ * @since 2019/05/23
  */
-public class AdvFilterService extends BaseService {
+public interface TriggerAction {
 	
-	protected AdvFilterService(PersistManagerFactory aPMFactory) {
-		super(aPMFactory);
-	}
+	static final Log LOG = LogFactory.getLog(TriggerAction.class);
 	
+	/**
+	 * 动作类型
+	 * 
+	 * @return
+	 */
+	ActionType getType();
+	
+	/**
+	 * 源实体过滤
+	 * 
+	 * @param entityCode
+	 * @return
+	 */
+	boolean isUsableSourceEntity(int entityCode);
+	
+	/**
+	 * 操作执行
+	 * 
+	 * @throws TriggerException
+	 */
+	void execute() throws TriggerException;
 }

@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.service.portals;
+package com.rebuild.server.service.configuration;
 
 import com.rebuild.server.service.BaseService;
 
@@ -28,9 +28,9 @@ import cn.devezhao.persist4j.PersistManagerFactory;
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/04/30
  */
-public class LayoutConfigService extends BaseService {
-
-	protected LayoutConfigService(PersistManagerFactory aPMFactory) {
+public class AdvFilterService extends BaseService {
+	
+	protected AdvFilterService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
 	}
 	

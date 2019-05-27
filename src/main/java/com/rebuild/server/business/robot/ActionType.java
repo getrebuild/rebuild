@@ -24,7 +24,7 @@ package com.rebuild.server.business.robot;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/23
  */
-public enum OperatorType {
+public enum ActionType {
 	
 	COUNTSSLAVE("明细汇总至主实体"),
 	
@@ -33,7 +33,7 @@ public enum OperatorType {
 	;
 	
 	private String displayName;
-	private OperatorType(String displayName) {
+	private ActionType(String displayName) {
 		this.displayName = displayName;
 	}
 	
