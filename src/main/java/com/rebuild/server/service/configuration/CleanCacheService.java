@@ -18,35 +18,37 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.configuration;
 
-import com.rebuild.server.Application;
-import com.rebuild.server.configuration.RobotTriggerManager;
-import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.BaseService;
 
-import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
  * TODO
  * 
- * @author devezhao zhaofang123@gmail.com
- * @since 2019/05/24
+ * @author devezhao-mbp zhaofang123@gmail.com
+ * @since 2019/05/27
  */
-public class RobotTriggerConfigService extends CleanCacheService {
+public abstract class CleanCacheService extends BaseService {
 
-	protected RobotTriggerConfigService(PersistManagerFactory aPMFactory) {
+	protected CleanCacheService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
+	}
+
+	@Override
+	public Record createOrUpdate(Record record) {
+		record = super.createOrUpdate(record);
+		cleanCache(record.getPrimary());
+		return record;
 	}
 	
 	@Override
-	protected void cleanCache(ID configId) {
-		Object[] cfg = Application.createQueryNoFilter(
-				"select belongEntity from RobotTriggerConfig where configId = ?")
-				.setParameter(1, configId)
-				.unique();
-		if (cfg != null) {
-			Entity entity = MetadataHelper.getEntity((String) cfg[0]);
-			RobotTriggerManager.instance.clean(entity);
-		}
+	public int delete(ID recordId) {
+		cleanCache(recordId);
+		int del = super.delete(recordId);
+		return del;
 	}
+	
+	abstract protected void cleanCache(ID configId);
 }

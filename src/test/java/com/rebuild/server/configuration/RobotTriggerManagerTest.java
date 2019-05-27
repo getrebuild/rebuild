@@ -18,7 +18,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration;
 
+import org.junit.Test;
+
 import com.rebuild.server.TestSupport;
+import com.rebuild.server.business.robot.TriggerAction;
+import com.rebuild.server.business.robot.TriggerWhen;
+import com.rebuild.server.metadata.MetadataHelper;
+
+import cn.devezhao.persist4j.Entity;
 
 /**
  * TODO
@@ -27,4 +34,13 @@ import com.rebuild.server.TestSupport;
  * @since 2019/05/27
  */
 public class RobotTriggerManagerTest extends TestSupport {
+	
+	@Test
+	public void testGetActions() throws Exception {
+		Entity test = MetadataHelper.getEntity(TEST_ENTITY);
+		RobotTriggerManager.instance.clean(test);
+		TriggerAction as[] = RobotTriggerManager.instance.getActions(
+				test, TriggerWhen.CREATE, TriggerWhen.ASSIGN);
+		System.out.println(as);
+	}
 }

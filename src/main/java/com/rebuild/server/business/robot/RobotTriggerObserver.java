@@ -63,7 +63,6 @@ public class RobotTriggerObserver extends OperatingObserver {
 	 * @param when
 	 */
 	protected void execAction(OperatingContext context, TriggerWhen when) {
-		RobotTriggerManager.instance.getActions(context.getAnyRecord().getPrimary(), when);
 		TriggerAction[] actions = RobotTriggerManager.instance.getActions(context.getAnyRecord().getPrimary(), TriggerWhen.CREATE);
 		if (actions == null || actions.length == 0) {
 			return;
@@ -72,7 +71,7 @@ public class RobotTriggerObserver extends OperatingObserver {
 			try {
 				action.execute();
 			} catch (Exception ex) {
-				LOG.error("Executing trigger failure: " + action);
+				LOG.error("Executing trigger failure: " + action, ex);
 			}
 		}
 	}

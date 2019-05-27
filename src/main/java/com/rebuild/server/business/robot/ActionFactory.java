@@ -48,7 +48,7 @@ public class ActionFactory {
 	 * @return
 	 */
 	public static TriggerAction createAction(String type, ActionContext context) {
-		return createAction(ActionType.valueOf(type), null);
+		return createAction(ActionType.valueOf(type), context);
 	}
 	
 	/**
