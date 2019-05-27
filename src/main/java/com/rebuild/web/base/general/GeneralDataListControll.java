@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.base.entity;
+package com.rebuild.web.base.general;
 
 import java.io.IOException;
 
@@ -30,9 +30,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.configuration.base.DataList;
-import com.rebuild.server.configuration.base.DefaultDataList;
 import com.rebuild.server.configuration.portals.DataListManager;
+import com.rebuild.server.helper.datalist.DataList;
+import com.rebuild.server.helper.datalist.DefaultDataList;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.web.BaseEntityControll;
 

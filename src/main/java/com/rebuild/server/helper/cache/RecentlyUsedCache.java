@@ -26,7 +26,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.rebuild.server.configuration.base.FieldValueWrapper;
+import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.metadata.MetadataHelper;

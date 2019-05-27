@@ -37,7 +37,7 @@ import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.configuration.ClassificationService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
-import com.rebuild.web.base.entity.GeneralEntityRecordControll;
+import com.rebuild.web.base.general.GeneralEntityRecordControll;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;

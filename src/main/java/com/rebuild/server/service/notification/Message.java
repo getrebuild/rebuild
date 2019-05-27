@@ -23,7 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.configuration.base.FieldValueWrapper;
+import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
