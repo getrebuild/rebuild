@@ -23,12 +23,12 @@ import org.apache.commons.lang.StringUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.configuration.portals.ClassificationManager;
 import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.ClassificationService;
 import com.rebuild.server.metadata.entityhub.ModifiyMetadataException;
-import com.rebuild.server.portals.ClassificationManager;
 
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;

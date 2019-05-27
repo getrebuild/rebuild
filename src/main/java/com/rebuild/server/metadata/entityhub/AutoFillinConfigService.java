@@ -19,8 +19,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.metadata.entityhub;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.configuration.AutoFillinManager;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.portals.AutoFillinManager;
 import com.rebuild.server.service.BaseService;
 
 import cn.devezhao.persist4j.Field;

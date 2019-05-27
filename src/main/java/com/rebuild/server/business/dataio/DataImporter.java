@@ -27,13 +27,13 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.configuration.portals.ClassificationManager;
+import com.rebuild.server.configuration.portals.PickListManager;
 import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.ExtRecordCreator;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.server.portals.ClassificationManager;
-import com.rebuild.server.portals.PickListManager;
 import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.commons.RegexUtils;

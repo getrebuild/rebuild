@@ -27,8 +27,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSON;
+import com.rebuild.server.configuration.AutoFillinManager;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.portals.AutoFillinManager;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.persist4j.engine.ID;

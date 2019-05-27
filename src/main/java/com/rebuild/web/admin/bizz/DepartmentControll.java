@@ -32,7 +32,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.portals.DataListManager;
+import com.rebuild.server.configuration.portals.DataListManager;
 import com.rebuild.server.service.bizz.DepartmentService;
 import com.rebuild.server.service.bizz.privileges.Department;
 import com.rebuild.web.BaseEntityControll;

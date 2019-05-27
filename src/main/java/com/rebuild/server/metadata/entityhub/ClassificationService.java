@@ -21,8 +21,8 @@ package com.rebuild.server.metadata.entityhub;
 import org.apache.commons.lang.StringUtils;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.configuration.portals.ClassificationManager;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.portals.ClassificationManager;
 import com.rebuild.server.service.BaseService;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.bizz.UserService;
