@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.portals.value;
+package com.rebuild.server.configuration.base;
 
 import java.text.DecimalFormat;
 
@@ -24,14 +24,14 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.configuration.base.DataWrapper;
+import com.rebuild.server.configuration.portals.ClassificationManager;
+import com.rebuild.server.configuration.portals.FormsManager;
+import com.rebuild.server.configuration.portals.PickListManager;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.server.portals.ClassificationManager;
-import com.rebuild.server.portals.FormsManager;
-import com.rebuild.server.portals.PickListManager;
-import com.rebuild.server.portals.datalist.DataWrapper;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;

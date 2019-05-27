@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -16,26 +16,31 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.portals;
+package com.rebuild.server.configuration.base;
 
 import org.junit.Test;
 
-import com.alibaba.fastjson.JSON;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.metadata.MetadataHelper;
 
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 
 /**
- * @author devezhao zhaofang123@gmail.com
- * @since 2019/03/09
+ * @author devezhao-mac zhaofang123@gmail.com
+ * @since 2019/03/16
  */
-public class PickListManagerTest extends TestSupport {
+public class DefaultValueManagerTest extends TestSupport {
 
 	@Test
-	public void testGetPickList() throws Exception {
-		Field picklist = MetadataHelper.getEntity(TEST_ENTITY).getField("picklist");
-		JSON list = PickListManager.getPickList(picklist);
-		System.out.println(list.toJSONString());
+	public void testExprDefaultValue() throws Exception {
+		Entity e = MetadataHelper.getEntity(TEST_ENTITY);
+		Field date = e.getField("date");
+		
+		System.out.println(DefaultValueManager.exprDefaultValue(date, "{NOW}"));
+		System.out.println(DefaultValueManager.exprDefaultValue(date, "{NOW - 1H}"));
+		System.out.println(DefaultValueManager.exprDefaultValue(date, "{NOW + 1M}"));
+		System.out.println(DefaultValueManager.exprDefaultValue(date, "2019-09-01"));
+		System.out.println(DefaultValueManager.exprDefaultValue(date, "2019-09-01 01:01"));
 	}
 }

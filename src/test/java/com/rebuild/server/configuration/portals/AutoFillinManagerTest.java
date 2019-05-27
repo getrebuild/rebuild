@@ -16,11 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.portals;
+package com.rebuild.server.configuration.portals;
 
 import org.junit.Test;
 
 import com.rebuild.server.TestSupport;
+import com.rebuild.server.configuration.AutoFillinManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 

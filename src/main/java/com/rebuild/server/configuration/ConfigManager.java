@@ -1,6 +1,6 @@
 /*
-rebuild - Building your system freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+rebuild - Building your business-systems freely.
+Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,22 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.portals;
-
-import org.junit.Test;
-
-import com.rebuild.server.TestSupport;
-import com.rebuild.server.service.bizz.UserService;
+package com.rebuild.server.configuration;
 
 /**
- * @author devezhao zhaofang123@gmail.com
- * @since 2019/03/09
+ * 配置管理器。标记接口。TODO 缓存
+ * 
+ * @author devezhao
+ * @since 01/04/2019
  */
-public class AdvFilterManagerTest extends TestSupport {
-
-	@Test
-	public void testGetAdvFilterList() throws Exception {
-		Object[][] list = AdvFilterManager.getAdvFilterList("User", UserService.ADMIN_USER);
-		System.out.println("AdvFilterManager : " + list.length);
-	}
+public interface ConfigManager {
 }

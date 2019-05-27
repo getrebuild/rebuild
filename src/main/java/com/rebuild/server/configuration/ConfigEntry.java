@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.portals;
+package com.rebuild.server.configuration;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -30,8 +30,6 @@ import com.alibaba.fastjson.JSONObject;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * TODO
- * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/20
  */
@@ -40,7 +38,7 @@ public class ConfigEntry implements Serializable {
 	
 	private Map<String, Object> entry = null;
 
-	protected ConfigEntry() {
+	public ConfigEntry() {
 		this.entry = new HashMap<String, Object>();
 	}
 	

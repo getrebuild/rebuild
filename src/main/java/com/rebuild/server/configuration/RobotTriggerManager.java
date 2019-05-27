@@ -1,6 +1,6 @@
 /*
 rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,13 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.portals;
+package com.rebuild.server.configuration;
 
 /**
- * 前端配置管理器。标记接口。TODO 缓存
+ * TODO
  * 
- * @author devezhao
- * @since 01/04/2019
+ * @author devezhao zhaofang123@gmail.com
+ * @since 2019/05/27
  */
-public interface PortalsManager {
+public class RobotTriggerManager implements ConfigManager {
 }
