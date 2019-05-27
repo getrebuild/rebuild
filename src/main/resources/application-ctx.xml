@@ -200,6 +200,7 @@
 	<bean class="com.rebuild.server.service.notification.NotificationObserver" />
 	<bean class="com.rebuild.server.service.base.obs.AuditLoggingObserver" />
 	<bean class="com.rebuild.server.service.base.obs.AttchementAwareObserver" />
+	<bean class="com.rebuild.server.business.robot.RobotTriggerObserver" />
 	
 	<bean name="generalEntityService" class="com.rebuild.server.service.base.GeneralEntityService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
