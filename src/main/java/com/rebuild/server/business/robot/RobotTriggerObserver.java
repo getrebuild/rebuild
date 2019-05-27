@@ -29,6 +29,11 @@ import com.rebuild.server.service.OperatingObserver;
 public class RobotTriggerObserver extends OperatingObserver {
 	
 	@Override
+	protected boolean isAsync() {
+		return true;
+	}
+	
+	@Override
 	protected void onCreate(OperatingContext context) {
 		execAction(context, TriggerWhen.CREATE);
 	}

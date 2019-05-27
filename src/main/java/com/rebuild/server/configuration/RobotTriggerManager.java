@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,7 +82,10 @@ public class RobotTriggerManager implements ConfigManager {
 				} else if (allowedFilter(e, source)) {
 					o = ActionFactory.createAction(e.getString("actionType"), ctx);
 				}
-				actions.add(o);
+				
+				if (o != null && o.isUsableSourceEntity(entity.getEntityCode())) {
+					actions.add(o);
+				}
 			}
 		}
 		return actions.toArray(new TriggerAction[actions.size()]);
@@ -123,7 +127,7 @@ public class RobotTriggerManager implements ConfigManager {
 		Entity entity = MetadataHelper.getEntity(record.getEntityCode());
 		AdvFilterParser filterParser = new AdvFilterParser(whenFilter);
 		String sqlWhere = filterParser.toSqlWhere();
-		String sql = String.format(
+		String sql = MessageFormat.format(
 				"select {0} from {1} where ({0} = ?) and ({2})",
 				entity.getPrimaryField().getName(), entity.getName(), sqlWhere);
 		Object matchs = Application.createQueryNoFilter(sql).setParameter(1, record).unique();
