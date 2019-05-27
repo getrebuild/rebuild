@@ -124,11 +124,11 @@
 <script>
 window.__PageConfig = {
 	configId: '${configId}',
-	operatorType: '${operatorType}',
+	actionType: '${actionType}',
 	sourceEntity: '${sourceEntity}',
 	when: ${when},
 	whenFilter: ${whenFilter},
-	operatorContent: ${operatorContent}
+	actionContent: ${actionContent}
 }
 </script>
 <script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>

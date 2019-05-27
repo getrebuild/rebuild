@@ -24,8 +24,7 @@
 			<div class="clearfix"></div>
 		</div>
 		<div class="main-content container-fluid pt-0">
-			<div class="class-list row">
-			</div>
+			<div id="list"></div>
 		</div>
 	</div>
 </div>

@@ -71,20 +71,20 @@ public class RobotTriggerManager implements ConfigManager {
 	 */
 	private TriggerAction[] filterActions(Entity entity, ID source, TriggerWhen... when) {
 		final List<ConfigEntry> entries = getConfig(entity);
-		List<TriggerAction> operators = new ArrayList<>();
+		List<TriggerAction> actions = new ArrayList<>();
 		for (ConfigEntry e : entries) {
 			if (allowedWhen(e, when)) {
-				ActionContext ctx = new ActionContext(entity, source, e.getJSON("operatorContent"));
+				ActionContext ctx = new ActionContext(entity, source, e.getJSON("actionContent"));
 				TriggerAction o = null;
 				if (source == null) {
-					o = ActionFactory.createOperator(e.getString("operatorType"), ctx);
+					o = ActionFactory.createAction(e.getString("actionType"), ctx);
 				} else if (allowedFilter(e, source)) {
-					o = ActionFactory.createOperator(e.getString("operatorType"), ctx);
+					o = ActionFactory.createAction(e.getString("actionType"), ctx);
 				}
-				operators.add(o);
+				actions.add(o);
 			}
 		}
-		return operators.toArray(new TriggerAction[operators.size()]);
+		return actions.toArray(new TriggerAction[actions.size()]);
 	}
 	
 	/**
@@ -143,7 +143,7 @@ public class RobotTriggerManager implements ConfigManager {
 		}
 		
 		Object[][] array = Application.createQueryNoFilter(
-				"select when,whenFilter,operatorType,operatorContent from RobotTriggerConfig where belongEntity = ? and when > 0 order by priority desc")
+				"select when,whenFilter,actionType,actionContent from RobotTriggerConfig where belongEntity = ? and when > 0 order by priority desc")
 				.setParameter(1, entity.getName())
 				.array();
 		
@@ -152,8 +152,8 @@ public class RobotTriggerManager implements ConfigManager {
 			ConfigEntry entry = new ConfigEntry()
 					.set("when", o[0])
 					.set("whenFilter", JSON.parseObject((String) o[1]))
-					.set("operatorType", o[2])
-					.set("operatorContent", JSON.parseObject((String) o[3]));
+					.set("actionType", o[2])
+					.set("actionContent", JSON.parseObject((String) o[3]));
 			entries.add(entry);
 		}
 		

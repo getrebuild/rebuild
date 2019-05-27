@@ -1,9 +1,42 @@
 
 $(document).ready(function () {
-  $('.J_add').click(() => {
-    renderRbcomp(<DlgEdit />)
-  })
+  $('.J_add').click(() => { renderRbcomp(<DlgEdit />) })
+  renderRbcomp(<GridList />, 'list')
 })
+
+class GridList extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { list: [] }
+  }
+  render() {
+    return <div className="entry-list">
+      {this.state.list.map((item) => {
+        return (<div key={'item-' + item[0]} className="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+          <div className="card">
+            <div className="card-body">
+              <a href={'trigger/' + item[0]}>地区地区地区</a>
+              <p className="text-muted m-0 fs-12">123</p>
+            </div>
+            <div className="card-footer card-footer-contrast text-muted">
+              <div className="float-left">
+                <a className="J_del" href="javascript:;"><i className="zmdi zmdi-delete"></i></a>
+              </div>
+              <div className="float-right fs-12 text-warning"></div>
+              <div className="clearfix"></div>
+            </div>
+          </div>
+        </div>)
+      })}
+    </div>
+  }
+  componentDidMount() {
+    $.get(`${rb.baseUrl}/admin/robot/trigger/list?entity=`, (res) => {
+      this.setState({ list: res.data })
+    })
+  }
+}
+
 
 class DlgEdit extends RbFormHandler {
   constructor(props) {
@@ -15,8 +48,8 @@ class DlgEdit extends RbFormHandler {
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">触发类型</label>
           <div className="col-sm-7">
-            <select className="form-control form-control-sm" ref={(c) => this._operatorType = c}>
-              {(this.state.operators || []).map((item) => {
+            <select className="form-control form-control-sm" ref={(c) => this._actionType = c}>
+              {(this.state.actions || []).map((item) => {
                 return <option key={'o-' + item[0]} value={item[0]}>{item[1]}</option>
               })}
             </select>
@@ -43,14 +76,14 @@ class DlgEdit extends RbFormHandler {
   componentDidMount() {
     this.__select2 = []
     // #1
-    $.get(`${rb.baseUrl}/admin/robot/trigger/available-operators`, (res) => {
+    $.get(`${rb.baseUrl}/admin/robot/trigger/available-actions`, (res) => {
       let s2ot = null
-      this.setState({ operators: res.data }, () => {
-        s2ot = $(this._operatorType).select2({
+      this.setState({ actions: res.data }, () => {
+        s2ot = $(this._actionType).select2({
           placeholder: '选择触发类型',
           allowClear: false
         }).on('change', () => {
-          this.__getEntitiesByOperator(s2ot.val())
+          this.__getEntitiesByAction(s2ot.val())
         })
         this.__select2.push(s2ot)
 
@@ -65,16 +98,16 @@ class DlgEdit extends RbFormHandler {
       })
     })
   }
-  __getEntitiesByOperator(type) {
-    $.get(`${rb.baseUrl}/admin/robot/trigger/available-entities?operator=${type}`, (res) => {
+  __getEntitiesByAction(type) {
+    $.get(`${rb.baseUrl}/admin/robot/trigger/available-entities?action=${type}`, (res) => {
       this.setState({ sourceEntities: res.data })
     })
   }
 
   save = (e) => {
     e.preventDefault()
-    let _data = { operatorType: this.__select2[0].val(), belongEntity: this.__select2[1].val() }
-    if (!_data.operatorType || !_data.belongEntity) {
+    let _data = { actionType: this.__select2[0].val(), belongEntity: this.__select2[1].val() }
+    if (!_data.actionType || !_data.belongEntity) {
       rb.hignbar('请选择源触发实体')
       return
     }

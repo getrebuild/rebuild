@@ -33,7 +33,7 @@ public class ActionContext {
 	
 	final private Entity sourceEntity;
 	final private ID sourceRecord;
-	final private JSON operatorContent;
+	final private JSON actionContent;
 	
 	/**
 	 * @param sourceEntity
@@ -43,7 +43,7 @@ public class ActionContext {
 	public ActionContext(Entity sourceEntity, ID sourceRecord, JSON operatorContent) {
 		this.sourceEntity = sourceEntity;
 		this.sourceRecord = sourceRecord;
-		this.operatorContent = operatorContent;
+		this.actionContent = operatorContent;
 	}
 	
 	public Entity getSourceEntity() {
@@ -54,7 +54,7 @@ public class ActionContext {
 		return sourceRecord;
 	}
 	
-	public JSON getOperatorContent() {
-		return operatorContent;
+	public JSON getActionContent() {
+		return actionContent;
 	}
 }

@@ -18,8 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.robot;
 
-import com.rebuild.server.business.robot.trigger.CountsSlave;
-import com.rebuild.server.business.robot.trigger.SendNotification;
+import com.rebuild.server.business.robot.triggeraction.CountsSlave;
+import com.rebuild.server.business.robot.triggeraction.SendNotification;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -30,7 +30,7 @@ public class ActionFactory {
 	/**
 	 * @return
 	 */
-	public static ActionType[] getAvailableOperators() {
+	public static ActionType[] getAvailableActions() {
 		return new ActionType[] { ActionType.COUNTSSLAVE, ActionType.SENDNOTIFICATION };
 	}
 	
@@ -38,8 +38,8 @@ public class ActionFactory {
 	 * @param type
 	 * @return
 	 */
-	public static TriggerAction createOperator(String type) {
-		return createOperator(type, null);
+	public static TriggerAction createAction(String type) {
+		return createAction(type, null);
 	}
 	
 	/**
@@ -47,8 +47,8 @@ public class ActionFactory {
 	 * @param context
 	 * @return
 	 */
-	public static TriggerAction createOperator(String type, ActionContext context) {
-		return createOperator(ActionType.valueOf(type), null);
+	public static TriggerAction createAction(String type, ActionContext context) {
+		return createAction(ActionType.valueOf(type), null);
 	}
 	
 	/**
@@ -56,12 +56,12 @@ public class ActionFactory {
 	 * @param context
 	 * @return
 	 */
-	public static TriggerAction createOperator(ActionType type, ActionContext context) {
+	public static TriggerAction createAction(ActionType type, ActionContext context) {
 		if (type == ActionType.COUNTSSLAVE) {
 			return new CountsSlave(context);
 		} else if (type == ActionType.SENDNOTIFICATION) {
 			return new SendNotification(context);
 		}
-		throw new TriggerException("未知的预定义触发类型");
+		throw new TriggerException("未知操作类型: " + type);
 	}
 }

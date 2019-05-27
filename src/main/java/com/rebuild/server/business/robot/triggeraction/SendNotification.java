@@ -16,35 +16,34 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.robot.trigger;
+package com.rebuild.server.business.robot.triggeraction;
 
 import com.rebuild.server.business.robot.ActionContext;
 import com.rebuild.server.business.robot.ActionType;
 import com.rebuild.server.business.robot.TriggerAction;
-import com.rebuild.server.metadata.MetadataHelper;
 
 /**
  * @author devezhao zhaofang123@gmail.com
- * @since 2019/05/23
+ * @since 2019/05/25
  */
-public class CountsSlave implements TriggerAction {
-	
+public class SendNotification implements TriggerAction {
+
 	final private ActionContext context;
 	
-	public CountsSlave(ActionContext context) {
+	public SendNotification(ActionContext context) {
 		this.context = context;
 	}
 	
 	@Override
 	public ActionType getType() {
-		return ActionType.COUNTSSLAVE;
+		return ActionType.SENDNOTIFICATION;
 	}
-	
+
 	@Override
 	public boolean isUsableSourceEntity(int entityCode) {
-		return MetadataHelper.isSlaveEntity(entityCode);
+		return true;
 	}
-	
+
 	@Override
 	public void execute() {
 	}

@@ -18,13 +18,13 @@ $(document).ready(() => {
   saveFilter(wpc.whenFilter)
 
   let contentComp
-  const compProps = { sourceEntity: wpc.sourceEntity, content: wpc.operatorContent }
-  if (wpc.operatorType === 'COUNTSSLAVE') {
+  const compProps = { sourceEntity: wpc.sourceEntity, content: wpc.actionContent }
+  if (wpc.actionType === 'COUNTSSLAVE') {
     contentComp = renderRbcomp(<ContentCountsSlave {...compProps} />, 'react-content')
-  } else if (wpc.operatorType === 'SENDNOTIFICATION') {
+  } else if (wpc.actionType === 'SENDNOTIFICATION') {
     contentComp = renderRbcomp(<ContentSendNotification {...compProps} />, 'react-content')
   } else {
-    renderRbcomp(<div className="text-danger">未实现的操作类型: {wpc.operatorType}</div>, 'react-content')
+    renderRbcomp(<div className="text-danger">未实现的操作类型: {wpc.actionType}</div>, 'react-content')
     $('.J_save').attr('disabled', true)
     return
   }
@@ -38,7 +38,7 @@ $(document).ready(() => {
     let content = contentComp.buildContent()
     if (content === false) return
 
-    let _data = { when: when, whenFilter: wpc.whenFilter || null, operatorContent: content }
+    let _data = { when: when, whenFilter: wpc.whenFilter || null, actionContent: content }
     let p = $val('#priority')
     if (p) _data.priority = ~~p || 1
     _data.metadata = { entity: 'RobotTriggerConfig', id: wpc.configId }
@@ -58,7 +58,7 @@ const saveFilter = function (res) {
   else $('.J_whenFilter a span').text('(无)')
 }
 
-class OperatorContentSpec extends React.Component {
+class ActionContentSpec extends React.Component {
   constructor(props) {
     super(props)
     this.state = {}
@@ -70,7 +70,7 @@ class OperatorContentSpec extends React.Component {
 }
 
 // ~~ 明细汇总
-class ContentCountsSlave extends OperatorContentSpec {
+class ContentCountsSlave extends ActionContentSpec {
   constructor(props) {
     super(props)
   }
@@ -133,7 +133,7 @@ class ContentCountsSlave extends OperatorContentSpec {
 }
 
 // ~~ 发送通知
-class ContentSendNotification extends OperatorContentSpec {
+class ContentSendNotification extends ActionContentSpec {
   constructor(props) {
     super(props)
   }

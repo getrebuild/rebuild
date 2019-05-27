@@ -68,7 +68,7 @@ public class RobotTriggerControll extends BasePageControll {
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID configId = ID.valueOf(id);
 		Object[] config = Application.createQuery(
-				"select belongEntity,operatorType,when,whenFilter,operatorContent,priority from RobotTriggerConfig where configId = ?")
+				"select belongEntity,actionType,when,whenFilter,actionContent,priority from RobotTriggerConfig where configId = ?")
 				.setParameter(1, configId)
 				.unique();
 		if (config == null) {
@@ -77,24 +77,24 @@ public class RobotTriggerControll extends BasePageControll {
 		}
 		
 		Entity sourceEntity = MetadataHelper.getEntity((String) config[0]);
-		ActionType operatorType = ActionType.valueOf((String) config[1]);
+		ActionType actionType = ActionType.valueOf((String) config[1]);
 		
 		ModelAndView mv = createModelAndView("/admin/entityhub/robot/trigger-editor.jsp");
 		mv.getModel().put("configId", configId);
 		mv.getModel().put("sourceEntity", sourceEntity.getName());
 		mv.getModel().put("sourceEntityLabel", EasyMeta.getLabel(sourceEntity));
-		mv.getModel().put("operatorType", operatorType.name());
-		mv.getModel().put("operatorTypeLabel", operatorType.getDisplayName());
+		mv.getModel().put("actionType", actionType.name());
+		mv.getModel().put("actionTypeLabel", actionType.getDisplayName());
 		mv.getModel().put("when", config[2]);
 		mv.getModel().put("whenFilter", StringUtils.defaultIfBlank((String) config[3], JSONUtils.EMPTY_OBJECT_STR));
-		mv.getModel().put("operatorContent", StringUtils.defaultIfBlank((String) config[4], JSONUtils.EMPTY_OBJECT_STR));
+		mv.getModel().put("actionContent", StringUtils.defaultIfBlank((String) config[4], JSONUtils.EMPTY_OBJECT_STR));
 		mv.getModel().put("priority", config[5]);
 		return mv;
 	}
 	
-	@RequestMapping("trigger/available-operators")
-	public void getAvailableOperators(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ActionType[] ts = ActionFactory.getAvailableOperators();
+	@RequestMapping("trigger/available-actions")
+	public void getAvailableActions(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ActionType[] ts = ActionFactory.getAvailableActions();
 		List<String[]> list = new ArrayList<String[]>();
 		for (ActionType t : ts) {
 			list.add(new String[] { t.name(), t.getDisplayName() });
@@ -104,8 +104,8 @@ public class RobotTriggerControll extends BasePageControll {
 	
 	@RequestMapping("trigger/available-entities")
 	public void getAvailableEntities(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String operatorType = getParameterNotNull(request, "operator");
-		TriggerAction op = ActionFactory.createOperator(operatorType);
+		String actionType = getParameterNotNull(request, "action");
+		TriggerAction action = ActionFactory.createAction(actionType);
 		
 		List<String[]> list = new ArrayList<String[]>();
 		for (Entity e : MetadataHelper.getEntities()) {
@@ -117,7 +117,7 @@ public class RobotTriggerControll extends BasePageControll {
 				}
 			}
 			
-			if (op.isUsableSourceEntity(e.getEntityCode())) {
+			if (action.isUsableSourceEntity(e.getEntityCode())) {
 				list.add(new String[] { e.getName(), EasyMeta.getLabel(e) });
 			}
 		}
@@ -131,5 +131,13 @@ public class RobotTriggerControll extends BasePageControll {
 		Record record = EntityHelper.parse((JSONObject) formJson, user);
 		record = Application.getBean(RobotTriggerConfigService.class).createOrUpdate(record);
 		writeSuccess(response, JSONUtils.toJSONObject("id", record.getPrimary()));
+	}
+	
+	@RequestMapping("trigger/list")
+	public void getTriggerList(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		Object[][] array = Application.createQuery(
+				"select configId,belongEntity,when from RobotTriggerConfig")
+				.array();
+		writeSuccess(response, array);
 	}
 }
