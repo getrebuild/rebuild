@@ -4,25 +4,34 @@ $(document).ready(function () {
   renderRbcomp(<GridList />, 'list')
 })
 
+const WHENS = { 1: '创建', 2: '删除', 4: '更新', 16: '分派', 32: '共享', 64: '取消共享' }
+const formatWhen = function (maskVal) {
+  let as = []
+  for (let k in WHENS) {
+    // eslint-disable-next-line eqeqeq
+    if ((maskVal & k) != 0) as.push(WHENS[k])
+  }
+  return as.join('/')
+}
+
 class GridList extends React.Component {
   constructor(props) {
     super(props)
     this.state = { list: [] }
   }
   render() {
-    return <div className="entry-list">
+    return <div className="card-list row">
       {this.state.list.map((item) => {
-        return (<div key={'item-' + item[0]} className="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+        return (<div key={'item-' + item[0]} className="col-xl-3 col-lg-4 col-md-6">
           <div className="card">
             <div className="card-body">
-              <a href={'trigger/' + item[0]}>地区地区地区</a>
-              <p className="text-muted m-0 fs-12">123</p>
+              <a className="text-truncate" href={'trigger/' + item[0]}>{item[1] + ' · ' + item[3]}</a>
+              <p className="text-muted text-truncate">{item[2] > 0 ? ('当' + formatWhen(item[2]) + '时') : '未启用'}</p>
             </div>
-            <div className="card-footer card-footer-contrast text-muted">
+            <div className="card-footer card-footer-contrast">
               <div className="float-left">
-                <a className="J_del" href="javascript:;"><i className="zmdi zmdi-delete"></i></a>
+                <a onClick={() => this.delete(item[0])}><i className="zmdi zmdi-delete"></i></a>
               </div>
-              <div className="float-right fs-12 text-warning"></div>
               <div className="clearfix"></div>
             </div>
           </div>
@@ -34,6 +43,10 @@ class GridList extends React.Component {
     $.get(`${rb.baseUrl}/admin/robot/trigger/list?entity=`, (res) => {
       this.setState({ list: res.data })
     })
+  }
+
+  delete(id) {
+    console.log(id)
   }
 }
 

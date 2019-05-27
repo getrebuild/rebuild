@@ -136,8 +136,13 @@ public class RobotTriggerControll extends BasePageControll {
 	@RequestMapping("trigger/list")
 	public void getTriggerList(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		Object[][] array = Application.createQuery(
-				"select configId,belongEntity,when from RobotTriggerConfig")
+				"select configId,belongEntity,when,actionType from RobotTriggerConfig")
 				.array();
+		for (Object[] o : array) {
+			Entity entity = MetadataHelper.getEntity((String) o[1]);
+			o[1] = EasyMeta.getLabel(entity);
+			o[3] = ActionType.valueOf((String) o[3]).getDisplayName(); 
+		}
 		writeSuccess(response, array);
 	}
 }

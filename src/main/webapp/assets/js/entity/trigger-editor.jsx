@@ -9,11 +9,10 @@ $(document).ready(() => {
     })
   }
 
-  // let advFilter
+  let advFilter
   $('.J_whenFilter .btn').click(() => {
-    // if (advFilter) advFilter.show()
-    // else advFilter = renderRbcomp(<AdvFilter title="设置过滤条件" entity={wpc.sourceEntity} filter={wpc.whenFilter} inModal={true} confirm={saveFilter} canNoFilters={true} />)
-    renderRbcomp(<AdvFilter title="设置过滤条件" entity={wpc.sourceEntity} filter={wpc.whenFilter} inModal={true} confirm={saveFilter} canNoFilters={true} />)
+    if (advFilter) advFilter.show()
+    else advFilter = renderRbcomp(<AdvFilter title="设置过滤条件" entity={wpc.sourceEntity} filter={wpc.whenFilter} inModal={true} confirm={saveFilter} canNoFilters={true} />)
   })
   saveFilter(wpc.whenFilter)
 
@@ -45,7 +44,7 @@ $(document).ready(() => {
 
     _btn.button('loading')
     $.post(`${rb.baseUrl}/admin/robot/trigger/save`, JSON.stringify(_data), (res) => {
-      if (res.error_code === 0) location.reload()
+      if (res.error_code === 0) location.href = '../triggers'
       else rb.hberror(res.error_msg)
       _btn.button('reset')
     })
@@ -116,7 +115,7 @@ class ContentCountsSlave extends ActionContentSpec {
         this.__select2.push(s2sf)
         this.__select2.push(s2cm)
         this.__select2.push(s2tf)
-        if (this.props.content && this.props.calcMode) {
+        if (this.props.content && this.props.content.calcMode) {
           s2sf.val(this.props.content.sourceField).trigger('change')
           s2cm.val(this.props.content.calcMode).trigger('change')
           s2tf.val(this.props.content.targetField).trigger('change')

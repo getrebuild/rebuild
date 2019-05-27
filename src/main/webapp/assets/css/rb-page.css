@@ -1721,3 +1721,51 @@ form {
     margin-top: 2px;
     font-weight: bold;
 }
+
+.card-list {
+    margin: 4px -10px;
+}
+
+.card-list>div {
+    padding-left: 10px;
+    padding-right: 10px
+}
+
+.card-list .card {
+    margin-bottom: 20px;
+}
+
+.card-list .card-body {
+    padding: 9px 15px;
+}
+
+.card-list .card-body>a {
+    display: inline-block;
+    overflow: hidden;
+    padding-top: 3px;
+}
+
+.card-list .card-body>p {
+    line-height: 1.2;
+    margin: 0;
+    font-size: 12px;
+}
+
+.card-list .card-footer {
+    padding: 6px 15px;
+}
+
+.card-list .card-footer a {
+    color: #999;
+    font-size: 1.1rem;
+    display: inline-block;
+    padding: 1px 3px;
+}
+
+.card-list .card-footer a:hover {
+    color: #666;
+}
+
+.card-list .card-footer .float-right {
+    padding-top: 3px;
+}

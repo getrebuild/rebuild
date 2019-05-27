@@ -23,8 +23,7 @@
 			</div>
 			<div class="clearfix"></div>
 		</div>
-		<div class="main-content container-fluid pt-0">
-			<div id="list"></div>
+		<div class="main-content container-fluid pt-0" id="list">
 		</div>
 	</div>
 </div>
