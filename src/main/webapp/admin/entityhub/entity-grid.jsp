@@ -5,7 +5,7 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>实体管理</title>
 <style type="text/css">
-.card.entity{position:relative;}
+.card.entity{position:relative;margin-bottom:20px}
 .card.entity:hover{background-color:rgba(255,255,255,.7)}
 .card.entity .card-body{padding:12px 20px;color:#333;}
 .card.entity .card-body .float-left{width:30px;text-align:center;}

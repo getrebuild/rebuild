@@ -46,7 +46,7 @@ import cn.devezhao.bizz.security.member.Member;
  */
 @Controller
 @RequestMapping("/commons/search/")
-public class UsersGetters extends BaseControll {
+public class UsersGetting extends BaseControll {
 	
 	@RequestMapping("users")
 	public void loadUsers(HttpServletRequest request, HttpServletResponse response) throws IOException {

@@ -1759,7 +1759,8 @@ form {
     color: #999;
     font-size: 1.1rem;
     display: inline-block;
-    padding: 1px 3px;
+    padding: 1px 4px;
+    margin-right: 4px;
 }
 
 .card-list .card-footer a:hover {

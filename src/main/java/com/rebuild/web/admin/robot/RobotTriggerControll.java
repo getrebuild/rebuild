@@ -25,6 +25,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -125,7 +126,7 @@ public class RobotTriggerControll extends BasePageControll {
 	}
 	
 	@RequestMapping("trigger/save")
-	public void save(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void triggerSave(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		JSON formJson = ServletUtils.getRequestJson(request);
 		Record record = EntityHelper.parse((JSONObject) formJson, user);
@@ -133,16 +134,29 @@ public class RobotTriggerControll extends BasePageControll {
 		writeSuccess(response, JSONUtils.toJSONObject("id", record.getPrimary()));
 	}
 	
+	@RequestMapping("trigger/delete")
+	public void triggerDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID configId = getIdParameterNotNull(request, "id");
+		Application.getBean(RobotTriggerConfigService.class).delete(configId);
+		writeSuccess(response);
+	}
+	
 	@RequestMapping("trigger/list")
-	public void getTriggerList(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		Object[][] array = Application.createQuery(
-				"select configId,belongEntity,when,actionType from RobotTriggerConfig")
-				.array();
+	public void triggerList(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String belongEntity = getParameter(request, "entity");
+		String sql = "select configId,belongEntity,when,actionType,belongEntity from RobotTriggerConfig";
+		if (StringUtils.isNotBlank(belongEntity)) {
+			sql += " where belongEntity = '" + StringEscapeUtils.escapeSql(belongEntity) + "'";
+		}
+		sql += " order by modifiedOn desc";
+		
+		Object[][] array = Application.createQuery(sql).array();
 		for (Object[] o : array) {
 			Entity entity = MetadataHelper.getEntity((String) o[1]);
 			o[1] = EasyMeta.getLabel(entity);
 			o[3] = ActionType.valueOf((String) o[3]).getDisplayName(); 
 		}
+		
 		writeSuccess(response, array);
 	}
 }

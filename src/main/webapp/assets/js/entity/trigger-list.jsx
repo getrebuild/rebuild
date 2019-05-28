@@ -4,7 +4,7 @@ $(document).ready(function () {
   renderRbcomp(<GridList />, 'list')
 })
 
-const WHENS = { 1: '创建', 2: '删除', 4: '更新', 16: '分派', 32: '共享', 64: '取消共享' }
+const WHENS = { 1: '创建', 4: '更新', 2: '删除', 16: '分派', 32: '共享', 64: '取消共享' }
 const formatWhen = function (maskVal) {
   let as = []
   for (let k in WHENS) {
@@ -25,8 +25,8 @@ class GridList extends React.Component {
         return (<div key={'item-' + item[0]} className="col-xl-3 col-lg-4 col-md-6">
           <div className="card">
             <div className="card-body">
-              <a className="text-truncate" href={'trigger/' + item[0]}>{item[1] + ' · ' + item[3]}</a>
-              <p className="text-muted text-truncate">{item[2] > 0 ? ('当' + formatWhen(item[2]) + '时') : '未启用'}</p>
+              <a className="text-truncate" href={'trigger/' + item[0]}>{item[3] + ' · ' + item[1]}</a>
+              <p className="text-muted text-truncate">{item[2] > 0 ? ('当' + formatWhen(item[2]) + '时') : <span className="text-warning">未生效</span>}</p>
             </div>
             <div className="card-footer card-footer-contrast">
               <div className="float-left">
@@ -40,23 +40,56 @@ class GridList extends React.Component {
     </div>
   }
   componentDidMount() {
-    $.get(`${rb.baseUrl}/admin/robot/trigger/list?entity=`, (res) => {
+    this.loadData()
+  }
+
+  loadData(entity) {
+    $.get(`${rb.baseUrl}/admin/robot/trigger/list?entity=${$encode(entity)}`, (res) => {
       this.setState({ list: res.data })
+      if (!this.__entityLoaded) this.renderEntityTree()
+    })
+  }
+  renderEntityTree() {
+    const ues = []
+    $(this.state.list).each(function () {
+      ues.push(this[4])
+    })
+    let that = this
+    let dest = $('.dept-tree ul')
+    $.get(`${rb.baseUrl}/commons/metadata/entities?slave=true`, (res) => {
+      this.__entityLoaded = true
+      $(res.data).each(function () {
+        if (ues.contains(this.name)) {
+          $('<li data-entity="' + this.name + '"><a class="text-truncate">' + this.label + '</a></li>').appendTo(dest)
+        }
+      })
+      dest.find('li').click(function () {
+        dest.find('li').removeClass('active')
+        $(this).addClass('active')
+        that.loadData($(this).data('entity'))
+      })
     })
   }
 
-  delete(id) {
-    console.log(id)
+  delete(configId) {
+    rb.alert('确认要删除此触发器？', {
+      type: 'danger',
+      confirm: function () {
+        $.post('./trigger/delete?id=' + configId, (res) => {
+          if (res.error_code === 0) location.reload()
+          else rb.hberror(res.error_msg)
+        })
+      }
+    })
   }
 }
-
 
 class DlgEdit extends RbFormHandler {
   constructor(props) {
     super(props)
   }
   render() {
-    return (<RbModal title="添加规则触发" ref={(c) => this._dlg = c}>
+    return (<RbModal title="添加触发器" ref={(c) => this._dlg = c}>
       <div className="form">
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">触发类型</label>

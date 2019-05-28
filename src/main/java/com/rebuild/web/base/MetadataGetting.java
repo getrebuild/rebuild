@@ -57,10 +57,11 @@ public class MetadataGetting extends BaseControll {
 	@RequestMapping("entities")
 	public void entities(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
+		boolean hasSlave = getBoolParameter(request, "slave", false);
 		List<Map<String, String>> list = new ArrayList<>();
 		for (Entity e : MetadataSorter.sortEntities(user)) {
 			// 不返回明细实体
-			if (e.getMasterEntity() != null) {
+			if (e.getMasterEntity() != null && !hasSlave) {
 				continue;
 			}
 			

@@ -86,10 +86,12 @@ public class CountsSlave implements TriggerAction {
 		
 		// 直接利用SQL计算结果
 		String calcMode = actionContent.getString("calcMode");
+		String calcField = "count".equalsIgnoreCase(calcMode) ? slaveEntity.getPrimaryField().getName() : sourceField;
+		
 		sql = String.format("select %s(%s) from %s where %s = ?", 
-				calcMode.toLowerCase(), sourceField, slaveEntity.getName(), stmField.getName());
+				calcMode.toLowerCase(), calcField, slaveEntity.getName(), stmField.getName());
 		Object[] result = Application.createQueryNoFilter(sql).setParameter(1, masterRecord[0]).unique();
-		Double calcValue = ObjectUtils.toDouble(result[0]);
+		Double calcValue = result == null || result[0] == null ? 0d : ObjectUtils.toDouble(result[0]);
 		
 		DisplayType dt = EasyMeta.getDisplayType(masterEntity.getField(targetField));
 		Record master = EntityHelper.forUpdate((ID) masterRecord[0], UserService.SYSTEM_USER);

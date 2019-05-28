@@ -16,15 +16,7 @@
 	</jsp:include>
 	<div class="rb-content">
 		<div class="page-head">
-			<div class="float-left">
-				<nav class="mt-1">
-					<ol class="breadcrumb page-head-nav">
-						<li class="breadcrumb-item"><a href="../triggers">业务规则触发</a></li>
-					</ol>
-				</nav>
-			</div>
-			<div class="float-right">
-			</div>
+			<div class="float-left"><div class="page-head-title">编辑触发器</div></div>
 			<div class="clearfix"></div>
 		</div>
 		<div class="main-content container-fluid pt-1">
