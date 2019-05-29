@@ -26,7 +26,7 @@ class GridList extends React.Component {
           <div className="card">
             <div className="card-body">
               <a className="text-truncate" href={'trigger/' + item[0]}>{item[3] + ' · ' + item[1]}</a>
-              <p className="text-muted text-truncate">{item[2] > 0 ? ('当' + formatWhen(item[2]) + '时') : <span className="text-warning">未生效</span>}</p>
+              <p className="text-muted text-truncate">{item[2] > 0 ? ('当' + formatWhen(item[2]) + '时') : <span className="text-warning">未选择触发动作</span>}</p>
             </div>
             <div className="card-footer card-footer-contrast">
               <div className="float-left">

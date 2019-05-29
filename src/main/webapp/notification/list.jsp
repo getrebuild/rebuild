@@ -71,21 +71,13 @@ $(document).ready(function(){
 	else $('.J_view-all').trigger('click')
 	
 	$('.J_read-all').click(function(){
-		let ids = []
-		let unread = $('.J_list .notification-unread').each(function(){
-			ids.push($(this).data('id'))
-		})
-		if (ids.length == 0){ rb.hbsuccess('所有消息已设为读'); return }
-		
-		unread.off('click')
-		$.post(rb.baseUrl + '/notification/toggle-unread?state=read&id=' + ids.join(','), function(res){
-			unread.each(function(){
+		$.post(rb.baseUrl + '/notification/make-read?id=ALL', function(res){
+			$('.J_list .notification-unread').each(function(){
 				$(this).removeClass('notification-unread').removeAttr('title')
 			})
 			rb.hbsuccess('所有消息已设为读')
 		})
 	})
-	
 	$('.J_mores a').click(function(){
 		current_page++
 		load_list()
@@ -106,8 +98,8 @@ let load_list = function(){
 			if (item[3] == true){
 				let unread = o
 				o.addClass('notification-unread').attr('title', '点击设为已读').click(()=>{
-					$.post(rb.baseUrl + '/notification/toggle-unread?state=read&id=' + item[4], ()=>{
-						unread.removeClass('notification-unread')
+					$.post(rb.baseUrl + '/notification/make-read?id=' + item[4], ()=>{
+						unread.removeClass('notification-unread').removeAttr('title')
 					})
 				})
 			}

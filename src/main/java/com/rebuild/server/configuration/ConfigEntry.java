@@ -33,7 +33,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/20
  */
-public class ConfigEntry implements Serializable {
+public class ConfigEntry implements Serializable, Cloneable {
 	private static final long serialVersionUID = -2618040374508703332L;
 	
 	private Map<String, Object> entry = null;

@@ -34,6 +34,7 @@
 			<div class="clearfix"></div>
 		</div>
 		<div class="main-content container-fluid pt-0" id="list">
+			<%@ include file="/_include/phitem.jsp"%>
 		</div>
 	</div>
 </div>

@@ -18,12 +18,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.robot.triggers;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.business.robot.ActionType;
-import com.rebuild.server.business.robot.TriggerAction;
 import com.rebuild.server.business.robot.TriggerWhen;
 import com.rebuild.server.configuration.RobotTriggerManager;
 import com.rebuild.server.metadata.EntityHelper;
@@ -32,38 +33,44 @@ import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
 
 /**
  * TODO
  * 
- * @author devezhao zhaofang123@gmail.com
+ * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/05/29
  */
-public class FieldAggregationTest extends TestSupport {
+public class SendNotificationTest extends TestSupport {
 
 	@Test
 	public void testExecute() throws Exception {
-		addExtTestEntities(false);
-		
 		// 添加配置
-		Application.getSQLExecutor().execute("delete from robot_trigger_config where BELONG_ENTITY = 'SalesOrderItem999'");
+		Application.getSQLExecutor().execute("delete from robot_trigger_config where BELONG_ENTITY = 'TestAllFields'");
 		
 		Record triggerConfig = EntityHelper.forNew(EntityHelper.RobotTriggerConfig, UserService.SYSTEM_USER);
-		triggerConfig.setString("belongEntity", "SalesOrderItem999");
+		triggerConfig.setString("belongEntity", "TestAllFields");
 		triggerConfig.setInt("when", TriggerWhen.CREATE.getMaskValue() + TriggerWhen.DELETE.getMaskValue());
-		triggerConfig.setString("actionType", ActionType.FIELDAGGREGATION.name());
-		String content = "{targetEntity:'SalesOrder999', items:[{sourceField:'',calcMode:'SUM', targetField:'totalAmount'}]}";
+		triggerConfig.setString("actionType", ActionType.SENDNOTIFICATION.name());
+		String content = String.format("{ sendTo:['%s'], content:'SENDNOTIFICATION' }", SIMPLE_USER);
 		triggerConfig.setString("actionContent", content);
 		Application.getCommonService().create(triggerConfig);
 		
-		// 测试执行
-		Entity test = MetadataHelper.getEntity("SalesOrderItem999");
+		Entity test = MetadataHelper.getEntity("TestAllFields");
 		RobotTriggerManager.instance.clean(test);
 		
-		TriggerAction[] as = RobotTriggerManager.instance.getActions(ID.newId(test.getEntityCode()), TriggerWhen.CREATE);
-		for (TriggerAction action : as) {
-			action.execute(null);
-		}
+		// 当前未读消息
+		int unread = Application.getNotifications().getUnreadMessage(SIMPLE_USER);
+		
+		// 保存/删除会发送两条消息
+		Application.getSessionStore().set(UserService.ADMIN_USER);
+		Record record = EntityHelper.forNew(test.getEntityCode(), UserService.ADMIN_USER);
+		record.setString("TestAllFieldsName", "SENDNOTIFICATION");
+		record = Application.getEntityService(test.getEntityCode()).create(record);
+		Application.getEntityService(test.getEntityCode()).delete(record.getPrimary());
+		Application.getSessionStore().clean();
+		
+		// 比对消息数
+		int unread2 = Application.getNotifications().getUnreadMessage(SIMPLE_USER);
+		assertEquals(unread, unread2 - 2);
 	}
 }

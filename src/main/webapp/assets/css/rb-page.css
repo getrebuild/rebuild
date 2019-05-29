@@ -1733,6 +1733,7 @@ form {
 
 .card-list .card {
     margin-bottom: 20px;
+    overflow: hidden;
 }
 
 .card-list .card-body {
@@ -1769,4 +1770,22 @@ form {
 
 .card-list .card-footer .float-right {
     padding-top: 3px;
+}
+
+.card.ph {
+    width: 25%;
+    padding: 0;
+}
+
+.card.ph>.card-body {
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.card.ph>.card-body>.ph-item {
+    padding: 20px 10px;
+    padding-bottom: 5px;
+    margin: 0;
+    border: 0 none;
 }

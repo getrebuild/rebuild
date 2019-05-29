@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
@@ -61,16 +60,8 @@ public class NotificationControll extends BasePageControll {
 	
 	@RequestMapping("/notification/check-message")
 	public void checkMessage(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getRequestUser(request);
-		Object[] unread = Application.createQueryNoFilter(
-				"select count(messageId) from Notification where toUser = ? and unread = 'T'")
-				.setParameter(1, user)
-				.unique();
-		
-		JSON ret = JSONUtils.toJSONObject(
-				new String[] { "unread" }, 
-				new Object[] { unread[0] });
-		writeSuccess(response, ret);
+		int unread = Application.getNotifications().getUnreadMessage(getRequestUser(request));
+		writeSuccess(response, JSONUtils.toJSONObject("unread", unread));
 	}
 	
 	@RequestMapping("/notification/list")
@@ -99,16 +90,30 @@ public class NotificationControll extends BasePageControll {
 		writeSuccess(response, array);
 	}
 	
-	@RequestMapping("/notification/toggle-unread")
+	@RequestMapping("/notification/make-read")
 	public void toggleUnread(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		String ids = getParameter(request, "id");
-		String state = getParameter(request, "state");
+		
+		if ("ALL".equalsIgnoreCase(ids)) {
+			Object[][] unreads = Application.createQueryNoFilter(
+					"select messageId from Notification where toUser = ?")
+					.setParameter(1, user)
+					.array();
+			ids = "";
+			for (Object[] o : unreads) {
+				ids += o[0] + ",";
+			}
+		}
 		
 		for (String id : ids.split(",")) {
+			if (!ID.isId(id)) {
+				continue;
+			}
+			
 			Record record = EntityHelper.forUpdate(ID.valueOf(id), user);
-			record.setBoolean("unread", "unread".equalsIgnoreCase(state));
-			Application.getCommonService().update(record);
+			record.setBoolean("unread", false);
+			Application.getNotifications().update(record);
 		}
 		writeSuccess(response);
 	}

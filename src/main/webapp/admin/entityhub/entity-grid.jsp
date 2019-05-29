@@ -14,6 +14,7 @@
 .card.entity span{margin-top:2px;display:block;}
 #entityList{margin:0 -10px}
 #entityList>div{padding-left:10px;padding-right:10px}
+.card.ph{margin-left:10px}
 </style>
 </head>
 <body>
@@ -27,19 +28,7 @@
 	<div class="rb-content">
 		<div class="main-content container-fluid">
 			<div class="row" id="entityList">
-				<div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-					<a class="card entity">
-						<div class="ph-item pt-3 pb-1">
-							<div class="ph-col-12">
-								<div class="ph-row">
-									<div class="ph-col-6"></div>
-									<div class="ph-col-6 empty"></div>
-									<div class="ph-col-12"></div>
-								</div>
-							</div>
-						</div>
-					</a>
-				</div>
+				<%@ include file="/_include/phitem.jsp"%>
 			</div>
 		</div>
 	</div>
