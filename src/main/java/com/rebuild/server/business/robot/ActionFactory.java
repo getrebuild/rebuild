@@ -18,8 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.robot;
 
-import com.rebuild.server.business.robot.triggeraction.CountsSlave;
-import com.rebuild.server.business.robot.triggeraction.SendNotification;
+import com.rebuild.server.business.robot.trigger.FieldAggregation;
+import com.rebuild.server.business.robot.trigger.SendNotification;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -31,7 +31,7 @@ public class ActionFactory {
 	 * @return
 	 */
 	public static ActionType[] getAvailableActions() {
-		return new ActionType[] { ActionType.COUNTSSLAVE, ActionType.SENDNOTIFICATION };
+		return new ActionType[] { ActionType.FIELDAGGREGATION, ActionType.SENDNOTIFICATION };
 	}
 	
 	/**
@@ -57,8 +57,8 @@ public class ActionFactory {
 	 * @return
 	 */
 	public static TriggerAction createAction(ActionType type, ActionContext context) {
-		if (type == ActionType.COUNTSSLAVE) {
-			return new CountsSlave(context);
+		if (type == ActionType.FIELDAGGREGATION) {
+			return new FieldAggregation(context);
 		} else if (type == ActionType.SENDNOTIFICATION) {
 			return new SendNotification(context);
 		}

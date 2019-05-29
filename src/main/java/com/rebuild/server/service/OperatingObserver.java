@@ -78,6 +78,8 @@ public abstract class OperatingObserver implements Observer {
 			onShare(ctx);
 		} else if (ctx.getAction() == EntityService.UNSHARE) {
 			onUnshare(ctx);
+		} else if (ctx.getAction() == ObservableService.DELETE_BEFORE) {
+			onDeleteBefore(ctx);
 		}
 	}
 
@@ -94,6 +96,7 @@ public abstract class OperatingObserver implements Observer {
 	
 	/**
 	 * 新建时
+	 * 
 	 * @param context
 	 */
 	protected void onCreate(final OperatingContext context) {
@@ -101,6 +104,7 @@ public abstract class OperatingObserver implements Observer {
 
 	/**
 	 * 更新时
+	 * 
 	 * @param context
 	 */
 	protected void onUpdate(final OperatingContext context) {
@@ -108,13 +112,23 @@ public abstract class OperatingObserver implements Observer {
 
 	/**
 	 * 删除时
+	 * 
 	 * @param context
 	 */
 	protected void onDelete(final OperatingContext context) {
 	}
 	
 	/**
+	 * 删除前处理
+	 * 
+	 * @param context
+	 */
+	protected void onDeleteBefore(final OperatingContext context) {
+	}
+	
+	/**
 	 * 分派时
+	 * 
 	 * @param context
 	 */
 	protected void onAssign(final OperatingContext context) {
@@ -122,6 +136,7 @@ public abstract class OperatingObserver implements Observer {
 
 	/**
 	 * 共享时
+	 * 
 	 * @param context
 	 */
 	protected void onShare(final OperatingContext context) {
@@ -129,6 +144,7 @@ public abstract class OperatingObserver implements Observer {
 	
 	/**
 	 * 取消共享时
+	 * 
 	 * @param context
 	 */
 	protected void onUnshare(final OperatingContext context) {

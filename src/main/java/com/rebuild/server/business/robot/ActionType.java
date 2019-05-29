@@ -26,9 +26,9 @@ package com.rebuild.server.business.robot;
  */
 public enum ActionType {
 	
-	COUNTSSLAVE("明细汇总至主实体"),
+	FIELDAGGREGATION("数据聚合"),
 	
-	SENDNOTIFICATION("发送内部通知"),
+	SENDNOTIFICATION("发送通知 (内部消息)"),
 	
 	;
 	

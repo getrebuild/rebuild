@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.business.robot;
 
 import com.alibaba.fastjson.JSON;
+import com.rebuild.server.metadata.MetadataHelper;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
@@ -31,29 +32,43 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class ActionContext {
 	
-	final private Entity sourceEntity;
 	final private ID sourceRecord;
+	final private Entity sourceEntity;
 	final private JSON actionContent;
 	
 	/**
 	 * @param sourceEntity
-	 * @param sourceRecord
-	 * @param operatorContent
+	 * @param actionContent
 	 */
-	public ActionContext(Entity sourceEntity, ID sourceRecord, JSON operatorContent) {
-		this.sourceEntity = sourceEntity;
+	public ActionContext(ID sourceRecord, Entity sourceEntity, JSON actionContent) {
 		this.sourceRecord = sourceRecord;
-		this.actionContent = operatorContent;
+		this.sourceEntity = sourceRecord != null ? MetadataHelper.getEntity(sourceRecord.getEntityCode()) : sourceEntity;
+		this.actionContent = actionContent;
 	}
 	
+	/**
+	 * 触发源实体
+	 * 
+	 * @return
+	 */
 	public Entity getSourceEntity() {
 		return sourceEntity;
 	}
 	
+	/**
+	 * 触发源记录
+	 * 
+	 * @return
+	 */
 	public ID getSourceRecord() {
 		return sourceRecord;
 	}
 	
+	/**
+	 * 触发内容
+	 * 
+	 * @return
+	 */
 	public JSON getActionContent() {
 		return actionContent;
 	}

@@ -4,7 +4,7 @@ $(document).ready(function () {
   renderRbcomp(<GridList />, 'list')
 })
 
-const WHENS = { 1: '创建', 4: '更新', 2: '删除', 16: '分派', 32: '共享', 64: '取消共享' }
+const WHENS = { 1: '新建', 4: '更新', 2: '删除', 16: '分派', 32: '共享', 64: '取消共享' }
 const formatWhen = function (maskVal) {
   let as = []
   for (let k in WHENS) {
@@ -92,7 +92,7 @@ class DlgEdit extends RbFormHandler {
     return (<RbModal title="添加触发器" ref={(c) => this._dlg = c}>
       <div className="form">
         <div className="form-group row">
-          <label className="col-sm-3 col-form-label text-sm-right">触发类型</label>
+          <label className="col-sm-3 col-form-label text-sm-right">触发器</label>
           <div className="col-sm-7">
             <select className="form-control form-control-sm" ref={(c) => this._actionType = c}>
               {(this.state.actions || []).map((item) => {

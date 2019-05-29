@@ -73,7 +73,7 @@ public class RobotTriggerControll extends BasePageControll {
 				.setParameter(1, configId)
 				.unique();
 		if (config == null) {
-			response.sendError(404, "分类数据不存在");
+			response.sendError(404, "触发器不存在");
 			return null;
 		}
 		
@@ -111,8 +111,8 @@ public class RobotTriggerControll extends BasePageControll {
 		List<String[]> list = new ArrayList<String[]>();
 		for (Entity e : MetadataHelper.getEntities()) {
 			if (!MetadataHelper.hasPrivilegesField(e)) {
-				if (MetadataHelper.isBizzEntity(e.getEntityCode()) || e.getMasterEntity() != null) {
-					// 允许 BIZZ 和明细
+				if (e.getMasterEntity() != null) {
+					// 允许明细实体
 				} else {
 					continue;
 				}

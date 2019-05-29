@@ -44,15 +44,66 @@
   padding: 20px;
 }
 
-.counts-slave {
-  max-width: 720px;
-}
-
-.counts-slave p {
-  margin: 0;
-  margin-bottom: 6px;
-}
-
 .send-notification {
   max-width: 800px;
+}
+
+.field-aggregation p {
+  margin: 0;
+  margin-top: 3px;
+  color: #777;
+  font-size: 12px
+}
+
+.field-aggregation .col-2 {
+  position: relative;
+}
+
+.field-aggregation .col-2>.zmdi {
+  position: absolute;
+  left: -5px;
+  color: #4c8bf5;
+  color: #fbbc05;
+  margin-top: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.field-aggregation .items {
+  margin-bottom: 9px;
+  margin-top: -1px;
+}
+
+.field-aggregation .items>div {
+  padding: 5px 0;
+}
+
+.field-aggregation .items>div+div {
+  border-top: 1px dotted rgba(255, 255, 255, 0.7);
+}
+
+.field-aggregation .items>div:hover {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+.field-aggregation .items>div .badge {
+  font-weight: normal;
+  font-size: 1rem;
+  padding: 3px 10px;
+}
+
+.field-aggregation .items>div .col-2>.zmdi {
+  margin-top: 6px;
+}
+
+.field-aggregation .items>div .col-5>a.del {
+  float: right;
+  font-size: 1.2rem;
+  padding: 3px 10px;
+  color: #999;
+  font-weight: bold;
+}
+
+.field-aggregation .items>div .col-5>a.del:hover {
+  color: #222;
 }

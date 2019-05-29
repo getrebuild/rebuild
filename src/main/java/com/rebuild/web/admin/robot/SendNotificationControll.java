@@ -53,9 +53,9 @@ public class SendNotificationControll extends BaseControll {
 		String sourceEntity = getParameterNotNull(request, "entity");
 		JSON sendTo = ServletUtils.getRequestJson(request);
 		Entity entity = MetadataHelper.getEntity(sourceEntity);
-		
+
 		List<JSON> formatted = new ArrayList<>();
-		String[] keys = new String[] { "id","text"};
+		String[] keys = new String[] { "id", "text" };
 		for (Object item : (JSONArray) sendTo) {
 			String idOrField = (String) item;
 			if (ID.isId(idOrField)) {

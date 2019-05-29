@@ -18,20 +18,20 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.robot;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import com.rebuild.server.configuration.RobotTriggerManager;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.OperatingObserver;
+
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/27
  */
 public class RobotTriggerObserver extends OperatingObserver {
-	
-	@Override
-	protected boolean isAsync() {
-		return true;
-	}
 	
 	@Override
 	protected void onCreate(OperatingContext context) {
@@ -41,11 +41,6 @@ public class RobotTriggerObserver extends OperatingObserver {
 	@Override
 	protected void onUpdate(OperatingContext context) {
 		execAction(context, TriggerWhen.UPDATE);
-	}
-	
-	@Override
-	protected void onDelete(OperatingContext context) {
-		execAction(context, TriggerWhen.DELETE);
 	}
 	
 	@Override
@@ -68,13 +63,43 @@ public class RobotTriggerObserver extends OperatingObserver {
 	 * @param when
 	 */
 	protected void execAction(OperatingContext context, TriggerWhen when) {
-		TriggerAction[] actions = RobotTriggerManager.instance.getActions(context.getAnyRecord().getPrimary(), TriggerWhen.CREATE);
-		if (actions == null || actions.length == 0) {
-			return;
-		}
+		TriggerAction[] actions = RobotTriggerManager.instance.getActions(context.getAnyRecord().getPrimary(), when);
 		for (TriggerAction action : actions) {
 			try {
-				action.execute();
+				action.execute(context);
+			} catch (Exception ex) {
+				LOG.error("Executing trigger failure: " + action, ex);
+			}
+		}
+	}
+	
+	// 删除做特殊处理
+	
+	private static final Map<ID, TriggerAction[]> DELETE_ACTION_HOLDS = new ConcurrentHashMap<>();
+	
+	@Override
+	protected void onDeleteBefore(OperatingContext context) {
+		TriggerAction[] actions = RobotTriggerManager.instance.getActions(context.getAnyRecord().getPrimary(), TriggerWhen.DELETE);
+		for (TriggerAction action : actions) {
+			try {
+				action.prepare(context);
+			} catch (Exception ex) {
+				LOG.error("Preparing trigger failure: " + action, ex);
+			}
+		}
+		DELETE_ACTION_HOLDS.put(context.getAnyRecord().getPrimary(), actions);
+	}
+	
+	@Override
+	protected void onDelete(OperatingContext context) {
+		TriggerAction[] holdActions = DELETE_ACTION_HOLDS.get(context.getAnyRecord().getPrimary());
+		if (holdActions == null) {
+			LOG.warn("No action held for trigger of delete");
+			return;
+		}
+		for (TriggerAction action : holdActions) {
+			try {
+				action.execute(context);
 			} catch (Exception ex) {
 				LOG.error("Executing trigger failure: " + action, ex);
 			}

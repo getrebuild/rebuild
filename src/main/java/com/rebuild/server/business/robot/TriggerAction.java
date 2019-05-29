@@ -21,6 +21,8 @@ package com.rebuild.server.business.robot;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.rebuild.server.service.OperatingContext;
+
 /**
  * 触发动作/操作定义
  * 
@@ -49,7 +51,16 @@ public interface TriggerAction {
 	/**
 	 * 操作执行
 	 * 
+	 * @param operatingContext
 	 * @throws TriggerException
 	 */
-	void execute() throws TriggerException;
+	void execute(OperatingContext operatingContext) throws TriggerException;
+	
+	/**
+	 * 如果是删除动作，会先调用此方法。应该在此方法中保持一些数据的状态，以便删除后还可以继续使用
+	 * 
+	 * @param operatingContext
+	 * @throws TriggerException
+	 */
+	void prepare(OperatingContext operatingContext) throws TriggerException;
 }

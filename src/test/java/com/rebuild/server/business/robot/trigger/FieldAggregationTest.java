@@ -16,33 +16,35 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.configuration;
+package com.rebuild.server.business.robot.trigger;
 
 import org.junit.Test;
 
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.business.robot.TriggerAction;
 import com.rebuild.server.business.robot.TriggerWhen;
+import com.rebuild.server.configuration.RobotTriggerManager;
 import com.rebuild.server.metadata.MetadataHelper;
 
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * TODO
  * 
  * @author devezhao zhaofang123@gmail.com
- * @since 2019/05/27
+ * @since 2019/05/29
  */
-public class RobotTriggerManagerTest extends TestSupport {
-	
+public class FieldAggregationTest extends TestSupport {
+
 	@Test
-	public void testGetActions() throws Exception {
-		Entity test = MetadataHelper.getEntity(TEST_ENTITY);
+	public void test() throws Exception {
+		Entity test = MetadataHelper.getEntity("dingdanmingxi");
 		RobotTriggerManager.instance.clean(test);
-		TriggerAction as[] = RobotTriggerManager.instance.getActions(
-				test, TriggerWhen.CREATE, TriggerWhen.ASSIGN);
-		System.out.println(as);
+		
+		TriggerAction[] as = RobotTriggerManager.instance.getActions(ID.newId(test.getEntityCode()), TriggerWhen.CREATE);
+		for (TriggerAction action : as) {
+			action.execute(null);
+		}
 	}
-	
-	
 }

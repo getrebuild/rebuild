@@ -35,7 +35,7 @@ import cn.devezhao.persist4j.engine.ID;
 public interface EntityService extends ServiceSpec {
 	
 	/**
-	 * 取消共享
+	 * 取消共享，跟随共享权限
 	 * @see BizzPermission
 	 */
 	public static final Permission UNSHARE = new BizzPermission("X", 0, true);

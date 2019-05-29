@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.robot.triggeraction;
+package com.rebuild.server.business.robot.trigger;
 
 import java.security.Principal;
 import java.util.HashSet;
@@ -30,8 +30,10 @@ import com.rebuild.server.Application;
 import com.rebuild.server.business.robot.ActionContext;
 import com.rebuild.server.business.robot.ActionType;
 import com.rebuild.server.business.robot.TriggerAction;
+import com.rebuild.server.business.robot.TriggerException;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.bizz.privileges.Department;
 import com.rebuild.server.service.notification.Message;
 
@@ -56,14 +58,14 @@ public class SendNotification implements TriggerAction {
 	public ActionType getType() {
 		return ActionType.SENDNOTIFICATION;
 	}
-
+	
 	@Override
 	public boolean isUsableSourceEntity(int entityCode) {
 		return true;
 	}
 
 	@Override
-	public void execute() {
+	public void execute(OperatingContext operatingContext) {
 		final JSONObject content = (JSONObject) context.getActionContent();
 		
 		ID[] toUsers = parseSendTo(content.getJSONArray("sendTo"));
@@ -76,6 +78,10 @@ public class SendNotification implements TriggerAction {
 		for (ID user : toUsers) {
 			Application.getNotifications().send(new Message(user, message, context.getSourceRecord()));
 		}
+	}
+	
+	@Override
+	public void prepare(OperatingContext operatingContext) throws TriggerException {
 	}
 	
 	/**
@@ -133,5 +139,4 @@ public class SendNotification implements TriggerAction {
 	private String formatMessage(String message) {
 		return message;
 	}
-	
 }

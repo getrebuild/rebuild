@@ -75,7 +75,7 @@
 								<div class="form-group row">
 									<label class="col-md-12 col-lg-3 col-form-label text-lg-right">执行操作</label>
 									<div class="col-md-12 col-lg-9">
-										<div class="form-control-plaintext text-bold">${operatorTypeLabel}</div>
+										<div class="form-control-plaintext text-bold">${actionTypeLabel}</div>
 									</div>
 								</div>
 								<div class="form-group row">
@@ -125,5 +125,7 @@ window.__PageConfig = {
 </script>
 <script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/entity/trigger-editor.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/entity/trigger.field-aggregation.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/entity/trigger.send-notification.jsx" type="text/babel"></script>
 </body>
 </html>

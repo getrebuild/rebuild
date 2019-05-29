@@ -36,7 +36,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * TODO
+ * 触发器管理
  * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/27
@@ -47,12 +47,12 @@ public class RobotTriggerManager implements ConfigManager {
 	private RobotTriggerManager() {}
 
 	/**
-	 * @param source
+	 * @param record
 	 * @param when
 	 * @return
 	 */
-	public TriggerAction[] getActions(ID source, TriggerWhen... when) {
-		return filterActions(MetadataHelper.getEntity(source.getEntityCode()), source, when);
+	public TriggerAction[] getActions(ID record, TriggerWhen... when) {
+		return filterActions(MetadataHelper.getEntity(record.getEntityCode()), record, when);
 	}
 	
 	/**
@@ -65,25 +65,20 @@ public class RobotTriggerManager implements ConfigManager {
 	}
 	
 	/**
-	 * @param source
+	 * @param record
 	 * @param entity
 	 * @param when
 	 * @return
 	 */
-	private TriggerAction[] filterActions(Entity entity, ID source, TriggerWhen... when) {
+	private TriggerAction[] filterActions(Entity entity, ID record, TriggerWhen... when) {
 		final List<ConfigEntry> entries = getConfig(entity);
 		List<TriggerAction> actions = new ArrayList<>();
 		for (ConfigEntry e : entries) {
 			if (allowedWhen(e, when)) {
-				ActionContext ctx = new ActionContext(entity, source, e.getJSON("actionContent"));
-				TriggerAction o = null;
-				if (source == null) {
-					o = ActionFactory.createAction(e.getString("actionType"), ctx);
-				} else if (allowedFilter(e, source)) {
-					o = ActionFactory.createAction(e.getString("actionType"), ctx);
-				}
-				
-				if (o != null && o.isUsableSourceEntity(entity.getEntityCode())) {
+				if (record == null
+						|| !isFiltered((JSONObject) e.getJSON("whenFilter"), record)) {
+					ActionContext ctx = new ActionContext(record, entity, e.getJSON("actionContent"));
+					TriggerAction o = ActionFactory.createAction(e.getString("actionType"), ctx);
 					actions.add(o);
 				}
 			}
@@ -112,16 +107,15 @@ public class RobotTriggerManager implements ConfigManager {
 	}
 	
 	/**
-	 * 过滤条件
+	 * 是否过滤
 	 * 
-	 * @param entry
+	 * @param whenFilter
 	 * @param record
 	 * @return
 	 */
-	private boolean allowedFilter(ConfigEntry entry, ID record) {
-		JSONObject whenFilter = (JSONObject) entry.getJSON("whenFilter");
+	public boolean isFiltered(JSONObject whenFilter, ID record) {
 		if (whenFilter == null || whenFilter.isEmpty()) {
-			return true;
+			return false;
 		}
 		
 		Entity entity = MetadataHelper.getEntity(record.getEntityCode());
@@ -131,7 +125,7 @@ public class RobotTriggerManager implements ConfigManager {
 				"select {0} from {1} where ({0} = ?) and ({2})",
 				entity.getPrimaryField().getName(), entity.getName(), sqlWhere);
 		Object matchs = Application.createQueryNoFilter(sql).setParameter(1, record).unique();
-		return matchs != null;
+		return matchs == null;
 	}
 	
 	/**
