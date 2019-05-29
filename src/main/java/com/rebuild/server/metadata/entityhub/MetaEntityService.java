@@ -52,7 +52,7 @@ public class MetaEntityService extends BaseService {
 		// 删除此实体的相关配置记录
 		String whoUsed[] = new String[] {
 				"MetaField", "PickList", "LayoutConfig", "FilterConfig", "ShareAccess", "ChartConfig", 
-				"Attachment", "AutoFillinConfig"
+				"Attachment", "AutoFillinConfig", "RobotTriggerConfig"
 		};
 		int del = 0;
 		for (String who : whoUsed) {

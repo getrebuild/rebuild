@@ -536,10 +536,10 @@ const AdvFilters = {
 
   saveFilter(filter, name, toAll) {
     if (!filter) return
-    let url = `${rb.baseUrl}/app/${this.__entity}/advfilter/post?id=${this.current || ''}&toAll=${toAll}`
+    let url = `${rb.baseUrl}/app/${AdvFilters.__entity}/advfilter/post?id=${this.current || ''}&toAll=${toAll}`
     if (name) url += '&name=' + $encode(name)
     $.post(url, JSON.stringify(filter), (res) => {
-      if (res.error_code === 0) this.loadFilters()
+      if (res.error_code === 0) AdvFilters.loadFilters()
       else rb.hberror(res.error_msg)
     })
   },

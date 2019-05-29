@@ -16,17 +16,22 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.robot.trigger;
+package com.rebuild.server.business.robot.triggers;
 
 import org.junit.Test;
 
+import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
+import com.rebuild.server.business.robot.ActionType;
 import com.rebuild.server.business.robot.TriggerAction;
 import com.rebuild.server.business.robot.TriggerWhen;
 import com.rebuild.server.configuration.RobotTriggerManager;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -38,8 +43,21 @@ import cn.devezhao.persist4j.engine.ID;
 public class FieldAggregationTest extends TestSupport {
 
 	@Test
-	public void test() throws Exception {
-		Entity test = MetadataHelper.getEntity("dingdanmingxi");
+	public void testExecute() throws Exception {
+		addExtTestEntities(false);
+		
+		// 添加配置
+		Application.getSQLExecutor().execute("delete from robot_trigger_config where BELONG_ENTITY = 'SalesOrderItem999'");
+		
+		Record triggerConfig = EntityHelper.forNew(EntityHelper.RobotTriggerConfig, UserService.SYSTEM_USER);
+		triggerConfig.setString("belongEntity", "SalesOrderItem999");
+		triggerConfig.setInt("when", TriggerWhen.CREATE.getMaskValue() + TriggerWhen.DELETE.getMaskValue());
+		triggerConfig.setString("actionType", ActionType.FIELDAGGREGATION.name());
+		triggerConfig.setString("actionContent", "{targetEntity:'SalesOrder999', items:[{sourceField:'',calcMode:'SUM', targetField:'totalAmount'}]}");
+		Application.getCommonService().create(triggerConfig);
+		
+		// 测试执行
+		Entity test = MetadataHelper.getEntity("SalesOrderItem999");
 		RobotTriggerManager.instance.clean(test);
 		
 		TriggerAction[] as = RobotTriggerManager.instance.getActions(ID.newId(test.getEntityCode()), TriggerWhen.CREATE);

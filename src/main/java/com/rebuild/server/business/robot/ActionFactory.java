@@ -18,8 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.robot;
 
-import com.rebuild.server.business.robot.trigger.FieldAggregation;
-import com.rebuild.server.business.robot.trigger.SendNotification;
+import com.rebuild.server.business.robot.triggers.FieldAggregation;
+import com.rebuild.server.business.robot.triggers.SendNotification;
 
 /**
  * @author devezhao zhaofang123@gmail.com

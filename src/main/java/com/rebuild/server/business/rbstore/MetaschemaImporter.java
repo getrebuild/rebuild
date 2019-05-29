@@ -80,12 +80,10 @@ public class MetaschemaImporter extends HeavyTask<String> {
 	}
 	
 	/**
-	 * for TestCase
-	 * 
 	 * @param user
 	 * @param data
 	 */
-	protected MetaschemaImporter(ID user, JSONObject data) {
+	public MetaschemaImporter(ID user, JSONObject data) {
 		this.user = user;
 		this.fileUrl = null;
 		this.remoteData = data;
@@ -147,13 +145,13 @@ public class MetaschemaImporter extends HeavyTask<String> {
 		
 		String entityName = performEntity(remoteData, null);
 		Entity createdEntity = MetadataHelper.getEntity(entityName);
-		setCompleted(50);
+		setCompleted(45);
 		
-		JSONObject slave = remoteData.getJSONObject("slave");
-		if (slave != null) {
+		JSONObject slaveData = remoteData.getJSONObject("slave");
+		if (slaveData != null) {
 			try {
-				performEntity(remoteData, createdEntity.getName());
-				setCompleted(100);
+				performEntity(slaveData, createdEntity.getName());
+				setCompleted(90);
 			} catch (ModifiyMetadataException ex) {
 				// 出现异常，删除主实体
 				new Entity2Schema(this.user).drop(createdEntity, true);
@@ -165,6 +163,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 		for (Object[] picklist : picklistHolders) {
 			Application.getBean(PickListService.class).updateBatch((Field) picklist[0], (JSONObject) picklist[1]);
 		}
+		setCompleted(100);
 		
 		return entityName;
 	}

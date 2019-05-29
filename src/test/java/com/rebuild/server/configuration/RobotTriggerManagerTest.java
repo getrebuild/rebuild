@@ -49,8 +49,4 @@ public class RobotTriggerManagerTest extends TestSupport {
 			}
 		}
 	}
-	
-	@Test
-	public void testGetActionsByRecord() throws Exception {
-	}
 }

@@ -1,0 +1,152 @@
+{
+	"entity": "SalesOrder999",
+	"entityLabel": "订单",
+	"nameField": "orderNumber",
+	"fields": [{
+		"field": "orderNumber",
+		"fieldLabel": "订单号",
+		"displayType": "SERIES",
+		"nullable": false,
+		"updatable": false,
+		"extConfig": {
+			"seriesZero": "N",
+			"seriesFormat": "{YYYYMMDD}-{0000}"
+		}
+	}, {
+		"field": "releatedAccount",
+		"fieldLabel": "相关客户",
+		"displayType": "REFERENCE",
+		"nullable": false,
+		"updatable": true,
+		"refEntity": "Account999",
+		"refEntityLabel": "客户"
+	}, {
+		"field": "totalAmount",
+		"fieldLabel": "总计金额",
+		"displayType": "DECIMAL",
+		"nullable": true,
+		"updatable": true,
+		"extConfig": {
+			"decimalFormat": "##,##0.00"
+		}
+	}],
+	"layouts": {
+		"FORM": [{
+			"field": "orderNumber",
+			"isFull": true
+		}, {
+			"field": "releatedAccount",
+			"isFull": false
+		}, {
+			"field": "totalAmount",
+			"isFull": false
+		}, {
+			"field": "owningUser",
+			"isFull": false
+		}, {
+			"field": "owningDept",
+			"isFull": false
+		}],
+		"DATALIST": [{
+			"field": "orderNumber"
+		}, {
+			"field": "totalAmount"
+		}, {
+			"field": "modifiedBy"
+		}, {
+			"field": "modifiedOn"
+		}, {
+			"field": "createdBy"
+		}, {
+			"field": "createdOn"
+		}, {
+			"field": "owningUser"
+		}, {
+			"field": "owningDept"
+		}, {
+			"field": "releatedAccount.owningDept"
+		}, {
+			"field": "releatedAccount"
+		}, {
+			"field": "releatedAccount.accountName"
+		}, {
+			"field": "releatedAccount.accountNumber"
+		}, {
+			"field": "releatedAccount.location"
+		}, {
+			"field": "releatedAccount.source"
+		}, {
+			"field": "releatedAccount.leijichengjiaojine"
+		}, {
+			"field": "releatedAccount.modifiedBy"
+		}, {
+			"field": "releatedAccount.modifiedOn"
+		}, {
+			"field": "releatedAccount.createdBy"
+		}, {
+			"field": "releatedAccount.createdOn"
+		}, {
+			"field": "releatedAccount.owningUser"
+		}]
+	},
+	"filters": {
+		"金额大于1000": {
+			"items": [{
+				"op": "GT",
+				"field": "totalAmount",
+				"index": 1,
+				"value": "100"
+			}],
+			"entity": "SalesOrder999"
+		}
+	},
+	"slave": {
+		"entity": "SalesOrderItem999",
+		"entityLabel": "订单明细",
+		"nameField": "itemName",
+		"fields": [{
+			"field": "itemName",
+			"fieldLabel": "项目",
+			"displayType": "TEXT",
+			"nullable": false,
+			"updatable": true
+		}, {
+			"field": "amount",
+			"fieldLabel": "金额",
+			"displayType": "DECIMAL",
+			"nullable": false,
+			"updatable": true,
+			"extConfig": {
+				"decimalFormat": "##,##0.00"
+			}
+		}, {
+			"field": "quantity",
+			"fieldLabel": "数量",
+			"displayType": "NUMBER",
+			"nullable": true,
+			"updatable": true,
+			"defaultValue": "1",
+			"extConfig": {
+				"defaultValue": "1"
+			}
+		}],
+		"layouts": {
+			"FORM": [{
+				"field": "itemName",
+				"isFull": false
+			}, {
+				"field": "amount",
+				"isFull": false
+			}, {
+				"field": "quantity",
+				"isFull": false
+			}],
+			"DATALIST": [{
+				"field": "amount"
+			}, {
+				"field": "SalesOrder999Id"
+			}]
+		},
+		"filters": {}
+	}
+}

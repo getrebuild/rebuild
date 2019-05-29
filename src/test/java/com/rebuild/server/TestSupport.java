@@ -18,12 +18,18 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server;
 
+import java.io.File;
+import java.net.URL;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import com.alibaba.fastjson.JSON;
+import com.rebuild.server.business.rbstore.MetaschemaImporter;
+import com.rebuild.server.business.robot.triggers.FieldAggregationTest;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.Entity2Schema;
@@ -73,12 +79,12 @@ public class TestSupport {
 	/**
 	 * 初始化测试实体
 	 * 
-	 * @param deleteExists
+	 * @param dropExists
 	 * @see DisplayType
 	 */
-	private static void addTestEntityIfNeed(boolean deleteExists) {
+	private static void addTestEntityIfNeed(boolean dropExists) {
 		if (MetadataHelper.containsEntity(TEST_ENTITY)) {
-			if (deleteExists) {
+			if (dropExists) {
 				LOG.warn("Dropping test entity : " + TEST_ENTITY);
 				new Entity2Schema(UserService.ADMIN_USER).drop(MetadataHelper.getEntity(TEST_ENTITY), true);
 			} else {
@@ -107,6 +113,42 @@ public class TestSupport {
 			} else {
 				new Field2Schema(UserService.ADMIN_USER).create(testEntity, fieldName, dt, null);
 			}
+		}
+	}
+	
+	/**
+	 * @param dropExists
+	 * @throws Exception
+	 * @see MetaschemaImporter
+	 * @see Entity2Schema
+	 */
+	protected static void addExtTestEntities(boolean dropExists) throws Exception {
+		final String SalesOrderItem = "SalesOrderItem999";
+		final String SalesOrder = "SalesOrder999";
+		final String Account = "Account999";
+		
+		if (dropExists) {
+			if (MetadataHelper.containsEntity(SalesOrderItem)) {
+				new Entity2Schema(UserService.ADMIN_USER).drop(MetadataHelper.getEntity(SalesOrderItem), true);	
+			}
+			if (MetadataHelper.containsEntity(SalesOrder)) {
+				new Entity2Schema(UserService.ADMIN_USER).drop(MetadataHelper.getEntity(SalesOrder), true);	
+			}
+			if (dropExists && MetadataHelper.containsEntity(Account)) {
+				new Entity2Schema(UserService.ADMIN_USER).drop(MetadataHelper.getEntity(Account), true);	
+			}
+		}
+		
+		if (!MetadataHelper.containsEntity(Account)) {
+			URL url = FieldAggregationTest.class.getClassLoader().getResource("metaschema.Account.json");
+			String content = FileUtils.readFileToString(new File(url.toURI()));
+			new MetaschemaImporter(UserService.ADMIN_USER, JSON.parseObject(content)).exec();
+		}
+		
+		if (!MetadataHelper.containsEntity(SalesOrder)) {
+			URL url = FieldAggregationTest.class.getClassLoader().getResource("metaschema.SalesOrder.json");
+			String content = FileUtils.readFileToString(new File(url.toURI()));
+			new MetaschemaImporter(UserService.ADMIN_USER, JSON.parseObject(content)).exec();
 		}
 	}
 }
