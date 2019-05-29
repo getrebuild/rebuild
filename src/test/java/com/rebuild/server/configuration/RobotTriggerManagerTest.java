@@ -23,7 +23,7 @@ import org.junit.Test;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.business.robot.TriggerAction;
 import com.rebuild.server.business.robot.TriggerWhen;
-import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.MetadataSorter;
 
 import cn.devezhao.persist4j.Entity;
 
@@ -36,13 +36,21 @@ import cn.devezhao.persist4j.Entity;
 public class RobotTriggerManagerTest extends TestSupport {
 	
 	@Test
-	public void testGetActions() throws Exception {
-		Entity test = MetadataHelper.getEntity(TEST_ENTITY);
-		RobotTriggerManager.instance.clean(test);
-		TriggerAction as[] = RobotTriggerManager.instance.getActions(
-				test, TriggerWhen.CREATE, TriggerWhen.ASSIGN);
-		System.out.println(as);
+	public void testGetActionsByEntity() throws Exception {
+		for (Entity entity : MetadataSorter.sortEntities()) {
+			RobotTriggerManager.instance.clean(entity);
+			TriggerAction actions[] = RobotTriggerManager.instance.getActions(
+					entity, TriggerWhen.CREATE, TriggerWhen.ASSIGN);
+			if (actions.length > 0) {
+				System.out.println("TriggerAction on " + entity.getName() + " ... " + actions.length);
+				for (TriggerAction a : actions) {
+					System.out.println(a);
+				}
+			}
+		}
 	}
 	
-	
+	@Test
+	public void testGetActionsByRecord() throws Exception {
+	}
 }
