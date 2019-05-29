@@ -4,12 +4,12 @@
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/triggers.css">
-<title>业务规则触发</title>
+<title>编辑触发器</title>
 </head>
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header">
 	<jsp:include page="/_include/NavTop.jsp">
-		<jsp:param value="业务规则触发" name="pageTitle"/>
+		<jsp:param value="编辑触发器" name="pageTitle"/>
 	</jsp:include>
 	<jsp:include page="/_include/NavLeftAdmin.jsp">
 		<jsp:param value="robot-trigger" name="activeNav"/>
