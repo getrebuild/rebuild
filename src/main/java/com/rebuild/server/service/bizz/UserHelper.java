@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.bizz;
 
+import java.security.Principal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,6 +31,7 @@ import com.rebuild.server.service.bizz.privileges.Department;
 import com.rebuild.server.service.bizz.privileges.User;
 
 import cn.devezhao.bizz.security.member.BusinessUnit;
+import cn.devezhao.bizz.security.member.Member;
 import cn.devezhao.bizz.security.member.NoMemberFoundException;
 import cn.devezhao.persist4j.engine.ID;
 
@@ -152,5 +154,29 @@ public class UserHelper {
 			LOG.error("No bizz found : " + bizzId);
 		}
 		return null;
+	}
+	
+	/**
+	 * 获取部门或角色下的成员
+	 * 
+	 * @param groupId
+	 * @return
+	 */
+	public static Member[] getMembers(ID groupId) {
+		Set<Principal> ms = null;
+		try {
+			if (groupId.getEntityCode() == EntityHelper.Department) {
+				ms = Application.getUserStore().getDepartment(groupId).getMembers();
+			} else if (groupId.getEntityCode() == EntityHelper.Role) {
+				ms = Application.getUserStore().getRole(groupId).getMembers();
+			}
+		} catch (NoMemberFoundException ex) {
+			LOG.error("No group found : " + groupId);
+		}
+		
+		if (ms == null || ms.isEmpty()) {
+			return new Member[0];
+		}
+		return ms.toArray(new Member[ms.size()]);
 	}
 }

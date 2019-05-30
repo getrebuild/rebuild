@@ -34,5 +34,7 @@ public class UserHelperTest extends TestSupport {
 		UserHelper.getName(DepartmentService.ROOT_DEPT);
 		UserHelper.isActive(UserService.SYSTEM_USER);
 		UserHelper.isAdmin(SIMPLE_USER);
+		UserHelper.getMembers(RoleService.ADMIN_ROLE);
+		UserHelper.getMembers(DepartmentService.ROOT_DEPT);
 	}
 }

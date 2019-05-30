@@ -18,7 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.robot.triggers;
 
-import java.security.Principal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,12 +33,10 @@ import com.rebuild.server.business.robot.TriggerException;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.OperatingContext;
-import com.rebuild.server.service.bizz.privileges.Department;
+import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.notification.Message;
 
-import cn.devezhao.bizz.security.member.NoMemberFoundException;
-import cn.devezhao.bizz.security.member.Role;
-import cn.devezhao.bizz.security.member.User;
+import cn.devezhao.bizz.security.member.Member;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 
@@ -118,23 +115,10 @@ public class SendNotification implements TriggerAction {
 		for (ID bizz : bizzs) {
 			if (bizz.getEntityCode() == EntityHelper.User) {
 				users.add(bizz);
-			} else if (bizz.getEntityCode() == EntityHelper.Department) {
-				try {
-					Department dept = Application.getUserStore().getDepartment(bizz);
-					for (Principal u : dept.getMembers()) {
-						users.add((ID) ((User) u).getIdentity());
-					}
-				} catch (NoMemberFoundException ex) {
-					LOG.warn("No Department found : " + bizz);
-				}
-			} else if (bizz.getEntityCode() == EntityHelper.Role) {
-				try {
-					Role role = Application.getUserStore().getRole(bizz);
-					for (Principal u : role.getMembers()) {
-						users.add((ID) ((User) u).getIdentity());
-					}
-				} catch (NoMemberFoundException ex) {
-					LOG.warn("No Role found : " + bizz);
+			} else if (bizz.getEntityCode() == EntityHelper.Department || bizz.getEntityCode() == EntityHelper.Role) {
+				Member ms[] = UserHelper.getMembers(bizz);
+				for (Member m : ms) {
+					users.add((ID) m.getIdentity());
 				}
 			}
 		}
