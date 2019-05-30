@@ -5,7 +5,7 @@ $(document).ready(function () {
       type = $val('#type'),
       comments = $val('#comments'),
       refEntity = $val('#refEntity'),
-      dataId = $val('#dataId')
+      refClassification = $val('#refClassification')
     if (!fieldLabel) {
       rb.highbar('请输入字段名称')
       return
@@ -14,7 +14,7 @@ $(document).ready(function () {
       rb.highbar('请选择引用实体')
       return
     }
-    if (type === 'CLASSIFICATION' && !dataId) {
+    if (type === 'CLASSIFICATION' && !refClassification) {
       rb.highbar('请选择分类数据')
       return
     }
@@ -25,7 +25,7 @@ $(document).ready(function () {
       type: type,
       comments: comments,
       refEntity: refEntity,
-      dataId: dataId
+      refClassification: refClassification
     }
     btn.button('loading')
     $.post(rb.baseUrl + '/admin/entity/field-new', JSON.stringify(_data), function (res) {
@@ -49,6 +49,7 @@ $(document).ready(function () {
           $(res.data).each(function () {
             $('<option value="' + this.entityName + '">' + this.entityLabel + '</option>').appendTo('#refEntity')
           })
+          if (res.data.length === 0) $('<option value="">无可用实体</option>').appendTo('#refEntity')
         })
       }
     } else if (dt === 'CLASSIFICATION') {
@@ -58,11 +59,11 @@ $(document).ready(function () {
           let hasData = false
           $(res.data).each(function () {
             if (!this[2]) {
-              $('<option value="' + this[0] + '">' + this[1] + '</option>').appendTo('#dataId')
+              $('<option value="' + this[0] + '">' + this[1] + '</option>').appendTo('#refClassification')
               hasData = true
             }
           })
-          if (!hasData) $('<option value="">无可用分类数据</option>').appendTo('#dataId')
+          if (!hasData) $('<option value="">无可用分类数据</option>').appendTo('#refClassification')
         })
       }
     } else {
