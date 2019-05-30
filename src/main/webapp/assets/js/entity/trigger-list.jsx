@@ -17,11 +17,11 @@ const formatWhen = function (maskVal) {
 class GridList extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { list: [] }
+    this.state = {}
   }
   render() {
     return <div className="card-list row">
-      {this.state.list.map((item) => {
+      {(this.state.list || []).map((item) => {
         return (<div key={'item-' + item[0]} className="col-xl-3 col-lg-4 col-md-6">
           <div className="card">
             <div className="card-body">
@@ -37,6 +37,7 @@ class GridList extends React.Component {
           </div>
         </div>)
       })}
+      {(!this.state.list || this.state.list.length === 0) && <div className="text-muted">尚未配置触发器</div>}
     </div>
   }
   componentDidMount() {
