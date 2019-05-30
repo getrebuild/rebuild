@@ -60,7 +60,9 @@ public class SendNotificationControll extends BaseControll {
 			String idOrField = (String) item;
 			if (ID.isId(idOrField)) {
 				String name = UserHelper.getName(ID.valueOf(idOrField));
-				formatted.add(JSONUtils.toJSONObject(keys, new String[] { idOrField, name }));
+				if (name != null) {
+					formatted.add(JSONUtils.toJSONObject(keys, new String[] { idOrField, name }));
+				}
 			} else if (entity.containsField(idOrField.split("//.")[0])) {
 				String fullLabel = EasyMeta.getLabel(entity, idOrField);
 				formatted.add(JSONUtils.toJSONObject(keys, new String[] { idOrField, fullLabel }));

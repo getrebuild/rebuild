@@ -21,6 +21,9 @@ package com.rebuild.server.service.bizz;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.privileges.Department;
@@ -38,7 +41,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class UserHelper {
 
-//	private static final Log LOG = LogFactory.getLog(UserHelper.class);
+	private static final Log LOG = LogFactory.getLog(UserHelper.class);
 	
 	/**
 	 * [显示名, 头像]
@@ -47,6 +50,7 @@ public class UserHelper {
 	 * @return
 	 * @throws NoMemberFoundException
 	 */
+	@Deprecated
 	public static String[] getShows(ID userId) throws NoMemberFoundException {
 		User u = Application.getUserStore().getUser(userId);
 		return new String[] { u.getFullName(), u.getAvatarUrl(true) };
@@ -57,10 +61,14 @@ public class UserHelper {
 	 * 
 	 * @param userId
 	 * @return
-	 * @throws NoMemberFoundException
 	 */
-	public static boolean isAdmin(ID userId) throws NoMemberFoundException {
-		return Application.getUserStore().getUser(userId).isAdmin();
+	public static boolean isAdmin(ID userId) {
+		try {
+			return Application.getUserStore().getUser(userId).isAdmin();
+		} catch (NoMemberFoundException ex) {
+			LOG.error("No User found : " + userId);
+		}
+		return false;
 	}
 	
 	/**
@@ -78,17 +86,20 @@ public class UserHelper {
 	 * 
 	 * @param bizzId
 	 * @return
-	 * @throws NoMemberFoundException
 	 */
-	public static boolean isActive(ID bizzId) throws NoMemberFoundException {
-		if (bizzId.getEntityCode() == EntityHelper.User) {
-			return Application.getUserStore().getUser(bizzId).isActive();
-		} else if (bizzId.getEntityCode() == EntityHelper.Department) {
-			return !Application.getUserStore().getDepartment(bizzId).isDisabled();
-		} else if (bizzId.getEntityCode() == EntityHelper.Role) {
-			return !Application.getUserStore().getRole(bizzId).isDisabled();
+	public static boolean isActive(ID bizzId) {
+		try {
+			if (bizzId.getEntityCode() == EntityHelper.User) {
+				return Application.getUserStore().getUser(bizzId).isActive();
+			} else if (bizzId.getEntityCode() == EntityHelper.Department) {
+				return !Application.getUserStore().getDepartment(bizzId).isDisabled();
+			} else if (bizzId.getEntityCode() == EntityHelper.Role) {
+				return !Application.getUserStore().getRole(bizzId).isDisabled();
+			}
+		} catch (NoMemberFoundException ex) {
+			LOG.error("No bizz found : " + bizzId);
 		}
-		throw new NoMemberFoundException("Illegal ID for bizz: " + bizzId);
+		return false;
 	}
 	
 	/**
@@ -96,11 +107,15 @@ public class UserHelper {
 	 * 
 	 * @param userId
 	 * @return
-	 * @throws NoMemberFoundException
 	 */
-	public static Department getDepartment(ID userId) throws NoMemberFoundException {
-		User u = Application.getUserStore().getUser(userId);
-		return u.getOwningDept();
+	public static Department getDepartment(ID userId) {
+		try {
+			User u = Application.getUserStore().getUser(userId);
+			return u.getOwningDept();
+		} catch (NoMemberFoundException ex) {
+			LOG.error("No User found : " + userId);
+		}
+		return null;
 	}
 	
 	/**
@@ -123,16 +138,19 @@ public class UserHelper {
 	 * 
 	 * @param bizzId
 	 * @return
-	 * @throws NoMemberFoundException
 	 */
-	public static String getName(ID bizzId) throws NoMemberFoundException {
-		if (bizzId.getEntityCode() == EntityHelper.User) {
-			return Application.getUserStore().getUser(bizzId).getFullName();
-		} else if (bizzId.getEntityCode() == EntityHelper.Department) {
-			return Application.getUserStore().getDepartment(bizzId).getName();
-		} else if (bizzId.getEntityCode() == EntityHelper.Role) {
-			return Application.getUserStore().getRole(bizzId).getName();
+	public static String getName(ID bizzId) {
+		try {
+			if (bizzId.getEntityCode() == EntityHelper.User) {
+				return Application.getUserStore().getUser(bizzId).getFullName();
+			} else if (bizzId.getEntityCode() == EntityHelper.Department) {
+				return Application.getUserStore().getDepartment(bizzId).getName();
+			} else if (bizzId.getEntityCode() == EntityHelper.Role) {
+				return Application.getUserStore().getRole(bizzId).getName();
+			} 
+		} catch (NoMemberFoundException ex) {
+			LOG.error("No bizz found : " + bizzId);
 		}
-		throw new NoMemberFoundException("Illegal ID for bizz: " + bizzId);
+		return null;
 	}
 }
