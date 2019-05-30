@@ -37,6 +37,7 @@ import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.bizz.privileges.Department;
 import com.rebuild.server.service.notification.Message;
 
+import cn.devezhao.bizz.security.member.NoMemberFoundException;
 import cn.devezhao.bizz.security.member.Role;
 import cn.devezhao.bizz.security.member.User;
 import cn.devezhao.persist4j.Entity;
@@ -118,14 +119,22 @@ public class SendNotification implements TriggerAction {
 			if (bizz.getEntityCode() == EntityHelper.User) {
 				users.add(bizz);
 			} else if (bizz.getEntityCode() == EntityHelper.Department) {
-				Department dept = Application.getUserStore().getDepartment(bizz);
-				for (Principal u : dept.getMembers()) {
-					users.add((ID) ((User) u).getIdentity());
+				try {
+					Department dept = Application.getUserStore().getDepartment(bizz);
+					for (Principal u : dept.getMembers()) {
+						users.add((ID) ((User) u).getIdentity());
+					}
+				} catch (NoMemberFoundException ex) {
+					LOG.warn("No Department found : " + bizz);
 				}
 			} else if (bizz.getEntityCode() == EntityHelper.Role) {
-				Role role = Application.getUserStore().getRole(bizz);
-				for (Principal u : role.getMembers()) {
-					users.add((ID) ((User) u).getIdentity());
+				try {
+					Role role = Application.getUserStore().getRole(bizz);
+					for (Principal u : role.getMembers()) {
+						users.add((ID) ((User) u).getIdentity());
+					}
+				} catch (NoMemberFoundException ex) {
+					LOG.warn("No Role found : " + bizz);
 				}
 			}
 		}

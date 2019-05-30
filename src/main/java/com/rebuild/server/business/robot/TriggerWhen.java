@@ -18,6 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.robot;
 
+import com.rebuild.server.service.EntityService;
+
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 
 /**
@@ -48,11 +50,11 @@ public enum TriggerWhen {
 	/**
 	 * 共享时
 	 */
-	SHARE(BizzPermission.UPDATE.getMask()),
+	SHARE(BizzPermission.SHARE.getMask()),
 	/**
 	 * 取消共享时
 	 */
-	UNSHARE(1 << 6)
+	UNSHARE(EntityService.UNSHARE.getMask())
 	
 	;
 	

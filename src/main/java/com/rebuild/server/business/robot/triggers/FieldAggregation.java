@@ -47,7 +47,9 @@ public class FieldAggregation implements TriggerAction {
 
 	// 此触发器可能产生连锁反应
 	// 如触发器 A 调用 B，而 B 又调用了 C ... 以此类推。此处记录其深度
-	private static final ThreadLocal<Integer> CALL_DEPTH = new ThreadLocal<Integer>();
+	private static final ThreadLocal<Integer> CALL_CHAIN_DEPTH = new ThreadLocal<Integer>();
+	// 最大调用深度
+	private static final int MAX_DEPTH = 5;
 	
 	final private ActionContext context;
 	
@@ -73,12 +75,12 @@ public class FieldAggregation implements TriggerAction {
 	
 	@Override
 	public void execute(OperatingContext operatingContext) throws TriggerException {
-		Integer depth = CALL_DEPTH.get();
+		Integer depth = CALL_CHAIN_DEPTH.get();
 		if (depth == null) {
 			depth = 0;
 		}
-		if (depth >= 3) {
-			throw new TriggerException("Too many depth with call of triggers");
+		if (depth >= MAX_DEPTH) {
+			throw new TriggerException("Too many call-chain with triggers");
 		}
 		
 		this.prepare(operatingContext);
@@ -122,7 +124,7 @@ public class FieldAggregation implements TriggerAction {
 		
 		if (targetRecord.getAvailableFieldIterator().hasNext()) {
 			Application.getEntityService(targetEntity.getEntityCode()).update(targetRecord);
-			CALL_DEPTH.set(depth + 1);
+			CALL_CHAIN_DEPTH.set(depth + 1);
 		}
 	}
 	

@@ -36,10 +36,10 @@ import cn.devezhao.persist4j.engine.ID;
 public class ConfigEntry implements Serializable, Cloneable {
 	private static final long serialVersionUID = -2618040374508703332L;
 	
-	private Map<String, Object> entry = null;
+	private Map<String, Object> entryMap = null;
 
 	public ConfigEntry() {
-		this.entry = new HashMap<String, Object>();
+		this.entryMap = new HashMap<String, Object>();
 	}
 	
 	/**
@@ -50,48 +50,48 @@ public class ConfigEntry implements Serializable, Cloneable {
 	public ConfigEntry set(String name, Object value) {
 		Assert.notNull(name, "'name' must not be null");
 		if (value == null) {
-			entry.remove(name);
+			entryMap.remove(name);
 		} else {
-			entry.put(name, value);
+			entryMap.put(name, value);
 		}
 		return this;
 	}
 	
 	public ID getID(String name) {
-		return (ID) entry.get(name);
+		return (ID) entryMap.get(name);
 	}
 	
 	public String getString(String name) {
-		return (String) entry.get(name);
+		return (String) entryMap.get(name);
 	}
 	
 	public Boolean getBoolean(String name) {
-		return (Boolean) entry.get(name);
+		return (Boolean) entryMap.get(name);
 	}
 	
 	public Integer getInteger(String name) {
-		return (Integer) entry.get(name);
+		return (Integer) entryMap.get(name);
 	}
 	
 	public JSON getJSON(String name) {
-		return (JSON) entry.get(name);
+		return (JSON) entryMap.get(name);
 	}
 	
 	@SuppressWarnings("unchecked")
 	public <T> T get(String name, Class<T> returnType) {
-		return (T) entry.get(name);
+		return (T) entryMap.get(name);
 	}
 	
 	@Override
 	public ConfigEntry clone() {
 		ConfigEntry c = new ConfigEntry();
-		for (Map.Entry<String, Object> e : this.entry.entrySet()) {
+		for (Map.Entry<String, Object> e : this.entryMap.entrySet()) {
 			c.set(e.getKey(), e.getValue());
 		}
 		return c;
 	}
 	
 	public JSONObject toJSON() {
-		return (JSONObject) JSON.toJSON(this.entry);
+		return (JSONObject) JSON.toJSON(this.entryMap);
 	}
 }

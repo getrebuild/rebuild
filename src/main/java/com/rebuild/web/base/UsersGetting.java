@@ -61,7 +61,7 @@ public class UsersGetting extends BaseControll {
 		} else if ("Role".equalsIgnoreCase(type)) {
 			members = Application.getUserStore().getAllRoles();
 		} else {
-			throw new IllegalParameterException();
+			throw new IllegalParameterException("Unknow type of bizz : " + type);
 		}
 		
 		List<JSON> filtered = new ArrayList<JSON>();

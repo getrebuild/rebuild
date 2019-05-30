@@ -38,6 +38,8 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class UserHelper {
 
+//	private static final Log LOG = LogFactory.getLog(UserHelper.class);
+	
 	/**
 	 * [显示名, 头像]
 	 * 
@@ -107,7 +109,7 @@ public class UserHelper {
 	 * @param parent
 	 * @return
 	 */
-	public static Set<ID> getAllChildrenId(Department parent) {
+	public static Set<ID> getAllChildren(Department parent) {
 		Set<ID> children = new HashSet<>();
 		children.add((ID) parent.getIdentity());
 		for (BusinessUnit child : parent.getAllChildren()) {

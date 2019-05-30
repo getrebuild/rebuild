@@ -18,8 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server;
 
-import static org.junit.Assert.*;
-
 import java.util.Date;
 
 import org.junit.Ignore;

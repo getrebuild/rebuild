@@ -198,7 +198,7 @@
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 	
-	<!-- 记录操作观察者 -->
+	<!-- 记录操作观察者。系统会在初始化时动态为 ObservableService 注入 -->
 	<bean class="com.rebuild.server.service.notification.NotificationObserver" />
 	<bean class="com.rebuild.server.service.base.AuditLoggingObserver" />
 	<bean class="com.rebuild.server.service.base.AttchementAwareObserver" />

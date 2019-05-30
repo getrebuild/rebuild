@@ -145,7 +145,7 @@ public class AdvFilterParser {
 				} else if (token.equals("(") || token.equals(")") || token.equals("or") || token.equals("and")) {
 					itemSqls.add(token);
 				} else {
-					LOG.warn("Invalida equation token : " + token);
+					LOG.warn("Invalid equation token : " + token);
 				}
 				
 				if (hasRP) {
@@ -239,7 +239,7 @@ public class AdvFilterParser {
 			if (dept != null) {
 				int refe = fieldMeta.getReferenceEntity().getEntityCode();
 				if (refe == EntityHelper.Department) {
-					value = StringUtils.join(UserHelper.getAllChildrenId(dept), "|");
+					value = StringUtils.join(UserHelper.getAllChildren(dept), "|");
 				}
 			}
 		}

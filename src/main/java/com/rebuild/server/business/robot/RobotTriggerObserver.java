@@ -79,7 +79,8 @@ public class RobotTriggerObserver extends OperatingObserver {
 	
 	@Override
 	protected void onDeleteBefore(OperatingContext context) {
-		TriggerAction[] actions = RobotTriggerManager.instance.getActions(context.getAnyRecord().getPrimary(), TriggerWhen.DELETE);
+		final ID primary = context.getAnyRecord().getPrimary();
+		TriggerAction[] actions = RobotTriggerManager.instance.getActions(primary, TriggerWhen.DELETE);
 		for (TriggerAction action : actions) {
 			try {
 				action.prepare(context);
@@ -87,12 +88,13 @@ public class RobotTriggerObserver extends OperatingObserver {
 				LOG.error("Preparing trigger failure: " + action, ex);
 			}
 		}
-		DELETE_ACTION_HOLDS.put(context.getAnyRecord().getPrimary(), actions);
+		DELETE_ACTION_HOLDS.put(primary, actions);
 	}
 	
 	@Override
 	protected void onDelete(OperatingContext context) {
-		TriggerAction[] holdActions = DELETE_ACTION_HOLDS.get(context.getAnyRecord().getPrimary());
+		final ID primary = context.getAnyRecord().getPrimary();
+		TriggerAction[] holdActions = DELETE_ACTION_HOLDS.get(primary);
 		if (holdActions == null) {
 			LOG.warn("No action held for trigger of delete");
 			return;
@@ -104,5 +106,6 @@ public class RobotTriggerObserver extends OperatingObserver {
 				LOG.error("Executing trigger failure: " + action, ex);
 			}
 		}
+		DELETE_ACTION_HOLDS.remove(primary);
 	}
 }
