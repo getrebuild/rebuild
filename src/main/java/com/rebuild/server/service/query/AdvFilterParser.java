@@ -441,6 +441,9 @@ public class AdvFilterParser {
 		if (StringUtils.isBlank(equation)) {
 			return "OR";
 		}
+		if ("OR".contentEquals(equation) || "AND".equalsIgnoreCase(equation)) {
+			return equation;
+		}
 		
 		String clearEquation = equation.toUpperCase().replace("  ", "").trim();
 		if (clearEquation.startsWith("AND") || clearEquation.startsWith("OR") || clearEquation.endsWith("AND") || clearEquation.endsWith("OR")) {

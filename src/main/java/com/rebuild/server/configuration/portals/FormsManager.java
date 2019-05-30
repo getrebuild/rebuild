@@ -277,7 +277,7 @@ public class FormsManager extends BaseLayoutManager {
 			model.put("isSlave", true);
 		} else if (entityMeta.getSlaveEntity() != null) {
 			model.put("isMaster", true);
-			model.put("slaveMeta", EasyMeta.getEntityShows(entityMeta.getSlaveEntity()));
+			model.put("slaveMeta", EasyMeta.getEntityShow(entityMeta.getSlaveEntity()));
 		}
 		
 		if (data != null && data.hasValue(EntityHelper.ModifiedOn)) {

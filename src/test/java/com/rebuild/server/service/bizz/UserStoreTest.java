@@ -36,6 +36,7 @@ public class UserStoreTest extends TestSupport {
 	public void testStore() throws Exception {
 		Application.getUserStore().getAllUsers();
 		Application.getUserStore().getAllDepartments();
+		Application.getUserStore().getAllRoles();
 		
 		Application.getUserStore().getUser(UserService.ADMIN_USER);
 		Application.getUserStore().getDepartment(DepartmentService.ROOT_DEPT);

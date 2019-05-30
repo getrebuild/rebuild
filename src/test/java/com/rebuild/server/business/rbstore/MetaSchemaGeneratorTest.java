@@ -34,6 +34,7 @@ public class MetaSchemaGeneratorTest extends TestSupport {
 	
 	@Test
 	public void testGenerate() throws Exception {
+		addExtTestEntities(false);
 		String maybe = "Account";
 		if (MetadataHelper.containsEntity(maybe)) {
 			Entity test = MetadataHelper.getEntity(maybe); 
@@ -45,6 +46,7 @@ public class MetaSchemaGeneratorTest extends TestSupport {
 	
 	@Test
 	public void testGenerateHaveSlave() throws Exception {
+		addExtTestEntities(false);
 		String maybe = "SalesOrder";
 		if (MetadataHelper.containsEntity(maybe)) {
 			Entity test = MetadataHelper.getEntity(maybe); 
