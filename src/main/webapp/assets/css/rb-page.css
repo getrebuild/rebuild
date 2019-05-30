@@ -1435,6 +1435,19 @@ i.split.ui-draggable-dragging {
 }
 */
 
+.adv-filter .equation-state {
+    position: relative;
+}
+
+.adv-filter .equation-state .zmdi {
+    position: absolute;
+    right: 0;
+    top: 0;
+    margin-top: 10px;
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
 div.dataTables_wrapper div.paging_sizes {
     padding-top: 2px;
     padding-left: 9px;

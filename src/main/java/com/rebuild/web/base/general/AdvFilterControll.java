@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.AdvFilterManager;
 import com.rebuild.server.configuration.portals.SharableManager;
@@ -135,15 +134,19 @@ public class AdvFilterControll extends BaseControll implements PortalsConfigurat
 		writeSuccess(response, filters);
 	}
 	
-	@RequestMapping("advfilter/test-parse")
-	public void testAdvfilter(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		JSON advfilter = ServletUtils.getRequestJson(request);
-		try {
-			AdvFilterParser filterParser = new AdvFilterParser((JSONObject) advfilter);
-			String sql = filterParser.toSqlWhere();
-			writeSuccess(response, sql);
-		} catch (Exception ex) {
-			writeFailure(response, "语法错误:" + ex.getLocalizedMessage());
+	@RequestMapping("advfilter/test-equation")
+	public void testEquation(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		final String equation = ServletUtils.getRequestString(request);
+		if (StringUtils.isBlank(equation)) {
+			writeSuccess(response);
+			return;
+		}
+		
+		String valid = AdvFilterParser.validEquation(equation);
+		if (valid == null) {
+			writeFailure(response);
+		} else {
+			writeSuccess(response);
 		}
 	}
 }

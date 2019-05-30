@@ -18,6 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server;
 
+import static org.junit.Assert.*;
+
 import java.util.Date;
 
 import org.junit.Ignore;
@@ -44,6 +46,7 @@ public class MiscTest {
 		System.out.println(System.getProperties());
 	}
 	
+	@Ignore
 	@Test
 	public void testMask() throws Exception {
 		long mask = 1;
@@ -51,5 +54,14 @@ public class MiscTest {
 			System.out.println(mask);
 			mask *= 2;
 		}
+	}
+	
+	@Test
+	public void testEquation() throws Exception {
+		final String equation = "((1 OR 2) AND (2    OR 3)  )";
+		
+		String clear = equation.toUpperCase();
+		clear = clear.replaceAll("[\\(|\\)|AND|OR|1-9| ]", "");
+		System.out.println(clear);
 	}
 }
