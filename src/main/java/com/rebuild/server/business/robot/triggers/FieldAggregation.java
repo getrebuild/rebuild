@@ -45,6 +45,10 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class FieldAggregation implements TriggerAction {
 
+	// 此触发器可能产生连锁反应
+	// 如触发器 A 调用 B，而 B 又调用了 C ... 以此类推。此处记录其深度
+	private static final ThreadLocal<Integer> CALL_DEPTH = new ThreadLocal<Integer>();
+	
 	final private ActionContext context;
 	
 	private Entity sourceEntity;
@@ -69,6 +73,14 @@ public class FieldAggregation implements TriggerAction {
 	
 	@Override
 	public void execute(OperatingContext operatingContext) throws TriggerException {
+		Integer depth = CALL_DEPTH.get();
+		if (depth == null) {
+			depth = 0;
+		}
+		if (depth >= 3) {
+			throw new TriggerException("Too many depth with call of triggers");
+		}
+		
 		this.prepare(operatingContext);
 		if (this.masterRecordId == null) {
 			return;
@@ -109,8 +121,8 @@ public class FieldAggregation implements TriggerAction {
 		}
 		
 		if (targetRecord.getAvailableFieldIterator().hasNext()) {
-			// TODO 触发器更新的数据不传播
-			Application.getCommonService().update(targetRecord, false);
+			Application.getEntityService(targetEntity.getEntityCode()).update(targetRecord);
+			CALL_DEPTH.set(depth + 1);
 		}
 	}
 	

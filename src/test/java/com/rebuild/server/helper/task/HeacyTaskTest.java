@@ -36,10 +36,18 @@ public class HeacyTaskTest {
 		String taskid1 = TaskExecutors.submit(new TestTask("testTask1", 5));
 		System.out.println("Submit Task1 : " + taskid1);
 		
-		String taskid2 = TaskExecutors.submit(new TestTask("testTask2",5));
+		String taskid2 = TaskExecutors.submit(new TestTask("testTask2", 5));
 		System.out.println("Submit Task2 : " + taskid2);
 		
-		ThreadPool.waitFor(2 * 1000);
+		ThreadPool.waitFor(1000);
+		
+		HeavyTask<?> task = TaskExecutors.getTask(taskid1);
+		System.out.println("getElapsedTime " + task.getElapsedTime());
+		System.out.println("getCompletedPercent " + task.getCompletedPercent());
+		System.out.println("getErrorMessage " + task.getErrorMessage());
+		System.out.println("isInterrupted " + task.isInterrupted());
+		
+		new TaskExecutors().executeInternal(null);
 	}
 	
 	@Test(expected=RejectedExecutionException.class)
@@ -56,7 +64,7 @@ public class HeacyTaskTest {
 		String taskid = TaskExecutors.submit(new TestTask("testCancel", 100));
 		System.out.println("Submit Task : " + taskid);
 		
-		ThreadPool.waitFor(1000 * 2);
+		ThreadPool.waitFor(1000);
 		boolean cancel = TaskExecutors.cancel(taskid);
 		System.out.println("Cancel Task : " + taskid + " > " + cancel);
 		
@@ -79,7 +87,7 @@ public class HeacyTaskTest {
 					break;
 				}
 				
-				ThreadPool.waitFor(200);  // Mock time
+				ThreadPool.waitFor(50);  // Mock time
 				System.out.println(this.name + "Mock ... " + i);
 				this.addCompleted();
 			}

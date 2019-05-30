@@ -14,7 +14,7 @@
 .card.entity span{margin-top:2px;display:block;}
 #entityList{margin:0 -10px}
 #entityList>div{padding-left:10px;padding-right:10px}
-.card.ph{margin-left:10px}
+.card.ph{margin-left:10px;margin-top:0}
 </style>
 </head>
 <body>

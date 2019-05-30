@@ -55,9 +55,14 @@ $(document).ready(function () {
       if (classificationLoaded === false) {
         classificationLoaded = true
         $.get(rb.baseUrl + '/admin/classification/list', (res) => {
+          let hasData = false
           $(res.data).each(function () {
-            $('<option value="' + this.dataId + '">' + this.name + '</option>').appendTo('#dataId')
+            if (!this[2]) {
+              $('<option value="' + this[0] + '">' + this[1] + '</option>').appendTo('#dataId')
+              hasData = true
+            }
           })
+          if (!hasData) $('<option value="">无可用分类数据</option>').appendTo('#dataId')
         })
       }
     } else {

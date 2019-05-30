@@ -9,7 +9,7 @@ $(document).ready(function () {
 })
 
 const resize_boxes = function () {
-  let wh = $(window).height() - 287
+  let wh = $(window).height() - 312
   $('#boxes .rb-scroller').css('max-height', wh)
 }
 

@@ -300,7 +300,7 @@ rb.highbar = (message, type, ext) => {
   else return renderRbcomp(<RbHighbar message={message} type={type} timeout={ext.timeout} />)
 }
 rb.hberror = (message) => {
-  rb.highbar(message || '系统繁忙，请稍后重试', 'danger', { timeout: 6000 })
+  rb.highbar(message || '系统繁忙，请稍后重试', 'danger', { timeout: 5000 })
 }
 rb.hbsuccess = (message) => {
   rb.highbar(message || '操作成功', 'success')

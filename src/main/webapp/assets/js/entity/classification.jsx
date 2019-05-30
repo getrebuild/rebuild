@@ -1,37 +1,60 @@
 $(document).ready(function () {
-  $('.J_add').click(() => {
-    renderRbcomp(<DlgEdit />)
-  })
-
-  $('.class-list .card').each(function () {
-    let $this = $(this)
-    let id = $this.data('id')
-
-    $this.find('.J_del').click(() => {
-      rb.alert('确认删除？<br>删除前请确认此分类数据未被使用。', {
-        html: true,
-        type: 'danger',
-        confirmText: '删除',
-        confirm: function () {
-          this.disabled(true)
-          $.post(`${rb.baseUrl}/admin/classification/delete?id=${id}`, (res) => {
-            if (res.error_code === 0) {
-              this.hide()
-              $this.animate({ opacity: 0 }, 600, () => {
-                $this.parent().remove()
-              })
-              rb.hbsuccess('分类数据已删除')
-            } else rb.hberror(res.error_msg)
-          })
-        }
-      })
-    })
-
-    $this.find('.J_edit').click(() => {
-      renderRbcomp(<DlgEdit id={id} isDisabled={$this.data('disabled')} name={$this.find('.card-body>a').text()} />)
-    })
-  })
+  $('.J_add').click(() => { renderRbcomp(<DlgEdit />) })
+  renderRbcomp(<GridList />, 'list')
 })
+
+class GridList extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { list: [] }
+  }
+  render() {
+    return <div className="card-list row">
+      {this.state.list.map((item) => {
+        return (<div key={'item-' + item[0]} className="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+          <div className="card">
+            <div className="card-body">
+              <a className="text-truncate" href={'classification/' + item[0]}>{item[1]}</a>
+              <p className="text-muted text-truncate">{item[3]}级分类</p>
+            </div>
+            <div className="card-footer card-footer-contrast">
+              <div className="float-left">
+                <a onClick={() => this.editItem(item)}><i className="zmdi zmdi-edit"></i></a>
+                <a onClick={() => this.deleteItem(item[0])}><i className="zmdi zmdi-delete"></i></a>
+              </div>
+              {item[2] && <div className="float-right fs-12 text-warning">已禁用</div>}
+              <div className="clearfix"></div>
+            </div>
+          </div>
+        </div>)
+      })}
+    </div>
+  }
+  componentDidMount() {
+    $.get(`${rb.baseUrl}/admin/classification/list`, (res) => {
+      this.setState({ list: res.data })
+    })
+  }
+  editItem(item) {
+    renderRbcomp(<DlgEdit id={item[0]} name={item[1]} isDisabled={item[2]} />)
+  }
+  deleteItem(dataId) {
+    rb.alert('删除前请确认此分类数据未被使用。确认删除吗？', {
+      type: 'danger',
+      confirmText: '删除',
+      confirm: function () {
+        this.disabled(true)
+        $.post(`${rb.baseUrl}/admin/classification/delete?id=${dataId}`, (res) => {
+          this.disabled(false)
+          if (res.error_code === 0) {
+            rb.hbsuccess('分类数据已删除')
+            setTimeout(() => { location.reload() }, 500)
+          } else rb.hberror(res.error_msg)
+        })
+      }
+    })
+  }
+}
 
 class DlgEdit extends RbFormHandler {
   constructor(props) {

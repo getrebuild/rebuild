@@ -26,7 +26,7 @@ class GridList extends React.Component {
           <div className="card">
             <div className="card-body">
               <a className="text-truncate" href={'trigger/' + item[0]}>{item[3] + ' · ' + item[1]}</a>
-              <p className="text-muted text-truncate">{item[2] > 0 ? ('当' + formatWhen(item[2]) + '时') : <span className="text-warning">未选择触发动作</span>}</p>
+              <p className="text-muted text-truncate">{item[2] > 0 ? ('当' + formatWhen(item[2]) + '时') : <span className="text-warning">未启用 (无触发动作)</span>}</p>
             </div>
             <div className="card-footer card-footer-contrast">
               <div className="float-left">
@@ -74,10 +74,15 @@ class GridList extends React.Component {
   delete(configId) {
     rb.alert('确认要删除此触发器？', {
       type: 'danger',
+      confirmText: '删除',
       confirm: function () {
+        this.disabled(true)
         $.post('./trigger/delete?id=' + configId, (res) => {
-          if (res.error_code === 0) location.reload()
-          else rb.hberror(res.error_msg)
+          this.disabled(false)
+          if (res.error_code === 0) {
+            rb.hbsuccess('触发器已删除')
+            setTimeout(() => { location.reload() }, 500)
+          } else rb.hberror(res.error_msg)
         })
       }
     })

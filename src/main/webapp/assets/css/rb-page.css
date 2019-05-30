@@ -1775,6 +1775,7 @@ form {
 .card.ph {
     width: 25%;
     padding: 0;
+    margin-top: 4px;
 }
 
 .card.ph>.card-body {

@@ -2,6 +2,7 @@
 
 #boxes {
   min-height: 300px;
+  padding: 10px 30px 30px;
 }
 
 .level-boxes .col-md-3 {
