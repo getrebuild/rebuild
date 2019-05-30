@@ -41,7 +41,7 @@ public class NotificationService extends BaseService {
 	
 	@Override
 	public Record create(Record record) {
-		record = super.createOrUpdate(record);
+		record = super.create(record);
 		cleanCache(record.getPrimary());
 		return record;
 	}
@@ -83,7 +83,7 @@ public class NotificationService extends BaseService {
 		if (message.getRelatedRecord() != null) {
 			record.setID("relatedRecord", message.getRelatedRecord());
 		}
-		create(record);
+		this.create(record);
 	}
 
 	/**

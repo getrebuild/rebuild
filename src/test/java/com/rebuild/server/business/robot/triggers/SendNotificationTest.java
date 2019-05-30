@@ -30,6 +30,7 @@ import com.rebuild.server.configuration.RobotTriggerManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserService;
+import com.rebuild.server.service.configuration.RobotTriggerConfigService;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
@@ -53,7 +54,7 @@ public class SendNotificationTest extends TestSupport {
 		triggerConfig.setString("actionType", ActionType.SENDNOTIFICATION.name());
 		String content = String.format("{ sendTo:['%s'], content:'SENDNOTIFICATION' }", SIMPLE_USER);
 		triggerConfig.setString("actionContent", content);
-		Application.getCommonService().create(triggerConfig);
+		Application.getBean(RobotTriggerConfigService.class).create(triggerConfig);
 		
 		Entity test = MetadataHelper.getEntity("TestAllFields");
 		RobotTriggerManager.instance.clean(test);

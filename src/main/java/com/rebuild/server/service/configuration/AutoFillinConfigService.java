@@ -27,12 +27,10 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * TODO
- * 
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/05/18
  */
-public class AutoFillinConfigService extends CleanCacheService {
+public class AutoFillinConfigService extends CleanableCacheService {
 
 	protected AutoFillinConfigService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);

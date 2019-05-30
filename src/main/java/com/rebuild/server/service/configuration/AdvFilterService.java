@@ -33,5 +33,4 @@ public class AdvFilterService extends BaseService {
 	protected AdvFilterService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
 	}
-	
 }

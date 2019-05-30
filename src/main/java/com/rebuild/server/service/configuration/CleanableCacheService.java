@@ -25,30 +25,40 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * TODO
+ * 在增/删/改时调用清理缓存方法
  * 
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/05/27
  */
-public abstract class CleanCacheService extends BaseService {
+public abstract class CleanableCacheService extends BaseService {
 
-	protected CleanCacheService(PersistManagerFactory aPMFactory) {
+	protected CleanableCacheService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
 	}
-
+	
 	@Override
-	public Record createOrUpdate(Record record) {
-		record = super.createOrUpdate(record);
+	public Record create(Record record) {
+		record = super.create(record);
 		cleanCache(record.getPrimary());
 		return record;
 	}
 	
 	@Override
-	public int delete(ID recordId) {
-		cleanCache(recordId);
-		int del = super.delete(recordId);
-		return del;
+	public Record update(Record record) {
+		cleanCache(record.getPrimary());
+		return super.update(record);
 	}
 	
+	@Override
+	public int delete(ID recordId) {
+		cleanCache(recordId);
+		return super.delete(recordId);
+	}
+	
+	/**
+	 * 清理缓存
+	 * 
+	 * @param configId
+	 */
 	abstract protected void cleanCache(ID configId);
 }

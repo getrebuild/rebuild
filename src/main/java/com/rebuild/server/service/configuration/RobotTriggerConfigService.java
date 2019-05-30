@@ -27,12 +27,10 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * TODO
- * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/24
  */
-public class RobotTriggerConfigService extends CleanCacheService {
+public class RobotTriggerConfigService extends CleanableCacheService {
 
 	protected RobotTriggerConfigService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);

@@ -29,6 +29,7 @@ import com.rebuild.server.configuration.RobotTriggerManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserService;
+import com.rebuild.server.service.configuration.RobotTriggerConfigService;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
@@ -55,7 +56,7 @@ public class FieldAggregationTest extends TestSupport {
 		triggerConfig.setString("actionType", ActionType.FIELDAGGREGATION.name());
 		String content = "{targetEntity:'SalesOrder999', items:[{sourceField:'',calcMode:'SUM', targetField:'totalAmount'}]}";
 		triggerConfig.setString("actionContent", content);
-		Application.getCommonService().create(triggerConfig);
+		Application.getBean(RobotTriggerConfigService.class).create(triggerConfig);
 		
 		// 测试执行
 		Entity test = MetadataHelper.getEntity("SalesOrderItem999");
