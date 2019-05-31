@@ -86,7 +86,7 @@ public class UserHelper {
 	/**
 	 * 是否激活
 	 * 
-	 * @param bizzId
+	 * @param bizzId ID of User/Role/Department
 	 * @return
 	 */
 	public static boolean isActive(ID bizzId) {
@@ -138,7 +138,7 @@ public class UserHelper {
 	/**
 	 * 获取名称
 	 * 
-	 * @param bizzId
+	 * @param bizzId ID of User/Role/Department
 	 * @return
 	 */
 	public static String getName(ID bizzId) {
@@ -159,7 +159,7 @@ public class UserHelper {
 	/**
 	 * 获取部门或角色下的成员
 	 * 
-	 * @param groupId
+	 * @param groupId ID of Role/Department
 	 * @return
 	 */
 	public static Member[] getMembers(ID groupId) {
