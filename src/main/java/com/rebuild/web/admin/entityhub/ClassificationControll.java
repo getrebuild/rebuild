@@ -33,11 +33,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.entityhub.ClassificationService;
 import com.rebuild.server.service.DataSpecificationException;
+import com.rebuild.server.service.configuration.ClassificationService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
-import com.rebuild.web.base.entity.GeneralEntityRecordControll;
+import com.rebuild.web.base.general.GeneralRecordOperatingControll;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
@@ -55,26 +55,7 @@ public class ClassificationControll extends BasePageControll {
 	
 	@RequestMapping("classifications")
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
-		Object[][] array = Application.createQuery(
-				"select dataId,name,isDisabled,openLevel,openLevel from Classification order by name")
-				.array();
-		for (Object[] o : array) {
-			Object[] count = Application.createQueryNoFilter(
-					"select count(itemId) from ClassificationData where dataId = ?")
-					.setParameter(1, o[0])
-					.unique();
-			o[4] = count[0];
-			
-			int level = (int) o[3];
-			if (level == 0) o[3] = "一";
-			else if (level == 1) o[3] = "二";
-			else if (level == 2) o[3] = "三";
-			else if (level == 3) o[3] = "四";
-		}
-		
-		ModelAndView mv = createModelAndView("/admin/entityhub/classification/list.jsp");
-		mv.getModel().put("classifications", array);
-		return mv;
+		return createModelAndView("/admin/entityhub/classification/list.jsp");
 	}
 	
 	@RequestMapping("classification/{id}")
@@ -99,10 +80,16 @@ public class ClassificationControll extends BasePageControll {
 	@RequestMapping("classification/list")
 	public void list(HttpServletRequest request, HttpServletResponse resp) throws IOException {
 		Object[][] array = Application.createQuery(
-				"select dataId,name,description from Classification where isDisabled = 'F' order by name")
+				"select dataId,name,isDisabled,openLevel from Classification order by name")
 				.array();
-		JSON ret = JSONUtils.toJSONArray(new String[] { "dataId", "name", "description" }, array);
-		writeSuccess(resp, ret);
+		for (Object[] o : array) {
+			int level = (int) o[3];
+			if (level == 0) o[3] = "一";
+			else if (level == 1) o[3] = "二";
+			else if (level == 2) o[3] = "三";
+			else if (level == 3) o[3] = "四";
+		}
+		writeSuccess(resp, array);
 	}
 	
 	@RequestMapping("classification/info")
@@ -120,7 +107,7 @@ public class ClassificationControll extends BasePageControll {
 	}
 	
 	/**
-	 * @see {@link GeneralEntityRecordControll#save(HttpServletRequest, HttpServletResponse)}
+	 * @see {@link GeneralRecordOperatingControll#save(HttpServletRequest, HttpServletResponse)}
 	 */
 	@RequestMapping("classification/save")
 	public void save(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -136,7 +123,7 @@ public class ClassificationControll extends BasePageControll {
 	}
 	
 	/**
-	 * @see {@link GeneralEntityRecordControll#delete(HttpServletRequest, HttpServletResponse)}
+	 * @see {@link GeneralRecordOperatingControll#delete(HttpServletRequest, HttpServletResponse)}
 	 */
 	@RequestMapping("classification/delete")
 	public void delete(HttpServletRequest request, HttpServletResponse response) throws IOException {

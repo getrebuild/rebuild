@@ -216,4 +216,13 @@
 		<field name="extConfig" type="string" max-length="700" description="更多扩展配置, JSON格式KV" />
 	</entity>
 	
+	<entity name="RobotTriggerConfig" type-code="027" description="动作触发器">
+		<field name="configId" type="primary"/>
+		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
+		<field name="when" type="int" default-value="0" description="动作 (累加值)" />
+		<field name="whenFilter" type="text" description="附加过滤器" />
+		<field name="actionType" type="string" max-length="50" nullable="false" description="预定义的触发操作类型" />
+		<field name="actionContent" type="text" description="预定义的触发操作类型, JSON KV 对" />
+		<field name="priority" type="int" default-value="1" description="执行优先级, 越大越高(越先执行)"/>
+	</entity>
 </metadata-config>

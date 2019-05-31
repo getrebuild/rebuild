@@ -165,20 +165,22 @@
 	<bean class="com.rebuild.server.metadata.entityhub.MetaFieldService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
-	<bean class="com.rebuild.server.metadata.entityhub.PickListService">
+	<bean class="com.rebuild.server.service.configuration.PickListService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
-	<bean class="com.rebuild.server.metadata.entityhub.ClassificationService">
+	<bean class="com.rebuild.server.service.configuration.ClassificationService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
-		<bean class="com.rebuild.server.metadata.entityhub.AutoFillinConfigService">
+	<bean class="com.rebuild.server.service.configuration.AutoFillinConfigService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
-	
-	<bean class="com.rebuild.server.service.portals.AdvFilterService">
+	<bean class="com.rebuild.server.service.configuration.RobotTriggerConfigService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
-	<bean class="com.rebuild.server.service.portals.LayoutConfigService">
+	<bean class="com.rebuild.server.service.configuration.AdvFilterService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
+	<bean class="com.rebuild.server.service.configuration.LayoutConfigService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 	
@@ -196,10 +198,11 @@
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 	
-	<!-- 记录操作观察者 -->
+	<!-- 记录操作观察者。系统会在初始化时动态为 ObservableService 注入 -->
 	<bean class="com.rebuild.server.service.notification.NotificationObserver" />
-	<bean class="com.rebuild.server.service.base.obs.AuditLoggingObserver" />
-	<bean class="com.rebuild.server.service.base.obs.AttchementAwareObserver" />
+	<bean class="com.rebuild.server.service.base.AuditLoggingObserver" />
+	<bean class="com.rebuild.server.service.base.AttchementAwareObserver" />
+	<bean class="com.rebuild.server.business.robot.RobotTriggerObserver" />
 	
 	<bean name="generalEntityService" class="com.rebuild.server.service.base.GeneralEntityService">
 		<constructor-arg index="0" ref="persistManagerFactory" />

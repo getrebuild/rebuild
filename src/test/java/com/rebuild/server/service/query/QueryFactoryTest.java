@@ -24,7 +24,6 @@ import org.junit.Test;
 import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.persist4j.Entity;
@@ -42,8 +41,7 @@ public class QueryFactoryTest extends TestSupport {
 	@Test
 	public void testBaseQuery() throws Exception {
 		String sql = "select loginName from User";
-		Filter filter = Application.getSecurityManager().createQueryFilter(UserService.SYSTEM_USER);
-		
+		Filter filter = Application.getSecurityManager().createQueryFilter(SIMPLE_USER);
 		Object[][] array = Application.getQueryFactory().createQuery(sql, filter).array();
 		Assert.assertTrue(array.length > 0);
 	}

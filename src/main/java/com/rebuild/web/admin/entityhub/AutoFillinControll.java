@@ -34,8 +34,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entityhub.AutoFillinConfigService;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.service.configuration.AutoFillinConfigService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 import com.rebuild.web.PortalsConfiguration;
@@ -98,7 +98,7 @@ public class AutoFillinControll extends BasePageControll implements PortalsConfi
 					.unique();
 			if (exists != null) {
 				if (record.getPrimary() == null || !exists[0].equals(record.getPrimary())) {
-					writeFailure(response, "目标字段冲突");
+					writeFailure(response, "目标字段重复");
 					return;
 				}
 			}

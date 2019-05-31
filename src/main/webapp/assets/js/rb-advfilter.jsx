@@ -49,8 +49,9 @@ class AdvFilter extends React.Component {
               </label>
             </div>
             {this.state.enableEquation !== true ? null :
-              <div className="mb-3">
-                <input className={'form-control form-control-sm' + (this.state.equationError ? ' is-invalid' : '')} value={this.state.equation || ''} placeholder={this.state.equationDef || ''} data-id="equation" onChange={this.handleChange} />
+              <div className="mb-3 equation-state">
+                <input className={'form-control form-control-sm' + (this.state.equationError ? ' is-invalid' : '')} title={(this.state.equationError ? '高级表达式有误' : '')} value={this.state.equation || ''} placeholder={this.state.equationDef || ''} data-id="equation" onChange={this.handleChange} onBlur={(e) => this.checkEquation(e)} />
+                {this.state.equationError ? <i className="zmdi zmdi-alert-triangle text-danger"></i> : <i className="zmdi zmdi-check text-success"></i>}
               </div>
             }
           </div>
@@ -100,8 +101,8 @@ class AdvFilter extends React.Component {
     this.childrenRef.push(child)
   }
   handleChange = (e) => {
-    let val = e.target.value
-    let id = e.target.dataset.id
+    const val = e.target.value
+    const id = e.target.dataset.id
     if (id === 'enableEquation') {
       this.setState({ enableEquation: this.state.enableEquation !== true })
     } else if (id === 'shareToAll') {
@@ -146,6 +147,14 @@ class AdvFilter extends React.Component {
     })
   }
 
+  checkEquation(e) {
+    const val = e.target.value
+    if (!val) return
+    $.post(rb.baseUrl + '/app/entity/advfilter/test-equation', val, (res) => {
+      this.setState({ equationError: res.error_code !== 0 })
+    })
+  }
+
   renderEquation() {
     let exp = []
     for (let i = 1; i <= (this.state.items || []).length; i++) exp.push(i)
@@ -164,7 +173,10 @@ class AdvFilter extends React.Component {
     if (filters.length === 0 && canNoFilters !== true) { rb.highbar('请至少添加1个条件'); return }
 
     let adv = { entity: this.props.entity, items: filters }
-    if (this.state.enableEquation === true) adv.equation = this.state.equation
+    if (this.state.enableEquation === true) {
+      if (this.state.equationError === true) { rb.highbar('高级表达式设置有误'); return }
+      adv.equation = this.state.equation
+    }
     return adv
   }
 
@@ -182,10 +194,6 @@ class AdvFilter extends React.Component {
     if (!adv) return
     else if (this.props.confirm) {
       this.props.confirm(adv, this.state.filterName, this.state.shareToAll)
-    } else {
-      $.post(rb.baseUrl + '/app/entity/advfilter/test-parse', JSON.stringify(adv), function (res) {
-        if (res.error_code !== 0) rb.hberror(res.error_msg)
-      })
     }
     if (this.props.inModal) this._dlg.hide()
   }

@@ -150,4 +150,5 @@ public class EntityHelper {
 	public static final int LoginLog = 25;
 	public static final int AutoFillinConfig = 26;
 	
+	public static final int RobotTriggerConfig = 27;
 }

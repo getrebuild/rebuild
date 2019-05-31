@@ -31,6 +31,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.ServerStatus;
 import com.rebuild.server.ServerStatus.Status;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 
 import cn.devezhao.commons.web.ServletUtils;
@@ -68,11 +69,12 @@ public class MiscPagesForward extends BasePageControll {
 		
 		JSONObject state = new JSONObject();
 		state.put("ok", ServerStatus.isStatusOK());
-		JSONArray services = new JSONArray();
-		state.put("status", services);
+		JSONArray statuses = new JSONArray();
+		state.put("status", statuses);
 		for (Status s : ServerStatus.getLastStatus()) {
-			services.add(s.toJson());
+			statuses.add(s.toJson());
 		}
+		statuses.add(JSONUtils.toJSONObject("MemoryUsage", ServerStatus.getHeapMemoryUsed()[1]));
 		ServletUtils.writeJson(response, state.toJSONString());
 	}
 	

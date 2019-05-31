@@ -25,14 +25,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.web.bind.annotation.PathVariable;
 
-import com.rebuild.server.portals.PortalsManager;
+import com.rebuild.server.configuration.ConfigManager;
 
 /**
  * 页面/界面相关配置接口规范
  * 
  * @author devezhao
  * @since 10/14/2018
- * @see PortalsManager
+ * @see ConfigManager
  */
 public interface PortalsConfiguration {
 	

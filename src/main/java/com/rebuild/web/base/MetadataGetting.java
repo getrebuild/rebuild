@@ -33,11 +33,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSON;
+import com.rebuild.server.configuration.portals.PickListManager;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.server.portals.PickListManager;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.persist4j.Entity;
@@ -57,10 +57,11 @@ public class MetadataGetting extends BaseControll {
 	@RequestMapping("entities")
 	public void entities(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
+		boolean hasSlave = getBoolParameter(request, "slave", false);
 		List<Map<String, String>> list = new ArrayList<>();
 		for (Entity e : MetadataSorter.sortEntities(user)) {
 			// 不返回明细实体
-			if (e.getMasterEntity() != null) {
+			if (e.getMasterEntity() != null && !hasSlave) {
 				continue;
 			}
 			

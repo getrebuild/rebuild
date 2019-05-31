@@ -140,7 +140,7 @@ public class MetadataSorter {
 		for (Field field : allFields) {
 			DisplayType dtThat = EasyMeta.getDisplayType(field);
 			for (DisplayType dt : allowedTypes) {
-				if (dtThat.equals(dt)) {
+				if (dtThat.equals(dt) && !MetadataHelper.isSystemField(field)) {
 					list.add(field);
 					break;
 				}

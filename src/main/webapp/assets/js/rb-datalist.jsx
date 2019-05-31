@@ -491,7 +491,6 @@ const AdvFilters = {
 
       $(res.data).each(function () {
         let item = $('<div class="dropdown-item J_custom" data-id="' + this[0] + '"><a class="text-truncate">' + this[1] + '</a></div>').appendTo('.adv-search .dropdown-menu')
-
         const _data = this
         item.click(function () {
           $('.adv-search .J_name').text(_data[1])
@@ -511,7 +510,7 @@ const AdvFilters = {
             return false
           })
           action.find('a:eq(1)').click(function () {
-            let _alert = rb.alert('确认要删除此过滤项吗？', {
+            let _alert = rb.alert('确认删除此查询项吗？', {
               type: 'danger', confirm: () => {
                 $.post(`${rb.baseUrl}/app/entity/advfilter/delete?id=${_data[0]}`, (res) => {
                   if (res.error_code === 0) {
@@ -522,7 +521,6 @@ const AdvFilters = {
                       RbListPage._RbList.setAdvFilter(null)
                       $('.adv-search .J_name').text('全部数据')
                     }
-
                   } else rb.hberror(res.error_msg)
                 })
               }
@@ -534,16 +532,6 @@ const AdvFilters = {
     })
   },
 
-  saveFilter(filter, name, toAll) {
-    if (!filter) return
-    let url = `${rb.baseUrl}/app/${this.__entity}/advfilter/post?id=${this.current || ''}&toAll=${toAll}`
-    if (name) url += '&name=' + $encode(name)
-    $.post(url, JSON.stringify(filter), (res) => {
-      if (res.error_code === 0) this.loadFilters()
-      else rb.hberror(res.error_msg)
-    })
-  },
-
   showAdvFilter(id, copyId) {
     this.current = id
     let props = { entity: this.__entity, inModal: true, fromList: true, confirm: this.saveFilter }
@@ -552,10 +540,10 @@ const AdvFilters = {
       else {
         if (copyId) {
           this.__getFilter(copyId, (res) => {
-            this.__customAdv = renderRbcomp(<AdvFilter {...props} title="高级查询" filter={res.filter} />)
+            this.__customAdv = renderRbcomp(<AdvFilter {...props} filter={res.filter} />)
           })
         } else {
-          this.__customAdv = renderRbcomp(<AdvFilter {...props} title="高级查询" />)
+          this.__customAdv = renderRbcomp(<AdvFilter {...props} />)
         }
       }
     } else {
@@ -563,6 +551,17 @@ const AdvFilters = {
         renderRbcomp(<AdvFilter {...props} title="修改查询条件" filter={res.filter} filterName={res.name} shareToAll={res.shareTo === 'ALL'} />)
       })
     }
+  },
+
+  saveFilter(filter, name, toAll) {
+    if (!filter) return
+    let _this = AdvFilters
+    let url = `${rb.baseUrl}/app/${_this.__entity}/advfilter/post?id=${_this.current || ''}&toAll=${toAll}`
+    if (name) url += '&name=' + $encode(name)
+    $.post(url, JSON.stringify(filter), (res) => {
+      if (res.error_code === 0) _this.loadFilters()
+      else rb.hberror(res.error_msg)
+    })
   },
 
   __getFilter(id, call) {

@@ -110,6 +110,10 @@ public class AdvFilterParser {
 			return null;
 		}
 		
+		if (validEquation(equation) == null) {
+			throw new FilterParseException("无效高级表达式 : " + equation);
+		}
+		
 		if ("OR".equalsIgnoreCase(equation)) {
 			return "( " + StringUtils.join(indexItemSqls.values(), " or ") + " )";
 		} else if ("AND".equalsIgnoreCase(equation)) {
@@ -141,7 +145,7 @@ public class AdvFilterParser {
 				} else if (token.equals("(") || token.equals(")") || token.equals("or") || token.equals("and")) {
 					itemSqls.add(token);
 				} else {
-					LOG.warn("Ignore equation token : " + token);
+					LOG.warn("Invalid equation token : " + token);
 				}
 				
 				if (hasRP) {
@@ -235,7 +239,7 @@ public class AdvFilterParser {
 			if (dept != null) {
 				int refe = fieldMeta.getReferenceEntity().getEntityCode();
 				if (refe == EntityHelper.Department) {
-					value = StringUtils.join(UserHelper.getAllChildrenId(dept), "|");
+					value = StringUtils.join(UserHelper.getAllChildren(dept), "|");
 				}
 			}
 		}
@@ -425,5 +429,57 @@ public class AdvFilterParser {
 			items.add(JSON.parseObject("{ op:'lk', value:'{1}', field:'" + field + "' }"));
 		}
 		return items;
+	}
+	
+	/**
+	 * 测试高级表达式
+	 * 
+	 * @param equation
+	 * @return null 表示无效
+	 */
+	public static String validEquation(final String equation) {
+		if (StringUtils.isBlank(equation)) {
+			return "OR";
+		}
+		if ("OR".contentEquals(equation) || "AND".equalsIgnoreCase(equation)) {
+			return equation;
+		}
+		
+		String clearEquation = equation.toUpperCase().replace("  ", "").trim();
+		if (clearEquation.startsWith("AND") || clearEquation.startsWith("OR") || clearEquation.endsWith("AND") || clearEquation.endsWith("OR")) {
+			return null;
+		}
+		if (clearEquation.contains("()") || clearEquation.contains("( )")) {
+			return null;
+		}
+		
+		for (String token : clearEquation.split(" ")) {
+			token = token.replace("(", "");
+			token = token.replace(")", "");
+			
+			// 数字不能大于 10
+			if (NumberUtils.isNumber(token)) {
+				if (NumberUtils.toInt(token) > 10) {
+					return null;
+				} else {
+					// 允许
+				}
+			} else if ("AND".equals(token) || "OR".equals(token) || "(".equals(token) || ")".equals(token)) {
+				// 允许
+			} else {
+				return null;
+			}
+		}
+		
+		// 去除 AND OR 0-9 及空格
+		clearEquation = clearEquation.replaceAll("[AND|OR|0-9| ]", "");
+		// 括弧成对出现
+		for (int i = 0; i < 20; i++) {
+			clearEquation = clearEquation.replace("()", "");
+			if (clearEquation.length() == 0) {
+				return equation;
+			}
+		}
+		return null;
 	}
 }

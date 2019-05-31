@@ -18,6 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.bizz.privileges;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
 import com.rebuild.server.Application;
@@ -25,6 +27,8 @@ import com.rebuild.server.TestSupport;
 import com.rebuild.server.metadata.MetadataHelper;
 
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -47,5 +51,18 @@ public class SecurityManagerTest extends TestSupport {
 	@Test
 	public void testZero() throws Exception {
 		Application.getSecurityManager().allowed(SIMPLE_USER, ZeroEntry.AllowLogin);
+	}
+	
+	@Test
+	public void testAllow() throws Exception {
+		addExtTestEntities(false);
+		
+		Entity test = MetadataHelper.getEntity("Account999");
+		boolean allowAccount = Application.getSecurityManager().allowed(SIMPLE_USER, ID.newId(test.getEntityCode()), BizzPermission.READ);
+		assertTrue(!allowAccount);
+		
+		test = MetadataHelper.getEntity("SalesOrderItem999");
+		boolean allowSalesOrderItem = Application.getSecurityManager().allowed(SIMPLE_USER, ID.newId(test.getEntityCode()), BizzPermission.READ);
+		assertTrue(!allowSalesOrderItem);
 	}
 }

@@ -1,0 +1,96 @@
+{
+	"entity": "Account999",
+	"entityLabel": "客户",
+	"nameField": "accountName",
+	"fields": [{
+		"field": "accountName",
+		"fieldLabel": "客户名称",
+		"displayType": "TEXT",
+		"nullable": false,
+		"updatable": true
+	}, {
+		"field": "source",
+		"fieldLabel": "来源",
+		"displayType": "PICKLIST",
+		"nullable": true,
+		"updatable": true,
+		"items": [
+			["百度", false],
+			["老客户介绍", false],
+			["自主注册", true],
+			["其他", false]
+		]
+	}, {
+		"field": "accountNumber",
+		"fieldLabel": "客户编号",
+		"displayType": "SERIES",
+		"nullable": false,
+		"updatable": false
+	}, {
+		"field": "leijichengjiaojine",
+		"fieldLabel": "累计成交金额",
+		"displayType": "DECIMAL",
+		"nullable": true,
+		"updatable": true
+	}, {
+		"field": "location",
+		"fieldLabel": "所在地区",
+		"displayType": "CLASSIFICATION",
+		"nullable": true,
+		"updatable": true,
+		"extConfig": {
+			"classification": "018-0000000000000001"
+		}
+	}],
+	"layouts": {
+		"FORM": [{
+			"field": "accountNumber",
+			"isFull": false
+		}, {
+			"field": "accountName",
+			"isFull": false
+		}, {
+			"field": "location",
+			"isFull": false
+		}, {
+			"field": "source",
+			"isFull": false
+		}, {
+			"field": "leijichengjiaojine",
+			"isFull": false
+		}],
+		"DATALIST": [{
+			"field": "accountName"
+		}, {
+			"field": "accountNumber"
+		}, {
+			"field": "location"
+		}, {
+			"field": "source"
+		}, {
+			"field": "leijichengjiaojine"
+		}, {
+			"field": "modifiedBy"
+		}, {
+			"field": "modifiedOn"
+		}, {
+			"field": "createdBy"
+		}, {
+			"field": "createdOn"
+		}, {
+			"field": "owningUser"
+		}, {
+			"field": "owningDept"
+		}]
+	},
+	"filters": {
+		"我的客户": {
+			"items": [{
+				"op": "SFU",
+				"field": "owningUser",
+				"index": 1
+			}],
+			"entity": "Account999"
+		}
+	}
+}

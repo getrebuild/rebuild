@@ -18,8 +18,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.bizz;
 
+import java.security.Principal;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
@@ -27,6 +31,8 @@ import com.rebuild.server.service.bizz.privileges.Department;
 import com.rebuild.server.service.bizz.privileges.User;
 
 import cn.devezhao.bizz.security.member.BusinessUnit;
+import cn.devezhao.bizz.security.member.Member;
+import cn.devezhao.bizz.security.member.NoMemberFoundException;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -37,13 +43,17 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class UserHelper {
 
+	private static final Log LOG = LogFactory.getLog(UserHelper.class);
+	
 	/**
-	 * [显示名, 图像]
+	 * [显示名, 头像]
 	 * 
 	 * @param userId
 	 * @return
+	 * @throws NoMemberFoundException
 	 */
-	public static String[] getShows(ID userId) {
+	@Deprecated
+	public static String[] getShows(ID userId) throws NoMemberFoundException {
 		User u = Application.getUserStore().getUser(userId);
 		return new String[] { u.getFullName(), u.getAvatarUrl(true) };
 	}
@@ -51,11 +61,16 @@ public class UserHelper {
 	/**
 	 * 是否管理员
 	 * 
-	 * @param user
+	 * @param userId
 	 * @return
 	 */
 	public static boolean isAdmin(ID userId) {
-		return Application.getUserStore().getUser(userId).isAdmin();
+		try {
+			return Application.getUserStore().getUser(userId).isAdmin();
+		} catch (NoMemberFoundException ex) {
+			LOG.error("No User found : " + userId);
+		}
+		return false;
 	}
 	
 	/**
@@ -71,16 +86,20 @@ public class UserHelper {
 	/**
 	 * 是否激活
 	 * 
-	 * @param bizzId ID of User/Dept/Role
+	 * @param bizzId ID of User/Role/Department
 	 * @return
 	 */
 	public static boolean isActive(ID bizzId) {
-		if (bizzId.getEntityCode() == EntityHelper.User) {
-			return Application.getUserStore().getUser(bizzId).isActive();
-		} else if (bizzId.getEntityCode() == EntityHelper.Department) {
-			return !Application.getUserStore().getDepartment(bizzId).isDisabled();
-		} else if (bizzId.getEntityCode() == EntityHelper.Role) {
-			return !Application.getUserStore().getRole(bizzId).isDisabled();
+		try {
+			if (bizzId.getEntityCode() == EntityHelper.User) {
+				return Application.getUserStore().getUser(bizzId).isActive();
+			} else if (bizzId.getEntityCode() == EntityHelper.Department) {
+				return !Application.getUserStore().getDepartment(bizzId).isDisabled();
+			} else if (bizzId.getEntityCode() == EntityHelper.Role) {
+				return !Application.getUserStore().getRole(bizzId).isDisabled();
+			}
+		} catch (NoMemberFoundException ex) {
+			LOG.error("No bizz found : " + bizzId);
 		}
 		return false;
 	}
@@ -88,12 +107,17 @@ public class UserHelper {
 	/**
 	 * 获取用户部门
 	 * 
-	 * @param user
+	 * @param userId
 	 * @return
 	 */
 	public static Department getDepartment(ID userId) {
-		User u = Application.getUserStore().getUser(userId);
-		return u.getOwningDept();
+		try {
+			User u = Application.getUserStore().getUser(userId);
+			return u.getOwningDept();
+		} catch (NoMemberFoundException ex) {
+			LOG.error("No User found : " + userId);
+		}
+		return null;
 	}
 	
 	/**
@@ -102,12 +126,57 @@ public class UserHelper {
 	 * @param parent
 	 * @return
 	 */
-	public static Set<ID> getAllChildrenId(Department parent) {
+	public static Set<ID> getAllChildren(Department parent) {
 		Set<ID> children = new HashSet<>();
 		children.add((ID) parent.getIdentity());
 		for (BusinessUnit child : parent.getAllChildren()) {
 			children.add((ID) child.getIdentity());
 		}
 		return children;
+	}
+	
+	/**
+	 * 获取名称
+	 * 
+	 * @param bizzId ID of User/Role/Department
+	 * @return
+	 */
+	public static String getName(ID bizzId) {
+		try {
+			if (bizzId.getEntityCode() == EntityHelper.User) {
+				return Application.getUserStore().getUser(bizzId).getFullName();
+			} else if (bizzId.getEntityCode() == EntityHelper.Department) {
+				return Application.getUserStore().getDepartment(bizzId).getName();
+			} else if (bizzId.getEntityCode() == EntityHelper.Role) {
+				return Application.getUserStore().getRole(bizzId).getName();
+			} 
+		} catch (NoMemberFoundException ex) {
+			LOG.error("No bizz found : " + bizzId);
+		}
+		return null;
+	}
+	
+	/**
+	 * 获取部门或角色下的成员
+	 * 
+	 * @param groupId ID of Role/Department
+	 * @return
+	 */
+	public static Member[] getMembers(ID groupId) {
+		Set<Principal> ms = null;
+		try {
+			if (groupId.getEntityCode() == EntityHelper.Department) {
+				ms = Application.getUserStore().getDepartment(groupId).getMembers();
+			} else if (groupId.getEntityCode() == EntityHelper.Role) {
+				ms = Application.getUserStore().getRole(groupId).getMembers();
+			}
+		} catch (NoMemberFoundException ex) {
+			LOG.error("No group found : " + groupId);
+		}
+		
+		if (ms == null || ms.isEmpty()) {
+			return new Member[0];
+		}
+		return ms.toArray(new Member[ms.size()]);
 	}
 }

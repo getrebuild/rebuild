@@ -22,7 +22,6 @@ import org.junit.Test;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.TestSupport;
-import com.rebuild.server.business.rbstore.MetaSchemaGenerator;
 import com.rebuild.server.metadata.MetadataHelper;
 
 import cn.devezhao.persist4j.Entity;
@@ -35,18 +34,22 @@ public class MetaSchemaGeneratorTest extends TestSupport {
 	
 	@Test
 	public void testGenerate() throws Exception {
-		Entity test = MetadataHelper.getEntity(TEST_ENTITY);
-		MetaSchemaGenerator generator = new MetaSchemaGenerator(test);
-		JSON schema = generator.generate();
-		System.out.println(JSON.toJSONString(schema, true));
+		addExtTestEntities(false);
+		String maybe = "Account999";
+		if (MetadataHelper.containsEntity(maybe)) {
+			Entity test = MetadataHelper.getEntity(maybe); 
+			MetaSchemaGenerator generator = new MetaSchemaGenerator(test);
+			JSON schema = generator.generate();
+			System.out.println(JSON.toJSONString(schema, true));
+		}
 	}
 	
 	@Test
 	public void testGenerateHaveSlave() throws Exception {
-		String maybe = "Account";
-		Entity test = null;
+		addExtTestEntities(false);
+		String maybe = "SalesOrder999";
 		if (MetadataHelper.containsEntity(maybe)) {
-			test = MetadataHelper.getEntity(maybe); 
+			Entity test = MetadataHelper.getEntity(maybe); 
 			MetaSchemaGenerator generator = new MetaSchemaGenerator(test);
 			JSON schema = generator.generate();
 			System.out.println(JSON.toJSONString(schema, true));

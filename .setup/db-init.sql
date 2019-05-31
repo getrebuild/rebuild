@@ -108,7 +108,7 @@ create table if not exists `meta_field` (
   `FIELD_NAME`         varchar(100) not null,
   `COMMENTS`           varchar(300),
   `NULLABLE`           char(1) default 'T',
-  `DEFAULT_VALUE`      varchar(300),
+  `DEFAULT_VALUE`      varchar(300) comment '此值不影响数据库默认值',
   `CASCADE`            varchar(20),
   `EXT_CONFIG`         varchar(700) comment '更多扩展配置, JSON格式KV',
   `BELONG_ENTITY`      varchar(100) not null,
@@ -147,7 +147,7 @@ create table if not exists `pick_list` (
 
 -- ************ Entity [LayoutConfig] DDL ************
 create table if not exists `layout_config` (
-  `APPLY_TYPE`         varchar(20) not null comment 'FORM,DATALIST,NAVI',
+  `APPLY_TYPE`         varchar(20) not null comment 'FORM,DATALIST,NAVI,TBA,ADD',
   `MODIFIED_ON`        timestamp not null default '0000-00-00 00:00:00' comment '修改时间',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CONFIG_ID`          char(20) not null,
@@ -223,7 +223,7 @@ create table if not exists `classification_data` (
   `DATA_ID`            char(20) not null,
   `CREATED_BY`         char(20) not null comment '创建人',
   `NAME`               varchar(100) not null,
-  `FULL_NAME`          varchar(300) not null comment '包括父级名称, 用 . 分割',
+  `FULL_NAME`          varchar(300) not null comment '包括父级名称, 用点号分割',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
   primary key  (`ITEM_ID`)
@@ -309,7 +309,7 @@ create table if not exists `attachment_folder` (
 
 -- ************ Entity [LoginLog] DDL ************
 create table if not exists `login_log` (
-  `LOGOUT_TIME`        timestamp null default '0000-00-00 00:00:00' comment '退出时间',
+  `LOGOUT_TIME`        timestamp null default null comment '退出时间',
   `LOGIN_TIME`         timestamp not null default '0000-00-00 00:00:00' comment '登陆时间',
   `LOG_ID`             char(20) not null,
   `USER_AGENT`         varchar(100) comment '客户端',
@@ -319,6 +319,37 @@ create table if not exists `login_log` (
 )Engine=InnoDB;
 alter table `login_log`
   add index `IX1_login_log` (`USER`, `LOGIN_TIME`);
+
+-- ************ Entity [AutoFillinConfig] DDL ************
+create table if not exists `auto_fillin_config` (
+  `SOURCE_FIELD`       varchar(100) not null comment '引用实体的字段',
+  `MODIFIED_ON`        timestamp not null default '0000-00-00 00:00:00' comment '修改时间',
+  `TARGET_FIELD`       varchar(100) not null comment '当前实体的字段',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CONFIG_ID`          char(20) not null,
+  `EXT_CONFIG`         varchar(700) comment '更多扩展配置, JSON格式KV',
+  `BELONG_FIELD`       varchar(100) not null,
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `BELONG_ENTITY`      varchar(100) not null,
+  `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
+  primary key  (`CONFIG_ID`)
+)Engine=InnoDB;
+
+-- ************ Entity [RobotTriggerConfig] DDL ************
+create table if not exists `robot_trigger_config` (
+  `WHEN_FILTER`        text(21845) comment '附加过滤器',
+  `ACTION_TYPE`        varchar(50) not null comment '预定义的触发操作类型',
+  `MODIFIED_ON`        timestamp not null default '0000-00-00 00:00:00' comment '修改时间',
+  `ACTION_CONTENT`     text(21845) comment '预定义的触发操作类型, JSON KV 对',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CONFIG_ID`          char(20) not null,
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `BELONG_ENTITY`      varchar(100) not null,
+  `PRIORITY`           int(11) default '1' comment '执行优先级, 越大越高(越先执行)',
+  `WHEN`               int(11) default '0' comment '动作 (累加值)',
+  `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
+  primary key  (`CONFIG_ID`)
+)Engine=InnoDB;
 
 
 -- #3 datas
@@ -356,4 +387,4 @@ INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version
 INSERT INTO `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`) 
-  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 3);
+  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 4);

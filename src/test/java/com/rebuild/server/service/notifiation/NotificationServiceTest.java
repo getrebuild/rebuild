@@ -22,7 +22,6 @@ import org.junit.Test;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
-import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.notification.Message;
 
 /**
@@ -33,8 +32,13 @@ public class NotificationServiceTest extends TestSupport {
 
 	@Test
 	public void testSend() throws Exception {
-		Message minMessage = new Message(UserService.ADMIN_USER, "发一条消息", null);
+		Message minMessage = new Message(SIMPLE_USER, "发一条消息", null);
 		Application.getNotifications().send(minMessage);
 		System.out.println("Notification Sent");
+	}
+	
+	@Test
+	public void testGetUnread() throws Exception {
+		Application.getNotifications().getUnreadMessage(SIMPLE_USER);
 	}
 }

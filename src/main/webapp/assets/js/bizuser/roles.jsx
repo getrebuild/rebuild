@@ -143,8 +143,9 @@ const updatePrivileges = function () {
   })
 
   let _data = { entity: privEntity, zero: privZero }
-  $.post(rb.baseUrl + '/admin/bizuser/privileges-update?role=' + role_id, JSON.stringify(_data), () => {
-    rb.hbsuccess('保存成功')
+  $.post(rb.baseUrl + '/admin/bizuser/privileges-update?role=' + role_id, JSON.stringify(_data), (res) => {
+    if (res.error_code === 0) location.reload()
+    else rb.hberror(res.error_msg)
   })
 }
 const deleteRole = function (id, dlg) {

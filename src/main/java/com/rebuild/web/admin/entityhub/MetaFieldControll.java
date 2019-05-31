@@ -142,14 +142,14 @@ public class MetaFieldControll extends BasePageControll  {
 		String type = reqJson.getString("type");
 		String comments = reqJson.getString("comments");
 		String refEntity = reqJson.getString("refEntity");
-		String useClassification = reqJson.getString("dataId");
+		String refClassification = reqJson.getString("refClassification");
 		
 		Entity entity = MetadataHelper.getEntity(entityName);
 		DisplayType dt = DisplayType.valueOf(type);
 		
 		JSON extConfig = null;
 		if (dt == DisplayType.CLASSIFICATION) {
-			ID dataId = ID.valueOf(useClassification);
+			ID dataId = ID.valueOf(refClassification);
 			extConfig = JSONUtils.toJSONObject("classification", dataId);
 		}
 		

@@ -87,7 +87,7 @@ Array.prototype.contains = function (item) {
   return false
 }
 Array.prototype.insert = function (index, item) {
-	 this.splice(index, 0, item)
+  this.splice(index, 0, item)
 }
 // extends String
 String.prototype.startsWith = function (substr) {
@@ -227,11 +227,11 @@ var $regex = {
 }
 
 var $encode = function (s) {
-  if (!s) return null
+  if (!s) return ''
   return encodeURIComponent(s)
 }
 var $decode = function (s) {
-  if (!s) return null
+  if (!s) return ''
   return decodeURIComponent(s)
 }
 
@@ -284,18 +284,18 @@ var $pages = function (tp, cp) {
 
 /**
  */
-var $same = function(a, b) {
-	if (!a && !b) return true
-	if (a && b) {
-		if ($.type(a) === 'object' && $.type(b) === 'object') {
-			for (var k in a) {
-				if (a[k] !== b[k]) return false
-			}
-			return true
-		} else if ($.type(a) === 'array' && $.type(b) === 'array') {
-			a = a.join(',')
-			b = b.join(',')
-		}
-	}
-	return a === b
+var $same = function (a, b) {
+  if (!a && !b) return true
+  if (a && b) {
+    if ($.type(a) === 'object' && $.type(b) === 'object') {
+      for (var k in a) {
+        if (a[k] !== b[k]) return false
+      }
+      return true
+    } else if ($.type(a) === 'array' && $.type(b) === 'array') {
+      a = a.join(',')
+      b = b.join(',')
+    }
+  }
+  return a === b
 }
