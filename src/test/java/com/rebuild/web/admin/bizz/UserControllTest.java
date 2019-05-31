@@ -63,7 +63,7 @@ public class UserControllTest extends MvcTestSupport {
 	@Test
 	public void testEnableUser() throws Exception {
 		String post = String.format(
-				"{ user:'%s', enable:false, role:'%s', dept:'%s' }", 
+				"{ user:'%s', enable:true, role:'%s', dept:'%s' }", 
 				SIMPLE_USER, SIMPLE_ROLE, SIMPLE_DEPT);
 		
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders

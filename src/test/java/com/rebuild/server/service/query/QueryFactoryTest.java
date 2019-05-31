@@ -43,7 +43,7 @@ public class QueryFactoryTest extends TestSupport {
 		String sql = "select loginName from User";
 		Filter filter = Application.getSecurityManager().createQueryFilter(SIMPLE_USER);
 		Object[][] array = Application.getQueryFactory().createQuery(sql, filter).array();
-		Assert.assertTrue(array.length == 0);
+		Assert.assertTrue(array.length > 0);
 	}
 	
 	@Test
