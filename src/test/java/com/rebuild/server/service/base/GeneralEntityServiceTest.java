@@ -27,6 +27,7 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.bizz.UserService;
 
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
@@ -59,5 +60,14 @@ public class GeneralEntityServiceTest extends TestSupport {
 		System.out.println(Application.getUserStore().getRole(roleId).getName());
 		
 		Application.getEntityService(EntityHelper.Role).delete(roleId);
+	}
+	
+	@Test
+	public void testGetRecordsOfCascaded() throws Exception {
+		Application.getSessionStore().set(SIMPLE_USER);
+		Application.getGeneralEntityService().getRecordsOfCascaded(
+				SIMPLE_USER,
+				new String[] { "Role", "Department" },
+				BizzPermission.DELETE);
 	}
 }

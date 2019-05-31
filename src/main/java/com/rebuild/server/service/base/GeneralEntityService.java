@@ -146,7 +146,7 @@ public class GeneralEntityService extends ObservableService  {
 		super.delete(record);
 		int affected = 1;
 		
-		Map<String, Set<ID>> cass = getCascadeRecords(record, cascades, BizzPermission.DELETE);
+		Map<String, Set<ID>> cass = getRecordsOfCascaded(record, cascades, BizzPermission.DELETE);
 		for (Map.Entry<String, Set<ID>> e : cass.entrySet()) {
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("级联删除 - " + e.getKey() + " > " + e.getValue());
@@ -182,7 +182,7 @@ public class GeneralEntityService extends ObservableService  {
 			affected = 1;
 		}
 		
-		Map<String, Set<ID>> cass = getCascadeRecords(record, cascades, BizzPermission.ASSIGN);
+		Map<String, Set<ID>> cass = getRecordsOfCascaded(record, cascades, BizzPermission.ASSIGN);
 		for (Map.Entry<String, Set<ID>> e : cass.entrySet()) {
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("级联分派 - " + e.getKey() + " > " + e.getValue());
@@ -234,7 +234,7 @@ public class GeneralEntityService extends ObservableService  {
 			shareChange = true;
 		}
 		
-		Map<String, Set<ID>> cass = getCascadeRecords(record, cascades, BizzPermission.SHARE);
+		Map<String, Set<ID>> cass = getRecordsOfCascaded(record, cascades, BizzPermission.SHARE);
 		for (Map.Entry<String, Set<ID>> e : cass.entrySet()) {
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("级联共享 - " + e.getKey() + " > " + e.getValue());
@@ -300,7 +300,7 @@ public class GeneralEntityService extends ObservableService  {
 	 * @param action 动作
 	 * @return
 	 */
-	private Map<String, Set<ID>> getCascadeRecords(ID recordMaster, String[] cascadeEntities, Permission action) {
+	protected Map<String, Set<ID>> getRecordsOfCascaded(ID recordMaster, String[] cascadeEntities, Permission action) {
 		if (cascadeEntities == null || cascadeEntities.length == 0) {
 			return Collections.emptyMap();
 		}

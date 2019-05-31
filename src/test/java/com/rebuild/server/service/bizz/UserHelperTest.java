@@ -20,7 +20,9 @@ package com.rebuild.server.service.bizz;
 
 import org.junit.Test;
 
+import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
+import com.rebuild.server.service.bizz.privileges.Department;
 
 /**
  * @author devezhao-mbp zhaofang123@gmail.com
@@ -36,5 +38,8 @@ public class UserHelperTest extends TestSupport {
 		UserHelper.isAdmin(SIMPLE_USER);
 		UserHelper.getMembers(RoleService.ADMIN_ROLE);
 		UserHelper.getMembers(DepartmentService.ROOT_DEPT);
+		
+		Department dept = Application.getUserStore().getDepartment(DepartmentService.ROOT_DEPT);
+		UserHelper.getAllChildren(dept);
 	}
 }

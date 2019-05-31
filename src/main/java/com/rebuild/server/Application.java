@@ -273,15 +273,33 @@ public final class Application {
 		return getBean(NotificationService.class);
 	}
 
+	/**
+	 * 基本的增删改查，无额外动作，一般是非业务实体使用。业务实体应使用  {@link #getEntityService(int)}
+	 * 
+	 * @return
+	 */
 	public static CommonService getCommonService() {
 		return getBean(CommonService.class);
 	}
 
+	/**
+	 * @param entityCode
+	 * @return
+	 */
 	public static EntityService getEntityService(int entityCode) {
 		if (ESS != null && ESS.containsKey(entityCode)) {
 			return ESS.get(entityCode);
 		} else {
-			return (GeneralEntityService) getApplicationContext().getBean("generalEntityService");
+			return getGeneralEntityService();
 		}
+	}
+	
+	/**
+	 * 应优先使用 {@link #getEntityService(int)} 方法
+	 * 
+	 * @return
+	 */
+	public static GeneralEntityService getGeneralEntityService() {
+		return (GeneralEntityService) getApplicationContext().getBean("generalEntityService");
 	}
 }

@@ -30,7 +30,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.configuration.portals.DefaultValueManager;
+import com.rebuild.server.configuration.portals.FormsDefaultValue;
 import com.rebuild.server.configuration.portals.FormsManager;
 import com.rebuild.server.configuration.portals.ViewAddonsManager;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -84,7 +84,7 @@ public class GeneralModelControll extends BaseEntityControll {
 			initialVal = ServletUtils.getRequestJson(request);
 			if (initialVal != null) {
 				// 创建明细实体必须指定主实体，以便验证权限
-				String master = ((JSONObject) initialVal).getString(DefaultValueManager.DV_MASTER);
+				String master = ((JSONObject) initialVal).getString(FormsDefaultValue.DV_MASTER);
 				if (ID.isId(master)) {
 					FormsManager.setCurrentMasterId(ID.valueOf(master));
 				}
@@ -94,7 +94,7 @@ public class GeneralModelControll extends BaseEntityControll {
 		JSON model = FormsManager.getFormModel(entity, user, record);
 		// 填充前端设定的初始值
 		if (record == null && initialVal != null) {
-			DefaultValueManager.setValueFromClient(MetadataHelper.getEntity(entity), model, initialVal);
+			FormsDefaultValue.setFormInitialValue(MetadataHelper.getEntity(entity), model, (JSONObject) initialVal);
 		}
 		writeSuccess(response, model);
 	}

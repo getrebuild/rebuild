@@ -32,10 +32,10 @@ import org.apache.commons.logging.LogFactory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.web.IllegalParameterException;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
@@ -50,9 +50,9 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 11/15/2018
  */
-public class DefaultValueManager {
+public class FormsDefaultValue {
 	
-	private static final Log LOG = LogFactory.getLog(DefaultValueManager.class);
+	private static final Log LOG = LogFactory.getLog(FormsDefaultValue.class);
 	
 	public static final String DV_MASTER = "$MASTER$";
 	public static final String DV_REFERENCE_PREFIX = "&";
@@ -122,52 +122,56 @@ public class DefaultValueManager {
 	/**
 	 * @param entity
 	 * @param formModel
-	 * @param initialVal 此值优先级大于 defaultValue
+	 * @param initialVal 此值优先级大于字段默认值
 	 */
-	public static void setValueFromClient(Entity entity, JSON formModel, JSON initialVal) {
+	public static void setFormInitialValue(Entity entity, JSON formModel, JSONObject initialVal) {
 		final JSONArray elements = ((JSONObject) formModel).getJSONArray("elements");
-		if (elements == null) {
+		if (elements == null || initialVal == null || initialVal.isEmpty()) {
 			return;
 		}
 		
-		Map<String, Object> valuesReady = new HashMap<>();
-		
-		// 客户端传递
-		JSONObject fromClient = (JSONObject) initialVal;
-		for (Map.Entry<String, Object> e : fromClient.entrySet()) {
+		final Map<String, Object> valuesReady = new HashMap<>();
+		for (Map.Entry<String, Object> e : initialVal.entrySet()) {
 			String field = e.getKey();
-			Object value = e.getValue();
-			if (value == null || StringUtils.isBlank(value.toString())) {
-				LOG.warn("Invalid inital field-value : " + field + " = " + value);
+			String value = (String) e.getValue();
+			if (StringUtils.isBlank(value)) {
 				continue;
 			}
 			
-			// 引用字段实体。&EntityName
-			if (field.equals(DV_MASTER) || field.startsWith(DV_REFERENCE_PREFIX)) {
+			// 引用字段实体，如 `&User`
+			if (field.startsWith(DV_REFERENCE_PREFIX)) {
 				Object idLabel[] = readyReferenceValue(value);
-				
-				if (field.equals(DV_MASTER)) {
-					Field stm = MetadataHelper.getSlaveToMasterField(entity);
-					valuesReady.put(stm.getName(), idLabel);
-				} else {
+				if (idLabel != null) {
 					Entity source = MetadataHelper.getEntity(field.substring(1));
 					Field[] reftoFields = MetadataHelper.getReferenceToFields(source, entity);
+					// 如有多个则全部填充
 					for (Field rtf : reftoFields) {
 						valuesReady.put(rtf.getName(), idLabel);
 					}
 				}
-				
-			} else if (entity.containsField(field)) {
+			}
+			// 主实体字段
+			else if (field.equals(DV_MASTER)) {
+				Object idLabel[] = readyReferenceValue(value);
+				if (idLabel != null) {
+					Field stm = MetadataHelper.getSlaveToMasterField(entity);
+					valuesReady.put(stm.getName(), idLabel);
+				}
+			}
+			else if (entity.containsField(field)) {
 				EasyMeta fieldMeta = EasyMeta.valueOf(entity.getField(field));
 				if (fieldMeta.getDisplayType() == DisplayType.REFERENCE) {
-					valuesReady.put(field, readyReferenceValue(value));
+					Object idLabel[] = readyReferenceValue(value);
+					if (idLabel != null) {
+						valuesReady.put(field, readyReferenceValue(value));
+					}
 				}
 			} else {
-				LOG.warn("Invalid inital field-value : " + field + " = " + value);
+				LOG.warn("Unknow value pair : " + field + " = " + value);
 			}
 		}
 		
-		// TODO 后台设置的，应该在后台处理 ???
+		// TODO 后台设置的默认值，应该在后台处理 ???
 		
 		if (valuesReady.isEmpty()) {
 			return;
@@ -184,15 +188,15 @@ public class DefaultValueManager {
 		
 		// 还有没布局出来的也返回
 		if (!valuesReady.isEmpty()) {
-			JSONObject inital = new JSONObject();
+			JSONObject initial = new JSONObject();
 			for (Map.Entry<String, Object> e : valuesReady.entrySet()) {
 				Object v = e.getValue();
 				if (v instanceof Object[]) {
 					v = ((Object[]) v)[0].toString();
 				}
-				inital.put(e.getKey(), v);
+				initial.put(e.getKey(), v);
 			}
-			((JSONObject) formModel).put("initialValue", inital);
+			((JSONObject) formModel).put("initialValue", initial);
 		}
 	}
 	
@@ -200,13 +204,16 @@ public class DefaultValueManager {
 	 * @param idVal
 	 * @return
 	 */
-	private static Object[] readyReferenceValue(Object idVal) {
-		if (!ID.isId(idVal.toString())) {
-			throw new IllegalParameterException("Bad ID : " + idVal);
+	private static Object[] readyReferenceValue(String idVal) {
+		if (!ID.isId(idVal)) {
+			return null;
 		}
-		
-		ID id = ID.valueOf(idVal.toString());
-		return new Object[] { id.toLiteral(), FieldValueWrapper.getLabel(id) };
+		try {
+			String label = FieldValueWrapper.getLabel(ID.valueOf(idVal));
+			return new Object[] { idVal, label };
+		} catch (NoRecordFoundException ex) {
+			LOG.error("No record found : " + idVal);
+			return null;
+		}
 	}
-	
 }
