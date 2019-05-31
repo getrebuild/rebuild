@@ -25,6 +25,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -42,7 +43,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 权限验证 - 拦截 Service 方法
+ * 权限验证 - 拦截所有 *Service 方法
  * 
  * @author devezhao
  * @since 10/12/2018
@@ -50,7 +51,7 @@ import cn.devezhao.persist4j.engine.ID;
 public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 	
 	private static final Log LOG = LogFactory.getLog(PrivilegesGuardInterceptor.class);
-
+	
 	@Override
 	public Object invoke(MethodInvocation invocation) throws Throwable {
 		checkGuard(invocation);
@@ -120,6 +121,14 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 			}
 			
 			isAllowed = Application.getSecurityManager().allowed(caller, recordId, action);
+			
+			if (action == BizzPermission.UPDATE && IN_NOPRIVILEGES_UPDATE.get() != null) {
+				// 无权限更新
+				if (!isAllowed && recordId.equals(IN_NOPRIVILEGES_UPDATE.get())) {
+					isAllowed = true;
+				}
+				IN_NOPRIVILEGES_UPDATE.remove();
+			}
 		}
 		
 		if (!isAllowed) {
@@ -194,5 +203,16 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 			return String.format("你没有%s%s权限", actionHuman, EasyMeta.getLabel(entity));
 		}
 		return String.format("你没有%s此记录的权限", actionHuman);
+	}
+	
+	private static final ThreadLocal<ID> IN_NOPRIVILEGES_UPDATE = new ThreadLocal<ID>();
+	/**
+	 * 允许无权限 UPDATE
+	 * 
+	 * @param record
+	 */
+	public static void setNoPrivilegesUpdateOnce(ID record) {
+		Assert.notNull(record, "'record' not be null");
+		IN_NOPRIVILEGES_UPDATE.set(record);
 	}
 }

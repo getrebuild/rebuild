@@ -20,9 +20,9 @@ package com.rebuild.web.admin.robot;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -55,12 +55,29 @@ public class FieldAggregationControll extends BaseControll {
 		Entity sourceEntity = MetadataHelper.getEntity(getParameterNotNull(request, "source"));
 		
 		List<String[]> entities = new ArrayList<>();
-		Set<String> set = new HashSet<>();
+		Map<String, Integer> hasMany = new HashMap<>();
 		for (Field refField : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
 			Entity refEntity = refField.getReferenceEntity();
-			if (!set.contains(refEntity.getName())) {
-				set.add(refEntity.getName());
-				entities.add(new String[] { refEntity.getName(), EasyMeta.getLabel(refEntity) });
+			String entityLabel = EasyMeta.getLabel(refEntity) + " (" + EasyMeta.getLabel(refField) + ")";
+			entities.add(new String[] { refEntity.getName(), entityLabel, refField.getName() });
+			
+			Integer many = hasMany.get(refEntity.getName());
+			if (many == null) {
+				many = 0;
+			}
+			hasMany.put(refEntity.getName(), many + 1);
+		}
+		
+		// 会出现一个实体的多个字段引用同一实体的情况
+		// 只有一个引用则不现实字段
+		for (Map.Entry<String, Integer> e : hasMany.entrySet()) {
+			if (e.getValue() == 1) {
+				String entityName = e.getKey();
+				for (String[] item : entities) {
+					if (entityName.equals(item[0])) {
+						item[1] = EasyMeta.getLabel(MetadataHelper.getEntity(entityName));
+					}
+				}
 			}
 		}
 		

@@ -18,7 +18,7 @@ class ContentFieldAggregation extends ActionContentSpec {
               <div className="col-5">
                 <select className="form-control form-control-sm" ref={(c) => this._targetEntity = c}>
                   {(this.state.targetEntities || []).map((item) => {
-                    return <option key={'te-' + item[0]} value={item[0]}>{item[1]}</option>
+                    return <option key={'te-' + item[2] + item[0]} value={item[2] + '.' + item[0]}>{item[1]}</option>
                   })}
                 </select>
               </div>
@@ -31,13 +31,13 @@ class ContentFieldAggregation extends ActionContentSpec {
             <div className="items">
               {(!this.state.items || this.state.items.length === 0) ? null : this.state.items.map((item) => {
                 return (<div key={'item-' + item.targetField}><div className="row">
-                  <div className="col-5"><span className="badge badge-warning">{this.__fieldLabel(this.state.targetFields, item.targetField)}</span></div>
+                  <div className="col-5"><span className="badge badge-warning">{this.__getFieldLabel(this.state.targetFields, item.targetField)}</span></div>
                   <div className="col-2">
                     <span className="zmdi zmdi-forward zmdi-hc-rotate-180"></span>
                     <span className="badge badge-warning">{CALC_MODES[item.calcMode]}</span>
                   </div>
                   <div className="col-5">
-                    <span className="badge badge-warning">{this.__fieldLabel(this.state.sourceFields, item.sourceField)}</span>
+                    <span className="badge badge-warning">{this.__getFieldLabel(this.state.sourceFields, item.sourceField)}</span>
                     <a className="del" title="移除" onClick={() => this.delItem(item.targetField)}><span className="zmdi zmdi-close"></span></a>
                   </div>
                 </div></div>)
@@ -100,10 +100,12 @@ class ContentFieldAggregation extends ActionContentSpec {
     })
   }
   __changeTargetEntity() {
-    // 清空现有
+    // 清空现有规则
     this.setState({ items: [] })
 
     let te = $(this._targetEntity).val()
+    if (!te) return
+    te = te.split('.')[1]
     $.get(`${rb.baseUrl}/admin/robot/trigger/field-aggregation-fields?source=${this.props.sourceEntity}&target=${te}`, (res) => {
       if (this.state.targetFields) {
         this.setState({ targetFields: res.data.target }, () => {
@@ -124,7 +126,7 @@ class ContentFieldAggregation extends ActionContentSpec {
       }
     })
   }
-  __fieldLabel(list, field) {
+  __getFieldLabel(list, field) {
     for (let i = 0; i < list.length; i++) {
       if (list[i][0] === field) {
         return list[i][1]

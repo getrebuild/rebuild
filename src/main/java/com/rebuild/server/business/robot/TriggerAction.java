@@ -18,9 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.robot;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.rebuild.server.service.OperatingContext;
 
 /**
@@ -30,8 +27,6 @@ import com.rebuild.server.service.OperatingContext;
  * @since 2019/05/23
  */
 public interface TriggerAction {
-	
-	static final Log LOG = LogFactory.getLog(TriggerAction.class);
 	
 	/**
 	 * 动作类型

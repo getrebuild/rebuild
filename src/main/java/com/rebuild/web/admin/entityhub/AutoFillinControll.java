@@ -98,7 +98,7 @@ public class AutoFillinControll extends BasePageControll implements PortalsConfi
 					.unique();
 			if (exists != null) {
 				if (record.getPrimary() == null || !exists[0].equals(record.getPrimary())) {
-					writeFailure(response, "目标字段冲突");
+					writeFailure(response, "目标字段重复");
 					return;
 				}
 			}

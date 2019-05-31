@@ -144,7 +144,7 @@ public class RobotTriggerControll extends BasePageControll {
 	@RequestMapping("trigger/list")
 	public void triggerList(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String belongEntity = getParameter(request, "entity");
-		String sql = "select configId,belongEntity,when,actionType,belongEntity from RobotTriggerConfig";
+		String sql = "select configId,when,actionType,belongEntity,belongEntity from RobotTriggerConfig";
 		if (StringUtils.isNotBlank(belongEntity)) {
 			sql += " where belongEntity = '" + StringEscapeUtils.escapeSql(belongEntity) + "'";
 		}
@@ -152,11 +152,9 @@ public class RobotTriggerControll extends BasePageControll {
 		
 		Object[][] array = Application.createQuery(sql).array();
 		for (Object[] o : array) {
-			Entity entity = MetadataHelper.getEntity((String) o[1]);
-			o[1] = EasyMeta.getLabel(entity);
-			o[3] = ActionType.valueOf((String) o[3]).getDisplayName(); 
+			o[2] = ActionType.valueOf((String) o[2]).getDisplayName();
+			o[4] = EasyMeta.getLabel(MetadataHelper.getEntity((String) o[4]));
 		}
-		
 		writeSuccess(response, array);
 	}
 }

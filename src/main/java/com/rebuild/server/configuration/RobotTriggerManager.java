@@ -22,6 +22,8 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
@@ -120,9 +122,9 @@ public class RobotTriggerManager implements ConfigManager {
 		
 		Entity entity = MetadataHelper.getEntity(record.getEntityCode());
 		AdvFilterParser filterParser = new AdvFilterParser(whenFilter);
-		String sqlWhere = filterParser.toSqlWhere();
+		String sqlWhere = StringUtils.defaultIfBlank(filterParser.toSqlWhere(), "1=1");
 		String sql = MessageFormat.format(
-				"select {0} from {1} where ({0} = ?) and ({2})",
+				"select {0} from {1} where {0} = ? and {2}",
 				entity.getPrimaryField().getName(), entity.getName(), sqlWhere);
 		Object matchs = Application.createQueryNoFilter(sql).setParameter(1, record).unique();
 		return matchs == null;

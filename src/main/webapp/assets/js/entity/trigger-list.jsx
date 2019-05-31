@@ -25,8 +25,8 @@ class GridList extends React.Component {
         return (<div key={'item-' + item[0]} className="col-xl-3 col-lg-4 col-md-6">
           <div className="card">
             <div className="card-body">
-              <a className="text-truncate" href={'trigger/' + item[0]}>{item[3] + ' · ' + item[1]}</a>
-              <p className="text-muted text-truncate">{item[2] > 0 ? ('当' + formatWhen(item[2]) + '时') : <span className="text-warning">未启用 (无触发动作)</span>}</p>
+              <a className="text-truncate" href={'trigger/' + item[0]}>{item[2] + ' · ' + item[4]}</a>
+              <p className="text-muted text-truncate">{item[1] > 0 ? ('当' + formatWhen(item[1]) + '时') : <span className="text-warning">未启用 (无触发动作)</span>}</p>
             </div>
             <div className="card-footer card-footer-contrast">
               <div className="float-left">
@@ -47,28 +47,22 @@ class GridList extends React.Component {
   loadData(entity) {
     $.get(`${rb.baseUrl}/admin/robot/trigger/list?entity=${$encode(entity)}`, (res) => {
       this.setState({ list: res.data })
-      if (!this.__entityLoaded) this.renderEntityTree()
+      if (!this.__treeRendered) this.renderEntityTree()
     })
   }
   renderEntityTree() {
+    this.__treeRendered = true
+    const dest = $('.dept-tree ul')
     const ues = []
     $(this.state.list).each(function () {
-      ues.push(this[4])
+      if (!ues.contains(this[3])) $('<li data-entity="' + this[3] + '"><a class="text-truncate">' + this[4] + '</a></li>').appendTo(dest)
+      ues.push(this[3])
     })
     let that = this
-    let dest = $('.dept-tree ul')
-    $.get(`${rb.baseUrl}/commons/metadata/entities?slave=true`, (res) => {
-      this.__entityLoaded = true
-      $(res.data).each(function () {
-        if (ues.contains(this.name)) {
-          $('<li data-entity="' + this.name + '"><a class="text-truncate">' + this.label + '</a></li>').appendTo(dest)
-        }
-      })
-      dest.find('li').click(function () {
-        dest.find('li').removeClass('active')
-        $(this).addClass('active')
-        that.loadData($(this).data('entity'))
-      })
+    dest.find('li').click(function () {
+      dest.find('li').removeClass('active')
+      $(this).addClass('active')
+      that.loadData($(this).data('entity'))
     })
   }
 

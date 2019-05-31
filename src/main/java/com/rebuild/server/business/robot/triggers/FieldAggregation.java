@@ -18,6 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.robot.triggers;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
@@ -27,15 +30,15 @@ import com.rebuild.server.business.robot.TriggerAction;
 import com.rebuild.server.business.robot.TriggerException;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.bizz.UserService;
+import com.rebuild.server.service.bizz.privileges.PrivilegesGuardInterceptor;
 
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
@@ -44,20 +47,26 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 2019/05/29
  */
 public class FieldAggregation implements TriggerAction {
+	
+	private static final Log LOG = LogFactory.getLog(FieldAggregation.class);
 
 	// 此触发器可能产生连锁反应
 	// 如触发器 A 调用 B，而 B 又调用了 C ... 以此类推。此处记录其深度
 	private static final ThreadLocal<Integer> CALL_CHAIN_DEPTH = new ThreadLocal<Integer>();
 	// 最大调用深度
-	private static final int MAX_DEPTH = 5;
+	private static final int MAX_DEPTH = 3;
+	
+	// 当前操作用户可能对目标实体/记录无更新权限
+	// 允许无权限更新目标实体
+	private static final boolean ALLOW_NOPRIVILEGES_UPDATE = false;
 	
 	final private ActionContext context;
 	
 	private Entity sourceEntity;
 	private Entity targetEntity;
 	
-	private String masterReffield;
-	private ID masterRecordId;
+	private String followSourceField;
+	private ID targetRecordId;
 	
 	public FieldAggregation(ActionContext context) {
 		this.context = context;
@@ -84,12 +93,21 @@ public class FieldAggregation implements TriggerAction {
 		}
 		
 		this.prepare(operatingContext);
-		if (this.masterRecordId == null) {
+		if (this.targetRecordId == null) {  // 无目标记录
 			return;
 		}
 		
+		// 如果当前用户对目标记录无修改权限
+		if (!ALLOW_NOPRIVILEGES_UPDATE) {
+			if (!Application.getSecurityManager().allowed(
+					operatingContext.getOperator(), targetRecordId, BizzPermission.UPDATE)) {
+				LOG.warn("No privileges to update record of target: " + this.targetRecordId);
+				return;
+			}
+		}
+		
 		// 更新目标
-		Record targetRecord = EntityHelper.forUpdate(masterRecordId, UserService.SYSTEM_USER, false);
+		Record targetRecord = EntityHelper.forUpdate(targetRecordId, UserService.SYSTEM_USER, false);
 		
 		JSONArray items = ((JSONObject) context.getActionContent()).getJSONArray("items");
 		for (Object o : items) {
@@ -110,8 +128,8 @@ public class FieldAggregation implements TriggerAction {
 			String calcField = "COUNT".equalsIgnoreCase(calcMode) ? sourceEntity.getPrimaryField().getName() : sourceField;
 			
 			String sql = String.format("select %s(%s) from %s where %s = ?", 
-					calcMode, calcField, sourceEntity.getName(), masterReffield);
-			Object[] result = Application.createQueryNoFilter(sql).setParameter(1, masterRecordId).unique();
+					calcMode, calcField, sourceEntity.getName(), followSourceField);
+			Object[] result = Application.createQueryNoFilter(sql).setParameter(1, targetRecordId).unique();
 			Double calcValue = result == null || result[0] == null ? 0d : ObjectUtils.toDouble(result[0]);
 			
 			DisplayType dt = EasyMeta.getDisplayType(targetEntity.getField(targetField));
@@ -123,6 +141,9 @@ public class FieldAggregation implements TriggerAction {
 		}
 		
 		if (targetRecord.getAvailableFieldIterator().hasNext()) {
+			if (ALLOW_NOPRIVILEGES_UPDATE) {
+				PrivilegesGuardInterceptor.setNoPrivilegesUpdateOnce(targetRecordId);
+			}
 			Application.getEntityService(targetEntity.getEntityCode()).update(targetRecord);
 			CALL_CHAIN_DEPTH.set(depth + 1);
 		}
@@ -130,35 +151,28 @@ public class FieldAggregation implements TriggerAction {
 	
 	@Override
 	public void prepare(OperatingContext operatingContext) throws TriggerException {
-		if (sourceEntity != null) {
+		if (sourceEntity != null) {  // 已经初始化
 			return;
 		}
 		
-		String targetEntity2str = ((JSONObject) context.getActionContent()).getString("targetEntity");
-		if (!MetadataHelper.containsEntity(targetEntity2str)) {
+		// FIELD.ENTITY
+		String targetFieldEntity[] = ((JSONObject) context.getActionContent()).getString("targetEntity").split("\\.");
+		if (!MetadataHelper.containsEntity(targetFieldEntity[1])) {
 			return;
 		}
 		this.sourceEntity = context.getSourceEntity();
-		this.targetEntity = MetadataHelper.getEntity(targetEntity2str);
-		
-		// 找到主纪录
-		
-		for (Field field : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
-			if (field.getReferenceEntity().equals(targetEntity)) {
-				this.masterReffield = field.getName();
-				break;
-			}
-		}
-		
-		if (this.masterReffield == null || context.getSourceRecord() == null) {
+		this.targetEntity = MetadataHelper.getEntity(targetFieldEntity[1]);
+		this.followSourceField = targetFieldEntity[0];
+		if (!sourceEntity.containsField(followSourceField)) {
 			return;
 		}
 		
+		// 找到主纪录
 		String sql = String.format("select %s from %s where %s = ?",
-				masterReffield, sourceEntity.getName(), sourceEntity.getPrimaryField().getName());
-		Object refid[] = Application.createQueryNoFilter(sql).setParameter(1, context.getSourceRecord()).unique();
-		if (refid != null && refid[0] != null) {
-			this.masterRecordId = (ID) refid[0];
+				followSourceField, sourceEntity.getName(), sourceEntity.getPrimaryField().getName());
+		Object o[] = Application.createQueryNoFilter(sql).setParameter(1, context.getSourceRecord()).unique();
+		if (o != null && o[0] != null) {
+			this.targetRecordId = (ID) o[0];
 		}
 	}
 }
