@@ -36,8 +36,6 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 
 /**
- * TODO
- * 
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/05/29
  */

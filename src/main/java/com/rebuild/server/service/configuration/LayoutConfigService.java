@@ -19,16 +19,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.service.configuration;
 
 import com.rebuild.server.configuration.portals.BaseLayoutManager;
-import com.rebuild.server.configuration.portals.FormsManager;
-import com.rebuild.server.metadata.MetadataHelper;
 
-import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * TODO
- * 
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/04/30
  */
@@ -40,17 +35,6 @@ public class LayoutConfigService extends CleanableCacheService {
 	
 	@Override
 	protected void cleanCache(ID configId) {
-		Object[] o = this.getPMFactory().createQuery(
-				"select belongEntity,applyType from LayoutConfig where configId = ?")
-				.setParameter(1, configId)
-				.unique();
-		if (o == null || !MetadataHelper.containsEntity((String) o[0])) {
-			return;
-		}
-		
-		Entity entity = MetadataHelper.getEntity((String) o[0]);
-		if (BaseLayoutManager.TYPE_FORM.equals(o[1])) {
-			FormsManager.instance.clean(entity);
-		}
+		BaseLayoutManager.instance.clean(configId);
 	}
 }

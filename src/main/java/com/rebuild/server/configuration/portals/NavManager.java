@@ -29,6 +29,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
+import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
@@ -43,7 +44,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 09/20/2018
  */
-public class NavManager extends BaseLayoutManager<ID> {
+public class NavManager extends BaseLayoutManager {
 
 	public static final NavManager instance = new NavManager();
 	private NavManager() { }
@@ -53,44 +54,26 @@ public class NavManager extends BaseLayoutManager<ID> {
 	 * @return
 	 */
 	public JSON getNav(ID user) {
-		Object[] config = getLayoutOfNav(user);
+		ConfigEntry config = getLayoutOfNav(user);
 		if (config == null) {
 			return null;
 		}
-		config[0] = config[0].toString();
-		return JSONUtils.toJSONObject(new String[] { "id", "config", "shareTo" }, config);
+		return config.toJSON();
 	}
 	
 	/**
-	 * @param user
-	 * @return
-	 */
-	public ID detectUseConfig(ID user) {
-		return detectUseConfig(user, "LayoutConfig", null, TYPE_NAV);
-	}
-	
-	@Override
-	public void clean(ID cacheKey) {
-		// TODO 缓存实现
-	}
-	
-	// --
-	
-	/**
-	 * 页面用
-	 * 
 	 * @param request
 	 * @return
 	 */
 	public JSONArray getNavForPortal(HttpServletRequest request) {
 		final ID user = AppUtils.getRequestUser(request);
-		Object[] config = getLayoutOfNav(user);
+		ConfigEntry config = getLayoutOfNav(user);
 		if (config == null) {
 			return JSONUtils.EMPTY_ARRAY;
 		}
 		
 		// 过滤
-		JSONArray navs = (JSONArray) config[1];
+		JSONArray navs = (JSONArray) config.getJSON("config");
 		for (Iterator<Object> iter = navs.iterator(); iter.hasNext(); ) {
 			JSONObject nav = (JSONObject) iter.next();
 			JSONArray subNavs = nav.getJSONArray("sub");
@@ -140,6 +123,8 @@ public class NavManager extends BaseLayoutManager<ID> {
 		}
 		return false;
 	}
+	
+	// --
 	
 	/**
 	 * @param item

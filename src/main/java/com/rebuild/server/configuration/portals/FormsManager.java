@@ -18,11 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
-import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.utils.JSONUtils;
 
-import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -31,7 +29,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 08/30/2018
  */
-public class FormsManager extends BaseLayoutManager<Entity> {
+public class FormsManager extends BaseLayoutManager {
 
 	public static final FormsManager instance = new FormsManager();
 	protected FormsManager() { }
@@ -42,32 +40,20 @@ public class FormsManager extends BaseLayoutManager<Entity> {
 	 * @return
 	 */
 	public ConfigEntry getFormLayout(String entity, ID user) {
-		final String ckey = "FormsManager-" + entity;
-		ConfigEntry entry = (ConfigEntry) Application.getCommonCache().getx(ckey);
-		if (entry != null) {
-			return entry.clone();
-		}
-		
-		entry = new ConfigEntry()
-				.set("entity", entity);
-		Object[] raw = getLayoutOfForm(user, entity);
-		if (raw != null) {
-			entry.set("elements", JSONUtils.EMPTY_ARRAY)
-					.set("id", raw[0]);
+		ConfigEntry entry = getLayoutOfForm(user, entity);
+		if (entry == null) {
+			entry = new ConfigEntry()
+					.set("elements", JSONUtils.EMPTY_ARRAY);
 		} else {
-			entry.set("elements", JSONUtils.EMPTY_ARRAY);
+			entry.set("elements", entry.getJSON("config"));
+			entry.set("config", null);
+			entry.set("shareTo", null);
 		}
-		Application.getCommonCache().putx(ckey, entry);
-		return entry.clone();
+		return entry.set("entity", entity);
 	}
 	
 	@Override
 	protected boolean isSingleConfig() {
 		return true;
-	}
-	
-	@Override
-	public void clean(Entity cacheKey) {
-		Application.getCommonCache().evict("FormsManager-" + cacheKey.getName());
 	}
 }

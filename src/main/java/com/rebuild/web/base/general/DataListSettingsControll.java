@@ -33,9 +33,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.portals.BaseLayoutManager;
 import com.rebuild.server.configuration.portals.DataListManager;
 import com.rebuild.server.configuration.portals.SharableManager;
@@ -124,38 +124,15 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 			}
 		}
 		
-		List<Map<String, Object>> configList = new ArrayList<>();
-		Object[] raw = DataListManager.instance.getLayoutOfDatalist(user, entity);
-		if (raw != null) {
-			for (Object o : (JSONArray) raw[1]) {
-				JSONObject col = (JSONObject) o;
-				String field = col.getString("field");
-				String fieldPaths[] = field.split("\\.");
-				if (!entityMeta.containsField(fieldPaths[0])) {
-					LOG.warn("Unknow field '" + field + "' in '" + entity + "'");
-					continue;
-				}
-				
-				Field fieldMeta = entityMeta.getField(fieldPaths[0]);
-				if (fieldPaths.length == 1) {
-					configList.add(DataListManager.instance.formattedColumn(fieldMeta));
-				} else {
-					Entity refEntity = fieldMeta.getReferenceEntity();
-					if (refEntity != null && refEntity.containsField(fieldPaths[1])) {
-						configList.add(DataListManager.instance.formattedColumn(refEntity.getField(fieldPaths[1]), fieldMeta));
-					} else {
-						LOG.warn("Unknow field '" + field + "' in '" + entity + "'");
-					}
-				}
-			}
-		}
+		ConfigEntry raw = DataListManager.instance.getLayoutOfDatalist(user, entity);
+		JSONObject config = (JSONObject) DataListManager.instance.getColumnLayout(entity, user);
 		
 		Map<String, Object> ret = new HashMap<>();
 		ret.put("fieldList", fieldList);
-		ret.put("configList", configList);
+		ret.put("configList", config.getJSONArray("fields"));
 		if (raw != null) {
-			ret.put("configId", raw[0]);
-			ret.put("shareTo", raw[2]);
+			ret.put("configId", raw.getID("id"));
+			ret.put("shareTo", raw.getString("shareTo"));
 		}
 		writeSuccess(response, ret);
 	}

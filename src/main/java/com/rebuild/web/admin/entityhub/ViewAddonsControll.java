@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
+import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.portals.ViewAddonsManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -88,7 +89,7 @@ public class ViewAddonsControll extends BaseControll implements PortalsConfigura
 		String applyType = getParameter(request, "type", ViewAddonsManager.TYPE_TAB);
 
 		Entity entityMeta = MetadataHelper.getEntity(entity);
-		Object[] addons = ViewAddonsManager.instance.getLayoutConfig(null, entity, applyType);
+		ConfigEntry config = ViewAddonsManager.instance.getLayoutConfig(null, entity, applyType);
 		
 		Set<String[]> refs = new HashSet<>();
 		for (Field field : entityMeta.getReferenceToFields()) {
@@ -102,7 +103,7 @@ public class ViewAddonsControll extends BaseControll implements PortalsConfigura
 		
 		JSON ret = JSONUtils.toJSONObject(
 				new String[] { "config", "refs" },
-				new Object[] { addons == null ? null : addons[1], refs });
+				new Object[] { config == null ? null : config.getJSON("config"), refs });
 		writeSuccess(response, ret);
 	}
 }
