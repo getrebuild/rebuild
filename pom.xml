@@ -231,7 +231,7 @@
 		<dependency>
 			<groupId>com.qiniu</groupId>
 			<artifactId>qiniu-java-sdk</artifactId>
-			<version>[7.2.18, 7.2.99]</version>
+			<version>7.2.20</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.whvcse</groupId>

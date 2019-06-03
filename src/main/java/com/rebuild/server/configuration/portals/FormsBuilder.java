@@ -165,7 +165,7 @@ public class FormsBuilder extends FormsManager {
 			Field fieldMeta = entityMeta.getField(fieldName);
 			EasyMeta easyField = new EasyMeta(fieldMeta);
 			el.put("label", easyField.getLabel());
-			DisplayType dt = easyField.getDisplayType();
+			final DisplayType dt = easyField.getDisplayType();
 			el.put("type", dt.name());
 			el.put("nullable", fieldMeta.isNullable());
 			el.put("readonly", false);
@@ -223,9 +223,9 @@ public class FormsBuilder extends FormsManager {
 					if (fieldName.equals(EntityHelper.CreatedOn) || fieldName.equals(EntityHelper.ModifiedOn)) {
 						el.put("value", CalendarUtils.getUTCDateTimeFormat().format(now));
 					} else if (fieldName.equals(EntityHelper.CreatedBy) || fieldName.equals(EntityHelper.ModifiedBy) || fieldName.equals(EntityHelper.OwningUser)) {
-						el.put("value", new Object[] { currentUser.getIdentity().toString(), currentUser.getFullName(), "User" });
+						el.put("value", new Object[] { currentUser.getId(), currentUser.getFullName(), "User" });
 					} else if (fieldName.equals(EntityHelper.OwningDept)) {
-						el.put("value", new Object[] { currentUser.getOwningDept().getIdentity().toString(), currentUser.getOwningDept().getName(), "Department" });
+						el.put("value", new Object[] { currentUser.getOwningDept().getIdentity(), currentUser.getOwningDept().getName(), "Department" });
 					}
 				}
 				
@@ -256,6 +256,7 @@ public class FormsBuilder extends FormsManager {
 			return formatModelError("此表单布局尚未配置，请配置后使用");
 		}
 		
+		// 主/明细实体处理
 		if (entityMeta.getMasterEntity() != null) {
 			model.set("isSlave", true);
 		} else if (entityMeta.getSlaveEntity() != null) {
@@ -301,7 +302,6 @@ public class FormsBuilder extends FormsManager {
 				continue;
 			}
 			if (!entity.containsField(field)) {
-				LOG.warn("Unknow field '" + field + "' in '" + entity.getName() + "'");
 				continue;
 			}
 			
@@ -337,20 +337,20 @@ public class FormsBuilder extends FormsManager {
 	 * 
 	 * @param data
 	 * @param field
-	 * @param onView
+	 * @param isView
 	 * @return
 	 * 
 	 * @see FieldValueWrapper
 	 * @see #findRecord(ID, ID, JSONArray)
 	 */
-	protected static Object wrapFieldValue(Record data, EasyMeta field, boolean onView) {
+	protected static Object wrapFieldValue(Record data, EasyMeta field, boolean isView) {
 		String fieldName = field.getName();
 		if (data.hasValue(fieldName)) {
 			Object value = data.getObjectValue(fieldName);
 			DisplayType dt = field.getDisplayType();
 			if (dt == DisplayType.PICKLIST) {
 				ID pickValue = (ID) value;
-				if (onView) {
+				if (isView) {
 					return StringUtils.defaultIfBlank(
 							PickListManager.instance.getLabel(pickValue), FieldValueWrapper.MISS_REF_PLACE);
 				} else {
@@ -361,7 +361,7 @@ public class FormsBuilder extends FormsManager {
 				ID itemValue = (ID) value;
 				String itemName = ClassificationManager.instance.getFullName(itemValue);
 				itemName = StringUtils.defaultIfBlank(itemName, FieldValueWrapper.MISS_REF_PLACE);
-				return onView ? itemName : new String[] { itemValue.toLiteral(), itemName };
+				return isView ? itemName : new String[] { itemValue.toLiteral(), itemName };
 			} 
 			else if (value instanceof ID) {
 				ID idValue = (ID) value;
@@ -376,7 +376,7 @@ public class FormsBuilder extends FormsManager {
 			else {
 				Object ret = FieldValueWrapper.wrapFieldValue(value, field);
 				// 编辑记录时要去除千分位
-				if (!onView && (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL)) {
+				if (!isView && (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL)) {
 					ret = ret.toString().replace(",", "");
 				}
 				return ret;

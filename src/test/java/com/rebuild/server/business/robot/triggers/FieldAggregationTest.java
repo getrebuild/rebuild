@@ -52,7 +52,7 @@ public class FieldAggregationTest extends TestSupport {
 		triggerConfig.setString("belongEntity", "SalesOrderItem999");
 		triggerConfig.setInt("when", TriggerWhen.CREATE.getMaskValue() + TriggerWhen.DELETE.getMaskValue());
 		triggerConfig.setString("actionType", ActionType.FIELDAGGREGATION.name());
-		String content = "{targetEntity:'SalesOrder999', items:[{sourceField:'',calcMode:'SUM', targetField:'totalAmount'}]}";
+		String content = "{targetEntity:'SalesOrder999Id.SalesOrder999', items:[{sourceField:'',calcMode:'SUM', targetField:'totalAmount'}]}";
 		triggerConfig.setString("actionContent", content);
 		Application.getBean(RobotTriggerConfigService.class).create(triggerConfig);
 		

@@ -97,4 +97,13 @@ public class JSONUtils {
 		}
 		return array;
 	}
+	
+	/**
+	 * @param json
+	 * @return
+	 */
+	public static JSON clone(JSON json) {
+		String tostr = json.toJSONString();
+		return (JSON) JSON.parse(tostr);
+	}
 }

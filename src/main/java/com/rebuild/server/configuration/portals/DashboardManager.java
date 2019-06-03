@@ -50,7 +50,7 @@ public class DashboardManager extends SharableManager<ID> {
 	 * @return
 	 */
 	public JSON getDashList(ID user) {
-		ID configHave = detectUseConfig(user, "DashboardConfig");
+		ID configHave = detectUseConfig(user, "DashboardConfig", null, null);
 		// 没有就初始化一个
 		if (configHave == null) {
 			Record record = EntityHelper.forNew(EntityHelper.DashboardConfig, user);

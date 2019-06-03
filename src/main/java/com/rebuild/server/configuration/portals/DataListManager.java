@@ -62,16 +62,16 @@ public class DataListManager extends BaseLayoutManager {
 		
 		// 默认配置
 		if (config == null) {
-			columnList.add(formattedColumn(namedField));
+			columnList.add(formatColumn(namedField));
 			
 			String namedFieldName = namedField.getName();
 			if (!StringUtils.equalsIgnoreCase(namedFieldName, EntityHelper.CreatedBy)
 					&& entityMeta.containsField(EntityHelper.CreatedBy)) {
-				columnList.add(formattedColumn(entityMeta.getField(EntityHelper.CreatedBy)));
+				columnList.add(formatColumn(entityMeta.getField(EntityHelper.CreatedBy)));
 			}
 			if (!StringUtils.equalsIgnoreCase(namedFieldName, EntityHelper.CreatedOn)
 					&& entityMeta.containsField(EntityHelper.CreatedOn)) {
-				columnList.add(formattedColumn(entityMeta.getField(EntityHelper.CreatedOn)));
+				columnList.add(formatColumn(entityMeta.getField(EntityHelper.CreatedOn)));
 			}
 		} else {
 			for (Object o : (JSONArray) config.getJSON("config")) {
@@ -86,10 +86,10 @@ public class DataListManager extends BaseLayoutManager {
 				String fieldPath[] = field.split("\\.");
 				Map<String, Object> formatted = null;
 				if (fieldPath.length == 1) {
-					formatted = formattedColumn(validField);
+					formatted = formatColumn(validField);
 				} else {
 					Field refField = entityMeta.getField(fieldPath[0]);
-					formatted = formattedColumn(validField, refField);
+					formatted = formatColumn(validField, refField);
 				}
 				
 				Integer width = item.getInteger("width");
@@ -109,8 +109,8 @@ public class DataListManager extends BaseLayoutManager {
 	 * @param field
 	 * @return
 	 */
-	public Map<String, Object> formattedColumn(Field field) {
-		return formattedColumn(field, null);
+	public Map<String, Object> formatColumn(Field field) {
+		return formatColumn(field, null);
 	}
 	
 	/**
@@ -118,7 +118,7 @@ public class DataListManager extends BaseLayoutManager {
 	 * @param parent
 	 * @return
 	 */
-	public Map<String, Object> formattedColumn(Field field, Field parent) {
+	public Map<String, Object> formatColumn(Field field, Field parent) {
 		String parentField = parent == null ? "" : (parent.getName() + ".");
 		String parentLabel = parent == null ? "" : (EasyMeta.getLabel(parent) + ".");
 		EasyMeta easyField = new EasyMeta(field);

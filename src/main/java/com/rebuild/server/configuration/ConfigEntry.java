@@ -26,6 +26,7 @@ import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.JSONable;
 
 import cn.devezhao.persist4j.engine.ID;
@@ -87,7 +88,11 @@ public class ConfigEntry implements Serializable, Cloneable, JSONable {
 	public ConfigEntry clone() {
 		ConfigEntry c = new ConfigEntry();
 		for (Map.Entry<String, Object> e : this.entryMap.entrySet()) {
-			c.set(e.getKey(), e.getValue());
+			Object v = e.getValue();
+			if (v instanceof JSON) {
+				v = JSONUtils.clone((JSON) v);
+			}
+			c.set(e.getKey(), v);
 		}
 		return c;
 	}

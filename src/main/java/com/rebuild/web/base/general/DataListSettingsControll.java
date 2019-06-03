@@ -110,7 +110,7 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 		
 		List<Map<String, Object>> fieldList = new ArrayList<>();
 		for (Field field : MetadataSorter.sortFields(entityMeta)) {
-			fieldList.add(DataListManager.instance.formattedColumn(field));
+			fieldList.add(DataListManager.instance.formatColumn(field));
 		}
 		// 引用实体的字段
 		for (Field field : MetadataSorter.sortFields(entityMeta, DisplayType.REFERENCE)) {
@@ -120,7 +120,7 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 			}
 			Entity refEntity = field.getReferenceEntity();
 			for (Field field4Ref : MetadataSorter.sortFields(refEntity)) {
-				fieldList.add(DataListManager.instance.formattedColumn(field4Ref, field));
+				fieldList.add(DataListManager.instance.formatColumn(field4Ref, field));
 			}
 		}
 		

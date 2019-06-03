@@ -52,19 +52,9 @@ public abstract class SharableManager<T> implements ConfigManager<T> {
 	public static final String SHARE_SELF = "SELF";
 	
 	/**
-	 * @param user
-	 * @param configEntity
-	 * @return
-	 * @see #detectUseConfig(ID, String, String, String)
-	 */
-	protected ID detectUseConfig(ID user, String configEntity) {
-		return detectUseConfig(user, configEntity, null, null);
-	}
-	
-	/**
-	 * 确定使用哪个配置，规则如下
-	 * 1.管理员（角色）使用同一配置
-	 * 2.非管理员优先使用自己的配置，无自己的配置则使用管理员共享的
+	 * 确定使用哪个配置，规则如下：
+	 * 1.管理员（角色）使用同一配置；
+	 * 2.非管理员优先使用自己的配置，无自己的配置则使用管理员共享的；
 	 * 
 	 * @param user
 	 * @param configEntity
@@ -73,7 +63,7 @@ public abstract class SharableManager<T> implements ConfigManager<T> {
 	 * @return
 	 */
 	protected ID detectUseConfig(ID user, String configEntity, String belongEntity, String applyType) {
-		Assert.isTrue(MetadataHelper.containsEntity(configEntity), "configEntity");
+		Assert.isTrue(MetadataHelper.containsEntity(configEntity), "Unknow configEntity : " + configEntity);
 		
 		String sqlBase = String.format("select configId from %s where (1=1)", configEntity);
 		if (belongEntity != null) {
@@ -96,8 +86,10 @@ public abstract class SharableManager<T> implements ConfigManager<T> {
 			return o == null ? null : (ID) o[0];
 		}
 		
+		// 使用自己的
 		String sql4self = sqlBase + String.format("createdBy = '%s'", user.toLiteral());
 		Object[] o = Application.createQueryNoFilter(sql4self).unique();
+		// 使用管理员共享的
 		if (o == null && MetadataHelper.containsField(configEntity, "shareTo")) {
 			sql4self = sqlBase + ("shareTo = '" + SHARE_ALL + "'");
 			o = Application.createQueryNoFilter(sql4self).unique();
