@@ -111,7 +111,7 @@ public class ClassificationImporter extends HeavyTask<Void> {
 		if (parent != null) {
 			item.setID("parent", parent);
 		}
-		item = Application.getBean(ClassificationService.class).saveItem(item);
+		item = Application.getBean(ClassificationService.class).createOrUpdateItem(item);
 		
 		JSONArray children = node.getJSONArray("children");
 		if (children != null) {

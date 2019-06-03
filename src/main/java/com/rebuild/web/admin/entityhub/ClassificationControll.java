@@ -165,7 +165,7 @@ public class ClassificationControll extends BasePageControll {
 		if (StringUtils.isNotBlank(name)) {
 			item.setString("name", name);
 		}
-		item = Application.getBean(ClassificationService.class).saveItem(item);
+		item = Application.getBean(ClassificationService.class).createOrUpdateItem(item);
 		writeSuccess(response, item.getPrimary());
 	}
 	

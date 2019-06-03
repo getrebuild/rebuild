@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -16,23 +16,15 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.configuration.portals;
+package com.rebuild.utils;
 
-import org.junit.Test;
-
-import com.rebuild.server.TestSupport;
-import com.rebuild.server.configuration.ConfigEntry;
-import com.rebuild.server.service.bizz.UserService;
+import com.alibaba.fastjson.JSON;
 
 /**
  * @author devezhao zhaofang123@gmail.com
- * @since 2019/03/09
+ * @since 2019/06/03
  */
-public class AdvFilterManagerTest extends TestSupport {
+public interface JSONable {
 
-	@Test
-	public void testGetAdvFilterList() throws Exception {
-		ConfigEntry[] list = AdvFilterManager.instance.getAdvFilterListRaw("User", UserService.ADMIN_USER);
-		System.out.println("AdvFilterManager : " + list.length);
-	}
+	JSON toJSON();
 }

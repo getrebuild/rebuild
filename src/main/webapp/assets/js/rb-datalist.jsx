@@ -490,34 +490,34 @@ const AdvFilters = {
       $('.adv-search .J_custom').each(function () { $(this).remove() })
 
       $(res.data).each(function () {
-        let item = $('<div class="dropdown-item J_custom" data-id="' + this[0] + '"><a class="text-truncate">' + this[1] + '</a></div>').appendTo('.adv-search .dropdown-menu')
         const _data = this
+        let item = $('<div class="dropdown-item J_custom" data-id="' + _data.id + '"><a class="text-truncate">' + _data.name + '</a></div>').appendTo('.adv-search .dropdown-menu')
         item.click(function () {
-          $('.adv-search .J_name').text(_data[1])
-          RbListPage._RbList.setAdvFilter(_data[0])
+          $('.adv-search .J_name').text(_data.name)
+          RbListPage._RbList.setAdvFilter(_data.id)
         })
-        if (dFilter === _data[0]) {
-          $('.adv-search .J_name').text(_data[1])
-          that.current = _data[0]
+        if (dFilter === _data.id) {
+          $('.adv-search .J_name').text(_data.name)
+          that.current = _data.id
         }
 
         // 可修改
-        if (_data[2] === true) {
+        if (_data.editable) {
           let action = $('<div class="action"><a title="修改"><i class="zmdi zmdi-edit"></i></a><a title="删除"><i class="zmdi zmdi-delete"></i></a></div>').appendTo(item)
           action.find('a:eq(0)').click(function () {
-            that.showAdvFilter(_data[0])
+            that.showAdvFilter(_data.id)
             $('.adv-search .btn.dropdown-toggle').dropdown('toggle')
             return false
           })
           action.find('a:eq(1)').click(function () {
             let _alert = rb.alert('确认删除此查询项吗？', {
               type: 'danger', confirm: () => {
-                $.post(`${rb.baseUrl}/app/entity/advfilter/delete?id=${_data[0]}`, (res) => {
+                $.post(`${rb.baseUrl}/app/entity/advfilter/delete?id=${_data.id}`, (res) => {
                   if (res.error_code === 0) {
                     _alert.hide()
                     that.loadFilters()
 
-                    if (dFilter === _data[0]) {
+                    if (dFilter === _data.id) {
                       RbListPage._RbList.setAdvFilter(null)
                       $('.adv-search .J_name').text('全部数据')
                     }

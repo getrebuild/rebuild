@@ -18,12 +18,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
-import org.springframework.util.Assert;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
-import com.rebuild.server.service.bizz.RoleService;
+import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.persist4j.engine.ID;
 
@@ -39,30 +42,66 @@ public class AdvFilterManager extends SharableManager<ID> {
 	private AdvFilterManager() { }
 	
 	/**
+	 * @param entity
+	 * @param user
+	 * @return
+	 */
+	public JSONArray getAdvFilterList(String entity, ID user) {
+		ConfigEntry[] entries = getAdvFilterListRaw(entity, user);
+		return JSONUtils.toJSONArray(entries);
+	}
+	
+	/**
 	 * 获取高级查询列表
 	 * 
 	 * @param entity
 	 * @param user
 	 * @return
 	 */
-	public Object[][] getAdvFilterList(String entity, ID user) {
-		Assert.notNull(entity, "[entity] not be null");
-		Assert.notNull(user, "[user] not be null");
-		
-		boolean isAdmin = UserHelper.isAdmin(user);
-		String sql = "select configId,filterName,createdBy from FilterConfig where belongEntity = ? and ";
-		if (isAdmin) {
-			sql += String.format("createdBy.roleId = '%s'", RoleService.ADMIN_ROLE);
-		} else {
-			sql += String.format("((shareTo = 'SELF' and createdBy = '%s') or shareTo = 'ALL')", user);
+	protected ConfigEntry[] getAdvFilterListRaw(String entity, ID user) {
+		final String ckey = "AdvFilter-" + entity;
+		ConfigEntry[] entries = (ConfigEntry[]) Application.getCommonCache().getx(ckey);
+		if (entries == null) {
+			Object[][] array = Application.createQueryNoFilter(
+					"select configId,filterName,shareTo,createdBy from FilterConfig where belongEntity = ? order by filterName")
+					.setParameter(1, entity)
+					.array();
+			List<ConfigEntry> list = new ArrayList<>();
+			for (Object[] o : array) {
+				ConfigEntry e = new ConfigEntry()
+						.set("id", o[0])
+						.set("name", o[1])
+						.set("shareTo", o[2])
+						.set("createdBy", o[3]);
+				list.add(e);
+			}
+			
+			entries = list.toArray(new ConfigEntry[list.size()]);
+			Application.getCommonCache().putx(ckey, entries);
 		}
-		sql += " order by filterName";
 		
-		Object[][] array = Application.createQueryNoFilter(sql).setParameter(1, entity).array();
-		for (Object[] o : array) {
-			o[2] = isSelf(user, (ID) o[2]);
+		final boolean isAdmin = UserHelper.isAdmin(user);
+		List<ConfigEntry> ret = new ArrayList<>();
+		for (ConfigEntry e : entries) {
+			ID createdBy = e.getID("createdBy");
+			String shareTo = e.getString("shareTo");
+			ConfigEntry clone = e.clone();
+			clone.set("createdBy", null);
+			clone.set("shareTo", null);
+			
+			if (UserHelper.isAdmin(createdBy)) {
+				if ("ALL".equalsIgnoreCase(shareTo)) {
+					ret.add(clone);
+				} else if (isAdmin) {
+					clone.set("editable", true);
+					ret.add(clone);
+				}
+			} else if (createdBy.equals(user)) {
+				clone.set("editable", true);
+				ret.add(clone);
+			}
 		}
-		return array;
+		return ret.toArray(new ConfigEntry[ret.size()]);
 	}
 	
 	/**
@@ -71,21 +110,40 @@ public class AdvFilterManager extends SharableManager<ID> {
 	 * @param configId
 	 * @return
 	 */
-	public Object[] getAdvFilter(ID configId) {
-		Assert.notNull(configId, "[configId] not be null");
-		Object[] filter = Application.createQueryNoFilter(
-				"select configId,config,filterName,shareTo,createdBy from FilterConfig where configId = ?")
+	public ConfigEntry getAdvFilter(ID configId) {
+		final String ckey = "AdvFilterDATA-" + configId;
+		ConfigEntry filter = (ConfigEntry) Application.getCommonCache().getx(ckey);
+		if (filter != null) {
+			return filter.clone();
+		}
+		
+		Object[] o = Application.createQueryNoFilter(
+				"select configId,config,filterName,shareTo from FilterConfig where configId = ?")
 				.setParameter(1, configId)
 				.unique();
-		if (filter == null) {
+		if (o == null) {
 			return null;
 		}
-		filter[1] = JSON.parseObject((String) filter[1]);
-		return filter;
+		
+		filter = new ConfigEntry()
+				.set("id", configId)
+				.set("filter", JSON.parseObject((String) o[1]))
+				.set("name", o[2])
+				.set("shareTo", o[3]);
+		Application.getCommonCache().putx(ckey, filter);
+		return filter.clone();
 	}
 	
 	@Override
 	public void clean(ID cacheKey) {
-		// TODO 缓存实现
+		Application.getCommonCache().evict("AdvFilterDATA-" + cacheKey);
+		
+		Object[] o = Application.createQueryNoFilter(
+				"select belongEntity from FilterConfig where configId = ?")
+				.setParameter(1, cacheKey)
+				.unique();
+		if (o != null) {
+			Application.getCommonCache().evict("AdvFilter-" + o[0]);
+		}
 	}
 }

@@ -25,6 +25,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.ConfigManager;
+import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
@@ -55,11 +56,7 @@ public class PickListManager implements ConfigManager<Object> {
 	 */
 	public JSONArray getPickList(Field field, boolean includeHide) {
 		ConfigEntry entries[] = getPickListRaw(field.getOwnEntity().getName(), field.getName(), includeHide);
-		JSONArray ret = new JSONArray();
-		for (ConfigEntry e : entries) {
-			ret.add(e.toJSON());
-		}
-		return ret;
+		return JSONUtils.toJSONArray(entries);
 	}
 	
 	/**

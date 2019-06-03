@@ -24,6 +24,7 @@ import org.apache.commons.lang.math.NumberUtils;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.portals.AdvFilterManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -142,9 +143,9 @@ public class JSONQueryParser {
 		// Adv
 		String advExpId = queryExpressie.getString("advFilter");
 		if (ID.isId(advExpId)) {
-			Object[] adv = AdvFilterManager.instance.getAdvFilter(ID.valueOf(advExpId));
+			ConfigEntry adv = AdvFilterManager.instance.getAdvFilter(ID.valueOf(advExpId));
 			if (adv != null) {
-				String where = new AdvFilterParser(entity, (JSONObject) adv[1]).toSqlWhere();
+				String where = new AdvFilterParser(entity, (JSONObject) adv.getJSON("filter")).toSqlWhere();
 				if (StringUtils.isNotBlank(where)) {
 					sqlWhere.append(" and ").append(where);
 				}
