@@ -82,7 +82,7 @@ public class DashboardManager extends SharableManager<ID> {
 			}
 			
 			array[i][2] = config;
-			array[i][3] = allowEditable(user, (ID) array[i][0]);
+			array[i][3] = isEditable(user, (ID) array[i][0]);
 		}
 		
 		return (JSON) JSON.toJSON(array);
@@ -112,7 +112,7 @@ public class DashboardManager extends SharableManager<ID> {
 	 * @param dashid
 	 * @return
 	 */
-	public boolean allowEditable(ID user, ID dashid) {
+	public boolean isEditable(ID user, ID dashid) {
 		final String ckey = "DashboardOWN-" + dashid;
 		ID createdBy = (ID) Application.getCommonCache().getx(ckey);
 		if (createdBy == null) {

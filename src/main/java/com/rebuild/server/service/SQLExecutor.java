@@ -55,7 +55,7 @@ public class SQLExecutor {
 	 * @return
 	 */
 	public int execute(String sql) {
-		return execute(sql, 60);
+		return execute(sql, 60 * 1);
 	}
 	
 	/**
@@ -116,7 +116,7 @@ public class SQLExecutor {
 	 * @return
 	 */
 	public int executeBatch(String[] sqls) {
-		return executeBatch(sqls, 60);
+		return executeBatch(sqls, 60 * 3);
 	}
 	
 	/**

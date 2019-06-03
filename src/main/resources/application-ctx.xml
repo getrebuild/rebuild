@@ -26,32 +26,13 @@
 		</property>
 	</bean>
 
-	<!-- Use druid
-	<bean name="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
-		<property name="driverClass" value="${db.driver}" />
-		<property name="jdbcUrl" value="${db.url}" />
-		<property name="user" value="${db.user}" />
-		<property name="password" value="${db.passwd}" />
-		<property name="initialPoolSize" value="${db.initpool}" />
-		<property name="minPoolSize" value="${db.poolmin}" />
-		<property name="maxPoolSize" value="${db.poolmax}" />
-		<property name="acquireIncrement" value="${db.acquireIncrement}" />
-		<property name="acquireRetryAttempts" value="${db.acquireRetryAttempts}" />
-		<property name="acquireRetryDelay" value="${db.acquireRetryDelay}" />
-		<property name="checkoutTimeout" value="2000" />
-		<property name="numHelperThreads" value="3" />
-		<property name="idleConnectionTestPeriod" value="1800" />
-		<property name="testConnectionOnCheckout" value="true" />
-		<property name="preferredTestQuery" value="select 1" />
-	</bean>
-	-->
 	<bean name="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
 		<property name="url" value="${db.url}" />
 		<property name="username" value="${db.user}" />
 		<property name="password" value="${db.passwd}" />
 		<property name="initialSize" value="3" />
 		<property name="minIdle" value="3" />
-		<property name="maxActive" value="60" />
+		<property name="maxActive" value="200" />
 		<property name="maxWait" value="5000" />
 		<property name="timeBetweenEvictionRunsMillis" value="60000" />
 		<property name="minEvictableIdleTimeMillis" value="300000" />
@@ -60,10 +41,9 @@
 		<property name="testOnBorrow" value="false" />
 		<property name="testOnReturn" value="false" />
 		<property name="poolPreparedStatements" value="true" />
-		<property name="maxOpenPreparedStatements" value="20" />
+		<property name="maxOpenPreparedStatements" value="100" />
 		<property name="asyncInit" value="false" />
 		<property name="filters" value="mergeStat" />
-		
 	</bean>
 	
 	<bean name="dialect" class="cn.devezhao.persist4j.dialect.MySQL5Dialect" />
