@@ -46,19 +46,6 @@ public class UserHelper {
 	private static final Log LOG = LogFactory.getLog(UserHelper.class);
 	
 	/**
-	 * [显示名, 头像]
-	 * 
-	 * @param userId
-	 * @return
-	 * @throws NoMemberFoundException
-	 */
-	@Deprecated
-	public static String[] getShows(ID userId) throws NoMemberFoundException {
-		User u = Application.getUserStore().getUser(userId);
-		return new String[] { u.getFullName(), u.getAvatarUrl(true) };
-	}
-	
-	/**
 	 * 是否管理员
 	 * 
 	 * @param userId

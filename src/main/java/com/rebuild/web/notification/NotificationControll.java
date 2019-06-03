@@ -79,14 +79,14 @@ public class NotificationControll extends BasePageControll {
 				.setParameter(1, user)
 				.setLimit(ps, pn * ps - ps)
 				.array();
-		for (int i = 0; i < array.length; i++) {
-			Object[] message = array[i];
-			message[0] = UserHelper.getShows((ID) message[0]);
-			message[1] = Message.formatHtml((String) message[1]);
-			message[2] = Moment.moment((Date) message[2]).fromNow();
-			array[i] = message;
-		}
 		
+		for (int i = 0; i < array.length; i++) {
+			Object[] msg = array[i];
+			msg[0] = new Object[] { msg[0], UserHelper.getName((ID) msg[0]) };
+			msg[1] = Message.formatHtml((String) msg[1]);
+			msg[2] = Moment.moment((Date) msg[2]).fromNow();
+			array[i] = msg;
+		}
 		writeSuccess(response, array);
 	}
 	

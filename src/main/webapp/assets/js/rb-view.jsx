@@ -71,8 +71,9 @@ const detectViewElement = function (item) {
 
 const UserShow = function (props) {
   let viewUrl = props.id ? ('#!/View/User/' + props.id) : null
+  let avatarUrl = rb.baseUrl + '/account/user-avatar/' + props.id
   return (<a href={viewUrl} className="user-show" title={props.name} onClick={props.onClick}>
-    <div className={'avatar' + (props.showName === true ? ' float-left' : '')}>{props.icon ? <i className={props.icon} /> : <img src={props.avatarUrl} />}</div>
+    <div className={'avatar' + (props.showName === true ? ' float-left' : '')}>{props.icon ? <i className={props.icon} /> : <img src={avatarUrl} />}</div>
     {props.showName === true ? <div className="name text-truncate">{props.name}{props.deptName ? <em>{props.deptName}</em> : null}</div> : null}
   </a>)
 }
@@ -134,14 +135,14 @@ const RbViewPage = {
         let v = res.data[k]
         if (!v || v === undefined) return
         if (k === 'owningUser') {
-          renderRbcomp(<UserShow id={v[0]} name={v[1]} avatarUrl={v[2]} showName={true} deptName2={v[3]} onClick={() => { this.clickViewUser(v[0]) }} />, $('.J_owningUser')[0])
+          renderRbcomp(<UserShow id={v[0]} name={v[1]} showName={true} deptName2={v[2]} onClick={() => { this.clickViewUser(v[0]) }} />, $('.J_owningUser')[0])
         } else if (k === 'sharingList') {
           let list = $('<ul class="list-unstyled list-inline mb-0"></ul>').appendTo('.J_sharingList')
           let _this = this
           $(v).each(function () {
             let $v = this
             let item = $('<li class="list-inline-item"></li>').appendTo(list)
-            renderRbcomp(<UserShow id={$v[0]} name={$v[1]} avatarUrl={$v[2]} onClick={() => { _this.clickViewUser($v[0]) }} />, item[0])
+            renderRbcomp(<UserShow id={$v[0]} name={$v[1]} onClick={() => { _this.clickViewUser($v[0]) }} />, item[0])
           })
 
           if (this.__ep && this.__ep.S === true) {

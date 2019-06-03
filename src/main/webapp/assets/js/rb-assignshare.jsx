@@ -199,8 +199,8 @@ class DlgShareManager extends RbModalHandler {
         <ul className="list-unstyled list-inline">
           {(this.state.sharingList || []).map((item) => {
             return (<li className="list-inline-item" key={'user-' + item[1]}>
-              <div onClick={() => this.clickUser(item[1])} title={'由 ' + item[3][0] + ' 共享于 ' + item[2]}>
-                <UserShow name={item[0][0]} avatarUrl={item[0][1]} showName={true} />
+              <div onClick={() => this.clickUser(item[1])} title={'由 ' + item[3] + ' 共享于 ' + item[2]}>
+                <UserShow id={item[0][0]} name={item[0][1]} showName={true} />
                 {this.state.selectAccess.contains(item[1]) && <i className="zmdi zmdi-check-circle" />}
               </div>
             </li>)
