@@ -24,9 +24,6 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.configuration.portals.ClassificationManager;
-import com.rebuild.server.configuration.portals.FormsManager;
-import com.rebuild.server.configuration.portals.PickListManager;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.helper.datalist.DataWrapper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -196,7 +193,7 @@ public class FieldValueWrapper {
 	 * @see PickListManager
 	 */
 	public static String wrapPickList(Object item, EasyMeta field) {
-		return StringUtils.defaultIfBlank(PickListManager.getLabel((ID) item), MISS_REF_PLACE);
+		return StringUtils.defaultIfBlank(PickListManager.instance.getLabel((ID) item), MISS_REF_PLACE);
 	}
 	
 	/**
@@ -206,7 +203,7 @@ public class FieldValueWrapper {
 	 * @see ClassificationManager
 	 */
 	public static String wrapClassification(Object item, EasyMeta field) {
-		return StringUtils.defaultIfBlank(ClassificationManager.getFullName((ID) item), MISS_REF_PLACE);
+		return StringUtils.defaultIfBlank(ClassificationManager.instance.getFullName((ID) item), MISS_REF_PLACE);
 	}
 	
 	/**

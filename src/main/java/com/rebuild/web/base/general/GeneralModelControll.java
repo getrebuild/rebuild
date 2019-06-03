@@ -63,9 +63,9 @@ public class GeneralModelControll extends BaseEntityControll {
 		} else {
 			mv = createModelAndView("/general-entity/record-view.jsp", record, user);
 			
-			JSON vtab = ViewAddonsManager.getViewTab(entity, user);
+			JSON vtab = ViewAddonsManager.instance.getViewTab(entity, user);
 			mv.getModel().put("ViewTabs", vtab);
-			JSON vadd = ViewAddonsManager.getViewAdd(entity, user);
+			JSON vadd = ViewAddonsManager.instance.getViewAdd(entity, user);
 			mv.getModel().put("ViewAdds", vadd);
 		}
 		mv.getModel().put("id", record);
@@ -91,7 +91,7 @@ public class GeneralModelControll extends BaseEntityControll {
 			}
 		}
 		
-		JSON model = FormsManager.getFormModel(entity, user, record);
+		JSON model = FormsManager.instance.getFormModel(entity, user, record);
 		// 填充前端设定的初始值
 		if (record == null && initialVal != null) {
 			FormsDefaultValue.setFormInitialValue(MetadataHelper.getEntity(entity), model, (JSONObject) initialVal);
@@ -104,7 +104,7 @@ public class GeneralModelControll extends BaseEntityControll {
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		ID record = getIdParameterNotNull(request, "id");
-		JSON modal = FormsManager.getViewModel(entity, user, record);
+		JSON modal = FormsManager.instance.getViewModel(entity, user, record);
 		writeSuccess(response, modal);
 	}
 }

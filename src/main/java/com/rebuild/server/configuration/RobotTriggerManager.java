@@ -43,7 +43,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/27
  */
-public class RobotTriggerManager implements ConfigManager {
+public class RobotTriggerManager implements ConfigManager<Entity> {
 
 	public static final RobotTriggerManager instance = new RobotTriggerManager();
 	private RobotTriggerManager() {}
@@ -161,9 +161,7 @@ public class RobotTriggerManager implements ConfigManager {
 		return entries;
 	}
 	
-	/**
-	 * @param cacheKey
-	 */
+	@Override
 	public void clean(Entity cacheKey) {
 		final String cKey = "RobotTriggerManager-" + cacheKey.getName();
 		Application.getCommonCache().evict(cKey);

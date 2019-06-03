@@ -29,7 +29,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 09/15/2018
  */
-public abstract class BaseLayoutManager extends SharableManager {
+public abstract class BaseLayoutManager extends SharableManager<ID> {
 	
 	// 导航
 	public static final String TYPE_NAV = "NAV";
@@ -47,7 +47,7 @@ public abstract class BaseLayoutManager extends SharableManager {
 	 * @param belongEntity
 	 * @return
 	 */
-	public static Object[] getLayoutOfForm(ID user, String belongEntity) {
+	public Object[] getLayoutOfForm(ID user, String belongEntity) {
 		return getLayoutConfig(user, belongEntity, TYPE_FORM);
 	}
 	
@@ -56,7 +56,7 @@ public abstract class BaseLayoutManager extends SharableManager {
 	 * @param belongEntity
 	 * @return
 	 */
-	public static Object[] getLayoutOfDatalist(ID user, String belongEntity) {
+	public Object[] getLayoutOfDatalist(ID user, String belongEntity) {
 		return getLayoutConfig(user, belongEntity, TYPE_DATALIST);
 	}
 	
@@ -64,7 +64,7 @@ public abstract class BaseLayoutManager extends SharableManager {
 	 * @param user
 	 * @return
 	 */
-	public static Object[] getLayoutOfNav(ID user) {
+	public Object[] getLayoutOfNav(ID user) {
 		return getLayoutConfig(user, null, TYPE_NAV);
 	}
 	
@@ -72,7 +72,7 @@ public abstract class BaseLayoutManager extends SharableManager {
 	 * @param user
 	 * @return
 	 */
-	public static Object[] getLayoutOfTab(ID user) {
+	public Object[] getLayoutOfTab(ID user) {
 		return getLayoutConfig(user, null, TYPE_TAB);
 	}
 	
@@ -80,7 +80,7 @@ public abstract class BaseLayoutManager extends SharableManager {
 	 * @param user
 	 * @return
 	 */
-	public static Object[] getLayoutOfAdd(ID user) {
+	public Object[] getLayoutOfAdd(ID user) {
 		return getLayoutConfig(user, null, TYPE_ADD);
 	}
 	
@@ -92,7 +92,7 @@ public abstract class BaseLayoutManager extends SharableManager {
 	 * @param applyType
 	 * @return [ID, JSONConfig]
 	 */
-	public static Object[] getLayoutConfig(ID user, String belongEntity, String applyType) {
+	public Object[] getLayoutConfig(ID user, String belongEntity, String applyType) {
 		ID configUsed = detectUseConfig(user, belongEntity, applyType);
 		if (configUsed == null) {
 			return null;
@@ -112,7 +112,12 @@ public abstract class BaseLayoutManager extends SharableManager {
 	 * @param applyType
 	 * @return
 	 */
-	public static ID detectUseConfig(ID user, String belongEntity, String applyType) {
+	public ID detectUseConfig(ID user, String belongEntity, String applyType) {
 		return detectUseConfig(user, "LayoutConfig", belongEntity, applyType);
+	}
+	
+	@Override
+	public void clean(ID cacheKey) {
+		// TODO 缓存实现
 	}
 }

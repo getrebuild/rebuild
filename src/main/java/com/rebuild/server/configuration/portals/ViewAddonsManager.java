@@ -44,12 +44,15 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class ViewAddonsManager extends BaseLayoutManager {
 	
+	public static final ViewAddonsManager instance = new ViewAddonsManager();
+	private ViewAddonsManager() { }
+	
 	/**
 	 * @param entity
 	 * @param user
 	 * @return
 	 */
-	public static JSON getViewTab(String entity, ID user) {
+	public JSON getViewTab(String entity, ID user) {
 		JSON tabs = getViewAddons(entity, user, TYPE_TAB);
 		
 		// 添加明细实体（如有）到第一个
@@ -68,7 +71,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
 	 * @param user
 	 * @return
 	 */
-	public static JSON getViewAdd(String entity, ID user) {
+	public JSON getViewAdd(String entity, ID user) {
 		return getViewAddons(entity, user, TYPE_ADD);
 	}
 	
@@ -78,7 +81,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
 	 * @param type
 	 * @return
 	 */
-	private static JSON getViewAddons(String belongEntity, ID user, String applyType) {
+	private JSON getViewAddons(String belongEntity, ID user, String applyType) {
 		final Object addons[] = getLayoutConfig(user, belongEntity, applyType);
 		final Permission useAction = TYPE_TAB.equals(applyType) ? BizzPermission.READ : BizzPermission.CREATE;
 		

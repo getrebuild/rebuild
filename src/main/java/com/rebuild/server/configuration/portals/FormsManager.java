@@ -51,12 +51,15 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class FormsManager extends BaseLayoutManager {
 
+	public static final FormsManager instance = new FormsManager();
+	private FormsManager() { }
+	
 	/**
 	 * @param entity
 	 * @param user
 	 * @return
 	 */
-	public static JSON getFormLayout(String entity, ID user) {
+	public JSON getFormLayout(String entity, ID user) {
 		JSONObject config = new JSONObject();
 		config.put("entity", entity);
 		
@@ -77,7 +80,7 @@ public class FormsManager extends BaseLayoutManager {
 	 * @param user
 	 * @return
 	 */
-	public static JSON getFormModel(String entity, ID user) {
+	public JSON getFormModel(String entity, ID user) {
 		return getFormModel(entity, user, null);
 	}
 	
@@ -89,7 +92,7 @@ public class FormsManager extends BaseLayoutManager {
 	 * @param record
 	 * @return
 	 */
-	public static JSON getFormModel(String entity, ID user, ID record) {
+	public JSON getFormModel(String entity, ID user, ID record) {
 		return getModel(entity, user, record, false);
 	}
 	
@@ -101,7 +104,7 @@ public class FormsManager extends BaseLayoutManager {
 	 * @param record
 	 * @return
 	 */
-	public static JSON getViewModel(String entity, ID user, ID record) {
+	public JSON getViewModel(String entity, ID user, ID record) {
 		Assert.notNull(record, "[record] not be null");
 		return getModel(entity, user, record, true);
 	}
@@ -113,7 +116,7 @@ public class FormsManager extends BaseLayoutManager {
 	 * @param onView 视图模式?
 	 * @return
 	 */
-	protected static JSON getModel(String entity, ID user, ID record, boolean onView) {
+	protected JSON getModel(String entity, ID user, ID record, boolean onView) {
 		Assert.notNull(entity, "[entity] not be null");
 		Assert.notNull(user, "[user] not be null");
 		
@@ -204,7 +207,7 @@ public class FormsManager extends BaseLayoutManager {
 			int dateLength = -1;
 			
 			if (dt == DisplayType.PICKLIST) {
-				JSONArray options = PickListManager.getPickList(fieldMeta);
+				JSONArray options = PickListManager.instance.getPickList(fieldMeta);
 				el.put("options", options);
 			}
 			else if (dt == DisplayType.DATETIME) {
@@ -220,7 +223,7 @@ public class FormsManager extends BaseLayoutManager {
 				dateLength = el.getString("dateFormat").length();
 			}
 			else if (dt == DisplayType.CLASSIFICATION) {
-				el.put("openLevel", ClassificationManager.getOpenLevel(fieldMeta));
+				el.put("openLevel", ClassificationManager.instance.getOpenLevel(fieldMeta));
 			}
 			
 			// 编辑/视图
@@ -292,7 +295,7 @@ public class FormsManager extends BaseLayoutManager {
 	 * @param error
 	 * @return
 	 */
-	private static JSONObject formatModelError(String error) {
+	private JSONObject formatModelError(String error) {
 		JSONObject cfg = new JSONObject();
 		cfg.put("error", error);
 		return cfg;
@@ -304,7 +307,7 @@ public class FormsManager extends BaseLayoutManager {
 	 * @param elements
 	 * @return
 	 */
-	private static Record findRecord(ID id, ID user, JSONArray elements) {
+	private Record findRecord(ID id, ID user, JSONArray elements) {
 		if (elements.isEmpty()) {
 			return null;
 		}
@@ -368,14 +371,14 @@ public class FormsManager extends BaseLayoutManager {
 				ID pickValue = (ID) value;
 				if (onView) {
 					return StringUtils.defaultIfBlank(
-							PickListManager.getLabel(pickValue), FieldValueWrapper.MISS_REF_PLACE);
+							PickListManager.instance.getLabel(pickValue), FieldValueWrapper.MISS_REF_PLACE);
 				} else {
 					return pickValue.toLiteral();
 				}
 			}
 			else if (dt == DisplayType.CLASSIFICATION) {
 				ID itemValue = (ID) value;
-				String itemName = ClassificationManager.getFullName(itemValue);
+				String itemName = ClassificationManager.instance.getFullName(itemValue);
 				itemName = StringUtils.defaultIfBlank(itemName, FieldValueWrapper.MISS_REF_PLACE);
 				return onView ? itemName : new String[] { itemValue.toLiteral(), itemName };
 			} 

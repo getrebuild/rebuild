@@ -42,7 +42,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 01/07/2019
  */
-public class SharableManager implements ConfigManager {
+public abstract class SharableManager<T> implements ConfigManager<T> {
 	
 	protected static final Log LOG = LogFactory.getLog(SharableManager.class);
 	
@@ -57,14 +57,14 @@ public class SharableManager implements ConfigManager {
 	 * @return
 	 * @see #detectUseConfig(ID, String, String, String)
 	 */
-	protected static ID detectUseConfig(ID user, String configEntity) {
+	protected ID detectUseConfig(ID user, String configEntity) {
 		return detectUseConfig(user, configEntity, null, null);
 	}
 	
 	/**
 	 * 确定使用哪个配置，规则如下
 	 * 1.管理员（角色）使用同一配置
-	 * 2.非管理员优先使用自己的配置，无自己的配置则使用管理员的
+	 * 2.非管理员优先使用自己的配置，无自己的配置则使用管理员共享的
 	 * 
 	 * @param user
 	 * @param configEntity
@@ -72,7 +72,7 @@ public class SharableManager implements ConfigManager {
 	 * @param applyType
 	 * @return
 	 */
-	protected static ID detectUseConfig(ID user, String configEntity, String belongEntity, String applyType) {
+	protected ID detectUseConfig(ID user, String configEntity, String belongEntity, String applyType) {
 		Assert.isTrue(MetadataHelper.containsEntity(configEntity), "configEntity");
 		
 		String sqlBase = String.format("select configId from %s where (1=1)", configEntity);
@@ -115,7 +115,7 @@ public class SharableManager implements ConfigManager {
 	 * @param configOrUser 配置ID 或 用戶ID
 	 * @return
 	 */
-	public static boolean isSelf(ID user, ID configOrUser) {
+	public boolean isSelf(ID user, ID configOrUser) {
 		if (configOrUser.getEntityCode() == EntityHelper.User) {
 			boolean self = user.equals(configOrUser);
 			if (!self && UserHelper.isAdmin(user)) {

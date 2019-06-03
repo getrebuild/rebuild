@@ -142,7 +142,7 @@ public class JSONQueryParser {
 		// Adv
 		String advExpId = queryExpressie.getString("advFilter");
 		if (ID.isId(advExpId)) {
-			Object[] adv = AdvFilterManager.getAdvFilter(ID.valueOf(advExpId));
+			Object[] adv = AdvFilterManager.instance.getAdvFilter(ID.valueOf(advExpId));
 			if (adv != null) {
 				String where = new AdvFilterParser(entity, (JSONObject) adv[1]).toSqlWhere();
 				if (StringUtils.isNotBlank(where)) {

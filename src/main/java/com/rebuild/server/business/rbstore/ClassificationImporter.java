@@ -73,7 +73,7 @@ public class ClassificationImporter extends HeavyTask<Void> {
 		if (exists.length > 0) {
 			if (this.forceClean) {
 				for (Object[] o : exists) {
-					ClassificationManager.cleanCache((ID) o[0]);
+					ClassificationManager.instance.clean((ID) o[0]);
 				}
 				String delSql = String.format("delete from `%s` where `DATA_ID` = '%s'",
 						MetadataHelper.getEntity(EntityHelper.ClassificationData).getPhysicalName(), dest);

@@ -239,14 +239,14 @@ public class DataImporter extends HeavyTask<Integer> {
 		// 支持ID
 		if (ID.isId(val) && ID.valueOf(val).getEntityCode() == EntityHelper.PickList) {
 			ID iid = ID.valueOf(val);
-			if (PickListManager.getLabel(iid) != null) {
+			if (PickListManager.instance.getLabel(iid) != null) {
 				return iid;
 			} else {
 				LOG.warn("No item of PickList found by ID : " + iid);
 				return null;
 			}
 		} else {
-			return PickListManager.findItemByLabel(val, field);
+			return PickListManager.instance.findItemByLabel(val, field);
 		}
 	}
 	
@@ -264,14 +264,14 @@ public class DataImporter extends HeavyTask<Integer> {
 		// 支持ID
 		if (ID.isId(val) && ID.valueOf(val).getEntityCode() == EntityHelper.ClassificationData) {
 			ID iid = ID.valueOf(val);
-			if (ClassificationManager.getName(iid) != null) {
+			if (ClassificationManager.instance.getName(iid) != null) {
 				return iid;
 			} else {
 				LOG.warn("No item of Classification found by ID : " + iid);
 				return null;
 			}
 		} else {
-			return ClassificationManager.findItemByName(val, field);
+			return ClassificationManager.instance.findItemByName(val, field);
 		}
 	}
 	

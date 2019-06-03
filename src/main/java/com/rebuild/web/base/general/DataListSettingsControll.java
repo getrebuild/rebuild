@@ -82,7 +82,7 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 		
 		JSON config = ServletUtils.getRequestJson(request);
 		ID cfgid = getIdParameter(request, "cfgid");
-		if (cfgid != null && !SharableManager.isSelf(user, cfgid)) {
+		if (cfgid != null && !DataListManager.instance.isSelf(user, cfgid)) {
 			cfgid = null;
 		}
 		
@@ -110,7 +110,7 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 		
 		List<Map<String, Object>> fieldList = new ArrayList<>();
 		for (Field field : MetadataSorter.sortFields(entityMeta)) {
-			fieldList.add(DataListManager.formattedColumn(field));
+			fieldList.add(DataListManager.instance.formattedColumn(field));
 		}
 		// 引用实体的字段
 		for (Field field : MetadataSorter.sortFields(entityMeta, DisplayType.REFERENCE)) {
@@ -120,12 +120,12 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 			}
 			Entity refEntity = field.getReferenceEntity();
 			for (Field field4Ref : MetadataSorter.sortFields(refEntity)) {
-				fieldList.add(DataListManager.formattedColumn(field4Ref, field));
+				fieldList.add(DataListManager.instance.formattedColumn(field4Ref, field));
 			}
 		}
 		
 		List<Map<String, Object>> configList = new ArrayList<>();
-		Object[] raw = DataListManager.getLayoutOfDatalist(user, entity);
+		Object[] raw = DataListManager.instance.getLayoutOfDatalist(user, entity);
 		if (raw != null) {
 			for (Object o : (JSONArray) raw[1]) {
 				JSONObject col = (JSONObject) o;
@@ -138,11 +138,11 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 				
 				Field fieldMeta = entityMeta.getField(fieldPaths[0]);
 				if (fieldPaths.length == 1) {
-					configList.add(DataListManager.formattedColumn(fieldMeta));
+					configList.add(DataListManager.instance.formattedColumn(fieldMeta));
 				} else {
 					Entity refEntity = fieldMeta.getReferenceEntity();
 					if (refEntity != null && refEntity.containsField(fieldPaths[1])) {
-						configList.add(DataListManager.formattedColumn(refEntity.getField(fieldPaths[1]), fieldMeta));
+						configList.add(DataListManager.instance.formattedColumn(refEntity.getField(fieldPaths[1]), fieldMeta));
 					} else {
 						LOG.warn("Unknow field '" + field + "' in '" + entity + "'");
 					}

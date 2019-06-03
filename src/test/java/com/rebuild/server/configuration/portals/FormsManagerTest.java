@@ -33,16 +33,16 @@ public class FormsManagerTest extends TestSupport {
 
 	@Test
 	public void testModel() throws Exception {
-		JSON newModel = FormsManager.getFormModel("User", UserService.ADMIN_USER);
+		JSON newModel = FormsManager.instance.getFormModel("User", UserService.ADMIN_USER);
 		System.out.println(newModel);
 		
-		JSON editModel = FormsManager.getFormModel("User", UserService.ADMIN_USER, UserService.SYSTEM_USER);
+		JSON editModel = FormsManager.instance.getFormModel("User", UserService.ADMIN_USER, UserService.SYSTEM_USER);
 		System.out.println(editModel);
 	}
 	
 	@Test
 	public void testViewModel() throws Exception {
-		JSON viewModel = FormsManager.getViewModel("User", UserService.ADMIN_USER, UserService.SYSTEM_USER);
+		JSON viewModel = FormsManager.instance.getViewModel("User", UserService.ADMIN_USER, UserService.SYSTEM_USER);
 		System.out.println(viewModel);
 	}
 }

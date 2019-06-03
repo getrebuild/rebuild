@@ -31,7 +31,7 @@ public class AdvFilterManagerTest extends TestSupport {
 
 	@Test
 	public void testGetAdvFilterList() throws Exception {
-		Object[][] list = AdvFilterManager.getAdvFilterList("User", UserService.ADMIN_USER);
+		Object[][] list = AdvFilterManager.instance.getAdvFilterList("User", UserService.ADMIN_USER);
 		System.out.println("AdvFilterManager : " + list.length);
 	}
 }

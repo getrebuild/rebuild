@@ -66,7 +66,7 @@ public class NavSettings extends BaseControll implements PortalsConfiguration {
 		
 		JSON config = ServletUtils.getRequestJson(request);
 		ID cfgid = getIdParameter(request, "cfgid");
-		if (cfgid != null && !SharableManager.isSelf(user, cfgid)) {
+		if (cfgid != null && !NavManager.instance.isSelf(user, cfgid)) {
 			cfgid = null;
 		}
 		
@@ -87,7 +87,7 @@ public class NavSettings extends BaseControll implements PortalsConfiguration {
 	
 	@RequestMapping(value = "nav-settings", method = RequestMethod.GET)
 	public void gets(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		JSON config = NavManager.getNav(getRequestUser(request));
+		JSON config = NavManager.instance.getNav(getRequestUser(request));
 		writeSuccess(response, config);
 	}
 }

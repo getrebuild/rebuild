@@ -43,13 +43,16 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 08/30/2018
  */
 public class DataListManager extends BaseLayoutManager {
+	
+	public static final DataListManager instance = new DataListManager();
+	private DataListManager() { }
 
 	/**
 	 * @param entity
 	 * @param user
 	 * @return
 	 */
-	public static JSON getColumnLayout(String entity, ID user) {
+	public JSON getColumnLayout(String entity, ID user) {
 		Object[] config = getLayoutOfDatalist(user, entity);
 		
 		List<Map<String, Object>> columnList = new ArrayList<>();
@@ -111,7 +114,7 @@ public class DataListManager extends BaseLayoutManager {
 	 * @param field
 	 * @return
 	 */
-	public static Map<String, Object> formattedColumn(Field field) {
+	public Map<String, Object> formattedColumn(Field field) {
 		return formattedColumn(field, null);
 	}
 	
@@ -120,7 +123,7 @@ public class DataListManager extends BaseLayoutManager {
 	 * @param parent
 	 * @return
 	 */
-	public static Map<String, Object> formattedColumn(Field field, Field parent) {
+	public Map<String, Object> formattedColumn(Field field, Field parent) {
 		String parentField = parent == null ? "" : (parent.getName() + ".");
 		String parentLabel = parent == null ? "" : (EasyMeta.getLabel(parent) + ".");
 		EasyMeta easyField = new EasyMeta(field);
@@ -134,7 +137,7 @@ public class DataListManager extends BaseLayoutManager {
 	 * @param belongEntity
 	 * @return
 	 */
-	public static ID detectUseConfig(ID user, String belongEntity) {
+	public ID detectUseConfig(ID user, String belongEntity) {
 		return detectUseConfig(user, "LayoutConfig", belongEntity, TYPE_DATALIST);
 	}
 }

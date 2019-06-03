@@ -60,7 +60,7 @@ public class DashboardControll extends BasePageControll {
 	@RequestMapping("/dash-gets")
 	public void dashGets(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		JSON dashs = DashboardManager.getDashList(user);
+		JSON dashs = DashboardManager.instance.getDashList(user);
 		writeSuccess(response, dashs);
 	}
 	
@@ -70,7 +70,7 @@ public class DashboardControll extends BasePageControll {
 		JSON formJson = ServletUtils.getRequestJson(request);
 		Record record = EntityHelper.parse((JSONObject) formJson, user);
 		
-		if (!DashboardManager.allowedUpdate(user, record.getPrimary())) {
+		if (!DashboardManager.instance.allowedUpdate(user, record.getPrimary())) {
 			writeFailure(response, "无权修改他人的仪表盘");
 			return;
 		}
@@ -134,7 +134,7 @@ public class DashboardControll extends BasePageControll {
 		ID dashid = getIdParameterNotNull(request, "id");
 		ID user = getRequestUser(request);
 		
-		if (!DashboardManager.allowedUpdate(user, dashid)) {
+		if (!DashboardManager.instance.allowedUpdate(user, dashid)) {
 			writeFailure(response, "无权修改他人的仪表盘");
 			return;
 		}
@@ -151,7 +151,7 @@ public class DashboardControll extends BasePageControll {
 		ID dashid = getIdParameterNotNull(request, "id");
 		ID user = getRequestUser(request);
 		
-		if (!DashboardManager.allowedUpdate(user, dashid)) {
+		if (!DashboardManager.instance.allowedUpdate(user, dashid)) {
 			writeFailure(response, "无权删除他人的仪表盘");
 			return;
 		}

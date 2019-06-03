@@ -41,7 +41,7 @@ public class NavManagerTest extends TestSupport {
 
 	@Test
 	public void testGetNav() throws Exception {
-		JSON nav = NavManager.getNav(UserService.ADMIN_USER);
+		JSON nav = NavManager.instance.getNav(UserService.ADMIN_USER);
 		if (nav != null) {
 			System.out.println("testGetNav .......... \n" + nav.toJSONString());
 		}
@@ -54,12 +54,12 @@ public class NavManagerTest extends TestSupport {
 				.sessionAttr(WebUtils.CURRENT_USER, UserService.ADMIN_USER);
 		HttpServletRequest request = builder.buildRequest(new MockServletContext());
 		
-		JSON navForPortal = NavManager.getNavForPortal(request);
+		JSON navForPortal = NavManager.instance.getNavForPortal(request);
 		System.out.println("testPortalNav .......... \n" + navForPortal.toJSONString());
 		
 		if (!((JSONArray) navForPortal).isEmpty()) {
 			JSONObject firstNav = (JSONObject) ((JSONArray) navForPortal).get(0);
-			String navHtml = NavManager.renderNavItem(firstNav, "home", true);
+			String navHtml = NavManager.instance.renderNavItem(firstNav, "home", true);
 			System.out.println(navHtml);
 		}
 	}

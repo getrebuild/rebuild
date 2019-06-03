@@ -38,17 +38,17 @@ public class ClassificationManagerTest extends TestSupport {
 		Entity test = MetadataHelper.getEntity(TEST_ENTITY);
 		Field classification = test.getField("classification");
 		
-		ID itemId = ClassificationManager.findItemByName("南京", classification);
+		ID itemId = ClassificationManager.instance.findItemByName("南京", classification);
 		if (itemId != null) {
-			String fullName = ClassificationManager.getFullName(itemId);
+			String fullName = ClassificationManager.instance.getFullName(itemId);
 			System.out.println(itemId + " > " + fullName);
 		}
 		System.out.println(itemId);
 		
-		itemId = ClassificationManager.findItemByName("江苏.南京", classification);
+		itemId = ClassificationManager.instance.findItemByName("江苏.南京", classification);
 		System.out.println(itemId);
 		
-		itemId = ClassificationManager.findItemByName("江苏.无效的", classification);
+		itemId = ClassificationManager.instance.findItemByName("江苏.无效的", classification);
 		System.out.println(itemId);
 	}
 }

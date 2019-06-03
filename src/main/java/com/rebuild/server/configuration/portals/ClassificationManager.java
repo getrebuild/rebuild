@@ -35,9 +35,12 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/28
  */
-public class ClassificationManager implements ConfigManager {
+public class ClassificationManager implements ConfigManager<ID> {
 
 	private static final Log LOG = LogFactory.getLog(ClassificationManager.class);
+	
+	public static final ClassificationManager instance = new ClassificationManager();
+	private ClassificationManager() { }
 	
 	/**
 	 * 获取名称
@@ -45,7 +48,7 @@ public class ClassificationManager implements ConfigManager {
 	 * @param itemId
 	 * @return
 	 */
-	public static String getName(ID itemId) {
+	public String getName(ID itemId) {
 		String[] ns = getItemNames(itemId);
 		return ns == null ? null : ns[0];
 	}
@@ -56,7 +59,7 @@ public class ClassificationManager implements ConfigManager {
 	 * @param itemId
 	 * @return
 	 */
-	public static String getFullName(ID itemId) {
+	public String getFullName(ID itemId) {
 		String[] ns = getItemNames(itemId);
 		return ns == null ? null : ns[1];
 	}
@@ -65,8 +68,8 @@ public class ClassificationManager implements ConfigManager {
 	 * @param itemId
 	 * @return [名称, 全名称]
 	 */
-	private static String[] getItemNames(ID itemId) {
-		final String ckey = "NAME-" + itemId;
+	private String[] getItemNames(ID itemId) {
+		final String ckey = "ClassificationNAME-" + itemId;
 		String[] cval = (String[]) Application.getCommonCache().getx(ckey);
 		if (cval != null) {
 			return cval;
@@ -90,7 +93,7 @@ public class ClassificationManager implements ConfigManager {
 	 * @param field
 	 * @return
 	 */
-	public static ID findItemByName(String name, Field field) {
+	public ID findItemByName(String name, Field field) {
 		ID dataId = getUseClassification(field);
 		if (dataId == null) {
 			return null;
@@ -116,13 +119,13 @@ public class ClassificationManager implements ConfigManager {
 	 * @param field
 	 * @return
 	 */
-	public static int getOpenLevel(Field field) {
+	public int getOpenLevel(Field field) {
 		ID dataId = getUseClassification(field);
 		if (dataId == null) {
 			return 0;
 		}
 		
-		String ckey = "LEVEL-" + dataId;
+		String ckey = "ClassificationLEVEL-" + dataId;
 		Integer cval = (Integer) Application.getCommonCache().getx(ckey);
 		if (cval != null) {
 			return cval;
@@ -145,7 +148,7 @@ public class ClassificationManager implements ConfigManager {
 	 * @param field
 	 * @return
 	 */
-	public static ID getUseClassification(Field field) {
+	public ID getUseClassification(Field field) {
 		String use = EasyMeta.valueOf(field).getFieldExtConfig().getString("classification");
 		ID dataId = ID.isId(use) ? ID.valueOf(use) : null;
 		if (dataId == null) {
@@ -154,19 +157,12 @@ public class ClassificationManager implements ConfigManager {
 		return dataId;
 	}
 	
-	/**
-	 *  清理缓存
-	 * 
-	 * @param dataOrItem
-	 * @see #getName(ID)
-	 * @see #getFullName(ID)
-	 * @see #getOpenLevel(Field)
-	 */
-	public static void cleanCache(ID dataOrItem) {
-		if (dataOrItem.getEntityCode() == EntityHelper.ClassificationData) {
-			Application.getCommonCache().evict("NAME-" + dataOrItem);
-		} else if (dataOrItem.getEntityCode() == EntityHelper.Classification) {
-			Application.getCommonCache().evict("LEVEL-" + dataOrItem);
+	@Override
+	public void clean(ID cacheKey) {
+		if (cacheKey.getEntityCode() == EntityHelper.ClassificationData) {
+			Application.getCommonCache().evict("ClassificationNAME-" + cacheKey);
+		} else if (cacheKey.getEntityCode() == EntityHelper.Classification) {
+			Application.getCommonCache().evict("ClassificationLEVEL-" + cacheKey);
 		}
 	}
 }

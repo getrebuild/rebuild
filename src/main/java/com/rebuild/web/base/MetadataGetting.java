@@ -33,6 +33,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.PickListManager;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
@@ -57,11 +59,11 @@ public class MetadataGetting extends BaseControll {
 	@RequestMapping("entities")
 	public void entities(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		boolean hasSlave = getBoolParameter(request, "slave", false);
+		boolean includeSlave = getBoolParameter(request, "slave", false);
 		List<Map<String, String>> list = new ArrayList<>();
 		for (Entity e : MetadataSorter.sortEntities(user)) {
-			// 不返回明细实体
-			if (e.getMasterEntity() != null && !hasSlave) {
+			// 是否返回明细实体
+			if (e.getMasterEntity() != null && !includeSlave) {
 				continue;
 			}
 			
@@ -166,12 +168,44 @@ public class MetadataGetting extends BaseControll {
 		writeSuccess(response, list);
 	}
 	
+	// --
+	
 	// PickList 值列表
 	@RequestMapping("picklist")
-	public void ref(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void fetchPicklist(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
 		String field = getParameterNotNull(request, "field");
-		JSON list = PickListManager.getPickList(entity, field, false);
+		
+		Field fieldMeta = MetadataHelper.getField(entity, field);
+		JSON list = PickListManager.instance.getPickList(fieldMeta);
 		writeSuccess(response, list);
+	}
+	
+	// Classification 值列表
+	@RequestMapping("classification")
+	public void fetchClassification(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String entity = getParameterNotNull(request, "entity");
+		String field = getParameterNotNull(request, "field");
+		ID parent = getIdParameter(request, "parent");
+		
+		Field fieldMeta = MetadataHelper.getEntity(entity).getField(field);
+		EasyMeta fieldEasy = EasyMeta.valueOf(fieldMeta);
+		JSONObject extConfig = fieldEasy.getFieldExtConfig();
+		String dataId = extConfig.getString("classification");
+		if (!ID.isId(dataId)) {
+			writeFailure(response, "分类字段配置有误");
+			return;
+		}
+		
+		String sql = "select itemId,name from ClassificationData where dataId = ? and ";
+		if (parent != null) {
+			sql += "parent = '" + parent + "'";
+		} else {
+			sql += "parent is null";
+		}
+		sql += " order by code, name";
+		Object[][] data = Application.createQueryNoFilter(sql).setParameter(1, ID.valueOf(dataId)).array();
+		
+		writeSuccess(response, data);
 	}
 }

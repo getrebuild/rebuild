@@ -53,7 +53,7 @@ public class FormDesignControll extends BasePageControll implements PortalsConfi
 	public ModelAndView pageFormDesign(@PathVariable String entity, HttpServletRequest request) throws IOException {
 		ModelAndView mv = createModelAndView("/admin/entityhub/form-design.jsp");
 		MetaEntityControll.setEntityBase(mv, entity);
-		JSON cfg = FormsManager.getFormLayout(entity, getRequestUser(request));
+		JSON cfg = FormsManager.instance.getFormLayout(entity, getRequestUser(request));
 		if (cfg != null) {
 			request.setAttribute("FormConfig", cfg);
 		}

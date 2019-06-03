@@ -1240,7 +1240,7 @@ class ClassificationSelector extends React.Component {
     this.loadData(0)
   }
   loadData(level, p) {
-    $.get(`${rb.baseUrl}/commons/search/classification?entity=${this.props.entity}&field=${this.props.field}&parent=${p || ''}`, (res) => {
+    $.get(`${rb.baseUrl}/commons/metadata/classification?entity=${this.props.entity}&field=${this.props.field}&parent=${p || ''}`, (res) => {
       let s = this.state.datas
       s[level] = res.data
       this.setState({ datas: s }, () => {

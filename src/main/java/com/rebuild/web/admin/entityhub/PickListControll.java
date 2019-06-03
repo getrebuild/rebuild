@@ -38,7 +38,6 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Field;
 
 /**
- * 
  * @author zhaofang123@gmail.com
  * @since 09/06/2018
  */
@@ -52,7 +51,8 @@ public class PickListControll extends BaseControll {
 		String field = getParameterNotNull(request, "field");
 		boolean isAll = "true".equals(getParameter(request, "isAll"));
 		
-		JSONArray picklist = PickListManager.getPickList(entity, field, isAll);
+		Field fieldMeta = MetadataHelper.getField(entity, field);
+		JSONArray picklist = PickListManager.instance.getPickList(fieldMeta, isAll);
 		writeSuccess(response, picklist);
 	}
 	

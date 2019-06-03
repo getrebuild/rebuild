@@ -38,7 +38,10 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 12/20/2018
  */
-public class DashboardManager extends SharableManager {
+public class DashboardManager extends SharableManager<ID> {
+	
+	public static final DashboardManager instance = new DashboardManager();
+	private DashboardManager() { }
 	
 	/**
 	 * 获取可用面板
@@ -46,7 +49,7 @@ public class DashboardManager extends SharableManager {
 	 * @param user
 	 * @return
 	 */
-	public static JSON getDashList(ID user) {
+	public JSON getDashList(ID user) {
 		ID configHas = detectUseConfig(user, "DashboardConfig");
 		// 没有就初始化一个
 		if (configHas == null) {
@@ -106,7 +109,7 @@ public class DashboardManager extends SharableManager {
 	 * @param dashid
 	 * @return
 	 */
-	public static boolean allowedUpdate(ID user, ID dashid) {
+	public boolean allowedUpdate(ID user, ID dashid) {
 		Object[] dash = Application.createQueryNoFilter(
 				"select createdBy from DashboardConfig where configId = ?")
 				.setParameter(1, dashid)
@@ -120,5 +123,10 @@ public class DashboardManager extends SharableManager {
 		} else {
 			return user.equals(dash[0]);
 		}
+	}
+	
+	@Override
+	public void clean(ID cacheKey) {
+		// TODO 缓存实现
 	}
 }

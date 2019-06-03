@@ -33,7 +33,10 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 09/30/2018
  */
-public class AdvFilterManager extends SharableManager {
+public class AdvFilterManager extends SharableManager<ID> {
+	
+	public static final AdvFilterManager instance = new AdvFilterManager();
+	private AdvFilterManager() { }
 	
 	/**
 	 * 获取高级查询列表
@@ -42,7 +45,7 @@ public class AdvFilterManager extends SharableManager {
 	 * @param user
 	 * @return
 	 */
-	public static Object[][] getAdvFilterList(String entity, ID user) {
+	public Object[][] getAdvFilterList(String entity, ID user) {
 		Assert.notNull(entity, "[entity] not be null");
 		Assert.notNull(user, "[user] not be null");
 		
@@ -68,7 +71,7 @@ public class AdvFilterManager extends SharableManager {
 	 * @param configId
 	 * @return
 	 */
-	public static Object[] getAdvFilter(ID configId) {
+	public Object[] getAdvFilter(ID configId) {
 		Assert.notNull(configId, "[configId] not be null");
 		Object[] filter = Application.createQueryNoFilter(
 				"select configId,config,filterName,shareTo,createdBy from FilterConfig where configId = ?")
@@ -79,5 +82,10 @@ public class AdvFilterManager extends SharableManager {
 		}
 		filter[1] = JSON.parseObject((String) filter[1]);
 		return filter;
+	}
+	
+	@Override
+	public void clean(ID cacheKey) {
+		// TODO 缓存实现
 	}
 }

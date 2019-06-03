@@ -45,14 +45,9 @@ public class ClassificationService extends BaseService {
 	}
 	
 	@Override
-	public Record create(Record record) {
-		return super.create(record);
-	}
-	
-	@Override
 	public Record update(Record record) {
 		record = super.update(record);
-		ClassificationManager.cleanCache(record.getPrimary());
+		ClassificationManager.instance.clean(record.getPrimary());
 		return record;
 	}
 	
@@ -68,7 +63,9 @@ public class ClassificationService extends BaseService {
 			}
 		}
 		
-		return super.delete(recordId);
+		int del = super.delete(recordId);
+		ClassificationManager.instance.clean(recordId);
+		return del;
 	}
 	
 	// -- for DataItem
@@ -81,19 +78,19 @@ public class ClassificationService extends BaseService {
 		boolean reindex = setFullNameValue(record);
 		// New
 		if (record.getPrimary() == null) {
-			return super.create(record);
+			return this.create(record);
 		}
 		
 		// Update
 		record = super.update(record);
 		if (reindex) {
 			final ID itemId = record.getPrimary();
+			ClassificationManager.instance.clean(itemId);
 			final long start = System.currentTimeMillis();
 			ThreadPool.exec(new Runnable() {
 				@Override
 				public void run() {
 					try {
-						ClassificationManager.cleanCache(itemId);
 						reindexFullNameByParent(itemId);
 					} finally {
 						long cost = System.currentTimeMillis() - start;
@@ -129,7 +126,7 @@ public class ClassificationService extends BaseService {
 		}
 		
 		if (parent != null) {
-			fullName = ClassificationManager.getFullName(parent) + "." + fullName;
+			fullName = ClassificationManager.instance.getFullName(parent) + "." + fullName;
 		}
 		record.setString("fullName", fullName);
 		return true;
@@ -142,7 +139,7 @@ public class ClassificationService extends BaseService {
 	 * @return
 	 * @see #reindexFullNameByParent(ID, ID)
 	 */
-	public int reindexFullNameByParent(ID parent) {
+	protected int reindexFullNameByParent(ID parent) {
 		Object[] data = Application.createQueryNoFilter(
 				"select dataId from ClassificationData where itemId = ?")
 				.setParameter(1, parent)
@@ -157,7 +154,7 @@ public class ClassificationService extends BaseService {
 	 * @param dataId 可选。但指定此值处理效率较高
 	 * @return
 	 */
-	public int reindexFullNameByParent(ID parent, ID dataId) {
+	protected int reindexFullNameByParent(ID parent, ID dataId) {
 		String ql = "select itemId,name,parent from ClassificationData where parent = ?";
 		if (dataId != null) {
 			ql += " and dataId = '" + dataId + "'";
@@ -170,7 +167,7 @@ public class ClassificationService extends BaseService {
 			ID itemId = (ID) c[0];
 			String fullName = (String) c[1];
 			if (c[2] != null) {
-				String pfn = ClassificationManager.getFullName((ID) c[2]);
+				String pfn = ClassificationManager.instance.getFullName((ID) c[2]);
 				fullName = pfn + "." + fullName;
 			}
 			Record record = EntityHelper.forUpdate(itemId, UserService.SYSTEM_USER, false);
@@ -178,28 +175,27 @@ public class ClassificationService extends BaseService {
 			super.update(record);
 			reindex++;
 			
-			ClassificationManager.cleanCache(itemId);
+			ClassificationManager.instance.clean(itemId);
 			reindex += reindexFullNameByParent(itemId, dataId);
 		}
 		return reindex;
 	}
 	
 	/**
-	 * 重建指定分类 fullName
-	 * NOTE 效率很低，数据多建议异步使用
+	 * 重建指定分类 fullName。注意：此方法效率很低，数据多建议异步使用
 	 * 
 	 * @param dataId
 	 */
-	public void reindexFullName(ID dataId) {
+	@Deprecated
+	protected void reindexFullName(ID dataId) {
 		Object[][] items = Application.createQueryNoFilter(
 				"select itemId from ClassificationData where dataId = ?")
 				.setParameter(1, dataId)
 				.array();
 		for (Object[] item : items) {
 			ID itemId = (ID) item[0];
-			ClassificationManager.cleanCache(itemId);
-			
-			String fullName = ClassificationManager.getFullName(itemId);
+			ClassificationManager.instance.clean(itemId);
+			String fullName = ClassificationManager.instance.getFullName(itemId);
 			Record record = EntityHelper.forUpdate(itemId, Application.getCurrentUser());
 			record.setString("fullName", fullName);
 			super.update(record);

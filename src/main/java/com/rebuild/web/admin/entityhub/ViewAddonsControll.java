@@ -65,7 +65,7 @@ public class ViewAddonsControll extends BaseControll implements PortalsConfigura
 		String applyType = getParameter(request, "type", ViewAddonsManager.TYPE_TAB);
 		JSON config = ServletUtils.getRequestJson(request);
 		
-		ID configId = ViewAddonsManager.detectUseConfig(user, entity, applyType);
+		ID configId = ViewAddonsManager.instance.detectUseConfig(user, entity, applyType);
 		Record record = null;
 		if (configId == null) {
 			record = EntityHelper.forNew(EntityHelper.LayoutConfig, user);
@@ -88,7 +88,7 @@ public class ViewAddonsControll extends BaseControll implements PortalsConfigura
 		String applyType = getParameter(request, "type", ViewAddonsManager.TYPE_TAB);
 
 		Entity entityMeta = MetadataHelper.getEntity(entity);
-		Object[] addons = ViewAddonsManager.getLayoutConfig(null, entity, applyType);
+		Object[] addons = ViewAddonsManager.instance.getLayoutConfig(null, entity, applyType);
 		
 		Set<String[]> refs = new HashSet<>();
 		for (Field field : entityMeta.getReferenceToFields()) {

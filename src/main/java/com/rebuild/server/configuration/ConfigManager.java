@@ -19,10 +19,17 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.configuration;
 
 /**
- * 配置管理器。标记接口。TODO 缓存
+ * 配置管理器
  * 
  * @author devezhao
  * @since 01/04/2019
  */
-public interface ConfigManager {
+public interface ConfigManager<T> {
+	
+	/**
+	 * 清理缓存
+	 * 
+	 * @param cacheKey
+	 */
+	void clean(T cacheKey);
 }

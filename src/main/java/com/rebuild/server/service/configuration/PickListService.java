@@ -26,6 +26,7 @@ import org.springframework.util.Assert;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.configuration.portals.PickListManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.BaseService;
 
@@ -83,6 +84,7 @@ public class PickListService extends BaseService  {
 				r.setString("text", item.getString("text"));
 				super.update(r);
 				itemsHoldList.remove(id2id);
+				PickListManager.instance.clean(id2id);
 			}
 		}
 		
@@ -106,11 +108,14 @@ public class PickListService extends BaseService  {
 			
 			if (id2id != null) {
 				itemsHoldList.remove(id2id);
+				PickListManager.instance.clean(id2id);
 			}
 		}
 		
 		for (ID item : itemsHoldList) {
 			super.delete(item);
+			PickListManager.instance.clean(item);
 		}
+		PickListManager.instance.clean(field);
 	}
 }

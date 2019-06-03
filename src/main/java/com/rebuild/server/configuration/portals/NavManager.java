@@ -45,11 +45,14 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class NavManager extends BaseLayoutManager {
 
+	public static final NavManager instance = new NavManager();
+	private NavManager() { }
+	
 	/**
 	 * @param user
 	 * @return
 	 */
-	public static JSON getNav(ID user) {
+	public JSON getNav(ID user) {
 		Object[] config = getLayoutOfNav(user);
 		if (config == null) {
 			return null;
@@ -62,7 +65,7 @@ public class NavManager extends BaseLayoutManager {
 	 * @param user
 	 * @return
 	 */
-	public static ID detectUseConfig(ID user) {
+	public ID detectUseConfig(ID user) {
 		return detectUseConfig(user, "LayoutConfig", null, TYPE_NAV);
 	}
 	
@@ -74,7 +77,7 @@ public class NavManager extends BaseLayoutManager {
 	 * @param request
 	 * @return
 	 */
-	public static JSONArray getNavForPortal(HttpServletRequest request) {
+	public JSONArray getNavForPortal(HttpServletRequest request) {
 		final ID user = AppUtils.getRequestUser(request);
 		Object[] config = getLayoutOfNav(user);
 		if (config == null) {
@@ -114,7 +117,7 @@ public class NavManager extends BaseLayoutManager {
 	 * @param user
 	 * @return
 	 */
-	private static boolean isFilterNav(JSONObject nav, ID user) {
+	private boolean isFilterNav(JSONObject nav, ID user) {
 		String type = nav.getString("type");
 		if ("ENTITY".equalsIgnoreCase(type)) {
 			String entity = nav.getString("value");
@@ -139,7 +142,7 @@ public class NavManager extends BaseLayoutManager {
 	 * @param isTop
 	 * @return
 	 */
-	public static String renderNavItem(JSONObject item, String activeNav, boolean isTop) {
+	public String renderNavItem(JSONObject item, String activeNav, boolean isTop) {
 		String navName = "nav_entity-" + item.getString("value");
 		boolean isUrlType = "URL".equals(item.getString("type"));
 		String navUrl = item.getString("value");
