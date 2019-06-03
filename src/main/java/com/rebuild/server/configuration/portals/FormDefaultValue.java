@@ -50,9 +50,9 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 11/15/2018
  */
-public class FormsDefaultValue {
+public class FormDefaultValue {
 	
-	private static final Log LOG = LogFactory.getLog(FormsDefaultValue.class);
+	private static final Log LOG = LogFactory.getLog(FormDefaultValue.class);
 	
 	public static final String DV_MASTER = "$MASTER$";
 	public static final String DV_REFERENCE_PREFIX = "&";

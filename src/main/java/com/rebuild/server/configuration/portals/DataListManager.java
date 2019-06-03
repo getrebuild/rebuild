@@ -42,7 +42,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 08/30/2018
  */
-public class DataListManager extends BaseLayoutManager {
+public class DataListManager extends BaseLayoutManager<Entity> {
 	
 	public static final DataListManager instance = new DataListManager();
 	private DataListManager() { }
@@ -139,5 +139,10 @@ public class DataListManager extends BaseLayoutManager {
 	 */
 	public ID detectUseConfig(ID user, String belongEntity) {
 		return detectUseConfig(user, "LayoutConfig", belongEntity, TYPE_DATALIST);
+	}
+	
+	@Override
+	public void clean(Entity cacheKey) {
+		// TODO 缓存实现
 	}
 }

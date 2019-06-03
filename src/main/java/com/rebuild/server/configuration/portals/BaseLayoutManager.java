@@ -29,7 +29,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 09/15/2018
  */
-public abstract class BaseLayoutManager extends SharableManager<ID> {
+public abstract class BaseLayoutManager<T> extends SharableManager<T> {
 	
 	// 导航
 	public static final String TYPE_NAV = "NAV";
@@ -85,12 +85,10 @@ public abstract class BaseLayoutManager extends SharableManager<ID> {
 	}
 	
 	/**
-	 * 获取布局配置
-	 * 
 	 * @param user
 	 * @param belongEntity
 	 * @param applyType
-	 * @return [ID, JSONConfig]
+	 * @return
 	 */
 	public Object[] getLayoutConfig(ID user, String belongEntity, String applyType) {
 		ID configUsed = detectUseConfig(user, belongEntity, applyType);
@@ -114,10 +112,5 @@ public abstract class BaseLayoutManager extends SharableManager<ID> {
 	 */
 	public ID detectUseConfig(ID user, String belongEntity, String applyType) {
 		return detectUseConfig(user, "LayoutConfig", belongEntity, applyType);
-	}
-	
-	@Override
-	public void clean(ID cacheKey) {
-		// TODO 缓存实现
 	}
 }

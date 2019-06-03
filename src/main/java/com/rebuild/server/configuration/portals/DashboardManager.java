@@ -50,15 +50,15 @@ public class DashboardManager extends SharableManager<ID> {
 	 * @return
 	 */
 	public JSON getDashList(ID user) {
-		ID configHas = detectUseConfig(user, "DashboardConfig");
+		ID configHave = detectUseConfig(user, "DashboardConfig");
 		// 没有就初始化一个
-		if (configHas == null) {
+		if (configHave == null) {
 			Record record = EntityHelper.forNew(EntityHelper.DashboardConfig, user);
 			record.setString("config", JSONUtils.EMPTY_ARRAY_STR);
 			record.setString("title", UserHelper.isAdmin(user) ? "默认仪表盘" : "我的仪表盘");
 			record.setString("shareTo", UserHelper.isAdmin(user) ? SHARE_ALL : SHARE_SELF);
 			record = Application.getCommonService().create(record);
-			configHas = record.getPrimary();
+			configHave = record.getPrimary();
 		}
 		
 		String sql = "select configId,title,config,createdBy,shareTo from DashboardConfig where ";
@@ -95,7 +95,7 @@ public class DashboardManager extends SharableManager<ID> {
 			}
 			
 			array[i][2] = config;
-			array[i][3] = allowedUpdate(user, (ID) array[i][0]);
+			array[i][3] = allowedEditable(user, (ID) array[i][0]);
 			array[i][0] = array[i][0].toString();
 		}
 		
@@ -109,7 +109,7 @@ public class DashboardManager extends SharableManager<ID> {
 	 * @param dashid
 	 * @return
 	 */
-	public boolean allowedUpdate(ID user, ID dashid) {
+	public boolean allowedEditable(ID user, ID dashid) {
 		Object[] dash = Application.createQueryNoFilter(
 				"select createdBy from DashboardConfig where configId = ?")
 				.setParameter(1, dashid)

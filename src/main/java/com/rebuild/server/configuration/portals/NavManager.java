@@ -43,7 +43,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 09/20/2018
  */
-public class NavManager extends BaseLayoutManager {
+public class NavManager extends BaseLayoutManager<ID> {
 
 	public static final NavManager instance = new NavManager();
 	private NavManager() { }
@@ -67,6 +67,11 @@ public class NavManager extends BaseLayoutManager {
 	 */
 	public ID detectUseConfig(ID user) {
 		return detectUseConfig(user, "LayoutConfig", null, TYPE_NAV);
+	}
+	
+	@Override
+	public void clean(ID cacheKey) {
+		// TODO 缓存实现
 	}
 	
 	// --

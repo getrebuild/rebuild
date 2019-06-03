@@ -41,11 +41,11 @@ public class FormsDefaultValueTest extends TestSupport {
 		Entity e = MetadataHelper.getEntity(TEST_ENTITY);
 		Field date = e.getField("date");
 		
-		System.out.println(FormsDefaultValue.exprDefaultValue(date, "{NOW}"));
-		System.out.println(FormsDefaultValue.exprDefaultValue(date, "{NOW - 1H}"));
-		System.out.println(FormsDefaultValue.exprDefaultValue(date, "{NOW + 1M}"));
-		System.out.println(FormsDefaultValue.exprDefaultValue(date, "2019-09-01"));
-		System.out.println(FormsDefaultValue.exprDefaultValue(date, "2019-09-01 01:01"));
+		System.out.println(FormDefaultValue.exprDefaultValue(date, "{NOW}"));
+		System.out.println(FormDefaultValue.exprDefaultValue(date, "{NOW - 1H}"));
+		System.out.println(FormDefaultValue.exprDefaultValue(date, "{NOW + 1M}"));
+		System.out.println(FormDefaultValue.exprDefaultValue(date, "2019-09-01"));
+		System.out.println(FormDefaultValue.exprDefaultValue(date, "2019-09-01 01:01"));
 	}
 	
 	@Test
@@ -55,7 +55,7 @@ public class FormsDefaultValueTest extends TestSupport {
 		Entity SalesOrder999 = MetadataHelper.getEntity("SalesOrder999");
 		Entity SalesOrderItem999 = MetadataHelper.getEntity("SalesOrderItem999");
 		
-		JSONObject initial = JSONUtils.toJSONObject(FormsDefaultValue.DV_MASTER, ID.newId(SalesOrder999.getEntityCode()));
+		JSONObject initial = JSONUtils.toJSONObject(FormDefaultValue.DV_MASTER, ID.newId(SalesOrder999.getEntityCode()));
 		
 		JSONArray elements = new JSONArray();
 		JSONObject el = new JSONObject();
@@ -65,6 +65,6 @@ public class FormsDefaultValueTest extends TestSupport {
 		JSONObject mockModel = new JSONObject();
 		mockModel.put("elements", elements);
 		
-		FormsDefaultValue.setFormInitialValue(SalesOrderItem999, mockModel, initial);
+		FormDefaultValue.setFormInitialValue(SalesOrderItem999, mockModel, initial);
 	}
 }

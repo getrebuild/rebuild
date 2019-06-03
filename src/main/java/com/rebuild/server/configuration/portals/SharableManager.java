@@ -83,10 +83,7 @@ public abstract class SharableManager<T> implements ConfigManager<T> {
 			sqlBase += String.format(" and applyType = '%s'", applyType);
 		}
 		
-		// 只会有一个配置（管理员配置）
-		if (BaseLayoutManager.TYPE_FORM.equals(applyType)
-				|| BaseLayoutManager.TYPE_TAB.equals(applyType)
-				|| BaseLayoutManager.TYPE_ADD.equals(applyType)) {
+		if (isSingleConfig()) {
 			Object[] o = Application.createQueryNoFilter(sqlBase).unique();
 			return o == null ? null : (ID) o[0];
 		}
@@ -102,10 +99,19 @@ public abstract class SharableManager<T> implements ConfigManager<T> {
 		String sql4self = sqlBase + String.format("createdBy = '%s'", user.toLiteral());
 		Object[] o = Application.createQueryNoFilter(sql4self).unique();
 		if (o == null && MetadataHelper.containsField(configEntity, "shareTo")) {
-			sql4self = sqlBase + "shareTo = 'ALL'";
+			sql4self = sqlBase + ("shareTo = '" + SHARE_ALL + "'");
 			o = Application.createQueryNoFilter(sql4self).unique();
 		}
 		return o == null ? null : (ID) o[0];
+	}
+	
+	/**
+	 * 只会有一个配置（由管理员配置的）
+	 * 
+	 * @return
+	 */
+	protected boolean isSingleConfig() {
+		return false;
 	}
 	
 	/**

@@ -1,6 +1,6 @@
 /*
 rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,20 +20,30 @@ package com.rebuild.server.configuration.portals;
 
 import org.junit.Test;
 
+import com.alibaba.fastjson.JSON;
 import com.rebuild.server.TestSupport;
-import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.service.bizz.UserService;
 
 /**
+ * TODO
  * 
- * @author devezhao
- * @since 01/04/2019
+ * @author devezhao zhaofang123@gmail.com
+ * @since 2019/06/03
  */
-public class FormsManagerTest extends TestSupport {
+public class FormsBuilderTest extends TestSupport {
 
 	@Test
-	public void testGet() throws Exception {
-		ConfigEntry entry = FormsManager.instance.getFormLayout("User", UserService.ADMIN_USER);
-		System.out.println(entry.toJSON());
+	public void testModel() throws Exception {
+		JSON newModel = FormsBuilder.instance.buildForm("User", UserService.ADMIN_USER);
+		System.out.println(newModel);
+		
+		JSON editModel = FormsBuilder.instance.buildForm("User", UserService.ADMIN_USER, UserService.SYSTEM_USER);
+		System.out.println(editModel);
+	}
+	
+	@Test
+	public void testViewModel() throws Exception {
+		JSON viewModel = FormsBuilder.instance.buildView("User", UserService.ADMIN_USER, UserService.SYSTEM_USER);
+		System.out.println(viewModel);
 	}
 }

@@ -42,7 +42,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 10/22/2018
  */
-public class ViewAddonsManager extends BaseLayoutManager {
+public class ViewAddonsManager extends BaseLayoutManager<Entity> {
 	
 	public static final ViewAddonsManager instance = new ViewAddonsManager();
 	private ViewAddonsManager() { }
@@ -114,5 +114,15 @@ public class ViewAddonsManager extends BaseLayoutManager {
 			}
 		}
 		return (JSON) JSON.toJSON(configured);
+	}
+	
+	@Override
+	protected boolean isSingleConfig() {
+		return true;
+	}
+	
+	@Override
+	public void clean(Entity cacheKey) {
+		// TODO 缓存实现
 	}
 }

@@ -70,7 +70,7 @@ public class DashboardControll extends BasePageControll {
 		JSON formJson = ServletUtils.getRequestJson(request);
 		Record record = EntityHelper.parse((JSONObject) formJson, user);
 		
-		if (!DashboardManager.instance.allowedUpdate(user, record.getPrimary())) {
+		if (!DashboardManager.instance.allowedEditable(user, record.getPrimary())) {
 			writeFailure(response, "无权修改他人的仪表盘");
 			return;
 		}
@@ -134,7 +134,7 @@ public class DashboardControll extends BasePageControll {
 		ID dashid = getIdParameterNotNull(request, "id");
 		ID user = getRequestUser(request);
 		
-		if (!DashboardManager.instance.allowedUpdate(user, dashid)) {
+		if (!DashboardManager.instance.allowedEditable(user, dashid)) {
 			writeFailure(response, "无权修改他人的仪表盘");
 			return;
 		}
@@ -151,7 +151,7 @@ public class DashboardControll extends BasePageControll {
 		ID dashid = getIdParameterNotNull(request, "id");
 		ID user = getRequestUser(request);
 		
-		if (!DashboardManager.instance.allowedUpdate(user, dashid)) {
+		if (!DashboardManager.instance.allowedEditable(user, dashid)) {
 			writeFailure(response, "无权删除他人的仪表盘");
 			return;
 		}

@@ -30,8 +30,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.configuration.portals.FormsDefaultValue;
-import com.rebuild.server.configuration.portals.FormsManager;
+import com.rebuild.server.configuration.portals.FormDefaultValue;
+import com.rebuild.server.configuration.portals.FormsBuilder;
 import com.rebuild.server.configuration.portals.ViewAddonsManager;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.web.BaseEntityControll;
@@ -84,17 +84,17 @@ public class GeneralModelControll extends BaseEntityControll {
 			initialVal = ServletUtils.getRequestJson(request);
 			if (initialVal != null) {
 				// 创建明细实体必须指定主实体，以便验证权限
-				String master = ((JSONObject) initialVal).getString(FormsDefaultValue.DV_MASTER);
+				String master = ((JSONObject) initialVal).getString(FormDefaultValue.DV_MASTER);
 				if (ID.isId(master)) {
-					FormsManager.setCurrentMasterId(ID.valueOf(master));
+					FormsBuilder.setCurrentMasterId(ID.valueOf(master));
 				}
 			}
 		}
 		
-		JSON model = FormsManager.instance.getFormModel(entity, user, record);
+		JSON model = FormsBuilder.instance.buildForm(entity, user, record);
 		// 填充前端设定的初始值
 		if (record == null && initialVal != null) {
-			FormsDefaultValue.setFormInitialValue(MetadataHelper.getEntity(entity), model, (JSONObject) initialVal);
+			FormDefaultValue.setFormInitialValue(MetadataHelper.getEntity(entity), model, (JSONObject) initialVal);
 		}
 		writeSuccess(response, model);
 	}
@@ -104,7 +104,7 @@ public class GeneralModelControll extends BaseEntityControll {
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		ID record = getIdParameterNotNull(request, "id");
-		JSON modal = FormsManager.instance.getViewModel(entity, user, record);
+		JSON modal = FormsBuilder.instance.buildView(entity, user, record);
 		writeSuccess(response, modal);
 	}
 }
