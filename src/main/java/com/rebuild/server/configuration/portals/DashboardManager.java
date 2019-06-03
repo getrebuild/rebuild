@@ -24,6 +24,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.RoleService;
 import com.rebuild.server.service.bizz.UserHelper;
@@ -75,31 +76,33 @@ public class DashboardManager extends SharableManager<ID> {
 			JSONArray config = JSON.parseArray((String) array[i][2]);
 			for (Iterator<Object> iter = config.iterator(); iter.hasNext(); ) {
 				JSONObject item = (JSONObject) iter.next();
-				String chartid = item.getString("chart");
-				if (!ID.isId(chartid)) {
+				if (!paddingChartInfo(item)) {
 					iter.remove();
-					continue;
 				}
-				
-				Object[] chart = Application.createQueryNoFilter(
-						"select title,chartType from ChartConfig where chartId = ?")
-						.setParameter(1, ID.valueOf(chartid))
-						.unique();
-				if (chart == null) {
-					iter.remove();
-					continue;
-				}
-				
-				item.put("title", chart[0]);
-				item.put("type", chart[1]);
 			}
 			
 			array[i][2] = config;
-			array[i][3] = allowedEditable(user, (ID) array[i][0]);
-			array[i][0] = array[i][0].toString();
+			array[i][3] = allowEditable(user, (ID) array[i][0]);
 		}
 		
 		return (JSON) JSON.toJSON(array);
+	}
+	
+	// 补充图表信息
+	private boolean paddingChartInfo(JSONObject chart) {
+		String chartid = chart.getString("chart");
+		if (!ID.isId(chartid)) {
+			return false;
+		}
+		
+		ConfigEntry config = ChartManager.instance.getChart(ID.valueOf(chartid));
+		if (config == null) {
+			return false;
+		}
+		
+		chart.put("title", config.getString("title"));
+		chart.put("type", config.getString("type"));
+		return true;
 	}
 	
 	/**
@@ -109,24 +112,28 @@ public class DashboardManager extends SharableManager<ID> {
 	 * @param dashid
 	 * @return
 	 */
-	public boolean allowedEditable(ID user, ID dashid) {
-		Object[] dash = Application.createQueryNoFilter(
-				"select createdBy from DashboardConfig where configId = ?")
-				.setParameter(1, dashid)
-				.unique();
-		if (dash == null) {
-			return false;
+	public boolean allowEditable(ID user, ID dashid) {
+		final String ckey = "DashboardOWN-" + dashid;
+		ID createdBy = (ID) Application.getCommonCache().getx(ckey);
+		if (createdBy == null) {
+			Object[] dash = Application.createQueryNoFilter(
+					"select createdBy from DashboardConfig where configId = ?")
+					.setParameter(1, dashid)
+					.unique();
+			if (dash == null) {
+				return false;
+			}
+			createdBy = (ID) dash[0];
 		}
 		
-		if (UserHelper.isAdmin(user)) {
-			return UserHelper.isAdmin((ID) dash[0]);
-		} else {
-			return user.equals(dash[0]);
+		if (UserHelper.isAdmin(user) && UserHelper.isAdmin(createdBy)) {
+			return true;
 		}
+		return user.equals(createdBy);
 	}
 	
 	@Override
 	public void clean(ID cacheKey) {
-		// TODO 缓存实现
+		Application.getCommonCache().evict("DashboardOWN-" + cacheKey);
 	}
 }

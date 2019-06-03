@@ -42,6 +42,8 @@ import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.configuration.ChartConfigService;
+import com.rebuild.server.service.configuration.DashboardConfigService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseEntityControll;
 import com.rebuild.web.IllegalParameterException;
@@ -144,7 +146,7 @@ public class ChartDesignControll extends BaseEntityControll {
 		if (record.getPrimary() == null) {
 			dashid = getIdParameterNotNull(request, "dashid");
 		}
-		record = Application.getCommonService().createOrUpdate(record);
+		record = Application.getBean(ChartConfigService.class).createOrUpdate(record);
 		
 		// 添加到仪表盘
 		if (dashid != null) {
@@ -159,9 +161,9 @@ public class ChartDesignControll extends BaseEntityControll {
 			item.put("h", 4);
 			config.add(item);
 			
-			Record record2 = EntityHelper.forUpdate(dashid, getRequestUser(request));
-			record2.setString("config", config.toJSONString());
-			Application.getCommonService().createOrUpdate(record2);
+			Record dashRecord = EntityHelper.forUpdate(dashid, getRequestUser(request));
+			dashRecord.setString("config", config.toJSONString());
+			Application.getBean(DashboardConfigService.class).createOrUpdate(dashRecord);
 		}
 		
 		JSONObject ret = JSONUtils.toJSONObject("id", record.getPrimary());

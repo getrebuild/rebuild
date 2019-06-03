@@ -90,10 +90,10 @@ public class AdvFilterManager extends SharableManager<ID> {
 			clone.set("shareTo", null);
 			
 			if (UserHelper.isAdmin(createdBy)) {
-				if (SHARE_ALL.equalsIgnoreCase(shareTo)) {
-					ret.add(clone);
-				} else if (isAdmin) {
+				if (isAdmin) {
 					clone.set("editable", true);
+					ret.add(clone);
+				} else if (SHARE_ALL.equalsIgnoreCase(shareTo)) {
 					ret.add(clone);
 				}
 			} else if (createdBy.equals(user)) {

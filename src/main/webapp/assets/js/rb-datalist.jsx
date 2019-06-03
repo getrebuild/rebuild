@@ -495,6 +495,7 @@ const AdvFilters = {
         item.click(function () {
           $('.adv-search .J_name').text(_data.name)
           RbListPage._RbList.setAdvFilter(_data.id)
+          that.current = _data.id
         })
         if (dFilter === _data.id) {
           $('.adv-search .J_name').text(_data.name)
@@ -533,7 +534,6 @@ const AdvFilters = {
   },
 
   showAdvFilter(id, copyId) {
-    this.current = id
     let props = { entity: this.__entity, inModal: true, fromList: true, confirm: this.saveFilter }
     if (!id) {
       if (this.__customAdv) this.__customAdv.show()
