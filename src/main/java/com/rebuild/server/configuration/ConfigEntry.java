@@ -26,6 +26,8 @@ import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.JSONable;
 
 import cn.devezhao.persist4j.engine.ID;
 
@@ -33,7 +35,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/20
  */
-public class ConfigEntry implements Serializable, Cloneable {
+public class ConfigEntry implements Serializable, Cloneable, JSONable {
 	private static final long serialVersionUID = -2618040374508703332L;
 	
 	private Map<String, Object> entryMap = null;
@@ -86,12 +88,17 @@ public class ConfigEntry implements Serializable, Cloneable {
 	public ConfigEntry clone() {
 		ConfigEntry c = new ConfigEntry();
 		for (Map.Entry<String, Object> e : this.entryMap.entrySet()) {
-			c.set(e.getKey(), e.getValue());
+			Object v = e.getValue();
+			if (v instanceof JSON) {
+				v = JSONUtils.clone((JSON) v);
+			}
+			c.set(e.getKey(), v);
 		}
 		return c;
 	}
 	
-	public JSONObject toJSON() {
+	@Override
+	public JSON toJSON() {
 		return (JSONObject) JSON.toJSON(this.entryMap);
 	}
 }

@@ -48,7 +48,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/17
  */
-public class AutoFillinManager implements ConfigManager {
+public class AutoFillinManager implements ConfigManager<Field> {
 	
 	private static final Log LOG = LogFactory.getLog(AutoFillinManager.class);
 	
@@ -207,9 +207,7 @@ public class AutoFillinManager implements ConfigManager {
 		return entries;
 	}
 	
-	/**
-	 * @param cacheKey
-	 */
+	@Override
 	public void clean(Field cacheKey) {
 		final String cKey = "AutoFillinManager-" + cacheKey.getOwnEntity().getName() + "." + cacheKey.getName();
 		Application.getCommonCache().evict(cKey);

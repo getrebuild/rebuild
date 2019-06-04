@@ -153,7 +153,7 @@ public class Field2Schema {
 		
 		String ddl = String.format("alter table `%s` drop column `%s`", entity.getPhysicalName(), field.getPhysicalName());
 		try {
-			Application.getSQLExecutor().execute(ddl);
+			Application.getSQLExecutor().execute(ddl, 10 * 60);
 		} catch (Throwable ex) {
 			LOG.error("DDL ERROR : \n" + ddl, ex);
 			return false;
@@ -180,7 +180,7 @@ public class Field2Schema {
 		StringBuilder ddl = new StringBuilder("alter table `" + entity.getPhysicalName() + "`\n  add column ");
 		table.generateFieldDDL(field, ddl);
 		try {
-			Application.getSQLExecutor().executeBatch(new String[] { ddl.toString() });
+			Application.getSQLExecutor().executeBatch(new String[] { ddl.toString() }, 10 * 60);
 		} catch (Throwable ex) {
 			LOG.error("DDL ERROR : \n" + ddl, ex);
 			return false;

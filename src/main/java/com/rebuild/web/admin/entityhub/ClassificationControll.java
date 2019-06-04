@@ -37,7 +37,7 @@ import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.configuration.ClassificationService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
-import com.rebuild.web.base.general.GeneralRecordOperatingControll;
+import com.rebuild.web.base.general.GeneralOperatingControll;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
@@ -107,7 +107,7 @@ public class ClassificationControll extends BasePageControll {
 	}
 	
 	/**
-	 * @see {@link GeneralRecordOperatingControll#save(HttpServletRequest, HttpServletResponse)}
+	 * @see {@link GeneralOperatingControll#save(HttpServletRequest, HttpServletResponse)}
 	 */
 	@RequestMapping("classification/save")
 	public void save(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -123,7 +123,7 @@ public class ClassificationControll extends BasePageControll {
 	}
 	
 	/**
-	 * @see {@link GeneralRecordOperatingControll#delete(HttpServletRequest, HttpServletResponse)}
+	 * @see {@link GeneralOperatingControll#delete(HttpServletRequest, HttpServletResponse)}
 	 */
 	@RequestMapping("classification/delete")
 	public void delete(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -165,7 +165,7 @@ public class ClassificationControll extends BasePageControll {
 		if (StringUtils.isNotBlank(name)) {
 			item.setString("name", name);
 		}
-		item = Application.getBean(ClassificationService.class).saveItem(item);
+		item = Application.getBean(ClassificationService.class).createOrUpdateItem(item);
 		writeSuccess(response, item.getPrimary());
 	}
 	

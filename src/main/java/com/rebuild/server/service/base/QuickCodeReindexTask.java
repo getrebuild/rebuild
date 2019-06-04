@@ -133,9 +133,9 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
 				|| dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {
 			nameValue = nameValue.toString();
 		} else if (dt == DisplayType.PICKLIST) {
-			nameValue = PickListManager.getLabel((ID) nameValue);
+			nameValue = PickListManager.instance.getLabel((ID) nameValue);
 		} else if (dt == DisplayType.CLASSIFICATION) {
-			nameValue = ClassificationManager.getFullName((ID) nameValue);
+			nameValue = ClassificationManager.instance.getFullName((ID) nameValue);
 		} else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
 			nameValue = CalendarUtils.getPlainDateTimeFormat().format(nameValue);
 		} else {

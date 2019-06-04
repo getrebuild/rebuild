@@ -42,7 +42,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao
  * @since 01/07/2019
  */
-public class SharableManager implements ConfigManager {
+public abstract class SharableManager<T> implements ConfigManager<T> {
 	
 	protected static final Log LOG = LogFactory.getLog(SharableManager.class);
 	
@@ -52,19 +52,9 @@ public class SharableManager implements ConfigManager {
 	public static final String SHARE_SELF = "SELF";
 	
 	/**
-	 * @param user
-	 * @param configEntity
-	 * @return
-	 * @see #detectUseConfig(ID, String, String, String)
-	 */
-	protected static ID detectUseConfig(ID user, String configEntity) {
-		return detectUseConfig(user, configEntity, null, null);
-	}
-	
-	/**
-	 * 确定使用哪个配置，规则如下
-	 * 1.管理员（角色）使用同一配置
-	 * 2.非管理员优先使用自己的配置，无自己的配置则使用管理员的
+	 * 确定使用哪个配置，规则如下：
+	 * 1.管理员（角色）使用同一配置；
+	 * 2.非管理员优先使用自己的配置，无自己的配置则使用管理员共享的；
 	 * 
 	 * @param user
 	 * @param configEntity
@@ -72,8 +62,8 @@ public class SharableManager implements ConfigManager {
 	 * @param applyType
 	 * @return
 	 */
-	protected static ID detectUseConfig(ID user, String configEntity, String belongEntity, String applyType) {
-		Assert.isTrue(MetadataHelper.containsEntity(configEntity), "configEntity");
+	protected ID detectUseConfig(ID user, String configEntity, String belongEntity, String applyType) {
+		Assert.isTrue(MetadataHelper.containsEntity(configEntity), "Unknow configEntity : " + configEntity);
 		
 		String sqlBase = String.format("select configId from %s where (1=1)", configEntity);
 		if (belongEntity != null) {
@@ -83,10 +73,7 @@ public class SharableManager implements ConfigManager {
 			sqlBase += String.format(" and applyType = '%s'", applyType);
 		}
 		
-		// 只会有一个配置（管理员配置）
-		if (BaseLayoutManager.TYPE_FORM.equals(applyType)
-				|| BaseLayoutManager.TYPE_TAB.equals(applyType)
-				|| BaseLayoutManager.TYPE_ADD.equals(applyType)) {
+		if (isSingleConfig()) {
 			Object[] o = Application.createQueryNoFilter(sqlBase).unique();
 			return o == null ? null : (ID) o[0];
 		}
@@ -99,13 +86,24 @@ public class SharableManager implements ConfigManager {
 			return o == null ? null : (ID) o[0];
 		}
 		
+		// 使用自己的
 		String sql4self = sqlBase + String.format("createdBy = '%s'", user.toLiteral());
 		Object[] o = Application.createQueryNoFilter(sql4self).unique();
+		// 使用管理员共享的
 		if (o == null && MetadataHelper.containsField(configEntity, "shareTo")) {
-			sql4self = sqlBase + "shareTo = 'ALL'";
+			sql4self = sqlBase + ("shareTo = '" + SHARE_ALL + "'");
 			o = Application.createQueryNoFilter(sql4self).unique();
 		}
 		return o == null ? null : (ID) o[0];
+	}
+	
+	/**
+	 * 只会有一个配置（由管理员配置的）
+	 * 
+	 * @return
+	 */
+	protected boolean isSingleConfig() {
+		return false;
 	}
 	
 	/**
@@ -115,7 +113,7 @@ public class SharableManager implements ConfigManager {
 	 * @param configOrUser 配置ID 或 用戶ID
 	 * @return
 	 */
-	public static boolean isSelf(ID user, ID configOrUser) {
+	public boolean isSelf(ID user, ID configOrUser) {
 		if (configOrUser.getEntityCode() == EntityHelper.User) {
 			boolean self = user.equals(configOrUser);
 			if (!self && UserHelper.isAdmin(user)) {

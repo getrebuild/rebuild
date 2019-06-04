@@ -29,6 +29,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
+import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
@@ -45,44 +46,34 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class NavManager extends BaseLayoutManager {
 
+	public static final NavManager instance = new NavManager();
+	private NavManager() { }
+	
 	/**
 	 * @param user
 	 * @return
 	 */
-	public static JSON getNav(ID user) {
-		Object[] config = getLayoutOfNav(user);
+	public JSON getNav(ID user) {
+		ConfigEntry config = getLayoutOfNav(user);
 		if (config == null) {
 			return null;
 		}
-		config[0] = config[0].toString();
-		return JSONUtils.toJSONObject(new String[] { "id", "config", "shareTo" }, config);
+		return config.toJSON();
 	}
 	
 	/**
-	 * @param user
-	 * @return
-	 */
-	public static ID detectUseConfig(ID user) {
-		return detectUseConfig(user, "LayoutConfig", null, TYPE_NAV);
-	}
-	
-	// --
-	
-	/**
-	 * 页面用
-	 * 
 	 * @param request
 	 * @return
 	 */
-	public static JSONArray getNavForPortal(HttpServletRequest request) {
+	public JSONArray getNavForPortal(HttpServletRequest request) {
 		final ID user = AppUtils.getRequestUser(request);
-		Object[] config = getLayoutOfNav(user);
+		ConfigEntry config = getLayoutOfNav(user);
 		if (config == null) {
 			return JSONUtils.EMPTY_ARRAY;
 		}
 		
 		// 过滤
-		JSONArray navs = (JSONArray) config[1];
+		JSONArray navs = (JSONArray) config.getJSON("config");
 		for (Iterator<Object> iter = navs.iterator(); iter.hasNext(); ) {
 			JSONObject nav = (JSONObject) iter.next();
 			JSONArray subNavs = nav.getJSONArray("sub");
@@ -114,7 +105,7 @@ public class NavManager extends BaseLayoutManager {
 	 * @param user
 	 * @return
 	 */
-	private static boolean isFilterNav(JSONObject nav, ID user) {
+	private boolean isFilterNav(JSONObject nav, ID user) {
 		String type = nav.getString("type");
 		if ("ENTITY".equalsIgnoreCase(type)) {
 			String entity = nav.getString("value");
@@ -133,13 +124,15 @@ public class NavManager extends BaseLayoutManager {
 		return false;
 	}
 	
+	// --
+	
 	/**
 	 * @param item
 	 * @param activeNav
 	 * @param isTop
 	 * @return
 	 */
-	public static String renderNavItem(JSONObject item, String activeNav, boolean isTop) {
+	public String renderNavItem(JSONObject item, String activeNav, boolean isTop) {
 		String navName = "nav_entity-" + item.getString("value");
 		boolean isUrlType = "URL".equals(item.getString("type"));
 		String navUrl = item.getString("value");

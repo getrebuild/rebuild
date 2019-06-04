@@ -32,7 +32,7 @@ public class DashboardManagerTest extends TestSupport {
 
 	@Test
 	public void testGetList() throws Exception {
-		JSON dashs = DashboardManager.getDashList(UserService.ADMIN_USER);
+		JSON dashs = DashboardManager.instance.getDashList(UserService.ADMIN_USER);
 		System.out.println(dashs.toJSONString());
 	}
 }

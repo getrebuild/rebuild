@@ -229,7 +229,7 @@ public class Entity2Schema extends Field2Schema {
 		
 		String ddl = String.format("drop table if exists `%s`", entity.getPhysicalName());
 		try {
-			Application.getSQLExecutor().execute(ddl);
+			Application.getSQLExecutor().execute(ddl, 10 * 60);
 		} catch (Throwable ex) {
 			LOG.error("DDL ERROR : \n" + ddl, ex);
 			return false;

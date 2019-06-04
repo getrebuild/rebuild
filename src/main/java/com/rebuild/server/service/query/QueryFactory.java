@@ -38,7 +38,7 @@ import cn.devezhao.persist4j.query.NativeQuery;
  */
 public class QueryFactory {
 	
-	private static final int QUERY_TIMEOUT = 5 * 1000;
+	private static final int QUERY_TIMEOUT = 10 * 1000;
 	private static final int SLOW_LOGGER_TIME = 1 * 1000;
 
 	final private PersistManagerFactory aPMFactory;

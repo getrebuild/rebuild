@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.common.Zone;
+import com.qiniu.common.Region;
 import com.qiniu.http.Response;
 import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
@@ -53,7 +53,7 @@ public class QiniuCloud {
 
 	private static final Log LOG = LogFactory.getLog(QiniuCloud.class);
 	
-	private final Configuration CONFIGURATION = new Configuration(Zone.autoZone());
+	private final Configuration CONFIGURATION = new Configuration(Region.autoRegion());
 	private final UploadManager UPLOAD_MANAGER = new UploadManager(CONFIGURATION);
 	
 	private Auth auth;

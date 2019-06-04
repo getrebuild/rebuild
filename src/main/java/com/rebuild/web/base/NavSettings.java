@@ -34,6 +34,7 @@ import com.rebuild.server.configuration.portals.NavManager;
 import com.rebuild.server.configuration.portals.SharableManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.configuration.LayoutConfigService;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.PortalsConfiguration;
 
@@ -66,7 +67,7 @@ public class NavSettings extends BaseControll implements PortalsConfiguration {
 		
 		JSON config = ServletUtils.getRequestJson(request);
 		ID cfgid = getIdParameter(request, "cfgid");
-		if (cfgid != null && !SharableManager.isSelf(user, cfgid)) {
+		if (cfgid != null && !NavManager.instance.isSelf(user, cfgid)) {
 			cfgid = null;
 		}
 		
@@ -80,14 +81,14 @@ public class NavSettings extends BaseControll implements PortalsConfiguration {
 		}
 		record.setString("config", config.toJSONString());
 		record.setString("shareTo", toAll ? SharableManager.SHARE_ALL : SharableManager.SHARE_SELF);
-		Application.getCommonService().createOrUpdate(record);
+		Application.getBean(LayoutConfigService.class).createOrUpdate(record);
 		
 		writeSuccess(response);
 	}
 	
 	@RequestMapping(value = "nav-settings", method = RequestMethod.GET)
 	public void gets(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		JSON config = NavManager.getNav(getRequestUser(request));
+		JSON config = NavManager.instance.getNav(getRequestUser(request));
 		writeSuccess(response, config);
 	}
 }

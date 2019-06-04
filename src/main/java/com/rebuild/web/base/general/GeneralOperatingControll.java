@@ -66,7 +66,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/app/entity/")
-public class GeneralRecordOperatingControll extends BaseControll {
+public class GeneralOperatingControll extends BaseControll {
 
 	@RequestMapping("record-save")
 	public void save(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -331,7 +331,7 @@ public class GeneralRecordOperatingControll extends BaseControll {
 		if (recordMeta.length == 3) {
 			User user = Application.getUserStore().getUser((ID) recordMeta[2]);
 			String dept = user.getOwningDept() == null ? null : user.getOwningDept().getName();
-			owning = new String[] { user.getIdentity().toString(), user.getFullName(), user.getAvatarUrl(true), dept };
+			owning = new String[] { user.getIdentity().toString(), user.getFullName(), dept };
 			
 			Object[][] shareTo = Application.createQueryNoFilter(
 					"select shareTo from ShareAccess where belongEntity = ? and recordId = ?")
@@ -341,9 +341,7 @@ public class GeneralRecordOperatingControll extends BaseControll {
 					.array();
 			sharingList = new ArrayList<>();
 			for (Object[] st : shareTo) {
-				String[] shows2 = UserHelper.getShows((ID) st[0]);
-				shows2 = new String[] { st[0].toString(), shows2[0], shows2[1] };
-				sharingList.add(shows2);
+				sharingList.add(new String[] { st[0].toString(), UserHelper.getName((ID) st[0]) });
 			}
 		}
 		
@@ -383,9 +381,9 @@ public class GeneralRecordOperatingControll extends BaseControll {
 				.setParameter(2, id)
 				.array();
 		for (Object[] o : array) {
-			o[0] = UserHelper.getShows((ID) o[0]);
+			o[0] = new String[] { o[0].toString(), UserHelper.getName((ID) o[0]) };
 			o[2] = CalendarUtils.getUTCDateTimeFormat().format(o[2]);
-			o[3] = UserHelper.getShows((ID) o[3]);
+			o[3] = UserHelper.getName((ID) o[3]);
 		}
 		writeSuccess(response, array);
 	}

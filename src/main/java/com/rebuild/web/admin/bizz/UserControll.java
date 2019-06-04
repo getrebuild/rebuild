@@ -62,7 +62,7 @@ public class UserControll extends BaseEntityControll {
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
 		ID user = getRequestUser(request);
 		ModelAndView mv = createModelAndView("/admin/bizuser/user-list.jsp", "User", user);
-		JSON config = DataListManager.getColumnLayout("User", user);
+		JSON config = DataListManager.instance.getColumnLayout("User", user);
 		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
 		return mv;
 	}

@@ -1,6 +1,6 @@
 /*
 rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,24 +16,25 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.configuration.portals;
+package com.rebuild.server.service.configuration;
 
-import org.junit.Test;
+import com.rebuild.server.configuration.portals.DashboardManager;
 
-import com.rebuild.server.TestSupport;
-import com.rebuild.server.configuration.ConfigEntry;
-import com.rebuild.server.service.bizz.UserService;
+import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 
- * @author devezhao
- * @since 01/04/2019
+ * @author devezhao-mbp zhaofang123@gmail.com
+ * @since 2019/06/04
  */
-public class FormsManagerTest extends TestSupport {
+public class DashboardConfigService extends CleanableCacheService {
 
-	@Test
-	public void testGet() throws Exception {
-		ConfigEntry entry = FormsManager.instance.getFormLayout("User", UserService.ADMIN_USER);
-		System.out.println(entry.toJSON());
+	protected DashboardConfigService(PersistManagerFactory aPMFactory) {
+		super(aPMFactory);
+	}
+	
+	@Override
+	protected void cleanCache(ID configId) {
+		DashboardManager.instance.clean(configId);
 	}
 }

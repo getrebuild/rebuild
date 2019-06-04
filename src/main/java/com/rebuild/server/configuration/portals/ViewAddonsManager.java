@@ -27,6 +27,7 @@ import java.util.Set;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
+import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 
@@ -44,16 +45,19 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class ViewAddonsManager extends BaseLayoutManager {
 	
+	public static final ViewAddonsManager instance = new ViewAddonsManager();
+	private ViewAddonsManager() { }
+	
 	/**
-	 * @param entity
+	 * @param belongEntity
 	 * @param user
 	 * @return
 	 */
-	public static JSON getViewTab(String entity, ID user) {
-		JSON tabs = getViewAddons(entity, user, TYPE_TAB);
+	public JSON getViewTab(String belongEntity, ID user) {
+		JSON tabs = getViewAddons(belongEntity, user, TYPE_TAB);
 		
 		// 添加明细实体（如有）到第一个
-		Entity entityMeta = MetadataHelper.getEntity(entity);
+		Entity entityMeta = MetadataHelper.getEntity(belongEntity);
 		if (entityMeta.getSlaveEntity() != null) {
 			String shows[] = EasyMeta.getEntityShow(entityMeta.getSlaveEntity());
 			JSON tabsAll = (JSON) JSON.toJSON(new String[][] { shows });
@@ -64,30 +68,28 @@ public class ViewAddonsManager extends BaseLayoutManager {
 	}
 	
 	/**
-	 * @param entity
+	 * @param belongEntity
 	 * @param user
 	 * @return
 	 */
-	public static JSON getViewAdd(String entity, ID user) {
-		return getViewAddons(entity, user, TYPE_ADD);
+	public JSON getViewAdd(String belongEntity, ID user) {
+		return getViewAddons(belongEntity, user, TYPE_ADD);
 	}
 	
 	/**
 	 * @param belongEntity
 	 * @param user
-	 * @param type
+	 * @param applyType
 	 * @return
 	 */
-	private static JSON getViewAddons(String belongEntity, ID user, String applyType) {
-		final Object addons[] = getLayoutConfig(user, belongEntity, applyType);
+	private JSON getViewAddons(String belongEntity, ID user, String applyType) {
+		final ConfigEntry config = getLayoutConfig(user, belongEntity, applyType);
 		final Permission useAction = TYPE_TAB.equals(applyType) ? BizzPermission.READ : BizzPermission.CREATE;
 		
 		// 未配置则使用全部相关项
-		if (addons == null) {
-			Entity entityMeta = MetadataHelper.getEntity(belongEntity);
-			
+		if (config == null) {
 			Set<String[]> refs = new HashSet<>();
-			for (Field field : entityMeta.getReferenceToFields()) {
+			for (Field field : MetadataHelper.getEntity(belongEntity).getReferenceToFields()) {
 				Entity e = field.getOwnEntity();
 				// 过滤明细实体
 				if (e.getMasterEntity() != null) {
@@ -100,16 +102,21 @@ public class ViewAddonsManager extends BaseLayoutManager {
 			return (JSON) JSONArray.toJSON(refs);
 		}
 		
-		List<String[]> configured = new ArrayList<>();
-		for (Object o : (JSONArray) addons[1]) {
+		List<String[]> addons = new ArrayList<>();
+		for (Object o : (JSONArray) config.getJSON("config")) {
 			String e = (String) o;
 			if (MetadataHelper.containsEntity(e)) {
 				Entity entityMeta = MetadataHelper.getEntity(e);
 				if (Application.getSecurityManager().allowed(user, entityMeta.getEntityCode(), useAction)) {
-					configured.add(EasyMeta.getEntityShow(entityMeta));
+					addons.add(EasyMeta.getEntityShow(entityMeta));
 				}
 			}
 		}
-		return (JSON) JSON.toJSON(configured);
+		return (JSON) JSON.toJSON(addons);
+	}
+	
+	@Override
+	protected boolean isSingleConfig() {
+		return true;
 	}
 }

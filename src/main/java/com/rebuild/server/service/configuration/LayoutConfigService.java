@@ -18,20 +18,23 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.configuration;
 
-import com.rebuild.server.service.BaseService;
+import com.rebuild.server.configuration.portals.BaseLayoutManager;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
- * TODO
- * 
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/04/30
  */
-public class LayoutConfigService extends BaseService {
+public class LayoutConfigService extends CleanableCacheService {
 
 	protected LayoutConfigService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
 	}
 	
+	@Override
+	protected void cleanCache(ID configId) {
+		BaseLayoutManager.instance.clean(configId);
+	}
 }

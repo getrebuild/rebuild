@@ -180,7 +180,7 @@ class RbForm extends React.Component {
       let that = this
       this.props.children.map((child) => {
         let val = child.props.value
-        if (val) {
+        if (val && child.props.readonly !== true) {
           if ($.type(val) === 'array') val = val[0]  // 若为数组，第一个就是真实值
           that.setFieldValue(child.props.field, val)
         }
@@ -692,6 +692,10 @@ class RbFormPickList extends RbFormElement {
       this.__select2.select2('destroy')
       this.__select2 = null
     }
+  }
+  isValueUnchanged() {
+    if (this.props.$$$parent.isNew === true) return false
+    return super.isValueUnchanged()
   }
   setValue(val) {
     this.__select2.val(val).trigger('change')
@@ -1240,7 +1244,7 @@ class ClassificationSelector extends React.Component {
     this.loadData(0)
   }
   loadData(level, p) {
-    $.get(`${rb.baseUrl}/commons/search/classification?entity=${this.props.entity}&field=${this.props.field}&parent=${p || ''}`, (res) => {
+    $.get(`${rb.baseUrl}/commons/metadata/classification?entity=${this.props.entity}&field=${this.props.field}&parent=${p || ''}`, (res) => {
       let s = this.state.datas
       s[level] = res.data
       this.setState({ datas: s }, () => {

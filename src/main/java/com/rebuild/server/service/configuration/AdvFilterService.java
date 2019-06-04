@@ -18,19 +18,23 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.configuration;
 
-import com.rebuild.server.service.BaseService;
+import com.rebuild.server.configuration.portals.AdvFilterManager;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
- * TODO
- * 
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/04/30
  */
-public class AdvFilterService extends BaseService {
+public class AdvFilterService extends CleanableCacheService {
 	
 	protected AdvFilterService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
+	}
+
+	@Override
+	protected void cleanCache(ID configId) {
+		AdvFilterManager.instance.clean(configId);
 	}
 }

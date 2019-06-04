@@ -35,7 +35,7 @@ public class PickListManagerTest extends TestSupport {
 	@Test
 	public void testGetPickList() throws Exception {
 		Field picklist = MetadataHelper.getEntity(TEST_ENTITY).getField("picklist");
-		JSON list = PickListManager.getPickList(picklist);
+		JSON list = PickListManager.instance.getPickList(picklist);
 		System.out.println(list.toJSONString());
 	}
 }

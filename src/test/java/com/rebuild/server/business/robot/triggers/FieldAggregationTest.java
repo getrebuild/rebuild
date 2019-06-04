@@ -36,8 +36,6 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * TODO
- * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/29
  */
@@ -54,7 +52,7 @@ public class FieldAggregationTest extends TestSupport {
 		triggerConfig.setString("belongEntity", "SalesOrderItem999");
 		triggerConfig.setInt("when", TriggerWhen.CREATE.getMaskValue() + TriggerWhen.DELETE.getMaskValue());
 		triggerConfig.setString("actionType", ActionType.FIELDAGGREGATION.name());
-		String content = "{targetEntity:'SalesOrder999', items:[{sourceField:'',calcMode:'SUM', targetField:'totalAmount'}]}";
+		String content = "{targetEntity:'SalesOrder999Id.SalesOrder999', items:[{sourceField:'',calcMode:'SUM', targetField:'totalAmount'}]}";
 		triggerConfig.setString("actionContent", content);
 		Application.getBean(RobotTriggerConfigService.class).create(triggerConfig);
 		

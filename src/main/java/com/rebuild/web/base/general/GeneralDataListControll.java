@@ -68,7 +68,7 @@ public class GeneralDataListControll extends BaseEntityControll {
 			mv = createModelAndView("/general-entity/record-list.jsp", entity, user);
 		}
 		
-		JSON config = DataListManager.getColumnLayout(entity, getRequestUser(request));
+		JSON config = DataListManager.instance.getColumnLayout(entity, getRequestUser(request));
 		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
 		
 		return mv;

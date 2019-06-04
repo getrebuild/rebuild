@@ -36,6 +36,7 @@ import com.rebuild.server.configuration.portals.DashboardManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.RoleService;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.configuration.DashboardConfigService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 
@@ -60,7 +61,7 @@ public class DashboardControll extends BasePageControll {
 	@RequestMapping("/dash-gets")
 	public void dashGets(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		JSON dashs = DashboardManager.getDashList(user);
+		JSON dashs = DashboardManager.instance.getDashList(user);
 		writeSuccess(response, dashs);
 	}
 	
@@ -70,12 +71,12 @@ public class DashboardControll extends BasePageControll {
 		JSON formJson = ServletUtils.getRequestJson(request);
 		Record record = EntityHelper.parse((JSONObject) formJson, user);
 		
-		if (!DashboardManager.allowedUpdate(user, record.getPrimary())) {
+		if (!DashboardManager.instance.isEditable(user, record.getPrimary())) {
 			writeFailure(response, "无权修改他人的仪表盘");
 			return;
 		}
 		
-		Application.getCommonService().update(record);
+		Application.getBean(DashboardConfigService.class).update(record);
 		writeSuccess(response);
 	}
 	
@@ -123,7 +124,7 @@ public class DashboardControll extends BasePageControll {
 			dashRecord.setString("config", dashCopy.toJSONString());
 		}
 		
-		dashRecord = Application.getCommonService().create(dashRecord);
+		dashRecord = Application.getBean(DashboardConfigService.class).create(dashRecord);
 		
 		JSON ret = JSONUtils.toJSONObject("id", dashRecord.getPrimary());
 		writeSuccess(response, ret);
@@ -134,7 +135,7 @@ public class DashboardControll extends BasePageControll {
 		ID dashid = getIdParameterNotNull(request, "id");
 		ID user = getRequestUser(request);
 		
-		if (!DashboardManager.allowedUpdate(user, dashid)) {
+		if (!DashboardManager.instance.isEditable(user, dashid)) {
 			writeFailure(response, "无权修改他人的仪表盘");
 			return;
 		}
@@ -142,7 +143,7 @@ public class DashboardControll extends BasePageControll {
 		JSON config = ServletUtils.getRequestJson(request);
 		Record record = EntityHelper.forUpdate(dashid, user);
 		record.setString("config", config.toJSONString());
-		Application.getCommonService().update(record);
+		Application.getBean(DashboardConfigService.class).update(record);
 		writeSuccess(response);
 	}
 	
@@ -151,12 +152,12 @@ public class DashboardControll extends BasePageControll {
 		ID dashid = getIdParameterNotNull(request, "id");
 		ID user = getRequestUser(request);
 		
-		if (!DashboardManager.allowedUpdate(user, dashid)) {
+		if (!DashboardManager.instance.isEditable(user, dashid)) {
 			writeFailure(response, "无权删除他人的仪表盘");
 			return;
 		}
 		
-		Application.getCommonService().delete(dashid);
+		Application.getBean(DashboardConfigService.class).delete(dashid);
 		writeSuccess(response);
 	}
 	

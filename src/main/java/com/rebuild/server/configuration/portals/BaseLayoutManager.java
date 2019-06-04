@@ -20,6 +20,7 @@ package com.rebuild.server.configuration.portals;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
+import com.rebuild.server.configuration.ConfigEntry;
 
 import cn.devezhao.persist4j.engine.ID;
 
@@ -29,7 +30,10 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 09/15/2018
  */
-public abstract class BaseLayoutManager extends SharableManager {
+public class BaseLayoutManager extends SharableManager<ID> {
+	
+	public static final BaseLayoutManager instance = new BaseLayoutManager();
+	protected BaseLayoutManager() { }
 	
 	// 导航
 	public static final String TYPE_NAV = "NAV";
@@ -41,13 +45,13 @@ public abstract class BaseLayoutManager extends SharableManager {
 	public static final String TYPE_TAB = "TAB";
 	// 视图（新建相关）
 	public static final String TYPE_ADD = "ADD";
-		
+	
 	/**
 	 * @param user
 	 * @param belongEntity
 	 * @return
 	 */
-	public static Object[] getLayoutOfForm(ID user, String belongEntity) {
+	public ConfigEntry getLayoutOfForm(ID user, String belongEntity) {
 		return getLayoutConfig(user, belongEntity, TYPE_FORM);
 	}
 	
@@ -56,7 +60,7 @@ public abstract class BaseLayoutManager extends SharableManager {
 	 * @param belongEntity
 	 * @return
 	 */
-	public static Object[] getLayoutOfDatalist(ID user, String belongEntity) {
+	public ConfigEntry getLayoutOfDatalist(ID user, String belongEntity) {
 		return getLayoutConfig(user, belongEntity, TYPE_DATALIST);
 	}
 	
@@ -64,46 +68,38 @@ public abstract class BaseLayoutManager extends SharableManager {
 	 * @param user
 	 * @return
 	 */
-	public static Object[] getLayoutOfNav(ID user) {
+	public ConfigEntry getLayoutOfNav(ID user) {
 		return getLayoutConfig(user, null, TYPE_NAV);
 	}
 	
 	/**
 	 * @param user
-	 * @return
-	 */
-	public static Object[] getLayoutOfTab(ID user) {
-		return getLayoutConfig(user, null, TYPE_TAB);
-	}
-	
-	/**
-	 * @param user
-	 * @return
-	 */
-	public static Object[] getLayoutOfAdd(ID user) {
-		return getLayoutConfig(user, null, TYPE_ADD);
-	}
-	
-	/**
-	 * 获取布局配置
-	 * 
-	 * @param user
 	 * @param belongEntity
 	 * @param applyType
-	 * @return [ID, JSONConfig]
+	 * @return
 	 */
-	public static Object[] getLayoutConfig(ID user, String belongEntity, String applyType) {
+	public ConfigEntry getLayoutConfig(ID user, String belongEntity, String applyType) {
 		ID configUsed = detectUseConfig(user, belongEntity, applyType);
 		if (configUsed == null) {
 			return null;
+		}
+		
+		final String ckey = "BaseLayoutManager-" + configUsed;
+		ConfigEntry entry = (ConfigEntry) Application.getCommonCache().getx(ckey);
+		if (entry != null) {
+			return entry.clone();
 		}
 		
 		Object[] o = Application.createQueryNoFilter(
 				"select configId,config,shareTo from LayoutConfig where configId = ?")
 				.setParameter(1, configUsed)
 				.unique();
-		o[1] = JSON.parse((String) o[1]);
-		return o;
+		entry = new ConfigEntry()
+				.set("id", o[0])
+				.set("config", JSON.parse((String) o[1]))
+				.set("shareTo", o[2]);
+		Application.getCommonCache().putx(ckey, entry);
+		return entry.clone();
 	}
 	
 	/**
@@ -112,7 +108,12 @@ public abstract class BaseLayoutManager extends SharableManager {
 	 * @param applyType
 	 * @return
 	 */
-	public static ID detectUseConfig(ID user, String belongEntity, String applyType) {
+	public ID detectUseConfig(ID user, String belongEntity, String applyType) {
 		return detectUseConfig(user, "LayoutConfig", belongEntity, applyType);
+	}
+	
+	@Override
+	public void clean(ID cacheKey) {
+		Application.getCommonCache().evict("BaseLayoutManager-" + cacheKey);
 	}
 }

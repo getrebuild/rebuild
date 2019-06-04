@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
@@ -43,76 +44,73 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 08/30/2018
  */
 public class DataListManager extends BaseLayoutManager {
+	
+	public static final DataListManager instance = new DataListManager();
+	private DataListManager() { }
 
 	/**
-	 * @param entity
+	 * @param belongEntity
 	 * @param user
 	 * @return
 	 */
-	public static JSON getColumnLayout(String entity, ID user) {
-		Object[] config = getLayoutOfDatalist(user, entity);
+	public JSON getColumnLayout(String belongEntity, ID user) {
+		ConfigEntry config = getLayoutOfDatalist(user, belongEntity);
 		
 		List<Map<String, Object>> columnList = new ArrayList<>();
-		Entity entityMeta = MetadataHelper.getEntity(entity);
+		Entity entityMeta = MetadataHelper.getEntity(belongEntity);
 		Field namedField = MetadataHelper.getNameField(entityMeta);
 		
 		// 默认配置
 		if (config == null) {
-			columnList.add(formattedColumn(namedField));
+			columnList.add(formatColumn(namedField));
 			
 			String namedFieldName = namedField.getName();
 			if (!StringUtils.equalsIgnoreCase(namedFieldName, EntityHelper.CreatedBy)
 					&& entityMeta.containsField(EntityHelper.CreatedBy)) {
-				columnList.add(formattedColumn(entityMeta.getField(EntityHelper.CreatedBy)));
+				columnList.add(formatColumn(entityMeta.getField(EntityHelper.CreatedBy)));
 			}
 			if (!StringUtils.equalsIgnoreCase(namedFieldName, EntityHelper.CreatedOn)
 					&& entityMeta.containsField(EntityHelper.CreatedOn)) {
-				columnList.add(formattedColumn(entityMeta.getField(EntityHelper.CreatedOn)));
+				columnList.add(formatColumn(entityMeta.getField(EntityHelper.CreatedOn)));
 			}
 		} else {
-			for (Object item : (JSONArray) config[1]) {
-				JSONObject column = (JSONObject) item;
-				String field = column.getString("field");
-				String fieldPaths[] = field.split("\\.");
-				if (!entityMeta.containsField(fieldPaths[0])) {
-					LOG.warn("Unknow field '" + field + "' in '" + entity + "'");
+			for (Object o : (JSONArray) config.getJSON("config")) {
+				JSONObject item = (JSONObject) o;
+				String field = item.getString("field");
+				Field validField = MetadataHelper.getLastJoinField(entityMeta, field);
+				if (validField == null) {
+					LOG.warn("Unknow field '" + field + "' in '" + belongEntity + "'");
 					continue;
 				}
 				
-				Field fieldMeta = entityMeta.getField(fieldPaths[0]);
+				String fieldPath[] = field.split("\\.");
 				Map<String, Object> formatted = null;
-				if (fieldPaths.length == 1) {
-					formatted = formattedColumn(fieldMeta);
+				if (fieldPath.length == 1) {
+					formatted = formatColumn(validField);
 				} else {
-					Entity refEntity = fieldMeta.getReferenceEntity();
-					if (refEntity != null && refEntity.containsField(fieldPaths[1])) {
-						formatted = formattedColumn(refEntity.getField(fieldPaths[1]), fieldMeta);
-					} else {
-						LOG.warn("Unknow field '" + field + "' in '" + entity + "'");
-					}
+					Field refField = entityMeta.getField(fieldPath[0]);
+					formatted = formatColumn(validField, refField);
 				}
 				
-				if (formatted != null) {
-					Integer width = column.getInteger("width");
-					if (width != null) {
-						formatted.put("width", width);
-					}
-					columnList.add(formatted);
+				Integer width = item.getInteger("width");
+				if (width != null) {
+					formatted.put("width", width);
 				}
+				columnList.add(formatted);
 			}
 		}
 		
 		return JSONUtils.toJSONObject(
 				new String[] { "entity", "nameField", "fields" }, 
-				new Object[] { entity, namedField.getName(), columnList });
+				new Object[] { belongEntity, namedField.getName(), columnList });
 	}
 	
 	/**
 	 * @param field
 	 * @return
 	 */
-	public static Map<String, Object> formattedColumn(Field field) {
-		return formattedColumn(field, null);
+	public Map<String, Object> formatColumn(Field field) {
+		return formatColumn(field, null);
 	}
 	
 	/**
@@ -120,21 +118,12 @@ public class DataListManager extends BaseLayoutManager {
 	 * @param parent
 	 * @return
 	 */
-	public static Map<String, Object> formattedColumn(Field field, Field parent) {
+	public Map<String, Object> formatColumn(Field field, Field parent) {
 		String parentField = parent == null ? "" : (parent.getName() + ".");
 		String parentLabel = parent == null ? "" : (EasyMeta.getLabel(parent) + ".");
 		EasyMeta easyField = new EasyMeta(field);
 		return JSONUtils.toJSONObject(
 				new String[] { "field", "label", "type" },
 				new Object[] { parentField + easyField.getName(), parentLabel + easyField.getLabel(), easyField.getDisplayType(false) });
-	}
-	
-	/**
-	 * @param user
-	 * @param belongEntity
-	 * @return
-	 */
-	public static ID detectUseConfig(ID user, String belongEntity) {
-		return detectUseConfig(user, "LayoutConfig", belongEntity, TYPE_DATALIST);
 	}
 }

@@ -21,6 +21,7 @@ package com.rebuild.server.configuration.portals;
 import org.junit.Test;
 
 import com.rebuild.server.TestSupport;
+import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.service.bizz.UserService;
 
 /**
@@ -31,7 +32,7 @@ public class AdvFilterManagerTest extends TestSupport {
 
 	@Test
 	public void testGetAdvFilterList() throws Exception {
-		Object[][] list = AdvFilterManager.getAdvFilterList("User", UserService.ADMIN_USER);
+		ConfigEntry[] list = AdvFilterManager.instance.getAdvFilterListRaw("User", UserService.ADMIN_USER);
 		System.out.println("AdvFilterManager : " + list.length);
 	}
 }

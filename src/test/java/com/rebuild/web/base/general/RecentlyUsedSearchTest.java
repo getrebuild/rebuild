@@ -16,30 +16,55 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.base.entity;
+package com.rebuild.web.base.general;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.web.MvcResponse;
 import com.rebuild.web.MvcTestSupport;
 
 /**
  * @author devezhao zhaofang123@gmail.com
- * @since 2019/03/09
+ * @since 2019/04/25
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-public class ReferenceSearchTest extends MvcTestSupport {
+public class RecentlyUsedSearchTest extends MvcTestSupport {
 
 	@Test
-	public void testSearch() throws Exception {
+	public void testAdd() throws Exception {
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
-				.post("/commons/search/search?entity=User&q=admin&qfields=loginName");
+				.post("/commons/search/recently-add?id=" + UserService.ADMIN_USER);
+		MvcResponse resp = perform(builder, UserService.ADMIN_USER);
+		System.out.println(resp);
+		Assert.assertTrue(resp.isSuccess());
+		
+		builder = MockMvcRequestBuilders
+				.post("/commons/search/recently-add?id=" + UserService.SYSTEM_USER);
+		perform(builder, UserService.ADMIN_USER);
+	}
+	
+	@Test
+	public void testGet() throws Exception {
+		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
+				.get("/commons/search/recently?entity=User");
+		MvcResponse resp = perform(builder, UserService.ADMIN_USER);
+		System.out.println(resp);
+		Assert.assertTrue(resp.isSuccess());
+	}
+	
+	@Ignore
+	@Test
+	public void testClean() throws Exception {
+		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
+				.get("/commons/search/recently-clean?entity=" + EntityHelper.User);
 		MvcResponse resp = perform(builder, UserService.ADMIN_USER);
 		System.out.println(resp);
 		Assert.assertTrue(resp.isSuccess());

@@ -104,7 +104,7 @@ let load_list = function(){
 				})
 			}
 			o = $('<a></a>').appendTo(o)
-			$('<div class="image"><img src="' + item[0][1] + '" alt="Avatar"></div>').appendTo(o)
+			$('<div class="image"><img src="' + rb.baseUrl + '/account/user-avatar/' + item[0][0] + '" alt="Avatar"></div>').appendTo(o)
 			o = $('<div class="notification-info"></div>').appendTo(o)
 			$('<div class="text">' + item[1] + '</div>').appendTo(o)
 			$('<span class="date">' + item[2] + '</span>').appendTo(o)

@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.base.entity;
+package com.rebuild.web.base.general;
 
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
@@ -43,7 +43,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class GeneralEntityRecordControllTest extends MvcTestSupport {
+public class GeneralOperatingControllTest extends MvcTestSupport {
 
 	private static ID lastSaveId = ID.newId(999);  // It's fake
 	

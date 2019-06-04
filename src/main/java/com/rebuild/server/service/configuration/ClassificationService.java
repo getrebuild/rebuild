@@ -23,7 +23,6 @@ import org.apache.commons.lang.StringUtils;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.ClassificationManager;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.BaseService;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.bizz.UserService;
 
@@ -38,22 +37,10 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/04/10
  */
-public class ClassificationService extends BaseService {
+public class ClassificationService extends CleanableCacheService {
 
 	protected ClassificationService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
-	}
-	
-	@Override
-	public Record create(Record record) {
-		return super.create(record);
-	}
-	
-	@Override
-	public Record update(Record record) {
-		record = super.update(record);
-		ClassificationManager.cleanCache(record.getPrimary());
-		return record;
 	}
 	
 	@Override
@@ -71,29 +58,34 @@ public class ClassificationService extends BaseService {
 		return super.delete(recordId);
 	}
 	
+	@Override
+	protected void cleanCache(ID configId) {
+		ClassificationManager.instance.clean(configId);
+	}
+	
 	// -- for DataItem
 	
 	/**
 	 * @param record
 	 * @return
 	 */
-	public Record saveItem(Record record) {
+	public Record createOrUpdateItem(Record record) {
 		boolean reindex = setFullNameValue(record);
 		// New
 		if (record.getPrimary() == null) {
-			return super.create(record);
+			return this.create(record);
 		}
 		
 		// Update
 		record = super.update(record);
 		if (reindex) {
 			final ID itemId = record.getPrimary();
+			cleanCache(itemId);
 			final long start = System.currentTimeMillis();
 			ThreadPool.exec(new Runnable() {
 				@Override
 				public void run() {
 					try {
-						ClassificationManager.cleanCache(itemId);
 						reindexFullNameByParent(itemId);
 					} finally {
 						long cost = System.currentTimeMillis() - start;
@@ -129,7 +121,7 @@ public class ClassificationService extends BaseService {
 		}
 		
 		if (parent != null) {
-			fullName = ClassificationManager.getFullName(parent) + "." + fullName;
+			fullName = ClassificationManager.instance.getFullName(parent) + "." + fullName;
 		}
 		record.setString("fullName", fullName);
 		return true;
@@ -142,11 +134,14 @@ public class ClassificationService extends BaseService {
 	 * @return
 	 * @see #reindexFullNameByParent(ID, ID)
 	 */
-	public int reindexFullNameByParent(ID parent) {
+	protected int reindexFullNameByParent(ID parent) {
 		Object[] data = Application.createQueryNoFilter(
 				"select dataId from ClassificationData where itemId = ?")
 				.setParameter(1, parent)
 				.unique();
+		if (data == null) {
+			return 0;
+		}
 		return reindexFullNameByParent(parent, (ID) data[0]);
 	}
 	
@@ -157,7 +152,7 @@ public class ClassificationService extends BaseService {
 	 * @param dataId 可选。但指定此值处理效率较高
 	 * @return
 	 */
-	public int reindexFullNameByParent(ID parent, ID dataId) {
+	protected int reindexFullNameByParent(ID parent, ID dataId) {
 		String ql = "select itemId,name,parent from ClassificationData where parent = ?";
 		if (dataId != null) {
 			ql += " and dataId = '" + dataId + "'";
@@ -170,7 +165,7 @@ public class ClassificationService extends BaseService {
 			ID itemId = (ID) c[0];
 			String fullName = (String) c[1];
 			if (c[2] != null) {
-				String pfn = ClassificationManager.getFullName((ID) c[2]);
+				String pfn = ClassificationManager.instance.getFullName((ID) c[2]);
 				fullName = pfn + "." + fullName;
 			}
 			Record record = EntityHelper.forUpdate(itemId, UserService.SYSTEM_USER, false);
@@ -178,28 +173,27 @@ public class ClassificationService extends BaseService {
 			super.update(record);
 			reindex++;
 			
-			ClassificationManager.cleanCache(itemId);
+			cleanCache(itemId);
 			reindex += reindexFullNameByParent(itemId, dataId);
 		}
 		return reindex;
 	}
 	
 	/**
-	 * 重建指定分类 fullName
-	 * NOTE 效率很低，数据多建议异步使用
+	 * 重建指定分类 fullName。注意：此方法效率很低，数据多建议异步使用
 	 * 
 	 * @param dataId
 	 */
-	public void reindexFullName(ID dataId) {
+	@Deprecated
+	protected void reindexFullName(ID dataId) {
 		Object[][] items = Application.createQueryNoFilter(
 				"select itemId from ClassificationData where dataId = ?")
 				.setParameter(1, dataId)
 				.array();
 		for (Object[] item : items) {
 			ID itemId = (ID) item[0];
-			ClassificationManager.cleanCache(itemId);
-			
-			String fullName = ClassificationManager.getFullName(itemId);
+			cleanCache(itemId);
+			String fullName = ClassificationManager.instance.getFullName(itemId);
 			Record record = EntityHelper.forUpdate(itemId, Application.getCurrentUser());
 			record.setString("fullName", fullName);
 			super.update(record);

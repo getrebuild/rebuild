@@ -30,13 +30,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
+import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.portals.AdvFilterManager;
 import com.rebuild.server.configuration.portals.SharableManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.configuration.AdvFilterService;
 import com.rebuild.server.service.query.AdvFilterParser;
-import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.PortalsConfiguration;
 
@@ -62,7 +62,7 @@ public class AdvFilterControll extends BaseControll implements PortalsConfigurat
 		ID user = getRequestUser(request);
 		ID filterId = getIdParameter(request, "id");
 		if (filterId != null
-				&& (!(UserHelper.isAdmin(user) || AdvFilterManager.isSelf(user, filterId)))) {
+				&& (!(UserHelper.isAdmin(user) || AdvFilterManager.instance.isSelf(user, filterId)))) {
 			writeFailure(response, "无权修改");
 			return;
 		}
@@ -102,13 +102,11 @@ public class AdvFilterControll extends BaseControll implements PortalsConfigurat
 	public void gets(@PathVariable String entity, 
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID filterId = getIdParameter(request, "id");
-		Object[] filter = AdvFilterManager.getAdvFilter(filterId);
+		ConfigEntry filter = AdvFilterManager.instance.getAdvFilter(filterId);
 		if (filter == null) {
 			writeFailure(response, "无效过滤条件");
 		} else {
-			JSON ret = JSONUtils.toJSONObject(
-					new String[] { "id", "filter", "name", "shareTo" }, filter);
-			writeSuccess(response, ret);
+			writeSuccess(response, filter.toJSON());
 		}
 	}
 	
@@ -117,7 +115,7 @@ public class AdvFilterControll extends BaseControll implements PortalsConfigurat
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		ID filterId = getIdParameter(request, "id");
-		if (!(UserHelper.isAdmin(user) || AdvFilterManager.isSelf(user, filterId))) {
+		if (!(UserHelper.isAdmin(user) || AdvFilterManager.instance.isSelf(user, filterId))) {
 			writeFailure(response, "无权删除");
 			return;
 		}
@@ -130,7 +128,7 @@ public class AdvFilterControll extends BaseControll implements PortalsConfigurat
 	public void list(@PathVariable String entity, 
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		Object[][] filters = AdvFilterManager.getAdvFilterList(entity, user);
+		JSON filters = AdvFilterManager.instance.getAdvFilterList(entity, user);
 		writeSuccess(response, filters);
 	}
 	
