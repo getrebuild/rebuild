@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.base.entity;
+package com.rebuild.web.base.general;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,7 +25,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import com.rebuild.server.service.bizz.DepartmentService;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.web.MvcResponse;
 import com.rebuild.web.MvcTestSupport;
@@ -35,21 +34,12 @@ import com.rebuild.web.MvcTestSupport;
  * @since 2019/03/09
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-public class RelatedListControllTest extends MvcTestSupport {
+public class ReferenceSearchTest extends MvcTestSupport {
 
 	@Test
-	public void testrRelatedList() throws Exception {
+	public void testSearch() throws Exception {
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
-				.post("/app/entity/related-list?masterId=" + DepartmentService.ROOT_DEPT + "&related=User");
-		MvcResponse resp = perform(builder, UserService.ADMIN_USER);
-		System.out.println(resp);
-		Assert.assertTrue(resp.isSuccess());
-	}
-	
-	@Test
-	public void testrRelatedCounts() throws Exception {
-		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
-				.post("/app/entity/related-counts?masterId=" + DepartmentService.ROOT_DEPT + "&relateds=User");
+				.post("/commons/search/search?entity=User&q=admin&qfields=loginName");
 		MvcResponse resp = perform(builder, UserService.ADMIN_USER);
 		System.out.println(resp);
 		Assert.assertTrue(resp.isSuccess());

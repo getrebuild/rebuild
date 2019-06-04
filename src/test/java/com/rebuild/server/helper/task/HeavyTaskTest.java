@@ -29,7 +29,7 @@ import cn.devezhao.commons.ThreadPool;
  * @author devezhao
  * @since 01/04/2019
  */
-public class HeacyTaskTest {
+public class HeavyTaskTest {
 
 	@Test
 	public void testTask() throws Exception {

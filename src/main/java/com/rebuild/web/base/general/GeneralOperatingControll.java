@@ -66,7 +66,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @Controller
 @RequestMapping("/app/entity/")
-public class GeneralRecordOperatingControll extends BaseControll {
+public class GeneralOperatingControll extends BaseControll {
 
 	@RequestMapping("record-save")
 	public void save(HttpServletRequest request, HttpServletResponse response) throws IOException {

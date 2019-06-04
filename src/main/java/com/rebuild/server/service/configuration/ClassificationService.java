@@ -139,6 +139,9 @@ public class ClassificationService extends CleanableCacheService {
 				"select dataId from ClassificationData where itemId = ?")
 				.setParameter(1, parent)
 				.unique();
+		if (data == null) {
+			return 0;
+		}
 		return reindexFullNameByParent(parent, (ID) data[0]);
 	}
 	
