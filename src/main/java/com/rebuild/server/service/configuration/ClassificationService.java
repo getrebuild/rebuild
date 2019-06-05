@@ -98,6 +98,15 @@ public class ClassificationService extends CleanableCacheService {
 		}
 		return record;
 	}
+	
+	/**
+	 * @param record
+	 * @return
+	 */
+	public void deleteItem(ID itemId) {
+		super.delete(itemId);
+		this.cleanCache(itemId);
+	}
 
 	/**
 	 * 补充 fullName

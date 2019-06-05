@@ -39,13 +39,15 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/04/08
  */
-public class ClassificationImporter extends HeavyTask<Void> {
+public class ClassificationImporter extends HeavyTask<Integer> {
 	
 	final private ID user;
 	final private ID dest;
 	final private String fileUrl;
 	
 	private boolean forceClean = false;
+	
+	private int affected = 0;
 	
 	/**
 	 * @param user
@@ -63,7 +65,7 @@ public class ClassificationImporter extends HeavyTask<Void> {
 	}
 	
 	@Override
-	public Void exec() throws Exception {
+	public Integer exec() throws Exception {
 		final JSONArray data = (JSONArray) RBStore.fetchClassification(fileUrl);
 		
 		Object[][] exists = Application.createQueryNoFilter(
@@ -72,12 +74,12 @@ public class ClassificationImporter extends HeavyTask<Void> {
 				.array();
 		if (exists.length > 0) {
 			if (this.forceClean) {
-				for (Object[] o : exists) {
-					ClassificationManager.instance.clean((ID) o[0]);
-				}
 				String delSql = String.format("delete from `%s` where `DATA_ID` = '%s'",
 						MetadataHelper.getEntity(EntityHelper.ClassificationData).getPhysicalName(), dest);
 				Application.getSQLExecutor().execute(delSql);
+				for (Object[] o : exists) {
+					ClassificationManager.instance.clean((ID) o[0]);
+				}
 			} else {
 				throw new ModifiyMetadataException("必须清空当前分类数据才能导入");
 			}
@@ -86,19 +88,14 @@ public class ClassificationImporter extends HeavyTask<Void> {
 		this.setThreadUser(user);
 		this.setTotal(data.size());
 		
-		ID firstOne = null;
 		for (Object o : data) {
-			ID id = addNItem((JSONObject) o, null);
-			if (firstOne == null) {
-				firstOne = id;
-			}
+			addNItem((JSONObject) o, null, 0);
 			this.addCompleted();
 		}
-		
-		return null;
+		return affected;
 	}
 
-	private ID addNItem(JSONObject node, ID parent) {
+	private ID addNItem(JSONObject node, ID parent, int level) {
 		String code = node.getString("code");
 		String name = node.getString("name");
 		
@@ -107,16 +104,18 @@ public class ClassificationImporter extends HeavyTask<Void> {
 		if (StringUtils.isNotBlank(code)) {
 			item.setString("code", code);
 		}
+		item.setInt("level", level);
 		item.setID("dataId", this.dest);
 		if (parent != null) {
 			item.setID("parent", parent);
 		}
 		item = Application.getBean(ClassificationService.class).createOrUpdateItem(item);
+		this.affected++;
 		
 		JSONArray children = node.getJSONArray("children");
 		if (children != null) {
-			for (Object o : children) {
-				addNItem((JSONObject) o, item.getPrimary());
+			for (Object ch : children) {
+				addNItem((JSONObject) ch, item.getPrimary(), level + 1);
 			}
 		}
 		return item.getPrimary();

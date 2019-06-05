@@ -23,6 +23,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -141,17 +142,20 @@ public class ClassificationControll extends BasePageControll {
 		ID user = getRequestUser(request);
 		ID itemId = getIdParameter(request, "item_id");
 		ID dataId = getIdParameter(request, "data_id");
-		ID parent = getIdParameter(request, "parent");
 		
 		Record item = null;
 		if (itemId != null) {
 			item = EntityHelper.forUpdate(itemId, user);
 		} else if (dataId != null) {
+			ID parent = getIdParameter(request, "parent");
+			int level = getIntParameter(request, "level", 0);
+			
 			item = EntityHelper.forNew(EntityHelper.ClassificationData, user);
 			item.setID("dataId", dataId);
 			if (parent != null) {
 				item.setID("parent", parent);
 			}
+			item.setInt("level", level);
 		} else {
 			writeFailure(response, "无效参数");
 			return;
@@ -159,14 +163,25 @@ public class ClassificationControll extends BasePageControll {
 		
 		String code = getParameter(request, "code");
 		String name = getParameter(request, "name");
+		String hide = getParameter(request, "hide");
 		if (StringUtils.isNotBlank(code)) {
 			item.setString("code", code);
 		}
 		if (StringUtils.isNotBlank(name)) {
 			item.setString("name", name);
 		}
+		if (StringUtils.isNotBlank(hide)) {
+			item.setBoolean("isHide", BooleanUtils.toBooleanObject(hide));
+		}
 		item = Application.getBean(ClassificationService.class).createOrUpdateItem(item);
 		writeSuccess(response, item.getPrimary());
+	}
+	
+	@RequestMapping("classification/delete-data-item")
+	public void deleteDataItem(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID itemId = getIdParameter(request, "item_id");
+		Application.getBean(ClassificationService.class).deleteItem(itemId);
+		writeSuccess(response);
 	}
 	
 	@RequestMapping("classification/load-data-items")
@@ -177,13 +192,13 @@ public class ClassificationControll extends BasePageControll {
 		Object[][] child = null;
 		if (parent != null) {
 			child = Application.createQuery(
-					"select itemId,name,code from ClassificationData where dataId = ? and parent = ? order by code,name")
+					"select itemId,name,code,isHide from ClassificationData where dataId = ? and parent = ? order by code,name")
 					.setParameter(1, dataId)
 					.setParameter(2, parent)
 					.array();
 		} else if (dataId != null) {
 			child = Application.createQuery(
-					"select itemId,name,code from ClassificationData where dataId = ? and parent is null order by code,name")
+					"select itemId,name,code,isHide from ClassificationData where dataId = ? and parent is null order by code,name")
 					.setParameter(1, dataId)
 					.array();
 		} else {

@@ -1803,3 +1803,14 @@ form {
     margin: 0;
     border: 0 none;
 }
+
+.text-disabled {
+    color: #aaa;
+    font-style: italic;
+}
+
+.text-disabled>small::after {
+    content: '[已禁用]';
+    font-size: 12px;
+    margin-left: 4px;
+}

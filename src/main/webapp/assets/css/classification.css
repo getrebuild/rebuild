@@ -19,6 +19,24 @@
   margin-top: 3px
 }
 
+.level-boxes form .input-group {
+  position: relative;
+}
+
+.level-boxes form .input-group .custom-control {
+  position: absolute;
+  margin: 0;
+  background-color: #fff;
+  right: 65px;
+  margin-top: 9px;
+  padding-right: 5px;
+  z-index: 91;
+}
+
+.level-boxes form .input-group .btn {
+  width: 60px;
+}
+
 .level-boxes .col-md-3.off form,
 .level-boxes .col-md-3.off ol {
   display: none;
