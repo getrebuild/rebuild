@@ -31,7 +31,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/06/04
  */
-public class DashboardConfigService extends CleanableCacheService {
+public class DashboardConfigService extends ConfigurationService {
 
 	protected DashboardConfigService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);

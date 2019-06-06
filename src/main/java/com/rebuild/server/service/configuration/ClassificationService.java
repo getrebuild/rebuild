@@ -38,7 +38,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/04/10
  */
-public class ClassificationService extends CleanableCacheService implements AdminGuard {
+public class ClassificationService extends ConfigurationService implements AdminGuard {
 
 	protected ClassificationService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);

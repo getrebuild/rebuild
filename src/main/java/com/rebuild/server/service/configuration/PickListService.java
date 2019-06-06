@@ -41,7 +41,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 09/07/2018
  */
-public class PickListService extends CleanableCacheService implements AdminGuard {
+public class PickListService extends ConfigurationService implements AdminGuard {
 
 	protected PickListService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);

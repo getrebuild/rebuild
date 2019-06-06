@@ -81,6 +81,7 @@ public class GeneralEntityService extends ObservableService  {
 		// 注入观察者
 		for (Observer o : observers) {
 			addObserver(o);
+			LOG.info(this + " add observer : " + o);
 		}
 	}
 	

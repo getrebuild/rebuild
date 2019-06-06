@@ -28,7 +28,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/06/04
  */
-public class ChartConfigService extends CleanableCacheService {
+public class ChartConfigService extends ConfigurationService {
 
 	protected ChartConfigService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);

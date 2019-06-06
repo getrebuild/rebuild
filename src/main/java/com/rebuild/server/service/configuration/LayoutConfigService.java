@@ -28,7 +28,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/04/30
  */
-public class LayoutConfigService extends CleanableCacheService {
+public class LayoutConfigService extends ConfigurationService {
 
 	protected LayoutConfigService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);

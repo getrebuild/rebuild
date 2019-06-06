@@ -38,8 +38,6 @@ import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.metadata.DynamicMetadataFactory;
 import com.rebuild.server.service.CommonService;
 import com.rebuild.server.service.EntityService;
-import com.rebuild.server.service.ObservableService;
-import com.rebuild.server.service.OperatingObserver;
 import com.rebuild.server.service.SQLExecutor;
 import com.rebuild.server.service.ServiceSpec;
 import com.rebuild.server.service.base.GeneralEntityService;
@@ -125,16 +123,6 @@ public final class Application {
 				SSS.put(ss.getEntityCode(), ss);
 				if (devMode()) {
 					LOG.info("Service specification : " + ss);
-				}
-			}
-		}
-		
-		// 注入观察者
-		for (ObservableService es : APPLICATION_CTX.getBeansOfType(ObservableService.class).values()) {
-			for (OperatingObserver obs : APPLICATION_CTX.getBeansOfType(OperatingObserver.class).values()) {
-				es.addObserver(obs);
-				if (devMode()) {
-					LOG.info(es + " add observer : " + obs);
 				}
 			}
 		}

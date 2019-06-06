@@ -31,7 +31,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/04/30
  */
-public class AdvFilterService extends CleanableCacheService {
+public class AdvFilterService extends ConfigurationService {
 	
 	protected AdvFilterService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);

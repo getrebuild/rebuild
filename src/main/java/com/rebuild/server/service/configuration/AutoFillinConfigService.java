@@ -32,7 +32,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/05/18
  */
-public class AutoFillinConfigService extends CleanableCacheService implements AdminGuard {
+public class AutoFillinConfigService extends ConfigurationService implements AdminGuard {
 
 	protected AutoFillinConfigService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);

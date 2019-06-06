@@ -32,7 +32,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/24
  */
-public class RobotTriggerConfigService extends CleanableCacheService implements AdminGuard {
+public class RobotTriggerConfigService extends ConfigurationService implements AdminGuard {
 
 	protected RobotTriggerConfigService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
