@@ -33,8 +33,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.configuration.portals.ClassificationManager;
 import com.rebuild.server.configuration.portals.PickListManager;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
@@ -186,26 +186,26 @@ public class MetadataGetting extends BaseControll {
 	public void fetchClassification(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
 		String field = getParameterNotNull(request, "field");
-		ID parent = getIdParameter(request, "parent");
 		
-		Field fieldMeta = MetadataHelper.getEntity(entity).getField(field);
-		EasyMeta fieldEasy = EasyMeta.valueOf(fieldMeta);
-		JSONObject extConfig = fieldEasy.getFieldExtConfig();
-		String dataId = extConfig.getString("classification");
-		if (!ID.isId(dataId)) {
+		Field fieldMeta = MetadataHelper.getField(entity, field);
+		ID useClassification = ClassificationManager.instance.getUseClassification(fieldMeta, true);
+		if (useClassification == null) {
 			writeFailure(response, "分类字段配置有误");
 			return;
 		}
 		
-		String sql = "select itemId,name from ClassificationData where dataId = ? and ";
+		ID parent = getIdParameter(request, "parent");
+		String sql = "select itemId,name from ClassificationData where dataId = ? and isHide = 'F' and ";
 		if (parent != null) {
 			sql += "parent = '" + parent + "'";
 		} else {
 			sql += "parent is null";
 		}
 		sql += " order by code, name";
-		Object[][] data = Application.createQueryNoFilter(sql).setParameter(1, ID.valueOf(dataId)).array();
-		
+		Object[][] data = Application.createQueryNoFilter(sql)
+				.setParameter(1, useClassification)
+				.setLimit(200)
+				.array();
 		writeSuccess(response, data);
 	}
 }

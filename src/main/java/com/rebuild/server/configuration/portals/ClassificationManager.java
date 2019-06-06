@@ -41,6 +41,8 @@ public class ClassificationManager implements ConfigManager<ID> {
 	
 	public static final ClassificationManager instance = new ClassificationManager();
 	private ClassificationManager() { }
+
+	private static final int BAD_CLASSIFICATION = -1;
 	
 	/**
 	 * 获取名称
@@ -94,7 +96,7 @@ public class ClassificationManager implements ConfigManager<ID> {
 	 * @return
 	 */
 	public ID findItemByName(String name, Field field) {
-		ID dataId = getUseClassification(field);
+		ID dataId = getUseClassification(field, false);
 		if (dataId == null) {
 			return null;
 		}
@@ -120,9 +122,9 @@ public class ClassificationManager implements ConfigManager<ID> {
 	 * @return
 	 */
 	public int getOpenLevel(Field field) {
-		ID dataId = getUseClassification(field);
+		ID dataId = getUseClassification(field, false);
 		if (dataId == null) {
-			return 0;
+			return BAD_CLASSIFICATION;
 		}
 		
 		String ckey = "ClassificationLEVEL-" + dataId;
@@ -135,24 +137,32 @@ public class ClassificationManager implements ConfigManager<ID> {
 				"select openLevel from Classification where dataId = ?")
 				.setParameter(1, dataId)
 				.unique();
-		if (o != null) {
-			cval = (Integer) o[0];
-			Application.getCommonCache().putx(ckey, cval);
+		if (o == null) {
+			return BAD_CLASSIFICATION;
 		}
-		return cval == null ? 0 : cval;
+		
+		cval = (Integer) o[0];
+		Application.getCommonCache().putx(ckey, cval);
+		return cval;
 	}
 	
 	/**
 	 * 获取指定字段所使用的分类
 	 * 
 	 * @param field
+	 * @param verfiy
 	 * @return
 	 */
-	public ID getUseClassification(Field field) {
+	public ID getUseClassification(Field field, boolean verfiy) {
 		String use = EasyMeta.valueOf(field).getFieldExtConfig().getString("classification");
 		ID dataId = ID.isId(use) ? ID.valueOf(use) : null;
 		if (dataId == null) {
 			LOG.error("Field [ " + field + " ] unconfig classification");
+			return null;
+		}
+		
+		if (verfiy && getOpenLevel(field) == BAD_CLASSIFICATION) {
+			return null;
 		}
 		return dataId;
 	}
