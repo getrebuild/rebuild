@@ -41,5 +41,7 @@ public class UserHelperTest extends TestSupport {
 		
 		Department dept = Application.getUserStore().getDepartment(DepartmentService.ROOT_DEPT);
 		UserHelper.getAllChildren(dept);
+		
+		Application.getUserStore().getUser(SIMPLE_USER).isActive();
 	}
 }

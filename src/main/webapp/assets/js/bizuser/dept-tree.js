@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-const loadDeptTree = function () {
+var loadDeptTree = function () {
   $.get(rb.baseUrl + '/admin/bizuser/dept-tree', function (res) {
     $('.dept-tree').empty()
     let root = $('<ul class="list-unstyled"></ul>').appendTo('.dept-tree')
@@ -39,4 +39,4 @@ const renderDeptTree = function (dept, target) {
 }
 
 // To Override
-let clickDept = function (depts) {}
+var clickDept = function (depts) { }

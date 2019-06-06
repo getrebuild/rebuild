@@ -21,20 +21,23 @@ $(document).ready(function () {
         return
       }
 
-      if (res.data.disabled === true) {
+      let _data = res.data
+      if (_data.disabled === true) {
         $('.J_disable').remove()
-        if (!res.data.role || !res.data.dept) {
+        if (!_data.role || !_data.dept) {
           $('.J_enable').off('click').click(() => {
-            renderRbcomp(<DlgEnableUser enable={true} user={user_id} dept={!res.data.dept} role={!res.data.role} />)
+            renderRbcomp(<DlgEnableUser enable={true} user={user_id} dept={!_data.dept} role={!_data.role} />)
           })
         }
       } else $('.J_enable').remove()
 
-      if (res.data.active === true) return
+      if (_data.active === true) return
       let reason = []
-      if (!res.data.role) reason.push('未指定角色')
-      if (!res.data.dept) reason.push('未指定部门')
-      if (res.data.disabled === true) reason.push('已停用')
+      if (!_data.role) reason.push('未指定角色')
+      else if (_data.roleDisabled) reason.push('所属角色已停用')
+      if (!_data.dept) reason.push('未指定部门')
+      else if (_data.deptDisabled) reason.push('所在部门已停用')
+      if (_data.disabled === true) reason.push('已停用')
       $('.J_tips').removeClass('hide').find('.message p').text('当前用户处于未激活状态，因为其 ' + reason.join(' / '))
     })
   }

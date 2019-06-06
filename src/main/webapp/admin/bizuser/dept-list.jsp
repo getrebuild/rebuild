@@ -82,12 +82,8 @@ window.__PageConfig = {
 <script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/bizuser/dept-tree.js"></script>
 <script type="text/babel">
-RbForm.postAfter = function(){
-	location.reload()
-}
-$(document).ready(function(){
-	loadDeptTree()
-})
+RbForm.postAfter = loadDeptTree
+$(document).ready(loadDeptTree)
 clickDept = function(depts) {
 	if (depts[0] == '$ALL$') depts = []
 	let exp = { items: [], values: {} }
