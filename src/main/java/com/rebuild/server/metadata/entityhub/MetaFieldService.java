@@ -20,8 +20,8 @@ package com.rebuild.server.metadata.entityhub;
 
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.AdminService;
 import com.rebuild.server.service.BaseService;
+import com.rebuild.server.service.bizz.privileges.AdminGuard;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -32,7 +32,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 08/03/2018
  */
-public class MetaFieldService extends BaseService implements AdminService {
+public class MetaFieldService extends BaseService implements AdminGuard {
 
 	protected MetaFieldService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);

@@ -16,13 +16,17 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.service;
+package com.rebuild.server.service.bizz.privileges;
+
+import com.rebuild.server.service.bizz.privileges.PrivilegesGuardInterceptor;
 
 /**
  * 标记接口，实现此接口会验证操作人是否为管理员
  * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/06/06
+ * 
+ * @see PrivilegesGuardInterceptor
  */
-public interface AdminService {
+public interface AdminGuard {
 }

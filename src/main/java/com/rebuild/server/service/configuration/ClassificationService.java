@@ -23,9 +23,9 @@ import org.apache.commons.lang.StringUtils;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.ClassificationManager;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.AdminService;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.bizz.UserService;
+import com.rebuild.server.service.bizz.privileges.AdminGuard;
 
 import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -38,7 +38,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/04/10
  */
-public class ClassificationService extends CleanableCacheService implements AdminService {
+public class ClassificationService extends CleanableCacheService implements AdminGuard {
 
 	protected ClassificationService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);

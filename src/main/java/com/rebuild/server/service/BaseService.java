@@ -77,4 +77,13 @@ public class BaseService implements ServiceSpec {
 	public PersistManagerFactory getPMFactory() {
 		return aPMFactory;
 	}
+	
+	@Override
+	public String toString() {
+		if (getEntityCode() > 0) {
+			return "service." + aPMFactory.getMetadataFactory().getEntity(getEntityCode()).getName() + "@" + Integer.toHexString(hashCode());
+		} else {
+			return super.toString();
+		}
+	}
 }

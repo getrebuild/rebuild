@@ -241,9 +241,8 @@ class DlgDashSettings extends RbFormHandler {
   save() {
     let _data = { shareTo: this.state.shareToAll === true ? 'ALL' : 'SELF', title: this.state.title || '默认仪表盘' }
     _data.metadata = { id: this.props.dashid, entity: 'DashboardConfig' }
-    $.post(rb.baseUrl + '/dashboard/dash-update', JSON.stringify(_data), (res) => {
+    $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
-        // rb.hbsuccess('设置已保存')
         $('.dash-head h4').text(_data.title)
         if (dlg_cached['DashSelect']) {
           dlg_cached['DashSelect'].setState({ 'dashTitle': _data.title })
@@ -255,7 +254,7 @@ class DlgDashSettings extends RbFormHandler {
   delete() {
     rb.alert('确认删除此仪表盘？', {
       confirm: function () {
-        $.post(rb.baseUrl + '/dashboard/dash-delete?id=' + dashid, function (res) {
+        $.post(rb.baseUrl + '/app/entity/record-delete?id=' + dashid, function (res) {
           // if (res.error_code === 0) location.replace('home#del=' + dashid)  // Chrome no refresh?
           if (res.error_code === 0) location.reload()
           else rb.hberror(res.error_msg)

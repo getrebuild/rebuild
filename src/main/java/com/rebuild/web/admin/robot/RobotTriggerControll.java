@@ -32,22 +32,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.robot.ActionFactory;
 import com.rebuild.server.business.robot.ActionType;
 import com.rebuild.server.business.robot.TriggerAction;
-import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.server.service.configuration.RobotTriggerConfigService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 
-import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -123,22 +117,6 @@ public class RobotTriggerControll extends BasePageControll {
 			}
 		}
 		writeSuccess(response, list);
-	}
-	
-	@RequestMapping("trigger/save")
-	public void triggerSave(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getRequestUser(request);
-		JSON formJson = ServletUtils.getRequestJson(request);
-		Record record = EntityHelper.parse((JSONObject) formJson, user);
-		record = Application.getBean(RobotTriggerConfigService.class).createOrUpdate(record);
-		writeSuccess(response, JSONUtils.toJSONObject("id", record.getPrimary()));
-	}
-	
-	@RequestMapping("trigger/delete")
-	public void triggerDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID configId = getIdParameterNotNull(request, "id");
-		Application.getBean(RobotTriggerConfigService.class).delete(configId);
-		writeSuccess(response);
 	}
 	
 	@RequestMapping("trigger/list")

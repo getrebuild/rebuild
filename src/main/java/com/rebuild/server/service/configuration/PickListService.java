@@ -28,7 +28,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.PickListManager;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.AdminService;
+import com.rebuild.server.service.bizz.privileges.AdminGuard;
 
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -41,7 +41,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 09/07/2018
  */
-public class PickListService extends CleanableCacheService implements AdminService {
+public class PickListService extends CleanableCacheService implements AdminGuard {
 
 	protected PickListService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);

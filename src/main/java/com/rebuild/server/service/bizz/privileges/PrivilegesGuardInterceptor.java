@@ -30,7 +30,6 @@ import org.springframework.util.Assert;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.server.service.AdminService;
 import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.ServiceSpec;
 import com.rebuild.server.service.base.BulkContext;
@@ -63,14 +62,26 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 	@Override
 	public void checkGuard(Object object) throws SecurityException {
 		final MethodInvocation invocation = (MethodInvocation) object;
-		final ID caller = Application.getCurrentUser();
-		tryIfNonAdmin(invocation, caller);
+		final String callMethod = invocation.getMethod().getName();
+		if (callMethod.startsWith("get") || callMethod.startsWith("to")) {
+			return;
+		}
 		
+		final ID caller = Application.getSessionStore().get();
+		if (Application.devMode()) {
+			LOG.info("User [ " + (caller == null ? "?" : caller) + " ] calls : " + invocation);
+		}
+		
+		tryIfNonAdmin(invocation, caller);
 		if (!isNeedCheck(invocation)) {
 			return;
 		}
 		
-		boolean isBulk = invocation.getMethod().getName().startsWith("bulk");
+		if (caller == null) {
+			throw new AccessDeniedException("No user in session!");
+		}
+		
+		boolean isBulk = callMethod.startsWith("bulk");
 		if (isBulk) {
 			Object first = invocation.getArguments()[0];
 			if (!(first instanceof BulkContext)) {
@@ -150,10 +161,10 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 			return false;
 		}
 		
-		String act = invocation.getMethod().getName();
-		return act.startsWith("create") || act.startsWith("update") || act.startsWith("delete") 
-				|| act.startsWith("assign") || act.startsWith("share") || act.startsWith("unshare")
-				|| act.startsWith("bulk");
+		String action = invocation.getMethod().getName();
+		return action.startsWith("create") || action.startsWith("update") || action.startsWith("delete") 
+				|| action.startsWith("assign") || action.startsWith("share") || action.startsWith("unshare")
+				|| action.startsWith("bulk");
 	}
 	
 	/**
@@ -161,7 +172,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 	 * @param caller
 	 */
 	private void tryIfNonAdmin(MethodInvocation invocation, ID caller) {
-		if (AdminService.class.isAssignableFrom(invocation.getThis().getClass()) && !UserHelper.isAdmin(caller)) {
+		if (AdminGuard.class.isAssignableFrom(invocation.getThis().getClass()) && !UserHelper.isAdmin(caller)) {
 			throw new AccessDeniedException("非法操作请求 (" + ((ServiceSpec) invocation.getThis()).getEntityCode() + ")");
 		}
 	}

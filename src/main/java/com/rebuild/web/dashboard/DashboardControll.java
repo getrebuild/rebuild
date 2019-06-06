@@ -65,21 +65,6 @@ public class DashboardControll extends BasePageControll {
 		writeSuccess(response, dashs);
 	}
 	
-	@RequestMapping("/dash-update")
-	public void dashUpdate(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getRequestUser(request);
-		JSON formJson = ServletUtils.getRequestJson(request);
-		Record record = EntityHelper.parse((JSONObject) formJson, user);
-		
-		if (!DashboardManager.instance.isEditable(user, record.getPrimary())) {
-			writeFailure(response, "无权修改他人的仪表盘");
-			return;
-		}
-		
-		Application.getBean(DashboardConfigService.class).update(record);
-		writeSuccess(response);
-	}
-	
 	@RequestMapping("/dash-new")
 	public void dashNew(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
@@ -133,31 +118,11 @@ public class DashboardControll extends BasePageControll {
 	@RequestMapping("/dash-config")
 	public void dashConfig(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID dashid = getIdParameterNotNull(request, "id");
-		ID user = getRequestUser(request);
-		
-		if (!DashboardManager.instance.isEditable(user, dashid)) {
-			writeFailure(response, "无权修改他人的仪表盘");
-			return;
-		}
-		
 		JSON config = ServletUtils.getRequestJson(request);
-		Record record = EntityHelper.forUpdate(dashid, user);
+		
+		Record record = EntityHelper.forUpdate(dashid, getRequestUser(request));
 		record.setString("config", config.toJSONString());
 		Application.getBean(DashboardConfigService.class).update(record);
-		writeSuccess(response);
-	}
-	
-	@RequestMapping("/dash-delete")
-	public void dashDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID dashid = getIdParameterNotNull(request, "id");
-		ID user = getRequestUser(request);
-		
-		if (!DashboardManager.instance.isEditable(user, dashid)) {
-			writeFailure(response, "无权删除他人的仪表盘");
-			return;
-		}
-		
-		Application.getBean(DashboardConfigService.class).delete(dashid);
 		writeSuccess(response);
 	}
 	

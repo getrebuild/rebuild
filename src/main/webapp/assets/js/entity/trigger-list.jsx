@@ -72,8 +72,7 @@ class GridList extends React.Component {
       confirmText: '删除',
       confirm: function () {
         this.disabled(true)
-        $.post('./trigger/delete?id=' + configId, (res) => {
-          this.disabled(false)
+        $.post(`${rb.baseUrl}/app/entity/record-delete?id=${configId}`, (res) => {
           if (res.error_code === 0) {
             rb.hbsuccess('触发器已删除')
             setTimeout(() => { location.reload() }, 500)
@@ -160,7 +159,7 @@ class DlgEdit extends RbFormHandler {
     _data.metadata = { entity: 'RobotTriggerConfig', id: this.props.id || null }
 
     let _btns = $(this._btns).find('.btn').button('loading')
-    $.post(rb.baseUrl + '/admin/robot/trigger/save', JSON.stringify(_data), (res) => {
+    $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
         if (this.props.id) location.reload()
         else location.href = 'trigger/' + res.data.id
