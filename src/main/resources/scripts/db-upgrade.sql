@@ -1,7 +1,7 @@
 -- Database upgrade scripts for rebuild 1.x
 -- Each upgraded starts with `-- #VERSION`
 
--- #5 Classification better (v.13)
+-- #5 Classification better (v1.3)
 alter table `classification_data`
   add column `LEVEL` smallint(6) default '0',
   add column `IS_HIDE` char(1) default 'F';
