@@ -160,7 +160,8 @@ public class SignUpControll extends BasePageControll {
 	
 	@RequestMapping("captcha")
 	public void captcha(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		Font font = new Font(Font.SERIF, Font.ITALIC, 20 + RandomUtils.nextInt(10));
-		CaptchaUtil.outPng(160, 41, 6, font, request, response);
+		Font font = new Font(Font.SERIF, Font.BOLD & Font.ITALIC, 22 + RandomUtils.nextInt(8));
+		int codeLen = 4 + RandomUtils.nextInt(3);
+		CaptchaUtil.outPng(160, 41, codeLen, font, request, response);
 	}
 }
