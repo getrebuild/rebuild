@@ -30,6 +30,7 @@ import org.springframework.util.Assert;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.service.CommonService;
 import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.ServiceSpec;
 import com.rebuild.server.service.base.BulkContext;
@@ -156,6 +157,9 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 	 * @return
 	 */
 	private boolean isGuardMethod(MethodInvocation invocation) {
+		if (CommonService.class.isAssignableFrom(invocation.getThis().getClass())) {
+			return false;
+		}
 		String action = invocation.getMethod().getName();
 		return action.startsWith("create") || action.startsWith("update") || action.startsWith("delete") 
 				|| action.startsWith("assign") || action.startsWith("share") || action.startsWith("unshare")
