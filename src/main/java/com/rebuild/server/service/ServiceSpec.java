@@ -18,11 +18,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service;
 
+import com.rebuild.server.Application;
+
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 持久化基础服务定义
+ * 业务对象基础服务类定义
  * 
  * @author devezhao
  * @since 12/28/2018
@@ -30,10 +32,21 @@ import cn.devezhao.persist4j.engine.ID;
 public interface ServiceSpec {
 	
 	/**
+	 * 专供某个实体的
+	 * 
+	 * @return
+	 * @see Application#getGeneralEntityService(int)
+	 */
+	int getEntityCode();
+	
+	/**
 	 * 新建或更新
 	 * 
 	 * @param record
 	 * @return
+	 * 
+	 * @see #create(Record)
+	 * @see #update(Record)
 	 */
 	Record createOrUpdate(Record record);
 	

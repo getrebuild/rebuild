@@ -16,31 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.service.configuration;
-
-import com.rebuild.server.configuration.portals.DashboardManager;
-import com.rebuild.server.metadata.EntityHelper;
-
-import cn.devezhao.persist4j.PersistManagerFactory;
-import cn.devezhao.persist4j.engine.ID;
+package com.rebuild.server.service;
 
 /**
- * @author devezhao-mbp zhaofang123@gmail.com
- * @since 2019/06/04
+ * 标记接口，实现此接口会验证操作人是否为管理员
+ * 
+ * @author devezhao zhaofang123@gmail.com
+ * @since 2019/06/06
  */
-public class DashboardConfigService extends CleanableCacheService {
-
-	protected DashboardConfigService(PersistManagerFactory aPMFactory) {
-		super(aPMFactory);
-	}
-	
-	@Override
-	public int getEntityCode() {
-		return EntityHelper.DashboardConfig;
-	}
-	
-	@Override
-	protected void cleanCache(ID configId) {
-		DashboardManager.instance.clean(configId);
-	}
+public interface AdminService {
 }

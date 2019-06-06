@@ -28,7 +28,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 持久层服务基类
+ * 基础服务类
  * 
  * @author zhaofang123@gmail.com
  * @since 05/21/2017
@@ -42,6 +42,11 @@ public class BaseService implements ServiceSpec {
 	protected BaseService(PersistManagerFactory aPMFactory) {
 		super();
 		this.aPMFactory = aPMFactory;
+	}
+	
+	@Override
+	public int getEntityCode() {
+		return 0;
 	}
 	
 	@Override

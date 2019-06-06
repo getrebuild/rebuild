@@ -28,7 +28,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.PickListManager;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.BaseService;
+import com.rebuild.server.service.AdminService;
 
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -41,10 +41,15 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 09/07/2018
  */
-public class PickListService extends BaseService  {
+public class PickListService extends CleanableCacheService implements AdminService {
 
 	protected PickListService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
+	}
+	
+	@Override
+	public int getEntityCode() {
+		return EntityHelper.PickList;
 	}
 
 	/**
@@ -84,7 +89,7 @@ public class PickListService extends BaseService  {
 				r.setString("text", item.getString("text"));
 				super.update(r);
 				itemsHoldList.remove(id2id);
-				PickListManager.instance.clean(id2id);
+				cleanCache(id2id);
 			}
 		}
 		
@@ -108,14 +113,19 @@ public class PickListService extends BaseService  {
 			
 			if (id2id != null) {
 				itemsHoldList.remove(id2id);
-				PickListManager.instance.clean(id2id);
+				cleanCache(id2id);
 			}
 		}
 		
 		for (ID item : itemsHoldList) {
 			super.delete(item);
-			PickListManager.instance.clean(item);
+			cleanCache(item);
 		}
 		PickListManager.instance.clean(field);
+	}
+	
+	@Override
+	protected void cleanCache(ID configId) {
+		PickListManager.instance.clean(configId);
 	}
 }

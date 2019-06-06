@@ -20,7 +20,9 @@ package com.rebuild.server.service.configuration;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.RobotTriggerManager;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.AdminService;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -30,10 +32,15 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/24
  */
-public class RobotTriggerConfigService extends CleanableCacheService {
+public class RobotTriggerConfigService extends CleanableCacheService implements AdminService {
 
 	protected RobotTriggerConfigService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
+	}
+	
+	@Override
+	public int getEntityCode() {
+		return EntityHelper.RobotTriggerConfig;
 	}
 	
 	@Override

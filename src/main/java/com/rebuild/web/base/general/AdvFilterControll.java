@@ -110,20 +110,6 @@ public class AdvFilterControll extends BaseControll implements PortalsConfigurat
 		}
 	}
 	
-	@RequestMapping("advfilter/delete")
-	public void delete(@PathVariable String entity, 
-			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getRequestUser(request);
-		ID filterId = getIdParameter(request, "id");
-		if (!(UserHelper.isAdmin(user) || AdvFilterManager.instance.isSelf(user, filterId))) {
-			writeFailure(response, "无权删除");
-			return;
-		}
-		
-		Application.getBean(AdvFilterService.class).delete(filterId);
-		writeSuccess(response);
-	}
-	
 	@RequestMapping("advfilter/list")
 	public void list(@PathVariable String entity, 
 			HttpServletRequest request, HttpServletResponse response) throws IOException {

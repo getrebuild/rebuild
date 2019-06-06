@@ -149,12 +149,4 @@ public class AutoFillinControll extends BasePageControll implements PortalsConfi
 		}
 		writeSuccess(response, rules);
 	}
-	
-	@RequestMapping("auto-fillin-delete")
-	public void delete(@PathVariable String entity,
-			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID configId = getIdParameterNotNull(request, "id");
-		Application.getBean(AutoFillinConfigService.class).delete(configId);
-		writeSuccess(response);
-	}
 }

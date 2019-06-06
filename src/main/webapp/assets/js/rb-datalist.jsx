@@ -511,13 +511,14 @@ const AdvFilters = {
             return false
           })
           action.find('a:eq(1)').click(function () {
-            let _alert = rb.alert('确认删除此查询项吗？', {
-              type: 'danger', confirm: () => {
-                $.post(`${rb.baseUrl}/app/entity/advfilter/delete?id=${_data.id}`, (res) => {
+            rb.alert('确认删除此查询项吗？', {
+              type: 'danger',
+              confirm: function () {
+                this.disabled(true)
+                $.post(`${rb.baseUrl}/app/entity/record-delete?id=${_data.id}`, (res) => {
                   if (res.error_code === 0) {
-                    _alert.hide()
+                    this.hide()
                     that.loadFilters()
-
                     if (dFilter === _data.id) {
                       RbListPage._RbList.setAdvFilter(null)
                       $('.adv-search .J_name').text('全部数据')
@@ -547,6 +548,7 @@ const AdvFilters = {
         }
       }
     } else {
+      this.current = id
       this.__getFilter(id, (res) => {
         renderRbcomp(<AdvFilter {...props} title="修改查询条件" filter={res.filter} filterName={res.name} shareToAll={res.shareTo === 'ALL'} />)
       })

@@ -41,6 +41,7 @@ import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.ObservableService;
 import com.rebuild.server.service.OperatingObserver;
 import com.rebuild.server.service.SQLExecutor;
+import com.rebuild.server.service.ServiceSpec;
 import com.rebuild.server.service.base.GeneralEntityService;
 import com.rebuild.server.service.bizz.privileges.UserStore;
 import com.rebuild.server.service.notification.NotificationService;
@@ -76,7 +77,7 @@ public final class Application {
 	// SPRING
 	private static ApplicationContext APPLICATION_CTX;
 	// 业务实体对应的服务类
-	private static Map<Integer, EntityService> ESS = null;
+	private static Map<Integer, ServiceSpec> SSS = null;
 	
 	/**
 	 * @param ctx
@@ -117,14 +118,13 @@ public final class Application {
 		((DynamicMetadataFactory) APPLICATION_CTX.getBean(PersistManagerFactory.class).getMetadataFactory()).refresh(false);
 		
 		// 实体对应的服务类
-		ESS = new HashMap<>();
-		for (Map.Entry<String, EntityService> e : APPLICATION_CTX.getBeansOfType(EntityService.class).entrySet()) {
-			EntityService es = e.getValue();
-			int ec = es.getEntityCode();
-			if (ec > 0) {
-				ESS.put(ec, es);
+		SSS = new HashMap<>();
+		for (Map.Entry<String, ServiceSpec> e : APPLICATION_CTX.getBeansOfType(ServiceSpec.class).entrySet()) {
+			ServiceSpec ss = e.getValue();
+			if (ss.getEntityCode() > 0) {
+				SSS.put(ss.getEntityCode(), ss);
 				if (devMode()) {
-					LOG.info("EntityService specification : " + ec + " > " + es);
+					LOG.info("Service specification : " + ss);
 				}
 			}
 		}
@@ -274,32 +274,40 @@ public final class Application {
 	}
 
 	/**
-	 * 基本的增删改查，无额外动作，一般是非业务实体使用。业务实体应使用  {@link #getEntityService(int)}
-	 * 
+	 * @param entityCode
 	 * @return
 	 */
-	public static CommonService getCommonService() {
-		return getBean(CommonService.class);
+	public static ServiceSpec getService(int entityCode) {
+		if (SSS != null && SSS.containsKey(entityCode)) {
+			return SSS.get(entityCode);
+		} else {
+			return getEntityService(entityCode);
+		}
 	}
-
+	
 	/**
 	 * @param entityCode
 	 * @return
 	 */
 	public static EntityService getEntityService(int entityCode) {
-		if (ESS != null && ESS.containsKey(entityCode)) {
-			return ESS.get(entityCode);
+		if (SSS != null && SSS.containsKey(entityCode)) {
+			return (EntityService) SSS.get(entityCode);
 		} else {
 			return getGeneralEntityService();
 		}
 	}
 	
 	/**
-	 * 应优先使用 {@link #getEntityService(int)} 方法
-	 * 
 	 * @return
 	 */
 	public static GeneralEntityService getGeneralEntityService() {
 		return (GeneralEntityService) getApplicationContext().getBean("generalEntityService");
+	}
+	
+	/**
+	 * @return
+	 */
+	public static CommonService getCommonService() {
+		return getBean(CommonService.class);
 	}
 }

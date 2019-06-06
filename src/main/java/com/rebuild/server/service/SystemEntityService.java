@@ -19,18 +19,18 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.service;
 
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.base.BulkContext;
 import com.rebuild.server.service.base.QuickCodeReindexTask;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * 系统实体用
+ * 
  * @author devezhao
  * @since 01/04/2019
  */
-public abstract class SystemEntityService extends BaseService implements EntityService {
+public abstract class SystemEntityService extends BaseService {
 
 	protected SystemEntityService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
@@ -51,35 +51,5 @@ public abstract class SystemEntityService extends BaseService implements EntityS
 		if (quickCode != null) {
 			record.setString(EntityHelper.QuickCode, quickCode);
 		}
-	}
-	
-	@Override
-	public int delete(ID record, String[] cascades) {
-		return delete(record);
-	}
-
-	@Override
-	public int assign(ID record, ID to, String[] cascades) {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public int share(ID record, ID to, String[] cascades) {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public int unshare(ID record, ID accessId) {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public int bulk(BulkContext context) {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public String bulkAsync(BulkContext context) {
-		throw new UnsupportedOperationException();
 	}
 }

@@ -24,6 +24,7 @@ import java.util.Map;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.AdminService;
 import com.rebuild.server.service.SystemEntityService;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -36,7 +37,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 08/03/2018
  */
-public class RoleService extends SystemEntityService {
+public class RoleService extends SystemEntityService implements AdminService {
 
 	/**
 	 * 管理员权限

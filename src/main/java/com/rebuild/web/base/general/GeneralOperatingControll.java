@@ -42,6 +42,7 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.EntityService;
+import com.rebuild.server.service.ServiceSpec;
 import com.rebuild.server.service.base.BulkContext;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.privileges.User;
@@ -81,10 +82,8 @@ public class GeneralOperatingControll extends BaseControll {
 			return;
 		}
 		
-		// TODO 检查不可重复字段值
-		
 		try {
-			record = Application.getEntityService(record.getEntity().getEntityCode()).createOrUpdate(record);
+			record = Application.getService(record.getEntity().getEntityCode()).createOrUpdate(record);
 		} catch (AccessDeniedException | DataSpecificationException know) {
 			writeFailure(response, know.getLocalizedMessage());
 			return;
@@ -108,15 +107,17 @@ public class GeneralOperatingControll extends BaseControll {
 		final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
 		
 		String[] cascades = parseCascades(request);
-		EntityService ies = Application.getEntityService(entity.getEntityCode());
+		ServiceSpec ies = Application.getService(entity.getEntityCode());
 		
 		int affected = 0;
 		try {
-			if (records.length == 1) {
-				affected = ies.delete(firstId, cascades);
+			if (!EntityService.class.isAssignableFrom(ies.getClass())) {
+				affected = ies.delete(firstId);
+			} else if (records.length == 1) {
+				affected = ((EntityService) ies).delete(firstId, cascades);
 			} else {
 				BulkContext context = new BulkContext(user, BizzPermission.DELETE, null, cascades, records);
-				affected = ies.bulk(context);
+				affected = ((EntityService) ies).bulk(context);
 			}
 		} catch (AccessDeniedException | DataSpecificationException know) {
 			writeFailure(response, know.getLocalizedMessage());

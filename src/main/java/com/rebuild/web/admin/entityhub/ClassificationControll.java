@@ -30,17 +30,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.configuration.ClassificationService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
-import com.rebuild.web.base.general.GeneralOperatingControll;
 
-import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
@@ -105,36 +100,6 @@ public class ClassificationControll extends BasePageControll {
 			return;
 		}
 		writeSuccess(resp, JSONUtils.toJSONObject("name", data[0]));
-	}
-	
-	/**
-	 * @see {@link GeneralOperatingControll#save(HttpServletRequest, HttpServletResponse)}
-	 */
-	@RequestMapping("classification/save")
-	public void save(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		JSON formJson = ServletUtils.getRequestJson(request);
-		Record record = EntityHelper.parse((JSONObject) formJson, getRequestUser(request));
-		try {
-			record = Application.getBean(ClassificationService.class).createOrUpdate(record);
-			JSON ret = JSONUtils.toJSONObject("id", record.getPrimary());
-			writeSuccess(response, ret);
-		} catch (DataSpecificationException know) {
-			writeFailure(response, know.getLocalizedMessage());
-		}
-	}
-	
-	/**
-	 * @see {@link GeneralOperatingControll#delete(HttpServletRequest, HttpServletResponse)}
-	 */
-	@RequestMapping("classification/delete")
-	public void delete(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID dataId = getIdParameterNotNull(request, "id");
-		try {
-			Application.getBean(ClassificationService.class).delete(dataId);
-			writeSuccess(response);
-		} catch (DataSpecificationException know) {
-			writeFailure(response, know.getLocalizedMessage());
-		}
 	}
 	
 	@RequestMapping("classification/save-data-item")
