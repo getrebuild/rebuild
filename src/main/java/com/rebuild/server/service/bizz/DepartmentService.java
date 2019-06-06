@@ -22,6 +22,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.SystemEntityService;
+import com.rebuild.server.service.bizz.privileges.AdminGuard;
 import com.rebuild.server.service.bizz.privileges.Department;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -34,7 +35,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 08/03/2018
  */
-public class DepartmentService extends SystemEntityService {
+public class DepartmentService extends SystemEntityService implements AdminGuard {
 	
 	/**
 	 * 根级部门
@@ -52,7 +53,6 @@ public class DepartmentService extends SystemEntityService {
 	
 	@Override
 	public Record create(Record record) {
-		setQuickCodeValue(record);
 		record = super.create(record);
 		Application.getUserStore().refreshDepartment(record.getPrimary());
 		return record;
@@ -60,7 +60,6 @@ public class DepartmentService extends SystemEntityService {
 	
 	@Override
 	public Record update(Record record) {
-		setQuickCodeValue(record);
 		record = super.update(record);
 		Application.getUserStore().refreshDepartment(record.getPrimary());
 		return record;

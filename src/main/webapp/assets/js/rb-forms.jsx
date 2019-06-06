@@ -1177,7 +1177,7 @@ class ClassificationSelector extends React.Component {
               <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
             </div>
             <div className="modal-body">
-              <h5 className="mt-0">选择{this.props.label}</h5>
+              <h5 className="mt-0 text-bold">选择{this.props.label}</h5>
               <div>
                 <select ref={(c) => this._select.push(c)} className="form-control form-control-sm">
                   {(this.state.datas[0] || []).map((item) => {
@@ -1210,7 +1210,7 @@ class ClassificationSelector extends React.Component {
                   </select>
                 </div>}
               <div>
-                <button className="btn btn-primary" onClick={() => this.confirm()}>确定</button>
+                <button className="btn btn-primary w-100" onClick={() => this.confirm()}>确定</button>
               </div>
             </div>
           </div>

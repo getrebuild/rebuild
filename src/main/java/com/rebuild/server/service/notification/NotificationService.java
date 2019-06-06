@@ -40,6 +40,11 @@ public class NotificationService extends BaseService {
 	}
 	
 	@Override
+	public int getEntityCode() {
+		return EntityHelper.Notification;
+	}
+	
+	@Override
 	public Record create(Record record) {
 		record = super.create(record);
 		cleanCache(record.getPrimary());

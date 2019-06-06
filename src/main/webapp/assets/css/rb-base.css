@@ -12521,8 +12521,7 @@ a.avatar.x48 img {
 
 .rb-notifications .rb-scroller {
     position: relative;
-    height: 222px;
-    height: 219px;
+    max-height: 219px;
 }
 
 .rb-notifications .rb-scroller>.content>ul {

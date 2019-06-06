@@ -226,10 +226,12 @@ create table if not exists `classification_data` (
   `FULL_NAME`          varchar(300) not null comment '包括父级名称, 用点号分割',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
+  `IS_HIDE`            char(1) default 'F',
+  `LEVEL`              smallint(6) default '0',
   primary key  (`ITEM_ID`)
 )Engine=InnoDB;
 alter table `classification_data`
-  add index `IX1_classification_data` (`DATA_ID`, `PARENT`, `NAME`),
+  add index `IX1_classification_data` (`DATA_ID`, `PARENT`),
   add index `IX2_classification_data` (`DATA_ID`, `FULL_NAME`);
 
 -- ************ Entity [ShareAccess] DDL ************
@@ -387,4 +389,4 @@ INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version
 INSERT INTO `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`) 
-  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 4);
+  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 5);

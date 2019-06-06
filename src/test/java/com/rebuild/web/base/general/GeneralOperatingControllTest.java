@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.web.base.general;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,6 +47,11 @@ import cn.devezhao.persist4j.engine.ID;
 public class GeneralOperatingControllTest extends MvcTestSupport {
 
 	private static ID lastSaveId = ID.newId(999);  // It's fake
+	
+	@Before
+	public void setUp() {
+		Application.getSessionStore().set(UserService.ADMIN_USER);
+	}
 	
 	@Test
 	public void test1Save() throws Exception {

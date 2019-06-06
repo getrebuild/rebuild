@@ -74,6 +74,18 @@ html.admin .admin-show {
     border-radius: 6px 0 6px 6px;
 }
 
+
+.text-disabled {
+    color: #aaa;
+    font-style: italic;
+}
+
+.text-disabled>small::after {
+    content: '[已禁用]';
+    font-size: 12px;
+    margin-left: 4px;
+}
+
 .btn {
     min-height: 2.8rem;
     min-width: 98px;
@@ -1219,6 +1231,15 @@ i.split.ui-draggable-dragging {
     display: block;
     padding: 7px 7px;
     cursor: pointer;
+    color: #444;
+}
+
+.dept-tree li>a.text-disabled {
+    color: #aaa;
+}
+
+.dept-tree li>a.text-disabled>small::after {
+    content: '[已停用]';
 }
 
 .dept-tree>ul>li>a {

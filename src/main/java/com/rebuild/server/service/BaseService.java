@@ -28,12 +28,12 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 持久层服务基类
+ * 基础服务类
  * 
  * @author zhaofang123@gmail.com
  * @since 05/21/2017
  */
-public class BaseService implements ServiceSpec {
+public abstract class BaseService implements ServiceSpec {
 	
 	protected final Log LOG = LogFactory.getLog(getClass());
 	
@@ -71,5 +71,14 @@ public class BaseService implements ServiceSpec {
 	 */
 	public PersistManagerFactory getPMFactory() {
 		return aPMFactory;
+	}
+	
+	@Override
+	public String toString() {
+		if (getEntityCode() > 0) {
+			return "service." + aPMFactory.getMetadataFactory().getEntity(getEntityCode()).getName() + "@" + Integer.toHexString(hashCode());
+		} else {
+			return super.toString();
+		}
 	}
 }

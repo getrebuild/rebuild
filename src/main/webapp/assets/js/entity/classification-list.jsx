@@ -45,8 +45,7 @@ class GridList extends React.Component {
       confirmText: '删除',
       confirm: function () {
         this.disabled(true)
-        $.post(`${rb.baseUrl}/admin/classification/delete?id=${dataId}`, (res) => {
-          this.disabled(false)
+        $.post(`${rb.baseUrl}/app/entity/record-delete?id=${dataId}`, (res) => {
           if (res.error_code === 0) {
             rb.hbsuccess('分类数据已删除')
             setTimeout(() => { location.reload() }, 500)
@@ -94,7 +93,7 @@ class DlgEdit extends RbFormHandler {
     if (!this.state.name) { rb.highbar('请输入名称'); return }
     let _data = { name: this.state.name, isDisabled: this.state.isDisabled === true }
     _data.metadata = { entity: 'Classification', id: this.props.id || null }
-    $.post(rb.baseUrl + '/admin/classification/save', JSON.stringify(_data), (res) => {
+    $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
         if (this.props.id) location.reload()
         else location.href = 'classification/' + res.data.id

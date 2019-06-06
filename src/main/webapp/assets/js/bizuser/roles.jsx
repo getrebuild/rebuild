@@ -70,7 +70,7 @@ const loadRoles = function () {
     $('.dept-tree ul').empty()
     $(res.data).each(function () {
       let _id = this.id
-      let item = $('<li><a class="text-truncate" href="' + rb.baseUrl + '/admin/bizuser/role/' + _id + '">' + this.name + (this.disabled ? ' [已停用]' : '') + '</a></li>').appendTo('.dept-tree ul')
+      let item = $('<li><a class="text-truncate' + (this.disabled ? ' text-disabled' : '') + '" href="' + rb.baseUrl + '/admin/bizuser/role/' + _id + '">' + this.name + (this.disabled ? '<small></small>' : '') + '</a></li>').appendTo('.dept-tree ul')
       let action = $('<div class="action"><a class="J_edit"><i class="zmdi zmdi-edit"></i></a><a class="J_del"><i class="zmdi zmdi-delete"></i></a></div>').appendTo(item)
       if (role_id === this.id) item.addClass('active')
       if (this.id === '003-0000000000000001') action.remove()

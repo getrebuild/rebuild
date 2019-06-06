@@ -118,6 +118,7 @@ class RbAlert extends React.Component {
       <div className="mt-3" style={{ lineHeight: 1.8 }} dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} />
       : <p>{this.props.message || '提示内容'}</p>
 
+    let cancel = (this.props.cancel || this.hide).bind(this)
     let confirm = (this.props.confirm || this.hide).bind(this)
     return (
       <div className="modal rbalert" ref={(c) => this._dlg = c} tabIndex={this.state.tabIndex || -1}>
@@ -134,7 +135,7 @@ class RbAlert extends React.Component {
                 {this.props.title && <h4 className="mb-2 mt-3">{this.props.title}</h4>}
                 <div className={this.props.title ? '' : 'mt-3'}>{content}</div>
                 <div className="mt-4 mb-3">
-                  <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={() => this.hide()}>取消</button>
+                  <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={cancel}>{this.props.cancelText || '取消'}</button>
                   <button disabled={this.state.disable} className={'btn btn-space btn-' + type} type="button" onClick={confirm}>{this.props.confirmText || '确定'}</button>
                 </div>
               </div>
@@ -281,7 +282,7 @@ rb.alert = (message, titleExt, ext) => {
     ext = titleExt
   }
   ext = ext || {}
-  let props = { title: title, type: ext.type, confirmText: ext.confirmText, confirm: ext.confirm, showIcon: ext.showIcon }
+  let props = { ...ext, title: title }
   if (ext.html === true) props.htmlMessage = message
   else props.message = message
   return renderRbcomp(<RbAlert {...props} />)

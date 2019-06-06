@@ -25,6 +25,7 @@ import com.rebuild.server.configuration.portals.ClassificationManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.bizz.UserService;
+import com.rebuild.server.service.bizz.privileges.AdminGuard;
 
 import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -37,10 +38,15 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/04/10
  */
-public class ClassificationService extends CleanableCacheService {
+public class ClassificationService extends ConfigurationService implements AdminGuard {
 
 	protected ClassificationService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
+	}
+	
+	@Override
+	public int getEntityCode() {
+		return EntityHelper.Classification;
 	}
 	
 	@Override
@@ -97,6 +103,15 @@ public class ClassificationService extends CleanableCacheService {
 			});
 		}
 		return record;
+	}
+	
+	/**
+	 * @param record
+	 * @return
+	 */
+	public void deleteItem(ID itemId) {
+		super.delete(itemId);
+		this.cleanCache(itemId);
 	}
 
 	/**

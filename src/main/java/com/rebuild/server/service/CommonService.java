@@ -49,6 +49,11 @@ public class CommonService extends BaseService {
 	}
 	
 	@Override
+	public int getEntityCode() {
+		return 0;
+	}
+	
+	@Override
 	public Record create(Record record) {
 		tryIfWithPrivileges(record);
 		return super.create(record);
@@ -127,7 +132,7 @@ public class CommonService extends BaseService {
 	 * @param idOrRecord
 	 * @throws PrivilegesException
 	 */
-	private void tryIfWithPrivileges(Object idOrRecord) throws PrivilegesException {
+	protected void tryIfWithPrivileges(Object idOrRecord) throws PrivilegesException {
 		Entity entity = null;
 		if (idOrRecord instanceof ID) {
 			entity = MetadataHelper.getEntity(((ID) idOrRecord).getEntityCode());
@@ -141,7 +146,7 @@ public class CommonService extends BaseService {
 		}
 		
 		if (EntityHelper.hasPrivilegesField(entity)) {
-			throw new PrivilegesException("Entities with privileges cannot use this class(methods) : " + entity.getName());
+			throw new PrivilegesException("Has privileges of Entity cannot use this class(methods) : " + entity.getName());
 		}
 	}
 }

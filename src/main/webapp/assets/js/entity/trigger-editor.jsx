@@ -46,7 +46,7 @@ $(document).ready(() => {
     _data.metadata = { entity: 'RobotTriggerConfig', id: wpc.configId }
 
     _btn.button('loading')
-    $.post(`${rb.baseUrl}/admin/robot/trigger/save`, JSON.stringify(_data), (res) => {
+    $.post(`${rb.baseUrl}/app/entity/record-save`, JSON.stringify(_data), (res) => {
       if (res.error_code === 0) location.href = '../triggers'
       else rb.hberror(res.error_msg)
       _btn.button('reset')

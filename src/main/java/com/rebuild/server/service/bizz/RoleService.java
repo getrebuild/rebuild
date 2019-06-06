@@ -25,6 +25,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.SystemEntityService;
+import com.rebuild.server.service.bizz.privileges.AdminGuard;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
@@ -36,7 +37,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 08/03/2018
  */
-public class RoleService extends SystemEntityService {
+public class RoleService extends SystemEntityService implements AdminGuard {
 
 	/**
 	 * 管理员权限
@@ -54,7 +55,6 @@ public class RoleService extends SystemEntityService {
 	
 	@Override
 	public Record create(Record record) {
-		setQuickCodeValue(record);
 		record = super.create(record);
 		Application.getUserStore().refreshRole(record.getPrimary(), false);
 		return record;
@@ -62,7 +62,6 @@ public class RoleService extends SystemEntityService {
 	
 	@Override
 	public Record update(Record record) {
-		setQuickCodeValue(record);
 		record = super.update(record);
 		Application.getUserStore().refreshRole(record.getPrimary(), false);
 		return record;

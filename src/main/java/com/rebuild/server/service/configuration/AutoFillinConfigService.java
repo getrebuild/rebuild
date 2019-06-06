@@ -20,7 +20,9 @@ package com.rebuild.server.service.configuration;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.AutoFillinManager;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.bizz.privileges.AdminGuard;
 
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -30,10 +32,15 @@ import cn.devezhao.persist4j.engine.ID;
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/05/18
  */
-public class AutoFillinConfigService extends CleanableCacheService {
+public class AutoFillinConfigService extends ConfigurationService implements AdminGuard {
 
 	protected AutoFillinConfigService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
+	}
+	
+	@Override
+	public int getEntityCode() {
+		return EntityHelper.AutoFillinConfig;
 	}
 
 	@Override

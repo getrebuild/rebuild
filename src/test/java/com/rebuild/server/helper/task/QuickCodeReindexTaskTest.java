@@ -40,17 +40,20 @@ public class QuickCodeReindexTaskTest extends TestSupport {
 		Assert.assertTrue("HW".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("HelloWorld!")));
 		Assert.assertTrue("NHSJ".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("你好世界")));
 		Assert.assertTrue("NHSJ".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("你 好           世 界")));
-		Assert.assertTrue("54325432543".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("54325432543")));
 	}
 	
 	@Test
-	public void testGenerateQuickCode2() throws Exception {
+	public void testGenerateQuickCodeEmpty() throws Exception {
 		// Phone, contains `-`
-		Assert.assertTrue("021-123-123".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("021-123-123")));
+		Assert.assertTrue("".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("021-123-123")));
 		// EMail, contains `@` and `.`
-		Assert.assertTrue("1234@getrebuild.com".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("1234@getrebuild.com")));
+		Assert.assertTrue("".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("1234@getrebuild.com")));
 		// URL
-		Assert.assertTrue("http://getrebuild.com/aswell".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("http://getrebuild.com/aswell")));
+		Assert.assertTrue("".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("http://getrebuild.com/aswell")));
+		
+		Assert.assertTrue("".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("54325432543")));
+		Assert.assertTrue("".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("helloworld")));
+		Assert.assertTrue("".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("123456helloworld")));
 	}
 	
 	@Ignore

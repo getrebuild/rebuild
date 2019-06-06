@@ -30,9 +30,11 @@ import org.springframework.util.Assert;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.service.CommonService;
 import com.rebuild.server.service.EntityService;
+import com.rebuild.server.service.ServiceSpec;
 import com.rebuild.server.service.base.BulkContext;
-import com.rebuild.server.service.base.GeneralEntityService;
+import com.rebuild.server.service.bizz.UserHelper;
 
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
@@ -60,8 +62,23 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 	
 	@Override
 	public void checkGuard(Object object) throws SecurityException {
-		MethodInvocation invocation = (MethodInvocation) object;
-		if (!isNeedCheck(invocation)) {
+		final MethodInvocation invocation = (MethodInvocation) object;
+		if (!isGuardMethod(invocation)) {
+			return;
+		}
+		
+		final ID caller = Application.getSessionStore().get();
+		if (Application.devMode()) {
+			LOG.info("User [ " + caller + " ] calls : " + invocation);
+		}
+		
+		Class<?> invocationClass = invocation.getThis().getClass();
+		// 验证管理员操作
+		if (AdminGuard.class.isAssignableFrom(invocationClass) && !UserHelper.isAdmin(caller)) {
+			throw new AccessDeniedException("非法操作请求 (E" + ((ServiceSpec) invocation.getThis()).getEntityCode() + ")");
+		}
+		// 仅 EntityService 或子类需要继续验证角色权限
+		if (!EntityService.class.isAssignableFrom(invocationClass)) {
 			return;
 		}
 		
@@ -73,7 +90,6 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 			}
 			
 			BulkContext context = (BulkContext) first;
-			ID caller = Application.getCurrentUser();
 			
 			Entity entity = context.getMainEntity();
 			if (!Application.getSecurityManager().allowed(caller, entity.getEntityCode(), context.getAction())) {
@@ -98,7 +114,6 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 			throw new IllegalArgumentException("First argument must be Record/ID!");
 		}
 		
-		ID caller = Application.getCurrentUser();
 		Permission action = getPermissionByMethod(invocation.getMethod(), recordId == null);
 		
 		boolean isAllowed = false;
@@ -141,20 +156,19 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 	 * @param invocation
 	 * @return
 	 */
-	protected boolean isNeedCheck(MethodInvocation invocation) {
-		// 仅 GeneralEntityService 或其子类
-		if (!GeneralEntityService.class.isAssignableFrom(invocation.getThis().getClass())) {
+	private boolean isGuardMethod(MethodInvocation invocation) {
+		if (CommonService.class.isAssignableFrom(invocation.getThis().getClass())) {
 			return false;
 		}
-		
-		String act = invocation.getMethod().getName();
-		return act.startsWith("create") || act.startsWith("update") || act.startsWith("delete") 
-				|| act.startsWith("assign") || act.startsWith("share") || act.startsWith("unshare")
-				|| act.startsWith("bulk");
+		String action = invocation.getMethod().getName();
+		return action.startsWith("create") || action.startsWith("update") || action.startsWith("delete") 
+				|| action.startsWith("assign") || action.startsWith("share") || action.startsWith("unshare")
+				|| action.startsWith("bulk");
 	}
 	
 	/**
 	 * @param method
+	 * @param isNew
 	 * @return
 	 */
 	private Permission getPermissionByMethod(Method method, boolean isNew) {
@@ -204,6 +218,8 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		}
 		return String.format("你没有%s此记录的权限", actionHuman);
 	}
+	
+	// --
 	
 	private static final ThreadLocal<ID> IN_NOPRIVILEGES_UPDATE = new ThreadLocal<ID>();
 	/**

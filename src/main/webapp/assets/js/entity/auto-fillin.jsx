@@ -27,7 +27,8 @@ const loadRules = () => {
         rb.alert('确认删除此配置项？', {
           type: 'danger',
           confirm: function () {
-            $.post('../auto-fillin-delete?id=' + configId, (res) => {
+            this.disabled(true)
+            $.post(`${rb.baseUrl}/app/entity/record-delete?id=${configId}`, (res) => {
               if (res.error_code === 0) {
                 this.hide()
                 loadRules()

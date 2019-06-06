@@ -3,7 +3,10 @@ const loadDeptTree = function () {
   $.get(rb.baseUrl + '/admin/bizuser/dept-tree', function (res) {
     $('.dept-tree').empty()
     let root = $('<ul class="list-unstyled"></ul>').appendTo('.dept-tree')
-    renderDeptTree({ id: '$ALL$', name: '所有部门' }, root).addClass('active')
+    renderDeptTree({
+      id: '$ALL$',
+      name: '所有部门'
+    }, root).addClass('active')
     $(res.data).each(function () {
       renderDeptTree(this, root)
     })
@@ -11,13 +14,15 @@ const loadDeptTree = function () {
 }
 
 const renderDeptTree = function (dept, target) {
-  let child = $('<li data-id="' + dept.id + '"><a class="text-truncate">' + dept.name + ' ' + (dept.disabled ? '[已停用]' : '') + '</a></li>').appendTo(target)
+  let child = $('<li data-id="' + dept.id + '"><a href="#dept=' + dept.id + '" class="text-truncate' + (dept.disabled ? ' text-disabled' : '') + '">' + dept.name + ' ' + (dept.disabled ? '<small></small>' : '') + '</a></li>').appendTo(target)
   child.find('a').click(function () {
     $('.dept-tree li').removeClass('active')
     child.addClass('active')
 
     let ids = [child.data('id')]
-    child.find('li').each(function () { ids.push($(this).data('id')) })
+    child.find('li').each(function () {
+      ids.push($(this).data('id'))
+    })
     clickDept(ids)
 
     return false
@@ -34,5 +39,4 @@ const renderDeptTree = function (dept, target) {
 }
 
 // To Override
-let clickDept = function (depts) {
-}
+let clickDept = function (depts) {}

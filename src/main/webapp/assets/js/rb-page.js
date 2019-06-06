@@ -149,10 +149,15 @@ var __checkMessage = function () {
 var __loadMessages__state = 0
 var __loadMessages = function () {
   if (__loadMessages__state === 1) return
+
+  const dest = $('.rb-notifications .content ul').empty()
+  if (dest.find('li').length === 0) {
+    $('<li class="text-center mt-3 mb-3"><i class="zmdi zmdi-refresh zmdi-hc-spin fs-18"></i></li>').appendTo(dest)
+  }
   $.get(rb.baseUrl + '/notification/list?pageSize=10', function (res) {
-    var el = $('.rb-notifications .content ul').empty()
+    dest.empty()
     $(res.data).each(function (idx, item) {
-      var o = $('<li class="notification"></li>').appendTo(el)
+      var o = $('<li class="notification"></li>').appendTo(dest)
       if (item[3] === true) o.addClass('notification-unread')
       o = $('<a href="' + rb.baseUrl + '/notifications#id=' + item[4] + '"></a>').appendTo(o)
       $('<div class="image"><img src="' + rb.baseUrl + '/account/user-avatar/' + item[0][0] + '" alt="Avatar"></div>').appendTo(o)
@@ -161,7 +166,7 @@ var __loadMessages = function () {
       $('<span class="date">' + item[2] + '</span>').appendTo(o)
     })
     __loadMessages__state = 1
-    if (res.data.length === 0) $('<div class="must-center text-muted">暂无消息</div>').appendTo(el)
+    if (res.data.length === 0) $('<li class="text-center mt-4 mb-4 text-muted">暂无消息</li>').appendTo(dest)
   })
 }
 

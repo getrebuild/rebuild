@@ -184,14 +184,16 @@
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 	
-	<!-- 记录操作观察者。系统会在初始化时动态为 ObservableService 注入 -->
-	<bean class="com.rebuild.server.service.notification.NotificationObserver" />
-	<bean class="com.rebuild.server.service.base.AuditLoggingObserver" />
-	<bean class="com.rebuild.server.service.base.AttchementAwareObserver" />
-	<bean class="com.rebuild.server.business.robot.RobotTriggerObserver" />
-	
 	<bean name="generalEntityService" class="com.rebuild.server.service.base.GeneralEntityService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
+		<constructor-arg index="1">
+			<list>
+				<bean class="com.rebuild.server.service.notification.NotificationObserver" />
+				<bean class="com.rebuild.server.service.base.AuditLoggingObserver" />
+				<bean class="com.rebuild.server.service.base.AttchementAwareObserver" />
+				<bean class="com.rebuild.server.business.robot.RobotTriggerObserver" />
+			</list>
+		</constructor-arg>
 	</bean>
 	
 	<import resource="classpath:application-job.xml"/>

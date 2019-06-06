@@ -33,7 +33,10 @@
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script>
-var dataId = '${dataId}', name = '${name}', openLevel = ${openLevel}
+window.__PageConfig = {
+	id: '${dataId}',
+	openLevel: ${openLevel}
+}
 </script>
 <script src="${baseUrl}/assets/js/entity/classification-editor.jsx" type="text/babel"></script>
 </body>

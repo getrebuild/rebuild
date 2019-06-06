@@ -78,10 +78,10 @@ public class GeneralEntityService extends ObservableService  {
 	 */
 	public GeneralEntityService(PersistManagerFactory aPMFactory, List<Observer> observers) {
 		super(aPMFactory);
-		
 		// 注入观察者
 		for (Observer o : observers) {
 			addObserver(o);
+			LOG.info(this + " add observer : " + o);
 		}
 	}
 	
@@ -93,36 +93,12 @@ public class GeneralEntityService extends ObservableService  {
 	@Override
 	public Record create(Record record) {
 		setSeriesValue(record);
-		setQuickCodeValue(record);
 		return super.create(record);
 	}
 	
 	@Override
-	public Record update(Record record) {
-		setQuickCodeValue(record);
-		return super.update(record);
-	}
-	
-	@Override
 	public int delete(ID record) {
-		return delete(record, null);
-	}
-	
-	/**
-	 * 助记码
-	 * 
-	 * @param record
-	 */
-	protected void setQuickCodeValue(Record record) {
-		// 已设置了则不再设置
-		if (record.hasValue(EntityHelper.QuickCode)) {
-			return;
-		}
-		
-		String quickCode = QuickCodeReindexTask.generateQuickCode(record);
-		if (quickCode != null) {
-			record.setString(EntityHelper.QuickCode, quickCode);
-		}
+		return this.delete(record, null);
 	}
 	
 	/**
@@ -130,7 +106,7 @@ public class GeneralEntityService extends ObservableService  {
 	 * 
 	 * @param record
 	 */
-	protected void setSeriesValue(Record record) {
+	private void setSeriesValue(Record record) {
 		Field[] seriesFields = MetadataSorter.sortFields(record.getEntity(), DisplayType.SERIES);
 		for (Field field : seriesFields) {
 			// 导入模式，不强制生成
@@ -175,7 +151,7 @@ public class GeneralEntityService extends ObservableService  {
 				LOG.debug("记录所属人未变化，忽略 : " + record);
 			}
 		} else {
-			assignBefore = countObservers() > 0 ? getCurrentRecord(assignAfter) : null;
+			assignBefore = countObservers() > 0 ? record(assignAfter) : null;
 			
 			((BaseService) this.delegate).update(assignAfter);
 			Application.getRecordOwningCache().cleanOwningUser(record);
@@ -261,7 +237,7 @@ public class GeneralEntityService extends ObservableService  {
 			unsharedBefore.setNull("belongEntity");
 			unsharedBefore.setNull("recordId");
 			unsharedBefore.setNull("shareTo");
-			unsharedBefore = getCurrentRecord(unsharedBefore);
+			unsharedBefore = record(unsharedBefore);
 		}
 		
 		((BaseService) this.delegate).delete(accessId);

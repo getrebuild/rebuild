@@ -104,7 +104,7 @@ public class DataImporter extends HeavyTask<Integer> {
 					
 					Record record = checkoutRecord(cell);
 					if (record != null) {
-						record = Application.getEntityService(rule.getToEntity().getEntityCode()).createOrUpdate(record);
+						record = Application.getService(rule.getToEntity().getEntityCode()).createOrUpdate(record);
 						this.successed++;
 						logging.put(reader.getRowIndex(), record.getPrimary());
 					}

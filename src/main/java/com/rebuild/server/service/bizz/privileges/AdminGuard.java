@@ -16,31 +16,17 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.service.configuration;
+package com.rebuild.server.service.bizz.privileges;
 
-import com.rebuild.server.configuration.portals.BaseLayoutManager;
-import com.rebuild.server.metadata.EntityHelper;
-
-import cn.devezhao.persist4j.PersistManagerFactory;
-import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.service.bizz.privileges.PrivilegesGuardInterceptor;
 
 /**
- * @author devezhao-mbp zhaofang123@gmail.com
- * @since 2019/04/30
+ * 标记接口，实现此接口会验证操作人是否为管理员
+ * 
+ * @author devezhao zhaofang123@gmail.com
+ * @since 2019/06/06
+ * 
+ * @see PrivilegesGuardInterceptor
  */
-public class LayoutConfigService extends ConfigurationService {
-
-	protected LayoutConfigService(PersistManagerFactory aPMFactory) {
-		super(aPMFactory);
-	}
-	
-	@Override
-	public int getEntityCode() {
-		return EntityHelper.LayoutConfig;
-	}
-	
-	@Override
-	protected void cleanCache(ID configId) {
-		BaseLayoutManager.instance.clean(configId);
-	}
+public interface AdminGuard {
 }

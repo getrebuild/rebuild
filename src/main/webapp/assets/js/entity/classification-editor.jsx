@@ -1,8 +1,9 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-undef */
+const wpc = window.__PageConfig
 $(document).ready(function () {
-  renderRbcomp(<LevelBoxes id={dataId} />, 'boxes')
-  $('.J_imports').click(() => { renderRbcomp(<DlgImports id={dataId} />) })
+  renderRbcomp(<LevelBoxes id={wpc.id} />, 'boxes')
+  $('.J_imports').click(() => { renderRbcomp(<DlgImports id={wpc.id} />) })
   $(window).on('resize', () => {
     $setTimeout(resize_boxes, 100, 'resize-boxes')
   })
@@ -28,7 +29,7 @@ class LevelBoxes extends React.Component {
     </div>)
   }
   componentDidMount() {
-    this.notifyToggle(openLevel + 1, true)
+    this.notifyToggle(wpc.openLevel + 1, true)
     $('#boxes').removeClass('rb-loading-active')
     resize_boxes()
     $('#boxes .rb-scroller').perfectScrollbar()
@@ -71,7 +72,7 @@ class LevelBox extends React.Component {
     let forId = 'turnOn-' + this.props.level
     return (
       <div className={'col-md-3 ' + (this.state.turnOn === true ? '' : 'off')}>
-        <div className="float-left"><h5>{LNAME[this.props.level]}级分类</h5></div>
+        <div className="float-left"><h5 className="text-bold">{LNAME[this.props.level]}级分类</h5></div>
         {this.props.level < 1 ? null :
           <div className="float-right">
             <div className="switch-button switch-button-xs">
@@ -83,6 +84,10 @@ class LevelBox extends React.Component {
         <form className="mt-1" onSubmit={this.saveItem}>
           <div className="input-group input-group-sm">
             <input className="form-control" type="text" maxLength="50" placeholder="名称" value={this.state.itemName || ''} data-id="itemName" onChange={this.changeVal} />
+            {(this.state.itemId && this.state.itemHide) && (<label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
+              <input className="custom-control-input" type="checkbox" data-id="itemUnhide" onChange={this.changeVal} />
+              <span className="custom-control-label">启用</span>
+            </label>)}
             <div className="input-group-append"><button className="btn btn-primary" type="submit" disabled={this.state.inSave === true}>{this.state.itemId ? '保存' : '添加'}</button></div>
           </div>
         </form>
@@ -91,11 +96,11 @@ class LevelBox extends React.Component {
             {(this.state.items || []).map((item) => {
               let active = this.state.activeId === item[0]
               return (
-                <li className={'dd-item ' + (active && 'active')} key={item[0]} onClick={() => this.clickItem(item[0])}>
-                  <div className="dd-handle">{item[1]}</div>
+                <li className={'dd-item' + (active ? ' active' : '')} key={item[0]} onClick={() => this.clickItem(item[0])}>
+                  <div className={'dd-handle' + (item[3] ? ' text-disabled' : '')}>{item[1]}{item[3] && <small />}</div>
                   <div className="dd-action">
-                    <a><i className="zmdi zmdi-edit" onClick={(e) => this.editItem(item, e)}></i></a>
-                    <a><i className="zmdi zmdi-delete" onClick={(e) => this.delItem(item, e)}></i></a>
+                    <a><i className="zmdi zmdi-edit" title="编辑" onClick={(e) => this.editItem(item, e)}></i></a>
+                    <a><i className="zmdi zmdi-delete" title="删除" onClick={(e) => this.delItem(item, e)}></i></a>
                   </div>
                   {active && <span className="zmdi zmdi-caret-right arrow hide"></span>}
                 </li>
@@ -111,7 +116,7 @@ class LevelBox extends React.Component {
 
   loadItems(p) {
     this.parentId = p
-    let url = `${rb.baseUrl}/admin/classification/load-data-items?data_id=${dataId}&parent=${p || ''}`
+    let url = `${rb.baseUrl}/admin/classification/load-data-items?data_id=${wpc.id}&parent=${p || ''}`
     $.get(url, (res) => {
       this.clear()
       this.setState({ items: res.data, activeId: null })
@@ -157,19 +162,27 @@ class LevelBox extends React.Component {
       return
     }
 
-    let url = `${rb.baseUrl}/admin/classification/save-data-item?data_id=${dataId}&name=${name}`
+    let url = `${rb.baseUrl}/admin/classification/save-data-item?data_id=${wpc.id}&name=${name}`
     if (this.state.itemId) url += `&item_id=${this.state.itemId}`
-    else url += `&parent=${this.parentId}`
+    else url += `&parent=${this.parentId}&level=${this.props.level}`
+    let isUnhide = null
+    if (this.state.itemHide && this.state.itemUnhide) {
+      url += '&hide=false'
+      isUnhide = true
+    }
     this.setState({ inSave: true })
     $.post(url, (res) => {
       if (res.error_code === 0) {
         let items = this.state.items || []
         if (this.state.itemId) {
           items.forEach((i) => {
-            if (i[0] === this.state.itemId) i[1] = name
+            if (i[0] === this.state.itemId) {
+              i[1] = name
+              if (isUnhide === true) i[3] = false
+            }
           })
         } else {
-          items.insert(0, [res.data, name])
+          items.insert(0, [res.data, name, null, false])
         }
         this.setState({ items: items, itemName: null, itemId: null, inSave: false })
       } else rb.hberror(res.error_msg)
@@ -177,32 +190,59 @@ class LevelBox extends React.Component {
   }
   editItem(item, e) {
     e.stopPropagation()
-    this.setState({ itemName: item[1], itemId: item[0] })
+    this.setState({ itemName: item[1], itemId: item[0], itemHide: item[3] })
   }
   delItem(item, e) {
     e.stopPropagation()
     let that = this
-    rb.alert('删除后其子分类也将被一并删除。<br>同时已经使用了这些分类的数据（字段）也将无法显示。<br>确定要删除吗？', {
-      html: true,
+    let alertMsg = '删除后其子分类也将被一并删除。如果此分类项已被使用，使用了这些分类项的字段也将无法显示。确认删除吗？'
+    let alertExt = {
       type: 'danger',
       confirm: function () {
-        $.post(`${rb.baseUrl}/app/entity/record-delete?id=${item[0]}`, (res) => {
+        this.disabled()
+        $.post(`${rb.baseUrl}/admin/classification/delete-data-item?item_id=${item[0]}`, (res) => {
           this.hide()
           if (res.error_code !== 0) {
             rb.hberror(res.error_msg)
             return
           }
-          let items = []
+          rb.hbsuccess('分类项已删除')
+          let ns = []
           that.state.items.forEach((i) => {
-            if (i[0] !== item[0]) items.push(i)
+            if (i[0] !== item[0]) ns.push(i)
           })
-          that.setState({ items: items }, () => {
+          that.setState({ items: ns }, () => {
             that.props.$$$parent.notifyItemClean(that.props.level)
           })
         })
         return false
       }
-    })
+    }
+
+    if (item[3] !== true) {
+      alertMsg = '删除后其子分类也将被一并删除。如果此分类项已被使用，建议你禁用。否则已使用了这些分类项的字段将无法显示。'
+      alertExt.confirmText = '确认删除'
+      alertExt.cancelText = '禁用'
+      alertExt.cancel = function () {
+        let url = `${rb.baseUrl}/admin/classification/save-data-item?item_id=${item[0]}&hide=true`
+        this.disabled()
+        $.post(url, (res) => {
+          this.hide()
+          if (res.error_code !== 0) {
+            rb.hberror(res.error_msg)
+            return
+          }
+          rb.hbsuccess('分类项已禁用')
+          let ns = []
+          $(that.state.items || []).each(function () {
+            if (this[0] === item[0]) this[3] = true
+            ns.push(this)
+          })
+          that.setState({ items: ns })
+        })
+      }
+    }
+    rb.alert(alertMsg, alertExt)
   }
 
   clear(isAll) {
@@ -211,7 +251,7 @@ class LevelBox extends React.Component {
   }
 }
 
-var saveOpenLevel_last = openLevel
+var saveOpenLevel_last = wpc.openLevel
 var saveOpenLevel = function () {
   $setTimeout(() => {
     let level = $('.switch-button input:checkbox:checked:last').attr('id') || 't-0'
@@ -219,10 +259,13 @@ var saveOpenLevel = function () {
     if (saveOpenLevel_last === level) return
 
     let data = { openLevel: level }
-    data.metadata = { entity: 'Classification', id: dataId }
+    data.metadata = { entity: 'Classification', id: wpc.id }
     $.post(`${rb.baseUrl}/admin/classification/save`, JSON.stringify(data), (res) => {
       if (res.error_code > 0) rb.hberror(res.error_msg)
-      saveOpenLevel_last = level
+      else {
+        saveOpenLevel_last = level
+        rb.hbsuccess('已启用' + LNAME[level] + '级分类')
+      }
     })
   }, 500, 'saveOpenLevel')
 }
@@ -263,7 +306,7 @@ class DlgImports extends RbModalHandler {
     let name = e.currentTarget.dataset.name
     let url = `${rb.baseUrl}/admin/classification/imports/starts?dest=${this.props.id}&file=${$encode(file)}`
     let that = this
-    rb.alert(`<strong>${name}</strong><br>请注意，导入将导致现有数据被清空。<br>如当前分类数据正在使用则不建议导入。确认导入吗？`, {
+    rb.alert(`<strong>${name}</strong><br>请注意，导入将导致现有数据被清空。<br>如当前分类数据已被使用则不建议导入。确认导入吗？`, {
       html: true,
       confirm: function () {
         this.hide()
