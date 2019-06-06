@@ -24,7 +24,7 @@ import org.junit.Test;
 import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.EntityService;
+import com.rebuild.server.service.ServiceSpec;
 import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
@@ -40,26 +40,28 @@ public class GeneralEntityServiceTest extends TestSupport {
 	
 	@Test
 	public void testGetEntityService() throws Exception {
-		EntityService ies = Application.getEntityService(EntityHelper.User);
+		ServiceSpec ies = Application.getService(EntityHelper.User);
 		Assert.assertTrue(ies.getEntityCode() == EntityHelper.User);
 	}
 
 	@Test
 	public void testCRUD() throws Exception {
+		Application.getSessionStore().set(UserService.ADMIN_USER);
+		
 		Record record = EntityHelper.forNew(EntityHelper.Role, UserService.ADMIN_USER);
 		record.setString("name", "测试角色");
-		record = Application.getEntityService(EntityHelper.Role).create(record);
+		record = Application.getService(EntityHelper.Role).create(record);
 		
 		ID roleId = record.getPrimary();
 		System.out.println(Application.getUserStore().getRole(roleId).getName());
 		
 		record = EntityHelper.forUpdate(roleId, UserService.ADMIN_USER);
 		record.setString("name", "测试角色-2");
-		record = Application.getEntityService(EntityHelper.Role).createOrUpdate(record);
+		record = Application.getService(EntityHelper.Role).createOrUpdate(record);
 		
 		System.out.println(Application.getUserStore().getRole(roleId).getName());
 		
-		Application.getEntityService(EntityHelper.Role).delete(roleId);
+		Application.getService(EntityHelper.Role).delete(roleId);
 	}
 	
 	@Test

@@ -30,7 +30,6 @@ import org.springframework.util.Assert;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.server.service.CommonService;
 import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.ServiceSpec;
 import com.rebuild.server.service.base.BulkContext;
@@ -63,21 +62,23 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 	@Override
 	public void checkGuard(Object object) throws SecurityException {
 		final MethodInvocation invocation = (MethodInvocation) object;
-		if (isIgnoredCheck(invocation)) {
+		if (!isGuardMethod(invocation)) {
 			return;
 		}
 		
 		final ID caller = Application.getSessionStore().get();
 		if (Application.devMode()) {
-			LOG.info("User [ " + (caller == null ? "?" : caller) + " ] calls : " + invocation);
+			LOG.info("User [ " + caller + " ] calls : " + invocation);
 		}
 		
-		if (!isNeedCheck(invocation, caller)) {
+		Class<?> invocationClass = invocation.getThis().getClass();
+		// 验证管理员操作
+		if (AdminGuard.class.isAssignableFrom(invocationClass) && !UserHelper.isAdmin(caller)) {
+			throw new AccessDeniedException("非法操作请求 (E" + ((ServiceSpec) invocation.getThis()).getEntityCode() + ")");
+		}
+		// 仅 EntityService 或子类需要继续验证角色权限
+		if (!EntityService.class.isAssignableFrom(invocationClass)) {
 			return;
-		}
-		
-		if (caller == null) {
-			throw new AccessDeniedException("No user in session!");
 		}
 		
 		boolean isBulk = invocation.getMethod().getName().startsWith("bulk");
@@ -154,30 +155,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 	 * @param invocation
 	 * @return
 	 */
-	private boolean isIgnoredCheck(MethodInvocation invocation) {
-		String callMethod = invocation.getMethod().getName();
-		if (callMethod.startsWith("get") || callMethod.startsWith("to")) {
-			return true;
-		}
-		return CommonService.class.isAssignableFrom(invocation.getThis().getClass());
-	}
-	
-	/**
-	 * @param invocation
-	 * @param caller
-	 * @return
-	 */
-	private boolean isNeedCheck(MethodInvocation invocation, ID caller) {
-		// 验证管理员操作
-		if (AdminGuard.class.isAssignableFrom(invocation.getThis().getClass()) && !UserHelper.isAdmin(caller)) {
-			throw new AccessDeniedException("非法操作请求 (E" + ((ServiceSpec) invocation.getThis()).getEntityCode() + ")");
-		}
-		
-		// 仅 EntityService 或子类
-		if (!EntityService.class.isAssignableFrom(invocation.getThis().getClass())) {
-			return false;
-		}
-		
+	private boolean isGuardMethod(MethodInvocation invocation) {
 		String action = invocation.getMethod().getName();
 		return action.startsWith("create") || action.startsWith("update") || action.startsWith("delete") 
 				|| action.startsWith("assign") || action.startsWith("share") || action.startsWith("unshare")

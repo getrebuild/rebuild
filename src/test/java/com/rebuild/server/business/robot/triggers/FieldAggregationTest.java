@@ -44,6 +44,7 @@ public class FieldAggregationTest extends TestSupport {
 	@Test
 	public void testExecute() throws Exception {
 		addExtTestEntities(false);
+		Application.getSessionStore().set(UserService.ADMIN_USER);
 		
 		// 添加配置
 		Application.getSQLExecutor().execute("delete from robot_trigger_config where BELONG_ENTITY = 'SalesOrderItem999'");

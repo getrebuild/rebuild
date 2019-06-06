@@ -22,10 +22,12 @@ import java.io.File;
 import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.Entity2Schema;
@@ -36,6 +38,11 @@ import com.rebuild.server.service.bizz.UserService;
  * @since 2019/04/29
  */
 public class MetaschemaImporterTest extends TestSupport {
+	
+	@Before
+	public void setUp() {
+		Application.getSessionStore().set(UserService.ADMIN_USER);
+	}
 
 	@Test
 	public void testImport() throws Exception {
