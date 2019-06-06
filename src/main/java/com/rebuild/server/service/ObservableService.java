@@ -52,7 +52,7 @@ public abstract class ObservableService extends Observable implements EntityServ
 	 * @param aPMFactory
 	 */
 	public ObservableService(PersistManagerFactory aPMFactory) {
-		this.delegate = new BaseService(aPMFactory);
+		this.delegate = new SystemEntityService(aPMFactory);
 	}
 	
 	@Override
@@ -73,7 +73,7 @@ public abstract class ObservableService extends Observable implements EntityServ
 
 	@Override
 	public Record update(Record record) {
-		final Record before = countObservers() > 0 ? getCurrentRecord(record) : null;
+		final Record before = countObservers() > 0 ? record(record) : null;
 		
 		record = delegate.update(record);
 		
@@ -89,7 +89,7 @@ public abstract class ObservableService extends Observable implements EntityServ
 		Record deleted = null;
 		if (countObservers() > 0) {
 			deleted = EntityHelper.forUpdate(recordId, Application.getCurrentUser());
-			deleted = getCurrentRecord(deleted);
+			deleted = record(deleted);
 			
 			// 删除前触发，做一些状态保持
 			setChanged();
@@ -106,12 +106,12 @@ public abstract class ObservableService extends Observable implements EntityServ
 	}
 	
 	/**
-	 * 用于操作前获取记录
+	 * 用于操作前获取原记录
 	 * 
 	 * @param example
 	 * @return
 	 */
-	protected Record getCurrentRecord(Record example) {
+	protected Record record(Record example) {
 		ID primary = example.getPrimary();
 		Assert.notNull(primary, "Record primary not be bull");
 		
@@ -128,5 +128,12 @@ public abstract class ObservableService extends Observable implements EntityServ
 			throw new NoRecordFoundException("ID: " + primary);
 		}
 		return current;
+	}
+	
+	/**
+	 * @return
+	 */
+	protected ServiceSpec delegate() {
+		return delegate;
 	}
 }

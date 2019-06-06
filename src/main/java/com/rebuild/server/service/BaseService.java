@@ -33,7 +33,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 05/21/2017
  */
-public class BaseService implements ServiceSpec {
+public abstract class BaseService implements ServiceSpec {
 	
 	protected final Log LOG = LogFactory.getLog(getClass());
 	
@@ -42,11 +42,6 @@ public class BaseService implements ServiceSpec {
 	protected BaseService(PersistManagerFactory aPMFactory) {
 		super();
 		this.aPMFactory = aPMFactory;
-	}
-	
-	@Override
-	public int getEntityCode() {
-		return 0;
 	}
 	
 	@Override

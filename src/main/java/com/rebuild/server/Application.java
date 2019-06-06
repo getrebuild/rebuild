@@ -76,7 +76,7 @@ public final class Application {
 	
 	// SPRING
 	private static ApplicationContext APPLICATION_CTX;
-	// 业务实体对应的服务类
+	// 实体对应的服务类
 	private static Map<Integer, ServiceSpec> SSS = null;
 	
 	/**

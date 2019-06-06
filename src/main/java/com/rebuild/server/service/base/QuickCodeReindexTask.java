@@ -162,17 +162,18 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
 		if (StringUtils.isBlank(nameVal)) {
 			return StringUtils.EMPTY;
 		}
-		
 		if (nameVal.length() > 100) {
 			nameVal = nameVal.substring(0, 100);
 		}
-		
 		if (RegexUtils.isTel(nameVal) || RegexUtils.isEMail(nameVal) || RegexUtils.isUrl(nameVal)) {
-			return nameVal.toUpperCase();
+			return StringUtils.EMPTY;
 		}
-		
-		// 提取 0-9+a-z+A-Z+中文+空格
+		// 提取 0-9+a-z+A-Z+中文+空格，忽略特殊字符
 		nameVal = nameVal.replaceAll("[^a-zA-Z0-9\\s\u4e00-\u9fa5]", "");
+		// 忽略数字或小字母
+		if (nameVal.matches("[a-z0-9]+")) {
+			return StringUtils.EMPTY;
+		}
 		
 		String quickCode = StringUtils.EMPTY;
 		// 仅包含字母数字或空格

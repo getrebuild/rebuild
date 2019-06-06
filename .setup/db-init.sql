@@ -227,6 +227,7 @@ create table if not exists `classification_data` (
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
   `IS_HIDE`            char(1) default 'F',
+  `LEVEL`              smallint(6) default '0',
   primary key  (`ITEM_ID`)
 )Engine=InnoDB;
 alter table `classification_data`

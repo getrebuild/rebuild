@@ -98,8 +98,6 @@ public class UserService extends SystemEntityService {
 		if (record.getPrimary() == null && !record.hasValue("fullName")) {
 			record.setString("fullName", record.getString("loginName").toUpperCase());
 		}
-		
-		setQuickCodeValue(record);
 	}
 	
 	/**

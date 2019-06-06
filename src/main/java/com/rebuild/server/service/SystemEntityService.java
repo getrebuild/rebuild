@@ -30,10 +30,27 @@ import cn.devezhao.persist4j.Record;
  * @author devezhao
  * @since 01/04/2019
  */
-public abstract class SystemEntityService extends BaseService {
+public class SystemEntityService extends BaseService {
 
 	protected SystemEntityService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
+	}
+	
+	@Override
+	public int getEntityCode() {
+		return 0;
+	}
+	
+	@Override
+	public Record create(Record record) {
+		setQuickCodeValue(record);
+		return super.create(record);
+	}
+	
+	@Override
+	public Record update(Record record) {
+		setQuickCodeValue(record);
+		return super.update(record);
 	}
 	
 	/**
@@ -41,9 +58,13 @@ public abstract class SystemEntityService extends BaseService {
 	 * 
 	 * @param record
 	 */
-	protected void setQuickCodeValue(Record record) {
+	private void setQuickCodeValue(Record record) {
 		// 已设置了则不再设置
 		if (record.hasValue(EntityHelper.QuickCode)) {
+			return;
+		}
+		// 无助记码字段
+		if (!record.getEntity().containsField(EntityHelper.QuickCode)) {
 			return;
 		}
 		

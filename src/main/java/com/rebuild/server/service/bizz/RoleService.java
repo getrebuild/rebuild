@@ -55,7 +55,6 @@ public class RoleService extends SystemEntityService implements AdminGuard {
 	
 	@Override
 	public Record create(Record record) {
-		setQuickCodeValue(record);
 		record = super.create(record);
 		Application.getUserStore().refreshRole(record.getPrimary(), false);
 		return record;
@@ -63,7 +62,6 @@ public class RoleService extends SystemEntityService implements AdminGuard {
 	
 	@Override
 	public Record update(Record record) {
-		setQuickCodeValue(record);
 		record = super.update(record);
 		Application.getUserStore().refreshRole(record.getPrimary(), false);
 		return record;
