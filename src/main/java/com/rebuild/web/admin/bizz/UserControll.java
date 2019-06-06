@@ -70,18 +70,20 @@ public class UserControll extends BaseEntityControll {
 	@RequestMapping("check-user-status")
 	public void checkUserStatus(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID id = getIdParameterNotNull(request, "id");
-		User checked = Application.getUserStore().getUser(id);
+		User checkedUser = Application.getUserStore().getUser(id);
 		
 		Map<String, Object> ret = new HashMap<>();
-		ret.put("active", checked.isActive());
-		ret.put("system", checked.getName().equals("system") || checked.getName().equals("admin"));
+		ret.put("active", checkedUser.isActive());
+		ret.put("system", checkedUser.getName().equals("system") || checkedUser.getName().equals("admin"));
 		
-		ret.put("disabled", checked.isDisabled());
-		if (checked.getOwningRole() != null) {
-			ret.put("role", checked.getOwningRole().getIdentity());
+		ret.put("disabled", checkedUser.isDisabled());
+		if (checkedUser.getOwningRole() != null) {
+			ret.put("role", checkedUser.getOwningRole().getIdentity());
+			ret.put("roleDisabled", checkedUser.getOwningRole().isDisabled());
 		}
-		if (checked.getOwningDept() != null) {
-			ret.put("dept", checked.getOwningDept().getIdentity());
+		if (checkedUser.getOwningDept() != null) {
+			ret.put("dept", checkedUser.getOwningDept().getIdentity());
+			ret.put("deptDisabled", checkedUser.getOwningDept().isDisabled());
 		}
 		
 		writeSuccess(response, ret);

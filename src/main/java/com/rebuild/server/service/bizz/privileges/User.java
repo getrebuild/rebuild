@@ -63,6 +63,12 @@ public class User extends cn.devezhao.bizz.security.member.User {
 		return avatarUrl;
 	}
 	
+	/**
+	 * @param fullUrl
+	 * @return
+	 * @deprecated instead /account/user-avatar[/$USER]
+	 */
+	@Deprecated
 	public String getAvatarUrl(boolean fullUrl) {
 		if (!fullUrl) {
 			return getAvatarUrl();
@@ -85,13 +91,19 @@ public class User extends cn.devezhao.bizz.security.member.User {
 	}
 	
 	/**
-	 * 是否激活
+	 * 是否激活/可用。如果用户所属部门或角色被禁用，用户同样也不可用
 	 */
 	public boolean isActive() {
 		if (isDisabled()) {
 			return false;
 		}
-		return getOwningRole() != null && getOwningDept() != null;
+		if (getOwningDept() == null || getOwningDept().isDisabled()) {
+			return false;
+		}
+		if (getOwningRole() == null || getOwningRole().isDisabled()) {
+			return false;
+		}
+		return true;
 	}
 	
 	/**

@@ -75,7 +75,7 @@
 									</div>
 									<div class="col-12 col-sm-4">
 										<div class="avatar float-right">
-											<img alt="Avatar" src="<%=theUser.getAvatarUrl(true)%>">
+											<img alt="Avatar" src="${baseUrl}/account/user-avatar">
 											<label>
 												<i class="zmdi zmdi-camera"></i><br>更改头像
 												<input type="file" id="avatar-input" accept="image/png,image/jpeg,image/gif">
