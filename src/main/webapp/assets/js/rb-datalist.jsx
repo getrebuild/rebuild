@@ -165,45 +165,56 @@ class RbList extends React.Component {
 
   renderCell(cellVal, index, lastGhost) {
     if (this.state.fields.length === index) return null
-
-    const cellKey = 'row-' + lastGhost[0] + '-' + index
-    if (!cellVal) return <td key={cellKey}><div></div></td>
-
     const field = this.state.fields[index]
-    let styles = { width: (this.state.fields[index].width || this.__defaultColumnWidth) + 'px' }
-    if (field.type === 'IMAGE') {
-      cellVal = JSON.parse(cellVal || '[]')
-      return (<td key={cellKey} className="td-min">
-        <div style={styles} className="column-imgs" title={cellVal.length + ' 个图片'}>
-          {cellVal.map((item, idx) => {
-            let imgUrl = rb.baseUrl + '/filex/img/' + item
-            let imgName = $fileCutName(item)
-            return <a key={cellKey + idx} href={'#!/Preview/' + item} title={imgName}><img src={imgUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a>
-          })}</div></td>)
-    } else if (field.type === 'FILE') {
-      cellVal = JSON.parse(cellVal || '[]')
-      return (<td key={cellKey} className="td-min"><div style={styles} className="column-files">
-        <ul className="list-unstyled" title={cellVal.length + ' 个文件'}>
-          {cellVal.map((item, idx) => {
-            let fileName = $fileCutName(item)
-            return <li key={cellKey + idx} className="text-truncate"><a href={'#!/Preview/' + item} title={fileName}>{fileName}</a></li>
-          })}</ul>
-      </div></td>)
-    } else if (field.type === 'REFERENCE') {
-      return <td key={cellKey}><div style={styles}><a href={'#!/View/' + cellVal[2][0] + '/' + cellVal[0]} onClick={() => this.clickView(cellVal)}>{cellVal[1]}</a></div></td>
-    } else if (field.field === this.props.config.nameField) {
-      cellVal = lastGhost
-      return <td key={cellKey}><div style={styles}><a href={'#!/View/' + cellVal[2][0] + '/' + cellVal[0]} onClick={() => this.clickView(cellVal)} className="column-main">{cellVal[1]}</a></div></td>
-    } else if (field.type === 'URL') {
-      return <td key={cellKey}><div style={styles}><a href={rb.baseUrl + '/common/url-safe?url=' + encodeURIComponent(cellVal)} className="column-url" target="_blank" rel="noopener noreferrer">{cellVal}</a></div></td>
-    } else if (field.type === 'EMAIL') {
-      return <td key={cellKey}><div style={styles}><a href={'mailto:' + cellVal} className="column-url">{cellVal}</a></div></td>
-    } else if (field.type === 'AVATAR') {
-      let imgUrl = rb.baseUrl + '/filex/img/' + cellVal + '?imageView2/2/w/100/interlace/1/q/100'
-      return <td key={cellKey} className="user-avatar"><img src={imgUrl} alt="Avatar" /></td>
+    if (!field) return null
+
+    if (!cellVal) {
+      let cellKey = 'row-' + lastGhost[0] + '-' + index
+      return <td key={cellKey}><div></div></td>
     } else {
-      return <td key={cellKey}><div style={styles}>{cellVal}</div></td>
+      let w = this.state.fields[index].width || this.__defaultColumnWidth
+      let t = field.type
+      if (field.field === this.props.config.nameField) {
+        cellVal = lastGhost
+        t = '$NAME$'
+      }
+      return CellRenders.render(cellVal, t, w)
     }
+
+    // let styles = { width: (this.state.fields[index].width || this.__defaultColumnWidth) + 'px' }
+    // if (field.type === 'IMAGE') {
+    //   cellVal = JSON.parse(cellVal || '[]')
+    //   return (<td key={cellKey} className="td-min">
+    //     <div style={styles} className="column-imgs" title={cellVal.length + ' 个图片'}>
+    //       {cellVal.map((item, idx) => {
+    //         let imgUrl = rb.baseUrl + '/filex/img/' + item
+    //         let imgName = $fileCutName(item)
+    //         return <a key={cellKey + idx} href={'#!/Preview/' + item} title={imgName}><img src={imgUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a>
+    //       })}</div></td>)
+    // } else if (field.type === 'FILE') {
+    //   cellVal = JSON.parse(cellVal || '[]')
+    //   return (<td key={cellKey} className="td-min"><div style={styles} className="column-files">
+    //     <ul className="list-unstyled" title={cellVal.length + ' 个文件'}>
+    //       {cellVal.map((item, idx) => {
+    //         let fileName = $fileCutName(item)
+    //         return <li key={cellKey + idx} className="text-truncate"><a href={'#!/Preview/' + item} title={fileName}>{fileName}</a></li>
+    //       })}</ul>
+    //   </div></td>)
+    // } else if (field.type === 'REFERENCE') {
+    //   return <td key={cellKey}><div style={styles}><a href={'#!/View/' + cellVal[2][0] + '/' + cellVal[0]} onClick={() => this.clickView(cellVal)}>{cellVal[1]}</a></div></td>
+    // } else if (field.field === this.props.config.nameField) {
+    //   cellVal = lastGhost
+    //   return <td key={cellKey}><div style={styles}><a href={'#!/View/' + cellVal[2][0] + '/' + cellVal[0]} onClick={() => this.clickView(cellVal)} className="column-main">{cellVal[1]}</a></div></td>
+    // } else if (field.type === 'URL') {
+    //   return <td key={cellKey}><div style={styles}><a href={rb.baseUrl + '/common/url-safe?url=' + encodeURIComponent(cellVal)} className="column-url" target="_blank" rel="noopener noreferrer">{cellVal}</a></div></td>
+    // } else if (field.type === 'EMAIL') {
+    //   return <td key={cellKey}><div style={styles}><a href={'mailto:' + cellVal} className="column-url">{cellVal}</a></div></td>
+    // } else if (field.type === 'AVATAR') {
+    //   let imgUrl = rb.baseUrl + '/filex/img/' + cellVal + '?imageView2/2/w/100/interlace/1/q/100'
+    //   return <td key={cellKey} className="user-avatar"><img src={imgUrl} alt="Avatar" /></td>
+    // } else {
+    //   return <td key={cellKey}><div style={styles}>{cellVal}</div></td>
+    // }
   }
 
   toggleAllRow() {
@@ -306,6 +317,62 @@ class RbList extends React.Component {
     this.fetchList()
   }
 }
+
+// 列表（单元格）渲染
+var CellRenders = {
+  __renders: {},
+  addRender(type, func) {
+    this.__renders[type] = func
+  },
+  /**
+   * @param {*} value 
+   * @param {*} type 
+   * @param {*} width 
+   */
+  render(value, type, width) {
+    let style = { width: (width || COLUMN_MIN_WIDTH) + 'px' }
+    let func = this.__renders[type]
+    if (func) return func(value, style)
+    else return <td><div style={style}>{value}</div></td>
+  }
+}
+CellRenders.addRender('$NAME$', function (v, s) {
+  return <td><div style={s}><a href={'#!/View/' + v[2][0] + '/' + v[0]} onClick={() => this.clickView(v)} className="column-main">{v[1]}</a></div></td>
+})
+CellRenders.addRender('IMAGE', function (v, s) {
+  v = JSON.parse(v || '[]')
+  return <td className="td-min">
+    <div style={s} className="column-imgs" title={v.length + ' 个图片'}>
+      {v.map((item) => {
+        let imgUrl = rb.baseUrl + '/filex/img/' + item
+        let imgName = $fileCutName(item)
+        return <a key={'k-' + item} href={'#!/Preview/' + item} title={imgName}><img src={imgUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a>
+      })}</div></td>
+})
+CellRenders.addRender('FILE', function (v, s) {
+  v = JSON.parse(v || '[]')
+  return <td className="td-min"><div style={s} className="column-files">
+    <ul className="list-unstyled" title={v.length + ' 个文件'}>
+      {v.map((item) => {
+        let fileName = $fileCutName(item)
+        return <li key={'k-' + item} className="text-truncate"><a href={'#!/Preview/' + item} title={fileName}>{fileName}</a></li>
+      })}</ul>
+  </div></td>
+})
+CellRenders.addRender('REFERENCE', function (v, s) {
+  return <td><div style={s}><a href={'#!/View/' + v[2][0] + '/' + v[0]} onClick={() => this.clickView(v)}>{v[1]}</a></div></td>
+})
+CellRenders.addRender('URL', function (v, s) {
+  return <td><div style={s}><a href={rb.baseUrl + '/common/url-safe?url=' + encodeURIComponent(v)} className="column-url" target="_blank" rel="noopener noreferrer">{v}</a></div></td>
+})
+CellRenders.addRender('EMAIL', function (v, s) {
+  return <td><div style={s}><a href={'mailto:' + v} className="column-url">{v}</a></div></td>
+})
+
+CellRenders.addRender('AVATAR', function (v) {
+  let imgUrl = rb.baseUrl + '/filex/img/' + v + '?imageView2/2/w/100/interlace/1/q/100'
+  return <td className="user-avatar"><img src={imgUrl} alt="Avatar" /></td>
+})
 
 // 分页组件
 class RbListPagination extends React.Component {
