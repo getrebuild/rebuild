@@ -18,6 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.datalist;
 
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,12 +47,18 @@ import cn.devezhao.persist4j.query.compiler.SelectItem;
 public class DataWrapper {
 	
 	private static final Log LOG = LogFactory.getLog(DataWrapper.class);
+	
+	private static final String NO_READ_PRIVILEGES = "$NOPRIVILEGES$";
 
 	private int total;
 	private Object[][] data;
 	
 	private SelectItem[] selectFields;
 	private Entity entity;
+	
+	// for 权限验证
+	private ID user;
+	private Map<String, Integer> queryJoinFields;
 	
 	/**
 	 * @param total
@@ -66,34 +74,62 @@ public class DataWrapper {
 	}
 	
 	/**
+	 * @param user
+	 * @param joinFields
+	 */
+	protected void setPrivilegesFilter(ID user, Map<String, Integer> joinFields) {
+		if (user != null && joinFields != null && !joinFields.isEmpty()) {
+			this.user = user;
+			this.queryJoinFields = joinFields;
+		}
+	}
+	
+	/**
 	 * @return
 	 */
 	public JSON toJson() {
 		final Field namedFiled = MetadataHelper.getNameField(entity);
-		for (Object[] row : data) {
+		final int joinFieldsLen = queryJoinFields == null ? 0 : queryJoinFields.size();
+		final int selectFieldsLen = selectFields.length - joinFieldsLen;
+		
+		for (int i = 0; i < data.length; i++) {
+			final Object[] original = data[i];
+
+			Object[] row = original;
+			if (joinFieldsLen > 0) {
+				row = new Object[selectFieldsLen];
+				System.arraycopy(original, 0, row, 0, selectFieldsLen);
+				data[i] = row;
+			}
+			
 			Object namedVal = null;
-			for (int i = 0; i < selectFields.length; i++) {
-				if (row[i] == null) {
-					row[i] = StringUtils.EMPTY;
+			for (int j = 0; j < selectFieldsLen; j++) {
+				if (!checkHasJoinFieldPrivileges(selectFields[j], original)) {
+					row[j] = NO_READ_PRIVILEGES;
 					continue;
 				}
 				
-				Field field = selectFields[i].getField();
+				if (row[j] == null) {
+					row[j] = StringUtils.EMPTY;
+					continue;
+				}
+				
+				Field field = selectFields[j].getField();
 				if (field.equals(namedFiled)) {
-					namedVal = row[i];
+					namedVal = row[j];
 				}
 				
 				if (field.getType() == FieldType.REFERENCE) {
 					int rec = field.getReferenceEntity().getEntityCode();
 					if (rec == EntityHelper.ClassificationData || rec == EntityHelper.PickList) {
-						row[i] = FieldValueWrapper.wrapFieldValue(row[i], EasyMeta.valueOf(field));
+						row[j] = FieldValueWrapper.wrapFieldValue(row[j], EasyMeta.valueOf(field));
 					} else {
-						row[i] = readReferenceRichs((ID) row[i], null);
+						row[j] = readReferenceRich((ID) row[j], null);
 					}
 				} else if (field.getType() == FieldType.PRIMARY) {  // Last index always
-					row[i] = readReferenceRichs((ID) row[i], namedVal);
+					row[j] = readReferenceRich((ID) row[j], namedVal);
 				} else {
-					row[i] = FieldValueWrapper.wrapFieldValue(row[i], new EasyMeta(field));
+					row[j] = FieldValueWrapper.wrapFieldValue(row[j], new EasyMeta(field));
 				}
 			}
 		}
@@ -110,7 +146,7 @@ public class DataWrapper {
 	 * @param nameVal
 	 * @return Returns [ID, Name(Field), EntityMeta[Name, Icon]]
 	 */
-	private Object[] readReferenceRichs(ID idVal, Object nameVal) {
+	private Object[] readReferenceRich(ID idVal, Object nameVal) {
 		Entity entity = MetadataHelper.getEntity(idVal.getEntityCode());
 		Field nameField = MetadataHelper.getNameField(entity);
 		
@@ -128,5 +164,30 @@ public class DataWrapper {
 		nameVal = FieldValueWrapper.wrapFieldValue(nameVal, new EasyMeta(nameField));
 		String[] metadata = new String[] { entity.getName(), new EasyMeta(entity).getIcon() };
 		return new Object[] { idVal, nameVal, metadata };
+	}
+	
+	/**
+	 * 验证字段权限
+	 * 
+	 * @param field
+	 * @param original
+	 * @return
+	 */
+	private boolean checkHasJoinFieldPrivileges(SelectItem field, Object[] original) {
+		if (this.queryJoinFields == null) {
+			return true;
+		}
+		
+		String fieldPath[] = field.getFieldPath().split("\\.");
+		if (fieldPath.length == 1) {
+			return true;
+		}
+		
+		int fieldIndex = queryJoinFields.get(fieldPath[0]);
+		Object check = original[fieldIndex];
+		if (check != null && !Application.getSecurityManager().allowedR(user, (ID) check)) {
+			return false;
+		}
+		return true;
 	}
 }

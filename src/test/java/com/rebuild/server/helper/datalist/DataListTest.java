@@ -18,12 +18,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.datalist;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.TestSupport;
+import com.rebuild.server.configuration.portals.DataListManager;
 import com.rebuild.server.service.bizz.UserService;
 
 /**
@@ -32,31 +32,40 @@ import com.rebuild.server.service.bizz.UserService;
  */
 public class DataListTest extends TestSupport {
 
-	private JSONObject queryExpressie = null;
-	
-	@Before
-	public void setup() {
-		queryExpressie = JSON.parseObject("{ entity:'User' }");
-		JSON fields = JSON.parseArray("[ 'userId', 'loginName', 'createdOn', 'createdBy' ]");
-		queryExpressie.put("fields", fields);
+	private static JSONObject queryExpr = null;
+	static {
+		queryExpr = JSON.parseObject("{ entity:'User' }");
+		JSON fields = JSON.parseArray("[ 'userId', 'loginName', 'createdOn', 'createdBy', 'createdBy.fullName', 'modifiedBy.fullName' ]");
+		queryExpr.put("fields", fields);
 		JSON filter = JSON.parseObject("{ entity:'User', type:'QUICK', values:{ 1:'admin' } }");
-		queryExpressie.put("filter", filter);
-		queryExpressie.put("sort", "createdOn:desc");
-		queryExpressie.put("pageNo", 1);
-		queryExpressie.put("pageSize", 100);
-		System.out.println("Init query expressie ...");
+		queryExpr.put("filter", filter);
+		queryExpr.put("sort", "createdOn:desc");
+		queryExpr.put("pageNo", 1);
+		queryExpr.put("pageSize", 100);
 	}
 	
 	@Test
 	public void testQueryParser() throws Exception {
-		JSONQueryParser queryParser = new JSONQueryParser(queryExpressie);
+		QueryParser queryParser = new QueryParser(queryExpr);
 		System.out.println(queryParser.toSql());
 		System.out.println(queryParser.toCountSql());
 	}
 	
 	@Test
-	public void testBase() throws Exception {
-		DataList dlc = new DefaultDataList(queryExpressie, UserService.ADMIN_USER);
+	public void testQuery() throws Exception {
+		DataList dlc = new DefaultDataList(queryExpr, UserService.ADMIN_USER);
 		System.out.println(dlc.getJSONResult());
+	}
+	
+	@Test
+	public void testJoinFields() throws Exception {
+		QueryParser queryParser = new QueryParser(queryExpr);
+		System.out.println(queryParser.getQueryJoinFields());
+	}
+	
+	@Test
+	public void testColumnLayout() throws Exception {
+		JSON layout = DataListManager.instance.getColumnLayout("Account999", SIMPLE_USER);
+		System.out.println(layout);
 	}
 }

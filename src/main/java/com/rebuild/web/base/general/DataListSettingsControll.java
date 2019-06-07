@@ -119,13 +119,18 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 				continue;
 			}
 			Entity refEntity = field.getReferenceEntity();
+			// 无权限的不返回
+			if (!Application.getSecurityManager().allowedR(user, refEntity.getEntityCode())) {
+				continue;
+			}
+			
 			for (Field field4Ref : MetadataSorter.sortFields(refEntity)) {
 				fieldList.add(DataListManager.instance.formatColumn(field4Ref, field));
 			}
 		}
 		
 		ConfigEntry raw = DataListManager.instance.getLayoutOfDatalist(user, entity);
-		JSONObject config = (JSONObject) DataListManager.instance.getColumnLayout(entity, user);
+		JSONObject config = (JSONObject) DataListManager.instance.getColumnLayout(entity, user, false);
 		
 		Map<String, Object> ret = new HashMap<>();
 		ret.put("fieldList", fieldList);

@@ -39,7 +39,7 @@ import cn.devezhao.persist4j.engine.ID;
 public class DefaultDataList implements DataList {
 
 	private Entity entity;
-	private JSONQueryParser queryParser;
+	private QueryParser queryParser;
 	private ID user;
 	
 	/**
@@ -48,7 +48,7 @@ public class DefaultDataList implements DataList {
 	 */
 	public DefaultDataList(JSONObject query, ID user) {
 		this.entity = MetadataHelper.getEntity(query.getString("entity"));
-		this.queryParser = new JSONQueryParser(query, this);
+		this.queryParser = new QueryParser(query, this);
 		this.user = user;
 	}
 	
@@ -59,10 +59,11 @@ public class DefaultDataList implements DataList {
 
 	@Override
 	public String getDefaultFilter() {
+
+		// 列表默认过滤
+		int ec = queryParser.getEntity().getEntityCode();
 		
-		// TODO 可配置的列表默认过滤
-		
-		if (queryParser.getEntity().getEntityCode() == EntityHelper.User) {
+		if (ec == EntityHelper.User) {
 			return String.format("userId <> '%s'", UserService.SYSTEM_USER);
 		}
 		return null;
@@ -82,6 +83,7 @@ public class DefaultDataList implements DataList {
 		
 		DataWrapper wrapper = new DataWrapper(
 				totalRows, array, query.getSelectItems(), query.getRootEntity());
+		wrapper.setPrivilegesFilter(user, queryParser.getQueryJoinFields());
 		return wrapper.toJson();
 	}
 }

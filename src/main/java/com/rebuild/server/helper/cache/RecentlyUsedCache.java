@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
@@ -84,6 +85,10 @@ public class RecentlyUsedCache {
 		List<ID> data = new ArrayList<>();
 		for (int i = 0; i < limit && i < exists.size(); i++) {
 			final ID raw = exists.get(i);
+			if (!Application.getSecurityManager().allowedR(user, raw)) {
+				continue;
+			}
+			
 			try {
 				String label = FieldValueWrapper.getLabel(raw);
 				ID clone = ID.valueOf(raw.toLiteral());
