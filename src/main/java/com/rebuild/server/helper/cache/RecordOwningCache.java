@@ -51,9 +51,8 @@ public class RecordOwningCache extends BaseCacheTemplate<ID> {
 	 * @param record
 	 * @return
 	 * @throws PrivilegesException
-	 * @throws NoRecordFoundException
 	 */
-	public ID getOwningUser(ID record) throws PrivilegesException, NoRecordFoundException {
+	public ID getOwningUser(ID record) throws PrivilegesException {
 		final String recordKey = record.toLiteral();
 		
 		ID hits = getx(recordKey);
@@ -80,7 +79,7 @@ public class RecordOwningCache extends BaseCacheTemplate<ID> {
 		
 		Object[] owning = aPMFactory.createQuery(sql).unique();
 		if (owning == null) {
-			throw new NoRecordFoundException("No record found : " + record);
+			return null;
 		}
 		
 		ID owningUser = (ID) owning[0];

@@ -44,7 +44,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @author Zhao Fangfang
  * @since 1.0, 2013-6-20
  */
-public class DataListQueryParser {
+public class QueryParser {
 	
 	protected JSONObject queryExpr;
 	private DataList dataListControl;
@@ -61,7 +61,7 @@ public class DataListQueryParser {
 	/**
 	 * @param queryExpr
 	 */
-	public DataListQueryParser(JSONObject queryExpr) {
+	public QueryParser(JSONObject queryExpr) {
 		this(queryExpr, null);
 	}
 	
@@ -69,7 +69,7 @@ public class DataListQueryParser {
 	 * @param queryExpr
 	 * @param dataListControl
 	 */
-	public DataListQueryParser(JSONObject queryExpr, DataList dataListControl) {
+	public QueryParser(JSONObject queryExpr, DataList dataListControl) {
 		this.queryExpr = queryExpr;
 		this.dataListControl = dataListControl;
 		this.entity = dataListControl != null ? 
@@ -119,6 +119,7 @@ public class DataListQueryParser {
 	 * @return
 	 */
 	protected Map<String, Integer> getQueryJoinFields() {
+		doParseIfNeed();
 		return queryJoinFields;
 	}
 	

@@ -39,7 +39,7 @@ import cn.devezhao.persist4j.engine.ID;
 public class DefaultDataList implements DataList {
 
 	private Entity entity;
-	private DataListQueryParser queryParser;
+	private QueryParser queryParser;
 	private ID user;
 	
 	/**
@@ -48,7 +48,7 @@ public class DefaultDataList implements DataList {
 	 */
 	public DefaultDataList(JSONObject query, ID user) {
 		this.entity = MetadataHelper.getEntity(query.getString("entity"));
-		this.queryParser = new DataListQueryParser(query, this);
+		this.queryParser = new QueryParser(query, this);
 		this.user = user;
 	}
 	

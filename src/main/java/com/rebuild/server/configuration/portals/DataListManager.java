@@ -61,10 +61,10 @@ public class DataListManager extends BaseLayoutManager {
 	/**
 	 * @param belongEntity
 	 * @param user
-	 * @param validPrivileges
+	 * @param filter 过滤无读取权限的字段
 	 * @return
 	 */
-	public JSON getColumnLayout(String belongEntity, ID user, boolean validPrivileges) {
+	public JSON getColumnLayout(String belongEntity, ID user, boolean filter) {
 		ConfigEntry config = getLayoutOfDatalist(user, belongEntity);
 		
 		List<Map<String, Object>> columnList = new ArrayList<>();
@@ -103,7 +103,7 @@ public class DataListManager extends BaseLayoutManager {
 					// 如果没有引用实体的读权限，则直接过滤掉字段
 					
 					Field parentField = entityMeta.getField(fieldPath[0]);
-					if (!validPrivileges) {
+					if (!filter) {
 						formatted = formatColumn(lastField, parentField);
 					} else if (Application.getSecurityManager().allowedR(user, lastField.getOwnEntity().getEntityCode())) {
 						formatted = formatColumn(lastField, parentField);
