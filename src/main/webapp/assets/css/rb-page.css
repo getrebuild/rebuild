@@ -936,6 +936,11 @@ i.split.ui-draggable-dragging {
     padding: 8px !important;
 }
 
+.column-nopriv {
+    color: #999;
+    cursor: help;
+}
+
 .text-3dot {
     overflow: hidden;
     text-overflow: ellipsis;

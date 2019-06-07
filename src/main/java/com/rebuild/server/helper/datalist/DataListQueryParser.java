@@ -18,6 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.datalist;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -39,9 +44,9 @@ import cn.devezhao.persist4j.engine.ID;
  * @author Zhao Fangfang
  * @since 1.0, 2013-6-20
  */
-public class JSONQueryParser {
+public class DataListQueryParser {
 	
-	protected JSONObject queryExpressie;
+	protected JSONObject queryExpr;
 	private DataList dataListControl;
 	
 	private Entity entity;
@@ -51,30 +56,24 @@ public class JSONQueryParser {
 	private int[] limit;
 	private boolean reload;
 	
+	private Map<String, Integer> queryJoinFields;
+	
 	/**
-	 * @param queryExpressie
+	 * @param queryExpr
 	 */
-	public JSONQueryParser(JSONObject queryExpressie) {
-		this(queryExpressie, null);
+	public DataListQueryParser(JSONObject queryExpr) {
+		this(queryExpr, null);
 	}
 	
 	/**
-	 * @param queryExpressie
+	 * @param queryExpr
 	 * @param dataListControl
 	 */
-	public JSONQueryParser(JSONObject queryExpressie, DataList dataListControl) {
-		this.queryExpressie = queryExpressie;
+	public DataListQueryParser(JSONObject queryExpr, DataList dataListControl) {
+		this.queryExpr = queryExpr;
 		this.dataListControl = dataListControl;
-		
 		this.entity = dataListControl != null ? 
-				dataListControl.getEntity() : MetadataHelper.getEntity(queryExpressie.getString("entity"));
-	}
-	
-	/**
-	 * @return
-	 */
-	protected Entity getEntity() {
-		return entity;
+				dataListControl.getEntity() : MetadataHelper.getEntity(queryExpr.getString("entity"));
 	}
 	
 	/**
@@ -96,7 +95,14 @@ public class JSONQueryParser {
 	/**
 	 * @return
 	 */
-	public int[] getSqlLimit() {
+	protected Entity getEntity() {
+		return entity;
+	}
+	
+	/**
+	 * @return
+	 */
+	protected int[] getSqlLimit() {
 		doParseIfNeed();
 		return limit;
 	}
@@ -104,32 +110,58 @@ public class JSONQueryParser {
 	/**
 	 * @return
 	 */
-	public boolean isNeedReload() {
+	protected boolean isNeedReload() {
 		doParseIfNeed();
 		return reload;
 	}
 	
 	/**
+	 * @return
+	 */
+	protected Map<String, Integer> getQueryJoinFields() {
+		return queryJoinFields;
+	}
+	
+	/**
 	 * 解析 SQL
 	 */
-	protected void doParseIfNeed() {
+	private void doParseIfNeed() {
 		if (sql != null) {
 			return;
 		}
 		
 		StringBuffer sqlBase = new StringBuffer("select ");
 		
-		JSONArray fieldsNode = queryExpressie.getJSONArray("fields");
+		JSONArray fieldsNode = queryExpr.getJSONArray("fields");
+		int fieldIndex = -1;
+		Set<String> queryJoinFields = new HashSet<>();
 		for (Object o : fieldsNode) {
+			// 在 DataListManager 中已验证字段有效，此处不再次验证
 			String field = o.toString().trim();
 			sqlBase.append(field).append(',');
+			fieldIndex++;
+			
+			if (field.split("\\.").length > 1) {
+				queryJoinFields.add(field.split("\\.")[0]);
+			}
 		}
 		
 		// 最后增加一个主键列
 		String pkName = entity.getPrimaryField().getName();
-		sqlBase.append(pkName)
-				.append(" from ")
-				.append(entity.getName());
+		sqlBase.append(pkName);
+		fieldIndex++;
+		
+		// 查询关联项 ID 以验证权限
+		if (!queryJoinFields.isEmpty()) {
+			this.queryJoinFields = new HashMap<>();
+			for (String field : queryJoinFields) {
+				sqlBase.append(',').append(field);
+				fieldIndex++;
+				this.queryJoinFields.put(field, fieldIndex);
+			}
+		}
+		
+		sqlBase.append(" from ").append(entity.getName());
 		
 		// 过滤器
 		
@@ -141,7 +173,7 @@ public class JSONQueryParser {
 			sqlWhere.append(" and (").append(defaultFilter).append(')');
 		}
 		// Adv
-		String advExpId = queryExpressie.getString("advFilter");
+		String advExpId = queryExpr.getString("advFilter");
 		if (ID.isId(advExpId)) {
 			ConfigEntry adv = AdvFilterManager.instance.getAdvFilter(ID.valueOf(advExpId));
 			if (adv != null) {
@@ -152,7 +184,7 @@ public class JSONQueryParser {
 			}
 		}
 		// Quick
-		JSONObject quickExp = queryExpressie.getJSONObject("filter");
+		JSONObject quickExp = queryExpr.getJSONObject("filter");
 		if (quickExp != null) {
 			String where = new AdvFilterParser(entity, quickExp).toSqlWhere();
 			if (StringUtils.isNotBlank(where)) {
@@ -165,7 +197,7 @@ public class JSONQueryParser {
 		
 		StringBuffer sqlSort = new StringBuffer(" order by ");
 		
-		String sortNode = queryExpressie.getString("sort");
+		String sortNode = queryExpr.getString("sort");
 		if (StringUtils.isNotBlank(sortNode)) {
 			sqlSort.append(parseSort(sortNode));
 		} else if (entity.containsField(EntityHelper.ModifiedOn)) {
@@ -185,12 +217,12 @@ public class JSONQueryParser {
 				.append(sqlWhere)
 				.toString();
 		
-		int pageNo = NumberUtils.toInt(queryExpressie.getString("pageNo"), 1);
-		int pageSize = NumberUtils.toInt(queryExpressie.getString("pageSize"), 20);
+		int pageNo = NumberUtils.toInt(queryExpr.getString("pageNo"), 1);
+		int pageSize = NumberUtils.toInt(queryExpr.getString("pageSize"), 20);
 		this.limit = new int[] { pageSize, pageNo * pageSize - pageSize };
 		this.reload = limit[1] == 0;
 		if (!reload) {
-			reload = BooleanUtils.toBoolean(queryExpressie.getString("reload"));
+			reload = BooleanUtils.toBoolean(queryExpr.getString("reload"));
 		}
 	}
 	

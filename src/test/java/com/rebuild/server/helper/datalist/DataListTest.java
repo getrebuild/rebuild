@@ -49,7 +49,7 @@ public class DataListTest extends TestSupport {
 	
 	@Test
 	public void testQueryParser() throws Exception {
-		JSONQueryParser queryParser = new JSONQueryParser(queryExpressie);
+		DataListQueryParser queryParser = new DataListQueryParser(queryExpressie);
 		System.out.println(queryParser.toSql());
 		System.out.println(queryParser.toCountSql());
 	}

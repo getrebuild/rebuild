@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -47,13 +48,23 @@ public class DataListManager extends BaseLayoutManager {
 	
 	public static final DataListManager instance = new DataListManager();
 	private DataListManager() { }
-
+	
 	/**
 	 * @param belongEntity
 	 * @param user
 	 * @return
 	 */
 	public JSON getColumnLayout(String belongEntity, ID user) {
+		return getColumnLayout(belongEntity, user, true);
+	}
+
+	/**
+	 * @param belongEntity
+	 * @param user
+	 * @param validPrivileges
+	 * @return
+	 */
+	public JSON getColumnLayout(String belongEntity, ID user, boolean validPrivileges) {
 		ConfigEntry config = getLayoutOfDatalist(user, belongEntity);
 		
 		List<Map<String, Object>> columnList = new ArrayList<>();
@@ -77,8 +88,8 @@ public class DataListManager extends BaseLayoutManager {
 			for (Object o : (JSONArray) config.getJSON("config")) {
 				JSONObject item = (JSONObject) o;
 				String field = item.getString("field");
-				Field validField = MetadataHelper.getLastJoinField(entityMeta, field);
-				if (validField == null) {
+				Field lastField = MetadataHelper.getLastJoinField(entityMeta, field);
+				if (lastField == null) {
 					LOG.warn("Unknow field '" + field + "' in '" + belongEntity + "'");
 					continue;
 				}
@@ -86,22 +97,31 @@ public class DataListManager extends BaseLayoutManager {
 				String fieldPath[] = field.split("\\.");
 				Map<String, Object> formatted = null;
 				if (fieldPath.length == 1) {
-					formatted = formatColumn(validField);
+					formatted = formatColumn(lastField);
 				} else {
-					Field refField = entityMeta.getField(fieldPath[0]);
-					formatted = formatColumn(validField, refField);
+					
+					// 如果没有引用实体的读权限，则直接过滤掉字段
+					
+					Field parentField = entityMeta.getField(fieldPath[0]);
+					if (!validPrivileges) {
+						formatted = formatColumn(lastField, parentField);
+					} else if (Application.getSecurityManager().allowedR(user, lastField.getOwnEntity().getEntityCode())) {
+						formatted = formatColumn(lastField, parentField);
+					}
 				}
 				
-				Integer width = item.getInteger("width");
-				if (width != null) {
-					formatted.put("width", width);
+				if (formatted != null) {
+					Integer width = item.getInteger("width");
+					if (width != null) {
+						formatted.put("width", width);
+					}
+					columnList.add(formatted);
 				}
-				columnList.add(formatted);
 			}
 		}
 		
 		return JSONUtils.toJSONObject(
-				new String[] { "entity", "nameField", "fields" }, 
+				new String[] { "entity", "nameField", "fields" },
 				new Object[] { belongEntity, namedField.getName(), columnList });
 	}
 	
