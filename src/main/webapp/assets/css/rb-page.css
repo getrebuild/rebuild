@@ -1508,6 +1508,10 @@ div.dataTables_wrapper div.paging_sizes select {
     margin-left: .384615rem;
 }
 
+.col-form-label .zicon.zmdi-help {
+    margin-top: -0.08rem;
+}
+
 form.dropzone {
     position: relative;
     border: 2px dashed #e3e3e3;
