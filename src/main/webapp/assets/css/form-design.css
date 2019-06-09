@@ -1,6 +1,7 @@
 .rb-content .main-content {
 	margin-right: 300px;
 }
+
 .rb-right-sidebar.field-aside {
 	width: 300px;
 }
@@ -96,7 +97,16 @@
 	margin-left: 1px;
 }
 
-.form-preview .dd-item, .form-preview .dd-placeholder {
+.dd-list .dd-item .dd-action a.icon {
+	position: absolute;
+}
+
+.dd-list .dd-item .dd-action a.icon>.zmdi {
+	font-size: 16px;
+}
+
+.form-preview .dd-item,
+.form-preview .dd-placeholder {
 	float: left;
 	width: 49%;
 	margin-left: 0.5%;
@@ -113,9 +123,7 @@
 	width: 99% !important;
 }
 
-.form-preview .dd-item a.rowspan {
-	
-}
+.form-preview .dd-item a.rowspan {}
 
 .form-preview .dd-item span.ft {
 	top: 13px;
@@ -129,7 +137,8 @@
 	background-color: #eee;
 }
 
-.form-preview .dd-item, .form-preview .dd-handle {
+.form-preview .dd-item,
+.form-preview .dd-handle {
 	cursor: move !important;
 }
 
@@ -167,4 +176,20 @@
 .field-list .nodata {
 	margin-top: 5px;
 	background-color: #fff;
+}
+
+.field-edit {
+	max-width: 400px;
+	margin: 0 auto;
+}
+
+.field-edit label {
+	font-weight: bold;
+}
+
+.dd-list .dd-item .dd-handle span>i {
+	font-size: 14px;
+	margin-left: 5px;
+	color: #999;
+	cursor: help;
 }

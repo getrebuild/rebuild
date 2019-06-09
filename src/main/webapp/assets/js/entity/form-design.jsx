@@ -20,7 +20,7 @@ $(document).ready(function () {
           check_empty()
         })
       } else {
-        render_item({ ...field, isFull: this.isFull || false }, '.form-preview')
+        render_item({ ...field, isFull: this.isFull || false, tip: this.tip || null }, '.form-preview')
       }
     })
 
@@ -42,7 +42,7 @@ $(document).ready(function () {
     $('.form-preview .J_field').each(function () {
       let _this = $(this)
       if (!_this.data('field')) return
-      let item = { field: _this.data('field'), isFull: _this.parent().hasClass('w-100') }
+      let item = { field: _this.data('field'), isFull: _this.parent().hasClass('w-100'), tip: _this.find('.J_tip').attr('title') }
       if (item.field === '$DIVIDER$') item.label = _this.find('span').text()
       elements.push(item)
     })
@@ -65,18 +65,35 @@ $(document).ready(function () {
   }).trigger('resize')
 })
 const render_item = function (data) {
-  let item = $('<div class="dd-item"></div>').appendTo('.form-preview')
+  const item = $('<div class="dd-item"></div>').appendTo('.form-preview')
   if (data.isFull === true) item.addClass('w-100')
 
   let handle = $('<div class="dd-handle J_field" data-field="' + data.fieldName + '"><span>' + data.fieldLabel + '</span></div>').appendTo(item)
   if (data.creatable === false) handle.addClass('readonly')
   else if (data.nullable === false) handle.addClass('not-nullable')
 
+  if (data.tip) {
+    let tip = $('<i class="J_tip zmdi zmdi-info-outline"></i>').appendTo(handle.find('span'))
+    tip.attr('title', data.tip)
+  }
+
   let action = $('<div class="dd-action"></div>').appendTo(handle)
   if (data.displayType) {
     $('<span class="ft">' + data.displayType.split('(')[0].trim() + '</span>').appendTo(item)
-    $('<a class="rowspan">[双列]</a>').appendTo(action).click(function () { item.removeClass('w-100') })
-    $('<a class="rowspan">[单列]</a>').appendTo(action).click(function () { item.addClass('w-100') })
+    $('<a class="rowspan" title="双列">[双]</a>').appendTo(action).click(function () { item.removeClass('w-100') })
+    $('<a class="rowspan" title="单列">[单]</a>').appendTo(action).click(function () { item.addClass('w-100') })
+    $('<a>[修改]</a>').appendTo(action).click(function () {
+      let call = function (nv) {
+        let tip = item.find('.dd-handle span>i')
+        if (!nv) {
+          tip.remove()
+        } else {
+          if (tip.length === 0) tip = $('<i class="J_tip zmdi zmdi-info-outline"></i>').appendTo(item.find('.dd-handle span'))
+          tip.attr('title', nv)
+        }
+      }
+      renderRbcomp(<DlgEditField call={call} />)
+    })
     $('<a>[移除]</a>').appendTo(action).click(function () {
       render_unset(data)
       item.remove()
@@ -86,7 +103,12 @@ const render_item = function (data) {
 
   if (data.fieldName === '$DIVIDER$') {
     item.addClass('divider')
-    $('<a title="修改分栏名称">[修改]</a>').appendTo(action).click(function () { modify_divider(handle) })
+    $('<a>[修改]</a>').appendTo(action).click(function () {
+      let call = function (nv) {
+        item.find('.dd-handle span').text(nv || '分栏')
+      }
+      renderRbcomp(<DlgEditDivider call={call} />)
+    })
     $('<a>[移除]</a>').appendTo(action).click(function () {
       item.remove()
       check_empty()
@@ -111,13 +133,75 @@ const check_empty = function () {
   if ($('.form-preview .dd-item').length === 0) $('.form-preview .nodata').show()
   else $('.form-preview .nodata').hide()
 }
-const modify_divider = function (handle) {
-  let input = '<div class="divider-name"><input type="text" class="form-control form-control-sm" placeholder="输入分栏名称"/></div>'
-  rb.alert(input, '修改分栏名称', {
-    html: true, showIcon: false, confirm: function () {
-      this.hide()
-      let name = $(this.refs['dlg']).find('input').val() || '分栏'
-      if (name) handle.find('span').text(name)
-    }
-  })
+
+class DlgEditField extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+  }
+  render() {
+    return (
+      <div className="modal" ref={(c) => this._dlg = c} tabIndex="-1">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header pb-0">
+              <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
+            </div>
+            <div className="modal-body">
+              {this.renderComp()}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  renderComp() {
+    return (
+      <form className="field-edit">
+        <div className="form-group">
+          <label>修改填写提示</label>
+          <input type="text" className="form-control form-control-sm" ref={(c) => this._value = c} placeholder="输入填写提示" />
+        </div>
+        <div className="form-group">
+          <button type="button" className="btn btn-space btn-primary" onClick={() => this.confirm()}>确定</button>
+        </div>
+      </form>
+    )
+  }
+  confirm() {
+    let val = $val(this._value)
+    // eslint-disable-next-line react/prop-types
+    typeof this.props.call === 'function' && this.props.call(val)
+    this.hide()
+  }
+  componentDidMount() {
+    this.show()
+    // eslint-disable-next-line react/prop-types
+    if (this.props.value) $(this._value).val(this.props.value)
+  }
+  hide() {
+    $(this._dlg).modal('hide')
+  }
+  show() {
+    $(this._dlg).modal({ show: true, keyboard: true })
+  }
+}
+
+class DlgEditDivider extends DlgEditField {
+  constructor(props) {
+    super(props)
+  }
+  renderComp() {
+    return (
+      <form className="field-edit">
+        <div className="form-group">
+          <label>修改分栏名称</label>
+          <input type="text" className="form-control form-control-sm" ref={(c) => this._value = c} placeholder="输入分栏线名称" />
+        </div>
+        <div className="form-group">
+          <button type="button" className="btn btn-space btn-primary" onClick={() => this.confirm()}>确定</button>
+        </div>
+      </form>
+    )
+  }
 }
