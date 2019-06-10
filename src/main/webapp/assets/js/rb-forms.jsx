@@ -1008,7 +1008,7 @@ class RbViewModal extends React.Component {
           <div className="modal-dialog">
             <div className="modal-content" style={{ width: this.mcWidth + 'px' }}>
               <div className={'modal-body iframe rb-loading ' + (this.state.inLoad === true && 'rb-loading-active')}>
-                <iframe className={this.state.isHide ? 'invisible' : ''} src={this.state.showAfterUrl || 'about:blank'} frameBorder="0" scrolling="no"></iframe>
+                <iframe ref={(c) => this._iframe = c} className={this.state.isHide ? 'invisible' : ''} src={this.state.showAfterUrl || 'about:blank'} frameBorder="0" scrolling="no"></iframe>
                 <RbSpinner />
               </div>
             </div>
@@ -1038,6 +1038,8 @@ class RbViewModal extends React.Component {
         that.setState({ isDestroy: true }, function () {
           rb.__currentRbFormModalHolds[that.state.id] = null
           $unmount(rootWarp)
+          // 刷新主实体窗口
+          if (rb.__currentRbViewModal) rb.__currentRbViewModal._iframe.contentWindow.RbViewPage.reload()
         })
       }
 

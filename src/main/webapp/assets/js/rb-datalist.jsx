@@ -436,7 +436,6 @@ const RbListPage = {
       let deleteAfter = function () {
         that._RbList.reload()
       }
-
       const wpc = window.__PageConfig
       const needEntity = (wpc.type === 'SlaveList' || wpc.type === 'SlaveView') ? null : entity[0]
       renderRbcomp(<DeleteConfirm ids={ids} entity={needEntity} deleteAfter={deleteAfter} />)

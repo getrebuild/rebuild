@@ -96,11 +96,10 @@ const RbViewPage = {
     $('.J_delete').click(() => {
       let deleteAfter = function () {
         that.hide(true)
-        let wpc = window.__PageConfig || {}
-        if (wpc.type === 'SlaveView') {
-        }
       }
-      renderRbcomp(<DeleteConfirm id={this.__id} entity={entity[0]} deleteAfter={deleteAfter} />)
+      let wpc = window.__PageConfig || {}
+      const needEntity = (wpc.type === 'SlaveList' || wpc.type === 'SlaveView') ? null : entity[0]
+      renderRbcomp(<DeleteConfirm id={this.__id} entity={needEntity} deleteAfter={deleteAfter} />)
     })
     $('.J_edit').click(() => { rb.RbFormModal({ id: id, title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] }) })
     $('.J_assign').click(() => { rb.DlgAssign({ entity: entity[0], ids: [id] }) })
