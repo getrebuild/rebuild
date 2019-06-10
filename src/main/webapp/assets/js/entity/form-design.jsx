@@ -40,10 +40,17 @@ $(document).ready(function () {
   $('.J_save').click(function () {
     let elements = []
     $('.form-preview .J_field').each(function () {
-      let _this = $(this)
-      if (!_this.data('field')) return
-      let item = { field: _this.data('field'), isFull: _this.parent().hasClass('w-100'), tip: _this.find('.J_tip').attr('title') }
-      if (item.field === '$DIVIDER$') item.label = _this.find('span').text()
+      let $this = $(this)
+      if (!$this.data('field')) return
+      let item = { field: $this.data('field') }
+      if (item.field === '$DIVIDER$') {
+        item.isFull = true
+        item.label = $this.find('span').text()
+      } else {
+        item.isFull = $this.parent().hasClass('w-100')
+        let tip = $this.find('.J_tip').attr('title')
+        if (tip) item.tip = tip
+      }
       elements.push(item)
     })
     if (elements.length === 0) { rb.highbar('请至少布局1个字段'); return }
