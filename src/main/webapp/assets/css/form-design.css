@@ -179,17 +179,27 @@
 }
 
 .field-edit {
+	width: 500px
+}
+
+.field-edit form {
 	max-width: 400px;
 	margin: 0 auto;
 }
 
-.field-edit label {
+.field-edit form label {
 	font-weight: bold;
 }
 
 .dd-list .dd-item .dd-handle span>i {
-	font-size: 14px;
+	font-size: 15px;
 	margin-left: 5px;
 	color: #999;
 	cursor: help;
+	position: absolute;
+	margin-top: 2px;
+}
+
+.dd-list .dd-item .dd-handle:hover span>i {
+	color: #fff;
 }

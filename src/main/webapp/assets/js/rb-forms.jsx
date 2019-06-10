@@ -279,14 +279,15 @@ class RbFormElement extends React.Component {
   }
 
   render() {
+    let props = this.props
     let colWidths = [3, 8]
-    if (this.props.onView) {
+    if (props.onView) {
       colWidths[0] = 4
-      if (this.props.isFull === true) colWidths = [2, 10]
+      if (props.isFull === true) colWidths = [2, 10]
     }
     return (
-      <div className={'form-group row type-' + this.props.type}>
-        <label className={'col-12 col-form-label text-sm-right col-sm-' + colWidths[0]} title={this.props.nullable ? '' : '必填项'}>{this.props.label}{!this.props.nullable && <em />}</label>
+      <div className={'form-group row type-' + props.type}>
+        <label ref={(c) => this._label = c} className={'col-12 col-form-label text-sm-right col-sm-' + colWidths[0]}>{props.label}{!props.nullable && <i className="req" />}{!props.onView && props.tip && <i title={props.tip} className="zmdi zmdi-info-outline" />}</label>
         <div className={'col-12 col-sm-' + colWidths[1]}>
           {this.state.viewMode === true ? this.renderViewElement() : this.renderElement()}
         </div>
@@ -307,6 +308,7 @@ class RbFormElement extends React.Component {
         props.$$$parent.setFieldValue(props.field, null, props.label + '不能为空')
       }
     }
+    if (!props.onView && props.tip) $(this._label).find('i.zmdi').tooltip({ placement: 'right' })
   }
 
   // 表单组件（字段）值变化应调用此方法

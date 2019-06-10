@@ -37,7 +37,7 @@ $(document).ready(function () {
     render_item({ fieldName: '$DIVIDER$', fieldLabel: '分栏', isFull: true }, '.form-preview')
   })
 
-  let btn = $('.J_save').click(function () {
+  $('.J_save').click(function () {
     let elements = []
     $('.form-preview .J_field').each(function () {
       let _this = $(this)
@@ -51,7 +51,7 @@ $(document).ready(function () {
     let _data = { belongEntity: wpc.entityName, applyType: 'FORM', config: JSON.stringify(elements) }
     _data.metadata = { entity: 'LayoutConfig', id: wpc.formConfig.id || null }
 
-    btn.button('loading')
+    $(this).button('loading')
     $.post('form-update', JSON.stringify(_data), function (res) {
       if (res.error_code === 0) location.reload()
       else rb.hberror(res.error_msg)
@@ -92,7 +92,7 @@ const render_item = function (data) {
           tip.attr('title', nv)
         }
       }
-      renderRbcomp(<DlgEditField call={call} />)
+      renderRbcomp(<DlgEditField call={call} value={item.find('.dd-handle span>i').attr('title')} />)
     })
     $('<a>[移除]</a>').appendTo(action).click(function () {
       render_unset(data)
@@ -107,7 +107,7 @@ const render_item = function (data) {
       let call = function (nv) {
         item.find('.dd-handle span').text(nv || '分栏')
       }
-      renderRbcomp(<DlgEditDivider call={call} />)
+      renderRbcomp(<DlgEditDivider call={call} value={item.find('.dd-handle span').text()} />)
     })
     $('<a>[移除]</a>').appendTo(action).click(function () {
       item.remove()
@@ -143,7 +143,7 @@ class DlgEditField extends React.Component {
     return (
       <div className="modal" ref={(c) => this._dlg = c} tabIndex="-1">
         <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
+          <div className="modal-content field-edit">
             <div className="modal-header pb-0">
               <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
             </div>
@@ -157,12 +157,12 @@ class DlgEditField extends React.Component {
   }
   renderComp() {
     return (
-      <form className="field-edit">
+      <form>
         <div className="form-group">
           <label>修改填写提示</label>
           <input type="text" className="form-control form-control-sm" ref={(c) => this._value = c} placeholder="输入填写提示" />
         </div>
-        <div className="form-group">
+        <div className="form-group mb-1">
           <button type="button" className="btn btn-space btn-primary" onClick={() => this.confirm()}>确定</button>
         </div>
       </form>
@@ -193,12 +193,12 @@ class DlgEditDivider extends DlgEditField {
   }
   renderComp() {
     return (
-      <form className="field-edit">
+      <form>
         <div className="form-group">
           <label>修改分栏名称</label>
           <input type="text" className="form-control form-control-sm" ref={(c) => this._value = c} placeholder="输入分栏线名称" />
         </div>
-        <div className="form-group">
+        <div className="form-group mb-1">
           <button type="button" className="btn btn-space btn-primary" onClick={() => this.confirm()}>确定</button>
         </div>
       </form>

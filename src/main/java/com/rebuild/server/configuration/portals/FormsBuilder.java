@@ -53,6 +53,9 @@ public class FormsBuilder extends FormsManager {
 	
 	public static final FormsBuilder instance = new FormsBuilder();
 	private FormsBuilder() { }
+	
+	// 分割线
+	private static final String DIVIDER_LINE = "$DIVIDER$";
 
 	/**
 	 * 表单-新建
@@ -151,12 +154,14 @@ public class FormsBuilder extends FormsManager {
 			String fieldName = el.getString("field");
 			
 			// 分割线
-			if (fieldName.equalsIgnoreCase("$DIVIDER$")) {
-				iter.remove();
+			if (fieldName.equalsIgnoreCase(DIVIDER_LINE)) {
+				if (!isView) {  // 表单页暂不支持
+					iter.remove();
+				}
 				continue;
 			}
 			// 已删除字段
-			else if (!entityMeta.containsField(fieldName)) {
+			if (!entityMeta.containsField(fieldName)) {
 				LOG.warn("Unknow field '" + fieldName + "' in '" + entity + "'");
 				iter.remove();
 				continue;
