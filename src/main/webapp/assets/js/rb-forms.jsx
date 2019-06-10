@@ -287,7 +287,7 @@ class RbFormElement extends React.Component {
     }
     return (
       <div className={'form-group row type-' + props.type}>
-        <label ref={(c) => this._label = c} className={'col-12 col-form-label text-sm-right col-sm-' + colWidths[0]}>{props.label}{!props.nullable && <i className="req" />}{!props.onView && props.tip && <i title={props.tip} className="zmdi zmdi-info-outline" />}</label>
+        <label ref={(c) => this._label = c} className={'col-12 col-form-label text-sm-right col-sm-' + colWidths[0]}>{props.label}{!props.onView && !props.nullable && <i className="req" />}{!props.onView && props.tip && <i title={props.tip} className="zmdi zmdi-info-outline" />}</label>
         <div className={'col-12 col-sm-' + colWidths[1]}>
           {this.state.viewMode === true ? this.renderViewElement() : this.renderElement()}
         </div>

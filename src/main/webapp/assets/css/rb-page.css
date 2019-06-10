@@ -490,6 +490,15 @@ a {
     padding-bottom: 4px !important;
 }
 
+.form-group.row.type-BOOL {
+    padding: 7px 0;
+    padding-bottom: 0;
+}
+
+.rbform .type-BOOL .mt-1 {
+    margin-top: .46rem !important;
+}
+
 .rbform .select2-container--default .select2-selection--multiple .select2-selection__clear {
     margin-right: 20px;
 }
