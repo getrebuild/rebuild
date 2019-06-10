@@ -65,7 +65,7 @@ public class Field2Schema {
 	 */
 	public Field2Schema(ID user) {
 		this.user = user;
-		Assert.isTrue(UserHelper.isSuperAdmin(user), "仅超级管理员可新建/删除元数据");
+		Assert.isTrue(UserHelper.isSuperAdmin(user), "仅超级管理员可添加/删除元数据");
 	}
 	
 	/**

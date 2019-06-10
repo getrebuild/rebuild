@@ -3,7 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>新建实体</title>
+<title>添加实体</title>
 <style type="text/css">
 #metaschemas,#metaschemas .rb-loading{min-height:256px}
 </style>
