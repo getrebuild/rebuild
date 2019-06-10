@@ -1019,6 +1019,7 @@ class RbViewModal extends React.Component {
   }
   componentDidMount() {
     let root = $(this._rbview)
+    const rootWarp = root.parent().parent()
     let mc = root.find('.modal-content')
     let that = this
     root.on('hidden.bs.modal', function () {
@@ -1036,7 +1037,7 @@ class RbViewModal extends React.Component {
         root.modal('dispose')
         that.setState({ isDestroy: true }, function () {
           rb.__currentRbFormModalHolds[that.state.id] = null
-          $unmount(root.parent().parent())
+          $unmount(rootWarp)
         })
       }
 
@@ -1332,7 +1333,8 @@ rb.RbViewModalHideLoading = function (id) {
 
 $(window).on('load', () => {
   let viewHash = location.hash
-  if (viewHash && viewHash.startsWith('#!/View/')) {
+  let wpc = window.__PageConfig || {}
+  if (viewHash && viewHash.startsWith('#!/View/') && (wpc.type === 'RecordList' || wpc.type === 'SlaveList')) {
     viewHash = viewHash.split('/')
     if (viewHash.length === 4 && viewHash[3].length === 20) {
       setTimeout(() => {

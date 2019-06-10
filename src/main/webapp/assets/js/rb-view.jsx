@@ -96,22 +96,19 @@ const RbViewPage = {
     $('.J_delete').click(() => {
       let deleteAfter = function () {
         that.hide(true)
+        let wpc = window.__PageConfig || {}
+        if (wpc.type === 'SlaveView') {
+        }
       }
       renderRbcomp(<DeleteConfirm id={this.__id} entity={entity[0]} deleteAfter={deleteAfter} />)
     })
-    $('.J_edit').click(() => {
-      rb.RbFormModal({ id: id, title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] })
-    })
-    $('.J_assign').click(() => {
-      rb.DlgAssign({ entity: entity[0], ids: [id] })
-    })
-    $('.J_share').click(() => {
-      rb.DlgShare({ entity: entity[0], ids: [id] })
-    })
+    $('.J_edit').click(() => { rb.RbFormModal({ id: id, title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] }) })
+    $('.J_assign').click(() => { rb.DlgAssign({ entity: entity[0], ids: [id] }) })
+    $('.J_share').click(() => { rb.DlgShare({ entity: entity[0], ids: [id] }) })
     $('.J_add-slave').click(function () {
       let iv = { '$MASTER$': id }
-      let _this = $(this)
-      rb.RbFormModal({ title: '添加明细', entity: _this.data('entity'), icon: _this.data('icon'), initialValue: iv })
+      let $this = $(this)
+      rb.RbFormModal({ title: '添加明细', entity: $this.data('entity'), icon: $this.data('icon'), initialValue: iv })
     })
 
     // Privileges
