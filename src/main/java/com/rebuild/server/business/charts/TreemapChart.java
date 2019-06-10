@@ -29,7 +29,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -77,8 +76,8 @@ public class TreemapChart extends ChartData {
 	public Numerical[] getNumericals() {
 		Numerical[] nums = super.getNumericals();
 		if (nums.length == 0) {
-			
-			return new Numerical[] { new Numerical(getSourceEntity().getPrimaryField()) };
+			return new Numerical[] {
+					new Numerical(getSourceEntity().getPrimaryField(), FormatSort.NONE, FormatCalc.COUNT, null, 0) };
 		}
 		return nums;
 	}
@@ -89,11 +88,10 @@ public class TreemapChart extends ChartData {
 			dimSqlItems.add(dim.getSqlName());
 		}
 		
-		String numColumn = num.getField().getType() == FieldType.PRIMARY ? String.format("count(%s)", num.getSqlName()) : num.getSqlName(); 
 		String sql = "select {0},{1} from {2} where {3} group by {0}";
 		sql = MessageFormat.format(sql, 
 				StringUtils.join(dimSqlItems, ", "),
-				numColumn,
+				num.getSqlName(),
 				getSourceEntity().getName(),
 				getFilterSql());
 		return sql;
