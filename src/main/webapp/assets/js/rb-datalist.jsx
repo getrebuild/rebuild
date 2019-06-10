@@ -290,7 +290,6 @@ var CellRenders = {
     rb.RbViewModal({ id: v[0], entity: v[2][0] })
     return false
   },
-
   render(value, type, width, key) {
     let style = { width: (width || COLUMN_MIN_WIDTH) + 'px' }
     let func = this.__renders[type]
@@ -299,7 +298,7 @@ var CellRenders = {
   }
 }
 CellRenders.addRender('$NAME$', function (v, s, k) {
-  return <td key={k}><div style={s}><a href={'#!/View/' + v[2][0] + '/' + v[0]} onClick={() => this.clickView(v)} className="column-main">{v[1]}</a></div></td>
+  return <td key={k}><div style={s}><a href={'#!/View/' + v[2][0] + '/' + v[0]} onClick={() => CellRenders.clickView(v)} className="column-main">{v[1]}</a></div></td>
 })
 CellRenders.addRender('IMAGE', function (v, s, k) {
   v = JSON.parse(v || '[]')
@@ -322,7 +321,7 @@ CellRenders.addRender('FILE', function (v, s, k) {
   </div></td>
 })
 CellRenders.addRender('REFERENCE', function (v, s, k) {
-  return <td key={k}><div style={s}><a href={'#!/View/' + v[2][0] + '/' + v[0]} onClick={() => this.clickView(v)}>{v[1]}</a></div></td>
+  return <td key={k}><div style={s}><a href={'#!/View/' + v[2][0] + '/' + v[0]} onClick={() => CellRenders.clickView(v)}>{v[1]}</a></div></td>
 })
 CellRenders.addRender('URL', function (v, s, k) {
   return <td key={k}><div style={s}><a href={rb.baseUrl + '/common/url-safe?url=' + $encode(v)} className="column-url" target="_blank" rel="noopener noreferrer">{v}</a></div></td>

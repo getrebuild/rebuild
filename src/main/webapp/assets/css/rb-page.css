@@ -665,15 +665,27 @@ a {
     padding-top: 12px;
 }
 
-.col-form-label em {
+.col-form-label>i.req {
     background-color: #ea4335;
     width: 3px;
-    height: 14px;
+    height: 12px;
     display: inline-block;
     position: absolute;
-    margin-top: -1px;
-    right: 5px;
+    margin-left: 4px;
+}
+
+.col-form-label>i.zmdi {
+    position: absolute;
+    font-size: 15px;
+    color: #999;
     cursor: help;
+    margin-left: 10px;
+    margin-top: -1px;
+    z-index: 99;
+}
+
+.col-form-label>i.zmdi:hover {
+    color: #222;
 }
 
 .form-text {
@@ -1506,6 +1518,10 @@ div.dataTables_wrapper div.paging_sizes select {
     cursor: help;
     float: right;
     margin-left: .384615rem;
+}
+
+.col-form-label .zicon.zmdi-help {
+    margin-top: -0.08rem;
 }
 
 form.dropzone {
