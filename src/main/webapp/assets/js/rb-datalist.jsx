@@ -499,11 +499,15 @@ const AdvFilters = {
     this.__el = $(el)
     this.__entity = entity
 
-    this.__el.find('.J_advfilter').click(() => { this.showAdvFilter(null, this.current) })
+    this.__el.find('.J_advfilter').click(() => {
+      this.showAdvFilter(null, this.current)
+      this.current = null
+    })
     // $ALL$
     $('.adv-search .dropdown-item:eq(0)').click(() => {
       $('.adv-search .J_name').text('全部数据')
       RbListPage._RbList.setAdvFilter(null)
+      this.current = null
     })
 
     this.loadFilters()
@@ -583,11 +587,11 @@ const AdvFilters = {
 
   saveFilter(filter, name, toAll) {
     if (!filter) return
-    let _this = AdvFilters
-    let url = `${rb.baseUrl}/app/${_this.__entity}/advfilter/post?id=${_this.current || ''}&toAll=${toAll}`
+    let that = AdvFilters
+    let url = `${rb.baseUrl}/app/${that.__entity}/advfilter/post?id=${that.current || ''}&toAll=${toAll}`
     if (name) url += '&name=' + $encode(name)
     $.post(url, JSON.stringify(filter), (res) => {
-      if (res.error_code === 0) _this.loadFilters()
+      if (res.error_code === 0) that.loadFilters()
       else rb.hberror(res.error_msg)
     })
   },
