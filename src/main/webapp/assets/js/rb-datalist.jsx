@@ -1,3 +1,4 @@
+const wpc = window.__PageConfig || {}
 /* eslint-disable react/no-string-refs */
 /* eslint-disable react/prop-types */
 // ~~ 数据列表
@@ -436,7 +437,6 @@ const RbListPage = {
       let deleteAfter = function () {
         that._RbList.reload()
       }
-      const wpc = window.__PageConfig
       const needEntity = (wpc.type === 'SlaveList' || wpc.type === 'SlaveView') ? null : entity[0]
       renderRbcomp(<DeleteConfirm ids={ids} entity={needEntity} deleteAfter={deleteAfter} />)
     })
@@ -601,8 +601,156 @@ const AdvFilters = {
 
 // Init
 $(document).ready(() => {
-  const wpc = window.__PageConfig
-  if (!wpc) return
-  RbListPage.init(wpc.listConfig, wpc.entity, wpc.privileges)
-  if (!(wpc.advFilter === false)) AdvFilters.init('.adv-search', wpc.entity[0])
+  if (wpc.entity) {
+    RbListPage.init(wpc.listConfig, wpc.entity, wpc.privileges)
+    if (!(wpc.advFilter === false)) AdvFilters.init('.adv-search', wpc.entity[0])
+  }
+})
+
+// -- for View
+
+const VIEW_LOAD_DELAY = 200  // 0.2s in rb-page.css '.rbview.show .modal-content'
+//~~ 视图窗口（右侧滑出）
+class RbViewModal extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props, inLoad: true, isHide: true, isDestroy: false }
+    this.mcWidth = this.props.subView === true ? 1170 : 1220
+    if ($(window).width() < 1280) this.mcWidth -= 100
+  }
+  render() {
+    return (this.state.isDestroy === true ? null :
+      <div className="modal-warpper">
+        <div className="modal rbview" ref={(c) => this._rbview = c}>
+          <div className="modal-dialog">
+            <div className="modal-content" style={{ width: this.mcWidth + 'px' }}>
+              <div className={'modal-body iframe rb-loading ' + (this.state.inLoad === true && 'rb-loading-active')}>
+                <iframe ref={(c) => this._iframe = c} className={this.state.isHide ? 'invisible' : ''} src={this.state.showAfterUrl || 'about:blank'} frameBorder="0" scrolling="no"></iframe>
+                <RbSpinner />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  componentDidMount() {
+    let root = $(this._rbview)
+    const rootWarp = root.parent().parent()
+    let mc = root.find('.modal-content')
+    let that = this
+    root.on('hidden.bs.modal', function () {
+      mc.css({ 'margin-right': -1500 })
+      that.setState({ inLoad: true, isHide: true })
+
+      // 如果还有其他 rbview 处于 open 态， 则保持 modal-open
+      if ($('.rbview.show').length > 0) {
+        $(document.body).addClass('modal-open').css({ 'padding-right': 17 })
+      } else {
+        location.hash = '!/View/'
+      }
+      // subView always dispose
+      if (that.state.disposeOnHide === true) {
+        root.modal('dispose')
+        that.setState({ isDestroy: true }, function () {
+          rb.__subViewModals[that.state.id] = null
+          $unmount(rootWarp)
+          // 刷新主实体窗口
+          // 打开的子View窗口数据发生了变化（如删除/更新）
+          if (rb.subViewChanged && rb.__currentViewModal) {
+            rb.__currentViewModal._iframe.contentWindow.RbViewPage.reload()
+            rb.subViewChanged = false
+          }
+        })
+      }
+
+    }).on('shown.bs.modal', function () {
+      mc.css('margin-right', 0)
+      if (that.__urlChanged === false) {
+        let cw = mc.find('iframe')[0].contentWindow
+        if (cw.RbViewPage && cw.RbViewPage._RbViewForm) cw.RbViewPage._RbViewForm.showAgain(that)
+        this.__urlChanged = true
+      }
+
+      let mcs = $('body>.modal-backdrop.show')
+      if (mcs.length > 1) {
+        mcs.addClass('o')
+        mcs.eq(0).removeClass('o')
+      }
+    })
+    this.show()
+  }
+  hideLoading() {
+    this.setState({ inLoad: false, isHide: false })
+  }
+  showLoading() {
+    this.setState({ inLoad: true, isHide: true })
+  }
+  show(url, ext) {
+    let urlChanged = true
+    if (url && url === this.state.url) urlChanged = false
+    ext = ext || {}
+    url = url || this.state.url
+    this.__urlChanged = urlChanged
+    this.setState({ ...ext, url: url, inLoad: urlChanged, isHide: urlChanged }, () => {
+      $(this._rbview).modal({ show: true, backdrop: true, keyboard: false })
+      setTimeout(() => {
+        this.setState({ showAfterUrl: this.state.url })
+      }, VIEW_LOAD_DELAY)
+    })
+  }
+  hide() {
+    let root = $(this._rbview)
+    root.modal('hide')
+  }
+}
+
+rb.subViewChanged = false
+// 主View
+rb.__currentViewModal
+// 子View（允许多个，ID为Key）
+rb.__subViewModals = {}
+// @props - { id, entity }
+// @subView - 是否子 View
+rb.RbViewModal = function (props, subView) {
+  const viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
+  if (subView === true) {
+    rb.RbViewModalHide(props.id)
+    let m = renderRbcomp(<RbViewModal url={viewUrl} disposeOnHide={true} id={props.id} subView={true} />)
+    rb.__subViewModals[props.id] = m
+    return m
+  }
+
+  if (rb.__currentViewModal) rb.__currentViewModal.show(viewUrl)
+  else rb.__currentViewModal = renderRbcomp(<RbViewModal url={viewUrl} />)
+  rb.__subViewModals[props.id] = rb.__currentViewModal
+  return rb.__currentViewModal
+}
+
+rb.RbViewModalGet = function (id) {
+  return rb.__subViewModals[id]
+}
+rb.RbViewModalHide = function (id) {
+  if (!id) {
+    if (rb.__currentViewModal) rb.__currentViewModal.hide()
+  } else {
+    let c = rb.__subViewModals[id]
+    if (c) {
+      c.hide()
+      rb.__subViewModals[id] = null
+    }
+  }
+}
+
+$(window).on('load', () => {
+  // 自动打开 View
+  let viewHash = location.hash
+  if (viewHash && viewHash.startsWith('#!/View/') && (wpc.type === 'RecordList' || wpc.type === 'SlaveList')) {
+    viewHash = viewHash.split('/')
+    if (viewHash.length === 4 && viewHash[3].length === 20) {
+      setTimeout(() => {
+        rb.RbViewModal({ entity: viewHash[2], id: viewHash[3] })
+      }, 500)
+    }
+  }
 })
