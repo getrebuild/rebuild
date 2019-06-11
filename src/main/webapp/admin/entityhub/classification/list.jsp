@@ -19,35 +19,16 @@
 		<div class="page-head">
 			<div class="float-left"><div class="page-head-title">分类数据</div></div>
 			<div class="float-right pt-1">
-				<button class=" btn btn-primary J_add" type="button"><i class="icon zmdi zmdi-plus"></i> 新建</button>
+				<button class=" btn btn-primary J_add" type="button"><i class="icon zmdi zmdi-plus"></i> 添加</button>
 			</div>
 			<div class="clearfix"></div>
 		</div>
-		<div class="main-content container-fluid pt-0">
-			<div class="class-list row">
-			<c:forEach items="${classifications}" var="item">
-				<div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-					<div class="card" data-id="${item[0]}" data-disabled="${item[2]}">
-						<div class="card-body">
-							<a href="classification/${item[0]}">${item[1]}</a>
-							<p class="text-muted m-0 fs-12">${item[3]}级 · ${item[4]} 项数据</p>
-						</div>
-						<div class="card-footer card-footer-contrast text-muted">
-							<div class="float-left">
-								<a class="J_edit" href="javascript:;"><i class="zmdi zmdi-edit"></i></a>
-								<a class="J_del" href="javascript:;"><i class="zmdi zmdi-delete"></i></a>
-							</div>
-							<div class="float-right fs-12 text-warning">${item[2] ? "已禁用" : ""}</div>
-							<div class="clearfix"></div>
-						</div>
-					</div>
-				</div>
-			</c:forEach>
-			</div>
+		<div class="main-content container-fluid pt-0" id="list">
+			<%@ include file="/_include/phitem.jsp"%>
 		</div>
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/js/entity/classification.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/entity/classification-list.jsx" type="text/babel"></script>
 </body>
 </html>

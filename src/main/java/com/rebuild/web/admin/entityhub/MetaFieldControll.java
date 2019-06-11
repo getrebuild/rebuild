@@ -112,7 +112,8 @@ public class MetaFieldControll extends BasePageControll  {
 		mv.getModel().put("fieldName", fieldEasyMeta.getName());
 		mv.getModel().put("fieldLabel", fieldEasyMeta.getLabel());
 		mv.getModel().put("fieldComments", fieldEasyMeta.getComments());
-		mv.getModel().put("fieldType", fieldEasyMeta.getDisplayType(true));
+		mv.getModel().put("fieldType", fieldEasyMeta.getDisplayType(false));
+		mv.getModel().put("fieldTypeLabel", fieldEasyMeta.getDisplayType(true));
 		mv.getModel().put("fieldNullable", fieldMeta.isNullable());
 		mv.getModel().put("fieldUpdatable", fieldMeta.isUpdatable());
 		mv.getModel().put("fieldBuildin", fieldEasyMeta.isBuiltin());
@@ -141,14 +142,14 @@ public class MetaFieldControll extends BasePageControll  {
 		String type = reqJson.getString("type");
 		String comments = reqJson.getString("comments");
 		String refEntity = reqJson.getString("refEntity");
-		String useClassification = reqJson.getString("dataId");
+		String refClassification = reqJson.getString("refClassification");
 		
 		Entity entity = MetadataHelper.getEntity(entityName);
 		DisplayType dt = DisplayType.valueOf(type);
 		
 		JSON extConfig = null;
 		if (dt == DisplayType.CLASSIFICATION) {
-			ID dataId = ID.valueOf(useClassification);
+			ID dataId = ID.valueOf(refClassification);
 			extConfig = JSONUtils.toJSONObject("classification", dataId);
 		}
 		

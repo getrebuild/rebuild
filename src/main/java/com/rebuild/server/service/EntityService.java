@@ -18,7 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service;
 
-import com.rebuild.server.Application;
 import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.server.service.base.BulkContext;
 
@@ -35,19 +34,11 @@ import cn.devezhao.persist4j.engine.ID;
 public interface EntityService extends ServiceSpec {
 	
 	/**
-	 * 取消共享
+	 * 取消共享，跟随共享权限
 	 * @see BizzPermission
 	 */
-	public static final Permission UNSHARE = new BizzPermission("X", 0, true);
+	public static final Permission UNSHARE = new BizzPermission("UNSHARE", 1 << 6, true);
 
-	/**
-	 * 此服务专供某个实体服务
-	 * 
-	 * @return
-	 * @see Application#getGeneralEntityService(int)
-	 */
-	int getEntityCode();
-	
 	/**
 	 * 删除
 	 * 

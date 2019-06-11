@@ -18,17 +18,62 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.metadata.entityhub;
 
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.BaseService;
+import com.rebuild.server.service.bizz.privileges.AdminGuard;
 
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * @author zhaofang123@gmail.com
  * @since 08/03/2018
  */
-public class MetaFieldService extends BaseService {
+public class MetaFieldService extends BaseService implements AdminGuard {
 
 	protected MetaFieldService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
+	}
+	
+	@Override
+	public int getEntityCode() {
+		return EntityHelper.MetaField;
+	}
+	
+	@Override
+	public int delete(ID recordId) {
+		Object[] fieldRecord = getPMFactory().createQuery(
+				"select belongEntity,fieldName from MetaField where fieldId = ?")
+				.setParameter(1, recordId)
+				.unique();
+		final Field field = MetadataHelper.getField((String) fieldRecord[0], (String) fieldRecord[1]);
+		
+		// 删除此字段的相关配置记录
+		String whoUsed[] = new String[] {
+				"PickList", "AutoFillinConfig"
+		};
+		int del = 0;
+		for (String who : whoUsed) {
+			Entity whoEntity = MetadataHelper.getEntity(who);
+			if (!(whoEntity.containsField("belongEntity") || whoEntity.containsField("belongField"))) {
+				continue;
+			}
+			
+			String sql = String.format("select %s from %s where belongEntity = '%s' and belongField = '%s'", 
+					whoEntity.getPrimaryField().getName(), whoEntity.getName(), field.getOwnEntity().getName(), field.getName());
+			Object[][] usedArray = getPMFactory().createQuery(sql).array();
+			for (Object[] used : usedArray) {
+				del += super.delete((ID) used[0]);
+			}
+			if (usedArray.length > 0) {
+				LOG.warn("deleted configuration of field [ " + field.getOwnEntity().getName() + "." + field.getName() + " ] in [ " + who + " ] : " + usedArray.length);
+			}
+		}
+		
+		del += super.delete(recordId);
+		return del;
 	}
 }

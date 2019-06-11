@@ -59,4 +59,20 @@ public class UserControllTest extends MvcTestSupport {
 		System.out.println(resp);
 		Assert.assertTrue(resp.isSuccess());
 	}
+	
+	@Test
+	public void testEnableUser() throws Exception {
+		String post = String.format(
+				"{ user:'%s', enable:true, role:'%s', dept:'%s' }", 
+				SIMPLE_USER, SIMPLE_ROLE, SIMPLE_DEPT);
+		
+		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
+				.post("/admin/bizuser/enable-user")
+				.content(post)
+				.sessionAttr(WebUtils.KEY_PREFIX + "-AdminVerified", "Mock");
+		
+		MvcResponse resp = perform(builder, UserService.ADMIN_USER);
+		System.out.println(resp);
+		Assert.assertTrue(resp.isSuccess());
+	}
 }

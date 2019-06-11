@@ -1,43 +1,8 @@
-/* List Page */
-
-.class-list>div {
-  padding-left: 10px;
-  padding-right: 10px
-}
-
-.class-list>div .card-body {
-  padding: 9px 15px;
-}
-
-.class-list>div .card-body>a {
-  display: inline-block;
-  overflow: hidden;
-  padding-top: 3px;
-}
-
-.class-list>div .card-footer {
-  padding: 6px 15px;
-}
-
-.class-list>div .card-footer a {
-  color: #999;
-  font-size: 1.1rem;
-  display: inline-block;
-  padding: 1px 3px;
-}
-
-.class-list>div .card-footer a:hover {
-  color: #666;
-}
-
-.class-list>div .card-footer .float-right {
-  padding-top: 3px;
-}
-
 /* Editor Page */
 
 #boxes {
   min-height: 300px;
+  padding: 10px 30px 30px;
 }
 
 .level-boxes .col-md-3 {
@@ -52,6 +17,24 @@
 
 .level-boxes .col-md-3 h5 {
   margin-top: 3px
+}
+
+.level-boxes form .input-group {
+  position: relative;
+}
+
+.level-boxes form .input-group .custom-control {
+  position: absolute;
+  margin: 0;
+  background-color: #fff;
+  right: 65px;
+  margin-top: 9px;
+  padding-right: 5px;
+  z-index: 91;
+}
+
+.level-boxes form .input-group .btn {
+  width: 60px;
 }
 
 .level-boxes .col-md-3.off form,

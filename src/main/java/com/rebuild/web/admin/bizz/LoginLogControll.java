@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
-import com.rebuild.server.portals.DataListManager;
+import com.rebuild.server.configuration.portals.DataListManager;
 import com.rebuild.web.BaseEntityControll;
 
 import cn.devezhao.persist4j.engine.ID;
@@ -44,7 +44,7 @@ public class LoginLogControll extends BaseEntityControll {
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
 		ID user = getRequestUser(request);
 		ModelAndView mv = createModelAndView("/admin/bizuser/login-logs.jsp", "LoginLog", user);
-		JSON config = DataListManager.getColumnLayout("LoginLog", user);
+		JSON config = DataListManager.instance.getColumnLayout("LoginLog", user);
 		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
 		return mv;
 	}

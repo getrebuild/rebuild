@@ -1,0 +1,109 @@
+/* Editor Page */
+
+.timeline.spare {
+  max-width: 2000px;
+  padding-bottom: 0;
+  margin-bottom: 20px;
+}
+
+.timeline.spare form.simple {
+  max-width: 2000px;
+}
+
+.timeline.spare form.simple .col-form-label {
+  max-width: 160px
+}
+
+.timeline.spare .timeline-content {
+  padding: 0;
+}
+
+.timeline.spare .timeline-content {
+  box-shadow: 0 0 0 #fff;
+}
+
+.timeline.spare form.simple .form-group:first-child {
+  padding-top: 26px;
+}
+
+.timeline.spare .timeline-item {
+  margin-bottom: 10px;
+}
+
+.timeline.spare .timeline-item.last {
+  margin-bottom: 0;
+}
+
+.timeline.spare .timeline-item.last::before {
+  display: none;
+}
+
+#react-content {
+  background-color: #eee;
+  border-radius: 3px;
+  padding: 20px;
+}
+
+.send-notification {
+  max-width: 800px;
+}
+
+.field-aggregation p {
+  margin: 0;
+  margin-top: 3px;
+  color: #777;
+  font-size: 12px
+}
+
+.field-aggregation .col-2 {
+  position: relative;
+}
+
+.field-aggregation .col-2>.zmdi {
+  position: absolute;
+  left: -5px;
+  color: #4c8bf5;
+  color: #fbbc05;
+  margin-top: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.field-aggregation .items {
+  margin-bottom: 9px;
+  margin-top: -1px;
+}
+
+.field-aggregation .items>div {
+  padding: 5px 0;
+}
+
+.field-aggregation .items>div+div {
+  border-top: 1px dotted rgba(255, 255, 255, 0.7);
+}
+
+.field-aggregation .items>div:hover {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+.field-aggregation .items>div .badge {
+  font-weight: normal;
+  font-size: 1rem;
+  padding: 3px 10px;
+}
+
+.field-aggregation .items>div .col-2>.zmdi {
+  margin-top: 6px;
+}
+
+.field-aggregation .items>div .col-5>a.del {
+  float: right;
+  font-size: 1.2rem;
+  padding: 3px 10px;
+  color: #999;
+  font-weight: bold;
+}
+
+.field-aggregation .items>div .col-5>a.del:hover {
+  color: #222;
+}

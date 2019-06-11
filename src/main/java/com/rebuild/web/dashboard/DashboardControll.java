@@ -32,10 +32,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.configuration.portals.DashboardManager;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.portals.DashboardManager;
 import com.rebuild.server.service.bizz.RoleService;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.configuration.DashboardConfigService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 
@@ -60,23 +61,8 @@ public class DashboardControll extends BasePageControll {
 	@RequestMapping("/dash-gets")
 	public void dashGets(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		JSON dashs = DashboardManager.getDashList(user);
+		JSON dashs = DashboardManager.instance.getDashList(user);
 		writeSuccess(response, dashs);
-	}
-	
-	@RequestMapping("/dash-update")
-	public void dashUpdate(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getRequestUser(request);
-		JSON formJson = ServletUtils.getRequestJson(request);
-		Record record = EntityHelper.parse((JSONObject) formJson, user);
-		
-		if (!DashboardManager.allowedUpdate(user, record.getPrimary())) {
-			writeFailure(response, "无权修改他人的仪表盘");
-			return;
-		}
-		
-		Application.getCommonService().update(record);
-		writeSuccess(response);
 	}
 	
 	@RequestMapping("/dash-new")
@@ -123,7 +109,7 @@ public class DashboardControll extends BasePageControll {
 			dashRecord.setString("config", dashCopy.toJSONString());
 		}
 		
-		dashRecord = Application.getCommonService().create(dashRecord);
+		dashRecord = Application.getBean(DashboardConfigService.class).create(dashRecord);
 		
 		JSON ret = JSONUtils.toJSONObject("id", dashRecord.getPrimary());
 		writeSuccess(response, ret);
@@ -132,31 +118,11 @@ public class DashboardControll extends BasePageControll {
 	@RequestMapping("/dash-config")
 	public void dashConfig(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID dashid = getIdParameterNotNull(request, "id");
-		ID user = getRequestUser(request);
-		
-		if (!DashboardManager.allowedUpdate(user, dashid)) {
-			writeFailure(response, "无权修改他人的仪表盘");
-			return;
-		}
-		
 		JSON config = ServletUtils.getRequestJson(request);
-		Record record = EntityHelper.forUpdate(dashid, user);
+		
+		Record record = EntityHelper.forUpdate(dashid, getRequestUser(request));
 		record.setString("config", config.toJSONString());
-		Application.getCommonService().update(record);
-		writeSuccess(response);
-	}
-	
-	@RequestMapping("/dash-delete")
-	public void dashDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID dashid = getIdParameterNotNull(request, "id");
-		ID user = getRequestUser(request);
-		
-		if (!DashboardManager.allowedUpdate(user, dashid)) {
-			writeFailure(response, "无权删除他人的仪表盘");
-			return;
-		}
-		
-		Application.getCommonService().delete(dashid);
+		Application.getBean(DashboardConfigService.class).update(record);
 		writeSuccess(response);
 	}
 	

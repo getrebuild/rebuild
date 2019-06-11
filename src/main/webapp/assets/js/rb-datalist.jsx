@@ -1,3 +1,4 @@
+const wpc = window.__PageConfig || {}
 /* eslint-disable react/no-string-refs */
 /* eslint-disable react/prop-types */
 // ~~ 数据列表
@@ -165,44 +166,22 @@ class RbList extends React.Component {
 
   renderCell(cellVal, index, lastGhost) {
     if (this.state.fields.length === index) return null
+    const field = this.state.fields[index]
+    if (!field) return null
 
     const cellKey = 'row-' + lastGhost[0] + '-' + index
-    if (!cellVal) return <td key={cellKey}><div></div></td>
-
-    const field = this.state.fields[index]
-    let styles = { width: (this.state.fields[index].width || this.__defaultColumnWidth) + 'px' }
-    if (field.type === 'IMAGE') {
-      cellVal = JSON.parse(cellVal || '[]')
-      return (<td key={cellKey} className="td-min">
-        <div style={styles} className="column-imgs" title={cellVal.length + ' 个图片'}>
-          {cellVal.map((item, idx) => {
-            let imgUrl = rb.baseUrl + '/filex/img/' + item
-            let imgName = $fileCutName(item)
-            return <a key={cellKey + idx} href={'#!/Preview/' + item} title={imgName}><img src={imgUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a>
-          })}</div></td>)
-    } else if (field.type === 'FILE') {
-      cellVal = JSON.parse(cellVal || '[]')
-      return (<td key={cellKey} className="td-min"><div style={styles} className="column-files">
-        <ul className="list-unstyled" title={cellVal.length + ' 个文件'}>
-          {cellVal.map((item, idx) => {
-            let fileName = $fileCutName(item)
-            return <li key={cellKey + idx} className="text-truncate"><a href={'#!/Preview/' + item} title={fileName}>{fileName}</a></li>
-          })}</ul>
-      </div></td>)
-    } else if (field.type === 'REFERENCE') {
-      return <td key={cellKey}><div style={styles}><a href={'#!/View/' + cellVal[2][0] + '/' + cellVal[0]} onClick={() => this.clickView(cellVal)}>{cellVal[1]}</a></div></td>
-    } else if (field.field === this.props.config.nameField) {
-      cellVal = lastGhost
-      return <td key={cellKey}><div style={styles}><a href={'#!/View/' + cellVal[2][0] + '/' + cellVal[0]} onClick={() => this.clickView(cellVal)} className="column-main">{cellVal[1]}</a></div></td>
-    } else if (field.type === 'URL') {
-      return <td key={cellKey}><div style={styles}><a href={rb.baseUrl + '/common/url-safe?url=' + encodeURIComponent(cellVal)} className="column-url" target="_blank" rel="noopener noreferrer">{cellVal}</a></div></td>
-    } else if (field.type === 'EMAIL') {
-      return <td key={cellKey}><div style={styles}><a href={'mailto:' + cellVal} className="column-url">{cellVal}</a></div></td>
-    } else if (field.type === 'AVATAR') {
-      let imgUrl = rb.baseUrl + '/filex/img/' + cellVal + '?imageView2/2/w/100/interlace/1/q/100'
-      return <td key={cellKey} className="user-avatar"><img src={imgUrl} alt="Avatar" /></td>
+    if (!cellVal) {
+      return <td key={cellKey}><div></div></td>
+    } else if (cellVal === '$NOPRIVILEGES$') {
+      return <td key={cellKey}><div className="column-nopriv" title="你无权读取此项数据">[无权限]</div></td>
     } else {
-      return <td key={cellKey}><div style={styles}>{cellVal}</div></td>
+      let w = this.state.fields[index].width || this.__defaultColumnWidth
+      let t = field.type
+      if (field.field === this.props.config.nameField) {
+        cellVal = lastGhost
+        t = '$NAME$'
+      }
+      return CellRenders.render(cellVal, t, w, cellKey + '.' + field.field)
     }
   }
 
@@ -234,11 +213,6 @@ class RbList extends React.Component {
       })
     }
     this.setState({ rowsData: rowsdata })
-    return false
-  }
-
-  clickView(cellVal) {
-    rb.RbViewModal({ id: cellVal[0], entity: cellVal[2][0] })
     return false
   }
 
@@ -291,9 +265,14 @@ class RbList extends React.Component {
     return ids
   }
 
-  search(filter, noHold) {
+  search(filter, fromAdv) {
+    let afHold = this.advFilter
+    if (fromAdv === true) this.advFilter = null
     this.fetchList(filter)
-    if (noHold === true) {
+
+    // Not keep last filter
+    if (fromAdv === true) {
+      this.advFilter = afHold
       this.lastFilter = null
     }
   }
@@ -301,6 +280,60 @@ class RbList extends React.Component {
     this.fetchList()
   }
 }
+
+// 列表（单元格）渲染
+var CellRenders = {
+  __renders: {},
+  addRender(type, func) {
+    this.__renders[type] = func
+  },
+  clickView(v) {
+    rb.RbViewModal({ id: v[0], entity: v[2][0] })
+    return false
+  },
+  render(value, type, width, key) {
+    let style = { width: (width || COLUMN_MIN_WIDTH) + 'px' }
+    let func = this.__renders[type]
+    if (func) return func(value, style, key)
+    else return <td key={key}><div style={style}>{value}</div></td>
+  }
+}
+CellRenders.addRender('$NAME$', function (v, s, k) {
+  return <td key={k}><div style={s}><a href={'#!/View/' + v[2][0] + '/' + v[0]} onClick={() => CellRenders.clickView(v)} className="column-main">{v[1]}</a></div></td>
+})
+CellRenders.addRender('IMAGE', function (v, s, k) {
+  v = JSON.parse(v || '[]')
+  return <td key={k} className="td-min">
+    <div style={s} className="column-imgs" title={v.length + ' 个图片'}>
+      {v.map((item) => {
+        let imgUrl = rb.baseUrl + '/filex/img/' + item
+        let imgName = $fileCutName(item)
+        return <a key={'k-' + item} href={'#!/Preview/' + item} title={imgName}><img src={imgUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a>
+      })}</div></td>
+})
+CellRenders.addRender('FILE', function (v, s, k) {
+  v = JSON.parse(v || '[]')
+  return <td key={k} className="td-min"><div style={s} className="column-files">
+    <ul className="list-unstyled" title={v.length + ' 个文件'}>
+      {v.map((item) => {
+        let fileName = $fileCutName(item)
+        return <li key={'k-' + item} className="text-truncate"><a href={'#!/Preview/' + item} title={fileName}>{fileName}</a></li>
+      })}</ul>
+  </div></td>
+})
+CellRenders.addRender('REFERENCE', function (v, s, k) {
+  return <td key={k}><div style={s}><a href={'#!/View/' + v[2][0] + '/' + v[0]} onClick={() => CellRenders.clickView(v)}>{v[1]}</a></div></td>
+})
+CellRenders.addRender('URL', function (v, s, k) {
+  return <td key={k}><div style={s}><a href={rb.baseUrl + '/common/url-safe?url=' + $encode(v)} className="column-url" target="_blank" rel="noopener noreferrer">{v}</a></div></td>
+})
+CellRenders.addRender('EMAIL', function (v, s, k) {
+  return <td key={k}><div style={s}><a href={'mailto:' + v} className="column-url">{v}</a></div></td>
+})
+CellRenders.addRender('AVATAR', function (v, s, k) {
+  let imgUrl = rb.baseUrl + '/filex/img/' + v + '?imageView2/2/w/100/interlace/1/q/100'
+  return <td key={k} className="user-avatar"><img src={imgUrl} alt="Avatar" /></td>
+})
 
 // 分页组件
 class RbListPagination extends React.Component {
@@ -404,8 +437,6 @@ const RbListPage = {
       let deleteAfter = function () {
         that._RbList.reload()
       }
-
-      const wpc = window.__PageConfig
       const needEntity = (wpc.type === 'SlaveList' || wpc.type === 'SlaveView') ? null : entity[0]
       renderRbcomp(<DeleteConfirm ids={ids} entity={needEntity} deleteAfter={deleteAfter} />)
     })
@@ -468,45 +499,60 @@ const AdvFilters = {
     this.__el = $(el)
     this.__entity = entity
 
-    this.__el.find('.J_advfilter').click(() => { this.showAdvFilter() })
+    this.__el.find('.J_advfilter').click(() => {
+      this.showAdvFilter(null, this.current)
+      this.current = null
+    })
     // $ALL$
     $('.adv-search .dropdown-item:eq(0)').click(() => {
       $('.adv-search .J_name').text('全部数据')
       RbListPage._RbList.setAdvFilter(null)
+      this.current = null
     })
 
     this.loadFilters()
   },
 
   loadFilters() {
-    let dfilter = $storage.get(RbListPage._RbList.__defaultFilterKey)
+    let dFilter = $storage.get(RbListPage._RbList.__defaultFilterKey)
     let that = this
     $.get(`${rb.baseUrl}/app/${this.__entity}/advfilter/list`, function (res) {
       $('.adv-search .J_custom').each(function () { $(this).remove() })
 
       $(res.data).each(function () {
-        let item = $('<div class="dropdown-item J_custom" data-id="' + this[0] + '"><a class="text-truncate">' + this[1] + '</a></div>').appendTo('.adv-search .dropdown-menu')
-        let _data = this
-        if (_data[2] === true) {
+        const _data = this
+        let item = $('<div class="dropdown-item J_custom" data-id="' + _data.id + '"><a class="text-truncate">' + _data.name + '</a></div>').appendTo('.adv-search .dropdown-menu')
+        item.click(function () {
+          $('.adv-search .J_name').text(_data.name)
+          RbListPage._RbList.setAdvFilter(_data.id)
+          that.current = _data.id
+        })
+        if (dFilter === _data.id) {
+          $('.adv-search .J_name').text(_data.name)
+          that.current = _data.id
+        }
+
+        // 可修改
+        if (_data.editable) {
           let action = $('<div class="action"><a title="修改"><i class="zmdi zmdi-edit"></i></a><a title="删除"><i class="zmdi zmdi-delete"></i></a></div>').appendTo(item)
           action.find('a:eq(0)').click(function () {
-            that.showAdvFilter(_data[0])
+            that.showAdvFilter(_data.id)
             $('.adv-search .btn.dropdown-toggle').dropdown('toggle')
             return false
           })
           action.find('a:eq(1)').click(function () {
-            let _alert = rb.alert('确认要删除此过滤项吗？', {
-              type: 'danger', confirm: () => {
-                $.post(`${rb.baseUrl}/app/entity/advfilter/delete?id=${_data[0]}`, (res) => {
+            rb.alert('确认删除此查询项吗？', {
+              type: 'danger',
+              confirm: function () {
+                this.disabled(true)
+                $.post(`${rb.baseUrl}/app/entity/record-delete?id=${_data.id}`, (res) => {
                   if (res.error_code === 0) {
-                    _alert.hide()
+                    this.hide()
                     that.loadFilters()
-
-                    if (dfilter === _data[0]) {
+                    if (dFilter === _data.id) {
                       RbListPage._RbList.setAdvFilter(null)
                       $('.adv-search .J_name').text('全部数据')
                     }
-
                   } else rb.hberror(res.error_msg)
                 })
               }
@@ -514,50 +560,201 @@ const AdvFilters = {
             return false
           })
         }
-
-        item.click(function () {
-          $('.adv-search .J_name').text(_data[1])
-          RbListPage._RbList.setAdvFilter(_data[0])
-        })
-
-        if (dfilter === _data[0]) {
-          $('.adv-search .J_name').text(_data[1])
-        }
       })
     })
+  },
+
+  showAdvFilter(id, copyId) {
+    let props = { entity: this.__entity, inModal: true, fromList: true, confirm: this.saveFilter }
+    if (!id) {
+      if (this.__customAdv) this.__customAdv.show()
+      else {
+        if (copyId) {
+          this.__getFilter(copyId, (res) => {
+            this.__customAdv = renderRbcomp(<AdvFilter {...props} filter={res.filter} />)
+          })
+        } else {
+          this.__customAdv = renderRbcomp(<AdvFilter {...props} />)
+        }
+      }
+    } else {
+      this.current = id
+      this.__getFilter(id, (res) => {
+        renderRbcomp(<AdvFilter {...props} title="修改查询条件" filter={res.filter} filterName={res.name} shareToAll={res.shareTo === 'ALL'} />)
+      })
+    }
   },
 
   saveFilter(filter, name, toAll) {
     if (!filter) return
     let that = AdvFilters
-    let url = `${rb.baseUrl}/app/${that.__entity}/advfilter/post?id=${that.__cfgid || ''}&toAll=${toAll}`
+    let url = `${rb.baseUrl}/app/${that.__entity}/advfilter/post?id=${that.current || ''}&toAll=${toAll}`
     if (name) url += '&name=' + $encode(name)
-    $.post(url, JSON.stringify(filter), function (res) {
-      if (res.error_code === 0) {
-        that.loadFilters()
-      } else rb.hberror(res.error_msg)
+    $.post(url, JSON.stringify(filter), (res) => {
+      if (res.error_code === 0) that.loadFilters()
+      else rb.hberror(res.error_msg)
     })
   },
 
-  showAdvFilter(id) {
-    this.__cfgid = id
-    let props = { entity: this.__entity, inModal: true, fromList: true, confirm: this.saveFilter }
-    if (!id) {
-      if (this.__showHolder) this.__showHolder.show()
-      else this.__showHolder = renderRbcomp(<AdvFilter {...props} title="高级查询" />)
-    } else {
-      $.get(rb.baseUrl + '/app/entity/advfilter/get?id=' + id, function (res) {
-        let _data = res.data
-        renderRbcomp(<AdvFilter {...props} title="修改查询条件" filter={_data.filter} filterName={_data.name} shareToAll={_data.shareTo === 'ALL'} />)
-      })
-    }
+  __getFilter(id, call) {
+    $.get(`${rb.baseUrl}/app/entity/advfilter/get?id=${id}`, (res) => {
+      call(res.data)
+    })
   }
 }
 
 // Init
 $(document).ready(() => {
-  const wpc = window.__PageConfig
-  if (!wpc) return
-  RbListPage.init(wpc.listConfig, wpc.entity, wpc.privileges)
-  if (!(wpc.advFilter === false)) AdvFilters.init('.adv-search', wpc.entity[0])
+  if (wpc.entity) {
+    RbListPage.init(wpc.listConfig, wpc.entity, wpc.privileges)
+    if (!(wpc.advFilter === false)) AdvFilters.init('.adv-search', wpc.entity[0])
+  }
+})
+
+// -- for View
+
+const VIEW_LOAD_DELAY = 200  // 0.2s in rb-page.css '.rbview.show .modal-content'
+//~~ 视图窗口（右侧滑出）
+class RbViewModal extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props, inLoad: true, isHide: true, isDestroy: false }
+    this.mcWidth = this.props.subView === true ? 1170 : 1220
+    if ($(window).width() < 1280) this.mcWidth -= 100
+  }
+  render() {
+    return (this.state.isDestroy === true ? null :
+      <div className="modal-warpper">
+        <div className="modal rbview" ref={(c) => this._rbview = c}>
+          <div className="modal-dialog">
+            <div className="modal-content" style={{ width: this.mcWidth + 'px' }}>
+              <div className={'modal-body iframe rb-loading ' + (this.state.inLoad === true && 'rb-loading-active')}>
+                <iframe ref={(c) => this._iframe = c} className={this.state.isHide ? 'invisible' : ''} src={this.state.showAfterUrl || 'about:blank'} frameBorder="0" scrolling="no"></iframe>
+                <RbSpinner />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  componentDidMount() {
+    let root = $(this._rbview)
+    const rootWarp = root.parent().parent()
+    let mc = root.find('.modal-content')
+    let that = this
+    root.on('hidden.bs.modal', function () {
+      mc.css({ 'margin-right': -1500 })
+      that.setState({ inLoad: true, isHide: true })
+
+      // 如果还有其他 rbview 处于 open 态， 则保持 modal-open
+      if ($('.rbview.show').length > 0) {
+        $(document.body).addClass('modal-open').css({ 'padding-right': 17 })
+      } else {
+        location.hash = '!/View/'
+      }
+      // subView always dispose
+      if (that.state.disposeOnHide === true) {
+        root.modal('dispose')
+        that.setState({ isDestroy: true }, function () {
+          rb.__subViewModals[that.state.id] = null
+          $unmount(rootWarp)
+          // 刷新主实体窗口
+          // 打开的子View窗口数据发生了变化（如删除/更新）
+          if (rb.subViewChanged && rb.__currentViewModal) {
+            rb.__currentViewModal._iframe.contentWindow.RbViewPage.reload()
+            rb.subViewChanged = false
+          }
+        })
+      }
+
+    }).on('shown.bs.modal', function () {
+      mc.css('margin-right', 0)
+      if (that.__urlChanged === false) {
+        let cw = mc.find('iframe')[0].contentWindow
+        if (cw.RbViewPage && cw.RbViewPage._RbViewForm) cw.RbViewPage._RbViewForm.showAgain(that)
+        this.__urlChanged = true
+      }
+
+      let mcs = $('body>.modal-backdrop.show')
+      if (mcs.length > 1) {
+        mcs.addClass('o')
+        mcs.eq(0).removeClass('o')
+      }
+    })
+    this.show()
+  }
+  hideLoading() {
+    this.setState({ inLoad: false, isHide: false })
+  }
+  showLoading() {
+    this.setState({ inLoad: true, isHide: true })
+  }
+  show(url, ext) {
+    let urlChanged = true
+    if (url && url === this.state.url) urlChanged = false
+    ext = ext || {}
+    url = url || this.state.url
+    this.__urlChanged = urlChanged
+    this.setState({ ...ext, url: url, inLoad: urlChanged, isHide: urlChanged }, () => {
+      $(this._rbview).modal({ show: true, backdrop: true, keyboard: false })
+      setTimeout(() => {
+        this.setState({ showAfterUrl: this.state.url })
+      }, VIEW_LOAD_DELAY)
+    })
+  }
+  hide() {
+    let root = $(this._rbview)
+    root.modal('hide')
+  }
+}
+
+rb.subViewChanged = false
+// 主View
+rb.__currentViewModal
+// 子View（允许多个，ID为Key）
+rb.__subViewModals = {}
+// @props - { id, entity }
+// @subView - 是否子 View
+rb.RbViewModal = function (props, subView) {
+  const viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
+  if (subView === true) {
+    rb.RbViewModalHide(props.id)
+    let m = renderRbcomp(<RbViewModal url={viewUrl} disposeOnHide={true} id={props.id} subView={true} />)
+    rb.__subViewModals[props.id] = m
+    return m
+  }
+
+  if (rb.__currentViewModal) rb.__currentViewModal.show(viewUrl)
+  else rb.__currentViewModal = renderRbcomp(<RbViewModal url={viewUrl} />)
+  rb.__subViewModals[props.id] = rb.__currentViewModal
+  return rb.__currentViewModal
+}
+
+rb.RbViewModalGet = function (id) {
+  return rb.__subViewModals[id]
+}
+rb.RbViewModalHide = function (id) {
+  if (!id) {
+    if (rb.__currentViewModal) rb.__currentViewModal.hide()
+  } else {
+    let c = rb.__subViewModals[id]
+    if (c) {
+      c.hide()
+      rb.__subViewModals[id] = null
+    }
+  }
+}
+
+$(window).on('load', () => {
+  // 自动打开 View
+  let viewHash = location.hash
+  if (viewHash && viewHash.startsWith('#!/View/') && (wpc.type === 'RecordList' || wpc.type === 'SlaveList')) {
+    viewHash = viewHash.split('/')
+    if (viewHash.length === 4 && viewHash[3].length === 20) {
+      setTimeout(() => {
+        rb.RbViewModal({ entity: viewHash[2], id: viewHash[3] })
+      }, 500)
+    }
+  }
 })

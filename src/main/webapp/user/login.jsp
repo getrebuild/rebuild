@@ -28,11 +28,11 @@
 							<input class="form-control" id="passwd" type="password" placeholder="登录密码">
 						</div>
 						<div class="form-group row pt-0 hide vcode-row" data-state="${sessionScope.needLoginVCode}">
-							<div class="col-6">
+							<div class="col-6 pr-0">
 								<input class="form-control" type="text" placeholder="输入右侧验证码">
 							</div>
-							<div class="col-6 text-right pl-0">
-								<img style="" alt="验证码" title="点击刷新">
+							<div class="col-6 text-right pl-0 pr-0">
+								<img style="max-width:100%;margin-right:-15px" alt="验证码" title="点击刷新">
 							</div>
 						</div>
 						<div class="form-group row login-tools">
@@ -66,6 +66,8 @@
 <script type="text/babel">
 $(document).ready(function() {
 	if (top != self) { parent.location.reload(); return }
+	if ($urlp('t') == 99) rb.highbar('注册申请已提交，请等待管理员审核', 'success', { timeout: 999999 })
+
 	$('.vcode-row img').click(function(){
 		$(this).attr('src', rb.baseUrl + '/user/captcha?' + $random())
 	})

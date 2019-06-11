@@ -20,10 +20,14 @@ package com.rebuild.server.service.bizz;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.BlackList;
+import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.SystemEntityService;
+import com.rebuild.server.service.notification.Message;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 
 import cn.devezhao.bizz.security.member.User;
@@ -94,8 +98,6 @@ public class UserService extends SystemEntityService {
 		if (record.getPrimary() == null && !record.hasValue("fullName")) {
 			record.setString("fullName", record.getString("loginName").toUpperCase());
 		}
-		
-		setQuickCodeValue(record);
 	}
 	
 	/**
@@ -129,16 +131,58 @@ public class UserService extends SystemEntityService {
 	 * 
 	 * @param user
 	 * @param deptNew
+	 * @see #updateEnableUser(ID, ID, ID, Boolean)
 	 */
 	public void updateDepartment(ID user, ID deptNew) {
+		updateEnableUser(user, deptNew, null, null);
+	}
+	
+	/**
+	 * 改变角色
+	 * 
+	 * @param user
+	 * @param roleNew
+	 * @see #updateEnableUser(ID, ID, ID, Boolean)
+	 */
+	public void updateRole(ID user, ID roleNew) {
+		updateEnableUser(user, null, roleNew, null);
+	}
+
+	/**
+	 * 入参值为 null 表示不做修改
+	 * 
+	 * @param user
+	 * @param deptNew
+	 * @param roleNew
+	 * @param enableNew
+	 */
+	public void updateEnableUser(ID user, ID deptNew, ID roleNew, Boolean enableNew) {
 		User u = Application.getUserStore().getUser(user);
-		final ID deptOld = u.getOwningBizUnit() == null ? null : (ID) u.getOwningBizUnit().getIdentity();
-		if (deptNew.equals(deptOld)) {
-			return;
+		ID deptOld = null;
+		// 检查是否需要更新部门
+		if (deptNew != null) {
+			deptOld = u.getOwningBizUnit() == null ? null : (ID) u.getOwningBizUnit().getIdentity();
+			if (deptNew.equals(deptOld)) {
+				deptNew = null;
+				deptOld = null;
+			}
+		}
+		
+		// 检查是否需要更新角色
+		if (u.getOwningRole() != null && u.getOwningRole().getIdentity().equals(roleNew)) {
+			roleNew = null;
 		}
 		
 		Record record = EntityHelper.forUpdate(user, Application.getCurrentUser());
-		record.setID("deptId", deptNew);
+		if (deptNew != null) {
+			record.setID("deptId", deptNew);
+		}
+		if (roleNew != null) {
+			record.setID("roleId", roleNew);
+		}
+		if (enableNew != null) {
+			record.setBoolean("isDisabled", !enableNew);
+		}
 		super.update(record);
 		Application.getUserStore().refreshUser(user);
 		
@@ -146,5 +190,25 @@ public class UserService extends SystemEntityService {
 		if (deptOld != null) {
 			TaskExecutors.submit(new ChangeOwningDeptTask(user, deptNew));
 		}
+	}
+	
+	/**
+	 * 用户注册
+	 * 
+	 * @param record
+	 */
+	public void txSignUp(Record record) {
+		if (!SysConfiguration.getBool(ConfigurableItem.OpenSignUp)) {
+			throw new DataSpecificationException("管理员未开放公开注册");
+		}
+		
+		record = this.create(record);
+		
+		String content = String.format(
+				"用户 @%s 提交了注册申请。请验证用户有效性后为其启用并指定部门和角色，以便用户登录使用。如果这是一个无效的注册申请请忽略。"
+				+ "[点击此处](%s/admin/bizuser/users#!/View/User/%s) 开始激活。",
+				record.getPrimary(), AppUtils.getContextPath(), record.getPrimary());
+		Message message = new Message(ADMIN_USER, content, record.getPrimary());
+		Application.getNotifications().send(message);
 	}
 }

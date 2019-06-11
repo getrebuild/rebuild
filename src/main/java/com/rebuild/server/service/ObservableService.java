@@ -24,8 +24,10 @@ import java.util.Observable;
 import org.springframework.util.Assert;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.metadata.EntityHelper;
 
+import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
@@ -40,14 +42,17 @@ import cn.devezhao.persist4j.engine.ID;
  * @see OperatingObserver
  */
 public abstract class ObservableService extends Observable implements EntityService {
-
+	
+	// 删除前触发的动作
+	protected static final Permission DELETE_BEFORE = new BizzPermission("DELETE_BEFORE", 0, false);
+	
 	final protected ServiceSpec delegate;
 	
 	/**
 	 * @param aPMFactory
 	 */
 	public ObservableService(PersistManagerFactory aPMFactory) {
-		this.delegate = new BaseService(aPMFactory);
+		this.delegate = new SystemEntityService(aPMFactory);
 	}
 	
 	@Override
@@ -68,7 +73,7 @@ public abstract class ObservableService extends Observable implements EntityServ
 
 	@Override
 	public Record update(Record record) {
-		Record before = countObservers() > 0 ? getBeforeRecord(record) : null;
+		final Record before = countObservers() > 0 ? record(record) : null;
 		
 		record = delegate.update(record);
 		
@@ -84,7 +89,11 @@ public abstract class ObservableService extends Observable implements EntityServ
 		Record deleted = null;
 		if (countObservers() > 0) {
 			deleted = EntityHelper.forUpdate(recordId, Application.getCurrentUser());
-			deleted = getBeforeRecord(deleted);
+			deleted = record(deleted);
+			
+			// 删除前触发，做一些状态保持
+			setChanged();
+			notifyObservers(OperatingContext.create(Application.getCurrentUser(), DELETE_BEFORE, deleted, null));
 		}
 		
 		int affected = delegate.delete(recordId);
@@ -97,24 +106,34 @@ public abstract class ObservableService extends Observable implements EntityServ
 	}
 	
 	/**
-	 * 操作前获取记录
+	 * 用于操作前获取原记录
 	 * 
-	 * @param reflection
+	 * @param example
 	 * @return
 	 */
-	protected Record getBeforeRecord(Record reflection) {
-		ID primary = reflection.getPrimary();
+	protected Record record(Record example) {
+		ID primary = example.getPrimary();
 		Assert.notNull(primary, "Record primary not be bull");
 		
 		StringBuffer sql = new StringBuffer("select ");
-		for (Iterator<String> iter = reflection.getAvailableFieldIterator(); iter.hasNext(); ) {
+		for (Iterator<String> iter = example.getAvailableFieldIterator(); iter.hasNext(); ) {
 			sql.append(iter.next()).append(',');
 		}
 		sql.deleteCharAt(sql.length() - 1);
-		sql.append(" from ").append(reflection.getEntity().getName());
-		sql.append(" where ").append(reflection.getEntity().getPrimaryField().getName()).append(" = ?");
+		sql.append(" from ").append(example.getEntity().getName());
+		sql.append(" where ").append(example.getEntity().getPrimaryField().getName()).append(" = ?");
 		
-		Record before = Application.createQueryNoFilter(sql.toString()).setParameter(1, primary).record();
-		return before;
+		Record current = Application.createQueryNoFilter(sql.toString()).setParameter(1, primary).record();
+		if (current == null) {
+			throw new NoRecordFoundException("ID: " + primary);
+		}
+		return current;
+	}
+	
+	/**
+	 * @return
+	 */
+	protected ServiceSpec delegate() {
+		return delegate;
 	}
 }

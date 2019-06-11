@@ -1,3 +1,4 @@
+const wpc = window.__PageConfig || {}
 /* eslint-disable react/prop-types */
 //~~ 视图
 class RbViewForm extends React.Component {
@@ -38,10 +39,11 @@ class RbViewForm extends React.Component {
   }
 
   hideLoading() {
-    if (parent && parent.rb.RbViewModalGet(this.state.id)) parent.rb.RbViewModalGet(this.state.id).hideLoading()
+    if (__parentRbViewModalGet(this.state.id)) __parentRbViewModalGet(this.state.id).hideLoading()
     $(this._viewForm).find('.type-NTEXT .form-control-plaintext').perfectScrollbar()
   }
 
+  // 脏数据检查
   showAgain(handle) {
     this.checkDrityData(handle)
   }
@@ -71,8 +73,9 @@ const detectViewElement = function (item) {
 
 const UserShow = function (props) {
   let viewUrl = props.id ? ('#!/View/User/' + props.id) : null
+  let avatarUrl = rb.baseUrl + '/account/user-avatar/' + props.id
   return (<a href={viewUrl} className="user-show" title={props.name} onClick={props.onClick}>
-    <div className={'avatar' + (props.showName === true ? ' float-left' : '')}>{props.icon ? <i className={props.icon} /> : <img src={props.avatarUrl} />}</div>
+    <div className={'avatar' + (props.showName === true ? ' float-left' : '')}>{props.icon ? <i className={props.icon} /> : <img src={avatarUrl} />}</div>
     {props.showName === true ? <div className="name text-truncate">{props.name}{props.deptName ? <em>{props.deptName}</em> : null}</div> : null}
   </a>)
 }
@@ -96,21 +99,16 @@ const RbViewPage = {
       let deleteAfter = function () {
         that.hide(true)
       }
-      renderRbcomp(<DeleteConfirm id={this.__id} entity={entity[0]} deleteAfter={deleteAfter} />)
+      const needEntity = (wpc.type === 'SlaveList' || wpc.type === 'SlaveView') ? null : entity[0]
+      renderRbcomp(<DeleteConfirm id={this.__id} entity={needEntity} deleteAfter={deleteAfter} />)
     })
-    $('.J_edit').click(() => {
-      rb.RbFormModal({ id: id, title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] })
-    })
-    $('.J_assign').click(() => {
-      rb.DlgAssign({ entity: entity[0], ids: [id] })
-    })
-    $('.J_share').click(() => {
-      rb.DlgShare({ entity: entity[0], ids: [id] })
-    })
+    $('.J_edit').click(() => { rb.RbFormModal({ id: id, title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] }) })
+    $('.J_assign').click(() => { rb.DlgAssign({ entity: entity[0], ids: [id] }) })
+    $('.J_share').click(() => { rb.DlgShare({ entity: entity[0], ids: [id] }) })
     $('.J_add-slave').click(function () {
       let iv = { '$MASTER$': id }
-      let _this = $(this)
-      rb.RbFormModal({ title: '添加明细', entity: _this.data('entity'), icon: _this.data('icon'), initialValue: iv })
+      let $this = $(this)
+      rb.RbFormModal({ title: '添加明细', entity: $this.data('entity'), icon: $this.data('icon'), initialValue: iv })
     })
 
     // Privileges
@@ -127,21 +125,25 @@ const RbViewPage = {
     $('.J_reload').click(() => { this.reload() })
   },
 
+  // 记录元数据
   initRecordMeta() {
     $.get(`${rb.baseUrl}/app/entity/record-meta?id=${this.__id}`, (res) => {
-      if (res.error_code !== 0) return
+      if (res.error_code !== 0) {
+        $('.view-operating').empty()
+        return
+      }
       for (let k in res.data) {
         let v = res.data[k]
         if (!v || v === undefined) return
         if (k === 'owningUser') {
-          renderRbcomp(<UserShow id={v[0]} name={v[1]} avatarUrl={v[2]} showName={true} deptName2={v[3]} onClick={() => { this.clickViewUser(v[0]) }} />, $('.J_owningUser')[0])
+          renderRbcomp(<UserShow id={v[0]} name={v[1]} showName={true} deptName2={v[2]} onClick={() => { this.clickViewUser(v[0]) }} />, $('.J_owningUser')[0])
         } else if (k === 'sharingList') {
           let list = $('<ul class="list-unstyled list-inline mb-0"></ul>').appendTo('.J_sharingList')
           let _this = this
           $(v).each(function () {
             let $v = this
             let item = $('<li class="list-inline-item"></li>').appendTo(list)
-            renderRbcomp(<UserShow id={$v[0]} name={$v[1]} avatarUrl={$v[2]} onClick={() => { _this.clickViewUser($v[0]) }} />, item[0])
+            renderRbcomp(<UserShow id={$v[0]} name={$v[1]} onClick={() => { _this.clickViewUser($v[0]) }} />, item[0])
           })
 
           if (this.__ep && this.__ep.S === true) {
@@ -161,6 +163,7 @@ const RbViewPage = {
     })
   },
 
+  // 相关项
   initVTabs(config) {
     let that = this
     let rs = []
@@ -205,6 +208,7 @@ const RbViewPage = {
     this.updateVTabs()
   },
 
+  // 更新相关项记录数量
   updateVTabs(es) {
     es = es || this.__vtab_es
     if (!es || es.length === 0) return
@@ -219,6 +223,7 @@ const RbViewPage = {
     })
   },
 
+  // 加载相关项
   renderRelatedGrid(el, related, page) {
     page = page || 1
     let psize = 20
@@ -236,6 +241,7 @@ const RbViewPage = {
     })
   },
 
+  // 新建相关
   initVAdds(config) {
     let that = this
     $(config).each(function () {
@@ -252,12 +258,18 @@ const RbViewPage = {
   },
 
   clickView(el) {
-    let viewUrl = $(el).attr('href')
-    viewUrl = viewUrl.split('/')
-    parent.rb.RbViewModal({ entity: viewUrl[2], id: viewUrl[3] }, true)
+    if (parent && parent.rb && parent.rb.RbViewModal) {
+      let viewUrl = $(el).attr('href')
+      viewUrl = viewUrl.split('/')
+      parent.rb.RbViewModal({ entity: viewUrl[2], id: viewUrl[3] }, true)
+    }
+    return false
   },
   clickViewUser(id) {
-    parent.rb.RbViewModal({ entity: 'User', id: id }, true)
+    if (parent && parent.rb && parent.rb.RbViewModal) {
+      parent.rb.RbViewModal({ entity: 'User', id: id }, true)
+    }
+    return false
   },
 
   __cleanButton() {
@@ -273,26 +285,34 @@ const RbViewPage = {
 
   // 隐藏划出的 View
   hide(reload) {
-    if (parent && parent.rb.RbViewModalGet(this.__id)) parent.rb.RbViewModalGet(this.__id).hide()
+    if (__parentRbViewModalGet(this.__id)) __parentRbViewModalGet(this.__id).hide()
     if (reload === true) {
       if (parent.RbListPage) parent.RbListPage._RbList.reload()
-      else setTimeout(function () { parent.location.reload() }, 1000)
+      else setTimeout(function () { parent.location.reload() }, 200)
     }
   },
 
   // 重新加載
   reload() {
-    if (parent && parent.rb.RbViewModalGet(this.__id)) parent.rb.RbViewModalGet(this.__id).showLoading()
+    if (__parentRbViewModalGet(this.__id)) {
+      __parentRbViewModalGet(this.__id).showLoading()
+      parent.rb.subViewChanged = true
+    }
     setTimeout(() => { location.reload() }, 20)
   }
 }
 
+const __parentRbViewModalGet = function (id) {
+  if (parent && parent.rb && parent.rb.RbViewModalGet) return parent.rb.RbViewModalGet(id) || null
+  return null
+}
+
 // Init
 $(document).ready(function () {
-  let wpc = window.__PageConfig
-  if (!wpc) return
-  RbViewPage.init(wpc.recordId, wpc.entity, wpc.privileges)
-  RbViewPage.initRecordMeta()
-  if (wpc.viewTabs) RbViewPage.initVTabs(wpc.viewTabs)
-  if (wpc.viewAdds) RbViewPage.initVAdds(wpc.viewAdds)
+  if (wpc.entity) {
+    RbViewPage.init(wpc.recordId, wpc.entity, wpc.privileges)
+    RbViewPage.initRecordMeta()
+    if (wpc.viewTabs) RbViewPage.initVTabs(wpc.viewTabs)
+    if (wpc.viewAdds) RbViewPage.initVAdds(wpc.viewAdds)
+  }
 })

@@ -179,6 +179,11 @@ public class SysConfiguration {
 	 * @return
 	 */
 	public static String get(ConfigurableItem name, boolean reload) {
+		if (!Application.serversReady()) {
+			Object v = name.getDefaultValue();
+			return v == null ? null : v.toString();
+		}
+		
 		final String key = name.name();
 		String s = Application.getCommonCache().get(key);
 		if (s != null && !reload) {
@@ -226,28 +231,20 @@ public class SysConfiguration {
 	
 	/**
 	 * @param name
-	 * @param defaultValue
 	 * @return
 	 */
-	public static long getLong(ConfigurableItem name, Long defaultValue) {
+	public static long getLong(ConfigurableItem name) {
 		String s = get(name, false);
-		if (s == null) {
-			return defaultValue != null ? defaultValue : (Long) name.getDefaultValue();
-		}
-		return NumberUtils.toLong(s);
+		return s == null ? (Long) name.getDefaultValue() : NumberUtils.toLong(s);
 	}
 	
 	/**
 	 * @param name
-	 * @param defaultValue
 	 * @return
 	 */
-	public static boolean getBool(ConfigurableItem name, Boolean defaultValue) {
+	public static boolean getBool(ConfigurableItem name) {
 		String s = get(name, false);
-		if (s == null) {
-			return defaultValue != null ? defaultValue : (Boolean) name.getDefaultValue();
-		}
-		return BooleanUtils.toBoolean(s);
+		return s == null ? (Boolean) name.getDefaultValue() : BooleanUtils.toBoolean(s);
 	}
 	
 	/**

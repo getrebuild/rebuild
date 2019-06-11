@@ -1,17 +1,16 @@
-.dev-show {
+.dev-show,
+.admin-show,
+.bosskey-show {
     display: none;
 }
 
-html.dev .dev-show {
-    display: block;
-}
-
-.admin-show {
-    display: none;
-}
-
+html.dev .dev-show,
 html.admin .admin-show {
     display: block;
+}
+
+html.admin .admin-show.row {
+    display: flex;
 }
 
 .dropdown-menu {
@@ -77,6 +76,18 @@ html.admin .admin-show {
     -webkit-border-radius: 6px 0 6px 6px;
     -moz-border-radius: 6px 0 6px 6px;
     border-radius: 6px 0 6px 6px;
+}
+
+
+.text-disabled {
+    color: #aaa;
+    font-style: italic;
+}
+
+.text-disabled>small::after {
+    content: '[已禁用]';
+    font-size: 12px;
+    margin-left: 4px;
 }
 
 .btn {
@@ -483,6 +494,15 @@ a {
     padding-bottom: 4px !important;
 }
 
+.form-group.row.type-BOOL {
+    padding: 7px 0;
+    padding-bottom: 0;
+}
+
+.rbform .type-BOOL .mt-1 {
+    margin-top: .46rem !important;
+}
+
 .rbform .select2-container--default .select2-selection--multiple .select2-selection__clear {
     margin-right: 20px;
 }
@@ -658,15 +678,27 @@ a {
     padding-top: 12px;
 }
 
-.col-form-label em {
+.col-form-label>i.req {
     background-color: #ea4335;
     width: 3px;
-    height: 14px;
+    height: 12px;
     display: inline-block;
     position: absolute;
-    margin-top: -1px;
-    right: 5px;
+    margin-left: 4px;
+}
+
+.col-form-label>i.zmdi {
+    position: absolute;
+    font-size: 15px;
+    color: #999;
     cursor: help;
+    margin-left: 10px;
+    margin-top: -1px;
+    z-index: 99;
+}
+
+.col-form-label>i.zmdi:hover {
+    color: #222;
 }
 
 .form-text {
@@ -676,11 +708,23 @@ a {
 
 .rbhighbar {
     position: fixed;
-    min-width: 360px;
+    min-width: 420px;
     top: 0;
     left: 50%;
-    margin-left: -180px;
+    margin-left: -210px;
     z-index: 1051;
+}
+
+.rbhighbar.faster {
+    -webkit-animation-duration: 200ms;
+    animation-duration: 200ms
+}
+
+@media (max-width:440px) {
+    .rbhighbar {
+        min-width: 320px;
+        margin-left: -160px;
+    }
 }
 
 .rbhighbar a {
@@ -915,6 +959,11 @@ i.split.ui-draggable-dragging {
 
 .column-empty {
     padding: 8px !important;
+}
+
+.column-nopriv {
+    color: #999;
+    cursor: help;
 }
 
 .text-3dot {
@@ -1212,6 +1261,15 @@ i.split.ui-draggable-dragging {
     display: block;
     padding: 7px 7px;
     cursor: pointer;
+    color: #444;
+}
+
+.dept-tree li>a.text-disabled {
+    color: #aaa;
+}
+
+.dept-tree li>a.text-disabled>small::after {
+    content: '[已停用]';
 }
 
 .dept-tree>ul>li>a {
@@ -1428,6 +1486,19 @@ i.split.ui-draggable-dragging {
 }
 */
 
+.adv-filter .equation-state {
+    position: relative;
+}
+
+.adv-filter .equation-state .zmdi {
+    position: absolute;
+    right: 0;
+    top: 0;
+    margin-top: 10px;
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
 div.dataTables_wrapper div.paging_sizes {
     padding-top: 2px;
     padding-left: 9px;
@@ -1460,6 +1531,10 @@ div.dataTables_wrapper div.paging_sizes select {
     cursor: help;
     float: right;
     margin-left: .384615rem;
+}
+
+.col-form-label .zicon.zmdi-help {
+    margin-top: -0.08rem;
 }
 
 form.dropzone {
@@ -1604,4 +1679,182 @@ form {
 
 .ui-mprogress .mp-ui-dashed {
     z-index: 1090;
+}
+
+.rb-notifications .notification>a .notification-info .text>p,
+.card-body.rb-notifications .notification>a .text>p {
+    margin: 0;
+}
+
+.user-selector .select2-selection {
+    line-height: 1;
+}
+
+.user-selector .select2-selection .select2-selection__rendered {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.user-selector .select2-selection__choice.abtn {
+    padding: 0 9px;
+    display: inline-block;
+    background-color: rgba(66, 133, 244, 0.1);
+    color: #4285f4;
+    position: relative;
+    padding-left: 22px;
+    height: 26px;
+    padding-top: 5px;
+    margin-bottom: 4px;
+    cursor: pointer;
+}
+
+.user-selector .select2-selection__choice.abtn .zmdi {
+    font-size: 16px;
+    position: absolute;
+    left: 9px;
+    font-weight: bold;
+}
+
+.user-selector .select2-selection__choice.abtn:hover {
+    background-color: #4285f4;
+    color: #fff;
+    cursor: pointer;
+}
+
+.user-selector .select2-selection__choice.abtn:active {
+    background-color: #2572f2;
+    box-shadow: inset 0 2px 0 #1266f1;
+}
+
+.user-selector .dropdown-wrapper {
+    position: absolute;
+    background-color: #f2f2f2;
+    z-index: 91;
+    width: 260px;
+    border-radius: 0;
+    -webkit-box-shadow: 0 2px 6px rgba(0, 0, 0, .12);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .12);
+    display: block;
+}
+
+.user-selector .selector-search {
+    padding: 10px;
+}
+
+.user-selector .selector-search .form-control {
+    padding: 7px 8px;
+    height: auto;
+    font-size: 1rem;
+}
+
+.user-selector .tab-container .nav-tabs {
+    margin: 0 10px;
+}
+
+.user-selector .nav-tabs>li.nav-item a.nav-link {
+    padding: 4px 8px;
+    font-size: 12px;
+    min-width: 50px;
+}
+
+.user-selector .tab-content {
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+}
+
+.user-selector .rb-scroller {
+    max-height: 222px;
+}
+
+.user-selector .select2-results__option+.select2-results__option {
+    border-top: 1px solid #f2f2f2;
+}
+
+.user-selector .select2-results__option:hover {
+    background-color: #4285f4;
+    color: #fff;
+    cursor: pointer;
+}
+
+.user-selector .select2-results__option.un-hover {
+    background-color: #fff !important;
+    color: #444;
+    cursor: default;
+}
+
+.user-selector .select2-results__option .zmdi {
+    font-size: 14px;
+    float: right;
+    margin-top: 2px;
+    font-weight: bold;
+}
+
+.card-list {
+    margin: 4px -10px;
+}
+
+.card-list>div {
+    padding-left: 10px;
+    padding-right: 10px
+}
+
+.card-list .card {
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.card-list .card-body {
+    padding: 9px 15px;
+}
+
+.card-list .card-body>a {
+    display: inline-block;
+    overflow: hidden;
+    padding-top: 3px;
+}
+
+.card-list .card-body>p {
+    line-height: 1.2;
+    margin: 0;
+    font-size: 12px;
+}
+
+.card-list .card-footer {
+    padding: 6px 15px;
+}
+
+.card-list .card-footer a {
+    color: #999;
+    font-size: 1.1rem;
+    display: inline-block;
+    padding: 1px 4px;
+    margin-right: 4px;
+}
+
+.card-list .card-footer a:hover {
+    color: #666;
+}
+
+.card-list .card-footer .float-right {
+    padding-top: 3px;
+}
+
+.card.ph {
+    width: 25%;
+    padding: 0;
+    margin-top: 4px;
+}
+
+.card.ph>.card-body {
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.card.ph>.card-body>.ph-item {
+    padding: 20px 10px;
+    padding-bottom: 5px;
+    margin: 0;
+    border: 0 none;
 }

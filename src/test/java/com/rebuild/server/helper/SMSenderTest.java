@@ -27,9 +27,10 @@ import com.rebuild.server.TestSupport;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/08
  */
-@Ignore
+
 public class SMSenderTest extends TestSupport {
 
+	@Ignore
 	@Test
 	public void testSendSMS() throws Exception {
 		SMSender.sendSMS("17187472172", "SMSenderTest#testSendSMS");

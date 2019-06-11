@@ -36,9 +36,7 @@ class RbModal extends React.Component {
     root.modal('hide')
     if (this.props.disposeOnHide === true) {
       root.modal('dispose')
-      let container = root.parent()
-      ReactDOM.unmountComponentAtNode(container[0])
-      setTimeout(() => { container.remove() }, 200)
+      $unmount(root.parent())
     }
     typeof this.props.onHide === 'function' && this.props.onHide(this)
   }
@@ -87,13 +85,22 @@ class RbFormHandler extends RbModalHandler {
     super(props)
     this.handleChange = this.handleChange.bind(this)
   }
-  handleChange(e) {
+  handleChange(e, call) {
     let target = e.target
     let id = target.dataset.id
     let val = target.type === 'checkbox' ? target.checked : target.value
     let s = {}
     s[id] = val
-    this.setState(s)
+    this.setState(s, call)
+  }
+  componentWillUnmount() {
+    // Auto destroy select2
+    let ss = this.__select2
+    if (ss) {
+      if ($.type(ss) === 'array') $(ss).each(function () { this.select2('destroy') })
+      else ss.select2('destroy')
+      this.__select2 = null
+    }
   }
 }
 
@@ -111,6 +118,7 @@ class RbAlert extends React.Component {
       <div className="mt-3" style={{ lineHeight: 1.8 }} dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} />
       : <p>{this.props.message || '提示内容'}</p>
 
+    let cancel = (this.props.cancel || this.hide).bind(this)
     let confirm = (this.props.confirm || this.hide).bind(this)
     return (
       <div className="modal rbalert" ref={(c) => this._dlg = c} tabIndex={this.state.tabIndex || -1}>
@@ -127,7 +135,7 @@ class RbAlert extends React.Component {
                 {this.props.title && <h4 className="mb-2 mt-3">{this.props.title}</h4>}
                 <div className={this.props.title ? '' : 'mt-3'}>{content}</div>
                 <div className="mt-4 mb-3">
-                  <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={() => this.hide()}>取消</button>
+                  <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={cancel}>{this.props.cancelText || '取消'}</button>
                   <button disabled={this.state.disable} className={'btn btn-space btn-' + type} type="button" onClick={confirm}>{this.props.confirmText || '确定'}</button>
                 </div>
               </div>
@@ -143,10 +151,8 @@ class RbAlert extends React.Component {
   hide() {
     let root = $(this._dlg)
     root.modal('hide')
-    setTimeout(function () {
-      root.modal('dispose')
-      root.parent().remove()
-    }, 1000)
+    root.modal('dispose')
+    $unmount(root.parent())
   }
   disabled(d) {
     d = d === true
@@ -179,14 +185,12 @@ class RbHighbar extends React.Component {
   }
   close() {
     this.setState({ animatedClass: 'fadeOut' }, () => {
-      setTimeout(() => {
-        $(this._rbhighbar).parent().remove()
-      }, 1000)
+      $unmount($(this._rbhighbar).parent())
     })
   }
 }
 
-// ~~ 加载条
+// ~~ 加载界面
 function RbSpinner(props) {
   let spinner = <div className="rb-spinner">
     <svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
@@ -197,7 +201,7 @@ function RbSpinner(props) {
   return spinner
 }
 
-// ~~ 提示条
+// ~~ 提示条幅
 function RbAlertBox(props) {
   let icon = props.type === 'success' ? 'check' : 'info-outline'
   if (props.type === 'danger') icon = 'close-circle-o'
@@ -278,7 +282,7 @@ rb.alert = (message, titleExt, ext) => {
     ext = titleExt
   }
   ext = ext || {}
-  let props = { title: title, type: ext.type, confirmText: ext.confirmText, confirm: ext.confirm, showIcon: ext.showIcon }
+  let props = { ...ext, title: title }
   if (ext.html === true) props.htmlMessage = message
   else props.message = message
   return renderRbcomp(<RbAlert {...props} />)
@@ -297,8 +301,146 @@ rb.highbar = (message, type, ext) => {
   else return renderRbcomp(<RbHighbar message={message} type={type} timeout={ext.timeout} />)
 }
 rb.hberror = (message) => {
-  rb.highbar(message || '系统繁忙，请稍后重试', 'danger', { timeout: 6000 })
+  rb.highbar(message || '系统繁忙，请稍后重试', 'danger', { timeout: 5000 })
 }
 rb.hbsuccess = (message) => {
   rb.highbar(message || '操作成功', 'success')
+}
+
+// ~ 用户选择器
+class UserSelector extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { dropdownOpen: false, selected: props.selected || [] }
+
+    this.cached = {}
+    this.tabTypes = []
+    if (props.hideUser !== true) this.tabTypes.push(['User', '用户'])
+    if (props.hideDepartment !== true) this.tabTypes.push(['Department', '部门'])
+    if (props.hideRole !== true) this.tabTypes.push(['Role', '角色'])
+  }
+  render() {
+    let noResult = null
+    if (!this.state.items) noResult = noResult = <li className="select2-results__option un-hover text-muted">搜索中...</li>
+    else if (this.state.items.length === 0) noResult = <li className="select2-results__option un-hover">未找到结果</li>
+
+    return <div className="user-selector">
+      <span className="select2 select2-container select2-container--default select2-container--below">
+        <span className="selection">
+          <span className="select2-selection select2-selection--multiple">
+            <ul className="select2-selection__rendered">
+              {this.state.selected.length > 0 && <span className="select2-selection__clear" onClick={this.clearSelection}>×</span>}
+              {(this.state.selected).map((item) => {
+                return (<li key={'s-' + item.id} className="select2-selection__choice"><span className="select2-selection__choice__remove" data-id={item.id} onClick={(e) => this.removeItem(e)}>×</span>{item.text}</li>)
+              })}
+              <li className="select2-selection__choice abtn" onClick={this.openDropdown}><a><i className="zmdi zmdi-plus"></i> 添加</a></li>
+            </ul>
+          </span>
+        </span>
+        <span className={'dropdown-wrapper ' + (this.state.dropdownOpen === false && 'hide')} onClick={(e) => { this.stopClickEvent(e); return false }}>
+          <div className="selector-search">
+            <div>
+              <input type="search" className="form-control" placeholder="输入关键词搜索" value={this.state.query || ''} onChange={(e) => this.searchItems(e)} />
+            </div>
+          </div>
+          <div className="tab-container">
+            <ul className="nav nav-tabs nav-tabs-classic">
+              {this.tabTypes.map((item) => {
+                return <li className="nav-item" key={'t-' + item[0]}><a onClick={() => this.switchTab(item[0])} className={'nav-link' + (this.state.tabType === item[0] ? ' active' : '')}>{item[1]}</a></li>
+              })}
+            </ul>
+            <div className="tab-content">
+              <div className="tab-pane active">
+                <div className="rb-scroller" ref={(c) => this._scroller = c}>
+                  <ul className="select2-results__options">
+                    {noResult ? noResult : this.state.items.map((item) => {
+                      return (<li key={'o-' + item.id} className="select2-results__option" data-id={item.id} onClick={(e) => this.clickItem(e)}><span className={'zmdi' + (this.containsItem(item.id) ? ' zmdi-check' : '')}></span>{item.text}</li>)
+                    })}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </span>
+      </span>
+    </div >
+  }
+  componentDidMount() {
+    document.body.addEventListener('click', e => {
+      this.__dropdownCloseWait = setTimeout(() => {
+        this.setState({ dropdownOpen: false })
+      }, 100)
+    })
+    $(this._scroller).perfectScrollbar()
+  }
+
+  clearSelection = () => {
+    this.setState({ selected: [] })
+  }
+  openDropdown = (e) => {
+    this.setState({ dropdownOpen: true }, () => {
+      $(this._searchInput).focus()
+      if (!this.state.tabType) this.switchTab('User')
+    })
+    if (this.__dropdownCloseWait) clearTimeout(this.__dropdownCloseWait)
+  }
+  stopClickEvent = (e) => {
+    if (this.__dropdownCloseWait) clearTimeout(this.__dropdownCloseWait)
+  }
+
+  switchTab(type) {
+    type = type || this.state.tabType
+    const cacheKey = type + '-' + this.state.query
+    this.setState({ tabType: type, items: this.cached[cacheKey] }, () => {
+      if (!this.cached[cacheKey]) {
+        $.get(`${rb.baseUrl}/commons/search/users?type=${type}&q=${$encode(this.state.query)}`, (res) => {
+          this.cached[cacheKey] = res.data
+          this.switchTab(type)
+        })
+      }
+      $(this._scroller).perfectScrollbar('update')
+    })
+  }
+  searchItems(e) {
+    this.setState({ query: e.target.value }, () => {
+      $setTimeout(() => {
+        this.switchTab()
+      }, 300, 'us-searchItems')
+    })
+  }
+
+  clickItem(e) {
+    let id = e.target.dataset.id
+    let exists = false
+    let ns = this.state.selected.filter((item) => {
+      if (item.id === id) {
+        exists = true
+        return false
+      }
+      return true
+    })
+
+    if (exists === false) {
+      ns.push({ id: id, text: $(e.target).text() })
+    }
+    this.setState({ selected: ns, dropdownOpen: this.props.closeOnSelect !== true })
+  }
+  removeItem(e) {
+    this.clickItem(e)
+  }
+  containsItem(id) {
+    let s = this.state.selected
+    for (let i = 0; i < s.length; i++) {
+      if (s[i].id === id) return true
+    }
+    return false
+  }
+
+  getSelected() {
+    let ids = []
+    this.state.selected.forEach((item) => {
+      ids.push(item.id)
+    })
+    return ids
+  }
 }

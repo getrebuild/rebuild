@@ -137,7 +137,7 @@ body {
     color: #404040;
     text-align: left;
     background-color: #eee;
-    min-width: 320px;
+    min-width: 360px;
 }
 
 [tabindex="-1"]:focus {
@@ -12521,8 +12521,7 @@ a.avatar.x48 img {
 
 .rb-notifications .rb-scroller {
     position: relative;
-    height: 222px;
-    height: 219px;
+    max-height: 219px;
 }
 
 .rb-notifications .rb-scroller>.content>ul {

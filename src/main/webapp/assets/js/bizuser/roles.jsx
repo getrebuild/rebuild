@@ -70,7 +70,7 @@ const loadRoles = function () {
     $('.dept-tree ul').empty()
     $(res.data).each(function () {
       let _id = this.id
-      let item = $('<li><a class="text-truncate" href="' + rb.baseUrl + '/admin/bizuser/role/' + _id + '">' + this.name + (this.disabled ? ' [已停用]' : '') + '</a></li>').appendTo('.dept-tree ul')
+      let item = $('<li><a class="text-truncate' + (this.disabled ? ' text-disabled' : '') + '" href="' + rb.baseUrl + '/admin/bizuser/role/' + _id + '">' + this.name + (this.disabled ? '<small></small>' : '') + '</a></li>').appendTo('.dept-tree ul')
       let action = $('<div class="action"><a class="J_edit"><i class="zmdi zmdi-edit"></i></a><a class="J_del"><i class="zmdi zmdi-delete"></i></a></div>').appendTo(item)
       if (role_id === this.id) item.addClass('active')
       if (this.id === '003-0000000000000001') action.remove()
@@ -85,7 +85,7 @@ const loadRoles = function () {
             deleteRole(_id, this)
           }
         }
-        $.get(rb.baseUrl + '/admin/bizuser/deleting-checks?id=' + _id, function (res) {
+        $.get(rb.baseUrl + '/admin/bizuser/delete-checks?id=' + _id, function (res) {
           if (res.data.hasMember === 0) {
             rb.alert('此角色可以被安全的删除', '删除角色', alertExt)
           } else {
@@ -143,8 +143,9 @@ const updatePrivileges = function () {
   })
 
   let _data = { entity: privEntity, zero: privZero }
-  $.post(rb.baseUrl + '/admin/bizuser/privileges-update?role=' + role_id, JSON.stringify(_data), () => {
-    rb.hbsuccess('保存成功')
+  $.post(rb.baseUrl + '/admin/bizuser/privileges-update?role=' + role_id, JSON.stringify(_data), (res) => {
+    if (res.error_code === 0) location.reload()
+    else rb.hberror(res.error_msg)
   })
 }
 const deleteRole = function (id, dlg) {

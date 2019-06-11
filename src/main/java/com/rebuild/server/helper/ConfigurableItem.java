@@ -27,7 +27,7 @@ package com.rebuild.server.helper;
 public enum ConfigurableItem {
 
 	// 通用
-	AppName("REBUILD"), LOGO, LOGOWhite, HomeURL, OpenSignUp(false),
+	AppName("REBUILD"), LOGO, LOGOWhite, HomeURL("https://getrebuild.com/"), OpenSignUp(false),
 	
 	// 数据目录
 	DataDirectory,
@@ -39,16 +39,16 @@ public enum ConfigurableItem {
 	CacheHost, CachePort, CacheUser, CachePassword,
 	
 	// 邮件
-	MailUser, MailPassword, MailAddr, MailName,
+	MailUser, MailPassword, MailAddr, MailName(AppName),
 	
 	// 短信
-	SmsUser, SmsPassword, SmsSign,
+	SmsUser, SmsPassword, SmsSign(AppName),
 	
-	// Build-in
-	DBVer,
+	// Database schema version
+	DBVer(0L),
 	
 	// 启用最近搜素缓存
-	TurnRecentlySearch(true)
+	EnableRecentlyUsed(true)
 	
 	;
 	
@@ -61,7 +61,15 @@ public enum ConfigurableItem {
 		this.defaultVal = defaultVal;
 	}
 	
+	/**
+	 * 默认值
+	 * 
+	 * @return
+	 */
 	public Object getDefaultValue() {
+		if (defaultVal != null && defaultVal instanceof ConfigurableItem) {
+			return ((ConfigurableItem) defaultVal).getDefaultValue();
+		}
 		return defaultVal;
 	}
 }

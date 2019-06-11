@@ -1,10 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.alibaba.fastjson.JSONObject"%>
 <%@ page import="com.alibaba.fastjson.JSONArray"%>
-<%@ page import="com.rebuild.server.portals.NavManager"%>
+<%@ page import="com.rebuild.server.configuration.portals.NavManager"%>
 <%
 final String activeNav = request.getParameter("activeNav");
-final JSONArray navArray = NavManager.getNavForPortal(request);
+final JSONArray navArray = NavManager.instance.getNavForPortal(request);
 %>
 <div class="rb-left-sidebar">
 <div class="left-sidebar-wrapper">
@@ -14,7 +14,7 @@ final JSONArray navArray = NavManager.getNavForPortal(request);
 			<div class="left-sidebar-content no-divider">
 				<ul class="sidebar-elements">
 					<li class="<%="dashboard-home".equals(activeNav) ? "active" : ""%>" id="nav_dashboard-home"><a href="${baseUrl}/dashboard/home"><i class="icon zmdi zmdi-home"></i><span>首页</span></a></li>
-					<% for (Object o : navArray) { out.print(NavManager.renderNavItem((JSONObject) o, activeNav, true)); } %>
+					<% for (Object o : navArray) { out.print(NavManager.instance.renderNavItem((JSONObject) o, activeNav, true)); } %>
 				</ul>
 			</div>
 		</div>

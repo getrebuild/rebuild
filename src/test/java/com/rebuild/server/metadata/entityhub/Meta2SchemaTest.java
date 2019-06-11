@@ -18,8 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.metadata.entityhub;
 
+import org.junit.Before;
 import org.junit.Test;
 
+import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserService;
@@ -27,11 +29,15 @@ import com.rebuild.server.service.bizz.UserService;
 import cn.devezhao.persist4j.Entity;
 
 /**
- * 
  * @author zhaofang123@gmail.com
  * @since 08/03/2018
  */
 public class Meta2SchemaTest extends TestSupport {
+	
+	@Before
+	public void setUp() {
+		Application.getSessionStore().set(UserService.ADMIN_USER);
+	}
 	
 	@Test
 	public void testCreateEntity() throws Exception {

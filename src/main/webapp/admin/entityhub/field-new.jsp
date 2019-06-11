@@ -3,7 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>新建字段</title>
+<title>添加字段</title>
 </head>
 <body class="dialog">
 <div class="main-content">
@@ -56,7 +56,7 @@
 		<div class="form-group row hide J_dt-CLASSIFICATION">
 			<label class="col-sm-3 col-form-label text-sm-right">选择分类数据</label>
 			<div class="col-sm-7">
-				<select class="form-control form-control-sm" id="dataId">
+				<select class="form-control form-control-sm" id="refClassification">
 				</select>
 			</div>
 		</div>

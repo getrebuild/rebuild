@@ -15,7 +15,7 @@
 					<div class="card-body J_step1">
 						<div class="form-group">
 							<input class="form-control" id="email" type="text" placeholder="邮箱" autocomplete="off">
-							<p class="form-text">如果你忘记或未绑定邮箱，请联系管理员重置密码</p>
+							<p class="form-text">如果你忘记或未配置邮箱，请联系管理员重置密码</p>
 						</div>
 						<div class="form-group login-submit">
 							<button class="btn btn-primary btn-xl J_forgot-btn">重置密码</button>

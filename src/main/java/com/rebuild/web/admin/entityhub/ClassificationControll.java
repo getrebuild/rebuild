@@ -23,23 +23,19 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.entityhub.ClassificationService;
-import com.rebuild.server.service.DataSpecificationException;
+import com.rebuild.server.service.configuration.ClassificationService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
-import com.rebuild.web.base.entity.GeneralEntityRecordControll;
 
-import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
@@ -55,26 +51,7 @@ public class ClassificationControll extends BasePageControll {
 	
 	@RequestMapping("classifications")
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
-		Object[][] array = Application.createQuery(
-				"select dataId,name,isDisabled,openLevel,openLevel from Classification order by name")
-				.array();
-		for (Object[] o : array) {
-			Object[] count = Application.createQueryNoFilter(
-					"select count(itemId) from ClassificationData where dataId = ?")
-					.setParameter(1, o[0])
-					.unique();
-			o[4] = count[0];
-			
-			int level = (int) o[3];
-			if (level == 0) o[3] = "一";
-			else if (level == 1) o[3] = "二";
-			else if (level == 2) o[3] = "三";
-			else if (level == 3) o[3] = "四";
-		}
-		
-		ModelAndView mv = createModelAndView("/admin/entityhub/classification/list.jsp");
-		mv.getModel().put("classifications", array);
-		return mv;
+		return createModelAndView("/admin/entityhub/classification/list.jsp");
 	}
 	
 	@RequestMapping("classification/{id}")
@@ -99,10 +76,16 @@ public class ClassificationControll extends BasePageControll {
 	@RequestMapping("classification/list")
 	public void list(HttpServletRequest request, HttpServletResponse resp) throws IOException {
 		Object[][] array = Application.createQuery(
-				"select dataId,name,description from Classification where isDisabled = 'F' order by name")
+				"select dataId,name,isDisabled,openLevel from Classification order by name")
 				.array();
-		JSON ret = JSONUtils.toJSONArray(new String[] { "dataId", "name", "description" }, array);
-		writeSuccess(resp, ret);
+		for (Object[] o : array) {
+			int level = (int) o[3];
+			if (level == 0) o[3] = "一";
+			else if (level == 1) o[3] = "二";
+			else if (level == 2) o[3] = "三";
+			else if (level == 3) o[3] = "四";
+		}
+		writeSuccess(resp, array);
 	}
 	
 	@RequestMapping("classification/info")
@@ -119,52 +102,25 @@ public class ClassificationControll extends BasePageControll {
 		writeSuccess(resp, JSONUtils.toJSONObject("name", data[0]));
 	}
 	
-	/**
-	 * @see {@link GeneralEntityRecordControll#save(HttpServletRequest, HttpServletResponse)}
-	 */
-	@RequestMapping("classification/save")
-	public void save(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		JSON formJson = ServletUtils.getRequestJson(request);
-		Record record = EntityHelper.parse((JSONObject) formJson, getRequestUser(request));
-		try {
-			record = Application.getBean(ClassificationService.class).createOrUpdate(record);
-			JSON ret = JSONUtils.toJSONObject("id", record.getPrimary());
-			writeSuccess(response, ret);
-		} catch (DataSpecificationException know) {
-			writeFailure(response, know.getLocalizedMessage());
-		}
-	}
-	
-	/**
-	 * @see {@link GeneralEntityRecordControll#delete(HttpServletRequest, HttpServletResponse)}
-	 */
-	@RequestMapping("classification/delete")
-	public void delete(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID dataId = getIdParameterNotNull(request, "id");
-		try {
-			Application.getBean(ClassificationService.class).delete(dataId);
-			writeSuccess(response);
-		} catch (DataSpecificationException know) {
-			writeFailure(response, know.getLocalizedMessage());
-		}
-	}
-	
 	@RequestMapping("classification/save-data-item")
 	public void saveDataItem(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		ID itemId = getIdParameter(request, "item_id");
 		ID dataId = getIdParameter(request, "data_id");
-		ID parent = getIdParameter(request, "parent");
 		
 		Record item = null;
 		if (itemId != null) {
 			item = EntityHelper.forUpdate(itemId, user);
 		} else if (dataId != null) {
+			ID parent = getIdParameter(request, "parent");
+			int level = getIntParameter(request, "level", 0);
+			
 			item = EntityHelper.forNew(EntityHelper.ClassificationData, user);
 			item.setID("dataId", dataId);
 			if (parent != null) {
 				item.setID("parent", parent);
 			}
+			item.setInt("level", level);
 		} else {
 			writeFailure(response, "无效参数");
 			return;
@@ -172,14 +128,25 @@ public class ClassificationControll extends BasePageControll {
 		
 		String code = getParameter(request, "code");
 		String name = getParameter(request, "name");
+		String hide = getParameter(request, "hide");
 		if (StringUtils.isNotBlank(code)) {
 			item.setString("code", code);
 		}
 		if (StringUtils.isNotBlank(name)) {
 			item.setString("name", name);
 		}
-		item = Application.getBean(ClassificationService.class).saveItem(item);
+		if (StringUtils.isNotBlank(hide)) {
+			item.setBoolean("isHide", BooleanUtils.toBooleanObject(hide));
+		}
+		item = Application.getBean(ClassificationService.class).createOrUpdateItem(item);
 		writeSuccess(response, item.getPrimary());
+	}
+	
+	@RequestMapping("classification/delete-data-item")
+	public void deleteDataItem(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID itemId = getIdParameter(request, "item_id");
+		Application.getBean(ClassificationService.class).deleteItem(itemId);
+		writeSuccess(response);
 	}
 	
 	@RequestMapping("classification/load-data-items")
@@ -190,13 +157,13 @@ public class ClassificationControll extends BasePageControll {
 		Object[][] child = null;
 		if (parent != null) {
 			child = Application.createQuery(
-					"select itemId,name,code from ClassificationData where dataId = ? and parent = ? order by code,name")
+					"select itemId,name,code,isHide from ClassificationData where dataId = ? and parent = ? order by code,name")
 					.setParameter(1, dataId)
 					.setParameter(2, parent)
 					.array();
 		} else if (dataId != null) {
 			child = Application.createQuery(
-					"select itemId,name,code from ClassificationData where dataId = ? and parent is null order by code,name")
+					"select itemId,name,code,isHide from ClassificationData where dataId = ? and parent is null order by code,name")
 					.setParameter(1, dataId)
 					.array();
 		} else {

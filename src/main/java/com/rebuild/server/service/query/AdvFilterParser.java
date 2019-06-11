@@ -110,6 +110,10 @@ public class AdvFilterParser {
 			return null;
 		}
 		
+		if (validEquation(equation) == null) {
+			throw new FilterParseException("无效高级表达式 : " + equation);
+		}
+		
 		if ("OR".equalsIgnoreCase(equation)) {
 			return "( " + StringUtils.join(indexItemSqls.values(), " or ") + " )";
 		} else if ("AND".equalsIgnoreCase(equation)) {
@@ -141,7 +145,7 @@ public class AdvFilterParser {
 				} else if (token.equals("(") || token.equals(")") || token.equals("or") || token.equals("and")) {
 					itemSqls.add(token);
 				} else {
-					LOG.warn("Ignore equation token : " + token);
+					LOG.warn("Invalid equation token : " + token);
 				}
 				
 				if (hasRP) {
@@ -184,7 +188,7 @@ public class AdvFilterParser {
 		
 		DisplayType dt = EasyMeta.getDisplayType(fieldMeta);
 		// TODO 分类字段仅能查询最后一级
-		if (dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION || hasAndFlag) {
+		if (dt == DisplayType.CLASSIFICATION || hasAndFlag) {
 			field = "&" + field;
 		}
 		
@@ -219,13 +223,24 @@ public class AdvFilterParser {
 			value = Application.getCurrentUser().toLiteral();
 		} else if ("SFB".equalsIgnoreCase(op)) {
 			Department dept = UserHelper.getDepartment(Application.getCurrentUser());
-			if (dept != null && fieldMeta.getReferenceEntities()[0].getEntityCode() == EntityHelper.User) {
-				sb.insert(sb.indexOf(" "), "." + EntityHelper.OwningDept);
+			if (dept != null) {
+				value = dept.getIdentity().toString();
+				int refe = fieldMeta.getReferenceEntity().getEntityCode();
+				if (refe == EntityHelper.User) {
+					sb.insert(sb.indexOf(" "), ".deptId");
+				} else if (refe == EntityHelper.Department) {
+					// Nothings
+				} else {
+					value = null;
+				}
 			}
 		} else if ("SFD".equalsIgnoreCase(op)) {
 			Department dept = UserHelper.getDepartment(Application.getCurrentUser());
 			if (dept != null) {
-				value = StringUtils.join(UserHelper.getAllChildrenId(dept), "|");
+				int refe = fieldMeta.getReferenceEntity().getEntityCode();
+				if (refe == EntityHelper.Department) {
+					value = StringUtils.join(UserHelper.getAllChildren(dept), "|");
+				}
 			}
 		}
 				
@@ -259,7 +274,7 @@ public class AdvFilterParser {
 			value2 = value;
 		}
 		
-		if (op.equalsIgnoreCase("IN") || op.equalsIgnoreCase("NIN")) {
+		if (op.equalsIgnoreCase("IN") || op.equalsIgnoreCase("NIN") || op.equalsIgnoreCase("SFD")) {
 			sb.append(value);
 		} else {
 			if (op.equalsIgnoreCase("LK") || op.equalsIgnoreCase("NLK")) {
@@ -297,7 +312,7 @@ public class AdvFilterParser {
 			}
 			
 			// 兼容 | 号分割
-			if (op.equalsIgnoreCase("IN") || op.equalsIgnoreCase("NIN")) {
+			if (op.equalsIgnoreCase("IN") || op.equalsIgnoreCase("NIN") || op.equalsIgnoreCase("SFD")) {
 				Set<String> inVals = new HashSet<>();
 				for (String v : value.split("\\|")) {
 					inVals.add(quoteValue(v, field.getType()));
@@ -394,7 +409,12 @@ public class AdvFilterParser {
 		// 追加名称字段和 quickCode
 		Field nameField = rootEntity.getNameField();
 		DisplayType dt = EasyMeta.getDisplayType(nameField);
-		if (dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION || dt == DisplayType.REFERENCE) {
+		
+		// 引用字段不能作为名称字段，此处的处理是因为某些系统实体有用到
+		// 请主要要保证其兼容 LIKE 条件的语法要求
+		if (dt == DisplayType.REFERENCE) {
+			fieldItems.add("&" + nameField.getName());
+		} else if (dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION) {
 			fieldItems.add("&" + nameField.getName());
 		} else if (dt == DisplayType.TEXT || dt == DisplayType.EMAIL || dt == DisplayType.URL || dt == DisplayType.PHONE || dt == DisplayType.SERIES) {
 			fieldItems.add(nameField.getName());
@@ -409,5 +429,57 @@ public class AdvFilterParser {
 			items.add(JSON.parseObject("{ op:'lk', value:'{1}', field:'" + field + "' }"));
 		}
 		return items;
+	}
+	
+	/**
+	 * 测试高级表达式
+	 * 
+	 * @param equation
+	 * @return null 表示无效
+	 */
+	public static String validEquation(final String equation) {
+		if (StringUtils.isBlank(equation)) {
+			return "OR";
+		}
+		if ("OR".contentEquals(equation) || "AND".equalsIgnoreCase(equation)) {
+			return equation;
+		}
+		
+		String clearEquation = equation.toUpperCase().replace("  ", "").trim();
+		if (clearEquation.startsWith("AND") || clearEquation.startsWith("OR") || clearEquation.endsWith("AND") || clearEquation.endsWith("OR")) {
+			return null;
+		}
+		if (clearEquation.contains("()") || clearEquation.contains("( )")) {
+			return null;
+		}
+		
+		for (String token : clearEquation.split(" ")) {
+			token = token.replace("(", "");
+			token = token.replace(")", "");
+			
+			// 数字不能大于 10
+			if (NumberUtils.isNumber(token)) {
+				if (NumberUtils.toInt(token) > 10) {
+					return null;
+				} else {
+					// 允许
+				}
+			} else if ("AND".equals(token) || "OR".equals(token) || "(".equals(token) || ")".equals(token)) {
+				// 允许
+			} else {
+				return null;
+			}
+		}
+		
+		// 去除 AND OR 0-9 及空格
+		clearEquation = clearEquation.replaceAll("[AND|OR|0-9| ]", "");
+		// 括弧成对出现
+		for (int i = 0; i < 20; i++) {
+			clearEquation = clearEquation.replace("()", "");
+			if (clearEquation.length() == 0) {
+				return equation;
+			}
+		}
+		return null;
 	}
 }

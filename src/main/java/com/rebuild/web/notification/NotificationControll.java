@@ -29,11 +29,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
-import com.rebuild.server.service.notification.MessageHelper;
+import com.rebuild.server.service.notification.Message;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 
@@ -61,16 +60,8 @@ public class NotificationControll extends BasePageControll {
 	
 	@RequestMapping("/notification/check-message")
 	public void checkMessage(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getRequestUser(request);
-		Object[] unread = Application.createQueryNoFilter(
-				"select count(messageId) from Notification where toUser = ? and unread = 'T'")
-				.setParameter(1, user)
-				.unique();
-		
-		JSON ret = JSONUtils.toJSONObject(
-				new String[] { "unread" }, 
-				new Object[] { unread[0] });
-		writeSuccess(response, ret);
+		int unread = Application.getNotifications().getUnreadMessage(getRequestUser(request));
+		writeSuccess(response, JSONUtils.toJSONObject("unread", unread));
 	}
 	
 	@RequestMapping("/notification/list")
@@ -88,27 +79,41 @@ public class NotificationControll extends BasePageControll {
 				.setParameter(1, user)
 				.setLimit(ps, pn * ps - ps)
 				.array();
-		for (int i = 0; i < array.length; i++) {
-			Object[] message = array[i];
-			message[0] = UserHelper.getShows((ID) message[0]);
-			message[1] = MessageHelper.formatHtml((String) message[1]);
-			message[2] = Moment.moment((Date) message[2]).fromNow();
-			array[i] = message;
-		}
 		
+		for (int i = 0; i < array.length; i++) {
+			Object[] msg = array[i];
+			msg[0] = new Object[] { msg[0], UserHelper.getName((ID) msg[0]) };
+			msg[1] = Message.formatHtml((String) msg[1]);
+			msg[2] = Moment.moment((Date) msg[2]).fromNow();
+			array[i] = msg;
+		}
 		writeSuccess(response, array);
 	}
 	
-	@RequestMapping("/notification/toggle-unread")
+	@RequestMapping("/notification/make-read")
 	public void toggleUnread(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		String ids = getParameter(request, "id");
-		String state = getParameter(request, "state");
+		
+		if ("ALL".equalsIgnoreCase(ids)) {
+			Object[][] unreads = Application.createQueryNoFilter(
+					"select messageId from Notification where toUser = ?")
+					.setParameter(1, user)
+					.array();
+			ids = "";
+			for (Object[] o : unreads) {
+				ids += o[0] + ",";
+			}
+		}
 		
 		for (String id : ids.split(",")) {
+			if (!ID.isId(id)) {
+				continue;
+			}
+			
 			Record record = EntityHelper.forUpdate(ID.valueOf(id), user);
-			record.setBoolean("unread", "unread".equalsIgnoreCase(state));
-			Application.getCommonService().update(record);
+			record.setBoolean("unread", false);
+			Application.getNotifications().update(record);
 		}
 		writeSuccess(response);
 	}

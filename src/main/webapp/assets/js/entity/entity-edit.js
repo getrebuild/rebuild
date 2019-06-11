@@ -59,6 +59,7 @@ $(document).ready(function () {
 
     $('#nameField').select2({
       placeholder: '选择字段',
+      allowClear: false,
       data: rs
     }).val(wpc.nameField).trigger('change')
   })

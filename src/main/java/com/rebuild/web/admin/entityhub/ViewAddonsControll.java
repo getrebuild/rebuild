@@ -32,11 +32,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
+import com.rebuild.server.configuration.ConfigEntry;
+import com.rebuild.server.configuration.portals.ViewAddonsManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.server.portals.ViewAddonsManager;
-import com.rebuild.server.service.portals.LayoutConfigService;
+import com.rebuild.server.service.configuration.LayoutConfigService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.PortalsConfiguration;
@@ -65,7 +66,7 @@ public class ViewAddonsControll extends BaseControll implements PortalsConfigura
 		String applyType = getParameter(request, "type", ViewAddonsManager.TYPE_TAB);
 		JSON config = ServletUtils.getRequestJson(request);
 		
-		ID configId = ViewAddonsManager.detectUseConfig(user, entity, applyType);
+		ID configId = ViewAddonsManager.instance.detectUseConfig(user, entity, applyType);
 		Record record = null;
 		if (configId == null) {
 			record = EntityHelper.forNew(EntityHelper.LayoutConfig, user);
@@ -88,7 +89,7 @@ public class ViewAddonsControll extends BaseControll implements PortalsConfigura
 		String applyType = getParameter(request, "type", ViewAddonsManager.TYPE_TAB);
 
 		Entity entityMeta = MetadataHelper.getEntity(entity);
-		Object[] addons = ViewAddonsManager.getLayoutConfig(null, entity, applyType);
+		ConfigEntry config = ViewAddonsManager.instance.getLayoutConfig(null, entity, applyType);
 		
 		Set<String[]> refs = new HashSet<>();
 		for (Field field : entityMeta.getReferenceToFields()) {
@@ -102,7 +103,7 @@ public class ViewAddonsControll extends BaseControll implements PortalsConfigura
 		
 		JSON ret = JSONUtils.toJSONObject(
 				new String[] { "config", "refs" },
-				new Object[] { addons == null ? null : addons[1], refs });
+				new Object[] { config == null ? null : config.getJSON("config"), refs });
 		writeSuccess(response, ret);
 	}
 }

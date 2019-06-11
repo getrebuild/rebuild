@@ -16,20 +16,13 @@
 	</jsp:include>
 	<div class="rb-content">
 		<div class="page-head">
-			<div class="float-left">
-				<nav class="mt-1">
-					<ol class="breadcrumb page-head-nav">
-						<li class="breadcrumb-item"><a href="../classifications">分类数据</a></li>
-						<li class="breadcrumb-item active">${name}</li>
-					</ol>
-				</nav>
-			</div>
-			<div class="float-right" style="margin-top:-3px">
-				<button class="btn btn-secondary J_imports pl-3 pr-3" type="button"><i class="zmdi zmdi-cloud-download"></i> 导入公共数据</button>
+			<div class="float-left"><div class="page-head-title">${name}<small class="fs-14 text-muted ml-1"> / 编辑分类数据</small></div></div>
+			<div class="float-right pt-1">
+				<button class="btn btn-secondary J_imports" type="button"><i class="zmdi zmdi-cloud-download"></i> 导入公共数据</button>
 			</div>
 			<div class="clearfix"></div>
 		</div>
-		<div class="main-content container-fluid pt-1">
+		<div class="main-content container-fluid" style="padding-top:3px">
 			<div class="card mb-0">
 				<div class="card-body rb-loading rb-loading-active" id="boxes">
 					<%@ include file="/_include/spinner.jsp"%>
@@ -40,7 +33,10 @@
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script>
-var dataId = '${dataId}', name = '${name}', openLevel = ${openLevel}
+window.__PageConfig = {
+	id: '${dataId}',
+	openLevel: ${openLevel}
+}
 </script>
 <script src="${baseUrl}/assets/js/entity/classification-editor.jsx" type="text/babel"></script>
 </body>

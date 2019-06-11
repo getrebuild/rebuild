@@ -45,10 +45,10 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer {
 		final Object[] keys = props.keySet().toArray(new Object[0]);
 		for (Object key : keys) {
 			String cleanKey = key.toString();
-			// AES decrypt by `.aes` suffix
+			// AES decrypt if have `.aes` suffix
 			if (cleanKey.contains(".aes")) {
 				String val = props.getProperty(cleanKey);
-				val = AES.decrypt(val);
+				val = AES.decryptNothrow(val);
 				
 				cleanKey = cleanKey.replace(".aes", "");
 				props.put(cleanKey, val);

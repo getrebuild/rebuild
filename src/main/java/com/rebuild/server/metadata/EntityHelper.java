@@ -142,12 +142,13 @@ public class EntityHelper {
 	public static final int ChartConfig = 17;
 	public static final int Classification = 18;
 	public static final int ClassificationData = 19;
-	
 	public static final int ShareAccess = 20;
 	public static final int SystemConfig = 21;
 	public static final int Notification = 22;
 	public static final int Attachment = 23;
 	public static final int AttachmentFolder = 24;
 	public static final int LoginLog = 25;
+	public static final int AutoFillinConfig = 26;
 	
+	public static final int RobotTriggerConfig = 27;
 }

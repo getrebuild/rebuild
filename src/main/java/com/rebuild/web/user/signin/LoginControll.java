@@ -45,6 +45,7 @@ import com.wf.captcha.utils.CaptchaUtil;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.EncryptUtils;
+import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.Record;
@@ -227,7 +228,7 @@ public class LoginControll extends BasePageControll {
 	public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
 		ServletUtils.getSession(request).invalidate();
-		response.sendRedirect("login?exit=0");
+		response.sendRedirect("login");
 	}
 	
 	// --
@@ -239,9 +240,14 @@ public class LoginControll extends BasePageControll {
 	
 	@RequestMapping("user-forgot-passwd")
 	public void userForgotPasswd(HttpServletRequest request, HttpServletResponse response) {
+		if (!SMSender.availableMail()) {
+			writeFailure(response, "邮件服务账户未配置，请联系管理员配置");
+			return;
+		}
+		
 		String email = getParameterNotNull(request, "email");
-		if (!Application.getUserStore().existsEmail(email)) {
-			writeFailure(response, "邮箱无效");
+		if (!RegexUtils.isEMail(email) || !Application.getUserStore().existsEmail(email)) {
+			writeFailure(response, "无效邮箱");
 			return;
 		}
 		
@@ -251,7 +257,7 @@ public class LoginControll extends BasePageControll {
 		if (sentid != null) {
 			writeSuccess(response);
 		} else {
-			writeFailure(response, "无法发送重置密码验证码，请稍后重试");
+			writeFailure(response, "无法发送验证码，请稍后重试");
 		}
 	}
 	

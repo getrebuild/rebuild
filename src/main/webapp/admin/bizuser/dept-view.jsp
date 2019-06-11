@@ -28,7 +28,7 @@
 			</div>
 		</div>
 		<div class="col-sm-3 view-operating">
-			<div class="view-action row">
+			<div class="view-action row admin-show admin-verified">
 				<div class="col-12 col-lg-6">
 					<button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
 				</div>
@@ -54,13 +54,12 @@ window.__PageConfig = {
 <script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
 <script type="text/babel">
-$(document).ready(function(){
-	if (rb.isAdminUser == false || rb.isAdminVerified == false) {
-		$('.view-action').remove(); 
-		return
-	}
-	$('.J_delete').off('click').click(function(){
-		$.get(rb.baseUrl + '/admin/bizuser/deleting-checks?id=${id}', function(res){
+RbForm.postAfter = function() {
+	if (parent && parent.loadDeptTree) parent.loadDeptTree()
+}
+$(document).ready(function() {
+	$('.J_delete').off('click').click(function() {
+		$.get(rb.baseUrl + '/admin/bizuser/delete-checks?id=${id}', function(res) {
 			if (res.data.hasMember == 0 && res.data.hasChild == 0){
 				rb.alert('此部门可以被安全的删除', '删除部门', { type: 'danger', confirmText: '删除', confirm: function(){ deleteDept(this) } })
 			} else {
@@ -76,8 +75,10 @@ $(document).ready(function(){
 let deleteDept = function(dlg){
 	dlg.disabled(true)
 	$.post(rb.baseUrl + '/admin/bizuser/dept-delete?transfer=&id=${id}', function(res){
-		if (res.error_code == 0) parent.location.reload()
-		else rb.hberror(res.error_msg)
+		if (res.error_code == 0) {
+			parent.location.hash = '!/View/'
+			parent.location.reload()
+		} else rb.hberror(res.error_msg)
 	})
 }
 </script>

@@ -18,9 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.configuration.ConfigEntry;
+import com.rebuild.server.configuration.portals.ChartManager;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 
@@ -40,16 +41,13 @@ public class ChartDataFactory {
 	 * @throws ChartsException
 	 */
 	public static ChartData create(ID chartId) throws ChartsException {
-		Object[] chart = Application.createQueryNoFilter(
-				"select config,createdBy from ChartConfig where chartId = ?")
-				.setParameter(1, chartId)
-				.unique();
+		ConfigEntry chart = ChartManager.instance.getChart(chartId);
 		if (chart == null) {
 			throw new ChartsException("无效图表");
 		}
 		
-		JSONObject config = JSON.parseObject((String) chart[0]);
-		config.put("chartOwning", chart[1]);
+		JSONObject config = (JSONObject) chart.getJSON("config");
+		config.put("chartOwning", chart.getID("createdBy"));
 		return create(config, Application.getCurrentUser());
 	}
 	

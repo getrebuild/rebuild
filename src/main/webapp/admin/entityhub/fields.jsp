@@ -28,7 +28,7 @@
 						<ul class="nav">
 							<li><a href="base">基本信息</a></li>
 							<li class="active"><a href="fields">管理字段</a></li>
-							<li><a href="form-design">设计布局</a></li>
+							<li><a href="form-design">表单布局</a></li>
 							<li><a href="advanced">高级配置</a></li>
 						</ul>
 					</div>
@@ -50,7 +50,7 @@
 							</div>
 							<div class="col-sm-6">
 								<div class="dataTables_oper">
-									<button class="btn btn-primary btn-space J_new-field"><i class="icon zmdi zmdi-plus"></i> 新建</button>
+									<button class="btn btn-primary btn-space J_new-field"><i class="icon zmdi zmdi-plus"></i> 添加</button>
 								</div>
 							</div>
 						</div>
@@ -106,8 +106,8 @@ $(document).ready(function(){
 	})
 
 	$('.J_new-field').click(function(){
-		if (window.__PageConfig.isSuperAdmin) rb.modal('${baseUrl}/admin/p/entityhub/field-new?entity=${entityName}', '新建字段')
-		else rb.hberror('仅超级管理员可新建字段')
+		if (window.__PageConfig.isSuperAdmin) rb.modal('${baseUrl}/admin/p/entityhub/field-new?entity=${entityName}', '添加字段')
+		else rb.hberror('仅超级管理员可添加字段')
 	})
 });
 const render_list = function(q){

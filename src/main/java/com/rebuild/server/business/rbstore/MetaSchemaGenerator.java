@@ -20,8 +20,6 @@ package com.rebuild.server.business.rbstore;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -30,10 +28,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.configuration.ConfigEntry;
+import com.rebuild.server.configuration.portals.PickListManager;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.server.portals.PickListManager;
 import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.persist4j.Entity;
@@ -183,11 +182,11 @@ public class MetaSchemaGenerator {
 	 * @return
 	 */
 	private JSON performPickList(Field field) {
-		List<Map<String, Object>> picklist = PickListManager.getPickList(
-				field.getOwnEntity().getName(), field.getName(), false, false);
+		ConfigEntry entries[] = PickListManager.instance.getPickListRaw(
+				field.getOwnEntity().getName(), field.getName(), false);
 		JSONArray items = new JSONArray();
-		for (Map<String, Object> item : picklist) {
-			items.add(new Object[] { item.get("text"), item.get("default") });
+		for (ConfigEntry e : entries) {
+			items.add(new Object[] { e.getString("text"), e.getBoolean("default") });
 		}
 		return items;
 	}

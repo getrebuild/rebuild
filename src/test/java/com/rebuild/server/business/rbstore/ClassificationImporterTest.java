@@ -43,6 +43,10 @@ import cn.devezhao.persist4j.engine.ID;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ClassificationImporterTest extends MvcTestSupport {
 	
+	static {
+		Application.getSessionStore().set(UserService.ADMIN_USER);
+	}
+	
 	@Test
 	public void test0ListPage() throws Exception {
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
@@ -70,7 +74,7 @@ public class ClassificationImporterTest extends MvcTestSupport {
 	@Test
 	public void test9Delete() throws Exception {
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
-				.post("/admin/classification/delete?id=" + getClassification())
+				.post("/app/entity/record-delete?id=" + getClassification())
 				.sessionAttr(WebUtils.KEY_PREFIX + "-AdminVerified", "Mock");
 		System.out.println(perform(builder, UserService.ADMIN_USER));
 	}

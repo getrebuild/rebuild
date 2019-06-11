@@ -81,4 +81,29 @@ public class JSONUtils {
 		}
 		return (JSONArray) JSON.toJSON(array);
 	}
+	
+	/**
+	 * @param entries
+	 * @return
+	 */
+	public static JSONArray toJSONArray(JSONable[] items) {
+		if (items == null || items.length == 0) {
+			return EMPTY_ARRAY;
+		}
+		
+		JSONArray array = new JSONArray();
+		for (JSONable e : items) {
+			array.add(e.toJSON());
+		}
+		return array;
+	}
+	
+	/**
+	 * @param json
+	 * @return
+	 */
+	public static JSON clone(JSON json) {
+		String tostr = json.toJSONString();
+		return (JSON) JSON.parse(tostr);
+	}
 }
