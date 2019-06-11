@@ -128,7 +128,10 @@ const RbViewPage = {
   // 记录元数据
   initRecordMeta() {
     $.get(`${rb.baseUrl}/app/entity/record-meta?id=${this.__id}`, (res) => {
-      if (res.error_code !== 0) return
+      if (res.error_code !== 0) {
+        $('.view-operating').empty()
+        return
+      }
       for (let k in res.data) {
         let v = res.data[k]
         if (!v || v === undefined) return

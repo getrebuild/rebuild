@@ -28,7 +28,7 @@
 			</div>
 		</div>
 		<div class="col-sm-3 view-operating">
-			<div class="view-action row">
+			<div class="view-action row admin-show admin-verified">
 				<div class="col-12 col-lg-6">
 					<button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
 				</div>
@@ -47,10 +47,5 @@ window.__PageConfig = {
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
-<script>
-$(document).ready(function(){
-	if (rb.isAdminUser == false || rb.isAdminVerified == false) $('.view-action').remove()
-})
-</script>
 </body>
 </html>

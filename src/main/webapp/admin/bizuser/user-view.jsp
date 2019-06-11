@@ -32,7 +32,7 @@
 			</div>
 		</div>
 		<div class="col-sm-3 view-operating">
-			<div class="view-action row">
+			<div class="view-action row admin-show admin-verified">
 				<div class="col-12 col-lg-6">
 					<button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
 				</div>
