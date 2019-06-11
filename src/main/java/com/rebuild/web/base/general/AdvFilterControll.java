@@ -61,13 +61,22 @@ public class AdvFilterControll extends BaseControll implements PortalsConfigurat
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		ID filterId = getIdParameter(request, "id");
+		String filterName = getParameter(request, "name");
 		if (filterId != null
 				&& (!(UserHelper.isAdmin(user) || AdvFilterManager.instance.isSelf(user, filterId)))) {
-			writeFailure(response, "无权修改");
-			return;
+//			writeFailure(response, "无权修改");
+//			return;
+			
+			// 不是自己的就另存为
+			if (StringUtils.isBlank(filterName)) {
+				ConfigEntry o = AdvFilterManager.instance.getAdvFilter(filterId);
+				if (o != null) {
+					filterName = o.getString("name") + "-副本";
+				}
+			}
+			filterId = null;
 		}
 		
-		String filterName = getParameter(request, "name");
 		JSON filter = ServletUtils.getRequestJson(request);
 		
 		boolean toAll = getBoolParameter(request, "toAll", false);

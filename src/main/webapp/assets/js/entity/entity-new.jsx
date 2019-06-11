@@ -85,7 +85,7 @@ class MetaschemaList extends React.Component {
     let name = e.currentTarget.dataset.name
     let url = `${rb.baseUrl}/admin/metaschema/imports?file=${$encode(file)}`
     let that = this
-    parent.rb.alert(`<strong>${name}</strong><br>你可在导入后进行适当调整。立即开始导入吗？`, {
+    parent.rb.alert(`<strong>导入 [ ${name} ]</strong><br>你可在导入后进行适当调整。开始导入吗？`, {
       html: true,
       confirm: function () {
         this.hide()

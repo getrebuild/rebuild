@@ -98,7 +98,7 @@ public class Entity2Schema extends Field2Schema {
 			entityName = toPinyinName(entityLabel);
 			while (true) {
 				if (MetadataHelper.containsEntity(entityName)) {
-					entityName += (10 + RandomUtils.nextInt(89));
+					entityName += (100 + RandomUtils.nextInt(900));
 				} else {
 					break;
 				}
@@ -116,6 +116,9 @@ public class Entity2Schema extends Field2Schema {
 				"select min(typeCode) from MetaEntity").unique();
 		int typeCode = maxTypeCode == null || ObjectUtils.toInt(maxTypeCode[0]) == 0 
 				? 999 : (ObjectUtils.toInt(maxTypeCode[0]) - 1);
+		if (typeCode <= 200) {
+			throw new ModifiyMetadataException("Entity code exceeds system limit : " + typeCode);
+		}
 		
 		// 名称字段
 		String nameFiled = EntityHelper.CreatedOn;

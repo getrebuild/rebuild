@@ -32,9 +32,9 @@ $(function () {
 
   if (rb.isAdminUser === true) {
     $('html').addClass('admin')
-    if (rb.isAdminVerified === true && location.href.indexOf('/admin/') === -1) {
-      // TODO
-    }
+    if (rb.isAdminVerified !== true) $('.admin-verified').remove()
+    if (location.href.indexOf('/admin/') > -1) $('.admin-settings').remove()
+    else if (rb.isAdminVerified === true) $('.admin-settings a i').addClass('text-primary')
   } else {
     $('.admin-show').remove()
   }

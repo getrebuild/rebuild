@@ -21,6 +21,7 @@ package com.rebuild.server.metadata.entityhub;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.CharSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -64,7 +65,7 @@ public class Field2Schema {
 	 */
 	public Field2Schema(ID user) {
 		this.user = user;
-		Assert.isTrue(UserHelper.isSuperAdmin(user), "仅超级管理员可新建/删除元数据");
+		Assert.isTrue(UserHelper.isSuperAdmin(user), "仅超级管理员可添加/删除元数据");
 	}
 	
 	/**
@@ -286,12 +287,20 @@ public class Field2Schema {
 	 * @return
 	 */
 	protected String toPinyinName(final String text) {
-		// 全英文直接返回
-		if (text.matches("[a-zA-Z]+")) {
-			return text;
+		String identifier = text;
+		if (text.length() < 4) {
+			identifier = "rb" + text + RandomUtils.nextInt(10);
 		}
 		
-		String identifier = HanLP.convertToPinyinString(text, "", false);
+		// 全英文直接返回
+		if (identifier.matches("[a-zA-Z0-9]+")) {
+			if (!CharSet.ASCII_ALPHA.contains(identifier.charAt(0)) || inSQlKeyword(identifier)) {
+				identifier = "a" + identifier; 
+			}
+			return identifier;
+		}
+		
+		identifier = HanLP.convertToPinyinString(identifier, "", false);
 		identifier = identifier.replaceAll("[^a-zA-Z0-9]", "");
 		if (StringUtils.isBlank(identifier)) {
 			throw new ModifiyMetadataException("无效名称 : " + text);
@@ -311,5 +320,15 @@ public class Field2Schema {
 			throw new ModifiyMetadataException("无效名称 : " + text);
 		}
 		return identifier;
+	}
+
+	private static final String SQL_KWS[] = new String[] { 
+			"SELECT", "DISTINCT",  "MAX", "MIN", "AVG", "SUM", "COUNT", "FROM",
+			"WHERE", "AND", "OR", "ORDER", "BY", "ASC", "DESC", "GROUP", "HAVING",
+			"WITH", "ROLLUP", "IS", "NOT", "NULL", "IN", "LIKE", "EXISTS", "BETWEEN", "TRUE", "FALSE"
+			};
+	// SQL 关键字
+	private boolean inSQlKeyword(String text) {
+		return ArrayUtils.contains(SQL_KWS, text.toUpperCase());
 	}
 }

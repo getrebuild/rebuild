@@ -9,6 +9,10 @@ html.admin .admin-show {
     display: block;
 }
 
+html.admin .admin-show.row {
+    display: flex;
+}
+
 .dropdown-menu {
     box-shadow: 0 0 6px 0 rgba(0, 0, 0, .1), 0 10px 12px 0 rgba(170, 182, 206, .36);
     box-shadow: 0 3px .3077rem rgba(0, 0, 0, .1);
@@ -488,6 +492,15 @@ a {
 
 .rbform .type-FILE {
     padding-bottom: 4px !important;
+}
+
+.form-group.row.type-BOOL {
+    padding: 7px 0;
+    padding-bottom: 0;
+}
+
+.rbform .type-BOOL .mt-1 {
+    margin-top: .46rem !important;
 }
 
 .rbform .select2-container--default .select2-selection--multiple .select2-selection__clear {

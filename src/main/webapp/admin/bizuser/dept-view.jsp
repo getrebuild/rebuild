@@ -28,7 +28,7 @@
 			</div>
 		</div>
 		<div class="col-sm-3 view-operating">
-			<div class="view-action row">
+			<div class="view-action row admin-show admin-verified">
 				<div class="col-12 col-lg-6">
 					<button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
 				</div>
@@ -58,10 +58,6 @@ RbForm.postAfter = function() {
 	if (parent && parent.loadDeptTree) parent.loadDeptTree()
 }
 $(document).ready(function() {
-	if (rb.isAdminUser == false || rb.isAdminVerified == false) {
-		$('.view-action').remove(); 
-		return
-	}
 	$('.J_delete').off('click').click(function() {
 		$.get(rb.baseUrl + '/admin/bizuser/delete-checks?id=${id}', function(res) {
 			if (res.data.hasMember == 0 && res.data.hasChild == 0){

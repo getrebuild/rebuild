@@ -1,7 +1,5 @@
 const user_id = window.__PageConfig.recordId
 $(document).ready(function () {
-  if (rb.isAdminUser !== true || rb.isAdminVerified === false) $('.view-action').remove()
-
   $('.J_delete').off('click').click(function () {
     rb.alert('<b>暂不支持删除用户</b><br>我们建议你停用用户，而非将其删除', { type: 'warning', html: true, confirmText: '停用', confirm: () => { toggleDisabled(true) } })
   })

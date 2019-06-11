@@ -20,5 +20,6 @@
         "javascriptreact",
         "html"
     ],
-    "eslint.autoFixOnSave": true
+    "eslint.autoFixOnSave": true,
+    "workbench.editor.enablePreview": false
 }

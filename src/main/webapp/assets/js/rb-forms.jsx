@@ -287,7 +287,7 @@ class RbFormElement extends React.Component {
     }
     return (
       <div className={'form-group row type-' + props.type}>
-        <label ref={(c) => this._label = c} className={'col-12 col-form-label text-sm-right col-sm-' + colWidths[0]}>{props.label}{!props.nullable && <i className="req" />}{!props.onView && props.tip && <i title={props.tip} className="zmdi zmdi-info-outline" />}</label>
+        <label ref={(c) => this._label = c} className={'col-12 col-form-label text-sm-right col-sm-' + colWidths[0]}>{props.label}{!props.onView && !props.nullable && <i className="req" />}{!props.onView && props.tip && <i title={props.tip} className="zmdi zmdi-info-outline" />}</label>
         <div className={'col-12 col-sm-' + colWidths[1]}>
           {this.state.viewMode === true ? this.renderViewElement() : this.renderElement()}
         </div>
@@ -990,178 +990,6 @@ var detectElementExt = function (item) {
   return null
 }
 
-// -- for View
-
-const VIEW_LOAD_DELAY = 200  // 0.2s in rb-page.css '.rbview.show .modal-content'
-//~~ 右侧滑出视图窗口
-class RbViewModal extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = { ...props, inLoad: true, isHide: true, isDestroy: false }
-    this.mcWidth = this.props.subView === true ? 1170 : 1220
-    if ($(window).width() < 1280) this.mcWidth -= 100
-  }
-  render() {
-    return (this.state.isDestroy === true ? null :
-      <div className="modal-warpper">
-        <div className="modal rbview" ref={(c) => this._rbview = c}>
-          <div className="modal-dialog">
-            <div className="modal-content" style={{ width: this.mcWidth + 'px' }}>
-              <div className={'modal-body iframe rb-loading ' + (this.state.inLoad === true && 'rb-loading-active')}>
-                <iframe className={this.state.isHide ? 'invisible' : ''} src={this.state.showAfterUrl || 'about:blank'} frameBorder="0" scrolling="no"></iframe>
-                <RbSpinner />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-  componentDidMount() {
-    let root = $(this._rbview)
-    let mc = root.find('.modal-content')
-    let that = this
-    root.on('hidden.bs.modal', function () {
-      mc.css({ 'margin-right': -1500 })
-      that.setState({ inLoad: true, isHide: true })
-
-      // 如果还有其他 rbview 处于 open 态， 则保持 modal-open
-      if ($('.rbview.show').length > 0) {
-        $(document.body).addClass('modal-open').css({ 'padding-right': 17 })
-      } else {
-        location.hash = '!/View/'
-      }
-      // subView always dispose
-      if (that.state.disposeOnHide === true) {
-        root.modal('dispose')
-        that.setState({ isDestroy: true }, function () {
-          rb.__currentRbFormModalHolds[that.state.id] = null
-          $unmount(root.parent().parent())
-        })
-      }
-
-    }).on('shown.bs.modal', function () {
-      mc.css('margin-right', 0)
-      if (that.__urlChanged === false) {
-        let cw = mc.find('iframe')[0].contentWindow
-        if (cw.RbViewPage && cw.RbViewPage._RbViewForm) cw.RbViewPage._RbViewForm.showAgain(that)
-        this.__urlChanged = true
-      }
-
-      let mcs = $('body>.modal-backdrop.show')
-      if (mcs.length > 1) {
-        mcs.addClass('o')
-        mcs.eq(0).removeClass('o')
-      }
-    })
-    this.show()
-  }
-  hideLoading() {
-    this.setState({ inLoad: false, isHide: false })
-  }
-  showLoading() {
-    this.setState({ inLoad: true, isHide: true })
-  }
-  show(url, ext) {
-    let urlChanged = true
-    if (url && url === this.state.url) urlChanged = false
-    ext = ext || {}
-    url = url || this.state.url
-    this.__urlChanged = urlChanged
-    this.setState({ ...ext, url: url, inLoad: urlChanged, isHide: urlChanged }, () => {
-      $(this._rbview).modal({ show: true, backdrop: true, keyboard: false })
-      setTimeout(() => {
-        this.setState({ showAfterUrl: this.state.url })
-      }, VIEW_LOAD_DELAY)
-    })
-  }
-  hide() {
-    let root = $(this._rbview)
-    root.modal('hide')
-  }
-}
-
-// eslint-disable-next-line no-undef
-class DeleteConfirm extends RbAlert {
-  constructor(props) {
-    super(props)
-    this.state = { enableCascades: false }
-  }
-  render() {
-    let message = this.props.message
-    if (!message) message = this.props.ids ? `确认删除选中的 ${this.props.ids.length} 条记录？` : '确认删除当前记录？'
-    return (
-      <div className="modal rbalert" ref={(c) => this._dlg = c} tabIndex="-1">
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
-            </div>
-            <div className="modal-body">
-              <div className="text-center ml-6 mr-6">
-                <div className="text-danger"><span className="modal-main-icon zmdi zmdi-alert-triangle" /></div>
-                <div className="mt-3 text-bold">{message}</div>
-                {!this.props.entity ? null :
-                  <div className="mt-2">
-                    <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2">
-                      <input className="custom-control-input" type="checkbox" checked={this.state.enableCascade === true} onChange={() => this.enableCascade()} />
-                      <span className="custom-control-label"> 同时删除关联记录</span>
-                    </label>
-                    <div className={' ' + (this.state.enableCascade ? '' : 'hide')}>
-                      <select className="form-control form-control-sm" ref={(c) => this._cascades = c} multiple="multiple">
-                        {(this.state.cascadesEntity || []).map((item) => {
-                          return <option key={'option-' + item[0]} value={item[0]}>{item[1]}</option>
-                        })}
-                      </select>
-                    </div>
-                  </div>
-                }
-                <div className="mt-4 mb-3" ref={(c) => this._btns = c}>
-                  <button className="btn btn-space btn-secondary" type="button" onClick={() => this.hide()}>取消</button>
-                  <button className="btn btn-space btn-danger" type="button" onClick={() => this.deleteAction()}>删除</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-  enableCascade() {
-    this.setState({ enableCascade: !this.state.enableCascade })
-    if (!this.state.cascadesEntity) {
-      $.get(rb.baseUrl + '/commons/metadata/references?entity=' + this.props.entity, (res) => {
-        this.setState({ cascadesEntity: res.data }, () => {
-          this.__select2 = $(this._cascades).select2({
-            placeholder: '选择关联实体 (可选)',
-            width: '88%'
-          }).val(null).trigger('change')
-        })
-      })
-    }
-  }
-  deleteAction() {
-    let ids = this.props.ids || this.props.id
-    if (!ids || ids.length === 0) return
-    if (typeof ids === 'object') ids = ids.join(',')
-    let cascades = this.__select2 ? this.__select2.val().join(',') : ''
-
-    let btns = $(this._btns).find('.btn').button('loading')
-    $.post(rb.baseUrl + '/app/entity/record-delete?id=' + ids + '&cascades=' + cascades, (res) => {
-      if (res.error_code === 0) {
-        if (res.data.deleted === res.data.requests) rb.hbsuccess('删除成功')
-        else rb.hbsuccess('已成功删除 ' + res.data.deleted + ' 条记录')
-
-        this.hide()
-        typeof this.props.deleteAfter === 'function' && this.props.deleteAfter()
-      } else {
-        rb.hberror(res.error_msg)
-        btns.button('reset')
-      }
-    })
-  }
-}
-
 // 分类数据选择
 class ClassificationSelector extends React.Component {
   constructor(props) {
@@ -1277,6 +1105,88 @@ class ClassificationSelector extends React.Component {
   }
 }
 
+// 删除确认
+// eslint-disable-next-line no-undef
+class DeleteConfirm extends RbAlert {
+  constructor(props) {
+    super(props)
+    this.state = { enableCascades: false }
+  }
+  render() {
+    let message = this.props.message
+    if (!message) message = this.props.ids ? `确认删除选中的 ${this.props.ids.length} 条记录？` : '确认删除当前记录？'
+    return (
+      <div className="modal rbalert" ref={(c) => this._dlg = c} tabIndex="-1">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header pb-0">
+              <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
+            </div>
+            <div className="modal-body">
+              <div className="text-center ml-6 mr-6">
+                <div className="text-danger"><span className="modal-main-icon zmdi zmdi-alert-triangle" /></div>
+                <div className="mt-3 text-bold">{message}</div>
+                {!this.props.entity ? null :
+                  <div className="mt-2">
+                    <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2">
+                      <input className="custom-control-input" type="checkbox" checked={this.state.enableCascade === true} onChange={() => this.enableCascade()} />
+                      <span className="custom-control-label"> 同时删除关联记录</span>
+                    </label>
+                    <div className={' ' + (this.state.enableCascade ? '' : 'hide')}>
+                      <select className="form-control form-control-sm" ref={(c) => this._cascades = c} multiple="multiple">
+                        {(this.state.cascadesEntity || []).map((item) => {
+                          return <option key={'option-' + item[0]} value={item[0]}>{item[1]}</option>
+                        })}
+                      </select>
+                    </div>
+                  </div>
+                }
+                <div className="mt-4 mb-3" ref={(c) => this._btns = c}>
+                  <button className="btn btn-space btn-secondary" type="button" onClick={() => this.hide()}>取消</button>
+                  <button className="btn btn-space btn-danger" type="button" onClick={() => this.deleteAction()}>删除</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  enableCascade() {
+    this.setState({ enableCascade: !this.state.enableCascade })
+    if (!this.state.cascadesEntity) {
+      $.get(rb.baseUrl + '/commons/metadata/references?entity=' + this.props.entity, (res) => {
+        this.setState({ cascadesEntity: res.data }, () => {
+          this.__select2 = $(this._cascades).select2({
+            placeholder: '选择关联实体 (可选)',
+            width: '88%'
+          }).val(null).trigger('change')
+        })
+      })
+    }
+  }
+  deleteAction() {
+    let ids = this.props.ids || this.props.id
+    if (!ids || ids.length === 0) return
+    if (typeof ids === 'object') ids = ids.join(',')
+    let cascades = this.__select2 ? this.__select2.val().join(',') : ''
+
+    let btns = $(this._btns).find('.btn').button('loading')
+    $.post(rb.baseUrl + '/app/entity/record-delete?id=' + ids + '&cascades=' + cascades, (res) => {
+      if (res.error_code === 0) {
+        if (res.data.deleted === res.data.requests) rb.hbsuccess('删除成功')
+        else rb.hbsuccess('已成功删除 ' + res.data.deleted + ' 条记录')
+
+        this.hide()
+        typeof this.props.deleteAfter === 'function' && this.props.deleteAfter()
+      } else {
+        rb.hberror(res.error_msg)
+        btns.button('reset')
+      }
+    })
+  }
+}
+
 // -- Usage
 
 let rb = rb || {}
@@ -1288,56 +1198,3 @@ rb.RbFormModal = function (props) {
   else rb.__currentRbFormModal = renderRbcomp(<RbFormModal {...props} />)
   return rb.__currentRbFormModal
 }
-
-rb.__currentRbViewModal
-rb.__currentRbFormModalHolds = {}
-// @props = { id, entity }
-rb.RbViewModal = function (props, subView) {
-  const viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
-  if (subView === true) {
-    rb.RbViewModalHide(props.id)
-    let m = renderRbcomp(<RbViewModal url={viewUrl} disposeOnHide={true} id={props.id} subView={true} />)
-    rb.__currentRbFormModalHolds[props.id] = m
-    return m
-  }
-
-  if (rb.__currentRbViewModal) rb.__currentRbViewModal.show(viewUrl)
-  else rb.__currentRbViewModal = renderRbcomp(<RbViewModal url={viewUrl} />)
-  rb.__currentRbFormModalHolds[props.id] = rb.__currentRbViewModal
-  return rb.__currentRbViewModal
-}
-rb.RbViewModalGet = function (id) {
-  return rb.__currentRbFormModalHolds[id]
-}
-
-rb.RbViewModalHide = function (id) {
-  if (!id) {
-    if (rb.__currentRbViewModal) rb.__currentRbViewModal.hide()
-  } else {
-    let c = rb.__currentRbFormModalHolds[id]
-    if (c) {
-      c.hide()
-      rb.__currentRbFormModalHolds[id] = null
-    }
-  }
-}
-rb.RbViewModalHideLoading = function (id) {
-  if (!id) {
-    if (rb.__currentRbViewModal) rb.__currentRbViewModal.hideLoading()
-  } else {
-    let m = rb.__currentRbFormModalHolds[id]
-    if (m) m.hideLoading()
-  }
-}
-
-$(window).on('load', () => {
-  let viewHash = location.hash
-  if (viewHash && viewHash.startsWith('#!/View/')) {
-    viewHash = viewHash.split('/')
-    if (viewHash.length === 4 && viewHash[3].length === 20) {
-      setTimeout(() => {
-        rb.RbViewModal({ entity: viewHash[2], id: viewHash[3] })
-      }, 500)
-    }
-  }
-})

@@ -52,7 +52,7 @@
 						<a title="柱状图" data-type="BAR" data-allow-dims="1|1" data-allow-nums="1|9"><i class="C210"></i></a>
 						<a title="饼图" data-type="PIE" data-allow-dims="1|1" data-allow-nums="1|1"><i class="C230"></i></a>
 						<a title="漏斗图" data-type="FUNNEL" data-allow-dims="0|1" data-allow-nums="1|9"><i class="C330"></i></a>
-						<a title="树图" data-type="TREEMAP" data-allow-dims="1|3" data-allow-nums="0|1"><i class="C370"></i></a>
+						<a title="树图" data-type="TREEMAP" data-allow-dims="1|3" data-allow-nums="1|1"><i class="C370"></i></a>
 					</div>
 				</div>
 				<div class="data-info mt-3">

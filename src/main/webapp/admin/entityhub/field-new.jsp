@@ -3,7 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>新建字段</title>
+<title>添加字段</title>
 </head>
 <body class="dialog">
 <div class="main-content">

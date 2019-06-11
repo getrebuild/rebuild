@@ -55,7 +55,7 @@ public class TreemapChart extends ChartData {
 		double xAmount = 0d;
 		for (int i = 0; i < dataRaw.length; i++) {
 			Object o[] = dataRaw[i];
-			double v = ID.isId(o[lastIndex]) ? 1d : ObjectUtils.toDouble(o[lastIndex]);
+			double v = ObjectUtils.toDouble(o[lastIndex]);
 			o[lastIndex] = v;
 			xAmount += v;
 			
@@ -76,7 +76,8 @@ public class TreemapChart extends ChartData {
 	public Numerical[] getNumericals() {
 		Numerical[] nums = super.getNumericals();
 		if (nums.length == 0) {
-			return new Numerical[] { new Numerical(getSourceEntity().getPrimaryField()) };
+			return new Numerical[] {
+					new Numerical(getSourceEntity().getPrimaryField(), FormatSort.NONE, FormatCalc.COUNT, null, 0) };
 		}
 		return nums;
 	}

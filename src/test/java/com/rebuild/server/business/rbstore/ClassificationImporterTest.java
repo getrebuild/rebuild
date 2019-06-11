@@ -18,7 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.rbstore;
 
-import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,8 +43,7 @@ import cn.devezhao.persist4j.engine.ID;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ClassificationImporterTest extends MvcTestSupport {
 	
-	@Before
-	public void setUp() {
+	static {
 		Application.getSessionStore().set(UserService.ADMIN_USER);
 	}
 	
