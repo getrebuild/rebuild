@@ -18,8 +18,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.admin.robot;
 
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.rebuild.web.BasePageControll;
 
 /**
  * TODO
@@ -29,6 +36,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping("/admin/robot/")
-public class RobotApprovalControll {
+public class RobotApprovalControll extends BasePageControll {
 
+	@RequestMapping("approvals")
+	public ModelAndView pageList(HttpServletRequest request) throws IOException {
+		ModelAndView mv = createModelAndView("/admin/robot/approval-list.jsp");
+		return mv;
+	}
 }

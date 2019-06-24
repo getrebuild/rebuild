@@ -54,7 +54,7 @@ public class RobotTriggerControll extends BasePageControll {
 	
 	@RequestMapping("triggers")
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
-		ModelAndView mv = createModelAndView("/admin/entityhub/robot/trigger-list.jsp");
+		ModelAndView mv = createModelAndView("/admin/robot/trigger-list.jsp");
 		return mv;
 	}
 	
@@ -74,7 +74,7 @@ public class RobotTriggerControll extends BasePageControll {
 		Entity sourceEntity = MetadataHelper.getEntity((String) config[0]);
 		ActionType actionType = ActionType.valueOf((String) config[1]);
 		
-		ModelAndView mv = createModelAndView("/admin/entityhub/robot/trigger-editor.jsp");
+		ModelAndView mv = createModelAndView("/admin/robot/trigger-editor.jsp");
 		mv.getModel().put("configId", configId);
 		mv.getModel().put("sourceEntity", sourceEntity.getName());
 		mv.getModel().put("sourceEntityLabel", EasyMeta.getLabel(sourceEntity));
