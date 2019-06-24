@@ -16,30 +16,19 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.robot;
+package com.rebuild.server.configuration;
 
-import com.rebuild.server.RebuildException;
+import cn.devezhao.persist4j.Entity;
 
 /**
+ * TODO
+ * 
  * @author devezhao zhaofang123@gmail.com
- * @since 2019/05/24
+ * @since 2019/06/24
  */
-public class TriggerException extends RebuildException {
-	private static final long serialVersionUID = -2818312360045720505L;
+public class RobotApprovalManager implements ConfigManager<Entity> {
 
-	public TriggerException() {
-		super();
-	}
-
-	public TriggerException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
-
-	public TriggerException(String msg) {
-		super(msg);
-	}
-
-	public TriggerException(Throwable cause) {
-		super(cause);
+	@Override
+	public void clean(Entity cacheKey) {
 	}
 }

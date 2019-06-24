@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.robot.triggers;
+package com.rebuild.server.business.trigger;
 
 import static org.junit.Assert.assertEquals;
 
@@ -24,8 +24,8 @@ import org.junit.Test;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
-import com.rebuild.server.business.robot.ActionType;
-import com.rebuild.server.business.robot.TriggerWhen;
+import com.rebuild.server.business.trigger.ActionType;
+import com.rebuild.server.business.trigger.TriggerWhen;
 import com.rebuild.server.configuration.RobotTriggerManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;

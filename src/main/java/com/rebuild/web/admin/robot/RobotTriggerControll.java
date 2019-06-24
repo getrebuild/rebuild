@@ -33,9 +33,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.business.robot.ActionFactory;
-import com.rebuild.server.business.robot.ActionType;
-import com.rebuild.server.business.robot.TriggerAction;
+import com.rebuild.server.business.trigger.ActionFactory;
+import com.rebuild.server.business.trigger.ActionType;
+import com.rebuild.server.business.trigger.TriggerAction;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.utils.JSONUtils;

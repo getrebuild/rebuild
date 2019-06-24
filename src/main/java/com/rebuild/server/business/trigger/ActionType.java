@@ -16,54 +16,28 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.robot;
-
-import com.rebuild.server.service.EntityService;
-
-import cn.devezhao.bizz.privileges.impl.BizzPermission;
+package com.rebuild.server.business.trigger;
 
 /**
- * 动作类型
+ * 支持的操作类型
  * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/23
- * @see BizzPermission
  */
-public enum TriggerWhen {
+public enum ActionType {
 	
-	/**
-	 * 创建时
-	 */
-	CREATE(BizzPermission.CREATE.getMask()),
-	/**
-	 * 删除时
-	 */
-	DELETE(BizzPermission.DELETE.getMask()),
-	/**
-	 * 更新时
-	 */
-	UPDATE(BizzPermission.UPDATE.getMask()),
-	/**
-	 * 分派时
-	 */
-	ASSIGN(BizzPermission.ASSIGN.getMask()),
-	/**
-	 * 共享时
-	 */
-	SHARE(BizzPermission.SHARE.getMask()),
-	/**
-	 * 取消共享时
-	 */
-	UNSHARE(EntityService.UNSHARE.getMask())
+	FIELDAGGREGATION("数据聚合"),
+	
+	SENDNOTIFICATION("发送通知 (内部消息)"),
 	
 	;
 	
-	private int maskValue;
-	private TriggerWhen(int maskValue) {
-		this.maskValue = maskValue;
+	private String displayName;
+	private ActionType(String displayName) {
+		this.displayName = displayName;
 	}
 	
-	public int getMaskValue() {
-		return maskValue;
+	public String getDisplayName() {
+		return displayName;
 	}
 }

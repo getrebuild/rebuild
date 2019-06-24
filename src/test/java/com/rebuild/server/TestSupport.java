@@ -29,7 +29,6 @@ import org.junit.BeforeClass;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.business.rbstore.MetaschemaImporter;
-import com.rebuild.server.business.robot.triggers.FieldAggregationTest;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.Entity2Schema;
@@ -140,13 +139,13 @@ public class TestSupport {
 		}
 		
 		if (!MetadataHelper.containsEntity(Account)) {
-			URL url = FieldAggregationTest.class.getClassLoader().getResource("metaschema.Account.json");
+			URL url = TestSupport.class.getClassLoader().getResource("metaschema.Account.json");
 			String content = FileUtils.readFileToString(new File(url.toURI()));
 			new MetaschemaImporter(UserService.ADMIN_USER, JSON.parseObject(content)).exec();
 		}
 		
 		if (!MetadataHelper.containsEntity(SalesOrder)) {
-			URL url = FieldAggregationTest.class.getClassLoader().getResource("metaschema.SalesOrder.json");
+			URL url = TestSupport.class.getClassLoader().getResource("metaschema.SalesOrder.json");
 			String content = FileUtils.readFileToString(new File(url.toURI()));
 			new MetaschemaImporter(UserService.ADMIN_USER, JSON.parseObject(content)).exec();
 		}

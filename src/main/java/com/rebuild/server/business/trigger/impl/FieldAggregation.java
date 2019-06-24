@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.robot.triggers;
+package com.rebuild.server.business.trigger.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,10 +24,10 @@ import org.apache.commons.logging.LogFactory;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.business.robot.ActionContext;
-import com.rebuild.server.business.robot.ActionType;
-import com.rebuild.server.business.robot.TriggerAction;
-import com.rebuild.server.business.robot.TriggerException;
+import com.rebuild.server.business.trigger.ActionContext;
+import com.rebuild.server.business.trigger.ActionType;
+import com.rebuild.server.business.trigger.TriggerAction;
+import com.rebuild.server.business.trigger.TriggerException;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
