@@ -46,7 +46,9 @@ public class SchemaGen {
 		PMF = CTX.getBean(PersistManagerFactoryImpl.class);
 		
 //		genAll();
-		gen(EntityHelper.ClassificationData);
+		gen(EntityHelper.RobotApprovalConfig);
+		gen(EntityHelper.RobotApprovalStep);
+		gen(EntityHelper.RobotApprovalHistory);
 		
 		System.exit(0);
 	}
