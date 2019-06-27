@@ -4,7 +4,6 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/triggers.css">
 <title>R2BOT 审核流程</title>
 </head>
 <body>
@@ -19,9 +18,9 @@
 		<aside class="page-aside">
 			<div class="rb-scroller">
 				<div class="dept-tree">
-					<h5 class="text-muted" style="margin-bottom:19px;margin-top:17px;border-bottom:1px solid #eee;padding-bottom:10px;">源实体</h5>
+					<h5 class="text-muted" style="margin-bottom:19px;margin-top:17px;border-bottom:1px solid #eee;padding-bottom:10px;">已配置实体</h5>
 					<ul class="list-unstyled">
-						<li class="active"><a>所有源实体</a></li>
+						<li class="active"><a>所有实体</a></li>
 					</ul>
 				</div>
 			</div>
@@ -39,5 +38,6 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
+<script src="${baseUrl}/assets/js/entity/approval-list.jsx" type="text/babel"></script>
 </body>
 </html>

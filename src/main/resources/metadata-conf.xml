@@ -243,7 +243,7 @@
 		<field name="flowDefinition" type="text" description="流程定义" />
 	</entity>
 	
-	<entity name="RobotApprovalStep" type-code="029" description="审核流程步骤">
+	<entity name="RobotApprovalStep" type-code="029" description="审核流程步骤" parent="false">
 		<field name="stepId" type="primary"/>
 		<field name="approvalId" type="reference" ref-entity="RobotApprovalConfig" nullable="false" updatable="false" cascade="delete" description="所属流程"  />
 		<field name="prevSetpId" type="reference" ref-entity="RobotApprovalStep" description="上一步" />

@@ -4,7 +4,6 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/triggers.css">
 <title>R2BOT 触发器</title>
 </head>
 <body>

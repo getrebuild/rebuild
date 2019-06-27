@@ -157,6 +157,9 @@
 	<bean class="com.rebuild.server.service.configuration.RobotTriggerConfigService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
+	<bean class="com.rebuild.server.service.configuration.RobotApprovalConfigService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
 	<bean class="com.rebuild.server.service.configuration.AdvFilterService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>

@@ -24,13 +24,13 @@ package com.rebuild.server.business.approval;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/06/25
  */
-public enum ApporvalState {
+public enum ApprovalState {
 	
 	DRAFT(1, "未提交"),
 	SUBMITTED(2, "已提交"),
-	IN_PROGRESS(3, "审批中"),
-	APPROVED(4, "已通过"),
-	REJECTED(5, "已驳回"),
+	REQUEST(3, "审批中"),
+	APPROVED(4, "通过"),
+	REJECTED(5, "驳回"),
 	
 	;
 	
@@ -41,7 +41,7 @@ public enum ApporvalState {
 	 * @param state
 	 * @param name
 	 */
-	private ApporvalState(int state, String name) {
+	private ApprovalState(int state, String name) {
 		this.state = state;
 		this.name = name;
 	}

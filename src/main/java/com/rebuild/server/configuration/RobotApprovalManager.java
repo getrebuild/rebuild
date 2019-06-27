@@ -18,17 +18,24 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration;
 
+import com.rebuild.server.Application;
+
 import cn.devezhao.persist4j.Entity;
 
 /**
- * TODO
+ * 审核流程管理
  * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/06/24
  */
 public class RobotApprovalManager implements ConfigManager<Entity> {
 
+	public static final RobotApprovalManager instance = new RobotApprovalManager();
+	private RobotApprovalManager() {}
+	
 	@Override
 	public void clean(Entity cacheKey) {
+		final String cKey = "RobotApprovalManager-" + cacheKey.getName();
+		Application.getCommonCache().evict(cKey);
 	}
 }
