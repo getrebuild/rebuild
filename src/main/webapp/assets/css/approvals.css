@@ -197,7 +197,7 @@
 	width: 220px;
 	min-height: 72px;
 	background: #fff;
-	border-radius: 4px;
+	border-radius: 3px;
 	padding: 10px;
 	cursor: pointer
 }
@@ -211,7 +211,7 @@
 	left: 0;
 	right: 0;
 	z-index: 2;
-	border-radius: 2px;
+	border-radius: 3px;
 }
 
 .rbflow-design .auto-judge.active .close,
@@ -337,7 +337,7 @@
 
 .rbflow-design .end-node {
 	border-radius: 50%;
-	color: rgba(25, 31, 37, .4);
+	color: #777;
 	text-align: left
 }
 
@@ -368,7 +368,7 @@
 	-ms-flex-negative: 0;
 	flex-shrink: 0;
 	background: #fff;
-	border-radius: 2px;
+	border-radius: 3px;
 	cursor: pointer;
 }
 
@@ -392,7 +392,7 @@
 
 .node-wrap-box .title {
 	position: relative;
-	padding: 6px 10px;
+	padding: 7px 10px;
 	width: 100%;
 	color: #fff;
 	text-align: left;
@@ -402,7 +402,7 @@
 	text-overflow: ellipsis;
 	line-height: 1;
 	font-size: 12px;
-	border-radius: 2px 2px 0 0;
+	border-radius: 3px 3px 0 0;
 }
 
 .node-wrap-box .close {
@@ -439,7 +439,8 @@
 	top: 50%;
 	transform: translateY(-50%);
 	font-size: 21px;
-	color: #979797
+	color: #ccc;
+	margin-top: -1px;
 }
 
 .node-wrap-box::before {
