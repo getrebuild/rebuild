@@ -1,62 +1,111 @@
 /* eslint-disable react/prop-types */
 $(document).ready(() => {
-  renderRbcomp(<RbFlow />, 'rbflow')
+  renderRbcomp(<RbFlowCanvas />, 'rbflow')
 })
 
+// 节点类型
 const NTs = {
   'start': ['start', '发起人', '所有人'],
   'approver': ['approver', '审批人', '发起人自选'],
   'cc': ['cc', '抄送人', '发起人自选']
 }
-
+// 添加节点按钮
 const AddNodeButton = function (props) {
-  props = props || { addNode: function () { alert('添加节点') } }
-  return (<div className="add-node-btn-box"><div className="add-node-btn"><button type="button" onClick={props.addNode}><i className="zmdi zmdi-plus" /></button></div></div>)
+  let c = function () { showDlgAddNode(props.addNodeCall) }
+  return (<div className="add-node-btn-box"><div className="add-node-btn"><button type="button" onClick={c}><i className="zmdi zmdi-plus" /></button></div></div>)
 }
 
-// ~ 节点
-class Node extends React.Component {
+// 节点规范
+class NodeSpec extends React.Component {
   constructor(props) {
     super(props)
-    this.nodeType = NTs[props.type || 'approver']
+    this.state = { ...props }
+    this.addNode = this.addNode.bind(this)
+  }
+  addNode(type) {
+    this.props.$$$parent.addNode(type, this.props.nodeId)
+    hideDlgAddNode()
+  }
+}
+// 画布规范
+class CanvasSpec extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+    if (!props.nodes) this.state.nodes = []
+    this.addNode = this.addNode.bind(this)
+  }
+  renderNodes() {
+    let nodes = this.state.nodes.map((item) => {
+      let props = { ...item, key: 'k-' + item.nodeId, $$$parent: this }
+      if (item.type === 'condition') return <ConditionNode {...props} />
+      else return <Node {...props} />
+    })
+    return nodes
+  }
+  addNode(type, depsNodeId, call) {
+    let n = { type: type, nodeId: $random() }
+    let nodes = []
+    if (depsNodeId) {
+      if (depsNodeId === '0000') nodes.push(n)
+      this.state.nodes.forEach((item) => {
+        nodes.push(item)
+        if (depsNodeId === item.nodeId) nodes.push(n)
+      })
+    } else {
+      nodes = this.state.nodes
+      nodes.push(n)
+    }
+    this.setState({ nodes: nodes }, () => {
+      typeof call === 'function' && call()
+    })
+  }
+}
+
+// 节点
+class Node extends NodeSpec {
+  constructor(props) {
+    super(props)
+    this.__nodeType = NTs[props.type || 'approver']
   }
   render() {
-    return (<div className="node-wrap">
-      <div className={'node-wrap-box ' + this.nodeType[0] + '-node'}>
-        <div>
-          <div className="title"><span>{this.nodeType[1]}</span></div>
-          <div className="content">
-            <div className="text">{this.nodeType[2]}</div>
-            <i className="zmdi zmdi-chevron-right arrow"></i>
-          </div>
+    return (<div className="node-wrap" data-id={this.props.nodeId}>
+      <div className={'node-wrap-box ' + this.__nodeType[0] + '-node'}>
+        <div className="title">
+          <span>{this.__nodeType[1]}</span>
+          {this.props.nodeId !== '0000' && <i className="zmdi zmdi-close aclose" title="删除"></i>}
+        </div>
+        <div className="content">
+          <div className="text">{this.__nodeType[2]}</div>
+          <i className="zmdi zmdi-chevron-right arrow"></i>
         </div>
       </div>
-      <AddNodeButton addNode={showDlgAddNode} />
+      <AddNodeButton addNodeCall={this.addNode} />
     </div>)
   }
 }
 
-// 条件分支节点
-class ConditionNode extends React.Component {
+// 条件节点
+class ConditionNode extends NodeSpec {
   constructor(props) {
     super(props)
-    this.state = { columns: props.columns || [] }
+    this.state.columns = props.columns || []
+    this.addColoum = this.addColoum.bind(this)
   }
   render() {
     let colLen = this.state.columns.length - 1
     return (<div className="branch-wrap">
       <div className="branch-box-wrap">
         <div className="branch-box">
-          <button className="add-branch" onClick={() => this.addColoum()}>添加分支</button>
+          <button className="add-branch" onClick={this.addColoum}>添加分支</button>
           {this.state.columns.map((item, idx) => {
-            return <ConditionColoum key={'column-' + idx} isFirst={idx === 0} isLast={idx === colLen} nodes={item.nodes} />
+            return <ConditionCanvas key={'column-' + idx} isFirst={idx === 0} isLast={idx === colLen} nodes={item.nodes} />
           })}
         </div>
-        <AddNodeButton />
+        <AddNodeButton addNodeCall={this.addNode} />
       </div>
     </div>)
   }
-
   addColoum() {
     let columns = this.state.columns
     columns.push('c')
@@ -64,10 +113,10 @@ class ConditionNode extends React.Component {
   }
 }
 
-class ConditionColoum extends React.Component {
+// 列画布
+class ConditionCanvas extends CanvasSpec {
   constructor(props) {
     super(props)
-    this.state = { ...props }
   }
   render() {
     return (<div className="col-box">
@@ -86,7 +135,7 @@ class ConditionColoum extends React.Component {
           </div>
         </div>
       </div>
-      {this.state.nodes}
+      {this.renderNodes()}
       {this.state.isLast && <div className="top-right-cover-line"></div>}
       {this.state.isLast && <div className="bottom-right-cover-line"></div>}
     </div>)
@@ -96,32 +145,37 @@ class ConditionColoum extends React.Component {
   }
 }
 
-// 画布
-class RbFlow extends React.Component {
+// 大画布
+class RbFlowCanvas extends CanvasSpec {
   constructor(props) {
     super(props)
   }
   render() {
-    return (<div className="box-scale" id="box-scale">
-      <Node type="start" />
-      <Node type="approver" />
-      <Node type="cc" />
-      <ConditionNode columns={['a', 'b', 'c']} />
+    return (<div className="box-scale">
+      <Node type="start" ref={(c) => this._rootNode = c} $$$parent={this} nodeId="0000" />
+      {this.renderNodes()}
       <div className="end-node">
         <div className="end-node-circle"></div>
         <div className="end-node-text">流程结束</div>
       </div>
     </div>)
   }
+  componentDidMount() {
+    this.addNode('approver', null, () => {
+      this.addNode('cc')
+    })
+  }
 }
 
+// ~ 添加节点
 class DlgAddNode extends React.Component {
   constructor(props) {
     super(props)
+    this.state = { call: props.call || function (t) { alert(t) } }
   }
   render() {
     return (
-      <div className="modal add-nodes" tabIndex="-1" ref={(c) => this._dlg = c}>
+      <div className="modal add-node" tabIndex="-1" ref={(c) => this._dlg = c}>
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
@@ -130,13 +184,22 @@ class DlgAddNode extends React.Component {
             <div className="modal-body">
               <div className="row">
                 <div className="col-4">
-                  <button>审批人</button>
+                  <a className="approver" onClick={() => this.state.call('approver')}>
+                    <div><i className="zmdi zmdi-account"></i></div>
+                    <p>审批人</p>
+                  </a>
                 </div>
                 <div className="col-4">
-                  <button>抄送人</button>
+                  <a className="cc" onClick={() => this.state.call('cc')}>
+                    <div><i className="zmdi zmdi-mail-send"></i></div>
+                    <p>抄送人</p>
+                  </a>
                 </div>
                 <div className="col-4">
-                  <button>条件分支</button>
+                  <a className="condition" onClick={() => this.state.call('condition')}>
+                    <div><i className="zmdi zmdi-usb zmdi-hc-rotate-180"></i></div>
+                    <p>条件分支</p>
+                  </a>
                 </div>
               </div>
             </div>
@@ -151,15 +214,15 @@ class DlgAddNode extends React.Component {
   hide() {
     $(this._dlg).modal('hide')
   }
-  show() {
+  show(call) {
     $(this._dlg).modal({ show: true, keyboard: true })
+    if (call) this.setState({ call: call })
   }
 }
-
 let __DlgAddNode
-const showDlgAddNode = function () {
-  if (__DlgAddNode) __DlgAddNode.show()
-  else __DlgAddNode = renderRbcomp(<DlgAddNode />)
+const showDlgAddNode = function (call) {
+  if (__DlgAddNode) __DlgAddNode.show(call)
+  else __DlgAddNode = renderRbcomp(<DlgAddNode call={call} />)
 }
 const hideDlgAddNode = function () {
   if (__DlgAddNode) __DlgAddNode.hide()

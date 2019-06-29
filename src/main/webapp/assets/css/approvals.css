@@ -214,9 +214,9 @@
 	border-radius: 3px;
 }
 
-.rbflow-design .auto-judge.active .close,
-.rbflow-design .auto-judge:active .close,
-.rbflow-design .auto-judge:hover .close {
+.rbflow-design .auto-judge.active .aclose,
+.rbflow-design .auto-judge:active .aclose,
+.rbflow-design .auto-judge:hover .aclose {
 	display: block
 }
 
@@ -247,7 +247,7 @@
 	color: #999;
 }
 
-.rbflow-design .auto-judge .close {
+.rbflow-design .auto-judge .aclose {
 	display: none;
 	position: absolute;
 	right: -10px;
@@ -379,9 +379,9 @@
 	box-shadow: 0 0 6px 0 rgba(50, 150, 250, .3)
 }
 
-.node-wrap-box.active .close,
-.node-wrap-box:active .close,
-.node-wrap-box:hover .close {
+.node-wrap-box.active .aclose,
+.node-wrap-box:active .aclose,
+.node-wrap-box:hover .aclose {
 	display: block
 }
 
@@ -405,19 +405,17 @@
 	border-radius: 3px 3px 0 0;
 }
 
-.node-wrap-box .close {
+.node-wrap-box .aclose {
 	display: none;
 	position: absolute;
-	right: 10px;
-	top: 50%;
-	transform: translateY(-50%);
+	right: 3px;
+	top: 3px;
 	width: 20px;
 	height: 20px;
-	font-size: 14px;
 	color: #fff;
-	border-radius: 50%;
 	text-align: center;
-	line-height: 20px
+	line-height: 20px;
+	font-size: 15px;
 }
 
 .node-wrap-box .content {
@@ -461,7 +459,6 @@
 .node-wrap-box.start-node:before {
 	content: none
 }
-
 
 .top-left-cover-line {
 	left: -1px
@@ -512,4 +509,54 @@
 	opacity: 0.95;
 	cursor: pointer;
 	box-shadow: 0 3px 4px 0 rgba(0, 0, 0, .1);
+}
+
+.add-node .modal-dialog {
+	width: 550px;
+}
+
+.add-node .modal-body {
+	padding-left: 60px;
+	padding-right: 60px;
+	padding-bottom: 26px;
+}
+
+.add-node .col-4>a {
+	display: block;
+	text-align: center;
+	width: 72px;
+	margin: 0 auto;
+}
+
+.add-node .col-4>a>div {
+	display: inline-block;
+	width: 72px;
+	height: 72px;
+	color: #fff;
+	font-size: 36px;
+	background-color: #409EFF;
+	text-align: center;
+	border-radius: 50%;
+	padding-top: 10px;
+}
+
+.add-node .col-4>a>p {
+	margin: 0;
+	margin-top: 9px;
+}
+
+.add-node .col-4>a.approver>div {
+	background-color: #F56C6C;
+}
+
+.add-node .col-4>a.cc>div {
+	background-color: #67C23A;
+}
+
+.add-node .col-4>a.cc>div .zmdi {
+	transform: translate(2px, 1px)
+}
+
+.add-node .col-4>a:hover {
+	opacity: 0.9
 }
