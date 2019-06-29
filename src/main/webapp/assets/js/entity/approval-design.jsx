@@ -116,7 +116,7 @@ class ConditionNode extends NodeSpec {
   }
   render() {
     let colLen = this.state.columns.length - 1
-    return (colLen > -1 && <div className="branch-wrap">
+    return (colLen > 0 && <div className="branch-wrap">
       <div className="branch-box-wrap">
         <div className="branch-box">
           <button className="add-branch" onClick={this.addColumn}>添加分支</button>
