@@ -20,11 +20,14 @@ class NodeSpec extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
-    this.addNode = this.addNode.bind(this)
+    this.addNodeQuick = this.addNodeQuick.bind(this)
+    this.removeNodeQuick = this.removeNodeQuick.bind(this)
   }
-  addNode(type) {
+  addNodeQuick(type) {
     this.props.$$$parent.addNode(type, this.props.nodeId)
-    hideDlgAddNode()
+  }
+  removeNodeQuick() {
+    this.props.$$$parent.removeNode(this.props.nodeId)
   }
 }
 // 画布规范
@@ -34,6 +37,7 @@ class CanvasSpec extends React.Component {
     this.state = { ...props }
     this.state.nodes = this.state.nodes || []
     this.addNode = this.addNode.bind(this)
+    this.removeNode = this.removeNode.bind(this)
   }
   renderNodes() {
     let nodes = (this.state.nodes || []).map((item) => {
@@ -47,22 +51,32 @@ class CanvasSpec extends React.Component {
     let n = { type: type, nodeId: $random() }
     let nodes = []
     if (depsNodeId) {
-      if (depsNodeId === '0000') nodes.push(n)
+      if (depsNodeId === 'ROOT') nodes.push(n)
       this.state.nodes.forEach((item) => {
         nodes.push(item)
         if (depsNodeId === item.nodeId) nodes.push(n)
       })
+      if (nodes.length === 0) nodes.push(n)
     } else {
-      nodes = this.state.nodes
+      nodes = this.state.nodes || []
       nodes.push(n)
     }
     this.setState({ nodes: nodes }, () => {
       typeof call === 'function' && call()
+      hideDlgAddNode()
     })
   }
+  removeNode(nodeId) {
+    let nodes = []
+    this.state.nodes.forEach((item) => {
+      if (nodeId !== item.nodeId) nodes.push(item)
+    })
+    this.setState({ nodes: nodes })
+  }
 }
+// 画布:节点 1:N
 
-// 节点
+// 一般节点
 class Node extends NodeSpec {
   constructor(props) {
     super(props)
@@ -70,17 +84,17 @@ class Node extends NodeSpec {
   }
   render() {
     return (<div className="node-wrap" data-id={this.props.nodeId}>
-      <div className={'node-wrap-box ' + this.__nodeType[0] + '-node'}>
+      <div className={'node-wrap-box ' + this.__nodeType[0] + '-node animated fadeIn'}>
         <div className="title">
           <span>{this.__nodeType[1]}</span>
-          {this.props.nodeId !== '0000' && <i className="zmdi zmdi-close aclose" title="删除"></i>}
+          {this.props.nodeId !== 'ROOT' && <i className="zmdi zmdi-close aclose" title="移除" onClick={this.removeNodeQuick} />}
         </div>
         <div className="content">
           <div className="text">{this.__nodeType[2]}</div>
           <i className="zmdi zmdi-chevron-right arrow"></i>
         </div>
       </div>
-      <AddNodeButton addNodeCall={this.addNode} />
+      <AddNodeButton addNodeCall={this.addNodeQuick} />
     </div>)
   }
 }
@@ -89,27 +103,37 @@ class Node extends NodeSpec {
 class ConditionNode extends NodeSpec {
   constructor(props) {
     super(props)
-    this.state.columns = props.columns || []
-    this.addColoum = this.addColoum.bind(this)
+    this.state.columns = props.columns || [{ index: 1, nodeId: $random() }, { index: 2, nodeId: $random() }]
+    this.columnIndex = this.state.columns.length + 1
+    this.addColumn = this.addColumn.bind(this)
+    this.removeColumn = this.removeColumn.bind(this)
   }
   render() {
     let colLen = this.state.columns.length - 1
-    return (<div className="branch-wrap">
+    return (colLen > -1 && <div className="branch-wrap" data-id={this.props.nodeId}>
       <div className="branch-box-wrap">
         <div className="branch-box">
-          <button className="add-branch" onClick={this.addColoum}>添加分支</button>
+          <button className="add-branch" onClick={this.addColumn}>添加分支</button>
           {this.state.columns.map((item, idx) => {
-            return <ConditionCanvas key={'col-' + idx} isFirst={idx === 0} isLast={idx === colLen} nodes={item.nodes} />
+            return <ConditionCanvas key={this.props.nodeId + '-col-' + idx} isFirst={idx === 0} isLast={idx === colLen} $$$parent={this} {...item} />
           })}
         </div>
-        <AddNodeButton addNodeCall={this.addNode} />
+        <AddNodeButton addNodeCall={this.addNodeQuick} />
       </div>
     </div>)
   }
-  addColoum() {
+  addColumn() {
     let columns = this.state.columns
-    columns.push('c')
+    columns.push({ index: this.columnIndex++, nodeId: $random() })
     this.setState({ columns: columns })
+  }
+  removeColumn(nodeId) {
+    let columns = []
+    this.state.columns.forEach((item) => {
+      if (nodeId !== item.nodeId) columns.push(item)
+    })
+    this.setState({ columns: columns }, () => {
+    })
   }
 }
 
@@ -122,17 +146,19 @@ class ConditionCanvas extends CanvasSpec {
     return (<div className="col-box">
       {this.state.isFirst && <div className="top-left-cover-line"></div>}
       {this.state.isFirst && <div className="bottom-left-cover-line"></div>}
-      <div className="condition-node">
-        <div className="condition-node-box">
+      <div className="condition-node" data-id={this.props.nodeId}>
+        <div className="condition-node-box animated fadeIn">
           <div className="auto-judge">
             <div className="title-wrapper">
-              <span className="editable-title float-left">分支条件</span>
+              <span className="editable-title float-left">分支条件{this.props.index}</span>
               <span className="priority-title float-right">默认优先级</span>
+              <i className="zmdi zmdi-close aclose" title="移除" onClick={() => this.props.$$$parent.removeColumn(this.props.nodeId)} />
             </div>
             <div className="content">
               请设置条件
             </div>
           </div>
+          <AddNodeButton addNodeCall={this.addNode} />
         </div>
       </div>
       {this.renderNodes()}
@@ -141,7 +167,10 @@ class ConditionCanvas extends CanvasSpec {
     </div>)
   }
   componentWillReceiveProps(props) {
-    this.setState({ ...props })
+    this.setState({ ...props, nodes: this.state.nodes })
+  }
+  addNode(type) {
+    super.addNode(type, this.props.nodeId)
   }
 }
 
@@ -152,7 +181,7 @@ class RbFlowCanvas extends CanvasSpec {
   }
   render() {
     return (<div className="box-scale">
-      <Node type="start" ref={(c) => this._rootNode = c} $$$parent={this} nodeId="0000" />
+      <Node type="start" $$$parent={this} nodeId="ROOT" />
       {this.renderNodes()}
       <div className="end-node">
         <div className="end-node-circle"></div>

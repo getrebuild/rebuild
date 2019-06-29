@@ -214,12 +214,6 @@
 	border-radius: 3px;
 }
 
-.rbflow-design .auto-judge.active .aclose,
-.rbflow-design .auto-judge:active .aclose,
-.rbflow-design .auto-judge:hover .aclose {
-	display: block
-}
-
 .rbflow-design .auto-judge.error:after {
 	border: 1px solid #f25643;
 	box-shadow: 0 2px 5px 0 rgba(0, 0, 0, .1)
@@ -243,23 +237,8 @@
 
 .rbflow-design .auto-judge .title-wrapper .priority-title {
 	display: inline-block;
-	margin-right: 0;
+	margin-right: 12px;
 	color: #999;
-}
-
-.rbflow-design .auto-judge .aclose {
-	display: none;
-	position: absolute;
-	right: -10px;
-	top: -10px;
-	width: 20px;
-	height: 20px;
-	font-size: 14px;
-	color: rgba(0, 0, 0, .25);
-	border-radius: 50%;
-	text-align: center;
-	line-height: 20px;
-	z-index: 2
 }
 
 .rbflow-design .auto-judge .content {
@@ -379,12 +358,6 @@
 	box-shadow: 0 0 6px 0 rgba(50, 150, 250, .3)
 }
 
-.node-wrap-box.active .aclose,
-.node-wrap-box:active .aclose,
-.node-wrap-box:hover .aclose {
-	display: block
-}
-
 .node-wrap-box.error:after {
 	border: 1px solid #f25643;
 	box-shadow: 0 2px 5px 0 rgba(0, 0, 0, .1)
@@ -405,7 +378,8 @@
 	border-radius: 3px 3px 0 0;
 }
 
-.node-wrap-box .aclose {
+.node-wrap-box .aclose,
+.auto-judge .aclose {
 	display: none;
 	position: absolute;
 	right: 3px;
@@ -416,6 +390,21 @@
 	text-align: center;
 	line-height: 20px;
 	font-size: 15px;
+}
+
+.auto-judge .aclose {
+	color: #aaa;
+	top: -2px;
+	right: -8px;
+}
+
+.node-wrap-box.active .aclose,
+.node-wrap-box:active .aclose,
+.node-wrap-box:hover .aclose,
+.auto-judge.active .aclose,
+.auto-judge:active .aclose,
+.auto-judge:hover .aclose {
+	display: block
 }
 
 .node-wrap-box .content {

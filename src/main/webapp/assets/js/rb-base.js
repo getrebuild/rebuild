@@ -253,8 +253,8 @@ var $storage = {
 }
 
 var $random__times = 0
-var $random = function () {
-  return new Date().getTime() + '-' + ($random__times++)
+var $random = function (prefix) {
+  return (prefix || '') + new Date().getTime() + '-' + ($random__times++)
 }
 
 /**
@@ -283,6 +283,9 @@ var $pages = function (tp, cp) {
 }
 
 /**
+ * 可以比较对象或数组
+ * @param {*} a 
+ * @param {*} b 
  */
 var $same = function (a, b) {
   if (!a && !b) return true
