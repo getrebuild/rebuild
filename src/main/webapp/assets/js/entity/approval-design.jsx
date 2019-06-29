@@ -32,11 +32,11 @@ class CanvasSpec extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
-    if (!props.nodes) this.state.nodes = []
+    this.state.nodes = this.state.nodes || []
     this.addNode = this.addNode.bind(this)
   }
   renderNodes() {
-    let nodes = this.state.nodes.map((item) => {
+    let nodes = (this.state.nodes || []).map((item) => {
       let props = { ...item, key: 'k-' + item.nodeId, $$$parent: this }
       if (item.type === 'condition') return <ConditionNode {...props} />
       else return <Node {...props} />
@@ -99,7 +99,7 @@ class ConditionNode extends NodeSpec {
         <div className="branch-box">
           <button className="add-branch" onClick={this.addColoum}>添加分支</button>
           {this.state.columns.map((item, idx) => {
-            return <ConditionCanvas key={'column-' + idx} isFirst={idx === 0} isLast={idx === colLen} nodes={item.nodes} />
+            return <ConditionCanvas key={'col-' + idx} isFirst={idx === 0} isLast={idx === colLen} nodes={item.nodes} />
           })}
         </div>
         <AddNodeButton addNodeCall={this.addNode} />
@@ -113,7 +113,7 @@ class ConditionNode extends NodeSpec {
   }
 }
 
-// 列画布
+// 条件列画布
 class ConditionCanvas extends CanvasSpec {
   constructor(props) {
     super(props)
