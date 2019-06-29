@@ -51,10 +51,16 @@ $(function () {
       command_exec(bkeydown_times)
     }
   })
+
+  $(window).on('resize', () => {
+    $setTimeout(resize_handler, 100, 'resize-window')
+  })
 })
 // Trigger on Ctrl+Alt+X
 // @t - trigger times
 var command_exec = function (t) {}
+// Trigger on window.onresize
+var resize_handler = function () {}
 
 // MainNav
 var __initNavs = function () {

@@ -1,7 +1,8 @@
 .rbflow-design {
 	width: 100%;
+	background-color: #fff;
 	background-color: #f5f5f7;
-	overflow: auto;
+	user-select: none;
 }
 
 .rbflow-design .box-scale {
@@ -22,8 +23,6 @@
 	min-width: -moz-min-content;
 	min-width: min-content;
 	background-color: #f5f5f7;
-	-webkit-transform-origin: 0 0 0;
-	transform-origin: 0 0 0
 }
 
 .rbflow-design .add-node-btn-box {

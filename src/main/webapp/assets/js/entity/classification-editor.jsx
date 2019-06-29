@@ -4,14 +4,10 @@ const wpc = window.__PageConfig
 $(document).ready(function () {
   renderRbcomp(<LevelBoxes id={wpc.id} />, 'boxes')
   $('.J_imports').click(() => { renderRbcomp(<DlgImports id={wpc.id} />) })
-  $(window).on('resize', () => {
-    $setTimeout(resize_boxes, 100, 'resize-boxes')
-  })
+  window.resize_handler()
 })
-
-const resize_boxes = function () {
-  let wh = $(window).height() - 312
-  $('#boxes .rb-scroller').css('max-height', wh)
+window.resize_handler = function () {
+  $('#boxes .rb-scroller').css('max-height', $(window).height() - 312)
 }
 
 class LevelBoxes extends React.Component {

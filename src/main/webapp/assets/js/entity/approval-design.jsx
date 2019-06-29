@@ -2,7 +2,11 @@
 /* eslint-disable react/prop-types */
 $(document).ready(() => {
   renderRbcomp(<RbFlowCanvas nodeId="RBFLOW" />, 'rbflow')
+  window.resize_handler()
 })
+window.resize_handler = function () {
+  $('#rbflow').css('min-height', $(window).height() - 222)
+}
 
 // 节点类型
 const NTs = {
@@ -92,11 +96,11 @@ class Node extends NodeSpec {
           {this.props.nodeId !== 'ROOT' && <i className="zmdi zmdi-close aclose" title="移除" onClick={this.removeNodeQuick} />}
         </div>
         <div className="content">
-          <div className="text">{this.__nodeType[2]}{this.props.nodeId}</div>
+          <div className="text">{this.__nodeType[2]}</div>
           <i className="zmdi zmdi-chevron-right arrow"></i>
         </div>
       </div>
-      <AddNodeButton addNodeCall={this.addNodeQuick} title={this.props.nodeId} />
+      <AddNodeButton addNodeCall={this.addNodeQuick} />
     </div>)
   }
 }
@@ -120,7 +124,7 @@ class ConditionNode extends NodeSpec {
             return <ConditionCanvas key={this.props.nodeId + '-col' + idx} isFirst={idx === 0} isLast={idx === colLen} $$$parent={this} {...item} />
           })}
         </div>
-        <AddNodeButton addNodeCall={this.addNodeQuick} title={this.props.nodeId} />
+        <AddNodeButton addNodeCall={this.addNodeQuick} />
       </div>
     </div>)
   }
@@ -156,10 +160,10 @@ class ConditionCanvas extends CanvasSpec {
               <i className="zmdi zmdi-close aclose" title="移除" onClick={() => this.props.$$$parent.removeColumn(this.props.nodeId)} />
             </div>
             <div className="content">
-              请设置条件{this.props.nodeId}
+              请设置条件
             </div>
           </div>
-          <AddNodeButton addNodeCall={this.addNode} title={this.props.nodeId} />
+          <AddNodeButton addNodeCall={this.addNode} />
         </div>
       </div>
       {this.renderNodes()}
@@ -194,6 +198,7 @@ class RbFlowCanvas extends CanvasSpec {
     this.addNode('approver', null, () => {
       this.addNode('cc')
     })
+    $('.box-scale').draggable({ cursor: 'move', axis: 'x', scroll: false })
   }
 }
 
