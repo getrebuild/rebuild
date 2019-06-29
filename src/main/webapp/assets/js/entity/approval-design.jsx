@@ -1,6 +1,7 @@
+/* eslint-disable no-console */
 /* eslint-disable react/prop-types */
 $(document).ready(() => {
-  renderRbcomp(<RbFlowCanvas />, 'rbflow')
+  renderRbcomp(<RbFlowCanvas nodeId="RBFLOW" />, 'rbflow')
 })
 
 // 节点类型
@@ -12,7 +13,7 @@ const NTs = {
 // 添加节点按钮
 const AddNodeButton = function (props) {
   let c = function () { showDlgAddNode(props.addNodeCall) }
-  return (<div className="add-node-btn-box"><div className="add-node-btn"><button type="button" onClick={c}><i className="zmdi zmdi-plus" /></button></div></div>)
+  return (<div className="add-node-btn-box"><div className="add-node-btn"><button type="button" onClick={c} title={props.title}><i className="zmdi zmdi-plus" /></button></div></div>)
 }
 
 // 节点规范
@@ -22,6 +23,7 @@ class NodeSpec extends React.Component {
     this.state = { ...props }
     this.addNodeQuick = this.addNodeQuick.bind(this)
     this.removeNodeQuick = this.removeNodeQuick.bind(this)
+    console.log('NodeSpec ' + props.nodeId)
   }
   addNodeQuick(type) {
     this.props.$$$parent.addNode(type, this.props.nodeId)
@@ -38,6 +40,7 @@ class CanvasSpec extends React.Component {
     this.state.nodes = this.state.nodes || []
     this.addNode = this.addNode.bind(this)
     this.removeNode = this.removeNode.bind(this)
+    console.log('CanvasSpec ' + props.nodeId)
   }
   renderNodes() {
     let nodes = (this.state.nodes || []).map((item) => {
@@ -48,15 +51,14 @@ class CanvasSpec extends React.Component {
     return nodes
   }
   addNode(type, depsNodeId, call) {
-    let n = { type: type, nodeId: $random() }
+    let n = { type: type, nodeId: $random(type === 'condition' ? 'COND' : 'NODE') }
     let nodes = []
     if (depsNodeId) {
-      if (depsNodeId === 'ROOT') nodes.push(n)
+      if (depsNodeId === 'ROOT' || depsNodeId === 'COND') nodes.push(n)
       this.state.nodes.forEach((item) => {
         nodes.push(item)
         if (depsNodeId === item.nodeId) nodes.push(n)
       })
-      if (nodes.length === 0) nodes.push(n)
     } else {
       nodes = this.state.nodes || []
       nodes.push(n)
@@ -83,18 +85,18 @@ class Node extends NodeSpec {
     this.__nodeType = NTs[props.type || 'approver']
   }
   render() {
-    return (<div className="node-wrap" data-id={this.props.nodeId}>
+    return (<div className="node-wrap">
       <div className={'node-wrap-box ' + this.__nodeType[0] + '-node animated fadeIn'}>
         <div className="title">
           <span>{this.__nodeType[1]}</span>
           {this.props.nodeId !== 'ROOT' && <i className="zmdi zmdi-close aclose" title="移除" onClick={this.removeNodeQuick} />}
         </div>
         <div className="content">
-          <div className="text">{this.__nodeType[2]}</div>
+          <div className="text">{this.__nodeType[2]}{this.props.nodeId}</div>
           <i className="zmdi zmdi-chevron-right arrow"></i>
         </div>
       </div>
-      <AddNodeButton addNodeCall={this.addNodeQuick} />
+      <AddNodeButton addNodeCall={this.addNodeQuick} title={this.props.nodeId} />
     </div>)
   }
 }
@@ -103,28 +105,28 @@ class Node extends NodeSpec {
 class ConditionNode extends NodeSpec {
   constructor(props) {
     super(props)
-    this.state.columns = props.columns || [{ index: 1, nodeId: $random() }, { index: 2, nodeId: $random() }]
+    this.state.columns = props.columns || [{ index: 1, nodeId: $random('COND') }, { index: 2, nodeId: $random('COND') }]
     this.columnIndex = this.state.columns.length + 1
     this.addColumn = this.addColumn.bind(this)
     this.removeColumn = this.removeColumn.bind(this)
   }
   render() {
     let colLen = this.state.columns.length - 1
-    return (colLen > -1 && <div className="branch-wrap" data-id={this.props.nodeId}>
+    return (colLen > -1 && <div className="branch-wrap">
       <div className="branch-box-wrap">
         <div className="branch-box">
           <button className="add-branch" onClick={this.addColumn}>添加分支</button>
           {this.state.columns.map((item, idx) => {
-            return <ConditionCanvas key={this.props.nodeId + '-col-' + idx} isFirst={idx === 0} isLast={idx === colLen} $$$parent={this} {...item} />
+            return <ConditionCanvas key={this.props.nodeId + '-col' + idx} isFirst={idx === 0} isLast={idx === colLen} $$$parent={this} {...item} />
           })}
         </div>
-        <AddNodeButton addNodeCall={this.addNodeQuick} />
+        <AddNodeButton addNodeCall={this.addNodeQuick} title={this.props.nodeId} />
       </div>
     </div>)
   }
   addColumn() {
     let columns = this.state.columns
-    columns.push({ index: this.columnIndex++, nodeId: $random() })
+    columns.push({ index: this.columnIndex++, nodeId: $random('COND') })
     this.setState({ columns: columns })
   }
   removeColumn(nodeId) {
@@ -132,8 +134,7 @@ class ConditionNode extends NodeSpec {
     this.state.columns.forEach((item) => {
       if (nodeId !== item.nodeId) columns.push(item)
     })
-    this.setState({ columns: columns }, () => {
-    })
+    this.setState({ columns: columns })
   }
 }
 
@@ -146,7 +147,7 @@ class ConditionCanvas extends CanvasSpec {
     return (<div className="col-box">
       {this.state.isFirst && <div className="top-left-cover-line"></div>}
       {this.state.isFirst && <div className="bottom-left-cover-line"></div>}
-      <div className="condition-node" data-id={this.props.nodeId}>
+      <div className="condition-node">
         <div className="condition-node-box animated fadeIn">
           <div className="auto-judge">
             <div className="title-wrapper">
@@ -155,10 +156,10 @@ class ConditionCanvas extends CanvasSpec {
               <i className="zmdi zmdi-close aclose" title="移除" onClick={() => this.props.$$$parent.removeColumn(this.props.nodeId)} />
             </div>
             <div className="content">
-              请设置条件
+              请设置条件{this.props.nodeId}
             </div>
           </div>
-          <AddNodeButton addNodeCall={this.addNode} />
+          <AddNodeButton addNodeCall={this.addNode} title={this.props.nodeId} />
         </div>
       </div>
       {this.renderNodes()}
@@ -169,8 +170,8 @@ class ConditionCanvas extends CanvasSpec {
   componentWillReceiveProps(props) {
     this.setState({ ...props, nodes: this.state.nodes })
   }
-  addNode(type) {
-    super.addNode(type, this.props.nodeId)
+  addNode(type, depsNodeId) {
+    super.addNode(type, depsNodeId || 'COND')
   }
 }
 
