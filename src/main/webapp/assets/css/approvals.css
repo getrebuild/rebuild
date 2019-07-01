@@ -1,3 +1,20 @@
+.rb-right-sidebar {
+	width: 420px;
+	right: -420px;
+}
+
+#config-side .header {
+	border-bottom: 1px solid rgba(0, 0, 0, .1);
+	padding: 10px 20px;
+}
+
+#config-side .header>h5 {}
+
+#config-side form {
+	margin: 20px;
+}
+
+/* Flow draw */
 .rbflow-design {
 	width: 100%;
 	background-color: #fff;

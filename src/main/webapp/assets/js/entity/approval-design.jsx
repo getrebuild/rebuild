@@ -2,6 +2,11 @@
 /* eslint-disable react/prop-types */
 $(document).ready(() => {
   renderRbcomp(<RbFlowCanvas nodeId="RBFLOW" />, 'rbflow')
+  $(document.body).click(function () {
+    console.log('body removeClass')
+    // $(this).removeClass('open-right-sidebar')
+  })
+
   window.resize_handler()
 })
 window.resize_handler = function () {
@@ -25,26 +30,33 @@ class NodeSpec extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
-    this.addNodeQuick = this.addNodeQuick.bind(this)
-    this.removeNodeQuick = this.removeNodeQuick.bind(this)
-    console.log('NodeSpec ' + props.nodeId)
   }
-  addNodeQuick(type) {
+  addNodeQuick = (type) => {
     this.props.$$$parent.addNode(type, this.props.nodeId)
   }
-  removeNodeQuick() {
+  removeNodeQuick = () => {
     this.props.$$$parent.removeNode(this.props.nodeId)
+  }
+  openConfig = (e) => {
+    e.stopPropagation()
+    e.nativeEvent.stopImmediatePropagation()
+
+    let that = this
+    let call = function (d) {
+      that.setState({ data: d })
+    }
+    renderRbcomp(<NodeConfig type={this.nodeType} call={call} data={this.state.data} />, 'config-side', () => {
+      $(document.body).addClass('open-right-sidebar')
+    })
+  }
+  serialize() {
   }
 }
 // 画布规范
 class CanvasSpec extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { ...props }
-    this.state.nodes = this.state.nodes || []
-    this.addNode = this.addNode.bind(this)
-    this.removeNode = this.removeNode.bind(this)
-    console.log('CanvasSpec ' + props.nodeId)
+    this.state = { ...props, nodes: props.nodes || [] }
   }
   renderNodes() {
     let nodes = (this.state.nodes || []).map((item) => {
@@ -54,7 +66,7 @@ class CanvasSpec extends React.Component {
     })
     return nodes
   }
-  addNode(type, depsNodeId, call) {
+  addNode = (type, depsNodeId, call) => {
     let n = { type: type, nodeId: $random(type === 'condition' ? 'COND' : 'NODE') }
     let nodes = []
     if (depsNodeId) {
@@ -72,7 +84,7 @@ class CanvasSpec extends React.Component {
       hideDlgAddNode()
     })
   }
-  removeNode(nodeId) {
+  removeNode = (nodeId) => {
     let nodes = []
     this.state.nodes.forEach((item) => {
       if (nodeId !== item.nodeId) nodes.push(item)
@@ -86,17 +98,18 @@ class CanvasSpec extends React.Component {
 class Node extends NodeSpec {
   constructor(props) {
     super(props)
-    this.__nodeType = NTs[props.type || 'approver']
+    this.nodeType = props.type || 'approver'
   }
   render() {
+    let nt = NTs[this.nodeType]
     return (<div className="node-wrap">
-      <div className={'node-wrap-box ' + this.__nodeType[0] + '-node animated fadeIn'}>
+      <div className={'node-wrap-box ' + nt[0] + '-node animated fadeIn'}>
         <div className="title">
-          <span>{this.__nodeType[1]}</span>
+          <span>{nt[1]}</span>
           {this.props.nodeId !== 'ROOT' && <i className="zmdi zmdi-close aclose" title="移除" onClick={this.removeNodeQuick} />}
         </div>
-        <div className="content">
-          <div className="text">{this.__nodeType[2]}</div>
+        <div className="content" onClick={this.openConfig}>
+          <div className="text">{nt[2]}</div>
           <i className="zmdi zmdi-chevron-right arrow"></i>
         </div>
       </div>
@@ -111,8 +124,6 @@ class ConditionNode extends NodeSpec {
     super(props)
     this.state.columns = props.columns || [{ index: 1, nodeId: $random('COND') }, { index: 2, nodeId: $random('COND') }]
     this.columnIndex = this.state.columns.length + 1
-    this.addColumn = this.addColumn.bind(this)
-    this.removeColumn = this.removeColumn.bind(this)
   }
   render() {
     let colLen = this.state.columns.length - 1
@@ -128,12 +139,12 @@ class ConditionNode extends NodeSpec {
       </div>
     </div>)
   }
-  addColumn() {
+  addColumn = () => {
     let columns = this.state.columns
     columns.push({ index: this.columnIndex++, nodeId: $random('COND') })
     this.setState({ columns: columns })
   }
-  removeColumn(nodeId) {
+  removeColumn = (nodeId) => {
     let columns = []
     this.state.columns.forEach((item) => {
       if (nodeId !== item.nodeId) columns.push(item)
@@ -261,4 +272,32 @@ const showDlgAddNode = function (call) {
 }
 const hideDlgAddNode = function () {
   if (__DlgAddNode) __DlgAddNode.hide()
+}
+
+// 节点选项编辑
+class NodeConfig extends React.Component {
+  constructor(props) {
+    super(props)
+  }
+  render() {
+    return (<div>
+      <div className="header"><h5>发起人</h5></div>
+      <form>
+        <div className="form-group  mb-0">
+          <label>谁可以发起这个审批</label>
+          <label className="custom-control custom-control-sm custom-radio">
+            <input className="custom-control-input" type="radio" name={'radio-' + this.props.type} value="ALL" checked={true} /><span className="custom-control-label">所有人</span>
+          </label>
+          <label className="custom-control custom-control-sm custom-radio">
+            <input className="custom-control-input" type="radio" name={'radio-' + this.props.type} value="SPEC" /><span className="custom-control-label">指定人员</span>
+          </label>
+        </div>
+        <div className="form-group">
+          <UserSelector />
+        </div>
+      </form>
+    </div >)
+  }
+  componentDidMount() {
+  }
 }

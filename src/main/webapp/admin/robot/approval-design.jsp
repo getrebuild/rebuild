@@ -29,16 +29,23 @@
 								<li data-step="2" class="active">流程设计 <i class="chevron"></i></li>
 							</ul>
 							<div class="step-content p-0">
-								<div data-step="1" class="step-pane">
-								</div>
+								<div data-step="1" class="step-pane"></div>
 								<div data-step="2" class="step-pane active">
 									<div class="rbflow-design" id="rbflow">
+										加载中 ...
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
+			</div>
+		</div>
+	</div>
+	<div class="rb-right-sidebar">
+		<div class="sb-content">
+			<div id="config-side">
+				配置项
 			</div>
 		</div>
 	</div>

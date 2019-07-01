@@ -217,7 +217,7 @@ function RbAlertBox(props) {
 let renderRbcomp__counter = new Date().getTime()
 // @jsx
 // @target id or Element
-const renderRbcomp = function (jsx, target) {
+const renderRbcomp = function (jsx, target, call) {
   target = target || ('react-comps-' + renderRbcomp__counter++)
   if ($.type(target) === 'string') { // element id
     let container = document.getElementById(target)
@@ -229,7 +229,7 @@ const renderRbcomp = function (jsx, target) {
   } else {
     // Element object
   }
-  return ReactDOM.render(jsx, target)  // eslint-disable-line react/no-render-return-value
+  return ReactDOM.render(jsx, target, call)  // eslint-disable-line react/no-render-return-value
 }
 
 // -- Usage
