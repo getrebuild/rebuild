@@ -27,7 +27,7 @@ class LevelBoxes extends React.Component {
   componentDidMount() {
     this.notifyToggle(wpc.openLevel + 1, true)
     $('#boxes').removeClass('rb-loading-active')
-    resize_boxes()
+    window.resize_handler()
     $('#boxes .rb-scroller').perfectScrollbar()
   }
 

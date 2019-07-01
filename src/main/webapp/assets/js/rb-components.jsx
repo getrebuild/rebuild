@@ -59,10 +59,8 @@ class RbModalHandler extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
-    this.show = this.show.bind(this)
-    this.hide = this.hide.bind(this)
   }
-  show(state, call) {
+  show = (state, call) => {
     let callback = () => {
       // eslint-disable-next-line react/no-string-refs
       let dlg = this._dlg || this.refs['dlg']
@@ -72,7 +70,7 @@ class RbModalHandler extends React.Component {
     if (state && $.type(state) === 'object') this.setState(state, callback)
     else callback()
   }
-  hide() {
+  hide = () => {
     // eslint-disable-next-line react/no-string-refs
     let dlg = this._dlg || this.refs['dlg']
     if (dlg) dlg.hide()
@@ -83,9 +81,8 @@ class RbModalHandler extends React.Component {
 class RbFormHandler extends RbModalHandler {
   constructor(props) {
     super(props)
-    this.handleChange = this.handleChange.bind(this)
   }
-  handleChange(e, call) {
+  handleChange = (e, call) => {
     let target = e.target
     let id = target.dataset.id
     let val = target.type === 'checkbox' ? target.checked : target.value
@@ -337,7 +334,7 @@ class UserSelector extends React.Component {
             </ul>
           </span>
         </span>
-        <span className={'dropdown-wrapper ' + (this.state.dropdownOpen === false && 'hide')} onClick={(e) => { this.stopClickEvent(e); return false }}>
+        <span className={'dropdown-wrapper ' + (this.state.dropdownOpen === false && 'hide')}>
           <div className="selector-search">
             <div>
               <input type="search" className="form-control" placeholder="输入关键词搜索" value={this.state.query || ''} onChange={(e) => this.searchItems(e)} />
@@ -366,12 +363,16 @@ class UserSelector extends React.Component {
     </div >
   }
   componentDidMount() {
-    document.body.addEventListener('click', e => {
-      this.__dropdownCloseWait = setTimeout(() => {
-        this.setState({ dropdownOpen: false })
-      }, 100)
+    $(document.body).click((e) => {
+      if (e.target && (e.target.matches('div.user-selector') || $(e.target).parents('div.user-selector').length > 0)) return
+      if (this.__isUnmounted) return
+      this.setState({ dropdownOpen: false })
     })
     $(this._scroller).perfectScrollbar()
+  }
+  componentWillUnmount() {
+    this.__isUnmounted = true
+    $(this._scroller).perfectScrollbar('destroy')
   }
 
   clearSelection = () => {
@@ -382,10 +383,6 @@ class UserSelector extends React.Component {
       $(this._searchInput).focus()
       if (!this.state.tabType) this.switchTab('User')
     })
-    if (this.__dropdownCloseWait) clearTimeout(this.__dropdownCloseWait)
-  }
-  stopClickEvent = (e) => {
-    if (this.__dropdownCloseWait) clearTimeout(this.__dropdownCloseWait)
   }
 
   switchTab(type) {

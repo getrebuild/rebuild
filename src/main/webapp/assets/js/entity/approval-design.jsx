@@ -2,9 +2,10 @@
 /* eslint-disable react/prop-types */
 $(document).ready(() => {
   renderRbcomp(<RbFlowCanvas nodeId="RBFLOW" />, 'rbflow')
-  $(document.body).click(function () {
-    console.log('body removeClass')
-    // $(this).removeClass('open-right-sidebar')
+
+  $(document.body).click(function (e) {
+    if (e.target && (e.target.matches('div.rb-right-sidebar') || $(e.target).parents('div.rb-right-sidebar').length > 0)) return
+    $(this).removeClass('open-right-sidebar')
   })
 
   window.resize_handler()
@@ -31,25 +32,31 @@ class NodeSpec extends React.Component {
     super(props)
     this.state = { ...props }
   }
+  componentDidMount() {
+    this.props.$$$parent.onRef(this)
+  }
   addNodeQuick = (type) => {
     this.props.$$$parent.addNode(type, this.props.nodeId)
   }
   removeNodeQuick = () => {
     this.props.$$$parent.removeNode(this.props.nodeId)
   }
-  openConfig = (e) => {
-    e.stopPropagation()
-    e.nativeEvent.stopImmediatePropagation()
-
+  openConfig = () => {
     let that = this
     let call = function (d) {
-      that.setState({ data: d })
+      that.setState({ data: d }, () => {
+        $(document.body).removeClass('open-right-sidebar')
+      })
     }
-    renderRbcomp(<NodeConfig type={this.nodeType} call={call} data={this.state.data} />, 'config-side', () => {
-      $(document.body).addClass('open-right-sidebar')
-    })
+    renderRbcomp(<NodeConfig type={this.nodeType} call={call} data={this.state.data} />, 'config-side')
+
+    $(document.body).addClass('open-right-sidebar')
+    this.setState({ active: true })
   }
   serialize() {
+    let s = { type: this.props.type || 'approver', users: '$ALL$' }
+    if (this.state.data) s.users = this.state.data.users.join(',')
+    return s
   }
 }
 // 画布规范
@@ -57,6 +64,7 @@ class CanvasSpec extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props, nodes: props.nodes || [] }
+    this.__nodes = []
   }
   renderNodes() {
     let nodes = (this.state.nodes || []).map((item) => {
@@ -65,6 +73,9 @@ class CanvasSpec extends React.Component {
       else return <Node {...props} />
     })
     return nodes
+  }
+  onRef = (nodeRef) => {
+    this.__nodes.push(nodeRef)
   }
   addNode = (type, depsNodeId, call) => {
     let n = { type: type, nodeId: $random(type === 'condition' ? 'COND' : 'NODE') }
@@ -91,6 +102,12 @@ class CanvasSpec extends React.Component {
     })
     this.setState({ nodes: nodes })
   }
+  serialize() {
+    let s = this.__nodes.map((node) => {
+      return node.serialize()
+    })
+    return s
+  }
 }
 // 画布:节点 1:N
 
@@ -102,14 +119,17 @@ class Node extends NodeSpec {
   }
   render() {
     let nt = NTs[this.nodeType]
+    let users = this.state.data && this.state.data.users
+    if (!users || users[0] === '$ALL$') users = nt[2]
+    else users = '指定人员 (' + users.length + ')'
     return (<div className="node-wrap">
-      <div className={'node-wrap-box ' + nt[0] + '-node animated fadeIn'}>
+      <div className={`node-wrap-box ${nt[0]}-node animated fadeIn ${this.state.active && ' active'}`}>
         <div className="title">
           <span>{nt[1]}</span>
           {this.props.nodeId !== 'ROOT' && <i className="zmdi zmdi-close aclose" title="移除" onClick={this.removeNodeQuick} />}
         </div>
         <div className="content" onClick={this.openConfig}>
-          <div className="text">{nt[2]}</div>
+          <div className="text">{users}</div>
           <i className="zmdi zmdi-chevron-right arrow"></i>
         </div>
       </div>
@@ -210,6 +230,12 @@ class RbFlowCanvas extends CanvasSpec {
       this.addNode('cc')
     })
     $('.box-scale').draggable({ cursor: 'move', axis: 'x', scroll: false })
+    $('#rbflow').removeClass('rb-loading-active')
+
+    $('.J_save').click(() => {
+      let s = this.serialize()
+      console.log(JSON.stringify(s))
+    })
   }
 }
 
@@ -274,30 +300,47 @@ const hideDlgAddNode = function () {
   if (__DlgAddNode) __DlgAddNode.hide()
 }
 
+const CTs = { start: ['发起人', '谁可以发起这个审批', '所有人'], approver: ['审批人', '可以由谁审批', '发起人自选'], cc: ['抄送人', '审批结果抄送给谁', '发起人自选'] }
 // 节点选项编辑
-class NodeConfig extends React.Component {
+class NodeConfig extends RbFormHandler {
   constructor(props) {
     super(props)
+    this.state.users = 'ALL'
   }
   render() {
+    let ct = CTs[this.props.type] || 'start'
     return (<div>
-      <div className="header"><h5>发起人</h5></div>
-      <form>
+      <div className="header"><h5>{ct[0]}</h5></div>
+      <div className="form">
         <div className="form-group  mb-0">
-          <label>谁可以发起这个审批</label>
-          <label className="custom-control custom-control-sm custom-radio">
-            <input className="custom-control-input" type="radio" name={'radio-' + this.props.type} value="ALL" checked={true} /><span className="custom-control-label">所有人</span>
+          <label>{ct[1]}</label>
+          <label className="custom-control custom-control-sm custom-radio mb-2">
+            <input className="custom-control-input" type="radio" name="radio-users" data-id="users" value="ALL" onChange={this.handleChange} checked={this.state.users === 'ALL'} />
+            <span className="custom-control-label">{ct[2]}</span>
           </label>
-          <label className="custom-control custom-control-sm custom-radio">
-            <input className="custom-control-input" type="radio" name={'radio-' + this.props.type} value="SPEC" /><span className="custom-control-label">指定人员</span>
+          <label className="custom-control custom-control-sm custom-radio mb-2">
+            <input className="custom-control-input" type="radio" name="radio-users" data-id="users" value="SPEC" onChange={this.handleChange} checked={this.state.users === 'SPEC'} />
+            <span className="custom-control-label">指定人员</span>
           </label>
         </div>
-        <div className="form-group">
-          <UserSelector />
-        </div>
-      </form>
+        {this.state.users === 'SPEC' && <div className="form-group">
+          <UserSelector ref={(c) => this._users = c} />
+        </div>}
+      </div>
+      <div className="footer">
+        <button type="button" className="btn btn-primary" onClick={this.save}>确定</button>
+      </div>
     </div >)
   }
   componentDidMount() {
+  }
+  save = () => {
+    let s = { users: this.state.users === 'ALL' ? ['$ALL$'] : this._users.getSelected() }
+    if (s.users.length === 0) {
+      rb.highbar('请选择人员')
+      return
+    }
+    console.log(JSON.stringify(s))
+    typeof this.props.call && this.props.call(s)
   }
 }

@@ -17,6 +17,9 @@
 	<div class="rb-content">
 		<div class="page-head">
 			<div class="float-left"><div class="page-head-title">编辑审核流程</div></div>
+			<div class="float-right pt-1">
+				<button class="btn btn-primary J_save" type="button">保存并发布</button>
+			</div>
 			<div class="clearfix"></div>
 		</div>
 		<div class="main-content container-fluid pt-1">
@@ -31,8 +34,8 @@
 							<div class="step-content p-0">
 								<div data-step="1" class="step-pane"></div>
 								<div data-step="2" class="step-pane active">
-									<div class="rbflow-design" id="rbflow">
-										加载中 ...
+									<div class="rbflow-design rb-loading rb-loading-active" id="rbflow">
+										<%@ include file="/_include/spinner.jsp"%>
 									</div>
 								</div>
 							</div>
