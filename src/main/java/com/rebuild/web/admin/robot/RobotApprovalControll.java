@@ -59,7 +59,7 @@ public class RobotApprovalControll extends BasePageControll {
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID configId = ID.valueOf(id);
 		Object[] config = Application.createQuery(
-				"select belongEntity,name from RobotApprovalConfig where configId = ?")
+				"select belongEntity,name,flowDefinition from RobotApprovalConfig where configId = ?")
 				.setParameter(1, configId)
 				.unique();
 		if (config == null) {
@@ -73,7 +73,7 @@ public class RobotApprovalControll extends BasePageControll {
 		mv.getModel().put("configId", configId);
 		mv.getModel().put("name", config[1]);
 		mv.getModel().put("applyEntity", applyEntity.getName());
-		mv.getModel().put("applyEntityLabel", EasyMeta.getLabel(applyEntity));
+		mv.getModel().put("flowDefinition", config[2]);
 		return mv;
 	}
 	

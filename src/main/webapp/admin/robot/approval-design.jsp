@@ -60,7 +60,8 @@
 window.__PageConfig = {
 	configId: '${configId}',
 	name: '${name}',
-	sourceEntity: '${applyEntity}'
+	sourceEntity: '${applyEntity}',
+	flowDefinition: '${flowDefinition}'
 }
 </script>
 <script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
