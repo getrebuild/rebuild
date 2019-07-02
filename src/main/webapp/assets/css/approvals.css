@@ -11,6 +11,7 @@
 
 #config-side>div {
 	position: relative;
+	padding-bottom: 78px;
 }
 
 #config-side .header {
@@ -26,20 +27,41 @@
 	font-size: 16px;
 }
 
-#config-side .footer {
+#config-side .footer,
+#config-side .adv-filter-option .btn-footer {
 	position: absolute;
 	padding: 15px;
-	padding-bottom: 10px;
 	border-top: 1px solid rgba(0, 0, 0, .1);
 	bottom: 0;
 	right: 0;
 	width: 100%;
 	text-align: right;
+	background-color: #fafafa;
 }
 
 #config-side .form {
 	margin: 20px;
 	appearance: none;
+}
+
+#config-side .footer .btn+.btn {
+	margin-left: 10px;
+}
+
+#config-side .adv-filter-warp {
+	box-shadow: 0 0 0 #000 !important;
+	border-radius: 0;
+	background-color: transparent;
+	height: 100%;
+	padding: 20px 15px;
+}
+
+#config-side .adv-filter .item .field i.zmdi {
+	background-color: #fafafa;
+}
+
+#config-side .adv-filter-option {
+	position: static;
 }
 
 /* Flow draw */
@@ -288,15 +310,7 @@
 
 .rbflow-design .auto-judge .content {
 	color: #191f25;
-	text-align: left;
-	margin-top: 6px;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	display: -webkit-box;
-	-webkit-line-clamp: 3;
-	-webkit-box-orient: vertical;
 	clear: both;
-	padding-top: 12px;
 }
 
 .rbflow-design .auto-judge .sort-left,
@@ -442,7 +456,7 @@
 .auto-judge .aclose {
 	color: #aaa;
 	top: -2px;
-	right: -8px;
+	right: -6px;
 }
 
 .node-wrap-box:active .aclose,
@@ -452,12 +466,19 @@
 	display: block
 }
 
-.node-wrap-box .content {
+.node-wrap-box .content,
+.auto-judge .content {
 	position: relative;
 	padding: 15px 10px;
 }
 
-.node-wrap-box .content .text {
+.auto-judge .content {
+	padding: 0;
+	padding-top: 10px;
+}
+
+.node-wrap-box .content .text,
+.auto-judge .content .text {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	display: -webkit-box;
@@ -465,7 +486,8 @@
 	-webkit-box-orient: vertical
 }
 
-.node-wrap-box .content .arrow {
+.node-wrap-box .content .arrow,
+.auto-judge .content .arrow {
 	position: absolute;
 	right: 10px;
 	top: 50%;
@@ -473,6 +495,11 @@
 	font-size: 21px;
 	color: #ccc;
 	margin-top: -1px;
+}
+
+.auto-judge .content .arrow {
+	margin-top: 4px;
+	right: 0;
 }
 
 .node-wrap-box::before {

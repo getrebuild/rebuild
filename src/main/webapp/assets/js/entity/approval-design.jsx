@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+const wpc = window.__PageConfig
 $(document).ready(() => {
   renderRbcomp(<RbFlowCanvas nodeId="RBFLOW" />, 'rbflow')
 
@@ -207,14 +208,15 @@ class ConditionBranch extends NodeGroupSpec {
       {this.state.isFirst && <div className="bottom-left-cover-line"></div>}
       <div className="condition-node">
         <div className="condition-node-box animated fadeIn">
-          <div className="auto-judge">
+          <div className="auto-judge" onClick={this.openConfig}>
             <div className="title-wrapper">
               <span className="editable-title float-left">分支条件{this.props.index}</span>
               <span className="priority-title float-right">默认优先级</span>
               <i className="zmdi zmdi-close aclose" title="移除" onClick={() => this.props.$$$parent.removeColumn(this.props.nodeId)} />
             </div>
             <div className="content">
-              请设置条件
+              <div className="text">{'请设置条件'}</div>
+              <i className="zmdi zmdi-chevron-right arrow"></i>
             </div>
           </div>
           <AddNodeButton addNodeCall={this.addNode} />
@@ -238,9 +240,22 @@ class ConditionBranch extends NodeGroupSpec {
     super.removeNode(nodeId)
     this.props.$$$parent.onRef(this, true)
   }
+  openConfig = () => {
+    let that = this
+    let call = function (d) {
+      that.setState({ data: d, active: false }, () => {
+        $(document.body).removeClass('open-right-sidebar')
+      })
+    }
+
+    renderRbcomp(<ConditionNodeConfig entity={wpc.sourceEntity} call={call} data={this.state.data} />, 'config-side')
+
+    $(document.body).addClass('open-right-sidebar')
+    this.setState({ active: true })
+  }
   serialize() {
     let s = super.serialize()
-    s.condition = this.state.condition || []
+    s.condition = this.state.data
     return s
   }
 }
@@ -373,8 +388,8 @@ class StartNodeConfig extends RbFormHandler {
   }
   renderButton() {
     return <div className="footer">
-      <button type="button" className="btn btn-secondary btn-space" onClick={this.cancel}>取消</button>
-      <button type="button" className="btn btn-primary btn-space" onClick={this.save}>确定</button>
+      <button type="button" className="btn btn-primary" onClick={this.save}>确定</button>
+      <button type="button" className="btn btn-secondary" onClick={this.cancel}>取消</button>
     </div>
   }
   componentDidMount() {
@@ -487,5 +502,24 @@ class CCNodeConfig extends StartNodeConfig {
       return
     }
     typeof this.props.call && this.props.call(d)
+  }
+}
+
+// 条件
+class ConditionNodeConfig extends React.Component {
+  constructor(props) {
+    super(props)
+  }
+  render() {
+    return (<div>
+      <div className="header"><h5>条件</h5></div>
+      <AdvFilter entity={this.props.entity} confirm={this.save} cancel={this.cancel} canNoFilters={true} />
+    </div>)
+  }
+  save = (filter) => {
+    typeof this.props.call && this.props.call(filter)
+  }
+  cancel = () => {
+    $(document.body).removeClass('open-right-sidebar')
   }
 }

@@ -40,7 +40,7 @@ class AdvFilter extends React.Component {
             <div className="item plus"><a onClick={() => this.addItem()} tabIndex="-1"><i className="zmdi zmdi-plus-circle icon"></i> 添加条件</a></div>
           </div>
         </div>
-        <div className="adv-filter">
+        <div className="adv-filter adv-filter-option">
           <div className="mb-1">
             <div className="item mt-1">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2">
@@ -70,7 +70,7 @@ class AdvFilter extends React.Component {
               {operBtns}
               <div className="clearfix" />
             </div>
-            : (<div>{operBtns}</div>)}
+            : (<div className="btn-footer">{operBtns}</div>)}
         </div>
       </div>
     )
