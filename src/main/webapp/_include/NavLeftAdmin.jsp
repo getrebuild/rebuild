@@ -31,7 +31,7 @@
 					<li class="${param['activeNav'] == 'audit-logging' ? 'active' : ''} hide"><a href="${baseUrl}/admin/audit-logging"><i class="icon zmdi zmdi-assignment-check"></i><span>数据审计</span></a></li>
 					<li class="${param['activeNav'] == 'data-importer' ? 'active' : ''}"><a href="${baseUrl}/admin/dataio/importer"><i class="icon zmdi zmdi-cloud-upload"></i><span>数据导入</span></a></li>
 					<li class="${param['activeNav'] == 'robot-trigger' ? 'active' : ''}"><a href="${baseUrl}/admin/robot/triggers"><i class="icon zmdi zmdi-rotate-cw"></i><span>触发器</span></a></li>
-					<li class="${param['activeNav'] == 'robot-approval' ? 'active' : ''}"><a href="${baseUrl}/admin/robot/approvals"><i class="icon zmdi zmdi-assignment-check"></i><span>审核流程</span></a></li>
+					<li class="${param['activeNav'] == 'robot-approval' ? 'active' : ''}"><a href="${baseUrl}/admin/robot/approvals"><i class="icon zmdi zmdi-assignment-check"></i><span>审批流程</span></a></li>
 					<li class="divider">用户</li>
 					<li class="${param['activeNav'] == 'users' ? 'active' : ''}"><a href="${baseUrl}/admin/bizuser/users"><i class="icon zmdi zmdi-accounts"></i><span>部门用户</span></a></li>
 					<li class="${param['activeNav'] == 'role-privileges' ? 'active' : ''}"><a href="${baseUrl}/admin/bizuser/role-privileges"><i class="icon zmdi zmdi-lock"></i><span>角色权限</span></a></li>

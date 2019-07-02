@@ -63,7 +63,7 @@ public class RobotApprovalControll extends BasePageControll {
 				.setParameter(1, configId)
 				.unique();
 		if (config == null) {
-			response.sendError(404, "审核流程不存在");
+			response.sendError(404, "审批流程不存在");
 			return null;
 		}
 		

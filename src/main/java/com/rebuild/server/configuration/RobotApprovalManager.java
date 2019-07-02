@@ -23,7 +23,7 @@ import com.rebuild.server.Application;
 import cn.devezhao.persist4j.Entity;
 
 /**
- * 审核流程管理
+ * 审批流程管理
  * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/06/24

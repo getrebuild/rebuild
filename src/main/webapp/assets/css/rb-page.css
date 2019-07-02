@@ -1856,3 +1856,17 @@ form {
     margin: 0;
     border: 0 none;
 }
+
+.page-head-title .sub-title {
+    color: #5e5e5e;
+    font-size: 1.077rem;
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.page-head-title .sub-title::before {
+    display: inline-block;
+    padding-right: .6154rem;
+    color: #878787;
+    content: "/";
+}

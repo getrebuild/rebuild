@@ -230,26 +230,26 @@
 	
 	<!--
 	<entity name="ApporvalFields" type-code="000">
-		<field name="apporvalId" type="reference" ref-entity="RobotApprovalConfig" description="审核流程" />
-		<field name="apporvalState" type="small-int" default-value="0" description="审核状态" />
+		<field name="apporvalId" type="reference" ref-entity="RobotApprovalConfig" description="审批流程" />
+		<field name="apporvalState" type="small-int" default-value="0" description="审批状态" />
 		<field name="apporvalStepId" type="reference" ref-entity="RobotApprovalStep" description="当前步骤" />
 	</entity>
 	-->
 	
-	<entity name="RobotApprovalConfig" type-code="028" description="审核流程">
+	<entity name="RobotApprovalConfig" type-code="028" description="审批流程">
 		<field name="configId" type="primary"/>
 		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
 		<field name="name" type="string" max-length="100" nullable="false" />
 		<field name="flowDefinition" type="text" description="流程定义" />
 	</entity>
 	
-	<entity name="RobotApprovalStep" type-code="029" description="审核流程步骤" parent="false">
+	<entity name="RobotApprovalStep" type-code="029" description="审批流程步骤" parent="false">
 		<field name="stepId" type="primary"/>
 		<field name="approvalId" type="reference" ref-entity="RobotApprovalConfig" nullable="false" updatable="false" cascade="delete" description="所属流程"  />
 		<field name="prevSetpId" type="reference" ref-entity="RobotApprovalStep" description="上一步" />
 	</entity>
 	
-	<entity name="RobotApprovalHistory" type-code="030" description="审核流程历史">
+	<entity name="RobotApprovalHistory" type-code="030" description="审批流程历史">
 		<field name="historyId" type="primary"/>
 	</entity>
 </metadata-config>

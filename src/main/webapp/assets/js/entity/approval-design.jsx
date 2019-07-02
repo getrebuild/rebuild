@@ -2,12 +2,10 @@
 const wpc = window.__PageConfig
 $(document).ready(() => {
   renderRbcomp(<RbFlowCanvas nodeId="RBFLOW" />, 'rbflow')
-
   $(document.body).click(function (e) {
     if (e.target && (e.target.matches('div.rb-right-sidebar') || $(e.target).parents('div.rb-right-sidebar').length > 0)) return
     $(this).removeClass('open-right-sidebar')
   })
-
   window.resize_handler()
 })
 window.resize_handler = function () {
@@ -296,9 +294,19 @@ class RbFlowCanvas extends NodeGroupSpec {
     $('.box-scale').draggable({ cursor: 'move', axis: 'x', scroll: false })
     $('#rbflow').removeClass('rb-loading-active')
 
-    $('.J_save').click(() => {
+    let _btn = $('.J_save').click(() => {
       let s = this.serialize()
       console.log(JSON.stringify(s))
+      if (!s) return
+      let _data = { flowDefinition: s }
+      _data.metadata = { entity: 'RobotApprovalConfig', id: wpc.configId }
+
+      _btn.button('loading')
+      $.post(`${rb.baseUrl}/app/entity/record-save`, JSON.stringify(_data), (res) => {
+        if (res.error_code === 0) location.href = '../approvals'
+        else rb.hberror(res.error_msg)
+        _btn.button('reset')
+      })
     })
   }
   serialize() {
@@ -306,7 +314,6 @@ class RbFlowCanvas extends NodeGroupSpec {
     ns.nodes.insert(0, this._root.serialize())
     return ns
   }
-  let
 }
 
 // ~ 添加节点

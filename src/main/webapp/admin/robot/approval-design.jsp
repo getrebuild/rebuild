@@ -4,7 +4,7 @@
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/approvals.css">
-<title>编辑审核流程</title>
+<title>编辑审批流程</title>
 </head>
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header">
@@ -16,7 +16,9 @@
 	</jsp:include>
 	<div class="rb-content">
 		<div class="page-head">
-			<div class="float-left"><div class="page-head-title">编辑审核流程</div></div>
+			<div class="float-left">
+				<div class="page-head-title">编辑审批流程<span class="sub-title">${name}</span></div>
+			</div>
 			<div class="float-right pt-1">
 				<button class="btn btn-primary J_save" type="button">保存并发布</button>
 			</div>

@@ -16,7 +16,9 @@
 	</jsp:include>
 	<div class="rb-content">
 		<div class="page-head">
-			<div class="float-left"><div class="page-head-title">${name}<small class="fs-14 text-muted ml-1"> / 编辑分类数据</small></div></div>
+			<div class="float-left">
+				<div class="page-head-title">编辑分类数据<span class="sub-title">${name}</span></div>
+			</div>
 			<div class="float-right pt-1">
 				<button class="btn btn-secondary J_imports" type="button"><i class="zmdi zmdi-cloud-download"></i> 导入公共数据</button>
 			</div>
