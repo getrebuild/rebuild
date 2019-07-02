@@ -3,6 +3,16 @@
 	right: -420px;
 }
 
+.rb-right-sidebar .sb-content,
+.rb-right-sidebar #config-side,
+.rb-right-sidebar #config-side>div {
+	height: 100%;
+}
+
+#config-side>div {
+	position: relative;
+}
+
 #config-side .header {
 	border-bottom: 1px solid rgba(0, 0, 0, .1);
 	padding: 10px 20px;
@@ -17,7 +27,14 @@
 }
 
 #config-side .footer {
-	padding: 0 20px;
+	position: absolute;
+	padding: 15px;
+	padding-bottom: 10px;
+	border-top: 1px solid rgba(0, 0, 0, .1);
+	bottom: 0;
+	right: 0;
+	width: 100%;
+	text-align: right;
 }
 
 #config-side .form {
@@ -158,7 +175,7 @@
 	height: 32px;
 	line-height: 32px;
 	border-radius: 15px;
-	color: rgb(166, 179, 192);
+	color: #409EFF;
 	background: #fff;
 	position: absolute;
 	top: -18px;
@@ -428,10 +445,8 @@
 	right: -8px;
 }
 
-.node-wrap-box.active .aclose,
 .node-wrap-box:active .aclose,
 .node-wrap-box:hover .aclose,
-.auto-judge.active .aclose,
 .auto-judge:active .aclose,
 .auto-judge:hover .aclose {
 	display: block
@@ -521,8 +536,8 @@
 	background-color: #67C23A;
 }
 
-.node-wrap-box.active00 {
-	box-shadow: -3px -3px 8px -2px #409EFF !important
+.node-wrap-box.active {
+	box-shadow: 0 5px 5px 0 rgba(0, 0, 0, .2) !important;
 }
 
 .node-wrap-box:hover,

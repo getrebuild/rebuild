@@ -84,7 +84,8 @@ class RbFormHandler extends RbModalHandler {
   }
   handleChange = (e, call) => {
     let target = e.target
-    let id = target.dataset.id
+    let id = target.dataset.id || target.name
+    if (!id) return
     let val = target.type === 'checkbox' ? target.checked : target.value
     let s = {}
     s[id] = val
@@ -178,7 +179,7 @@ class RbHighbar extends React.Component {
     </div>)
   }
   componentDidMount() {
-    setTimeout(() => { this.close() }, this.props.timeout || 2000)
+    setTimeout(() => { this.close() }, this.props.timeout || 3000)
   }
   close() {
     this.setState({ animatedClass: 'fadeOut' }, () => {
@@ -301,7 +302,7 @@ rb.hberror = (message) => {
   rb.highbar(message || '系统繁忙，请稍后重试', 'danger', { timeout: 5000 })
 }
 rb.hbsuccess = (message) => {
-  rb.highbar(message || '操作成功', 'success')
+  rb.highbar(message || '操作成功', 'success', { timeout: 2000 })
 }
 
 // ~ 用户选择器
@@ -373,6 +374,9 @@ class UserSelector extends React.Component {
   componentWillUnmount() {
     this.__isUnmounted = true
     $(this._scroller).perfectScrollbar('destroy')
+  }
+  componentWillReceiveProps(props) {
+    this.setState({ selected: props.selected || this.state.selected })
   }
 
   clearSelection = () => {

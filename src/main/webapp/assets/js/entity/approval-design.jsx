@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /* eslint-disable react/prop-types */
 $(document).ready(() => {
   renderRbcomp(<RbFlowCanvas nodeId="RBFLOW" />, 'rbflow')
@@ -14,6 +13,8 @@ window.resize_handler = function () {
   $('#rbflow').css('min-height', $(window).height() - 222)
 }
 
+// 画布准备完毕
+let isCanvasMounted = false
 // 节点类型
 const NTs = {
   'start': ['start', '发起人', '所有人'],
@@ -40,31 +41,34 @@ class NodeSpec extends React.Component {
   }
   removeNodeQuick = () => {
     this.props.$$$parent.removeNode(this.props.nodeId)
+    this.props.$$$parent.onRef(this, true)
   }
   openConfig = () => {
     let that = this
     let call = function (d) {
-      that.setState({ data: d }, () => {
+      that.setState({ data: d, active: false }, () => {
         $(document.body).removeClass('open-right-sidebar')
       })
     }
-    renderRbcomp(<NodeConfig type={this.nodeType} call={call} data={this.state.data} />, 'config-side')
+
+    let props = { ...(this.state.data || {}), call: call }
+    if (this.nodeType === 'start') renderRbcomp(<StartNodeConfig {...props} />, 'config-side')
+    else if (this.nodeType === 'approver') renderRbcomp(<ApproverNodeConfig {...props} />, 'config-side')
+    else if (this.nodeType === 'cc') renderRbcomp(<CCNodeConfig {...props} />, 'config-side')
 
     $(document.body).addClass('open-right-sidebar')
     this.setState({ active: true })
   }
   serialize() {
-    let s = { type: this.props.type || 'approver', users: '$ALL$' }
-    if (this.state.data) s.users = this.state.data.users.join(',')
-    return s
+    return { type: this.props.type, id: this.props.nodeId, data: this.state.data }
   }
 }
-// 画布规范
-class CanvasSpec extends React.Component {
+// 节点组规范
+class NodeGroupSpec extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props, nodes: props.nodes || [] }
-    this.__nodes = []
+    this.__nodeRefs = {}
   }
   renderNodes() {
     let nodes = (this.state.nodes || []).map((item) => {
@@ -74,8 +78,9 @@ class CanvasSpec extends React.Component {
     })
     return nodes
   }
-  onRef = (nodeRef) => {
-    this.__nodes.push(nodeRef)
+  onRef = (nodeRef, remove) => {
+    let nodeId = nodeRef.props.nodeId
+    this.__nodeRefs[nodeId] = (remove ? null : nodeRef)
   }
   addNode = (type, depsNodeId, call) => {
     let n = { type: type, nodeId: $random(type === 'condition' ? 'COND' : 'NODE') }
@@ -87,12 +92,19 @@ class CanvasSpec extends React.Component {
         if (depsNodeId === item.nodeId) nodes.push(n)
       })
     } else {
-      nodes = this.state.nodes || []
       nodes.push(n)
+      this.state.nodes.forEach((item) => {
+        nodes.push(item)
+      })
     }
     this.setState({ nodes: nodes }, () => {
-      typeof call === 'function' && call()
+      typeof call === 'function' && call(n.nodeId)
       hideDlgAddNode()
+      if (isCanvasMounted && type !== 'condition') {
+        setTimeout(() => {
+          if (this.__nodeRefs[n.nodeId]) this.__nodeRefs[n.nodeId].openConfig()
+        }, 200)
+      }
     })
   }
   removeNode = (nodeId) => {
@@ -103,10 +115,10 @@ class CanvasSpec extends React.Component {
     this.setState({ nodes: nodes })
   }
   serialize() {
-    let s = this.__nodes.map((node) => {
-      return node.serialize()
+    let ns = this.state.nodes.map((item) => {
+      return this.__nodeRefs[item.nodeId].serialize()
     })
-    return s
+    return { nodes: ns }
   }
 }
 // 画布:节点 1:N
@@ -120,10 +132,10 @@ class Node extends NodeSpec {
   render() {
     let nt = NTs[this.nodeType]
     let users = this.state.data && this.state.data.users
-    if (!users || users[0] === '$ALL$') users = nt[2]
+    if (!users || users.length === 0 || users[0] === 'ALL') users = nt[2]
     else users = '指定人员 (' + users.length + ')'
     return (<div className="node-wrap">
-      <div className={`node-wrap-box ${nt[0]}-node animated fadeIn ${this.state.active && ' active'}`}>
+      <div className={`node-wrap-box ${nt[0]}-node animated fadeIn`}>
         <div className="title">
           <span>{nt[1]}</span>
           {this.props.nodeId !== 'ROOT' && <i className="zmdi zmdi-close aclose" title="移除" onClick={this.removeNodeQuick} />}
@@ -142,39 +154,50 @@ class Node extends NodeSpec {
 class ConditionNode extends NodeSpec {
   constructor(props) {
     super(props)
-    this.state.columns = props.columns || [{ index: 1, nodeId: $random('COND') }, { index: 2, nodeId: $random('COND') }]
-    this.columnIndex = this.state.columns.length + 1
+    this.state.branches = props.branches || [{ index: 1, nodeId: $random('COND') }, { index: 2, nodeId: $random('COND') }]
+    this.branchIndex = this.state.branches.length + 1
+    this.__branches = []
   }
   render() {
-    let colLen = this.state.columns.length - 1
-    return (colLen > 0 && <div className="branch-wrap">
+    let bLen = this.state.branches.length - 1
+    return (bLen > 0 && <div className="branch-wrap">
       <div className="branch-box-wrap">
         <div className="branch-box">
-          <button className="add-branch" onClick={this.addColumn}>添加分支</button>
-          {this.state.columns.map((item, idx) => {
-            return <ConditionCanvas key={this.props.nodeId + '-col' + idx} isFirst={idx === 0} isLast={idx === colLen} $$$parent={this} {...item} />
+          <button className="add-branch" onClick={this.addBranch}>添加分支</button>
+          {this.state.branches.map((item, idx) => {
+            return <ConditionBranch key={this.props.nodeId + '-col' + idx} isFirst={idx === 0} isLast={idx === bLen} $$$parent={this} {...item} />
           })}
         </div>
         <AddNodeButton addNodeCall={this.addNodeQuick} />
       </div>
     </div>)
   }
-  addColumn = () => {
-    let columns = this.state.columns
-    columns.push({ index: this.columnIndex++, nodeId: $random('COND') })
-    this.setState({ columns: columns })
+  onRef = (branchRef, remove) => {
+    if (remove) this.__branches.remove(branchRef)
+    else this.__branches.push(branchRef)
+  }
+  addBranch = () => {
+    let bs = this.state.branches
+    bs.push({ index: this.branchIndex++, nodeId: $random('COND') })
+    this.setState({ branches: bs })
   }
   removeColumn = (nodeId) => {
-    let columns = []
-    this.state.columns.forEach((item) => {
-      if (nodeId !== item.nodeId) columns.push(item)
+    let bs = []
+    this.state.branches.forEach((item) => {
+      if (nodeId !== item.nodeId) bs.push(item)
     })
-    this.setState({ columns: columns })
+    this.setState({ branches: bs })
+  }
+  serialize() {
+    let bs = this.__branches.map((b) => {
+      return b.serialize()
+    })
+    return { branches: bs }
   }
 }
 
-// 条件列画布
-class ConditionCanvas extends CanvasSpec {
+// 条件节点序列
+class ConditionBranch extends NodeGroupSpec {
   constructor(props) {
     super(props)
   }
@@ -202,22 +225,34 @@ class ConditionCanvas extends CanvasSpec {
       {this.state.isLast && <div className="bottom-right-cover-line"></div>}
     </div>)
   }
+  componentDidMount() {
+    this.props.$$$parent.onRef(this)
+  }
   componentWillReceiveProps(props) {
     this.setState({ ...props, nodes: this.state.nodes })
   }
   addNode(type, depsNodeId) {
     super.addNode(type, depsNodeId || 'COND')
   }
+  removeNode(nodeId) {
+    super.removeNode(nodeId)
+    this.props.$$$parent.onRef(this, true)
+  }
+  serialize() {
+    let s = super.serialize()
+    s.condition = this.state.condition || []
+    return s
+  }
 }
 
-// 大画布
-class RbFlowCanvas extends CanvasSpec {
+// 画布
+class RbFlowCanvas extends NodeGroupSpec {
   constructor(props) {
     super(props)
   }
   render() {
     return (<div className="box-scale">
-      <Node type="start" $$$parent={this} nodeId="ROOT" />
+      <Node type="start" $$$parent={this} nodeId="ROOT" ref={(c) => this._root = c} />
       {this.renderNodes()}
       <div className="end-node">
         <div className="end-node-circle"></div>
@@ -226,8 +261,9 @@ class RbFlowCanvas extends CanvasSpec {
     </div>)
   }
   componentDidMount() {
-    this.addNode('approver', null, () => {
-      this.addNode('cc')
+    this.addNode('approver', null, (prevNodeId) => {
+      this.addNode('cc', prevNodeId)
+      setTimeout(() => isCanvasMounted = true, 400)
     })
     $('.box-scale').draggable({ cursor: 'move', axis: 'x', scroll: false })
     $('#rbflow').removeClass('rb-loading-active')
@@ -237,6 +273,12 @@ class RbFlowCanvas extends CanvasSpec {
       console.log(JSON.stringify(s))
     })
   }
+  serialize() {
+    let ns = super.serialize()
+    ns.nodes.insert(0, this._root.serialize())
+    return ns
+  }
+  let
 }
 
 // ~ 添加节点
@@ -300,47 +342,150 @@ const hideDlgAddNode = function () {
   if (__DlgAddNode) __DlgAddNode.hide()
 }
 
-const CTs = { start: ['发起人', '谁可以发起这个审批', '所有人'], approver: ['审批人', '可以由谁审批', '发起人自选'], cc: ['抄送人', '审批结果抄送给谁', '发起人自选'] }
-// 节点选项编辑
-class NodeConfig extends RbFormHandler {
+// 发起人
+class StartNodeConfig extends RbFormHandler {
   constructor(props) {
     super(props)
     this.state.users = 'ALL'
+    if (props.users) this.state.users = props.users[0] === 'ALL' ? 'ALL' : 'SPEC'
   }
   render() {
-    let ct = CTs[this.props.type] || 'start'
     return (<div>
-      <div className="header"><h5>{ct[0]}</h5></div>
+      <div className="header"><h5>发起人</h5></div>
       <div className="form">
-        <div className="form-group  mb-0">
-          <label>{ct[1]}</label>
+        <div className="form-group mb-0">
+          <label className="text-bold">谁可以发起这个审批</label>
           <label className="custom-control custom-control-sm custom-radio mb-2">
-            <input className="custom-control-input" type="radio" name="radio-users" data-id="users" value="ALL" onChange={this.handleChange} checked={this.state.users === 'ALL'} />
-            <span className="custom-control-label">{ct[2]}</span>
+            <input className="custom-control-input" type="radio" name="users" value="ALL" onChange={this.handleChange} checked={this.state.users === 'ALL'} />
+            <span className="custom-control-label">所有人</span>
           </label>
           <label className="custom-control custom-control-sm custom-radio mb-2">
-            <input className="custom-control-input" type="radio" name="radio-users" data-id="users" value="SPEC" onChange={this.handleChange} checked={this.state.users === 'SPEC'} />
+            <input className="custom-control-input" type="radio" name="users" value="SPEC" onChange={this.handleChange} checked={this.state.users === 'SPEC'} />
             <span className="custom-control-label">指定人员</span>
           </label>
         </div>
         {this.state.users === 'SPEC' && <div className="form-group">
-          <UserSelector ref={(c) => this._users = c} />
+          <UserSelector selected={this.state.selectedUsers} ref={(c) => this._users = c} />
         </div>}
       </div>
-      <div className="footer">
-        <button type="button" className="btn btn-primary" onClick={this.save}>确定</button>
-      </div>
-    </div >)
+      {this.renderButton()}
+    </div>)
+  }
+  renderButton() {
+    return <div className="footer">
+      <button type="button" className="btn btn-secondary btn-space" onClick={this.cancel}>取消</button>
+      <button type="button" className="btn btn-primary btn-space" onClick={this.save}>确定</button>
+    </div>
   }
   componentDidMount() {
+    if (this.state.users === 'SPEC' && this.props.users) {
+      $.post(`${rb.baseUrl}/commons/search/user-selector?entity=`, JSON.stringify(this.props.users), (res) => {
+        if (res.data.length > 0) this.setState({ selectedUsers: res.data })
+      })
+    }
   }
   save = () => {
-    let s = { users: this.state.users === 'ALL' ? ['$ALL$'] : this._users.getSelected() }
-    if (s.users.length === 0) {
+    let d = { users: this.state.users === 'ALL' ? ['ALL'] : this._users.getSelected() }
+    if (d.users.length === 0) {
       rb.highbar('请选择人员')
       return
     }
-    console.log(JSON.stringify(s))
-    typeof this.props.call && this.props.call(s)
+    typeof this.props.call && this.props.call(d)
+  }
+  cancel = () => {
+    $(document.body).removeClass('open-right-sidebar')
+  }
+}
+
+// 审批人
+class ApproverNodeConfig extends StartNodeConfig {
+  constructor(props) {
+    super(props)
+    this.state.signMode = props.signMode || 'OR'
+    if (props.users && props.users[0] === 'SELF') this.state.users = 'SELF'
+  }
+  render() {
+    return (<div>
+      <div className="header"><h5>审批人</h5></div>
+      <div className="form">
+        <div className="form-group mb-0">
+          <label className="text-bold">由谁审批</label>
+          <label className="custom-control custom-control-sm custom-radio mb-2">
+            <input className="custom-control-input" type="radio" name="users" value="ALL" onChange={this.handleChange} checked={this.state.users === 'ALL'} />
+            <span className="custom-control-label">发起人自选</span>
+          </label>
+          <label className="custom-control custom-control-sm custom-radio mb-2">
+            <input className="custom-control-input" type="radio" name="users" value="SELF" onChange={this.handleChange} checked={this.state.users === 'SELF'} />
+            <span className="custom-control-label">发起人自己</span>
+          </label>
+          <label className="custom-control custom-control-sm custom-radio mb-2">
+            <input className="custom-control-input" type="radio" name="users" value="SPEC" onChange={this.handleChange} checked={this.state.users === 'SPEC'} />
+            <span className="custom-control-label">指定审批人</span>
+          </label>
+        </div>
+        {this.state.users === 'SPEC' && <div className="form-group">
+          <UserSelector selected={this.state.selectedUsers} ref={(c) => this._users = c} />
+        </div>}
+        <div className="form-group mt-4">
+          <label className="text-bold">当有多人审批时</label>
+          <label className="custom-control custom-control-sm custom-radio mb-2">
+            <input className="custom-control-input" type="radio" name="signMode" value="ALL" onChange={this.handleChange} checked={this.state.signMode === 'ALL'} />
+            <span className="custom-control-label">依次审批</span>
+          </label>
+          <label className="custom-control custom-control-sm custom-radio mb-2">
+            <input className="custom-control-input" type="radio" name="signMode" value="AND" onChange={this.handleChange} checked={this.state.signMode === 'AND'} />
+            <span className="custom-control-label">会签（需所有审批人同意）</span>
+          </label>
+          <label className="custom-control custom-control-sm custom-radio mb-2">
+            <input className="custom-control-input" type="radio" name="signMode" value="OR" onChange={this.handleChange} checked={this.state.signMode === 'OR'} />
+            <span className="custom-control-label">或签（一名审批人同意或拒绝）</span>
+          </label>
+        </div>
+      </div>
+      {this.renderButton()}
+    </div>)
+  }
+  save = () => {
+    let d = { users: this.state.users === 'SPEC' ? this._users.getSelected() : [this.state.users], signMode: this.state.signMode }
+    if (d.users.length === 0) {
+      rb.highbar('请选择审批人')
+      return
+    }
+    typeof this.props.call && this.props.call(d)
+  }
+}
+
+// 抄送人
+class CCNodeConfig extends StartNodeConfig {
+  constructor(props) {
+    super(props)
+    this.state.selfSelecting = true
+    if (props.data && props.data.selfSelecting === false) this.state.selfSelecting = false
+  }
+  render() {
+    return (<div>
+      <div className="header"><h5>抄送人</h5></div>
+      <div className="form">
+        <div className="form-group">
+          <label className="text-bold">审批结果抄送给谁</label>
+          <UserSelector selected={this.state.selectedUsers} ref={(c) => this._users = c} />
+        </div>
+        <div className="form-group mb-0">
+          <label className="custom-control custom-control-sm custom-checkbox">
+            <input className="custom-control-input" type="checkbox" name="selfSelecting" checked={this.state.selfSelecting} onChange={this.handleChange} />
+            <span className="custom-control-label">同时允许发起人自选抄送人</span>
+          </label>
+        </div>
+      </div>
+      {this.renderButton()}
+    </div >)
+  }
+  save = () => {
+    let d = { users: this._users.getSelected(), selfSelecting: this.state.selfSelecting }
+    if (d.users.length === 0 && !d.selfSelecting) {
+      rb.highbar('请选择抄送人或允许自选抄送人')
+      return
+    }
+    typeof this.props.call && this.props.call(d)
   }
 }

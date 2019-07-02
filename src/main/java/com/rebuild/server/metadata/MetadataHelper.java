@@ -21,6 +21,7 @@ package com.rebuild.server.metadata;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import com.rebuild.server.Application;
@@ -83,6 +84,9 @@ public class MetadataHelper {
 	 * @return
 	 */
 	public static boolean containsEntity(String entityName) {
+		if (StringUtils.isBlank(entityName)) {
+			return false;
+		}
 		try {
 			getEntity(entityName);
 			return true;

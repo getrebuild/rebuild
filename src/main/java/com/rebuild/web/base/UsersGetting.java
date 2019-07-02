@@ -30,13 +30,20 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.IllegalParameterException;
 
 import cn.devezhao.bizz.security.member.Member;
+import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 用户/部门/角色获取
@@ -89,5 +96,29 @@ public class UsersGetting extends BaseControll {
 		}
 		
 		writeSuccess(response, filtered);
+	}
+	
+	// 获取符合 UserSelector 组件的数据
+	@RequestMapping("user-selector")
+	public void parseUserSelectorData(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String entity = getParameter(request, "entity");
+		JSON users = ServletUtils.getRequestJson(request);
+		Entity hadEntity = MetadataHelper.containsEntity(entity) ? MetadataHelper.getEntity(entity) : null;
+
+		List<JSON> formatted = new ArrayList<>();
+		String[] keys = new String[] { "id", "text" };
+		for (Object item : (JSONArray) users) {
+			String idOrField = (String) item;
+			if (ID.isId(idOrField)) {
+				String name = UserHelper.getName(ID.valueOf(idOrField));
+				if (name != null) {
+					formatted.add(JSONUtils.toJSONObject(keys, new String[] { idOrField, name }));
+				}
+			} else if (hadEntity != null && hadEntity.containsField(idOrField.split("//.")[0])) {
+				String fullLabel = EasyMeta.getLabel(hadEntity, idOrField);
+				formatted.add(JSONUtils.toJSONObject(keys, new String[] { idOrField, fullLabel }));
+			}
+		}
+		writeSuccess(response, formatted);
 	}
 }

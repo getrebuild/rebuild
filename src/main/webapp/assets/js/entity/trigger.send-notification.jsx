@@ -26,7 +26,7 @@ class ContentSendNotification extends ActionContentSpec {
   }
   componentDidMount() {
     if (this.props.content && this.props.content.sendTo) {
-      $.post(`${rb.baseUrl}/admin/robot/trigger/send-notification-sendtos?entity=${this.props.sourceEntity}`, JSON.stringify(this.props.content.sendTo), (res) => {
+      $.post(`${rb.baseUrl}/commons/search/user-selector?entity=${this.props.sourceEntity}`, JSON.stringify(this.props.content.sendTo), (res) => {
         if (res.error_code === 0 && res.data.length > 0) this._sendTo.setState({ selected: res.data })
       })
     }
