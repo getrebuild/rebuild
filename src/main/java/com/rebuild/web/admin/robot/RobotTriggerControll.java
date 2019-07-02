@@ -74,7 +74,7 @@ public class RobotTriggerControll extends BasePageControll {
 		Entity sourceEntity = MetadataHelper.getEntity((String) config[0]);
 		ActionType actionType = ActionType.valueOf((String) config[1]);
 		
-		ModelAndView mv = createModelAndView("/admin/robot/trigger-editor.jsp");
+		ModelAndView mv = createModelAndView("/admin/robot/trigger-design.jsp");
 		mv.getModel().put("configId", configId);
 		mv.getModel().put("sourceEntity", sourceEntity.getName());
 		mv.getModel().put("sourceEntityLabel", EasyMeta.getLabel(sourceEntity));

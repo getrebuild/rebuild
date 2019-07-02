@@ -4,7 +4,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>R2BOT 审核流程</title>
+<title>审核流程</title>
 </head>
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header">
@@ -26,7 +26,7 @@
 			</div>
 		</aside>
 		<div class="page-head">
-			<div class="float-left"><div class="page-head-title">R2BOT 审核流程</div></div>
+			<div class="float-left"><div class="page-head-title">审核流程</div></div>
 			<div class="float-right pt-1">
 				<button class=" btn btn-primary J_add" type="button"><i class="icon zmdi zmdi-plus"></i> 添加</button>
 			</div>

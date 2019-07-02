@@ -47,6 +47,7 @@ class NodeSpec extends React.Component {
   openConfig = () => {
     let that = this
     let call = function (d) {
+      console.log(JSON.stringify(d))
       that.setState({ data: d, active: false }, () => {
         $(document.body).removeClass('open-right-sidebar')
       })
@@ -131,14 +132,20 @@ class Node extends NodeSpec {
     this.nodeType = props.type || 'approver'
   }
   render() {
-    let nt = NTs[this.nodeType]
-    let users = this.state.data && this.state.data.users
-    if (!users || users.length === 0 || users[0] === 'ALL') users = nt[2]
-    else users = '指定人员 (' + users.length + ')'
+    let NT = NTs[this.nodeType]
+    let data = this.state.data || {}
+    let users = NT[2]
+    if (data.users && data.users.length > 0) {
+      if (data.users[0] === 'SELF') users = '发起人自己'
+      else if (data.users[0] !== 'ALL') users = '指定用户 (' + data.users.length + ')'
+    }
+    if (this.nodeType === 'approver') users += ' ' + (data.signMode === 'AND' ? '会签' : (data.signMode === 'ALL' ? '依次审批' : '或签'))
+    else if (this.nodeType === 'cc' && data.users && data.users.length > 0) users += ' ' + (data.selfSelecting === false ? '' : '且允许自选')
+
     return (<div className="node-wrap">
-      <div className={`node-wrap-box ${nt[0]}-node animated fadeIn`}>
+      <div className={`node-wrap-box ${NT[0]}-node animated fadeIn`}>
         <div className="title">
-          <span>{nt[1]}</span>
+          <span>{data.nodeName || NT[1]}</span>
           {this.props.nodeId !== 'ROOT' && <i className="zmdi zmdi-close aclose" title="移除" onClick={this.removeNodeQuick} />}
         </div>
         <div className="content" onClick={this.openConfig}>
@@ -166,7 +173,7 @@ class ConditionNode extends NodeSpec {
         <div className="branch-box">
           <button className="add-branch" onClick={this.addBranch}>添加分支</button>
           {this.state.branches.map((item, idx) => {
-            return <ConditionBranch key={this.props.nodeId + '-col' + idx} isFirst={idx === 0} isLast={idx === bLen} $$$parent={this} {...item} />
+            return <ConditionBranch key={this.props.nodeId + '-b' + idx} isFirst={idx === 0} isLast={idx === bLen} $$$parent={this} {...item} />
           })}
         </div>
         <AddNodeButton addNodeCall={this.addNodeQuick} />
@@ -182,7 +189,11 @@ class ConditionNode extends NodeSpec {
     bs.push({ index: this.branchIndex++, nodeId: $random('COND') })
     this.setState({ branches: bs })
   }
-  removeColumn = (nodeId) => {
+  removeColumn = (nodeId, e) => {
+    if (e) {
+      e.stopPropagation()
+      e.nativeEvent.stopImmediatePropagation()
+    }
     let bs = []
     this.state.branches.forEach((item) => {
       if (nodeId !== item.nodeId) bs.push(item)
@@ -203,6 +214,8 @@ class ConditionBranch extends NodeGroupSpec {
     super(props)
   }
   render() {
+    let data = this.state.data || {}
+    let filters = data.filter ? data.filter.items.length : 0
     return (<div className="col-box">
       {this.state.isFirst && <div className="top-left-cover-line"></div>}
       {this.state.isFirst && <div className="bottom-left-cover-line"></div>}
@@ -210,12 +223,12 @@ class ConditionBranch extends NodeGroupSpec {
         <div className="condition-node-box animated fadeIn">
           <div className="auto-judge" onClick={this.openConfig}>
             <div className="title-wrapper">
-              <span className="editable-title float-left">分支条件{this.props.index}</span>
+              <span className="editable-title float-left">{data.nodeName || `分支条件${this.props.index}`}</span>
               <span className="priority-title float-right">默认优先级</span>
-              <i className="zmdi zmdi-close aclose" title="移除" onClick={() => this.props.$$$parent.removeColumn(this.props.nodeId)} />
+              <i className="zmdi zmdi-close aclose" title="移除" onClick={(e) => this.props.$$$parent.removeColumn(this.props.nodeId, e)} />
             </div>
             <div className="content">
-              <div className="text">{'请设置条件'}</div>
+              <div className="text">{filters > 0 ? `已设置条件 (${filters})` : '请设置条件'}</div>
               <i className="zmdi zmdi-chevron-right arrow"></i>
             </div>
           </div>
@@ -376,7 +389,7 @@ class StartNodeConfig extends RbFormHandler {
           </label>
           <label className="custom-control custom-control-sm custom-radio mb-2">
             <input className="custom-control-input" type="radio" name="users" value="SPEC" onChange={this.handleChange} checked={this.state.users === 'SPEC'} />
-            <span className="custom-control-label">指定人员</span>
+            <span className="custom-control-label">指定用户</span>
           </label>
         </div>
         {this.state.users === 'SPEC' && <div className="form-group">
@@ -400,9 +413,9 @@ class StartNodeConfig extends RbFormHandler {
     }
   }
   save = () => {
-    let d = { users: this.state.users === 'ALL' ? ['ALL'] : this._users.getSelected() }
+    let d = { nodeName: this.state.nodeName, users: this.state.users === 'ALL' ? ['ALL'] : this._users.getSelected() }
     if (d.users.length === 0) {
-      rb.highbar('请选择人员')
+      rb.highbar('请选择用户')
       return
     }
     typeof this.props.call && this.props.call(d)
@@ -421,7 +434,9 @@ class ApproverNodeConfig extends StartNodeConfig {
   }
   render() {
     return (<div>
-      <div className="header"><h5>审批人</h5></div>
+      <div className="header">
+        <input type="text" placeholder="审批人" data-id="nodeName" value={this.state.nodeName || ''} onChange={this.handleChange} maxLength="20" />
+      </div>
       <div className="form">
         <div className="form-group mb-0">
           <label className="text-bold">由谁审批</label>
@@ -461,7 +476,7 @@ class ApproverNodeConfig extends StartNodeConfig {
     </div>)
   }
   save = () => {
-    let d = { users: this.state.users === 'SPEC' ? this._users.getSelected() : [this.state.users], signMode: this.state.signMode }
+    let d = { nodeName: this.state.nodeName, users: this.state.users === 'SPEC' ? this._users.getSelected() : [this.state.users], signMode: this.state.signMode }
     if (d.users.length === 0) {
       rb.highbar('请选择审批人')
       return
@@ -479,7 +494,9 @@ class CCNodeConfig extends StartNodeConfig {
   }
   render() {
     return (<div>
-      <div className="header"><h5>抄送人</h5></div>
+      <div className="header">
+        <input type="text" placeholder="抄送人" data-id="nodeName" value={this.state.nodeName || ''} onChange={this.handleChange} maxLength="20" />
+      </div>
       <div className="form">
         <div className="form-group">
           <label className="text-bold">审批结果抄送给谁</label>
@@ -496,7 +513,7 @@ class CCNodeConfig extends StartNodeConfig {
     </div >)
   }
   save = () => {
-    let d = { users: this._users.getSelected(), selfSelecting: this.state.selfSelecting }
+    let d = { nodeName: this.state.nodeName, users: this._users.getSelected(), selfSelecting: this.state.selfSelecting }
     if (d.users.length === 0 && !d.selfSelecting) {
       rb.highbar('请选择抄送人或允许自选抄送人')
       return
@@ -506,20 +523,20 @@ class CCNodeConfig extends StartNodeConfig {
 }
 
 // 条件
-class ConditionNodeConfig extends React.Component {
+class ConditionNodeConfig extends StartNodeConfig {
   constructor(props) {
     super(props)
   }
   render() {
     return (<div>
-      <div className="header"><h5>条件</h5></div>
+      <div className="header">
+        <input type="text" placeholder="分支条件" data-id="nodeName" value={this.state.nodeName || ''} onChange={this.handleChange} maxLength="20" />
+      </div>
       <AdvFilter entity={this.props.entity} confirm={this.save} cancel={this.cancel} canNoFilters={true} />
     </div>)
   }
   save = (filter) => {
-    typeof this.props.call && this.props.call(filter)
-  }
-  cancel = () => {
-    $(document.body).removeClass('open-right-sidebar')
+    let d = { nodeName: this.state.nodeName, filter: filter }
+    typeof this.props.call && this.props.call(d)
   }
 }

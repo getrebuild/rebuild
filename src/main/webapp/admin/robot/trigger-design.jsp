@@ -124,7 +124,7 @@ window.__PageConfig = {
 }
 </script>
 <script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/entity/trigger-editor.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/entity/trigger-design.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/entity/trigger.field-aggregation.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/entity/trigger.send-notification.jsx" type="text/babel"></script>
 </body>

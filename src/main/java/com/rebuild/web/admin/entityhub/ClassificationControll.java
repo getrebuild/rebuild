@@ -51,7 +51,7 @@ public class ClassificationControll extends BasePageControll {
 	
 	@RequestMapping("classifications")
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
-		return createModelAndView("/admin/entityhub/classification/list.jsp");
+		return createModelAndView("/admin/entityhub/classification-list.jsp");
 	}
 	
 	@RequestMapping("classification/{id}")
@@ -66,7 +66,7 @@ public class ClassificationControll extends BasePageControll {
 			return null;
 		}
 		
-		ModelAndView mv = createModelAndView("/admin/entityhub/classification/editor.jsp");
+		ModelAndView mv = createModelAndView("/admin/entityhub/classification-editor.jsp");
 		mv.getModel().put("dataId", id);
 		mv.getModel().put("name", data[0]);
 		mv.getModel().put("openLevel", data[1]);
