@@ -500,7 +500,7 @@
 
 .auto-judge .content {
 	padding: 0;
-	padding-top: 10px;
+	padding-top: 12px;
 }
 
 .node-wrap-box .content .text,
@@ -520,11 +520,11 @@
 	transform: translateY(-50%);
 	font-size: 21px;
 	color: #ccc;
-	margin-top: -1px;
+	margin-top: 0
 }
 
 .auto-judge .content .arrow {
-	margin-top: 4px;
+	margin-top: 6px;
 	right: 0;
 }
 

@@ -45,12 +45,8 @@ class NodeSpec extends React.Component {
   openConfig = () => {
     let that = this
     let call = function (d) {
-      console.log(JSON.stringify(d))
-      that.setState({ data: d, active: false }, () => {
-        $(document.body).removeClass('open-right-sidebar')
-      })
+      that.setState({ data: d, active: false })
     }
-
     let props = { ...(this.state.data || {}), call: call }
     if (this.nodeType === 'start') renderRbcomp(<StartNodeConfig {...props} />, 'config-side')
     else if (this.nodeType === 'approver') renderRbcomp(<ApproverNodeConfig {...props} />, 'config-side')
@@ -60,7 +56,7 @@ class NodeSpec extends React.Component {
     this.setState({ active: true })
   }
   serialize() {
-    return { type: this.props.type, id: this.props.nodeId, data: this.state.data }
+    return { type: this.props.type, nodeId: this.props.nodeId, data: this.state.data }
   }
 }
 // 节点组规范
@@ -118,7 +114,7 @@ class NodeGroupSpec extends React.Component {
     let ns = this.state.nodes.map((item) => {
       return this.__nodeRefs[item.nodeId].serialize()
     })
-    return { nodes: ns }
+    return { nodes: ns, nodeId: this.state.nodeId }
   }
 }
 // 画布:节点 1:N
@@ -160,9 +156,8 @@ class Node extends NodeSpec {
 class ConditionNode extends NodeSpec {
   constructor(props) {
     super(props)
-    this.state.branches = props.branches || [{ index: 1, nodeId: $random('COND') }, { index: 2, nodeId: $random('COND') }]
-    this.branchIndex = this.state.branches.length + 1
-    this.__branches = []
+    this.state.branches = props.branches || [{ nodeId: $random('COND') }, { nodeId: $random('COND') }]
+    this.__branchRefs = []
   }
   render() {
     let bLen = this.state.branches.length - 1
@@ -179,15 +174,15 @@ class ConditionNode extends NodeSpec {
     </div>)
   }
   onRef = (branchRef, remove) => {
-    if (remove) this.__branches.remove(branchRef)
-    else this.__branches.push(branchRef)
+    let nodeId = branchRef.props.nodeId
+    this.__branchRefs[nodeId] = (remove ? null : branchRef)
   }
   addBranch = () => {
     let bs = this.state.branches
-    bs.push({ index: this.branchIndex++, nodeId: $random('COND') })
+    bs.push({ nodeId: $random('COND') })
     this.setState({ branches: bs })
   }
-  removeColumn = (nodeId, e) => {
+  removeBranch = (nodeId, e) => {
     if (e) {
       e.stopPropagation()
       e.nativeEvent.stopImmediatePropagation()
@@ -199,10 +194,10 @@ class ConditionNode extends NodeSpec {
     this.setState({ branches: bs })
   }
   serialize() {
-    let bs = this.__branches.map((b) => {
-      return b.serialize()
+    let bs = this.state.branches.map((item) => {
+      return this.__branchRefs[item.nodeId].serialize()
     })
-    return { branches: bs }
+    return { branches: bs, type: 'condition', nodeId: this.props.nodeId }
   }
 }
 
@@ -221,9 +216,9 @@ class ConditionBranch extends NodeGroupSpec {
         <div className="condition-node-box animated fadeIn">
           <div className="auto-judge" onClick={this.openConfig}>
             <div className="title-wrapper">
-              <span className="editable-title float-left">{data.nodeName || `分支条件${this.props.index}`}</span>
+              <span className="editable-title float-left">{data.nodeName || '分支条件'}</span>
               <span className="priority-title float-right">默认优先级</span>
-              <i className="zmdi zmdi-close aclose" title="移除" onClick={(e) => this.props.$$$parent.removeColumn(this.props.nodeId, e)} />
+              <i className="zmdi zmdi-close aclose" title="移除" onClick={(e) => this.props.$$$parent.removeBranch(this.props.nodeId, e)} />
             </div>
             <div className="content">
               <div className="text">{filters > 0 ? `已设置条件 (${filters})` : '请设置条件'}</div>
@@ -254,69 +249,21 @@ class ConditionBranch extends NodeGroupSpec {
   openConfig = () => {
     let that = this
     let call = function (d) {
-      that.setState({ data: d, active: false }, () => {
-        $(document.body).removeClass('open-right-sidebar')
-      })
+      that.setState({ data: d, active: false })
     }
-
-    renderRbcomp(<ConditionNodeConfig entity={wpc.sourceEntity} call={call} data={this.state.data} />, 'config-side')
+    renderRbcomp(<ConditionBranchConfig entity={wpc.applyEntity} call={call} data={this.state.data} />, 'config-side')
 
     $(document.body).addClass('open-right-sidebar')
     this.setState({ active: true })
   }
   serialize() {
     let s = super.serialize()
-    s.condition = this.state.data
+    if (this.state.data) s.data = this.state.data
     return s
   }
 }
 
-// 画布
-class RbFlowCanvas extends NodeGroupSpec {
-  constructor(props) {
-    super(props)
-  }
-  render() {
-    return (<div className="box-scale">
-      <Node type="start" $$$parent={this} nodeId="ROOT" ref={(c) => this._root = c} />
-      {this.renderNodes()}
-      <div className="end-node">
-        <div className="end-node-circle"></div>
-        <div className="end-node-text">流程结束</div>
-      </div>
-    </div>)
-  }
-  componentDidMount() {
-    this.addNode('approver', null, (prevNodeId) => {
-      this.addNode('cc', prevNodeId)
-      setTimeout(() => isCanvasMounted = true, 400)
-    })
-    $('.box-scale').draggable({ cursor: 'move', axis: 'x', scroll: false })
-    $('#rbflow').removeClass('rb-loading-active')
-
-    let _btn = $('.J_save').click(() => {
-      let s = this.serialize()
-      console.log(JSON.stringify(s))
-      if (!s) return
-      let _data = { flowDefinition: s }
-      _data.metadata = { entity: 'RobotApprovalConfig', id: wpc.configId }
-
-      _btn.button('loading')
-      $.post(`${rb.baseUrl}/app/entity/record-save`, JSON.stringify(_data), (res) => {
-        if (res.error_code === 0) location.href = '../approvals'
-        else rb.hberror(res.error_msg)
-        _btn.button('reset')
-      })
-    })
-  }
-  serialize() {
-    let ns = super.serialize()
-    ns.nodes.insert(0, this._root.serialize())
-    return ns
-  }
-}
-
-// ~ 添加节点
+// 添加节点
 class DlgAddNode extends React.Component {
   constructor(props) {
     super(props)
@@ -419,6 +366,13 @@ class StartNodeConfig extends RbFormHandler {
       })
     }
   }
+  componentWillUnmount() {
+    console.log('Unmount ' + JSON.stringify(this.state))
+  }
+  // componentWillReceiveProps(props) {
+  //   if (props.data) this.setState({ data: props.data })
+  //   console.log(props)
+  // }
   save = () => {
     let d = { nodeName: this.state.nodeName, users: this.state.users === 'ALL' ? ['ALL'] : this._users.getSelected() }
     if (d.users.length === 0) {
@@ -426,6 +380,7 @@ class StartNodeConfig extends RbFormHandler {
       return
     }
     typeof this.props.call && this.props.call(d)
+    this.cancel()
   }
   cancel = () => {
     $(document.body).removeClass('open-right-sidebar')
@@ -489,6 +444,7 @@ class ApproverNodeConfig extends StartNodeConfig {
       return
     }
     typeof this.props.call && this.props.call(d)
+    this.cancel()
   }
 }
 
@@ -526,24 +482,79 @@ class CCNodeConfig extends StartNodeConfig {
       return
     }
     typeof this.props.call && this.props.call(d)
+    this.cancel()
   }
 }
 
 // 条件
-class ConditionNodeConfig extends StartNodeConfig {
+class ConditionBranchConfig extends StartNodeConfig {
   constructor(props) {
     super(props)
   }
   render() {
+    let d = this.state.data || {}
     return (<div>
       <div className="header">
         <input type="text" placeholder="分支条件" data-id="nodeName" value={this.state.nodeName || ''} onChange={this.handleChange} maxLength="20" />
       </div>
-      <AdvFilter entity={this.props.entity} confirm={this.save} cancel={this.cancel} canNoFilters={true} />
+      <AdvFilter filter={d.filter} entity={this.props.entity} confirm={this.save} cancel={this.cancel} canNoFilters={true} />
     </div>)
   }
   save = (filter) => {
     let d = { nodeName: this.state.nodeName, filter: filter }
     typeof this.props.call && this.props.call(d)
+    this.cancel()
+  }
+}
+
+// 画布
+class RbFlowCanvas extends NodeGroupSpec {
+  constructor(props) {
+    super(props)
+  }
+  render() {
+    return (<div className="box-scale">
+      <Node type="start" $$$parent={this} nodeId="ROOT" ref={(c) => this._root = c} />
+      {this.renderNodes()}
+      <div className="end-node">
+        <div className="end-node-circle"></div>
+        <div className="end-node-text">流程结束</div>
+      </div>
+    </div>)
+  }
+  componentDidMount() {
+    if (wpc.flowDefinition) {
+      let flowNodes = JSON.parse(wpc.flowDefinition).nodes
+      this._root.setState({ data: flowNodes[0].data })
+      flowNodes.remove(flowNodes[0])
+      this.setState({ nodes: flowNodes })
+      console.log(flowNodes)
+    }
+    // this.addNode('approver', null, (prevNodeId) => {
+    //   this.addNode('cc', prevNodeId)
+    //   setTimeout(() => isCanvasMounted = true, 400)
+    // })
+
+    $('.box-scale').draggable({ cursor: 'move', axis: 'x', scroll: false })
+    $('#rbflow').removeClass('rb-loading-active')
+
+    let _btn = $('.J_save').click(() => {
+      let s = this.serialize()
+      if (!s) return
+      let _data = { flowDefinition: s }
+      _data.metadata = { entity: 'RobotApprovalConfig', id: wpc.configId }
+
+      _btn.button('loading')
+      $.post(`${rb.baseUrl}/app/entity/record-save`, JSON.stringify(_data), (res) => {
+        // if (res.error_code === 0) location.href = '../approvals'
+        // else rb.hberror(res.error_msg)
+        _btn.button('reset')
+      })
+    })
+  }
+  serialize() {
+    let ns = super.serialize()
+    ns.nodes.insert(0, this._root.serialize())
+    return ns
   }
 }

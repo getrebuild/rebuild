@@ -60,7 +60,7 @@
 window.__PageConfig = {
 	configId: '${configId}',
 	name: '${name}',
-	sourceEntity: '${applyEntity}',
+	applyEntity: '${applyEntity}',
 	flowDefinition: '${flowDefinition}'
 }
 </script>

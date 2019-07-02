@@ -58,9 +58,9 @@ $(function () {
 })
 // Trigger on Ctrl+Alt+X
 // @t - trigger times
-var command_exec = function (t) {}
+var command_exec = function (t) { }
 // Trigger on window.onresize
-var resize_handler = function () {}
+var resize_handler = function () { }
 
 // MainNav
 var __initNavs = function () {
@@ -264,7 +264,7 @@ var $createUploader = function (input, next, complete, error) {
           return false
         }
       },
-      onClientLoad: function (e, file) {},
+      onClientLoad: function (e, file) { },
       onClientProgress: function (e, file) {
         typeof next === 'function' && next({
           percent: e.loaded * 100 / e.total
@@ -296,11 +296,11 @@ var $createUploader = function (input, next, complete, error) {
 }
 
 // Clear React node
-var $unmount = function (container, delay) {
+var $unmount = function (container, delay, keepContainer) {
   if (container && container[0]) {
     setTimeout(function () {
       ReactDOM.unmountComponentAtNode(container[0])
-      container.remove()
+      if (keepContainer !== true) container.remove()
     }, delay || 1000)
   }
 }
