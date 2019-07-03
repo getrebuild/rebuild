@@ -47,7 +47,7 @@ class NodeSpec extends React.Component {
     let call = function (d) {
       that.setState({ data: d, active: false })
     }
-    let props = { ...(this.state.data || {}), call: call }
+    let props = { ...(this.state.data || {}), call: call, key: 'csk-' + this.props.nodeId }
     if (this.nodeType === 'start') renderRbcomp(<StartNodeConfig {...props} />, 'config-side')
     else if (this.nodeType === 'approver') renderRbcomp(<ApproverNodeConfig {...props} />, 'config-side')
     else if (this.nodeType === 'cc') renderRbcomp(<CCNodeConfig {...props} />, 'config-side')
@@ -56,6 +56,10 @@ class NodeSpec extends React.Component {
     this.setState({ active: true })
   }
   serialize() {
+    // if (!this.state.data) {
+    //   this.setState({ hasError: true })
+    //   return false
+    // } else this.setState({ hasError: false })
     return { type: this.props.type, nodeId: this.props.nodeId, data: this.state.data }
   }
 }
@@ -111,6 +115,13 @@ class NodeGroupSpec extends React.Component {
     this.setState({ nodes: nodes })
   }
   serialize() {
+    // let ns = []
+    // for (let i = 0; i < this.state.nodes.length; i++) {
+    //   let nodeRef = this.__nodeRefs[this.state.nodes[i].nodeId]
+    //   let s = nodeRef.serialize()
+    //   if (!s) return false
+    //   ns.push(s)
+    // }
     let ns = this.state.nodes.map((item) => {
       return this.__nodeRefs[item.nodeId].serialize()
     })
@@ -137,7 +148,7 @@ class Node extends NodeSpec {
     else if (this.nodeType === 'cc' && data.users && data.users.length > 0) users += ' ' + (data.selfSelecting === false ? '' : '且允许自选')
 
     return (<div className="node-wrap">
-      <div className={`node-wrap-box ${NT[0]}-node animated fadeIn`}>
+      <div className={`node-wrap-box ${NT[0]}-node ${this.state.hasError ? 'error' : ''} animated fadeIn`}>
         <div className="title">
           <span>{data.nodeName || NT[1]}</span>
           {this.props.nodeId !== 'ROOT' && <i className="zmdi zmdi-close aclose" title="移除" onClick={this.removeNodeQuick} />}
@@ -161,7 +172,7 @@ class ConditionNode extends NodeSpec {
   }
   render() {
     let bLen = this.state.branches.length - 1
-    return (bLen > 0 && <div className="branch-wrap">
+    return (bLen >= 0 && <div className="branch-wrap">
       <div className="branch-box-wrap">
         <div className="branch-box">
           <button className="add-branch" onClick={this.addBranch}>添加分支</button>
@@ -194,9 +205,26 @@ class ConditionNode extends NodeSpec {
     this.setState({ branches: bs })
   }
   serialize() {
+    let firstBranchRef = null
     let bs = this.state.branches.map((item) => {
+      if (!firstBranchRef) firstBranchRef = this.__branchRefs[item.nodeId]
       return this.__branchRefs[item.nodeId].serialize()
     })
+    // let bs = []
+    // for (let i = 0; i < this.state.branches.length; i++) {
+    //   let branchRef = this.__branchRefs[this.state.branches[i].nodeId]
+    //   if (!firstBranchRef) firstBranchRef = branchRef
+    //   let s = branchRef.serialize()
+    //   if (!s) return false
+    //   bs.push(s)
+    // }
+    // 至少两个分支
+    if (bs.length < 2) {
+      rb.hberror('请至少设置两个并列条件分支')
+      if (firstBranchRef) firstBranchRef.setState({ hasError: true })
+      return false
+    } else if (firstBranchRef) firstBranchRef.setState({ hasError: false })
+
     return { branches: bs, type: 'condition', nodeId: this.props.nodeId }
   }
 }
@@ -214,11 +242,12 @@ class ConditionBranch extends NodeGroupSpec {
       {this.state.isFirst && <div className="bottom-left-cover-line"></div>}
       <div className="condition-node">
         <div className="condition-node-box animated fadeIn">
-          <div className="auto-judge" onClick={this.openConfig}>
+          <div className={'auto-judge' + (this.state.hasError ? ' error' : '')} onClick={this.openConfig}>
             <div className="title-wrapper">
               <span className="editable-title float-left">{data.nodeName || '分支条件'}</span>
               <span className="priority-title float-right">默认优先级</span>
               <i className="zmdi zmdi-close aclose" title="移除" onClick={(e) => this.props.$$$parent.removeBranch(this.props.nodeId, e)} />
+              <div className="clearfix"></div>
             </div>
             <div className="content">
               <div className="text">{filters > 0 ? `已设置条件 (${filters})` : '请设置条件'}</div>
@@ -251,13 +280,18 @@ class ConditionBranch extends NodeGroupSpec {
     let call = function (d) {
       that.setState({ data: d, active: false })
     }
-    renderRbcomp(<ConditionBranchConfig entity={wpc.applyEntity} call={call} data={this.state.data} />, 'config-side')
+    renderRbcomp(<ConditionBranchConfig entity={wpc.applyEntity} call={call} data={this.state.data} key={'cks-' + this.props.nodeId} />, 'config-side')
 
     $(document.body).addClass('open-right-sidebar')
     this.setState({ active: true })
   }
   serialize() {
     let s = super.serialize()
+    // if (!s || s.nodes.length === 0) {
+    //   this.setState({ hasError: true })
+    //   rb.hberror('无效的条件分支')
+    //   return false
+    // } else this.setState({ hasError: false })
     if (this.state.data) s.data = this.state.data
     return s
   }
@@ -366,13 +400,6 @@ class StartNodeConfig extends RbFormHandler {
       })
     }
   }
-  componentWillUnmount() {
-    console.log('Unmount ' + JSON.stringify(this.state))
-  }
-  // componentWillReceiveProps(props) {
-  //   if (props.data) this.setState({ data: props.data })
-  //   console.log(props)
-  // }
   save = () => {
     let d = { nodeName: this.state.nodeName, users: this.state.users === 'ALL' ? ['ALL'] : this._users.getSelected() }
     if (d.users.length === 0) {
@@ -513,12 +540,19 @@ class RbFlowCanvas extends NodeGroupSpec {
     super(props)
   }
   render() {
-    return (<div className="box-scale">
-      <Node type="start" $$$parent={this} nodeId="ROOT" ref={(c) => this._root = c} />
-      {this.renderNodes()}
-      <div className="end-node">
-        <div className="end-node-circle"></div>
-        <div className="end-node-text">流程结束</div>
+    return (<div>
+      <div className="zoom">
+        <a className="zoom-in" onClick={() => this.zoom(10)}><i className="zmdi zmdi-plus" /></a>
+        {this.state.zoomValue || 100}%
+        <a className="zoom-out" onClick={() => this.zoom(-10)}><i className="zmdi zmdi-minus" /></a>
+      </div>
+      <div className="box-scale" style={this.state.zoomStyle}>
+        <Node type="start" $$$parent={this} nodeId="ROOT" ref={(c) => this._root = c} />
+        {this.renderNodes()}
+        <div className="end-node">
+          <div className="end-node-circle"></div>
+          <div className="end-node-text">流程结束</div>
+        </div>
       </div>
     </div>)
   }
@@ -530,17 +564,16 @@ class RbFlowCanvas extends NodeGroupSpec {
       this.setState({ nodes: flowNodes })
       console.log(flowNodes)
     }
-    // this.addNode('approver', null, (prevNodeId) => {
-    //   this.addNode('cc', prevNodeId)
-    //   setTimeout(() => isCanvasMounted = true, 400)
-    // })
 
     $('.box-scale').draggable({ cursor: 'move', axis: 'x', scroll: false })
     $('#rbflow').removeClass('rb-loading-active')
 
     let _btn = $('.J_save').click(() => {
       let s = this.serialize()
-      if (!s) return
+      if (!s) {
+        rb.hberror('部分流程设置有误，请检查')
+        return
+      }
       let _data = { flowDefinition: s }
       _data.metadata = { entity: 'RobotApprovalConfig', id: wpc.configId }
 
@@ -552,8 +585,15 @@ class RbFlowCanvas extends NodeGroupSpec {
       })
     })
   }
+  zoom(v) {
+    let zv = (this.state.zoomValue || 100) + v
+    if (zv < 20) zv = 20
+    else if (zv > 200) zv = 200
+    this.setState({ zoomValue: zv, zoomStyle: { transform: `scale(${zv / 100})` } })
+  }
   serialize() {
     let ns = super.serialize()
+    if (!ns) return false
     ns.nodes.insert(0, this._root.serialize())
     return ns
   }

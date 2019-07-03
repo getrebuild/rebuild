@@ -93,10 +93,13 @@
 /* Flow draw */
 .rbflow-design {
 	width: 100%;
-	background-color: #fff;
 	background-color: #f5f5f7;
 	user-select: none;
 	min-height: 300px;
+}
+
+.rbflow-design>div {
+	overflow: hidden;
 }
 
 .rbflow-design .box-scale {
@@ -104,7 +107,7 @@
 	display: inline-block;
 	position: relative;
 	width: 100%;
-	padding: 54.5px 0;
+	padding: 50px 0;
 	-webkit-box-align: start;
 	-ms-flex-align: start;
 	align-items: flex-start;
@@ -213,6 +216,16 @@
 	background-color: #cacaca
 }
 
+.rbflow-design .col-box {
+	display: inline-flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	flex-direction: column;
+	-webkit-box-align: center;
+	align-items: center;
+	position: relative
+}
+
 .rbflow-design .add-branch {
 	border: none;
 	outline: none;
@@ -235,16 +248,6 @@
 	display: inline-flex;
 	align-items: center;
 	width: 88px;
-}
-
-.rbflow-design .col-box {
-	display: inline-flex;
-	-webkit-box-orient: vertical;
-	-webkit-box-direction: normal;
-	flex-direction: column;
-	-webkit-box-align: center;
-	align-items: center;
-	position: relative
 }
 
 .rbflow-design .condition-node {
@@ -295,28 +298,12 @@
 	cursor: pointer
 }
 
-.rbflow-design .auto-judge:after {
-	pointer-events: none;
-	content: "";
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	z-index: 2;
-	border-radius: 3px;
-}
-
-.rbflow-design .auto-judge.error:after {
-	border: 1px solid #f25643;
-	box-shadow: 0 2px 5px 0 rgba(0, 0, 0, .1)
-}
-
 .rbflow-design .auto-judge .title-wrapper {
 	position: relative;
 	font-size: 12px;
 	text-align: left;
-	line-height: 16px
+	line-height: 16px;
+	cursor: default;
 }
 
 .rbflow-design .auto-judge .title-wrapper .editable-title {
@@ -336,37 +323,6 @@
 
 .rbflow-design .auto-judge .content {
 	color: #191f25;
-	clear: both;
-}
-
-.rbflow-design .auto-judge .sort-left,
-.rbflow-design .auto-judge .sort-right {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	display: none;
-	z-index: 1
-}
-
-.rbflow-design .auto-judge .sort-left {
-	left: 0;
-	border-right: 1px solid #f6f6f6
-}
-
-.rbflow-design .auto-judge .sort-right {
-	right: 0;
-	border-left: 1px solid #f6f6f6
-}
-
-.rbflow-design .auto-judge:hover .sort-left,
-.rbflow-design .auto-judge:hover .sort-right {
-	display: flex;
-	align-items: center
-}
-
-.rbflow-design .auto-judge .sort-left:hover,
-.rbflow-design .auto-judge .sort-right:hover {
-	background: #efefef
 }
 
 .rbflow-design .add-node-btn {
@@ -434,18 +390,6 @@
 	background: #fff;
 	border-radius: 3px;
 	cursor: pointer;
-}
-
-.node-wrap-box.active:after,
-.node-wrap-box:active:after,
-.node-wrap-box:hover:after {
-	border: 1px solid #409EFF;
-	box-shadow: 0 0 6px 0 rgba(50, 150, 250, .3)
-}
-
-.node-wrap-box.error:after {
-	border: 1px solid #f25643;
-	box-shadow: 0 2px 5px 0 rgba(0, 0, 0, .1)
 }
 
 .node-wrap-box .title {
@@ -589,10 +533,6 @@
 	background-color: #67C23A;
 }
 
-.node-wrap-box.active {
-	box-shadow: 0 5px 5px 0 rgba(0, 0, 0, .2) !important;
-}
-
 .node-wrap-box:hover,
 .rbflow-design .add-node-btn>button:hover,
 .rbflow-design .add-branch:hover,
@@ -602,8 +542,26 @@
 	box-shadow: 0 3px 4px 0 rgba(0, 0, 0, .1);
 }
 
+.rbflow-design .auto-judge:after,
+.rbflow-design .node-wrap-box:after {
+	pointer-events: none;
+	content: "";
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 2;
+	border-radius: 3px;
+}
+
+.rbflow-design .auto-judge.error:after,
+.rbflow-design .node-wrap-box.error:after {
+	border: 2px solid #ea4335;
+}
+
 .add-node .modal-dialog {
-	width: 550px;
+	width: 500px;
 }
 
 .add-node .modal-body {
@@ -650,4 +608,44 @@
 
 .add-node .col-4>a:hover {
 	opacity: 0.9
+}
+
+.zoom {
+	display: flex;
+	position: fixed;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
+	align-items: center;
+	-webkit-box-pack: justify;
+	-ms-flex-pack: justify;
+	justify-content: space-between;
+	height: 40px;
+	width: 120px;
+	right: 25px;
+	bottom: 20px;
+	z-index: 10;
+	opacity: 0.6;
+}
+
+.zoom:hover {
+	opacity: 1;
+}
+
+.zoom .zoom-in,
+.zoom .zoom-out {
+	width: 32px;
+	height: 32px;
+	border-radius: 2px;
+	background-color: #fff;
+	cursor: pointer !important;
+	border: 1px solid #e8e8e8;
+	text-align: center;
+	padding-top: 4px;
+
+}
+
+.zoom .zoom-in i,
+.zoom .zoom-out i {
+	font-size: 22px;
+	color: #777;
 }
