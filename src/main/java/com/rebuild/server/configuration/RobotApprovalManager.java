@@ -19,8 +19,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.configuration;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.metadata.EntityHelper;
 
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 审批流程管理
@@ -32,6 +34,18 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 
 	public static final RobotApprovalManager instance = new RobotApprovalManager();
 	private RobotApprovalManager() {}
+	
+	/**
+	 * @param entity
+	 * @return
+	 */
+	public ID findApproval(Entity entity) {
+		if (!entity.containsField(EntityHelper.ApprovalId)) {
+			return null;
+		}
+		
+		return ID.newId(0);
+	}
 	
 	@Override
 	public void clean(Entity cacheKey) {

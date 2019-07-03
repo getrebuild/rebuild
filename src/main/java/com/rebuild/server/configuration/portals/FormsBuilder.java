@@ -30,6 +30,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
+import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
@@ -97,10 +98,10 @@ public class FormsBuilder extends FormsManager {
 	 * @param entity
 	 * @param user
 	 * @param record
-	 * @param isView 视图模式?
+	 * @param onView 视图模式
 	 * @return
 	 */
-	protected JSON buildModel(String entity, ID user, ID record, boolean isView) {
+	protected JSON buildModel(String entity, ID user, ID record, boolean onView) {
 		Assert.notNull(entity, "[entity] not be null");
 		Assert.notNull(user, "[user] not be null");
 		
@@ -123,7 +124,7 @@ public class FormsBuilder extends FormsManager {
 			}
 			
 		} else {
-			if (isView) {
+			if (onView) {
 				if (!Application.getSecurityManager().allowedR(user, record)) {
 					return formatModelError("你没有读取此记录的权限");
 				}
@@ -155,7 +156,7 @@ public class FormsBuilder extends FormsManager {
 			
 			// 分割线
 			if (fieldName.equalsIgnoreCase(DIVIDER_LINE)) {
-				if (!isView) {  // 表单页暂不支持
+				if (!onView) {  // 表单页暂不支持
 					iter.remove();
 				}
 				continue;
@@ -213,9 +214,9 @@ public class FormsBuilder extends FormsManager {
 			
 			// 编辑/视图
 			if (data != null) {
-				Object value = wrapFieldValue(data, easyField, isView);
+				Object value = wrapFieldValue(data, easyField, onView);
 				if (value != null) {
-					if (dt == DisplayType.BOOL && !isView) {
+					if (dt == DisplayType.BOOL && !onView) {
 						value = "是".equals(value) ? "T" : "F";
 					}
 					el.put("value", value);
@@ -273,7 +274,11 @@ public class FormsBuilder extends FormsManager {
 			model.set("lastModified", data.getDate(EntityHelper.ModifiedOn).getTime());
 		}
 		
-		model.set("id", null);  // form's ID of config
+		// 启用了审核流程
+		ID approvalId = RobotApprovalManager.instance.findApproval(entityMeta);
+		model.set("hadApproval", approvalId != null);
+		
+		model.set("id", null);  // Clean form's ID of config
 		return model.toJSON();
 	}
 	

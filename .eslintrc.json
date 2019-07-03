@@ -65,7 +65,8 @@
         "echarts": true,
         "qiniu": true,
         "DeleteConfirm": true,
-        "UserSelector": true
+        "UserSelector": true,
+        "ApprovalProcessor": true
     },
     "rules": {
         "strict": 0,

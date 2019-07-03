@@ -7,7 +7,7 @@ class RbViewForm extends React.Component {
     this.state = { ...props }
   }
   render() {
-    return (<div className="rbview-form" ref={(c) => this._viewForm = c}>{this.state.formComponent}</div>)
+    return <div className="rbview-form" ref={(c) => this._viewForm = c}>{this.state.formComponent}</div>
   }
   componentDidMount() {
     $.get(`${rb.baseUrl}/app/${this.props.entity}/view-model?id=${this.props.id}`, (res) => {
@@ -18,9 +18,12 @@ class RbViewForm extends React.Component {
         return
       }
 
-      let vform = <div className="row">{res.data.elements.map((item) => {
-        return detectViewElement(item)
-      })}</div>
+      let vform = (<div>
+        {res.data.hadApproval && <ApprovalProcessor id={this.props.id} />}
+        <div className="row">
+          {res.data.elements.map((item) => { return detectViewElement(item) })}
+        </div>
+      </div>)
       this.setState({ formComponent: vform }, () => {
         this.hideLoading()
       })
