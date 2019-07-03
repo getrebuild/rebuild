@@ -74,7 +74,7 @@ class RbFormModal extends React.Component {
   show(state) {
     state = state || {}
     if ((state.id !== this.state.id || state.entity !== this.state.entity) || this.state.isDestroy === true) {
-      state = { ...state, formComponent: null, inLoad: true, id: state.id, entity: state.entity }
+      state = { formComponent: null, initialValue: null, inLoad: true, ...state }
       this.setState(state, () => {
         this.showAfter({ isDestroy: false }, true)
       })
@@ -146,33 +146,35 @@ class RbForm extends React.Component {
   }
   renderFormAction() {
     let pmodel = this.props.$$$parent.state.__formModel
-    let saveBtns = (
-      <div className="btn-group dropup btn-space">
-        <button className="btn btn-primary" type="button" onClick={() => this.post()}>保存</button>
-        <button className="btn btn-primary dropdown-toggle auto" type="button" data-toggle="dropdown"><span className="icon zmdi zmdi-chevron-up"></span></button>
-        <div className="dropdown-menu dropdown-menu-primary dropdown-menu-right">
-          {pmodel.isSlave === true && <a className="dropdown-item" onClick={() => this.post(101)}>保存并继续添加</a>}
-          {pmodel.isMaster === true && <a className="dropdown-item" onClick={() => this.post(102)}>保存并添加明细</a>}
-          {pmodel.isSlave !== true && <a className="dropdown-item" onClick={() => this.post(101)}>保存并继续新建</a>}
-        </div>
-      </div>
-    )
+    let moreActions = []
+    if (pmodel.isApproval === true) {
+      moreActions.push(<a key="Action103" className="dropdown-item" onClick={() => this.post(103)}>保存并提交</a>)
+    }
+    if (pmodel.isMaster === true) {
+      moreActions.push(<a key="Action102" className="dropdown-item" onClick={() => this.post(102)}>保存并添加明细</a>)
+    } else if (pmodel.isSlave === true) {
+      moreActions.push(<a key="Action101" className="dropdown-item" onClick={() => this.post(101)}>保存并继续添加</a>)
+    }
 
-    let entity = this.state.entity
-    let wpc = window.__PageConfig
-    if (entity === 'User' || entity === 'Department' || entity === 'Role'
-      || wpc.type === 'SlaveView' || wpc.type === 'SlaveList' || this.isNew !== true) {
-      saveBtns = <button className="btn btn-primary btn-space" type="button" onClick={() => this.post()}>保存</button>
+    let actionBtn = <button className="btn btn-primary btn-space" type="button" onClick={() => this.post()}>保存</button>
+    if (moreActions.length > 0) {
+      actionBtn = (
+        <div className="btn-group dropup btn-space">
+          <button className="btn btn-primary" type="button" onClick={() => this.post()}>保存</button>
+          <button className="btn btn-primary dropdown-toggle auto" type="button" data-toggle="dropdown"><span className="icon zmdi zmdi-chevron-up"></span></button>
+          <div className="dropdown-menu dropdown-menu-primary dropdown-menu-right">
+            {moreActions.map((item) => { return item })}
+          </div>
+        </div>)
     }
 
     return (
       <div className="form-group row footer">
         <div className="col-12 col-sm-8 offset-sm-3" ref="rbform-action">
-          {saveBtns}
+          {actionBtn}
           <button className="btn btn-secondary btn-space" type="button" onClick={() => this.props.$$$parent.hide()}>取消</button>
         </div>
-      </div>
-    )
+      </div>)
   }
 
   componentDidMount() {
@@ -217,7 +219,11 @@ class RbForm extends React.Component {
     })
   }
 
+  /**
+   * @next {Number}
+   */
   post(next) {
+    next = next || 100
     let _data = {}
     for (let k in this.__FormData) {
       let err = this.__FormData[k].error
@@ -240,7 +246,7 @@ class RbForm extends React.Component {
 
           if (next === 101) {
             let pstate = that.props.$$$parent.state
-            rb.RbFormModal({ title: pstate.title, entity: pstate.entity, icon: pstate.icon })
+            rb.RbFormModal({ title: pstate.title, entity: pstate.entity, icon: pstate.icon, initialValue: pstate.initialValue })
           } else if (next === 102) {
             let iv = { '$MASTER$': res.data.id }
             let sm = that.props.$$$parent.state.__formModel.slaveMeta

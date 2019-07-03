@@ -145,7 +145,7 @@ class Node extends NodeSpec {
       else if (data.users[0] !== 'ALL') users = '指定用户 (' + data.users.length + ')'
     }
     if (this.nodeType === 'approver') users += ' ' + (data.signMode === 'AND' ? '会签' : (data.signMode === 'ALL' ? '依次审批' : '或签'))
-    else if (this.nodeType === 'cc' && data.users && data.users.length > 0) users += ' ' + (data.selfSelecting === false ? '' : '且允许自选')
+    else if (this.nodeType === 'cc' && data.users && data.users.length > 0) users += ' ' + (data.selfSelecting === false ? '' : '同时允许自选')
 
     return (<div className="node-wrap">
       <div className={`node-wrap-box ${NT[0]}-node ${this.state.hasError ? 'error' : ''} animated fadeIn`}>
@@ -564,6 +564,8 @@ class RbFlowCanvas extends NodeGroupSpec {
       this.setState({ nodes: flowNodes }, () => {
         isCanvasMounted = true
       })
+    } else {
+      isCanvasMounted = true
     }
 
     $('.box-scale').draggable({ cursor: 'move', axis: 'x', scroll: false })
