@@ -9,7 +9,7 @@ $(document).ready(() => {
   window.resize_handler()
 })
 window.resize_handler = function () {
-  $('#rbflow').css('min-height', $(window).height() - 222)
+  $('#rbflow').css('min-height', $(window).height() - 225)
 }
 
 // 画布准备完毕
