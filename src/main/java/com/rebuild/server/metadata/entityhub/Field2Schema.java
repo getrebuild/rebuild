@@ -35,7 +35,6 @@ import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserHelper;
-import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
@@ -49,6 +48,7 @@ import cn.devezhao.persist4j.util.StringHelper;
 import cn.devezhao.persist4j.util.support.Table;
 
 /**
+ * 创建字段
  * 
  * @author zhaofang123@gmail.com
  * @since 08/13/2018
@@ -73,30 +73,19 @@ public class Field2Schema {
 	 * @param fieldLabel
 	 * @param type
 	 * @param comments
-	 * @return
-	 */
-	public String create(Entity entity, String fieldLabel, DisplayType type, String comments) {
-		return create(entity, fieldLabel, type, comments, null, null);
-	}
-	
-	/**
-	 * @param entity
-	 * @param fieldLabel
-	 * @param type
-	 * @param comments
 	 * @param refEntity
 	 * @param extConfig
 	 * @return
 	 */
-	public String create(Entity entity, String fieldLabel, DisplayType type, String comments, String refEntity, JSON extConfig) {
+	public String createField(Entity entity, String fieldLabel, DisplayType type, String comments, String refEntity, JSON extConfig) {
 		long count = 0;
-		if ((count = checkRecordCount(entity)) > 50000) {
+		if ((count = checkRecordCount(entity)) > 100000) {
 			throw new ModifiyMetadataException("本实体记录过大，增加字段可能导致表损坏 (记录数: " + count + ")");
 		}
 		
 		String fieldName = toPinyinName(fieldLabel);
 		while (true) {
-			if (entity.containsField(fieldName)) {
+			if (entity.containsField(fieldName) || MetadataHelper.isCommonsField(fieldName)) {
 				fieldName += (10 + RandomUtils.nextInt(89));
 			} else {
 				break;
@@ -106,7 +95,7 @@ public class Field2Schema {
 		Field field = createUnsafeField(
 				entity, fieldName, fieldLabel, type, true, true, true, comments, refEntity, null, true, extConfig, null);
 		
-		boolean schemaReady = schema2Database(entity, field);
+		boolean schemaReady = schema2Database(entity, new Field[] { field });
 		if (!schemaReady) {
 			Application.getCommonService().delete(tempMetaId.toArray(new ID[tempMetaId.size()]));
 			throw new ModifiyMetadataException("无法创建字段到数据库");
@@ -120,8 +109,8 @@ public class Field2Schema {
 	 * @param field
 	 * @return
 	 */
-	public boolean drop(Field field) {
-		return drop(field, false);
+	public boolean dropField(Field field) {
+		return dropField(field, false);
 	}
 	
 	/**
@@ -129,11 +118,7 @@ public class Field2Schema {
 	 * @param force
 	 * @return
 	 */
-	public boolean drop(Field field, boolean force) {
-		if (!user.equals(UserService.ADMIN_USER)) {
-			throw new ModifiyMetadataException("仅超级管理员可删除字段");
-		}
-		
+	public boolean dropField(Field field, boolean force) {
 		EasyMeta easyMeta = EasyMeta.valueOf(field);
 		ID metaRecordId = easyMeta.getMetaId();
 		if (easyMeta.isBuiltin() || metaRecordId == null) {
@@ -147,7 +132,7 @@ public class Field2Schema {
 		
 		if (!force) {
 			long count = 0;
-			if ((count = checkRecordCount(entity)) > 50000) {
+			if ((count = checkRecordCount(entity)) > 100000) {
 				throw new ModifiyMetadataException("本实体记录过大，删除字段可能导致表损坏 (" + entity.getName() + "=" + count + ")");
 			}
 		}
@@ -175,11 +160,22 @@ public class Field2Schema {
 		return ObjectUtils.toLong(count[0]);
 	}
 	
-	private boolean schema2Database(Entity entity, Field field) {
+	/**
+	 * @param entity
+	 * @param fields
+	 * @return
+	 */
+	protected boolean schema2Database(Entity entity, Field fields[]) {
 		Dialect dialect = Application.getPersistManagerFactory().getDialect();
 		Table table = new Table(entity, dialect);
-		StringBuilder ddl = new StringBuilder("alter table `" + entity.getPhysicalName() + "`\n  add column ");
-		table.generateFieldDDL(field, ddl);
+		StringBuilder ddl = new StringBuilder("alter table `" + entity.getPhysicalName() + "`");
+		for (Field field : fields) {
+			ddl.append("\n  add column ");
+			table.generateFieldDDL(field, ddl);
+			ddl.append(",");
+		}
+		ddl.deleteCharAt(ddl.length() - 1);
+		
 		try {
 			Application.getSQLExecutor().executeBatch(new String[] { ddl.toString() }, 10 * 60);
 		} catch (Throwable ex) {
@@ -190,6 +186,7 @@ public class Field2Schema {
 	}
 	
 	/**
+	 * 内部用。注意此方法不会添加列到数据库
 	 * 
 	 * @param entity
 	 * @param fieldName
@@ -295,7 +292,7 @@ public class Field2Schema {
 		// 全英文直接返回
 		if (identifier.matches("[a-zA-Z0-9]+")) {
 			if (!CharSet.ASCII_ALPHA.contains(identifier.charAt(0)) || inSQlKeyword(identifier)) {
-				identifier = "a" + identifier; 
+				identifier = "rb" + identifier;
 			}
 			return identifier;
 		}
@@ -308,7 +305,7 @@ public class Field2Schema {
 		
 		char start = identifier.charAt(0);
 		if (!CharSet.ASCII_ALPHA.contains(start)) {
-			identifier = "a" + identifier;
+			identifier = "rb" + identifier;
 		}
 		
 		identifier = identifier.toLowerCase();

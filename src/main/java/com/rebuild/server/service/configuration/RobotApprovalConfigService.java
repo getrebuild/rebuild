@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.service.configuration;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.business.approval.ApprovalFields2Schema;
 import com.rebuild.server.configuration.RobotTriggerManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -26,6 +27,7 @@ import com.rebuild.server.service.bizz.privileges.AdminGuard;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -43,6 +45,14 @@ public class RobotApprovalConfigService extends ConfigurationService implements 
 	@Override
 	public int getEntityCode() {
 		return EntityHelper.RobotApprovalConfig;
+	}
+	
+	@Override
+	public Record create(Record record) {
+		String entity = record.getString("belongEntity");
+		new ApprovalFields2Schema(Application.getCurrentUser())
+				.createFields(MetadataHelper.getEntity(entity));
+		return super.create(record);
 	}
 	
 	@Override

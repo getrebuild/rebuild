@@ -196,29 +196,55 @@ public class MetadataHelper {
 	 * 
 	 * @param field
 	 * @return
-	 * @see #isCommonsField(Field)
 	 */
 	public static boolean isSystemField(Field field) {
-		final String FN = field.getName();
-		return EntityHelper.AutoId.equalsIgnoreCase(FN) || EntityHelper.QuickCode.equalsIgnoreCase(FN)
-				|| EntityHelper.IsDeleted.equalsIgnoreCase(FN) || field.getType() == FieldType.PRIMARY;
+		return isSystemField(field.getName()) || field.getType() == FieldType.PRIMARY;
 	}
 	
 	/**
-	 * 是否系统级字段
+	 * 仅供系统使用的字段，用户不可见/不可用
+	 * 
+	 * @param fieldName
+	 * @return
+	 */
+	public static boolean isSystemField(String fieldName) {
+		return EntityHelper.AutoId.equalsIgnoreCase(fieldName) 
+				|| EntityHelper.QuickCode.equalsIgnoreCase(fieldName)
+				|| EntityHelper.IsDeleted.equalsIgnoreCase(fieldName);
+	}
+	
+	/**
+	 * 是否公共字段
 	 * 
 	 * @param field
 	 * @return
 	 * @see #isSystemField(Field)
+	 * @see EntityHelper
 	 */
 	public static boolean isCommonsField(Field field) {
 		if (isSystemField(field)) {
 			return true;
 		}
-		final String FN = field.getName();
-		return EntityHelper.OwningUser.equalsIgnoreCase(FN) || EntityHelper.OwningDept.equalsIgnoreCase(FN)
-				|| EntityHelper.CreatedOn.equalsIgnoreCase(FN) || EntityHelper.CreatedBy.equalsIgnoreCase(FN)
-				|| EntityHelper.ModifiedOn.equalsIgnoreCase(FN) || EntityHelper.ModifiedBy.equalsIgnoreCase(FN);
+		return isCommonsField(field.getName());
+	}
+	
+	/**
+	 * 是否公共字段
+	 * 
+	 * @param field
+	 * @return
+	 * @see #isSystemField(Field)
+	 * @see EntityHelper
+	 */
+	public static boolean isCommonsField(String fieldName) {
+		if (isSystemField(fieldName)) {
+			return true;
+		}
+		return EntityHelper.OwningUser.equalsIgnoreCase(fieldName) || EntityHelper.OwningDept.equalsIgnoreCase(fieldName)
+				|| EntityHelper.CreatedOn.equalsIgnoreCase(fieldName) || EntityHelper.CreatedBy.equalsIgnoreCase(fieldName)
+				|| EntityHelper.ModifiedOn.equalsIgnoreCase(fieldName) || EntityHelper.ModifiedBy.equalsIgnoreCase(fieldName)
+				|| EntityHelper.ApprovalId.equalsIgnoreCase(fieldName) || EntityHelper.ApprovalState.equalsIgnoreCase(fieldName)
+				|| EntityHelper.ApprovalStepId.equalsIgnoreCase(fieldName);
 	}
 	
 	/**

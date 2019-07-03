@@ -28,7 +28,6 @@ import org.apache.commons.lang.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.RebuildException;
-import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.JSONUtils;
 
@@ -47,19 +46,8 @@ public class EasyMeta implements BaseMeta {
 	private static final long serialVersionUID = -6463919098111506968L;
 	
 	private static final Set<String> BUILTIN_ENTITY = new HashSet<>();
-	private static final Set<String> BUILTIN_FIELD = new HashSet<>();
 	private static final Map<String, String[]> SYSENTITY_EXTMETA = new HashMap<>();
 	static {
-		BUILTIN_FIELD.add(EntityHelper.AutoId);
-		BUILTIN_FIELD.add(EntityHelper.QuickCode);
-		BUILTIN_FIELD.add(EntityHelper.IsDeleted);
-		BUILTIN_FIELD.add(EntityHelper.CreatedOn);
-		BUILTIN_FIELD.add(EntityHelper.CreatedBy);
-		BUILTIN_FIELD.add(EntityHelper.ModifiedOn);
-		BUILTIN_FIELD.add(EntityHelper.ModifiedBy);
-		BUILTIN_FIELD.add(EntityHelper.OwningUser);
-		BUILTIN_FIELD.add(EntityHelper.OwningDept);
-		
 		SYSENTITY_EXTMETA.put("User", new String[] { "account", "系统内建" });
 		SYSENTITY_EXTMETA.put("Department", new String[] { "accounts", "系统内建" });
 		SYSENTITY_EXTMETA.put("Role", new String[] { "lock", "系统内建" });
@@ -151,7 +139,7 @@ public class EasyMeta implements BaseMeta {
 		
 		if (isField()) {
 			Field field = (Field) this.baseMeta;
-			if (MetadataHelper.isSystemField(field) || BUILTIN_FIELD.contains(getName())) {
+			if (MetadataHelper.isCommonsField(field)) {
 				return true;
 			} else if (getDisplayType() == DisplayType.REFERENCE) {
 				// 明细-引用主记录的字段也是内建

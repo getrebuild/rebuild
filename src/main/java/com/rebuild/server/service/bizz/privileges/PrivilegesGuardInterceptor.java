@@ -69,7 +69,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		
 		final ID caller = Application.getSessionStore().get();
 		if (Application.devMode()) {
-			LOG.info("User [ " + caller + " ] calls : " + invocation);
+			LOG.info("User [ " + caller + " ] calls : " + invocation.getMethod());
 		}
 		
 		Class<?> invocationClass = invocation.getThis().getClass();

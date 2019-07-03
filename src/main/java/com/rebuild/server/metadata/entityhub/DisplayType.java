@@ -49,6 +49,7 @@ public enum DisplayType {
 	BOOL("布尔", FieldType.BOOL, -1, null),
 	LOCATION("位置", FieldType.STRING, 70, null),
 	AVATAR("头像", FieldType.STRING, 300, null),
+	INT("数字", FieldType.INT, -1, null),
 	
 	;
 	

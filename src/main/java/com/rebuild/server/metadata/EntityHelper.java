@@ -125,6 +125,10 @@ public class EntityHelper {
 	public static final String QuickCode = "quickCode";
 	public static final String IsDeleted = "isDeleted";
 	
+	public static final String ApprovalId = "approvalId";
+	public static final String ApprovalState = "approvalState";
+	public static final String ApprovalStepId = "approvalStepId";
+	
 	// 系统实体
 
 	public static final int User = 1;

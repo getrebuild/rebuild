@@ -85,7 +85,7 @@ public class TestSupport {
 		if (MetadataHelper.containsEntity(TEST_ENTITY)) {
 			if (dropExists) {
 				LOG.warn("Dropping test entity : " + TEST_ENTITY);
-				new Entity2Schema(UserService.ADMIN_USER).drop(MetadataHelper.getEntity(TEST_ENTITY), true);
+				new Entity2Schema(UserService.ADMIN_USER).dropEntity(MetadataHelper.getEntity(TEST_ENTITY), true);
 			} else {
 				return;
 			}
@@ -94,7 +94,7 @@ public class TestSupport {
 		LOG.warn("Adding test entity : " + TEST_ENTITY);
 		
 		Entity2Schema entity2Schema = new Entity2Schema(UserService.ADMIN_USER);
-		String entityName = entity2Schema.create(TEST_ENTITY.toUpperCase(), null, null, true);
+		String entityName = entity2Schema.createEntity(TEST_ENTITY.toUpperCase(), null, null, true);
 		Entity testEntity = MetadataHelper.getEntity(entityName);
 		
 		for (DisplayType dt : DisplayType.values()) {
@@ -105,12 +105,12 @@ public class TestSupport {
 			
 			String fieldName = dt.name().toUpperCase();
 			if (dt == DisplayType.REFERENCE) {
-				new Field2Schema(UserService.ADMIN_USER).create(testEntity, fieldName, dt, null, entityName, null);
+				new Field2Schema(UserService.ADMIN_USER).createField(testEntity, fieldName, dt, null, entityName, null);
 			} else if (dt == DisplayType.CLASSIFICATION) {
 				JSON area = JSON.parseObject("{classification:'018-0000000000000001'}");
-				new Field2Schema(UserService.ADMIN_USER).create(testEntity, fieldName, dt, null, entityName, area);
+				new Field2Schema(UserService.ADMIN_USER).createField(testEntity, fieldName, dt, null, entityName, area);
 			} else {
-				new Field2Schema(UserService.ADMIN_USER).create(testEntity, fieldName, dt, null);
+				new Field2Schema(UserService.ADMIN_USER).createField(testEntity, fieldName, dt, null, null, null);
 			}
 		}
 	}
@@ -128,13 +128,13 @@ public class TestSupport {
 		
 		if (dropExists) {
 			if (MetadataHelper.containsEntity(SalesOrderItem)) {
-				new Entity2Schema(UserService.ADMIN_USER).drop(MetadataHelper.getEntity(SalesOrderItem), true);	
+				new Entity2Schema(UserService.ADMIN_USER).dropEntity(MetadataHelper.getEntity(SalesOrderItem), true);	
 			}
 			if (MetadataHelper.containsEntity(SalesOrder)) {
-				new Entity2Schema(UserService.ADMIN_USER).drop(MetadataHelper.getEntity(SalesOrder), true);	
+				new Entity2Schema(UserService.ADMIN_USER).dropEntity(MetadataHelper.getEntity(SalesOrder), true);	
 			}
 			if (dropExists && MetadataHelper.containsEntity(Account)) {
-				new Entity2Schema(UserService.ADMIN_USER).drop(MetadataHelper.getEntity(Account), true);	
+				new Entity2Schema(UserService.ADMIN_USER).dropEntity(MetadataHelper.getEntity(Account), true);	
 			}
 		}
 		
