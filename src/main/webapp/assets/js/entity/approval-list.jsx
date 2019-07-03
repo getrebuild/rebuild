@@ -20,9 +20,10 @@ class GridList extends React.Component {
             </div>
             <div className="card-footer card-footer-contrast">
               <div className="float-left">
-                <a onClick={() => renderRbcomp(<DlgEdit id={item[0]} name={item[1]} />)}><i className="zmdi zmdi-edit"></i></a>
+                <a onClick={() => renderRbcomp(<DlgEdit id={item[0]} name={item[1]} isDisabled={item[4]} />)}><i className="zmdi zmdi-edit"></i></a>
                 <a onClick={() => this.delete(item[0])}><i className="zmdi zmdi-delete"></i></a>
               </div>
+              {item[4] && <div className="badge badge-warning">已禁用</div>}
               <div className="clearfix"></div>
             </div>
           </div>
@@ -87,16 +88,26 @@ class DlgEdit extends RbFormHandler {
             <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
           </div>
         </div>
-        {!this.props.id && <div className="form-group row">
-          <label className="col-sm-3 col-form-label text-sm-right">应用实体</label>
-          <div className="col-sm-7">
-            <select className="form-control form-control-sm" ref={(c) => this._applyEntity = c}>
-              {(this.state.applyEntities || []).map((item) => {
-                return <option key={'e-' + item.name} value={item.name}>{item.label}</option>
-              })}
-            </select>
-          </div>
-        </div>}
+        {!this.props.id &&
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">应用实体</label>
+            <div className="col-sm-7">
+              <select className="form-control form-control-sm" ref={(c) => this._applyEntity = c}>
+                {(this.state.applyEntities || []).map((item) => {
+                  return <option key={'e-' + item.name} value={item.name}>{item.label}</option>
+                })}
+              </select>
+            </div>
+          </div>}
+        {this.props.id &&
+          <div className="form-group row">
+            <div className="col-sm-7 offset-sm-3">
+              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                <input className="custom-control-input" type="checkbox" checked={this.state.isDisabled === true} data-id="isDisabled" onChange={this.handleChange} />
+                <span className="custom-control-label">是否禁用 <i ref={(c) => this._tooltip = c} className="zmdi zmdi-help zicon" title="禁用后正在使用此流程的审批记录不受影响"></i></span>
+              </label>
+            </div>
+          </div>}
         <div className="form-group row footer">
           <div className="col-sm-7 offset-sm-3" ref={(c) => this._btns = c}>
             <button className="btn btn-primary" type="button" onClick={this.save}>确定</button>
@@ -115,6 +126,8 @@ class DlgEdit extends RbFormHandler {
           })
         })
       })
+    } else {
+      $(this._tooltip).tooltip()
     }
   }
   save = () => {
@@ -123,6 +136,8 @@ class DlgEdit extends RbFormHandler {
     if (!this.props.id) {
       _data.belongEntity = this.__select2.val()
       if (!_data.belongEntity) { rb.highbar('请选择应用实体'); return }
+    } else {
+      _data.isDisabled = this.state.isDisabled === true
     }
     _data.metadata = { entity: 'RobotApprovalConfig', id: this.props.id || null }
 

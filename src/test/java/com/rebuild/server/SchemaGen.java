@@ -48,7 +48,6 @@ public class SchemaGen {
 //		genAll();
 		gen(EntityHelper.RobotApprovalConfig);
 		gen(EntityHelper.RobotApprovalStep);
-		gen(EntityHelper.RobotApprovalHistory);
 		
 		System.exit(0);
 	}

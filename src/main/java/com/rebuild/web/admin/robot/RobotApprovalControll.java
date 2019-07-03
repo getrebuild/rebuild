@@ -80,7 +80,7 @@ public class RobotApprovalControll extends BasePageControll {
 	@RequestMapping("approval/list")
 	public void approvalList(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String belongEntity = getParameter(request, "entity");
-		String sql = "select configId,name,belongEntity,belongEntity from RobotApprovalConfig";
+		String sql = "select configId,name,belongEntity,belongEntity,isDisabled from RobotApprovalConfig";
 		if (StringUtils.isNotBlank(belongEntity)) {
 			sql += " where belongEntity = '" + StringEscapeUtils.escapeSql(belongEntity) + "'";
 		}

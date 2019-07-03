@@ -156,7 +156,7 @@
 	<entity name="ShareAccess" type-code="020" description="记录共享">
 		<field name="accessId" type="primary" />
 		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="哪个实体" />
-		<field name="recordId" type="any-reference" ref-entity="*" nullable="false" updatable="false" description="记录ID" />
+		<field name="recordId" type="any-reference" nullable="false" updatable="false" description="记录ID" />
 		<field name="shareTo" type="any-reference" ref-entity="User,Department,Role" nullable="false" updatable="false" description="共享给谁 (U/D/R)" />
 		<field name="rights" type="int" default-value="0" nullable="false" description="共享权限 (R=2,U=4,D=8,0=Auto)" />
 		<index field-list="belongEntity,recordId,shareTo" />
@@ -241,15 +241,17 @@
 		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
 		<field name="name" type="string" max-length="100" nullable="false" />
 		<field name="flowDefinition" type="text" description="流程定义" />
+		<field name="isDisabled" type="bool" default-value="F" description="是否停用" />
 	</entity>
 	
-	<entity name="RobotApprovalStep" type-code="029" description="审批流程步骤" parent="false">
+	<entity name="RobotApprovalStep" type-code="029" description="审批步骤记录">
 		<field name="stepId" type="primary"/>
-		<field name="approvalId" type="reference" ref-entity="RobotApprovalConfig" nullable="false" updatable="false" cascade="delete" description="所属流程"  />
-		<field name="prevSetpId" type="reference" ref-entity="RobotApprovalStep" description="上一步" />
-	</entity>
-	
-	<entity name="RobotApprovalHistory" type-code="030" description="审批流程历史">
-		<field name="historyId" type="primary"/>
+		<field name="recordId" type="any-reference" nullable="false" updatable="false" cascade="delete" description="审批记录"/>
+		<field name="approvalId" type="reference" ref-entity="RobotApprovalConfig" nullable="false" updatable="false" cascade="delete" description="审批流程" />
+		<field name="node" type="string" max-length="100" nullable="false" description="审批节点" />
+		<field name="approver" type="string" max-length="100" nullable="false" description="审批人" />
+		<field name="state" type="small-int" nullable="false" default-value="1" description="审批结果" />
+		<index field-list="recordId,approvalId"/>
+		<index field-list="approvalId,node,approver,state"/>
 	</entity>
 </metadata-config>

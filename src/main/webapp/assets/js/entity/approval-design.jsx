@@ -280,7 +280,8 @@ class ConditionBranch extends NodeGroupSpec {
     let call = function (d) {
       that.setState({ data: d, active: false })
     }
-    renderRbcomp(<ConditionBranchConfig entity={wpc.applyEntity} call={call} data={this.state.data} key={'cks-' + this.props.nodeId} />, 'config-side')
+    let props = { ...(this.state.data || {}), entity: wpc.applyEntity, call: call }
+    renderRbcomp(<ConditionBranchConfig key={'cks-' + this.props.nodeId} {...props} />, 'config-side')
 
     $(document.body).addClass('open-right-sidebar')
     this.setState({ active: true })
@@ -519,12 +520,11 @@ class ConditionBranchConfig extends StartNodeConfig {
     super(props)
   }
   render() {
-    let d = this.state.data || {}
     return (<div>
       <div className="header">
         <input type="text" placeholder="分支条件" data-id="nodeName" value={this.state.nodeName || ''} onChange={this.handleChange} maxLength="20" />
       </div>
-      <AdvFilter filter={d.filter} entity={this.props.entity} confirm={this.save} cancel={this.cancel} canNoFilters={true} />
+      <AdvFilter filter={this.state.filter} entity={this.props.entity} confirm={this.save} cancel={this.cancel} canNoFilters={true} />
     </div>)
   }
   save = (filter) => {
@@ -561,8 +561,9 @@ class RbFlowCanvas extends NodeGroupSpec {
       let flowNodes = JSON.parse(wpc.flowDefinition).nodes
       this._root.setState({ data: flowNodes[0].data })
       flowNodes.remove(flowNodes[0])
-      this.setState({ nodes: flowNodes })
-      console.log(flowNodes)
+      this.setState({ nodes: flowNodes }, () => {
+        isCanvasMounted = true
+      })
     }
 
     $('.box-scale').draggable({ cursor: 'move', axis: 'x', scroll: false })
@@ -579,8 +580,8 @@ class RbFlowCanvas extends NodeGroupSpec {
 
       _btn.button('loading')
       $.post(`${rb.baseUrl}/app/entity/record-save`, JSON.stringify(_data), (res) => {
-        // if (res.error_code === 0) location.href = '../approvals'
-        // else rb.hberror(res.error_msg)
+        if (res.error_code === 0) location.href = '../approvals'
+        else rb.hberror(res.error_msg)
         _btn.button('reset')
       })
     })

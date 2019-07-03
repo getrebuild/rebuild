@@ -22,7 +22,7 @@ class GridList extends React.Component {
                 <a onClick={() => this.editItem(item)}><i className="zmdi zmdi-edit"></i></a>
                 <a onClick={() => this.deleteItem(item[0])}><i className="zmdi zmdi-delete"></i></a>
               </div>
-              {item[2] && <div className="float-right fs-12 text-warning">已禁用</div>}
+              {item[2] && <div className="badge badge-warning">已禁用</div>}
               <div className="clearfix"></div>
             </div>
           </div>

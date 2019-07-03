@@ -1834,8 +1834,10 @@ form {
     color: #666;
 }
 
-.card-list .card-footer .float-right {
-    padding-top: 3px;
+.card-list .card-footer .badge {
+    float: right;
+    font-weight: normal;
+    margin-top: 1px;
 }
 
 .card.ph {

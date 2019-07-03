@@ -153,6 +153,5 @@ public class EntityHelper {
 	public static final int RobotTriggerConfig = 27;
 	public static final int RobotApprovalConfig = 28;
 	public static final int RobotApprovalStep = 29;
-	public static final int RobotApprovalHistory = 30;
 	
 }
