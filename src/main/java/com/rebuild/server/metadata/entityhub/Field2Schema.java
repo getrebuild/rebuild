@@ -205,7 +205,7 @@ public class Field2Schema {
 	 */
 	public Field createUnsafeField(Entity entity, String fieldName, String fieldLabel, DisplayType displayType,
 			boolean nullable, boolean creatable, boolean updatable, String comments, String refEntity, CascadeModel cascade,
-			boolean nullableInDb, JSON extConfig, String defaultValue) {
+			boolean nullableInDb, JSON extConfig, Object defaultValue) {
 		if (displayType == DisplayType.SERIES) {
 			nullable = false;
 			creatable = false;
@@ -226,8 +226,8 @@ public class Field2Schema {
 		if (StringUtils.isNotBlank(comments)) {
 			recordOfField.setString("comments", comments);
 		}
-		if (StringUtils.isNotBlank(defaultValue)) {
-			recordOfField.setString("defaultValue", defaultValue);
+		if (defaultValue != null) {
+			recordOfField.setString("defaultValue", defaultValue.toString());
 		}
 		
 		if (displayType == DisplayType.PICKLIST) {

@@ -16,54 +16,21 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.approval;
-
-import com.rebuild.server.metadata.entityhub.State;
+package com.rebuild.server.configuration;
 
 /**
- * 审批状态
+ * 审核流程定义
  * 
  * @author devezhao zhaofang123@gmail.com
- * @since 2019/06/25
+ * @since 2019/07/05
  */
-public enum ApprovalState implements State {
-	
-	DRAFT(1, "草稿"),
-	PROCESSING(2, "审批中"),
-	Approved(10, "通过"),
-	REJECTED(11, "驳回"),
-	
-	;
-	
-	private int state;
-	private String name;
+public class FlowDefinition extends ConfigEntry {
+	private static final long serialVersionUID = 9146239943240893998L;
 	
 	/**
-	 * @param state
-	 * @param name
+	 * @return
 	 */
-	private ApprovalState(int state, String name) {
-		this.state = state;
-		this.name = name;
-	}
-	
-	@Override
-	public int getState() {
-		return state;
-	}
-	
-	@Override
-	public String getName() {
-		return name;
-	}
-	
-	@Override
-	public State valueOf(int state) {
-		for (ApprovalState s : ApprovalState.values()) {
-			if (s.getState() == state) {
-				return s;
-			}
-		}
-		return null;
+	public boolean isDisabled() {
+		return getBoolean("disabled");
 	}
 }

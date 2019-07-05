@@ -251,6 +251,7 @@
 		<field name="node" type="string" max-length="100" nullable="false" description="审批节点" />
 		<field name="approver" type="string" max-length="100" nullable="false" description="审批人" />
 		<field name="state" type="small-int" nullable="false" default-value="1" description="审批结果" />
+		<field name="prevStepId" type="small-int" nullable="false" default-value="1" description="审批结果" />
 		<index field-list="recordId,approvalId"/>
 		<index field-list="approvalId,node,approver,state"/>
 	</entity>

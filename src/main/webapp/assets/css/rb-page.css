@@ -1872,3 +1872,20 @@ form {
     color: #878787;
     content: "/";
 }
+
+.approval-form .alert .message {
+    padding: 10px;
+    padding-left: 0;
+}
+
+.approval-form .alert .close.btn {
+    padding: 8px 0;
+    font-size: 12px;
+    opacity: 1;
+    font-weight: normal;
+    line-height: 1.1;
+    background-color: #fff;
+    min-height: 0;
+    min-width: 78px;
+    margin-top: 8px;
+}

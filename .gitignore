@@ -24,8 +24,9 @@ hs_err_pid*
 # IDE
 /.classpath
 /.project
-/.idea/
 /.settings/
+/.idea/
+rebuild.iml
 
 # Bin
 /target/
@@ -40,7 +41,7 @@ hs_err_pid*
 /a.json
 
 
-
 # MacOS
 
 .DS_Store
+

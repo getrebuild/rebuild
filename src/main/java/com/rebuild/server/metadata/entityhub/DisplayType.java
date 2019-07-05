@@ -31,26 +31,28 @@ public enum DisplayType {
 	DECIMAL("货币", FieldType.DECIMAL, -1, "##,##0.00"),
 	DATE("日期", FieldType.DATE, -1, "yyyy-MM-dd"),
 	DATETIME("日期时间", FieldType.TIMESTAMP, -1, "yyyy-MM-dd HH:mm:ss"),
-	TEXT("文本", FieldType.STRING, 300, null),
-	NTEXT("大文本", FieldType.TEXT, 6000, null),
-	EMAIL("邮箱", FieldType.STRING, 100, null),
-	URL("链接", FieldType.STRING, 300, null),
-	PHONE("电话", FieldType.STRING, 20, null),
+	TEXT("文本", FieldType.STRING, 300),
+	NTEXT("大文本", FieldType.TEXT, 6000),
+	EMAIL("邮箱", FieldType.STRING, 100),
+	URL("链接", FieldType.STRING, 300),
+	PHONE("电话", FieldType.STRING, 20),
 	SERIES("自动编号", FieldType.STRING, 40, "{YYYYMMDD}-{0000}"),
-	IMAGE("图片", FieldType.STRING, 700, null),
-	FILE("附件", FieldType.STRING, 700, null),
-	PICKLIST("列表", FieldType.REFERENCE, -1, null),
-	CLASSIFICATION("分类", FieldType.REFERENCE, -1, null),
-	REFERENCE("引用", FieldType.REFERENCE, -1, null),
+	IMAGE("图片", FieldType.STRING, 700),
+	FILE("附件", FieldType.STRING, 700),
+	PICKLIST("列表", FieldType.REFERENCE, -1),
+	CLASSIFICATION("分类", FieldType.REFERENCE, -1),
+	REFERENCE("引用", FieldType.REFERENCE, -1),
 	
-	// 待启用/内部用
-	ID("主键", FieldType.PRIMARY, -1, null),
-	ANYREFERENCE("任意引用", FieldType.ANY_REFERENCE, -1, null),
-	BOOL("布尔", FieldType.BOOL, -1, null),
-	LOCATION("位置", FieldType.STRING, 70, null),
-	AVATAR("头像", FieldType.STRING, 300, null),
-	INT("数字", FieldType.INT, -1, null),
-	
+	// 内部用
+	ID("主键", FieldType.PRIMARY, -1),
+	ANYREFERENCE("任意引用", FieldType.ANY_REFERENCE, -1),
+	BOOL("布尔", FieldType.BOOL, -1),
+	STATE("状态", FieldType.SMALL_INT, -1),
+
+	// 未开放
+	LOCATION("位置", FieldType.STRING, 70),
+	AVATAR("头像", FieldType.STRING, 300),
+
 	;
 	
 	// --
@@ -59,6 +61,10 @@ public enum DisplayType {
 	private Type fieldType;
 	private String defaultFormat;
 	private int maxLength;
+
+	private DisplayType(String displayName, Type fieldType, int maxLength) {
+		this(displayName, fieldType, maxLength, null);
+	}
 	
 	private DisplayType(String displayName, Type fieldType, int maxLength, String defaultFormat) {
 		this.displayName = displayName;

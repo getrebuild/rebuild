@@ -18,11 +18,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.query;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.privileges.EntityQueryFilter;
 
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Filter;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Query;
@@ -119,5 +122,21 @@ public class QueryFactory {
 	 */
 	public Record record(String ajql) {
 		return createQuery(ajql).record();
+	}
+	
+	/**
+	 * @param recordId
+	 * @param fields
+	 * @return
+	 */
+	public Object[] unique(ID recordId, String ...fields) {
+		Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+		StringBuffer sql = new StringBuffer("select ");
+		sql.append(StringUtils.join(fields, ","))
+			.append(" from ").append(entity.getName())
+			.append(" where ")
+			.append(entity.getPrimaryField().getName())
+			.append(" = ?");
+		return createQuery(sql.toString()).setParameter(1, recordId).unique();
 	}
 }

@@ -18,6 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 
@@ -40,13 +43,73 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 	 * @return
 	 */
 	public ID findApproval(Entity entity) {
+		return findApproval(entity, null);
+	}
+	
+	/**
+	 * 获取指定实体的可用流程
+	 * 
+	 * @param entity
+	 * @param record
+	 * @return
+	 */
+	public ID findApproval(Entity entity, ID record) {
 		if (!entity.containsField(EntityHelper.ApprovalId)) {
 			return null;
 		}
 		
-		return ID.newId(0);
+		if (record != null) {
+			String sql = String.format("select approvalId from %s where %s = ?", entity.getName(), entity.getPrimaryField().getName());
+			Object[] had =	Application.createQueryNoFilter(sql)
+					.setParameter(1, record)
+					.unique();
+			if (had[0] != null) {
+				return (ID) had[0];
+			}
+		}
+		
+		FlowDefinition[] defs = getFlowDefinitions(entity);
+		for (FlowDefinition d : defs) {
+			if (!d.isDisabled()) {
+				return d.getID("id");
+			}
+		}
+		return null;
 	}
 	
+	/**
+	 * 获取指定实体的所有审核流程（含禁用的）
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	public FlowDefinition[] getFlowDefinitions(Entity entity) {
+		final String cKey = "RobotApprovalManager-" + entity.getName();
+		FlowDefinition[] defs = (FlowDefinition[]) Application.getCommonCache().getx(cKey);
+		if (defs != null) {
+			return defs;
+		}
+		
+		Object[][] array = Application.createQueryNoFilter(
+				"select flowDefinition,isDisabled,name,configId from RobotApprovalConfig where belongEntity = ?")
+				.setParameter(1, entity.getName())
+				.array();
+		
+		List<FlowDefinition> list = new ArrayList<>();
+		for (Object[] o : array) {
+			FlowDefinition def = new FlowDefinition();
+			def.set("flowDefinition", o[0]);
+			def.set("disabled", o[1]);
+			def.set("name", o[2]);
+			def.set("id", o[3]);
+			list.add(def);
+		}
+		
+		defs = list.toArray(new FlowDefinition[list.size()]);
+		Application.getCommonCache().putx(cKey, defs);
+		return defs;
+	}
+
 	@Override
 	public void clean(Entity cacheKey) {
 		final String cKey = "RobotApprovalManager-" + cacheKey.getName();

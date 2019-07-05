@@ -274,9 +274,11 @@ public class FormsBuilder extends FormsManager {
 			model.set("lastModified", data.getDate(EntityHelper.ModifiedOn).getTime());
 		}
 		
-		// 启用了审核流程
-		ID approvalId = RobotApprovalManager.instance.findApproval(entityMeta);
-		model.set("hadApproval", approvalId != null);
+		// 审核流程
+		ID approvalId = RobotApprovalManager.instance.findApproval(entityMeta, record);
+		if (approvalId != null) {
+			model.set("hadApproval", approvalId);
+		}
 		
 		model.set("id", null);  // Clean form's ID of config
 		return model.toJSON();

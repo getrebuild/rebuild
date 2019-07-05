@@ -16,54 +16,29 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.approval;
-
-import com.rebuild.server.metadata.entityhub.State;
+package com.rebuild.server.metadata.entityhub;
 
 /**
- * 审批状态
+ * 状态字段
  * 
  * @author devezhao zhaofang123@gmail.com
- * @since 2019/06/25
+ * @since 2019/07/05
  */
-public enum ApprovalState implements State {
+public interface State {
 	
-	DRAFT(1, "草稿"),
-	PROCESSING(2, "审批中"),
-	Approved(10, "通过"),
-	REJECTED(11, "驳回"),
+	/**
+	 * @return
+	 */
+	int getState();
 	
-	;
-	
-	private int state;
-	private String name;
+	/**
+	 * @return
+	 */
+	String getName();
 	
 	/**
 	 * @param state
-	 * @param name
+	 * @return
 	 */
-	private ApprovalState(int state, String name) {
-		this.state = state;
-		this.name = name;
-	}
-	
-	@Override
-	public int getState() {
-		return state;
-	}
-	
-	@Override
-	public String getName() {
-		return name;
-	}
-	
-	@Override
-	public State valueOf(int state) {
-		for (ApprovalState s : ApprovalState.values()) {
-			if (s.getState() == state) {
-				return s;
-			}
-		}
-		return null;
-	}
+	State valueOf(int state);
 }

@@ -147,7 +147,7 @@ class RbForm extends React.Component {
   renderFormAction() {
     let pmodel = this.props.$$$parent.state.__formModel
     let moreActions = []
-    if (pmodel.isApproval === true) {
+    if (pmodel.hadApproval) {
       moreActions.push(<a key="Action103" className="dropdown-item" onClick={() => this.post(103)}>保存并提交</a>)
     }
     if (pmodel.isMaster === true) {
