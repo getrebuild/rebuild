@@ -802,50 +802,6 @@ class RbFormReference extends RbFormElement {
   }
 }
 
-// 头像
-class RbFormAvatar extends RbFormElement {
-  constructor(props) {
-    super(props)
-  }
-  renderElement() {
-    let aUrl = rb.baseUrl + (this.state.value ? `/filex/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
-    return (
-      <div className="img-field avatar">
-        <span title="选择头像图片">
-          <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} accept="image/png,image/jpeg,image/gif" />
-          <label htmlFor={this.props.field + '-input'} className="img-thumbnail img-upload">
-            <img src={aUrl} />
-          </label>
-        </span>
-      </div>
-    )
-  }
-  renderViewElement() {
-    let aUrl = rb.baseUrl + (this.state.value ? `/filex/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
-    return (
-      <div className="img-field avatar">
-        <a className="img-thumbnail img-upload"><img src={aUrl} /></a>
-      </div>
-    )
-  }
-  componentDidMount() {
-    super.componentDidMount()
-    let that = this
-    let mp
-    $createUploader(this.refs['upload-input'], function (res) {
-      if (!mp) mp = new Mprogress({ template: 1, start: true })
-      mp.set(res.percent / 100)  // 0.x
-    }, function (res) {
-      if (mp) mp.end()
-      that.handleChange({ target: { value: res.key } }, true)
-    })
-  }
-
-  // Not implemented
-  setValue() { }
-  getValue() { }
-}
-
 // 分类数据
 class RbFormClassification extends RbFormElement {
   constructor(props) {
@@ -981,8 +937,6 @@ const detectElement = function (item) {
     return <RbFormPickList {...item} />
   } else if (item.type === 'REFERENCE') {
     return <RbFormReference {...item} />
-  } else if (item.type === 'AVATAR') {
-    return <RbFormAvatar {...item} />
   } else if (item.type === 'CLASSIFICATION') {
     return <RbFormClassification {...item} />
   } else if (item.field === '$LINE$' || item.field === '$DIVIDER$') {

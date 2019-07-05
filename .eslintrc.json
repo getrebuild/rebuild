@@ -58,6 +58,7 @@
         "RbFormElement": true,
         "RbList": true,
         "RbListPage": true,
+        "CellRenders": true,
         "AdvFilter": true,
         "UserShow": true,
         "Mprogress": true,

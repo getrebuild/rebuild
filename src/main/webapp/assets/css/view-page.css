@@ -27,8 +27,8 @@ body {
 	left: 0;
 	width: 100%;
 	z-index: 1001;
-	background-color: rgba(255, 255, 255, .8);
 	background-color: #fff;
+	background-color: rgba(255, 255, 255, .8);
 }
 
 .view-header .header-icon {

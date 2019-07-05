@@ -20,6 +20,7 @@ package com.rebuild.server.service.configuration;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalFields2Schema;
+import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.configuration.RobotTriggerManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -58,12 +59,12 @@ public class RobotApprovalConfigService extends ConfigurationService implements 
 	@Override
 	protected void cleanCache(ID configId) {
 		Object[] cfg = Application.createQueryNoFilter(
-				"select belongEntity from RobotTriggerConfig where configId = ?")
+				"select belongEntity from RobotApprovalConfig where configId = ?")
 				.setParameter(1, configId)
 				.unique();
 		if (cfg != null) {
 			Entity entity = MetadataHelper.getEntity((String) cfg[0]);
-			RobotTriggerManager.instance.clean(entity);
+			RobotApprovalManager.instance.clean(entity);
 		}
 	}
 }

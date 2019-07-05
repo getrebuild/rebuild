@@ -330,10 +330,6 @@ CellRenders.addRender('URL', function (v, s, k) {
 CellRenders.addRender('EMAIL', function (v, s, k) {
   return <td key={k}><div style={s}><a href={'mailto:' + v} className="column-url">{v}</a></div></td>
 })
-CellRenders.addRender('AVATAR', function (v, s, k) {
-  let imgUrl = rb.baseUrl + '/filex/img/' + v + '?imageView2/2/w/100/interlace/1/q/100'
-  return <td key={k} className="user-avatar"><img src={imgUrl} alt="Avatar" /></td>
-})
 
 // 分页组件
 class RbListPagination extends React.Component {

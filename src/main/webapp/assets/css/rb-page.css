@@ -1873,12 +1873,12 @@ form {
     content: "/";
 }
 
-.approval-form .alert .message {
+.approval-pane .alert .message {
     padding: 10px;
     padding-left: 0;
 }
 
-.approval-form .alert .close.btn {
+.approval-pane .alert .close.btn {
     padding: 8px 0;
     font-size: 12px;
     opacity: 1;
@@ -1888,4 +1888,12 @@ form {
     min-height: 0;
     min-width: 78px;
     margin-top: 8px;
+}
+
+.form.approval-form {
+    margin: 0 -5px;
+}
+
+.form.approval-form>.form-group {
+    padding: 0 20px;
 }

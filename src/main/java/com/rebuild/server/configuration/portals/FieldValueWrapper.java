@@ -24,8 +24,10 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.helper.datalist.DataWrapper;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
@@ -80,6 +82,11 @@ public class FieldValueWrapper {
 		String fieldName = field.getName().toLowerCase();
 		if (fieldName.contains("password")) {
 			return "******";
+		}
+		
+		// 审批状态
+		if (fieldName.equalsIgnoreCase(EntityHelper.ApprovalState)) {
+			return warpApprovalState(value);
 		}
 		
 		DisplayType dt = field.getDisplayType();
@@ -218,6 +225,17 @@ public class FieldValueWrapper {
 		} else {
 			return text;
 		}
+	}
+	
+	/**
+	 * @param state
+	 * @return
+	 */
+	public static String warpApprovalState(Object state) {
+		if (state == null) {
+			return ApprovalState.DRAFT.getName();
+		}
+		return ApprovalState.valueOf((Integer) state).getName();
 	}
 	
 	// --

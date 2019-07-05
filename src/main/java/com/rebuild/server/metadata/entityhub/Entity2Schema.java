@@ -222,7 +222,17 @@ public class Entity2Schema extends Field2Schema {
 			return false;
 		}
 		
-		Application.getBean(MetaEntityService.class).delete(metaRecordId);
+		final ID sessionUser = Application.getSessionStore().get(true);
+		if (sessionUser == null) {
+			Application.getSessionStore().set(user);
+		}
+		try {
+			Application.getBean(MetaEntityService.class).delete(metaRecordId);
+		} finally {
+			if (sessionUser == null) {
+				Application.getSessionStore().clean();
+			}
+		}
 		Application.getMetadataFactory().refresh(false);
 		return true;
 	}

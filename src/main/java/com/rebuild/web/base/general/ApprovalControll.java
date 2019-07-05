@@ -28,14 +28,19 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.business.approval.ApprovalProcessor;
 import com.rebuild.server.business.approval.ApprovalState;
+import com.rebuild.server.configuration.FlowDefinition;
+import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.persist4j.Entity;
+import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -49,9 +54,9 @@ import cn.devezhao.persist4j.engine.ID;
 public class ApprovalControll extends BaseControll {
 	
 	@RequestMapping("state")
-	public void fetchApprovalState(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void getApprovalState(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID recordId = getIdParameterNotNull(request, "record");
-		Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+		ID user = getRequestUser(request);
 		
 		Object[] state = Application.getQueryFactory().unique(recordId,
 				EntityHelper.ApprovalId, EntityHelper.ApprovalState, EntityHelper.ApprovalStepId);
@@ -62,18 +67,54 @@ public class ApprovalControll extends BaseControll {
 		
 		Map<String, Object> data = new HashMap<>();
 
-		int stateInt = ObjectUtils.toInt(state[1], ApprovalState.DRAFT.getState());
-		data.put("state", stateInt);
+		int stateVal = ObjectUtils.toInt(state[1], ApprovalState.DRAFT.getState());
+		data.put("state", stateVal);
 		if (state[0] != null) {
 			data.put("approvalId", state[0]);
+			JSONArray steps = ApprovalProcessor.instance.getSteps(recordId, (ID) state[0]);
+			data.put("steps", steps);
+			
+			// 当前审批步骤
+			if (stateVal < ApprovalState.APPROVED.getState() && !steps.isEmpty()) {
+				JSONArray currentSteps = (JSONArray) steps.get(steps.size() - 1);
+				for (Object o : currentSteps) {
+					JSONObject cs = (JSONObject) o;
+					if (user.toLiteral().equalsIgnoreCase(cs.getString("approver"))) {
+						data.put("ownApprover", cs.getInteger("state"));
+						break;
+					}
+				}
+			}
 		}
+		writeSuccess(response, data);
+	}
+	
+	@RequestMapping("workable")
+	public void getWorkable(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID recordId = getIdParameterNotNull(request, "record");
+		ID user = getRequestUser(request);
 		
-		// 获取所有节点
-		if (stateInt != ApprovalState.DRAFT.getState()) {
-			Object[] steps = Application.createQuery(
-					"select approver,state,prevStepId from RobotApprovalStep where recordId = ?")
-					.setParameter(1, recordId)
-					.array();
+		FlowDefinition[] defs = RobotApprovalManager.instance.getFlowDefinitions(MetadataHelper.getEntity(recordId.getEntityCode()));
+		JSONArray data = new JSONArray();
+		for (FlowDefinition d : defs) {
+			if (!d.isDisabled()) {
+				data.add(d.toJSON("id", "name"));
+			}
 		}
+		writeSuccess(response, data);
+	}
+	
+	@RequestMapping("approved")
+	public void doApproved(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID recordId = getIdParameterNotNull(request, "record");
+		ID user = getRequestUser(request);
+		String remark = ServletUtils.getRequestString(request);
+	}
+	
+	@RequestMapping("rejected")
+	public void doRejected(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID recordId = getIdParameterNotNull(request, "record");
+		ID user = getRequestUser(request);
+		String remark = ServletUtils.getRequestString(request);
 	}
 }

@@ -43,13 +43,11 @@ public enum DisplayType {
 	CLASSIFICATION("分类", FieldType.REFERENCE, -1),
 	REFERENCE("引用", FieldType.REFERENCE, -1),
 	
-	// 内部用
+	// 内部用/未开放
 	ID("主键", FieldType.PRIMARY, -1),
 	ANYREFERENCE("任意引用", FieldType.ANY_REFERENCE, -1),
 	BOOL("布尔", FieldType.BOOL, -1),
 	STATE("状态", FieldType.SMALL_INT, -1),
-
-	// 未开放
 	LOCATION("位置", FieldType.STRING, 70),
 	AVATAR("头像", FieldType.STRING, 300),
 

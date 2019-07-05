@@ -349,20 +349,20 @@ public class FormsBuilder extends FormsManager {
 	 * 
 	 * @param data
 	 * @param field
-	 * @param isView
+	 * @param onView
 	 * @return
 	 * 
 	 * @see FieldValueWrapper
 	 * @see #findRecord(ID, ID, JSONArray)
 	 */
-	protected static Object wrapFieldValue(Record data, EasyMeta field, boolean isView) {
+	protected static Object wrapFieldValue(Record data, EasyMeta field, boolean onView) {
 		String fieldName = field.getName();
 		if (data.hasValue(fieldName)) {
 			Object value = data.getObjectValue(fieldName);
 			DisplayType dt = field.getDisplayType();
 			if (dt == DisplayType.PICKLIST) {
 				ID pickValue = (ID) value;
-				if (isView) {
+				if (onView) {
 					return StringUtils.defaultIfBlank(
 							PickListManager.instance.getLabel(pickValue), FieldValueWrapper.MISS_REF_PLACE);
 				} else {
@@ -373,7 +373,7 @@ public class FormsBuilder extends FormsManager {
 				ID itemValue = (ID) value;
 				String itemName = ClassificationManager.instance.getFullName(itemValue);
 				itemName = StringUtils.defaultIfBlank(itemName, FieldValueWrapper.MISS_REF_PLACE);
-				return isView ? itemName : new String[] { itemValue.toLiteral(), itemName };
+				return onView ? itemName : new String[] { itemValue.toLiteral(), itemName };
 			} 
 			else if (value instanceof ID) {
 				ID idValue = (ID) value;
@@ -388,7 +388,7 @@ public class FormsBuilder extends FormsManager {
 			else {
 				Object ret = FieldValueWrapper.wrapFieldValue(value, field);
 				// 编辑记录时要去除千分位
-				if (!isView && (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL)) {
+				if (!onView && (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL)) {
 					ret = ret.toString().replace(",", "");
 				}
 				return ret;

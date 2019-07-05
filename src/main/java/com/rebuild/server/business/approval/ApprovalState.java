@@ -30,7 +30,7 @@ public enum ApprovalState implements State {
 	
 	DRAFT(1, "草稿"),
 	PROCESSING(2, "审批中"),
-	Approved(10, "通过"),
+	APPROVED(10, "通过"),
 	REJECTED(11, "驳回"),
 	
 	;
@@ -57,13 +57,12 @@ public enum ApprovalState implements State {
 		return name;
 	}
 	
-	@Override
-	public State valueOf(int state) {
+	public static State valueOf(int state) {
 		for (ApprovalState s : ApprovalState.values()) {
 			if (s.getState() == state) {
 				return s;
 			}
 		}
-		return null;
+		throw new IllegalArgumentException("Unknow state : " + state);
 	}
 }

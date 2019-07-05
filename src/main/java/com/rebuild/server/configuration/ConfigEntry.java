@@ -101,4 +101,13 @@ public class ConfigEntry implements Serializable, Cloneable, JSONable {
 	public JSON toJSON() {
 		return (JSONObject) JSON.toJSON(this.entryMap);
 	}
+	
+	@Override
+	public JSON toJSON(String... special) {
+		Map<String, Object> map = new HashMap<>();
+		for (String s : special) {
+			map.put(s, entryMap.get(s));
+		}
+		return (JSONObject) JSON.toJSON(map);
+	}
 }

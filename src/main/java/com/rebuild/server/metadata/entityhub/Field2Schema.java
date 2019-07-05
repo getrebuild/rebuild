@@ -252,7 +252,7 @@ public class Field2Schema {
 		}
 		
 		int maxLength = displayType.getMaxLength();
-		if (EntityHelper.QuickCode.equals(fieldName)) {
+		if (EntityHelper.QuickCode.equalsIgnoreCase(fieldName)) {
 			maxLength = 70;
 		}
 		recordOfField.setInt("maxLength", maxLength);
@@ -266,14 +266,16 @@ public class Field2Schema {
 		
 		// 此处会改变一些属性，因为并不想他们同步到数据库 SCHEMA
 		
-		boolean autoValue = EntityHelper.AutoId.equals(fieldName);
-		defaultValue = EntityHelper.IsDeleted.equals(fieldName) ? "F" : null;
-		if (EntityHelper.ApprovalState.equals(fieldName)) {
+		boolean autoValue = EntityHelper.AutoId.equalsIgnoreCase(fieldName);
+		defaultValue = EntityHelper.IsDeleted.equalsIgnoreCase(fieldName) ? "F" : null;
+		if (EntityHelper.ApprovalState.equalsIgnoreCase(fieldName)) {
 			defaultValue = "1";
 		}
 		if (MetadataHelper.isCommonsField(fieldName) 
-				&& !MetadataHelper.isApprovalField(fieldName)) {
+				&& !(MetadataHelper.isApprovalField(fieldName) || fieldName.equalsIgnoreCase(EntityHelper.QuickCode))) {
 			nullable = false;
+		} else {
+			nullable = true;
 		}
 		
 		Field unsafeField = new FieldImpl(

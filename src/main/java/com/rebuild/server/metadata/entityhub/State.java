@@ -35,10 +35,4 @@ public interface State {
 	 * @return
 	 */
 	String getName();
-	
-	/**
-	 * @param state
-	 * @return
-	 */
-	State valueOf(int state);
 }

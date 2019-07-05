@@ -109,7 +109,7 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 		Application.getCommonCache().putx(cKey, defs);
 		return defs;
 	}
-
+	
 	@Override
 	public void clean(Entity cacheKey) {
 		final String cKey = "RobotApprovalManager-" + cacheKey.getName();
