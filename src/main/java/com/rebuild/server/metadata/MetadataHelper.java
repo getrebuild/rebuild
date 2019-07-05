@@ -237,13 +237,23 @@ public class MetadataHelper {
 	 * @see EntityHelper
 	 */
 	public static boolean isCommonsField(String fieldName) {
-		if (isSystemField(fieldName)) {
+		if (isSystemField(fieldName) || isApprovalField(fieldName)) {
 			return true;
 		}
 		return EntityHelper.OwningUser.equalsIgnoreCase(fieldName) || EntityHelper.OwningDept.equalsIgnoreCase(fieldName)
 				|| EntityHelper.CreatedOn.equalsIgnoreCase(fieldName) || EntityHelper.CreatedBy.equalsIgnoreCase(fieldName)
-				|| EntityHelper.ModifiedOn.equalsIgnoreCase(fieldName) || EntityHelper.ModifiedBy.equalsIgnoreCase(fieldName)
-				|| EntityHelper.ApprovalId.equalsIgnoreCase(fieldName) || EntityHelper.ApprovalState.equalsIgnoreCase(fieldName)
+				|| EntityHelper.ModifiedOn.equalsIgnoreCase(fieldName) || EntityHelper.ModifiedBy.equalsIgnoreCase(fieldName);
+	}
+	
+	/**
+	 * 是否审批流程字段
+	 * 
+	 * @param fieldName
+	 * @return
+	 */
+	public static boolean isApprovalField(String fieldName) {
+		return EntityHelper.ApprovalId.equalsIgnoreCase(fieldName) 
+				|| EntityHelper.ApprovalState.equalsIgnoreCase(fieldName)
 				|| EntityHelper.ApprovalStepId.equalsIgnoreCase(fieldName);
 	}
 	

@@ -259,7 +259,8 @@ public class MetaschemaImporter extends HeavyTask<String> {
 				schemaField.getBooleanValue("updatable"),
 				schemaField.getString("comments"),
 				schemaField.getString("refEntity"),
-				null, true, extConfig, 
+				null, 
+				extConfig, 
 				schemaField.getString("defaultValue"));
 		
 		if (DisplayType.PICKLIST == dt) {

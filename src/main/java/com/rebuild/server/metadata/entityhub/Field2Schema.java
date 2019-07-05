@@ -93,7 +93,7 @@ public class Field2Schema {
 		}
 		
 		Field field = createUnsafeField(
-				entity, fieldName, fieldLabel, type, true, true, true, comments, refEntity, null, true, extConfig, null);
+				entity, fieldName, fieldLabel, type, true, true, true, comments, refEntity, null, extConfig, null);
 		
 		boolean schemaReady = schema2Database(entity, new Field[] { field });
 		if (!schemaReady) {
@@ -198,19 +198,18 @@ public class Field2Schema {
 	 * @param comments
 	 * @param refEntity
 	 * @param cascade
-	 * @param nullableInDb 在数据库中是否可为空，一般系统级字段不能为空
 	 * @param extConfig
 	 * @param defaultValue
 	 * @return
+	 * @see #createField(Entity, String, DisplayType, String, String, JSON)
 	 */
 	public Field createUnsafeField(Entity entity, String fieldName, String fieldLabel, DisplayType displayType,
 			boolean nullable, boolean creatable, boolean updatable, String comments, String refEntity, CascadeModel cascade,
-			boolean nullableInDb, JSON extConfig, Object defaultValue) {
+			JSON extConfig, Object defaultValue) {
 		if (displayType == DisplayType.SERIES) {
 			nullable = false;
 			creatable = false;
 			updatable = false;
-			nullableInDb = false;
 		}
 		
 		Record recordOfField = EntityHelper.forNew(EntityHelper.MetaField, user);
@@ -265,12 +264,21 @@ public class Field2Schema {
 		recordOfField = Application.getCommonService().create(recordOfField);
 		tempMetaId.add(recordOfField.getPrimary());
 		
+		// 此处会改变一些属性，因为并不想他们同步到数据库 SCHEMA
+		
 		boolean autoValue = EntityHelper.AutoId.equals(fieldName);
 		defaultValue = EntityHelper.IsDeleted.equals(fieldName) ? "F" : null;
+		if (EntityHelper.ApprovalState.equals(fieldName)) {
+			defaultValue = "1";
+		}
+		if (MetadataHelper.isCommonsField(fieldName) 
+				&& !MetadataHelper.isApprovalField(fieldName)) {
+			nullable = false;
+		}
 		
 		Field unsafeField = new FieldImpl(
 				fieldName, physicalName, fieldLabel, entity, displayType.getFieldType(), CascadeModel.Ignore, maxLength, 
-				nullableInDb, creatable, updatable, true, 8, defaultValue, autoValue);
+				nullable, creatable, updatable, true, 8, defaultValue, autoValue);
 		if (entity instanceof UnsafeEntity) {
 			((UnsafeEntity) entity).addField(unsafeField);
 		}
