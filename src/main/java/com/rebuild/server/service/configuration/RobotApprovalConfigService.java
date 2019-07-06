@@ -21,7 +21,6 @@ package com.rebuild.server.service.configuration;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalFields2Schema;
 import com.rebuild.server.configuration.RobotApprovalManager;
-import com.rebuild.server.configuration.RobotTriggerManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.privileges.AdminGuard;

@@ -252,8 +252,7 @@
 		<field name="approver" type="string" max-length="100" nullable="false" description="审批人" />
 		<field name="state" type="small-int" nullable="false" default-value="1" description="审批结果" />
 		<field name="remark" type="string" max-length="600" description="批注" />
-		<field name="prevStepId" type="small-int" nullable="false" default-value="1" description="审批结果" />
-		<index field-list="recordId,approvalId"/>
-		<index field-list="approvalId,node,approver,state"/>
+		<field name="prevStepId" type="reference" ref-entity="RobotApprovalStep" description="上一步骤" />
+		<index field-list="recordId,approvalId,prevStepId"/>
 	</entity>
 </metadata-config>

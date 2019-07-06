@@ -127,7 +127,7 @@ public class EntityHelper {
 	
 	public static final String ApprovalId = "approvalId";
 	public static final String ApprovalState = "approvalState";
-	public static final String ApprovalStepId = "approvalStepId";
+	public static final String ApprovalStepNode = "approvalStepNode";
 	
 	// 系统实体
 

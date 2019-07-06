@@ -9,6 +9,9 @@ class ApprovalProcessor extends React.Component {
   render() {
     return (<div className="approval-pane">
       {this.state.state === 1 && this.renderStateDarft()}
+      {this.state.state === 2 && this.renderStateProcessing()}
+      {this.state.state === 10 && this.renderStateApproved()}
+      {this.state.state === 11 && this.renderStateRejected()}
     </div>)
   }
 
@@ -17,17 +20,30 @@ class ApprovalProcessor extends React.Component {
       <button className="close btn btn-secondary" onClick={this.openSubmit}>立即提交</button>
       <div className="icon"><span className="zmdi zmdi-info-outline"></span></div>
       <div className="message">
-        当前记录尚未提交审核，请在信息完善后尽快提交。
+        当前记录尚未提交审批，请在信息完善后尽快提交。
       </div>
     </div>)
   }
 
+  renderStateProcessing() {
+  }
+
   renderStateApproved() {
-    <div className="alert alert-warning">
-      <button className="close btn btn-secondary">立即提交</button>
+    <div className="alert alert-success">
+      <button className="close btn btn-secondary">审批详情</button>
       <div className="icon"><span className="zmdi zmdi-info-outline"></span></div>
       <div className="message">
-        当前记录尚未提交审核，请在信息完善后尽快提交。
+        当前记录已审批完成。
+      </div>
+    </div>
+  }
+
+  renderStateRejected() {
+    <div className="alert alert-danger">
+      <button className="close btn btn-secondary">再次提交</button>
+      <div className="icon"><span className="zmdi zmdi-info-outline"></span></div>
+      <div className="message">
+        审批被驳回，你可在信息完善后重新提交。
       </div>
     </div>
   }
@@ -59,7 +75,7 @@ class ApprovalSubmit extends RbFormHandler {
         <div className="form-group">
           <label>选择审批流程</label>
           <div>
-            {!this.state.approvals && <strong>无可用流程，请练习管理员</strong>}
+            {!this.state.approvals && <strong>无可用流程，请联系管理员配置</strong>}
             {(this.state.approvals || []).map((item) => {
               return (<label key={'A' + item.id} className="custom-control custom-control-sm custom-radio mb-2">
                 <input className="custom-control-input" type="radio" name="useApproval" value={item.id} onChange={this.handleChange} checked={this.state.useApproval === item.id} />

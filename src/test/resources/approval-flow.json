@@ -1,0 +1,60 @@
+{
+    "nodes": [{
+        "type": "start",
+        "nodeId": "ROOT"
+    }, {
+        "branches": [{
+            "nodes": [{
+                "data": {
+                    "nodeName": "审核A",
+                    "signMode": "OR",
+                    "users": ["ALL"]
+                },
+                "type": "approver",
+                "nodeId": "NODE1562398687738-3"
+            }],
+            "data": {
+                "nodeName": "条件A",
+                "filter": {
+                    "items": [{
+                        "op": "LK",
+                        "field": "TESTALLFIELDSName",
+                        "index": 1,
+                        "value": "123"
+                    }],
+                    "entity": "TESTALLFIELDS"
+                }
+            },
+            "nodeId": "COND1562398685290-1"
+        }, {
+            "nodes": [{
+                "data": {
+                    "nodeName": "审核B",
+                    "signMode": "OR",
+                    "users": ["ALL"]
+                },
+                "type": "approver",
+                "nodeId": "NODE1562398692756-4"
+            }],
+            "data": {
+                "nodeName": "条件B",
+                "filter": {
+                    "items": [],
+                    "entity": "TESTALLFIELDS"
+                }
+            },
+            "nodeId": "COND1562398685290-2"
+        }],
+        "type": "condition",
+        "nodeId": "COND1562398685287-0"
+    }, {
+        "data": {
+            "nodeName": "抄送",
+            "selfSelecting": true,
+            "users": ["001-9000000000000001"]
+        },
+        "type": "cc",
+        "nodeId": "NODE1562398725288-6"
+    }],
+    "nodeId": "RBFLOW"
+}

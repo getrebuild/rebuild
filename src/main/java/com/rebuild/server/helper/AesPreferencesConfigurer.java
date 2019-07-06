@@ -42,7 +42,7 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer {
 	private Properties propsHold = null;
 	
 	private void afterLoad(Properties props) {
-		final Object[] keys = props.keySet().toArray(new Object[0]);
+		final Object[] keys = props.keySet().toArray(new Object[props.size()]);
 		for (Object key : keys) {
 			String cleanKey = key.toString();
 			// AES decrypt if have `.aes` suffix

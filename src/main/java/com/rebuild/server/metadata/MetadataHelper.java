@@ -254,7 +254,7 @@ public class MetadataHelper {
 	public static boolean isApprovalField(String fieldName) {
 		return EntityHelper.ApprovalId.equalsIgnoreCase(fieldName) 
 				|| EntityHelper.ApprovalState.equalsIgnoreCase(fieldName)
-				|| EntityHelper.ApprovalStepId.equalsIgnoreCase(fieldName);
+				|| EntityHelper.ApprovalStepNode.equalsIgnoreCase(fieldName);
 	}
 	
 	/**

@@ -21,7 +21,11 @@ package com.rebuild.server.configuration;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
+import com.rebuild.server.business.approval.FlowNode;
+import com.rebuild.server.business.approval.FlowParser;
+import com.rebuild.server.helper.ConfigurationException;
 import com.rebuild.server.metadata.EntityHelper;
 
 import cn.devezhao.persist4j.Entity;
@@ -78,6 +82,45 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 	}
 	
 	/**
+	 * @param entity
+	 * @param approvalId
+	 * @return
+	 */
+	public FlowDefinition getFlowDefinition(Entity entity, ID approvalId) {
+		FlowDefinition[] defs = getFlowDefinitions(entity);
+		for (FlowDefinition def : defs) {
+			if (approvalId.equals(def.getID("id"))) {
+				return def;
+			}
+		}
+		throw new ConfigurationException("No approval found : " + approvalId);
+	}
+	
+	/**
+	 * 获取用户可用流程
+	 * 
+	 * @param entity
+	 * @param user
+	 * @return
+	 */
+	public FlowDefinition[] getFlowDefinitions(Entity entity, ID user) {
+		FlowDefinition[] defs = getFlowDefinitions(entity);
+		// 过滤可用的
+		List<FlowDefinition> workable = new ArrayList<>();
+		for (FlowDefinition def : defs) {
+			if (def.isDisabled()) {
+				continue;
+			}
+			
+			FlowParser flowParser = def.createFlowParser();
+			FlowNode root = flowParser.getNode("ROOT");
+			if (root.matchesUser(user)) {
+				workable.add(def);
+			}
+		}
+		return workable.toArray(new FlowDefinition[workable.size()]);
+	}
+	/**
 	 * 获取指定实体的所有审核流程（含禁用的）
 	 * 
 	 * @param entity
@@ -90,7 +133,7 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 			return defs;
 		}
 		
-		Object[][] array = Application.createQueryNoFilter(
+		Object[][] array = Application.createQuery(
 				"select flowDefinition,isDisabled,name,configId from RobotApprovalConfig where belongEntity = ?")
 				.setParameter(1, entity.getName())
 				.array();
@@ -98,7 +141,7 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 		List<FlowDefinition> list = new ArrayList<>();
 		for (Object[] o : array) {
 			FlowDefinition def = new FlowDefinition();
-			def.set("flowDefinition", o[0]);
+			def.set("flowDefinition", JSON.parseArray((String) o[0]));
 			def.set("disabled", o[1]);
 			def.set("name", o[2]);
 			def.set("id", o[3]);

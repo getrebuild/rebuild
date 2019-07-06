@@ -16,30 +16,30 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.configuration;
+package com.rebuild.server.business.approval;
 
-import com.rebuild.server.business.approval.FlowParser;
+import com.rebuild.server.RebuildException;
 
 /**
- * 审核流程定义
- * 
- * @author devezhao zhaofang123@gmail.com
- * @since 2019/07/05
+ * @author devezhao-mbp zhaofang123@gmail.com
+ * @since 2019/07/06
  */
-public class FlowDefinition extends ConfigEntry {
-	private static final long serialVersionUID = 9146239943240893998L;
-	
-	/**
-	 * @return
-	 */
-	public boolean isDisabled() {
-		return getBoolean("disabled");
+public class ApprovalException extends RebuildException {
+	private static final long serialVersionUID = 7876166915760948592L;
+
+	public ApprovalException() {
+		super();
 	}
-	
-	/**
-	 * @return
-	 */
-	public FlowParser createFlowParser() {
-		return new FlowParser(getJSON("flowDefinition"));
+
+	public ApprovalException(String msg, Throwable cause) {
+		super(msg, cause);
+	}
+
+	public ApprovalException(String msg) {
+		super(msg);
+	}
+
+	public ApprovalException(Throwable cause) {
+		super(cause);
 	}
 }

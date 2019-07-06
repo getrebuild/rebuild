@@ -59,7 +59,7 @@ public class ApprovalControll extends BaseControll {
 		ID user = getRequestUser(request);
 		
 		Object[] state = Application.getQueryFactory().unique(recordId,
-				EntityHelper.ApprovalId, EntityHelper.ApprovalState, EntityHelper.ApprovalStepId);
+				EntityHelper.ApprovalId, EntityHelper.ApprovalState, EntityHelper.ApprovalStepNode);
 		if (state == null) {
 			writeFailure(response, "无效记录");
 			return;
@@ -71,7 +71,7 @@ public class ApprovalControll extends BaseControll {
 		data.put("state", stateVal);
 		if (state[0] != null) {
 			data.put("approvalId", state[0]);
-			JSONArray steps = ApprovalProcessor.instance.getSteps(recordId, (ID) state[0]);
+			JSONArray steps = new ApprovalProcessor(user, recordId, (ID) state[0]).getWorkedSteps();
 			data.put("steps", steps);
 			
 			// 当前审批步骤
@@ -80,7 +80,7 @@ public class ApprovalControll extends BaseControll {
 				for (Object o : currentSteps) {
 					JSONObject cs = (JSONObject) o;
 					if (user.toLiteral().equalsIgnoreCase(cs.getString("approver"))) {
-						data.put("ownApprover", cs.getInteger("state"));
+						data.put("imApprover", cs.getInteger("state"));
 						break;
 					}
 				}
@@ -94,14 +94,27 @@ public class ApprovalControll extends BaseControll {
 		ID recordId = getIdParameterNotNull(request, "record");
 		ID user = getRequestUser(request);
 		
-		FlowDefinition[] defs = RobotApprovalManager.instance.getFlowDefinitions(MetadataHelper.getEntity(recordId.getEntityCode()));
+		FlowDefinition[] defs = RobotApprovalManager.instance
+				.getFlowDefinitions(MetadataHelper.getEntity(recordId.getEntityCode()), user);
 		JSONArray data = new JSONArray();
 		for (FlowDefinition d : defs) {
-			if (!d.isDisabled()) {
-				data.add(d.toJSON("id", "name"));
-			}
+			data.add(d.toJSON("id", "name"));
 		}
 		writeSuccess(response, data);
+	}
+	
+	@RequestMapping("submit")
+	public void doSubmit(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID recordId = getIdParameterNotNull(request, "record");
+		ID approvalId = getIdParameterNotNull(request, "approval");
+		ID user = getRequestUser(request);
+		
+		boolean success = new ApprovalProcessor(user, recordId, approvalId).submit();
+		if (success) {
+			writeSuccess(response);
+		} else {
+			writeFailure(response, "无效审批流程");
+		}
 	}
 	
 	@RequestMapping("approved")
