@@ -68,6 +68,7 @@ class ApprovalProcessor extends React.Component {
 class ApprovalSubmit extends RbFormHandler {
   constructor(props) {
     super(props)
+    this.state.approvals = []
   }
   render() {
     return <RbModal ref={(c) => this._dlg = c} title="提交审批" width="500">
@@ -75,7 +76,7 @@ class ApprovalSubmit extends RbFormHandler {
         <div className="form-group">
           <label>选择审批流程</label>
           <div>
-            {!this.state.approvals && <strong>无可用流程，请联系管理员配置</strong>}
+            {!this.state.approvals && <strong className="text-danger">无可用流程，请联系管理员配置</strong>}
             {(this.state.approvals || []).map((item) => {
               return (<label key={'A' + item.id} className="custom-control custom-control-sm custom-radio mb-2">
                 <input className="custom-control-input" type="radio" name="useApproval" value={item.id} onChange={this.handleChange} checked={this.state.useApproval === item.id} />
@@ -84,7 +85,7 @@ class ApprovalSubmit extends RbFormHandler {
             })}
           </div>
         </div>
-        <div className="dialog-footer">
+        <div className="dialog-footer" ref={(c) => this._btns = c}>
           <button type="button" className="btn btn-primary btn-space" onClick={() => this.post()}>提交</button>
           <button type="button" className="btn btn-secondary btn-space" onClick={this.hide}>取消</button>
         </div>
@@ -93,12 +94,28 @@ class ApprovalSubmit extends RbFormHandler {
   }
   componentDidMount() {
     $.get(`${rb.baseUrl}/app/entity/approval/workable?record=${this.props.id}`, (res) => {
-      if (res.data.length > 0) {
+      if (res.data && res.data.length > 0) {
         this.setState({ approvals: res.data, useApproval: res.data[0].id })
+      } else {
+        this.setState({ approvals: null, useApproval: null })
       }
     })
   }
   post() {
+    if (!this.state.useApproval) {
+      rb.highbar('无可用流程，请联系管理员配置')
+      return
+    }
+
+    this.disabled(true)
+    $.post(`${rb.baseUrl}/app/entity/approval/submit?record=${this.props.id}&approval=${this.state.useApproval}`, (res) => {
+      if (res.error_code > 0) rb.hberror(res.error_msg)
+      else {
+        rb.hbsuccess('审批已提交')
+        setTimeout(() => location.reload(), 1000)
+      }
+      this.disabled(false)
+    })
   }
 }
 

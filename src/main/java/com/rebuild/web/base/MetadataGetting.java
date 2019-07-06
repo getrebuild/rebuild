@@ -36,6 +36,7 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.ClassificationManager;
 import com.rebuild.server.configuration.portals.PickListManager;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entityhub.DisplayType;
@@ -81,16 +82,20 @@ public class MetadataGetting extends BaseControll {
 	public void fields(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
 		Entity entityBase = MetadataHelper.getEntity(entity);
+		boolean appendRefFields = "2".equals(getParameter(request, "deep"));
 		
-		boolean deep = "2".equals(getParameter(request, "deep"));
 		List<Map<String, Object>> list = new ArrayList<>();
-		putFields(list, entityBase, deep, null);
-
-		if (deep) {
+		putFields(list, entityBase, appendRefFields, null);
+		// 追加二级字段
+		if (appendRefFields) {
 			for (Field field : entityBase.getFields()) {
 				EasyMeta easyField = EasyMeta.valueOf(field);
-				if (easyField.getDisplayType() == DisplayType.REFERENCE
-						&& !MetadataHelper.isBizzEntity(field.getReferenceEntity().getEntityCode())) {
+				if (easyField.getDisplayType() != DisplayType.REFERENCE) {
+					continue;
+				}
+				
+				int entityCode = field.getReferenceEntity().getEntityCode();
+				if (!(MetadataHelper.isBizzEntity(entityCode) || entityCode == EntityHelper.RobotApprovalConfig)) {
 					// 显示父级字段
 					Map<String, Object> parent = new HashMap<>();
 					parent.put("name", field.getName());
@@ -110,11 +115,15 @@ public class MetadataGetting extends BaseControll {
 	/**
 	 * @param dest
 	 * @param entity
-	 * @param onlyBizzRefField
+	 * @param filteredField
 	 * @param parentField
 	 */
-	private void putFields(List<Map<String, Object>> dest, Entity entity, boolean onlyBizzRefField, EasyMeta parentField) {
+	private void putFields(List<Map<String, Object>> dest, Entity entity, boolean filteredField, EasyMeta parentField) {
 		for (Field field : MetadataSorter.sortFields(entity)) {
+			if (EntityHelper.ApprovalStepNode.equalsIgnoreCase(field.getName())) {
+				continue;
+			}
+			
 			Map<String, Object> map = new HashMap<>();
 			map.put("name", field.getName());
 			map.put("creatable", field.isCreatable());
@@ -124,16 +133,17 @@ public class MetadataGetting extends BaseControll {
 			map.put("type", dt.name());
 			if (dt == DisplayType.REFERENCE) {
 				Entity refEntity = field.getReferenceEntity();
-				boolean isBizz = MetadataHelper.isBizzEntity(refEntity.getEntityCode());
-				if (onlyBizzRefField && !isBizz) {
+				// Bizz 字段前台有特殊处理
+				boolean isBizzField = MetadataHelper.isBizzEntity(refEntity.getEntityCode());
+				if (filteredField && !(isBizzField || refEntity.getEntityCode() == EntityHelper.RobotApprovalConfig)) {
 					continue;
 				}
 				
-				Field refNameField  = MetadataHelper.getNameField(refEntity);
-				map.put("ref", new String[] { refEntity.getName(), EasyMeta.getDisplayType(refNameField).name() });
+				Field nameField  = MetadataHelper.getNameField(refEntity);
+				map.put("ref", new String[] { refEntity.getName(), EasyMeta.getDisplayType(nameField).name() });
 				// Fix fieldType to nameField
-				if (!isBizz) {
-					map.put("type", EasyMeta.getDisplayType(refNameField));
+				if (!isBizzField) {
+					map.put("type", EasyMeta.getDisplayType(nameField));
 				}
 			}
 

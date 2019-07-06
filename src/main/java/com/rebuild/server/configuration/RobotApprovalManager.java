@@ -63,19 +63,16 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 		}
 		
 		if (record != null) {
-			String sql = String.format("select approvalId from %s where %s = ?", entity.getName(), entity.getPrimaryField().getName());
-			Object[] had =	Application.createQueryNoFilter(sql)
-					.setParameter(1, record)
-					.unique();
-			if (had[0] != null) {
-				return (ID) had[0];
+			Object[] hadApproval =	Application.getQueryFactory().unique(record, EntityHelper.ApprovalId);
+			if (hadApproval[0] != null) {
+				return (ID) hadApproval[0];
 			}
 		}
 		
 		FlowDefinition[] defs = getFlowDefinitions(entity);
-		for (FlowDefinition d : defs) {
-			if (!d.isDisabled()) {
-				return d.getID("id");
+		for (FlowDefinition def : defs) {
+			if (!def.isDisabled()) {
+				return def.getID("id");
 			}
 		}
 		return null;
@@ -133,7 +130,7 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 			return defs;
 		}
 		
-		Object[][] array = Application.createQuery(
+		Object[][] array = Application.createQueryNoFilter(
 				"select flowDefinition,isDisabled,name,configId from RobotApprovalConfig where belongEntity = ?")
 				.setParameter(1, entity.getName())
 				.array();
@@ -141,7 +138,7 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 		List<FlowDefinition> list = new ArrayList<>();
 		for (Object[] o : array) {
 			FlowDefinition def = new FlowDefinition();
-			def.set("flowDefinition", JSON.parseArray((String) o[0]));
+			def.set("flowDefinition", JSON.parseObject((String) o[0]));
 			def.set("disabled", o[1]);
 			def.set("name", o[2]);
 			def.set("id", o[3]);

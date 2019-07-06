@@ -19,10 +19,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.business.approval;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -75,17 +73,33 @@ public class ApprovalProcessor {
 	 * @throws ApprovalException
 	 */
 	public boolean submit() throws ApprovalException {
-		Set<FlowNode> nextNodes = getNextNodes("ROOT");
-		if (nextNodes.size() != 1) {
+		final String nodeId = "ROOT";
+		
+		FlowNode nextNode = getNextNode(nodeId);
+		if (nextNode == null) {
+			return false;
+		}
+		
+		Set<ID> approvers = nextNode.getSpecUsers(this.user);
+		if (approvers.isEmpty()) {
 			return false;
 		}
 		
 		Record record = EntityHelper.forUpdate(this.record, user);
 		record.setID(EntityHelper.ApprovalId, this.approval);
 		record.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
-		record.setString(EntityHelper.ApprovalStepNode, "ROOT");
+		record.setString(EntityHelper.ApprovalStepNode, nodeId);
 		Application.getService(this.record.getEntityCode()).update(record);
 		
+		Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, user);
+		step.setID("recordId", this.record);
+		step.setID("approvalId", this.approval);
+		step.setString("node", nodeId);
+		for (ID approver : approvers) {
+			Record clone = step.clone();
+			clone.setID("approver", approver);
+			Application.getCommonService().create(clone);
+		}
 		return true;
 	}
 	
@@ -105,43 +119,33 @@ public class ApprovalProcessor {
 	/**
 	 * @return
 	 */
-	public FlowNode getCurrentNode() {
+	public FlowNode getNextNodes() {
 		Object[] stepNode = Application.getQueryFactory().unique(record, EntityHelper.ApprovalStepNode);
-		return getFlowParser().getNode((String) stepNode[0]);
-	}
-	
-	/**
-	 * @return
-	 */
-	public Set<FlowNode> getNextNodes() {
-		FlowNode current = getCurrentNode();
-		return getNextNodes(current.getNodeId());
+		return getNextNode((String) stepNode[0]);
 	}
 	
 	/**
 	 * @param currentNode
 	 * @return
 	 */
-	private Set<FlowNode> getNextNodes(String currentNode) {
-		Set<FlowNode> nextNodes = getFlowParser().getNextNodes(currentNode);
+	private FlowNode getNextNode(String currentNode) {
+		List<FlowNode> nextNodes = getFlowParser().getNextNodes(currentNode);
 		if (nextNodes.isEmpty()) {
-			return Collections.emptySet();
+			return null;
 		}
 		
-		String nodeType = nextNodes.iterator().next().getType();
-		if (!FlowNode.TYPE_BRANCH.equals(nodeType)) {
-			return nextNodes;
+		FlowNode firstNode = nextNodes.get(0);
+		if (!FlowNode.TYPE_BRANCH.equals(firstNode.getType())) {
+			return firstNode;
 		}
 		
-		Set<FlowNode> nextNodesByBranch = null;
-		for (Iterator<FlowNode> iter = nextNodes.iterator(); iter.hasNext(); ) {
-			FlowBranch branch = (FlowBranch) iter.next();
+		for (FlowNode node : nextNodes) {
+			FlowBranch branch = (FlowBranch) node;
 			if (branch.matches(record)) {
-				nextNodesByBranch = branch.getChildNodes();
-				break;
+				return getNextNode(branch.getNodeId());
 			}
 		}
-		return nextNodesByBranch == null ? nextNodes : nextNodesByBranch;
+		return null;
 	}
 	
 	/**

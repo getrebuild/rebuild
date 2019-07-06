@@ -100,6 +100,11 @@ class RbFormHandler extends RbModalHandler {
       this.__select2 = null
     }
   }
+  disabled(d) {
+    if (!this._btns) return
+    if (d === true) $(this._btns).find('.btn').button('loading')
+    else $(this._btns).find('.btn').button('reset')
+  }
 }
 
 // ~~ 提示框

@@ -113,7 +113,7 @@ public class ApprovalControll extends BaseControll {
 		if (success) {
 			writeSuccess(response);
 		} else {
-			writeFailure(response, "无效审批流程");
+			writeFailure(response, "无效审批流程，请联系管理员配置");
 		}
 	}
 	

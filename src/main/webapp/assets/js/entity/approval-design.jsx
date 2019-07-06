@@ -56,6 +56,7 @@ class NodeSpec extends React.Component {
     this.setState({ active: true })
   }
   serialize() {
+    // TODO 检查节点是否有必填设置
     // if (!this.state.data) {
     //   this.setState({ hasError: true })
     //   return false
@@ -115,16 +116,13 @@ class NodeGroupSpec extends React.Component {
     this.setState({ nodes: nodes })
   }
   serialize() {
-    // let ns = []
-    // for (let i = 0; i < this.state.nodes.length; i++) {
-    //   let nodeRef = this.__nodeRefs[this.state.nodes[i].nodeId]
-    //   let s = nodeRef.serialize()
-    //   if (!s) return false
-    //   ns.push(s)
-    // }
-    let ns = this.state.nodes.map((item) => {
-      return this.__nodeRefs[item.nodeId].serialize()
-    })
+    let ns = []
+    for (let i = 0; i < this.state.nodes.length; i++) {
+      let nodeRef = this.__nodeRefs[this.state.nodes[i].nodeId]
+      let s = nodeRef.serialize()
+      if (!s) return false
+      ns.push(s)
+    }
     return { nodes: ns, nodeId: this.state.nodeId }
   }
 }
@@ -177,7 +175,7 @@ class ConditionNode extends NodeSpec {
         <div className="branch-box">
           <button className="add-branch" onClick={this.addBranch}>添加分支</button>
           {this.state.branches.map((item, idx) => {
-            return <ConditionBranch key={this.props.nodeId + '-b' + idx} isFirst={idx === 0} isLast={idx === bLen} $$$parent={this} {...item} />
+            return <ConditionBranch key={this.props.nodeId + '-b' + idx} priority={idx + 1} isFirst={idx === 0} isLast={idx === bLen} $$$parent={this} {...item} />
           })}
         </div>
         <AddNodeButton addNodeCall={this.addNodeQuick} />
@@ -205,26 +203,21 @@ class ConditionNode extends NodeSpec {
     this.setState({ branches: bs })
   }
   serialize() {
-    let firstBranchRef = null
-    let bs = this.state.branches.map((item) => {
-      if (!firstBranchRef) firstBranchRef = this.__branchRefs[item.nodeId]
-      return this.__branchRefs[item.nodeId].serialize()
-    })
-    // let bs = []
-    // for (let i = 0; i < this.state.branches.length; i++) {
-    //   let branchRef = this.__branchRefs[this.state.branches[i].nodeId]
-    //   if (!firstBranchRef) firstBranchRef = branchRef
-    //   let s = branchRef.serialize()
-    //   if (!s) return false
-    //   bs.push(s)
-    // }
+    let holdANode = null
+    let bs = []
+    for (let i = 0; i < this.state.branches.length; i++) {
+      let branchRef = this.__branchRefs[this.state.branches[i].nodeId]
+      if (!holdANode) holdANode = branchRef
+      let s = branchRef.serialize()
+      if (!s) return false
+      bs.push(s)
+    }
     // 至少两个分支
     if (bs.length < 2) {
       rb.hberror('请至少设置两个并列条件分支')
-      if (firstBranchRef) firstBranchRef.setState({ hasError: true })
+      if (holdANode) holdANode.setState({ hasError: true })
       return false
-    } else if (firstBranchRef) firstBranchRef.setState({ hasError: false })
-
+    } else if (holdANode) holdANode.setState({ hasError: false })
     return { branches: bs, type: 'condition', nodeId: this.props.nodeId }
   }
 }
@@ -288,11 +281,13 @@ class ConditionBranch extends NodeGroupSpec {
   }
   serialize() {
     let s = super.serialize()
-    // if (!s || s.nodes.length === 0) {
-    //   this.setState({ hasError: true })
-    //   rb.hberror('无效的条件分支')
-    //   return false
-    // } else this.setState({ hasError: false })
+    if (!s || s.nodes.length === 0) {
+      this.setState({ hasError: true })
+      rb.hberror('无效的条件分支')
+      return false
+    } else this.setState({ hasError: false })
+
+    s.priority = this.props.priority
     if (this.state.data) s.data = this.state.data
     return s
   }
@@ -564,6 +559,7 @@ class RbFlowCanvas extends NodeGroupSpec {
       this.setState({ nodes: flowNodes }, () => {
         isCanvasMounted = true
       })
+      console.log(wpc.flowDefinition)
     } else {
       isCanvasMounted = true
     }
@@ -573,10 +569,7 @@ class RbFlowCanvas extends NodeGroupSpec {
 
     let _btn = $('.J_save').click(() => {
       let s = this.serialize()
-      if (!s) {
-        rb.hberror('部分流程设置有误，请检查')
-        return
-      }
+      if (!s) return
       let _data = { flowDefinition: s }
       _data.metadata = { entity: 'RobotApprovalConfig', id: wpc.configId }
 

@@ -108,24 +108,33 @@ public class MetadataSorter {
 	 * @return
 	 */
 	public static Field[] sortFields(Field[] fields, DisplayType... allowedTypes) {
-		List<Field> sysFields = new ArrayList<>();
-		List<Field> simpleFields = new ArrayList<>();
+		List<Field> othersFields = new ArrayList<>();
+		List<Field> commonsFields = new ArrayList<>();
+		List<Field> approvalFields = new ArrayList<>();
 		for (Field field : fields) {
-			if (EasyMeta.valueOf(field).isBuiltin()) {
-				sysFields.add(field);
+			if (MetadataHelper.isApprovalField(field.getName())) {
+				approvalFields.add(field);
+			} else if (EasyMeta.valueOf(field).isBuiltin()) {
+				commonsFields.add(field);
 			} else {
-				simpleFields.add(field);
+				othersFields.add(field);
 			}
 		}
 		
-		// 系统字段在后
-		Field[] sysFieldsAry = sysFields.toArray(new Field[sysFields.size()]);
-		Field[] simpleFieldsAry = simpleFields.toArray(new Field[simpleFields.size()]);
-		sortBaseMeta(sysFieldsAry);
-		sortBaseMeta(simpleFieldsAry);
-		Field[] allFields = (Field[]) ArrayUtils.addAll(simpleFieldsAry, sysFieldsAry);
+		Field[] allFields = othersFields.toArray(new Field[othersFields.size()]);
+		sortBaseMeta(allFields);
+		// 公共字段在后
+		Field[] commonsFieldsAry = commonsFields.toArray(new Field[commonsFields.size()]);
+		sortBaseMeta(commonsFieldsAry);
+		allFields = (Field[]) ArrayUtils.addAll(allFields, commonsFieldsAry);
+		// 审批字段在后
+		if (!approvalFields.isEmpty()) {
+			Field[] approvalFieldsAry = approvalFields.toArray(new Field[approvalFields.size()]);
+			sortBaseMeta(approvalFieldsAry);
+			allFields = (Field[]) ArrayUtils.addAll(allFields, approvalFieldsAry);
+		}
 
-		// 返回全部类型
+		// 返回全部
 		if (allowedTypes == null || allowedTypes.length == 0) {
 			List<Field> list = new ArrayList<>();
 			for (Field field : allFields) {

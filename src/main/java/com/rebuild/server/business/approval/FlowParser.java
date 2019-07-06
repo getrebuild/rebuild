@@ -18,9 +18,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.approval;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -102,13 +106,30 @@ public class FlowParser {
 	 * @param nodeId
 	 * @return
 	 */
-	public Set<FlowNode> getNextNodes(String nodeId) {
-		Set<FlowNode> next = new HashSet<>();
+	public List<FlowNode> getNextNodes(String nodeId) {
+		List<FlowNode> next = new ArrayList<>();
 		for (FlowNode node : getAllNodes()) {
 			if (node.prevNodes != null && node.prevNodes.contains(nodeId)) {
 				next.add(node);
 			}
 		}
+		
+		if (next.isEmpty()) {
+			return Collections.emptyList();
+		}
+		
+		if (!FlowNode.TYPE_BRANCH.equals(next.get(0).getType())) {
+			return next;
+		}
+		
+		// 条件节点优先级排序
+		Collections.sort(next, new Comparator<FlowNode>() {
+			public int compare(FlowNode o1, FlowNode o2) {
+				int p1 = ((FlowBranch) o1).getPriority();
+				int p2 = ((FlowBranch) o2).getPriority();
+				return p1 > p2 ? 1 : (p1 == p2 ? 0 : -1);
+			}
+		});
 		return next;
 	}
 

@@ -20,7 +20,7 @@ package com.rebuild.server.business.approval;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Set;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -42,6 +42,7 @@ public class FlowParserTest {
 		for (FlowNode node : flowParser.getAllNodes()) {
 			System.out.println(node);
 		}
+		System.out.println();
 	}
 	
 	@Test
@@ -50,12 +51,14 @@ public class FlowParserTest {
 		System.out.println("ROOT :");
 		FlowNode root = flowParser.getNode("ROOT");
 		System.out.println(root);
+		System.out.println();
 		
 		System.out.println("CHILDREN of ROOT :");
-		Set<FlowNode> children = flowParser.getNextNodes("ROOT");
+		List<FlowNode> children = flowParser.getNextNodes("ROOT");
 		for (FlowNode c : children) {
 			System.out.println(c);
 		}
+		System.out.println();
 	}
 	
 	/**

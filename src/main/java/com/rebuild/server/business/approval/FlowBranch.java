@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.approval;
 
+import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -38,14 +39,22 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class FlowBranch extends FlowNode {
 
+	private int priority;
+	
 	private Set<FlowNode> childNodes = new HashSet<>();
 	
 	/**
 	 * @param nodeId
+	 * @param priority
 	 * @param dataMap
 	 */
-	protected FlowBranch(String nodeId, JSONObject dataMap) {
+	protected FlowBranch(String nodeId, int priority, JSONObject dataMap) {
 		super(nodeId, TYPE_BRANCH, dataMap);
+		this.priority = priority;
+	}
+	
+	public int getPriority() {
+		return priority;
 	}
 	
 	/**
@@ -63,6 +72,8 @@ public class FlowBranch extends FlowNode {
 	}
 	
 	/**
+	 * 匹配条件分支
+	 * 
 	 * @param record
 	 * @return
 	 */
@@ -73,12 +84,18 @@ public class FlowBranch extends FlowNode {
 		if (filterItems != null && !filterItems.isEmpty()) {
 			AdvFilterParser filterParser = new AdvFilterParser(filterExp);
 			String sqlWhere = filterParser.toSqlWhere();
-			String sql = String.format("select %s from %s where (1=1) and %s = ?", 
+			
+			String sql = MessageFormat.format("select {0} from {1} where {2} and {0} = ?", 
 					entity.getPrimaryField().getName(), entity.getName(), sqlWhere);
-			Object[] matches = Application.createQuery(sql).setParameter(1, record).unique();
+			Object[] matches = Application.createQueryNoFilter(sql).setParameter(1, record).unique();
 			return matches != null;
 		}
 		return true;
+	}
+	
+	@Override
+	public String toString() {
+		return super.toString() + ", Priority:" + getPriority();
 	}
 	
 	/**
@@ -87,6 +104,6 @@ public class FlowBranch extends FlowNode {
 	 */
 	public static FlowBranch valueOf(JSONObject node) {
 		return new FlowBranch(
-				node.getString("nodeId"), node.getJSONObject("data"));
+				node.getString("nodeId"), node.getIntValue("priority"), node.getJSONObject("data"));
 	}
 }

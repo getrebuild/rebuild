@@ -236,10 +236,10 @@
 	</entity>
 	-->
 	
-	<entity name="RobotApprovalConfig" type-code="028" description="审批流程">
+	<entity name="RobotApprovalConfig" type-code="028" name-field="name" description="审批流程">
 		<field name="configId" type="primary"/>
-		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
-		<field name="name" type="string" max-length="100" nullable="false" />
+		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="应用实体" />
+		<field name="name" type="string" max-length="100" nullable="false" description="流程名称" />
 		<field name="flowDefinition" type="text" description="流程定义" />
 		<field name="isDisabled" type="bool" default-value="F" description="是否停用" />
 	</entity>

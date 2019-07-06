@@ -19,6 +19,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.business.approval;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -44,6 +46,12 @@ public class FlowNode {
 	public static final String TYPE_CC = "cc";
 	public static final String TYPE_CONDITION = "condition";
 	public static final String TYPE_BRANCH = "branch";
+	
+	// 人员类型
+	
+	public static final String USER_ALL = "ALL";
+	public static final String USER_SELF = "SELF";
+	public static final String USER_SPEC = "SPEC";
 	
 	private String nodeId;
 	private String type;
@@ -90,7 +98,7 @@ public class FlowNode {
 	 */
 	public boolean matchesUser(ID user) {
 		JSONArray users = getDataMap().getJSONArray("users");
-		if (users.isEmpty()) {
+		if (users == null || users.isEmpty()) {
 			return true;
 		}
 		
@@ -108,6 +116,33 @@ public class FlowNode {
 		}
 		Set<ID> usersAll = UserHelper.parseUsers(usersList, null);
 		return usersAll.contains(user);
+	}
+	
+	/**
+	 * @param submitter
+	 * @return
+	 */
+	public Set<ID> getSpecUsers(ID submitter) {
+		JSONArray users = getDataMap().getJSONArray("users");
+		if (users == null || users.isEmpty()) {
+			return Collections.emptySet();
+		}
+		
+		String userType = users.get(0).toString();
+		if (USER_SELF.equalsIgnoreCase(userType)) {
+			Set<ID> selfs = new HashSet<ID>();
+			selfs.add(submitter);
+			return selfs;
+		}
+		
+		if (USER_SPEC.equalsIgnoreCase(userType)) {
+			List<String> usersList = new ArrayList<>();
+			for (Object o : users) {
+				usersList.add((String) o);
+			}
+			return UserHelper.parseUsers(usersList, null);
+		}
+		return Collections.emptySet();
 	}
 	
 	@Override
