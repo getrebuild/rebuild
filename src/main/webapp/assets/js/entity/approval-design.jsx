@@ -1,10 +1,12 @@
 /* eslint-disable react/prop-types */
 const wpc = window.__PageConfig
+let activeNode
 $(document).ready(() => {
   renderRbcomp(<RbFlowCanvas nodeId="RBFLOW" />, 'rbflow')
   $(document.body).click(function (e) {
     if (e.target && (e.target.matches('div.rb-right-sidebar') || $(e.target).parents('div.rb-right-sidebar').length > 0)) return
     $(this).removeClass('open-right-sidebar')
+    if (activeNode) activeNode.setState({ active: false })
   })
   window.resize_handler()
 })
@@ -54,13 +56,18 @@ class NodeSpec extends React.Component {
 
     $(document.body).addClass('open-right-sidebar')
     this.setState({ active: true })
+    activeNode = this
   }
   serialize() {
-    // TODO 检查节点是否有必填设置
-    // if (!this.state.data) {
-    //   this.setState({ hasError: true })
-    //   return false
-    // } else this.setState({ hasError: false })
+    // 检查节点是否有必填设置
+    if (this.nodeType === 'approver' || this.nodeType === 'cc') {
+      let users = this.state.data ? this.state.data.users : ['SPEC']
+      if (users[0] === 'SPEC') {
+        rb.highbar(NTs[this.nodeType][2])
+        this.setState({ hasError: true })
+        return false
+      } else this.setState({ hasError: false })
+    }
     return { type: this.props.type, nodeId: this.props.nodeId, data: this.state.data }
   }
 }
@@ -146,7 +153,7 @@ class Node extends NodeSpec {
     else if (this.nodeType === 'cc' && data.users && data.users.length > 0) users += ' ' + (data.selfSelecting === false ? '' : '同时允许自选')
 
     return (<div className="node-wrap">
-      <div className={`node-wrap-box ${NT[0]}-node ${this.state.hasError ? 'error' : ''} animated fadeIn`}>
+      <div className={`node-wrap-box animated fadeIn ${NT[0]}-node ${this.state.hasError ? 'error' : ''} ${this.state.active ? 'active' : ''}`}>
         <div className="title">
           <span>{data.nodeName || NT[1]}</span>
           {this.props.nodeId !== 'ROOT' && <i className="zmdi zmdi-close aclose" title="移除" onClick={this.removeNodeQuick} />}
@@ -235,7 +242,7 @@ class ConditionBranch extends NodeGroupSpec {
       {this.state.isFirst && <div className="bottom-left-cover-line"></div>}
       <div className="condition-node">
         <div className="condition-node-box animated fadeIn">
-          <div className={'auto-judge' + (this.state.hasError ? ' error' : '')} onClick={this.openConfig}>
+          <div className={`auto-judge ${this.state.hasError ? 'error' : ''} ${this.state.active ? 'active' : ''}`} onClick={this.openConfig}>
             <div className="title-wrapper">
               <span className="editable-title float-left">{data.nodeName || '分支条件'}</span>
               <span className="priority-title float-right">默认优先级</span>
@@ -278,6 +285,7 @@ class ConditionBranch extends NodeGroupSpec {
 
     $(document.body).addClass('open-right-sidebar')
     this.setState({ active: true })
+    activeNode = this
   }
   serialize() {
     let s = super.serialize()

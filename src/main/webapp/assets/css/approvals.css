@@ -560,6 +560,11 @@
 	border: 2px solid #ea4335;
 }
 
+.rbflow-design .auto-judge.active:after,
+.rbflow-design .node-wrap-box.active:after {
+	border: 1px solid #409EFF;
+}
+
 .add-node .modal-dialog {
 	width: 500px;
 }
