@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSONArray;
@@ -48,6 +50,8 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 2019/06/24
  */
 public class ApprovalProcessor {
+
+	private  static final Log LOG = LogFactory.getLog(ApprovalProcessor.class);
 
 	final private ID user;
 	final private ID record;
@@ -77,11 +81,13 @@ public class ApprovalProcessor {
 		
 		FlowNode nextNode = getNextNode(nodeId);
 		if (nextNode == null) {
+			LOG.warn("No next-node be found");
 			return false;
 		}
-		
+
 		Set<ID> approvers = nextNode.getSpecUsers(this.user);
 		if (approvers.isEmpty()) {
+			LOG.warn("No any approvers special");
 			return false;
 		}
 		

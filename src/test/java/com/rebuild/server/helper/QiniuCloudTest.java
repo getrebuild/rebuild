@@ -35,7 +35,7 @@ public class QiniuCloudTest extends TestSupport {
 
 	@Test
 	public void testUploadAndMakeUrl() throws Exception {
-		URL fileUrl = QiniuCloudTest.class.getClassLoader().getResource("blacklist.json");
+		URL fileUrl = QiniuCloudTest.class.getClassLoader().getResource("approval-flow.json");
 		File file = new File(fileUrl.toURI());
 		String uploadKey = QiniuCloud.instance().upload(file);
 		System.out.println("uploadKey ... " + uploadKey);

@@ -250,7 +250,7 @@ class ConditionBranch extends NodeGroupSpec {
               <div className="clearfix"></div>
             </div>
             <div className="content">
-              <div className="text">{filters > 0 ? `已设置条件 (${filters})` : '请设置条件'}</div>
+              <div className="text">{filters > 0 ? `已设置条件 (${filters})` : (this.state.isLast && !this.state.isFirst ? '其他条件' : '请设置条件')}</div>
               <i className="zmdi zmdi-chevron-right arrow"></i>
             </div>
           </div>
@@ -291,7 +291,7 @@ class ConditionBranch extends NodeGroupSpec {
     let s = super.serialize()
     if (!s || s.nodes.length === 0) {
       this.setState({ hasError: true })
-      rb.highbar('无效的条件分支')
+      if (s !== false) rb.highbar('请为分支添加审批人或抄送人')
       return false
     } else this.setState({ hasError: false })
 

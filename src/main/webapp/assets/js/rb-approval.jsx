@@ -71,7 +71,7 @@ class ApprovalSubmit extends RbFormHandler {
     this.state.approvals = []
   }
   render() {
-    return <RbModal ref={(c) => this._dlg = c} title="提交审批" width="500">
+    return <RbModal ref={(c) => this._dlg = c} title="提交审批" width="600">
       <div className="form approval-form">
         <div className="form-group">
           <label>选择审批流程</label>
@@ -125,7 +125,7 @@ class ApprovalForm extends RbFormHandler {
     super(props)
   }
   render() {
-    return <RbModal ref={(c) => this._dlg = c} title="审批" width="500">
+    return <RbModal ref={(c) => this._dlg = c} title="审批" width="600">
       <div className="form approval-form">
         <div className="form-group">
           <label>批注</label>

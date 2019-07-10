@@ -1,85 +1,51 @@
 {
-    "nodes": [{
+  "nodes": [{
+    "type": "start",
+    "nodeId": "ROOT"
+  }, {
+    "branches": [{
+      "nodes": [{
         "data": {
-            "users": ["ALL"]
+          "signMode": "OR",
+          "users": ["001-9000000000000001"]
         },
-        "type": "start",
-        "nodeId": "ROOT"
+        "type": "approver",
+        "nodeId": "NODE1562738509826-5"
+      }],
+      "data": {
+        "filter": {
+          "items": [{
+            "op": "LK",
+            "field": "accountName",
+            "index": 1,
+            "value": "123"
+          }],
+          "entity": "Account999"
+        }
+      },
+      "priority": 1,
+      "nodeId": "COND1562738484466-1"
     }, {
-        "branches": [{
-            "nodes": [{
-                "data": {
-                    "signMode": "OR",
-                    "users": ["ALL"]
-                },
-                "type": "approver",
-                "nodeId": "NODE1562424842632-3"
-            }],
-            "data": {
-                "nodeName": "条件1",
-                "filter": {
-                    "items": [{
-                        "op": "LK",
-                        "field": "testallfieldsName",
-                        "index": 1,
-                        "value": "1"
-                    }],
-                    "entity": "testallfields999"
-                }
-            },
-            "priority": 1,
-            "nodeId": "COND1562424798945-1"
-        }, {
-            "nodes": [{
-                "data": {
-                    "signMode": "OR",
-                    "users": ["ALL"]
-                },
-                "type": "approver",
-                "nodeId": "NODE1562424886289-1"
-            }],
-            "data": {
-                "nodeName": "条件2",
-                "filter": {
-                    "items": [{
-                        "op": "LK",
-                        "field": "testallfieldsName",
-                        "index": 1,
-                        "value": "2"
-                    }],
-                    "entity": "testallfields999"
-                }
-            },
-            "priority": 2,
-            "nodeId": "COND1562424881456-0"
-        }, {
-            "nodes": [{
-                "data": {
-                    "signMode": "OR",
-                    "users": ["ALL"]
-                },
-                "type": "approver",
-                "nodeId": "NODE1562424966885-1"
-            }],
-            "data": {
-                "nodeName": "条件3",
-                "filter": {
-                    "items": [],
-                    "entity": "testallfields999"
-                }
-            },
-            "priority": 3,
-            "nodeId": "COND1562424964682-0"
-        }],
-        "type": "condition",
-        "nodeId": "COND1562424798943-0"
-    }, {
+      "nodes": [{
         "data": {
-            "selfSelecting": true,
-            "users": ["001-0000000000000001"]
+          "signMode": "OR",
+          "users": ["001-0000000000000001"]
         },
-        "type": "cc",
-        "nodeId": "NODE1562424942903-0"
+        "type": "approver",
+        "nodeId": "NODE1562738501843-4"
+      }],
+      "priority": 2,
+      "nodeId": "COND1562738484466-2"
     }],
-    "nodeId": "RBFLOW"
+    "type": "condition",
+    "nodeId": "COND1562738484464-0"
+  }, {
+    "data": {
+      "selfSelecting": false,
+      "users": ["002-0000000000000001", "002-9000000000000001"]
+    },
+    "type": "cc",
+    "nodeId": "NODE1562738531489-7"
+  }],
+  "nodeId": "RBFLOW"
 }
