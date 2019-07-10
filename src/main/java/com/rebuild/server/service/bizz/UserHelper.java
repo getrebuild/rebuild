@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -169,6 +170,21 @@ public class UserHelper {
 			return new Member[0];
 		}
 		return ms.toArray(new Member[ms.size()]);
+	}
+	
+	/**
+	 * 解析用户列表
+	 * 
+	 * @param userDefs
+	 * @param record
+	 * @return
+	 */
+	public static Set<ID> parseUsers(JSONArray userDefs, ID record) {
+		Set<String> users = new HashSet<>();
+		for (Object u : userDefs) {
+			users.add((String) u);
+		}
+		return parseUsers(users, record);
 	}
 	
 	/**

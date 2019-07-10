@@ -38,6 +38,7 @@ import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.notification.Message;
 import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.commons.CalendarUtils;
@@ -63,6 +64,14 @@ public class ApprovalProcessor {
 	/**
 	 * @param user
 	 * @param record
+	 */
+	public ApprovalProcessor(ID user, ID record) {
+		this(user, record, null);
+	}
+	
+	/**
+	 * @param user
+	 * @param record
 	 * @param approval
 	 */
 	public ApprovalProcessor(ID user, ID record, ID approval) {
@@ -81,13 +90,26 @@ public class ApprovalProcessor {
 	public boolean submit(JSONObject selectUsers) throws ApprovalException {
 		final String nodeId = "ROOT";
 		
-		FlowNode nextNode = getNextNode(nodeId);
-		if (nextNode == null) {
+		List<FlowNode> nextNodes = getNextNodes(nodeId);
+		if (nextNodes.isEmpty()) {
 			LOG.warn("No next-node be found");
 			return false;
 		}
 
-		Set<ID> approvers = nextNode.getSpecUsers(this.user);
+		Set<ID> approvers = new HashSet<>();
+		Set<ID> ccs = new HashSet<>();
+		for (FlowNode node : nextNodes) {
+			if (FlowNode.TYPE_APPROVER.equals(node.getType())) {
+				approvers.addAll(node.getSpecUsers(user, record));
+			} else {
+				ccs.addAll(node.getSpecUsers(user, record));
+			}
+		}
+		if (selectUsers != null) {
+			approvers.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectApprovers"), record));
+			ccs.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectCcs"), record));
+		}
+		
 		if (approvers.isEmpty()) {
 			LOG.warn("No any approvers special");
 			return false;
@@ -97,8 +119,9 @@ public class ApprovalProcessor {
 		record.setID(EntityHelper.ApprovalId, this.approval);
 		record.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
 		record.setString(EntityHelper.ApprovalStepNode, nodeId);
-		Application.getService(this.record.getEntityCode()).update(record);
+		Application.getEntityService(this.record.getEntityCode()).update(record);
 		
+		// 审批人
 		Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, user);
 		step.setID("recordId", this.record);
 		step.setID("approvalId", this.approval);
@@ -108,6 +131,13 @@ public class ApprovalProcessor {
 			clone.setID("approver", approver);
 			Application.getCommonService().create(clone);
 		}
+		
+		// 抄送人
+		for (ID cc : ccs) {
+			Message message = new Message(cc, "审批", this.record);
+			Application.getNotifications().send(message);
+		}
+		
 		return true;
 	}
 	
@@ -120,7 +150,7 @@ public class ApprovalProcessor {
 	 * @return
 	 * @throws ApprovalException
 	 */
-	public boolean submit(ID approver, int state, String remark) throws ApprovalException {
+	public boolean approve(ID approver, int state, String remark) throws ApprovalException {
 		return false;
 	}
 	
@@ -241,68 +271,51 @@ public class ApprovalProcessor {
 	 * @return returns [ [S,S], [S], [SSS], [S] ]
 	 */
 	public JSONArray getWorkedSteps() {
-		Assert.notNull(approval, "[approval] not be null");
-		
 		Object[][] array = Application.createQuery(
-				"select prevStepId,approver,state,createdOn,stepId from RobotApprovalStep where recordId = ? and approvalId = ?")
+				"select prevStepId.node,approver,state,remark,createdOn from RobotApprovalStep where recordId = ? and approvalId = ?")
 				.setParameter(1, this.record)
 				.setParameter(2, this.approval)
 				.array();
 
-		Map<ID, List<Object[]>> stepsByPrev = new HashMap<>();
+		Map<String, List<Object[]>> stepsByPrev = new HashMap<>();
 		for (Object[] o : array) {
-			ID prev = o[0] == null ? this.record : (ID) o[0];
-			List<Object[]> steps = stepsByPrev.get(prev);
+			String prevNode = o[0] == null ? FlowNode.ROOT : (String) o[0];
+			List<Object[]> steps = stepsByPrev.get(prevNode);
 			if (steps == null) {
 				steps = new ArrayList<Object[]>();
-				stepsByPrev.put(prev, steps);
+				stepsByPrev.put(prevNode, steps);
 			}
 			steps.add(o);
 		}
 		
 		JSONArray steps = new JSONArray();
-		
-		List<Object[]> root = stepsByPrev.remove(this.approval);
-		Set<ID> prevIds = formatSteps(root, steps);
-		
-		while (true) {
-			Set<ID> lastPrevIds = new HashSet<ID>();
-			for (ID prev : prevIds) {
-				List<Object[]> next = stepsByPrev.get(prev);
-				if (next != null) {
-					lastPrevIds.addAll(formatSteps(next, steps));
-					stepsByPrev.remove(prev);
-				}
-			}
-			
-			prevIds = lastPrevIds;
-			if (prevIds.isEmpty()) {
+		String prev = FlowNode.ROOT;
+		while (prev != null) {
+			List<Object[]> group = stepsByPrev.get(prev);
+			if (group == null) {
 				break;
 			}
+			
+			formatSteps(group, steps);
+			prev = (String) group.get(0)[0];
 		}
-		
 		return steps;
 	}
 	
 	/**
-	 * @param steps
+	 * @param stepGroup
 	 * @param dest
-	 * @return
 	 */
-	private Set<ID> formatSteps(List<Object[]> steps, JSONArray dest) {
-		Set<ID> ids = new HashSet<>();
+	private void formatSteps(List<Object[]> stepGroup, JSONArray dest) {
 		JSONArray list = new JSONArray();
-		for (Object[] o : steps) {
+		for (Object[] o : stepGroup) {
 			ID approver = (ID) o[1];
 			JSONObject step = JSONUtils.toJSONObject(
-					new String[] { "approver", "approverName", "state", "createdOn" }, 
-					new Object[] { approver, UserHelper.getName(approver), o[2], 
-							CalendarUtils.getUTCDateTimeFormat().format(o[3]) });
+					new String[] { "approver", "approverName", "state", "remark", "createdOn" }, 
+					new Object[] { approver, UserHelper.getName(approver), o[2], o[3],
+							CalendarUtils.getUTCDateTimeFormat().format(o[4]) });
 			list.add(step);
-			ids.add((ID) o[4]);
 		}
 		dest.add(list);
-		return ids;
 	}
-	
 }

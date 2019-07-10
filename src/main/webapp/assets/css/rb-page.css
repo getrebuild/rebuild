@@ -1894,11 +1894,15 @@ form {
     margin-top: 8px;
 }
 
+.approval-pane .alert .close.btn+.btn {
+    margin-right: 88px;
+}
+
 .form.approval-form {
     margin: 0 -5px;
 }
 
-.form.approval-form>.form-group {
+.form.approval-form .form-group {
     padding: 0 20px;
 }
 

@@ -82,9 +82,9 @@ public class ApprovalControll extends BaseControll {
 			if (stateVal < ApprovalState.APPROVED.getState() && !steps.isEmpty()) {
 				JSONArray currentSteps = (JSONArray) steps.get(steps.size() - 1);
 				for (Object o : currentSteps) {
-					JSONObject cs = (JSONObject) o;
-					if (user.toLiteral().equalsIgnoreCase(cs.getString("approver"))) {
-						data.put("imApprover", cs.getInteger("state"));
+					JSONObject step = (JSONObject) o;
+					if (user.toLiteral().equalsIgnoreCase(step.getString("approver"))) {
+						data.put("imApprover", true);
 						break;
 					}
 				}
@@ -121,12 +121,12 @@ public class ApprovalControll extends BaseControll {
 		List<FlowNode> nextNodes = approvalProcessor.getNextNodes(FlowNode.ROOT);
 		for (FlowNode next : nextNodes) {
 			if (FlowNode.TYPE_CC.equals(next.getType())) {
-				specCcs.addAll(next.getSpecUsers(user));
+				specCcs.addAll(next.getSpecUsers(user, recordId));
 				if (next.allowSelfSelecting()) {
 					ccSelfSelecting = true;
 				}
 			} else {
-				specApprovers.addAll(next.getSpecUsers(user));
+				specApprovers.addAll(next.getSpecUsers(user, recordId));
 				approverSelfSelecting = next.allowSelfSelecting();
 			}
 		}
@@ -150,9 +150,9 @@ public class ApprovalControll extends BaseControll {
 	
 	@RequestMapping("submit")
 	public void doSubmit(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getRequestUser(request);
 		ID recordId = getIdParameterNotNull(request, "record");
 		ID approvalId = getIdParameterNotNull(request, "approval");
-		ID user = getRequestUser(request);
 		JSONObject selectUsers = (JSONObject) ServletUtils.getRequestJson(request);
 		
 		boolean success = new ApprovalProcessor(user, recordId, approvalId).submit(selectUsers);
@@ -163,17 +163,18 @@ public class ApprovalControll extends BaseControll {
 		}
 	}
 	
-	@RequestMapping("approved")
-	public void doApproved(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID recordId = getIdParameterNotNull(request, "record");
+	@RequestMapping("approve")
+	public void doApprove(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		String remark = ServletUtils.getRequestString(request);
-	}
-	
-	@RequestMapping("rejected")
-	public void doRejected(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID recordId = getIdParameterNotNull(request, "record");
-		ID user = getRequestUser(request);
+		int state = getIntParameter(request, "state", ApprovalState.REJECTED.getState());
 		String remark = ServletUtils.getRequestString(request);
+		
+		boolean success = new ApprovalProcessor(user, recordId).approve(user, state, remark);
+		if (success) {
+			writeSuccess(response);
+		} else {
+			writeFailure(response, "无效审批流程，请联系管理员配置");
+		}
 	}
 }

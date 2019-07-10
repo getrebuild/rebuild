@@ -26,6 +26,7 @@ import java.util.Set;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
 
@@ -108,10 +109,10 @@ public class FlowNode {
 	
 	/**
 	 * @param operator
-	 * @param submitter
+	 * @param record
 	 * @return
 	 */
-	public boolean matchesUser(ID operator, ID submitter) {
+	public boolean matchesUser(ID operator, ID record) {
 		JSONArray users = getDataMap().getJSONArray("users");
 		if (users == null || users.isEmpty()) {
 			return true;
@@ -121,8 +122,9 @@ public class FlowNode {
 		if (USER_ALL.equalsIgnoreCase(userType)) {
 			return true;
 		}
-		if (USER_SELF.equals(userType) && operator.equals(submitter)) {
-			return true;
+		if (USER_SELF.equals(userType)) {
+			ID owning = Application.getRecordOwningCache().getOwningUser(record);
+			return operator.equals(owning);
 		}
 		
 		List<String> usersList = new ArrayList<>();
@@ -130,16 +132,17 @@ public class FlowNode {
 			usersList.add((String) o);
 		}
 		Set<ID> usersAll = UserHelper.parseUsers(usersList, null);
-		return usersAll.contains(submitter);
+		return usersAll.contains(operator);
 	}
 	
 	/**
 	 * 获取相关人员（提交人/审批人/抄送人）
 	 * 
 	 * @param operator
+	 * @param record
 	 * @return
 	 */
-	public Set<ID> getSpecUsers(ID operator) {
+	public Set<ID> getSpecUsers(ID operator, ID record) {
 		JSONArray userDefs = getDataMap().getJSONArray("users");
 		if (userDefs == null || userDefs.isEmpty()) {
 			return Collections.emptySet();
@@ -148,7 +151,8 @@ public class FlowNode {
 		String userType = userDefs.get(0).toString();
 		if (USER_SELF.equalsIgnoreCase(userType)) {
 			Set<ID> users = new HashSet<ID>();
-			users.add(operator);
+			ID owning = Application.getRecordOwningCache().getOwningUser(record);
+			users.add(owning);
 			return users;
 		}
 		

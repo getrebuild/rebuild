@@ -107,7 +107,6 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 			return new FlowDefinition[0];
 		}
 		
-		ID recordOwning = Application.getRecordOwningCache().getOwningUser(record);
 		// 过滤可用的
 		List<FlowDefinition> workable = new ArrayList<>();
 		for (FlowDefinition def : defs) {
@@ -117,7 +116,7 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 			
 			FlowParser flowParser = def.createFlowParser();
 			FlowNode root = flowParser.getNode("ROOT");
-			if (root.matchesUser(user, recordOwning)) {
+			if (root.matchesUser(user, record)) {
 				workable.add(def);
 			}
 		}

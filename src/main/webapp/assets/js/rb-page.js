@@ -46,7 +46,7 @@ $(function () {
 
   var bkeydown_times = 0
   $(document.body).keydown(function (e) {
-    if (e.ctrlKey && e.altKey && e.which === 88) {
+    if (e.shiftKey) {
       if (++bkeydown_times === 6) $('.bosskey-show').show()
       command_exec(bkeydown_times)
     }
