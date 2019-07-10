@@ -178,6 +178,10 @@ body {
 	padding: 0;
 }
 
+.user-show+.user-show {
+	margin-left: 10px;
+}
+
 .user-show:hover {
 	opacity: 0.8;
 }

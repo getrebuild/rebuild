@@ -21,6 +21,7 @@ package com.rebuild.web.base.general;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -105,42 +106,45 @@ public class ApprovalControll extends BaseControll {
 		writeSuccess(response, data);
 	}
 	
-	@RequestMapping("preview-nextstep")
-	public void previewNextStep(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@RequestMapping("nextstep-gets")
+	public void getNextStep(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID recordId = getIdParameterNotNull(request, "record");
 		ID approvalId = getIdParameterNotNull(request, "approval");
 		ID user = getRequestUser(request);
 		
-		Set<ID> approvers = new HashSet<>();
-		Set<ID> ccs = new HashSet<>();
-		
-		FlowNode next = null;
-		while (true) {
-			next = new ApprovalProcessor(user, recordId, approvalId).getNextNode();
-			if (next == null) {
-				break;
-			}
-			
+		Set<ID> specApprovers = new HashSet<>();
+		Set<ID> specCcs = new HashSet<>();
+		boolean approverSelfSelecting = false;
+		boolean ccSelfSelecting = false;
+	
+		ApprovalProcessor approvalProcessor = new ApprovalProcessor(user, recordId, approvalId);
+		List<FlowNode> nextNodes = approvalProcessor.getNextNodes(FlowNode.ROOT);
+		for (FlowNode next : nextNodes) {
 			if (FlowNode.TYPE_CC.equals(next.getType())) {
-				ccs.addAll(next.getSpecUsers(user));
+				specCcs.addAll(next.getSpecUsers(user));
+				if (next.allowSelfSelecting()) {
+					ccSelfSelecting = true;
+				}
 			} else {
-				approvers.addAll(next.getSpecUsers(user));
-				break;
+				specApprovers.addAll(next.getSpecUsers(user));
+				approverSelfSelecting = next.allowSelfSelecting();
 			}
 		}
 		
 		JSONArray approverList = new JSONArray();
-		for (ID o : approvers) {
+		for (ID o : specApprovers) {
 			approverList.add(new Object[] { o, UserHelper.getName(o) });
 		}
 		JSONArray ccList = new JSONArray();
-		for (ID o : ccs) {
-			approverList.add(new Object[] { o, UserHelper.getName(o) });
+		for (ID o : specCcs) {
+			ccList.add(new Object[] { o, UserHelper.getName(o) });
 		}
 		
 		JSONObject data = new JSONObject();
-		data.put("approver", approverList);
-		data.put("cc", ccList);
+		data.put("nextApprovers", approverList);
+		data.put("nextCcs", ccList);
+		data.put("approverSelfSelecting", approverSelfSelecting);
+		data.put("ccSelfSelecting", ccSelfSelecting);
 		writeSuccess(response, data);
 	}
 	
@@ -149,8 +153,9 @@ public class ApprovalControll extends BaseControll {
 		ID recordId = getIdParameterNotNull(request, "record");
 		ID approvalId = getIdParameterNotNull(request, "approval");
 		ID user = getRequestUser(request);
+		JSONObject selectUsers = (JSONObject) ServletUtils.getRequestJson(request);
 		
-		boolean success = new ApprovalProcessor(user, recordId, approvalId).submit();
+		boolean success = new ApprovalProcessor(user, recordId, approvalId).submit(selectUsers);
 		if (success) {
 			writeSuccess(response);
 		} else {

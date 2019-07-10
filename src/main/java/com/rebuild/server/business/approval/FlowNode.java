@@ -39,6 +39,8 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class FlowNode {
 	
+	public static final String ROOT = "ROOT";
+	
 	// 节点类型
 	
 	public static final String TYPE_START = "start";
@@ -95,6 +97,16 @@ public class FlowNode {
 	}
 	
 	/**
+	 * @return
+	 */
+	public boolean allowSelfSelecting() {
+		if (getDataMap().containsKey("selfSelecting")) {
+			return getDataMap().getBooleanValue("selfSelecting");
+		}
+		return false;
+	}
+	
+	/**
 	 * @param operator
 	 * @param submitter
 	 * @return
@@ -140,14 +152,11 @@ public class FlowNode {
 			return users;
 		}
 		
-		if (USER_SPEC.equalsIgnoreCase(userType)) {
-			List<String> defsList = new ArrayList<>();
-			for (Object o : userDefs) {
-				defsList.add((String) o);
-			}
-			return UserHelper.parseUsers(defsList, null);
+		List<String> defsList = new ArrayList<>();
+		for (Object o : userDefs) {
+			defsList.add((String) o);
 		}
-		return Collections.emptySet();
+		return UserHelper.parseUsers(defsList, null);
 	}
 	
 	@Override

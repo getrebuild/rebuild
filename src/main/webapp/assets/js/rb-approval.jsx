@@ -71,51 +71,70 @@ class ApprovalSubmit extends RbFormHandler {
     this.state.approvals = []
   }
   render() {
+    let hasCC = (this.state.nextCcs || []).length > 0 || this.state.ccSelfSelecting
     return <RbModal ref={(c) => this._dlg = c} title="提交审批" width="600">
       <div className="form approval-form">
         <div className="form-group">
           <label>选择审批流程</label>
-          <div>
+          <div className="approval-list">
             {!this.state.approvals && <strong className="text-danger">无可用流程，请联系管理员配置</strong>}
             {(this.state.approvals || []).map((item) => {
-              return (<label key={'A' + item.id} className="custom-control custom-control-sm custom-radio mb-2">
-                <input className="custom-control-input" type="radio" name="useApproval" value={item.id} onChange={this.handleChange} checked={this.state.useApproval === item.id} />
-                <span className="custom-control-label">{item.name}</span>
-              </label>)
-            })}
-          </div>
-          <label>下一步</label>
-          <div>
-            {$(this.state.nextApprovers || []).map((item) => {
-              return item[1]
-            })}
-            {$(this.state.nextCcs || []).map((item) => {
-              return item[1]
+              return (<div key={'A' + item.id}>
+                <label className="custom-control custom-control-sm custom-radio mb-0">
+                  <input className="custom-control-input" type="radio" name="useApproval" value={item.id} onChange={this.handleChange} checked={this.state.useApproval === item.id} />
+                  <span className="custom-control-label">{item.name}</span>
+                </label>
+                <a href="javascript:;">流程详情</a>
+              </div>)
             })}
           </div>
         </div>
+        <div className="form-group">
+          <label><i className="zmdi zmdi-account zicon" /> 审批人</label>
+          <div>
+            {(this.state.nextApprovers || []).map((item) => {
+              return <UserShow key={'AU' + item[0]} id={item[0]} name={item[1]} showName={true} />
+            })}
+          </div>
+          {this.state.approverSelfSelecting && <div>
+            <UserSelector ref={(c) => this._approverSelect = c} />
+          </div>}
+        </div>
+        {hasCC && <div className="form-group">
+          <label><i className="zmdi zmdi-mail-send zicon" /> 抄送给</label>
+          <div>
+            {(this.state.nextCcs || []).map((item) => {
+              return <UserShow key={'CU' + item[0]} id={item[0]} name={item[1]} showName={true} />
+            })}
+          </div>
+          {this.state.approverSelfSelecting && <div>
+            <UserSelector ref={(c) => this._ccSelect = c} />
+          </div>}
+        </div>}
         <div className="dialog-footer" ref={(c) => this._btns = c}>
           <button type="button" className="btn btn-primary btn-space" onClick={() => this.post()}>提交</button>
           <button type="button" className="btn btn-secondary btn-space" onClick={this.hide}>取消</button>
         </div>
       </div>
-    </RbModal>
+    </RbModal >
   }
   componentDidMount() {
     $.get(`${rb.baseUrl}/app/entity/approval/workable?record=${this.props.id}`, (res) => {
       if (res.data && res.data.length > 0) {
-        this.setState({ approvals: res.data, useApproval: res.data[0].id })
+        this.setState({ approvals: res.data, useApproval: res.data[0].id }, () => {
+          this.showNextStep(res.data[0].id)
+        })
       } else {
         this.setState({ approvals: null, useApproval: null })
       }
     })
   }
   handleChangeAfter(id, val) {
-    if (id === 'useApproval') this.previewNextStep(val)
+    if (id === 'useApproval') this.showNextStep(val)
   }
-  previewNextStep(approval) {
-    $.get(`${rb.baseUrl}/app/entity/approval/preview-nextstep?record=${this.props.id}&approval=${approval}`, (res) => {
-
+  showNextStep(approval) {
+    $.get(`${rb.baseUrl}/app/entity/approval/nextstep-gets?record=${this.props.id}&approval=${approval}`, (res) => {
+      this.setState(res.data)
     })
   }
   post() {
@@ -124,8 +143,17 @@ class ApprovalSubmit extends RbFormHandler {
       return
     }
 
+    let selectUsers = {
+      selectApprovers: this.state.approverSelfSelecting ? this._approverSelect.getSelected() : [],
+      selectCcs: this.state.ccSelfSelecting ? this._ccSelect.getSelected() : []
+    }
+    if ((this.state.nextApprovers || []).length === 0 && selectUsers.selectApprovers.length === 0) {
+      rb.highbar('请选择审批人')
+      return
+    }
+
     this.disabled(true)
-    $.post(`${rb.baseUrl}/app/entity/approval/submit?record=${this.props.id}&approval=${this.state.useApproval}`, (res) => {
+    $.post(`${rb.baseUrl}/app/entity/approval/submit?record=${this.props.id}&approval=${this.state.useApproval}`, JSON.stringify(selectUsers), (res) => {
       if (res.error_code > 0) rb.hberror(res.error_msg)
       else {
         rb.hbsuccess('审批已提交')

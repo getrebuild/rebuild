@@ -338,6 +338,10 @@ div.dataTables_wrapper div.dataTables_filter {
     transition: margin 0.2s;
 }
 
+.rbview.show .modal-content {
+    overflow: hidden;
+}
+
 .modal.rbalert .modal-dialog {
     max-width: 551px;
 }
@@ -1896,4 +1900,43 @@ form {
 
 .form.approval-form>.form-group {
     padding: 0 20px;
+}
+
+.form.approval-form>.form-group .zicon {
+    float: left;
+    padding-right: 6px;
+    width: 18px;
+}
+
+.form.approval-form>.form-group .zicon.zmdi-mail-send {
+    font-size: 1.1rem;
+    margin-top: 2px;
+}
+
+.form.approval-form .approval-list {
+    padding: 5px 0;
+}
+
+.form.approval-form .approval-list>div {
+    padding: 7px 10px;
+    background-color: #f5f5f5;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.form.approval-form .approval-list>div>a {
+    position: absolute;
+    right: 10px;
+    top: 6px;
+    padding: 3px 0;
+    display: none;
+}
+
+.form.approval-form .approval-list>div:hover>a {
+    display: block;
+}
+
+.form.approval-form .approval-list>div+div {
+    margin-top: 3px;
 }

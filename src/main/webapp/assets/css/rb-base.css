@@ -21550,7 +21550,6 @@ fieldset[disabled] .btn-color.btn-evernote:hover {
 .modal-content {
     -webkit-box-shadow: 0 4px 6px rgba(0, 0, 0, .3);
     box-shadow: 0 4px 6px rgba(0, 0, 0, .3);
-    overflow: hidden;
     background-color: #fff;
     color: #404040;
     border: none

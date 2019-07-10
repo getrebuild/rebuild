@@ -74,10 +74,11 @@ public class ApprovalProcessor {
 	/**
 	 * 提交
 	 * 
+	 * @param selectUsers
 	 * @return
 	 * @throws ApprovalException
 	 */
-	public boolean submit() throws ApprovalException {
+	public boolean submit(JSONObject selectUsers) throws ApprovalException {
 		final String nodeId = "ROOT";
 		
 		FlowNode nextNode = getNextNode(nodeId);
@@ -140,24 +141,22 @@ public class ApprovalProcessor {
 	}
 	
 	/**
-	 * 获取下一节点
-	 * 
 	 * @return
+	 * @see #getNextNode(String)
 	 */
 	public FlowNode getNextNode() {
-		Object[] stepNode = Application.getQueryFactory().unique(record, EntityHelper.ApprovalStepNode, EntityHelper.ApprovalState);
-		String cNode = stepNode == null ? null : (String) stepNode[0];
-		if (StringUtils.isBlank(cNode) || (Integer) stepNode[1] == ApprovalState.REJECTED.getState()) {
-			cNode = "ROOT";
-		}
-		return getNextNode(cNode);
+		return getNextNode(getCurrentNodeId());
 	}
 	
 	/**
+	 * 获取下一节点
+	 * 
 	 * @param currentNode
 	 * @return
 	 */
-	private FlowNode getNextNode(String currentNode) {
+	public FlowNode getNextNode(String currentNode) {
+		Assert.notNull(currentNode, "[currentNode] not be null");
+		
 		List<FlowNode> nextNodes = getFlowParser().getNextNodes(currentNode);
 		if (nextNodes.isEmpty()) {
 			return null;
@@ -175,6 +174,51 @@ public class ApprovalProcessor {
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * @return
+	 * @see #getNextNodes(String)
+	 */
+	public List<FlowNode> getNextNodes() {
+		return getNextNodes(getCurrentNodeId());
+	}
+	
+	/**
+	 * 获取下一组节点。遇到审核人节点则终止，在审核节点前有抄送节点也会返回
+	 * 
+	 * @param currentNode
+	 * @return
+	 */
+	public List<FlowNode> getNextNodes(String currentNode) {
+		Assert.notNull(currentNode, "[currentNode] not be null");
+		
+		List<FlowNode> nodes = new ArrayList<FlowNode>();
+		FlowNode next = null;
+		while (true) {
+			next = getNextNode(next != null ? next.getNodeId() : currentNode);
+			if (next == null) {
+				break;
+			}
+			
+			nodes.add(next);
+			if (FlowNode.TYPE_APPROVER.equals(next.getType())) {
+				break;
+			}
+		}
+		return nodes;
+	}
+	
+	/**
+	 * @return
+	 */
+	private String getCurrentNodeId() {
+		Object[] stepNode = Application.getQueryFactory().unique(record, EntityHelper.ApprovalStepNode, EntityHelper.ApprovalState);
+		String cNode = stepNode == null ? null : (String) stepNode[0];
+		if (StringUtils.isBlank(cNode) || (Integer) stepNode[1] == ApprovalState.REJECTED.getState()) {
+			cNode = "ROOT";
+		}
+		return cNode;
 	}
 	
 	/**

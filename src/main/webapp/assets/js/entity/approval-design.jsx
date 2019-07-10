@@ -19,8 +19,8 @@ let isCanvasMounted = false
 // 节点类型
 const NTs = {
   'start': ['start', '发起人', '所有人'],
-  'approver': ['approver', '审批人', '请选择审批人'],
-  'cc': ['cc', '抄送人', '请选择抄送人']
+  'approver': ['approver', '审批人', '自选审批人'],
+  'cc': ['cc', '抄送人', '自选抄送人']
 }
 // 添加节点按钮
 const AddNodeButton = function (props) {
@@ -147,10 +147,10 @@ class Node extends NodeSpec {
     let users = NT[2]
     if (data.users && data.users.length > 0) {
       if (data.users[0] === 'SELF') users = '发起人自己'
-      else if (data.users[0] !== 'ALL') users = '指定用户 (' + data.users.length + ')'
+      else if (data.users[0] !== 'ALL') users = '指定用户(' + data.users.length + ')'
     }
+    if (data.selfSelecting && !users.contains('自选')) users += '/允许自选'
     if (this.nodeType === 'approver') users += ' ' + (data.signMode === 'AND' ? '会签' : (data.signMode === 'ALL' ? '依次审批' : '或签'))
-    else if (this.nodeType === 'cc' && data.users && data.users.length > 0) users += ' ' + (data.selfSelecting === false ? '' : '同时允许自选')
 
     return (<div className="node-wrap">
       <div className={`node-wrap-box animated fadeIn ${NT[0]}-node ${this.state.hasError ? 'error' : ''} ${this.state.active ? 'active' : ''}`} title={this.props.nodeId}>
@@ -425,6 +425,8 @@ class ApproverNodeConfig extends StartNodeConfig {
     this.state.signMode = props.signMode || 'OR'
     this.state.users = 'SPEC'
     if (props.users) this.state.users = props.users[0] === 'SELF' ? 'SELF' : 'SPEC'
+    this.state.selfSelecting = true
+    if (props.data && props.data.selfSelecting === false) this.state.selfSelecting = false
   }
   render() {
     return (<div>
@@ -434,10 +436,6 @@ class ApproverNodeConfig extends StartNodeConfig {
       <div className="form">
         <div className="form-group mb-0">
           <label className="text-bold">由谁审批</label>
-          <label className="custom-control custom-control-sm custom-radio mb-2 hide">
-            <input className="custom-control-input" type="radio" name="users" value="ALL" onChange={this.handleChange} checked={this.state.users === 'ALL'} />
-            <span className="custom-control-label">发起人自选</span>
-          </label>
           <label className="custom-control custom-control-sm custom-radio mb-2">
             <input className="custom-control-input" type="radio" name="users" value="SELF" onChange={this.handleChange} checked={this.state.users === 'SELF'} />
             <span className="custom-control-label">发起人自己</span>
@@ -447,9 +445,15 @@ class ApproverNodeConfig extends StartNodeConfig {
             <span className="custom-control-label">指定审批人</span>
           </label>
         </div>
-        {this.state.users === 'SPEC' && <div className="form-group">
+        {this.state.users === 'SPEC' && <div className="form-group mb-3">
           <UserSelector selected={this.state.selectedUsers} ref={(c) => this._users = c} />
         </div>}
+        <div className="form-group mb-0">
+          <label className="custom-control custom-control-sm custom-checkbox">
+            <input className="custom-control-input" type="checkbox" name="selfSelecting" checked={this.state.selfSelecting} onChange={this.handleChange} />
+            <span className="custom-control-label">同时允许自选</span>
+          </label>
+        </div>
         <div className="form-group mt-4">
           <label className="text-bold">当有多人审批时</label>
           <label className="custom-control custom-control-sm custom-radio mb-2 hide">
@@ -470,9 +474,9 @@ class ApproverNodeConfig extends StartNodeConfig {
     </div>)
   }
   save = () => {
-    let d = { nodeName: this.state.nodeName, users: this.state.users === 'SPEC' ? this._users.getSelected() : [this.state.users], signMode: this.state.signMode }
-    if (d.users.length === 0) {
-      rb.highbar('请选择审批人')
+    let d = { nodeName: this.state.nodeName, users: this.state.users === 'SPEC' ? this._users.getSelected() : [this.state.users], signMode: this.state.signMode, selfSelecting: this.state.selfSelecting }
+    if (d.users.length === 0 && !d.selfSelecting) {
+      rb.highbar('请选择审批人或允许自选')
       return
     }
     typeof this.props.call && this.props.call(d)
@@ -486,7 +490,6 @@ class CCNodeConfig extends StartNodeConfig {
     super(props)
     this.state.selfSelecting = true
     if (props.data && props.data.selfSelecting === false) this.state.selfSelecting = false
-    this.state.selfSelecting = false
   }
   render() {
     return (<div>
@@ -494,14 +497,14 @@ class CCNodeConfig extends StartNodeConfig {
         <input type="text" placeholder="抄送人" data-id="nodeName" value={this.state.nodeName || ''} onChange={this.handleChange} maxLength="20" />
       </div>
       <div className="form">
-        <div className="form-group">
+        <div className="form-group mb-3">
           <label className="text-bold">审批结果抄送给谁</label>
           <UserSelector selected={this.state.selectedUsers} ref={(c) => this._users = c} />
         </div>
-        <div className="form-group mb-0 hide">
+        <div className="form-group mb-0">
           <label className="custom-control custom-control-sm custom-checkbox">
             <input className="custom-control-input" type="checkbox" name="selfSelecting" checked={this.state.selfSelecting} onChange={this.handleChange} />
-            <span className="custom-control-label">同时允许发起人自选抄送人</span>
+            <span className="custom-control-label">同时允许自选</span>
           </label>
         </div>
       </div>
@@ -511,8 +514,7 @@ class CCNodeConfig extends StartNodeConfig {
   save = () => {
     let d = { nodeName: this.state.nodeName, users: this._users.getSelected(), selfSelecting: this.state.selfSelecting }
     if (d.users.length === 0 && !d.selfSelecting) {
-      // rb.highbar('请选择抄送人或允许自选抄送人')
-      rb.highbar('请选择抄送人')
+      rb.highbar('请选择抄送人或允许自选')
       return
     }
     typeof this.props.call && this.props.call(d)
