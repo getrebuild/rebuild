@@ -28,8 +28,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 /**
- * TODO
- * 
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/07/06
  */
@@ -37,17 +35,19 @@ public class FlowParserTest {
 	
 	@Test
 	public void testParse() throws Exception {
-		FlowParser flowParser = createFlowParser();
+		FlowParser flowParser = createFlowParser(2);
 		System.out.println("NODES :");
 		for (FlowNode node : flowParser.getAllNodes()) {
 			System.out.println(node);
 		}
 		System.out.println();
+		
+		flowParser.prettyPrint("ROOT", null);
 	}
 	
 	@Test
 	public void testFind() throws Exception {
-		FlowParser flowParser = createFlowParser();
+		FlowParser flowParser = createFlowParser(0);
 		System.out.println("ROOT :");
 		FlowNode root = flowParser.getNode("ROOT");
 		System.out.println(root);
@@ -62,11 +62,12 @@ public class FlowParserTest {
 	}
 	
 	/**
+	 * @param fileNo
 	 * @return
 	 * @throws IOException
 	 */
-	private FlowParser createFlowParser() throws IOException {
-		InputStream in = FlowParserTest.class.getClassLoader().getResourceAsStream("approval-flow.json");
+	private FlowParser createFlowParser(int fileNo) throws IOException {
+		InputStream in = FlowParserTest.class.getClassLoader().getResourceAsStream("approval-flow" + (fileNo > 0 ? fileNo : "") + ".json");
 		JSONObject flowDefinition = JSON.parseObject(in, null);
 		return new FlowParser(flowDefinition);
 	}

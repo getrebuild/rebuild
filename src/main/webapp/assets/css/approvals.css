@@ -654,3 +654,18 @@
 	font-size: 22px;
 	color: #777;
 }
+
+.rbflow-design .box-scale.preview button,
+.rbflow-design .box-scale.preview .aclose,
+.rbflow-design .box-scale.preview .arrow {
+	display: none !important;
+}
+
+.rbflow-design .box-scale.preview .auto-judge,
+.rbflow-design .box-scale.preview .node-wrap-box {
+	cursor: default;
+}
+
+.rbflow-design .box-scale.preview .node-wrap:first-child {
+	margin-bottom: -15px;
+}

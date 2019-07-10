@@ -41,7 +41,8 @@ public class FlowBranch extends FlowNode {
 
 	private int priority;
 	
-	private Set<FlowNode> childNodes = new HashSet<>();
+	private Set<String> childNodes = new HashSet<>();
+	private String lastNode;
 	
 	/**
 	 * @param nodeId
@@ -60,15 +61,23 @@ public class FlowBranch extends FlowNode {
 	/**
 	 * @param child
 	 */
-	protected void addNode(FlowNode child) {
+	protected void addNode(String child) {
 		childNodes.add(child);
+		lastNode = child;
 	}
 	
 	/**
 	 * @return
 	 */
-	protected Set<FlowNode> getChildNodes() {
+	protected Set<String> getChildNodes() {
 		return childNodes;
+	}
+	
+	/**
+	 * @return
+	 */
+	protected String getLastNode() {
+		return lastNode;
 	}
 	
 	/**

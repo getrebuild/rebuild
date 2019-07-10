@@ -84,6 +84,15 @@ class ApprovalSubmit extends RbFormHandler {
               </label>)
             })}
           </div>
+          <label>下一步</label>
+          <div>
+            {$(this.state.nextApprovers || []).map((item) => {
+              return item[1]
+            })}
+            {$(this.state.nextCcs || []).map((item) => {
+              return item[1]
+            })}
+          </div>
         </div>
         <div className="dialog-footer" ref={(c) => this._btns = c}>
           <button type="button" className="btn btn-primary btn-space" onClick={() => this.post()}>提交</button>
@@ -99,6 +108,14 @@ class ApprovalSubmit extends RbFormHandler {
       } else {
         this.setState({ approvals: null, useApproval: null })
       }
+    })
+  }
+  handleChangeAfter(id, val) {
+    if (id === 'useApproval') this.previewNextStep(val)
+  }
+  previewNextStep(approval) {
+    $.get(`${rb.baseUrl}/app/entity/approval/preview-nextstep?record=${this.props.id}&approval=${approval}`, (res) => {
+
     })
   }
   post() {

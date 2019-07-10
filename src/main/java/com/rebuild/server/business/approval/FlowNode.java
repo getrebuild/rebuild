@@ -53,6 +53,8 @@ public class FlowNode {
 	public static final String USER_SELF = "SELF";
 	public static final String USER_SPEC = "SPEC";
 	
+	// --
+	
 	private String nodeId;
 	private String type;
 	private JSONObject dataMap;
@@ -93,21 +95,22 @@ public class FlowNode {
 	}
 	
 	/**
-	 * @param user
+	 * @param operator
+	 * @param submitter
 	 * @return
 	 */
-	public boolean matchesUser(ID user) {
+	public boolean matchesUser(ID operator, ID submitter) {
 		JSONArray users = getDataMap().getJSONArray("users");
 		if (users == null || users.isEmpty()) {
 			return true;
 		}
 		
 		String userType = users.get(0).toString();
-		if ("ALL".equalsIgnoreCase(userType)) {
+		if (USER_ALL.equalsIgnoreCase(userType)) {
 			return true;
 		}
-		// TODO 提交人自己
-		if ("SELF".equals(userType)) {
+		if (USER_SELF.equals(userType) && operator.equals(submitter)) {
+			return true;
 		}
 		
 		List<String> usersList = new ArrayList<>();
@@ -115,32 +118,34 @@ public class FlowNode {
 			usersList.add((String) o);
 		}
 		Set<ID> usersAll = UserHelper.parseUsers(usersList, null);
-		return usersAll.contains(user);
+		return usersAll.contains(submitter);
 	}
 	
 	/**
-	 * @param submitter
+	 * 获取相关人员（提交人/审批人/抄送人）
+	 * 
+	 * @param operator
 	 * @return
 	 */
-	public Set<ID> getSpecUsers(ID submitter) {
-		JSONArray users = getDataMap().getJSONArray("users");
-		if (users == null || users.isEmpty()) {
+	public Set<ID> getSpecUsers(ID operator) {
+		JSONArray userDefs = getDataMap().getJSONArray("users");
+		if (userDefs == null || userDefs.isEmpty()) {
 			return Collections.emptySet();
 		}
 		
-		String userType = users.get(0).toString();
+		String userType = userDefs.get(0).toString();
 		if (USER_SELF.equalsIgnoreCase(userType)) {
-			Set<ID> selfs = new HashSet<ID>();
-			selfs.add(submitter);
-			return selfs;
+			Set<ID> users = new HashSet<ID>();
+			users.add(operator);
+			return users;
 		}
 		
 		if (USER_SPEC.equalsIgnoreCase(userType)) {
-			List<String> usersList = new ArrayList<>();
-			for (Object o : users) {
-				usersList.add((String) o);
+			List<String> defsList = new ArrayList<>();
+			for (Object o : userDefs) {
+				defsList.add((String) o);
 			}
-			return UserHelper.parseUsers(usersList, null);
+			return UserHelper.parseUsers(defsList, null);
 		}
 		return Collections.emptySet();
 	}

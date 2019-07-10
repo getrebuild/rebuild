@@ -77,7 +77,7 @@ public class FlowParser {
 				nodeMap.put(nodeId, flowNode);
 				
 				if (ownBranch != null) {
-					ownBranch.addNode(flowNode);
+					ownBranch.addNode(nodeId);
 				}
 			}
 			
@@ -92,10 +92,10 @@ public class FlowParser {
 					if (prevNode != null) {
 						flowBranch.prevNodes = prevNode;
 					}
-					prevNodes.add(branchNodeId);
 					nodeMap.put(branchNodeId, flowBranch);
 					
-					preparedNodes(branch.getJSONArray("nodes"), (FlowBranch) flowBranch);
+					preparedNodes(branch.getJSONArray("nodes"), flowBranch);
+					prevNodes.add(flowBranch.getLastNode());
 				}
 				prevNode = StringUtils.join(prevNodes, "|");
 			}
@@ -118,6 +118,7 @@ public class FlowParser {
 			return Collections.emptyList();
 		}
 		
+		// 非条件分支，只会有一个节点
 		if (!FlowNode.TYPE_BRANCH.equals(next.get(0).getType())) {
 			return next;
 		}
@@ -156,5 +157,20 @@ public class FlowParser {
 	 */
 	protected JSON getFlowDefinition() {
 		return flowDefinition;
+	}
+	
+	/**
+	 * @param nodeId
+	 * @param space
+	 */
+	protected void prettyPrint(String nodeId, String space) {
+		space = space == null ? "" : space;
+		FlowNode node = getNode(nodeId);
+		System.out.println(space + node);
+		
+		List<FlowNode> next = this.getNextNodes(nodeId);
+		for (FlowNode n : next) {
+			prettyPrint(n.getNodeId(), space + "  ");
+		}
 	}
 }

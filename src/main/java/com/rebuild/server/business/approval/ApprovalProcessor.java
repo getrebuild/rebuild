@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
@@ -123,11 +124,33 @@ public class ApprovalProcessor {
 	}
 	
 	/**
+	 * 获取下一审批节点
+	 * 
 	 * @return
 	 */
-	public FlowNode getNextNodes() {
-		Object[] stepNode = Application.getQueryFactory().unique(record, EntityHelper.ApprovalStepNode);
-		return getNextNode((String) stepNode[0]);
+	public FlowNode getNextApprovalNode() {
+		FlowNode next = null;
+		while (true) {
+			next = getNextNode();
+			if (next == null || FlowNode.TYPE_APPROVER.equals(next.getType())) {
+				break;
+			}
+		}
+		return next;
+	}
+	
+	/**
+	 * 获取下一节点
+	 * 
+	 * @return
+	 */
+	public FlowNode getNextNode() {
+		Object[] stepNode = Application.getQueryFactory().unique(record, EntityHelper.ApprovalStepNode, EntityHelper.ApprovalState);
+		String cNode = stepNode == null ? null : (String) stepNode[0];
+		if (StringUtils.isBlank(cNode) || (Integer) stepNode[1] == ApprovalState.REJECTED.getState()) {
+			cNode = "ROOT";
+		}
+		return getNextNode(cNode);
 	}
 	
 	/**

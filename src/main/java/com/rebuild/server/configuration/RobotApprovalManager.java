@@ -27,6 +27,7 @@ import com.rebuild.server.business.approval.FlowNode;
 import com.rebuild.server.business.approval.FlowParser;
 import com.rebuild.server.helper.ConfigurationException;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
@@ -96,12 +97,17 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 	/**
 	 * 获取用户可用流程
 	 * 
-	 * @param entity
+	 * @param record
 	 * @param user
 	 * @return
 	 */
-	public FlowDefinition[] getFlowDefinitions(Entity entity, ID user) {
-		FlowDefinition[] defs = getFlowDefinitions(entity);
+	public FlowDefinition[] getFlowDefinitions(ID record, ID user) {
+		FlowDefinition[] defs = getFlowDefinitions(MetadataHelper.getEntity(record.getEntityCode()));
+		if (defs.length == 0) {
+			return new FlowDefinition[0];
+		}
+		
+		ID recordOwning = Application.getRecordOwningCache().getOwningUser(record);
 		// 过滤可用的
 		List<FlowDefinition> workable = new ArrayList<>();
 		for (FlowDefinition def : defs) {
@@ -111,7 +117,7 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 			
 			FlowParser flowParser = def.createFlowParser();
 			FlowNode root = flowParser.getNode("ROOT");
-			if (root.matchesUser(user)) {
+			if (root.matchesUser(user, recordOwning)) {
 				workable.add(def);
 			}
 		}

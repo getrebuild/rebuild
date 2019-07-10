@@ -90,6 +90,9 @@ class RbFormHandler extends RbModalHandler {
     let s = {}
     s[id] = val
     this.setState(s, call)
+    this.handleChangeAfter(id, val)
+  }
+  handleChangeAfter(name, value) {
   }
   componentWillUnmount() {
     // Auto destroy select2

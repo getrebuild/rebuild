@@ -20,7 +20,9 @@ package com.rebuild.web.base.general;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,10 +35,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalProcessor;
 import com.rebuild.server.business.approval.ApprovalState;
+import com.rebuild.server.business.approval.FlowNode;
 import com.rebuild.server.configuration.FlowDefinition;
 import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.commons.ObjectUtils;
@@ -94,12 +97,50 @@ public class ApprovalControll extends BaseControll {
 		ID recordId = getIdParameterNotNull(request, "record");
 		ID user = getRequestUser(request);
 		
-		FlowDefinition[] defs = RobotApprovalManager.instance
-				.getFlowDefinitions(MetadataHelper.getEntity(recordId.getEntityCode()), user);
+		FlowDefinition[] defs = RobotApprovalManager.instance.getFlowDefinitions(recordId, user);
 		JSONArray data = new JSONArray();
 		for (FlowDefinition d : defs) {
 			data.add(d.toJSON("id", "name"));
 		}
+		writeSuccess(response, data);
+	}
+	
+	@RequestMapping("preview-nextstep")
+	public void previewNextStep(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID recordId = getIdParameterNotNull(request, "record");
+		ID approvalId = getIdParameterNotNull(request, "approval");
+		ID user = getRequestUser(request);
+		
+		Set<ID> approvers = new HashSet<>();
+		Set<ID> ccs = new HashSet<>();
+		
+		FlowNode next = null;
+		while (true) {
+			next = new ApprovalProcessor(user, recordId, approvalId).getNextNode();
+			if (next == null) {
+				break;
+			}
+			
+			if (FlowNode.TYPE_CC.equals(next.getType())) {
+				ccs.addAll(next.getSpecUsers(user));
+			} else {
+				approvers.addAll(next.getSpecUsers(user));
+				break;
+			}
+		}
+		
+		JSONArray approverList = new JSONArray();
+		for (ID o : approvers) {
+			approverList.add(new Object[] { o, UserHelper.getName(o) });
+		}
+		JSONArray ccList = new JSONArray();
+		for (ID o : ccs) {
+			approverList.add(new Object[] { o, UserHelper.getName(o) });
+		}
+		
+		JSONObject data = new JSONObject();
+		data.put("approver", approverList);
+		data.put("cc", ccList);
 		writeSuccess(response, data);
 	}
 	

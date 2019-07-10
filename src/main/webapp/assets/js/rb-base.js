@@ -254,7 +254,7 @@ var $storage = {
 
 var $random__times = 0
 var $random = function (prefix) {
-  return (prefix || '') + new Date().getTime() + '-' + ($random__times++)
+  return (prefix || '') + new Date().getTime() + '' + ($random__times++)
 }
 
 /**

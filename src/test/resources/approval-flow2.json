@@ -1,0 +1,111 @@
+{
+  "nodes": [{
+    "type": "start",
+    "nodeId": "ROOT"
+  }, {
+    "branches": [{
+      "nodes": [{
+        "branches": [{
+          "nodes": [{
+            "data": {
+              "signMode": "OR",
+              "users": ["SELF"]
+            },
+            "type": "approver",
+            "nodeId": "NODE1562741910070-8"
+          }],
+          "data": {
+            "nodeName": "1234",
+            "filter": {
+              "items": [{
+                "op": "LK",
+                "field": "accountName",
+                "index": 1,
+                "value": "1234"
+              }],
+              "entity": "Account999"
+            }
+          },
+          "priority": 1,
+          "nodeId": "COND1562741882047-5"
+        }, {
+          "nodes": [{
+            "data": {
+              "signMode": "OR",
+              "users": ["001-9000000000000001"]
+            },
+            "type": "approver",
+            "nodeId": "NODE1562741919343-9"
+          }],
+          "data": {
+            "nodeName": "其他1234",
+            "filter": {
+              "items": [],
+              "entity": "Account999"
+            }
+          },
+          "priority": 2,
+          "nodeId": "COND1562741882047-6"
+        }],
+        "type": "condition",
+        "nodeId": "COND1562741882046-4"
+      }, {
+        "data": {
+          "signMode": "OR",
+          "users": ["001-9000000000000001", "001-0000000000000001"]
+        },
+        "type": "approver",
+        "nodeId": "NODE1562741982727-2"
+      }],
+      "data": {
+        "nodeName": "123",
+        "filter": {
+          "items": [{
+            "op": "LK",
+            "field": "accountName",
+            "index": 1,
+            "value": "123"
+          }],
+          "entity": "Account999"
+        }
+      },
+      "priority": 1,
+      "nodeId": "COND1562741867312-1"
+    }, {
+      "nodes": [{
+        "data": {
+          "signMode": "OR",
+          "users": ["001-0000000000000001"]
+        },
+        "type": "approver",
+        "nodeId": "NODE1562741939782-11"
+      }, {
+        "data": {
+          "selfSelecting": false,
+          "users": ["001-0000000000000001", "001-9000000000000001"]
+        },
+        "type": "cc",
+        "nodeId": "NODE1562741992320-3"
+      }],
+      "data": {
+        "nodeName": "其他123",
+        "filter": {
+          "items": [],
+          "entity": "Account999"
+        }
+      },
+      "priority": 2,
+      "nodeId": "COND1562741867312-2"
+    }],
+    "type": "condition",
+    "nodeId": "COND1562741867309-0"
+  }, {
+    "data": {
+      "selfSelecting": false,
+      "users": ["001-9000000000000001", "001-0000000000000001"]
+    },
+    "type": "cc",
+    "nodeId": "NODE1562741952502-12"
+  }],
+  "nodeId": "RBFLOW"
+}

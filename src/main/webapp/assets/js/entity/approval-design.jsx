@@ -153,7 +153,7 @@ class Node extends NodeSpec {
     else if (this.nodeType === 'cc' && data.users && data.users.length > 0) users += ' ' + (data.selfSelecting === false ? '' : '同时允许自选')
 
     return (<div className="node-wrap">
-      <div className={`node-wrap-box animated fadeIn ${NT[0]}-node ${this.state.hasError ? 'error' : ''} ${this.state.active ? 'active' : ''}`}>
+      <div className={`node-wrap-box animated fadeIn ${NT[0]}-node ${this.state.hasError ? 'error' : ''} ${this.state.active ? 'active' : ''}`} title={this.props.nodeId}>
         <div className="title">
           <span>{data.nodeName || NT[1]}</span>
           {this.props.nodeId !== 'ROOT' && <i className="zmdi zmdi-close aclose" title="移除" onClick={this.removeNodeQuick} />}
@@ -242,7 +242,7 @@ class ConditionBranch extends NodeGroupSpec {
       {this.state.isFirst && <div className="bottom-left-cover-line"></div>}
       <div className="condition-node">
         <div className="condition-node-box animated fadeIn">
-          <div className={`auto-judge ${this.state.hasError ? 'error' : ''} ${this.state.active ? 'active' : ''}`} onClick={this.openConfig}>
+          <div className={`auto-judge ${this.state.hasError ? 'error' : ''} ${this.state.active ? 'active' : ''}`} onClick={this.openConfig} title={this.props.nodeId}>
             <div className="title-wrapper">
               <span className="editable-title float-left">{data.nodeName || '分支条件'}</span>
               <span className="priority-title float-right">默认优先级</span>
