@@ -20,10 +20,7 @@ package com.rebuild.web.base.general;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,7 +33,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalProcessor;
 import com.rebuild.server.business.approval.ApprovalState;
-import com.rebuild.server.business.approval.FlowNode;
+import com.rebuild.server.business.approval.FlowNodeGroup;
 import com.rebuild.server.configuration.FlowDefinition;
 import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.metadata.EntityHelper;
@@ -63,7 +60,7 @@ public class ApprovalControll extends BaseControll {
 		ID user = getRequestUser(request);
 		
 		Object[] state = Application.getQueryFactory().unique(recordId,
-				EntityHelper.ApprovalId, EntityHelper.ApprovalState, EntityHelper.ApprovalStepNode);
+				EntityHelper.ApprovalId, EntityHelper.ApprovalState);
 		if (state == null) {
 			writeFailure(response, "无效记录");
 			return;
@@ -73,15 +70,15 @@ public class ApprovalControll extends BaseControll {
 
 		int stateVal = ObjectUtils.toInt(state[1], ApprovalState.DRAFT.getState());
 		data.put("state", stateVal);
-		if (state[0] != null) {
-			data.put("approvalId", state[0]);
-			JSONArray steps = new ApprovalProcessor(user, recordId, (ID) state[0]).getWorkedSteps();
-			data.put("steps", steps);
-			
+		ID useApproval = (ID) state[0];
+		if (useApproval != null) {
+			data.put("approvalId", useApproval);
 			// 当前审批步骤
-			if (stateVal < ApprovalState.APPROVED.getState() && !steps.isEmpty()) {
-				JSONArray currentSteps = (JSONArray) steps.get(steps.size() - 1);
-				for (Object o : currentSteps) {
+			if (stateVal < ApprovalState.APPROVED.getState()) {
+				JSONArray current = new ApprovalProcessor(user, recordId, useApproval).getCurrentStep();
+				data.put("currentStep", current);
+				
+				for (Object o : current) {
 					JSONObject step = (JSONObject) o;
 					if (user.toLiteral().equalsIgnoreCase(step.getString("approver"))) {
 						data.put("imApprover", true);
@@ -112,39 +109,24 @@ public class ApprovalControll extends BaseControll {
 		ID approvalId = getIdParameterNotNull(request, "approval");
 		ID user = getRequestUser(request);
 		
-		Set<ID> specApprovers = new HashSet<>();
-		Set<ID> specCcs = new HashSet<>();
-		boolean approverSelfSelecting = false;
-		boolean ccSelfSelecting = false;
-	
 		ApprovalProcessor approvalProcessor = new ApprovalProcessor(user, recordId, approvalId);
-		List<FlowNode> nextNodes = approvalProcessor.getNextNodes(FlowNode.ROOT);
-		for (FlowNode next : nextNodes) {
-			if (FlowNode.TYPE_CC.equals(next.getType())) {
-				specCcs.addAll(next.getSpecUsers(user, recordId));
-				if (next.allowSelfSelecting()) {
-					ccSelfSelecting = true;
-				}
-			} else {
-				specApprovers.addAll(next.getSpecUsers(user, recordId));
-				approverSelfSelecting = next.allowSelfSelecting();
-			}
-		}
+		FlowNodeGroup nextNodes = approvalProcessor.getNextNodes();
 		
 		JSONArray approverList = new JSONArray();
-		for (ID o : specApprovers) {
+		for (ID o : nextNodes.getSpecUsersApprove(user, recordId)) {
 			approverList.add(new Object[] { o, UserHelper.getName(o) });
 		}
 		JSONArray ccList = new JSONArray();
-		for (ID o : specCcs) {
+		for (ID o : nextNodes.getSpecUsersCc(user, recordId)) {
 			ccList.add(new Object[] { o, UserHelper.getName(o) });
 		}
 		
 		JSONObject data = new JSONObject();
 		data.put("nextApprovers", approverList);
 		data.put("nextCcs", ccList);
-		data.put("approverSelfSelecting", approverSelfSelecting);
-		data.put("ccSelfSelecting", ccSelfSelecting);
+		data.put("approverSelfSelecting", nextNodes.allowSelfSelectingApprover());
+		data.put("ccSelfSelecting", nextNodes.allowSelfSelectingCc());
+		data.put("isLastStep", nextNodes.isLastStep());
 		writeSuccess(response, data);
 	}
 	

@@ -76,9 +76,10 @@ class ApprovalUsersForm extends RbFormHandler {
   }
 
   renderUsers() {
+    let approverHas = (this.state.nextApprovers || []).length > 0 || this.state.approverSelfSelecting
     let ccHas = (this.state.nextCcs || []).length > 0 || this.state.ccSelfSelecting
     return (<div>
-      <div className="form-group">
+      {approverHas && <div className="form-group">
         <label><i className="zmdi zmdi-account zicon" /> {this._approverLabel || '审批人'}</label>
         <div>
           {(this.state.nextApprovers || []).map((item) => {
@@ -88,7 +89,7 @@ class ApprovalUsersForm extends RbFormHandler {
         {this.state.approverSelfSelecting && <div>
           <UserSelector ref={(c) => this._approverSelect = c} />
         </div>}
-      </div>
+      </div>}
       {ccHas && <div className="form-group">
         <label><i className="zmdi zmdi-mail-send zicon" /> 审批结果抄送给</label>
         <div>
@@ -96,7 +97,7 @@ class ApprovalUsersForm extends RbFormHandler {
             return <UserShow key={'CU' + item[0]} id={item[0]} name={item[1]} showName={true} />
           })}
         </div>
-        {this.state.approverSelfSelecting && <div>
+        {this.state.ccSelfSelecting && <div>
           <UserSelector ref={(c) => this._ccSelect = c} />
         </div>}
       </div>}
@@ -108,9 +109,11 @@ class ApprovalUsersForm extends RbFormHandler {
       selectApprovers: this.state.approverSelfSelecting ? this._approverSelect.getSelected() : [],
       selectCcs: this.state.ccSelfSelecting ? this._ccSelect.getSelected() : []
     }
-    if ((this.state.nextApprovers || []).length === 0 && selectUsers.selectApprovers.length === 0) {
-      rb.highbar('请选择审批人')
-      return false
+    if (this.state.isLastStep !== true) {
+      if ((this.state.nextApprovers || []).length === 0 && selectUsers.selectApprovers.length === 0) {
+        rb.highbar('请选择审批人')
+        return false
+      }
     }
     return selectUsers
   }

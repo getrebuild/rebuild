@@ -27,6 +27,7 @@ import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.MarkdownUtils;
@@ -78,6 +79,20 @@ public class Message {
 	// --
 	
 	/**
+	 * @param approver
+	 * @param recordId
+	 * @return
+	 */
+	public static Message createApprovalMessage(ID approver, ID recordId) {
+		Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+		String approveMsg = String.format("有一条%s记录待你审批 @%s", EasyMeta.getLabel(entity), recordId);
+		return new Message(approver, approveMsg, recordId);
+	}
+	
+	
+	// --
+	
+	/**
 	 * 格式化通知消息 HTML，支持 Markdown 语法
 	 * 
 	 * @param message
@@ -100,6 +115,10 @@ public class Message {
 		return message;
 	}
 	
+	/**
+	 * @param atId
+	 * @return
+	 */
 	private static String parseAtId(String atId) {
 		if (!ID.isId(atId)) {
 			return atId;

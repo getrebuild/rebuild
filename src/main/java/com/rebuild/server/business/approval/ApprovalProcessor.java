@@ -20,7 +20,6 @@ package com.rebuild.server.business.approval;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,8 +36,8 @@ import com.rebuild.server.configuration.FlowDefinition;
 import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.base.ApprovalStepService;
 import com.rebuild.server.service.bizz.UserHelper;
-import com.rebuild.server.service.notification.Message;
 import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.commons.CalendarUtils;
@@ -88,56 +87,29 @@ public class ApprovalProcessor {
 	 * @throws ApprovalException
 	 */
 	public boolean submit(JSONObject selectUsers) throws ApprovalException {
-		final String nodeId = "ROOT";
-		
-		List<FlowNode> nextNodes = getNextNodes(nodeId);
-		if (nextNodes.isEmpty()) {
+		FlowNodeGroup nextNodes = getNextNodes(FlowNode.ROOT);
+		if (!nextNodes.isValid()) {
 			LOG.warn("No next-node be found");
 			return false;
 		}
 
-		Set<ID> approvers = new HashSet<>();
-		Set<ID> ccs = new HashSet<>();
-		for (FlowNode node : nextNodes) {
-			if (FlowNode.TYPE_APPROVER.equals(node.getType())) {
-				approvers.addAll(node.getSpecUsers(user, record));
-			} else {
-				ccs.addAll(node.getSpecUsers(user, record));
-			}
-		}
+		Set<ID> approvers = nextNodes.getSpecUsersApprove(this.user, this.record);
+		Set<ID> ccs = nextNodes.getSpecUsersCc(this.user, this.record);
+		String stepNode = nextNodes.getStepNode();
 		if (selectUsers != null) {
-			approvers.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectApprovers"), record));
-			ccs.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectCcs"), record));
+			approvers.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectApprovers"), this.record));
+			ccs.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectCcs"), this.record));
 		}
-		
-		if (approvers.isEmpty()) {
+		if (stepNode == null || approvers.isEmpty()) {
 			LOG.warn("No any approvers special");
 			return false;
 		}
 		
-		Record record = EntityHelper.forUpdate(this.record, user);
-		record.setID(EntityHelper.ApprovalId, this.approval);
-		record.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
-		record.setString(EntityHelper.ApprovalStepNode, nodeId);
-		Application.getEntityService(this.record.getEntityCode()).update(record);
-		
-		// 审批人
-		Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, user);
-		step.setID("recordId", this.record);
-		step.setID("approvalId", this.approval);
-		step.setString("node", nodeId);
-		for (ID approver : approvers) {
-			Record clone = step.clone();
-			clone.setID("approver", approver);
-			Application.getCommonService().create(clone);
-		}
-		
-		// 抄送人
-		for (ID cc : ccs) {
-			Message message = new Message(cc, "审批", this.record);
-			Application.getNotifications().send(message);
-		}
-		
+		Record recordOfMain = EntityHelper.forUpdate(this.record, this.user);
+		recordOfMain.setID(EntityHelper.ApprovalId, this.approval);
+		recordOfMain.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
+		recordOfMain.setString(EntityHelper.ApprovalStepNode, stepNode);
+		Application.getBean(ApprovalStepService.class).txApprove(recordOfMain, approvers, ccs);
 		return true;
 	}
 	
@@ -210,7 +182,7 @@ public class ApprovalProcessor {
 	 * @return
 	 * @see #getNextNodes(String)
 	 */
-	public List<FlowNode> getNextNodes() {
+	public FlowNodeGroup getNextNodes() {
 		return getNextNodes(getCurrentNodeId());
 	}
 	
@@ -220,10 +192,10 @@ public class ApprovalProcessor {
 	 * @param currentNode
 	 * @return
 	 */
-	public List<FlowNode> getNextNodes(String currentNode) {
+	public FlowNodeGroup getNextNodes(String currentNode) {
 		Assert.notNull(currentNode, "[currentNode] not be null");
 		
-		List<FlowNode> nodes = new ArrayList<FlowNode>();
+		FlowNodeGroup nodes = new FlowNodeGroup();
 		FlowNode next = null;
 		while (true) {
 			next = getNextNode(next != null ? next.getNodeId() : currentNode);
@@ -231,7 +203,7 @@ public class ApprovalProcessor {
 				break;
 			}
 			
-			nodes.add(next);
+			nodes.addNode(next);
 			if (FlowNode.TYPE_APPROVER.equals(next.getType())) {
 				break;
 			}
@@ -243,9 +215,9 @@ public class ApprovalProcessor {
 	 * @return
 	 */
 	private String getCurrentNodeId() {
-		Object[] stepNode = Application.getQueryFactory().unique(record, EntityHelper.ApprovalStepNode, EntityHelper.ApprovalState);
+		Object[] stepNode = Application.getQueryFactory().unique(this.record, EntityHelper.ApprovalStepNode, EntityHelper.ApprovalState);
 		String cNode = stepNode == null ? null : (String) stepNode[0];
-		if (StringUtils.isBlank(cNode) || (Integer) stepNode[1] == ApprovalState.REJECTED.getState()) {
+		if (StringUtils.isBlank(cNode) || (Integer) stepNode[1] >= ApprovalState.REJECTED.getState()) {
 			cNode = "ROOT";
 		}
 		return cNode;
@@ -266,24 +238,45 @@ public class ApprovalProcessor {
 	}
 	
 	/**
+	 * 获取当前审批步骤
+	 * 
+	 * @return returns [S, S]
+	 */
+	public JSONArray getCurrentStep() {
+		Object[] currentNode = Application.getQueryFactory().unique(this.record, EntityHelper.ApprovalStepNode);
+		Object[][] array = Application.createQueryNoFilter(
+				"select approver,state,remark,approvedTime,createdOn from RobotApprovalStep where recordId = ? and approvalId = ? and node = ?")
+				.setParameter(1, this.record)
+				.setParameter(2, this.approval)
+				.setParameter(3, currentNode[0])
+				.array();
+		
+		JSONArray state = new JSONArray();
+		for (Object[] o : array) {
+			state.add(this.formatStep(o));
+		}
+		return state;
+	}
+	
+	/**
 	 * 获取已执行流程列表
 	 * 
 	 * @return returns [ [S,S], [S], [SSS], [S] ]
 	 */
 	public JSONArray getWorkedSteps() {
-		Object[][] array = Application.createQuery(
-				"select prevStepId.node,approver,state,remark,createdOn from RobotApprovalStep where recordId = ? and approvalId = ?")
+		Object[][] array = Application.createQueryNoFilter(
+				"select approver,state,remark,approvedTime,createdOn,prevStepId.node from RobotApprovalStep where recordId = ? and approvalId = ?")
 				.setParameter(1, this.record)
 				.setParameter(2, this.approval)
 				.array();
 
-		Map<String, List<Object[]>> stepsByPrev = new HashMap<>();
+		Map<String, List<Object[]>> stepGroupByPrev = new HashMap<>();
 		for (Object[] o : array) {
 			String prevNode = o[0] == null ? FlowNode.ROOT : (String) o[0];
-			List<Object[]> steps = stepsByPrev.get(prevNode);
+			List<Object[]> steps = stepGroupByPrev.get(prevNode);
 			if (steps == null) {
 				steps = new ArrayList<Object[]>();
-				stepsByPrev.put(prevNode, steps);
+				stepGroupByPrev.put(prevNode, steps);
 			}
 			steps.add(o);
 		}
@@ -291,31 +284,32 @@ public class ApprovalProcessor {
 		JSONArray steps = new JSONArray();
 		String prev = FlowNode.ROOT;
 		while (prev != null) {
-			List<Object[]> group = stepsByPrev.get(prev);
+			List<Object[]> group = stepGroupByPrev.get(prev);
 			if (group == null) {
 				break;
 			}
 			
-			formatSteps(group, steps);
-			prev = (String) group.get(0)[0];
+			JSONArray state = new JSONArray();
+			for (Object[] o : group) {
+				state.add(formatStep(o));
+			}
+			steps.add(state);
+			prev = (String) group.get(0)[5];
 		}
 		return steps;
 	}
 	
 	/**
-	 * @param stepGroup
-	 * @param dest
+	 * @param step
 	 */
-	private void formatSteps(List<Object[]> stepGroup, JSONArray dest) {
-		JSONArray list = new JSONArray();
-		for (Object[] o : stepGroup) {
-			ID approver = (ID) o[1];
-			JSONObject step = JSONUtils.toJSONObject(
-					new String[] { "approver", "approverName", "state", "remark", "createdOn" }, 
-					new Object[] { approver, UserHelper.getName(approver), o[2], o[3],
-							CalendarUtils.getUTCDateTimeFormat().format(o[4]) });
-			list.add(step);
-		}
-		dest.add(list);
+	private JSONObject formatStep(Object[] step) {
+		ID approver = (ID) step[0];
+		return JSONUtils.toJSONObject(
+				new String[] { "approver", "approverName", "state", "remark", "approvedTime", "createdOn" }, 
+				new Object[] {
+						approver, UserHelper.getName(approver), 
+						step[1], step[2],
+						step[3] != null ? CalendarUtils.getUTCDateTimeFormat().format(step[3]) : null,
+						CalendarUtils.getUTCDateTimeFormat().format(step[4]) });
 	}
 }

@@ -1906,13 +1906,13 @@ form {
     padding: 0 20px;
 }
 
-.form.approval-form>.form-group .zicon {
+.form.approval-form .form-group .zicon {
     float: left;
     padding-right: 6px;
     width: 18px;
 }
 
-.form.approval-form>.form-group .zicon.zmdi-mail-send {
+.form.approval-form .form-group .zicon.zmdi-mail-send {
     font-size: 1.1rem;
     margin-top: 2px;
 }
