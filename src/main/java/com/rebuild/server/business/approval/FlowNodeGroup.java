@@ -21,8 +21,6 @@ package com.rebuild.server.business.approval;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.service.bizz.UserHelper;
 
@@ -134,10 +132,10 @@ public class FlowNodeGroup {
 	/**
 	 * @return
 	 */
-	public String getStepNode() {
+	public FlowNode getApprovalNode() {
 		for (FlowNode node : nodes) {
 			if (FlowNode.TYPE_APPROVER.equals(node.getType())) {
-				return node.getNodeId();
+				return node;
 			}
 		}
 		return null;
@@ -149,11 +147,7 @@ public class FlowNodeGroup {
 	 * @return
 	 */
 	public String getSignMode() {
-		for (FlowNode node : nodes) {
-			if (node.getType().equals(FlowNode.TYPE_APPROVER)) {
-				return StringUtils.defaultIfBlank(node.getDataMap().getString("signMode"), FlowNode.SIGN_OR);
-			}
-		}
-		return FlowNode.SIGN_OR;
+		FlowNode node = getApprovalNode();
+		return node == null ? FlowNode.SIGN_OR : node.getSignMode();
 	}
 }

@@ -51,24 +51,24 @@ public class ApprovalStepService extends BaseService {
 	}
 	
 	/**
-	 * @param recordOfMain
+	 * @param mainRecord
 	 * @param cc
 	 * @param nextApprovers
 	 */
-	public void txSubmit(Record recordOfMain, Set<ID> cc, Set<ID> nextApprovers) {
-		super.update(recordOfMain);
+	public void txSubmit(Record mainRecord, Set<ID> cc, Set<ID> nextApprovers) {
+		super.update(mainRecord);
 		
 		final ID submitter = Application.getCurrentUser();
-		final ID recordId = recordOfMain.getPrimary();
+		final ID recordId = mainRecord.getPrimary();
 		
-		String entityLabel = EasyMeta.getLabel(recordOfMain.getEntity());
+		String entityLabel = EasyMeta.getLabel(mainRecord.getEntity());
 		String approveMsg = String.format("有一条%s记录请你审批 @%s", entityLabel, recordId);
 		
 		// 审批人
 		Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, submitter);
 		step.setID("recordId", recordId);
-		step.setID("approvalId", recordOfMain.getID(EntityHelper.ApprovalId));
-		step.setString("node", recordOfMain.getString(EntityHelper.ApprovalStepNode));
+		step.setID("approvalId", mainRecord.getID(EntityHelper.ApprovalId));
+		step.setString("node", mainRecord.getString(EntityHelper.ApprovalStepNode));
 		for (ID a : nextApprovers) {
 			Record clone = step.clone();
 			clone.setID("approver", a);
@@ -86,22 +86,22 @@ public class ApprovalStepService extends BaseService {
 	}
 	
 	/**
-	 * @param approvedStep
+	 * @param stepRecord
 	 * @param signMode
 	 * @param cc
 	 * @param nextApprovers
 	 * @param nextNode
 	 */
-	public void txApprove(Record approvedStep, String signMode, Set<ID> cc, Set<ID> nextApprovers, String nextNode) {
-		super.update(approvedStep);
+	public void txApprove(Record stepRecord, String signMode, Set<ID> cc, Set<ID> nextApprovers, String nextNode) {
+		super.update(stepRecord);
 		
 		Object[] stepObject = Application.createQueryNoFilter(
 				"select recordId,approvalId,node from RobotApprovalStep where stepId = ?")
-				.setParameter(1, approvedStep.getPrimary())
+				.setParameter(1, stepRecord.getPrimary())
 				.unique();
 		// 第一个创建步骤的人为提交人
 		Object[] submitObject = Application.createQueryNoFilter(
-				"select createdBy from RobotApprovalStep where recordId = ? and approvalId = ? order by createdOn asc")
+				"select createdBy from RobotApprovalStep where recordId = ? and approvalId = ? and isCanceled = 'F' order by createdOn asc")
 				.setParameter(1, stepObject[0])
 				.setParameter(2, stepObject[1])
 				.unique();
@@ -113,7 +113,7 @@ public class ApprovalStepService extends BaseService {
 		final ID approver = Application.getCurrentUser();
 		
 		String entityLabel = EasyMeta.getLabel(MetadataHelper.getEntity(recordId.getEntityCode()));
-		ApprovalState state = (ApprovalState) ApprovalState.valueOf(approvedStep.getInt("state"));
+		ApprovalState state = (ApprovalState) ApprovalState.valueOf(stepRecord.getInt("state"));
 		
 		// 抄送人
 		if (cc != null && !cc.isEmpty()) {
@@ -126,7 +126,7 @@ public class ApprovalStepService extends BaseService {
 		
 		// 拒绝了直接返回
 		if (state == ApprovalState.REJECTED) {
-			cancelAliveSteps(recordId, approvalId, null, approvedStep.getPrimary(), state.getState());
+			cancelAliveSteps(recordId, approvalId, null, stepRecord.getPrimary(), state.getState());
 			
 			Message message = new Message(submitter, String.format("@%s 驳回了你的审批 @%s", approver, recordId), recordId);
 			Application.getNotifications().send(message);
@@ -134,23 +134,38 @@ public class ApprovalStepService extends BaseService {
 		}
 
 		// 或签/会签
-		boolean goNextNode = false;
+		boolean goNextNode = true;
 		
 		// 或签。一人通过其他作废
 		if (FlowNode.SIGN_OR.equals(signMode)) {
-			cancelAliveSteps(recordId, approvalId, currentNode, approvedStep.getPrimary(), 0);
-			goNextNode = true;
+			cancelAliveSteps(recordId, approvalId, currentNode, stepRecord.getPrimary(), 0);
 		}
 		// 会签。检查是否都签了
 		else {
-			Object[] hasUnsign = Application.createQueryNoFilter(
-					"select stepId from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and state = ?")
+			Object[][] currentNodeSteps = Application.createQueryNoFilter(
+					"select state,isWaiting,stepId from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and isCanceled = 'F'")
 					.setParameter(1, recordId)
 					.setParameter(2, approvalId)
 					.setParameter(3, currentNode)
-					.setParameter(4, ApprovalState.DRAFT.getState())
-					.unique();
-			goNextNode = hasUnsign == null;
+					.array();
+			for (Object[] o : currentNodeSteps) {
+				if ((Integer) o[0] == ApprovalState.DRAFT.getState()) {
+					goNextNode = false;
+					break;
+				}
+			}
+			
+			if (goNextNode) {
+				for (Object[] o : currentNodeSteps) {
+					if (!(Boolean) o[1]) {
+						continue;
+					}
+					
+					Record r = EntityHelper.forUpdate((ID) o[2], approver);
+					r.setBoolean("isWaiting", false);
+					super.update(r);
+				}
+			}
 		}
 		
 		// 最终状态了
@@ -233,7 +248,7 @@ public class ApprovalStepService extends BaseService {
 				continue;
 			}
 			Record r = EntityHelper.forUpdate((ID) o[0], Application.getCurrentUser());
-			r.setBoolean("invalid", true);
+			r.setBoolean("isCanceled", true);
 			super.update(r);
 		}
 

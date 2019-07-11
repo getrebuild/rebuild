@@ -103,8 +103,8 @@ public class ApprovalControll extends BaseControll {
 		writeSuccess(response, data);
 	}
 	
-	@RequestMapping("nextstep-gets")
-	public void getNextStep(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@RequestMapping("fetch-nextstep")
+	public void fetchNextStep(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID recordId = getIdParameterNotNull(request, "record");
 		ID approvalId = getIdParameterNotNull(request, "approval");
 		ID user = getRequestUser(request);
@@ -127,6 +127,7 @@ public class ApprovalControll extends BaseControll {
 		data.put("approverSelfSelecting", nextNodes.allowSelfSelectingApprover());
 		data.put("ccSelfSelecting", nextNodes.allowSelfSelectingCc());
 		data.put("isLastStep", nextNodes.isLastStep());
+		data.put("signMode", nextNodes.getSignMode());
 		writeSuccess(response, data);
 	}
 	
@@ -155,11 +156,12 @@ public class ApprovalControll extends BaseControll {
 		JSONObject selectUsers = post.getJSONObject("selectUsers");
 		String remark = post.getString("remark");
 		
-		boolean success = new ApprovalProcessor(approver, recordId).approve(approver, state, remark, selectUsers);
+		boolean success = new ApprovalProcessor(approver, recordId)
+				.approve(approver, (ApprovalState) ApprovalState.valueOf(state), remark, selectUsers);
 		if (success) {
 			writeSuccess(response);
 		} else {
-			writeFailure(response, "无效审批流程，请联系管理员配置");
+			writeFailure(response, "无效审批状态");
 		}
 	}
 }

@@ -80,7 +80,7 @@ class ApprovalUsersForm extends RbFormHandler {
     let ccHas = (this.state.nextCcs || []).length > 0 || this.state.ccSelfSelecting
     return (<div>
       {approverHas && <div className="form-group">
-        <label><i className="zmdi zmdi-account zicon" /> {this._approverLabel || '审批人'}</label>
+        <label><i className="zmdi zmdi-account zicon" /> {`${this._approverLabel || '审批人'} (${this.state.signMode === 'AND' ? '会签' : '或签'})`}</label>
         <div>
           {(this.state.nextApprovers || []).map((item) => {
             return <UserShow key={'AU' + item[0]} id={item[0]} name={item[1]} showName={true} />
@@ -119,7 +119,7 @@ class ApprovalUsersForm extends RbFormHandler {
   }
 
   getNextStep(approval) {
-    $.get(`${rb.baseUrl}/app/entity/approval/nextstep-gets?record=${this.props.id}&approval=${approval || this.props.approval}`, (res) => {
+    $.get(`${rb.baseUrl}/app/entity/approval/fetch-nextstep?record=${this.props.id}&approval=${approval || this.props.approval}`, (res) => {
       this.setState(res.data)
     })
   }
@@ -209,8 +209,8 @@ class ApproveForm extends ApprovalUsersForm {
     return <RbModal ref={(c) => this._dlg = c} title="审批" width="600">
       <div className="form approval-form">
         <div className="form-group">
-          <label>批注 (可选)</label>
-          <textarea className="form-control form-control-sm row3x" name="remark" placeholder="输入批注" value={this.state.remark || ''} onChange={this.handleChange} />
+          <label>批注</label>
+          <textarea className="form-control form-control-sm row3x" name="remark" placeholder="输入批注 (可选)" value={this.state.remark || ''} onChange={this.handleChange} />
         </div>
         {this.renderUsers()}
         <div className="dialog-footer">

@@ -24,6 +24,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
@@ -101,6 +103,13 @@ public class FlowNode {
 	 */
 	public JSONObject getDataMap() {
 		return dataMap == null ? JSONUtils.EMPTY_OBJECT : dataMap;
+	}
+	
+	/**
+	 * @return
+	 */
+	public String getSignMode() {
+		return StringUtils.defaultIfBlank(getDataMap().getString("signMode"), SIGN_OR);
 	}
 	
 	/**

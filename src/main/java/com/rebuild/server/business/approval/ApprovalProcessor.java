@@ -103,7 +103,7 @@ public class ApprovalProcessor {
 		Record recordOfMain = EntityHelper.forUpdate(this.record, this.user);
 		recordOfMain.setID(EntityHelper.ApprovalId, this.approval);
 		recordOfMain.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
-		recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNodes.getStepNode());
+		recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNodes.getApprovalNode().getNodeId());
 		Application.getBean(ApprovalStepService.class).txSubmit(recordOfMain, ccs, nextApprovers);
 		return true;
 	}
@@ -118,9 +118,9 @@ public class ApprovalProcessor {
 	 * @return
 	 * @throws ApprovalException
 	 */
-	public boolean approve(ID approver, int state, String remark, JSONObject selectUsers) throws ApprovalException {
+	public boolean approve(ID approver, ApprovalState state, String remark, JSONObject selectUsers) throws ApprovalException {
 		final Object step[] = Application.createQueryNoFilter(
-				"select stepId,state,node,approvalId from RobotApprovalStep where recordId = ? and approver = ?")
+				"select stepId,state,node,approvalId from RobotApprovalStep where recordId = ? and approver = ? and isCanceled = 'F'")
 				.setParameter(1, this.record)
 				.setParameter(2, approver)
 				.unique();
@@ -130,7 +130,7 @@ public class ApprovalProcessor {
 		}
 		
 		Record approvedStep = EntityHelper.forUpdate((ID) step[0], approver);
-		approvedStep.setInt("state", state);
+		approvedStep.setInt("state", state.getState());
 		approvedStep.setDate("approvedTime", CalendarUtils.now());
 		if (StringUtils.isNotBlank(remark)) {
 			approvedStep.setString("remark", remark);
@@ -148,11 +148,15 @@ public class ApprovalProcessor {
 				LOG.warn("No any approvers special");
 				return false;
 			}
-			nextNode = nextNodes.getStepNode();
+			
+			FlowNode nextApprovalNode = nextNodes.getApprovalNode();
+			nextNode = nextApprovalNode != null ? nextApprovalNode.getNodeId() : null;
 		}
 		
+		FlowNode currentNode = getFlowParser().getNode((String) step[2]);
+		
 		Application.getBean(ApprovalStepService.class)
-				.txApprove(approvedStep, nextNodes.getSignMode(), ccs, nextApprovers, nextNode);
+				.txApprove(approvedStep, currentNode.getSignMode(), ccs, nextApprovers, nextNode);
 		return true;
 	}
 	
@@ -275,7 +279,8 @@ public class ApprovalProcessor {
 	public JSONArray getCurrentStep() {
 		Object[] currentNode = Application.getQueryFactory().unique(this.record, EntityHelper.ApprovalStepNode);
 		Object[][] array = Application.createQueryNoFilter(
-				"select approver,state,remark,approvedTime,createdOn from RobotApprovalStep where recordId = ? and approvalId = ? and node = ?")
+				"select approver,state,remark,approvedTime,createdOn from RobotApprovalStep"
+				+ " where recordId = ? and approvalId = ? and node = ? and isCanceled = 'F'")
 				.setParameter(1, this.record)
 				.setParameter(2, this.approval)
 				.setParameter(3, currentNode[0])
