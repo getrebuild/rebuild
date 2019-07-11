@@ -252,8 +252,10 @@
 		<field name="approver" type="reference" ref-entity="User" nullable="false" updatable="false" cascade="delete" description="审批人" />
 		<field name="state" type="small-int" default-value="1" description="审批结果" />
 		<field name="remark" type="string" max-length="600" description="批注" />
-		<field name="approvedTime" type="timestamp" description="审批事件" />
+		<field name="approvedTime" type="timestamp" description="审批时间" />
 		<field name="prevStepId" type="reference" ref-entity="RobotApprovalStep" description="上一步骤" />
-		<index field-list="recordId,approvalId"/>
+		<field name="isCanceled" type="bool" default-value="F" description="是否取消" />
+		<field name="isWaiting" type="bool" default-value="F" description="是否生效" />
+		<index field-list="recordId,approvalId,node,isCanceled"/>
 	</entity>
 </metadata-config>

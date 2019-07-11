@@ -56,8 +56,8 @@ public class ApprovalProcessor {
 
 	final private ID user;
 	final private ID record;
-	final private ID approval;
 	
+	private ID approval;
 	private FlowParser flowParser;
 	
 	/**
@@ -93,14 +93,9 @@ public class ApprovalProcessor {
 			return false;
 		}
 
-		Set<ID> approvers = nextNodes.getSpecUsersApprove(this.user, this.record);
-		Set<ID> ccs = nextNodes.getSpecUsersCc(this.user, this.record);
-		String stepNode = nextNodes.getStepNode();
-		if (selectUsers != null) {
-			approvers.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectApprovers"), this.record));
-			ccs.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectCcs"), this.record));
-		}
-		if (stepNode == null || approvers.isEmpty()) {
+		Set<ID> ccs = nextNodes.getCcUsers(this.user, this.record, selectUsers);
+		Set<ID> nextApprovers = nextNodes.getApproveUsers(this.user, this.record, selectUsers);
+		if (nextApprovers.isEmpty()) {
 			LOG.warn("No any approvers special");
 			return false;
 		}
@@ -108,8 +103,8 @@ public class ApprovalProcessor {
 		Record recordOfMain = EntityHelper.forUpdate(this.record, this.user);
 		recordOfMain.setID(EntityHelper.ApprovalId, this.approval);
 		recordOfMain.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
-		recordOfMain.setString(EntityHelper.ApprovalStepNode, stepNode);
-		Application.getBean(ApprovalStepService.class).txApprove(recordOfMain, approvers, ccs);
+		recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNodes.getStepNode());
+		Application.getBean(ApprovalStepService.class).txSubmit(recordOfMain, ccs, nextApprovers);
 		return true;
 	}
 	
@@ -119,11 +114,46 @@ public class ApprovalProcessor {
 	 * @param approver
 	 * @param state
 	 * @param remark
+	 * @param selectUsers
 	 * @return
 	 * @throws ApprovalException
 	 */
-	public boolean approve(ID approver, int state, String remark) throws ApprovalException {
-		return false;
+	public boolean approve(ID approver, int state, String remark, JSONObject selectUsers) throws ApprovalException {
+		final Object step[] = Application.createQueryNoFilter(
+				"select stepId,state,node,approvalId from RobotApprovalStep where recordId = ? and approver = ?")
+				.setParameter(1, this.record)
+				.setParameter(2, approver)
+				.unique();
+		if (step == null || (Integer) step[1] != ApprovalState.DRAFT.getState()) {
+			LOG.warn("Invalid step state");
+			return false;
+		}
+		
+		Record approvedStep = EntityHelper.forUpdate((ID) step[0], approver);
+		approvedStep.setInt("state", state);
+		approvedStep.setDate("approvedTime", CalendarUtils.now());
+		if (StringUtils.isNotBlank(remark)) {
+			approvedStep.setString("remark", remark);
+		}
+		
+		this.approval = (ID) step[3];
+		FlowNodeGroup nextNodes = getNextNodes((String) step[2]);
+		
+		Set<ID> ccs = nextNodes.getCcUsers(this.user, this.record, selectUsers);
+		Set<ID> nextApprovers = null;
+		String nextNode = null;
+		if (!nextNodes.isLastStep()) {
+			nextApprovers = nextNodes.getApproveUsers(this.user, this.record, selectUsers);
+			if (nextApprovers.isEmpty()) {
+				LOG.warn("No any approvers special");
+				return false;
+			}
+			nextNode = nextNodes.getStepNode();
+		}
+		
+		Application.getBean(ApprovalStepService.class)
+				.txApprove(approvedStep, nextNodes.getSignMode(), ccs, nextApprovers, nextNode);
+		return true;
 	}
 	
 	/**
@@ -232,7 +262,7 @@ public class ApprovalProcessor {
 		}
 		
 		FlowDefinition flowDefinition = RobotApprovalManager.instance.getFlowDefinition(
-				MetadataHelper.getEntity(this.record.getEntityCode()), approval);
+				MetadataHelper.getEntity(this.record.getEntityCode()), this.approval);
 		flowParser = new FlowParser(flowDefinition.getJSON("flowDefinition"));
 		return flowParser;
 	}

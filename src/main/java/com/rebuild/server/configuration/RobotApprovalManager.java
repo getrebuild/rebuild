@@ -22,12 +22,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.FlowNode;
 import com.rebuild.server.business.approval.FlowParser;
 import com.rebuild.server.helper.ConfigurationException;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.bizz.UserHelper;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
@@ -116,7 +118,12 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 			
 			FlowParser flowParser = def.createFlowParser();
 			FlowNode root = flowParser.getNode("ROOT");
-			if (root.matchesUser(user, record)) {
+			
+			// 发起人匹配
+			JSONArray users = root.getDataMap().getJSONArray("users");
+			if (users == null || users.isEmpty() 
+					|| FlowNode.USER_ALL.equalsIgnoreCase(users.getString(0))
+					|| UserHelper.parseUsers(users, record).contains(user)) {
 				workable.add(def);
 			}
 		}

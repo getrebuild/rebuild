@@ -20,6 +20,7 @@ package com.rebuild.server.service.bizz;
 
 import java.security.Principal;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -180,6 +181,10 @@ public class UserHelper {
 	 * @return
 	 */
 	public static Set<ID> parseUsers(JSONArray userDefs, ID record) {
+		if (userDefs == null) {
+			return Collections.emptySet();
+		}
+		
 		Set<String> users = new HashSet<>();
 		for (Object u : userDefs) {
 			users.add((String) u);

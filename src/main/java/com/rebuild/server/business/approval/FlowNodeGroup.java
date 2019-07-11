@@ -21,6 +21,11 @@ package com.rebuild.server.business.approval;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.service.bizz.UserHelper;
+
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -68,14 +73,19 @@ public class FlowNodeGroup {
 	/**
 	 * @param user
 	 * @param recordId
+	 * @param selectUsers
 	 * @return
 	 */
-	public Set<ID> getSpecUsersCc(ID user, ID recordId) {
+	public Set<ID> getCcUsers(ID user, ID recordId, JSONObject selectUsers) {
 		Set<ID> users = new HashSet<>();
 		for (FlowNode node : nodes) {
 			if (FlowNode.TYPE_CC.equals(node.getType())) {
 				users.addAll(node.getSpecUsers(user, recordId));
 			}
+		}
+		
+		if (selectUsers != null) {
+			users.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectCcs"), recordId));
 		}
 		return users;
 	}
@@ -83,14 +93,19 @@ public class FlowNodeGroup {
 	/**
 	 * @param user
 	 * @param recordId
+	 * @param selectUsers
 	 * @return
 	 */
-	public Set<ID> getSpecUsersApprove(ID user, ID recordId) {
+	public Set<ID> getApproveUsers(ID user, ID recordId, JSONObject selectUsers) {
 		Set<ID> users = new HashSet<>();
 		for (FlowNode node : nodes) {
 			if (FlowNode.TYPE_APPROVER.equals(node.getType())) {
 				users.addAll(node.getSpecUsers(user, recordId));
 			}
+		}
+		
+		if (selectUsers != null) {
+			users.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectApprovers"), recordId));
 		}
 		return users;
 	}
@@ -126,5 +141,19 @@ public class FlowNodeGroup {
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * 联合审批模式
+	 * 
+	 * @return
+	 */
+	public String getSignMode() {
+		for (FlowNode node : nodes) {
+			if (node.getType().equals(FlowNode.TYPE_APPROVER)) {
+				return StringUtils.defaultIfBlank(node.getDataMap().getString("signMode"), FlowNode.SIGN_OR);
+			}
+		}
+		return FlowNode.SIGN_OR;
 	}
 }

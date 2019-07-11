@@ -113,11 +113,11 @@ public class ApprovalControll extends BaseControll {
 		FlowNodeGroup nextNodes = approvalProcessor.getNextNodes();
 		
 		JSONArray approverList = new JSONArray();
-		for (ID o : nextNodes.getSpecUsersApprove(user, recordId)) {
+		for (ID o : nextNodes.getApproveUsers(user, recordId, null)) {
 			approverList.add(new Object[] { o, UserHelper.getName(o) });
 		}
 		JSONArray ccList = new JSONArray();
-		for (ID o : nextNodes.getSpecUsersCc(user, recordId)) {
+		for (ID o : nextNodes.getCcUsers(user, recordId, null)) {
 			ccList.add(new Object[] { o, UserHelper.getName(o) });
 		}
 		
@@ -147,12 +147,15 @@ public class ApprovalControll extends BaseControll {
 	
 	@RequestMapping("approve")
 	public void doApprove(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getRequestUser(request);
+		ID approver = getRequestUser(request);
 		ID recordId = getIdParameterNotNull(request, "record");
 		int state = getIntParameter(request, "state", ApprovalState.REJECTED.getState());
-		String remark = ServletUtils.getRequestString(request);
 		
-		boolean success = new ApprovalProcessor(user, recordId).approve(user, state, remark);
+		JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
+		JSONObject selectUsers = post.getJSONObject("selectUsers");
+		String remark = post.getString("remark");
+		
+		boolean success = new ApprovalProcessor(approver, recordId).approve(approver, state, remark, selectUsers);
 		if (success) {
 			writeSuccess(response);
 		} else {

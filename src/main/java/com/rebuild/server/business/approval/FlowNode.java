@@ -56,6 +56,12 @@ public class FlowNode {
 	public static final String USER_SELF = "SELF";
 	public static final String USER_SPEC = "SPEC";
 	
+	// 多人联合审批类型
+	
+	public static final String SIGN_AND = "AND";  // 会签
+	public static final String SIGN_OR = "OR";	  // 或签
+	public static final String SIGN_ALL = "ALL";  // 逐个审批
+	
 	// --
 	
 	private String nodeId;
@@ -108,34 +114,6 @@ public class FlowNode {
 	}
 	
 	/**
-	 * @param operator
-	 * @param record
-	 * @return
-	 */
-	public boolean matchesUser(ID operator, ID record) {
-		JSONArray users = getDataMap().getJSONArray("users");
-		if (users == null || users.isEmpty()) {
-			return true;
-		}
-		
-		String userType = users.get(0).toString();
-		if (USER_ALL.equalsIgnoreCase(userType)) {
-			return true;
-		}
-		if (USER_SELF.equals(userType)) {
-			ID owning = Application.getRecordOwningCache().getOwningUser(record);
-			return operator.equals(owning);
-		}
-		
-		List<String> usersList = new ArrayList<>();
-		for (Object o : users) {
-			usersList.add((String) o);
-		}
-		Set<ID> usersAll = UserHelper.parseUsers(usersList, null);
-		return usersAll.contains(operator);
-	}
-	
-	/**
 	 * 获取相关人员（提交人/审批人/抄送人）
 	 * 
 	 * @param operator
@@ -148,7 +126,7 @@ public class FlowNode {
 			return Collections.emptySet();
 		}
 		
-		String userType = userDefs.get(0).toString();
+		String userType = userDefs.getString(0);
 		if (USER_SELF.equalsIgnoreCase(userType)) {
 			Set<ID> users = new HashSet<ID>();
 			ID owning = Application.getRecordOwningCache().getOwningUser(record);
@@ -174,6 +152,8 @@ public class FlowNode {
 		}
 		return string;
 	}
+	
+	// --
 
 	/**
 	 * @param node

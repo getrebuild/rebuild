@@ -188,7 +188,10 @@ class SubmitForm extends ApprovalUsersForm {
       if (res.error_code > 0) rb.hberror(res.error_msg)
       else {
         rb.hbsuccess('审批已提交')
-        setTimeout(() => location.reload(), 1000)
+        setTimeout(() => {
+          if (window.RbViewPage) window.RbViewPage.reload()
+          else location.reload()
+        }, 1000)
       }
       this.disabled()
     })
@@ -232,7 +235,10 @@ class ApproveForm extends ApprovalUsersForm {
       if (res.error_code > 0) rb.hberror(res.error_msg)
       else {
         rb.hbsuccess('审批已' + (state === 10 ? '同意' : '驳回'))
-        setTimeout(() => location.reload(), 1000)
+        setTimeout(() => {
+          if (window.RbViewPage) window.RbViewPage.reload()
+          else location.reload()
+        }, 1000)
       }
       this.disabled()
     })
