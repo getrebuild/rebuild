@@ -28,7 +28,7 @@ class ApprovalProcessor extends React.Component {
   renderStateProcessing() {
     return (<div className="alert alert-warning">
       <button className="close btn btn-secondary" onClick={this.viewSteps}>详情</button>
-      {this.state.imApprover && <button className="close btn btn-secondary" onClick={this.approve}>审批</button>}
+      {(this.state.imApprover && this.state.imApproveSatate === 1) && <button className="close btn btn-secondary" onClick={this.approve}>审批</button>}
       <div className="icon"><span className="zmdi zmdi-hourglass-alt"></span></div>
       <div className="message">当前纪录正在审批中</div>
     </div>)
@@ -47,7 +47,7 @@ class ApprovalProcessor extends React.Component {
       <button className="close btn btn-secondary" onClick={this.viewSteps}>详情</button>
       <button className="close btn btn-secondary" onClick={this.approve}>再次提交</button>
       <div className="icon"><span className="zmdi zmdi-close-circle-o"></span></div>
-      <div className="message">审批被驳回，你可在信息完善后再次提交</div>
+      <div className="message">审批被驳回，可在信息完善后再次提交</div>
     </div>)
   }
 

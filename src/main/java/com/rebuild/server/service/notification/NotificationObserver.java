@@ -49,11 +49,10 @@ public class NotificationObserver extends OperatingObserver {
 		ID from = context.getOperator();
 		ID to = context.getAfterRecord().getID(EntityHelper.OwningUser);
 		
-		String msg = makeMsg(context.getAffected(), related, false);
-		msg = MessageFormat.format(msg, from, context.getAffected().length, getLabel(related));
-		
-		Message message = new Message(from, to, msg, related);
-		Application.getNotifications().send(message);
+		String content = makeMessage(context.getAffected(), related, false);
+		content = MessageFormat.format(content, from, context.getAffected().length, getLabel(related));
+		Application.getNotifications().send(
+				MessageBuilder.createMessage(from, to, content, related));
 	}
 	
 	@Override
@@ -67,11 +66,10 @@ public class NotificationObserver extends OperatingObserver {
 		ID from = context.getOperator();
 		ID to = context.getAfterRecord().getID("shareTo");
 		
-		String msg = makeMsg(context.getAffected(), related, true);
-		msg = MessageFormat.format(msg, from, context.getAffected().length, getLabel(related));
-		
-		Message message = new Message(from, to, msg, related);
-		Application.getNotifications().send(message);
+		String content = makeMessage(context.getAffected(), related, true);
+		content = MessageFormat.format(content, from, context.getAffected().length, getLabel(related));
+		Application.getNotifications().send(
+				MessageBuilder.createMessage(from, to, content, related));
 	}
 	
 	/**
@@ -88,7 +86,7 @@ public class NotificationObserver extends OperatingObserver {
 	 * @param shareType
 	 * @return
 	 */
-	private String makeMsg(ID affected[], ID related, boolean shareType) {
+	private String makeMessage(ID affected[], ID related, boolean shareType) {
 		String msg = "@{0} 共享了 {1} 条{2}记录给你，包括 @";
 		if (affected.length > 1) {
 			for (ID id : affected) {

@@ -100,7 +100,7 @@ public class ApprovalProcessor {
 			return false;
 		}
 		
-		Record recordOfMain = EntityHelper.forUpdate(this.record, this.user);
+		Record recordOfMain = EntityHelper.forUpdate(this.record, this.user, false);
 		recordOfMain.setID(EntityHelper.ApprovalId, this.approval);
 		recordOfMain.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
 		recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNodes.getApprovalNode().getNodeId());
@@ -119,25 +119,26 @@ public class ApprovalProcessor {
 	 * @throws ApprovalException
 	 */
 	public boolean approve(ID approver, ApprovalState state, String remark, JSONObject selectUsers) throws ApprovalException {
-		final Object step[] = Application.createQueryNoFilter(
-				"select stepId,state,node,approvalId from RobotApprovalStep where recordId = ? and approver = ? and isCanceled = 'F'")
+		final Object stepApprover[] = Application.createQueryNoFilter(
+				"select stepId,state,node,approvalId from RobotApprovalStep where recordId = ? and approver = ? and node = ? and isCanceled = 'F'")
 				.setParameter(1, this.record)
 				.setParameter(2, approver)
+				.setParameter(3, getCurrentNodeId())
 				.unique();
-		if (step == null || (Integer) step[1] != ApprovalState.DRAFT.getState()) {
-			LOG.warn("Invalid step state");
+		if (stepApprover == null || (Integer) stepApprover[1] != ApprovalState.DRAFT.getState()) {
+			LOG.warn("Invalid step state : " + (stepApprover == null ? approver : stepApprover[1]));
 			return false;
 		}
 		
-		Record approvedStep = EntityHelper.forUpdate((ID) step[0], approver);
+		Record approvedStep = EntityHelper.forUpdate((ID) stepApprover[0], approver);
 		approvedStep.setInt("state", state.getState());
 		approvedStep.setDate("approvedTime", CalendarUtils.now());
 		if (StringUtils.isNotBlank(remark)) {
 			approvedStep.setString("remark", remark);
 		}
 		
-		this.approval = (ID) step[3];
-		FlowNodeGroup nextNodes = getNextNodes((String) step[2]);
+		this.approval = (ID) stepApprover[3];
+		FlowNodeGroup nextNodes = getNextNodes((String) stepApprover[2]);
 		
 		Set<ID> ccs = nextNodes.getCcUsers(this.user, this.record, selectUsers);
 		Set<ID> nextApprovers = null;
@@ -153,8 +154,7 @@ public class ApprovalProcessor {
 			nextNode = nextApprovalNode != null ? nextApprovalNode.getNodeId() : null;
 		}
 		
-		FlowNode currentNode = getFlowParser().getNode((String) step[2]);
-		
+		FlowNode currentNode = getFlowParser().getNode((String) stepApprover[2]);
 		Application.getBean(ApprovalStepService.class)
 				.txApprove(approvedStep, currentNode.getSignMode(), ccs, nextApprovers, nextNode);
 		return true;

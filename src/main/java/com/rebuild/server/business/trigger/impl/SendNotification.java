@@ -32,6 +32,7 @@ import com.rebuild.server.business.trigger.TriggerException;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.notification.Message;
+import com.rebuild.server.service.notification.MessageBuilder;
 
 import cn.devezhao.persist4j.engine.ID;
 
@@ -74,7 +75,8 @@ public class SendNotification implements TriggerAction {
 		String message = content.getString("content");
 		message = formatMessage(message);
 		for (ID user : toUsers) {
-			Application.getNotifications().send(new Message(user, message, context.getSourceRecord()));
+			Message m = MessageBuilder.createMessage(user, message, context.getSourceRecord());
+			Application.getNotifications().send(m);
 		}
 	}
 	

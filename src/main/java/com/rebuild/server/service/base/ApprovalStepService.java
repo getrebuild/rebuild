@@ -27,7 +27,7 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.server.service.BaseService;
-import com.rebuild.server.service.notification.Message;
+import com.rebuild.server.service.notification.MessageBuilder;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
@@ -73,16 +73,19 @@ public class ApprovalStepService extends BaseService {
 			Record clone = step.clone();
 			clone.setID("approver", a);
 			super.create(clone);
-			Application.getNotifications().send(new Message(submitter, a, approveMsg, recordId));
+			Application.getNotifications().send(MessageBuilder.createApprovalMessage(submitter, a, approveMsg));
 		}
 		
 		// 抄送人
 		if (cc != null && !cc.isEmpty()) {
 			String ccMsg = String.format("用户 @%s 提交了一条%s审批，请知晓 @%s", submitter, entityLabel, recordId);
 			for (ID c : cc) {
-				Application.getNotifications().send(new Message(c, ccMsg, recordId));
+				Application.getNotifications().send(MessageBuilder.createApprovalMessage(c, ccMsg));
 			}
 		}
+		
+		String cKey = "ApprovalSubmitter" + recordId + mainRecord.getID(EntityHelper.ApprovalId);
+		Application.getCommonCache().evict(cKey);
 	}
 	
 	/**
@@ -94,19 +97,13 @@ public class ApprovalStepService extends BaseService {
 	 */
 	public void txApprove(Record stepRecord, String signMode, Set<ID> cc, Set<ID> nextApprovers, String nextNode) {
 		super.update(stepRecord);
+		final ID stepRecordId = stepRecord.getPrimary();
 		
 		Object[] stepObject = Application.createQueryNoFilter(
 				"select recordId,approvalId,node from RobotApprovalStep where stepId = ?")
-				.setParameter(1, stepRecord.getPrimary())
+				.setParameter(1, stepRecordId)
 				.unique();
-		// 第一个创建步骤的人为提交人
-		Object[] submitObject = Application.createQueryNoFilter(
-				"select createdBy from RobotApprovalStep where recordId = ? and approvalId = ? and isCanceled = 'F' order by createdOn asc")
-				.setParameter(1, stepObject[0])
-				.setParameter(2, stepObject[1])
-				.unique();
-		
-		final ID submitter = (ID) submitObject[0];
+		final ID submitter = findSubmitter((ID) stepObject[0], (ID) stepObject[1]);
 		final ID recordId = (ID) stepObject[0];
 		final ID approvalId = (ID) stepObject[1];
 		final String currentNode = (String) stepObject[2];
@@ -120,76 +117,82 @@ public class ApprovalStepService extends BaseService {
 			String ccMsg = String.format("用户 @%s 提交的%s审批由 @%s 已%s，请知晓 @%s",
 					submitter, entityLabel, approver, state.getName(), recordId);
 			for (ID c : cc) {
-				Application.getNotifications().send(new Message(c, ccMsg, recordId));
+				Application.getNotifications().send(MessageBuilder.createApprovalMessage(c, ccMsg));
 			}
 		}
 		
 		// 拒绝了直接返回
 		if (state == ApprovalState.REJECTED) {
-			cancelAliveSteps(recordId, approvalId, null, stepRecord.getPrimary(), state.getState());
+			cancelAliveSteps(recordId, approvalId, null, null, state.getState());
 			
-			Message message = new Message(submitter, String.format("@%s 驳回了你的审批 @%s", approver, recordId), recordId);
-			Application.getNotifications().send(message);
+			String rejectMsg = String.format("@%s 驳回了你的%s审批 @%s", approver, entityLabel, recordId);
+			Application.getNotifications().send(MessageBuilder.createApprovalMessage(submitter, rejectMsg));
 			return;
 		}
-
+		
 		// 或签/会签
 		boolean goNextNode = true;
 		
+		String approveMsg = String.format("有一条%s记录请你审批 @%s", entityLabel, recordId);
+		
 		// 或签。一人通过其他作废
 		if (FlowNode.SIGN_OR.equals(signMode)) {
-			cancelAliveSteps(recordId, approvalId, currentNode, stepRecord.getPrimary(), 0);
+			cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, 0);
 		}
 		// 会签。检查是否都签了
 		else {
-			Object[][] currentNodeSteps = Application.createQueryNoFilter(
+			Object[][] currentNodeApprovers = Application.createQueryNoFilter(
 					"select state,isWaiting,stepId from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and isCanceled = 'F'")
 					.setParameter(1, recordId)
 					.setParameter(2, approvalId)
 					.setParameter(3, currentNode)
 					.array();
-			for (Object[] o : currentNodeSteps) {
+			for (Object[] o : currentNodeApprovers) {
 				if ((Integer) o[0] == ApprovalState.DRAFT.getState()) {
 					goNextNode = false;
 					break;
 				}
 			}
 			
+			// 更新下一步审核人可以开始了
 			if (goNextNode) {
-				for (Object[] o : currentNodeSteps) {
-					if (!(Boolean) o[1]) {
-						continue;
-					}
-					
-					Record r = EntityHelper.forUpdate((ID) o[2], approver);
+				Object[][] nextNodeApprovers = Application.createQueryNoFilter(
+						"select stepId,approver from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and isWaiting = 'T'")
+						.setParameter(1, recordId)
+						.setParameter(2, approvalId)
+						.setParameter(3, nextNode)
+						.array();
+				for (Object[] o : nextNodeApprovers) {
+					Record r = EntityHelper.forUpdate((ID) o[0], approver);
 					r.setBoolean("isWaiting", false);
 					super.update(r);
+					Application.getNotifications().send(MessageBuilder.createApprovalMessage(submitter, (ID) o[1], approveMsg));
 				}
 			}
 		}
 		
 		// 最终状态了
-		if (nextApprovers == null || nextApprovers.isEmpty()) {
+		if (nextApprovers == null || nextApprovers.isEmpty() || nextNode == null) {
 			Record main = EntityHelper.forUpdate(recordId, Application.getCurrentUser(), false);
 			main.setInt(EntityHelper.ApprovalState, ApprovalState.APPROVED.getState());
 			super.update(main);
 			return;
 		}
+		
 		// 进入下一步
-		else if (goNextNode) {
+		if (goNextNode) {
 			Record main = EntityHelper.forUpdate(recordId, Application.getCurrentUser(), false);
 			main.setString(EntityHelper.ApprovalStepNode, nextNode);
 			super.update(main);
 		}
 		
 		// 审批人
-		String approveMsg = String.format("有一条%s记录请你审批 @%s", entityLabel, recordId);
 		for (ID a : nextApprovers) {
-			createStepIfNeed(recordId, approvalId, nextNode, a, !goNextNode);
+			boolean created = createStepIfNeed(recordId, approvalId, nextNode, a, !goNextNode, stepRecordId);
 			
-			// 会签，需要等待完成
-			if (goNextNode) {
-				Application.getNotifications().send(new Message(submitter, a, approveMsg, recordId));
+			// 非会签通知审批
+			if (goNextNode && created) {
+				Application.getNotifications().send(MessageBuilder.createApprovalMessage(submitter, a, approveMsg));
 			}
 		}
 	}
@@ -200,9 +203,10 @@ public class ApprovalStepService extends BaseService {
 	 * @param node
 	 * @param approver
 	 * @param isWaiting
+	 * @param prevStepId
 	 * @return
 	 */
-	private boolean createStepIfNeed(ID recordId, ID approvalId, String node, ID approver, boolean isWaiting) {
+	private boolean createStepIfNeed(ID recordId, ID approvalId, String node, ID approver, boolean isWaiting, ID prevStepId) {
 		Object[] hadApprover = Application.createQueryNoFilter(
 				"select stepId from RobotApprovalStep where recordId = ? and approvalId = ? and node = ?")
 				.setParameter(1, recordId)
@@ -220,6 +224,9 @@ public class ApprovalStepService extends BaseService {
 		step.setID("approver", approver);
 		if (isWaiting) {
 			step.setBoolean("isWaiting", isWaiting);
+		}
+		if (prevStepId != null) {
+			step.setID("prevStepId", prevStepId);
 		}
 		super.create(step);
 		return true;
@@ -258,5 +265,30 @@ public class ApprovalStepService extends BaseService {
 			main.setInt(EntityHelper.ApprovalState, state);
 			super.update(main);
 		}
+	}
+	
+	/**
+	 * 审批提交人
+	 * 
+	 * @param recordId
+	 * @param approvalId
+	 * @return
+	 */
+	private ID findSubmitter(ID recordId, ID approvalId) {
+		String cKey = "ApprovalSubmitter" + recordId + approvalId;
+		ID submitter = (ID) Application.getCommonCache().getx(cKey);
+		if (submitter != null) {
+			return submitter;
+		}
+		
+		// 第一个创建步骤的人为提交人
+		Object[] firstStep = Application.createQueryNoFilter(
+				"select createdBy from RobotApprovalStep where recordId = ? and approvalId = ? and isCanceled = 'F' order by createdOn asc")
+				.setParameter(1, recordId)
+				.setParameter(2, approvalId)
+				.unique();
+		submitter = (ID) firstStep[0];
+		Application.getCommonCache().putx(cKey, submitter);
+		return submitter;
 	}
 }

@@ -82,6 +82,7 @@ public class ApprovalControll extends BaseControll {
 					JSONObject step = (JSONObject) o;
 					if (user.toLiteral().equalsIgnoreCase(step.getString("approver"))) {
 						data.put("imApprover", true);
+						data.put("imApproveSatate", step.getInteger("state"));
 						break;
 					}
 				}

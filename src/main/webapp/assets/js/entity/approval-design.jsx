@@ -425,8 +425,8 @@ class ApproverNodeConfig extends StartNodeConfig {
     this.state.signMode = props.signMode || 'OR'
     this.state.users = 'SPEC'
     if (props.users) this.state.users = props.users[0] === 'SELF' ? 'SELF' : 'SPEC'
-    this.state.selfSelecting = true
-    if (props.data && props.data.selfSelecting === false) this.state.selfSelecting = false
+    if (props.selfSelecting === false) this.state.selfSelecting = false
+    else this.state.selfSelecting = true
   }
   render() {
     return (<div>
@@ -488,8 +488,6 @@ class ApproverNodeConfig extends StartNodeConfig {
 class CCNodeConfig extends StartNodeConfig {
   constructor(props) {
     super(props)
-    this.state.selfSelecting = true
-    if (props.data && props.data.selfSelecting === false) this.state.selfSelecting = false
   }
   render() {
     return (<div>
