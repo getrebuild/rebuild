@@ -18,9 +18,15 @@ window.resize_handler = function () {
 let isCanvasMounted = false
 // 节点类型
 const NTs = {
-  'start': ['start', '发起人', '所有人'],
+  'start': ['start', '发起人', '纪录所属人'],
   'approver': ['approver', '审批人', '自选审批人'],
   'cc': ['cc', '抄送人', '自选抄送人']
+}
+const UTs = {
+  'ALL': '所有人',
+  'OWNS': '纪录所属人',
+  'SELF': '发起人自己',
+  'SPEC': '指定用户'
 }
 // 添加节点按钮
 const AddNodeButton = function (props) {
@@ -145,10 +151,7 @@ class Node extends NodeSpec {
     let NT = NTs[this.nodeType]
     let data = this.state.data || {}
     let users = NT[2]
-    if (data.users && data.users.length > 0) {
-      if (data.users[0] === 'SELF') users = '发起人自己'
-      else if (data.users[0] !== 'ALL') users = '指定用户(' + data.users.length + ')'
-    }
+    if (data.users && data.users.length > 0) users = UTs[data.users[0]] || ('指定用户(' + data.users.length + ')')
     if (data.selfSelecting && !users.contains('自选')) users += '/允许自选'
     if (this.nodeType === 'approver') users += ' ' + (data.signMode === 'AND' ? '会签' : (data.signMode === 'ALL' ? '依次审批' : '或签'))
 
@@ -366,8 +369,11 @@ const hideDlgAddNode = function () {
 class StartNodeConfig extends RbFormHandler {
   constructor(props) {
     super(props)
-    this.state.users = 'ALL'
-    if (props.users) this.state.users = props.users[0] === 'ALL' ? 'ALL' : 'SPEC'
+    this.state.users = (props.users || ['OWNS'])[0]
+    if (!UTs[this.state.users]) this.state.users = 'SPEC'
+
+    if (props.selfSelecting === false) this.state.selfSelecting = false
+    else this.state.selfSelecting = true
   }
   render() {
     return (<div>
@@ -378,6 +384,10 @@ class StartNodeConfig extends RbFormHandler {
           <label className="custom-control custom-control-sm custom-radio mb-2">
             <input className="custom-control-input" type="radio" name="users" value="ALL" onChange={this.handleChange} checked={this.state.users === 'ALL'} />
             <span className="custom-control-label">所有人</span>
+          </label>
+          <label className="custom-control custom-control-sm custom-radio mb-2">
+            <input className="custom-control-input" type="radio" name="users" value="OWNS" onChange={this.handleChange} checked={this.state.users === 'OWNS'} />
+            <span className="custom-control-label">纪录所属人</span>
           </label>
           <label className="custom-control custom-control-sm custom-radio mb-2">
             <input className="custom-control-input" type="radio" name="users" value="SPEC" onChange={this.handleChange} checked={this.state.users === 'SPEC'} />
@@ -405,8 +415,11 @@ class StartNodeConfig extends RbFormHandler {
     }
   }
   save = () => {
-    let d = { nodeName: this.state.nodeName, users: this.state.users === 'ALL' ? ['ALL'] : this._users.getSelected() }
-    if (d.users.length === 0) {
+    let d = {
+      nodeName: this.state.nodeName,
+      users: this.state.users === 'SPEC' ? this._users.getSelected() : [this.state.users]
+    }
+    if (this.state.users === 'SPEC' && d.users.length === 0) {
       rb.highbar('请选择用户')
       return
     }
@@ -423,10 +436,7 @@ class ApproverNodeConfig extends StartNodeConfig {
   constructor(props) {
     super(props)
     this.state.signMode = props.signMode || 'OR'
-    this.state.users = 'SPEC'
-    if (props.users) this.state.users = props.users[0] === 'SELF' ? 'SELF' : 'SPEC'
-    if (props.selfSelecting === false) this.state.selfSelecting = false
-    else this.state.selfSelecting = true
+    this.state.users = (props.users || ['SPEC'])[0]
   }
   render() {
     return (<div>
@@ -474,7 +484,12 @@ class ApproverNodeConfig extends StartNodeConfig {
     </div>)
   }
   save = () => {
-    let d = { nodeName: this.state.nodeName, users: this.state.users === 'SPEC' ? this._users.getSelected() : [this.state.users], signMode: this.state.signMode, selfSelecting: this.state.selfSelecting }
+    let d = {
+      nodeName: this.state.nodeName,
+      users: this.state.users === 'SPEC' ? this._users.getSelected() : [this.state.users],
+      signMode: this.state.signMode,
+      selfSelecting: this.state.selfSelecting
+    }
     if (d.users.length === 0 && !d.selfSelecting) {
       rb.highbar('请选择审批人或允许自选')
       return
@@ -510,7 +525,11 @@ class CCNodeConfig extends StartNodeConfig {
     </div >)
   }
   save = () => {
-    let d = { nodeName: this.state.nodeName, users: this._users.getSelected(), selfSelecting: this.state.selfSelecting }
+    let d = {
+      nodeName: this.state.nodeName,
+      users: this._users.getSelected(),
+      selfSelecting: this.state.selfSelecting
+    }
     if (d.users.length === 0 && !d.selfSelecting) {
       rb.highbar('请选择抄送人或允许自选')
       return
@@ -530,7 +549,7 @@ class ConditionBranchConfig extends StartNodeConfig {
       <div className="header">
         <input type="text" placeholder="分支条件" data-id="nodeName" value={this.state.nodeName || ''} onChange={this.handleChange} maxLength="20" />
       </div>
-      {this.state.isLast && <div className="alert alert-warning">该条件分支将作为最终分支匹配</div>}
+      {this.state.isLast && <div className="alert alert-warning">该条件分支将作为最终分支匹配其他条件</div>}
       <AdvFilter filter={this.state.filter} entity={this.props.entity} confirm={this.save} cancel={this.cancel} canNoFilters={true} />
     </div>)
   }
