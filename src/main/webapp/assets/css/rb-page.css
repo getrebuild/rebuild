@@ -1961,9 +1961,33 @@ form {
     left: 108px;
 }
 
-.timeline.approved-steps>div {
+.timeline.approved-steps>div.joint0 {
     border-right: 3px solid #409EFF;
     border-radius: 9px;
+}
+
+.timeline.approved-steps>div.joint {
+    border-right: 3px solid #409EFF;
+    border-radius: 9px;
+    margin-right: 39px;
+}
+
+.timeline.approved-steps>div.joint::after {
+    position: absolute;
+    content: '会签';
+    right: 0;
+    top: 50%;
+    margin-top: -10px;
+    background-color: #409EFF;
+    color: #fff;
+    border-radius: 99px;
+    padding: 3px 5px;
+    line-height: 1;
+    font-size: 12px;
+}
+
+.timeline.approved-steps>div.joint.or::after {
+    content: '或签';
 }
 
 .timeline.approved-steps .timeline-item {
@@ -1972,21 +1996,24 @@ form {
 }
 
 .timeline.approved-steps .timeline-item:before {
-    top: 17.5px;
+    top: 16px;
     left: 100px;
+    border-color: #f7b904;
+}
+
+.timeline.approved-steps .timeline-item.state0:before {
     border-color: #409EFF;
+    background-color: #409EFF;
 }
 
 .timeline.approved-steps .timeline-item.state10:before {
     border-color: #33a451;
+    background-color: #33a451;
 }
 
 .timeline.approved-steps .timeline-item.state11:before {
     border-color: #ea3f30;
-}
-
-.timeline.approved-steps .timeline-item.state12:before {
-    border-color: #777;
+    background-color: #ea3f30;
 }
 
 .timeline.approved-steps .timeline-content {
@@ -1997,12 +2024,12 @@ form {
 }
 
 .timeline.approved-steps .timeline-content:before {
-    top: 20.5px;
+    top: 19px;
     background-color: #f5f5f5;
 }
 
 .timeline.approved-steps .timeline-date {
-    top: 18px;
+    top: 16.5px;
     line-height: 1.2;
     width: 80px;
 }

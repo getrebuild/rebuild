@@ -56,10 +56,14 @@ public class ApprovalStepService extends BaseService {
 	 * @param nextApprovers
 	 */
 	public void txSubmit(Record mainRecord, Set<ID> cc, Set<ID> nextApprovers) {
-		super.update(mainRecord);
-		
 		final ID submitter = Application.getCurrentUser();
 		final ID recordId = mainRecord.getPrimary();
+		final ID approvalId = mainRecord.getID(EntityHelper.ApprovalId);
+		
+		// 作废之前的步骤（若有）
+		cancelAliveSteps(recordId, approvalId, null, null);
+		
+		super.update(mainRecord);
 		
 		String entityLabel = EasyMeta.getLabel(mainRecord.getEntity());
 		String approveMsg = String.format("有一条%s记录请你审批 @%s", entityLabel, recordId);
@@ -67,7 +71,7 @@ public class ApprovalStepService extends BaseService {
 		// 审批人
 		Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, submitter);
 		step.setID("recordId", recordId);
-		step.setID("approvalId", mainRecord.getID(EntityHelper.ApprovalId));
+		step.setID("approvalId", approvalId);
 		step.setString("node", mainRecord.getString(EntityHelper.ApprovalStepNode));
 		step.setString("prevNode", FlowNode.ROOT);
 		for (ID a : nextApprovers) {
@@ -85,7 +89,8 @@ public class ApprovalStepService extends BaseService {
 			}
 		}
 		
-		String cKey = "ApprovalSubmitter" + recordId + mainRecord.getID(EntityHelper.ApprovalId);
+		// see #findSubmitter
+		String cKey = "ApprovalSubmitter" + recordId + approvalId;
 		Application.getCommonCache().evict(cKey);
 	}
 	
@@ -124,7 +129,10 @@ public class ApprovalStepService extends BaseService {
 		
 		// 拒绝了直接返回
 		if (state == ApprovalState.REJECTED) {
-			cancelAliveSteps(recordId, approvalId, null, null, state.getState());
+			// 更新主记录
+			Record main = EntityHelper.forUpdate(recordId, Application.getCurrentUser(), false);
+			main.setInt(EntityHelper.ApprovalState, ApprovalState.REJECTED.getState());
+			super.update(main);
 			
 			String rejectMsg = String.format("@%s 驳回了你的%s审批 @%s", approver, entityLabel, recordId);
 			Application.getNotifications().send(MessageBuilder.createApprovalMessage(submitter, rejectMsg));
@@ -138,7 +146,7 @@ public class ApprovalStepService extends BaseService {
 		
 		// 或签。一人通过其他作废
 		if (FlowNode.SIGN_OR.equals(signMode)) {
-			cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, 0);
+			cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId);
 		}
 		// 会签。检查是否都签了
 		else {
@@ -209,7 +217,7 @@ public class ApprovalStepService extends BaseService {
 	 */
 	private boolean createStepIfNeed(ID recordId, ID approvalId, String node, ID approver, boolean isWaiting, String prevNode) {
 		Object[] hadApprover = Application.createQueryNoFilter(
-				"select stepId from RobotApprovalStep where recordId = ? and approvalId = ? and node = ?")
+				"select stepId from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and isCanceled = 'F'")
 				.setParameter(1, recordId)
 				.setParameter(2, approvalId)
 				.setParameter(3, node)
@@ -240,9 +248,8 @@ public class ApprovalStepService extends BaseService {
 	 * @param approvalId
 	 * @param node
 	 * @param excludeStep
-	 * @param state
 	 */
-	private void cancelAliveSteps(ID recordId, ID approvalId, String node, ID excludeStep, int state) {
+	private void cancelAliveSteps(ID recordId, ID approvalId, String node, ID excludeStep) {
 		String sql = "select stepId from RobotApprovalStep where recordId = ? and approvalId = ? and isCanceled = 'F'";
 		if (node != null) {
 			sql += " and node = '" + node + "'";
@@ -258,13 +265,6 @@ public class ApprovalStepService extends BaseService {
 			Record r = EntityHelper.forUpdate((ID) o[0], Application.getCurrentUser());
 			r.setBoolean("isCanceled", true);
 			super.update(r);
-		}
-
-		// 更新主记录
-		if (state >= ApprovalState.APPROVED.getState()) {
-			Record main = EntityHelper.forUpdate(recordId, Application.getCurrentUser(), false);
-			main.setInt(EntityHelper.ApprovalState, state);
-			super.update(main);
 		}
 	}
 	

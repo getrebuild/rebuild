@@ -114,6 +114,7 @@ public class FlowNodeGroup {
 	 * @return
 	 */
 	public boolean isLastStep() {
+		// TODO 对审批最后一步加强判断
 		for (FlowNode node : nodes) {
 			if (node.getType().equals(FlowNode.TYPE_APPROVER)) {
 				return false;

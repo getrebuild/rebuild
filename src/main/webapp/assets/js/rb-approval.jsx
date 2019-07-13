@@ -26,11 +26,17 @@ class ApprovalProcessor extends React.Component {
   }
 
   renderStateProcessing() {
+    let aMsg = '当前纪录正在审批中'
+    if (this.state.imApprover) {
+      if (this.state.imApproveSatate === 1) aMsg = '当前纪录正在等待你审批'
+      else if (this.state.imApproveSatate === 10) aMsg = '你已审批同意，正在等待他人审批'
+      else if (this.state.imApproveSatate === 11) aMsg = '你已驳回审批'
+    }
     return (<div className="alert alert-warning">
       <button className="close btn btn-secondary" onClick={this.viewSteps}>详情</button>
       {(this.state.imApprover && this.state.imApproveSatate === 1) && <button className="close btn btn-secondary" onClick={this.approve}>审批</button>}
       <div className="icon"><span className="zmdi zmdi-hourglass-alt"></span></div>
-      <div className="message">当前纪录正在审批中</div>
+      <div className="message">{aMsg}</div>
     </div>)
   }
 
@@ -45,7 +51,7 @@ class ApprovalProcessor extends React.Component {
   renderStateRejected() {
     return (<div className="alert alert-danger">
       <button className="close btn btn-secondary" onClick={this.viewSteps}>详情</button>
-      <button className="close btn btn-secondary" onClick={this.approve}>再次提交</button>
+      <button className="close btn btn-secondary" onClick={this.submit}>再次提交</button>
       <div className="icon"><span className="zmdi zmdi-close-circle-o"></span></div>
       <div className="message">审批被驳回，可在信息完善后再次提交</div>
     </div>)
@@ -276,22 +282,24 @@ class ApprovedStepViewer extends React.Component {
   }
 
   renderSubmitter(s, idx) {
-    return <li className="timeline-item" key={`step-${idx}`}>
+    return <li className="timeline-item state0" key={`step-${idx}`}>
       {this.__formatTime(s.createdOn)}
       <div className="timeline-content">
         <div className="timeline-avatar"><img src={`${rb.baseUrl}/account/user-avatar/${s.submitter}`} /></div>
         <div className="timeline-header">
-          <p className="timeline-activity">由 {s.submitterName} 提交审核</p>
+          <p className="timeline-activity">由 {s.submitter === rb.currentUser ? '你' : s.submitterName} 提交审核</p>
         </div>
       </div>
     </li>
   }
   renderApprovers(s, idx) {
     let k = 'step-' + idx + '-'
-    return <div key={k}>
+    return <div key={k} className={s.length > 1 ? 'joint0' : ''}>
       {s.map((item, idx2) => {
-        let aMsg = `等待 ${item.approverName} 审批`
-        if (item.state >= 10) aMsg = `由 ${item.approverName} ${item.state === 10 ? '审批同意' : '驳回审批'}`
+        let approverName = item.approver === rb.currentUser ? '你' : item.approverName
+        let aMsg = `等待 ${approverName} 审批`
+        if (item.state >= 10) aMsg = `由 ${approverName} ${item.state === 10 ? '审批同意' : '驳回审批'}`
+
         return <li className={'timeline-item state' + item.state} key={k + idx2}>
           {this.__formatTime(item.approvedTime || item.createdOn)}
           <div className="timeline-date">{}</div>

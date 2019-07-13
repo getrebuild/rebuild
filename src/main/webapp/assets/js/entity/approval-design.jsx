@@ -250,7 +250,7 @@ class ConditionBranch extends NodeGroupSpec {
               <div className="clearfix"></div>
             </div>
             <div className="content">
-              <div className="text">{filters > 0 ? `已设置条件 (${filters})` : (this.state.isLast && !this.state.isFirst ? '其他条件' : '请设置条件')}</div>
+              <div className="text">{this.state.isLast ? '其他条件' : (filters > 0 ? `已设置条件 (${filters})` : '请设置条件')}</div>
               <i className="zmdi zmdi-chevron-right arrow"></i>
             </div>
           </div>
@@ -281,7 +281,7 @@ class ConditionBranch extends NodeGroupSpec {
       that.setState({ data: d, active: false })
     }
     let props = { ...(this.state.data || {}), entity: wpc.applyEntity, call: call }
-    renderRbcomp(<ConditionBranchConfig key={'cks-' + this.props.nodeId} {...props} />, 'config-side')
+    renderRbcomp(<ConditionBranchConfig key={'cks-' + this.props.nodeId} {...props} isLast={this.state.isLast} />, 'config-side')
 
     $(document.body).addClass('open-right-sidebar')
     this.setState({ active: true })
@@ -530,6 +530,7 @@ class ConditionBranchConfig extends StartNodeConfig {
       <div className="header">
         <input type="text" placeholder="分支条件" data-id="nodeName" value={this.state.nodeName || ''} onChange={this.handleChange} maxLength="20" />
       </div>
+      {this.state.isLast && <div className="alert alert-warning">该条件分支将作为最终分支匹配</div>}
       <AdvFilter filter={this.state.filter} entity={this.props.entity} confirm={this.save} cancel={this.cancel} canNoFilters={true} />
     </div>)
   }

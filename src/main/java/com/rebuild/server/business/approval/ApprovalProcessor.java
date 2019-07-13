@@ -87,6 +87,11 @@ public class ApprovalProcessor {
 	 * @throws ApprovalException
 	 */
 	public boolean submit(JSONObject selectUsers) throws ApprovalException {
+		Integer currentState = (Integer) Application.getQueryFactory().unique(this.record, EntityHelper.ApprovalState)[0];
+		if (currentState == ApprovalState.PROCESSING.getState() || currentState == ApprovalState.APPROVED.getState()) {
+			throw new ApprovalException("当前记录已经" + (currentState == ApprovalState.PROCESSING.getState() ? "提交审批" : "审批完成"));
+		}
+		
 		FlowNodeGroup nextNodes = getNextNodes(FlowNode.ROOT);
 		if (!nextNodes.isValid()) {
 			LOG.warn("No next-node be found");
@@ -115,10 +120,14 @@ public class ApprovalProcessor {
 	 * @param state
 	 * @param remark
 	 * @param selectUsers
-	 * @return
 	 * @throws ApprovalException
 	 */
-	public boolean approve(ID approver, ApprovalState state, String remark, JSONObject selectUsers) throws ApprovalException {
+	public void approve(ID approver, ApprovalState state, String remark, JSONObject selectUsers) throws ApprovalException {
+		Integer currentState = (Integer) Application.getQueryFactory().unique(this.record, EntityHelper.ApprovalState)[0];
+		if (currentState != ApprovalState.PROCESSING.getState()) {
+			throw new ApprovalException("当前记录已经" + (currentState == ApprovalState.APPROVED.getState() ? "审批完成" : "驳回审批"));
+		}
+		
 		final Object stepApprover[] = Application.createQueryNoFilter(
 				"select stepId,state,node,approvalId from RobotApprovalStep where recordId = ? and approver = ? and node = ? and isCanceled = 'F'")
 				.setParameter(1, this.record)
@@ -126,8 +135,7 @@ public class ApprovalProcessor {
 				.setParameter(3, getCurrentNodeId())
 				.unique();
 		if (stepApprover == null || (Integer) stepApprover[1] != ApprovalState.DRAFT.getState()) {
-			LOG.warn("Invalid step state : " + (stepApprover == null ? approver : stepApprover[1]));
-			return false;
+			throw new ApprovalException(stepApprover == null ? "当前流程已经被他人审批" : "你已经审批过当前流程");
 		}
 		
 		Record approvedStep = EntityHelper.forUpdate((ID) stepApprover[0], approver);
@@ -143,12 +151,10 @@ public class ApprovalProcessor {
 		Set<ID> ccs = nextNodes.getCcUsers(this.user, this.record, selectUsers);
 		Set<ID> nextApprovers = null;
 		String nextNode = null;
-		// TODO 对审批最后一步加强判断
 		if (!nextNodes.isLastStep()) {
 			nextApprovers = nextNodes.getApproveUsers(this.user, this.record, selectUsers);
 			if (nextApprovers.isEmpty()) {
-				LOG.warn("No any approvers special");
-				return false;
+				throw new ApprovalException("无下一步审批人可用，请联系管理员配置");
 			}
 			
 			FlowNode nextApprovalNode = nextNodes.getApprovalNode();
@@ -158,7 +164,6 @@ public class ApprovalProcessor {
 		FlowNode currentNode = getFlowParser().getNode((String) stepApprover[2]);
 		Application.getBean(ApprovalStepService.class)
 				.txApprove(approvedStep, currentNode.getSignMode(), ccs, nextApprovers, nextNode);
-		return true;
 	}
 	
 	/**
@@ -204,7 +209,13 @@ public class ApprovalProcessor {
 			return firstNode;
 		}
 		
+		int bLength = nextNodes.size();
 		for (FlowNode node : nextNodes) {
+			// 匹配最后一个
+			if (--bLength == 0) {
+				return getNextNode(node.getNodeId());
+			}
+			
 			FlowBranch branch = (FlowBranch) node;
 			if (branch.matches(record)) {
 				return getNextNode(branch.getNodeId());
@@ -301,7 +312,7 @@ public class ApprovalProcessor {
 	 */
 	public JSONArray getWorkedSteps() {
 		Object[][] array = Application.createQueryNoFilter(
-				"select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode from RobotApprovalStep where recordId = ? and isCanceled = 'F'")
+				"select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode from RobotApprovalStep where recordId = ? and isCanceled = 'F' and isWaiting = 'F'")
 				.setParameter(1, this.record)
 				.array();
 		if (array.length == 0) {

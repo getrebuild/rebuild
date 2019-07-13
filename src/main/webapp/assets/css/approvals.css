@@ -53,6 +53,12 @@
 	background-color: #fff;
 }
 
+#config-side .alert.alert-warning {
+	border-radius: 0;
+	margin: 0;
+	padding: 4px 20px;
+}
+
 #config-side .footer,
 #config-side .adv-filter-option .btn-footer {
 	position: absolute;

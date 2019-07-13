@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.business.approval.ApprovalException;
 import com.rebuild.server.business.approval.ApprovalProcessor;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.business.approval.FlowNodeGroup;
@@ -148,11 +149,15 @@ public class ApprovalControll extends BaseControll {
 		ID approvalId = getIdParameterNotNull(request, "approval");
 		JSONObject selectUsers = (JSONObject) ServletUtils.getRequestJson(request);
 		
-		boolean success = new ApprovalProcessor(user, recordId, approvalId).submit(selectUsers);
-		if (success) {
-			writeSuccess(response);
-		} else {
-			writeFailure(response, "无效审批流程，请联系管理员配置");
+		try {
+			boolean success = new ApprovalProcessor(user, recordId, approvalId).submit(selectUsers);
+			if (success) {
+				writeSuccess(response);
+			} else {
+				writeFailure(response, "无效审批流程，请联系管理员配置");
+			}
+		} catch (ApprovalException ex) {
+			writeFailure(response, ex.getMessage());
 		}
 	}
 	
@@ -166,12 +171,12 @@ public class ApprovalControll extends BaseControll {
 		JSONObject selectUsers = post.getJSONObject("selectUsers");
 		String remark = post.getString("remark");
 		
-		boolean success = new ApprovalProcessor(approver, recordId)
-				.approve(approver, (ApprovalState) ApprovalState.valueOf(state), remark, selectUsers);
-		if (success) {
+		try {
+			new ApprovalProcessor(approver, recordId)
+					.approve(approver, (ApprovalState) ApprovalState.valueOf(state), remark, selectUsers);
 			writeSuccess(response);
-		} else {
-			writeFailure(response, "无效审批状态");
+		} catch (ApprovalException ex) {
+			writeFailure(response, ex.getMessage());
 		}
 	}
 }
