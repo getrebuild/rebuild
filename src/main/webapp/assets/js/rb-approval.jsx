@@ -66,6 +66,8 @@ class ApprovalProcessor extends React.Component {
     else this._approveForm = renderRbcomp(<ApproveForm id={this.props.id} approval={this.state.approvalId} />)
   }
   viewSteps = () => {
+    if (this._stepViewer) this._stepViewer.show()
+    else this._stepViewer = renderRbcomp(<ApprovedStepViewer id={this.props.id} approval={this.state.approvalId} />)
   }
 }
 
@@ -91,7 +93,7 @@ class ApprovalUsersForm extends RbFormHandler {
         </div>}
       </div>}
       {ccHas && <div className="form-group">
-        <label><i className="zmdi zmdi-mail-send zicon" /> 审批结果抄送给</label>
+        <label><i className="zmdi zmdi-mail-send zicon" /> 本次审批结果将抄送给</label>
         <div>
           {(this.state.nextCcs || []).map((item) => {
             return <UserShow key={'CU' + item[0]} id={item[0]} name={item[1]} showName={true} />
@@ -242,5 +244,89 @@ class ApproveForm extends ApprovalUsersForm {
       }
       this.disabled()
     })
+  }
+}
+
+class ApprovedStepViewer extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+  }
+
+  render() {
+    return (
+      <div className="modal" ref={(c) => this._dlg = c} tabIndex="-1">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header pb-0">
+              <button className="close" type="button" onClick={this.hide}><span className="zmdi zmdi-close" /></button>
+            </div>
+            <div className="modal-body approved-steps-body">
+              {!this.state.steps && <RbSpinner fully={true} />}
+              <ul className="timeline approved-steps">
+                {(this.state.steps || []).map((item, idx) => {
+                  return idx === 0 ? this.renderSubmitter(item, idx) : this.renderApprovers(item, idx)
+                })}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  renderSubmitter(s, idx) {
+    return <li className="timeline-item" key={`step-${idx}`}>
+      {this.__formatTime(s.createdOn)}
+      <div className="timeline-content">
+        <div className="timeline-avatar"><img src={`${rb.baseUrl}/account/user-avatar/${s.submitter}`} /></div>
+        <div className="timeline-header">
+          <p className="timeline-activity">由 {s.submitterName} 提交审核</p>
+        </div>
+      </div>
+    </li>
+  }
+  renderApprovers(s, idx) {
+    let k = 'step-' + idx + '-'
+    return <div key={k}>
+      {s.map((item, idx2) => {
+        let aMsg = `等待 ${item.approverName} 审批`
+        if (item.state >= 10) aMsg = `由 ${item.approverName} ${item.state === 10 ? '审批同意' : '驳回审批'}`
+        return <li className={'timeline-item state' + item.state} key={k + idx2}>
+          {this.__formatTime(item.approvedTime || item.createdOn)}
+          <div className="timeline-date">{}</div>
+          <div className="timeline-content">
+            <div className="timeline-avatar"><img src={`${rb.baseUrl}/account/user-avatar/${item.approver}`} /></div>
+            <div className="timeline-header">
+              <p className="timeline-activity">{aMsg}</p>
+            </div>
+          </div>
+        </li>
+      })}
+    </div>
+  }
+
+  __formatTime(time) {
+    time = time.split(' ')
+    return <div className="timeline-date">{time[1]}<span>{time[0]}</span></div>
+  }
+
+  componentDidMount() {
+    this.show()
+    $.get(`${rb.baseUrl}/app/entity/approval/fetch-workedsteps?record=${this.props.id}`, (res) => {
+      if (!res.data || res.data.length === 0) {
+        rb.highbar('未查询到流程详情')
+        this.hide()
+        this.__noStepFound = true
+      } else this.setState({ steps: res.data })
+    })
+  }
+
+  hide = () => $(this._dlg).modal('hide')
+  show = () => {
+    if (this.__noStepFound === true) {
+      rb.highbar('未查询到流程详情')
+      this.hide()
+    } else $(this._dlg).modal({ show: true, keyboard: true })
   }
 }

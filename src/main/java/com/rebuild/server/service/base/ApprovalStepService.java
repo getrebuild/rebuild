@@ -69,6 +69,7 @@ public class ApprovalStepService extends BaseService {
 		step.setID("recordId", recordId);
 		step.setID("approvalId", mainRecord.getID(EntityHelper.ApprovalId));
 		step.setString("node", mainRecord.getString(EntityHelper.ApprovalStepNode));
+		step.setString("prevNode", FlowNode.ROOT);
 		for (ID a : nextApprovers) {
 			Record clone = step.clone();
 			clone.setID("approver", a);
@@ -188,7 +189,7 @@ public class ApprovalStepService extends BaseService {
 		
 		// 审批人
 		for (ID a : nextApprovers) {
-			boolean created = createStepIfNeed(recordId, approvalId, nextNode, a, !goNextNode, stepRecordId);
+			boolean created = createStepIfNeed(recordId, approvalId, nextNode, a, !goNextNode, currentNode);
 			
 			// 非会签通知审批
 			if (goNextNode && created) {
@@ -206,7 +207,7 @@ public class ApprovalStepService extends BaseService {
 	 * @param prevStepId
 	 * @return
 	 */
-	private boolean createStepIfNeed(ID recordId, ID approvalId, String node, ID approver, boolean isWaiting, ID prevStepId) {
+	private boolean createStepIfNeed(ID recordId, ID approvalId, String node, ID approver, boolean isWaiting, String prevNode) {
 		Object[] hadApprover = Application.createQueryNoFilter(
 				"select stepId from RobotApprovalStep where recordId = ? and approvalId = ? and node = ?")
 				.setParameter(1, recordId)
@@ -225,8 +226,8 @@ public class ApprovalStepService extends BaseService {
 		if (isWaiting) {
 			step.setBoolean("isWaiting", isWaiting);
 		}
-		if (prevStepId != null) {
-			step.setID("prevStepId", prevStepId);
+		if (prevNode != null) {
+			step.setString("prevNode", prevNode);
 		}
 		super.create(step);
 		return true;

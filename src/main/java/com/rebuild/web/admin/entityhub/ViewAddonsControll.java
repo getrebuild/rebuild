@@ -93,11 +93,11 @@ public class ViewAddonsControll extends BaseControll implements PortalsConfigura
 		
 		Set<String[]> refs = new HashSet<>();
 		for (Field field : entityMeta.getReferenceToFields()) {
-			Entity e = field.getOwnEntity();
-			// 过滤明细实体，因为明细实体默认就有
-			if (e.getMasterEntity() != null) {
+			if (ViewAddonsManager.instance.isFilter(field)) {
 				continue;
 			}
+			
+			Entity e = field.getOwnEntity();
 			refs.add(new String[] { e.getName(), EasyMeta.getLabel(e) });
 		}
 		

@@ -1944,3 +1944,75 @@ form {
 .form.approval-form .approval-list>div+div {
     margin-top: 3px;
 }
+
+.modal-body.approved-steps-body {
+    min-height: 55px;
+}
+
+.timeline.approved-steps {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    margin-top: 5px;
+    margin-right: 15px;
+}
+
+.timeline.approved-steps::before {
+    top: 25px;
+    left: 108px;
+}
+
+.timeline.approved-steps>div {
+    border-right: 3px solid #409EFF;
+    border-radius: 9px;
+}
+
+.timeline.approved-steps .timeline-item {
+    padding-left: 140px;
+    margin-bottom: 15px;
+}
+
+.timeline.approved-steps .timeline-item:before {
+    top: 17.5px;
+    left: 100px;
+    border-color: #409EFF;
+}
+
+.timeline.approved-steps .timeline-item.state10:before {
+    border-color: #33a451;
+}
+
+.timeline.approved-steps .timeline-item.state11:before {
+    border-color: #ea3f30;
+}
+
+.timeline.approved-steps .timeline-item.state12:before {
+    border-color: #777;
+}
+
+.timeline.approved-steps .timeline-content {
+    padding: 8px 15px;
+    min-height: 48px;
+    box-shadow: 0 0 #fff;
+    background-color: #f5f5f5;
+}
+
+.timeline.approved-steps .timeline-content:before {
+    top: 20.5px;
+    background-color: #f5f5f5;
+}
+
+.timeline.approved-steps .timeline-date {
+    top: 18px;
+    line-height: 1.2;
+    width: 80px;
+}
+
+.timeline.approved-steps .timeline-date>span {
+    display: block;
+    color: #999;
+}
+
+.timeline.approved-steps .timeline-avatar {
+    height: 32px;
+    width: 32px;
+}

@@ -143,6 +143,7 @@ public class ApprovalProcessor {
 		Set<ID> ccs = nextNodes.getCcUsers(this.user, this.record, selectUsers);
 		Set<ID> nextApprovers = null;
 		String nextNode = null;
+		// TODO 对审批最后一步加强判断
 		if (!nextNodes.isLastStep()) {
 			nextApprovers = nextNodes.getApproveUsers(this.user, this.record, selectUsers);
 			if (nextApprovers.isEmpty()) {
@@ -300,26 +301,38 @@ public class ApprovalProcessor {
 	 */
 	public JSONArray getWorkedSteps() {
 		Object[][] array = Application.createQueryNoFilter(
-				"select approver,state,remark,approvedTime,createdOn,prevStepId.node from RobotApprovalStep where recordId = ? and approvalId = ?")
+				"select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode from RobotApprovalStep where recordId = ? and isCanceled = 'F'")
 				.setParameter(1, this.record)
-				.setParameter(2, this.approval)
 				.array();
+		if (array.length == 0) {
+			return JSONUtils.EMPTY_ARRAY;
+		}
 
-		Map<String, List<Object[]>> stepGroupByPrev = new HashMap<>();
+		Object[] firstStep = null;
+		Map<String, List<Object[]>> stepGroupMap = new HashMap<>();
 		for (Object[] o : array) {
-			String prevNode = o[0] == null ? FlowNode.ROOT : (String) o[0];
-			List<Object[]> steps = stepGroupByPrev.get(prevNode);
-			if (steps == null) {
-				steps = new ArrayList<Object[]>();
-				stepGroupByPrev.put(prevNode, steps);
+			String prevNode = (String) o[7];
+			if (firstStep == null && FlowNode.ROOT.equals(prevNode)) {
+				firstStep = o;
 			}
-			steps.add(o);
+			
+			List<Object[]> stepGroup = stepGroupMap.get(prevNode);
+			if (stepGroup == null) {
+				stepGroup = new ArrayList<Object[]>();
+				stepGroupMap.put(prevNode, stepGroup);
+			}
+			stepGroup.add(o);
 		}
 		
 		JSONArray steps = new JSONArray();
-		String prev = FlowNode.ROOT;
-		while (prev != null) {
-			List<Object[]> group = stepGroupByPrev.get(prev);
+		JSONObject submitter = JSONUtils.toJSONObject(
+				new String[] { "submitter", "submitterName", "createdOn" },
+				new Object[] { firstStep[5], UserHelper.getName((ID) firstStep[5]), CalendarUtils.getUTCDateTimeFormat().format(firstStep[4]) });
+		steps.add(submitter);
+		
+		String next = FlowNode.ROOT;
+		while (next != null) {
+			List<Object[]> group = stepGroupMap.get(next);
 			if (group == null) {
 				break;
 			}
@@ -329,7 +342,7 @@ public class ApprovalProcessor {
 				state.add(formatStep(o));
 			}
 			steps.add(state);
-			prev = (String) group.get(0)[5];
+			next = (String) group.get(0)[6];
 		}
 		return steps;
 	}

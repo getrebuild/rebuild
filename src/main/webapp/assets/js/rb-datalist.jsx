@@ -742,7 +742,7 @@ rb.RbViewModalHide = function (id) {
   }
 }
 
-$(window).on('load', () => {
+$(document).ready(() => {
   // 自动打开 View
   let viewHash = location.hash
   if (viewHash && viewHash.startsWith('#!/View/') && (wpc.type === 'RecordList' || wpc.type === 'SlaveList')) {

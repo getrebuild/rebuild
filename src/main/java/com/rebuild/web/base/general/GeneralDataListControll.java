@@ -54,7 +54,7 @@ public class GeneralDataListControll extends BaseEntityControll {
 	@RequestMapping("list")
 	public ModelAndView pageList(@PathVariable String entity, 
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getRequestUser(request);
+		final ID user = getRequestUser(request);
 		if (!MetadataHelper.containsEntity(entity) || MetadataHelper.isBizzEntity(entity)) {
 			response.sendError(404);
 			return null;

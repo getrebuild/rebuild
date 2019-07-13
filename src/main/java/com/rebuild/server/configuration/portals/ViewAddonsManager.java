@@ -35,6 +35,7 @@ import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -90,11 +91,11 @@ public class ViewAddonsManager extends BaseLayoutManager {
 		if (config == null) {
 			Set<String[]> refs = new HashSet<>();
 			for (Field field : MetadataHelper.getEntity(belongEntity).getReferenceToFields()) {
-				Entity e = field.getOwnEntity();
-				// 过滤明细实体
-				if (e.getMasterEntity() != null) {
+				if (isFilter(field)) {
 					continue;
 				}
+				
+				Entity e = field.getOwnEntity();
 				if (Application.getSecurityManager().allowed(user, e.getEntityCode(), useAction)) {
 					refs.add(EasyMeta.getEntityShow(e));
 				}
@@ -118,5 +119,23 @@ public class ViewAddonsManager extends BaseLayoutManager {
 	@Override
 	protected boolean isSingleConfig() {
 		return true;
+	}
+	
+	/**
+	 * 是否过滤此字段（引用的实体）
+	 * 
+	 * @param refField
+	 * @return
+	 */
+	public boolean isFilter(Field refField) {
+		// 过滤任意引用
+		if (refField.getType() == FieldType.ANY_REFERENCE) {
+			return true;
+		}
+		// 过滤明细实体
+		if (refField.getOwnEntity().getMasterEntity() != null) {
+			return true;
+		}
+		return false;
 	}
 }

@@ -54,6 +54,19 @@ import cn.devezhao.persist4j.engine.ID;
 @RequestMapping("/app/entity/approval/")
 public class ApprovalControll extends BaseControll {
 	
+	@RequestMapping("workable")
+	public void getWorkable(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID recordId = getIdParameterNotNull(request, "record");
+		ID user = getRequestUser(request);
+		
+		FlowDefinition[] defs = RobotApprovalManager.instance.getFlowDefinitions(recordId, user);
+		JSONArray data = new JSONArray();
+		for (FlowDefinition d : defs) {
+			data.add(d.toJSON("id", "name"));
+		}
+		writeSuccess(response, data);
+	}
+	
 	@RequestMapping("state")
 	public void getApprovalState(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID recordId = getIdParameterNotNull(request, "record");
@@ -91,19 +104,6 @@ public class ApprovalControll extends BaseControll {
 		writeSuccess(response, data);
 	}
 	
-	@RequestMapping("workable")
-	public void getWorkable(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID recordId = getIdParameterNotNull(request, "record");
-		ID user = getRequestUser(request);
-		
-		FlowDefinition[] defs = RobotApprovalManager.instance.getFlowDefinitions(recordId, user);
-		JSONArray data = new JSONArray();
-		for (FlowDefinition d : defs) {
-			data.add(d.toJSON("id", "name"));
-		}
-		writeSuccess(response, data);
-	}
-	
 	@RequestMapping("fetch-nextstep")
 	public void fetchNextStep(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID recordId = getIdParameterNotNull(request, "record");
@@ -130,6 +130,15 @@ public class ApprovalControll extends BaseControll {
 		data.put("isLastStep", nextNodes.isLastStep());
 		data.put("signMode", nextNodes.getSignMode());
 		writeSuccess(response, data);
+	}
+	
+	@RequestMapping("fetch-workedsteps")
+	public void fetchWorkedSteps(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID recordId = getIdParameterNotNull(request, "record");
+		ID user = getRequestUser(request);
+		
+		JSONArray allSteps = new ApprovalProcessor(user, recordId).getWorkedSteps();
+		writeSuccess(response, allSteps);
 	}
 	
 	@RequestMapping("submit")

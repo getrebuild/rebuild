@@ -93,8 +93,10 @@ public class RelatedListControll extends BaseControll {
 		Map<String, Integer> countMap = new HashMap<>();
 		for (String related : relates) {
 			String sql = buildMasterSql(masterId, MetadataHelper.getEntity(related), true);
-			Object[] count = Application.createQuery(sql).unique();
-			countMap.put(related, ObjectUtils.toInt(count[0]));
+			if (sql != null) {
+				Object[] count = Application.createQuery(sql).unique();
+				countMap.put(related, ObjectUtils.toInt(count[0]));
+			}
 		}
 		writeSuccess(response, countMap);
 	}
@@ -109,10 +111,13 @@ public class RelatedListControll extends BaseControll {
 		Entity masterEntity = MetadataHelper.getEntity(recordOfMain.getEntityCode());
 		Set<String> relatedFields = new HashSet<>();
 		for (Field field : relatedEntity.getFields()) {
-			if (field.getType() == FieldType.REFERENCE 
+			if ((field.getType() == FieldType.REFERENCE || field.getType() == FieldType.ANY_REFERENCE)
 					&& ArrayUtils.contains(field.getReferenceEntities(), masterEntity)) {
 				relatedFields.add(field.getName() + " = ''{0}''");
 			}
+		}
+		if (relatedFields.isEmpty()) {
+			return null;
 		}
 		
 		String masterSql = "(" + StringUtils.join(relatedFields, " or ") + ")";
