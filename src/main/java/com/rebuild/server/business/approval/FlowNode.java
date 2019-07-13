@@ -57,6 +57,7 @@ public class FlowNode {
 	public static final String USER_ALL = "ALL";
 	public static final String USER_SELF = "SELF";
 	public static final String USER_SPEC = "SPEC";
+	public static final String USER_OWNS = "OWNS";
 	
 	// 多人联合审批类型
 	

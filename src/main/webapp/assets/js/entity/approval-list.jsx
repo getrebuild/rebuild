@@ -59,7 +59,8 @@ class GridList extends React.Component {
   }
 
   delete(configId) {
-    rb.alert('确认要删除此审批流程？', {
+    rb.alert('确认删除吗？<br>如果此流程正在被使用则不能删除，建议你将其禁用。', {
+      html: true,
       type: 'danger',
       confirmText: '删除',
       confirm: function () {

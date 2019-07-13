@@ -38,7 +38,9 @@ import com.rebuild.server.business.approval.FlowNodeGroup;
 import com.rebuild.server.configuration.FlowDefinition;
 import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.commons.ObjectUtils;
@@ -178,5 +180,26 @@ public class ApprovalControll extends BaseControll {
 		} catch (ApprovalException ex) {
 			writeFailure(response, ex.getMessage());
 		}
+	}
+	
+	@RequestMapping("flow-definition")
+	public void getFlowDefinition(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID approvalId = getIdParameterNotNull(request, "id");
+		Object[] belongEntity = Application.createQueryNoFilter(
+				"select belongEntity from RobotApprovalConfig where configId = ?")
+				.setParameter(1, approvalId)
+				.unique();
+		if (belongEntity == null) {
+			writeFailure(response, "无效审批流程");
+			return;
+		}
+		
+		FlowDefinition def = RobotApprovalManager.instance
+				.getFlowDefinition(MetadataHelper.getEntity((String) belongEntity[0]), approvalId);
+		
+		JSONObject ret = JSONUtils.toJSONObject(
+				new String[] { "applyEntity", "flowDefinition" },
+				new Object[] { belongEntity[0], def.getJSON("flowDefinition") });
+		writeSuccess(response, ret);
 	}
 }

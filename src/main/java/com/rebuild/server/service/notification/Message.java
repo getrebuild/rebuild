@@ -39,7 +39,7 @@ public class Message {
 	// 共享消息
 	public static final int TYPE_SAHRE = 11;
 	
-	// 审核消息
+	// 审批消息
 	public static final int TYPE_APPROVAL = 20;
 
 	private ID fromUser;

@@ -1,8 +1,13 @@
 /* eslint-disable react/prop-types */
-const wpc = window.__PageConfig
+var wpc = window.__PageConfig
 let activeNode
 $(document).ready(() => {
-  renderRbcomp(<RbFlowCanvas nodeId="RBFLOW" />, 'rbflow')
+  if (!wpc || !wpc.configId) return
+  // eslint-disable-next-line no-console
+  console.log(wpc.flowDefinition)
+
+  if (wpc.flowDefinition) wpc.flowDefinition = JSON.parse(wpc.flowDefinition)
+  renderRbcomp(<RbFlowCanvas />, 'rbflow')
   $(document.body).click(function (e) {
     if (e.target && (e.target.matches('div.rb-right-sidebar') || $(e.target).parents('div.rb-right-sidebar').length > 0)) return
     $(this).removeClass('open-right-sidebar')
@@ -31,7 +36,7 @@ const UTs = {
 // 添加节点按钮
 const AddNodeButton = function (props) {
   let c = function () { showDlgAddNode(props.addNodeCall) }
-  return (<div className="add-node-btn-box"><div className="add-node-btn"><button type="button" onClick={c} title={props.title}><i className="zmdi zmdi-plus" /></button></div></div>)
+  return (<div className="add-node-btn-box"><div className="add-node-btn"><button type="button" onClick={c}><i className="zmdi zmdi-plus" /></button></div></div>)
 }
 
 // 节点规范
@@ -51,6 +56,7 @@ class NodeSpec extends React.Component {
     this.props.$$$parent.onRef(this, true)
   }
   openConfig = () => {
+    if (wpc.preview) return
     let that = this
     let call = function (d) {
       that.setState({ data: d, active: false })
@@ -156,7 +162,7 @@ class Node extends NodeSpec {
     if (this.nodeType === 'approver') users += ' ' + (data.signMode === 'AND' ? '会签' : (data.signMode === 'ALL' ? '依次审批' : '或签'))
 
     return (<div className="node-wrap">
-      <div className={`node-wrap-box animated fadeIn ${NT[0]}-node ${this.state.hasError ? 'error' : ''} ${this.state.active ? 'active' : ''}`} title={this.props.nodeId}>
+      <div className={`node-wrap-box animated fadeIn ${NT[0]}-node ${this.state.hasError ? 'error' : ''} ${this.state.active ? 'active' : ''}`}>
         <div className="title">
           <span>{data.nodeName || NT[1]}</span>
           {this.props.nodeId !== 'ROOT' && <i className="zmdi zmdi-close aclose" title="移除" onClick={this.removeNodeQuick} />}
@@ -245,7 +251,7 @@ class ConditionBranch extends NodeGroupSpec {
       {this.state.isFirst && <div className="bottom-left-cover-line"></div>}
       <div className="condition-node">
         <div className="condition-node-box animated fadeIn">
-          <div className={`auto-judge ${this.state.hasError ? 'error' : ''} ${this.state.active ? 'active' : ''}`} onClick={this.openConfig} title={this.props.nodeId}>
+          <div className={`auto-judge ${this.state.hasError ? 'error' : ''} ${this.state.active ? 'active' : ''}`} onClick={this.openConfig}>
             <div className="title-wrapper">
               <span className="editable-title float-left">{data.nodeName || '分支条件'}</span>
               <span className="priority-title float-right">默认优先级</span>
@@ -279,6 +285,7 @@ class ConditionBranch extends NodeGroupSpec {
     this.props.$$$parent.onRef(this, true)
   }
   openConfig = () => {
+    if (wpc.preview) return
     let that = this
     let call = function (d) {
       that.setState({ data: d, active: false })
@@ -572,7 +579,7 @@ class RbFlowCanvas extends NodeGroupSpec {
         {this.state.zoomValue || 100}%
         <a className="zoom-out" onClick={() => this.zoom(-10)}><i className="zmdi zmdi-minus" /></a>
       </div>
-      <div className="box-scale" style={this.state.zoomStyle}>
+      <div className={'box-scale' + (wpc.preview ? ' preview' : '')} style={this.state.zoomStyle}>
         <Node type="start" $$$parent={this} nodeId="ROOT" ref={(c) => this._root = c} />
         {this.renderNodes()}
         <div className="end-node">
@@ -584,13 +591,12 @@ class RbFlowCanvas extends NodeGroupSpec {
   }
   componentDidMount() {
     if (wpc.flowDefinition) {
-      let flowNodes = JSON.parse(wpc.flowDefinition).nodes
+      let flowNodes = wpc.flowDefinition.nodes
       this._root.setState({ data: flowNodes[0].data })
       flowNodes.remove(flowNodes[0])
       this.setState({ nodes: flowNodes }, () => {
         isCanvasMounted = true
       })
-      console.log(wpc.flowDefinition)
     } else {
       isCanvasMounted = true
     }
@@ -606,8 +612,15 @@ class RbFlowCanvas extends NodeGroupSpec {
 
       _btn.button('loading')
       $.post(`${rb.baseUrl}/app/entity/record-save`, JSON.stringify(_data), (res) => {
-        if (res.error_code === 0) location.href = '../approvals'
-        else rb.hberror(res.error_msg)
+        if (res.error_code === 0) {
+          rb.alert('保存并发布成功', {
+            type: 'primary',
+            cancelText: '返回列表',
+            cancel: () => location.replace('../approvals'),
+            confirmText: '继续编辑',
+            confirm: () => location.reload()
+          })
+        } else rb.hberror(res.error_msg)
         _btn.button('reset')
       })
     })

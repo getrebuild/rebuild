@@ -21,7 +21,7 @@ package com.rebuild.server.configuration;
 import com.rebuild.server.business.approval.FlowParser;
 
 /**
- * 审核流程定义
+ * 审批流程定义
  * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/07/05

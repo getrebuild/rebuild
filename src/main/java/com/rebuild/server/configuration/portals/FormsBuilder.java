@@ -29,6 +29,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.metadata.EntityHelper;
@@ -109,28 +110,60 @@ public class FormsBuilder extends FormsManager {
 		final User currentUser = Application.getUserStore().getUser(user);
 		final Date now = CalendarUtils.now();
 		
+		// 明细实体
+		final Entity masterEntity = entityMeta.getMasterEntity();
+		// 审批流程
+		Integer hadApproval = null;
+		
 		// 判断表单权限
+		
+		// 新建
 		if (record == null) {
-			if (entityMeta.getMasterEntity() != null) {
-				ID masterId = MASTERID4NEWSLAVE.get();
-				Assert.notNull(masterId, "Call #setCurrentMasterId first");
+			if (masterEntity != null) {
+				ID masterRecordId = MASTERID4NEWSLAVE.get();
+				Assert.notNull(masterRecordId, "Please calls #setCurrentMasterId first");
+				
+				hadApproval = getHadApproval(entityMeta, record);
 				MASTERID4NEWSLAVE.set(null);
 				
-				if (!Application.getSecurityManager().allowedU(user, masterId)) {
+				if (hadApproval != null) {
+					if (hadApproval == ApprovalState.PROCESSING.getState()) {
+						return formatModelError("主记录正在审批中，不能添加明细");
+					} else if (hadApproval == ApprovalState.APPROVED.getState()) {
+						return formatModelError("主记录已经完成审批，禁止添加明细");
+					}
+				}
+				
+				if (!Application.getSecurityManager().allowedU(user, masterRecordId)) {
 					return formatModelError("你没有权限向此记录添加明细");
 				}
 			} else if (!Application.getSecurityManager().allowedC(user, entityMeta.getEntityCode())) {
 				return formatModelError("没有新建权限");
 			}
 			
+		} 
+		// 查看（视图）
+		else if (onView) {
+			if (!Application.getSecurityManager().allowedR(user, record)) {
+				return formatModelError("你没有读取此记录的权限");
+			}
+			
+			if (masterEntity == null) {
+				hadApproval = getHadApproval(entityMeta, record);
+			}
+			
+		// 编辑
 		} else {
-			if (onView) {
-				if (!Application.getSecurityManager().allowedR(user, record)) {
-					return formatModelError("你没有读取此记录的权限");
-				}
-			} else {
-				if (!Application.getSecurityManager().allowedU(user, record)) {
-					return formatModelError("你没有编辑此记录的权限");
+			if (!Application.getSecurityManager().allowedU(user, record)) {
+				return formatModelError("你没有编辑此记录的权限");
+			}
+			
+			hadApproval = getHadApproval(entityMeta, record);
+			if (hadApproval != null) {
+				if (hadApproval == ApprovalState.PROCESSING.getState()) {
+					return formatModelError(masterEntity == null ? "此记录正在审批中，不能修改" : "主记录正在审批中，明细不能修改");
+				} else if (hadApproval == ApprovalState.APPROVED.getState()) {
+					return formatModelError(masterEntity == null ? "此记录已经完成审批，禁止修改" : "主记录已经完成审批，明细禁止修改");
 				}
 			}
 		}
@@ -274,12 +307,7 @@ public class FormsBuilder extends FormsManager {
 			model.set("lastModified", data.getDate(EntityHelper.ModifiedOn).getTime());
 		}
 		
-		// 审核流程
-		ID approvalId = RobotApprovalManager.instance.findApproval(entityMeta, record);
-		if (approvalId != null) {
-			model.set("hadApproval", approvalId);
-		}
-		
+		model.set("hadApproval", hadApproval != null);
 		model.set("id", null);  // Clean form's ID of config
 		return model.toJSON();
 	}
@@ -343,6 +371,28 @@ public class FormsBuilder extends FormsManager {
 		return Application.getQueryFactory().createQuery(ajql.toString(), user).record();
 	}
 	
+	/**
+	 * @param entity
+	 * @param recordId
+	 * @return
+	 * @see RobotApprovalManager#hadApproval(Entity, ID)
+	 */
+	private Integer getHadApproval(Entity entity, ID recordId) {
+		Entity masterEntity = entity.getMasterEntity();
+		if (masterEntity == null) {
+			return RobotApprovalManager.instance.hadApproval(entity, recordId);
+		}
+		
+		ID masterRecordId = MASTERID4NEWSLAVE.get();
+		if (masterRecordId == null) {
+			Field stmField = MetadataHelper.getSlaveToMasterField(entity);
+			String sql = String.format("select %s from %s where %s = ?",
+					stmField.getName(), entity.getName(), entity.getPrimaryField().getName());
+			Object o[] = Application.createQueryNoFilter(sql).setParameter(1, recordId).unique();
+			masterRecordId = (ID) o[0];
+		}
+		return RobotApprovalManager.instance.hadApproval(masterEntity, masterRecordId);
+	}
 
 	/**
 	 * 封装表单/布局所用的字段值

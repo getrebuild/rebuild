@@ -153,7 +153,7 @@ class SubmitForm extends ApprovalUsersForm {
                   <input className="custom-control-input" type="radio" name="useApproval" value={item.id} onChange={this.handleChange} checked={this.state.useApproval === item.id} />
                   <span className="custom-control-label">{item.name}</span>
                 </label>
-                <a href={`${rb.baseUrl}/p/commons/approval-preview?id=${item.id}`} target="_blank">流程详情</a>
+                <a href={`${rb.baseUrl}/p/commons/approval-preview?id=${item.id}`} target="_blank"><i className="zmdi zmdi-usb zmdi-hc-rotate-180"></i> 流程图</a>
               </div>)
             })}
           </div>
@@ -287,7 +287,7 @@ class ApprovedStepViewer extends React.Component {
       <div className="timeline-content">
         <div className="timeline-avatar"><img src={`${rb.baseUrl}/account/user-avatar/${s.submitter}`} /></div>
         <div className="timeline-header">
-          <p className="timeline-activity">由 {s.submitter === rb.currentUser ? '你' : s.submitterName} 提交审核</p>
+          <p className="timeline-activity">由 {s.submitter === rb.currentUser ? '你' : s.submitterName} 提交审批</p>
         </div>
       </div>
     </li>

@@ -24,6 +24,7 @@ import java.util.List;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
+import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.business.approval.FlowNode;
 import com.rebuild.server.business.approval.FlowParser;
 import com.rebuild.server.helper.ConfigurationException;
@@ -46,36 +47,29 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 	private RobotApprovalManager() {}
 	
 	/**
-	 * @param entity
-	 * @return
-	 */
-	public ID findApproval(Entity entity) {
-		return findApproval(entity, null);
-	}
-	
-	/**
-	 * 获取指定实体的可用流程
+	 * 获取实体/记录流程状态
 	 * 
 	 * @param entity
 	 * @param record
-	 * @return
+	 * @return <tt>null</tt> 表示没有流程
 	 */
-	public ID findApproval(Entity entity, ID record) {
+	public Integer hadApproval(Entity entity, ID record) {
 		if (!entity.containsField(EntityHelper.ApprovalId)) {
 			return null;
 		}
 		
 		if (record != null) {
-			Object[] hadApproval =	Application.getQueryFactory().unique(record, EntityHelper.ApprovalId);
-			if (hadApproval[0] != null) {
-				return (ID) hadApproval[0];
+			Object[] hadApproval =	Application.getQueryFactory().unique(
+					record, EntityHelper.ApprovalId, EntityHelper.ApprovalState);
+			if (hadApproval != null && hadApproval[0] != null) {
+				return (Integer) hadApproval[1];
 			}
 		}
 		
 		FlowDefinition[] defs = getFlowDefinitions(entity);
 		for (FlowDefinition def : defs) {
 			if (!def.isDisabled()) {
-				return def.getID("id");
+				return ApprovalState.DRAFT.getState();
 			}
 		}
 		return null;
@@ -109,6 +103,7 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 			return new FlowDefinition[0];
 		}
 		
+		ID owning = Application.getRecordOwningCache().getOwningUser(record);
 		// 过滤可用的
 		List<FlowDefinition> workable = new ArrayList<>();
 		for (FlowDefinition def : defs) {
@@ -122,7 +117,8 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 			// 发起人匹配
 			JSONArray users = root.getDataMap().getJSONArray("users");
 			if (users == null || users.isEmpty() 
-					|| FlowNode.USER_ALL.equalsIgnoreCase(users.getString(0))
+					|| FlowNode.USER_ALL.equals(users.getString(0))
+					|| (FlowNode.USER_OWNS.equals(users.getString(0)) && owning.equals(user))
 					|| UserHelper.parseUsers(users, record).contains(user)) {
 				workable.add(def);
 			}
@@ -130,7 +126,7 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 		return workable.toArray(new FlowDefinition[workable.size()]);
 	}
 	/**
-	 * 获取指定实体的所有审核流程（含禁用的）
+	 * 获取指定实体的所有审批流程（含禁用的）
 	 * 
 	 * @param entity
 	 * @return

@@ -163,7 +163,7 @@ public class ApprovalStepService extends BaseService {
 				}
 			}
 			
-			// 更新下一步审核人可以开始了
+			// 更新下一步审批人可以开始了
 			if (goNextNode) {
 				Object[][] nextNodeApprovers = Application.createQueryNoFilter(
 						"select stepId,approver from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and isWaiting = 'T'")

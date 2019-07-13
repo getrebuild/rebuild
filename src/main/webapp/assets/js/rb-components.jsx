@@ -119,6 +119,7 @@ class RbAlert extends React.Component {
   render() {
     let icon = this.props.type === 'danger' ? 'alert-triangle' : 'help-outline'
     if (this.props.type === 'warning') icon = 'alert-circle-o'
+    if (this.props.type === 'primary') icon = 'info-outline'
     let type = this.props.type || 'primary'
     let content = this.props.htmlMessage ?
       <div className="mt-3" style={{ lineHeight: 1.8 }} dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} />

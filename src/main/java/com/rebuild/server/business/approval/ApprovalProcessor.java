@@ -233,7 +233,7 @@ public class ApprovalProcessor {
 	}
 	
 	/**
-	 * 获取下一组节点。遇到审核人节点则终止，在审核节点前有抄送节点也会返回
+	 * 获取下一组节点。遇到审批人节点则终止，在审批节点前有抄送节点也会返回
 	 * 
 	 * @param currentNode
 	 * @return
