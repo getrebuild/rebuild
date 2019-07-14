@@ -45,6 +45,7 @@ import com.rebuild.web.BaseControll;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -165,7 +166,7 @@ public class MetadataGetting extends BaseControll {
 		Set<Entity> references = new HashSet<>();
 		for (Field field : entityMeta.getReferenceToFields()) {
 			Entity own = field.getOwnEntity();
-			if (!MetadataHelper.isSlaveEntity(own.getEntityCode())) {
+			if (!(MetadataHelper.isSlaveEntity(own.getEntityCode()) || field.getType() == FieldType.ANY_REFERENCE)) {
 				references.add(own);
 			}
 		}

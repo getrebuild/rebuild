@@ -231,3 +231,7 @@
 .chart-list>div .chart-icon>i.TREEMAP {
     background-position: -864px -1520px;
 }
+
+.J_dash-select:hover {
+	color: #4285f4;
+}

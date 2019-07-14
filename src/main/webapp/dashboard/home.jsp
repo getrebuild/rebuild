@@ -25,7 +25,7 @@
 				<div class="row">
 					<div class="col-sm-6 dash-list">
 						<div class="dash-head">
-							<h4 class="J_dash-select hover">仪表盘</h4>
+							<h4 class="J_dash-select">仪表盘</h4>
 							<div class="dash-action">
 								<a class="zicon J_dash-edit"><i class="zmdi zmdi-settings"></i></a>
 								<a class="zicon J_dash-new" title="添加仪表盘"><i class="zmdi zmdi-plus-circle-o"></i></a>
