@@ -3,14 +3,14 @@ $(document).ready(function () {
     let entityLabel = $val('#entityLabel'),
       comments = $val('#comments')
     if (!entityLabel) {
-      rb.highbar('请输入实体名称')
+      RbHighbar.create('请输入实体名称')
       return
     }
     let _data = { label: entityLabel, comments: comments }
     if ($val('#isSlave') === 'true') {
       _data.masterEntity = $val('#masterEntity')
       if (!_data.masterEntity) {
-        rb.highbar('请选择选择主实体')
+        RbHighbar.create('请选择选择主实体')
         return
       }
     }
@@ -19,7 +19,7 @@ $(document).ready(function () {
     sbtn.button('loading')
     $.post(rb.baseUrl + '/admin/entity/entity-new?nameField=' + $val('#nameField'), _data, function (res) {
       if (res.error_code === 0) parent.location.href = rb.baseUrl + '/admin/entity/' + res.data + '/base'
-      else rb.hberror(res.error_msg)
+      else RbHighbar.error(res.error_msg)
       sbtn.button('reset')
     })
   })
@@ -27,7 +27,7 @@ $(document).ready(function () {
   let entitiesLoaded = false
   $('#isSlave').click(function () {
     $('.J_masterEntity').toggleClass('hide')
-    parent.rb.modalResize()
+    parent.RbModal.resize()
     if (entitiesLoaded === false) {
       entitiesLoaded = true
       $.get(rb.baseUrl + '/commons/metadata/entities', function (res) {
@@ -38,7 +38,7 @@ $(document).ready(function () {
     }
   })
 
-  $('.nav-tabs a').click(() => { parent.rb.modalResize() })
+  $('.nav-tabs a').click(() => { parent.RbModal.resize() })
 
   let indexLoaded = false
   $('.J_imports').click(() => {
@@ -75,8 +75,8 @@ class MetaschemaList extends React.Component {
   }
   componentDidMount() {
     $.get(`${rb.baseUrl}/admin/rbstore/load-index?type=metaschemas`, (res) => {
-      if (res.error_code === 0) this.setState({ indexes: res.data }, () => { parent.rb.modalResize() })
-      else rb.hberror(res.error_msg)
+      if (res.error_code === 0) this.setState({ indexes: res.data }, () => { parent.RbModal.resize() })
+      else RbHighbar.error(res.error_msg)
     })
   }
 
@@ -85,7 +85,7 @@ class MetaschemaList extends React.Component {
     let name = e.currentTarget.dataset.name
     let url = `${rb.baseUrl}/admin/metaschema/imports?file=${$encode(file)}`
     let that = this
-    parent.rb.alert(`<strong>导入 [ ${name} ]</strong><br>你可在导入后进行适当调整。开始导入吗？`, {
+    parent.RbAlert.create(`<strong>导入 [ ${name} ]</strong><br>你可在导入后进行适当调整。开始导入吗？`, {
       html: true,
       confirm: function () {
         this.hide()
@@ -94,9 +94,9 @@ class MetaschemaList extends React.Component {
         $.post(url, (res) => {
           mpro.end()
           if (res.error_code === 0) {
-            rb.hbsuccess('导入完成')
+            RbHighbar.success('导入完成')
             setTimeout(() => { parent.location.href = `../../entity/${res.data}/base` }, 1500)
-          } else rb.hberror(res.error_msg || '导入失败')
+          } else RbHighbar.error(res.error_msg || '导入失败')
         })
       }
     })

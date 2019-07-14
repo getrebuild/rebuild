@@ -141,7 +141,7 @@ class LevelBox extends React.Component {
     let name = $.trim(this.state.itemName)
     if (!name) return
     if (this.props.level >= 1 && !this.parentId) {
-      rb.highbar('请先选择上级分类项')
+      RbHighbar.create('请先选择上级分类项')
       return
     }
 
@@ -154,7 +154,7 @@ class LevelBox extends React.Component {
       }
     })
     if (hasRepeat) {
-      rb.highbar('存在同名分类项')
+      RbHighbar.create('存在同名分类项')
       return
     }
 
@@ -181,7 +181,7 @@ class LevelBox extends React.Component {
           items.insert(0, [res.data, name, null, false])
         }
         this.setState({ items: items, itemName: null, itemId: null, inSave: false })
-      } else rb.hberror(res.error_msg)
+      } else RbHighbar.error(res.error_msg)
     })
   }
   editItem(item, e) {
@@ -199,10 +199,10 @@ class LevelBox extends React.Component {
         $.post(`${rb.baseUrl}/admin/classification/delete-data-item?item_id=${item[0]}`, (res) => {
           this.hide()
           if (res.error_code !== 0) {
-            rb.hberror(res.error_msg)
+            RbHighbar.error(res.error_msg)
             return
           }
-          rb.hbsuccess('分类项已删除')
+          RbHighbar.success('分类项已删除')
           let ns = []
           that.state.items.forEach((i) => {
             if (i[0] !== item[0]) ns.push(i)
@@ -225,10 +225,10 @@ class LevelBox extends React.Component {
         $.post(url, (res) => {
           this.hide()
           if (res.error_code !== 0) {
-            rb.hberror(res.error_msg)
+            RbHighbar.error(res.error_msg)
             return
           }
-          rb.hbsuccess('分类项已禁用')
+          RbHighbar.success('分类项已禁用')
           let ns = []
           $(that.state.items || []).each(function () {
             if (this[0] === item[0]) this[3] = true
@@ -238,7 +238,7 @@ class LevelBox extends React.Component {
         })
       }
     }
-    rb.alert(alertMsg, alertExt)
+    RbAlert.create(alertMsg, alertExt)
   }
 
   clear(isAll) {
@@ -257,10 +257,10 @@ var saveOpenLevel = function () {
     let data = { openLevel: level }
     data.metadata = { entity: 'Classification', id: wpc.id }
     $.post(`${rb.baseUrl}/admin/classification/save`, JSON.stringify(data), (res) => {
-      if (res.error_code > 0) rb.hberror(res.error_msg)
+      if (res.error_code > 0) RbHighbar.error(res.error_msg)
       else {
         saveOpenLevel_last = level
-        rb.hbsuccess('已启用' + LNAME[level] + '级分类')
+        RbHighbar.success('已启用' + LNAME[level] + '级分类')
       }
     })
   }, 500, 'saveOpenLevel')
@@ -293,7 +293,7 @@ class DlgImports extends RbModalHandler {
   componentDidMount() {
     $.get(`${rb.baseUrl}/admin/rbstore/load-index?type=classifications`, (res) => {
       if (res.error_code === 0) this.setState({ indexes: res.data })
-      else rb.hberror(res.error_msg)
+      else RbHighbar.error(res.error_msg)
     })
   }
 
@@ -302,7 +302,7 @@ class DlgImports extends RbModalHandler {
     let name = e.currentTarget.dataset.name
     let url = `${rb.baseUrl}/admin/classification/imports/starts?dest=${this.props.id}&file=${$encode(file)}`
     let that = this
-    rb.alert(`<strong>${name}</strong><br>请注意，导入将导致现有数据被清空。<br>如当前分类数据已被使用则不建议导入。确认导入吗？`, {
+    RbAlert.create(`<strong>${name}</strong><br>请注意，导入将导致现有数据被清空。<br>如当前分类数据已被使用则不建议导入。确认导入吗？`, {
       html: true,
       confirm: function () {
         this.hide()
@@ -310,7 +310,7 @@ class DlgImports extends RbModalHandler {
         that.__mpro = new Mprogress({ template: 2, start: true, parent: '.rbmodal .modal-body' })
         $.post(url, (res) => {
           if (res.error_code === 0) that.__checkState(res.data)
-          else rb.hberror(res.error_msg || '导入失败')
+          else RbHighbar.error(res.error_msg || '导入失败')
         })
       }
     })
@@ -321,13 +321,13 @@ class DlgImports extends RbModalHandler {
       if (res.error_code === 0) {
         if (res.data.hasError) {
           this.__mpro.end()
-          rb.hberror(res.data.hasError)
+          RbHighbar.error(res.data.hasError)
           return
         }
 
         let cp = res.data.completed
         if (cp >= 1) {
-          rb.hbsuccess('导入完成')
+          RbHighbar.success('导入完成')
           this.__mpro.end()
           setTimeout(() => { location.reload() }, 1500)
         } else {

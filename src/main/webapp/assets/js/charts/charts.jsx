@@ -48,7 +48,7 @@ class BaseChart extends React.Component {
   remove() {
     if (!window.gridstack) return  // Not in dashboard
     let that = this
-    rb.alert('确认移除此图表？', {
+    RbAlert.create('确认移除此图表？', {
       confirm: function () {
         window.gridstack.removeWidget($(that._box).parent().parent())
         this.hide()

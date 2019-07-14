@@ -63,7 +63,7 @@ class GridList extends React.Component {
   }
 
   delete(configId) {
-    rb.alert('如果此流程正在被使用则不能删除，建议你将其禁用。<br>确认删除吗？', {
+    RbAlert.create('如果此流程正在被使用则不能删除，建议你将其禁用。<br>确认删除吗？', {
       html: true,
       type: 'danger',
       confirmText: '删除',
@@ -71,9 +71,9 @@ class GridList extends React.Component {
         this.disabled(true)
         $.post(`${rb.baseUrl}/app/entity/record-delete?id=${configId}`, (res) => {
           if (res.error_code === 0) {
-            rb.hbsuccess('审批流程已删除')
+            RbHighbar.success('审批流程已删除')
             setTimeout(() => { location.reload() }, 500)
-          } else rb.hberror(res.error_msg)
+          } else RbHighbar.error(res.error_msg)
         })
       }
     })
@@ -137,10 +137,10 @@ class DlgEdit extends RbFormHandler {
   }
   save = () => {
     let _data = { name: this.state['name'] }
-    if (!_data.name) { rb.highbar('请输入流程名称'); return }
+    if (!_data.name) { RbHighbar.create('请输入流程名称'); return }
     if (!this.props.id) {
       _data.belongEntity = this.__select2.val()
-      if (!_data.belongEntity) { rb.highbar('请选择应用实体'); return }
+      if (!_data.belongEntity) { RbHighbar.create('请选择应用实体'); return }
     } else {
       _data.isDisabled = this.state.isDisabled === true
     }
@@ -151,7 +151,7 @@ class DlgEdit extends RbFormHandler {
       if (res.error_code === 0) {
         if (this.props.id) location.reload()
         else location.href = 'approval/' + res.data.id
-      } else rb.hberror(res.error_msg)
+      } else RbHighbar.error(res.error_msg)
       _btns.button('reset')
     })
   }

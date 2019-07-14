@@ -30,7 +30,7 @@
 			</label>
 		</div>
 		<button class="btn btn-primary J_save" type="button">保存</button>
-		<button class="btn btn-secondary" onclick="parent.rb.modalHide()" type="button">取消</button>
+		<button class="btn btn-secondary" onclick="parent.RbModal.hide()" type="button">取消</button>
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
@@ -52,7 +52,7 @@ $(document).ready(function(){
 			let _this = $(this)
 			config.push({ field: _this.data('key') })
 		});
-		if (config.length == 0){ rb.highbar('请至少设置 1 个显示列'); return }
+		if (config.length == 0){ RbHighbar.create('请至少设置 1 个显示列'); return }
 		
 		let btn = $(this).button('loading')
 		let url = rb.baseUrl + '/app/' + entity + '/list-fields?cfgid=' + cfgid + '&toAll=' + $('#shareTo').prop('checked')

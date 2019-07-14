@@ -113,6 +113,17 @@ class RbFormModal extends React.Component {
     if (destroy === true) state.id = null
     this.setState(state)
   }
+
+  // -- Usage
+  /**
+   * @param {*} props 
+   * @param {*} call 
+   */
+  static create(props, call) {
+    let that = this
+    if (that.__HOLDER) that.__HOLDER.show(props)
+    else renderRbcomp(<RbFormModal {...props} />, null, function () { that.__HOLDER = this })
+  }
 }
 
 // ~~ 表单
@@ -227,7 +238,7 @@ class RbForm extends React.Component {
     let _data = {}
     for (let k in this.__FormData) {
       let err = this.__FormData[k].error
-      if (err) { rb.highbar(err); return }
+      if (err) { RbHighbar.create(err); return }
       else _data[k] = this.__FormData[k].value
     }
 
@@ -239,23 +250,23 @@ class RbForm extends React.Component {
     $.post(`${rb.baseUrl}/app/entity/record-save`, JSON.stringify(_data), function (res) {
       btns.button('reset')
       if (res.error_code === 0) {
-        rb.highbar('保存成功', 'success')
+        RbHighbar.create('保存成功', 'success')
         setTimeout(() => {
           that.props.$$$parent.hide(true)
           RbForm.postAfter(res.data, next === 101)
 
           if (next === 101) {
             let pstate = that.props.$$$parent.state
-            rb.RbFormModal({ title: pstate.title, entity: pstate.entity, icon: pstate.icon, initialValue: pstate.initialValue })
+            RbFormModal.create({ title: pstate.title, entity: pstate.entity, icon: pstate.icon, initialValue: pstate.initialValue })
           } else if (next === 102) {
             let iv = { '$MASTER$': res.data.id }
             let sm = that.props.$$$parent.state.__formModel.slaveMeta
-            rb.RbFormModal({ title: `添加${sm[1]}`, entity: sm[0], icon: sm[2], initialValue: iv })
+            RbFormModal.create({ title: `添加${sm[1]}`, entity: sm[0], icon: sm[2], initialValue: iv })
           }
         }, 100)
 
       } else {
-        rb.hberror(res.error_msg)
+        RbHighbar.error(res.error_msg)
       }
     })
   }
@@ -856,7 +867,8 @@ class RbFormClassification extends RbFormElement {
     if (this.__selector) this.__selector.show()
     else {
       let p = this.props
-      this.__selector = renderRbcomp(<ClassificationSelector entity={p.$$$parent.state.entity} field={p.field} label={p.label} openLevel={p.openLevel} $$$parent={this} />)
+      let that = this
+      renderRbcomp(<ClassificationSelector entity={p.$$$parent.state.entity} field={p.field} label={p.label} openLevel={p.openLevel} $$$parent={this} />, null, function () { this.__selector = this })
     }
   }
   giveValue(s) {
@@ -1046,7 +1058,7 @@ class ClassificationSelector extends React.Component {
     let last = this._select2[this.state.openLevel]
     let v = last.val()
     if (!v) {
-      rb.highbar('选择有误')
+      RbHighbar.create('选择有误')
     } else {
       let text = []
       $(this._select2).each(function () {
@@ -1134,27 +1146,15 @@ class DeleteConfirm extends RbAlert {
     let btns = $(this._btns).find('.btn').button('loading')
     $.post(rb.baseUrl + '/app/entity/record-delete?id=' + ids + '&cascades=' + cascades, (res) => {
       if (res.error_code === 0) {
-        if (res.data.deleted === res.data.requests) rb.hbsuccess('删除成功')
-        else rb.hbsuccess('已成功删除 ' + res.data.deleted + ' 条记录')
+        if (res.data.deleted === res.data.requests) RbHighbar.success('删除成功')
+        else RbHighbar.success('已成功删除 ' + res.data.deleted + ' 条记录')
 
         this.hide()
         typeof this.props.deleteAfter === 'function' && this.props.deleteAfter()
       } else {
-        rb.hberror(res.error_msg)
+        RbHighbar.error(res.error_msg)
         btns.button('reset')
       }
     })
   }
-}
-
-// -- Usage
-
-let rb = rb || {}
-
-rb.__currentRbFormModal
-// @props = { id, entity, title, icon }
-rb.RbFormModal = function (props) {
-  if (rb.__currentRbFormModal) rb.__currentRbFormModal.show(props)
-  else rb.__currentRbFormModal = renderRbcomp(<RbFormModal {...props} />)
-  return rb.__currentRbFormModal
 }

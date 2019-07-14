@@ -67,7 +67,14 @@
         "qiniu": true,
         "DeleteConfirm": true,
         "UserSelector": true,
-        "ApprovalProcessor": true
+        "ApprovalProcessor": true,
+        "RbFormModal": true,
+        "DlgAssign": true,
+        "DlgShare": true,
+        "DlgUnshare": true,
+        "DlgShareManager": true,
+        "RbAlert": true,
+        "RbHighbar": true
     },
     "rules": {
         "strict": 0,

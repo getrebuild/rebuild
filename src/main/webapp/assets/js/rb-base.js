@@ -39,11 +39,11 @@
     complete: function (xhr) {
       // eslint-disable-next-line no-empty
       if (xhr.status === 200 || xhr.status === 0) {} // That's OK
-      else if (xhr.status === 403 || xhr.status === 401) rb.hberror(xhr.responseText || '未授权访问')
+      else if (xhr.status === 403 || xhr.status === 401) RbHighbar.error(xhr.responseText || '未授权访问')
       else {
         var error = xhr.responseText
         if (rb.env !== 'dev' && error && error.contains('Exception : ')) error = error.split('Exception : ')[1]
-        rb.hberror(error)
+        RbHighbar.error(error)
       }
     }
   })

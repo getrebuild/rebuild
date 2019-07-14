@@ -106,8 +106,8 @@ $(document).ready(function(){
 	})
 
 	$('.J_new-field').click(function(){
-		if (window.__PageConfig.isSuperAdmin) rb.modal('${baseUrl}/admin/p/entityhub/field-new?entity=${entityName}', '添加字段')
-		else rb.hberror('仅超级管理员可添加字段')
+		if (window.__PageConfig.isSuperAdmin) RbModal.create('${baseUrl}/admin/p/entityhub/field-new?entity=${entityName}', '添加字段')
+		else RbHighbar.error('仅超级管理员可添加字段')
 	})
 });
 const render_list = function(q){

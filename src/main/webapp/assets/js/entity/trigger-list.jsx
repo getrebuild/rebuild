@@ -67,16 +67,16 @@ class GridList extends React.Component {
   }
 
   delete(configId) {
-    rb.alert('确认要删除此触发器？', {
+    RbAlert.create('确认要删除此触发器？', {
       type: 'danger',
       confirmText: '删除',
       confirm: function () {
         this.disabled(true)
         $.post(`${rb.baseUrl}/app/entity/record-delete?id=${configId}`, (res) => {
           if (res.error_code === 0) {
-            rb.hbsuccess('触发器已删除')
+            RbHighbar.success('触发器已删除')
             setTimeout(() => { location.reload() }, 500)
-          } else rb.hberror(res.error_msg)
+          } else RbHighbar.error(res.error_msg)
         })
       }
     })
@@ -163,7 +163,7 @@ class DlgEdit extends RbFormHandler {
       if (res.error_code === 0) {
         if (this.props.id) location.reload()
         else location.href = 'trigger/' + res.data.id
-      } else rb.hberror(res.error_msg)
+      } else RbHighbar.error(res.error_msg)
       _btns.button('reset')
     })
   }

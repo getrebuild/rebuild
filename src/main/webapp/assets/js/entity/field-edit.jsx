@@ -43,7 +43,7 @@ $(document).ready(function () {
         location.href = '../fields'
       } else {
         _btn.button('reset')
-        rb.hberror(res.error_msg)
+        RbHighbar.error(res.error_msg)
       }
     })
   })
@@ -67,7 +67,7 @@ $(document).ready(function () {
     })
 
     $('.J_picklist-edit').click(function () {
-      rb.modal(`${rb.baseUrl}/admin/p/entityhub/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}`, '配置列表选项')
+      RbModal.create(`${rb.baseUrl}/admin/p/entityhub/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}`, '配置列表选项')
     })
   } else if (dt === 'SERIES' || wpc.fieldBuildin === true) {
     $('#fieldNullable, #fieldUpdatable').attr('disabled', true)
@@ -137,7 +137,7 @@ $(document).ready(function () {
 
   $('.J_del').click(function () {
     if (!wpc.isSuperAdmin) {
-      rb.hberror('仅超级管理员可删除字段')
+      RbHighbar.error('仅超级管理员可删除字段')
       return
     }
     let alertExt = {
@@ -149,12 +149,12 @@ $(document).ready(function () {
       $.post(`${rb.baseUrl}/admin/entity/field-drop?id=${wpc.metaId}`, (res) => {
         if (res.error_code === 0) {
           this.hide()
-          rb.hbsuccess('字段已删除')
+          RbHighbar.success('字段已删除')
           setTimeout(function () { location.replace('../fields') }, 1500)
-        } else rb.hberror(res.error_msg)
+        } else RbHighbar.error(res.error_msg)
       })
     }
-    rb.alert('字段删除后将无法恢复，请务必谨慎操作！确认删除吗？', '删除字段', alertExt)
+    RbAlert.create('字段删除后将无法恢复，请务必谨慎操作！确认删除吗？', '删除字段', alertExt)
   })
 })
 
@@ -177,7 +177,7 @@ const checkDefaultValue = function (v, t) {
   } else if (t === 'PHONE') {
     valid = $regex.isTel(v)
   }
-  if (valid === false) rb.highbar('默认值设置有误')
+  if (valid === false) RbHighbar.create('默认值设置有误')
   return valid
 }
 

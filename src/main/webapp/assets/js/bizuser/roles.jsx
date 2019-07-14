@@ -5,7 +5,7 @@ RbForm.postAfter = function (data) {
 const role_id = window.__PageConfig.recordId
 $(document).ready(function () {
   $('.J_new-role').click(function () {
-    rb.RbFormModal({ title: '新建角色', entity: 'Role', icon: 'lock' })
+    RbFormModal.create({ title: '新建角色', entity: 'Role', icon: 'lock' })
   })
 
   if (role_id) {
@@ -76,7 +76,7 @@ const loadRoles = function () {
       if (this.id === '003-0000000000000001') action.remove()
 
       action.find('a.J_edit').click(function () {
-        rb.RbFormModal({ title: '编辑角色', entity: 'Role', icon: 'lock', id: _id })
+        RbFormModal.create({ title: '编辑角色', entity: 'Role', icon: 'lock', id: _id })
       })
 
       action.find('a.J_del').click(function () {
@@ -87,12 +87,12 @@ const loadRoles = function () {
         }
         $.get(rb.baseUrl + '/admin/bizuser/delete-checks?id=' + _id, function (res) {
           if (res.data.hasMember === 0) {
-            rb.alert('此角色可以被安全的删除', '删除角色', alertExt)
+            RbAlert.create('此角色可以被安全的删除', '删除角色', alertExt)
           } else {
             let url = rb.baseUrl + '/admin/bizuser/users#!/Filter/roleId=' + _id
             let msg = '有 <a href="' + url + '" target="_blank"><b>' + res.data.hasMember + '</b></a> 个用户使用了此角色<br>删除将导致这些用户被禁用，直到你为他们指定了新的角色'
             alertExt.html = true
-            rb.alert(msg, '删除角色', alertExt)
+            RbAlert.create(msg, '删除角色', alertExt)
           }
         })
       })
@@ -145,13 +145,13 @@ const updatePrivileges = function () {
   let _data = { entity: privEntity, zero: privZero }
   $.post(rb.baseUrl + '/admin/bizuser/privileges-update?role=' + role_id, JSON.stringify(_data), (res) => {
     if (res.error_code === 0) location.reload()
-    else rb.hberror(res.error_msg)
+    else RbHighbar.error(res.error_msg)
   })
 }
 const deleteRole = function (id, dlg) {
   dlg.disabled(true)
   $.post(rb.baseUrl + '/admin/bizuser/role-delete?transfer=&id=' + id, (res) => {
     if (res.error_code === 0) location.replace(rb.baseUrl + '/admin/bizuser/role-privileges')
-    else rb.hberror(res.error_msg)
+    else RbHighbar.error(res.error_msg)
   })
 }

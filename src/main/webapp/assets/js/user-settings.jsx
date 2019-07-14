@@ -20,7 +20,7 @@ $(document).ready(function () {
     if (avatarUrl) _data.avatarUrl = avatarUrl
     $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), function (res) {
       if (res.error_code === 0) location.reload()
-      else rb.highbar(res.error_msg)
+      else RbHighbar.create(res.error_msg)
     })
   })
 })
@@ -62,16 +62,16 @@ class DlgChangePasswd extends RbFormHandler {
   }
   post() {
     let s = this.state
-    if (!s.oldPasswd) { rb.highbar('请输入原密码'); return }
-    if (!s.newPasswd) { rb.highbar('请输入新密码'); return }
-    if (s.newPasswd !== s.newPasswdAgain) { rb.highbar('两次输入的新密码不一致'); return }
+    if (!s.oldPasswd) { RbHighbar.create('请输入原密码'); return }
+    if (!s.newPasswd) { RbHighbar.create('请输入新密码'); return }
+    if (s.newPasswd !== s.newPasswdAgain) { RbHighbar.create('两次输入的新密码不一致'); return }
     let btns = $(this.refs['btns']).find('.btn').button('loading')
     $.post(rb.baseUrl + '/account/settings/save-passwd?oldp=' + $encode(s.oldPasswd) + '&newp=' + $encode(s.newPasswd), (res) => {
       btns.button('reset')
       if (res.error_code === 0) {
         this.hide()
-        rb.highbar('密码修改成功', 'success')
-      } else rb.highbar(res.error_msg)
+        RbHighbar.create('密码修改成功', 'success')
+      } else RbHighbar.create(res.error_msg)
     })
   }
 }
@@ -110,11 +110,11 @@ class DlgChangeEmail extends RbFormHandler {
   }
   sendVCode() {
     let s = this.state
-    if (!s.newEmail || !$regex.isMail(s.newEmail)) { rb.highbar('请输入有效的邮箱地址'); return }
+    if (!s.newEmail || !$regex.isMail(s.newEmail)) { RbHighbar.create('请输入有效的邮箱地址'); return }
     this.setState({ vcodeDisabled: true })
     $.post(rb.baseUrl + '/account/settings/send-email-vcode?email=' + $encode(s.newEmail), (res) => {
       if (res.error_code === 0) this.vcodeResend()
-      else rb.highbar(res.error_msg)
+      else RbHighbar.create(res.error_msg)
     })
   }
   vcodeResend() {
@@ -129,16 +129,16 @@ class DlgChangeEmail extends RbFormHandler {
   }
   post() {
     let s = this.state
-    if (!s.newEmail || !$regex.isMail(s.newEmail)) { rb.highbar('请输入有效的邮箱地址'); return }
-    if (!s.newEmail || !s.vcode) { rb.highbar('请输入邮箱地址和验证码'); return }
+    if (!s.newEmail || !$regex.isMail(s.newEmail)) { RbHighbar.create('请输入有效的邮箱地址'); return }
+    if (!s.newEmail || !s.vcode) { RbHighbar.create('请输入邮箱地址和验证码'); return }
     let btns = $(this.refs['btns']).find('.btn').button('loading')
     $.post(rb.baseUrl + '/account/settings/save-email?email=' + $encode(s.newEmail) + '&vcode=' + $encode(s.vcode), (res) => {
       btns.button('reset')
       if (res.error_code === 0) {
         this.hide()
         $('.J_email-account').html('当前绑定邮箱 <b>' + s.newEmail + '</b>')
-        rb.highbar('邮箱修改成功', 'success')
-      } else rb.highbar(res.error_msg)
+        RbHighbar.create('邮箱修改成功', 'success')
+      } else RbHighbar.create(res.error_msg)
     })
   }
 }

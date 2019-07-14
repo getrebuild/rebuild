@@ -7,15 +7,15 @@ $(document).ready(function () {
       refEntity = $val('#refEntity'),
       refClassification = $val('#refClassification')
     if (!fieldLabel) {
-      rb.highbar('请输入字段名称')
+      RbHighbar.create('请输入字段名称')
       return
     }
     if (type === 'REFERENCE' && !refEntity) {
-      rb.highbar('请选择引用实体')
+      RbHighbar.create('请选择引用实体')
       return
     }
     if (type === 'CLASSIFICATION' && !refClassification) {
-      rb.highbar('请选择分类数据')
+      RbHighbar.create('请选择分类数据')
       return
     }
 
@@ -31,14 +31,14 @@ $(document).ready(function () {
     $.post(rb.baseUrl + '/admin/entity/field-new', JSON.stringify(_data), function (res) {
       btn.button('reset')
       if (res.error_code === 0) parent.location.href = rb.baseUrl + '/admin/entity/' + entity + '/field/' + res.data
-      else rb.hberror(res.error_msg)
+      else RbHighbar.error(res.error_msg)
     })
   })
 
   let referenceLoaded = false
   let classificationLoaded = false
   $('#type').change(function () {
-    parent.rb.modalResize()
+    parent.RbModal.resize()
     let dt = $(this).val()
     $('.J_dt-' + dt).removeClass('hide')
 

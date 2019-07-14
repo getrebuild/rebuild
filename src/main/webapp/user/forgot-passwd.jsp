@@ -57,7 +57,7 @@ $(document).ready(function() {
 	let email = null
 	$('.J_forgot-btn, .J_vcode-resend').click(function() {
 		email = $val('#email')
-		if (!email){ rb.highbar('请输入邮箱'); return }
+		if (!email){ RbHighbar.create('请输入邮箱'); return }
 		$('.J_email').text(email)
 		let _btn = $(this).button('loading')
 		$.post(rb.baseUrl + '/user/user-forgot-passwd?email=' + $encode(email), function(res) {
@@ -65,7 +65,7 @@ $(document).ready(function() {
 				$('.J_step1').hide()
 				$('.J_step2').removeClass('hide')
 				resend_countdown(true)
-			}else rb.highbar(res.error_msg)
+			}else RbHighbar.create(res.error_msg)
 			_btn.button('reset')
 		})
 	})
@@ -74,9 +74,9 @@ $(document).ready(function() {
 		let vcode = $val('#vcode')
 		let newpwd = $val('#newpwd')
 		let newpwd2 = $val('#newpwd2')
-		if (!vcode) { rb.highbar('请输入验证码'); return }
-		if (!newpwd) { rb.highbar('请输入新密码'); return }
-    	if (newpwd !== newpwd2) { rb.highbar('两次输入的新密码不一致'); return }
+		if (!vcode) { RbHighbar.create('请输入验证码'); return }
+		if (!newpwd) { RbHighbar.create('请输入新密码'); return }
+    	if (newpwd !== newpwd2) { RbHighbar.create('两次输入的新密码不一致'); return }
     	
     	let _data = { email: email, vcode: vcode, newpwd: newpwd }
     	let _btn = $(this).button('loading')
@@ -85,7 +85,7 @@ $(document).ready(function() {
 				_btn.text('密码重置成功')
 				setTimeout(()=>{ location.href = './login' }, 1000)
 			} else {
-				rb.highbar(res.error_msg)
+				RbHighbar.create(res.error_msg)
 				_btn.button('reset')
 			}
 		})
