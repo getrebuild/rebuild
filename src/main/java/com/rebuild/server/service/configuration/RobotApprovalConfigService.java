@@ -57,23 +57,23 @@ public class RobotApprovalConfigService extends ConfigurationService implements 
 				.createFields(MetadataHelper.getEntity(entity));
 		return super.create(record);
 	}
-	
+
+	@Override
+	public Record update(Record record) {
+		if (record.hasValue("flowDefinition")) {
+			int inUsed = checkInUsed(record.getPrimary());
+			if (inUsed > 0) {
+				throw new DataSpecificationException("有 " + inUsed + " 条记录正在使用此流程，禁止修改");
+			}
+		}
+		return super.update(record);
+	}
+
 	@Override
 	public int delete(ID recordId) {
-		Object[] belongEntity = Application.createQueryNoFilter(
-				"select belongEntity from RobotApprovalConfig where configId = ?")
-				.setParameter(1, recordId)
-				.unique();
-		Entity entity = MetadataHelper.getEntity((String) belongEntity[0]);
-		String sql = String.format(
-				"select count(%s) from %s where approvalId = ? and approvalState = ?",
-				entity.getPrimaryField().getName(), entity.getName());
-		Object[] inUsed = Application.createQueryNoFilter(sql)
-				.setParameter(1, recordId)
-				.setParameter(2, ApprovalState.PROCESSING.getState())
-				.unique();
-		if (inUsed != null && ObjectUtils.toInt(inUsed[0]) > 0) {
-			throw new DataSpecificationException("有 " + inUsed[0] + " 条记录正在使用此流程，无法删除。建议禁用");
+		int inUsed = checkInUsed(recordId);
+		if (inUsed > 0) {
+			throw new DataSpecificationException("有 " + inUsed + " 条记录正在使用此流程，禁止删除");
 		}
 		return super.delete(recordId);
 	}
@@ -88,5 +88,27 @@ public class RobotApprovalConfigService extends ConfigurationService implements 
 			Entity entity = MetadataHelper.getEntity((String) cfg[0]);
 			RobotApprovalManager.instance.clean(entity);
 		}
+	}
+
+	/**
+	 * 流程是否正在使用中（处于审核中）
+	 *
+	 * @param configId
+	 * @return
+	 */
+	public int checkInUsed(ID configId) {
+		Object[] belongEntity = Application.createQueryNoFilter(
+				"select belongEntity from RobotApprovalConfig where configId = ?")
+				.setParameter(1, configId)
+				.unique();
+		Entity entity = MetadataHelper.getEntity((String) belongEntity[0]);
+		String sql = String.format(
+				"select count(%s) from %s where approvalId = ? and approvalState = ?",
+				entity.getPrimaryField().getName(), entity.getName());
+		Object[] inUsed = Application.createQueryNoFilter(sql)
+				.setParameter(1, configId)
+				.setParameter(2, ApprovalState.PROCESSING.getState())
+				.unique();
+		return inUsed != null ? ObjectUtils.toInt(inUsed[0]) : 0;
 	}
 }

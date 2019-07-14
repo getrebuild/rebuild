@@ -20,7 +20,13 @@
 				<div class="page-head-title">编辑审批流程<span class="sub-title">${name}</span></div>
 			</div>
 			<div class="float-right pt-1">
-				<button class="btn btn-primary J_save" type="button">保存并发布</button>
+			    <div class="btn-group btn-space">
+                    <button class="btn btn-primary J_save" type="button">保存</button>
+                    <button class="btn btn-primary dropdown-toggle auto" type="button" data-toggle="dropdown"><span class="icon zmdi zmdi-chevron-down"></span></button>
+                    <div class="dropdown-menu dropdown-menu-primary dropdown-menu-right">
+                        <a class="dropdown-item J_copy"><i class="icon zmdi zmdi-copy"></i> 另存为</a>
+                    </div>
+                </div>
 			</div>
 			<div class="clearfix"></div>
 		</div>

@@ -23,6 +23,10 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.devezhao.persist4j.Record;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.configuration.RobotApprovalConfigService;
+import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -78,16 +82,43 @@ public class RobotApprovalControll extends BasePageControll {
 	@RequestMapping("approval/list")
 	public void approvalList(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String belongEntity = getParameter(request, "entity");
-		String sql = "select configId,name,belongEntity,belongEntity,isDisabled from RobotApprovalConfig";
+		String sql = "select configId,name,belongEntity,belongEntity,isDisabled from RobotApprovalConfig where isDisabled = ?";
 		if (StringUtils.isNotBlank(belongEntity)) {
-			sql += " where belongEntity = '" + StringEscapeUtils.escapeSql(belongEntity) + "'";
+			sql += " and belongEntity = '" + StringEscapeUtils.escapeSql(belongEntity) + "'";
 		}
 		sql += " order by name";
-		
-		Object[][] array = Application.createQuery(sql).array();
+
+		boolean disabled = getBoolParameter(request, "disabled", false);
+		Object[][] array = Application.createQuery(sql).setParameter(1, disabled).array();
 		for (Object[] o : array) {
 			o[3] = EasyMeta.getLabel(MetadataHelper.getEntity((String) o[3]));
 		}
 		writeSuccess(response, array);
+	}
+
+	@RequestMapping("approval/copy")
+	public void copyApproval(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		final ID user = getRequestUser(request);
+		String approvalName = getParameterNotNull(request, "name");
+		ID father = getIdParameterNotNull(request, "father");
+		boolean disableFather = getBoolParameter(request, "disabled", true);
+
+		Object[] copy = Application.createQueryNoFilter(
+				"select belongEntity,flowDefinition,isDisabled from RobotApprovalConfig where configId = ?")
+				.setParameter(1, father)
+				.unique();
+
+		Record record = EntityHelper.forNew(EntityHelper.RobotApprovalConfig, user);
+		record.setString("belongEntity", (String) copy[0]);
+		record.setString("flowDefinition", (String) copy[1]);
+		record.setString("name", approvalName);
+		record = Application.getBean(RobotApprovalConfigService.class).create(record);
+
+		if (disableFather && !(Boolean) copy[2]) {
+			Record update = EntityHelper.forUpdate(father, user);
+			update.setBoolean("isDisabled", true);
+			Application.getBean(RobotApprovalConfigService.class).update(update);
+		}
+		writeSuccess(response, JSONUtils.toJSONObject("approvalId", record.getPrimary()));
 	}
 }

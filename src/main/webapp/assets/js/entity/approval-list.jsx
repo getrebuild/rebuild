@@ -29,7 +29,7 @@ class GridList extends React.Component {
           </div>
         </div>)
       })}
-      {(!this.state.list || this.state.list.length === 0) && <div className="text-muted">尚未配置审批流程</div>}
+      {(!this.state.list || this.state.list.length === 0) && <div className="text-muted">尚未配置或启用任何审批流程</div>}
     </div>
   }
   componentDidMount() {
@@ -37,7 +37,9 @@ class GridList extends React.Component {
   }
 
   loadData(entity) {
-    $.get(`${rb.baseUrl}/admin/robot/approval/list?entity=${$encode(entity)}`, (res) => {
+    let url = `${rb.baseUrl}/admin/robot/approval/list?entity=${$encode(entity)}`
+    if (entity === '$DISABLED$') url = `${rb.baseUrl}/admin/robot/approval/list?disabled=true`
+    $.get(url, (res) => {
       this.setState({ list: res.data })
       if (!this.__treeRendered) this.renderEntityTree()
     })
@@ -50,6 +52,8 @@ class GridList extends React.Component {
       if (!ues.contains(this[3])) $('<li data-entity="' + this[2] + '"><a class="text-truncate">' + this[3] + '</a></li>').appendTo(dest)
       ues.push(this[2])
     })
+    $('<li data-entity="$DISABLED$"><a class="text-truncate">已禁用的</a></li>').appendTo(dest)
+
     let that = this
     dest.find('li').click(function () {
       dest.find('li').removeClass('active')
@@ -59,7 +63,7 @@ class GridList extends React.Component {
   }
 
   delete(configId) {
-    rb.alert('确认删除吗？<br>如果此流程正在被使用则不能删除，建议你将其禁用。', {
+    rb.alert('如果此流程正在被使用则不能删除，建议你将其禁用。<br>确认删除吗？', {
       html: true,
       type: 'danger',
       confirmText: '删除',
@@ -81,7 +85,7 @@ class DlgEdit extends RbFormHandler {
     super(props)
   }
   render() {
-    return (<RbModal title={(this.props.id ? '编辑' : '添加') + '审批流程'} ref={(c) => this._dlg = c}>
+    return (<RbModal title={(this.props.id ? '编辑' : '添加') + '审批流程'} ref={(c) => this._dlg = c} disposeOnHide={true}>
       <div className="form">
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">流程名称</label>
@@ -91,7 +95,7 @@ class DlgEdit extends RbFormHandler {
         </div>
         {!this.props.id &&
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">应用实体</label>
+            <label className="col-sm-3 col-form-label text-sm-right">选择应用实体</label>
             <div className="col-sm-7">
               <select className="form-control form-control-sm" ref={(c) => this._applyEntity = c}>
                 {(this.state.applyEntities || []).map((item) => {

@@ -37,7 +37,7 @@ class GridList extends React.Component {
           </div>
         </div>)
       })}
-      {(!this.state.list || this.state.list.length === 0) && <div className="text-muted">尚未配置触发器</div>}
+      {(!this.state.list || this.state.list.length === 0) && <div className="text-muted">尚未配置任何触发器</div>}
     </div>
   }
   componentDidMount() {
@@ -88,7 +88,7 @@ class DlgEdit extends RbFormHandler {
     super(props)
   }
   render() {
-    return (<RbModal title="添加触发器" ref={(c) => this._dlg = c}>
+    return (<RbModal title="添加触发器" ref={(c) => this._dlg = c} disposeOnHide={true}>
       <div className="form">
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">触发器</label>

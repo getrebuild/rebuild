@@ -529,7 +529,7 @@ class CCNodeConfig extends StartNodeConfig {
         </div>
       </div>
       {this.renderButton()}
-    </div >)
+    </div>)
   }
   save = () => {
     let d = {
@@ -624,6 +624,10 @@ class RbFlowCanvas extends NodeGroupSpec {
         _btn.button('reset')
       })
     })
+
+    $('.J_copy').click(() => {
+      renderRbcomp(<DlgCopy father={wpc.configId} name={wpc.name + '(2)'} isDisabled={true} />)
+    })
   }
   zoom(v) {
     let zv = (this.state.zoomValue || 100) + v
@@ -636,5 +640,49 @@ class RbFlowCanvas extends NodeGroupSpec {
     if (!ns) return false
     ns.nodes.insert(0, this._root.serialize())
     return ns
+  }
+}
+
+
+class DlgCopy extends RbFormHandler {
+  constructor(props) {
+    super(props)
+  }
+  render() {
+    return (<RbModal title="另存为" ref={(c) => this._dlg = c} disposeOnHide={true}>
+      <div className="form">
+        <div className="form-group row">
+          <label className="col-sm-3 col-form-label text-sm-right">新流程名称</label>
+          <div className="col-sm-7">
+            <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
+          </div>
+        </div>
+        <div className="form-group row">
+          <div className="col-sm-7 offset-sm-3">
+            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+              <input className="custom-control-input" type="checkbox" checked={this.state.isDisabled === true} data-id="isDisabled" onChange={this.handleChange} />
+              <span className="custom-control-label">同时禁用当前流程</span>
+            </label>
+          </div>
+        </div>
+        <div className="form-group row footer">
+          <div className="col-sm-7 offset-sm-3" ref={(c) => this._btns = c}>
+            <button className="btn btn-primary" type="button" onClick={this.save}>确定</button>
+          </div>
+        </div>
+      </div>
+    </RbModal>)
+  }
+  save = () => {
+    let approvalName = this.state.name
+    if (!approvalName) { rb.highbar('请输入新流程名称'); return }
+    let _btns = $(this._btns).find('.btn').button('loading')
+    $.post(`${rb.baseUrl}/admin/robot/approval/copy?father=${this.props.father}&disabled=${this.state.isDisabled}&name=${$encode(approvalName)}`, (res) => {
+      if (res.error_code === 0) {
+        rb.hbsuccess('另存为成功')
+        setTimeout(() => location.replace('./' + res.data.approvalId), 500)
+      } else rb.hberror(res.error_msg)
+      _btns.button('reset')
+    })
   }
 }
