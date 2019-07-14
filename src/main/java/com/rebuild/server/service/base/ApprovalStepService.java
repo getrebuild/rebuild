@@ -61,7 +61,7 @@ public class ApprovalStepService extends BaseService {
 		final ID approvalId = mainRecord.getID(EntityHelper.ApprovalId);
 		
 		// 作废之前的步骤（若有）
-		cancelAliveSteps(recordId, approvalId, null, null);
+		cancelAliveSteps(recordId, approvalId, null, null, false);
 		
 		super.update(mainRecord);
 		
@@ -129,6 +129,9 @@ public class ApprovalStepService extends BaseService {
 		
 		// 拒绝了直接返回
 		if (state == ApprovalState.REJECTED) {
+			// 更新联合审批
+			cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, true);
+
 			// 更新主记录
 			Record main = EntityHelper.forUpdate(recordId, Application.getCurrentUser(), false);
 			main.setInt(EntityHelper.ApprovalState, ApprovalState.REJECTED.getState());
@@ -146,7 +149,7 @@ public class ApprovalStepService extends BaseService {
 		
 		// 或签。一人通过其他作废
 		if (FlowNode.SIGN_OR.equals(signMode)) {
-			cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId);
+			cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, false);
 		}
 		// 会签。检查是否都签了
 		else {
@@ -212,7 +215,6 @@ public class ApprovalStepService extends BaseService {
 	 * @param node
 	 * @param approver
 	 * @param isWaiting
-	 * @param prevStepId
 	 * @return
 	 */
 	private boolean createStepIfNeed(ID recordId, ID approvalId, String node, ID approver, boolean isWaiting, String prevNode) {
@@ -240,24 +242,31 @@ public class ApprovalStepService extends BaseService {
 		super.create(step);
 		return true;
 	}
-	
+
 	/**
 	 * 作废流程步骤
-	 * 
+	 *
 	 * @param recordId
 	 * @param approvalId
 	 * @param node
 	 * @param excludeStep
+	 * @param onlyDarft
 	 */
-	private void cancelAliveSteps(ID recordId, ID approvalId, String node, ID excludeStep) {
+	private void cancelAliveSteps(ID recordId, ID approvalId, String node,
+								  ID excludeStep, boolean onlyDarft) {
 		String sql = "select stepId from RobotApprovalStep where recordId = ? and approvalId = ? and isCanceled = 'F'";
 		if (node != null) {
 			sql += " and node = '" + node + "'";
 		}
+		if (onlyDarft) {
+			sql += " and state = " + ApprovalState.DRAFT.getState();
+		}
+
 		Object[][] cancelled = Application.createQueryNoFilter(sql)
 				.setParameter(1, recordId)
 				.setParameter(2, approvalId)
 				.array();
+
 		for (Object[] o : cancelled) {
 			if (excludeStep != null && excludeStep.equals(o[0])) {
 				continue;
