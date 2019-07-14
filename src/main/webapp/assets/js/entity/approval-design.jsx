@@ -75,7 +75,7 @@ class NodeSpec extends React.Component {
     if (this.nodeType === 'approver' || this.nodeType === 'cc') {
       let users = this.state.data ? this.state.data.users : ['SPEC']
       if (users[0] === 'SPEC') {
-        rb.highbar(NTs[this.nodeType][2])
+        RbHighbar.create(NTs[this.nodeType][2])
         this.setState({ hasError: true })
         return false
       } else this.setState({ hasError: false })
@@ -230,7 +230,7 @@ class ConditionNode extends NodeSpec {
     }
     // 至少两个分支
     if (bs.length < 2) {
-      rb.highbar('请至少设置两个并列条件分支')
+      RbHighbar.create('请至少设置两个并列条件分支')
       if (holdANode) holdANode.setState({ hasError: true })
       return false
     } else if (holdANode) holdANode.setState({ hasError: false })
@@ -301,7 +301,7 @@ class ConditionBranch extends NodeGroupSpec {
     let s = super.serialize()
     if (!s || s.nodes.length === 0) {
       this.setState({ hasError: true })
-      if (s !== false) rb.highbar('请为分支添加审批人或抄送人')
+      if (s !== false) RbHighbar.create('请为分支添加审批人或抄送人')
       return false
     } else this.setState({ hasError: false })
 
@@ -366,7 +366,7 @@ class DlgAddNode extends React.Component {
 let __DlgAddNode
 const showDlgAddNode = function (call) {
   if (__DlgAddNode) __DlgAddNode.show(call)
-  else __DlgAddNode = renderRbcomp(<DlgAddNode call={call} />)
+  else renderRbcomp(<DlgAddNode call={call} />, null, function () { __DlgAddNode = this })
 }
 const hideDlgAddNode = function () {
   if (__DlgAddNode) __DlgAddNode.hide()
@@ -427,7 +427,7 @@ class StartNodeConfig extends RbFormHandler {
       users: this.state.users === 'SPEC' ? this._users.getSelected() : [this.state.users]
     }
     if (this.state.users === 'SPEC' && d.users.length === 0) {
-      rb.highbar('请选择用户')
+      RbHighbar.create('请选择用户')
       return
     }
     typeof this.props.call && this.props.call(d)
@@ -498,7 +498,7 @@ class ApproverNodeConfig extends StartNodeConfig {
       selfSelecting: this.state.selfSelecting
     }
     if (d.users.length === 0 && !d.selfSelecting) {
-      rb.highbar('请选择审批人或允许自选')
+      RbHighbar.create('请选择审批人或允许自选')
       return
     }
     typeof this.props.call && this.props.call(d)
@@ -538,7 +538,7 @@ class CCNodeConfig extends StartNodeConfig {
       selfSelecting: this.state.selfSelecting
     }
     if (d.users.length === 0 && !d.selfSelecting) {
-      rb.highbar('请选择抄送人或允许自选')
+      RbHighbar.create('请选择抄送人或允许自选')
       return
     }
     typeof this.props.call && this.props.call(d)
@@ -613,14 +613,14 @@ class RbFlowCanvas extends NodeGroupSpec {
       _btn.button('loading')
       $.post(`${rb.baseUrl}/app/entity/record-save`, JSON.stringify(_data), (res) => {
         if (res.error_code === 0) {
-          rb.alert('保存并发布成功', {
+          RbAlert.create('保存并发布成功', {
             type: 'primary',
             cancelText: '返回列表',
             cancel: () => location.replace('../approvals'),
             confirmText: '继续编辑',
             confirm: () => location.reload()
           })
-        } else rb.hberror(res.error_msg)
+        } else RbHighbar.error(res.error_msg)
         _btn.button('reset')
       })
     })
@@ -675,13 +675,13 @@ class DlgCopy extends RbFormHandler {
   }
   save = () => {
     let approvalName = this.state.name
-    if (!approvalName) { rb.highbar('请输入新流程名称'); return }
+    if (!approvalName) { RbHighbar.create('请输入新流程名称'); return }
     let _btns = $(this._btns).find('.btn').button('loading')
     $.post(`${rb.baseUrl}/admin/robot/approval/copy?father=${this.props.father}&disabled=${this.state.isDisabled}&name=${$encode(approvalName)}`, (res) => {
       if (res.error_code === 0) {
-        rb.hbsuccess('另存为成功')
+        RbHighbar.success('另存为成功')
         setTimeout(() => location.replace('./' + res.data.approvalId), 500)
-      } else rb.hberror(res.error_msg)
+      } else RbHighbar.error(res.error_msg)
       _btns.button('reset')
     })
   }

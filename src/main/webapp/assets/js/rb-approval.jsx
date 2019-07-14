@@ -64,16 +64,19 @@ class ApprovalProcessor extends React.Component {
   }
 
   submit = () => {
+    let that = this
     if (this._submitForm) this._submitForm.show()
-    else this._submitForm = renderRbcomp(<SubmitForm id={this.props.id} />)
+    else renderRbcomp(<SubmitForm id={this.props.id} />, null, function () { that._submitForm = this })
   }
   approve = () => {
+    let that = this
     if (this._approveForm) this._approveForm.show()
-    else this._approveForm = renderRbcomp(<ApproveForm id={this.props.id} approval={this.state.approvalId} />)
+    else renderRbcomp(<ApproveForm id={this.props.id} approval={this.state.approvalId} />, null, function () { that._approveForm = this })
   }
   viewSteps = () => {
+    let that = this
     if (this._stepViewer) this._stepViewer.show()
-    else this._stepViewer = renderRbcomp(<ApprovedStepViewer id={this.props.id} approval={this.state.approvalId} />)
+    else renderRbcomp(<ApprovedStepViewer id={this.props.id} approval={this.state.approvalId} />, null, function () { that._stepViewer = this })
   }
 }
 
@@ -119,7 +122,7 @@ class ApprovalUsersForm extends RbFormHandler {
     }
     if (this.state.isLastStep !== true) {
       if ((this.state.nextApprovers || []).length === 0 && selectUsers.selectApprovers.length === 0) {
-        rb.highbar('请选择审批人')
+        RbHighbar.create('请选择审批人')
         return false
       }
     }
@@ -185,7 +188,7 @@ class SubmitForm extends ApprovalUsersForm {
 
   post() {
     if (!this.state.useApproval) {
-      rb.highbar('无可用流程，请联系管理员配置')
+      RbHighbar.create('无可用流程，请联系管理员配置')
       return
     }
     let selectUsers = this.getSelectUsers()
@@ -193,9 +196,9 @@ class SubmitForm extends ApprovalUsersForm {
 
     this.disabled(true)
     $.post(`${rb.baseUrl}/app/entity/approval/submit?record=${this.props.id}&approval=${this.state.useApproval}`, JSON.stringify(selectUsers), (res) => {
-      if (res.error_code > 0) rb.hberror(res.error_msg)
+      if (res.error_code > 0) RbHighbar.error(res.error_msg)
       else {
-        rb.hbsuccess('审批已提交')
+        RbHighbar.success('审批已提交')
         setTimeout(() => {
           if (window.RbViewPage) window.RbViewPage.reload()
           else location.reload()
@@ -240,9 +243,9 @@ class ApproveForm extends ApprovalUsersForm {
 
     this.disabled(true)
     $.post(`${rb.baseUrl}/app/entity/approval/approve?record=${this.props.id}&state=${state}`, JSON.stringify(pdata), (res) => {
-      if (res.error_code > 0) rb.hberror(res.error_msg)
+      if (res.error_code > 0) RbHighbar.error(res.error_msg)
       else {
-        rb.hbsuccess('审批已' + (state === 10 ? '同意' : '驳回'))
+        RbHighbar.success('审批已' + (state === 10 ? '同意' : '驳回'))
         setTimeout(() => {
           if (window.RbViewPage) window.RbViewPage.reload()
           else location.reload()
@@ -323,7 +326,7 @@ class ApprovedStepViewer extends React.Component {
     this.show()
     $.get(`${rb.baseUrl}/app/entity/approval/fetch-workedsteps?record=${this.props.id}`, (res) => {
       if (!res.data || res.data.length === 0) {
-        rb.highbar('未查询到流程详情')
+        RbHighbar.create('未查询到流程详情')
         this.hide()
         this.__noStepFound = true
       } else this.setState({ steps: res.data })
@@ -333,7 +336,7 @@ class ApprovedStepViewer extends React.Component {
   hide = () => $(this._dlg).modal('hide')
   show = () => {
     if (this.__noStepFound === true) {
-      rb.highbar('未查询到流程详情')
+      RbHighbar.create('未查询到流程详情')
       this.hide()
     } else $(this._dlg).modal({ show: true, keyboard: true })
   }

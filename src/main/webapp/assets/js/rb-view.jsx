@@ -94,7 +94,7 @@ const RbViewPage = {
     this.__id = id
     this.__entity = entity
     this.__ep = ep
-    this._RbViewForm = renderRbcomp(<RbViewForm entity={entity[0]} id={id} />, 'tab-rbview')
+    renderRbcomp(<RbViewForm entity={entity[0]} id={id} />, 'tab-rbview', function () { RbViewPage._RbViewForm = this })
 
     const that = this
 
@@ -105,13 +105,13 @@ const RbViewPage = {
       const needEntity = (wpc.type === 'SlaveList' || wpc.type === 'SlaveView') ? null : entity[0]
       renderRbcomp(<DeleteConfirm id={this.__id} entity={needEntity} deleteAfter={deleteAfter} />)
     })
-    $('.J_edit').click(() => { rb.RbFormModal({ id: id, title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] }) })
-    $('.J_assign').click(() => { rb.DlgAssign({ entity: entity[0], ids: [id] }) })
-    $('.J_share').click(() => { rb.DlgShare({ entity: entity[0], ids: [id] }) })
+    $('.J_edit').click(() => { RbFormModal.create({ id: id, title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] }) })
+    $('.J_assign').click(() => { DlgAssign.create({ entity: entity[0], ids: [id] }) })
+    $('.J_share').click(() => { DlgShare.create({ entity: entity[0], ids: [id] }) })
     $('.J_add-slave').click(function () {
       let iv = { '$MASTER$': id }
       let $this = $(this)
-      rb.RbFormModal({ title: '添加明细', entity: $this.data('entity'), icon: $this.data('icon'), initialValue: iv })
+      RbFormModal.create({ title: '添加明细', entity: $this.data('entity'), icon: $this.data('icon'), initialValue: iv })
     })
 
     // Privileges
@@ -152,10 +152,10 @@ const RbViewPage = {
           if (this.__ep && this.__ep.S === true) {
             let item_op = $('<li class="list-inline-item"></li>').appendTo(list)[0]
             if (v.length === 0) renderRbcomp(<UserShow name="添加共享" icon="zmdi zmdi-plus" onClick={() => { $('.J_share').trigger('click') }} />, item_op)
-            else renderRbcomp(<UserShow name="管理共享用户" icon="zmdi zmdi-more" onClick={() => { rb.DlgShareManager(this.__id) }} />, item_op)
+            else renderRbcomp(<UserShow name="管理共享用户" icon="zmdi zmdi-more" onClick={() => { DlgShareManager.cretae(this.__id) }} />, item_op)
           } else if (v.length > 0) {
             let item_op = $('<li class="list-inline-item"></li>').appendTo(list)[0]
-            renderRbcomp(<UserShow name="查看共享用户" icon="zmdi zmdi-more" onClick={() => { rb.DlgShareManager(this.__id, false) }} />, item_op)
+            renderRbcomp(<UserShow name="查看共享用户" icon="zmdi zmdi-more" onClick={() => { DlgShareManager.cretae(this.__id, false) }} />, item_op)
           } else {
             $('.J_sharingList').parent().remove()
           }
@@ -205,7 +205,7 @@ const RbViewPage = {
 
     $('.J_view-addons').click(function () {
       let type = $(this).data('type')
-      rb.modal(`${rb.baseUrl}/p/admin/entityhub/view-addons?entity=${that.__entity[0]}&type=${type}`, '配置' + (type === 'TAB' ? '显示项' : '新建项'))
+      RbModal.create(`${rb.baseUrl}/p/admin/entityhub/view-addons?entity=${that.__entity[0]}&type=${type}`, '配置' + (type === 'TAB' ? '显示项' : '新建项'))
     })
 
     this.updateVTabs()
@@ -253,7 +253,7 @@ const RbViewPage = {
       item.click(function () {
         let iv = {}
         iv['&' + that.__entity[0]] = that.__id
-        rb.RbFormModal({ title: `新建${entity[1]}`, entity: entity[0], icon: entity[2], initialValue: iv })
+        RbFormModal.create({ title: `新建${entity[1]}`, entity: entity[0], icon: entity[2], initialValue: iv })
       })
       $('.J_adds .dropdown-divider').before(item)
     })
@@ -269,9 +269,7 @@ const RbViewPage = {
     return false
   },
   clickViewUser(id) {
-    if (parent && parent.rb && parent.rb.RbViewModal) {
-      parent.rb.RbViewModal({ entity: 'User', id: id }, true)
-    }
+    if (parent && parent.rb && parent.rb.RbViewModal) parent.rb.RbViewModal({ entity: 'User', id: id }, true)
     return false
   },
 

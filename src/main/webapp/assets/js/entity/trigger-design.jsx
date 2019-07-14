@@ -13,7 +13,7 @@ $(document).ready(() => {
   let advFilter
   $('.J_whenFilter .btn').click(() => {
     if (advFilter) advFilter.show()
-    else advFilter = renderRbcomp(<AdvFilter title="设置过滤条件" entity={wpc.sourceEntity} filter={wpc.whenFilter} inModal={true} confirm={saveFilter} canNoFilters={true} />)
+    else renderRbcomp(<AdvFilter title="设置过滤条件" entity={wpc.sourceEntity} filter={wpc.whenFilter} inModal={true} confirm={saveFilter} canNoFilters={true} />, null, function () { advFilter = this })
   })
   saveFilter(wpc.whenFilter)
 
@@ -21,10 +21,10 @@ $(document).ready(() => {
   const compProps = { sourceEntity: wpc.sourceEntity, content: wpc.actionContent }
   if (wpc.actionType === 'FIELDAGGREGATION') {
     // eslint-disable-next-line react/jsx-no-undef
-    contentComp = renderRbcomp(<ContentFieldAggregation {...compProps} />, 'react-content')
+    renderRbcomp(<ContentFieldAggregation {...compProps} />, 'react-content', function () { contentComp = this })
   } else if (wpc.actionType === 'SENDNOTIFICATION') {
     // eslint-disable-next-line react/jsx-no-undef
-    contentComp = renderRbcomp(<ContentSendNotification {...compProps} />, 'react-content')
+    renderRbcomp(<ContentSendNotification {...compProps} />, 'react-content', function () { contentComp = this })
   } else {
     renderRbcomp(<div className="text-danger">未实现的操作类型: {wpc.actionType}</div>, 'react-content')
     $('.J_save').attr('disabled', true)
@@ -48,7 +48,7 @@ $(document).ready(() => {
     _btn.button('loading')
     $.post(`${rb.baseUrl}/app/entity/record-save`, JSON.stringify(_data), (res) => {
       if (res.error_code === 0) location.href = '../triggers'
-      else rb.hberror(res.error_msg)
+      else RbHighbar.error(res.error_msg)
       _btn.button('reset')
     })
   })

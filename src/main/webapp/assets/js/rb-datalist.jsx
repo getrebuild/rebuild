@@ -154,7 +154,7 @@ class RbList extends React.Component {
         if (res.data.total > 0) this.refs['pagination'].setState({ rowsTotal: res.data.total })
 
       } else {
-        rb.hberror(res.error_msg)
+        RbHighbar.error(res.error_msg)
       }
 
       clearTimeout(loadingTimer)
@@ -260,7 +260,7 @@ class RbList extends React.Component {
     return this.__selectedRows
   }
   getSelectedIds() {
-    if (!this.__selectedRows || this.__selectedRows.length < 1) { rb.highbar('未选中任何记录'); return [] }
+    if (!this.__selectedRows || this.__selectedRows.length < 1) { RbHighbar.create('未选中任何记录'); return [] }
     let ids = this.__selectedRows.map((item) => { return item[0] })
     return ids
   }
@@ -397,15 +397,6 @@ class RbListPagination extends React.Component {
   }
 }
 
-// -- Usage
-
-var rb = rb || {}
-
-// @props = { config }
-rb.RbList = function (props, target) {
-  return renderRbcomp(<RbList {...props} />, target || 'react-list')
-}
-
 // 列表页面初始化
 const RbListPage = {
   _RbList: null,
@@ -414,17 +405,17 @@ const RbListPage = {
   // @entity - [Name, Label, Icon]
   // @ep - Privileges of this entity
   init: function (config, entity, ep) {
-    this._RbList = renderRbcomp(<RbList config={config} />, 'react-list')
+    renderRbcomp(<RbList config={config} />, 'react-list', function () { RbListPage._RbList = this })
 
     const that = this
 
     $('.J_new').click(() => {
-      rb.RbFormModal({ title: `新建${entity[1]}`, entity: entity[0], icon: entity[2] })
+      RbFormModal.create({ title: `新建${entity[1]}`, entity: entity[0], icon: entity[2] })
     })
     $('.J_edit').click(() => {
       let ids = this._RbList.getSelectedIds()
       if (ids.length >= 1) {
-        rb.RbFormModal({ id: ids[0], title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] })
+        RbFormModal.create({ id: ids[0], title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] })
       }
     })
     $('.J_delete').click(() => {
@@ -445,19 +436,19 @@ const RbListPage = {
     })
     $('.J_assign').click(() => {
       let ids = this._RbList.getSelectedIds()
-      if (ids.length > 0) rb.DlgAssign({ entity: entity[0], ids: ids })
+      if (ids.length > 0) DlgAssign.create({ entity: entity[0], ids: ids })
     })
     $('.J_share').click(() => {
       let ids = this._RbList.getSelectedIds()
-      if (ids.length > 0) rb.DlgShare({ entity: entity[0], ids: ids })
+      if (ids.length > 0) DlgShare.create({ entity: entity[0], ids: ids })
     })
     $('.J_unshare').click(() => {
       let ids = this._RbList.getSelectedIds()
-      if (ids.length > 0) rb.DlgUnshare({ entity: entity[0], ids: ids })
+      if (ids.length > 0) DlgUnshare.create({ entity: entity[0], ids: ids })
     })
 
     $('.J_columns').click(function () {
-      rb.modal(`${rb.baseUrl}/p/general-entity/show-fields?entity=${entity[0]}`, '设置列显示')
+      RbModal.create(`${rb.baseUrl}/p/general-entity/show-fields?entity=${entity[0]}`, '设置列显示')
     })
 
     // Privileges
@@ -537,7 +528,7 @@ const AdvFilters = {
             return false
           })
           action.find('a:eq(1)').click(function () {
-            rb.alert('确认删除此查询项吗？', {
+            RbAlert.create('确认删除此查询项吗？', {
               type: 'danger',
               confirm: function () {
                 this.disabled(true)
@@ -549,7 +540,7 @@ const AdvFilters = {
                       RbListPage._RbList.setAdvFilter(null)
                       $('.adv-search .J_name').text('全部数据')
                     }
-                  } else rb.hberror(res.error_msg)
+                  } else RbHighbar.error(res.error_msg)
                 })
               }
             })
@@ -565,12 +556,13 @@ const AdvFilters = {
     if (!id) {
       if (this.__customAdv) this.__customAdv.show()
       else {
+        let that = this
         if (copyId) {
           this.__getFilter(copyId, (res) => {
-            this.__customAdv = renderRbcomp(<AdvFilter {...props} filter={res.filter} />)
+            renderRbcomp(<AdvFilter {...props} filter={res.filter} />, null, function () { that.__customAdv = this })
           })
         } else {
-          this.__customAdv = renderRbcomp(<AdvFilter {...props} />)
+          renderRbcomp(<AdvFilter {...props} />, null, function () { that.__customAdv = this })
         }
       }
     } else {
@@ -588,7 +580,7 @@ const AdvFilters = {
     if (name) url += '&name=' + $encode(name)
     $.post(url, JSON.stringify(filter), (res) => {
       if (res.error_code === 0) that.loadFilters()
-      else rb.hberror(res.error_msg)
+      else RbHighbar.error(res.error_msg)
     })
   },
 
@@ -716,15 +708,15 @@ rb.RbViewModal = function (props, subView) {
   const viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
   if (subView === true) {
     rb.RbViewModalHide(props.id)
-    let m = renderRbcomp(<RbViewModal url={viewUrl} disposeOnHide={true} id={props.id} subView={true} />)
-    rb.__subViewModals[props.id] = m
-    return m
+    renderRbcomp(<RbViewModal url={viewUrl} disposeOnHide={true} id={props.id} subView={true} />, null, function () { rb.__subViewModals[props.id] = this })
+    return
   }
 
   if (rb.__currentViewModal) rb.__currentViewModal.show(viewUrl)
-  else rb.__currentViewModal = renderRbcomp(<RbViewModal url={viewUrl} />)
-  rb.__subViewModals[props.id] = rb.__currentViewModal
-  return rb.__currentViewModal
+  else renderRbcomp(<RbViewModal url={viewUrl} />, null, function () {
+    rb.__currentViewModal = this
+    rb.__subViewModals[props.id] = this
+  })
 }
 
 rb.RbViewModalGet = function (id) {
