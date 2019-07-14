@@ -1,6 +1,13 @@
 <component name="ArtifactManager">
   <artifact type="exploded-war" name="rebuild:war exploded">
-    <output-path>$PROJECT_DIR$/target/artifacts/rebuild_war_exploded</output-path>
+    <output-path>$PROJECT_DIR$/target/rebuild</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <exploded>true</exploded>
+        <module>rebuild</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
     <root id="root">
       <element id="directory" name="WEB-INF">
         <element id="directory" name="classes">
@@ -26,7 +33,7 @@
           <element id="library" level="project" name="Maven: stax:stax-api:1.0.1" />
           <element id="library" level="project" name="Maven: com.github.virtuald:curvesapi:1.04" />
           <element id="library" level="project" name="Maven: com.mchange:c3p0:0.9.5.3" />
-          <element id="library" level="project" name="Maven: com.github.devezhao:persist4j:1.2.4" />
+          <element id="library" level="project" name="Maven: com.github.devezhao:persist4j:0416933386" />
           <element id="library" level="project" name="Maven: antlr:antlr:2.7.7" />
           <element id="library" level="project" name="Maven: jaxen:jaxen:1.1.6" />
           <element id="library" level="project" name="Maven: org.springframework:spring-core:4.3.21.RELEASE" />
@@ -73,6 +80,9 @@
           <element id="library" level="project" name="Maven: com.vladsch.flexmark:flexmark-ext-tables:0.50.4" />
           <element id="library" level="project" name="Maven: com.vladsch.flexmark:flexmark-formatter:0.50.4" />
         </element>
+      </element>
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/target/rebuild/META-INF/MANIFEST.MF" />
       </element>
       <element id="javaee-facet-resources" facet="rebuild/web/Web" />
     </root>
