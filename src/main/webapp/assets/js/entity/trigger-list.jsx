@@ -153,7 +153,7 @@ class DlgEdit extends RbFormHandler {
     e.preventDefault()
     let _data = { actionType: this.__select2[0].val(), belongEntity: this.__select2[1].val() }
     if (!_data.actionType || !_data.belongEntity) {
-      rb.hignbar('请选择源触发实体')
+      RbHighbar.create('请选择源触发实体')
       return
     }
     _data.metadata = { entity: 'RobotTriggerConfig', id: this.props.id || null }
