@@ -279,6 +279,12 @@ public class FormsBuilder extends FormsManager {
 					}
 				} else if (dt == DisplayType.SERIES) {
 					el.put("value", "自动值 (保存后显示)");
+				} else if (MetadataHelper.isApprovalField(fieldName)) {
+					if (EntityHelper.ApprovalId.equals(fieldName)) {
+						el.put("value", new String[] { null, "自动值 (审批流程)" });
+					} else {
+						el.put("value", "自动值 (审批流程)");
+					}
 				} else {
 					Object dv = FormDefaultValue.exprDefaultValue(fieldMeta);
 					if (dv != null) {
