@@ -24,6 +24,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.rebuild.server.helper.cache.CommonCache;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -119,7 +120,7 @@ public class SysConfiguration {
 	 * @return returns [StorageApiKey, StorageApiSecret, StorageBucket, StorageURL]
 	 */
 	public static String[] getStorageAccount() {
-		return getsNoUnset(
+		return getsNoUnset(false,
 				ConfigurableItem.StorageApiKey, ConfigurableItem.StorageApiSecret, ConfigurableItem.StorageBucket, ConfigurableItem.StorageURL);
 	}
 	
@@ -129,7 +130,7 @@ public class SysConfiguration {
 	 * @return returns [CacheHost, CachePort, CachePassword]
 	 */
 	public static String[] getCacheAccount() {
-		return getsNoUnset(
+		return getsNoUnset(false,
 				ConfigurableItem.CacheHost, ConfigurableItem.CachePort, ConfigurableItem.CachePassword);
 	}
 	
@@ -139,7 +140,7 @@ public class SysConfiguration {
 	 * @return returns [MailUser, MailPassword, MailAddr, MailName]
 	 */
 	public static String[] getMailAccount() {
-		return getsNoUnset(
+		return getsNoUnset(true,
 				ConfigurableItem.MailUser, ConfigurableItem.MailPassword, ConfigurableItem.MailAddr, ConfigurableItem.MailName);
 	}
 	
@@ -149,20 +150,21 @@ public class SysConfiguration {
 	 * @return returns [SmsUser, SmsPassword, SmsSign]
 	 */
 	public static String[] getSmsAccount() {
-		return getsNoUnset(
+		return getsNoUnset(true,
 				ConfigurableItem.SmsUser, ConfigurableItem.SmsPassword, ConfigurableItem.SmsSign);
 	}
-	
+
 	/**
 	 * 获取多个，任意一个为空都返回 null
-	 * 
+	 *
+	 * @param useCache
 	 * @param items
 	 * @return
 	 */
-	private static String[] getsNoUnset(ConfigurableItem... items) {
+	private static String[] getsNoUnset(boolean useCache, ConfigurableItem... items) {
 		List<String> list = new ArrayList<>();
 		for (ConfigurableItem item : items) {
-			String v = get(item, false);
+			String v = get(item, !useCache);
 			if (v == null) {
 				return null;
 			}
@@ -210,7 +212,7 @@ public class SysConfiguration {
 		if (s == null) {
 			Application.getCommonCache().evict(key);
 		} else {
-			Application.getCommonCache().put(key, s, 2 * 60 * 60);
+			Application.getCommonCache().put(key, s, CommonCache.TS_DAY);
 		}
 		return s;
 	}

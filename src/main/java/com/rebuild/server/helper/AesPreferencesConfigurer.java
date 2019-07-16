@@ -46,10 +46,11 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer {
 		for (Object key : keys) {
 			String cleanKey = key.toString();
 			// AES decrypt if have `.aes` suffix
-			if (cleanKey.contains(".aes")) {
+			if (cleanKey.endsWith(".aes")) {
 				String val = props.getProperty(cleanKey);
 				val = AES.decryptNothrow(val);
-				
+
+				props.remove(cleanKey);
 				cleanKey = cleanKey.replace(".aes", "");
 				props.put(cleanKey, val);
 			}
@@ -78,7 +79,7 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer {
 	/**
 	 * 获取配置项
 	 * 
-	 * @param key
+	 * @param name
 	 * @return
 	 */
 	public String getItem(String name) {

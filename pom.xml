@@ -104,7 +104,7 @@
 		<dependency>
 			<groupId>com.github.devezhao</groupId>
 			<artifactId>persist4j</artifactId>
-			<version>db71f6f14b</version>
+			<version>8e268735d2</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

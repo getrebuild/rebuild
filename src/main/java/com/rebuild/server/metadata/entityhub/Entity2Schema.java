@@ -201,7 +201,7 @@ public class Entity2Schema extends Field2Schema {
 			throw new ModifiyMetadataException("不能删除主实体");
 		}
 		
-		for (Field whoRef : entity.getReferenceToFields()) {
+		for (Field whoRef : entity.getReferenceToFields(true)) {
 			if (!whoRef.getOwnEntity().equals(entity)) {
 				throw new ModifiyMetadataException("实体已被引用 (引用实体: " + EasyMeta.getLabel(whoRef.getOwnEntity()) + ")");
 			}
