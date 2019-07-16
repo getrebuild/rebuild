@@ -167,22 +167,6 @@ public class ApprovalProcessor {
 	}
 	
 	/**
-	 * 获取下一审批节点
-	 * 
-	 * @return
-	 */
-	public FlowNode getNextApprovalNode() {
-		FlowNode next = null;
-		while (true) {
-			next = getNextNode();
-			if (next == null || FlowNode.TYPE_APPROVER.equals(next.getType())) {
-				break;
-			}
-		}
-		return next;
-	}
-	
-	/**
 	 * @return
 	 * @see #getNextNode(String)
 	 */
@@ -261,7 +245,8 @@ public class ApprovalProcessor {
 	 * @return
 	 */
 	private String getCurrentNodeId() {
-		Object[] stepNode = Application.getQueryFactory().unique(this.record, EntityHelper.ApprovalStepNode, EntityHelper.ApprovalState);
+		Object[] stepNode = Application.getQueryFactory()
+				.unique(this.record, EntityHelper.ApprovalStepNode, EntityHelper.ApprovalState);
 		String cNode = stepNode == null ? null : (String) stepNode[0];
 		if (StringUtils.isBlank(cNode) || (Integer) stepNode[1] >= ApprovalState.REJECTED.getState()) {
 			cNode = "ROOT";

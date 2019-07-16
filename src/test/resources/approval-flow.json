@@ -3,49 +3,28 @@
     "type": "start",
     "nodeId": "ROOT"
   }, {
-    "branches": [{
-      "nodes": [{
-        "data": {
-          "signMode": "OR",
-          "users": ["001-9000000000000001"]
-        },
-        "type": "approver",
-        "nodeId": "NODE1562738509826-5"
-      }],
-      "data": {
-        "filter": {
-          "items": [{
-            "op": "LK",
-            "field": "accountName",
-            "index": 1,
-            "value": "123"
-          }],
-          "entity": "Account999"
-        }
-      },
-      "priority": 1,
-      "nodeId": "COND1562738484466-1"
-    }, {
-      "nodes": [{
-        "data": {
-          "signMode": "OR",
-          "users": ["001-0000000000000001"]
-        },
-        "type": "approver",
-        "nodeId": "NODE1562738501843-4"
-      }],
-      "priority": 2,
-      "nodeId": "COND1562738484466-2"
-    }],
-    "type": "condition",
-    "nodeId": "COND1562738484464-0"
+    "data": {
+      "selfSelecting": false,
+      "users": ["001-9000000000000001"]
+    },
+    "type": "cc",
+    "nodeId": "NODE15627680771710"
   }, {
     "data": {
       "selfSelecting": false,
-      "users": ["002-0000000000000001", "002-9000000000000001"]
+      "signMode": "AND",
+      "users": ["001-0000000000000001", "001-9000000000000001"]
     },
-    "type": "cc",
-    "nodeId": "NODE1562738531489-7"
+    "type": "approver",
+    "nodeId": "NODE15627680848801"
+  }, {
+    "data": {
+      "selfSelecting": false,
+      "signMode": "OR",
+      "users": ["001-0000000000000001"]
+    },
+    "type": "approver",
+    "nodeId": "NODE15628652944110"
   }],
   "nodeId": "RBFLOW"
 }

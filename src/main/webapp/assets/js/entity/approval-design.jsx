@@ -11,7 +11,10 @@ $(document).ready(() => {
   $(document.body).click(function (e) {
     if (e.target && (e.target.matches('div.rb-right-sidebar') || $(e.target).parents('div.rb-right-sidebar').length > 0)) return
     $(this).removeClass('open-right-sidebar')
-    if (activeNode) activeNode.setState({ active: false })
+    if (activeNode) {
+      activeNode.setState({ active: false })
+      activeNode = null
+    }
   })
   window.resize_handler()
 })
