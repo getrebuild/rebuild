@@ -3,7 +3,9 @@ language: java
 jdk:
   - oraclejdk9
   - oraclejdk11
-script: mvn cobertura:cobertura -DskipTests=false
+script:
+  - mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true -Denv=travis-ci -B -V -U
+  - mvn cobertura:cobertura -DskipTests=false
 
 services:
   - mysql
