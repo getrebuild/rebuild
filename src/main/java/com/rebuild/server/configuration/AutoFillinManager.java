@@ -144,28 +144,28 @@ public class AutoFillinManager implements ConfigManager<Field> {
 				compatibleValue = ((ID) value).getLabel();
 			} else {
 				Object[] idAndLabel = new Object[] { value, ((ID) value).getLabel() };
-				compatibleValue = FieldValueWrapper.wrapFieldValue(idAndLabel, source);
+				compatibleValue = FieldValueWrapper.instance.wrapFieldValue(idAndLabel, source);
 			}
 		} else if (sourceType == DisplayType.CLASSIFICATION) {
 			// Label
-			compatibleValue = FieldValueWrapper.wrapFieldValue(value, source);
+			compatibleValue = FieldValueWrapper.instance.wrapFieldValue(value, source);
 			if (!is2Text) {
 				compatibleValue = new Object[] { value, compatibleValue };  // [ID, Label]
 			}
 		} else if (sourceType == DisplayType.PICKLIST) {
 			if (is2Text) {
-				compatibleValue = FieldValueWrapper.wrapFieldValue(value, source);
+				compatibleValue = FieldValueWrapper.instance.wrapFieldValue(value, source);
 			} else {
 				compatibleValue = value;
 			}
 		} else if (sourceType == DisplayType.DATETIME && targetType == DisplayType.DATE) {
-			String datetime = (String) FieldValueWrapper.wrapFieldValue(value, source);
+			String datetime = (String) FieldValueWrapper.instance.wrapFieldValue(value, source);
 			compatibleValue = datetime.split(" ")[0];
 		} else if (sourceType == DisplayType.DATE && targetType == DisplayType.DATETIME) {
-			String date = (String) FieldValueWrapper.wrapFieldValue(value, source);
+			String date = (String) FieldValueWrapper.instance.wrapFieldValue(value, source);
 			compatibleValue = date + " 00:00:00";
 		} else {
-			compatibleValue = FieldValueWrapper.wrapFieldValue(value, source);
+			compatibleValue = FieldValueWrapper.instance.wrapFieldValue(value, source);
 		}
 		
 		return compatibleValue;

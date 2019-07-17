@@ -227,15 +227,7 @@
 		<field name="actionContent" type="text" description="预定义的触发操作类型, JSON KV 对" />
 		<field name="priority" type="int" default-value="1" description="执行优先级, 越大越高(越先执行)"/>
 	</entity>
-	
-	<!--
-	<entity name="ApporvalFields" type-code="000">
-		<field name="apporvalId" type="reference" ref-entity="RobotApprovalConfig" description="审批流程" />
-		<field name="apporvalState" type="small-int" default-value="0" description="审批状态" />
-		<field name="apporvalStepId" type="reference" ref-entity="RobotApprovalStep" description="当前步骤" />
-	</entity>
-	-->
-	
+
 	<entity name="RobotApprovalConfig" type-code="028" name-field="name" description="审批流程">
 		<field name="configId" type="primary"/>
 		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="应用实体" />
@@ -247,7 +239,7 @@
 	<entity name="RobotApprovalStep" type-code="029" description="审批步骤记录">
 		<field name="stepId" type="primary"/>
 		<field name="recordId" type="any-reference" nullable="false" updatable="false" cascade="delete" description="审批记录"/>
-		<field name="approvalId" type="reference" ref-entity="RobotApprovalConfig" nullable="false" updatable="false" cascade="delete" description="审批流程" />
+		<field name="approvalId" type="reference" ref-entity="RobotApprovalConfig" nullable="false" updatable="false" cascade="remove-links" description="审批流程" />
 		<field name="node" type="string" max-length="100" nullable="false" updatable="false" description="审批节点" />
 		<field name="approver" type="reference" ref-entity="User" nullable="false" updatable="false" cascade="delete" description="审批人" />
 		<field name="state" type="small-int" default-value="1" description="审批结果" />

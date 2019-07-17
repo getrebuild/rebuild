@@ -7,6 +7,7 @@ class RbFormModal extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props, inLoad: true }
+    if (!props.id) this.state.id = null
   }
   render() {
     return (this.state.isDestroy === true ? null :
@@ -73,6 +74,7 @@ class RbFormModal extends React.Component {
 
   show(state) {
     state = state || {}
+    if (!state.id) state.id = null
     if ((state.id !== this.state.id || state.entity !== this.state.entity) || this.state.isDestroy === true) {
       state = { formComponent: null, initialValue: null, inLoad: true, ...state }
       this.setState(state, () => {
@@ -117,9 +119,8 @@ class RbFormModal extends React.Component {
   // -- Usage
   /**
    * @param {*} props 
-   * @param {*} call 
    */
-  static create(props, call) {
+  static create(props) {
     let that = this
     if (that.__HOLDER) that.__HOLDER.show(props)
     else renderRbcomp(<RbFormModal {...props} />, null, function () { that.__HOLDER = this })
@@ -262,6 +263,8 @@ class RbForm extends React.Component {
             let iv = { '$MASTER$': res.data.id }
             let sm = that.props.$$$parent.state.__formModel.slaveMeta
             RbFormModal.create({ title: `添加${sm[1]}`, entity: sm[0], icon: sm[2], initialValue: iv })
+          } else if (next === 103) {
+            renderRbcomp(<ApprovalSubmitForm id={res.data.id} disposeOnHide={true} />)
           }
         }, 100)
 
@@ -279,7 +282,7 @@ class RbForm extends React.Component {
   // 保存后调用
   static postAfter(data, notReload) {
     let rlp = window.RbListPage || parent.RbListPage
-    if (rlp) rlp._RbList.reload()
+    if (rlp) rlp.reload()
     if (window.RbViewPage && notReload !== true) window.RbViewPage.reload()
   }
 }

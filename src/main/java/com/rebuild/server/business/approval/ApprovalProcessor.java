@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.rebuild.server.helper.cache.NoRecordFoundException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -247,7 +248,11 @@ public class ApprovalProcessor {
 	private String getCurrentNodeId() {
 		Object[] stepNode = Application.getQueryFactory()
 				.unique(this.record, EntityHelper.ApprovalStepNode, EntityHelper.ApprovalState);
-		String cNode = stepNode == null ? null : (String) stepNode[0];
+		if (stepNode == null) {
+			throw new NoRecordFoundException("记录不存在或无权查看:" + this.record);
+		}
+
+		String cNode = (String) stepNode[0];
 		if (StringUtils.isBlank(cNode) || (Integer) stepNode[1] >= ApprovalState.REJECTED.getState()) {
 			cNode = "ROOT";
 		}

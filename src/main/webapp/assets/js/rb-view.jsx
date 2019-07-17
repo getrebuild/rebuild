@@ -74,15 +74,6 @@ const detectViewElement = function (item) {
   return (<div className={'col-12 col-sm-' + (item.isFull ? 12 : 6)} key={item.key}>{window.detectElement(item)}</div>)
 }
 
-const UserShow = function (props) {
-  let viewUrl = props.id ? ('#!/View/User/' + props.id) : null
-  let avatarUrl = rb.baseUrl + '/account/user-avatar/' + props.id
-  return (<a href={viewUrl} className="user-show" title={props.name} onClick={props.onClick}>
-    <div className={'avatar' + (props.showName === true ? ' float-left' : '')}>{props.icon ? <i className={props.icon} /> : <img src={avatarUrl} />}</div>
-    {props.showName === true ? <div className="name text-truncate">{props.name}{props.deptName ? <em>{props.deptName}</em> : null}</div> : null}
-  </a>)
-}
-
 let rb = rb || {}
 const RbViewPage = {
   _RbViewForm: null,

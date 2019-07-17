@@ -131,6 +131,10 @@ public class QueryFactory {
 	 */
 	public Object[] unique(ID recordId, String ...fields) {
 		Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+		if (fields.length == 0) {
+			fields = new String[] { entity.getPrimaryField().getName() };
+		}
+
 		StringBuffer sql = new StringBuffer("select ");
 		sql.append(StringUtils.join(fields, ","))
 			.append(" from ").append(entity.getName())

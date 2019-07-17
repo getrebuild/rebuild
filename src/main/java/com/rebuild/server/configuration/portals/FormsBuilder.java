@@ -99,10 +99,10 @@ public class FormsBuilder extends FormsManager {
 	 * @param entity
 	 * @param user
 	 * @param record
-	 * @param onView 视图模式
+	 * @param viewMode 视图模式
 	 * @return
 	 */
-	protected JSON buildModel(String entity, ID user, ID record, boolean onView) {
+	protected JSON buildModel(String entity, ID user, ID record, boolean viewMode) {
 		Assert.notNull(entity, "[entity] not be null");
 		Assert.notNull(user, "[user] not be null");
 		
@@ -123,7 +123,7 @@ public class FormsBuilder extends FormsManager {
 				ID masterRecordId = MASTERID4NEWSLAVE.get();
 				Assert.notNull(masterRecordId, "Please calls #setCurrentMasterId first");
 				
-				hadApproval = getHadApproval(entityMeta, record);
+				hadApproval = getHadApproval(entityMeta, null);
 				MASTERID4NEWSLAVE.set(null);
 				
 				if (hadApproval != null) {
@@ -139,11 +139,13 @@ public class FormsBuilder extends FormsManager {
 				}
 			} else if (!Application.getSecurityManager().allowedC(user, entityMeta.getEntityCode())) {
 				return formatModelError("没有新建权限");
+			} else {
+				hadApproval = getHadApproval(entityMeta, null);
 			}
 			
 		} 
 		// 查看（视图）
-		else if (onView) {
+		else if (viewMode) {
 			if (!Application.getSecurityManager().allowedR(user, record)) {
 				return formatModelError("你没有读取此记录的权限");
 			}
@@ -189,7 +191,7 @@ public class FormsBuilder extends FormsManager {
 			
 			// 分割线
 			if (fieldName.equalsIgnoreCase(DIVIDER_LINE)) {
-				if (!onView) {  // 表单页暂不支持
+				if (!viewMode) {  // 表单页暂不支持
 					iter.remove();
 				}
 				continue;
@@ -247,9 +249,9 @@ public class FormsBuilder extends FormsManager {
 			
 			// 编辑/视图
 			if (data != null) {
-				Object value = wrapFieldValue(data, easyField, onView);
+				Object value = wrapFieldValue(data, easyField, viewMode);
 				if (value != null) {
-					if (dt == DisplayType.BOOL && !onView) {
+					if (dt == DisplayType.BOOL && !viewMode) {
 						value = "是".equals(value) ? "T" : "F";
 					}
 					el.put("value", value);
@@ -405,20 +407,20 @@ public class FormsBuilder extends FormsManager {
 	 * 
 	 * @param data
 	 * @param field
-	 * @param onView
+	 * @param viewMode
 	 * @return
 	 * 
 	 * @see FieldValueWrapper
 	 * @see #findRecord(ID, ID, JSONArray)
 	 */
-	protected static Object wrapFieldValue(Record data, EasyMeta field, boolean onView) {
+	protected static Object wrapFieldValue(Record data, EasyMeta field, boolean viewMode) {
 		String fieldName = field.getName();
 		if (data.hasValue(fieldName)) {
 			Object value = data.getObjectValue(fieldName);
 			DisplayType dt = field.getDisplayType();
 			if (dt == DisplayType.PICKLIST) {
 				ID pickValue = (ID) value;
-				if (onView) {
+				if (viewMode) {
 					return StringUtils.defaultIfBlank(
 							PickListManager.instance.getLabel(pickValue), FieldValueWrapper.MISS_REF_PLACE);
 				} else {
@@ -429,7 +431,7 @@ public class FormsBuilder extends FormsManager {
 				ID itemValue = (ID) value;
 				String itemName = ClassificationManager.instance.getFullName(itemValue);
 				itemName = StringUtils.defaultIfBlank(itemName, FieldValueWrapper.MISS_REF_PLACE);
-				return onView ? itemName : new String[] { itemValue.toLiteral(), itemName };
+				return viewMode ? itemName : new String[] { itemValue.toLiteral(), itemName };
 			} 
 			else if (value instanceof ID) {
 				ID idValue = (ID) value;
@@ -442,9 +444,9 @@ public class FormsBuilder extends FormsManager {
 				return new String[] { idValue.toLiteral(), idLabel, belongEntity };
 			} 
 			else {
-				Object ret = FieldValueWrapper.wrapFieldValue(value, field);
+				Object ret = FieldValueWrapper.instance.wrapFieldValue(value, field);
 				// 编辑记录时要去除千分位
-				if (!onView && (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL)) {
+				if (!viewMode && (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL)) {
 					ret = ret.toString().replace(",", "");
 				}
 				return ret;

@@ -215,7 +215,7 @@ public class ReferenceSearch extends BaseControll {
 			if (o[1] == null || StringUtils.isBlank(o[1].toString())) {
 				label = FieldValueWrapper.NO_LABEL_PREFIX + recordId.toLiteral().toUpperCase();
 			} else {
-				label = (String) FieldValueWrapper.wrapFieldValue(o[1], nameField);
+				label = (String) FieldValueWrapper.instance.wrapFieldValue(o[1], nameField);
 			}
 			result.add(JSONUtils.toJSONObject(new String[] { "id", "text" }, new Object[] { recordId, label }));
 		}

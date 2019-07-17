@@ -306,7 +306,7 @@ function RbAlertBox(props) {
   </div>)
 }
 
-// ~ 用户选择器
+// ~~ 用户选择器
 class UserSelector extends React.Component {
   constructor(props) {
     super(props)
@@ -445,6 +445,17 @@ class UserSelector extends React.Component {
     })
     return ids
   }
+}
+
+// ~~ 用户显示
+const UserShow = function (props) {
+  let viewUrl = props.id ? ('#!/View/User/' + props.id) : null
+  let avatarUrl = rb.baseUrl + '/account/user-avatar/' + props.id
+  return (
+    <a href={viewUrl} className="user-show" title={props.name} onClick={props.onClick}>
+      <div className={'avatar' + (props.showName === true ? ' float-left' : '')}>{props.icon ? <i className={props.icon} /> : <img src={avatarUrl} />}</div>
+      {props.showName === true ? <div className="name text-truncate">{props.name}{props.deptName ? <em>{props.deptName}</em> : null}</div> : null}
+    </a>)
 }
 
 /**

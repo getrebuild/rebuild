@@ -53,7 +53,10 @@ public class FlowBranch extends FlowNode {
 		super(nodeId, TYPE_BRANCH, dataMap);
 		this.priority = priority;
 	}
-	
+
+	/**
+	 * @return
+	 */
 	public int getPriority() {
 		return priority;
 	}

@@ -66,17 +66,17 @@ class ApprovalProcessor extends React.Component {
   submit = () => {
     let that = this
     if (this._submitForm) this._submitForm.show()
-    else renderRbcomp(<SubmitForm id={this.props.id} />, null, function () { that._submitForm = this })
+    else renderRbcomp(<ApprovalSubmitForm id={this.props.id} />, null, function () { that._submitForm = this })
   }
   approve = () => {
     let that = this
     if (this._approveForm) this._approveForm.show()
-    else renderRbcomp(<ApproveForm id={this.props.id} approval={this.state.approvalId} />, null, function () { that._approveForm = this })
+    else renderRbcomp(<ApprovalApproveForm id={this.props.id} approval={this.state.approvalId} />, null, function () { that._approveForm = this })
   }
   viewSteps = () => {
     let that = this
     if (this._stepViewer) this._stepViewer.show()
-    else renderRbcomp(<ApprovedStepViewer id={this.props.id} approval={this.state.approvalId} />, null, function () { that._stepViewer = this })
+    else renderRbcomp(<ApprovalStepViewer id={this.props.id} approval={this.state.approvalId} />, null, function () { that._stepViewer = this })
   }
 }
 
@@ -136,15 +136,15 @@ class ApprovalUsersForm extends RbFormHandler {
   }
 }
 
-// 提交
-class SubmitForm extends ApprovalUsersForm {
+// 审核提交
+class ApprovalSubmitForm extends ApprovalUsersForm {
   constructor(props) {
     super(props)
     this.state.approvals = []
   }
 
   render() {
-    return <RbModal ref={(c) => this._dlg = c} title="提交审批" width="600">
+    return <RbModal ref={(c) => this._dlg = c} title="提交审批" width="600" disposeOnHide={this.props.disposeOnHide === true}>
       <div className="form approval-form">
         <div className="form-group">
           <label>选择审批流程</label>
@@ -199,8 +199,10 @@ class SubmitForm extends ApprovalUsersForm {
       if (res.error_code > 0) RbHighbar.error(res.error_msg)
       else {
         RbHighbar.success('审批已提交')
+        this.hide()
         setTimeout(() => {
           if (window.RbViewPage) window.RbViewPage.reload()
+          if (window.RbListPage) window.RbListPage.reload()
           else location.reload()
         }, 1000)
       }
@@ -210,7 +212,7 @@ class SubmitForm extends ApprovalUsersForm {
 }
 
 // 审批
-class ApproveForm extends ApprovalUsersForm {
+class ApprovalApproveForm extends ApprovalUsersForm {
   constructor(props) {
     super(props)
     this._approverLabel = '下一审批人'
@@ -256,7 +258,8 @@ class ApproveForm extends ApprovalUsersForm {
   }
 }
 
-class ApprovedStepViewer extends React.Component {
+// 已审批步骤查看
+class ApprovalStepViewer extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }

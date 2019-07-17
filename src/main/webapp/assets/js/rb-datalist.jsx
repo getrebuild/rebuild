@@ -474,6 +474,10 @@ const RbListPage = {
       this._RbList.search(filterExp)
     })
     input.keydown((event) => { if (event.which === 13) btn.trigger('click') })
+  },
+
+  reload() {
+    this._RbList.reload()
   }
 }
 

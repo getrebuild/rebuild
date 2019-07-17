@@ -72,7 +72,7 @@ public class RelatedListControll extends BaseControll {
 		
 		Object[][] array = Application.createQuery(sql).setLimit(ps, pn * ps - ps).array();
 		for (Object[] o : array) {
-			o[1] = FieldValueWrapper.wrapFieldValue(o[1], MetadataHelper.getNameField(relatedEntity));
+			o[1] = FieldValueWrapper.instance.wrapFieldValue(o[1], MetadataHelper.getNameField(relatedEntity));
 			if (o[1] == null || StringUtils.isEmpty(o[1].toString())) {
 				o[1] = o[0].toString().toUpperCase();  // 使用ID值作为名称字段值
 			}
