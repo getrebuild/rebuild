@@ -38,6 +38,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.portals.BaseLayoutManager;
 import com.rebuild.server.configuration.portals.DataListManager;
+import com.rebuild.server.configuration.portals.FieldPortalAttrs;
 import com.rebuild.server.configuration.portals.SharableManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -110,7 +111,9 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 		
 		List<Map<String, Object>> fieldList = new ArrayList<>();
 		for (Field field : MetadataSorter.sortFields(entityMeta)) {
-			fieldList.add(DataListManager.instance.formatColumn(field));
+			if (FieldPortalAttrs.instance.allowDataList(field)) {
+				fieldList.add(DataListManager.instance.formatColumn(field));
+			}
 		}
 		// 引用实体的字段
 		for (Field field : MetadataSorter.sortFields(entityMeta, DisplayType.REFERENCE)) {
@@ -124,8 +127,10 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 				continue;
 			}
 			
-			for (Field field4Ref : MetadataSorter.sortFields(refEntity)) {
-				fieldList.add(DataListManager.instance.formatColumn(field4Ref, field));
+			for (Field fieldOfRef : MetadataSorter.sortFields(refEntity)) {
+				if (FieldPortalAttrs.instance.allowDataList(fieldOfRef)) {
+					fieldList.add(DataListManager.instance.formatColumn(fieldOfRef, field));
+				}
 			}
 		}
 		

@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.ClassificationManager;
+import com.rebuild.server.configuration.portals.FieldPortalAttrs;
 import com.rebuild.server.configuration.portals.PickListManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -84,9 +85,10 @@ public class MetadataGetting extends BaseControll {
 		String entity = getParameterNotNull(request, "entity");
 		Entity entityBase = MetadataHelper.getEntity(entity);
 		boolean appendRefFields = "2".equals(getParameter(request, "deep"));
+		String fromType = getParameter(request, "from");
 		
 		List<Map<String, Object>> list = new ArrayList<>();
-		putFields(list, entityBase, appendRefFields, null);
+		putFields(list, entityBase, appendRefFields, null, fromType);
 		// 追加二级字段
 		if (appendRefFields) {
 			for (Field field : entityBase.getFields()) {
@@ -105,7 +107,7 @@ public class MetadataGetting extends BaseControll {
 					parent.put("creatable", field.isCreatable());
 					list.add(parent);
 					
-					putFields(list, field.getReferenceEntity(), false, easyField);
+					putFields(list, field.getReferenceEntity(), false, easyField, fromType);
 				}
 			}
 		}
@@ -116,12 +118,14 @@ public class MetadataGetting extends BaseControll {
 	/**
 	 * @param dest
 	 * @param entity
-	 * @param filteredField
+	 * @param filterField
 	 * @param parentField
+	 * @param fromType
 	 */
-	private void putFields(List<Map<String, Object>> dest, Entity entity, boolean filteredField, EasyMeta parentField) {
+	private void putFields(
+			List<Map<String, Object>> dest, Entity entity, boolean filterField, EasyMeta parentField, String fromType) {
 		for (Field field : MetadataSorter.sortFields(entity)) {
-			if (EntityHelper.ApprovalStepNode.equalsIgnoreCase(field.getName())) {
+			if (!FieldPortalAttrs.instance.allowByType(field, fromType)) {
 				continue;
 			}
 			
@@ -136,7 +140,7 @@ public class MetadataGetting extends BaseControll {
 				Entity refEntity = field.getReferenceEntity();
 				// Bizz 字段前台有特殊处理
 				boolean isBizzField = MetadataHelper.isBizzEntity(refEntity.getEntityCode());
-				if (filteredField && !(isBizzField || refEntity.getEntityCode() == EntityHelper.RobotApprovalConfig)) {
+				if (filterField && !(isBizzField || refEntity.getEntityCode() == EntityHelper.RobotApprovalConfig)) {
 					continue;
 				}
 				

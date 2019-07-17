@@ -18,10 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
+import com.rebuild.server.metadata.EntityHelper;
+
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
-import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
 
 /**
  * 字段的前台显示属性
@@ -34,13 +34,35 @@ public class FieldPortalAttrs {
     public static final FieldPortalAttrs instance = new FieldPortalAttrs();
     private FieldPortalAttrs() {}
 
+    public static final String TYPE_FORM = "FORM";
+    
+    public static final String TYPE_DATALIST = "DATALIST";
+    
+    public static final String TYPE_SEARCH = "SEARCH";
+    
+    /**
+     * @param field
+     * @param type
+     * @return
+     */
+    public boolean allowByType(Field field, String type) {
+    	if (TYPE_FORM.equalsIgnoreCase(type)) {
+    		return allowForm(field);
+    	} else if (TYPE_DATALIST.equalsIgnoreCase(type)) {
+    		return allowDataList(field);
+    	} else if (TYPE_SEARCH.equalsIgnoreCase(type)) {
+    		return allowSearch(field);
+    	}
+    	return true;
+    }
+    
     /**
      * 表单布局
      *
      * @param field
      * @return
      */
-    public boolean allowForm(EasyMeta field) {
+    public boolean allowForm(Field field) {
         if (disallowAll(field)) {
             return false;
         }
@@ -53,7 +75,7 @@ public class FieldPortalAttrs {
      * @param field
      * @return
      */
-    public boolean allowDataList(EasyMeta field) {
+    public boolean allowDataList(Field field) {
         if (disallowAll(field) || isPasswd(field)) {
             return false;
         }
@@ -66,7 +88,7 @@ public class FieldPortalAttrs {
      * @param field
      * @return
      */
-    public boolean allowSearch(EasyMeta field) {
+    public boolean allowSearch(Field field) {
         if (disallowAll(field) || isPasswd(field)) {
             return false;
         }
@@ -77,17 +99,17 @@ public class FieldPortalAttrs {
      * @param field
      * @return
      */
-    private boolean disallowAll(EasyMeta field) {
+    private boolean disallowAll(Field field) {
         String fieldName = field.getName();
-        return ((Field) field.getBaseMeta()).getType() == FieldType.ANY_REFERENCE
-                || EntityHelper.ApprovalState.equalsIgnoreCase(fieldName);
+        return field.getType() == FieldType.ANY_REFERENCE
+                || EntityHelper.ApprovalStepNode.equalsIgnoreCase(fieldName);
     }
 
     /**
      * @param field
      * @return
      */
-    private boolean isPasswd(EasyMeta field) {
+    private boolean isPasswd(Field field) {
         String fieldName = field.getName();
         return fieldName.contains("password") || fieldName.contains("passwd");
     }
