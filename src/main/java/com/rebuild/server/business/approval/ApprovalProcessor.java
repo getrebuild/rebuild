@@ -105,11 +105,11 @@ public class ApprovalProcessor {
 			return false;
 		}
 		
-		Record recordOfMain = EntityHelper.forUpdate(this.record, this.user, false);
-		recordOfMain.setID(EntityHelper.ApprovalId, this.approval);
-		recordOfMain.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
-		recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNodes.getApprovalNode().getNodeId());
-		Application.getBean(ApprovalStepService.class).txSubmit(recordOfMain, ccs, nextApprovers);
+		Record mainRecord = EntityHelper.forUpdate(this.record, this.user, false);
+		mainRecord.setID(EntityHelper.ApprovalId, this.approval);
+		mainRecord.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
+		mainRecord.setString(EntityHelper.ApprovalStepNode, nextNodes.getApprovalNode().getNodeId());
+		Application.getBean(ApprovalStepService.class).txSubmit(mainRecord, ccs, nextApprovers);
 		return true;
 	}
 	

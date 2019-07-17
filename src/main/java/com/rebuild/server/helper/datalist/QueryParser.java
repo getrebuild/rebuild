@@ -228,7 +228,7 @@ public class QueryParser {
 	}
 	
 	/**
-	 * @param sortNode
+	 * @param sort
 	 * @return
 	 */
 	private String parseSort(String sort) {

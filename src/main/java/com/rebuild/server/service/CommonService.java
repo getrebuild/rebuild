@@ -86,7 +86,7 @@ public class CommonService extends BaseService {
 	/**
 	 * 批量删除
 	 * 
-	 * @param ids
+	 * @param deleted
 	 * @return
 	 */
 	public int delete(ID[] deleted) {

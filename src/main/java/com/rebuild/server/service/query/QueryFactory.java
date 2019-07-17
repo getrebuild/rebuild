@@ -78,7 +78,7 @@ public class QueryFactory {
 	
 	/**
 	 * @param ajql
-	 * @param user
+	 * @param filter
 	 * @return
 	 */
 	public Query createQuery(String ajql, Filter filter) {

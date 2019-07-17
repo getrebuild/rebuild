@@ -52,7 +52,6 @@ public class SeriesGeneratorFactory {
 	/**
 	 * 预览
 	 * 
-	 * @param field
 	 * @param config
 	 * @return
 	 */

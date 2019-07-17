@@ -231,7 +231,7 @@ public class MetadataHelper {
 	/**
 	 * 是否公共字段
 	 * 
-	 * @param field
+	 * @param fieldName
 	 * @return
 	 * @see #isSystemField(Field)
 	 * @see EntityHelper
@@ -270,7 +270,7 @@ public class MetadataHelper {
 	/**
 	 * 是否 Bizz 实体
 	 * 
-	 * @param entityCode
+	 * @param entityName
 	 * @return
 	 */
 	public static boolean isBizzEntity(String entityName) {

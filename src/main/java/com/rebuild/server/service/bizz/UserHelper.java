@@ -69,7 +69,7 @@ public class UserHelper {
 	/**
 	 * 是否超级管理员
 	 * 
-	 * @param user
+	 * @param userId
 	 * @return
 	 */
 	public static boolean isSuperAdmin(ID userId) {

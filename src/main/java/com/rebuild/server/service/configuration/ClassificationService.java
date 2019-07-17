@@ -104,10 +104,9 @@ public class ClassificationService extends ConfigurationService implements Admin
 		}
 		return record;
 	}
-	
+
 	/**
-	 * @param record
-	 * @return
+	 * @param itemId
 	 */
 	public void deleteItem(ID itemId) {
 		super.delete(itemId);

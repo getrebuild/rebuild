@@ -70,7 +70,7 @@ public class TaskExecutors extends QuartzJobBean {
 	/**
 	 * 取消执行
 	 * 
-	 * @param task
+	 * @param taskid
 	 */
 	public static boolean cancel(String taskid) {
 		HeavyTask<?> task = TASKS.get(taskid);

@@ -35,8 +35,9 @@ public class ActionContext {
 	final private ID sourceRecord;
 	final private Entity sourceEntity;
 	final private JSON actionContent;
-	
+
 	/**
+	 * @param sourceRecord
 	 * @param sourceEntity
 	 * @param actionContent
 	 */
@@ -45,10 +46,10 @@ public class ActionContext {
 		this.sourceEntity = sourceRecord != null ? MetadataHelper.getEntity(sourceRecord.getEntityCode()) : sourceEntity;
 		this.actionContent = actionContent;
 	}
-	
+
 	/**
 	 * 触发源实体
-	 * 
+	 *
 	 * @return
 	 */
 	public Entity getSourceEntity() {

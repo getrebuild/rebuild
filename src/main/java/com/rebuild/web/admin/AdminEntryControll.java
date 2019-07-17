@@ -91,10 +91,9 @@ public class AdminEntryControll extends BasePageControll {
 		Object verified = ServletUtils.getSessionAttribute(request, KEY_VERIFIED);
 		return verified != null;
 	}
-	
+
 	/**
 	 * @param request
-	 * @return
 	 */
 	public static void cleanAdminVerified(HttpServletRequest request) {
 		ServletUtils.setSessionAttribute(request, KEY_VERIFIED, null);

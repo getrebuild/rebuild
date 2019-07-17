@@ -57,12 +57,11 @@ public class MessageBuilder {
 	public static Message createMessage(ID toUser, String message, ID relatedRecord) {
 		return new Message(null, toUser, message, relatedRecord, Message.TYPE_DEFAULT);
 	}
-	
+
 	/**
 	 * @param fromUser
 	 * @param toUser
 	 * @param message
-	 * @param relatedRecord
 	 * @return
 	 */
 	public static Message createMessage(ID fromUser, ID toUser, String message) {
@@ -79,23 +78,20 @@ public class MessageBuilder {
 	public static Message createMessage(ID fromUser, ID toUser, String message, ID relatedRecord) {
 		return new Message(fromUser, toUser, message, relatedRecord, Message.TYPE_DEFAULT);
 	}
-	
+
 	/**
-	 * @param fromUser
 	 * @param toUser
 	 * @param message
-	 * @param relatedRecord
 	 * @return
 	 */
 	public static Message createApprovalMessage(ID toUser, String message) {
 		return new Message(null, toUser, message, null, Message.TYPE_APPROVAL);
 	}
-	
+
 	/**
 	 * @param fromUser
 	 * @param toUser
 	 * @param message
-	 * @param relatedRecord
 	 * @return
 	 */
 	public static Message createApprovalMessage(ID fromUser, ID toUser, String message) {
