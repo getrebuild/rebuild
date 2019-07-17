@@ -78,7 +78,7 @@ class AdvFilter extends React.Component {
     else return advFilter
   }
   componentDidMount() {
-    $.get(rb.baseUrl + '/commons/metadata/fields?deep=2&entity=' + this.props.entity, (res) => {
+    $.get(rb.baseUrl + '/commons/metadata/fields?deep=2&from=SEARCH&entity=' + this.props.entity, (res) => {
       let valideFs = []
       this.fields = res.data.map((item) => {
         valideFs.push(item.name)
@@ -276,6 +276,7 @@ class FilterItem extends React.Component {
       }
     }
     op.push('NL', 'NT')
+    if (this.state.field === 'approvalState') op = ['EQ', 'NEQ']
     this.__op = op
     return op
   }
@@ -298,6 +299,14 @@ class FilterItem extends React.Component {
         </select>)
     } else if (this.isBizzField()) {
       val = <select className="form-control form-control-sm" multiple="true" ref={(c) => this._filterVal = c} />
+    } else if (this.state.field === 'approvalState') {
+      val = (
+        <select className="form-control form-control-sm" ref={(c) => this._filterVal = c}>
+          <option value="1">草稿</option>
+          <option value="2">审批中</option>
+          <option value="10">通过</option>
+          <option value="11">驳回</option>
+        </select>)
     }
 
     INPUTVALS_HOLD[this.state.field] = this.state.value
@@ -391,6 +400,12 @@ class FilterItem extends React.Component {
       this.removeBizzSearch()
     }
 
+    if (_state.field === 'approvalState') {
+      this.renderApprovalState()
+    } else if (lastType === 'STATE') {
+      this.removeApprovalState()
+    }
+
     if (_state.value) this.valueCheck($(this._filterVal))
     if (_state.value2 && this._filterVal2) this.valueCheck($(this._filterVal2))
   }
@@ -422,6 +437,8 @@ class FilterItem extends React.Component {
       }
     }
   }
+
+  // 列表
 
   renderPickList(field) {
     let that = this
@@ -466,6 +483,8 @@ class FilterItem extends React.Component {
       this.setState({ value: null })
     }
   }
+
+  // 用户/部门
 
   renderBizzSearch(entity) {
     let that = this
@@ -512,6 +531,8 @@ class FilterItem extends React.Component {
     }
   }
 
+  // 日期时间
+
   renderDatepicker() {
     let cfg = {
       componentIcon: 'zmdi zmdi-calendar',
@@ -552,6 +573,25 @@ class FilterItem extends React.Component {
         item.datetimepicker('remove')
       })
       this.__datepicker = null
+    }
+  }
+
+  // 审批状态
+
+  renderApprovalState() {
+    let that = this
+    let s2val = $(this._filterVal).select2({
+      allowClear: false
+    }).on('change.select2', function () {
+      that.setState({ value: s2val.val() })
+    })
+    this.__select2_ApprovalState = s2val
+  }
+  removeApprovalState() {
+    if (this.__select2_ApprovalState) {
+      this.__select2_ApprovalState.select2('destroy')
+      this.__select2_ApprovalState = null
+      this.setState({ value: null })
     }
   }
 
