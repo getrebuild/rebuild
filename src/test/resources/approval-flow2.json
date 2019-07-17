@@ -5,107 +5,101 @@
   }, {
     "branches": [{
       "nodes": [{
+        "data": {
+          "signMode": "OR",
+          "users": ["SELF"]
+        },
+        "type": "approver",
+        "nodeId": "NODE1562434342606-4"
+      }, {
         "branches": [{
           "nodes": [{
             "data": {
-              "signMode": "OR",
-              "users": ["SELF"]
+              "selfSelecting": true,
+              "users": []
             },
-            "type": "approver",
-            "nodeId": "NODE1562741910070-8"
+            "type": "cc",
+            "nodeId": "NODE15632897712205"
           }],
           "data": {
-            "nodeName": "1234",
             "filter": {
               "items": [{
                 "op": "LK",
-                "field": "accountName",
+                "field": "orderNumber",
                 "index": 1,
-                "value": "1234"
+                "value": "333"
               }],
-              "entity": "Account999"
+              "entity": "SalesOrder999"
             }
           },
           "priority": 1,
-          "nodeId": "COND1562741882047-5"
+          "nodeId": "COND15632896673142"
         }, {
           "nodes": [{
             "data": {
+              "selfSelecting": true,
               "signMode": "OR",
-              "users": ["001-9000000000000001"]
+              "users": []
             },
             "type": "approver",
-            "nodeId": "NODE1562741919343-9"
+            "nodeId": "NODE15632897736106"
           }],
-          "data": {
-            "nodeName": "其他1234",
-            "filter": {
-              "items": [],
-              "entity": "Account999"
-            }
-          },
           "priority": 2,
-          "nodeId": "COND1562741882047-6"
+          "nodeId": "COND15632896673143"
         }],
         "type": "condition",
-        "nodeId": "COND1562741882046-4"
-      }, {
-        "data": {
-          "signMode": "OR",
-          "users": ["001-9000000000000001", "001-0000000000000001"]
-        },
-        "type": "approver",
-        "nodeId": "NODE1562741982727-2"
+        "nodeId": "COND15632896673111"
       }],
       "data": {
-        "nodeName": "123",
         "filter": {
-          "items": [{
-            "op": "LK",
-            "field": "accountName",
-            "index": 1,
-            "value": "123"
-          }],
-          "entity": "Account999"
+          "items": [],
+          "entity": "SalesOrder999"
         }
       },
       "priority": 1,
-      "nodeId": "COND1562741867312-1"
+      "nodeId": "COND1562434289156-1"
     }, {
       "nodes": [{
         "data": {
           "signMode": "OR",
-          "users": ["001-0000000000000001"]
+          "users": ["SELF"]
         },
         "type": "approver",
-        "nodeId": "NODE1562741939782-11"
-      }, {
-        "data": {
-          "selfSelecting": false,
-          "users": ["001-0000000000000001", "001-9000000000000001"]
-        },
-        "type": "cc",
-        "nodeId": "NODE1562741992320-3"
+        "nodeId": "NODE1562434348487-5"
       }],
       "data": {
-        "nodeName": "其他123",
         "filter": {
-          "items": [],
-          "entity": "Account999"
+          "items": [{
+            "op": "GT",
+            "field": "totalAmount",
+            "index": 1,
+            "value": "555"
+          }],
+          "entity": "SalesOrder999"
         }
       },
       "priority": 2,
-      "nodeId": "COND1562741867312-2"
+      "nodeId": "COND1562434289156-2"
+    }, {
+      "nodes": [{
+        "data": {
+          "signMode": "OR",
+          "users": ["SELF"]
+        },
+        "type": "approver",
+        "nodeId": "NODE1562434354420-6"
+      }],
+      "priority": 3,
+      "nodeId": "COND1562434290521-3"
     }],
     "type": "condition",
-    "nodeId": "COND1562741867309-0"
+    "nodeId": "COND1562434289152-0"
   }, {
     "data": {
-      "selfSelecting": false,
-      "users": ["001-9000000000000001", "001-0000000000000001"]
+      "selfSelecting": true,
+      "users": []
     },
     "type": "cc",
-    "nodeId": "NODE1562741952502-12"
-  }],
-  "nodeId": "RBFLOW"
+    "nodeId": "NODE1562434361370-7"
+  }]
 }

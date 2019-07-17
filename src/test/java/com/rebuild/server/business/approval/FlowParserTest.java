@@ -66,7 +66,7 @@ public class FlowParserTest {
 	 * @return
 	 * @throws IOException
 	 */
-	private FlowParser createFlowParser(int fileNo) throws IOException {
+	static FlowParser createFlowParser(int fileNo) throws IOException {
 		InputStream in = FlowParserTest.class.getClassLoader().getResourceAsStream("approval-flow" + (fileNo > 0 ? fileNo : "") + ".json");
 		JSONObject flowDefinition = JSON.parseObject(in, null);
 		return new FlowParser(flowDefinition);
