@@ -61,7 +61,7 @@
 								<div class="form-group row">
 									<label class="col-md-12 col-lg-3 col-form-label text-lg-right">附加过滤条件</label>
 									<div class="col-md-12 col-lg-9 J_whenFilter">
-										<a class="btn btn-link pl-0 text-left"><i class="icon zmdi zmdi-filter-list"></i> 点击配置 <span></span></a>
+										<a class="btn btn-link pl-0 text-left">点击设置</a>
 										<p class="form-text mb-0 mt-0">符合过滤条件的数据才会被触发</p>
 									</div>
 								</div>

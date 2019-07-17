@@ -1,5 +1,4 @@
 sudo: false
-license: GPL-3.0
 language: java
 jdk:
   - oraclejdk9

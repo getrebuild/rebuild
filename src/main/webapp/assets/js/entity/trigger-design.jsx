@@ -56,8 +56,8 @@ $(document).ready(() => {
 
 const saveFilter = function (res) {
   wpc.whenFilter = res
-  if (wpc.whenFilter && wpc.whenFilter.items && wpc.whenFilter.items.length > 0) $('.J_whenFilter a span').text('(已配置过滤)')
-  else $('.J_whenFilter a span').text('(无)')
+  if (wpc.whenFilter && wpc.whenFilter.items && wpc.whenFilter.items.length > 0) $('.J_whenFilter a').text(`已设置条件 (${wpc.whenFilter.items.length})`)
+  else $('.J_whenFilter a').text('点击设置')
 }
 
 // 动作类定义
