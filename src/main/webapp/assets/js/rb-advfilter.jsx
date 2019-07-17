@@ -415,6 +415,7 @@ class FilterItem extends React.Component {
     this.removePickList()
     this.removeDatepicker()
     this.removeBizzSearch()
+    this.renderApprovalState()
   }
 
   valueHandle = (e) => {
@@ -585,6 +586,7 @@ class FilterItem extends React.Component {
     }).on('change.select2', function () {
       that.setState({ value: s2val.val() })
     })
+    this.setState({ value: 1 })  // 默认草稿
     this.__select2_ApprovalState = s2val
   }
   removeApprovalState() {
