@@ -6,7 +6,7 @@
 	<groupId>com.rebuild</groupId>
 	<artifactId>rebuild</artifactId>
 	<packaging>war</packaging>
-	<version>1.3.0-beta</version>
+	<version>1.4.0-dev</version>
 	<name>rebuild</name>
 	<description>Building your business-systems free!</description>
 	<url>https://getrebuild.com/</url>
@@ -27,7 +27,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<argLine>-Dfile.encoding=UTF-8</argLine>
 		<skipTests>true</skipTests>
-		<spring.version>4.3.21.RELEASE</spring.version>
+		<spring.version>4.3.24.RELEASE</spring.version>
 	</properties>
 
 	<build>
@@ -36,7 +36,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.0</version>
+				<version>3.8.1</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
@@ -64,7 +64,7 @@
 			<plugin>
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
-				<version>9.4.18.v20190429</version>
+				<version>9.4.19.v20190610</version>
 				<configuration>
 					<webApp>
 						<contextPath>/rebuild</contextPath>
@@ -104,7 +104,7 @@
 		<dependency>
 			<groupId>com.github.devezhao</groupId>
 			<artifactId>persist4j</artifactId>
-			<version>1.2.4</version>
+			<version>8e268735d2</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 // ~~ 分派
 class DlgAssign extends RbModalHandler {
@@ -27,18 +28,16 @@ class DlgAssign extends RbModalHandler {
           <div className="form-group row">
             <div className="col-sm-7 offset-sm-3"><a href="javascript:;" onClick={() => this.showCascades()}>同时{this.types[1]}关联记录</a></div>
           </div>
-        ) : (
-          <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">选择关联记录</label>
-            <div className="col-sm-7">
-              <select className="form-control form-control-sm" ref={(c) => this._cascades = c}>
-                {(this.state.cascadesEntity || []).map((item) => {
-                  return <option key={'option-' + item[0]} value={item[0]}>{item[1]}</option>
-                })}
-              </select>
-            </div>
+        ) : (<div className="form-group row">
+          <label className="col-sm-3 col-form-label text-sm-right">选择关联记录</label>
+          <div className="col-sm-7">
+            <select className="form-control form-control-sm" ref={(c) => this._cascades = c}>
+              {(this.state.cascadesEntity || []).map((item) => {
+                return <option key={'option-' + item[0]} value={item[0]}>{item[1]}</option>
+              })}
+            </select>
           </div>
-        )}
+        </div>)}
         <div className="form-group row footer">
           <div className="col-sm-7 offset-sm-3" ref={(c) => this._btns = c}>
             <button className="btn btn-primary btn-space" type="button" data-loading-text="请稍后" onClick={() => this.post()}>确定</button>
@@ -67,7 +66,7 @@ class DlgAssign extends RbModalHandler {
 
   post() {
     let users = $(this._toUser).val()
-    if (!users || users.length === 0) { rb.highbar('请选择' + this.types[1] + '给谁'); return }
+    if (!users || users.length === 0) { RbHighbar.create('请选择' + this.types[1] + '给谁'); return }
     if ($.type(users) === 'array') users = users.join(',')
     let cass = this.state.cascadesShow === true ? $(this._cascades).val().join(',') : ''
 
@@ -79,18 +78,28 @@ class DlgAssign extends RbModalHandler {
 
         this.hide()
         let affected = res.data.assigned || res.data.shared || 0
-        if (affected > 0 && rb.env === 'dev') rb.hbsuccess('已成功' + this.types[1] + ' ' + affected + ' 条记录')
-        else rb.hbsuccess('记录已' + this.types[1])
+        if (affected > 0 && rb.env === 'dev') RbHighbar.success('已成功' + this.types[1] + ' ' + affected + ' 条记录')
+        else RbHighbar.success('记录已' + this.types[1])
 
         setTimeout(() => {
           if (window.RbListPage) RbListPage._RbList.reload()
           if (window.RbViewPage) location.reload()
         }, 500)
       } else {
-        rb.hberror(res.error_msg)
+        RbHighbar.error(res.error_msg)
       }
       btns.button('reset')
     })
+  }
+
+  // -- Usage
+  /**
+   * @param {*} props 
+   */
+  static create(props) {
+    let that = this
+    if (that.__HOLDER) that.__HOLDER.show(props)
+    else renderRbcomp(<DlgAssign {...props} />, null, function () { that.__HOLDER = this })
   }
 }
 
@@ -99,6 +108,16 @@ class DlgShare extends DlgAssign {
   constructor(props) {
     super(props)
     this.types = ['share', '共享', true]
+  }
+
+  // -- Usage
+  /**
+   * @param {*} props 
+   */
+  static create(props) {
+    let that = this
+    if (that.__HOLDER) that.__HOLDER.show(props)
+    else renderRbcomp(<DlgShare {...props} />, null, function () { that.__HOLDER = this })
   }
 }
 
@@ -163,7 +182,7 @@ class DlgUnshare extends RbModalHandler {
     if (this.state.whichUsers === 'ALL') {
       users = '$ALL$'
     } else {
-      if (!users || users.length === 0) { rb.highbar('请选择' + this.types[1] + '给谁'); return }
+      if (!users || users.length === 0) { RbHighbar.create('请选择' + this.types[1] + '给谁'); return }
       users = users.join(',')
     }
 
@@ -173,17 +192,27 @@ class DlgUnshare extends RbModalHandler {
         $(this._toUser).val(null).trigger('change')
 
         this.hide()
-        if (res.data.unshared > 0 && rb.env === 'dev') rb.hbsuccess('成功取消共享 ' + res.data.unshared + ' 条记录')
-        else rb.hbsuccess('已取消共享')
+        if (res.data.unshared > 0 && rb.env === 'dev') RbHighbar.success('成功取消共享 ' + res.data.unshared + ' 条记录')
+        else RbHighbar.success('已取消共享')
 
         setTimeout(() => {
           if (window.RbListPage) RbListPage._RbList.reload()
         }, 500)
       } else {
-        rb.hberror(res.error_msg)
+        RbHighbar.error(res.error_msg)
       }
       btns.button('reset')
     })
+  }
+
+  // -- Usage
+  /**
+   * @param {*} props 
+   */
+  static create(props) {
+    let that = this
+    if (that.__HOLDER) that.__HOLDER.show(props)
+    else renderRbcomp(<DlgUnshare {...props} />, null, function () { that.__HOLDER = this })
   }
 }
 
@@ -227,22 +256,34 @@ class DlgShareManager extends RbModalHandler {
   }
   post() {
     let s = this.state.selectAccess
-    if (s.length === 0) { rb.highbar('请选择需要取消共享的用户'); return }
+    if (s.length === 0) { RbHighbar.create('请选择需要取消共享的用户'); return }
 
     let btns = $(this._btns).button('loading')
     $.post(`${rb.baseUrl}/app/entity/record-unshare?id=${s.join(',')}&record=${this.props.id}`, (res) => {
       if (res.error_code === 0) {
         this.hide()
-        if (rb.env === 'dev') rb.hbsuccess('已取消 ' + res.data.unshared + ' 位用户的共享')
-        else rb.hbsuccess('共享已取消')
+        if (rb.env === 'dev') RbHighbar.success('已取消 ' + res.data.unshared + ' 位用户的共享')
+        else RbHighbar.success('共享已取消')
         setTimeout(() => {
           if (window.RbViewPage) location.reload()
         }, 500)
       } else {
-        rb.hberror(res.error_msg)
+        RbHighbar.error(res.error_msg)
       }
       btns.button('reset')
     })
+  }
+
+  // -- Usage
+  /**
+   * @param {*} id 
+   * @param {*} unshare 
+   */
+  static create(id, unshare) {
+    let props = { id: id, unshare: unshare !== false }
+    let that = this
+    if (that.__HOLDER) that.__HOLDER.show(props)
+    else renderRbcomp(<DlgShareManager {...props} />, null, function () { that.__HOLDER = this })
   }
 }
 
@@ -282,42 +323,4 @@ let __initUserSelect2 = function (el, multiple) {
   })
 
   return s
-}
-
-// -- Usage
-
-let rb = rb || {}
-
-rb.DlgAssign__holder = null
-// @props = { ids, entity }
-rb.DlgAssign = function (props) {
-  if (rb.DlgAssign__holder) rb.DlgAssign__holder.show(props)
-  else rb.DlgAssign__holder = renderRbcomp(<DlgAssign {...props} />)
-  return rb.DlgAssign__holder
-}
-
-rb.DlgShare__holder = null
-// @props = { ids, entity }
-rb.DlgShare = function (props) {
-  if (rb.DlgShare__holder) rb.DlgShare__holder.show(props)
-  else rb.DlgShare__holder = renderRbcomp(<DlgShare {...props} />)
-  return rb.DlgShare__holder
-}
-
-rb.DlgUnshare__holder = null
-// @props = { ids, entity }
-rb.DlgUnshare = function (props) {
-  if (rb.DlgUnshare__holder) rb.DlgUnshare__holder.show(props)
-  else rb.DlgUnshare__holder = renderRbcomp(<DlgUnshare {...props} />)
-  return rb.DlgUnshare__holder
-}
-
-rb.DlgShareManager__holder = null
-// @id - record
-// @unshare - true or false
-rb.DlgShareManager = function (id, unshare) {
-  let props = { id: id, unshare: unshare !== false }
-  if (rb.DlgShareManager__holder) rb.DlgShareManager__holder.show(props)
-  else rb.DlgShareManager__holder = renderRbcomp(<DlgShareManager {...props} />)
-  return rb.DlgShareManager__holder
 }

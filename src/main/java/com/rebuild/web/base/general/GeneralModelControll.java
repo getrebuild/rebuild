@@ -30,6 +30,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.FormDefaultValue;
 import com.rebuild.server.configuration.portals.FormsBuilder;
 import com.rebuild.server.configuration.portals.ViewAddonsManager;
@@ -52,9 +53,14 @@ public class GeneralModelControll extends BaseEntityControll {
 
 	@RequestMapping("view/{id}")
 	public ModelAndView pageView(@PathVariable String entity, @PathVariable String id,
-			HttpServletRequest request) throws IOException {
-		ID user = getRequestUser(request);
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		final ID user = getRequestUser(request);
 		Entity thatEntity = MetadataHelper.getEntity(entity);
+		
+		if (!Application.getSecurityManager().allowedR(user, thatEntity.getEntityCode())) {
+			response.sendError(403, "你没有访问此实体的权限");
+			return null;
+		}
 		
 		ID record = ID.valueOf(id);
 		ModelAndView mv = null;

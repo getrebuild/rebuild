@@ -19,20 +19,26 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.service.bizz;
 
 import java.security.Principal;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.privileges.Department;
 import com.rebuild.server.service.bizz.privileges.User;
 
 import cn.devezhao.bizz.security.member.BusinessUnit;
 import cn.devezhao.bizz.security.member.Member;
 import cn.devezhao.bizz.security.member.NoMemberFoundException;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -63,7 +69,7 @@ public class UserHelper {
 	/**
 	 * 是否超级管理员
 	 * 
-	 * @param user
+	 * @param userId
 	 * @return
 	 */
 	public static boolean isSuperAdmin(ID userId) {
@@ -165,5 +171,69 @@ public class UserHelper {
 			return new Member[0];
 		}
 		return ms.toArray(new Member[ms.size()]);
+	}
+	
+	/**
+	 * 解析用户列表
+	 * 
+	 * @param userDefs
+	 * @param record
+	 * @return
+	 */
+	public static Set<ID> parseUsers(JSONArray userDefs, ID record) {
+		if (userDefs == null) {
+			return Collections.emptySet();
+		}
+		
+		Set<String> users = new HashSet<>();
+		for (Object u : userDefs) {
+			users.add((String) u);
+		}
+		return parseUsers(users, record);
+	}
+	
+	/**
+	 * 解析用户列表
+	 * 
+	 * @param userDefs
+	 * @param record
+	 * @return
+	 */
+	public static Set<ID> parseUsers(Collection<String> userDefs, ID record) {
+		Entity entity = record == null ? null : MetadataHelper.getEntity(record.getEntityCode());
+		
+		Set<ID> bizzs = new HashSet<ID>();
+		Set<String> fromFields = new HashSet<>();
+		for (String def : userDefs) {
+			if (ID.isId(def)) {
+				bizzs.add(ID.valueOf(def));
+			} else if (entity != null && MetadataHelper.getLastJoinField(entity, def) != null) {
+				fromFields.add(def);
+			}
+		}
+		
+		if (!fromFields.isEmpty()) {
+			String sql = String.format("select %s from %s where %s = ?", 
+					StringUtils.join(fromFields.iterator(), ","), entity.getName(), entity.getPrimaryField().getName());
+			Object[] bizzValues = Application.createQueryNoFilter(sql).setParameter(1, record).unique();
+			for (Object bizz : bizzValues) {
+				if (bizz != null) {
+					bizzs.add((ID) bizz);
+				}
+			}
+		}
+		
+		Set<ID> users = new HashSet<>();
+		for (ID bizz : bizzs) {
+			if (bizz.getEntityCode() == EntityHelper.User) {
+				users.add(bizz);
+			} else if (bizz.getEntityCode() == EntityHelper.Department || bizz.getEntityCode() == EntityHelper.Role) {
+				Member ms[] = UserHelper.getMembers(bizz);
+				for (Member m : ms) {
+					users.add((ID) m.getIdentity());
+				}
+			}
+		}
+		return users;
 	}
 }

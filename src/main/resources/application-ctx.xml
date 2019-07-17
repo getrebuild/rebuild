@@ -123,7 +123,7 @@
 			<tx:method name="share*"   propagation="REQUIRED" />
 			<tx:method name="unshare*" propagation="REQUIRED" />
 			<tx:method name="bulk*"    propagation="REQUIRED" />
-			<tx:method name="save*"    propagation="REQUIRED" />
+			<tx:method name="tx*"      propagation="REQUIRED" />
 		</tx:attributes>
 	</tx:advice>
 	
@@ -157,6 +157,9 @@
 	<bean class="com.rebuild.server.service.configuration.RobotTriggerConfigService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
+	<bean class="com.rebuild.server.service.configuration.RobotApprovalConfigService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
 	<bean class="com.rebuild.server.service.configuration.AdvFilterService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
@@ -167,6 +170,10 @@
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 	<bean class="com.rebuild.server.service.configuration.ChartConfigService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
+	
+	<bean class="com.rebuild.server.service.base.ApprovalStepService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 	
@@ -191,7 +198,7 @@
 				<bean class="com.rebuild.server.service.notification.NotificationObserver" />
 				<bean class="com.rebuild.server.service.base.AuditLoggingObserver" />
 				<bean class="com.rebuild.server.service.base.AttchementAwareObserver" />
-				<bean class="com.rebuild.server.business.robot.RobotTriggerObserver" />
+				<bean class="com.rebuild.server.business.trigger.RobotTriggerObserver" />
 			</list>
 		</constructor-arg>
 	</bean>

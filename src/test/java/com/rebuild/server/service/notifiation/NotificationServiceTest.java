@@ -23,6 +23,7 @@ import org.junit.Test;
 import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.service.notification.Message;
+import com.rebuild.server.service.notification.MessageBuilder;
 
 /**
  * @author devezhao-mac zhaofang123@gmail.com
@@ -32,7 +33,7 @@ public class NotificationServiceTest extends TestSupport {
 
 	@Test
 	public void testSend() throws Exception {
-		Message minMessage = new Message(SIMPLE_USER, "发一条消息", null);
+		Message minMessage = MessageBuilder.createMessage(SIMPLE_USER, "发一条消息");
 		Application.getNotifications().send(minMessage);
 		System.out.println("Notification Sent");
 	}

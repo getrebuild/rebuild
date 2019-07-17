@@ -154,7 +154,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 				setCompleted(90);
 			} catch (ModifiyMetadataException ex) {
 				// 出现异常，删除主实体
-				new Entity2Schema(this.user).drop(createdEntity, true);
+				new Entity2Schema(this.user).dropEntity(createdEntity, true);
 				
 				throw ex;
 			}
@@ -199,7 +199,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 				ddl.append(",");
 				
 			} catch (Exception ex) {
-				entity2Schema.drop(entity, true);
+				entity2Schema.dropEntity(entity, true);
 				
 				if (ex instanceof ModifiyMetadataException) {
 					throw ex;
@@ -214,7 +214,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 			Application.getSQLExecutor().executeBatch(new String[] { ddl.toString() });
 		} catch (Exception ex) {
 			LOG.error("DDL ERROR : \n" + ddl, ex);
-			entity2Schema.drop(entity, true);
+			entity2Schema.dropEntity(entity, true);
 			
 			throw new ModifiyMetadataException(ex);
 		}
@@ -259,7 +259,8 @@ public class MetaschemaImporter extends HeavyTask<String> {
 				schemaField.getBooleanValue("updatable"),
 				schemaField.getString("comments"),
 				schemaField.getString("refEntity"),
-				null, true, extConfig, 
+				null, 
+				extConfig, 
 				schemaField.getString("defaultValue"));
 		
 		if (DisplayType.PICKLIST == dt) {

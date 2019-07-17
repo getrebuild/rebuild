@@ -1,13 +1,13 @@
 $(document).ready(function () {
   $('.J_vcode-btn').click(function () {
     let email = $val('#sEmail')
-    if (!email) { rb.highbar('请输入注册邮箱'); return }
+    if (!email) { RbHighbar.create('请输入注册邮箱'); return }
 
     let _btn = $(this).button('loading')
     $.post(rb.baseUrl + '/user/signup-email-vcode?email=' + $encode(email), function (res) {
       if (res.error_code === 0) resend_countdown(true)
       else {
-        rb.highbar(res.error_msg)
+        RbHighbar.create(res.error_msg)
         _btn.button('reset')
       }
     })
@@ -26,10 +26,10 @@ $(document).ready(function () {
       name = $val('#sName'),
       email = $val('#sEmail'),
       vcode = $val('#sVcode')
-    if (!fullName) { rb.highbar('请输入姓名'); return }
-    if (!name) { rb.highbar('请输入登录名'); return }
-    if (!email) { rb.highbar('请输入注册邮箱'); return }
-    if (!vcode) { rb.highbar('请输入邮箱验证码'); return }
+    if (!fullName) { RbHighbar.create('请输入姓名'); return }
+    if (!name) { RbHighbar.create('请输入登录名'); return }
+    if (!email) { RbHighbar.create('请输入注册邮箱'); return }
+    if (!vcode) { RbHighbar.create('请输入邮箱验证码'); return }
     let _data = { loginName: name, fullName: fullName, email: email, vcode: vcode }
 
     let _btn = $(this).button('loading')
@@ -38,7 +38,7 @@ $(document).ready(function () {
         _btn.text('注册成功')
         setTimeout(function () { location.href = './login?t=99' }, 1000)
       } else {
-        rb.highbar(res.error_msg)
+        RbHighbar.create(res.error_msg)
         _btn.button('reset')
       }
     })

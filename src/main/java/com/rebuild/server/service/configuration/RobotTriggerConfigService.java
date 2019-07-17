@@ -29,6 +29,8 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
+ * 触发器
+ * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/24
  */

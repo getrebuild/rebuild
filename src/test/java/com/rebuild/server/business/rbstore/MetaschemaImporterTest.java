@@ -53,7 +53,7 @@ public class MetaschemaImporterTest extends TestSupport {
 		
 		if (MetadataHelper.containsEntity(entityName)) {
 			new Entity2Schema(UserService.ADMIN_USER)
-					.drop(MetadataHelper.getEntity(entityName), true);
+					.dropEntity(MetadataHelper.getEntity(entityName), true);
 		}
 		
 		MetaschemaImporter importer = new MetaschemaImporter(UserService.ADMIN_USER, data);

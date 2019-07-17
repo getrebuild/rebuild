@@ -23,7 +23,6 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -39,6 +38,7 @@ import cn.devezhao.persist4j.metadata.CascadeModel;
 import cn.devezhao.persist4j.util.support.Table;
 
 /**
+ * 创建实体
  * 
  * @author zhaofang123@gmail.com
  * @since 08/03/2018
@@ -54,22 +54,6 @@ public class Entity2Schema extends Field2Schema {
 		super(user);
 	}
 	
-	@Override
-	public String create(Entity entity, String fieldLabel, DisplayType type, String comments, String refEntity,
-			JSON extConfig) {
-		throw new UnsupportedOperationException();
-	}
-	
-	/**
-	 * @param entityLabel
-	 * @param comments
-	 * @param masterEntity
-	 * @return
-	 */
-	public String create(String entityLabel, String comments, String masterEntity) {
-		return createEntity(null, entityLabel, comments, masterEntity, false);
-	}
-	
 	/**
 	 * @param entityLabel
 	 * @param comments
@@ -77,7 +61,7 @@ public class Entity2Schema extends Field2Schema {
 	 * @param haveNameField
 	 * @return
 	 */
-	public String create(String entityLabel, String comments, String masterEntity, boolean haveNameField) {
+	public String createEntity(String entityLabel, String comments, String masterEntity, boolean haveNameField) {
 		return createEntity(null, entityLabel, comments, masterEntity, haveNameField);
 	}
 	
@@ -87,7 +71,7 @@ public class Entity2Schema extends Field2Schema {
 	 * @param comments
 	 * @param masterEntity
 	 * @param haveNameField
-	 * @return 实体名称
+	 * @return returns 实体名称
 	 */
 	public String createEntity(String entityName, String entityLabel, String comments, String masterEntity, boolean haveNameField) {
 		if (entityName != null) {
@@ -152,7 +136,7 @@ public class Entity2Schema extends Field2Schema {
 			
 			if (haveNameField) {
 				createUnsafeField(
-						tempEntity, nameFiled, entityLabel + "名称", DisplayType.TEXT, false, true, true, null, null, null, true, null, null);
+						tempEntity, nameFiled, entityLabel + "名称", DisplayType.TEXT, false, true, true, null, null, null, null, null);
 			}
 			
 			createBuiltinField(tempEntity, EntityHelper.CreatedBy, "创建人", DisplayType.REFERENCE, null, "User", null);
@@ -169,7 +153,7 @@ public class Entity2Schema extends Field2Schema {
 			} else {
 				// 助记码/搜索码
 				createUnsafeField(
-						tempEntity, EntityHelper.QuickCode, "QUICKCODE", DisplayType.TEXT, true, false, false, null, null, null, true, null, null);
+						tempEntity, EntityHelper.QuickCode, "QUICKCODE", DisplayType.TEXT, true, false, false, null, null, null, null, null);
 				
 				createBuiltinField(tempEntity, EntityHelper.OwningUser, "所属用户", DisplayType.REFERENCE, null, "User", null);
 				createBuiltinField(tempEntity, EntityHelper.OwningDept, "所属部门", DisplayType.REFERENCE, null, "Department", null);
@@ -193,8 +177,8 @@ public class Entity2Schema extends Field2Schema {
 	 * @param entity
 	 * @return
 	 */
-	public boolean drop(Entity entity) {
-		return drop(entity, false);
+	public boolean dropEntity(Entity entity) {
+		return dropEntity(entity, false);
 	}
 	
 	/**
@@ -202,7 +186,7 @@ public class Entity2Schema extends Field2Schema {
 	 * @param force
 	 * @return
 	 */
-	public boolean drop(Entity entity, boolean force) {
+	public boolean dropEntity(Entity entity, boolean force) {
 		if (!user.equals(UserService.ADMIN_USER)) {
 			throw new ModifiyMetadataException("仅超级管理员可删除实体");
 		}
@@ -217,7 +201,7 @@ public class Entity2Schema extends Field2Schema {
 			throw new ModifiyMetadataException("不能删除主实体");
 		}
 		
-		for (Field whoRef : entity.getReferenceToFields()) {
+		for (Field whoRef : entity.getReferenceToFields(true)) {
 			if (!whoRef.getOwnEntity().equals(entity)) {
 				throw new ModifiyMetadataException("实体已被引用 (引用实体: " + EasyMeta.getLabel(whoRef.getOwnEntity()) + ")");
 			}
@@ -238,18 +222,42 @@ public class Entity2Schema extends Field2Schema {
 			return false;
 		}
 		
-		Application.getBean(MetaEntityService.class).delete(metaRecordId);
+		final ID sessionUser = Application.getSessionStore().get(true);
+		if (sessionUser == null) {
+			Application.getSessionStore().set(user);
+		}
+		try {
+			Application.getBean(MetaEntityService.class).delete(metaRecordId);
+		} finally {
+			if (sessionUser == null) {
+				Application.getSessionStore().clean();
+			}
+		}
 		Application.getMetadataFactory().refresh(false);
 		return true;
 	}
 	
+	/**
+	 * @param entity
+	 * @param fieldName
+	 * @param fieldLabel
+	 * @param displayType
+	 * @param comments
+	 * @param refEntity
+	 * @param cascade
+	 * @return
+	 */
 	private Field createBuiltinField(Entity entity, String fieldName, String fieldLabel, DisplayType displayType, String comments,
 			String refEntity, CascadeModel cascade) {
 		comments = StringUtils.defaultIfBlank(comments, "系统内建");
 		return createUnsafeField(
-				entity, fieldName, fieldLabel, displayType, false, false, false, comments, refEntity, cascade, false, null, null);
+				entity, fieldName, fieldLabel, displayType, false, false, false, comments, refEntity, cascade, null, null);
 	}
 	
+	/**
+	 * @param entity
+	 * @return
+	 */
 	private boolean schema2Database(Entity entity) {
 		Dialect dialect = Application.getPersistManagerFactory().getDialect();
 		Table table = new Table(entity, dialect);

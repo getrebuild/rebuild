@@ -22,7 +22,7 @@ class GridList extends React.Component {
                 <a onClick={() => this.editItem(item)}><i className="zmdi zmdi-edit"></i></a>
                 <a onClick={() => this.deleteItem(item[0])}><i className="zmdi zmdi-delete"></i></a>
               </div>
-              {item[2] && <div className="float-right fs-12 text-warning">已禁用</div>}
+              {item[2] && <div className="badge badge-warning">已禁用</div>}
               <div className="clearfix"></div>
             </div>
           </div>
@@ -40,16 +40,16 @@ class GridList extends React.Component {
     renderRbcomp(<DlgEdit id={item[0]} name={item[1]} isDisabled={item[2]} />)
   }
   deleteItem(dataId) {
-    rb.alert('删除前请确认此分类数据未被使用。确认删除吗？', {
+    RbAlert.create('删除前请确认此分类数据未被使用。确认删除吗？', {
       type: 'danger',
       confirmText: '删除',
       confirm: function () {
         this.disabled(true)
         $.post(`${rb.baseUrl}/app/entity/record-delete?id=${dataId}`, (res) => {
           if (res.error_code === 0) {
-            rb.hbsuccess('分类数据已删除')
+            RbHighbar.success('分类数据已删除')
             setTimeout(() => { location.reload() }, 500)
-          } else rb.hberror(res.error_msg)
+          } else RbHighbar.error(res.error_msg)
         })
       }
     })
@@ -90,14 +90,14 @@ class DlgEdit extends RbFormHandler {
   }
   save = (e) => {
     e.preventDefault()
-    if (!this.state.name) { rb.highbar('请输入名称'); return }
+    if (!this.state.name) { RbHighbar.create('请输入名称'); return }
     let _data = { name: this.state.name, isDisabled: this.state.isDisabled === true }
     _data.metadata = { entity: 'Classification', id: this.props.id || null }
     $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
         if (this.props.id) location.reload()
         else location.href = 'classification/' + res.data.id
-      } else rb.hberror(res.error_msg)
+      } else RbHighbar.error(res.error_msg)
     })
   }
 }

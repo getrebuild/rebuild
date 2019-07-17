@@ -9,7 +9,7 @@
 		<field name="modifiedBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="修改人" />
 		<field name="modifiedOn" type="timestamp" nullable="false" creatable="false" updatable="false" description="修改时间" />
 	</entity>
-
+	
 	<entity name="User" type-code="001" description="用户" name-field="fullName">
 		<field name="userId" type="primary" />
 		<field name="loginName" type="string" max-length="100" nullable="false" updatable="false" description="登录名" />
@@ -156,7 +156,7 @@
 	<entity name="ShareAccess" type-code="020" description="记录共享">
 		<field name="accessId" type="primary" />
 		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="哪个实体" />
-		<field name="recordId" type="any-reference" ref-entity="*" nullable="false" updatable="false" description="记录ID" />
+		<field name="recordId" type="any-reference" nullable="false" updatable="false" description="记录ID" />
 		<field name="shareTo" type="any-reference" ref-entity="User,Department,Role" nullable="false" updatable="false" description="共享给谁 (U/D/R)" />
 		<field name="rights" type="int" default-value="0" nullable="false" description="共享权限 (R=2,U=4,D=8,0=Auto)" />
 		<index field-list="belongEntity,recordId,shareTo" />
@@ -226,5 +226,28 @@
 		<field name="actionType" type="string" max-length="50" nullable="false" description="预定义的触发操作类型" />
 		<field name="actionContent" type="text" description="预定义的触发操作类型, JSON KV 对" />
 		<field name="priority" type="int" default-value="1" description="执行优先级, 越大越高(越先执行)"/>
+	</entity>
+
+	<entity name="RobotApprovalConfig" type-code="028" name-field="name" description="审批流程">
+		<field name="configId" type="primary"/>
+		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="应用实体" />
+		<field name="name" type="string" max-length="100" nullable="false" description="流程名称" />
+		<field name="flowDefinition" type="text" description="流程定义" />
+		<field name="isDisabled" type="bool" default-value="F" description="是否停用" />
+	</entity>
+	
+	<entity name="RobotApprovalStep" type-code="029" description="审批步骤记录">
+		<field name="stepId" type="primary"/>
+		<field name="recordId" type="any-reference" nullable="false" updatable="false" cascade="delete" description="审批记录"/>
+		<field name="approvalId" type="reference" ref-entity="RobotApprovalConfig" nullable="false" updatable="false" cascade="remove-links" description="审批流程" />
+		<field name="node" type="string" max-length="100" nullable="false" updatable="false" description="审批节点" />
+		<field name="approver" type="reference" ref-entity="User" nullable="false" updatable="false" cascade="delete" description="审批人" />
+		<field name="state" type="small-int" default-value="1" description="审批结果" />
+		<field name="remark" type="string" max-length="600" description="批注" />
+		<field name="approvedTime" type="timestamp" description="审批时间" />
+		<field name="prevNode" type="string" max-length="100" nullable="false" updatable="false" description="上一审批节点" />
+		<field name="isCanceled" type="bool" default-value="F" description="是否取消" />
+		<field name="isWaiting" type="bool" default-value="F" description="是否生效" />
+		<index field-list="recordId,approvalId,node,isCanceled,isWaiting"/>
 	</entity>
 </metadata-config>

@@ -155,7 +155,7 @@ public class MetaFieldControll extends BasePageControll  {
 		
 		String fieldName = null;
 		try {
-			fieldName = new Field2Schema(user).create(entity, label, dt, comments, refEntity, extConfig);
+			fieldName = new Field2Schema(user).createField(entity, label, dt, comments, refEntity, extConfig);
 			writeSuccess(response, fieldName);
 		} catch (Exception ex) {
 			writeFailure(response, ex.getLocalizedMessage());
@@ -185,7 +185,7 @@ public class MetaFieldControll extends BasePageControll  {
 				.unique();
 		Field field = MetadataHelper.getEntity((String) fieldRecord[0]).getField((String) fieldRecord[1]);
 		
-		boolean drop = new Field2Schema(user).drop(field, false);
+		boolean drop = new Field2Schema(user).dropField(field, false);
 		if (drop) {
 			writeSuccess(response);
 		} else {

@@ -1,10 +1,10 @@
 const user_id = window.__PageConfig.recordId
 $(document).ready(function () {
   $('.J_delete').off('click').click(function () {
-    rb.alert('<b>暂不支持删除用户</b><br>我们建议你停用用户，而非将其删除', { type: 'warning', html: true, confirmText: '停用', confirm: () => { toggleDisabled(true) } })
+    RbAlert.create('<b>暂不支持删除用户</b><br>我们建议你停用用户，而非将其删除', { type: 'warning', html: true, confirmText: '停用', confirm: () => { toggleDisabled(true) } })
   })
   $('.J_disable').click(() => {
-    rb.alert('确定要停用此用户吗？', { type: 'warning', confirm: () => { toggleDisabled(true) } })
+    RbAlert.create('确定要停用此用户吗？', { type: 'warning', confirm: () => { toggleDisabled(true) } })
   })
   $('.J_enable').click(() => { toggleDisabled(false) })
 
@@ -46,7 +46,7 @@ const toggleDisabled = function (disabled) {
   let _data = { user: user_id, enable: !disabled }
   $.post(rb.baseUrl + '/admin/bizuser/enable-user', JSON.stringify(_data), (res) => {
     if (res.error_code === 0) {
-      rb.highbar('用户已' + (disabled ? '停用' : '启用'), 'success')
+      RbHighbar.create('用户已' + (disabled ? '停用' : '启用'), 'success')
       setTimeout(() => { location.reload() }, 500)
     }
   })
@@ -111,12 +111,12 @@ class DlgEnableUser extends RbModalHandler {
     if (this.props.enable === true) data.enable = true
     if (this.__s2dept) {
       let v = this.__s2dept.val()
-      if (!v) { rb.highbar('请选择部门'); return }
+      if (!v) { RbHighbar.create('请选择部门'); return }
       data.dept = v
     }
     if (this.__s2role) {
       let v = this.__s2role.val()
-      if (!v) { rb.highbar('请选择角色'); return }
+      if (!v) { RbHighbar.create('请选择角色'); return }
       data.role = v
     }
 
@@ -124,10 +124,10 @@ class DlgEnableUser extends RbModalHandler {
     $.post(rb.baseUrl + '/admin/bizuser/enable-user', JSON.stringify(data), (res) => {
       if (res.error_code === 0) {
         if (data.enable === true) {
-          rb.hbsuccess('用户已激活')
+          RbHighbar.success('用户已激活')
           setTimeout(() => { location.reload() }, 500)
         } else location.reload()
-      } else rb.hberror(res.error_msg)
+      } else RbHighbar.error(res.error_msg)
       btns.button('reset')
     })
   }

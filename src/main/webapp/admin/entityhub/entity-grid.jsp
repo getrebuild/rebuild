@@ -56,8 +56,8 @@ $(document).ready(function(){
 		$(res.data).each(function(){ if (this.builtin == false) render_entity(this) })
 		let forNew = render_entity({ icon: 'plus', entityLabel: '添加实体', comments: '添加一个新实体' })
 		forNew.find('a.card').attr('href', 'javascript:;').click(function(){
-			if (window.__PageConfig.isSuperAdmin) rb.modal(rb.baseUrl + '/admin/p/entityhub/entity-new', '添加实体')
-			else rb.hberror('仅超级管理员可添加实体')
+			if (window.__PageConfig.isSuperAdmin) RbModal.create(rb.baseUrl + '/admin/p/entityhub/entity-new', '添加实体')
+			else RbHighbar.error('仅超级管理员可添加实体')
 		})
 	})
 })

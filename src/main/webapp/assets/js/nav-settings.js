@@ -22,14 +22,14 @@ $(document).ready(function () {
     let url = rb.baseUrl + '/p/commons/search-icon'
     parent.clickIcon = function (s) {
       $('.J_menuIcon .zmdi').attr('class', 'zmdi zmdi-' + s)
-      parent.rb.modalHide(url)
+      parent.RbModal.hide(url)
     }
-    parent.rb.modal(url, '选择图标')
+    parent.RbModal.create(url, '选择图标')
   })
   $('.J_menuConfirm').click(function () {
     let name = $val('.J_menuName')
     if (!name) {
-      rb.highbar('请输入菜单名称')
+      RbHighbar.create('请输入菜单名称')
       return
     }
     let type = $('.J_menuType.active').attr('href').substr(1)
@@ -37,16 +37,16 @@ $(document).ready(function () {
     if (type === 'ENTITY') {
       value = $val('.J_menuEntity')
       if (!value) {
-        rb.highbar('请选择关联项')
+        RbHighbar.create('请选择关联项')
         return
       }
     } else {
       value = $val('.J_menuUrl')
       if (!value) {
-        rb.highbar('请输入 URL')
+        RbHighbar.create('请输入 URL')
         return
       } else if (!!value && !$regex.isUrl(value)) {
-        rb.highbar('请输入有效的 URL')
+        RbHighbar.create('请输入有效的 URL')
         return
       }
     }
@@ -73,7 +73,7 @@ $(document).ready(function () {
       if (item) navs.push(item)
     })
     if (navs.length === 0) {
-      rb.highbar('请至少设置一个菜单项')
+      RbHighbar.create('请至少设置一个菜单项')
       return
     }
 

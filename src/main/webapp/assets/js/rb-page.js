@@ -46,15 +46,21 @@ $(function () {
 
   var bkeydown_times = 0
   $(document.body).keydown(function (e) {
-    if (e.ctrlKey && e.altKey && e.which === 88) {
+    if (e.shiftKey) {
       if (++bkeydown_times === 6) $('.bosskey-show').show()
       command_exec(bkeydown_times)
     }
+  })
+
+  $(window).on('resize', () => {
+    $setTimeout(resize_handler, 100, 'resize-window')
   })
 })
 // Trigger on Ctrl+Alt+X
 // @t - trigger times
 var command_exec = function (t) {}
+// Trigger on window.onresize
+var resize_handler = function () {}
 
 // MainNav
 var __initNavs = function () {
@@ -128,7 +134,7 @@ var __initNavs = function () {
   }
 
   $('.nav-settings').click(function () {
-    rb.modal(rb.baseUrl + '/p/commons/nav-settings', '设置导航菜单')
+    RbModal.create(rb.baseUrl + '/p/commons/nav-settings', '设置导航菜单')
   })
 }
 
@@ -226,16 +232,16 @@ var $createUploader = function (input, next, complete, error) {
           error: function (err) {
             var msg = (err.message || 'UnknowError').toUpperCase()
             if (imgOnly && msg.contains('FILE TYPE')) {
-              rb.highbar('请上传图片')
+              RbHighbar.create('请上传图片')
               return false
             } else if (msg.contains('EXCEED FSIZELIMIT')) {
-              rb.highbar('超出文件大小限制')
+              RbHighbar.create('超出文件大小限制')
               return false
             }
             if (error) error({
               error: msg
             })
-            else rb.hberror('上传失败: ' + msg)
+            else RbHighbar.error('上传失败: ' + msg)
           },
           complete: function (res) {
             typeof complete === 'function' && complete({
@@ -251,10 +257,10 @@ var $createUploader = function (input, next, complete, error) {
       postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file'),
       onSelectError: function (file, err) {
         if (err === 'ErrorType') {
-          rb.highbar('请上传图片')
+          RbHighbar.create('请上传图片')
           return false
         } else if (err === 'ErrorMaxSize') {
-          rb.highbar('超出文件大小限制')
+          RbHighbar.create('超出文件大小限制')
           return false
         }
       },
@@ -275,7 +281,7 @@ var $createUploader = function (input, next, complete, error) {
           if (error) error({
             error: msg
           })
-          else rb.hberror(msg)
+          else RbHighbar.error(msg)
         }
       },
       onClientError: function (e, file) {
@@ -283,18 +289,18 @@ var $createUploader = function (input, next, complete, error) {
         if (error) error({
           error: msg
         })
-        else rb.hberror(msg)
+        else RbHighbar.error(msg)
       }
     })
   }
 }
 
 // Clear React node
-var $unmount = function (container, delay) {
+var $unmount = function (container, delay, keepContainer) {
   if (container && container[0]) {
     setTimeout(function () {
       ReactDOM.unmountComponentAtNode(container[0])
-      container.remove()
+      if (keepContainer !== true && container.prop('tagName') !== 'BODY') container.remove()
     }, delay || 1000)
   }
 }

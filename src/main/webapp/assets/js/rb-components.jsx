@@ -52,6 +52,44 @@ class RbModal extends React.Component {
       this.setState({ frameLoad: false })
     }, 20, 'RbModal-resize')
   }
+
+  // -- Usage
+  /**
+   * @param {*} url 
+   * @param {*} title 
+   * @param {*} ext 
+   */
+  static create(url, title, ext) {
+    ext = ext || {}
+    ext.disposeOnHide = ext.disposeOnHide === true // default false
+    this.__HOLDERs = this.__HOLDERs || {}
+    let that = this
+    if (ext.disposeOnHide === false && !!that.__HOLDERs[url]) {
+      that.__HOLDER = that.__HOLDERs[url]
+      that.__HOLDER.show()
+    } else {
+      renderRbcomp(<RbModal url={url} title={title} width={ext.width} disposeOnHide={ext.disposeOnHide} />, null, function () {
+        that.__HOLDER = this
+        if (ext.disposeOnHide === false) that.__HOLDERs[url] = this
+      })
+    }
+  }
+  /**
+   * @param {*} url 
+   */
+  static hide(url) {
+    this.__HOLDERs = this.__HOLDERs || {}
+    if (url) this.__HOLDERs[url] && this.__HOLDERs[url].hide()
+    else if (this.__HOLDER) this.__HOLDER.hide()
+  }
+  /**
+   * @param {*} url
+   */
+  static resize(url) {
+    this.__HOLDERs = this.__HOLDERs || {}
+    if (url) this.__HOLDERs[url] && this.__HOLDERs[url].resize()
+    else if (this.__HOLDER) this.__HOLDER.resize()
+  }
 }
 
 // ~~ Modal 处理器
@@ -59,10 +97,8 @@ class RbModalHandler extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
-    this.show = this.show.bind(this)
-    this.hide = this.hide.bind(this)
   }
-  show(state, call) {
+  show = (state, call) => {
     let callback = () => {
       // eslint-disable-next-line react/no-string-refs
       let dlg = this._dlg || this.refs['dlg']
@@ -72,7 +108,7 @@ class RbModalHandler extends React.Component {
     if (state && $.type(state) === 'object') this.setState(state, callback)
     else callback()
   }
-  hide() {
+  hide = () => {
     // eslint-disable-next-line react/no-string-refs
     let dlg = this._dlg || this.refs['dlg']
     if (dlg) dlg.hide()
@@ -83,15 +119,18 @@ class RbModalHandler extends React.Component {
 class RbFormHandler extends RbModalHandler {
   constructor(props) {
     super(props)
-    this.handleChange = this.handleChange.bind(this)
   }
-  handleChange(e, call) {
+  handleChange = (e, call) => {
     let target = e.target
-    let id = target.dataset.id
+    let id = target.dataset.id || target.name
+    if (!id) return
     let val = target.type === 'checkbox' ? target.checked : target.value
     let s = {}
     s[id] = val
     this.setState(s, call)
+    this.handleChangeAfter(id, val)
+  }
+  handleChangeAfter(name, value) {
   }
   componentWillUnmount() {
     // Auto destroy select2
@@ -101,6 +140,11 @@ class RbFormHandler extends RbModalHandler {
       else ss.select2('destroy')
       this.__select2 = null
     }
+  }
+  disabled(d) {
+    if (!this._btns) return
+    if (d === true) $(this._btns).find('.btn').button('loading')
+    else $(this._btns).find('.btn').button('reset')
   }
 }
 
@@ -113,6 +157,7 @@ class RbAlert extends React.Component {
   render() {
     let icon = this.props.type === 'danger' ? 'alert-triangle' : 'help-outline'
     if (this.props.type === 'warning') icon = 'alert-circle-o'
+    if (this.props.type === 'primary') icon = 'info-outline'
     let type = this.props.type || 'primary'
     let content = this.props.htmlMessage ?
       <div className="mt-3" style={{ lineHeight: 1.8 }} dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} />
@@ -160,6 +205,25 @@ class RbAlert extends React.Component {
       // $(this._dlg).modal({ backdrop: d ? 'static' : true })
     })
   }
+
+  // -- Usage
+  /**
+   * @param {*} message 
+   * @param {*} titleExt 
+   * @param {*} ext 
+   */
+  static create(message, titleExt, ext) {
+    let title = titleExt
+    if ($.type(titleExt) === 'object') {
+      title = null
+      ext = titleExt
+    }
+    ext = ext || {}
+    let props = { ...ext, title: title }
+    if (ext.html === true) props.htmlMessage = message
+    else props.message = message
+    renderRbcomp(<RbAlert {...props} />)
+  }
 }
 
 // ~~ 顶部提示条
@@ -181,12 +245,40 @@ class RbHighbar extends React.Component {
     </div>)
   }
   componentDidMount() {
-    setTimeout(() => { this.close() }, this.props.timeout || 2000)
+    setTimeout(() => { this.close() }, this.props.timeout || 3000)
   }
   close() {
     this.setState({ animatedClass: 'fadeOut' }, () => {
       $unmount($(this._rbhighbar).parent())
     })
+  }
+
+  // -- Usage
+  /**
+   * @param {*} message 
+   * @param {*} type 
+   * @param {*} ext 
+   */
+  static create(message, type, ext) {
+    if (top !== self && parent.RbHighbar) {
+      parent.RbHighbar.create(message, type, ext)
+    } else {
+      ext = ext || {}
+      if (ext.html === true) renderRbcomp(<RbHighbar htmlMessage={message} type={type} timeout={ext.timeout} />)
+      else renderRbcomp(<RbHighbar message={message} type={type} timeout={ext.timeout} />)
+    }
+  }
+  /**
+   * @param {*} message 
+   */
+  static success(message) {
+    RbHighbar.create(message || '操作成功', 'success', { timeout: 2000 })
+  }
+  /**
+   * @param {*} message 
+   */
+  static error(message) {
+    RbHighbar.create(message || '系统繁忙，请稍后重试', 'danger', { timeout: 5000 })
   }
 }
 
@@ -214,100 +306,7 @@ function RbAlertBox(props) {
   </div>)
 }
 
-let renderRbcomp__counter = new Date().getTime()
-// @jsx
-// @target id or Element
-const renderRbcomp = function (jsx, target) {
-  target = target || ('react-comps-' + renderRbcomp__counter++)
-  if ($.type(target) === 'string') { // element id
-    let container = document.getElementById(target)
-    if (!container) {
-      if (!target.startsWith('react-comps-')) throw 'No element found : ' + target
-      else target = $('<div id="' + target + '"></div>').appendTo(document.body)[0]
-    }
-    else target = container
-  } else {
-    // Element object
-  }
-  return ReactDOM.render(jsx, target)  // eslint-disable-line react/no-render-return-value
-}
-
-// -- Usage
-
-var rb = rb || {}
-
-rb.__currentModal
-rb.__currentModalCache = {}
-// @url - URL in iframe
-// @title
-// @ext - more props
-rb.modal = function (url, title, ext) {
-  ext = ext || {}
-  ext.disposeOnHide = ext.disposeOnHide === true // default false
-  if (ext.disposeOnHide === false && !!rb.__currentModalCache[url]) {
-    rb.__currentModal = rb.__currentModalCache[url]
-    rb.__currentModal.show()
-  } else {
-    rb.__currentModal = renderRbcomp(<RbModal url={url} title={title} width={ext.width} disposeOnHide={ext.disposeOnHide} />)
-    if (ext.disposeOnHide === false) { //  No cache
-      rb.__currentModalCache[url] = rb.__currentModal
-    }
-  }
-  return rb.__currentModal
-}
-rb.modalHide = function (url) {
-  if (url) {
-    let c = rb.__currentModalCache[url]
-    if (c) c.hide()
-  } else if (rb.__currentModal) {
-    rb.__currentModal.hide()
-  }
-}
-rb.modalResize = function (url) {
-  if (url) {
-    let c = rb.__currentModalCache[url]
-    if (c) c.resize()
-  } else if (rb.__currentModal) {
-    rb.__currentModal.resize()
-  }
-}
-
-// @message
-// @titleExt - title or ext
-// @ext - more props
-rb.alert = (message, titleExt, ext) => {
-  let title = titleExt
-  if ($.type(titleExt) === 'object') {
-    title = null
-    ext = titleExt
-  }
-  ext = ext || {}
-  let props = { ...ext, title: title }
-  if (ext.html === true) props.htmlMessage = message
-  else props.message = message
-  return renderRbcomp(<RbAlert {...props} />)
-}
-
-// @message
-// @type - danger, warning or null
-// @ext - more props
-rb.highbar = (message, type, ext) => {
-  if (top !== self && parent.rb && parent.rb.highbar) {
-    parent.rb.highbar(message, type, ext)
-    return
-  }
-  ext = ext || {}
-  if (ext.html === true) return renderRbcomp(<RbHighbar htmlMessage={message} type={type} timeout={ext.timeout} />)
-  else return renderRbcomp(<RbHighbar message={message} type={type} timeout={ext.timeout} />)
-}
-rb.hberror = (message) => {
-  rb.highbar(message || '系统繁忙，请稍后重试', 'danger', { timeout: 5000 })
-}
-rb.hbsuccess = (message) => {
-  rb.highbar(message || '操作成功', 'success')
-}
-
-// ~ 用户选择器
+// ~~ 用户选择器
 class UserSelector extends React.Component {
   constructor(props) {
     super(props)
@@ -337,7 +336,7 @@ class UserSelector extends React.Component {
             </ul>
           </span>
         </span>
-        <span className={'dropdown-wrapper ' + (this.state.dropdownOpen === false && 'hide')} onClick={(e) => { this.stopClickEvent(e); return false }}>
+        <span className={'dropdown-wrapper ' + (this.state.dropdownOpen === false && 'hide')}>
           <div className="selector-search">
             <div>
               <input type="search" className="form-control" placeholder="输入关键词搜索" value={this.state.query || ''} onChange={(e) => this.searchItems(e)} />
@@ -366,12 +365,19 @@ class UserSelector extends React.Component {
     </div >
   }
   componentDidMount() {
-    document.body.addEventListener('click', e => {
-      this.__dropdownCloseWait = setTimeout(() => {
-        this.setState({ dropdownOpen: false })
-      }, 100)
+    $(document.body).click((e) => {
+      if (e.target && (e.target.matches('div.user-selector') || $(e.target).parents('div.user-selector').length > 0)) return
+      if (this.__isUnmounted) return
+      this.setState({ dropdownOpen: false })
     })
     $(this._scroller).perfectScrollbar()
+  }
+  componentWillUnmount() {
+    this.__isUnmounted = true
+    $(this._scroller).perfectScrollbar('destroy')
+  }
+  componentWillReceiveProps(props) {
+    this.setState({ selected: props.selected || this.state.selected })
   }
 
   clearSelection = () => {
@@ -382,10 +388,6 @@ class UserSelector extends React.Component {
       $(this._searchInput).focus()
       if (!this.state.tabType) this.switchTab('User')
     })
-    if (this.__dropdownCloseWait) clearTimeout(this.__dropdownCloseWait)
-  }
-  stopClickEvent = (e) => {
-    if (this.__dropdownCloseWait) clearTimeout(this.__dropdownCloseWait)
   }
 
   switchTab(type) {
@@ -443,4 +445,36 @@ class UserSelector extends React.Component {
     })
     return ids
   }
+}
+
+// ~~ 用户显示
+const UserShow = function (props) {
+  let viewUrl = props.id ? ('#!/View/User/' + props.id) : null
+  let avatarUrl = rb.baseUrl + '/account/user-avatar/' + props.id
+  return (
+    <a href={viewUrl} className="user-show" title={props.name} onClick={props.onClick}>
+      <div className={'avatar' + (props.showName === true ? ' float-left' : '')}>{props.icon ? <i className={props.icon} /> : <img src={avatarUrl} />}</div>
+      {props.showName === true ? <div className="name text-truncate">{props.name}{props.deptName ? <em>{props.deptName}</em> : null}</div> : null}
+    </a>)
+}
+
+/**
+ * JSX 渲染
+ * @param {*} jsx 
+ * @param {*} target id or Element
+ * @param {*} call callback
+ */
+const renderRbcomp = function (jsx, target, call) {
+  target = target || $random('react-comps-')
+  if ($.type(target) === 'string') { // element id
+    let container = document.getElementById(target)
+    if (!container) {
+      if (!target.startsWith('react-comps-')) throw 'No element found : ' + target
+      else target = $('<div id="' + target + '"></div>').appendTo(document.body)[0]
+    }
+    else target = container
+  } else {
+    // Element object
+  }
+  ReactDOM.render(jsx, target, call)
 }

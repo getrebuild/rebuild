@@ -35,6 +35,7 @@ import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -89,12 +90,12 @@ public class ViewAddonsManager extends BaseLayoutManager {
 		// 未配置则使用全部相关项
 		if (config == null) {
 			Set<String[]> refs = new HashSet<>();
-			for (Field field : MetadataHelper.getEntity(belongEntity).getReferenceToFields()) {
+			for (Field field : MetadataHelper.getEntity(belongEntity).getReferenceToFields(true)) {
 				Entity e = field.getOwnEntity();
-				// 过滤明细实体
 				if (e.getMasterEntity() != null) {
 					continue;
 				}
+
 				if (Application.getSecurityManager().allowed(user, e.getEntityCode(), useAction)) {
 					refs.add(EasyMeta.getEntityShow(e));
 				}

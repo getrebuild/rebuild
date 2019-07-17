@@ -63,7 +63,7 @@ $(document).ready(() => {
 
   $('.rb-toggle-left-sidebar').attr('title', '完成').off('click').on('click', () => {
     let cfg = build_config()
-    if (!cfg) { rb.highbar('当前图表无数据'); return }
+    if (!cfg) { RbHighbar.create('当前图表无数据'); return }
     let _data = { config: JSON.stringify(cfg), title: cfg.title, belongEntity: cfg.entity, chartType: cfg.type }
     _data.metadata = { entity: 'ChartConfig', id: wpc.chartId }
 
@@ -72,7 +72,7 @@ $(document).ready(() => {
       if (res.error_code === 0) {
         wpc.chartConfig = cfg
         location.href = (dash ? ('home?d=' + dash) : 'home') + '#' + res.data.id
-      } else rb.hberror(res.error_msg)
+      } else RbHighbar.error(res.error_msg)
     })
 
   }).tooltip({ placement: 'right' }).find('.zmdi').addClass('zmdi-arrow-left')
@@ -175,7 +175,7 @@ let add_axis = ((target, axis) => {
         render_preview()
       }
       if (dlgAxisProps) dlgAxisProps.show(state)
-      else dlgAxisProps = renderRbcomp(<DlgAxisProps {...state} />)
+      else renderRbcomp(<DlgAxisProps {...state} />, null, function () { dlgAxisProps = this })
     }
   })
   if (calc) el.find('.dropdown-menu li[data-calc="' + calc + '"]').addClass('text-primary')
@@ -248,7 +248,7 @@ let render_preview = (() => {
     $('#chart-preview').empty()
     // eslint-disable-next-line no-undef
     let c = detectChart(cfg)
-    if (c) render_preview_chart = renderRbcomp(c, 'chart-preview')
+    if (c) renderRbcomp(c, 'chart-preview', function () { render_preview_chart = this })
     else $('#chart-preview').html('<h4 class="chart-undata must-center">不支持的图表类型</h4>')
 
   }, 400, 'chart-preview')

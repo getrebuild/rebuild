@@ -138,13 +138,13 @@ class ContentFieldAggregation extends ActionContentSpec {
   addItem() {
     let tf = $(this._targetField).val()
     let sf = $(this._sourceField).val()
-    if (!tf) { rb.highbar('请选择目标字段'); return false }
-    if (!sf) { rb.highbar('请选择源字段'); return false }
+    if (!tf) { RbHighbar.create('请选择目标字段'); return false }
+    if (!sf) { RbHighbar.create('请选择源字段'); return false }
 
     let items = this.state.items || []
     $(items).each(function () {
       if (this.targetField === tf) {
-        rb.highbar('目标字段重复')
+        RbHighbar.create('目标字段重复')
         items = null
         return false
       }
@@ -164,8 +164,8 @@ class ContentFieldAggregation extends ActionContentSpec {
 
   buildContent() {
     let _data = { targetEntity: $(this._targetEntity).val(), items: this.state.items }
-    if (!_data.targetEntity) { rb.highbar('请选择聚合目标实体'); return false }
-    if (_data.items.length === 0) { rb.highbar('请至少添加 1 个聚合规则'); return false }
+    if (!_data.targetEntity) { RbHighbar.create('请选择聚合目标实体'); return false }
+    if (_data.items.length === 0) { RbHighbar.create('请至少添加 1 个聚合规则'); return false }
     return _data
   }
 }

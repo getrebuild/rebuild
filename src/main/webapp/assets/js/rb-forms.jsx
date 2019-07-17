@@ -7,6 +7,7 @@ class RbFormModal extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props, inLoad: true }
+    if (!props.id) this.state.id = null
   }
   render() {
     return (this.state.isDestroy === true ? null :
@@ -73,8 +74,9 @@ class RbFormModal extends React.Component {
 
   show(state) {
     state = state || {}
+    if (!state.id) state.id = null
     if ((state.id !== this.state.id || state.entity !== this.state.entity) || this.state.isDestroy === true) {
-      state = { ...state, formComponent: null, inLoad: true, id: state.id, entity: state.entity }
+      state = { formComponent: null, initialValue: null, inLoad: true, ...state }
       this.setState(state, () => {
         this.showAfter({ isDestroy: false }, true)
       })
@@ -113,6 +115,16 @@ class RbFormModal extends React.Component {
     if (destroy === true) state.id = null
     this.setState(state)
   }
+
+  // -- Usage
+  /**
+   * @param {*} props 
+   */
+  static create(props) {
+    let that = this
+    if (that.__HOLDER) that.__HOLDER.show(props)
+    else renderRbcomp(<RbFormModal {...props} />, null, function () { that.__HOLDER = this })
+  }
 }
 
 // ~~ 表单
@@ -146,33 +158,35 @@ class RbForm extends React.Component {
   }
   renderFormAction() {
     let pmodel = this.props.$$$parent.state.__formModel
-    let saveBtns = (
-      <div className="btn-group dropup btn-space">
-        <button className="btn btn-primary" type="button" onClick={() => this.post()}>保存</button>
-        <button className="btn btn-primary dropdown-toggle auto" type="button" data-toggle="dropdown"><span className="icon zmdi zmdi-chevron-up"></span></button>
-        <div className="dropdown-menu dropdown-menu-primary dropdown-menu-right">
-          {pmodel.isSlave === true && <a className="dropdown-item" onClick={() => this.post(101)}>保存并继续添加</a>}
-          {pmodel.isMaster === true && <a className="dropdown-item" onClick={() => this.post(102)}>保存并添加明细</a>}
-          {pmodel.isSlave !== true && <a className="dropdown-item" onClick={() => this.post(101)}>保存并继续新建</a>}
-        </div>
-      </div>
-    )
+    let moreActions = []
+    if (pmodel.hadApproval) {
+      moreActions.push(<a key="Action103" className="dropdown-item" onClick={() => this.post(103)}>保存并提交</a>)
+    }
+    if (pmodel.isMaster === true) {
+      moreActions.push(<a key="Action102" className="dropdown-item" onClick={() => this.post(102)}>保存并添加明细</a>)
+    } else if (pmodel.isSlave === true) {
+      moreActions.push(<a key="Action101" className="dropdown-item" onClick={() => this.post(101)}>保存并继续添加</a>)
+    }
 
-    let entity = this.state.entity
-    let wpc = window.__PageConfig
-    if (entity === 'User' || entity === 'Department' || entity === 'Role'
-      || wpc.type === 'SlaveView' || wpc.type === 'SlaveList' || this.isNew !== true) {
-      saveBtns = <button className="btn btn-primary btn-space" type="button" onClick={() => this.post()}>保存</button>
+    let actionBtn = <button className="btn btn-primary btn-space" type="button" onClick={() => this.post()}>保存</button>
+    if (moreActions.length > 0) {
+      actionBtn = (
+        <div className="btn-group dropup btn-space">
+          <button className="btn btn-primary" type="button" onClick={() => this.post()}>保存</button>
+          <button className="btn btn-primary dropdown-toggle auto" type="button" data-toggle="dropdown"><span className="icon zmdi zmdi-chevron-up"></span></button>
+          <div className="dropdown-menu dropdown-menu-primary dropdown-menu-right">
+            {moreActions.map((item) => { return item })}
+          </div>
+        </div>)
     }
 
     return (
       <div className="form-group row footer">
         <div className="col-12 col-sm-8 offset-sm-3" ref="rbform-action">
-          {saveBtns}
+          {actionBtn}
           <button className="btn btn-secondary btn-space" type="button" onClick={() => this.props.$$$parent.hide()}>取消</button>
         </div>
-      </div>
-    )
+      </div>)
   }
 
   componentDidMount() {
@@ -217,11 +231,15 @@ class RbForm extends React.Component {
     })
   }
 
+  /**
+   * @next {Number}
+   */
   post(next) {
+    next = next || 100
     let _data = {}
     for (let k in this.__FormData) {
       let err = this.__FormData[k].error
-      if (err) { rb.highbar(err); return }
+      if (err) { RbHighbar.create(err); return }
       else _data[k] = this.__FormData[k].value
     }
 
@@ -233,23 +251,25 @@ class RbForm extends React.Component {
     $.post(`${rb.baseUrl}/app/entity/record-save`, JSON.stringify(_data), function (res) {
       btns.button('reset')
       if (res.error_code === 0) {
-        rb.highbar('保存成功', 'success')
+        RbHighbar.create('保存成功', 'success')
         setTimeout(() => {
           that.props.$$$parent.hide(true)
           RbForm.postAfter(res.data, next === 101)
 
           if (next === 101) {
             let pstate = that.props.$$$parent.state
-            rb.RbFormModal({ title: pstate.title, entity: pstate.entity, icon: pstate.icon })
+            RbFormModal.create({ title: pstate.title, entity: pstate.entity, icon: pstate.icon, initialValue: pstate.initialValue })
           } else if (next === 102) {
             let iv = { '$MASTER$': res.data.id }
             let sm = that.props.$$$parent.state.__formModel.slaveMeta
-            rb.RbFormModal({ title: `添加${sm[1]}`, entity: sm[0], icon: sm[2], initialValue: iv })
+            RbFormModal.create({ title: `添加${sm[1]}`, entity: sm[0], icon: sm[2], initialValue: iv })
+          } else if (next === 103) {
+            renderRbcomp(<ApprovalSubmitForm id={res.data.id} disposeOnHide={true} />)
           }
         }, 100)
 
       } else {
-        rb.hberror(res.error_msg)
+        RbHighbar.error(res.error_msg)
       }
     })
   }
@@ -262,7 +282,7 @@ class RbForm extends React.Component {
   // 保存后调用
   static postAfter(data, notReload) {
     let rlp = window.RbListPage || parent.RbListPage
-    if (rlp) rlp._RbList.reload()
+    if (rlp) rlp.reload()
     if (window.RbViewPage && notReload !== true) window.RbViewPage.reload()
   }
 }
@@ -796,50 +816,6 @@ class RbFormReference extends RbFormElement {
   }
 }
 
-// 头像
-class RbFormAvatar extends RbFormElement {
-  constructor(props) {
-    super(props)
-  }
-  renderElement() {
-    let aUrl = rb.baseUrl + (this.state.value ? `/filex/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
-    return (
-      <div className="img-field avatar">
-        <span title="选择头像图片">
-          <input type="file" className="inputfile" ref="upload-input" id={this.props.field + '-input'} accept="image/png,image/jpeg,image/gif" />
-          <label htmlFor={this.props.field + '-input'} className="img-thumbnail img-upload">
-            <img src={aUrl} />
-          </label>
-        </span>
-      </div>
-    )
-  }
-  renderViewElement() {
-    let aUrl = rb.baseUrl + (this.state.value ? `/filex/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
-    return (
-      <div className="img-field avatar">
-        <a className="img-thumbnail img-upload"><img src={aUrl} /></a>
-      </div>
-    )
-  }
-  componentDidMount() {
-    super.componentDidMount()
-    let that = this
-    let mp
-    $createUploader(this.refs['upload-input'], function (res) {
-      if (!mp) mp = new Mprogress({ template: 1, start: true })
-      mp.set(res.percent / 100)  // 0.x
-    }, function (res) {
-      if (mp) mp.end()
-      that.handleChange({ target: { value: res.key } }, true)
-    })
-  }
-
-  // Not implemented
-  setValue() { }
-  getValue() { }
-}
-
 // 分类数据
 class RbFormClassification extends RbFormElement {
   constructor(props) {
@@ -894,7 +870,8 @@ class RbFormClassification extends RbFormElement {
     if (this.__selector) this.__selector.show()
     else {
       let p = this.props
-      this.__selector = renderRbcomp(<ClassificationSelector entity={p.$$$parent.state.entity} field={p.field} label={p.label} openLevel={p.openLevel} $$$parent={this} />)
+      let that = this
+      renderRbcomp(<ClassificationSelector entity={p.$$$parent.state.entity} field={p.field} label={p.label} openLevel={p.openLevel} $$$parent={this} />, null, function () { this.__selector = this })
     }
   }
   giveValue(s) {
@@ -975,8 +952,6 @@ const detectElement = function (item) {
     return <RbFormPickList {...item} />
   } else if (item.type === 'REFERENCE') {
     return <RbFormReference {...item} />
-  } else if (item.type === 'AVATAR') {
-    return <RbFormAvatar {...item} />
   } else if (item.type === 'CLASSIFICATION') {
     return <RbFormClassification {...item} />
   } else if (item.field === '$LINE$' || item.field === '$DIVIDER$') {
@@ -1086,7 +1061,7 @@ class ClassificationSelector extends React.Component {
     let last = this._select2[this.state.openLevel]
     let v = last.val()
     if (!v) {
-      rb.highbar('选择有误')
+      RbHighbar.create('选择有误')
     } else {
       let text = []
       $(this._select2).each(function () {
@@ -1174,27 +1149,15 @@ class DeleteConfirm extends RbAlert {
     let btns = $(this._btns).find('.btn').button('loading')
     $.post(rb.baseUrl + '/app/entity/record-delete?id=' + ids + '&cascades=' + cascades, (res) => {
       if (res.error_code === 0) {
-        if (res.data.deleted === res.data.requests) rb.hbsuccess('删除成功')
-        else rb.hbsuccess('已成功删除 ' + res.data.deleted + ' 条记录')
+        if (res.data.deleted === res.data.requests) RbHighbar.success('删除成功')
+        else RbHighbar.success('已成功删除 ' + res.data.deleted + ' 条记录')
 
         this.hide()
         typeof this.props.deleteAfter === 'function' && this.props.deleteAfter()
       } else {
-        rb.hberror(res.error_msg)
+        RbHighbar.error(res.error_msg)
         btns.button('reset')
       }
     })
   }
-}
-
-// -- Usage
-
-let rb = rb || {}
-
-rb.__currentRbFormModal
-// @props = { id, entity, title, icon }
-rb.RbFormModal = function (props) {
-  if (rb.__currentRbFormModal) rb.__currentRbFormModal.show(props)
-  else rb.__currentRbFormModal = renderRbcomp(<RbFormModal {...props} />)
-  return rb.__currentRbFormModal
 }

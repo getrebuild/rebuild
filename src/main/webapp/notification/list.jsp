@@ -75,7 +75,7 @@ $(document).ready(function(){
 			$('.J_list .notification-unread').each(function(){
 				$(this).removeClass('notification-unread').removeAttr('title')
 			})
-			rb.hbsuccess('所有消息已设为读')
+			RbHighbar.success('所有消息已设为读')
 		})
 	})
 	$('.J_mores a').click(function(){

@@ -18,27 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.admin.robot;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.server.service.bizz.UserHelper;
-import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
-
-import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.engine.ID;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -47,27 +30,4 @@ import cn.devezhao.persist4j.engine.ID;
 @Controller
 @RequestMapping("/admin/robot/")
 public class SendNotificationControll extends BaseControll {
-
-	@RequestMapping("trigger/send-notification-sendtos")
-	public void parseSendTo(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String sourceEntity = getParameterNotNull(request, "entity");
-		JSON sendTo = ServletUtils.getRequestJson(request);
-		Entity entity = MetadataHelper.getEntity(sourceEntity);
-
-		List<JSON> formatted = new ArrayList<>();
-		String[] keys = new String[] { "id", "text" };
-		for (Object item : (JSONArray) sendTo) {
-			String idOrField = (String) item;
-			if (ID.isId(idOrField)) {
-				String name = UserHelper.getName(ID.valueOf(idOrField));
-				if (name != null) {
-					formatted.add(JSONUtils.toJSONObject(keys, new String[] { idOrField, name }));
-				}
-			} else if (entity.containsField(idOrField.split("//.")[0])) {
-				String fullLabel = EasyMeta.getLabel(entity, idOrField);
-				formatted.add(JSONUtils.toJSONObject(keys, new String[] { idOrField, fullLabel }));
-			}
-		}
-		writeSuccess(response, formatted);
-	}
 }

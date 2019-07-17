@@ -32,7 +32,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
-import com.rebuild.server.service.notification.Message;
+import com.rebuild.server.service.notification.MessageBuilder;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 
@@ -81,11 +81,11 @@ public class NotificationControll extends BasePageControll {
 				.array();
 		
 		for (int i = 0; i < array.length; i++) {
-			Object[] msg = array[i];
-			msg[0] = new Object[] { msg[0], UserHelper.getName((ID) msg[0]) };
-			msg[1] = Message.formatHtml((String) msg[1]);
-			msg[2] = Moment.moment((Date) msg[2]).fromNow();
-			array[i] = msg;
+			Object[] m = array[i];
+			m[0] = new Object[] { m[0], UserHelper.getName((ID) m[0]) };
+			m[1] = MessageBuilder.toHTML((String) m[1]);
+			m[2] = Moment.moment((Date) m[2]).fromNow();
+			array[i] = m;
 		}
 		writeSuccess(response, array);
 	}

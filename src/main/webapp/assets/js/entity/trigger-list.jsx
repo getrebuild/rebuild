@@ -37,7 +37,7 @@ class GridList extends React.Component {
           </div>
         </div>)
       })}
-      {(!this.state.list || this.state.list.length === 0) && <div className="text-muted">尚未配置触发器</div>}
+      {(!this.state.list || this.state.list.length === 0) && <div className="text-muted">尚未配置任何触发器</div>}
     </div>
   }
   componentDidMount() {
@@ -67,16 +67,16 @@ class GridList extends React.Component {
   }
 
   delete(configId) {
-    rb.alert('确认要删除此触发器？', {
+    RbAlert.create('确认要删除此触发器？', {
       type: 'danger',
       confirmText: '删除',
       confirm: function () {
         this.disabled(true)
         $.post(`${rb.baseUrl}/app/entity/record-delete?id=${configId}`, (res) => {
           if (res.error_code === 0) {
-            rb.hbsuccess('触发器已删除')
+            RbHighbar.success('触发器已删除')
             setTimeout(() => { location.reload() }, 500)
-          } else rb.hberror(res.error_msg)
+          } else RbHighbar.error(res.error_msg)
         })
       }
     })
@@ -88,7 +88,7 @@ class DlgEdit extends RbFormHandler {
     super(props)
   }
   render() {
-    return (<RbModal title="添加触发器" ref={(c) => this._dlg = c}>
+    return (<RbModal title="添加触发器" ref={(c) => this._dlg = c} disposeOnHide={true}>
       <div className="form">
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">触发器</label>
@@ -153,7 +153,7 @@ class DlgEdit extends RbFormHandler {
     e.preventDefault()
     let _data = { actionType: this.__select2[0].val(), belongEntity: this.__select2[1].val() }
     if (!_data.actionType || !_data.belongEntity) {
-      rb.hignbar('请选择源触发实体')
+      RbHighbar.create('请选择源触发实体')
       return
     }
     _data.metadata = { entity: 'RobotTriggerConfig', id: this.props.id || null }
@@ -163,7 +163,7 @@ class DlgEdit extends RbFormHandler {
       if (res.error_code === 0) {
         if (this.props.id) location.reload()
         else location.href = 'trigger/' + res.data.id
-      } else rb.hberror(res.error_msg)
+      } else RbHighbar.error(res.error_msg)
       _btns.button('reset')
     })
   }

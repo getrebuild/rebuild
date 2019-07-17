@@ -27,10 +27,10 @@ import org.apache.commons.lang.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.business.robot.ActionContext;
-import com.rebuild.server.business.robot.ActionFactory;
-import com.rebuild.server.business.robot.TriggerAction;
-import com.rebuild.server.business.robot.TriggerWhen;
+import com.rebuild.server.business.trigger.ActionContext;
+import com.rebuild.server.business.trigger.ActionFactory;
+import com.rebuild.server.business.trigger.TriggerAction;
+import com.rebuild.server.business.trigger.TriggerWhen;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.query.AdvFilterParser;
 

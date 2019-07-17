@@ -155,7 +155,7 @@
 window.__PageConfig = { recordId: '${id}' }
 </script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-forms.exts.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/bizuser/roles.jsx" type="text/babel"></script>
 </body>
 </html>

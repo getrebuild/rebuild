@@ -40,7 +40,7 @@ class AdvFilter extends React.Component {
             <div className="item plus"><a onClick={() => this.addItem()} tabIndex="-1"><i className="zmdi zmdi-plus-circle icon"></i> 添加条件</a></div>
           </div>
         </div>
-        <div className="adv-filter">
+        <div className="adv-filter adv-filter-option">
           <div className="mb-1">
             <div className="item mt-1">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2">
@@ -70,7 +70,7 @@ class AdvFilter extends React.Component {
               {operBtns}
               <div className="clearfix" />
             </div>
-            : (<div>{operBtns}</div>)}
+            : (<div className="btn-footer">{operBtns}</div>)}
         </div>
       </div>
     )
@@ -117,7 +117,7 @@ class AdvFilter extends React.Component {
   addItem(props) {
     if (!this.fields) return
     let _items = this.state.items || []
-    if (_items.length >= 9) { rb.highbar('最多可添加9个条件'); return }
+    if (_items.length >= 9) { RbHighbar.create('最多可添加9个条件'); return }
 
     let id = 'item-' + $random()
     let itemProps = { fields: this.fields, $$$parent: this, key: 'key-' + id, id: id, onRef: this.onRef, index: _items.length + 1 }
@@ -169,12 +169,12 @@ class AdvFilter extends React.Component {
       if (!fj) hasError = true
       else filters.push(fj)
     }
-    if (hasError) { rb.highbar('部分条件设置有误，请检查'); return }
-    if (filters.length === 0 && canNoFilters !== true) { rb.highbar('请至少添加1个条件'); return }
+    if (hasError) { RbHighbar.create('部分条件设置有误，请检查'); return }
+    if (filters.length === 0 && canNoFilters !== true) { RbHighbar.create('请至少添加1个条件'); return }
 
     let adv = { entity: this.props.entity, items: filters }
     if (this.state.enableEquation === true) {
-      if (this.state.equationError === true) { rb.highbar('高级表达式设置有误'); return }
+      if (this.state.equationError === true) { RbHighbar.create('高级表达式设置有误'); return }
       adv.equation = this.state.equation
     }
     return adv
@@ -438,7 +438,7 @@ class FilterItem extends React.Component {
             that.renderPickListAfter()
           })
         } else {
-          rb.hberror(res.error_msg)
+          RbHighbar.error(res.error_msg)
         }
       })
     }

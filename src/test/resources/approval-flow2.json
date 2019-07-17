@@ -1,0 +1,105 @@
+{
+  "nodes": [{
+    "type": "start",
+    "nodeId": "ROOT"
+  }, {
+    "branches": [{
+      "nodes": [{
+        "data": {
+          "signMode": "OR",
+          "users": ["SELF"]
+        },
+        "type": "approver",
+        "nodeId": "NODE1562434342606-4"
+      }, {
+        "branches": [{
+          "nodes": [{
+            "data": {
+              "selfSelecting": true,
+              "users": []
+            },
+            "type": "cc",
+            "nodeId": "NODE15632897712205"
+          }],
+          "data": {
+            "filter": {
+              "items": [{
+                "op": "LK",
+                "field": "orderNumber",
+                "index": 1,
+                "value": "333"
+              }],
+              "entity": "SalesOrder999"
+            }
+          },
+          "priority": 1,
+          "nodeId": "COND15632896673142"
+        }, {
+          "nodes": [{
+            "data": {
+              "selfSelecting": true,
+              "signMode": "OR",
+              "users": []
+            },
+            "type": "approver",
+            "nodeId": "NODE15632897736106"
+          }],
+          "priority": 2,
+          "nodeId": "COND15632896673143"
+        }],
+        "type": "condition",
+        "nodeId": "COND15632896673111"
+      }],
+      "data": {
+        "filter": {
+          "items": [],
+          "entity": "SalesOrder999"
+        }
+      },
+      "priority": 1,
+      "nodeId": "COND1562434289156-1"
+    }, {
+      "nodes": [{
+        "data": {
+          "signMode": "OR",
+          "users": ["SELF"]
+        },
+        "type": "approver",
+        "nodeId": "NODE1562434348487-5"
+      }],
+      "data": {
+        "filter": {
+          "items": [{
+            "op": "GT",
+            "field": "totalAmount",
+            "index": 1,
+            "value": "555"
+          }],
+          "entity": "SalesOrder999"
+        }
+      },
+      "priority": 2,
+      "nodeId": "COND1562434289156-2"
+    }, {
+      "nodes": [{
+        "data": {
+          "signMode": "OR",
+          "users": ["SELF"]
+        },
+        "type": "approver",
+        "nodeId": "NODE1562434354420-6"
+      }],
+      "priority": 3,
+      "nodeId": "COND1562434290521-3"
+    }],
+    "type": "condition",
+    "nodeId": "COND1562434289152-0"
+  }, {
+    "data": {
+      "selfSelecting": true,
+      "users": []
+    },
+    "type": "cc",
+    "nodeId": "NODE1562434361370-7"
+  }]
+}

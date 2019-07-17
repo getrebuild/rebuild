@@ -38,8 +38,8 @@ import cn.devezhao.commons.ObjectUtils;
  */
 public class DbScriptsReader {
 	
-	private static String TAG_STARTS = "-- #";
-	private static String TAG_COMMENT = "--";
+	private static final String TAG_STARTS = "-- #";
+	private static final String TAG_COMMENT = "--";
 	
 	/**
 	 * @return
@@ -49,7 +49,7 @@ public class DbScriptsReader {
 		InputStream is = DbScriptsReader.class.getClassLoader().getResourceAsStream("scripts/db-upgrade.sql");
 		List<String> sqlScripts = null;
 		try {
-			sqlScripts = IOUtils.readLines(is);
+			sqlScripts = IOUtils.readLines(is, "utf-8");
 		} finally {
 			IOUtils.closeQuietly(is);
 		}

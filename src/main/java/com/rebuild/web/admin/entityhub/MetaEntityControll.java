@@ -142,7 +142,7 @@ public class MetaEntityControll extends BasePageControll {
 		
 		try {
 			String entityName = new Entity2Schema(user)
-					.create(label, comments, masterEntity, getBoolParameter(request, "nameField"));
+					.createEntity(label, comments, masterEntity, getBoolParameter(request, "nameField"));
 			writeSuccess(response, entityName);
 		} catch (Exception ex) {
 			LOG.error(null, ex);
@@ -193,7 +193,7 @@ public class MetaEntityControll extends BasePageControll {
 				.unique();
 		Entity entity = MetadataHelper.getEntity((String) entityRecord[0]);
 		
-		boolean drop = new Entity2Schema(user).drop(entity, force);
+		boolean drop = new Entity2Schema(user).dropEntity(entity, force);
 		if (drop) {
 			writeSuccess(response);
 		} else {

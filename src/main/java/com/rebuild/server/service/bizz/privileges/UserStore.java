@@ -308,7 +308,7 @@ public class UserStore {
 	 */
 	public void removeRole(ID roleId, ID transferTo) {
 		Role role = getRole(roleId);
-		Principal[] users = role.getMembers().toArray(new Principal[0]);
+		Principal[] users = role.getMembers().toArray(new Principal[role.getMembers().size()]);
 		
 		if (transferTo != null) {
  			Role transferToRole = getRole(transferTo);
@@ -371,7 +371,7 @@ public class UserStore {
 	 */
 	public void removeDepartment(ID deptId, ID transferTo) {
 		Department dept = getDepartment(deptId);
-		Principal[] users = dept.getMembers().toArray(new Principal[0]);
+		Principal[] users = dept.getMembers().toArray(new Principal[dept.getMembers().size()]);
 		
 		if (transferTo != null) {
  			Department transferToDept = getDepartment(transferTo);

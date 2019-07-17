@@ -30,6 +30,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.DataListManager;
 import com.rebuild.server.helper.datalist.DataList;
 import com.rebuild.server.helper.datalist.DefaultDataList;
@@ -53,13 +54,17 @@ public class GeneralDataListControll extends BaseEntityControll {
 	@RequestMapping("list")
 	public ModelAndView pageList(@PathVariable String entity, 
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getRequestUser(request);
+		final ID user = getRequestUser(request);
 		if (!MetadataHelper.containsEntity(entity) || MetadataHelper.isBizzEntity(entity)) {
 			response.sendError(404);
 			return null;
 		}
 		
 		Entity thatEntity = MetadataHelper.getEntity(entity);
+		if (!Application.getSecurityManager().allowedR(user, thatEntity.getEntityCode())) {
+			response.sendError(403, "你没有访问此实体的权限");
+			return null;
+		}
 		
 		ModelAndView mv = null;
 		if (thatEntity.getMasterEntity() != null) {

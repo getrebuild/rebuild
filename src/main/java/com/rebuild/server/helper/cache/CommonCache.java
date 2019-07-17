@@ -32,6 +32,16 @@ import redis.clients.jedis.JedisPool;
  */
 public class CommonCache extends BaseCacheTemplate<Serializable> {
 
+	/**
+	 * 1小时缓存
+	 */
+	public static final int TS_HOUR = 60 * 60;
+
+	/**
+	 * 1天缓存
+	 */
+	public static final int TS_DAY = 24 * 60 * 60;
+
 	protected CommonCache(JedisPool jedisPool, CacheManager cacheManager) {
 		super(jedisPool, cacheManager, "rb.");
 	}

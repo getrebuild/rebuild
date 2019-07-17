@@ -277,7 +277,7 @@ public abstract class ChartData {
 		} else if (axisType == DisplayType.BOOL 
 				|| axisType == DisplayType.PICKLIST 
 				|| axisType == DisplayType.CLASSIFICATION) {
-			label = (String) FieldValueWrapper.wrapFieldValue(value, axisField);
+			label = (String) FieldValueWrapper.instance.wrapFieldValue(value, axisField);
 		} else {
 			label = value.toString();
 		}
