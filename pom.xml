@@ -27,7 +27,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<argLine>-Dfile.encoding=UTF-8</argLine>
 		<skipTests>true</skipTests>
-		<spring.version>4.3.21.RELEASE</spring.version>
+		<spring.version>4.3.24.RELEASE</spring.version>
 	</properties>
 
 	<build>
@@ -36,7 +36,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.0</version>
+				<version>3.8.1</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
@@ -64,7 +64,7 @@
 			<plugin>
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
-				<version>9.4.18.v20190429</version>
+				<version>9.4.19.v20190610</version>
 				<configuration>
 					<webApp>
 						<contextPath>/rebuild</contextPath>
