@@ -1,7 +1,10 @@
 sudo: false
+license: GPL-3.0
 language: java
 jdk:
+  - oraclejdk8
   - oraclejdk9
+  - oraclejdk11
 script: mvn cobertura:cobertura -DskipTests=false
 
 services:
