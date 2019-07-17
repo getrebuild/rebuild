@@ -97,14 +97,22 @@ public class UsersGetting extends BaseControll {
 		
 		writeSuccess(response, filtered);
 	}
-	
-	// 获取符合 UserSelector 组件的数据
+
+	/**
+	 * 获取符合 UserSelector 组件的数据
+	 *
+	 * @param request
+	 * @param response
+	 * @throws IOException
+	 *
+	 * @see UserHelper#parseUsers(JSONArray, ID)
+	 */
 	@RequestMapping("user-selector")
-	public void parseUserSelectorData(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void parseUserSelectorRaw(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameter(request, "entity");
 		JSON users = ServletUtils.getRequestJson(request);
 		Entity hadEntity = MetadataHelper.containsEntity(entity) ? MetadataHelper.getEntity(entity) : null;
-
+		
 		List<JSON> formatted = new ArrayList<>();
 		String[] keys = new String[] { "id", "text" };
 		for (Object item : (JSONArray) users) {
