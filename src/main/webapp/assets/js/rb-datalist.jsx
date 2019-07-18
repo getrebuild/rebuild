@@ -288,7 +288,7 @@ var CellRenders = {
     this.__renders[type] = func
   },
   clickView(v) {
-    rb.RbViewModal({ id: v[0], entity: v[2][0] })
+    RbViewModal.create({ id: v[0], entity: v[2][0] })
     return false
   },
   render(value, type, width, key) {
@@ -397,7 +397,7 @@ class RbListPagination extends React.Component {
   }
 }
 
-// 列表页面初始化
+// 列表页操作类
 const RbListPage = {
   _RbList: null,
 
@@ -431,7 +431,7 @@ const RbListPage = {
       let ids = this._RbList.getSelectedIds()
       if (ids.length >= 1) {
         location.hash = '!/View/' + entity[0] + '/' + ids[0]
-        rb.RbViewModal({ id: ids[0], entity: entity[0] })
+        RbViewModal.create({ id: ids[0], entity: entity[0] })
       }
     })
     $('.J_assign').click(() => {
@@ -481,7 +481,7 @@ const RbListPage = {
   }
 }
 
-// 列表高级查询
+// 高级查询操作类
 const AdvFilters = {
 
   // @el - 控件
@@ -606,14 +606,16 @@ $(document).ready(() => {
 // -- for View
 
 const VIEW_LOAD_DELAY = 200  // 0.2s in rb-page.css '.rbview.show .modal-content'
-//~~ 视图窗口（右侧滑出）
+// ~~视图窗口（右侧滑出）
 class RbViewModal extends React.Component {
+
   constructor(props) {
     super(props)
     this.state = { ...props, inLoad: true, isHide: true, isDestroy: false }
     this.mcWidth = this.props.subView === true ? 1170 : 1220
     if ($(window).width() < 1280) this.mcWidth -= 100
   }
+
   render() {
     return (this.state.isDestroy === true ? null :
       <div className="modal-warpper">
@@ -630,6 +632,7 @@ class RbViewModal extends React.Component {
       </div>
     )
   }
+
   componentDidMount() {
     let root = $(this._rbview)
     const rootWarp = root.parent().parent()
@@ -648,15 +651,11 @@ class RbViewModal extends React.Component {
       // subView always dispose
       if (that.state.disposeOnHide === true) {
         root.modal('dispose')
-        that.setState({ isDestroy: true }, function () {
-          rb.__subViewModals[that.state.id] = null
+        that.setState({ isDestroy: true }, () => {
+          RbViewModal.holder(that.state.id, 'DISPOSE')
           $unmount(rootWarp)
           // 刷新主实体窗口
           // 打开的子View窗口数据发生了变化（如删除/更新）
-          if (rb.subViewChanged && rb.__currentViewModal) {
-            rb.__currentViewModal._iframe.contentWindow.RbViewPage.reload()
-            rb.subViewChanged = false
-          }
         })
       }
 
@@ -676,6 +675,7 @@ class RbViewModal extends React.Component {
     })
     this.show()
   }
+
   hideLoading() {
     this.setState({ inLoad: false, isHide: false })
   }
@@ -699,42 +699,40 @@ class RbViewModal extends React.Component {
     let root = $(this._rbview)
     root.modal('hide')
   }
-}
 
-rb.subViewChanged = false
-// 主View
-rb.__currentViewModal
-// 子View（允许多个，ID为Key）
-rb.__subViewModals = {}
-// @props - { id, entity }
-// @subView - 是否子 View
-rb.RbViewModal = function (props, subView) {
-  const viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
-  if (subView === true) {
-    rb.RbViewModalHide(props.id)
-    renderRbcomp(<RbViewModal url={viewUrl} disposeOnHide={true} id={props.id} subView={true} />, null, function () { rb.__subViewModals[props.id] = this })
-    return
-  }
+  // -- Usage
+  /**
+   * @param {*} props 
+   * @param {Boolean} subView 
+   */
+  static create(props, subView) {
+    this.__HOLDERs = this.__HOLDERs || {}
+    const that = this
+    const viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
 
-  if (rb.__currentViewModal) rb.__currentViewModal.show(viewUrl)
-  else renderRbcomp(<RbViewModal url={viewUrl} />, null, function () {
-    rb.__currentViewModal = this
-    rb.__subViewModals[props.id] = this
-  })
-}
-
-rb.RbViewModalGet = function (id) {
-  return rb.__subViewModals[id]
-}
-rb.RbViewModalHide = function (id) {
-  if (!id) {
-    if (rb.__currentViewModal) rb.__currentViewModal.hide()
-  } else {
-    let c = rb.__subViewModals[id]
-    if (c) {
-      c.hide()
-      rb.__subViewModals[id] = null
+    if (subView === true) {
+      renderRbcomp(<RbViewModal url={viewUrl} disposeOnHide={true} id={props.id} subView={true} />, null, function () {
+        that.__HOLDERs[props.id] = this
+      })
+    } else {
+      if (this.__HOLDER) {
+        this.__HOLDER.show(viewUrl)
+        this.__HOLDERs[props.id] = this.__HOLDER
+      } else renderRbcomp(<RbViewModal url={viewUrl} />, null, function () {
+        that.__HOLDER = this
+        that.__HOLDERs[props.id] = this
+      })
     }
+  }
+  /**
+   * @param {*} id 
+   * @param {*} action [DISPOSE|HIDE|LOADING]
+   */
+  static holder(id, action) {
+    if (action === 'DISPOSE') this.__HOLDERs[id] = null
+    if (action === 'HIDE') this.__HOLDERs[id] && this.__HOLDERs[id].hide()
+    if (action === 'LOADING') this.__HOLDERs[id] && this.__HOLDERs[id].showLoading()
+    else return this.__HOLDERs[id]
   }
 }
 
@@ -745,7 +743,7 @@ $(document).ready(() => {
     viewHash = viewHash.split('/')
     if (viewHash.length === 4 && viewHash[3].length === 20) {
       setTimeout(() => {
-        rb.RbViewModal({ entity: viewHash[2], id: viewHash[3] })
+        RbViewModal.create({ entity: viewHash[2], id: viewHash[3] })
       }, 500)
     }
   }

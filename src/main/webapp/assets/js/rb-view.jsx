@@ -42,7 +42,8 @@ class RbViewForm extends React.Component {
   }
 
   hideLoading() {
-    if (__parentRbViewModalGet(this.state.id)) __parentRbViewModalGet(this.state.id).hideLoading()
+    let ph = (parent && parent.RbViewModal) ? parent.RbViewModal.holder(this.state.id) : null
+    ph && ph.hideLoading()
     $(this._viewForm).find('.type-NTEXT .form-control-plaintext').perfectScrollbar()
   }
 
@@ -74,13 +75,15 @@ const detectViewElement = function (item) {
   return (<div className={'col-12 col-sm-' + (item.isFull ? 12 : 6)} key={item.key}>{window.detectElement(item)}</div>)
 }
 
-let rb = rb || {}
+// 视图页操作类
 const RbViewPage = {
   _RbViewForm: null,
 
-  // @id - Record ID
-  // @entity - [Name, Label, Icon]
-  // @ep - Privileges of this entity
+  /**
+   * @param {*} id Record ID
+   * @param {*} entity  [Name, Label, Icon]
+   * @param {*} ep  Privileges of this entity
+   */
   init(id, entity, ep) {
     this.__id = id
     this.__entity = entity
@@ -90,15 +93,12 @@ const RbViewPage = {
     const that = this
 
     $('.J_delete').click(() => {
-      let deleteAfter = function () {
-        that.hide(true)
-      }
-      const needEntity = (wpc.type === 'SlaveList' || wpc.type === 'SlaveView') ? null : entity[0]
-      renderRbcomp(<DeleteConfirm id={this.__id} entity={needEntity} deleteAfter={deleteAfter} />)
+      let needEntity = (wpc.type === 'SlaveList' || wpc.type === 'SlaveView') ? null : entity[0]
+      renderRbcomp(<DeleteConfirm id={this.__id} entity={needEntity} deleteAfter={() => that.hide(true)} />)
     })
-    $('.J_edit').click(() => { RbFormModal.create({ id: id, title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] }) })
-    $('.J_assign').click(() => { DlgAssign.create({ entity: entity[0], ids: [id] }) })
-    $('.J_share').click(() => { DlgShare.create({ entity: entity[0], ids: [id] }) })
+    $('.J_edit').click(() => RbFormModal.create({ id: id, title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] }))
+    $('.J_assign').click(() => DlgAssign.create({ entity: entity[0], ids: [id] }))
+    $('.J_share').click(() => DlgShare.create({ entity: entity[0], ids: [id] }))
     $('.J_add-slave').click(function () {
       let iv = { '$MASTER$': id }
       let $this = $(this)
@@ -115,8 +115,8 @@ const RbViewPage = {
       that.__cleanButton()
     }
 
-    $('.J_close').click(() => { this.hide() })
-    $('.J_reload').click(() => { this.reload() })
+    $('.J_close').click(() => this.hide())
+    $('.J_reload').click(() => this.reload())
   },
 
   // 记录元数据
@@ -251,16 +251,18 @@ const RbViewPage = {
     this.__cleanButton()
   },
 
+  // 通过父级页面打开
+
   clickView(el) {
-    if (parent && parent.rb && parent.rb.RbViewModal) {
+    if (parent && parent.RbViewModal) {
       let viewUrl = $(el).attr('href')
       viewUrl = viewUrl.split('/')
-      parent.rb.RbViewModal({ entity: viewUrl[2], id: viewUrl[3] }, true)
+      parent.RbViewModal.create({ entity: viewUrl[2], id: viewUrl[3] }, true)
     }
     return false
   },
   clickViewUser(id) {
-    if (parent && parent.rb && parent.rb.RbViewModal) parent.rb.RbViewModal({ entity: 'User', id: id }, true)
+    if (parent && parent.RbViewModal) parent.RbViewModal.create({ entity: 'User', id: id }, true)
     return false
   },
 
@@ -277,26 +279,18 @@ const RbViewPage = {
 
   // 隐藏划出的 View
   hide(reload) {
-    if (__parentRbViewModalGet(this.__id)) __parentRbViewModalGet(this.__id).hide()
+    (parent && parent.RbViewModal) && parent.RbViewModal.holder(this.__id, 'HIDE')
     if (reload === true) {
-      if (parent.RbListPage) parent.RbListPage._RbList.reload()
-      else setTimeout(function () { parent.location.reload() }, 200)
+      if (parent.RbListPage) parent.RbListPage.reload()
+      else setTimeout(() => parent.location.reload(), 200)
     }
   },
 
   // 重新加載
   reload() {
-    if (__parentRbViewModalGet(this.__id)) {
-      __parentRbViewModalGet(this.__id).showLoading()
-      parent.rb.subViewChanged = true
-    }
-    setTimeout(() => { location.reload() }, 20)
+    (parent && parent.RbViewModal) && parent.RbViewModal.holder(this.__id, 'LOADING')
+    setTimeout(() => location.reload(), 20)
   }
-}
-
-const __parentRbViewModalGet = function (id) {
-  if (parent && parent.rb && parent.rb.RbViewModalGet) return parent.rb.RbViewModalGet(id) || null
-  return null
 }
 
 // Init
