@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.rebuild.server.configuration.portals.FieldPortalAttrs;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -76,13 +77,14 @@ public class MetaFieldControll extends BasePageControll  {
 	public void listField(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entityName = getParameter(request, "entity");
 		Entity entity = MetadataHelper.getEntity(entityName);
-		if (entity == null) {
-			writeFailure(response, "无效实体");
-			return;
-		}
-		
+		String fromType = getParameter(request, "from");
+
 		List<Map<String, Object>> ret = new ArrayList<>();
 		for (Field field : MetadataSorter.sortFields(entity)) {
+			if (!FieldPortalAttrs.instance.allowByType(field, fromType)) {
+				continue;
+			}
+
 			EasyMeta easyMeta = new EasyMeta(field);
 			Map<String, Object> map = new HashMap<>();
 			if (easyMeta.getMetaId() != null) {
