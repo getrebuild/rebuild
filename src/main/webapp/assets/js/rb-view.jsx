@@ -111,7 +111,6 @@ const RbViewPage = {
       if (ep.U === false) $('.J_edit, .J_add-slave').remove()
       if (ep.A === false) $('.J_assign').remove()
       if (ep.S === false) $('.J_share').remove()
-
       that.__cleanButton()
     }
 

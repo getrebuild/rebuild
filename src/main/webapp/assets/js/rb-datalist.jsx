@@ -605,7 +605,6 @@ $(document).ready(() => {
 
 // -- for View
 
-const VIEW_LOAD_DELAY = 200  // 0.2s in rb-page.css '.rbview.show .modal-content'
 // ~~视图窗口（右侧滑出）
 class RbViewModal extends React.Component {
 
@@ -693,7 +692,7 @@ class RbViewModal extends React.Component {
       $(this._rbview).modal({ show: true, backdrop: true, keyboard: false })
       setTimeout(() => {
         this.setState({ showAfterUrl: this.state.url })
-      }, VIEW_LOAD_DELAY)
+      }, 210) // 0.2s in rb-page.css '.rbview.show .modal-content'
     })
   }
   hide() {
