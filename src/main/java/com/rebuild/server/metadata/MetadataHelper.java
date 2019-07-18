@@ -210,7 +210,8 @@ public class MetadataHelper {
 	public static boolean isSystemField(String fieldName) {
 		return EntityHelper.AutoId.equalsIgnoreCase(fieldName) 
 				|| EntityHelper.QuickCode.equalsIgnoreCase(fieldName)
-				|| EntityHelper.IsDeleted.equalsIgnoreCase(fieldName);
+				|| EntityHelper.IsDeleted.equalsIgnoreCase(fieldName)
+				|| EntityHelper.ApprovalStepNode.equalsIgnoreCase(fieldName);
 	}
 	
 	/**

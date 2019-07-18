@@ -1,6 +1,6 @@
 const wpc = window.__PageConfig
 $(document).ready(function () {
-  $.get('../list-field?entity=' + wpc.entityName, function (res) {
+  $.get('../list-field?from=FORM&entity=' + wpc.entityName, function (res) {
     let validFields = {}, configFields = []
     $(wpc.formConfig.elements).each(function () { configFields.push(this.field) })
     $(res.data).each(function () {
