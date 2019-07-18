@@ -1,6 +1,6 @@
 /*
 rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -34,10 +34,17 @@ public class FieldPortalAttrs {
     public static final FieldPortalAttrs instance = new FieldPortalAttrs();
     private FieldPortalAttrs() {}
 
+    /**
+     * 表单
+     */
     public static final String TYPE_FORM = "FORM";
-    
+    /**
+     * 列表
+     */
     public static final String TYPE_DATALIST = "DATALIST";
-    
+    /**
+     * 搜索
+     */
     public static final String TYPE_SEARCH = "SEARCH";
     
     /**
@@ -57,8 +64,6 @@ public class FieldPortalAttrs {
     }
     
     /**
-     * 表单布局
-     *
      * @param field
      * @return
      */
@@ -70,8 +75,6 @@ public class FieldPortalAttrs {
     }
 
     /**
-     * 列表
-     *
      * @param field
      * @return
      */
@@ -83,8 +86,6 @@ public class FieldPortalAttrs {
     }
 
     /**
-     * 搜索
-     *
      * @param field
      * @return
      */
