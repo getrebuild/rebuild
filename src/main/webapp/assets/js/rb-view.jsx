@@ -167,7 +167,7 @@ const RbViewPage = {
       let rl = $('<div class="tab-pane" id="tab-' + entity + '"><div class="related-list rb-loading rb-loading-active"></div></div>').appendTo('.tab-content')
       rs.push(this[0])
 
-      let mores = $('<div class="text-center J_mores mt-4 hide"><button type="button" class="btn btn-secondary load-mores">加载更多 ...</button></div>').appendTo(rl)
+      let mores = $('<div class="text-center load-mores hide"><div><button type="button" class="btn btn-secondary">加载更多</button></div></div>').appendTo(rl)
       rl = rl.find('.related-list')
       mores.find('.btn').on('click', function () {
         let pno = ~~($(this).attr('data-pno') || 1) + 1
@@ -179,18 +179,15 @@ const RbViewPage = {
 
     $('.nav-tabs li>a').on('click', function (e) {
       e.preventDefault()
-      let _this = $(this)
-      _this.tab('show')
+      let $this = $(this)
+      let clickAgent = $this.attr('href') !== '#tab-rbview' && $(this).hasClass('show')
+      clickAgent = false
+      $this.tab('show')
 
-      let pane = $(_this.attr('href')).find('.related-list')
-      if (pane.hasClass('rb-loading-active')) {
-        if (~~_this.find('.badge').text() > 0) {
-          ReactDOM.render(<RbSpinner />, pane[0])
-          that.renderRelatedGrid(pane, _this.attr('href').substr(5))
-        } else {
-          ReactDOM.render(<div className="list-nodata"><span className="zmdi zmdi-info-outline" /><p>暂无数据</p></div>, pane[0])
-          pane.removeClass('rb-loading-active')
-        }
+      let pane = $($this.attr('href')).find('.related-list')
+      if (pane.hasClass('rb-loading-active') || clickAgent) {
+        ReactDOM.render(<RbSpinner />, pane[0])
+        that.renderRelatedGrid(pane, $this.attr('href').substr(5))
       }
     })
 
@@ -224,12 +221,20 @@ const RbViewPage = {
     $.get(rb.baseUrl + '/app/entity/related-list?masterId=' + this.__id + '&related=' + related + '&pageNo=' + page + '&pageSize=' + psize, function (res) {
       el.removeClass('rb-loading-active')
       let _data = res.data.data
+      if (page === 1) {
+        el.empty()
+        if (!_data || _data.length === 0) {
+          ReactDOM.render(<div className="list-nodata"><span className="zmdi zmdi-info-outline" /><p>暂无数据</p></div>, el)
+          return
+        }
+      }
+
       $(_data).each(function () {
         let h = '#!/View/' + related + '/' + this[0]
-        $('<div class="card"><div class="float-left"><a href="' + h + '" onclick="RbViewPage.clickView(this)">' + this[1] + '</a></div><div class="float-right" title="修改时间">' + this[2] + '</div><div class="clearfix"></div></div>').appendTo(el)
+        $('<div class="card"><div class="float-left"><a href="' + h + '" onclick="RbViewPage.clickView(this)">' + this[1] + '</a></div><div class="float-right" title="最后修改时间">' + this[2] + '</div><div class="clearfix"></div></div>').appendTo(el)
       })
 
-      let mores = $(el).next('.J_mores')
+      let mores = $(el).next('.load-mores')
       if (_data.length >= psize) mores.removeClass('hide')
       else mores.find('.btn').attr({ disabled: true }).text('已加载全部')
     })
@@ -268,12 +273,10 @@ const RbViewPage = {
 
   __cleanButton() {
     $setTimeout(() => {
-      $cleanMenu('.view-action .J_mores')
+      $cleanMenu('.view-action .load-mores')
       $cleanMenu('.view-action .J_adds')
       $('.view-action .col-lg-6').each(function () { if ($(this).children().length === 0) $(this).remove() })
-      if ($('.view-action').children().length === 0) {
-        $('.view-action').addClass('empty').empty()
-      }
+      if ($('.view-action').children().length === 0) $('.view-action').addClass('empty').empty()
     }, 100, '__cleanButton')
   },
 

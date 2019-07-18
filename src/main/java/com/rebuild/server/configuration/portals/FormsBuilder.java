@@ -133,6 +133,9 @@ public class FormsBuilder extends FormsManager {
 						return formatModelError("主记录已经完成审批，禁止添加明细");
 					}
 				}
+
+				// 明细没有审批
+				hadApproval = null;
 				
 				if (!Application.getSecurityManager().allowedU(user, masterRecordId)) {
 					return formatModelError("你没有权限向此记录添加明细");

@@ -54,7 +54,7 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 	 * @return <tt>null</tt> 表示没有流程
 	 */
 	public Integer hadApproval(Entity entity, ID record) {
-		if (!entity.containsField(EntityHelper.ApprovalId)) {
+		if (entity.getMasterEntity() != null || !entity.containsField(EntityHelper.ApprovalId)) {
 			return null;
 		}
 		
