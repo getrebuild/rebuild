@@ -42,7 +42,8 @@ class RbViewForm extends React.Component {
   }
 
   hideLoading() {
-    if (__parentRbViewModalGet(this.state.id)) __parentRbViewModalGet(this.state.id).hideLoading()
+    let ph = (parent && parent.RbViewModal) ? parent.RbViewModal.holder(this.state.id) : null
+    ph && ph.hideLoading()
     $(this._viewForm).find('.type-NTEXT .form-control-plaintext').perfectScrollbar()
   }
 
@@ -74,13 +75,15 @@ const detectViewElement = function (item) {
   return (<div className={'col-12 col-sm-' + (item.isFull ? 12 : 6)} key={item.key}>{window.detectElement(item)}</div>)
 }
 
-let rb = rb || {}
+// 视图页操作类
 const RbViewPage = {
   _RbViewForm: null,
 
-  // @id - Record ID
-  // @entity - [Name, Label, Icon]
-  // @ep - Privileges of this entity
+  /**
+   * @param {*} id Record ID
+   * @param {*} entity  [Name, Label, Icon]
+   * @param {*} ep  Privileges of this entity
+   */
   init(id, entity, ep) {
     this.__id = id
     this.__entity = entity
@@ -90,15 +93,12 @@ const RbViewPage = {
     const that = this
 
     $('.J_delete').click(() => {
-      let deleteAfter = function () {
-        that.hide(true)
-      }
-      const needEntity = (wpc.type === 'SlaveList' || wpc.type === 'SlaveView') ? null : entity[0]
-      renderRbcomp(<DeleteConfirm id={this.__id} entity={needEntity} deleteAfter={deleteAfter} />)
+      let needEntity = (wpc.type === 'SlaveList' || wpc.type === 'SlaveView') ? null : entity[0]
+      renderRbcomp(<DeleteConfirm id={this.__id} entity={needEntity} deleteAfter={() => that.hide(true)} />)
     })
-    $('.J_edit').click(() => { RbFormModal.create({ id: id, title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] }) })
-    $('.J_assign').click(() => { DlgAssign.create({ entity: entity[0], ids: [id] }) })
-    $('.J_share').click(() => { DlgShare.create({ entity: entity[0], ids: [id] }) })
+    $('.J_edit').click(() => RbFormModal.create({ id: id, title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] }))
+    $('.J_assign').click(() => DlgAssign.create({ entity: entity[0], ids: [id] }))
+    $('.J_share').click(() => DlgShare.create({ entity: entity[0], ids: [id] }))
     $('.J_add-slave').click(function () {
       let iv = { '$MASTER$': id }
       let $this = $(this)
@@ -111,12 +111,11 @@ const RbViewPage = {
       if (ep.U === false) $('.J_edit, .J_add-slave').remove()
       if (ep.A === false) $('.J_assign').remove()
       if (ep.S === false) $('.J_share').remove()
-
       that.__cleanButton()
     }
 
-    $('.J_close').click(() => { this.hide() })
-    $('.J_reload').click(() => { this.reload() })
+    $('.J_close').click(() => this.hide())
+    $('.J_reload').click(() => this.reload())
   },
 
   // 记录元数据
@@ -167,7 +166,7 @@ const RbViewPage = {
       let rl = $('<div class="tab-pane" id="tab-' + entity + '"><div class="related-list rb-loading rb-loading-active"></div></div>').appendTo('.tab-content')
       rs.push(this[0])
 
-      let mores = $('<div class="text-center J_mores mt-4 hide"><button type="button" class="btn btn-secondary load-mores">加载更多 ...</button></div>').appendTo(rl)
+      let mores = $('<div class="text-center load-mores hide"><div><button type="button" class="btn btn-secondary">加载更多</button></div></div>').appendTo(rl)
       rl = rl.find('.related-list')
       mores.find('.btn').on('click', function () {
         let pno = ~~($(this).attr('data-pno') || 1) + 1
@@ -179,18 +178,15 @@ const RbViewPage = {
 
     $('.nav-tabs li>a').on('click', function (e) {
       e.preventDefault()
-      let _this = $(this)
-      _this.tab('show')
+      let $this = $(this)
+      let clickAgent = $this.attr('href') !== '#tab-rbview' && $(this).hasClass('show')
+      clickAgent = false
+      $this.tab('show')
 
-      let pane = $(_this.attr('href')).find('.related-list')
-      if (pane.hasClass('rb-loading-active')) {
-        if (~~_this.find('.badge').text() > 0) {
-          ReactDOM.render(<RbSpinner />, pane[0])
-          that.renderRelatedGrid(pane, _this.attr('href').substr(5))
-        } else {
-          ReactDOM.render(<div className="list-nodata"><span className="zmdi zmdi-info-outline" /><p>暂无数据</p></div>, pane[0])
-          pane.removeClass('rb-loading-active')
-        }
+      let pane = $($this.attr('href')).find('.related-list')
+      if (pane.hasClass('rb-loading-active') || clickAgent) {
+        ReactDOM.render(<RbSpinner />, pane[0])
+        that.renderRelatedGrid(pane, $this.attr('href').substr(5))
       }
     })
 
@@ -224,12 +220,20 @@ const RbViewPage = {
     $.get(rb.baseUrl + '/app/entity/related-list?masterId=' + this.__id + '&related=' + related + '&pageNo=' + page + '&pageSize=' + psize, function (res) {
       el.removeClass('rb-loading-active')
       let _data = res.data.data
+      if (page === 1) {
+        el.empty()
+        if (!_data || _data.length === 0) {
+          ReactDOM.render(<div className="list-nodata"><span className="zmdi zmdi-info-outline" /><p>暂无数据</p></div>, el)
+          return
+        }
+      }
+
       $(_data).each(function () {
         let h = '#!/View/' + related + '/' + this[0]
-        $('<div class="card"><div class="float-left"><a href="' + h + '" onclick="RbViewPage.clickView(this)">' + this[1] + '</a></div><div class="float-right" title="修改时间">' + this[2] + '</div><div class="clearfix"></div></div>').appendTo(el)
+        $('<div class="card"><div class="float-left"><a href="' + h + '" onclick="RbViewPage.clickView(this)">' + this[1] + '</a></div><div class="float-right" title="最后修改时间">' + this[2] + '</div><div class="clearfix"></div></div>').appendTo(el)
       })
 
-      let mores = $(el).next('.J_mores')
+      let mores = $(el).next('.load-mores')
       if (_data.length >= psize) mores.removeClass('hide')
       else mores.find('.btn').attr({ disabled: true }).text('已加载全部')
     })
@@ -251,52 +255,44 @@ const RbViewPage = {
     this.__cleanButton()
   },
 
+  // 通过父级页面打开
+
   clickView(el) {
-    if (parent && parent.rb && parent.rb.RbViewModal) {
+    if (parent && parent.RbViewModal) {
       let viewUrl = $(el).attr('href')
       viewUrl = viewUrl.split('/')
-      parent.rb.RbViewModal({ entity: viewUrl[2], id: viewUrl[3] }, true)
+      parent.RbViewModal.create({ entity: viewUrl[2], id: viewUrl[3] }, true)
     }
     return false
   },
   clickViewUser(id) {
-    if (parent && parent.rb && parent.rb.RbViewModal) parent.rb.RbViewModal({ entity: 'User', id: id }, true)
+    if (parent && parent.RbViewModal) parent.RbViewModal.create({ entity: 'User', id: id }, true)
     return false
   },
 
   __cleanButton() {
     $setTimeout(() => {
-      $cleanMenu('.view-action .J_mores')
+      $cleanMenu('.view-action .load-mores')
       $cleanMenu('.view-action .J_adds')
       $('.view-action .col-lg-6').each(function () { if ($(this).children().length === 0) $(this).remove() })
-      if ($('.view-action').children().length === 0) {
-        $('.view-action').addClass('empty').empty()
-      }
+      if ($('.view-action').children().length === 0) $('.view-action').addClass('empty').empty()
     }, 100, '__cleanButton')
   },
 
   // 隐藏划出的 View
   hide(reload) {
-    if (__parentRbViewModalGet(this.__id)) __parentRbViewModalGet(this.__id).hide()
+    (parent && parent.RbViewModal) && parent.RbViewModal.holder(this.__id, 'HIDE')
     if (reload === true) {
-      if (parent.RbListPage) parent.RbListPage._RbList.reload()
-      else setTimeout(function () { parent.location.reload() }, 200)
+      if (parent.RbListPage) parent.RbListPage.reload()
+      else setTimeout(() => parent.location.reload(), 200)
     }
   },
 
   // 重新加載
   reload() {
-    if (__parentRbViewModalGet(this.__id)) {
-      __parentRbViewModalGet(this.__id).showLoading()
-      parent.rb.subViewChanged = true
-    }
-    setTimeout(() => { location.reload() }, 20)
+    (parent && parent.RbViewModal) && parent.RbViewModal.holder(this.__id, 'LOADING')
+    setTimeout(() => location.reload(), 20)
   }
-}
-
-const __parentRbViewModalGet = function (id) {
-  if (parent && parent.rb && parent.rb.RbViewModalGet) return parent.rb.RbViewModalGet(id) || null
-  return null
 }
 
 // Init

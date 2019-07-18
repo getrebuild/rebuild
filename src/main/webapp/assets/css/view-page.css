@@ -165,13 +165,6 @@ body {
 	}
 }
 
-.btn.load-mores {
-	display: inline-block;
-	min-width: 200px;
-	line-height: 2.8rem;
-	border-radius: 99px;
-}
-
 .view-operating>div.view-user {
 	margin-bottom: 0px !important;
 }
@@ -242,4 +235,30 @@ body {
 .sharing-list .dialog-footer {
 	margin-left: -20px;
 	margin-right: -25px;
+}
+
+.load-mores {
+	border-top: 1px solid #eee;
+	height: 34px;
+	margin-top: 34px;
+}
+
+.load-mores .btn {
+	width: 160px;
+	line-height: 1.8rem;
+	min-height: 2.6rem;
+	border-radius: 99px;
+	font-size: 12px;
+}
+
+.load-mores>div {
+	width: 180px;
+	background-color: #fff;
+	margin: 0 auto;
+	margin-top: -1.4rem;
+}
+
+.load-mores>.btn {
+	display: inline-block;
+	margin-top: -1.4rem;
 }

@@ -254,7 +254,7 @@ class RbForm extends React.Component {
         RbHighbar.create('保存成功', 'success')
         setTimeout(() => {
           that.props.$$$parent.hide(true)
-          RbForm.postAfter(res.data, next === 101)
+          RbForm.postAfter(res.data, next)
 
           if (next === 101) {
             let pstate = that.props.$$$parent.state
@@ -280,10 +280,10 @@ class RbForm extends React.Component {
     return true
   }
   // 保存后调用
-  static postAfter(data, notReload) {
+  static postAfter(data, next) {
     let rlp = window.RbListPage || parent.RbListPage
     if (rlp) rlp.reload()
-    if (window.RbViewPage && notReload !== true) window.RbViewPage.reload()
+    if (window.RbViewPage && next < 101) window.RbViewPage.reload()
   }
 }
 

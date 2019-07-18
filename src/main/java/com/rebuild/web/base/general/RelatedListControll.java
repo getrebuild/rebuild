@@ -20,6 +20,7 @@ package com.rebuild.web.base.general;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -42,8 +43,8 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.momentjava.Moment;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
@@ -76,7 +77,8 @@ public class RelatedListControll extends BaseControll {
 			if (o[1] == null || StringUtils.isEmpty(o[1].toString())) {
 				o[1] = o[0].toString().toUpperCase();  // 使用ID值作为名称字段值
 			}
-			o[2] = CalendarUtils.getUTCDateTimeFormat().format(o[2]);
+//			o[2] = CalendarUtils.getUTCDateTimeFormat().format(o[2]);
+			o[2] = Moment.moment((Date) o[2]).fromNow();
 		}
 		
 		JSON ret = JSONUtils.toJSONObject(

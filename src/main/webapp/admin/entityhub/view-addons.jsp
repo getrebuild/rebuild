@@ -39,6 +39,7 @@ $(document).ready(function(){
 		$(res.data.config).each(function(){
 			$('.unset-list li[data-key="' + this + '"]').trigger('click')
 		})
+		if (!res.data.refs || res.data.refs.length == 0) $('<li class="dd-item nodata">无可用相关项</li>').appendTo('.unset-list')
 	})
 	
 	let _btn = $('.J_save').click(function(){
