@@ -401,9 +401,11 @@ class RbListPagination extends React.Component {
 const RbListPage = {
   _RbList: null,
 
-  // @config - List config
-  // @entity - [Name, Label, Icon]
-  // @ep - Privileges of this entity
+  /**
+   * @param {*} config DataList config
+   * @param {*} entity [Name, Label, Icon]
+   * @param {*} ep Privileges of this entity
+   */
   init: function (config, entity, ep) {
     renderRbcomp(<RbList config={config} />, 'react-list', function () { RbListPage._RbList = this })
 
@@ -436,20 +438,17 @@ const RbListPage = {
     })
     $('.J_assign').click(() => {
       let ids = this._RbList.getSelectedIds()
-      if (ids.length > 0) DlgAssign.create({ entity: entity[0], ids: ids })
+      ids.length > 0 && DlgAssign.create({ entity: entity[0], ids: ids })
     })
     $('.J_share').click(() => {
       let ids = this._RbList.getSelectedIds()
-      if (ids.length > 0) DlgShare.create({ entity: entity[0], ids: ids })
+      ids.length > 0 && DlgShare.create({ entity: entity[0], ids: ids })
     })
     $('.J_unshare').click(() => {
       let ids = this._RbList.getSelectedIds()
-      if (ids.length > 0) DlgUnshare.create({ entity: entity[0], ids: ids })
+      ids.length > 0 && DlgUnshare.create({ entity: entity[0], ids: ids })
     })
-
-    $('.J_columns').click(function () {
-      RbModal.create(`${rb.baseUrl}/p/general-entity/show-fields?entity=${entity[0]}`, '设置列显示')
-    })
+    $('.J_columns').click(() => RbModal.create(`${rb.baseUrl}/p/general-entity/show-fields?entity=${entity[0]}`, '设置列显示'))
 
     // Privileges
     if (ep) {
@@ -458,7 +457,6 @@ const RbListPage = {
       if (ep.U === false) $('.J_edit').remove()
       if (ep.A === false) $('.J_assign').remove()
       if (ep.S === false) $('.J_share, .J_unshare').remove()
-
       $cleanMenu('.J_action')
     }
 
@@ -484,8 +482,10 @@ const RbListPage = {
 // 高级查询操作类
 const AdvFilters = {
 
-  // @el - 控件
-  // @entity - 实体
+  /**
+   * @param {*} el 控件
+   * @param {*} entity 实体
+   */
   init(el, entity) {
     this.__el = $(el)
     this.__entity = entity
@@ -648,7 +648,8 @@ class RbViewModal extends React.Component {
       } else {
         location.hash = '!/View/'
       }
-      // subView always dispose
+
+      // SubView
       if (that.state.disposeOnHide === true) {
         root.modal('dispose')
         that.setState({ isDestroy: true }, () => {
@@ -696,8 +697,7 @@ class RbViewModal extends React.Component {
     })
   }
   hide() {
-    let root = $(this._rbview)
-    root.modal('hide')
+    $(this._rbview).modal('hide')
   }
 
   // -- Usage
@@ -710,7 +710,7 @@ class RbViewModal extends React.Component {
     const that = this
     const viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
 
-    if (subView === true) {
+    if (subView) {
       renderRbcomp(<RbViewModal url={viewUrl} disposeOnHide={true} id={props.id} subView={true} />, null, function () {
         that.__HOLDERs[props.id] = this
       })
