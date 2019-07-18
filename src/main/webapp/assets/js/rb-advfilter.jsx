@@ -226,6 +226,7 @@ class FilterItem extends React.Component {
 
     if (props.field && props.value) INPUTVALS_HOLD[props.field] = props.value
   }
+
   render() {
     return (
       <div className="row item">
@@ -251,6 +252,7 @@ class FilterItem extends React.Component {
       </div>
     )
   }
+
   selectOp() {
     let fieldType = this.state.type
     let op = ['LK', 'NLK', 'EQ', 'NEQ']
@@ -276,10 +278,12 @@ class FilterItem extends React.Component {
       }
     }
     op.push('NL', 'NT')
-    if (this.state.field === 'approvalState') op = ['EQ', 'NEQ']
+    if (this.isApprovalState()) op = ['EQ', 'NEQ']
+
     this.__op = op
     return op
   }
+
   renderValue() {
     let val = <input className="form-control form-control-sm" ref={(c) => this._filterVal = c} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
     if (this.state.op === 'BW') {
@@ -299,7 +303,7 @@ class FilterItem extends React.Component {
         </select>)
     } else if (this.isBizzField()) {
       val = <select className="form-control form-control-sm" multiple="true" ref={(c) => this._filterVal = c} />
-    } else if (this.state.field === 'approvalState') {
+    } else if (this.isApprovalState()) {
       val = (
         <select className="form-control form-control-sm" ref={(c) => this._filterVal = c}>
           <option value="1">草稿</option>
@@ -312,6 +316,7 @@ class FilterItem extends React.Component {
     INPUTVALS_HOLD[this.state.field] = this.state.value
     return val
   }
+
   // 引用 User/Department/Role
   isBizzField(entity) {
     if (this.state.type === 'REFERENCE') {
@@ -330,6 +335,11 @@ class FilterItem extends React.Component {
     }
     return false
   }
+  // 审批状态
+  isApprovalState() {
+    let fieldName = this.state.field || ''
+    return fieldName === 'approvalState' || fieldName.endsWith('.approvalState')
+  }
 
   componentDidMount() {
     this.props.onRef(this)
@@ -347,9 +357,8 @@ class FilterItem extends React.Component {
       allowClear: false
     }).on('change.select2', function (e) {
       that.setState({ op: e.target.value }, function () {
-        // $setTimeout(function () {
-        // ReactDOM.findDOMNode(that._filterVal).focus()
-        // }, 200, 'filter-val-focus')
+        that._componentDidUpdate()
+        // $setTimeout(() => $(that._filterVal).focus(), 200, 'filter-val-focus')
       })
     })
     this.__select2 = [s2field, s2op]
@@ -369,22 +378,22 @@ class FilterItem extends React.Component {
       s2field.trigger('change')
     }
   }
-  componentDidUpdate() {
-    let _state = this.state
-    let thisEnter = [_state.field, _state.type, _state.op === 'BW', OP_DATE_NOPICKER.contains(_state.op)].join('----')
-    if (this.__lastEnter === thisEnter) return
-    let lastType = this.__lastEnter ? this.__lastEnter.split('----')[1] : null
-    this.__lastEnter = thisEnter
 
-    if (_state.type === 'PICKLIST') {
-      this.renderPickList(_state.field)
+  _componentDidUpdate() {
+    console.log('_componentDidUpdate')
+    let state = this.state
+    let lastType = this.__lastType
+    this.__lastType = state.type
+
+    if (state.type === 'PICKLIST') {
+      this.renderPickList(state.field)
     } else if (lastType === 'PICKLIST') {
       this.removePickList()
     }
 
-    if (_state.type === 'DATE') {
+    if (state.type === 'DATE') {
       this.removeDatepicker()
-      if (OP_DATE_NOPICKER.contains(_state.op)) {
+      if (OP_DATE_NOPICKER.contains(state.op)) {
         // 无需日期组件
       } else {
         this.renderDatepicker()
@@ -394,28 +403,30 @@ class FilterItem extends React.Component {
     }
 
     if (this.isBizzField()) {
-      let fRef = REFMETA_CACHE[this.$$$entity + '.' + _state.field]
+      let fRef = REFMETA_CACHE[this.$$$entity + '.' + state.field]
       this.renderBizzSearch(fRef[0])
     } else if (lastType === 'REFERENCE') {
       this.removeBizzSearch()
     }
 
-    if (_state.field === 'approvalState') {
+    if (this.isApprovalState()) {
       this.renderApprovalState()
-    } else if (lastType === 'STATE') {
+      this.__lastType = 'approvalState'
+    } else if (lastType === 'approvalState') {
       this.removeApprovalState()
     }
 
-    if (_state.value) this.valueCheck($(this._filterVal))
-    if (_state.value2 && this._filterVal2) this.valueCheck($(this._filterVal2))
+    if (state.value) this.valueCheck($(this._filterVal))
+    if (state.value2 && this._filterVal2) this.valueCheck($(this._filterVal2))
   }
+
   componentWillUnmount() {
     this.__select2.forEach((item) => { item.select2('destroy') })
     this.__select2 = null
     this.removePickList()
     this.removeDatepicker()
     this.removeBizzSearch()
-    this.renderApprovalState()
+    this.removeApprovalState()
   }
 
   valueHandle = (e) => {
@@ -442,18 +453,17 @@ class FilterItem extends React.Component {
   // 列表
 
   renderPickList(field) {
-    let that = this
     const plKey = this.props.$$$parent.props.entity + '.' + field
     if (PICKLIST_CACHE[plKey]) {
-      this.setState({ picklist: PICKLIST_CACHE[plKey] }, function () {
-        that.renderPickListAfter()
+      this.setState({ picklist: PICKLIST_CACHE[plKey] }, () => {
+        this.renderPickListAfter()
       })
     } else {
-      $.get(rb.baseUrl + '/commons/metadata/picklist?entity=' + this.props.$$$parent.props.entity + '&field=' + field, function (res) {
+      $.get(`${rb.baseUrl}/commons/metadata/picklist?entity=${this.props.$$$parent.props.entity}&field=${field}`, (res) => {
         if (res.error_code === 0) {
           PICKLIST_CACHE[plKey] = res.data
-          that.setState({ picklist: PICKLIST_CACHE[plKey] }, function () {
-            that.renderPickListAfter()
+          this.setState({ picklist: PICKLIST_CACHE[plKey] }, () => {
+            this.renderPickListAfter()
           })
         } else {
           RbHighbar.error(res.error_msg)
@@ -580,6 +590,8 @@ class FilterItem extends React.Component {
   // 审批状态
 
   renderApprovalState() {
+    if (this.__select2_ApprovalState) return
+
     let that = this
     let s2val = $(this._filterVal).select2({
       allowClear: false

@@ -190,8 +190,8 @@ public class MetadataGetting extends BaseControll {
 	public void fetchPicklist(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
 		String field = getParameterNotNull(request, "field");
-		
-		Field fieldMeta = MetadataHelper.getField(entity, field);
+
+		Field fieldMeta = getRealField(entity, field);
 		JSON list = PickListManager.instance.getPickList(fieldMeta);
 		writeSuccess(response, list);
 	}
@@ -202,7 +202,7 @@ public class MetadataGetting extends BaseControll {
 		String entity = getParameterNotNull(request, "entity");
 		String field = getParameterNotNull(request, "field");
 		
-		Field fieldMeta = MetadataHelper.getField(entity, field);
+		Field fieldMeta = getRealField(entity, field);
 		ID useClassification = ClassificationManager.instance.getUseClassification(fieldMeta, true);
 		if (useClassification == null) {
 			writeFailure(response, "分类字段配置有误");
@@ -222,5 +222,15 @@ public class MetadataGetting extends BaseControll {
 				.setLimit(200)
 				.array();
 		writeSuccess(response, data);
+	}
+
+	/**
+	 * @param entity
+	 * @param field
+	 * @return
+	 */
+	private Field getRealField(String entity, String field) {
+		Entity entityMeta = MetadataHelper.getEntity(entity);
+		return MetadataHelper.getLastJoinField(entityMeta, field);
 	}
 }

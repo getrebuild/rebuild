@@ -247,6 +247,10 @@ div.dataTables_wrapper div.dataTables_filter {
     margin-bottom: 5px;
 }
 
+.datetimepicker.dropdown-menu .switch {
+    padding-top: 5px;
+}
+
 .adv-search {
     margin-right: 5px;
 }
