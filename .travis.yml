@@ -10,8 +10,8 @@ services:
   - mysql
   - redis
 
-git:
-  depth: 3
+#git:
+#  depth: 3
 #branches:
 #  only:
 #    - master
