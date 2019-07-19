@@ -52,7 +52,7 @@ $(function () {
     }
   })
 
-  $(window).on('resize', () => {
+  $(window).on('resize', function() {
     $setTimeout(resize_handler, 100, 'resize-window')
   })
 })
@@ -156,7 +156,7 @@ var __loadMessages__state = 0
 var __loadMessages = function () {
   if (__loadMessages__state === 1) return
 
-  const dest = $('.rb-notifications .content ul').empty()
+  var dest = $('.rb-notifications .content ul').empty()
   if (dest.find('li').length === 0) {
     $('<li class="text-center mt-3 mb-3"><i class="zmdi zmdi-refresh zmdi-hc-spin fs-18"></i></li>').appendTo(dest)
   }
