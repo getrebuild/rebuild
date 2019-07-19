@@ -1,6 +1,11 @@
 -- Database upgrade scripts for rebuild 1.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #7 Type of Notification
+alter table `notification`
+  add column `TYPE` smallint(6) default '0' comment '消息分类',
+  add index `IX2_notification` (`TO_USER`, `TYPE`, `CREATED_ON`);
+
 -- #6 Approval (v1.4)
 -- ************ Entity [RobotApprovalConfig] DDL ************
 create table if not exists `robot_approval_config` (

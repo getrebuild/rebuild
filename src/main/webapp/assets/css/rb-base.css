@@ -12616,7 +12616,7 @@ a.avatar.x48 img {
     background-color: #4285f4
 }
 
-.rb-notifications .notification:hover>a {
+.rb-notifications.dropdown-menu .notification:hover a {
     color: #fff
 }
 
@@ -22719,6 +22719,10 @@ fieldset[disabled] .btn-color.btn-evernote:hover {
     border-top: solid 1px #fff
 }
 
+.list-group-item.active .text {
+    color: #fff
+}
+
 .list-group-item .icon {
     margin-right: 18px;
     font-size: 1.231rem
@@ -22734,11 +22738,6 @@ fieldset[disabled] .btn-color.btn-evernote:hover {
     -webkit-box-flex: 0;
     -ms-flex: 0 0 auto;
     flex: 0 0 auto
-}
-
-.active .list-group-item .badge {
-    background: #fff;
-    color: #4285f4
 }
 
 .h1 .small,

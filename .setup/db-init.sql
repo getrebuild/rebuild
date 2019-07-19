@@ -265,8 +265,9 @@ create table if not exists `notification` (
   `FROM_USER`          char(20) not null,
   `TO_USER`            char(20) not null,
   `MESSAGE`            varchar(1000),
-  `RELATED_RECORD`     char(20) comment '相关业务记录',
   `UNREAD`             char(1) default 'T',
+  `TYPE`               smallint(6) default '0' comment '消息分类',
+  `RELATED_RECORD`     char(20) comment '相关业务记录',
   `MODIFIED_ON`        timestamp not null comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
@@ -274,7 +275,9 @@ create table if not exists `notification` (
   primary key  (`MESSAGE_ID`)
 )Engine=InnoDB;
 alter table `notification`
-  add index `IX1_notification` (`TO_USER`, `UNREAD`, `CREATED_ON`);
+  add index `IX1_notification` (`TO_USER`, `UNREAD`, `CREATED_ON`),
+  add index `IX2_notification` (`TO_USER`, `TYPE`, `CREATED_ON`);
+
 
 -- ************ Entity [Attachment] DDL ************
 create table if not exists `attachment` (
@@ -425,4 +428,4 @@ INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version
 INSERT INTO `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`) 
-  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 6);
+  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 7);

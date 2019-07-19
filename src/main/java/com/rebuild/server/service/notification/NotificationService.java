@@ -46,6 +46,7 @@ public class NotificationService extends BaseService {
 	
 	@Override
 	public Record create(Record record) {
+		record.setBoolean("unread", true);
 		record = super.create(record);
 		cleanCache(record.getPrimary());
 		return record;
@@ -85,6 +86,9 @@ public class NotificationService extends BaseService {
 		record.setID("fromUser", message.getFromUser());
 		record.setID("toUser", message.getToUser());
 		record.setString("message", message.getMessage());
+		if (message.getType() > 0) {
+			record.setInt("type", message.getType());
+		}
 		if (message.getRelatedRecord() != null) {
 			record.setID("relatedRecord", message.getRelatedRecord());
 		}

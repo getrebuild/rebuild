@@ -2110,3 +2110,64 @@ form {
     height: 32px;
     width: 32px;
 }
+
+.notification-type {
+    min-height: 160px
+}
+
+.notification-type .list-group-item {
+    padding: 10px 15px
+}
+
+.notification-list .list-nodata {
+    padding-top: 32px
+}
+
+.notification-list .notification a {
+    cursor: default
+}
+
+.notification-list .notification:hover {
+    background-color: #ebf2fe !important;
+}
+
+.notification-list .notification .text {
+    color: #404040 !important;
+    font-size: 1rem !important;
+}
+
+.notification-list .notification .date {
+    color: #8a8a8a !important;
+}
+
+.notification-list .notification .text a {
+    cursor: pointer
+}
+
+.notification-list .notification .text a.record {
+    text-decoration: underline;
+    padding: 0 1px;
+}
+
+.notification-page {
+    padding-left: 50%
+}
+
+.notification-page>ul {
+    float: left;
+    margin-left: -38px;
+}
+
+.notification-page::after {
+    clear: left
+}
+
+.notification-tab {
+    position: relative
+}
+
+.notification-tab .read-all {
+    position: absolute;
+    top: 0;
+    right: 0
+}
