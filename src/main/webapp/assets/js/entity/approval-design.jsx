@@ -447,6 +447,7 @@ class ApproverNodeConfig extends StartNodeConfig {
     super(props)
     this.state.signMode = props.signMode || 'OR'
     this.state.users = (props.users || ['SPEC'])[0]
+    if (this.state.users.length == 20) this.state.users = 'SPEC'
   }
   render() {
     return (<div>

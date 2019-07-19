@@ -313,6 +313,9 @@ class ApprovalStepViewer extends React.Component {
             <div className="timeline-avatar"><img src={`${rb.baseUrl}/account/user-avatar/${item.approver}`} /></div>
             <div className="timeline-header">
               <p className="timeline-activity">{aMsg}</p>
+              {item.remark && <blockquote className="blockquote timeline-blockquote mb-0">
+                <p>{item.remark}</p>
+              </blockquote>}
             </div>
           </div>
         </li>
