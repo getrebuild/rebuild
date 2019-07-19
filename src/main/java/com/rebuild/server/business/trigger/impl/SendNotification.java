@@ -35,6 +35,7 @@ import com.rebuild.server.service.notification.Message;
 import com.rebuild.server.service.notification.MessageBuilder;
 
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.utils.MarkdownUtils;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -73,22 +74,25 @@ public class SendNotification implements TriggerAction {
 		}
 		
 		String message = content.getString("content");
-		message = formatMessage(message);
+		message = formatMessage(message, context.getSourceRecord());
 		for (ID user : toUsers) {
-			Message m = MessageBuilder.createMessage(user, message, context.getSourceRecord());
+			Message m = MessageBuilder.createMessage(user, message);
 			Application.getNotifications().send(m);
 		}
 	}
 	
 	@Override
 	public void prepare(OperatingContext operatingContext) throws TriggerException {
+		// Nothings
 	}
-	
+
 	/**
 	 * @param message
+	 * @param recordId
 	 * @return
 	 */
-	private String formatMessage(String message) {
-		return message;
+	private String formatMessage(String message, ID recordId) {
+		// TODO 处理变量
+		return message + " @" + recordId;
 	}
 }

@@ -78,14 +78,14 @@ public class ApprovalStepService extends BaseService {
 			Record clone = step.clone();
 			clone.setID("approver", a);
 			super.create(clone);
-			Application.getNotifications().send(MessageBuilder.createApprovalMessage(submitter, a, approveMsg));
+			Application.getNotifications().send(MessageBuilder.createApproval(submitter, a, approveMsg, recordId));
 		}
 		
 		// 抄送人
 		if (cc != null && !cc.isEmpty()) {
 			String ccMsg = String.format("用户 @%s 提交了一条%s审批，请知晓 @%s", submitter, entityLabel, recordId);
 			for (ID c : cc) {
-				Application.getNotifications().send(MessageBuilder.createApprovalMessage(c, ccMsg));
+				Application.getNotifications().send(MessageBuilder.createApproval(c, ccMsg, null));
 			}
 		}
 		
@@ -123,7 +123,7 @@ public class ApprovalStepService extends BaseService {
 			String ccMsg = String.format("用户 @%s 提交的%s审批由 @%s 已%s，请知晓 @%s",
 					submitter, entityLabel, approver, state.getName(), recordId);
 			for (ID c : cc) {
-				Application.getNotifications().send(MessageBuilder.createApprovalMessage(c, ccMsg));
+				Application.getNotifications().send(MessageBuilder.createApproval(c, ccMsg, null));
 			}
 		}
 		
@@ -138,7 +138,7 @@ public class ApprovalStepService extends BaseService {
 			super.update(main);
 			
 			String rejectMsg = String.format("@%s 驳回了你的%s审批 @%s", approver, entityLabel, recordId);
-			Application.getNotifications().send(MessageBuilder.createApprovalMessage(submitter, rejectMsg));
+			Application.getNotifications().send(MessageBuilder.createApproval(submitter, rejectMsg, null));
 			return;
 		}
 		
@@ -178,7 +178,7 @@ public class ApprovalStepService extends BaseService {
 					Record r = EntityHelper.forUpdate((ID) o[0], approver);
 					r.setBoolean("isWaiting", false);
 					super.update(r);
-					Application.getNotifications().send(MessageBuilder.createApprovalMessage(submitter, (ID) o[1], approveMsg));
+					Application.getNotifications().send(MessageBuilder.createApproval(submitter, (ID) o[1], approveMsg, recordId));
 				}
 			}
 		}
@@ -204,7 +204,7 @@ public class ApprovalStepService extends BaseService {
 			
 			// 非会签通知审批
 			if (goNextNode && created) {
-				Application.getNotifications().send(MessageBuilder.createApprovalMessage(submitter, a, approveMsg));
+				Application.getNotifications().send(MessageBuilder.createApproval(submitter, a, approveMsg, recordId));
 			}
 		}
 	}

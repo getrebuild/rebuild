@@ -52,7 +52,7 @@ public class NotificationObserver extends OperatingObserver {
 		String content = makeMessage(context.getAffected(), related, false);
 		content = MessageFormat.format(content, from, context.getAffected().length, getLabel(related));
 		Application.getNotifications().send(
-				MessageBuilder.createMessage(from, to, content, related));
+				MessageBuilder.createMessage(from, to, content));
 	}
 	
 	@Override
@@ -69,7 +69,7 @@ public class NotificationObserver extends OperatingObserver {
 		String content = makeMessage(context.getAffected(), related, true);
 		content = MessageFormat.format(content, from, context.getAffected().length, getLabel(related));
 		Application.getNotifications().send(
-				MessageBuilder.createMessage(from, to, content, related));
+				MessageBuilder.createMessage(from, to, content));
 	}
 	
 	/**
