@@ -33,9 +33,6 @@
 										<span class="text">待我审批</span>
 										<span class="badge badge-pill badge-primary">0</span>
 									</a>
-									<a href="#all" data-type="21" class="list-group-item d-flex list-group-item-action">
-										<span class="text">全部代办</span>
-									</a>
 								</div>
 							</div>
 							<div class="col-9">

@@ -38,9 +38,12 @@
 										<span class="text">已读</span>
 									</a>
 									<a href="#assign" data-type="10" class="list-group-item d-flex list-group-item-action">
-										<span class="text">分派/共享通知</span>
+										<span class="text">分派/共享</span>
 									</a>
-									<a href="#all" data-type="3" class="list-group-item d-flex list-group-item-action">
+									<a href="#assign" data-type="20" class="list-group-item d-flex list-group-item-action">
+										<span class="text">审批流程</span>
+									</a>
+									<a href="#all" class="list-group-item d-flex list-group-item-action">
 										<span class="text">全部通知</span>
 									</a>
 								</div>

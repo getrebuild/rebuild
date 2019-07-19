@@ -109,8 +109,8 @@ public class NotificationControll extends BasePageControll {
 			sql = sql.replace("(1=1)", "unread = 'F' and type < 20");
 		} else if (type == 10) {
 			sql = sql.replace("(1=1)", "(type > 9 and type < 20)");
-		} else {
-			sql = sql.replace("(1=1)", "type < 20");
+		} else if (type == 20) {
+			sql = sql.replace("(1=1)", "(type > 19 and type < 30)");
 		}
 
 		Object[][] array = Application.createQueryNoFilter(sql)

@@ -2112,7 +2112,7 @@ form {
 }
 
 .notification-type {
-    min-height: 160px
+    min-height: 198px
 }
 
 .notification-type .list-group-item {
@@ -2120,7 +2120,7 @@ form {
 }
 
 .notification-list .list-nodata {
-    padding-top: 32px
+    padding-top: 45px
 }
 
 .notification-list .notification a {
