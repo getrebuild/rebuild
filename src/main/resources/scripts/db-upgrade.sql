@@ -9,10 +9,10 @@ create table if not exists `robot_approval_config` (
   `NAME`               varchar(100) not null comment '流程名称',
   `FLOW_DEFINITION`    text(21845) comment '流程定义',
   `IS_DISABLED`        char(1) default 'F' comment '是否停用',
-  `MODIFIED_ON`        timestamp not null default '0000-00-00 00:00:00' comment '修改时间',
+  `MODIFIED_ON`        timestamp not null comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
-  `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
+  `CREATED_ON`         timestamp not null comment '创建时间',
   primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 -- ************ Entity [RobotApprovalStep] DDL ************
@@ -28,10 +28,10 @@ create table if not exists `robot_approval_step` (
   `PREV_NODE`          varchar(100) not null comment '上一审批节点',
   `IS_CANCELED`        char(1) default 'F' comment '是否取消',
   `IS_WAITING`         char(1) default 'F' comment '是否生效',
-  `MODIFIED_ON`        timestamp not null default '0000-00-00 00:00:00' comment '修改时间',
+  `MODIFIED_ON`        timestamp not null comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
-  `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
+  `CREATED_ON`         timestamp not null comment '创建时间',
   primary key  (`STEP_ID`)
 )Engine=InnoDB;
 alter table `robot_approval_step`
@@ -51,10 +51,10 @@ create table if not exists `auto_fillin_config` (
   `SOURCE_FIELD`       varchar(100) not null comment '引用实体的字段',
   `TARGET_FIELD`       varchar(100) not null comment '当前实体的字段',
   `EXT_CONFIG`         varchar(700) comment '更多扩展配置, JSON格式KV',
-  `MODIFIED_ON`        timestamp not null default '0000-00-00 00:00:00' comment '修改时间',
+  `MODIFIED_ON`        timestamp not null comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
-  `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
+  `CREATED_ON`         timestamp not null comment '创建时间',
   primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 -- ************ Entity [RobotTriggerConfig] DDL ************
@@ -66,10 +66,10 @@ create table if not exists `robot_trigger_config` (
   `ACTION_TYPE`        varchar(50) not null comment '预定义的触发操作类型',
   `ACTION_CONTENT`     text(21845) comment '预定义的触发操作类型, JSON KV 对',
   `PRIORITY`           int(11) default '1' comment '执行优先级, 越大越高(越先执行)',
-  `MODIFIED_ON`        timestamp not null default '0000-00-00 00:00:00' comment '修改时间',
+  `MODIFIED_ON`        timestamp not null comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
-  `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
+  `CREATED_ON`         timestamp not null comment '创建时间',
   primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 
@@ -89,10 +89,10 @@ create table if not exists `classification` (
   `DESCRIPTION`        varchar(600),
   `IS_DISABLED`        char(1) default 'F',
   `OPEN_LEVEL`         smallint(6) default '0',
-  `MODIFIED_ON`        timestamp not null default '0000-00-00 00:00:00' comment '修改时间',
+  `MODIFIED_ON`        timestamp not null comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
-  `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
+  `CREATED_ON`         timestamp not null comment '创建时间',
   primary key  (`DATA_ID`)
 )Engine=InnoDB;
 -- ************ Entity [ClassificationData] DDL ************
@@ -105,10 +105,10 @@ create table if not exists `classification_data` (
   `CODE`               varchar(50),
   `LEVEL`              smallint(6) default '0',
   `IS_HIDE`            char(1) default 'F',
-  `MODIFIED_ON`        timestamp not null default '0000-00-00 00:00:00' comment '修改时间',
+  `MODIFIED_ON`        timestamp not null comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
-  `CREATED_ON`         timestamp not null default '0000-00-00 00:00:00' comment '创建时间',
+  `CREATED_ON`         timestamp not null comment '创建时间',
   primary key  (`ITEM_ID`)
 )Engine=InnoDB;
 alter table `classification_data`
@@ -125,7 +125,7 @@ create table if not exists `login_log` (
   `USER`               char(20) not null comment '登陆用户',
   `IP_ADDR`            varchar(100) comment 'IP地址',
   `USER_AGENT`         varchar(100) comment '客户端',
-  `LOGIN_TIME`         timestamp not null default '0000-00-00 00:00:00' comment '登陆时间',
+  `LOGIN_TIME`         timestamp not null comment '登陆时间',
   `LOGOUT_TIME`        timestamp null default null comment '退出时间',
   primary key  (`LOG_ID`)
 )Engine=InnoDB;
