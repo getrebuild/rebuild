@@ -2158,6 +2158,18 @@ form {
     background-color: #4285f4 !important
 }
 
+.notification-list .notification.approval {
+    position: relative;
+    padding-right: 80px;
+}
+
+.notification-list .notification.approval .badge {
+    position: absolute;
+    right: 15px;
+    top: 14px;
+    font-weight: normal;
+}
+
 .notification-page {
     padding-left: 50%
 }

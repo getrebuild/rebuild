@@ -27,7 +27,7 @@
 				<div class="tab-content">
 					<div class="tab-pane active">
 						<div class="row">
-							<div class="col-3">
+							<div class="col-md-3 col-12">
 								<div class="list-group notification-type">
 									<a href="#approval" data-type="20" class="list-group-item d-flex list-group-item-action active">
 										<span class="text">待我审批</span>
@@ -35,7 +35,7 @@
 									</a>
 								</div>
 							</div>
-							<div class="col-9" id="message-list">
+							<div class="col-md-9 col-12" id="message-list">
 							</div>
 						</div>
 					</div>
@@ -45,6 +45,11 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
+<script>
+window.__PageConfig = {
+	type: 'Approval'
+}
+</script>
 <script src="${baseUrl}/assets/js/notifications.jsx" type="text/babel"></script>
 </body>
 </html>

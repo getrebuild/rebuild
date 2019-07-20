@@ -28,7 +28,7 @@
 				<div class="tab-content">
 					<div class="tab-pane active">
 						<div class="row">
-							<div class="col-3">
+							<div class="col-md-3 col-12">
 								<div class="list-group notification-type">
 									<a href="#unread" data-type="1" class="list-group-item d-flex list-group-item-action active">
 										<span class="text">未读</span>
@@ -47,7 +47,7 @@
 									</a>
 								</div>
 							</div>
-							<div class="col-9" id="message-list">
+							<div class="col-md-9 col-12" id="message-list">
 							</div>
 						</div>
 					</div>

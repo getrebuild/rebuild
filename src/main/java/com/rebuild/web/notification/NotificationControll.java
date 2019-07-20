@@ -24,6 +24,7 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.rebuild.server.business.approval.ApprovalState;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -133,20 +134,10 @@ public class NotificationControll extends BasePageControll {
 		ID user = getRequestUser(request);
 		int pn = getIntParameter(request, "page", 1);
 		int ps = getIntParameter(request, "pageSize", 40);
-		int type = getIntParameter(request, "type", 0);
 
-		String sql = "select fromUser,message,createdOn,unread,messageId from Notification where toUser = ? and (1=1) order by createdOn desc";
-		if (type == 20) {
-			sql = sql.replace("(1=1)", "unread = 'T' and type < 20");
-		} else if (type == 2) {
-			sql = sql.replace("(1=1)", "unread = 'F' and type < 20");
-		} else if (type == 10) {
-			sql = sql.replace("(1=1)", "(type > 9 and type < 20)");
-		} else {
-			sql = sql.replace("(1=1)", "type < 20");
-		}
-
-		Object[][] array = Application.createQueryNoFilter(sql)
+		Object[][] array = Application.createQueryNoFilter(
+				"select fromUser,message,createdOn,relatedRecord,messageId" +
+						" from Notification where toUser = ? and type = 20 and relatedRecord is not null order by createdOn desc")
 				.setParameter(1, user)
 				.setLimit(ps, pn * ps - ps)
 				.array();
@@ -156,6 +147,27 @@ public class NotificationControll extends BasePageControll {
 			m[0] = new Object[] { m[0], UserHelper.getName((ID) m[0]) };
 			m[1] = MessageBuilder.toHTML((String) m[1]);
 			m[2] = Moment.moment((Date) m[2]).fromNow();
+
+			// 审批状态
+			ID approvalStep = (ID) m[3];
+			Object[] stepState = Application.createQueryNoFilter(
+					"select isCanceled,state from RobotApprovalStep where stepId = ?")
+					.setParameter(1, approvalStep)
+					.unique();
+			if (stepState == null) {
+				m[3] = new Object[] { 0 };
+			} else {
+				boolean canceled = (Boolean) stepState[0];
+				ApprovalState state = (ApprovalState) ApprovalState.valueOf((Integer) stepState[1]);
+				if (state == ApprovalState.DRAFT) {
+					m[3] = canceled ? new Object[] { 2, "已处理" } : new Object[] { 1, "待处理" };
+				} else if (state == ApprovalState.APPROVED) {
+					m[3] = new Object[] { 10, "已同意" };
+				} else if (state == ApprovalState.REJECTED) {
+					m[3] = new Object[] { 11, "已驳回" };
+				}
+			}
+
 			array[i] = m;
 		}
 		writeSuccess(response, array);

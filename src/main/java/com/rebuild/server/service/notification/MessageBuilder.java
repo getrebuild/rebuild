@@ -72,11 +72,10 @@ public class MessageBuilder {
 	/**
 	 * @param toUser
 	 * @param message
-	 * @param recordId
 	 * @return
 	 */
-	public static Message createApproval(ID toUser, String message, ID recordId) {
-		return new Message(null, toUser, message, recordId, Message.TYPE_APPROVAL);
+	public static Message createApproval(ID toUser, String message) {
+		return new Message(null, toUser, message, null, Message.TYPE_APPROVAL);
 	}
 
 	/**
@@ -87,7 +86,7 @@ public class MessageBuilder {
 	 * @return
 	 */
 	public static Message createApproval(ID fromUser, ID toUser, String message, ID recordId) {
-		return new Message(fromUser, toUser, message, null, Message.TYPE_APPROVAL);
+		return new Message(fromUser, toUser, message, recordId, Message.TYPE_APPROVAL);
 	}
 
 	private static final Pattern AT_PATTERN = Pattern.compile("(\\@[0-9a-z\\-]{20})");

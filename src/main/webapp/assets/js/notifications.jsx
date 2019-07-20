@@ -1,13 +1,14 @@
 $(document).ready(() => {
-  let mList
-  renderRbcomp(<MessageList type="1" />, 'message-list', function () {
+  let mList = <MessageList type="1" />
+  if (window.__PageConfig && window.__PageConfig.type === 'Approval') mList = <ApprovalList />
+  renderRbcomp(mList, 'message-list', function () {
     mList = this
   })
 
   let btns = $('.notification-type>a').click(function () {
     btns.removeClass('active')
     $(this).addClass('active')
-    mList.fetchList($(this).data('type'), 1)
+    mList.fetchList(1, $(this).data('type'))
   })
 })
 
@@ -55,10 +56,10 @@ class MessageList extends React.Component {
     $('.read-all').click(() => this.makeRead('ALL'))
   }
 
-  fetchList(type, page) {
+  fetchList(page, type) {
     this.setState({
-      type: type || this.state.type,
-      page: page || this.state.page
+      page: page || this.state.page,
+      type: type || this.state.type
     }, () => {
       $.get(`${rb.baseUrl}/notification/messages?type=${this.state.type}&page=${this.state.page || 1}`, (res) => {
         this.setState({ list: res.data })
@@ -69,7 +70,7 @@ class MessageList extends React.Component {
   gotoPage(p) {
     if (p === -1 && this.state.page === 1) return
     if (p === 1 && (this.state.list || []).length < 10) return
-    this.fetchList(null, this.state.page + p)
+    this.fetchList(this.state.page + p, null)
   }
 
   makeRead(id) {
@@ -82,5 +83,32 @@ class MessageList extends React.Component {
 
       if (id === 'ALL') RbHighbar.success('全部通知已设为已读')
     })
+  }
+}
+
+// 审批列表
+class ApprovalList extends MessageList {
+  constructor(props) {
+    super(props)
+  }
+
+  fetchList(page) {
+    $.get(`${rb.baseUrl}/notification/approvals?page=${this.state.page || 1}`, (res) => {
+      this.setState({ list: res.data })
+    })
+  }
+
+  renderItem(item) {
+    return <li className="notification approval" key={item[4]}><a>
+      <div className="image"><img src={`${rb.baseUrl}/account/user-avatar/${item[0][0]}`} title={item[0][1]} alt="Avatar" /></div>
+      <div className="notification-info">
+        <div className="text" dangerouslySetInnerHTML={{ __html: item[1] }}></div>
+        <div className="date">{item[2]}</div>
+        {(item[3] && item[3][0] === 1) && <span className="badge badge-warning">{item[3][1]}</span>}
+        {(item[3] && item[3][0] === 2) && <span className="badge badge-secondary">{item[3][1]}</span>}
+        {(item[3] && item[3][0] === 10) && <span className="badge badge-success">{item[3][1]}</span>}
+        {(item[3] && item[3][0] === 11) && <span className="badge badge-danger">{item[3][1]}</span>}
+      </div>
+    </a></li>
   }
 }
