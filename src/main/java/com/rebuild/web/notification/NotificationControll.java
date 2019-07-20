@@ -99,7 +99,7 @@ public class NotificationControll extends BasePageControll {
 	public void listMessage(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		int pn = getIntParameter(request, "page", 1);
-		int ps = getIntParameter(request, "pageSize", 40);
+		int ps = getIntParameter(request, "pageSize", 10);
 		int type = getIntParameter(request, "type", 0);
 
 		String sql = "select fromUser,message,createdOn,unread,messageId from Notification where toUser = ? and (1=1) order by createdOn desc";

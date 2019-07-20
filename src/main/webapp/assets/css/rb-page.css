@@ -2131,6 +2131,10 @@ form {
     background-color: #ebf2fe !important;
 }
 
+.notification-list .notification.notification-unread:hover {
+    background-color: #dce9fd !important;
+}
+
 .notification-list .notification .text {
     color: #404040 !important;
     font-size: 1rem !important;
@@ -2147,6 +2151,11 @@ form {
 .notification-list .notification .text a.record {
     text-decoration: underline;
     padding: 0 1px;
+}
+
+.notification-list .notification.notification-unread>a:after {
+    top: 14px;
+    background-color: #4285f4 !important
 }
 
 .notification-page {
