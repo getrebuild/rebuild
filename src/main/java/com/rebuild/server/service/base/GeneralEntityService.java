@@ -26,6 +26,10 @@ import java.util.Map;
 import java.util.Observer;
 import java.util.Set;
 
+import cn.devezhao.bizz.privileges.PrivilegesException;
+import com.rebuild.server.business.approval.ApprovalState;
+import com.rebuild.server.helper.cache.NoRecordFoundException;
+import com.rebuild.server.service.DataSpecificationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -54,7 +58,8 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
- * 业务实体服务
+ * 业务实体服务，所有业务实体都应该使用此类
+ * <br>- 有业务验证
  * <br>- 会带有系统设置规则的执行，详见 {@link PrivilegesGuardInterceptor}
  * <br>- 会开启一个事务，详见 <tt>application-ctx.xml</tt> 配置
  * 
@@ -92,10 +97,17 @@ public class GeneralEntityService extends ObservableService  {
 	
 	@Override
 	public Record create(Record record) {
+		checkModifications(record, BizzPermission.CREATE);
 		setSeriesValue(record);
 		return super.create(record);
 	}
-	
+
+	@Override
+	public Record update(Record record) {
+		checkModifications(record.getPrimary(), BizzPermission.UPDATE);
+		return super.update(record);
+	}
+
 	@Override
 	public int delete(ID record) {
 		return this.delete(record, null);
@@ -119,6 +131,7 @@ public class GeneralEntityService extends ObservableService  {
 	
 	@Override
 	public int delete(ID record, String[] cascades) {
+		checkModifications(record, BizzPermission.DELETE);
 		super.delete(record);
 		int affected = 1;
 		
@@ -309,6 +322,8 @@ public class GeneralEntityService extends ObservableService  {
 	}
 	
 	/**
+	 * 构造批处理操作
+	 *
 	 * @param context
 	 * @return
 	 */
@@ -323,5 +338,101 @@ public class GeneralEntityService extends ObservableService  {
 			return new BulkUnshare(context, this);
 		}
 		throw new UnsupportedOperationException("Unsupported bulk action : " + context.getAction());
+	}
+
+	/**
+	 * 检查是否可更改
+	 *
+	 * @param recordId
+	 * @param action [UPDATE|DELDETE]
+	 * @return
+	 * @throws DataSpecificationException
+	 */
+	public boolean checkModifications(ID recordId, Permission action)
+			throws DataSpecificationException {
+		Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+		Entity checkEntity = entity.getMasterEntity() != null ? entity.getMasterEntity() : entity;
+
+		// 验证审批状态
+		if (checkEntity.containsField(EntityHelper.ApprovalId)) {
+			// 需要验证主纪录
+			String masterType = "";
+			if (entity.getMasterEntity() != null) {
+				recordId = getMasterId(entity, recordId);
+				entity = entity.getMasterEntity();
+				masterType = "主";
+			}
+
+			ApprovalState state = getApprovalState(recordId);
+			String actionType = action == BizzPermission.UPDATE ? "修改" : "删除";
+			if (state == ApprovalState.APPROVED) {
+				throw new DataSpecificationException(masterType + "纪录已完成审批，不能" + actionType);
+			} else if (state == ApprovalState.PROCESSING) {
+				throw new DataSpecificationException(masterType + "纪录正在审批中，不能" + actionType);
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * 检查是否可更改
+	 *
+	 * @param newRecord
+	 * @param action [CREATE]
+	 * @return
+	 * @throws DataSpecificationException
+	 */
+	public boolean checkModifications(Record newRecord, Permission action)
+			throws DataSpecificationException {
+		Entity entity = newRecord.getEntity();
+
+		// 验证审批状态
+		// 验证新建明细（相当于更新主纪录）
+		Entity masterEntity = entity.getMasterEntity();
+		if (masterEntity != null && masterEntity.containsField(EntityHelper.ApprovalId)) {
+			Field stmField = MetadataHelper.getSlaveToMasterField(entity);
+			ID masterId = newRecord.getID(stmField.getName());
+
+			ApprovalState state = getApprovalState(masterId);
+			if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
+				String stateType = state == ApprovalState.APPROVED ? "已完成审批" : "正在审批中";
+				throw new DataSpecificationException("主纪录" + stateType + "，不能添加明细");
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * @param slaveEntity
+	 * @param slaveId
+	 * @return
+	 */
+	private ID getMasterId(Entity slaveEntity, ID slaveId) {
+		Field stmField = MetadataHelper.getSlaveToMasterField(slaveEntity);
+		String sql = String.format("select %s from %s where %s = ?",
+				stmField.getName(), slaveEntity.getName(), slaveEntity.getPrimaryField().getName());
+		Object o[] = Application.createQueryNoFilter(sql).setParameter(1, slaveId).unique();
+		if (o == null) {
+			throw new NoRecordFoundException(slaveId);
+		}
+		return (ID) o[0];
+	}
+
+	/**
+	 * @param recordId
+	 * @return
+	 */
+	private ApprovalState getApprovalState(ID recordId) {
+		if (recordId == null) {
+			throw new NoRecordFoundException();
+		}
+
+		Object[] o = Application.getQueryFactory().unique(recordId, EntityHelper.ApprovalState);
+		if (o == null) {
+			throw new NoRecordFoundException(recordId);
+		}
+		return (ApprovalState) ApprovalState.valueOf((Integer) o[0]);
 	}
 }

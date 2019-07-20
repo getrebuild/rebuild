@@ -18,8 +18,14 @@ class RbViewForm extends React.Component {
         return
       }
 
+      let hadApproval = res.data.hadApproval
+      if (wpc.type === 'SlaveView') {
+        if (hadApproval === 2 || hadApproval === 10) $('.J_edit,.J_delete').attr('disabled', true)
+        hadApproval = null
+      }
+
       let vform = (<div>
-        {res.data.hadApproval && <ApprovalProcessor id={this.props.id} />}
+        {hadApproval && <ApprovalProcessor id={this.props.id} />}
         <div className="row">
           {res.data.elements.map((item) => { return detectViewElement(item) })}
         </div>
@@ -92,7 +98,8 @@ const RbViewPage = {
 
     const that = this
 
-    $('.J_delete').click(() => {
+    $('.J_delete').click(function() {
+      if ($(this).attr('disabled')) return
       let needEntity = (wpc.type === 'SlaveList' || wpc.type === 'SlaveView') ? null : entity[0]
       renderRbcomp(<DeleteConfirm id={this.__id} entity={needEntity} deleteAfter={() => that.hide(true)} />)
     })

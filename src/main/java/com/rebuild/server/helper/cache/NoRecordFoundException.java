@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.cache;
 
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.RebuildException;
 
 /**
@@ -31,6 +32,10 @@ public class NoRecordFoundException extends RebuildException {
 
 	public NoRecordFoundException() {
 		super();
+	}
+
+	public NoRecordFoundException(ID record) {
+		super(record.toLiteral());
 	}
 
 	public NoRecordFoundException(String msg, Throwable cause) {
