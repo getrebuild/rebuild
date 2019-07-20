@@ -27,9 +27,9 @@ class ApprovalProcessor extends React.Component {
 
   renderStateProcessing() {
     $('.J_edit,.J_delete,.J_add-slave').attr('disabled', true)
-    let aMsg = '当前纪录正在审批中'
+    let aMsg = '当前记录正在审批中'
     if (this.state.imApprover) {
-      if (this.state.imApproveSatate === 1) aMsg = '当前纪录正在等待你审批'
+      if (this.state.imApproveSatate === 1) aMsg = '当前记录正在等待你审批'
       else if (this.state.imApproveSatate === 10) aMsg = '你已审批同意，正在等待他人审批'
       else if (this.state.imApproveSatate === 11) aMsg = '你已驳回审批'
     }

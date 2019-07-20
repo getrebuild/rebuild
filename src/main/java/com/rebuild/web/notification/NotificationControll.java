@@ -104,9 +104,9 @@ public class NotificationControll extends BasePageControll {
 
 		String sql = "select fromUser,message,createdOn,unread,messageId from Notification where toUser = ? and (1=1) order by createdOn desc";
 		if (type == 1) {
-			sql = sql.replace("(1=1)", "unread = 'T' and type < 20");
+			sql = sql.replace("(1=1)", "unread = 'T'");
 		} else if (type == 2) {
-			sql = sql.replace("(1=1)", "unread = 'F' and type < 20");
+			sql = sql.replace("(1=1)", "unread = 'F'");
 		} else if (type == 10) {
 			sql = sql.replace("(1=1)", "(type > 9 and type < 20)");
 		} else if (type == 20) {

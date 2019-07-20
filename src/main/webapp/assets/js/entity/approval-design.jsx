@@ -26,13 +26,13 @@ window.resize_handler = function () {
 let isCanvasMounted = false
 // 节点类型
 const NTs = {
-  'start': ['start', '发起人', '纪录所属人'],
+  'start': ['start', '发起人', '记录所属人'],
   'approver': ['approver', '审批人', '自选审批人'],
   'cc': ['cc', '抄送人', '自选抄送人']
 }
 const UTs = {
   'ALL': '所有人',
-  'OWNS': '纪录所属人',
+  'OWNS': '记录所属人',
   'SELF': '发起人自己',
   'SPEC': '指定用户'
 }
@@ -397,7 +397,7 @@ class StartNodeConfig extends RbFormHandler {
           </label>
           <label className="custom-control custom-control-sm custom-radio mb-2">
             <input className="custom-control-input" type="radio" name="users" value="OWNS" onChange={this.handleChange} checked={this.state.users === 'OWNS'} />
-            <span className="custom-control-label">纪录所属人</span>
+            <span className="custom-control-label">记录所属人</span>
           </label>
           <label className="custom-control custom-control-sm custom-radio mb-2">
             <input className="custom-control-input" type="radio" name="users" value="SPEC" onChange={this.handleChange} checked={this.state.users === 'SPEC'} />

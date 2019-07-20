@@ -132,7 +132,7 @@ public class FormsBuilder extends FormsManager {
 				if (turnApproval && approvalState != null) {
 					if (approvalState == ApprovalState.PROCESSING || approvalState == ApprovalState.APPROVED) {
 						String stateType = approvalState == ApprovalState.APPROVED ? "已完成审批" : "正在审批中";
-						return formatModelError("主纪录" + stateType + "，不能添加明细");
+						return formatModelError("主记录" + stateType + "，不能添加明细");
 					}
 				}
 
@@ -167,9 +167,9 @@ public class FormsBuilder extends FormsManager {
 			if (turnApproval && approvalState != null) {
 				String masterType = masterEntity == null ? "" : "主";
 				if (approvalState == ApprovalState.APPROVED) {
-					return formatModelError(masterType + "纪录已完成审批，不能编辑");
+					return formatModelError(masterType + "记录已完成审批，不能编辑");
 				} else if (approvalState == ApprovalState.PROCESSING) {
-					return formatModelError(masterType + "纪录正在审批中，不能编辑");
+					return formatModelError(masterType + "记录正在审批中，不能编辑");
 				}
 			}
 		}
