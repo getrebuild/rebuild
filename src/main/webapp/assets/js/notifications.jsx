@@ -16,28 +16,30 @@ $(document).ready(() => {
 class MessageList extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { page: 1, ...props }
+    this.state = { page: 1, ...props, inLoad: true }
   }
 
   render() {
     let list = this.state.list || []
-    return (<div>
+    return (<div className={`rb-loading ${this.state.inLoad && 'rb-loading-active'}`}>
       <div className="rb-notifications notification-list">
         <ul className="list-unstyled">
           {list.map((item) => {
             return this.renderItem(item)
           })}
         </ul>
-        {list.length === 0 &&
+        {this.state.list && list.length === 0 &&
           <div className="list-nodata"><span className="zmdi zmdi-notifications"></span><p>暂无通知</p></div>}
+        {this.state.inLoad && <RbSpinner />}
       </div>
-      {list.length > 0 &&
+      {this.state.page > 1 || list.length >= 40 &&
         <div className="notification-page">
           <ul className="pagination pagination-rounded mb-0">
             <li className="page-item"><a onClick={() => this.gotoPage(-1)} className="page-link"><i className="icon zmdi zmdi-chevron-left" /></a></li>
             <li className="page-item"><a onClick={() => this.gotoPage(1)} className="page-link"><i className="icon zmdi zmdi-chevron-right" /></a></li>
           </ul>
         </div>}
+
     </div>)
   }
 
@@ -59,17 +61,18 @@ class MessageList extends React.Component {
   fetchList(page, type) {
     this.setState({
       page: page || this.state.page,
-      type: type || this.state.type
+      type: type || this.state.type,
+      inLoad: true
     }, () => {
       $.get(`${rb.baseUrl}/notification/messages?type=${this.state.type}&page=${this.state.page || 1}`, (res) => {
-        this.setState({ list: res.data })
+        this.setState({ list: res.data || [], inLoad: false })
       })
     })
   }
 
   gotoPage(p) {
     if (p === -1 && this.state.page === 1) return
-    if (p === 1 && (this.state.list || []).length < 10) return
+    if (p === 1 && (this.state.list || []).length < 40) return
     this.fetchList(this.state.page + p, null)
   }
 
@@ -93,8 +96,13 @@ class ApprovalList extends MessageList {
   }
 
   fetchList(page) {
-    $.get(`${rb.baseUrl}/notification/approvals?page=${this.state.page || 1}`, (res) => {
-      this.setState({ list: res.data })
+    this.setState({
+      page: page || this.state.page,
+      inLoad: true
+    }, () => {
+      $.get(`${rb.baseUrl}/notification/approvals?page=${this.state.page || 1}`, (res) => {
+        this.setState({ list: res.data, inLoad: false })
+      })
     })
   }
 

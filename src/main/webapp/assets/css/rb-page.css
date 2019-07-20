@@ -2111,7 +2111,8 @@ form {
     width: 32px;
 }
 
-.notification-type {
+.notification-type,
+.notification-list {
     min-height: 198px
 }
 
