@@ -228,7 +228,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
           <textarea className="form-control form-control-sm row3x" name="remark" placeholder="输入批注 (可选)" value={this.state.remark || ''} onChange={this.handleChange} />
         </div>
         {this.renderUsers()}
-        <div className="dialog-footer">
+        <div className="dialog-footer" ref={(c) => this._btns = c}>
           <button type="button" className="btn btn-primary btn-space" onClick={() => this.post(10)}>同意</button>
           <button type="button" className="btn btn-danger bordered btn-space" onClick={() => this.post(11)}>驳回</button>
         </div>

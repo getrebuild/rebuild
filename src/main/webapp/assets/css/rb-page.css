@@ -2111,6 +2111,11 @@ form {
     width: 32px;
 }
 
+.timeline.approved-steps .timeline-header>.blockquote {
+    margin-top: 5px;
+    padding: 2px 10px;
+}
+
 .notification-type {
     min-height: 198px
 }

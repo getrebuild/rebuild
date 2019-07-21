@@ -182,9 +182,9 @@ public class ApprovalStepService extends BaseService {
 				}
 			}
 		}
-		
+
 		// 最终状态了
-		if (nextApprovers == null || nextApprovers.isEmpty() || nextNode == null) {
+		if (goNextNode && (nextApprovers == null || nextNode == null)) {
 			Record main = EntityHelper.forUpdate(recordId, Application.getCurrentUser(), false);
 			main.setInt(EntityHelper.ApprovalState, ApprovalState.APPROVED.getState());
 			super.update(main);
@@ -199,12 +199,14 @@ public class ApprovalStepService extends BaseService {
 		}
 		
 		// 审批人
-		for (ID a : nextApprovers) {
-			ID created = createStepIfNeed(recordId, approvalId, nextNode, a, !goNextNode, currentNode);
-			
-			// 非会签通知审批
-			if (goNextNode && created != null) {
-				Application.getNotifications().send(MessageBuilder.createApproval(submitter, a, approveMsg, created));
+		if (nextApprovers != null) {
+			for (ID a : nextApprovers) {
+				ID created = createStepIfNeed(recordId, approvalId, nextNode, a, !goNextNode, currentNode);
+
+				// 非会签通知审批
+				if (goNextNode && created != null) {
+					Application.getNotifications().send(MessageBuilder.createApproval(submitter, a, approveMsg, created));
+				}
 			}
 		}
 	}
