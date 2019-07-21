@@ -31,7 +31,7 @@
 								<div class="list-group notification-type">
 									<a href="#approval" data-type="20" class="list-group-item d-flex list-group-item-action active">
 										<span class="text">待我审批</span>
-										<span class="badge badge-pill badge-primary">0</span>
+										<span class="badge badge-pill badge-primary hide">0</span>
 									</a>
 								</div>
 							</div>

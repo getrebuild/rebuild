@@ -16,12 +16,12 @@ $(document).ready(() => {
 class MessageList extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { page: 1, ...props, inLoad: true }
+    this.state = { page: 1, ...props }
   }
 
   render() {
     let list = this.state.list || []
-    return (<div className={`rb-loading ${this.state.inLoad && 'rb-loading-active'}`}>
+    return (<div>
       <div className="rb-notifications notification-list">
         <ul className="list-unstyled">
           {list.map((item) => {
@@ -30,7 +30,6 @@ class MessageList extends React.Component {
         </ul>
         {this.state.list && list.length === 0 &&
           <div className="list-nodata"><span className="zmdi zmdi-notifications"></span><p>暂无通知</p></div>}
-        {this.state.inLoad && <RbSpinner />}
       </div>
       {this.state.page > 1 || list.length >= 40 &&
         <div className="notification-page">
@@ -61,11 +60,10 @@ class MessageList extends React.Component {
   fetchList(page, type) {
     this.setState({
       page: page || this.state.page,
-      type: type || this.state.type,
-      inLoad: true
+      type: type || this.state.type
     }, () => {
       $.get(`${rb.baseUrl}/notification/messages?type=${this.state.type}&page=${this.state.page || 1}`, (res) => {
-        this.setState({ list: res.data || [], inLoad: false })
+        this.setState({ list: res.data || [] })
       })
     })
   }
@@ -97,11 +95,10 @@ class ApprovalList extends MessageList {
 
   fetchList(page) {
     this.setState({
-      page: page || this.state.page,
-      inLoad: true
+      page: page || this.state.page
     }, () => {
       $.get(`${rb.baseUrl}/notification/approvals?page=${this.state.page || 1}`, (res) => {
-        this.setState({ list: res.data, inLoad: false })
+        this.setState({ list: res.data || [] })
       })
     })
   }
