@@ -205,7 +205,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
         setTimeout(() => {
           if (window.RbViewPage) window.RbViewPage.reload()
           if (window.RbListPage) window.RbListPage.reload()
-          else location.reload()
+          else if (parent.RbListPage) parent.RbListPage.reload()
         }, 1000)
       }
       this.disabled()
@@ -252,7 +252,8 @@ class ApprovalApproveForm extends ApprovalUsersForm {
         RbHighbar.success('审批已' + (state === 10 ? '同意' : '驳回'))
         setTimeout(() => {
           if (window.RbViewPage) window.RbViewPage.reload()
-          else location.reload()
+          if (window.RbListPage) window.RbListPage.reload()
+          else if (parent.RbListPage) parent.RbListPage.reload()
         }, 1000)
       }
       this.disabled()
