@@ -211,7 +211,7 @@ public class UserService extends SystemEntityService {
 				+ "[点击此处激活](%s/admin/bizuser/users#!/View/User/%s)",
 				newUserId, AppUtils.getContextPath(), newUserId);
 		
-		Message message = MessageBuilder.createMessage(ADMIN_USER, content, newUserId);
+		Message message = MessageBuilder.createMessage(ADMIN_USER, content);
 		Application.getNotifications().send(message);
 	}
 }

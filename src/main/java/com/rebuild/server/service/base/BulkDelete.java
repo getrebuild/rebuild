@@ -21,6 +21,7 @@ package com.rebuild.server.service.base;
 import com.rebuild.server.Application;
 
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.service.DataSpecificationException;
 
 /**
  * 删除
@@ -39,11 +40,15 @@ public class BulkDelete extends BulkOperator {
 		ID[] records = prepareRecords();
 		this.setTotal(records.length);
 		
-		int deleted = 0;
+		int affected = 0;
 		for (ID id : records) {
 			if (Application.getSecurityManager().allowedD(context.getOpUser(), id)) {
-				int a = ges.delete(id);
-				deleted += (a > 0 ? 1 : 0);
+				try {
+					int a = ges.delete(id, context.getCascades());
+					affected += (a > 0 ? 1 : 0);
+				} catch (DataSpecificationException ex) {
+					LOG.warn("Cloud't delete : " + id + " Ex : " + ex);
+				}
 			} else {
 				LOG.warn("No have privileges to DELETE : " + context.getOpUser() + " > " + id);
 			}
@@ -51,6 +56,6 @@ public class BulkDelete extends BulkOperator {
 		}
 		
 		this.completedAfter();
-		return deleted;
+		return affected;
 	}
 }

@@ -47,16 +47,6 @@ public class MessageBuilder {
 	public static Message createMessage(ID toUser, String message) {
 		return new Message(null, toUser, message, null, Message.TYPE_DEFAULT);
 	}
-	
-	/**
-	 * @param toUser
-	 * @param message
-	 * @param relatedRecord
-	 * @return
-	 */
-	public static Message createMessage(ID toUser, String message, ID relatedRecord) {
-		return new Message(null, toUser, message, relatedRecord, Message.TYPE_DEFAULT);
-	}
 
 	/**
 	 * @param fromUser
@@ -67,16 +57,16 @@ public class MessageBuilder {
 	public static Message createMessage(ID fromUser, ID toUser, String message) {
 		return new Message(fromUser, toUser, message, null, Message.TYPE_DEFAULT);
 	}
-	
+
 	/**
 	 * @param fromUser
 	 * @param toUser
 	 * @param message
-	 * @param relatedRecord
+	 * @param type
 	 * @return
 	 */
-	public static Message createMessage(ID fromUser, ID toUser, String message, ID relatedRecord) {
-		return new Message(fromUser, toUser, message, relatedRecord, Message.TYPE_DEFAULT);
+	public static Message createMessage(ID fromUser, ID toUser, String message, int type) {
+		return new Message(fromUser, toUser, message, null, type);
 	}
 
 	/**
@@ -84,7 +74,7 @@ public class MessageBuilder {
 	 * @param message
 	 * @return
 	 */
-	public static Message createApprovalMessage(ID toUser, String message) {
+	public static Message createApproval(ID toUser, String message) {
 		return new Message(null, toUser, message, null, Message.TYPE_APPROVAL);
 	}
 
@@ -92,10 +82,11 @@ public class MessageBuilder {
 	 * @param fromUser
 	 * @param toUser
 	 * @param message
+	 * @param recordId
 	 * @return
 	 */
-	public static Message createApprovalMessage(ID fromUser, ID toUser, String message) {
-		return new Message(fromUser, toUser, message, null, Message.TYPE_APPROVAL);
+	public static Message createApproval(ID fromUser, ID toUser, String message, ID recordId) {
+		return new Message(fromUser, toUser, message, recordId, Message.TYPE_APPROVAL);
 	}
 
 	private static final Pattern AT_PATTERN = Pattern.compile("(\\@[0-9a-z\\-]{20})");

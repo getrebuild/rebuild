@@ -18,11 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.approval;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import org.apache.commons.lang.StringUtils;
@@ -302,7 +298,8 @@ public class ApprovalProcessor {
 	 */
 	public JSONArray getWorkedSteps() {
 		Object[][] array = Application.createQueryNoFilter(
-				"select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode from RobotApprovalStep where recordId = ? and isCanceled = 'F' and isWaiting = 'F'")
+				"select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode from RobotApprovalStep" +
+						" where recordId = ? and isCanceled = 'F' and isWaiting = 'F' order by createdOn")
 				.setParameter(1, this.record)
 				.array();
 		if (array.length == 0) {
@@ -337,6 +334,16 @@ public class ApprovalProcessor {
 			if (group == null) {
 				break;
 			}
+
+			// 按审批时间排序
+			Collections.sort(group, new Comparator<Object[]>() {
+				@Override
+				public int compare(Object[] o1, Object[] o2) {
+					Date t1 = (Date) (o1[3] == null ? o1[4] : o1[3]);
+					Date t2 = (Date) (o2[3] == null ? o2[4] : o2[3]);
+					return t1.compareTo(t2);
+				}
+			});
 			
 			JSONArray state = new JSONArray();
 			for (Object[] o : group) {

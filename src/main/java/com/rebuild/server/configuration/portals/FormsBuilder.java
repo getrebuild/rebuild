@@ -18,13 +18,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.util.Assert;
-
+import cn.devezhao.bizz.privileges.Permission;
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -36,14 +37,15 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.service.DataSpecificationException;
+import com.rebuild.server.service.base.GeneralEntityService;
 import com.rebuild.server.service.bizz.privileges.User;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
 
-import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.dialect.FieldType;
-import cn.devezhao.persist4j.engine.ID;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * 表单构造
@@ -112,8 +114,9 @@ public class FormsBuilder extends FormsManager {
 		
 		// 明细实体
 		final Entity masterEntity = entityMeta.getMasterEntity();
-		// 审批流程
-		Integer hadApproval = null;
+		// 审批流程（状态）
+		ApprovalState approvalState = null;
+		boolean turnApproval = true;
 		
 		// 判断表单权限
 		
@@ -122,20 +125,19 @@ public class FormsBuilder extends FormsManager {
 			if (masterEntity != null) {
 				ID masterRecordId = MASTERID4NEWSLAVE.get();
 				Assert.notNull(masterRecordId, "Please calls #setCurrentMasterId first");
-				
-				hadApproval = getHadApproval(entityMeta, null);
+
+				approvalState = getHadApproval(entityMeta, null);
 				MASTERID4NEWSLAVE.set(null);
 				
-				if (hadApproval != null) {
-					if (hadApproval == ApprovalState.PROCESSING.getState()) {
-						return formatModelError("主记录正在审批中，不能添加明细");
-					} else if (hadApproval == ApprovalState.APPROVED.getState()) {
-						return formatModelError("主记录已经完成审批，禁止添加明细");
+				if (turnApproval && approvalState != null) {
+					if (approvalState == ApprovalState.PROCESSING || approvalState == ApprovalState.APPROVED) {
+						String stateType = approvalState == ApprovalState.APPROVED ? "已完成审批" : "正在审批中";
+						return formatModelError("主记录" + stateType + "，不能添加明细");
 					}
 				}
 
-				// 明细没有审批
-				hadApproval = null;
+				// 明细无需审批
+				approvalState = null;
 				
 				if (!Application.getSecurityManager().allowedU(user, masterRecordId)) {
 					return formatModelError("你没有权限向此记录添加明细");
@@ -143,7 +145,7 @@ public class FormsBuilder extends FormsManager {
 			} else if (!Application.getSecurityManager().allowedC(user, entityMeta.getEntityCode())) {
 				return formatModelError("没有新建权限");
 			} else {
-				hadApproval = getHadApproval(entityMeta, null);
+				approvalState = getHadApproval(entityMeta, null);
 			}
 			
 		} 
@@ -153,22 +155,21 @@ public class FormsBuilder extends FormsManager {
 				return formatModelError("你没有读取此记录的权限");
 			}
 			
-			if (masterEntity == null) {
-				hadApproval = getHadApproval(entityMeta, record);
-			}
-			
+			approvalState = getHadApproval(entityMeta, record);
+
 		// 编辑
 		} else {
 			if (!Application.getSecurityManager().allowedU(user, record)) {
 				return formatModelError("你没有编辑此记录的权限");
 			}
 			
-			hadApproval = getHadApproval(entityMeta, record);
-			if (hadApproval != null) {
-				if (hadApproval == ApprovalState.PROCESSING.getState()) {
-					return formatModelError(masterEntity == null ? "此记录正在审批中，不能修改" : "主记录正在审批中，明细不能修改");
-				} else if (hadApproval == ApprovalState.APPROVED.getState()) {
-					return formatModelError(masterEntity == null ? "此记录已经完成审批，禁止修改" : "主记录已经完成审批，明细禁止修改");
+			approvalState = getHadApproval(entityMeta, record);
+			if (turnApproval && approvalState != null) {
+				String masterType = masterEntity == null ? "" : "主";
+				if (approvalState == ApprovalState.APPROVED) {
+					return formatModelError(masterType + "记录已完成审批，不能编辑");
+				} else if (approvalState == ApprovalState.PROCESSING) {
+					return formatModelError(masterType + "记录正在审批中，不能编辑");
 				}
 			}
 		}
@@ -317,8 +318,11 @@ public class FormsBuilder extends FormsManager {
 		if (data != null && data.hasValue(EntityHelper.ModifiedOn)) {
 			model.set("lastModified", data.getDate(EntityHelper.ModifiedOn).getTime());
 		}
-		
-		model.set("hadApproval", hadApproval != null);
+
+		if (approvalState != null) {
+			model.set("hadApproval", approvalState.getState());
+		}
+
 		model.set("id", null);  // Clean form's ID of config
 		return model.toJSON();
 	}
@@ -387,13 +391,15 @@ public class FormsBuilder extends FormsManager {
 	 * @param recordId
 	 * @return
 	 * @see RobotApprovalManager#hadApproval(Entity, ID)
+	 * @see GeneralEntityService#checkModifications(ID, Permission)
+	 *
 	 */
-	private Integer getHadApproval(Entity entity, ID recordId) {
+	private ApprovalState getHadApproval(Entity entity, ID recordId) {
 		Entity masterEntity = entity.getMasterEntity();
 		if (masterEntity == null) {
 			return RobotApprovalManager.instance.hadApproval(entity, recordId);
 		}
-		
+
 		ID masterRecordId = MASTERID4NEWSLAVE.get();
 		if (masterRecordId == null) {
 			Field stmField = MetadataHelper.getSlaveToMasterField(entity);

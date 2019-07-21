@@ -174,11 +174,13 @@
 		<field name="fromUser" type="reference" ref-entity="User" nullable="false" updatable="false" />
 		<field name="toUser" type="reference" ref-entity="User" nullable="false" updatable="false" />
 		<field name="message" type="string" max-length="1000" updatable="false" />
-		<field name="relatedRecord" type="any-reference" updatable="false" description="相关业务记录" />
 		<field name="unread" type="bool" default-value="T" />
+		<field name="type" type="small-int" updatable="false" default-value="0" description="消息分类" />
+		<field name="relatedRecord" type="any-reference" updatable="false" description="相关业务记录" />
 		<index field-list="toUser,unread,createdOn" />
+		<index field-list="toUser,type,createdOn" />
 	</entity>
-	
+
 	<entity name="Attachment" type-code="023" description="附件">
 		<field name="attachmentId" type="primary" />
 		<field name="belongEntity" type="small-int" default-value="0" updatable="false" />

@@ -2110,3 +2110,90 @@ form {
     height: 32px;
     width: 32px;
 }
+
+.timeline.approved-steps .timeline-header>.blockquote {
+    margin-top: 5px;
+    padding: 2px 10px;
+}
+
+.notification-type {
+    min-height: 198px
+}
+
+.notification-type .list-group-item {
+    padding: 10px 15px
+}
+
+.notification-list .list-nodata {
+    padding-top: 45px
+}
+
+.notification-list .notification a {
+    cursor: default
+}
+
+.notification-list .notification:hover {
+    background-color: #ebf2fe !important;
+}
+
+.notification-list .notification.notification-unread:hover {
+    background-color: #dce9fd !important;
+}
+
+.notification-list .notification .text {
+    color: #404040 !important;
+    font-size: 1rem !important;
+}
+
+.notification-list .notification .date {
+    color: #8a8a8a !important;
+}
+
+.notification-list .notification .text a {
+    cursor: pointer
+}
+
+.notification-list .notification .text a.record {
+    text-decoration: underline;
+    padding: 0 1px;
+}
+
+.notification-list .notification.notification-unread>a:after {
+    top: 14px;
+    background-color: #4285f4 !important
+}
+
+.notification-list .notification.approval {
+    position: relative;
+    padding-right: 80px;
+}
+
+.notification-list .notification.approval .badge {
+    position: absolute;
+    right: 15px;
+    top: 14px;
+    font-weight: normal;
+}
+
+.notification-page {
+    padding-left: 50%
+}
+
+.notification-page>ul {
+    float: left;
+    margin-left: -38px;
+}
+
+.notification-page::after {
+    clear: left
+}
+
+.notification-tab {
+    position: relative
+}
+
+.notification-tab .read-all {
+    position: absolute;
+    top: 0;
+    right: 0
+}

@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server;
 
+import com.rebuild.server.metadata.EntityHelper;
 import org.dom4j.Element;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -43,9 +44,8 @@ public class SchemaGen {
 		CTX = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml", });
 		PMF = CTX.getBean(PersistManagerFactoryImpl.class);
 		
-		genAll();
-//		gen(EntityHelper.RobotApprovalConfig);
-//		gen(EntityHelper.RobotApprovalStep);
+//		genAll();
+		gen(EntityHelper.Notification);
 		
 		System.exit(0);
 	}

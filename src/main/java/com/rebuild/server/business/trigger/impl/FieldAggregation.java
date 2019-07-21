@@ -167,7 +167,7 @@ public class FieldAggregation implements TriggerAction {
 			return;
 		}
 		
-		// 找到主纪录
+		// 找到主记录
 		String sql = String.format("select %s from %s where %s = ?",
 				followSourceField, sourceEntity.getName(), sourceEntity.getPrimaryField().getName());
 		Object o[] = Application.createQueryNoFilter(sql).setParameter(1, context.getSourceRecord()).unique();

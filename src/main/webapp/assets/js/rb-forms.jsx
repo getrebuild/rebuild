@@ -1150,7 +1150,8 @@ class DeleteConfirm extends RbAlert {
     $.post(rb.baseUrl + '/app/entity/record-delete?id=' + ids + '&cascades=' + cascades, (res) => {
       if (res.error_code === 0) {
         if (res.data.deleted === res.data.requests) RbHighbar.success('删除成功')
-        else RbHighbar.success('已成功删除 ' + res.data.deleted + ' 条记录')
+        else if (res.data.deleted === 0) RbHighbar.error('无法删除选中记录')
+        else RbHighbar.success('成功删除 ' + res.data.deleted + ' 条记录')
 
         this.hide()
         typeof this.props.deleteAfter === 'function' && this.props.deleteAfter()

@@ -26,9 +26,10 @@ class ApprovalProcessor extends React.Component {
   }
 
   renderStateProcessing() {
-    let aMsg = '当前纪录正在审批中'
+    $('.J_edit,.J_delete,.J_add-slave').attr('disabled', true)
+    let aMsg = '当前记录正在审批中'
     if (this.state.imApprover) {
-      if (this.state.imApproveSatate === 1) aMsg = '当前纪录正在等待你审批'
+      if (this.state.imApproveSatate === 1) aMsg = '当前记录正在等待你审批'
       else if (this.state.imApproveSatate === 10) aMsg = '你已审批同意，正在等待他人审批'
       else if (this.state.imApproveSatate === 11) aMsg = '你已驳回审批'
     }
@@ -41,6 +42,7 @@ class ApprovalProcessor extends React.Component {
   }
 
   renderStateApproved() {
+    $('.J_edit,.J_delete,.J_add-slave').attr('disabled', true)
     return (<div className="alert alert-success">
       <button className="close btn btn-secondary" onClick={this.viewSteps}>详情</button>
       <div className="icon"><span className="zmdi zmdi-check"></span></div>
@@ -226,7 +228,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
           <textarea className="form-control form-control-sm row3x" name="remark" placeholder="输入批注 (可选)" value={this.state.remark || ''} onChange={this.handleChange} />
         </div>
         {this.renderUsers()}
-        <div className="dialog-footer">
+        <div className="dialog-footer" ref={(c) => this._btns = c}>
           <button type="button" className="btn btn-primary btn-space" onClick={() => this.post(10)}>同意</button>
           <button type="button" className="btn btn-danger bordered btn-space" onClick={() => this.post(11)}>驳回</button>
         </div>
@@ -313,6 +315,9 @@ class ApprovalStepViewer extends React.Component {
             <div className="timeline-avatar"><img src={`${rb.baseUrl}/account/user-avatar/${item.approver}`} /></div>
             <div className="timeline-header">
               <p className="timeline-activity">{aMsg}</p>
+              {item.remark && <blockquote className="blockquote timeline-blockquote mb-0">
+                <p>{item.remark}</p>
+              </blockquote>}
             </div>
           </div>
         </li>

@@ -77,15 +77,15 @@ public class ApprovalStepService extends BaseService {
 		for (ID a : nextApprovers) {
 			Record clone = step.clone();
 			clone.setID("approver", a);
-			super.create(clone);
-			Application.getNotifications().send(MessageBuilder.createApprovalMessage(submitter, a, approveMsg));
+			clone = super.create(clone);
+			Application.getNotifications().send(MessageBuilder.createApproval(submitter, a, approveMsg, clone.getPrimary()));
 		}
 		
 		// 抄送人
 		if (cc != null && !cc.isEmpty()) {
 			String ccMsg = String.format("用户 @%s 提交了一条%s审批，请知晓 @%s", submitter, entityLabel, recordId);
 			for (ID c : cc) {
-				Application.getNotifications().send(MessageBuilder.createApprovalMessage(c, ccMsg));
+				Application.getNotifications().send(MessageBuilder.createApproval(c, ccMsg));
 			}
 		}
 		
@@ -123,7 +123,7 @@ public class ApprovalStepService extends BaseService {
 			String ccMsg = String.format("用户 @%s 提交的%s审批由 @%s 已%s，请知晓 @%s",
 					submitter, entityLabel, approver, state.getName(), recordId);
 			for (ID c : cc) {
-				Application.getNotifications().send(MessageBuilder.createApprovalMessage(c, ccMsg));
+				Application.getNotifications().send(MessageBuilder.createApproval(c, ccMsg));
 			}
 		}
 		
@@ -138,7 +138,7 @@ public class ApprovalStepService extends BaseService {
 			super.update(main);
 			
 			String rejectMsg = String.format("@%s 驳回了你的%s审批 @%s", approver, entityLabel, recordId);
-			Application.getNotifications().send(MessageBuilder.createApprovalMessage(submitter, rejectMsg));
+			Application.getNotifications().send(MessageBuilder.createApproval(submitter, rejectMsg));
 			return;
 		}
 		
@@ -178,13 +178,13 @@ public class ApprovalStepService extends BaseService {
 					Record r = EntityHelper.forUpdate((ID) o[0], approver);
 					r.setBoolean("isWaiting", false);
 					super.update(r);
-					Application.getNotifications().send(MessageBuilder.createApprovalMessage(submitter, (ID) o[1], approveMsg));
+					Application.getNotifications().send(MessageBuilder.createApproval(submitter, (ID) o[1], approveMsg, r.getPrimary()));
 				}
 			}
 		}
-		
+
 		// 最终状态了
-		if (nextApprovers == null || nextApprovers.isEmpty() || nextNode == null) {
+		if (goNextNode && (nextApprovers == null || nextNode == null)) {
 			Record main = EntityHelper.forUpdate(recordId, Application.getCurrentUser(), false);
 			main.setInt(EntityHelper.ApprovalState, ApprovalState.APPROVED.getState());
 			super.update(main);
@@ -199,12 +199,14 @@ public class ApprovalStepService extends BaseService {
 		}
 		
 		// 审批人
-		for (ID a : nextApprovers) {
-			boolean created = createStepIfNeed(recordId, approvalId, nextNode, a, !goNextNode, currentNode);
-			
-			// 非会签通知审批
-			if (goNextNode && created) {
-				Application.getNotifications().send(MessageBuilder.createApprovalMessage(submitter, a, approveMsg));
+		if (nextApprovers != null) {
+			for (ID a : nextApprovers) {
+				ID created = createStepIfNeed(recordId, approvalId, nextNode, a, !goNextNode, currentNode);
+
+				// 非会签通知审批
+				if (goNextNode && created != null) {
+					Application.getNotifications().send(MessageBuilder.createApproval(submitter, a, approveMsg, created));
+				}
 			}
 		}
 	}
@@ -217,7 +219,7 @@ public class ApprovalStepService extends BaseService {
 	 * @param isWaiting
 	 * @return
 	 */
-	private boolean createStepIfNeed(ID recordId, ID approvalId, String node, ID approver, boolean isWaiting, String prevNode) {
+	private ID createStepIfNeed(ID recordId, ID approvalId, String node, ID approver, boolean isWaiting, String prevNode) {
 		Object[] hadApprover = Application.createQueryNoFilter(
 				"select stepId from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and isCanceled = 'F'")
 				.setParameter(1, recordId)
@@ -225,7 +227,7 @@ public class ApprovalStepService extends BaseService {
 				.setParameter(3, node)
 				.unique();
 		if (hadApprover != null) {
-			return false;
+			return null;
 		}
 		
 		Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, Application.getCurrentUser());
@@ -239,8 +241,8 @@ public class ApprovalStepService extends BaseService {
 		if (prevNode != null) {
 			step.setString("prevNode", prevNode);
 		}
-		super.create(step);
-		return true;
+		step = super.create(step);
+		return step.getPrimary();
 	}
 
 	/**
@@ -252,8 +254,7 @@ public class ApprovalStepService extends BaseService {
 	 * @param excludeStep
 	 * @param onlyDarft
 	 */
-	private void cancelAliveSteps(ID recordId, ID approvalId, String node,
-								  ID excludeStep, boolean onlyDarft) {
+	private void cancelAliveSteps(ID recordId, ID approvalId, String node, ID excludeStep, boolean onlyDarft) {
 		String sql = "select stepId from RobotApprovalStep where recordId = ? and approvalId = ? and isCanceled = 'F'";
 		if (node != null) {
 			sql += " and node = '" + node + "'";

@@ -52,7 +52,7 @@ public class NotificationObserver extends OperatingObserver {
 		String content = makeMessage(context.getAffected(), related, false);
 		content = MessageFormat.format(content, from, context.getAffected().length, getLabel(related));
 		Application.getNotifications().send(
-				MessageBuilder.createMessage(from, to, content, related));
+				MessageBuilder.createMessage(from, to, content, Message.TYPE_SAHRE));
 	}
 	
 	@Override
@@ -69,7 +69,7 @@ public class NotificationObserver extends OperatingObserver {
 		String content = makeMessage(context.getAffected(), related, true);
 		content = MessageFormat.format(content, from, context.getAffected().length, getLabel(related));
 		Application.getNotifications().send(
-				MessageBuilder.createMessage(from, to, content, related));
+				MessageBuilder.createMessage(from, to, content, Message.TYPE_SAHRE));
 	}
 	
 	/**
@@ -87,14 +87,15 @@ public class NotificationObserver extends OperatingObserver {
 	 * @return
 	 */
 	private String makeMessage(ID affected[], ID related, boolean shareType) {
-		String msg = "@{0} 共享了 {1} 条{2}记录给你，包括 @";
+		String msg = "@{0} 共享了 {1} 条{2}记录给你";
 		if (affected.length > 1) {
 			for (ID id : affected) {
 				if (id.getEntityCode().intValue() != related.getEntityCode().intValue()) {
-					msg = "@{0} 共享了{2}及其关联记录共 {1} 条记录给你，包括 @";
+					msg = "@{0} 共享了{2}及其关联记录共 {1} 条记录给你";
 					break;
 				}
 			}
+			msg += "，包括 @";
 			
 			String atrs = StringUtils.join(ArrayUtils.subarray(affected, 0, 10), " @");
 			msg += atrs;
@@ -102,7 +103,7 @@ public class NotificationObserver extends OperatingObserver {
 				msg += " 等";
 			}
 		} else {
-			msg += related;
+			msg += " @" + related;
 		}
 		
 		if (!shareType) {

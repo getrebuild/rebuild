@@ -53,23 +53,23 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 	 * @param record
 	 * @return <tt>null</tt> 表示没有流程
 	 */
-	public Integer hadApproval(Entity entity, ID record) {
+	public ApprovalState hadApproval(Entity entity, ID record) {
 		if (entity.getMasterEntity() != null || !entity.containsField(EntityHelper.ApprovalId)) {
 			return null;
 		}
 		
 		if (record != null) {
-			Object[] hadApproval =	Application.getQueryFactory().unique(
+			Object[] o =	Application.getQueryFactory().unique(
 					record, EntityHelper.ApprovalId, EntityHelper.ApprovalState);
-			if (hadApproval != null && hadApproval[0] != null) {
-				return (Integer) hadApproval[1];
+			if (o != null) {
+				return (ApprovalState) ApprovalState.valueOf((Integer) o[1]);
 			}
 		}
 		
 		FlowDefinition[] defs = getFlowDefinitions(entity);
 		for (FlowDefinition def : defs) {
 			if (!def.isDisabled()) {
-				return ApprovalState.DRAFT.getState();
+				return ApprovalState.DRAFT;
 			}
 		}
 		return null;
