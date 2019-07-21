@@ -98,10 +98,10 @@ const RbViewPage = {
 
     const that = this
 
-    $('.J_delete').click(function() {
+    $('.J_delete').click(function () {
       if ($(this).attr('disabled')) return
       let needEntity = (wpc.type === 'SlaveList' || wpc.type === 'SlaveView') ? null : entity[0]
-      renderRbcomp(<DeleteConfirm id={this.__id} entity={needEntity} deleteAfter={() => that.hide(true)} />)
+      renderRbcomp(<DeleteConfirm id={that.__id} entity={needEntity} deleteAfter={() => that.hide(true)} />)
     })
     $('.J_edit').click(() => RbFormModal.create({ id: id, title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] }))
     $('.J_assign').click(() => DlgAssign.create({ entity: entity[0], ids: [id] }))

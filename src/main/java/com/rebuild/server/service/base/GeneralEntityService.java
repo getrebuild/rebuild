@@ -102,20 +102,9 @@ public class GeneralEntityService extends ObservableService  {
 		return super.create(record);
 	}
 
-	@Override
-	public Record update(Record record) {
-		checkModifications(record.getPrimary(), BizzPermission.UPDATE);
-		return super.update(record);
-	}
-
-	@Override
-	public int delete(ID record) {
-		return this.delete(record, null);
-	}
-	
 	/**
 	 * 自动编号
-	 * 
+	 *
 	 * @param record
 	 */
 	private void setSeriesValue(Record record) {
@@ -128,23 +117,54 @@ public class GeneralEntityService extends ObservableService  {
 			record.setString(field.getName(), SeriesGeneratorFactory.generate(field));
 		}
 	}
-	
+
+	@Override
+	public Record update(Record record) {
+		checkModifications(record.getPrimary(), BizzPermission.UPDATE);
+		return super.update(record);
+	}
+
+	@Override
+	public int delete(ID record) {
+		return this.deleteInternal(record);
+	}
+
 	@Override
 	public int delete(ID record, String[] cascades) {
-		checkModifications(record, BizzPermission.DELETE);
-		super.delete(record);
+		this.deleteInternal(record);
 		int affected = 1;
-		
-		Map<String, Set<ID>> cass = getRecordsOfCascaded(record, cascades, BizzPermission.DELETE);
-		for (Map.Entry<String, Set<ID>> e : cass.entrySet()) {
+
+		final ID currentUser = Application.getCurrentUser();
+
+		Map<String, Set<ID>> recordsOfCascaded = getRecordsOfCascaded(record, cascades, BizzPermission.DELETE);
+		for (Map.Entry<String, Set<ID>> e : recordsOfCascaded.entrySet()) {
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("级联删除 - " + e.getKey() + " > " + e.getValue());
 			}
-			for (ID casid : e.getValue()) {
-				affected += (super.delete(casid) > 0 ? 1 : 0);
+
+			for (ID id : e.getValue()) {
+				if (Application.getSecurityManager().allowedD(currentUser, id)) {
+					try {
+						affected += (this.deleteInternal(id) > 0 ? 1 : 0);
+					} catch (DataSpecificationException ex) {
+						LOG.warn("Cloud't delete : " + id + " Ex : " + ex);
+					}
+				} else {
+					LOG.warn("No have privileges to DELETE : " + currentUser + " > " + id);
+				}
 			}
 		}
 		return affected;
+	}
+
+	/**
+	 * @param record
+	 * @return
+	 * @throws DataSpecificationException
+	 */
+	private int deleteInternal(ID record) throws DataSpecificationException {
+		checkModifications(record, BizzPermission.DELETE);
+		return super.delete(record);
 	}
 	
 	@Override
@@ -348,8 +368,7 @@ public class GeneralEntityService extends ObservableService  {
 	 * @return
 	 * @throws DataSpecificationException
 	 */
-	public boolean checkModifications(ID recordId, Permission action)
-			throws DataSpecificationException {
+	public boolean checkModifications(ID recordId, Permission action) throws DataSpecificationException {
 		Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 		Entity checkEntity = entity.getMasterEntity() != null ? entity.getMasterEntity() : entity;
 
@@ -383,8 +402,7 @@ public class GeneralEntityService extends ObservableService  {
 	 * @return
 	 * @throws DataSpecificationException
 	 */
-	public boolean checkModifications(Record newRecord, Permission action)
-			throws DataSpecificationException {
+	public boolean checkModifications(Record newRecord, Permission action) throws DataSpecificationException {
 		Entity entity = newRecord.getEntity();
 
 		// 验证审批状态
