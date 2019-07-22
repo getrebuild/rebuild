@@ -330,6 +330,13 @@ CellRenders.addRender('URL', function (v, s, k) {
 CellRenders.addRender('EMAIL', function (v, s, k) {
   return <td key={k}><div style={s}><a href={'mailto:' + v} className="column-url">{v}</a></div></td>
 })
+const APPROVAL_STATE_CLAZZs = { '审批中': 'text-warning', '驳回': 'text-danger', '通过': 'text-success' }
+CellRenders.addRender('STATE', function (v, s, k) {
+  if (k.endsWith('.approvalState')) {
+    return <td key={k}><div style={s} className={APPROVAL_STATE_CLAZZs[v] || ''}>{v}</div></td>
+  }
+  return <td key={k}><div style={s}>{v}</div></td>
+})
 
 // 分页组件
 class RbListPagination extends React.Component {
