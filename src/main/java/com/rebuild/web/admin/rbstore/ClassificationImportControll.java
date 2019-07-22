@@ -43,7 +43,7 @@ import cn.devezhao.persist4j.engine.ID;
 @Controller
 public class ClassificationImportControll extends BaseControll {
 
-	@RequestMapping("/admin/classification/imports/starts")
+	@RequestMapping("/admin/entityhub/classification/imports/start")
 	public void starts(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		ID dest = getIdParameterNotNull(request, "dest");

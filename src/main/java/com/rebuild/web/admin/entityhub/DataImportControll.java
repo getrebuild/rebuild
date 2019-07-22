@@ -16,23 +16,15 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.admin;
+package com.rebuild.web.admin.entityhub;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.io.IOUtils;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
+import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.ThreadPool;
+import cn.devezhao.commons.excel.Cell;
+import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializeConfig;
@@ -51,14 +43,19 @@ import com.rebuild.server.metadata.entityhub.DisplayType;
 import com.rebuild.server.metadata.entityhub.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
+import org.apache.commons.io.IOUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
-import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.ThreadPool;
-import cn.devezhao.commons.excel.Cell;
-import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.engine.ID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -66,20 +63,20 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 01/03/2019
  */
 @Controller
-@RequestMapping("/admin/")
+@RequestMapping("/admin/entityhub/")
 public class DataImportControll extends BasePageControll {
 	
 	static {
 		SerializeConfig.getGlobalInstance().put(Cell.class, ToStringSerializer.instance);
 	}
 
-	@RequestMapping("/dataio/importer")
+	@RequestMapping("/data-importer")
 	public ModelAndView pageDataImports(HttpServletRequest request) {
-		return createModelAndView("/admin/dataio/importer.jsp");
+		return createModelAndView("/admin/entityhub/data-importer.jsp");
 	}
 	
 	// 检查导入文件
-	@RequestMapping("/dataio/check-file")
+	@RequestMapping("/data-importer/check-file")
 	public void checkFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String file = getParameterNotNull(request, "file");
 		File tmp = getFileOfImport(file);
@@ -108,7 +105,7 @@ public class DataImportControll extends BasePageControll {
 		writeSuccess(response, ret);
 	}
 	
-	@RequestMapping("/dataio/check-user-privileges")
+	@RequestMapping("/data-importer/check-user-privileges")
 	public void checkUserPrivileges(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID ouser = getIdParameterNotNull(request, "ouser");
 		String entity = getParameterNotNull(request, "entity");
@@ -122,7 +119,7 @@ public class DataImportControll extends BasePageControll {
 		writeSuccess(response, ret);
 	}
 	
-	@RequestMapping("/dataio/import-fields")
+	@RequestMapping("/data-importer/import-fields")
 	public void importFields(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
 		Entity entityBase = MetadataHelper.getEntity(entity);
@@ -162,7 +159,7 @@ public class DataImportControll extends BasePageControll {
 	}
 	
 	// 开始导入
-	@RequestMapping("/dataio/import-submit")
+	@RequestMapping("/data-importer/import-submit")
 	public void importSubmit(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		JSONObject idata = (JSONObject) ServletUtils.getRequestJson(request);
 		ImportRule irule = null;
@@ -184,7 +181,7 @@ public class DataImportControll extends BasePageControll {
 	}
 	
 	// 导入状态
-	@RequestMapping("/dataio/import-state")
+	@RequestMapping("/data-importer/import-state")
 	public void importState(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String taskid = getParameterNotNull(request, "taskid");
 		HeavyTask<?> task = TaskExecutors.getTask(taskid);
@@ -197,7 +194,7 @@ public class DataImportControll extends BasePageControll {
 	}
 	
 	// 导入取消
-	@RequestMapping("/dataio/import-cancel")
+	@RequestMapping("/data-importer/import-cancel")
 	public void importCancel(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String taskid = getParameterNotNull(request, "taskid");
 		HeavyTask<?> task = TaskExecutors.getTask(taskid);

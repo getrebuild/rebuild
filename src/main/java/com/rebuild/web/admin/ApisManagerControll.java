@@ -37,8 +37,7 @@ public class ApisManagerControll extends BasePageControll {
 
     @RequestMapping("/admin/apis-manager")
     public ModelAndView pageManager(HttpServletRequest request) throws IOException {
-        return createModelAndView("/admin/apis-manager.jsp");
+        return createModelAndView("/admin/integration/apis-manager.jsp");
     }
-
 
 }

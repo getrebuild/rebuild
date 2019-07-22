@@ -112,7 +112,7 @@ class LevelBox extends React.Component {
 
   loadItems(p) {
     this.parentId = p
-    let url = `${rb.baseUrl}/admin/classification/load-data-items?data_id=${wpc.id}&parent=${p || ''}`
+    let url = `${rb.baseUrl}/admin/entityhub/classification/load-data-items?data_id=${wpc.id}&parent=${p || ''}`
     $.get(url, (res) => {
       this.clear()
       this.setState({ items: res.data, activeId: null })
@@ -158,7 +158,7 @@ class LevelBox extends React.Component {
       return
     }
 
-    let url = `${rb.baseUrl}/admin/classification/save-data-item?data_id=${wpc.id}&name=${name}`
+    let url = `${rb.baseUrl}/admin/entityhub/classification/save-data-item?data_id=${wpc.id}&name=${name}`
     if (this.state.itemId) url += `&item_id=${this.state.itemId}`
     else url += `&parent=${this.parentId}&level=${this.props.level}`
     let isUnhide = null
@@ -196,7 +196,7 @@ class LevelBox extends React.Component {
       type: 'danger',
       confirm: function () {
         this.disabled()
-        $.post(`${rb.baseUrl}/admin/classification/delete-data-item?item_id=${item[0]}`, (res) => {
+        $.post(`${rb.baseUrl}/admin/entityhub/classification/delete-data-item?item_id=${item[0]}`, (res) => {
           this.hide()
           if (res.error_code !== 0) {
             RbHighbar.error(res.error_msg)
@@ -220,7 +220,7 @@ class LevelBox extends React.Component {
       alertExt.confirmText = '确认删除'
       alertExt.cancelText = '禁用'
       alertExt.cancel = function () {
-        let url = `${rb.baseUrl}/admin/classification/save-data-item?item_id=${item[0]}&hide=true`
+        let url = `${rb.baseUrl}/admin/entityhub/classification/save-data-item?item_id=${item[0]}&hide=true`
         this.disabled()
         $.post(url, (res) => {
           this.hide()
@@ -256,7 +256,7 @@ var saveOpenLevel = function () {
 
     let data = { openLevel: level }
     data.metadata = { entity: 'Classification', id: wpc.id }
-    $.post(`${rb.baseUrl}/admin/classification/save`, JSON.stringify(data), (res) => {
+    $.post(`${rb.baseUrl}/admin/entityhub/classification/save`, JSON.stringify(data), (res) => {
       if (res.error_code > 0) RbHighbar.error(res.error_msg)
       else {
         saveOpenLevel_last = level
@@ -300,7 +300,7 @@ class DlgImports extends RbModalHandler {
   imports = (e) => {
     let file = e.currentTarget.dataset.file
     let name = e.currentTarget.dataset.name
-    let url = `${rb.baseUrl}/admin/classification/imports/starts?dest=${this.props.id}&file=${$encode(file)}`
+    let url = `${rb.baseUrl}/admin/entityhub/classification/imports/start?dest=${this.props.id}&file=${$encode(file)}`
     let that = this
     RbAlert.create(`<strong>${name}</strong><br>请注意，导入将导致现有数据被清空。<br>如当前分类数据已被使用则不建议导入。确认导入吗？`, {
       html: true,

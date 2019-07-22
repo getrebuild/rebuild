@@ -32,7 +32,7 @@ class GridList extends React.Component {
     </div>
   }
   componentDidMount() {
-    $.get(`${rb.baseUrl}/admin/classification/list`, (res) => {
+    $.get(`${rb.baseUrl}/admin/entityhub/classification/list`, (res) => {
       this.setState({ list: res.data })
     })
   }
