@@ -1,6 +1,6 @@
 /*
 rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,25 +16,23 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.metadata.entityhub;
-
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.metadata.impl.EntityImpl;
+package com.rebuild.server.metadata.entity;
 
 /**
+ * 状态字段
  * 
- * @author zhaofang123@gmail.com
- * @since 08/04/2018
+ * @author devezhao zhaofang123@gmail.com
+ * @since 2019/07/05
  */
-public class UnsafeEntity extends EntityImpl {
-	private static final long serialVersionUID = 2107073554299141281L;
-
-	protected UnsafeEntity(String entityName, String physicalName, String entityLabel, int typeCode, String nameField) {
-		super(entityName, physicalName, entityLabel, typeCode, nameField);
-	}
+public interface State {
 	
-	@Override
-	protected void addField(Field field) {
-		super.addField(field);
-	}
+	/**
+	 * @return
+	 */
+	int getState();
+	
+	/**
+	 * @return
+	 */
+	String getName();
 }

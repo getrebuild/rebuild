@@ -20,9 +20,9 @@ package com.rebuild.server.business.approval;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.entityhub.DisplayType;
-import com.rebuild.server.metadata.entityhub.Field2Schema;
-import com.rebuild.server.metadata.entityhub.ModifiyMetadataException;
+import com.rebuild.server.metadata.entity.DisplayType;
+import com.rebuild.server.metadata.entity.Field2Schema;
+import com.rebuild.server.metadata.entity.ModifiyMetadataException;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;

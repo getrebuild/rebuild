@@ -20,7 +20,7 @@ package com.rebuild.server.business.charts;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.metadata.entity.EasyMeta;
 
 import cn.devezhao.persist4j.Field;
 

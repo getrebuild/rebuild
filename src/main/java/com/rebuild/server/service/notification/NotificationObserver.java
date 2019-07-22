@@ -25,7 +25,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.OperatingObserver;
 import com.rebuild.server.service.base.BulkOperatorTx;

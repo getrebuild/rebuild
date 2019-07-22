@@ -139,10 +139,10 @@
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 	
-	<bean class="com.rebuild.server.metadata.entityhub.MetaEntityService">
+	<bean class="com.rebuild.server.metadata.entity.MetaEntityService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
-	<bean class="com.rebuild.server.metadata.entityhub.MetaFieldService">
+	<bean class="com.rebuild.server.metadata.entity.MetaFieldService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 	<bean class="com.rebuild.server.service.configuration.PickListService">

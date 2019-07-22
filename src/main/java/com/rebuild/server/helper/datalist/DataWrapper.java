@@ -29,7 +29,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.persist4j.Entity;

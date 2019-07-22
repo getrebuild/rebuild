@@ -25,8 +25,8 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.metadata.entityhub.DisplayType;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.metadata.entity.DisplayType;
+import com.rebuild.server.metadata.entity.EasyMeta;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;

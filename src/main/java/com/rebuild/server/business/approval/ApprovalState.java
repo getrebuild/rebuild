@@ -18,7 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.approval;
 
-import com.rebuild.server.metadata.entityhub.State;
+import com.rebuild.server.metadata.entity.State;
 
 /**
  * 审批状态

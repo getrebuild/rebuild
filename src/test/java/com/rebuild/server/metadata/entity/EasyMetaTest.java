@@ -16,23 +16,25 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.metadata.entityhub;
+package com.rebuild.server.metadata.entity;
+
+import org.junit.Test;
+
+import com.rebuild.server.TestSupport;
+import com.rebuild.server.metadata.MetadataHelper;
+
+import cn.devezhao.persist4j.Entity;
 
 /**
- * 状态字段
- * 
- * @author devezhao zhaofang123@gmail.com
- * @since 2019/07/05
+ * @author devezhao-mbp zhaofang123@gmail.com
+ * @since 2019/05/30
  */
-public interface State {
-	
-	/**
-	 * @return
-	 */
-	int getState();
-	
-	/**
-	 * @return
-	 */
-	String getName();
+public class EasyMetaTest extends TestSupport {
+
+	@Test
+	public void test() throws Exception {
+		Entity user = MetadataHelper.getEntity("User");
+		EasyMeta.getLabel(user, "roleId.name");
+		EasyMeta.getEntityShow(user);
+	}
 }

@@ -36,7 +36,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.web.BasePageControll;
 
 import cn.devezhao.persist4j.Entity;

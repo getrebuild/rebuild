@@ -16,15 +16,18 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.metadata.entityhub;
+package com.rebuild.server.metadata.entity;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.BaseService;
 import com.rebuild.server.service.bizz.privileges.AdminGuard;
 
 import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
 
@@ -32,44 +35,51 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 08/03/2018
  */
-public class MetaFieldService extends BaseService implements AdminGuard {
+public class MetaEntityService extends BaseService implements AdminGuard {
+	
+	private static final Log LOG = LogFactory.getLog(MetaEntityService.class);
 
-	protected MetaFieldService(PersistManagerFactory aPMFactory) {
+	protected MetaEntityService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
 	}
 	
 	@Override
 	public int getEntityCode() {
-		return EntityHelper.MetaField;
+		return EntityHelper.MetaEntity;
 	}
 	
 	@Override
 	public int delete(ID recordId) {
-		Object[] fieldRecord = getPMFactory().createQuery(
-				"select belongEntity,fieldName from MetaField where fieldId = ?")
+		Object[] entityRecord = getPMFactory().createQuery(
+				"select entityName from MetaEntity where entityId = ?")
 				.setParameter(1, recordId)
 				.unique();
-		final Field field = MetadataHelper.getField((String) fieldRecord[0], (String) fieldRecord[1]);
+		final Entity entity = MetadataHelper.getEntity((String) entityRecord[0]);
 		
-		// 删除此字段的相关配置记录
+		// 删除此实体的相关配置记录
 		String whoUsed[] = new String[] {
-				"PickList", "AutoFillinConfig"
+				"MetaField", "PickList", "LayoutConfig", "FilterConfig", "ShareAccess", "ChartConfig", 
+				"Attachment", "AutoFillinConfig", "RobotTriggerConfig", "RobotApprovalConfig"
 		};
 		int del = 0;
 		for (String who : whoUsed) {
 			Entity whoEntity = MetadataHelper.getEntity(who);
-			if (!(whoEntity.containsField("belongEntity") || whoEntity.containsField("belongField"))) {
+			if (!whoEntity.containsField("belongEntity")) {
 				continue;
 			}
 			
-			String sql = String.format("select %s from %s where belongEntity = '%s' and belongField = '%s'", 
-					whoEntity.getPrimaryField().getName(), whoEntity.getName(), field.getOwnEntity().getName(), field.getName());
+			String sql = String.format("select %s from %s where belongEntity = '%s'", 
+					whoEntity.getPrimaryField().getName(), whoEntity.getName(), entity.getName());
 			Object[][] usedArray = getPMFactory().createQuery(sql).array();
 			for (Object[] used : usedArray) {
-				del += super.delete((ID) used[0]);
+				if ("MetaField".equalsIgnoreCase(who)) {
+					del += Application.getBean(MetaFieldService.class).delete((ID) used[0]);
+				} else {
+					del += super.delete((ID) used[0]);
+				}
 			}
 			if (usedArray.length > 0) {
-				LOG.warn("deleted configuration of field [ " + field.getOwnEntity().getName() + "." + field.getName() + " ] in [ " + who + " ] : " + usedArray.length);
+				LOG.warn("deleted configuration of entity [ " + entity.getName() + " ] in [ " + who + " ] : " + usedArray.length);
 			}
 		}
 		

@@ -30,7 +30,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entityhub.Entity2Schema;
+import com.rebuild.server.metadata.entity.Entity2Schema;
 import com.rebuild.server.service.bizz.UserService;
 
 /**
