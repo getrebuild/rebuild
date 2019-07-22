@@ -210,8 +210,6 @@ public class ApprovalControll extends BasePageControll {
 	public ModelAndView pageView(@PathVariable String id,
 								 HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ModelAndView mv = createModelAndView("/entity/approval/approval-view.jsp");
-		mv.getModel().put("entityIcon", "assignment-check");
-		mv.getModel().put("entityLabel", "审批流程图");
 		mv.getModel().put("approvalId", id);
 		return mv;
 	}

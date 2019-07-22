@@ -5,12 +5,12 @@
 <%@ include file="/_include/Head.jsp"%>
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/view-page.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/approvals.css">
-<title>${entityLabel}</title>
+<title>审批流程图</title>
 </head>
 <body class="view-body" style="background-color:#f5f5f7">
 <div class="view-header">
-	<i class="header-icon zmdi zmdi-${entityIcon}"></i>
-	<h3 class="title">${entityLabel}</h3>
+	<i class="header-icon zmdi zmdi-usb zmdi-hc-rotate-180"></i>
+	<h3 class="title">审批流程图</h3>
 	<span>
 		<a class="close J_close"><i class="zmdi zmdi-close"></i></a>
 	</span>
