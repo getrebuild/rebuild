@@ -19,7 +19,7 @@ $(document).ready(function () {
     }
 
     let extConfig = {}
-    $('.J_for-' + dt + ' .form-control').each(function () {
+    $(`.J_for-${dt} .form-control, .J_for-${dt} .custom-control-input`).each(function () {
       let k = $(this).attr('id')
       if ('defaultValue' !== k) {
         extConfig[k] = $val(this)
@@ -130,6 +130,9 @@ $(document).ready(function () {
         href: '../../../classifications'
       }).text('无效分类数据').addClass('text-danger')
     }
+  } else if (dt === 'DECIMAL' || dt === 'NUMBER') {
+    if (extConfigOld.notNegative === 'true') $('#notNegative').attr('checked', true)
+    if (dt === 'DECIMAL' && extConfigOld.decimalFormat) $('#decimalFormat').val(extConfigOld.decimalFormat)
   }
 
   if (wpc.fieldBuildin === true) $('.footer .alert').removeClass('hide')
