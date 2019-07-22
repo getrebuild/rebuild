@@ -398,7 +398,7 @@ public class AdvFilterParser {
 		if (StringUtils.isNotBlank(qFields)) {
 			for (String field : qFields.split(",")) {
 				field = field.trim();
-				if (rootEntity.containsField(field.replaceFirst("&", ""))) {
+				if (MetadataHelper.getLastJoinField(rootEntity, field) != null) {
 					fieldItems.add(field);
 				} else {
 					LOG.warn("No field found by QuickFilter : " + field + " in " + rootEntity.getName());
