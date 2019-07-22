@@ -25,7 +25,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.rebuild.web.BasePageControll;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSONArray;
@@ -46,6 +48,7 @@ import com.rebuild.web.BaseControll;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  * TODO
@@ -54,8 +57,8 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 2019/07/05
  */
 @Controller
-@RequestMapping("/app/entity/approval/")
-public class ApprovalControll extends BaseControll {
+@RequestMapping({ "/app/entity/approval/", "/app/RobotApprovalConfig/" })
+public class ApprovalControll extends BasePageControll {
 	
 	@RequestMapping("workable")
 	public void getWorkable(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -201,5 +204,13 @@ public class ApprovalControll extends BaseControll {
 				new String[] { "applyEntity", "flowDefinition" },
 				new Object[] { belongEntity[0], def.getJSON("flowDefinition") });
 		writeSuccess(response, ret);
+	}
+
+	@RequestMapping("view/{id}")
+	public ModelAndView pageView(@PathVariable String id,
+								 HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ModelAndView mv = createModelAndView("/entity/approval/approval-view.jsp");
+		mv.getModel().put("approvalId", id);
+		return mv;
 	}
 }

@@ -173,6 +173,14 @@
 								</div>
 							</div>
 						</div>
+						<div class="form-group row J_for-DECIMAL J_for-NUMBER hide">
+                            <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">是否允许负数</label>
+                            <div class="col-md-12 col-xl-6 col-lg-8">
+                                <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                                    <input class="custom-control-input" type="checkbox" id="notNegative"><span class="custom-control-label"> 不允许</span>
+                                </label>
+                            </div>
+                        </div>
 						<div class="form-group row">
 							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">备注</label>
 							<div class="col-md-12 col-xl-6 col-lg-8">

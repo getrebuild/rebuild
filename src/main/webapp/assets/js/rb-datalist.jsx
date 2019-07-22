@@ -47,8 +47,9 @@ class RbList extends React.Component {
                     {this.state.fields.map((item) => {
                       let cWidth = (item.width || that.__defaultColumnWidth)
                       let styles = { width: cWidth + 'px' }
-                      let sortClazz = item.sort || ''
-                      return (<th key={'column-' + item.field} style={styles} className="sortable unselect" onClick={this.sortField.bind(this, item.field)}><div style={styles}><span style={{ width: (cWidth - 8) + 'px' }}>{item.label}</span><i className={'zmdi ' + sortClazz}></i><i className="split" data-field={item.field}></i></div></th>)
+                      return (<th key={'column-' + item.field} style={styles} className="sortable unselect" onClick={this.sortField.bind(this, item.field)} data-field={item.field}>
+                        <div style={styles}><span style={{ width: (cWidth - 8) + 'px' }}>{item.label}</span><i className={'zmdi ' + (item.sort || '')} /><i className="split" /></div>
+                      </th>)
                     })}
                     <th className="column-empty"></th>
                   </tr>
@@ -83,7 +84,7 @@ class RbList extends React.Component {
     let that = this
     scroller.find('th .split').draggable({
       containment: '.rb-datatable-body', axis: 'x', helper: 'clone', stop: function (event, ui) {
-        let field = $(event.target).data('field')
+        let field = $(event.target).parents('th').data('field')
         let left = ui.position.left - 2
         if (left < COLUMN_MIN_WIDTH) left = COLUMN_MIN_WIDTH
         let fields = that.state.fields
@@ -150,7 +151,7 @@ class RbList extends React.Component {
           })
         }
 
-        this.setState({ rowsData: rowsdata, inLoad: false })
+        this.setState({ rowsData: rowsdata, inLoad: false }, () => RbList.renderAfter())
         if (res.data.total > 0) this.refs['pagination'].setState({ rowsTotal: res.data.total })
 
       } else {
@@ -247,7 +248,6 @@ class RbList extends React.Component {
     }
     this.fetchList()
   }
-
   setAdvFilter(id) {
     this.advFilter = id
     this.fetchList()
@@ -255,7 +255,6 @@ class RbList extends React.Component {
     if (id) $storage.set(this.__defaultFilterKey, id)
     else $storage.remove(this.__defaultFilterKey)
   }
-
   getSelectedRows() {
     return this.__selectedRows
   }
@@ -264,7 +263,6 @@ class RbList extends React.Component {
     let ids = this.__selectedRows.map((item) => { return item[0] })
     return ids
   }
-
   search(filter, fromAdv) {
     let afHold = this.advFilter
     if (fromAdv === true) this.advFilter = null
@@ -278,6 +276,10 @@ class RbList extends React.Component {
   }
   reload() {
     this.fetchList()
+  }
+
+  // 渲染完成后回调
+  static renderAfter() {
   }
 }
 
@@ -295,7 +297,15 @@ var CellRenders = {
     let style = { width: (width || COLUMN_MIN_WIDTH) + 'px' }
     let func = this.__renders[type]
     if (func) return func(value, style, key)
-    else return <td key={key}><div style={style}>{value}</div></td>
+    else return this.renderSimple(value, style, key)
+  },
+  /**
+   * @param {*} v 值
+   * @param {*} s 样式
+   * @param {*} k key of React (contains fieldName)
+   */
+  renderSimple(v, s, k) {
+    return <td key={k}><div style={s}>{v}</div></td>
   }
 }
 CellRenders.addRender('$NAME$', function (v, s, k) {
@@ -329,6 +339,11 @@ CellRenders.addRender('URL', function (v, s, k) {
 })
 CellRenders.addRender('EMAIL', function (v, s, k) {
   return <td key={k}><div style={s}><a href={'mailto:' + v} className="column-url">{v}</a></div></td>
+})
+const APPROVAL_STATE_CLAZZs = { '审批中': 'text-warning', '驳回': 'text-danger', '通过': 'text-success' }
+CellRenders.addRender('STATE', function (v, s, k) {
+  if (k.endsWith('.approvalState')) return <td key={k}><div style={s} className={APPROVAL_STATE_CLAZZs[v] || ''}>{v}</div></td>
+  else CellRenders.renderSimple(v, s, k)
 })
 
 // 分页组件

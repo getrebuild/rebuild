@@ -158,7 +158,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
                   <input className="custom-control-input" type="radio" name="useApproval" value={item.id} onChange={this.handleChange} checked={this.state.useApproval === item.id} />
                   <span className="custom-control-label">{item.name}</span>
                 </label>
-                <a href={`${rb.baseUrl}/p/commons/approval-preview?id=${item.id}`} target="_blank"><i className="zmdi zmdi-usb zmdi-hc-rotate-180"></i> 流程图</a>
+                <a href={`${rb.baseUrl}/app/RobotApprovalConfig/view/${item.id}`} target="_blank"><i className="zmdi zmdi-usb zmdi-hc-rotate-180"></i> 流程图</a>
               </div>)
             })}
           </div>
@@ -205,7 +205,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
         setTimeout(() => {
           if (window.RbViewPage) window.RbViewPage.reload()
           if (window.RbListPage) window.RbListPage.reload()
-          else location.reload()
+          else if (parent.RbListPage) parent.RbListPage.reload()
         }, 1000)
       }
       this.disabled()
@@ -252,7 +252,8 @@ class ApprovalApproveForm extends ApprovalUsersForm {
         RbHighbar.success('审批已' + (state === 10 ? '同意' : '驳回'))
         setTimeout(() => {
           if (window.RbViewPage) window.RbViewPage.reload()
-          else location.reload()
+          if (window.RbListPage) window.RbListPage.reload()
+          else if (parent.RbListPage) parent.RbListPage.reload()
         }, 1000)
       }
       this.disabled()

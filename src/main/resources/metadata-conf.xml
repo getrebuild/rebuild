@@ -201,7 +201,7 @@
 		<field name="parent" type="reference" ref-entity="AttachmentFolder" />
 	</entity>
 	
-	<entity name="LoginLog" type-code="025" parent="false" name-field="user" description="登陆日志">
+	<entity name="LoginLog" type-code="025" parent="false" description="登陆日志">
 		<field name="logId" type="primary"/>
 		<field name="user" type="reference" ref-entity="User" nullable="false" updatable="false" description="登陆用户" />
 		<field name="ipAddr" type="string" max-length="100" description="IP地址" />

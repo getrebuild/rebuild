@@ -455,7 +455,9 @@ class RbFormNumber extends RbFormText {
   isValueError() {
     let err = super.isValueError()
     if (err) return err
-    return (!!this.state.value && $regex.isNumber(this.state.value) === false) ? '整数格式不正确' : null
+    if (!!this.state.value && $regex.isNumber(this.state.value) === false) return '整数格式不正确'
+    if (!!this.state.value && this.props.notNegative === 'true' && parseFloat(this.state.value) < 0) return '不允许为负数'
+    return null
   }
 }
 
@@ -467,7 +469,9 @@ class RbFormDecimal extends RbFormText {
   isValueError() {
     let err = super.isValueError()
     if (err) return err
-    return (!!this.state.value && $regex.isDecimal(this.state.value) === false) ? '货币格式不正确' : null
+    if (!!this.state.value && $regex.isDecimal(this.state.value) === false) return '货币格式不正确'
+    if (!!this.state.value && this.props.notNegative === 'true' && parseFloat(this.state.value) < 0) return '不允许为负数'
+    return null
   }
 }
 
