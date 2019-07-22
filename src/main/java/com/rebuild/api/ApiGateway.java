@@ -25,7 +25,6 @@ import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import com.alibaba.fastjson.JSON;
-import com.rebuild.api.sdk.OpenApiSDK;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.RebuildApiManager;
 import com.rebuild.server.service.DataSpecificationException;
@@ -48,9 +47,9 @@ import java.util.TreeMap;
  * @since 05/19/2018
  */
 @Controller
-public class ApiGeteway extends Controll {
+public class ApiGateway extends Controll {
 
-	private static final Log LOG = LogFactory.getLog(ApiGeteway.class);
+	private static final Log LOG = LogFactory.getLog(ApiGateway.class);
 
 	@RequestMapping("/gw/api/{apiName.*}")
 	public void api(@PathVariable String apiName,
@@ -100,6 +99,8 @@ public class ApiGeteway extends Controll {
 	}
 
 	/**
+	 * 验证请求并构建请求上下文
+	 *
 	 * @param request
 	 * @return
 	 * @throws IOException
