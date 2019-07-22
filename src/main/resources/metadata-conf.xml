@@ -255,20 +255,20 @@
 
     <entity name="RebuildApi" type-code="030" description="API鉴权参数">
         <field name="uniqueId" type="primary" />
-        <field name="appId" type="string" max-length="40" nullable="false" updatable="false" />
-        <field name="appSecret" type="string" max-length="100" nullable="false" />
-        <field name="bindUser" type="reference" ref-entity="User" />
-		<field name="bindIps" type="string" max-length="300" />
+        <field name="appId" type="string" max-length="20" nullable="false" updatable="false" description="APPID" />
+        <field name="appSecret" type="string" max-length="60" nullable="false" description="APPSECRET" />
+        <field name="bindUser" type="reference" ref-entity="User" description="绑定用户(权限)" />
+		<field name="bindIps" type="string" max-length="300" description="IP白名单" />
         <index type="unique" field-list="appId" />
     </entity>
 
     <entity name="RebuildApiRequest" type-code="031" description="API调用日志" parent="false">
         <field name="requestId" type="primary" />
-        <field name="appId" type="string" max-length="40" nullable="false" updatable="false" />
+        <field name="appId" type="string" max-length="20" nullable="false" updatable="false" description="APPID" />
 		<field name="remoteIp" type="string" max-length="100" nullable="false" updatable="false" description="来源IP" />
         <field name="requestUrl" type="string" max-length="300" nullable="false" updatable="false" description="请求URL" />
-        <field name="requestBody" type="text" updatable="false" description="请求数据" />
-        <field name="responseBody" type="text" nullable="false" updatable="false" description="响应数据" />
+        <field name="requestBody" type="text" updatable="false" max-length="10000" description="请求数据" />
+        <field name="responseBody" type="text" nullable="false" max-length="10000" updatable="false" description="响应数据" />
         <field name="requestTime" type="timestamp" nullable="false" updatable="false" description="请求时间" />
         <field name="responseTime" type="timestamp" nullable="false" updatable="false" description="响应时间" />
         <index field-list="appId,remoteIp,requestUrl,requestTime" />

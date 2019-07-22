@@ -1,6 +1,6 @@
 /*
 rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (C) 2018-2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,31 +18,20 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.api;
 
-import com.alibaba.fastjson.JSON;
-import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
 
-/**
- * 
- * @author devezhao
- * @since 01/10/2019
- */
-public abstract class BaseApi extends Controll {
+import javax.servlet.http.HttpServletRequest;
+import java.util.Enumeration;
+import java.util.Map;
+import java.util.TreeMap;
 
-	/**
-	 * API 名称
-	 * 
-	 * @return
-	 */
-	protected String getApiName() {
-		return getClass().getSimpleName();
-	}
-	
-	/**
-	 * API 执行
-	 * 
-	 * @param context
-	 * @return
-	 */
-	abstract public JSON execute(ApiContext context);
+/**
+ * TODO
+ *
+ * @author ZHAO
+ * @since 2019-07-23
+ */
+public class ApiHelper {
+
+
 }

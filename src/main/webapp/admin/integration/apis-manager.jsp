@@ -37,9 +37,9 @@
                                         <thead>
                                             <tr>
                                                 <th width="10%">APP ID</th>
-                                                <th width="25%">APP SECRET</th>
+                                                <th width="30%">APP SECRET</th>
                                                 <th>绑定用户</th>
-                                                <th>创建时间</th>
+                                                <th width="15%">创建时间</th>
                                                 <th>使用统计</th>
                                                 <th width="50"></th>
                                             </tr>

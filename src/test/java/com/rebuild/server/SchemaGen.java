@@ -73,6 +73,7 @@ public class SchemaGen {
 			if (d.startsWith("drop ")) {
 				d = "" + d;
 			}
+			d = d.replace(" default '0000-00-00 00:00:00'", "");
 			sb.append(d).append("\n");
 		}
 		System.out.println(sb);

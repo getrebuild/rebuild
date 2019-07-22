@@ -392,6 +392,36 @@ create table if not exists `robot_approval_step` (
 alter table `robot_approval_step`
   add index `IX1_robot_approval_step` (`RECORD_ID`, `APPROVAL_ID`, `NODE`, `IS_CANCELED`, `IS_WAITING`);
 
+-- ************ Entity [RebuildApi] DDL ************
+create table if not exists `rebuild_api` (
+  `UNIQUE_ID`          char(20) not null,
+  `APP_ID`             varchar(20) not null comment 'APPID',
+  `APP_SECRET`         varchar(60) not null comment 'APPSECRET',
+  `BIND_USER`          char(20) comment '绑定用户(权限)',
+  `BIND_IPS`           varchar(300) comment 'IP白名单',
+  `MODIFIED_ON`        timestamp not null comment '修改时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         timestamp not null comment '创建时间',
+  primary key  (`UNIQUE_ID`),
+  unique index `UIX1_rebuild_api` (`APP_ID`)
+)Engine=InnoDB;
+
+-- ************ Entity [RebuildApiRequest] DDL ************
+create table if not exists `rebuild_api_request` (
+  `REQUEST_ID`         char(20) not null,
+  `APP_ID`             varchar(20) not null comment 'APPID',
+  `REMOTE_IP`          varchar(100) not null comment '来源IP',
+  `REQUEST_URL`        varchar(300) not null comment '请求URL',
+  `REQUEST_BODY`       text(10000) comment '请求数据',
+  `RESPONSE_BODY`      text(10000) not null comment '响应数据',
+  `REQUEST_TIME`       timestamp not null comment '请求时间',
+  `RESPONSE_TIME`      timestamp not null comment '响应时间',
+  primary key  (`REQUEST_ID`)
+)Engine=InnoDB;
+alter table `rebuild_api_request`
+  add index `IX1_rebuild_api_request` (`APP_ID`, `REMOTE_IP`, `REQUEST_URL`, `REQUEST_TIME`);
+
 
 -- #3 datas
 
@@ -428,4 +458,4 @@ INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version
 INSERT INTO `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`) 
-  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 7);
+  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 8);

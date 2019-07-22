@@ -31,25 +31,49 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 01/10/2019
  */
 public class ApiContext {
-	
+
+	final private String appId;
 	final private ID apiUser;
-	final private Map<String, Object> reqParams;
+	final private Map<String, String> reqParams;
 	final private JSON postData;
-	
-	public ApiContext(ID apiUser, Map<String, Object> reqParams, JSON postData) {
+
+	/**
+	 * @param appId
+	 * @param apiUser
+	 * @param reqParams
+	 * @param postData
+	 */
+	public ApiContext(String appId, ID apiUser, Map<String, String> reqParams, JSON postData) {
+		this.appId = appId;
 		this.apiUser = apiUser;
 		this.reqParams = reqParams;
 		this.postData = postData;
 	}
 
+	/**
+	 * @return
+	 */
+	public String getAppId() {
+		return appId;
+	}
+
+	/**
+	 * @return
+	 */
 	public ID getApiUser() {
 		return apiUser;
 	}
-	
-	public Map<String, Object> getReqParams() {
+
+	/**
+	 * @return
+	 */
+	public Map<String, String> getReqParams() {
 		return reqParams;
 	}
-	
+
+	/**
+	 * @return
+	 */
 	public JSON getPostData() {
 		return postData;
 	}
