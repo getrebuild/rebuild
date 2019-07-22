@@ -21,23 +21,25 @@
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/entity/approval-design.jsx" type="text/babel"></script>
+<script>
+window.__PageConfig = {
+    id: '${approvalId}'
+}
+</script>
 <script type="text/babel">
 window.resize_handler = function () {}
 $(document).ready(function() {
-    const __id = '${approvalId}'
-    const ph = (parent && parent.RbViewModal) ? parent.RbViewModal.holder(__id) : null
+    const ph = (parent && parent.RbViewModal) ? parent.RbViewModal.holder(window.__PageConfig.id) : null
     if (ph) $('.J_close').click(() => ph.hide())
     else $('.J_close').remove()
 
-	$.get(rb.baseUrl + '/app/entity/approval/flow-definition?id=' + __id, function(res) {
+	$.get(rb.baseUrl + '/app/entity/approval/flow-definition?id=' + window.__PageConfig.id, function(res) {
 		wpc = { ...res.data, preview: true }
 		renderRbcomp(<RbFlowCanvas />, 'rbflow', function() {
             ph && ph.hideLoading()
 		})
 	})
 })
-</script>
-<script>
 </script>
 </body>
 </html>
