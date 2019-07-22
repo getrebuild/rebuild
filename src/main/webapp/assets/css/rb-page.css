@@ -239,6 +239,10 @@ html.admin .admin-show.row {
     padding-left: 17px
 }
 
+.table-fixed {
+    table-layout: fixed
+}
+
 .form-group.row.text {
     padding: 6px 0;
 }

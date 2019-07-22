@@ -52,7 +52,7 @@ $(function () {
     }
   })
 
-  $(window).on('resize', function() {
+  $(window).on('resize', function () {
     $setTimeout(resize_handler, 100, 'resize-window')
   })
 })
@@ -303,4 +303,49 @@ var $unmount = function (container, delay, keepContainer) {
       if (keepContainer !== true && container.prop('tagName') !== 'BODY') container.remove()
     }, delay || 1000)
   }
+}
+
+// 初始化 select2 用户选择
+let $initUserSelect2 = function (el, multiple) {
+  var s_input = null
+  var s = $(el).select2({
+    placeholder: '选择用户',
+    minimumInputLength: 0,
+    multiple: multiple === true,
+    ajax: {
+      url: rb.baseUrl + '/commons/search/search',
+      delay: 300,
+      data: function (params) {
+        let query = {
+          entity: 'User',
+          qfields: 'loginName,fullName,email,quickCode',
+          q: params.term,
+          type: 'UDR'
+        }
+        s_input = params.term
+        return query
+      },
+      processResults: function (data) {
+        return {
+          results: data.data
+        }
+      }
+    },
+    language: {
+      noResults: function () {
+        return (s_input || '').length > 0 ? '未找到结果' : '输入用户名/邮箱搜索'
+      },
+      inputTooShort: function () {
+        return '输入用户名/邮箱搜索'
+      },
+      searching: function () {
+        return '搜索中...'
+      }
+    }
+  })
+  s.on('change.select2', function (e) {
+    let v = e.target.value
+    if (v) $.post(rb.baseUrl + '/commons/search/recently-add?type=UDR&id=' + v)
+  })
+  return s
 }

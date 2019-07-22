@@ -51,6 +51,7 @@
         "$pages": true,
         "$same": true,
         "$unmount": true,
+        "$initUserSelect2": true,
         "rb": true,
         "renderRbcomp": true,
         "RbSpinner": true,
