@@ -94,7 +94,7 @@ public class ApiGeteway extends Controll {
 		if (api == null) {
 			throw new ApiInvokeException(ApiInvokeException.ERR_BADAPI, "无效 API : " + apiName);
 		}
-		
+
 		ApiContext context = verfiy(request);
 		return api.execute(context);
 	}
