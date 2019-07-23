@@ -18,9 +18,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.utils;
 
-import java.util.regex.Pattern;
-
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.apache.commons.lang.StringUtils;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 /**
  * 通用工具类
@@ -63,6 +70,60 @@ public class CommonsUtils {
 			return text.substring(0, 4) + "**********" + text.substring(textLen - 4);
 		} else {
 			return text.substring(0, 4) + "********************" + text.substring(textLen - 4);
+		}
+	}
+
+	private static OkHttpClient okHttpClient = null;
+	/**
+	 * @return
+	 */
+	public static OkHttpClient getHttpClient() {
+		if (okHttpClient == null) {
+			okHttpClient = new OkHttpClient.Builder()
+					.retryOnConnectionFailure(false)
+					.callTimeout(15, TimeUnit.SECONDS)
+					.build();
+		}
+		return okHttpClient;
+	}
+
+	/**
+	 * @param url
+	 * @return
+	 * @throws IOException
+	 */
+	public static String get(String url) throws IOException {
+		Request request = new Request.Builder()
+				.url(url)
+				.build();
+
+		try (Response response = getHttpClient().newCall(request).execute()) {
+			return response.body().string();
+		}
+	}
+
+	/**
+	 * @param url
+	 * @param data
+	 * @return
+	 * @throws IOException
+	 */
+	public static String post(String url, Map<String, Object> data) throws IOException {
+		FormBody.Builder formBuilder = new FormBody.Builder();
+		if (data != null && !data.isEmpty()) {
+			for (Map.Entry<String, Object> e : data.entrySet()) {
+				Object v = e.getValue();
+				formBuilder.add(e.getKey(), v == null ? StringUtils.EMPTY : v.toString());
+			}
+		}
+
+		Request request = new Request.Builder()
+				.url(url)
+				.post(formBuilder.build())
+				.build();
+
+		try (Response response = getHttpClient().newCall(request).execute()) {
+			return response.body().string();
 		}
 	}
 }
