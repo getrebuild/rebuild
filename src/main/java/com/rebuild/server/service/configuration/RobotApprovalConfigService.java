@@ -102,6 +102,7 @@ public class RobotApprovalConfigService extends ConfigurationService implements 
 				.setParameter(1, configId)
 				.unique();
 		Entity entity = MetadataHelper.getEntity((String) belongEntity[0]);
+
 		String sql = String.format(
 				"select count(%s) from %s where approvalId = ? and approvalState = ?",
 				entity.getPrimaryField().getName(), entity.getName());
@@ -109,6 +110,7 @@ public class RobotApprovalConfigService extends ConfigurationService implements 
 				.setParameter(1, configId)
 				.setParameter(2, ApprovalState.PROCESSING.getState())
 				.unique();
+
 		return inUsed != null ? ObjectUtils.toInt(inUsed[0]) : 0;
 	}
 }

@@ -18,11 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.api;
 
-import java.util.Map;
-
-import com.alibaba.fastjson.JSON;
-
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
+import com.rebuild.server.service.bizz.UserService;
+
+import java.util.Map;
 
 /**
  * API 请求上下文
@@ -33,19 +33,19 @@ import cn.devezhao.persist4j.engine.ID;
 public class ApiContext {
 
 	final private String appId;
-	final private ID apiUser;
+	final private ID bindUser;
 	final private Map<String, String> reqParams;
 	final private JSON postData;
 
 	/**
 	 * @param appId
-	 * @param apiUser
+	 * @param bindUser
 	 * @param reqParams
 	 * @param postData
 	 */
-	public ApiContext(String appId, ID apiUser, Map<String, String> reqParams, JSON postData) {
+	public ApiContext(String appId, ID bindUser, Map<String, String> reqParams, JSON postData) {
 		this.appId = appId;
-		this.apiUser = apiUser;
+		this.bindUser = bindUser;
 		this.reqParams = reqParams;
 		this.postData = postData;
 	}
@@ -60,8 +60,11 @@ public class ApiContext {
 	/**
 	 * @return
 	 */
-	public ID getApiUser() {
-		return apiUser;
+	public ID getBindUser() {
+		if (bindUser == null) {
+			return UserService.SYSTEM_USER;
+		}
+		return bindUser;
 	}
 
 	/**

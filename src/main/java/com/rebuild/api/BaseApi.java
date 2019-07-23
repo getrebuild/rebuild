@@ -19,8 +19,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.api;
 
 import com.alibaba.fastjson.JSON;
-import org.apache.commons.lang.CharUtils;
-import org.apache.commons.lang.StringUtils;
 
 /**
  * 
@@ -30,14 +28,23 @@ import org.apache.commons.lang.StringUtils;
 public abstract class BaseApi extends Controll {
 
 	/**
-	 * API 名称
-	 * 
+	 * MUST!!!
+	 */
+	protected BaseApi() {
+		super();
+	}
+
+	/**
+	 * API 名称。默认使用类名（遇大写字符加 -），如 SystemTime <tt>system-time</tt>
+	 *
 	 * @return
 	 */
 	protected String getApiName() {
-		return getClass().getSimpleName();
+		String apiName = getClass().getSimpleName();
+		apiName = apiName.replaceAll("[A-Z]", "-$0").toLowerCase();
+		return apiName.substring(1);
 	}
-	
+
 	/**
 	 * API 执行
 	 * 

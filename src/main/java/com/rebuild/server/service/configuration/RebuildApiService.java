@@ -18,40 +18,36 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.configuration;
 
-import com.rebuild.server.Application;
-import com.rebuild.server.configuration.RobotTriggerManager;
-import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.bizz.privileges.AdminGuard;
-
-import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
+import com.rebuild.server.configuration.RebuildApiManager;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.bizz.privileges.AdminGuard;
 
 /**
- * 触发器
- * 
- * @author devezhao zhaofang123@gmail.com
- * @since 2019/05/24
+ * API 鉴权
+ *
+ * @author devezhao
+ * @since 2019/7/23
  */
-public class RobotTriggerConfigService extends ConfigurationService implements AdminGuard {
+public class RebuildApiService extends ConfigurationService implements AdminGuard {
 
-	protected RobotTriggerConfigService(PersistManagerFactory aPMFactory) {
-		super(aPMFactory);
-	}
-	
-	@Override
-	public int getEntityCode() {
-		return EntityHelper.RobotTriggerConfig;
-	}
-	
-	@Override
-	protected void cleanCache(ID configId) {
-		Object[] cfg = Application.createQueryNoFilter(
-				"select belongEntity from RobotTriggerConfig where configId = ?")
-				.setParameter(1, configId)
-				.unique();
-		Entity entity = MetadataHelper.getEntity((String) cfg[0]);
-		RobotTriggerManager.instance.clean(entity);
-	}
+    protected RebuildApiService(PersistManagerFactory aPMFactory) {
+        super(aPMFactory);
+    }
+
+    @Override
+    public int getEntityCode() {
+        return EntityHelper.RebuildApi;
+    }
+
+    @Override
+    protected void cleanCache(ID configId) {
+        Object[] cfg = Application.createQueryNoFilter(
+                "select appId from RebuildApi where uniqueId = ?")
+                .setParameter(1, configId)
+                .unique();
+        RebuildApiManager.instance.clean((String) cfg[0]);
+    }
 }

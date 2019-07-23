@@ -18,25 +18,28 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.api;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.RebuildApiManager;
 import com.rebuild.server.service.DataSpecificationException;
+import com.rebuild.utils.AppUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.cglib.core.ReflectUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -51,7 +54,7 @@ public class ApiGateway extends Controll {
 
 	private static final Log LOG = LogFactory.getLog(ApiGateway.class);
 
-	@RequestMapping("/gw/api/{apiName.*}")
+	@RequestMapping("/gw/api/{apiName}")
 	public void api(@PathVariable String apiName,
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
 
@@ -90,48 +93,54 @@ public class ApiGateway extends Controll {
 	 */
 	protected JSON doApi(String apiName, HttpServletRequest request) throws ApiInvokeException, IOException {
 		BaseApi api = newApi(apiName);
-		if (api == null) {
-			throw new ApiInvokeException(ApiInvokeException.ERR_BADAPI, "无效 API : " + apiName);
+		ApiContext context = verfiy(request.getParameterMap(), ServletUtils.getRequestString(request));
+
+		if (context.getBindUser() != null) {
+			Application.getSessionStore().set(context.getBindUser());
 		}
 
-		ApiContext context = verfiy(request);
-		return api.execute(context);
+		try {
+			return api.execute(context);
+		} finally {
+			Application.getSessionStore().clean();
+		}
 	}
 
 	/**
 	 * 验证请求并构建请求上下文
 	 *
-	 * @param request
+	 * @param parameterMap
+	 * @param post
 	 * @return
 	 * @throws IOException
 	 */
-	protected ApiContext verfiy(HttpServletRequest request) throws IOException {
-		Enumeration names = request.getParameterNames();
-		Map<String, String> sortMap = new TreeMap<>();
-		while (names.hasMoreElements()) {
-			String name = (String) names.nextElement();
-			sortMap.put(name, request.getParameter(name));
+	protected ApiContext verfiy(Map<String, String[]> parameterMap, String post) throws IOException {
+		Map<String, String> sortedMap = new TreeMap<>();
+		for (Map.Entry<String, String[]> e : parameterMap.entrySet()) {
+			String vv[] = e.getValue();
+			sortedMap.put(e.getKey(), vv == null || vv.length == 0 ? null : vv[0]);
 		}
 
-		String appid = getParameterNotNull(sortMap,"appid");
+		String appid = getParameterNotNull(sortedMap,"appid");
 		ConfigEntry apiConfig = RebuildApiManager.instance.getApp(appid);
 		if (apiConfig == null) {
 			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "无效 appid=" + appid);
 		}
-		String timestamp = getParameterNotNull(sortMap,"timestamp");
+
+		String timestamp = getParameterNotNull(sortedMap,"timestamp");
 		long systemTime = System.currentTimeMillis() / 1000;
-		if (Math.abs(systemTime - ObjectUtils.toLong(timestamp)) > 6) {
+		if (Math.abs(systemTime - ObjectUtils.toLong(timestamp)) > (AppUtils.devMode() ? 100 : 10)) {
 			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "无效 timestamp=" + appid);
 		}
 
 		// 验证签名
 
-		final String sign = getParameterNotNull(sortMap,"sign");
-		sortMap.remove("sign");
+		final String sign = getParameterNotNull(sortedMap,"sign");
+		sortedMap.remove("sign");
 
-		String signType = getParameterNotNull(sortMap,"sign_type");
+		String signType = getParameterNotNull(sortedMap,"sign_type");
 		StringBuffer sign2 = new StringBuffer();
-		for (Map.Entry<String, String> e : sortMap.entrySet()) {
+		for (Map.Entry<String, String> e : sortedMap.entrySet()) {
 			sign2.append(e.getKey())
 					.append('=')
 					.append(e.getValue())
@@ -147,19 +156,16 @@ public class ApiGateway extends Controll {
 		} else if ("SHA1".equals(signType)) {
 			sign2sign = EncryptUtils.toSHA1Hex(sign2.toString());
 		} else {
-			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "无效 signType=" + signType);
+			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "无效 sign_type=" + signType);
 		}
 
 		if (!sign.equals(sign2sign)) {
-			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "无效 sign=" + sign);
+			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "无效签名 sign=" + sign);
 		}
 
-		JSON posted = null;
-		if ("POST".equalsIgnoreCase(request.getMethod())) {
-			posted = ServletUtils.getRequestJson(request);
-		}
-
-		ApiContext context = new ApiContext(appid, null, sortMap, posted);
+		JSON postJson = post != null ? (JSON) JSON.parse(post) : null;
+		ID bindUser = apiConfig.getID("bindUser");
+		ApiContext context = new ApiContext(appid, bindUser, sortedMap, postJson);
 		return context;
 	}
 
@@ -181,6 +187,31 @@ public class ApiGateway extends Controll {
 	 * @return
 	 */
 	protected BaseApi newApi(String apiName) {
-		return null;
+		if (!API_CLASSES.containsKey(apiName)) {
+			throw new ApiInvokeException(ApiInvokeException.ERR_BADAPI, "无效 API : " + apiName);
+		}
+		return (BaseApi) ReflectUtils.newInstance(API_CLASSES.get(apiName));
+	}
+
+	// -- 注册 API
+
+	private static final Map<String, Class<? extends BaseApi>> API_CLASSES = new HashMap<>();
+
+	/**
+	 * @param clazz
+	 */
+	public static void registerApi(Class<? extends BaseApi> clazz) {
+		BaseApi api = (BaseApi) ReflectUtils.newInstance(clazz);
+		String apiName = api.getApiName();
+		if (API_CLASSES.containsKey(apiName)) {
+			LOG.warn("Replaced API : " + apiName);
+		}
+
+		API_CLASSES.put(apiName, clazz);
+		LOG.info("New API registered : " + apiName);
+	}
+
+	static {
+		registerApi(SystemTime.class);
 	}
 }

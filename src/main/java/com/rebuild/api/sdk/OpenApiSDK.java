@@ -18,13 +18,18 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.api.sdk;
 
-import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.EncryptUtils;
 import com.alibaba.fastjson.JSON;
-import org.apache.tools.ant.taskdefs.Get;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * OpenAPI SDK for Rebuild. 建议单例使用
@@ -37,6 +42,10 @@ public class OpenApiSDK {
     private String appId;
     private String appSecret;
 
+    private OkHttpClient okHttpClient;
+
+    private static final MediaType JSON_TYPE = MediaType.get("application/json; charset=utf-8");
+
     /**
      * @param appId
      * @param appSecret
@@ -44,6 +53,11 @@ public class OpenApiSDK {
     public OpenApiSDK(String appId, String appSecret) {
         this.appId = appId;
         this.appSecret = appSecret;
+
+        this.okHttpClient = new OkHttpClient().newBuilder()
+                .retryOnConnectionFailure(false)
+                .callTimeout(5, TimeUnit.SECONDS)
+                .build();
     }
 
     /**
@@ -101,19 +115,36 @@ public class OpenApiSDK {
     /**
      * @param url
      * @return
+     * @throws IOException
      */
-    public JSON get(String url) {
-        // TODO
-        return null;
+    public JSON get(String url) throws IOException {
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        try (Response response = okHttpClient.newCall(request).execute()) {
+            String resp = response.body().string();
+            return (JSON) JSON.parse(resp);
+        }
     }
 
     /**
      * @param url
      * @param post
      * @return
+     * @throws IOException
      */
-    public JSON post(String url, JSON post) {
-        // TODO
-        return null;
+    public JSON post(String url, JSON post) throws IOException {
+        RequestBody body = RequestBody.create(post.toJSONString(), JSON_TYPE);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+
+        try (Response response = okHttpClient.newCall(request).execute()) {
+            String resp = response.body().string();
+            return (JSON) JSON.parse(resp);
+        }
     }
 }

@@ -23,6 +23,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.configuration.RebuildApiService;
 import com.rebuild.web.BasePageControll;
 import org.apache.commons.lang.math.RandomUtils;
 import org.springframework.stereotype.Controller;
@@ -66,7 +67,7 @@ public class ApisManagerControll extends BasePageControll {
         record.setString("appId", (100000000 + RandomUtils.nextInt(899999999)) + "");
         record.setString("appSecret", CodecUtils.randomCode(40));
         record.setID("bindUser", bindUser);
-        Application.getCommonService().create(record);
+        Application.getBean(RebuildApiService.class).create(record);
         writeSuccess(response);
     }
 
@@ -74,7 +75,7 @@ public class ApisManagerControll extends BasePageControll {
     public void appDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ID user = getRequestUser(request);
         ID id = getIdParameterNotNull(request, "id");
-        Application.getCommonService().delete(id);
+        Application.getBean(RebuildApiService.class).delete(id);
         writeSuccess(response);
     }
 }

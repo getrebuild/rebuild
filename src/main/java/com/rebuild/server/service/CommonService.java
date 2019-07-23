@@ -129,6 +129,8 @@ public class CommonService extends BaseService {
 	}
 	
 	/**
+	 * 业务实体禁止调用此类
+	 *
 	 * @param idOrRecord
 	 * @throws PrivilegesException
 	 */
