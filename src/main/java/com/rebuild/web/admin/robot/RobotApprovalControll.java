@@ -18,15 +18,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.admin.robot;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.configuration.RobotApprovalConfigService;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.web.BasePageControll;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -34,13 +35,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.rebuild.server.Application;
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entity.EasyMeta;
-import com.rebuild.web.BasePageControll;
-
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.engine.ID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -86,7 +83,7 @@ public class RobotApprovalControll extends BasePageControll {
 		if (StringUtils.isNotBlank(belongEntity)) {
 			sql += " and belongEntity = '" + StringEscapeUtils.escapeSql(belongEntity) + "'";
 		}
-		sql += " order by name";
+		sql += " order by name, modifiedOn desc";
 
 		boolean disabled = getBoolParameter(request, "disabled", false);
 		Object[][] array = Application.createQuery(sql).setParameter(1, disabled).array();

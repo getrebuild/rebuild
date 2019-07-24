@@ -349,6 +349,8 @@ create table if not exists `robot_trigger_config` (
   `ACTION_TYPE`        varchar(50) not null comment '预定义的触发操作类型',
   `ACTION_CONTENT`     text(21845) comment '预定义的触发操作类型, JSON KV 对',
   `PRIORITY`           int(11) default '1' comment '执行优先级, 越大越高(越先执行)',
+  `NAME`               varchar(100) comment '触发器名称',
+  `IS_DISABLED`        char(1) default 'F' comment '是否停用',
   `MODIFIED_ON`        timestamp not null comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
@@ -458,4 +460,4 @@ INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version
 INSERT INTO `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`) 
-  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 8);
+  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 9);

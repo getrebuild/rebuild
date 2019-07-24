@@ -228,6 +228,8 @@
 		<field name="actionType" type="string" max-length="50" nullable="false" description="预定义的触发操作类型" />
 		<field name="actionContent" type="text" description="预定义的触发操作类型, JSON KV 对" />
 		<field name="priority" type="int" default-value="1" description="执行优先级, 越大越高(越先执行)" />
+		<field name="name" type="string" max-length="100" description="触发器名称" />
+		<field name="isDisabled" type="bool" default-value="F" description="是否停用" />
 	</entity>
 
 	<entity name="RobotApprovalConfig" type-code="028" name-field="name" description="审批流程">

@@ -1,6 +1,11 @@
 -- Database upgrade scripts for rebuild 1.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #9 Add name and isDisabled to RobotTriggerConfig (v1.4)
+alter table `robot_trigger_config`
+    add column `NAME` varchar(100) comment '触发器名称',
+    add column `IS_DISABLED` char(1) default 'F' comment '是否停用';
+
 -- #8 API (v1.4)
 -- ************ Entity [RebuildApi] DDL ************
 create table if not exists `rebuild_api` (
