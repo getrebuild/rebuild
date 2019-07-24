@@ -21,7 +21,7 @@ class AppList extends React.Component {
           <td>{secret}</td>
           <td>{item[4] || '无 (拥有全部权限)'}</td>
           <td>{item[5]}</td>
-          <td>0</td>
+          <td>{item[6] || 0}</td>
           <td className="actions"><a className="icon" onClick={() => this.delete(item[0])}><i className="zmdi zmdi-delete" /></a></td>
         </tr>
       })}

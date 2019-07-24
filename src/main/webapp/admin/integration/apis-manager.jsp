@@ -40,7 +40,7 @@
                                                 <th width="30%">APP SECRET</th>
                                                 <th>绑定用户</th>
                                                 <th width="15%">创建时间</th>
-                                                <th>使用统计</th>
+                                                <th>使用统计 (30日)</th>
                                                 <th width="50"></th>
                                             </tr>
                                         </thead>

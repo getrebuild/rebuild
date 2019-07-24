@@ -31,15 +31,15 @@ public class ApiInvokeException extends RebuildException {
     // 内部错误
     public static final int ERR_SERVER = 500;
     // 业务错误
-    public static final int ERR_BIZ = 600;
+    public static final int ERR_BIZ = 400;
     // 鉴权错误
-    public static final int ERR_BADAUTH = 601;
+    public static final int ERR_BADAUTH = 401;
     // 无效API
-    public static final int ERR_BADAPI = 603;
+    public static final int ERR_BADAPI = 402;
     // 参数错误
-    public static final int ERR_BADPARAMS = 604;
+    public static final int ERR_BADPARAMS = 410;
     // 违反数据约束
-    public static final int ERR_UNDATA = 605;
+    public static final int ERR_DATASPEC = 420;
 
 
     private int errorCode = ERR_BIZ;

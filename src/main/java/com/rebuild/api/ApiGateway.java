@@ -18,15 +18,19 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.api;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.RebuildApiManager;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
+import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.utils.AppUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -39,6 +43,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -58,52 +63,42 @@ public class ApiGateway extends Controll {
 	public void api(@PathVariable String apiName,
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
 
+		final Date reuqestTime = CalendarUtils.now();
+		final String remoteIp = ServletUtils.getRemoteAddr(request);
+
 		int errorCode = 0;
 		String errorMsg = null;
 
+		ApiContext context = null;
 		try {
-			JSON data = doApi(apiName, request);
+			BaseApi api = createApi(apiName);
+			context = verfiy(request.getParameterMap(), ServletUtils.getRequestString(request));
+			if (context.getBindUser() != null) {
+				Application.getSessionStore().set(context.getBindUser());
+			}
+
+			JSON data = api.execute(context);
 			JSON ok = formatSuccess(data);
 			ServletUtils.writeJson(response, ok.toJSONString());
+			logRequestAsync(reuqestTime, remoteIp, apiName, context, ok);
+			return;
+
 		} catch (ApiInvokeException ex) {
 			errorCode = ex.getErrorCode();
 			errorMsg = ex.getErrorMsg();
 		} catch (DataSpecificationException ex) {
-			errorCode = ApiInvokeException.ERR_UNDATA;
+			errorCode = ApiInvokeException.ERR_DATASPEC;
 			errorMsg = ex.getLocalizedMessage();
 		} catch (Throwable ex) {
 			errorCode = ApiInvokeException.ERR_SERVER;
 			errorMsg = ex.getLocalizedMessage();
-		}
-
-		if (errorCode > 0) {
-			JSON error = formatFailure(errorCode, errorMsg == null ? "未知错误" : errorMsg);
-			ServletUtils.writeJson(response, error.toJSONString());
-		}
-	}
-
-	/**
-	 * API 执行
-	 *
-	 * @param apiName
-	 * @param request
-	 * @return
-	 * @throws ApiInvokeException
-	 * @throws IOException
-	 */
-	protected JSON doApi(String apiName, HttpServletRequest request) throws ApiInvokeException, IOException {
-		BaseApi api = newApi(apiName);
-		ApiContext context = verfiy(request.getParameterMap(), ServletUtils.getRequestString(request));
-
-		if (context.getBindUser() != null) {
-			Application.getSessionStore().set(context.getBindUser());
-		}
-
-		try {
-			return api.execute(context);
 		} finally {
 			Application.getSessionStore().clean();
 		}
+
+		JSON err = formatFailure(errorCode, errorMsg == null ? "服务内部错误" : errorMsg);
+		ServletUtils.writeJson(response, err.toJSONString());
+		logRequestAsync(reuqestTime, remoteIp, apiName, context, err);
 	}
 
 	/**
@@ -186,11 +181,38 @@ public class ApiGateway extends Controll {
 	 * @param apiName
 	 * @return
 	 */
-	protected BaseApi newApi(String apiName) {
+	protected BaseApi createApi(String apiName) {
 		if (!API_CLASSES.containsKey(apiName)) {
 			throw new ApiInvokeException(ApiInvokeException.ERR_BADAPI, "无效 API : " + apiName);
 		}
 		return (BaseApi) ReflectUtils.newInstance(API_CLASSES.get(apiName));
+	}
+
+	/**
+	 * 记录请求日志
+	 *
+	 * @param requestTime
+	 * @param remoteIp
+	 * @param apiName
+	 * @param context
+	 * @param result
+	 */
+	protected void logRequestAsync(Date requestTime, String remoteIp, String apiName, ApiContext context, JSON result) {
+		if (context == null || result == null) {
+			return;
+		}
+
+		Record record = EntityHelper.forNew(EntityHelper.RebuildApiRequest, UserService.SYSTEM_USER);
+		record.setString("appId", context.getAppId());
+		record.setString("remoteIp", remoteIp);
+		record.setString("requestUrl", apiName + " " + context.getReqParams());
+		if (context.getPostData() != null) {
+			record.setString("requestBody", context.getPostData().toJSONString());
+		}
+		record.setString("responseBody", result.toJSONString());
+		record.setDate("requestTime", requestTime);
+		record.setDate("responseTime", CalendarUtils.now());
+		Application.getCommonService().create(record);
 	}
 
 	// -- 注册 API

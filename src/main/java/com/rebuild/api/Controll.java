@@ -18,17 +18,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.api;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
+import cn.devezhao.persist4j.Record;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.alibaba.fastjson.JSONObject;
-
-import cn.devezhao.persist4j.Record;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * 响应前端/外部请求
@@ -38,19 +36,11 @@ import cn.devezhao.persist4j.Record;
  */
 public abstract class Controll {
 
-	/**
-	 * OK
-	 */
+	// OK
 	public static final int CODE_OK = 0;
-	/**
-	 * 业务错误
-	 */
-	public static final int CODE_FAIL = 600;
-	/**
-	 * 系统异常
-	 */
-	public static final int CODE_ERROR = 999;
-	
+	// 错误
+	public static final int CODE_ERROR = 400;
+
 	/**
 	 * Logging
 	 */

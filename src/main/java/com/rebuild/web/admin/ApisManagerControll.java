@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.admin;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -53,8 +54,20 @@ public class ApisManagerControll extends BasePageControll {
     public void appList(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ID user = getRequestUser(request);
         Object[][] apps = Application.createQueryNoFilter(
-                "select uniqueId,appId,appSecret,bindUser,bindUser.fullName,createdOn from RebuildApi")
+                "select uniqueId,appId,appSecret,bindUser,bindUser.fullName,createdOn,appId from RebuildApi")
                 .array();
+
+        // 近30日用量
+        for (Object[] o : apps) {
+            String appid = (String) o[6];
+            Object[] count = Application.createQueryNoFilter(
+                    "select count(requestId) from RebuildApiRequest where appId = ? and requestTime > ?")
+                    .setParameter(1, appid)
+                    .setParameter(2, CalendarUtils.addDay(-30))
+                    .unique();
+            o[6] = count[0];
+        }
+
         writeSuccess(response, apps);
     }
 
