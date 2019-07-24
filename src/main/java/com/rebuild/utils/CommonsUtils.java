@@ -24,7 +24,12 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -125,5 +130,35 @@ public class CommonsUtils {
 		try (Response response = getHttpClient().newCall(request).execute()) {
 			return response.body().string();
 		}
+	}
+
+	/**
+	 * 读取二进制数据
+	 *
+	 * @param url
+	 * @param dest
+	 * @return
+	 * @throws IOException
+	 */
+	public static boolean readBinary(String url, File dest) throws IOException {
+		Request request = new Request.Builder()
+				.url(url)
+				.build();
+
+		try (Response response = getHttpClient().newCall(request).execute()) {
+			try (InputStream is = response.body().byteStream()) {
+				try (BufferedInputStream bis = new BufferedInputStream(is)) {
+					try (OutputStream os = new FileOutputStream(dest)) {
+						byte[] chunk = new byte[1024];
+						int count = 0;
+						while ((count = bis.read(chunk)) != -1) {
+							os.write(chunk, 0, count);
+						}
+						os.flush();
+					}
+				}
+			}
+		}
+		return true;
 	}
 }
