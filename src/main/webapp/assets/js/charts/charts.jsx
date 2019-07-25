@@ -113,8 +113,10 @@ class ChartTable extends BaseChart {
     })
   }
   resize() {
-    let ct = this.__ctable
-    if (ct) ct.find('.ctable').css('height', ct.height() - 20)
+    $setTimeout(()=>{
+      let ct = this.__ctable
+      if (ct) ct.find('.ctable').css('height', ct.height() - 20)
+    }, 400, 'resize-chart-' + this.state.id)
   }
 }
 

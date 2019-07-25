@@ -298,12 +298,11 @@ public abstract class ChartData {
 			return "0";
 		}
 
-		// 数字直接返回
-		if (value instanceof Number) {
+		if (sumOfAxis instanceof Numerical) {
+			return wrapAxisValue((Numerical) sumOfAxis, value);
+		} else {
 			return value.toString();
 		}
-
-		return wrapAxisValue(sumOfAxis, value);
 	}
 	
 	/**

@@ -60,7 +60,8 @@ public class TableChart extends ChartData {
 		
 		String sql = buildSql(dims, nums);
 		Object[][] dataRaw = createQuery(sql).array();
-		
+
+		// 行号
 		if (this.showLineNumber && dataRaw.length > 0) {
 			for (int i = 0; i < dataRaw.length; i++) {
 				Object[] row = dataRaw[i];
@@ -70,6 +71,8 @@ public class TableChart extends ChartData {
 				dataRaw[i] = rowLN;
 			}
 		}
+
+		// 汇总
 		if (this.showSums && dataRaw.length > 0) {
 			Object[][] dataRawNew = new Object[dataRaw.length + 1][];
 			System.arraycopy(dataRaw, 0, dataRawNew, 0, dataRaw.length);
@@ -81,7 +84,7 @@ public class TableChart extends ChartData {
 				if (i == 0 && this.showLineNumber) {
 					sumsRow[i] = StringUtils.EMPTY;
 				} else {
-					sumsRow[i] = dataRawNew.length - (this.showLineNumber ? 1 : 0);
+					sumsRow[i] = dataRaw.length;
 				}
 			}
 			for (int i = numericalIndexStart; i < colLength; i++) {
