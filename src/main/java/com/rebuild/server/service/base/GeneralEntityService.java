@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Observer;
 import java.util.Set;
 
-import cn.devezhao.bizz.privileges.PrivilegesException;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.service.DataSpecificationException;
@@ -41,7 +40,7 @@ import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
-import com.rebuild.server.metadata.entityhub.DisplayType;
+import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.service.BaseService;
 import com.rebuild.server.service.ObservableService;
 import com.rebuild.server.service.OperatingContext;

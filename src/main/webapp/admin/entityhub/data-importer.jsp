@@ -141,7 +141,7 @@
 										</div>
 										<div class="mt-3">
 											<button class="btn btn-danger J_step3-cancel" type="button">终止导入</button>
-											<a class="btn btn-link J_step3-logs hide" href="importer">继续导入</a>
+											<a class="btn btn-link J_step3-logs hide" href="data-importer">继续导入</a>
 										</div>
 									</form>
 								</div>

@@ -18,25 +18,23 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.utils;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.parser.Feature;
+import java.io.File;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
- * 
  * @author devezhao
  * @since 01/31/2019
  */
@@ -62,6 +60,18 @@ public class CommonsUtilsTest {
 		for (String t : ts) {
 			System.out.println(t + " > " + CommonsUtils.stars(t));
 		}
+	}
+
+	@Test
+	public void testGet() throws Exception {
+		String ret = CommonsUtils.get("http://ip.taobao.com/service/getIpInfo.php?ip=8.8.8.8");
+		System.out.println(ret);
+	}
+
+	@Test
+	public void testPost() throws Exception {
+		String ret = CommonsUtils.post("http://ip.taobao.com/service/getIpInfo.php?ip=8.8.8.8", null);
+		System.out.println(ret);
 	}
 	
 	@Ignore

@@ -18,19 +18,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.rbstore;
 
-import java.io.File;
-import java.net.URL;
-
+import cn.devezhao.commons.CodecUtils;
+import com.alibaba.fastjson.JSON;
+import com.rebuild.server.RebuildException;
+import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.alibaba.fastjson.JSON;
-import com.rebuild.server.RebuildException;
-import com.rebuild.server.helper.QiniuCloud;
-import com.rebuild.server.helper.SysConfiguration;
-
-import cn.devezhao.commons.CodecUtils;
+import java.io.File;
 
 /**
  * RB 在线元数据仓库
@@ -79,11 +76,10 @@ public class RBStore {
 		File tmp = SysConfiguration.getFileOfTemp("rbstore." + CodecUtils.randomCode(6));
 		JSON d = null;
 		try {
-			if (QiniuCloud.instance().download(new URL(fileUrl), tmp)) {
-				String t2str = FileUtils.readFileToString(tmp, "utf-8");
-				d = (JSON) JSON.parse(t2str);
-				tmp.delete();
-			}
+			CommonsUtils.readBinary(fileUrl, tmp);
+			String t2str = FileUtils.readFileToString(tmp, "utf-8");
+			d = (JSON) JSON.parse(t2str);
+			tmp.delete();
 		} catch (Exception e) {
 			LOG.error("Fetch failure from URL : " + fileUrl, e);
 		}

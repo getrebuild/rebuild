@@ -49,7 +49,7 @@ class GridList extends React.Component {
     const dest = $('.dept-tree ul')
     const ues = []
     $(this.state.list).each(function () {
-      if (!ues.contains(this[3])) $('<li data-entity="' + this[2] + '"><a class="text-truncate">' + this[3] + '</a></li>').appendTo(dest)
+      if (!ues.contains(this[2])) $('<li data-entity="' + this[2] + '"><a class="text-truncate">' + this[3] + '</a></li>').appendTo(dest)
       ues.push(this[2])
     })
     $('<li data-entity="$DISABLED$"><a class="text-truncate">已禁用的</a></li>').appendTo(dest)
@@ -63,7 +63,7 @@ class GridList extends React.Component {
   }
 
   delete(configId) {
-    RbAlert.create('如果此流程正在被使用则不能删除，建议你将其禁用。<br>确认删除吗？', {
+    RbAlert.create('若流程正在使用则不能删除，建议你将其禁用。<br>确认删除此审批流程吗？', {
       html: true,
       type: 'danger',
       confirmText: '删除',

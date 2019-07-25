@@ -1,6 +1,6 @@
 /*
 rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,23 +16,28 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.metadata.entityhub;
+package com.rebuild.server.metadata.entity;
+
+import com.rebuild.server.RebuildException;
 
 /**
- * 状态字段
+ * 修改元数据异常
  * 
- * @author devezhao zhaofang123@gmail.com
- * @since 2019/07/05
+ * @author devezhao
+ * @since 11/16/2018
  */
-public interface State {
+public class ModifiyMetadataException extends RebuildException {
+	private static final long serialVersionUID = 1552569207578832059L;
+
+	public ModifiyMetadataException(String message) {
+		super(message);
+	}
+
+	public ModifiyMetadataException(Throwable cause) {
+		super(cause);
+	}
 	
-	/**
-	 * @return
-	 */
-	int getState();
-	
-	/**
-	 * @return
-	 */
-	String getName();
+	public ModifiyMetadataException(String msg, Throwable cause) {
+		super(msg, cause);
+	}
 }

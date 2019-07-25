@@ -16,17 +16,15 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.admin;
+package com.rebuild.web.admin.entityhub;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-
+import com.rebuild.web.BaseEntityControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.rebuild.web.BaseEntityControll;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 /**
  * 
@@ -34,11 +32,11 @@ import com.rebuild.web.BaseEntityControll;
  * @since 11/01/2018
  */
 @Controller
-@RequestMapping("/admin/")
-public class AuditLoggingControll extends BaseEntityControll {
+@RequestMapping("/admin/entityhub/")
+public class AuditLogsControll extends BaseEntityControll {
 
-	@RequestMapping("audit-logging")
+	@RequestMapping("audit-logs")
 	public ModelAndView pageLogging(HttpServletRequest request) throws IOException {
-		return createModelAndView("/admin/audit/logging.jsp");
+		return createModelAndView("/admin/entityhub/audit-logs.jsp");
 	}
 }

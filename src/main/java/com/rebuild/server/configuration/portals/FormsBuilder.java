@@ -19,7 +19,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.configuration.portals;
 
 import cn.devezhao.bizz.privileges.Permission;
-import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -35,9 +34,8 @@ import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entityhub.DisplayType;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.server.service.DataSpecificationException;
+import com.rebuild.server.metadata.entity.DisplayType;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.base.GeneralEntityService;
 import com.rebuild.server.service.bizz.privileges.User;
 import org.apache.commons.lang.StringUtils;

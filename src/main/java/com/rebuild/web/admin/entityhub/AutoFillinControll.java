@@ -34,7 +34,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.configuration.AutoFillinConfigService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;

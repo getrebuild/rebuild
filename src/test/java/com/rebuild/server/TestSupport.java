@@ -30,9 +30,9 @@ import org.junit.BeforeClass;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.business.rbstore.MetaschemaImporter;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entityhub.DisplayType;
-import com.rebuild.server.metadata.entityhub.Entity2Schema;
-import com.rebuild.server.metadata.entityhub.Field2Schema;
+import com.rebuild.server.metadata.entity.DisplayType;
+import com.rebuild.server.metadata.entity.Entity2Schema;
+import com.rebuild.server.metadata.entity.Field2Schema;
 import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.persist4j.Entity;

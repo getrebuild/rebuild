@@ -25,7 +25,7 @@ import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.business.approval.FlowNode;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.BaseService;
 import com.rebuild.server.service.notification.MessageBuilder;
 

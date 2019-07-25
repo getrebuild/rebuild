@@ -46,7 +46,7 @@ import cn.devezhao.persist4j.engine.ID;
  * @since 2019/03/27
  */
 @Controller
-@RequestMapping("/admin/")
+@RequestMapping("/admin/entityhub/")
 public class ClassificationControll extends BasePageControll {
 	
 	@RequestMapping("classifications")

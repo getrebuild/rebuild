@@ -30,7 +30,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataSorter;
-import com.rebuild.server.metadata.entityhub.DisplayType;
+import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.OperatingObserver;
 import com.rebuild.utils.JSONUtils;

@@ -19,7 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.business.series;
 
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.metadata.entity.EasyMeta;
 
 import cn.devezhao.persist4j.Field;
 

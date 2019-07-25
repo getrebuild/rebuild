@@ -51,9 +51,7 @@ public class RobotTriggerConfigService extends ConfigurationService implements A
 				"select belongEntity from RobotTriggerConfig where configId = ?")
 				.setParameter(1, configId)
 				.unique();
-		if (cfg != null) {
-			Entity entity = MetadataHelper.getEntity((String) cfg[0]);
-			RobotTriggerManager.instance.clean(entity);
-		}
+		Entity entity = MetadataHelper.getEntity((String) cfg[0]);
+		RobotTriggerManager.instance.clean(entity);
 	}
 }

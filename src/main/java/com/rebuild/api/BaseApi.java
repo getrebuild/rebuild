@@ -21,26 +21,37 @@ package com.rebuild.api;
 import com.alibaba.fastjson.JSON;
 
 /**
- * 
+ * API 基类
+ *
  * @author devezhao
  * @since 01/10/2019
  */
 public abstract class BaseApi extends Controll {
 
 	/**
-	 * API 名称
-	 * 
+	 * MUST!!!
+	 */
+	protected BaseApi() {
+		super();
+	}
+
+	/**
+	 * API 名称。默认使用类名（遇大写字符加 -），如 SystemTime <tt>system-time</tt>
+	 *
 	 * @return
 	 */
 	protected String getApiName() {
-		return getClass().getSimpleName();
+		String apiName = getClass().getSimpleName();
+		apiName = apiName.replaceAll("[A-Z]", "-$0").toLowerCase();
+		return apiName.substring(1);
 	}
-	
+
 	/**
-	 * API 执行
-	 * 
+	 * API 执行。所有错误应直接抛出 {@link ApiInvokeException} 异常，并在异常中写明原因
+	 *
 	 * @param context
 	 * @return
+	 * @throws ApiInvokeException
 	 */
-	abstract public JSON execute(ApiContext context);
+	abstract public JSON execute(ApiContext context) throws ApiInvokeException;
 }
