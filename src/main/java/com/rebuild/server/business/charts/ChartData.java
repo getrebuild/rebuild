@@ -227,9 +227,10 @@ public abstract class ChartData {
 	 * @param value
 	 * @return
 	 */
-	protected String warpAxisValue(Axis axis, Object value) {
-		return axis instanceof Numerical ? warpAxisValue((Numerical) axis, value)
-				: warpAxisValue((Dimension) axis, value);  
+	protected String wrapAxisValue(Axis axis, Object value) {
+		return axis instanceof Numerical
+				? wrapAxisValue((Numerical) axis, value)
+				: wrapAxisValue((Dimension) axis, value);
 	}
 	
 	/**
@@ -239,7 +240,7 @@ public abstract class ChartData {
 	 * @param value
 	 * @return
 	 */
-	protected String warpAxisValue(Numerical axis, Object value) {
+	protected String wrapAxisValue(Numerical axis, Object value) {
 		if (value == null) {
 			return "0";
 		}
@@ -263,25 +264,46 @@ public abstract class ChartData {
 	 * @param value
 	 * @return
 	 */
-	protected String warpAxisValue(Dimension axis, Object value) {
+	protected String wrapAxisValue(Dimension axis, Object value) {
 		if (value == null) {
 			return "无";
 		}
-		
+
 		EasyMeta axisField = EasyMeta.valueOf(axis.getField());
 		DisplayType axisType = axisField.getDisplayType();
 		
 		String label = null;
 		if (axisType == DisplayType.REFERENCE) {
 			label = FieldValueWrapper.getLabel((ID) value);
-		} else if (axisType == DisplayType.BOOL 
+		} else if (axisType == DisplayType.BOOL
 				|| axisType == DisplayType.PICKLIST 
-				|| axisType == DisplayType.CLASSIFICATION) {
+				|| axisType == DisplayType.CLASSIFICATION
+				|| EntityHelper.ApprovalState.equalsIgnoreCase(axisField.getName())) {
 			label = (String) FieldValueWrapper.instance.wrapFieldValue(value, axisField);
 		} else {
 			label = value.toString();
 		}
 		return label;
+	}
+
+	/**
+	 * 格式化汇总数值
+	 *
+	 * @param sumOfAxis
+	 * @param value
+	 * @return
+	 */
+	protected String wrapSumValue(Axis sumOfAxis, Object value) {
+		if (value == null) {
+			return "0";
+		}
+
+		// 数字直接返回
+		if (value instanceof Number) {
+			return value.toString();
+		}
+
+		return wrapAxisValue(sumOfAxis, value);
 	}
 	
 	/**

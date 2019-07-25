@@ -36,6 +36,7 @@
 
 .grid-stack>.grid-stack-item>.grid-stack-item-content {
     overflow: hidden;
+    overflow: unset;
 }
 
 .grid-stack .grid-stack-placeholder>.placeholder-content {

@@ -50,8 +50,8 @@ public class PieChart extends ChartData {
 		
 		JSONArray dataJson = new JSONArray();
 		for (Object[] o : dataRaw) {
-			o[0] = warpAxisValue(dim1, o[0]);
-			o[1] = warpAxisValue(num1, o[1]);
+			o[0] = wrapAxisValue(dim1, o[0]);
+			o[1] = wrapAxisValue(num1, o[1]);
 			JSON d = JSONUtils.toJSONObject(new String[] { "name", "value" }, o);
 			dataJson.add(d);
 		}

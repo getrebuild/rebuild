@@ -31,7 +31,7 @@ class AdvFilter extends React.Component {
     }
 
     let advFilter = (
-      <div className={'adv-filter-warp ' + (this.props.inModal ? 'in-modal' : 'shadow rounded')}>
+      <div className={'adv-filter-wrap ' + (this.props.inModal ? 'in-modal' : 'shadow rounded')}>
         <div className="adv-filter">
           <div className="filter-items" onKeyPress={this.searchByKey}>
             {(this.state.items || []).map((item) => {

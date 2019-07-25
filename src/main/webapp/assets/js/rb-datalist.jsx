@@ -632,7 +632,7 @@ class RbViewModal extends React.Component {
 
   render() {
     return (this.state.isDestroy === true ? null :
-      <div className="modal-warpper">
+      <div className="modal-wrapper">
         <div className="modal rbview" ref={(c) => this._rbview = c}>
           <div className="modal-dialog">
             <div className="modal-content" style={{ width: this.mcWidth + 'px' }}>
@@ -649,7 +649,7 @@ class RbViewModal extends React.Component {
 
   componentDidMount() {
     let root = $(this._rbview)
-    const rootWarp = root.parent().parent()
+    const rootWrap = root.parent().parent()
     let mc = root.find('.modal-content')
     let that = this
     root.on('hidden.bs.modal', function () {
@@ -668,7 +668,7 @@ class RbViewModal extends React.Component {
         root.modal('dispose')
         that.setState({ isDestroy: true }, () => {
           RbViewModal.holder(that.state.id, 'DISPOSE')
-          $unmount(rootWarp)
+          $unmount(rootWrap)
           // 刷新主实体窗口
           // 打开的子View窗口数据发生了变化（如删除/更新）
         })

@@ -126,7 +126,7 @@ public class TableChart extends ChartData {
 		if (dimSqlItems.isEmpty()) {
 			sql = "select {1} from {2} where {3}";
 		} else if (numSqlItems.isEmpty()) {
-			sql = "select {0} from {2} where {3}";
+			sql = "select {0} from {2} where {3} group by {0}";
 		}
 		sql = MessageFormat.format(sql,
 				StringUtils.join(dimSqlItems, ", "),
