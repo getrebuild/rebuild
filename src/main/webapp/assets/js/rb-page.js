@@ -306,7 +306,7 @@ var $unmount = function (container, delay, keepContainer) {
 }
 
 // 初始化 select2 用户选择
-let $initUserSelect2 = function (el, multiple) {
+var $initUserSelect2 = function (el, multiple) {
   var s_input = null
   var s = $(el).select2({
     placeholder: '选择用户',
@@ -316,7 +316,7 @@ let $initUserSelect2 = function (el, multiple) {
       url: rb.baseUrl + '/commons/search/search',
       delay: 300,
       data: function (params) {
-        let query = {
+        var query = {
           entity: 'User',
           qfields: 'loginName,fullName,email,quickCode',
           q: params.term,
@@ -344,7 +344,7 @@ let $initUserSelect2 = function (el, multiple) {
     }
   })
   s.on('change.select2', function (e) {
-    let v = e.target.value
+    var v = e.target.value
     if (v) $.post(rb.baseUrl + '/commons/search/recently-add?type=UDR&id=' + v)
   })
   return s
