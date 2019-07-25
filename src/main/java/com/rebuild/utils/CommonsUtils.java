@@ -86,7 +86,7 @@ public class CommonsUtils {
 		if (okHttpClient == null) {
 			okHttpClient = new OkHttpClient.Builder()
 					.retryOnConnectionFailure(false)
-					.callTimeout(15, TimeUnit.SECONDS)
+					.callTimeout(60, TimeUnit.SECONDS)
 					.build();
 		}
 		return okHttpClient;

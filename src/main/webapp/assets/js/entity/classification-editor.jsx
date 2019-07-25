@@ -256,7 +256,7 @@ var saveOpenLevel = function () {
 
     let data = { openLevel: level }
     data.metadata = { entity: 'Classification', id: wpc.id }
-    $.post(`${rb.baseUrl}/admin/entityhub/classification/save`, JSON.stringify(data), (res) => {
+    $.post(`${rb.baseUrl}/app/entity/record-save`, JSON.stringify(data), (res) => {
       if (res.error_code > 0) RbHighbar.error(res.error_msg)
       else {
         saveOpenLevel_last = level
