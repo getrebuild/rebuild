@@ -18,16 +18,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.user.signin;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
+import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.EncryptUtils;
+import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.commons.RegexUtils;
+import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.commons.web.WebUtils;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.SMSender;
@@ -41,16 +40,15 @@ import com.rebuild.utils.AES;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BasePageControll;
 import com.wf.captcha.utils.CaptchaUtil;
-
-import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.EncryptUtils;
-import cn.devezhao.commons.RegexUtils;
-import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.commons.web.WebUtils;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
 import eu.bitwalker.useragentutils.UserAgent;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * @author zhaofang123@gmail.com
@@ -80,9 +78,15 @@ public class LoginControll extends BasePageControll {
 				alt = AES.decrypt(alt);
 				String alts[] = alt.split(",");
 				altUser = ID.isId(alts[0]) ? ID.valueOf(alts[0]) : null;
-				
-				// TODO 自动登陆码安全性检查
-				
+
+				// 最大一个月有效期
+				if (altUser != null) {
+					long t = ObjectUtils.toLong(alts[1]);
+					if ((System.currentTimeMillis() - t) / 1000 > 30 * 24 * 60 * 60) {
+						altUser = null;
+					}
+				}
+
 			} catch (Exception ex) {
 				LOG.error("Can't decode User from alt : " + alt, ex);
 			}
@@ -187,7 +191,7 @@ public class LoginControll extends BasePageControll {
 	private void loginSuccessed(HttpServletRequest request, HttpServletResponse response, ID user, boolean autoLogin) {
 		// 自动登录
 		if (autoLogin) {
-			String alt = user + "," + System.currentTimeMillis();
+			String alt = user + "," + System.currentTimeMillis() + ",v1";
 			alt = AES.encrypt(alt);
 			ServletUtils.addCookie(response, CK_AUTOLOGIN, alt, 60 * 60 * 24 * 30, null, "/");
 		} else {
