@@ -70,6 +70,7 @@ public class QiniuCloud {
 	 * @return
 	 */
 	public boolean available() {
+//		return false;  // TEST
 		return this.auth != null;
 	}
 	
