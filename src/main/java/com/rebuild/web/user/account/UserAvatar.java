@@ -19,10 +19,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.web.user.account;
 
 import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.QiniuCloud;
+import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseControll;
@@ -108,5 +112,59 @@ public class UserAvatar extends BaseControll {
 		}
 	}
 
+	@RequestMapping("/user-avatar-update")
+	public void avatarUpdate(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String avatarRaw = getParameterNotNull(request, "avatar");
+		String xywh = getParameterNotNull(request, "xywh");
 
+		File avatarFile = SysConfiguration.getFileOfTemp(avatarRaw);
+		String uploadName = avatarCrop(avatarFile, xywh);
+
+		ID user = getRequestUser(request);
+		Record record = EntityHelper.forUpdate(user, user);
+		record.setString("avatarUrl", uploadName);
+		Application.getBean(UserService.class).update(record);
+
+		writeSuccess(response, uploadName);
+	}
+
+	/**
+	 * 头像裁剪
+	 *
+	 * @param avatar
+	 * @param params x,y,width,height
+	 * @return
+	 * @throws IOException
+	 */
+	private String avatarCrop(File avatar, String params) throws IOException {
+		String xywh[] = params.split(",");
+		BufferedImage bi = ImageIO.read(avatar);
+		int x = Integer.parseInt(xywh[0]);
+		int y = Integer.parseInt(xywh[1]);
+		int width = Integer.parseInt(xywh[2]);
+		int height = Integer.parseInt(xywh[3]);
+
+		if (x + width > bi.getWidth()) {
+			width = bi.getWidth() - x;
+		}
+		if (y + height > bi.getHeight()) {
+			height = bi.getHeight() - y;
+		}
+
+		bi = bi.getSubimage(x < 0 ? 0 : x, y < 0 ? 0 : y, width, height);
+
+		String destName = System.currentTimeMillis() + avatar.getName();
+		File dest = null;
+		if (QiniuCloud.instance().available()) {
+			dest = SysConfiguration.getFileOfTemp(destName);
+		} else {
+			dest = SysConfiguration.getFileOfData(destName);
+		}
+		ImageIO.write(bi, "png", dest);
+
+		if (QiniuCloud.instance().available()) {
+			destName = QiniuCloud.instance().upload(dest);
+		}
+		return destName;
+	}
 }

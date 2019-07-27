@@ -291,6 +291,7 @@ public class UserHelper {
 			ImageIO.write(bi, "png", fos);
 			fos.flush();
 		}
+
 		return avatarFile;
 	}
 }

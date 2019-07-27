@@ -1,17 +1,16 @@
 /* eslint-disable react/no-string-refs */
+let __cropper
 $(document).ready(function () {
   if (location.hash === '#secure') $('.nav-tabs a:eq(1)').trigger('click')
 
-  let __cropper
   $createUploader('#avatar-input',
     function () {
       if (__cropper) return
-      renderRbcomp(<DlgCropper />, null, function () {
+      renderRbcomp(<DlgCropper disposeOnHide={true} />, null, function () {
         __cropper = this
       })
     }, function (res) {
-      let aUrl = `${rb.baseUrl}/filex/img/${res.key}?imageView2/2/w/800/interlace/1/q/100`
-      __cropper.setImg(aUrl)
+      __cropper.setImg(res.key)
     })
 
   $('.J_email').click(() => { renderRbcomp(<DlgChangeEmail />) })
@@ -158,13 +157,13 @@ class DlgCropper extends RbModalHandler {
   }
 
   render() {
-    return <RbModal title="更改头像" rec={(c) => this._dlg = c} width="500">
+    return <RbModal title="更改头像" ref={(c) => this._dlg = c} width="500" onHide={() => __cropper = null}>
       <div className={this.state.inLoad ? 'rb-loading rb-loading-active' : null} style={{ height: 400, overflow: 'hide' }}>
-        <img src={this.state.img} ref={(c) => this._avatar = c} style={{ maxWidth: '100%' }} />
+        {this.state.img && <img src={`${rb.baseUrl}/filex/img/${this.state.img}?temp=true`} ref={(c) => this._avatar = c} style={{ maxWidth: '100%' }} />}
         {this.state.inLoad && <RbSpinner />}
       </div>
       <div className="mt-3">
-        <button className="btn btn-secondary w-100" onClick={() => this.post()}>保存新头像</button>
+        <button className="btn btn-primary w-100" onClick={this.post} ref={(c) => this._btn = c}>保存新头像</button>
       </div>
     </RbModal>
   }
@@ -179,6 +178,7 @@ class DlgCropper extends RbModalHandler {
       $(this._avatar).cropper({
         aspectRatio: 1 / 1,
         viewMode: 0,
+        checkOrientation: false,
         ready() {
           that.setState({ inLoad: false })
         }
@@ -187,8 +187,15 @@ class DlgCropper extends RbModalHandler {
     })
   }
 
-  post() {
-    let data = this.__cropper.getCroppedCanvas({ imageSmoothingQuality: 'high' })
-    console.log(data)
+  post = () => {
+    let data = this.__cropper.getData()
+    let xywh = [~~data.x, ~~data.y, ~~data.width, ~~data.height].join(',')
+
+    $(this._btn).button('loading')
+    $.post(`${rb.baseUrl}/account/user-avatar-update?avatar=${this.state.img}&xywh=${xywh}`, () => {
+      location.reload()
+      // $('#avatar-img').attr('src', `${rb.baseUrl}/filex/img/${res.data}?imageView2/2/w/100/interlace/1/q/100`)
+      // this.hide()
+    })
   }
 }
