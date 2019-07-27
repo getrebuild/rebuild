@@ -18,23 +18,24 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.user.account;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
+import com.rebuild.server.helper.QiniuCloud;
+import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.bizz.privileges.User;
+import com.rebuild.utils.AppUtils;
+import com.rebuild.web.BaseControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.rebuild.server.Application;
-import com.rebuild.server.helper.QiniuCloud;
-import com.rebuild.server.service.bizz.privileges.User;
-import com.rebuild.utils.AppUtils;
-import com.rebuild.web.BaseControll;
-
-import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.persist4j.engine.ID;
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * 用户头像
@@ -92,13 +93,20 @@ public class UserAvatar extends BaseControll {
 			}
 			response.sendRedirect(avatarUrl);
 		} else {
-			avatarUrl = AppUtils.getContextPath() + "/assets/img/avatar.png";
-			response.sendRedirect(avatarUrl);
-			
-			// TODO 生成用户头像
-			
-//			ChineseCaptcha avatar = new ChineseCaptcha(200, 200, 1);
-//			avatar.out(response.getOutputStream());
+			BufferedImage avatarBi = null;
+			try {
+				File avatarFile = UserHelper.generateAvatar(realUser.getFullName(), false);
+				avatarBi = ImageIO.read(avatarFile);
+			} catch (IOException ex) {
+				LOG.warn("Cloud't generate avatar", ex);
+				avatarUrl = AppUtils.getContextPath() + "/assets/img/avatar.png";
+				response.sendRedirect(avatarUrl);
+				return;
+			}
+
+			ImageIO.write(avatarBi, "png", response.getOutputStream());
 		}
 	}
+
+
 }

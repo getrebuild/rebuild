@@ -99,6 +99,14 @@ public class UserService extends SystemEntityService {
 		if (record.getPrimary() == null && !record.hasValue("fullName")) {
 			record.setString("fullName", record.getString("loginName").toUpperCase());
 		}
+
+		if (record.hasValue("fullName")) {
+			try {
+				UserHelper.generateAvatar(record.getString("fullName"), true);
+			} catch (Exception ex) {
+				LOG.error(ex);
+			}
+		}
 	}
 	
 	/**
