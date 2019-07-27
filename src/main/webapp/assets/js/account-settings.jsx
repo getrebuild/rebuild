@@ -2,10 +2,17 @@
 $(document).ready(function () {
   if (location.hash === '#secure') $('.nav-tabs a:eq(1)').trigger('click')
 
-  $createUploader('#avatar-input', null, function (res) {
-    let aUrl = `${rb.baseUrl}/filex/img/${res.key}?imageView2/2/w/100/interlace/1/q/100`
-    $('.avatar img').attr({ 'src': aUrl, 'data-src': res.key })
-  })
+  let __cropper
+  $createUploader('#avatar-input',
+    function () {
+      if (__cropper) return
+      renderRbcomp(<DlgCropper />, null, function () {
+        __cropper = this
+      })
+    }, function (res) {
+      let aUrl = `${rb.baseUrl}/filex/img/${res.key}?imageView2/2/w/800/interlace/1/q/100`
+      __cropper.setImg(aUrl)
+    })
 
   $('.J_email').click(() => { renderRbcomp(<DlgChangeEmail />) })
   $('.J_passwd').click(() => { renderRbcomp(<DlgChangePasswd />) })
@@ -140,5 +147,48 @@ class DlgChangeEmail extends RbFormHandler {
         RbHighbar.create('邮箱修改成功', 'success')
       } else RbHighbar.create(res.error_msg)
     })
+  }
+}
+
+// 头像裁剪
+class DlgCropper extends RbModalHandler {
+  constructor(props) {
+    super(props)
+    this.state.inLoad = true
+  }
+
+  render() {
+    return <RbModal title="更改头像" rec={(c) => this._dlg = c} width="500">
+      <div className={this.state.inLoad ? 'rb-loading rb-loading-active' : null} style={{ height: 400, overflow: 'hide' }}>
+        <img src={this.state.img} ref={(c) => this._avatar = c} style={{ maxWidth: '100%' }} />
+        {this.state.inLoad && <RbSpinner />}
+      </div>
+      <div className="mt-3">
+        <button className="btn btn-secondary w-100" onClick={() => this.post()}>保存新头像</button>
+      </div>
+    </RbModal>
+  }
+
+  componentDidMount() {
+    if (this.state.img) this.setImg(this.state.img)
+  }
+
+  setImg(img) {
+    this.setState({ img: img }, () => {
+      let that = this
+      $(this._avatar).cropper({
+        aspectRatio: 1 / 1,
+        viewMode: 0,
+        ready() {
+          that.setState({ inLoad: false })
+        }
+      })
+      this.__cropper = $(this._avatar).data('cropper')
+    })
+  }
+
+  post() {
+    let data = this.__cropper.getCroppedCanvas({ imageSmoothingQuality: 'high' })
+    console.log(data)
   }
 }

@@ -5,6 +5,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/widget/cropper.min.css">
 <title>个人设置</title>
 <style type="text/css">
 .tab-pane .form-group{border-bottom:1px solid #e6e9f0;}
@@ -75,7 +76,7 @@
 									</div>
 									<div class="col-12 col-sm-4">
 										<div class="avatar float-right">
-											<img alt="Avatar" src="${baseUrl}/account/user-avatar">
+											<img alt="Avatar" id="avatar-img" src="${baseUrl}/account/user-avatar">
 											<label>
 												<i class="zmdi zmdi-camera"></i><br>更改头像
 												<input type="file" id="avatar-input" accept="image/png,image/jpeg,image/gif">
@@ -118,6 +119,7 @@
 <script>
 window.__PageConfig = { userid: '<%=theUser.getId()%>' }
 </script>
-<script src="${baseUrl}/assets/js/user-settings.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/lib/widget/cropper.min.js"></script>
+<script src="${baseUrl}/assets/js/account-settings.jsx" type="text/babel"></script>
 </body>
 </html>
