@@ -67,6 +67,7 @@
     padding-right: 5px;
     padding-bottom: 25px;
     margin-top: 8px;
+    min-height: 300px;
 }
 
 @media (max-width:768px) {
