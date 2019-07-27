@@ -1,11 +1,17 @@
 /* eslint-disable react/no-string-refs */
+let __cropper
 $(document).ready(function () {
   if (location.hash === '#secure') $('.nav-tabs a:eq(1)').trigger('click')
 
-  $createUploader('#avatar-input', null, function (res) {
-    let aUrl = `${rb.baseUrl}/filex/img/${res.key}?imageView2/2/w/100/interlace/1/q/100`
-    $('.avatar img').attr({ 'src': aUrl, 'data-src': res.key })
-  })
+  $createUploader('#avatar-input',
+    function () {
+      if (__cropper) return
+      renderRbcomp(<DlgCropper disposeOnHide={true} />, null, function () {
+        __cropper = this
+      })
+    }, function (res) {
+      __cropper.setImg(res.key)
+    })
 
   $('.J_email').click(() => { renderRbcomp(<DlgChangeEmail />) })
   $('.J_passwd').click(() => { renderRbcomp(<DlgChangePasswd />) })
@@ -139,6 +145,57 @@ class DlgChangeEmail extends RbFormHandler {
         $('.J_email-account').html('当前绑定邮箱 <b>' + s.newEmail + '</b>')
         RbHighbar.create('邮箱修改成功', 'success')
       } else RbHighbar.create(res.error_msg)
+    })
+  }
+}
+
+// 头像裁剪
+class DlgCropper extends RbModalHandler {
+  constructor(props) {
+    super(props)
+    this.state.inLoad = true
+  }
+
+  render() {
+    return <RbModal title="更改头像" ref={(c) => this._dlg = c} width="500" onHide={() => __cropper = null}>
+      <div className={this.state.inLoad ? 'rb-loading rb-loading-active' : null} style={{ height: 400, overflow: 'hide' }}>
+        {this.state.img && <img src={`${rb.baseUrl}/filex/img/${this.state.img}?temp=true`} ref={(c) => this._avatar = c} style={{ maxWidth: '100%' }} />}
+        {this.state.inLoad && <RbSpinner />}
+      </div>
+      <div className="mt-3">
+        <button className="btn btn-primary w-100" onClick={this.post} ref={(c) => this._btn = c}>更改</button>
+      </div>
+    </RbModal>
+  }
+
+  componentDidMount() {
+    if (this.state.img) this.setImg(this.state.img)
+  }
+
+  setImg(img) {
+    this.setState({ img: img }, () => {
+      let that = this
+      $(this._avatar).cropper({
+        aspectRatio: 1 / 1,
+        viewMode: 0,
+        checkOrientation: false,
+        ready() {
+          that.setState({ inLoad: false })
+        }
+      })
+      this.__cropper = $(this._avatar).data('cropper')
+    })
+  }
+
+  post = () => {
+    let data = this.__cropper.getData()
+    let xywh = [~~data.x, ~~data.y, ~~data.width, ~~data.height].join(',')
+
+    $(this._btn).button('loading')
+    $.post(`${rb.baseUrl}/account/user-avatar-update?avatar=${this.state.img}&xywh=${xywh}`, () => {
+      location.reload()
+      // $('#avatar-img').attr('src', `${rb.baseUrl}/filex/img/${res.data}?imageView2/2/w/100/interlace/1/q/100`)
+      // this.hide()
     })
   }
 }

@@ -215,9 +215,11 @@ var $gotoSection = function (top, target) {
 var $createUploader = function (input, next, complete, error) {
   input = $(input).off('change')
   var imgOnly = input.attr('accept') === 'image/*'
-  if (window.qiniu && rb.storageUrl) {
+  var temp = input.data('temp')
+  if (window.qiniu && rb.storageUrl && !temp) {
     input.on('change', function () {
       var file = this.files[0]
+      if (!file) return
       var putExtra = imgOnly ? {
         mimeType: ['image/png', 'image/jpeg', 'image/gif', 'image/bmp', 'image/tiff']
       } : null
@@ -254,7 +256,7 @@ var $createUploader = function (input, next, complete, error) {
   } else {
     input.html5Uploader({
       name: input.attr('id') || input.attr('name') || 'H5Upload',
-      postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file'),
+      postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file') + '&temp=' + temp,
       onSelectError: function (file, err) {
         if (err === 'ErrorType') {
           RbHighbar.create('请上传图片')

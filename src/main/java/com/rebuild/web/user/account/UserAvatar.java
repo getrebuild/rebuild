@@ -18,23 +18,28 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.user.account;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
+import com.rebuild.server.helper.QiniuCloud;
+import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.bizz.UserService;
+import com.rebuild.server.service.bizz.privileges.User;
+import com.rebuild.utils.AppUtils;
+import com.rebuild.web.BaseControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.rebuild.server.Application;
-import com.rebuild.server.helper.QiniuCloud;
-import com.rebuild.server.service.bizz.privileges.User;
-import com.rebuild.utils.AppUtils;
-import com.rebuild.web.BaseControll;
-
-import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.persist4j.engine.ID;
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * 用户头像
@@ -48,12 +53,12 @@ public class UserAvatar extends BaseControll {
 	
 	@RequestMapping("/user-avatar")
 	public void renderAvatat(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		renderUserAvatat(getRequestUser(request), response);
+		renderUserAvatat(getRequestUser(request), request, response);
 	}
 	
 	@RequestMapping("/user-avatar/{user}")
-	public void renderAvatat(@PathVariable String user, HttpServletResponse response) throws IOException {
-		renderUserAvatat(user, response);
+	public void renderAvatat(@PathVariable String user, HttpServletRequest request, HttpServletResponse response) throws IOException {
+		renderUserAvatat(user, request, response);
 	}
 	
 	/**
@@ -61,7 +66,7 @@ public class UserAvatar extends BaseControll {
 	 * @param response
 	 * @throws IOException
 	 */
-	protected void renderUserAvatat(Object user, HttpServletResponse response) throws IOException {
+	protected void renderUserAvatat(Object user, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		User realUser = null;
 		if (user instanceof ID) {
 			realUser = Application.getUserStore().getUser((ID) user);
@@ -84,7 +89,9 @@ public class UserAvatar extends BaseControll {
 		String avatarUrl = realUser.getAvatarUrl();
 		avatarUrl = QiniuCloud.encodeUrl(avatarUrl);
 		if (avatarUrl != null) {
-			avatarUrl = avatarUrl + "?imageView2/2/w/100/interlace/1/q/100";
+			int w = getIntParameter(request, "w", 100);
+			avatarUrl = avatarUrl + "?imageView2/2/w/" + w + "/interlace/1/q/100";
+
 			if (QiniuCloud.instance().available()) {
 				avatarUrl = QiniuCloud.instance().url(avatarUrl, minutes * 60);
 			} else {
@@ -92,13 +99,74 @@ public class UserAvatar extends BaseControll {
 			}
 			response.sendRedirect(avatarUrl);
 		} else {
-			avatarUrl = AppUtils.getContextPath() + "/assets/img/avatar.png";
-			response.sendRedirect(avatarUrl);
-			
-			// TODO 生成用户头像
-			
-//			ChineseCaptcha avatar = new ChineseCaptcha(200, 200, 1);
-//			avatar.out(response.getOutputStream());
+			BufferedImage avatarBi = null;
+			try {
+				File avatarFile = UserHelper.generateAvatar(realUser.getFullName(), false);
+				avatarBi = ImageIO.read(avatarFile);
+			} catch (IOException ex) {
+				LOG.warn("Cloud't generate avatar", ex);
+				avatarUrl = AppUtils.getContextPath() + "/assets/img/avatar.png";
+				response.sendRedirect(avatarUrl);
+				return;
+			}
+
+			ImageIO.write(avatarBi, "png", response.getOutputStream());
 		}
+	}
+
+	@RequestMapping("/user-avatar-update")
+	public void avatarUpdate(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String avatarRaw = getParameterNotNull(request, "avatar");
+		String xywh = getParameterNotNull(request, "xywh");
+
+		File avatarFile = SysConfiguration.getFileOfTemp(avatarRaw);
+		String uploadName = avatarCrop(avatarFile, xywh);
+
+		ID user = getRequestUser(request);
+		Record record = EntityHelper.forUpdate(user, user);
+		record.setString("avatarUrl", uploadName);
+		Application.getBean(UserService.class).update(record);
+
+		writeSuccess(response, uploadName);
+	}
+
+	/**
+	 * 头像裁剪
+	 *
+	 * @param avatar
+	 * @param params x,y,width,height
+	 * @return
+	 * @throws IOException
+	 */
+	private String avatarCrop(File avatar, String params) throws IOException {
+		String xywh[] = params.split(",");
+		BufferedImage bi = ImageIO.read(avatar);
+		int x = Integer.parseInt(xywh[0]);
+		int y = Integer.parseInt(xywh[1]);
+		int width = Integer.parseInt(xywh[2]);
+		int height = Integer.parseInt(xywh[3]);
+
+		if (x + width > bi.getWidth()) {
+			width = bi.getWidth() - x;
+		}
+		if (y + height > bi.getHeight()) {
+			height = bi.getHeight() - y;
+		}
+
+		bi = bi.getSubimage(x < 0 ? 0 : x, y < 0 ? 0 : y, width, height);
+
+		String destName = System.currentTimeMillis() + avatar.getName();
+		File dest = null;
+		if (QiniuCloud.instance().available()) {
+			dest = SysConfiguration.getFileOfTemp(destName);
+		} else {
+			dest = SysConfiguration.getFileOfData(destName);
+		}
+		ImageIO.write(bi, "png", dest);
+
+		if (QiniuCloud.instance().available()) {
+			destName = QiniuCloud.instance().upload(dest);
+		}
+		return destName;
 	}
 }

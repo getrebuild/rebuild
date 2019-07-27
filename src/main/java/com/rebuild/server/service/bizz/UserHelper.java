@@ -18,28 +18,38 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.bizz;
 
-import java.security.Principal;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.alibaba.fastjson.JSONArray;
-import com.rebuild.server.Application;
-import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.bizz.privileges.Department;
-import com.rebuild.server.service.bizz.privileges.User;
-
 import cn.devezhao.bizz.security.member.BusinessUnit;
 import cn.devezhao.bizz.security.member.Member;
 import cn.devezhao.bizz.security.member.NoMemberFoundException;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONArray;
+import com.rebuild.server.Application;
+import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.bizz.privileges.Department;
+import com.rebuild.server.service.bizz.privileges.User;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import javax.imageio.ImageIO;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.security.Principal;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 用户帮助类
@@ -235,5 +245,57 @@ public class UserHelper {
 			}
 		}
 		return users;
+	}
+
+	private static final Color[] AB_COLORS = new Color[] {
+			new Color(66, 133,244),
+			new Color(52, 168,83),
+			new Color(251, 188,5),
+			new Color(234, 67,53)
+	};
+	/**
+	 * 生成用户头像
+	 *
+	 * @param name
+	 * @param reload
+	 * @return
+	 * @throws IOException
+	 */
+	public static File generateAvatar(String name, boolean reload) throws IOException {
+		File avatarFile = SysConfiguration.getFileOfData("avatar-" + name + ".jpg");
+		if (avatarFile.exists()) {
+			if (reload) {
+				avatarFile.delete();
+			} else {
+				return avatarFile;
+			}
+		}
+
+		if (name.length() > 2) {
+			name = name.substring(name.length() - 2);
+		}
+		name = name.toUpperCase();
+
+		BufferedImage bi = new BufferedImage(200, 200, BufferedImage.TYPE_INT_RGB);
+		Graphics2D g2d = (Graphics2D) bi.getGraphics();
+
+		g2d.setColor(AB_COLORS[RandomUtils.nextInt(AB_COLORS.length)]);
+		g2d.fillRect(0, 0, bi.getWidth(), bi.getHeight());
+
+		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+		Font font = new Font("SimHei", Font.BOLD, 81);
+		g2d.setFont(font);
+		g2d.setColor(Color.WHITE);
+
+		FontMetrics fontMetrics = g2d.getFontMetrics(font);
+		int x = fontMetrics.stringWidth(name);
+		g2d.drawString(name, (200 - x) / 2, 128);
+
+		try (FileOutputStream fos = new FileOutputStream(avatarFile)) {
+			ImageIO.write(bi, "png", fos);
+			fos.flush();
+		}
+
+		return avatarFile;
 	}
 }
