@@ -163,7 +163,7 @@ class DlgCropper extends RbModalHandler {
         {this.state.inLoad && <RbSpinner />}
       </div>
       <div className="mt-3">
-        <button className="btn btn-primary w-100" onClick={this.post} ref={(c) => this._btn = c}>保存新头像</button>
+        <button className="btn btn-primary w-100" onClick={this.post} ref={(c) => this._btn = c}>更改</button>
       </div>
     </RbModal>
   }

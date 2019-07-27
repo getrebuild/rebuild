@@ -9,9 +9,9 @@
 <title>个人设置</title>
 <style type="text/css">
 .tab-pane .form-group{border-bottom:1px solid #e6e9f0;}
-.avatar{position:relative;width:120px;height:120px;line-height:1;font-size:0;background-color:#eee;border-radius:4px;overflow:hidden;line-height:120px}
+.avatar{position:relative;width:160px;height:160px;line-height:1;font-size:0;background-color:#eee;border-radius:4px;overflow:hidden;line-height:120px}
 .avatar>img{width:100%;}
-.avatar>label{position:absolute;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.4);display:none;font-size:14px;text-align:center;padding-top:36px;color:#fff !important;line-height:1.5}
+.avatar>label{position:absolute;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.4);display:none;font-size:14px;text-align:center;padding-top:56px;color:#fff !important;line-height:1.5}
 .avatar:hover>label{display:block;cursor:pointer;}
 .avatar>label i.zmdi{font-size:28px}
 .avatar>label input{display:none;}
@@ -69,14 +69,14 @@
 											</div>
 											<div class="form-group row border-none">
 												<div class="col-sm-8 offset-sm-4 pl-0">
-													<button class="btn btn-primary J_save" type="button">更新</button>
+													<button class="btn btn-primary J_save" type="button">确定</button>
 												</div>
 											</div>
 										</form>
 									</div>
 									<div class="col-12 col-sm-4">
 										<div class="avatar float-right">
-											<img alt="Avatar" id="avatar-img" src="${baseUrl}/account/user-avatar">
+											<img alt="Avatar" id="avatar-img" src="${baseUrl}/account/user-avatar?w=200">
 											<label>
 												<i class="zmdi zmdi-camera"></i><br>更改头像
 												<input type="file" id="avatar-input" accept="image/png,image/jpeg,image/gif" data-temp="true">

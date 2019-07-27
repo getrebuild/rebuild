@@ -219,6 +219,7 @@ var $createUploader = function (input, next, complete, error) {
   if (window.qiniu && rb.storageUrl && !temp) {
     input.on('change', function () {
       var file = this.files[0]
+      if (!file) return
       var putExtra = imgOnly ? {
         mimeType: ['image/png', 'image/jpeg', 'image/gif', 'image/bmp', 'image/tiff']
       } : null

@@ -53,12 +53,12 @@ public class UserAvatar extends BaseControll {
 	
 	@RequestMapping("/user-avatar")
 	public void renderAvatat(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		renderUserAvatat(getRequestUser(request), response);
+		renderUserAvatat(getRequestUser(request), request, response);
 	}
 	
 	@RequestMapping("/user-avatar/{user}")
-	public void renderAvatat(@PathVariable String user, HttpServletResponse response) throws IOException {
-		renderUserAvatat(user, response);
+	public void renderAvatat(@PathVariable String user, HttpServletRequest request, HttpServletResponse response) throws IOException {
+		renderUserAvatat(user, request, response);
 	}
 	
 	/**
@@ -66,7 +66,7 @@ public class UserAvatar extends BaseControll {
 	 * @param response
 	 * @throws IOException
 	 */
-	protected void renderUserAvatat(Object user, HttpServletResponse response) throws IOException {
+	protected void renderUserAvatat(Object user, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		User realUser = null;
 		if (user instanceof ID) {
 			realUser = Application.getUserStore().getUser((ID) user);
@@ -89,7 +89,9 @@ public class UserAvatar extends BaseControll {
 		String avatarUrl = realUser.getAvatarUrl();
 		avatarUrl = QiniuCloud.encodeUrl(avatarUrl);
 		if (avatarUrl != null) {
-			avatarUrl = avatarUrl + "?imageView2/2/w/100/interlace/1/q/100";
+			int w = getIntParameter(request, "w", 100);
+			avatarUrl = avatarUrl + "?imageView2/2/w/" + w + "/interlace/1/q/100";
+
 			if (QiniuCloud.instance().available()) {
 				avatarUrl = QiniuCloud.instance().url(avatarUrl, minutes * 60);
 			} else {
