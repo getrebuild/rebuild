@@ -18,12 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper;
 
-import cn.devezhao.commons.ThreadPool;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.rebuild.utils.CommonsUtils;
-import okhttp3.OkHttpClient;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jsoup.Jsoup;
@@ -31,10 +30,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.util.Assert;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.utils.CommonsUtils;
+
+import cn.devezhao.commons.ThreadPool;
 
 /**
  * SUBMAIL SMS/MAIL 发送类
@@ -46,8 +47,6 @@ public class SMSender {
 	
 	private static final Log LOG = LogFactory.getLog(SMSender.class);
 
-	private static final OkHttpClient HTTP_CLIENT = new OkHttpClient();
-	
 	/**
 	 * @param to
 	 * @param subject

@@ -27,8 +27,9 @@ import com.rebuild.server.RebuildException;
  * @since 2019-07-23
  */
 public class ApiInvokeException extends RebuildException {
-
-    // 内部错误
+	private static final long serialVersionUID = -5069862757215287578L;
+	
+	// 内部错误
     public static final int ERR_SERVER = 500;
     // 业务错误
     public static final int ERR_BIZ = 400;
