@@ -141,7 +141,7 @@ public class TreeBuilder {
 		public JSONObject toJson() {
 			JSONObject d = JSONUtils.toJSONObject(
 					new String[] { "name", "value" },
-					new Object[] { getName(), chart.warpAxisValue(chart.getNumericals()[0], getValue()) });
+					new Object[] { getName(), chart.wrapAxisValue(chart.getNumericals()[0], getValue()) });
 			if (!this.children.isEmpty()) {
 				JSONArray ch = new JSONArray();
 				for (Item i : this.children) {

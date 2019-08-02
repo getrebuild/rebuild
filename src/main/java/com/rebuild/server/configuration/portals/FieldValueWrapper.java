@@ -78,7 +78,7 @@ public class FieldValueWrapper {
 	 */
 	public Object wrapFieldValue(Object value, EasyMeta field) {
 		// 特殊字段处理
-		Object specialVal = warpSpecialField(value, field);
+		Object specialVal = wrapSpecialField(value, field);
 		if (specialVal != null) {
 			return specialVal;
 		}
@@ -230,7 +230,7 @@ public class FieldValueWrapper {
 	 * @param field
 	 * @return
 	 */
-	protected String warpSpecialField(Object simple, EasyMeta field) {
+	protected String wrapSpecialField(Object simple, EasyMeta field) {
 		String fieldName = field.getName().toLowerCase();
 
 		// 密码型字段返回

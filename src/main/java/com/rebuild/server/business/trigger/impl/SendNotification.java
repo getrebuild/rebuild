@@ -35,7 +35,6 @@ import com.rebuild.server.service.notification.Message;
 import com.rebuild.server.service.notification.MessageBuilder;
 
 import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.utils.MarkdownUtils;
 
 /**
  * @author devezhao zhaofang123@gmail.com

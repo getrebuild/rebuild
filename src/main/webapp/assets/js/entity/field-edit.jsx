@@ -118,16 +118,16 @@ $(document).ready(function () {
     $('#fieldNullable').attr('disabled', true)
   } else if (dt === 'CLASSIFICATION') {
     if (extConfigOld.classification) {
-      $.get(`${rb.baseUrl}/admin/classification/info?id=${extConfigOld.classification}`, function (res) {
+      $.get(`${rb.baseUrl}/admin/entityhub/classification/info?id=${extConfigOld.classification}`, function (res) {
         if (res.error_code === 0) {
           $('#useClassification a').attr({
-            href: '../../../classification/' + extConfigOld.classification
+            href: `${rb.baseUrl}/admin/entityhub/classification/${extConfigOld.classification}`
           }).text(res.data.name)
         }
       })
     } else {
       $('#useClassification a').attr({
-        href: '../../../classifications'
+        href: `${rb.baseUrl}/admin/entityhub/classifications`
       }).text('无效分类数据').addClass('text-danger')
     }
   } else if (dt === 'DECIMAL' || dt === 'NUMBER') {

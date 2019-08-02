@@ -73,7 +73,9 @@ public class TableBuilder {
 		}
 
 		TBODY tbody = new TBODY();
+		int isLast = rows.length + (chart.isShowSums() ? 0 : 1);
 		for (Object[] row : rows) {
+			isLast--;
 			TR tds = new TR();
 			tbody.addChild(tds);
 
@@ -83,7 +85,9 @@ public class TableBuilder {
 				if (axis == LN_REF) {
 					td = new TD(row[i] + "", "th");
 				} else {
-					String text = chart.warpAxisValue(axis, row[i]);
+					String text = isLast == 0
+							? chart.wrapSumValue(axis, row[i])
+							: chart.wrapAxisValue(axis, row[i]);
 					td = new TD(text);
 				}
 				tds.addChild(td);

@@ -1353,13 +1353,13 @@ i.split.ui-draggable-dragging {
 
 /* AdvFilter */
 
-.adv-filter-warp {
+.adv-filter-wrap {
     background-color: #fff;
     padding: 20px;
     max-width: 560px;
 }
 
-.adv-filter-warp.in-modal {
+.adv-filter-wrap.in-modal {
     max-width: 1000px;
     padding: 10px;
 }

@@ -11,7 +11,7 @@ class RbFormModal extends React.Component {
   }
   render() {
     return (this.state.isDestroy === true ? null :
-      <div className="modal-warpper">
+      <div className="modal-wrapper">
         <div className="modal rbmodal colored-header colored-header-primary" ref={(c) => this._rbmodal = c}>
           <div className="modal-dialog">
             <div className="modal-content">
