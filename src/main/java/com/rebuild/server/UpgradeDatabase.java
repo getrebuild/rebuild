@@ -20,6 +20,7 @@ package com.rebuild.server;
 
 import java.util.Map;
 
+import cn.devezhao.commons.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -89,7 +90,8 @@ public final class UpgradeDatabase {
 	 * @return
 	 */
 	public int getDbVer() {
-		return (int) SysConfiguration.getLong(ConfigurableItem.DBVer);
+		String dbVer = SysConfiguration.get(ConfigurableItem.DBVer, true);
+		return ObjectUtils.toInt(dbVer, 0);
 	}
 	
 	private static final UpgradeDatabase INSTANCE = new UpgradeDatabase();

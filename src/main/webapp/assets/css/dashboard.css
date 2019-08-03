@@ -36,6 +36,7 @@
 
 .grid-stack>.grid-stack-item>.grid-stack-item-content {
     overflow: hidden;
+    overflow: unset;
 }
 
 .grid-stack .grid-stack-placeholder>.placeholder-content {
@@ -66,6 +67,7 @@
     padding-right: 5px;
     padding-bottom: 25px;
     margin-top: 8px;
+    min-height: 300px;
 }
 
 @media (max-width:768px) {
@@ -230,4 +232,8 @@
 
 .chart-list>div .chart-icon>i.TREEMAP {
     background-position: -864px -1520px;
+}
+
+.J_dash-select:hover {
+	color: #4285f4;
 }

@@ -29,7 +29,7 @@ import org.springframework.util.Assert;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.CommonService;
 import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.ServiceSpec;
@@ -69,7 +69,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		
 		final ID caller = Application.getSessionStore().get();
 		if (Application.devMode()) {
-			LOG.info("User [ " + caller + " ] calls : " + invocation);
+			LOG.info("User [ " + caller + " ] calls : " + invocation.getMethod());
 		}
 		
 		Class<?> invocationClass = invocation.getThis().getClass();

@@ -18,14 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.common;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import cn.devezhao.commons.web.ServletUtils;
+import com.rebuild.server.helper.QiniuCloud;
+import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.utils.AppUtils;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -38,11 +34,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.rebuild.server.helper.QiniuCloud;
-import com.rebuild.server.helper.SysConfiguration;
-import com.rebuild.utils.AppUtils;
-
-import cn.devezhao.commons.web.ServletUtils;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 文件上传
@@ -83,6 +80,7 @@ public class FileUploader {
 					ServletUtils.writeJson(response, AppUtils.formatControllMsg(1000, "上传失败"));
 					return;
 				}
+
 				break;
 			}
 			
@@ -97,7 +95,7 @@ public class FileUploader {
 			ServletUtils.writeJson(response, AppUtils.formatControllMsg(1000, "上传失败"));
 		}
 	}
-	
+
 	// ----
 	
 	private static FileItemFactory fileItemFactory;

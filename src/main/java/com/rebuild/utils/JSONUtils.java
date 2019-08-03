@@ -83,7 +83,7 @@ public class JSONUtils {
 	}
 	
 	/**
-	 * @param entries
+	 * @param items
 	 * @return
 	 */
 	public static JSONArray toJSONArray(JSONable[] items) {

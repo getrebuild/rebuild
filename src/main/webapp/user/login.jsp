@@ -66,7 +66,7 @@
 <script type="text/babel">
 $(document).ready(function() {
 	if (top != self) { parent.location.reload(); return }
-	if ($urlp('t') == 99) rb.highbar('注册申请已提交，请等待管理员审核', 'success', { timeout: 999999 })
+	if ($urlp('t') == 99) RbHighbar.create('注册申请已提交，请等待管理员审核', 'success', { timeout: 999999 })
 
 	$('.vcode-row img').click(function(){
 		$(this).attr('src', rb.baseUrl + '/user/captcha?' + $random())
@@ -82,8 +82,8 @@ $(document).ready(function() {
 		let user = $val('#user'), 
 			passwd = $val('#passwd'),
 			vcode = $val('.vcode-row input')
-		if (!user || !passwd){ rb.highbar('请输入用户名和密码'); return }
-		if (vcodeState == 1 && !vcode){ rb.highbar('请输入验证码'); return }
+		if (!user || !passwd){ RbHighbar.create('请输入用户名和密码'); return }
+		if (vcodeState == 1 && !vcode){ RbHighbar.create('请输入验证码'); return }
 		
 		let btn = $('.login-submit button').button('loading')
 		let url = rb.baseUrl + '/user/user-login?user=' + $encode(user) + '&passwd=' + $encode(passwd) + '&autoLogin=' + $val('#autoLogin')
@@ -97,7 +97,7 @@ $(document).ready(function() {
 				btn.button('reset')
 			} else {
 				$('.vcode-row img').trigger('click')
-				rb.highbar(res.error_msg || '登录失败，请稍后重试')
+				RbHighbar.create(res.error_msg || '登录失败，请稍后重试')
 				btn.button('reset')
 			}
 		})

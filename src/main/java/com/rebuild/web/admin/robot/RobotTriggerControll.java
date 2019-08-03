@@ -18,13 +18,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.admin.robot;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
+import com.rebuild.server.business.trigger.ActionFactory;
+import com.rebuild.server.business.trigger.ActionType;
+import com.rebuild.server.business.trigger.TriggerAction;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entity.EasyMeta;
+import com.rebuild.utils.JSONUtils;
+import com.rebuild.web.BasePageControll;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -32,17 +35,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.rebuild.server.Application;
-import com.rebuild.server.business.robot.ActionFactory;
-import com.rebuild.server.business.robot.ActionType;
-import com.rebuild.server.business.robot.TriggerAction;
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.utils.JSONUtils;
-import com.rebuild.web.BasePageControll;
-
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.engine.ID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -54,7 +51,7 @@ public class RobotTriggerControll extends BasePageControll {
 	
 	@RequestMapping("triggers")
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
-		ModelAndView mv = createModelAndView("/admin/entityhub/robot/trigger-list.jsp");
+		ModelAndView mv = createModelAndView("/admin/robot/trigger-list.jsp");
 		return mv;
 	}
 	
@@ -74,7 +71,7 @@ public class RobotTriggerControll extends BasePageControll {
 		Entity sourceEntity = MetadataHelper.getEntity((String) config[0]);
 		ActionType actionType = ActionType.valueOf((String) config[1]);
 		
-		ModelAndView mv = createModelAndView("/admin/entityhub/robot/trigger-editor.jsp");
+		ModelAndView mv = createModelAndView("/admin/robot/trigger-design.jsp");
 		mv.getModel().put("configId", configId);
 		mv.getModel().put("sourceEntity", sourceEntity.getName());
 		mv.getModel().put("sourceEntityLabel", EasyMeta.getLabel(sourceEntity));
@@ -122,11 +119,11 @@ public class RobotTriggerControll extends BasePageControll {
 	@RequestMapping("trigger/list")
 	public void triggerList(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String belongEntity = getParameter(request, "entity");
-		String sql = "select configId,when,actionType,belongEntity,belongEntity from RobotTriggerConfig";
+		String sql = "select configId,when,actionType,belongEntity,belongEntity,name,isDisabled from RobotTriggerConfig";
 		if (StringUtils.isNotBlank(belongEntity)) {
 			sql += " where belongEntity = '" + StringEscapeUtils.escapeSql(belongEntity) + "'";
 		}
-		sql += " order by modifiedOn desc";
+		sql += " order by name, modifiedOn desc";
 		
 		Object[][] array = Application.createQuery(sql).array();
 		for (Object[] o : array) {

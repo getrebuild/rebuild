@@ -56,7 +56,7 @@ public class FunnelChart extends ChartData {
 			for (int i = 0; i < nums.length; i++) {
 				JSONObject d = JSONUtils.toJSONObject(
 						new String[] { "name", "value" },
-						new Object[] { nums[i].getLabel(), warpAxisValue(nums[i], dataRaw[i]) });
+						new Object[] { nums[i].getLabel(), wrapAxisValue(nums[i], dataRaw[i]) });
 				dataJson.add(d);
 			}
 		} else if (nums.length >= 1 && dims.length >= 1) {
@@ -65,7 +65,7 @@ public class FunnelChart extends ChartData {
 			for (Object[] o : dataRaw) {
 				JSONObject d = JSONUtils.toJSONObject(
 						new String[] { "name", "value" },
-						new Object[] { o[0] = warpAxisValue(dim1, o[0]), warpAxisValue(nums[0], o[1]) });
+						new Object[] { o[0] = wrapAxisValue(dim1, o[0]), wrapAxisValue(nums[0], o[1]) });
 				dataJson.add(d);
 			}
 			

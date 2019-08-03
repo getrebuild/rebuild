@@ -33,9 +33,9 @@ import org.springframework.util.Assert;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.utils.CommonsUtils;
 
 import cn.devezhao.commons.ThreadPool;
-import cn.devezhao.commons.http4.HttpClientEx;
 
 /**
  * SUBMAIL SMS/MAIL 发送类
@@ -46,7 +46,7 @@ import cn.devezhao.commons.http4.HttpClientEx;
 public class SMSender {
 	
 	private static final Log LOG = LogFactory.getLog(SMSender.class);
-	
+
 	/**
 	 * @param to
 	 * @param subject
@@ -110,23 +110,25 @@ public class SMSender {
 			params.put("text", content);
 		}
 		params.put("asynchronous", "true");
-		
-		String r = HttpClientEx.instance().post("https://api.mysubmail.com/mail/send.json", params);
-		if (r == null) {
-			LOG.error("Mail failed : " + to + " > " + subject + "\nError : No response");
+
+		JSONObject rJson = null;
+		try {
+			String r = CommonsUtils.post("https://api.mysubmail.com/mail/send.json", params);
+			rJson = JSON.parseObject(r);
+		} catch (Exception ex) {
+			LOG.error("Mail failed : " + to + " > " + subject, ex);
 			return null;
 		}
-		
-		JSONObject rJson = JSON.parseObject(r);
+
 		if ("success".equals(rJson.getString("status"))) {
 			JSONArray returns = rJson.getJSONArray("return");
 			if (returns.isEmpty()) {
-				LOG.error("Mail failed : " + to + " > " + subject + "\nError : " + r);
+				LOG.error("Mail failed : " + to + " > " + subject + "\nError : " + rJson);
 				return null;
 			}
 			return ((JSONObject) returns.get(0)).getString("send_id");
 		} else {
-			LOG.error("Mail failed : " + to + " > " + subject + "\nError : " + r);
+			LOG.error("Mail failed : " + to + " > " + subject + "\nError : " + rJson);
 		}
 		return null;
 	}
@@ -160,18 +162,20 @@ public class SMSender {
 			content = "【" + account[2] + "】" + content;
 		}
 		params.put("content", content);
-		
-		String r = HttpClientEx.instance().post("https://api.mysubmail.com/message/send.json", params);
-		if (r == null) {
-			LOG.error("SMS failed : " + to + " > " + content + "\nError : No response");
+
+		JSONObject rJson = null;
+		try {
+			String r = CommonsUtils.post("https://api.mysubmail.com/message/send.json", params);
+			rJson = JSON.parseObject(r);
+		} catch (Exception ex) {
+			LOG.error("SMS failed : " + to + " > " + content, ex);
 			return null;
 		}
 		
-		JSONObject rJson = JSON.parseObject(r);
 		if ("success".equals(rJson.getString("status"))) {
 			return rJson.getString("send_id");
 		} else {
-			LOG.error("SMS failed : " + to + " > " + content + "\nError : " + r);
+			LOG.error("SMS failed : " + to + " > " + content + "\nError : " + rJson);
 		}
 		return null;
 	}

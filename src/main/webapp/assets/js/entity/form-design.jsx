@@ -1,6 +1,6 @@
 const wpc = window.__PageConfig
 $(document).ready(function () {
-  $.get('../list-field?entity=' + wpc.entityName, function (res) {
+  $.get('../list-field?from=FORM&entity=' + wpc.entityName, function (res) {
     let validFields = {}, configFields = []
     $(wpc.formConfig.elements).each(function () { configFields.push(this.field) })
     $(res.data).each(function () {
@@ -53,7 +53,7 @@ $(document).ready(function () {
       }
       elements.push(item)
     })
-    if (elements.length === 0) { rb.highbar('请至少布局1个字段'); return }
+    if (elements.length === 0) { RbHighbar.create('请至少布局1个字段'); return }
 
     let _data = { belongEntity: wpc.entityName, applyType: 'FORM', config: JSON.stringify(elements) }
     _data.metadata = { entity: 'LayoutConfig', id: wpc.formConfig.id || null }
@@ -61,7 +61,7 @@ $(document).ready(function () {
     $(this).button('loading')
     $.post('form-update', JSON.stringify(_data), function (res) {
       if (res.error_code === 0) location.reload()
-      else rb.hberror(res.error_msg)
+      else RbHighbar.error(res.error_msg)
     })
   })
 

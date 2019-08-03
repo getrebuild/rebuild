@@ -3925,7 +3925,8 @@ input[type=submit].btn-block {
 }
 
 .dropdown-item.disabled,
-.dropdown-item:disabled {
+.dropdown-item:disabled,
+.dropdown-item[disabled]{
     color: #878787 !important;
     background-color: transparent !important;
     cursor: default;
@@ -12616,7 +12617,7 @@ a.avatar.x48 img {
     background-color: #4285f4
 }
 
-.rb-notifications .notification:hover>a {
+.rb-notifications.dropdown-menu .notification:hover a {
     color: #fff
 }
 
@@ -21550,7 +21551,6 @@ fieldset[disabled] .btn-color.btn-evernote:hover {
 .modal-content {
     -webkit-box-shadow: 0 4px 6px rgba(0, 0, 0, .3);
     box-shadow: 0 4px 6px rgba(0, 0, 0, .3);
-    overflow: hidden;
     background-color: #fff;
     color: #404040;
     border: none
@@ -22720,6 +22720,10 @@ fieldset[disabled] .btn-color.btn-evernote:hover {
     border-top: solid 1px #fff
 }
 
+.list-group-item.active .text {
+    color: #fff
+}
+
 .list-group-item .icon {
     margin-right: 18px;
     font-size: 1.231rem
@@ -22735,11 +22739,6 @@ fieldset[disabled] .btn-color.btn-evernote:hover {
     -webkit-box-flex: 0;
     -ms-flex: 0 0 auto;
     flex: 0 0 auto
-}
-
-.active .list-group-item .badge {
-    background: #fff;
-    color: #4285f4
 }
 
 .h1 .small,
@@ -24124,7 +24123,7 @@ fieldset[disabled] .full-calendar .fc-button:hover {
 }
 
 .gritter-item-wrapper {
-    background: url(../lib/jquery.gritter/images/gritter-bg.png);
+    background: #000;
     -webkit-box-shadow: 0 0 4px rgba(0, 0, 0, .2);
     box-shadow: 0 0 4px rgba(0, 0, 0, .2)
 }

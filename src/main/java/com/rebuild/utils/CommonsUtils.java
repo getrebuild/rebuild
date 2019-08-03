@@ -18,9 +18,21 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.utils;
 
-import java.util.regex.Pattern;
-
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.apache.commons.lang.StringUtils;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 /**
  * 通用工具类
@@ -64,5 +76,89 @@ public class CommonsUtils {
 		} else {
 			return text.substring(0, 4) + "********************" + text.substring(textLen - 4);
 		}
+	}
+
+	private static OkHttpClient okHttpClient = null;
+	/**
+	 * @return
+	 */
+	public static OkHttpClient getHttpClient() {
+		if (okHttpClient == null) {
+			okHttpClient = new OkHttpClient.Builder()
+					.retryOnConnectionFailure(false)
+					.callTimeout(60, TimeUnit.SECONDS)
+					.build();
+		}
+		return okHttpClient;
+	}
+
+	/**
+	 * @param url
+	 * @return
+	 * @throws IOException
+	 */
+	public static String get(String url) throws IOException {
+		Request request = new Request.Builder()
+				.url(url)
+				.build();
+
+		try (Response response = getHttpClient().newCall(request).execute()) {
+			return response.body().string();
+		}
+	}
+
+	/**
+	 * @param url
+	 * @param data
+	 * @return
+	 * @throws IOException
+	 */
+	public static String post(String url, Map<String, Object> data) throws IOException {
+		FormBody.Builder formBuilder = new FormBody.Builder();
+		if (data != null && !data.isEmpty()) {
+			for (Map.Entry<String, Object> e : data.entrySet()) {
+				Object v = e.getValue();
+				formBuilder.add(e.getKey(), v == null ? StringUtils.EMPTY : v.toString());
+			}
+		}
+
+		Request request = new Request.Builder()
+				.url(url)
+				.post(formBuilder.build())
+				.build();
+
+		try (Response response = getHttpClient().newCall(request).execute()) {
+			return response.body().string();
+		}
+	}
+
+	/**
+	 * 读取二进制数据
+	 *
+	 * @param url
+	 * @param dest
+	 * @return
+	 * @throws IOException
+	 */
+	public static boolean readBinary(String url, File dest) throws IOException {
+		Request request = new Request.Builder()
+				.url(url)
+				.build();
+
+		try (Response response = getHttpClient().newCall(request).execute()) {
+			try (InputStream is = response.body().byteStream()) {
+				try (BufferedInputStream bis = new BufferedInputStream(is)) {
+					try (OutputStream os = new FileOutputStream(dest)) {
+						byte[] chunk = new byte[1024];
+						int count = 0;
+						while ((count = bis.read(chunk)) != -1) {
+							os.write(chunk, 0, count);
+						}
+						os.flush();
+					}
+				}
+			}
+		}
+		return true;
 	}
 }

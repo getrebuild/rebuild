@@ -29,7 +29,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.persist4j.Entity;
@@ -122,14 +122,14 @@ public class DataWrapper {
 				if (field.getType() == FieldType.REFERENCE) {
 					int rec = field.getReferenceEntity().getEntityCode();
 					if (rec == EntityHelper.ClassificationData || rec == EntityHelper.PickList) {
-						row[j] = FieldValueWrapper.wrapFieldValue(row[j], EasyMeta.valueOf(field));
+						row[j] = FieldValueWrapper.instance.wrapFieldValue(row[j], EasyMeta.valueOf(field));
 					} else {
 						row[j] = readReferenceRich((ID) row[j], null);
 					}
 				} else if (field.getType() == FieldType.PRIMARY) {  // Last index always
 					row[j] = readReferenceRich((ID) row[j], namedVal);
 				} else {
-					row[j] = FieldValueWrapper.wrapFieldValue(row[j], new EasyMeta(field));
+					row[j] = FieldValueWrapper.instance.wrapFieldValue(row[j], new EasyMeta(field));
 				}
 			}
 		}
@@ -161,7 +161,7 @@ public class DataWrapper {
 			nameVal = named[0];
 		}
 		
-		nameVal = FieldValueWrapper.wrapFieldValue(nameVal, new EasyMeta(nameField));
+		nameVal = FieldValueWrapper.instance.wrapFieldValue(nameVal, new EasyMeta(nameField));
 		String[] metadata = new String[] { entity.getName(), new EasyMeta(entity).getIcon() };
 		return new Object[] { idVal, nameVal, metadata };
 	}

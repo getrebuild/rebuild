@@ -60,7 +60,7 @@ public class TreemapChart extends ChartData {
 			xAmount += v;
 			
 			for (int j = 0; j < o.length - 1; j++) {
-				o[j] = warpAxisValue(dims[j], o[j]);
+				o[j] = wrapAxisValue(dims[j], o[j]);
 			}
 		}
 		

@@ -19,7 +19,7 @@ $(document).ready(function () {
   $('.J_confirm').click(function () {
     let text = $val('.J_text')
     if (!text) {
-      rb.highbar('请输入选项文本')
+      RbHighbar.create('请输入选项文本')
       return false
     }
     let id = $('.J_text').attr('attr-id')
@@ -67,13 +67,13 @@ $(document).ready(function () {
     let del_confirm = function () {
       $btn.button('loading')
       $.post(rb.baseUrl + '/admin/field/picklist-sets?' + query, JSON.stringify(_data), (res) => {
-        if (res.error_code > 0) rb.hberror(res.error_msg)
+        if (res.error_code > 0) RbHighbar.error(res.error_msg)
         else parent.location.reload()
       })
     }
 
     if (force_del > 0) {
-      rb.alert('将删除部分选项，使用了这些选项的数据（字段）将无法显示。<br>确定要删除吗？', {
+      RbAlert.create('将删除部分选项，使用了这些选项的数据（字段）将无法显示。<br>确定要删除吗？', {
         html: true,
         type: 'danger',
         confirm: del_confirm

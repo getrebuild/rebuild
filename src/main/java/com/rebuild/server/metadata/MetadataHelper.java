@@ -21,11 +21,12 @@ package com.rebuild.server.metadata;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.metadata.entityhub.DisplayType;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.metadata.entity.DisplayType;
+import com.rebuild.server.metadata.entity.EasyMeta;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -83,6 +84,9 @@ public class MetadataHelper {
 	 * @return
 	 */
 	public static boolean containsEntity(String entityName) {
+		if (StringUtils.isBlank(entityName)) {
+			return false;
+		}
 		try {
 			getEntity(entityName);
 			return true;
@@ -192,29 +196,66 @@ public class MetadataHelper {
 	 * 
 	 * @param field
 	 * @return
-	 * @see #isCommonsField(Field)
 	 */
 	public static boolean isSystemField(Field field) {
-		final String FN = field.getName();
-		return EntityHelper.AutoId.equalsIgnoreCase(FN) || EntityHelper.QuickCode.equalsIgnoreCase(FN)
-				|| EntityHelper.IsDeleted.equalsIgnoreCase(FN) || field.getType() == FieldType.PRIMARY;
+		return isSystemField(field.getName()) || field.getType() == FieldType.PRIMARY;
 	}
 	
 	/**
-	 * 是否系统级字段
+	 * 仅供系统使用的字段，用户不可见/不可用
+	 * 
+	 * @param fieldName
+	 * @return
+	 */
+	public static boolean isSystemField(String fieldName) {
+		return EntityHelper.AutoId.equalsIgnoreCase(fieldName) 
+				|| EntityHelper.QuickCode.equalsIgnoreCase(fieldName)
+				|| EntityHelper.IsDeleted.equalsIgnoreCase(fieldName)
+				|| EntityHelper.ApprovalStepNode.equalsIgnoreCase(fieldName);
+	}
+	
+	/**
+	 * 是否公共字段
 	 * 
 	 * @param field
 	 * @return
 	 * @see #isSystemField(Field)
+	 * @see EntityHelper
 	 */
 	public static boolean isCommonsField(Field field) {
 		if (isSystemField(field)) {
 			return true;
 		}
-		final String FN = field.getName();
-		return EntityHelper.OwningUser.equalsIgnoreCase(FN) || EntityHelper.OwningDept.equalsIgnoreCase(FN)
-				|| EntityHelper.CreatedOn.equalsIgnoreCase(FN) || EntityHelper.CreatedBy.equalsIgnoreCase(FN)
-				|| EntityHelper.ModifiedOn.equalsIgnoreCase(FN) || EntityHelper.ModifiedBy.equalsIgnoreCase(FN);
+		return isCommonsField(field.getName());
+	}
+	
+	/**
+	 * 是否公共字段
+	 * 
+	 * @param fieldName
+	 * @return
+	 * @see #isSystemField(Field)
+	 * @see EntityHelper
+	 */
+	public static boolean isCommonsField(String fieldName) {
+		if (isSystemField(fieldName) || isApprovalField(fieldName)) {
+			return true;
+		}
+		return EntityHelper.OwningUser.equalsIgnoreCase(fieldName) || EntityHelper.OwningDept.equalsIgnoreCase(fieldName)
+				|| EntityHelper.CreatedOn.equalsIgnoreCase(fieldName) || EntityHelper.CreatedBy.equalsIgnoreCase(fieldName)
+				|| EntityHelper.ModifiedOn.equalsIgnoreCase(fieldName) || EntityHelper.ModifiedBy.equalsIgnoreCase(fieldName);
+	}
+	
+	/**
+	 * 是否审批流程字段
+	 * 
+	 * @param fieldName
+	 * @return
+	 */
+	public static boolean isApprovalField(String fieldName) {
+		return EntityHelper.ApprovalId.equalsIgnoreCase(fieldName) 
+				|| EntityHelper.ApprovalState.equalsIgnoreCase(fieldName)
+				|| EntityHelper.ApprovalStepNode.equalsIgnoreCase(fieldName);
 	}
 	
 	/**
@@ -230,7 +271,7 @@ public class MetadataHelper {
 	/**
 	 * 是否 Bizz 实体
 	 * 
-	 * @param entityCode
+	 * @param entityName
 	 * @return
 	 */
 	public static boolean isBizzEntity(String entityName) {
@@ -345,6 +386,13 @@ public class MetadataHelper {
 	 */
 	public static Field getLastJoinField(Entity entity, String fieldPath) {
 		String[] paths = fieldPath.split("\\.");
+		if (fieldPath.charAt(0) == '&') {
+			paths[0] = paths[0].substring(1);
+			if (!entity.containsField(paths[0])) {
+				return null;
+			}
+		}
+
 		Field lastField = null;
 		Entity father = entity;
 		for (String field : paths) {

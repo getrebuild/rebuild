@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.rebuild.server.configuration.portals.FieldPortalAttrs;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,9 +39,9 @@ import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
-import com.rebuild.server.metadata.entityhub.DisplayType;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.server.metadata.entityhub.Field2Schema;
+import com.rebuild.server.metadata.entity.DisplayType;
+import com.rebuild.server.metadata.entity.EasyMeta;
+import com.rebuild.server.metadata.entity.Field2Schema;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
@@ -76,13 +77,14 @@ public class MetaFieldControll extends BasePageControll  {
 	public void listField(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entityName = getParameter(request, "entity");
 		Entity entity = MetadataHelper.getEntity(entityName);
-		if (entity == null) {
-			writeFailure(response, "无效实体");
-			return;
-		}
-		
+		String fromType = getParameter(request, "from");
+
 		List<Map<String, Object>> ret = new ArrayList<>();
 		for (Field field : MetadataSorter.sortFields(entity)) {
+			if (!FieldPortalAttrs.instance.allowByType(field, fromType)) {
+				continue;
+			}
+
 			EasyMeta easyMeta = new EasyMeta(field);
 			Map<String, Object> map = new HashMap<>();
 			if (easyMeta.getMetaId() != null) {
@@ -155,7 +157,7 @@ public class MetaFieldControll extends BasePageControll  {
 		
 		String fieldName = null;
 		try {
-			fieldName = new Field2Schema(user).create(entity, label, dt, comments, refEntity, extConfig);
+			fieldName = new Field2Schema(user).createField(entity, label, dt, comments, refEntity, extConfig);
 			writeSuccess(response, fieldName);
 		} catch (Exception ex) {
 			writeFailure(response, ex.getLocalizedMessage());
@@ -185,7 +187,7 @@ public class MetaFieldControll extends BasePageControll  {
 				.unique();
 		Field field = MetadataHelper.getEntity((String) fieldRecord[0]).getField((String) fieldRecord[1]);
 		
-		boolean drop = new Field2Schema(user).drop(field, false);
+		boolean drop = new Field2Schema(user).dropField(field, false);
 		if (drop) {
 			writeSuccess(response);
 		} else {

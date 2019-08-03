@@ -46,15 +46,21 @@ $(function () {
 
   var bkeydown_times = 0
   $(document.body).keydown(function (e) {
-    if (e.ctrlKey && e.altKey && e.which === 88) {
+    if (e.shiftKey) {
       if (++bkeydown_times === 6) $('.bosskey-show').show()
       command_exec(bkeydown_times)
     }
+  })
+
+  $(window).on('resize', function () {
+    $setTimeout(resize_handler, 100, 'resize-window')
   })
 })
 // Trigger on Ctrl+Alt+X
 // @t - trigger times
 var command_exec = function (t) {}
+// Trigger on window.onresize
+var resize_handler = function () {}
 
 // MainNav
 var __initNavs = function () {
@@ -128,14 +134,14 @@ var __initNavs = function () {
   }
 
   $('.nav-settings').click(function () {
-    rb.modal(rb.baseUrl + '/p/commons/nav-settings', '设置导航菜单')
+    RbModal.create(rb.baseUrl + '/p/commons/nav-settings', '设置导航菜单')
   })
 }
 
 // Check notification
 var __checkMessage__state = 0
 var __checkMessage = function () {
-  $.get(rb.baseUrl + '/notification/check-message', function (res) {
+  $.get(rb.baseUrl + '/notification/check-state', function (res) {
     if (res.error_code > 0) return
     $('.J_notifications-top .badge').text(res.data.unread)
     if (res.data.unread > 0) $('.J_notifications-top .indicator').removeClass('hide')
@@ -150,11 +156,11 @@ var __loadMessages__state = 0
 var __loadMessages = function () {
   if (__loadMessages__state === 1) return
 
-  const dest = $('.rb-notifications .content ul').empty()
+  var dest = $('.rb-notifications .content ul').empty()
   if (dest.find('li').length === 0) {
     $('<li class="text-center mt-3 mb-3"><i class="zmdi zmdi-refresh zmdi-hc-spin fs-18"></i></li>').appendTo(dest)
   }
-  $.get(rb.baseUrl + '/notification/list?pageSize=10', function (res) {
+  $.get(rb.baseUrl + '/notification/messages?pageSize=10', function (res) {
     dest.empty()
     $(res.data).each(function (idx, item) {
       var o = $('<li class="notification"></li>').appendTo(dest)
@@ -209,9 +215,11 @@ var $gotoSection = function (top, target) {
 var $createUploader = function (input, next, complete, error) {
   input = $(input).off('change')
   var imgOnly = input.attr('accept') === 'image/*'
-  if (window.qiniu && rb.storageUrl) {
+  var temp = input.data('temp')
+  if (window.qiniu && rb.storageUrl && !temp) {
     input.on('change', function () {
       var file = this.files[0]
+      if (!file) return
       var putExtra = imgOnly ? {
         mimeType: ['image/png', 'image/jpeg', 'image/gif', 'image/bmp', 'image/tiff']
       } : null
@@ -226,16 +234,16 @@ var $createUploader = function (input, next, complete, error) {
           error: function (err) {
             var msg = (err.message || 'UnknowError').toUpperCase()
             if (imgOnly && msg.contains('FILE TYPE')) {
-              rb.highbar('请上传图片')
+              RbHighbar.create('请上传图片')
               return false
             } else if (msg.contains('EXCEED FSIZELIMIT')) {
-              rb.highbar('超出文件大小限制')
+              RbHighbar.create('超出文件大小限制')
               return false
             }
             if (error) error({
               error: msg
             })
-            else rb.hberror('上传失败: ' + msg)
+            else RbHighbar.error('上传失败: ' + msg)
           },
           complete: function (res) {
             typeof complete === 'function' && complete({
@@ -248,13 +256,13 @@ var $createUploader = function (input, next, complete, error) {
   } else {
     input.html5Uploader({
       name: input.attr('id') || input.attr('name') || 'H5Upload',
-      postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file'),
+      postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file') + '&temp=' + temp,
       onSelectError: function (file, err) {
         if (err === 'ErrorType') {
-          rb.highbar('请上传图片')
+          RbHighbar.create('请上传图片')
           return false
         } else if (err === 'ErrorMaxSize') {
-          rb.highbar('超出文件大小限制')
+          RbHighbar.create('超出文件大小限制')
           return false
         }
       },
@@ -275,7 +283,7 @@ var $createUploader = function (input, next, complete, error) {
           if (error) error({
             error: msg
           })
-          else rb.hberror(msg)
+          else RbHighbar.error(msg)
         }
       },
       onClientError: function (e, file) {
@@ -283,18 +291,63 @@ var $createUploader = function (input, next, complete, error) {
         if (error) error({
           error: msg
         })
-        else rb.hberror(msg)
+        else RbHighbar.error(msg)
       }
     })
   }
 }
 
 // Clear React node
-var $unmount = function (container, delay) {
+var $unmount = function (container, delay, keepContainer) {
   if (container && container[0]) {
     setTimeout(function () {
       ReactDOM.unmountComponentAtNode(container[0])
-      container.remove()
+      if (keepContainer !== true && container.prop('tagName') !== 'BODY') container.remove()
     }, delay || 1000)
   }
+}
+
+// 初始化 select2 用户选择
+var $initUserSelect2 = function (el, multiple) {
+  var s_input = null
+  var s = $(el).select2({
+    placeholder: '选择用户',
+    minimumInputLength: 0,
+    multiple: multiple === true,
+    ajax: {
+      url: rb.baseUrl + '/commons/search/search',
+      delay: 300,
+      data: function (params) {
+        var query = {
+          entity: 'User',
+          qfields: 'loginName,fullName,email,quickCode',
+          q: params.term,
+          type: 'UDR'
+        }
+        s_input = params.term
+        return query
+      },
+      processResults: function (data) {
+        return {
+          results: data.data
+        }
+      }
+    },
+    language: {
+      noResults: function () {
+        return (s_input || '').length > 0 ? '未找到结果' : '输入用户名/邮箱搜索'
+      },
+      inputTooShort: function () {
+        return '输入用户名/邮箱搜索'
+      },
+      searching: function () {
+        return '搜索中...'
+      }
+    }
+  })
+  s.on('change.select2', function (e) {
+    var v = e.target.value
+    if (v) $.post(rb.baseUrl + '/commons/search/recently-add?type=UDR&id=' + v)
+  })
+  return s
 }

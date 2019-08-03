@@ -26,7 +26,7 @@ class ContentSendNotification extends ActionContentSpec {
   }
   componentDidMount() {
     if (this.props.content && this.props.content.sendTo) {
-      $.post(`${rb.baseUrl}/admin/robot/trigger/send-notification-sendtos?entity=${this.props.sourceEntity}`, JSON.stringify(this.props.content.sendTo), (res) => {
+      $.post(`${rb.baseUrl}/commons/search/user-selector?entity=${this.props.sourceEntity}`, JSON.stringify(this.props.content.sendTo), (res) => {
         if (res.error_code === 0 && res.data.length > 0) this._sendTo.setState({ selected: res.data })
       })
     }
@@ -34,8 +34,8 @@ class ContentSendNotification extends ActionContentSpec {
   }
   buildContent() {
     let _data = { sendTo: this._sendTo.getSelected(), content: $(this._content).val() }
-    if (!_data.sendTo || _data.sendTo.length === 0) { rb.highbar('请选择发送给谁'); return false }
-    if (!_data.content) { rb.highbar('发送内容不能为空'); return false }
+    if (!_data.sendTo || _data.sendTo.length === 0) { RbHighbar.create('请选择发送给谁'); return false }
+    if (!_data.content) { RbHighbar.create('发送内容不能为空'); return false }
     return _data
   }
 }

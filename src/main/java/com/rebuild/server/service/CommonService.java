@@ -86,7 +86,7 @@ public class CommonService extends BaseService {
 	/**
 	 * 批量删除
 	 * 
-	 * @param ids
+	 * @param deleted
 	 * @return
 	 */
 	public int delete(ID[] deleted) {
@@ -129,6 +129,8 @@ public class CommonService extends BaseService {
 	}
 	
 	/**
+	 * 业务实体禁止调用此类
+	 *
 	 * @param idOrRecord
 	 * @throws PrivilegesException
 	 */

@@ -74,7 +74,7 @@ public class SecurityManager {
 	/**
 	 * 获取指定实体的权限集合
 	 * 
-	 * @param userId
+	 * @param user
 	 * @param entity
 	 * @return
 	 */

@@ -1,0 +1,30 @@
+{
+  "nodes": [{
+    "type": "start",
+    "nodeId": "ROOT"
+  }, {
+    "data": {
+      "selfSelecting": false,
+      "users": ["001-9000000000000001"]
+    },
+    "type": "cc",
+    "nodeId": "NODE15627680771710"
+  }, {
+    "data": {
+      "selfSelecting": false,
+      "signMode": "AND",
+      "users": ["001-0000000000000001", "001-9000000000000001"]
+    },
+    "type": "approver",
+    "nodeId": "NODE15627680848801"
+  }, {
+    "data": {
+      "selfSelecting": false,
+      "signMode": "OR",
+      "users": ["001-0000000000000001"]
+    },
+    "type": "approver",
+    "nodeId": "NODE15628652944110"
+  }],
+  "nodeId": "RBFLOW"
+}

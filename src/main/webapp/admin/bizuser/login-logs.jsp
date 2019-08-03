@@ -21,7 +21,7 @@
 						<div class="row rb-datatable-header">
 							<div class="col-12 col-md-6">
 								<div class="dataTables_filter">
-									<div class="input-group input-search" data-qfields="&user,ipAddr">
+									<div class="input-group input-search" data-qfields="&user,user.loginName,user.email,ipAddr">
 										<input class="form-control" type="text" placeholder="查询${entityLabel}" maxlength="40">
 										<span class="input-group-btn"><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button></span>
 									</div>
@@ -58,9 +58,34 @@ window.__PageConfig = {
 </script>
 <script src="${baseUrl}/assets/js/rb-datalist.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-forms.exts.jsx" type="text/babel"></script>
 <script type="text/babel">
-$(document).ready(function(){
-})
+RbList.renderAfter = function() {
+    let ipAddrIndex = -1
+    $('.rb-datatable-body th.sortable').each(function(idx) {
+        if ($(this).data('field') === 'ipAddr') {
+            ipAddrIndex = idx
+            return false
+        }
+    })
+    if (ipAddrIndex === -1) return
+
+    ipAddrIndex += 1
+    $('.rb-datatable-body tbody>tr').each(function() {
+        let ipAddr = $(this).find('td:eq(' + ipAddrIndex + ') div')
+        let ip = (ipAddr.text() || '').split('(')[0].trim()
+        if (ip.contains('0:0:0:0:0:0:0') || /^(127\.0\.0\.1)|(localhost)$/.test(ip)) {
+            ipAddr.text(ip + ' (本机)')
+        } else if (/^(10\.\d{1,3}\.\d{1,3}\.\d{1,3})|(172\.((1[6-9])|(2\d)|(3[01]))\.\d{1,3}\.\d{1,3})|(192\.168\.\d{1,3}\.\d{1,3})$/.test(ip)) {
+            ipAddr.text(ip + ' (局域网)')
+        } else {
+            //$.getJSON('http://ip.taobao.com/service/getIpInfo.php?ip=' + ip + '&jsoncallback=?', function(res) {
+            //    console.log(res)
+            //})
+            //return false
+        }
+    })
+}
 </script>
 </body>
 </html>

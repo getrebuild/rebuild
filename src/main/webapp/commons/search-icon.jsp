@@ -26,7 +26,7 @@ $(document).ready(function(){
 			a.click(function(){ call($(this).data('icon')) })
 		}
 	})
-	parent.rb.modalResize()
+	parent.RbModal.resize()
 })
 </script>
 </body>

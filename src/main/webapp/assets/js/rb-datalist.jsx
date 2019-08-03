@@ -47,8 +47,9 @@ class RbList extends React.Component {
                     {this.state.fields.map((item) => {
                       let cWidth = (item.width || that.__defaultColumnWidth)
                       let styles = { width: cWidth + 'px' }
-                      let sortClazz = item.sort || ''
-                      return (<th key={'column-' + item.field} style={styles} className="sortable unselect" onClick={this.sortField.bind(this, item.field)}><div style={styles}><span style={{ width: (cWidth - 8) + 'px' }}>{item.label}</span><i className={'zmdi ' + sortClazz}></i><i className="split" data-field={item.field}></i></div></th>)
+                      return (<th key={'column-' + item.field} style={styles} className="sortable unselect" onClick={this.sortField.bind(this, item.field)} data-field={item.field}>
+                        <div style={styles}><span style={{ width: (cWidth - 8) + 'px' }}>{item.label}</span><i className={'zmdi ' + (item.sort || '')} /><i className="split" /></div>
+                      </th>)
                     })}
                     <th className="column-empty"></th>
                   </tr>
@@ -83,7 +84,7 @@ class RbList extends React.Component {
     let that = this
     scroller.find('th .split').draggable({
       containment: '.rb-datatable-body', axis: 'x', helper: 'clone', stop: function (event, ui) {
-        let field = $(event.target).data('field')
+        let field = $(event.target).parents('th').data('field')
         let left = ui.position.left - 2
         if (left < COLUMN_MIN_WIDTH) left = COLUMN_MIN_WIDTH
         let fields = that.state.fields
@@ -150,11 +151,11 @@ class RbList extends React.Component {
           })
         }
 
-        this.setState({ rowsData: rowsdata, inLoad: false })
+        this.setState({ rowsData: rowsdata, inLoad: false }, () => RbList.renderAfter())
         if (res.data.total > 0) this.refs['pagination'].setState({ rowsTotal: res.data.total })
 
       } else {
-        rb.hberror(res.error_msg)
+        RbHighbar.error(res.error_msg)
       }
 
       clearTimeout(loadingTimer)
@@ -247,7 +248,6 @@ class RbList extends React.Component {
     }
     this.fetchList()
   }
-
   setAdvFilter(id) {
     this.advFilter = id
     this.fetchList()
@@ -255,16 +255,14 @@ class RbList extends React.Component {
     if (id) $storage.set(this.__defaultFilterKey, id)
     else $storage.remove(this.__defaultFilterKey)
   }
-
   getSelectedRows() {
     return this.__selectedRows
   }
   getSelectedIds() {
-    if (!this.__selectedRows || this.__selectedRows.length < 1) { rb.highbar('未选中任何记录'); return [] }
+    if (!this.__selectedRows || this.__selectedRows.length < 1) { RbHighbar.create('未选中任何记录'); return [] }
     let ids = this.__selectedRows.map((item) => { return item[0] })
     return ids
   }
-
   search(filter, fromAdv) {
     let afHold = this.advFilter
     if (fromAdv === true) this.advFilter = null
@@ -279,6 +277,10 @@ class RbList extends React.Component {
   reload() {
     this.fetchList()
   }
+
+  // 渲染完成后回调
+  static renderAfter() {
+  }
 }
 
 // 列表（单元格）渲染
@@ -288,14 +290,22 @@ var CellRenders = {
     this.__renders[type] = func
   },
   clickView(v) {
-    rb.RbViewModal({ id: v[0], entity: v[2][0] })
+    RbViewModal.create({ id: v[0], entity: v[2][0] })
     return false
   },
   render(value, type, width, key) {
     let style = { width: (width || COLUMN_MIN_WIDTH) + 'px' }
     let func = this.__renders[type]
     if (func) return func(value, style, key)
-    else return <td key={key}><div style={style}>{value}</div></td>
+    else return this.renderSimple(value, style, key)
+  },
+  /**
+   * @param {*} v 值
+   * @param {*} s 样式
+   * @param {*} k key of React (contains fieldName)
+   */
+  renderSimple(v, s, k) {
+    return <td key={k}><div style={s}>{v}</div></td>
   }
 }
 CellRenders.addRender('$NAME$', function (v, s, k) {
@@ -330,9 +340,10 @@ CellRenders.addRender('URL', function (v, s, k) {
 CellRenders.addRender('EMAIL', function (v, s, k) {
   return <td key={k}><div style={s}><a href={'mailto:' + v} className="column-url">{v}</a></div></td>
 })
-CellRenders.addRender('AVATAR', function (v, s, k) {
-  let imgUrl = rb.baseUrl + '/filex/img/' + v + '?imageView2/2/w/100/interlace/1/q/100'
-  return <td key={k} className="user-avatar"><img src={imgUrl} alt="Avatar" /></td>
+const APPROVAL_STATE_CLAZZs = { '审批中': 'text-warning', '驳回': 'text-danger', '通过': 'text-success' }
+CellRenders.addRender('STATE', function (v, s, k) {
+  if (k.endsWith('.approvalState')) return <td key={k}><div style={s} className={APPROVAL_STATE_CLAZZs[v] || ''}>{v}</div></td>
+  else CellRenders.renderSimple(v, s, k)
 })
 
 // 分页组件
@@ -401,34 +412,27 @@ class RbListPagination extends React.Component {
   }
 }
 
-// -- Usage
-
-var rb = rb || {}
-
-// @props = { config }
-rb.RbList = function (props, target) {
-  return renderRbcomp(<RbList {...props} />, target || 'react-list')
-}
-
-// 列表页面初始化
+// 列表页操作类
 const RbListPage = {
   _RbList: null,
 
-  // @config - List config
-  // @entity - [Name, Label, Icon]
-  // @ep - Privileges of this entity
+  /**
+   * @param {*} config DataList config
+   * @param {*} entity [Name, Label, Icon]
+   * @param {*} ep Privileges of this entity
+   */
   init: function (config, entity, ep) {
-    this._RbList = renderRbcomp(<RbList config={config} />, 'react-list')
+    renderRbcomp(<RbList config={config} />, 'react-list', function () { RbListPage._RbList = this })
 
     const that = this
 
     $('.J_new').click(() => {
-      rb.RbFormModal({ title: `新建${entity[1]}`, entity: entity[0], icon: entity[2] })
+      RbFormModal.create({ title: `新建${entity[1]}`, entity: entity[0], icon: entity[2] })
     })
     $('.J_edit').click(() => {
       let ids = this._RbList.getSelectedIds()
       if (ids.length >= 1) {
-        rb.RbFormModal({ id: ids[0], title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] })
+        RbFormModal.create({ id: ids[0], title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] })
       }
     })
     $('.J_delete').click(() => {
@@ -444,25 +448,22 @@ const RbListPage = {
       let ids = this._RbList.getSelectedIds()
       if (ids.length >= 1) {
         location.hash = '!/View/' + entity[0] + '/' + ids[0]
-        rb.RbViewModal({ id: ids[0], entity: entity[0] })
+        RbViewModal.create({ id: ids[0], entity: entity[0] })
       }
     })
     $('.J_assign').click(() => {
       let ids = this._RbList.getSelectedIds()
-      if (ids.length > 0) rb.DlgAssign({ entity: entity[0], ids: ids })
+      ids.length > 0 && DlgAssign.create({ entity: entity[0], ids: ids })
     })
     $('.J_share').click(() => {
       let ids = this._RbList.getSelectedIds()
-      if (ids.length > 0) rb.DlgShare({ entity: entity[0], ids: ids })
+      ids.length > 0 && DlgShare.create({ entity: entity[0], ids: ids })
     })
     $('.J_unshare').click(() => {
       let ids = this._RbList.getSelectedIds()
-      if (ids.length > 0) rb.DlgUnshare({ entity: entity[0], ids: ids })
+      ids.length > 0 && DlgUnshare.create({ entity: entity[0], ids: ids })
     })
-
-    $('.J_columns').click(function () {
-      rb.modal(`${rb.baseUrl}/p/general-entity/show-fields?entity=${entity[0]}`, '设置列显示')
-    })
+    $('.J_columns').click(() => RbModal.create(`${rb.baseUrl}/p/general-entity/show-fields?entity=${entity[0]}`, '设置列显示'))
 
     // Privileges
     if (ep) {
@@ -471,7 +472,6 @@ const RbListPage = {
       if (ep.U === false) $('.J_edit').remove()
       if (ep.A === false) $('.J_assign').remove()
       if (ep.S === false) $('.J_share, .J_unshare').remove()
-
       $cleanMenu('.J_action')
     }
 
@@ -487,14 +487,20 @@ const RbListPage = {
       this._RbList.search(filterExp)
     })
     input.keydown((event) => { if (event.which === 13) btn.trigger('click') })
+  },
+
+  reload() {
+    this._RbList.reload()
   }
 }
 
-// 列表高级查询
+// 高级查询操作类
 const AdvFilters = {
 
-  // @el - 控件
-  // @entity - 实体
+  /**
+   * @param {*} el 控件
+   * @param {*} entity 实体
+   */
   init(el, entity) {
     this.__el = $(el)
     this.__entity = entity
@@ -541,7 +547,7 @@ const AdvFilters = {
             return false
           })
           action.find('a:eq(1)').click(function () {
-            rb.alert('确认删除此查询项吗？', {
+            RbAlert.create('确认删除此查询项吗？', {
               type: 'danger',
               confirm: function () {
                 this.disabled(true)
@@ -553,7 +559,7 @@ const AdvFilters = {
                       RbListPage._RbList.setAdvFilter(null)
                       $('.adv-search .J_name').text('全部数据')
                     }
-                  } else rb.hberror(res.error_msg)
+                  } else RbHighbar.error(res.error_msg)
                 })
               }
             })
@@ -569,12 +575,13 @@ const AdvFilters = {
     if (!id) {
       if (this.__customAdv) this.__customAdv.show()
       else {
+        let that = this
         if (copyId) {
           this.__getFilter(copyId, (res) => {
-            this.__customAdv = renderRbcomp(<AdvFilter {...props} filter={res.filter} />)
+            renderRbcomp(<AdvFilter {...props} filter={res.filter} />, null, function () { that.__customAdv = this })
           })
         } else {
-          this.__customAdv = renderRbcomp(<AdvFilter {...props} />)
+          renderRbcomp(<AdvFilter {...props} />, null, function () { that.__customAdv = this })
         }
       }
     } else {
@@ -592,7 +599,7 @@ const AdvFilters = {
     if (name) url += '&name=' + $encode(name)
     $.post(url, JSON.stringify(filter), (res) => {
       if (res.error_code === 0) that.loadFilters()
-      else rb.hberror(res.error_msg)
+      else RbHighbar.error(res.error_msg)
     })
   },
 
@@ -613,18 +620,19 @@ $(document).ready(() => {
 
 // -- for View
 
-const VIEW_LOAD_DELAY = 200  // 0.2s in rb-page.css '.rbview.show .modal-content'
-//~~ 视图窗口（右侧滑出）
+// ~~视图窗口（右侧滑出）
 class RbViewModal extends React.Component {
+
   constructor(props) {
     super(props)
     this.state = { ...props, inLoad: true, isHide: true, isDestroy: false }
     this.mcWidth = this.props.subView === true ? 1170 : 1220
     if ($(window).width() < 1280) this.mcWidth -= 100
   }
+
   render() {
     return (this.state.isDestroy === true ? null :
-      <div className="modal-warpper">
+      <div className="modal-wrapper">
         <div className="modal rbview" ref={(c) => this._rbview = c}>
           <div className="modal-dialog">
             <div className="modal-content" style={{ width: this.mcWidth + 'px' }}>
@@ -638,9 +646,10 @@ class RbViewModal extends React.Component {
       </div>
     )
   }
+
   componentDidMount() {
     let root = $(this._rbview)
-    const rootWarp = root.parent().parent()
+    const rootWrap = root.parent().parent()
     let mc = root.find('.modal-content')
     let that = this
     root.on('hidden.bs.modal', function () {
@@ -653,18 +662,15 @@ class RbViewModal extends React.Component {
       } else {
         location.hash = '!/View/'
       }
-      // subView always dispose
+
+      // SubView
       if (that.state.disposeOnHide === true) {
         root.modal('dispose')
-        that.setState({ isDestroy: true }, function () {
-          rb.__subViewModals[that.state.id] = null
-          $unmount(rootWarp)
+        that.setState({ isDestroy: true }, () => {
+          RbViewModal.holder(that.state.id, 'DISPOSE')
+          $unmount(rootWrap)
           // 刷新主实体窗口
           // 打开的子View窗口数据发生了变化（如删除/更新）
-          if (rb.subViewChanged && rb.__currentViewModal) {
-            rb.__currentViewModal._iframe.contentWindow.RbViewPage.reload()
-            rb.subViewChanged = false
-          }
         })
       }
 
@@ -684,6 +690,7 @@ class RbViewModal extends React.Component {
     })
     this.show()
   }
+
   hideLoading() {
     this.setState({ inLoad: false, isHide: false })
   }
@@ -700,60 +707,57 @@ class RbViewModal extends React.Component {
       $(this._rbview).modal({ show: true, backdrop: true, keyboard: false })
       setTimeout(() => {
         this.setState({ showAfterUrl: this.state.url })
-      }, VIEW_LOAD_DELAY)
+      }, 210) // 0.2s in rb-page.css '.rbview.show .modal-content'
     })
   }
   hide() {
-    let root = $(this._rbview)
-    root.modal('hide')
-  }
-}
-
-rb.subViewChanged = false
-// 主View
-rb.__currentViewModal
-// 子View（允许多个，ID为Key）
-rb.__subViewModals = {}
-// @props - { id, entity }
-// @subView - 是否子 View
-rb.RbViewModal = function (props, subView) {
-  const viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
-  if (subView === true) {
-    rb.RbViewModalHide(props.id)
-    let m = renderRbcomp(<RbViewModal url={viewUrl} disposeOnHide={true} id={props.id} subView={true} />)
-    rb.__subViewModals[props.id] = m
-    return m
+    $(this._rbview).modal('hide')
   }
 
-  if (rb.__currentViewModal) rb.__currentViewModal.show(viewUrl)
-  else rb.__currentViewModal = renderRbcomp(<RbViewModal url={viewUrl} />)
-  rb.__subViewModals[props.id] = rb.__currentViewModal
-  return rb.__currentViewModal
-}
+  // -- Usage
+  /**
+   * @param {*} props 
+   * @param {Boolean} subView 
+   */
+  static create(props, subView) {
+    this.__HOLDERs = this.__HOLDERs || {}
+    const that = this
+    const viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
 
-rb.RbViewModalGet = function (id) {
-  return rb.__subViewModals[id]
-}
-rb.RbViewModalHide = function (id) {
-  if (!id) {
-    if (rb.__currentViewModal) rb.__currentViewModal.hide()
-  } else {
-    let c = rb.__subViewModals[id]
-    if (c) {
-      c.hide()
-      rb.__subViewModals[id] = null
+    if (subView) {
+      renderRbcomp(<RbViewModal url={viewUrl} disposeOnHide={true} id={props.id} subView={true} />, null, function () {
+        that.__HOLDERs[props.id] = this
+      })
+    } else {
+      if (this.__HOLDER) {
+        this.__HOLDER.show(viewUrl)
+        this.__HOLDERs[props.id] = this.__HOLDER
+      } else renderRbcomp(<RbViewModal url={viewUrl} />, null, function () {
+        that.__HOLDER = this
+        that.__HOLDERs[props.id] = this
+      })
     }
   }
+  /**
+   * @param {*} id 
+   * @param {*} action [DISPOSE|HIDE|LOADING]
+   */
+  static holder(id, action) {
+    if (action === 'DISPOSE') this.__HOLDERs[id] = null
+    if (action === 'HIDE') this.__HOLDERs[id] && this.__HOLDERs[id].hide()
+    if (action === 'LOADING') this.__HOLDERs[id] && this.__HOLDERs[id].showLoading()
+    else return this.__HOLDERs[id]
+  }
 }
 
-$(window).on('load', () => {
+$(document).ready(() => {
   // 自动打开 View
   let viewHash = location.hash
   if (viewHash && viewHash.startsWith('#!/View/') && (wpc.type === 'RecordList' || wpc.type === 'SlaveList')) {
     viewHash = viewHash.split('/')
     if (viewHash.length === 4 && viewHash[3].length === 20) {
       setTimeout(() => {
-        rb.RbViewModal({ entity: viewHash[2], id: viewHash[3] })
+        RbViewModal.create({ entity: viewHash[2], id: viewHash[3] })
       }, 500)
     }
   }

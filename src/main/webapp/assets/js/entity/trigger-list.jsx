@@ -25,19 +25,21 @@ class GridList extends React.Component {
         return (<div key={'item-' + item[0]} className="col-xl-3 col-lg-4 col-md-6">
           <div className="card">
             <div className="card-body">
-              <a className="text-truncate" href={'trigger/' + item[0]}>{item[2] + ' · ' + item[4]}</a>
-              <p className="text-muted text-truncate">{item[1] > 0 ? ('当' + formatWhen(item[1]) + '时') : <span className="text-warning">未启用 (无触发动作)</span>}</p>
+              <a className="text-truncate" href={'trigger/' + item[0]}>{item[5] || (item[2] + ' · ' + item[4])}</a>
+              <p className="text-muted text-truncate">{item[1] > 0 ? ('当' + formatWhen(item[1]) + '时') : <span className="text-warning">(无触发动作)</span>}</p>
             </div>
             <div className="card-footer card-footer-contrast">
               <div className="float-left">
+                <a onClick={() => renderRbcomp(<DlgEdit id={item[0]} name={item[5]} isDisabled={item[6]} />)}><i className="zmdi zmdi-edit"></i></a>
                 <a onClick={() => this.delete(item[0])}><i className="zmdi zmdi-delete"></i></a>
               </div>
+              {item[6] && <div className="badge badge-warning">已禁用</div>}
               <div className="clearfix"></div>
             </div>
           </div>
         </div>)
       })}
-      {(!this.state.list || this.state.list.length === 0) && <div className="text-muted">尚未配置触发器</div>}
+      {(!this.state.list || this.state.list.length === 0) && <div className="text-muted">尚未配置任何触发器</div>}
     </div>
   }
   componentDidMount() {
@@ -67,16 +69,16 @@ class GridList extends React.Component {
   }
 
   delete(configId) {
-    rb.alert('确认要删除此触发器？', {
+    RbAlert.create('确认删除此触发器吗？', {
       type: 'danger',
       confirmText: '删除',
       confirm: function () {
         this.disabled(true)
         $.post(`${rb.baseUrl}/app/entity/record-delete?id=${configId}`, (res) => {
           if (res.error_code === 0) {
-            rb.hbsuccess('触发器已删除')
+            RbHighbar.success('触发器已删除')
             setTimeout(() => { location.reload() }, 500)
-          } else rb.hberror(res.error_msg)
+          } else RbHighbar.error(res.error_msg)
         })
       }
     })
@@ -88,28 +90,45 @@ class DlgEdit extends RbFormHandler {
     super(props)
   }
   render() {
-    return (<RbModal title="添加触发器" ref={(c) => this._dlg = c}>
+    return (<RbModal title={(this.props.id ? '编辑' : '添加') + '触发器'} ref={(c) => this._dlg = c} disposeOnHide={true}>
       <div className="form">
+        {!this.props.id && <React.Fragment>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">触发器</label>
+            <div className="col-sm-7">
+              <select className="form-control form-control-sm" ref={(c) => this._actionType = c}>
+                {(this.state.actions || []).map((item) => {
+                  return <option key={'o-' + item[0]} value={item[0]}>{item[1]}</option>
+                })}
+              </select>
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">触发源实体</label>
+            <div className="col-sm-7">
+              <select className="form-control form-control-sm" ref={(c) => this._sourceEntity = c}>
+                {(this.state.sourceEntities || []).map((item) => {
+                  return <option key={'e-' + item[0]} value={item[0]}>{item[1]}</option>
+                })}
+              </select>
+            </div>
+          </div>
+        </React.Fragment>}
         <div className="form-group row">
-          <label className="col-sm-3 col-form-label text-sm-right">触发器</label>
+          <label className="col-sm-3 col-form-label text-sm-right">名称 (可选)</label>
           <div className="col-sm-7">
-            <select className="form-control form-control-sm" ref={(c) => this._actionType = c}>
-              {(this.state.actions || []).map((item) => {
-                return <option key={'o-' + item[0]} value={item[0]}>{item[1]}</option>
-              })}
-            </select>
+            <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
           </div>
         </div>
-        <div className="form-group row">
-          <label className="col-sm-3 col-form-label text-sm-right">触发源实体</label>
-          <div className="col-sm-7">
-            <select className="form-control form-control-sm" ref={(c) => this._sourceEntity = c}>
-              {(this.state.sourceEntities || []).map((item) => {
-                return <option key={'e-' + item[0]} value={item[0]}>{item[1]}</option>
-              })}
-            </select>
-          </div>
-        </div>
+        {this.props.id &&
+          <div className="form-group row">
+            <div className="col-sm-7 offset-sm-3">
+              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                <input className="custom-control-input" type="checkbox" checked={this.state.isDisabled === true} data-id="isDisabled" onChange={this.handleChange} />
+                <span className="custom-control-label">是否禁用</span>
+              </label>
+            </div>
+          </div>}
         <div className="form-group row footer">
           <div className="col-sm-7 offset-sm-3" ref={(c) => this._btns = c}>
             <button className="btn btn-primary" type="button" onClick={this.save}>确定</button>
@@ -119,6 +138,7 @@ class DlgEdit extends RbFormHandler {
     </RbModal>)
   }
   componentDidMount() {
+    if (this.props.id) return
     this.__select2 = []
     // #1
     $.get(`${rb.baseUrl}/admin/robot/trigger/available-actions`, (res) => {
@@ -149,22 +169,24 @@ class DlgEdit extends RbFormHandler {
     })
   }
 
-  save = (e) => {
-    e.preventDefault()
-    let _data = { actionType: this.__select2[0].val(), belongEntity: this.__select2[1].val() }
-    if (!_data.actionType || !_data.belongEntity) {
-      rb.hignbar('请选择源触发实体')
-      return
+  save = () => {
+    let _data = { name: this.state['name'] || '', isDisabled: this.state.isDisabled === true }
+    if (!this.props.id) {
+      _data = { actionType: this.__select2[0].val(), belongEntity: this.__select2[1].val() }
+      if (!_data.actionType || !_data.belongEntity) {
+        RbHighbar.create('请选择源触发实体')
+        return
+      }
     }
     _data.metadata = { entity: 'RobotTriggerConfig', id: this.props.id || null }
-
-    let _btns = $(this._btns).find('.btn').button('loading')
-    $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), (res) => {
+    
+    this.disabled(true)
+        $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
         if (this.props.id) location.reload()
         else location.href = 'trigger/' + res.data.id
-      } else rb.hberror(res.error_msg)
-      _btns.button('reset')
+      } else RbHighbar.error(res.error_msg)
+      this.disabled()
     })
   }
 }

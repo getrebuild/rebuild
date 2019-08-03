@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigManager;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.metadata.entity.EasyMeta;
 
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;

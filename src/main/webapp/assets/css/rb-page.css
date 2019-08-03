@@ -239,12 +239,20 @@ html.admin .admin-show.row {
     padding-left: 17px
 }
 
+.table-fixed {
+    table-layout: fixed
+}
+
 .form-group.row.text {
     padding: 6px 0;
 }
 
 div.dataTables_wrapper div.dataTables_filter {
     margin-bottom: 5px;
+}
+
+.datetimepicker.dropdown-menu .switch {
+    padding-top: 5px;
 }
 
 .adv-search {
@@ -336,6 +344,10 @@ div.dataTables_wrapper div.dataTables_filter {
 .rbmodal.show,
 .rbview.show .modal-content {
     transition: margin 0.2s;
+}
+
+.rbview.show .modal-content {
+    overflow: hidden;
 }
 
 .modal.rbalert .modal-dialog {
@@ -1103,6 +1115,12 @@ i.split.ui-draggable-dragging {
     background-color: #dedede !important
 }
 
+.dd-list .dd-item.nodata {
+    font-style: italic;
+    color: #999;
+    padding: 5px 7px;
+}
+
 .rb-left-sidebar .bottom-widget {
     padding: 3px 16px;
     margin: 0;
@@ -1335,13 +1353,13 @@ i.split.ui-draggable-dragging {
 
 /* AdvFilter */
 
-.adv-filter-warp {
+.adv-filter-wrap {
     background-color: #fff;
     padding: 20px;
     max-width: 560px;
 }
 
-.adv-filter-warp.in-modal {
+.adv-filter-wrap.in-modal {
     max-width: 1000px;
     padding: 10px;
 }
@@ -1449,8 +1467,6 @@ i.split.ui-draggable-dragging {
     padding-left: 8px;
     padding-right: 8px;
 }
-
-.adv-filter .select2-container--default .select2-selection--multiple .select2-selection__rendered {}
 
 .adv-filter .btn+.btn {
     margin-left: 10px;
@@ -1790,6 +1806,63 @@ form {
     font-weight: bold;
 }
 
+
+.user-show {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+}
+
+.user-show+.user-show {
+    margin-left: 10px;
+}
+
+.user-show:hover {
+    opacity: 0.8;
+}
+
+.user-show>div {
+    display: inline-block;
+}
+
+.user-show .avatar {
+    overflow: hidden;
+    font-size: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #ddd;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.user-show .avatar>img {
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+}
+
+.user-show .avatar>i.zmdi {
+    font-size: 1.7rem;
+    margin-top: 4px;
+    color: #666;
+}
+
+.user-show .name {
+    margin-left: 6px;
+    height: 30px;
+    line-height: 30px;
+    color: #4285f4;
+    max-width: 131px;
+}
+
+.user-show .name>em {
+    font-style: normal;
+    color: #777;
+    font-size: 12px;
+    display: block;
+}
+
 .card-list {
     margin: 4px -10px;
 }
@@ -1836,8 +1909,10 @@ form {
     color: #666;
 }
 
-.card-list .card-footer .float-right {
-    padding-top: 3px;
+.card-list .card-footer .badge {
+    float: right;
+    font-weight: normal;
+    margin-top: 1px;
 }
 
 .card.ph {
@@ -1857,4 +1932,272 @@ form {
     padding-bottom: 5px;
     margin: 0;
     border: 0 none;
+}
+
+.page-head-title .sub-title {
+    color: #5e5e5e;
+    font-size: 1.077rem;
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.page-head-title .sub-title::before {
+    display: inline-block;
+    padding-right: .6154rem;
+    color: #878787;
+    content: "/";
+}
+
+.approval-pane .alert .message {
+    padding: 10px;
+    padding-left: 0;
+}
+
+.approval-pane .alert .close.btn {
+    padding: 8px 0;
+    font-size: 12px;
+    opacity: 1;
+    font-weight: normal;
+    line-height: 1.1;
+    background-color: #fff;
+    min-height: 0;
+    min-width: 78px;
+    margin-top: 8px;
+}
+
+.approval-pane .alert .close.btn+.btn {
+    margin-right: 88px;
+}
+
+.form.approval-form {
+    margin: 0 -5px;
+}
+
+.form.approval-form .form-group {
+    padding: 0 20px;
+}
+
+.form.approval-form .form-group .zicon {
+    float: left;
+    padding-right: 6px;
+    width: 18px;
+}
+
+.form.approval-form .form-group .zicon.zmdi-mail-send {
+    font-size: 1.1rem;
+    margin-top: 2px;
+}
+
+.form.approval-form .approval-list {
+    padding: 5px 0;
+}
+
+.form.approval-form .approval-list>div {
+    padding: 7px 10px;
+    background-color: #f5f5f5;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.form.approval-form .approval-list>div>a {
+    position: absolute;
+    right: 10px;
+    top: 7px;
+    padding: 3px 0;
+    display: none;
+}
+
+.form.approval-form .approval-list>div:hover>a {
+    display: block;
+}
+
+.form.approval-form .approval-list>div+div {
+    margin-top: 3px;
+}
+
+.modal-body.approved-steps-body {
+    min-height: 55px;
+}
+
+.timeline.approved-steps {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    margin-top: 5px;
+    margin-right: 15px;
+}
+
+.timeline.approved-steps::before {
+    top: 25px;
+    left: 108px;
+}
+
+.timeline.approved-steps>div.joint0 {
+    border-right: 3px solid #409EFF;
+    border-radius: 9px;
+}
+
+.timeline.approved-steps>div.joint {
+    border-right: 3px solid #409EFF;
+    border-radius: 9px;
+    margin-right: 39px;
+}
+
+.timeline.approved-steps>div.joint::after {
+    position: absolute;
+    content: '会签';
+    right: 0;
+    top: 50%;
+    margin-top: -10px;
+    background-color: #409EFF;
+    color: #fff;
+    border-radius: 99px;
+    padding: 3px 5px;
+    line-height: 1;
+    font-size: 12px;
+}
+
+.timeline.approved-steps>div.joint.or::after {
+    content: '或签';
+}
+
+.timeline.approved-steps .timeline-item {
+    padding-left: 140px;
+    margin-bottom: 15px;
+}
+
+.timeline.approved-steps .timeline-item:before {
+    top: 16px;
+    left: 100px;
+    border-color: #f7b904;
+}
+
+.timeline.approved-steps .timeline-item.state0:before {
+    border-color: #409EFF;
+    background-color: #409EFF;
+}
+
+.timeline.approved-steps .timeline-item.state10:before {
+    border-color: #33a451;
+    background-color: #33a451;
+}
+
+.timeline.approved-steps .timeline-item.state11:before {
+    border-color: #ea3f30;
+    background-color: #ea3f30;
+}
+
+.timeline.approved-steps .timeline-content {
+    padding: 8px 15px;
+    min-height: 48px;
+    box-shadow: 0 0 #fff;
+    background-color: #f5f5f5;
+}
+
+.timeline.approved-steps .timeline-content:before {
+    top: 19px;
+    background-color: #f5f5f5;
+}
+
+.timeline.approved-steps .timeline-date {
+    top: 16.5px;
+    line-height: 1.2;
+    width: 80px;
+}
+
+.timeline.approved-steps .timeline-date>span {
+    display: block;
+    color: #999;
+}
+
+.timeline.approved-steps .timeline-avatar {
+    height: 32px;
+    width: 32px;
+}
+
+.timeline.approved-steps .timeline-header>.blockquote {
+    margin-top: 5px;
+    padding: 2px 10px;
+}
+
+.notification-type {
+    min-height: 198px
+}
+
+.notification-type .list-group-item {
+    padding: 10px 15px
+}
+
+.notification-list .list-nodata {
+    padding-top: 45px
+}
+
+.notification-list .notification a {
+    cursor: default
+}
+
+.notification-list .notification:hover {
+    background-color: #ebf2fe !important;
+}
+
+.notification-list .notification.notification-unread:hover {
+    background-color: #dce9fd !important;
+}
+
+.notification-list .notification .text {
+    color: #404040 !important;
+    font-size: 1rem !important;
+}
+
+.notification-list .notification .date {
+    color: #8a8a8a !important;
+}
+
+.notification-list .notification .text a {
+    cursor: pointer
+}
+
+.notification-list .notification .text a.record {
+    text-decoration: underline;
+    padding: 0 1px;
+}
+
+.notification-list .notification.notification-unread>a:after {
+    top: 14px;
+    background-color: #4285f4 !important
+}
+
+.notification-list .notification.approval {
+    position: relative;
+    padding-right: 80px;
+}
+
+.notification-list .notification.approval .badge {
+    position: absolute;
+    right: 15px;
+    top: 14px;
+    font-weight: normal;
+}
+
+.notification-page {
+    padding-left: 50%
+}
+
+.notification-page>ul {
+    float: left;
+    margin-left: -38px;
+}
+
+.notification-page::after {
+    clear: left
+}
+
+.notification-tab {
+    position: relative
+}
+
+.notification-tab .read-all {
+    position: absolute;
+    top: 0;
+    right: 0
 }

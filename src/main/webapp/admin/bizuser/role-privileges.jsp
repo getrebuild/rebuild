@@ -19,7 +19,7 @@
 .legend{border:1px solid #dee2e6;border-radius:3px;display:inline-block;padding:9px 15px;}
 .legend label{margin:0 6px;}
 .legend .priv{width:22px;float:left;}
-.legend-warp{padding:10px 0;padding-bottom:5px;text-align:right;}
+.legend-wrap{padding:10px 0;padding-bottom:5px;text-align:right;}
 </style>
 </head>
 <body>
@@ -88,7 +88,7 @@
 						</c:forEach>
 						</tbody>
 						</table>
-						<div class="legend-warp">
+						<div class="legend-wrap">
 							<div class="legend">
 								图例
 								<label><i class="priv R0"></i> 无权限</label>
@@ -137,7 +137,7 @@
 							-->
 						</tbody>
 						</table>
-						<div class="legend-warp">
+						<div class="legend-wrap">
 							<div class="legend">
 								图例
 								<label><i class="priv R4"></i> 是</label>
@@ -155,7 +155,7 @@
 window.__PageConfig = { recordId: '${id}' }
 </script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/rb-forms-ext.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-forms.exts.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/bizuser/roles.jsx" type="text/babel"></script>
 </body>
 </html>

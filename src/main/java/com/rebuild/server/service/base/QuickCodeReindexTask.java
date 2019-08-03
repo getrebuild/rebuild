@@ -28,8 +28,8 @@ import com.rebuild.server.configuration.portals.ClassificationManager;
 import com.rebuild.server.configuration.portals.PickListManager;
 import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.entityhub.DisplayType;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.metadata.entity.DisplayType;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.UserService;
 
 import cn.devezhao.commons.CalendarUtils;

@@ -1,0 +1,677 @@
+.rb-right-sidebar {
+	width: 420px;
+	right: -420px;
+}
+
+.rb-right-sidebar .sb-content,
+.rb-right-sidebar #config-side,
+.rb-right-sidebar #config-side>div {
+	height: 100%;
+}
+
+#config-side>div {
+	position: relative;
+	padding-bottom: 78px;
+}
+
+#config-side .header {
+	border-bottom: 1px solid rgba(0, 0, 0, .1);
+	padding: 10px 20px;
+}
+
+#config-side .header>h5,
+#config-side .header>input {
+	padding: 0;
+	margin: 0;
+	height: 32px;
+	line-height: 32px;
+	font-size: 16px;
+	background-color: transparent;
+	appearance: none;
+	border: 0 none;
+	outline: 0 none;
+	width: 100%;
+}
+
+#config-side .header>input::after {
+	content: '\f158';
+	font-family: 'Material-Design-Iconic-Font';
+	width: 24px;
+	height: 32px;
+	display: inline-block;
+	position: absolute;
+	background-color: #ff0;
+}
+
+#config-side .header>input {
+	background-color: rgba(255, 255, 255, .6);
+	border-radius: 3px;
+	padding: 0 5px;
+}
+
+#config-side .header>input:focus {
+	background-color: #fff;
+}
+
+#config-side .alert.alert-warning {
+	border-radius: 0;
+	margin: 0;
+	padding: 4px 20px;
+}
+
+#config-side .footer,
+#config-side .adv-filter-option .btn-footer {
+	position: absolute;
+	padding: 15px;
+	border-top: 1px solid rgba(0, 0, 0, .1);
+	bottom: 0;
+	right: 0;
+	width: 100%;
+	text-align: right;
+	background-color: #fafafa;
+}
+
+#config-side .form {
+	margin: 20px;
+	appearance: none;
+}
+
+#config-side .footer .btn+.btn {
+	margin-left: 10px;
+}
+
+#config-side .adv-filter-wrap {
+	box-shadow: 0 0 0 #000 !important;
+	border-radius: 0;
+	background-color: transparent;
+	height: 100%;
+	padding: 20px 15px;
+}
+
+#config-side .adv-filter .item .field i.zmdi {
+	background-color: #fafafa;
+}
+
+#config-side .adv-filter-option {
+	position: static;
+}
+
+/* Flow draw */
+.rbflow-design {
+	width: 100%;
+	background-color: #f5f5f7;
+	user-select: none;
+	min-height: 300px;
+}
+
+.rbflow-design>div {
+	overflow: hidden;
+}
+
+.rbflow-design .box-scale {
+	transform: scale(1);
+	display: inline-block;
+	position: relative;
+	width: 100%;
+	padding: 50px 0;
+	-webkit-box-align: start;
+	-ms-flex-align: start;
+	align-items: flex-start;
+	-webkit-box-pack: center;
+	-ms-flex-pack: center;
+	justify-content: center;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	min-width: -webkit-min-content;
+	min-width: -moz-min-content;
+	min-width: min-content;
+	background-color: #f5f5f7;
+}
+
+.rbflow-design .add-node-btn-box {
+	width: 240px;
+	display: -webkit-inline-box;
+	display: -ms-inline-flexbox;
+	display: inline-flex;
+	-ms-flex-negative: 0;
+	flex-shrink: 0;
+	-webkit-box-flex: 1;
+	-ms-flex-positive: 1;
+	position: relative
+}
+
+.rbflow-design .add-node-btn-box:before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: -1;
+	margin: auto;
+	width: 2px;
+	height: 100%;
+	background-color: #cacaca
+}
+
+.rbflow-design .node-wrap {
+	flex-direction: column;
+	-webkit-box-pack: start;
+	-ms-flex-pack: start;
+	justify-content: flex-start;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
+	align-items: center;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	-webkit-box-flex: 1;
+	-ms-flex-positive: 1;
+	padding: 0 50px;
+	position: relative
+}
+
+.rbflow-design .branch-wrap,
+.rbflow-design .node-wrap {
+	display: inline-flex;
+	width: 100%
+}
+
+.rbflow-design .branch-box-wrap {
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
+	align-items: center;
+	min-height: 270px;
+	width: 100%;
+	-ms-flex-negative: 0;
+	flex-shrink: 0
+}
+
+.rbflow-design .branch-box {
+	display: flex;
+	overflow: visible;
+	min-height: 180px;
+	height: auto;
+	border-bottom: 2px solid #ccc;
+	border-top: 2px solid #ccc;
+	position: relative;
+	margin-top: 15px
+}
+
+.rbflow-design .branch-box .col-box {
+	background: #f5f5f7
+}
+
+.rbflow-design .branch-box .col-box:before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 0;
+	margin: auto;
+	width: 2px;
+	height: 100%;
+	background-color: #cacaca
+}
+
+.rbflow-design .col-box {
+	display: inline-flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	flex-direction: column;
+	-webkit-box-align: center;
+	align-items: center;
+	position: relative
+}
+
+.rbflow-design .add-branch {
+	border: none;
+	outline: none;
+	user-select: none;
+	justify-content: center;
+	font-size: 12px;
+	padding: 0 10px;
+	height: 32px;
+	line-height: 32px;
+	border-radius: 15px;
+	color: #409EFF;
+	background: #fff;
+	position: absolute;
+	top: -18px;
+	left: 50%;
+	transform: translateX(-50%);
+	transform-origin: center center;
+	cursor: pointer;
+	z-index: 1;
+	display: inline-flex;
+	align-items: center;
+	width: 88px;
+}
+
+.rbflow-design .condition-node {
+	min-height: 220px
+}
+
+.rbflow-design .condition-node,
+.rbflow-design .condition-node-box {
+	display: inline-flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	flex-direction: column;
+	-webkit-box-flex: 1
+}
+
+.rbflow-design .condition-node-box {
+	padding-top: 30px;
+	padding-right: 50px;
+	padding-left: 50px;
+	-webkit-box-pack: center;
+	justify-content: center;
+	-webkit-box-align: center;
+	align-items: center;
+	flex-grow: 1;
+	position: relative
+}
+
+.rbflow-design .condition-node-box:before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: auto;
+	width: 2px;
+	height: 100%;
+	background-color: #cacaca;
+}
+
+.rbflow-design .auto-judge {
+	position: relative;
+	width: 220px;
+	min-height: 72px;
+	background: #fff;
+	border-radius: 3px;
+	padding: 10px;
+	cursor: pointer
+}
+
+.rbflow-design .auto-judge .title-wrapper {
+	position: relative;
+	font-size: 12px;
+	text-align: left;
+	line-height: 16px;
+	cursor: default;
+}
+
+.rbflow-design .auto-judge .title-wrapper .editable-title {
+	display: inline-block;
+	max-width: 120px;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	color: #67C23A;
+}
+
+.rbflow-design .auto-judge .title-wrapper .priority-title {
+	display: inline-block;
+	margin-right: 12px;
+	color: #999;
+}
+
+.rbflow-design .auto-judge .content {
+	color: #191f25;
+}
+
+.rbflow-design .add-node-btn {
+	user-select: none;
+	width: 240px;
+	padding: 20px 0 32px;
+	display: flex;
+	-webkit-box-pack: center;
+	justify-content: center;
+	flex-shrink: 0;
+	-webkit-box-flex: 1;
+	flex-grow: 1
+}
+
+.rbflow-design .add-node-btn>button {
+	appearance: none;
+	outline: none;
+	width: 34px;
+	height: 34px;
+	background: #409EFF;
+	border-radius: 50%;
+	position: relative;
+	border: none;
+}
+
+.rbflow-design .add-node-btn>button .zmdi {
+	color: #fff;
+	font-size: 21px;
+	line-height: 1;
+	margin-top: 1px;
+}
+
+.rbflow-design .end-node {
+	border-radius: 50%;
+	color: #777;
+	text-align: left
+}
+
+.rbflow-design .end-node .end-node-circle {
+	width: 10px;
+	height: 10px;
+	margin: auto;
+	border-radius: 50%;
+	background: #cacaca
+}
+
+.rbflow-design .end-node .end-node-text {
+	margin-top: 5px;
+	text-align: center
+}
+
+.node-wrap-box {
+	display: -webkit-inline-box;
+	display: -ms-inline-flexbox;
+	display: inline-flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	position: relative;
+	width: 220px;
+	min-height: 72px;
+	-ms-flex-negative: 0;
+	flex-shrink: 0;
+	background: #fff;
+	border-radius: 3px;
+	cursor: pointer;
+}
+
+.node-wrap-box .title {
+	position: relative;
+	padding: 7px 10px;
+	width: 100%;
+	color: #fff;
+	text-align: left;
+	background: #409EFF;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	line-height: 1;
+	font-size: 12px;
+	border-radius: 3px 3px 0 0;
+	cursor: default;
+}
+
+.node-wrap-box .aclose,
+.auto-judge .aclose {
+	display: none;
+	position: absolute;
+	right: 3px;
+	top: 3px;
+	width: 20px;
+	height: 20px;
+	color: #fff;
+	text-align: center;
+	line-height: 20px;
+	font-size: 15px;
+	cursor: pointer;
+}
+
+.auto-judge .aclose {
+	color: #aaa;
+	top: -2px;
+	right: -6px;
+}
+
+.node-wrap-box:active .aclose,
+.node-wrap-box:hover .aclose,
+.auto-judge:active .aclose,
+.auto-judge:hover .aclose {
+	display: block
+}
+
+.node-wrap-box .content,
+.auto-judge .content {
+	position: relative;
+	padding: 15px 10px;
+}
+
+.auto-judge .content {
+	padding: 0;
+	padding-top: 12px;
+}
+
+.node-wrap-box .content .text,
+.auto-judge .content .text {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical
+}
+
+.node-wrap-box .content .arrow,
+.auto-judge .content .arrow {
+	position: absolute;
+	right: 10px;
+	top: 50%;
+	transform: translateY(-50%);
+	font-size: 21px;
+	color: #ccc;
+	margin-top: 0
+}
+
+.auto-judge .content .arrow {
+	margin-top: 6px;
+	right: 0;
+}
+
+.node-wrap-box::before {
+	content: "";
+	position: absolute;
+	top: -12px;
+	left: 50%;
+	-webkit-transform: translateX(-50%);
+	transform: translateX(-50%);
+	width: 0;
+	height: 4px;
+	border-style: solid;
+	border-width: 8px 6px 4px;
+	border-color: #cacaca transparent transparent;
+	background: #f5f5f7;
+}
+
+.node-wrap-box.start-node:before {
+	content: none
+}
+
+.top-left-cover-line {
+	left: -1px
+}
+
+.top-left-cover-line,
+.top-right-cover-line {
+	position: absolute;
+	height: 3px;
+	width: 50%;
+	background-color: #f5f5f7;
+	top: -2px
+}
+
+.top-right-cover-line {
+	right: -1px
+}
+
+.bottom-left-cover-line {
+	left: -1px
+}
+
+.bottom-left-cover-line,
+.bottom-right-cover-line {
+	position: absolute;
+	height: 3px;
+	width: 50%;
+	background-color: #f5f5f7;
+	bottom: -2px
+}
+
+.bottom-right-cover-line {
+	right: -1px
+}
+
+.node-wrap-box.approver-node .title {
+	background-color: #F56C6C;
+}
+
+.node-wrap-box.cc-node .title {
+	background-color: #67C23A;
+}
+
+.node-wrap-box:hover,
+.rbflow-design .add-node-btn>button:hover,
+.rbflow-design .add-branch:hover,
+.rbflow-design .auto-judge:hover {
+	opacity: 0.95;
+	cursor: pointer;
+	box-shadow: 0 3px 4px 0 rgba(0, 0, 0, .1);
+}
+
+.rbflow-design .auto-judge:after,
+.rbflow-design .node-wrap-box:after {
+	pointer-events: none;
+	content: "";
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 2;
+	border-radius: 3px;
+}
+
+.rbflow-design .auto-judge.error:after,
+.rbflow-design .node-wrap-box.error:after {
+	border: 2px solid #ea4335;
+}
+
+.rbflow-design .auto-judge.active:after,
+.rbflow-design .node-wrap-box.active:after {
+	border: 1px solid #409EFF;
+}
+
+.add-node .modal-dialog {
+	width: 500px;
+}
+
+.add-node .modal-body {
+	padding-left: 60px;
+	padding-right: 60px;
+	padding-bottom: 26px;
+}
+
+.add-node .col-4>a {
+	display: block;
+	text-align: center;
+	width: 72px;
+	margin: 0 auto;
+}
+
+.add-node .col-4>a>div {
+	display: inline-block;
+	width: 72px;
+	height: 72px;
+	color: #fff;
+	font-size: 36px;
+	background-color: #409EFF;
+	text-align: center;
+	border-radius: 50%;
+	padding-top: 10px;
+}
+
+.add-node .col-4>a>p {
+	margin: 0;
+	margin-top: 9px;
+}
+
+.add-node .col-4>a.approver>div {
+	background-color: #F56C6C;
+}
+
+.add-node .col-4>a.cc>div {
+	background-color: #67C23A;
+}
+
+.add-node .col-4>a.cc>div .zmdi {
+	transform: translate(2px, 1px)
+}
+
+.add-node .col-4>a:hover {
+	opacity: 0.9
+}
+
+.zoom {
+	display: flex;
+	position: fixed;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
+	align-items: center;
+	-webkit-box-pack: justify;
+	-ms-flex-pack: justify;
+	justify-content: space-between;
+	height: 40px;
+	width: 120px;
+	right: 25px;
+	bottom: 20px;
+	z-index: 10;
+	opacity: 0.6;
+}
+
+.zoom:hover {
+	opacity: 1;
+}
+
+.zoom .zoom-in,
+.zoom .zoom-out {
+	width: 32px;
+	height: 32px;
+	border-radius: 2px;
+	background-color: #fff;
+	cursor: pointer !important;
+	border: 1px solid #e8e8e8;
+	text-align: center;
+	padding-top: 4px;
+
+}
+
+.zoom .zoom-in i,
+.zoom .zoom-out i {
+	font-size: 22px;
+	color: #777;
+}
+
+.rbflow-design .box-scale.preview button,
+.rbflow-design .box-scale.preview .aclose,
+.rbflow-design .box-scale.preview .arrow {
+	display: none !important;
+}
+
+.rbflow-design .box-scale.preview .auto-judge,
+.rbflow-design .box-scale.preview .node-wrap-box {
+	cursor: default;
+}
+
+.rbflow-design .box-scale.preview .node-wrap:first-child {
+	margin-bottom: -15px;
+}

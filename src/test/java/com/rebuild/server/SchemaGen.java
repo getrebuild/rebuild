@@ -18,11 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server;
 
+import com.rebuild.server.metadata.EntityHelper;
 import org.dom4j.Element;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import com.rebuild.server.metadata.EntityHelper;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -46,8 +45,9 @@ public class SchemaGen {
 		PMF = CTX.getBean(PersistManagerFactoryImpl.class);
 		
 //		genAll();
-		gen(EntityHelper.ClassificationData);
-		
+		gen(EntityHelper.RebuildApi);
+		gen(EntityHelper.RebuildApiRequest);
+
 		System.exit(0);
 	}
 	
@@ -65,7 +65,7 @@ public class SchemaGen {
 				PMF.getDialect(),
 				root.selectSingleNode("//entity[@name='" + entity.getName() + "']").selectNodes("index"));
 		
-		String[] ddl = table.generateDDL(true, false);
+		String[] ddl = table.generateDDL(!true, false);
 		
 		StringBuffer sb = new StringBuffer();
 		sb.append("-- ************ Entity [" + entity.getName() + "] DDL ************\n");
@@ -73,6 +73,7 @@ public class SchemaGen {
 			if (d.startsWith("drop ")) {
 				d = "" + d;
 			}
+			d = d.replace(" default '0000-00-00 00:00:00'", "");
 			sb.append(d).append("\n");
 		}
 		System.out.println(sb);

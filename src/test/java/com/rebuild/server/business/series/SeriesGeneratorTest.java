@@ -31,7 +31,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entityhub.DisplayType;
+import com.rebuild.server.metadata.entity.DisplayType;
 
 import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.Field;

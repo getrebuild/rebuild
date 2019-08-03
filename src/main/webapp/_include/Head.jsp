@@ -1,3 +1,4 @@
+<%@page import="cn.devezhao.persist4j.engine.ID"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.rebuild.utils.AppUtils"%>
 <%@ page import="com.rebuild.server.helper.SysConfiguration"%>
@@ -21,10 +22,15 @@
 <%if (QiniuCloud.instance().available()) {%>
 <meta name="rb.storageUrl" content="<%=SysConfiguration.getStorageUrl()%>">
 <%}%>
+<%
+ID currentUser = AppUtils.getRequestUser(request);
+if (currentUser != null) {
+%>
+<meta name="rb.currentUser" content="<%=currentUser%>">
 <%if (AppUtils.isAdminUser(request)){%>
 <meta name="rb.isAdminUser" content="true">
 <meta name="rb.isAdminVerified" content="<%=AppUtils.isAdminVerified(request)%>">
-<%}%>
+<%}}%>
 <%if (AppUtils.isLessIE11(request)){%>
 <script>window.lessIE11 = true</script>
 <script src="${baseUrl}/assets/lib/react/polyfill.min.js"></script>

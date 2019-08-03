@@ -31,7 +31,7 @@ $(document).ready(function () {
 
     if (location.hash && location.hash.length > 20) {
       if (location.hash.substr(0, 5) === '#del=') {
-        rb.hbsuccess('仪表盘已删除')
+        RbHighbar.success('仪表盘已删除')
         location.hash = ''
       } else {
         let high = $('#chart-' + location.hash.substr(1)).addClass('high')
@@ -46,18 +46,24 @@ $(document).ready(function () {
 
     if (dash_editable !== true) $('.J_dash-edit, .J_chart-adds').remove()
 
-    $('.J_dash-new').click(() => { show_dlg('DlgDashAdd') })
-    $('.J_dash-edit').click(() => { show_dlg('DlgDashSettings', { title: d[1], shareToAll: d[4] === 'ALL' }) })
-    $('.J_chart-new').click(() => { show_dlg('DlgAddChart') })
-    $('.J_dash-select').click(() => { show_dlg('DashSelect', { dashList: dash_list }) })
+    $('.J_dash-new').click(() => { dlgShow('DlgDashAdd') })
+    $('.J_dash-edit').click(() => { dlgShow('DlgDashSettings', { title: d[1], shareToAll: d[4] === 'ALL' }) })
+    $('.J_chart-new').click(() => { dlgShow('DlgAddChart') })
+    $('.J_dash-select').click(() => { dlgShow('DashSelect', { dashList: dash_list }) })
+    let dlgChartSelect
     $('.J_chart-select').click(() => {
-      let dlg = show_dlg('ChartSelect')
-      let appended = []
-      $('.grid-stack-item-content').each(function () {
-        let chid = $(this).attr('id').substr(6)
-        appended.push(chid)
-      })
-      dlg.setState({ appended: appended })
+      if (dlgChartSelect) dlgChartSelect.show()
+      else {
+        renderRbcomp(<ChartSelect key="ChartSelect" />, null, function () {
+          dlgChartSelect = this
+          let appended = []
+          $('.grid-stack-item-content').each(function () {
+            let chid = $(this).attr('id').substr(6)
+            appended.push(chid)
+          })
+          this.setState({ appended: appended })
+        })
+      }
     })
   }))
 
@@ -76,17 +82,15 @@ let win_resize = function (t) {
   }, t || 400, 'resize-charts')
 }
 
-const dlg_cached = {}
-const show_dlg = (t, props) => {
+const dlgRefs = {}
+const dlgShow = (t, props) => {
   props = props || {}
   props.dashid = props.dashid || dashid
-  if (dlg_cached[t]) dlg_cached[t].show()
-  else if (t === 'DlgAddChart') dlg_cached[t] = renderRbcomp(<DlgAddChart {...props} />)
-  else if (t === 'DlgDashAdd') dlg_cached[t] = renderRbcomp(<DlgDashAdd {...props} />)
-  else if (t === 'DlgDashSettings') dlg_cached[t] = renderRbcomp(<DlgDashSettings {...props} />)
-  else if (t === 'DashSelect') dlg_cached[t] = renderRbcomp(<DashSelect {...props} />)
-  else if (t === 'ChartSelect') dlg_cached[t] = renderRbcomp(<ChartSelect {...props} />)
-  return dlg_cached[t]
+  if (dlgRefs[t]) dlgRefs[t].show()
+  else if (t === 'DlgAddChart') renderRbcomp(<DlgAddChart {...props} />, null, function () { dlgRefs[t] = this })
+  else if (t === 'DlgDashAdd') renderRbcomp(<DlgDashAdd {...props} />, null, function () { dlgRefs[t] = this })
+  else if (t === 'DlgDashSettings') renderRbcomp(<DlgDashSettings {...props} />, null, function () { dlgRefs[t] = this })
+  else if (t === 'DashSelect') renderRbcomp(<DashSelect {...props} />, null, function () { dlgRefs[t] = this })
 }
 
 let gridstack
@@ -103,7 +107,7 @@ let render_dashboard = function (init) {
   gridstack_serialize = init
   $(init).each((idx, item) => { add_widget(item) })
   if (rendered_charts.length === 0) {
-    let gsi = '<div class="grid-stack-item"><div id="chart-add" class="grid-stack-item-content"><a class="chart-add" onclick="show_dlg(\'DlgAddChart\')"><i class="zmdi zmdi-plus"></i><p>添加图表</p></a></div></div>'
+    let gsi = '<div class="grid-stack-item"><div id="chart-add" class="grid-stack-item-content"><a class="chart-add" onclick="dlgShow(\'DlgAddChart\')"><i class="zmdi zmdi-plus"></i><p>添加图表</p></a></div></div>'
     gridstack.addWidget(gsi, 0, 0, 2, 2)
     gridstack.disable()
   }
@@ -137,8 +141,7 @@ let add_widget = function (item) {
     gridstack.addWidget(gsi, item.x, item.y, item.w, item.h, item.x === undefined, 2, 12, 2, 12)
   }
   // eslint-disable-next-line no-undef
-  let c = renderRbcomp(detectChart(item, item.chart, dash_editable), chid)
-  rendered_charts.push(c)
+  renderRbcomp(detectChart(item, item.chart, dash_editable), chid, function () { rendered_charts.push(this) })
 }
 
 let save_dashboard = function () {
@@ -232,7 +235,7 @@ class DlgDashSettings extends RbFormHandler {
         <div className="form-group row footer">
           <div className="col-sm-7 offset-sm-3">
             <button className="btn btn-primary btn-space" type="button" onClick={() => this.save()}>确定</button>
-            <button className="btn btn-secondary btn-space" type="button" onClick={() => this.delete()}><i className="zmdi zmdi-delete icon" /> 删除</button>
+            <button className="btn btn-danger bordered btn-space" type="button" onClick={() => this.delete()}><i className="zmdi zmdi-delete icon" /> 删除</button>
           </div>
         </div>
       </div>
@@ -244,20 +247,20 @@ class DlgDashSettings extends RbFormHandler {
     $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
         $('.dash-head h4').text(_data.title)
-        if (dlg_cached['DashSelect']) {
-          dlg_cached['DashSelect'].setState({ 'dashTitle': _data.title })
+        if (dlgRefs['DashSelect']) {
+          dlgRefs['DashSelect'].setState({ 'dashTitle': _data.title })
         }
         this.hide()
-      } else rb.hberror(res.error_msg)
+      } else RbHighbar.error(res.error_msg)
     })
   }
   delete() {
-    rb.alert('确认删除此仪表盘？', {
+    RbAlert.create('确认删除此仪表盘？', {
       confirm: function () {
         $.post(rb.baseUrl + '/app/entity/record-delete?id=' + dashid, function (res) {
           // if (res.error_code === 0) location.replace('home#del=' + dashid)  // Chrome no refresh?
           if (res.error_code === 0) location.reload()
-          else rb.hberror(res.error_msg)
+          else RbHighbar.error(res.error_msg)
         })
       }
     })
@@ -303,7 +306,7 @@ class DlgDashAdd extends RbFormHandler {
     $.post(rb.baseUrl + '/dashboard/dash-new', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
         location.href = '?d=' + res.data.id
-      } else rb.hberror(res.error_msg)
+      } else RbHighbar.error(res.error_msg)
     })
   }
 }

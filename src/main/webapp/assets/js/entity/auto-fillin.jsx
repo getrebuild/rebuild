@@ -24,7 +24,7 @@ const loadRules = () => {
       })
       let configId = this.id
       act.find('a:eq(1)').click(() => {
-        rb.alert('确认删除此配置项？', {
+        RbAlert.create('确认删除此配置项？', {
           type: 'danger',
           confirm: function () {
             this.disabled(true)
@@ -32,7 +32,7 @@ const loadRules = () => {
               if (res.error_code === 0) {
                 this.hide()
                 loadRules()
-              } else rb.hberror(res.error_msg)
+              } else RbHighbar.error(res.error_msg)
             })
           }
         })
@@ -187,7 +187,7 @@ class DlgRuleEdit extends RbFormHandler {
 
   save = () => {
     let _data = { field: this.props.field, sourceField: $(this._sourceField).val(), targetField: $(this._targetField).val() }
-    if (!_data.targetField) { rb.highbar('请选择目标字段'); return }
+    if (!_data.targetField) { RbHighbar.create('请选择目标字段'); return }
     _data.extConfig = { whenCreate: this.state.whenCreate, whenUpdate: this.state.whenUpdate, fillinForce: this.state.fillinForce }
     if (this.props.id) _data.id = this.props.id
 
@@ -196,7 +196,7 @@ class DlgRuleEdit extends RbFormHandler {
       if (res.error_code === 0) {
         this.hide()
         loadRules()
-      } else rb.highbar(res.error_msg)
+      } else RbHighbar.create(res.error_msg)
       _btns.button('reset')
     })
   }

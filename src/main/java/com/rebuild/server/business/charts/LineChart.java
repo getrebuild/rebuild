@@ -54,7 +54,7 @@ public class LineChart extends ChartData {
 		List<String> dimAxis = new ArrayList<>();
 		Object[] numsAxis = new Object[nums.length];
 		for (Object[] o : dataRaw) {
-			dimAxis.add(warpAxisValue(dim1, o[0]));
+			dimAxis.add(wrapAxisValue(dim1, o[0]));
 			
 			for (int i = 0; i < nums.length; i++) {
 				@SuppressWarnings("unchecked")
@@ -63,7 +63,7 @@ public class LineChart extends ChartData {
 					numAxis = new ArrayList<String>();
 					numsAxis[i] = numAxis;
 				}
-				numAxis.add(warpAxisValue(nums[i], o[i + 1]));
+				numAxis.add(wrapAxisValue(nums[i], o[i + 1]));
 			}
 		}
 		

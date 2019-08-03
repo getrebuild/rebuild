@@ -20,6 +20,7 @@ package com.rebuild.web.base.general;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -42,8 +43,8 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.momentjava.Moment;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
@@ -72,11 +73,12 @@ public class RelatedListControll extends BaseControll {
 		
 		Object[][] array = Application.createQuery(sql).setLimit(ps, pn * ps - ps).array();
 		for (Object[] o : array) {
-			o[1] = FieldValueWrapper.wrapFieldValue(o[1], MetadataHelper.getNameField(relatedEntity));
+			o[1] = FieldValueWrapper.instance.wrapFieldValue(o[1], MetadataHelper.getNameField(relatedEntity));
 			if (o[1] == null || StringUtils.isEmpty(o[1].toString())) {
 				o[1] = o[0].toString().toUpperCase();  // 使用ID值作为名称字段值
 			}
-			o[2] = CalendarUtils.getUTCDateTimeFormat().format(o[2]);
+//			o[2] = CalendarUtils.getUTCDateTimeFormat().format(o[2]);
+			o[2] = Moment.moment((Date) o[2]).fromNow();
 		}
 		
 		JSON ret = JSONUtils.toJSONObject(
@@ -93,8 +95,10 @@ public class RelatedListControll extends BaseControll {
 		Map<String, Integer> countMap = new HashMap<>();
 		for (String related : relates) {
 			String sql = buildMasterSql(masterId, MetadataHelper.getEntity(related), true);
-			Object[] count = Application.createQuery(sql).unique();
-			countMap.put(related, ObjectUtils.toInt(count[0]));
+			if (sql != null) {
+				Object[] count = Application.createQuery(sql).unique();
+				countMap.put(related, ObjectUtils.toInt(count[0]));
+			}
 		}
 		writeSuccess(response, countMap);
 	}
@@ -109,10 +113,13 @@ public class RelatedListControll extends BaseControll {
 		Entity masterEntity = MetadataHelper.getEntity(recordOfMain.getEntityCode());
 		Set<String> relatedFields = new HashSet<>();
 		for (Field field : relatedEntity.getFields()) {
-			if (field.getType() == FieldType.REFERENCE 
+			if ((field.getType() == FieldType.REFERENCE || field.getType() == FieldType.ANY_REFERENCE)
 					&& ArrayUtils.contains(field.getReferenceEntities(), masterEntity)) {
 				relatedFields.add(field.getName() + " = ''{0}''");
 			}
+		}
+		if (relatedFields.isEmpty()) {
+			return null;
 		}
 		
 		String masterSql = "(" + StringUtils.join(relatedFields, " or ") + ")";

@@ -15,7 +15,7 @@ $(document).ready(() => {
   let fileds_render = (entity) => {
     if (!entity) return
     let el = $('#repeatFields').empty()
-    $.get(`${rb.baseUrl}/admin/dataio/import-fields?entity=${entity}`, (res) => {
+    $.get(`${rb.baseUrl}/admin/entityhub/data-importer/import-fields?entity=${entity}`, (res) => {
       $(res.data).each(function () {
         if (this.name === 'createdBy' || this.name === 'createdOn' || this.name === 'modifiedOn' || this.name === 'modifiedBy') return
         $('<option value="' + this.name + '">' + this.label + '</option>').appendTo(el)
@@ -32,7 +32,7 @@ $(document).ready(() => {
       ientry.entity = entity
     })
   }
-  $.get(rb.baseUrl + '/commons/metadata/entities', (res) => {
+  $.get(`${rb.baseUrl}/commons/metadata/entities`, (res) => {
     $(res.data).each(function () {
       $('<option value="' + this.name + '">' + this.label + '</option>').appendTo('#toEntity')
     })
@@ -94,15 +94,15 @@ const init_upload = () => {
   $('#upload-input').html5Uploader({
     postUrl: rb.baseUrl + '/filex/upload?temp=yes',
     onSelectError: function (field, error) {
-      if (error === 'ErrorType') rb.highbar('请上传 Excel/CSV 文件')
-      else if (error === 'ErrorMaxSize') rb.highbar('文件不能大于 20M')
+      if (error === 'ErrorType') RbHighbar.create('请上传 Excel/CSV 文件')
+      else if (error === 'ErrorMaxSize') RbHighbar.create('文件不能大于 20M')
     },
     onSuccess: function (d) {
       d = JSON.parse(d.currentTarget.response)
       if (d.error_code === 0) {
         ientry.file = d.data
         $('.J_upload-input').text($fileCutName(ientry.file))
-      } else rb.hberror('上传失败，请稍后重试')
+      } else RbHighbar.error('上传失败，请稍后重试')
     }
   })
 }
@@ -112,7 +112,7 @@ const check_ouser = () => {
 }
 const check_ouser0 = () => {
   if (!(ientry.entity && ientry.owning_user)) return
-  $.get(`${rb.baseUrl}/admin/dataio/check-user-privileges?ouser=${ientry.owning_user}&entity=${ientry.entity}`, (res) => {
+  $.get(`${rb.baseUrl}/admin/entityhub/data-importer/check-user-privileges?ouser=${ientry.owning_user}&entity=${ientry.entity}`, (res) => {
     let hasError = []
     if (res.data.canCreate !== true) hasError.push('新建')
     if (res.data.canUpdate !== true) hasError.push('更新')
@@ -135,16 +135,16 @@ const step_upload = () => {
   $('.steps li[data-step=1], .step-content .step-pane[data-step=1]').addClass('active')
 }
 const step_mapping = () => {
-  if (!ientry.entity) { rb.highbar('请选择导入实体'); return }
-  if (!ientry.file) { rb.highbar('请上传数据文件'); return }
-  if (ientry.repeat_opt !== 3 && (!ientry.repeat_fields || ientry.repeat_fields.length === 0)) { rb.highbar('请选择重复判断字段'); return }
+  if (!ientry.entity) { RbHighbar.create('请选择导入实体'); return }
+  if (!ientry.file) { RbHighbar.create('请上传数据文件'); return }
+  if (ientry.repeat_opt !== 3 && (!ientry.repeat_fields || ientry.repeat_fields.length === 0)) { RbHighbar.create('请选择重复判断字段'); return }
 
   let btn = $('.J_step1-btn').button('loading')
-  $.get(rb.baseUrl + '/admin/dataio/check-file?file=' + $encode(ientry.file), (res) => {
+  $.get(`${rb.baseUrl}/admin/entityhub/data-importer/check-file?file=${$encode(ientry.file)}`, (res) => {
     btn.button('reset')
-    if (res.error_code > 0) { rb.highbar(res.error_msg); return }
+    if (res.error_code > 0) { RbHighbar.create(res.error_msg); return }
     let _data = res.data
-    if (_data.count < 2 || _data.preview.length < 2 || _data.preview[0].length === 0) { rb.highbar('上传的文件无有效数据'); return }
+    if (_data.count < 2 || _data.preview.length < 2 || _data.preview[0].length === 0) { RbHighbar.create('上传的文件无有效数据'); return }
 
     render_fieldsMapping(_data.preview[0], fields_cached)
     $('.steps li, .step-content .step-pane').removeClass('active complete')
@@ -164,7 +164,7 @@ const step_import = () => {
     if (item.isNullable === true || !!item.defaultValue) {
       // Not be must
     } else if (fm[item.name] === undefined) {
-      rb.highbar(item.label + ' 为必填字段，请选择')
+      RbHighbar.create(item.label + ' 为必填字段，请选择')
       fm = null
       return false
     }
@@ -173,13 +173,13 @@ const step_import = () => {
   ientry.fields_mapping = fm
 
   step_import_show()
-  $.post(rb.baseUrl + '/admin/dataio/import-submit', JSON.stringify(ientry), function (res) {
+  $.post(`${rb.baseUrl}/admin/entityhub/data-importer/import-submit`, JSON.stringify(ientry), function (res) {
     if (res.error_code === 0) {
       import_inprogress = true
       import_taskid = res.data.taskid
       location.hash = '#task=' + import_taskid
       import_state(import_taskid)
-    } else rb.hberror(res.error_msg)
+    } else RbHighbar.error(res.error_msg)
   })
 }
 const step_import_show = () => {
@@ -188,10 +188,10 @@ const step_import_show = () => {
   $('.steps li[data-step=3], .step-content .step-pane[data-step=3]').addClass('active')
 }
 const import_state = (taskid, inLoad) => {
-  $.get(rb.baseUrl + '/admin/dataio/import-state?taskid=' + taskid, (res) => {
+  $.get(`${rb.baseUrl}/admin/entityhub/data-importer/import-state?taskid=${taskid}`, (res) => {
     if (res.error_code !== 0) {
       if (inLoad === true) step_upload()
-      else rb.hberror(res.error_msg)
+      else RbHighbar.error(res.error_msg)
       import_inprogress = false
       return
     }
@@ -224,12 +224,12 @@ const import_state = (taskid, inLoad) => {
   })
 }
 const import_cancel = () => {
-  rb.alert('确认要终止导入？请注意已导入数据无法自动删除', {
+  RbAlert.create('确认要终止导入？请注意已导入数据无法自动删除', {
     type: 'danger',
     confirmText: '确认终止',
     confirm: function () {
-      $.post(rb.baseUrl + '/admin/dataio/import-cancel?taskid=' + import_taskid, (res) => {
-        if (res.error_code > 0) rb.hberror(res.error_msg)
+      $.post(`${rb.baseUrl}/admin/entityhub/data-importer/import-cancel?taskid=${import_taskid}`, (res) => {
+        if (res.error_code > 0) RbHighbar.error(res.error_msg)
       })
       this.hide()
     }

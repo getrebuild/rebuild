@@ -47,7 +47,7 @@ public class IndexChart extends ChartData {
 		
 		JSONObject index = JSONUtils.toJSONObject(
 				new String[] { "data", "label" },
-				new Object[] { warpAxisValue(axis, dataRaw[0]), axis.getLabel() });
+				new Object[] { wrapAxisValue(axis, dataRaw[0]), axis.getLabel() });
 		
 		JSON ret = JSONUtils.toJSONObject("index", index);
 		return ret;

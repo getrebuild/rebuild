@@ -30,7 +30,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entityhub.Entity2Schema;
+import com.rebuild.server.metadata.entity.Entity2Schema;
 import com.rebuild.server.service.bizz.UserService;
 
 /**
@@ -53,7 +53,7 @@ public class MetaschemaImporterTest extends TestSupport {
 		
 		if (MetadataHelper.containsEntity(entityName)) {
 			new Entity2Schema(UserService.ADMIN_USER)
-					.drop(MetadataHelper.getEntity(entityName), true);
+					.dropEntity(MetadataHelper.getEntity(entityName), true);
 		}
 		
 		MetaschemaImporter importer = new MetaschemaImporter(UserService.ADMIN_USER, data);

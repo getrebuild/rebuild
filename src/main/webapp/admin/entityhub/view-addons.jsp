@@ -24,7 +24,7 @@
 	</div>
 	<div class="dialog-footer">
 		<button class="btn btn-primary J_save" type="button">保存</button>
-		<button class="btn btn-secondary" onclick="parent.rb.modalHide()" type="button">取消</button>
+		<button class="btn btn-secondary" onclick="parent.RbModal.hide()" type="button">取消</button>
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
@@ -39,6 +39,7 @@ $(document).ready(function(){
 		$(res.data.config).each(function(){
 			$('.unset-list li[data-key="' + this + '"]').trigger('click')
 		})
+		if (!res.data.refs || res.data.refs.length == 0) $('<li class="dd-item nodata">无可用相关项</li>').appendTo('.unset-list')
 	})
 	
 	let _btn = $('.J_save').click(function(){

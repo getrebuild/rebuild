@@ -18,17 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.UUID;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
-
+import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.CodecUtils;
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Region;
 import com.qiniu.http.Response;
@@ -38,10 +29,16 @@ import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 import com.rebuild.server.RebuildException;
+import com.rebuild.utils.CommonsUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 
-import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.http4.HttpClientEx;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.UUID;
 
 /**
  * 七牛云存储
@@ -73,6 +70,7 @@ public class QiniuCloud {
 	 * @return
 	 */
 	public boolean available() {
+//		return false;  // TEST
 		return this.auth != null;
 	}
 	
@@ -105,7 +103,7 @@ public class QiniuCloud {
 	public String upload(URL url) throws Exception {
 		Assert.notNull(auth, "云存储账户未配置");
 		File tmp = SysConfiguration.getFileOfTemp("download." + System.currentTimeMillis());
-		boolean success = download(url, tmp);
+		boolean success = CommonsUtils.readBinary(url.toString(), tmp);
 		if (!success) {
 			throw new RebuildException("无法从 URL 读取文件 : " + url);
 		}
@@ -170,21 +168,7 @@ public class QiniuCloud {
 			throw new RebuildException("删除文件失败 : " + this.bucketName + " < " + key, e);
 		}
 	}
-	
-	/**
-	 * 下载文件
-	 * 
-	 * @param url
-	 * @param dest
-	 * @return
-	 * @throws IOException
-	 */
-	public boolean download(URL url, File dest) throws IOException {
-		byte[] bs = HttpClientEx.instance().readBinary(url.toString(), 120 * 1000);
-		FileUtils.writeByteArrayToFile(dest, bs);
-		return true;
-	}
-	
+
 	/**
 	 * @param fileKey
 	 * @return

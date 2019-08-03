@@ -19,7 +19,7 @@ $(document).ready(function () {
     }
 
     let extConfig = {}
-    $('.J_for-' + dt + ' .form-control').each(function () {
+    $(`.J_for-${dt} .form-control, .J_for-${dt} .custom-control-input`).each(function () {
       let k = $(this).attr('id')
       if ('defaultValue' !== k) {
         extConfig[k] = $val(this)
@@ -43,7 +43,7 @@ $(document).ready(function () {
         location.href = '../fields'
       } else {
         _btn.button('reset')
-        rb.hberror(res.error_msg)
+        RbHighbar.error(res.error_msg)
       }
     })
   })
@@ -67,7 +67,7 @@ $(document).ready(function () {
     })
 
     $('.J_picklist-edit').click(function () {
-      rb.modal(`${rb.baseUrl}/admin/p/entityhub/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}`, '配置列表选项')
+      RbModal.create(`${rb.baseUrl}/admin/p/entityhub/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}`, '配置列表选项')
     })
   } else if (dt === 'SERIES' || wpc.fieldBuildin === true) {
     $('#fieldNullable, #fieldUpdatable').attr('disabled', true)
@@ -118,18 +118,21 @@ $(document).ready(function () {
     $('#fieldNullable').attr('disabled', true)
   } else if (dt === 'CLASSIFICATION') {
     if (extConfigOld.classification) {
-      $.get(`${rb.baseUrl}/admin/classification/info?id=${extConfigOld.classification}`, function (res) {
+      $.get(`${rb.baseUrl}/admin/entityhub/classification/info?id=${extConfigOld.classification}`, function (res) {
         if (res.error_code === 0) {
           $('#useClassification a').attr({
-            href: '../../../classification/' + extConfigOld.classification
+            href: `${rb.baseUrl}/admin/entityhub/classification/${extConfigOld.classification}`
           }).text(res.data.name)
         }
       })
     } else {
       $('#useClassification a').attr({
-        href: '../../../classifications'
+        href: `${rb.baseUrl}/admin/entityhub/classifications`
       }).text('无效分类数据').addClass('text-danger')
     }
+  } else if (dt === 'DECIMAL' || dt === 'NUMBER') {
+    if (extConfigOld.notNegative === 'true') $('#notNegative').attr('checked', true)
+    if (dt === 'DECIMAL' && extConfigOld.decimalFormat) $('#decimalFormat').val(extConfigOld.decimalFormat)
   }
 
   if (wpc.fieldBuildin === true) $('.footer .alert').removeClass('hide')
@@ -137,7 +140,7 @@ $(document).ready(function () {
 
   $('.J_del').click(function () {
     if (!wpc.isSuperAdmin) {
-      rb.hberror('仅超级管理员可删除字段')
+      RbHighbar.error('仅超级管理员可删除字段')
       return
     }
     let alertExt = {
@@ -149,12 +152,12 @@ $(document).ready(function () {
       $.post(`${rb.baseUrl}/admin/entity/field-drop?id=${wpc.metaId}`, (res) => {
         if (res.error_code === 0) {
           this.hide()
-          rb.hbsuccess('字段已删除')
+          RbHighbar.success('字段已删除')
           setTimeout(function () { location.replace('../fields') }, 1500)
-        } else rb.hberror(res.error_msg)
+        } else RbHighbar.error(res.error_msg)
       })
     }
-    rb.alert('字段删除后将无法恢复，请务必谨慎操作！确认删除吗？', '删除字段', alertExt)
+    RbAlert.create('字段删除后将无法恢复，请务必谨慎操作！确认删除吗？', '删除字段', alertExt)
   })
 })
 
@@ -177,7 +180,7 @@ const checkDefaultValue = function (v, t) {
   } else if (t === 'PHONE') {
     valid = $regex.isTel(v)
   }
-  if (valid === false) rb.highbar('默认值设置有误')
+  if (valid === false) RbHighbar.create('默认值设置有误')
   return valid
 }
 

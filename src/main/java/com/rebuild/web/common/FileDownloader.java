@@ -18,25 +18,23 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.common;
 
+import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.web.ServletUtils;
+import com.rebuild.server.helper.QiniuCloud;
+import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.web.BaseControll;
+import org.apache.commons.lang.BooleanUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-
-import com.rebuild.server.helper.QiniuCloud;
-import com.rebuild.server.helper.SysConfiguration;
-import com.rebuild.web.BaseControll;
-
-import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.web.ServletUtils;
 
 /**
  * 文件下载/查看
@@ -55,16 +53,17 @@ public class FileDownloader extends BaseControll {
 		
 		final int minutes = 60 * 24;
 		ServletUtils.addCacheHead(response, minutes);
-		
-		// Local storage
-		if (!QiniuCloud.instance().available()) {
+
+		boolean temp = BooleanUtils.toBoolean(request.getParameter("temp"));
+		// Local storage || temp
+		if (!QiniuCloud.instance().available() || temp) {
 			String fileName = QiniuCloud.parseFileName(filePath);
 			String mimeType = request.getServletContext().getMimeType(fileName);
 			if (mimeType != null) {
 				response.setContentType(mimeType);
 			}
 			
-			writeLocalFile(filePath, response);
+			writeLocalFile(filePath, response, temp);
 			return;
 		}
 		
@@ -80,14 +79,15 @@ public class FileDownloader extends BaseControll {
 	public void download(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String filePath = request.getRequestURI();
 		filePath = filePath.split("/filex/download/")[1];
-		
-		// Local storage
-		if (!QiniuCloud.instance().available()) {
+
+		boolean temp = BooleanUtils.toBoolean(request.getParameter("temp"));
+		// Local storage || temp
+		if (!QiniuCloud.instance().available() || temp) {
 			String fileName = QiniuCloud.parseFileName(filePath);
 			response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
 			
 			ServletUtils.setNoCacheHeaders(response);
-			writeLocalFile(filePath, response);
+			writeLocalFile(filePath, response, temp);
 			return;
 		}
 		
@@ -95,14 +95,17 @@ public class FileDownloader extends BaseControll {
 		privateUrl += "&attname=" + QiniuCloud.parseFileName(filePath);
 		response.sendRedirect(privateUrl);
 	}
-	
+
 	/**
 	 * @param filePath
 	 * @param response
+	 * @param temp
+	 * @return
+	 * @throws IOException
 	 */
-	private boolean writeLocalFile(String filePath, HttpServletResponse response) throws IOException {
+	private boolean writeLocalFile(String filePath, HttpServletResponse response, boolean temp) throws IOException {
 		filePath = CodecUtils.urlDecode(filePath);
-		File tmp = SysConfiguration.getFileOfData(filePath);
+		File tmp = temp ? SysConfiguration.getFileOfTemp(filePath) : SysConfiguration.getFileOfData(filePath);
 		if (!tmp.exists()) {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return false;

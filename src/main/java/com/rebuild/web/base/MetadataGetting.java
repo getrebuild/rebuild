@@ -35,15 +35,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.ClassificationManager;
+import com.rebuild.server.configuration.portals.FieldPortalAttrs;
 import com.rebuild.server.configuration.portals.PickListManager;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
-import com.rebuild.server.metadata.entityhub.DisplayType;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
+import com.rebuild.server.metadata.entity.DisplayType;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.web.BaseControll;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 
 /**
@@ -81,16 +84,21 @@ public class MetadataGetting extends BaseControll {
 	public void fields(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
 		Entity entityBase = MetadataHelper.getEntity(entity);
+		boolean appendRefFields = "2".equals(getParameter(request, "deep"));
+		String fromType = getParameter(request, "from");
 		
-		boolean deep = "2".equals(getParameter(request, "deep"));
 		List<Map<String, Object>> list = new ArrayList<>();
-		putFields(list, entityBase, deep, null);
-
-		if (deep) {
+		putFields(list, entityBase, appendRefFields, null, fromType);
+		// 追加二级字段
+		if (appendRefFields) {
 			for (Field field : entityBase.getFields()) {
 				EasyMeta easyField = EasyMeta.valueOf(field);
-				if (easyField.getDisplayType() == DisplayType.REFERENCE
-						&& !MetadataHelper.isBizzEntity(field.getReferenceEntity().getEntityCode())) {
+				if (easyField.getDisplayType() != DisplayType.REFERENCE) {
+					continue;
+				}
+				
+				int entityCode = field.getReferenceEntity().getEntityCode();
+				if (!(MetadataHelper.isBizzEntity(entityCode) || entityCode == EntityHelper.RobotApprovalConfig)) {
 					// 显示父级字段
 					Map<String, Object> parent = new HashMap<>();
 					parent.put("name", field.getName());
@@ -99,7 +107,7 @@ public class MetadataGetting extends BaseControll {
 					parent.put("creatable", field.isCreatable());
 					list.add(parent);
 					
-					putFields(list, field.getReferenceEntity(), false, easyField);
+					putFields(list, field.getReferenceEntity(), false, easyField, fromType);
 				}
 			}
 		}
@@ -110,11 +118,17 @@ public class MetadataGetting extends BaseControll {
 	/**
 	 * @param dest
 	 * @param entity
-	 * @param onlyBizzRefField
+	 * @param filterField
 	 * @param parentField
+	 * @param fromType
 	 */
-	private void putFields(List<Map<String, Object>> dest, Entity entity, boolean onlyBizzRefField, EasyMeta parentField) {
+	private void putFields(
+			List<Map<String, Object>> dest, Entity entity, boolean filterField, EasyMeta parentField, String fromType) {
 		for (Field field : MetadataSorter.sortFields(entity)) {
+			if (!FieldPortalAttrs.instance.allowByType(field, fromType)) {
+				continue;
+			}
+			
 			Map<String, Object> map = new HashMap<>();
 			map.put("name", field.getName());
 			map.put("creatable", field.isCreatable());
@@ -124,16 +138,17 @@ public class MetadataGetting extends BaseControll {
 			map.put("type", dt.name());
 			if (dt == DisplayType.REFERENCE) {
 				Entity refEntity = field.getReferenceEntity();
-				boolean isBizz = MetadataHelper.isBizzEntity(refEntity.getEntityCode());
-				if (onlyBizzRefField && !isBizz) {
+				// Bizz 字段前台有特殊处理
+				boolean isBizzField = MetadataHelper.isBizzEntity(refEntity.getEntityCode());
+				if (filterField && !(isBizzField || refEntity.getEntityCode() == EntityHelper.RobotApprovalConfig)) {
 					continue;
 				}
 				
-				Field refNameField  = MetadataHelper.getNameField(refEntity);
-				map.put("ref", new String[] { refEntity.getName(), EasyMeta.getDisplayType(refNameField).name() });
+				Field nameField  = MetadataHelper.getNameField(refEntity);
+				map.put("ref", new String[] { refEntity.getName(), EasyMeta.getDisplayType(nameField).name() });
 				// Fix fieldType to nameField
-				if (!isBizz) {
-					map.put("type", EasyMeta.getDisplayType(refNameField));
+				if (!isBizzField) {
+					map.put("type", EasyMeta.getDisplayType(nameField));
 				}
 			}
 
@@ -155,7 +170,7 @@ public class MetadataGetting extends BaseControll {
 		Set<Entity> references = new HashSet<>();
 		for (Field field : entityMeta.getReferenceToFields()) {
 			Entity own = field.getOwnEntity();
-			if (!MetadataHelper.isSlaveEntity(own.getEntityCode())) {
+			if (!(MetadataHelper.isSlaveEntity(own.getEntityCode()) || field.getType() == FieldType.ANY_REFERENCE)) {
 				references.add(own);
 			}
 		}
@@ -175,8 +190,8 @@ public class MetadataGetting extends BaseControll {
 	public void fetchPicklist(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
 		String field = getParameterNotNull(request, "field");
-		
-		Field fieldMeta = MetadataHelper.getField(entity, field);
+
+		Field fieldMeta = getRealField(entity, field);
 		JSON list = PickListManager.instance.getPickList(fieldMeta);
 		writeSuccess(response, list);
 	}
@@ -187,7 +202,7 @@ public class MetadataGetting extends BaseControll {
 		String entity = getParameterNotNull(request, "entity");
 		String field = getParameterNotNull(request, "field");
 		
-		Field fieldMeta = MetadataHelper.getField(entity, field);
+		Field fieldMeta = getRealField(entity, field);
 		ID useClassification = ClassificationManager.instance.getUseClassification(fieldMeta, true);
 		if (useClassification == null) {
 			writeFailure(response, "分类字段配置有误");
@@ -207,5 +222,15 @@ public class MetadataGetting extends BaseControll {
 				.setLimit(200)
 				.array();
 		writeSuccess(response, data);
+	}
+
+	/**
+	 * @param entity
+	 * @param field
+	 * @return
+	 */
+	private Field getRealField(String entity, String field) {
+		Entity entityMeta = MetadataHelper.getEntity(entity);
+		return MetadataHelper.getLastJoinField(entityMeta, field);
 	}
 }

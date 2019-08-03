@@ -21,8 +21,8 @@ package com.rebuild.server.configuration;
 import org.junit.Test;
 
 import com.rebuild.server.TestSupport;
-import com.rebuild.server.business.robot.TriggerAction;
-import com.rebuild.server.business.robot.TriggerWhen;
+import com.rebuild.server.business.trigger.TriggerAction;
+import com.rebuild.server.business.trigger.TriggerWhen;
 import com.rebuild.server.metadata.MetadataSorter;
 
 import cn.devezhao.persist4j.Entity;

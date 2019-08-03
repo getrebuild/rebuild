@@ -40,8 +40,8 @@ import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.server.metadata.entityhub.Entity2Schema;
+import com.rebuild.server.metadata.entity.EasyMeta;
+import com.rebuild.server.metadata.entity.Entity2Schema;
 import com.rebuild.server.service.base.QuickCodeReindexTask;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.web.BasePageControll;
@@ -142,7 +142,7 @@ public class MetaEntityControll extends BasePageControll {
 		
 		try {
 			String entityName = new Entity2Schema(user)
-					.create(label, comments, masterEntity, getBoolParameter(request, "nameField"));
+					.createEntity(label, comments, masterEntity, getBoolParameter(request, "nameField"));
 			writeSuccess(response, entityName);
 		} catch (Exception ex) {
 			LOG.error(null, ex);
@@ -193,7 +193,7 @@ public class MetaEntityControll extends BasePageControll {
 				.unique();
 		Entity entity = MetadataHelper.getEntity((String) entityRecord[0]);
 		
-		boolean drop = new Entity2Schema(user).drop(entity, force);
+		boolean drop = new Entity2Schema(user).dropEntity(entity, force);
 		if (drop) {
 			writeSuccess(response);
 		} else {

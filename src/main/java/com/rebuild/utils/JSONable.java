@@ -26,5 +26,14 @@ import com.alibaba.fastjson.JSON;
  */
 public interface JSONable {
 
+	/**
+	 * @return
+	 */
 	JSON toJSON();
+	
+	/**
+	 * @param special
+	 * @return
+	 */
+	JSON toJSON(String ...special);
 }

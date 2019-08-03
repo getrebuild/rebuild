@@ -18,24 +18,22 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.business.robot.ActionContext;
-import com.rebuild.server.business.robot.ActionFactory;
-import com.rebuild.server.business.robot.TriggerAction;
-import com.rebuild.server.business.robot.TriggerWhen;
+import com.rebuild.server.business.trigger.ActionContext;
+import com.rebuild.server.business.trigger.ActionFactory;
+import com.rebuild.server.business.trigger.TriggerAction;
+import com.rebuild.server.business.trigger.TriggerWhen;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.query.AdvFilterParser;
+import org.apache.commons.lang.StringUtils;
 
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.engine.ID;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 触发器管理
@@ -143,7 +141,8 @@ public class RobotTriggerManager implements ConfigManager<Entity> {
 		}
 		
 		Object[][] array = Application.createQueryNoFilter(
-				"select when,whenFilter,actionType,actionContent from RobotTriggerConfig where belongEntity = ? and when > 0 order by priority desc")
+				"select when,whenFilter,actionType,actionContent from RobotTriggerConfig" +
+						" where belongEntity = ? and when > 0 and isDisabled = 'F' order by priority desc")
 				.setParameter(1, entity.getName())
 				.array();
 		

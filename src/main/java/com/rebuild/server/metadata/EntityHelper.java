@@ -125,6 +125,10 @@ public class EntityHelper {
 	public static final String QuickCode = "quickCode";
 	public static final String IsDeleted = "isDeleted";
 	
+	public static final String ApprovalId = "approvalId";
+	public static final String ApprovalState = "approvalState";
+	public static final String ApprovalStepNode = "approvalStepNode";
+	
 	// 系统实体
 
 	public static final int User = 1;
@@ -132,7 +136,7 @@ public class EntityHelper {
 	public static final int Role = 3;
 	public static final int RolePrivileges = 4;
 	public static final int RoleMember = 5;
-	
+
 	public static final int MetaEntity = 10;
 	public static final int MetaField = 11;
 	public static final int PickList = 12;
@@ -149,6 +153,10 @@ public class EntityHelper {
 	public static final int AttachmentFolder = 24;
 	public static final int LoginLog = 25;
 	public static final int AutoFillinConfig = 26;
-	
 	public static final int RobotTriggerConfig = 27;
+	public static final int RobotApprovalConfig = 28;
+	public static final int RobotApprovalStep = 29;
+
+	public static final int RebuildApi = 30;
+	public static final int RebuildApiRequest = 31;
 }

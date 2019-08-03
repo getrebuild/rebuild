@@ -18,30 +18,32 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.util.Assert;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.Application;
-import com.rebuild.server.configuration.ConfigEntry;
-import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entityhub.DisplayType;
-import com.rebuild.server.metadata.entityhub.EasyMeta;
-import com.rebuild.server.service.bizz.privileges.User;
-
+import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
+import com.rebuild.server.business.approval.ApprovalState;
+import com.rebuild.server.configuration.ConfigEntry;
+import com.rebuild.server.configuration.RobotApprovalManager;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entity.DisplayType;
+import com.rebuild.server.metadata.entity.EasyMeta;
+import com.rebuild.server.service.base.GeneralEntityService;
+import com.rebuild.server.service.bizz.privileges.User;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
+
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * 表单构造
@@ -97,10 +99,10 @@ public class FormsBuilder extends FormsManager {
 	 * @param entity
 	 * @param user
 	 * @param record
-	 * @param isView 视图模式?
+	 * @param viewMode 视图模式
 	 * @return
 	 */
-	protected JSON buildModel(String entity, ID user, ID record, boolean isView) {
+	protected JSON buildModel(String entity, ID user, ID record, boolean viewMode) {
 		Assert.notNull(entity, "[entity] not be null");
 		Assert.notNull(user, "[user] not be null");
 		
@@ -108,28 +110,64 @@ public class FormsBuilder extends FormsManager {
 		final User currentUser = Application.getUserStore().getUser(user);
 		final Date now = CalendarUtils.now();
 		
+		// 明细实体
+		final Entity masterEntity = entityMeta.getMasterEntity();
+		// 审批流程（状态）
+		ApprovalState approvalState = null;
+		boolean turnApproval = true;
+		
 		// 判断表单权限
+		
+		// 新建
 		if (record == null) {
-			if (entityMeta.getMasterEntity() != null) {
-				ID masterId = MASTERID4NEWSLAVE.get();
-				Assert.notNull(masterId, "Call #setCurrentMasterId first");
+			if (masterEntity != null) {
+				ID masterRecordId = MASTERID4NEWSLAVE.get();
+				Assert.notNull(masterRecordId, "Please calls #setCurrentMasterId first");
+
+				approvalState = getHadApproval(entityMeta, null);
 				MASTERID4NEWSLAVE.set(null);
 				
-				if (!Application.getSecurityManager().allowedU(user, masterId)) {
+				if (turnApproval && approvalState != null) {
+					if (approvalState == ApprovalState.PROCESSING || approvalState == ApprovalState.APPROVED) {
+						String stateType = approvalState == ApprovalState.APPROVED ? "已完成审批" : "正在审批中";
+						return formatModelError("主记录" + stateType + "，不能添加明细");
+					}
+				}
+
+				// 明细无需审批
+				approvalState = null;
+				
+				if (!Application.getSecurityManager().allowedU(user, masterRecordId)) {
 					return formatModelError("你没有权限向此记录添加明细");
 				}
 			} else if (!Application.getSecurityManager().allowedC(user, entityMeta.getEntityCode())) {
 				return formatModelError("没有新建权限");
+			} else {
+				approvalState = getHadApproval(entityMeta, null);
 			}
 			
+		} 
+		// 查看（视图）
+		else if (viewMode) {
+			if (!Application.getSecurityManager().allowedR(user, record)) {
+				return formatModelError("你没有读取此记录的权限");
+			}
+			
+			approvalState = getHadApproval(entityMeta, record);
+
+		// 编辑
 		} else {
-			if (isView) {
-				if (!Application.getSecurityManager().allowedR(user, record)) {
-					return formatModelError("你没有读取此记录的权限");
-				}
-			} else {
-				if (!Application.getSecurityManager().allowedU(user, record)) {
-					return formatModelError("你没有编辑此记录的权限");
+			if (!Application.getSecurityManager().allowedU(user, record)) {
+				return formatModelError("你没有编辑此记录的权限");
+			}
+			
+			approvalState = getHadApproval(entityMeta, record);
+			if (turnApproval && approvalState != null) {
+				String masterType = masterEntity == null ? "" : "主";
+				if (approvalState == ApprovalState.APPROVED) {
+					return formatModelError(masterType + "记录已完成审批，不能编辑");
+				} else if (approvalState == ApprovalState.PROCESSING) {
+					return formatModelError(masterType + "记录正在审批中，不能编辑");
 				}
 			}
 		}
@@ -155,7 +193,7 @@ public class FormsBuilder extends FormsManager {
 			
 			// 分割线
 			if (fieldName.equalsIgnoreCase(DIVIDER_LINE)) {
-				if (!isView) {  // 表单页暂不支持
+				if (!viewMode) {  // 表单页暂不支持
 					iter.remove();
 				}
 				continue;
@@ -213,9 +251,9 @@ public class FormsBuilder extends FormsManager {
 			
 			// 编辑/视图
 			if (data != null) {
-				Object value = wrapFieldValue(data, easyField, isView);
+				Object value = wrapFieldValue(data, easyField, viewMode);
 				if (value != null) {
-					if (dt == DisplayType.BOOL && !isView) {
+					if (dt == DisplayType.BOOL && !viewMode) {
 						value = "是".equals(value) ? "T" : "F";
 					}
 					el.put("value", value);
@@ -245,6 +283,12 @@ public class FormsBuilder extends FormsManager {
 					}
 				} else if (dt == DisplayType.SERIES) {
 					el.put("value", "自动值 (保存后显示)");
+				} else if (MetadataHelper.isApprovalField(fieldName)) {
+					if (EntityHelper.ApprovalId.equals(fieldName)) {
+						el.put("value", new String[] { null, "自动值 (审批流程)" });
+					} else {
+						el.put("value", "自动值 (审批流程)");
+					}
 				} else {
 					Object dv = FormDefaultValue.exprDefaultValue(fieldMeta);
 					if (dv != null) {
@@ -272,8 +316,12 @@ public class FormsBuilder extends FormsManager {
 		if (data != null && data.hasValue(EntityHelper.ModifiedOn)) {
 			model.set("lastModified", data.getDate(EntityHelper.ModifiedOn).getTime());
 		}
-		
-		model.set("id", null);  // form's ID of config
+
+		if (approvalState != null) {
+			model.set("hadApproval", approvalState.getState());
+		}
+
+		model.set("id", null);  // Clean form's ID of config
 		return model.toJSON();
 	}
 	
@@ -336,26 +384,50 @@ public class FormsBuilder extends FormsManager {
 		return Application.getQueryFactory().createQuery(ajql.toString(), user).record();
 	}
 	
+	/**
+	 * @param entity
+	 * @param recordId
+	 * @return
+	 * @see RobotApprovalManager#hadApproval(Entity, ID)
+	 * @see GeneralEntityService#checkModifications(ID, Permission)
+	 *
+	 */
+	private ApprovalState getHadApproval(Entity entity, ID recordId) {
+		Entity masterEntity = entity.getMasterEntity();
+		if (masterEntity == null) {
+			return RobotApprovalManager.instance.hadApproval(entity, recordId);
+		}
+
+		ID masterRecordId = MASTERID4NEWSLAVE.get();
+		if (masterRecordId == null) {
+			Field stmField = MetadataHelper.getSlaveToMasterField(entity);
+			String sql = String.format("select %s from %s where %s = ?",
+					stmField.getName(), entity.getName(), entity.getPrimaryField().getName());
+			Object o[] = Application.createQueryNoFilter(sql).setParameter(1, recordId).unique();
+			masterRecordId = (ID) o[0];
+		}
+		return RobotApprovalManager.instance.hadApproval(masterEntity, masterRecordId);
+	}
 
 	/**
 	 * 封装表单/布局所用的字段值
 	 * 
 	 * @param data
 	 * @param field
-	 * @param isView
+	 * @param viewMode
 	 * @return
 	 * 
 	 * @see FieldValueWrapper
 	 * @see #findRecord(ID, ID, JSONArray)
 	 */
-	protected static Object wrapFieldValue(Record data, EasyMeta field, boolean isView) {
+	protected static Object wrapFieldValue(Record data, EasyMeta field, boolean viewMode) {
 		String fieldName = field.getName();
 		if (data.hasValue(fieldName)) {
 			Object value = data.getObjectValue(fieldName);
 			DisplayType dt = field.getDisplayType();
 			if (dt == DisplayType.PICKLIST) {
 				ID pickValue = (ID) value;
-				if (isView) {
+				if (viewMode) {
 					return StringUtils.defaultIfBlank(
 							PickListManager.instance.getLabel(pickValue), FieldValueWrapper.MISS_REF_PLACE);
 				} else {
@@ -366,7 +438,7 @@ public class FormsBuilder extends FormsManager {
 				ID itemValue = (ID) value;
 				String itemName = ClassificationManager.instance.getFullName(itemValue);
 				itemName = StringUtils.defaultIfBlank(itemName, FieldValueWrapper.MISS_REF_PLACE);
-				return isView ? itemName : new String[] { itemValue.toLiteral(), itemName };
+				return viewMode ? itemName : new String[] { itemValue.toLiteral(), itemName };
 			} 
 			else if (value instanceof ID) {
 				ID idValue = (ID) value;
@@ -379,9 +451,9 @@ public class FormsBuilder extends FormsManager {
 				return new String[] { idValue.toLiteral(), idLabel, belongEntity };
 			} 
 			else {
-				Object ret = FieldValueWrapper.wrapFieldValue(value, field);
+				Object ret = FieldValueWrapper.instance.wrapFieldValue(value, field);
 				// 编辑记录时要去除千分位
-				if (!isView && (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL)) {
+				if (!viewMode && (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL)) {
 					ret = ret.toString().replace(",", "");
 				}
 				return ret;

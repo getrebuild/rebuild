@@ -35,7 +35,7 @@ public interface ServiceSpec {
 	 * 专供某个实体的
 	 * 
 	 * @return
-	 * @see Application#getGeneralEntityService(int)
+	 * @see Application#getEntityService(int)
 	 */
 	int getEntityCode();
 	
