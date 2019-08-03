@@ -18,24 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.metadata.entity;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.CharSet;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.RandomUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
-
-import com.alibaba.fastjson.JSON;
-import com.hankcs.hanlp.HanLP;
-import com.rebuild.server.Application;
-import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.bizz.UserHelper;
-
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -46,6 +28,22 @@ import cn.devezhao.persist4j.metadata.CascadeModel;
 import cn.devezhao.persist4j.metadata.impl.FieldImpl;
 import cn.devezhao.persist4j.util.StringHelper;
 import cn.devezhao.persist4j.util.support.Table;
+import com.alibaba.fastjson.JSON;
+import com.hankcs.hanlp.HanLP;
+import com.rebuild.server.Application;
+import com.rebuild.server.helper.BlackList;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.bizz.UserHelper;
+import org.apache.commons.lang.CharSet;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 创建字段
@@ -301,7 +299,8 @@ public class Field2Schema {
 		
 		// 全英文直接返回
 		if (identifier.matches("[a-zA-Z0-9]+")) {
-			if (!CharSet.ASCII_ALPHA.contains(identifier.charAt(0)) || inSQlKeyword(identifier)) {
+			if (!CharSet.ASCII_ALPHA.contains(identifier.charAt(0))
+					|| BlackList.isBlack(identifier) || BlackList.isSQLKeyword(identifier)) {
 				identifier = "rb" + identifier;
 			}
 			return identifier;
@@ -327,15 +326,5 @@ public class Field2Schema {
 			throw new ModifiyMetadataException("无效名称 : " + text);
 		}
 		return identifier;
-	}
-
-	private static final String SQL_KWS[] = new String[] { 
-			"SELECT", "DISTINCT",  "MAX", "MIN", "AVG", "SUM", "COUNT", "FROM",
-			"WHERE", "AND", "OR", "ORDER", "BY", "ASC", "DESC", "GROUP", "HAVING",
-			"WITH", "ROLLUP", "IS", "NOT", "NULL", "IN", "LIKE", "EXISTS", "BETWEEN", "TRUE", "FALSE"
-			};
-	// SQL 关键字
-	private boolean inSQlKeyword(String text) {
-		return ArrayUtils.contains(SQL_KWS, text.toUpperCase());
 	}
 }
