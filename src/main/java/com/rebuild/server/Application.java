@@ -18,17 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.SystemUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
+import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.Query;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.rebuild.server.helper.cache.CommonCache;
@@ -46,10 +38,16 @@ import com.rebuild.server.service.notification.NotificationService;
 import com.rebuild.server.service.query.QueryFactory;
 import com.rebuild.utils.RbDateCodec;
 import com.rebuild.web.OnlineSessionStore;
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import cn.devezhao.persist4j.PersistManagerFactory;
-import cn.devezhao.persist4j.Query;
-import cn.devezhao.persist4j.engine.ID;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 后台类入口
@@ -61,7 +59,7 @@ public final class Application {
 	
 	/** Rebuild Version
 	 */
-	public static final String VER = "1.4.0-dev";
+	public static final String VER = "1.5.0-dev";
 	
 	/** Logging for Global
 	 */
