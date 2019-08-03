@@ -51,6 +51,7 @@ public class ViewPrintingControll extends BasePageControll {
         JSON model = FormsBuilder.instance.buildView(entity.getName(), user, recordId);
 
         ModelAndView mv = createModelAndView("/general-entity/print-preview.jsp");
+        mv.getModel().put("recordId", recordId);
         mv.getModel().put("contentBody", model);
         return mv;
     }
