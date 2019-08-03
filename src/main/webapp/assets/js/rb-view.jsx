@@ -228,7 +228,8 @@ const RbViewPage = {
       el.removeClass('rb-loading-active')
       let _data = res.data.data
       if (page === 1) {
-        el.empty()
+        el = el[0]
+        ReactDOM.unmountComponentAtNode(el)
         if (!_data || _data.length === 0) {
           ReactDOM.render(<div className="list-nodata"><span className="zmdi zmdi-info-outline" /><p>暂无数据</p></div>, el)
           return
