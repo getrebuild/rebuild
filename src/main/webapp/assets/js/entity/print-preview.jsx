@@ -23,7 +23,7 @@ class PreviewTable extends React.Component {
     }
 
     return (
-      <table className="table table-bordered table-sm">
+      <table className="table table-bordered table-sm table-fixed">
         <tbody>
           {rows.map((row, idx) => {
             let c1 = row[0]
@@ -55,7 +55,23 @@ class PreviewTable extends React.Component {
 
   formatValue(item) {
     if (!item || !item.value) return null
-    if (typeof item.value === 'object') return item.value[1]
-    return item.value
+
+    if (item.type === 'FILE') {
+      return (<ul className="list-unstyled m-0">
+        {JSON.parse(item.value).map((x) => {
+          return <li key={`file-${x}`}>{$fileCutName(x)}</li>
+        })}
+      </ul>)
+    } else if (item.type === 'IMAGE') {
+      return (<ul className="list-inline m-0">
+        {JSON.parse(item.value).map((x) => {
+          return <li className="list-inline-item" key={`image-${x}`}><img src={`${rb.baseUrl}/filex/img/${x}?imageView2/2/w/100/interlace/1/q/100`} /></li>
+        })}
+      </ul>)
+    } else if (typeof item.value === 'object') {
+      return item.value[1]
+    } else {
+      return item.value
+    }
   }
 }

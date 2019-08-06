@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.base.general;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -31,6 +32,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Calendar;
 
 /**
  * TODO
@@ -51,8 +53,9 @@ public class ViewPrintingControll extends BasePageControll {
         JSON model = FormsBuilder.instance.buildView(entity.getName(), user, recordId);
 
         ModelAndView mv = createModelAndView("/general-entity/print-preview.jsp");
-        mv.getModel().put("recordId", recordId);
         mv.getModel().put("contentBody", model);
+        mv.getModel().put("recordId", recordId);
+        mv.getModel().put("printTime", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
         return mv;
     }
 }

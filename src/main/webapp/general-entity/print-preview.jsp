@@ -5,13 +5,28 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>打印预览</title>
 <style type="text/css">
-html,body{background-color:#fff;}
-.preview-tools{
+html, body{
+    background-color:#fff;
+}
+.preview-tools {
     padding: 10px 20px;
     padding-bottom: 5px;
     text-align: right;
 }
-.table th{background-color: #eee !important;}
+.table th {
+    background-color: #eee !important;
+    width: 17.5%;
+}
+.table th, .table td {
+    vertical-align: text-top;
+    vertical-align: top;
+    word-break: break-all;
+    word-wrap: break-word;
+}
+.table td img {
+    max-height: 80px;
+    max-width: 80px;
+}
 </style>
 </head>
 <body>
@@ -20,6 +35,9 @@ html,body{background-color:#fff;}
     <button class="btn btn-space btn-secondary" onclick="window.close()">关闭</button>
 </div>
 <div class="preview-content" id="preview-table">
+</div>
+<div class="font-italic">
+    时间 ${printTime} - 编号 ${recordId}
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script>
