@@ -149,10 +149,10 @@ const RbViewPage = {
           if (this.__ep && this.__ep.S === true) {
             let item_op = $('<li class="list-inline-item"></li>').appendTo(list)[0]
             if (v.length === 0) renderRbcomp(<UserShow name="添加共享" icon="zmdi zmdi-plus" onClick={() => { $('.J_share').trigger('click') }} />, item_op)
-            else renderRbcomp(<UserShow name="管理共享用户" icon="zmdi zmdi-more" onClick={() => { DlgShareManager.cretae(this.__id) }} />, item_op)
+            else renderRbcomp(<UserShow name="管理共享用户" icon="zmdi zmdi-more" onClick={() => { DlgShareManager.create(this.__id) }} />, item_op)
           } else if (v.length > 0) {
             let item_op = $('<li class="list-inline-item"></li>').appendTo(list)[0]
-            renderRbcomp(<UserShow name="查看共享用户" icon="zmdi zmdi-more" onClick={() => { DlgShareManager.cretae(this.__id, false) }} />, item_op)
+            renderRbcomp(<UserShow name="查看共享用户" icon="zmdi zmdi-more" onClick={() => { DlgShareManager.create(this.__id, false) }} />, item_op)
           } else {
             $('.J_sharingList').parent().remove()
           }
@@ -228,7 +228,8 @@ const RbViewPage = {
       el.removeClass('rb-loading-active')
       let _data = res.data.data
       if (page === 1) {
-        el.empty()
+        el = el[0]
+        ReactDOM.unmountComponentAtNode(el)
         if (!_data || _data.length === 0) {
           ReactDOM.render(<div className="list-nodata"><span className="zmdi zmdi-info-outline" /><p>暂无数据</p></div>, el)
           return

@@ -9,6 +9,18 @@
 <style type="text/css">
 #login-form>.row{margin-left:-15px !important;margin-right:-15px !important}
 .vcode-row{height:41px;max-width:100%;cursor:pointer;}
+body{
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-image: url(../assets/img/bg.jpg);
+}
+.splash-container .card {
+    background: rgba(255, 255, 255, 0.8);
+}
+.splash-footer .signup, .splash-footer .copyright, .splash-footer .copyright a {
+	color: rgba(0, 0, 0, 0.7);
+	line-height: 1.5;
+}
 </style>
 <title>登录</title>
 </head>
@@ -52,9 +64,9 @@
 					</div>
 				</div>
 				<div class="splash-footer">
-					<div class="mb-1">还没有账号? <a href="signup">立即注册</a></div>
-					<div class="text-muted">
-						<span>&copy; 2019 <a class="text-muted" href="https://getrebuild.com/" target="_blank">REBUILD</a></span>
+					<div class="signup">还没有账号? <a href="signup">立即注册</a></div>
+					<div class="copyright">
+						<span>&copy; 2019 <a href="https://getrebuild.com/" target="_blank">REBUILD</a></span>
 						<div class="dev-show" style="font-size:11px">Built on <%=ServerListener.getStartupTime()%> (<%=Application.VER%>)</div>
 					</div>
 				</div>
@@ -102,6 +114,11 @@ $(document).ready(function() {
 			}
 		})
 	})
+
+    // Bgimg by bing.com
+    // $(document.body).css({
+    //     'background-image': 'url(https://cn.bing.com/th?id=OHR.SwiftFox_ZH-CN9413097062_1920x1080.jpg&rf=LaDigue_1920x1080.jpg&pid=hp)'
+    // })
 })
 </script>
 </body>

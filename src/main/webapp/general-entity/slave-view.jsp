@@ -37,6 +37,8 @@
 					<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-more-vert"></i></button>
 					<div class="dropdown-menu dropdown-menu-right">
 						<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
+						<div class="dropdown-divider"></div>
+						<a class="dropdown-item J_print" target="_blank" href="${baseUrl}/app/entity/print?id=${id}"><i class="icon zmdi zmdi-print"></i> 打印</a>
 					</div>
 				</div>
 			</div>
