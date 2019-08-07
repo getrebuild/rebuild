@@ -9,7 +9,7 @@ html, body{
     background-color:#fff;
 }
 .preview-tools {
-    padding: 10px 20px;
+    padding: 10px 15px;
     padding-bottom: 5px;
     text-align: right;
 }
@@ -27,6 +27,9 @@ html, body{
     max-height: 80px;
     max-width: 80px;
 }
+.preview-content {
+    margin: 0 20px;
+}
 </style>
 </head>
 <body>
@@ -34,10 +37,12 @@ html, body{
     <button class="btn btn-space btn-secondary" onclick="window.print()"><i class="icon zmdi zmdi-print"></i> 打印</button>
     <button class="btn btn-space btn-secondary" onclick="window.close()">关闭</button>
 </div>
-<div class="preview-content" id="preview-table">
-</div>
-<div class="font-italic">
-    时间 ${printTime} - 编号 ${recordId}
+<div class="preview-content">
+    <div id="preview-table"></div>
+    <div class="font-italic">
+        <div class="float-left">时间 ${printTime} · 编号 ${recordId}</div>
+        <div class="float-right">${appName} 技术支持</div>
+    </div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script>
