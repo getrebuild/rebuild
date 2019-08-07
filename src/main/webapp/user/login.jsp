@@ -17,6 +17,10 @@ body{
 .splash-container .card {
     background: rgba(255, 255, 255, 0.8);
 }
+.splash-footer .signup, .splash-footer .copyright, .splash-footer .copyright a {
+	color: rgba(0, 0, 0, 0.7);
+	line-height: 1.5;
+}
 </style>
 <title>登录</title>
 </head>
@@ -60,9 +64,9 @@ body{
 					</div>
 				</div>
 				<div class="splash-footer">
-					<div class="mb-1">还没有账号? <a href="signup">立即注册</a></div>
-					<div class="text-black-50">
-						<span>&copy; 2019 <a class="text-black-50" href="https://getrebuild.com/" target="_blank">REBUILD</a></span>
+					<div class="signup">还没有账号? <a href="signup">立即注册</a></div>
+					<div class="copyright">
+						<span>&copy; 2019 <a href="https://getrebuild.com/" target="_blank">REBUILD</a></span>
 						<div class="dev-show" style="font-size:11px">Built on <%=ServerListener.getStartupTime()%> (<%=Application.VER%>)</div>
 					</div>
 				</div>
