@@ -18,51 +18,42 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.metadata.entity;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.RebuildException;
+import com.rebuild.server.metadata.DynamicMetadataFactory;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.JSONUtils;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.BaseMeta;
 
 /**
- * 
+ * 元数据元素封装
+ *
  * @author zhaofang123@gmail.com
  * @since 08/13/2018
  */
 public class EasyMeta implements BaseMeta {
 	private static final long serialVersionUID = -6463919098111506968L;
-	
-	private static final Set<String> BUILTIN_ENTITY = new HashSet<>();
-	private static final Map<String, String[]> SYSENTITY_EXTMETA = new HashMap<>();
-	static {
-		SYSENTITY_EXTMETA.put("User", new String[] { "account", "系统内建" });
-		SYSENTITY_EXTMETA.put("Department", new String[] { "accounts", "系统内建" });
-		SYSENTITY_EXTMETA.put("Role", new String[] { "lock", "系统内建" });
-	}
 
 	private BaseMeta baseMeta;
-	
+
 	public EasyMeta(BaseMeta baseMeta) {
 		this.baseMeta = baseMeta;
 	}
-	
+
 	public BaseMeta getBaseMeta() {
 		return baseMeta;
 	}
-	
+
 	@Override
 	public String getName() {
 		return baseMeta.getName();
@@ -81,7 +72,12 @@ public class EasyMeta implements BaseMeta {
 	public String getDescription() {
 		return baseMeta.getDescription();
 	}
-	
+
+	@Override
+	public String getExtraAttrs() {
+		return baseMeta.getExtraAttrs();
+	}
+
 	/**
 	 * also #getDescription()
 	 * @return
@@ -92,7 +88,7 @@ public class EasyMeta implements BaseMeta {
 		}
 		return StringUtils.defaultIfBlank(getDescription(), getName().toUpperCase());
 	}
-	
+
 	/**
 	 * @param fullName
 	 * @return
@@ -105,30 +101,38 @@ public class EasyMeta implements BaseMeta {
 			return dt.name();
 		}
 	}
-	
+
 	/**
 	 * @return
 	 */
 	public DisplayType getDisplayType() {
-		if (isField()) {
-			Object[] ext = getMetaExt();
-			if (ext != null) {
-				DisplayType dt = (DisplayType) ext[2];
-				return dt;
-			}
-			
-			DisplayType dt = MetadataHelper.getBuiltinFieldType((Field) baseMeta);
-			if (dt != null) {
-				return dt;
-			} 
-			throw new RebuildException("Unsupported field type : " + this.baseMeta);
+		if (!isField()) {
+			throw new UnsupportedOperationException("Field only");
 		}
-		throw new UnsupportedOperationException("Field only");
+
+		Object[] ext = getMetaExt();
+		if (ext != null) {
+			DisplayType dt = (DisplayType) ext[2];
+			return dt;
+		}
+
+		DisplayType dt = null;
+		String dtInExtra = getExtraAttrsJson().getString("displayType");
+		if (dtInExtra != null) {
+			dt = DisplayType.valueOf(dtInExtra);
+		} else {
+			dt = converBuiltinFieldType((Field) baseMeta);
+		}
+
+		if (dt != null) {
+			return dt;
+		}
+		throw new RebuildException("Unsupported field type : " + this.baseMeta);
 	}
-	
+
 	/**
 	 * 系统内建字段/实体，不可更改
-	 * 
+	 *
 	 * @return
 	 * @see MetadataHelper#isSystemField(Field)
 	 */
@@ -136,7 +140,7 @@ public class EasyMeta implements BaseMeta {
 		if (this.getMetaId() == null) {
 			return true;
 		}
-		
+
 		if (isField()) {
 			Field field = (Field) this.baseMeta;
 			if (MetadataHelper.isCommonsField(field)) {
@@ -148,101 +152,127 @@ public class EasyMeta implements BaseMeta {
 					return true;
 				}
 			}
-		} else {
-			return BUILTIN_ENTITY.contains(getName());
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 保存的 ID
-	 * 
+	 *
 	 * @return
 	 */
 	public ID getMetaId() {
 		Object[] ext = getMetaExt();
 		return ext == null ? null : (ID) ext[0];
 	}
-	
+
 	/**
 	 * 取代 persist4j 中的 description，而 persist4j 中的 description 则表示 label
-	 * 
+	 *
 	 * @return
 	 */
 	public String getComments() {
-		String def[] = SYSENTITY_EXTMETA.get(getName());
-		String defComments = def == null ? null : def[1];
-		if (getMetaId() == null && defComments == null) {
-			defComments = "系统内建";
-		}
-		
 		String customComments = null;
 		Object[] ext = getMetaExt();
 		if (ext != null) {
 			customComments = (String) ext[1];
 		}
-		return StringUtils.defaultIfBlank(customComments, defComments);
+
+		if (StringUtils.isNotBlank(customComments)) {
+			return customComments;
+		}
+		return StringUtils.defaultIfBlank(getExtraAttrsJson().getString("comments"), "系统内建");
 	}
-	
+
 	/**
+	 * 实体图标
+	 *
 	 * @return
 	 */
 	public String getIcon() {
 		if (isField()) {
 			throw new UnsupportedOperationException("Entity only");
 		}
-		
-		String def[] = SYSENTITY_EXTMETA.get(getName());
-		String defIcon = def == null ? null : def[0];
-		
+
 		String customIcon = null;
 		Object[] ext = getMetaExt();
 		if (ext != null) {
 			customIcon = StringUtils.defaultIfBlank((String) ext[2], "texture");
 		}
-		return StringUtils.defaultIfBlank(customIcon, defIcon);
-	}
-	
-	/**
-	 * 扩展属性
-	 * 
-	 * @return
-	 */
-	private Object[] getMetaExt() {
-		Object[] ext = null;
-		if (isField()) {
-			ext = MetadataHelper.getFieldExtmeta((Field) baseMeta);
-		} else {
-			ext = MetadataHelper.getEntityExtmeta((Entity) baseMeta);
+		if (StringUtils.isNotBlank(customIcon)) {
+			return customIcon;
 		}
-		return ext;
+		return StringUtils.defaultIfBlank(getExtraAttrsJson().getString("icon"), "texture");
 	}
-	
+
 	/**
 	 * 字段扩展配置
-	 * 
+	 *
 	 * @return
 	 */
 	public JSONObject getFieldExtConfig() {
-		if (isField()) {
-			Object[] ext = getMetaExt();
-			if (ext == null) {
-				return JSONUtils.EMPTY_OBJECT;
-			}
-			return JSON.parseObject(StringUtils.defaultIfBlank((String) ext[3], JSONUtils.EMPTY_OBJECT_STR));
+		if (!isField()) {
+			throw new UnsupportedOperationException("Field only");
 		}
-		throw new UnsupportedOperationException("Field only");
+
+		Object[] ext = getMetaExt();
+		if (ext == null) {
+			return JSONUtils.EMPTY_OBJECT;
+		}
+		return JSON.parseObject(StringUtils.defaultIfBlank((String) ext[3], JSONUtils.EMPTY_OBJECT_STR));
 	}
-	
-	/**
-	 * @return
-	 */
+
 	private boolean isField() {
 		return baseMeta instanceof Field;
 	}
-	
+
+	private Object[] getMetaExt() {
+		Object[] ext = null;
+		if (isField()) {
+			ext = ((DynamicMetadataFactory) MetadataHelper.getMetadataFactory()).getFieldExtmeta((Field) baseMeta);
+		} else {
+			ext = ((DynamicMetadataFactory) MetadataHelper.getMetadataFactory()).getEntityExtmeta((Entity) baseMeta);
+		}
+		return ext;
+	}
+
+	private JSONObject getExtraAttrsJson() {
+		return StringUtils.isBlank(getExtraAttrs())
+				? JSONUtils.EMPTY_OBJECT : JSON.parseObject(getExtraAttrs());
+	}
+
+	private DisplayType converBuiltinFieldType(Field field) {
+		Type ft = field.getType();
+		if (ft == FieldType.PRIMARY) {
+			return DisplayType.ID;
+		} else if (ft == FieldType.REFERENCE) {
+			int rec = field.getReferenceEntity().getEntityCode();
+			if (rec == EntityHelper.PickList) {
+				return DisplayType.PICKLIST;
+			} else if (rec == EntityHelper.Classification) {
+				return DisplayType.CLASSIFICATION;
+			}
+			return DisplayType.REFERENCE;
+		} else if (ft == FieldType.ANY_REFERENCE) {
+			return DisplayType.ANYREFERENCE;
+		} else if (ft == FieldType.TIMESTAMP) {
+			return DisplayType.DATETIME;
+		} else if (ft == FieldType.DATE) {
+			return DisplayType.DATE;
+		} else if (ft == FieldType.STRING) {
+			return DisplayType.TEXT;
+		} else if (ft == FieldType.BOOL) {
+			return DisplayType.BOOL;
+		} else if (ft == FieldType.INT || ft == FieldType.SMALL_INT) {
+			return DisplayType.NUMBER;
+		} else if (ft == FieldType.TEXT) {
+			return DisplayType.NTEXT;
+		}
+		return null;
+	}
+
 	// --
-	
+
 	/**
 	 * @param baseMeta
 	 * @return
@@ -250,7 +280,7 @@ public class EasyMeta implements BaseMeta {
 	public static EasyMeta valueOf(BaseMeta baseMeta) {
 		return new EasyMeta(baseMeta);
 	}
-	
+
 	/**
 	 * @param entityCode
 	 * @return
@@ -258,7 +288,7 @@ public class EasyMeta implements BaseMeta {
 	public static EasyMeta valueOf(int entityCode) {
 		return valueOf(MetadataHelper.getEntity(entityCode));
 	}
-	
+
 	/**
 	 * @param entityName
 	 * @return
@@ -266,7 +296,7 @@ public class EasyMeta implements BaseMeta {
 	public static EasyMeta valueOf(String entityName) {
 		return valueOf(MetadataHelper.getEntity(entityName));
 	}
-	
+
 	/**
 	 * @param field
 	 * @return
@@ -274,7 +304,7 @@ public class EasyMeta implements BaseMeta {
 	public static DisplayType getDisplayType(Field field) {
 		return new EasyMeta(field).getDisplayType();
 	}
-	
+
 	/**
 	 * @param meta
 	 * @return
@@ -282,7 +312,7 @@ public class EasyMeta implements BaseMeta {
 	public static String getLabel(BaseMeta meta) {
 		return meta.getDescription();
 	}
-	
+
 	/**
 	 * @param entity
 	 * @param joinFields
@@ -294,12 +324,12 @@ public class EasyMeta implements BaseMeta {
 		if (fieldPath.length == 1) {
 			return getLabel(firstField);
 		}
-		
+
 		Entity refEntity = firstField.getReferenceEntity();
 		Field secondField = refEntity.getField(fieldPath[1]);
 		return String.format("%s.%s", getLabel(refEntity), getLabel(secondField));
 	}
-	
+
 	/**
 	 * @return [Name, Label, Icon]
 	 */

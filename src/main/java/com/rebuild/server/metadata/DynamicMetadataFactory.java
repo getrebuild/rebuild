@@ -18,40 +18,39 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.metadata;
 
-import java.util.Map;
-
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.Dialect;
+import cn.devezhao.persist4j.metadata.impl.ConfigurationMetadataFactory;
+import cn.devezhao.persist4j.util.XmlHelper;
+import com.rebuild.server.Application;
+import com.rebuild.server.metadata.entity.DisplayType;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
 
-import com.rebuild.server.Application;
-import com.rebuild.server.metadata.entity.DisplayType;
-
-import cn.devezhao.persist4j.dialect.Dialect;
-import cn.devezhao.persist4j.metadata.impl.ConfigurationMetadataFactory;
-import cn.devezhao.persist4j.util.XmlHelper;
+import java.util.Map;
 
 /**
- * 
  * @author zhaofang123@gmail.com
  * @since 08/04/2018
  */
 public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 	private static final long serialVersionUID = -5709281079615412347L;
-	
+
 	private static final Log LOG = LogFactory.getLog(DynamicMetadataFactory.class);
-	
+
 	// <Name, [ID, COMMENTS, ICON]>
 	private static final Map<String, Object[]> ENTITY_EXTMETA = new CaseInsensitiveMap<>();
 	// <Name, [ID, COMMENTS]>
 	private static final Map<String, Object[]> FIELD_EXTMETA = new CaseInsensitiveMap<>();
-	
+
 	public DynamicMetadataFactory(String configLocation, Dialect dialect) {
 		super(configLocation, dialect);
 	}
-	
+
 	@Override
 	protected Document readConfiguration(boolean initState) {
 		Document config = super.readConfiguration(initState);
@@ -60,18 +59,18 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 		}
 		return config;
 	}
-	
+
 	/**
 	 * 从数据库读取配置
-	 * 
+	 *
 	 * @param config
 	 */
 	private void appendConfig4Db(Document config) {
 		final Element rootElement = config.getRootElement();
-		
+
 		ENTITY_EXTMETA.clear();
 		FIELD_EXTMETA.clear();
-		
+
 		Object[][] customEntity = Application.createQueryNoFilter(
 				"select typeCode,entityName,physicalName,entityLabel,entityId,comments,icon,nameField,masterEntity from MetaEntity")
 				.array();
@@ -87,10 +86,10 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 					.addAttribute("master", (String) custom[8]);
 			ENTITY_EXTMETA.put(name, new Object[] { custom[4], custom[5], custom[6] });
 		}
-		
+
 		Object[][] customFields = Application.createQueryNoFilter(
 				"select belongEntity,fieldName,physicalName,fieldLabel,displayType,nullable,creatable,updatable,"
-				+ "maxLength,defaultValue,refEntity,cascade,fieldId,comments,extConfig from MetaField")
+						+ "maxLength,defaultValue,refEntity,cascade,fieldId,comments,extConfig from MetaField")
 				.array();
 		for (Object[] custom : customFields) {
 			String entityName = (String) custom[0];
@@ -100,7 +99,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 				LOG.warn("无效字段 [ " + entityName + "." + fieldName + " ] 无有效依附实体");
 				continue;
 			}
-			
+
 			Element field = entityElement.addElement("field");
 			field.addAttribute("name", fieldName)
 					.addAttribute("physical-name", (String) custom[2])
@@ -113,40 +112,39 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 			if (fieldName.equals(EntityHelper.AutoId)) {
 				field.addAttribute("auto-value", "true");
 			}
-			
+
 			DisplayType dt = DisplayType.valueOf((String) custom[4]);
 			field.addAttribute("type", dt.getFieldType().getName());
-			
+
 			if (dt == DisplayType.DECIMAL) {
 				field.addAttribute("decimal-scale", "8");
-			} else if (dt == DisplayType.ANYREFERENCE || dt == DisplayType.REFERENCE 
+			} else if (dt == DisplayType.ANYREFERENCE || dt == DisplayType.REFERENCE
 					|| dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION) {
 				field.addAttribute("ref-entity", (String) custom[10])
 						.addAttribute("cascade", (String) custom[11]);
 			}
-			
+
 			FIELD_EXTMETA.put(entityName + "." + fieldName, new Object[] { custom[12], custom[13], dt, custom[14] });
 		}
-		
+
 		if (LOG.isDebugEnabled()) {
 			XmlHelper.dump(rootElement);
 		}
 	}
-	
+
 	/**
 	 * @param entity
 	 * @return
 	 */
-	protected Object[] getEntityExtmeta(String entity) {
-		return ENTITY_EXTMETA.get(entity);
+	public Object[] getEntityExtmeta(Entity entity) {
+		return ENTITY_EXTMETA.get(entity.getName());
 	}
-	
+
 	/**
-	 * @param entity
 	 * @param field
 	 * @return
 	 */
-	protected Object[] getFieldExtmeta(String entity, String field) {
-		return FIELD_EXTMETA.get(entity + "." + field);
+	public Object[] getFieldExtmeta(Field field) {
+		return FIELD_EXTMETA.get(field.getOwnEntity().getName() + "." + field.getName());
 	}
 }

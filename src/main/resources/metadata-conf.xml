@@ -9,14 +9,14 @@
 		<field name="modifiedBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="修改人" />
 		<field name="modifiedOn" type="timestamp" nullable="false" creatable="false" updatable="false" description="修改时间" />
 	</entity>
-	
-	<entity name="User" type-code="001" description="用户" name-field="fullName">
+
+	<entity name="User" type-code="001" description="用户" name-field="fullName" extra-attrs="{icon:'account'}">
 		<field name="userId" type="primary" />
 		<field name="loginName" type="string" max-length="100" nullable="false" updatable="false" description="登录名" />
 		<field name="password" type="string" max-length="100" nullable="false" updatable="false" description="登录密码" />
-		<field name="email" type="string" max-length="100" description="邮箱" />
+		<field name="email" type="string" max-length="100" description="邮箱" extra-attrs="{displayType:'EMAIL'}" />
 		<field name="fullName" type="string" max-length="100" description="姓名" />
-		<field name="avatarUrl" type="string" max-length="300" description="头像" />
+		<field name="avatarUrl" type="string" max-length="300" description="头像" extra-attrs="{displayType:'AVATAR'}" />
 		<field name="jobTitle" type="string" max-length="100" description="职务" />
 		<field name="deptId" type="reference" ref-entity="Department" cascade="remove-links" updatable="false" description="部门" />
 		<field name="roleId" type="reference" ref-entity="Role" cascade="remove-links" updatable="false" description="角色" />
@@ -26,7 +26,7 @@
 		<index type="unique" field-list="email" />
 	</entity>
 
-	<entity name="Department" type-code="002" description="部门" name-field="name">
+	<entity name="Department" type-code="002" description="部门" name-field="name" extra-attrs="{icon:'accounts'}">
 		<field name="deptId" type="primary" />
 		<field name="name" type="string" max-length="100" nullable="false" description="部门名称" />
 		<field name="parentDept" type="reference" ref-entity="Department" cascade="remove-links" description="父级部门" />
@@ -34,7 +34,7 @@
 		<field name="quickCode" type="string" max-length="70" />
 	</entity>
 
-	<entity name="Role" type-code="003" description="角色" name-field="name">
+	<entity name="Role" type-code="003" description="角色" name-field="name" extra-attrs="{icon:'lock'}">
 		<field name="roleId" type="primary" />
 		<field name="name" type="string" max-length="100" nullable="false" description="角色名称" />
 		<field name="isDisabled" type="bool" default-value="F" description="是否停用" />
@@ -108,7 +108,7 @@
 		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
 		<field name="applyType" type="string" max-length="20" nullable="false" updatable="false" description="FORM,DATALIST,NAVI,TBA,ADD" />
 	</entity>
-	
+
 	<entity name="FilterConfig" type-code="014" description="过滤条件配置">
 		<field name="configId" type="primary" />
 		<field name="config" type="text" description="JSON格式配置" nullable="false" />
@@ -116,14 +116,14 @@
 		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
 		<field name="filterName" type="string" max-length="100" nullable="false" />
 	</entity>
-	
+
 	<entity name="DashboardConfig" type-code="016" description="仪表盘配置">
 		<field name="configId" type="primary" />
 		<field name="config" type="text" description="JSON格式配置" nullable="false" />
 		<field name="shareTo" type="string" max-length="420" default-value="SELF" description="共享给哪些人, 可选值: ALL/SELF/$MemberID(U/D/R)" />
 		<field name="title" type="string" max-length="100" nullable="false" />
 	</entity>
-	
+
 	<entity name="ChartConfig" type-code="017" description="图表配置">
 		<field name="chartId" type="primary" />
 		<field name="config" type="text" description="JSON格式配置" nullable="false" />
@@ -131,7 +131,7 @@
 		<field name="chartType" type="string" max-length="100" nullable="false" />
 		<field name="title" type="string" max-length="100" nullable="false" />
 	</entity>
-	
+
 	<entity name="Classification" type-code="018" name-field="name" description="分类">
 		<field name="dataId" type="primary" />
 		<field name="name" type="string" max-length="100" nullable="false" />
@@ -139,7 +139,7 @@
 		<field name="isDisabled" type="bool" default-value="F" />
 		<field name="openLevel" type="small-int" default-value="0" />
 	</entity>
-	
+
 	<entity name="ClassificationData" type-code="019" name-field="fullName" description="分类明细数据">
 		<field name="itemId" type="primary" />
 		<field name="dataId" type="reference" ref-entity="Classification" nullable="false" cascade="delete" />
@@ -152,7 +152,7 @@
 		<index field-list="dataId,parent" />
 		<index field-list="dataId,fullName" />
 	</entity>
-	
+
 	<entity name="ShareAccess" type-code="020" description="记录共享">
 		<field name="accessId" type="primary" />
 		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="哪个实体" />
@@ -194,13 +194,13 @@
 		<index field-list="relatedRecord" />
 		<index field-list="inFolder,createdOn" />
 	</entity>
-	
+
 	<entity name="AttachmentFolder" type-code="024" description="附件目录">
 		<field name="folderId" type="primary" />
 		<field name="name" type="string" max-length="100" nullable="false" />
 		<field name="parent" type="reference" ref-entity="AttachmentFolder" />
 	</entity>
-	
+
 	<entity name="LoginLog" type-code="025" parent="false" description="登陆日志">
 		<field name="logId" type="primary" />
 		<field name="user" type="reference" ref-entity="User" nullable="false" updatable="false" description="登陆用户" />
@@ -210,7 +210,7 @@
 		<field name="logoutTime" type="timestamp" description="退出时间" />
 		<index field-list="user,loginTime" />
 	</entity>
-	
+
 	<entity name="AutoFillinConfig" type-code="026" description="字段自动回填配置">
 		<field name="configId" type="primary" />
 		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
@@ -219,7 +219,7 @@
 		<field name="targetField" type="string" max-length="100" nullable="false" description="当前实体的字段" />
 		<field name="extConfig" type="string" max-length="700" description="更多扩展配置, JSON格式KV" />
 	</entity>
-	
+
 	<entity name="RobotTriggerConfig" type-code="027" description="动作触发器">
 		<field name="configId" type="primary" />
 		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" />
@@ -239,7 +239,7 @@
 		<field name="flowDefinition" type="text" description="流程定义" />
 		<field name="isDisabled" type="bool" default-value="F" description="是否停用" />
 	</entity>
-	
+
 	<entity name="RobotApprovalStep" type-code="029" description="审批步骤记录">
 		<field name="stepId" type="primary" />
 		<field name="recordId" type="any-reference" nullable="false" updatable="false" cascade="delete" description="审批记录" />
@@ -255,25 +255,25 @@
 		<index field-list="recordId,approvalId,node,isCanceled,isWaiting" />
 	</entity>
 
-    <entity name="RebuildApi" type-code="030" description="API鉴权参数">
-        <field name="uniqueId" type="primary" />
-        <field name="appId" type="string" max-length="20" nullable="false" updatable="false" description="APPID" />
-        <field name="appSecret" type="string" max-length="60" nullable="false" description="APPSECRET" />
-        <field name="bindUser" type="reference" ref-entity="User" description="绑定用户(权限)" />
+	<entity name="RebuildApi" type-code="030" description="API鉴权参数">
+		<field name="uniqueId" type="primary" />
+		<field name="appId" type="string" max-length="20" nullable="false" updatable="false" description="APPID" />
+		<field name="appSecret" type="string" max-length="60" nullable="false" description="APPSECRET" />
+		<field name="bindUser" type="reference" ref-entity="User" description="绑定用户(权限)" />
 		<field name="bindIps" type="string" max-length="300" description="IP白名单" />
-        <index type="unique" field-list="appId" />
-    </entity>
+		<index type="unique" field-list="appId" />
+	</entity>
 
-    <entity name="RebuildApiRequest" type-code="031" description="API调用日志" parent="false">
-        <field name="requestId" type="primary" />
-        <field name="appId" type="string" max-length="20" nullable="false" updatable="false" description="APPID" />
+	<entity name="RebuildApiRequest" type-code="031" description="API调用日志" parent="false">
+		<field name="requestId" type="primary" />
+		<field name="appId" type="string" max-length="20" nullable="false" updatable="false" description="APPID" />
 		<field name="remoteIp" type="string" max-length="100" nullable="false" updatable="false" description="来源IP" />
-        <field name="requestUrl" type="string" max-length="300" nullable="false" updatable="false" description="请求URL" />
-        <field name="requestBody" type="text" updatable="false" max-length="10000" description="请求数据" />
-        <field name="responseBody" type="text" nullable="false" max-length="10000" updatable="false" description="响应数据" />
-        <field name="requestTime" type="timestamp" nullable="false" updatable="false" description="请求时间" />
-        <field name="responseTime" type="timestamp" nullable="false" updatable="false" description="响应时间" />
-        <index field-list="appId,remoteIp,requestUrl,requestTime" />
-    </entity>
+		<field name="requestUrl" type="string" max-length="300" nullable="false" updatable="false" description="请求URL" />
+		<field name="requestBody" type="text" updatable="false" max-length="10000" description="请求数据" />
+		<field name="responseBody" type="text" nullable="false" max-length="10000" updatable="false" description="响应数据" />
+		<field name="requestTime" type="timestamp" nullable="false" updatable="false" description="请求时间" />
+		<field name="responseTime" type="timestamp" nullable="false" updatable="false" description="响应时间" />
+		<index field-list="appId,remoteIp,requestUrl,requestTime" />
+	</entity>
 
 </metadata-config>

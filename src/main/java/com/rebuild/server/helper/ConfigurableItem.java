@@ -27,7 +27,7 @@ package com.rebuild.server.helper;
 public enum ConfigurableItem {
 
 	// 通用
-	AppName("REBUILD"), LOGO, LOGOWhite, HomeURL("https://getrebuild.com/"), OpenSignUp(true),
+	AppName("REBUILD"), LOGO, LOGOWhite, HomeURL("https://getrebuild.com/"), OpenSignUp(false),
 	
 	// 数据目录
 	DataDirectory,
