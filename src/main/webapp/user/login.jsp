@@ -85,7 +85,7 @@ $(document).ready(function() {
 	})
 
 	let vcodeState = $('.vcode-row').data('state')
-	if (vcodeState == 1) {
+	if (vcodeState) {
 		$('.vcode-row').removeClass('hide').find('img').trigger('click')
 	}
 
@@ -95,7 +95,7 @@ $(document).ready(function() {
 			passwd = $val('#passwd'),
 			vcode = $val('.vcode-row input')
 		if (!user || !passwd){ RbHighbar.create('请输入用户名和密码'); return }
-		if (vcodeState == 1 && !vcode){ RbHighbar.create('请输入验证码'); return }
+		if (vcodeState && !vcode){ RbHighbar.create('请输入验证码'); return }
 		
 		let btn = $('.login-submit button').button('loading')
 		let url = rb.baseUrl + '/user/user-login?user=' + $encode(user) + '&passwd=' + $encode(passwd) + '&autoLogin=' + $val('#autoLogin')
@@ -104,7 +104,7 @@ $(document).ready(function() {
 			if (res.error_code == 0){
 				location.replace($decode($urlp('nexturl') || '../dashboard/home'))
 			} else if (res.error_msg == 'VCODE') {
-				vcodeState = 1
+				vcodeState = true
 				$('.vcode-row').removeClass('hide').find('img').trigger('click')
 				btn.button('reset')
 			} else {

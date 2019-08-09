@@ -216,10 +216,11 @@ public class EasyMeta implements BaseMeta {
 		}
 
 		Object[] ext = getMetaExt();
-		if (ext == null) {
-			return JSONUtils.EMPTY_OBJECT;
+		if (ext == null || StringUtils.isBlank((String) ext[3])) {
+			JSONObject extConfig = getExtraAttrsJson().getJSONObject("extConfig");
+			return extConfig == null ? JSONUtils.EMPTY_OBJECT : extConfig;
 		}
-		return JSON.parseObject(StringUtils.defaultIfBlank((String) ext[3], JSONUtils.EMPTY_OBJECT_STR));
+		return JSON.parseObject((String) ext[3]);
 	}
 
 	private boolean isField() {
@@ -241,6 +242,7 @@ public class EasyMeta implements BaseMeta {
 				? JSONUtils.EMPTY_OBJECT : JSON.parseObject(getExtraAttrs());
 	}
 
+	// 将字段类型转成 DisplayType
 	private DisplayType converBuiltinFieldType(Field field) {
 		Type ft = field.getType();
 		if (ft == FieldType.PRIMARY) {
@@ -261,12 +263,14 @@ public class EasyMeta implements BaseMeta {
 			return DisplayType.DATE;
 		} else if (ft == FieldType.STRING) {
 			return DisplayType.TEXT;
+		} else if (ft == FieldType.TEXT) {
+			return DisplayType.NTEXT;
 		} else if (ft == FieldType.BOOL) {
 			return DisplayType.BOOL;
 		} else if (ft == FieldType.INT || ft == FieldType.SMALL_INT) {
 			return DisplayType.NUMBER;
-		} else if (ft == FieldType.TEXT) {
-			return DisplayType.NTEXT;
+		} else if (ft == FieldType.DOUBLE || ft == FieldType.DECIMAL) {
+			return DisplayType.DECIMAL;
 		}
 		return null;
 	}
