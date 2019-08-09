@@ -280,7 +280,7 @@ const RbViewPage = {
 
   __cleanButton() {
     $setTimeout(() => {
-      $cleanMenu('.view-action .load-mores')
+      $cleanMenu('.view-action .J_mores')
       $cleanMenu('.view-action .J_adds')
       $('.view-action .col-lg-6').each(function () { if ($(this).children().length === 0) $(this).remove() })
       if ($('.view-action').children().length === 0) $('.view-action').addClass('empty').empty()
