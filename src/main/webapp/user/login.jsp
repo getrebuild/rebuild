@@ -7,28 +7,50 @@
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <style type="text/css">
-#login-form>.row{margin-left:-15px !important;margin-right:-15px !important}
-.vcode-row{height:41px;max-width:100%;cursor:pointer;}
-body{
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-image: url(../assets/img/bg.jpg);
+#login-form > .row {
+	margin-left: -15px !important;
+	margin-right: -15px !important
 }
-.splash-container .card {
-    background: rgba(255, 255, 255, 0.8);
+.vcode-row {
+	height: 41px;
+	max-width: 100%;
+	cursor: pointer;
 }
-.splash-footer .signup, .splash-footer .copyright, .splash-footer .copyright a {
-	color: rgba(0, 0, 0, 0.7);
+.splash-footer .signup, .splash-footer .copyright, .splash-footer a {
+	color: rgba(0, 0, 0, 0.6);
 	line-height: 1.5;
+}
+.rb-bgimg {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	z-index: 1;
+	background: url(../assets/img/bg.jpg) no-repeat 0 0;
+	background-size: cover;
+	opacity: 1;
+}
+.rb-bgimg::before {
+	content: "";
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+	background: rgba(0, 0, 0, 0.2);
+}
+.rb-content {
+	z-index: 2;
 }
 </style>
 <title>登录</title>
 </head>
 <body class="rb-splash-screen">
 <div class="rb-wrapper rb-login">
+	<div class="rb-bgimg">
+	</div>
 	<div class="rb-content">
 		<div class="main-content container-fluid">
-			<div class="splash-container">
+			<div class="splash-container mb-0">
 				<div class="card card-border-color card-border-color-primary">
 					<div class="card-header"><a class="logo-img"></a></div>
 					<div class="card-body">
@@ -64,7 +86,7 @@ body{
 					</div>
 				</div>
 				<div class="splash-footer">
-					<div class="signup">还没有账号? <a href="signup">立即注册</a></div>
+					<div class="signup">还没有账号? <a href="signup"><u>立即注册</u></a></div>
 					<div class="copyright">
 						<span>&copy; 2019 <a href="https://getrebuild.com/" target="_blank">REBUILD</a></span>
 						<div class="dev-show" style="font-size:11px">Built on <%=ServerListener.getStartupTime()%> (<%=Application.VER%>)</div>
@@ -115,10 +137,9 @@ $(document).ready(function() {
 		})
 	})
 
-    // Bgimg by bing.com
-    // $(document.body).css({
-    //     'background-image': 'url(https://cn.bing.com/th?id=OHR.SwiftFox_ZH-CN9413097062_1920x1080.jpg&rf=LaDigue_1920x1080.jpg&pid=hp)'
-    // })
+    // bgimg by bing.com
+	// let bgimg = 'https://cn.bing.com/th?id=OHR.SwiftFox_ZH-CN9413097062_1920x1080.jpg&rf=LaDigue_1920x1080.jpg&pid=hp'
+	// $('.rb-bgimg').css('background-image', 'url(' + bgimg + ')').delay(500).animate({ opacity: 1 })
 })
 </script>
 </body>
