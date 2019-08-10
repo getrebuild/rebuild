@@ -336,7 +336,6 @@
     "offer",
     "offers",
     "online",
-    "openid",
     "order",
     "orders",
     "overview",
@@ -447,7 +446,6 @@
     "static",
     "statistics",
     "stats",
-    "status",
     "store",
     "style",
     "styles",
@@ -525,6 +523,5 @@
     "yourusername",
     "zlib",
     "entity",
-    "field",
-    "gw"
+    "field"
 ]

@@ -104,10 +104,26 @@ public class EntityHelper {
 	 * @return
 	 */
 	public static Record forNew(int entity, ID user) {
+		return forNew(MetadataHelper.getEntity(entity), user);
+	}
+	
+	/**
+	 * @param entity
+	 * @param user
+	 * @return
+	 */
+	public static Record forNew(String entity, ID user) {
+		return forNew(MetadataHelper.getEntity(entity), user);
+	}
+	
+	/**
+	 * @param entity
+	 * @param user
+	 * @return
+	 */
+	private static Record forNew(Entity entity, ID user) {
 		Assert.notNull(user, "[user] not be bull");
-		
-		Entity entityMeta = MetadataHelper.getEntity(entity);
-		Record record = new StandardRecord(entityMeta, user);
+		Record record = new StandardRecord(entity, user);
 		ExtRecordCreator.bindCommonsFieldsValue(record, true);
 		return record;
 	}
@@ -159,4 +175,5 @@ public class EntityHelper {
 
 	public static final int RebuildApi = 30;
 	public static final int RebuildApiRequest = 31;
+	
 }

@@ -37,7 +37,7 @@ import cn.devezhao.persist4j.metadata.BaseMeta;
 
 /**
  * 元数据元素封装
- *
+ * 
  * @author zhaofang123@gmail.com
  * @since 08/13/2018
  */
@@ -45,15 +45,15 @@ public class EasyMeta implements BaseMeta {
 	private static final long serialVersionUID = -6463919098111506968L;
 
 	private BaseMeta baseMeta;
-
+	
 	public EasyMeta(BaseMeta baseMeta) {
 		this.baseMeta = baseMeta;
 	}
-
+	
 	public BaseMeta getBaseMeta() {
 		return baseMeta;
 	}
-
+	
 	@Override
 	public String getName() {
 		return baseMeta.getName();
@@ -72,12 +72,12 @@ public class EasyMeta implements BaseMeta {
 	public String getDescription() {
 		return baseMeta.getDescription();
 	}
-
+	
 	@Override
 	public String getExtraAttrs() {
 		return baseMeta.getExtraAttrs();
 	}
-
+	
 	/**
 	 * also #getDescription()
 	 * @return
@@ -88,7 +88,7 @@ public class EasyMeta implements BaseMeta {
 		}
 		return StringUtils.defaultIfBlank(getDescription(), getName().toUpperCase());
 	}
-
+	
 	/**
 	 * @param fullName
 	 * @return
@@ -101,7 +101,7 @@ public class EasyMeta implements BaseMeta {
 			return dt.name();
 		}
 	}
-
+	
 	/**
 	 * @return
 	 */
@@ -109,13 +109,13 @@ public class EasyMeta implements BaseMeta {
 		if (!isField()) {
 			throw new UnsupportedOperationException("Field only");
 		}
-
+		
 		Object[] ext = getMetaExt();
 		if (ext != null) {
 			DisplayType dt = (DisplayType) ext[2];
 			return dt;
 		}
-
+		
 		DisplayType dt = null;
 		String dtInExtra = getExtraAttrsJson().getString("displayType");
 		if (dtInExtra != null) {
@@ -123,16 +123,16 @@ public class EasyMeta implements BaseMeta {
 		} else {
 			dt = converBuiltinFieldType((Field) baseMeta);
 		}
-
+		
 		if (dt != null) {
 			return dt;
 		}
 		throw new RebuildException("Unsupported field type : " + this.baseMeta);
 	}
-
+	
 	/**
 	 * 系统内建字段/实体，不可更改
-	 *
+	 * 
 	 * @return
 	 * @see MetadataHelper#isSystemField(Field)
 	 */
@@ -140,7 +140,7 @@ public class EasyMeta implements BaseMeta {
 		if (this.getMetaId() == null) {
 			return true;
 		}
-
+		
 		if (isField()) {
 			Field field = (Field) this.baseMeta;
 			if (MetadataHelper.isCommonsField(field)) {
@@ -155,45 +155,40 @@ public class EasyMeta implements BaseMeta {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * 保存的 ID
-	 *
+	 * 
 	 * @return
 	 */
 	public ID getMetaId() {
 		Object[] ext = getMetaExt();
 		return ext == null ? null : (ID) ext[0];
 	}
-
+	
 	/**
 	 * 取代 persist4j 中的 description，而 persist4j 中的 description 则表示 label
-	 *
+	 * 
 	 * @return
 	 */
 	public String getComments() {
-		String customComments = null;
 		Object[] ext = getMetaExt();
 		if (ext != null) {
-			customComments = (String) ext[1];
-		}
-
-		if (StringUtils.isNotBlank(customComments)) {
-			return customComments;
+			return (String) ext[1];
 		}
 		return StringUtils.defaultIfBlank(getExtraAttrsJson().getString("comments"), "系统内建");
 	}
-
+	
 	/**
 	 * 实体图标
-	 *
+	 * 
 	 * @return
 	 */
 	public String getIcon() {
 		if (isField()) {
 			throw new UnsupportedOperationException("Entity only");
 		}
-
+		
 		String customIcon = null;
 		Object[] ext = getMetaExt();
 		if (ext != null) {
@@ -204,17 +199,17 @@ public class EasyMeta implements BaseMeta {
 		}
 		return StringUtils.defaultIfBlank(getExtraAttrsJson().getString("icon"), "texture");
 	}
-
+	
 	/**
 	 * 字段扩展配置
-	 *
+	 * 
 	 * @return
 	 */
 	public JSONObject getFieldExtConfig() {
 		if (!isField()) {
 			throw new UnsupportedOperationException("Field only");
 		}
-
+		
 		Object[] ext = getMetaExt();
 		if (ext == null || StringUtils.isBlank((String) ext[3])) {
 			JSONObject extConfig = getExtraAttrsJson().getJSONObject("extConfig");
@@ -222,11 +217,11 @@ public class EasyMeta implements BaseMeta {
 		}
 		return JSON.parseObject((String) ext[3]);
 	}
-
+	
 	private boolean isField() {
 		return baseMeta instanceof Field;
 	}
-
+	
 	private Object[] getMetaExt() {
 		Object[] ext = null;
 		if (isField()) {
@@ -236,7 +231,7 @@ public class EasyMeta implements BaseMeta {
 		}
 		return ext;
 	}
-
+	
 	private JSONObject getExtraAttrsJson() {
 		return StringUtils.isBlank(getExtraAttrs())
 				? JSONUtils.EMPTY_OBJECT : JSON.parseObject(getExtraAttrs());
@@ -253,7 +248,7 @@ public class EasyMeta implements BaseMeta {
 				return DisplayType.PICKLIST;
 			} else if (rec == EntityHelper.Classification) {
 				return DisplayType.CLASSIFICATION;
-			}
+			} 
 			return DisplayType.REFERENCE;
 		} else if (ft == FieldType.ANY_REFERENCE) {
 			return DisplayType.ANYREFERENCE;
@@ -271,12 +266,12 @@ public class EasyMeta implements BaseMeta {
 			return DisplayType.NUMBER;
 		} else if (ft == FieldType.DOUBLE || ft == FieldType.DECIMAL) {
 			return DisplayType.DECIMAL;
-		}
+		} 
 		return null;
 	}
-
+	
 	// --
-
+	
 	/**
 	 * @param baseMeta
 	 * @return
@@ -284,7 +279,7 @@ public class EasyMeta implements BaseMeta {
 	public static EasyMeta valueOf(BaseMeta baseMeta) {
 		return new EasyMeta(baseMeta);
 	}
-
+	
 	/**
 	 * @param entityCode
 	 * @return
@@ -292,7 +287,7 @@ public class EasyMeta implements BaseMeta {
 	public static EasyMeta valueOf(int entityCode) {
 		return valueOf(MetadataHelper.getEntity(entityCode));
 	}
-
+	
 	/**
 	 * @param entityName
 	 * @return
@@ -300,7 +295,7 @@ public class EasyMeta implements BaseMeta {
 	public static EasyMeta valueOf(String entityName) {
 		return valueOf(MetadataHelper.getEntity(entityName));
 	}
-
+	
 	/**
 	 * @param field
 	 * @return
@@ -308,7 +303,7 @@ public class EasyMeta implements BaseMeta {
 	public static DisplayType getDisplayType(Field field) {
 		return new EasyMeta(field).getDisplayType();
 	}
-
+	
 	/**
 	 * @param meta
 	 * @return
@@ -316,7 +311,7 @@ public class EasyMeta implements BaseMeta {
 	public static String getLabel(BaseMeta meta) {
 		return meta.getDescription();
 	}
-
+	
 	/**
 	 * @param entity
 	 * @param joinFields
@@ -328,12 +323,12 @@ public class EasyMeta implements BaseMeta {
 		if (fieldPath.length == 1) {
 			return getLabel(firstField);
 		}
-
+		
 		Entity refEntity = firstField.getReferenceEntity();
 		Field secondField = refEntity.getField(fieldPath[1]);
 		return String.format("%s.%s", getLabel(refEntity), getLabel(secondField));
 	}
-
+	
 	/**
 	 * @return [Name, Label, Icon]
 	 */
