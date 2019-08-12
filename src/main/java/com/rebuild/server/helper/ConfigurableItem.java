@@ -48,8 +48,11 @@ public enum ConfigurableItem {
 	DBVer(0L),
 	
 	// 启用最近搜素缓存
-	EnableRecentlyUsed(true)
-	
+	EnableRecentlyUsed(true),
+
+	// 登录背景图
+	LiveWallpaper(true)
+
 	;
 	
 	private Object defaultVal;

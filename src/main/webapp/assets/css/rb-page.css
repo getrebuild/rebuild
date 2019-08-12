@@ -90,6 +90,10 @@ html.admin .admin-show.row {
     margin-left: 4px;
 }
 
+.text-underline {
+    text-decoration: underline;
+}
+
 .btn {
     min-height: 2.8rem;
     min-width: 98px;

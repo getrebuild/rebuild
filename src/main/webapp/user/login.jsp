@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ page import="com.rebuild.server.Application"%>
 <%@ page import="com.rebuild.server.ServerListener"%>
+<%@ page import="com.rebuild.server.helper.ConfigurableItem" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,9 +17,12 @@
 	max-width: 100%;
 	cursor: pointer;
 }
-.splash-footer .signup, .splash-footer .copyright, .splash-footer a {
-	color: rgba(0, 0, 0, 0.6);
+.splash-footer * {
+	color: rgba(255, 255, 255, 0.8) !important;
 	line-height: 1.5;
+}
+.splash-footer a:hover {
+	text-decoration: underline;
 }
 .rb-bgimg {
 	position: fixed;
@@ -36,7 +40,7 @@
 	width: 100%;
 	height: 100%;
 	z-index: 1;
-	background: rgba(0, 0, 0, 0.2);
+	background: rgba(0, 0, 0, 0.1);
 }
 .rb-content {
 	z-index: 2;
@@ -81,12 +85,12 @@
 						</div>
 						<div class="form-group login-submit">
 							<button class="btn btn-primary btn-xl" type="submit" data-loading-text="登录中">登录</button>
+							<div class="mt-4 text-center">还没有账号？<a href="signup">立即注册</a></div>
 						</div>
 						</form>
 					</div>
 				</div>
 				<div class="splash-footer">
-					<div class="signup">还没有账号? <a href="signup"><u>立即注册</u></a></div>
 					<div class="copyright">
 						<span>&copy; 2019 <a href="https://getrebuild.com/" target="_blank">REBUILD</a></span>
 						<div class="dev-show" style="font-size:11px">Built on <%=ServerListener.getStartupTime()%> (<%=Application.VER%>)</div>
@@ -97,6 +101,9 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
+<script>
+useLiveWallpaper = <%=SysConfiguration.getBool(ConfigurableItem.LiveWallpaper)%>
+</script>
 <script type="text/babel">
 $(document).ready(function() {
 	if (top != self) { parent.location.reload(); return }
@@ -137,10 +144,22 @@ $(document).ready(function() {
 		})
 	})
 
-    // bgimg by bing.com
-	// let bgimg = 'https://cn.bing.com/th?id=OHR.SwiftFox_ZH-CN9413097062_1920x1080.jpg&rf=LaDigue_1920x1080.jpg&pid=hp'
-	// $('.rb-bgimg').css('background-image', 'url(' + bgimg + ')').delay(500).animate({ opacity: 1 })
+	if (useLiveWallpaper) {
+		$.get('https://getrebuild.com/api/misc/bgimg?k=IjkMHgq94T7s7WkP', (res) => {
+			if (!res.url) return
+			let bgimg = new Image()
+			bgimg.src = res.url
+			bgimg.onload = function() {
+				$('.rb-bgimg').animate({ opacity: 0 })
+				setTimeout(() => {
+					$('.rb-bgimg').css('background-image', 'url(' + res.url + ')').animate({ opacity: 1 })
+				}, 400)
+			}
+		})
+	}
 })
+
+
 </script>
 </body>
 </html>
