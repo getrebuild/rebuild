@@ -19,9 +19,7 @@
 <meta name="rb.env" content="<%=AppUtils.devMode() ? "dev" : "production"%>">
 <meta name="rb.baseUrl" content="${baseUrl}">
 <meta name="rb.appName" content="${appName}">
-<%if (QiniuCloud.instance().available()) {%>
-<meta name="rb.storageUrl" content="<%=SysConfiguration.getStorageUrl()%>">
-<%}%>
+<meta name="rb.storageUrl" content="${storageUrl}">
 <%
 ID currentUser = AppUtils.getRequestUser(request);
 if (currentUser != null) {
@@ -34,7 +32,7 @@ if (currentUser != null) {
 <%if (AppUtils.isLessIE11(request)){%>
 <script>window.lessIE11 = true</script>
 <script src="${baseUrl}/assets/lib/react/polyfill.min.js"></script>
-<%}%>
 <!--[if lt IE 10]>
 <script>location.href='${baseUrl}/error/unsupported-browser'</script>
 <![endif]-->
+<%}%>
