@@ -63,7 +63,7 @@ public class FileUploader {
 				if (uploadName == null) {
 					continue;
 				}
-				
+
 				uploadName = QiniuCloud.formatFileKey(uploadName);
 				File file = null;
 				// 上传临时文件

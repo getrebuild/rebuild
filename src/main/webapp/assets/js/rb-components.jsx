@@ -458,6 +458,48 @@ const UserShow = function (props) {
     </a>)
 }
 
+
+// 轻量级表单
+class LiteFormDlg extends RbFormHandler {
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+    return (
+      <RbModal title={this.props.title || ''} ref={(c) => this._dlg = c} disposeOnHide={true}>
+        <div className="form">
+          {this.renderFrom()}
+          <div className="form-group row footer">
+            <div className="col-sm-7 offset-sm-3" ref={(c) => this._btns = c}>
+              <button className="btn btn-primary" type="button" onClick={this.confirm}>确定</button>
+              <a className="btn btn-link" onClick={this.hide}>取消</a>
+            </div>
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  componentDidMount() {
+    if (this._entity) {
+      $.get(`${rb.baseUrl}/commons/metadata/entities`, (res) => {
+        this.setState({ entities: res.data }, () => {
+          this.__select2 = $(this._entity).select2({
+            placeholder: '选择实体',
+            allowClear: false
+          })
+        })
+      })
+    }
+  }
+
+  renderFrom() {
+  }
+  confirm = () => {
+  }
+}
+
 /**
  * JSX 渲染
  * @param {*} jsx 

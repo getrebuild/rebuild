@@ -175,5 +175,7 @@ public class EntityHelper {
 
 	public static final int RebuildApi = 30;
 	public static final int RebuildApiRequest = 31;
+
+	public static final int DataReportConfig = 32;
 	
 }

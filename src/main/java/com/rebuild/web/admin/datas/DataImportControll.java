@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.admin.entityhub;
+package com.rebuild.web.admin.datas;
 
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ThreadPool;
@@ -30,9 +30,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.rebuild.server.Application;
-import com.rebuild.server.business.dataio.DataFileParser;
-import com.rebuild.server.business.dataio.DataImporter;
-import com.rebuild.server.business.dataio.ImportRule;
+import com.rebuild.server.business.dataimport.DataFileParser;
+import com.rebuild.server.business.dataimport.DataImporter;
+import com.rebuild.server.business.dataimport.ImportRule;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.helper.task.TaskExecutors;
@@ -63,7 +63,7 @@ import java.util.Map;
  * @since 01/03/2019
  */
 @Controller
-@RequestMapping("/admin/entityhub/")
+@RequestMapping("/admin/datas/")
 public class DataImportControll extends BasePageControll {
 	
 	static {
@@ -72,7 +72,7 @@ public class DataImportControll extends BasePageControll {
 
 	@RequestMapping("/data-importer")
 	public ModelAndView pageDataImports(HttpServletRequest request) {
-		return createModelAndView("/admin/entityhub/data-importer.jsp");
+		return createModelAndView("/admin/datas/data-importer.jsp");
 	}
 	
 	// 检查导入文件

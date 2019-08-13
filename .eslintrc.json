@@ -76,7 +76,8 @@
         "DlgShareManager": true,
         "RbAlert": true,
         "RbHighbar": true,
-        "ApprovalSubmitForm": true
+        "ApprovalSubmitForm": true,
+        "LiteFormDlg": true
     },
     "rules": {
         "strict": 0,

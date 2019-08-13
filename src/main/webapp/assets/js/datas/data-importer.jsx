@@ -15,7 +15,7 @@ $(document).ready(() => {
   let fileds_render = (entity) => {
     if (!entity) return
     let el = $('#repeatFields').empty()
-    $.get(`${rb.baseUrl}/admin/entityhub/data-importer/import-fields?entity=${entity}`, (res) => {
+    $.get(`${rb.baseUrl}/admin/datas/data-importer/import-fields?entity=${entity}`, (res) => {
       $(res.data).each(function () {
         if (this.name === 'createdBy' || this.name === 'createdOn' || this.name === 'modifiedOn' || this.name === 'modifiedBy') return
         $('<option value="' + this.name + '">' + this.label + '</option>').appendTo(el)
@@ -112,7 +112,7 @@ const check_ouser = () => {
 }
 const check_ouser0 = () => {
   if (!(ientry.entity && ientry.owning_user)) return
-  $.get(`${rb.baseUrl}/admin/entityhub/data-importer/check-user-privileges?ouser=${ientry.owning_user}&entity=${ientry.entity}`, (res) => {
+  $.get(`${rb.baseUrl}/admin/datas/data-importer/check-user-privileges?ouser=${ientry.owning_user}&entity=${ientry.entity}`, (res) => {
     let hasError = []
     if (res.data.canCreate !== true) hasError.push('新建')
     if (res.data.canUpdate !== true) hasError.push('更新')
@@ -140,7 +140,7 @@ const step_mapping = () => {
   if (ientry.repeat_opt !== 3 && (!ientry.repeat_fields || ientry.repeat_fields.length === 0)) { RbHighbar.create('请选择重复判断字段'); return }
 
   let btn = $('.J_step1-btn').button('loading')
-  $.get(`${rb.baseUrl}/admin/entityhub/data-importer/check-file?file=${$encode(ientry.file)}`, (res) => {
+  $.get(`${rb.baseUrl}/admin/datas/data-importer/check-file?file=${$encode(ientry.file)}`, (res) => {
     btn.button('reset')
     if (res.error_code > 0) { RbHighbar.create(res.error_msg); return }
     let _data = res.data
@@ -173,7 +173,7 @@ const step_import = () => {
   ientry.fields_mapping = fm
 
   step_import_show()
-  $.post(`${rb.baseUrl}/admin/entityhub/data-importer/import-submit`, JSON.stringify(ientry), function (res) {
+  $.post(`${rb.baseUrl}/admin/datas/data-importer/import-submit`, JSON.stringify(ientry), function (res) {
     if (res.error_code === 0) {
       import_inprogress = true
       import_taskid = res.data.taskid
@@ -188,7 +188,7 @@ const step_import_show = () => {
   $('.steps li[data-step=3], .step-content .step-pane[data-step=3]').addClass('active')
 }
 const import_state = (taskid, inLoad) => {
-  $.get(`${rb.baseUrl}/admin/entityhub/data-importer/import-state?taskid=${taskid}`, (res) => {
+  $.get(`${rb.baseUrl}/admin/datas/data-importer/import-state?taskid=${taskid}`, (res) => {
     if (res.error_code !== 0) {
       if (inLoad === true) step_upload()
       else RbHighbar.error(res.error_msg)
@@ -228,7 +228,7 @@ const import_cancel = () => {
     type: 'danger',
     confirmText: '确认终止',
     confirm: function () {
-      $.post(`${rb.baseUrl}/admin/entityhub/data-importer/import-cancel?taskid=${import_taskid}`, (res) => {
+      $.post(`${rb.baseUrl}/admin/datas/data-importer/import-cancel?taskid=${import_taskid}`, (res) => {
         if (res.error_code > 0) RbHighbar.error(res.error_msg)
       })
       this.hide()
