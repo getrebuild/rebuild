@@ -76,7 +76,7 @@ class NodeSpec extends React.Component {
   serialize() {
     // 检查节点是否有必填设置
     if (this.nodeType === 'approver' || this.nodeType === 'cc') {
-      let users = this.state.data ? this.state.data.users : ['SPEC']
+      let users = this.state.data ? this.state.data.users : ['']
       if (users[0] === 'SPEC') {
         RbHighbar.create(NTs[this.nodeType][2])
         this.setState({ hasError: true })
@@ -219,7 +219,11 @@ class ConditionNode extends NodeSpec {
     this.state.branches.forEach((item) => {
       if (nodeId !== item.nodeId) bs.push(item)
     })
-    this.setState({ branches: bs })
+    this.setState({ branches: bs }, () => {
+      if (bs.length === 0) {
+        this.props.$$$parent.removeNode(this.props.nodeId)
+      }
+    })
   }
   serialize() {
     let holdANode = null
@@ -447,7 +451,7 @@ class ApproverNodeConfig extends StartNodeConfig {
     super(props)
     this.state.signMode = props.signMode || 'OR'
     this.state.users = (props.users || ['SPEC'])[0]
-    if (!this.state.users || this.state.users.length == 20) this.state.users = 'SPEC'
+    if (!this.state.users || this.state.users.length === 20) this.state.users = 'SPEC'
   }
   render() {
     return (<div>
