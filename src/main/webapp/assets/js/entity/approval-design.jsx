@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+let __debug = false
 var wpc = window.__PageConfig
 let activeNode
 $(document).ready(() => {
@@ -64,7 +65,7 @@ class NodeSpec extends React.Component {
     let call = function (d) {
       that.setState({ data: d, active: false })
     }
-    let props = { ...(this.state.data || {}), call: call, key: 'csk-' + this.props.nodeId }
+    let props = { ...(this.state.data || {}), call: call, key: 'kns-' + this.props.nodeId }
     if (this.nodeType === 'start') renderRbcomp(<StartNodeConfig {...props} />, 'config-side')
     else if (this.nodeType === 'approver') renderRbcomp(<ApproverNodeConfig {...props} />, 'config-side')
     else if (this.nodeType === 'cc') renderRbcomp(<CCNodeConfig {...props} />, 'config-side')
@@ -95,7 +96,7 @@ class NodeGroupSpec extends React.Component {
   }
   renderNodes() {
     let nodes = (this.state.nodes || []).map((item) => {
-      let props = { ...item, key: 'k-' + item.nodeId, $$$parent: this }
+      let props = { ...item, key: 'kn-' + item.nodeId, $$$parent: this }
       if (item.type === 'condition') return <ConditionNode {...props} />
       else return <Node {...props} />
     })
@@ -194,7 +195,7 @@ class ConditionNode extends NodeSpec {
         <div className="branch-box">
           <button className="add-branch" onClick={this.addBranch}>添加分支</button>
           {this.state.branches.map((item, idx) => {
-            return <ConditionBranch key={this.props.nodeId + '-b' + idx} priority={idx + 1} isFirst={idx === 0} isLast={idx === bLen} $$$parent={this} {...item} />
+            return <ConditionBranch key={'kcb-' + item.nodeId} priority={idx + 1} isFirst={idx === 0} isLast={idx === bLen} $$$parent={this} {...item} />
           })}
         </div>
         <AddNodeButton addNodeCall={this.addNodeQuick} />
@@ -257,7 +258,7 @@ class ConditionBranch extends NodeGroupSpec {
       {this.state.isFirst && <div className="top-left-cover-line"></div>}
       {this.state.isFirst && <div className="bottom-left-cover-line"></div>}
       <div className="condition-node">
-        <div className="condition-node-box animated fadeIn">
+        <div className="condition-node-box animated fadeIn" title={__debug ? this.props.nodeId : null}>
           <div className={`auto-judge ${this.state.hasError ? 'error' : ''} ${this.state.active ? 'active' : ''}`} onClick={this.openConfig}>
             <div className="title-wrapper">
               <span className="editable-title float-left">{data.nodeName || '分支条件'}</span>
@@ -298,7 +299,7 @@ class ConditionBranch extends NodeGroupSpec {
       that.setState({ data: d, active: false })
     }
     let props = { ...(this.state.data || {}), entity: wpc.applyEntity, call: call }
-    renderRbcomp(<ConditionBranchConfig key={'cks-' + this.props.nodeId} {...props} isLast={this.state.isLast} />, 'config-side')
+    renderRbcomp(<ConditionBranchConfig key={'kcbc-' + this.props.nodeId} {...props} isLast={this.state.isLast} />, 'config-side')
 
     $(document.body).addClass('open-right-sidebar')
     this.setState({ active: true })

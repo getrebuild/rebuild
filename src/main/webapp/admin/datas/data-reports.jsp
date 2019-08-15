@@ -3,7 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>报表设计</title>
+<title>报表模板</title>
 <style type="text/css">
     .syscfg h5{background-color:#eee;margin:0;padding:10px;}
     .syscfg .table td{padding:10px;}
@@ -13,7 +13,7 @@
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header rb-aside">
 <jsp:include page="/_include/NavTop.jsp">
-    <jsp:param value="报表设计" name="pageTitle"/>
+    <jsp:param value="报表模板" name="pageTitle"/>
 </jsp:include>
 <jsp:include page="/_include/NavLeftAdmin.jsp">
     <jsp:param value="data-reports" name="activeNav"/>
@@ -30,7 +30,7 @@
         </div>
     </aside>
     <div class="page-head">
-        <div class="float-left"><div class="page-head-title">报表设计</div></div>
+        <div class="float-left"><div class="page-head-title">报表模板</div></div>
         <div class="float-right pt-1">
             <button class=" btn btn-primary J_add" type="button"><i class="icon zmdi zmdi-plus"></i> 添加</button>
         </div>
@@ -46,7 +46,7 @@
                                 <table class="table table-hover table-striped table-fixed">
                                     <thead>
                                     <tr>
-                                        <th>报表名称</th>
+                                        <th>名称</th>
                                         <th>应用实体</th>
                                         <th width="10%">启用</th>
                                         <th width="15%">更新时间</th>
