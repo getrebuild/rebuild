@@ -1,6 +1,6 @@
 
 $(document).ready(function () {
-  $('.J_add').click(() => { renderRbcomp(<ReporEdit configName="报表模板" />) })
+  $('.J_add').click(() => { renderRbcomp(<ReporEdit />) })
   renderRbcomp(<ReportList />, 'dataList')
 })
 
@@ -12,13 +12,13 @@ class ReportList extends ConfigList {
   render() {
     return <React.Fragment>
       {(this.state.data || []).map((item) => {
-        return <tr key={'api-' + item[0]}>
+        return <tr key={'k-' + item[0]}>
           <td>{item[3]}</td>
           <td>{item[2] || item[1]}</td>
-          <td>{item[4] ? '否' : '是'}</td>
+          <td>{item[4] ? <span className="badge badge-danger font-weight-light">否</span> : <span className="badge badge-success font-weight-light">是</span>}</td>
           <td>{item[5]}</td>
           <td className="actions">
-            <a className="icon" onClick={() => this.handleEdit(item)}><i className="zmdi zmdi-settings" /></a>
+            <a className="icon" onClick={() => this.handleEdit(item)}><i className="zmdi zmdi-edit" /></a>
             <a className="icon" onClick={() => this.handleDelete(item[0])}><i className="zmdi zmdi-delete" /></a>
           </td>
         </tr>
@@ -27,13 +27,11 @@ class ReportList extends ConfigList {
   }
 
   handleEdit(item) {
-    renderRbcomp(<ReporEdit configName="报表模板" id={item[0]} name={item[3]} isDisabled={item[4]} />)
+    renderRbcomp(<ReporEdit id={item[0]} name={item[3]} isDisabled={item[4]} />)
   }
-
   handleDelete(id) {
     let handle = super.handleDelete
     RbAlert.create('确认删除此报表模板？', {
-      html: true,
       type: 'danger',
       confirmText: '删除',
       confirm: function () {
@@ -47,6 +45,7 @@ class ReportList extends ConfigList {
 class ReporEdit extends ConfigFormDlg {
   constructor(props) {
     super(props)
+    this.subtitle = '报表模板'
   }
   renderFrom() {
     return <React.Fragment>
@@ -120,7 +119,7 @@ class ReporEdit extends ConfigFormDlg {
     let post = { name: this.state['name'] }
     if (!post.name) { RbHighbar.create('请输入报表名称'); return }
     if (this.props.id) {
-      post.isDisabled = this.state.isDisabled
+      post.isDisabled = this.state.isDisabled === true
     } else {
       post.belongEntity = this.__select2.val()
       if (!post.belongEntity) { RbHighbar.create('请选择应用实体'); return }

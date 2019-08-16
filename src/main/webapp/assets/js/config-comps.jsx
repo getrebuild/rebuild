@@ -7,7 +7,7 @@ class ConfigFormDlg extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={(this.props.id ? '修改' : '添加') + this.props.configName} ref={(c) => this._dlg = c} disposeOnHide={true}>
+      <RbModal title={(this.props.id ? '修改' : '添加') + (this.subtitle || '')} ref={(c) => this._dlg = c} disposeOnHide={true}>
         <div className="form">
           {this.renderFrom()}
           <div className="form-group row footer">

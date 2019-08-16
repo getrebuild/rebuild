@@ -40,6 +40,6 @@ window.__PageConfig = {
 	openLevel: ${openLevel}
 }
 </script>
-<script src="${baseUrl}/assets/js/entity/classification-editor.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/entityhub/classification-editor.jsx" type="text/babel"></script>
 </body>
 </html>

@@ -1268,6 +1268,14 @@ i.split.ui-draggable-dragging {
     padding: 25px 18px;
 }
 
+.dept-tree .config-title {
+    margin-bottom: 19px;
+    margin-top: 17px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    color: #777;
+}
+
 .dept-tree .list-unstyled {
     margin: 0
 }

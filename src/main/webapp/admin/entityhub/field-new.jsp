@@ -79,6 +79,6 @@
 	</form>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/js/entity/field-new.js"></script>
+<script src="${baseUrl}/assets/js/entityhub/field-new.js"></script>
 </body>
 </html>
