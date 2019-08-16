@@ -4,11 +4,6 @@
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <title>报表模板</title>
-<style type="text/css">
-    .syscfg h5{background-color:#eee;margin:0;padding:10px;}
-    .syscfg .table td{padding:10px;}
-    .syscfg .table td p{margin:0;color:#999;font-weight:normal;font-size:12px;}
-</style>
 </head>
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header rb-aside">
@@ -33,6 +28,12 @@
         <div class="float-left"><div class="page-head-title">报表模板</div></div>
         <div class="float-right pt-1">
             <button class=" btn btn-primary J_add" type="button"><i class="icon zmdi zmdi-plus"></i> 添加</button>
+        </div>
+        <div class="float-right pt-1 mr-3">
+            <div class="input-group input-search">
+                <input class="form-control" type="text" placeholder="查询" maxlength="40">
+                <span class="input-group-btn"><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button></span>
+            </div>
         </div>
         <div class="clearfix"></div>
     </div>
@@ -72,6 +73,7 @@
 </div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
+<script type="text/babel" src="${baseUrl}/assets/js/config-comps.jsx"></script>
 <script type="text/babel" src="${baseUrl}/assets/js/datas/data-reports.jsx"></script>
 </body>
 </html>

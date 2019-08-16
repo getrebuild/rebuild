@@ -32,6 +32,8 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * TODO
@@ -55,15 +57,21 @@ public class DataReportControll extends BasePageControll {
     @RequestMapping("/data-reports/list")
     public void reportList(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String belongEntity = getParameter(request, "entity");
-        String sql = "select configId,name,belongEntity,belongEntity,isDisabled,modifiedOn from DataReportConfig";
-        if (StringUtils.isNotBlank(belongEntity)) {
-            sql += " where belongEntity = '" + StringEscapeUtils.escapeSql(belongEntity) + "'";
-        }
-        sql += " order by name, modifiedOn desc";
+        String q = getParameter(request, "q");
+        String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn from DataReportConfig" +
+                " where (1=1) and (2=2) order by name, modifiedOn desc";
 
-        Object[][] array = Application.createQuery(sql).array();
+        List<String> where = new ArrayList<>();
+        if (StringUtils.isNotBlank(belongEntity)) {
+            sql = sql.replace("(1=1)", "belongEntity = '" + StringEscapeUtils.escapeSql(belongEntity) + "'");
+        }
+        if (StringUtils.isNotBlank(q)) {
+            sql = sql.replace("(2=2)", "name like '%" + StringEscapeUtils.escapeSql(q) + "%'");
+        }
+
+        Object[][] array = Application.createQuery(sql).setLimit(500).array();
         for (Object[] o : array) {
-            o[3] = EasyMeta.getLabel(MetadataHelper.getEntity((String) o[3]));
+            o[2] = EasyMeta.getLabel(MetadataHelper.getEntity((String) o[2]));
             o[5] = CalendarUtils.getUTCDateTimeFormat().format(o[5]);
         }
         writeSuccess(response, array);

@@ -77,7 +77,8 @@
         "RbAlert": true,
         "RbHighbar": true,
         "ApprovalSubmitForm": true,
-        "LiteFormDlg": true
+        "ConfigList": true,
+        "ConfigFormDlg": true
     },
     "rules": {
         "strict": 0,
