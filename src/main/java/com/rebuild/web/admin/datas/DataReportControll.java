@@ -59,8 +59,19 @@ public class DataReportControll extends BasePageControll {
         String belongEntity = getParameter(request, "entity");
         String q = getParameter(request, "q");
         String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn from DataReportConfig" +
-                " where (1=1) and (2=2) order by name, modifiedOn desc";
+                " where (1=1) and (2=2)" +
+                " order by name, modifiedOn desc";
 
+        Object[][] array = queryListOfConfig(sql, belongEntity, q);
+        writeSuccess(response, array);
+    }
+
+    /**
+     * @param sql
+     * @param belongEntity
+     * @param q
+     */
+    public static Object[][] queryListOfConfig(String sql, String belongEntity, String q) {
         List<String> where = new ArrayList<>();
         if (StringUtils.isNotBlank(belongEntity)) {
             sql = sql.replace("(1=1)", "belongEntity = '" + StringEscapeUtils.escapeSql(belongEntity) + "'");
@@ -74,6 +85,6 @@ public class DataReportControll extends BasePageControll {
             o[2] = EasyMeta.getLabel(MetadataHelper.getEntity((String) o[2]));
             o[5] = CalendarUtils.getUTCDateTimeFormat().format(o[5]);
         }
-        writeSuccess(response, array);
+        return array;
     }
 }

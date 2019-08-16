@@ -17,7 +17,7 @@
     <aside class="page-aside">
         <div class="rb-scroller">
             <div class="dept-tree">
-                <h5 class="text-muted" style="margin-bottom:19px;margin-top:17px;border-bottom:1px solid #eee;padding-bottom:10px;">应用实体</h5>
+                <h5 class="config-title">应用实体</h5>
                 <ul class="list-unstyled">
                     <li class="active"><a>所有实体</a></li>
                 </ul>
@@ -49,8 +49,8 @@
                                     <tr>
                                         <th>名称</th>
                                         <th>应用实体</th>
-                                        <th width="10%">启用</th>
-                                        <th width="15%">更新时间</th>
+                                        <th width="80">启用</th>
+                                        <th width="160">更新时间</th>
                                         <th width="80"></th>
                                     </tr>
                                     </thead>
