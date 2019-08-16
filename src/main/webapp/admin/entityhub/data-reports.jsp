@@ -74,6 +74,6 @@
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script type="text/babel" src="${baseUrl}/assets/js/config-comps.jsx"></script>
-<script type="text/babel" src="${baseUrl}/assets/js/datas/data-reports.jsx"></script>
+<script type="text/babel" src="${baseUrl}/assets/js/entityhub/data-reports.jsx"></script>
 </body>
 </html>

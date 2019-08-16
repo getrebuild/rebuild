@@ -27,7 +27,7 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.configuration.RobotApprovalConfigService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
-import com.rebuild.web.admin.datas.DataReportControll;
+import com.rebuild.web.admin.entityhub.DataReportControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;

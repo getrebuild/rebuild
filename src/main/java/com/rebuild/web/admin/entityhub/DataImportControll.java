@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.admin.datas;
+package com.rebuild.web.admin.entityhub;
 
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ThreadPool;
@@ -72,7 +72,7 @@ public class DataImportControll extends BasePageControll {
 
 	@RequestMapping("/data-importer")
 	public ModelAndView pageDataImports(HttpServletRequest request) {
-		return createModelAndView("/admin/datas/data-importer.jsp");
+		return createModelAndView("/admin/entityhub/data-importer.jsp");
 	}
 	
 	// 检查导入文件

@@ -26,7 +26,7 @@ class TriggerList extends ConfigList {
           <td><a href={`trigger/${item[0]}`}>{item[3] || (item[2] + ' · ' + item[7])}</a></td>
           <td>{item[2] || item[1]}</td>
           <td>{item[6] > 0 ? ('当' + formatWhen(item[6]) + '时') : <span className="text-warning">(无触发动作)</span>}</td>
-          <td>{item[4] ? <span className="badge badge-danger font-weight-light">否</span> : <span className="badge badge-success font-weight-light">是</span>}</td>
+          <td>{item[4] ? <span className="badge badge-warning font-weight-light">否</span> : <span className="badge badge-success font-weight-light">是</span>}</td>
           <td>{item[5]}</td>
           <td className="actions">
             <a className="icon" onClick={() => this.handleEdit(item)}><i className="zmdi zmdi-edit" /></a>

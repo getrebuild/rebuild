@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.admin.datas;
+package com.rebuild.web.admin.entityhub;
 
 import cn.devezhao.commons.CalendarUtils;
 import com.rebuild.server.Application;
@@ -47,7 +47,7 @@ public class DataReportControll extends BasePageControll {
 
     @RequestMapping("/data-reports")
     public ModelAndView pageDataReports(HttpServletRequest request) {
-        return createModelAndView("/admin/datas/data-reports.jsp");
+        return createModelAndView("/admin/entityhub/data-reports.jsp");
     }
 
     @RequestMapping("/data-reports/check-template")
