@@ -60,7 +60,7 @@ public class RobotTriggerControll extends BasePageControll {
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID configId = ID.valueOf(id);
 		Object[] config = Application.createQuery(
-				"select belongEntity,actionType,when,whenFilter,actionContent,priority from RobotTriggerConfig where configId = ?")
+				"select belongEntity,actionType,when,whenFilter,actionContent,priority,name from RobotTriggerConfig where configId = ?")
 				.setParameter(1, configId)
 				.unique();
 		if (config == null) {
@@ -81,6 +81,7 @@ public class RobotTriggerControll extends BasePageControll {
 		mv.getModel().put("whenFilter", StringUtils.defaultIfBlank((String) config[3], JSONUtils.EMPTY_OBJECT_STR));
 		mv.getModel().put("actionContent", StringUtils.defaultIfBlank((String) config[4], JSONUtils.EMPTY_OBJECT_STR));
 		mv.getModel().put("priority", config[5]);
+		mv.getModel().put("name", config[6]);
 		return mv;
 	}
 	

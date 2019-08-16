@@ -18,25 +18,26 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server;
 
-import java.io.File;
-import java.net.URL;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.business.rbstore.MetaschemaImporter;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.Entity2Schema;
 import com.rebuild.server.metadata.entity.Field2Schema;
 import com.rebuild.server.service.bizz.UserService;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.engine.ID;
+import java.io.File;
+import java.net.URL;
 
 /**
  * 测试基类
@@ -98,8 +99,7 @@ public class TestSupport {
 		Entity testEntity = MetadataHelper.getEntity(entityName);
 		
 		for (DisplayType dt : DisplayType.values()) {
-			if (dt == DisplayType.ID || dt == DisplayType.LOCATION || dt == DisplayType.ANYREFERENCE
-					|| dt == DisplayType.BOOL || dt == DisplayType.AVATAR) {
+			if (dt == DisplayType.ID || dt == DisplayType.LOCATION || dt == DisplayType.ANYREFERENCE) {
 				continue;
 			}
 			
@@ -148,6 +148,23 @@ public class TestSupport {
 			URL url = TestSupport.class.getClassLoader().getResource("metaschema.SalesOrder.json");
 			String content = FileUtils.readFileToString(new File(url.toURI()));
 			new MetaschemaImporter(UserService.ADMIN_USER, JSON.parseObject(content)).exec();
+		}
+	}
+
+	/**
+	 * @return
+	 */
+	protected static ID addRecordOfTestAllFields() {
+		final ID opUser = UserService.ADMIN_USER;
+		Entity test = MetadataHelper.getEntity(TEST_ENTITY);
+		Record record = EntityHelper.forNew(test.getEntityCode(), opUser);
+		record.setString("text", "TEXT-" + RandomUtils.nextLong());
+		try {
+			Application.getSessionStore().set(opUser);
+			record = Application.getGeneralEntityService().create(record);
+			return record.getPrimary();
+		} finally {
+			Application.getSessionStore().clean();
 		}
 	}
 }

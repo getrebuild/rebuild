@@ -4,12 +4,12 @@
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/approvals.css">
-<title>编辑审批流程</title>
+<title>审批流程</title>
 </head>
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header">
 	<jsp:include page="/_include/NavTop.jsp">
-		<jsp:param value="编辑触发器" name="pageTitle"/>
+		<jsp:param value="审批流程" name="pageTitle"/>
 	</jsp:include>
 	<jsp:include page="/_include/NavLeftAdmin.jsp">
 		<jsp:param value="robot-approval" name="activeNav"/>
@@ -17,7 +17,7 @@
 	<div class="rb-content">
 		<div class="page-head">
 			<div class="float-left">
-				<div class="page-head-title">编辑审批流程<span class="sub-title">${name}</span></div>
+				<div class="page-head-title">审批流程<span class="sub-title">${name}</span></div>
 			</div>
 			<div class="float-right pt-1">
 			    <div class="btn-group btn-space">
@@ -30,17 +30,15 @@
 			</div>
 			<div class="clearfix"></div>
 		</div>
-		<div class="main-content container-fluid pt-1">
+		<div class="main-content container-fluid pt-0">
 			<div class="row wizard-row">
 				<div class="col-md-12 fuelux">
 					<div class="wizard wizard-ux rounded">
 						<div class="steps-container">
 							<ul class="steps">
-								<li data-step="1">基本配置 <i class="chevron"></i></li>
 								<li data-step="2" class="active">流程设计 <i class="chevron"></i></li>
 							</ul>
 							<div class="step-content p-0">
-								<div data-step="1" class="step-pane"></div>
 								<div data-step="2" class="step-pane active">
 									<div class="rbflow-design rb-loading rb-loading-active" id="rbflow">
 										<%@ include file="/_include/spinner.jsp"%>

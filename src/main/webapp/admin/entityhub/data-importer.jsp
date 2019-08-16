@@ -154,6 +154,6 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/js/re/data-importer.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/entityhub/data-importer.jsx" type="text/babel"></script>
 </body>
 </html>
