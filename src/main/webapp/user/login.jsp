@@ -18,7 +18,7 @@
 	cursor: pointer;
 }
 .splash-footer * {
-	color: rgba(255, 255, 255, 0.8) !important;
+	color: rgba(255, 255, 255, 0.88) !important;
 	line-height: 1.5;
 }
 .splash-footer a:hover {
@@ -50,8 +50,7 @@
 </head>
 <body class="rb-splash-screen">
 <div class="rb-wrapper rb-login">
-	<div class="rb-bgimg">
-	</div>
+	<div class="rb-bgimg"></div>
 	<div class="rb-content">
 		<div class="main-content container-fluid">
 			<div class="splash-container mb-0">

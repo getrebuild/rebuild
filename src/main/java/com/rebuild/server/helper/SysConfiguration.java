@@ -172,6 +172,14 @@ public class SysConfiguration {
 	}
 	
 	// --
+
+	/**
+	 * @param name
+	 * @return
+	 */
+	public static String get(ConfigurableItem name) {
+		return get(name, false);
+	}
 	
 	/**
 	 * @param name
@@ -228,7 +236,7 @@ public class SysConfiguration {
 		}
 		return s;
 	}
-	
+
 	/**
 	 * @param name
 	 * @return
