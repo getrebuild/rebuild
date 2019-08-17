@@ -39,7 +39,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -92,8 +91,9 @@ public class ReportGenerator {
 
         try(InputStream is = new FileInputStream(template)) {
             try (OutputStream os = new FileOutputStream(dest)) {
-                Map<String, Object> data = getDataOfRecord();
+                Map<String, Object> data = getDataContext();
                 Context context = new Context(data);
+
                 JxlsHelper.getInstance().processTemplate(is, os, context);
             }
         } catch (IOException ex) {
@@ -108,26 +108,29 @@ public class ReportGenerator {
      *
      * @return
      */
-    protected Map<String, Object> getDataOfRecord() {
+    protected Map<String, Object> getDataContext() {
         Entity entity = MetadataHelper.getEntity(this.record.getEntityCode());
-        Set<String> vars = new ExtractTemplateVars(this.template).extract();
+        Set<String> vars = new TemplateExtractor(this.template).extractVars(false);
+
+        Map<String, Object> data = new HashMap<>();
 
         List<String> validFields = new ArrayList<>();
         for (String field : vars) {
             if (MetadataHelper.getLastJoinField(entity, field) != null) {
                 validFields.add(field);
+            } else {
+                data.put(field, "[无效变量]");
             }
         }
 
         if (validFields.isEmpty()) {
-            return Collections.emptyMap();
+            return data;
         }
 
         String sql = String.format("select %s from %s where %s = ?",
                 StringUtils.join(validFields, ","), entity.getName(), entity.getPrimaryField().getName());
         Record record = Application.getQueryFactory().createQuery(sql, this.user).setParameter(1, this.record).record();
 
-        Map<String, Object> data = new HashMap<>();
         for (Iterator<String> iter = record.getAvailableFieldIterator(); iter.hasNext(); ) {
             String name = iter.next();
             Field field = MetadataHelper.getLastJoinField(entity, name);

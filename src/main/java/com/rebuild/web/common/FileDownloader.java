@@ -24,6 +24,7 @@ import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.web.BaseControll;
 import org.apache.commons.lang.BooleanUtils;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -63,7 +64,7 @@ public class FileDownloader extends BaseControll {
 				response.setContentType(mimeType);
 			}
 			
-			writeLocalFile(filePath, response, temp);
+			writeLocalFile(filePath, temp, response);
 			return;
 		}
 		
@@ -81,37 +82,44 @@ public class FileDownloader extends BaseControll {
 		filePath = filePath.split("/filex/download/")[1];
 
 		boolean temp = BooleanUtils.toBoolean(request.getParameter("temp"));
+		String fileName = QiniuCloud.parseFileName(filePath);
+
+		ServletUtils.setNoCacheHeaders(response);
+
 		// Local storage || temp
 		if (!QiniuCloud.instance().available() || temp) {
-			String fileName = QiniuCloud.parseFileName(filePath);
 			response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
-			
-			ServletUtils.setNoCacheHeaders(response);
-			writeLocalFile(filePath, response, temp);
-			return;
+			response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+			writeLocalFile(filePath, temp, response);
+		} else {
+			String privateUrl = QiniuCloud.instance().url(filePath);
+			privateUrl += "&attname=" + fileName;
+			response.sendRedirect(privateUrl);
 		}
-		
-		String privateUrl = QiniuCloud.instance().url(filePath);
-		privateUrl += "&attname=" + QiniuCloud.parseFileName(filePath);
-		response.sendRedirect(privateUrl);
 	}
 
 	/**
+	 * 文件下载
+	 *
 	 * @param filePath
-	 * @param response
 	 * @param temp
+	 * @param response
 	 * @return
 	 * @throws IOException
 	 */
-	private boolean writeLocalFile(String filePath, HttpServletResponse response, boolean temp) throws IOException {
+	public static boolean writeLocalFile(String filePath, boolean temp, HttpServletResponse response) throws IOException {
 		filePath = CodecUtils.urlDecode(filePath);
-		File tmp = temp ? SysConfiguration.getFileOfTemp(filePath) : SysConfiguration.getFileOfData(filePath);
-		if (!tmp.exists()) {
+		File file = temp ? SysConfiguration.getFileOfTemp(filePath) : SysConfiguration.getFileOfData(filePath);
+		if (!file.exists()) {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return false;
 		}
-		
-		try (InputStream fis = new FileInputStream(tmp)) {
+
+//		long size = FileUtils.sizeOf(file);
+//		response.setHeader("Content-Length", String.valueOf(size));
+
+		try (InputStream fis = new FileInputStream(file)) {
 			response.setContentLength(fis.available());
 			
 			OutputStream os = response.getOutputStream();
@@ -120,6 +128,7 @@ public class FileDownloader extends BaseControll {
 			while ((count = fis.read(buffer)) != -1) {
 				os.write(buffer, 0, count);
 			}
+//			os.flush();
 			return true;
 		}
 	}

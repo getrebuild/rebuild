@@ -262,3 +262,36 @@ body {
 	display: inline-block;
 	margin-top: -1.4rem;
 }
+
+.reports-select .modal-content {
+	max-width: 380px;
+}
+
+.reports-select ul li a {
+	display: block;
+	border: 1px solid #ccc;
+	padding: 8px 12px;
+	border-radius: 2px;
+	position: relative;
+	color: #444;
+}
+
+.reports-select ul li a .zmdi {
+	position: absolute;
+	right: 12px;
+	top: 11px;
+	font-size: 1.3rem;
+	color: #999;
+}
+
+.reports-select ul li a:hover {
+	background-color: #eee;
+}
+
+.reports-select ul li a:hover .zmdi {
+	color: #4285f4;
+}
+
+.reports-select ul li+li {
+	margin-top: 5px;
+}

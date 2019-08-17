@@ -1,3 +1,4 @@
+<%@ page import="cn.devezhao.commons.CodecUtils" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -38,9 +39,10 @@ html, body{
     <button class="btn btn-space btn-secondary" onclick="window.close()">关闭</button>
 </div>
 <div class="preview-content">
-    <div id="preview-table"></div>
+    <div id="preview-table">
+    </div>
     <div class="font-italic">
-        <div class="float-left">时间 ${printTime} · 编号 ${recordId}</div>
+        <div class="float-left">打印时间 ${printTime} · 编号 <%=CodecUtils.base64Encode(request.getAttribute("recordId").toString())%></div>
         <div class="float-right">${appName} 技术支持</div>
     </div>
 </div>

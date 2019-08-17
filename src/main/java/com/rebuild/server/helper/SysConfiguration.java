@@ -55,7 +55,7 @@ public class SysConfiguration {
 	 * @return
 	 */
 	public static File getFileOfData(String file) {
-		String d = get(ConfigurableItem.DataDirectory, null);
+		String d = get(ConfigurableItem.DataDirectory);
 		File dFile = null;
 		if (d != null) {
 			dFile = new File(d);
@@ -79,7 +79,7 @@ public class SysConfiguration {
 	 * @see #getFileOfData(String)
 	 */
 	public static File getFileOfTemp(String file) {
-		File tFile = getFileOfData("tmp");
+		File tFile = getFileOfData("rb-temp");
 		if (!tFile.exists()) {
 			tFile.mkdirs();
 		}

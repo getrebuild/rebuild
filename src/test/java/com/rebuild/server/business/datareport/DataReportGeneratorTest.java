@@ -16,18 +16,15 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business;
+package com.rebuild.server.business.datareport;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.TestSupport;
-import com.rebuild.server.business.datareport.ExtractTemplateVars;
-import com.rebuild.server.business.datareport.ReportGenerator;
 import com.rebuild.server.service.bizz.UserService;
 import org.junit.Test;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
-import java.util.Set;
 
 /**
  * @author devezhao
@@ -37,18 +34,11 @@ public class DataReportGeneratorTest extends TestSupport {
 
     @Test
     public void testGenerator() throws Exception {
-        File template = ResourceUtils.getFile("classpath:data-report.xlsx");
+        File template = ResourceUtils.getFile("classpath:report-template.xlsx");
         ID record = addRecordOfTestAllFields();
         ReportGenerator generator = new ReportGenerator(template, record);
         generator.setUser(UserService.ADMIN_USER);
         File file = generator.generate();
         System.out.println(file);
-    }
-
-    @Test
-    public void testExtractTemplateVars() throws Exception {
-        File template = ResourceUtils.getFile("classpath:data-report.xlsx");
-        Set<String> vars = new ExtractTemplateVars(template).extract();
-        System.out.println(vars);
     }
 }

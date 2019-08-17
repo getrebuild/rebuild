@@ -97,7 +97,7 @@ class ReporEdit extends ConfigFormDlg {
     if (this.__upload) {
       let that = this
       $(this.__upload).html5Uploader({
-        postUrl: rb.baseUrl + '/filex/upload?temp=yes',
+        postUrl: rb.baseUrl + '/filex/upload',
         onSelectError: function (field, error) {
           if (error === 'ErrorType') RbHighbar.create('请上传 Excel 文件')
           else if (error === 'ErrorMaxSize') RbHighbar.create('文件不能大于 5M')
@@ -105,10 +105,14 @@ class ReporEdit extends ConfigFormDlg {
         onSuccess: function (d) {
           d = JSON.parse(d.currentTarget.response)
           if (d.error_code === 0) {
+            let name = $fileCutName(d.data)
             that.setState({
               templateFile: d.data,
-              uploadFileName: $fileCutName(d.data)
+              uploadFileName: name
             })
+            if (!that.state.name) {
+              that.setState({ name: name })
+            }
           } else RbHighbar.error('上传失败，请稍后重试')
         }
       })
