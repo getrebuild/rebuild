@@ -62,7 +62,7 @@ public class ServerListener extends ContextLoaderListener {
 
 			// 全局 EL 变量
 			event.getServletContext().setAttribute("baseUrl", CONTEXT_PATH);
-			event.getServletContext().setAttribute("appName", SysConfiguration.get(ConfigurableItem.AppName, false));
+			event.getServletContext().setAttribute("appName", SysConfiguration.get(ConfigurableItem.AppName));
 			event.getServletContext().setAttribute("storageUrl", StringUtils.defaultIfEmpty(SysConfiguration.getStorageUrl(), ""));
 
 		} catch (Throwable ex) {

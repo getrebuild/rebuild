@@ -23,6 +23,8 @@ import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
+import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.helper.cache.EhcacheTemplate;
 import com.rebuild.server.helper.cache.RecentlyUsedCache;
@@ -105,12 +107,17 @@ public final class Application {
 		// for fastjson Serialize
 		SerializeConfig.getGlobalInstance().put(ID.class, ToStringSerializer.instance);
 		SerializeConfig.getGlobalInstance().put(Date.class, RbDateCodec.instance);
-		
+
+		// 更新刷新配置缓存
+		for (ConfigurableItem item : ConfigurableItem.values()) {
+			SysConfiguration.get(item, true);
+		}
+
 		// 升级数据库
 		UpgradeDatabase.getInstance().upgradeQuietly();
 		
 		// 自定义实体
-		LOG.info("Loading customized entities ...");
+		LOG.info("Loading customized/business entities ...");
 		((DynamicMetadataFactory) APPLICATION_CTX.getBean(PersistManagerFactory.class).getMetadataFactory()).refresh(false);
 		
 		// 实体对应的服务类

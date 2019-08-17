@@ -113,18 +113,13 @@ public class DataReportControll extends BasePageControll {
                 "select belongEntity from DataReportConfig where configId = ?")
                 .setParameter(1, reportId)
                 .unique();
-        if (report == null || !MetadataHelper.containsEntity((String) report[0])) {
-            response.sendError(410, "报表模板不存在");
-            return;
-        }
-
         Entity entity = MetadataHelper.getEntity((String) report[0]);
 
         String sql = String.format("select %s from %s order by modifiedOn desc",
                 entity.getPrimaryField().getName(), entity.getName());
         Object random[] = Application.createQueryNoFilter(sql).unique();
         if (random == null) {
-            response.sendError(410, "未找到任何记录");
+            response.sendError(400, "无法预览。未找到可用记录");
             return;
         }
 

@@ -49,11 +49,16 @@
 										<div class="form-group row">
 											<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">上传数据文件</label>
 											<div class="col-md-12 col-xl-6 col-lg-8">
-												<div class="file-select">
-								                    <input type="file" class="inputfile" id="upload-input" accept=".xlsx,.xls" data-maxsize="20971520">
-								                    <label for="upload-input" class="btn-secondary"><i class="zmdi zmdi-upload"></i><span>选择文件</span></label>
-								                </div>
-								                <div class="text-bold J_upload-input"></div>
+												<div class="float-left">
+													<div class="file-select">
+														<input type="file" class="inputfile" id="upload-input" accept=".xlsx,.xls" data-maxsize="20971520">
+														<label for="upload-input" class="btn-secondary"><i class="zmdi zmdi-upload"></i><span>选择文件</span></label>
+													</div>
+												</div>
+												<div class="float-left ml-2" style="padding-top:7px">
+													<div class="text-bold J_upload-input"></div>
+												</div>
+												<div class="clearfix"></div>
 								                <div class="form-text mb-0">
 									                <ul class="mb-0 pl-4">
 														<li>支持上传 Excel/CSV 文件，文件大小不超过 20M</li>

@@ -175,14 +175,6 @@ public class SysConfiguration {
 
 	/**
 	 * @param name
-	 * @return
-	 */
-	public static String get(ConfigurableItem name) {
-		return get(name, false);
-	}
-	
-	/**
-	 * @param name
 	 * @param reload
 	 * @return
 	 */
@@ -222,6 +214,14 @@ public class SysConfiguration {
 		}
 		return s;
 	}
+
+	/**
+	 * @param name
+	 * @return
+	 */
+	public static String get(ConfigurableItem name) {
+		return get(name, false);
+	}
 	
 	/**
 	 * @param name
@@ -229,7 +229,7 @@ public class SysConfiguration {
 	 * @return
 	 */
 	public static String get(ConfigurableItem name, String defaultValue) {
-		String s = get(name, false);
+		String s = get(name);
 		if (s == null) {
 			Object v = defaultValue != null ? defaultValue : name.getDefaultValue();
 			return v == null ? null : v.toString();
@@ -242,7 +242,7 @@ public class SysConfiguration {
 	 * @return
 	 */
 	public static long getLong(ConfigurableItem name) {
-		String s = get(name, false);
+		String s = get(name);
 		return s == null ? (Long) name.getDefaultValue() : NumberUtils.toLong(s);
 	}
 	
@@ -251,7 +251,7 @@ public class SysConfiguration {
 	 * @return
 	 */
 	public static boolean getBool(ConfigurableItem name) {
-		String s = get(name, false);
+		String s = get(name);
 		return s == null ? (Boolean) name.getDefaultValue() : BooleanUtils.toBoolean(s);
 	}
 	

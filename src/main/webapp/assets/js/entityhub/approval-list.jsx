@@ -18,8 +18,8 @@ class ApprovalList extends ConfigList {
           <td>{item[4] ? <span className="badge badge-warning font-weight-light">否</span> : <span className="badge badge-success font-weight-light">是</span>}</td>
           <td>{item[5]}</td>
           <td className="actions">
-            <a className="icon" onClick={() => this.handleEdit(item)}><i className="zmdi zmdi-edit" /></a>
-            <a className="icon" onClick={() => this.handleDelete(item[0])}><i className="zmdi zmdi-delete" /></a>
+            <a className="icon" title="修改" onClick={() => this.handleEdit(item)}><i className="zmdi zmdi-edit" /></a>
+            <a className="icon" title="删除" onClick={() => this.handleDelete(item[0])}><i className="zmdi zmdi-delete" /></a>
           </td>
         </tr>
       })}
