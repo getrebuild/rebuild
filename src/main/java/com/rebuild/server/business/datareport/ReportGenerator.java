@@ -29,6 +29,8 @@ import com.rebuild.server.configuration.DataReportManager;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entity.DisplayType;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import org.apache.commons.lang.StringUtils;
 import org.jxls.common.Context;
 import org.jxls.util.JxlsHelper;
@@ -47,7 +49,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * TODO
+ * 报表生成
  * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/08/13
@@ -138,10 +140,15 @@ public class ReportGenerator {
         for (Iterator<String> iter = record.getAvailableFieldIterator(); iter.hasNext(); ) {
             String name = iter.next();
             Field field = MetadataHelper.getLastJoinField(entity, name);
-            Object fieldValue = FieldValueWrapper.instance.wrapFieldValue(record.getObjectValue(name), field);
-
-            // TODO 不同类型的处理
-
+            EasyMeta easyMeta = EasyMeta.valueOf(field);
+            DisplayType dt = easyMeta.getDisplayType();
+            if (dt == DisplayType.IMAGE || dt == DisplayType.AVATAR
+    				|| dt == DisplayType.FILE || dt == DisplayType.LOCATION) {
+            	data.put(name, "[暂不支持" + dt.getDisplayName() + "]");
+            	continue;
+    		}
+            
+            Object fieldValue = FieldValueWrapper.instance.wrapFieldValue(record.getObjectValue(name), easyMeta);
             data.put(name, fieldValue);
         }
         return data;

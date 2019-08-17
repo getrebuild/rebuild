@@ -74,7 +74,6 @@ public class ReportsControll extends BasePageControll {
 
     @RequestMapping("report-generate")
     public void reportGenerate(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        ID user = getRequestUser(request);
         ID reportId = getIdParameterNotNull(request, "report");
         ID recordId = getIdParameterNotNull(request, "record");
 
