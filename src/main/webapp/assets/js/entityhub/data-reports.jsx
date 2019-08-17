@@ -1,4 +1,4 @@
-
+/* eslint-disable react/jsx-no-target-blank */
 $(document).ready(function () {
   $('.J_add').click(() => { renderRbcomp(<ReporEdit />) })
   renderRbcomp(<ReportList />, 'dataList')
@@ -18,8 +18,9 @@ class ReportList extends ConfigList {
           <td>{item[4] ? <span className="badge badge-warning font-weight-light">否</span> : <span className="badge badge-success font-weight-light">是</span>}</td>
           <td>{item[5]}</td>
           <td className="actions">
-            <a className="icon" onClick={() => this.handleEdit(item)}><i className="zmdi zmdi-edit" /></a>
-            <a className="icon" onClick={() => this.handleDelete(item[0])}><i className="zmdi zmdi-delete" /></a>
+            <a className="icon" title="修改" href={`${rb.baseUrl}/admin/datas/data-reports/preview?id=${item[0]}`} target="_blank"><i className="zmdi zmdi-eye" /></a>
+            <a className="icon" title="编辑" onClick={() => this.handleEdit(item)}><i className="zmdi zmdi-edit" /></a>
+            <a className="icon" title="删除" onClick={() => this.handleDelete(item[0])}><i className="zmdi zmdi-delete" /></a>
           </td>
         </tr>
       })}
@@ -69,12 +70,20 @@ class ReporEdit extends ConfigFormDlg {
           </div>
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">模板文件</label>
-            <div className="col-sm-7">
-              <div className="file-select">
-                <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls" data-maxsize="5000000" ref={(c) => this.__upload = c} />
-                <label htmlFor="upload-input" className="btn-secondary"><i className="zmdi zmdi-upload"></i><span>选择文件</span></label>
+            <div className="col-sm-9">
+              <div className="float-left">
+                <div className="file-select">
+                  <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls" data-maxsize="5000000" ref={(c) => this.__upload = c} />
+                  <label htmlFor="upload-input" className="btn-secondary"><i className="zmdi zmdi-upload"></i><span>选择文件</span></label>
+                </div>
               </div>
-              {this.state.uploadFileName && <div className="text-bold">{this.state.uploadFileName}</div>}
+              <div className="float-left ml-2" style={{ paddingTop: 8 }}>
+                {this.state.uploadFileName && <div className="text-bold">{this.state.uploadFileName}</div>}
+              </div>
+              <div className="clearfix"></div>
+              {(this.state.invalidVars || []).length > 0 && <div className="text-danger">
+                存在无效字段 {'${'}{this.state.invalidVars.join('} ${')}{'}'}，建议修改
+              </div>}
             </div>
           </div>
         </React.Fragment>
@@ -93,9 +102,12 @@ class ReporEdit extends ConfigFormDlg {
   }
   componentDidMount() {
     super.componentDidMount()
+    setTimeout(() => {
+      if (this.__select2) this.__select2.on('change', () => this.checkTemplate())
+    }, 500)
 
+    const that = this
     if (this.__upload) {
-      let that = this
       $(this.__upload).html5Uploader({
         postUrl: rb.baseUrl + '/filex/upload',
         onSelectError: function (field, error) {
@@ -105,18 +117,38 @@ class ReporEdit extends ConfigFormDlg {
         onSuccess: function (d) {
           d = JSON.parse(d.currentTarget.response)
           if (d.error_code === 0) {
-            let name = $fileCutName(d.data)
-            that.setState({
-              templateFile: d.data,
-              uploadFileName: name
-            })
-            if (!that.state.name) {
-              that.setState({ name: name })
-            }
+            that.__lastFile = d.data
+            that.checkTemplate()
           } else RbHighbar.error('上传失败，请稍后重试')
         }
       })
     }
+  }
+
+  // 检查模板
+  checkTemplate() {
+    let file = this.__lastFile
+    let entity = this.__select2.val()
+    if (!file || !entity) return
+
+    $.get(`${rb.baseUrl}/admin/datas/data-reports/check-template?file=${file}&entity=${entity}`, (res) => {
+      if (res.error_code === 0) {
+        let fileName = $fileCutName(file)
+        this.setState({
+          templateFile: file,
+          uploadFileName: fileName,
+          name: this.state.name || fileName,
+          invalidVars: res.data.invalidVars
+        })
+      } else {
+        this.setState({
+          templateFile: null,
+          uploadFileName: null,
+          invalidVars: null
+        })
+        RbHighbar.error(res.error_msg)
+      }
+    })
   }
 
   confirm = () => {

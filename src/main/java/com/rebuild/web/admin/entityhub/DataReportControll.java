@@ -19,10 +19,19 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.web.admin.entityhub;
 
 import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
+import com.rebuild.server.business.datareport.ReportGenerator;
+import com.rebuild.server.business.datareport.TemplateExtractor;
+import com.rebuild.server.configuration.DataReportManager;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
+import com.rebuild.web.common.FileDownloader;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -31,9 +40,13 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * TODO
@@ -50,10 +63,6 @@ public class DataReportControll extends BasePageControll {
         return createModelAndView("/admin/entityhub/data-reports.jsp");
     }
 
-    @RequestMapping("/data-reports/check-template")
-    public void checkTemplate(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    }
-
     @RequestMapping("/data-reports/list")
     public void reportList(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String belongEntity = getParameter(request, "entity");
@@ -65,6 +74,68 @@ public class DataReportControll extends BasePageControll {
         Object[][] array = queryListOfConfig(sql, belongEntity, q);
         writeSuccess(response, array);
     }
+
+    @RequestMapping("/data-reports/check-template")
+    public void checkTemplate(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String file = getParameterNotNull(request, "file");
+        String entity = getParameterNotNull(request, "entity");
+
+        File template = SysConfiguration.getFileOfData(file);
+        Entity entityMeta = MetadataHelper.getEntity(entity);
+
+        Map<String, String> vars = new TemplateExtractor(template).transformVars(entityMeta);
+        if (vars.isEmpty()) {
+            writeFailure(response, "无效模板文件 (缺少字段)");
+            return;
+        }
+
+        int totalVars = vars.size();
+        Set<String> invalidVars = new HashSet<>();
+        for (Map.Entry<String, String> e : vars.entrySet()) {
+            if (e.getValue() == null) {
+                invalidVars.add(e.getKey());
+            }
+        }
+
+        if (invalidVars.size() >= vars.size()) {
+            writeFailure(response, "无效模板文件 (无效字段)");
+            return;
+        }
+
+        JSON ret = JSONUtils.toJSONObject("invalidVars", invalidVars);
+        writeSuccess(response, ret);
+    }
+
+    @RequestMapping("/data-reports/preview")
+    public void preview(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ID reportId = getIdParameterNotNull(request, "id");
+        Object[] report = Application.createQueryNoFilter(
+                "select belongEntity from DataReportConfig where configId = ?")
+                .setParameter(1, reportId)
+                .unique();
+        if (report == null || !MetadataHelper.containsEntity((String) report[0])) {
+            response.sendError(410, "报表模板不存在");
+            return;
+        }
+
+        Entity entity = MetadataHelper.getEntity((String) report[0]);
+
+        String sql = String.format("select %s from %s order by modifiedOn desc",
+                entity.getPrimaryField().getName(), entity.getName());
+        Object random[] = Application.createQueryNoFilter(sql).unique();
+        if (random == null) {
+            response.sendError(410, "未找到任何记录");
+            return;
+        }
+
+        File template = DataReportManager.instance.getTemplateFile(entity, reportId);
+        File file = new ReportGenerator(template, (ID) random[0]).generate();
+
+        FileDownloader.setDownloadHeaders(response, file.getName());
+        FileDownloader.writeLocalFile(file, response);
+    }
+
+    // --
 
     /**
      * @param sql

@@ -264,16 +264,15 @@ body {
 }
 
 .reports-select .modal-content {
-	max-width: 380px;
+	max-width: 400px;
 }
 
 .reports-select ul li a {
 	display: block;
-	border: 1px solid #ccc;
-	padding: 8px 12px;
-	border-radius: 2px;
+	border: 1px solid #d5d8de;
+	padding: 8px 10px;
 	position: relative;
-	color: #444;
+	color: #555;
 }
 
 .reports-select ul li a .zmdi {
@@ -281,17 +280,20 @@ body {
 	right: 12px;
 	top: 11px;
 	font-size: 1.3rem;
-	color: #999;
+	color: #fff;
+	display: none;
 }
 
 .reports-select ul li a:hover {
-	background-color: #eee;
+	color: #fff;
+	background-color: #4285f4;
+	border-color: #4285f4;
 }
 
 .reports-select ul li a:hover .zmdi {
-	color: #4285f4;
+	display: inline-block;
 }
 
 .reports-select ul li+li {
-	margin-top: 5px;
+	margin-top: 6px;
 }

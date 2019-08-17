@@ -24,6 +24,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.ConfigurationException;
 import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.server.metadata.MetadataHelper;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -94,7 +95,7 @@ public class DataReportManager implements ConfigManager<Entity> {
      * @param reportId
      * @return
      */
-    public File getTemplate(Entity entity, ID reportId) {
+    public File getTemplateFile(Entity entity, ID reportId) {
         String template = null;
         for (ConfigEntry e : getReportsRaw(entity)) {
             if (e.getID("id").equals(reportId)) {
@@ -112,6 +113,24 @@ public class DataReportManager implements ConfigManager<Entity> {
             throw new ConfigurationException("Template file not extsts : " + file);
         }
         return file;
+    }
+
+    /**
+     * @param reportId
+     * @return
+     * @see #getTemplateFile(Entity, ID) 性能好
+     */
+    @Deprecated
+    public File getTemplateFile(ID reportId) {
+        Object[] report = Application.createQueryNoFilter(
+                "select belongEntity from DataReportConfig where configId = ?")
+                .setParameter(1, reportId)
+                .unique();
+        if (report == null || !MetadataHelper.containsEntity((String) report[0])) {
+            throw new ConfigurationException("No config of report found : " + reportId);
+        }
+
+        return getTemplateFile(MetadataHelper.getEntity((String) report[0]), reportId);
     }
 
     @Override

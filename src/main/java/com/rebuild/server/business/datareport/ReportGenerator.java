@@ -20,6 +20,7 @@ package com.rebuild.server.business.datareport;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
@@ -63,7 +64,7 @@ public class ReportGenerator {
      * @param record
      */
     public ReportGenerator(ID reportId, ID record) {
-        this(DataReportManager.instance.getTemplate(MetadataHelper.getEntity(record.getEntityCode()), reportId), record);
+        this(DataReportManager.instance.getTemplateFile(MetadataHelper.getEntity(record.getEntityCode()), reportId), record);
     }
 
     /**
@@ -129,7 +130,10 @@ public class ReportGenerator {
 
         String sql = String.format("select %s from %s where %s = ?",
                 StringUtils.join(validFields, ","), entity.getName(), entity.getPrimaryField().getName());
-        Record record = Application.getQueryFactory().createQuery(sql, this.user).setParameter(1, this.record).record();
+
+        Query query = this.user == null ?  Application.createQuery(sql)
+                : Application.getQueryFactory().createQuery(sql, this.user);
+        Record record = query.setParameter(1, this.record).record();
 
         for (Iterator<String> iter = record.getAvailableFieldIterator(); iter.hasNext(); ) {
             String name = iter.next();

@@ -153,7 +153,7 @@ const detectViewElement = function (item) {
 //   }
 // }
 
-// 选择默认面板
+// 选择报表
 class SelectReport extends React.Component {
   constructor(props) {
     super(props)
@@ -165,16 +165,16 @@ class SelectReport extends React.Component {
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
+              <button className="close" type="button" onClick={() => this.hide()}><i className="zmdi zmdi-close" /></button>
             </div>
             <div className="modal-body">
-              <div ref={s => this._scrollbar = s}>
-                <ul className="list-unstyled">
-                  {(this.state.reports || []).map((item) => {
-                    return <li key={'r-' + item.id}><a target="_blank" href={`${rb.baseUrl}/app/entity/report-export?report=${item.id}&record=${this.props.id}`}>{item.name}<i className="zmdi zmdi-download"></i></a></li>
-                  })}
-                </ul>
-              </div>
+              <h5 className="mt-0 text-bold">选择报表</h5>
+              <ul className="list-unstyled">
+                {(this.state.reports || []).map((item) => {
+                  let reportUrl = `${rb.baseUrl}/app/entity/report-generate?report=${item.id}&record=${this.props.id}`
+                  return <li key={'r-' + item.id}><a target="_blank" href={reportUrl} className="text-truncate">{item.name}<i className="zmdi zmdi-download"></i></a></li>
+                })}
+              </ul>
             </div>
           </div>
         </div>
@@ -194,16 +194,19 @@ class SelectReport extends React.Component {
     $(this._dlg).modal({ show: true, keyboard: true })
   }
 
-  generate() {
-
-  }
-
   /**
    * @param {*} entity 
    * @param {*} id 
    */
   static create(entity, id) {
-    renderRbcomp(<SelectReport entity={entity} id={id} />)
+    if (this.__cached) {
+      this.__cached.show()
+      return
+    }
+    let that = this
+    renderRbcomp(<SelectReport entity={entity} id={id} />, null, function () {
+      that.__cached = this
+    })
   }
 }
 

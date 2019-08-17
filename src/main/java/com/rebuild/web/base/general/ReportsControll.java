@@ -27,10 +27,8 @@ import com.rebuild.server.business.datareport.ReportGenerator;
 import com.rebuild.server.configuration.DataReportManager;
 import com.rebuild.server.configuration.portals.FormsBuilder;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 import com.rebuild.web.common.FileDownloader;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -68,41 +66,26 @@ public class ReportsControll extends BasePageControll {
     @RequestMapping("available-reports")
     public void availableReports(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String entity = getParameterNotNull(request, "entity");
-        JSONArray reports = DataReportManager.instance.getReports(MetadataHelper.getEntity(entity));
+        Entity entityMeta = MetadataHelper.getEntity(entity);
+
+        JSONArray reports = DataReportManager.instance.getReports(entityMeta);
         writeSuccess(response, reports);
     }
 
     @RequestMapping("report-generate")
-    public void generateReport(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        File report = generateReport(request);
-        writeSuccess(response, JSONUtils.toJSONObject("file", report.getName()));
-    }
+    public void reportGenerate(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ID user = getRequestUser(request);
+        ID reportId = getIdParameterNotNull(request, "report");
+        ID recordId = getIdParameterNotNull(request, "record");
 
-    @RequestMapping("report-export")
-    public void exportReport(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        File report = generateReport(request);
+        File report = new ReportGenerator(reportId, recordId).generate();
+
         String attname = request.getParameter("attname");
         if (attname == null) {
             attname = report.getName();
         }
 
-        response.setHeader("Content-Disposition", "attachment;filename=" + attname);
-        response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-        FileDownloader.writeLocalFile(report.getName(), true, response);
-    }
-
-    /**
-     * @param request
-     * @return
-     */
-    private File generateReport(HttpServletRequest request) {
-        ID user = getRequestUser(request);
-        ID reportId = getIdParameterNotNull(request, "report");
-        ID recordId = getIdParameterNotNull(request, "record");
-
-        ReportGenerator generator = new ReportGenerator(reportId, recordId);
-        generator.setUser(user);
-        File file = generator.generate();
-        return file;
+        FileDownloader.setDownloadHeaders(response, attname);
+        FileDownloader.writeLocalFile(report, response);
     }
 }

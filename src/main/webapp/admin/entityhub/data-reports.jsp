@@ -51,7 +51,7 @@
                                         <th>应用实体</th>
                                         <th width="80">启用</th>
                                         <th width="160">更新时间</th>
-                                        <th width="80"></th>
+                                        <th width="110"></th>
                                     </tr>
                                     </thead>
                                     <tbody id="dataList"></tbody>

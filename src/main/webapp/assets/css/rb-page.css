@@ -172,7 +172,7 @@ html.admin .admin-show.row {
 }
 
 .alert.min .close {
-    padding: 1.03rem 0;
+    padding: 0.95rem 0;
 }
 
 .input-search,
@@ -237,6 +237,10 @@ html.admin .admin-show.row {
     font-weight: normal;
     font-style: normal;
     line-height: 1.45;
+}
+
+.badge+.badge {
+    margin-left: 3px;
 }
 
 .table tbody tr.muted td:first-child {

@@ -88,6 +88,8 @@ public class TemplateExtractor {
     }
 
     /**
+     * 转换模板中的变量
+     *
      * @param entity
      * @return
      */
@@ -107,6 +109,8 @@ public class TemplateExtractor {
     }
 
     /**
+     * 转换模板中的变量字段
+     *
      * @param entity
      * @param fieldPath
      * @return

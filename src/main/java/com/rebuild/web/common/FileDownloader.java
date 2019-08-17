@@ -23,6 +23,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.web.BaseControll;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -88,9 +89,7 @@ public class FileDownloader extends BaseControll {
 
 		// Local storage || temp
 		if (!QiniuCloud.instance().available() || temp) {
-			response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
-			response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-
+			setDownloadHeaders(response, fileName);
 			writeLocalFile(filePath, temp, response);
 		} else {
 			String privateUrl = QiniuCloud.instance().url(filePath);
@@ -116,20 +115,41 @@ public class FileDownloader extends BaseControll {
 			return false;
 		}
 
-//		long size = FileUtils.sizeOf(file);
-//		response.setHeader("Content-Length", String.valueOf(size));
+		return writeLocalFile(file, response);
+	}
+
+	/**
+	 * 文件下载
+	 *
+	 * @param file
+	 * @param response
+	 * @return
+	 * @throws IOException
+	 */
+	public static boolean writeLocalFile(File file, HttpServletResponse response) throws IOException {
+		long size = FileUtils.sizeOf(file);
+		response.setHeader("Content-Length", String.valueOf(size));
 
 		try (InputStream fis = new FileInputStream(file)) {
 			response.setContentLength(fis.available());
-			
+
 			OutputStream os = response.getOutputStream();
 			int count = 0;
 			byte[] buffer = new byte[1024 * 1024];
 			while ((count = fis.read(buffer)) != -1) {
 				os.write(buffer, 0, count);
 			}
-//			os.flush();
+			os.flush();
 			return true;
 		}
+	}
+
+	/**
+	 * @param response
+	 * @param attname
+	 */
+	public static void setDownloadHeaders(HttpServletResponse response, String attname) {
+		response.setHeader("Content-Disposition", "attachment;filename=" + attname);
+		response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
 	}
 }
