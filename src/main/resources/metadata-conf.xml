@@ -280,8 +280,8 @@
 		<field name="configId" type="primary" />
 		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="应用实体" />
 		<field name="name" type="string" max-length="100" nullable="false" description="报表名称" />
-		<field name="templateFile" type="string" description="模板文件" />
-		<field name="templateContent" type="text" description="模板内容" />
+		<field name="templateFile" type="string" max-length="200" description="模板文件" />
+		<field name="templateContent" type="text" max-length="20000" description="模板内容" />
 		<field name="isDisabled" type="bool" default-value="F" description="是否停用" />
 	</entity>
 
