@@ -86,6 +86,10 @@
 			<th>Data Directory</th>
 			<td><%=SysConfiguration.getFileOfData("/")%></td>
 		</tr>
+		<tr>
+			<th>Temp Directory</th>
+			<td><%=SysConfiguration.getFileOfTemp("/")%></td>
+		</tr>
 	</tbody>
 	</table>
 </div>
