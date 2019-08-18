@@ -46,7 +46,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * 报表生成
@@ -113,19 +112,20 @@ public class ReportGenerator {
      */
     protected Map<String, Object> getDataContext() {
         Entity entity = MetadataHelper.getEntity(this.record.getEntityCode());
-        Set<String> vars = new TemplateExtractor(this.template).extractVars(false);
 
-        Map<String, Object> data = new HashMap<>();
+        TemplateExtractor templateExtractor = new TemplateExtractor(this.template);
+        final Map<String, String> varsMap = templateExtractor.transformVars(entity);
+
+        final Map<String, Object> data = new HashMap<>();
 
         List<String> validFields = new ArrayList<>();
-        for (String field : vars) {
-            if (MetadataHelper.getLastJoinField(entity, field) != null) {
-                validFields.add(field);
+        for (Map.Entry<String, String> e : varsMap.entrySet()) {
+            if (e.getValue() == null) {
+                data.put(e.getKey(), "[无效变量]");
             } else {
-                data.put(field, "[无效变量]");
+                validFields.add(e.getValue());
             }
         }
-
         if (validFields.isEmpty()) {
             return data;
         }
@@ -147,9 +147,27 @@ public class ReportGenerator {
             	data.put(name, "[暂不支持" + dt.getDisplayName() + "]");
             	continue;
     		}
-            
-            Object fieldValue = FieldValueWrapper.instance.wrapFieldValue(record.getObjectValue(name), easyMeta);
-            data.put(name, fieldValue);
+
+            String varName = name;
+            for (Map.Entry<String, String> e : varsMap.entrySet()) {
+                if (name.equalsIgnoreCase(e.getValue())) {
+                    varName = e.getKey();
+                    break;
+                }
+            }
+
+            Object fieldValue = record.getObjectValue(name);
+            if (fieldValue == null) {
+                data.put(varName, StringUtils.EMPTY);
+                continue;
+            }
+
+            if (easyMeta.getDisplayType() == DisplayType.REFERENCE && fieldValue instanceof ID) {
+                fieldValue = FieldValueWrapper.getLabel((ID) fieldValue);
+            } else {
+                fieldValue = FieldValueWrapper.instance.wrapFieldValue(fieldValue, easyMeta);
+            }
+            data.put(varName, fieldValue.toString());
         }
         return data;
     }

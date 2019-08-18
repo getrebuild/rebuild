@@ -48,7 +48,11 @@ import java.util.Set;
 public class TemplateExtractor {
 
     private File template;
+    private List<Cell> varsList = new ArrayList<>();
 
+    /**
+     * @param template
+     */
     public TemplateExtractor(File template) {
         this.template = template;
     }
@@ -60,9 +64,10 @@ public class TemplateExtractor {
      * @return
      */
     public Set<String> extractVars(boolean matchsAny) {
-        List<Object> rows = null;
+        List<Object> rows;
         try (InputStream is = new FileInputStream(this.template)) {
-            rows = EasyExcelFactory.read(is, new Sheet(1, 0));
+            Sheet sheet = new Sheet(1, 0);
+            rows = EasyExcelFactory.read(is, sheet);
         } catch (IOException ex) {
             throw new RebuildException(ex);
         }
@@ -74,15 +79,20 @@ public class TemplateExtractor {
         }
 
         Set<String> vars = new HashSet<>();
+        int rowNum = 0;
         for (Object row : rows) {
             List<?> list = (List<?>) row;
+            int colNum = 0;
             for (Object cell : list) {
                 if (cell != null && cell.toString().matches(regex)) {
                     String cellVar = cell.toString();
                     cellVar = cellVar.substring(2, cellVar.length() - 1);
                     vars.add(cellVar);
+                    varsList.add(new Cell(cellVar, rowNum, colNum));
                 }
+                colNum++;
             }
+            rowNum++;
         }
         return vars;
     }
@@ -94,7 +104,7 @@ public class TemplateExtractor {
      * @return
      */
     public Map<String, String> transformVars(Entity entity) {
-        Set<String> vars = extractVars(true);
+        Set<String> vars = extractVars(false);
 
         Map<String, String> map = new HashMap<>();
         for (String field : vars) {
@@ -106,6 +116,17 @@ public class TemplateExtractor {
             }
         }
         return map;
+    }
+
+    /**
+     * TODO 支持中文变量转换
+     *
+     * @param entity
+     * @param dest
+     * @return
+     */
+    public Map<String, String> transformVarsAndSaveAs(Entity entity, File dest) {
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -154,5 +175,20 @@ public class TemplateExtractor {
             }
         }
         return null;
+    }
+
+    /**
+     * 记录变量位置
+     */
+    static class Cell {
+        final String value;
+        final int rowNum;
+        final int colNum;
+
+        private Cell(String value, int rowNum, int colNum) {
+            this.value = value;
+            this.rowNum = rowNum;
+            this.colNum = colNum;
+        }
     }
 }
