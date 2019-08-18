@@ -49,7 +49,7 @@ import java.io.IOException;
 public class ReportsControll extends BasePageControll {
 
     @RequestMapping("print")
-    public ModelAndView printPreview(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public ModelAndView printPreview(HttpServletRequest request) {
         ID user = getRequestUser(request);
         ID recordId = getIdParameterNotNull(request, "id");
         Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
@@ -64,7 +64,7 @@ public class ReportsControll extends BasePageControll {
     }
 
     @RequestMapping("available-reports")
-    public void availableReports(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void availableReports(HttpServletRequest request, HttpServletResponse response) {
         String entity = getParameterNotNull(request, "entity");
         Entity entityMeta = MetadataHelper.getEntity(entity);
 

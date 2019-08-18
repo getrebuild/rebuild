@@ -18,23 +18,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.base.general;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import cn.devezhao.bizz.security.AccessDeniedException;
+import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.momentjava.Moment;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
@@ -49,15 +40,21 @@ import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.IllegalParameterException;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-import cn.devezhao.bizz.privileges.impl.BizzPermission;
-import cn.devezhao.bizz.security.AccessDeniedException;
-import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.momentjava.Moment;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 记录操作
@@ -74,7 +71,7 @@ public class GeneralOperatingControll extends BaseControll {
 		ID user = getRequestUser(request);
 		JSON formJson = ServletUtils.getRequestJson(request);
 		
-		Record record = null;
+		Record record;
 		try {
 			record = EntityHelper.parse((JSONObject) formJson, user);
 		} catch (DataSpecificationException know) {
@@ -95,7 +92,7 @@ public class GeneralOperatingControll extends BaseControll {
 	}
 	
 	@RequestMapping("record-delete")
-	public void delete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void delete(HttpServletRequest request, HttpServletResponse response) {
 		final ID user = getRequestUser(request);
 		final ID[] records = parseIdList(request);
 		if (records.length == 0) {
@@ -109,7 +106,7 @@ public class GeneralOperatingControll extends BaseControll {
 		String[] cascades = parseCascades(request);
 		ServiceSpec ies = Application.getService(entity.getEntityCode());
 		
-		int affected = 0;
+		int affected;
 		try {
 			if (!EntityService.class.isAssignableFrom(ies.getClass())) {
 				affected = ies.delete(firstId);
@@ -131,7 +128,7 @@ public class GeneralOperatingControll extends BaseControll {
 	}
 	
 	@RequestMapping("record-assign")
-	public void assign(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void assign(HttpServletRequest request, HttpServletResponse response) {
 		final ID user = getRequestUser(request);
 		final ID[] records = parseIdList(request);
 		if (records.length == 0) {
@@ -146,7 +143,7 @@ public class GeneralOperatingControll extends BaseControll {
 		String[] cascades = parseCascades(request);
 		EntityService ies = Application.getEntityService(entity.getEntityCode());
 		
-		int affected = 0;
+		int affected;
 		try {
 			// 仅一条记录
 			if (records.length == 1) {
@@ -167,7 +164,7 @@ public class GeneralOperatingControll extends BaseControll {
 	}
 	
 	@RequestMapping("record-share")
-	public void share(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void share(HttpServletRequest request, HttpServletResponse response) {
 		final ID user = getRequestUser(request);
 		final ID[] records = parseIdList(request);
 		if (records.length == 0) {
@@ -210,7 +207,7 @@ public class GeneralOperatingControll extends BaseControll {
 	}
 	
 	@RequestMapping("record-unshare")
-	public void unsharesa(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void unsharesa(HttpServletRequest request, HttpServletResponse response) {
 		final ID user = getRequestUser(request);
 		final ID record = getIdParameterNotNull(request, "record");  // Record ID
 		final ID[] accessIds = parseIdList(request);  // ShareAccess IDs
@@ -224,7 +221,7 @@ public class GeneralOperatingControll extends BaseControll {
 		
 		EntityService ies = Application.getEntityService(entity.getEntityCode());
 		
-		int affected = 0;
+		int affected;
 		try {
 			if (accessIds.length == 1) {
 				affected = ies.unshare(record, accessIds[0]);
@@ -244,7 +241,7 @@ public class GeneralOperatingControll extends BaseControll {
 	}
 	
 	@RequestMapping("record-unshare-batch")
-	public void unshareBatch(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void unshareBatch(HttpServletRequest request, HttpServletResponse response) {
 		final ID user = getRequestUser(request);
 		final ID[] records = parseIdList(request);
 		if (records.length == 0) {
@@ -277,12 +274,8 @@ public class GeneralOperatingControll extends BaseControll {
 		Map<ID, Set<ID>> accessMap = new HashMap<>();
 		for (Object[] o : accessArray) {
 			ID record = (ID) o[0];
-			Set<ID> access = accessMap.get(record);
-			if (access == null) {
-				access = new HashSet<>();
-				accessMap.put(record, access);
-			}
-			access.add((ID) o[1]);
+            Set<ID> access = accessMap.computeIfAbsent(record, k -> new HashSet<>());
+            access.add((ID) o[1]);
 		}
 		
 		EntityService ies = Application.getEntityService(records[0].getEntityCode());
@@ -293,7 +286,7 @@ public class GeneralOperatingControll extends BaseControll {
 				ID record = e.getKey();
 				Set<ID> access = e.getValue();
 				BulkContext context = new BulkContext(
-						user, EntityService.UNSHARE, access.toArray(new ID[access.size()]), record);
+						user, EntityService.UNSHARE, access.toArray(new ID[0]), record);
 				affected += ies.bulk(context);
 			}
 		} catch (AccessDeniedException know) {
@@ -308,7 +301,7 @@ public class GeneralOperatingControll extends BaseControll {
 	}
 	
 	@RequestMapping("record-meta")
-	public void fetchRecordMeta(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void fetchRecordMeta(HttpServletRequest request, HttpServletResponse response) {
 		final ID id = getIdParameterNotNull(request, "id");
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		
@@ -353,7 +346,7 @@ public class GeneralOperatingControll extends BaseControll {
 	}
 	
 	@RequestMapping("record-lastModified")
-	public void fetchRecordLastModified(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void fetchRecordLastModified(HttpServletRequest request, HttpServletResponse response) {
 		final ID id = getIdParameterNotNull(request, "id");
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		
@@ -372,7 +365,7 @@ public class GeneralOperatingControll extends BaseControll {
 	}
 	
 	@RequestMapping("shared-list")
-	public void fetchSharedList(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void fetchSharedList(HttpServletRequest request, HttpServletResponse response) {
 		ID id = getIdParameterNotNull(request, "id");
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		
@@ -409,7 +402,7 @@ public class GeneralOperatingControll extends BaseControll {
 			}
 			idList.add(ID.valueOf(id));
 		}
-		return idList.toArray(new ID[idList.size()]);
+		return idList.toArray(new ID[0]);
 	}
 	
 	/**
@@ -430,7 +423,7 @@ public class GeneralOperatingControll extends BaseControll {
 				toList.add(uid);
 			}
 		}
-		return toList.toArray(new ID[toList.size()]);
+		return toList.toArray(new ID[0]);
 	}
 	
 	/**
@@ -453,6 +446,6 @@ public class GeneralOperatingControll extends BaseControll {
 				LOG.warn("Unknow entity in cascades : " + c);
 			}
 		}
-		return casList.toArray(new String[casList.size()]);
+		return casList.toArray(new String[0]);
 	}
 }

@@ -18,19 +18,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.base;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 
@@ -42,8 +39,7 @@ import com.rebuild.web.BaseControll;
 public class HeavyTaskControll extends BaseControll {
 
 	@RequestMapping("state")
-	public void checkState(HttpServletRequest request, HttpServletResponse response)
-			throws IOException {
+	public void checkState(HttpServletRequest request, HttpServletResponse response) {
 		String taskid = getParameterNotNull(request, "taskid");
 		HeavyTask<?> task = TaskExecutors.getTask(taskid);
 		JSON ret = JSONUtils.toJSONObject(

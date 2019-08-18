@@ -45,7 +45,7 @@ import java.io.IOException;
 public class RecentlyUsedSearch extends BaseControll {
 	
 	@RequestMapping("recently")
-	public void fetchRecently(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void fetchRecently(HttpServletRequest request, HttpServletResponse response) {
 		String entity = getParameterNotNull(request, "entity");
 		String type = getParameter(request, "type");
 		ID recently[] = Application.getRecentlyUsedCache().gets(getRequestUser(request), entity, type);

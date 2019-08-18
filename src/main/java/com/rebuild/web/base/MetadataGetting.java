@@ -18,20 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.base;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.ClassificationManager;
@@ -43,11 +33,17 @@ import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.web.BaseControll;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.dialect.FieldType;
-import cn.devezhao.persist4j.engine.ID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 元数据获取
@@ -60,7 +56,7 @@ import cn.devezhao.persist4j.engine.ID;
 public class MetadataGetting extends BaseControll {
 
 	@RequestMapping("entities")
-	public void entities(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void entities(HttpServletRequest request, HttpServletResponse response) {
 		ID user = getRequestUser(request);
 		boolean includeSlave = getBoolParameter(request, "slave", false);
 		List<Map<String, String>> list = new ArrayList<>();
@@ -81,7 +77,7 @@ public class MetadataGetting extends BaseControll {
 	}
 	
 	@RequestMapping("fields")
-	public void fields(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void fields(HttpServletRequest request, HttpServletResponse response) {
 		String entity = getParameterNotNull(request, "entity");
 		Entity entityBase = MetadataHelper.getEntity(entity);
 		boolean appendRefFields = "2".equals(getParameter(request, "deep"));
@@ -163,7 +159,7 @@ public class MetadataGetting extends BaseControll {
 	
 	// 哪些实体引用了指定实体
 	@RequestMapping("references")
-	public void references(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void references(HttpServletRequest request, HttpServletResponse response) {
 		String entity = getParameterNotNull(request, "entity");
 		Entity entityMeta = MetadataHelper.getEntity(entity);
 		
@@ -187,7 +183,7 @@ public class MetadataGetting extends BaseControll {
 	
 	// PickList 值列表
 	@RequestMapping("picklist")
-	public void fetchPicklist(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void fetchPicklist(HttpServletRequest request, HttpServletResponse response) {
 		String entity = getParameterNotNull(request, "entity");
 		String field = getParameterNotNull(request, "field");
 
@@ -198,7 +194,7 @@ public class MetadataGetting extends BaseControll {
 	
 	// Classification 值列表
 	@RequestMapping("classification")
-	public void fetchClassification(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void fetchClassification(HttpServletRequest request, HttpServletResponse response) {
 		String entity = getParameterNotNull(request, "entity");
 		String field = getParameterNotNull(request, "field");
 		

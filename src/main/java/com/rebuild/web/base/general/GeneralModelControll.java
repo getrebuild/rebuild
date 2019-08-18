@@ -18,16 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.base.general;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
+import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
@@ -36,10 +29,14 @@ import com.rebuild.server.configuration.portals.FormsBuilder;
 import com.rebuild.server.configuration.portals.ViewAddonsManager;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.web.BaseEntityControll;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
-import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.engine.ID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * 表单/视图
@@ -63,7 +60,7 @@ public class GeneralModelControll extends BaseEntityControll {
 		}
 		
 		ID record = ID.valueOf(id);
-		ModelAndView mv = null;
+		ModelAndView mv;
 		if (thatEntity.getMasterEntity() != null) {
 			mv = createModelAndView("/general-entity/slave-view.jsp", record, user);
 		} else {
@@ -107,7 +104,7 @@ public class GeneralModelControll extends BaseEntityControll {
 	
 	@RequestMapping("view-model")
 	public void entityView(@PathVariable String entity,
-			HttpServletRequest request, HttpServletResponse response) throws IOException {
+			HttpServletRequest request, HttpServletResponse response) {
 		ID user = getRequestUser(request);
 		ID record = getIdParameterNotNull(request, "id");
 		JSON modal = FormsBuilder.instance.buildView(entity, user, record);

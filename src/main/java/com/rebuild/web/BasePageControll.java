@@ -33,7 +33,6 @@ public abstract class BasePageControll extends BaseControll {
 	 * @return
 	 */
 	protected ModelAndView createModelAndView(String page) {
-		ModelAndView mv = new ModelAndView(page);
-		return mv;
+		return new ModelAndView(page);
 	}
 }
