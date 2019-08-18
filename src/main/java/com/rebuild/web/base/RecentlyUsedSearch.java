@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 /**
  * 最近搜索（针对引用字段）。
@@ -48,12 +47,12 @@ public class RecentlyUsedSearch extends BaseControll {
 	public void fetchRecently(HttpServletRequest request, HttpServletResponse response) {
 		String entity = getParameterNotNull(request, "entity");
 		String type = getParameter(request, "type");
-		ID recently[] = Application.getRecentlyUsedCache().gets(getRequestUser(request), entity, type);
+		ID[] recently = Application.getRecentlyUsedCache().gets(getRequestUser(request), entity, type);
 		writeSuccess(response, formatSelect2(recently, "最近使用"));
 	}
 	
 	@RequestMapping("recently-add")
-	public void addRecently(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void addRecently(HttpServletRequest request, HttpServletResponse response) {
 		ID id = getIdParameterNotNull(request, "id");
 		String type = getParameter(request, "type");
 		Application.getRecentlyUsedCache().addOne(getRequestUser(request),id, type);
@@ -61,7 +60,7 @@ public class RecentlyUsedSearch extends BaseControll {
 	}
 	
 	@RequestMapping("recently-clean")
-	public void cleanRecently(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void cleanRecently(HttpServletRequest request, HttpServletResponse response) {
 		String entity = getParameterNotNull(request, "entity");
 		String type = getParameter(request, "type");
 		Application.getRecentlyUsedCache().clean(getRequestUser(request),entity, type);
@@ -75,7 +74,7 @@ public class RecentlyUsedSearch extends BaseControll {
 	 * @param groupName select2 分组 null 表示无分组
 	 * @return
 	 */
-	protected static JSONArray formatSelect2(ID[] idLabels, String groupName) {
+	static JSONArray formatSelect2(ID[] idLabels, String groupName) {
 		JSONArray data = new JSONArray();
 		for (ID id : idLabels) {
 			data.add(JSONUtils.toJSONObject(
