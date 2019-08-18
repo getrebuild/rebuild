@@ -47,12 +47,11 @@ public class ServerListener extends ContextLoaderListener {
 	@Override
 	public void contextInitialized(ServletContextEvent event) {
 		long at = System.currentTimeMillis();
-		LOG.info("Reuild Booting ...");
+		LOG.info("Rebuild Booting ...");
 		
 		CONTEXT_PATH = event.getServletContext().getContextPath();
 		LOG.debug("Detecting Rebuild context-path '" + CONTEXT_PATH + "'");
 
-		
 		LOG.info("Initializing Spring context ...");
 		try {
 			super.contextInitialized(event);
