@@ -22,12 +22,12 @@ import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.OperatingObserver;
 
 /**
- * TODO 记录审计日志
+ * TODO 纪录修改历史
  * 
  * @author devezhao
  * @since 10/31/2018
  */
-public class AuditLoggingObserver extends OperatingObserver {
+public class RevisionHistoryObserver extends OperatingObserver {
 	
 	@Override
 	public void onCreate(OperatingContext context) {

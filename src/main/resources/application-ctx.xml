@@ -202,7 +202,7 @@
 		<constructor-arg index="1">
 			<list>
 				<bean class="com.rebuild.server.service.notification.NotificationObserver" />
-				<bean class="com.rebuild.server.service.base.AuditLoggingObserver" />
+				<bean class="com.rebuild.server.service.base.RevisionHistoryObserver" />
 				<bean class="com.rebuild.server.service.base.AttchementAwareObserver" />
 				<bean class="com.rebuild.server.business.trigger.RobotTriggerObserver" />
 			</list>
