@@ -40,13 +40,16 @@ public class SchemaGen {
 	private static ApplicationContext CTX;
 	private static PersistManagerFactory PMF;
 
+	private static boolean hasDrop = false;
+	private static boolean tempstampZero = false;
+
 	public static void main(String[] args) {
 		CTX = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml", });
 		PMF = CTX.getBean(PersistManagerFactoryImpl.class);
 		
 //		genAll();
 //		gen(EntityHelper.RebuildApi);
-		gen(EntityHelper.DataReportConfig);
+		gen(EntityHelper.RecycleBin);
 
 		System.exit(0);
 	}
@@ -70,10 +73,12 @@ public class SchemaGen {
 		StringBuffer sb = new StringBuffer();
 		sb.append("-- ************ Entity [" + entity.getName() + "] DDL ************\n");
 		for (String d : ddl) {
-			if (d.startsWith("drop ")) {
+			if (!hasDrop && d.startsWith("drop ")) {
 				d = "" + d;
 			}
-			d = d.replace(" default '0000-00-00 00:00:00'", "");
+			if (!tempstampZero) {
+				d = d.replace(" default '0000-00-00 00:00:00'", " default current_timestamp");
+			}
 			sb.append(d).append("\n");
 		}
 		System.out.println(sb);
