@@ -699,32 +699,21 @@ a {
     padding-top: 12px;
 }
 
-.col-form-label>i.req {
+.col-form-label.required::after {
+    content: '';
+    position: absolute;
+    display: inline-block;
     background-color: #ea4335;
     width: 3px;
     height: 12px;
-    display: inline-block;
-    position: absolute;
-    margin-left: 4px;
-}
-
-.col-form-label>i.zmdi {
-    position: absolute;
-    font-size: 15px;
-    color: #999;
-    cursor: help;
-    margin-left: 10px;
-    margin-top: -1px;
-    z-index: 99;
-}
-
-.col-form-label>i.zmdi:hover {
-    color: #222;
+    margin-left: 6px;
 }
 
 .form-text {
     color: #878787;
-    margin-top: 6px;
+    line-height: 1.41;
+    margin-top: 4px;
+    margin-bottom: -4px;
 }
 
 .rbhighbar {

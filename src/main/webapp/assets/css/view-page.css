@@ -85,10 +85,6 @@ body {
 	position: relative;
 }
 
-.rbview-form .col-form-label em {
-	display: none;
-}
-
 .nav-tabs>li.nav-item a.nav-link {
 	padding: 11px 15px;
 	max-width: 120px;
