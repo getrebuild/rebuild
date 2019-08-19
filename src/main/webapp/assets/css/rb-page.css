@@ -761,7 +761,7 @@ a {
     z-index: 1052;
 }
 
-/* for DataList page */
+/* DataList */
 
 .rb-datatable-body,
 .rb-datatable-body .rb-scroller,
@@ -886,7 +886,6 @@ i.split.ui-draggable-dragging {
     max-width: 300px;
     white-space: nowrap;
 }
-
 
 .data-list .table td,
 .data-list .table td>div.nmw {
@@ -1182,34 +1181,6 @@ i.split.ui-draggable-dragging {
 
 .modal.rbview .modal-dialog .modal-content .modal-header .close {
     margin-top: -11px;
-}
-
-.rbview-form .form-group.row {
-    padding: 3px 0;
-}
-
-.rbview-form .img-field .img-thumbnail:hover,
-.rbview-form .file-field .img-thumbnail:hover {
-    opacity: 0.8;
-}
-
-.rbview-form .file-field .img-thumbnail {
-    width: 100%;
-    margin: 0;
-}
-
-.rbview-form .form-control-plaintext:hover {
-    background-color: #f8f8f8;
-    background-color: #fff;
-}
-
-.rbview-form .type-NTEXT .form-control-plaintext {
-    max-height: 70px;
-    position: relative;
-}
-
-.rbview-form .col-form-label em {
-    display: none;
 }
 
 .main-content .card.card-table {

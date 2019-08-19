@@ -61,6 +61,34 @@ body {
 	opacity: .8;
 }
 
+.rbview-form .form-group.row {
+	padding: 3px 0;
+}
+
+.rbview-form .img-field .img-thumbnail:hover,
+.rbview-form .file-field .img-thumbnail:hover {
+	opacity: 0.8;
+}
+
+.rbview-form .file-field .img-thumbnail {
+	width: 100%;
+	margin: 0;
+}
+
+.rbview-form .form-control-plaintext:hover {
+	background-color: #f8f8f8;
+	background-color: #fff;
+}
+
+.rbview-form .type-NTEXT .form-control-plaintext {
+	max-height: 70px;
+	position: relative;
+}
+
+.rbview-form .col-form-label em {
+	display: none;
+}
+
 .nav-tabs>li.nav-item a.nav-link {
 	padding: 11px 15px;
 	max-width: 120px;

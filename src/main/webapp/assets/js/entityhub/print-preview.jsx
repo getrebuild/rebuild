@@ -72,6 +72,13 @@ class PreviewTable extends React.Component {
           return <li className="list-inline-item" key={`image-${x}`}><img src={`${rb.baseUrl}/filex/img/${x}?imageView2/2/w/100/interlace/1/q/100`} /></li>
         })}
       </ul>)
+    } else if (item.type === 'NTEXT') {
+      return <React.Fragment>
+        {item.value.split('\n').map((line) => {
+          // eslint-disable-next-line react/jsx-key
+          return <p>{line}</p>
+        })}
+      </React.Fragment>
     } else if (typeof item.value === 'object') {
       return item.value[1]
     } else {

@@ -483,6 +483,14 @@ class RbFormTextarea extends RbFormElement {
   renderElement() {
     return (<textarea ref="field-value" className={'form-control form-control-sm row3x ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} value={this.state.value || ''} onChange={this.handleChange} onBlur={this.checkValue} />)
   }
+  renderViewElement() {
+    if (!this.state.value) return super.renderViewElement()
+    return <div className="form-control-plaintext">
+      {this.state.value.split('\n').map((item) => {
+        return <p>{item}</p>
+      })}
+    </div>
+  }
 }
 
 // 日期-时间

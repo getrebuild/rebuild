@@ -28,6 +28,10 @@ html, body{
     max-height: 80px;
     max-width: 80px;
 }
+.table td > p {
+    margin: 0;
+    line-height: 1.428571;
+}
 .preview-content {
     margin: 0 20px;
 }
