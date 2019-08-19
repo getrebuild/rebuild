@@ -81,8 +81,13 @@ body {
 }
 
 .rbview-form .type-NTEXT .form-control-plaintext {
-	max-height: 70px;
+	max-height: 72px;
 	position: relative;
+}
+
+.rbview-form .type-NTEXT .form-control-plaintext>p {
+	margin: 0;
+	line-height: 1.428571;
 }
 
 .nav-tabs>li.nav-item a.nav-link {

@@ -712,8 +712,14 @@ a {
 .form-text {
     color: #878787;
     line-height: 1.41;
-    margin-top: 4px;
-    margin-bottom: -4px;
+    margin-top: 6px;
+    margin-bottom: -5px;
+}
+
+.rbform .type-IMAGE .form-text,
+.rbform .type-FILE .form-text {
+    margin-top: -2px;
+    margin-bottom: 4px;
 }
 
 .rbhighbar {
