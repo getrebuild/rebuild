@@ -74,9 +74,8 @@ class PreviewTable extends React.Component {
       </ul>)
     } else if (item.type === 'NTEXT') {
       return <React.Fragment>
-        {item.value.split('\n').map((line) => {
-          // eslint-disable-next-line react/jsx-key
-          return <p>{line}</p>
+        {item.value.split('\n').map((line, idx) => {
+          return <p key={'kl-' + idx}>{line}</p>
         })}
       </React.Fragment>
     } else if (typeof item.value === 'object') {

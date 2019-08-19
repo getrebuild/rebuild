@@ -714,12 +714,17 @@ a {
     line-height: 1.41;
     margin-top: 6px;
     margin-bottom: -5px;
+    cursor: default;
 }
 
 .rbform .type-IMAGE .form-text,
 .rbform .type-FILE .form-text {
     margin-top: -2px;
     margin-bottom: 4px;
+}
+
+.rbform .type-FILE .form-text {
+    margin-bottom: 0;
 }
 
 .rbhighbar {

@@ -487,9 +487,8 @@ class RbFormTextarea extends RbFormElement {
   renderViewElement() {
     if (!this.state.value) return super.renderViewElement()
     return <div className="form-control-plaintext">
-      {this.state.value.split('\n').map((item) => {
-        // eslint-disable-next-line react/jsx-key
-        return <p>{item}</p>
+      {this.state.value.split('\n').map((line, idx) => {
+        return <p key={'kl-' + idx}>{line}</p>
       })}
     </div>
   }

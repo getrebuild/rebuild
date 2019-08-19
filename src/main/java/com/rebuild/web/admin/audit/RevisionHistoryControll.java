@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.admin.entityhub;
+package com.rebuild.web.admin.audit;
 
 import com.rebuild.web.BaseEntityControll;
 import org.springframework.stereotype.Controller;
@@ -27,16 +27,17 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 /**
- * 
+ * TODO 修改历史
+ *
  * @author devezhao
  * @since 11/01/2018
  */
 @Controller
-@RequestMapping("/admin/entityhub/")
-public class AuditLogsControll extends BaseEntityControll {
+@RequestMapping("/admin/audit/")
+public class RevisionHistoryControll extends BaseEntityControll {
 
-	@RequestMapping("audit-logs")
+	@RequestMapping("revision-history")
 	public ModelAndView pageLogging(HttpServletRequest request) throws IOException {
-		return createModelAndView("/admin/entityhub/audit-logs.jsp");
+		return createModelAndView("/admin/audit/revision-history.jsp");
 	}
 }
