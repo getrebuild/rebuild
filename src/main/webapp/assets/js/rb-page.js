@@ -256,7 +256,7 @@ var $createUploader = function (input, next, complete, error) {
   } else {
     input.html5Uploader({
       name: input.attr('id') || input.attr('name') || 'H5Upload',
-      postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file') + '&temp=' + temp,
+      postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file') + '&temp=' + (temp || ''),
       onSelectError: function (file, err) {
         if (err === 'ErrorType') {
           RbHighbar.create('请上传图片')

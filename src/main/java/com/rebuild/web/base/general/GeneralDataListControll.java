@@ -18,16 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.base.general;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
+import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
@@ -36,10 +29,14 @@ import com.rebuild.server.helper.datalist.DataList;
 import com.rebuild.server.helper.datalist.DefaultDataList;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.web.BaseEntityControll;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
-import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.engine.ID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * 数据列表
@@ -66,7 +63,7 @@ public class GeneralDataListControll extends BaseEntityControll {
 			return null;
 		}
 		
-		ModelAndView mv = null;
+		ModelAndView mv;
 		if (thatEntity.getMasterEntity() != null) {
 			mv = createModelAndView("/general-entity/slave-list.jsp", entity, user);
 		} else {
@@ -83,7 +80,12 @@ public class GeneralDataListControll extends BaseEntityControll {
 	public void dataList(@PathVariable String entity,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		JSONObject query = (JSONObject) ServletUtils.getRequestJson(request);
-		DataList control = new DefaultDataList(query, getRequestUser(request));
+
+        DataList control = new DefaultDataList(query, getRequestUser(request));
+		if ("TheSpecEntity".equalsIgnoreCase(entity)) {
+		    // Use spec
+        }
+
 		JSON result = control.getJSONResult();
 		writeSuccess(response, result);
 	}

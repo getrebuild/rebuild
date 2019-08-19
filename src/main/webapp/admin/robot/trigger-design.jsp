@@ -4,22 +4,22 @@
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/triggers.css">
-<title>编辑触发器</title>
+<title>触发器</title>
 </head>
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header">
 	<jsp:include page="/_include/NavTop.jsp">
-		<jsp:param value="编辑触发器" name="pageTitle"/>
+		<jsp:param value="触发器" name="pageTitle"/>
 	</jsp:include>
 	<jsp:include page="/_include/NavLeftAdmin.jsp">
 		<jsp:param value="robot-trigger" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
 		<div class="page-head">
-			<div class="float-left"><div class="page-head-title">编辑触发器</div></div>
+			<div class="page-head-title">触发器<span class="sub-title">${name}</span></div>
 			<div class="clearfix"></div>
 		</div>
-		<div class="main-content container-fluid pt-1">
+		<div class="main-content container-fluid pt-0">
 			<div class="card mb-0">
 				<div class="card-body">
 					<ul class="timeline spare">
@@ -124,8 +124,8 @@ window.__PageConfig = {
 }
 </script>
 <script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/entity/trigger-design.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/entity/trigger.field-aggregation.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/entity/trigger.send-notification.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/entityhub/trigger-design.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/entityhub/trigger.field-aggregation.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/entityhub/trigger.send-notification.jsx" type="text/babel"></script>
 </body>
 </html>

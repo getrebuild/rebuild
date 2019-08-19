@@ -18,7 +18,7 @@ class ApprovalProcessor extends React.Component {
   }
 
   renderStateDraft() {
-    return (<div className="alert alert-warning">
+    return (<div className="alert alert-warning shadow-sm">
       <button className="close btn btn-secondary" onClick={this.submit}>提交</button>
       <div className="icon"><span className="zmdi zmdi-info-outline"></span></div>
       <div className="message">当前记录尚未提交审批，请在信息完善后尽快提交</div>
@@ -33,7 +33,7 @@ class ApprovalProcessor extends React.Component {
       else if (this.state.imApproveSatate === 10) aMsg = '你已审批同意，正在等待他人审批'
       else if (this.state.imApproveSatate === 11) aMsg = '你已驳回审批'
     }
-    return (<div className="alert alert-warning">
+    return (<div className="alert alert-warning shadow-sm">
       <button className="close btn btn-secondary" onClick={this.viewSteps}>详情</button>
       {(this.state.imApprover && this.state.imApproveSatate === 1) && <button className="close btn btn-secondary" onClick={this.approve}>审批</button>}
       <div className="icon"><span className="zmdi zmdi-hourglass-alt"></span></div>
@@ -43,7 +43,7 @@ class ApprovalProcessor extends React.Component {
 
   renderStateApproved() {
     $('.J_edit,.J_delete,.J_add-slave').attr('disabled', true)
-    return (<div className="alert alert-success">
+    return (<div className="alert alert-success shadow-sm">
       <button className="close btn btn-secondary" onClick={this.viewSteps}>详情</button>
       <div className="icon"><span className="zmdi zmdi-check"></span></div>
       <div className="message">当前记录已审批完成</div>
@@ -51,7 +51,7 @@ class ApprovalProcessor extends React.Component {
   }
 
   renderStateRejected() {
-    return (<div className="alert alert-danger">
+    return (<div className="alert alert-danger shadow-sm">
       <button className="close btn btn-secondary" onClick={this.viewSteps}>详情</button>
       <button className="close btn btn-secondary" onClick={this.submit}>再次提交</button>
       <div className="icon"><span className="zmdi zmdi-close-circle-o"></span></div>

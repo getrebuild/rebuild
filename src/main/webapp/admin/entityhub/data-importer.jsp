@@ -49,17 +49,22 @@
 										<div class="form-group row">
 											<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">上传数据文件</label>
 											<div class="col-md-12 col-xl-6 col-lg-8">
-												<div class="file-select">
-								                    <input type="file" class="inputfile" id="upload-input" accept=".xlsx,.xls,.csv" data-maxsize="20971520">
-								                    <label for="upload-input" class="btn-secondary"><i class="zmdi zmdi-upload"></i><span>选择文件</span></label>
-								                </div>
-								                <div class="text-bold J_upload-input"></div>
+												<div class="float-left">
+													<div class="file-select">
+														<input type="file" class="inputfile" id="upload-input" accept=".xlsx,.xls" data-maxsize="20971520">
+														<label for="upload-input" class="btn-secondary"><i class="zmdi zmdi-upload"></i><span>选择文件</span></label>
+													</div>
+												</div>
+												<div class="float-left ml-2" style="padding-top:7px">
+													<div class="text-bold J_upload-input"></div>
+												</div>
+												<div class="clearfix"></div>
 								                <div class="form-text mb-0">
 									                <ul class="mb-0 pl-4">
 														<li>支持上传 Excel/CSV 文件，文件大小不超过 20M</li>
 														<li>有合并单元格的数据请处理过后再上传，否则可能出现表头识别有误</li>
 														<li>系统默认仅识别第一个 SHEET，且会将首行识别为表头</li>
-														<li>更多导入帮助请 <a href="https://getrebuild.com/docs/manual/data-import.html" target="_blank">参考文档</a></li>
+														<li>更多导入帮助请 <a href="https://getrebuild.com/docs/manual/data-import" target="_blank">参考文档</a></li>
 													</ul>
 								                </div>
 											</div>
@@ -154,6 +159,6 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/js/entity/data-importer.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/entityhub/data-importer.jsx" type="text/babel"></script>
 </body>
 </html>

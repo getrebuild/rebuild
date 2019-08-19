@@ -18,15 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.base;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-
+import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.BaseLayoutManager;
@@ -37,10 +31,13 @@ import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.configuration.LayoutConfigService;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.PortalsConfiguration;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
-import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * 导航菜单设置
@@ -53,9 +50,9 @@ import cn.devezhao.persist4j.engine.ID;
 public class NavSettings extends BaseControll implements PortalsConfiguration {
 	
 	@Override
-	public void sets(String entity, HttpServletRequest request, HttpServletResponse response) throws IOException { }
+	public void sets(String entity, HttpServletRequest request, HttpServletResponse response) { }
 	@Override
-	public void gets(String entity, HttpServletRequest request, HttpServletResponse response) throws IOException { }
+	public void gets(String entity, HttpServletRequest request, HttpServletResponse response) { }
 	
 	@RequestMapping(value = "nav-settings", method = RequestMethod.POST)
 	public void sets(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -71,7 +68,7 @@ public class NavSettings extends BaseControll implements PortalsConfiguration {
 			cfgid = null;
 		}
 		
-		Record record = null;
+		Record record;
 		if (cfgid == null) {
 			record = EntityHelper.forNew(EntityHelper.LayoutConfig, user);
 			record.setString("belongEntity", "N");
@@ -87,7 +84,7 @@ public class NavSettings extends BaseControll implements PortalsConfiguration {
 	}
 	
 	@RequestMapping(value = "nav-settings", method = RequestMethod.GET)
-	public void gets(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void gets(HttpServletRequest request, HttpServletResponse response) {
 		JSON config = NavManager.instance.getNav(getRequestUser(request));
 		writeSuccess(response, config);
 	}

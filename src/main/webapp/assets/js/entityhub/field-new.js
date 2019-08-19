@@ -55,7 +55,7 @@ $(document).ready(function () {
     } else if (dt === 'CLASSIFICATION') {
       if (classificationLoaded === false) {
         classificationLoaded = true
-        $.get(rb.baseUrl + '/admin/classification/list', (res) => {
+        $.get(rb.baseUrl + '/admin/entityhub/classification/list', (res) => {
           let hasData = false
           $(res.data).each(function () {
             if (!this[2]) {

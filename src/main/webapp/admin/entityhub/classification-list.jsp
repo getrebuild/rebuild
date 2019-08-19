@@ -29,6 +29,6 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/js/entity/classification-list.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/entityhub/classification-list.jsx" type="text/babel"></script>
 </body>
 </html>

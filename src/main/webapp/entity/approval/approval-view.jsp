@@ -20,7 +20,7 @@
     </div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/js/entity/approval-design.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/entityhub/approval-design.jsx" type="text/babel"></script>
 <script>
 window.__PageConfig = {
     id: '${approvalId}'

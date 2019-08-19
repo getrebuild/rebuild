@@ -18,21 +18,19 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.metadata;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-
-import org.apache.commons.lang.ArrayUtils;
-
-import com.rebuild.server.Application;
-import com.rebuild.server.metadata.entity.DisplayType;
-import com.rebuild.server.metadata.entity.EasyMeta;
-
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.BaseMeta;
+import com.rebuild.server.Application;
+import com.rebuild.server.metadata.entity.DisplayType;
+import com.rebuild.server.metadata.entity.EasyMeta;
+import org.apache.commons.lang.ArrayUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * 元数据辅助类，支持过滤/排序字段或实体
@@ -75,17 +73,24 @@ public class MetadataSorter {
 		
 		List<Entity> list = new ArrayList<>();
 		for (Entity entity : entities) {
-			int ec = entity.getEntityCode();
-			if (EasyMeta.valueOf(ec).isBuiltin()) {
-				if (containsBizz && MetadataHelper.isBizzEntity(ec)) {
+			if (EasyMeta.valueOf(entity).isBuiltin()) {
+				if (containsBizz && MetadataHelper.isBizzEntity(entity.getEntityCode())) {
 					list.add(entity);
 				}
 			} else if (user == null) {
 				list.add(entity);
-			} else if (Application.getSecurityManager().allowedR(user, ec)) {
+			} else if (Application.getSecurityManager().allowedR(user, entity.getEntityCode())) {
 				list.add(entity);
 			}
 		}
+
+		// 内建业务实体
+		for (Entity entity : entities) {
+			if (EasyMeta.valueOf(entity).isBuiltin() && MetadataHelper.hasPrivilegesField(entity)) {
+				list.add(entity);
+			}
+		}
+
 		return list.toArray(new Entity[list.size()]);
 	}
 	

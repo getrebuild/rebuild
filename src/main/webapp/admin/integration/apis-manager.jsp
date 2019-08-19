@@ -47,7 +47,7 @@
                                         <tbody id="appList"></tbody>
                                     </table>
                                     <%@ include file="/_include/spinner.jsp"%>
-                                    <div class="list-nodata hide"><span class="zmdi zmdi-key" /><p>没有 API 秘钥</p></div>
+                                    <div class="list-nodata hide"><span class="zmdi zmdi-key"></span><p>没有 API 秘钥</p></div>
                                 </div>
                             </div>
                         </div>

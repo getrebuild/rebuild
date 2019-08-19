@@ -1,6 +1,22 @@
 -- Database upgrade scripts for rebuild 1.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #10 Reports (v1.5)
+-- ************ Entity [DataReportConfig] DDL ************
+create table if not exists `data_report_config` (
+  `CONFIG_ID`          char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null comment '应用实体',
+  `NAME`               varchar(100) not null comment '报表名称',
+  `TEMPLATE_FILE`      varchar(200) comment '模板文件',
+  `TEMPLATE_CONTENT`   text(20000) comment '模板内容',
+  `IS_DISABLED`        char(1) default 'F' comment '是否停用',
+  `CREATED_ON`         timestamp not null comment '创建时间',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `MODIFIED_ON`        timestamp not null comment '修改时间',
+primary key  (`CONFIG_ID`)
+)Engine=InnoDB;
+
 -- #9 Add name and isDisabled to RobotTriggerConfig (v1.4)
 alter table `robot_trigger_config`
     add column `NAME` varchar(100) comment '触发器名称',

@@ -28,7 +28,7 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
-import org.apache.commons.lang.StringEscapeUtils;
+import com.rebuild.web.admin.entityhub.DataReportControll;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -60,7 +60,7 @@ public class RobotTriggerControll extends BasePageControll {
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID configId = ID.valueOf(id);
 		Object[] config = Application.createQuery(
-				"select belongEntity,actionType,when,whenFilter,actionContent,priority from RobotTriggerConfig where configId = ?")
+				"select belongEntity,actionType,when,whenFilter,actionContent,priority,name from RobotTriggerConfig where configId = ?")
 				.setParameter(1, configId)
 				.unique();
 		if (config == null) {
@@ -81,6 +81,7 @@ public class RobotTriggerControll extends BasePageControll {
 		mv.getModel().put("whenFilter", StringUtils.defaultIfBlank((String) config[3], JSONUtils.EMPTY_OBJECT_STR));
 		mv.getModel().put("actionContent", StringUtils.defaultIfBlank((String) config[4], JSONUtils.EMPTY_OBJECT_STR));
 		mv.getModel().put("priority", config[5]);
+		mv.getModel().put("name", config[6]);
 		return mv;
 	}
 	
@@ -119,16 +120,14 @@ public class RobotTriggerControll extends BasePageControll {
 	@RequestMapping("trigger/list")
 	public void triggerList(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String belongEntity = getParameter(request, "entity");
-		String sql = "select configId,when,actionType,belongEntity,belongEntity,name,isDisabled from RobotTriggerConfig";
-		if (StringUtils.isNotBlank(belongEntity)) {
-			sql += " where belongEntity = '" + StringEscapeUtils.escapeSql(belongEntity) + "'";
-		}
-		sql += " order by name, modifiedOn desc";
-		
-		Object[][] array = Application.createQuery(sql).array();
+		String q = getParameter(request, "q");
+		String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn,when,actionType from RobotTriggerConfig" +
+				" where (1=1) and (2=2)" +
+				" order by name, modifiedOn desc";
+
+		Object[][] array = DataReportControll.queryListOfConfig(sql, belongEntity, q);
 		for (Object[] o : array) {
-			o[2] = ActionType.valueOf((String) o[2]).getDisplayName();
-			o[4] = EasyMeta.getLabel(MetadataHelper.getEntity((String) o[4]));
+			o[7] = ActionType.valueOf((String) o[7]).getDisplayName();
 		}
 		writeSuccess(response, array);
 	}

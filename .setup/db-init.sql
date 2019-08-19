@@ -424,6 +424,20 @@ create table if not exists `rebuild_api_request` (
 alter table `rebuild_api_request`
   add index `IX1_rebuild_api_request` (`APP_ID`, `REMOTE_IP`, `REQUEST_URL`, `REQUEST_TIME`);
 
+-- ************ Entity [DataReportConfig] DDL ************
+create table if not exists `data_report_config` (
+  `CONFIG_ID`          char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null comment '应用实体',
+  `NAME`               varchar(100) not null comment '报表名称',
+  `TEMPLATE_FILE`      varchar(200) comment '模板文件',
+  `TEMPLATE_CONTENT`   text(20000) comment '模板内容',
+  `IS_DISABLED`        char(1) default 'F' comment '是否停用',
+  `CREATED_ON`         timestamp not null comment '创建时间',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `MODIFIED_ON`        timestamp not null comment '修改时间',
+primary key  (`CONFIG_ID`)
+)Engine=InnoDB;
 
 -- #3 datas
 
@@ -460,4 +474,4 @@ INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version
 INSERT INTO `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`) 
-  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 9);
+  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 10);
