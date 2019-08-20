@@ -18,17 +18,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.ConfigManager;
 import com.rebuild.utils.JSONUtils;
 
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.engine.ID;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 列表项
@@ -136,6 +135,21 @@ public class PickListManager implements ConfigManager<Object> {
 				.setParameter(3, label)
 				.unique();
 		return o == null ? null : (ID) o[0];
+	}
+
+	/**
+	 * 获取默认项
+	 *
+	 * @param field
+	 * @return
+	 */
+	public ID getDefaultItem(Field field) {
+		for (ConfigEntry e : getPickListRaw(field.getOwnEntity().getName(), field.getName(), false)) {
+			if (e.getBoolean("default")) {
+				return e.getID("id");
+			}
+		}
+		return null;
 	}
 	
 	@Override

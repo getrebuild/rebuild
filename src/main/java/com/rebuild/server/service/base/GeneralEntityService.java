@@ -18,35 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.base;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Observer;
-import java.util.Set;
-
-import com.rebuild.server.business.approval.ApprovalState;
-import com.rebuild.server.helper.cache.NoRecordFoundException;
-import com.rebuild.server.service.DataSpecificationException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.rebuild.server.Application;
-import com.rebuild.server.RebuildException;
-import com.rebuild.server.business.dataio.DataImporter;
-import com.rebuild.server.business.series.SeriesGeneratorFactory;
-import com.rebuild.server.helper.task.TaskExecutors;
-import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.MetadataSorter;
-import com.rebuild.server.metadata.entity.DisplayType;
-import com.rebuild.server.service.BaseService;
-import com.rebuild.server.service.ObservableService;
-import com.rebuild.server.service.OperatingContext;
-import com.rebuild.server.service.bizz.privileges.PrivilegesGuardInterceptor;
-import com.rebuild.server.service.bizz.privileges.User;
-
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.Entity;
@@ -55,6 +26,34 @@ import cn.devezhao.persist4j.Filter;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
+import com.rebuild.server.RebuildException;
+import com.rebuild.server.business.approval.ApprovalState;
+import com.rebuild.server.business.dataio.DataImporter;
+import com.rebuild.server.business.series.SeriesGeneratorFactory;
+import com.rebuild.server.helper.cache.NoRecordFoundException;
+import com.rebuild.server.helper.task.TaskExecutors;
+import com.rebuild.server.metadata.DefaultValueHelper;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.MetadataSorter;
+import com.rebuild.server.metadata.entity.DisplayType;
+import com.rebuild.server.service.BaseService;
+import com.rebuild.server.service.DataSpecificationException;
+import com.rebuild.server.service.ObservableService;
+import com.rebuild.server.service.OperatingContext;
+import com.rebuild.server.service.bizz.privileges.PrivilegesGuardInterceptor;
+import com.rebuild.server.service.bizz.privileges.User;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Observer;
+import java.util.Set;
 
 /**
  * 业务实体服务，所有业务实体都应该使用此类
@@ -96,6 +95,7 @@ public class GeneralEntityService extends ObservableService  {
 	
 	@Override
 	public Record create(Record record) {
+		DefaultValueHelper.appendDefaultValue(record);
 		checkModifications(record, BizzPermission.CREATE);
 		setSeriesValue(record);
 		return super.create(record);
@@ -185,7 +185,7 @@ public class GeneralEntityService extends ObservableService  {
 		} else {
 			assignBefore = countObservers() > 0 ? record(assignAfter) : null;
 			
-			((BaseService) this.delegate).update(assignAfter);
+			this.delegate.update(assignAfter);
 			Application.getRecordOwningCache().cleanOwningUser(record);
 			affected = 1;
 		}
@@ -237,7 +237,7 @@ public class GeneralEntityService extends ObservableService  {
 				LOG.debug("共享至与记录所属为同一用户，忽略 : " + record);
 			}
 		} else {
-			((BaseService) this.delegate).create(sharedAfter);
+			this.delegate.create(sharedAfter);
 			affected = 1;
 			shareChange = true;
 		}
@@ -272,7 +272,7 @@ public class GeneralEntityService extends ObservableService  {
 			unsharedBefore = record(unsharedBefore);
 		}
 		
-		((BaseService) this.delegate).delete(accessId);
+		this.delegate.delete(accessId);
 		
 		if (countObservers() > 0) {
 			setChanged();
@@ -287,7 +287,7 @@ public class GeneralEntityService extends ObservableService  {
 		try {
 			return operator.exec();
 		} catch (RebuildException ex) {
-			throw (RebuildException) ex;
+			throw ex;
 		} catch (Exception ex) {
 			throw new RebuildException(ex);
 		}
@@ -296,8 +296,7 @@ public class GeneralEntityService extends ObservableService  {
 	@Override
 	public String bulkAsync(BulkContext context) {
 		BulkOperator operator = buildBulkOperator(context);
-		String taskid = TaskExecutors.submit(operator);
-		return taskid;
+		return TaskExecutors.submit(operator);
 	}
 	
 	/**
@@ -430,7 +429,7 @@ public class GeneralEntityService extends ObservableService  {
 		Field stmField = MetadataHelper.getSlaveToMasterField(slaveEntity);
 		String sql = String.format("select %s from %s where %s = ?",
 				stmField.getName(), slaveEntity.getName(), slaveEntity.getPrimaryField().getName());
-		Object o[] = Application.createQueryNoFilter(sql).setParameter(1, slaveId).unique();
+		Object[] o = Application.createQueryNoFilter(sql).setParameter(1, slaveId).unique();
 		if (o == null) {
 			throw new NoRecordFoundException(slaveId);
 		}

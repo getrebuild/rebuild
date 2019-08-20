@@ -87,13 +87,11 @@ $(document).ready(function () {
       todayHighlight: false,
       showMeridian: false,
       keyboardNavigation: false,
-      minuteStep: 5,
+      minuteStep: 5
     }).on('changeDate', function () {
     })
 
-    $('#defaultValue').next().removeClass('hide').find('button').click(() => {
-      renderRbcomp(<AdvDateDefaultValue />)
-    })
+    $('#defaultValue').next().removeClass('hide').find('button').click(() => renderRbcomp(<AdvDateDefaultValue />))
   } else if (dt === 'FILE' || dt === 'IMAGE') {
     let uploadNumber = [0, 9]
     for (let k in extConfigOld) {
@@ -184,7 +182,7 @@ const checkDefaultValue = function (v, t) {
   return valid
 }
 
-// ~~ 提示框
+// ~~ 日期高级表达式
 class AdvDateDefaultValue extends RbFormHandler {
   constructor(props) {
     super(props)
@@ -195,7 +193,7 @@ class AdvDateDefaultValue extends RbFormHandler {
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
+              <button className="close" type="button" onClick={this.hide}><span className="zmdi zmdi-close" /></button>
             </div>
             <div className="modal-body">
               <div className="text-center ml-6 mr-6">
@@ -224,7 +222,7 @@ class AdvDateDefaultValue extends RbFormHandler {
                   </div>
                 </div>
                 <div className="mt-4 mb-3" ref="btns">
-                  <button className="btn btn-space btn-primary" type="button" onClick={() => this.confirm()}>确定</button>
+                  <button className="btn btn-space btn-primary" type="button" onClick={this.confirm}>确定</button>
                 </div>
               </div>
             </div>
@@ -236,7 +234,8 @@ class AdvDateDefaultValue extends RbFormHandler {
   componentDidMount() {
     $(this.refs['dlg']).modal({ show: true, keyboard: true })
   }
-  hide() {
+
+  hide = () => {
     let root = $(this.refs['dlg'])
     root.modal('hide')
     setTimeout(function () {
@@ -244,13 +243,7 @@ class AdvDateDefaultValue extends RbFormHandler {
       root.parent().remove()
     }, 1000)
   }
-  handleChange(e) {
-    super.handleChange(e)
-    if (e.target.dataset.id === 'op') {
-      this.input.focus()
-    }
-  }
-  confirm() {
+  confirm = () => {
     let expr = 'NOW'
     if (this.state.op) {
       let op = this.state.op

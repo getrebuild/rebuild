@@ -18,18 +18,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.metadata;
 
-import org.apache.commons.lang.StringUtils;
-import org.springframework.util.Assert;
-
-import com.alibaba.fastjson.JSONObject;
-
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.StandardRecord;
 import cn.devezhao.persist4j.record.FieldValueException;
 import cn.devezhao.persist4j.record.JsonRecordCreator;
-import cn.devezhao.persist4j.record.RecordCreator;
+import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
 
 /**
  * @author Zhao Fangfang
@@ -63,9 +60,9 @@ public class EntityHelper {
 		if (StringUtils.isBlank(entityName)) {
 			throw new FieldValueException("无效实体数据格式(2): " + data.toJSONString());
 		}
-		
-		RecordCreator creator = new ExtRecordCreator(MetadataHelper.getEntity(entityName), data, user);
-		Record record = creator.create();
+
+		ExtRecordCreator creator = new ExtRecordCreator(MetadataHelper.getEntity(entityName), data, user);
+		Record record = creator.create(false);
 		ExtRecordCreator.bindCommonsFieldsValue(record, record.getPrimary() == null);
 		return record;
 	}

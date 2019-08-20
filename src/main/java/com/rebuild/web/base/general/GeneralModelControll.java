@@ -18,28 +18,24 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.base.general;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
+import com.rebuild.server.configuration.portals.FormsBuilder;
+import com.rebuild.server.configuration.portals.ViewAddonsManager;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.web.BaseEntityControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.Application;
-import com.rebuild.server.configuration.portals.FormDefaultValue;
-import com.rebuild.server.configuration.portals.FormsBuilder;
-import com.rebuild.server.configuration.portals.ViewAddonsManager;
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.web.BaseEntityControll;
-
-import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.engine.ID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * 表单/视图
@@ -90,7 +86,7 @@ public class GeneralModelControll extends BaseEntityControll {
 			initialVal = ServletUtils.getRequestJson(request);
 			if (initialVal != null) {
 				// 创建明细实体必须指定主实体，以便验证权限
-				String master = ((JSONObject) initialVal).getString(FormDefaultValue.DV_MASTER);
+				String master = ((JSONObject) initialVal).getString(FormsBuilder.DV_MASTER);
 				if (ID.isId(master)) {
 					FormsBuilder.setCurrentMasterId(ID.valueOf(master));
 				}
@@ -100,7 +96,7 @@ public class GeneralModelControll extends BaseEntityControll {
 		JSON model = FormsBuilder.instance.buildForm(entity, user, record);
 		// 填充前端设定的初始值
 		if (record == null && initialVal != null) {
-			FormDefaultValue.setFormInitialValue(MetadataHelper.getEntity(entity), model, (JSONObject) initialVal);
+			FormsBuilder.instance.setFormInitialValue(MetadataHelper.getEntity(entity), model, (JSONObject) initialVal);
 		}
 		writeSuccess(response, model);
 	}

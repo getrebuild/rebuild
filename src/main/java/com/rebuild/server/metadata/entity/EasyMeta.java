@@ -18,24 +18,22 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.metadata.entity;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.RebuildException;
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.utils.JSONUtils;
-
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.BaseMeta;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.RebuildException;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 
@@ -81,7 +79,12 @@ public class EasyMeta implements BaseMeta {
 	public String getDescription() {
 		return baseMeta.getDescription();
 	}
-	
+
+	@Override
+	public String getExtraAttrs() {
+		return baseMeta.getExtraAttrs();
+	}
+
 	/**
 	 * also #getDescription()
 	 * @return
@@ -240,7 +243,7 @@ public class EasyMeta implements BaseMeta {
 	private boolean isField() {
 		return baseMeta instanceof Field;
 	}
-	
+
 	// --
 	
 	/**
