@@ -24,12 +24,10 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.configuration.RobotApprovalConfigService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import com.rebuild.web.admin.entityhub.DataReportControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -79,17 +77,12 @@ public class RobotApprovalControll extends BasePageControll {
 	@RequestMapping("approval/list")
 	public void approvalList(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String belongEntity = getParameter(request, "entity");
-		String sql = "select configId,name,belongEntity,belongEntity,isDisabled from RobotApprovalConfig where isDisabled = ?";
-		if (StringUtils.isNotBlank(belongEntity)) {
-			sql += " and belongEntity = '" + StringEscapeUtils.escapeSql(belongEntity) + "'";
-		}
-		sql += " order by name, modifiedOn desc";
+		String q = getParameter(request, "q");
+		String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn from RobotApprovalConfig" +
+				" where (1=1) and (2=2)" +
+				" order by name, modifiedOn desc";
 
-		boolean disabled = getBoolParameter(request, "disabled", false);
-		Object[][] array = Application.createQuery(sql).setParameter(1, disabled).array();
-		for (Object[] o : array) {
-			o[3] = EasyMeta.getLabel(MetadataHelper.getEntity((String) o[3]));
-		}
+		Object[][] array = DataReportControll.queryListOfConfig(sql, belongEntity, q);
 		writeSuccess(response, array);
 	}
 

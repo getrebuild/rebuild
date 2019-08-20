@@ -38,7 +38,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,7 +56,7 @@ public class ReferenceSearch extends BaseControll {
 	
 	// 快速搜索引用字段
 	@RequestMapping({ "reference", "quick" })
-	public void referenceSearch(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void referenceSearch(HttpServletRequest request, HttpServletResponse response) {
 		final ID user = getRequestUser(request);
 		final String entity = getParameterNotNull(request, "entity");
 		final String field = getParameterNotNull(request, "field");
@@ -109,7 +108,7 @@ public class ReferenceSearch extends BaseControll {
 	
 	// 搜索指定实体的指定字段
 	@RequestMapping("search")
-	public void search(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void search(HttpServletRequest request, HttpServletResponse response) {
 		final ID user = getRequestUser(request);
 		final String entity = getParameterNotNull(request, "entity");
 		
@@ -170,7 +169,7 @@ public class ReferenceSearch extends BaseControll {
 	
 	// 获取记录的名称字段值
 	@RequestMapping("read-labels")
-	public void referenceLabel(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void referenceLabel(HttpServletRequest request, HttpServletResponse response) {
 		String ids = getParameter(request, "ids", null);
 		if (ids == null) {
 			writeSuccess(response);
@@ -208,7 +207,7 @@ public class ReferenceSearch extends BaseControll {
 				continue;
 			}
 			
-			String label = null;
+			String label;
 			if (o[1] == null || StringUtils.isBlank(o[1].toString())) {
 				label = FieldValueWrapper.NO_LABEL_PREFIX + recordId.toLiteral().toUpperCase();
 			} else {

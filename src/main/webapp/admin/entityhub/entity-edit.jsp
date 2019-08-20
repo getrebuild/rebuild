@@ -111,6 +111,6 @@ window.__PageConfig = {
 	nameField: '${nameField}'
 }
 </script>
-<script src="${baseUrl}/assets/js/entity/entity-edit.js"></script>
+<script src="${baseUrl}/assets/js/entityhub/entity-edit.js"></script>
 </body>
 </html>

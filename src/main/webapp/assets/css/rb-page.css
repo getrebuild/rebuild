@@ -90,6 +90,10 @@ html.admin .admin-show.row {
     margin-left: 4px;
 }
 
+.text-underline {
+    text-decoration: underline;
+}
+
 .btn {
     min-height: 2.8rem;
     min-width: 98px;
@@ -168,13 +172,14 @@ html.admin .admin-show.row {
 }
 
 .alert.min .close {
-    padding: 1.03rem 0;
+    padding: 0.95rem 0;
 }
 
 .input-search,
 .input-search input {
     width: 220px;
     height: 2.8rem;
+    background-color: #fff;
 }
 
 .input-search input {
@@ -232,6 +237,10 @@ html.admin .admin-show.row {
     font-weight: normal;
     font-style: normal;
     line-height: 1.45;
+}
+
+.badge+.badge {
+    margin-left: 3px;
 }
 
 .table tbody tr.muted td:first-child {
@@ -1263,6 +1272,14 @@ i.split.ui-draggable-dragging {
     padding: 25px 18px;
 }
 
+.dept-tree .config-title {
+    margin-bottom: 19px;
+    margin-top: 17px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    color: #777;
+}
+
 .dept-tree .list-unstyled {
     margin: 0
 }
@@ -1939,13 +1956,16 @@ form {
     font-size: 1.077rem;
     display: inline-block;
     margin-left: 10px;
+    font-weight: bold;
+    line-height: 20px;
 }
 
 .page-head-title .sub-title::before {
     display: inline-block;
     padding-right: .6154rem;
-    color: #878787;
+    color: #aaa;
     content: "/";
+    font-weight: normal;
 }
 
 .approval-pane .alert .message {

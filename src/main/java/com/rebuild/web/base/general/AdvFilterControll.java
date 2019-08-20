@@ -18,16 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.base.general;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-
+import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
@@ -39,11 +33,14 @@ import com.rebuild.server.service.configuration.AdvFilterService;
 import com.rebuild.server.service.query.AdvFilterParser;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.PortalsConfiguration;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * 高级查询
@@ -84,7 +81,7 @@ public class AdvFilterControll extends BaseControll implements PortalsConfigurat
 			toAll = UserHelper.isAdmin(user);
 		}
 		
-		Record record = null;
+		Record record;
 		if (filterId == null) {
 			record = EntityHelper.forNew(EntityHelper.FilterConfig, user);
 			record.setString("belongEntity", entity);
@@ -109,7 +106,7 @@ public class AdvFilterControll extends BaseControll implements PortalsConfigurat
 	@RequestMapping("advfilter/get")
 	@Override
 	public void gets(@PathVariable String entity, 
-			HttpServletRequest request, HttpServletResponse response) throws IOException {
+			HttpServletRequest request, HttpServletResponse response) {
 		ID filterId = getIdParameter(request, "id");
 		ConfigEntry filter = AdvFilterManager.instance.getAdvFilter(filterId);
 		if (filter == null) {
@@ -121,14 +118,14 @@ public class AdvFilterControll extends BaseControll implements PortalsConfigurat
 	
 	@RequestMapping("advfilter/list")
 	public void list(@PathVariable String entity, 
-			HttpServletRequest request, HttpServletResponse response) throws IOException {
+			HttpServletRequest request, HttpServletResponse response) {
 		ID user = getRequestUser(request);
 		JSON filters = AdvFilterManager.instance.getAdvFilterList(entity, user);
 		writeSuccess(response, filters);
 	}
 	
 	@RequestMapping("advfilter/test-equation")
-	public void testEquation(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void testEquation(HttpServletRequest request, HttpServletResponse response) {
 		final String equation = ServletUtils.getRequestString(request);
 		if (StringUtils.isBlank(equation)) {
 			writeSuccess(response);

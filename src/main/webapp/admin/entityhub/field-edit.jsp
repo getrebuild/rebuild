@@ -235,6 +235,6 @@ window.__PageConfig = {
 	isSuperAdmin: ${isSuperAdmin}
 }
 </script>
-<script type="text/babel" src="${baseUrl}/assets/js/entity/field-edit.jsx"></script>
+<script type="text/babel" src="${baseUrl}/assets/js/entityhub/field-edit.jsx"></script>
 </body>
 </html>

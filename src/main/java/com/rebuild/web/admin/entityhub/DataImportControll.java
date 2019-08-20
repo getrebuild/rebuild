@@ -30,9 +30,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.rebuild.server.Application;
-import com.rebuild.server.business.dataio.DataFileParser;
-import com.rebuild.server.business.dataio.DataImporter;
-import com.rebuild.server.business.dataio.ImportRule;
+import com.rebuild.server.business.dataimport.DataFileParser;
+import com.rebuild.server.business.dataimport.DataImporter;
+import com.rebuild.server.business.dataimport.ImportRule;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.helper.task.TaskExecutors;
@@ -63,7 +63,7 @@ import java.util.Map;
  * @since 01/03/2019
  */
 @Controller
-@RequestMapping("/admin/entityhub/")
+@RequestMapping("/admin/datas/")
 public class DataImportControll extends BasePageControll {
 	
 	static {

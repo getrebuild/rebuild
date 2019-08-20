@@ -22,17 +22,21 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.rebuild.server.business.datareport.ReportGenerator;
+import com.rebuild.server.configuration.DataReportManager;
 import com.rebuild.server.configuration.portals.FormsBuilder;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.web.BasePageControll;
+import com.rebuild.web.common.FileDownloader;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
-import java.util.Calendar;
 
 /**
  * 视图打印
@@ -42,10 +46,10 @@ import java.util.Calendar;
  */
 @Controller
 @RequestMapping("/app/entity/")
-public class ViewPrintingControll extends BasePageControll {
+public class ReportsControll extends BasePageControll {
 
     @RequestMapping("print")
-    public ModelAndView printPreview(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public ModelAndView printPreview(HttpServletRequest request) {
         ID user = getRequestUser(request);
         ID recordId = getIdParameterNotNull(request, "id");
         Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
@@ -57,5 +61,30 @@ public class ViewPrintingControll extends BasePageControll {
         mv.getModel().put("recordId", recordId);
         mv.getModel().put("printTime", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
         return mv;
+    }
+
+    @RequestMapping("available-reports")
+    public void availableReports(HttpServletRequest request, HttpServletResponse response) {
+        String entity = getParameterNotNull(request, "entity");
+        Entity entityMeta = MetadataHelper.getEntity(entity);
+
+        JSONArray reports = DataReportManager.instance.getReports(entityMeta);
+        writeSuccess(response, reports);
+    }
+
+    @RequestMapping("report-generate")
+    public void reportGenerate(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ID reportId = getIdParameterNotNull(request, "report");
+        ID recordId = getIdParameterNotNull(request, "record");
+
+        File report = new ReportGenerator(reportId, recordId).generate();
+
+        String attname = request.getParameter("attname");
+        if (attname == null) {
+            attname = report.getName();
+        }
+
+        FileDownloader.setDownloadHeaders(response, attname);
+        FileDownloader.writeLocalFile(report, response);
     }
 }

@@ -18,7 +18,7 @@ if (ServletUtils.isAjaxRequest(request)) {
 <link rel="shortcut icon" href="${pageContext.request.contextPath}/assets/img/favicon.png">
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/lib/material-design-iconic-font.min.css">
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/css/rb-base.css">
-<title>系统错误</title>
+<title>系统错误 · ${appName}</title>
 </head>
 <body class="rb-splash-screen">
 <div class="rb-wrapper rb-error">

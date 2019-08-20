@@ -71,7 +71,7 @@ public class GeneralOperatingControll extends BaseControll {
 		ID user = getRequestUser(request);
 		JSON formJson = ServletUtils.getRequestJson(request);
 		
-		Record record = null;
+		Record record;
 		try {
 			record = EntityHelper.parse((JSONObject) formJson, user);
 		} catch (DataSpecificationException know) {
@@ -92,7 +92,7 @@ public class GeneralOperatingControll extends BaseControll {
 	}
 	
 	@RequestMapping("record-delete")
-	public void delete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void delete(HttpServletRequest request, HttpServletResponse response) {
 		final ID user = getRequestUser(request);
 		final ID[] records = parseIdList(request);
 		if (records.length == 0) {
@@ -106,7 +106,7 @@ public class GeneralOperatingControll extends BaseControll {
 		String[] cascades = parseCascades(request);
 		ServiceSpec ies = Application.getService(entity.getEntityCode());
 		
-		int affected = 0;
+		int affected;
 		try {
 			if (!EntityService.class.isAssignableFrom(ies.getClass())) {
 				affected = ies.delete(firstId);
@@ -128,7 +128,7 @@ public class GeneralOperatingControll extends BaseControll {
 	}
 	
 	@RequestMapping("record-assign")
-	public void assign(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void assign(HttpServletRequest request, HttpServletResponse response) {
 		final ID user = getRequestUser(request);
 		final ID[] records = parseIdList(request);
 		if (records.length == 0) {
@@ -143,7 +143,7 @@ public class GeneralOperatingControll extends BaseControll {
 		String[] cascades = parseCascades(request);
 		EntityService ies = Application.getEntityService(entity.getEntityCode());
 		
-		int affected = 0;
+		int affected;
 		try {
 			// 仅一条记录
 			if (records.length == 1) {
@@ -164,7 +164,7 @@ public class GeneralOperatingControll extends BaseControll {
 	}
 	
 	@RequestMapping("record-share")
-	public void share(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void share(HttpServletRequest request, HttpServletResponse response) {
 		final ID user = getRequestUser(request);
 		final ID[] records = parseIdList(request);
 		if (records.length == 0) {
@@ -207,7 +207,7 @@ public class GeneralOperatingControll extends BaseControll {
 	}
 	
 	@RequestMapping("record-unshare")
-	public void unsharesa(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void unsharesa(HttpServletRequest request, HttpServletResponse response) {
 		final ID user = getRequestUser(request);
 		final ID record = getIdParameterNotNull(request, "record");  // Record ID
 		final ID[] accessIds = parseIdList(request);  // ShareAccess IDs
@@ -221,7 +221,7 @@ public class GeneralOperatingControll extends BaseControll {
 		
 		EntityService ies = Application.getEntityService(entity.getEntityCode());
 		
-		int affected = 0;
+		int affected;
 		try {
 			if (accessIds.length == 1) {
 				affected = ies.unshare(record, accessIds[0]);
@@ -241,7 +241,7 @@ public class GeneralOperatingControll extends BaseControll {
 	}
 	
 	@RequestMapping("record-unshare-batch")
-	public void unshareBatch(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void unshareBatch(HttpServletRequest request, HttpServletResponse response) {
 		final ID user = getRequestUser(request);
 		final ID[] records = parseIdList(request);
 		if (records.length == 0) {
@@ -301,7 +301,7 @@ public class GeneralOperatingControll extends BaseControll {
 	}
 	
 	@RequestMapping("record-meta")
-	public void fetchRecordMeta(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void fetchRecordMeta(HttpServletRequest request, HttpServletResponse response) {
 		final ID id = getIdParameterNotNull(request, "id");
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		
@@ -346,7 +346,7 @@ public class GeneralOperatingControll extends BaseControll {
 	}
 	
 	@RequestMapping("record-lastModified")
-	public void fetchRecordLastModified(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void fetchRecordLastModified(HttpServletRequest request, HttpServletResponse response) {
 		final ID id = getIdParameterNotNull(request, "id");
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		
@@ -365,7 +365,7 @@ public class GeneralOperatingControll extends BaseControll {
 	}
 	
 	@RequestMapping("shared-list")
-	public void fetchSharedList(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void fetchSharedList(HttpServletRequest request, HttpServletResponse response) {
 		ID id = getIdParameterNotNull(request, "id");
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		

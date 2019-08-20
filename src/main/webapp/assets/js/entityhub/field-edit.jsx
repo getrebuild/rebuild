@@ -59,6 +59,7 @@ $(document).ready(function () {
         $('#picklist-items li').text('请添加选项')
         return
       }
+
       $('#picklist-items').empty()
       $(res.data).each(function () {
         picklistItemRender(this)
@@ -69,8 +70,7 @@ $(document).ready(function () {
     $('.J_picklist-edit').click(function () {
       RbModal.create(`${rb.baseUrl}/admin/p/entityhub/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}`, '配置列表选项')
     })
-  } else if (dt === 'SERIES' || wpc.fieldBuildin === true) {
-    $('#fieldNullable, #fieldUpdatable').attr('disabled', true)
+  } else if (dt === 'SERIES') {
     $('#defaultValue').parents('.form-group').remove()
   } else if (dt === 'DATE' || dt === 'DATETIME') {
     $('#defaultValue').datetimepicker({
@@ -133,8 +133,13 @@ $(document).ready(function () {
     if (dt === 'DECIMAL' && extConfigOld.decimalFormat) $('#decimalFormat').val(extConfigOld.decimalFormat)
   }
 
-  if (wpc.fieldBuildin === true) $('.footer .alert').removeClass('hide')
-  else $('.footer .J_action').removeClass('hide')
+  // 内建字段
+  if (wpc.fieldBuildin === true) {
+    $('#fieldNullable, #fieldUpdatable').attr('disabled', true)
+    $('.footer .alert').removeClass('hide')
+  } else {
+    $('.footer .J_action').removeClass('hide')
+  }
 
   $('.J_del').click(function () {
     if (!wpc.isSuperAdmin) {

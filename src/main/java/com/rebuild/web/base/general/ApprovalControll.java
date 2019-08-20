@@ -18,18 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.base.general;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
+import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
@@ -44,10 +35,16 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
-import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.persist4j.engine.ID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -58,7 +55,7 @@ import cn.devezhao.persist4j.engine.ID;
 public class ApprovalControll extends BasePageControll {
 	
 	@RequestMapping("workable")
-	public void getWorkable(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void getWorkable(HttpServletRequest request, HttpServletResponse response) {
 		ID recordId = getIdParameterNotNull(request, "record");
 		ID user = getRequestUser(request);
 		
@@ -71,7 +68,7 @@ public class ApprovalControll extends BasePageControll {
 	}
 	
 	@RequestMapping("state")
-	public void getApprovalState(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void getApprovalState(HttpServletRequest request, HttpServletResponse response) {
 		ID recordId = getIdParameterNotNull(request, "record");
 		ID user = getRequestUser(request);
 		
@@ -108,7 +105,7 @@ public class ApprovalControll extends BasePageControll {
 	}
 	
 	@RequestMapping("fetch-nextstep")
-	public void fetchNextStep(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void fetchNextStep(HttpServletRequest request, HttpServletResponse response) {
 		ID recordId = getIdParameterNotNull(request, "record");
 		ID approvalId = getIdParameterNotNull(request, "approval");
 		ID user = getRequestUser(request);
@@ -136,7 +133,7 @@ public class ApprovalControll extends BasePageControll {
 	}
 	
 	@RequestMapping("fetch-workedsteps")
-	public void fetchWorkedSteps(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void fetchWorkedSteps(HttpServletRequest request, HttpServletResponse response) {
 		ID recordId = getIdParameterNotNull(request, "record");
 		ID user = getRequestUser(request);
 		
@@ -183,7 +180,7 @@ public class ApprovalControll extends BasePageControll {
 	}
 	
 	@RequestMapping("flow-definition")
-	public void getFlowDefinition(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void getFlowDefinition(HttpServletRequest request, HttpServletResponse response) {
 		ID approvalId = getIdParameterNotNull(request, "id");
 		Object[] belongEntity = Application.createQueryNoFilter(
 				"select belongEntity from RobotApprovalConfig where configId = ?")
@@ -204,8 +201,7 @@ public class ApprovalControll extends BasePageControll {
 	}
 
 	@RequestMapping("view/{id}")
-	public ModelAndView pageView(@PathVariable String id,
-								 HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public ModelAndView pageView(@PathVariable String id) {
 		ModelAndView mv = createModelAndView("/entity/approval/approval-view.jsp");
 		mv.getModel().put("approvalId", id);
 		return mv;

@@ -99,7 +99,8 @@ public class LoginControll extends BasePageControll {
 				response.sendRedirect(nexturl);
 				return null;
 			} else {
-				ServletUtils.setSessionAttribute(request, NEED_VCODE, 1);
+				// 无效 token 也显示验证码
+				ServletUtils.setSessionAttribute(request, NEED_VCODE, true);
 			}
 		}
 		

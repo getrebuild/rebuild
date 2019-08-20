@@ -59,7 +59,7 @@ public class GeneralModelControll extends BaseEntityControll {
 		}
 		
 		ID record = ID.valueOf(id);
-		ModelAndView mv = null;
+		ModelAndView mv;
 		if (thatEntity.getMasterEntity() != null) {
 			mv = createModelAndView("/general-entity/slave-view.jsp", record, user);
 		} else {
@@ -103,7 +103,7 @@ public class GeneralModelControll extends BaseEntityControll {
 	
 	@RequestMapping("view-model")
 	public void entityView(@PathVariable String entity,
-			HttpServletRequest request, HttpServletResponse response) throws IOException {
+			HttpServletRequest request, HttpServletResponse response) {
 		ID user = getRequestUser(request);
 		ID record = getIdParameterNotNull(request, "id");
 		JSON modal = FormsBuilder.instance.buildView(entity, user, record);

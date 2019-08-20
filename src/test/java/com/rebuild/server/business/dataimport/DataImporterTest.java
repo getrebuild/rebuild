@@ -16,15 +16,15 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.dataio;
+package com.rebuild.server.business.dataimport;
 
 import org.junit.Test;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.TestSupport;
-import com.rebuild.server.business.dataio.DataImporter;
-import com.rebuild.server.business.dataio.ImportRule;
+import com.rebuild.server.business.dataimport.DataImporter;
+import com.rebuild.server.business.dataimport.ImportRule;
 import com.rebuild.server.service.bizz.UserService;
 
 /**

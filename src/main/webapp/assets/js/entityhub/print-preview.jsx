@@ -53,6 +53,10 @@ class PreviewTable extends React.Component {
     )
   }
 
+  componentDidMount() {
+    $('.font-italic.hide').removeClass('hide')
+  }
+
   formatValue(item) {
     if (!item || !item.value) return null
 

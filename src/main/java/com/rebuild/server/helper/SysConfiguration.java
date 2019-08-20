@@ -55,7 +55,7 @@ public class SysConfiguration {
 	 * @return
 	 */
 	public static File getFileOfData(String file) {
-		String d = get(ConfigurableItem.DataDirectory, null);
+		String d = get(ConfigurableItem.DataDirectory);
 		File dFile = null;
 		if (d != null) {
 			dFile = new File(d);
@@ -79,7 +79,7 @@ public class SysConfiguration {
 	 * @see #getFileOfData(String)
 	 */
 	public static File getFileOfTemp(String file) {
-		File tFile = getFileOfData("tmp");
+		File tFile = getFileOfData("rb-temp");
 		if (!tFile.exists()) {
 			tFile.mkdirs();
 		}
@@ -172,7 +172,7 @@ public class SysConfiguration {
 	}
 	
 	// --
-	
+
 	/**
 	 * @param name
 	 * @param reload
@@ -214,6 +214,14 @@ public class SysConfiguration {
 		}
 		return s;
 	}
+
+	/**
+	 * @param name
+	 * @return
+	 */
+	public static String get(ConfigurableItem name) {
+		return get(name, false);
+	}
 	
 	/**
 	 * @param name
@@ -221,20 +229,20 @@ public class SysConfiguration {
 	 * @return
 	 */
 	public static String get(ConfigurableItem name, String defaultValue) {
-		String s = get(name, false);
+		String s = get(name);
 		if (s == null) {
 			Object v = defaultValue != null ? defaultValue : name.getDefaultValue();
 			return v == null ? null : v.toString();
 		}
 		return s;
 	}
-	
+
 	/**
 	 * @param name
 	 * @return
 	 */
 	public static long getLong(ConfigurableItem name) {
-		String s = get(name, false);
+		String s = get(name);
 		return s == null ? (Long) name.getDefaultValue() : NumberUtils.toLong(s);
 	}
 	
@@ -243,7 +251,7 @@ public class SysConfiguration {
 	 * @return
 	 */
 	public static boolean getBool(ConfigurableItem name) {
-		String s = get(name, false);
+		String s = get(name);
 		return s == null ? (Boolean) name.getDefaultValue() : BooleanUtils.toBoolean(s);
 	}
 	

@@ -43,6 +43,10 @@
 					<optgroup label="关系">
 						<option value="REFERENCE">引用</option>
 					</optgroup>
+					<optgroup label="其他" class="bosskey-show">
+						<option value="AVATAR">头像</option>
+						<option value="BOOL">布尔</option>
+					</optgroup>
 				</select>
 			</div>
 		</div>
@@ -75,6 +79,6 @@
 	</form>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/js/entity/field-new.js"></script>
+<script src="${baseUrl}/assets/js/entityhub/field-new.js"></script>
 </body>
 </html>

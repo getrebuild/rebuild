@@ -58,7 +58,7 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 		}
 		
 		if (record != null) {
-			Object[] o =	Application.getQueryFactory().unique(
+			Object[] o = Application.getQueryFactory().unique(
 					record, EntityHelper.ApprovalId, EntityHelper.ApprovalState);
 			if (o != null) {
 				return (ApprovalState) ApprovalState.valueOf((Integer) o[1]);
