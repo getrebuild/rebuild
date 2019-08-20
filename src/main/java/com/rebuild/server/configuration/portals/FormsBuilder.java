@@ -32,6 +32,8 @@ import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.RobotApprovalManager;
+import com.rebuild.server.helper.cache.NoRecordFoundException;
+import com.rebuild.server.metadata.DefaultValueHelper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
@@ -42,6 +44,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -57,7 +60,11 @@ public class FormsBuilder extends FormsManager {
 	private FormsBuilder() { }
 	
 	// 分割线
-	private static final String DIVIDER_LINE = "$DIVIDER$";
+	public static final String DIVIDER_LINE = "$DIVIDER$";
+	// 引用主记录
+	public static final String DV_MASTER = "$MASTER$";
+	// 引用记录
+	public static final String DV_REFERENCE_PREFIX = "&";
 
 	/**
 	 * 表单-新建
@@ -290,12 +297,12 @@ public class FormsBuilder extends FormsManager {
 						el.put("value", "自动值 (审批流程)");
 					}
 				} else {
-					Object dv = FormDefaultValue.exprDefaultValue(fieldMeta);
-					if (dv != null) {
+					String defVal = DefaultValueHelper.exprDefaultValueToString(fieldMeta);
+					if (defVal != null) {
 						if (dateLength > -1) {
-							dv = dv.toString().substring(0, dateLength);
+							defVal = defVal.substring(0, dateLength);
 						}
-						el.put("value", dv);
+						el.put("value", defVal);
 					}
 				}
 			}
@@ -347,7 +354,7 @@ public class FormsBuilder extends FormsManager {
 		}
 		
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
-		StringBuffer ajql = new StringBuffer("select ");
+		StringBuilder ajql = new StringBuilder("select ");
 		for (Object element : elements) {
 			JSONObject el = (JSONObject) element;
 			String field = el.getString("field");
@@ -420,7 +427,7 @@ public class FormsBuilder extends FormsManager {
 	 * @see FieldValueWrapper
 	 * @see #findRecord(ID, ID, JSONArray)
 	 */
-	protected static Object wrapFieldValue(Record data, EasyMeta field, boolean viewMode) {
+	protected Object wrapFieldValue(Record data, EasyMeta field, boolean viewMode) {
 		String fieldName = field.getName();
 		if (data.hasValue(fieldName)) {
 			Object value = data.getObjectValue(fieldName);
@@ -472,5 +479,108 @@ public class FormsBuilder extends FormsManager {
 	 */
 	public static void setCurrentMasterId(ID masterId) {
 		MASTERID4NEWSLAVE.set(masterId);
+	}
+
+
+	// -- 表单初始值
+
+	/**
+	 * @param entity
+	 * @param formModel
+	 * @param initialVal 此值优先级大于字段默认值
+	 */
+	public void setFormInitialValue(Entity entity, JSON formModel, JSONObject initialVal) {
+		if (initialVal == null || initialVal.isEmpty()) {
+			return;
+		}
+
+		JSONArray elements = ((JSONObject) formModel).getJSONArray("elements");
+		if (elements == null || elements.isEmpty()) {
+			return;
+		}
+
+		Map<String, Object> initialValReady = new HashMap<>();
+		for (Map.Entry<String, Object> e : initialVal.entrySet()) {
+			String field = e.getKey();
+			String value = (String) e.getValue();
+			if (StringUtils.isBlank(value)) {
+				continue;
+			}
+
+			// 引用字段实体，如 `&User`
+			if (field.startsWith(DV_REFERENCE_PREFIX)) {
+				Object idLabel[] = readyReferenceValue(value);
+				if (idLabel != null) {
+					Entity source = MetadataHelper.getEntity(field.substring(1));
+					Field[] reftoFields = MetadataHelper.getReferenceToFields(source, entity);
+					// 如有多个则全部填充
+					for (Field rtf : reftoFields) {
+						initialValReady.put(rtf.getName(), idLabel);
+					}
+				}
+			}
+			// 主实体字段
+			else if (field.equals(DV_MASTER)) {
+				Object idLabel[] = readyReferenceValue(value);
+				if (idLabel != null) {
+					Field stm = MetadataHelper.getSlaveToMasterField(entity);
+					initialValReady.put(stm.getName(), idLabel);
+				}
+			}
+			else if (entity.containsField(field)) {
+				EasyMeta fieldMeta = EasyMeta.valueOf(entity.getField(field));
+				if (fieldMeta.getDisplayType() == DisplayType.REFERENCE) {
+					Object idLabel[] = readyReferenceValue(value);
+					if (idLabel != null) {
+						initialValReady.put(field, readyReferenceValue(value));
+					}
+				}
+			} else {
+				LOG.warn("Unknow value pair : " + field + " = " + value);
+			}
+		}
+
+		if (initialValReady.isEmpty()) {
+			return;
+		}
+
+		for (Object o : elements) {
+			JSONObject item = (JSONObject) o;
+			String field = item.getString("field");
+			if (initialValReady.containsKey(field)) {
+				item.put("value", initialValReady.get(field));
+				initialValReady.remove(field);
+			}
+		}
+
+		// 没布局出来的也得返回（如明细记录中的主实体字段值）
+		if (!initialValReady.isEmpty()) {
+			JSONObject initial = new JSONObject();
+			for (Map.Entry<String, Object> e : initialValReady.entrySet()) {
+				Object v = e.getValue();
+				if (v instanceof Object[]) {
+					v = ((Object[]) v)[0].toString();
+				}
+				initial.put(e.getKey(), v);
+			}
+			((JSONObject) formModel).put("initialValue", initial);
+		}
+	}
+
+	/**
+	 * @param idVal
+	 * @return
+	 */
+	private Object[] readyReferenceValue(String idVal) {
+		if (!ID.isId(idVal)) {
+			return null;
+		}
+		try {
+			String label = FieldValueWrapper.getLabel(ID.valueOf(idVal));
+			return new Object[] { idVal, label };
+		} catch (NoRecordFoundException ex) {
+			LOG.error("No record found : " + idVal);
+			return null;
+		}
 	}
 }

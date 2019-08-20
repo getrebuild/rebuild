@@ -274,8 +274,8 @@ public class GeneralOperatingControll extends BaseControll {
 		Map<ID, Set<ID>> accessMap = new HashMap<>();
 		for (Object[] o : accessArray) {
 			ID record = (ID) o[0];
-            Set<ID> access = accessMap.computeIfAbsent(record, k -> new HashSet<>());
-            access.add((ID) o[1]);
+			Set<ID> access = accessMap.computeIfAbsent(record, k -> new HashSet<>());
+			access.add((ID) o[1]);
 		}
 		
 		EntityService ies = Application.getEntityService(records[0].getEntityCode());
