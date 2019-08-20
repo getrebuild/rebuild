@@ -18,8 +18,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.metadata.entity;
 
-import org.apache.commons.lang.StringUtils;
-
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.dialect.Type;
+import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.metadata.BaseMeta;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.RebuildException;
@@ -27,13 +31,7 @@ import com.rebuild.server.metadata.DynamicMetadataFactory;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.JSONUtils;
-
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.dialect.FieldType;
-import cn.devezhao.persist4j.dialect.Type;
-import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.persist4j.metadata.BaseMeta;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * 元数据元素封装
@@ -77,7 +75,7 @@ public class EasyMeta implements BaseMeta {
 	public String getExtraAttrs() {
 		return baseMeta.getExtraAttrs();
 	}
-	
+
 	/**
 	 * also #getDescription()
 	 * @return
@@ -269,7 +267,7 @@ public class EasyMeta implements BaseMeta {
 		} 
 		return null;
 	}
-	
+
 	// --
 	
 	/**
