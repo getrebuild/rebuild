@@ -72,6 +72,19 @@ public class MetadataHelper {
 	}
 
 	/**
+	 * @param entityCode
+	 * @return
+	 */
+	public static boolean containsEntity(int entityCode) {
+		try {
+			getEntity(entityCode);
+			return true;
+		} catch (MetadataException ex) {
+			return false;
+		}
+	}
+
+	/**
 	 * @param entityName
 	 * @param fieldName
 	 * @return

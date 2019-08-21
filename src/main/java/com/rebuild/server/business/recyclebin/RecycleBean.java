@@ -40,6 +40,8 @@ import java.util.List;
 public class RecycleBean implements Serializable {
     private static final long serialVersionUID = -1058552856844427594L;
 
+    public static final String NAME_SLAVELIST = "$SLAVELIST$";
+
     final private ID recordId;
 
     /**
@@ -79,7 +81,7 @@ public class RecycleBean implements Serializable {
         for (Record r : slaveQueryed) {
             slaveList.add(r.serialize());
         }
-        s.put("$SLAVE$", slaveList);
+        s.put(NAME_SLAVELIST, slaveList);
 
         return s;
     }

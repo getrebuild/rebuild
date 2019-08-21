@@ -76,12 +76,15 @@ class DataList extends React.Component {
     RbAlert.create(cont, {
       html: true,
       confirm: function () {
+        this.disabled(true)
         let c = $(this._dlg).find('input').prop('checked')
         $.post(`${rb.baseUrl}/admin/audit/recycle-bin/restore?cascade=${c}&ids=${ids.join(',')}`, (res) => {
+          this.hide()
+          this.disabled()
           if (res.error_code === 0 && res.data.restored > 0) {
             RbHighbar.success(`成功恢复 ${res.data.restored} 条记录`)
             that.queryList()
-          } else RbHighbar.error(res.error_msg)
+          } else RbHighbar.error(res.error_code > 0 ? res.error_msg : '无法恢复选中记录')
         })
       }
     })
@@ -90,8 +93,8 @@ class DataList extends React.Component {
 
 // eslint-disable-next-line react/display-name
 CellRenders.renderSimple = function (v, s, k) {
-  if (k.endsWith('.channelWith')) v = v ? (<React.Fragment>级联删除 <span className="badge ml-1" title="级联主记录ID">{v.toUpperCase()}</span></React.Fragment>) : '直接删除'
+  if (k.endsWith('.channelWith')) v = v ? (<React.Fragment>关联删除 <span className="badge ml-1" title="关联主记录ID">{v.toUpperCase()}</span></React.Fragment>) : '直接删除'
   else if (k.endsWith('.recordId')) v = <span className="badge">{v.toUpperCase()}</span>
-  else if (k.endsWith('.belongEntity')) v = _entities[v] || `[${v.toUpperCase}]`
+  else if (k.endsWith('.belongEntity')) v = _entities[v] || `[${v.toUpperCase()}]`
   return <td key={k}><div style={s}>{v || ''}</div></td>
 }

@@ -50,6 +50,7 @@ public class RecycleBinControll extends BasePageControll {
         boolean cascade = getBoolParameter(request, "cascade");
         String ids = getParameterNotNull(request, "ids");
 
+        String lastError = null;
         int restored = 0;
         for (String id : ids.split(",")) {
             if (!ID.isId(id)) {
@@ -62,10 +63,15 @@ public class RecycleBinControll extends BasePageControll {
             } catch (Exception ex) {
                 // 出现错误就跳出
                 LOG.error("Restore record failed : " + id, ex);
+                lastError = ex.getLocalizedMessage();
                 break;
             }
         }
 
-        writeSuccess(response, JSONUtils.toJSONObject("restored", restored));
+        if (lastError != null && restored == 0) {
+            writeFailure(response, lastError);
+        } else {
+            writeSuccess(response, JSONUtils.toJSONObject("restored", restored));
+        }
     }
 }
