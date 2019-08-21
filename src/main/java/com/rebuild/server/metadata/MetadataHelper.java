@@ -196,6 +196,7 @@ public class MetadataHelper {
 	 * @param fieldName
 	 * @return
 	 */
+	@SuppressWarnings("deprecation")
 	public static boolean isSystemField(String fieldName) {
 		return EntityHelper.AutoId.equalsIgnoreCase(fieldName)
 				|| EntityHelper.QuickCode.equalsIgnoreCase(fieldName)

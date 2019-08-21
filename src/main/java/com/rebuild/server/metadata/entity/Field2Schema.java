@@ -265,7 +265,6 @@ public class Field2Schema {
 		// 此处会改变一些属性，因为并不想他们同步到数据库 SCHEMA
 		
 		boolean autoValue = EntityHelper.AutoId.equalsIgnoreCase(fieldName);
-		defaultValue = EntityHelper.IsDeleted.equalsIgnoreCase(fieldName) ? "F" : null;
 		if (EntityHelper.ApprovalState.equalsIgnoreCase(fieldName)) {
 			defaultValue = "1";
 		}

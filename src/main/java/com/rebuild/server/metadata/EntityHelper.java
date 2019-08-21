@@ -136,6 +136,7 @@ public class EntityHelper {
 	
 	public static final String AutoId = "autoId";
 	public static final String QuickCode = "quickCode";
+	@Deprecated
 	public static final String IsDeleted = "isDeleted";
 	
 	public static final String ApprovalId = "approvalId";

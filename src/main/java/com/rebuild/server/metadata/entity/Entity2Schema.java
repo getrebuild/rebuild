@@ -131,8 +131,6 @@ public class Entity2Schema extends Field2Schema {
 			createBuiltinField(tempEntity, primaryFiled, "ID", DisplayType.ID, null, null, null);
 			// 自增ID
 			createBuiltinField(tempEntity, EntityHelper.AutoId, "AUTOID", DisplayType.NUMBER, null, null, null);
-			// 是否删除
-			createBuiltinField(tempEntity, EntityHelper.IsDeleted, "ISDELETED", DisplayType.BOOL, null, null, null);
 			
 			if (haveNameField) {
 				createUnsafeField(
