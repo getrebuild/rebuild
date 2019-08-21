@@ -439,6 +439,38 @@ create table if not exists `data_report_config` (
 primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 
+-- ************ Entity [RecycleBin] DDL ************
+create table if not exists `recycle_bin` (
+  `RECYCLE_ID`         char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null comment '所属实体',
+  `RECORD_ID`          char(20) not null comment 'ID字段值',
+  `RECORD_NAME`        varchar(200) not null comment '名称字段值',
+  `RECORD_CONTENT`     longtext not null comment '数据',
+  `DELETED_BY`         char(20) not null comment '删除人',
+  `DELETED_ON`         timestamp not null default current_timestamp comment '删除时间',
+  `CHANNEL_WITH`       char(20) comment '删除渠道（空为直接删除，否则为关联删除）',
+  primary key  (`RECYCLE_ID`)
+)Engine=InnoDB;
+alter table `recycle_bin`
+  add index `IX1_recycle_bin` (`BELONG_ENTITY`, `RECORD_NAME`, `DELETED_BY`, `DELETED_ON`),
+  add index `IX2_recycle_bin` (`RECORD_ID`, `CHANNEL_WITH`);
+-- ************ Entity [RevisionHistory] DDL ************
+create table if not exists `revision_history` (
+  `REVISION_ID`        char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null comment '所属实体',
+  `RECORD_ID`          char(20) not null comment '记录ID',
+  `REVISION_TYPE`      smallint(6) default '1' comment '变更类型',
+  `REVISION_CONTENT`   longtext not null comment '变更数据',
+  `REVISION_BY`        char(20) not null comment '操作人',
+  `REVISION_ON`        timestamp not null default current_timestamp comment '操作时间',
+  `CHANNEL_WITH`       char(20) comment '变更渠道（空为直接，否则为关联）',
+  primary key  (`REVISION_ID`)
+)Engine=InnoDB;
+alter table `revision_history`
+  add index `IX1_revision_history` (`BELONG_ENTITY`, `REVISION_TYPE`, `REVISION_BY`, `REVISION_ON`),
+  add index `IX2_revision_history` (`RECORD_ID`, `CHANNEL_WITH`);
+
+
 -- #3 datas
 
 -- User
@@ -474,4 +506,4 @@ INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version
 INSERT INTO `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`) 
-  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 10);
+  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 11);

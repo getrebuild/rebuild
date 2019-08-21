@@ -302,12 +302,12 @@
 		<field name="revisionId" type="primary" />
 		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="所属实体" />
 		<field name="recordId" type="any-reference" nullable="false" updatable="false" description="记录ID" />
-		<field name="modificationType" type="small-int" default-value="1" description="变更类型" />
-		<field name="modificationContent" type="ntext" nullable="false" updatable="false" description="变更数据" />
-		<field name="monifiedBy" type="reference" ref-entity="User" nullable="false" updatable="false" description="操作人" />
-		<field name="monifiedOn" type="timestamp" nullable="false" updatable="false" description="操作时间" />
+		<field name="revisionType" type="small-int" default-value="1" description="变更类型" />
+		<field name="revisionContent" type="ntext" nullable="false" updatable="false" description="变更数据" />
+		<field name="revisionBy" type="reference" ref-entity="User" nullable="false" updatable="false" description="操作人" />
+		<field name="revisionOn" type="timestamp" nullable="false" updatable="false" description="操作时间" />
 		<field name="channelWith" type="any-reference" updatable="false" description="变更渠道（空为直接，否则为关联）" />
-		<index field-list="belongEntity,modificationType,monifiedBy,monifiedOn" />
+		<index field-list="belongEntity,revisionType,revisionBy,revisionOn" />
 		<index field-list="recordId,channelWith" />
 	</entity>
 

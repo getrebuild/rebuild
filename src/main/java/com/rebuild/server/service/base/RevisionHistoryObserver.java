@@ -18,11 +18,19 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.base;
 
+import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.OperatingObserver;
+import com.rebuild.server.service.bizz.UserService;
+import com.rebuild.utils.JSONUtils;
 
 /**
- * TODO 纪录修改历史
+ * 纪录变更历史
  * 
  * @author devezhao
  * @since 10/31/2018
@@ -31,31 +39,59 @@ public class RevisionHistoryObserver extends OperatingObserver {
 	
 	@Override
 	public void onCreate(OperatingContext context) {
-		LOG.warn(context);
+        Record revision = newRevision(context);
+        Application.getCommonService().create(revision);
 	}
 	
 	@Override
 	public void onUpdate(OperatingContext context) {
-		LOG.warn(context);
+        Record revision = newRevision(context);
+        Application.getCommonService().create(revision);
 	}
 	
 	@Override
 	public void onDelete(OperatingContext context) {
-		LOG.warn(context);
+        Record revision = newRevision(context);
+        Application.getCommonService().create(revision);
 	}
 	
 	@Override
 	public void onAssign(OperatingContext context) {
-		LOG.warn(context);
+        Record revision = newRevision(context);
+        Application.getCommonService().create(revision);
 	}
 	
 	@Override
 	public void onShare(OperatingContext context) {
-		LOG.warn(context);
+        Record revision = newRevision(context);
+        ID recordId = context.getAfterRecord().getID("recordId");
+        revision.setID("recordId", recordId);
+        revision.setString("belongEntity", MetadataHelper.getEntityName(recordId));
+        Application.getCommonService().create(revision);
 	}
 	
 	@Override
 	public void onUnshare(OperatingContext context) {
-		LOG.warn(context);
+        Record revision = newRevision(context);
+        ID recordId = context.getBeforeRecord().getID("recordId");
+        revision.setID("recordId", recordId);
+        revision.setString("belongEntity", MetadataHelper.getEntityName(recordId));
+        Application.getCommonService().create(revision);
 	}
+
+    /**
+     * @param context
+     * @return
+     */
+	private Record newRevision(OperatingContext context) {
+	    ID recordId = context.getAnyRecord().getPrimary();
+	    Record record = EntityHelper.forNew(EntityHelper.RevisionHistory, UserService.SYSTEM_USER);
+	    record.setString("belongEntity", MetadataHelper.getEntityName(recordId));
+	    record.setID("recordId", recordId);
+	    record.setInt("revisionType", context.getAction().getMask());
+        record.setString("revisionContent", JSONUtils.EMPTY_OBJECT_STR);
+	    record.setID("revisionBy", context.getOperator());
+	    record.setDate("revisionOn", CalendarUtils.now());
+	    return record;
+    }
 }

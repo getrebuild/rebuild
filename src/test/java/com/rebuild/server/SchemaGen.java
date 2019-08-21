@@ -49,7 +49,7 @@ public class SchemaGen {
 		
 //		genAll();
 //		gen(EntityHelper.RebuildApi);
-		gen(EntityHelper.RecycleBin);
+		gen(EntityHelper.RevisionHistory);
 
 		System.exit(0);
 	}

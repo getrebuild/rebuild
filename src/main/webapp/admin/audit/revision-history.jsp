@@ -3,7 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>记录历史</title>
+<title>变更历史</title>
 <style type="text/css">
 td .badge {
     font-weight: normal;
@@ -14,7 +14,7 @@ td .badge {
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header">
 <jsp:include page="/_include/NavTop.jsp">
-    <jsp:param value="记录历史" name="pageTitle"/>
+    <jsp:param value="变更历史" name="pageTitle"/>
 </jsp:include>
 <jsp:include page="/_include/NavLeftAdmin.jsp">
     <jsp:param value="revision-history" name="activeNav"/>
