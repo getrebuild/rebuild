@@ -29,6 +29,7 @@ td .badge {
                             <div class="dataTables_filter">
                                 <div class="float-left mr-2 select2-sm">
                                     <select class="form-control form-control-sm" id="belongEntity" style="width:220px">
+                                        <option value="$ALL$">全部实体</option>
                                     </select>
                                 </div>
                                 <div class="input-group input-search">

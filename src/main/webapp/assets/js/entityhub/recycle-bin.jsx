@@ -35,7 +35,8 @@ class DataList extends React.Component {
     let select2 = $('#belongEntity').select2({
       placeholder: '选择实体',
       width: 220,
-    }).val(null).trigger('change')
+      allowClear: false
+    }).val('$ALL$').trigger('change')
     select2.on('change', () => this.queryList())
 
     let btn = $('.input-search .btn'),
@@ -52,6 +53,7 @@ class DataList extends React.Component {
   queryList() {
     let e = this._belongEntity.val(),
       n = this._recordName.val()
+    if (e === '$ALL$') e = null
 
     let qs = []
     if (e) qs.push({ field: 'belongEntity', op: 'EQ', value: e })
