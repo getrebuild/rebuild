@@ -47,7 +47,7 @@ public class BulkDelete extends BulkOperator {
 					int a = ges.delete(id, context.getCascades());
 					affected += (a > 0 ? 1 : 0);
 				} catch (DataSpecificationException ex) {
-					LOG.warn("Cloud't delete : " + id + " Ex : " + ex);
+					LOG.warn("Couldn't delete : " + id + " Ex : " + ex);
 				}
 			} else {
 				LOG.warn("No have privileges to DELETE : " + context.getOpUser() + " > " + id);

@@ -70,7 +70,7 @@ public class BlackList {
 			String s = IOUtils.toString(url, "UTF-8");
 			BLACKLIST = JSON.parseArray(s);
 		} catch (IOException e) {
-			Application.LOG.error("Cloud't load [blacklist.json] file! This feature is missed : " + e);
+			Application.LOG.error("Couldn't load [blacklist.json] file! This feature is missed : " + e);
 			BLACKLIST = JSONUtils.EMPTY_ARRAY;
 		}
 	}

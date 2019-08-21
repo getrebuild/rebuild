@@ -104,7 +104,7 @@ public class UserAvatar extends BaseControll {
 				File avatarFile = UserHelper.generateAvatar(realUser.getFullName(), false);
 				avatarBi = ImageIO.read(avatarFile);
 			} catch (IOException ex) {
-				LOG.warn("Cloud't generate avatar", ex);
+				LOG.warn("Couldn't generate avatar", ex);
 				avatarUrl = AppUtils.getContextPath() + "/assets/img/avatar.png";
 				response.sendRedirect(avatarUrl);
 				return;

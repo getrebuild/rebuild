@@ -99,7 +99,7 @@ public class SMSender {
 			try {
 				mailbody = getMailTemplate();
 			} catch (IOException e) {
-				LOG.error("Cloud't load mail template", e);
+				LOG.error("Couldn't load mail template", e);
 				return null;
 			}
 			

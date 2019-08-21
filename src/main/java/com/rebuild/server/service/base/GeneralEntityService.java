@@ -167,7 +167,7 @@ public class GeneralEntityService extends ObservableService  {
 					try {
 						deleted = this.deleteInternal(id);
 					} catch (DataSpecificationException ex) {
-						LOG.warn("Cloud't delete : " + id + " Ex : " + ex);
+						LOG.warn("Couldn't delete : " + id + " Ex : " + ex);
 					} finally {
 						if (deleted > 0) {
 							affected++;
