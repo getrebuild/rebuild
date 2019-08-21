@@ -76,6 +76,6 @@
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script type="text/babel" src="${baseUrl}/assets/js/config-comps.jsx"></script>
-<script type="text/babel" src="${baseUrl}/assets/js/entityhub/trigger-list.jsx"></script>
+<script type="text/babel" src="${baseUrl}/assets/js/triggers/trigger-list.jsx"></script>
 </body>
 </html>

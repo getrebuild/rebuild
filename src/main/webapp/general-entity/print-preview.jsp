@@ -57,6 +57,6 @@ window.__PageConfig = {
     content: ${contentBody}
 }
 </script>
-<script src="${baseUrl}/assets/js/entityhub/print-preview.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/print-preview.jsx" type="text/babel"></script>
 </body>
 </html>

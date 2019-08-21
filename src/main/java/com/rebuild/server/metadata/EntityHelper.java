@@ -176,5 +176,6 @@ public class EntityHelper {
 	public static final int DataReportConfig = 32;
 
 	public static final int RecycleBin = 33;
+	public static final int RevisionHistory = 34;
 
 }
