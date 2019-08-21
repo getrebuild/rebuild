@@ -224,6 +224,9 @@ var $regex = {
   isNotBlank: function (val) {
     return !val || $.trim(val).length === 0
   },
+  isId: function (id) {
+    return /^([0-9]{3}-[a-z0-9]{16})$/ig.test(id)
+  }
 }
 
 var $encode = function (s) {

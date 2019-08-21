@@ -50,11 +50,12 @@ public enum ConfigurableItem {
 	
 	// 启用最近搜素缓存
 	EnableRecentlyUsed(true),
-	// 启用回收站
-	EnableRecycleBin(true),
 
 	// 登录背景图
-	LiveWallpaper(true)
+	LiveWallpaper(true),
+
+	// 回收站数据保留天数（0为禁用回收站）
+	RecycleBinKeepingDays(9999),
 
 	;
 	

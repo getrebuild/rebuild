@@ -141,7 +141,7 @@ public class GeneralEntityService extends ObservableService  {
 		final ID currentUser = Application.getCurrentUser();
 
 		RecycleStore recycleBin = null;
-		if (SysConfiguration.getBool(ConfigurableItem.EnableRecycleBin)) {
+		if (SysConfiguration.getLong(ConfigurableItem.RecycleBinKeepingDays) > 0) {
 			recycleBin = new RecycleStore(currentUser);
 		}
 
