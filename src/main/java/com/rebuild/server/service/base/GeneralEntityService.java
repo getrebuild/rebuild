@@ -30,7 +30,10 @@ import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.business.dataimport.DataImporter;
+import com.rebuild.server.business.recyclebin.RecycleStore;
 import com.rebuild.server.business.series.SeriesGeneratorFactory;
+import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.server.metadata.DefaultValueHelper;
@@ -125,15 +128,28 @@ public class GeneralEntityService extends ObservableService  {
 
 	@Override
 	public int delete(ID record) {
-		return this.deleteInternal(record);
+		return delete(record, null);
+	}
+
+	@Override
+	public Record createOrUpdate(Record record) {
+		return super.createOrUpdate(record);
 	}
 
 	@Override
 	public int delete(ID record, String[] cascades) {
+		final ID currentUser = Application.getCurrentUser();
+
+		RecycleStore recycleBin = null;
+		if (SysConfiguration.getBool(ConfigurableItem.EnableRecycleBin)) {
+			recycleBin = new RecycleStore(currentUser);
+		}
+
+		if (recycleBin != null) {
+			recycleBin.add(record);
+		}
 		this.deleteInternal(record);
 		int affected = 1;
-
-		final ID currentUser = Application.getCurrentUser();
 
 		Map<String, Set<ID>> recordsOfCascaded = getRecordsOfCascaded(record, cascades, BizzPermission.DELETE);
 		for (Map.Entry<String, Set<ID>> e : recordsOfCascaded.entrySet()) {
@@ -143,16 +159,32 @@ public class GeneralEntityService extends ObservableService  {
 
 			for (ID id : e.getValue()) {
 				if (Application.getSecurityManager().allowedD(currentUser, id)) {
+					if (recycleBin != null) {
+						recycleBin.add(id, record);
+					}
+
+					int deleted = 0;
 					try {
-						affected += (this.deleteInternal(id) > 0 ? 1 : 0);
+						deleted = this.deleteInternal(id);
 					} catch (DataSpecificationException ex) {
 						LOG.warn("Cloud't delete : " + id + " Ex : " + ex);
+					} finally {
+						if (deleted > 0) {
+							affected++;
+						} else if (recycleBin != null) {
+							recycleBin.removeLast();
+						}
 					}
 				} else {
 					LOG.warn("No have privileges to DELETE : " + currentUser + " > " + id);
 				}
 			}
 		}
+
+		if (recycleBin != null) {
+			recycleBin.store();
+		}
+
 		return affected;
 	}
 

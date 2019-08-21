@@ -19,31 +19,20 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.business.recyclebin;
 
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
+import com.rebuild.server.TestSupport;
+import org.junit.Test;
 
 /**
- * 数据恢复
- *
- * @author devezhao
- * @since 2019/8/21
+ * @author devezhao zhaofang123@gmail.com
+ * @since 2019/08/21
  */
-public class RecycleRestore {
+public class RecycleBeanTest extends TestSupport {
 
-    private ID recycleId;
-
-    /**
-     * @param recycleId
-     */
-    public RecycleRestore(ID recycleId) {
-        this.recycleId = recycleId;
-    }
-
-    /**
-     * 恢复数据
-     *
-     * @param cascade 级联恢复
-     * @return
-     */
-    public int restore(boolean cascade) {
-        return 0;
+    @Test
+    public void serialize() {
+        ID test = addRecordOfTestAllFields();
+        JSON s = new RecycleBean(test).serialize();
+        System.out.println(s);
     }
 }

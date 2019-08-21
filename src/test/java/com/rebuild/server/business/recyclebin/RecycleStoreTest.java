@@ -19,31 +19,29 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.business.recyclebin;
 
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.TestSupport;
+import com.rebuild.server.service.bizz.UserService;
+import org.junit.Test;
 
 /**
- * 数据恢复
- *
- * @author devezhao
- * @since 2019/8/21
+ * @author devezhao zhaofang123@gmail.com
+ * @since 2019/08/21
  */
-public class RecycleRestore {
+public class RecycleStoreTest extends TestSupport {
 
-    private ID recycleId;
+    @Test
+    public void store() {
+        ID test1 = addRecordOfTestAllFields();
+        ID test2 = addRecordOfTestAllFields();
 
-    /**
-     * @param recycleId
-     */
-    public RecycleRestore(ID recycleId) {
-        this.recycleId = recycleId;
-    }
+        RecycleStore recycleStore = new RecycleStore(UserService.ADMIN_USER);
+        recycleStore.add(test1);
+        recycleStore.add(test2);
+        recycleStore.removeLast();
 
-    /**
-     * 恢复数据
-     *
-     * @param cascade 级联恢复
-     * @return
-     */
-    public int restore(boolean cascade) {
-        return 0;
+        recycleStore.add(test2, test1);
+
+        int s = recycleStore.store();
+        System.out.println(s);
     }
 }

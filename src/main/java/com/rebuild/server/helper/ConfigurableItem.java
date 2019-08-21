@@ -50,6 +50,8 @@ public enum ConfigurableItem {
 	
 	// 启用最近搜素缓存
 	EnableRecentlyUsed(true),
+	// 启用回收站
+	EnableRecycleBin(true),
 
 	// 登录背景图
 	LiveWallpaper(true)
