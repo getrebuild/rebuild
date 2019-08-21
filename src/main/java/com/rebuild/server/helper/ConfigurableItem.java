@@ -55,7 +55,7 @@ public enum ConfigurableItem {
 	LiveWallpaper(true),
 
 	// 回收站数据保留天数（0为禁用回收站）
-	RecycleBinKeepingDays(9999),
+	RecycleBinKeepingDays(30),
 
 	;
 	

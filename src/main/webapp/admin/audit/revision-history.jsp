@@ -40,7 +40,6 @@ td .badge {
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="dataTables_oper">
-                                <button class="btn btn-space btn-danger J_restore"><i class="icon zmdi zmdi-undo"></i> 恢复</button>
                             </div>
                         </div>
                     </div>
