@@ -38,7 +38,7 @@ class DataList extends React.Component {
     super(props)
   }
   render() {
-    return <RbList ref={(c) => this._List = c} config={ListConfig}></RbList>
+    return <RbList ref={(c) => this._List = c} config={ListConfig} uncheckbox={true}></RbList>
   }
 
   componentDidMount() {

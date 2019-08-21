@@ -41,9 +41,9 @@ class RbList extends React.Component {
               <table className="table table-hover table-striped">
                 <thead>
                   <tr>
-                    <th className="column-checkbox">
+                    {this.props.uncheckbox !== true && <th className="column-checkbox">
                       <div><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={this.state.checkedAll} onClick={this.toggleAllRow} /><span className="custom-control-label"></span></label></div>
-                    </th>
+                    </th>}
                     {this.state.fields.map((item) => {
                       let cWidth = (item.width || that.__defaultColumnWidth)
                       let styles = { width: cWidth + 'px' }
@@ -61,9 +61,9 @@ class RbList extends React.Component {
                     let lastGhost = item[lastIndex]
                     let rowKey = 'row-' + lastGhost[0]
                     return (<tr key={rowKey} className={lastGhost[3] ? 'table-active' : ''} onClick={this.clickRow.bind(this, index, false)}>
-                      <td key={rowKey + '-checkbox'} className="column-checkbox">
+                      {this.props.uncheckbox !== true && <td key={rowKey + '-checkbox'} className="column-checkbox">
                         <div><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={lastGhost[3]} onClick={this.clickRow.bind(this, index, true)} /><span className="custom-control-label"></span></label></div>
-                      </td>
+                      </td>}
                       {item.map((cell, index) => {
                         return that.renderCell(cell, index, lastGhost)
                       })}
