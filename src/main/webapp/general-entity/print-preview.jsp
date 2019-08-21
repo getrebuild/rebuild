@@ -46,7 +46,7 @@ html, body{
     <div id="preview-table">
     </div>
     <div class="font-italic hide">
-        <div class="float-left">打印时间 ${printTime} · 编号 <%=CodecUtils.base64Encode(request.getAttribute("recordId").toString())%></div>
+        <div class="float-left">打印时间 ${printTime} · <%=CodecUtils.base64Encode(request.getAttribute("recordId").toString())%></div>
         <div class="float-right">${appName} 技术支持</div>
     </div>
 </div>
