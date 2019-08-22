@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.web.admin;
 
 import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.Lisence;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -43,6 +44,7 @@ public class SysConfigControll extends BasePageControll {
 	@RequestMapping("systems")
 	public ModelAndView pageSystems() {
 		ModelAndView mv = createModelAndView("/admin/system-general.jsp");
+		mv.getModel().put("SN", Lisence.SN());
 		mv.getModel().put("HomeURL", SysConfiguration.get(ConfigurableItem.HomeURL));
 		mv.getModel().put("OpenSignUp", SysConfiguration.getBool(ConfigurableItem.OpenSignUp));
 		return mv;

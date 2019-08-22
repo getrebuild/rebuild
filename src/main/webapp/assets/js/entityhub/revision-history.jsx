@@ -78,7 +78,7 @@ class DataList extends React.Component {
   showDetails() {
     let ids = this._List.getSelectedIds()
     if (!ids || ids.length === 0) return
-    renderRbcomp(<DlgDetails id={ids[0]} width="701" />)
+    renderRbcomp(<DlgDetails id={ids[0]} width="681" />)
   }
 }
 
@@ -96,9 +96,7 @@ class DlgDetails extends RbAlert {
     super(props)
   }
   renderContent() {
-    if (!this.state.data) return <RbSpinner fully={true} />
-    if (this.state.data.length === 0) return <div className="text-center mt-3 mb-5">无变更详情</div>
-
+    if (!this.state.data || this.state.data.length === 0) return <div>无变更详情</div>
     return <table className="table table-fixed">
       <thead>
         <tr>
@@ -119,10 +117,14 @@ class DlgDetails extends RbAlert {
     </table>
   }
   componentDidMount() {
-    super.componentDidMount()
-
     $.get(`${rb.baseUrl}/admin/audit/revision-history/details?id=${this.props.id}`, (res) => {
-      this.setState({ data: res.data || [] })
+      if (res.data.length === 0) {
+        RbHighbar.create('选中纪录无变更详情')
+        this.hide()
+      } else {
+        super.componentDidMount()
+        this.setState({ data: res.data })
+      }
     })
   }
 }
