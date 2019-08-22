@@ -28,9 +28,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.RebuildException;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
-import org.apache.commons.lang.StringUtils;
 
 import java.util.Map;
 
@@ -64,7 +64,7 @@ public class RecordMerger {
         }
 
         Entity entity = beforeRecord != null ? beforeRecord.getEntity() : afterRecord.getEntity();
-        Map<String, String[]> merged = new CaseInsensitiveMap<>();
+        Map<String, Object[]> merged = new CaseInsensitiveMap<>();
 
         if (beforeRecord != null) {
             JSONObject beforeSerialize = (JSONObject) beforeRecord.serialize();
@@ -78,7 +78,7 @@ public class RecordMerger {
                 if (NullValue.is(beforeVal)) {
                     beforeVal = null;
                 }
-                merged.put(field, new String[]{ beforeVal == null ? null : JSON.toJSONString(beforeVal), null });
+                merged.put(field, new Object[]{ beforeVal, null });
             }
         }
 
@@ -95,15 +95,15 @@ public class RecordMerger {
                     continue;
                 }
 
-                String[] mergedValue = merged.computeIfAbsent(field, k -> new String[]{null, null});
-                mergedValue[1] = afterVal == null ? null : JSON.toJSONString(afterVal);
+                Object[] mergedValue = merged.computeIfAbsent(field, k -> new Object[]{null, null});
+                mergedValue[1] = afterVal;
             }
         }
 
         JSONArray array = new JSONArray();
-        for (Map.Entry<String, String[]> e : merged.entrySet()) {
-            String[] val = e.getValue();
-            if (StringUtils.isEmpty(val[0]) && StringUtils.isEmpty(val[1])) {
+        for (Map.Entry<String, Object[]> e : merged.entrySet()) {
+            Object[] val = e.getValue();
+            if (val[0] == null && val[1] == null) {
                 continue;
             }
 
@@ -125,6 +125,10 @@ public class RecordMerger {
         String fieldName = field.getName();
         return EntityHelper.ModifiedOn.equalsIgnoreCase(fieldName)
                 || EntityHelper.ModifiedBy.equalsIgnoreCase(fieldName)
+                || EntityHelper.CreatedOn.equalsIgnoreCase(fieldName)
+                || EntityHelper.CreatedBy.equalsIgnoreCase(fieldName)
+                || EntityHelper.QuickCode.equalsIgnoreCase((fieldName))
+                || MetadataHelper.isApprovalField(fieldName)
                 || field.getType() == FieldType.PRIMARY;
     }
 }

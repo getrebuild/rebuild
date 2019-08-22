@@ -38,7 +38,7 @@ class DataList extends React.Component {
     super(props)
   }
   render() {
-    return <RbList ref={(c) => this._List = c} config={ListConfig} uncheckbox={true}></RbList>
+    return <RbList ref={(c) => this._List = c} config={ListConfig}></RbList>
   }
 
   componentDidMount() {
@@ -56,6 +56,8 @@ class DataList extends React.Component {
 
     this._belongEntity = select2
     this._recordName = input
+
+    $('.J_details').click(() => this.showDetails())
   }
 
   queryList() {
@@ -72,13 +74,55 @@ class DataList extends React.Component {
     }
     this._List.search(JSON.stringify(q), true)
   }
+
+  showDetails() {
+    let ids = this._List.getSelectedIds()
+    if (!ids || ids.length === 0) return
+    renderRbcomp(<DlgDetails id={ids[0]} width="701" />)
+  }
 }
 
 // eslint-disable-next-line react/display-name
 CellRenders.renderSimple = function (v, s, k) {
-  if (k.endsWith('.channelWith')) v = v ? (<React.Fragment>关联操作 <span className="badge ml-1" title="关联主记录ID">{v.toUpperCase()}</span></React.Fragment>) : '直接操作'
-  else if (k.endsWith('.recordId')) v = <span className="badge">{v.toUpperCase()}</span>
+  if (k.endsWith('.channelWith')) v = v ? (<React.Fragment>关联操作 <span className="badge text-id ml-1" title="关联主记录ID">{v.toUpperCase()}</span></React.Fragment>) : '直接操作'
+  else if (k.endsWith('.recordId')) v = <span className="badge text-id">{v.toUpperCase()}</span>
   else if (k.endsWith('.belongEntity')) v = _entities[v] || `[${v.toUpperCase()}]`
   else if (k.endsWith('.revisionType')) v = RevTypes[v] || '未知'
   return <td key={k}><div style={s}>{v || ''}</div></td>
+}
+
+class DlgDetails extends RbAlert {
+  constructor(props) {
+    super(props)
+  }
+  renderContent() {
+    if (!this.state.data) return <RbSpinner fully={true} />
+    if (this.state.data.length === 0) return <div className="text-center mt-3 mb-5">无变更详情</div>
+
+    return <table className="table table-fixed">
+      <thead>
+        <tr>
+          <th width="22%">字段</th>
+          <th>变更前</th>
+          <th>变更后</th>
+        </tr>
+      </thead>
+      <tbody>
+        {this.state.data.map((item) => {
+          return <tr key={`fk-${item.field}`}>
+            <td>{item.field}</td>
+            <td><div>{item.before || <span className="text-muted">空值</span>}</div></td>
+            <td><div>{item.after || <span className="text-muted">空值</span>}</div></td>
+          </tr>
+        })}
+      </tbody>
+    </table>
+  }
+  componentDidMount() {
+    super.componentDidMount()
+
+    $.get(`${rb.baseUrl}/admin/audit/revision-history/details?id=${this.props.id}`, (res) => {
+      this.setState({ data: res.data || [] })
+    })
+  }
 }

@@ -95,8 +95,8 @@ class DataList extends React.Component {
 
 // eslint-disable-next-line react/display-name
 CellRenders.renderSimple = function (v, s, k) {
-  if (k.endsWith('.channelWith')) v = v ? (<React.Fragment>关联删除 <span className="badge ml-1" title="关联主记录ID">{v.toUpperCase()}</span></React.Fragment>) : '直接删除'
-  else if (k.endsWith('.recordId')) v = <span className="badge">{v.toUpperCase()}</span>
+  if (k.endsWith('.channelWith')) v = v ? (<React.Fragment>关联删除 <span className="badge text-id ml-1" title="关联主记录ID">{v.toUpperCase()}</span></React.Fragment>) : '直接删除'
+  else if (k.endsWith('.recordId')) v = <span className="badge text-id">{v.toUpperCase()}</span>
   else if (k.endsWith('.belongEntity')) v = _entities[v] || `[${v.toUpperCase()}]`
   return <td key={k}><div style={s}>{v || ''}</div></td>
 }

@@ -101,7 +101,7 @@ public class RevisionHistoryObserver extends OperatingObserver {
 			JSON revisionContent = new RecordMerger(before).merge(after);
 			record.setString("revisionContent", revisionContent.toJSONString());
 		} else {
-			record.setString("revisionContent", JSONUtils.EMPTY_OBJECT_STR);
+			record.setString("revisionContent", JSONUtils.EMPTY_ARRAY_STR);
 		}
 
 		OperatingContext source = RobotTriggerObserver.getTriggerSource();

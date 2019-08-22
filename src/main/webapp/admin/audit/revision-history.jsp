@@ -5,9 +5,13 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>变更历史</title>
 <style type="text/css">
-td .badge {
-    font-weight: normal;
-    color: #999;
+.table.table-fixed td {
+    vertical-align: text-top;
+}
+.table.table-fixed td>div {
+    word-break: break-all;
+    max-height: 100px;
+    overflow: hidden;
 }
 </style>
 </head>
@@ -40,6 +44,7 @@ td .badge {
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="dataTables_oper">
+                                <button class="btn btn-space btn-secondary J_details"><i class="icon zmdi zmdi-flip"></i> 详情</button>
                             </div>
                         </div>
                     </div>

@@ -4,12 +4,6 @@
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <title>回收站</title>
-<style type="text/css">
-td .badge {
-    font-weight: normal;
-    color: #999;
-}
-</style>
 </head>
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header">

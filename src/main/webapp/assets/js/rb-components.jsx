@@ -155,6 +155,24 @@ class RbAlert extends React.Component {
     this.state = { disable: false }
   }
   render() {
+    let style = {}
+    if (this.props.width) style.maxWidth = ~~this.props.width
+    return (
+      <div className="modal rbalert" ref={(c) => this._dlg = c} tabIndex={this.state.tabIndex || -1}>
+        <div className="modal-dialog modal-dialog-centered" style={style}>
+          <div className="modal-content">
+            <div className="modal-header pb-0">
+              <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
+            </div>
+            <div className="modal-body">
+              {this.renderContent()}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  renderContent() {
     let icon = this.props.type === 'danger' ? 'alert-triangle' : 'help-outline'
     if (this.props.type === 'warning') icon = 'alert-circle-o'
     if (this.props.type === 'primary') icon = 'info-outline'
@@ -165,34 +183,24 @@ class RbAlert extends React.Component {
 
     let cancel = (this.props.cancel || this.hide).bind(this)
     let confirm = (this.props.confirm || this.hide).bind(this)
-    return (
-      <div className="modal rbalert" ref={(c) => this._dlg = c} tabIndex={this.state.tabIndex || -1}>
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
-            </div>
-            <div className="modal-body">
-              <div className="text-center ml-6 mr-6">
-                {this.props.showIcon === false ? null :
-                  <div className={'text-' + type}><span className={'modal-main-icon zmdi zmdi-' + icon} /></div>
-                }
-                {this.props.title && <h4 className="mb-2 mt-3">{this.props.title}</h4>}
-                <div className={this.props.title ? '' : 'mt-3'}>{content}</div>
-                <div className="mt-4 mb-3">
-                  <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={cancel}>{this.props.cancelText || '取消'}</button>
-                  <button disabled={this.state.disable} className={'btn btn-space btn-' + type} type="button" onClick={confirm}>{this.props.confirmText || '确定'}</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+
+    return <div className="text-center ml-6 mr-6">
+      {this.props.showIcon === false ? null :
+        <div className={'text-' + type}><span className={'modal-main-icon zmdi zmdi-' + icon} /></div>
+      }
+      {this.props.title && <h4 className="mb-2 mt-3">{this.props.title}</h4>}
+      <div className={this.props.title ? '' : 'mt-3'}>{content}</div>
+      <div className="mt-4 mb-3">
+        <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={cancel}>{this.props.cancelText || '取消'}</button>
+        <button disabled={this.state.disable} className={'btn btn-space btn-' + type} type="button" onClick={confirm}>{this.props.confirmText || '确定'}</button>
       </div>
-    )
+    </div>
   }
+
   componentDidMount() {
     $(this._dlg).modal({ show: true, keyboard: true })
   }
+
   hide() {
     let root = $(this._dlg)
     root.modal('hide')

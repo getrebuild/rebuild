@@ -94,6 +94,20 @@ html.admin .admin-show.row {
     text-decoration: underline;
 }
 
+.badge.text-id {
+    font-weight: normal;
+    color: #777;
+}
+
+a.badge.text-id {
+    color: #4285f4;
+    cursor: pointer;
+}
+
+a.badge.text-id:hover {
+    border-color: #4285f4;
+}
+
 .btn {
     min-height: 2.8rem;
     min-width: 98px;
