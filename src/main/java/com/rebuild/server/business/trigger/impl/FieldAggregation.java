@@ -54,11 +54,11 @@ public class FieldAggregation implements TriggerAction {
 	// 如触发器 A 调用 B，而 B 又调用了 C ... 以此类推。此处记录其深度
 	private static final ThreadLocal<Integer> CALL_CHAIN_DEPTH = new ThreadLocal<Integer>();
 	// 最大调用深度
-	private static final int MAX_DEPTH = 3;
+	private static final int MAX_DEPTH = 5;
 	
 	// 当前操作用户可能对目标实体/记录无更新权限
 	// 允许无权限更新目标实体
-	private static final boolean ALLOW_NOPRIVILEGES_UPDATE = false;
+	private static final boolean ALLOW_NOPRIVILEGES_UPDATE = true;
 	
 	final private ActionContext context;
 	

@@ -1,6 +1,6 @@
 let _entities = {}
 $(document).ready(() => {
-  $.get(`${rb.baseUrl}/commons//metadata/entities`, (res) => {
+  $.get(`${rb.baseUrl}/commons//metadata/entities?slave=true`, (res) => {
     $(res.data).each(function () {
       $(`<option value="${this.name}">${this.label}</option>`).appendTo('#belongEntity')
       _entities[this.name] = this.label
