@@ -108,7 +108,8 @@
   color: #222;
 }
 
-.auto-assign ol,
-.auto-assign ul {
-  line-height: auto;
+.auto-assign .select2-selection__rendered,
+.auto-share .select2-selection__rendered {
+  display: block !important;
+  padding: 0 8px !important;
 }
