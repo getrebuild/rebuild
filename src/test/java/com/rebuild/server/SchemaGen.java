@@ -18,16 +18,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server;
 
-import com.rebuild.server.metadata.EntityHelper;
-import org.dom4j.Element;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.PersistManagerFactoryImpl;
 import cn.devezhao.persist4j.metadata.impl.ConfigurationMetadataFactory;
 import cn.devezhao.persist4j.util.support.Table;
+import com.rebuild.server.metadata.EntityHelper;
+import org.dom4j.Element;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * 根据 METADATA 生成表的创建语句
@@ -48,7 +47,6 @@ public class SchemaGen {
 		PMF = CTX.getBean(PersistManagerFactoryImpl.class);
 		
 //		genAll();
-//		gen(EntityHelper.RebuildApi);
 		gen(EntityHelper.RevisionHistory);
 
 		System.exit(0);
