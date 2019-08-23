@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -125,7 +126,9 @@ window.__PageConfig = {
 </script>
 <script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/triggers/trigger-design.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/triggers/trigger.field-aggregation.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/triggers/trigger.send-notification.jsx" type="text/babel"></script>
+<c:if test="${actionType == 'FIELDAGGREGATION'}"><script src="${baseUrl}/assets/js/triggers/trigger.field-aggregation.jsx" type="text/babel"></script></c:if>
+<c:if test="${actionType == 'SENDNOTIFICATION'}"><script src="${baseUrl}/assets/js/triggers/trigger.send-notification.jsx" type="text/babel"></script></c:if>
+<c:if test="${actionType == 'AUTOASSIGN'}"><script src="${baseUrl}/assets/js/triggers/trigger.auto-assign.jsx" type="text/babel"></script></c:if>
+<c:if test="${actionType == 'AUTOSHARE'}"><script src="${baseUrl}/assets/js/triggers/trigger.auto-share.jsx" type="text/babel"></script></c:if>
 </body>
 </html>

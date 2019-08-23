@@ -67,7 +67,7 @@ public class FieldAggregation implements TriggerAction {
 	
 	private String followSourceField;
 	private ID targetRecordId;
-	
+
 	public FieldAggregation(ActionContext context) {
 		this.context = context;
 	}

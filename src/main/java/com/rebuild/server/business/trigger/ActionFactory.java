@@ -18,9 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.trigger;
 
-import com.rebuild.server.business.trigger.impl.FieldAggregation;
-import com.rebuild.server.business.trigger.impl.SendNotification;
-
 /**
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/24
@@ -31,7 +28,7 @@ public class ActionFactory {
 	 * @return
 	 */
 	public static ActionType[] getAvailableActions() {
-		return new ActionType[] { ActionType.FIELDAGGREGATION, ActionType.SENDNOTIFICATION };
+		return ActionType.values();
 	}
 	
 	/**
@@ -57,11 +54,10 @@ public class ActionFactory {
 	 * @return
 	 */
 	public static TriggerAction createAction(ActionType type, ActionContext context) {
-		if (type == ActionType.FIELDAGGREGATION) {
-			return new FieldAggregation(context);
-		} else if (type == ActionType.SENDNOTIFICATION) {
-			return new SendNotification(context);
+		try {
+			return type.newInstance(context);
+		} catch (NoSuchMethodException ex) {
+			throw new TriggerException("无效操作类型: " + type, ex);
 		}
-		throw new TriggerException("未知操作类型: " + type);
 	}
 }

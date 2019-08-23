@@ -11,7 +11,7 @@
 }
 
 .timeline.spare form.simple .col-form-label {
-  max-width: 160px
+  max-width: 180px
 }
 
 .timeline.spare .timeline-content {
@@ -44,8 +44,8 @@
   padding: 20px;
 }
 
-.send-notification {
-  max-width: 800px;
+#react-content>div {
+  max-width: 881px;
 }
 
 .field-aggregation p {
@@ -106,4 +106,9 @@
 
 .field-aggregation .items>div .col-5>a.del:hover {
   color: #222;
+}
+
+.auto-assign ol,
+.auto-assign ul {
+  line-height: auto;
 }
