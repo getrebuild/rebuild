@@ -15,7 +15,7 @@ class ReportList extends ConfigList {
         return <tr key={'k-' + item[0]}>
           <td>{item[3]}</td>
           <td>{item[2] || item[1]}</td>
-          <td>{item[4] ? <span className="badge badge-warning font-weight-light">否</span> : <span className="badge badge-success font-weight-light">是</span>}</td>
+          <td>{item[4] ? <span className="badge badge-warning font-weight-normal">否</span> : <span className="badge badge-success font-weight-light">是</span>}</td>
           <td>{item[5]}</td>
           <td className="actions">
             <a className="icon" title="预览" href={`${rb.baseUrl}/admin/datas/data-reports/preview?id=${item[0]}`} target="_blank"><i className="zmdi zmdi-eye" /></a>

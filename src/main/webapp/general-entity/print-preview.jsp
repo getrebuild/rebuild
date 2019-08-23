@@ -28,6 +28,10 @@ html, body{
     max-height: 80px;
     max-width: 80px;
 }
+.table td > p {
+    margin: 0;
+    line-height: 1.428571;
+}
 .preview-content {
     margin: 0 20px;
 }
@@ -42,7 +46,7 @@ html, body{
     <div id="preview-table">
     </div>
     <div class="font-italic hide">
-        <div class="float-left">打印时间 ${printTime} · 编号 <%=CodecUtils.base64Encode(request.getAttribute("recordId").toString())%></div>
+        <div class="float-left">打印时间 ${printTime} · <%=CodecUtils.base64Encode(request.getAttribute("recordId").toString())%></div>
         <div class="float-right">${appName} 技术支持</div>
     </div>
 </div>
@@ -53,6 +57,6 @@ window.__PageConfig = {
     content: ${contentBody}
 }
 </script>
-<script src="${baseUrl}/assets/js/entityhub/print-preview.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/print-preview.jsx" type="text/babel"></script>
 </body>
 </html>

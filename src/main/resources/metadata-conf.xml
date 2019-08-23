@@ -285,4 +285,30 @@
 		<field name="isDisabled" type="bool" default-value="F" description="是否停用" />
 	</entity>
 
+	<entity name="RecycleBin" type-code="033" name-field="recordName" description="回收站" parent="false">
+		<field name="recycleId" type="primary" />
+		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="所属实体" />
+		<field name="recordId" type="any-reference" nullable="false" updatable="false" description="ID字段值" />
+		<field name="recordName" type="string" max-length="200" nullable="false" updatable="false" description="名称字段值" />
+		<field name="recordContent" type="ntext" nullable="false" updatable="false" description="数据" />
+		<field name="deletedBy" type="reference" ref-entity="User" nullable="false" updatable="false" description="删除人" />
+		<field name="deletedOn" type="timestamp" nullable="false" updatable="false" description="删除时间" />
+		<field name="channelWith" type="any-reference" updatable="false" description="删除渠道（空为直接删除，否则为关联删除）" />
+		<index field-list="belongEntity,recordName,deletedBy,deletedOn" />
+		<index field-list="recordId,channelWith" />
+	</entity>
+
+	<entity name="RevisionHistory" type-code="034" name-field="recordName" description="记录变更历史" parent="false">
+		<field name="revisionId" type="primary" />
+		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="所属实体" />
+		<field name="recordId" type="any-reference" nullable="false" updatable="false" description="记录ID" />
+		<field name="revisionType" type="small-int" default-value="1" description="变更类型" />
+		<field name="revisionContent" type="ntext" nullable="false" updatable="false" description="变更数据" />
+		<field name="revisionBy" type="reference" ref-entity="User" nullable="false" updatable="false" description="操作人" />
+		<field name="revisionOn" type="timestamp" nullable="false" updatable="false" description="操作时间" />
+		<field name="channelWith" type="any-reference" updatable="false" description="变更渠道（空为直接，否则为关联）" />
+		<index field-list="belongEntity,revisionType,revisionBy,revisionOn" />
+		<index field-list="recordId,channelWith" />
+	</entity>
+
 </metadata-config>

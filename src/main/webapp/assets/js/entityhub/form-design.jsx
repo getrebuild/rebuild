@@ -89,7 +89,7 @@ const render_item = function (data) {
     $('<span class="ft">' + data.displayType.split('(')[0].trim() + '</span>').appendTo(item)
     $('<a class="rowspan" title="双列">[双]</a>').appendTo(action).click(function () { item.removeClass('w-100') })
     $('<a class="rowspan" title="单列">[单]</a>').appendTo(action).click(function () { item.addClass('w-100') })
-    $('<a>[修改]</a>').appendTo(action).click(function () {
+    $('<a>[属性]</a>').appendTo(action).click(function () {
       let call = function (nv) {
         let tip = item.find('.dd-handle span>i')
         if (!nv) {
@@ -110,7 +110,7 @@ const render_item = function (data) {
 
   if (data.fieldName === '$DIVIDER$') {
     item.addClass('divider')
-    $('<a>[修改]</a>').appendTo(action).click(function () {
+    $('<a>[属性]</a>').appendTo(action).click(function () {
       let call = function (nv) {
         item.find('.dd-handle span').text(nv || '分栏')
       }
@@ -166,7 +166,7 @@ class DlgEditField extends React.Component {
     return (
       <form>
         <div className="form-group">
-          <label>修改填写提示</label>
+          <label>填写提示</label>
           <input type="text" className="form-control form-control-sm" ref={(c) => this._value = c} placeholder="输入填写提示" />
         </div>
         <div className="form-group mb-1">
@@ -202,7 +202,7 @@ class DlgEditDivider extends DlgEditField {
     return (
       <form>
         <div className="form-group">
-          <label>修改分栏名称</label>
+          <label>分栏名称</label>
           <input type="text" className="form-control form-control-sm" ref={(c) => this._value = c} placeholder="输入分栏线名称" />
         </div>
         <div className="form-group mb-1">

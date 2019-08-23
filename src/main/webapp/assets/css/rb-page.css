@@ -94,6 +94,20 @@ html.admin .admin-show.row {
     text-decoration: underline;
 }
 
+.badge.text-id {
+    font-weight: normal;
+    color: #777;
+}
+
+a.badge.text-id {
+    color: #4285f4;
+    cursor: pointer;
+}
+
+a.badge.text-id:hover {
+    border-color: #4285f4;
+}
+
 .btn {
     min-height: 2.8rem;
     min-width: 98px;
@@ -699,32 +713,32 @@ a {
     padding-top: 12px;
 }
 
-.col-form-label>i.req {
+.col-form-label.required::after {
+    content: '';
+    position: absolute;
+    display: inline-block;
     background-color: #ea4335;
     width: 3px;
     height: 12px;
-    display: inline-block;
-    position: absolute;
-    margin-left: 4px;
-}
-
-.col-form-label>i.zmdi {
-    position: absolute;
-    font-size: 15px;
-    color: #999;
-    cursor: help;
-    margin-left: 10px;
-    margin-top: -1px;
-    z-index: 99;
-}
-
-.col-form-label>i.zmdi:hover {
-    color: #222;
+    margin-left: 6px;
 }
 
 .form-text {
     color: #878787;
+    line-height: 1.41;
     margin-top: 6px;
+    margin-bottom: -5px;
+    cursor: default;
+}
+
+.rbform .type-IMAGE .form-text,
+.rbform .type-FILE .form-text {
+    margin-top: -2px;
+    margin-bottom: 4px;
+}
+
+.rbform .type-FILE .form-text {
+    margin-bottom: 0;
 }
 
 .rbhighbar {
@@ -761,7 +775,7 @@ a {
     z-index: 1052;
 }
 
-/* for DataList page */
+/* DataList */
 
 .rb-datatable-body,
 .rb-datatable-body .rb-scroller,
@@ -886,7 +900,6 @@ i.split.ui-draggable-dragging {
     max-width: 300px;
     white-space: nowrap;
 }
-
 
 .data-list .table td,
 .data-list .table td>div.nmw {
@@ -1184,34 +1197,6 @@ i.split.ui-draggable-dragging {
     margin-top: -11px;
 }
 
-.rbview-form .form-group.row {
-    padding: 3px 0;
-}
-
-.rbview-form .img-field .img-thumbnail:hover,
-.rbview-form .file-field .img-thumbnail:hover {
-    opacity: 0.8;
-}
-
-.rbview-form .file-field .img-thumbnail {
-    width: 100%;
-    margin: 0;
-}
-
-.rbview-form .form-control-plaintext:hover {
-    background-color: #f8f8f8;
-    background-color: #fff;
-}
-
-.rbview-form .type-NTEXT .form-control-plaintext {
-    max-height: 70px;
-    position: relative;
-}
-
-.rbview-form .col-form-label em {
-    display: none;
-}
-
 .main-content .card.card-table {
     margin-bottom: 0;
 }
@@ -1500,24 +1485,6 @@ i.split.ui-draggable-dragging {
     margin-bottom: -5px;
     padding-top: 20px;
 }
-
-/* height = 34px 
-.adv-filter .select2-container--default .select2-selection--single, .adv-filter .select2-container--default .select2-selection--multiple {
-    min-height: 34px;
-}
-.adv-filter .select2-container--default .select2-selection--single .select2-selection__rendered, .adv-filter .select2-container--default .select2-selection--multiple .select2-selection__rendered {
-    line-height: 34px;
-    padding: 0 8px;
-}
-.adv-filter .select2-container--default .select2-selection--single .select2-selection__arrow {
-    height: 34px;
-    top: -1px;
-}
-.adv-filter .form-control-sm {
-    height: 34px !important;
-    padding: 3px 8px;
-}
-*/
 
 .adv-filter .equation-state {
     position: relative;
@@ -2220,4 +2187,27 @@ form {
     position: absolute;
     top: 0;
     right: 0
+}
+
+
+.select2-sm .select2-container--default .select2-selection--single,
+.select2-sm .select2-container--default .select2-selection--multiple {
+    min-height: 36px;
+}
+
+.select2-sm .select2-container--default .select2-selection--single .select2-selection__rendered,
+.select2-sm .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+    line-height: 35px;
+    padding: 0 12px;
+}
+
+.select2-sm .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 36px;
+    top: 1px;
+}
+
+.select2-sm .form-control-sm {
+    height: 36px !important;
+    line-height: 30px;
+    padding: 3px 12px;
 }

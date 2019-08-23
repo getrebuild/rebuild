@@ -21,7 +21,8 @@ package com.rebuild.server.business.trigger;
 import com.rebuild.server.service.OperatingContext;
 
 /**
- * 触发动作/操作定义
+ * 触发动作/操作定义。
+ * 注意：如果是异步处理将没有事物，同时会丢失一些线程量
  * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/23

@@ -306,10 +306,11 @@ class RbFormElement extends React.Component {
       if (props.isFull === true) colWidths = [2, 10]
     }
     return (
-      <div className={'form-group row type-' + props.type}>
-        <label ref={(c) => this._label = c} className={'col-12 col-form-label text-sm-right col-sm-' + colWidths[0]}>{props.label}{!props.onView && !props.nullable && <i className="req" />}{!props.onView && props.tip && <i title={props.tip} className="zmdi zmdi-info-outline" />}</label>
+      <div className={`form-group row type-${props.type}`}>
+        <label ref={(c) => this._label = c} className={`col-12 col-form-label text-sm-right col-sm-${colWidths[0]} ${!props.onView && !props.nullable && 'required'}`}>{props.label}</label>
         <div className={'col-12 col-sm-' + colWidths[1]}>
-          {this.state.viewMode === true ? this.renderViewElement() : this.renderElement()}
+          {this.state.viewMode ? this.renderViewElement() : this.renderElement()}
+          {!props.onView && props.tip && <p className="form-text">{props.tip}</p>}
         </div>
       </div>
     )
@@ -482,6 +483,14 @@ class RbFormTextarea extends RbFormElement {
   }
   renderElement() {
     return (<textarea ref="field-value" className={'form-control form-control-sm row3x ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} value={this.state.value || ''} onChange={this.handleChange} onBlur={this.checkValue} />)
+  }
+  renderViewElement() {
+    if (!this.state.value) return super.renderViewElement()
+    return <div className="form-control-plaintext">
+      {this.state.value.split('\n').map((line, idx) => {
+        return <p key={'kl-' + idx}>{line}</p>
+      })}
+    </div>
   }
 }
 

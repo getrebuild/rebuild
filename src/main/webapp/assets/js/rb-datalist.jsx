@@ -41,13 +41,15 @@ class RbList extends React.Component {
               <table className="table table-hover table-striped">
                 <thead>
                   <tr>
-                    <th className="column-checkbox">
+                    {this.props.uncheckbox !== true && <th className="column-checkbox">
                       <div><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={this.state.checkedAll} onClick={this.toggleAllRow} /><span className="custom-control-label"></span></label></div>
-                    </th>
+                    </th>}
                     {this.state.fields.map((item) => {
                       let cWidth = (item.width || that.__defaultColumnWidth)
                       let styles = { width: cWidth + 'px' }
-                      return (<th key={'column-' + item.field} style={styles} className="sortable unselect" onClick={this.sortField.bind(this, item.field)} data-field={item.field}>
+                      let clazz = 'unselect' + (item.unsort ? '' : ' sortable')
+                      let click = item.unsort ? function () { } : this.sortField.bind(this, item.field)
+                      return (<th key={'column-' + item.field} style={styles} className={clazz} onClick={click} data-field={item.field}>
                         <div style={styles}><span style={{ width: (cWidth - 8) + 'px' }}>{item.label}</span><i className={'zmdi ' + (item.sort || '')} /><i className="split" /></div>
                       </th>)
                     })}
@@ -59,9 +61,9 @@ class RbList extends React.Component {
                     let lastGhost = item[lastIndex]
                     let rowKey = 'row-' + lastGhost[0]
                     return (<tr key={rowKey} className={lastGhost[3] ? 'table-active' : ''} onClick={this.clickRow.bind(this, index, false)}>
-                      <td key={rowKey + '-checkbox'} className="column-checkbox">
+                      {this.props.uncheckbox !== true && <td key={rowKey + '-checkbox'} className="column-checkbox">
                         <div><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={lastGhost[3]} onClick={this.clickRow.bind(this, index, true)} /><span className="custom-control-label"></span></label></div>
-                      </td>
+                      </td>}
                       {item.map((cell, index) => {
                         return that.renderCell(cell, index, lastGhost)
                       })}
@@ -83,7 +85,10 @@ class RbList extends React.Component {
 
     let that = this
     scroller.find('th .split').draggable({
-      containment: '.rb-datatable-body', axis: 'x', helper: 'clone', stop: function (event, ui) {
+      containment: '.rb-datatable-body',
+      axis: 'x',
+      helper: 'clone',
+      stop: function (event, ui) {
         let field = $(event.target).parents('th').data('field')
         let left = ui.position.left - 2
         if (left < COLUMN_MIN_WIDTH) left = COLUMN_MIN_WIDTH
@@ -95,7 +100,7 @@ class RbList extends React.Component {
             break
           }
         }
-        that.setState({ fields: fields })
+        that.setState({ fields: fields }, () => scroller.perfectScrollbar('update'))
       }
     })
     this.fetchList()
@@ -171,9 +176,7 @@ class RbList extends React.Component {
     if (!field) return null
 
     const cellKey = 'row-' + lastGhost[0] + '-' + index
-    if (!cellVal) {
-      return <td key={cellKey}><div></div></td>
-    } else if (cellVal === '$NOPRIVILEGES$') {
+    if (cellVal === '$NOPRIVILEGES$') {
       return <td key={cellKey}><div className="column-nopriv" title="你无权读取此项数据">[无权限]</div></td>
     } else {
       let w = this.state.fields[index].width || this.__defaultColumnWidth
@@ -295,9 +298,8 @@ var CellRenders = {
   },
   render(value, type, width, key) {
     let style = { width: (width || COLUMN_MIN_WIDTH) + 'px' }
-    let func = this.__renders[type]
-    if (func) return func(value, style, key)
-    else return this.renderSimple(value, style, key)
+    if (!value) return this.renderSimple(value, style, key)
+    else return (this.__renders[type] || this.renderSimple)(value, style, key)
   },
   /**
    * @param {*} v 值
@@ -305,7 +307,7 @@ var CellRenders = {
    * @param {*} k key of React (contains fieldName)
    */
   renderSimple(v, s, k) {
-    return <td key={k}><div style={s}>{v}</div></td>
+    return <td key={k}><div style={s}>{v || ''}</div></td>
   }
 }
 CellRenders.addRender('$NAME$', function (v, s, k) {

@@ -29,6 +29,7 @@ public enum ConfigurableItem {
 	// 通用
 	AppName("REBUILD"), LOGO, LOGOWhite,
 	HomeURL("https://nightly.getrebuild.com/"), OpenSignUp(false),
+    SN,
 	
 	// 数据目录
 	DataDirectory,
@@ -52,7 +53,10 @@ public enum ConfigurableItem {
 	EnableRecentlyUsed(true),
 
 	// 登录背景图
-	LiveWallpaper(true)
+	LiveWallpaper(true),
+
+	// 回收站数据保留天数（0为禁用回收站）
+	RecycleBinKeepingDays(30),
 
 	;
 	

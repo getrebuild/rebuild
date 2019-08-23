@@ -72,6 +72,19 @@ public class MetadataHelper {
 	}
 
 	/**
+	 * @param entityCode
+	 * @return
+	 */
+	public static boolean containsEntity(int entityCode) {
+		try {
+			getEntity(entityCode);
+			return true;
+		} catch (MetadataException ex) {
+			return false;
+		}
+	}
+
+	/**
 	 * @param entityName
 	 * @param fieldName
 	 * @return
@@ -183,6 +196,7 @@ public class MetadataHelper {
 	 * @param fieldName
 	 * @return
 	 */
+	@SuppressWarnings("deprecation")
 	public static boolean isSystemField(String fieldName) {
 		return EntityHelper.AutoId.equalsIgnoreCase(fieldName)
 				|| EntityHelper.QuickCode.equalsIgnoreCase(fieldName)

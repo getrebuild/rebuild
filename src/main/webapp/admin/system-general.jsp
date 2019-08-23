@@ -70,15 +70,16 @@
 			</div>
 			<div class="col-lg-3 col-12">
 				<div class="card">
-					<div class="card-header card-header-divider">关于 REBUILD</div>
+					<div class="card-header card-header-divider">关于</div>
 					<div class="card-body">
-						<p>版本 <a class="link" target="_blank" href="https://github.com/getrebuild/rebuild/releases"><%=Application.VER%></a></p>
+						<p class="mb-1">版本 <a class="link" target="_blank" href="https://getrebuild.com/download?cv=<%=Application.VER%>"><%=Application.VER%></a></p>
+						<p class="mb-2">授权 <a class="link" target="_blank" href="https://getrebuild.com/authority?sn=${SN}">开源社区版 (非商业用途)</a></p>
 						<ul style="line-height:2">
 							<li><a class="link" target="_blank" href="${baseUrl}/gw/server-status">系统状态</a></li>
 							<li><a class="link" target="_blank" href="https://getrebuild.com/docs/">帮助文档</a></li>
-							<li><a class="link" target="_blank" href="mailto:getrebuild@sina.com?subject=技术支持">技术支持</a></li>
+							<li><a class="link" target="_blank" href="https://getrebuild.com/contact?sn=${SN}#tech-supports">技术支持</a></li>
 						</ul>
-						<div class="text-muted"><i class="zmdi zmdi-info-outline"></i> 本软件系统使用 <a class="link" href="http://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GPL-3.0</a> 许可。请遵循许可协议。</div>
+						<div class="text-muted"><i class="zmdi zmdi-info-outline"></i> REBUILD 使用 GPL3.0 与 <a class="link" href="https://getrebuild.com#pricing-plans" target="_blank">商业授权</a> 双重许可，请遵循许可协议。</div>
 					</div>
 				</div>
 			</div>

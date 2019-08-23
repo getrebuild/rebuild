@@ -18,19 +18,19 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.series;
 
-import java.util.Calendar;
-
+import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entity.DisplayType;
+import com.rebuild.server.metadata.entity.EasyMeta;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entity.DisplayType;
-import com.rebuild.server.metadata.entity.EasyMeta;
-
-import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
+import java.util.Calendar;
 
 /**
  * 数字系列归零。每日 00:00 执行
@@ -40,8 +40,12 @@ import cn.devezhao.persist4j.Field;
  */
 public class SeriesZeroResetJob extends QuartzJobBean {
 
+	private static final Log LOG = LogFactory.getLog(SeriesZeroResetJob.class);
+
 	@Override
 	protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
+		LOG.info("SeriesZeroResetJob running ...");
+
 		boolean isFirstDayOfYear = false;
 		boolean isFirstDayOfMonth = false;
 		final Calendar now = CalendarUtils.getInstance();
@@ -59,10 +63,13 @@ public class SeriesZeroResetJob extends QuartzJobBean {
 					String zeroFlag = easy.getFieldExtConfig().getString("seriesZero");
 					if ("D".equalsIgnoreCase(zeroFlag)) {
 						SeriesGeneratorFactory.zero(field);
+						LOG.info("Zero field by [D] : " + field);
 					} else if ("M".equalsIgnoreCase(zeroFlag) && isFirstDayOfMonth) {
 						SeriesGeneratorFactory.zero(field);
+						LOG.info("Zero field by [M] : " + field);
 					} else if ("Y".equalsIgnoreCase(zeroFlag) && isFirstDayOfYear) {
 						SeriesGeneratorFactory.zero(field);
+						LOG.info("Zero field by [Y] : " + field);
 					}
 				}
 			}

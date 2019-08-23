@@ -56,7 +56,6 @@ $(function () {
     $setTimeout(resize_handler, 100, 'resize-window')
   })
 })
-// Trigger on Ctrl+Alt+X
 // @t - trigger times
 var command_exec = function (t) {}
 // Trigger on window.onresize

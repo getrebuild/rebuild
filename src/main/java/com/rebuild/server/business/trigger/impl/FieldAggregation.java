@@ -54,11 +54,11 @@ public class FieldAggregation implements TriggerAction {
 	// 如触发器 A 调用 B，而 B 又调用了 C ... 以此类推。此处记录其深度
 	private static final ThreadLocal<Integer> CALL_CHAIN_DEPTH = new ThreadLocal<Integer>();
 	// 最大调用深度
-	private static final int MAX_DEPTH = 3;
+	private static final int MAX_DEPTH = 5;
 	
 	// 当前操作用户可能对目标实体/记录无更新权限
-	// 允许无权限更新目标实体
-	private static final boolean ALLOW_NOPRIVILEGES_UPDATE = false;
+	// 此处标识是否允许无权限更新目标实体
+	private static final boolean ALLOW_NOPERMISSION_UPDATE = true;
 	
 	final private ActionContext context;
 	
@@ -98,7 +98,7 @@ public class FieldAggregation implements TriggerAction {
 		}
 		
 		// 如果当前用户对目标记录无修改权限
-		if (!ALLOW_NOPRIVILEGES_UPDATE) {
+		if (!ALLOW_NOPERMISSION_UPDATE) {
 			if (!Application.getSecurityManager().allowed(
 					operatingContext.getOperator(), targetRecordId, BizzPermission.UPDATE)) {
 				LOG.warn("No privileges to update record of target: " + this.targetRecordId);
@@ -141,8 +141,9 @@ public class FieldAggregation implements TriggerAction {
 		}
 		
 		if (targetRecord.getAvailableFieldIterator().hasNext()) {
-			if (ALLOW_NOPRIVILEGES_UPDATE) {
+			if (ALLOW_NOPERMISSION_UPDATE) {
 				PrivilegesGuardInterceptor.setNoPrivilegesUpdateOnce(targetRecordId);
+				LOG.warn("Allow no permission updates : " + targetRecordId);
 			}
 			Application.getEntityService(targetEntity.getEntityCode()).update(targetRecord);
 			CALL_CHAIN_DEPTH.set(depth + 1);

@@ -136,6 +136,7 @@ public class EntityHelper {
 	
 	public static final String AutoId = "autoId";
 	public static final String QuickCode = "quickCode";
+	@Deprecated
 	public static final String IsDeleted = "isDeleted";
 	
 	public static final String ApprovalId = "approvalId";
@@ -174,5 +175,8 @@ public class EntityHelper {
 	public static final int RebuildApiRequest = 31;
 
 	public static final int DataReportConfig = 32;
-	
+
+	public static final int RecycleBin = 33;
+	public static final int RevisionHistory = 34;
+
 }
