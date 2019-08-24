@@ -72,6 +72,8 @@ $(document).ready(function () {
     })
   } else if (dt === 'SERIES') {
     $('#defaultValue').parents('.form-group').remove()
+    if (extConfigOld.seriesFormat) $('#seriesFormat').val(extConfigOld.seriesFormat)
+    if (extConfigOld.seriesZero) $('#seriesZero').val(extConfigOld.seriesZero)
   } else if (dt === 'DATE' || dt === 'DATETIME') {
     $('#defaultValue').datetimepicker({
       componentIcon: 'zmdi zmdi-calendar',
