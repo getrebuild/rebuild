@@ -142,7 +142,6 @@ public class FieldAggregation implements TriggerAction {
 		if (targetRecord.getAvailableFieldIterator().hasNext()) {
 			if (allowNoPermissionUpdate) {
 				PrivilegesGuardInterceptor.setNoPermissionPassOnce(targetRecordId);
-				LOG.warn("Allow no permission updates : " + targetRecordId);
 			}
 
 			Application.getEntityService(targetEntity.getEntityCode()).update(targetRecord);

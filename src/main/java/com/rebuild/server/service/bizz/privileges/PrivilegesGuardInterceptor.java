@@ -140,6 +140,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		if (!isAllowed && IN_NOPERMISSION_PASS.get() != null) {
 			isAllowed = true;
 			IN_NOPERMISSION_PASS.remove();
+			LOG.warn("Allow no permission passed : " + recordId);
 		}
 
 		if (!isAllowed) {
