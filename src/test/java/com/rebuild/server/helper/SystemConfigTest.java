@@ -31,7 +31,7 @@ public class SystemConfigTest extends TestSupport {
 	@Test
 	public void testKnowConfig() throws Exception {
 		for (ConfigurableItem item : ConfigurableItem.values()) {
-			String v = SysConfiguration.get(item, null);
+			String v = SysConfiguration.get(item);
 			System.out.println(item + " = " + v);
 		}
 	}

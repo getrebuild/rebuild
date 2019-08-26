@@ -77,13 +77,13 @@ public class RobotTriggerManager implements ConfigManager<Entity> {
 			if (allowedWhen(e, when)) {
 				if (record == null
 						|| !isFiltered((JSONObject) e.getJSON("whenFilter"), record)) {
-					ActionContext ctx = new ActionContext(record, entity, e.getJSON("actionContent"));
+					ActionContext ctx = new ActionContext(record, entity, e.getJSON("actionContent"), e.getID("id"));
 					TriggerAction o = ActionFactory.createAction(e.getString("actionType"), ctx);
 					actions.add(o);
 				}
 			}
 		}
-		return actions.toArray(new TriggerAction[actions.size()]);
+		return actions.toArray(new TriggerAction[0]);
 	}
 	
 	/**
@@ -141,18 +141,19 @@ public class RobotTriggerManager implements ConfigManager<Entity> {
 		}
 		
 		Object[][] array = Application.createQueryNoFilter(
-				"select when,whenFilter,actionType,actionContent from RobotTriggerConfig" +
+				"select when,whenFilter,actionType,actionContent,configId from RobotTriggerConfig" +
 						" where belongEntity = ? and when > 0 and isDisabled = 'F' order by priority desc")
 				.setParameter(1, entity.getName())
 				.array();
 		
-		ArrayList<ConfigEntry> entries = new ArrayList<ConfigEntry>();
+		ArrayList<ConfigEntry> entries = new ArrayList<>();
 		for (Object[] o : array) {
 			ConfigEntry entry = new ConfigEntry()
 					.set("when", o[0])
 					.set("whenFilter", JSON.parseObject((String) o[1]))
 					.set("actionType", o[2])
-					.set("actionContent", JSON.parseObject((String) o[3]));
+					.set("actionContent", JSON.parseObject((String) o[3]))
+					.set("id", o[4]);
 			entries.add(entry);
 		}
 		

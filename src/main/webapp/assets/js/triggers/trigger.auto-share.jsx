@@ -18,7 +18,7 @@ class ContentAutoShare extends ActionContentSpec {
         </div>
         <div className="form-group row pb-1">
           <label className="col-12 col-lg-3 col-form-label text-lg-right">同时共享关联记录</label>
-          <div className="col-12 col-lg-8 pt-1">
+          <div className="col-12 col-lg-8">
             <div>
               <select className="form-control form-control-sm" ref={(c) => this._cascades = c}>
                 {(this.state.cascadesEntity || []).map((item) => {
