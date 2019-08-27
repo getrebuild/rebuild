@@ -201,7 +201,7 @@ public class GeneralEntityService extends ObservableService  {
 	@Override
 	public int assign(ID record, ID to, String[] cascades) {
 		final User toUser = Application.getUserStore().getUser(to);
-		final Record assignAfter = EntityHelper.forUpdate(record, (ID) toUser.getIdentity());
+		final Record assignAfter = EntityHelper.forUpdate(record, (ID) toUser.getIdentity(), false);
 		assignAfter.setID(EntityHelper.OwningUser, (ID) toUser.getIdentity());
 		assignAfter.setID(EntityHelper.OwningDept, (ID) toUser.getOwningDept().getIdentity());
 		
