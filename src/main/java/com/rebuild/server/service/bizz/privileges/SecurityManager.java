@@ -331,7 +331,7 @@ public class SecurityManager {
 		
 		com.rebuild.server.service.bizz.privileges.User accessUser = theUserStore.getUser(user);
 		com.rebuild.server.service.bizz.privileges.User targetUser = theUserStore.getUser(targetUserId);
-		Department accessUserDept = (Department) accessUser.getOwningDept();
+		Department accessUserDept = accessUser.getOwningDept();
 		
 		if (BizzDepthEntry.LOCAL.equals(depth)) {
 			allowed = accessUserDept.equals(targetUser.getOwningDept());
@@ -346,7 +346,7 @@ public class SecurityManager {
 				return true;
 			}
 			
-			allowed = accessUserDept.isChildrenAll((Department) targetUser.getOwningDept());
+			allowed = accessUserDept.isChildrenAll(targetUser.getOwningDept());
 			if (!allowed) {
 				return allowedViaShare(user, target, action);
 			}
@@ -357,14 +357,14 @@ public class SecurityManager {
 	}
 	
 	/**
-	 * 通过共享取得的操作权限
+	 * 通过共享取得的操作权限（目前只共享了读取权限）
 	 * 
 	 * @param user
 	 * @param target
 	 * @param action
 	 * @return
 	 */
-	private boolean allowedViaShare(ID user, ID target, Permission action) {
+	public boolean allowedViaShare(ID user, ID target, Permission action) {
 		
 		// TODO 目前只共享了读取权限
 		// TODO 性能优化-缓存
@@ -372,7 +372,7 @@ public class SecurityManager {
 		if (action != BizzPermission.READ) {
 			return false;
 		}
-		
+
 		Entity entity = MetadataHelper.getEntity(target.getEntityCode());
 		if (entity.getMasterEntity() != null) {
 			ID masterId = getMasterRecordId(target);

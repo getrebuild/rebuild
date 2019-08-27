@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.business.recyclebin;
 
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.service.bizz.UserService;
 import org.junit.Test;
@@ -31,17 +32,23 @@ public class RecycleStoreTest extends TestSupport {
 
     @Test
     public void store() {
-        ID test1 = addRecordOfTestAllFields();
-        ID test2 = addRecordOfTestAllFields();
+        try {
+            Application.getSessionStore().set(UserService.ADMIN_USER);
 
-        RecycleStore recycleStore = new RecycleStore(UserService.ADMIN_USER);
-        recycleStore.add(test1);
-        recycleStore.add(test2);
-        recycleStore.removeLast();
+            ID test1 = addRecordOfTestAllFields();
+            ID test2 = addRecordOfTestAllFields();
 
-        recycleStore.add(test2, test1);
+            RecycleStore recycleStore = new RecycleStore(UserService.ADMIN_USER);
+            recycleStore.add(test1);
+            recycleStore.add(test2);
+            recycleStore.removeLast();
 
-        int s = recycleStore.store();
-        System.out.println(s);
+            recycleStore.add(test2, test1);
+
+            int s = recycleStore.store();
+            System.out.println(s);
+        } finally {
+            Application.getSessionStore().clean();
+        }
     }
 }

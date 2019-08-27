@@ -20,7 +20,9 @@ package com.rebuild.server.business.recyclebin;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
+import com.rebuild.server.service.bizz.UserService;
 import org.junit.Test;
 
 /**
@@ -31,8 +33,14 @@ public class RecycleBeanTest extends TestSupport {
 
     @Test
     public void serialize() {
-        ID test = addRecordOfTestAllFields();
-        JSON s = new RecycleBean(test).serialize();
-        System.out.println(s);
+        try {
+            Application.getSessionStore().set(UserService.ADMIN_USER);
+
+            ID test = addRecordOfTestAllFields();
+            JSON s = new RecycleBean(test).serialize();
+            System.out.println(s);
+        } finally {
+            Application.getSessionStore().clean();
+        }
     }
 }

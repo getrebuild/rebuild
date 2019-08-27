@@ -33,18 +33,20 @@ public class RecycleRestoreTest extends TestSupport {
 
     @Test
     public void restore() {
-        final ID test = addRecordOfTestAllFields();
-
-        Application.getSessionStore().set(UserService.ADMIN_USER);
+        ID testId = null;
         try {
-            Application.getGeneralEntityService().delete(test);
+            Application.getSessionStore().set(UserService.ADMIN_USER);
+
+            testId = addRecordOfTestAllFields();
+            Application.getGeneralEntityService().delete(testId);
+
         } finally {
             Application.getSessionStore().clean();
         }
 
         Object[] recycle = Application.createQueryNoFilter(
                 "select recycleId from RecycleBin where recordId = ?")
-                .setParameter(1, test)
+                .setParameter(1, testId)
                 .unique();
         Assert.assertTrue(recycle != null);
 
