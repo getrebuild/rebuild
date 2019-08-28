@@ -207,9 +207,9 @@ class AdvFilter extends React.Component {
   }
 }
 
-const OP_TYPE = { LK: '包含', NLK: '不包含', IN: '包含', NIN: '不包含', EQ: '等于', NEQ: '不等于', GT: '大于', LT: '小于', BW: '区间', NL: '为空', NT: '不为空', BFD: '...天前', BFM: '...月前', AFD: '...天后', AFM: '...月后', RED: '最近...天', REM: '最近...月', SFU: '本人', SFB: '本部门', SFD: '本部门及子部门' }
+const OP_TYPE = { LK: '包含', NLK: '不包含', IN: '包含', NIN: '不包含', EQ: '等于', NEQ: '不等于', GT: '大于', LT: '小于', BW: '区间', NL: '为空', NT: '不为空', BFD: '...天前', BFM: '...月前', AFD: '...天后', AFM: '...月后', RED: '最近...天', REM: '最近...月', SFU: '本人', SFB: '本部门', SFD: '本部门及子部门', YTA:'昨天', TDA:'今天', TTA:'明天' }
 const OP_DATE_NOPICKER = ['BFD', 'BFM', 'AFD', 'AFM', 'RED', 'REM']
-const OP_NOVALUE = ['NL', 'NT', 'SFU', 'SFB', 'SFD']
+const OP_NOVALUE = ['NL', 'NT', 'SFU', 'SFB', 'SFD', 'YTA', 'TDA', 'TTA']
 const PICKLIST_CACHE = {}
 const REFMETA_CACHE = {}
 const INPUTVALS_HOLD = {}  // 输入值保持
@@ -259,7 +259,7 @@ class FilterItem extends React.Component {
     if (fieldType === 'NUMBER' || fieldType === 'DECIMAL') {
       op = ['GT', 'LT', 'BW', 'EQ']
     } else if (fieldType === 'DATE' || fieldType === 'DATETIME') {
-      op = ['GT', 'LT', 'BW', 'RED', 'REM', 'BFD', 'BFM', 'AFD', 'AFM']
+      op = ['YTA', 'TDA', 'TTA', 'GT', 'LT', 'BW', 'RED', 'REM', 'BFD', 'BFM', 'AFD', 'AFM']
     } else if (fieldType === 'FILE' || fieldType === 'IMAGE') {
       op = []
     } else if (fieldType === 'PICKLIST') {

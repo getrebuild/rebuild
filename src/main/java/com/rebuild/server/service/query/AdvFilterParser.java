@@ -18,19 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.query;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.dialect.Type;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -42,12 +34,20 @@ import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.privileges.Department;
 import com.rebuild.web.IllegalParameterException;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.dialect.FieldType;
-import cn.devezhao.persist4j.dialect.Type;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static cn.devezhao.commons.DateFormatUtils.getUTCDateFormat;
 
 /**
  * 高级查询解析器
@@ -58,6 +58,9 @@ import cn.devezhao.persist4j.dialect.Type;
 public class AdvFilterParser {
 	
 	private static final Log LOG = LogFactory.getLog(AdvFilterParser.class);
+
+	private static final String ZERO_TIME = " 00:00:00";
+    private static final String FULL_TIME = " 23:59:59";
 	
 	private JSONObject filterExp;
 	private Entity rootEntity;
@@ -120,38 +123,37 @@ public class AdvFilterParser {
 			return "( " + StringUtils.join(indexItemSqls.values(), " and ") + " )";
 		} else {
 			// 高级表达式 eg. (1 AND 2) or (3 AND 4)
-			String tokens[] = equation.toLowerCase().split(" ");
+            String[] tokens = equation.toLowerCase().split(" ");
 			List<String> itemSqls = new ArrayList<>();
-			for (int i = 0; i < tokens.length; i++) {
-				String token = tokens[i];
-				if (StringUtils.isBlank(token)) {
-					continue;
-				}
-				
-				boolean hasRP = false;  // the `)`
-				if (token.length() > 1) {
-					if (token.startsWith("(")) {
-						itemSqls.add("(");
-						token = token.substring(1);
-					} else if (token.endsWith(")")) {
-						hasRP = true;
-						token = token.substring(0, token.length() - 1);
-					}
-				}
-				
-				if (NumberUtils.isDigits(token)) {
-					String itemSql = StringUtils.defaultIfBlank(indexItemSqls.get(Integer.valueOf(token)), "(9=9)");
-					itemSqls.add(itemSql);
-				} else if (token.equals("(") || token.equals(")") || token.equals("or") || token.equals("and")) {
-					itemSqls.add(token);
-				} else {
-					LOG.warn("Invalid equation token : " + token);
-				}
-				
-				if (hasRP) {
-					itemSqls.add(")");
-				}
-			}
+            for (String token : tokens) {
+                if (StringUtils.isBlank(token)) {
+                    continue;
+                }
+
+                boolean hasRP = false;  // the `)`
+                if (token.length() > 1) {
+                    if (token.startsWith("(")) {
+                        itemSqls.add("(");
+                        token = token.substring(1);
+                    } else if (token.endsWith(")")) {
+                        hasRP = true;
+                        token = token.substring(0, token.length() - 1);
+                    }
+                }
+
+                if (NumberUtils.isDigits(token)) {
+                    String itemSql = StringUtils.defaultIfBlank(indexItemSqls.get(Integer.valueOf(token)), "(9=9)");
+                    itemSqls.add(itemSql);
+                } else if (token.equals("(") || token.equals(")") || token.equals("or") || token.equals("and")) {
+                    itemSqls.add(token);
+                } else {
+                    LOG.warn("Invalid equation token : " + token);
+                }
+
+                if (hasRP) {
+                    itemSqls.add(")");
+                }
+            }
 			return "( " + StringUtils.join(itemSqls, " ") + " )";
 		}
 	}
@@ -194,7 +196,7 @@ public class AdvFilterParser {
 		
 		final String op = item.getString("op");
 		
-		StringBuffer sb = new StringBuffer(field)
+		StringBuilder sb = new StringBuilder(field)
 				.append(' ')
 				.append(convOp(op))
 				.append(' ');
@@ -203,23 +205,35 @@ public class AdvFilterParser {
 		}
 		
 		String value = item.getString("value");
+        String valueEnd = null;
 		
 		// TODO 自定义函数
-		String zeroTime = " 00:00:00";
-		String fullTime = " 23:59:59";
+
 		if ("BFD".equalsIgnoreCase(op)) {
-			value = CalendarUtils.getUTCDateFormat().format(CalendarUtils.addDay(-NumberUtils.toInt(value))) + fullTime;
+			value = getUTCDateFormat().format(CalendarUtils.addDay(-NumberUtils.toInt(value))) + FULL_TIME;
 		} else if ("AFD".equalsIgnoreCase(op)) {
-			value = CalendarUtils.getUTCDateFormat().format(CalendarUtils.addDay(NumberUtils.toInt(value))) + zeroTime;
+			value = getUTCDateFormat().format(CalendarUtils.addDay(NumberUtils.toInt(value))) + ZERO_TIME;
 		} else if ("BFM".equalsIgnoreCase(op)) {
-			value = CalendarUtils.getUTCDateFormat().format(CalendarUtils.addMonth(-NumberUtils.toInt(value))) + fullTime;
+			value = getUTCDateFormat().format(CalendarUtils.addMonth(-NumberUtils.toInt(value))) + FULL_TIME;
 		} else if ("AFM".equalsIgnoreCase(op)) {
-			value = CalendarUtils.getUTCDateFormat().format(CalendarUtils.addMonth(NumberUtils.toInt(value))) + zeroTime;
+			value = getUTCDateFormat().format(CalendarUtils.addMonth(NumberUtils.toInt(value))) + ZERO_TIME;
 		} else if ("RED".equalsIgnoreCase(op)) {
-			value = CalendarUtils.getUTCDateFormat().format(CalendarUtils.addDay(-NumberUtils.toInt(value))) + fullTime;
+			value = getUTCDateFormat().format(CalendarUtils.addDay(-NumberUtils.toInt(value))) + FULL_TIME;
 		} else if ("REM".equalsIgnoreCase(op)) {
-			value = CalendarUtils.getUTCDateFormat().format(CalendarUtils.addMonth(-NumberUtils.toInt(value))) + fullTime;
-		} else if ("SFU".equalsIgnoreCase(op)) {
+			value = getUTCDateFormat().format(CalendarUtils.addMonth(-NumberUtils.toInt(value))) + FULL_TIME;
+		} else if ("YTA".equalsIgnoreCase(op)) {
+            value = getUTCDateFormat().format(CalendarUtils.addDay(-1));
+            valueEnd = value + FULL_TIME;
+            value = value + ZERO_TIME;
+        } else if ("TDA".equalsIgnoreCase(op)) {
+            value = getUTCDateFormat().format(CalendarUtils.now());
+            valueEnd = value + FULL_TIME;
+            value = value + ZERO_TIME;
+        } else if ("TTA".equalsIgnoreCase(op)) {
+            value = getUTCDateFormat().format(CalendarUtils.addDay(1));
+            valueEnd = value + FULL_TIME;
+            value = value + ZERO_TIME;
+        } else if ("SFU".equalsIgnoreCase(op)) {
 			value = Application.getCurrentUser().toLiteral();
 		} else if ("SFB".equalsIgnoreCase(op)) {
 			Department dept = UserHelper.getDepartment(Application.getCurrentUser());
@@ -269,10 +283,10 @@ public class AdvFilterParser {
 		
 		// 区间
 		boolean isBetween = op.equalsIgnoreCase("BW");
-		String value2 = isBetween ? parseValue(item.getString("value2"), op, fieldMeta) : null;
-		if (isBetween && value2 == null) {
-			value2 = value;
-		}
+		valueEnd = isBetween ? parseValue(item.getString("value2"), op, fieldMeta) : valueEnd;
+		if (isBetween && valueEnd == null) {
+			valueEnd = value;
+        }
 		
 		if (op.equalsIgnoreCase("IN") || op.equalsIgnoreCase("NIN") || op.equalsIgnoreCase("SFD")) {
 			sb.append(value);
@@ -284,8 +298,15 @@ public class AdvFilterParser {
 		}
 		
 		if (isBetween) {
-			sb.append(" and ").append(quoteValue(value2, fieldMeta.getType()));
-		}
+			sb.append(" and ").append(quoteValue(valueEnd, fieldMeta.getType()));
+		} else if (valueEnd != null) {
+		    sb.insert(0, '(')
+                    .append(" and ")
+                    .append(field)
+                    .append(" <= ")
+                    .append(quoteValue(valueEnd, fieldMeta.getType()))
+                    .append(')');
+        }
 		return sb.toString();
 	}
 	
@@ -296,7 +317,7 @@ public class AdvFilterParser {
 	 * @return
 	 */
 	private String parseValue(Object val, String op, Field field) {
-		String value = null;
+		String value;
 		// IN
 		if (val instanceof JSONArray) {
 			Set<String> inVals = new HashSet<>();
@@ -375,6 +396,9 @@ public class AdvFilterParser {
 		else if ("SFU".equalsIgnoreCase(op)) return "=";
 		else if ("SFB".equalsIgnoreCase(op)) return "=";
 		else if ("SFD".equalsIgnoreCase(op)) return "in";
+		else if ("YTA".equalsIgnoreCase(op)) return ">=";
+		else if ("TDA".equalsIgnoreCase(op)) return ">=";
+		else if ("TTA".equalsIgnoreCase(op)) return ">=";
 		throw new UnsupportedOperationException("Unsupported token [" + op + "]");
 	}
 	
