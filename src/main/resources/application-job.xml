@@ -34,7 +34,7 @@
 	
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="autoStartup" value="true"/>
-		<property name="startupDelay" value="30000"/>
+		<property name="startupDelay" value="30"/>
 		<property name="configLocation" value="classpath:quartz.properties"/>
 		<property name="triggers">
 			<list>

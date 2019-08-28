@@ -152,6 +152,8 @@ public class TestSupport {
 	}
 
 	/**
+	 * 添加一条测试记录。注意调用前设置线程用户 {@link Application#getSessionStore()}
+	 *
 	 * @return
 	 */
 	protected static ID addRecordOfTestAllFields() {
@@ -159,12 +161,6 @@ public class TestSupport {
 		Entity test = MetadataHelper.getEntity(TEST_ENTITY);
 		Record record = EntityHelper.forNew(test.getEntityCode(), opUser);
 		record.setString("text", "TEXT-" + RandomUtils.nextLong());
-		try {
-			Application.getSessionStore().set(opUser);
-			record = Application.getGeneralEntityService().create(record);
-			return record.getPrimary();
-		} finally {
-			Application.getSessionStore().clean();
-		}
+		return Application.getGeneralEntityService().create(record).getPrimary();
 	}
 }

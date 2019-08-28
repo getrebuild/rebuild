@@ -120,6 +120,6 @@
 window.__PageConfig = { userid: '<%=theUser.getId()%>' }
 </script>
 <script src="${baseUrl}/assets/lib/widget/cropper.min.js"></script>
-<script src="${baseUrl}/assets/js/account-settings.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/user-settings.jsx" type="text/babel"></script>
 </body>
 </html>

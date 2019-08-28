@@ -18,25 +18,22 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.ThrowableUtils;
+import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
+import com.rebuild.server.ServerListener;
+import com.rebuild.utils.AppUtils;
+import com.rebuild.web.admin.AdminEntryControll;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import com.rebuild.server.Application;
-import com.rebuild.server.ServerListener;
-import com.rebuild.utils.AppUtils;
-import com.rebuild.web.admin.AdminEntryControll;
-
-import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.ThrowableUtils;
-import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.persist4j.engine.ID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * Controll 请求拦截
@@ -89,14 +86,17 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 		}
 		return false;
 	}
-	
+
+	/**
+	 * @see RebuildExceptionResolver
+	 */
 	@Override
 	public void afterCompletion(HttpServletRequest request,
 			HttpServletResponse response, Object handler, Exception exception)
 			throws Exception {
 		super.afterCompletion(request, response, handler, exception);
 		
-		ID caller = Application.getSessionStore().get(true);
+		final ID caller = Application.getSessionStore().get(true);
 		if (caller != null) {
 			Application.getSessionStore().clean();
 		}
@@ -108,7 +108,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 			StringBuffer sb = new StringBuffer()
 					.append("\n++ EXECUTE REQUEST ERROR(s) TRACE +++++++++++++++++++++++++++++++++++++++++++++")
 					.append("\nUser      : ").append(caller == null ? "-" : caller)
-					.append("\nHandler   : ").append(request.getRequestURI() + " [ " + handler + " ]")
+					.append("\nHandler   : ").append(request.getRequestURI()).append(" [ ").append(handler).append(" ]")
 					.append("\nIP        : ").append(ServletUtils.getRemoteAddr(request))
 					.append("\nReferer   : ").append(StringUtils.defaultIfEmpty(ServletUtils.getReferer(request), "-"))
 					.append("\nUserAgent : ").append(StringUtils.defaultIfEmpty(request.getHeader("user-agent"), "-"))
@@ -119,7 +119,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	}
 	
 	/**
-	 * 处理时间 LOG
+	 * 打印处理时间
 	 * 
 	 * @param request
 	 */
@@ -139,6 +139,8 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	private static final String TIMEOUT_KEY = "ErrorHandler_TIMEOUT";
 	
 	/**
+	 * 用户验证
+	 *
 	 * @param request
 	 * @param response
 	 * @return
@@ -182,7 +184,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	}
 	
 	/**
-	 * 忽略权限验证
+	 * 是否忽略用户验证
 	 * 
 	 * @param requestUrl
 	 * @return

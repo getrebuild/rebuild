@@ -35,16 +35,19 @@ public class ActionContext {
 	final private ID sourceRecord;
 	final private Entity sourceEntity;
 	final private JSON actionContent;
+	final private ID configId;
 
 	/**
 	 * @param sourceRecord
 	 * @param sourceEntity
 	 * @param actionContent
+	 * @param configId
 	 */
-	public ActionContext(ID sourceRecord, Entity sourceEntity, JSON actionContent) {
+	public ActionContext(ID sourceRecord, Entity sourceEntity, JSON actionContent, ID configId) {
 		this.sourceRecord = sourceRecord;
 		this.sourceEntity = sourceRecord != null ? MetadataHelper.getEntity(sourceRecord.getEntityCode()) : sourceEntity;
 		this.actionContent = actionContent;
+		this.configId = configId;
 	}
 
 	/**
@@ -72,5 +75,14 @@ public class ActionContext {
 	 */
 	public JSON getActionContent() {
 		return actionContent;
+	}
+
+	/**
+	 * 配置 ID
+	 *
+	 * @return
+	 */
+	public ID getConfigId() {
+		return configId;
 	}
 }

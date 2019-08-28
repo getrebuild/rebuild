@@ -18,19 +18,18 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.admin.bizz;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-
+import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
+import com.rebuild.server.configuration.portals.DataListManager;
+import com.rebuild.utils.LocationUtils;
+import com.rebuild.web.BaseEntityControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.alibaba.fastjson.JSON;
-import com.rebuild.server.configuration.portals.DataListManager;
-import com.rebuild.web.BaseEntityControll;
-
-import cn.devezhao.persist4j.engine.ID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * @author devezhao-mac zhaofang123@gmail.com
@@ -48,5 +47,11 @@ public class LoginLogControll extends BaseEntityControll {
 		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
 		return mv;
 	}
-	
+
+	@RequestMapping("ip-location")
+	public void getIpLocation(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String ip = getParameterNotNull(request, "ip");
+		JSON location = LocationUtils.getLocation(ip);
+		writeSuccess(response, location);
+	}
 }

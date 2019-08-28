@@ -18,15 +18,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.bizz.privileges;
 
-import java.lang.reflect.Method;
-import java.security.Guard;
-
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
-
+import cn.devezhao.bizz.privileges.Permission;
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import cn.devezhao.bizz.security.AccessDeniedException;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
@@ -35,14 +33,14 @@ import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.ServiceSpec;
 import com.rebuild.server.service.base.BulkContext;
 import com.rebuild.server.service.bizz.UserHelper;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 
-import cn.devezhao.bizz.privileges.Permission;
-import cn.devezhao.bizz.privileges.impl.BizzPermission;
-import cn.devezhao.bizz.security.AccessDeniedException;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
+import java.lang.reflect.Method;
+import java.security.Guard;
 
 /**
  * 权限验证 - 拦截所有 *Service 方法
@@ -136,16 +134,15 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 			}
 			
 			isAllowed = Application.getSecurityManager().allowed(caller, recordId, action);
-			
-			if (action == BizzPermission.UPDATE && IN_NOPRIVILEGES_UPDATE.get() != null) {
-				// 无权限更新
-				if (!isAllowed && recordId.equals(IN_NOPRIVILEGES_UPDATE.get())) {
-					isAllowed = true;
-				}
-				IN_NOPRIVILEGES_UPDATE.remove();
-			}
 		}
-		
+
+		// 无权限操作
+		if (!isAllowed && IN_NOPERMISSION_PASS.get() != null) {
+			isAllowed = true;
+			IN_NOPERMISSION_PASS.remove();
+			LOG.warn("Allow no permission passed : " + recordId);
+		}
+
 		if (!isAllowed) {
 			LOG.error("User [ " + caller + " ] not allowed execute action [ " + action + " ]. " + (recordId == null ? "Entity : " + entity : "Record : " + recordId));
 		    throw new AccessDeniedException(formatHumanMessage(action, entity, recordId));
@@ -221,14 +218,14 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 	
 	// --
 	
-	private static final ThreadLocal<ID> IN_NOPRIVILEGES_UPDATE = new ThreadLocal<ID>();
+	private static final ThreadLocal<ID> IN_NOPERMISSION_PASS = new ThreadLocal<>();
 	/**
-	 * 允许无权限 UPDATE
-	 * 
+	 * 允许无权限操作一次
+	 *
 	 * @param record
 	 */
-	public static void setNoPrivilegesUpdateOnce(ID record) {
+	public static void setNoPermissionPassOnce(ID record) {
 		Assert.notNull(record, "'record' not be null");
-		IN_NOPRIVILEGES_UPDATE.set(record);
+		IN_NOPERMISSION_PASS.set(record);
 	}
 }

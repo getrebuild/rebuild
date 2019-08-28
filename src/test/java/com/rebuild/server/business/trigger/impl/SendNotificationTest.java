@@ -16,12 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.trigger;
+package com.rebuild.server.business.trigger.impl;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Record;
 import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.business.trigger.ActionType;
@@ -31,9 +29,9 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.configuration.RobotTriggerConfigService;
+import org.junit.Test;
 
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Record;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author devezhao-mbp zhaofang123@gmail.com

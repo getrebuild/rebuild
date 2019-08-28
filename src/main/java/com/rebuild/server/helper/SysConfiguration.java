@@ -21,6 +21,7 @@ package com.rebuild.server.helper;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
+import com.rebuild.server.RebuildException;
 import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserService;
@@ -30,10 +31,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.ResourceUtils;
 
 import java.io.File;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,7 +82,9 @@ public class SysConfiguration {
 	public static File getFileOfTemp(String file) {
 		File tFile = getFileOfData("rb-temp");
 		if (!tFile.exists()) {
-			tFile.mkdirs();
+			if (!tFile.mkdirs()) {
+				throw new RebuildException("Couldn't mkdirs : " + tFile);
+			}
 		}
 		return new File(tFile, file);
 	}
@@ -93,11 +96,9 @@ public class SysConfiguration {
 	 * @return
 	 */
 	public static File getFileOfRes(String file) {
-		URL fileUrl = SysConfiguration.class.getClassLoader().getResource(file);
 		try {
-			File resFile = new File(fileUrl.toURI());
-			return resFile;
-		} catch (URISyntaxException e) {
+			return ResourceUtils.getFile("classpath:" + file);
+		} catch (FileNotFoundException e) {
 			throw new IllegalArgumentException("Bad file path or name : " + file);
 		}
 	}
@@ -108,7 +109,7 @@ public class SysConfiguration {
 	 * @return
 	 */
 	public static String getStorageUrl() {
-		String account[] = getStorageAccount();
+		String[] account = getStorageAccount();
 		return account == null ? null : account[3];
 	}
 	
@@ -168,52 +169,10 @@ public class SysConfiguration {
 			}
 			list.add(v);
 		}
-		return list.toArray(new String[list.size()]);
+		return list.toArray(new String[0]);
 	}
-	
-	// --
 
-	/**
-	 * @param name
-	 * @param reload
-	 * @return
-	 */
-	public static String get(ConfigurableItem name, boolean reload) {
-		if (!Application.serversReady()) {
-			Object v = name.getDefaultValue();
-			return v == null ? null : v.toString();
-		}
-		
-		final String key = name.name();
-		String s = Application.getCommonCache().get(key);
-		if (s != null && !reload) {
-			return s;
-		}
-		
-		// 1. 首先从数据库
-		Object[] fromDb = Application.createQueryNoFilter(
-				"select value from SystemConfig where item = ?")
-				.setParameter(1, name.name())
-				.unique();
-		s = fromDb == null ? null : StringUtils.defaultIfBlank((String) fromDb[0], null);
-		
-		// 2. 从配置文件加载
-		if (s == null) {
-			s = Application.getBean(AesPreferencesConfigurer.class).getItem(key);
-		}
-		
-		// 3. 默认值
-		if (s == null && name.getDefaultValue() != null) {
-			s = name.getDefaultValue().toString();
-		}
-		
-		if (s == null) {
-			Application.getCommonCache().evict(key);
-		} else {
-			Application.getCommonCache().put(key, s, CommonCache.TS_DAY);
-		}
-		return s;
-	}
+	// --
 
 	/**
 	 * @param name
@@ -222,19 +181,14 @@ public class SysConfiguration {
 	public static String get(ConfigurableItem name) {
 		return get(name, false);
 	}
-	
+
 	/**
 	 * @param name
-	 * @param defaultValue
+	 * @param reload
 	 * @return
 	 */
-	public static String get(ConfigurableItem name, String defaultValue) {
-		String s = get(name);
-		if (s == null) {
-			Object v = defaultValue != null ? defaultValue : name.getDefaultValue();
-			return v == null ? null : v.toString();
-		}
-		return s;
+	public static String get(ConfigurableItem name, boolean reload) {
+		return getValue(name.name(), reload, name.getDefaultValue());
 	}
 
 	/**
@@ -254,28 +208,93 @@ public class SysConfiguration {
 		String s = get(name);
 		return s == null ? (Boolean) name.getDefaultValue() : BooleanUtils.toBoolean(s);
 	}
-	
+
 	/**
 	 * @param name
 	 * @param value
 	 * @return
 	 */
 	public static void set(ConfigurableItem name, Object value) {
+		setValue(name.name(), value);
+	}
+
+	/**
+	 * @param key 会自动加 `custom.` 前缀
+	 * @return
+	 */
+	public static String getCustomValue(String key) {
+		return getValue("custom." + key, false, null);
+	}
+
+	/**
+	 * @param key 会自动加 `custom.` 前缀
+	 * @param value
+	 */
+	public static void setCustomValue(String key, Object value) {
+		setValue("custom." + key, value);
+	}
+	
+	/**
+	 * @param key
+	 * @param value
+	 */
+	private static void setValue(final String key, Object value) {
 		Object[] exists = Application.createQueryNoFilter(
 				"select configId from SystemConfig where item = ?")
-				.setParameter(1, name.name())
+				.setParameter(1, key)
 				.unique();
-		
+
 		Record record = null;
 		if (exists == null) {
 			record = EntityHelper.forNew(EntityHelper.SystemConfig, UserService.SYSTEM_USER);
-			record.setString("item", name.name());
+			record.setString("item", key);
 		} else {
 			record = EntityHelper.forUpdate((ID) exists[0], UserService.SYSTEM_USER);
 		}
 		record.setString("value", value.toString());
-		
+
 		Application.getCommonService().createOrUpdate(record);
-		get(name, true);
+		Application.getCommonCache().evict(key);
+	}
+
+	/**
+	 * @param key
+	 * @param reload
+	 * @param defaultValue
+	 * @return
+	 */
+	private static String getValue(final String key, boolean reload, Object defaultValue) {
+		if (!Application.serversReady()) {
+			return defaultValue == null ? null : defaultValue.toString();
+		}
+
+		String s = Application.getCommonCache().get(key);
+		if (s != null && !reload) {
+			return s;
+		}
+
+		// 1. 首先从数据库
+		Object[] fromDb = Application.createQueryNoFilter(
+				"select value from SystemConfig where item = ?")
+				.setParameter(1, key)
+				.unique();
+		s = fromDb == null ? null : StringUtils.defaultIfBlank((String) fromDb[0], null);
+
+		// 2. 从配置文件加载
+		if (s == null) {
+			s = Application.getBean(AesPreferencesConfigurer.class).getItem(key);
+		}
+
+		// 3. 默认值
+		if (s == null && defaultValue != null) {
+			s = defaultValue.toString();
+		}
+
+		if (s == null) {
+			Application.getCommonCache().evict(key);
+		} else {
+			Application.getCommonCache().put(key, s, CommonCache.TS_DAY);
+		}
+		return s;
 	}
 }

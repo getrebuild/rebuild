@@ -95,7 +95,7 @@ class ConfigList extends React.Component {
     dest.find('li').click(function () {
       dest.find('li').removeClass('active')
       $(this).addClass('active')
-      that.loadData($(this).data('entity'))
+      that.loadData($(this).data('entity') || '$ALL$')
     })
   }
 

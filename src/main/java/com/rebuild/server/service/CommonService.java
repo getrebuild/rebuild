@@ -55,26 +55,50 @@ public class CommonService extends BaseService {
 	
 	@Override
 	public Record create(Record record) {
-		tryIfWithPrivileges(record);
-		return super.create(record);
+		return this.create(record, true);
 	}
-	
+
 	@Override
 	public int delete(ID recordId) {
-		tryIfWithPrivileges(recordId);
-		return super.delete(recordId);
+		return this.delete(recordId, true);
 	}
 	
 	@Override
 	public Record update(Record record) {
 		return update(record, true);
 	}
-	
+
 	/**
 	 * @param record
-	 * @param strictMode 会进行一定的约束检查
+	 * @param strictMode
 	 * @return
-	 * @see #tryIfWithPrivileges(Object) 约束检查
+	 * @see #tryIfWithPrivileges(Object)
+	 */
+	public Record create(Record record, boolean strictMode) {
+		if (strictMode) {
+			tryIfWithPrivileges(record);
+		}
+		return super.create(record);
+	}
+
+	/**
+	 * @param recordId
+	 * @param strictMode
+	 * @return
+	 * @see #tryIfWithPrivileges(Object)
+	 */
+	public int delete(ID recordId, boolean strictMode) {
+		if (strictMode) {
+			tryIfWithPrivileges(recordId);
+		}
+		return super.delete(recordId);
+	}
+
+	/**
+	 * @param record
+	 * @param strictMode
+	 * @return
+	 * @see #tryIfWithPrivileges(Object)
 	 */
 	public Record update(Record record, boolean strictMode) {
 		if (strictMode) {
@@ -82,7 +106,7 @@ public class CommonService extends BaseService {
 		}
 		return super.update(record);
 	}
-	
+
 	/**
 	 * 批量删除
 	 * 

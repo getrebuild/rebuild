@@ -42,7 +42,7 @@ import java.util.Set;
 public class SendNotification implements TriggerAction {
 
 	final private ActionContext context;
-	
+
 	public SendNotification(ActionContext context) {
 		this.context = context;
 	}

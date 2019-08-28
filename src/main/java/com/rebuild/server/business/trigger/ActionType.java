@@ -18,6 +18,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.trigger;
 
+import com.rebuild.server.business.trigger.impl.AutoAssign;
+import com.rebuild.server.business.trigger.impl.AutoShare;
+import com.rebuild.server.business.trigger.impl.FieldAggregation;
+import com.rebuild.server.business.trigger.impl.SendNotification;
+import org.springframework.cglib.core.ReflectUtils;
+
+import java.lang.reflect.Constructor;
+
 /**
  * 支持的操作类型
  * 
@@ -26,18 +34,43 @@ package com.rebuild.server.business.trigger;
  */
 public enum ActionType {
 	
-	FIELDAGGREGATION("数据聚合"),
-	
-	SENDNOTIFICATION("发送通知 (内部消息)"),
-	
+	FIELDAGGREGATION("数据聚合", FieldAggregation.class),
+	SENDNOTIFICATION("发送通知 (内部消息)", SendNotification.class),
+
+	AUTOSHARE("自动共享", AutoShare.class),
+	AUTOASSIGN("自动分派", AutoAssign.class),
+
 	;
 	
 	private String displayName;
-	private ActionType(String displayName) {
+	private Class<? extends TriggerAction> actionClazz;
+
+	ActionType(String displayName, Class<? extends TriggerAction> actionClazz) {
 		this.displayName = displayName;
+		this.actionClazz = actionClazz;
 	}
-	
+
+	/**
+	 * @return
+	 */
 	public String getDisplayName() {
 		return displayName;
+	}
+
+	/**
+	 * @return
+	 */
+	public Class<? extends TriggerAction> getActionClazz() {
+		return actionClazz;
+	}
+
+	/**
+	 * @param context
+	 * @return
+	 * @throws NoSuchMethodException
+	 */
+	public TriggerAction newInstance(ActionContext context) throws NoSuchMethodException {
+		Constructor c = getActionClazz().getConstructor(ActionContext.class);
+		return (TriggerAction) ReflectUtils.newInstance(c, new Object[] { context });
 	}
 }

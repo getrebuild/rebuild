@@ -18,77 +18,57 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.dataimport;
 
+import cn.devezhao.commons.excel.Cell;
+import com.rebuild.server.TestSupport;
+import org.apache.commons.lang.StringUtils;
+import org.junit.Test;
+import org.springframework.util.ResourceUtils;
+
 import java.io.File;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-import org.junit.Test;
-
-import com.rebuild.server.TestSupport;
-import com.rebuild.server.business.dataimport.DataFileParser;
-
-import cn.devezhao.commons.excel.Cell;
-
 /**
- * 
  * @author devezhao
  * @since 01/09/2019
  */
 public class DataFileParserTest extends TestSupport {
 
-	@Test
-	public void testExcel() throws Exception {
-		DataFileParser fileParser = getDataFileParser("dataimports-test.xls");
-		if (fileParser == null) {
-			return;
-		}
-		
-		System.out.println(fileParser.getRowsCount());
-		List<Cell[]> rows = fileParser.parse(10);
-		for (Cell[] r : rows) {
-			System.out.println(StringUtils.join(r, " | "));
-		}
-		fileParser.close();
-	}
-	
-	@Test
-	public void testCSV() throws Exception {
-		DataFileParser fileParser = getDataFileParser("dataimports-test.csv");
-		if (fileParser == null) {
-			return;
-		}
-		
-		System.out.println(fileParser.getRowsCount());
-		List<Cell[]> rows = fileParser.parse(10);
-		for (Cell[] r : rows) {
-			System.out.println(StringUtils.join(r, " | "));
-		}
-		fileParser.close();
-	}
-	
-	@Test
-	public void testXExcel() throws Exception {
-		DataFileParser fileParser = getDataFileParser("dataimports-test.xlsx");
-		if (fileParser == null) {
-			return;
-		}
-		
-		System.out.println(fileParser.getRowsCount());
-		List<Cell[]> rows = fileParser.parse(50);
-		for (Cell[] r : rows) {
-			System.out.println(StringUtils.join(r, " | "));
-		}
-		fileParser.close();
-	}
-	
-	static DataFileParser getDataFileParser(String fileName) throws URISyntaxException {
-		URL testFile = DataFileParserTest.class.getClassLoader().getResource(fileName);
-		if (testFile == null) {
-			LOG.warn("No file found : " + fileName);
-			return null;
-		}
-		return new DataFileParser(new File(testFile.toURI()));
-	}
+    @Test
+    public void testExcel() throws Exception {
+        DataFileParser fileParser = getDataFileParser("dataimports-test.xls");
+
+        System.out.println(fileParser.getRowsCount());
+        List<Cell[]> rows = fileParser.parse(10);
+        for (Cell[] r : rows) {
+            System.out.println(StringUtils.join(r, " | "));
+        }
+    }
+
+    @Test
+    public void testCSV() throws Exception {
+        DataFileParser fileParser = getDataFileParser("dataimports-test.csv");
+
+        System.out.println(fileParser.getRowsCount());
+        List<Cell[]> rows = fileParser.parse(10);
+        for (Cell[] r : rows) {
+            System.out.println(StringUtils.join(r, " | "));
+        }
+    }
+
+    @Test
+    public void testXExcel() throws Exception {
+        DataFileParser fileParser = getDataFileParser("dataimports-test.xlsx");
+
+        System.out.println(fileParser.getRowsCount());
+        List<Cell[]> rows = fileParser.parse(50);
+        for (Cell[] r : rows) {
+            System.out.println(StringUtils.join(r, " | "));
+        }
+    }
+
+    static DataFileParser getDataFileParser(String fileName) throws Exception {
+        URL testFile = ResourceUtils.getURL("classpath:" + fileName);
+        return new DataFileParser(new File(testFile.toURI()));
+    }
 }

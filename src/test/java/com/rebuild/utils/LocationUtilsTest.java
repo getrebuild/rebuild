@@ -1,6 +1,6 @@
 /*
 rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,31 +16,27 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.recyclebin;
+package com.rebuild.utils;
 
-import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
-import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
-import com.rebuild.server.service.bizz.UserService;
 import org.junit.Test;
 
 /**
- * @author devezhao zhaofang123@gmail.com
- * @since 2019/08/21
+ * @author devezhao
+ * @since 01/31/2019
  */
-public class RecycleBeanTest extends TestSupport {
+public class LocationUtilsTest extends TestSupport {
 
     @Test
-    public void serialize() {
-        try {
-            Application.getSessionStore().set(UserService.ADMIN_USER);
+    public void getLocation() {
+        JSON r = LocationUtils.getLocation("180.162.13.205", false);
+        System.out.println(r);
 
-            ID test = addRecordOfTestAllFields();
-            JSON s = new RecycleBean(test).serialize();
-            System.out.println(s);
-        } finally {
-            Application.getSessionStore().clean();
-        }
+        r = LocationUtils.getLocation("192.168.0.110", false);
+        System.out.println(r);
+
+        r = LocationUtils.getLocation("127.0.0.1", false);
+        System.out.println(r);
     }
 }

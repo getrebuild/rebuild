@@ -1,4 +1,5 @@
 const wpc = window.__PageConfig
+var contentComp = null
 $(document).ready(() => {
   $.fn.select2.defaults.set('allowClear', false)
 
@@ -17,21 +18,11 @@ $(document).ready(() => {
   })
   saveFilter(wpc.whenFilter)
 
-  let contentComp
-  const compProps = { sourceEntity: wpc.sourceEntity, content: wpc.actionContent }
-  if (wpc.actionType === 'FIELDAGGREGATION') {
-    // eslint-disable-next-line react/jsx-no-undef
-    renderRbcomp(<ContentFieldAggregation {...compProps} />, 'react-content', function () { contentComp = this })
-  } else if (wpc.actionType === 'SENDNOTIFICATION') {
-    // eslint-disable-next-line react/jsx-no-undef
-    renderRbcomp(<ContentSendNotification {...compProps} />, 'react-content', function () { contentComp = this })
-  } else {
-    renderRbcomp(<div className="text-danger">未实现的操作类型: {wpc.actionType}</div>, 'react-content')
-    $('.J_save').attr('disabled', true)
-    return
-  }
+  renderContentComp({ sourceEntity: wpc.sourceEntity, content: wpc.actionContent })
 
   let _btn = $('.J_save').click(() => {
+    if (!contentComp) return
+
     let when = 0
     $('.J_when input:checked').each(function () {
       when += ~~$(this).val()
@@ -58,6 +49,56 @@ const saveFilter = function (res) {
   wpc.whenFilter = res
   if (wpc.whenFilter && wpc.whenFilter.items && wpc.whenFilter.items.length > 0) $('.J_whenFilter a').text(`已设置条件 (${wpc.whenFilter.items.length})`)
   else $('.J_whenFilter a').text('点击设置')
+}
+
+// 组件复写
+var renderContentComp = function (props) {
+  // eslint-disable-next-line no-console
+  console.log(props)
+}
+
+// 用户选择器
+// eslint-disable-next-line no-unused-vars
+class UserSelectorExt extends UserSelector {
+  constructor(props) {
+    super(props)
+    this.tabTypes.push(['FIELDS', '使用字段'])
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+    this.__fields = []
+    $.get(`${rb.baseUrl}/commons/metadata/fields?deep=2&entity=${this.props.entity || wpc.sourceEntity}`, (res) => {
+      $(res.data).each((idx, item) => {
+        if (item.type === 'REFERENCE' && item.ref && (item.ref[0] === 'User' || item.ref[0] === 'Department' || item.ref[0] === 'Role')) {
+          this.__fields.push({ id: item.name, text: item.label })
+        }
+      })
+    })
+  }
+
+  switchTab(type) {
+    type = type || this.state.tabType
+    if (type === 'FIELDS') {
+      const q = this.state.query
+      const cacheKey = type + '-' + q
+      this.setState({ tabType: type, items: this.cached[cacheKey] }, () => {
+        if (!this.cached[cacheKey]) {
+          if (!q) this.cached[cacheKey] = this.__fields
+          else {
+            let fs = []
+            $(this.__fields).each(function () {
+              if (this.text.contains(q)) fs.push(this)
+            })
+            this.cached[cacheKey] = fs
+          }
+          this.switchTab(type)
+        }
+      })
+    } else {
+      super.switchTab(type)
+    }
+  }
 }
 
 // 动作类定义

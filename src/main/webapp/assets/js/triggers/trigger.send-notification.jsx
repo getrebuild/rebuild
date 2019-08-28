@@ -1,22 +1,22 @@
-
+/* eslint-disable react/jsx-no-undef */
 // ~~ 发送通知
-// eslint-disable-next-line no-unused-vars
-// eslint-disable-next-line 
+// eslint-disable-next-line no-undef
 class ContentSendNotification extends ActionContentSpec {
   constructor(props) {
     super(props)
   }
+
   render() {
     return <div className="send-notification">
       <form className="simple">
         <div className="form-group row pt-1">
-          <label className="col-12 col-lg-2 col-form-label text-lg-right">发送给谁</label>
+          <label className="col-12 col-lg-3 col-form-label text-lg-right">发送给谁</label>
           <div className="col-12 col-lg-8">
             <UserSelectorExt ref={(c) => this._sendTo = c} />
           </div>
         </div>
         <div className="form-group row pb-1">
-          <label className="col-12 col-lg-2 col-form-label text-lg-right">发送内容</label>
+          <label className="col-12 col-lg-3 col-form-label text-lg-right">发送内容</label>
           <div className="col-12 col-lg-8">
             <textarea className="form-control form-control-sm row3x" ref={(c) => this._content = c} maxLength="600"></textarea>
           </div>
@@ -24,6 +24,7 @@ class ContentSendNotification extends ActionContentSpec {
       </form>
     </div>
   }
+
   componentDidMount() {
     if (this.props.content && this.props.content.sendTo) {
       $.post(`${rb.baseUrl}/commons/search/user-selector?entity=${this.props.sourceEntity}`, JSON.stringify(this.props.content.sendTo), (res) => {
@@ -32,6 +33,7 @@ class ContentSendNotification extends ActionContentSpec {
     }
     $(this._content).val(this.props.content.content || '')
   }
+
   buildContent() {
     let _data = { sendTo: this._sendTo.getSelected(), content: $(this._content).val() }
     if (!_data.sendTo || _data.sendTo.length === 0) { RbHighbar.create('请选择发送给谁'); return false }
@@ -39,43 +41,9 @@ class ContentSendNotification extends ActionContentSpec {
     return _data
   }
 }
-class UserSelectorExt extends UserSelector {
-  constructor(props) {
-    super(props)
-    this.tabTypes.push(['FIELDS', '使用字段'])
-  }
-  componentDidMount() {
-    super.componentDidMount()
 
-    this.__fields = []
-    $.get(`${rb.baseUrl}/commons/metadata/fields?deep=2&entity=${wpc.sourceEntity}`, (res) => {
-      $(res.data).each((idx, item) => {
-        if (item.type === 'REFERENCE' && item.ref && (item.ref[0] === 'User' || item.ref[0] === 'Department' || item.ref[0] === 'Role')) {
-          this.__fields.push({ id: item.name, text: item.label })
-        }
-      })
-    })
-  }
-  switchTab(type) {
-    type = type || this.state.tabType
-    if (type === 'FIELDS') {
-      const q = this.state.query
-      const cacheKey = type + '-' + q
-      this.setState({ tabType: type, items: this.cached[cacheKey] }, () => {
-        if (!this.cached[cacheKey]) {
-          if (!q) this.cached[cacheKey] = this.__fields
-          else {
-            let fs = []
-            $(this.__fields).each(function () {
-              if (this.text.contains(q)) fs.push(this)
-            })
-            this.cached[cacheKey] = fs
-          }
-          this.switchTab(type)
-        }
-      })
-    } else {
-      super.switchTab(type)
-    }
-  }
+// eslint-disable-next-line no-undef
+renderContentComp = function (props) {
+  // eslint-disable-next-line no-undef
+  renderRbcomp(<ContentSendNotification {...props} />, 'react-content', function () { contentComp = this })
 }

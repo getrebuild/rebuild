@@ -1,9 +1,7 @@
-
 const CALC_MODES = { 'SUM': '求和', 'COuNT': '计数', 'AVG': '平均值', 'MAX': '最大', 'MIN': '最小' }
 
 // ~~ 数据聚合
-// eslint-disable-next-line no-unused-vars
-// eslint-disable-next-line 
+// eslint-disable-next-line no-undef
 class ContentFieldAggregation extends ActionContentSpec {
   constructor(props) {
     super(props)
@@ -168,4 +166,10 @@ class ContentFieldAggregation extends ActionContentSpec {
     if (_data.items.length === 0) { RbHighbar.create('请至少添加 1 个聚合规则'); return false }
     return _data
   }
+}
+
+// eslint-disable-next-line no-undef
+renderContentComp = function (props) {
+  // eslint-disable-next-line no-undef
+  renderRbcomp(<ContentFieldAggregation {...props} />, 'react-content', function () { contentComp = this })
 }
