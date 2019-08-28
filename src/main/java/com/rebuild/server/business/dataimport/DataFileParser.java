@@ -128,7 +128,7 @@ public class DataFileParser {
      */
     private List<Cell[]> parseCsv(int maxRows) {
         final List<Cell[]> rows = new ArrayList<>();
-        try (CSVReader csvReader = new CSVReader(this.sourceFile, "UTF-8")) {
+        try (CSVReader csvReader = new CSVReader(this.sourceFile, this.encoding)) {
             while (csvReader.hasNext()) {
                 rows.add(csvReader.next());
             }

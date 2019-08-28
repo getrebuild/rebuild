@@ -125,7 +125,7 @@ public class DataImporter extends HeavyTask<Integer> {
 	/**
 	 * @return
 	 */
-	public Map<Integer, Object> getiLogging() {
+	public Map<Integer, Object> getLogging() {
 		return iLogging;
 	}
 	
