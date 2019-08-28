@@ -48,13 +48,14 @@ import java.util.Set;
 public class TemplateExtractor {
 
     private File template;
-    private List<Cell> varsList = new ArrayList<>();
+    private List<Cell> varsList;
 
     /**
      * @param template
      */
     public TemplateExtractor(File template) {
         this.template = template;
+        this.varsList = new ArrayList<>();
     }
 
     /**
@@ -77,6 +78,9 @@ public class TemplateExtractor {
         if (matchsAny) {
             regex = "\\$\\{.+\\}";
         }
+
+        // jxls 不支持中文变量
+        // 思路是将中文变量替换成英文后保存
 
         Set<String> vars = new HashSet<>();
         int rowNum = 0;

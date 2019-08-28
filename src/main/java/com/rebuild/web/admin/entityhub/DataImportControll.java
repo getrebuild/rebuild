@@ -43,7 +43,6 @@ import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
-import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -96,8 +95,6 @@ public class DataImportControll extends BasePageControll {
 			LOG.error("Parse excel error : " + file, ex);
 			writeFailure(response, "无法解析数据，请检查数据文件格式");
 			return;
-		} finally {
-			IOUtils.closeQuietly(parser);
 		}
 		
 		JSON ret = JSONUtils.toJSONObject(

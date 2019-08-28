@@ -1,5 +1,5 @@
-Ãû³Æ×Ö¶Î,NUMBER,DECIMAL,DATE,DATETIME,TEXT,NTEXT,EMAIL,URL,PHONE,SERIES,FIEL,IMAGE,PICKLIST,CLASSIFICATION,REFERENCE
-A1,123,123.1234568,2019/1/12,2019/1/12,ÌØÊâ×Ö·û!@#$%^&*()_+{}|,123,ÎÞÐ§ÓÊÏä abc,ÎÞÐ§Á´½Ó,ÎÞÐ§µç»°,2019-001,ÔÝ²»Ö§³Ö,ÔÝ²»Ö§³Ö,ÎÞ´ËÑ¡Ïî,±±¾©,A0
-A2,"99,123","123,123.12",2019/5/23,2019/5/23,1234567890,£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡%£¤#¡­¡­%#¡­¡­£¤*&£©&¡­¡­%*&%£¿£º¡·{|}{|}{|}{,123456789@qq.com,http://getrebuild.com,123456,2019-001,,,B,ÉÏº£,A1
-A3,-434,432,2019/7/8,ÎÞÐ§ÈÕÆÚ,²âÊÔ abc89,²âÊÔ hoho,rebuilf@getrebuild.com,https://getrebuild.com,123,2019-002,,,C,½­ËÕÊ¡,A1
-A4,543254,5435,2019/9/9,2019/9/9,²âÊÔ123456,,,ftp://getrebuild.com/a/a/a,123-1233-111,2019-003,,,A,²»´æÔÚ,A4
+åç§°å­—æ®µ,NUMBER,DECIMAL,DATE,DATETIME,TEXT,NTEXT,EMAIL,URL,PHONE,SERIES,FIEL,IMAGE,PICKLIST,CLASSIFICATION,REFERENCE
+A1,123,123.1234568,2019/1/12,2019/1/12,ç‰¹æ®Šå­—ç¬¦!@#$%^&*()_+{}|,123,æ— æ•ˆé‚®ç®± abc,æ— æ•ˆé“¾æŽ¥,æ— æ•ˆç”µè¯,2019-001,æš‚ä¸æ”¯æŒ,æš‚ä¸æ”¯æŒ,æ— æ­¤é€‰é¡¹,åŒ—äº¬,A0
+A2,"99,123","123,123.12",2019/5/23,2019/5/23,1234567890,ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼%ï¿¥#â€¦â€¦%#â€¦â€¦ï¿¥*&ï¼‰&â€¦â€¦%*&%ï¼Ÿï¼šã€‹{|}{|}{|}{,123456789@qq.com,http://getrebuild.com,123456,2019-001,,,B,ä¸Šæµ·,A1
+A3,-434,432,2019/7/8,æ— æ•ˆæ—¥æœŸ,æµ‹è¯• abc89,æµ‹è¯• hoho,rebuilf@getrebuild.com,https://getrebuild.com,123,2019-002,,,C,æ±Ÿè‹çœ,A1
+A4,543254,5435,2019/9/9,2019/9/9,æµ‹è¯•123456,,,ftp://getrebuild.com/a/a/a,123-1233-111,2019-003,,,A,ä¸å­˜åœ¨,A4

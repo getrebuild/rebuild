@@ -18,14 +18,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.dataimport;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-
+import cn.devezhao.commons.RegexUtils;
+import cn.devezhao.commons.excel.Cell;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.Query;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.ClassificationManager;
 import com.rebuild.server.configuration.portals.PickListManager;
@@ -35,15 +34,13 @@ import com.rebuild.server.metadata.ExtRecordCreator;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.StringUtils;
 
-import cn.devezhao.commons.RegexUtils;
-import cn.devezhao.commons.excel.Cell;
-import cn.devezhao.commons.excel.ExcelReader;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.Query;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * 数据导入
@@ -61,7 +58,7 @@ public class DataImporter extends HeavyTask<Integer> {
 	final private ID owningUser;
 	
 	private int successed = 0;
-	private Map<Integer, Object> logging = new LinkedHashMap<>();
+	private Map<Integer, Object> iLogging = new LinkedHashMap<>();
 	
 	/**
 	 * @param rule
@@ -81,36 +78,33 @@ public class DataImporter extends HeavyTask<Integer> {
 	
 	@Override
 	public Integer exec() throws Exception {
-		try (DataFileParser fileParser = new DataFileParser(rule.getSourceFile())) {
+		try {
+			DataFileParser fileParser = new DataFileParser(rule.getSourceFile());
 			this.setTotal(fileParser.getRowsCount() - 1);
-			
-			ExcelReader reader = fileParser.getExcelReader();
-			reader.next();  // Remove head row
 			
 			setThreadUser(this.owningUser);
 			IN_IMPORTING.set(owningUser);
-			
-			while (reader.hasNext()) {
+
+			int rowLine = 0;
+			for (final Cell[] row : fileParser.parse()) {
 				if (isInterrupt()) {
 					this.setInterrupted();
 					break;
 				}
-				
+				if (rowLine++ == 0 || row == null) {
+					continue;
+				}
+
 				try {
-					Cell[] cell = reader.next();
-					if (cell == null) {  // Last row is null ? (Only .xlsx)
-						continue;
-					}
-					
-					Record record = checkoutRecord(cell);
+					Record record = checkoutRecord(row);
 					if (record != null) {
 						record = Application.getService(rule.getToEntity().getEntityCode()).createOrUpdate(record);
 						this.successed++;
-						logging.put(reader.getRowIndex(), record.getPrimary());
+						iLogging.put(rowLine, record.getPrimary());
 					}
 				} catch (Exception ex) {
-					logging.put(reader.getRowIndex(), ex.getLocalizedMessage());
-					LOG.warn(reader.getRowIndex() + " > " + ex);
+					iLogging.put(rowLine, ex.getLocalizedMessage());
+					LOG.warn(rowLine + " > " + ex);
 				} finally {
 					this.addCompleted();
 				}
@@ -131,15 +125,15 @@ public class DataImporter extends HeavyTask<Integer> {
 	/**
 	 * @return
 	 */
-	public Map<Integer, Object> getLogging() {
-		return logging;
+	public Map<Integer, Object> getiLogging() {
+		return iLogging;
 	}
 	
 	/**
 	 * @param cells
 	 * @return
 	 */
-	protected Record checkoutRecord(Cell cells[]) {
+	protected Record checkoutRecord(Cell[] cells) {
 		Record recordNew = EntityHelper.forNew(rule.getToEntity().getEntityCode(), this.owningUser);
 		
 		for (Map.Entry<Field, Integer> e : rule.getFiledsMapping().entrySet()) {
@@ -351,7 +345,7 @@ public class DataImporter extends HeavyTask<Integer> {
 		}
 		
 		Entity entity = data.getEntity();
-		String sql = String.format("select %s from %s where (1=1)", 
+		String sql = String.format("select %s from %s where (1=1)",
 				entity.getPrimaryField().getName(), entity.getName());
 		for (String c : wheres.keySet()) {
 			sql += " and " + c + " = :" + c;
