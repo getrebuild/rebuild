@@ -74,16 +74,12 @@ RbList.renderAfter = function() {
     $('.rb-datatable-body tbody>tr').each(function() {
         let ipAddr = $(this).find('td:eq(' + ipAddrIndex + ') div')
         let ip = (ipAddr.text() || '').split('(')[0].trim()
-        if (ip.contains('0:0:0:0:0:0:0') || /^(127\.0\.0\.1)|(localhost)$/.test(ip)) {
-            ipAddr.text(ip + ' (本机)')
-        } else if (/^(10\.\d{1,3}\.\d{1,3}\.\d{1,3})|(172\.((1[6-9])|(2\d)|(3[01]))\.\d{1,3}\.\d{1,3})|(192\.168\.\d{1,3}\.\d{1,3})$/.test(ip)) {
-            ipAddr.text(ip + ' (局域网)')
-        } else {
-            //$.getJSON('http://ip.taobao.com/service/getIpInfo.php?ip=' + ip + '&jsoncallback=?', function(res) {
-            //    console.log(res)
-            //})
-            //return false
-        }
+		$.get(rb.baseUrl + '/admin/bizuser/ip-location?ip=' + ip, (res) => {
+			if (res.error_code === 0 && res.data.country !== 'N') {
+				let L = res.data.country === 'R' ? '局域网' : [res.data.region, res.data.country].join(', ')
+				ipAddr.text(ip + ' (' + L + ')')
+			}
+		})
     })
 }
 </script>

@@ -64,14 +64,14 @@ public class CommonsUtilsTest {
 
 	@Test
 	public void testGet() throws Exception {
-		String ret = CommonsUtils.get("http://ip.taobao.com/service/getIpInfo.php?ip=8.8.8.8");
-		System.out.println(ret);
+		String ret = CommonsUtils.get("https://ipapi.co/58.39.87.252/json/");
+		System.out.println(JSONUtils.prettyPrint(JSON.parse(ret)));
 	}
 
 	@Test
 	public void testPost() throws Exception {
-		String ret = CommonsUtils.post("http://ip.taobao.com/service/getIpInfo.php?ip=8.8.8.8", null);
-		System.out.println(ret);
+		String ret = CommonsUtils.post("http://ip-api.com/json/58.39.87.252", null);
+		System.out.println(JSONUtils.prettyPrint(JSON.parse(ret)));
 	}
 	
 	@Ignore
