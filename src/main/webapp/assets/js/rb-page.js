@@ -44,6 +44,8 @@ $(function () {
     $('.J_notifications-top').on('shown.bs.dropdown', __loadMessages)
   }
 
+  __globalSearch()
+
   var bkeydown_times = 0
   $(document.body).keydown(function (e) {
     if (e.shiftKey) {
@@ -57,9 +59,9 @@ $(function () {
   })
 })
 // @t - trigger times
-var command_exec = function (t) {}
+var command_exec = function (t) { }
 // Trigger on window.onresize
-var resize_handler = function () {}
+var resize_handler = function () { }
 
 // MainNav
 var __initNavs = function () {
@@ -175,6 +177,11 @@ var __loadMessages = function () {
   })
 }
 
+// Global search
+var __globalSearch = function () {
+
+}
+
 // @mbg = .btn-group
 var $cleanMenu = function (mbg) {
   mbg = $(mbg)
@@ -265,7 +272,7 @@ var $createUploader = function (input, next, complete, error) {
           return false
         }
       },
-      onClientLoad: function (e, file) {},
+      onClientLoad: function (e, file) { },
       onClientProgress: function (e, file) {
         typeof next === 'function' && next({
           percent: e.loaded * 100 / e.total

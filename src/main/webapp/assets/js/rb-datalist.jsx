@@ -438,6 +438,7 @@ const RbListPage = {
       }
     })
     $('.J_delete').click(() => {
+      if ($('.J_delete').attr('disabled')) return
       let ids = this._RbList.getSelectedIds()
       if (ids.length < 1) return
       let deleteAfter = function () {
