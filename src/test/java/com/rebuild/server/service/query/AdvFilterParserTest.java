@@ -62,4 +62,34 @@ public class AdvFilterParserTest extends TestSupport {
 		String where = new AdvFilterParser(filterExp).toSqlWhere();
 		System.out.println(where);
 	}
+
+	@Test
+	public void testDateAndDatetime() throws Exception {
+		JSONObject filterExp = new JSONObject();
+		filterExp.put("entity", TEST_ENTITY);
+		JSONArray items = new JSONArray();
+		filterExp.put("items", items);
+
+		// Use `=`
+		items.add(JSON.parseObject("{ op:'EQ', field:'date', value:'2019-09-09' }"));
+		// Use `between`
+		items.add(JSON.parseObject("{ op:'EQ', field:'datetime', value:'2019-09-09' }"));
+		System.out.println(new AdvFilterParser(filterExp).toSqlWhere());
+
+		items.clear();
+		// Use `=`
+		items.add(JSON.parseObject("{ op:'TDA', field:'date' }"));
+		// Use `between`
+		items.add(JSON.parseObject("{ op:'TDA', field:'datetime' }"));
+		System.out.println(new AdvFilterParser(filterExp).toSqlWhere());
+
+		items.clear();
+		// No padding
+		items.add(JSON.parseObject("{ op:'GT', field:'date', value:'2019-09-09' }"));
+		// Padding time
+		items.add(JSON.parseObject("{ op:'GT', field:'datetime', value:'2019-09-09' }"));
+		// No padding
+		items.add(JSON.parseObject("{ op:'GT', field:'datetime', value:'2019-09-09 12:12:54' }"));
+		System.out.println(new AdvFilterParser(filterExp).toSqlWhere());
+	}
 }
