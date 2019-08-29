@@ -620,7 +620,7 @@ const AdvFilters = {
 // Init
 $(document).ready(() => {
   let gs = $urlp('gs', location.hash)
-  if (gs) $('.search-input, .input-search>input').val(gs)
+  if (gs) $('.search-input, .input-search>input').val($decode(gs))
   if (wpc.entity) {
     RbListPage.init(wpc.listConfig, wpc.entity, wpc.privileges, gs)
     if (!(wpc.advFilter === false)) AdvFilters.init('.adv-search', wpc.entity[0])
