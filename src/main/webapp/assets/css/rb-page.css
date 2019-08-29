@@ -2211,3 +2211,34 @@ form {
     line-height: 30px;
     padding: 3px 12px;
 }
+
+.rb-top-header .search-container .search-models {
+    position: absolute;
+    min-width: 320px;
+    max-width: 600px;
+    padding: 15px;
+    padding-top: 20px;
+    box-shadow: 0 3px 0.3077rem rgba(0, 0, 0, .1);
+    background: #fff;
+    border-radius: 3px;
+    display: none;
+}
+
+.search-models a {
+    background: #eee;
+    color: #777;
+    border-radius: 99px;
+    padding: 4px 9px;
+    max-width: 120px;
+    display: inline-block;
+}
+
+.search-models a+a {
+    margin-left: 6px;
+}
+
+.search-models a:hover,
+.search-models a.active {
+    background: #4285f4;
+    color: #fff !important
+}

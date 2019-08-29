@@ -14,6 +14,7 @@ final User currentUser = Application.getUserStore().getUser(AppUtils.getRequestU
 		</div>
         <div class="search-container">
             <input class="form-control form-control-sm search-input" type="text" name="search" maxlength="100" placeholder="搜索" />
+            <div class="search-models animated fadeIn faster"></div>
         </div>
 		<div class="rb-right-navbar">
 			<ul class="nav navbar-nav float-right rb-user-nav">

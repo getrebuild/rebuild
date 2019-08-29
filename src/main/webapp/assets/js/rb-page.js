@@ -30,6 +30,8 @@ $(function () {
     __initNavs()
   }
 
+  setTimeout(__globalSearch, 1000)
+
   if (rb.isAdminUser === true) {
     $('html').addClass('admin')
     if (rb.isAdminVerified !== true) $('.admin-verified').remove()
@@ -43,8 +45,6 @@ $(function () {
     setTimeout(__checkMessage, 2000)
     $('.J_notifications-top').on('shown.bs.dropdown', __loadMessages)
   }
-
-  __globalSearch()
 
   var bkeydown_times = 0
   $(document.body).keydown(function (e) {
@@ -179,7 +179,31 @@ var __loadMessages = function () {
 
 // Global search
 var __globalSearch = function () {
+  $('.sidebar-elements li').each((idx, item) => {
+    let id = $(item).attr('id')
+    if (id && id.startsWith('nav_entity-')) {
+      let $a = $(item).find('a')
+      $('<a class="text-truncate" data-url="' + $a.attr('href') + '">' + $a.text() + '</a>').appendTo('.search-models')
+    }
+  })
 
+  let activeModel
+  let aModels = $('.search-models a').click(function () {
+    let s = $('.search-input').val()
+    location.href = $(this).data('url') + '#gs=' + $encode(s)
+  })
+  if (aModels.length === 0) return
+  activeModel = aModels.eq(0).addClass('active')
+
+  $(document).click((e) => {
+    if ($(e.target).parents('.search-container').length === 0) $('.search-models').hide()
+  })
+  $('.search-container input').on('focus', (e) => {
+    $('.search-models').show()
+  }).on('keydown', (e) => {
+    let s = $('.search-input').val()
+    if (e.keyCode === 13 && s) location.href = activeModel.data('url') + '#gs=' + $encode(s)
+  })
 }
 
 // @mbg = .btn-group
