@@ -306,7 +306,6 @@ public class AdvFilterParser {
 					.append(" )");
 		}
 
-		System.out.println(item + "\n>> " + sb);
 		return sb.toString().trim();
 	}
 
