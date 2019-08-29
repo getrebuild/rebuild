@@ -181,7 +181,7 @@ var __loadMessages = function () {
 var __globalSearch = function () {
   $('.sidebar-elements li').each((idx, item) => {
     let id = $(item).attr('id')
-    if (id && id.startsWith('nav_entity-')) {
+    if (id && id.startsWith('nav_entity-') && id !== 'nav_entity-$PARENT$') {
       let $a = $(item).find('a')
       $('<a class="text-truncate" data-url="' + $a.attr('href') + '">' + $a.text() + '</a>').appendTo('.search-models')
     }
