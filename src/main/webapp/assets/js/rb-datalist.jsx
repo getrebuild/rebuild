@@ -103,7 +103,8 @@ class RbList extends React.Component {
         that.setState({ fields: fields }, () => scroller.perfectScrollbar('update'))
       }
     })
-    this.fetchList()
+
+    this.fetchList(this.__buildQuick($('.input-search')))
   }
   componentDidUpdate() {
     let that = this
@@ -277,6 +278,16 @@ class RbList extends React.Component {
       this.lastFilter = null
     }
   }
+  // @el - search element
+  searchQuick(el) {
+    this.search(this.__buildQuick(el))
+  }
+  __buildQuick(el) {
+    let q = el.find('input').val()
+    if (!q && !this.lastFilter) return null
+    let filterExp = { entity: this.props.config.entity, type: 'QUICK', values: { 1: q }, qfields: el.data('qfields') }
+    return filterExp
+  }
   reload() {
     this.fetchList()
   }
@@ -438,6 +449,7 @@ const RbListPage = {
       }
     })
     $('.J_delete').click(() => {
+      if ($('.J_delete').attr('disabled')) return
       let ids = this._RbList.getSelectedIds()
       if (ids.length < 1) return
       let deleteAfter = function () {
@@ -477,17 +489,10 @@ const RbListPage = {
       $cleanMenu('.J_action')
     }
 
-    this.initQuickFilter(entity[0])
-  },
-
-  initQuickFilter: function (e) {
+    // Quick search
     let btn = $('.input-search .btn'),
       input = $('.input-search input')
-    btn.click(() => {
-      let q = $val(input)
-      let filterExp = { entity: e, type: 'QUICK', values: { 1: q }, qfields: $('.input-search').data('qfields') }
-      this._RbList.search(filterExp)
-    })
+    btn.click(() => this._RbList.searchQuick($('.input-search')))
     input.keydown((event) => { if (event.which === 13) btn.trigger('click') })
   },
 
@@ -614,8 +619,10 @@ const AdvFilters = {
 
 // Init
 $(document).ready(() => {
+  let gs = $urlp('gs', location.hash)
+  if (gs) $('.search-input, .input-search>input').val(gs)
   if (wpc.entity) {
-    RbListPage.init(wpc.listConfig, wpc.entity, wpc.privileges)
+    RbListPage.init(wpc.listConfig, wpc.entity, wpc.privileges, gs)
     if (!(wpc.advFilter === false)) AdvFilters.init('.adv-search', wpc.entity[0])
   }
 })

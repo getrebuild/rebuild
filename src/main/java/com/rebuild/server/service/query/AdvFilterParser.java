@@ -23,6 +23,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.dialect.Type;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -46,6 +47,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static cn.devezhao.commons.CalendarUtils.addDay;
+import static cn.devezhao.commons.CalendarUtils.addMonth;
 import static cn.devezhao.commons.DateFormatUtils.getUTCDateFormat;
 
 /**
@@ -189,9 +192,9 @@ public class AdvFilterParser {
 			if ("TDA".equalsIgnoreCase(op) || "YTA".equalsIgnoreCase(op) || "TTA".equalsIgnoreCase(op)) {
 				value = getUTCDateFormat().format(CalendarUtils.now());
 				if ("YTA".equalsIgnoreCase(op)) {
-					value = getUTCDateFormat().format(CalendarUtils.addDay(-1));
+					value = getUTCDateFormat().format(addDay(-1));
 				} else if ("TTA".equalsIgnoreCase(op)) {
-					value = getUTCDateFormat().format(CalendarUtils.addDay(1));
+					value = getUTCDateFormat().format(addDay(1));
 				}
 
 				if (dt == DisplayType.DATETIME) {
@@ -217,22 +220,24 @@ public class AdvFilterParser {
 
 		// TODO 自定义函数
 
+        final ID currentUser = Application.getCurrentUser();
+
 		if ("BFD".equalsIgnoreCase(op)) {
-			value = getUTCDateFormat().format(CalendarUtils.addDay(-NumberUtils.toInt(value))) + FULL_TIME;
+			value = getUTCDateFormat().format(addDay(-NumberUtils.toInt(value))) + FULL_TIME;
 		} else if ("AFD".equalsIgnoreCase(op)) {
-			value = getUTCDateFormat().format(CalendarUtils.addDay(NumberUtils.toInt(value))) + ZERO_TIME;
+			value = getUTCDateFormat().format(addDay(NumberUtils.toInt(value))) + ZERO_TIME;
 		} else if ("BFM".equalsIgnoreCase(op)) {
-			value = getUTCDateFormat().format(CalendarUtils.addMonth(-NumberUtils.toInt(value))) + FULL_TIME;
+			value = getUTCDateFormat().format(addMonth(-NumberUtils.toInt(value))) + FULL_TIME;
 		} else if ("AFM".equalsIgnoreCase(op)) {
-			value = getUTCDateFormat().format(CalendarUtils.addMonth(NumberUtils.toInt(value))) + ZERO_TIME;
+			value = getUTCDateFormat().format(addMonth(NumberUtils.toInt(value))) + ZERO_TIME;
 		} else if ("RED".equalsIgnoreCase(op)) {
-			value = getUTCDateFormat().format(CalendarUtils.addDay(-NumberUtils.toInt(value))) + FULL_TIME;
+			value = getUTCDateFormat().format(addDay(-NumberUtils.toInt(value))) + FULL_TIME;
 		} else if ("REM".equalsIgnoreCase(op)) {
-			value = getUTCDateFormat().format(CalendarUtils.addMonth(-NumberUtils.toInt(value))) + FULL_TIME;
+			value = getUTCDateFormat().format(addMonth(-NumberUtils.toInt(value))) + FULL_TIME;
 		} else if ("SFU".equalsIgnoreCase(op)) {
-			value = Application.getCurrentUser().toLiteral();
+			value = currentUser.toLiteral();
 		} else if ("SFB".equalsIgnoreCase(op)) {
-			Department dept = UserHelper.getDepartment(Application.getCurrentUser());
+			Department dept = UserHelper.getDepartment(currentUser);
 			if (dept != null) {
 				value = dept.getIdentity().toString();
 				int refe = fieldMeta.getReferenceEntity().getEntityCode();
@@ -245,7 +250,7 @@ public class AdvFilterParser {
 				}
 			}
 		} else if ("SFD".equalsIgnoreCase(op)) {
-			Department dept = UserHelper.getDepartment(Application.getCurrentUser());
+			Department dept = UserHelper.getDepartment(currentUser);
 			if (dept != null) {
 				int refe = fieldMeta.getReferenceEntity().getEntityCode();
 				if (refe == EntityHelper.Department) {
@@ -272,7 +277,7 @@ public class AdvFilterParser {
 			value = parseValue(value, op, fieldMeta, false);
 		}
 		
-		// No value
+		// No value for search
 		if (value == null) {
 			LOG.warn("Invalid item of AdvFilter : " + item.toJSONString());
 			return null;
