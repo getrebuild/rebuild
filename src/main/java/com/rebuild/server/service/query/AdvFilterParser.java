@@ -197,8 +197,6 @@ public class AdvFilterParser {
 				if (dt == DisplayType.DATETIME) {
 					op = "BW";
 					valueEnd = parseValue(value, op, fieldMeta, true);
-				} else {
-					op = "EQ";
 				}
 			}
 
@@ -407,9 +405,9 @@ public class AdvFilterParser {
 		else if ("SFU".equalsIgnoreCase(op)) return "=";
 		else if ("SFB".equalsIgnoreCase(op)) return "=";
 		else if ("SFD".equalsIgnoreCase(op)) return "in";
-		else if ("YTA".equalsIgnoreCase(op)) return ">=";
-		else if ("TDA".equalsIgnoreCase(op)) return ">=";
-		else if ("TTA".equalsIgnoreCase(op)) return ">=";
+		else if ("YTA".equalsIgnoreCase(op)) return "=";
+		else if ("TDA".equalsIgnoreCase(op)) return "=";
+		else if ("TTA".equalsIgnoreCase(op)) return "=";
 		throw new UnsupportedOperationException("Unsupported token [" + op + "]");
 	}
 	
