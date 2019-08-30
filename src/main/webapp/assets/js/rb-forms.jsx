@@ -1176,19 +1176,19 @@ class DeleteConfirm extends RbAlert {
 }
 
 // ~~ 图片/文档预览
-const TYPE_DOCS = ['.doc', '.docx', '.rtf', '.xsl', '.xslx', '.ppt', '.pptx']
+const TYPE_DOCS = ['.doc', '.docx', '.rtf', '.xls', '.xlsx', '.ppt', '.pptx', '.pdf']
 const TYPE_IMGS = ['.jpg', '.jpeg', '.gif', '.png', '.bmp']
 class RbPreview extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { currentIndex: props.currentIndex || 0 }
+    this.state = { currentIndex: props.currentIndex || 0, inLoad: true }
   }
 
   render() {
     let currentUrl = this.props.urls[this.state.currentIndex]
     let fileName = $fileCutName(currentUrl)
     return <React.Fragment>
-      <div className="preview-modal" ref={(c) => this._dlg = c}>
+      <div className={`preview-modal ${this.state.inLoad ? 'hide' : ''}`} ref={(c) => this._dlg = c}>
         <div className="preview-header">
           <div className="float-left"><h5>{fileName}</h5></div>
           <div className="float-right">
@@ -1205,7 +1205,7 @@ class RbPreview extends React.Component {
     </React.Fragment>
   }
   renderDocs() {
-    return (<div className="container">
+    return (<div className="container" ref={(c) => this._previewContent = c}>
       <div className="iframe" onClick={this.__stopEvent}>
         <iframe frameBorder="0" scrolling="no" src={this.state.previewUrl || ''}></iframe>
       </div>
@@ -1213,7 +1213,7 @@ class RbPreview extends React.Component {
   }
   renderImgs() {
     return (<React.Fragment>
-      <div className="img-zoom">
+      <div className="img-zoom" ref={(c) => this._previewContent = c}>
         <div className="must-center" onClick={this.__stopEvent}><img src={`${rb.baseUrl}/filex/img/${this.props.urls[this.state.currentIndex]}`} /></div>
       </div>
       {this.props.urls.length > 1 && <div className="op-box">
@@ -1226,15 +1226,26 @@ class RbPreview extends React.Component {
   }
 
   componentDidMount() {
-    if (this.__isdoc) {
-      $.get(`${rb.baseUrl}/filex/make-url?url=${this.props.urls[this.state.currentIndex]}`, (res) => {
+    this.__modalOpen = $(document.body).hasClass('modal-open')
+
+    let currentUrl = this.props.urls[this.state.currentIndex]
+    // 不支持的文件，直接下載
+    if (!this._previewContent) {
+      this.hide()
+      window.open(`${rb.baseUrl}/filex/download/${currentUrl}?attname=${$encode($fileCutName(currentUrl))}`)
+      return
+    }
+
+    if (this.__isdoc(currentUrl)) {
+      $.get(`${rb.baseUrl}/filex/make-url?url=${currentUrl}`, (res) => {
         let previewUrl = `https://view.officeapps.live.com/op/view.aspx?src=${$encode(res.data.private_url)}`
+        if (currentUrl.toLowerCase().endsWith('.pdf')) previewUrl = res.data.private_url
         this.setState({ previewUrl: previewUrl })
       })
     }
 
-    this.__modalOpen = $(document.body).hasClass('modal-open')
     if (!this.__modalOpen) $(document.body).addClass('modal-open')
+    this.setState({ inLoad: false })
   }
   componentWillUnmount() {
     if (!this.__modalOpen) $(document.body).removeClass('modal-open')
@@ -1278,10 +1289,6 @@ class RbPreview extends React.Component {
    */
   static create(urls, index) {
     if (!urls) return
-    // if (parent && parent.RbPreview) {
-    //   parent.RbPreview.create(urls, index)
-    //   return
-    // }
     if (typeof urls === 'string') urls = [urls]
     renderRbcomp(<RbPreview urls={urls} currentIndex={index || 0} />)
   }

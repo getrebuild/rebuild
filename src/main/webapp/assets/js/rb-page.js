@@ -253,7 +253,7 @@ var $createUploader = function (input, next, complete, error) {
       var file = this.files[0]
       if (!file) return
       var putExtra = imgOnly ? {
-        mimeType: ['image/png', 'image/jpeg', 'image/gif', 'image/bmp', 'image/tiff']
+        mimeType: ['image/png', 'image/jpeg', 'image/gif', 'image/bmp']
       } : null
       $.get(rb.baseUrl + '/filex/qiniu/upload-keys?file=' + $encode(file.name), function (res) {
         var o = qiniu.upload(file, res.data.key, res.data.token, putExtra)
@@ -269,7 +269,7 @@ var $createUploader = function (input, next, complete, error) {
               RbHighbar.create('请上传图片')
               return false
             } else if (msg.contains('EXCEED FSIZELIMIT')) {
-              RbHighbar.create('超出文件大小限制')
+              RbHighbar.create('超出文件大小限制 (20M)')
               return false
             }
             if (error) error({

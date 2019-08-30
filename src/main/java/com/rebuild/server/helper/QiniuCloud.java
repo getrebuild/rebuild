@@ -176,8 +176,8 @@ public class QiniuCloud {
 	 */
 	public String getUploadToken(String fileKey) {
 		// 上传策略参见 https://developer.qiniu.com/kodo/manual/1206/put-policy
-		StringMap policy = new StringMap().put("fsizeLimit", 1024 * 1024 * 200);  // 200M
-		return auth.uploadToken(bucketName, fileKey, 60, policy);
+		StringMap policy = new StringMap().put("fsizeLimit", 1024 * 1024 * 20);  // 20M
+		return auth.uploadToken(bucketName, fileKey, 120, policy);
 	}
 	
 	// --
