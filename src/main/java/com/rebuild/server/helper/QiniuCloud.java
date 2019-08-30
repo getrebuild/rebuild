@@ -122,14 +122,14 @@ public class QiniuCloud {
 	 * @return
 	 */
 	public String url(String filePath) {
-		return url(filePath, 60 * 5);
+		return url(filePath, 60 * 15);
 	}
-	
+
 	/**
 	 * 生成访问 URL
 	 * 
 	 * @param filePath
-	 * @param seconds 过期时间
+	 * @param seconds 有效期
 	 * @return
 	 */
 	public String url(String filePath, int seconds) {
@@ -139,10 +139,10 @@ public class QiniuCloud {
 		if (baseUrl.startsWith("//")) {
 			baseUrl = "https:" + baseUrl;
 		}
-		
+
 		long deadline = System.currentTimeMillis() / 1000 + seconds;
 		// Use http cache
-		seconds /= 1.5;
+		seconds /= 2;
 		deadline = deadline / seconds * seconds;
 		return auth.privateDownloadUrlWithDeadline(baseUrl, deadline);
 	}
