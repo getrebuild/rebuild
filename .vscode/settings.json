@@ -21,7 +21,8 @@
         "javascriptreact",
         "html"
     ],
-    "prettier.eslintIntegration": true
+    "prettier.eslintIntegration": true,
+    "workbench.editor.enablePreview": false
 }
 // node and eslint(-g)
 // Plugins: Beautify and ESLint

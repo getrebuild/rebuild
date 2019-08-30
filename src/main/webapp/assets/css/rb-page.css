@@ -936,6 +936,7 @@ i.split.ui-draggable-dragging {
     line-height: 1;
     cursor: default;
     height: 30px;
+    cursor: zoom-in;
 }
 
 .column-imgs>a img {
@@ -959,7 +960,7 @@ i.split.ui-draggable-dragging {
 
 .column-files ul>li>a {
     color: #404040;
-    cursor: default;
+    cursor: pointer;
 }
 
 .column-checkbox {
@@ -2226,11 +2227,12 @@ form {
 
 .search-models a {
     background: #eee;
-    color: #777;
+    color: #888 !important;
     border-radius: 99px;
     padding: 4px 9px;
     max-width: 120px;
     display: inline-block;
+    font-size: 12px;
 }
 
 .search-models a+a {
@@ -2241,4 +2243,110 @@ form {
 .search-models a.active {
     background: #4285f4;
     color: #fff !important
+}
+
+.preview-modal {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1099;
+    background-color: rgba(0, 0, 0, 0.2)
+}
+
+.preview-modal .preview-header {
+    background: rgba(0, 0, 0, 1);
+    color: #fff;
+    padding: 0 25px;
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+}
+
+.preview-modal .preview-header .float-left>h5,
+.preview-modal .preview-header .float-right a {
+    margin: 0;
+    height: 50px;
+    line-height: 50px;
+}
+
+.preview-modal .preview-header .float-right a {
+    display: inline-block;
+    width: 50px;
+    font-size: 18px;
+    font-weight: normal;
+    text-align: center;
+    color: #fff;
+}
+
+.preview-modal .preview-header .float-right a:hover {
+    background: #888;
+}
+
+.preview-modal .preview-body,
+.preview-modal .preview-body>div,
+.preview-modal .container .iframe,
+.preview-modal .preview-body iframe {
+    height: 100%;
+}
+
+.preview-modal .preview-body iframe {
+    width: 100%;
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.preview-modal .preview-body .img-zoom {
+    text-align: center;
+    padding-top: 50px;
+}
+
+.preview-modal .preview-body .img-zoom img {
+    max-width: 100%;
+    max-height: 100%;
+    vertical-align: middle;
+    display: inline-block;
+    font-size: 0;
+}
+
+.preview-modal .preview-body .op-box {
+    position: absolute;
+    bottom: 25px;
+    width: 160px;
+    left: 50%;
+    margin-left: -80px;
+    background-color: rgba(0, 0, 0, 0.6);
+    height: 50px;
+    border-radius: 4px;
+    overflow: hidden;
+    color: rgba(255, 255, 255, .8);
+    font-size: 0;
+}
+
+.preview-modal .preview-body .op-box a.arrow,
+.preview-modal .preview-body .op-box span {
+    text-align: center;
+    display: inline-block;
+    line-height: 1;
+    height: 50px;
+    line-height: 50px;
+}
+
+.preview-modal .preview-body .op-box a.arrow {
+    width: 50px;
+    font-size: 21px;
+    font-weight: lighter;
+}
+
+.preview-modal .preview-body .op-box a.arrow:hover {
+    background-color: rgba(0, 0, 0, 0.9);
+}
+
+.preview-modal .preview-body .op-box span {
+    font-size: 1rem;
+    color: #fff;
+    width: 60px;
 }

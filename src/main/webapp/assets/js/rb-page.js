@@ -98,6 +98,7 @@ var __initNavs = function () {
     e.stopPropagation()
     currsntSubnav = _this
     _this.find('a').eq(0).tooltip('hide')
+    $('.left-sidebar-scroll').perfectScrollbar('update')
   })
   $('.sidebar-elements li.parent .sub-menu').click(function (e) {
     e.stopPropagation()
@@ -180,6 +181,7 @@ var __loadMessages = function () {
 // Global search
 var __globalSearch = function () {
   $('.sidebar-elements li').each((idx, item) => {
+    if (idx > 40) return false
     let id = $(item).attr('id')
     if (id && id.startsWith('nav_entity-') && id !== 'nav_entity-$PARENT$') {
       let $a = $(item).find('a')

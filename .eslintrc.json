@@ -78,7 +78,8 @@
         "RbHighbar": true,
         "ApprovalSubmitForm": true,
         "ConfigList": true,
-        "ConfigFormDlg": true
+        "ConfigFormDlg": true,
+        "RbPreview": true
     },
     "rules": {
         "strict": 0,

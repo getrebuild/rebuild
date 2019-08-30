@@ -582,14 +582,15 @@ class RbFormImage extends RbFormElement {
     )
   }
   renderViewElement() {
-    if (this.state.value.length === 0) {
+    const value = this.state.value
+    if (value.length === 0) {
       return <div className="form-control-plaintext"><span className="text-muted">无</span></div>
     }
     return (<div className="img-field">
-      {this.state.value.map((item) => {
+      {value.map((item, idx) => {
         let itemUrl = rb.baseUrl + '/filex/img/' + item
         let fileName = $fileCutName(item)
-        return <span key={'img-' + item}><a title={fileName} onClick={this.clickPreview.bind(this, itemUrl)} className="img-thumbnail img-upload zoom-in" href={itemUrl} target="_blank" rel="noopener noreferrer"><img src={itemUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a></span>
+        return <span key={'img-' + item}><a title={fileName} onClick={() => (parent || window).RbPreview.create(value, idx)} className="img-thumbnail img-upload zoom-in"><img src={itemUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a></span>
       })}
     </div>)
   }
@@ -665,11 +666,9 @@ class RbFormFile extends RbFormImage {
     }
     return (<div className="file-field">
       {this.state.value.map((item) => {
-        let itemUrl = rb.baseUrl + '/filex/download/' + item
         let fileName = $fileCutName(item)
-        let fileExt = $fileExtName(fileName)
-        return <a key={'file-' + item} title={fileName} onClick={this.clickPreview.bind(this, itemUrl)} className="img-thumbnail" href={itemUrl} target="_blank" rel="noopener noreferrer">
-          <i className="file-icon" data-type={fileExt} /><span>{fileName}</span>
+        return <a key={'file-' + item} title={fileName} onClick={() => (parent || window).RbPreview.create(item)} className="img-thumbnail">
+          <i className="file-icon" data-type={$fileExtName(fileName)} /><span>{fileName}</span>
         </a>
       })}
     </div>)
@@ -1173,5 +1172,117 @@ class DeleteConfirm extends RbAlert {
         btns.button('reset')
       }
     })
+  }
+}
+
+// ~~ 图片/文档预览
+const TYPE_DOCS = ['.doc', '.docx', '.rtf', '.xsl', '.xslx', '.ppt', '.pptx']
+const TYPE_IMGS = ['.jpg', '.jpeg', '.gif', '.png', '.bmp']
+class RbPreview extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { currentIndex: props.currentIndex || 0 }
+  }
+
+  render() {
+    let currentUrl = this.props.urls[this.state.currentIndex]
+    let fileName = $fileCutName(currentUrl)
+    return <React.Fragment>
+      <div className="preview-modal" ref={(c) => this._dlg = c}>
+        <div className="preview-header">
+          <div className="float-left"><h5>{fileName}</h5></div>
+          <div className="float-right">
+            <a target="_blank" rel="noopener noreferrer" href={`${rb.baseUrl}/filex/download/${currentUrl}?attname=${fileName}`}><i className="zmdi zmdi-download"></i></a>
+            <a onClick={this.hide}><i className="zmdi zmdi-close"></i></a>
+          </div>
+          <div className="clearfix"></div>
+        </div>
+        <div className="preview-body" onClick={this.hide}>
+          {this.__isimg(currentUrl) && this.renderImgs()}
+          {this.__isdoc(currentUrl) && this.renderDocs()}
+        </div>
+      </div>
+    </React.Fragment>
+  }
+  renderDocs() {
+    return (<div className="container">
+      <div className="iframe" onClick={this.__stopEvent}>
+        <iframe frameBorder="0" scrolling="no" src={this.state.previewUrl || ''}></iframe>
+      </div>
+    </div>)
+  }
+  renderImgs() {
+    return (<React.Fragment>
+      <div className="img-zoom">
+        <div className="must-center" onClick={this.__stopEvent}><img src={`${rb.baseUrl}/filex/img/${this.props.urls[this.state.currentIndex]}`} /></div>
+      </div>
+      {this.props.urls.length > 1 && <div className="op-box">
+        <a className="arrow float-left" onClick={this.__previmg}><i className="zmdi zmdi-chevron-left" /></a>
+        <span>{this.state.currentIndex + 1} / {this.props.urls.length}</span>
+        <a className="arrow float-right" onClick={this.__nextimg}><i className="zmdi zmdi-chevron-right" /></a>
+      </div>
+      }
+    </React.Fragment>)
+  }
+
+  componentDidMount() {
+    if (this.__isdoc) {
+      $.get(`${rb.baseUrl}/filex/make-url?url=${this.props.urls[this.state.currentIndex]}`, (res) => {
+        let previewUrl = `https://view.officeapps.live.com/op/view.aspx?src=${$encode(res.data.private_url)}`
+        this.setState({ previewUrl: previewUrl })
+      })
+    }
+
+    this.__modalOpen = $(document.body).hasClass('modal-open')
+    if (!this.__modalOpen) $(document.body).addClass('modal-open')
+  }
+  componentWillUnmount() {
+    if (!this.__modalOpen) $(document.body).removeClass('modal-open')
+  }
+
+  __isimg(url) {
+    url = url.toLowerCase()
+    for (let i = 0; i < TYPE_IMGS.length; i++) {
+      if (url.endsWith(TYPE_IMGS[i])) return true
+    }
+    return false
+  }
+  __isdoc(url) {
+    url = url.toLowerCase()
+    for (let i = 0; i < TYPE_DOCS.length; i++) {
+      if (url.endsWith(TYPE_DOCS[i])) return true
+    }
+    return false
+  }
+  __previmg = (e) => {
+    this.__stopEvent(e)
+    if (this.state.currentIndex <= 0) return
+    this.setState({ currentIndex: this.state.currentIndex - 1 })
+  }
+  __nextimg = (e) => {
+    this.__stopEvent(e)
+    if (this.state.currentIndex + 1 >= this.props.urls.length) return
+    this.setState({ currentIndex: this.state.currentIndex + 1 })
+  }
+  __stopEvent = (e) => {
+    e.stopPropagation()
+  }
+
+  hide = () => {
+    $unmount($(this._dlg).parent(), 1)
+  }
+
+  /**
+   * @param {*} urls string or array of URL
+   * @param {*} index 
+   */
+  static create(urls, index) {
+    if (!urls) return
+    // if (parent && parent.RbPreview) {
+    //   parent.RbPreview.create(urls, index)
+    //   return
+    // }
+    if (typeof urls === 'string') urls = [urls]
+    renderRbcomp(<RbPreview urls={urls} currentIndex={index || 0} />)
   }
 }

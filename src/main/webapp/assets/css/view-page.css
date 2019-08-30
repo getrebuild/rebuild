@@ -21,7 +21,8 @@ body {
 .view-header {
 	padding: 15px 20px;
 	height: 60px;
-	border-bottom: 1px solid #e3e3e3;
+	height: 61px;
+	border-bottom: 1px solid #e6e6e6;
 	position: absolute;
 	top: 0;
 	left: 0;
