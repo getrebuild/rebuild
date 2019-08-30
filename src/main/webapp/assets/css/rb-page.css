@@ -2219,7 +2219,7 @@ form {
     max-width: 600px;
     padding: 15px;
     padding-top: 20px;
-    box-shadow: 0 3px 0.3077rem rgba(0, 0, 0, .1);
+    box-shadow: 0 3px 0.6rem rgba(0, 0, 0, .1);
     background: #fff;
     border-radius: 3px;
     display: none;

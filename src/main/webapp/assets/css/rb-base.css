@@ -11749,7 +11749,6 @@ canvas {
 .rb-top-header .rb-right-navbar {
     padding-right: 20px;
     flex: 0 0 auto;
-    /* width: calc(100% - 230px) */
 }
 
 .rb-top-header .rb-right-navbar-flex {
@@ -11804,10 +11803,6 @@ canvas {
         background-color: #4285f4;
         z-index: 1030
     }
-}
-
-.rb-collapsible-sidebar-hide-logo.rb-collapsible-sidebar-collapsed .rb-top-header .rb-right-navbar {
-    width: calc(100% - 60px)
 }
 
 @media (max-width:767.98px) {
