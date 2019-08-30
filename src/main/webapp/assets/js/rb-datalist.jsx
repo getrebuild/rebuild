@@ -328,10 +328,10 @@ CellRenders.addRender('IMAGE', function (v, s, k) {
   v = JSON.parse(v || '[]')
   return <td key={k} className="td-min">
     <div style={s} className="column-imgs" title={v.length + ' 个图片'}>
-      {v.map((item) => {
+      {v.map((item, idx) => {
         let imgUrl = rb.baseUrl + '/filex/img/' + item
         let imgName = $fileCutName(item)
-        return <a key={'k-' + item} href={'#!/Preview/' + item} title={imgName}><img src={imgUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a>
+        return <a key={'k-' + item} title={imgName} onClick={() => RbPreview.create(v, idx)}><img src={imgUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a>
       })}</div></td>
 })
 CellRenders.addRender('FILE', function (v, s, k) {
@@ -340,7 +340,7 @@ CellRenders.addRender('FILE', function (v, s, k) {
     <ul className="list-unstyled" title={v.length + ' 个文件'}>
       {v.map((item) => {
         let fileName = $fileCutName(item)
-        return <li key={'k-' + item} className="text-truncate"><a href={'#!/Preview/' + item} title={fileName}>{fileName}</a></li>
+        return <li key={'k-' + item} className="text-truncate"><a title={fileName} onClick={() => RbPreview.create(item)}>{fileName}</a></li>
       })}</ul>
   </div></td>
 })

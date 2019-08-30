@@ -98,6 +98,7 @@ var __initNavs = function () {
     e.stopPropagation()
     currsntSubnav = _this
     _this.find('a').eq(0).tooltip('hide')
+    $('.left-sidebar-scroll').perfectScrollbar('update')
   })
   $('.sidebar-elements li.parent .sub-menu').click(function (e) {
     e.stopPropagation()
@@ -146,7 +147,7 @@ var __checkMessage = function () {
     if (res.error_code > 0) return
     $('.J_notifications-top .badge').text(res.data.unread)
     if (res.data.unread > 0) $('.J_notifications-top .indicator').removeClass('hide')
-    else $('J_notifications-top .indicator').addClass('hide')
+    else $('.J_notifications-top .indicator').addClass('hide')
 
     if (__checkMessage__state !== res.data.unread) __loadMessages__state = 0
     __checkMessage__state = res.data.unread
@@ -180,8 +181,9 @@ var __loadMessages = function () {
 // Global search
 var __globalSearch = function () {
   $('.sidebar-elements li').each((idx, item) => {
+    if (idx > 40) return false
     let id = $(item).attr('id')
-    if (id && id.startsWith('nav_entity-')) {
+    if (id && id.startsWith('nav_entity-') && id !== 'nav_entity-$PARENT$') {
       let $a = $(item).find('a')
       $('<a class="text-truncate" data-url="' + $a.attr('href') + '">' + $a.text() + '</a>').appendTo('.search-models')
     }
@@ -251,7 +253,7 @@ var $createUploader = function (input, next, complete, error) {
       var file = this.files[0]
       if (!file) return
       var putExtra = imgOnly ? {
-        mimeType: ['image/png', 'image/jpeg', 'image/gif', 'image/bmp', 'image/tiff']
+        mimeType: ['image/png', 'image/jpeg', 'image/gif', 'image/bmp']
       } : null
       $.get(rb.baseUrl + '/filex/qiniu/upload-keys?file=' + $encode(file.name), function (res) {
         var o = qiniu.upload(file, res.data.key, res.data.token, putExtra)
@@ -267,7 +269,7 @@ var $createUploader = function (input, next, complete, error) {
               RbHighbar.create('请上传图片')
               return false
             } else if (msg.contains('EXCEED FSIZELIMIT')) {
-              RbHighbar.create('超出文件大小限制')
+              RbHighbar.create('超出文件大小限制 (20M)')
               return false
             }
             if (error) error({
