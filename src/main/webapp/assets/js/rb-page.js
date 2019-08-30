@@ -147,7 +147,7 @@ var __checkMessage = function () {
     if (res.error_code > 0) return
     $('.J_notifications-top .badge').text(res.data.unread)
     if (res.data.unread > 0) $('.J_notifications-top .indicator').removeClass('hide')
-    else $('J_notifications-top .indicator').addClass('hide')
+    else $('.J_notifications-top .indicator').addClass('hide')
 
     if (__checkMessage__state !== res.data.unread) __loadMessages__state = 0
     __checkMessage__state = res.data.unread
