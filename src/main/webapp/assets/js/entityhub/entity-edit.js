@@ -14,26 +14,18 @@ $(document).ready(function () {
 
   let _btn = $('.J_save').click(function () {
     if (!wpc.metaId) return
-    let icon = $val('#entityIcon'),
-      label = $val('#entityLabel'),
-      comments = $val('#comments'),
-      nameField = $val('#nameField')
     let _data = {
-      entityLabel: label,
-      comments: comments,
-      nameField: nameField
+      entityLabel: $val('#entityLabel'),
+      comments: $val('#comments'),
+      nameField: $val('#nameField')
     }
+    if (_data.label === '') { RbHighbar.create('请输入实体名称'); return }
+    let icon = $val('#entityIcon')
     if (icon) _data.icon = icon
     _data = $cleanMap(_data)
-    if (Object.keys(_data) === 0) {
-      location.reload()
-      return
-    }
+    if (Object.keys(_data) === 0) { location.reload(); return }
 
-    _data.metadata = {
-      entity: 'MetaEntity',
-      id: wpc.metaId
-    }
+    _data.metadata = { entity: 'MetaEntity', id: wpc.metaId }
     _btn.button('loading')
     $.post('../entity-update', JSON.stringify(_data), function (res) {
       if (res.error_code === 0) location.reload()

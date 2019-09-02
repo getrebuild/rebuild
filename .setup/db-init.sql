@@ -115,6 +115,7 @@ create table if not exists `meta_field` (
   `NULLABLE`           char(1) default 'T',
   `CREATABLE`          char(1) default 'T',
   `UPDATABLE`          char(1) default 'T',
+  `REPEATABLE`         char(1) default 'T',
   `DEFAULT_VALUE`      varchar(300) comment '此值不影响数据库默认值',
   `MAX_LENGTH`         smallint(6) default '300',
   `REF_ENTITY`         varchar(100),
@@ -507,4 +508,4 @@ INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version
 INSERT INTO `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`) 
-  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 11);
+  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 12);

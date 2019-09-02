@@ -83,14 +83,15 @@ public final class Application {
 	protected Application(ApplicationContext ctx) {
 		APPLICATION_CTX = ctx;
 	}
-	
+
 	/**
 	 * 初始化
-	 * 
+	 *
 	 * @param startAt
+	 * @throws Exception
 	 */
 	synchronized
-	protected void init(long startAt) {
+	protected void init(long startAt) throws Exception {
 		serverReady = ServerStatus.checkAll();
 		if (!serverReady) {
 			LOG.fatal("\n###################################################################\n"
@@ -103,7 +104,7 @@ public final class Application {
 					+ "\n\n###################################################################");
 			return;
 		}
-		
+
 		// for fastjson Serialize
 		SerializeConfig.getGlobalInstance().put(ID.class, ToStringSerializer.instance);
 		SerializeConfig.getGlobalInstance().put(Date.class, RbDateCodec.instance);
@@ -115,11 +116,11 @@ public final class Application {
 
 		// 升级数据库
 		UpgradeDatabase.getInstance().upgradeQuietly();
-		
+
 		// 自定义实体
 		LOG.info("Loading customized/business entities ...");
 		((DynamicMetadataFactory) APPLICATION_CTX.getBean(PersistManagerFactory.class).getMetadataFactory()).refresh(false);
-		
+
 		// 实体对应的服务类
 		SSS = new HashMap<>();
 		for (Map.Entry<String, ServiceSpec> e : APPLICATION_CTX.getBeansOfType(ServiceSpec.class).entrySet()) {
@@ -131,7 +132,7 @@ public final class Application {
 				}
 			}
 		}
-		
+
 		// 若使用 Ehcache 则添加持久化钩子
 		final CommonCache ccache = APPLICATION_CTX.getBean(CommonCache.class);
 		if (!ccache.isUseRedis()) {
@@ -142,16 +143,17 @@ public final class Application {
 				}
 			});
 		}
-		
+
 		LOG.info("Rebuild Boot successful in " + (System.currentTimeMillis() - startAt) + " ms");
 	}
-	
+
 	/**
 	 * FOR TESTING ONLY
-	 * 
+	 *
 	 * @return
+	 * @throws Exception
 	 */
-	protected static ApplicationContext debug() {
+	protected static ApplicationContext debug() throws Exception {
 		if (APPLICATION_CTX == null) {
 			debugMode = true;
 			LOG.info("Rebuild Booting in DEBUG mode ...");

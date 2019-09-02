@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #12 Field can be repeated (v1.5)
+alter table `meta_field`
+    add column `REPEATABLE` char(1) default 'T';
+
 -- #11 Audit (v1.5)
 -- ************ Entity [RecycleBin] DDL ************
 create table if not exists `recycle_bin` (

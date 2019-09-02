@@ -18,12 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.rbstore;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -34,9 +30,11 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.UserService;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * 元数据模型生成
@@ -157,6 +155,7 @@ public class MetaSchemaGenerator {
 		}
 		schemaField.put("nullable", field.isNullable());
 		schemaField.put("updatable", field.isUpdatable());
+		schemaField.put("repeatable", field.isRepeatable());
 		Object defaultVal = field.getDefaultValue();
 		if (defaultVal != null && StringUtils.isNotBlank((String) defaultVal)) {
 			schemaField.put("defaultValue", defaultVal);

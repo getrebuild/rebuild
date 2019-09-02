@@ -10,8 +10,10 @@ $(document).ready(function () {
       fieldLabel: $val('#fieldLabel'),
       comments: $val('#comments'),
       nullable: $val('#fieldNullable'),
-      updatable: $val('#fieldUpdatable')
+      updatable: $val('#fieldUpdatable'),
+      repeatable: $val('#fieldRepeatable')
     }
+    if (_data.fieldLabel === '') { RbHighbar.create('请输入字段名称'); return }
     let dv = $val('#defaultValue')
     if (dv) {
       if (checkDefaultValue(dv, dt) === false) return
@@ -50,6 +52,7 @@ $(document).ready(function () {
 
   $('#fieldNullable').attr('checked', $('#fieldNullable').data('o') === true)
   $('#fieldUpdatable').attr('checked', $('#fieldUpdatable').data('o') === true)
+  $('#fieldRepeatable').attr('checked', $('#fieldRepeatable').data('o') === true)
 
   $('.J_for-' + dt).removeClass('hide')
 
@@ -137,7 +140,7 @@ $(document).ready(function () {
 
   // 内建字段
   if (wpc.fieldBuildin === true) {
-    $('#fieldNullable, #fieldUpdatable').attr('disabled', true)
+    $('#fieldNullable, #fieldUpdatable, #fieldRepeatable').attr('disabled', true)
     $('.footer .alert').removeClass('hide')
   } else {
     $('.footer .J_action').removeClass('hide')

@@ -81,6 +81,7 @@
 		<field name="nullable" type="bool" default-value="T" />
 		<field name="creatable" type="bool" default-value="T" />
 		<field name="updatable" type="bool" default-value="T" />
+		<field name="repeatable" type="bool" default-value="T" />
 		<field name="defaultValue" type="string" max-length="300" description="此值不影响数据库默认值" />
 		<field name="maxLength" type="small-int" default-value="300" />
 		<field name="refEntity" type="string" max-length="100" />

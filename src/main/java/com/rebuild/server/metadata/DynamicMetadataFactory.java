@@ -26,6 +26,7 @@ import cn.devezhao.persist4j.util.XmlHelper;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.entity.DisplayType;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -89,7 +90,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 
 		Object[][] customFields = Application.createQueryNoFilter(
 				"select belongEntity,fieldName,physicalName,fieldLabel,displayType,nullable,creatable,updatable,"
-						+ "maxLength,defaultValue,refEntity,cascade,fieldId,comments,extConfig from MetaField")
+						+ "maxLength,defaultValue,refEntity,cascade,fieldId,comments,extConfig,repeatable from MetaField")
 				.array();
 		for (Object[] custom : customFields) {
 			String entityName = (String) custom[0];
@@ -104,11 +105,12 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 			field.addAttribute("name", fieldName)
 					.addAttribute("physical-name", (String) custom[2])
 					.addAttribute("description", (String) custom[3])
-					.addAttribute("nullable", custom[5].toString())
-					.addAttribute("creatable", custom[6].toString())
-					.addAttribute("updatable", custom[7].toString())
-					.addAttribute("max-length", custom[8].toString())
-					.addAttribute("default-value", (String) custom[9]);
+					.addAttribute("nullable", String.valueOf(custom[5]))
+					.addAttribute("creatable", String.valueOf(custom[6]))
+					.addAttribute("updatable", String.valueOf(custom[7]))
+					.addAttribute("max-length", String.valueOf(custom[8]))
+					.addAttribute("default-value", (String) custom[9])
+					.addAttribute("repeatable", StringUtils.defaultIfBlank(String.valueOf(custom[15]), "true"));
 			if (fieldName.equals(EntityHelper.AutoId)) {
 				field.addAttribute("auto-value", "true");
 			}

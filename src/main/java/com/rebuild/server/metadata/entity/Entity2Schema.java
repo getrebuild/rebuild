@@ -134,7 +134,7 @@ public class Entity2Schema extends Field2Schema {
 			
 			if (haveNameField) {
 				createUnsafeField(
-						tempEntity, nameFiled, entityLabel + "名称", DisplayType.TEXT, false, true, true, null, null, null, null, null);
+						tempEntity, nameFiled, entityLabel + "名称", DisplayType.TEXT, false, true, true, true,null, null, null, null, null);
 			}
 			
 			createBuiltinField(tempEntity, EntityHelper.CreatedBy, "创建人", DisplayType.REFERENCE, null, "User", null);
@@ -151,7 +151,7 @@ public class Entity2Schema extends Field2Schema {
 			} else {
 				// 助记码/搜索码
 				createUnsafeField(
-						tempEntity, EntityHelper.QuickCode, "QUICKCODE", DisplayType.TEXT, true, false, false, null, null, null, null, null);
+						tempEntity, EntityHelper.QuickCode, "QUICKCODE", DisplayType.TEXT, true, false, false, true,null, null, null, null, null);
 				
 				createBuiltinField(tempEntity, EntityHelper.OwningUser, "所属用户", DisplayType.REFERENCE, null, "User", null);
 				createBuiltinField(tempEntity, EntityHelper.OwningDept, "所属部门", DisplayType.REFERENCE, null, "Department", null);
@@ -249,7 +249,7 @@ public class Entity2Schema extends Field2Schema {
 			String refEntity, CascadeModel cascade) {
 		comments = StringUtils.defaultIfBlank(comments, "系统内建");
 		return createUnsafeField(
-				entity, fieldName, fieldLabel, displayType, false, false, false, comments, refEntity, cascade, null, null);
+				entity, fieldName, fieldLabel, displayType, false, false, false, true, comments, refEntity, cascade, null, null);
 	}
 	
 	/**

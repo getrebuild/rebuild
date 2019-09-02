@@ -91,7 +91,7 @@ public class Field2Schema {
 		}
 		
 		Field field = createUnsafeField(
-				entity, fieldName, fieldLabel, type, true, true, true, comments, refEntity, null, extConfig, null);
+				entity, fieldName, fieldLabel, type, true, true, true, true, comments, refEntity, null, extConfig, null);
 		
 		boolean schemaReady = schema2Database(entity, new Field[] { field });
 		if (!schemaReady) {
@@ -193,6 +193,7 @@ public class Field2Schema {
 	 * @param nullable
 	 * @param creatable
 	 * @param updatable
+	 * @param repeatable
 	 * @param comments
 	 * @param refEntity
 	 * @param cascade
@@ -202,14 +203,17 @@ public class Field2Schema {
 	 * @see #createField(Entity, String, DisplayType, String, String, JSON)
 	 */
 	public Field createUnsafeField(Entity entity, String fieldName, String fieldLabel, DisplayType displayType,
-			boolean nullable, boolean creatable, boolean updatable, String comments, String refEntity, CascadeModel cascade,
+			boolean nullable, boolean creatable, boolean updatable, boolean repeatable, String comments, String refEntity, CascadeModel cascade,
 			JSON extConfig, Object defaultValue) {
 		if (displayType == DisplayType.SERIES) {
 			nullable = false;
 			creatable = false;
 			updatable = false;
+			repeatable = false;
+		} else if (EntityHelper.AutoId.equalsIgnoreCase(fieldName)) {
+			repeatable = false;
 		}
-		
+
 		Record recordOfField = EntityHelper.forNew(EntityHelper.MetaField, user);
 		recordOfField.setString("belongEntity", entity.getName());
 		recordOfField.setString("fieldName", fieldName);
