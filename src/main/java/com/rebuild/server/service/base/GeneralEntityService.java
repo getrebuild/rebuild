@@ -558,11 +558,18 @@ public class GeneralEntityService extends ObservableService  {
 				.append(StringUtils.join(norepeatFields.iterator(), ", "))
 				.append(" from ")
 				.append(entity.getName())
-				.append(" where ");
+				.append(" where ( ");
 		for (String field : norepeatFields) {
 			checkSql.append(field).append(" = ? or ");
 		}
-		checkSql.delete(checkSql.length() - 4, checkSql.length());
+		checkSql.delete(checkSql.length() - 4, checkSql.length()).append(" )");
+
+		// 排除自己
+		if (record.getPrimary() != null) {
+			checkSql.append(" and ").append(entity.getPrimaryField().getName())
+					.append(" <> ")
+					.append(String.format("'%s'", record.getPrimary().toLiteral()));
+		}
 
 		Query query = aPMFactory.createQuery(checkSql.toString());
 
@@ -570,7 +577,7 @@ public class GeneralEntityService extends ObservableService  {
 		for (String field : norepeatFields) {
 			query.setParameter(index++, record.getObjectValue(field));
 		}
-		List<Record> repeated = query.list();
+		List<Record> repeated = query.setLimit(100).list();
 		return repeated;
 	}
 }

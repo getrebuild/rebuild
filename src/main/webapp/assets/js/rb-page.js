@@ -383,3 +383,13 @@ var $initUserSelect2 = function (el, multiple) {
   })
   return s
 }
+
+// 保持模态窗口（如果需要）
+var $keepModalOpen = function () {
+  if ($('.rbmodal.show, .rbview.show').length > 0) {
+    let $body = $(document.body)
+    if (!$body.hasClass('modal-open')) $body.addClass('modal-open').css({ 'padding-right': 17 })
+    return true
+  }
+  return false
+}

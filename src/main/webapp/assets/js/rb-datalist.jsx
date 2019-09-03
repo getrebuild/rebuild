@@ -664,13 +664,7 @@ class RbViewModal extends React.Component {
     root.on('hidden.bs.modal', function () {
       mc.css({ 'margin-right': -1500 })
       that.setState({ inLoad: true, isHide: true })
-
-      // 如果还有其他 rbview 处于 open 态， 则保持 modal-open
-      if ($('.rbview.show').length > 0) {
-        $(document.body).addClass('modal-open').css({ 'padding-right': 17 })
-      } else {
-        location.hash = '!/View/'
-      }
+      if (!$keepModalOpen()) location.hash = '!/View/'
 
       // SubView
       if (that.state.disposeOnHide === true) {

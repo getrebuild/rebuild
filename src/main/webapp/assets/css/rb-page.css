@@ -2350,3 +2350,21 @@ form {
     color: #fff;
     width: 60px;
 }
+
+.repeated-table {
+    margin-bottom: 0;
+}
+
+.repeated-table td,
+.repeated-table th {
+    padding: 9px 10px;
+}
+
+.repeated-table th {
+    border-top: 0 none;
+    padding-top: 0;
+}
+
+.repeated-table td.actions .icon {
+    font-size: 1.28rem !important;
+}
