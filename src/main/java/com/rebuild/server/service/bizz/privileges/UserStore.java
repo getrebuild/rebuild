@@ -18,23 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.bizz.privileges;
 
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.Application;
-
 import cn.devezhao.bizz.privileges.Privileges;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.bizz.security.EntityPrivileges;
@@ -43,6 +26,21 @@ import cn.devezhao.bizz.security.member.NoMemberFoundException;
 import cn.devezhao.bizz.security.member.Role;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 
@@ -155,7 +153,7 @@ public class UserStore {
 	 * @return
 	 */
 	public User[] getAllUsers() {
-		return USERs.values().toArray(new User[USERs.size()]);
+		return USERs.values().toArray(new User[0]);
 	}
 	
 	/**
@@ -175,7 +173,7 @@ public class UserStore {
 	 * @return
 	 */
 	public Department[] getAllDepartments() {
-		return DEPTs.values().toArray(new Department[DEPTs.size()]);
+		return DEPTs.values().toArray(new Department[0]);
 	}
 	
 	/**
@@ -190,7 +188,7 @@ public class UserStore {
 				top.add(dept);
 			}
 		}
-		return top.toArray(new Department[top.size()]);
+		return top.toArray(new Department[0]);
 	}
 	
 	/**
@@ -210,7 +208,7 @@ public class UserStore {
 	 * @return
 	 */
 	public Role[] getAllRoles() {
-		return ROLEs.values().toArray(new Role[ROLEs.size()]);
+		return ROLEs.values().toArray(new Role[0]);
 	}
 	
 	/**
@@ -308,7 +306,7 @@ public class UserStore {
 	 */
 	public void removeRole(ID roleId, ID transferTo) {
 		Role role = getRole(roleId);
-		Principal[] users = role.getMembers().toArray(new Principal[role.getMembers().size()]);
+		Principal[] users = role.getMembers().toArray(new Principal[0]);
 		
 		if (transferTo != null) {
  			Role transferToRole = getRole(transferTo);
@@ -371,7 +369,7 @@ public class UserStore {
 	 */
 	public void removeDepartment(ID deptId, ID transferTo) {
 		Department dept = getDepartment(deptId);
-		Principal[] users = dept.getMembers().toArray(new Principal[dept.getMembers().size()]);
+		Principal[] users = dept.getMembers().toArray(new Principal[0]);
 		
 		if (transferTo != null) {
  			Department transferToDept = getDepartment(transferTo);
@@ -411,20 +409,12 @@ public class UserStore {
 			
 			ID roleId = (ID) o[7];
 			if (roleId != null) {
-				Set<ID> roleOfUser = roleOfUserMap.get(roleId);
-				if (roleOfUser == null) {
-					roleOfUser = new HashSet<ID>();
-					roleOfUserMap.put(roleId, roleOfUser);
-				}
+				Set<ID> roleOfUser = roleOfUserMap.computeIfAbsent(roleId, k -> new HashSet<>());
 				roleOfUser.add(userId);
 			}
 			ID deptId = (ID) o[6];
 			if (deptId != null) {
-				Set<ID> deptOfUser = deptOfUserMap.get(deptId);
-				if (deptOfUser == null) {
-					deptOfUser = new HashSet<ID>();
-					deptOfUserMap.put(deptId, deptOfUser);
-				}
+				Set<ID> deptOfUser = deptOfUserMap.computeIfAbsent(deptId, k -> new HashSet<>());
 				deptOfUser.add(userId);
 			}
 			
@@ -468,11 +458,7 @@ public class UserStore {
 			
 			ID parent = (ID) o[3];
 			if (parent != null) {
-				Set<ID> child = parentTemp.get(parent);
-				if (child == null) {
-					child = new HashSet<>();
-					parentTemp.put(parent, child);
-				}
+				Set<ID> child = parentTemp.computeIfAbsent(parent, k -> new HashSet<>());
 				child.add(deptId);
 			}
 			

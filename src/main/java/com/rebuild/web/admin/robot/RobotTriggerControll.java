@@ -88,7 +88,7 @@ public class RobotTriggerControll extends BasePageControll {
 	@RequestMapping("trigger/available-actions")
 	public void getAvailableActions(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ActionType[] ts = ActionFactory.getAvailableActions();
-		List<String[]> list = new ArrayList<String[]>();
+		List<String[]> list = new ArrayList<>();
 		for (ActionType t : ts) {
 			list.add(new String[] { t.name(), t.getDisplayName() });
 		}
@@ -100,7 +100,7 @@ public class RobotTriggerControll extends BasePageControll {
 		String actionType = getParameterNotNull(request, "action");
 		TriggerAction action = ActionFactory.createAction(actionType);
 		
-		List<String[]> list = new ArrayList<String[]>();
+		List<String[]> list = new ArrayList<>();
 		for (Entity e : MetadataHelper.getEntities()) {
 			if (!MetadataHelper.hasPrivilegesField(e)) {
 				if (e.getMasterEntity() != null) {

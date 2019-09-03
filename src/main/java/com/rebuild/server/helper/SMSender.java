@@ -18,11 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
+import cn.devezhao.commons.ThreadPool;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jsoup.Jsoup;
@@ -30,12 +30,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.util.Assert;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.rebuild.utils.CommonsUtils;
-
-import cn.devezhao.commons.ThreadPool;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * SUBMAIL SMS/MAIL 发送类
@@ -63,14 +61,11 @@ public class SMSender {
 	 * @param content
 	 */
 	public static void sendMailAsync(String to, String subject, String content) {
-		ThreadPool.exec(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					sendMail(to, subject, content, true);
-				} catch (Exception ex) {
-					LOG.error("Mail send failure: " + to + " < " + subject, ex);
-				}
+		ThreadPool.exec(() -> {
+			try {
+				sendMail(to, subject, content, true);
+			} catch (Exception ex) {
+				LOG.error("Mail send failure: " + to + " < " + subject, ex);
 			}
 		});
 	}
@@ -185,14 +180,11 @@ public class SMSender {
 	 * @param content
 	 */
 	public static void sendSMSAsync(String to, String content) {
-		ThreadPool.exec(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					sendSMS(to, content);
-				} catch (Exception ex) {
-					LOG.error("SMS send failure: " + to, ex);
-				}
+		ThreadPool.exec(() -> {
+			try {
+				sendSMS(to, content);
+			} catch (Exception ex) {
+				LOG.error("SMS send failure: " + to, ex);
 			}
 		});
 	}

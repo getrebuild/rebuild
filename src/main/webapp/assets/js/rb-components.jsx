@@ -8,7 +8,7 @@ class RbModal extends React.Component {
   }
   render() {
     let inFrame = !this.props.children
-    return (<div className="modal rbmodal colored-header colored-header-primary" ref={(c) => this._rbmodal = c}>
+    return (<div className={`modal rbmodal colored-header colored-header-${this.props.colored || 'primary'}`} ref={(c) => this._rbmodal = c}>
       <div className="modal-dialog" style={{ maxWidth: (this.props.width || 680) + 'px' }}>
         <div className="modal-content">
           <div className="modal-header modal-header-colored">
@@ -24,11 +24,10 @@ class RbModal extends React.Component {
     </div>)
   }
   componentDidMount() {
-    this.show()
+    $(this._rbmodal).modal({ show: true, backdrop: this.props.backdrop === false ? false : 'static', keyboard: false }).on('hidden.bs.modal', () => $keepModalOpen())
   }
   show() {
-    let root = $(this._rbmodal)
-    root.modal({ show: true, backdrop: 'static', keyboard: false })
+    $(this._rbmodal).modal('show')
     typeof this.props.onShow === 'function' && this.props.onShow(this)
   }
   hide() {

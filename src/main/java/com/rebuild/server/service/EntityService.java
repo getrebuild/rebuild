@@ -37,7 +37,7 @@ public interface EntityService extends ServiceSpec {
 	 * 取消共享，跟随共享权限
 	 * @see BizzPermission
 	 */
-	public static final Permission UNSHARE = new BizzPermission("UNSHARE", 1 << 6, true);
+	Permission UNSHARE = new BizzPermission("UNSHARE", 1 << 6, true);
 
 	/**
 	 * 删除

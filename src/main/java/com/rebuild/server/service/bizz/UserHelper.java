@@ -180,7 +180,7 @@ public class UserHelper {
 		if (ms == null || ms.isEmpty()) {
 			return new Member[0];
 		}
-		return ms.toArray(new Member[ms.size()]);
+		return ms.toArray(new Member[0]);
 	}
 	
 	/**
@@ -212,7 +212,7 @@ public class UserHelper {
 	public static Set<ID> parseUsers(Collection<String> userDefs, ID record) {
 		Entity entity = record == null ? null : MetadataHelper.getEntity(record.getEntityCode());
 		
-		Set<ID> bizzs = new HashSet<ID>();
+		Set<ID> bizzs = new HashSet<>();
 		Set<String> fromFields = new HashSet<>();
 		for (String def : userDefs) {
 			if (ID.isId(def)) {

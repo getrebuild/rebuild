@@ -62,10 +62,10 @@ public enum ConfigurableItem {
 	
 	private Object defaultVal;
 	
-	private ConfigurableItem() {
+	ConfigurableItem() {
 	}
-	
-	private ConfigurableItem(Object defaultVal) {
+
+	ConfigurableItem(Object defaultVal) {
 		this.defaultVal = defaultVal;
 	}
 	

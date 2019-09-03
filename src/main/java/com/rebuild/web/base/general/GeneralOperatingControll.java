@@ -27,10 +27,13 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.ServiceSpec;
@@ -52,6 +55,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -66,6 +70,9 @@ import java.util.Set;
 @RequestMapping("/app/entity/")
 public class GeneralOperatingControll extends BaseControll {
 
+	// 重复字段值
+	public static final int CODE_REPEATED_VALUES = 499;
+
 	@RequestMapping("record-save")
 	public void save(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
@@ -78,7 +85,17 @@ public class GeneralOperatingControll extends BaseControll {
 			writeFailure(response, know.getLocalizedMessage());
 			return;
 		}
-		
+
+		List<Record> repeated = Application.getGeneralEntityService().checkRepeated(record);
+		if (!repeated.isEmpty()) {
+			JSONObject map = new JSONObject();
+			map.put("error_code", CODE_REPEATED_VALUES);
+			map.put("error_msg", "存在重复值");
+			map.put("data", buildRepeatedData(repeated));
+			writeJSON(response, map);
+			return;
+		}
+
 		try {
 			record = Application.getService(record.getEntity().getEntityCode()).createOrUpdate(record);
 		} catch (AccessDeniedException | DataSpecificationException know) {
@@ -447,5 +464,46 @@ public class GeneralOperatingControll extends BaseControll {
 			}
 		}
 		return casList.toArray(new String[0]);
+	}
+
+	/**
+	 * 转成二维数组（首行为字段名，首列为ID）
+	 *
+	 * @param records
+	 * @return
+	 */
+	private JSON buildRepeatedData(List<Record> records) {
+		Entity entity = records.get(0).getEntity();
+
+		// 准备字段
+		List<String> fields = new ArrayList<>();
+		fields.add(entity.getPrimaryField().getName());
+		for (Record r : records) {
+			for (Iterator<String> iter = r.getAvailableFieldIterator(); iter.hasNext(); ) {
+				String field = iter.next();
+				if (!fields.contains(field)) {
+					fields.add(field);
+				}
+			}
+		}
+
+		JSONArray fieldsJson = new JSONArray();
+		for (String field : fields) {
+			fieldsJson.add(EasyMeta.getLabel(entity.getField(field)));
+		}
+
+		JSONArray data = new JSONArray();
+		data.add(fieldsJson);
+
+		for (Record r : records) {
+			JSONArray valuesJson = new JSONArray();
+			for (String field : fields) {
+				Object value = r.getObjectValue(field);
+				value = FieldValueWrapper.instance.wrapFieldValue(value, entity.getField(field));
+				valuesJson.add(value);
+			}
+			data.add(valuesJson);
+		}
+		return data;
 	}
 }

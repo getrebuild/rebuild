@@ -38,7 +38,7 @@ public enum FormatCalc {
 	
 	private String label;
 	
-	private FormatCalc(String label) {
+	FormatCalc(String label) {
 		this.label = label;
 	}
 	

@@ -18,21 +18,19 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.cache;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.metadata.MetadataHelper;
+import org.apache.commons.lang.StringUtils;
 
-import cn.devezhao.persist4j.engine.ID;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 最近使用的数据（引用搜索）
@@ -104,7 +102,7 @@ public class RecentlyUsedCache {
 			cacheManager.putx(key, exists, Integer.MAX_VALUE);
 		}
 		
-		return data.toArray(new ID[data.size()]);
+		return data.toArray(new ID[0]);
 	}
 	
 	/**
@@ -124,7 +122,7 @@ public class RecentlyUsedCache {
 		LinkedList<ID> exists = (LinkedList<ID>) cacheManager.getx(key);
 		if (exists == null) {
 			exists = new LinkedList<>();
-		} else if (exists.contains(id)) {
+		} else {
 			exists.remove(id);
 		}
 		

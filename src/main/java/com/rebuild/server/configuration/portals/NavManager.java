@@ -131,7 +131,7 @@ public class NavManager extends BaseLayoutManager {
 		boolean isUrlType = "URL".equals(item.getString("type"));
 		String navUrl = item.getString("value");
 		if (!isUrlType) {
-			navUrl = ServerListener.getContextPath() + "/app/" + navUrl + "/list";
+			navUrl = ServerListener.getContextPath() + "/app/" + navUrl.toLowerCase() + "/list";
 		} else {
 			navName = "nav_url-" + navName.hashCode();
 			navUrl = ServerListener.getContextPath() + "/commons/url-safe?url=" + CodecUtils.urlEncode(navUrl);

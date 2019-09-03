@@ -34,6 +34,7 @@ import com.rebuild.server.metadata.ExtRecordCreator;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Date;
@@ -292,14 +293,15 @@ public class DataImporter extends HeavyTask<Integer> {
 			return null;
 		}
 		
-		String sql = null;
+		String findSql = null;
 		if (oEntity.getEntityCode() == EntityHelper.User) {
-			sql = String.format("select userId from User where loginName = '%s' or email = '%s'", textVal, textVal);
+			textVal = StringEscapeUtils.escapeSql(textVal.toString());
+			findSql = String.format("select userId from User where loginName = '%s' or email = '%s'", textVal, textVal);
 		} else {
-			sql = String.format("select %s from %s where %s = '%s'",
+			findSql = String.format("select %s from %s where %s = ?",
 					oEntity.getPrimaryField().getName(), oEntity.getName(), oEntity.getNameField().getName());
 		}
-		Object[] found = Application.createQueryNoFilter(sql).setParameter(1, textVal).unique();
+		Object[] found = Application.createQueryNoFilter(findSql).setParameter(1, textVal).unique();
 		return found == null ? null : (ID) found[0];
 	}
 	
@@ -345,13 +347,13 @@ public class DataImporter extends HeavyTask<Integer> {
 		}
 		
 		Entity entity = data.getEntity();
-		String sql = String.format("select %s from %s where (1=1)",
-				entity.getPrimaryField().getName(), entity.getName());
+		StringBuilder sql = new StringBuilder(String.format("select %s from %s where (1=1)",
+				entity.getPrimaryField().getName(), entity.getName()));
 		for (String c : wheres.keySet()) {
-			sql += " and " + c + " = :" + c;
+			sql.append(" and ").append(c).append(" = :").append(c);
 		}
 		
-		Query query = Application.createQueryNoFilter(sql);
+		Query query = Application.createQueryNoFilter(sql.toString());
 		for (Map.Entry<String, Object> e : wheres.entrySet()) {
 			query.setParameter(e.getKey(), e.getValue());
 		}

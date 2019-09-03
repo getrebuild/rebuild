@@ -18,18 +18,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.StringUtils;
 
-import cn.devezhao.persist4j.engine.ID;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 曲线图
@@ -60,7 +58,7 @@ public class LineChart extends ChartData {
 				@SuppressWarnings("unchecked")
 				List<String> numAxis = (List<String>) numsAxis[i];
 				if (numAxis == null) {
-					numAxis = new ArrayList<String>();
+					numAxis = new ArrayList<>();
 					numsAxis[i] = numAxis;
 				}
 				numAxis.add(wrapAxisValue(nums[i], o[i + 1]));

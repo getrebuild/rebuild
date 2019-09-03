@@ -100,10 +100,7 @@ public class User extends cn.devezhao.bizz.security.member.User {
 		if (getOwningDept() == null || getOwningDept().isDisabled()) {
 			return false;
 		}
-		if (getOwningRole() == null || getOwningRole().isDisabled()) {
-			return false;
-		}
-		return true;
+		return getOwningRole() != null && !getOwningRole().isDisabled();
 	}
 	
 	/**

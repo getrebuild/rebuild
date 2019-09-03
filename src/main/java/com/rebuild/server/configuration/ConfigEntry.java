@@ -18,18 +18,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.springframework.util.Assert;
-
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.JSONable;
+import org.springframework.util.Assert;
 
-import cn.devezhao.persist4j.engine.ID;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -41,7 +39,7 @@ public class ConfigEntry implements Serializable, Cloneable, JSONable {
 	private Map<String, Object> entryMap = null;
 
 	public ConfigEntry() {
-		this.entryMap = new HashMap<String, Object>();
+		this.entryMap = new HashMap<>();
 	}
 	
 	/**

@@ -18,19 +18,17 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
+import com.rebuild.api.Controll;
+import com.rebuild.utils.AppUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
-import com.alibaba.fastjson.JSON;
-import com.rebuild.api.Controll;
-import com.rebuild.utils.AppUtils;
-
-import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.persist4j.engine.ID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 基础 Controll
@@ -86,7 +84,7 @@ public abstract class BaseControll extends Controll {
 	 * @param response
 	 * @param aJson
 	 */
-	private void writeJSON(HttpServletResponse response, Object aJson) {
+	protected void writeJSON(HttpServletResponse response, Object aJson) {
 		if (aJson == null) {
 			throw new IllegalArgumentException();
 		}
@@ -163,7 +161,7 @@ public abstract class BaseControll extends Controll {
 	 */
 	protected boolean getBoolParameter(HttpServletRequest req, String name) {
 		String v = req.getParameter(name);
-		return v == null ? false : BooleanUtils.toBoolean(v);
+		return v != null && BooleanUtils.toBoolean(v);
 	}
 	
 	/**

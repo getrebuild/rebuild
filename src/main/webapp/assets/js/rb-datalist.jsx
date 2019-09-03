@@ -329,6 +329,7 @@ CellRenders.addRender('IMAGE', function (v, s, k) {
   return <td key={k} className="td-min">
     <div style={s} className="column-imgs" title={v.length + ' 个图片'}>
       {v.map((item, idx) => {
+        if (idx > 2) return null
         let imgUrl = rb.baseUrl + '/filex/img/' + item
         let imgName = $fileCutName(item)
         return <a key={'k-' + item} title={imgName} onClick={() => RbPreview.create(v, idx)}><img src={imgUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a>
@@ -338,10 +339,12 @@ CellRenders.addRender('FILE', function (v, s, k) {
   v = JSON.parse(v || '[]')
   return <td key={k} className="td-min"><div style={s} className="column-files">
     <ul className="list-unstyled" title={v.length + ' 个文件'}>
-      {v.map((item) => {
+      {v.map((item, idx) => {
+        if (idx > 0) return null
         let fileName = $fileCutName(item)
         return <li key={'k-' + item} className="text-truncate"><a title={fileName} onClick={() => RbPreview.create(item)}>{fileName}</a></li>
-      })}</ul>
+      })}
+    </ul>
   </div></td>
 })
 CellRenders.addRender('REFERENCE', function (v, s, k) {
@@ -664,13 +667,7 @@ class RbViewModal extends React.Component {
     root.on('hidden.bs.modal', function () {
       mc.css({ 'margin-right': -1500 })
       that.setState({ inLoad: true, isHide: true })
-
-      // 如果还有其他 rbview 处于 open 态， 则保持 modal-open
-      if ($('.rbview.show').length > 0) {
-        $(document.body).addClass('modal-open').css({ 'padding-right': 17 })
-      } else {
-        location.hash = '!/View/'
-      }
+      if (!$keepModalOpen()) location.hash = '!/View/'
 
       // SubView
       if (that.state.disposeOnHide === true) {

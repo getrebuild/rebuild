@@ -18,21 +18,19 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.approval;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.StringUtils;
 
-import cn.devezhao.persist4j.engine.ID;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 流程节点
@@ -138,7 +136,7 @@ public class FlowNode {
 		
 		String userType = userDefs.getString(0);
 		if (USER_SELF.equalsIgnoreCase(userType)) {
-			Set<ID> users = new HashSet<ID>();
+			Set<ID> users = new HashSet<>();
 			ID owning = Application.getRecordOwningCache().getOwningUser(record);
 			users.add(owning);
 			return users;

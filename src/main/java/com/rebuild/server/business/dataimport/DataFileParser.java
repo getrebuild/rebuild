@@ -96,7 +96,7 @@ public class DataFileParser {
         final List<Cell[]> rows = new ArrayList<>();
         try (InputStream is = new FileInputStream(this.sourceFile)) {
             try (BufferedInputStream bis = new BufferedInputStream(is)) {
-                new com.alibaba.excel.ExcelReader(bis, null, new AnalysisEventListener() {
+                new com.alibaba.excel.ExcelReader(bis, null, new AnalysisEventListener<Object>() {
                     @Override
                     public void invoke(Object object, AnalysisContext context) {
                         if (rows.size() >= maxRows) {

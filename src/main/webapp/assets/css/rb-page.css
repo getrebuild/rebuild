@@ -924,8 +924,7 @@ i.split.ui-draggable-dragging {
     overflow: hidden;
 }
 
-.column-imgs a:hover,
-.column-files a:hover {
+.column-imgs a:hover {
     opacity: 0.8;
 }
 
@@ -959,8 +958,12 @@ i.split.ui-draggable-dragging {
 }
 
 .column-files ul>li>a {
-    color: #404040;
+    color: #777;
     cursor: pointer;
+}
+
+.column-files ul>li>a:hover {
+    text-decoration: underline !important
 }
 
 .column-checkbox {
@@ -2219,9 +2222,9 @@ form {
     max-width: 600px;
     padding: 15px;
     padding-top: 20px;
-    box-shadow: 0 3px 0.3077rem rgba(0, 0, 0, .1);
+    box-shadow: 0 3px 0.6rem rgba(0, 0, 0, .1);
     background: #fff;
-    border-radius: 3px;
+    border-radius: 2px;
     display: none;
 }
 
@@ -2349,4 +2352,22 @@ form {
     font-size: 1rem;
     color: #fff;
     width: 60px;
+}
+
+.repeated-table {
+    margin-bottom: 0;
+}
+
+.repeated-table td,
+.repeated-table th {
+    padding: 9px 10px;
+}
+
+.repeated-table th {
+    border-top: 0 none;
+    padding-top: 0;
+}
+
+.repeated-table td.actions .icon {
+    font-size: 1.28rem !important;
 }

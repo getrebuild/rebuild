@@ -52,6 +52,7 @@
         "$same": true,
         "$unmount": true,
         "$initUserSelect2": true,
+        "$keepModalOpen": true,
         "rb": true,
         "renderRbcomp": true,
         "RbSpinner": true,

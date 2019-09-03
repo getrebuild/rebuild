@@ -31,6 +31,7 @@ import cn.devezhao.persist4j.util.support.Table;
 import com.alibaba.fastjson.JSON;
 import com.hankcs.hanlp.HanLP;
 import com.rebuild.server.Application;
+import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.helper.BlackList;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -54,6 +55,9 @@ import java.util.Set;
 public class Field2Schema {
 
 	private static final Log LOG = LogFactory.getLog(Field2Schema.class);
+
+	// 小数位真实长度
+	private static final int DECIMAL_SCALE = 8;
 	
 	final protected ID user;
 	final protected Set<ID> tempMetaId = new HashSet<>();
@@ -91,7 +95,7 @@ public class Field2Schema {
 		}
 		
 		Field field = createUnsafeField(
-				entity, fieldName, fieldLabel, type, true, true, true, comments, refEntity, null, extConfig, null);
+				entity, fieldName, fieldLabel, type, true, true, true, true, comments, refEntity, null, extConfig, null);
 		
 		boolean schemaReady = schema2Database(entity, new Field[] { field });
 		if (!schemaReady) {
@@ -193,6 +197,7 @@ public class Field2Schema {
 	 * @param nullable
 	 * @param creatable
 	 * @param updatable
+	 * @param repeatable
 	 * @param comments
 	 * @param refEntity
 	 * @param cascade
@@ -202,14 +207,17 @@ public class Field2Schema {
 	 * @see #createField(Entity, String, DisplayType, String, String, JSON)
 	 */
 	public Field createUnsafeField(Entity entity, String fieldName, String fieldLabel, DisplayType displayType,
-			boolean nullable, boolean creatable, boolean updatable, String comments, String refEntity, CascadeModel cascade,
+			boolean nullable, boolean creatable, boolean updatable, boolean repeatable, String comments, String refEntity, CascadeModel cascade,
 			JSON extConfig, Object defaultValue) {
 		if (displayType == DisplayType.SERIES) {
 			nullable = false;
 			creatable = false;
 			updatable = false;
+			repeatable = false;
+		} else if (EntityHelper.AutoId.equalsIgnoreCase(fieldName)) {
+			repeatable = false;
 		}
-		
+
 		Record recordOfField = EntityHelper.forNew(EntityHelper.MetaField, user);
 		recordOfField.setString("belongEntity", entity.getName());
 		recordOfField.setString("fieldName", fieldName);
@@ -220,6 +228,7 @@ public class Field2Schema {
 		recordOfField.setBoolean("nullable", nullable);
 		recordOfField.setBoolean("creatable", creatable);
 		recordOfField.setBoolean("updatable", updatable);
+		recordOfField.setBoolean("repeatable", repeatable);
 		if (StringUtils.isNotBlank(comments)) {
 			recordOfField.setString("comments", comments);
 		}
@@ -266,18 +275,19 @@ public class Field2Schema {
 		
 		boolean autoValue = EntityHelper.AutoId.equalsIgnoreCase(fieldName);
 		if (EntityHelper.ApprovalState.equalsIgnoreCase(fieldName)) {
-			defaultValue = "1";
+			defaultValue = ApprovalState.DRAFT.getState();
 		}
-		if (MetadataHelper.isCommonsField(fieldName) 
+
+		if (MetadataHelper.isCommonsField(fieldName)
 				&& !(MetadataHelper.isApprovalField(fieldName) || fieldName.equalsIgnoreCase(EntityHelper.QuickCode))) {
 			nullable = false;
 		} else {
 			nullable = true;
 		}
-		
+
 		Field unsafeField = new FieldImpl(
 				fieldName, physicalName, fieldLabel, entity, displayType.getFieldType(), CascadeModel.Ignore, maxLength, 
-				nullable, creatable, updatable, true, 8, defaultValue, autoValue);
+				nullable, creatable, updatable, repeatable, DECIMAL_SCALE, defaultValue, autoValue);
 		if (entity instanceof UnsafeEntity) {
 			((UnsafeEntity) entity).addField(unsafeField);
 		}

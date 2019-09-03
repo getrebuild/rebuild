@@ -29,7 +29,6 @@ import org.apache.commons.lang.ArrayUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -91,7 +90,7 @@ public class MetadataSorter {
 			}
 		}
 
-		return list.toArray(new Entity[list.size()]);
+		return list.toArray(new Entity[0]);
 	}
 	
 	/**
@@ -126,15 +125,15 @@ public class MetadataSorter {
 			}
 		}
 		
-		Field[] allFields = othersFields.toArray(new Field[othersFields.size()]);
+		Field[] allFields = othersFields.toArray(new Field[0]);
 		sortBaseMeta(allFields);
 		// 公共字段在后
-		Field[] commonsFieldsAry = commonsFields.toArray(new Field[commonsFields.size()]);
+		Field[] commonsFieldsAry = commonsFields.toArray(new Field[0]);
 		sortBaseMeta(commonsFieldsAry);
 		allFields = (Field[]) ArrayUtils.addAll(allFields, commonsFieldsAry);
 		// 审批字段在后
 		if (!approvalFields.isEmpty()) {
-			Field[] approvalFieldsAry = approvalFields.toArray(new Field[approvalFields.size()]);
+			Field[] approvalFieldsAry = approvalFields.toArray(new Field[0]);
 			sortBaseMeta(approvalFieldsAry);
 			allFields = (Field[]) ArrayUtils.addAll(allFields, approvalFieldsAry);
 		}
@@ -147,7 +146,7 @@ public class MetadataSorter {
 					list.add(field);
 				}
 			}
-			return list.toArray(new Field[list.size()]);
+			return list.toArray(new Field[0]);
 		}
 		
 		List<Field> list = new ArrayList<>();
@@ -160,7 +159,7 @@ public class MetadataSorter {
 				}
 			}
 		}
-		return list.toArray(new Field[list.size()]);
+		return list.toArray(new Field[0]);
 	}
 	
 	/**
@@ -169,13 +168,10 @@ public class MetadataSorter {
 	 * @param metas
 	 */
 	private static void sortBaseMeta(BaseMeta[] metas) {
-		Arrays.sort(metas, new Comparator<BaseMeta>() {
-			@Override
-			public int compare(BaseMeta foo, BaseMeta bar) {
-				String fooLetter = EasyMeta.getLabel(foo);
-				String barLetter = EasyMeta.getLabel(bar);
-				return fooLetter.compareTo(barLetter);
-			}
+		Arrays.sort(metas, (foo, bar) -> {
+			String fooLetter = EasyMeta.getLabel(foo);
+			String barLetter = EasyMeta.getLabel(bar);
+			return fooLetter.compareTo(barLetter);
 		});
 	}
 }

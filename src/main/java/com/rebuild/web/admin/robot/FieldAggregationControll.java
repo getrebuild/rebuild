@@ -18,19 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.admin.robot;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
@@ -38,9 +27,17 @@ import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -90,8 +87,8 @@ public class FieldAggregationControll extends BaseControll {
 		String target = getParameter(request, "target");
 		Entity targetEntity = StringUtils.isBlank(target) ? null : MetadataHelper.getEntity(target);
 		
-		List<String[]> sourceFields = new ArrayList<String[]>();
-		List<String[]> targetFields = new ArrayList<String[]>();
+		List<String[]> sourceFields = new ArrayList<>();
+		List<String[]> targetFields = new ArrayList<>();
 		for (Field field : MetadataSorter.sortFields(sourceEntity.getFields(), DisplayType.NUMBER, DisplayType.DECIMAL)) {
 			sourceFields.add(new String[] { field.getName(), EasyMeta.getLabel(field) });
 		}

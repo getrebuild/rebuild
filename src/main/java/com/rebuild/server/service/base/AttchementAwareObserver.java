@@ -18,13 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.base;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
-
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
@@ -34,10 +30,12 @@ import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.OperatingObserver;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * 更新媒体字段到附件表
@@ -73,8 +71,7 @@ public class AttchementAwareObserver extends OperatingObserver {
 			return;
 		}
 		
-		Application.getCommonService().createOrUpdate(
-				createWill.toArray(new Record[createWill.size()]));
+		Application.getCommonService().createOrUpdate(createWill.toArray(new Record[0]));
 	}
 	
 	@Override
@@ -130,7 +127,7 @@ public class AttchementAwareObserver extends OperatingObserver {
 		}
 		
 		Application.getCommonService().createOrUpdate(
-				createWill.toArray(new Record[createWill.size()]), deleteWill.toArray(new ID[deleteWill.size()]));
+				createWill.toArray(new Record[0]), deleteWill.toArray(new ID[0]));
 	}
 	
 	@Override
@@ -153,8 +150,7 @@ public class AttchementAwareObserver extends OperatingObserver {
 			return;
 		}
 		
-		Application.getCommonService().delete(
-				deleteWill.toArray(new ID[deleteWill.size()]));
+		Application.getCommonService().delete(deleteWill.toArray(new ID[0]));
 	}
 	
 	/**

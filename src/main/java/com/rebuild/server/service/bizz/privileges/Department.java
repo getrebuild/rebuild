@@ -18,14 +18,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.bizz.privileges;
 
+import cn.devezhao.bizz.security.member.BusinessUnit;
+import cn.devezhao.persist4j.engine.ID;
+
 import java.io.Serializable;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import cn.devezhao.bizz.security.member.BusinessUnit;
-import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 部门
@@ -78,8 +78,7 @@ public class Department extends BusinessUnit {
 	 * @return
 	 */
 	public Set<BusinessUnit> getAllChildren() {
-		Set<BusinessUnit> children = new HashSet<>();
-		children.addAll(getChildren());
+		Set<BusinessUnit> children = new HashSet<>(getChildren());
 		for (BusinessUnit child : getChildren()) {
 			children.addAll(((Department) child).getAllChildren());
 		}

@@ -20,12 +20,7 @@ package com.rebuild.server.metadata;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.engine.ID;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.TestSupport;
-import com.rebuild.server.configuration.portals.FormsBuilder;
-import com.rebuild.utils.JSONUtils;
 import org.junit.Test;
 
 /**

@@ -94,7 +94,14 @@ var __initNavs = function () {
   $('.sidebar-elements li.parent').click(function (e) {
     var _this = $(this)
     _this.toggleClass('open')
-    _this.find('.sub-menu').toggleClass('visible')
+    let $sub = _this.find('.sub-menu')
+    // if (!$sub.hasClass('visible')) {
+    //   let subHeight = $sub.height()
+    //   $sub.css({ height: 0, overflow: 'hidden' })
+    //   $sub.animate({ height: subHeight + 22 }, 200)
+    // }
+    $sub.toggleClass('visible')
+
     e.stopPropagation()
     currsntSubnav = _this
     _this.find('a').eq(0).tooltip('hide')
@@ -382,4 +389,14 @@ var $initUserSelect2 = function (el, multiple) {
     if (v) $.post(rb.baseUrl + '/commons/search/recently-add?type=UDR&id=' + v)
   })
   return s
+}
+
+// 保持模态窗口（如果需要）
+var $keepModalOpen = function () {
+  if ($('.rbmodal.show, .rbview.show').length > 0) {
+    let $body = $(document.body)
+    if (!$body.hasClass('modal-open')) $body.addClass('modal-open').css({ 'padding-right': 17 })
+    return true
+  }
+  return false
 }

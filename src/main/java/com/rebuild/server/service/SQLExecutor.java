@@ -18,6 +18,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service;
 
+import cn.devezhao.persist4j.DataAccessException;
+import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.engine.JdbcSupport;
+import cn.devezhao.persist4j.engine.StatementCallback;
+import cn.devezhao.persist4j.util.SqlHelper;
+import org.springframework.jdbc.datasource.DataSourceUtils;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,14 +32,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.springframework.jdbc.datasource.DataSourceUtils;
-
-import cn.devezhao.persist4j.DataAccessException;
-import cn.devezhao.persist4j.PersistManagerFactory;
-import cn.devezhao.persist4j.engine.JdbcSupport;
-import cn.devezhao.persist4j.engine.StatementCallback;
-import cn.devezhao.persist4j.util.SqlHelper;
 
 /**
  * 原生 SQL 执行者
@@ -55,7 +54,7 @@ public class SQLExecutor {
 	 * @return
 	 */
 	public int execute(String sql) {
-		return execute(sql, 60 * 1);
+		return execute(sql, 60);
 	}
 	
 	/**
@@ -126,7 +125,7 @@ public class SQLExecutor {
 	 */
 	public int executeBatch(String[] sqls, int timeout) {
 	    int execTotal = 0;
-        List<String> tmp = new ArrayList<String>();
+        List<String> tmp = new ArrayList<>();
         for (String s : sqls) {
             tmp.add(s);
             if (tmp.size() == MAX_BATCH_SIZE) {
@@ -134,7 +133,7 @@ public class SQLExecutor {
                     final JdbcSupport jdbcSupport = (JdbcSupport) aPMFactory.createPersistManager();
                     jdbcSupport.setTimeout(timeout);
                     
-                    int[] exec = jdbcSupport.executeBatch(tmp.toArray(new String[tmp.size()]));
+                    int[] exec = jdbcSupport.executeBatch(tmp.toArray(new String[0]));
                     for (int a : exec) execTotal += a;
                 } catch (Exception ex) {
                     throw new DataAccessException("Batch SQL Error! #", ex);
@@ -148,7 +147,7 @@ public class SQLExecutor {
                 final JdbcSupport jdbcSupport = (JdbcSupport) aPMFactory.createPersistManager();
                 jdbcSupport.setTimeout(timeout);
                 
-                int[] exec = jdbcSupport.executeBatch(tmp.toArray(new String[tmp.size()]));
+                int[] exec = jdbcSupport.executeBatch(tmp.toArray(new String[0]));
                 for (int a : exec) execTotal += a;
             } catch (Exception ex) {
                 throw new DataAccessException("Batch SQL Error! #", ex);

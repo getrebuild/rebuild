@@ -18,18 +18,19 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.base;
 
-import org.junit.Assert;
-import org.junit.Test;
-
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.ServiceSpec;
 import com.rebuild.server.service.bizz.UserService;
+import org.junit.Assert;
+import org.junit.Test;
 
-import cn.devezhao.bizz.privileges.impl.BizzPermission;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
+import java.util.List;
 
 /**
  * 
@@ -41,7 +42,7 @@ public class GeneralEntityServiceTest extends TestSupport {
 	@Test
 	public void testGetEntityService() throws Exception {
 		ServiceSpec ies = Application.getService(EntityHelper.User);
-		Assert.assertTrue(ies.getEntityCode() == EntityHelper.User);
+		Assert.assertEquals(ies.getEntityCode(), EntityHelper.User);
 	}
 
 	@Test
@@ -71,5 +72,14 @@ public class GeneralEntityServiceTest extends TestSupport {
 				SIMPLE_USER,
 				new String[] { "Role", "Department" },
 				BizzPermission.DELETE);
+	}
+
+	@Test
+	public void checkRepeated() {
+		Record record = EntityHelper.forNew(TEST_ENTITY, SIMPLE_USER);
+		record.setString("TESTALLFIELDSName", "123");
+
+		List<Record> repeated = Application.getGeneralEntityService().checkRepeated(record);
+		System.out.println(JSON.toJSONString(repeated));
 	}
 }

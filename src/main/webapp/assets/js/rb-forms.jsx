@@ -33,6 +33,7 @@ class RbFormModal extends React.Component {
     )
   }
   componentDidMount() {
+    $(this._rbmodal).modal({ show: false, backdrop: 'static', keyboard: false }).on('hidden.bs.modal', () => $keepModalOpen())
     this.showAfter({}, true)
   }
 
@@ -87,7 +88,7 @@ class RbFormModal extends React.Component {
   }
   showAfter(state, modelChanged) {
     this.setState(state, () => {
-      $(this._rbmodal).modal({ show: true, backdrop: 'static', keyboard: false })
+      $(this._rbmodal).modal('show')
       if (modelChanged === true) this.getFormModel()
     })
   }
@@ -202,20 +203,17 @@ class RbForm extends React.Component {
     }
   }
 
+  // 设置字段值
   setFieldValue(field, value, error) {
     this.__FormData[field] = { value: value, error: error }
-    if (rb.env === 'dev') {
-      // eslint-disable-next-line no-console
-      console.log('FV ... ' + JSON.stringify(this.__FormData))
-    }
+    // eslint-disable-next-line no-console
+    if (rb.env === 'dev') console.log('FV ... ' + JSON.stringify(this.__FormData))
   }
   // 避免无意义更新
   setFieldUnchanged(field) {
     delete this.__FormData[field]
-    if (rb.env === 'dev') {
-      // eslint-disable-next-line no-console
-      console.log('FV ... ' + JSON.stringify(this.__FormData))
-    }
+    // eslint-disable-next-line no-console
+    if (rb.env === 'dev') console.log('FV ... ' + JSON.stringify(this.__FormData))
   }
 
   // 设置表单回填
@@ -268,6 +266,8 @@ class RbForm extends React.Component {
           }
         }, 100)
 
+      } else if (res.error_code === 499) {
+        renderRbcomp(<RepeatedViewer entity={that.state.entity} data={res.data} />)
       } else {
         RbHighbar.error(res.error_msg)
       }
@@ -306,7 +306,7 @@ class RbFormElement extends React.Component {
       if (props.isFull === true) colWidths = [2, 10]
     }
     return (
-      <div className={`form-group row type-${props.type}`}>
+      <div className={`form-group row type-${props.type}`} data-field={props.field}>
         <label ref={(c) => this._label = c} className={`col-12 col-form-label text-sm-right col-sm-${colWidths[0]} ${!props.onView && !props.nullable && 'required'}`}>{props.label}</label>
         <div className={'col-12 col-sm-' + colWidths[1]}>
           {this.state.viewMode ? this.renderViewElement() : this.renderElement()}
@@ -1291,5 +1291,52 @@ class RbPreview extends React.Component {
     if (!urls) return
     if (typeof urls === 'string') urls = [urls]
     renderRbcomp(<RbPreview urls={urls} currentIndex={index || 0} />)
+  }
+}
+
+// ~ 重复记录
+class RepeatedViewer extends RbModalHandler {
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+    const data = this.props.data
+    return <RbModal ref={(c) => this._dlg = c} title={`存在${this.props.data.length - 1}条重复记录`} disposeOnHide={true} colored="warning">
+      <table className="table table-hover repeated-table">
+        <thead>
+          <tr>
+            {data[0].map((item, idx) => {
+              if (idx === 0) return null
+              return <th key={`field-${idx}`}>{item}</th>
+            })}
+            <th width="50"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, idx) => {
+            if (idx === 0) return null
+            return this.renderOne(item, idx)
+          })}
+        </tbody>
+      </table>
+    </RbModal>
+  }
+
+  renderOne(item, idx) {
+    return <tr key={`row-${idx}`}>
+      {item.map((o, i) => {
+        if (i === 0) return null
+        return <td key={`col-${idx}-${i}`}>{o || <span className="text-muted">无</span>}</td>
+      })}
+      <td className="actions"><a className="icon" title="查看详情" onClick={() => this.openView(item[0])}><i className="zmdi zmdi-open-in-new" /></a></td>
+    </tr >
+  }
+
+
+
+  openView(id) {
+    if (window.RbViewModal) window.RbViewModal.create({ id: id, entity: this.props.entity })
+    else window.open(`${rb.baseUrl}/app/${this.props.entity}/list#!/View/${this.props.entity}/${id}`)
   }
 }

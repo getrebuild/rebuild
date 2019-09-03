@@ -18,28 +18,31 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.approval;
 
-import java.util.*;
-
-import com.rebuild.server.helper.cache.NoRecordFoundException;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
-
+import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.FlowDefinition;
 import com.rebuild.server.configuration.RobotApprovalManager;
+import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.base.ApprovalStepService;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 
-import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 审批处理
@@ -125,7 +128,7 @@ public class ApprovalProcessor {
 			throw new ApprovalException("当前记录已经" + (currentState == ApprovalState.APPROVED.getState() ? "审批完成" : "驳回审批"));
 		}
 		
-		final Object stepApprover[] = Application.createQueryNoFilter(
+		final Object[] stepApprover = Application.createQueryNoFilter(
 				"select stepId,state,node,approvalId from RobotApprovalStep where recordId = ? and approver = ? and node = ? and isCanceled = 'F'")
 				.setParameter(1, this.record)
 				.setParameter(2, approver)
@@ -313,12 +316,8 @@ public class ApprovalProcessor {
 			if (firstStep == null && FlowNode.ROOT.equals(prevNode)) {
 				firstStep = o;
 			}
-			
-			List<Object[]> stepGroup = stepGroupMap.get(prevNode);
-			if (stepGroup == null) {
-				stepGroup = new ArrayList<Object[]>();
-				stepGroupMap.put(prevNode, stepGroup);
-			}
+
+			List<Object[]> stepGroup = stepGroupMap.computeIfAbsent(prevNode, k -> new ArrayList<>());
 			stepGroup.add(o);
 		}
 		
@@ -336,13 +335,10 @@ public class ApprovalProcessor {
 			}
 
 			// 按审批时间排序
-			Collections.sort(group, new Comparator<Object[]>() {
-				@Override
-				public int compare(Object[] o1, Object[] o2) {
-					Date t1 = (Date) (o1[3] == null ? o1[4] : o1[3]);
-					Date t2 = (Date) (o2[3] == null ? o2[4] : o2[3]);
-					return t1.compareTo(t2);
-				}
+			group.sort((o1, o2) -> {
+				Date t1 = (Date) (o1[3] == null ? o1[4] : o1[3]);
+				Date t2 = (Date) (o2[3] == null ? o2[4] : o2[3]);
+				return t1.compareTo(t2);
 			});
 			
 			JSONArray state = new JSONArray();

@@ -177,7 +177,7 @@ public class MetadataHelper {
 				fields.add(field);
 			}
 		}
-		return fields.toArray(new Field[fields.size()]);
+		return fields.toArray(new Field[0]);
 	}
 
 	/**
@@ -269,7 +269,7 @@ public class MetadataHelper {
 	}
 
 	/**
-	 * 实体是否具备权限字段
+	 * 实体是否具备权限字段（业务实体）
 	 *
 	 * @param entity
 	 * @return
