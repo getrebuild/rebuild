@@ -924,8 +924,7 @@ i.split.ui-draggable-dragging {
     overflow: hidden;
 }
 
-.column-imgs a:hover,
-.column-files a:hover {
+.column-imgs a:hover {
     opacity: 0.8;
 }
 
@@ -959,8 +958,12 @@ i.split.ui-draggable-dragging {
 }
 
 .column-files ul>li>a {
-    color: #404040;
+    color: #777;
     cursor: pointer;
+}
+
+.column-files ul>li>a:hover {
+    text-decoration: underline !important
 }
 
 .column-checkbox {
@@ -2221,7 +2224,7 @@ form {
     padding-top: 20px;
     box-shadow: 0 3px 0.6rem rgba(0, 0, 0, .1);
     background: #fff;
-    border-radius: 3px;
+    border-radius: 2px;
     display: none;
 }
 

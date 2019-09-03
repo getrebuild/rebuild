@@ -28,36 +28,21 @@ $(document).ready(function () {
   })
   $('.J_menuConfirm').click(function () {
     let name = $val('.J_menuName')
-    if (!name) {
-      RbHighbar.create('请输入菜单名称')
-      return
-    }
+    if (!name) { RbHighbar.create('请输入菜单名称'); return }
     let type = $('.J_menuType.active').attr('href').substr(1)
     let value
     if (type === 'ENTITY') {
       value = $val('.J_menuEntity')
-      if (!value) {
-        RbHighbar.create('请选择关联项')
-        return
-      }
+      if (!value) { RbHighbar.create('请选择关联项'); return }
     } else {
       value = $val('.J_menuUrl')
       if (!value) {
-        RbHighbar.create('请输入 URL')
-        return
-      } else if (!!value && !$regex.isUrl(value)) {
-        RbHighbar.create('请输入有效的 URL')
-        return
-      }
+        RbHighbar.create('请输入 URL'); return
+      } else if (!!value && !$regex.isUrl(value)) { RbHighbar.create('请输入有效的 URL'); return }
     }
     let icon = $('.J_menuIcon i').attr('class').replace('zmdi zmdi-', '')
-    render_item({
-      id: item_currentid,
-      text: name,
-      type: type,
-      value: value,
-      icon: icon
-    })
+
+    render_item({ id: item_currentid, text: name, type: type, value: value, icon: icon })
 
     item_currentid = null
     $('.J_config li').removeClass('active')
@@ -144,6 +129,7 @@ const render_item = function (data, isNew, append2) {
     let action = $('<div class="dd3-action"><a class="J_addsub" title="添加子菜单"><i class="zmdi zmdi-plus"></i></a><a class="J_del" title="移除"><i class="zmdi zmdi-close"></i></a></div>').appendTo(item)
     action.find('a.J_del').off('click').click(function () {
       item.remove()
+      fixParents()
     })
     action.find('a.J_addsub').off('click').click(function () {
       let subUl = item.find('ul')
@@ -152,6 +138,7 @@ const render_item = function (data, isNew, append2) {
         add_sortable(subUl)
       }
       render_item({}, true, subUl)
+      fixParents()
     })
     if (!$(append2).hasClass('J_config')) {
       action.find('a.J_addsub').remove()
@@ -184,7 +171,11 @@ const render_item = function (data, isNew, append2) {
       $('.J_menuUrl').val(data.value)
     } else {
       $('.J_menuType').eq(0).click()
-      $('.J_menuEntity').val(data.value)
+      data.value = item.attr('attr-value')  // force renew
+      let $me = $('.J_menuEntity').val(data.value)
+      $me.attr('disabled', data.value === '$PARENT$')
+      if (!$me.find('option:selected').text()) $me.val('').addClass('is-invalid')
+      else $me.removeClass('is-invalid')
     }
     item_currentid = data.id
   })
@@ -195,4 +186,12 @@ const render_item = function (data, isNew, append2) {
   }
   item_current_isNew = isNew
   return item
+}
+
+const fixParents = function () {
+  $('.J_config>li').each(function () {
+    let $me = $(this)
+    if ($me.find('ul>li').length > 0) $me.attr({ 'attr-value': '$PARENT$' })
+    else if ($me.attr('attr-value') === '$PARENT$') $me.attr({ 'attr-value': '' })
+  })
 }

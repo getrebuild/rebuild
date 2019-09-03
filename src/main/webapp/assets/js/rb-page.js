@@ -94,7 +94,14 @@ var __initNavs = function () {
   $('.sidebar-elements li.parent').click(function (e) {
     var _this = $(this)
     _this.toggleClass('open')
-    _this.find('.sub-menu').toggleClass('visible')
+    let $sub = _this.find('.sub-menu')
+    // if (!$sub.hasClass('visible')) {
+    //   let subHeight = $sub.height()
+    //   $sub.css({ height: 0, overflow: 'hidden' })
+    //   $sub.animate({ height: subHeight + 22 }, 200)
+    // }
+    $sub.toggleClass('visible')
+
     e.stopPropagation()
     currsntSubnav = _this
     _this.find('a').eq(0).tooltip('hide')

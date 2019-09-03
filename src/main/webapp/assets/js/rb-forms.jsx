@@ -1302,7 +1302,7 @@ class RepeatedViewer extends RbModalHandler {
 
   render() {
     const data = this.props.data
-    return <RbModal ref={(c) => this._dlg = c} title={`有${this.props.data.length - 1}条重复记录`} disposeOnHide={true} colored="warning">
+    return <RbModal ref={(c) => this._dlg = c} title={`存在${this.props.data.length - 1}条重复记录`} disposeOnHide={true} colored="warning">
       <table className="table table-hover repeated-table">
         <thead>
           <tr>

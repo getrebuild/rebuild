@@ -11740,10 +11740,11 @@ canvas {
 
 .rb-top-header .search-input::placeholder {
     color: #aaa;
+    text-align: center;
 }
 
-.rb-top-header .search-input:focus {
-    background: #eee;
+.rb-top-header .search-input:focus::placeholder {
+    text-align: left !important
 }
 
 .rb-top-header .rb-right-navbar {
