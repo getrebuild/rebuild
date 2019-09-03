@@ -109,8 +109,7 @@ public class EasyMeta implements BaseMeta {
 		
 		Object[] ext = getMetaExt();
 		if (ext != null) {
-			DisplayType dt = (DisplayType) ext[2];
-			return dt;
+			return (DisplayType) ext[2];
 		}
 		
 		DisplayType dt = null;

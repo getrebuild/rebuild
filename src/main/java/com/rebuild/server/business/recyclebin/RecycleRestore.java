@@ -83,7 +83,7 @@ public class RecycleRestore {
         }
 
         final List<ID> recycleIds = new ArrayList<>();
-        
+
         final List<Record> willRestores = new ArrayList<>(toRecord(JSON.parseObject((String) main[0]), (ID) main[1]));
         if (willRestores.isEmpty()) {
             throw new RebuildException("记录的所属实体不存在");
