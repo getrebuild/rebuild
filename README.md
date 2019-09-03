@@ -22,6 +22,6 @@
 
 ### NOTICE
 
-> REBUILD 使用开源（GPL-3.0）和商用双重授权许可。未获得商用授权前不得用于商业用途或者其他盈利性用途，否则我们将保留追究您法律责任的权利。感谢支持！
+> REBUILD 使用 [开源 GPL-3.0](https://github.com/getrebuild/rebuild/blob/master/LICENSE) 和 [商用](https://github.com/getrebuild/rebuild/blob/master/COMMERCIAL) 双重授权许可协议，您应当认真阅读协议内容。使用 REBUILD 即表示您完全同意许可内容/条款。感谢支持！
 
-> REBUILD uses open source (GPL-3.0) and commercial dual licenses. You may not use it for commercial or other profitable purposes without a commercial license, otherwise we reserve the right to pursue your legal liability. Thanks for the support!
+> REBUILD uses the [open source GPL-3.0](https://github.com/getrebuild/rebuild/blob/master/LICENSE) and [commercial](https://github.com/getrebuild/rebuild/blob/master/COMMERCIAL) dual license agreements, and you should read the contents of the agreement carefully. By using REBUILD, you fully agree to the Licensed Content/Terms. Thanks for the support!
