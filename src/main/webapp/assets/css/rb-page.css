@@ -2229,8 +2229,8 @@ form {
 }
 
 .search-models a {
-    background: #eee;
-    color: #888 !important;
+    background: #f7f7f7;
+    color: #999 !important;
     border-radius: 99px;
     padding: 4px 9px;
     max-width: 120px;
