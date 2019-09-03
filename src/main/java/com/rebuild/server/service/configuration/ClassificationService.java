@@ -88,16 +88,13 @@ public class ClassificationService extends ConfigurationService implements Admin
 			final ID itemId = record.getPrimary();
 			cleanCache(itemId);
 			final long start = System.currentTimeMillis();
-			ThreadPool.exec(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						reindexFullNameByParent(itemId);
-					} finally {
-						long cost = System.currentTimeMillis() - start;
-						if (cost > 2000 || Application.devMode()) {
-							LOG.info("Reindex FullName [ " + itemId + " ] in " + cost + " ms");
-						}
+			ThreadPool.exec(() -> {
+				try {
+					reindexFullNameByParent(itemId);
+				} finally {
+					long cost = System.currentTimeMillis() - start;
+					if (cost > 2000 || Application.devMode()) {
+						LOG.info("Reindex FullName [ " + itemId + " ] in " + cost + " ms");
 					}
 				}
 			});

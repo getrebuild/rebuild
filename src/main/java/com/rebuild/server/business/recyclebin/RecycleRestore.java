@@ -72,9 +72,6 @@ public class RecycleRestore {
      * @return
      */
     public int restore(boolean cascade) {
-        final List<Record> willRestores = new ArrayList<>();
-        final List<ID> recycleIds = new ArrayList<>();
-
         Object[] main = Application.createQueryNoFilter(
                 "select recordContent,recordId,recycleId from RecycleBin where recycleId = ?")
                 .setParameter(1, this.recycleId)
@@ -85,7 +82,9 @@ public class RecycleRestore {
             return 0;
         }
 
-        willRestores.addAll(toRecord(JSON.parseObject((String) main[0]), (ID) main[1]));
+        final List<ID> recycleIds = new ArrayList<>();
+        
+        final List<Record> willRestores = new ArrayList<>(toRecord(JSON.parseObject((String) main[0]), (ID) main[1]));
         if (willRestores.isEmpty()) {
             throw new RebuildException("记录的所属实体不存在");
         }

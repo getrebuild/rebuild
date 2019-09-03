@@ -42,7 +42,7 @@ public class GeneralEntityServiceTest extends TestSupport {
 	@Test
 	public void testGetEntityService() throws Exception {
 		ServiceSpec ies = Application.getService(EntityHelper.User);
-		Assert.assertTrue(ies.getEntityCode() == EntityHelper.User);
+		Assert.assertEquals(ies.getEntityCode(), EntityHelper.User);
 	}
 
 	@Test

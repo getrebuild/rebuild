@@ -97,7 +97,7 @@ public class ExtRecordCreator extends JsonRecordCreator {
 			return;
 		}
 		
-		List<String> notNulls = new ArrayList<String>();
+		List<String> notNulls = new ArrayList<>();
 		for (Field field : entity.getFields()) {
 			if (MetadataHelper.isSystemField(field)) {
 				continue;

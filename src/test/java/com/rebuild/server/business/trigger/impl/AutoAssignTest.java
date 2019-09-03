@@ -56,7 +56,7 @@ public class AutoAssignTest extends TestSupport {
         try {
             ID testId = addRecordOfTestAllFields();
             ID owningUser = Application.getRecordOwningCache().getOwningUser(testId);
-            Assert.assertTrue(SIMPLE_USER.equals(owningUser));
+            Assert.assertEquals(SIMPLE_USER, owningUser);
         } finally {
             Application.getBean(RobotTriggerConfigService.class).delete(autoshareConfig.getPrimary());
             Application.getSessionStore().clean();

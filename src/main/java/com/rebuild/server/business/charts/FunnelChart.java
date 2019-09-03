@@ -18,20 +18,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.StringUtils;
 
-import cn.devezhao.persist4j.engine.ID;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 漏斗图
@@ -70,16 +66,13 @@ public class FunnelChart extends ChartData {
 			}
 			
 			if (dim1.getFormatSort() != FormatSort.NONE) {
-				Collections.sort(dataJson, new Comparator<Object>() {
-					@Override
-					public int compare(Object a, Object b) {
-						String aName = ((JSONObject) a).getString("name");
-						String bName = ((JSONObject) b).getString("name");
-						if (dim1.getFormatSort() == FormatSort.ASC) {
-							return aName.compareTo(bName);
-						} else {
-							return bName.compareTo(aName);
-						}
+				dataJson.sort((a, b) -> {
+					String aName = ((JSONObject) a).getString("name");
+					String bName = ((JSONObject) b).getString("name");
+					if (dim1.getFormatSort() == FormatSort.ASC) {
+						return aName.compareTo(bName);
+					} else {
+						return bName.compareTo(aName);
 					}
 				});
 			}

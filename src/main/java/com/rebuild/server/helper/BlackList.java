@@ -76,7 +76,7 @@ public class BlackList {
 	}
 
 	// SQL 关键字
-	private static final String SQL_KWS[] = new String[] {
+	private static final String[] SQL_KWS = new String[] {
 			"SELECT", "DISTINCT",  "MAX", "MIN", "AVG", "SUM", "COUNT", "FROM",
 			"WHERE", "AND", "OR", "ORDER", "BY", "ASC", "DESC", "GROUP", "HAVING",
 			"WITH", "ROLLUP", "IS", "NOT", "NULL", "IN", "LIKE", "EXISTS", "BETWEEN", "TRUE", "FALSE"

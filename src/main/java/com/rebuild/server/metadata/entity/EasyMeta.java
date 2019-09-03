@@ -27,7 +27,6 @@ import cn.devezhao.persist4j.metadata.BaseMeta;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.RebuildException;
-import com.rebuild.server.metadata.DynamicMetadataFactory;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.JSONUtils;
@@ -146,9 +145,7 @@ public class EasyMeta implements BaseMeta {
 			} else if (getDisplayType() == DisplayType.REFERENCE) {
 				// 明细-引用主记录的字段也是内建
 				Entity hasMaster = field.getOwnEntity().getMasterEntity();
-				if (hasMaster != null && hasMaster.equals(field.getReferenceEntity()) && !field.isCreatable()) {
-					return true;
-				}
+				return hasMaster != null && hasMaster.equals(field.getReferenceEntity()) && !field.isCreatable();
 			}
 		}
 		return false;
@@ -223,9 +220,9 @@ public class EasyMeta implements BaseMeta {
 	private Object[] getMetaExt() {
 		Object[] ext = null;
 		if (isField()) {
-			ext = ((DynamicMetadataFactory) MetadataHelper.getMetadataFactory()).getFieldExtmeta((Field) baseMeta);
+			ext = MetadataHelper.getMetadataFactory().getFieldExtmeta((Field) baseMeta);
 		} else {
-			ext = ((DynamicMetadataFactory) MetadataHelper.getMetadataFactory()).getEntityExtmeta((Entity) baseMeta);
+			ext = MetadataHelper.getMetadataFactory().getEntityExtmeta((Entity) baseMeta);
 		}
 		return ext;
 	}

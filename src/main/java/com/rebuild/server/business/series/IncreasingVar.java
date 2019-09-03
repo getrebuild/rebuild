@@ -18,17 +18,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.series;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.util.Assert;
-
-import com.rebuild.server.Application;
-
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
+import com.rebuild.server.Application;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 数字自增系列
@@ -72,11 +70,7 @@ public class IncreasingVar extends SeriesVar {
 		final String key = theCacheKey();
 		Object keyLock = null;
 		synchronized (LOCKs) {
-			keyLock = LOCKs.get(key);
-			if (keyLock == null) {
-				keyLock = new Object();
-				LOCKs.put(key, keyLock);
-			}
+			keyLock = LOCKs.computeIfAbsent(key, k -> new Object());
 		}
 		
 		int autoVal = 1;
@@ -100,11 +94,7 @@ public class IncreasingVar extends SeriesVar {
 		final String key = theCacheKey();
 		Object keyLock = null;
 		synchronized (LOCKs) {
-			keyLock = LOCKs.get(key);
-			if (keyLock == null) {
-				keyLock = new Object();
-				LOCKs.put(key, keyLock);
-			}
+			keyLock = LOCKs.computeIfAbsent(key, k -> new Object());
 		}
 		
 		synchronized (keyLock) {

@@ -45,7 +45,7 @@ public class MiscPagesForward extends BasePageControll {
 
 	@RequestMapping(value={ "/p/**/*", "/admin/p/**/*" }, method = RequestMethod.GET)
 	public ModelAndView page(HttpServletRequest request) {
-		String path = request.getRequestURI().toString();
+		String path = request.getRequestURI();
 		// remove `context path` and `/p/`
 		path = path.substring(ServerListener.getContextPath().length());
 		path = path.replaceFirst("/p/", "/");

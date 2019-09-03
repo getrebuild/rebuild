@@ -18,15 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.datalist;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
-
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.configuration.ConfigEntry;
@@ -34,9 +27,14 @@ import com.rebuild.server.configuration.portals.AdvFilterManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.query.AdvFilterParser;
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.engine.ID;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 列表查询解析
@@ -46,7 +44,7 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class QueryParser {
 	
-	protected JSONObject queryExpr;
+	private JSONObject queryExpr;
 	private DataList dataListControl;
 	
 	private Entity entity;
@@ -131,7 +129,7 @@ public class QueryParser {
 			return;
 		}
 		
-		StringBuffer sqlBase = new StringBuffer("select ");
+		StringBuilder sqlBase = new StringBuilder("select ");
 		
 		JSONArray fieldsNode = queryExpr.getJSONArray("fields");
 		int fieldIndex = -1;
@@ -166,7 +164,7 @@ public class QueryParser {
 		
 		// 过滤器
 		
-		StringBuffer sqlWhere = new StringBuffer(" where (1=1)");
+		StringBuilder sqlWhere = new StringBuilder(" where (1=1)");
 		
 		// Default
 		String defaultFilter = dataListControl == null ? null : dataListControl.getDefaultFilter();
@@ -196,7 +194,7 @@ public class QueryParser {
 		
 		// 排序
 		
-		StringBuffer sqlSort = new StringBuffer(" order by ");
+		StringBuilder sqlSort = new StringBuilder(" order by ");
 		
 		String sortNode = queryExpr.getString("sort");
 		if (StringUtils.isNotBlank(sortNode)) {
@@ -211,7 +209,7 @@ public class QueryParser {
 		}
 		
 		this.sql = sqlBase.toString();
-		this.countSql = new StringBuffer("select ")
+		this.countSql = new StringBuilder("select ")
 				.append("count(").append(pkName).append(')')
 				.append(" from ")
 				.append(entity.getName())

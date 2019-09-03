@@ -49,7 +49,7 @@ public class QueryFactoryTest extends TestSupport {
 	@Test
 	public void testQueryAllDT() throws Exception {
  		Entity allDT = MetadataHelper.getEntity(TEST_ENTITY);
- 		StringBuffer sql = new StringBuffer("select ");
+ 		StringBuilder sql = new StringBuilder("select ");
  		for (Field f : allDT.getFields()) {
  			sql.append(f.getName()).append(',');
  			if (f.getType() == FieldType.REFERENCE) {

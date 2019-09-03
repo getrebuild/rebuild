@@ -159,7 +159,6 @@ public class MetaFieldControll extends BasePageControll  {
 			writeSuccess(response, fieldName);
 		} catch (Exception ex) {
 			writeFailure(response, ex.getLocalizedMessage());
-			return;
 		}
 	}
 	

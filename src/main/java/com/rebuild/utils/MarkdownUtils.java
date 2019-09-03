@@ -18,13 +18,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.utils;
 
-import java.util.Arrays;
-
 import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.data.MutableDataSet;
+
+import java.util.Collections;
 
 /**
  * MD 解析工具
@@ -36,7 +36,7 @@ public class MarkdownUtils {
 
 	private static final MutableDataSet OPTIONS = new MutableDataSet();
 	static {
-		OPTIONS.set(Parser.EXTENSIONS, Arrays.asList(TablesExtension.create()));
+		OPTIONS.set(Parser.EXTENSIONS, Collections.singletonList(TablesExtension.create()));
 //		OPTIONS.set(HtmlRenderer.SOFT_BREAK, "<br/>");
 	}
 	private static final Parser PARSER = Parser.builder(OPTIONS).build();

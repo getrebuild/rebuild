@@ -103,9 +103,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 		JSONObject slave = remoteData.getJSONObject("slave");
 		if (slave != null) {
 			hasError = verfiyEntity(slave);
-			if (hasError != null) {
-				return hasError;
-			}
+			return hasError;
 		}
 		
 		return null;

@@ -66,7 +66,7 @@ public class SchemaGen {
 				PMF.getDialect(),
 				root.selectSingleNode("//entity[@name='" + entity.getName() + "']").selectNodes("index"));
 		
-		String[] ddl = table.generateDDL(!true, false);
+		String[] ddl = table.generateDDL(false, false);
 		
 		StringBuffer sb = new StringBuffer();
 		sb.append("-- ************ Entity [" + entity.getName() + "] DDL ************\n");

@@ -85,7 +85,7 @@ public class DataReportManager implements ConfigManager<Entity> {
             list.add(e);
         }
 
-        reports = list.toArray(new ConfigEntry[list.size()]);
+        reports = list.toArray(new ConfigEntry[0]);
         Application.getCommonCache().putx(cKey, reports);
         return reports;
     }

@@ -18,7 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
-import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -38,7 +37,6 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
-import com.rebuild.server.service.base.GeneralEntityService;
 import com.rebuild.server.service.bizz.privileges.User;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
@@ -186,7 +184,7 @@ public class FormsBuilder extends FormsManager {
 		}
 		
 		Record data = null;
-		if (!elements.isEmpty() && record != null) {
+		if (record != null) {
 			data = findRecord(record, user, elements);
 			if (data == null) {
 				return formatModelError("此记录已被删除，或你对此记录没有读取权限");
@@ -396,7 +394,6 @@ public class FormsBuilder extends FormsManager {
 	 * @param recordId
 	 * @return
 	 * @see RobotApprovalManager#hadApproval(Entity, ID)
-	 * @see GeneralEntityService#checkModifications(ID, Permission)
 	 */
 	private ApprovalState getHadApproval(Entity entity, ID recordId) {
 		Entity masterEntity = entity.getMasterEntity();

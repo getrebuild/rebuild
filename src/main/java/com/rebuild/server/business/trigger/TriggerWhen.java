@@ -59,7 +59,7 @@ public enum TriggerWhen {
 	;
 	
 	private int maskValue;
-	private TriggerWhen(int maskValue) {
+	TriggerWhen(int maskValue) {
 		this.maskValue = maskValue;
 	}
 	

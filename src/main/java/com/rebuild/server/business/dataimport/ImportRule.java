@@ -18,6 +18,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.dataimport;
 
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.server.metadata.MetadataHelper;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
+
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -25,18 +35,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
-
-import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.helper.SysConfiguration;
-import com.rebuild.server.metadata.MetadataHelper;
-
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 导入规则
@@ -123,7 +121,7 @@ public class ImportRule {
 		File file = SysConfiguration.getFileOfTemp(rule.getString("file"));
 		
 		// from TestCase
-		if (file == null || !file.exists()) {
+		if (!file.exists()) {
 			URL testFile = ImportRule.class.getClassLoader().getResource(rule.getString("file"));
 			if (testFile != null) {
 				try {
@@ -134,7 +132,7 @@ public class ImportRule {
 			}
 			LOG.warn("Use file from TestCase : " + file);
 		}
-		if (file == null || !file.exists()) {
+		if (!file.exists()) {
 			throw new IllegalArgumentException("File not found : " + file);
 		}
 		
@@ -147,7 +145,7 @@ public class ImportRule {
 				rfs.add(entity.getField((String) field));
 			}
 			Assert.isTrue(!rfs.isEmpty(), "Node `repeat_fields`");
-			repeatFields = rfs.toArray(new Field[rfs.size()]);
+			repeatFields = rfs.toArray(new Field[0]);
 		}
 		
 		String user = rule.getString("owning_user");

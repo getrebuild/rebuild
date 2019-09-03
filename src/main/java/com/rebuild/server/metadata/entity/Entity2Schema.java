@@ -157,13 +157,13 @@ public class Entity2Schema extends Field2Schema {
 				createBuiltinField(tempEntity, EntityHelper.OwningDept, "所属部门", DisplayType.REFERENCE, null, "Department", null);
 			}
 		} catch (Throwable ex) {
-			Application.getCommonService().delete(tempMetaId.toArray(new ID[tempMetaId.size()]));
+			Application.getCommonService().delete(tempMetaId.toArray(new ID[0]));
 			return null;
 		}
 		
 		boolean schemaReady = schema2Database(tempEntity);
 		if (!schemaReady) {
-			Application.getCommonService().delete(tempMetaId.toArray(new ID[tempMetaId.size()]));
+			Application.getCommonService().delete(tempMetaId.toArray(new ID[0]));
 			return null;
 		}
 		

@@ -153,7 +153,7 @@ public class UserAvatar extends BaseControll {
 			height = bi.getHeight() - y;
 		}
 
-		bi = bi.getSubimage(x < 0 ? 0 : x, y < 0 ? 0 : y, width, height);
+		bi = bi.getSubimage(Math.max(x, 0), Math.max(y, 0), width, height);
 
 		String destName = System.currentTimeMillis() + avatar.getName();
 		File dest = null;

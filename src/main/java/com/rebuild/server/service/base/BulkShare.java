@@ -18,16 +18,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.base;
 
-import java.util.Set;
-
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.notification.NotificationObserver;
 
-import cn.devezhao.bizz.privileges.impl.BizzPermission;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
+import java.util.Set;
 
 /**
  * 共享
@@ -73,7 +72,7 @@ public class BulkShare extends BulkOperator {
 			notificationNeeds.setID("recordId", firstShared);
 			// Once notification
 			OperatingContext operatingContext = OperatingContext.create(
-					context.getOpUser(), BizzPermission.SHARE, null, notificationNeeds, affected.toArray(new ID[affected.size()]));
+					context.getOpUser(), BizzPermission.SHARE, null, notificationNeeds, affected.toArray(new ID[0]));
 			new NotificationObserver().update(null, operatingContext);
 		}
 		

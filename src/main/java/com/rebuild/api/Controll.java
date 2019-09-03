@@ -57,7 +57,7 @@ public abstract class Controll {
 		if (data != null) {
 			if (Record.class.isAssignableFrom(data.getClass())) {
 				Record record = (Record) data;
-				Map<String, Object> recordMap = new HashMap<String, Object>();
+				Map<String, Object> recordMap = new HashMap<>();
 				for (Iterator<String> iter = ((Record) data).getAvailableFieldIterator(); iter.hasNext(); ) {
 					String field = iter.next();
 					recordMap.put(field, record.getObjectValue(field));

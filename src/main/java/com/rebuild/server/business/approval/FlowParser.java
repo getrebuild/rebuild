@@ -18,21 +18,19 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.approval;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang.StringUtils;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 
 /**
  * 流程解析
@@ -124,12 +122,10 @@ public class FlowParser {
 		}
 		
 		// 条件节点优先级排序
-		Collections.sort(next, new Comparator<FlowNode>() {
-			public int compare(FlowNode o1, FlowNode o2) {
-				int p1 = ((FlowBranch) o1).getPriority();
-				int p2 = ((FlowBranch) o2).getPriority();
-				return p1 > p2 ? 1 : (p1 == p2 ? 0 : -1);
-			}
+		next.sort((o1, o2) -> {
+			int p1 = ((FlowBranch) o1).getPriority();
+			int p2 = ((FlowBranch) o2).getPriority();
+			return p1 > p2 ? 1 : (p1 == p2 ? 0 : -1);
 		});
 		return next;
 	}

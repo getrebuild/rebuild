@@ -18,14 +18,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper;
 
-import java.io.IOException;
-import java.util.Properties;
-
+import com.rebuild.server.Application;
+import com.rebuild.utils.AES;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer;
 
-import com.rebuild.server.Application;
-import com.rebuild.utils.AES;
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  * @author Zhao Fangfang
@@ -42,7 +41,7 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer {
 	private Properties propsHold = null;
 	
 	private void afterLoad(Properties props) {
-		final Object[] keys = props.keySet().toArray(new Object[props.size()]);
+		final Object[] keys = props.keySet().toArray(new Object[0]);
 		for (Object key : keys) {
 			String cleanKey = key.toString();
 			// AES decrypt if have `.aes` suffix

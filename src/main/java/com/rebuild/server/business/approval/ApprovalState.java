@@ -45,7 +45,7 @@ public enum ApprovalState implements State {
 	 * @param state
 	 * @param name
 	 */
-	private ApprovalState(int state, String name) {
+	ApprovalState(int state, String name) {
 		this.state = state;
 		this.name = name;
 	}

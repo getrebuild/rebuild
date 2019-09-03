@@ -161,7 +161,7 @@ public abstract class BaseControll extends Controll {
 	 */
 	protected boolean getBoolParameter(HttpServletRequest req, String name) {
 		String v = req.getParameter(name);
-		return v == null ? false : BooleanUtils.toBoolean(v);
+		return v != null && BooleanUtils.toBoolean(v);
 	}
 	
 	/**

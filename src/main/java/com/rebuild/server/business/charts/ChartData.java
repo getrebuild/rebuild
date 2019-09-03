@@ -18,14 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-
+import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Query;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -38,11 +34,13 @@ import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.query.AdvFilterParser;
+import org.apache.commons.lang.StringUtils;
 
-import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Query;
-import cn.devezhao.persist4j.engine.ID;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 图表数据
@@ -127,7 +125,7 @@ public abstract class ChartData {
 			Dimension dim = new Dimension(getSourceEntity().getField(field), sort, calc, item.getString("label"));
 			list.add(dim);
 		}
-		return list.toArray(new Dimension[list.size()]);
+		return list.toArray(new Dimension[0]);
 	}
 	
 	/**
@@ -162,7 +160,7 @@ public abstract class ChartData {
 			Numerical num = new Numerical(getSourceEntity().getField(field), sort, calc, item.getString("label"), item.getInteger("scale"));
 			list.add(num);
 		}
-		return list.toArray(new Numerical[list.size()]);
+		return list.toArray(new Numerical[0]);
 	}
 	
 	/**

@@ -122,7 +122,7 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 				workable.add(def);
 			}
 		}
-		return workable.toArray(new FlowDefinition[workable.size()]);
+		return workable.toArray(new FlowDefinition[0]);
 	}
 	/**
 	 * 获取指定实体的所有审批流程（含禁用的）
@@ -152,7 +152,7 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 			list.add(def);
 		}
 		
-		defs = list.toArray(new FlowDefinition[list.size()]);
+		defs = list.toArray(new FlowDefinition[0]);
 		Application.getCommonCache().putx(cKey, defs);
 		return defs;
 	}

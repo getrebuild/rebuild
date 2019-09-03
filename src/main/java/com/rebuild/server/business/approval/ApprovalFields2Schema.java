@@ -60,7 +60,7 @@ public class ApprovalFields2Schema extends Field2Schema {
 		
 		boolean schemaReady = schema2Database(approvalEntity, new Field[] { apporvalId, apporvalState, apporvalStepId });
 		if (!schemaReady) {
-			Application.getCommonService().delete(tempMetaId.toArray(new ID[tempMetaId.size()]));
+			Application.getCommonService().delete(tempMetaId.toArray(new ID[0]));
 			throw new ModifiyMetadataException("无法创建审批流程字段到数据库");
 		}
 		

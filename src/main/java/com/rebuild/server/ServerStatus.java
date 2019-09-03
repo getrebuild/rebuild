@@ -96,7 +96,7 @@ public final class ServerStatus {
 	static {
 		try {
 			Class.forName(com.mysql.jdbc.Driver.class.getName());
-		} catch (ClassNotFoundException e) {
+		} catch (ClassNotFoundException ignored) {
 		}
 	}
 	/**

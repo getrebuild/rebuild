@@ -49,7 +49,7 @@ public class BulkContext {
 	// [待操作记录所依附的主记录]
 	private ID targetRecord;
 	// [级联操作实体]
-	private String cascades[];
+	private String[] cascades;
 	
 	final private Entity mainEntity;
 	
@@ -82,7 +82,7 @@ public class BulkContext {
 	 * @param cascades
 	 * @param records
 	 */
-	public BulkContext(ID opUser, Permission action, ID toUser, String cascades[], ID[] records) {
+	public BulkContext(ID opUser, Permission action, ID toUser, String[] cascades, ID[] records) {
 		this(opUser, action, toUser, cascades, records, null, null);
 	}
 	

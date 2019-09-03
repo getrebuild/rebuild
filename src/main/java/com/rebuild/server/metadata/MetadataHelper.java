@@ -177,7 +177,7 @@ public class MetadataHelper {
 				fields.add(field);
 			}
 		}
-		return fields.toArray(new Field[fields.size()]);
+		return fields.toArray(new Field[0]);
 	}
 
 	/**

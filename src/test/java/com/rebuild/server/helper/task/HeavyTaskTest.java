@@ -18,11 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.task;
 
-import java.util.concurrent.RejectedExecutionException;
-
+import cn.devezhao.commons.ThreadPool;
 import org.junit.Test;
 
-import cn.devezhao.commons.ThreadPool;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * 
@@ -59,7 +58,7 @@ public class HeavyTaskTest {
 	
 	@Test
 	public void testCancel() throws Exception {
-		ThreadPool.waitFor(1 * 1000);  // Wait testRejected
+		ThreadPool.waitFor(1000);  // Wait testRejected
 		
 		String taskid = TaskExecutors.submit(new TestTask("testCancel", 100));
 		System.out.println("Submit Task : " + taskid);
@@ -68,7 +67,7 @@ public class HeavyTaskTest {
 		boolean cancel = TaskExecutors.cancel(taskid);
 		System.out.println("Cancel Task : " + taskid + " > " + cancel);
 		
-		ThreadPool.waitFor(1 * 1000);
+		ThreadPool.waitFor(1000);
 	}
 	
 	static class TestTask extends HeavyTask<Void> {

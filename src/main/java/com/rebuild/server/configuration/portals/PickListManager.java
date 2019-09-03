@@ -87,7 +87,7 @@ public class PickListManager implements ConfigManager<Object> {
 				list.add(entry);
 			}
 			
-			entries = list.toArray(new ConfigEntry[list.size()]);
+			entries = list.toArray(new ConfigEntry[0]);
 			Application.getCommonCache().putx(ckey, entries);
 		}
 		
@@ -97,7 +97,7 @@ public class PickListManager implements ConfigManager<Object> {
 				ret.add(entry.clone());
 			}
 		}
-		return ret.toArray(new ConfigEntry[ret.size()]);
+		return ret.toArray(new ConfigEntry[0]);
 	}
 	
 	/**
