@@ -66,6 +66,9 @@ import java.util.Set;
 @RequestMapping("/app/entity/")
 public class GeneralOperatingControll extends BaseControll {
 
+	// 重复字段值
+	public static final int CODE_REPEATED_VALUES = 499;
+
 	@RequestMapping("record-save")
 	public void save(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
@@ -78,7 +81,17 @@ public class GeneralOperatingControll extends BaseControll {
 			writeFailure(response, know.getLocalizedMessage());
 			return;
 		}
-		
+
+		List<Record> repeated = Application.getGeneralEntityService().checkRepeated(record);
+		if (!repeated.isEmpty()) {
+			JSONObject map = new JSONObject();
+			map.put("error_code", CODE_REPEATED_VALUES);
+			map.put("error_msg", "存在重复值");
+			map.put("data", repeated);
+			writeJSON(response, map);
+			return;
+		}
+
 		try {
 			record = Application.getService(record.getEntity().getEntityCode()).createOrUpdate(record);
 		} catch (AccessDeniedException | DataSpecificationException know) {

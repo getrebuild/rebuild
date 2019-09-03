@@ -306,7 +306,7 @@ class RbFormElement extends React.Component {
       if (props.isFull === true) colWidths = [2, 10]
     }
     return (
-      <div className={`form-group row type-${props.type}`}>
+      <div className={`form-group row type-${props.type}`} data-field={props.field}>
         <label ref={(c) => this._label = c} className={`col-12 col-form-label text-sm-right col-sm-${colWidths[0]} ${!props.onView && !props.nullable && 'required'}`}>{props.label}</label>
         <div className={'col-12 col-sm-' + colWidths[1]}>
           {this.state.viewMode ? this.renderViewElement() : this.renderElement()}

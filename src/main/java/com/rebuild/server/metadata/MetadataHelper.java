@@ -269,7 +269,7 @@ public class MetadataHelper {
 	}
 
 	/**
-	 * 实体是否具备权限字段
+	 * 实体是否具备权限字段（业务实体）
 	 *
 	 * @param entity
 	 * @return

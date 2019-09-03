@@ -26,7 +26,6 @@ import cn.devezhao.persist4j.util.XmlHelper;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.entity.DisplayType;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -105,12 +104,12 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 			field.addAttribute("name", fieldName)
 					.addAttribute("physical-name", (String) custom[2])
 					.addAttribute("description", (String) custom[3])
-					.addAttribute("nullable", String.valueOf(custom[5]))
-					.addAttribute("creatable", String.valueOf(custom[6]))
-					.addAttribute("updatable", String.valueOf(custom[7]))
+					.addAttribute("nullable", String.valueOf(custom[5]))        // true
+					.addAttribute("creatable", String.valueOf(custom[6]))       // true
+					.addAttribute("updatable", String.valueOf(custom[7]))       // true
 					.addAttribute("max-length", String.valueOf(custom[8]))
 					.addAttribute("default-value", (String) custom[9])
-					.addAttribute("repeatable", StringUtils.defaultIfBlank(String.valueOf(custom[15]), "true"));
+					.addAttribute("repeatable", String.valueOf(custom[15]));    // true
 			if (fieldName.equals(EntityHelper.AutoId)) {
 				field.addAttribute("auto-value", "true");
 			}

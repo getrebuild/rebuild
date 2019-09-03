@@ -21,6 +21,8 @@ package com.rebuild.server;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.engine.StandardRecord;
+import cn.devezhao.persist4j.query.QueryedRecord;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.rebuild.server.helper.ConfigurableItem;
@@ -39,6 +41,7 @@ import com.rebuild.server.service.bizz.privileges.UserStore;
 import com.rebuild.server.service.notification.NotificationService;
 import com.rebuild.server.service.query.QueryFactory;
 import com.rebuild.utils.RbDateCodec;
+import com.rebuild.utils.RbRecordCodec;
 import com.rebuild.web.OnlineSessionStore;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.SystemUtils;
@@ -108,6 +111,8 @@ public final class Application {
 		// for fastjson Serialize
 		SerializeConfig.getGlobalInstance().put(ID.class, ToStringSerializer.instance);
 		SerializeConfig.getGlobalInstance().put(Date.class, RbDateCodec.instance);
+		SerializeConfig.getGlobalInstance().put(StandardRecord.class, RbRecordCodec.instance);
+		SerializeConfig.getGlobalInstance().put(QueryedRecord.class, RbRecordCodec.instance);
 
 		// 更新刷新配置缓存
 		for (ConfigurableItem item : ConfigurableItem.values()) {

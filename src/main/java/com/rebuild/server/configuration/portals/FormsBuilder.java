@@ -397,7 +397,6 @@ public class FormsBuilder extends FormsManager {
 	 * @return
 	 * @see RobotApprovalManager#hadApproval(Entity, ID)
 	 * @see GeneralEntityService#checkModifications(ID, Permission)
-	 *
 	 */
 	private ApprovalState getHadApproval(Entity entity, ID recordId) {
 		Entity masterEntity = entity.getMasterEntity();

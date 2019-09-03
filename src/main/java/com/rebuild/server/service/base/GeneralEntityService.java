@@ -24,6 +24,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Filter;
 import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
@@ -41,18 +42,23 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entity.DisplayType;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.BaseService;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.ObservableService;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.bizz.privileges.PrivilegesGuardInterceptor;
 import com.rebuild.server.service.bizz.privileges.User;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Observer;
@@ -70,12 +76,15 @@ import java.util.Set;
 public class GeneralEntityService extends ObservableService  {
 	
 	private static final Log LOG = LogFactory.getLog(GeneralEntityService.class);
+
+	final private PersistManagerFactory aPMFactory;
 	
 	/**
 	 * @param aPMFactory
 	 */
 	public GeneralEntityService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
+		this.aPMFactory = aPMFactory;
 	}
 	
 	/**
@@ -83,8 +92,9 @@ public class GeneralEntityService extends ObservableService  {
 	 * @param observers
 	 */
 	public GeneralEntityService(PersistManagerFactory aPMFactory, List<Observer> observers) {
-		super(aPMFactory);
-		// 注入观察者
+		this(aPMFactory);
+
+		// 注入观察者（application-ctx.xml）
 		for (Observer o : observers) {
 			addObserver(o);
 			LOG.info(this + " add observer : " + o);
@@ -98,26 +108,10 @@ public class GeneralEntityService extends ObservableService  {
 	
 	@Override
 	public Record create(Record record) {
-		DefaultValueHelper.appendDefaultValue(record);
+		appendDefaultValue(record);
 		checkModifications(record, BizzPermission.CREATE);
 		setSeriesValue(record);
 		return super.create(record);
-	}
-
-	/**
-	 * 自动编号
-	 *
-	 * @param record
-	 */
-	private void setSeriesValue(Record record) {
-		Field[] seriesFields = MetadataSorter.sortFields(record.getEntity(), DisplayType.SERIES);
-		for (Field field : seriesFields) {
-			// 导入模式，不强制生成
-			if (record.hasValue(field.getName()) && DataImporter.isInImporting()) {
-				continue;
-			}
-			record.setString(field.getName(), SeriesGeneratorFactory.generate(field));
-		}
 	}
 
 	@Override
@@ -391,14 +385,14 @@ public class GeneralEntityService extends ObservableService  {
 	}
 
 	/**
-	 * 检查是否可更改
+	 * 系统相关约束检查
 	 *
 	 * @param recordId
 	 * @param action [UPDATE|DELDETE]
 	 * @return
 	 * @throws DataSpecificationException
 	 */
-	public boolean checkModifications(ID recordId, Permission action) throws DataSpecificationException {
+	protected boolean checkModifications(ID recordId, Permission action) throws DataSpecificationException {
 		Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 		Entity checkEntity = entity.getMasterEntity() != null ? entity.getMasterEntity() : entity;
 
@@ -425,14 +419,14 @@ public class GeneralEntityService extends ObservableService  {
 	}
 
 	/**
-	 * 检查是否可更改
+	 * 系统相关约束检查
 	 *
 	 * @param newRecord
 	 * @param action [CREATE]
 	 * @return
 	 * @throws DataSpecificationException
 	 */
-	public boolean checkModifications(Record newRecord, Permission action) throws DataSpecificationException {
+	protected boolean checkModifications(Record newRecord, Permission action) throws DataSpecificationException {
 		Entity entity = newRecord.getEntity();
 
 		// 验证审批状态
@@ -453,6 +447,50 @@ public class GeneralEntityService extends ObservableService  {
 	}
 
 	/**
+	 * 为 {@link Record} 补充默认值
+	 *
+	 * @param recordOfNew
+	 */
+	protected void appendDefaultValue(Record recordOfNew) {
+		Assert.isNull(recordOfNew.getPrimary(), "Must be new record");
+		Entity entity = recordOfNew.getEntity();
+		if (MetadataHelper.isBizzEntity(entity.getEntityCode())
+				|| !MetadataHelper.hasPrivilegesField(entity)) {
+			LOG.warn("Could't append Bizz and non-business entities : " + entity.getName());
+			return;
+		}
+
+		for (Field field : entity.getFields()) {
+			if (MetadataHelper.isCommonsField(field) || recordOfNew.hasValue(field.getName(), true)) {
+				continue;
+			}
+
+			Object defVal = DefaultValueHelper.exprDefaultValue(field, (String) field.getDefaultValue());
+			if (defVal != null) {
+				recordOfNew.setObjectValue(field.getName(), defVal);
+			}
+		}
+	}
+
+	/**
+	 * 自动编号
+	 *
+	 * @param record
+	 */
+	private void setSeriesValue(Record record) {
+		Field[] seriesFields = MetadataSorter.sortFields(record.getEntity(), DisplayType.SERIES);
+		for (Field field : seriesFields) {
+			// 导入模式，不强制生成
+			if (record.hasValue(field.getName()) && DataImporter.isInImporting()) {
+				continue;
+			}
+			record.setString(field.getName(), SeriesGeneratorFactory.generate(field));
+		}
+	}
+
+	/**
+	 * 获取主记录ID
+	 *
 	 * @param slaveEntity
 	 * @param slaveId
 	 * @return
@@ -469,6 +507,8 @@ public class GeneralEntityService extends ObservableService  {
 	}
 
 	/**
+	 * 审批状态
+	 *
 	 * @param recordId
 	 * @return
 	 */
@@ -482,5 +522,55 @@ public class GeneralEntityService extends ObservableService  {
 			throw new NoRecordFoundException(recordId);
 		}
 		return (ApprovalState) ApprovalState.valueOf((Integer) o[0]);
+	}
+
+	/**
+	 * 检查/获取重复字段值
+	 *
+	 * @param record
+	 * @return
+	 * @throws DataSpecificationException
+	 */
+	public List<Record> checkRepeated(Record record) throws DataSpecificationException {
+		Entity entity = record.getEntity();
+		// 仅处理业务实体
+		if (!MetadataHelper.hasPrivilegesField(entity)) {
+			return Collections.emptyList();
+		}
+
+		List<String> norepeatFields = new ArrayList<>();
+		for (Iterator<String> iter = record.getAvailableFieldIterator(); iter.hasNext(); ) {
+			Field field = entity.getField(iter.next());
+			if (field.isRepeatable()
+					|| !record.hasValue(field.getName(), false)
+					|| MetadataHelper.isCommonsField(field)
+					|| EasyMeta.getDisplayType(field) == DisplayType.SERIES) {
+				continue;
+			}
+			norepeatFields.add(field.getName());
+		}
+		if (norepeatFields.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		StringBuilder checkSql = new StringBuilder("select ")
+				.append(entity.getPrimaryField().getName()).append(", ")  // 增加一个主键列
+				.append(StringUtils.join(norepeatFields.iterator(), ", "))
+				.append(" from ")
+				.append(entity.getName())
+				.append(" where ");
+		for (String field : norepeatFields) {
+			checkSql.append(field).append(" = ? or ");
+		}
+		checkSql.delete(checkSql.length() - 4, checkSql.length());
+
+		Query query = aPMFactory.createQuery(checkSql.toString());
+
+		int index = 1;
+		for (String field : norepeatFields) {
+			query.setParameter(index++, record.getObjectValue(field));
+		}
+		List<Record> repeated = query.list();
+		return repeated;
 	}
 }

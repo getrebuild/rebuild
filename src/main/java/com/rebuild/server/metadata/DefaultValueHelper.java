@@ -20,16 +20,13 @@ package com.rebuild.server.metadata;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.FieldType;
 import com.rebuild.server.configuration.portals.PickListManager;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -61,8 +58,7 @@ public class DefaultValueHelper {
 
         if (field.getType() == FieldType.TIMESTAMP || field.getType() == FieldType.DATE) {
             return CalendarUtils.getUTCDateTimeFormat().format(defVal);
-        }
-        else {
+        } else {
             return defVal.toString();
         }
     }
@@ -125,32 +121,6 @@ public class DefaultValueHelper {
         }
         else {
             return valueExpr;
-        }
-    }
-
-    /**
-     * 为 {@link Record} 补充默认值
-     *
-     * @param recordOfNew
-     */
-    public static void appendDefaultValue(Record recordOfNew) {
-        Assert.isNull(recordOfNew.getPrimary(), "Must be new record");
-        Entity entity = recordOfNew.getEntity();
-        if (MetadataHelper.isBizzEntity(entity.getEntityCode())
-                || !MetadataHelper.hasPrivilegesField(entity)) {
-            LOG.warn("Could't append Bizz and non-business entities : " + entity.getName());
-            return;
-        }
-
-        for (Field field : entity.getFields()) {
-            if (MetadataHelper.isCommonsField(field) || recordOfNew.hasValue(field.getName(), true)) {
-                continue;
-            }
-
-            Object defVal = exprDefaultValue(field, (String) field.getDefaultValue());
-            if (defVal != null) {
-                recordOfNew.setObjectValue(field.getName(), defVal);
-            }
         }
     }
 }
