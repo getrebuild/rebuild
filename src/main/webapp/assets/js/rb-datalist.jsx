@@ -327,7 +327,7 @@ CellRenders.addRender('$NAME$', function (v, s, k) {
 CellRenders.addRender('IMAGE', function (v, s, k) {
   v = JSON.parse(v || '[]')
   return <td key={k} className="td-min">
-    <div style={s} className="column-imgs" title={v.length + ' 个图片'}>
+    <div style={s} className="column-imgs" title={'共 ' + v.length + ' 个图片'}>
       {v.map((item, idx) => {
         if (idx > 2) return null
         let imgUrl = rb.baseUrl + '/filex/img/' + item
@@ -338,7 +338,7 @@ CellRenders.addRender('IMAGE', function (v, s, k) {
 CellRenders.addRender('FILE', function (v, s, k) {
   v = JSON.parse(v || '[]')
   return <td key={k} className="td-min"><div style={s} className="column-files">
-    <ul className="list-unstyled" title={v.length + ' 个文件'}>
+    <ul className="list-unstyled" title={'共 ' + v.length + ' 个文件'}>
       {v.map((item, idx) => {
         if (idx > 0) return null
         let fileName = $fileCutName(item)

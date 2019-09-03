@@ -364,6 +364,10 @@ div.dataTables_wrapper div.dataTables_filter {
     display: block !important;
 }
 
+.rbview.modal {
+    z-index: 1051;
+}
+
 .rbmodal.show,
 .rbview.show .modal-content {
     transition: margin 0.2s;
@@ -2259,7 +2263,7 @@ form {
 }
 
 .preview-modal .preview-header {
-    background: rgba(0, 0, 0, 1);
+    background: rgba(0, 0, 0, 0.9);
     color: #fff;
     padding: 0 25px;
     position: absolute;
@@ -2271,13 +2275,13 @@ form {
 .preview-modal .preview-header .float-left>h5,
 .preview-modal .preview-header .float-right a {
     margin: 0;
-    height: 50px;
-    line-height: 50px;
+    height: 48px;
+    line-height: 48px;
 }
 
 .preview-modal .preview-header .float-right a {
     display: inline-block;
-    width: 50px;
+    width: 48px;
     font-size: 18px;
     font-weight: normal;
     text-align: center;
@@ -2304,7 +2308,7 @@ form {
 
 .preview-modal .preview-body .img-zoom {
     text-align: center;
-    padding-top: 50px;
+    padding-top: 48px;
 }
 
 .preview-modal .preview-body .img-zoom img {
@@ -2322,7 +2326,7 @@ form {
     left: 50%;
     margin-left: -80px;
     background-color: rgba(0, 0, 0, 0.6);
-    height: 50px;
+    height: 48px;
     border-radius: 4px;
     overflow: hidden;
     color: rgba(255, 255, 255, .8);
@@ -2334,12 +2338,12 @@ form {
     text-align: center;
     display: inline-block;
     line-height: 1;
-    height: 50px;
-    line-height: 50px;
+    height: 48px;
+    line-height: 48px;
 }
 
 .preview-modal .preview-body .op-box a.arrow {
-    width: 50px;
+    width: 48px;
     font-size: 21px;
     font-weight: lighter;
 }
@@ -2351,7 +2355,7 @@ form {
 .preview-modal .preview-body .op-box span {
     font-size: 1rem;
     color: #fff;
-    width: 60px;
+    width: 64px;
 }
 
 .repeated-table {
