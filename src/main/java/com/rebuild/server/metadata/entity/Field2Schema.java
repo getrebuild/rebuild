@@ -31,6 +31,7 @@ import cn.devezhao.persist4j.util.support.Table;
 import com.alibaba.fastjson.JSON;
 import com.hankcs.hanlp.HanLP;
 import com.rebuild.server.Application;
+import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.helper.BlackList;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -54,6 +55,9 @@ import java.util.Set;
 public class Field2Schema {
 
 	private static final Log LOG = LogFactory.getLog(Field2Schema.class);
+
+	// 小数位真实长度
+	private static final int DECIMAL_SCALE = 8;
 	
 	final protected ID user;
 	final protected Set<ID> tempMetaId = new HashSet<>();
@@ -224,6 +228,7 @@ public class Field2Schema {
 		recordOfField.setBoolean("nullable", nullable);
 		recordOfField.setBoolean("creatable", creatable);
 		recordOfField.setBoolean("updatable", updatable);
+		recordOfField.setBoolean("repeatable", repeatable);
 		if (StringUtils.isNotBlank(comments)) {
 			recordOfField.setString("comments", comments);
 		}
@@ -270,18 +275,19 @@ public class Field2Schema {
 		
 		boolean autoValue = EntityHelper.AutoId.equalsIgnoreCase(fieldName);
 		if (EntityHelper.ApprovalState.equalsIgnoreCase(fieldName)) {
-			defaultValue = "1";
+			defaultValue = ApprovalState.DRAFT.getState();
 		}
-		if (MetadataHelper.isCommonsField(fieldName) 
+
+		if (MetadataHelper.isCommonsField(fieldName)
 				&& !(MetadataHelper.isApprovalField(fieldName) || fieldName.equalsIgnoreCase(EntityHelper.QuickCode))) {
 			nullable = false;
 		} else {
 			nullable = true;
 		}
-		
+
 		Field unsafeField = new FieldImpl(
 				fieldName, physicalName, fieldLabel, entity, displayType.getFieldType(), CascadeModel.Ignore, maxLength, 
-				nullable, creatable, updatable, true, 8, defaultValue, autoValue);
+				nullable, creatable, updatable, repeatable, DECIMAL_SCALE, defaultValue, autoValue);
 		if (entity instanceof UnsafeEntity) {
 			((UnsafeEntity) entity).addField(unsafeField);
 		}

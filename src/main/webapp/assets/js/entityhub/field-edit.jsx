@@ -42,7 +42,8 @@ $(document).ready(function () {
     let _btn = $(this).button('loading')
     $.post(rb.baseUrl + '/admin/entity/field-update', JSON.stringify(_data), function (res) {
       if (res.error_code === 0) {
-        location.href = '../fields'
+        if (rb.env === 'dev') location.reload(true)
+        else location.href = '../fields'
       } else {
         _btn.button('reset')
         RbHighbar.error(res.error_msg)
@@ -56,28 +57,29 @@ $(document).ready(function () {
 
   $('.J_for-' + dt).removeClass('hide')
 
+  // 设置扩展值
+  for (let k in extConfigOld) {
+    let $ext = $('#' + k)
+    if ($ext.length === 1) {
+      if ($ext.attr('type') === 'checkbox') $ext.attr('checked', extConfigOld[k] === 'true' || extConfigOld[k] === true)
+      else $ext.val(extConfigOld[k])
+    }
+  }
+
   if (dt === 'PICKLIST') {
     $.get(`${rb.baseUrl}/admin/field/picklist-gets?entity=${wpc.entityName}&field=${wpc.fieldName}&isAll=false`, function (res) {
-      if (res.data.length === 0) {
-        $('#picklist-items li').text('请添加选项')
-        return
-      }
-
+      if (res.data.length === 0) { $('#picklist-items li').text('请添加选项'); return }
       $('#picklist-items').empty()
-      $(res.data).each(function () {
-        picklistItemRender(this)
-      })
+      $(res.data).each(function () { picklistItemRender(this) })
       if (res.data.length > 5) $('#picklist-items').parent().removeClass('autoh')
     })
-
-    $('.J_picklist-edit').click(function () {
-      RbModal.create(`${rb.baseUrl}/admin/p/entityhub/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}`, '配置列表选项')
-    })
-  } else if (dt === 'SERIES') {
+    $('.J_picklist-edit').click(() => RbModal.create(`${rb.baseUrl}/admin/p/entityhub/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}`, '配置列表选项'))
+  }
+  else if (dt === 'SERIES') {
     $('#defaultValue').parents('.form-group').remove()
-    if (extConfigOld.seriesFormat) $('#seriesFormat').val(extConfigOld.seriesFormat)
-    if (extConfigOld.seriesZero) $('#seriesZero').val(extConfigOld.seriesZero)
-  } else if (dt === 'DATE' || dt === 'DATETIME') {
+    $('#fieldNullable, #fieldUpdatable, #fieldRepeatable').attr('disabled', true)
+  }
+  else if (dt === 'DATE' || dt === 'DATETIME') {
     $('#defaultValue').datetimepicker({
       componentIcon: 'zmdi zmdi-calendar',
       navIcons: {
@@ -93,24 +95,20 @@ $(document).ready(function () {
       showMeridian: false,
       keyboardNavigation: false,
       minuteStep: 5
-    }).on('changeDate', function () {
     })
-
     $('#defaultValue').next().removeClass('hide').find('button').click(() => renderRbcomp(<AdvDateDefaultValue />))
-  } else if (dt === 'FILE' || dt === 'IMAGE') {
+  }
+  else if (dt === 'FILE' || dt === 'IMAGE') {
     let uploadNumber = [0, 9]
-    for (let k in extConfigOld) {
-      if (k === 'uploadNumber') {
-        uploadNumber = extConfigOld[k].split(',')
-        uploadNumber[0] = ~~uploadNumber[0]
-        uploadNumber[1] = ~~uploadNumber[1]
-        $('.J_minmax b').eq(0).text(uploadNumber[0])
-        $('.J_minmax b').eq(1).text(uploadNumber[1])
-      } else $('#' + k).val(extConfigOld[k])
+    if (extConfigOld['uploadNumber']) {
+      uploadNumber = extConfigOld['uploadNumber'].split(',')
+      uploadNumber[0] = ~~uploadNumber[0]
+      uploadNumber[1] = ~~uploadNumber[1]
+      $('.J_minmax b').eq(0).text(uploadNumber[0])
+      $('.J_minmax b').eq(1).text(uploadNumber[1])
     }
-    $('input.bslider').slider({
-      value: uploadNumber
-    }).on('change', function (e) {
+
+    $('input.bslider').slider({ value: uploadNumber }).on('change', function (e) {
       let v = e.value.newValue
       $setTimeout(() => {
         $('.J_minmax b').eq(0).text(v[0])
@@ -119,23 +117,20 @@ $(document).ready(function () {
       }, 200, 'bslider-change')
     })
     $('#fieldNullable').attr('disabled', true)
-  } else if (dt === 'CLASSIFICATION') {
+  }
+  else if (dt === 'CLASSIFICATION') {
     if (extConfigOld.classification) {
       $.get(`${rb.baseUrl}/admin/entityhub/classification/info?id=${extConfigOld.classification}`, function (res) {
-        if (res.error_code === 0) {
-          $('#useClassification a').attr({
-            href: `${rb.baseUrl}/admin/entityhub/classification/${extConfigOld.classification}`
-          }).text(res.data.name)
-        }
+        $('#useClassification a').attr({ href: `${rb.baseUrl}/admin/entityhub/classification/${extConfigOld.classification}` }).text(res.data.name)
       })
     } else {
-      $('#useClassification a').attr({
-        href: `${rb.baseUrl}/admin/entityhub/classifications`
-      }).text('无效分类数据').addClass('text-danger')
+      $('#useClassification a').text('无效分类').addClass('text-danger')
     }
-  } else if (dt === 'DECIMAL' || dt === 'NUMBER') {
-    if (extConfigOld.notNegative === 'true') $('#notNegative').attr('checked', true)
-    if (dt === 'DECIMAL' && extConfigOld.decimalFormat) $('#decimalFormat').val(extConfigOld.decimalFormat)
+  }
+
+  // 无重复值选项
+  if (dt === 'FILE' || dt === 'IMAGE' || dt === 'NTEXT' || dt === 'PICKLIST') {
+    $('#fieldRepeatable').parents('.custom-control').remove()
   }
 
   // 内建字段
@@ -147,14 +142,9 @@ $(document).ready(function () {
   }
 
   $('.J_del').click(function () {
-    if (!wpc.isSuperAdmin) {
-      RbHighbar.error('仅超级管理员可删除字段')
-      return
-    }
-    let alertExt = {
-      type: 'danger',
-      confirmText: '删除'
-    }
+    if (!wpc.isSuperAdmin) { RbHighbar.error('仅超级管理员可删除字段'); return }
+
+    let alertExt = { type: 'danger', confirmText: '删除' }
     alertExt.confirm = function () {
       this.disabled(true)
       $.post(`${rb.baseUrl}/admin/entity/field-drop?id=${wpc.metaId}`, (res) => {

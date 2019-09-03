@@ -3,7 +3,7 @@ let default_item
 $(document).ready(function () {
   const query = 'entity=' + $urlp('entity') + '&field=' + $urlp('field')
 
-  $.get(rb.baseUrl + '/admin/field/picklist-gets?isAll=true&' + query, function (res) {
+  $.get(`${rb.baseUrl}/admin/field/picklist-gets?isAll=true&${query}`, function (res) {
     $(res.data).each(function () {
       if (this.hide === true) render_unset([this.id, this.text])
       else {
@@ -17,11 +17,9 @@ $(document).ready(function () {
   })
 
   $('.J_confirm').click(function () {
+    if ($('.J_config>li').length > 50) { RbHighbar.create('最多支持50个选项'); return false }
     let text = $val('.J_text')
-    if (!text) {
-      RbHighbar.create('请输入选项文本')
-      return false
-    }
+    if (!text) { RbHighbar.create('请输入选项文本'); return false }
     let id = $('.J_text').attr('attr-id')
     $('.J_text').val('').attr('attr-id', '')
     $('.J_confirm').text('添加')
@@ -58,10 +56,7 @@ $(document).ready(function () {
         })
       }
     })
-    let _data = {
-      show: show_items,
-      hide: hide_items
-    }
+    let _data = { show: show_items, hide: hide_items }
 
     let $btn = $(this)
     let del_confirm = function () {
@@ -83,6 +78,7 @@ $(document).ready(function () {
     }
   })
 })
+
 render_unset_after = function (item) {
   let del = $('<a href="javascript:;" class="action">[移除]</a>').appendTo(item.find('.dd-handle'))
   del.click(() => {
@@ -91,6 +87,7 @@ render_unset_after = function (item) {
     return false
   })
 }
+
 render_item_after = function (item, data) {
   item.find('a').eq(0).text('[禁用]')
   let edit = $('<a href="javascript:;">[修改]</a>').appendTo(item.find('.dd3-action'))

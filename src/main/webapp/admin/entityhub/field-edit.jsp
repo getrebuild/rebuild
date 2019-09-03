@@ -159,7 +159,10 @@
 						<div class="form-group row J_for-CLASSIFICATION pt-0 pb-0 hide">
 							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">分类数据</label>
 							<div class="col-md-12 col-xl-6 col-lg-8">
-								<div class="form-control-plaintext" id="useClassification"><a title="查看/编辑分类数据">加载中</a><i class="zmdi zmdi-layers fs-14 ml-1 text-muted"></i></div>
+								<div class="form-control-plaintext" id="useClassification">
+									<a title="查看/编辑分类数据" target="_blank" href="${baseUrl}/admin/entityhub/classifications">加载中</a>
+									<i class="zmdi zmdi-layers fs-14 ml-1 text-muted"></i>
+								</div>
 							</div>
 						</div>
 						<div class="form-group row J_for-TEXT J_for-NTEXT J_for-EMAIL J_for-PHONE J_for-URL J_for-NUMBER J_for-DECIMAL J_for-DATE J_for-DATETIME hide">
