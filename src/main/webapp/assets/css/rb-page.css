@@ -2306,9 +2306,12 @@ form {
     padding: 0;
 }
 
+.preview-modal .preview-body {
+    padding-top: 48px;
+}
+
 .preview-modal .preview-body .img-zoom {
     text-align: center;
-    padding-top: 48px;
 }
 
 .preview-modal .preview-body .img-zoom img {

@@ -1197,7 +1197,7 @@ class RbPreview extends React.Component {
           </div>
           <div className="clearfix"></div>
         </div>
-        <div className="preview-body" onClick={this.hide}>
+        <div className="preview-body">
           {this.__isimg(currentUrl) && this.renderImgs()}
           {this.__isdoc(currentUrl) && this.renderDocs()}
         </div>
@@ -1214,7 +1214,9 @@ class RbPreview extends React.Component {
   renderImgs() {
     return (<React.Fragment>
       <div className="img-zoom" ref={(c) => this._previewContent = c}>
-        <div className="must-center" onClick={this.__stopEvent}><img src={`${rb.baseUrl}/filex/img/${this.props.urls[this.state.currentIndex]}`} /></div>
+        <div className="must-center" onClick={this.__stopEvent}>
+          <img src={`${rb.baseUrl}/filex/img/${this.props.urls[this.state.currentIndex]}?imageView2/2/w/1000/interlace/1/q/100`} />
+        </div>
       </div>
       {this.props.urls.length > 1 && <div className="op-box">
         <a className="arrow float-left" onClick={this.__previmg}><i className="zmdi zmdi-chevron-left" /></a>
@@ -1238,7 +1240,9 @@ class RbPreview extends React.Component {
 
     if (this.__isdoc(currentUrl)) {
       $.get(`${rb.baseUrl}/filex/make-url?url=${currentUrl}`, (res) => {
-        let previewUrl = `https://view.officeapps.live.com/op/view.aspx?src=${$encode(res.data.private_url)}`
+        // view.aspx
+        let previewUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${$encode(res.data.private_url)}`
+        // PDF
         if (currentUrl.toLowerCase().endsWith('.pdf')) previewUrl = res.data.private_url
         this.setState({ previewUrl: previewUrl })
       })
@@ -1267,13 +1271,15 @@ class RbPreview extends React.Component {
   }
   __previmg = (e) => {
     this.__stopEvent(e)
-    if (this.state.currentIndex <= 0) return
-    this.setState({ currentIndex: this.state.currentIndex - 1 })
+    let ci = this.state.currentIndex
+    if (ci <= 0) ci = this.props.urls.length
+    this.setState({ currentIndex: ci - 1 })
   }
   __nextimg = (e) => {
     this.__stopEvent(e)
-    if (this.state.currentIndex + 1 >= this.props.urls.length) return
-    this.setState({ currentIndex: this.state.currentIndex + 1 })
+    let ci = this.state.currentIndex
+    if (ci + 1 >= this.props.urls.length) ci = -1
+    this.setState({ currentIndex: ci + 1 })
   }
   __stopEvent = (e) => {
     e.stopPropagation()
