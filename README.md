@@ -3,7 +3,7 @@
 [![codecov](https://codecov.io/gh/getrebuild/rebuild/branch/master/graph/badge.svg)](https://codecov.io/gh/getrebuild/rebuild)
 [![Build Status](https://travis-ci.org/getrebuild/rebuild.svg?branch=master)](https://travis-ci.org/getrebuild/rebuild)
 [![License GPLv3](https://img.shields.io/github/license/getrebuild/rebuild.svg)](https://github.com/getrebuild/rebuild/blob/master/LICENSE)
-[![License COMMERCIAL](https://img.shields.io/badge/license-commercial-orange.svg)](https://github.com/getrebuild/rebuild/blob/master/COMMERCIAL)
+[![License COMMERCIAL](https://img.shields.io/badge/license-COMMERCIAL-orange.svg)](https://github.com/getrebuild/rebuild/blob/master/COMMERCIAL)
 
 
 ### 快速开始
@@ -13,7 +13,7 @@
 - 访问 RB 官网了解更多 https://getrebuild.com/
 
 
-### Quick Start
+### Quick start
 
 - Trial nightly build (username and password are both `admin`) https://nightly.getrebuild.com/
 - Build development environment https://getrebuild.com/docs/dev/
