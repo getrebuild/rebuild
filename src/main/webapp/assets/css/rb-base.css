@@ -11724,10 +11724,6 @@ canvas {
     }
 }
 
-.rb-color-header .rb-top-header .search-container {
-    display: none
-}
-
 .rb-top-header .search-input {
     color: #404040;
     border-radius: 99px;

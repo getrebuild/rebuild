@@ -2220,6 +2220,11 @@ form {
     padding: 3px 12px;
 }
 
+.rb-color-header .rb-top-header .search-container,
+.rb-offcanvas-menu .rb-top-header .search-container {
+    display: none
+}
+
 .rb-top-header .search-container .search-models {
     position: absolute;
     min-width: 320px;
@@ -2359,6 +2364,15 @@ form {
     font-size: 1rem;
     color: #fff;
     width: 64px;
+}
+
+.preview-modal .preview-body .unsupports {
+    max-width: 360px;
+    margin: 0 auto;
+    margin-top: 10%;
+    height: 91px;
+    text-align: center;
+    padding-top: 15px;
 }
 
 .repeated-table {

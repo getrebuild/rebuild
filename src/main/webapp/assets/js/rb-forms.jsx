@@ -1187,19 +1187,29 @@ class RbPreview extends React.Component {
   render() {
     let currentUrl = this.props.urls[this.state.currentIndex]
     let fileName = $fileCutName(currentUrl)
+    let downloadUrl = `${rb.baseUrl}/filex/download/${currentUrl}?attname=${fileName}`
+
+    let previewContent = null
+    if (this.__isimg(currentUrl)) previewContent = this.renderImgs()
+    else if (this.__isdoc(currentUrl)) previewContent = this.renderDocs()
+    else previewContent = <div className="unsupports shadow-lg rounded bg-light">
+      <h5 className="text-bold">暂不支持此类型文件的预览</h5>
+      <a className="link" target="_blank" rel="noopener noreferrer" href={downloadUrl}>下载</a>
+    </div>
+
+    // Add `onClick={this.hide}` into `.preview-body`
     return <React.Fragment>
       <div className={`preview-modal ${this.state.inLoad ? 'hide' : ''}`} ref={(c) => this._dlg = c}>
         <div className="preview-header">
           <div className="float-left"><h5>{fileName}</h5></div>
           <div className="float-right">
-            <a target="_blank" rel="noopener noreferrer" href={`${rb.baseUrl}/filex/download/${currentUrl}?attname=${fileName}`}><i className="zmdi zmdi-download"></i></a>
+            <a target="_blank" rel="noopener noreferrer" href={downloadUrl}><i className="zmdi zmdi-download"></i></a>
             <a onClick={this.hide}><i className="zmdi zmdi-close"></i></a>
           </div>
           <div className="clearfix"></div>
         </div>
         <div className="preview-body">
-          {this.__isimg(currentUrl) && this.renderImgs()}
-          {this.__isdoc(currentUrl) && this.renderDocs()}
+          {previewContent}
         </div>
       </div>
     </React.Fragment>
@@ -1231,12 +1241,12 @@ class RbPreview extends React.Component {
     this.__modalOpen = $(document.body).hasClass('modal-open')
 
     let currentUrl = this.props.urls[this.state.currentIndex]
-    // 不支持的文件，直接下載
-    if (!this._previewContent) {
-      this.hide()
-      window.open(`${rb.baseUrl}/filex/download/${currentUrl}?attname=${$encode($fileCutName(currentUrl))}`)
-      return
-    }
+    // // 不支持的文件，直接下載
+    // if (!this._previewContent) {
+    //   this.hide()
+    //   window.open(`${rb.baseUrl}/filex/download/${currentUrl}?attname=${$encode($fileCutName(currentUrl))}`)
+    //   return
+    // }
 
     if (this.__isdoc(currentUrl)) {
       $.get(`${rb.baseUrl}/filex/make-url?url=${currentUrl}`, (res) => {
@@ -1300,7 +1310,7 @@ class RbPreview extends React.Component {
   }
 }
 
-// ~ 重复记录
+// ~ 重复记录查看
 class RepeatedViewer extends RbModalHandler {
   constructor(props) {
     super(props)
