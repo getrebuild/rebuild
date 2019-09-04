@@ -37,6 +37,7 @@ import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
+import java.text.MessageFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -99,7 +100,7 @@ public class DataImporter extends HeavyTask<Integer> {
 				try {
 					Record record = checkoutRecord(row);
 					if (record != null) {
-						record = Application.getService(rule.getToEntity().getEntityCode()).createOrUpdate(record);
+						record = Application.getEntityService(rule.getToEntity().getEntityCode()).createOrUpdate(record);
 						this.successed++;
 						iLogging.put(rowLine, record.getPrimary());
 					}
@@ -147,7 +148,8 @@ public class DataImporter extends HeavyTask<Integer> {
 				}
 			}
 		}
-		
+
+		// 新建
 		Record record = recordNew;
 		
 		// 检查重复
@@ -159,6 +161,7 @@ public class DataImporter extends HeavyTask<Integer> {
 			}
 			
 			if (repeat != null && rule.getRepeatOpt() == ImportRule.REPEAT_OPT_UPDATE) {
+				// 更新
 				record = EntityHelper.forUpdate(repeat, this.owningUser);
 				for (Iterator<String> iter = recordNew.getAvailableFieldIterator(); iter.hasNext(); ) {
 					String field = iter.next();
@@ -175,7 +178,7 @@ public class DataImporter extends HeavyTask<Integer> {
 		// Verify new record
 		if (record.getPrimary() == null) {
 			ExtRecordCreator verifier = new ExtRecordCreator(rule.getToEntity(), JSONUtils.EMPTY_OBJECT, null);
-			verifier.verify(recordNew, true);
+			verifier.verify(record, true);
 		}
 		return record;
 	}
@@ -293,16 +296,20 @@ public class DataImporter extends HeavyTask<Integer> {
 			return null;
 		}
 		
-		String findSql = null;
+		Query query = null;
 		if (oEntity.getEntityCode() == EntityHelper.User) {
-			textVal = StringEscapeUtils.escapeSql(textVal.toString());
-			findSql = String.format("select userId from User where loginName = '%s' or email = '%s'", textVal, textVal);
+			String sql = MessageFormat.format(
+					"select userId from User where loginName = ''{0}'' or email = ''{0}'' or fullName = ''{0}''",
+					StringEscapeUtils.escapeSql(textVal.toString()));
+			query = Application.createQueryNoFilter(sql);
 		} else {
-			findSql = String.format("select %s from %s where %s = ?",
+			String sql = String.format("select %s from %s where %s = ?",
 					oEntity.getPrimaryField().getName(), oEntity.getName(), oEntity.getNameField().getName());
+			query = Application.createQueryNoFilter(sql).setParameter(1, textVal);
 		}
-		Object[] found = Application.createQueryNoFilter(findSql).setParameter(1, textVal).unique();
-		return found == null ? null : (ID) found[0];
+
+		Object[] found = query.unique();
+		return found != null ? (ID) found[0] : null;
 	}
 	
 	/**

@@ -94,6 +94,10 @@ html.admin .admin-show.row {
     text-decoration: underline;
 }
 
+.text-italic {
+    font-style: italic;
+}
+
 .badge.text-id {
     font-weight: normal;
     color: #777;
