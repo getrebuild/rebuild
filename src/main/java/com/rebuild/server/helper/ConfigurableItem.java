@@ -58,6 +58,9 @@ public enum ConfigurableItem {
 	// 回收站数据保留天数（0为禁用回收站）
 	RecycleBinKeepingDays(30),
 
+	// 密码策略，1-3
+	PasswordPolicy(1),
+
 	;
 	
 	private Object defaultVal;

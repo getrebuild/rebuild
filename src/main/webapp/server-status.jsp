@@ -47,7 +47,7 @@
 			<td><%=memoryUsed[1]%>% (<%=memoryUsed[0]%>M)</td>
 		</tr>
 		<tr>
-			<th>CPU Usage</th>
+			<th>CPU Load</th>
 			<td>n/a</td>
 		</tr>
 	</tbody>
@@ -77,10 +77,6 @@
 		<tr>
 			<th>JVM</th>
 			<td><%=SystemUtils.JAVA_VERSION%> (<%=SystemUtils.JAVA_VENDOR%>)</td>
-		</tr>
-		<tr>
-			<th>Catalina Base</th>
-			<td><%=System.getProperty("catalina.base")%></td>
 		</tr>
 		<tr>
 			<th>Data Directory</th>

@@ -43,7 +43,7 @@
 							</tbody>
 							</table>
 							<c:if test="${!cacheStatus}">
-								<div class="alert alert-warning alert-icon mt-6">
+								<div class="alert alert-danger alert-icon mt-6">
 									<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
 									<div class="message">REDIS 缓存服务配置有误，当前已启用 EHCACHE 内建缓存</div>
 								</div>
