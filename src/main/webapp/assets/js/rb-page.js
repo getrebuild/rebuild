@@ -30,7 +30,7 @@ $(function () {
     __initNavs()
   }
 
-  setTimeout(__globalSearch, 1000)
+  setTimeout(__globalSearch, 200)
 
   if (rb.isAdminUser === true) {
     $('html').addClass('admin')
