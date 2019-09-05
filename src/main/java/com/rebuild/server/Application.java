@@ -115,11 +115,11 @@ public final class Application {
 		SerializeConfig.getGlobalInstance().put(StandardRecord.class, RbRecordCodec.instance);
 		SerializeConfig.getGlobalInstance().put(QueryedRecord.class, RbRecordCodec.instance);
 
-		Lisence.SN();
 		// 更新刷新配置缓存
 		for (ConfigurableItem item : ConfigurableItem.values()) {
 			SysConfiguration.get(item, true);
 		}
+		Lisence.SN();
 
 		// 升级数据库
 		UpgradeDatabase.getInstance().upgradeQuietly();
