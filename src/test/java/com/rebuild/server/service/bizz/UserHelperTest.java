@@ -18,11 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.bizz;
 
-import org.junit.Test;
-
 import com.rebuild.server.Application;
+import com.rebuild.server.ServerStatus;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.service.bizz.privileges.Department;
+import org.junit.Test;
 
 /**
  * @author devezhao-mbp zhaofang123@gmail.com
@@ -44,4 +44,12 @@ public class UserHelperTest extends TestSupport {
 		
 		Application.getUserStore().getUser(SIMPLE_USER).isActive();
 	}
+
+    @Test
+    public void generateAvatar() throws Exception {
+		for (int i = 0; i < 1000; i++) {
+			UserHelper.generateAvatar("你好", true);
+			System.out.println(ServerStatus.getHeapMemoryUsed()[1]);
+		}
+    }
 }

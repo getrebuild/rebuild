@@ -199,7 +199,7 @@ public final class ServerStatus {
 	/**
 	 * 内存用量
 	 * 
-	 * @return [已用%, 总计M]
+	 * @return [总计M, 已用%]
 	 */
 	public static double[] getHeapMemoryUsed() {
 		for (MemoryInformation i : SystemUtils.getMemoryStatistics(false)) {
