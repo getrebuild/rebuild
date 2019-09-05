@@ -37,7 +37,7 @@ public final class Lisence {
      * @return
      */
     public static String SN() {
-        String SN = SysConfiguration.get(ConfigurableItem.SN);
+        String SN = SysConfiguration.get(ConfigurableItem.SN, true);
         if (SN == null) {
             SN = String.format("ZR%s%s-%s",
                     "150",
