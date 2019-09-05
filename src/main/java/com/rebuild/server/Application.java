@@ -26,6 +26,7 @@ import cn.devezhao.persist4j.query.QueryedRecord;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.Lisence;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.helper.cache.EhcacheTemplate;
@@ -114,6 +115,7 @@ public final class Application {
 		SerializeConfig.getGlobalInstance().put(StandardRecord.class, RbRecordCodec.instance);
 		SerializeConfig.getGlobalInstance().put(QueryedRecord.class, RbRecordCodec.instance);
 
+		Lisence.SN();
 		// 更新刷新配置缓存
 		for (ConfigurableItem item : ConfigurableItem.values()) {
 			SysConfiguration.get(item, true);
