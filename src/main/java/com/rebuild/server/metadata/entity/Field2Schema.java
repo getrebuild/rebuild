@@ -240,10 +240,11 @@ public class Field2Schema {
 			refEntity = "PickList";
 		} else if (displayType == DisplayType.CLASSIFICATION) {
 			refEntity = "ClassificationData";
-			if (extConfig != null) {
-				recordOfField.setString("extConfig", extConfig.toJSONString());
-			}
 		}
+
+        if (extConfig != null) {
+            recordOfField.setString("extConfig", extConfig.toJSONString());
+        }
 		
 		if (StringUtils.isNotBlank(refEntity)) {
 			if (!MetadataHelper.containsEntity(refEntity)) {

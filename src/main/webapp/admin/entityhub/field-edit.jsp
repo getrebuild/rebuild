@@ -184,6 +184,12 @@
                                 </label>
                             </div>
                         </div>
+                        <div class="form-group row J_for-STATE pt-0 pb-0 hide">
+                            <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">状态类</label>
+                            <div class="col-md-12 col-xl-6 col-lg-8">
+                                <div class="form-control-plaintext code" id="stateClass"></div>
+                            </div>
+                        </div>
 						<div class="form-group row">
 							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">备注</label>
 							<div class="col-md-12 col-xl-6 col-lg-8">

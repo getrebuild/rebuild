@@ -262,7 +262,7 @@ class FilterItem extends React.Component {
       op = ['TDA', 'YTA', 'TTA', 'GT', 'LT', 'EQ', 'BW', 'RED', 'REM', 'BFD', 'BFM', 'AFD', 'AFM']
     } else if (fieldType === 'FILE' || fieldType === 'IMAGE') {
       op = []
-    } else if (fieldType === 'PICKLIST') {
+    } else if (fieldType === 'PICKLIST' || fieldType === 'STATE') {
       op = ['IN', 'NIN']
     } else if (fieldType === 'CLASSIFICATION') {
       op = ['LK', 'NLK']
@@ -286,24 +286,7 @@ class FilterItem extends React.Component {
 
   renderValue() {
     let val = <input className="form-control form-control-sm" ref={(c) => this._filterVal = c} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
-    if (this.state.op === 'BW') {
-      val = (
-        <div className="val-range">
-          <input className="form-control form-control-sm" ref={(c) => this._filterVal = c} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
-          <input className="form-control form-control-sm" ref={(c) => this._filterVal2 = c} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value2 || ''} data-at="2" />
-          <span>起</span>
-          <span className="end">止</span>
-        </div>)
-    } else if (this.state.type === 'PICKLIST') {
-      val = (
-        <select className="form-control form-control-sm" multiple="true" ref={(c) => this._filterVal = c}>
-          {(this.state.picklist || []).map((item) => {
-            return <option value={item.id} key={'val-' + item.id}>{item.text}</option>
-          })}
-        </select>)
-    } else if (this.isBizzField()) {
-      val = <select className="form-control form-control-sm" multiple="true" ref={(c) => this._filterVal = c} />
-    } else if (this.isApprovalState()) {
+    if (this.isApprovalState()) {
       val = (
         <select className="form-control form-control-sm" ref={(c) => this._filterVal = c}>
           <option value="1">草稿</option>
@@ -311,6 +294,23 @@ class FilterItem extends React.Component {
           <option value="10">通过</option>
           <option value="11">驳回</option>
         </select>)
+    } else if (this.state.op === 'BW') {
+      val = (
+        <div className="val-range">
+          <input className="form-control form-control-sm" ref={(c) => this._filterVal = c} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
+          <input className="form-control form-control-sm" ref={(c) => this._filterVal2 = c} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value2 || ''} data-at="2" />
+          <span>起</span>
+          <span className="end">止</span>
+        </div>)
+    } else if (this.state.type === 'PICKLIST' || this.state.type === 'STATE') {
+      val = (
+        <select className="form-control form-control-sm" multiple="true" ref={(c) => this._filterVal = c}>
+          {(this.state.options || []).map((item) => {
+            return <option value={item.id} key={'val-' + item.id}>{item.text}</option>
+          })}
+        </select>)
+    } else if (this.isBizzField()) {
+      val = <select className="form-control form-control-sm" multiple="true" ref={(c) => this._filterVal = c} />
     }
 
     INPUTVALS_HOLD[this.state.field] = this.state.value
@@ -380,14 +380,13 @@ class FilterItem extends React.Component {
   }
 
   _componentDidUpdate() {
-    console.log('_componentDidUpdate')
     let state = this.state
     let lastType = this.__lastType
     this.__lastType = state.type
 
-    if (state.type === 'PICKLIST') {
+    if (state.type === 'PICKLIST' || state.type === 'STATE') {
       this.renderPickList(state.field)
-    } else if (lastType === 'PICKLIST') {
+    } else if (lastType === 'PICKLIST' || lastType === 'STATE') {
       this.removePickList()
     }
 
@@ -455,14 +454,14 @@ class FilterItem extends React.Component {
   renderPickList(field) {
     const plKey = this.props.$$$parent.props.entity + '.' + field
     if (PICKLIST_CACHE[plKey]) {
-      this.setState({ picklist: PICKLIST_CACHE[plKey] }, () => {
+      this.setState({ options: PICKLIST_CACHE[plKey] }, () => {
         this.renderPickListAfter()
       })
     } else {
-      $.get(`${rb.baseUrl}/commons/metadata/picklist?entity=${this.props.$$$parent.props.entity}&field=${field}`, (res) => {
+      $.get(`${rb.baseUrl}/commons/metadata/field-options?entity=${this.props.$$$parent.props.entity}&field=${field}`, (res) => {
         if (res.error_code === 0) {
           PICKLIST_CACHE[plKey] = res.data
-          this.setState({ picklist: PICKLIST_CACHE[plKey] }, () => {
+          this.setState({ options: PICKLIST_CACHE[plKey] }, () => {
             this.renderPickListAfter()
           })
         } else {

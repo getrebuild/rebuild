@@ -32,12 +32,15 @@ import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
+import com.rebuild.server.helper.dev.StateHelper;
+import com.rebuild.server.helper.dev.StateSpec;
 import com.rebuild.server.metadata.DefaultValueHelper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.privileges.User;
+import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
@@ -253,6 +256,10 @@ public class FormsBuilder extends FormsManager {
 			else if (dt == DisplayType.CLASSIFICATION) {
 				el.put("openLevel", ClassificationManager.instance.getOpenLevel(fieldMeta));
 			}
+			else if (dt == DisplayType.STATE) {
+			    String stateClass = el.getString("stateClass");
+                el.put("options", getStateOptions(stateClass));
+            }
 			
 			// 编辑/视图
 			if (data != null) {
@@ -437,6 +444,9 @@ public class FormsBuilder extends FormsManager {
 					return pickValue.toLiteral();
 				}
 			}
+			else if (dt == DisplayType.STATE && !viewMode) {
+			    return value;
+            }
 			else if (dt == DisplayType.CLASSIFICATION) {
 				ID itemValue = (ID) value;
 				String itemName = ClassificationManager.instance.getFullName(itemValue);
@@ -579,4 +589,35 @@ public class FormsBuilder extends FormsManager {
 			return null;
 		}
 	}
+
+    /**
+     * @param stateClass
+     * @return
+     */
+	public JSONArray getStateOptions(String stateClass) {
+	    if (StringUtils.isBlank(stateClass)) {
+            return JSONUtils.EMPTY_ARRAY;
+        }
+
+	    final String cKey = "STATECLASS-" + stateClass;
+        JSONArray options = (JSONArray) Application.getCommonCache().getx(cKey);
+        if (options != null) {
+            return options;
+        }
+
+        Class<?> state = StateHelper.forName(stateClass);
+        if (state == null) {
+            return JSONUtils.EMPTY_ARRAY;
+        }
+
+        options = new JSONArray();
+        for (Object c : state.getEnumConstants()) {
+            JSONObject item = JSONUtils.toJSONObject(
+                    new String[] { "id", "text" },
+                    new Object[] { ((StateSpec) c).getState(), ((StateSpec) c).getName() });
+            options.add(item);
+        }
+        Application.getCommonCache().putx(cKey, options);
+        return options;
+    }
 }

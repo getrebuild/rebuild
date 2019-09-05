@@ -36,7 +36,7 @@ final User currentUser = Application.getUserStore().getUser(AppUtils.getRequestU
 			<div class="page-title hide"><span>${param['pageTitle']}</span></div>
 			<ul class="nav navbar-nav float-right rb-icons-nav">
 				<li class="nav-item dropdown admin-show admin-settings">
-					<a class="nav-link" href="${baseUrl}/admin/systems" target="_blank"><i class="icon zmdi zmdi-settings"></i></a>
+					<a class="nav-link" href="${baseUrl}/admin/systems"><i class="icon zmdi zmdi-settings"></i></a>
 				</li>
 				<li class="nav-item dropdown J_notifications-top">
 					<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="${baseUrl}/notifications"><i class="icon zmdi zmdi-notifications"></i><span class="indicator hide"></span></a>

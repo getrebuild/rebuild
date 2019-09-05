@@ -1,6 +1,6 @@
 /*
 rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,27 +16,21 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.metadata.entity;
+package com.rebuild.server.helper.dev;
+
+import com.rebuild.server.metadata.entity.State;
 
 /**
- * 状态字段
- * 
- * @author devezhao zhaofang123@gmail.com
- * @since 2019/07/05
+ * 对开发友好的状态字段（State）规范。
+ * 开发时可以更方便的使用状态值（明确的数字值），系统对此类型的字段提供了完整的支持。
+ * 此字段与列表字段（PickList）表现相同。
+ *
+ * @author devezhao
+ * @since 09/05/2019
+ *
+ * @see com.rebuild.server.metadata.entity.DisplayType#STATE
+ * @see HowtoState
+ * @see com.rebuild.server.business.approval.ApprovalState
  */
-public interface State {
-	
-	/**
-     * 实际值
-     *
-	 * @return
-	 */
-	int getState();
-	
-	/**
-     * 显示值
-     *
-	 * @return
-	 */
-	String getName();
+public interface StateSpec extends State {
 }

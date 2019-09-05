@@ -59,12 +59,14 @@ public enum ApprovalState implements State {
 	public String getName() {
 		return name;
 	}
-	
+
+    /**
+     * @param state
+     * @return
+     */
 	public static State valueOf(int state) {
 		for (ApprovalState s : ApprovalState.values()) {
-			if (s.getState() == state) {
-				return s;
-			}
+			if (s.getState() == state) return s;
 		}
 		throw new IllegalArgumentException("Unknow state : " + state);
 	}

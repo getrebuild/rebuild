@@ -359,7 +359,7 @@ CellRenders.addRender('EMAIL', function (v, s, k) {
 const APPROVAL_STATE_CLAZZs = { '审批中': 'text-warning', '驳回': 'text-danger', '通过': 'text-success' }
 CellRenders.addRender('STATE', function (v, s, k) {
   if (k.endsWith('.approvalState')) return <td key={k}><div style={s} className={APPROVAL_STATE_CLAZZs[v] || ''}>{v}</div></td>
-  else CellRenders.renderSimple(v, s, k)
+  else return CellRenders.renderSimple(v, s, k)
 })
 
 // 分页组件

@@ -26,6 +26,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.helper.datalist.DataWrapper;
+import com.rebuild.server.helper.dev.StateHelper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
@@ -106,7 +107,9 @@ public class FieldValueWrapper {
 			return wrapPickList(value, field);
 		} else if (dt == DisplayType.CLASSIFICATION) {
 			return wrapClassification(value, field);
-		} else {
+		} else if (dt == DisplayType.STATE) {
+		    return wrapState(value, field);
+        } else {
 			return wrapSimple(value, field);
 		}
 	}
@@ -208,6 +211,17 @@ public class FieldValueWrapper {
 	public String wrapClassification(Object item, EasyMeta field) {
 		return StringUtils.defaultIfBlank(ClassificationManager.instance.getFullName((ID) item), MISS_REF_PLACE);
 	}
+
+    /**
+     * @param item
+     * @param field
+     * @return
+     */
+	public String wrapState(Object item, EasyMeta field) {
+        int state = (int) item;
+        String stateClass = field.getFieldExtConfig().getString("stateClass");
+        return StateHelper.valueOf(stateClass, state).getName();
+    }
 	
 	/**
 	 * @param simple
