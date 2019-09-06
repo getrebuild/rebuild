@@ -150,7 +150,7 @@ public class AutoFillinManager implements ConfigManager<Field> {
 			if (!is2Text) {
 				compatibleValue = new Object[] { value, compatibleValue };  // [ID, Label]
 			}
-		} else if (sourceType == DisplayType.PICKLIST) {
+		} else if (sourceType == DisplayType.PICKLIST || sourceType == DisplayType.STATE) {
 			if (is2Text) {
 				compatibleValue = FieldValueWrapper.instance.wrapFieldValue(value, source);
 			} else {

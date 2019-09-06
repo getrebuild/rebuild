@@ -205,6 +205,8 @@ public class DataImporter extends HeavyTask<Integer> {
 			return checkoutReferenceValue(field, cell);
 		} else if (dt == DisplayType.BOOL) {
 			return cell.asBool();
+		} else if (dt == DisplayType.STATE) {
+			return cell.asInt();
 		}
 		
 		// 格式验证

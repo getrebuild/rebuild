@@ -6,7 +6,7 @@ $(document).ready(function () {
       comments = $val('#comments'),
       refEntity = $val('#refEntity'),
       refClassification = $val('#refClassification'),
-      stateClass = $val('#stateClass') || 'com.rebuild.server.helper.dev.HowtoState'
+      stateClass = $val('#stateClass') || 'com.rebuild.server.helper.state.HowtoState'
     if (!fieldLabel) {
       RbHighbar.create('请输入字段名称')
       return

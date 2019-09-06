@@ -32,15 +32,13 @@ import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
-import com.rebuild.server.helper.state.StateHelper;
-import com.rebuild.server.helper.state.StateSpec;
+import com.rebuild.server.helper.state.StateManager;
 import com.rebuild.server.metadata.DefaultValueHelper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.privileges.User;
-import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
@@ -242,8 +240,8 @@ public class FormsBuilder extends FormsManager {
 				el.put("options", options);
 			}
 			else if (dt == DisplayType.STATE) {
-				String stateClass = el.getString("stateClass");
-				el.put("options", getStateOptions(stateClass));
+				JSONArray options = StateManager.instance.getStateOptions(fieldMeta);
+				el.put("options", options);
 			}
 			else if (dt == DisplayType.DATETIME) {
 				if (!el.containsKey("datetimeFormat")) {
@@ -594,31 +592,4 @@ public class FormsBuilder extends FormsManager {
 			return null;
 		}
 	}
-
-    /**
-     * @param stateClass
-     * @return
-     */
-	public JSONArray getStateOptions(String stateClass) {
-	    if (StringUtils.isBlank(stateClass)) {
-            return JSONUtils.EMPTY_ARRAY;
-        }
-
-	    final String cKey = "STATECLASS-" + stateClass;
-        JSONArray options = (JSONArray) Application.getCommonCache().getx(cKey);
-        if (options != null) {
-            return options;
-        }
-
-        Class<?> state = StateHelper.getSatetClass(stateClass);
-        options = new JSONArray();
-        for (Object c : state.getEnumConstants()) {
-            JSONObject item = JSONUtils.toJSONObject(
-                    new String[] { "id", "text", "default" },
-                    new Object[] { ((StateSpec) c).getState(), ((StateSpec) c).getName(), ((StateSpec) c).isDefault() });
-            options.add(item);
-        }
-        Application.getCommonCache().putx(cKey, options);
-        return options;
-    }
 }
