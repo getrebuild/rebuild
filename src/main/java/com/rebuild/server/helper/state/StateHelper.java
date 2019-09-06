@@ -85,15 +85,6 @@ public class StateHelper {
     }
 
     /**
-     * @param clazzName
-     * @param name
-     * @return
-     */
-    public static StateSpec valueOf(String clazzName, String name) {
-        return valueOf(getSatetClass(clazzName), name);
-    }
-
-    /**
      * @param clazz
      * @param state
      * @return
@@ -103,22 +94,6 @@ public class StateHelper {
         Object[] constants = clazz.getEnumConstants();
         for (Object c : constants) {
             if (((StateSpec) c).getState() == state) {
-                return (StateSpec) c;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * @param clazz
-     * @param name
-     * @return
-     */
-    public static StateSpec valueOf(Class<?> clazz, String name) {
-        assert clazz != null;
-        Object[] constants = clazz.getEnumConstants();
-        for (Object c : constants) {
-            if (((StateSpec) c).getName().equals(name) || ((Enum<?>) c).name().equals(name)) {
                 return (StateSpec) c;
             }
         }

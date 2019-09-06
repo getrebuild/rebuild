@@ -28,6 +28,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.ClassificationManager;
 import com.rebuild.server.configuration.portals.PickListManager;
+import com.rebuild.server.helper.state.StateManager;
 import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.ExtRecordCreator;
@@ -36,6 +37,7 @@ import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 
 import java.text.MessageFormat;
 import java.util.Date;
@@ -206,7 +208,7 @@ public class DataImporter extends HeavyTask<Integer> {
 		} else if (dt == DisplayType.BOOL) {
 			return cell.asBool();
 		} else if (dt == DisplayType.STATE) {
-			return cell.asInt();
+			return checkoutStateValue(field, cell);
 		}
 		
 		// 格式验证
@@ -249,7 +251,30 @@ public class DataImporter extends HeavyTask<Integer> {
 			return PickListManager.instance.findItemByLabel(val, field);
 		}
 	}
-	
+
+	/**
+	 * @param field
+	 * @param cell
+	 * @return
+	 */
+	private Integer checkoutStateValue(Field field, Cell cell) {
+		final String val = cell.asString();
+		if (StringUtils.isBlank(val)) {
+			return null;
+		}
+
+		Integer state = StateManager.instance.getState(field, val);
+		if (state != null) {
+			return state;
+		}
+
+		// 兼容状态值
+		if (NumberUtils.isNumber(val)) {
+			return NumberUtils.toInt(val);
+		}
+		return null;
+	}
+
 	/**
 	 * @param field
 	 * @param cell

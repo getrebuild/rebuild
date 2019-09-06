@@ -38,6 +38,5 @@ public class StateHelperTest {
     @Test
     public void valueOf() {
         System.out.println(StateHelper.valueOf(HowtoState.class.getName(), 1));
-        System.out.println(StateHelper.valueOf(HowtoState.class.getName(), "已驳回"));
     }
 }

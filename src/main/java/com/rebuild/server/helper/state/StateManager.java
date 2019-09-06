@@ -84,6 +84,7 @@ public class StateManager {
      * @param stateField
      * @param state
      * @return
+     * @see #getName(Field, int)
      */
     public String getLabel(Field stateField, int state) {
         return getName(stateField, state);
@@ -98,6 +99,20 @@ public class StateManager {
         Class<?> stateClass = StateHelper.getSatetClass(stateField);
         for (Object c : stateClass.getEnumConstants()) {
             if (((StateSpec) c).getState() == state) return ((StateSpec) c).getName();
+        }
+        return null;
+    }
+
+    /**
+     * @param stateField
+     * @param name
+     * @return
+     */
+    public Integer getState(Field stateField, String name) {
+        Class<?> stateClass = StateHelper.getSatetClass(stateField);
+        for (Object c : stateClass.getEnumConstants()) {
+            StateSpec s = (StateSpec) c;
+            if (s.getName().equalsIgnoreCase(name) || ((Enum<?>) s).name().equalsIgnoreCase(name)) return s.getState();
         }
         return null;
     }
