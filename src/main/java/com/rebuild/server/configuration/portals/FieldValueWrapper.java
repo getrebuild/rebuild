@@ -26,7 +26,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.helper.datalist.DataWrapper;
-import com.rebuild.server.helper.dev.StateHelper;
+import com.rebuild.server.helper.state.StateHelper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
@@ -52,6 +52,11 @@ public class FieldValueWrapper {
 	 * 引用值被删除时的默认显示
 	 */
 	public static final String MISS_REF_PLACE = "[DELETED]";
+
+	/**
+	 * 流程未提交
+	 */
+	public static final String APPROVAL_UNSUBMITTED = "未提交";
 
 	/**
 	 * 名称字段为空时，采用 @+ID 的方式显示
@@ -213,14 +218,13 @@ public class FieldValueWrapper {
 	}
 
     /**
-     * @param item
+     * @param state
      * @param field
      * @return
      */
-	public String wrapState(Object item, EasyMeta field) {
-        int state = (int) item;
+	public String wrapState(Object state, EasyMeta field) {
         String stateClass = field.getFieldExtConfig().getString("stateClass");
-        return StateHelper.valueOf(stateClass, state).getName();
+        return StateHelper.valueOf(stateClass, (Integer) state).getName();
     }
 	
 	/**
@@ -238,11 +242,11 @@ public class FieldValueWrapper {
 	}
 
 	/**
-	 * @param simple
+	 * @param special
 	 * @param field
 	 * @return
 	 */
-	protected String wrapSpecialField(Object simple, EasyMeta field) {
+	protected String wrapSpecialField(Object special, EasyMeta field) {
 		String fieldName = field.getName().toLowerCase();
 
 		// 密码型字段返回
@@ -250,12 +254,17 @@ public class FieldValueWrapper {
 			return "******";
 		}
 
-		// 审批状态
+		// 审批
 		if (fieldName.equalsIgnoreCase(EntityHelper.ApprovalState)) {
-			if (simple == null) {
+			if (special == null) {
 				return ApprovalState.DRAFT.getName();
 			}
-			return ApprovalState.valueOf((Integer) simple).getName();
+			return ApprovalState.valueOf((Integer) special).getName();
+		} else if (fieldName.equalsIgnoreCase(EntityHelper.ApprovalId)) {
+			if (special == null) {
+				return APPROVAL_UNSUBMITTED;
+			}
+			return special.toString();
 		}
 
 		return null;

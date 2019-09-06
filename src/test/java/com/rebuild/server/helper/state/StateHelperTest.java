@@ -1,5 +1,5 @@
 /*
-rebuild - Building your business-systems freely.
+rebuild - Building your system freely.
 Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -16,27 +16,28 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.metadata.entity;
+package com.rebuild.server.helper.state;
+
+import com.rebuild.utils.AppUtils;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
- * 状态字段
- * 
  * @author devezhao zhaofang123@gmail.com
- * @since 2019/07/05
+ * @since 2019/09/06
  */
-public interface State {
-	
-	/**
-     * 实际值
-     *
-	 * @return
-	 */
-	int getState();
-	
-	/**
-     * 显示值
-     *
-	 * @return
-	 */
-	String getName();
+public class StateHelperTest {
+
+    @Test
+    public void isStateClass() {
+        assertTrue(StateHelper.isStateClass(HowtoState.class.getName()));
+        assertFalse(StateHelper.isStateClass(AppUtils.class.getName()));
+    }
+
+    @Test
+    public void valueOf() {
+        System.out.println(StateHelper.valueOf(HowtoState.class.getName(), 1));
+        System.out.println(StateHelper.valueOf(HowtoState.class.getName(), "已驳回"));
+    }
 }

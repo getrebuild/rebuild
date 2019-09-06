@@ -683,7 +683,8 @@ class RbFormPickList extends RbFormElement {
     if (props.options && props.value) {  // Value has been deleted?
       let deleted = true
       $(props.options).each(function () {
-        if (this.id === props.value) {
+        // eslint-disable-next-line eqeqeq
+        if (this.id == props.value) {
           deleted = false
           return false
         }
@@ -695,7 +696,7 @@ class RbFormPickList extends RbFormElement {
     return (
       <select ref="field-value" className="form-control form-control-sm" value={this.state.value || ''} onChange={this.handleChange}>
         {this.props.options.map((item) => {
-          return (<option key={'opt-' + item.id} value={item.id}>{item.text}</option>)
+          return (<option key={`${this.state.field}-opt${item.id}`} value={item.id}>{item.text}</option>)
         })}
       </select>
     )
@@ -749,6 +750,9 @@ class RbFormReference extends RbFormElement {
   renderViewElement() {
     if (!this.state.value) return super.renderViewElement()
     let val = this.state.value
+    if (typeof val === 'string') {
+      return <div className="form-control-plaintext">{val}</div>
+    }
     return <div className="form-control-plaintext"><a ref="field-text" href={`#!/View/${val[2]}/${val[0]}`} onClick={() => this.clickView()}>{val[1]}</a></div>
   }
   componentDidMount() {

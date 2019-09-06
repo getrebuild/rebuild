@@ -16,8 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.helper.dev;
+package com.rebuild.server.helper.state;
 
+import cn.devezhao.persist4j.Field;
+import com.rebuild.server.business.approval.ApprovalState;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import org.apache.commons.lang.ClassUtils;
 
 /**
@@ -35,25 +39,40 @@ public class StateHelper {
      * @return
      */
     public static boolean isStateClass(String clazzName) {
-        return forName(clazzName) != null;
+        return getSatetClass(clazzName) != null;
     }
 
     /**
-     * 加载状态枚举
-     *
-     * @param clazzName
+     * @param stateField
      * @return
      */
-    public static Class<?> forName(String clazzName) {
+    public static Class<?> getSatetClass(Field stateField) {
+        if (EntityHelper.ApprovalState.equalsIgnoreCase(stateField.getName())) {
+            return ApprovalState.class;
+        }
+
+        String stateClass = new EasyMeta(stateField).getFieldExtConfig().getString("stateClass");
+        return getSatetClass(stateClass);
+    }
+
+    /**
+     * 加载状态枚举类
+     *
+     * @param stateClass
+     * @return
+     * @throws IllegalArgumentException
+     */
+    public static Class<?> getSatetClass(String stateClass) throws IllegalArgumentException {
         Class<?> stateEnum = null;
         try {
-            stateEnum = ClassUtils.getClass(clazzName);
-            if (!(stateEnum.isEnum() && ClassUtils.isAssignable(stateEnum, StateSpec.class))) {
-                stateEnum = null;
+            stateEnum = ClassUtils.getClass(stateClass);
+            if (stateEnum.isEnum() && ClassUtils.isAssignable(stateEnum, StateSpec.class)) {
+                return stateEnum;
             }
         } catch (ClassNotFoundException ignored) {
+            throw new IllegalArgumentException("No class of state found: " + stateClass);
         }
-        return stateEnum;
+        throw new IllegalArgumentException("Bad class of state found: " + stateEnum);
     }
 
     /**
@@ -62,7 +81,7 @@ public class StateHelper {
      * @return
      */
     public static StateSpec valueOf(String clazzName, int state) {
-        return valueOf(forName(clazzName), state);
+        return valueOf(getSatetClass(clazzName), state);
     }
 
     /**
@@ -71,7 +90,7 @@ public class StateHelper {
      * @return
      */
     public static StateSpec valueOf(String clazzName, String name) {
-        return valueOf(forName(clazzName), name);
+        return valueOf(getSatetClass(clazzName), name);
     }
 
     /**

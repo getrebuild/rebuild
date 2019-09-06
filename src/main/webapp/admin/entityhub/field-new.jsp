@@ -68,7 +68,7 @@
         <div class="form-group row hide J_dt-STATE">
             <label class="col-sm-3 col-form-label text-sm-right">状态类 (Enum)</label>
             <div class="col-sm-7">
-                <input class="form-control form-control-sm" type="text" id="stateClass" placeholder="com.rebuild.server.helper.dev.HowtoState">
+                <input class="form-control form-control-sm" type="text" id="stateClass" placeholder="com.rebuild.server.helper.state.HowtoState">
             </div>
         </div>
 		<div class="form-group row">

@@ -278,7 +278,7 @@ class FilterItem extends React.Component {
       }
     }
     op.push('NL', 'NT')
-    if (this.isApprovalState()) op = ['EQ', 'NEQ']
+    if (this.isApprovalState()) op = ['IN', 'NIN']
 
     this.__op = op
     return op
@@ -286,15 +286,7 @@ class FilterItem extends React.Component {
 
   renderValue() {
     let val = <input className="form-control form-control-sm" ref={(c) => this._filterVal = c} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
-    if (this.isApprovalState()) {
-      val = (
-        <select className="form-control form-control-sm" ref={(c) => this._filterVal = c}>
-          <option value="1">草稿</option>
-          <option value="2">审批中</option>
-          <option value="10">通过</option>
-          <option value="11">驳回</option>
-        </select>)
-    } else if (this.state.op === 'BW') {
+    if (this.state.op === 'BW') {
       val = (
         <div className="val-range">
           <input className="form-control form-control-sm" ref={(c) => this._filterVal = c} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
@@ -408,13 +400,6 @@ class FilterItem extends React.Component {
       this.removeBizzSearch()
     }
 
-    if (this.isApprovalState()) {
-      this.renderApprovalState()
-      this.__lastType = 'approvalState'
-    } else if (lastType === 'approvalState') {
-      this.removeApprovalState()
-    }
-
     if (state.value) this.valueCheck($(this._filterVal))
     if (state.value2 && this._filterVal2) this.valueCheck($(this._filterVal2))
   }
@@ -425,7 +410,6 @@ class FilterItem extends React.Component {
     this.removePickList()
     this.removeDatepicker()
     this.removeBizzSearch()
-    this.removeApprovalState()
   }
 
   valueHandle = (e) => {
@@ -583,28 +567,6 @@ class FilterItem extends React.Component {
         item.datetimepicker('remove')
       })
       this.__datepicker = null
-    }
-  }
-
-  // 审批状态
-
-  renderApprovalState() {
-    if (this.__select2_ApprovalState) return
-
-    let that = this
-    let s2val = $(this._filterVal).select2({
-      allowClear: false
-    }).on('change.select2', function () {
-      that.setState({ value: s2val.val() })
-    })
-    this.setState({ value: 1 })  // 默认草稿
-    this.__select2_ApprovalState = s2val
-  }
-  removeApprovalState() {
-    if (this.__select2_ApprovalState) {
-      this.__select2_ApprovalState.select2('destroy')
-      this.__select2_ApprovalState = null
-      this.setState({ value: null })
     }
   }
 

@@ -24,6 +24,7 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
+import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.configuration.portals.ClassificationManager;
 import com.rebuild.server.configuration.portals.FieldPortalAttrs;
 import com.rebuild.server.configuration.portals.FormsBuilder;
@@ -191,7 +192,11 @@ public class MetadataGetting extends BaseControll {
 		Field fieldMeta = getRealField(entity, field);
 		EasyMeta fieldEasy = EasyMeta.valueOf(fieldMeta);
 		if (fieldEasy.getDisplayType() == DisplayType.STATE) {
-            JSON options = FormsBuilder.instance.getStateOptions(fieldEasy.getFieldExtConfig().getString("stateClass"));
+			String stateClass = fieldEasy.getFieldExtConfig().getString("stateClass");
+			if (EntityHelper.ApprovalState.equalsIgnoreCase(fieldEasy.getName())) {
+				stateClass = ApprovalState.class.getName();
+			}
+            JSON options = FormsBuilder.instance.getStateOptions(stateClass);
             writeSuccess(response, options);
         } else {
             JSON options = PickListManager.instance.getPickList(fieldMeta);

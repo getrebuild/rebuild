@@ -16,48 +16,40 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.helper.dev;
-
-import com.rebuild.server.metadata.entity.State;
+package com.rebuild.server.helper.state;
 
 /**
- * 演示
+ * 对开发友好的状态字段（State）规范。
+ * 开发时可以更方便的使用状态值（明确的数字值），系统对此类型的字段提供了完整的支持。
+ * 此字段与列表字段（PickList）表现相同。
  *
  * @author devezhao
  * @since 09/05/2019
+ *
+ * @see com.rebuild.server.metadata.entity.DisplayType#STATE
+ * @see com.rebuild.server.business.approval.ApprovalState
+ * @see HowtoState
  */
-public enum HowtoState implements StateSpec {
-
-    DRAFT(1, "草稿"),
-    PENDING(2, "处理中"),
-    SOLVED(10, "已解决"),
-    REJECTED(11, "已驳回"),
-
-    ;
-
-    final private int state;
-    final private String name;
-
-    HowtoState(int state, String name) {
-        this.state = state;
-        this.name = name;
-    }
-
-    @Override
-    public int getState() {
-        return state;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
+public interface StateSpec {
 
     /**
-     * @param state
+     * 实际值（数据库中的值）
+     *
      * @return
      */
-    public static State valueOf(int state) {
-        return StateHelper.valueOf(HowtoState.class, state);
-    }
+    int getState();
+
+    /**
+     * 显示值
+     *
+     * @return
+     */
+    String getName();
+
+    /**
+     * 是否默认值
+     *
+     * @return
+     */
+    boolean isDefault();
 }
