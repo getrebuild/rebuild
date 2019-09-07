@@ -121,6 +121,10 @@ a.badge.text-id:hover {
     min-width: auto;
 }
 
+a.btn {
+    line-height: 2.7rem;
+}
+
 .input-group-sm .btn {
     min-width: 2.8rem;
 }
@@ -1994,7 +1998,7 @@ form {
 .form.approval-form .approval-list>div {
     padding: 7px 10px;
     background-color: #f5f5f5;
-    border-radius: 3px;
+    border-radius: 2px;
     overflow: hidden;
     position: relative;
 }

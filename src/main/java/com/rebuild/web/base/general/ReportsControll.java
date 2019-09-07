@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.web.base.general;
 
 import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -27,6 +28,7 @@ import com.rebuild.server.business.datareport.ReportGenerator;
 import com.rebuild.server.configuration.DataReportManager;
 import com.rebuild.server.configuration.portals.FormsBuilder;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 import com.rebuild.web.common.FileDownloader;
 import org.springframework.stereotype.Controller;
@@ -72,19 +74,23 @@ public class ReportsControll extends BasePageControll {
         writeSuccess(response, reports);
     }
 
-    @RequestMapping("report-generate")
+    @RequestMapping({ "report-generate", "report-export" })
     public void reportGenerate(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ID reportId = getIdParameterNotNull(request, "report");
         ID recordId = getIdParameterNotNull(request, "record");
 
         File report = new ReportGenerator(reportId, recordId).generate();
 
-        String attname = request.getParameter("attname");
-        if (attname == null) {
-            attname = report.getName();
-        }
+        if (ServletUtils.isAjaxRequest(request)) {
+            writeSuccess(response, JSONUtils.toJSONObject("file", report.getName()));
+        } else {
+            String attname = request.getParameter("attname");
+            if (attname == null) {
+                attname = report.getName();
+            }
 
-        FileDownloader.setDownloadHeaders(response, attname);
-        FileDownloader.writeLocalFile(report, response);
+            FileDownloader.setDownloadHeaders(response, attname);
+            FileDownloader.writeLocalFile(report, response);
+        }
     }
 }
