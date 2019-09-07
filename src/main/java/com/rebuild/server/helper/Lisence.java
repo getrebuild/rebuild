@@ -40,7 +40,7 @@ public final class Lisence {
         String SN = SysConfiguration.get(ConfigurableItem.SN, true);
         if (SN == null) {
             SN = String.format("ZR%s%s-%s",
-                    "150",
+                    "105", // v1.5
                     StringUtils.leftPad(Locale.getDefault().getCountry(), 3, "0"),
                     UUID.randomUUID().toString().replace("-", "").substring(0, 15).toUpperCase());
             SysConfiguration.set(ConfigurableItem.SN, SN);

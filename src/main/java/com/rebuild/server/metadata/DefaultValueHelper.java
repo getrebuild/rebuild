@@ -80,15 +80,16 @@ public class DefaultValueHelper {
                 && field.getReferenceEntity().getEntityCode() == EntityHelper.PickList) {
             return PickListManager.instance.getDefaultItem(field);
         } else if (EasyMeta.getDisplayType(field) == DisplayType.STATE) {
-            Class<?> stateClass = StateHelper.getSatetClass(field);
-            if (stateClass == null) {
+            Class<?> stateClass;
+            try {
+                stateClass = StateHelper.getSatetClass(field);
+            } catch (IllegalArgumentException ex) {
+                LOG.error("Bad field: " + field, ex);
                 return null;
             }
 
             for (Object c : stateClass.getEnumConstants()) {
-                if (((StateSpec) c).isDefault()) {
-                    return ((StateSpec) c).getState();
-                }
+                if (((StateSpec) c).isDefault()) return ((StateSpec) c).getState();
             }
         }
 

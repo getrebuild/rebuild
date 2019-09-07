@@ -39,7 +39,11 @@ public class StateHelper {
      * @return
      */
     public static boolean isStateClass(String clazzName) {
-        return getSatetClass(clazzName) != null;
+        try {
+            return getSatetClass(clazzName) != null;
+        } catch (IllegalArgumentException ignored) {
+            return false;
+        }
     }
 
     /**
@@ -63,6 +67,7 @@ public class StateHelper {
      * @throws IllegalArgumentException
      */
     public static Class<?> getSatetClass(String stateClass) throws IllegalArgumentException {
+        assert stateClass != null;
         Class<?> stateEnum = null;
         try {
             stateEnum = ClassUtils.getClass(stateClass);
