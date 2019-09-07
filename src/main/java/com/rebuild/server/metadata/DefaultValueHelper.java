@@ -23,6 +23,10 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import com.rebuild.server.configuration.portals.PickListManager;
+import com.rebuild.server.helper.state.StateHelper;
+import com.rebuild.server.helper.state.StateSpec;
+import com.rebuild.server.metadata.entity.DisplayType;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -75,6 +79,18 @@ public class DefaultValueHelper {
         if (field.getType() == FieldType.REFERENCE
                 && field.getReferenceEntity().getEntityCode() == EntityHelper.PickList) {
             return PickListManager.instance.getDefaultItem(field);
+        } else if (EasyMeta.getDisplayType(field) == DisplayType.STATE) {
+            Class<?> stateClass;
+            try {
+                stateClass = StateHelper.getSatetClass(field);
+            } catch (IllegalArgumentException ex) {
+                LOG.error("Bad field: " + field, ex);
+                return null;
+            }
+
+            for (Object c : stateClass.getEnumConstants()) {
+                if (((StateSpec) c).isDefault()) return ((StateSpec) c).getState();
+            }
         }
 
         if (StringUtils.isBlank(valueExpr)) {

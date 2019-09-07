@@ -62,6 +62,7 @@ $(document).ready(function () {
     let $ext = $('#' + k)
     if ($ext.length === 1) {
       if ($ext.attr('type') === 'checkbox') $ext.attr('checked', extConfigOld[k] === 'true' || extConfigOld[k] === true)
+      else if ($ext.prop('tagName') === 'DIV') $ext.text(extConfigOld[k])
       else $ext.val(extConfigOld[k])
     }
   }
@@ -119,17 +120,17 @@ $(document).ready(function () {
     $('#fieldNullable').attr('disabled', true)
   }
   else if (dt === 'CLASSIFICATION') {
-    if (extConfigOld.classification) {
-      $.get(`${rb.baseUrl}/admin/entityhub/classification/info?id=${extConfigOld.classification}`, function (res) {
-        $('#useClassification a').attr({ href: `${rb.baseUrl}/admin/entityhub/classification/${extConfigOld.classification}` }).text(res.data.name)
-      })
-    } else {
-      $('#useClassification a').text('无效分类').addClass('text-danger')
-    }
+    $.get(`${rb.baseUrl}/admin/entityhub/classification/info?id=${extConfigOld.classification}`, function (res) {
+      $('#useClassification a').attr({ href: `${rb.baseUrl}/admin/entityhub/classification/${extConfigOld.classification}` }).text(res.data.name)
+    })
+  }
+  else if (wpc.fieldName === 'approvalState' || wpc.fieldName === 'approvalId') {
+    $('.J_for-STATE, .J_for-REFERENCE').remove()
   }
 
   // 无重复值选项
-  if (dt === 'FILE' || dt === 'IMAGE' || dt === 'NTEXT' || dt === 'PICKLIST') {
+  if (dt === 'FILE' || dt === 'IMAGE' || dt === 'NTEXT' || dt === 'PICKLIST'
+    || dt === 'STATE' || dt === 'NUMBER' || dt === 'DECIMAL' || wpc.fieldName === 'approvalId') {
     $('#fieldRepeatable').parents('.custom-control').remove()
   }
 

@@ -327,7 +327,7 @@ CellRenders.addRender('$NAME$', function (v, s, k) {
 CellRenders.addRender('IMAGE', function (v, s, k) {
   v = JSON.parse(v || '[]')
   return <td key={k} className="td-min">
-    <div style={s} className="column-imgs" title={v.length + ' 个图片'}>
+    <div style={s} className="column-imgs" title={'共 ' + v.length + ' 个图片'}>
       {v.map((item, idx) => {
         if (idx > 2) return null
         let imgUrl = rb.baseUrl + '/filex/img/' + item
@@ -338,7 +338,7 @@ CellRenders.addRender('IMAGE', function (v, s, k) {
 CellRenders.addRender('FILE', function (v, s, k) {
   v = JSON.parse(v || '[]')
   return <td key={k} className="td-min"><div style={s} className="column-files">
-    <ul className="list-unstyled" title={v.length + ' 个文件'}>
+    <ul className="list-unstyled" title={'共 ' + v.length + ' 个文件'}>
       {v.map((item, idx) => {
         if (idx > 0) return null
         let fileName = $fileCutName(item)
@@ -359,7 +359,7 @@ CellRenders.addRender('EMAIL', function (v, s, k) {
 const APPROVAL_STATE_CLAZZs = { '审批中': 'text-warning', '驳回': 'text-danger', '通过': 'text-success' }
 CellRenders.addRender('STATE', function (v, s, k) {
   if (k.endsWith('.approvalState')) return <td key={k}><div style={s} className={APPROVAL_STATE_CLAZZs[v] || ''}>{v}</div></td>
-  else CellRenders.renderSimple(v, s, k)
+  else return CellRenders.renderSimple(v, s, k)
 })
 
 // 分页组件

@@ -126,11 +126,6 @@ public class GeneralEntityService extends ObservableService  {
 	}
 
 	@Override
-	public Record createOrUpdate(Record record) {
-		return super.createOrUpdate(record);
-	}
-
-	@Override
 	public int delete(ID record, String[] cascades) {
 		final ID currentUser = Application.getCurrentUser();
 

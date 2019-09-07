@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 /*! jQuery Cookie Plugin v1.4.1 - https://github.com/carhartl/jquery-cookie */
 // eslint-disable-next-line quotes
-(function(factory){if(typeof define==="function"&&define.amd){define(["jquery"],factory)}else{if(typeof exports==="object"){factory(require("jquery"))}else{factory(jQuery)}}}(function($){var pluses=/\+/g;function encode(s){return config.raw?s:encodeURIComponent(s)}function decode(s){return config.raw?s:decodeURIComponent(s)}function stringifyCookieValue(value){return encode(config.json?JSON.stringify(value):String(value))}function parseCookieValue(s){if(s.indexOf('"')===0){s=s.slice(1,-1).replace(/\\"/g,'"').replace(/\\\\/g,"\\")}try{s=decodeURIComponent(s.replace(pluses," "));return config.json?JSON.parse(s):s}catch(e){}}function read(s,converter){var value=config.raw?s:parseCookieValue(s);return $.isFunction(converter)?converter(value):value}var config=$.cookie=function(key,value,options){if(value!==undefined&&!$.isFunction(value)){options=$.extend({},config.defaults,options);if(typeof options.expires==="number"){var days=options.expires,t=options.expires=new Date();t.setTime(+t+days*86400000)}return(document.cookie=[encode(key),"=",stringifyCookieValue(value),options.expires?"; expires="+options.expires.toUTCString():"",options.path?"; path="+options.path:"",options.domain?"; domain="+options.domain:"",options.secure?"; secure":""].join(""))}var result=key?undefined:{};var cookies=document.cookie?document.cookie.split("; "):[];for(var i=0,l=cookies.length;i<l;i++){var parts=cookies[i].split("=");var name=decode(parts.shift());var cookie=parts.join("=");if(key&&key===name){result=read(cookie,value);break}if(!key&&(cookie=read(cookie))!==undefined){result[name]=cookie}}return result};config.defaults={};$.removeCookie=function(key,options){if($.cookie(key)===undefined){return false}$.cookie(key,"",$.extend({},options,{expires:-1}));return !$.cookie(key)}}));
+(function (factory) { if (typeof define === "function" && define.amd) { define(["jquery"], factory) } else { if (typeof exports === "object") { factory(require("jquery")) } else { factory(jQuery) } } }(function ($) { var pluses = /\+/g; function encode(s) { return config.raw ? s : encodeURIComponent(s) } function decode(s) { return config.raw ? s : decodeURIComponent(s) } function stringifyCookieValue(value) { return encode(config.json ? JSON.stringify(value) : String(value)) } function parseCookieValue(s) { if (s.indexOf('"') === 0) { s = s.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, "\\") } try { s = decodeURIComponent(s.replace(pluses, " ")); return config.json ? JSON.parse(s) : s } catch (e) { } } function read(s, converter) { var value = config.raw ? s : parseCookieValue(s); return $.isFunction(converter) ? converter(value) : value } var config = $.cookie = function (key, value, options) { if (value !== undefined && !$.isFunction(value)) { options = $.extend({}, config.defaults, options); if (typeof options.expires === "number") { var days = options.expires, t = options.expires = new Date(); t.setTime(+t + days * 86400000) } return (document.cookie = [encode(key), "=", stringifyCookieValue(value), options.expires ? "; expires=" + options.expires.toUTCString() : "", options.path ? "; path=" + options.path : "", options.domain ? "; domain=" + options.domain : "", options.secure ? "; secure" : ""].join("")) } var result = key ? undefined : {}; var cookies = document.cookie ? document.cookie.split("; ") : []; for (var i = 0, l = cookies.length; i < l; i++) { var parts = cookies[i].split("="); var name = decode(parts.shift()); var cookie = parts.join("="); if (key && key === name) { result = read(cookie, value); break } if (!key && (cookie = read(cookie)) !== undefined) { result[name] = cookie } } return result }; config.defaults = {}; $.removeCookie = function (key, options) { if ($.cookie(key) === undefined) { return false } $.cookie(key, "", $.extend({}, options, { expires: -1 })); return !$.cookie(key) } }));
 // extends jQuery
 (function ($) {
   $.fn.extend({
@@ -38,7 +38,7 @@
     cache: false,
     complete: function (xhr) {
       // eslint-disable-next-line no-empty
-      if (xhr.status === 200 || xhr.status === 0) {} // That's OK
+      if (xhr.status === 200 || xhr.status === 0) { } // That's OK
       else if (xhr.status === 403 || xhr.status === 401) RbHighbar.error(xhr.responseText || '未授权访问')
       else {
         var error = xhr.responseText
@@ -147,6 +147,7 @@ var $urlp = function (key, qstr) {
  */
 var $val = function (el) {
   el = $(el)
+  if (el.length === 0) return null
   var nVal = null
   var tag = el.prop('tagName')
   if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {

@@ -264,6 +264,11 @@ public class EasyMeta implements BaseMeta {
 		return null;
 	}
 
+	@Override
+	public String toString() {
+		return "EASY#" + this.baseMeta.toString();
+	}
+
 	// --
 	
 	/**

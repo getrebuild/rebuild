@@ -18,6 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper;
 
+import org.apache.commons.lang.StringUtils;
+
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -34,9 +37,12 @@ public final class Lisence {
      * @return
      */
     public static String SN() {
-        String SN = SysConfiguration.get(ConfigurableItem.SN);
+        String SN = SysConfiguration.get(ConfigurableItem.SN, true);
         if (SN == null) {
-            SN = "OS" + UUID.randomUUID().toString().substring(9, 35).toUpperCase();
+            SN = String.format("ZR%s%s-%s",
+                    "105", // v1.5
+                    StringUtils.leftPad(Locale.getDefault().getCountry(), 3, "0"),
+                    UUID.randomUUID().toString().replace("-", "").substring(0, 15).toUpperCase());
             SysConfiguration.set(ConfigurableItem.SN, SN);
         }
         return SN;

@@ -94,6 +94,10 @@ html.admin .admin-show.row {
     text-decoration: underline;
 }
 
+.text-italic {
+    font-style: italic;
+}
+
 .badge.text-id {
     font-weight: normal;
     color: #777;
@@ -115,6 +119,10 @@ a.badge.text-id:hover {
 
 .btn.auto {
     min-width: auto;
+}
+
+a.btn {
+    line-height: 2.7rem;
 }
 
 .input-group-sm .btn {
@@ -362,6 +370,10 @@ div.dataTables_wrapper div.dataTables_filter {
 .rbmodal.show,
 .rbview.show {
     display: block !important;
+}
+
+.rbview.modal {
+    z-index: 1051;
 }
 
 .rbmodal.show,
@@ -1986,7 +1998,7 @@ form {
 .form.approval-form .approval-list>div {
     padding: 7px 10px;
     background-color: #f5f5f5;
-    border-radius: 3px;
+    border-radius: 2px;
     overflow: hidden;
     position: relative;
 }
@@ -2216,6 +2228,11 @@ form {
     padding: 3px 12px;
 }
 
+.rb-color-header .rb-top-header .search-container,
+.rb-offcanvas-menu .rb-top-header .search-container {
+    display: none
+}
+
 .rb-top-header .search-container .search-models {
     position: absolute;
     min-width: 320px;
@@ -2229,8 +2246,8 @@ form {
 }
 
 .search-models a {
-    background: #eee;
-    color: #888 !important;
+    background: #f7f7f7;
+    color: #999 !important;
     border-radius: 99px;
     padding: 4px 9px;
     max-width: 120px;
@@ -2259,7 +2276,7 @@ form {
 }
 
 .preview-modal .preview-header {
-    background: rgba(0, 0, 0, 1);
+    background: rgba(0, 0, 0, 0.9);
     color: #fff;
     padding: 0 25px;
     position: absolute;
@@ -2271,13 +2288,13 @@ form {
 .preview-modal .preview-header .float-left>h5,
 .preview-modal .preview-header .float-right a {
     margin: 0;
-    height: 50px;
-    line-height: 50px;
+    height: 48px;
+    line-height: 48px;
 }
 
 .preview-modal .preview-header .float-right a {
     display: inline-block;
-    width: 50px;
+    width: 48px;
     font-size: 18px;
     font-weight: normal;
     text-align: center;
@@ -2302,9 +2319,12 @@ form {
     padding: 0;
 }
 
+.preview-modal .preview-body {
+    padding-top: 48px;
+}
+
 .preview-modal .preview-body .img-zoom {
     text-align: center;
-    padding-top: 50px;
 }
 
 .preview-modal .preview-body .img-zoom img {
@@ -2322,7 +2342,7 @@ form {
     left: 50%;
     margin-left: -80px;
     background-color: rgba(0, 0, 0, 0.6);
-    height: 50px;
+    height: 48px;
     border-radius: 4px;
     overflow: hidden;
     color: rgba(255, 255, 255, .8);
@@ -2334,12 +2354,12 @@ form {
     text-align: center;
     display: inline-block;
     line-height: 1;
-    height: 50px;
-    line-height: 50px;
+    height: 48px;
+    line-height: 48px;
 }
 
 .preview-modal .preview-body .op-box a.arrow {
-    width: 50px;
+    width: 48px;
     font-size: 21px;
     font-weight: lighter;
 }
@@ -2351,7 +2371,16 @@ form {
 .preview-modal .preview-body .op-box span {
     font-size: 1rem;
     color: #fff;
-    width: 60px;
+    width: 64px;
+}
+
+.preview-modal .preview-body .unsupports {
+    max-width: 360px;
+    margin: 0 auto;
+    margin-top: 10%;
+    height: 91px;
+    text-align: center;
+    padding-top: 15px;
 }
 
 .repeated-table {

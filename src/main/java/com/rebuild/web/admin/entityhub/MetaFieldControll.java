@@ -29,6 +29,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.FieldPortalAttrs;
+import com.rebuild.server.helper.state.StateHelper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
@@ -143,7 +144,8 @@ public class MetaFieldControll extends BasePageControll  {
 		String comments = reqJson.getString("comments");
 		String refEntity = reqJson.getString("refEntity");
 		String refClassification = reqJson.getString("refClassification");
-		
+		String stateClass = reqJson.getString("stateClass");
+
 		Entity entity = MetadataHelper.getEntity(entityName);
 		DisplayType dt = DisplayType.valueOf(type);
 		
@@ -151,9 +153,15 @@ public class MetaFieldControll extends BasePageControll  {
 		if (dt == DisplayType.CLASSIFICATION) {
 			ID dataId = ID.valueOf(refClassification);
 			extConfig = JSONUtils.toJSONObject("classification", dataId);
-		}
+		} else if (dt == DisplayType.STATE) {
+		    if (!StateHelper.isStateClass(stateClass)) {
+                writeFailure(response, "无效状态类");
+                return;
+            }
+            extConfig = JSONUtils.toJSONObject("stateClass", stateClass);
+        }
 		
-		String fieldName = null;
+		String fieldName;
 		try {
 			fieldName = new Field2Schema(user).createField(entity, label, dt, comments, refEntity, extConfig);
 			writeSuccess(response, fieldName);

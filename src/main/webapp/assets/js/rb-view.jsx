@@ -172,7 +172,7 @@ class SelectReport extends React.Component {
               {(this.state.reports && this.state.reports.length === 0) && <div className="text-muted">无可用报表</div>}
               <ul className="list-unstyled">
                 {(this.state.reports || []).map((item) => {
-                  let reportUrl = `${rb.baseUrl}/app/entity/report-generate?report=${item.id}&record=${this.props.id}`
+                  let reportUrl = `${rb.baseUrl}/app/entity/report-export?report=${item.id}&record=${this.props.id}`
                   return <li key={'r-' + item.id}><a target="_blank" href={reportUrl} className="text-truncate">{item.name}<i className="zmdi zmdi-download"></i></a></li>
                 })}
               </ul>

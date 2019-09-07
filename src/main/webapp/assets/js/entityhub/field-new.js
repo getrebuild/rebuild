@@ -5,7 +5,8 @@ $(document).ready(function () {
       type = $val('#type'),
       comments = $val('#comments'),
       refEntity = $val('#refEntity'),
-      refClassification = $val('#refClassification')
+      refClassification = $val('#refClassification'),
+      stateClass = $val('#stateClass') || 'com.rebuild.server.helper.state.HowtoState'
     if (!fieldLabel) {
       RbHighbar.create('请输入字段名称')
       return
@@ -13,9 +14,11 @@ $(document).ready(function () {
     if (type === 'REFERENCE' && !refEntity) {
       RbHighbar.create('请选择引用实体')
       return
-    }
-    if (type === 'CLASSIFICATION' && !refClassification) {
+    } else if (type === 'CLASSIFICATION' && !refClassification) {
       RbHighbar.create('请选择分类数据')
+      return
+    } else if (type === 'STATE' && !stateClass) {
+      RbHighbar.create('请填写状态类')
       return
     }
 
@@ -25,7 +28,8 @@ $(document).ready(function () {
       type: type,
       comments: comments,
       refEntity: refEntity,
-      refClassification: refClassification
+      refClassification: refClassification,
+      stateClass: stateClass
     }
     btn.button('loading')
     $.post(rb.baseUrl + '/admin/entity/field-new', JSON.stringify(_data), function (res) {
@@ -66,8 +70,10 @@ $(document).ready(function () {
           if (!hasData) $('<option value="">无可用分类数据</option>').appendTo('#refClassification')
         })
       }
+    } else if (dt === 'STATE') {
+      // Nothing
     } else {
-      $('.J_dt-REFERENCE, .J_dt-CLASSIFICATION').addClass('hide')
+      $('.J_dt-REFERENCE, .J_dt-CLASSIFICATION, .J_dt-STATE').addClass('hide')
     }
   })
 })

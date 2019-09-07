@@ -78,6 +78,20 @@ public class CommonsUtils {
 		}
 	}
 
+	private static final char[] SPECIAL_CHARS = "`~!@#$%^&*()_+=-{}|[];':\",./<>?".toCharArray();
+	/**
+	 * 是否为特殊字符
+	 *
+	 * @param ch
+	 * @return
+	 */
+	public static boolean isSpecialChar(char ch) {
+		for (char c : SPECIAL_CHARS) {
+			if (c == ch) return true;
+		}
+		return false;
+	}
+
 	private static OkHttpClient okHttpClient = null;
 	/**
 	 * @return

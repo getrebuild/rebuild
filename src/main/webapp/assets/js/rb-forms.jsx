@@ -683,7 +683,8 @@ class RbFormPickList extends RbFormElement {
     if (props.options && props.value) {  // Value has been deleted?
       let deleted = true
       $(props.options).each(function () {
-        if (this.id === props.value) {
+        // eslint-disable-next-line eqeqeq
+        if (this.id == props.value) {
           deleted = false
           return false
         }
@@ -695,7 +696,7 @@ class RbFormPickList extends RbFormElement {
     return (
       <select ref="field-value" className="form-control form-control-sm" value={this.state.value || ''} onChange={this.handleChange}>
         {this.props.options.map((item) => {
-          return (<option key={'opt-' + item.id} value={item.id}>{item.text}</option>)
+          return (<option key={`${this.state.field}-opt${item.id}`} value={item.id}>{item.text}</option>)
         })}
       </select>
     )
@@ -749,6 +750,9 @@ class RbFormReference extends RbFormElement {
   renderViewElement() {
     if (!this.state.value) return super.renderViewElement()
     let val = this.state.value
+    if (typeof val === 'string') {
+      return <div className="form-control-plaintext">{val}</div>
+    }
     return <div className="form-control-plaintext"><a ref="field-text" href={`#!/View/${val[2]}/${val[0]}`} onClick={() => this.clickView()}>{val[1]}</a></div>
   }
   componentDidMount() {
@@ -1187,19 +1191,29 @@ class RbPreview extends React.Component {
   render() {
     let currentUrl = this.props.urls[this.state.currentIndex]
     let fileName = $fileCutName(currentUrl)
+    let downloadUrl = `${rb.baseUrl}/filex/download/${currentUrl}?attname=${fileName}`
+
+    let previewContent = null
+    if (this.__isimg(currentUrl)) previewContent = this.renderImgs()
+    else if (this.__isdoc(currentUrl)) previewContent = this.renderDocs()
+    else previewContent = <div className="unsupports shadow-lg rounded bg-light">
+      <h5 className="text-bold">暂不支持此类型文件的预览</h5>
+      <a className="link" target="_blank" rel="noopener noreferrer" href={downloadUrl}>下载</a>
+    </div>
+
+    // Add `onClick={this.hide}` into `.preview-body`
     return <React.Fragment>
       <div className={`preview-modal ${this.state.inLoad ? 'hide' : ''}`} ref={(c) => this._dlg = c}>
         <div className="preview-header">
           <div className="float-left"><h5>{fileName}</h5></div>
           <div className="float-right">
-            <a target="_blank" rel="noopener noreferrer" href={`${rb.baseUrl}/filex/download/${currentUrl}?attname=${fileName}`}><i className="zmdi zmdi-download"></i></a>
+            <a target="_blank" rel="noopener noreferrer" href={downloadUrl}><i className="zmdi zmdi-download"></i></a>
             <a onClick={this.hide}><i className="zmdi zmdi-close"></i></a>
           </div>
           <div className="clearfix"></div>
         </div>
-        <div className="preview-body" onClick={this.hide}>
-          {this.__isimg(currentUrl) && this.renderImgs()}
-          {this.__isdoc(currentUrl) && this.renderDocs()}
+        <div className="preview-body">
+          {previewContent}
         </div>
       </div>
     </React.Fragment>
@@ -1214,7 +1228,9 @@ class RbPreview extends React.Component {
   renderImgs() {
     return (<React.Fragment>
       <div className="img-zoom" ref={(c) => this._previewContent = c}>
-        <div className="must-center" onClick={this.__stopEvent}><img src={`${rb.baseUrl}/filex/img/${this.props.urls[this.state.currentIndex]}`} /></div>
+        <div className="must-center" onClick={this.__stopEvent}>
+          <img src={`${rb.baseUrl}/filex/img/${this.props.urls[this.state.currentIndex]}?imageView2/2/w/1000/interlace/1/q/100`} />
+        </div>
       </div>
       {this.props.urls.length > 1 && <div className="op-box">
         <a className="arrow float-left" onClick={this.__previmg}><i className="zmdi zmdi-chevron-left" /></a>
@@ -1229,16 +1245,18 @@ class RbPreview extends React.Component {
     this.__modalOpen = $(document.body).hasClass('modal-open')
 
     let currentUrl = this.props.urls[this.state.currentIndex]
-    // 不支持的文件，直接下載
-    if (!this._previewContent) {
-      this.hide()
-      window.open(`${rb.baseUrl}/filex/download/${currentUrl}?attname=${$encode($fileCutName(currentUrl))}`)
-      return
-    }
+    // // 不支持的文件，直接下載
+    // if (!this._previewContent) {
+    //   this.hide()
+    //   window.open(`${rb.baseUrl}/filex/download/${currentUrl}?attname=${$encode($fileCutName(currentUrl))}`)
+    //   return
+    // }
 
     if (this.__isdoc(currentUrl)) {
       $.get(`${rb.baseUrl}/filex/make-url?url=${currentUrl}`, (res) => {
-        let previewUrl = `https://view.officeapps.live.com/op/view.aspx?src=${$encode(res.data.private_url)}`
+        // view.aspx
+        let previewUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${$encode(res.data.private_url)}`
+        // PDF
         if (currentUrl.toLowerCase().endsWith('.pdf')) previewUrl = res.data.private_url
         this.setState({ previewUrl: previewUrl })
       })
@@ -1267,13 +1285,15 @@ class RbPreview extends React.Component {
   }
   __previmg = (e) => {
     this.__stopEvent(e)
-    if (this.state.currentIndex <= 0) return
-    this.setState({ currentIndex: this.state.currentIndex - 1 })
+    let ci = this.state.currentIndex
+    if (ci <= 0) ci = this.props.urls.length
+    this.setState({ currentIndex: ci - 1 })
   }
   __nextimg = (e) => {
     this.__stopEvent(e)
-    if (this.state.currentIndex + 1 >= this.props.urls.length) return
-    this.setState({ currentIndex: this.state.currentIndex + 1 })
+    let ci = this.state.currentIndex
+    if (ci + 1 >= this.props.urls.length) ci = -1
+    this.setState({ currentIndex: ci + 1 })
   }
   __stopEvent = (e) => {
     e.stopPropagation()
@@ -1294,7 +1314,7 @@ class RbPreview extends React.Component {
   }
 }
 
-// ~ 重复记录
+// ~ 重复记录查看
 class RepeatedViewer extends RbModalHandler {
   constructor(props) {
     super(props)

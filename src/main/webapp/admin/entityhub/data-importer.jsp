@@ -56,7 +56,7 @@
 													</div>
 												</div>
 												<div class="float-left ml-2" style="padding-top:7px">
-													<div class="text-bold J_upload-input"></div>
+													<div class="text-bold text-italic J_upload-input"></div>
 												</div>
 												<div class="clearfix"></div>
 								                <div class="form-text mb-0">
@@ -74,7 +74,7 @@
 											<div class="col-md-12 col-xl-6 col-lg-8">
 												<div style="margin-top:6px;">
 													<label class="custom-control custom-control-sm custom-radio custom-control-inline">
-														<input class="custom-control-input" type="radio" name="repeatOpt" value="1" checked="checked"><span class="custom-control-label">覆盖</span>
+														<input class="custom-control-input" type="radio" name="repeatOpt" value="1" checked="checked"><span class="custom-control-label">覆盖 (更新)</span>
 													</label>
 													<label class="custom-control custom-control-sm custom-radio custom-control-inline">
 														<input class="custom-control-input" type="radio" name="repeatOpt" value="2"><span class="custom-control-label">跳过</span>

@@ -1,0 +1,14 @@
+version: "3.7"
+services:
+
+  db:
+    image: mysql:5.7.27
+    ports:
+      - "3306"
+
+  redis:
+    image: redis:5.0.5
+    ports:
+      - "16379"
+  
+  

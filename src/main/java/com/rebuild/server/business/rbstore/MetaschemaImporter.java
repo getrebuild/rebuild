@@ -261,8 +261,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 				schemaField.getString("defaultValue"));
 		
 		if (DisplayType.PICKLIST == dt) {
-			picklistHolders.add(
-					new Object[] { unsafeField, readyPickList(schemaField.getJSONArray("items")) });
+			picklistHolders.add(new Object[] { unsafeField, readyPickList(schemaField.getJSONArray("items")) });
 		}
 		
 		return unsafeField;

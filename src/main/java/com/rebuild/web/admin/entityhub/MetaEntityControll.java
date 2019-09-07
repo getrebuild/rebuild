@@ -18,24 +18,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.admin.entityhub;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
+import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.business.rbstore.MetaSchemaGenerator;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -44,12 +35,23 @@ import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.metadata.entity.Entity2Schema;
 import com.rebuild.server.service.base.QuickCodeReindexTask;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
+import com.rebuild.web.common.FileDownloader;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
-import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -184,21 +186,47 @@ public class MetaEntityControll extends BasePageControll {
 	@RequestMapping("entity/entity-drop")
 	public void entityDrop(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		ID entityId = getIdParameterNotNull(request, "id");
+		Entity entity = getEntityById(getIdParameterNotNull(request, "id"));
 		boolean force = getBoolParameter(request, "force", false);
-		
-		Object[] entityRecord = Application.createQueryNoFilter(
-				"select entityName from MetaEntity where entityId = ?")
-				.setParameter(1, entityId)
-				.unique();
-		Entity entity = MetadataHelper.getEntity((String) entityRecord[0]);
-		
+
 		boolean drop = new Entity2Schema(user).dropEntity(entity, force);
 		if (drop) {
 			writeSuccess(response);
 		} else {
-			writeFailure(response, "删除失败，请确认该实体是否可删除");
+			writeFailure(response, "删除失败，请确认该实体是否可被删除");
 		}
+	}
+
+	@RequestMapping("entity/entity-export")
+	public void entityExport(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getRequestUser(request);
+		Entity entity = getEntityById(getIdParameterNotNull(request, "id"));
+
+		File dest = SysConfiguration.getFileOfTemp("schema-" + entity.getName() + ".json");
+		if (dest.exists()) {
+			dest.delete();
+		}
+		new MetaSchemaGenerator(entity).generate(dest);
+
+		if (ServletUtils.isAjaxRequest(request)) {
+			writeSuccess(response, JSONUtils.toJSONObject("file", dest.getName()));
+		} else {
+			FileDownloader.setDownloadHeaders(response, dest.getName());
+			FileDownloader.writeLocalFile(dest.getName(), true, response);
+		}
+	}
+
+	/**
+	 * @param metaId
+	 * @return
+	 */
+	private Entity getEntityById(ID metaId) {
+		Object[] entityRecord = Application.createQueryNoFilter(
+				"select entityName from MetaEntity where entityId = ?")
+				.setParameter(1, metaId)
+				.unique();
+		String entityName = (String) entityRecord[0];
+		return MetadataHelper.getEntity(entityName);
 	}
 
 	/**
@@ -206,7 +234,7 @@ public class MetaEntityControll extends BasePageControll {
 	 * @param entity
 	 * @return
 	 */
-	protected static EasyMeta setEntityBase(ModelAndView mv, String entity) {
+	static EasyMeta setEntityBase(ModelAndView mv, String entity) {
 		EasyMeta entityMeta = EasyMeta.valueOf(entity);
 		mv.getModel().put("entityMetaId", entityMeta.getMetaId());
 		mv.getModel().put("entityName", entityMeta.getName());

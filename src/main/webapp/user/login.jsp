@@ -98,6 +98,7 @@
 			</div>
 		</div>
 	</div>
+
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script>
@@ -153,12 +154,11 @@ $(document).ready(function() {
 				setTimeout(() => {
 					$('.rb-bgimg').css('background-image', 'url(' + res.url + ')').animate({ opacity: 1 })
 				}, 400)
+				if (res.copyright) $('.rb-bgimg').attr('title', res.copyright + ' (' + res.source + ')')
 			}
 		})
 	}
 })
-
-
 </script>
 </body>
 </html>

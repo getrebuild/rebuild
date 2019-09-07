@@ -262,7 +262,7 @@ class FilterItem extends React.Component {
       op = ['TDA', 'YTA', 'TTA', 'GT', 'LT', 'EQ', 'BW', 'RED', 'REM', 'BFD', 'BFM', 'AFD', 'AFM']
     } else if (fieldType === 'FILE' || fieldType === 'IMAGE') {
       op = []
-    } else if (fieldType === 'PICKLIST') {
+    } else if (fieldType === 'PICKLIST' || fieldType === 'STATE') {
       op = ['IN', 'NIN']
     } else if (fieldType === 'CLASSIFICATION') {
       op = ['LK', 'NLK']
@@ -278,7 +278,7 @@ class FilterItem extends React.Component {
       }
     }
     op.push('NL', 'NT')
-    if (this.isApprovalState()) op = ['EQ', 'NEQ']
+    if (this.isApprovalState()) op = ['IN', 'NIN']
 
     this.__op = op
     return op
@@ -294,23 +294,15 @@ class FilterItem extends React.Component {
           <span>起</span>
           <span className="end">止</span>
         </div>)
-    } else if (this.state.type === 'PICKLIST') {
+    } else if (this.state.type === 'PICKLIST' || this.state.type === 'STATE') {
       val = (
         <select className="form-control form-control-sm" multiple="true" ref={(c) => this._filterVal = c}>
-          {(this.state.picklist || []).map((item) => {
+          {(this.state.options || []).map((item) => {
             return <option value={item.id} key={'val-' + item.id}>{item.text}</option>
           })}
         </select>)
     } else if (this.isBizzField()) {
       val = <select className="form-control form-control-sm" multiple="true" ref={(c) => this._filterVal = c} />
-    } else if (this.isApprovalState()) {
-      val = (
-        <select className="form-control form-control-sm" ref={(c) => this._filterVal = c}>
-          <option value="1">草稿</option>
-          <option value="2">审批中</option>
-          <option value="10">通过</option>
-          <option value="11">驳回</option>
-        </select>)
     }
 
     INPUTVALS_HOLD[this.state.field] = this.state.value
@@ -380,14 +372,13 @@ class FilterItem extends React.Component {
   }
 
   _componentDidUpdate() {
-    console.log('_componentDidUpdate')
     let state = this.state
     let lastType = this.__lastType
     this.__lastType = state.type
 
-    if (state.type === 'PICKLIST') {
+    if (state.type === 'PICKLIST' || state.type === 'STATE') {
       this.renderPickList(state.field)
-    } else if (lastType === 'PICKLIST') {
+    } else if (lastType === 'PICKLIST' || lastType === 'STATE') {
       this.removePickList()
     }
 
@@ -409,13 +400,6 @@ class FilterItem extends React.Component {
       this.removeBizzSearch()
     }
 
-    if (this.isApprovalState()) {
-      this.renderApprovalState()
-      this.__lastType = 'approvalState'
-    } else if (lastType === 'approvalState') {
-      this.removeApprovalState()
-    }
-
     if (state.value) this.valueCheck($(this._filterVal))
     if (state.value2 && this._filterVal2) this.valueCheck($(this._filterVal2))
   }
@@ -426,7 +410,6 @@ class FilterItem extends React.Component {
     this.removePickList()
     this.removeDatepicker()
     this.removeBizzSearch()
-    this.removeApprovalState()
   }
 
   valueHandle = (e) => {
@@ -455,14 +438,14 @@ class FilterItem extends React.Component {
   renderPickList(field) {
     const plKey = this.props.$$$parent.props.entity + '.' + field
     if (PICKLIST_CACHE[plKey]) {
-      this.setState({ picklist: PICKLIST_CACHE[plKey] }, () => {
+      this.setState({ options: PICKLIST_CACHE[plKey] }, () => {
         this.renderPickListAfter()
       })
     } else {
-      $.get(`${rb.baseUrl}/commons/metadata/picklist?entity=${this.props.$$$parent.props.entity}&field=${field}`, (res) => {
+      $.get(`${rb.baseUrl}/commons/metadata/field-options?entity=${this.props.$$$parent.props.entity}&field=${field}`, (res) => {
         if (res.error_code === 0) {
           PICKLIST_CACHE[plKey] = res.data
-          this.setState({ picklist: PICKLIST_CACHE[plKey] }, () => {
+          this.setState({ options: PICKLIST_CACHE[plKey] }, () => {
             this.renderPickListAfter()
           })
         } else {
@@ -584,28 +567,6 @@ class FilterItem extends React.Component {
         item.datetimepicker('remove')
       })
       this.__datepicker = null
-    }
-  }
-
-  // 审批状态
-
-  renderApprovalState() {
-    if (this.__select2_ApprovalState) return
-
-    let that = this
-    let s2val = $(this._filterVal).select2({
-      allowClear: false
-    }).on('change.select2', function () {
-      that.setState({ value: s2val.val() })
-    })
-    this.setState({ value: 1 })  // 默认草稿
-    this.__select2_ApprovalState = s2val
-  }
-  removeApprovalState() {
-    if (this.__select2_ApprovalState) {
-      this.__select2_ApprovalState.select2('destroy')
-      this.__select2_ApprovalState = null
-      this.setState({ value: null })
     }
   }
 

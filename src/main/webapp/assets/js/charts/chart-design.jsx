@@ -155,6 +155,8 @@ let add_axis = ((target, axis) => {
   }
   let aopts = el.find('.dropdown-menu .dropdown-item').click(function () {
     let _this = $(this)
+    if (_this.hasClass('disabled') || _this.parent().hasClass('disabled')) return false
+
     let calc = _this.data('calc')
     let sort = _this.data('sort')
     if (calc) {
@@ -174,6 +176,7 @@ let add_axis = ((target, axis) => {
         el.attr({ 'data-label': s.label, 'data-scale': s.scale })
         render_preview()
       }
+
       if (dlgAxisProps) dlgAxisProps.show(state)
       else renderRbcomp(<DlgAxisProps {...state} />, null, function () { dlgAxisProps = this })
     }

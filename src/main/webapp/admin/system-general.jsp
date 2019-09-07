@@ -33,7 +33,7 @@
 						<tbody>
 							<tr>
 								<td width="40%">名称<p>这将完全替换 REBUILD 的品牌名称</p></td>
-								<td id="sc-AppName">${appName}</td>
+								<td>${appName}</td>
 							</tr>
 							<tr>
 								<td>LOGO</td>
@@ -44,11 +44,15 @@
 							</tr>
 							<tr>
 								<td>域名/主页地址</td>
-								<td><a id="sc-HomeURL" href="${HomeURL}" class="link" target="_blank">${HomeURL}</a></td>
+								<td><a href="${HomeURL}" class="link" target="_blank">${HomeURL}</a></td>
 							</tr>
 							<tr>
 								<td>公开注册</td>
-								<td id="sc-OpenSignUp">${OpenSignUp ? "是" : "否"}</td>
+								<td>${OpenSignUp ? "是" : "否"}</td>
+							</tr>
+							<tr>
+								<td>登录页每日一图</td>
+								<td>${LiveWallpaper ? "是" : "否"}</td>
 							</tr>
 						</tbody>
 						</table>
@@ -56,12 +60,12 @@
 						<table class="table">
 						<tbody>
 							<tr>
-								<td width="40%">登录时需要验证码</td>
-								<td>重试3次以后</td>
+								<td width="40%">登录密码安全策略</td>
+								<td>低 (6位字符，无字符类型限制)</td>
 							</tr>
 							<tr>
-								<td>登录密码安全策略</td>
-								<td>一般（6位字符，无字符类型限制）</td>
+								<td>回收站数据保留时间</td>
+								<td>${RecycleBinKeepingDays}天</td>
 							</tr>
 						</tbody>
 						</table>
@@ -70,16 +74,18 @@
 			</div>
 			<div class="col-lg-3 col-12">
 				<div class="card">
-					<div class="card-header card-header-divider">关于</div>
+					<div class="card-header card-header-divider">关于 REBUILD</div>
 					<div class="card-body">
-						<p class="mb-1">版本 <a class="link" target="_blank" href="https://getrebuild.com/download?cv=<%=Application.VER%>"><%=Application.VER%></a></p>
-						<p class="mb-2">授权 <a class="link" target="_blank" href="https://getrebuild.com/authority?sn=${SN}">开源社区版 (非商业用途)</a></p>
+						<p class="mb-1">版本 <a class="link" target="_blank" href="https://getrebuild.com/download?v=<%=Application.VER%>"><%=Application.VER%></a></p>
+						<p class="mb-2">授权 <a class="link" target="_blank" href="https://getrebuild.com/authority?sn=${SN}">开源社区版</a></p>
 						<ul style="line-height:2">
 							<li><a class="link" target="_blank" href="${baseUrl}/gw/server-status">系统状态</a></li>
 							<li><a class="link" target="_blank" href="https://getrebuild.com/docs/">帮助文档</a></li>
 							<li><a class="link" target="_blank" href="https://getrebuild.com/contact?sn=${SN}#tech-supports">技术支持</a></li>
 						</ul>
-						<div class="text-muted"><i class="zmdi zmdi-info-outline"></i> REBUILD 使用 GPL3.0 与 <a class="link" href="https://getrebuild.com#pricing-plans" target="_blank">商业授权</a> 双重许可，请遵循许可协议。</div>
+						<div class="text-muted">
+							&copy; REBUILD 使用开源 GPL-3.0 和 <a class="link" href="https://github.com/getrebuild/rebuild/blob/master/COMMERCIAL" target="_blank">商用</a> 双重授权许可，请遵守许可协议。
+						</div>
 					</div>
 				</div>
 			</div>

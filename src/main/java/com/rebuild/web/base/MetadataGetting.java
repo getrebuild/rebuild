@@ -27,6 +27,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.ClassificationManager;
 import com.rebuild.server.configuration.portals.FieldPortalAttrs;
 import com.rebuild.server.configuration.portals.PickListManager;
+import com.rebuild.server.helper.state.StateManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
@@ -181,15 +182,22 @@ public class MetadataGetting extends BaseControll {
 	
 	// --
 	
-	// PickList 值列表
-	@RequestMapping("picklist")
+	// PickList/State 值列表
+	@RequestMapping({ "picklist", "field-options" })
 	public void fetchPicklist(HttpServletRequest request, HttpServletResponse response) {
 		String entity = getParameterNotNull(request, "entity");
 		String field = getParameterNotNull(request, "field");
 
 		Field fieldMeta = getRealField(entity, field);
-		JSON list = PickListManager.instance.getPickList(fieldMeta);
-		writeSuccess(response, list);
+		EasyMeta fieldEasy = EasyMeta.valueOf(fieldMeta);
+		if (fieldEasy.getDisplayType() == DisplayType.STATE) {
+            JSON options = StateManager.instance.getStateOptions(fieldMeta);
+            writeSuccess(response, options);
+        }
+		else {
+            JSON options = PickListManager.instance.getPickList(fieldMeta);
+            writeSuccess(response, options);
+        }
 	}
 	
 	// Classification 值列表

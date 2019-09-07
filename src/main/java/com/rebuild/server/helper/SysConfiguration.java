@@ -57,19 +57,27 @@ public class SysConfiguration {
 	 */
 	public static File getFileOfData(String file) {
 		String d = get(ConfigurableItem.DataDirectory);
-		File dFile = null;
+		File dir = null;
 		if (d != null) {
-			dFile = new File(d);
-			if (!dFile.exists()) {
-				if (!dFile.mkdirs()) {
-					LOG.warn("TempDirectory not exists : " + d);
-					dFile = FileUtils.getTempDirectory();
-				}
+			dir = new File(d);
+			if (!dir.exists()) {
+				dir.mkdirs();
 			}
-		} else {
-			dFile = FileUtils.getTempDirectory();
 		}
-		return new File(dFile, file);
+
+		if (dir == null || !dir.exists()) {
+			dir = FileUtils.getUserDirectory();
+			dir = new File(dir, ".rebuild");
+			if (!dir.exists()) {
+				dir.mkdirs();
+			}
+		}
+
+		if (dir == null || !dir.exists()) {
+			dir = FileUtils.getTempDirectory();
+		}
+
+		return new File(dir, file);
 	}
 	
 	/**
@@ -80,7 +88,7 @@ public class SysConfiguration {
 	 * @see #getFileOfData(String)
 	 */
 	public static File getFileOfTemp(String file) {
-		File tFile = getFileOfData("rb-temp");
+		File tFile = getFileOfData("temp");
 		if (!tFile.exists()) {
 			if (!tFile.mkdirs()) {
 				throw new RebuildException("Couldn't mkdirs : " + tFile);

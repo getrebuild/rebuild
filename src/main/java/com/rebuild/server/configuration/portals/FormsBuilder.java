@@ -32,6 +32,7 @@ import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
+import com.rebuild.server.helper.state.StateManager;
 import com.rebuild.server.metadata.DefaultValueHelper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -238,6 +239,10 @@ public class FormsBuilder extends FormsManager {
 				JSONArray options = PickListManager.instance.getPickList(fieldMeta);
 				el.put("options", options);
 			}
+			else if (dt == DisplayType.STATE) {
+				JSONArray options = StateManager.instance.getStateOptions(fieldMeta);
+				el.put("options", options);
+			}
 			else if (dt == DisplayType.DATETIME) {
 				if (!el.containsKey("datetimeFormat")) {
 					el.put("datetimeFormat", DisplayType.DATETIME.getDefaultFormat());
@@ -253,7 +258,7 @@ public class FormsBuilder extends FormsManager {
 			else if (dt == DisplayType.CLASSIFICATION) {
 				el.put("openLevel", ClassificationManager.instance.getOpenLevel(fieldMeta));
 			}
-			
+
 			// 编辑/视图
 			if (data != null) {
 				Object value = wrapFieldValue(data, easyField, viewMode);
@@ -276,8 +281,14 @@ public class FormsBuilder extends FormsManager {
 						el.put("value", new Object[] { currentUser.getOwningDept().getIdentity(), currentUser.getOwningDept().getName(), "Department" });
 					}
 				}
-				
-				if (dt == DisplayType.PICKLIST) {
+
+				if (MetadataHelper.isApprovalField(fieldName)) {
+					if (EntityHelper.ApprovalId.equals(fieldName)) {
+						el.put("value", new String[] { null, "自动值 (审批流程)" });
+					} else {
+						el.put("value", "自动值 (审批流程)");
+					}
+				} else if (dt == DisplayType.PICKLIST || dt == DisplayType.STATE) {
 					JSONArray options = el.getJSONArray("options");
 					for (Object o : options) {
 						JSONObject item = (JSONObject) o;
@@ -287,13 +298,7 @@ public class FormsBuilder extends FormsManager {
 						}
 					}
 				} else if (dt == DisplayType.SERIES) {
-					el.put("value", "自动值 (保存后显示)");
-				} else if (MetadataHelper.isApprovalField(fieldName)) {
-					if (EntityHelper.ApprovalId.equals(fieldName)) {
-						el.put("value", new String[] { null, "自动值 (审批流程)" });
-					} else {
-						el.put("value", "自动值 (审批流程)");
-					}
+					el.put("value", "自动值 (自动编号)");
 				} else {
 					String defVal = DefaultValueHelper.exprDefaultValueToString(fieldMeta);
 					if (defVal != null) {
@@ -425,44 +430,52 @@ public class FormsBuilder extends FormsManager {
 	 */
 	protected Object wrapFieldValue(Record data, EasyMeta field, boolean viewMode) {
 		String fieldName = field.getName();
-		if (data.hasValue(fieldName)) {
-			Object value = data.getObjectValue(fieldName);
-			DisplayType dt = field.getDisplayType();
-			if (dt == DisplayType.PICKLIST) {
-				ID pickValue = (ID) value;
-				if (viewMode) {
-					return StringUtils.defaultIfBlank(
-							PickListManager.instance.getLabel(pickValue), FieldValueWrapper.MISS_REF_PLACE);
-				} else {
-					return pickValue.toLiteral();
-				}
+		if (!data.hasValue(fieldName)) {
+			if (EntityHelper.ApprovalId.equalsIgnoreCase(fieldName)) {
+				return viewMode ? FieldValueWrapper.APPROVAL_UNSUBMITTED
+						: new String[] { null, FieldValueWrapper.APPROVAL_UNSUBMITTED };
 			}
-			else if (dt == DisplayType.CLASSIFICATION) {
-				ID itemValue = (ID) value;
-				String itemName = ClassificationManager.instance.getFullName(itemValue);
-				itemName = StringUtils.defaultIfBlank(itemName, FieldValueWrapper.MISS_REF_PLACE);
-				return viewMode ? itemName : new String[] { itemValue.toLiteral(), itemName };
-			} 
-			else if (value instanceof ID) {
-				ID idValue = (ID) value;
-				String idLabel = idValue.getLabel();
-				if (idLabel == null) {
-					idLabel = '[' + idValue.toLiteral().toUpperCase() + ']';
-				}
-				
-				String belongEntity = MetadataHelper.getEntityName(idValue);
-				return new String[] { idValue.toLiteral(), idLabel, belongEntity };
-			} 
-			else {
-				Object ret = FieldValueWrapper.instance.wrapFieldValue(value, field);
-				// 编辑记录时要去除千分位
-				if (!viewMode && (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL)) {
-					ret = ret.toString().replace(",", "");
-				}
-				return ret;
+			return null;
+		}
+
+		Object value = data.getObjectValue(fieldName);
+		DisplayType dt = field.getDisplayType();
+		if (dt == DisplayType.PICKLIST) {
+			ID pickValue = (ID) value;
+			if (viewMode) {
+				return StringUtils.defaultIfBlank(
+						PickListManager.instance.getLabel(pickValue), FieldValueWrapper.MISS_REF_PLACE);
+			} else {
+				return pickValue.toLiteral();
 			}
 		}
-		return null;
+		else if (dt == DisplayType.STATE && !viewMode && !EntityHelper.ApprovalState.equalsIgnoreCase(fieldName)) {
+			return value;
+		}
+		else if (dt == DisplayType.CLASSIFICATION) {
+			ID itemValue = (ID) value;
+			String itemName = ClassificationManager.instance.getFullName(itemValue);
+			itemName = StringUtils.defaultIfBlank(itemName, FieldValueWrapper.MISS_REF_PLACE);
+			return viewMode ? itemName : new String[] { itemValue.toLiteral(), itemName };
+		}
+		else if (value instanceof ID) {
+			ID idValue = (ID) value;
+			String idLabel = idValue.getLabel();
+			if (idLabel == null) {
+				idLabel = '[' + idValue.toLiteral().toUpperCase() + ']';
+			}
+
+			String belongEntity = MetadataHelper.getEntityName(idValue);
+			return new String[] { idValue.toLiteral(), idLabel, belongEntity };
+		}
+		else {
+			Object ret = FieldValueWrapper.instance.wrapFieldValue(value, field);
+			// 编辑记录时要去除千分位
+			if (!viewMode && (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL)) {
+				ret = ret.toString().replace(",", "");
+			}
+			return ret;
+		}
 	}
 	
 	// -- 主/明细实体权限处理
