@@ -128,10 +128,10 @@ $(document).ready(function () {
     $('.J_for-STATE, .J_for-REFERENCE').remove()
   }
 
-  // 无重复值选项
-  if (dt === 'FILE' || dt === 'IMAGE' || dt === 'NTEXT' || dt === 'PICKLIST'
-    || dt === 'STATE' || dt === 'NUMBER' || dt === 'DECIMAL' || wpc.fieldName === 'approvalId') {
-    $('#fieldRepeatable').parents('.custom-control').remove()
+  // 重复值选项
+  if ((dt === 'TEXT' || dt === 'DATE' || dt === 'DATETIME' || dt === 'EMAIL' || dt === 'URL' || dt === 'PHONE' || dt === 'REFERENCE' || dt === 'SERIES')
+    && wpc.fieldName !== 'approvalId') {
+    $('#fieldRepeatable').parents('.custom-control').removeClass('hide')
   }
 
   // 内建字段
