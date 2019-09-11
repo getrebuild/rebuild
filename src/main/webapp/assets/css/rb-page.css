@@ -2347,6 +2347,7 @@ form {
     overflow: hidden;
     color: rgba(255, 255, 255, .8);
     font-size: 0;
+    user-select: none;
 }
 
 .preview-modal .preview-body .op-box a.arrow,
