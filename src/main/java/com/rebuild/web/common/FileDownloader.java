@@ -57,6 +57,11 @@ public class FileDownloader extends BaseControll {
 		final int minutes = 60 * 24;
 		ServletUtils.addCacheHead(response, minutes);
 
+		if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
+			response.sendRedirect(filePath);
+			return;
+		}
+
 		boolean temp = BooleanUtils.toBoolean(request.getParameter("temp"));
 		// Local storage || temp
 		if (!QiniuCloud.instance().available() || temp) {
