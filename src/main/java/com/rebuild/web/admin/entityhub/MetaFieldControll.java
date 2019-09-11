@@ -91,7 +91,7 @@ public class MetaFieldControll extends BasePageControll  {
 			map.put("fieldName", easyMeta.getName());
 			map.put("fieldLabel", easyMeta.getLabel());
 			map.put("comments", easyMeta.getComments());
-			map.put("displayType", easyMeta.getDisplayType(true));
+			map.put("displayType", easyMeta.getDisplayType().getDisplayName());
 			map.put("nullable", field.isNullable());
 			map.put("builtin", easyMeta.isBuiltin());
 			map.put("creatable", field.isCreatable());

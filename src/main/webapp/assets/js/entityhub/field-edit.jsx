@@ -135,7 +135,7 @@ $(document).ready(function () {
   }
 
   // 内建字段
-  if (wpc.fieldBuildin === true) {
+  if (wpc.fieldBuildin) {
     $('#fieldNullable, #fieldUpdatable, #fieldRepeatable').attr('disabled', true)
     $('.footer .alert').removeClass('hide')
   } else {
