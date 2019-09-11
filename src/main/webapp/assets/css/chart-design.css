@@ -111,6 +111,7 @@
 	margin-bottom: 2px;
 	position: relative;
 	cursor: default;
+	white-space: nowrap;
 }
 
 .axis-target .item::before {
