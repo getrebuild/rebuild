@@ -61,9 +61,9 @@ public class QiniuCloudTest extends TestSupport {
 
     @Test
     public void testPrivateUrl() {
-        for (int i = 0; i < 60; i++) {
+        for (int i = 0; i < 20; i++) {
             System.out.println(i + " = " + QiniuCloud.instance().url("rb/20190830/170016833__0190815223938.png"));
-            ThreadPool.waitFor(1000);
+            ThreadPool.waitFor(300);
         }
     }
 }

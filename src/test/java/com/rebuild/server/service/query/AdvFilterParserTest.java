@@ -18,13 +18,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.query;
 
-import org.junit.Test;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
-import com.rebuild.web.IllegalParameterException;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * 
@@ -32,6 +33,15 @@ import com.rebuild.web.IllegalParameterException;
  * @since 01/04/2019
  */
 public class AdvFilterParserTest extends TestSupport {
+
+	@Before
+	public void setUp() {
+		Application.getSessionStore().set(SIMPLE_USER);
+	}
+	@After
+	public void setDown() {
+		Application.getSessionStore().clean();
+	}
 
 	@Test
 	public void testBaseParse() throws Exception {
@@ -48,8 +58,8 @@ public class AdvFilterParserTest extends TestSupport {
 		String where = new AdvFilterParser(filterExp).toSqlWhere();
 		System.out.println(where);
 	}
-	
-	@Test(expected = IllegalParameterException.class)
+
+	@Test
 	public void testBadJoinsParse() throws Exception {
 		JSONObject filterExp = new JSONObject();
 		filterExp.put("entity", "User");
@@ -60,7 +70,7 @@ public class AdvFilterParserTest extends TestSupport {
 		items.add(JSON.parseObject("{ op:'LK', field:'loginName.name', value:'总部' }"));
 		
 		String where = new AdvFilterParser(filterExp).toSqlWhere();
-		System.out.println(where);
+		System.out.println(where);  // null
 	}
 
 	@Test
