@@ -52,6 +52,7 @@
         "$same": true,
         "$unmount": true,
         "$initUserSelect2": true,
+        "$keepModalOpen": true,
         "rb": true,
         "renderRbcomp": true,
         "RbSpinner": true,
@@ -76,7 +77,10 @@
         "DlgShareManager": true,
         "RbAlert": true,
         "RbHighbar": true,
-        "ApprovalSubmitForm": true
+        "ApprovalSubmitForm": true,
+        "ConfigList": true,
+        "ConfigFormDlg": true,
+        "RbPreview": true
     },
     "rules": {
         "strict": 0,

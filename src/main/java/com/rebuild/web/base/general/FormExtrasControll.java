@@ -18,20 +18,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.base.general;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.configuration.AutoFillinManager;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.web.BaseControll;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-import cn.devezhao.persist4j.engine.ID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 表单功能扩展
@@ -47,7 +43,7 @@ public class FormExtrasControll extends BaseControll {
 	// -- AUTOFILLIN
 	
 	@RequestMapping("fillin-value")
-	public void getFillinValue(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void getFillinValue(HttpServletRequest request, HttpServletResponse response) {
 		String entity = getParameterNotNull(request, "entity");
 		String field = getParameterNotNull(request, "field");
 		ID source = getIdParameterNotNull(request, "source");

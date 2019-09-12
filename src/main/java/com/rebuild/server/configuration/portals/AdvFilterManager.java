@@ -18,9 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
@@ -28,7 +26,8 @@ import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
 
-import cn.devezhao.persist4j.engine.ID;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 高级过滤器
@@ -76,7 +75,7 @@ public class AdvFilterManager extends SharableManager<ID> {
 				list.add(e);
 			}
 			
-			entries = list.toArray(new ConfigEntry[list.size()]);
+			entries = list.toArray(new ConfigEntry[0]);
 			Application.getCommonCache().putx(ckey, entries);
 		}
 		
@@ -101,7 +100,7 @@ public class AdvFilterManager extends SharableManager<ID> {
 				ret.add(clone);
 			}
 		}
-		return ret.toArray(new ConfigEntry[ret.size()]);
+		return ret.toArray(new ConfigEntry[0]);
 	}
 	
 	/**

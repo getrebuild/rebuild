@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -18,17 +18,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.upgrade;
 
+import cn.devezhao.commons.ObjectUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-
-import cn.devezhao.commons.ObjectUtils;
 
 /**
  * Parseing `scripts/mysql-upgrade.sql`
@@ -67,7 +66,7 @@ public class DbScriptsReader {
 			
 			if (sl.startsWith(TAG_STARTS)) {
 				if (oneVer > -1) {
-					sqls.put(oneVer, sqlBatch.toArray(new String[sqlBatch.size()]));
+					sqls.put(oneVer, sqlBatch.toArray(new String[0]));
 				}
 				
 				// reset
@@ -86,11 +85,11 @@ public class DbScriptsReader {
 			}
 		}
 		
-		if (sqlOne != null && sqlOne.length() > 0) {
+		if (sqlOne.length() > 0) {
 			sqlBatch.add(sqlOne.toString());
 		}
 		if (oneVer > -1) {
-			sqls.put(oneVer, sqlBatch.toArray(new String[sqlBatch.size()]));
+			sqls.put(oneVer, sqlBatch.toArray(new String[0]));
 		}
 		
 		return sqls;

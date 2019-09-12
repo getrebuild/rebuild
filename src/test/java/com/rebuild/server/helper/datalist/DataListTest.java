@@ -18,6 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.datalist;
 
+import com.rebuild.server.Application;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.alibaba.fastjson.JSON;
@@ -32,6 +35,15 @@ import com.rebuild.server.service.bizz.UserService;
  */
 public class DataListTest extends TestSupport {
 
+	@Before
+	public void setUp() {
+		Application.getSessionStore().set(SIMPLE_USER);
+	}
+	@After
+	public void setDown() {
+		Application.getSessionStore().clean();
+	}
+
 	private static JSONObject queryExpr = null;
 	static {
 		queryExpr = JSON.parseObject("{ entity:'User' }");
@@ -43,7 +55,7 @@ public class DataListTest extends TestSupport {
 		queryExpr.put("pageNo", 1);
 		queryExpr.put("pageSize", 100);
 	}
-	
+
 	@Test
 	public void testQueryParser() throws Exception {
 		QueryParser queryParser = new QueryParser(queryExpr);

@@ -36,11 +36,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.imageio.ImageIO;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -180,7 +176,7 @@ public class UserHelper {
 		if (ms == null || ms.isEmpty()) {
 			return new Member[0];
 		}
-		return ms.toArray(new Member[ms.size()]);
+		return ms.toArray(new Member[0]);
 	}
 	
 	/**
@@ -212,7 +208,7 @@ public class UserHelper {
 	public static Set<ID> parseUsers(Collection<String> userDefs, ID record) {
 		Entity entity = record == null ? null : MetadataHelper.getEntity(record.getEntityCode());
 		
-		Set<ID> bizzs = new HashSet<ID>();
+		Set<ID> bizzs = new HashSet<>();
 		Set<String> fromFields = new HashSet<>();
 		for (String def : userDefs) {
 			if (ID.isId(def)) {
@@ -283,7 +279,7 @@ public class UserHelper {
 		g2d.fillRect(0, 0, bi.getWidth(), bi.getHeight());
 
 		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
-		Font font = new Font("SimHei", Font.BOLD, 81);
+		final Font font = createFont(81f);
 		g2d.setFont(font);
 		g2d.setColor(Color.WHITE);
 
@@ -297,5 +293,24 @@ public class UserHelper {
 		}
 
 		return avatarFile;
+	}
+
+	/**
+	 * @param fs
+	 * @return
+	 */
+	private static Font createFont(float fs) {
+		File fontFile = SysConfiguration.getFileOfData("SourceHanSansK-Regular.ttf");
+		if (fontFile.exists()) {
+			try {
+				Font font = Font.createFont(Font.TRUETYPE_FONT, fontFile);
+				font = font.deriveFont(fs);
+				return font;
+			} catch (Exception ex) {
+				LOG.warn("Couldn't create Font: SourceHanSansK-Regular.ttf", ex);
+			}
+		}
+		// Use default
+		return new Font("SimHei", Font.BOLD, (int) fs);
 	}
 }

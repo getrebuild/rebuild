@@ -122,14 +122,14 @@ public class QiniuCloud {
 	 * @return
 	 */
 	public String url(String filePath) {
-		return url(filePath, 60 * 5);
+		return url(filePath, 60 * 15);
 	}
-	
+
 	/**
 	 * 生成访问 URL
 	 * 
 	 * @param filePath
-	 * @param seconds 过期时间
+	 * @param seconds 有效期
 	 * @return
 	 */
 	public String url(String filePath, int seconds) {
@@ -139,10 +139,10 @@ public class QiniuCloud {
 		if (baseUrl.startsWith("//")) {
 			baseUrl = "https:" + baseUrl;
 		}
-		
+
 		long deadline = System.currentTimeMillis() / 1000 + seconds;
 		// Use http cache
-		seconds /= 1.5;
+		seconds /= 2;
 		deadline = deadline / seconds * seconds;
 		return auth.privateDownloadUrlWithDeadline(baseUrl, deadline);
 	}
@@ -176,8 +176,8 @@ public class QiniuCloud {
 	 */
 	public String getUploadToken(String fileKey) {
 		// 上传策略参见 https://developer.qiniu.com/kodo/manual/1206/put-policy
-		StringMap policy = new StringMap().put("fsizeLimit", 1024 * 1024 * 200);  // 200M
-		return auth.uploadToken(bucketName, fileKey, 60, policy);
+		StringMap policy = new StringMap().put("fsizeLimit", 1024 * 1024 * 20);  // 20M
+		return auth.uploadToken(bucketName, fileKey, 120, policy);
 	}
 	
 	// --

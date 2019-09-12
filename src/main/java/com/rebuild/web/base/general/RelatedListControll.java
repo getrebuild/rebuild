@@ -18,23 +18,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.base.general;
 
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-
+import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.momentjava.Moment;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
@@ -42,13 +31,20 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.momentjava.Moment;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.dialect.FieldType;
-import cn.devezhao.persist4j.engine.ID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.text.MessageFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 相关项列表
@@ -61,7 +57,7 @@ import cn.devezhao.persist4j.engine.ID;
 public class RelatedListControll extends BaseControll {
 
 	@RequestMapping("related-list")
-	public void relatedList(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void relatedList(HttpServletRequest request, HttpServletResponse response) {
 		ID masterId = getIdParameterNotNull(request, "masterId");
 		String related = getParameterNotNull(request, "related");
 		
@@ -88,9 +84,9 @@ public class RelatedListControll extends BaseControll {
 	}
 	
 	@RequestMapping("related-counts")
-	public void relatedCounts(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void relatedCounts(HttpServletRequest request, HttpServletResponse response) {
 		ID masterId = getIdParameterNotNull(request, "masterId");
-		String relates[] = getParameterNotNull(request, "relateds").split(",");
+        String[] relates = getParameterNotNull(request, "relateds").split(",");
 		
 		Map<String, Integer> countMap = new HashMap<>();
 		for (String related : relates) {

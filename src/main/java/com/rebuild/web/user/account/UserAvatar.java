@@ -104,7 +104,7 @@ public class UserAvatar extends BaseControll {
 				File avatarFile = UserHelper.generateAvatar(realUser.getFullName(), false);
 				avatarBi = ImageIO.read(avatarFile);
 			} catch (IOException ex) {
-				LOG.warn("Cloud't generate avatar", ex);
+				LOG.warn("Couldn't generate avatar", ex);
 				avatarUrl = AppUtils.getContextPath() + "/assets/img/avatar.png";
 				response.sendRedirect(avatarUrl);
 				return;
@@ -153,7 +153,7 @@ public class UserAvatar extends BaseControll {
 			height = bi.getHeight() - y;
 		}
 
-		bi = bi.getSubimage(x < 0 ? 0 : x, y < 0 ? 0 : y, width, height);
+		bi = bi.getSubimage(Math.max(x, 0), Math.max(y, 0), width, height);
 
 		String destName = System.currentTimeMillis() + avatar.getName();
 		File dest = null;

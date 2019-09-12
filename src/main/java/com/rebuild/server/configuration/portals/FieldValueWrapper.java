@@ -18,24 +18,23 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
-import java.text.DecimalFormat;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.util.Assert;
-
-import com.rebuild.server.Application;
-import com.rebuild.server.business.approval.ApprovalState;
-import com.rebuild.server.helper.cache.NoRecordFoundException;
-import com.rebuild.server.helper.datalist.DataWrapper;
-import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entity.DisplayType;
-import com.rebuild.server.metadata.entity.EasyMeta;
-
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
+import com.rebuild.server.business.approval.ApprovalState;
+import com.rebuild.server.helper.cache.NoRecordFoundException;
+import com.rebuild.server.helper.datalist.DataWrapper;
+import com.rebuild.server.helper.state.StateHelper;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entity.DisplayType;
+import com.rebuild.server.metadata.entity.EasyMeta;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
+
+import java.text.DecimalFormat;
 
 /**
  * 字段值包装。例如 BOOL 类型的 T/F 将格式化为 是/否。
@@ -53,6 +52,11 @@ public class FieldValueWrapper {
 	 * 引用值被删除时的默认显示
 	 */
 	public static final String MISS_REF_PLACE = "[DELETED]";
+
+	/**
+	 * 流程未提交
+	 */
+	public static final String APPROVAL_UNSUBMITTED = "未提交";
 
 	/**
 	 * 名称字段为空时，采用 @+ID 的方式显示
@@ -108,7 +112,9 @@ public class FieldValueWrapper {
 			return wrapPickList(value, field);
 		} else if (dt == DisplayType.CLASSIFICATION) {
 			return wrapClassification(value, field);
-		} else {
+		} else if (dt == DisplayType.STATE) {
+		    return wrapState(value, field);
+        } else {
 			return wrapSimple(value, field);
 		}
 	}
@@ -210,6 +216,16 @@ public class FieldValueWrapper {
 	public String wrapClassification(Object item, EasyMeta field) {
 		return StringUtils.defaultIfBlank(ClassificationManager.instance.getFullName((ID) item), MISS_REF_PLACE);
 	}
+
+    /**
+     * @param state
+     * @param field
+     * @return
+     */
+	public String wrapState(Object state, EasyMeta field) {
+        String stateClass = field.getFieldExtConfig().getString("stateClass");
+        return StateHelper.valueOf(stateClass, (Integer) state).getName();
+    }
 	
 	/**
 	 * @param simple
@@ -226,11 +242,11 @@ public class FieldValueWrapper {
 	}
 
 	/**
-	 * @param simple
+	 * @param special
 	 * @param field
 	 * @return
 	 */
-	protected String wrapSpecialField(Object simple, EasyMeta field) {
+	protected String wrapSpecialField(Object special, EasyMeta field) {
 		String fieldName = field.getName().toLowerCase();
 
 		// 密码型字段返回
@@ -238,12 +254,17 @@ public class FieldValueWrapper {
 			return "******";
 		}
 
-		// 审批状态
+		// 审批
 		if (fieldName.equalsIgnoreCase(EntityHelper.ApprovalState)) {
-			if (simple == null) {
+			if (special == null) {
 				return ApprovalState.DRAFT.getName();
 			}
-			return ApprovalState.valueOf((Integer) simple).getName();
+			return ApprovalState.valueOf((Integer) special).getName();
+		} else if (fieldName.equalsIgnoreCase(EntityHelper.ApprovalId)) {
+			if (special == null) {
+				return APPROVAL_UNSUBMITTED;
+			}
+			return special.toString();
 		}
 
 		return null;

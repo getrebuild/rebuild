@@ -42,6 +42,6 @@
 
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/sortable.js"></script>
-<script src="${baseUrl}/assets/js/entity/picklist-editor.js" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/entityhub/picklist-editor.js" type="text/babel"></script>
 </body>
 </html>

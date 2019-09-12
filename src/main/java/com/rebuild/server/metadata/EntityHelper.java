@@ -18,18 +18,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.metadata;
 
-import org.apache.commons.lang.StringUtils;
-import org.springframework.util.Assert;
-
-import com.alibaba.fastjson.JSONObject;
-
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.StandardRecord;
 import cn.devezhao.persist4j.record.FieldValueException;
 import cn.devezhao.persist4j.record.JsonRecordCreator;
-import cn.devezhao.persist4j.record.RecordCreator;
+import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
 
 /**
  * @author Zhao Fangfang
@@ -63,9 +60,9 @@ public class EntityHelper {
 		if (StringUtils.isBlank(entityName)) {
 			throw new FieldValueException("无效实体数据格式(2): " + data.toJSONString());
 		}
-		
-		RecordCreator creator = new ExtRecordCreator(MetadataHelper.getEntity(entityName), data, user);
-		Record record = creator.create();
+
+		ExtRecordCreator creator = new ExtRecordCreator(MetadataHelper.getEntity(entityName), data, user);
+		Record record = creator.create(false);
 		ExtRecordCreator.bindCommonsFieldsValue(record, record.getPrimary() == null);
 		return record;
 	}
@@ -104,10 +101,26 @@ public class EntityHelper {
 	 * @return
 	 */
 	public static Record forNew(int entity, ID user) {
+		return forNew(MetadataHelper.getEntity(entity), user);
+	}
+	
+	/**
+	 * @param entity
+	 * @param user
+	 * @return
+	 */
+	public static Record forNew(String entity, ID user) {
+		return forNew(MetadataHelper.getEntity(entity), user);
+	}
+	
+	/**
+	 * @param entity
+	 * @param user
+	 * @return
+	 */
+	private static Record forNew(Entity entity, ID user) {
 		Assert.notNull(user, "[user] not be bull");
-		
-		Entity entityMeta = MetadataHelper.getEntity(entity);
-		Record record = new StandardRecord(entityMeta, user);
+		Record record = new StandardRecord(entity, user);
 		ExtRecordCreator.bindCommonsFieldsValue(record, true);
 		return record;
 	}
@@ -123,8 +136,10 @@ public class EntityHelper {
 	
 	public static final String AutoId = "autoId";
 	public static final String QuickCode = "quickCode";
+	@SuppressWarnings("DeprecatedIsStillUsed")
+	@Deprecated
 	public static final String IsDeleted = "isDeleted";
-	
+
 	public static final String ApprovalId = "approvalId";
 	public static final String ApprovalState = "approvalState";
 	public static final String ApprovalStepNode = "approvalStepNode";
@@ -159,4 +174,10 @@ public class EntityHelper {
 
 	public static final int RebuildApi = 30;
 	public static final int RebuildApiRequest = 31;
+
+	public static final int DataReportConfig = 32;
+
+	public static final int RecycleBin = 33;
+	public static final int RevisionHistory = 34;
+
 }

@@ -89,7 +89,9 @@ public class UserService extends SystemEntityService {
 		}
 		
 		if (record.hasValue("password")) {
-			record.setString("password", checkPassword(record.getString("password")));
+		    String password = record.getString("password");
+		    checkPassword(password);
+			record.setString("password", EncryptUtils.toSHA256Hex(password));
 		}
 		
 		if (record.hasValue("email") && Application.getUserStore().exists(record.getString("email"))) {
@@ -121,19 +123,46 @@ public class UserService extends SystemEntityService {
 			throw new DataSpecificationException("无效登陆名");
 		}
 	}
-	
-	/**
-	 * @param password
-	 * @return
-	 * @throws DataSpecificationException
-	 */
-	private String checkPassword(String password) throws DataSpecificationException {
-		if (password.length() < 6) {
-			throw new DataSpecificationException("密码不能小于6位");
-		}
-		password = EncryptUtils.toSHA256Hex(password);
-		return password;
-	}
+
+    /**
+     * 检查密码是否符合安全策略
+     *
+     * @param password
+     * @throws DataSpecificationException
+     */
+    public void checkPassword(String password) throws DataSpecificationException {
+        if (password.length() < 6) {
+            throw new DataSpecificationException("密码不能小于6位");
+        }
+
+        int policy = (int) SysConfiguration.getLong(ConfigurableItem.PasswordPolicy);
+        if (policy <= 1) {
+            return;
+        }
+
+        int countUpper = 0;
+        int countLower = 0;
+        int countDigit = 0;
+        int countSpecial = 0;
+        for (char ch : password.toCharArray()) {
+            if (Character.isUpperCase(ch)) {
+                countUpper++;
+            } else if (Character.isLowerCase(ch)) {
+                countLower++;
+            } else if (Character.isDigit(ch)) {
+                countDigit++;
+            } else if (CommonsUtils.isSpecialChar(ch)) {
+                countSpecial++;
+            }
+        }
+
+        if (policy >= 2 && (countUpper == 0 || countLower == 0 || countDigit == 0)) {
+            throw new DataSpecificationException("密码必须包含数字和大小写字母");
+        }
+        if (policy >= 3 && (countSpecial == 0 || password.length() < 8)) {
+            throw new DataSpecificationException("密码不能小于8位，且必须包含特殊字符");
+        }
+    }
 	
 	/**
 	 * 改变部门

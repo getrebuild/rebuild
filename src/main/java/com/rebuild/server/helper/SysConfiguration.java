@@ -18,26 +18,25 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper;
 
-import java.io.File;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
+import com.rebuild.server.RebuildException;
 import com.rebuild.server.helper.cache.CommonCache;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.bizz.UserService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.ResourceUtils;
 
-import com.rebuild.server.Application;
-import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.bizz.UserService;
-
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 全局系统配置
@@ -57,20 +56,28 @@ public class SysConfiguration {
 	 * @return
 	 */
 	public static File getFileOfData(String file) {
-		String d = get(ConfigurableItem.DataDirectory, null);
-		File dFile = null;
+		String d = get(ConfigurableItem.DataDirectory);
+		File dir = null;
 		if (d != null) {
-			dFile = new File(d);
-			if (!dFile.exists()) {
-				if (!dFile.mkdirs()) {
-					LOG.warn("TempDirectory not exists : " + d);
-					dFile = FileUtils.getTempDirectory();
-				}
+			dir = new File(d);
+			if (!dir.exists()) {
+				dir.mkdirs();
 			}
-		} else {
-			dFile = FileUtils.getTempDirectory();
 		}
-		return new File(dFile, file);
+
+		if (dir == null || !dir.exists()) {
+			dir = FileUtils.getUserDirectory();
+			dir = new File(dir, ".rebuild");
+			if (!dir.exists()) {
+				dir.mkdirs();
+			}
+		}
+
+		if (dir == null || !dir.exists()) {
+			dir = FileUtils.getTempDirectory();
+		}
+
+		return new File(dir, file);
 	}
 	
 	/**
@@ -81,9 +88,11 @@ public class SysConfiguration {
 	 * @see #getFileOfData(String)
 	 */
 	public static File getFileOfTemp(String file) {
-		File tFile = getFileOfData("tmp");
+		File tFile = getFileOfData("temp");
 		if (!tFile.exists()) {
-			tFile.mkdirs();
+			if (!tFile.mkdirs()) {
+				throw new RebuildException("Couldn't mkdirs : " + tFile);
+			}
 		}
 		return new File(tFile, file);
 	}
@@ -95,11 +104,9 @@ public class SysConfiguration {
 	 * @return
 	 */
 	public static File getFileOfRes(String file) {
-		URL fileUrl = SysConfiguration.class.getClassLoader().getResource(file);
 		try {
-			File resFile = new File(fileUrl.toURI());
-			return resFile;
-		} catch (URISyntaxException e) {
+			return ResourceUtils.getFile("classpath:" + file);
+		} catch (FileNotFoundException e) {
 			throw new IllegalArgumentException("Bad file path or name : " + file);
 		}
 	}
@@ -110,7 +117,7 @@ public class SysConfiguration {
 	 * @return
 	 */
 	public static String getStorageUrl() {
-		String account[] = getStorageAccount();
+		String[] account = getStorageAccount();
 		return account == null ? null : account[3];
 	}
 	
@@ -170,73 +177,34 @@ public class SysConfiguration {
 			}
 			list.add(v);
 		}
-		return list.toArray(new String[list.size()]);
+		return list.toArray(new String[0]);
 	}
-	
+
 	// --
-	
+
+	/**
+	 * @param name
+	 * @return
+	 */
+	public static String get(ConfigurableItem name) {
+		return get(name, false);
+	}
+
 	/**
 	 * @param name
 	 * @param reload
 	 * @return
 	 */
 	public static String get(ConfigurableItem name, boolean reload) {
-		if (!Application.serversReady()) {
-			Object v = name.getDefaultValue();
-			return v == null ? null : v.toString();
-		}
-		
-		final String key = name.name();
-		String s = Application.getCommonCache().get(key);
-		if (s != null && !reload) {
-			return s;
-		}
-		
-		// 1. 首先从数据库
-		Object[] fromDb = Application.createQueryNoFilter(
-				"select value from SystemConfig where item = ?")
-				.setParameter(1, name.name())
-				.unique();
-		s = fromDb == null ? null : StringUtils.defaultIfBlank((String) fromDb[0], null);
-		
-		// 2. 从配置文件加载
-		if (s == null) {
-			s = Application.getBean(AesPreferencesConfigurer.class).getItem(key);
-		}
-		
-		// 3. 默认值
-		if (s == null && name.getDefaultValue() != null) {
-			s = name.getDefaultValue().toString();
-		}
-		
-		if (s == null) {
-			Application.getCommonCache().evict(key);
-		} else {
-			Application.getCommonCache().put(key, s, CommonCache.TS_DAY);
-		}
-		return s;
+		return getValue(name.name(), reload, name.getDefaultValue());
 	}
-	
-	/**
-	 * @param name
-	 * @param defaultValue
-	 * @return
-	 */
-	public static String get(ConfigurableItem name, String defaultValue) {
-		String s = get(name, false);
-		if (s == null) {
-			Object v = defaultValue != null ? defaultValue : name.getDefaultValue();
-			return v == null ? null : v.toString();
-		}
-		return s;
-	}
-	
+
 	/**
 	 * @param name
 	 * @return
 	 */
 	public static long getLong(ConfigurableItem name) {
-		String s = get(name, false);
+		String s = get(name);
 		return s == null ? (Long) name.getDefaultValue() : NumberUtils.toLong(s);
 	}
 	
@@ -245,31 +213,96 @@ public class SysConfiguration {
 	 * @return
 	 */
 	public static boolean getBool(ConfigurableItem name) {
-		String s = get(name, false);
+		String s = get(name);
 		return s == null ? (Boolean) name.getDefaultValue() : BooleanUtils.toBoolean(s);
 	}
-	
+
 	/**
 	 * @param name
 	 * @param value
 	 * @return
 	 */
 	public static void set(ConfigurableItem name, Object value) {
+		setValue(name.name(), value);
+	}
+
+	/**
+	 * @param key 会自动加 `custom.` 前缀
+	 * @return
+	 */
+	public static String getCustomValue(String key) {
+		return getValue("custom." + key, false, null);
+	}
+
+	/**
+	 * @param key 会自动加 `custom.` 前缀
+	 * @param value
+	 */
+	public static void setCustomValue(String key, Object value) {
+		setValue("custom." + key, value);
+	}
+	
+	/**
+	 * @param key
+	 * @param value
+	 */
+	private static void setValue(final String key, Object value) {
 		Object[] exists = Application.createQueryNoFilter(
 				"select configId from SystemConfig where item = ?")
-				.setParameter(1, name.name())
+				.setParameter(1, key)
 				.unique();
-		
+
 		Record record = null;
 		if (exists == null) {
 			record = EntityHelper.forNew(EntityHelper.SystemConfig, UserService.SYSTEM_USER);
-			record.setString("item", name.name());
+			record.setString("item", key);
 		} else {
 			record = EntityHelper.forUpdate((ID) exists[0], UserService.SYSTEM_USER);
 		}
 		record.setString("value", value.toString());
-		
+
 		Application.getCommonService().createOrUpdate(record);
-		get(name, true);
+		Application.getCommonCache().evict(key);
+	}
+
+	/**
+	 * @param key
+	 * @param reload
+	 * @param defaultValue
+	 * @return
+	 */
+	private static String getValue(final String key, boolean reload, Object defaultValue) {
+		if (!Application.serversReady()) {
+			return defaultValue == null ? null : defaultValue.toString();
+		}
+
+		String s = Application.getCommonCache().get(key);
+		if (s != null && !reload) {
+			return s;
+		}
+
+		// 1. 首先从数据库
+		Object[] fromDb = Application.createQueryNoFilter(
+				"select value from SystemConfig where item = ?")
+				.setParameter(1, key)
+				.unique();
+		s = fromDb == null ? null : StringUtils.defaultIfBlank((String) fromDb[0], null);
+
+		// 2. 从配置文件加载
+		if (s == null) {
+			s = Application.getBean(AesPreferencesConfigurer.class).getItem(key);
+		}
+
+		// 3. 默认值
+		if (s == null && defaultValue != null) {
+			s = defaultValue.toString();
+		}
+
+		if (s == null) {
+			Application.getCommonCache().evict(key);
+		} else {
+			Application.getCommonCache().put(key, s, CommonCache.TS_DAY);
+		}
+		return s;
 	}
 }

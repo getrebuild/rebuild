@@ -18,12 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
-import java.util.Iterator;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang.StringUtils;
-
+import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -33,10 +30,10 @@ import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.StringUtils;
 
-import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.engine.ID;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Iterator;
 
 /**
  * 导航菜单
@@ -92,8 +89,7 @@ public class NavManager extends BaseLayoutManager {
 				}
 			} else if (isFilterNav(nav, user)) {
 				iter.remove();
-				continue;
-			}
+            }
 		}
 		return navs;
 	}
@@ -117,9 +113,7 @@ public class NavManager extends BaseLayoutManager {
 			}
 			
 			Entity entityMeta = MetadataHelper.getEntity(entity);
-			if (!Application.getSecurityManager().allowedR(user, entityMeta.getEntityCode())) {
-				return true;
-			}
+            return !Application.getSecurityManager().allowedR(user, entityMeta.getEntityCode());
 		}
 		return false;
 	}
@@ -154,7 +148,7 @@ public class NavManager extends BaseLayoutManager {
 			}
 		}
 		
-		String navHtml = "<li id=\"%s\" class=\"%s\"><a href=\"%s\" target=\"%s\"><i class=\"icon zmdi zmdi-%s\"></i><span>%s</span></a>";
+		String navHtml = "<li id='%s' class='%s'><a href='%s' target='%s'><i class='icon zmdi zmdi-%s'></i><span>%s</span></a>";
 		String clazz = navName.equals(activeNav) ? "active " : "";
 		if (subHas) {
 			clazz += "parent";
@@ -164,14 +158,15 @@ public class NavManager extends BaseLayoutManager {
 		navHtml = String.format(navHtml, navName, clazz, navUrl, isUrlType ? "_blank" : "_self", navIcon, navText);
 		
 		if (subHas) {
-			String subHtml = "<ul class=\"sub-menu\"><li class=\"title\">%s</li><li class=\"nav-items\"><div class=\"content\"><ul>";
-			subHtml = String.format(subHtml, navText);
+			StringBuilder subHtml = new StringBuilder(
+			        "<ul class='sub-menu'><li class='title'>%s</li><li class='nav-items'><div class='content'><ul>");
+			subHtml = new StringBuilder(String.format(subHtml.toString(), navText));
 			
 			for (Object o : subNavs) {
 				JSONObject subNav = (JSONObject) o;
-				subHtml += renderNavItem(subNav, activeNav, false);
+				subHtml.append(renderNavItem(subNav, activeNav, false));
 			}
-			subHtml += "</ul></div></li></ul>";
+			subHtml.append("</ul></div></li></ul>");
 			navHtml += subHtml;
 		}
 		

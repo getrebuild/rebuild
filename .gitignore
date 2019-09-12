@@ -32,12 +32,8 @@ rebuild.iml
 /target/
 /bin/
 /.production/node_modules/
-/.production/package-lock.json
 /.production/_temp/
 /.production/build/
-/.production/
-/src/main/webapp/assets/node_modules/
-/src/main/webapp/assets/package-lock.json
 /a.json
 
 

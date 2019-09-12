@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -31,7 +31,7 @@ public class SystemConfigTest extends TestSupport {
 	@Test
 	public void testKnowConfig() throws Exception {
 		for (ConfigurableItem item : ConfigurableItem.values()) {
-			String v = SysConfiguration.get(item, null);
+			String v = SysConfiguration.get(item);
 			System.out.println(item + " = " + v);
 		}
 	}

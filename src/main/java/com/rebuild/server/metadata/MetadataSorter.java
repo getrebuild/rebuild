@@ -18,21 +18,18 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.metadata;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-
-import org.apache.commons.lang.ArrayUtils;
-
-import com.rebuild.server.Application;
-import com.rebuild.server.metadata.entity.DisplayType;
-import com.rebuild.server.metadata.entity.EasyMeta;
-
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.BaseMeta;
+import com.rebuild.server.Application;
+import com.rebuild.server.metadata.entity.DisplayType;
+import com.rebuild.server.metadata.entity.EasyMeta;
+import org.apache.commons.lang.ArrayUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 元数据辅助类，支持过滤/排序字段或实体
@@ -75,18 +72,25 @@ public class MetadataSorter {
 		
 		List<Entity> list = new ArrayList<>();
 		for (Entity entity : entities) {
-			int ec = entity.getEntityCode();
-			if (EasyMeta.valueOf(ec).isBuiltin()) {
-				if (containsBizz && MetadataHelper.isBizzEntity(ec)) {
+			if (EasyMeta.valueOf(entity).isBuiltin()) {
+				if (containsBizz && MetadataHelper.isBizzEntity(entity.getEntityCode())) {
 					list.add(entity);
 				}
 			} else if (user == null) {
 				list.add(entity);
-			} else if (Application.getSecurityManager().allowedR(user, ec)) {
+			} else if (Application.getSecurityManager().allowedR(user, entity.getEntityCode())) {
 				list.add(entity);
 			}
 		}
-		return list.toArray(new Entity[list.size()]);
+
+		// 内建业务实体
+		for (Entity entity : entities) {
+			if (EasyMeta.valueOf(entity).isBuiltin() && MetadataHelper.hasPrivilegesField(entity)) {
+				list.add(entity);
+			}
+		}
+
+		return list.toArray(new Entity[0]);
 	}
 	
 	/**
@@ -121,15 +125,15 @@ public class MetadataSorter {
 			}
 		}
 		
-		Field[] allFields = othersFields.toArray(new Field[othersFields.size()]);
+		Field[] allFields = othersFields.toArray(new Field[0]);
 		sortBaseMeta(allFields);
 		// 公共字段在后
-		Field[] commonsFieldsAry = commonsFields.toArray(new Field[commonsFields.size()]);
+		Field[] commonsFieldsAry = commonsFields.toArray(new Field[0]);
 		sortBaseMeta(commonsFieldsAry);
 		allFields = (Field[]) ArrayUtils.addAll(allFields, commonsFieldsAry);
 		// 审批字段在后
 		if (!approvalFields.isEmpty()) {
-			Field[] approvalFieldsAry = approvalFields.toArray(new Field[approvalFields.size()]);
+			Field[] approvalFieldsAry = approvalFields.toArray(new Field[0]);
 			sortBaseMeta(approvalFieldsAry);
 			allFields = (Field[]) ArrayUtils.addAll(allFields, approvalFieldsAry);
 		}
@@ -142,7 +146,7 @@ public class MetadataSorter {
 					list.add(field);
 				}
 			}
-			return list.toArray(new Field[list.size()]);
+			return list.toArray(new Field[0]);
 		}
 		
 		List<Field> list = new ArrayList<>();
@@ -155,7 +159,7 @@ public class MetadataSorter {
 				}
 			}
 		}
-		return list.toArray(new Field[list.size()]);
+		return list.toArray(new Field[0]);
 	}
 	
 	/**
@@ -164,13 +168,10 @@ public class MetadataSorter {
 	 * @param metas
 	 */
 	private static void sortBaseMeta(BaseMeta[] metas) {
-		Arrays.sort(metas, new Comparator<BaseMeta>() {
-			@Override
-			public int compare(BaseMeta foo, BaseMeta bar) {
-				String fooLetter = EasyMeta.getLabel(foo);
-				String barLetter = EasyMeta.getLabel(bar);
-				return fooLetter.compareTo(barLetter);
-			}
+		Arrays.sort(metas, (foo, bar) -> {
+			String fooLetter = EasyMeta.getLabel(foo);
+			String barLetter = EasyMeta.getLabel(bar);
+			return fooLetter.compareTo(barLetter);
 		});
 	}
 }

@@ -18,17 +18,18 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server;
 
-import java.util.Date;
-
-import javax.servlet.ServletContextEvent;
-
+import cn.devezhao.commons.CalendarUtils;
+import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.SysConfiguration;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import cn.devezhao.commons.CalendarUtils;
+import javax.servlet.ServletContextEvent;
+import java.util.Date;
 
 /**
  * 服务启动/停止监听
@@ -50,13 +51,19 @@ public class ServerListener extends ContextLoaderListener {
 		
 		CONTEXT_PATH = event.getServletContext().getContextPath();
 		LOG.debug("Detecting Rebuild context-path '" + CONTEXT_PATH + "'");
-		
+
 		LOG.info("Initializing Spring context ...");
 		try {
 			super.contextInitialized(event);
 			WebApplicationContext wac = WebApplicationContextUtils.getWebApplicationContext(event.getServletContext());
 			new Application(wac).init(at);
 			STARTUP_TIME = CalendarUtils.now();
+
+			// 全局 EL 变量
+			event.getServletContext().setAttribute("baseUrl", CONTEXT_PATH);
+			event.getServletContext().setAttribute("appName", SysConfiguration.get(ConfigurableItem.AppName));
+			event.getServletContext().setAttribute("storageUrl", StringUtils.defaultIfEmpty(SysConfiguration.getStorageUrl(), ""));
+
 		} catch (Throwable ex) {
 			LOG.fatal("Rebuild Booting failure!!!", ex);
 		}

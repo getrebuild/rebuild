@@ -30,9 +30,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.rebuild.server.Application;
-import com.rebuild.server.business.dataio.DataFileParser;
-import com.rebuild.server.business.dataio.DataImporter;
-import com.rebuild.server.business.dataio.ImportRule;
+import com.rebuild.server.business.dataimport.DataFileParser;
+import com.rebuild.server.business.dataimport.DataImporter;
+import com.rebuild.server.business.dataimport.ImportRule;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.helper.task.TaskExecutors;
@@ -43,7 +43,6 @@ import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
-import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -63,7 +62,7 @@ import java.util.Map;
  * @since 01/03/2019
  */
 @Controller
-@RequestMapping("/admin/entityhub/")
+@RequestMapping("/admin/datas/")
 public class DataImportControll extends BasePageControll {
 	
 	static {
@@ -96,8 +95,6 @@ public class DataImportControll extends BasePageControll {
 			LOG.error("Parse excel error : " + file, ex);
 			writeFailure(response, "无法解析数据，请检查数据文件格式");
 			return;
-		} finally {
-			IOUtils.closeQuietly(parser);
 		}
 		
 		JSON ret = JSONUtils.toJSONObject(
@@ -226,7 +223,7 @@ public class DataImportControll extends BasePageControll {
 		JSON state = JSONUtils.toJSONObject(
 				new String[] { "total", "complete", "success", "isCompleted", "isInterrupted", "elapsedTime" },
 				new Object[] { task.getTotal(), task.getCompleted(),
-						((DataImporter) task).getSuccessed(), task.isCompleted(), task.isInterrupted(), task.getElapsedTime() });
+						task.getSuccessed(), task.isCompleted(), task.isInterrupted(), task.getElapsedTime() });
 		return state;
 	}
 	

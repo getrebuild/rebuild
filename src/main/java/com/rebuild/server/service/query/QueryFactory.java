@@ -42,7 +42,7 @@ import cn.devezhao.persist4j.query.NativeQuery;
 public class QueryFactory {
 	
 	private static final int QUERY_TIMEOUT = 10 * 1000;
-	private static final int SLOW_LOGGER_TIME = 1 * 1000;
+	private static final int SLOW_LOGGER_TIME = 1000;
 
 	final private PersistManagerFactory aPMFactory;
 
@@ -135,7 +135,7 @@ public class QueryFactory {
 			fields = new String[] { entity.getPrimaryField().getName() };
 		}
 
-		StringBuffer sql = new StringBuffer("select ");
+		StringBuilder sql = new StringBuilder("select ");
 		sql.append(StringUtils.join(fields, ","))
 			.append(" from ").append(entity.getName())
 			.append(" where ")

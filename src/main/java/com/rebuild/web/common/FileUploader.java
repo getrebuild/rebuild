@@ -63,7 +63,7 @@ public class FileUploader {
 				if (uploadName == null) {
 					continue;
 				}
-				
+
 				uploadName = QiniuCloud.formatFileKey(uploadName);
 				File file = null;
 				// 上传临时文件
@@ -119,7 +119,7 @@ public class FileUploader {
 	 */
 	private static List<FileItem> parseFileItem(HttpServletRequest request) throws Exception {
 		if (!ServletFileUpload.isMultipartContent(request)) {
-			return Collections.<FileItem>emptyList();
+			return Collections.emptyList();
 		}
 		
 		ServletFileUpload upload = new ServletFileUpload(fileItemFactory);
@@ -129,13 +129,13 @@ public class FileUploader {
 		} catch (Exception ex) {
 			if (ex instanceof IOException || ex.getCause() instanceof IOException) {
 				LOG.warn("传输意外中断", ex);
-				return Collections.<FileItem>emptyList();
+				return Collections.emptyList();
 			}
 			throw ex;
 		}
 		
 		if (files == null || files.isEmpty()) {
-			return Collections.<FileItem>emptyList();
+			return Collections.emptyList();
 		}
 		return files;
 	}

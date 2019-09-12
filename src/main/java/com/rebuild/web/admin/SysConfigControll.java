@@ -18,15 +18,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.admin;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BasePageControll;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  * 系统配置
@@ -41,7 +41,11 @@ public class SysConfigControll extends BasePageControll {
 
 	@RequestMapping("systems")
 	public ModelAndView pageSystems() {
-		return createModelAndView("/admin/system-general.jsp");
+		ModelAndView mv = createModelAndView("/admin/system-general.jsp");
+		for (ConfigurableItem item : ConfigurableItem.values()) {
+			mv.getModel().put(item.name(), SysConfiguration.get(item));
+		}
+		return mv;
 	}
 	
 	@RequestMapping("integration/storage")

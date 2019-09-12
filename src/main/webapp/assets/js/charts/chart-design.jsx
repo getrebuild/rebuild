@@ -15,6 +15,7 @@ $(document).ready(() => {
     appendTo: 'body',
     cursor: 'move',
     cursorAt: { top: 14, left: 75 },
+    zIndex: 1999,
     start: function () {
       dragIsNum = $(this).data('type') === 'num'
     }
@@ -28,11 +29,13 @@ $(document).ready(() => {
     drop: function (event, ui) {
       if (dargOnSort !== true) add_axis(this, $(ui.draggable[0]))
     }
-  })
+  }).disableSelection()
+  // 排序
   $('.axis-target').sortable({
-    placeholder: 'ui-state-highlight',
-    helper: 'clone',
-    delay: 150,
+    axis: 'x',
+    containment: 'parent',
+    cursor: 'move',
+    opacity: 0.8,
     start: function () {
       dargOnSort = true
     },
@@ -155,6 +158,8 @@ let add_axis = ((target, axis) => {
   }
   let aopts = el.find('.dropdown-menu .dropdown-item').click(function () {
     let _this = $(this)
+    if (_this.hasClass('disabled') || _this.parent().hasClass('disabled')) return false
+
     let calc = _this.data('calc')
     let sort = _this.data('sort')
     if (calc) {
@@ -174,6 +179,7 @@ let add_axis = ((target, axis) => {
         el.attr({ 'data-label': s.label, 'data-scale': s.scale })
         render_preview()
       }
+
       if (dlgAxisProps) dlgAxisProps.show(state)
       else renderRbcomp(<DlgAxisProps {...state} />, null, function () { dlgAxisProps = this })
     }

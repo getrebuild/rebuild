@@ -18,22 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-
-import com.alibaba.fastjson.JSON;
-import com.rebuild.server.helper.AesPreferencesConfigurer;
-import com.rebuild.server.helper.cache.CommonCache;
-import com.rebuild.utils.JSONUtils;
-
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.SystemUtils;
@@ -41,6 +25,20 @@ import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.runtime.MemoryInformation;
 import cn.devezhao.commons.runtime.MemoryInformationBean;
 import cn.devezhao.persist4j.util.SqlHelper;
+import com.alibaba.fastjson.JSON;
+import com.rebuild.server.helper.AesPreferencesConfigurer;
+import com.rebuild.server.helper.cache.CommonCache;
+import com.rebuild.utils.JSONUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 服务状态检查/监控
@@ -98,7 +96,7 @@ public final class ServerStatus {
 	static {
 		try {
 			Class.forName(com.mysql.jdbc.Driver.class.getName());
-		} catch (ClassNotFoundException e) {
+		} catch (ClassNotFoundException ignored) {
 		}
 	}
 	/**
@@ -133,7 +131,7 @@ public final class ServerStatus {
 			fw = new FileWriter(test);
 			IOUtils.write(CodecUtils.randomCode(1024), fw);
 			if (!test.exists()) {
-				return Status.error(name, "Cloud't create file in temp Directory");
+				return Status.error(name, "Couldn't create file in temp Directory");
 			} else {
 				test.delete();
 			}
@@ -201,7 +199,7 @@ public final class ServerStatus {
 	/**
 	 * 内存用量
 	 * 
-	 * @return [已用%, 总计M]
+	 * @return [总计M, 已用%]
 	 */
 	public static double[] getHeapMemoryUsed() {
 		for (MemoryInformation i : SystemUtils.getMemoryStatistics(false)) {

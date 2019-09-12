@@ -18,15 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -36,11 +31,14 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 表单自动回填
@@ -152,7 +150,7 @@ public class AutoFillinManager implements ConfigManager<Field> {
 			if (!is2Text) {
 				compatibleValue = new Object[] { value, compatibleValue };  // [ID, Label]
 			}
-		} else if (sourceType == DisplayType.PICKLIST) {
+		} else if (sourceType == DisplayType.PICKLIST || sourceType == DisplayType.STATE) {
 			if (is2Text) {
 				compatibleValue = FieldValueWrapper.instance.wrapFieldValue(value, source);
 			} else {
@@ -191,7 +189,7 @@ public class AutoFillinManager implements ConfigManager<Field> {
 				.setParameter(2, field.getName())
 				.array();
 		
-		ArrayList<ConfigEntry> entries = new ArrayList<ConfigEntry>();
+		ArrayList<ConfigEntry> entries = new ArrayList<>();
 		for (Object[] o : array) {
 			ConfigEntry entry = new ConfigEntry()
 					.set("source", o[0])

@@ -18,15 +18,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.cache;
 
-import java.io.Serializable;
-
+import com.rebuild.server.Application;
 import org.apache.commons.io.IOUtils;
 import org.springframework.cache.CacheManager;
-
-import com.rebuild.server.Application;
-
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+
+import java.io.Serializable;
 
 /**
  * 
@@ -45,10 +43,10 @@ public abstract class BaseCacheTemplate<V extends Serializable> implements Cache
 	 */
 	protected BaseCacheTemplate(JedisPool jedisPool, CacheManager backup, String keyPrefix) {
 		if (testJedisPool(jedisPool)) {
-			this.delegate = new JedisCacheTemplate<V>(jedisPool, keyPrefix);
+			this.delegate = new JedisCacheTemplate<>(jedisPool, keyPrefix);
 			this.useRedis = true;
 		} else {
-			this.delegate = new EhcacheTemplate<V>(backup, keyPrefix);
+			this.delegate = new EhcacheTemplate<>(backup, keyPrefix);
 			this.useRedis = false;
 		}
 	}

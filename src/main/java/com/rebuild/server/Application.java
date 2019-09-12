@@ -18,19 +18,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.SystemUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
+import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.Query;
+import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.engine.StandardRecord;
+import cn.devezhao.persist4j.query.QueryedRecord;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
+import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.Lisence;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.helper.cache.EhcacheTemplate;
 import com.rebuild.server.helper.cache.RecentlyUsedCache;
@@ -45,11 +42,18 @@ import com.rebuild.server.service.bizz.privileges.UserStore;
 import com.rebuild.server.service.notification.NotificationService;
 import com.rebuild.server.service.query.QueryFactory;
 import com.rebuild.utils.RbDateCodec;
+import com.rebuild.utils.RbRecordCodec;
 import com.rebuild.web.OnlineSessionStore;
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import cn.devezhao.persist4j.PersistManagerFactory;
-import cn.devezhao.persist4j.Query;
-import cn.devezhao.persist4j.engine.ID;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 后台类入口
@@ -61,7 +65,7 @@ public final class Application {
 	
 	/** Rebuild Version
 	 */
-	public static final String VER = "1.4.0-beta";
+	public static final String VER = "1.5.0-beta";
 	
 	/** Logging for Global
 	 */
@@ -83,14 +87,15 @@ public final class Application {
 	protected Application(ApplicationContext ctx) {
 		APPLICATION_CTX = ctx;
 	}
-	
+
 	/**
 	 * 初始化
-	 * 
+	 *
 	 * @param startAt
+	 * @throws Exception
 	 */
 	synchronized
-	protected void init(long startAt) {
+	protected void init(long startAt) throws Exception {
 		serverReady = ServerStatus.checkAll();
 		if (!serverReady) {
 			LOG.fatal("\n###################################################################\n"
@@ -103,18 +108,26 @@ public final class Application {
 					+ "\n\n###################################################################");
 			return;
 		}
-		
+
 		// for fastjson Serialize
 		SerializeConfig.getGlobalInstance().put(ID.class, ToStringSerializer.instance);
 		SerializeConfig.getGlobalInstance().put(Date.class, RbDateCodec.instance);
-		
+		SerializeConfig.getGlobalInstance().put(StandardRecord.class, RbRecordCodec.instance);
+		SerializeConfig.getGlobalInstance().put(QueryedRecord.class, RbRecordCodec.instance);
+
+		Lisence.SN();
+		// 更新刷新配置缓存
+		for (ConfigurableItem item : ConfigurableItem.values()) {
+			SysConfiguration.get(item, true);
+		}
+
 		// 升级数据库
 		UpgradeDatabase.getInstance().upgradeQuietly();
-		
+
 		// 自定义实体
-		LOG.info("Loading customized entities ...");
+		LOG.info("Loading customized/business entities ...");
 		((DynamicMetadataFactory) APPLICATION_CTX.getBean(PersistManagerFactory.class).getMetadataFactory()).refresh(false);
-		
+
 		// 实体对应的服务类
 		SSS = new HashMap<>();
 		for (Map.Entry<String, ServiceSpec> e : APPLICATION_CTX.getBeansOfType(ServiceSpec.class).entrySet()) {
@@ -126,7 +139,7 @@ public final class Application {
 				}
 			}
 		}
-		
+
 		// 若使用 Ehcache 则添加持久化钩子
 		final CommonCache ccache = APPLICATION_CTX.getBean(CommonCache.class);
 		if (!ccache.isUseRedis()) {
@@ -137,16 +150,17 @@ public final class Application {
 				}
 			});
 		}
-		
+
 		LOG.info("Rebuild Boot successful in " + (System.currentTimeMillis() - startAt) + " ms");
 	}
-	
+
 	/**
 	 * FOR TESTING ONLY
-	 * 
+	 *
 	 * @return
+	 * @throws Exception
 	 */
-	protected static ApplicationContext debug() {
+	protected static ApplicationContext debug() throws Exception {
 		if (APPLICATION_CTX == null) {
 			debugMode = true;
 			LOG.info("Rebuild Booting in DEBUG mode ...");

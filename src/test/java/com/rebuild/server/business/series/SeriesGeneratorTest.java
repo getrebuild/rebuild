@@ -18,23 +18,21 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.series;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import org.junit.Assert;
-import org.junit.Test;
-
+import cn.devezhao.commons.ThreadPool;
+import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
+import org.junit.Assert;
+import org.junit.Test;
 
-import cn.devezhao.commons.ThreadPool;
-import cn.devezhao.persist4j.Field;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 
@@ -63,13 +61,10 @@ public class SeriesGeneratorTest extends TestSupport {
 		final Set<String> set = Collections.synchronizedSet(new HashSet<>());
 		final int N = 200;
 		for (int i = 0; i < N; i++) {
-			ThreadPool.exec(new Runnable() {
-				@Override
-				public void run() {
-					String s = var.generate();
-					set.add(s);
-					System.out.print(s + " ");
-				}
+			ThreadPool.exec(() -> {
+				String s = var.generate();
+				set.add(s);
+				System.out.print(s + " ");
 			});
 		}
 		ThreadPool.waitFor(200);

@@ -27,7 +27,9 @@ package com.rebuild.server.helper;
 public enum ConfigurableItem {
 
 	// 通用
-	AppName("REBUILD"), LOGO, LOGOWhite, HomeURL("https://getrebuild.com/"), OpenSignUp(false),
+	AppName("REBUILD"), LOGO, LOGOWhite,
+	HomeURL("https://nightly.getrebuild.com/"), OpenSignUp(false),
+    SN,
 	
 	// 数据目录
 	DataDirectory,
@@ -48,16 +50,25 @@ public enum ConfigurableItem {
 	DBVer(0L),
 	
 	// 启用最近搜素缓存
-	EnableRecentlyUsed(true)
-	
+	EnableRecentlyUsed(true),
+
+	// 登录背景图
+	LiveWallpaper(true),
+
+	// 回收站数据保留天数（0为禁用回收站）
+	RecycleBinKeepingDays(30),
+
+	// 密码策略，1-3
+	PasswordPolicy(1),
+
 	;
 	
 	private Object defaultVal;
 	
-	private ConfigurableItem() {
+	ConfigurableItem() {
 	}
-	
-	private ConfigurableItem(Object defaultVal) {
+
+	ConfigurableItem(Object defaultVal) {
 		this.defaultVal = defaultVal;
 	}
 	

@@ -142,11 +142,6 @@
 	cursor: move !important;
 }
 
-.divider-name {
-	width: 360px;
-	margin: 0 auto;
-}
-
 .field-list {
 	padding: 0 20px;
 	padding-bottom: 15px;
@@ -178,17 +173,19 @@
 	background-color: #fff;
 }
 
-.field-edit {
-	width: 500px
-}
-
-.field-edit form {
+form.field-attr {
+	width: 500px;
 	max-width: 400px;
 	margin: 0 auto;
 }
 
-.field-edit form label {
+form.field-attr label {
 	font-weight: bold;
+}
+
+form.field-attr label>span {
+	font-weight: normal;
+	color: #777;
 }
 
 .dd-list .dd-item .dd-handle span>i {

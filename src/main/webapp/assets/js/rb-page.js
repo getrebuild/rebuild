@@ -30,6 +30,8 @@ $(function () {
     __initNavs()
   }
 
+  setTimeout(__globalSearch, 200)
+
   if (rb.isAdminUser === true) {
     $('html').addClass('admin')
     if (rb.isAdminVerified !== true) $('.admin-verified').remove()
@@ -56,11 +58,10 @@ $(function () {
     $setTimeout(resize_handler, 100, 'resize-window')
   })
 })
-// Trigger on Ctrl+Alt+X
 // @t - trigger times
-var command_exec = function (t) {}
+var command_exec = function (t) { }
 // Trigger on window.onresize
-var resize_handler = function () {}
+var resize_handler = function () { }
 
 // MainNav
 var __initNavs = function () {
@@ -93,10 +94,18 @@ var __initNavs = function () {
   $('.sidebar-elements li.parent').click(function (e) {
     var _this = $(this)
     _this.toggleClass('open')
-    _this.find('.sub-menu').toggleClass('visible')
+    let $sub = _this.find('.sub-menu')
+    // if (!$sub.hasClass('visible')) {
+    //   let subHeight = $sub.height()
+    //   $sub.css({ height: 0, overflow: 'hidden' })
+    //   $sub.animate({ height: subHeight + 22 }, 200)
+    // }
+    $sub.toggleClass('visible')
+
     e.stopPropagation()
     currsntSubnav = _this
     _this.find('a').eq(0).tooltip('hide')
+    $('.left-sidebar-scroll').perfectScrollbar('update')
   })
   $('.sidebar-elements li.parent .sub-menu').click(function (e) {
     e.stopPropagation()
@@ -145,17 +154,23 @@ var __checkMessage = function () {
     if (res.error_code > 0) return
     $('.J_notifications-top .badge').text(res.data.unread)
     if (res.data.unread > 0) $('.J_notifications-top .indicator').removeClass('hide')
-    else $('J_notifications-top .indicator').addClass('hide')
+    else $('.J_notifications-top .indicator').addClass('hide')
 
-    if (__checkMessage__state !== res.data.unread) __loadMessages__state = 0
+    if (__checkMessage__state !== res.data.unread) {
+      if (__checkMessage__state > 0) {
+        document.title = `(${__checkMessage__state}) ${document.title}`
+        // __showNotification()
+      }
+      __loadMessages__state = 0
+    }
     __checkMessage__state = res.data.unread
+
     setTimeout(__checkMessage, rb.env === 'dev' ? 60 * 10000 : 2000)
   })
 }
 var __loadMessages__state = 0
 var __loadMessages = function () {
   if (__loadMessages__state === 1) return
-
   var dest = $('.rb-notifications .content ul').empty()
   if (dest.find('li').length === 0) {
     $('<li class="text-center mt-3 mb-3"><i class="zmdi zmdi-refresh zmdi-hc-spin fs-18"></i></li>').appendTo(dest)
@@ -173,6 +188,47 @@ var __loadMessages = function () {
     })
     __loadMessages__state = 1
     if (res.data.length === 0) $('<li class="text-center mt-4 mb-4 text-muted">暂无消息</li>').appendTo(dest)
+  })
+}
+var __showNotification = function () {
+  if (window.Notification) {
+    if (window.Notification.permission === 'granted') {
+      var n = new Notification(`你有 ${__checkMessage__state} 条未读消息`, {
+        tag: 'rbNotification'
+      })
+    } else {
+      window.Notification.requestPermission()
+    }
+  }
+}
+
+// Global search
+var __globalSearch = function () {
+  $('.sidebar-elements li').each((idx, item) => {
+    if (idx > 40) return false
+    let id = $(item).attr('id')
+    if (id && id.startsWith('nav_entity-') && id !== 'nav_entity-$PARENT$') {
+      let $a = $(item).find('a')
+      $('<a class="text-truncate" data-url="' + $a.attr('href') + '">' + $a.text() + '</a>').appendTo('.search-models')
+    }
+  })
+
+  let activeModel
+  let aModels = $('.search-models a').click(function () {
+    let s = $('.search-input').val()
+    location.href = $(this).data('url') + '#gs=' + $encode(s)
+  })
+  if (aModels.length === 0) return
+  activeModel = aModels.eq(0).addClass('active')
+
+  $(document).click((e) => {
+    if ($(e.target).parents('.search-container').length === 0) $('.search-models').hide()
+  })
+  $('.search-container input').on('focus', (e) => {
+    $('.search-models').show()
+  }).on('keydown', (e) => {
+    let s = $('.search-input').val()
+    if (e.keyCode === 13 && s) location.href = activeModel.data('url') + '#gs=' + $encode(s)
   })
 }
 
@@ -221,7 +277,7 @@ var $createUploader = function (input, next, complete, error) {
       var file = this.files[0]
       if (!file) return
       var putExtra = imgOnly ? {
-        mimeType: ['image/png', 'image/jpeg', 'image/gif', 'image/bmp', 'image/tiff']
+        mimeType: ['image/png', 'image/jpeg', 'image/gif', 'image/bmp']
       } : null
       $.get(rb.baseUrl + '/filex/qiniu/upload-keys?file=' + $encode(file.name), function (res) {
         var o = qiniu.upload(file, res.data.key, res.data.token, putExtra)
@@ -237,7 +293,7 @@ var $createUploader = function (input, next, complete, error) {
               RbHighbar.create('请上传图片')
               return false
             } else if (msg.contains('EXCEED FSIZELIMIT')) {
-              RbHighbar.create('超出文件大小限制')
+              RbHighbar.create('超出文件大小限制 (20M)')
               return false
             }
             if (error) error({
@@ -256,7 +312,7 @@ var $createUploader = function (input, next, complete, error) {
   } else {
     input.html5Uploader({
       name: input.attr('id') || input.attr('name') || 'H5Upload',
-      postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file') + '&temp=' + temp,
+      postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file') + '&temp=' + (temp || ''),
       onSelectError: function (file, err) {
         if (err === 'ErrorType') {
           RbHighbar.create('请上传图片')
@@ -266,7 +322,7 @@ var $createUploader = function (input, next, complete, error) {
           return false
         }
       },
-      onClientLoad: function (e, file) {},
+      onClientLoad: function (e, file) { },
       onClientProgress: function (e, file) {
         typeof next === 'function' && next({
           percent: e.loaded * 100 / e.total
@@ -350,4 +406,14 @@ var $initUserSelect2 = function (el, multiple) {
     if (v) $.post(rb.baseUrl + '/commons/search/recently-add?type=UDR&id=' + v)
   })
   return s
+}
+
+// 保持模态窗口（如果需要）
+var $keepModalOpen = function () {
+  if ($('.rbmodal.show, .rbview.show').length > 0) {
+    let $body = $(document.body)
+    if (!$body.hasClass('modal-open')) $body.addClass('modal-open').css({ 'padding-right': 17 })
+    return true
+  }
+  return false
 }

@@ -65,6 +65,15 @@ a#entityIcon:hover{opacity:0.8}
 					</div>
 				</div>
 			</div>
+			<div class="card bosskey-show">
+				<div class="card-header">导出${entityLabel}实体</div>
+				<div class="card-body">
+					<p>将实体的元数据导出，方便与其他实例间共享。你也可以将导出文件发布到 <a class="link" href="https://github.com/getrebuild/rebuild-datas" target="_blank">元数据市场</a>。</p>
+					<div class="mb-1">
+						<a href="../entity-export?id=${entityMetaId}" target="_blank" class="btn btn-primary"><i class="zmdi zmdi-cloud-download icon"></i> 导出</a>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
@@ -86,11 +95,11 @@ $(document).ready(function(){
 		$('.J_drop-confirm').attr('disabled', $(this).prop('checked') == false)
 	})
 	
-	let sbtn = $('.J_drop-confirm').click(() => {
+	let btnDrop = $('.J_drop-confirm').click(() => {
 		if ($('.J_drop-check').prop('checked') == false) return
 		if (!window.__PageConfig.isSuperAdmin){ RbHighbar.error('仅超级管理员可删除实体'); return }
 		RbAlert.create('实体删除后将无法恢复，请务必谨慎操作！确认删除吗？', '删除实体', { type: 'danger', confirmText: '删除', confirm: function () {
-			sbtn.button('loading')
+			btnDrop.button('loading')
 			this.disabled(true)
 			$.post('../entity-drop?id=' + metaId + '&force=' + $('.J_drop-force').prop('checked'), (res) => {
 				if (res.error_code == 0) {

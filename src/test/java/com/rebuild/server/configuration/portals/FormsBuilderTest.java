@@ -18,6 +18,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.utils.JSONUtils;
 import org.junit.Test;
 
 import com.alibaba.fastjson.JSON;
@@ -43,5 +49,26 @@ public class FormsBuilderTest extends TestSupport {
 	public void testViewModel() throws Exception {
 		JSON viewModel = FormsBuilder.instance.buildView("User", UserService.ADMIN_USER, UserService.SYSTEM_USER);
 		System.out.println(viewModel);
+	}
+
+
+	@Test
+	public void testSetFormInitialValue() throws Exception {
+		addExtTestEntities(false);
+
+		Entity SalesOrder999 = MetadataHelper.getEntity("SalesOrder999");
+		Entity SalesOrderItem999 = MetadataHelper.getEntity("SalesOrderItem999");
+
+		JSONObject initial = JSONUtils.toJSONObject(FormsBuilder.DV_MASTER, ID.newId(SalesOrder999.getEntityCode()));
+
+		JSONArray elements = new JSONArray();
+		JSONObject el = new JSONObject();
+		el.put("field", "SalesOrder999Id");
+		elements.add(el);
+
+		JSONObject mockModel = new JSONObject();
+		mockModel.put("elements", elements);
+
+		FormsBuilder.instance.setFormInitialValue(SalesOrderItem999, mockModel, initial);
 	}
 }

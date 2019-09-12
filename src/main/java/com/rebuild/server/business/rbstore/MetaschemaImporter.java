@@ -18,13 +18,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.rbstore;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.Dialect;
+import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.util.support.Table;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -42,13 +41,12 @@ import com.rebuild.server.service.configuration.AdvFilterService;
 import com.rebuild.server.service.configuration.LayoutConfigService;
 import com.rebuild.server.service.configuration.PickListService;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.dialect.Dialect;
-import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.persist4j.util.support.Table;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 元数据模型导入
@@ -105,9 +103,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 		JSONObject slave = remoteData.getJSONObject("slave");
 		if (slave != null) {
 			hasError = verfiyEntity(slave);
-			if (hasError != null) {
-				return hasError;
-			}
+			return hasError;
 		}
 		
 		return null;
@@ -257,6 +253,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 				schemaField.getBooleanValue("nullable"),
 				true,
 				schemaField.getBooleanValue("updatable"),
+				schemaField.containsKey("repeatable") ? schemaField.getBooleanValue("repeatable") : true,
 				schemaField.getString("comments"),
 				schemaField.getString("refEntity"),
 				null, 
@@ -264,8 +261,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 				schemaField.getString("defaultValue"));
 		
 		if (DisplayType.PICKLIST == dt) {
-			picklistHolders.add(
-					new Object[] { unsafeField, readyPickList(schemaField.getJSONArray("items")) });
+			picklistHolders.add(new Object[] { unsafeField, readyPickList(schemaField.getJSONArray("items")) });
 		}
 		
 		return unsafeField;

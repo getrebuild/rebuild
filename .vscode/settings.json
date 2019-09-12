@@ -10,8 +10,9 @@
         ".eclipse/**": true
     },
     "editor.fontSize": 12,
+    "editor.tabSize": 2,
     "editor.formatOnSave": true,
-
+    "eslint.autoFixOnSave": true,
     "eslint.options": {
         "configFile": "./.eslintrc.json"
     },
@@ -20,6 +21,8 @@
         "javascriptreact",
         "html"
     ],
-    "eslint.autoFixOnSave": true,
+    "prettier.eslintIntegration": true,
     "workbench.editor.enablePreview": false
 }
+// node and eslint(-g)
+// Plugins: Beautify and ESLint

@@ -18,16 +18,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.utils.JSONUtils;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.rebuild.utils.JSONUtils;
 
 /**
  * 两纬数组转树形 JSON
@@ -77,7 +77,7 @@ public class TreeBuilder {
 			
 			Item L2 = null;
 			if (lastIndex > 1) {
-				name = name + NAME_SPEA + (String) o[1];
+				name = name + NAME_SPEA + o[1];
 				L2 = thereAll.get(name);
 				if (L2 == null) {
 					L2 = new Item(name, value, L1);
@@ -87,7 +87,7 @@ public class TreeBuilder {
 			
 			Item L3 = null;
 			if (lastIndex > 2) {
-				name = name + NAME_SPEA + (String) o[2];
+				name = name + NAME_SPEA + o[2];
 				L3 = thereAll.get(name);
 				if (L3 == null) {
 					L3 = new Item(name, value, L2);

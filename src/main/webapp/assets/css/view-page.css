@@ -21,14 +21,15 @@ body {
 .view-header {
 	padding: 15px 20px;
 	height: 60px;
-	border-bottom: 1px solid #e3e3e3;
+	height: 61px;
+	border-bottom: 1px solid #e6e6e6;
 	position: absolute;
 	top: 0;
 	left: 0;
 	width: 100%;
 	z-index: 1001;
 	background-color: #fff;
-	background-color: rgba(255, 255, 255, .8);
+	background-color: rgba(255, 255, 255, .9);
 }
 
 .view-header .header-icon {
@@ -59,6 +60,35 @@ body {
 
 .view-header>span>.close:hover {
 	opacity: .8;
+}
+
+.rbview-form .form-group.row {
+	padding: 3px 0;
+}
+
+.rbview-form .img-field .img-thumbnail:hover,
+.rbview-form .file-field .img-thumbnail:hover {
+	opacity: 0.8;
+}
+
+.rbview-form .file-field .img-thumbnail {
+	width: 100%;
+	margin: 0;
+}
+
+.rbview-form .form-control-plaintext:hover {
+	background-color: #f8f8f8;
+	background-color: #fff;
+}
+
+.rbview-form .type-NTEXT .form-control-plaintext {
+	max-height: 72px;
+	position: relative;
+}
+
+.rbview-form .type-NTEXT .form-control-plaintext>p {
+	margin: 0;
+	line-height: 1.428571;
 }
 
 .nav-tabs>li.nav-item a.nav-link {
@@ -261,4 +291,39 @@ body {
 .load-mores>.btn {
 	display: inline-block;
 	margin-top: -1.4rem;
+}
+
+.reports-select .modal-content {
+	max-width: 400px;
+}
+
+.reports-select ul li a {
+	display: block;
+	background-color: #f5f5f5;
+	padding: 9px 10px;
+	position: relative;
+	color: #555;
+	border-radius: 2px;
+}
+
+.reports-select ul li a .zmdi {
+	position: absolute;
+	right: 12px;
+	top: 12px;
+	font-size: 1.3rem;
+	color: #fff;
+	display: none;
+}
+
+.reports-select ul li a:hover {
+	color: #fff;
+	background-color: #4285f4;
+}
+
+.reports-select ul li a:hover .zmdi {
+	display: inline-block;
+}
+
+.reports-select ul li+li {
+	margin-top: 6px;
 }

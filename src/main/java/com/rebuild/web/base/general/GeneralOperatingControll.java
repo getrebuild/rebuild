@@ -18,28 +18,22 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.base.general;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import cn.devezhao.bizz.security.AccessDeniedException;
+import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.momentjava.Moment;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.ServiceSpec;
@@ -49,15 +43,22 @@ import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.IllegalParameterException;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-import cn.devezhao.bizz.privileges.impl.BizzPermission;
-import cn.devezhao.bizz.security.AccessDeniedException;
-import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.momentjava.Moment;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 记录操作
@@ -69,19 +70,32 @@ import cn.devezhao.persist4j.engine.ID;
 @RequestMapping("/app/entity/")
 public class GeneralOperatingControll extends BaseControll {
 
+	// 重复字段值
+	public static final int CODE_REPEATED_VALUES = 499;
+
 	@RequestMapping("record-save")
 	public void save(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		JSON formJson = ServletUtils.getRequestJson(request);
 		
-		Record record = null;
+		Record record;
 		try {
 			record = EntityHelper.parse((JSONObject) formJson, user);
 		} catch (DataSpecificationException know) {
 			writeFailure(response, know.getLocalizedMessage());
 			return;
 		}
-		
+
+		List<Record> repeated = Application.getGeneralEntityService().checkRepeated(record);
+		if (!repeated.isEmpty()) {
+			JSONObject map = new JSONObject();
+			map.put("error_code", CODE_REPEATED_VALUES);
+			map.put("error_msg", "存在重复值");
+			map.put("data", buildRepeatedData(repeated));
+			writeJSON(response, map);
+			return;
+		}
+
 		try {
 			record = Application.getService(record.getEntity().getEntityCode()).createOrUpdate(record);
 		} catch (AccessDeniedException | DataSpecificationException know) {
@@ -95,7 +109,7 @@ public class GeneralOperatingControll extends BaseControll {
 	}
 	
 	@RequestMapping("record-delete")
-	public void delete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void delete(HttpServletRequest request, HttpServletResponse response) {
 		final ID user = getRequestUser(request);
 		final ID[] records = parseIdList(request);
 		if (records.length == 0) {
@@ -109,7 +123,7 @@ public class GeneralOperatingControll extends BaseControll {
 		String[] cascades = parseCascades(request);
 		ServiceSpec ies = Application.getService(entity.getEntityCode());
 		
-		int affected = 0;
+		int affected;
 		try {
 			if (!EntityService.class.isAssignableFrom(ies.getClass())) {
 				affected = ies.delete(firstId);
@@ -131,7 +145,7 @@ public class GeneralOperatingControll extends BaseControll {
 	}
 	
 	@RequestMapping("record-assign")
-	public void assign(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void assign(HttpServletRequest request, HttpServletResponse response) {
 		final ID user = getRequestUser(request);
 		final ID[] records = parseIdList(request);
 		if (records.length == 0) {
@@ -146,7 +160,7 @@ public class GeneralOperatingControll extends BaseControll {
 		String[] cascades = parseCascades(request);
 		EntityService ies = Application.getEntityService(entity.getEntityCode());
 		
-		int affected = 0;
+		int affected;
 		try {
 			// 仅一条记录
 			if (records.length == 1) {
@@ -167,7 +181,7 @@ public class GeneralOperatingControll extends BaseControll {
 	}
 	
 	@RequestMapping("record-share")
-	public void share(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void share(HttpServletRequest request, HttpServletResponse response) {
 		final ID user = getRequestUser(request);
 		final ID[] records = parseIdList(request);
 		if (records.length == 0) {
@@ -210,7 +224,7 @@ public class GeneralOperatingControll extends BaseControll {
 	}
 	
 	@RequestMapping("record-unshare")
-	public void unsharesa(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void unsharesa(HttpServletRequest request, HttpServletResponse response) {
 		final ID user = getRequestUser(request);
 		final ID record = getIdParameterNotNull(request, "record");  // Record ID
 		final ID[] accessIds = parseIdList(request);  // ShareAccess IDs
@@ -224,7 +238,7 @@ public class GeneralOperatingControll extends BaseControll {
 		
 		EntityService ies = Application.getEntityService(entity.getEntityCode());
 		
-		int affected = 0;
+		int affected;
 		try {
 			if (accessIds.length == 1) {
 				affected = ies.unshare(record, accessIds[0]);
@@ -244,7 +258,7 @@ public class GeneralOperatingControll extends BaseControll {
 	}
 	
 	@RequestMapping("record-unshare-batch")
-	public void unshareBatch(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void unshareBatch(HttpServletRequest request, HttpServletResponse response) {
 		final ID user = getRequestUser(request);
 		final ID[] records = parseIdList(request);
 		if (records.length == 0) {
@@ -277,11 +291,7 @@ public class GeneralOperatingControll extends BaseControll {
 		Map<ID, Set<ID>> accessMap = new HashMap<>();
 		for (Object[] o : accessArray) {
 			ID record = (ID) o[0];
-			Set<ID> access = accessMap.get(record);
-			if (access == null) {
-				access = new HashSet<>();
-				accessMap.put(record, access);
-			}
+			Set<ID> access = accessMap.computeIfAbsent(record, k -> new HashSet<>());
 			access.add((ID) o[1]);
 		}
 		
@@ -293,7 +303,7 @@ public class GeneralOperatingControll extends BaseControll {
 				ID record = e.getKey();
 				Set<ID> access = e.getValue();
 				BulkContext context = new BulkContext(
-						user, EntityService.UNSHARE, access.toArray(new ID[access.size()]), record);
+						user, EntityService.UNSHARE, access.toArray(new ID[0]), record);
 				affected += ies.bulk(context);
 			}
 		} catch (AccessDeniedException know) {
@@ -308,7 +318,7 @@ public class GeneralOperatingControll extends BaseControll {
 	}
 	
 	@RequestMapping("record-meta")
-	public void fetchRecordMeta(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void fetchRecordMeta(HttpServletRequest request, HttpServletResponse response) {
 		final ID id = getIdParameterNotNull(request, "id");
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		
@@ -353,7 +363,7 @@ public class GeneralOperatingControll extends BaseControll {
 	}
 	
 	@RequestMapping("record-lastModified")
-	public void fetchRecordLastModified(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void fetchRecordLastModified(HttpServletRequest request, HttpServletResponse response) {
 		final ID id = getIdParameterNotNull(request, "id");
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		
@@ -372,7 +382,7 @@ public class GeneralOperatingControll extends BaseControll {
 	}
 	
 	@RequestMapping("shared-list")
-	public void fetchSharedList(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void fetchSharedList(HttpServletRequest request, HttpServletResponse response) {
 		ID id = getIdParameterNotNull(request, "id");
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		
@@ -409,7 +419,7 @@ public class GeneralOperatingControll extends BaseControll {
 			}
 			idList.add(ID.valueOf(id));
 		}
-		return idList.toArray(new ID[idList.size()]);
+		return idList.toArray(new ID[0]);
 	}
 	
 	/**
@@ -430,7 +440,7 @@ public class GeneralOperatingControll extends BaseControll {
 				toList.add(uid);
 			}
 		}
-		return toList.toArray(new ID[toList.size()]);
+		return toList.toArray(new ID[0]);
 	}
 	
 	/**
@@ -453,6 +463,47 @@ public class GeneralOperatingControll extends BaseControll {
 				LOG.warn("Unknow entity in cascades : " + c);
 			}
 		}
-		return casList.toArray(new String[casList.size()]);
+		return casList.toArray(new String[0]);
+	}
+
+	/**
+	 * 转成二维数组（首行为字段名，首列为ID）
+	 *
+	 * @param records
+	 * @return
+	 */
+	private JSON buildRepeatedData(List<Record> records) {
+		Entity entity = records.get(0).getEntity();
+
+		// 准备字段
+		List<String> fields = new ArrayList<>();
+		fields.add(entity.getPrimaryField().getName());
+		for (Record r : records) {
+			for (Iterator<String> iter = r.getAvailableFieldIterator(); iter.hasNext(); ) {
+				String field = iter.next();
+				if (!fields.contains(field)) {
+					fields.add(field);
+				}
+			}
+		}
+
+		JSONArray fieldsJson = new JSONArray();
+		for (String field : fields) {
+			fieldsJson.add(EasyMeta.getLabel(entity.getField(field)));
+		}
+
+		JSONArray data = new JSONArray();
+		data.add(fieldsJson);
+
+		for (Record r : records) {
+			JSONArray valuesJson = new JSONArray();
+			for (String field : fields) {
+				Object value = r.getObjectValue(field);
+				value = FieldValueWrapper.instance.wrapFieldValue(value, entity.getField(field));
+				valuesJson.add(value);
+			}
+			data.add(valuesJson);
+		}
+		return data;
 	}
 }

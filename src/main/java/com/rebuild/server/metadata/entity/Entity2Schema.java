@@ -131,12 +131,10 @@ public class Entity2Schema extends Field2Schema {
 			createBuiltinField(tempEntity, primaryFiled, "ID", DisplayType.ID, null, null, null);
 			// 自增ID
 			createBuiltinField(tempEntity, EntityHelper.AutoId, "AUTOID", DisplayType.NUMBER, null, null, null);
-			// 是否删除
-			createBuiltinField(tempEntity, EntityHelper.IsDeleted, "ISDELETED", DisplayType.BOOL, null, null, null);
 			
 			if (haveNameField) {
 				createUnsafeField(
-						tempEntity, nameFiled, entityLabel + "名称", DisplayType.TEXT, false, true, true, null, null, null, null, null);
+						tempEntity, nameFiled, entityLabel + "名称", DisplayType.TEXT, false, true, true, true,null, null, null, null, null);
 			}
 			
 			createBuiltinField(tempEntity, EntityHelper.CreatedBy, "创建人", DisplayType.REFERENCE, null, "User", null);
@@ -153,19 +151,19 @@ public class Entity2Schema extends Field2Schema {
 			} else {
 				// 助记码/搜索码
 				createUnsafeField(
-						tempEntity, EntityHelper.QuickCode, "QUICKCODE", DisplayType.TEXT, true, false, false, null, null, null, null, null);
+						tempEntity, EntityHelper.QuickCode, "QUICKCODE", DisplayType.TEXT, true, false, false, true,null, null, null, null, null);
 				
 				createBuiltinField(tempEntity, EntityHelper.OwningUser, "所属用户", DisplayType.REFERENCE, null, "User", null);
 				createBuiltinField(tempEntity, EntityHelper.OwningDept, "所属部门", DisplayType.REFERENCE, null, "Department", null);
 			}
 		} catch (Throwable ex) {
-			Application.getCommonService().delete(tempMetaId.toArray(new ID[tempMetaId.size()]));
+			Application.getCommonService().delete(tempMetaId.toArray(new ID[0]));
 			return null;
 		}
 		
 		boolean schemaReady = schema2Database(tempEntity);
 		if (!schemaReady) {
-			Application.getCommonService().delete(tempMetaId.toArray(new ID[tempMetaId.size()]));
+			Application.getCommonService().delete(tempMetaId.toArray(new ID[0]));
 			return null;
 		}
 		
@@ -201,13 +199,13 @@ public class Entity2Schema extends Field2Schema {
 			throw new ModifiyMetadataException("不能删除主实体");
 		}
 		
-		for (Field whoRef : entity.getReferenceToFields(true)) {
-			if (!whoRef.getOwnEntity().equals(entity)) {
-				throw new ModifiyMetadataException("实体已被引用 (引用实体: " + EasyMeta.getLabel(whoRef.getOwnEntity()) + ")");
-			}
-		}
-		
 		if (!force) {
+			for (Field whoRef : entity.getReferenceToFields(true)) {
+				if (!whoRef.getOwnEntity().equals(entity)) {
+					throw new ModifiyMetadataException("实体已被引用 (引用实体: " + EasyMeta.getLabel(whoRef.getOwnEntity()) + ")");
+				}
+			}
+
 			long count = 0;
 			if ((count = checkRecordCount(entity)) > 0) {
 				throw new ModifiyMetadataException("不能删除有数据的实体 (数量: " + count + ")");
@@ -251,7 +249,7 @@ public class Entity2Schema extends Field2Schema {
 			String refEntity, CascadeModel cascade) {
 		comments = StringUtils.defaultIfBlank(comments, "系统内建");
 		return createUnsafeField(
-				entity, fieldName, fieldLabel, displayType, false, false, false, comments, refEntity, cascade, null, null);
+				entity, fieldName, fieldLabel, displayType, false, false, false, true, comments, refEntity, cascade, null, null);
 	}
 	
 	/**

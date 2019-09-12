@@ -18,7 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
-import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -32,16 +31,19 @@ import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.RobotApprovalManager;
+import com.rebuild.server.helper.cache.NoRecordFoundException;
+import com.rebuild.server.helper.state.StateManager;
+import com.rebuild.server.metadata.DefaultValueHelper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
-import com.rebuild.server.service.base.GeneralEntityService;
 import com.rebuild.server.service.bizz.privileges.User;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -57,7 +59,11 @@ public class FormsBuilder extends FormsManager {
 	private FormsBuilder() { }
 	
 	// 分割线
-	private static final String DIVIDER_LINE = "$DIVIDER$";
+	public static final String DIVIDER_LINE = "$DIVIDER$";
+	// 引用主记录
+	public static final String DV_MASTER = "$MASTER$";
+	// 引用记录
+	public static final String DV_REFERENCE_PREFIX = "&";
 
 	/**
 	 * 表单-新建
@@ -179,7 +185,7 @@ public class FormsBuilder extends FormsManager {
 		}
 		
 		Record data = null;
-		if (!elements.isEmpty() && record != null) {
+		if (record != null) {
 			data = findRecord(record, user, elements);
 			if (data == null) {
 				return formatModelError("此记录已被删除，或你对此记录没有读取权限");
@@ -233,6 +239,10 @@ public class FormsBuilder extends FormsManager {
 				JSONArray options = PickListManager.instance.getPickList(fieldMeta);
 				el.put("options", options);
 			}
+			else if (dt == DisplayType.STATE) {
+				JSONArray options = StateManager.instance.getStateOptions(fieldMeta);
+				el.put("options", options);
+			}
 			else if (dt == DisplayType.DATETIME) {
 				if (!el.containsKey("datetimeFormat")) {
 					el.put("datetimeFormat", DisplayType.DATETIME.getDefaultFormat());
@@ -248,7 +258,7 @@ public class FormsBuilder extends FormsManager {
 			else if (dt == DisplayType.CLASSIFICATION) {
 				el.put("openLevel", ClassificationManager.instance.getOpenLevel(fieldMeta));
 			}
-			
+
 			// 编辑/视图
 			if (data != null) {
 				Object value = wrapFieldValue(data, easyField, viewMode);
@@ -271,8 +281,14 @@ public class FormsBuilder extends FormsManager {
 						el.put("value", new Object[] { currentUser.getOwningDept().getIdentity(), currentUser.getOwningDept().getName(), "Department" });
 					}
 				}
-				
-				if (dt == DisplayType.PICKLIST) {
+
+				if (MetadataHelper.isApprovalField(fieldName)) {
+					if (EntityHelper.ApprovalId.equals(fieldName)) {
+						el.put("value", new String[] { null, "自动值 (审批流程)" });
+					} else {
+						el.put("value", "自动值 (审批流程)");
+					}
+				} else if (dt == DisplayType.PICKLIST || dt == DisplayType.STATE) {
 					JSONArray options = el.getJSONArray("options");
 					for (Object o : options) {
 						JSONObject item = (JSONObject) o;
@@ -282,20 +298,14 @@ public class FormsBuilder extends FormsManager {
 						}
 					}
 				} else if (dt == DisplayType.SERIES) {
-					el.put("value", "自动值 (保存后显示)");
-				} else if (MetadataHelper.isApprovalField(fieldName)) {
-					if (EntityHelper.ApprovalId.equals(fieldName)) {
-						el.put("value", new String[] { null, "自动值 (审批流程)" });
-					} else {
-						el.put("value", "自动值 (审批流程)");
-					}
+					el.put("value", "自动值 (自动编号)");
 				} else {
-					Object dv = FormDefaultValue.exprDefaultValue(fieldMeta);
-					if (dv != null) {
+					String defVal = DefaultValueHelper.exprDefaultValueToString(fieldMeta);
+					if (defVal != null) {
 						if (dateLength > -1) {
-							dv = dv.toString().substring(0, dateLength);
+							defVal = defVal.substring(0, dateLength);
 						}
-						el.put("value", dv);
+						el.put("value", defVal);
 					}
 				}
 			}
@@ -347,7 +357,7 @@ public class FormsBuilder extends FormsManager {
 		}
 		
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
-		StringBuffer ajql = new StringBuffer("select ");
+		StringBuilder ajql = new StringBuilder("select ");
 		for (Object element : elements) {
 			JSONObject el = (JSONObject) element;
 			String field = el.getString("field");
@@ -389,8 +399,6 @@ public class FormsBuilder extends FormsManager {
 	 * @param recordId
 	 * @return
 	 * @see RobotApprovalManager#hadApproval(Entity, ID)
-	 * @see GeneralEntityService#checkModifications(ID, Permission)
-	 *
 	 */
 	private ApprovalState getHadApproval(Entity entity, ID recordId) {
 		Entity masterEntity = entity.getMasterEntity();
@@ -420,46 +428,54 @@ public class FormsBuilder extends FormsManager {
 	 * @see FieldValueWrapper
 	 * @see #findRecord(ID, ID, JSONArray)
 	 */
-	protected static Object wrapFieldValue(Record data, EasyMeta field, boolean viewMode) {
+	protected Object wrapFieldValue(Record data, EasyMeta field, boolean viewMode) {
 		String fieldName = field.getName();
-		if (data.hasValue(fieldName)) {
-			Object value = data.getObjectValue(fieldName);
-			DisplayType dt = field.getDisplayType();
-			if (dt == DisplayType.PICKLIST) {
-				ID pickValue = (ID) value;
-				if (viewMode) {
-					return StringUtils.defaultIfBlank(
-							PickListManager.instance.getLabel(pickValue), FieldValueWrapper.MISS_REF_PLACE);
-				} else {
-					return pickValue.toLiteral();
-				}
+		if (!data.hasValue(fieldName)) {
+			if (EntityHelper.ApprovalId.equalsIgnoreCase(fieldName)) {
+				return viewMode ? FieldValueWrapper.APPROVAL_UNSUBMITTED
+						: new String[] { null, FieldValueWrapper.APPROVAL_UNSUBMITTED };
 			}
-			else if (dt == DisplayType.CLASSIFICATION) {
-				ID itemValue = (ID) value;
-				String itemName = ClassificationManager.instance.getFullName(itemValue);
-				itemName = StringUtils.defaultIfBlank(itemName, FieldValueWrapper.MISS_REF_PLACE);
-				return viewMode ? itemName : new String[] { itemValue.toLiteral(), itemName };
-			} 
-			else if (value instanceof ID) {
-				ID idValue = (ID) value;
-				String idLabel = idValue.getLabel();
-				if (idLabel == null) {
-					idLabel = '[' + idValue.toLiteral().toUpperCase() + ']';
-				}
-				
-				String belongEntity = MetadataHelper.getEntityName(idValue);
-				return new String[] { idValue.toLiteral(), idLabel, belongEntity };
-			} 
-			else {
-				Object ret = FieldValueWrapper.instance.wrapFieldValue(value, field);
-				// 编辑记录时要去除千分位
-				if (!viewMode && (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL)) {
-					ret = ret.toString().replace(",", "");
-				}
-				return ret;
+			return null;
+		}
+
+		Object value = data.getObjectValue(fieldName);
+		DisplayType dt = field.getDisplayType();
+		if (dt == DisplayType.PICKLIST) {
+			ID pickValue = (ID) value;
+			if (viewMode) {
+				return StringUtils.defaultIfBlank(
+						PickListManager.instance.getLabel(pickValue), FieldValueWrapper.MISS_REF_PLACE);
+			} else {
+				return pickValue.toLiteral();
 			}
 		}
-		return null;
+		else if (dt == DisplayType.STATE && !viewMode && !EntityHelper.ApprovalState.equalsIgnoreCase(fieldName)) {
+			return value;
+		}
+		else if (dt == DisplayType.CLASSIFICATION) {
+			ID itemValue = (ID) value;
+			String itemName = ClassificationManager.instance.getFullName(itemValue);
+			itemName = StringUtils.defaultIfBlank(itemName, FieldValueWrapper.MISS_REF_PLACE);
+			return viewMode ? itemName : new String[] { itemValue.toLiteral(), itemName };
+		}
+		else if (value instanceof ID) {
+			ID idValue = (ID) value;
+			String idLabel = idValue.getLabel();
+			if (idLabel == null) {
+				idLabel = '[' + idValue.toLiteral().toUpperCase() + ']';
+			}
+
+			String belongEntity = MetadataHelper.getEntityName(idValue);
+			return new String[] { idValue.toLiteral(), idLabel, belongEntity };
+		}
+		else {
+			Object ret = FieldValueWrapper.instance.wrapFieldValue(value, field);
+			// 编辑记录时要去除千分位
+			if (!viewMode && (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL)) {
+				ret = ret.toString().replace(",", "");
+			}
+			return ret;
+		}
 	}
 	
 	// -- 主/明细实体权限处理
@@ -472,5 +488,108 @@ public class FormsBuilder extends FormsManager {
 	 */
 	public static void setCurrentMasterId(ID masterId) {
 		MASTERID4NEWSLAVE.set(masterId);
+	}
+
+
+	// -- 表单初始值
+
+	/**
+	 * @param entity
+	 * @param formModel
+	 * @param initialVal 此值优先级大于字段默认值
+	 */
+	public void setFormInitialValue(Entity entity, JSON formModel, JSONObject initialVal) {
+		if (initialVal == null || initialVal.isEmpty()) {
+			return;
+		}
+
+		JSONArray elements = ((JSONObject) formModel).getJSONArray("elements");
+		if (elements == null || elements.isEmpty()) {
+			return;
+		}
+
+		Map<String, Object> initialValReady = new HashMap<>();
+		for (Map.Entry<String, Object> e : initialVal.entrySet()) {
+			String field = e.getKey();
+			String value = (String) e.getValue();
+			if (StringUtils.isBlank(value)) {
+				continue;
+			}
+
+			// 引用字段实体，如 `&User`
+			if (field.startsWith(DV_REFERENCE_PREFIX)) {
+				Object idLabel[] = readyReferenceValue(value);
+				if (idLabel != null) {
+					Entity source = MetadataHelper.getEntity(field.substring(1));
+					Field[] reftoFields = MetadataHelper.getReferenceToFields(source, entity);
+					// 如有多个则全部填充
+					for (Field rtf : reftoFields) {
+						initialValReady.put(rtf.getName(), idLabel);
+					}
+				}
+			}
+			// 主实体字段
+			else if (field.equals(DV_MASTER)) {
+				Object idLabel[] = readyReferenceValue(value);
+				if (idLabel != null) {
+					Field stm = MetadataHelper.getSlaveToMasterField(entity);
+					initialValReady.put(stm.getName(), idLabel);
+				}
+			}
+			else if (entity.containsField(field)) {
+				EasyMeta fieldMeta = EasyMeta.valueOf(entity.getField(field));
+				if (fieldMeta.getDisplayType() == DisplayType.REFERENCE) {
+					Object idLabel[] = readyReferenceValue(value);
+					if (idLabel != null) {
+						initialValReady.put(field, readyReferenceValue(value));
+					}
+				}
+			} else {
+				LOG.warn("Unknow value pair : " + field + " = " + value);
+			}
+		}
+
+		if (initialValReady.isEmpty()) {
+			return;
+		}
+
+		for (Object o : elements) {
+			JSONObject item = (JSONObject) o;
+			String field = item.getString("field");
+			if (initialValReady.containsKey(field)) {
+				item.put("value", initialValReady.get(field));
+				initialValReady.remove(field);
+			}
+		}
+
+		// 没布局出来的也得返回（如明细记录中的主实体字段值）
+		if (!initialValReady.isEmpty()) {
+			JSONObject initial = new JSONObject();
+			for (Map.Entry<String, Object> e : initialValReady.entrySet()) {
+				Object v = e.getValue();
+				if (v instanceof Object[]) {
+					v = ((Object[]) v)[0].toString();
+				}
+				initial.put(e.getKey(), v);
+			}
+			((JSONObject) formModel).put("initialValue", initial);
+		}
+	}
+
+	/**
+	 * @param idVal
+	 * @return
+	 */
+	private Object[] readyReferenceValue(String idVal) {
+		if (!ID.isId(idVal)) {
+			return null;
+		}
+		try {
+			String label = FieldValueWrapper.getLabel(ID.valueOf(idVal));
+			return new Object[] { idVal, label };
+		} catch (NoRecordFoundException ex) {
+			LOG.error("No record found : " + idVal);
+			return null;
+		}
 	}
 }

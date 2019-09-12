@@ -18,26 +18,22 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.metadata;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.util.Assert;
-
-import com.rebuild.server.Application;
-import com.rebuild.server.metadata.entity.DisplayType;
-import com.rebuild.server.metadata.entity.EasyMeta;
-
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
-import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MetadataException;
+import com.rebuild.server.Application;
+import com.rebuild.server.metadata.entity.EasyMeta;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 实体元数据
- * 
+ *
  * @author zhaofang123@gmail.com
  * @since 08/13/2018
  */
@@ -45,40 +41,20 @@ public class MetadataHelper {
 
 	/**
 	 * 元数据
-	 * 
+	 *
 	 * @return
 	 */
 	public static DynamicMetadataFactory getMetadataFactory() {
 		return (DynamicMetadataFactory) Application.getPersistManagerFactory().getMetadataFactory();
 	}
-	
-	/**
-	 * 获取实体扩展信息
-	 * 
-	 * @param entity
-	 * @return
-	 */
-	public static Object[] getEntityExtmeta(Entity entity) {
-		return getMetadataFactory().getEntityExtmeta(entity.getName());
-	}
-	
-	/**
-	 * 获取字段扩展信息
-	 * 
-	 * @param field
-	 * @return
-	 */
-	public static Object[] getFieldExtmeta(Field field) {
-		return getMetadataFactory().getFieldExtmeta(field.getOwnEntity().getName(), field.getName());
-	}
-	
+
 	/**
 	 * @return
 	 */
 	public static Entity[] getEntities() {
 		return getMetadataFactory().getEntities();
 	}
-	
+
 	/**
 	 * @param entityName
 	 * @return
@@ -94,7 +70,20 @@ public class MetadataHelper {
 			return false;
 		}
 	}
-	
+
+	/**
+	 * @param entityCode
+	 * @return
+	 */
+	public static boolean containsEntity(int entityCode) {
+		try {
+			getEntity(entityCode);
+			return true;
+		} catch (MetadataException ex) {
+			return false;
+		}
+	}
+
 	/**
 	 * @param entityName
 	 * @param fieldName
@@ -107,7 +96,7 @@ public class MetadataHelper {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * @param entityName
 	 * @return
@@ -123,7 +112,7 @@ public class MetadataHelper {
 	public static Entity getEntity(int entityCode) {
 		return getMetadataFactory().getEntity(entityCode);
 	}
-	
+
 	/**
 	 * @param record
 	 * @return
@@ -131,7 +120,7 @@ public class MetadataHelper {
 	public static String getEntityName(ID record) {
 		return getMetadataFactory().getEntity(record.getEntityCode()).getName();
 	}
-	
+
 	/**
 	 * @param entityName
 	 * @param fieldName
@@ -141,10 +130,10 @@ public class MetadataHelper {
 		Entity entity = getEntity(entityName);
 		return entity.getField(fieldName);
 	}
-	
+
 	/**
 	 * {@link Entity#getNameField()} 有可能返回空，应优先使用此方法
-	 * 
+	 *
 	 * @param entity
 	 * @return
 	 */
@@ -158,20 +147,20 @@ public class MetadataHelper {
 		}
 		return entity.getPrimaryField();
 	}
-	
+
 	/**
 	 * {@link Entity#getNameField()} 有可能返回空，应优先使用此方法
-	 * 
+	 *
 	 * @param entity
 	 * @return
 	 */
 	public static Field getNameField(String entity) {
 		return getNameField(getEntity(entity));
 	}
-	
+
 	/**
 	 * <tt>reference</tt> 中的哪些字段引用了 <tt>source</tt>
-	 * 
+	 *
 	 * @param source
 	 * @param reference
 	 * @return
@@ -182,41 +171,42 @@ public class MetadataHelper {
 			if (field.getType() != FieldType.REFERENCE) {
 				continue;
 			}
-			
+
 			Entity ref = field.getReferenceEntities()[0];
 			if (ref.getEntityCode().equals(source.getEntityCode())) {
 				fields.add(field);
 			}
 		}
-		return fields.toArray(new Field[fields.size()]);
+		return fields.toArray(new Field[0]);
 	}
-	
+
 	/**
 	 * 仅供系统使用的字段，用户不可见/不可用
-	 * 
+	 *
 	 * @param field
 	 * @return
 	 */
 	public static boolean isSystemField(Field field) {
 		return isSystemField(field.getName()) || field.getType() == FieldType.PRIMARY;
 	}
-	
+
 	/**
 	 * 仅供系统使用的字段，用户不可见/不可用
-	 * 
+	 *
 	 * @param fieldName
 	 * @return
 	 */
+	@SuppressWarnings("deprecation")
 	public static boolean isSystemField(String fieldName) {
-		return EntityHelper.AutoId.equalsIgnoreCase(fieldName) 
+		return EntityHelper.AutoId.equalsIgnoreCase(fieldName)
 				|| EntityHelper.QuickCode.equalsIgnoreCase(fieldName)
 				|| EntityHelper.IsDeleted.equalsIgnoreCase(fieldName)
 				|| EntityHelper.ApprovalStepNode.equalsIgnoreCase(fieldName);
 	}
-	
+
 	/**
 	 * 是否公共字段
-	 * 
+	 *
 	 * @param field
 	 * @return
 	 * @see #isSystemField(Field)
@@ -228,10 +218,10 @@ public class MetadataHelper {
 		}
 		return isCommonsField(field.getName());
 	}
-	
+
 	/**
 	 * 是否公共字段
-	 * 
+	 *
 	 * @param fieldName
 	 * @return
 	 * @see #isSystemField(Field)
@@ -245,105 +235,59 @@ public class MetadataHelper {
 				|| EntityHelper.CreatedOn.equalsIgnoreCase(fieldName) || EntityHelper.CreatedBy.equalsIgnoreCase(fieldName)
 				|| EntityHelper.ModifiedOn.equalsIgnoreCase(fieldName) || EntityHelper.ModifiedBy.equalsIgnoreCase(fieldName);
 	}
-	
+
 	/**
 	 * 是否审批流程字段
-	 * 
+	 *
 	 * @param fieldName
 	 * @return
 	 */
 	public static boolean isApprovalField(String fieldName) {
-		return EntityHelper.ApprovalId.equalsIgnoreCase(fieldName) 
+		return EntityHelper.ApprovalId.equalsIgnoreCase(fieldName)
 				|| EntityHelper.ApprovalState.equalsIgnoreCase(fieldName)
 				|| EntityHelper.ApprovalStepNode.equalsIgnoreCase(fieldName);
 	}
-	
+
 	/**
 	 * 是否 Bizz 实体
-	 * 
+	 *
 	 * @param entityCode
 	 * @return
 	 */
 	public static boolean isBizzEntity(int entityCode) {
 		return entityCode == EntityHelper.User || entityCode == EntityHelper.Department || entityCode == EntityHelper.Role;
 	}
-	
+
 	/**
 	 * 是否 Bizz 实体
-	 * 
+	 *
 	 * @param entityName
 	 * @return
 	 */
 	public static boolean isBizzEntity(String entityName) {
 		return "User".equalsIgnoreCase(entityName) || "Role".equalsIgnoreCase(entityName) || "Department".equalsIgnoreCase(entityName);
 	}
-	
+
 	/**
-	 * 实体是否具备权限字段
-	 * 
+	 * 实体是否具备权限字段（业务实体）
+	 *
 	 * @param entity
 	 * @return
 	 */
 	public static boolean hasPrivilegesField(Entity entity) {
 		return  entity.containsField(EntityHelper.OwningUser) && entity.containsField(EntityHelper.OwningDept);
 	}
-	
-	/**
-	 * 获取内建实体的 DisplayType
-	 * 
-	 * @param field
-	 * @return
-	 */
-	public static DisplayType getBuiltinFieldType(Field field) {
-		int ec = field.getOwnEntity().getEntityCode();
-		String fn = field.getName();
-		if (ec == EntityHelper.User) {
-			if ("email".equals(fn)) {
-				return DisplayType.EMAIL;
-			} else if ("avatarUrl".equals(fn)) {
-				return DisplayType.AVATAR;
-			}
-		}
-		
-		Type ft = field.getType();
-		if (ft == FieldType.PRIMARY) {
-			return DisplayType.ID;
-		} else if (ft == FieldType.REFERENCE) {
-			int rec = field.getReferenceEntity().getEntityCode();
-			if (rec == EntityHelper.PickList) {
-				return DisplayType.PICKLIST;
-			} else if (rec == EntityHelper.Classification) {
-				return DisplayType.CLASSIFICATION;
-			} 
-			return DisplayType.REFERENCE;
-		} else if (ft == FieldType.ANY_REFERENCE) {
-			return DisplayType.ANYREFERENCE;
-		} else if (ft == FieldType.TIMESTAMP) {
-			return DisplayType.DATETIME;
-		} else if (ft == FieldType.DATE) {
-			return DisplayType.DATE;
-		} else if (ft == FieldType.STRING) {
-			return DisplayType.TEXT;
-		} else if (ft == FieldType.BOOL) {
-			return DisplayType.BOOL;
-		} else if (ft == FieldType.INT || ft == FieldType.SMALL_INT) {
-			return DisplayType.NUMBER;
-		} else if (ft == FieldType.TEXT) {
-			return DisplayType.NTEXT;
-		}
-		return null;
-	}
-	
+
 	/**
 	 * 获取明细实体哪个字段引用自主实体
-	 * 
+	 *
 	 * @param slave
 	 * @return
 	 */
 	public static Field getSlaveToMasterField(Entity slave) {
 		Entity master = slave.getMasterEntity();
 		Assert.isTrue(master != null, "Non slave entity");
-		
+
 		for (Field field : slave.getFields()) {
 			if (field.getType() != FieldType.REFERENCE) {
 				continue;
@@ -355,31 +299,31 @@ public class MetadataHelper {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * 是否主实体
-	 * 
+	 *
 	 * @param entityCode
 	 * @return
 	 */
 	public static boolean isMasterEntity(int entityCode) {
 		return getEntity(entityCode).getSlaveEntity() != null;
 	}
-	
+
 	/**
 	 * 是否明细实体
-	 * 
+	 *
 	 * @param entityCode
 	 * @return
 	 */
 	public static boolean isSlaveEntity(int entityCode) {
 		return getEntity(entityCode).getMasterEntity() != null;
 	}
-	
+
 	/**
 	 * 点连接字段（如 owningUser.loginName），获取最后一个字段。
 	 * 此方法也可以用来判断点连接字段是否是有效的字段
-	 * 
+	 *
 	 * @param entity
 	 * @param fieldPath
 	 * @return

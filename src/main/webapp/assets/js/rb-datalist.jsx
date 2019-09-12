@@ -41,13 +41,15 @@ class RbList extends React.Component {
               <table className="table table-hover table-striped">
                 <thead>
                   <tr>
-                    <th className="column-checkbox">
+                    {this.props.uncheckbox !== true && <th className="column-checkbox">
                       <div><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={this.state.checkedAll} onClick={this.toggleAllRow} /><span className="custom-control-label"></span></label></div>
-                    </th>
+                    </th>}
                     {this.state.fields.map((item) => {
                       let cWidth = (item.width || that.__defaultColumnWidth)
                       let styles = { width: cWidth + 'px' }
-                      return (<th key={'column-' + item.field} style={styles} className="sortable unselect" onClick={this.sortField.bind(this, item.field)} data-field={item.field}>
+                      let clazz = 'unselect' + (item.unsort ? '' : ' sortable')
+                      let click = item.unsort ? function () { } : this.sortField.bind(this, item.field)
+                      return (<th key={'column-' + item.field} style={styles} className={clazz} onClick={click} data-field={item.field}>
                         <div style={styles}><span style={{ width: (cWidth - 8) + 'px' }}>{item.label}</span><i className={'zmdi ' + (item.sort || '')} /><i className="split" /></div>
                       </th>)
                     })}
@@ -59,9 +61,9 @@ class RbList extends React.Component {
                     let lastGhost = item[lastIndex]
                     let rowKey = 'row-' + lastGhost[0]
                     return (<tr key={rowKey} className={lastGhost[3] ? 'table-active' : ''} onClick={this.clickRow.bind(this, index, false)}>
-                      <td key={rowKey + '-checkbox'} className="column-checkbox">
+                      {this.props.uncheckbox !== true && <td key={rowKey + '-checkbox'} className="column-checkbox">
                         <div><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={lastGhost[3]} onClick={this.clickRow.bind(this, index, true)} /><span className="custom-control-label"></span></label></div>
-                      </td>
+                      </td>}
                       {item.map((cell, index) => {
                         return that.renderCell(cell, index, lastGhost)
                       })}
@@ -83,7 +85,10 @@ class RbList extends React.Component {
 
     let that = this
     scroller.find('th .split').draggable({
-      containment: '.rb-datatable-body', axis: 'x', helper: 'clone', stop: function (event, ui) {
+      containment: '.rb-datatable-body',
+      axis: 'x',
+      helper: 'clone',
+      stop: function (event, ui) {
         let field = $(event.target).parents('th').data('field')
         let left = ui.position.left - 2
         if (left < COLUMN_MIN_WIDTH) left = COLUMN_MIN_WIDTH
@@ -95,10 +100,11 @@ class RbList extends React.Component {
             break
           }
         }
-        that.setState({ fields: fields })
+        that.setState({ fields: fields }, () => scroller.perfectScrollbar('update'))
       }
     })
-    this.fetchList()
+
+    this.fetchList(this.__buildQuick($('.input-search')))
   }
   componentDidUpdate() {
     let that = this
@@ -171,9 +177,7 @@ class RbList extends React.Component {
     if (!field) return null
 
     const cellKey = 'row-' + lastGhost[0] + '-' + index
-    if (!cellVal) {
-      return <td key={cellKey}><div></div></td>
-    } else if (cellVal === '$NOPRIVILEGES$') {
+    if (cellVal === '$NOPRIVILEGES$') {
       return <td key={cellKey}><div className="column-nopriv" title="你无权读取此项数据">[无权限]</div></td>
     } else {
       let w = this.state.fields[index].width || this.__defaultColumnWidth
@@ -274,6 +278,16 @@ class RbList extends React.Component {
       this.lastFilter = null
     }
   }
+  // @el - search element
+  searchQuick(el) {
+    this.search(this.__buildQuick(el))
+  }
+  __buildQuick(el) {
+    let q = el.find('input').val()
+    if (!q && !this.lastFilter) return null
+    let filterExp = { entity: this.props.config.entity, type: 'QUICK', values: { 1: q }, qfields: el.data('qfields') }
+    return filterExp
+  }
   reload() {
     this.fetchList()
   }
@@ -295,9 +309,8 @@ var CellRenders = {
   },
   render(value, type, width, key) {
     let style = { width: (width || COLUMN_MIN_WIDTH) + 'px' }
-    let func = this.__renders[type]
-    if (func) return func(value, style, key)
-    else return this.renderSimple(value, style, key)
+    if (!value) return this.renderSimple(value, style, key)
+    else return (this.__renders[type] || this.renderSimple)(value, style, key)
   },
   /**
    * @param {*} v 值
@@ -305,7 +318,7 @@ var CellRenders = {
    * @param {*} k key of React (contains fieldName)
    */
   renderSimple(v, s, k) {
-    return <td key={k}><div style={s}>{v}</div></td>
+    return <td key={k}><div style={s}>{v || ''}</div></td>
   }
 }
 CellRenders.addRender('$NAME$', function (v, s, k) {
@@ -314,21 +327,24 @@ CellRenders.addRender('$NAME$', function (v, s, k) {
 CellRenders.addRender('IMAGE', function (v, s, k) {
   v = JSON.parse(v || '[]')
   return <td key={k} className="td-min">
-    <div style={s} className="column-imgs" title={v.length + ' 个图片'}>
-      {v.map((item) => {
+    <div style={s} className="column-imgs" title={'共 ' + v.length + ' 个图片'}>
+      {v.map((item, idx) => {
+        if (idx > 2) return null
         let imgUrl = rb.baseUrl + '/filex/img/' + item
         let imgName = $fileCutName(item)
-        return <a key={'k-' + item} href={'#!/Preview/' + item} title={imgName}><img src={imgUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a>
+        return <a key={'k-' + item} title={imgName} onClick={() => RbPreview.create(v, idx)}><img src={imgUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a>
       })}</div></td>
 })
 CellRenders.addRender('FILE', function (v, s, k) {
   v = JSON.parse(v || '[]')
   return <td key={k} className="td-min"><div style={s} className="column-files">
-    <ul className="list-unstyled" title={v.length + ' 个文件'}>
-      {v.map((item) => {
+    <ul className="list-unstyled" title={'共 ' + v.length + ' 个文件'}>
+      {v.map((item, idx) => {
+        if (idx > 0) return null
         let fileName = $fileCutName(item)
-        return <li key={'k-' + item} className="text-truncate"><a href={'#!/Preview/' + item} title={fileName}>{fileName}</a></li>
-      })}</ul>
+        return <li key={'k-' + item} className="text-truncate"><a title={fileName} onClick={() => RbPreview.create(item)}>{fileName}</a></li>
+      })}
+    </ul>
   </div></td>
 })
 CellRenders.addRender('REFERENCE', function (v, s, k) {
@@ -343,7 +359,7 @@ CellRenders.addRender('EMAIL', function (v, s, k) {
 const APPROVAL_STATE_CLAZZs = { '审批中': 'text-warning', '驳回': 'text-danger', '通过': 'text-success' }
 CellRenders.addRender('STATE', function (v, s, k) {
   if (k.endsWith('.approvalState')) return <td key={k}><div style={s} className={APPROVAL_STATE_CLAZZs[v] || ''}>{v}</div></td>
-  else CellRenders.renderSimple(v, s, k)
+  else return CellRenders.renderSimple(v, s, k)
 })
 
 // 分页组件
@@ -436,6 +452,7 @@ const RbListPage = {
       }
     })
     $('.J_delete').click(() => {
+      if ($('.J_delete').attr('disabled')) return
       let ids = this._RbList.getSelectedIds()
       if (ids.length < 1) return
       let deleteAfter = function () {
@@ -475,17 +492,10 @@ const RbListPage = {
       $cleanMenu('.J_action')
     }
 
-    this.initQuickFilter(entity[0])
-  },
-
-  initQuickFilter: function (e) {
+    // Quick search
     let btn = $('.input-search .btn'),
       input = $('.input-search input')
-    btn.click(() => {
-      let q = $val(input)
-      let filterExp = { entity: e, type: 'QUICK', values: { 1: q }, qfields: $('.input-search').data('qfields') }
-      this._RbList.search(filterExp)
-    })
+    btn.click(() => this._RbList.searchQuick($('.input-search')))
     input.keydown((event) => { if (event.which === 13) btn.trigger('click') })
   },
 
@@ -612,8 +622,10 @@ const AdvFilters = {
 
 // Init
 $(document).ready(() => {
+  let gs = $urlp('gs', location.hash)
+  if (gs) $('.search-input, .input-search>input').val($decode(gs))
   if (wpc.entity) {
-    RbListPage.init(wpc.listConfig, wpc.entity, wpc.privileges)
+    RbListPage.init(wpc.listConfig, wpc.entity, wpc.privileges, gs)
     if (!(wpc.advFilter === false)) AdvFilters.init('.adv-search', wpc.entity[0])
   }
 })
@@ -655,13 +667,7 @@ class RbViewModal extends React.Component {
     root.on('hidden.bs.modal', function () {
       mc.css({ 'margin-right': -1500 })
       that.setState({ inLoad: true, isHide: true })
-
-      // 如果还有其他 rbview 处于 open 态， 则保持 modal-open
-      if ($('.rbview.show').length > 0) {
-        $(document.body).addClass('modal-open').css({ 'padding-right': 17 })
-      } else {
-        location.hash = '!/View/'
-      }
+      if (!$keepModalOpen()) location.hash = '!/View/'
 
       // SubView
       if (that.state.disposeOnHide === true) {

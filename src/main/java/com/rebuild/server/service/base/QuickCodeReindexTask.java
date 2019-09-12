@@ -18,26 +18,25 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.base;
 
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-
-import com.hankcs.hanlp.HanLP;
-import com.rebuild.server.Application;
-import com.rebuild.server.configuration.portals.ClassificationManager;
-import com.rebuild.server.configuration.portals.PickListManager;
-import com.rebuild.server.helper.task.HeavyTask;
-import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.entity.DisplayType;
-import com.rebuild.server.metadata.entity.EasyMeta;
-import com.rebuild.server.service.bizz.UserService;
-
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.hankcs.hanlp.HanLP;
+import com.rebuild.server.Application;
+import com.rebuild.server.configuration.portals.ClassificationManager;
+import com.rebuild.server.configuration.portals.PickListManager;
+import com.rebuild.server.helper.state.StateManager;
+import com.rebuild.server.helper.task.HeavyTask;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.entity.DisplayType;
+import com.rebuild.server.metadata.entity.EasyMeta;
+import com.rebuild.server.service.bizz.UserService;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.List;
 
 /**
  * QuickCode 字段值重建
@@ -134,6 +133,8 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
 			nameValue = nameValue.toString();
 		} else if (dt == DisplayType.PICKLIST) {
 			nameValue = PickListManager.instance.getLabel((ID) nameValue);
+		} else if (dt == DisplayType.STATE) {
+			nameValue = StateManager.instance.getLabel(nameField, (Integer) nameValue);
 		} else if (dt == DisplayType.CLASSIFICATION) {
 			nameValue = ClassificationManager.instance.getFullName((ID) nameValue);
 		} else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
@@ -183,10 +184,10 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
 			if (asplit.length == 1) {
 				quickCode = nameVal;
 			} else {
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				for (String a : asplit) {
 					if (a.trim().length() > 0) {
-						sb.append(a.trim().substring(0, 1));
+						sb.append(a.trim(), 0, 1);
 					}
 				}
 				quickCode = sb.toString();

@@ -18,7 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.approval;
 
-import com.rebuild.server.metadata.entity.State;
+import com.rebuild.server.helper.state.StateHelper;
+import com.rebuild.server.helper.state.StateSpec;
 
 /**
  * 审批状态
@@ -26,7 +27,7 @@ import com.rebuild.server.metadata.entity.State;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/06/25
  */
-public enum ApprovalState implements State {
+public enum ApprovalState implements StateSpec {
 	
 	DRAFT(1, "草稿"),
 	PROCESSING(2, "审批中"),
@@ -45,7 +46,7 @@ public enum ApprovalState implements State {
 	 * @param state
 	 * @param name
 	 */
-	private ApprovalState(int state, String name) {
+	ApprovalState(int state, String name) {
 		this.state = state;
 		this.name = name;
 	}
@@ -59,13 +60,17 @@ public enum ApprovalState implements State {
 	public String getName() {
 		return name;
 	}
-	
-	public static State valueOf(int state) {
-		for (ApprovalState s : ApprovalState.values()) {
-			if (s.getState() == state) {
-				return s;
-			}
-		}
-		throw new IllegalArgumentException("Unknow state : " + state);
+
+	@Override
+	public boolean isDefault() {
+		return this == DRAFT;
+	}
+
+	/**
+     * @param state
+     * @return
+     */
+	public static StateSpec valueOf(int state) {
+		return StateHelper.valueOf(ApprovalState.class, state);
 	}
 }

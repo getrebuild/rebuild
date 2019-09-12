@@ -267,7 +267,8 @@ a:not([href]):not([tabindex]):focus {
 code,
 kbd,
 pre,
-samp {
+samp,
+.code {
     font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     font-size: 1em
 }
@@ -3926,7 +3927,7 @@ input[type=submit].btn-block {
 
 .dropdown-item.disabled,
 .dropdown-item:disabled,
-.dropdown-item[disabled]{
+.dropdown-item[disabled] {
     color: #878787 !important;
     background-color: transparent !important;
     cursor: default;
@@ -11715,11 +11716,7 @@ canvas {
     flex: 1 1 auto;
     display: inline-block;
     height: 60px;
-    padding: 10px 20px
-}
-
-.rb-top-header .search-container .input-group {
-    max-width: 800px
+    padding: 11px 25px;
 }
 
 @media (max-width:767.98px) {
@@ -11728,50 +11725,28 @@ canvas {
     }
 }
 
-.rb-top-header .search-container .btn {
-    height: 37px;
-    font-size: 1rem;
-    padding: 4px 12px;
-    border-radius: 0
-}
-
 .rb-top-header .search-input {
-    border-width: 1px;
-    border-right: 0;
-    color: #404040
+    color: #404040;
+    border-radius: 99px;
+    background: #f7f7f7;
+    width: 320px;
+    border-width: 0;
+    padding: 4px 15px;
+    text-align: left;
 }
 
-@media (max-width:767.98px) {
-    .rb-top-header .search-input {
-        background-color: #fff;
-        color: #404040
-    }
-}
-
-.rb-top-header .search-input:focus {
-    background-color: #fff;
-    color: gray
-}
-
-.rb-top-header .search-input:focus::-webkit-input-placeholder {
-    color: #737373
-}
-
-.rb-top-header .search-input:focus:-ms-input-placeholder {
-    color: #737373
-}
-
-.rb-top-header .search-input:focus::-ms-input-placeholder {
-    color: #737373
+.rb-top-header .search-input::placeholder {
+    color: #aaa;
+    text-align: center;
 }
 
 .rb-top-header .search-input:focus::placeholder {
-    color: #737373
+    text-align: left !important
 }
 
 .rb-top-header .rb-right-navbar {
     padding-right: 20px;
-    width: calc(100% - 230px)
+    flex: 0 0 auto;
 }
 
 .rb-top-header .rb-right-navbar-flex {
@@ -11826,10 +11801,6 @@ canvas {
         background-color: #4285f4;
         z-index: 1030
     }
-}
-
-.rb-collapsible-sidebar-hide-logo.rb-collapsible-sidebar-collapsed .rb-top-header .rb-right-navbar {
-    width: calc(100% - 60px)
 }
 
 @media (max-width:767.98px) {

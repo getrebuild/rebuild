@@ -33,6 +33,7 @@ class RbFormModal extends React.Component {
     )
   }
   componentDidMount() {
+    $(this._rbmodal).modal({ show: false, backdrop: 'static', keyboard: false }).on('hidden.bs.modal', () => $keepModalOpen())
     this.showAfter({}, true)
   }
 
@@ -87,7 +88,7 @@ class RbFormModal extends React.Component {
   }
   showAfter(state, modelChanged) {
     this.setState(state, () => {
-      $(this._rbmodal).modal({ show: true, backdrop: 'static', keyboard: false })
+      $(this._rbmodal).modal('show')
       if (modelChanged === true) this.getFormModel()
     })
   }
@@ -202,20 +203,17 @@ class RbForm extends React.Component {
     }
   }
 
+  // 设置字段值
   setFieldValue(field, value, error) {
     this.__FormData[field] = { value: value, error: error }
-    if (rb.env === 'dev') {
-      // eslint-disable-next-line no-console
-      console.log('FV ... ' + JSON.stringify(this.__FormData))
-    }
+    // eslint-disable-next-line no-console
+    if (rb.env === 'dev') console.log('FV ... ' + JSON.stringify(this.__FormData))
   }
   // 避免无意义更新
   setFieldUnchanged(field) {
     delete this.__FormData[field]
-    if (rb.env === 'dev') {
-      // eslint-disable-next-line no-console
-      console.log('FV ... ' + JSON.stringify(this.__FormData))
-    }
+    // eslint-disable-next-line no-console
+    if (rb.env === 'dev') console.log('FV ... ' + JSON.stringify(this.__FormData))
   }
 
   // 设置表单回填
@@ -268,6 +266,8 @@ class RbForm extends React.Component {
           }
         }, 100)
 
+      } else if (res.error_code === 499) {
+        renderRbcomp(<RepeatedViewer entity={that.state.entity} data={res.data} />)
       } else {
         RbHighbar.error(res.error_msg)
       }
@@ -283,7 +283,7 @@ class RbForm extends React.Component {
   static postAfter(data, next) {
     let rlp = window.RbListPage || parent.RbListPage
     if (rlp) rlp.reload()
-    if (window.RbViewPage && next < 101) window.RbViewPage.reload()
+    if (window.RbViewPage && (next || 0) < 101) window.RbViewPage.reload()
   }
 }
 
@@ -306,10 +306,11 @@ class RbFormElement extends React.Component {
       if (props.isFull === true) colWidths = [2, 10]
     }
     return (
-      <div className={'form-group row type-' + props.type}>
-        <label ref={(c) => this._label = c} className={'col-12 col-form-label text-sm-right col-sm-' + colWidths[0]}>{props.label}{!props.onView && !props.nullable && <i className="req" />}{!props.onView && props.tip && <i title={props.tip} className="zmdi zmdi-info-outline" />}</label>
+      <div className={`form-group row type-${props.type}`} data-field={props.field}>
+        <label ref={(c) => this._label = c} className={`col-12 col-form-label text-sm-right col-sm-${colWidths[0]} ${!props.onView && !props.nullable && 'required'}`}>{props.label}</label>
         <div className={'col-12 col-sm-' + colWidths[1]}>
-          {this.state.viewMode === true ? this.renderViewElement() : this.renderElement()}
+          {this.state.viewMode ? this.renderViewElement() : this.renderElement()}
+          {!props.onView && props.tip && <p className="form-text">{props.tip}</p>}
         </div>
       </div>
     )
@@ -483,6 +484,14 @@ class RbFormTextarea extends RbFormElement {
   renderElement() {
     return (<textarea ref="field-value" className={'form-control form-control-sm row3x ' + (this.state.hasError ? 'is-invalid' : '')} title={this.state.hasError} value={this.state.value || ''} onChange={this.handleChange} onBlur={this.checkValue} />)
   }
+  renderViewElement() {
+    if (!this.state.value) return super.renderViewElement()
+    return <div className="form-control-plaintext">
+      {this.state.value.split('\n').map((line, idx) => {
+        return <p key={'kl-' + idx}>{line}</p>
+      })}
+    </div>
+  }
 }
 
 // 日期-时间
@@ -573,14 +582,15 @@ class RbFormImage extends RbFormElement {
     )
   }
   renderViewElement() {
-    if (this.state.value.length === 0) {
+    const value = this.state.value
+    if (value.length === 0) {
       return <div className="form-control-plaintext"><span className="text-muted">无</span></div>
     }
     return (<div className="img-field">
-      {this.state.value.map((item) => {
+      {value.map((item, idx) => {
         let itemUrl = rb.baseUrl + '/filex/img/' + item
         let fileName = $fileCutName(item)
-        return <span key={'img-' + item}><a title={fileName} onClick={this.clickPreview.bind(this, itemUrl)} className="img-thumbnail img-upload zoom-in" href={itemUrl} target="_blank" rel="noopener noreferrer"><img src={itemUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a></span>
+        return <span key={'img-' + item}><a title={fileName} onClick={() => (parent || window).RbPreview.create(value, idx)} className="img-thumbnail img-upload zoom-in"><img src={itemUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a></span>
       })}
     </div>)
   }
@@ -656,11 +666,9 @@ class RbFormFile extends RbFormImage {
     }
     return (<div className="file-field">
       {this.state.value.map((item) => {
-        let itemUrl = rb.baseUrl + '/filex/download/' + item
         let fileName = $fileCutName(item)
-        let fileExt = $fileExtName(fileName)
-        return <a key={'file-' + item} title={fileName} onClick={this.clickPreview.bind(this, itemUrl)} className="img-thumbnail" href={itemUrl} target="_blank" rel="noopener noreferrer">
-          <i className="file-icon" data-type={fileExt} /><span>{fileName}</span>
+        return <a key={'file-' + item} title={fileName} onClick={() => (parent || window).RbPreview.create(item)} className="img-thumbnail">
+          <i className="file-icon" data-type={$fileExtName(fileName)} /><span>{fileName}</span>
         </a>
       })}
     </div>)
@@ -675,7 +683,8 @@ class RbFormPickList extends RbFormElement {
     if (props.options && props.value) {  // Value has been deleted?
       let deleted = true
       $(props.options).each(function () {
-        if (this.id === props.value) {
+        // eslint-disable-next-line eqeqeq
+        if (this.id == props.value) {
           deleted = false
           return false
         }
@@ -687,7 +696,7 @@ class RbFormPickList extends RbFormElement {
     return (
       <select ref="field-value" className="form-control form-control-sm" value={this.state.value || ''} onChange={this.handleChange}>
         {this.props.options.map((item) => {
-          return (<option key={'opt-' + item.id} value={item.id}>{item.text}</option>)
+          return (<option key={`${this.state.field}-opt${item.id}`} value={item.id}>{item.text}</option>)
         })}
       </select>
     )
@@ -741,6 +750,9 @@ class RbFormReference extends RbFormElement {
   renderViewElement() {
     if (!this.state.value) return super.renderViewElement()
     let val = this.state.value
+    if (typeof val === 'string') {
+      return <div className="form-control-plaintext">{val}</div>
+    }
     return <div className="form-control-plaintext"><a ref="field-text" href={`#!/View/${val[2]}/${val[0]}`} onClick={() => this.clickView()}>{val[1]}</a></div>
   }
   componentDidMount() {
@@ -979,7 +991,7 @@ class ClassificationSelector extends React.Component {
   }
   render() {
     return (
-      <div className="modal selector" ref={(c) => this._dlg = c}>
+      <div className="modal selector" ref={(c) => this._dlg = c} tabIndex="-1">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header pb-0">
@@ -1164,5 +1176,186 @@ class DeleteConfirm extends RbAlert {
         btns.button('reset')
       }
     })
+  }
+}
+
+// ~~ 图片/文档预览
+const TYPE_DOCS = ['.doc', '.docx', '.rtf', '.xls', '.xlsx', '.ppt', '.pptx', '.pdf']
+const TYPE_IMGS = ['.jpg', '.jpeg', '.gif', '.png', '.bmp']
+class RbPreview extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { currentIndex: props.currentIndex || 0, inLoad: true }
+  }
+
+  render() {
+    let currentUrl = this.props.urls[this.state.currentIndex]
+    let fileName = $fileCutName(currentUrl)
+    let downloadUrl = `${rb.baseUrl}/filex/download/${currentUrl}?attname=${fileName}`
+
+    let previewContent = null
+    if (this.__isimg(currentUrl)) previewContent = this.renderImgs()
+    else if (this.__isdoc(currentUrl)) previewContent = this.renderDocs()
+    else previewContent = <div className="unsupports shadow-lg rounded bg-light">
+      <h5 className="text-bold">暂不支持此类型文件的预览</h5>
+      <a className="link" target="_blank" rel="noopener noreferrer" href={downloadUrl}>下载</a>
+    </div>
+
+    return <React.Fragment>
+      <div className={`preview-modal ${this.state.inLoad ? 'hide' : ''}`} ref={(c) => this._dlg = c}>
+        <div className="preview-header">
+          <div className="float-left"><h5>{fileName}</h5></div>
+          <div className="float-right">
+            <a target="_blank" rel="noopener noreferrer" href={downloadUrl}><i className="zmdi zmdi-download"></i></a>
+            <a onClick={this.hide}><i className="zmdi zmdi-close"></i></a>
+          </div>
+          <div className="clearfix"></div>
+        </div>
+        <div className="preview-body" onClick={this.hide}>
+          {previewContent}
+        </div>
+      </div>
+    </React.Fragment>
+  }
+  renderDocs() {
+    return (<div className="container" ref={(c) => this._previewContent = c}>
+      <div className="iframe" onClick={this.__stopEvent}>
+        <iframe frameBorder="0" scrolling="no" src={this.state.previewUrl || ''}></iframe>
+      </div>
+    </div>)
+  }
+  renderImgs() {
+    return (<React.Fragment>
+      <div className="img-zoom" ref={(c) => this._previewContent = c}>
+        <div className="must-center" onClick={this.__stopEvent}>
+          <img src={`${rb.baseUrl}/filex/img/${this.props.urls[this.state.currentIndex]}?imageView2/2/w/1000/interlace/1/q/100`} />
+        </div>
+      </div>
+      {this.props.urls.length > 1 && <div className="op-box" onClick={this.__stopEvent}>
+        <a className="arrow float-left" onClick={this.__previmg}><i className="zmdi zmdi-chevron-left" /></a>
+        <span>{this.state.currentIndex + 1} / {this.props.urls.length}</span>
+        <a className="arrow float-right" onClick={this.__nextimg}><i className="zmdi zmdi-chevron-right" /></a>
+      </div>
+      }
+    </React.Fragment>)
+  }
+
+  componentDidMount() {
+    this.__modalOpen = $(document.body).hasClass('modal-open')
+
+    let currentUrl = this.props.urls[this.state.currentIndex]
+    // // 不支持的文件，直接下載
+    // if (!this._previewContent) {
+    //   this.hide()
+    //   window.open(`${rb.baseUrl}/filex/download/${currentUrl}?attname=${$encode($fileCutName(currentUrl))}`)
+    //   return
+    // }
+
+    if (this.__isdoc(currentUrl)) {
+      $.get(`${rb.baseUrl}/filex/make-url?url=${currentUrl}`, (res) => {
+        // view.aspx
+        let previewUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${$encode(res.data.private_url)}`
+        // PDF
+        if (currentUrl.toLowerCase().endsWith('.pdf')) previewUrl = res.data.private_url
+        this.setState({ previewUrl: previewUrl })
+      })
+    }
+
+    if (!this.__modalOpen) $(document.body).addClass('modal-open')
+    this.setState({ inLoad: false })
+  }
+  componentWillUnmount() {
+    if (!this.__modalOpen) $(document.body).removeClass('modal-open')
+  }
+
+  __isimg(url) {
+    url = url.toLowerCase()
+    for (let i = 0; i < TYPE_IMGS.length; i++) {
+      if (url.endsWith(TYPE_IMGS[i])) return true
+    }
+    return false
+  }
+  __isdoc(url) {
+    url = url.toLowerCase()
+    for (let i = 0; i < TYPE_DOCS.length; i++) {
+      if (url.endsWith(TYPE_DOCS[i])) return true
+    }
+    return false
+  }
+  __previmg = (e) => {
+    this.__stopEvent(e)
+    let ci = this.state.currentIndex
+    if (ci <= 0) ci = this.props.urls.length
+    this.setState({ currentIndex: ci - 1 })
+  }
+  __nextimg = (e) => {
+    this.__stopEvent(e)
+    let ci = this.state.currentIndex
+    if (ci + 1 >= this.props.urls.length) ci = -1
+    this.setState({ currentIndex: ci + 1 })
+  }
+  __stopEvent = (e) => {
+    e.stopPropagation()
+  }
+
+  hide = () => {
+    $unmount($(this._dlg).parent(), 1)
+  }
+
+  /**
+   * @param {*} urls string or array of URL
+   * @param {*} index 
+   */
+  static create(urls, index) {
+    if (!urls) return
+    if (typeof urls === 'string') urls = [urls]
+    renderRbcomp(<RbPreview urls={urls} currentIndex={index || 0} />)
+  }
+}
+
+// ~ 重复记录查看
+class RepeatedViewer extends RbModalHandler {
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+    const data = this.props.data
+    return <RbModal ref={(c) => this._dlg = c} title={`存在${this.props.data.length - 1}条重复记录`} disposeOnHide={true} colored="warning">
+      <table className="table table-hover repeated-table">
+        <thead>
+          <tr>
+            {data[0].map((item, idx) => {
+              if (idx === 0) return null
+              return <th key={`field-${idx}`}>{item}</th>
+            })}
+            <th width="50"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, idx) => {
+            if (idx === 0) return null
+            return this.renderOne(item, idx)
+          })}
+        </tbody>
+      </table>
+    </RbModal>
+  }
+
+  renderOne(item, idx) {
+    return <tr key={`row-${idx}`}>
+      {item.map((o, i) => {
+        if (i === 0) return null
+        return <td key={`col-${idx}-${i}`}>{o || <span className="text-muted">无</span>}</td>
+      })}
+      <td className="actions"><a className="icon" title="查看详情" onClick={() => this.openView(item[0])}><i className="zmdi zmdi-open-in-new" /></a></td>
+    </tr >
+  }
+
+
+
+  openView(id) {
+    if (window.RbViewModal) window.RbViewModal.create({ id: id, entity: this.props.entity })
+    else window.open(`${rb.baseUrl}/app/${this.props.entity}/list#!/View/${this.props.entity}/${id}`)
   }
 }

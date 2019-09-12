@@ -89,7 +89,7 @@ public class OperatingContext {
 	 * @return
 	 */
 	public Record getAnyRecord() {
-		return getBeforeRecord() != null ? getBeforeRecord() : getAfterRecord();
+		return getAfterRecord() != null ? getAfterRecord() : getBeforeRecord();
 	}
 	
 	/**

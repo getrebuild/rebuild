@@ -18,31 +18,28 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionEvent;
-import javax.servlet.http.HttpSessionListener;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
-
+import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.web.WebUtils;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.CurrentCaller;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.web.user.signin.LoginControll;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 
-import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.commons.web.WebUtils;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionEvent;
+import javax.servlet.http.HttpSessionListener;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * 在线会话/用户
@@ -130,10 +127,8 @@ public class OnlineSessionStore extends CurrentCaller implements HttpSessionList
 		HttpSession s = request.getSession();
 		Object loginUser = s.getAttribute(WebUtils.CURRENT_USER);
 		Assert.notNull(loginUser, "No login user found");
-		
-		if (ONLINE_SESSIONS.contains(s)) {
-			ONLINE_SESSIONS.remove(s);
-		}
+
+		ONLINE_SESSIONS.remove(s);
 		ONLINE_USERS.put((ID) loginUser, s);
 	}
 }

@@ -18,14 +18,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service;
 
-import java.util.Observable;
-import java.util.Observer;
-
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import cn.devezhao.commons.ThreadPool;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import cn.devezhao.bizz.privileges.impl.BizzPermission;
-import cn.devezhao.commons.ThreadPool;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * 记录操作观察者。子类复写需要关注的操作即可
@@ -47,14 +46,11 @@ public abstract class OperatingObserver implements Observer {
 	public void update(final Observable o, final Object arg) {
 		final OperatingContext ctx = (OperatingContext) arg;
 		if (isAsync()) {
-			ThreadPool.exec(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						updateByAction(ctx);
-					} catch (Exception ex) {
-						LOG.error("OperateContext : " + ctx, ex);
-					}
+			ThreadPool.exec(() -> {
+				try {
+					updateByAction(ctx);
+				} catch (Exception ex) {
+					LOG.error("OperateContext : " + ctx, ex);
 				}
 			});
 		} else {

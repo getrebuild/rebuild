@@ -18,13 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.web.servlet.ModelAndView;
-
-import com.rebuild.server.ServerListener;
-import com.rebuild.server.helper.ConfigurableItem;
-import com.rebuild.server.helper.SysConfiguration;
 
 /**
  * 页面 Controll
@@ -39,26 +33,6 @@ public abstract class BasePageControll extends BaseControll {
 	 * @return
 	 */
 	protected ModelAndView createModelAndView(String page) {
-		ModelAndView mv = new ModelAndView(page);
-		setPageAttribute(mv);
-		return mv;
-	}
-	
-	// -- 页面公用属性
-	
-	/**
-	 * @param into
-	 */
-	public static void setPageAttribute(HttpServletRequest into) {
-		into.setAttribute("baseUrl", ServerListener.getContextPath());
-		into.setAttribute("appName", SysConfiguration.get(ConfigurableItem.AppName, false));
-	}
-	
-	/**
-	 * @param into
-	 */
-	public static void setPageAttribute(ModelAndView into) {
-		into.getModel().put("baseUrl", ServerListener.getContextPath());
-		into.getModel().put("appName", SysConfiguration.get(ConfigurableItem.AppName, false));
+		return new ModelAndView(page);
 	}
 }

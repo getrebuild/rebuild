@@ -1,5 +1,5 @@
 /*
-rebuild - Building your system freely.
+rebuild - Building your business-systems freely.
 Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -18,16 +18,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server;
 
-import java.util.Map;
-
 import cn.devezhao.commons.ObjectUtils;
+import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.server.helper.upgrade.DbScriptsReader;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.rebuild.server.helper.ConfigurableItem;
-import com.rebuild.server.helper.SysConfiguration;
-import com.rebuild.server.helper.upgrade.DbScriptsReader;
+import java.util.Map;
 
 /**
  * Automatically update database
@@ -90,7 +89,7 @@ public final class UpgradeDatabase {
 	 * @return
 	 */
 	public int getDbVer() {
-		String dbVer = SysConfiguration.get(ConfigurableItem.DBVer, true);
+		String dbVer = SysConfiguration.get(ConfigurableItem.DBVer);
 		return ObjectUtils.toInt(dbVer, 0);
 	}
 	

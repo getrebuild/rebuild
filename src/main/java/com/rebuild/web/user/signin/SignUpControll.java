@@ -18,17 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.user.signin;
 
-import java.awt.Font;
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.math.RandomUtils;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
+import cn.devezhao.commons.RegexUtils;
+import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Record;
 import com.alibaba.fastjson.JSONObject;
 import com.hankcs.hanlp.HanLP;
 import com.rebuild.server.Application;
@@ -42,10 +34,15 @@ import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.web.BasePageControll;
 import com.wf.captcha.utils.CaptchaUtil;
+import org.apache.commons.lang.math.RandomUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
-import cn.devezhao.commons.RegexUtils;
-import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.persist4j.Record;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.*;
+import java.io.IOException;
 
 /**
  * 注册
@@ -121,14 +118,13 @@ public class SignUpControll extends BasePageControll {
 		try {
 			Application.getBean(UserService.class).txSignUp(userNew);
 			
-			String homeUrl = SysConfiguration.get(ConfigurableItem.HomeURL, null);
+			String homeUrl = SysConfiguration.get(ConfigurableItem.HomeURL);
 			String content = String.format(MSG_PENDING, 
 					fullName, loginName, passwd, homeUrl, homeUrl);
 			SMSender.sendMail(email, "管理员正在审核你的注册信息", content);
 			writeSuccess(response);
 		} catch (DataSpecificationException ex) {
 			writeFailure(response, ex.getLocalizedMessage());
-			return;
 		}
 	}
 	

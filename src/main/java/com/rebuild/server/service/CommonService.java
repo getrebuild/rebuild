@@ -34,8 +34,8 @@ import cn.devezhao.persist4j.engine.ID;
  * 普通的 CRUD 服务
  * <br>- 此类有事物
  * <br>- 此类不经过用户权限验证 {@link PrivilegesGuardInterceptor}
- * <br>- 有权限的实体不能使用此类 {@link EntityHelper#hasPrivilegesField(Entity)}
- * 
+ * <br>- 有权限的实体使用此类需要指定 <tt>strictMode=false</tt>
+ *
  * @author zhaofang123@gmail.com
  * @since 11/06/2017
  */
@@ -47,34 +47,43 @@ public class CommonService extends BaseService {
 	public CommonService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
 	}
-	
+
 	@Override
 	public int getEntityCode() {
 		return 0;
 	}
-	
+
 	@Override
 	public Record create(Record record) {
-		tryIfWithPrivileges(record);
-		return super.create(record);
+		return this.create(record, true);
 	}
-	
+
 	@Override
 	public int delete(ID recordId) {
-		tryIfWithPrivileges(recordId);
-		return super.delete(recordId);
+		return this.delete(recordId, true);
 	}
-	
+
 	@Override
 	public Record update(Record record) {
 		return update(record, true);
 	}
-	
+
 	/**
 	 * @param record
-	 * @param strictMode 会进行一定的约束检查
+	 * @param strictMode
 	 * @return
-	 * @see #tryIfWithPrivileges(Object) 约束检查
+	 */
+	public Record create(Record record, boolean strictMode) {
+		if (strictMode) {
+			tryIfWithPrivileges(record);
+		}
+		return super.create(record);
+	}
+
+	/**
+	 * @param record
+	 * @param strictMode
+	 * @return
 	 */
 	public Record update(Record record, boolean strictMode) {
 		if (strictMode) {
@@ -82,52 +91,88 @@ public class CommonService extends BaseService {
 		}
 		return super.update(record);
 	}
-	
+
 	/**
-	 * 批量删除
-	 * 
-	 * @param deleted
+	 * @param recordId
+	 * @param strictMode
 	 * @return
 	 */
-	public int delete(ID[] deleted) {
-		Assert.notNull(deleted, "`deleted` cannot be null");
-		int affected = 0;
-		for (ID id : deleted) {
-			affected += delete(id);
+	public int delete(ID recordId, boolean strictMode) {
+		if (strictMode) {
+			tryIfWithPrivileges(recordId);
 		}
-		return affected;
+		return super.delete(recordId);
 	}
-	
+
 	/**
 	 * 批量新建/更新
-	 * 
-	 * @param saved
-	 * @return
+	 *
+	 * @param records
 	 */
-	public int createOrUpdate(Record[] saved) {
-		Assert.notNull(saved, "`saved` cannot be null");
-		int affected = 0;
-		for (Record record : saved) {
-			createOrUpdate(record);
-			affected++;
-		}
-		return affected;
+	public void createOrUpdate(Record[] records) {
+		createOrUpdate(records, true);
 	}
-	
+
 	/**
-	 * 批量新建/更新/删除
-	 * 
-	 * @param saved
-	 * @param deleted
-	 * @return
+	 * 批量新建/更新
+	 *
+	 * @param records
+	 * @param strictMode
 	 */
-	public int createOrUpdate(Record[] saved, ID[] deleted) {
-		int affected = 0;
-		affected += createOrUpdate(saved);
-		affected += delete(deleted);
-		return affected;
+	public void createOrUpdate(Record[] records, boolean strictMode) {
+		Assert.notNull(records, "[records] cannot be null");
+		for (Record r : records) {
+			if (r.getPrimary() == null) {
+				create(r, strictMode);
+			} else {
+				update(r, strictMode);
+			}
+		}
 	}
-	
+
+	/**
+	 * 批量删除
+	 *
+	 * @param deleted
+	 */
+	public void delete(ID[] deleted) {
+		delete(deleted, true);
+	}
+
+	/**
+	 * 批量删除
+	 *
+	 * @param deleted
+	 * @param strictMode
+	 */
+	public void delete(ID[] deleted, boolean strictMode) {
+		Assert.notNull(deleted, "[deleted] cannot be null");
+		for (ID id : deleted) {
+			delete(id, strictMode);
+		}
+	}
+
+	/**
+	 * 批量新建/更新
+	 *
+	 * @param records
+	 */
+	public void createOrUpdate(Record[] records, ID deleted[]) {
+		createOrUpdate(records, deleted, true);
+	}
+
+	/**
+	 * 批量新建/更新
+	 *
+	 * @param records
+	 * @param deleted
+	 * @param strictMode
+	 */
+	public void createOrUpdate(Record[] records, ID deleted[], boolean strictMode) {
+		createOrUpdate(records, strictMode);
+		delete(deleted, strictMode);
+	}
+
 	/**
 	 * 业务实体禁止调用此类
 	 *
@@ -141,12 +186,12 @@ public class CommonService extends BaseService {
 		} else {
 			entity = ((Record) idOrRecord).getEntity();
 		}
-		
+
 		// 使用主实体
 		if (MetadataHelper.isSlaveEntity(entity.getEntityCode())) {
 			entity = entity.getMasterEntity();
 		}
-		
+
 		if (EntityHelper.hasPrivilegesField(entity)) {
 			throw new PrivilegesException("Has privileges of Entity cannot use this class(methods) : " + entity.getName());
 		}

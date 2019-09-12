@@ -2,21 +2,58 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ page import="com.rebuild.server.Application"%>
 <%@ page import="com.rebuild.server.ServerListener"%>
+<%@ page import="com.rebuild.server.helper.ConfigurableItem" %>
 <!DOCTYPE html>
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <style type="text/css">
-#login-form>.row{margin-left:-15px !important;margin-right:-15px !important}
-.vcode-row{height:41px;max-width:100%;cursor:pointer;}
+#login-form > .row {
+	margin-left: -15px !important;
+	margin-right: -15px !important
+}
+.vcode-row {
+	height: 41px;
+	max-width: 100%;
+	cursor: pointer;
+}
+.splash-footer * {
+	color: rgba(255, 255, 255, 0.88) !important;
+	line-height: 1.5;
+}
+.splash-footer a:hover {
+	text-decoration: underline;
+}
+.rb-bgimg {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	z-index: 1;
+	background: url(../assets/img/bg.jpg) no-repeat 0 0;
+	background-size: cover;
+	opacity: 1;
+}
+.rb-bgimg::before {
+	content: "";
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+	background: rgba(0, 0, 0, 0.1);
+}
+.rb-content {
+	z-index: 2;
+}
 </style>
 <title>登录</title>
 </head>
 <body class="rb-splash-screen">
 <div class="rb-wrapper rb-login">
+	<div class="rb-bgimg"></div>
 	<div class="rb-content">
 		<div class="main-content container-fluid">
-			<div class="splash-container">
+			<div class="splash-container mb-0">
 				<div class="card card-border-color card-border-color-primary">
 					<div class="card-header"><a class="logo-img"></a></div>
 					<div class="card-body">
@@ -47,22 +84,26 @@
 						</div>
 						<div class="form-group login-submit">
 							<button class="btn btn-primary btn-xl" type="submit" data-loading-text="登录中">登录</button>
+							<div class="mt-4 text-center">还没有账号？<a href="signup">立即注册</a></div>
 						</div>
 						</form>
 					</div>
 				</div>
 				<div class="splash-footer">
-					<div class="mb-1">还没有账号? <a href="signup">立即注册</a></div>
-					<div class="text-muted">
-						<span>&copy; 2019 <a class="text-muted" href="https://getrebuild.com/" target="_blank">REBUILD</a></span>
+					<div class="copyright">
+						<span>&copy; 2019 <a href="https://getrebuild.com/" target="_blank">REBUILD</a></span>
 						<div class="dev-show" style="font-size:11px">Built on <%=ServerListener.getStartupTime()%> (<%=Application.VER%>)</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
+
 </div>
 <%@ include file="/_include/Foot.jsp"%>
+<script>
+useLiveWallpaper = <%=SysConfiguration.getBool(ConfigurableItem.LiveWallpaper)%>
+</script>
 <script type="text/babel">
 $(document).ready(function() {
 	if (top != self) { parent.location.reload(); return }
@@ -73,7 +114,7 @@ $(document).ready(function() {
 	})
 
 	let vcodeState = $('.vcode-row').data('state')
-	if (vcodeState == 1) {
+	if (vcodeState) {
 		$('.vcode-row').removeClass('hide').find('img').trigger('click')
 	}
 
@@ -83,7 +124,7 @@ $(document).ready(function() {
 			passwd = $val('#passwd'),
 			vcode = $val('.vcode-row input')
 		if (!user || !passwd){ RbHighbar.create('请输入用户名和密码'); return }
-		if (vcodeState == 1 && !vcode){ RbHighbar.create('请输入验证码'); return }
+		if (vcodeState && !vcode){ RbHighbar.create('请输入验证码'); return }
 		
 		let btn = $('.login-submit button').button('loading')
 		let url = rb.baseUrl + '/user/user-login?user=' + $encode(user) + '&passwd=' + $encode(passwd) + '&autoLogin=' + $val('#autoLogin')
@@ -92,7 +133,7 @@ $(document).ready(function() {
 			if (res.error_code == 0){
 				location.replace($decode($urlp('nexturl') || '../dashboard/home'))
 			} else if (res.error_msg == 'VCODE') {
-				vcodeState = 1
+				vcodeState = true
 				$('.vcode-row').removeClass('hide').find('img').trigger('click')
 				btn.button('reset')
 			} else {
@@ -102,6 +143,21 @@ $(document).ready(function() {
 			}
 		})
 	})
+
+	if (useLiveWallpaper) {
+		$.get('https://getrebuild.com/api/misc/bgimg?k=IjkMHgq94T7s7WkP', (res) => {
+			if (!res.url) return
+			let bgimg = new Image()
+			bgimg.src = res.url
+			bgimg.onload = function() {
+				$('.rb-bgimg').animate({ opacity: 0 })
+				setTimeout(() => {
+					$('.rb-bgimg').css('background-image', 'url(' + res.url + ')').animate({ opacity: 1 })
+				}, 400)
+				if (res.copyright) $('.rb-bgimg').attr('title', res.copyright + ' (' + res.source + ')')
+			}
+		})
+	}
 })
 </script>
 </body>

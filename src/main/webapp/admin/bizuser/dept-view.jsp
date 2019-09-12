@@ -54,7 +54,9 @@ window.__PageConfig = {
 <script src="${baseUrl}/assets/js/rb-forms.exts.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
 <script type="text/babel">
+let RbForm_postAfter = RbForm.postAfter
 RbForm.postAfter = function() {
+	RbForm_postAfter()
 	if (parent && parent.loadDeptTree) parent.loadDeptTree()
 }
 $(document).ready(function() {

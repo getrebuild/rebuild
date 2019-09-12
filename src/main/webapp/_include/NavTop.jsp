@@ -1,10 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ page import="com.rebuild.web.admin.AdminEntryControll"%>
 <%@ page import="com.rebuild.utils.AppUtils"%>
 <%@ page import="com.rebuild.server.Application"%>
 <%@ page import="com.rebuild.server.service.bizz.privileges.User"%>
-<%@ page import="com.rebuild.server.service.bizz.UserHelper"%>
 <%@ page import="org.apache.commons.lang.StringUtils"%>
 <%
 final User currentUser = Application.getUserStore().getUser(AppUtils.getRequestUser(request));
@@ -15,6 +12,10 @@ final User currentUser = Application.getUserStore().getUser(AppUtils.getRequestU
 			<a class="navbar-brand" href="${baseUrl}/dashboard/home"></a>
 			<a class="rb-toggle-left-sidebar" title="展开/收缩菜单"><span class="icon zmdi zmdi-menu"></span></a>
 		</div>
+        <div class="search-container">
+            <input class="form-control form-control-sm search-input" type="text" name="search" maxlength="100" placeholder="搜索" />
+            <div class="search-models animated fadeIn faster"></div>
+        </div>
 		<div class="rb-right-navbar">
 			<ul class="nav navbar-nav float-right rb-user-nav">
 				<li class="nav-item dropdown">

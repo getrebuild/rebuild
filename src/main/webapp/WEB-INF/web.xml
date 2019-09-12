@@ -5,7 +5,7 @@
                       http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" version="3.1">
                       
 	<display-name>REBUILD</display-name>
-	<description>Building your system freely</description>
+	<description>Building your business-systems freely</description>
 	
 	<context-param>
 		<param-name>contextConfigLocation</param-name>

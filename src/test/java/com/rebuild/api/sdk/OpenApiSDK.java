@@ -90,7 +90,7 @@ public class OpenApiSDK {
         sortMap.put("timestamp", System.currentTimeMillis() / 1000);  // in sec
         sortMap.put("sign_type", signType);
 
-        StringBuffer sign = new StringBuffer();
+        StringBuilder sign = new StringBuilder();
         for (Map.Entry<String, Object> e : sortMap.entrySet()) {
             sign.append(e.getKey())
                     .append('=')

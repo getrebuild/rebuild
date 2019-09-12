@@ -52,15 +52,15 @@ public class ApprovalFields2Schema extends Field2Schema {
 		}
 		
 		Field apporvalId = createUnsafeField(approvalEntity, EntityHelper.ApprovalId, "审批流程",
-				DisplayType.REFERENCE, true, false, false, null, "RobotApprovalConfig", CascadeModel.Ignore, null, null);
+				DisplayType.REFERENCE, true, false, false, true,null, "RobotApprovalConfig", CascadeModel.Ignore, null, null);
 		Field apporvalState = createUnsafeField(approvalEntity, EntityHelper.ApprovalState, "审批状态",
-				DisplayType.STATE, true, false, false, null, null, null, null, ApprovalState.DRAFT.getName());
+				DisplayType.STATE, true, false, false, true,null, null, null, null, ApprovalState.DRAFT.getName());
 		Field apporvalStepId = createUnsafeField(approvalEntity, EntityHelper.ApprovalStepNode, "当前步骤",
-				DisplayType.TEXT, true, false, false, null, null, null, null, null);
+				DisplayType.TEXT, true, false, false, true, null, null, null, null, null);
 		
 		boolean schemaReady = schema2Database(approvalEntity, new Field[] { apporvalId, apporvalState, apporvalStepId });
 		if (!schemaReady) {
-			Application.getCommonService().delete(tempMetaId.toArray(new ID[tempMetaId.size()]));
+			Application.getCommonService().delete(tempMetaId.toArray(new ID[0]));
 			throw new ModifiyMetadataException("无法创建审批流程字段到数据库");
 		}
 		

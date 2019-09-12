@@ -72,7 +72,14 @@ class RbFormAvatar extends RbFormElement {
 
 // 状态
 // eslint-disable-next-line no-undef
-class RbFormState extends RbFormReadonly {
+class RbFormState extends RbFormPickList {
+  constructor(props) {
+    super(props)
+  }
+}
+// 审批状态
+// eslint-disable-next-line no-undef
+class RbApprovalState extends RbFormReadonly {
   constructor(props) {
     super(props)
   }
@@ -85,7 +92,7 @@ var detectElementExt = function (item) {
   } else if (item.type === 'AVATAR') {
     return <RbFormAvatar {...item} />
   } else if (item.type === 'STATE') {
-    return <RbFormState {...item} />
+    return item.field === 'approvalState' ? <RbApprovalState {...item} /> : <RbFormState {...item} />
   }
   return null
 }

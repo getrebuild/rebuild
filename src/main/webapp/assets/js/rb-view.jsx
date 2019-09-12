@@ -1,5 +1,7 @@
-const wpc = window.__PageConfig || {}
+/* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable react/prop-types */
+const wpc = window.__PageConfig || {}
+
 //~~ 视图
 class RbViewForm extends React.Component {
   constructor(props) {
@@ -81,6 +83,134 @@ const detectViewElement = function (item) {
   return (<div className={'col-12 col-sm-' + (item.isFull ? 12 : 6)} key={item.key}>{window.detectElement(item)}</div>)
 }
 
+// // ~~ 动作
+// class RbViewAction extends React.Component {
+//   constructor(props) {
+//     super(props)
+//   }
+//   render() {
+//     const ep = this.props.ep || {}  // Privileges of current entity/record
+//     const viewAdds = wpc.viewAdds || []
+//     return <React.Fragment>
+//       {ep.U && <div className="col-12 col-lg-6">
+//         <button className="btn btn-secondary" type="button" onClick={this.edit}><i className="icon zmdi zmdi-border-color"></i> 编辑</button>
+//       </div>}
+//       <div className="col-12 col-lg-6 btn-group">
+//         <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i className="icon zmdi zmdi-more-vert"></i></button>
+//         <div className="dropdown-menu dropdown-menu-right">
+//           {ep.D && <a className="dropdown-item" onClick={this.delete}><i className="icon zmdi zmdi-delete"></i> 删除</a>}
+//           {ep.A && <a className="dropdown-item" onClick={this.assign}><i className="icon zmdi zmdi-mail-reply-all"></i> 分派</a>}
+//           {ep.S && <a className="dropdown-item" onClick={this.share}><i className="icon zmdi zmdi-portable-wifi"></i> 共享</a>}
+//           {(ep.D || ep.A || ep.S) && <div className="dropdown-divider"></div>}
+//           <a className="dropdown-item" target="_blank" href={`${rb.baseUrl}/app/entity/print?id=${this.props.id}`}><i className="icon zmdi zmdi-print"></i> 打印</a>
+//           <a className="dropdown-item" onClick={this.showReports}><i className="icon zmdi zmdi-map"></i> 报表</a>
+//         </div>
+//       </div>
+//       {(wpc.slaveEntity && wpc.slaveEntity[0]) && <div className="col-12 col-lg-6">
+//         <button className="btn btn-secondary" type="button" onClick={() => this.slaveAdd(wpc.slaveEntity)}><i className="icon x14 zmdi zmdi-playlist-plus"></i> 添加明细</button>
+//       </div>}
+//       {(viewAdds.length > 0 || rb.isAdminUser) && <div className="col-12 col-lg-6 btn-group">
+//         <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i className="icon zmdi zmdi-plus"></i> 新建相关</button>
+//         <div className="dropdown-menu dropdown-menu-right">
+//           {viewAdds.map((item) => {
+//             return <a key={`vadd-${item[0]}`} className="dropdown-item" onClick={() => this.relatedAdd(item)}><i className={`icon zmdi zmdi-${item[2]}`}></i>新建{item[1]}</a>
+//           })}
+//           {viewAdds.length > 0 && <div className="dropdown-divider"></div>}
+//           <a className="dropdown-item" onClick={() => this.relatedSet()}><i className="icon zmdi zmdi-settings"></i> 配置新建项</a>
+//         </div>
+//       </div>}
+//     </React.Fragment>
+//   }
+//   componentDidMount() {
+//   }
+//   edit = () => {
+//     const entity = this.props.entity
+//     RbFormModal.create({ id: this.props.id, title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] })
+//   }
+//   delete = () => {
+//     const entity = this.props.entity
+//     let needEntity = (wpc.type === 'SlaveList' || wpc.type === 'SlaveView') ? null : entity[0]
+//     renderRbcomp(<DeleteConfirm id={this.props.id} entity={needEntity} deleteAfter={() => RbViewPage.hide(true)} />)
+//   }
+//   assign = () => {
+//     DlgAssign.create({ entity: this.props.entity[0], ids: [this.props.id] })
+//   }
+//   share = () => {
+//     DlgShare.create({ entity: this.props.entity[0], ids: [this.props.id] })
+//   }
+//   slaveAdd(entity) {
+//     let iv = { '$MASTER$': this.props.id }
+//     RbFormModal.create({ title: '添加明细', entity: entity[0], icon: entity[2], initialValue: iv })
+//   }
+//   releateAdd(entity) {
+//     let iv = {}
+//     iv['&' + entity[0]] = this.props.id
+//     RbFormModal.create({ title: `新建${entity[1]}`, entity: entity[0], icon: entity[2], initialValue: iv })
+//   }
+//   relatedSet() {
+//   }
+//   showReports() {
+//   }
+// }
+
+// 选择报表
+class SelectReport extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+  }
+  render() {
+    return (
+      <div className="modal reports-select" ref={(c) => this._dlg = c} tabIndex="-1" >
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header pb-0">
+              <button className="close" type="button" onClick={() => this.hide()}><i className="zmdi zmdi-close" /></button>
+            </div>
+            <div className="modal-body">
+              <h5 className="mt-0 text-bold">选择报表</h5>
+              {(this.state.reports && this.state.reports.length === 0) && <div className="text-muted">无可用报表</div>}
+              <ul className="list-unstyled">
+                {(this.state.reports || []).map((item) => {
+                  let reportUrl = `${rb.baseUrl}/app/entity/report-export?report=${item.id}&record=${this.props.id}`
+                  return <li key={'r-' + item.id}><a target="_blank" href={reportUrl} className="text-truncate">{item.name}<i className="zmdi zmdi-download"></i></a></li>
+                })}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div >
+    )
+  }
+  componentDidMount() {
+    $.get(`${rb.baseUrl}/app/entity/available-reports?entity=${this.props.entity}`, (res) => {
+      this.setState({ reports: res.data })
+    })
+    this.show()
+  }
+  hide() {
+    $(this._dlg).modal('hide')
+  }
+  show() {
+    $(this._dlg).modal({ show: true, keyboard: true })
+  }
+
+  /**
+   * @param {*} entity 
+   * @param {*} id 
+   */
+  static create(entity, id) {
+    if (this.__cached) {
+      this.__cached.show()
+      return
+    }
+    let that = this
+    renderRbcomp(<SelectReport entity={entity} id={id} />, null, function () {
+      that.__cached = this
+    })
+  }
+}
+
 // 视图页操作类
 const RbViewPage = {
   _RbViewForm: null,
@@ -94,7 +224,11 @@ const RbViewPage = {
     this.__id = id
     this.__entity = entity
     this.__ep = ep
+
     renderRbcomp(<RbViewForm entity={entity[0]} id={id} />, 'tab-rbview', function () { RbViewPage._RbViewForm = this })
+
+    $('.J_close').click(() => this.hide())
+    $('.J_reload').click(() => this.reload())
 
     const that = this
 
@@ -111,6 +245,7 @@ const RbViewPage = {
       let $this = $(this)
       RbFormModal.create({ title: '添加明细', entity: $this.data('entity'), icon: $this.data('icon'), initialValue: iv })
     })
+    $('.J_report').click(() => SelectReport.create(entity[0], id))
 
     // Privileges
     if (ep) {
@@ -120,9 +255,6 @@ const RbViewPage = {
       if (ep.S === false) $('.J_share').remove()
       that.__cleanButton()
     }
-
-    $('.J_close').click(() => this.hide())
-    $('.J_reload').click(() => this.reload())
   },
 
   // 记录元数据
@@ -149,10 +281,10 @@ const RbViewPage = {
           if (this.__ep && this.__ep.S === true) {
             let item_op = $('<li class="list-inline-item"></li>').appendTo(list)[0]
             if (v.length === 0) renderRbcomp(<UserShow name="添加共享" icon="zmdi zmdi-plus" onClick={() => { $('.J_share').trigger('click') }} />, item_op)
-            else renderRbcomp(<UserShow name="管理共享用户" icon="zmdi zmdi-more" onClick={() => { DlgShareManager.cretae(this.__id) }} />, item_op)
+            else renderRbcomp(<UserShow name="管理共享用户" icon="zmdi zmdi-more" onClick={() => { DlgShareManager.create(this.__id) }} />, item_op)
           } else if (v.length > 0) {
             let item_op = $('<li class="list-inline-item"></li>').appendTo(list)[0]
-            renderRbcomp(<UserShow name="查看共享用户" icon="zmdi zmdi-more" onClick={() => { DlgShareManager.cretae(this.__id, false) }} />, item_op)
+            renderRbcomp(<UserShow name="查看共享用户" icon="zmdi zmdi-more" onClick={() => { DlgShareManager.create(this.__id, false) }} />, item_op)
           } else {
             $('.J_sharingList').parent().remove()
           }
@@ -228,7 +360,8 @@ const RbViewPage = {
       el.removeClass('rb-loading-active')
       let _data = res.data.data
       if (page === 1) {
-        el.empty()
+        el = el[0]
+        ReactDOM.unmountComponentAtNode(el)
         if (!_data || _data.length === 0) {
           ReactDOM.render(<div className="list-nodata"><span className="zmdi zmdi-info-outline" /><p>暂无数据</p></div>, el)
           return
@@ -279,7 +412,7 @@ const RbViewPage = {
 
   __cleanButton() {
     $setTimeout(() => {
-      $cleanMenu('.view-action .load-mores')
+      $cleanMenu('.view-action .J_mores')
       $cleanMenu('.view-action .J_adds')
       $('.view-action .col-lg-6').each(function () { if ($(this).children().length === 0) $(this).remove() })
       if ($('.view-action').children().length === 0) $('.view-action').addClass('empty').empty()

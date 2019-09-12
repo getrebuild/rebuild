@@ -63,9 +63,7 @@
 .chart-grid {
     overflow: scroll;
     overflow-x: hidden;
-    padding: 2px 15px;
-    padding-right: 5px;
-    padding-bottom: 25px;
+    padding: 2px 5px 25px 15px;
     margin-top: 8px;
     min-height: 300px;
 }
@@ -128,7 +126,7 @@
 .dlg-dash-select .modal-dialog ul li a {
     display: block;
     border: 1px solid #4285f4;
-    padding: 10px 12px;
+    padding: 9px 12px;
 }
 
 .dlg-dash-select .modal-dialog ul li a>.icon {
@@ -235,5 +233,5 @@
 }
 
 .J_dash-select:hover {
-	color: #4285f4;
+    color: #4285f4;
 }

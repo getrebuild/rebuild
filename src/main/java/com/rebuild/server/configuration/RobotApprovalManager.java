@@ -18,9 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
@@ -32,8 +31,8 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserHelper;
 
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.engine.ID;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 审批流程管理
@@ -59,7 +58,7 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 		}
 		
 		if (record != null) {
-			Object[] o =	Application.getQueryFactory().unique(
+			Object[] o = Application.getQueryFactory().unique(
 					record, EntityHelper.ApprovalId, EntityHelper.ApprovalState);
 			if (o != null) {
 				return (ApprovalState) ApprovalState.valueOf((Integer) o[1]);
@@ -107,7 +106,7 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 		// 过滤可用的
 		List<FlowDefinition> workable = new ArrayList<>();
 		for (FlowDefinition def : defs) {
-			if (def.isDisabled()) {
+			if (def.isDisabled() || def.getJSON("flowDefinition") == null) {
 				continue;
 			}
 			
@@ -123,7 +122,7 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 				workable.add(def);
 			}
 		}
-		return workable.toArray(new FlowDefinition[workable.size()]);
+		return workable.toArray(new FlowDefinition[0]);
 	}
 	/**
 	 * 获取指定实体的所有审批流程（含禁用的）
@@ -153,7 +152,7 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 			list.add(def);
 		}
 		
-		defs = list.toArray(new FlowDefinition[list.size()]);
+		defs = list.toArray(new FlowDefinition[0]);
 		Application.getCommonCache().putx(cKey, defs);
 		return defs;
 	}

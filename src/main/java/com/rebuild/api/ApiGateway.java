@@ -112,7 +112,7 @@ public class ApiGateway extends Controll {
 	protected ApiContext verfiy(Map<String, String[]> parameterMap, String post) throws IOException {
 		Map<String, String> sortedMap = new TreeMap<>();
 		for (Map.Entry<String, String[]> e : parameterMap.entrySet()) {
-			String vv[] = e.getValue();
+			String[] vv = e.getValue();
 			sortedMap.put(e.getKey(), vv == null || vv.length == 0 ? null : vv[0]);
 		}
 
@@ -134,7 +134,7 @@ public class ApiGateway extends Controll {
 		sortedMap.remove("sign");
 
 		String signType = getParameterNotNull(sortedMap,"sign_type");
-		StringBuffer sign2 = new StringBuffer();
+		StringBuilder sign2 = new StringBuilder();
 		for (Map.Entry<String, String> e : sortedMap.entrySet()) {
 			sign2.append(e.getKey())
 					.append('=')

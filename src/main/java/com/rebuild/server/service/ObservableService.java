@@ -18,20 +18,18 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service;
 
-import java.util.Iterator;
-import java.util.Observable;
-
-import org.springframework.util.Assert;
-
-import com.rebuild.server.Application;
-import com.rebuild.server.helper.cache.NoRecordFoundException;
-import com.rebuild.server.metadata.EntityHelper;
-
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
+import com.rebuild.server.helper.cache.NoRecordFoundException;
+import com.rebuild.server.metadata.EntityHelper;
+import org.springframework.util.Assert;
+
+import java.util.Iterator;
+import java.util.Observable;
 
 /**
  * 可注入观察者的服务
@@ -115,7 +113,7 @@ public abstract class ObservableService extends Observable implements EntityServ
 		ID primary = example.getPrimary();
 		Assert.notNull(primary, "Record primary not be bull");
 		
-		StringBuffer sql = new StringBuffer("select ");
+		StringBuilder sql = new StringBuilder("select ");
 		for (Iterator<String> iter = example.getAvailableFieldIterator(); iter.hasNext(); ) {
 			sql.append(iter.next()).append(',');
 		}

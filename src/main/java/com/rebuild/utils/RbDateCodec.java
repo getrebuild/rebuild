@@ -18,21 +18,20 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.utils;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.Date;
-
-import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.parser.DefaultJSONParser;
+import cn.devezhao.commons.DateFormatUtils;
+import cn.devezhao.persist4j.engine.NullValue;
 import com.alibaba.fastjson.serializer.DateCodec;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.util.TypeUtils;
 
-import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.commons.DateFormatUtils;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.Date;
 
 /**
+ * {@link Date} JSON 编码
+ *
  * @author devezhao
  * @since 01/09/2019
  */
@@ -44,7 +43,7 @@ public class RbDateCodec extends DateCodec {
 	public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
 			throws IOException {
 		SerializeWriter out = serializer.out;
-		if (object == null) {
+		if (object == null || NullValue.is(object)) {
 			out.writeNull();
 			return;
 		}
@@ -58,22 +57,5 @@ public class RbDateCodec extends DateCodec {
 		
 		String text = DateFormatUtils.getUTCDateTimeFormat().format(date);
 		out.writeString(text);
-	}
-
-	@SuppressWarnings("unchecked")
-	protected <T> T cast(DefaultJSONParser parser, Type clazz, Object fieldName, Object val) {
-		if (val == null) {
-			return null;
-		}
-
-		if (val instanceof Date) {
-			return (T) val;
-		} else if (val instanceof Number) {
-			return (T) new Date(((Number) val).longValue());
-		} else if (val instanceof String) {
-			Date date = CalendarUtils.parse((String) val);
-			return (T) date;
-		}
-		throw new JSONException("parse error");
 	}
 }

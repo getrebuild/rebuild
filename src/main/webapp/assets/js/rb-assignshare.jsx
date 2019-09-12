@@ -116,8 +116,8 @@ class DlgShare extends DlgAssign {
    */
   static create(props) {
     let that = this
-    if (that.__HOLDER) that.__HOLDER.show(props)
-    else renderRbcomp(<DlgShare {...props} />, null, function () { that.__HOLDER = this })
+    if (that.__HOLDER2) that.__HOLDER2.show(props)
+    else renderRbcomp(<DlgShare {...props} />, null, function () { that.__HOLDER2 = this })
   }
 }
 
