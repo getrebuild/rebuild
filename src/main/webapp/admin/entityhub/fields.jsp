@@ -129,7 +129,7 @@ const render_list = function(q){
 			tr.addClass('danger')
 		}
 		$('<td><div class="text-muted">' + item.fieldName + '</div></td>').appendTo(tr)
-		$('<td>' + item.displayType + '</td>').appendTo(tr)
+		$('<td><div class="text-muted">' + item.displayType + '</div></td>').appendTo(tr)
 		$('<td><div>' + (item.comments || '') + '</div></td>').appendTo(tr)
 		$('<td class="actions"><a class="icon J_edit" href="field/' + item.fieldName + '"><i class="zmdi zmdi-settings"></i></a></td>').appendTo(tr)
 		size++

@@ -204,7 +204,7 @@
 								<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
 									<input class="custom-control-input" type="checkbox" id="fieldUpdatable" data-o="${fieldUpdatable}"><span class="custom-control-label"> 允许修改</span>
 								</label>
-								<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+								<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 hide">
 									<input class="custom-control-input" type="checkbox" id="fieldRepeatable" data-o="${fieldRepeatable}"><span class="custom-control-label"> 允许重复值</span>
 								</label>
 							</div>

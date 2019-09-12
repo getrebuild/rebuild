@@ -84,11 +84,13 @@
 	color: #777;
 	float: left;
 	width: 65px;
+	cursor: default;
 }
 
 .axis .axis-head>a {
 	display: inline-block;
 	padding: 0 3px;
+	cursor: default;
 }
 
 .axis .axis-target {
@@ -109,6 +111,7 @@
 	margin-bottom: 2px;
 	position: relative;
 	cursor: default;
+	white-space: nowrap;
 }
 
 .axis-target .item::before {
@@ -158,11 +161,11 @@
 }
 
 .axis-target.ui-droppable-active {
-	background-color: rgba(255, 255, 255, 0.6);
+	background-color: rgba(255, 255, 0, 0.4);
 }
 
 .axis-target.ui-droppable-hover {
-	background-color: rgba(255, 255, 255, 0.9);
+	background-color: rgba(255, 255, 0, 0.8);
 }
 
 .data-info {

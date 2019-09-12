@@ -23,6 +23,7 @@ import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import org.apache.commons.lang.ClassUtils;
+import org.springframework.util.Assert;
 
 /**
  * 状态辅助类
@@ -40,7 +41,8 @@ public class StateHelper {
      */
     public static boolean isStateClass(String clazzName) {
         try {
-            return getSatetClass(clazzName) != null;
+            getSatetClass(clazzName);
+            return true;
         } catch (IllegalArgumentException ignored) {
             return false;
         }
@@ -49,6 +51,7 @@ public class StateHelper {
     /**
      * @param stateField
      * @return
+     * @see #getSatetClass(String)
      */
     public static Class<?> getSatetClass(Field stateField) {
         if (EntityHelper.ApprovalState.equalsIgnoreCase(stateField.getName())) {
@@ -67,7 +70,8 @@ public class StateHelper {
      * @throws IllegalArgumentException
      */
     public static Class<?> getSatetClass(String stateClass) throws IllegalArgumentException {
-        assert stateClass != null;
+        Assert.notNull(stateClass, "[stateClass] not be null");
+
         Class<?> stateEnum = null;
         try {
             stateEnum = ClassUtils.getClass(stateClass);
@@ -84,24 +88,27 @@ public class StateHelper {
      * @param clazzName
      * @param state
      * @return
+     * @see #valueOf(Class, int) 
      */
     public static StateSpec valueOf(String clazzName, int state) {
         return valueOf(getSatetClass(clazzName), state);
     }
 
     /**
-     * @param clazz
+     * @param stateClass
      * @param state
      * @return
+     * @throws IllegalArgumentException
      */
-    public static StateSpec valueOf(Class<?> clazz, int state) {
-        assert clazz != null;
-        Object[] constants = clazz.getEnumConstants();
+    public static StateSpec valueOf(Class<?> stateClass, int state) throws IllegalArgumentException {
+        Assert.notNull(stateClass, "[stateClass] not be null");
+
+        Object[] constants = stateClass.getEnumConstants();
         for (Object c : constants) {
             if (((StateSpec) c).getState() == state) {
                 return (StateSpec) c;
             }
         }
-        return null;
+        throw new IllegalArgumentException("state=" + state);
     }
 }

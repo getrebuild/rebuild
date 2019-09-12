@@ -1201,7 +1201,6 @@ class RbPreview extends React.Component {
       <a className="link" target="_blank" rel="noopener noreferrer" href={downloadUrl}>下载</a>
     </div>
 
-    // Add `onClick={this.hide}` into `.preview-body`
     return <React.Fragment>
       <div className={`preview-modal ${this.state.inLoad ? 'hide' : ''}`} ref={(c) => this._dlg = c}>
         <div className="preview-header">
@@ -1212,7 +1211,7 @@ class RbPreview extends React.Component {
           </div>
           <div className="clearfix"></div>
         </div>
-        <div className="preview-body">
+        <div className="preview-body" onClick={this.hide}>
           {previewContent}
         </div>
       </div>
@@ -1232,7 +1231,7 @@ class RbPreview extends React.Component {
           <img src={`${rb.baseUrl}/filex/img/${this.props.urls[this.state.currentIndex]}?imageView2/2/w/1000/interlace/1/q/100`} />
         </div>
       </div>
-      {this.props.urls.length > 1 && <div className="op-box">
+      {this.props.urls.length > 1 && <div className="op-box" onClick={this.__stopEvent}>
         <a className="arrow float-left" onClick={this.__previmg}><i className="zmdi zmdi-chevron-left" /></a>
         <span>{this.state.currentIndex + 1} / {this.props.urls.length}</span>
         <a className="arrow float-right" onClick={this.__nextimg}><i className="zmdi zmdi-chevron-right" /></a>

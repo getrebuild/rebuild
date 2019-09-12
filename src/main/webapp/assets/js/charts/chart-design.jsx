@@ -15,6 +15,7 @@ $(document).ready(() => {
     appendTo: 'body',
     cursor: 'move',
     cursorAt: { top: 14, left: 75 },
+    zIndex: 1999,
     start: function () {
       dragIsNum = $(this).data('type') === 'num'
     }
@@ -28,11 +29,13 @@ $(document).ready(() => {
     drop: function (event, ui) {
       if (dargOnSort !== true) add_axis(this, $(ui.draggable[0]))
     }
-  })
+  }).disableSelection()
+  // 排序
   $('.axis-target').sortable({
-    placeholder: 'ui-state-highlight',
-    helper: 'clone',
-    delay: 150,
+    axis: 'x',
+    containment: 'parent',
+    cursor: 'move',
+    opacity: 0.8,
     start: function () {
       dargOnSort = true
     },

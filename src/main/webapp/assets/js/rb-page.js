@@ -156,15 +156,21 @@ var __checkMessage = function () {
     if (res.data.unread > 0) $('.J_notifications-top .indicator').removeClass('hide')
     else $('.J_notifications-top .indicator').addClass('hide')
 
-    if (__checkMessage__state !== res.data.unread) __loadMessages__state = 0
+    if (__checkMessage__state !== res.data.unread) {
+      if (__checkMessage__state > 0) {
+        document.title = `(${__checkMessage__state}) ${document.title}`
+        // __showNotification()
+      }
+      __loadMessages__state = 0
+    }
     __checkMessage__state = res.data.unread
+
     setTimeout(__checkMessage, rb.env === 'dev' ? 60 * 10000 : 2000)
   })
 }
 var __loadMessages__state = 0
 var __loadMessages = function () {
   if (__loadMessages__state === 1) return
-
   var dest = $('.rb-notifications .content ul').empty()
   if (dest.find('li').length === 0) {
     $('<li class="text-center mt-3 mb-3"><i class="zmdi zmdi-refresh zmdi-hc-spin fs-18"></i></li>').appendTo(dest)
@@ -183,6 +189,17 @@ var __loadMessages = function () {
     __loadMessages__state = 1
     if (res.data.length === 0) $('<li class="text-center mt-4 mb-4 text-muted">暂无消息</li>').appendTo(dest)
   })
+}
+var __showNotification = function () {
+  if (window.Notification) {
+    if (window.Notification.permission === 'granted') {
+      var n = new Notification(`你有 ${__checkMessage__state} 条未读消息`, {
+        tag: 'rbNotification'
+      })
+    } else {
+      window.Notification.requestPermission()
+    }
+  }
 }
 
 // Global search
