@@ -14,11 +14,11 @@
 	<licenses>
 		<license>
 			<name>GPL-3.0</name>
-			<url>https://github.com/getrebuild/rebuild/blob/master/LICENSE</url>
+			<url>https://raw.githubusercontent.com/getrebuild/rebuild/master/LICENSE</url>
 		</license>
 		<license>
 			<name>COMMERCIAL</name>
-			<url>https://github.com/getrebuild/rebuild/blob/master/COMMERCIAL</url>
+			<url>https://raw.githubusercontent.com/getrebuild/rebuild/master/COMMERCIAL</url>
 		</license>
 	</licenses>
 
