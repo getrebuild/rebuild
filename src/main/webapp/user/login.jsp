@@ -3,6 +3,7 @@
 <%@ page import="com.rebuild.server.Application"%>
 <%@ page import="com.rebuild.server.ServerListener"%>
 <%@ page import="com.rebuild.server.helper.ConfigurableItem" %>
+<%@ page import="com.rebuild.server.helper.SysConfiguration" %>
 <!DOCTYPE html>
 <html>
 <head>

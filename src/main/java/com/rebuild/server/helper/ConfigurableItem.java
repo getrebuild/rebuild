@@ -26,11 +26,14 @@ package com.rebuild.server.helper;
  */
 public enum ConfigurableItem {
 
+	SN,
+
 	// 通用
-	AppName("REBUILD"), LOGO, LOGOWhite,
-	HomeURL("https://nightly.getrebuild.com/"), OpenSignUp(false),
-    SN,
-	
+	AppName("REBUILD"),
+	LOGO, LOGOWhite,
+	HomeURL("https://nightly.getrebuild.com/"),
+	OpenSignUp(false),
+
 	// 数据目录
 	DataDirectory,
 	
@@ -74,7 +77,7 @@ public enum ConfigurableItem {
 	
 	/**
 	 * 默认值
-	 * 
+	 * s
 	 * @return
 	 */
 	public Object getDefaultValue() {
