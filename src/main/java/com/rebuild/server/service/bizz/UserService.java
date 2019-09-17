@@ -21,6 +21,7 @@ package com.rebuild.server.service.bizz;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.BlackList;
 import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.server.metadata.EntityHelper;
@@ -61,9 +62,11 @@ public class UserService extends SystemEntityService {
 	
 	@Override
 	public Record create(Record record) {
+		final String passwd = record.getString("password");
 		saveBefore(record);
 		Record r = super.create(record);
 		Application.getUserStore().refreshUser(record.getPrimary());
+		notifyNewUser(r, passwd);
 		return r;
 	}
 	
@@ -77,7 +80,9 @@ public class UserService extends SystemEntityService {
 	
 	@Override
 	public int delete(ID record) {
-		throw new DataSpecificationException("Prohibited");
+		super.delete(record);
+		Application.getUserStore().removeUser(record);
+		return 1;
 	}
 	
 	/**
@@ -163,6 +168,28 @@ public class UserService extends SystemEntityService {
             throw new DataSpecificationException("密码不能小于8位，且必须包含特殊字符");
         }
     }
+
+	private static final String MSG_NEWUSER = "<p>系统管理员已经为你开通了 %s 账号！以下为你的登录信息，请妥善保管。</p><div style='margin:10px 0'>登录账号 <b>%s</b><br>登录密码 <b>%s</b><br>登录地址 <a href='%s'>%s</a></div><p>首次登陆，建议你立即修改登陆密码。修改方式：登陆后点击右上角头像 - 个人设置 - 安全设置 - 更改密码</p>";
+	/**
+	 * @param newUser
+	 * @param passwd
+	 * @return
+	 */
+	private boolean notifyNewUser(Record newUser, String passwd) {
+		if (SysConfiguration.getMailAccount() == null || !newUser.hasValue("email")) {
+			return false;
+		}
+
+		String subject = "你的 " + SysConfiguration.get(ConfigurableItem.AppName) + " 账号已就绪";
+		String content = String.format(MSG_NEWUSER,
+				SysConfiguration.get(ConfigurableItem.AppName),
+				newUser.getString("loginName"), passwd,
+				SysConfiguration.get(ConfigurableItem.HomeURL),
+				SysConfiguration.get(ConfigurableItem.HomeURL));
+
+		SMSender.sendMail(newUser.getString("email"), subject, content);
+		return true;
+	}
 	
 	/**
 	 * 改变部门
