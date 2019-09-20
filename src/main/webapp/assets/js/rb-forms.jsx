@@ -16,7 +16,7 @@ class RbFormModal extends React.Component {
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header modal-header-colored">
-                {this.state.icon ? (<span className={'icon zmdi zmdi-' + this.state.icon}></span>) : ''}
+                {this.state.icon && (<span className={'icon zmdi zmdi-' + this.state.icon} />)}
                 <h3 className="modal-title">{this.state.title || '新建'}</h3>
                 {rb.isAdminUser ? <a className="close s" href={rb.baseUrl + '/admin/entity/' + this.state.entity + '/form-design'} title="配置布局" target="_blank"><span className="zmdi zmdi-settings"></span></a> : null}
                 <button className="close md-close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close"></span></button>
