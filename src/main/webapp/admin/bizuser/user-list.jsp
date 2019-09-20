@@ -107,7 +107,7 @@ clickDept = function(depts) {
 	let exp = { items: [], values: {} }
 	exp.items.push({ op:'in', field: 'deptId', value:'{2}' })
 	exp.values['2'] = depts
-	RbListPage._RbList.search(exp)
+	RbListPage._RbList.search(depts.length == 0 ? {} : exp)
 }
 </script>
 </body>

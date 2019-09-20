@@ -96,9 +96,13 @@ gulp.task('cp', () => {
 	gulp.src('./build/**')
 		.pipe(gulp.dest('/data/rebuild47070/webapps/ROOT'))
 })
+gulp.task('cp2', () => {
+	gulp.src('./build/**')
+		.pipe(gulp.dest('../target/rebuild'))
+})
 
 gulp.task('default', gulpSequence(['xjs', 'xcss'], 'xjsp'))
 
 gulp.task('all', gulpSequence(['xjs', 'xcss'], 'xjsp', 'cp'))
-
+gulp.task('all2', gulpSequence(['xjs', 'xcss'], 'xjsp', 'cp2'))
 
