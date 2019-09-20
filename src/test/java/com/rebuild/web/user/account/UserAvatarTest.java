@@ -38,6 +38,6 @@ public class UserAvatarTest extends MvcTestSupport {
 	public void testGetAvatar() throws Exception {
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
 				.post("/account/user-avatar/" + UserService.ADMIN_USER);
-		System.out.println(perform(builder, SIMPLE_USER, true));
+		System.out.println(perform(builder, SIMPLE_USER));
 	}
 }

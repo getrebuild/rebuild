@@ -47,10 +47,12 @@ public class ApiGatewayTest extends MvcTestSupport {
                 .signMD5(bizParams);
         System.out.println("Request API : " + apiUrl);
 
-        MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
-                .get(apiUrl);
+        MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get(apiUrl);
         MvcResponse resp = perform(builder, null);
         System.out.println(resp);
-        Assert.assertTrue(resp.isSuccess());
+
+//        Assert.assertTrue(resp.isSuccess());
+        // No appId
+        Assert.assertFalse(resp.isSuccess());
     }
 }

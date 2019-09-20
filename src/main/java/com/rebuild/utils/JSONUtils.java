@@ -21,6 +21,7 @@ package com.rebuild.utils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -112,5 +113,17 @@ public class JSONUtils {
      */
     public static String prettyPrint(Object json) {
         return JSON.toJSONString(json, true);
+    }
+
+    /**
+     * @param text
+     * @return
+     */
+    public static boolean wellFormat(String text) {
+        if (StringUtils.isBlank(text)) {
+            return false;
+        }
+        text = text.trim();
+        return (text.startsWith("{") && text.endsWith("}")) || text.startsWith("[") && text.endsWith("]");
     }
 }

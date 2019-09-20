@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.web.admin.bizz;
 
 import cn.devezhao.bizz.security.member.Role;
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -29,6 +30,7 @@ import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.bizz.DepartmentService;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.bizz.privileges.Department;
 import com.rebuild.server.service.bizz.privileges.User;
@@ -36,6 +38,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseEntityControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -146,10 +149,24 @@ public class UserControll extends BaseEntityControll {
 		} else if (id.getEntityCode() == EntityHelper.Role) {
 			Role role = Application.getUserStore().getRole(id);
 			hasMember = role.getMembers().size();
+		} else if (id.getEntityCode() == EntityHelper.User) {
+			// 仅检查是否登陆过。严谨些还应该检查是否有其他业务数据
+			Object[] hasLogin = Application.createQueryNoFilter(
+					"select count(logId) from LoginLog where user = ?")
+					.setParameter(1, id)
+					.unique();
+			hasMember = ObjectUtils.toInt(hasLogin[0]);
 		}
-		
+
 		JSONObject ret = JSONUtils.toJSONObject(new String[] { "hasMember", "hasChild" },
 				new Object[] { hasMember, hasChild });
 		writeSuccess(response, ret);
+	}
+
+	@RequestMapping( value = "user-delete", method = RequestMethod.POST)
+	public void userDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getIdParameterNotNull(request, "id");
+		Application.getBean(UserService.class).delete(user);
+		writeSuccess(response);
 	}
 }

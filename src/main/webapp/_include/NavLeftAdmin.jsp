@@ -17,8 +17,8 @@
 									<div class="content">
 										<ul>
 											<li class="${param['activeNav'] == 'integration-storage' ? 'active' : ''}"><a href="${baseUrl}/admin/integration/storage">云存储</a></li>
-											<li class="${param['activeNav'] == 'integration-cache' ? 'active' : ''}"><a href="${baseUrl}/admin/integration/cache">缓存系统</a></li>
 											<li class="${param['activeNav'] == 'integration-submail' ? 'active' : ''}"><a href="${baseUrl}/admin/integration/submail">短信/邮件</a></li>
+											<li class="${param['activeNav'] == 'integration-cache' ? 'active' : ''} bosskey-show"><a href="${baseUrl}/admin/integration/cache">缓存系统</a></li>
 										</ul>
 									</div>
 								</div>

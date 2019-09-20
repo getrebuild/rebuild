@@ -68,7 +68,7 @@ $(document).ready(function() {
 				let msg = '此部门下有 '
 				if (res.data.hasMember > 0) msg += '<b>' + res.data.hasMember + '</b> 个用户' + (res.data.hasMember > 0 ? '和 ' : ' ')
 				if (res.data.hasMember > 0) msg += '<b>' + res.data.hasMember + '</b> 个子部门'
-				msg += '<br>请先将他们转移至其他部门，然后才能删除'
+				msg += '<br>需要先将他们转移至其他部门，然后才能安全删除'
 				RbAlert.create(msg, '无法删除', { type: 'warning', html: true })
 			}
 		})

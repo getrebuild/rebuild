@@ -18,27 +18,34 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web;
 
-import org.springframework.web.servlet.ModelAndView;
-
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.utils.JSONUtils;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
- * 
+ * MVC 返回
+ *
  * @author devezhao
  * @since 01/14/2019
  */
 public class MvcResponse {
 	
-	final private JSONObject response;
+	private JSONObject response;
 
 	protected MvcResponse(String content) {
-		this.response = JSONObject.parseObject(content);
+		if (JSONUtils.wellFormat(content)) {
+			this.response = JSONObject.parseObject(content);
+		} else {
+			this.response = JSONObject.parseObject("{ error_code:0 }");
+		}
 	}
 	
 	protected MvcResponse(ModelAndView view) {
 		this.response = JSONObject.parseObject("{ error_code:0 }");
-		this.response.put("error_msg", view);
+		if (view != null) {
+			this.response.put("error_msg", view);
+		}
 	}
 	
 	public boolean isSuccess() {

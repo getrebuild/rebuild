@@ -6,7 +6,7 @@
 	<groupId>com.rebuild</groupId>
 	<artifactId>rebuild</artifactId>
 	<packaging>war</packaging>
-	<version>1.5.0-beta</version>
+	<version>1.5.1</version>
 	<name>rebuild</name>
 	<description>Building your business-systems free!</description>
 	<url>https://getrebuild.com/</url>
@@ -14,11 +14,11 @@
 	<licenses>
 		<license>
 			<name>GPL-3.0</name>
-			<url>https://github.com/getrebuild/rebuild/blob/master/LICENSE</url>
+			<url>https://raw.githubusercontent.com/getrebuild/rebuild/master/LICENSE</url>
 		</license>
 		<license>
 			<name>COMMERCIAL</name>
-			<url>https://github.com/getrebuild/rebuild/blob/master/COMMERCIAL</url>
+			<url>https://raw.githubusercontent.com/getrebuild/rebuild/master/COMMERCIAL</url>
 		</license>
 	</licenses>
 

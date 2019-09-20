@@ -270,6 +270,36 @@ public class UserStore {
 		
 		return getUser(userId);
 	}
+
+	/**
+	 * @param userId
+	 */
+	public void removeUser(ID userId) {
+		User oldUser = getUser(userId);
+
+		// 移除成员
+		if (oldUser.getOwningDept() != null) {
+			oldUser.getOwningDept().removeMember(oldUser);
+		}
+		if (oldUser.getOwningRole() != null) {
+			oldUser.getOwningRole().removeMember(oldUser);
+		}
+
+		// 移除缓存
+		for (Map.Entry<String, ID> e : USERs_NAME2ID.entrySet()) {
+			if (e.getValue().equals(userId)) {
+				USERs_NAME2ID.remove(e.getKey());
+				break;
+			}
+		}
+		for (Map.Entry<String, ID> e : USERs_MAIL2ID.entrySet()) {
+			if (e.getValue().equals(userId)) {
+				USERs_MAIL2ID.remove(e.getKey());
+				break;
+			}
+		}
+		USERs.remove(userId);
+	}
 	
 	/**
 	 * 刷新角色缓存

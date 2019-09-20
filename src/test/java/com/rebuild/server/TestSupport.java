@@ -109,6 +109,9 @@ public class TestSupport {
 			} else if (dt == DisplayType.CLASSIFICATION) {
 				JSON area = JSON.parseObject("{classification:'018-0000000000000001'}");
 				new Field2Schema(UserService.ADMIN_USER).createField(testEntity, fieldName, dt, null, entityName, area);
+			} else if (dt == DisplayType.STATE) {
+				JSON area = JSON.parseObject("{stateClass:'com.rebuild.server.helper.state.HowtoState'}");
+				new Field2Schema(UserService.ADMIN_USER).createField(testEntity, fieldName, dt, null, entityName, area);
 			} else {
 				new Field2Schema(UserService.ADMIN_USER).createField(testEntity, fieldName, dt, null, null, null);
 			}

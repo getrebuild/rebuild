@@ -177,6 +177,8 @@ class AdvFilter extends React.Component {
       if (this.state.equationError === true) { RbHighbar.create('高级表达式设置有误'); return }
       adv.equation = this.state.equation
     }
+    // eslint-disable-next-line no-console
+    if (rb.env === 'dev') console.log(JSON.stringify(adv))
     return adv
   }
 
@@ -276,6 +278,8 @@ class FilterItem extends React.Component {
       } else {
         op = []
       }
+    } else if (fieldType === 'BOOL') {
+      op = ['EQ']
     }
     op.push('NL', 'NT')
     if (this.isApprovalState()) op = ['IN', 'NIN']
@@ -303,6 +307,12 @@ class FilterItem extends React.Component {
         </select>)
     } else if (this.isBizzField()) {
       val = <select className="form-control form-control-sm" multiple="true" ref={(c) => this._filterVal = c} />
+    } else if (this.state.type === 'BOOL') {
+      val = (
+        <select className="form-control form-control-sm" ref={(c) => this._filterVal = c}>
+          <option value="T">是</option>
+          <option value="F">否</option>
+        </select>)
     }
 
     INPUTVALS_HOLD[this.state.field] = this.state.value
@@ -400,6 +410,13 @@ class FilterItem extends React.Component {
       this.removeBizzSearch()
     }
 
+    if (state.type === 'BOOL') {
+      this.removeBool()
+      if (!OP_NOVALUE.contains(state.op)) this.renderBool()
+    } else if (lastType === 'BOOL') {
+      this.removeBool()
+    }
+
     if (state.value) this.valueCheck($(this._filterVal))
     if (state.value2 && this._filterVal2) this.valueCheck($(this._filterVal2))
   }
@@ -410,6 +427,7 @@ class FilterItem extends React.Component {
     this.removePickList()
     this.removeDatepicker()
     this.removeBizzSearch()
+    this.removeBool()
   }
 
   valueHandle = (e) => {
@@ -569,6 +587,27 @@ class FilterItem extends React.Component {
       this.__datepicker = null
     }
   }
+
+  // 布尔
+
+  renderBool() {
+    let that = this
+    let s2val = $(this._filterVal).select2({
+      allowClear: false
+    }).on('change.select2', function () {
+      that.setState({ value: s2val.val() })
+    })
+    this.__select2_Bool = s2val
+    s2val.val(this.props.value || 'T').trigger('change')
+  }
+  removeBool() {
+    if (this.__select2_Bool) {
+      this.__select2_Bool.select2('destroy')
+      this.__select2_Bool = null
+      this.setState({ value: null })
+    }
+  }
+
 
   setIndex(idx) {
     this.setState({ index: idx })
