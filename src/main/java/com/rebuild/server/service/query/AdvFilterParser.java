@@ -34,6 +34,7 @@ import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.privileges.Department;
+import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -97,7 +98,9 @@ public class AdvFilterParser {
 		JSONArray items = filterExp.getJSONArray("items");
 		JSONObject values = filterExp.getJSONObject("values");
 		String equation = StringUtils.defaultIfBlank(filterExp.getString("equation"), "OR");
-		
+		items = items == null ? JSONUtils.EMPTY_ARRAY : items;
+		values = values == null ? JSONUtils.EMPTY_OBJECT : values;
+
 		Map<Integer, String> indexItemSqls = new LinkedHashMap<>();
 		int noIndex = 1;
 		for (Object item : items) {
@@ -279,7 +282,7 @@ public class AdvFilterParser {
 		
 		// No value for search
 		if (value == null) {
-			LOG.warn("Invalid item of AdvFilter : " + item.toJSONString());
+//			LOG.warn("Invalid item of AdvFilter : " + item.toJSONString());
 			return null;
 		}
 		

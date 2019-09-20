@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ page import="com.rebuild.server.Application"%>
 <!DOCTYPE html>
 <html>
@@ -61,7 +62,13 @@
 						<tbody>
 							<tr>
 								<td width="40%">登录密码安全策略</td>
-								<td>低 (6位字符，无字符类型限制)</td>
+								<td>
+								<c:choose>
+									<c:when test="${PasswordPolicy >= 3}">高 (最低8位，必须同时包含数字、字母、特殊字符)</c:when>
+									<c:when test="${PasswordPolicy == 2}">中 (最低6位，必须同时包含数字、字母)</c:when>
+									<c:otherwise>低 (最低6位，无字符类型限制)</c:otherwise>
+								</c:choose>
+								</td>
 							</tr>
 							<tr>
 								<td>回收站数据保留时间</td>
@@ -76,8 +83,8 @@
 				<div class="card">
 					<div class="card-header card-header-divider">关于 REBUILD</div>
 					<div class="card-body">
-						<p class="mb-1">版本 <a class="link" target="_blank" href="https://getrebuild.com/download?v=<%=Application.VER%>"><%=Application.VER%></a></p>
-						<p class="mb-2">授权 <a class="link" target="_blank" href="https://getrebuild.com/authority?sn=${SN}">开源社区版</a></p>
+						<p class="mb-1">系统版本 <a class="link" target="_blank" href="https://getrebuild.com/download?v=<%=Application.VER%>"><%=Application.VER%></a></p>
+						<p class="mb-2">许可类型 <a class="link" target="_blank" href="https://getrebuild.com/authority?sn=${SN}">开源社区版</a></p>
 						<ul style="line-height:2">
 							<li><a class="link" target="_blank" href="${baseUrl}/gw/server-status">系统状态</a></li>
 							<li><a class="link" target="_blank" href="https://getrebuild.com/docs/">帮助文档</a></li>

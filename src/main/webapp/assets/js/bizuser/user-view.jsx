@@ -1,8 +1,23 @@
 const user_id = window.__PageConfig.recordId
 $(document).ready(function () {
   $('.J_delete').off('click').click(function () {
-    RbAlert.create('<b>暂不支持删除用户</b><br>我们建议你停用用户，而非将其删除', { type: 'warning', html: true, confirmText: '停用', confirm: () => { toggleDisabled(true) } })
+    $.get(rb.baseUrl + '/admin/bizuser/delete-checks?id=' + user_id, function (res) {
+      if (res.data.hasMember === 0) {
+        RbAlert.create('此用户可以被安全的删除', '删除用户', {
+          type: 'danger',
+          confirmText: '删除',
+          confirm: function () { deleteUser(user_id, this) }
+        })
+      } else {
+        RbAlert.create('此用户已被使用过，因此不能删除。建议你可以将其停用', '无法删除', {
+          type: 'warning',
+          confirmText: '停用',
+          confirm: () => { toggleDisabled(true) }
+        })
+      }
+    })
   })
+
   $('.J_disable').click(() => {
     RbAlert.create('确定要停用此用户吗？', { type: 'warning', confirm: () => { toggleDisabled(true) } })
   })
@@ -49,6 +64,17 @@ const toggleDisabled = function (disabled) {
       RbHighbar.create('用户已' + (disabled ? '停用' : '启用'), 'success')
       setTimeout(() => { location.reload() }, 500)
     }
+  })
+}
+
+// 删除用户
+const deleteUser = function (id, dlg) {
+  dlg.disabled(true)
+  $.post(rb.baseUrl + '/admin/bizuser/user-delete?id=' + id, (res) => {
+    if (res.error_code === 0) {
+      parent.location.hash = '!/View/'
+      parent.location.reload()
+    } else RbHighbar.error(res.error_msg)
   })
 }
 
