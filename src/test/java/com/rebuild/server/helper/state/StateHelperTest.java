@@ -18,7 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.state;
 
+import com.alibaba.fastjson.JSONArray;
+import com.rebuild.server.TestSupport;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.JSONUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -27,7 +30,7 @@ import static org.junit.Assert.*;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/09/06
  */
-public class StateHelperTest {
+public class StateHelperTest extends TestSupport {
 
     @Test
     public void isStateClass() {
@@ -38,5 +41,11 @@ public class StateHelperTest {
     @Test
     public void valueOf() {
         System.out.println(StateHelper.valueOf(HowtoState.class.getName(), 1));
+    }
+
+    @Test
+    public void getStateOptions() {
+        JSONArray options = StateManager.instance.getStateOptions(HowtoState.class.getName());
+        System.out.println(JSONUtils.prettyPrint(options));
     }
 }
