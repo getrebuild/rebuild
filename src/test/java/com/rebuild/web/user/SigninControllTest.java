@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.rebuild.web.MvcTestSupport;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 /**
  * @author devezhao
@@ -43,10 +44,13 @@ public class SigninControllTest extends MvcTestSupport {
 	@Test
 	public void testPages() throws Exception {
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get("/user/login");
-		System.out.println(perform(builder, null));
+		System.out.println(perform(builder));
+
+		builder = MockMvcRequestBuilders.get("/user/signup");
+		System.out.println(perform(builder, null, MockMvcResultMatchers.status().is4xxClientError()));
 		
 		builder = MockMvcRequestBuilders.get("/user/forgot-passwd");
-		System.out.println(perform(builder, null));
+		System.out.println(perform(builder));
 		
 		builder = MockMvcRequestBuilders.get("/user/logout");
 		System.out.println(performRedirection(builder));
