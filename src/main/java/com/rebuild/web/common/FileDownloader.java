@@ -104,9 +104,15 @@ public class FileDownloader extends BaseControll {
 		}
 	}
 
+	// Make public url
 	@RequestMapping(value = "make-url", method = RequestMethod.GET)
 	public void makeUrl(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String filePath = getParameterNotNull(request, "url");
+		if (!QiniuCloud.instance().available()) {
+			writeFailure(response, "本地存储暂不支持");
+			return;
+		}
+
 		String privateUrl = QiniuCloud.instance().url(filePath);
 		writeSuccess(response, JSONUtils.toJSONObject("private_url", privateUrl));
 	}

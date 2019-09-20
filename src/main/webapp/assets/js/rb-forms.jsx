@@ -1196,10 +1196,14 @@ class RbPreview extends React.Component {
     let previewContent = null
     if (this.__isimg(currentUrl)) previewContent = this.renderImgs()
     else if (this.__isdoc(currentUrl)) previewContent = this.renderDocs()
-    else previewContent = <div className="unsupports shadow-lg rounded bg-light">
-      <h5 className="text-bold">暂不支持此类型文件的预览</h5>
-      <a className="link" target="_blank" rel="noopener noreferrer" href={downloadUrl}>下载</a>
-    </div>
+
+    // Has error
+    if (this.state.errorMsg || !previewContent) {
+      previewContent = <div className="unsupports shadow-lg rounded bg-light" onClick={this.__stopEvent}>
+        <h4>{this.state.errorMsg || '暂不支持此类型文件的预览'}</h4>
+        <a className="link" target="_blank" rel="noopener noreferrer" href={downloadUrl}>下载此文件</a>
+      </div>
+    }
 
     return <React.Fragment>
       <div className={`preview-modal ${this.state.inLoad ? 'hide' : ''}`} ref={(c) => this._dlg = c}>
@@ -1218,7 +1222,7 @@ class RbPreview extends React.Component {
     </React.Fragment>
   }
   renderDocs() {
-    return (<div className="container" ref={(c) => this._previewContent = c}>
+    return (<div className="container">
       <div className="iframe" onClick={this.__stopEvent}>
         <iframe frameBorder="0" scrolling="no" src={this.state.previewUrl || ''}></iframe>
       </div>
@@ -1226,7 +1230,7 @@ class RbPreview extends React.Component {
   }
   renderImgs() {
     return (<React.Fragment>
-      <div className="img-zoom" ref={(c) => this._previewContent = c}>
+      <div className="img-zoom">
         <div className="must-center" onClick={this.__stopEvent}>
           <img src={`${rb.baseUrl}/filex/img/${this.props.urls[this.state.currentIndex]}?imageView2/2/w/1000/interlace/1/q/100`} />
         </div>
@@ -1242,27 +1246,26 @@ class RbPreview extends React.Component {
 
   componentDidMount() {
     this.__modalOpen = $(document.body).hasClass('modal-open')
+    if (!this.__modalOpen) $(document.body).addClass('modal-open')
+    this.setState({ inLoad: false })
 
     let currentUrl = this.props.urls[this.state.currentIndex]
-    // // 不支持的文件，直接下載
-    // if (!this._previewContent) {
-    //   this.hide()
-    //   window.open(`${rb.baseUrl}/filex/download/${currentUrl}?attname=${$encode($fileCutName(currentUrl))}`)
-    //   return
-    // }
-
     if (this.__isdoc(currentUrl)) {
       $.get(`${rb.baseUrl}/filex/make-url?url=${currentUrl}`, (res) => {
-        // view.aspx
-        let previewUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${$encode(res.data.private_url)}`
-        // PDF
-        if (currentUrl.toLowerCase().endsWith('.pdf')) previewUrl = res.data.private_url
-        this.setState({ previewUrl: previewUrl })
+        if (res.error_code > 0) {
+          this.setState({ errorMsg: res.error_msg })
+        } else {
+          // view.aspx
+          let previewUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${$encode(res.data.private_url)}`
+          // PDF
+          if (currentUrl.toLowerCase().endsWith('.pdf')) previewUrl = res.data.private_url
+          this.setState({ previewUrl: previewUrl, errorMsg: null })
+        }
       })
     }
 
-    if (!this.__modalOpen) $(document.body).addClass('modal-open')
-    this.setState({ inLoad: false })
+    let that = this
+    $(document).unbind('keyup').keyup(function (event) { if (event.keyCode === 27) that.hide() })
   }
   componentWillUnmount() {
     if (!this.__modalOpen) $(document.body).removeClass('modal-open')
@@ -1351,8 +1354,6 @@ class RepeatedViewer extends RbModalHandler {
       <td className="actions"><a className="icon" title="查看详情" onClick={() => this.openView(item[0])}><i className="zmdi zmdi-open-in-new" /></a></td>
     </tr >
   }
-
-
 
   openView(id) {
     if (window.RbViewModal) window.RbViewModal.create({ id: id, entity: this.props.entity })

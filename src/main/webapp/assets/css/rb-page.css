@@ -759,7 +759,7 @@ a {
     top: 0;
     left: 50%;
     margin-left: -210px;
-    z-index: 1051;
+    z-index: 1099;
 }
 
 .rbhighbar.faster {
@@ -2381,7 +2381,7 @@ form {
     margin-top: 10%;
     height: 91px;
     text-align: center;
-    padding-top: 15px;
+    padding-top: 12px;
 }
 
 .repeated-table {
