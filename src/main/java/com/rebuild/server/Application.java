@@ -65,7 +65,7 @@ public final class Application {
 	
 	/** Rebuild Version
 	 */
-	public static final String VER = "1.5.1";
+	public static final String VER = "1.6.0-dev";
 	
 	/** Logging for Global
 	 */

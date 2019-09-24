@@ -18,16 +18,18 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.common;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.web.BasePageControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
 
-import com.rebuild.web.BaseControll;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URL;
 
 /**
  * 
@@ -35,14 +37,28 @@ import com.rebuild.web.BaseControll;
  * @since 09/20/2018
  */
 @Controller
-public class UrlSafe extends BaseControll {
+public class UrlSafe extends BasePageControll {
 
 	@RequestMapping(value="/commons/url-safe", method=RequestMethod.GET)
-	public void safeRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public ModelAndView safeRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String url = getParameterNotNull(request, "url");
-		
-		// TODO 检查 URL 安全
-		
-		response.sendRedirect(url);
+		if (isSafe(url)) {
+			response.sendRedirect(url);
+			return null;
+		}
+
+		ModelAndView mv = createModelAndView("/commons/url-safe.jsp");
+		mv.getModel().put("outerUrl", url);
+		return mv;
+	}
+
+	/**
+	 * @param url
+	 * @return
+	 */
+	private boolean isSafe(String url) throws IOException {
+		String host = new URL(url).getHost();
+		return host.endsWith("getrebuild.com")
+				|| host.equalsIgnoreCase(SysConfiguration.get(ConfigurableItem.HomeURL));
 	}
 }
