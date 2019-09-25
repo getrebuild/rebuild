@@ -36,9 +36,9 @@
 }
 .safe-tips .url .text {
     height: 40px;
-    overflow: hidden;
     display: table-cell;
     vertical-align: middle;
+    word-break: break-all;
 }
 </style>
 </head>

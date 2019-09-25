@@ -351,7 +351,7 @@ CellRenders.addRender('REFERENCE', function (v, s, k) {
   return <td key={k}><div style={s}><a href={'#!/View/' + v[2][0] + '/' + v[0]} onClick={() => CellRenders.clickView(v)}>{v[1]}</a></div></td>
 })
 CellRenders.addRender('URL', function (v, s, k) {
-  return <td key={k}><div style={s}><a href={rb.baseUrl + '/common/url-safe?url=' + $encode(v)} className="column-url" target="_blank" rel="noopener noreferrer">{v}</a></div></td>
+  return <td key={k}><div style={s}><a href={rb.baseUrl + '/commons/url-safe?url=' + $encode(v)} className="column-url" target="_blank" rel="noopener noreferrer">{v}</a></div></td>
 })
 CellRenders.addRender('EMAIL', function (v, s, k) {
   return <td key={k}><div style={s}><a href={'mailto:' + v} className="column-url">{v}</a></div></td>
