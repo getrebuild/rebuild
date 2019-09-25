@@ -2278,7 +2278,6 @@ form {
     top: 0;
     left: 0;
     z-index: 1099;
-    z-index: 1050;
     background-color: rgba(0, 0, 0, 0.2)
 }
 
@@ -2309,7 +2308,7 @@ form {
 }
 
 .preview-modal .preview-header .float-right a:hover {
-    background: #888;
+    background: rgba(255, 255, 255, .3);
 }
 
 .preview-modal .preview-body,
@@ -2389,6 +2388,32 @@ form {
     text-align: center;
     padding: 30px;
     height: auto;
+}
+
+.file-share {
+    padding: 20px 40px;
+}
+
+.file-share .expires ul li a {
+    background-color: #eee;
+    border-radius: 99px;
+    padding: 4px 8px;
+    color: #777;
+    font-size: 12px;
+}
+
+.file-share .expires ul li.active a {
+    background-color: #4285f4;
+    color: #fff;
+}
+
+.file-share .expires ul li.active a::after {
+    content: '有效期';
+}
+
+.file-share .form-control {
+    background-color: #fff !important;
+    cursor: text;
 }
 
 .repeated-table {

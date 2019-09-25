@@ -186,13 +186,16 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	/**
 	 * 是否忽略用户验证
 	 * 
-	 * @param requestUrl
+	 * @param reqUrl
 	 * @return
 	 */
-	private static boolean inIgnoreRes(String requestUrl) {
-		if (requestUrl.contains("/user/") && !requestUrl.contains("/user/admin")) {
+	private static boolean inIgnoreRes(String reqUrl) {
+		if (reqUrl.contains("/user/") && !reqUrl.contains("/user/admin")) {
 			return true;
 		}
-		return requestUrl.contains("/gw/") || requestUrl.contains("/assets/") || requestUrl.contains("/error/");
+
+		reqUrl = reqUrl.replaceFirst(ServerListener.getContextPath(), "");
+		return reqUrl.startsWith("/gw/") || reqUrl.startsWith("/assets/") || reqUrl.startsWith("/error/")
+                || reqUrl.startsWith("/t/") || reqUrl.startsWith("/s/");
 	}
 }

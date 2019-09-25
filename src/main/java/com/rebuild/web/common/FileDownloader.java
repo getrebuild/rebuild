@@ -22,7 +22,6 @@ import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.helper.SysConfiguration;
-import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.BooleanUtils;
@@ -104,18 +103,7 @@ public class FileDownloader extends BaseControll {
 		}
 	}
 
-	// Make public url
-	@RequestMapping(value = "make-url", method = RequestMethod.GET)
-	public void makeUrl(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String filePath = getParameterNotNull(request, "url");
-		if (!QiniuCloud.instance().available()) {
-			writeFailure(response, "本地存储暂不支持");
-			return;
-		}
-
-		String privateUrl = QiniuCloud.instance().url(filePath);
-		writeSuccess(response, JSONUtils.toJSONObject("private_url", privateUrl));
-	}
+	// --
 
 	/**
 	 * 文件下载
@@ -153,7 +141,7 @@ public class FileDownloader extends BaseControll {
 			response.setContentLength(fis.available());
 
 			OutputStream os = response.getOutputStream();
-			int count = 0;
+			int count;
 			byte[] buffer = new byte[1024 * 1024];
 			while ((count = fis.read(buffer)) != -1) {
 				os.write(buffer, 0, count);
