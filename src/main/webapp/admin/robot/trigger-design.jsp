@@ -17,7 +17,7 @@
 </jsp:include>
 <div class="rb-content">
 	<div class="page-head">
-		<div class="page-head-title">触发器<span class="sub-title">${name}</span></div>
+		<div class="page-head-title">触发器<span class="sub-title">${name != null ? name : "未命名"}</span></div>
 		<div class="clearfix"></div>
 	</div>
 	<div class="main-content container-fluid pt-0">
@@ -126,9 +126,9 @@ window.__PageConfig = {
 </script>
 <script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/triggers/trigger-design.jsx" type="text/babel"></script>
-<c:if test="${actionType == 'FIELDAGGREGATION'}"><script src="${baseUrl}/assets/js/triggers/trigger.field-aggregation.jsx" type="text/babel"></script></c:if>
-<c:if test="${actionType == 'SENDNOTIFICATION'}"><script src="${baseUrl}/assets/js/triggers/trigger.send-notification.jsx" type="text/babel"></script></c:if>
-<c:if test="${actionType == 'AUTOASSIGN'}"><script src="${baseUrl}/assets/js/triggers/trigger.auto-assign.jsx" type="text/babel"></script></c:if>
-<c:if test="${actionType == 'AUTOSHARE'}"><script src="${baseUrl}/assets/js/triggers/trigger.auto-share.jsx" type="text/babel"></script></c:if>
+<c:if test="${actionType == 'FIELDAGGREGATION'}"><script src="${baseUrl}/assets/js/triggers/trigger.FIELDAGGREGATION.jsx" type="text/babel"></script></c:if>
+<c:if test="${actionType == 'SENDNOTIFICATION'}"><script src="${baseUrl}/assets/js/triggers/trigger.SENDNOTIFICATION.jsx" type="text/babel"></script></c:if>
+<c:if test="${actionType == 'AUTOASSIGN'}"><script src="${baseUrl}/assets/js/triggers/trigger.AUTOASSIGN.jsx" type="text/babel"></script></c:if>
+<c:if test="${actionType == 'AUTOSHARE'}"><script src="${baseUrl}/assets/js/triggers/trigger.AUTOSHARE.jsx" type="text/babel"></script></c:if>
 </body>
 </html>
