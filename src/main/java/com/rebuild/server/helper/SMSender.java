@@ -100,7 +100,11 @@ public class SMSender {
 			
 			mailbody.selectFirst(".rb-title").text(subject);
 			mailbody.selectFirst(".rb-content").html(content);
-			params.put("html", mailbody.html());
+			String eHTML = mailbody.html();
+			// 处理变量
+			eHTML = eHTML.replace("%TO%", to);
+
+			params.put("html", eHTML);
 		} else {
 			params.put("text", content);
 		}

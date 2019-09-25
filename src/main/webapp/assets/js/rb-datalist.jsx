@@ -333,7 +333,7 @@ CellRenders.addRender('IMAGE', function (v, s, k) {
         if (idx > 2) return null
         let imgUrl = rb.baseUrl + '/filex/img/' + item
         let imgName = $fileCutName(item)
-        return <a key={'k-' + item} title={imgName} onClick={() => RbPreview.create(v, idx)}><img src={imgUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a>
+        return <a key={'k-' + item} title={imgName} onClick={() => RbPreview.create(v, idx)}><img alt="图片" src={imgUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a>
       })}</div></td>
 })
 CellRenders.addRender('FILE', function (v, s, k) {
