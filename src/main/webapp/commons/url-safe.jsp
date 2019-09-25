@@ -62,9 +62,5 @@
     </div>
 </div>
 <%@ include file="/_include/Foot.jsp" %>
-<script type="text/babel">
-$(document).ready(function () {
-})
-</script>
 </body>
 </html>

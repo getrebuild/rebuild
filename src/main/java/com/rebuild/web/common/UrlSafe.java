@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.net.URL;
 
 /**
+ * 外部URL跳转
  * 
  * @author zhaofang123@gmail.com
  * @since 09/20/2018

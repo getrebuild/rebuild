@@ -13,8 +13,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<link rel="shortcut icon" href="${pageContext.request.contextPath}/assets/img/favicon.png">
-<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/css/rb-base.css">
+<link rel="shortcut icon" href="${baseUrl}/assets/img/favicon.png">
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-base.css">
 <title>系统状态</title>
 <style type="text/css">
 .block{margin:0 auto;max-width:1000px;padding:0 14px;margin-top:30px;}
