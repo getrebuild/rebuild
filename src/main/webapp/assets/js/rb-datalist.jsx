@@ -318,6 +318,7 @@ var CellRenders = {
    * @param {*} k key of React (contains fieldName)
    */
   renderSimple(v, s, k) {
+    if (typeof v === 'string' && v.length > 300) v = v.sub(0, 300)
     return <td key={k}><div style={s}>{v || ''}</div></td>
   }
 }
