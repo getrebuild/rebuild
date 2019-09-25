@@ -23,6 +23,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
+import com.rebuild.server.configuration.portals.ClassificationManager;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -49,6 +50,7 @@ import java.util.Map;
  * 
  * @author zhaofang123@gmail.com
  * @since 08/24/2018
+ * @see RecentlyUsedSearch
  */
 @Controller
 @RequestMapping("/commons/search/")
@@ -102,7 +104,7 @@ public class ReferenceSearch extends BaseControll {
 			sql += " order by modifiedOn desc";
 		}
 		
-		List<Object> result = searchResult(metaEntity, referenceNameField, sql);
+		List<Object> result = resultSearch(sql, metaEntity, referenceNameField);
 		writeSuccess(response, result);
 	}
 	
@@ -163,7 +165,7 @@ public class ReferenceSearch extends BaseControll {
 			sql += " order by modifiedOn desc";
 		}
 		
-		List<Object> result = searchResult(metaEntity, nameField, sql);
+		List<Object> result = resultSearch(sql, metaEntity, nameField);
 		writeSuccess(response, result);
 	}
 	
@@ -188,21 +190,54 @@ public class ReferenceSearch extends BaseControll {
 		}
 		writeSuccess(response, labels);
 	}
+
+	// 搜索分类字段
+	@RequestMapping("classification")
+	public void searchClassification(HttpServletRequest request, HttpServletResponse response) {
+		final ID user = getRequestUser(request);
+		final String entity = getParameterNotNull(request, "entity");
+		final String field = getParameterNotNull(request, "field");
+
+		Field fieldMeta = MetadataHelper.getField(entity, field);
+		ID useClassification = ClassificationManager.instance.getUseClassification(fieldMeta, false);
+
+		String q = getParameter(request, "q");
+		// 为空则加载最近使用的
+		if (StringUtils.isBlank(q)) {
+		    String type = entity + "." + field;
+			ID[] recently = Application.getRecentlyUsedCache().gets(user, "ClassificationData", "d" + useClassification);
+			if (recently.length == 0) {
+				writeSuccess(response, JSONUtils.EMPTY_ARRAY);
+			} else {
+				writeSuccess(response, RecentlyUsedSearch.formatSelect2(recently, null));
+			}
+			return;
+		}
+		q = StringEscapeUtils.escapeSql(q);
+
+        int openLevel = ClassificationManager.instance.getOpenLevel(fieldMeta);
+
+		String sql = "select itemId,fullName from ClassificationData where dataId = '%s' and level = %d and fullName like '%%%s%%' order by fullName";
+        sql = String.format(sql, useClassification.toLiteral(), openLevel, q);
+		List<Object> result = resultSearch(sql, null, null);
+		writeSuccess(response, result);
+	}
 	
 	/**
 	 * 封装查询结果
 	 * 
+	 * @param sql
 	 * @param entity
 	 * @param nameField
-	 * @param sql
 	 * @return
 	 */
-	private List<Object> searchResult(Entity entity, Field nameField, String sql) {
+	private List<Object> resultSearch(String sql, Entity entity, Field nameField) {
 		Object[][] array = Application.createQuery(sql).setLimit(10).array();
 		List<Object> result = new ArrayList<>();
 		for (Object[] o : array) {
 			ID recordId = (ID) o[0];
-			if (MetadataHelper.isBizzEntity(entity.getEntityCode())
+			if (entity != null
+                    && MetadataHelper.isBizzEntity(entity.getEntityCode())
 					&& (!UserHelper.isActive(recordId) || recordId.equals(UserService.SYSTEM_USER))) {
 				continue;
 			}
@@ -211,7 +246,8 @@ public class ReferenceSearch extends BaseControll {
 			if (o[1] == null || StringUtils.isBlank(o[1].toString())) {
 				label = FieldValueWrapper.NO_LABEL_PREFIX + recordId.toLiteral().toUpperCase();
 			} else {
-				label = (String) FieldValueWrapper.instance.wrapFieldValue(o[1], nameField);
+				label = nameField == null ? o[1].toString()
+                        : (String) FieldValueWrapper.instance.wrapFieldValue(o[1], nameField);
 			}
 			result.add(JSONUtils.toJSONObject(new String[] { "id", "text" }, new Object[] { recordId, label }));
 		}

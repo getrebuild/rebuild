@@ -554,7 +554,8 @@ a {
     margin-right: 20px;
 }
 
-.rbform .select2-container--default .select2-selection--multiple::after {
+.rbform .select2-container--default .select2-selection--multiple::after,
+.type-REFERENCE .select2-container--default .select2-selection--single .select2-selection__arrow b:after {
     content: '\f1c3';
     font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
     font-size: 1.5rem;
@@ -563,6 +564,11 @@ a {
     position: absolute;
     right: 8px;
     top: 9px;
+}
+
+.type-REFERENCE .select2-container--default .select2-selection--single .select2-selection__arrow b:after {
+    right: 7px;
+    top: 8px;
 }
 
 .img-field {

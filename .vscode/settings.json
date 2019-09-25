@@ -6,8 +6,9 @@
         "**/.factorypath": true,
         "target/**": true,
         ".github/**": true,
-        ".production/**": true,
-        ".eclipse/**": true
+        ".vscode/**": true,
+        ".eclipse/**": true,
+        ".idea/**": true
     },
     "editor.fontSize": 12,
     "editor.tabSize": 2,

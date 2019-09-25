@@ -744,7 +744,7 @@ class RbFormReference extends RbFormElement {
   }
   renderElement() {
     return (
-      <select ref={(c) => this._fvalue = c} className="form-control form-control-sm" multiple="multiple" />
+      <select ref={(c) => this._fvalue = c} className="form-control form-control-sm" />
     )
   }
   renderViewElement() {
@@ -760,9 +760,9 @@ class RbFormReference extends RbFormElement {
     if (this.state.viewMode === true) return
 
     const entity = this.props.$$$parent.props.entity
-    let that = this
+    const field = this.props.field
     let search_input = null
-    const s2 = $(this._fvalue).select2({
+    this.__select2 = $(this._fvalue).select2({
       placeholder: '选择' + this.props.label,
       minimumInputLength: 0,
       maximumSelectionLength: 1,
@@ -770,13 +770,8 @@ class RbFormReference extends RbFormElement {
         url: rb.baseUrl + '/commons/search/reference',
         delay: 300,
         data: function (params) {
-          let query = {
-            entity: entity,
-            field: that.props.field,
-            q: params.term
-          }
           search_input = params.term
-          return query
+          return { entity: entity, field: field, q: params.term }
         },
         processResults: function (data) {
           return { results: data.data }
@@ -789,8 +784,9 @@ class RbFormReference extends RbFormElement {
         maximumSelected: () => { return '只能选择 1 项' }
       }
     })
-    this.__select2 = s2
 
+    let that = this
+    let s2 = this.__select2
     $setTimeout(function () {
       let val = that.props.value
       if (val) {
@@ -802,6 +798,7 @@ class RbFormReference extends RbFormElement {
         let v = e.target.value
         if (v) {
           $.post(`${rb.baseUrl}/commons/search/recently-add?id=${v}`)
+          // 字段回填
           $.post(`${rb.baseUrl}/app/entity/extras/fillin-value?entity=${entity}&field=${that.props.field}&source=${v}`, (res) => {
             if (res.error_code === 0 && res.data.length > 0) that.props.$$$parent.setAutoFillin(res.data)
           })
@@ -836,7 +833,6 @@ class RbFormReference extends RbFormElement {
 class RbFormClassification extends RbFormElement {
   constructor(props) {
     super(props)
-    // TODO histroy values?
   }
   renderElement() {
     return (
@@ -851,8 +847,31 @@ class RbFormClassification extends RbFormElement {
   componentDidMount() {
     super.componentDidMount()
     if (this.state.viewMode === true) return
+
+    const entity = this.props.$$$parent.props.entity
+    const field = this.props.field
+    let search_input = null
     this.__select2 = $(this._fvalue).select2({
-      placeholder: '选择' + this.props.label
+      placeholder: '选择' + this.props.label,
+      minimumInputLength: 0,
+      maximumSelectionLength: 1,
+      ajax: {
+        url: rb.baseUrl + '/commons/search/classification',
+        delay: 300,
+        data: function (params) {
+          search_input = params.term
+          return { entity: entity, field: field, q: params.term }
+        },
+        processResults: function (data) {
+          return { results: data.data }
+        }
+      },
+      language: {
+        noResults: () => { return (search_input || '').length > 0 ? '未找到结果' : '输入关键词搜索' },
+        inputTooShort: () => { return '输入关键词搜索' },
+        searching: () => { return '搜索中...' },
+        maximumSelected: () => { return '只能选择 1 项' }
+      }
     })
 
     // In edits
@@ -860,7 +879,9 @@ class RbFormClassification extends RbFormElement {
     if (iv) this.giveValue({ id: iv[0], text: iv[1] })
 
     this.__select2.on('change', () => {
-      this.handleChange({ target: { value: this.__select2.val() } }, true)
+      let v = this.__select2.val()
+      if (v) $.post(`${rb.baseUrl}/commons/search/recently-add?id=${v}&type=d${this.props.classification}`)
+      this.handleChange({ target: { value: v } }, true)
     })
   }
   componentWillUnmount() {
@@ -1232,7 +1253,7 @@ class RbPreview extends React.Component {
     return (<React.Fragment>
       <div className="img-zoom">
         <div className="must-center" onClick={this.__stopEvent}>
-          <img src={`${rb.baseUrl}/filex/img/${this.props.urls[this.state.currentIndex]}?imageView2/2/w/1000/interlace/1/q/100`} />
+          <img alt="图片" src={`${rb.baseUrl}/filex/img/${this.props.urls[this.state.currentIndex]}?imageView2/2/w/1000/interlace/1/q/100`} />
         </div>
       </div>
       {this.props.urls.length > 1 && <div className="op-box" onClick={this.__stopEvent}>
