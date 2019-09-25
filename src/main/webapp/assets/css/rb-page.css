@@ -2278,6 +2278,7 @@ form {
     top: 0;
     left: 0;
     z-index: 1099;
+    z-index: 1050;
     background-color: rgba(0, 0, 0, 0.2)
 }
 

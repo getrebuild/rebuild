@@ -37,7 +37,7 @@ class RbPreview extends React.Component {
         <div className="preview-header">
           <div className="float-left"><h5>{fileName}</h5></div>
           <div className="float-right">
-            <a><i className="zmdi zmdi-share fs-16"></i></a>
+            <a onClick={this.share}><i className="zmdi zmdi-share fs-16"></i></a>
             <a target="_blank" rel="noopener noreferrer" href={downloadUrl}><i className="zmdi zmdi-download"></i></a>
             <a onClick={this.hide}><i className="zmdi zmdi-close"></i></a>
           </div>
@@ -166,6 +166,11 @@ class RbPreview extends React.Component {
     $unmount($(this._dlg).parent(), 1)
   }
 
+  share = () => {
+    let currentUrl = this.props.urls[this.state.currentIndex]
+    renderRbcomp(<FileShare file={currentUrl} />)
+  }
+
   /**
    * @param {*} urls string or array of URL
    * @param {*} index 
@@ -174,5 +179,23 @@ class RbPreview extends React.Component {
     if (!urls) return
     if (typeof urls === 'string') urls = [urls]
     renderRbcomp(<RbPreview urls={urls} currentIndex={index || 0} />)
+  }
+}
+
+// ~ 共享
+class FileShare extends RbModalHandler {
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+    return <RbModal ref={(c) => this._dlg = c} title="共享文件" disposeOnHide="true">
+      <div className="input-group input-group-sm">
+        <input className="form-control" />
+        <span className="input-group-append">
+          <button className="btn btn-secondary">复制</button>
+        </span>
+      </div>
+    </RbModal>
   }
 }
