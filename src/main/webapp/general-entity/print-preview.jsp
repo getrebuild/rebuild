@@ -1,5 +1,5 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="cn.devezhao.commons.CodecUtils" %>
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,8 +10,7 @@ html, body{
     background-color:#fff;
 }
 .preview-tools {
-    padding: 10px 15px;
-    padding-bottom: 5px;
+    padding: 10px 15px 5px;
     text-align: right;
 }
 .table th {
@@ -19,7 +18,6 @@ html, body{
     width: 17.5%;
 }
 .table th, .table td {
-    vertical-align: text-top;
     vertical-align: top;
     word-break: break-all;
     word-wrap: break-word;

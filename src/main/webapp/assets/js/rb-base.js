@@ -66,7 +66,7 @@
     else if (v === 'false') v = false
     window.rb[k] = v
   })
-  if (window.rb.appName) document.title = document.title + ' · ' + window.rb.appName
+  if (window.rb.appName && window.rb.appName !== document.title) document.title = document.title + ' · ' + window.rb.appName
 
   setTimeout(function () {
     if (rb.env === 'dev') $('html').addClass('dev')
