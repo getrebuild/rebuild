@@ -2382,12 +2382,12 @@ form {
 }
 
 .preview-modal .preview-body .unsupports {
-    max-width: 360px;
+    max-width: 400px;
     margin: 0 auto;
-    margin-top: 10%;
-    height: 91px;
+    margin-top: 15%;
     text-align: center;
-    padding-top: 12px;
+    padding: 30px;
+    height: auto;
 }
 
 .repeated-table {
