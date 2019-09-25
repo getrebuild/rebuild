@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <div class="rb-left-sidebar">
 <div class="left-sidebar-wrapper">
 	<a class="left-sidebar-toggle">MIN</a>
