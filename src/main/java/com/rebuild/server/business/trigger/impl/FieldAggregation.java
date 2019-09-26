@@ -113,15 +113,11 @@ public class FieldAggregation implements TriggerAction {
 			JSONObject item = (JSONObject) o;
 			String sourceField = item.getString("sourceField");
 			String targetField = item.getString("targetField");
-			if (!sourceEntity.containsField(sourceField)) {
-				LOG.warn("Unknow field '" + sourceField + "' in '" + sourceEntity.getName() + "'");
+			if (!MetadataHelper.checkAndWarnField(sourceEntity, sourceField)
+					|| !MetadataHelper.checkAndWarnField(targetEntity, targetField)) {
 				continue;
 			}
-			if (!targetEntity.containsField(targetField)) {
-				LOG.warn("Unknow field '" + targetField + "' in '" + targetEntity.getName() + "'");
-				continue;
-			}
-			
+
 			// 直接利用SQL计算结果
 			String calcMode = item.getString("calcMode");
 			String calcField = "COUNT".equalsIgnoreCase(calcMode) ? sourceEntity.getPrimaryField().getName() : sourceField;

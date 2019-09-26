@@ -37,7 +37,7 @@ class RbPreview extends React.Component {
         <div className="preview-header">
           <div className="float-left"><h5>{fileName}</h5></div>
           <div className="float-right">
-            <a onClick={this.share}><i className="zmdi zmdi-share fs-16"></i></a>
+            <a onClick={this.share}><i className="zmdi zmdi-share fs-17"></i></a>
             <a target="_blank" rel="noopener noreferrer" href={downloadUrl}><i className="zmdi zmdi-download"></i></a>
             {!this.props.unclose && <a onClick={this.hide}><i className="zmdi zmdi-close"></i></a>}
           </div>
@@ -200,15 +200,15 @@ const EXPIRES_TIME = [[5, '5分钟'], [30, '半小时'], [60, '1小时'], [360, 
 class FileShare extends RbModalHandler {
   constructor(props) {
     super(props)
-    this.state.time = 5
   }
   render() {
     return <RbModal ref={(c) => this._dlg = c} title="分享文件" disposeOnHide="true">
       <div className="file-share">
+        <label>分享链接</label>
         <div className="input-group input-group-sm">
-          <input className="form-control" value={this.state.shareUrl || ''} readOnly />
+          <input className="form-control" value={this.state.shareUrl || ''} readOnly onClick={(e) => $(e.target).select()} />
           <span className="input-group-append">
-            <button className="btn btn-secondary" ref={(c) => this._btn = c}>复制链接</button>
+            <button className="btn btn-secondary" ref={(c) => this._btn = c}>复制</button>
           </span>
         </div>
         <div className="expires mt-2">
@@ -245,8 +245,9 @@ class FileShare extends RbModalHandler {
   }
 
   changTime = (e) => {
-    let t = e ? e.target.dataset.time : 5
-    this.setState({ time: ~~t }, () => {
+    let t = e ? ~~e.target.dataset.time : 5
+    if (this.state.time === t) return
+    this.setState({ time: t }, () => {
       $.get(`${rb.baseUrl}/filex/make-share?url=${$encode(this.props.file)}&time=${t}`, (res) => {
         this.setState({ shareUrl: res.data.shareUrl })
       })

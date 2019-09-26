@@ -1022,6 +1022,13 @@ i.split.ui-draggable-dragging {
     cursor: help;
 }
 
+.column-state .badge {
+    font-weight: normal;
+    border-radius: 99px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
 .text-3dot {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -2391,7 +2398,7 @@ form {
 }
 
 .file-share {
-    padding: 20px 40px;
+    padding: 10px 40px;
 }
 
 .file-share .expires ul li a {

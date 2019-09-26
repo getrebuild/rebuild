@@ -52,7 +52,6 @@ import com.rebuild.server.service.bizz.privileges.User;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,6 +60,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Observer;
 import java.util.Set;
 
@@ -116,7 +116,9 @@ public class GeneralEntityService extends ObservableService  {
 
 	@Override
 	public Record update(Record record) {
-		checkModifications(record.getPrimary(), BizzPermission.UPDATE);
+		if (!checkModifications(record.getPrimary(), BizzPermission.UPDATE)) {
+			return record;
+		}
 		return super.update(record);
 	}
 
@@ -183,7 +185,9 @@ public class GeneralEntityService extends ObservableService  {
 	 * @throws DataSpecificationException
 	 */
 	private int deleteInternal(ID record) throws DataSpecificationException {
-		checkModifications(record, BizzPermission.DELETE);
+		if (!checkModifications(record, BizzPermission.DELETE)) {
+			return 0;
+		}
 		return super.delete(record);
 	}
 	
@@ -380,15 +384,21 @@ public class GeneralEntityService extends ObservableService  {
 	}
 
 	/**
-	 * 系统相关约束检查
+	 * 系统相关约束检查。此方法有 3 种结果：
+	 * 1. true - 检查通过
+	 * 2. false - 检查不通过，但可以忽略的错误（如删除一条不存在的记录）
+	 * 3. 抛出异常 - 不可忽略的错误
 	 *
 	 * @param recordId
 	 * @param action [UPDATE|DELDETE]
 	 * @return
 	 * @throws DataSpecificationException
+	 *
+	 * @see #checkModifications(Record, Permission)
 	 */
 	protected boolean checkModifications(ID recordId, Permission action) throws DataSpecificationException {
 		Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+		// 需要检查主实体
 		Entity checkEntity = entity.getMasterEntity() != null ? entity.getMasterEntity() : entity;
 
 		// 验证审批状态
@@ -401,7 +411,13 @@ public class GeneralEntityService extends ObservableService  {
 				masterType = "主";
 			}
 
-			ApprovalState state = getApprovalState(recordId);
+			ApprovalState state = null;
+			try {
+				state = getApprovalState(recordId);
+			} catch (NoRecordFoundException ignored) {
+				return false;
+			}
+			
 			String actionType = action == BizzPermission.UPDATE ? "修改" : "删除";
 			if (state == ApprovalState.APPROVED) {
 				throw new DataSpecificationException(masterType + "记录已完成审批，不能" + actionType);
@@ -428,10 +444,9 @@ public class GeneralEntityService extends ObservableService  {
 		// 验证新建明细（相当于更新主记录）
 		Entity masterEntity = entity.getMasterEntity();
 		if (masterEntity != null && masterEntity.containsField(EntityHelper.ApprovalId)) {
-			Field stmField = MetadataHelper.getSlaveToMasterField(entity);
-			ID masterId = newRecord.getID(stmField.getName());
+			Field smt = MetadataHelper.getSlaveToMasterField(entity);
 
-			ApprovalState state = getApprovalState(masterId);
+			ApprovalState state = getApprovalState(newRecord.getID(smt.getName()));
 			if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
 				String stateType = state == ApprovalState.APPROVED ? "已完成审批" : "正在审批中";
 				throw new DataSpecificationException("主记录" + stateType + "，不能添加明细");
@@ -447,7 +462,8 @@ public class GeneralEntityService extends ObservableService  {
 	 * @param recordOfNew
 	 */
 	protected void appendDefaultValue(Record recordOfNew) {
-		Assert.isNull(recordOfNew.getPrimary(), "Must be new record");
+		Objects.requireNonNull(recordOfNew.getPrimary(), "Must be new record");
+
 		Entity entity = recordOfNew.getEntity();
 		if (MetadataHelper.isBizzEntity(entity.getEntityCode())
 				|| !MetadataHelper.hasPrivilegesField(entity)) {
@@ -489,12 +505,11 @@ public class GeneralEntityService extends ObservableService  {
 	 * @param slaveEntity
 	 * @param slaveId
 	 * @return
+	 * @throws NoRecordFoundException
 	 */
-	private ID getMasterId(Entity slaveEntity, ID slaveId) {
-		Field stmField = MetadataHelper.getSlaveToMasterField(slaveEntity);
-		String sql = String.format("select %s from %s where %s = ?",
-				stmField.getName(), slaveEntity.getName(), slaveEntity.getPrimaryField().getName());
-		Object[] o = Application.createQueryNoFilter(sql).setParameter(1, slaveId).unique();
+	private ID getMasterId(Entity slaveEntity, ID slaveId) throws NoRecordFoundException {
+		Field stm = MetadataHelper.getSlaveToMasterField(slaveEntity);
+		Object[] o = Application.getQueryFactory().uniqueNoFilter(slaveId, stm.getName());
 		if (o == null) {
 			throw new NoRecordFoundException(slaveId);
 		}
@@ -502,17 +517,14 @@ public class GeneralEntityService extends ObservableService  {
 	}
 
 	/**
-	 * 审批状态
+	 * 获取审批状态
 	 *
 	 * @param recordId
 	 * @return
+	 * @throws NoRecordFoundException
 	 */
-	private ApprovalState getApprovalState(ID recordId) {
-		if (recordId == null) {
-			throw new NoRecordFoundException();
-		}
-
-		Object[] o = Application.getQueryFactory().unique(recordId, EntityHelper.ApprovalState);
+	private ApprovalState getApprovalState(ID recordId) throws NoRecordFoundException {
+		Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, EntityHelper.ApprovalState);
 		if (o == null) {
 			throw new NoRecordFoundException(recordId);
 		}
