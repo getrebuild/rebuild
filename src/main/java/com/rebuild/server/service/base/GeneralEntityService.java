@@ -398,17 +398,16 @@ public class GeneralEntityService extends ObservableService  {
 	 * @see #checkModifications(Record, Permission)
 	 */
 	protected boolean checkModifications(ID recordId, Permission action) throws DataSpecificationException {
-		Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
-		// 需要检查主实体
-		Entity checkEntity = entity.getMasterEntity() != null ? entity.getMasterEntity() : entity;
+		final Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 
 		// 验证审批状态
+		// 需要检查主实体
+		Entity checkEntity = entity.getMasterEntity() != null ? entity.getMasterEntity() : entity;
 		if (checkEntity.containsField(EntityHelper.ApprovalId)) {
 			// 需要验证主记录
 			String masterType = "";
 			if (entity.getMasterEntity() != null) {
 				recordId = getMasterId(entity, recordId);
-				entity = entity.getMasterEntity();
 				masterType = "主";
 			}
 
@@ -418,12 +417,11 @@ public class GeneralEntityService extends ObservableService  {
 			} catch (NoRecordFoundException ignored) {
 				return false;
 			}
-			
+
 			String actionType = action == BizzPermission.UPDATE ? "修改" : "删除";
-			if (state == ApprovalState.APPROVED) {
-				throw new DataSpecificationException(masterType + "记录已完成审批，不能" + actionType);
-			} else if (state == ApprovalState.PROCESSING) {
-				throw new DataSpecificationException(masterType + "记录正在审批中，不能" + actionType);
+			if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
+				String stateType = state == ApprovalState.APPROVED ? "已完成审批" : "正在审批中";
+				throw new DataSpecificationException(masterType + "记录" + stateType + "，不能" + actionType);
 			}
 		}
 
@@ -439,14 +437,13 @@ public class GeneralEntityService extends ObservableService  {
 	 * @throws DataSpecificationException
 	 */
 	protected boolean checkModifications(Record newRecord, Permission action) throws DataSpecificationException {
-		Entity entity = newRecord.getEntity();
+		final Entity entity = newRecord.getEntity();
 
 		// 验证审批状态
 		// 验证新建明细（相当于更新主记录）
 		Entity masterEntity = entity.getMasterEntity();
 		if (masterEntity != null && masterEntity.containsField(EntityHelper.ApprovalId)) {
 			Field smt = MetadataHelper.getSlaveToMasterField(entity);
-
 			ApprovalState state = getApprovalState(newRecord.getID(Objects.requireNonNull(smt).getName()));
 			if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
 				String stateType = state == ApprovalState.APPROVED ? "已完成审批" : "正在审批中";
