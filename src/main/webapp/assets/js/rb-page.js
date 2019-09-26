@@ -251,14 +251,16 @@ var $cleanMenu = function (mbg) {
 }
 
 var $fileCutName = function (fileName) {
+  fileName = fileName.split('?')[0]
   fileName = fileName.split('/')
   fileName = fileName[fileName.length - 1]
   return fileName.substr(fileName.indexOf('__') + 2)
 }
 var $fileExtName = function (fileName) {
   fileName = (fileName || '').toLowerCase()
+  fileName = fileName.split('?')[0]
   fileName = fileName.split('.')
-  return fileName[fileName.length - 1] || ''
+  return fileName[fileName.length - 1] || '*'
 }
 
 var $gotoSection = function (top, target) {

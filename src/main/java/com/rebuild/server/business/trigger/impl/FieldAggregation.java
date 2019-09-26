@@ -18,9 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.trigger.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
@@ -35,12 +37,8 @@ import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.bizz.privileges.PrivilegesGuardInterceptor;
-
-import cn.devezhao.bizz.privileges.impl.BizzPermission;
-import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -113,15 +111,11 @@ public class FieldAggregation implements TriggerAction {
 			JSONObject item = (JSONObject) o;
 			String sourceField = item.getString("sourceField");
 			String targetField = item.getString("targetField");
-			if (!sourceEntity.containsField(sourceField)) {
-				LOG.warn("Unknow field '" + sourceField + "' in '" + sourceEntity.getName() + "'");
+			if (!MetadataHelper.checkAndWarnField(sourceEntity, sourceField)
+					|| !MetadataHelper.checkAndWarnField(targetEntity, targetField)) {
 				continue;
 			}
-			if (!targetEntity.containsField(targetField)) {
-				LOG.warn("Unknow field '" + targetField + "' in '" + targetEntity.getName() + "'");
-				continue;
-			}
-			
+
 			// 直接利用SQL计算结果
 			String calcMode = item.getString("calcMode");
 			String calcField = "COUNT".equalsIgnoreCase(calcMode) ? sourceEntity.getPrimaryField().getName() : sourceField;
@@ -148,7 +142,7 @@ public class FieldAggregation implements TriggerAction {
 			CALL_CHAIN_DEPTH.set(depth + 1);
 		}
 	}
-	
+
 	@Override
 	public void prepare(OperatingContext operatingContext) throws TriggerException {
 		if (sourceEntity != null) {  // 已经初始化
@@ -160,18 +154,19 @@ public class FieldAggregation implements TriggerAction {
 		if (!MetadataHelper.containsEntity(targetFieldEntity[1])) {
 			return;
 		}
+
 		this.sourceEntity = context.getSourceEntity();
 		this.targetEntity = MetadataHelper.getEntity(targetFieldEntity[1]);
 		this.followSourceField = targetFieldEntity[0];
 		if (!sourceEntity.containsField(followSourceField)) {
 			return;
 		}
-		
+
 		// 找到主记录
-		String sql = String.format("select %s from %s where %s = ?",
-				followSourceField, sourceEntity.getName(), sourceEntity.getPrimaryField().getName());
-		Object[] o = Application.createQueryNoFilter(sql).setParameter(1, context.getSourceRecord()).unique();
-		if (o != null && o[0] != null) {
+		Object[] o = Application.getQueryFactory().uniqueNoFilter(
+				context.getSourceRecord(), followSourceField, followSourceField + "." + EntityHelper.OwningUser);
+		// o[1] 为空说明记录不存在
+		if (o != null && o[0] != null && o[1] != null) {
 			this.targetRecordId = (ID) o[0];
 		}
 	}

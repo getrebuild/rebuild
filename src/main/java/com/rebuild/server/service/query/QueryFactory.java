@@ -33,6 +33,8 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.query.NativeQuery;
 
+import java.util.Objects;
+
 /**
  * 查询服务
  * 
@@ -123,13 +125,35 @@ public class QueryFactory {
 	public Record record(String ajql) {
 		return createQuery(ajql).record();
 	}
-	
+
 	/**
 	 * @param recordId
 	 * @param fields
 	 * @return
 	 */
 	public Object[] unique(ID recordId, String ...fields) {
+		String sql = buildUniqueSql(recordId, fields);
+		return createQuery(sql).setParameter(1, recordId).unique();
+	}
+
+	/**
+	 * @param recordId
+	 * @param fields
+	 * @return
+	 */
+	public Object[] uniqueNoFilter(ID recordId, String ...fields) {
+		String sql = buildUniqueSql(recordId, fields);
+		return createQueryNoFilter(sql).setParameter(1, recordId).unique();
+	}
+
+	/**
+	 * @param recordId
+	 * @param fields
+	 * @return
+	 */
+	private String buildUniqueSql(ID recordId, String ...fields) {
+		Assert.notNull(recordId, "[recordId] not be null");
+
 		Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 		if (fields.length == 0) {
 			fields = new String[] { entity.getPrimaryField().getName() };
@@ -137,10 +161,10 @@ public class QueryFactory {
 
 		StringBuilder sql = new StringBuilder("select ");
 		sql.append(StringUtils.join(fields, ","))
-			.append(" from ").append(entity.getName())
-			.append(" where ")
-			.append(entity.getPrimaryField().getName())
-			.append(" = ?");
-		return createQuery(sql.toString()).setParameter(1, recordId).unique();
+				.append(" from ").append(entity.getName())
+				.append(" where ")
+				.append(entity.getPrimaryField().getName())
+				.append(" = ?");
+		return sql.toString();
 	}
 }

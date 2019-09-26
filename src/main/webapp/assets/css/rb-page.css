@@ -1022,6 +1022,13 @@ i.split.ui-draggable-dragging {
     cursor: help;
 }
 
+.column-state .badge {
+    font-weight: normal;
+    border-radius: 99px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
 .text-3dot {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -2308,7 +2315,7 @@ form {
 }
 
 .preview-modal .preview-header .float-right a:hover {
-    background: #888;
+    background: rgba(255, 255, 255, .3);
 }
 
 .preview-modal .preview-body,
@@ -2382,12 +2389,38 @@ form {
 }
 
 .preview-modal .preview-body .unsupports {
-    max-width: 360px;
+    max-width: 400px;
     margin: 0 auto;
-    margin-top: 10%;
-    height: 91px;
+    margin-top: 15%;
     text-align: center;
-    padding-top: 12px;
+    padding: 30px;
+    height: auto;
+}
+
+.file-share {
+    padding: 10px 40px;
+}
+
+.file-share .expires ul li a {
+    background-color: #eee;
+    border-radius: 99px;
+    padding: 4px 8px;
+    color: #777;
+    font-size: 12px;
+}
+
+.file-share .expires ul li.active a {
+    background-color: #4285f4;
+    color: #fff;
+}
+
+.file-share .expires ul li.active a::after {
+    content: '有效期';
+}
+
+.file-share .form-control {
+    background-color: #fff !important;
+    cursor: text;
 }
 
 .repeated-table {

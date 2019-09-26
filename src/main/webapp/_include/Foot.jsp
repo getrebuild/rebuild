@@ -15,6 +15,7 @@
 <script src="${baseUrl}/assets/js/rb-components.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-base.js"></script>
 <script src="${baseUrl}/assets/js/rb-page.js"></script>
+<script src="${baseUrl}/assets/js/file-preview.jsx" type="text/babel"></script>
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-70670864-2"></script>
 <script>

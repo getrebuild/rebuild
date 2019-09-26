@@ -357,9 +357,15 @@ CellRenders.addRender('URL', function (v, s, k) {
 CellRenders.addRender('EMAIL', function (v, s, k) {
   return <td key={k}><div style={s}><a href={'mailto:' + v} className="column-url">{v}</a></div></td>
 })
-const APPROVAL_STATE_CLAZZs = { '审批中': 'text-warning', '驳回': 'text-danger', '通过': 'text-success' }
+const APPROVAL_STATE_CLAZZs = { '审批中': 'warning', '驳回': 'danger', '通过': 'success' }
 CellRenders.addRender('STATE', function (v, s, k) {
-  if (k.endsWith('.approvalState')) return <td key={k}><div style={s} className={APPROVAL_STATE_CLAZZs[v] || ''}>{v}</div></td>
+  if (k.endsWith('.approvalState')) {
+    let badge = APPROVAL_STATE_CLAZZs[v]
+    return <td key={k} className="td-min column-state"><div style={s}><span className={badge ? 'badge badge-' + badge : ''}>{v}</span></div></td>
+  } else return CellRenders.renderSimple(v, s, k)
+})
+CellRenders.addRender('DECIMAL', function (v, s, k) {
+  if ((v + '').substr(0, 1) === '-') return <td key={k}><div style={s} className="text-danger">{v}</div></td>
   else return CellRenders.renderSimple(v, s, k)
 })
 

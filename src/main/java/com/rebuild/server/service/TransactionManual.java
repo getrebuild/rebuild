@@ -22,6 +22,7 @@ import com.rebuild.server.Application;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 /**
@@ -68,5 +69,14 @@ public class TransactionManual {
      */
     public static void rollback(TransactionStatus status) {
         getTxManager().rollback(status);
+    }
+
+    /**
+     * Shadow for TransactionAspectSupport#currentTransactionStatus
+     *
+     * @return
+     */
+    public static TransactionStatus currentTransactionStatus() {
+        return TransactionAspectSupport.currentTransactionStatus();
     }
 }

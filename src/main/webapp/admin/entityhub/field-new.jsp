@@ -28,8 +28,8 @@
 						<option value="PICKLIST">列表</option>
 					</optgroup>
 					<optgroup label="数字">
-						<option value="NUMBER">整数</option>
-						<option value="DECIMAL">货币</option>
+						<option value="NUMBER">数字 (整数)</option>
+						<option value="DECIMAL">货币 (带小数)</option>
 					</optgroup>
 					<optgroup label="日期">
 						<option value="DATE">日期</option>

@@ -18,8 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.base;
 
-import java.util.Set;
-
+import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.business.approval.FlowNode;
@@ -29,9 +30,7 @@ import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.BaseService;
 import com.rebuild.server.service.notification.MessageBuilder;
 
-import cn.devezhao.persist4j.PersistManagerFactory;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
+import java.util.Set;
 
 /**
  * 审批流程
@@ -166,8 +165,8 @@ public class ApprovalStepService extends BaseService {
 				}
 			}
 			
-			// 更新下一步审批人可以开始了
-			if (goNextNode) {
+			// 更新下一步审批人可以开始了（若有）
+			if (goNextNode && nextNode != null) {
 				Object[][] nextNodeApprovers = Application.createQueryNoFilter(
 						"select stepId,approver from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and isWaiting = 'T'")
 						.setParameter(1, recordId)
@@ -236,7 +235,7 @@ public class ApprovalStepService extends BaseService {
 		step.setString("node", node);
 		step.setID("approver", approver);
 		if (isWaiting) {
-			step.setBoolean("isWaiting", isWaiting);
+			step.setBoolean("isWaiting", true);
 		}
 		if (prevNode != null) {
 			step.setString("prevNode", prevNode);

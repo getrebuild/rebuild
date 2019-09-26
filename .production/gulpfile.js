@@ -14,11 +14,13 @@ const del = require('del')
 // ES6 转码并压缩
 gulp.task('xjs', () => {
     return gulp.src('../src/main/webapp/assets/js/**/*.js?(x)')
-    	.pipe(gulp.dest('./_temp/es6'))
-    	.pipe(babel())
-    	.pipe(gulp.dest('./_temp/es5'))
-    	.pipe(uglify())
-    	.pipe(debug({ title: 'compress js file : ' }))
+        .pipe(gulp.dest('./_temp/es6'))
+        .pipe(babel({
+            presets: ["@babel/env", "@babel/react"]
+        }))
+        .pipe(gulp.dest('./_temp/es5'))
+        .pipe(uglify())
+        .pipe(debug({ title: 'compress js file : ' }))
         //.pipe(rename({ extname: '.min.js' }))
         .pipe(gulp.dest('./build/assets/js'))
 })
@@ -26,8 +28,8 @@ gulp.task('xjs', () => {
 // CSS 压缩
 gulp.task('xcss', () => {
     return gulp.src('../src/main/webapp/assets/css/**/*.css')
-    	.pipe(cleanCss())
-    	.pipe(debug({ title: 'compress css file : ' }))
+        .pipe(cleanCss())
+        .pipe(debug({ title: 'compress css file : ' }))
         //.pipe(rename({ extname: '.min.css' }))
         .pipe(gulp.dest('./build/assets/css'))
 })
@@ -50,13 +52,13 @@ const fileHex = (file) => {
 
 gulp.task('xjsp', () => {
     return gulp.src('../src/main/webapp/**/*.jsp')
-    	.pipe(debug({ title: 'compress jsp file : ' }))
-    	.pipe(replace(/<script type="text\/babel">([\s\S]*)<\/script>/igm, (m, p, o, s) => {
+        .pipe(debug({ title: 'compress jsp file : ' }))
+        .pipe(replace(/<script type="text\/babel">([\s\S]*)<\/script>/igm, (m, p, o, s) => {
             if (p.trim().length == 0) return '<!-- No scripts -->'
             let es5 = ''
             try {
                 es5 = babelCore.transformSync(p, {
-                    "presets": ["@babel/env", "@babel/react"], minified: true
+                    presets: ["@babel/env", "@babel/react"], minified: true
                 }).code
             } catch (err) {
                 throw new Error('Babel transform :\n' + err)
@@ -67,9 +69,9 @@ gulp.task('xjsp', () => {
         .pipe(replace(/<script src="(.*)"><\/script>/ig, (m, p, o, s) => {
             let file = p
             if (file.includes('/lib/')) {
-            	if (file.includes('babel')) return '<!-- No Babel -->'
-            	if (file.includes('.development.js')) file = file.replace('.development.js', '.production.min.js')
-            	return '<script src="' + file + '"></script>'
+                if (file.includes('babel')) return '<!-- No Babel -->'
+                if (file.includes('.development.js')) file = file.replace('.development.js', '.production.min.js')
+                return '<script src="' + file + '"></script>'
             }
             file = file.replace('.jsx', '.js').split('?')[0]
             file += '?v=' + fileHex(file)
@@ -93,12 +95,12 @@ gulp.task('clear', () => {
 })
 
 gulp.task('cp', () => {
-	gulp.src('./build/**')
-		.pipe(gulp.dest('/data/rebuild47070/webapps/ROOT'))
+    gulp.src('./build/**')
+        .pipe(gulp.dest('/data/rebuild47070/webapps/ROOT'))
 })
 gulp.task('cp2', () => {
-	gulp.src('./build/**')
-		.pipe(gulp.dest('../target/rebuild'))
+    gulp.src('./build/**')
+        .pipe(gulp.dest('../target/rebuild'))
 })
 
 gulp.task('default', gulpSequence(['xjs', 'xcss'], 'xjsp'))

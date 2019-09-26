@@ -81,7 +81,7 @@ public class SysConfigControll extends BasePageControll {
 	 * @param index
 	 * @return
 	 */
-	private String[] starsAccount(String account[], int ...index) {
+	private String[] starsAccount(String[] account, int ...index) {
 		if (account == null) {
 			return null;
 		}
