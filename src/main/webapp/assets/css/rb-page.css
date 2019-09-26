@@ -2336,6 +2336,17 @@ form {
     padding-top: 48px;
 }
 
+@media (max-width:768px) {
+    .preview-modal .preview-header {
+        padding: 0 12px;
+    }
+    .preview-modal .preview-body .container {
+        padding-left: 0;
+        padding-right: 0;
+        max-width: 768px !important;
+    }
+}
+
 .preview-modal .preview-body .img-zoom {
     text-align: center;
 }
