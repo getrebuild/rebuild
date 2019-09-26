@@ -52,6 +52,7 @@ import com.rebuild.server.service.bizz.privileges.User;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -342,18 +343,18 @@ public class GeneralEntityService extends ObservableService  {
 		for (String cas : cascadeEntities) {
 			Entity casEntity = MetadataHelper.getEntity(cas);
 			
-			String sql = "select %s from %s where ( ";
-			sql = String.format(sql, casEntity.getPrimaryField().getName(), casEntity.getName());
-			
+			StringBuilder sql = new StringBuilder(
+					String.format("select %s from %s where ( ", casEntity.getPrimaryField().getName(), casEntity.getName()));
+
 			Field[] reftoFields = MetadataHelper.getReferenceToFields(mainEntity, casEntity);
 			for (Field field : reftoFields) {
-				sql += field.getName() + " = '" + recordMaster + "' or ";
+				sql.append(field.getName()).append(" = '").append(recordMaster).append("' or ");
 			}
-			sql = sql.substring(0, sql.length() - 4);  // remove last ' or '
-			sql += " )";
+			// remove last ' or '
+			sql.replace(sql.length() - 4, sql.length(), " )");
 
 			Filter filter = Application.getSecurityManager().createQueryFilter(Application.getCurrentUser(), action);
-			Object[][] array = Application.getQueryFactory().createQuery(sql, filter).array();
+			Object[][] array = Application.getQueryFactory().createQuery(sql.toString(), filter).array();
 			
 			Set<ID> records = new HashSet<>();
 			for (Object[] o : array) {
@@ -446,7 +447,7 @@ public class GeneralEntityService extends ObservableService  {
 		if (masterEntity != null && masterEntity.containsField(EntityHelper.ApprovalId)) {
 			Field smt = MetadataHelper.getSlaveToMasterField(entity);
 
-			ApprovalState state = getApprovalState(newRecord.getID(smt.getName()));
+			ApprovalState state = getApprovalState(newRecord.getID(Objects.requireNonNull(smt).getName()));
 			if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
 				String stateType = state == ApprovalState.APPROVED ? "已完成审批" : "正在审批中";
 				throw new DataSpecificationException("主记录" + stateType + "，不能添加明细");
@@ -462,7 +463,7 @@ public class GeneralEntityService extends ObservableService  {
 	 * @param recordOfNew
 	 */
 	protected void appendDefaultValue(Record recordOfNew) {
-		Objects.requireNonNull(recordOfNew.getPrimary(), "Must be new record");
+		Assert.isNull(recordOfNew.getPrimary(), "Must be new record");
 
 		Entity entity = recordOfNew.getEntity();
 		if (MetadataHelper.isBizzEntity(entity.getEntityCode())
@@ -509,7 +510,7 @@ public class GeneralEntityService extends ObservableService  {
 	 */
 	private ID getMasterId(Entity slaveEntity, ID slaveId) throws NoRecordFoundException {
 		Field stm = MetadataHelper.getSlaveToMasterField(slaveEntity);
-		Object[] o = Application.getQueryFactory().uniqueNoFilter(slaveId, stm.getName());
+		Object[] o = Application.getQueryFactory().uniqueNoFilter(slaveId, Objects.requireNonNull(stm).getName());
 		if (o == null) {
 			throw new NoRecordFoundException(slaveId);
 		}

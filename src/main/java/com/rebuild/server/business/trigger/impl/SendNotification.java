@@ -93,4 +93,9 @@ public class SendNotification implements TriggerAction {
 		// TODO 处理变量
 		return message + " @" + recordId;
 	}
+
+	@Override
+	public boolean useAsync() {
+		return true;
+	}
 }

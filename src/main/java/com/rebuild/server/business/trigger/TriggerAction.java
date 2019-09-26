@@ -59,4 +59,23 @@ public interface TriggerAction {
 	 * @throws TriggerException
 	 */
 	void prepare(OperatingContext operatingContext) throws TriggerException;
+
+	/**
+	 * 异步执行（异步执行会开启新事物）
+	 *
+	 * @return
+	 * @see #useNewTransaction()
+	 */
+	default boolean useAsync() {
+		return false;
+	}
+
+	/**
+	 * 是否使用新事物执行。使用新事物不会对 <tt>主事物/主操作</tt> 产生影响
+	 *
+	 * @return
+	 */
+	default boolean useNewTransaction() {
+		return false;
+	}
 }

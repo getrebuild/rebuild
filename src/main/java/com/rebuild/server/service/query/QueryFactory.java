@@ -152,7 +152,7 @@ public class QueryFactory {
 	 * @return
 	 */
 	private String buildUniqueSql(ID recordId, String ...fields) {
-		Objects.requireNonNull(recordId, "[recordId] not be null");
+		Assert.notNull(recordId, "[recordId] not be null");
 
 		Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 		if (fields.length == 0) {

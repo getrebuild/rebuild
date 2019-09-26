@@ -84,7 +84,7 @@ public class DefaultValueHelper {
             try {
                 stateClass = StateHelper.getSatetClass(field);
             } catch (IllegalArgumentException ex) {
-                LOG.error("Bad field: " + field, ex);
+                LOG.error("Bad field of state: " + field);
                 return null;
             }
 
