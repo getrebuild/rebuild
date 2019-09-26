@@ -125,15 +125,15 @@
 								<div class="form-text J_minmax">最少上传 <b>0</b> 个，最多上传 <b>9</b> 个</div>
 							</div>
 						</div>
-						<div class="form-group row J_for-PICKLIST hide">
-							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">列表选项</label>
+						<div class="form-group row J_for-PICKLIST J_for-MULTISELECT hide">
+							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">选项列表</label>
 							<div class="col-md-12 col-xl-6 col-lg-8">
 								<div class="rb-scroller sortable-box autoh">
 									<ol class="dd-list" id="picklist-items">
 										<li class="no-item">加载中</li>
 									</ol>
 								</div>
-								<button type="button" class="btn btn-secondary btn-sm J_picklist-edit" style="line-height:28px"><i class="zmdi zmdi-settings"></i> 添加/编辑选项</button>
+								<button type="button" class="btn btn-secondary btn-sm J_picklist-edit" style="line-height:28px"><i class="zmdi zmdi-settings"></i> 配置选项</button>
 							</div>
 						</div>
 						<div class="J_for-SERIES hide">

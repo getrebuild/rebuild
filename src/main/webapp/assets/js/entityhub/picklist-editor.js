@@ -17,7 +17,7 @@ $(document).ready(function () {
   })
 
   $('.J_confirm').click(function () {
-    if ($('.J_config>li').length > 50) { RbHighbar.create('最多支持50个选项'); return false }
+    if ($('.J_config>li').length > 40) { RbHighbar.create('最多支持40个选项'); return false }
     let text = $val('.J_text')
     if (!text) { RbHighbar.create('请输入选项文本'); return false }
     let id = $('.J_text').attr('attr-id')
@@ -61,7 +61,7 @@ $(document).ready(function () {
     let $btn = $(this)
     let del_confirm = function () {
       $btn.button('loading')
-      $.post(rb.baseUrl + '/admin/field/picklist-sets?' + query, JSON.stringify(_data), (res) => {
+      $.post(`${rb.baseUrl}/admin/field/picklist-sets?${query}`, JSON.stringify(_data), (res) => {
         if (res.error_code > 0) RbHighbar.error(res.error_msg)
         else parent.location.reload()
       })

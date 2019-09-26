@@ -14,7 +14,7 @@
 <div class="main-content">
 	<div class="row m-0">
 		<div class="col-6">
-			<h5 class="sortable-box-title">列表选项</h5>
+			<h5 class="sortable-box-title">选项列表</h5>
 			<div class="sortable-box rb-scroller">
 				<ol class="dd-list J_config"></ol>
 			</div>
@@ -28,7 +28,7 @@
 			</form>
 		</div>
 		<div class="col-6">
-			<h5 class="sortable-box-title">已禁用的选项</h5>
+			<h5 class="sortable-box-title">已禁用的</h5>
 			<div class="sortable-box rb-scroller">
 				<ol class="dd-list unset-list"></ol>
 			</div>

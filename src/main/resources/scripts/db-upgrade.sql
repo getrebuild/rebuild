@@ -1,6 +1,11 @@
 -- Database upgrade scripts for rebuild 1.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #13 MultiSelect supports by PickList (v1.6)
+alter table `pick_list`
+  add column `MASK_VALUE` bigint(20) default '0' comment 'MultiSelect专用',
+  add index  `IX1_pick_list` (`BELONG_ENTITY`, `BELONG_FIELD`);
+
 -- #12 Field can be repeated (v1.5)
 alter table `meta_field`
     add column `REPEATABLE` char(1) default 'T';

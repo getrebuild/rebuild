@@ -18,24 +18,23 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.admin.entityhub;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-
+import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.PickListManager;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entity.DisplayType;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.configuration.PickListService;
 import com.rebuild.web.BaseControll;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.persist4j.Field;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * @author zhaofang123@gmail.com
@@ -45,7 +44,7 @@ import cn.devezhao.persist4j.Field;
 @RequestMapping("/admin/field/")
 public class PickListControll extends BaseControll {
 	
-	@RequestMapping("picklist-gets")
+	@RequestMapping({ "picklist-gets", "multiselect-gets" })
 	public void picklistGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
 		String field = getParameterNotNull(request, "field");
@@ -56,14 +55,19 @@ public class PickListControll extends BaseControll {
 		writeSuccess(response, picklist);
 	}
 	
-	@RequestMapping("picklist-sets")
+	@RequestMapping({ "picklist-sets", "multiselect-sets" })
 	public void picklistSet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entity = getParameterNotNull(request, "entity");
 		String field = getParameterNotNull(request, "field");
 		JSONObject config = (JSONObject) ServletUtils.getRequestJson(request);
 		
-		Field field2field = MetadataHelper.getField(entity, field);
-		Application.getBean(PickListService.class).updateBatch(field2field, config);
+		Field fieldMeta = MetadataHelper.getField(entity, field);
+		DisplayType dt = EasyMeta.getDisplayType(fieldMeta);
+		if (dt == DisplayType.PICKLIST) {
+            Application.getBean(PickListService.class).updateBatch(fieldMeta, config);
+        } else if (dt == DisplayType.MULTISELECT) {
+            Application.getBean(PickListService.class).updateBatchMultiSelect(fieldMeta, config);
+        }
 		writeSuccess(response);
 	}
 }

@@ -38,7 +38,7 @@ import java.util.List;
 public class PickListManager implements ConfigManager<Object> {
 
 	public static final PickListManager instance = new PickListManager();
-	private PickListManager() { }
+	protected PickListManager() { }
 	
 	/**
 	 * @param field
@@ -73,7 +73,7 @@ public class PickListManager implements ConfigManager<Object> {
 		ConfigEntry[] entries = (ConfigEntry[]) Application.getCommonCache().getx(ckey);
 		if (entries == null) {
 			Object[][] array = Application.createQueryNoFilter(
-					"select itemId,text,isDefault,isHide from PickList where belongEntity = ? and belongField = ? order by seq asc")
+					"select itemId,text,isDefault,isHide,maskValue from PickList where belongEntity = ? and belongField = ? order by seq asc")
 					.setParameter(1, entity)
 					.setParameter(2, field)
 					.array();
@@ -83,7 +83,8 @@ public class PickListManager implements ConfigManager<Object> {
 						.set("id", o[0])
 						.set("text", o[1])
 						.set("default", o[2])
-						.set("hide", o[3]);
+						.set("hide", o[3])
+						.set("mask", o[4]);
 				list.add(entry);
 			}
 			

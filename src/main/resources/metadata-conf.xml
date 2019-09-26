@@ -100,6 +100,8 @@
 		<field name="seq" type="int" default-value="0" description="排序, 小到大" />
 		<field name="isDefault" type="bool" default-value="F" />
 		<field name="isHide" type="bool" default-value="F" />
+        <field name="maskValue" type="long" default-value="0" description="MultiSelect专用" />
+        <index field-list="belongEntity,belongField" />
 	</entity>
 
 	<entity name="LayoutConfig" type-code="013" description="布局配置 (表单/列表/视图(相关项/新建))">
