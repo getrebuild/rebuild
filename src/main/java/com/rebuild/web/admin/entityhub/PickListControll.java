@@ -25,8 +25,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.PickListManager;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entity.DisplayType;
-import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.configuration.PickListService;
 import com.rebuild.web.BaseControll;
 import org.springframework.stereotype.Controller;
@@ -62,12 +60,7 @@ public class PickListControll extends BaseControll {
 		JSONObject config = (JSONObject) ServletUtils.getRequestJson(request);
 		
 		Field fieldMeta = MetadataHelper.getField(entity, field);
-		DisplayType dt = EasyMeta.getDisplayType(fieldMeta);
-		if (dt == DisplayType.PICKLIST) {
-            Application.getBean(PickListService.class).updateBatch(fieldMeta, config);
-        } else if (dt == DisplayType.MULTISELECT) {
-            Application.getBean(PickListService.class).updateBatchMultiSelect(fieldMeta, config);
-        }
+		Application.getBean(PickListService.class).updateBatch(fieldMeta, config);
 		writeSuccess(response);
 	}
 }

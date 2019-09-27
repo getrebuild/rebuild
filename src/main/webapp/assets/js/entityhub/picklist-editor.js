@@ -82,7 +82,7 @@ $(document).ready(function () {
 render_unset_after = function (item) {
   let del = $('<a href="javascript:;" class="action">[移除]</a>').appendTo(item.find('.dd-handle'))
   del.click(() => {
-    del.text('[将在保存后彻底移除]')
+    del.text('[保存后移除]')
     del.parent().parent().attr('data-del', 'force')
     return false
   })

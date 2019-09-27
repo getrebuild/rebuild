@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.configuration.portals;
 
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
@@ -56,8 +57,8 @@ public class MultiSelectManager extends PickListManager {
      * @param field
      * @return
      */
-    public String getText(long maskValue, Field field) {
-        final String ckey = "MultiSelectLABEL-" + field.getName() + "-" + maskValue;
+    public String getLabel(long maskValue, Field field) {
+        final String ckey = String.format("MultiSelectLABEL-%s.%s:%d", field.getOwnEntity().getNameField(), field.getName(), maskValue);
         String cval = Application.getCommonCache().get(ckey);
         if (cval != null) {
             return cval;
@@ -75,16 +76,16 @@ public class MultiSelectManager extends PickListManager {
     }
 
     /**
-     * @param text
+     * @param label
      * @param field
      * @return
      */
-    public Long findByText(String text, Field field) {
+    public Long findMaskByLabel(String label, Field field) {
         Object[] o = Application.createQueryNoFilter(
                 "select maskValue from PickList where belongEntity = ? and belongField = ? and text = ?")
                 .setParameter(1, field.getOwnEntity().getName())
                 .setParameter(2, field.getName())
-                .setParameter(3, text)
+                .setParameter(3, label)
                 .unique();
         return o == null ? 0L : (Long) o[0];
     }
@@ -95,8 +96,8 @@ public class MultiSelectManager extends PickListManager {
      * @param field
      * @return
      */
-    public Long getDefaultValue(Field field) {
-        for (ConfigEntry e : getPickListRaw(field.getOwnEntity().getName(), field.getName(), false)) {
+    public Long getDefaultMask(Field field) {
+        for (ConfigEntry e : getPickListRaw(field, false)) {
             if (e.getBoolean("default")) {
                 return e.get("mask", Long.class);
             }
@@ -106,7 +107,14 @@ public class MultiSelectManager extends PickListManager {
 
     @Override
     public void clean(Object cacheKey) {
-        // TODO 缓存清理
-        super.clean(cacheKey);
+        if (cacheKey instanceof ID) {
+            Object[] maskValue = Application.getQueryFactory().uniqueNoFilter((ID) cacheKey, "belongEntity", "belongField", "maskValue");
+            if (maskValue != null) {
+                final String ckey = String.format("MultiSelectLABEL-%s.%s:%d", maskValue[0], maskValue[1], maskValue[2]);
+                Application.getCommonCache().evict(ckey);
+            }
+        } else {
+            super.clean(cacheKey);
+        }
     }
 }

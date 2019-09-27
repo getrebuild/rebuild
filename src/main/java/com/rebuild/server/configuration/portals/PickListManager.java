@@ -45,7 +45,7 @@ public class PickListManager implements ConfigManager<Object> {
 	 * @return
 	 */
 	public JSONArray getPickList(Field field) {
-		ConfigEntry entries[] = getPickListRaw(field.getOwnEntity().getName(), field.getName(), false);
+		ConfigEntry entries[] = getPickListRaw(field, false);
 		for (ConfigEntry e : entries) {
 			e.set("hide", null);
 		}
@@ -58,8 +58,17 @@ public class PickListManager implements ConfigManager<Object> {
 	 * @return
 	 */
 	public JSONArray getPickList(Field field, boolean includeHide) {
-		ConfigEntry entries[] = getPickListRaw(field.getOwnEntity().getName(), field.getName(), includeHide);
+		ConfigEntry entries[] = getPickListRaw(field, includeHide);
 		return JSONUtils.toJSONArray(entries);
+	}
+
+	/**
+	 * @param field
+	 * @param includeHide
+	 * @return
+	 */
+	public ConfigEntry[] getPickListRaw(Field field, boolean includeHide) {
+		return getPickListRaw(field.getOwnEntity().getName(), field.getName(), includeHide);
 	}
 	
 	/**
@@ -145,7 +154,7 @@ public class PickListManager implements ConfigManager<Object> {
 	 * @return
 	 */
 	public ID getDefaultItem(Field field) {
-		for (ConfigEntry e : getPickListRaw(field.getOwnEntity().getName(), field.getName(), false)) {
+		for (ConfigEntry e : getPickListRaw(field, false)) {
 			if (e.getBoolean("default")) {
 				return e.getID("id");
 			}
