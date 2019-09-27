@@ -573,12 +573,18 @@ a {
 
 .type-MULTISELECT {
     padding-bottom: 6px !important;
+    overflow: hidden;
 }
 
 .type-MULTISELECT .custom-checkbox {
     margin-bottom: 0.61rem;
     margin-right: 2%;
     min-width: 23%;
+}
+
+.type-MULTISELECT .text-danger {
+    padding-top: 4px;
+    margin-bottom: 0.51rem;
 }
 
 .img-field {

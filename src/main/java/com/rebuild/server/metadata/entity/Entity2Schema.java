@@ -157,6 +157,7 @@ public class Entity2Schema extends Field2Schema {
 				createBuiltinField(tempEntity, EntityHelper.OwningDept, "所属部门", DisplayType.REFERENCE, null, "Department", null);
 			}
 		} catch (Throwable ex) {
+		    LOG.error(null, ex);
 			Application.getCommonService().delete(tempMetaId.toArray(new ID[0]));
 			return null;
 		}

@@ -935,7 +935,8 @@ class RbFormMultiSelect extends RbFormElement {
     let name = 'checkbox-' + this.props.field
     return (
       <div className="mt-1" ref={(c) => this._checkboxes = c}>
-        {this.props.options.map((item) => {
+        {(this.props.options || []).length === 0 && <div className="text-danger">未配置选项</div>}
+        {(this.props.options || []).map((item) => {
           return <label key={name + ':' + item.mask} className="custom-control custom-control-sm custom-checkbox  custom-control-inline">
             <input className="custom-control-input" name={name} type="checkbox" checked={(this.state.value & item.mask) !== 0} value={item.mask} onChange={this.changeValue} />
             <span className="custom-control-label">{item.text}</span>
