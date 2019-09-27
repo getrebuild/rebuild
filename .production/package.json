@@ -28,6 +28,7 @@
         "gulp-replace": "^1.0.0",
         "gulp-sequence": "^1.0.0",
         "gulp-uglify": "^3.0.1",
-        "rev-hash": "^2.0.0"
+        "rev-hash": "^2.0.0",
+        "clean-css": "^4.2.1"
     }
 }
