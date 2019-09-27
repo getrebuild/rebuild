@@ -26,6 +26,7 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.ClassificationManager;
 import com.rebuild.server.configuration.portals.FieldPortalAttrs;
+import com.rebuild.server.configuration.portals.MultiSelectManager;
 import com.rebuild.server.configuration.portals.PickListManager;
 import com.rebuild.server.helper.state.StateManager;
 import com.rebuild.server.metadata.EntityHelper;
@@ -189,15 +190,19 @@ public class MetadataGetting extends BaseControll {
 		String field = getParameterNotNull(request, "field");
 
 		Field fieldMeta = getRealField(entity, field);
-		EasyMeta fieldEasy = EasyMeta.valueOf(fieldMeta);
-		if (fieldEasy.getDisplayType() == DisplayType.STATE) {
-            JSON options = StateManager.instance.getStateOptions(fieldMeta);
-            writeSuccess(response, options);
+		DisplayType dt = EasyMeta.getDisplayType(fieldMeta);
+
+		JSON options = null;
+		if (dt == DisplayType.STATE) {
+			options = StateManager.instance.getStateOptions(fieldMeta);
         }
+		else if (dt == DisplayType.MULTISELECT) {
+			options = MultiSelectManager.instance.getSelectList(fieldMeta);
+		}
 		else {
-            JSON options = PickListManager.instance.getPickList(fieldMeta);
-            writeSuccess(response, options);
+            options = PickListManager.instance.getPickList(fieldMeta);
         }
+		writeSuccess(response, options);
 	}
 	
 	// Classification 值列表

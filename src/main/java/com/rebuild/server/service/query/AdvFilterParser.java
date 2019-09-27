@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.service.query;
 
 import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
@@ -112,6 +113,8 @@ public class AdvFilterParser {
 			String itemSql = parseItem(jo, values);
 			if (itemSql != null) {
 				indexItemSqls.put(index, itemSql.trim());
+			} else {
+				LOG.warn("Bad item of AdvFilter : " + jo.toJSONString());
 			}
 		}
 		if (indexItemSqls.isEmpty()) {
@@ -190,6 +193,8 @@ public class AdvFilterParser {
 		String value = item.getString("value");
 		String valueEnd = null;
 
+		// 根据字段类型转换 `op`
+
 		// 日期时间
 		if (dt == DisplayType.DATETIME || dt == DisplayType.DATE) {
 			if ("TDA".equalsIgnoreCase(op) || "YTA".equalsIgnoreCase(op) || "TTA".equalsIgnoreCase(op)) {
@@ -209,6 +214,22 @@ public class AdvFilterParser {
 			if ("EQ".equalsIgnoreCase(op) && dt == DisplayType.DATETIME && StringUtils.length(value) == 10) {
 				op = "BW";
 				valueEnd = parseValue(value, op, fieldMeta, true);
+			}
+		} else if (dt == DisplayType.MULTISELECT) {
+			if (op.equalsIgnoreCase("IN") || op.equalsIgnoreCase("NIN")) {
+				op = op.equalsIgnoreCase("IN") ? "BAND" : "BNAND";
+
+				long maskValue = 0;
+				for (String s : value.split("\\|")) {
+					maskValue += ObjectUtils.toLong(s);
+				}
+				value = maskValue + "";
+			} else if (op.equalsIgnoreCase("NL")) {  // `< 1`
+				op = "LT";
+				value = "1";
+			} else if (op.equalsIgnoreCase("NT")) {  // `> 0`
+				op = "GT";
+				value = "0";
 			}
 		}
 
@@ -263,14 +284,13 @@ public class AdvFilterParser {
 		}
 
 		if (StringUtils.isBlank(value)) {
-			LOG.warn("Invalid item of AdvFilter : " + item.toJSONString());
 			return null;
 		}
 
 		// 快速搜索的占位符 {1}
 		if (value.matches("\\{\\d+\\}")) {
 			if (values == null) {
-				LOG.warn("Invalid item of AdvFilter : " + item.toJSONString());
+
 				return null;
 			}
 
@@ -282,10 +302,9 @@ public class AdvFilterParser {
 		
 		// No value for search
 		if (value == null) {
-//			LOG.warn("Invalid item of AdvFilter : " + item.toJSONString());
 			return null;
 		}
-		
+
 		// 区间
 		boolean isBetween = op.equalsIgnoreCase("BW");
 		if (isBetween && valueEnd == null) {
@@ -416,6 +435,8 @@ public class AdvFilterParser {
 		else if ("YTA".equalsIgnoreCase(op)) return "=";
 		else if ("TDA".equalsIgnoreCase(op)) return "=";
 		else if ("TTA".equalsIgnoreCase(op)) return "=";
+		else if ("BAND".equalsIgnoreCase(op)) return "&&";
+		else if ("BNAND".equalsIgnoreCase(op)) return "!&";
 		throw new UnsupportedOperationException("Unsupported token [" + op + "]");
 	}
 	
