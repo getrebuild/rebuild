@@ -224,12 +224,6 @@ public class AdvFilterParser {
 					maskValue += ObjectUtils.toLong(s);
 				}
 				value = maskValue + "";
-			} else if (op.equalsIgnoreCase("NL")) {  // `< 1`
-				op = "LT";
-				value = "1";
-			} else if (op.equalsIgnoreCase("NT")) {  // `> 0`
-				op = "GT";
-				value = "0";
 			}
 		}
 

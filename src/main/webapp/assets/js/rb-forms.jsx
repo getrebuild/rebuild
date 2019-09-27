@@ -950,7 +950,7 @@ class RbFormMultiSelect extends RbFormElement {
     $(this._checkboxes).find('input:checked').each(function () {
       maskValue += ~~$(this).val()
     })
-    this.handleChange({ target: { value: maskValue } }, true)
+    this.handleChange({ target: { value: maskValue === 0 ? null : maskValue } }, true)
   }
 }
 

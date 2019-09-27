@@ -13,7 +13,7 @@ $(document).ready(function () {
       if (this.field === '$DIVIDER$') {
         render_item({ fieldName: this.field, fieldLabel: this.label || '分栏线', isFull: true }, '.form-preview')
       } else if (!field) {
-        let item = $('<div class="dd-item"><div class="dd-handle J_field J_missed"><span class="text-danger">[' + this.field + '] 字段已被删除</span></div></div>').appendTo('.form-preview')
+        let item = $('<div class="dd-item"><div class="dd-handle J_field J_missed"><span class="text-danger">[' + this.field.toUpperCase() + '] 字段已被删除</span></div></div>').appendTo('.form-preview')
         let action = $('<div class="dd-action"><a>[移除]</a></div>').appendTo(item.find('.dd-handle'))
         action.find('a').click(function () {
           item.remove()

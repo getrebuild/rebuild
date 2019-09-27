@@ -156,7 +156,8 @@ $(document).ready(function () {
         } else RbHighbar.error(res.error_msg)
       })
     }
-    RbAlert.create('字段删除后将无法恢复，请务必谨慎操作！确认删除吗？', '删除字段', alertExt)
+    alertExt.call = function () { $countdownButton($(this._dlg).find('.btn-danger')) }
+    RbAlert.create('字段删除后将无法恢复，请务必谨慎操作。确认删除吗？', '删除字段', alertExt)
   })
 })
 

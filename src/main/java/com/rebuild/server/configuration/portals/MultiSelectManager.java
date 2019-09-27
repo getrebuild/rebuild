@@ -78,14 +78,14 @@ public class MultiSelectManager extends PickListManager {
      * @param field
      * @return
      */
-    public long findByLabel(String label, Field field) {
+    public Long findByLabel(String label, Field field) {
         Object[] o = Application.createQueryNoFilter(
                 "select maskValue from PickList where belongEntity = ? and belongField = ? and text = ?")
                 .setParameter(1, field.getOwnEntity().getName())
                 .setParameter(2, field.getName())
                 .setParameter(3, label)
                 .unique();
-        return o == null ? 0L : (Long) o[0];
+        return o == null ? null : (Long) o[0];
     }
 
     /**
@@ -94,14 +94,14 @@ public class MultiSelectManager extends PickListManager {
      * @param field
      * @return
      */
-    public long getDefaultValue(Field field) {
+    public Long getDefaultValue(Field field) {
         long maskValue = 0;
         for (ConfigEntry e : getPickListRaw(field, false)) {
             if (e.getBoolean("default")) {
                 maskValue += e.get("mask", Long.class);
             }
         }
-        return maskValue;
+        return maskValue == 0 ? null : maskValue;
     }
 
     @Override

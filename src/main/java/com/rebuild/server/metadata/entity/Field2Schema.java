@@ -277,9 +277,7 @@ public class Field2Schema {
 		boolean autoValue = EntityHelper.AutoId.equalsIgnoreCase(fieldName);
 		if (EntityHelper.ApprovalState.equalsIgnoreCase(fieldName)) {
 			defaultValue = ApprovalState.DRAFT.getState();
-		} else if (dt == DisplayType.MULTISELECT) {
-		    defaultValue = 0;
-        }
+		}
 
 		// 系统级字段非空
         if (MetadataHelper.isCommonsField(fieldName)
