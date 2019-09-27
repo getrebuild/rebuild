@@ -74,7 +74,7 @@ $(document).ready(function () {
       $(res.data).each(function () { picklistItemRender(this) })
       if (res.data.length > 5) $('#picklist-items').parent().removeClass('autoh')
     })
-    $('.J_picklist-edit').click(() => RbModal.create(`${rb.baseUrl}/admin/p/entityhub/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}`, '配置选项'))
+    $('.J_picklist-edit').click(() => RbModal.create(`${rb.baseUrl}/admin/p/entityhub/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}&multi=${dt === 'MULTISELECT'}`, '配置选项'))
   }
   else if (dt === 'SERIES') {
     $('#defaultValue').parents('.form-group').remove()

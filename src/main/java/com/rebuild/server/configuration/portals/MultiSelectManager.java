@@ -23,6 +23,10 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
+import com.rebuild.utils.JSONUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 多选字段
@@ -40,16 +44,12 @@ public class MultiSelectManager extends PickListManager {
      * @return
      */
     public JSONArray getSelectList(Field field) {
-        return super.getPickList(field);
-    }
-
-    /**
-     * @param field
-     * @param includeHide
-     * @return
-     */
-    public JSONArray getSelectList(Field field, boolean includeHide) {
-        return super.getPickList(field, includeHide);
+        ConfigEntry entries[] = getPickListRaw(field, false);
+        for (ConfigEntry e : entries) {
+            e.set("hide", null);
+            e.set("id", null);
+        }
+        return JSONUtils.toJSONArray(entries);
     }
 
     /**
@@ -57,22 +57,20 @@ public class MultiSelectManager extends PickListManager {
      * @param field
      * @return
      */
-    public String getLabel(long maskValue, Field field) {
-        final String ckey = String.format("MultiSelectLABEL-%s.%s:%d", field.getOwnEntity().getNameField(), field.getName(), maskValue);
-        String cval = Application.getCommonCache().get(ckey);
-        if (cval != null) {
-            return cval;
+    public String[] getLabel(long maskValue, Field field) {
+        if (maskValue <= 0) {
+            return new String[0];
         }
 
-        Object[] o = Application.createQueryNoFilter(
-                "select text from PickList where maskValue = ?")
-                .setParameter(1, maskValue)
-                .unique();
-        if (o != null) {
-            cval = (String) o[0];
+        List<String> labels = new ArrayList<>();
+        ConfigEntry entries[] = getPickListRaw(field, false);
+        for (ConfigEntry e : entries) {
+            long m = e.get("mask", Long.class);
+            if ((maskValue & m) != 0) {
+                labels.add(e.getString("text"));
+            }
         }
-        Application.getCommonCache().put(ckey, cval);
-        return cval;
+        return labels.toArray(new String[0]);
     }
 
     /**
@@ -80,7 +78,7 @@ public class MultiSelectManager extends PickListManager {
      * @param field
      * @return
      */
-    public Long findMaskByLabel(String label, Field field) {
+    public long findByLabel(String label, Field field) {
         Object[] o = Application.createQueryNoFilter(
                 "select maskValue from PickList where belongEntity = ? and belongField = ? and text = ?")
                 .setParameter(1, field.getOwnEntity().getName())
@@ -91,28 +89,25 @@ public class MultiSelectManager extends PickListManager {
     }
 
     /**
-     * 获取默认项
+     * 获取默认值
      *
      * @param field
      * @return
      */
-    public Long getDefaultMask(Field field) {
+    public long getDefaultValue(Field field) {
+        long maskValue = 0;
         for (ConfigEntry e : getPickListRaw(field, false)) {
             if (e.getBoolean("default")) {
-                return e.get("mask", Long.class);
+                maskValue += e.get("mask", Long.class);
             }
         }
-        return 0L;
+        return maskValue;
     }
 
     @Override
     public void clean(Object cacheKey) {
         if (cacheKey instanceof ID) {
-            Object[] maskValue = Application.getQueryFactory().uniqueNoFilter((ID) cacheKey, "belongEntity", "belongField", "maskValue");
-            if (maskValue != null) {
-                final String ckey = String.format("MultiSelectLABEL-%s.%s:%d", maskValue[0], maskValue[1], maskValue[2]);
-                Application.getCommonCache().evict(ckey);
-            }
+            // Nothings
         } else {
             super.clean(cacheKey);
         }

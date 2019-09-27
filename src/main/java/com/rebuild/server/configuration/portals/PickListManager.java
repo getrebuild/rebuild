@@ -48,6 +48,7 @@ public class PickListManager implements ConfigManager<Object> {
 		ConfigEntry entries[] = getPickListRaw(field, false);
 		for (ConfigEntry e : entries) {
 			e.set("hide", null);
+			e.set("mask", null);
 		}
 		return JSONUtils.toJSONArray(entries);
 	}

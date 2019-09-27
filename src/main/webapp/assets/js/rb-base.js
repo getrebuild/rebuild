@@ -304,5 +304,6 @@ var $same = function (a, b) {
       b = b.join(',')
     }
   }
-  return a === b
+  // eslint-disable-next-line eqeqeq
+  return a == b
 }

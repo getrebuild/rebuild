@@ -5,9 +5,19 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>列表选项</title>
 <style type="text/css">
-.unset-list .dd-handle{font-style:italic;color:#aaa}
-.unset-list .dd-item a.action{position:absolute;right:24px;top:1px;font-style:normal;}
-.unset-list .dd-item:hover a.action{color:#fff}
+.unset-list .dd-handle {
+	font-style: italic;
+	color: #aaa
+}
+.unset-list .dd-item a.action {
+	position: absolute;
+	right: 24px;
+	top: 1px;
+	font-style: normal;
+}
+.unset-list .dd-item:hover a.action {
+	color: #fff
+}
 </style>
 </head>
 <body class="dialog">

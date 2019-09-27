@@ -1,5 +1,6 @@
 /* eslint-disable no-undef */
-let default_item
+const multi = $urlp('multi') === 'true'
+const maxOptions = multi ? 20 : 40
 $(document).ready(function () {
   const query = 'entity=' + $urlp('entity') + '&field=' + $urlp('field')
 
@@ -8,18 +9,24 @@ $(document).ready(function () {
       if (this.hide === true) render_unset([this.id, this.text])
       else {
         let item = render_item([this.id, this.text])
-        if (this['default'] === true) {
-          default_item = this.id
-          item.addClass('active')
-        }
+        if (this['default']) item.find('.defset').trigger('click')
       }
     })
   })
 
   $('.J_confirm').click(function () {
-    if ($('.J_config>li').length > 40) { RbHighbar.create('最多支持40个选项'); return false }
+    if ($('.J_config>li').length > maxOptions) { RbHighbar.create('最多支持' + maxOptions + '个选项'); return false }
     let text = $val('.J_text')
-    if (!text) { RbHighbar.create('请输入选项文本'); return false }
+    if (!text) { RbHighbar.create('请输入选项值'); return false }
+    let repeated = false
+    $('.dd-list .dd3-content, .dd-list .dd-handle>span').each(function () {
+      if ($(this).text() === text) {
+        repeated = true
+        return false
+      }
+    })
+    if (repeated) { RbHighbar.create('包含重复选项'); return false }
+
     let id = $('.J_text').attr('attr-id')
     $('.J_text').val('').attr('attr-id', '')
     $('.J_confirm').text('添加')
@@ -39,8 +46,8 @@ $(document).ready(function () {
       let id = $this.attr('data-key')
       show_items.push({
         id: id,
-        'default': id === default_item,
-        text: $this.find('.dd3-content').text()
+        text: $this.find('.dd3-content').text(),
+        'default': $this.hasClass('active')
       })
     })
     let hide_items = []
@@ -82,7 +89,7 @@ $(document).ready(function () {
 render_unset_after = function (item) {
   let del = $('<a href="javascript:;" class="action">[移除]</a>').appendTo(item.find('.dd-handle'))
   del.click(() => {
-    del.text('[保存后移除]')
+    del.text('保存后删除')
     del.parent().parent().attr('data-del', 'force')
     return false
   })
@@ -96,11 +103,17 @@ render_item_after = function (item, data) {
     $('.J_confirm').text('修改')
   })
 
-  let default0 = $('<a href="javascript:;">[默认]</a>').appendTo(item.find('.dd3-action'))
-  default0.click(function () {
-    $('.J_config li').removeClass('active')
-    default0.parent().parent().addClass('active')
-    default_item = data[0]
+  let $def = $('<a href="javascript:;" class="defset">[默认]</a>').appendTo(item.find('.dd3-action'))
+  $def.click(function () {
+    let $dd3 = $def.parent().parent()
+    if ($dd3.hasClass('active')) {
+      $dd3.removeClass('active')
+      $def.text('[默认]')
+    } else {
+      if (!multi) $('.J_config li').removeClass('active').find('.defset').text('[默认]')
+      $dd3.addClass('active')
+      $def.text('[取消]')
+    }
   })
 
   // 新增加的还未保存

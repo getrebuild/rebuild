@@ -34,7 +34,7 @@
 	color: #4285f4;
 }
 .dt-MULTISELECT .dd-handle, .dt-PICKLIST .dd-handle {
-	padding-left: 32px !important;
+	padding-left: 31px !important;
 }
 .dt-MULTISELECT .dd-handle::before, .dt-PICKLIST .dd-handle::before {
 	position: absolute;
@@ -48,7 +48,12 @@
 	content: '\f26a';
 }
 .dt-PICKLIST .dd-handle::before {
-	content: '\f31f';
+	content: '\f273';
+	font-size: 17px;
+	font-weight: bold;
+}
+.dt-PICKLIST .default .dd-handle::before {
+	content: '\f26b';
 }
 .form-text.help code {
 	cursor: help;
@@ -62,6 +67,10 @@
 .calc-expr .col-4 {
 	padding-left: 10px;
 	padding-right: 10px;
+}
+#stateClass:empty::before {
+	content: '无效状态类';
+	color: #ea4335;
 }
 </style>
 </head>

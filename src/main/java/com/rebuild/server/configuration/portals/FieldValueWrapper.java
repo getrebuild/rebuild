@@ -114,7 +114,9 @@ public class FieldValueWrapper {
 			return wrapClassification(value, field);
 		} else if (dt == DisplayType.STATE) {
 		    return wrapState(value, field);
-        } else {
+        } else if (dt == DisplayType.MULTISELECT) {
+			return wrapMultiSelect(value, field);
+		} else {
 			return wrapSimple(value, field);
 		}
 	}
@@ -226,6 +228,20 @@ public class FieldValueWrapper {
         String stateClass = field.getFieldExtConfig().getString("stateClass");
         return StateHelper.valueOf(stateClass, (Integer) state).getName();
     }
+
+	/**
+	 * @param item
+	 * @param field
+	 * @return
+	 * @see PickListManager
+	 */
+	public String wrapMultiSelect(Object item, EasyMeta field) {
+		if ((Long) item <= 0) {
+			return StringUtils.EMPTY;
+		}
+		String[] multiLabel = MultiSelectManager.instance.getLabel((Long) item, (Field) field.getBaseMeta());
+		return StringUtils.join(multiLabel, "/");
+	}
 	
 	/**
 	 * @param simple

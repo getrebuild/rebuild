@@ -571,6 +571,16 @@ a {
     top: 8px;
 }
 
+.type-MULTISELECT {
+    padding-bottom: 6px !important;
+}
+
+.type-MULTISELECT .custom-checkbox {
+    margin-bottom: 0.61rem;
+    margin-right: 2%;
+    min-width: 23%;
+}
+
 .img-field {
     line-height: 1;
     font-size: 0;
@@ -2340,6 +2350,7 @@ form {
     .preview-modal .preview-header {
         padding: 0 12px;
     }
+
     .preview-modal .preview-body .container {
         padding-left: 0;
         padding-right: 0;
