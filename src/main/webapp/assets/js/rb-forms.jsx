@@ -952,6 +952,14 @@ class RbFormMultiSelect extends RbFormElement {
     })
     this.handleChange({ target: { value: maskValue === 0 ? null : maskValue } }, true)
   }
+  renderViewElement() {
+    if (!this.state.value) return super.renderViewElement()
+    return <div className="form-control-plaintext">
+      {this.state.value.split('||').map((item) => {
+        return <span key={'opt-' + item} className="badge">{item}</span>
+      })}
+    </div>
+  }
 }
 
 // 分割线

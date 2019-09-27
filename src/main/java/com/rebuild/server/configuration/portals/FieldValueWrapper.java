@@ -240,7 +240,7 @@ public class FieldValueWrapper {
 			return StringUtils.EMPTY;
 		}
 		String[] multiLabel = MultiSelectManager.instance.getLabel((Long) item, (Field) field.getBaseMeta());
-		return StringUtils.join(multiLabel, "/");
+		return StringUtils.join(multiLabel, "||");
 	}
 	
 	/**

@@ -99,8 +99,8 @@ render_item_after = function (item, data) {
   item.find('a').eq(0).text('[禁用]')
   let edit = $('<a href="javascript:;">[修改]</a>').appendTo(item.find('.dd3-action'))
   edit.click(function () {
-    $('.J_text').val(data[1]).attr('attr-id', data[0])
     $('.J_confirm').text('修改')
+    $('.J_text').val(data[1]).attr('attr-id', data[0]).focus()
   })
 
   let $def = $('<a href="javascript:;" class="defset">[默认]</a>').appendTo(item.find('.dd3-action'))

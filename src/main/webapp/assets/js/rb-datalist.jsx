@@ -368,6 +368,13 @@ CellRenders.addRender('DECIMAL', function (v, s, k) {
   if ((v + '').substr(0, 1) === '-') return <td key={k}><div style={s} className="text-danger">{v}</div></td>
   else return CellRenders.renderSimple(v, s, k)
 })
+CellRenders.addRender('MULTISELECT', function (v, s, k) {
+  return <td key={k}><div style={s} className="column-multi">
+    {v.split('||').map((item) => {
+      return <span key={'opt-' + item} className="badge">{item}</span>
+    })}
+  </div></td>
+})
 
 // 分页组件
 class RbListPagination extends React.Component {
