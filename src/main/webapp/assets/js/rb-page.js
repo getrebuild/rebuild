@@ -94,9 +94,9 @@ var __initNavs = function () {
   $('.sidebar-elements li.parent').click(function (e) {
     var _this = $(this)
     _this.toggleClass('open')
-    let $sub = _this.find('.sub-menu')
+    var $sub = _this.find('.sub-menu')
     // if (!$sub.hasClass('visible')) {
-    //   let subHeight = $sub.height()
+    //   var subHeight = $sub.height()
     //   $sub.css({ height: 0, overflow: 'hidden' })
     //   $sub.animate({ height: subHeight + 22 }, 200)
     // }
@@ -158,7 +158,7 @@ var __checkMessage = function () {
 
     if (__checkMessage__state !== res.data.unread) {
       if (__checkMessage__state > 0) {
-        document.title = `(${__checkMessage__state}) ${document.title}`
+        document.title = '(' + __checkMessage__state + ') ' + document.title
         // __showNotification()
       }
       __loadMessages__state = 0
@@ -193,7 +193,7 @@ var __loadMessages = function () {
 var __showNotification = function () {
   if (window.Notification) {
     if (window.Notification.permission === 'granted') {
-      var n = new Notification(`你有 ${__checkMessage__state} 条未读消息`, {
+      var n = new Notification('你有 ' + __checkMessage__state + ' 条未读消息', {
         tag: 'rbNotification'
       })
     } else {
@@ -204,30 +204,30 @@ var __showNotification = function () {
 
 // Global search
 var __globalSearch = function () {
-  $('.sidebar-elements li').each((idx, item) => {
+  $('.sidebar-elements li').each(function(idx, item) {
     if (idx > 40) return false
-    let id = $(item).attr('id')
+    var id = $(item).attr('id')
     if (id && id.startsWith('nav_entity-') && id !== 'nav_entity-$PARENT$') {
-      let $a = $(item).find('a')
+      var $a = $(item).find('a')
       $('<a class="text-truncate" data-url="' + $a.attr('href') + '">' + $a.text() + '</a>').appendTo('.search-models')
     }
   })
 
-  let activeModel
-  let aModels = $('.search-models a').click(function () {
-    let s = $('.search-input').val()
+  var activeModel
+  var aModels = $('.search-models a').click(function () {
+    var s = $('.search-input').val()
     location.href = $(this).data('url') + '#gs=' + $encode(s)
   })
   if (aModels.length === 0) return
   activeModel = aModels.eq(0).addClass('active')
 
-  $(document).click((e) => {
+  $(document).click(function(e) {
     if ($(e.target).parents('.search-container').length === 0) $('.search-models').hide()
   })
-  $('.search-container input').on('focus', (e) => {
+  $('.search-container input').on('focus', function(e) {
     $('.search-models').show()
-  }).on('keydown', (e) => {
-    let s = $('.search-input').val()
+  }).on('keydown', function(e) {
+    var s = $('.search-input').val()
     if (e.keyCode === 13 && s) location.href = activeModel.data('url') + '#gs=' + $encode(s)
   })
 }
@@ -413,7 +413,7 @@ var $initUserSelect2 = function (el, multiple) {
 // 保持模态窗口（如果需要）
 var $keepModalOpen = function () {
   if ($('.rbmodal.show, .rbview.show').length > 0) {
-    let $body = $(document.body)
+    var $body = $(document.body)
     if (!$body.hasClass('modal-open')) $body.addClass('modal-open').css({ 'padding-right': 17 })
     return true
   }

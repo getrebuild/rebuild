@@ -34,7 +34,7 @@ class RbList extends React.Component {
     let that = this
     const lastIndex = this.state.fields.length
     return (
-      <div>
+      <React.Fragment>
         <div className="row rb-datatable-body">
           <div className="col-sm-12">
             <div className="rb-scroller" ref="rblist-scroller">
@@ -77,7 +77,7 @@ class RbList extends React.Component {
           </div></div>
         {this.state.rowsData.length > 0 ? <RbListPagination ref="pagination" rowsTotal={this.state.rowsTotal} pageSize={this.pageSize} $$$parent={this} /> : null}
         {this.state.inLoad === true && <RbSpinner />}
-      </div>)
+      </React.Fragment>)
   }
   componentDidMount() {
     const scroller = $(this.refs['rblist-scroller'])
