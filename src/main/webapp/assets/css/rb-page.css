@@ -585,6 +585,8 @@ a {
     margin-bottom: 0.61rem;
     margin-right: 2%;
     min-width: 23%;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .type-MULTISELECT .text-danger {
@@ -596,6 +598,7 @@ a {
     padding: 5px 0;
     padding-bottom: 3px;
     margin-left: -2px;
+    font-size: 0;
 }
 
 .type-MULTISELECT .form-control-plaintext>.badge {
