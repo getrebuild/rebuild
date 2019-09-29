@@ -140,12 +140,15 @@ create table if not exists `pick_list` (
   `SEQ`                int(11) default '0' comment '排序, 小到大',
   `IS_DEFAULT`         char(1) default 'F',
   `IS_HIDE`            char(1) default 'F',
-  `MODIFIED_BY`        char(20) not null comment '修改人',
-  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `MASK_VALUE`         bigint(20) default '0' comment 'MultiSelect专用',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `CREATED_BY`         char(20) not null comment '创建人',
+  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
   primary key  (`ITEM_ID`)
 )Engine=InnoDB;
+alter table `pick_list`
+  add index `IX1_pick_list` (`BELONG_ENTITY`, `BELONG_FIELD`);
 
 -- ************ Entity [LayoutConfig] DDL ************
 create table if not exists `layout_config` (
@@ -508,4 +511,4 @@ INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version
 INSERT INTO `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`) 
-  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 12);
+  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 13);

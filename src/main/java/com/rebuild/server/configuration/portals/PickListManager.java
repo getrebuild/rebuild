@@ -38,16 +38,17 @@ import java.util.List;
 public class PickListManager implements ConfigManager<Object> {
 
 	public static final PickListManager instance = new PickListManager();
-	private PickListManager() { }
+	protected PickListManager() { }
 	
 	/**
 	 * @param field
 	 * @return
 	 */
 	public JSONArray getPickList(Field field) {
-		ConfigEntry entries[] = getPickListRaw(field.getOwnEntity().getName(), field.getName(), false);
+		ConfigEntry entries[] = getPickListRaw(field, false);
 		for (ConfigEntry e : entries) {
 			e.set("hide", null);
+			e.set("mask", null);
 		}
 		return JSONUtils.toJSONArray(entries);
 	}
@@ -58,8 +59,17 @@ public class PickListManager implements ConfigManager<Object> {
 	 * @return
 	 */
 	public JSONArray getPickList(Field field, boolean includeHide) {
-		ConfigEntry entries[] = getPickListRaw(field.getOwnEntity().getName(), field.getName(), includeHide);
+		ConfigEntry entries[] = getPickListRaw(field, includeHide);
 		return JSONUtils.toJSONArray(entries);
+	}
+
+	/**
+	 * @param field
+	 * @param includeHide
+	 * @return
+	 */
+	public ConfigEntry[] getPickListRaw(Field field, boolean includeHide) {
+		return getPickListRaw(field.getOwnEntity().getName(), field.getName(), includeHide);
 	}
 	
 	/**
@@ -73,7 +83,7 @@ public class PickListManager implements ConfigManager<Object> {
 		ConfigEntry[] entries = (ConfigEntry[]) Application.getCommonCache().getx(ckey);
 		if (entries == null) {
 			Object[][] array = Application.createQueryNoFilter(
-					"select itemId,text,isDefault,isHide from PickList where belongEntity = ? and belongField = ? order by seq asc")
+					"select itemId,text,isDefault,isHide,maskValue from PickList where belongEntity = ? and belongField = ? order by seq asc")
 					.setParameter(1, entity)
 					.setParameter(2, field)
 					.array();
@@ -83,7 +93,8 @@ public class PickListManager implements ConfigManager<Object> {
 						.set("id", o[0])
 						.set("text", o[1])
 						.set("default", o[2])
-						.set("hide", o[3]);
+						.set("hide", o[3])
+						.set("mask", o[4]);
 				list.add(entry);
 			}
 			
@@ -144,7 +155,7 @@ public class PickListManager implements ConfigManager<Object> {
 	 * @return
 	 */
 	public ID getDefaultItem(Field field) {
-		for (ConfigEntry e : getPickListRaw(field.getOwnEntity().getName(), field.getName(), false)) {
+		for (ConfigEntry e : getPickListRaw(field, false)) {
 			if (e.getBoolean("default")) {
 				return e.getID("id");
 			}

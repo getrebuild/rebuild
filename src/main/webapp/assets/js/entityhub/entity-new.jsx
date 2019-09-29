@@ -7,7 +7,8 @@ $(document).ready(function () {
       return
     }
     let _data = { label: entityLabel, comments: comments }
-    if ($val('#isSlave') === 'true') {
+    // eslint-disable-next-line eqeqeq
+    if ($val('#isSlave') == true) {
       _data.masterEntity = $val('#masterEntity')
       if (!_data.masterEntity) {
         RbHighbar.create('请选择选择主实体')

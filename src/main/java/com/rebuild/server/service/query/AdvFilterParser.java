@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.service.query;
 
 import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
@@ -54,20 +55,17 @@ import static cn.devezhao.commons.DateFormatUtils.getUTCDateFormat;
 
 /**
  * 高级查询解析器
- * 
+ *
  * @author devezhao
  * @since 09/29/2018
  */
 public class AdvFilterParser {
-	
+
 	private static final Log LOG = LogFactory.getLog(AdvFilterParser.class);
 
-	private static final String ZERO_TIME = " 00:00:00";
-    private static final String FULL_TIME = " 23:59:59";
-	
 	private JSONObject filterExp;
 	private Entity rootEntity;
-	
+
 	/**
 	 * @param filterExp
 	 */
@@ -75,7 +73,7 @@ public class AdvFilterParser {
 		this.rootEntity = MetadataHelper.getEntity(filterExp.getString("entity"));
 		this.filterExp = filterExp;
 	}
-	
+
 	/**
 	 * @param rootEntity
 	 * @param filterExp
@@ -84,7 +82,7 @@ public class AdvFilterParser {
 		this.rootEntity = rootEntity;
 		this.filterExp = filterExp;
 	}
-	
+
 	/**
 	 * @return
 	 */
@@ -94,7 +92,7 @@ public class AdvFilterParser {
 			JSONArray items = buildQuickFilterItems(filterExp.getString("qfields"));
 			this.filterExp.put("items", items);
 		}
-		
+
 		JSONArray items = filterExp.getJSONArray("items");
 		JSONObject values = filterExp.getJSONObject("values");
 		String equation = StringUtils.defaultIfBlank(filterExp.getString("equation"), "OR");
@@ -112,16 +110,18 @@ public class AdvFilterParser {
 			String itemSql = parseItem(jo, values);
 			if (itemSql != null) {
 				indexItemSqls.put(index, itemSql.trim());
+			} else {
+				LOG.warn("Bad item of AdvFilter : " + jo.toJSONString());
 			}
 		}
 		if (indexItemSqls.isEmpty()) {
 			return null;
 		}
-		
+
 		if (validEquation(equation) == null) {
 			throw new FilterParseException("无效高级表达式 : " + equation);
 		}
-		
+
 		if ("OR".equalsIgnoreCase(equation)) {
 			return "( " + StringUtils.join(indexItemSqls.values(), " or ") + " )";
 		} else if ("AND".equalsIgnoreCase(equation)) {
@@ -162,7 +162,7 @@ public class AdvFilterParser {
 			return "( " + StringUtils.join(itemSqls, " ") + " )";
 		}
 	}
-	
+
 	/**
 	 * @param item
 	 * @param values
@@ -190,32 +190,45 @@ public class AdvFilterParser {
 		String value = item.getString("value");
 		String valueEnd = null;
 
+		// 根据字段类型转换 `op`
+
 		// 日期时间
 		if (dt == DisplayType.DATETIME || dt == DisplayType.DATE) {
-			if ("TDA".equalsIgnoreCase(op) || "YTA".equalsIgnoreCase(op) || "TTA".equalsIgnoreCase(op)) {
+			if (ParserTokens.TDA.equalsIgnoreCase(op) || ParserTokens.YTA.equalsIgnoreCase(op) || ParserTokens.TTA.equalsIgnoreCase(op)) {
 				value = getUTCDateFormat().format(CalendarUtils.now());
-				if ("YTA".equalsIgnoreCase(op)) {
+				if (ParserTokens.YTA.equalsIgnoreCase(op)) {
 					value = getUTCDateFormat().format(addDay(-1));
-				} else if ("TTA".equalsIgnoreCase(op)) {
+				} else if (ParserTokens.TTA.equalsIgnoreCase(op)) {
 					value = getUTCDateFormat().format(addDay(1));
 				}
 
 				if (dt == DisplayType.DATETIME) {
-					op = "BW";
+					op = ParserTokens.BW;
 					valueEnd = parseValue(value, op, fieldMeta, true);
 				}
 			}
 
-			if ("EQ".equalsIgnoreCase(op) && dt == DisplayType.DATETIME && StringUtils.length(value) == 10) {
-				op = "BW";
+			if (ParserTokens.EQ.equalsIgnoreCase(op) && dt == DisplayType.DATETIME && StringUtils.length(value) == 10) {
+				op = ParserTokens.BW;
 				valueEnd = parseValue(value, op, fieldMeta, true);
+			}
+		} else if (dt == DisplayType.MULTISELECT) {
+			// 多选的包含/不包含要按位计算
+			if (op.equalsIgnoreCase(ParserTokens.IN) || op.equalsIgnoreCase(ParserTokens.NIN)) {
+				op = op.equalsIgnoreCase(ParserTokens.IN) ? ParserTokens.BAND : ParserTokens.NBAND;
+
+				long maskValue = 0;
+				for (String s : value.split("\\|")) {
+					maskValue += ObjectUtils.toLong(s);
+				}
+				value = maskValue + "";
 			}
 		}
 
 		StringBuilder sb = new StringBuilder(field)
 				.append(' ')
-				.append(convOp(op));
-		if (op.equalsIgnoreCase("NL") || op.equalsIgnoreCase("NT")) {
+				.append(ParserTokens.convetOperator(op));
+		if (op.equalsIgnoreCase(ParserTokens.NL) || op.equalsIgnoreCase(ParserTokens.NT)) {
 			return sb.toString();
 		} else {
 			sb.append(' ');
@@ -225,21 +238,21 @@ public class AdvFilterParser {
 
         final ID currentUser = Application.getCurrentUser();
 
-		if ("BFD".equalsIgnoreCase(op)) {
-			value = getUTCDateFormat().format(addDay(-NumberUtils.toInt(value))) + FULL_TIME;
-		} else if ("AFD".equalsIgnoreCase(op)) {
-			value = getUTCDateFormat().format(addDay(NumberUtils.toInt(value))) + ZERO_TIME;
-		} else if ("BFM".equalsIgnoreCase(op)) {
-			value = getUTCDateFormat().format(addMonth(-NumberUtils.toInt(value))) + FULL_TIME;
-		} else if ("AFM".equalsIgnoreCase(op)) {
-			value = getUTCDateFormat().format(addMonth(NumberUtils.toInt(value))) + ZERO_TIME;
-		} else if ("RED".equalsIgnoreCase(op)) {
-			value = getUTCDateFormat().format(addDay(-NumberUtils.toInt(value))) + FULL_TIME;
-		} else if ("REM".equalsIgnoreCase(op)) {
-			value = getUTCDateFormat().format(addMonth(-NumberUtils.toInt(value))) + FULL_TIME;
-		} else if ("SFU".equalsIgnoreCase(op)) {
+		if (ParserTokens.BFD.equalsIgnoreCase(op)) {
+			value = getUTCDateFormat().format(addDay(-NumberUtils.toInt(value))) + ParserTokens.FULL_TIME;
+		} else if (ParserTokens.AFD.equalsIgnoreCase(op)) {
+			value = getUTCDateFormat().format(addDay(NumberUtils.toInt(value))) + ParserTokens.ZERO_TIME;
+		} else if (ParserTokens.BFM.equalsIgnoreCase(op)) {
+			value = getUTCDateFormat().format(addMonth(-NumberUtils.toInt(value))) + ParserTokens.FULL_TIME;
+		} else if (ParserTokens.AFM.equalsIgnoreCase(op)) {
+			value = getUTCDateFormat().format(addMonth(NumberUtils.toInt(value))) + ParserTokens.ZERO_TIME;
+		} else if (ParserTokens.RED.equalsIgnoreCase(op)) {
+			value = getUTCDateFormat().format(addDay(-NumberUtils.toInt(value))) + ParserTokens.FULL_TIME;
+		} else if (ParserTokens.REM.equalsIgnoreCase(op)) {
+			value = getUTCDateFormat().format(addMonth(-NumberUtils.toInt(value))) + ParserTokens.FULL_TIME;
+		} else if (ParserTokens.SFU.equalsIgnoreCase(op)) {
 			value = currentUser.toLiteral();
-		} else if ("SFB".equalsIgnoreCase(op)) {
+		} else if (ParserTokens.SFB.equalsIgnoreCase(op)) {
 			Department dept = UserHelper.getDepartment(currentUser);
 			if (dept != null) {
 				value = dept.getIdentity().toString();
@@ -252,7 +265,7 @@ public class AdvFilterParser {
 					value = null;
 				}
 			}
-		} else if ("SFD".equalsIgnoreCase(op)) {
+		} else if (ParserTokens.SFD.equalsIgnoreCase(op)) {
 			Department dept = UserHelper.getDepartment(currentUser);
 			if (dept != null) {
 				int refe = fieldMeta.getReferenceEntity().getEntityCode();
@@ -263,14 +276,13 @@ public class AdvFilterParser {
 		}
 
 		if (StringUtils.isBlank(value)) {
-			LOG.warn("Invalid item of AdvFilter : " + item.toJSONString());
 			return null;
 		}
 
 		// 快速搜索的占位符 {1}
 		if (value.matches("\\{\\d+\\}")) {
 			if (values == null) {
-				LOG.warn("Invalid item of AdvFilter : " + item.toJSONString());
+
 				return null;
 			}
 
@@ -279,15 +291,14 @@ public class AdvFilterParser {
 		} else {
 			value = parseValue(value, op, fieldMeta, false);
 		}
-		
+
 		// No value for search
 		if (value == null) {
-//			LOG.warn("Invalid item of AdvFilter : " + item.toJSONString());
 			return null;
 		}
-		
+
 		// 区间
-		boolean isBetween = op.equalsIgnoreCase("BW");
+		boolean isBetween = op.equalsIgnoreCase(ParserTokens.BW);
 		if (isBetween && valueEnd == null) {
 			valueEnd = parseValue(item.getString("value2"), op, fieldMeta, true);
 			if (valueEnd == null) {
@@ -296,16 +307,16 @@ public class AdvFilterParser {
 		}
 
 		// IN
-		if (op.equalsIgnoreCase("IN") || op.equalsIgnoreCase("NIN") || op.equalsIgnoreCase("SFD")) {
+		if (op.equalsIgnoreCase(ParserTokens.IN) || op.equalsIgnoreCase(ParserTokens.NIN) || op.equalsIgnoreCase(ParserTokens.SFD)) {
 			sb.append(value);
 		} else {
 			// LIKE
-			if (op.equalsIgnoreCase("LK") || op.equalsIgnoreCase("NLK")) {
+			if (op.equalsIgnoreCase(ParserTokens.LK) || op.equalsIgnoreCase(ParserTokens.NLK)) {
 				value = '%' + value + '%';
 			}
 			sb.append(quoteValue(value, fieldMeta.getType()));
 		}
-		
+
 		if (isBetween) {
 			sb.insert(0, "( ")
 					.append(" and ").append(quoteValue(valueEnd, fieldMeta.getType()))
@@ -331,7 +342,7 @@ public class AdvFilterParser {
 				inVals.add(quoteValue(v.toString(), field.getType()));
 			}
 			return optimizeIn(inVals);
-			
+
 		} else {
 			value = val.toString();
 			if (StringUtils.isBlank(value)) {
@@ -340,17 +351,17 @@ public class AdvFilterParser {
 
 			// TIMESTAMP 仅指定了日期值
 			if (field.getType() == FieldType.TIMESTAMP && StringUtils.length(value) == 10) {
-				if ("GT".equalsIgnoreCase(op)) {
-					value += FULL_TIME;
-				} else if ("LT".equalsIgnoreCase(op)) {
-					value += ZERO_TIME;
-				} else if ("BW".equalsIgnoreCase(op)) {
-					value += (endVal ? FULL_TIME : ZERO_TIME);
+				if (ParserTokens.GT.equalsIgnoreCase(op)) {
+					value += ParserTokens.FULL_TIME;
+				} else if (ParserTokens.LT.equalsIgnoreCase(op)) {
+					value += ParserTokens.ZERO_TIME;
+				} else if (ParserTokens.BW.equalsIgnoreCase(op)) {
+					value += (endVal ? ParserTokens.FULL_TIME : ParserTokens.ZERO_TIME);
 				}
 			}
 
 			// 多个值的情况下，兼容 | 号分割
-			if (op.equalsIgnoreCase("IN") || op.equalsIgnoreCase("NIN") || op.equalsIgnoreCase("SFD")) {
+			if (op.equalsIgnoreCase(ParserTokens.IN) || op.equalsIgnoreCase(ParserTokens.NIN) || op.equalsIgnoreCase(ParserTokens.SFD)) {
 				Set<String> inVals = new HashSet<>();
 				for (String v : value.split("\\|")) {
 					inVals.add(quoteValue(v, field.getType()));
@@ -360,7 +371,7 @@ public class AdvFilterParser {
 		}
 		return value;
 	}
-	
+
 	/**
 	 * @param val
 	 * @param type
@@ -374,7 +385,7 @@ public class AdvFilterParser {
 		}
 		return "''";
 	}
-	
+
 	/**
 	 * @param inVals
 	 * @return
@@ -385,56 +396,23 @@ public class AdvFilterParser {
 		}
 		return "( " + StringUtils.join(inVals, ",") + " )";
 	}
-	
-	/**
-	 * @param op
-	 * @return
-	 */
-	private String convOp(String op) {
-		if ("EQ".equalsIgnoreCase(op)) return "=";
-		else if ("NEQ".equalsIgnoreCase(op)) return "<>";
-		else if ("GT".equalsIgnoreCase(op)) return ">";
-		else if ("LT".equalsIgnoreCase(op)) return "<";
-		else if ("GE".equalsIgnoreCase(op)) return ">=";
-		else if ("LE".equalsIgnoreCase(op)) return "<=";
-		else if ("NL".equalsIgnoreCase(op)) return "is null";
-		else if ("NT".equalsIgnoreCase(op)) return "is not null";
-		else if ("LK".equalsIgnoreCase(op)) return "like";
-		else if ("NLK".equalsIgnoreCase(op)) return "not like";
-		else if ("IN".equalsIgnoreCase(op)) return "in";
-		else if ("NIN".equalsIgnoreCase(op)) return "not in";
-		else if ("BW".equalsIgnoreCase(op)) return "between";
-		else if ("BFD".equalsIgnoreCase(op)) return "<=";  // "$before_day(%d)";
-		else if ("BFM".equalsIgnoreCase(op)) return "<=";  // "$before_month(%d)";
-		else if ("AFD".equalsIgnoreCase(op)) return ">=";  // "$after_day(%d)";
-		else if ("AFM".equalsIgnoreCase(op)) return ">=";  // "$after_month(%d)";
-		else if ("RED".equalsIgnoreCase(op)) return ">";   // "$recent_day(%d)";
-		else if ("REM".equalsIgnoreCase(op)) return ">";   // "$recent_month(%d)";
-		else if ("SFU".equalsIgnoreCase(op)) return "=";
-		else if ("SFB".equalsIgnoreCase(op)) return "=";
-		else if ("SFD".equalsIgnoreCase(op)) return "in";
-		else if ("YTA".equalsIgnoreCase(op)) return "=";
-		else if ("TDA".equalsIgnoreCase(op)) return "=";
-		else if ("TTA".equalsIgnoreCase(op)) return "=";
-		throw new UnsupportedOperationException("Unsupported token [" + op + "]");
-	}
-	
+
 	/**
 	 * @param type
 	 * @return
 	 */
 	private boolean isNumberType(Type type) {
-		return type == FieldType.INT || type == FieldType.SMALL_INT || type == FieldType.LONG 
+		return type == FieldType.INT || type == FieldType.SMALL_INT || type == FieldType.LONG
 				|| type == FieldType.DOUBLE || type == FieldType.DECIMAL;
 	}
-	
+
 	/**
 	 * @param qFields
 	 * @return
 	 */
 	private JSONArray buildQuickFilterItems(String qFields) {
 		final Set<String> fieldItems = new HashSet<>();
-		
+
 		// 指定字段
 		if (StringUtils.isNotBlank(qFields)) {
 			for (String field : qFields.split(",")) {
@@ -446,11 +424,11 @@ public class AdvFilterParser {
 				}
 			}
 		}
-		
+
 		// 追加名称字段和 quickCode
 		Field nameField = rootEntity.getNameField();
 		DisplayType dt = EasyMeta.getDisplayType(nameField);
-		
+
 		// 引用字段不能作为名称字段，此处的处理是因为某些系统实体有用到
 		// 请主要要保证其兼容 LIKE 条件的语法要求
 		if (dt == DisplayType.REFERENCE) {
@@ -460,21 +438,21 @@ public class AdvFilterParser {
 		} else if (dt == DisplayType.TEXT || dt == DisplayType.EMAIL || dt == DisplayType.URL || dt == DisplayType.PHONE || dt == DisplayType.SERIES) {
 			fieldItems.add(nameField.getName());
 		}
-		
+
 		if (rootEntity.containsField(EntityHelper.QuickCode)) {
 			fieldItems.add(EntityHelper.QuickCode);
 		}
-		
+
 		JSONArray items = new JSONArray();
 		for (String field : fieldItems) {
-			items.add(JSON.parseObject("{ op:'lk', value:'{1}', field:'" + field + "' }"));
+			items.add(JSON.parseObject("{ op:'LK', value:'{1}', field:'" + field + "' }"));
 		}
 		return items;
 	}
-	
+
 	/**
 	 * 测试高级表达式
-	 * 
+	 *
 	 * @param equation
 	 * @return null 表示无效
 	 */
@@ -485,19 +463,20 @@ public class AdvFilterParser {
 		if ("OR".contentEquals(equation) || "AND".equalsIgnoreCase(equation)) {
 			return equation;
 		}
-		
+
 		String clearEquation = equation.toUpperCase().replace("  ", "").trim();
-		if (clearEquation.startsWith("AND") || clearEquation.startsWith("OR") || clearEquation.endsWith("AND") || clearEquation.endsWith("OR")) {
+		if (clearEquation.startsWith("AND") || clearEquation.startsWith("OR")
+				|| clearEquation.endsWith("AND") || clearEquation.endsWith("OR")) {
 			return null;
 		}
 		if (clearEquation.contains("()") || clearEquation.contains("( )")) {
 			return null;
 		}
-		
+
 		for (String token : clearEquation.split(" ")) {
 			token = token.replace("(", "");
 			token = token.replace(")", "");
-			
+
 			// 数字不能大于 10
 			if (NumberUtils.isNumber(token)) {
 				if (NumberUtils.toInt(token) > 10) {
@@ -511,7 +490,7 @@ public class AdvFilterParser {
 				return null;
 			}
 		}
-		
+
 		// 去除 AND OR 0-9 及空格
 		clearEquation = clearEquation.replaceAll("[AND|OR|0-9| ]", "");
 		// 括弧成对出现

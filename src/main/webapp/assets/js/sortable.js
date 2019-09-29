@@ -8,7 +8,7 @@ $(document).ready(function () {
 })
 
 const render_unset = function (data, target) {
-  let item = $('<li class="dd-item" data-key="' + data[0] + '"><div class="dd-handle">' + data[1] + '</div></li>').appendTo(target || '.unset-list')
+  let item = $('<li class="dd-item" data-key="' + data[0] + '"><div class="dd-handle"><span>' + data[1] + '</span></div></li>').appendTo(target || '.unset-list')
   item.click(function () {
     render_item(data)
     item.remove()

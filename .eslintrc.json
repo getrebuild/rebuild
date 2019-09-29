@@ -80,7 +80,8 @@
         "ApprovalSubmitForm": true,
         "ConfigList": true,
         "ConfigFormDlg": true,
-        "RbPreview": true
+        "RbPreview": true,
+        "$countdownButton": true
     },
     "rules": {
         "strict": 0,

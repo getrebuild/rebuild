@@ -18,22 +18,23 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.configuration;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.springframework.util.Assert;
-
+import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.PickListManager;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.entity.DisplayType;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.privileges.AdminGuard;
+import org.springframework.util.Assert;
 
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.PersistManagerFactory;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 下拉列表
@@ -92,7 +93,23 @@ public class PickListService extends ConfigurationService implements AdminGuard 
 				cleanCache(id2id);
 			}
 		}
-		
+
+		// MultiSelect 专用
+		long nextMaskValue = 0;
+		if (EasyMeta.getDisplayType(field) == DisplayType.MULTISELECT) {
+			Object[] max = Application.createQueryNoFilter(
+					"select max(maskValue) from PickList where belongEntity = ? and belongField = ?")
+					.setParameter(1, field.getOwnEntity().getName())
+					.setParameter(2, field.getName())
+					.unique();
+			nextMaskValue = ObjectUtils.toLong(max[0]);
+			if (nextMaskValue < 1) {
+				nextMaskValue = 1;
+			} else {
+				nextMaskValue *= 2;
+			}
+		}
+
 		int seq = 0;
 		for (Object o : showItems) {
 			JSONObject item = (JSONObject) o;
@@ -108,6 +125,11 @@ public class PickListService extends ConfigurationService implements AdminGuard 
 			if (id2id == null) {
 				r.setString("belongEntity", field.getOwnEntity().getName());
 				r.setString("belongField", field.getName());
+
+				if (nextMaskValue > 0) {
+					r.setLong("maskValue", nextMaskValue);
+					nextMaskValue *= 2;
+				}
 			}
 			super.createOrUpdate(r);
 			
@@ -118,11 +140,19 @@ public class PickListService extends ConfigurationService implements AdminGuard 
 		}
 		
 		for (ID item : itemsHoldList) {
-			super.delete(item);
 			cleanCache(item);
+			super.delete(item);
 		}
 		PickListManager.instance.clean(field);
 	}
+
+    /**
+     * @param field
+     * @param config
+     */
+	public void updateBatchMultiSelect(Field field, JSONObject config) {
+		this.updateBatch(field, config);
+    }
 	
 	@Override
 	protected void cleanCache(ID configId) {

@@ -229,7 +229,7 @@ class RbAlert extends React.Component {
     let props = { ...ext, title: title }
     if (ext.html === true) props.htmlMessage = message
     else props.message = message
-    renderRbcomp(<RbAlert {...props} />)
+    renderRbcomp(<RbAlert {...props} />, null, ext.call)
   }
 }
 

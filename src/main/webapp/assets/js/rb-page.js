@@ -419,3 +419,18 @@ var $keepModalOpen = function () {
   }
   return false
 }
+
+// 禁用按钮 X 秒，用在一些危险操作上
+var $countdownButton = function (btn, seconds) {
+  seconds = seconds || 5
+  var text = btn.attr('disabled', true).text()
+  btn.text(text + ' (' + seconds + ')')
+  var timer = setInterval(function () {
+    if (--seconds === 0) {
+      clearInterval(timer)
+      btn.attr('disabled', false).text(text)
+    } else {
+      btn.text(text + ' (' + seconds + ')')
+    }
+  }, 1000)
+}

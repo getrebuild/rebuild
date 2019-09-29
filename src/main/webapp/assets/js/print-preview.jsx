@@ -78,6 +78,8 @@ class PreviewTable extends React.Component {
           return <p key={'kl-' + idx}>{line}</p>
         })}
       </React.Fragment>
+    } else if (item.type === 'MULTISELECT') {
+      return item.value.split('||').join('; ')
     } else if (typeof item.value === 'object') {
       return item.value[1]
     } else {

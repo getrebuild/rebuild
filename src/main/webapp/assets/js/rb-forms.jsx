@@ -693,10 +693,11 @@ class RbFormPickList extends RbFormElement {
     }
   }
   renderElement() {
+    let name = this.state.field + '-opt'
     return (
       <select ref="field-value" className="form-control form-control-sm" value={this.state.value || ''} onChange={this.handleChange}>
         {this.props.options.map((item) => {
-          return (<option key={`${this.state.field}-opt${item.id}`} value={item.id}>{item.text}</option>)
+          return (<option key={`${name}:${item.id}`} value={item.id}>{item.text}</option>)
         })}
       </select>
     )
@@ -705,15 +706,15 @@ class RbFormPickList extends RbFormElement {
     super.componentDidMount()
     if (this.state.viewMode === true) return
 
-    const s2 = $(this.refs['field-value']).select2({
+    this.__select2 = $(this.refs['field-value']).select2({
       placeholder: '选择' + this.props.label
     })
-    this.__select2 = s2
 
     let that = this
+    let s2 = this.__select2
     $setTimeout(function () {
       // No value
-      if (that.props.$$$parent.isNew === false && !that.props.value) {
+      if (!that.props.$$$parent.isNew && !that.props.value) {
         s2.val(null)
       }
       s2.on('change', function (e) {
@@ -924,6 +925,43 @@ class RbFormClassification extends RbFormElement {
   }
 }
 
+// 多选
+class RbFormMultiSelect extends RbFormElement {
+  constructor(props) {
+    super(props)
+    this.changeValue = this.changeValue.bind(this)
+  }
+  renderElement() {
+    let name = 'checkbox-' + this.props.field
+    return (
+      <div className="mt-1" ref={(c) => this._checkboxes = c}>
+        {(this.props.options || []).length === 0 && <div className="text-danger">未配置选项</div>}
+        {(this.props.options || []).map((item) => {
+          return <label key={name + ':' + item.mask} className="custom-control custom-control-sm custom-checkbox  custom-control-inline">
+            <input className="custom-control-input" name={name} type="checkbox" checked={(this.state.value & item.mask) !== 0} value={item.mask} onChange={this.changeValue} />
+            <span className="custom-control-label">{item.text}</span>
+          </label>
+        })}
+      </div>
+    )
+  }
+  changeValue(e) {
+    let maskValue = 0
+    $(this._checkboxes).find('input:checked').each(function () {
+      maskValue += ~~$(this).val()
+    })
+    this.handleChange({ target: { value: maskValue === 0 ? null : maskValue } }, true)
+  }
+  renderViewElement() {
+    if (!this.state.value) return super.renderViewElement()
+    return <div className="form-control-plaintext">
+      {this.state.value.split('||').map((item) => {
+        return <span key={'opt-' + item} className="badge">{item}</span>
+      })}
+    </div>
+  }
+}
+
 // 分割线
 class RbFormDivider extends React.Component {
   constructor(props) {
@@ -991,6 +1029,8 @@ const detectElement = function (item) {
     return <RbFormReference {...item} />
   } else if (item.type === 'CLASSIFICATION') {
     return <RbFormClassification {...item} />
+  } else if (item.type === 'MULTISELECT') {
+    return <RbFormMultiSelect {...item} />
   } else if (item.field === '$LINE$' || item.field === '$DIVIDER$') {
     return <RbFormDivider {...item} />
   } else {
