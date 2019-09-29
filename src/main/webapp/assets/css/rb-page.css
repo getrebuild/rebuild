@@ -871,6 +871,13 @@ a {
     background-color: #fff;
 }
 
+.dataTables_wrapper .rb-datatable-header {
+    position: sticky;
+    top: 60px;
+    background-color: #fff;
+    z-index: 1;
+}
+
 .data-list .table th,
 .data-list .table td {
     cursor: default;
@@ -952,7 +959,7 @@ i.split.ui-draggable-dragging {
     text-overflow: ellipsis;
     overflow: hidden;
     clear: both;
-    max-width: 300px;
+    max-width: 800px;
     white-space: nowrap;
 }
 

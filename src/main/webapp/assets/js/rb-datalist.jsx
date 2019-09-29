@@ -3,6 +3,7 @@ const wpc = window.__PageConfig || {}
 /* eslint-disable react/prop-types */
 // ~~ 数据列表
 const COLUMN_MIN_WIDTH = 30
+const COLUMN_MAX_WIDTH = 800
 class RbList extends React.Component {
   constructor(props) {
     super(props)
@@ -92,6 +93,7 @@ class RbList extends React.Component {
         let field = $(event.target).parents('th').data('field')
         let left = ui.position.left - 2
         if (left < COLUMN_MIN_WIDTH) left = COLUMN_MIN_WIDTH
+        else if (left > COLUMN_MAX_WIDTH) left = COLUMN_MAX_WIDTH
         let fields = that.state.fields
         for (let i = 0; i < fields.length; i++) {
           if (fields[i].field === field) {
