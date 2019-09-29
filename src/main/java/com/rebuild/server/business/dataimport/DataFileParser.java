@@ -131,6 +131,9 @@ public class DataFileParser {
         try (CSVReader csvReader = new CSVReader(this.sourceFile, this.encoding)) {
             while (csvReader.hasNext()) {
                 rows.add(csvReader.next());
+                if (rows.size() >= maxRows) {
+                    break;
+                }
             }
         }
         return rows;
