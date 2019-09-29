@@ -7,7 +7,26 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>表单回填配置</title>
 <style type="text/css">
-span.badge{font-size:1rem;padding:4px 10px;font-weight:normal;}
+.dataTables_wrapper .rb-datatable-header {
+	position: static
+}
+span.badge {
+	font-size: 1rem;
+	padding: 4px 10px;
+	font-weight: normal;
+}
+#dataList tbody tr td>div {
+	position: relative;
+}
+#dataList tbody tr td>div::after {
+	font-family: 'Material-Design-Iconic-Font';
+	content: '\f2fd';
+	position: absolute;
+	right: 0;
+	transform: rotate(180deg);
+	color: #878787;
+	margin-top: -1px;
+}
 </style>
 </head>
 <body>
@@ -66,7 +85,7 @@ span.badge{font-size:1rem;padding:4px 10px;font-weight:normal;}
 						<div class="row rb-datatable-body">
 							<div class="col-sm-12">
 								<div class="rb-loading rb-loading-active data-list">
-									<table class="table table-hover table-striped" id="dataList">
+									<table class="table table-hover table-striped table-fixed" id="dataList">
 										<thead>
 											<tr>
 												<th>目标字段</th>

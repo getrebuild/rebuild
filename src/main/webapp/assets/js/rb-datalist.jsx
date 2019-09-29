@@ -3,6 +3,8 @@ const wpc = window.__PageConfig || {}
 /* eslint-disable react/prop-types */
 // ~~ 数据列表
 const COLUMN_MIN_WIDTH = 30
+const COLUMN_MAX_WIDTH = 800
+const FIXED_FOOTER = false
 class RbList extends React.Component {
   constructor(props) {
     super(props)
@@ -34,7 +36,7 @@ class RbList extends React.Component {
     let that = this
     const lastIndex = this.state.fields.length
     return (
-      <div>
+      <React.Fragment>
         <div className="row rb-datatable-body">
           <div className="col-sm-12">
             <div className="rb-scroller" ref="rblist-scroller">
@@ -60,7 +62,7 @@ class RbList extends React.Component {
                   {this.state.rowsData.map((item, index) => {
                     let lastGhost = item[lastIndex]
                     let rowKey = 'row-' + lastGhost[0]
-                    return (<tr key={rowKey} className={lastGhost[3] ? 'table-active' : ''} onClick={this.clickRow.bind(this, index, false)}>
+                    return (<tr key={rowKey} className={lastGhost[3] ? 'active' : ''} onClick={this.clickRow.bind(this, index, false)}>
                       {this.props.uncheckbox !== true && <td key={rowKey + '-checkbox'} className="column-checkbox">
                         <div><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={lastGhost[3]} onClick={this.clickRow.bind(this, index, true)} /><span className="custom-control-label"></span></label></div>
                       </td>}
@@ -77,11 +79,23 @@ class RbList extends React.Component {
           </div></div>
         {this.state.rowsData.length > 0 ? <RbListPagination ref="pagination" rowsTotal={this.state.rowsTotal} pageSize={this.pageSize} $$$parent={this} /> : null}
         {this.state.inLoad === true && <RbSpinner />}
-      </div>)
+      </React.Fragment>)
   }
   componentDidMount() {
     const scroller = $(this.refs['rblist-scroller'])
     scroller.perfectScrollbar()
+
+    if (FIXED_FOOTER) {
+      $('.main-content').addClass('pb-0')
+      let hold = window.resize_handler
+      window.resize_handler = function () {
+        typeof hold === 'function' && hold()
+        let maxHeight = $(window).height() - 214
+        scroller.css({ maxHeight: maxHeight })
+        scroller.perfectScrollbar('update')
+      }
+      window.resize_handler()
+    }
 
     let that = this
     scroller.find('th .split').draggable({
@@ -92,6 +106,7 @@ class RbList extends React.Component {
         let field = $(event.target).parents('th').data('field')
         let left = ui.position.left - 2
         if (left < COLUMN_MIN_WIDTH) left = COLUMN_MIN_WIDTH
+        else if (left > COLUMN_MAX_WIDTH) left = COLUMN_MAX_WIDTH
         let fields = that.state.fields
         for (let i = 0; i < fields.length; i++) {
           if (fields[i].field === field) {
@@ -369,7 +384,7 @@ CellRenders.addRender('DECIMAL', function (v, s, k) {
   else return CellRenders.renderSimple(v, s, k)
 })
 CellRenders.addRender('MULTISELECT', function (v, s, k) {
-  return <td key={k}><div style={s} className="column-multi">
+  return <td key={k} className="td-min column-multi"><div style={s}>
     {v.split('||').map((item) => {
       return <span key={'opt-' + item} className="badge">{item}</span>
     })}

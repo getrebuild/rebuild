@@ -200,7 +200,6 @@ a.btn {
 
 .input-search,
 .input-search input {
-    width: 220px;
     height: 2.8rem;
     background-color: #fff;
 }
@@ -296,8 +295,10 @@ div.dataTables_wrapper div.dataTables_filter {
 }
 
 .adv-search .btn-group,
-.adv-search .btn-group .dropdown-menu {
-    width: 220px;
+.adv-search .btn-group .dropdown-menu,
+.input-search,
+.input-search input {
+    width: 227px;
 }
 
 .adv-search .btn {
@@ -585,6 +586,8 @@ a {
     margin-bottom: 0.61rem;
     margin-right: 2%;
     min-width: 23%;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .type-MULTISELECT .text-danger {
@@ -596,6 +599,7 @@ a {
     padding: 5px 0;
     padding-bottom: 3px;
     margin-left: -2px;
+    font-size: 0;
 }
 
 .type-MULTISELECT .form-control-plaintext>.badge {
@@ -868,6 +872,24 @@ a {
     background-color: #fff;
 }
 
+.dataTables_wrapper .rb-datatable-header {
+    position: sticky;
+    top: 60px;
+    background-color: #fff;
+    z-index: 1;
+}
+
+@media screen and (max-width: 767px) {
+    .dataTables_wrapper .rb-datatable-header {
+        top: 0
+    }
+
+    div.dataTables_wrapper div.dataTables_oper {
+        text-align: left;
+        margin-left: -5px;
+    }
+}
+
 .data-list .table th,
 .data-list .table td {
     cursor: default;
@@ -919,6 +941,10 @@ a {
     cursor: e-resize;
 }
 
+.data-list .table tbody tr.active td {
+    background-color: #dee2e6;
+}
+
 i.split.ui-draggable-dragging {
     border-right-color: #4285f4 !important;
 }
@@ -949,7 +975,7 @@ i.split.ui-draggable-dragging {
     text-overflow: ellipsis;
     overflow: hidden;
     clear: both;
-    max-width: 300px;
+    max-width: 800px;
     white-space: nowrap;
 }
 

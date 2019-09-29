@@ -25,7 +25,7 @@ if (ServletUtils.isAjaxRequest(request)) {
 		<div class="main-content container">
 			<div class="error-container">
 				<div class="error-number mb-0"><i class="zmdi zmdi-alert-circle text-primary"></i></div>
-				<div class="error-description"><%=errorMsg%></div>
+				<div class="error-description" id="error"><%=errorMsg%></div>
 				<div class="error-goback-button">
 					<a class="btn btn-xl btn-space btn-secondary" href="${baseUrl}/dashboard/home">返回首页</a>
 					<div class="mt-4">
@@ -39,7 +39,7 @@ if (ServletUtils.isAjaxRequest(request)) {
 <script src="${baseUrl}/assets/lib/jquery.min.js"></script>
 <script>
 if (self != top) $('.btn-secondary').remove()
-if (location.href.indexOf('unsupported-browser') > -1) $('.error-description').html('不支持 IE10 以下的浏览器<br>推荐使用 Chrome、Firefox 或 IE Edge/11/10')
+if (location.href.indexOf('unsupported-browser') > -1) document.getElementById('error').innerHTML = '不支持 IE10 以下的浏览器<br>推荐使用 Chrome、Firefox 或 IE Edge/11/10'
 </script>
 </body>
 </html>

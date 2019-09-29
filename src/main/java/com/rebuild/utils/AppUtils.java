@@ -18,22 +18,20 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.utils;
 
-import java.nio.file.AccessDeniedException;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang.StringUtils;
-
+import cn.devezhao.commons.ThrowableUtils;
+import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.commons.web.WebUtils;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.Controll;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
 import com.rebuild.web.admin.AdminEntryControll;
+import eu.bitwalker.useragentutils.Browser;
+import org.apache.commons.lang.StringUtils;
 
-import cn.devezhao.commons.ThrowableUtils;
-import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.commons.web.WebUtils;
-import cn.devezhao.persist4j.engine.ID;
+import javax.servlet.http.HttpServletRequest;
+import java.nio.file.AccessDeniedException;
 
 /**
  * 封裝一些有用的工具方法
@@ -158,6 +156,7 @@ public class AppUtils {
 	 */
 	public static boolean isLessIE11(HttpServletRequest request) {
 		String userAgent = request.getHeader("user-agent");
-		return (userAgent != null && userAgent.toUpperCase().contains("MSIE 10"));
+		Browser browser = Browser.parseUserAgentString(userAgent);
+		return browser == Browser.IE6 || browser == Browser.IE7 || browser == Browser.IE8 || browser == Browser.IE9 || browser == Browser.IE10;
 	}
 }
