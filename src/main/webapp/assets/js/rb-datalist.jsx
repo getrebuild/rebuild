@@ -4,6 +4,7 @@ const wpc = window.__PageConfig || {}
 // ~~ 数据列表
 const COLUMN_MIN_WIDTH = 30
 const COLUMN_MAX_WIDTH = 800
+const FIXED_FOOTER = false
 class RbList extends React.Component {
   constructor(props) {
     super(props)
@@ -61,7 +62,7 @@ class RbList extends React.Component {
                   {this.state.rowsData.map((item, index) => {
                     let lastGhost = item[lastIndex]
                     let rowKey = 'row-' + lastGhost[0]
-                    return (<tr key={rowKey} className={lastGhost[3] ? 'table-active' : ''} onClick={this.clickRow.bind(this, index, false)}>
+                    return (<tr key={rowKey} className={lastGhost[3] ? 'active' : ''} onClick={this.clickRow.bind(this, index, false)}>
                       {this.props.uncheckbox !== true && <td key={rowKey + '-checkbox'} className="column-checkbox">
                         <div><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={lastGhost[3]} onClick={this.clickRow.bind(this, index, true)} /><span className="custom-control-label"></span></label></div>
                       </td>}
@@ -83,6 +84,18 @@ class RbList extends React.Component {
   componentDidMount() {
     const scroller = $(this.refs['rblist-scroller'])
     scroller.perfectScrollbar()
+
+    if (FIXED_FOOTER) {
+      $('.main-content').addClass('pb-0')
+      let hold = window.resize_handler
+      window.resize_handler = function () {
+        typeof hold === 'function' && hold()
+        let maxHeight = $(window).height() - 214
+        scroller.css({ maxHeight: maxHeight })
+        scroller.perfectScrollbar('update')
+      }
+      window.resize_handler()
+    }
 
     let that = this
     scroller.find('th .split').draggable({

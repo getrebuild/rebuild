@@ -200,7 +200,6 @@ a.btn {
 
 .input-search,
 .input-search input {
-    width: 220px;
     height: 2.8rem;
     background-color: #fff;
 }
@@ -296,8 +295,10 @@ div.dataTables_wrapper div.dataTables_filter {
 }
 
 .adv-search .btn-group,
-.adv-search .btn-group .dropdown-menu {
-    width: 220px;
+.adv-search .btn-group .dropdown-menu,
+.input-search,
+.input-search input {
+    width: 227px;
 }
 
 .adv-search .btn {
@@ -878,6 +879,17 @@ a {
     z-index: 1;
 }
 
+@media screen and (max-width: 767px) {
+    .dataTables_wrapper .rb-datatable-header {
+        top: 0
+    }
+
+    div.dataTables_wrapper div.dataTables_oper {
+        text-align: left;
+        margin-left: -5px;
+    }
+}
+
 .data-list .table th,
 .data-list .table td {
     cursor: default;
@@ -927,6 +939,10 @@ a {
     width: 10px;
     border-right: 2px dotted #aaa;
     cursor: e-resize;
+}
+
+.data-list .table tbody tr.active td {
+    background-color: #dee2e6;
 }
 
 i.split.ui-draggable-dragging {
