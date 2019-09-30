@@ -385,7 +385,7 @@ CellRenders.addRender('DECIMAL', function (v, s, k) {
 })
 CellRenders.addRender('MULTISELECT', function (v, s, k) {
   return <td key={k} className="td-min column-multi"><div style={s}>
-    {v.split('||').map((item) => {
+    {v.split(' / ').map((item) => {
       return <span key={'opt-' + item} className="badge">{item}</span>
     })}
   </div></td>

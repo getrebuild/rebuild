@@ -955,7 +955,7 @@ class RbFormMultiSelect extends RbFormElement {
   renderViewElement() {
     if (!this.state.value) return super.renderViewElement()
     return <div className="form-control-plaintext">
-      {this.state.value.split('||').map((item) => {
+      {this.state.value.split(' / ').map((item) => {
         return <span key={'opt-' + item} className="badge">{item}</span>
       })}
     </div>

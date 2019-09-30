@@ -18,6 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.utils;
 
+import cn.devezhao.commons.excel.Cell;
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.context.AnalysisContext;
+import com.alibaba.excel.event.AnalysisEventListener;
+import com.rebuild.server.RebuildException;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -28,13 +33,17 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 /**
@@ -179,5 +188,60 @@ public class CommonsUtils {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * @param excel
+	 * @return
+	 */
+	public static List<Cell[]> readExcel(File excel) {
+		return readExcel(excel, -1, true);
+	}
+
+	/**
+	 * @param excel
+	 * @param maxRows
+	 * @param hasHead
+	 * @return
+	 */
+	public static List<Cell[]> readExcel(File excel, int maxRows, boolean hasHead) {
+		final List<Cell[]> rows = new ArrayList<>();
+		final AtomicInteger rowNo = new AtomicInteger(0);
+
+		try (InputStream is = new FileInputStream(excel)) {
+			try (BufferedInputStream bis = new BufferedInputStream(is)) {
+				EasyExcel.read(bis, null, new AnalysisEventListener() {
+					@Override
+					public void invokeHeadMap(Map headMap, AnalysisContext context) {
+						if (hasHead) {
+							this.invoke(headMap, context);
+						} else {
+							rowNo.incrementAndGet();
+						}
+					}
+					@Override
+					public void invoke(Object data, AnalysisContext analysisContext) {
+						if (maxRows > 0 && rows.size() >= maxRows) {
+							return;
+						}
+
+						Map<Integer, String> dataMap = (Map<Integer, String>) data;
+						List<Cell> row = new ArrayList<>();
+						for (int i = 0; i < dataMap.size(); i++) {
+							row.add(new CellExt(dataMap.get(i), rowNo.get(), i));
+						}
+						rows.add(row.toArray(new Cell[0]));
+						rowNo.incrementAndGet();
+					}
+					@Override
+					public void doAfterAllAnalysed(AnalysisContext analysisContext) {
+					}
+				}).sheet().doRead();
+			}
+
+		} catch (IOException e) {
+			throw new RebuildException(e);
+		}
+		return rows;
 	}
 }

@@ -21,6 +21,7 @@ package com.rebuild.server.business.datareport;
 import cn.devezhao.persist4j.Entity;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.metadata.MetadataHelper;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.util.ResourceUtils;
 
@@ -38,6 +39,7 @@ public class TemplateExtractorTest extends TestSupport {
         File template = ResourceUtils.getFile("classpath:report-template.xlsx");
         Set<String> vars = new TemplateExtractor(template).extractVars(true);
         System.out.println(vars);
+        Assert.assertTrue(vars.size() >= 7);
     }
 
     @Test

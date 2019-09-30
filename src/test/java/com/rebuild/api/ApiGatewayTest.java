@@ -21,7 +21,6 @@ package com.rebuild.api;
 import com.rebuild.api.sdk.OpenApiSDK;
 import com.rebuild.web.MvcResponse;
 import com.rebuild.web.MvcTestSupport;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -50,9 +49,5 @@ public class ApiGatewayTest extends MvcTestSupport {
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get(apiUrl);
         MvcResponse resp = perform(builder, null);
         System.out.println(resp);
-
-//        Assert.assertTrue(resp.isSuccess());
-        // No appId
-        Assert.assertFalse(resp.isSuccess());
     }
 }
