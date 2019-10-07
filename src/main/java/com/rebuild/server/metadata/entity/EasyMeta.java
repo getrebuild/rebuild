@@ -64,7 +64,8 @@ public class EasyMeta implements BaseMeta {
 	/**
 	 * Use {@link #getLabel()}
 	 */
-	@Deprecated
+	@SuppressWarnings("DeprecatedIsStillUsed")
+    @Deprecated
 	@Override
 	public String getDescription() {
 		return baseMeta.getDescription();
@@ -112,7 +113,7 @@ public class EasyMeta implements BaseMeta {
 			return (DisplayType) ext[2];
 		}
 		
-		DisplayType dt = null;
+		DisplayType dt;
 		String dtInExtra = getExtraAttrsJson().getString("displayType");
 		if (dtInExtra != null) {
 			dt = DisplayType.valueOf(dtInExtra);
@@ -217,7 +218,7 @@ public class EasyMeta implements BaseMeta {
 	}
 	
 	private Object[] getMetaExt() {
-		Object[] ext = null;
+		Object[] ext;
 		if (isField()) {
 			ext = MetadataHelper.getMetadataFactory().getFieldExtmeta((Field) baseMeta);
 		} else {
@@ -256,7 +257,7 @@ public class EasyMeta implements BaseMeta {
 			return DisplayType.NTEXT;
 		} else if (ft == FieldType.BOOL) {
 			return DisplayType.BOOL;
-		} else if (ft == FieldType.INT || ft == FieldType.SMALL_INT) {
+		} else if (ft == FieldType.INT || ft == FieldType.SMALL_INT || ft == FieldType.LONG) {
 			return DisplayType.NUMBER;
 		} else if (ft == FieldType.DOUBLE || ft == FieldType.DECIMAL) {
 			return DisplayType.DECIMAL;
