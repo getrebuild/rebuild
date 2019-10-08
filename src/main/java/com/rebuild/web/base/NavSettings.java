@@ -104,7 +104,7 @@ public class NavSettings extends BaseControll implements PortalsConfiguration {
 	@RequestMapping(value = "nav-settings/alist", method = RequestMethod.GET)
 	public void getsList(HttpServletRequest request, HttpServletResponse response) {
 		Object[][] list = Application.createQueryNoFilter(
-				"select configId,configName,shareTo from LayoutConfig where applyType = ? and createdBy.roleId = ?")
+				"select configId,configName,shareTo from LayoutConfig where applyType = ? and createdBy.roleId = ? order by configName")
 				.setParameter(1, BaseLayoutManager.TYPE_NAV)
 				.setParameter(2, RoleService.ADMIN_ROLE)
 				.array();

@@ -26,23 +26,15 @@ package com.rebuild.server.service.bizz.privileges;
  */
 public enum ZeroEntry {
 
-	/**
-	 * 登录
-	 */
 	AllowLogin(true),
-	/**
-	 * 批量修改
-	 */
+
 	AllowBatchUpdate(false),
-	/**
-	 * 数据导入
-	 */
 	AllowDataImport(false),
-	/**
-	 * 数据导出
-	 */
 	AllowDataOutput(false),
-	
+
+    AllowCustomNav(true),
+    AllowCustomDataList(true),
+
 	;
 	
 	private boolean defaultVal;

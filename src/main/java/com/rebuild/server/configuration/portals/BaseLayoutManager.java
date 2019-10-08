@@ -122,5 +122,14 @@ public class BaseLayoutManager extends SharableManager<ID> {
 	@Override
 	public void clean(ID cacheKey) {
 		Application.getCommonCache().evict("BaseLayoutManager-" + cacheKey);
+
+		Object[] c = Application.createQueryNoFilter(
+		        "select belongEntity,applyType from LayoutConfig where configId = ?")
+                .setParameter(1, cacheKey)
+                .unique();
+		if (c != null) {
+            String ck = String.format("%s-%s-%s", "LayoutConfig", "N".equals(c[0]) ? null : c[0], c[1]);
+            Application.getCommonCache().evict(ck);
+        }
 	}
 }

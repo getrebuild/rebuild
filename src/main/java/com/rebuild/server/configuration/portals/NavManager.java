@@ -129,8 +129,8 @@ public class NavManager extends BaseLayoutManager {
 		}
 		return false;
 	}
-	
-	// --
+
+    // --
 	
 	/**
 	 * @param item

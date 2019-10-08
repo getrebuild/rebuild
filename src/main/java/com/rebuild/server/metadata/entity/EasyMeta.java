@@ -253,7 +253,7 @@ public class EasyMeta implements BaseMeta {
 			return DisplayType.DATE;
 		} else if (ft == FieldType.STRING) {
 			return DisplayType.TEXT;
-		} else if (ft == FieldType.TEXT) {
+		} else if (ft == FieldType.TEXT || ft == FieldType.NTEXT) {
 			return DisplayType.NTEXT;
 		} else if (ft == FieldType.BOOL) {
 			return DisplayType.BOOL;

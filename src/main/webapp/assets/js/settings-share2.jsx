@@ -18,6 +18,7 @@ const SHARE_ALL = 'ALL'
 const SHARE_SELF = 'SELF'
 
 // ~~ 共享组件
+// eslint-disable-next-line no-unused-vars
 class Share2 extends _ChangeHandler {
   constructor(props) {
     super(props)
@@ -32,7 +33,7 @@ class Share2 extends _ChangeHandler {
           <button type="button" className="btn btn-link" data-toggle="dropdown"><i className="zmdi zmdi-settings icon"></i></button>
           <div className="dropdown-menu">
             <a className="dropdown-item" onClick={this.showSwitch}>切换{this.props.title || '配置'}</a>
-            <a className="dropdown-item" href="?id=NEW">新增{this.props.title || '配置'}</a>
+            <a className="dropdown-item" href="?id=NEW">添加{this.props.title || '配置'}</a>
           </div>
         </div>
       </div>
@@ -56,7 +57,7 @@ class Share2 extends _ChangeHandler {
   showSettings() {
     let that = this
     if (that.__settings) that.__settings.show()
-    else renderRbcomp(<Share2Settings configName={this.state.configName} shareTo={this.state.shareTo} call={this.showSettingsCall} />, null, function () { that.__settings = this })
+    else renderRbcomp(<Share2Settings configName={this.props.configName} shareTo={this.props.shareTo} call={this.showSettingsCall} />, null, function () { that.__settings = this })
     return false
   }
   showSettingsCall = (data) => {
@@ -96,8 +97,8 @@ class Share2Switch extends _ChangeHandler {
     return <div ref={s => this._scrollbar = s}>
       <ul className="list-unstyled nav-list">
         {(this.props.list || []).map((item) => {
-          let st = item[2] === SHARE_ALL ? '全部用户' : (item[2] === SHARE_SELF ? '私有' : `指定用户 (${item[2].split(',').length})`)
-          return <li key={'item-' + item[0]}><a href={'?id=' + item[0]}>{item[1] || '默认'}<span className="float-right">{st}</span></a></li>
+          let st = item[2] === SHARE_ALL ? '全部用户' : (item[2] === SHARE_SELF ? '私有' : `指定用户(${item[2].split(',').length})`)
+          return <li key={'item-' + item[0]}><a href={'?id=' + item[0]}>{item[1] || '未命名'}<span className="float-right">{st}</span></a></li>
         })}
       </ul>
     </div>
@@ -120,10 +121,10 @@ class Share2Settings extends Share2Switch {
     return <div className="form">
       <div className="form-group">
         <label className="text-bold">共享给</label>
-        {this.state.selected && <UserSelector ref={(c) => this._selector = c} selected={this.state.selected} />}
+        <UserSelector ref={(c) => this._selector = c} selected={this.state.selected} />
       </div>
       <div className="form-group">
-        <input type="text" className="form-control form-control-sm" placeholder="输入共享名称" value={this.state.name || ''} name="name" onChange={this.handleChange} />
+        <input type="text" className="form-control form-control-sm" placeholder="输入共享名称" value={this.state.configName || ''} name="configName" onChange={this.handleChange} />
       </div>
       <div className="form-group mb-1">
         <button className="btn btn-primary btn-space" type="button" onClick={this.checkData}>确定</button>
@@ -137,18 +138,15 @@ class Share2Settings extends Share2Switch {
     const p = this.props
     if (p.shareTo && p.shareTo.length > 10) {
       $.post(`${rb.baseUrl}/commons/search/user-selector`, JSON.stringify(p.shareTo.split(',')), (res) => {
-        if (res.error_code === 0 && res.data.length > 0) this.setState({ selected: res.data })
-        else this.setState({ selected: [] })
+        if (res.error_code === 0 && res.data.length > 0) this._selector.setState({ selected: res.data })
       })
-    } else {
-      this.setState({ selected: [] })
     }
   }
 
   getData() {
     let s = this._selector.getSelected()
     return {
-      configName: this.state.name,
+      configName: this.state.configName,
       shareTo: s.length > 0 ? s.join(',') : SHARE_ALL
     }
   }
