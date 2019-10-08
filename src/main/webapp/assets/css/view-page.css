@@ -292,38 +292,3 @@ body {
 	display: inline-block;
 	margin-top: -1.4rem;
 }
-
-.reports-select .modal-content {
-	max-width: 420px;
-}
-
-.reports-select ul li a {
-	display: block;
-	background-color: #f5f5f5;
-	padding: 9px 10px;
-	position: relative;
-	color: #555;
-	border-radius: 2px;
-}
-
-.reports-select ul li a .zmdi {
-	position: absolute;
-	right: 12px;
-	top: 12px;
-	font-size: 1.3rem;
-	color: #fff;
-	display: none;
-}
-
-.reports-select ul li a:hover {
-	color: #fff;
-	background-color: #4285f4;
-}
-
-.reports-select ul li a:hover .zmdi {
-	display: inline-block;
-}
-
-.reports-select ul li+li {
-	margin-top: 6px;
-}

@@ -70,7 +70,7 @@ public abstract class SharableManager<T> implements ConfigManager<T> {
 	protected ID detectUseConfig(ID user, String configEntity, String belongEntity, String applyType) {
 		Assert.isTrue(MetadataHelper.containsEntity(configEntity), "Unknow configEntity : " + configEntity);
 
-		String cacheKey = String.format("%s-%s-%s", configEntity, belongEntity, applyType);
+        String cacheKey = String.format("%s-%s-%s", configEntity, belongEntity, applyType);
         Object[][] cached = (Object[][]) Application.getCommonCache().getx(cacheKey);
 		if (cached == null) {
 		    List<String> sqlWhere = new ArrayList<>();

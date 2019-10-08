@@ -2558,32 +2558,57 @@ form {
     margin: 0 auto;
 }
 
-.select-list .modal-content {
+.modal.select-list .modal-content {
     width: 420px
 }
 
-.select-list ul li a {
+.modal.select-list .modal-body>div.rb-scroller {
+    max-height: 361px;
+}
+
+.modal.select-list .modal-body ul {
+    margin-bottom: 0
+}
+
+.modal.select-list .modal-body li+li {
+    margin-top: 3px;
+}
+
+.modal.select-list .modal-body li a {
     display: block;
     background-color: #f5f5f5;
     padding: 9px 10px;
     position: relative;
     color: #555;
     border-radius: 2px;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
-.select-list ul li a:hover {
+.modal.select-list .modal-body li a:hover,
+.modal.select-list .modal-body li.active a {
     color: #fff;
     background-color: #4285f4;
 }
 
-.select-list ul li a>span {
+.modal.select-list .modal-body li a>.muted {
     color: #aaa;
+    float: right;
+    font-size: 12px;
 }
 
-.select-list ul li a:hover>span {
+.modal.select-list .modal-body li a:hover>.muted {
     color: rgba(255, 255, 255, 0.4)
 }
 
-.select-list ul li+li {
-    margin-top: 6px;
+.modal.select-list .modal-body li a>.zmdi {
+    float: right;
+    margin-top: 2px;
+    font-size: 1.3rem;
+    color: #fff;
+    display: none;
+}
+
+.modal.select-list .modal-body li a:hover>.zmdi {
+    display: inline-block;
 }
