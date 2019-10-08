@@ -57,6 +57,18 @@ public class NavManager extends BaseLayoutManager {
 		}
 		return config.toJSON();
 	}
+
+	/**
+	 * @param configId
+	 * @return
+	 */
+	public JSON getNavById(ID configId) {
+		ConfigEntry config = getLayoutConfig(configId);
+		if (config == null) {
+			return null;
+		}
+		return config.toJSON();
+	}
 	
 	/**
 	 * @param request

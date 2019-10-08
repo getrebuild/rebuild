@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #14 Name for LayoutConfig (v1.6)
+alter table `layout_config`
+    add column `CONFIG_NAME` varchar(100);
+
 -- #13 MultiSelect supports by PickList (v1.6)
 alter table `pick_list`
   add column `MASK_VALUE` bigint(20) default '0' comment 'MultiSelect专用',

@@ -1681,8 +1681,16 @@ form.simple {
     font-size: 21px;
 }
 
+.fs-0 {
+    font-size: 0;
+}
+
 .fs-12 {
     font-size: 12px;
+}
+
+.fs-13 {
+    font-size: 13px;
 }
 
 .fs-14 {
@@ -2522,4 +2530,60 @@ form {
 
 .repeated-table td.actions .icon {
     font-size: 1.28rem !important;
+}
+
+.shareTo--wrap .btn.btn-link {
+    height: 30px;
+    line-height: 30px;
+    min-height: 0;
+    width: 30px;
+    padding: 0;
+    min-width: 0;
+    text-align: left;
+    padding-top: 2px;
+}
+
+.shareTo--wrap .btn.btn-link .icon {
+    font-size: 16px !important;
+}
+
+.shareTo--wrap .custom-control {
+    margin-bottom: 0;
+    margin-top: 7px;
+    cursor: default;
+}
+
+.shareTo--box .form {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.select-list .modal-content {
+    width: 420px
+}
+
+.select-list ul li a {
+    display: block;
+    background-color: #f5f5f5;
+    padding: 9px 10px;
+    position: relative;
+    color: #555;
+    border-radius: 2px;
+}
+
+.select-list ul li a:hover {
+    color: #fff;
+    background-color: #4285f4;
+}
+
+.select-list ul li a>span {
+    color: #aaa;
+}
+
+.select-list ul li a:hover>span {
+    color: rgba(255, 255, 255, 0.4)
+}
+
+.select-list ul li+li {
+    margin-top: 6px;
 }

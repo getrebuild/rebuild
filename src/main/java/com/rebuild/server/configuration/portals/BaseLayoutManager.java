@@ -83,16 +83,23 @@ public class BaseLayoutManager extends SharableManager<ID> {
 		if (configUsed == null) {
 			return null;
 		}
-		
-		final String ckey = "BaseLayoutManager-" + configUsed;
+		return getLayoutConfig(configUsed);
+	}
+
+	/**
+	 * @param configId
+	 * @return
+	 */
+	protected ConfigEntry getLayoutConfig(ID configId) {
+		final String ckey = "BaseLayoutManager-" + configId;
 		ConfigEntry entry = (ConfigEntry) Application.getCommonCache().getx(ckey);
 		if (entry != null) {
 			return entry.clone();
 		}
-		
+
 		Object[] o = Application.createQueryNoFilter(
 				"select configId,config,shareTo from LayoutConfig where configId = ?")
-				.setParameter(1, configUsed)
+				.setParameter(1, configId)
 				.unique();
 		entry = new ConfigEntry()
 				.set("id", o[0])
@@ -101,7 +108,7 @@ public class BaseLayoutManager extends SharableManager<ID> {
 		Application.getCommonCache().putx(ckey, entry);
 		return entry.clone();
 	}
-	
+
 	/**
 	 * @param user
 	 * @param belongEntity

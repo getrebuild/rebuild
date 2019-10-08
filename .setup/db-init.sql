@@ -157,6 +157,7 @@ create table if not exists `layout_config` (
   `SHARE_TO`           varchar(420) default 'SELF' comment '共享给哪些人, 可选值: ALL/SELF/$MemberID(U/D/R)',
   `BELONG_ENTITY`      varchar(100) not null,
   `APPLY_TYPE`         varchar(20) not null comment 'FORM,DATALIST,NAVI,TBA,ADD',
+  `CONFIG_NAME`        varchar(100),
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',

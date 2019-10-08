@@ -318,11 +318,11 @@ class DashSelect extends React.Component {
   }
   render() {
     return (
-      <div className={'modal ' + (this.props.dlgClazz || 'dlg-dash-select')} ref="dlg" tabIndex="-1">
+      <div className={'modal ' + (this.props.dlgClazz || 'dlg-dash-select')} ref={(c) => this._dlg = c} tabIndex="-1">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
+              <button className="close" type="button" onClick={this.hide}><span className="zmdi zmdi-close" /></button>
             </div>
             <div className="modal-body">
               <div ref={s => this._scrollbar = s}>
@@ -338,15 +338,9 @@ class DashSelect extends React.Component {
       </div>
     )
   }
-  componentDidMount() {
-    this.show()
-  }
-  hide() {
-    $(this.refs['dlg']).modal('hide')
-  }
-  show() {
-    $(this.refs['dlg']).modal({ show: true, keyboard: true })
-  }
+  componentDidMount = () => $(this._dlg).modal({ show: true, keyboard: true })
+  hide = () => $(this._dlg).modal('hide')
+  show = () => $(this._dlg).modal('show')
 }
 
 // 从已有图表中选择图表

@@ -1,4 +1,5 @@
 let UNICON_NAME = 'texture'
+let shareTo
 $(document).ready(function () {
   $('.J_add-menu').click(function () {
     render_item({}, true)
@@ -50,7 +51,7 @@ $(document).ready(function () {
     $('.J_edit-menu').addClass('hide')
   })
 
-  var cfgid = null
+  var cfgid = $urlp('id')
   $('.J_save').click(function () {
     let navs = []
     $('.J_config>.dd-item').each(function () {
@@ -63,14 +64,15 @@ $(document).ready(function () {
     }
 
     let btn = $(this).button('loading')
-    $.post(rb.baseUrl + '/app/settings/nav-settings?cfgid=' + cfgid + '&toAll=' + $('#shareTo').prop('checked'), JSON.stringify(navs), function (res) {
+    let shareToData = shareTo ? shareTo.getData() : {}
+    $.post(`${rb.baseUrl}/app/settings/nav-settings?cfgid=${cfgid}&cfgname=${shareToData.configName || ''}&shareTo=${shareToData.shareTo || ''}`, JSON.stringify(navs), function (res) {
       btn.button('reset')
       if (res.error_code === 0) parent.location.reload()
     })
   })
 
   add_sortable('.J_config')
-  $.get(rb.baseUrl + '/app/settings/nav-settings', function (res) {
+  $.get(rb.baseUrl + '/app/settings/nav-settings?id=' + cfgid, function (res) {
     if (res.data) {
       cfgid = res.data.id
       $(res.data.config).each(function () {
@@ -83,10 +85,26 @@ $(document).ready(function () {
           add_sortable(subUl)
         }
       })
-      $('#shareTo').attr('checked', res.data.shareTo === 'ALL')
+    }
+
+    let configData = res.data || {}
+    if (rb.isAdminUser) {
+      $.get(`${rb.baseUrl}/app/settings/nav-settings/alist`, (res) => {
+        let configName = null
+        $(res.data).each(function () {
+          if (this[0] === configData.id) {
+            configName = this[1]
+            return false
+          }
+        })
+        // eslint-disable-next-line react/jsx-no-undef
+        renderRbcomp(<Share2 title="导航菜单" list={res.data} configName={configName} shareTo={configData.shareTo} />, 'shareTo', function () { shareTo = this })
+      })
     }
   })
+
 })
+
 const add_sortable = function (el) {
   $(el).sortable({
     placeholder: 'dd-placeholder',

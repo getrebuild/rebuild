@@ -25,12 +25,12 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.BaseLayoutManager;
 import com.rebuild.server.configuration.portals.NavManager;
-import com.rebuild.server.configuration.portals.SharableManager;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.bizz.RoleService;
 import com.rebuild.server.service.configuration.LayoutConfigService;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.PortalsConfiguration;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -57,11 +57,7 @@ public class NavSettings extends BaseControll implements PortalsConfiguration {
 	@RequestMapping(value = "nav-settings", method = RequestMethod.POST)
 	public void sets(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		boolean toAll = getBoolParameter(request, "toAll", false);
-		if (toAll) {
-			toAll = UserHelper.isAdmin(user);
-		}
-		
+
 		JSON config = ServletUtils.getRequestJson(request);
 		ID cfgid = getIdParameter(request, "cfgid");
 		if (cfgid != null && !NavManager.instance.isSelf(user, cfgid)) {
@@ -73,19 +69,45 @@ public class NavSettings extends BaseControll implements PortalsConfiguration {
 			record = EntityHelper.forNew(EntityHelper.LayoutConfig, user);
 			record.setString("belongEntity", "N");
 			record.setString("applyType", BaseLayoutManager.TYPE_NAV);
+			record.setString("shareTo", BaseLayoutManager.SHARE_SELF);
 		} else {
 			record = EntityHelper.forUpdate(cfgid, user);
 		}
 		record.setString("config", config.toJSONString());
-		record.setString("shareTo", toAll ? SharableManager.SHARE_ALL : SharableManager.SHARE_SELF);
+
+		String shareTo = getParameter(request, "shareTo");
+		if (StringUtils.isNotBlank(shareTo)) {
+			record.setString("shareTo", shareTo);
+		}
+		String configName = getParameter(request, "cfgname");
+		if (StringUtils.isNotBlank(configName)) {
+			record.setString("configName", configName);
+		}
+
 		Application.getBean(LayoutConfigService.class).createOrUpdate(record);
-		
 		writeSuccess(response);
 	}
 	
 	@RequestMapping(value = "nav-settings", method = RequestMethod.GET)
 	public void gets(HttpServletRequest request, HttpServletResponse response) {
-		JSON config = NavManager.instance.getNav(getRequestUser(request));
-		writeSuccess(response, config);
+		ID user = getRequestUser(request);
+		String cfgid = request.getParameter("id");
+		if ("NEW".equalsIgnoreCase(cfgid)) {
+			writeSuccess(response);
+		} else if (ID.isId(cfgid)) {
+			writeSuccess(response, NavManager.instance.getNavById(ID.valueOf(cfgid)));
+		} else {
+			writeSuccess(response, NavManager.instance.getNav(user));
+		}
+	}
+
+	@RequestMapping(value = "nav-settings/alist", method = RequestMethod.GET)
+	public void getsList(HttpServletRequest request, HttpServletResponse response) {
+		Object[][] list = Application.createQueryNoFilter(
+				"select configId,configName,shareTo from LayoutConfig where applyType = ? and createdBy.roleId = ?")
+				.setParameter(1, BaseLayoutManager.TYPE_NAV)
+				.setParameter(2, RoleService.ADMIN_ROLE)
+				.array();
+		writeSuccess(response, list);
 	}
 }

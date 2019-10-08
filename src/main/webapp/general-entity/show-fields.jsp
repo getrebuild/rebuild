@@ -24,7 +24,7 @@
 	</div>
 	<div class="dialog-footer">
 		<div class="float-left admin-show">
-			<label class="custom-control custom-checkbox custom-control-inline">
+			<label class="custom-control custom-checkbox custom-control-inline mt-1">
 				<input class="custom-control-input" type="checkbox" id="shareTo" value="ALL" checked="checked">
 				<span class="custom-control-label">共享给全部用户</span>
 			</label>
