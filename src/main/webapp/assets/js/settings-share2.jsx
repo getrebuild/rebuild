@@ -165,7 +165,7 @@ class Share2Settings extends Share2Switch {
     RbAlert.create('确认删除此配置？', {
       confirm: function () {
         this.disabled(true)
-        // $.post(`${rb.baseUrl}/app/entity/record-delete?id=${id}`, () => parent.location.reload())
+        $.post(`${rb.baseUrl}/app/entity/record-delete?id=${id}`, () => parent.location.reload())
       }
     })
   }

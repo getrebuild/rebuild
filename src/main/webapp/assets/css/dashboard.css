@@ -119,6 +119,8 @@
     border: 1px solid #4285f4;
     background-color: #fff;
     padding: 8px 10px;
+    color: #4285f4;
+    border-radius: 0;
 }
 
 .chart-list>div {
