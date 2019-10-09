@@ -10,24 +10,21 @@
 	<div class="row m-0">
 		<div class="col-6 sortable-swap">
 			<h5 class="sortable-box-title">已显示</h5>
-			<div class="sortable-box rb-scroller">
+			<div class="sortable-box h380 rb-scroller">
 				<ol class="dd-list J_config"></ol>
 			</div>
 			<i class="zmdi zmdi-swap"></i>
 		</div>
 		<div class="col-6">
 			<h5 class="sortable-box-title">未显示</h5>
-			<div class="sortable-box rb-scroller">
+			<div class="sortable-box h380 rb-scroller">
 				<ol class="dd-list unset-list"></ol>
 			</div>
 		</div>
 	</div>
 	<div class="dialog-footer">
-		<div class="float-left admin-show">
-			<label class="custom-control custom-checkbox custom-control-inline mt-1">
-				<input class="custom-control-input" type="checkbox" id="shareTo" value="ALL" checked="checked">
-				<span class="custom-control-label">共享给全部用户</span>
-			</label>
+		<div class="float-left">
+			<div id="shareTo" class="shareTo--wrap"></div>
 		</div>
 		<button class="btn btn-primary J_save" type="button">保存</button>
 		<button class="btn btn-secondary" onclick="parent.RbModal.hide()" type="button">取消</button>
@@ -35,28 +32,52 @@
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/sortable.js"></script>
+<script src="${baseUrl}/assets/js/settings-share2.jsx" type="text/babel"></script>
 <script type="text/babel">
-$(document).ready(function(){
+$(document).ready(function () {
 	const entity = $urlp('entity')
-	let cfgid = null
-	$.get(rb.baseUrl + '/app/' + entity + '/list-fields', function(res){
-		$(res.data['fieldList']).each(function(){ render_unset([this.field, this.label]) })
-		$(res.data['configList']).each(function(){ $('.unset-list li[data-key="' + this.field + '"]').trigger('click') })
-		cfgid = res.data['configId'] || ''
-		if (cfgid) $('#shareTo').attr('checked', res.data['shareTo'] == 'ALL')
+	const baseUrl = rb.baseUrl + '/app/' + entity + '/list-fields'
+
+	let shareTo
+	let cfgid = $urlp('id')
+	$.get(baseUrl + '?id=' + cfgid, function (res) {
+		let _data = res.data || {}
+		$(_data.fieldList).each(function () {
+			render_unset([this.field, this.label])
+		})
+		$(_data.configList).each(function () {
+			$('.unset-list li[data-key="' + this.field + '"]').trigger('click')
+		})
+		cfgid = _data.configId || ''
+
+		if (rb.isAdminUser) {
+			$.get(baseUrl + '/alist', (res) => {
+				let configName = null
+				$(res.data).each(function () {
+					if (this[0] === _data.configId) {
+						configName = this[1]
+						return false
+					}
+				})
+				// eslint-disable-next-line react/jsx-no-undef
+				renderRbcomp(<Share2 title="列显示" list={res.data} configName={configName} shareTo={_data.shareTo} entity={entity}/>, 'shareTo', function () { shareTo = this })
+			})
+		}
 	})
 
-	$('.J_save').click(function(){
+	$('.J_save').click(function () {
 		let config = [];
-		$('.J_config>li').each(function(){
-			let _this = $(this)
-			config.push({ field: _this.data('key') })
+		$('.J_config>li').each(function () {
+			config.push({field: $(this).data('key')})
 		});
-		if (config.length == 0){ RbHighbar.create('请至少设置 1 个显示列'); return }
-		
+		if (config.length == 0) {
+			RbHighbar.create('请至少设置一个显示列');
+			return
+		}
+
 		let btn = $(this).button('loading')
-		let url = rb.baseUrl + '/app/' + entity + '/list-fields?cfgid=' + cfgid + '&toAll=' + $('#shareTo').prop('checked')
-		$.post(url, JSON.stringify(config), function(res){
+		let shareToData = shareTo ? shareTo.getData() : {}
+		$.post(baseUrl + '?id=' + cfgid + '&configName=' + $encode(shareToData.configName || '') + '&shareTo=' + shareToData.shareTo, JSON.stringify(config), function (res) {
 			if (res.error_code == 0) parent.location.reload()
 			btn.button('reset')
 		})

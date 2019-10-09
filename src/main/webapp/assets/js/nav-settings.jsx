@@ -51,7 +51,7 @@ $(document).ready(function () {
     $('.J_edit-menu').addClass('hide')
   })
 
-  var cfgid = $urlp('id')
+  let cfgid = $urlp('id')
   $('.J_save').click(function () {
     let navs = []
     $('.J_config>.dd-item').each(function () {
@@ -65,14 +65,14 @@ $(document).ready(function () {
 
     let btn = $(this).button('loading')
     let shareToData = shareTo ? shareTo.getData() : {}
-    $.post(`${rb.baseUrl}/app/settings/nav-settings?cfgid=${cfgid}&cfgname=${shareToData.configName || ''}&shareTo=${shareToData.shareTo || ''}`, JSON.stringify(navs), function (res) {
+    $.post(`${rb.baseUrl}/app/settings/nav-settings?id=${cfgid}&configName=${$encode(shareToData.configName || '')}&shareTo=${shareToData.shareTo}`, JSON.stringify(navs), function (res) {
       btn.button('reset')
       if (res.error_code === 0) parent.location.reload()
     })
   })
 
   add_sortable('.J_config')
-  $.get(rb.baseUrl + '/app/settings/nav-settings?id=' + cfgid, function (res) {
+  $.get(`${rb.baseUrl}/app/settings/nav-settings?id=${cfgid}`, function (res) {
     if (res.data) {
       cfgid = res.data.id
       $(res.data.config).each(function () {

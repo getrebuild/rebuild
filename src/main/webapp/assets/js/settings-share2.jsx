@@ -32,7 +32,7 @@ class Share2 extends _ChangeHandler {
         <div className="btn-group">
           <button type="button" className="btn btn-link" data-toggle="dropdown"><i className="zmdi zmdi-settings icon"></i></button>
           <div className="dropdown-menu">
-            <a className="dropdown-item" href="?id=NEW">添加{this.props.title || '配置'}</a>
+            <a className="dropdown-item" href={`?id=NEW&entity=${this.props.entity || ''}`}>添加{this.props.title || '配置'}</a>
             <a className="dropdown-item" onClick={this.showSwitch}>切换{this.props.title || '配置'}</a>
           </div>
         </div>
@@ -51,7 +51,7 @@ class Share2 extends _ChangeHandler {
   showSwitch = () => {
     let that = this
     if (that.__switch) that.__switch.show()
-    else renderRbcomp(<Share2Switch modalClazz="select-list" list={this.props.list} />, null, function () { that.__switch = this })
+    else renderRbcomp(<Share2Switch modalClazz="select-list" list={this.props.list} entity={this.props.entity} />, null, function () { that.__switch = this })
   }
 
   showSettings() {
@@ -94,13 +94,15 @@ class Share2Switch extends _ChangeHandler {
   }
 
   renderContent() {
+    let list = this.props.list || []
     return <div className="rb-scroller" ref={s => this._scrollbar = s}>
       <ul className="list-unstyled nav-list">
-        {(this.props.list || []).map((item) => {
+        {list.map((item) => {
           let st = item[2] === SHARE_ALL ? '全部用户' : (item[2] === SHARE_SELF ? '私有' : `指定用户(${item[2].split(',').length})`)
-          return <li key={'item-' + item[0]}><a href={'?id=' + item[0]}>{item[1] || '未命名'}<span className="muted">{st}</span></a></li>
+          return <li key={'item-' + item[0]}><a href={`?id=${item[0]}&entity=${this.props.entity || ''}`}>{item[1] || '未命名'}<span className="muted">{st}</span></a></li>
         })}
       </ul>
+      {list.length === 0 && <p className="text-muted">尚未配置</p>}
     </div>
   }
 

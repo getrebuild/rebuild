@@ -30,14 +30,14 @@ import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.portals.BaseLayoutManager;
 import com.rebuild.server.configuration.portals.DataListManager;
 import com.rebuild.server.configuration.portals.FieldPortalAttrs;
-import com.rebuild.server.configuration.portals.SharableManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
-import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.bizz.RoleService;
 import com.rebuild.server.service.configuration.LayoutConfigService;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.PortalsConfiguration;
 import org.springframework.stereotype.Controller;
@@ -66,20 +66,11 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 	@RequestMapping(value = "list-fields", method = RequestMethod.POST)
 	@Override
 	public void sets(@PathVariable String entity,
-			HttpServletRequest request, HttpServletResponse response) throws IOException {
+					 HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		boolean toAll = getBoolParameter(request, "toAll", false);
-		if (toAll) {
-			toAll = UserHelper.isAdmin(user);
-		}
-		
-		if (!MetadataHelper.containsEntity(entity)) {
-			writeFailure(response);
-			return;
-		}
-		
+
 		JSON config = ServletUtils.getRequestJson(request);
-		ID cfgid = getIdParameter(request, "cfgid");
+		ID cfgid = getIdParameter(request, "id");
 		if (cfgid != null && !DataListManager.instance.isSelf(user, cfgid)) {
 			cfgid = null;
 		}
@@ -89,11 +80,12 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 			record = EntityHelper.forNew(EntityHelper.LayoutConfig, user);
 			record.setString("belongEntity", entity);
 			record.setString("applyType", BaseLayoutManager.TYPE_DATALIST);
+			record.setString("shareTo", BaseLayoutManager.SHARE_SELF);
 		} else {
 			record = EntityHelper.forUpdate(cfgid, user);
 		}
-		record.setString("shareTo", toAll ? SharableManager.SHARE_ALL : SharableManager.SHARE_SELF);
 		record.setString("config", config.toJSONString());
+		putCommonsFields(request, record);
 		Application.getBean(LayoutConfigService.class).createOrUpdate(record);
 		
 		writeSuccess(response);
@@ -102,7 +94,7 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 	@RequestMapping(value = "list-fields", method = RequestMethod.GET)
 	@Override
 	public void gets(@PathVariable String entity,
-			HttpServletRequest request, HttpServletResponse response) {
+					 HttpServletRequest request, HttpServletResponse response) {
 		ID user = getRequestUser(request);
 		Entity entityMeta = MetadataHelper.getEntity(entity);
 		
@@ -131,9 +123,19 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 			}
 		}
 		
-		ConfigEntry raw = DataListManager.instance.getLayoutOfDatalist(user, entity);
-		JSONObject config = (JSONObject) DataListManager.instance.getColumnLayout(entity, user, false);
-		
+		ConfigEntry raw = null;
+		String cfgid = request.getParameter("id");
+		if ("NEW".equalsIgnoreCase(cfgid)) {
+			raw = new ConfigEntry();
+			raw.set("config", JSONUtils.EMPTY_ARRAY);
+		} else if (ID.isId(cfgid)) {
+			raw = DataListManager.instance.getgetLayoutById(ID.valueOf(cfgid));
+		} else {
+			raw = DataListManager.instance.getLayoutOfDatalist(user, entity);
+		}
+
+		JSONObject config = (JSONObject) DataListManager.instance.formatColumnLayout(entity, user, false, raw);
+
 		Map<String, Object> ret = new HashMap<>();
 		ret.put("fieldList", fieldList);
 		ret.put("configList", config.getJSONArray("fields"));
@@ -142,5 +144,17 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 			ret.put("shareTo", raw.getString("shareTo"));
 		}
 		writeSuccess(response, ret);
+	}
+
+	@RequestMapping(value = "list-fields/alist", method = RequestMethod.GET)
+	public void getsList(@PathVariable String entity,
+						 HttpServletRequest request, HttpServletResponse response) {
+		Object[][] list = Application.createQueryNoFilter(
+				"select configId,configName,shareTo from LayoutConfig where belongEntity = ? and applyType = ? and createdBy.roleId = ? order by configName")
+				.setParameter(1, entity)
+				.setParameter(2, BaseLayoutManager.TYPE_DATALIST)
+				.setParameter(3, RoleService.ADMIN_ROLE)
+				.array();
+		writeSuccess(response, list);
 	}
 }

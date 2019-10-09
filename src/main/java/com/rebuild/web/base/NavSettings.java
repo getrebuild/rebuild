@@ -30,7 +30,6 @@ import com.rebuild.server.service.bizz.RoleService;
 import com.rebuild.server.service.configuration.LayoutConfigService;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.PortalsConfiguration;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -59,7 +58,7 @@ public class NavSettings extends BaseControll implements PortalsConfiguration {
 		ID user = getRequestUser(request);
 
 		JSON config = ServletUtils.getRequestJson(request);
-		ID cfgid = getIdParameter(request, "cfgid");
+		ID cfgid = getIdParameter(request, "id");
 		if (cfgid != null && !NavManager.instance.isSelf(user, cfgid)) {
 			cfgid = null;
 		}
@@ -74,17 +73,9 @@ public class NavSettings extends BaseControll implements PortalsConfiguration {
 			record = EntityHelper.forUpdate(cfgid, user);
 		}
 		record.setString("config", config.toJSONString());
-
-		String shareTo = getParameter(request, "shareTo");
-		if (StringUtils.isNotBlank(shareTo)) {
-			record.setString("shareTo", shareTo);
-		}
-		String configName = getParameter(request, "cfgname");
-		if (StringUtils.isNotBlank(configName)) {
-			record.setString("configName", configName);
-		}
-
+		putCommonsFields(request, record);
 		Application.getBean(LayoutConfigService.class).createOrUpdate(record);
+
 		writeSuccess(response);
 	}
 	
