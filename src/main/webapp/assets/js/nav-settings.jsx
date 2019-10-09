@@ -87,18 +87,18 @@ $(document).ready(function () {
       })
     }
 
-    let configData = res.data || {}
+    let _data = res.data || {}
     if (rb.isAdminUser) {
       $.get(`${rb.baseUrl}/app/settings/nav-settings/alist`, (res) => {
         let configName = null
         $(res.data).each(function () {
-          if (this[0] === configData.id) {
+          if (this[0] === _data.id) {
             configName = this[1]
             return false
           }
         })
         // eslint-disable-next-line react/jsx-no-undef
-        renderRbcomp(<Share2 title="导航菜单" list={res.data} configName={configName} shareTo={configData.shareTo} />, 'shareTo', function () { shareTo = this })
+        renderRbcomp(<Share2 title="导航菜单" list={res.data} configName={configName} shareTo={_data.shareTo} id={_data.id} />, 'shareTo', function () { shareTo = this })
       })
     }
   })

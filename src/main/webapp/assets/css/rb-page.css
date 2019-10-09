@@ -2597,7 +2597,8 @@ form {
     font-size: 12px;
 }
 
-.modal.select-list .modal-body li a:hover>.muted {
+.modal.select-list .modal-body li a:hover>.muted,
+.modal.select-list .modal-body li.active a>.muted {
     color: rgba(255, 255, 255, 0.4)
 }
 

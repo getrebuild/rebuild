@@ -51,13 +51,13 @@ class Share2 extends _ChangeHandler {
   showSwitch = () => {
     let that = this
     if (that.__switch) that.__switch.show()
-    else renderRbcomp(<Share2Switch modalClazz="select-list" list={this.props.list} entity={this.props.entity} />, null, function () { that.__switch = this })
+    else renderRbcomp(<Share2Switch modalClazz="select-list" list={this.props.list} entity={this.props.entity} id={this.props.id} />, null, function () { that.__switch = this })
   }
 
   showSettings() {
     let that = this
     if (that.__settings) that.__settings.show()
-    else renderRbcomp(<Share2Settings configName={this.props.configName} shareTo={this.props.shareTo} call={this.showSettingsCall} />, null, function () { that.__settings = this })
+    else renderRbcomp(<Share2Settings configName={this.props.configName} shareTo={this.props.shareTo} call={this.showSettingsCall} id={this.props.id} />, null, function () { that.__settings = this })
     return false
   }
   showSettingsCall = (data) => {
@@ -99,10 +99,11 @@ class Share2Switch extends _ChangeHandler {
       <ul className="list-unstyled nav-list">
         {list.map((item) => {
           let st = item[2] === SHARE_ALL ? '全部用户' : (item[2] === SHARE_SELF ? '私有' : `指定用户(${item[2].split(',').length})`)
+          if (this.props.id === item[0]) st += ' [当前]'
           return <li key={'item-' + item[0]}><a href={`?id=${item[0]}&entity=${this.props.entity || ''}`}>{item[1] || '未命名'}<span className="muted">{st}</span></a></li>
         })}
       </ul>
-      {list.length === 0 && <p className="text-muted">尚未配置</p>}
+      {list.length === 0 && <p className="text-muted">暂无配置</p>}
     </div>
   }
 
@@ -131,6 +132,7 @@ class Share2Settings extends Share2Switch {
       </div>
       <div className="form-group mb-1">
         <button className="btn btn-primary btn-space" type="button" onClick={this.checkData}>确定</button>
+        {this.props.id && <button className="btn btn-danger bordered btn-space" type="button" onClick={this.delete}><i className="zmdi zmdi-delete icon" /> 删除</button>}
       </div>
     </div>
   }
@@ -156,5 +158,15 @@ class Share2Settings extends Share2Switch {
   checkData = () => {
     this.hide()
     typeof this.props.call === 'function' && this.props.call(this.getData())
+  }
+
+  delete = () => {
+    let id = this.props.id
+    RbAlert.create('确认删除此配置？', {
+      confirm: function () {
+        this.disabled(true)
+        // $.post(`${rb.baseUrl}/app/entity/record-delete?id=${id}`, () => parent.location.reload())
+      }
+    })
   }
 }

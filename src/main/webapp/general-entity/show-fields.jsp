@@ -60,7 +60,7 @@ $(document).ready(function () {
 					}
 				})
 				// eslint-disable-next-line react/jsx-no-undef
-				renderRbcomp(<Share2 title="列显示" list={res.data} configName={configName} shareTo={_data.shareTo} entity={entity}/>, 'shareTo', function () { shareTo = this })
+				renderRbcomp(<Share2 title="列显示" list={res.data} configName={configName} shareTo={_data.shareTo} entity={entity} id={_data.configId}/>, 'shareTo', function () { shareTo = this })
 			})
 		}
 	})
