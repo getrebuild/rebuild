@@ -161,7 +161,7 @@ class SelectReport extends React.Component {
   }
   render() {
     return (
-      <div className="modal reports-select" ref={(c) => this._dlg = c} tabIndex="-1" >
+      <div className="modal select-list" ref={(c) => this._dlg = c} tabIndex="-1" >
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
@@ -170,12 +170,14 @@ class SelectReport extends React.Component {
             <div className="modal-body">
               <h5 className="mt-0 text-bold">选择报表</h5>
               {(this.state.reports && this.state.reports.length === 0) && <div className="text-muted">无可用报表</div>}
-              <ul className="list-unstyled">
-                {(this.state.reports || []).map((item) => {
-                  let reportUrl = `${rb.baseUrl}/app/entity/report-export?report=${item.id}&record=${this.props.id}`
-                  return <li key={'r-' + item.id}><a target="_blank" href={reportUrl} className="text-truncate">{item.name}<i className="zmdi zmdi-download"></i></a></li>
-                })}
-              </ul>
+              <div>
+                <ul className="list-unstyled">
+                  {(this.state.reports || []).map((item) => {
+                    let reportUrl = `${rb.baseUrl}/app/entity/report-export?report=${item.id}&record=${this.props.id}`
+                    return <li key={'r-' + item.id}><a target="_blank" href={reportUrl} className="text-truncate">{item.name}<i className="zmdi zmdi-download"></i></a></li>
+                  })}
+                </ul>
+              </div>
             </div>
           </div>
         </div>

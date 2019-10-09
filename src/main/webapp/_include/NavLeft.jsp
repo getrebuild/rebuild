@@ -2,6 +2,8 @@
 <%@ page import="com.alibaba.fastjson.JSONObject"%>
 <%@ page import="com.alibaba.fastjson.JSONArray"%>
 <%@ page import="com.rebuild.server.configuration.portals.NavManager"%>
+<%@ page import="com.rebuild.utils.AppUtils" %>
+<%@ page import="com.rebuild.server.service.bizz.privileges.ZeroEntry" %>
 <%
 final String activeNav = request.getParameter("activeNav");
 final JSONArray navArray = NavManager.instance.getNavForPortal(request);
@@ -19,8 +21,10 @@ final JSONArray navArray = NavManager.instance.getNavForPortal(request);
 			</div>
 		</div>
 	</div>
+	<% if (AppUtils.allowed(request, ZeroEntry.AllowCustomNav)) { %>
 	<div class="bottom-widget">
 		<a class="nav-settings" href="javascript:;" title="设置导航菜单"><i class="icon zmdi zmdi-apps"></i></a>
 	</div>
+	<% } %>
 </div>
 </div>

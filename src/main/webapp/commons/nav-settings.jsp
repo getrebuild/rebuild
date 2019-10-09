@@ -5,12 +5,38 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>导航菜单</title>
 <style type="text/css">
-.dd3-content>.zmdi{position:absolute;width:28px;height:28px;font-size:1.45rem;margin-left:-20px;margin-top:1px;}
-.dd3-content{padding-left:60px !important;cursor:default;}
-.dd-item>ul{margin-left:22px;padding-left:0;position:relative;}
-.input-group-prepend .input-group-text{padding:0;width:37px;text-align:center;display:inline-block;overflow:hidden;padding-top:9px;background-color:#fff}
-.input-group-prepend .input-group-text:hover{background-color:#eee;cursor:pointer;}
-.input-group-prepend .input-group-text i.zmdi{font-size:1.5rem;}
+.dd3-content > .zmdi {
+	position: absolute;
+	width: 28px;
+	height: 28px;
+	font-size: 1.45rem;
+	margin-left: -20px;
+	margin-top: 1px;
+}
+.dd3-content {
+	padding-left: 60px !important;
+	cursor: default;
+}
+.dd-item > ul {
+	margin-left: 22px;
+	padding-left: 0;
+	position: relative;
+}
+.input-group-prepend .input-group-text {
+	width: 37px;
+	text-align: center;
+	display: inline-block;
+	overflow: hidden;
+	padding: 9px 0 0;
+	background-color: #fff
+}
+.input-group-prepend .input-group-text:hover {
+	background-color: #eee;
+	cursor: pointer;
+}
+.input-group-prepend .input-group-text i.zmdi {
+	font-size: 1.5rem;
+}
 </style>
 </head>
 <body class="dialog">
@@ -60,17 +86,15 @@
 		</div>
 	</div>
 	<div class="dialog-footer">	
-		<div class="float-left admin-show">
-			<label class="custom-control custom-checkbox custom-control-inline">
-				<input class="custom-control-input" type="checkbox" id="shareTo" value="ALL" checked="checked">
-				<span class="custom-control-label">共享给全部用户</span>
-			</label>
+		<div class="float-left">
+			<div id="shareTo" class="shareTo--wrap"></div>
 		</div>
 		<button class="btn btn-primary J_save" type="button">保存</button>
 		<button class="btn btn-secondary" onclick="parent.RbModal.hide()" type="button">取消</button>
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/js/nav-settings.js" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/settings-share2.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/nav-settings.jsx" type="text/babel"></script>
 </body>
 </html>

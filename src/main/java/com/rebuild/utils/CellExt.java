@@ -16,39 +16,32 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.service.bizz.privileges;
+package com.rebuild.utils;
+
+import cn.devezhao.commons.excel.Cell;
 
 /**
- * 扩权限项
- * 
- * @author devezhao zhaofang123@gmail.com
- * @since 2019/04/13
+ * 带行列索引的 Cell
+ *
+ * @author devezhao
+ * @since 2019/9/30
  */
-public enum ZeroEntry {
+public class CellExt extends Cell {
 
-	AllowLogin(true),
+    final private int rowNo;
+    final private int columnNo;
 
-	AllowBatchUpdate(false),
-	AllowDataImport(false),
-	AllowDataOutput(false),
+    public CellExt(String cell, int rowNo, int columnNo) {
+        super(cell);
+        this.rowNo = rowNo;
+        this.columnNo = columnNo;
+    }
 
-    AllowCustomNav(true),
-    AllowCustomDataList(true),
+    public int getRowNo() {
+        return rowNo;
+    }
 
-	;
-	
-	private boolean defaultVal;
-	
-	ZeroEntry(boolean defaultVal) {
-		this.defaultVal = defaultVal;
-	}
-	
-	/**
-	 * 默认值
-	 * 
-	 * @return
-	 */
-	public boolean getDefaultVal() {
-		return defaultVal;
-	}
+    public int getColumnNo() {
+        return columnNo;
+    }
 }

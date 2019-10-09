@@ -18,18 +18,22 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
-
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.bizz.RoleService;
 import com.rebuild.server.service.bizz.UserHelper;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 
-import cn.devezhao.persist4j.engine.ID;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 可共享配置。配置实体需遵循一致的标准，即包含以下字段
@@ -55,6 +59,7 @@ public abstract class SharableManager<T> implements ConfigManager<T> {
 	 * 确定使用哪个配置，规则如下：
 	 * 1.管理员（角色）使用同一配置；
 	 * 2.非管理员优先使用自己的配置，无自己的配置则使用管理员共享的；
+     * 3.如果存在多个共享，优先返回最近修改的
 	 * 
 	 * @param user
 	 * @param configEntity
@@ -64,37 +69,90 @@ public abstract class SharableManager<T> implements ConfigManager<T> {
 	 */
 	protected ID detectUseConfig(ID user, String configEntity, String belongEntity, String applyType) {
 		Assert.isTrue(MetadataHelper.containsEntity(configEntity), "Unknow configEntity : " + configEntity);
-		
-		String sqlBase = String.format("select configId from %s where (1=1)", configEntity);
-		if (belongEntity != null) {
-			sqlBase += String.format(" and belongEntity = '%s'", belongEntity);
-		}
-		if (applyType != null) {
-			sqlBase += String.format(" and applyType = '%s'", applyType);
-		}
-		
+
+        String cacheKey = String.format("%s-%s-%s", configEntity, belongEntity, applyType);
+        Object[][] cached = (Object[][]) Application.getCommonCache().getx(cacheKey);
+		if (cached == null) {
+		    List<String> sqlWhere = new ArrayList<>();
+            if (belongEntity != null) {
+                sqlWhere.add(String.format("belongEntity = '%s'", belongEntity));
+            }
+            if (applyType != null) {
+                sqlWhere.add(String.format("applyType = '%s'", applyType));
+            }
+
+            String sql = String.format("select configId,shareTo,createdBy from %s where (1=1) order by modifiedOn desc", configEntity);
+            if (!sqlWhere.isEmpty()) {
+                sql = sql.replace("(1=1)", StringUtils.join(sqlWhere.iterator(), " and "));
+            }
+
+            cached = Application.createQueryNoFilter(sql).array();
+            Application.getCommonCache().putx(cacheKey, cached);
+        }
+
+		if (cached == null || cached.length == 0) {
+		    return null;
+        }
+
 		if (isSingleConfig()) {
-			Object[] o = Application.createQueryNoFilter(sqlBase).unique();
-			return o == null ? null : (ID) o[0];
-		}
-		
-		sqlBase += " and ";
-		
-		if (UserHelper.isAdmin(user)) {
-			sqlBase += String.format("createdBy.roleId = '%s'", RoleService.ADMIN_ROLE.toLiteral());
-			Object[] o = Application.createQueryNoFilter(sqlBase).unique();
-			return o == null ? null : (ID) o[0];
-		}
-		
-		// 使用自己的
-		String sql4self = sqlBase + String.format("createdBy = '%s'", user.toLiteral());
-		Object[] o = Application.createQueryNoFilter(sql4self).unique();
-		// 使用管理员共享的
-		if (o == null && MetadataHelper.containsField(configEntity, "shareTo")) {
-			sql4self = sqlBase + ("shareTo = '" + SHARE_ALL + "'");
-			o = Application.createQueryNoFilter(sql4self).unique();
-		}
-		return o == null ? null : (ID) o[0];
+		    return (ID) cached[0][0];
+        }
+
+		// 优先自己
+        boolean isAdmin = UserHelper.isAdmin(user);
+		for (Object[] d : cached) {
+		    if (user.equals(d[2]) || (isAdmin && UserHelper.isAdmin((ID) d[2]))) {
+		        return (ID) d[0];
+            }
+        }
+
+		// 共享的
+        for (Object[] d : cached) {
+            String shareTo = (String) d[1];
+            if (SHARE_ALL.equals(shareTo)) {
+                return (ID) d[0];
+            } else if (shareTo.length() >= 20) {
+                Set<String> userDefs = new HashSet<>();
+                CollectionUtils.addAll(userDefs, shareTo.split(","));
+                Set<ID> sharedUsers = UserHelper.parseUsers(userDefs, null);
+                if (sharedUsers.contains(user)) {
+                    return (ID) d[0];
+                }
+            }
+        }
+
+        return null;
+
+//		String sqlBase = String.format("select configId,createdBy from %s where (1=1)", configEntity);
+//		if (belongEntity != null) {
+//			sqlBase += String.format(" and belongEntity = '%s'", belongEntity);
+//		}
+//		if (applyType != null) {
+//			sqlBase += String.format(" and applyType = '%s'", applyType);
+//		}
+//
+//		if (isSingleConfig()) {
+//			Object[] o = Application.createQueryNoFilter(sqlBase).unique();
+//			return o == null ? null : (ID) o[0];
+//		}
+//
+//		sqlBase += " and ";
+//
+//		if (UserHelper.isAdmin(user)) {
+//			sqlBase += String.format("createdBy.roleId = '%s'", RoleService.ADMIN_ROLE.toLiteral());
+//			Object[] o = Application.createQueryNoFilter(sqlBase).unique();
+//			return o == null ? null : (ID) o[0];
+//		}
+//
+//		// 使用自己的
+//		String sql4self = sqlBase + String.format("createdBy = '%s'", user.toLiteral());
+//		Object[] o = Application.createQueryNoFilter(sql4self).unique();
+//		// 使用管理员共享的
+//		if (o == null && MetadataHelper.containsField(configEntity, "shareTo")) {
+//			sql4self = sqlBase + ("shareTo = '" + SHARE_ALL + "'");
+//			o = Application.createQueryNoFilter(sql4self).unique();
+//		}
+//		return o == null ? null : (ID) o[0];
 	}
 	
 	/**

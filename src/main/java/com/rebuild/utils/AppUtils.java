@@ -26,6 +26,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.Controll;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
+import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.web.admin.AdminEntryControll;
 import eu.bitwalker.useragentutils.Browser;
 import org.apache.commons.lang.StringUtils;
@@ -158,5 +159,14 @@ public class AppUtils {
 		String userAgent = request.getHeader("user-agent");
 		Browser browser = Browser.parseUserAgentString(userAgent);
 		return browser == Browser.IE6 || browser == Browser.IE7 || browser == Browser.IE8 || browser == Browser.IE9 || browser == Browser.IE10;
+	}
+
+	/**
+	 * @param request
+	 * @param entry
+	 * @return
+	 */
+	public static boolean allowed(HttpServletRequest request, ZeroEntry entry) {
+		return Application.getSecurityManager().allowed(getRequestUser(request), entry);
 	}
 }

@@ -18,20 +18,17 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.datareport;
 
+import cn.devezhao.commons.excel.Cell;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
-import com.alibaba.excel.EasyExcelFactory;
-import com.alibaba.excel.metadata.Sheet;
-import com.rebuild.server.RebuildException;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
+import com.rebuild.utils.CellExt;
+import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -65,13 +62,7 @@ public class TemplateExtractor {
      * @return
      */
     public Set<String> extractVars(boolean matchsAny) {
-        List<Object> rows;
-        try (InputStream is = new FileInputStream(this.template)) {
-            Sheet sheet = new Sheet(1, 0);
-            rows = EasyExcelFactory.read(is, sheet);
-        } catch (IOException ex) {
-            throw new RebuildException(ex);
-        }
+        List<Cell[]> rows = CommonsUtils.readExcel(this.template);
 
         String regex = "\\$\\{[0-9a-zA-Z\\.]+\\}";
         // 能够匹配中文
@@ -84,17 +75,14 @@ public class TemplateExtractor {
 
         Set<String> vars = new HashSet<>();
         int rowNum = 0;
-        for (Object row : rows) {
-            List<?> list = (List<?>) row;
-            int colNum = 0;
-            for (Object cell : list) {
-                if (cell != null && cell.toString().matches(regex)) {
-                    String cellVar = cell.toString();
-                    cellVar = cellVar.substring(2, cellVar.length() - 1);
-                    vars.add(cellVar);
-                    varsList.add(new Cell(cellVar, rowNum, colNum));
+        for (Cell[] row : rows) {
+            for (Cell cell : row) {
+                String cellValue = cell.asString();
+                if (cellValue != null && cellValue.matches(regex)) {
+                    cellValue = cellValue.substring(2, cellValue.length() - 1);  // remove `${}`
+                    vars.add(cellValue);
+                    varsList.add(new CellExt(cellValue, ((CellExt) cell).getRowNo(), ((CellExt) cell).getColumnNo()));
                 }
-                colNum++;
             }
             rowNum++;
         }
@@ -179,20 +167,5 @@ public class TemplateExtractor {
             }
         }
         return null;
-    }
-
-    /**
-     * 记录变量位置
-     */
-    static class Cell {
-        final String value;
-        final int rowNum;
-        final int colNum;
-
-        private Cell(String value, int rowNum, int colNum) {
-            this.value = value;
-            this.rowNum = rowNum;
-            this.colNum = colNum;
-        }
     }
 }

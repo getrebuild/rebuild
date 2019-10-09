@@ -23,22 +23,27 @@ class RbModal extends React.Component {
       </div>
     </div>)
   }
+
   componentDidMount() {
-    $(this._rbmodal).modal({ show: true, backdrop: this.props.backdrop === false ? false : 'static', keyboard: false }).on('hidden.bs.modal', () => $keepModalOpen())
+    let root = $(this._rbmodal).modal({ show: true, backdrop: this.props.backdrop === false ? false : 'static', keyboard: false }).on('hidden.bs.modal', () => {
+      $keepModalOpen()
+      if (this.props.disposeOnHide === true) {
+        root.modal('dispose')
+        $unmount(root.parent())
+      }
+    })
   }
+
   show() {
     $(this._rbmodal).modal('show')
     typeof this.props.onShow === 'function' && this.props.onShow(this)
   }
+
   hide() {
-    let root = $(this._rbmodal)
-    root.modal('hide')
-    if (this.props.disposeOnHide === true) {
-      root.modal('dispose')
-      $unmount(root.parent())
-    }
+    $(this._rbmodal).modal('hide')
     typeof this.props.onHide === 'function' && this.props.onHide(this)
   }
+
   resize() {
     if (this.props.children) return
     let root = $(this._rbmodal)
@@ -197,19 +202,21 @@ class RbAlert extends React.Component {
   }
 
   componentDidMount() {
-    $(this._dlg).modal({ show: true, keyboard: true })
+    let root = $(this._dlg).modal({ show: true, keyboard: true }).on('hidden.bs.modal', function () {
+      root.modal('dispose')
+      $unmount(root.parent())
+    })
   }
 
   hide() {
-    let root = $(this._dlg)
-    root.modal('hide')
-    root.modal('dispose')
-    $unmount(root.parent())
+    $(this._dlg).modal('hide')
   }
+
   disabled(d) {
     d = d === true
     this.setState({ disable: d, tabIndex: d ? 99999 : -1 }, () => {
-      // $(this._dlg).modal({ backdrop: d ? 'static' : true })
+      // disabled 时不能简单关闭
+      // $(this._dlg).modal({ backdrop: d ? 'static' : true, keyboard: !d })
     })
   }
 
@@ -239,6 +246,7 @@ class RbHighbar extends React.Component {
     super(props)
     this.state = { animatedClass: 'slideInDown' }
   }
+
   render() {
     let icon = this.props.type === 'success' ? 'check' : 'info-outline'
     icon = this.props.type === 'danger' ? 'close-circle-o' : icon
@@ -251,9 +259,11 @@ class RbHighbar extends React.Component {
       </div>
     </div>)
   }
+
   componentDidMount() {
     setTimeout(() => { this.close() }, this.props.timeout || 3000)
   }
+
   close() {
     this.setState({ animatedClass: 'fadeOut' }, () => {
       $unmount($(this._rbhighbar).parent())
@@ -325,6 +335,7 @@ class UserSelector extends React.Component {
     if (props.hideDepartment !== true) this.tabTypes.push(['Department', '部门'])
     if (props.hideRole !== true) this.tabTypes.push(['Role', '角色'])
   }
+
   render() {
     let noResult = null
     if (!this.state.items) noResult = noResult = <li className="select2-results__option un-hover text-muted">搜索中...</li>
@@ -371,6 +382,7 @@ class UserSelector extends React.Component {
       </span>
     </div >
   }
+
   componentDidMount() {
     $(document.body).click((e) => {
       if (e.target && (e.target.matches('div.user-selector') || $(e.target).parents('div.user-selector').length > 0)) return
@@ -379,10 +391,12 @@ class UserSelector extends React.Component {
     })
     $(this._scroller).perfectScrollbar()
   }
+
   componentWillUnmount() {
     this.__isUnmounted = true
     $(this._scroller).perfectScrollbar('destroy')
   }
+
   componentWillReceiveProps(props) {
     this.setState({ selected: props.selected || this.state.selected })
   }
@@ -390,6 +404,7 @@ class UserSelector extends React.Component {
   clearSelection = () => {
     this.setState({ selected: [] })
   }
+
   openDropdown = (e) => {
     this.setState({ dropdownOpen: true }, () => {
       $(this._searchInput).focus()
@@ -410,6 +425,7 @@ class UserSelector extends React.Component {
       $(this._scroller).perfectScrollbar('update')
     })
   }
+
   searchItems(e) {
     this.setState({ query: e.target.value }, () => {
       $setTimeout(() => {
@@ -434,9 +450,11 @@ class UserSelector extends React.Component {
     }
     this.setState({ selected: ns, dropdownOpen: this.props.closeOnSelect !== true })
   }
+
   removeItem(e) {
     this.clickItem(e)
   }
+
   containsItem(id) {
     let s = this.state.selected
     for (let i = 0; i < s.length; i++) {

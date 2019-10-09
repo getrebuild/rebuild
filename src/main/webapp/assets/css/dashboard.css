@@ -115,41 +115,13 @@
     margin-left: 3px
 }
 
-.dlg-dash-select .modal-dialog {
-    max-width: 420px;
-}
-
-.dlg-dash-select .modal-dialog ul li+li {
-    margin-top: 6px;
-}
-
-.dlg-dash-select .modal-dialog ul li a {
-    display: block;
+.modal.select-list .modal-body li a {
     border: 1px solid #4285f4;
-    padding: 9px 12px;
+    background-color: #fff;
+    padding: 8px 10px;
+    color: #4285f4;
+    border-radius: 0;
 }
-
-.dlg-dash-select .modal-dialog ul li a>.icon {
-    display: none;
-}
-
-.dlg-dash-select .modal-dialog ul li a:hover {
-    color: #fff;
-    background-color: #4285f4
-}
-
-.dlg-dash-select .modal-dialog ul li a:hover>.icon {
-    float: right;
-    font-size: 1.3rem;
-    display: block;
-    margin-top: 2px;
-}
-
-.dlg-dash-select .modal-dialog .modal-body>div {
-    max-height: 475px;
-}
-
-.chart-list {}
 
 .chart-list>div {
     border: 1px solid #eee;

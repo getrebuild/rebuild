@@ -50,12 +50,11 @@
 		<servlet-name>DispatcherServlet</servlet-name>
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
-	
+
 	<servlet-mapping>
 		<servlet-name>default</servlet-name>
 		<url-pattern>/assets/*</url-pattern>
 		<url-pattern>/favicon.ico</url-pattern>
-		<url-pattern>*.xml</url-pattern>
 		<url-pattern>*.html</url-pattern>
 		<url-pattern>*.txt</url-pattern>
 	</servlet-mapping>
@@ -91,9 +90,40 @@
 			<trim-directive-whitespaces>true</trim-directive-whitespaces>
 		</jsp-property-group>
 	</jsp-config>
-	
+
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
-	
+
+	<!-- DRUID STAT -->
+	<!--
+	<filter>
+		<filter-name>DruidWebStat</filter-name>
+		<filter-class>com.alibaba.druid.support.http.WebStatFilter</filter-class>
+		<init-param>
+			<param-name>exclusions</param-name>
+			<param-value>/admin/druid/*,/assets/*</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>DruidWebStat</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	<servlet>
+		<servlet-name>DruidStatView</servlet-name>
+		<servlet-class>com.alibaba.druid.support.http.StatViewServlet</servlet-class>
+		<init-param>
+			<param-name>loginUsername</param-name>
+			<param-value>rebuild</param-value>
+		</init-param>
+		<init-param>
+			<param-name>loginPassword</param-name>
+			<param-value>rebuild</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DruidStatView</servlet-name>
+		<url-pattern>/admin/druid/*</url-pattern>
+	</servlet-mapping>
+	-->
 </web-app>

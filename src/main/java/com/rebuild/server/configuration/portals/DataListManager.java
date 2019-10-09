@@ -18,12 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -33,10 +30,11 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.StringUtils;
 
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.engine.ID;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 数据列表
@@ -65,8 +63,17 @@ public class DataListManager extends BaseLayoutManager {
 	 * @return
 	 */
 	public JSON getColumnLayout(String belongEntity, ID user, boolean filter) {
-		ConfigEntry config = getLayoutOfDatalist(user, belongEntity);
-		
+		return formatColumnLayout(belongEntity, user, filter, getLayoutOfDatalist(user, belongEntity));
+	}
+
+	/**
+	 * @param belongEntity
+	 * @param user
+	 * @param filter 过滤无读取权限的字段
+	 * @param config
+	 * @return
+	 */
+	public JSON formatColumnLayout(String belongEntity, ID user, boolean filter, ConfigEntry config) {
 		List<Map<String, Object>> columnList = new ArrayList<>();
 		Entity entityMeta = MetadataHelper.getEntity(belongEntity);
 		Field namedField = MetadataHelper.getNameField(entityMeta);
@@ -145,5 +152,13 @@ public class DataListManager extends BaseLayoutManager {
 		return JSONUtils.toJSONObject(
 				new String[] { "field", "label", "type" },
 				new Object[] { parentField + easyField.getName(), parentLabel + easyField.getLabel(), easyField.getDisplayType(false) });
+	}
+
+	/**
+	 * @param configId
+	 * @return
+	 */
+	public ConfigEntry getgetLayoutById(ID configId) {
+		return getLayoutConfig(configId);
 	}
 }

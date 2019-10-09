@@ -1681,8 +1681,16 @@ form.simple {
     font-size: 21px;
 }
 
+.fs-0 {
+    font-size: 0;
+}
+
 .fs-12 {
     font-size: 12px;
+}
+
+.fs-13 {
+    font-size: 13px;
 }
 
 .fs-14 {
@@ -2522,4 +2530,86 @@ form {
 
 .repeated-table td.actions .icon {
     font-size: 1.28rem !important;
+}
+
+.shareTo--wrap .btn.btn-link {
+    height: 30px;
+    line-height: 30px;
+    min-height: 0;
+    width: 30px;
+    padding: 0;
+    min-width: 0;
+    text-align: left;
+    padding-top: 2px;
+}
+
+.shareTo--wrap .btn.btn-link .icon {
+    font-size: 16px !important;
+}
+
+.shareTo--wrap .custom-control {
+    margin-bottom: 0;
+    margin-top: 7px;
+    cursor: default;
+}
+
+.shareTo--box .form {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.modal.select-list .modal-content {
+    width: 420px
+}
+
+.modal.select-list .modal-body>div.rb-scroller {
+    max-height: 361px;
+}
+
+.modal.select-list .modal-body ul {
+    margin-bottom: 0
+}
+
+.modal.select-list .modal-body li+li {
+    margin-top: 4px;
+}
+
+.modal.select-list .modal-body li a {
+    display: block;
+    background-color: #f5f5f5;
+    padding: 9px 10px;
+    position: relative;
+    color: #555;
+    border-radius: 2px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.modal.select-list .modal-body li a:hover,
+.modal.select-list .modal-body li.active a {
+    color: #fff;
+    background-color: #4285f4;
+}
+
+.modal.select-list .modal-body li a>.muted {
+    color: #aaa;
+    float: right;
+    font-size: 12px;
+}
+
+.modal.select-list .modal-body li a:hover>.muted,
+.modal.select-list .modal-body li.active a>.muted {
+    color: rgba(255, 255, 255, 0.4)
+}
+
+.modal.select-list .modal-body li a>.zmdi {
+    float: right;
+    margin-top: 2px;
+    font-size: 1.3rem;
+    color: #fff;
+    display: none;
+}
+
+.modal.select-list .modal-body li a:hover>.zmdi {
+    display: inline-block;
 }
