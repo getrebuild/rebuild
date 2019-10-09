@@ -18,22 +18,21 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.springframework.web.servlet.ModelAndView;
-
-import com.alibaba.fastjson.JSON;
-import com.rebuild.server.Application;
-import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entity.EasyMeta;
-
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.Privileges;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
+import com.rebuild.server.Application;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entity.EasyMeta;
+import com.rebuild.utils.JSONUtils;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 页面上需要某个实体信息的  Controll
@@ -70,7 +69,7 @@ public abstract class BaseEntityControll extends BasePageControll {
 			}
 			mv.getModel().put("entityPrivileges", JSON.toJSONString(actionMap));
 		} else {
-			mv.getModel().put("entityPrivileges", "{}");
+			mv.getModel().put("entityPrivileges", JSONUtils.EMPTY_OBJECT_STR);
 		}
 		return mv;
 	}
@@ -105,7 +104,7 @@ public abstract class BaseEntityControll extends BasePageControll {
 			}
 			mv.getModel().put("entityPrivileges", JSON.toJSONString(actionMap));
 		} else {
-			mv.getModel().put("entityPrivileges", "{}");
+			mv.getModel().put("entityPrivileges", JSONUtils.EMPTY_OBJECT_STR);
 		}
 		return mv;
 	}

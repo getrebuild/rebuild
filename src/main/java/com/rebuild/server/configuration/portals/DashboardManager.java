@@ -18,8 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
-import java.util.Iterator;
-
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -30,8 +30,7 @@ import com.rebuild.server.service.bizz.RoleService;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
 
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
+import java.util.Iterator;
 
 /**
  * 首页仪表盘
@@ -135,5 +134,6 @@ public class DashboardManager extends SharableManager<ID> {
 	@Override
 	public void clean(ID cacheKey) {
 		Application.getCommonCache().evict("DashboardOWN-" + cacheKey);
+		Application.getCommonCache().evict("DashboardConfig-null-null");
 	}
 }

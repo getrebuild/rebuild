@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.utils;
 
+import cn.devezhao.commons.excel.Cell;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -26,8 +27,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.springframework.util.ResourceUtils;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -117,5 +120,20 @@ public class CommonsUtilsTest {
 		System.out.println(name);
 		dest.put("code", code);
 		dest.put("name", name);
+	}
+
+	@Test
+	public void readExcel() throws Exception {
+		List<Cell[]> rows = CommonsUtils.readExcel(
+				ResourceUtils.getFile("classpath:dataimports-test.xlsx"));
+		for (Cell[] row : rows) {
+			System.out.println(StringUtils.join(row, " | "));
+		}
+
+		rows = CommonsUtils.readExcel(
+				ResourceUtils.getFile("classpath:dataimports-test.xls"));
+		for (Cell[] row : rows) {
+			System.out.println(StringUtils.join(row, " | "));
+		}
 	}
 }

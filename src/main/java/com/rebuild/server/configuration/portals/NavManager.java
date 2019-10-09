@@ -64,10 +64,7 @@ public class NavManager extends BaseLayoutManager {
 	 */
 	public JSON getNavById(ID configId) {
 		ConfigEntry config = getLayoutConfig(configId);
-		if (config == null) {
-			return null;
-		}
-		return config.toJSON();
+		return config == null ? null : config.toJSON();
 	}
 	
 	/**

@@ -36,11 +36,13 @@ import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.RoleService;
+import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.server.service.configuration.LayoutConfigService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.PortalsConfiguration;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -68,6 +70,7 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 	public void sets(@PathVariable String entity,
 					 HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
+		Assert.isTrue(Application.getSecurityManager().allowed(user, ZeroEntry.AllowCustomDataList), "没有权限");
 
 		JSON config = ServletUtils.getRequestJson(request);
 		ID cfgid = getIdParameter(request, "id");

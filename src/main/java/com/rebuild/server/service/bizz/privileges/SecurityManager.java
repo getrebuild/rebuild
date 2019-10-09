@@ -229,13 +229,9 @@ public class SecurityManager {
 	 * @return
 	 */
 	public boolean allowed(ID user, int entity, Permission action) {
-		if (UserService.ADMIN_USER.equals(user)) {
-			return true;
-		}
-		if (!theUserStore.getUser(user).isActive()) {
-			return false;
-		}
-		
+		Boolean a = allowedUser(user);
+		if (a != null) return a;
+
 		Role role = theUserStore.getUser(user).getOwningRole();
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
 			return true;
@@ -274,13 +270,9 @@ public class SecurityManager {
 	 * @return
 	 */
 	public boolean allowed(ID user, ID target, Permission action) {
-		if (UserService.ADMIN_USER.equals(user)) {
-			return true;
-		}
-		if (!theUserStore.getUser(user).isActive()) {
-			return false;
-		}
-		 
+		Boolean a = allowedUser(user);
+		if (a != null) return a;
+
 		Role role = theUserStore.getUser(user).getOwningRole();
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
 			return true;
@@ -459,13 +451,9 @@ public class SecurityManager {
 	 * @see ZeroPermission
 	 */
 	public boolean allowed(ID user, ZeroEntry entry) {
-		if (UserService.ADMIN_USER.equals(user)) {
-			return true;
-		}
-		if (!theUserStore.getUser(user).isActive()) {
-			return false;
-		}
-		 
+		Boolean a = allowedUser(user);
+		if (a != null) return a;
+
 		Role role = theUserStore.getUser(user).getOwningRole();
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
 			return true;
@@ -475,5 +463,19 @@ public class SecurityManager {
 			return role.getPrivileges(entry.name()).allowed(ZeroPermission.ZERO);
 		}
 		return entry.getDefaultVal();
+	}
+
+	/**
+	 * @param user
+	 * @return
+	 */
+	private Boolean allowedUser(ID user) {
+		if (UserService.ADMIN_USER.equals(user)) {
+			return true;
+		}
+		if (!theUserStore.getUser(user).isActive()) {
+			return false;
+		}
+		return null;
 	}
 }

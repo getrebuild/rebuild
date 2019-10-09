@@ -28,6 +28,7 @@ import com.rebuild.server.configuration.portals.DataListManager;
 import com.rebuild.server.helper.datalist.DataList;
 import com.rebuild.server.helper.datalist.DefaultDataList;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.web.BaseEntityControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -72,7 +73,9 @@ public class GeneralDataListControll extends BaseEntityControll {
 		
 		JSON config = DataListManager.instance.getColumnLayout(entity, getRequestUser(request));
 		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
-		
+		mv.getModel().put(ZeroEntry.AllowCustomDataList.name(),
+				Application.getSecurityManager().allowed(user, ZeroEntry.AllowCustomDataList));
+
 		return mv;
 	}
 	
