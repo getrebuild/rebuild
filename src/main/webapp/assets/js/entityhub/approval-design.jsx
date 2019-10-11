@@ -282,7 +282,7 @@ class ConditionBranch extends NodeGroupSpec {
   componentDidMount() {
     this.props.$$$parent.onRef(this)
   }
-  componentWillReceiveProps(props) {
+  UNSAFE_componentWillReceiveProps(props) {
     this.setState({ ...props, nodes: this.state.nodes })
   }
   addNode(type, depsNodeId) {

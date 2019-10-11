@@ -151,7 +151,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
         <div className="form-group">
           <label>选择审批流程</label>
           <div className="approval-list">
-            {!this.state.approvals && <strong className="text-danger">无可用流程，请联系管理员配置</strong>}
+            {!this.state.approvals && <p className="text-danger">无可用流程，请联系管理员配置</p>}
             {(this.state.approvals || []).map((item) => {
               return (<div key={'A' + item.id}>
                 <label className="custom-control custom-control-sm custom-radio mb-0">

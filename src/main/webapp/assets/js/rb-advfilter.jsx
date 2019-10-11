@@ -300,14 +300,14 @@ class FilterItem extends React.Component {
         </div>)
     } else if (this.state.type === 'PICKLIST' || this.state.type === 'STATE' || this.state.type === 'MULTISELECT') {
       val = (
-        <select className="form-control form-control-sm" multiple="true" ref={(c) => this._filterVal = c}>
+        <select className="form-control form-control-sm" multiple ref={(c) => this._filterVal = c}>
           {(this.state.options || []).map((item) => {
             let id = item.id || item.mask
             return <option value={id} key={'id-' + id}>{item.text}</option>
           })}
         </select>)
     } else if (this.isBizzField()) {
-      val = <select className="form-control form-control-sm" multiple="true" ref={(c) => this._filterVal = c} />
+      val = <select className="form-control form-control-sm" multiple ref={(c) => this._filterVal = c} />
     } else if (this.state.type === 'BOOL') {
       val = (
         <select className="form-control form-control-sm" ref={(c) => this._filterVal = c}>
