@@ -92,6 +92,7 @@ class RbList extends React.Component {
       window.resize_handler = function () {
         typeof hold === 'function' && hold()
         let maxHeight = $(window).height() - 214
+        if ($('.main-content>.nav-tabs-classic').length > 0) maxHeight -= 42  // Has tab
         scroller.css({ maxHeight: maxHeight })
         scroller.perfectScrollbar('update')
       }
