@@ -2227,7 +2227,7 @@ form {
     padding-top: 45px
 }
 
-.notification-list .notification a {
+.notification-list .notification>a {
     cursor: default;
     padding-left: 10px;
 }
