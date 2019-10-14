@@ -166,7 +166,7 @@ var __checkMessage = function () {
     }
     __checkMessage__state = res.data.unread
 
-    setTimeout(__checkMessage, 2000)
+    setTimeout(__checkMessage, rb.env === 'dev' ? 60 * 10000 : 2000)
   })
 }
 var __loadMessages__state = 0

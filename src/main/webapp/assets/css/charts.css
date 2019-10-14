@@ -71,6 +71,12 @@
 	font-size: 1.1rem;
 }
 
+.chart-undata>.icon {
+	font-size: 3rem;
+	display: block;
+	text-align: center;
+}
+
 .chart-body .chart {
 	line-height: normal;
 	height: 100%;
@@ -149,10 +155,21 @@
 	margin: 0 25px;
 }
 
+.chart-box.ApprovalList .progress-wrap {
+	margin: 10px 25px;
+	margin-bottom: 15px;
+	border-radius: 2px;
+}
+
+.chart-box.ApprovalList .progress-wrap .progress-bar:hover {
+	cursor: help;
+	opacity: 0.8;
+}
+
 .chart.ApprovalList {
 	position: relative;
 	width: 100%;
-	margin-top: 15px;
+	margin-top: 5px;
 }
 
 .chart.ApprovalList .table th {
@@ -160,6 +177,10 @@
 	padding-top: 0;
 	padding-bottom: 6px;
 	font-weight: normal;
+}
+
+.chart.ApprovalList .table td {
+	padding: 6px 10px;
 }
 
 .chart.ApprovalList .table tr th:first-child,

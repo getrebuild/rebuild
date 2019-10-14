@@ -64,7 +64,7 @@ class BaseChart extends React.Component {
   }
 
   renderError(msg) {
-    this.setState({ chartdata: (<h4 className="chart-undata must-center">{msg || '图表加载失败'}</h4>) })
+    this.setState({ chartdata: (<div className="chart-undata must-center">{msg || '图表加载失败'}</div>) })
   }
 
   renderChart(data) {
@@ -372,6 +372,9 @@ class ChartTreemap extends BaseChart {
 }
 
 // ~ 审批列表
+const APPROVAL_STATES = {
+  1: ['warning', '待审批'], 10: ['success', '通过'], 11: ['danger', '驳回']
+}
 class ApprovalList extends BaseChart {
   constructor(props) {
     super(props)
@@ -379,17 +382,33 @@ class ApprovalList extends BaseChart {
   }
 
   renderChart(data) {
+    let statsTotal = 0
+    data.stats.forEach((item) => statsTotal += item[1])
+    let stats = <div className="progress-wrap">
+      <div className="progress">
+        {data.stats.map((item) => {
+          let s = APPROVAL_STATES[item[0]]
+          if (!s || s[1] <= 0) return null
+          let sp = (item[1] * 100 / statsTotal).toFixed(2) + '%'
+          return <div key={`state-${s[0]}`} className={`progress-bar bg-${s[0]}`} title={`${s[1]} : ${item[1]} (${sp})`} style={{ width: sp }}>{s[1]}</div>
+        })}
+      </div>
+      <p className="m-0 mt-1 fs-11 text-muted text-right hide">审批统计</p>
+    </div>
+
+    if (statsTotal === 0) { this.renderError('暂无数据'); return }
+
     let table = <div>
       <table className="table table-striped table-hover">
         <thead>
           <tr>
-            <th>提交人</th>
-            <th>审批记录</th>
-            <th width="50"></th>
+            <th style={{ minWidth: 150 }}>提交人</th>
+            <th style={{ minWidth: 150 }}>审批记录</th>
+            <th width="40"></th>
           </tr>
         </thead>
         <tbody>
-          {data.map((item, idx) => {
+          {data.data.map((item, idx) => {
             return <tr key={'approval-' + idx}>
               <td className="user-avatar cell-detail user-info">
                 <img src={`${rb.baseUrl}/account/user-avatar/${item[0]}`} />
@@ -401,27 +420,29 @@ class ApprovalList extends BaseChart {
                 <span className="cell-detail-description">{item[6]}</span>
               </td>
               <td className="actions">
-                <a className="icon" href="#" onClick={() => this.approve(item[3], item[5])} title="审批"><i className="zmdi zmdi-settings"></i></a>
+                <a className="icon" href="#" onClick={() => this.approve(item[3], item[5])} title="审批"><i className="zmdi zmdi-more-vert"></i></a>
               </td>
             </tr>
           })}
         </tbody>
       </table>
-    </div>
+    </div >
+    if (data.data.length === 0) table = <div className="chart-undata must-center"><i className="zmdi zmdi-check icon text-success"></i> 你已完成所有审批</div>
 
     let chartdata = <div className="chart ApprovalList">
+      {stats}
       {table}
     </div>
     this.setState({ chartdata: chartdata }, () => {
       let tb = $(this._body)
-      tb.find('.ApprovalList').css('height', tb.height() - 15)
+      tb.find('.ApprovalList').css('height', tb.height() - 5)
         .perfectScrollbar()
       this.__tb = tb
     })
   }
   resize() {
     $setTimeout(() => {
-      if (this.__tb) this.__tb.find('.ApprovalList').css('height', this.__tb.height() - 15)
+      if (this.__tb) this.__tb.find('.ApprovalList').css('height', this.__tb.height() - 5)
     }, 400, 'resize-chart-' + this.state.id)
   }
 

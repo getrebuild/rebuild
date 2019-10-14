@@ -32,7 +32,9 @@ import com.rebuild.utils.JSONUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 审批列表
@@ -66,9 +68,9 @@ public class ApprovalList extends ChartData implements BuiltinChart {
     public JSON build() {
         Object[][] array = Application.createQueryNoFilter(
                 "select createdBy,modifiedOn,recordId,approvalId from RobotApprovalStep " +
-                        "where isCanceled = 'F' and isWaiting = 'F' and state = ? and approver = ? order by modifiedOn desc")
-                .setParameter(1, ApprovalState.DRAFT.getState())
-                .setParameter(2, this.user)
+                        "where isCanceled = 'F' and isWaiting = 'F' and approver = ? and state = ? order by modifiedOn desc")
+                .setParameter(1, this.user)
+                .setParameter(2, ApprovalState.DRAFT.getState())
                 .setLimit(100)
                 .array();
 
@@ -84,6 +86,15 @@ public class ApprovalList extends ChartData implements BuiltinChart {
                     MetadataHelper.getEntityLabel((ID) o[2])
             });
         }
-        return (JSON) JSON.toJSON(rearray);
+
+        Object[][] stats = Application.createQueryNoFilter("select state,count(state) from RobotApprovalStep " +
+                "where isCanceled = 'F' and isWaiting = 'F' and approver = ? group by state")
+                .setParameter(1, this.user)
+                .array();
+
+        Map<String, Object> ret = new HashMap<>();
+        ret.put("data", rearray);
+        ret.put("stats", stats);
+        return (JSON) JSON.toJSON(ret);
     }
 }
