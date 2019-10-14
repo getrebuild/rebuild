@@ -26,10 +26,13 @@ import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.business.charts.ChartData;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 审批列表
@@ -56,25 +59,31 @@ public class ApprovalList extends ChartData implements BuiltinChart {
 
     @Override
     public JSONObject getChartConfig() {
-        return JSONUtils.toJSONObject(
-                new String[]{"entity", "type"},
-                new String[]{"RobotApprovalStep", getChartType()});
+        return JSONUtils.toJSONObject(new String[]{"entity", "type"}, new String[]{"User", getChartType()});
     }
 
     @Override
     public JSON build() {
         Object[][] array = Application.createQueryNoFilter(
-                "select createdBy,createdBy,modifiedOn,recordId,recordId from RobotApprovalStep " +
+                "select createdBy,modifiedOn,recordId,approvalId from RobotApprovalStep " +
                         "where isCanceled = 'F' and isWaiting = 'F' and state = ? and approver = ? order by modifiedOn desc")
                 .setParameter(1, ApprovalState.DRAFT.getState())
                 .setParameter(2, this.user)
+                .setLimit(100)
                 .array();
-        for (Object[] o : array) {
-            o[1] = UserHelper.getName((ID) o[0]);
-            o[2] = Moment.moment((Date) o[2]).fromNow();
-            o[4] = FieldValueWrapper.getLabelNotry((ID) o[4]);
-        }
 
-        return (JSON) JSON.toJSON(array);
+        List<Object> rearray = new ArrayList<>();
+        for (Object[] o : array) {
+            rearray.add(new Object[] {
+                    o[0],
+                    UserHelper.getName((ID) o[0]),
+                    Moment.moment((Date) o[1]).fromNow(),
+                    o[2],
+                    FieldValueWrapper.getLabelNotry((ID) o[2]),
+                    o[3],
+                    MetadataHelper.getEntityLabel((ID) o[2])
+            });
+        }
+        return (JSON) JSON.toJSON(rearray);
     }
 }

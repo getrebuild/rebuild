@@ -316,7 +316,11 @@ public class FieldValueWrapper {
 	 */
 	public static String getLabelNotry(ID id) {
 		try {
-			return FieldValueWrapper.getLabel(id);
+			String label = FieldValueWrapper.getLabel(id);
+			if (StringUtils.isBlank(label)) {
+			    label = NO_LABEL_PREFIX + id.toLiteral().toUpperCase();
+            }
+			return label;
 		} catch (MetadataException | NoRecordFoundException ex) {
 			return MISS_REF_PLACE;
 		}

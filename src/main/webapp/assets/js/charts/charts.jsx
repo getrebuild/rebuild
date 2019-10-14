@@ -375,6 +375,7 @@ class ChartTreemap extends BaseChart {
 class ApprovalList extends BaseChart {
   constructor(props) {
     super(props)
+    this.__approvalForms = {}
   }
 
   renderChart(data) {
@@ -384,7 +385,7 @@ class ApprovalList extends BaseChart {
           <tr>
             <th>提交人</th>
             <th>审批记录</th>
-            <th width="60"></th>
+            <th width="50"></th>
           </tr>
         </thead>
         <tbody>
@@ -395,9 +396,12 @@ class ApprovalList extends BaseChart {
                 <span>{item[1]}</span>
                 <span className="cell-detail-description">{item[2]}</span>
               </td>
-              <td><a href={item[3]}>{item[4]}</a></td>
+              <td className="cell-detail">
+                <a href={`${rb.baseUrl}/app/list-and-view?id=${item[3]}`}>{item[4]}</a>
+                <span className="cell-detail-description">{item[6]}</span>
+              </td>
               <td className="actions">
-                <a className="icon" href="#"><i className="zmdi zmdi-settings"></i></a>
+                <a className="icon" href="#" onClick={() => this.approve(item[3], item[5])} title="审批"><i className="zmdi zmdi-settings"></i></a>
               </td>
             </tr>
           })}
@@ -419,6 +423,20 @@ class ApprovalList extends BaseChart {
     $setTimeout(() => {
       if (this.__tb) this.__tb.find('.ApprovalList').css('height', this.__tb.height() - 15)
     }, 400, 'resize-chart-' + this.state.id)
+  }
+
+  approve(record, approval) {
+    event.preventDefault()
+    let that = this
+    if (this.__approvalForms[record]) this.__approvalForms[record].show()
+    else {
+      let close = function () {
+        if (that.__approvalForms[record]) that.__approvalForms[record].hide(true)
+        that.loadChartData()
+      }
+      // eslint-disable-next-line react/jsx-no-undef
+      renderRbcomp(<ApprovalApproveForm id={record} approval={approval} call={close} />, null, function () { that.__approvalForms[record] = this })
+    }
   }
 }
 

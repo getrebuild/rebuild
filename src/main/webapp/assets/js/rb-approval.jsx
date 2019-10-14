@@ -169,7 +169,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
           <button type="button" className="btn btn-secondary btn-space" onClick={this.hide}>取消</button>
         </div>
       </div>
-    </RbModal >
+    </RbModal>
   }
 
   componentDidMount() {
@@ -250,6 +250,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
       if (res.error_code > 0) RbHighbar.error(res.error_msg)
       else {
         RbHighbar.success('审批已' + (state === 10 ? '同意' : '驳回'))
+        typeof this.props.call === 'function' && this.props.call()
         setTimeout(() => {
           if (window.RbViewPage) window.RbViewPage.reload()
           if (window.RbListPage) window.RbListPage.reload()

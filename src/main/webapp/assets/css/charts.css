@@ -158,6 +158,8 @@
 .chart.ApprovalList .table th {
 	border-top: 0 none;
 	padding-top: 0;
+	padding-bottom: 6px;
+	font-weight: normal;
 }
 
 .chart.ApprovalList .table tr th:first-child,

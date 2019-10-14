@@ -122,8 +122,16 @@ public class MetadataHelper {
 	 * @return
 	 */
 	public static String getEntityName(ID record) {
-		return getMetadataFactory().getEntity(record.getEntityCode()).getName();
+		return getEntity(record.getEntityCode()).getName();
 	}
+
+    /**
+     * @param record
+     * @return
+     */
+    public static String getEntityLabel(ID record) {
+	    return EasyMeta.getLabel(getEntity(record.getEntityCode()));
+    }
 
 	/**
 	 * @param entityName
