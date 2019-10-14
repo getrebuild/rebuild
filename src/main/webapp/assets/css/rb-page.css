@@ -2228,7 +2228,8 @@ form {
 }
 
 .notification-list .notification a {
-    cursor: default
+    cursor: default;
+    padding-left: 10px;
 }
 
 .notification-list .notification:hover {

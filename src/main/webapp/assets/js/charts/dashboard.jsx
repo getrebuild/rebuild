@@ -348,38 +348,58 @@ class DashSelect extends React.Component {
 class ChartSelect extends RbModalHandler {
   constructor(props) {
     super(props)
-    this.state = { chartList: [], appended: props.appended || [] }
+    this.state = { chartList: [], appended: props.appended || [], tabActive: '#all' }
   }
   render() {
     return (<RbModal ref={(c) => this._dlg = c} title="添加已有图表">
-      <div className="chart-list">
-        {this.state.chartList.map((item) => {
-          return (<div key={'k-' + item[0]}>
-            <span className="float-left chart-icon"><i className={item[2]}></i></span>
-            <span className="float-left title">
-              <strong>{item[1]}</strong>
-              <p className="text-muted fs-12">{item[3]}</p>
-            </span>
-            <span className="float-right">
-              {this.state.appended.contains(item[0])
-                ? <a className='btn disabled' data-id={item[0]}>已添加</a>
-                : <a className='btn' onClick={() => this.chartAppend(item)} >添加</a>}
-            </span>
-            <div className="clearfix"></div>
-          </div>)
-        })}
+      <div className="row chart-list-wrap">
+        <div className="col-3">
+          <div className="nav flex-column nav-pills">
+            <a href="#all" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#all' ? 'active' : ''}`}>全部</a>
+            <a href="#myself" onClick={this.switchTab} className={`nav-link hide ${this.state.tabActive === '#myself' ? 'active' : ''}`}>我自己的</a>
+            <a href="#builtin" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#builtin' ? 'active' : ''}`}>内置图表</a>
+          </div>
+        </div>
+        <div className="col-9 pl-0">
+          <div className="chart-list">
+            {this.state.chartList.map((item) => {
+              return (<div key={'k-' + item[0]}>
+                <span className="float-left chart-icon"><i className={item[2]}></i></span>
+                <span className="float-left title">
+                  <strong>{item[1]}</strong>
+                  <p className="text-muted fs-12">{item[3]}</p>
+                </span>
+                <span className="float-right">
+                  {this.state.appended.contains(item[0])
+                    ? <a className='btn disabled' data-id={item[0]}>已添加</a>
+                    : <a className='btn' onClick={() => this.chartAppend(item)} >添加</a>}
+                </span>
+                <div className="clearfix"></div>
+              </div>)
+            })}
+          </div>
+        </div>
       </div>
     </RbModal>)
   }
-  componentDidMount() {
-    $.get(rb.baseUrl + '/dashboard/chart-list', (res) => {
+  componentDidMount = () => this.loadCharts()
+
+  loadCharts() {
+    $.get(rb.baseUrl + '/dashboard/chart-list?type=' + this.state.tabActive.substr(1), (res) => {
       this.setState({ chartList: res.data })
     })
   }
+
   chartAppend(item) {
     add_widget({ chart: item[0], title: item[1], type: item[2], w: 4, h: 4 })
     let s = this.state.appended
     s.push(item[0])
     this.setState({ appended: s })
+  }
+
+  switchTab = (e) => {
+    e.preventDefault()
+    let t = $(e.target).attr('href')
+    this.setState({ tabActive: t }, () => this.loadCharts())
   }
 }

@@ -20,6 +20,7 @@ package com.rebuild.server.business.charts;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -48,7 +49,7 @@ import java.util.Set;
  * @author devezhao
  * @since 12/14/2018
  */
-public abstract class ChartData {
+public abstract class ChartData implements ChartSpec {
 	
 	protected final JSONObject config;
 	protected final ID user;
@@ -109,20 +110,8 @@ public abstract class ChartData {
 		List<Dimension> list = new ArrayList<>();
 		for (Object o : items) {
 			JSONObject item = (JSONObject) o;
-			String field = item.getString("field");
-			if (!getSourceEntity().containsField(field)) {
-				throw new ChartsException("字段 [" + field.toUpperCase() + " ] 已被删除");
-			}
-			
-			FormatSort sort = FormatSort.NONE;
-			FormatCalc calc = FormatCalc.NONE;
-			if (StringUtils.isNotBlank(item.getString("sort"))) {
-				sort = FormatSort.valueOf(item.getString("sort"));
-			}
-			if (StringUtils.isNotBlank(item.getString("calc"))) {
-				calc = FormatCalc.valueOf(item.getString("calc"));
-			}
-			Dimension dim = new Dimension(getSourceEntity().getField(field), sort, calc, item.getString("label"));
+			Dimension dim = new Dimension(getField(item), getFormatSort(item), getFormatCalc(item),
+					item.getString("label"));
 			list.add(dim);
 		}
 		return list.toArray(new Dimension[0]);
@@ -143,24 +132,33 @@ public abstract class ChartData {
 		List<Numerical> list = new ArrayList<>();
 		for (Object o : items) {
 			JSONObject item = (JSONObject) o;
-			String field = item.getString("field");
-			if (!getSourceEntity().containsField(field)) {
-				throw new ChartsException("字段 [" + field.toUpperCase() + " ] 已被删除");
-			}
-			
-			FormatSort sort = FormatSort.NONE;
-			FormatCalc calc = FormatCalc.NONE;
-			if (StringUtils.isNotBlank(item.getString("sort"))) {
-				sort = FormatSort.valueOf(item.getString("sort"));
-			}
-			if (StringUtils.isNotBlank(item.getString("calc"))) {
-				calc = FormatCalc.valueOf(item.getString("calc"));
-			}
-			
-			Numerical num = new Numerical(getSourceEntity().getField(field), sort, calc, item.getString("label"), item.getInteger("scale"));
+			Numerical num = new Numerical(getField(item), getFormatSort(item), getFormatCalc(item),
+					item.getString("label"), item.getInteger("scale"));
 			list.add(num);
 		}
 		return list.toArray(new Numerical[0]);
+	}
+
+	private Field getField(JSONObject item) {
+		String field = item.getString("field");
+		if (!getSourceEntity().containsField(field)) {
+			throw new ChartsException("字段 [" + field.toUpperCase() + " ] 已被删除");
+		}
+		return getSourceEntity().getField(field);
+	}
+
+	private FormatSort getFormatSort(JSONObject item) {
+		if (StringUtils.isNotBlank(item.getString("sort"))) {
+			return FormatSort.valueOf(item.getString("sort"));
+		}
+		return FormatSort.NONE;
+	}
+
+	private FormatCalc getFormatCalc(JSONObject item) {
+		if (StringUtils.isNotBlank(item.getString("calc"))) {
+			return FormatCalc.valueOf(item.getString("calc"));
+		}
+		return FormatCalc.NONE;
 	}
 	
 	/**
@@ -342,11 +340,4 @@ public abstract class ChartData {
 		}
 		return Application.createQuery(sql, UserHelper.isAdmin(chartOwning) ? UserService.SYSTEM_USER : user);
 	}
-	
-	/**
-	 * 构建数据
-	 * 
-	 * @return
-	 */
-	abstract public JSON build();
 }

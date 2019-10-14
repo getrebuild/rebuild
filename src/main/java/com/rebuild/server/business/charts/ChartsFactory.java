@@ -18,29 +18,29 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.business.charts.builtin.ApprovalList;
+import com.rebuild.server.business.charts.builtin.BuiltinChart;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.portals.ChartManager;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
 
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.engine.ID;
-
 /**
- * 
  * @author devezhao
  * @since 12/15/2018
  */
-public class ChartDataFactory {
+public class ChartsFactory {
 
 	/**
 	 * @param chartId
 	 * @return
 	 * @throws ChartsException
 	 */
-	public static ChartData create(ID chartId) throws ChartsException {
+	public static ChartSpec create(ID chartId) throws ChartsException {
 		ConfigEntry chart = ChartManager.instance.getChart(chartId);
 		if (chart == null) {
 			throw new ChartsException("无效图表");
@@ -57,7 +57,7 @@ public class ChartDataFactory {
 	 * @return
 	 * @throws ChartsException
 	 */
-	public static ChartData create(JSONObject config, ID user) throws ChartsException {
+	public static ChartSpec create(JSONObject config, ID user) throws ChartsException {
 		String e = config.getString("entity");
 		if (!MetadataHelper.containsEntity(e)) {
 			throw new ChartsException("源实体 [" + e.toUpperCase() + "] 不存在");
@@ -83,8 +83,24 @@ public class ChartDataFactory {
 			return new FunnelChart(config, user);
 		} else if ("TREEMAP".equalsIgnoreCase(type)) {
 			return new TreemapChart(config, user);
+		} else {
+			for (BuiltinChart ch : getBuiltinCharts()) {
+				if (ch.getChartType().equalsIgnoreCase(type)) {
+					return ch;
+				}
+			}
 		}
-		throw new ChartsException("未知的图表类型 : " + type.toUpperCase());
+		throw new ChartsException("未知的图表类型 : " + type);
 	}
-	
+
+	/**
+	 * 获取内建图表
+	 *
+	 * @return
+	 */
+	public static BuiltinChart[] getBuiltinCharts() {
+		return new BuiltinChart[] {
+				new ApprovalList()
+		};
+	}
 }

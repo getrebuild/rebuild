@@ -4,17 +4,19 @@ class BaseChart extends React.Component {
     super(props)
     this.state = { ...props }
   }
+
   render() {
     let opers = <div className="chart-oper">
       <a onClick={() => this.loadChartData()}><i className="zmdi zmdi-refresh" /></a>
-      <a href={'chart-design?id=' + this.props.id}><i className="zmdi zmdi-edit" /></a>
+      {this.props.builtin === true ? null : <a href={'chart-design?id=' + this.props.id}><i className="zmdi zmdi-edit" /></a>}
       <a onClick={() => this.remove()}><i className="zmdi zmdi-close" /></a>
     </div>
-    if (this.state.editable === false) {
+    if (this.props.editable === false) {
       opers = <div className="chart-oper">
         <a onClick={() => this.loadChartData()}><i className="zmdi zmdi-refresh" /></a>
       </div>
     }
+
     return (<div className={'chart-box ' + this.props.type} ref={(c) => this._box = c}>
       <div className="chart-head">
         <div className="chart-title text-truncate">{this.state.title}</div>
@@ -23,12 +25,15 @@ class BaseChart extends React.Component {
       <div ref={(c) => this._body = c} className={'chart-body rb-loading ' + (!this.state.chartdata && 'rb-loading-active')}>{this.state.chartdata || <RbSpinner />}</div>
     </div>)
   }
+
   componentDidMount() {
     this.loadChartData()
   }
+
   componentWillUnmount() {
     if (this.__echarts) this.__echarts.dispose()
   }
+
   loadChartData() {
     this.setState({ chartdata: null })
     let url = this.state.id ? ('/dashboard/chart-data?id=' + this.state.id) : '/dashboard/chart-preview'
@@ -38,6 +43,7 @@ class BaseChart extends React.Component {
       else that.renderError(res.error_msg)
     })
   }
+
   resize() {
     if (this.__echarts) {
       $setTimeout(() => {
@@ -45,6 +51,7 @@ class BaseChart extends React.Component {
       }, 400, 'resize-chart-' + this.state.id)
     }
   }
+
   remove() {
     if (!window.gridstack) return  // Not in dashboard
     let that = this
@@ -59,6 +66,7 @@ class BaseChart extends React.Component {
   renderError(msg) {
     this.setState({ chartdata: (<h4 className="chart-undata must-center">{msg || '图表加载失败'}</h4>) })
   }
+
   renderChart(data) {
     this.setState({ chartdata: (<div>{JSON.stringify(data)}</div>) })
   }
@@ -113,7 +121,7 @@ class ChartTable extends BaseChart {
     })
   }
   resize() {
-    $setTimeout(()=>{
+    $setTimeout(() => {
       let ct = this.__ctable
       if (ct) ct.find('.ctable').css('height', ct.height() - 20)
     }, 400, 'resize-chart-' + this.state.id)
@@ -364,6 +372,13 @@ class ChartTreemap extends BaseChart {
   }
 }
 
+// ~ 审批列表
+class ApprovalList extends BaseChart {
+  constructor(props) {
+    super(props)
+  }
+}
+
 // 确定图表类型
 // eslint-disable-next-line no-unused-vars
 const detectChart = function (cfg, id, editable) {
@@ -382,5 +397,9 @@ const detectChart = function (cfg, id, editable) {
     return <ChartFunnel {...props} />
   } else if (cfg.type === 'TREEMAP') {
     return <ChartTreemap {...props} />
+  } else if (cfg.type === 'ApprovalList') {
+    return <ApprovalList {...props} builtin={true} />
+  } else {
+    return <h5>{`未知图表 [${cfg.type}]`}</h5>
   }
 }
