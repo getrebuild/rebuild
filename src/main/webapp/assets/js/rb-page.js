@@ -158,7 +158,8 @@ var __checkMessage = function () {
 
     if (__checkMessage__state !== res.data.unread) {
       if (__checkMessage__state > 0) {
-        document.title = '(' + __checkMessage__state + ') ' + document.title
+        if (!window.__doctitle) window.__doctitle = document.title
+        document.title = '(' + __checkMessage__state + ') ' + window.__doctitle
         // __showNotification()
       }
       __loadMessages__state = 0
@@ -204,7 +205,7 @@ var __showNotification = function () {
 
 // Global search
 var __globalSearch = function () {
-  $('.sidebar-elements li').each(function(idx, item) {
+  $('.sidebar-elements li').each(function (idx, item) {
     if (idx > 40) return false
     var id = $(item).attr('id')
     if (id && id.startsWith('nav_entity-') && id !== 'nav_entity-$PARENT$') {
@@ -221,12 +222,12 @@ var __globalSearch = function () {
   if (aModels.length === 0) return
   activeModel = aModels.eq(0).addClass('active')
 
-  $(document).click(function(e) {
+  $(document).click(function (e) {
     if ($(e.target).parents('.search-container').length === 0) $('.search-models').hide()
   })
-  $('.search-container input').on('focus', function(e) {
+  $('.search-container input').on('focus', function (e) {
     $('.search-models').show()
-  }).on('keydown', function(e) {
+  }).on('keydown', function (e) {
     var s = $('.search-input').val()
     if (e.keyCode === 13 && s) location.href = activeModel.data('url') + '#gs=' + $encode(s)
   })

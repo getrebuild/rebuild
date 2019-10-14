@@ -25,6 +25,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.business.charts.ChartsFactory;
+import com.rebuild.server.business.charts.builtin.BuiltinChart;
 import com.rebuild.server.configuration.portals.DashboardManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.RoleService;
@@ -32,6 +34,7 @@ import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.configuration.DashboardConfigService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
+import org.apache.commons.lang.ArrayUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -126,18 +129,30 @@ public class DashboardControll extends BasePageControll {
 	@RequestMapping("/chart-list")
 	public void chartList(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
+
 		Object[][] charts = null;
-		if (UserHelper.isAdmin(user)) {
-			charts = Application.createQueryNoFilter(
-					"select chartId,title,chartType,modifiedOn from ChartConfig where createdBy.roleId = ? order by modifiedOn desc")
-					.setParameter(1, RoleService.ADMIN_ROLE)
-					.array();
+		if ("builtin".equalsIgnoreCase(request.getParameter("type"))) {
+			charts = new Object[0][];
 		} else {
-			charts = Application.createQueryNoFilter(
-					"select chartId,title,chartType,modifiedOn from ChartConfig where createdBy = ? order by modifiedOn desc")
-					.setParameter(1, user)
-					.array();
+			if (UserHelper.isAdmin(user)) {
+				charts = Application.createQueryNoFilter(
+						"select chartId,title,chartType,modifiedOn from ChartConfig where createdBy.roleId = ? order by modifiedOn desc")
+						.setParameter(1, RoleService.ADMIN_ROLE)
+						.array();
+			} else {
+				charts = Application.createQueryNoFilter(
+						"select chartId,title,chartType,modifiedOn from ChartConfig where createdBy = ? order by modifiedOn desc")
+						.setParameter(1, user)
+						.array();
+			}
 		}
+
+		// 内置图表
+		for (BuiltinChart b : ChartsFactory.getBuiltinCharts()) {
+			Object[] c = new Object[]{ b.getChartId(), b.getChartTitle(), b.getChartType(), "内置" };
+			charts = (Object[][]) ArrayUtils.add(charts, c);
+		}
+
 		writeSuccess(response, charts);
 	}
 }

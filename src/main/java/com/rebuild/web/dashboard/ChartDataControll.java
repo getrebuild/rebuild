@@ -18,21 +18,18 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.dashboard;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
+import com.rebuild.server.business.charts.ChartData;
+import com.rebuild.server.business.charts.ChartsException;
+import com.rebuild.server.business.charts.ChartsFactory;
+import com.rebuild.web.BaseControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.alibaba.fastjson.JSON;
-import com.rebuild.server.business.charts.ChartData;
-import com.rebuild.server.business.charts.ChartDataFactory;
-import com.rebuild.server.business.charts.ChartsException;
-import com.rebuild.web.BaseControll;
-
-import cn.devezhao.persist4j.engine.ID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * 
@@ -48,7 +45,7 @@ public class ChartDataControll extends BaseControll {
 		ID chartid = getIdParameterNotNull(request, "id");
 		JSON data = null;
 		try {
-			ChartData chart = ChartDataFactory.create(chartid);
+			ChartData chart = ChartsFactory.create(chartid);
 			data = chart.build();
 		} catch (ChartsException ex) {
 			writeFailure(response, ex.getLocalizedMessage());

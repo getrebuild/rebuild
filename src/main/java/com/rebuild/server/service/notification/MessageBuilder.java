@@ -19,16 +19,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.service.notification;
 
 import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.persist4j.metadata.MetadataException;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
-import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.MarkdownUtils;
 
-import java.text.MessageFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -129,16 +125,8 @@ public class MessageBuilder {
 			}
 		}
 
-		String entityName = null;
-		String recordLabel = null;
-		try {
-			entityName = MetadataHelper.getEntityName(thatId);
-			recordLabel = FieldValueWrapper.getLabel(thatId);
-		} catch (MetadataException | NoRecordFoundException ex) {
-			recordLabel = "[无效记录]";
-		}
-
-		String aLink = AppUtils.getContextPath() + MessageFormat.format("/app/{0}/list#!/View/{0}/{1}", entityName, thatId);
-		return String.format("[%s](%s)", recordLabel, aLink);
+        String recordLabel = FieldValueWrapper.getLabelNotry(thatId);
+		String recordUrl = AppUtils.getContextPath() + "/app/list-and-view?id=" + thatId;
+		return String.format("[%s](%s)", recordLabel, recordUrl);
 	}
 }

@@ -20,6 +20,7 @@ package com.rebuild.server.business.charts;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -48,29 +49,41 @@ import java.util.Set;
  * @author devezhao
  * @since 12/14/2018
  */
-public abstract class ChartData {
+public abstract class ChartData implements ChartSpec {
 	
-	protected final JSONObject config;
-	protected final ID user;
-	
+	protected JSONObject config;
+
+	private ID user;
 	private boolean fromPreview = false;
 	
 	/**
 	 * @param config
 	 */
 	protected ChartData(JSONObject config) {
-		this(config, Application.getCurrentUser());
-	}
-	
-	/**
-	 * @param config
-	 * @param user
-	 */
-	protected ChartData(JSONObject config, ID user) {
 		this.config = config;
-		this.user = user;
 	}
-	
+
+    /**
+     * @return
+     */
+    protected ID getUser() {
+        return user == null ? Application.getCurrentUser() : user;
+    }
+
+    /**
+     * @param user
+     * @return
+     */
+    public ChartData setUser(ID user) {
+        this.user = user;
+        return this;
+    }
+
+    /**
+	 * 预览模式
+	 *
+	 * @return
+	 */
 	protected boolean isFromPreview() {
 		return fromPreview;
 	}
@@ -109,20 +122,8 @@ public abstract class ChartData {
 		List<Dimension> list = new ArrayList<>();
 		for (Object o : items) {
 			JSONObject item = (JSONObject) o;
-			String field = item.getString("field");
-			if (!getSourceEntity().containsField(field)) {
-				throw new ChartsException("字段 [" + field.toUpperCase() + " ] 已被删除");
-			}
-			
-			FormatSort sort = FormatSort.NONE;
-			FormatCalc calc = FormatCalc.NONE;
-			if (StringUtils.isNotBlank(item.getString("sort"))) {
-				sort = FormatSort.valueOf(item.getString("sort"));
-			}
-			if (StringUtils.isNotBlank(item.getString("calc"))) {
-				calc = FormatCalc.valueOf(item.getString("calc"));
-			}
-			Dimension dim = new Dimension(getSourceEntity().getField(field), sort, calc, item.getString("label"));
+			Dimension dim = new Dimension(getField(item), getFormatSort(item), getFormatCalc(item),
+					item.getString("label"));
 			list.add(dim);
 		}
 		return list.toArray(new Dimension[0]);
@@ -143,24 +144,33 @@ public abstract class ChartData {
 		List<Numerical> list = new ArrayList<>();
 		for (Object o : items) {
 			JSONObject item = (JSONObject) o;
-			String field = item.getString("field");
-			if (!getSourceEntity().containsField(field)) {
-				throw new ChartsException("字段 [" + field.toUpperCase() + " ] 已被删除");
-			}
-			
-			FormatSort sort = FormatSort.NONE;
-			FormatCalc calc = FormatCalc.NONE;
-			if (StringUtils.isNotBlank(item.getString("sort"))) {
-				sort = FormatSort.valueOf(item.getString("sort"));
-			}
-			if (StringUtils.isNotBlank(item.getString("calc"))) {
-				calc = FormatCalc.valueOf(item.getString("calc"));
-			}
-			
-			Numerical num = new Numerical(getSourceEntity().getField(field), sort, calc, item.getString("label"), item.getInteger("scale"));
+			Numerical num = new Numerical(getField(item), getFormatSort(item), getFormatCalc(item),
+					item.getString("label"), item.getInteger("scale"));
 			list.add(num);
 		}
 		return list.toArray(new Numerical[0]);
+	}
+
+	private Field getField(JSONObject item) {
+		String field = item.getString("field");
+		if (!getSourceEntity().containsField(field)) {
+			throw new ChartsException("字段 [" + field.toUpperCase() + " ] 已被删除");
+		}
+		return getSourceEntity().getField(field);
+	}
+
+	private FormatSort getFormatSort(JSONObject item) {
+		if (StringUtils.isNotBlank(item.getString("sort"))) {
+			return FormatSort.valueOf(item.getString("sort"));
+		}
+		return FormatSort.NONE;
+	}
+
+	private FormatCalc getFormatCalc(JSONObject item) {
+		if (StringUtils.isNotBlank(item.getString("calc"))) {
+			return FormatCalc.valueOf(item.getString("calc"));
+		}
+		return FormatCalc.NONE;
 	}
 	
 	/**
@@ -270,7 +280,7 @@ public abstract class ChartData {
 		EasyMeta axisField = EasyMeta.valueOf(axis.getField());
 		DisplayType axisType = axisField.getDisplayType();
 		
-		String label = null;
+		String label;
 		if (axisType == DisplayType.REFERENCE) {
 			label = FieldValueWrapper.getLabel((ID) value);
 		} else if (axisType == DisplayType.BOOL
@@ -326,7 +336,7 @@ public abstract class ChartData {
 	 */
 	protected Query createQuery(String sql) {
 		if (this.fromPreview) {
-			return Application.createQuery(sql, user);
+			return Application.createQuery(sql, this.getUser());
 		}
 		
 		boolean noPrivileges = false;
@@ -338,15 +348,10 @@ public abstract class ChartData {
 		ID chartOwning = ID.isId(co) ? ID.valueOf(co) : null;
 		
 		if (chartOwning == null || !noPrivileges) {
-			return Application.createQuery(sql, user);
-		}
-		return Application.createQuery(sql, UserHelper.isAdmin(chartOwning) ? UserService.SYSTEM_USER : user);
+			return Application.createQuery(sql, this.getUser());
+		} else {
+            return Application.createQuery(sql,
+                    UserHelper.isAdmin(chartOwning) ? UserService.SYSTEM_USER : this.getUser());
+        }
 	}
-	
-	/**
-	 * 构建数据
-	 * 
-	 * @return
-	 */
-	abstract public JSON build();
 }

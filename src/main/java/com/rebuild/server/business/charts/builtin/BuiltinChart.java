@@ -1,6 +1,6 @@
 /*
 rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,19 +16,38 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.charts;
+package com.rebuild.server.business.charts.builtin;
 
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 
 /**
- * 柱状图
- * 
+ * 内建图表
+ *
  * @author devezhao
- * @since 12/15/2018
+ * @since 2019/10/14
  */
-public class BarChart extends LineChart {
+public interface BuiltinChart {
 
-	protected BarChart(JSONObject config) {
-		super(config);
-	}
+    /**
+     * @return
+     */
+    default public String getChartType() {
+        return this.getClass().getSimpleName();
+    }
+
+    /**
+     * @return
+     */
+    ID getChartId();
+
+    /**
+     * @return
+     */
+    String getChartTitle();
+
+    /**
+     * @return
+     */
+    JSONObject getChartConfig();
 }

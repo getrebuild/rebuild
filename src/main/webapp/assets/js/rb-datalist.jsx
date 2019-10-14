@@ -4,7 +4,7 @@ const wpc = window.__PageConfig || {}
 // ~~ 数据列表
 const COLUMN_MIN_WIDTH = 30
 const COLUMN_MAX_WIDTH = 800
-const FIXED_FOOTER = false
+const FIXED_FOOTER = true
 class RbList extends React.Component {
   constructor(props) {
     super(props)
@@ -44,7 +44,7 @@ class RbList extends React.Component {
                 <thead>
                   <tr>
                     {this.props.uncheckbox !== true && <th className="column-checkbox">
-                      <div><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={this.state.checkedAll} onClick={this.toggleAllRow} /><span className="custom-control-label"></span></label></div>
+                      <div><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={this.state.checkedAll} onClick={this.toggleAllRow} readOnly /><span className="custom-control-label"></span></label></div>
                     </th>}
                     {this.state.fields.map((item) => {
                       let cWidth = (item.width || that.__defaultColumnWidth)
@@ -64,7 +64,7 @@ class RbList extends React.Component {
                     let rowKey = 'row-' + lastGhost[0]
                     return (<tr key={rowKey} className={lastGhost[3] ? 'active' : ''} onClick={this.clickRow.bind(this, index, false)}>
                       {this.props.uncheckbox !== true && <td key={rowKey + '-checkbox'} className="column-checkbox">
-                        <div><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={lastGhost[3]} onClick={this.clickRow.bind(this, index, true)} /><span className="custom-control-label"></span></label></div>
+                        <div><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={lastGhost[3]} onClick={this.clickRow.bind(this, index, true)} readOnly /><span className="custom-control-label"></span></label></div>
                       </td>}
                       {item.map((cell, index) => {
                         return that.renderCell(cell, index, lastGhost)
@@ -76,8 +76,9 @@ class RbList extends React.Component {
               </table>
               {this.state.inLoad === false && this.state.rowsData.length === 0 ? <div className="list-nodata"><span className="zmdi zmdi-info-outline" /><p>暂无数据</p></div> : null}
             </div>
-          </div></div>
-        {this.state.rowsData.length > 0 ? <RbListPagination ref="pagination" rowsTotal={this.state.rowsTotal} pageSize={this.pageSize} $$$parent={this} /> : null}
+          </div>
+        </div>
+        {this.state.rowsData.length > 0 && <RbListPagination ref="pagination" rowsTotal={this.state.rowsTotal} pageSize={this.pageSize} $$$parent={this} />}
         {this.state.inLoad === true && <RbSpinner />}
       </React.Fragment>)
   }

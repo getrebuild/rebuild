@@ -18,12 +18,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
+import com.rebuild.server.business.charts.ChartsFactory;
+import com.rebuild.server.business.charts.builtin.BuiltinChart;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.ConfigManager;
-
-import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.service.bizz.UserService;
 
 /**
  * @author devezhao-mbp zhaofang123@gmail.com
@@ -44,19 +46,27 @@ public class ChartManager implements ConfigManager<ID> {
 		if (entry != null) {
 			return entry.clone();
 		}
-		
+
 		Object[] o = Application.createQueryNoFilter(
 				"select title,chartType,config,createdBy from ChartConfig where chartId = ?")
 				.setParameter(1, chartid)
 				.unique();
 		if (o == null) {
-			return null;
+			for (BuiltinChart ch : ChartsFactory.getBuiltinCharts()) {
+				if (chartid.equals(ch.getChartId())) {
+					o = new Object[] { ch.getChartTitle(), ch.getChartType(), ch.getChartConfig(), UserService.SYSTEM_USER };
+				}
+			}
+
+			if (o == null) {
+				return null;
+			}
 		}
 		
 		entry = new ConfigEntry()
 				.set("title", o[0])
 				.set("type", o[1])
-				.set("config", JSON.parse((String) o[2]))
+				.set("config", o[2] instanceof JSON ? (JSON) o[2] : JSON.parse((String) o[2]))
 				.set("createdBy", o[3]);
 		Application.getCommonCache().putx(ckey, entry);
 		return entry.clone();

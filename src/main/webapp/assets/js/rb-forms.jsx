@@ -381,7 +381,7 @@ class RbFormReadonly extends RbFormElement {
   renderElement() {
     let text = this.props.value
     if (this.props.type === 'REFERENCE' && text) text = text[1]
-    return <input className="form-control form-control-sm" type="text" readOnly="true" value={text} />
+    return <input className="form-control form-control-sm" type="text" readOnly value={text} />
   }
   setValue() {
     // DO NOTING
@@ -1185,7 +1185,7 @@ class DeleteConfirm extends RbAlert {
                       <span className="custom-control-label"> 同时删除关联记录</span>
                     </label>
                     <div className={' ' + (this.state.enableCascade ? '' : 'hide')}>
-                      <select className="form-control form-control-sm" ref={(c) => this._cascades = c} multiple="multiple">
+                      <select className="form-control form-control-sm" ref={(c) => this._cascades = c} multiple>
                         {(this.state.cascadesEntity || []).map((item) => {
                           return <option key={'option-' + item[0]} value={item[0]}>{item[1]}</option>
                         })}

@@ -38,6 +38,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.text.MessageFormat;
 
 /**
  * 数据列表
@@ -46,10 +47,10 @@ import java.io.IOException;
  * @since 08/22/2018
  */
 @Controller
-@RequestMapping("/app/{entity}/")
+@RequestMapping("/app/")
 public class GeneralDataListControll extends BaseEntityControll {
 
-	@RequestMapping("list")
+	@RequestMapping("{entity}/list")
 	public ModelAndView pageList(@PathVariable String entity, 
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		final ID user = getRequestUser(request);
@@ -79,7 +80,7 @@ public class GeneralDataListControll extends BaseEntityControll {
 		return mv;
 	}
 	
-	@RequestMapping("data-list")
+	@RequestMapping("{entity}/data-list")
 	public void dataList(@PathVariable String entity,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		JSONObject query = (JSONObject) ServletUtils.getRequestJson(request);
@@ -92,4 +93,12 @@ public class GeneralDataListControll extends BaseEntityControll {
 		JSON result = control.getJSONResult();
 		writeSuccess(response, result);
 	}
+
+    @RequestMapping("list-and-view")
+    public void quickPageList(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	    ID id = getIdParameterNotNull(request, "id");
+	    String entity = MetadataHelper.getEntityName(id);
+	    String url = MessageFormat.format("{0}/list#!/View/{0}/{1}", entity, id);
+	    response.sendRedirect(url);
+    }
 }

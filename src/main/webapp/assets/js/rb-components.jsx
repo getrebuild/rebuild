@@ -397,7 +397,7 @@ class UserSelector extends React.Component {
     $(this._scroller).perfectScrollbar('destroy')
   }
 
-  componentWillReceiveProps(props) {
+  UNSAFE_componentWillReceiveProps(props) {
     this.setState({ selected: props.selected || this.state.selected })
   }
 

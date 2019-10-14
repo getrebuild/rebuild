@@ -18,7 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
-import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -37,8 +36,8 @@ import java.util.List;
  */
 public class LineChart extends ChartData {
 
-	protected LineChart(JSONObject config, ID user) {
-		super(config, user);
+	protected LineChart(JSONObject config) {
+		super(config);
 	}
 
 	@Override

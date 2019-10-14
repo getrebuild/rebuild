@@ -123,13 +123,20 @@
     border-radius: 0;
 }
 
+.chart-list-wrap .nav-pills .nav-link {
+    padding: 0.7rem 1rem;
+}
+
 .chart-list>div {
     border: 1px solid #eee;
     padding: 0;
-    margin: 6px;
     max-height: 48px;
     overflow: hidden;
     cursor: default;
+}
+
+.chart-list>div+div {
+    margin-top: 6px;
 }
 
 .chart-list>div:hover {
@@ -172,8 +179,9 @@
     width: 32px;
     height: 32px;
     display: inline-block;
-    background: url(../img/charts-sprite-1.2.svg) 0 0 no-repeat;
     margin-top: 7px;
+    background: url(../img/charts-sprite-1.2.svg) 0 0 no-repeat;
+    background-position: -467px -1242px;
 }
 
 .chart-list>div .chart-icon>i.TABLE {

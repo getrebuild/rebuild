@@ -18,19 +18,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
+import cn.devezhao.commons.ObjectUtils;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.StringUtils;
+
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.rebuild.utils.JSONUtils;
-
-import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 表格
@@ -43,8 +40,8 @@ public class TableChart extends ChartData {
 	private boolean showLineNumber = false;
 	private boolean showSums = false;
 
-	protected TableChart(JSONObject config, ID user) {
-		super(config, user);
+	protected TableChart(JSONObject config) {
+		super(config);
 		
 		JSONObject option = config.getJSONObject("option");
 		if (option != null) {
@@ -78,7 +75,7 @@ public class TableChart extends ChartData {
 			System.arraycopy(dataRaw, 0, dataRawNew, 0, dataRaw.length);
 			
 			int colLength = dataRaw[0].length;
-			Object sumsRow[] = new Object[colLength];
+			Object[] sumsRow = new Object[colLength];
 			int numericalIndexStart = dims.length + (this.showLineNumber ? 1 : 0);
 			for (int i = 0; i < numericalIndexStart; i++) {
 				if (i == 0 && this.showLineNumber) {
@@ -100,11 +97,10 @@ public class TableChart extends ChartData {
 		}
 		
 		String tableHtml = new TableBuilder(this, dataRaw).toHTML();
-		
-		JSONObject ret = JSONUtils.toJSONObject(
-				new String[] { "html" },
-				new Object[] { tableHtml });
-		return ret;
+
+        return JSONUtils.toJSONObject(
+                new String[] { "html" },
+                new Object[] { tableHtml });
 	}
 	
 	protected boolean isShowLineNumber() {
