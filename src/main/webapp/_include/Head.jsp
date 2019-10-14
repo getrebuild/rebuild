@@ -29,7 +29,7 @@ if (currentUser != null) {
 <%}}%>
 <%if (AppUtils.isLessIE11(request)){%>
 <script>window.lessIE11 = true</script>
-<script src="${baseUrl}/assets/lib/react/polyfill.min.js"></script>
+<script src="${baseUrl}/assets/lib/react/polyfill.min.js?v=7.6.0"></script>
 <!--[if lt IE 10]>
 <script>location.href='${baseUrl}/error/unsupported-browser'</script>
 <![endif]-->
