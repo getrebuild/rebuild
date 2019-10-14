@@ -40,9 +40,9 @@ class Share2 extends _ChangeHandler {
       <label className="custom-control custom-checkbox custom-control-inline">
         <input className="custom-control-input" type="checkbox" checked={this.state.shared === true} name="shared" onChange={this.handleChange} />
         {(this.state.shareTo && this.state.shareTo.length > 10) ?
-          <span className="custom-control-label">共享给 <a href="javascript:;" onClick={() => { return this.showSettings() }}>指定用户({this.state.shareTo.split(',').length})</a></span>
+          <span className="custom-control-label">共享给 <a href="#" onClick={this.showSettings}>指定用户({this.state.shareTo.split(',').length})</a></span>
           :
-          <span className="custom-control-label">共享给全部用户或 <a href="javascript:;" onClick={() => { return this.showSettings() }}>指定用户</a></span>
+          <span className="custom-control-label">共享给全部用户或 <a href="#" onClick={this.showSettings}>指定用户</a></span>
         }
       </label>
     </React.Fragment>
@@ -54,7 +54,8 @@ class Share2 extends _ChangeHandler {
     else renderRbcomp(<Share2Switch modalClazz="select-list" list={this.props.list} entity={this.props.entity} id={this.props.id} />, null, function () { that.__switch = this })
   }
 
-  showSettings() {
+  showSettings = () => {
+    event.preventDefault()
     let that = this
     if (that.__settings) that.__settings.show()
     else renderRbcomp(<Share2Settings configName={this.props.configName} shareTo={this.props.shareTo} call={this.showSettingsCall} id={this.props.id} />, null, function () { that.__settings = this })

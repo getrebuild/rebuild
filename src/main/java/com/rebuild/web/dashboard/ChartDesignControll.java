@@ -68,7 +68,7 @@ public class ChartDesignControll extends BaseEntityControll {
 		String entity = getParameter(request, "source");
 		ID chartId = getIdParameter(request, "id");
 		
-		Entity entityMeta = null;
+		Entity entityMeta;
 		if (chartId != null) {
 			Object[] chart = Application.createQueryNoFilter(
 					"select belongEntity,title,config,createdBy from ChartConfig where chartId = ?")
@@ -126,9 +126,9 @@ public class ChartDesignControll extends BaseEntityControll {
 	@RequestMapping("/chart-preview")
 	public void dataPreview(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		JSON config = ServletUtils.getRequestJson(request);
-		JSON data = null;
+		JSON data;
 		try {
-			ChartData chart = (ChartData) ChartsFactory.create((JSONObject) config, getRequestUser(request));
+			ChartData chart = ChartsFactory.create((JSONObject) config, getRequestUser(request));
 			data = chart.build(true);
 		} catch (ChartsException ex) {
 			writeFailure(response, ex.getLocalizedMessage());

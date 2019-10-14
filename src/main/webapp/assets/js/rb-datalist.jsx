@@ -78,7 +78,7 @@ class RbList extends React.Component {
             </div>
           </div>
         </div>
-        {this.state.rowsData.length > 0 ? <RbListPagination ref="pagination" rowsTotal={this.state.rowsTotal} pageSize={this.pageSize} $$$parent={this} /> : null}
+        {this.state.rowsData.length > 0 && <RbListPagination ref="pagination" rowsTotal={this.state.rowsTotal} pageSize={this.pageSize} $$$parent={this} />}
         {this.state.inLoad === true && <RbSpinner />}
       </React.Fragment>)
   }

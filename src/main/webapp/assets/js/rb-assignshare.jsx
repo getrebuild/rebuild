@@ -26,7 +26,7 @@ class DlgAssign extends RbModalHandler {
         </div>
         {this.state.cascadesShow !== true ? (
           <div className="form-group row">
-            <div className="col-sm-7 offset-sm-3"><a href="javascript:;" onClick={() => this.showCascades()}>同时{this.types[1]}关联记录</a></div>
+            <div className="col-sm-7 offset-sm-3"><a href="#" onClick={this.showCascades}>同时{this.types[1]}关联记录</a></div>
           </div>
         ) : (<div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">选择关联记录</label>
@@ -53,7 +53,8 @@ class DlgAssign extends RbModalHandler {
   componentWillUnmount() {
     $(this._toUser, this._cascades).select2('destroy')
   }
-  showCascades() {
+  showCascades = () => {
+    event.preventDefault()
     $.get(rb.baseUrl + '/commons/metadata/references?entity=' + this.props.entity, (res) => {
       this.setState({ cascadesShow: true, cascadesEntity: res.data }, () => {
         $(this._cascades).select2({
