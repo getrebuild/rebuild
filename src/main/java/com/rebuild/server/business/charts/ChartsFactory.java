@@ -40,7 +40,7 @@ public class ChartsFactory {
 	 * @return
 	 * @throws ChartsException
 	 */
-	public static ChartSpec create(ID chartId) throws ChartsException {
+	public static ChartData create(ID chartId) throws ChartsException {
 		ConfigEntry chart = ChartManager.instance.getChart(chartId);
 		if (chart == null) {
 			throw new ChartsException("无效图表");
@@ -57,7 +57,7 @@ public class ChartsFactory {
 	 * @return
 	 * @throws ChartsException
 	 */
-	public static ChartSpec create(JSONObject config, ID user) throws ChartsException {
+	public static ChartData create(JSONObject config, ID user) throws ChartsException {
 		String e = config.getString("entity");
 		if (!MetadataHelper.containsEntity(e)) {
 			throw new ChartsException("源实体 [" + e.toUpperCase() + "] 不存在");
@@ -86,7 +86,7 @@ public class ChartsFactory {
 		} else {
 			for (BuiltinChart ch : getBuiltinCharts()) {
 				if (ch.getChartType().equalsIgnoreCase(type)) {
-					return ch;
+					return (ChartData) ch;
 				}
 			}
 		}

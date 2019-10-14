@@ -22,6 +22,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.metadata.MetadataException;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
@@ -307,5 +308,17 @@ public class FieldValueWrapper {
 		
 		Object labelVal = FieldValueWrapper.instance.wrapFieldValue(label[0], nameField);
 		return labelVal == null ? null : labelVal.toString();
+	}
+
+	/**
+	 * @param id
+	 * @return
+	 */
+	public static String getLabelNotry(ID id) {
+		try {
+			return FieldValueWrapper.getLabel(id);
+		} catch (MetadataException | NoRecordFoundException ex) {
+			return MISS_REF_PLACE;
+		}
 	}
 }

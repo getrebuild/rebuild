@@ -20,7 +20,6 @@ package com.rebuild.server.business.charts.builtin;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.business.charts.ChartSpec;
 
 /**
  * 内建图表
@@ -28,7 +27,7 @@ import com.rebuild.server.business.charts.ChartSpec;
  * @author devezhao
  * @since 2019/10/14
  */
-public interface BuiltinChart extends ChartSpec {
+public interface BuiltinChart {
 
     /**
      * @return

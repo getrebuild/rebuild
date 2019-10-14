@@ -51,8 +51,8 @@ import java.util.Set;
  */
 public abstract class ChartData implements ChartSpec {
 	
-	protected final JSONObject config;
-	protected final ID user;
+	protected JSONObject config;
+	protected ID user;
 	
 	private boolean fromPreview = false;
 	
@@ -71,7 +71,12 @@ public abstract class ChartData implements ChartSpec {
 		this.config = config;
 		this.user = user;
 	}
-	
+
+	/**
+	 * 预览模式
+	 *
+	 * @return
+	 */
 	protected boolean isFromPreview() {
 		return fromPreview;
 	}

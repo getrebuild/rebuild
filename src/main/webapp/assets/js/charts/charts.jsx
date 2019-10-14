@@ -104,11 +104,11 @@ class ChartTable extends BaseChart {
     let that = this
     let colLast = null
     this.setState({ chartdata: chartdata }, () => {
-      let ct = $(that._body)
-      ct.find('.ctable').css('height', ct.height() - 20)
+      let tb = $(that._body)
+      tb.find('.ctable').css('height', tb.height() - 20)
         .perfectScrollbar()
 
-      let cols = ct.find('tbody td').click(function () {
+      let cols = tb.find('tbody td').click(function () {
         if (colLast === this) {
           $(this).toggleClass('clk')
           return
@@ -117,13 +117,12 @@ class ChartTable extends BaseChart {
         cols.removeClass('clk')
         $(this).addClass('clk')
       })
-      that.__ctable = ct
+      this.__tb = tb
     })
   }
   resize() {
     $setTimeout(() => {
-      let ct = this.__ctable
-      if (ct) ct.find('.ctable').css('height', ct.height() - 20)
+      if (this.__tb) this.__tb.find('.ctable').css('height', this.__tb.height() - 20)
     }, 400, 'resize-chart-' + this.state.id)
   }
 }
@@ -376,6 +375,50 @@ class ChartTreemap extends BaseChart {
 class ApprovalList extends BaseChart {
   constructor(props) {
     super(props)
+  }
+
+  renderChart(data) {
+    let table = <div>
+      <table className="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th>提交人</th>
+            <th>审批记录</th>
+            <th width="60"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, idx) => {
+            return <tr key={'approval-' + idx}>
+              <td className="user-avatar cell-detail user-info">
+                <img src={`${rb.baseUrl}/account/user-avatar/${item[0]}`} />
+                <span>{item[1]}</span>
+                <span className="cell-detail-description">{item[2]}</span>
+              </td>
+              <td><a href={item[3]}>{item[4]}</a></td>
+              <td className="actions">
+                <a className="icon" href="#"><i className="zmdi zmdi-settings"></i></a>
+              </td>
+            </tr>
+          })}
+        </tbody>
+      </table>
+    </div>
+
+    let chartdata = <div className="chart ApprovalList">
+      {table}
+    </div>
+    this.setState({ chartdata: chartdata }, () => {
+      let tb = $(this._body)
+      tb.find('.ApprovalList').css('height', tb.height() - 15)
+        .perfectScrollbar()
+      this.__tb = tb
+    })
+  }
+  resize() {
+    $setTimeout(() => {
+      if (this.__tb) this.__tb.find('.ApprovalList').css('height', this.__tb.height() - 15)
+    }, 400, 'resize-chart-' + this.state.id)
   }
 }
 

@@ -77,6 +77,12 @@
 	cursor: default;
 }
 
+.chart .table {
+	margin: 0;
+	padding: 0;
+	background-color: #fff;
+}
+
 .chart.index {
 	overflow: hidden;
 	position: relative;
@@ -106,12 +112,6 @@
 	margin-top: 15px;
 }
 
-.chart.ctable .table {
-	margin: 0;
-	padding: 0;
-	background-color: #fff;
-}
-
 .chart.ctable .table td,
 .chart.ctable .table th {
 	padding: 8px 10px;
@@ -138,4 +138,34 @@
 
 .chart.ctable .table.sums tbody tr:last-child td {
 	font-weight: bold;
+}
+
+.chart-box.ApprovalList {
+	padding: 0;
+	padding-top: 20px;
+}
+
+.chart-box.ApprovalList .chart-head {
+	margin: 0 25px;
+}
+
+.chart.ApprovalList {
+	position: relative;
+	width: 100%;
+	margin-top: 15px;
+}
+
+.chart.ApprovalList .table th {
+	border-top: 0 none;
+	padding-top: 0;
+}
+
+.chart.ApprovalList .table tr th:first-child,
+.chart.ApprovalList .table tr td:first-child {
+	padding-left: 25px;
+}
+
+.chart.ApprovalList .table tr th:last-child,
+.chart.ApprovalList .table tr td:last-child {
+	padding-right: 18px;
 }

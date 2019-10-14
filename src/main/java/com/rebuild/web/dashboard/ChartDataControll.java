@@ -20,9 +20,9 @@ package com.rebuild.web.dashboard;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
-import com.rebuild.server.business.charts.ChartsFactory;
-import com.rebuild.server.business.charts.ChartSpec;
+import com.rebuild.server.business.charts.ChartData;
 import com.rebuild.server.business.charts.ChartsException;
+import com.rebuild.server.business.charts.ChartsFactory;
 import com.rebuild.web.BaseControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,7 +45,7 @@ public class ChartDataControll extends BaseControll {
 		ID chartid = getIdParameterNotNull(request, "id");
 		JSON data = null;
 		try {
-			ChartSpec chart = ChartsFactory.create(chartid);
+			ChartData chart = ChartsFactory.create(chartid);
 			data = chart.build();
 		} catch (ChartsException ex) {
 			writeFailure(response, ex.getLocalizedMessage());
