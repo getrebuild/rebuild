@@ -18,18 +18,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-
+import cn.devezhao.commons.ObjectUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.StringUtils;
 
-import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.persist4j.engine.ID;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 树图
@@ -39,8 +36,8 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class TreemapChart extends ChartData {
 
-	protected TreemapChart(JSONObject config, ID user) {
-		super(config, user);
+	protected TreemapChart(JSONObject config) {
+		super(config);
 	}
 
 	@Override
@@ -53,23 +50,21 @@ public class TreemapChart extends ChartData {
 		
 		int lastIndex = dataRaw.length > 0 ? dataRaw[0].length - 1 : 0;
 		double xAmount = 0d;
-		for (int i = 0; i < dataRaw.length; i++) {
-			Object o[] = dataRaw[i];
-			double v = ObjectUtils.toDouble(o[lastIndex]);
-			o[lastIndex] = v;
-			xAmount += v;
-			
-			for (int j = 0; j < o.length - 1; j++) {
-				o[j] = wrapAxisValue(dims[j], o[j]);
-			}
-		}
+        for (Object[] o : dataRaw) {
+            double v = ObjectUtils.toDouble(o[lastIndex]);
+            o[lastIndex] = v;
+            xAmount += v;
+
+            for (int j = 0; j < o.length - 1; j++) {
+                o[j] = wrapAxisValue(dims[j], o[j]);
+            }
+        }
 		
 		TreeBuilder builder = new TreeBuilder(dataRaw, this);
-		
-		JSONObject ret = JSONUtils.toJSONObject(
-				new String[] { "data", "xLabel", "xAmount" },
-				new Object[] { builder.toJSON(), num1.getLabel(), xAmount });
-		return ret;
+
+        return JSONUtils.toJSONObject(
+                new String[] { "data", "xLabel", "xAmount" },
+                new Object[] { builder.toJSON(), num1.getLabel(), xAmount });
 	}
 	
 	@Override

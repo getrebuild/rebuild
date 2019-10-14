@@ -1,6 +1,6 @@
 /*
 rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (C) 2018-2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,17 +18,20 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.rebuild.server.TestSupport;
+import com.rebuild.server.business.charts.builtin.ApprovalList;
+import org.junit.Test;
 
 /**
- * 柱状图
- * 
- * @author devezhao
- * @since 12/15/2018
+ * @author ZHAO
+ * @since 2019/10/14
  */
-public class BarChart extends LineChart {
+public class BuiltinChartsTest extends TestSupport {
 
-	protected BarChart(JSONObject config) {
-		super(config);
-	}
+    @Test
+    public void testApprovalList() throws Exception {
+        JSON ret = new ApprovalList().setUser(SIMPLE_USER).build();
+        System.out.println(ret);
+    }
 }

@@ -52,27 +52,34 @@ import java.util.Set;
 public abstract class ChartData implements ChartSpec {
 	
 	protected JSONObject config;
-	protected ID user;
-	
+
+	private ID user;
 	private boolean fromPreview = false;
 	
 	/**
 	 * @param config
 	 */
 	protected ChartData(JSONObject config) {
-		this(config, Application.getCurrentUser());
-	}
-	
-	/**
-	 * @param config
-	 * @param user
-	 */
-	protected ChartData(JSONObject config, ID user) {
 		this.config = config;
-		this.user = user;
 	}
 
-	/**
+    /**
+     * @return
+     */
+    protected ID getUser() {
+        return user == null ? Application.getCurrentUser() : user;
+    }
+
+    /**
+     * @param user
+     * @return
+     */
+    public ChartData setUser(ID user) {
+        this.user = user;
+        return this;
+    }
+
+    /**
 	 * 预览模式
 	 *
 	 * @return
@@ -273,7 +280,7 @@ public abstract class ChartData implements ChartSpec {
 		EasyMeta axisField = EasyMeta.valueOf(axis.getField());
 		DisplayType axisType = axisField.getDisplayType();
 		
-		String label = null;
+		String label;
 		if (axisType == DisplayType.REFERENCE) {
 			label = FieldValueWrapper.getLabel((ID) value);
 		} else if (axisType == DisplayType.BOOL
@@ -329,7 +336,7 @@ public abstract class ChartData implements ChartSpec {
 	 */
 	protected Query createQuery(String sql) {
 		if (this.fromPreview) {
-			return Application.createQuery(sql, user);
+			return Application.createQuery(sql, this.getUser());
 		}
 		
 		boolean noPrivileges = false;
@@ -341,8 +348,10 @@ public abstract class ChartData implements ChartSpec {
 		ID chartOwning = ID.isId(co) ? ID.valueOf(co) : null;
 		
 		if (chartOwning == null || !noPrivileges) {
-			return Application.createQuery(sql, user);
-		}
-		return Application.createQuery(sql, UserHelper.isAdmin(chartOwning) ? UserService.SYSTEM_USER : user);
+			return Application.createQuery(sql, this.getUser());
+		} else {
+            return Application.createQuery(sql,
+                    UserHelper.isAdmin(chartOwning) ? UserService.SYSTEM_USER : this.getUser());
+        }
 	}
 }

@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 审批列表
+ * 审批列表/统计
  *
  * @author devezhao
  * @since 2019/10/14
@@ -69,7 +69,7 @@ public class ApprovalList extends ChartData implements BuiltinChart {
         Object[][] array = Application.createQueryNoFilter(
                 "select createdBy,modifiedOn,recordId,approvalId from RobotApprovalStep " +
                         "where isCanceled = 'F' and isWaiting = 'F' and approver = ? and state = ? order by modifiedOn desc")
-                .setParameter(1, this.user)
+                .setParameter(1, this.getUser())
                 .setParameter(2, ApprovalState.DRAFT.getState())
                 .setLimit(100)
                 .array();
@@ -89,7 +89,7 @@ public class ApprovalList extends ChartData implements BuiltinChart {
 
         Object[][] stats = Application.createQueryNoFilter("select state,count(state) from RobotApprovalStep " +
                 "where isCanceled = 'F' and isWaiting = 'F' and approver = ? group by state")
-                .setParameter(1, this.user)
+                .setParameter(1, this.getUser())
                 .array();
 
         Map<String, Object> ret = new HashMap<>();

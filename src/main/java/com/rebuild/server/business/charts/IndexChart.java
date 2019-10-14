@@ -18,13 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
-import java.text.MessageFormat;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
 
-import cn.devezhao.persist4j.engine.ID;
+import java.text.MessageFormat;
 
 /**
  * 指标卡
@@ -34,8 +32,8 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class IndexChart extends ChartData {
 	
-	protected IndexChart(JSONObject config, ID user) {
-		super(config, user);
+	protected IndexChart(JSONObject config) {
+		super(config);
 	}
 
 	@Override
@@ -48,9 +46,8 @@ public class IndexChart extends ChartData {
 		JSONObject index = JSONUtils.toJSONObject(
 				new String[] { "data", "label" },
 				new Object[] { wrapAxisValue(axis, dataRaw[0]), axis.getLabel() });
-		
-		JSON ret = JSONUtils.toJSONObject("index", index);
-		return ret;
+
+        return JSONUtils.toJSONObject("index", index);
 	}
 	
 	protected String buildSql(Numerical axis) {
