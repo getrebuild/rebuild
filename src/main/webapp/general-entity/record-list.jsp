@@ -34,6 +34,7 @@
 						</div>
 					</div>
 					<div class="tab-pane" id="asideWidgets">
+						<div class="text-center"><button class="btn btn-secondary"><i class="icon zmdi zmdi-plus"></i> 添加图表</button></div>
 					</div>
 				</div>
 			</div>

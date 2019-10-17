@@ -198,6 +198,7 @@ class AdvFilter extends React.Component {
       this.props.confirm(adv, this.state.filterName, this.state.shareToAll)
     }
     if (this.props.inModal) this._dlg.hide()
+    this.setState({ filterName: null })
   }
 
   show(state) {

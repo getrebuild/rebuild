@@ -602,7 +602,7 @@ const AdvFilters = {
       })
 
       // ASIDE
-      if ($('#asideFilters').length > 0) {
+      if ($('.rb-aside .page-aside').length > 0) {
         let ghost = $('.adv-search .dropdown-menu').clone()
         ghost.removeAttr('class')
         ghost.removeAttr('style')
@@ -827,7 +827,7 @@ $(document).ready(() => {
   }
 
   // ASIDE
-  if ($('.side-toggle').length > 0) {
+  if ($('.rb-aside .page-aside').length > 0) {
     $('.side-toggle').click(() => {
       $('.rb-aside').toggleClass('rb-aside-collapsed')
     })
