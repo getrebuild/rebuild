@@ -3,6 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/charts.css">
 <title>${entityLabel}列表</title>
 </head>
 <body>
@@ -33,7 +34,7 @@
 						</div>
 					</div>
 					<div class="tab-pane" id="asideWidgets">
-						<div class="text-center"><button class="btn btn-secondary"><i class="icon zmdi zmdi-plus"></i> 添加图表</button></div>
+                        <div class="text-center"><button class="btn btn-secondary J_add-chart"><i class="icon zmdi zmdi-plus"></i> 添加图表</button></div>
 					</div>
 				</div>
 			</div>
@@ -100,5 +101,7 @@ window.__PageConfig = {
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms.exts.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/lib/charts/echarts.min.js"></script>
+<script src="${baseUrl}/assets/js/charts/charts.jsx" type="text/babel"></script>
 </body>
 </html>

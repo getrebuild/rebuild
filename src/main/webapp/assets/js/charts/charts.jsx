@@ -141,7 +141,8 @@ const ECHART_Base = {
       lineStyle: { color: '#ddd' }
     },
     backgroundColor: '#fff',
-    extraCssText: 'border-radius:0;box-shadow:0 0 6px 0 rgba(0, 0, 0, .1), 0 8px 10px 0 rgba(170, 182, 206, .2);'
+    extraCssText: 'border-radius:0;box-shadow:0 0 6px 0 rgba(0, 0, 0, .1), 0 8px 10px 0 rgba(170, 182, 206, .2);',
+    confine: true
   },
   textStyle: {
     fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif'
@@ -176,6 +177,7 @@ class ChartLine extends BaseChart {
           normal: { borderWidth: 1 },
           emphasis: { borderWidth: 4 }
         }
+        yAxis.cursor = 'default'
         data.yyyAxis[i] = yAxis
         formatter.push('{a' + i + '} : {c' + i + '}')
       }
@@ -231,6 +233,7 @@ class ChartBar extends BaseChart {
           normal: { borderWidth: 1 },
           emphasis: { borderWidth: 4 }
         }
+        yAxis.cursor = 'default'
         data.yyyAxis[i] = yAxis
         formatter.push('{a' + i + '} : {c' + i + '}')
       }
@@ -276,7 +279,7 @@ class ChartPie extends BaseChart {
     let that = this
     let elid = 'echarts-pie-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart pie" id={elid}></div>) }, () => {
-      data = { ...data, type: 'pie', radius: '71%' }
+      data = { ...data, type: 'pie', radius: '71%', cursor: 'default' }
       let opt = {
         series: [data]
       }
@@ -310,7 +313,8 @@ class ChartFunnel extends BaseChart {
           gap: 2,
           top: 30,
           bottom: 20,
-          data: data.data
+          data: data.data,
+          cursor: 'default'
         }]
       }
       opt = { ...opt, ...ECHART_Base }
@@ -483,5 +487,67 @@ const detectChart = function (cfg, id, editable) {
     return <ApprovalList {...props} builtin={true} />
   } else {
     return <h5>{`未知图表 [${cfg.type}]`}</h5>
+  }
+}
+
+// 从已有图表中选择图表
+// 添加的图表会在多个仪表盘共享（本身就是一个），修改时会同步修改
+// eslint-disable-next-line no-unused-vars
+class ChartSelect extends RbModalHandler {
+  constructor(props) {
+    super(props)
+    this.state = { chartList: [], appended: props.appended || [], tabActive: '#all' }
+  }
+  render() {
+    return (<RbModal ref={(c) => this._dlg = c} title="添加已有图表">
+      <div className="row chart-select-wrap">
+        <div className="col-3">
+          <div className="nav flex-column nav-pills">
+            <a href="#all" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#all' ? 'active' : ''}`}>全部</a>
+            <a href="#myself" onClick={this.switchTab} className={`nav-link hide ${this.state.tabActive === '#myself' ? 'active' : ''}`}>我自己的</a>
+            <a href="#builtin" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#builtin' ? 'active' : ''}`}>内置图表</a>
+          </div>
+        </div>
+        <div className="col-9 pl-0">
+          <div className="chart-list">
+            {this.state.chartList.map((item) => {
+              return (<div key={'k-' + item[0]}>
+                <span className="float-left chart-icon"><i className={item[2]}></i></span>
+                <span className="float-left title">
+                  <strong>{item[1]}</strong>
+                  <p className="text-muted fs-12">{item[3]}</p>
+                </span>
+                <span className="float-right">
+                  {this.state.appended.contains(item[0])
+                    ? <a className="btn disabled" data-id={item[0]}>已添加</a>
+                    : <a className="btn" onClick={() => this.selectChart(item)}>添加</a>}
+                </span>
+                <div className="clearfix"></div>
+              </div>)
+            })}
+          </div>
+        </div>
+      </div>
+    </RbModal>)
+  }
+
+  componentDidMount = () => this.__loadCharts()
+  __loadCharts() {
+    $.get(`${rb.baseUrl}/dashboard/chart-list?type=${this.state.tabActive.substr(1)}&entity=${this.props.entity || ''}`, (res) => {
+      this.setState({ chartList: res.data })
+    })
+  }
+
+  selectChart(item) {
+    let s = this.state.appended
+    s.push(item[0])
+    this.setState({ appended: s })
+    typeof this.props.select === 'function' && this.props.select({ chart: item[0], title: item[1], type: item[2] })
+  }
+
+  switchTab = (e) => {
+    e.preventDefault()
+    let t = $(e.target).attr('href')
+    this.setState({ tabActive: t }, () => this.__loadCharts())
   }
 }

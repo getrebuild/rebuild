@@ -814,6 +814,22 @@ class RbViewModal extends React.Component {
   }
 }
 
+// 列表小部件
+const Widgets = {
+
+  showChartSelect: function () {
+    renderRbcomp(<ChartSelect select={this.renderChart} entity={wpc.entity[0]} />, null, function () {
+    })
+  },
+
+  renderChart: function (chart) {
+    let w = $('<div id="chart-' + chart.chart + '"></div>')
+    $('.J_add-chart').parent().before(w)
+    // eslint-disable-next-line no-undef
+    renderRbcomp(detectChart(chart, chart.chart), w)
+  }
+}
+
 $(document).ready(() => {
   // 自动打开 View
   let viewHash = location.hash
@@ -840,5 +856,7 @@ $(document).ready(() => {
       $content.perfectScrollbar('update')
     }
     window.resize_handler()
+
+    $('.J_add-chart').click(() => Widgets.showChartSelect())
   }
 })

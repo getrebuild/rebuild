@@ -2716,6 +2716,20 @@ form {
     color: #fff;
 }
 
+#asideWidgets .chart-box {
+    padding: 0;
+    width: 100%;
+    height: 200px;
+}
+
+#asideWidgets .chart-box .chart-title {
+    margin-right: 0;
+}
+
+#asideWidgets>div+div {
+    margin-top: 20px;
+}
+
 .copyright {
     color: #999;
     width: 100%;
