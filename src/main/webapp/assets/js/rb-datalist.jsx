@@ -121,7 +121,8 @@ class RbList extends React.Component {
       }
     })
 
-    this.fetchList(this.__buildQuick($('.input-search')))
+    // 首次由 AdvFilter 加载
+    if (wpc.advFilter === false) this.fetchList(this.__buildQuick($('.input-search')))
   }
   componentDidUpdate() {
     let that = this
@@ -550,34 +551,25 @@ const AdvFilters = {
       this.showAdvFilter(null, this.current)
       this.current = null
     })
-    // $ALL$
-    $('.adv-search .dropdown-item:eq(0)').click(() => {
-      $('.adv-search .J_name').text('全部数据')
-      RbListPage._RbList.setAdvFilter(null)
-      this.current = null
-    })
+    let $all = $('.adv-search .dropdown-item:eq(0)')  // All
+    $all.click(() => this.__effectFilter($all, 'aside'))
 
     this.loadFilters()
   },
 
   loadFilters() {
-    let dFilter = $storage.get(RbListPage._RbList.__defaultFilterKey)
-    let that = this
+    const dFilter = $storage.get(RbListPage._RbList.__defaultFilterKey)
+    const that = this
+    let dFilterItem
     $.get(`${rb.baseUrl}/app/${this.__entity}/advfilter/list`, function (res) {
       $('.adv-search .J_custom').each(function () { $(this).remove() })
 
+      let $menu = $('.adv-search .dropdown-menu')
       $(res.data).each(function () {
         const _data = this
-        let item = $('<div class="dropdown-item J_custom" data-id="' + _data.id + '"><a class="text-truncate">' + _data.name + '</a></div>').appendTo('.adv-search .dropdown-menu')
-        item.click(function () {
-          $('.adv-search .J_name').text(_data.name)
-          RbListPage._RbList.setAdvFilter(_data.id)
-          that.current = _data.id
-        })
-        if (dFilter === _data.id) {
-          $('.adv-search .J_name').text(_data.name)
-          that.current = _data.id
-        }
+        let item = $('<div class="dropdown-item J_custom" data-id="' + _data.id + '"><a class="text-truncate">' + _data.name + '</a></div>').appendTo($menu)
+        item.click(() => that.__effectFilter(item, 'aside'))
+        if (dFilter === _data.id) dFilterItem = item
 
         // 可修改
         if (_data.editable) {
@@ -608,7 +600,42 @@ const AdvFilters = {
           })
         }
       })
+
+      // ASIDE
+      if ($('#asideFilters').length > 0) {
+        let ghost = $('.adv-search .dropdown-menu').clone()
+        ghost.removeAttr('class')
+        ghost.removeAttr('style')
+        ghost.removeAttr('data-ps-id')
+        ghost.find('.ps-scrollbar-x-rail, .ps-scrollbar-y-rail').remove()
+        ghost.find('.dropdown-item').click(function () {
+          ghost.find('.dropdown-item').removeClass('active')
+          $(this).addClass('active')
+          that.__effectFilter($(this), 'aside')
+        })
+        ghost.appendTo($('#asideFilters').empty())
+      }
+
+      if (!dFilterItem) dFilterItem = $('.adv-search .dropdown-item:eq(0)')
+      dFilterItem.trigger('click')
     })
+  },
+
+  __effectFilter(item, rel) {
+    this.current = item.data('id')
+    $('.adv-search .J_name').text(item.find('>a').text())
+    if (rel === 'aside') {
+      let current_id = this.current
+      $('#asideFilters .dropdown-item').removeClass('active').each(function () {
+        if ($(this).data('id') === current_id) {
+          $(this).addClass('active')
+          return false
+        }
+      })
+    }
+
+    if (this.current === '$ALL$') this.current = null
+    RbListPage._RbList.setAdvFilter(this.current)
   },
 
   showAdvFilter(id, copyId) {
@@ -797,5 +824,21 @@ $(document).ready(() => {
         RbViewModal.create({ entity: viewHash[2], id: viewHash[3] })
       }, 500)
     }
+  }
+
+  // ASIDE
+  if ($('.side-toggle').length > 0) {
+    $('.side-toggle').click(() => {
+      $('.rb-aside').toggleClass('rb-aside-collapsed')
+    })
+
+    let $content = $('.page-aside .tab-content')
+    let hold = window.resize_handler
+    window.resize_handler = function () {
+      typeof hold === 'function' && hold()
+      $content.height($(window).height() - 147)
+      $content.perfectScrollbar('update')
+    }
+    window.resize_handler()
   }
 })

@@ -19,20 +19,13 @@
     font-size: 81px;
     opacity: 0.6;
 }
-.copyright {
-    position: fixed;
-    bottom: 15px;
-    width: 100%;
-    color: #999;
-    text-align: center;
-}
 </style>
 </head>
 <body>
 <div class="sharebox must-center">
     <i class="zmdi zmdi-share"></i>
 </div>
-<div class="copyright">&copy; ${appName}</div>
+<div class="copyright fixed">&copy; ${appName}</div>
 <%@ include file="/_include/Foot.jsp"%>
 <script>
 window.__PageConfig = { publicUrl: '${publicUrl}' }

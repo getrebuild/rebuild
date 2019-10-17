@@ -1358,7 +1358,7 @@ i.split.ui-draggable-dragging {
 }
 
 .dept-tree .config-title {
-    margin-bottom: 19px;
+    margin-bottom: 17px;
     margin-top: 17px;
     border-bottom: 1px solid #eee;
     padding-bottom: 10px;
@@ -2613,4 +2613,116 @@ form {
 
 .modal.select-list .modal-body li a:hover>.zmdi {
     display: inline-block;
+}
+
+.rb-wrapper .rb-content>.page-aside {
+    display: none;
+}
+
+.rb-wrapper.rb-aside .rb-content>.page-aside {
+    display: block;
+}
+
+.page-aside.widgets {
+    z-index: 2;
+    overflow: hidden;
+}
+
+.page-aside.widgets .tab-container {
+    margin-top: 2px;
+    min-width: 279px;
+    overflow: hidden;
+}
+
+.page-aside.widgets .tab-container .tab-content {
+    padding: 20px 18px;
+    margin: 0;
+    border-radius: 0;
+    position: relative;
+}
+
+.page-aside.widgets .side-toggle {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    font-size: 1.3rem;
+    width: 50px;
+    height: 44px;
+    line-height: 44px;
+    text-align: center;
+    color: #999;
+    display: none;
+}
+
+.page-aside.widgets .side-toggle:hover {
+    background-color: #eee;
+    color: #5a5a5a;
+}
+
+.page-aside.widgets:hover .side-toggle {
+    display: block;
+}
+
+.rb-aside.rb-aside-collapsed .page-aside {
+    width: 50px;
+}
+
+.rb-aside.rb-aside-collapsed .side-toggle {
+    height: 100%;
+    display: block !important;
+}
+
+.rb-aside.rb-aside-collapsed .side-toggle .zmdi {
+    transform: rotate(180deg);
+}
+
+.rb-aside.rb-aside-collapsed .page-aside .tab-container {
+    display: none;
+}
+
+.rb-aside.rb-aside-collapsed .main-content {
+    margin-left: 50px;
+}
+
+.rb-animate .rb-aside .page-aside {
+    transition: width .35s ease;
+}
+
+.rb-animate .rb-aside.rb-aside-collapsed .page-aside {
+    transition: width .35s ease;
+}
+
+#asideFilters .action {
+    display: none;
+}
+
+#asideFilters .dropdown-item {
+    padding: 8px 7px;
+    border-radius: 2px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+#asideFilters .dropdown-item:hover {
+    background-color: #eee;
+}
+
+#asideFilters .dropdown-item:active {
+    color: #404040;
+}
+
+#asideFilters .dropdown-item.active {
+    background-color: #4285f4;
+    color: #fff;
+}
+
+.copyright {
+    color: #999;
+    width: 100%;
+    text-align: center;
+}
+
+.copyright.fixed {
+    position: fixed;
+    bottom: 15px;
 }
