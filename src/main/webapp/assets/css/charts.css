@@ -227,6 +227,16 @@
 	font-weight: normal;
 }
 
+.chart-list>div .title p>span+span {
+	margin-left: 6px;
+}
+
+.chart-list>div .title p>span+span::before {
+	content: '·';
+	color: #aaa;
+	margin-right: 6px;
+}
+
 .chart-list>div .btn {
 	min-width: 0;
 	height: 48px;

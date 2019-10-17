@@ -496,7 +496,7 @@ const detectChart = function (cfg, id, editable) {
 class ChartSelect extends RbModalHandler {
   constructor(props) {
     super(props)
-    this.state = { chartList: [], appended: props.appended || [], tabActive: '#all' }
+    this.state = { appended: props.appended || [], tabActive: props.entity ? '#entity' : '#all' }
   }
   render() {
     return (<RbModal ref={(c) => this._dlg = c} title="添加已有图表">
@@ -504,18 +504,20 @@ class ChartSelect extends RbModalHandler {
         <div className="col-3">
           <div className="nav flex-column nav-pills">
             <a href="#all" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#all' ? 'active' : ''}`}>全部</a>
+            {this.props.entity && <a href="#entity" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#entity' ? 'active' : ''}`}>当前实体</a>}
             <a href="#myself" onClick={this.switchTab} className={`nav-link hide ${this.state.tabActive === '#myself' ? 'active' : ''}`}>我自己的</a>
             <a href="#builtin" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#builtin' ? 'active' : ''}`}>内置图表</a>
           </div>
         </div>
         <div className="col-9 pl-0">
           <div className="chart-list">
-            {this.state.chartList.map((item) => {
+            {(this.state.chartList && this.state.chartList.length === 0) && <p className="text-muted">无可用图表</p>}
+            {(this.state.chartList || []).map((item) => {
               return (<div key={'k-' + item[0]}>
                 <span className="float-left chart-icon"><i className={item[2]}></i></span>
                 <span className="float-left title">
                   <strong>{item[1]}</strong>
-                  <p className="text-muted fs-12">{item[3]}</p>
+                  <p className="text-muted fs-12">{item[4] && <span>{item[4]}</span>}<span>{item[3]}</span></p>
                 </span>
                 <span className="float-right">
                   {this.state.appended.contains(item[0])

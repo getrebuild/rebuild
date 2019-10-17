@@ -197,7 +197,7 @@ class DlgAddChart extends RbFormHandler {
   }
   componentDidMount() {
     let entity_el = $(this.refs['entity'])
-    $.get(rb.baseUrl + '/commons/metadata/entities', (res) => {
+    $.get(rb.baseUrl + '/commons/metadata/entities?slave=true', (res) => {
       $(res.data).each(function () {
         $('<option value="' + this.name + '">' + this.label + '</option>').appendTo(entity_el)
       })
