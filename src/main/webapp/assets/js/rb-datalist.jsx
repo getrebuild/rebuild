@@ -282,8 +282,7 @@ class RbList extends React.Component {
   }
   getSelectedIds() {
     if (!this.__selectedRows || this.__selectedRows.length < 1) { RbHighbar.create('未选中任何记录'); return [] }
-    let ids = this.__selectedRows.map((item) => { return item[0] })
-    return ids
+    return this.__selectedRows.map((item) => { return item[0] })
   }
   search(filter, fromAdv) {
     let afHold = this.advFilter
@@ -303,8 +302,7 @@ class RbList extends React.Component {
   __buildQuick(el) {
     let q = el.find('input').val()
     if (!q && !this.lastFilter) return null
-    let filterExp = { entity: this.props.config.entity, type: 'QUICK', values: { 1: q }, qfields: el.data('qfields') }
-    return filterExp
+    return { entity: this.props.config.entity, type: 'QUICK', values: { 1: q }, qfields: el.data('qfields') }
   }
   reload() {
     this.fetchList()
@@ -827,9 +825,7 @@ const ChartsWidget = {
     // eslint-disable-next-line no-undef
     ECHART_Base.grid = { left: 40, right: 20, top: 30, bottom: 20 }
 
-    $('.J_load-chart').click(() => {
-      if (this.chartLoaded !== true) this.loadWidget()
-    })
+    $('.J_load-chart').click(() => { if (this.chartLoaded !== true) this.loadWidget() })
     $('.J_add-chart').click(() => this.showChartSelect())
 
     $('.charts-wrap').sortable({
@@ -840,17 +836,14 @@ const ChartsWidget = {
   },
 
   showChartSelect: function () {
-    if (this._chartSelect) {
-      this._chartSelect.show()
+    if (this.__chartSelect) {
+      this.__chartSelect.show()
+      this.__chartSelect.setState({ appended: ChartsWidget.__currentCharts() })
       return
     }
     renderRbcomp(<ChartSelect select={(c) => this.renderChart(c, true)} entity={wpc.entity[0]} />, null, function () {
-      ChartsWidget._chartSelect = this
-      let appended = []
-      $('.charts-wrap>div').each((function () {
-        appended.push($(this).attr('id').substr(6))
-      }))
-      this.setState({ appended: appended })
+      ChartsWidget.__chartSelect = this
+      this.setState({ appended: ChartsWidget.__currentCharts() })
     })
   },
 
@@ -866,22 +859,26 @@ const ChartsWidget = {
     $.get(`${rb.baseUrl}/app/${wpc.entity[0]}/widget-charts`, (res) => {
       this.chartLoaded = true
       this.__config = res.data || {}
-      if (res.data) {
-        $(res.data.config).each((idx, chart) => this.renderChart(chart))
-      }
+      res.data && $(res.data.config).each((idx, chart) => this.renderChart(chart))
     })
   },
 
   saveWidget: function () {
+    let charts = this.__currentCharts(true)
+    $.post(`${rb.baseUrl}/app/${wpc.entity[0]}/widget-charts?id=${this.__config.id || ''}`, JSON.stringify(charts), (res) => {
+      ChartsWidget.__config.id = res.data
+      $('.page-aside .tab-content').perfectScrollbar('update')
+    })
+  },
+
+  __currentCharts: function (o) {
     let charts = []
     $('.charts-wrap>div').each((function () {
-      charts.push({ chart: $(this).attr('id').substr(6) })
+      let id = $(this).attr('id').substr(6)
+      if (o) charts.push({ chart: id })
+      else charts.push(id)
     }))
-
-    let that = this
-    $.post(`${rb.baseUrl}/app/${wpc.entity[0]}/widget-charts?id=${this.__config.id || ''}`, JSON.stringify(charts), (res) => {
-      that.__config.id = res.data
-    })
+    return charts
   }
 }
 
@@ -900,8 +897,10 @@ $(document).ready(() => {
   // ASIDE
   if ($('.rb-aside .page-aside').length > 0) {
     $('.side-toggle').click(() => {
-      $('.rb-aside').toggleClass('rb-aside-collapsed')
+      let el = $('.rb-aside').toggleClass('rb-aside-collapsed')
+      $storage.set('rb-aside-collapsed', el.hasClass('rb-aside-collapsed'))
     })
+    if ($storage.get('rb-aside-collapsed') === 'true') $('.rb-aside').addClass('rb-aside-collapsed')
 
     let $content = $('.page-aside .tab-content')
     let hold = window.resize_handler
@@ -911,7 +910,6 @@ $(document).ready(() => {
       $content.perfectScrollbar('update')
     }
     window.resize_handler()
-
     ChartsWidget.init()
   }
 })

@@ -46,27 +46,31 @@ $(document).ready(function () {
 
     if (dash_editable !== true) $('.J_dash-edit, .J_chart-adds').remove()
 
-    $('.J_dash-new').click(() => { dlgShow('DlgDashAdd') })
-    $('.J_dash-edit').click(() => { dlgShow('DlgDashSettings', { title: d[1], shareToAll: d[4] === 'ALL' }) })
-    $('.J_chart-new').click(() => { dlgShow('DlgAddChart') })
-    $('.J_dash-select').click(() => { dlgShow('DashSelect', { dashList: dash_list }) })
+    $('.J_dash-new').click(() => dlgShow('DlgDashAdd'))
+    $('.J_dash-edit').click(() => dlgShow('DlgDashSettings', { title: d[1], shareToAll: d[4] === 'ALL' }))
+    $('.J_chart-new').click(() => dlgShow('DlgAddChart'))
+    $('.J_dash-select').click(() => dlgShow('DashSelect', { dashList: dash_list }))
     let dlgChartSelect
     $('.J_chart-select').click(() => {
-      if (dlgChartSelect) dlgChartSelect.show()
-      else {
-        let select = function (chart) {
-          chart.w = chart.h = 4
-          add_widget(chart)
-        }
-        renderRbcomp(<ChartSelect key="ChartSelect" select={select} />, null, function () {
-          dlgChartSelect = this
-          let appended = []
-          $('.grid-stack-item-content').each(function () {
-            appended.push($(this).attr('id').substr(6))
-          })
-          this.setState({ appended: appended })
-        })
+      let appended = []
+      $('.grid-stack-item-content').each(function () {
+        appended.push($(this).attr('id').substr(6))
+      })
+
+      if (dlgChartSelect) {
+        dlgChartSelect.show()
+        dlgChartSelect.setState({ appended: appended })
+        return
       }
+
+      let select = function (chart) {
+        chart.w = chart.h = 4
+        add_widget(chart)
+      }
+      renderRbcomp(<ChartSelect key="ChartSelect" select={select} />, null, function () {
+        dlgChartSelect = this
+        this.setState({ appended: appended })
+      })
     })
   }))
 
@@ -167,7 +171,7 @@ let save_dashboard = function () {
   $setTimeout(() => {
     $.post(rb.baseUrl + '/dashboard/dash-config?id=' + dashid, JSON.stringify(gridstack_serialize), () => {
       // eslint-disable-next-line no-console
-      console.log('Saved dashboard: ' + JSON.stringify(gridstack_serialize))
+      if (rb.env === 'dev') console.log('Saved dashboard: ' + JSON.stringify(gridstack_serialize))
     })
   }, 500, 'save-dashboard')
 }

@@ -2739,7 +2739,7 @@ form {
 }
 
 #asideWidgets .chart-box .chart-title {
-    margin-right: 40px;
+    margin-right: 60px;
 }
 
 #asideWidgets .chart-box:hover .chart-oper {
@@ -2750,8 +2750,8 @@ form {
     display: none !important;
 }
 
-#asideWidgets .charts-wrap>div+div {
-    margin-top: 30px;
+#asideWidgets .charts-wrap>div {
+    margin-bottom: 20px;
 }
 
 #asideWidgets .chart-box.INDEX {
@@ -2781,6 +2781,6 @@ form {
     padding-right: 6px !important;
 }
 
-.charts-wrap .ui-sortable-helper {
+#asideWidgets .charts-wrap .ui-sortable-helper {
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1), 0 16px 24px 0 rgba(81, 129, 228, .1);
 }

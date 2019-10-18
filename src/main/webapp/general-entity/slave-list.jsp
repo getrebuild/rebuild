@@ -20,7 +20,7 @@
 			<div class="tab-container">
 				<ul class="nav nav-tabs">
 					<li class="nav-item"><a class="nav-link active" href="#asideFilters" data-toggle="tab">常用查询</a></li>
-					<li class="nav-item"><a class="nav-link" href="#asideWidgets" data-toggle="tab">图表</a></li>
+					<li class="nav-item"><a class="nav-link J_load-chart" href="#asideWidgets" data-toggle="tab">图表</a></li>
 				</ul>
 				<div class="tab-content rb-scroller">
 					<div class="tab-pane active" id="asideFilters">
@@ -35,7 +35,7 @@
 					</div>
 					<div class="tab-pane" id="asideWidgets">
 						<div class="charts-wrap"></div>
-						<div class="text-center mt-4"><button class="btn btn-secondary J_add-chart"><i class="icon zmdi zmdi-plus"></i> 添加图表</button></div>
+						<div class="text-center"><button class="btn btn-secondary J_add-chart"><i class="icon zmdi zmdi-plus"></i> 添加图表</button></div>
 					</div>
 				</div>
 			</div>

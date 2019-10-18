@@ -5,7 +5,7 @@ let activeNode
 $(document).ready(() => {
   if (!wpc || !wpc.configId) return
   // eslint-disable-next-line no-console
-  console.log(wpc.flowDefinition)
+  if (rb.env === 'dev') console.log(wpc.flowDefinition)
 
   if (wpc.flowDefinition) wpc.flowDefinition = JSON.parse(wpc.flowDefinition)
   renderRbcomp(<RbFlowCanvas />, 'rbflow')
