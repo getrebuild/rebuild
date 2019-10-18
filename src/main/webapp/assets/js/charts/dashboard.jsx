@@ -62,8 +62,7 @@ $(document).ready(function () {
           dlgChartSelect = this
           let appended = []
           $('.grid-stack-item-content').each(function () {
-            let chid = $(this).attr('id').substr(6)
-            appended.push(chid)
+            appended.push($(this).attr('id').substr(6))
           })
           this.setState({ appended: appended })
         })

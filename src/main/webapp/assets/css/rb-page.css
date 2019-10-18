@@ -2533,6 +2533,17 @@ form {
     font-size: 1.28rem !important;
 }
 
+.copyright {
+    color: #999;
+    width: 100%;
+    text-align: center;
+}
+
+.copyright.fixed {
+    position: fixed;
+    bottom: 15px;
+}
+
 .shareTo--wrap .btn.btn-link {
     height: 30px;
     line-height: 30px;
@@ -2719,24 +2730,57 @@ form {
 #asideWidgets .chart-box {
     padding: 0;
     width: 100%;
-    height: 200px;
+    height: 240px;
+    background-color: #fff;
+}
+
+#asideWidgets .chart-box .chart-body {
+    padding-top: 10px;
 }
 
 #asideWidgets .chart-box .chart-title {
-    margin-right: 0;
+    margin-right: 40px;
 }
 
-#asideWidgets>div+div {
-    margin-top: 20px;
+#asideWidgets .chart-box:hover .chart-oper {
+    display: block;
 }
 
-.copyright {
-    color: #999;
-    width: 100%;
-    text-align: center;
+#asideWidgets .chart-box:hover .chart-oper a.chart-edit {
+    display: none !important;
 }
 
-.copyright.fixed {
-    position: fixed;
-    bottom: 15px;
+#asideWidgets .charts-wrap>div+div {
+    margin-top: 30px;
+}
+
+#asideWidgets .chart-box.INDEX {
+    height: 120px;
+}
+
+#asideWidgets .chart-box.INDEX .chart-body {
+    padding-top: 40px;
+}
+
+#asideWidgets .chart-box.LINE,
+#asideWidgets .chart-box.BAR {
+    height: 160px;
+}
+
+#asideWidgets .chart-box.ApprovalList .chart-head {
+    margin: 0;
+}
+
+#asideWidgets .chart-box.ApprovalList .progress-wrap {
+    margin: 10px 0;
+}
+
+#asideWidgets .chart.ApprovalList .table td,
+#asideWidgets .chart.ApprovalList .table th {
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+}
+
+.charts-wrap .ui-sortable-helper {
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1), 0 16px 24px 0 rgba(81, 129, 228, .1);
 }

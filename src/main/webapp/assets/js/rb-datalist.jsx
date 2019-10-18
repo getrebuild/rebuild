@@ -814,19 +814,74 @@ class RbViewModal extends React.Component {
   }
 }
 
-// 列表小部件
-const Widgets = {
+window.chart_remove = function (box) {
+  box.parent().animate({ opacity: 0 }, function () {
+    box.parent().remove()
+    ChartsWidget.saveWidget()
+  })
+}
+// 列表图表部件
+const ChartsWidget = {
+
+  init: function () {
+    // eslint-disable-next-line no-undef
+    ECHART_Base.grid = { left: 40, right: 20, top: 30, bottom: 20 }
+
+    $('.J_load-chart').click(() => {
+      if (this.chartLoaded !== true) this.loadWidget()
+    })
+    $('.J_add-chart').click(() => this.showChartSelect())
+
+    $('.charts-wrap').sortable({
+      handle: '.chart-title',
+      axis: 'y',
+      update: () => ChartsWidget.saveWidget()
+    }).disableSelection()
+  },
 
   showChartSelect: function () {
-    renderRbcomp(<ChartSelect select={this.renderChart} entity={wpc.entity[0]} />, null, function () {
+    if (this._chartSelect) {
+      this._chartSelect.show()
+      return
+    }
+    renderRbcomp(<ChartSelect select={(c) => this.renderChart(c, true)} entity={wpc.entity[0]} />, null, function () {
+      ChartsWidget._chartSelect = this
+      let appended = []
+      $('.charts-wrap>div').each((function () {
+        appended.push($(this).attr('id').substr(6))
+      }))
+      this.setState({ appended: appended })
     })
   },
 
-  renderChart: function (chart) {
-    let w = $('<div id="chart-' + chart.chart + '"></div>')
-    $('.J_add-chart').parent().before(w)
+  renderChart: function (chart, append) {
+    let w = $(`<div id="chart-${chart.chart}"></div>`).appendTo('.charts-wrap')
     // eslint-disable-next-line no-undef
-    renderRbcomp(detectChart(chart, chart.chart), w)
+    renderRbcomp(detectChart(chart, chart.chart), w, function () {
+      if (append) ChartsWidget.saveWidget()
+    })
+  },
+
+  loadWidget: function () {
+    $.get(`${rb.baseUrl}/app/${wpc.entity[0]}/widget-charts`, (res) => {
+      this.chartLoaded = true
+      this.__config = res.data || {}
+      if (res.data) {
+        $(res.data.config).each((idx, chart) => this.renderChart(chart))
+      }
+    })
+  },
+
+  saveWidget: function () {
+    let charts = []
+    $('.charts-wrap>div').each((function () {
+      charts.push({ chart: $(this).attr('id').substr(6) })
+    }))
+
+    let that = this
+    $.post(`${rb.baseUrl}/app/${wpc.entity[0]}/widget-charts?id=${this.__config.id || ''}`, JSON.stringify(charts), (res) => {
+      that.__config.id = res.data
+    })
   }
 }
 
@@ -857,6 +912,6 @@ $(document).ready(() => {
     }
     window.resize_handler()
 
-    $('.J_add-chart').click(() => Widgets.showChartSelect())
+    ChartsWidget.init()
   }
 })

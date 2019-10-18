@@ -8,7 +8,7 @@ class BaseChart extends React.Component {
   render() {
     let opers = <div className="chart-oper">
       <a onClick={() => this.loadChartData()}><i className="zmdi zmdi-refresh" /></a>
-      {this.props.builtin === true ? null : <a href={'chart-design?id=' + this.props.id}><i className="zmdi zmdi-edit" /></a>}
+      {this.props.builtin === true ? null : <a className="chart-edit" href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}><i className="zmdi zmdi-edit" /></a>}
       <a onClick={() => this.remove()}><i className="zmdi zmdi-close" /></a>
     </div>
     if (this.props.editable === false) {
@@ -53,11 +53,11 @@ class BaseChart extends React.Component {
   }
 
   remove() {
-    if (!window.gridstack) return  // Not in dashboard
     let that = this
     RbAlert.create('确认移除此图表？', {
       confirm: function () {
-        window.gridstack.removeWidget($(that._box).parent().parent())
+        if (window.gridstack) window.gridstack.removeWidget($(that._box).parent().parent())
+        else if (window.chart_remove) window.chart_remove($(that._box))
         this.hide()
       }
     })

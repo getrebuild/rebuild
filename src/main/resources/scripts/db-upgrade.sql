@@ -1,6 +1,22 @@
 -- Database upgrade scripts for rebuild 1.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #15 Widget in page (v1.6)
+-- ************ Entity [WidgetConfig] DDL ************
+create table if not exists `widget_config` (
+  `CONFIG_ID`          char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null comment '所属实体',
+  `APPLY_TYPE`         varchar(20) not null comment '应用在哪里',
+  `CONFIG`             text(21845) not null comment 'JSON格式配置',
+  `SHARE_TO`           varchar(420) default 'SELF' comment '共享给哪些人, 可选值: ALL/SELF/$MemberID(U/D/R)',
+  `CONFIG_NAME`        varchar(100),
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  `CREATED_BY`         char(20) not null comment '创建人',
+primary key  (`CONFIG_ID`)
+)Engine=InnoDB;
+
 -- #14 Name for LayoutConfig (v1.6)
 alter table `layout_config`
     add column `CONFIG_NAME` varchar(100);

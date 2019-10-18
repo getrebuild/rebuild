@@ -20,6 +20,8 @@ package com.rebuild.server.configuration.portals;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.charts.ChartsFactory;
 import com.rebuild.server.business.charts.builtin.BuiltinChart;
@@ -71,8 +73,24 @@ public class ChartManager implements ConfigManager<ID> {
 		Application.getCommonCache().putx(ckey, entry);
 		return entry.clone();
 	}
-	
-	
+
+	/**
+	 * 丰富图表数据 title, type
+	 *
+	 * @param charts
+	 */
+	protected void richingCharts(JSONArray charts) {
+		for (Object o : charts) {
+			JSONObject ch = (JSONObject) o;
+			ID chartid = ID.valueOf(ch.getString("chart"));
+			ConfigEntry e = getChart(chartid);
+			if (e != null) {
+				ch.put("title", e.getString("title"));
+				ch.put("type", e.getString("type"));
+			}
+		}
+	}
+
 	@Override
 	public void clean(ID cacheKey) {
 		Application.getCommonCache().evict("Chart-" + cacheKey);
