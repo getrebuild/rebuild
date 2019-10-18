@@ -25,8 +25,6 @@ import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
 
 /**
- * TODO
- *
  * @author devezhao
  * @since 2019/10/18
  */

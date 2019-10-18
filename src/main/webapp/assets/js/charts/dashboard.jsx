@@ -266,6 +266,7 @@ class DlgDashSettings extends RbFormHandler {
       type: 'danger',
       confirmText: '删除',
       confirm: function () {
+        this.disabled(true)
         $.post(rb.baseUrl + '/app/entity/record-delete?id=' + dashid, function (res) {
           // if (res.error_code === 0) location.replace('home#del=' + dashid)  // Chrome no refresh?
           if (res.error_code === 0) location.reload()
