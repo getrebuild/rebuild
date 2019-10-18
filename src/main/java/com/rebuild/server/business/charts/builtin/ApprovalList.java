@@ -52,7 +52,7 @@ public class ApprovalList extends ChartData implements BuiltinChart {
     @Override
     public ID getChartId() {
         // 虚拟ID
-        return ID.valueOf("017-F000000000000001");
+        return ID.valueOf("017-9000000000000001");
     }
 
     @Override

@@ -524,6 +524,7 @@ class ChartSelect extends RbModalHandler {
                     ? <a className="btn disabled" data-id={item[0]}>已添加</a>
                     : <a className="btn" onClick={() => this.selectChart(item)}>添加</a>}
                 </span>
+                {(!this.props.entity && item[4]) && <span className="float-right"><a className="delete" onClick={() => this.deleteChart(item[0])}><i className="zmdi zmdi-delete"></i></a></span>}
                 <div className="clearfix"></div>
               </div>)
             })}
@@ -545,6 +546,24 @@ class ChartSelect extends RbModalHandler {
     s.push(item[0])
     this.setState({ appended: s })
     typeof this.props.select === 'function' && this.props.select({ chart: item[0], title: item[1], type: item[2] })
+  }
+
+  deleteChart(id) {
+    let that = this
+    RbAlert.create('确认删除此图表吗？', {
+      type: 'danger',
+      confirmText: '删除',
+      confirm: function () {
+        this.disabled(true)
+        $.post(`${rb.baseUrl}/dashboard/chart-delete?id=${id}`, (res) => {
+          if (res.error_code > 0) RbHighbar.error(res.error_msg)
+          else {
+            that.__loadCharts()
+            this.hide()
+          }
+        })
+      }
+    })
   }
 
   switchTab = (e) => {

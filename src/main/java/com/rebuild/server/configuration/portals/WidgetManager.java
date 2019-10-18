@@ -50,23 +50,18 @@ public class WidgetManager extends SharableManager<ID> {
 
         String ckey = "DataListChart-" + detected;
         ConfigEntry config = (ConfigEntry) Application.getCommonCache().getx(ckey);
-        if (config != null) {
-            JSONArray charts = (JSONArray) config.getJSON("config");
-            ChartManager.instance.richingCharts(charts);
-            config.set("config", charts);
-            return config;
+        if (config == null) {
+            Object[] o = Application.createQueryNoFilter(
+                    "select config from WidgetConfig where configId = ?")
+                    .setParameter(1, detected)
+                    .unique();
+            config = new ConfigEntry();
+            config.set("id", detected);
+            config.set("config", JSON.parseArray((String) o[0]));
+            Application.getCommonCache().putx(ckey, config);
         }
 
-        Object[] o = Application.createQueryNoFilter(
-                "select config from WidgetConfig where configId = ?")
-                .setParameter(1, detected)
-                .unique();
-        config = new ConfigEntry();
-        config.set("id", detected);
-        JSONArray charts = JSON.parseArray((String) o[0]);
-        config.set("config", charts);
-        Application.getCommonCache().putx(ckey, config);
-
+        JSONArray charts = (JSONArray) config.getJSON("config");
         ChartManager.instance.richingCharts(charts);
         config.set("config", charts);
         return config;

@@ -28,8 +28,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.charts.ChartData;
-import com.rebuild.server.business.charts.ChartsFactory;
 import com.rebuild.server.business.charts.ChartsException;
+import com.rebuild.server.business.charts.ChartsFactory;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
@@ -141,7 +141,7 @@ public class ChartDesignControll extends BaseEntityControll {
 	public void chartSave(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		JSON formJson = ServletUtils.getRequestJson(request);
-		
+
 		Record record = EntityHelper.parse((JSONObject) formJson, user);
 		ID dashid = null;
 		if (record.getPrimary() == null) {
@@ -170,4 +170,12 @@ public class ChartDesignControll extends BaseEntityControll {
 		JSONObject ret = JSONUtils.toJSONObject("id", record.getPrimary());
 		writeSuccess(response, ret);
 	}
+
+    @RequestMapping("/chart-delete")
+    public void chartDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	    // TODO 不能删除他人图表
+        ID chartId = getIdParameterNotNull(request, "id");
+        Application.getBean(ChartConfigService.class).delete(chartId);
+        writeSuccess(response);
+    }
 }

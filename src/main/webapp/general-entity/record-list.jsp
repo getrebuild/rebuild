@@ -36,7 +36,7 @@
 					</div>
 					<div class="tab-pane" id="asideWidgets">
 						<div class="charts-wrap"></div>
-						<div class="text-center"><button class="btn btn-secondary J_add-chart"><i class="icon zmdi zmdi-plus"></i> 添加图表</button></div>
+						<div class="text-center"><button class="btn btn-secondary J_add-chart"><i class="icon zmdi zmdi-plus"></i> 选择图表</button></div>
 					</div>
 				</div>
 			</div>

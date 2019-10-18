@@ -29,6 +29,8 @@ import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.ConfigManager;
 import com.rebuild.server.service.bizz.UserService;
 
+import java.util.Iterator;
+
 /**
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/06/04
@@ -80,15 +82,18 @@ public class ChartManager implements ConfigManager<ID> {
 	 * @param charts
 	 */
 	protected void richingCharts(JSONArray charts) {
-		for (Object o : charts) {
-			JSONObject ch = (JSONObject) o;
-			ID chartid = ID.valueOf(ch.getString("chart"));
-			ConfigEntry e = getChart(chartid);
-			if (e != null) {
-				ch.put("title", e.getString("title"));
-				ch.put("type", e.getString("type"));
-			}
-		}
+        for (Iterator<Object> iter = charts.iterator(); iter.hasNext(); ) {
+            JSONObject ch = (JSONObject) iter.next();
+            ID chartid = ID.valueOf(ch.getString("chart"));
+            ConfigEntry e = getChart(chartid);
+            if (e == null) {
+                iter.remove();
+                continue;
+            }
+
+            ch.put("title", e.getString("title"));
+            ch.put("type", e.getString("type"));
+        }
 	}
 
 	@Override

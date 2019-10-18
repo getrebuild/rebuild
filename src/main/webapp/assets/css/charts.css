@@ -48,7 +48,7 @@
 	color: #aaa;
 	display: inline-block;
 	height: 20px;
-	margin-left: 12px;
+	margin-left: 10px;
 	padding-left: 3px;
 }
 
@@ -251,6 +251,20 @@
 .chart-list>div:hover .btn {
 	background-color: #4285f4;
 	color: #fff;
+}
+
+.chart-list>div .delete {
+	font-size: 1.2rem;
+	color: #a1a1a1;
+	display: inline-block;
+	padding: 8px;
+	margin-top: 3px;
+	margin-right: 6px;
+	display: none;
+}
+
+.chart-list>div:hover .delete {
+	display: block;
 }
 
 .chart-list>div .chart-icon {

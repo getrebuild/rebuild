@@ -262,7 +262,9 @@ class DlgDashSettings extends RbFormHandler {
     })
   }
   delete() {
-    RbAlert.create('确认删除此仪表盘？', {
+    RbAlert.create('确认删除此仪表盘吗？', {
+      type: 'danger',
+      confirmText: '删除',
       confirm: function () {
         $.post(rb.baseUrl + '/app/entity/record-delete?id=' + dashid, function (res) {
           // if (res.error_code === 0) location.replace('home#del=' + dashid)  // Chrome no refresh?
