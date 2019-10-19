@@ -122,7 +122,7 @@ class RbList extends React.Component {
     })
 
     // 首次由 AdvFilter 加载
-    if (wpc.advFilter === false) this.fetchList(this.__buildQuick($('.input-search')))
+    if (wpc.advFilter !== true) this.fetchList(this.__buildQuick($('.input-search')))
   }
   componentDidUpdate() {
     let that = this
