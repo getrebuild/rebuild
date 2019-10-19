@@ -472,9 +472,7 @@ const RbListPage = {
 
     const that = this
 
-    $('.J_new').click(() => {
-      RbFormModal.create({ title: `新建${entity[1]}`, entity: entity[0], icon: entity[2] })
-    })
+    $('.J_new').click(() => RbFormModal.create({ title: `新建${entity[1]}`, entity: entity[0], icon: entity[2] }))
     $('.J_edit').click(() => {
       let ids = this._RbList.getSelectedIds()
       if (ids.length >= 1) {
@@ -900,7 +898,8 @@ $(document).ready(() => {
       let el = $('.rb-aside').toggleClass('rb-aside-collapsed')
       $storage.set('rb-aside-collapsed', el.hasClass('rb-aside-collapsed'))
     })
-    if ($storage.get('rb-aside-collapsed') === 'true') $('.rb-aside').addClass('rb-aside-collapsed')
+    // 默认不展开
+    if ($storage.get('rb-aside-collapsed') === 'false') $('.rb-aside').removeClass('rb-aside-collapsed')
 
     let $content = $('.page-aside .tab-content')
     let hold = window.resize_handler

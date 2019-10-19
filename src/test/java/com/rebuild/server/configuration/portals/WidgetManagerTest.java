@@ -18,11 +18,17 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
+import cn.devezhao.persist4j.Record;
+import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
+import com.rebuild.server.configuration.ConfigEntry;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserService;
+import com.rebuild.server.service.configuration.WidgetConfigService;
+import com.rebuild.utils.JSONUtils;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -30,8 +36,28 @@ import static org.junit.Assert.*;
  */
 public class WidgetManagerTest extends TestSupport {
 
+    @Before
+    public void setUp() throws Exception {
+        Application.getSessionStore().set(SIMPLE_USER);
+    }
+    @After
+    public void tearDown() throws Exception {
+        Application.getSessionStore().clean();
+    }
+
     @Test
     public void getDataListChart() {
-        WidgetManager.instance.getDataListChart(UserService.ADMIN_USER, TEST_ENTITY);
+        Record config = EntityHelper.forNew(EntityHelper.WidgetConfig, SIMPLE_USER);
+        config.setString("config", JSONUtils.EMPTY_ARRAY_STR);
+        config.setString("belongEntity", TEST_ENTITY);
+        config.setString("applyType", WidgetManager.TYPE_DATALIST);
+        config = Application.getBean(WidgetConfigService.class).createOrUpdate(config);
+
+        ConfigEntry configEntry = WidgetManager.instance.getDataListChart(UserService.ADMIN_USER, TEST_ENTITY);
+        System.out.println(configEntry);
+
+        Application.getBean(WidgetConfigService.class).delete(config.getPrimary());
+        configEntry = WidgetManager.instance.getDataListChart(UserService.ADMIN_USER, TEST_ENTITY);
+        System.out.println(configEntry);
     }
 }

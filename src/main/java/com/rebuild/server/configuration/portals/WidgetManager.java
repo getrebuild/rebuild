@@ -30,8 +30,11 @@ import com.rebuild.server.configuration.ConfigEntry;
  */
 public class WidgetManager extends SharableManager<ID> {
 
+
     public static final WidgetManager instance = new WidgetManager();
     private WidgetManager() { }
+
+    public static final String TYPE_DATALIST = BaseLayoutManager.TYPE_DATALIST;
 
     /**
      * 列表页图表
@@ -41,7 +44,7 @@ public class WidgetManager extends SharableManager<ID> {
      * @return
      */
     public ConfigEntry getDataListChart(ID user, String entity) {
-        ID detected = detectUseConfig(user, "WidgetConfig", entity, BaseLayoutManager.TYPE_DATALIST);
+        ID detected = detectUseConfig(user, "WidgetConfig", entity, WidgetManager.TYPE_DATALIST);
         if (detected == null) {
             return null;
         }

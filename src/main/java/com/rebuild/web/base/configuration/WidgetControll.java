@@ -24,7 +24,6 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
-import com.rebuild.server.configuration.portals.BaseLayoutManager;
 import com.rebuild.server.configuration.portals.WidgetManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.configuration.WidgetConfigService;
@@ -62,8 +61,8 @@ public class WidgetControll extends BaseControll implements PortalsConfiguration
         if (cfgid == null) {
             record = EntityHelper.forNew(EntityHelper.WidgetConfig, user);
             record.setString("belongEntity", entity);
-            record.setString("applyType", BaseLayoutManager.TYPE_DATALIST);
-            record.setString("shareTo", BaseLayoutManager.SHARE_SELF);
+            record.setString("applyType", WidgetManager.TYPE_DATALIST);
+            record.setString("shareTo", WidgetManager.SHARE_SELF);
         } else {
             record = EntityHelper.forUpdate(cfgid, user);
         }
