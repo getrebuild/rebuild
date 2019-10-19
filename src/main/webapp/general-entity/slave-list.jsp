@@ -3,10 +3,11 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/charts.css">
 <title>${entityLabel}列表</title>
 </head>
 <body>
-<div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo">
+<div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-aside-collapsed">
 	<jsp:include page="/_include/NavTop.jsp">
 		<jsp:param value="${entityLabel}列表" name="pageTitle"/>
 	</jsp:include>
@@ -14,6 +15,31 @@
 		<jsp:param value="nav_entity-${masterEntity}" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
+		<aside class="page-aside widgets">
+			<a class="side-toggle" title="展开/收缩面板"><i class="zmdi zmdi-arrow-left"></i></a>
+			<div class="tab-container">
+				<ul class="nav nav-tabs">
+					<li class="nav-item"><a class="nav-link active" href="#asideFilters" data-toggle="tab">常用查询</a></li>
+					<li class="nav-item"><a class="nav-link J_load-chart" href="#asideWidgets" data-toggle="tab">图表</a></li>
+				</ul>
+				<div class="tab-content rb-scroller">
+					<div class="tab-pane active" id="asideFilters">
+						<div class="ph-item rb">
+							<div class="ph-col-12 p-0">
+								<div class="ph-row">
+									<div class="ph-col-12 big"></div>
+									<div class="ph-col-12 big"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="tab-pane" id="asideWidgets">
+						<div class="charts-wrap"></div>
+						<div class="text-center"><button class="btn btn-secondary J_add-chart"><i class="icon zmdi zmdi-plus"></i> 选择图表</button></div>
+					</div>
+				</div>
+			</div>
+		</aside>
 		<div class="main-content container-fluid">
 			<ul class="nav nav-tabs nav-tabs-classic">
 				<li class="nav-item"><a href="../${masterEntity}/list" class="nav-link"><span class="icon zmdi zmdi-${masterEntityIcon}"></span> ${masterEntityLabel}</a></li>
@@ -76,5 +102,8 @@ window.__PageConfig = {
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms.exts.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-approval.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/lib/charts/echarts.min.js"></script>
+<script src="${baseUrl}/assets/js/charts/charts.jsx" type="text/babel"></script>
 </body>
 </html>

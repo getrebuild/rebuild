@@ -28,9 +28,8 @@ $(function () {
       })
     })
     __initNavs()
+    setTimeout(__globalSearch, 200)
   }
-
-  setTimeout(__globalSearch, 200)
 
   if (rb.isAdminUser === true) {
     $('html').addClass('admin')
@@ -77,8 +76,7 @@ var __initNavs = function () {
   } else {
     $('.rb-toggle-left-sidebar').click(function () {
       var el = $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
-      var collapsed = el.hasClass('rb-collapsible-sidebar-collapsed')
-      $storage.set('rb-sidebar-collapsed', collapsed)
+      $storage.set('rb-sidebar-collapsed', el.hasClass('rb-collapsible-sidebar-collapsed'))
       $('.sidebar-elements>li>a').tooltip('toggleEnabled')
       $(window).trigger('resize')
     })

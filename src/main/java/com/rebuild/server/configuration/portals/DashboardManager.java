@@ -22,15 +22,11 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.RoleService;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
-
-import java.util.Iterator;
 
 /**
  * 首页仪表盘
@@ -50,17 +46,17 @@ public class DashboardManager extends SharableManager<ID> {
 	 * @return
 	 */
 	public JSON getDashList(ID user) {
-		ID configHave = detectUseConfig(user, "DashboardConfig", null, null);
+		ID detected = detectUseConfig(user, "DashboardConfig", null, null);
 		// 没有就初始化一个
-		if (configHave == null) {
+		if (detected == null) {
 			Record record = EntityHelper.forNew(EntityHelper.DashboardConfig, user);
 			record.setString("config", JSONUtils.EMPTY_ARRAY_STR);
 			record.setString("title", UserHelper.isAdmin(user) ? "默认仪表盘" : "我的仪表盘");
 			record.setString("shareTo", UserHelper.isAdmin(user) ? SHARE_ALL : SHARE_SELF);
-			record = Application.getCommonService().create(record);
-			configHave = record.getPrimary();
+			Application.getCommonService().create(record);
 		}
-		
+
+		// TODO 仪表盘列表
 		String sql = "select configId,title,config,createdBy,shareTo from DashboardConfig where ";
 		if (UserHelper.isAdmin(user)) {
 			sql += String.format("createdBy.roleId = '%s'", RoleService.ADMIN_ROLE.toLiteral());
@@ -72,38 +68,15 @@ public class DashboardManager extends SharableManager<ID> {
 		
 		// 补充图表标题
 		for (int i = 0; i < array.length; i++) {
-			JSONArray config = JSON.parseArray((String) array[i][2]);
-			for (Iterator<Object> iter = config.iterator(); iter.hasNext(); ) {
-				JSONObject item = (JSONObject) iter.next();
-				if (!paddingChartInfo(item)) {
-					iter.remove();
-				}
-			}
-			
-			array[i][2] = config;
+			JSONArray charts = JSON.parseArray((String) array[i][2]);
+			ChartManager.instance.richingCharts(charts);
+			array[i][2] = charts;
 			array[i][3] = isEditable(user, (ID) array[i][0]);
 		}
-		
+
 		return (JSON) JSON.toJSON(array);
 	}
-	
-	// 补充图表信息
-	private boolean paddingChartInfo(JSONObject chart) {
-		String chartid = chart.getString("chart");
-		if (!ID.isId(chartid)) {
-			return false;
-		}
-		
-		ConfigEntry config = ChartManager.instance.getChart(ID.valueOf(chartid));
-		if (config == null) {
-			return false;
-		}
-		
-		chart.put("title", config.getString("title"));
-		chart.put("type", config.getString("type"));
-		return true;
-	}
-	
+
 	/**
 	 * 是否允许修改
 	 * 

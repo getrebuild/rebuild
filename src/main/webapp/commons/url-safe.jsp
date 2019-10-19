@@ -3,7 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp" %>
-<title>${appName}</title>
+<title>安全提示</title>
 <style type="text/css">
 .safe-tips {
     background-color: #fff;
@@ -55,12 +55,14 @@
                         <span class="text">${outerUrl}</span>
                     </div>
                     <div class="clearfix"></div>
-                    <a class="btn btn-danger bordered" href="${outerUrl}">继续访问</a>
+                    <a class="btn btn-danger bordered" href="${outerUrl}" rel="noopener">继续访问</a>
+                    <a class="btn btn-link" onclick="window.close()">关闭</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<div class="copyright fixed">&copy; ${appName}</div>
 <%@ include file="/_include/Foot.jsp" %>
 </body>
 </html>

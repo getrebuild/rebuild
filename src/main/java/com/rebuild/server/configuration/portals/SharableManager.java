@@ -72,6 +72,7 @@ public abstract class SharableManager<T> implements ConfigManager<T> {
 
         String cacheKey = String.format("%s-%s-%s", configEntity, belongEntity, applyType);
         Object[][] cached = (Object[][]) Application.getCommonCache().getx(cacheKey);
+//		cached = null;
 		if (cached == null) {
 		    List<String> sqlWhere = new ArrayList<>();
             if (belongEntity != null) {
@@ -165,7 +166,7 @@ public abstract class SharableManager<T> implements ConfigManager<T> {
 	}
 	
 	/**
-	 * 是否是自己的配置
+	 * 是否是自己的配置（不是自己的不能改）
 	 * 
 	 * @param user
 	 * @param configOrUser 配置ID 或 用戶ID

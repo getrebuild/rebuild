@@ -55,8 +55,8 @@
 <script src="${baseUrl}/assets/lib/charts/lodash.min.js"></script>
 <script src="${baseUrl}/assets/lib/charts/gridstack.all.js"></script>
 <script src="${baseUrl}/assets/lib/charts/echarts.min.js"></script>
-<script src="${baseUrl}/assets/js/rb-approval.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/charts/charts.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-approval.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/charts/dashboard.jsx" type="text/babel"></script>
 </body>
 </html>

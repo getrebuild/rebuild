@@ -46,24 +46,31 @@ $(document).ready(function () {
 
     if (dash_editable !== true) $('.J_dash-edit, .J_chart-adds').remove()
 
-    $('.J_dash-new').click(() => { dlgShow('DlgDashAdd') })
-    $('.J_dash-edit').click(() => { dlgShow('DlgDashSettings', { title: d[1], shareToAll: d[4] === 'ALL' }) })
-    $('.J_chart-new').click(() => { dlgShow('DlgAddChart') })
-    $('.J_dash-select').click(() => { dlgShow('DashSelect', { dashList: dash_list }) })
+    $('.J_dash-new').click(() => dlgShow('DlgDashAdd'))
+    $('.J_dash-edit').click(() => dlgShow('DlgDashSettings', { title: d[1], shareToAll: d[4] === 'ALL' }))
+    $('.J_chart-new').click(() => dlgShow('DlgAddChart'))
+    $('.J_dash-select').click(() => dlgShow('DashSelect', { dashList: dash_list }))
     let dlgChartSelect
     $('.J_chart-select').click(() => {
-      if (dlgChartSelect) dlgChartSelect.show()
-      else {
-        renderRbcomp(<ChartSelect key="ChartSelect" />, null, function () {
-          dlgChartSelect = this
-          let appended = []
-          $('.grid-stack-item-content').each(function () {
-            let chid = $(this).attr('id').substr(6)
-            appended.push(chid)
-          })
-          this.setState({ appended: appended })
-        })
+      let appended = []
+      $('.grid-stack-item-content').each(function () {
+        appended.push($(this).attr('id').substr(6))
+      })
+
+      if (dlgChartSelect) {
+        dlgChartSelect.show()
+        dlgChartSelect.setState({ appended: appended })
+        return
       }
+
+      let select = function (chart) {
+        chart.w = chart.h = 4
+        add_widget(chart)
+      }
+      renderRbcomp(<ChartSelect key="ChartSelect" select={select} />, null, function () {
+        dlgChartSelect = this
+        this.setState({ appended: appended })
+      })
     })
   }))
 
@@ -164,7 +171,7 @@ let save_dashboard = function () {
   $setTimeout(() => {
     $.post(rb.baseUrl + '/dashboard/dash-config?id=' + dashid, JSON.stringify(gridstack_serialize), () => {
       // eslint-disable-next-line no-console
-      console.log('Saved dashboard: ' + JSON.stringify(gridstack_serialize))
+      if (rb.env === 'dev') console.log('Saved dashboard: ' + JSON.stringify(gridstack_serialize))
     })
   }, 500, 'save-dashboard')
 }
@@ -193,7 +200,7 @@ class DlgAddChart extends RbFormHandler {
   }
   componentDidMount() {
     let entity_el = $(this.refs['entity'])
-    $.get(rb.baseUrl + '/commons/metadata/entities', (res) => {
+    $.get(rb.baseUrl + '/commons/metadata/entities?slave=true', (res) => {
       $(res.data).each(function () {
         $('<option value="' + this.name + '">' + this.label + '</option>').appendTo(entity_el)
       })
@@ -239,7 +246,7 @@ class DlgDashSettings extends RbFormHandler {
           </div>
         </div>
       </div>
-    </RbModal >)
+    </RbModal>)
   }
   save() {
     let _data = { shareTo: this.state.shareToAll === true ? 'ALL' : 'SELF', title: this.state.title || '默认仪表盘' }
@@ -255,8 +262,11 @@ class DlgDashSettings extends RbFormHandler {
     })
   }
   delete() {
-    RbAlert.create('确认删除此仪表盘？', {
+    RbAlert.create('确认删除此仪表盘吗？', {
+      type: 'danger',
+      confirmText: '删除',
       confirm: function () {
+        this.disabled(true)
         $.post(rb.baseUrl + '/app/entity/record-delete?id=' + dashid, function (res) {
           // if (res.error_code === 0) location.replace('home#del=' + dashid)  // Chrome no refresh?
           if (res.error_code === 0) location.reload()
@@ -341,65 +351,4 @@ class DashSelect extends React.Component {
   componentDidMount = () => $(this._dlg).modal({ show: true, keyboard: true })
   hide = () => $(this._dlg).modal('hide')
   show = () => $(this._dlg).modal('show')
-}
-
-// 从已有图表中选择图表
-// 添加的图表会在多个仪表盘共享（本身就是一个），修改时会同步修改
-class ChartSelect extends RbModalHandler {
-  constructor(props) {
-    super(props)
-    this.state = { chartList: [], appended: props.appended || [], tabActive: '#all' }
-  }
-  render() {
-    return (<RbModal ref={(c) => this._dlg = c} title="添加已有图表">
-      <div className="row chart-list-wrap">
-        <div className="col-3">
-          <div className="nav flex-column nav-pills">
-            <a href="#all" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#all' ? 'active' : ''}`}>全部</a>
-            <a href="#myself" onClick={this.switchTab} className={`nav-link hide ${this.state.tabActive === '#myself' ? 'active' : ''}`}>我自己的</a>
-            <a href="#builtin" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#builtin' ? 'active' : ''}`}>内置图表</a>
-          </div>
-        </div>
-        <div className="col-9 pl-0">
-          <div className="chart-list">
-            {this.state.chartList.map((item) => {
-              return (<div key={'k-' + item[0]}>
-                <span className="float-left chart-icon"><i className={item[2]}></i></span>
-                <span className="float-left title">
-                  <strong>{item[1]}</strong>
-                  <p className="text-muted fs-12">{item[3]}</p>
-                </span>
-                <span className="float-right">
-                  {this.state.appended.contains(item[0])
-                    ? <a className='btn disabled' data-id={item[0]}>已添加</a>
-                    : <a className='btn' onClick={() => this.chartAppend(item)} >添加</a>}
-                </span>
-                <div className="clearfix"></div>
-              </div>)
-            })}
-          </div>
-        </div>
-      </div>
-    </RbModal>)
-  }
-  componentDidMount = () => this.loadCharts()
-
-  loadCharts() {
-    $.get(rb.baseUrl + '/dashboard/chart-list?type=' + this.state.tabActive.substr(1), (res) => {
-      this.setState({ chartList: res.data })
-    })
-  }
-
-  chartAppend(item) {
-    add_widget({ chart: item[0], title: item[1], type: item[2], w: 4, h: 4 })
-    let s = this.state.appended
-    s.push(item[0])
-    this.setState({ appended: s })
-  }
-
-  switchTab = (e) => {
-    e.preventDefault()
-    let t = $(e.target).attr('href')
-    this.setState({ tabActive: t }, () => this.loadCharts())
-  }
 }

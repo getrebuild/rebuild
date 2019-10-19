@@ -92,6 +92,7 @@ class RbList extends React.Component {
       window.resize_handler = function () {
         typeof hold === 'function' && hold()
         let maxHeight = $(window).height() - 214
+        if ($('.main-content>.nav-tabs-classic').length > 0) maxHeight -= 42  // Has tab
         scroller.css({ maxHeight: maxHeight })
         scroller.perfectScrollbar('update')
       }
@@ -120,7 +121,8 @@ class RbList extends React.Component {
       }
     })
 
-    this.fetchList(this.__buildQuick($('.input-search')))
+    // 首次由 AdvFilter 加载
+    if (wpc.advFilter === false) this.fetchList(this.__buildQuick($('.input-search')))
   }
   componentDidUpdate() {
     let that = this
@@ -280,8 +282,7 @@ class RbList extends React.Component {
   }
   getSelectedIds() {
     if (!this.__selectedRows || this.__selectedRows.length < 1) { RbHighbar.create('未选中任何记录'); return [] }
-    let ids = this.__selectedRows.map((item) => { return item[0] })
-    return ids
+    return this.__selectedRows.map((item) => { return item[0] })
   }
   search(filter, fromAdv) {
     let afHold = this.advFilter
@@ -301,8 +302,7 @@ class RbList extends React.Component {
   __buildQuick(el) {
     let q = el.find('input').val()
     if (!q && !this.lastFilter) return null
-    let filterExp = { entity: this.props.config.entity, type: 'QUICK', values: { 1: q }, qfields: el.data('qfields') }
-    return filterExp
+    return { entity: this.props.config.entity, type: 'QUICK', values: { 1: q }, qfields: el.data('qfields') }
   }
   reload() {
     this.fetchList()
@@ -472,9 +472,7 @@ const RbListPage = {
 
     const that = this
 
-    $('.J_new').click(() => {
-      RbFormModal.create({ title: `新建${entity[1]}`, entity: entity[0], icon: entity[2] })
-    })
+    $('.J_new').click(() => RbFormModal.create({ title: `新建${entity[1]}`, entity: entity[0], icon: entity[2] }))
     $('.J_edit').click(() => {
       let ids = this._RbList.getSelectedIds()
       if (ids.length >= 1) {
@@ -549,34 +547,25 @@ const AdvFilters = {
       this.showAdvFilter(null, this.current)
       this.current = null
     })
-    // $ALL$
-    $('.adv-search .dropdown-item:eq(0)').click(() => {
-      $('.adv-search .J_name').text('全部数据')
-      RbListPage._RbList.setAdvFilter(null)
-      this.current = null
-    })
+    let $all = $('.adv-search .dropdown-item:eq(0)')  // All
+    $all.click(() => this.__effectFilter($all, 'aside'))
 
     this.loadFilters()
   },
 
   loadFilters() {
-    let dFilter = $storage.get(RbListPage._RbList.__defaultFilterKey)
-    let that = this
+    const dFilter = $storage.get(RbListPage._RbList.__defaultFilterKey)
+    const that = this
+    let dFilterItem
     $.get(`${rb.baseUrl}/app/${this.__entity}/advfilter/list`, function (res) {
       $('.adv-search .J_custom').each(function () { $(this).remove() })
 
+      let $menu = $('.adv-search .dropdown-menu')
       $(res.data).each(function () {
         const _data = this
-        let item = $('<div class="dropdown-item J_custom" data-id="' + _data.id + '"><a class="text-truncate">' + _data.name + '</a></div>').appendTo('.adv-search .dropdown-menu')
-        item.click(function () {
-          $('.adv-search .J_name').text(_data.name)
-          RbListPage._RbList.setAdvFilter(_data.id)
-          that.current = _data.id
-        })
-        if (dFilter === _data.id) {
-          $('.adv-search .J_name').text(_data.name)
-          that.current = _data.id
-        }
+        let item = $('<div class="dropdown-item J_custom" data-id="' + _data.id + '"><a class="text-truncate">' + _data.name + '</a></div>').appendTo($menu)
+        item.click(() => that.__effectFilter(item, 'aside'))
+        if (dFilter === _data.id) dFilterItem = item
 
         // 可修改
         if (_data.editable) {
@@ -607,7 +596,42 @@ const AdvFilters = {
           })
         }
       })
+
+      // ASIDE
+      if ($('.rb-aside .page-aside').length > 0) {
+        let ghost = $('.adv-search .dropdown-menu').clone()
+        ghost.removeAttr('class')
+        ghost.removeAttr('style')
+        ghost.removeAttr('data-ps-id')
+        ghost.find('.ps-scrollbar-x-rail, .ps-scrollbar-y-rail').remove()
+        ghost.find('.dropdown-item').click(function () {
+          ghost.find('.dropdown-item').removeClass('active')
+          $(this).addClass('active')
+          that.__effectFilter($(this), 'aside')
+        })
+        ghost.appendTo($('#asideFilters').empty())
+      }
+
+      if (!dFilterItem) dFilterItem = $('.adv-search .dropdown-item:eq(0)')
+      dFilterItem.trigger('click')
     })
+  },
+
+  __effectFilter(item, rel) {
+    this.current = item.data('id')
+    $('.adv-search .J_name').text(item.find('>a').text())
+    if (rel === 'aside') {
+      let current_id = this.current
+      $('#asideFilters .dropdown-item').removeClass('active').each(function () {
+        if ($(this).data('id') === current_id) {
+          $(this).addClass('active')
+          return false
+        }
+      })
+    }
+
+    if (this.current === '$ALL$') this.current = null
+    RbListPage._RbList.setAdvFilter(this.current)
   },
 
   showAdvFilter(id, copyId) {
@@ -786,6 +810,76 @@ class RbViewModal extends React.Component {
   }
 }
 
+window.chart_remove = function (box) {
+  box.parent().animate({ opacity: 0 }, function () {
+    box.parent().remove()
+    ChartsWidget.saveWidget()
+  })
+}
+// 列表图表部件
+const ChartsWidget = {
+
+  init: function () {
+    // eslint-disable-next-line no-undef
+    ECHART_Base.grid = { left: 40, right: 20, top: 30, bottom: 20 }
+
+    $('.J_load-chart').click(() => { if (this.chartLoaded !== true) this.loadWidget() })
+    $('.J_add-chart').click(() => this.showChartSelect())
+
+    $('.charts-wrap').sortable({
+      handle: '.chart-title',
+      axis: 'y',
+      update: () => ChartsWidget.saveWidget()
+    }).disableSelection()
+  },
+
+  showChartSelect: function () {
+    if (this.__chartSelect) {
+      this.__chartSelect.show()
+      this.__chartSelect.setState({ appended: ChartsWidget.__currentCharts() })
+      return
+    }
+    renderRbcomp(<ChartSelect select={(c) => this.renderChart(c, true)} entity={wpc.entity[0]} />, null, function () {
+      ChartsWidget.__chartSelect = this
+      this.setState({ appended: ChartsWidget.__currentCharts() })
+    })
+  },
+
+  renderChart: function (chart, append) {
+    let w = $(`<div id="chart-${chart.chart}"></div>`).appendTo('.charts-wrap')
+    // eslint-disable-next-line no-undef
+    renderRbcomp(detectChart(chart, chart.chart), w, function () {
+      if (append) ChartsWidget.saveWidget()
+    })
+  },
+
+  loadWidget: function () {
+    $.get(`${rb.baseUrl}/app/${wpc.entity[0]}/widget-charts`, (res) => {
+      this.chartLoaded = true
+      this.__config = res.data || {}
+      res.data && $(res.data.config).each((idx, chart) => this.renderChart(chart))
+    })
+  },
+
+  saveWidget: function () {
+    let charts = this.__currentCharts(true)
+    $.post(`${rb.baseUrl}/app/${wpc.entity[0]}/widget-charts?id=${this.__config.id || ''}`, JSON.stringify(charts), (res) => {
+      ChartsWidget.__config.id = res.data
+      $('.page-aside .tab-content').perfectScrollbar('update')
+    })
+  },
+
+  __currentCharts: function (o) {
+    let charts = []
+    $('.charts-wrap>div').each((function () {
+      let id = $(this).attr('id').substr(6)
+      if (o) charts.push({ chart: id })
+      else charts.push(id)
+    }))
+    return charts
+  }
+}
+
 $(document).ready(() => {
   // 自动打开 View
   let viewHash = location.hash
@@ -796,5 +890,25 @@ $(document).ready(() => {
         RbViewModal.create({ entity: viewHash[2], id: viewHash[3] })
       }, 500)
     }
+  }
+
+  // ASIDE
+  if ($('.rb-aside .page-aside').length > 0) {
+    $('.side-toggle').click(() => {
+      let el = $('.rb-aside').toggleClass('rb-aside-collapsed')
+      $storage.set('rb-aside-collapsed', el.hasClass('rb-aside-collapsed'))
+    })
+    // 默认不展开
+    if ($storage.get('rb-aside-collapsed') === 'false') $('.rb-aside').removeClass('rb-aside-collapsed')
+
+    let $content = $('.page-aside .tab-content')
+    let hold = window.resize_handler
+    window.resize_handler = function () {
+      typeof hold === 'function' && hold()
+      $content.height($(window).height() - 147)
+      $content.perfectScrollbar('update')
+    }
+    window.resize_handler()
+    ChartsWidget.init()
   }
 })

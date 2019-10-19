@@ -81,7 +81,8 @@
         "ConfigList": true,
         "ConfigFormDlg": true,
         "RbPreview": true,
-        "$countdownButton": true
+        "$countdownButton": true,
+        "ChartSelect": true
     },
     "rules": {
         "strict": 0,

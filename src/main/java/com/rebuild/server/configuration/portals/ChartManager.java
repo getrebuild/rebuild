@@ -20,12 +20,16 @@ package com.rebuild.server.configuration.portals;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.charts.ChartsFactory;
 import com.rebuild.server.business.charts.builtin.BuiltinChart;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.ConfigManager;
 import com.rebuild.server.service.bizz.UserService;
+
+import java.util.Iterator;
 
 /**
  * @author devezhao-mbp zhaofang123@gmail.com
@@ -71,8 +75,27 @@ public class ChartManager implements ConfigManager<ID> {
 		Application.getCommonCache().putx(ckey, entry);
 		return entry.clone();
 	}
-	
-	
+
+	/**
+	 * 丰富图表数据 title, type
+	 *
+	 * @param charts
+	 */
+	protected void richingCharts(JSONArray charts) {
+        for (Iterator<Object> iter = charts.iterator(); iter.hasNext(); ) {
+            JSONObject ch = (JSONObject) iter.next();
+            ID chartid = ID.valueOf(ch.getString("chart"));
+            ConfigEntry e = getChart(chartid);
+            if (e == null) {
+                iter.remove();
+                continue;
+            }
+
+            ch.put("title", e.getString("title"));
+            ch.put("type", e.getString("type"));
+        }
+	}
+
 	@Override
 	public void clean(ID cacheKey) {
 		Application.getCommonCache().evict("Chart-" + cacheKey);
