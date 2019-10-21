@@ -198,7 +198,9 @@ public abstract class ShareToManager<T> implements ConfigManager<T> {
      * @return
      */
     final protected String formatCacheKey(String belongEntity, String applyType) {
-        return String.format("%s-%s-%s.V6", getConfigEntity(), belongEntity, applyType).toUpperCase();
+        return String.format("%s-%s-%s.V6", getConfigEntity(),
+                StringUtils.defaultIfBlank(belongEntity, "N"),
+                StringUtils.defaultIfBlank(applyType, "N")).toUpperCase();
     }
 
     /**
