@@ -30,7 +30,6 @@ import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.bizz.DepartmentService;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.bizz.privileges.Department;
 import com.rebuild.server.service.bizz.privileges.User;
@@ -62,7 +61,7 @@ public class UserControll extends BaseEntityControll {
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
 		ID user = getRequestUser(request);
 		ModelAndView mv = createModelAndView("/admin/bizuser/user-list.jsp", "User", user);
-		JSON config = DataListManager.instance.getColumnLayout("User", user);
+		JSON config = DataListManager.instance.getFieldsLayout("User", user);
 		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
 		return mv;
 	}

@@ -26,7 +26,7 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.portals.AdvFilterManager;
-import com.rebuild.server.configuration.portals.SharableManager;
+import com.rebuild.server.configuration.portals.ShareToManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.configuration.AdvFilterService;
@@ -97,7 +97,7 @@ public class AdvFilterControll extends BaseControll implements PortalsConfigurat
 		}
 		
 		record.setString("config", filter.toJSONString());
-		record.setString("shareTo", toAll ? SharableManager.SHARE_ALL : SharableManager.SHARE_SELF);
+		record.setString("shareTo", toAll ? ShareToManager.SHARE_ALL : ShareToManager.SHARE_SELF);
 		Application.getBean(AdvFilterService.class).createOrUpdate(record);
 		
 		writeSuccess(response);

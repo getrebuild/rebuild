@@ -12,7 +12,7 @@ $(document).ready(function () {
   $.get(rb.baseUrl + '/dashboard/dash-gets', ((res) => {
     dash_list = res.data
     let d = dash_list[0]  // default
-    if (res.data.length > 1) {
+    if (dash_list.length > 1) {
       let dset = $storage.get('DashDefault')
       if (dset) {
         for (let i = 0; i < res.data.length; i++) {
@@ -25,9 +25,9 @@ $(document).ready(function () {
     }
 
     dashid = d[0]
-    dash_editable = d[3]
-    render_dashboard(d[2])
-    $('.dash-list h4').text(d[1])
+    dash_editable = d[2]
+    render_dashboard(d[3])
+    $('.dash-list h4').text(d[4])
 
     if (location.hash && location.hash.length > 20) {
       if (location.hash.substr(0, 5) === '#del=') {
@@ -47,7 +47,7 @@ $(document).ready(function () {
     if (dash_editable !== true) $('.J_dash-edit, .J_chart-adds').remove()
 
     $('.J_dash-new').click(() => dlgShow('DlgDashAdd'))
-    $('.J_dash-edit').click(() => dlgShow('DlgDashSettings', { title: d[1], shareToAll: d[4] === 'ALL' }))
+    $('.J_dash-edit').click(() => dlgShow('DlgDashSettings', { title: d[4], shareToAll: d[1] === 'ALL' }))
     $('.J_chart-new').click(() => dlgShow('DlgAddChart'))
     $('.J_dash-select').click(() => dlgShow('DashSelect', { dashList: dash_list }))
     let dlgChartSelect
@@ -338,7 +338,7 @@ class DashSelect extends React.Component {
               <div>
                 <ul className="list-unstyled">
                   {(this.props.dashList || []).map((item) => {
-                    return <li key={'dash-' + item[0]}><a href={'?d=' + item[0]}>{item[1]}<i className="icon zmdi zmdi-arrow-right"></i></a></li>
+                    return <li key={'dash-' + item[0]}><a href={'?d=' + item[0]}>{item[4]}<i className="icon zmdi zmdi-arrow-right"></i></a></li>
                   })}
                 </ul>
               </div>

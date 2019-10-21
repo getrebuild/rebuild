@@ -18,20 +18,18 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.junit.Test;
-import org.springframework.mock.web.MockServletContext;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
+import cn.devezhao.commons.web.WebUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.service.bizz.UserService;
+import org.junit.Test;
+import org.springframework.mock.web.MockServletContext;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import cn.devezhao.commons.web.WebUtils;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -41,7 +39,7 @@ public class NavManagerTest extends TestSupport {
 
 	@Test
 	public void testGetNav() throws Exception {
-		JSON nav = NavManager.instance.getNav(UserService.ADMIN_USER);
+		JSON nav = NavManager.instance.getNavLayout(UserService.ADMIN_USER);
 		if (nav != null) {
 			System.out.println("testGetNav .......... \n" + nav.toJSONString());
 		}

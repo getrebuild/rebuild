@@ -89,9 +89,9 @@ public class NavSettings extends BaseControll implements PortalsConfiguration {
 		if ("NEW".equalsIgnoreCase(cfgid)) {
 			writeSuccess(response);
 		} else if (ID.isId(cfgid)) {
-			writeSuccess(response, NavManager.instance.getNavById(ID.valueOf(cfgid)));
+			writeSuccess(response, NavManager.instance.getNavLayoutById(ID.valueOf(cfgid)));
 		} else {
-			writeSuccess(response, NavManager.instance.getNav(user));
+			writeSuccess(response, NavManager.instance.getNavLayout(user));
 		}
 	}
 

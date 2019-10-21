@@ -45,28 +45,27 @@ public class NavManager extends BaseLayoutManager {
 
 	public static final NavManager instance = new NavManager();
 	private NavManager() { }
-	
+
 	/**
 	 * @param user
 	 * @return
 	 */
-	public JSON getNav(ID user) {
+	public JSON getNavLayout(ID user) {
 		ConfigEntry config = getLayoutOfNav(user);
-		if (config == null) {
-			return null;
-		}
-		return config.toJSON();
+		return config == null ? null : config.toJSON();
 	}
 
 	/**
-	 * @param configId
+	 * @param cfgid
 	 * @return
 	 */
-	public JSON getNavById(ID configId) {
-		ConfigEntry config = getLayoutConfig(configId);
+	public JSON getNavLayoutById(ID cfgid) {
+		ConfigEntry config = getLayoutById(cfgid);
 		return config == null ? null : config.toJSON();
 	}
-	
+
+	// ----
+
 	/**
 	 * @param request
 	 * @return
@@ -127,8 +126,6 @@ public class NavManager extends BaseLayoutManager {
 		return false;
 	}
 
-    // --
-	
 	/**
 	 * @param item
 	 * @param activeNav

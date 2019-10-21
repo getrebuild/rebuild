@@ -21,64 +21,54 @@ package com.rebuild.server.configuration.portals;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
 
 /**
+ * 页面部件
+ *
  * @author devezhao
  * @since 2019/10/18
  */
-public class WidgetManager extends SharableManager<ID> {
-
+public class WidgetManager extends ShareToManager<ID> {
 
     public static final WidgetManager instance = new WidgetManager();
     private WidgetManager() { }
 
     public static final String TYPE_DATALIST = BaseLayoutManager.TYPE_DATALIST;
 
+    @Override
+    protected String getConfigEntity() {
+        return "WidgetConfig";
+    }
+
     /**
-     * 列表页图表
+     * 列表页-图表
      *
      * @param user
      * @param entity
      * @return
      */
     public ConfigEntry getDataListChart(ID user, String entity) {
-        ID detected = detectUseConfig(user, "WidgetConfig", entity, WidgetManager.TYPE_DATALIST);
+        ID detected = detectUseConfig(user, entity, TYPE_DATALIST);
         if (detected == null) {
             return null;
         }
 
-        String ckey = "DataListChart-" + detected;
-        ConfigEntry config = (ConfigEntry) Application.getCommonCache().getx(ckey);
-        if (config == null) {
-            Object[] o = Application.createQueryNoFilter(
-                    "select config from WidgetConfig where configId = ?")
-                    .setParameter(1, detected)
-                    .unique();
-            config = new ConfigEntry();
-            config.set("id", detected);
-            config.set("config", JSON.parseArray((String) o[0]));
-            Application.getCommonCache().putx(ckey, config);
-        }
+        Object[][] canUses = getUsesConfig(user, entity, TYPE_DATALIST);
+        for (Object[] c : canUses) {
+            if (!c[0].equals(detected)) continue;
 
-        JSONArray charts = (JSONArray) config.getJSON("config");
-        ChartManager.instance.richingCharts(charts);
-        config.set("config", charts);
-        return config;
+            JSONArray charts = JSON.parseArray((String) c[3]);
+            ChartManager.instance.richingCharts(charts);
+            return new ConfigEntry()
+                    .set("id", c[0])
+                    .set("config", charts);
+        }
+        return null;
     }
 
     @Override
     public void clean(ID cacheKey) {
-        Application.getCommonCache().evict("DataListChart-" + cacheKey);
-
-        Object[] c = Application.createQueryNoFilter(
-                "select belongEntity,applyType from WidgetConfig where configId = ?")
-                .setParameter(1, cacheKey)
-                .unique();
-        if (c != null) {
-            String ck = String.format("%s-%s-%s", "WidgetConfig", c[0], c[1]);
-            Application.getCommonCache().evict(ck);
-        }
+        cleanWithBelongEntity(cacheKey, true);
     }
 }

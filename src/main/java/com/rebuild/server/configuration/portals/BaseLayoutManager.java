@@ -20,6 +20,7 @@ package com.rebuild.server.configuration.portals;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
+import com.rebuild.server.RebuildException;
 import com.rebuild.server.configuration.ConfigEntry;
 
 import cn.devezhao.persist4j.engine.ID;
@@ -30,38 +31,43 @@ import cn.devezhao.persist4j.engine.ID;
  * @author zhaofang123@gmail.com
  * @since 09/15/2018
  */
-public class BaseLayoutManager extends SharableManager<ID> {
+public class BaseLayoutManager extends ShareToManager<ID> {
 	
 	public static final BaseLayoutManager instance = new BaseLayoutManager();
 	protected BaseLayoutManager() { }
-	
+
 	// 导航
 	public static final String TYPE_NAV = "NAV";
 	// 表单
 	public static final String TYPE_FORM = "FORM";
 	// 列表
 	public static final String TYPE_DATALIST = "DATALIST";
-	// 视图（相关项）
+	// 视图-相关项
 	public static final String TYPE_TAB = "TAB";
-	// 视图（新建相关）
+	// 视图-新建相关
 	public static final String TYPE_ADD = "ADD";
-	
-	/**
-	 * @param user
-	 * @param belongEntity
-	 * @return
-	 */
-	public ConfigEntry getLayoutOfForm(ID user, String belongEntity) {
-		return getLayoutConfig(user, belongEntity, TYPE_FORM);
+
+	@Override
+	protected String getConfigEntity() {
+		return "LayoutConfig";
 	}
-	
+
 	/**
 	 * @param user
-	 * @param belongEntity
+	 * @param entity
 	 * @return
 	 */
-	public ConfigEntry getLayoutOfDatalist(ID user, String belongEntity) {
-		return getLayoutConfig(user, belongEntity, TYPE_DATALIST);
+	public ConfigEntry getLayoutOfForm(ID user, String entity) {
+		return getLayout(user, entity, TYPE_FORM);
+	}
+
+	/**
+	 * @param user
+	 * @param entity
+	 * @return
+	 */
+	public ConfigEntry getLayoutOfDatalist(ID user, String entity) {
+		return getLayout(user, entity, TYPE_DATALIST);
 	}
 	
 	/**
@@ -69,67 +75,58 @@ public class BaseLayoutManager extends SharableManager<ID> {
 	 * @return
 	 */
 	public ConfigEntry getLayoutOfNav(ID user) {
-		return getLayoutConfig(user, null, TYPE_NAV);
+		return getLayout(user, null, TYPE_NAV);
 	}
-	
+
 	/**
 	 * @param user
 	 * @param belongEntity
 	 * @param applyType
 	 * @return
 	 */
-	public ConfigEntry getLayoutConfig(ID user, String belongEntity, String applyType) {
-		ID configUsed = detectUseConfig(user, belongEntity, applyType);
-		if (configUsed == null) {
+	public ConfigEntry getLayout(ID user, String belongEntity, String applyType) {
+		ID detected = detectUseConfig(user, belongEntity, applyType);
+		if (detected == null) {
 			return null;
 		}
-		return getLayoutConfig(configUsed);
+
+		Object[][] cached = getAllConfig(belongEntity, applyType);
+		for (Object[] c : cached) {
+			if (!c[0].equals(detected)) continue;
+			return new ConfigEntry()
+					.set("id", c[0])
+					.set("shareTo", c[1])
+					.set("config", JSON.parse((String) c[3]));
+		}
+		return null;
 	}
 
 	/**
-	 * @param configId
+	 * @param cfgid
 	 * @return
 	 */
-	protected ConfigEntry getLayoutConfig(ID configId) {
-		final String ckey = "BaseLayoutManager-" + configId;
-		ConfigEntry entry = (ConfigEntry) Application.getCommonCache().getx(ckey);
-		if (entry != null) {
-			return entry.clone();
+	public ConfigEntry getLayoutById(ID cfgid) {
+		Object[] o = Application.createQueryNoFilter(
+				"select belongEntity,applyType from LayoutConfig where configId = ?")
+				.setParameter(1, cfgid)
+				.unique();
+		if (o == null) {
+			throw new RebuildException("No config found : " + cfgid);
 		}
 
-		Object[] o = Application.createQueryNoFilter(
-				"select configId,config,shareTo from LayoutConfig where configId = ?")
-				.setParameter(1, configId)
-				.unique();
-		entry = new ConfigEntry()
-				.set("id", o[0])
-				.set("config", JSON.parse((String) o[1]))
-				.set("shareTo", o[2]);
-		Application.getCommonCache().putx(ckey, entry);
-		return entry.clone();
+		Object[][] cached = getAllConfig((String) o[0], (String) o[1]);
+		for (Object[] c : cached) {
+			if (!c[0].equals(cfgid)) continue;
+			return new ConfigEntry()
+					.set("id", c[0])
+					.set("shareTo", c[1])
+					.set("config", JSON.parse((String) c[3]));
+		}
+		return null;
 	}
 
-	/**
-	 * @param user
-	 * @param belongEntity
-	 * @param applyType
-	 * @return
-	 */
-	public ID detectUseConfig(ID user, String belongEntity, String applyType) {
-		return detectUseConfig(user, "LayoutConfig", belongEntity, applyType);
-	}
-	
 	@Override
 	public void clean(ID cacheKey) {
-		Application.getCommonCache().evict("BaseLayoutManager-" + cacheKey);
-
-		Object[] c = Application.createQueryNoFilter(
-		        "select belongEntity,applyType from LayoutConfig where configId = ?")
-                .setParameter(1, cacheKey)
-                .unique();
-		if (c != null) {
-            String ck = String.format("%s-%s-%s", "LayoutConfig", "N".equals(c[0]) ? null : c[0], c[1]);
-            Application.getCommonCache().evict(ck);
-        }
+		cleanWithBelongEntity(cacheKey, true);
 	}
 }

@@ -18,12 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import cn.devezhao.bizz.privileges.Permission;
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
@@ -31,14 +30,14 @@ import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
 
-import cn.devezhao.bizz.privileges.Permission;
-import cn.devezhao.bizz.privileges.impl.BizzPermission;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.engine.ID;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
- * 视图-相关项显示/新建相关
+ * 视图-相关项/新建相关
  * 
  * @author devezhao
  * @since 10/22/2018
@@ -49,59 +48,58 @@ public class ViewAddonsManager extends BaseLayoutManager {
 	private ViewAddonsManager() { }
 	
 	/**
-	 * @param belongEntity
+	 * @param entity
 	 * @param user
 	 * @return
 	 */
-	public JSON getViewTab(String belongEntity, ID user) {
-		JSON tabs = getViewAddons(belongEntity, user, TYPE_TAB);
-		
-		// 添加明细实体（如有）到第一个
-		Entity entityMeta = MetadataHelper.getEntity(belongEntity);
+	public JSON getViewTab(String entity, ID user) {
+		JSON tabs = getViewAddons(entity, user, TYPE_TAB);
+
+		// 添加明细实体到第一个（如有）
+		Entity entityMeta = MetadataHelper.getEntity(entity);
 		if (entityMeta.getSlaveEntity() != null) {
-			String shows[] = EasyMeta.getEntityShow(entityMeta.getSlaveEntity());
-			JSON tabsAll = (JSON) JSON.toJSON(new String[][] { shows });
-			((JSONArray) tabsAll).fluentAddAll((Collection<?>) tabs);
-			tabs = tabsAll;
+			String show[] = EasyMeta.getEntityShow(entityMeta.getSlaveEntity());
+			JSON allTabs = (JSON) JSON.toJSON(new String[][] { show });
+			((JSONArray) allTabs).fluentAddAll((Collection<?>) tabs);
+			tabs = allTabs;
 		}
 		return tabs;
 	}
 	
 	/**
-	 * @param belongEntity
+	 * @param entity
 	 * @param user
 	 * @return
 	 */
-	public JSON getViewAdd(String belongEntity, ID user) {
-		return getViewAddons(belongEntity, user, TYPE_ADD);
+	public JSON getViewAdd(String entity, ID user) {
+		return getViewAddons(entity, user, TYPE_ADD);
 	}
 	
 	/**
-	 * @param belongEntity
+	 * @param entity
 	 * @param user
 	 * @param applyType
 	 * @return
 	 */
-	private JSON getViewAddons(String belongEntity, ID user, String applyType) {
-		final ConfigEntry config = getLayoutConfig(user, belongEntity, applyType);
+	private JSON getViewAddons(String entity, ID user, String applyType) {
+		final ConfigEntry config = getLayout(user, entity, applyType);
 		final Permission useAction = TYPE_TAB.equals(applyType) ? BizzPermission.READ : BizzPermission.CREATE;
-		
+
 		// 未配置则使用全部相关项
 		if (config == null) {
 			Set<String[]> refs = new HashSet<>();
-			for (Field field : MetadataHelper.getEntity(belongEntity).getReferenceToFields(true)) {
+			for (Field field : MetadataHelper.getEntity(entity).getReferenceToFields(true)) {
 				Entity e = field.getOwnEntity();
 				if (e.getMasterEntity() != null) {
 					continue;
 				}
-
 				if (Application.getSecurityManager().allowed(user, e.getEntityCode(), useAction)) {
 					refs.add(EasyMeta.getEntityShow(e));
 				}
 			}
 			return (JSON) JSONArray.toJSON(refs);
 		}
-		
+
 		List<String[]> addons = new ArrayList<>();
 		for (Object o : (JSONArray) config.getJSON("config")) {
 			String e = (String) o;
@@ -113,10 +111,5 @@ public class ViewAddonsManager extends BaseLayoutManager {
 			}
 		}
 		return (JSON) JSON.toJSON(addons);
-	}
-	
-	@Override
-	protected boolean isSingleConfig() {
-		return true;
 	}
 }

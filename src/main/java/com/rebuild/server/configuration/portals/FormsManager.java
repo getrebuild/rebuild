@@ -33,7 +33,7 @@ public class FormsManager extends BaseLayoutManager {
 
 	public static final FormsManager instance = new FormsManager();
 	protected FormsManager() { }
-	
+
 	/**
 	 * @param entity
 	 * @param user
@@ -45,15 +45,10 @@ public class FormsManager extends BaseLayoutManager {
 			entry = new ConfigEntry()
 					.set("elements", JSONUtils.EMPTY_ARRAY);
 		} else {
-			entry.set("elements", entry.getJSON("config"));
-			entry.set("config", null);
-			entry.set("shareTo", null);
+			entry.set("elements", entry.getJSON("config"))
+					.set("config", null)
+					.set("shareTo", null);
 		}
 		return entry.set("entity", entity);
-	}
-	
-	@Override
-	protected boolean isSingleConfig() {
-		return true;
 	}
 }

@@ -104,7 +104,7 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 		List<Map<String, Object>> fieldList = new ArrayList<>();
 		for (Field field : MetadataSorter.sortFields(entityMeta)) {
 			if (FieldPortalAttrs.instance.allowDataList(field)) {
-				fieldList.add(DataListManager.instance.formatColumn(field));
+				fieldList.add(DataListManager.instance.formatField(field));
 			}
 		}
 		// 引用实体的字段
@@ -121,7 +121,7 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 			
 			for (Field fieldOfRef : MetadataSorter.sortFields(refEntity)) {
 				if (FieldPortalAttrs.instance.allowDataList(fieldOfRef)) {
-					fieldList.add(DataListManager.instance.formatColumn(fieldOfRef, field));
+					fieldList.add(DataListManager.instance.formatField(fieldOfRef, field));
 				}
 			}
 		}
@@ -132,12 +132,12 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 			raw = new ConfigEntry();
 			raw.set("config", JSONUtils.EMPTY_ARRAY);
 		} else if (ID.isId(cfgid)) {
-			raw = DataListManager.instance.getgetLayoutById(ID.valueOf(cfgid));
+			raw = DataListManager.instance.getLayoutById(ID.valueOf(cfgid));
 		} else {
 			raw = DataListManager.instance.getLayoutOfDatalist(user, entity);
 		}
 
-		JSONObject config = (JSONObject) DataListManager.instance.formatColumnLayout(entity, user, false, raw);
+		JSONObject config = (JSONObject) DataListManager.instance.formatFieldsLayout(entity, user, false, raw);
 
 		Map<String, Object> ret = new HashMap<>();
 		ret.put("fieldList", fieldList);
