@@ -77,6 +77,11 @@ public class GeneralDataListControll extends BaseEntityControll {
 		mv.getModel().put(ZeroEntry.AllowCustomDataList.name(),
 				Application.getSecurityManager().allowed(user, ZeroEntry.AllowCustomDataList));
 
+		String asideCollapsed = ServletUtils.readCookie(request, "rb.asideCollapsed");
+		if (!"false".equals(asideCollapsed)) {
+			mv.getModel().put("asideCollapsed", true);
+		}
+
 		return mv;
 	}
 	

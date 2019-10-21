@@ -7,7 +7,7 @@
 <title>${entityLabel}列表</title>
 </head>
 <body>
-<div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-aside-collapsed">
+<div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside ${asideCollapsed ? 'rb-aside-collapsed' : ''}">
 	<jsp:include page="/_include/NavTop.jsp">
 		<jsp:param value="${entityLabel}列表" name="pageTitle"/>
 	</jsp:include>

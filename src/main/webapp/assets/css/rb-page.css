@@ -708,7 +708,6 @@ a {
     max-width: 100%;
     margin-right: 5px;
     margin-bottom: 1px;
-    overflow: hidden;
     position: relative;
     overflow: hidden;
     border: 0 none;
@@ -741,8 +740,7 @@ a {
     margin-left: 30px;
     word-break: break-all;
     height: 30px;
-    padding: 1px 4px;
-    padding-left: 6px;
+    padding: 1px 4px 1px 6px;
     line-height: 15px;
     line-height: 1.15rem;
     overflow: hidden;
@@ -1358,7 +1356,7 @@ i.split.ui-draggable-dragging {
 }
 
 .dept-tree .config-title {
-    margin-bottom: 17px;
+    margin-bottom: 16px;
     margin-top: 17px;
     border-bottom: 1px solid #eee;
     padding-bottom: 10px;
@@ -1379,7 +1377,7 @@ i.split.ui-draggable-dragging {
 
 .dept-tree li>a {
     display: block;
-    padding: 7px 7px;
+    padding: 7px 10px;
     cursor: pointer;
     color: #444;
 }
@@ -1425,13 +1423,11 @@ i.split.ui-draggable-dragging {
     text-align: center;
     font-size: 1.2rem;
     color: #fff !important;
-    background-color: rgba(0, 0, 0, 0.1);
     margin-left: 1px;
-    border-radius: 2px;
 }
 
 .dept-tree li>div.action a:hover {
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgba(0, 0, 0, 0.2);
 }
 
 .dept-tree ul>li.active:hover>div.action,
@@ -1439,12 +1435,9 @@ i.split.ui-draggable-dragging {
     display: block;
 }
 
-.adv-search .dropdown-item div.action {}
-
 .adv-search .dropdown-item div.action a {
     height: 34px;
     line-height: 34px;
-    background-color: #eee;
     color: #aaa !important;
     border-radius: 0;
 }
@@ -1476,9 +1469,8 @@ i.split.ui-draggable-dragging {
 
 .adv-filter .item.plus a {
     display: inline-block;
-    padding: 3px;
     position: relative;
-    padding-left: 24px;
+    padding: 3px 3px 3px 24px;
 }
 
 .adv-filter .item.plus a .icon {
@@ -2654,8 +2646,8 @@ form {
 
 .page-aside.widgets .side-toggle {
     position: absolute;
-    right: 0px;
-    top: 0px;
+    right: 0;
+    top: 0;
     font-size: 1.4rem;
     width: 50px;
     height: 44px;
@@ -2708,7 +2700,7 @@ form {
 }
 
 #asideFilters .dropdown-item {
-    padding: 8px 7px;
+    padding: 8px 10px;
     border-radius: 2px;
     font-size: 1rem;
     cursor: pointer;

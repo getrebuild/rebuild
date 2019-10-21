@@ -598,7 +598,7 @@ const AdvFilters = {
       })
 
       // ASIDE
-      if ($('.rb-aside .page-aside').length > 0) {
+      if ($('#asideFilters').length > 0) {
         let ghost = $('.adv-search .dropdown-menu').clone()
         ghost.removeAttr('class')
         ghost.removeAttr('style')
@@ -893,13 +893,13 @@ $(document).ready(() => {
   }
 
   // ASIDE
-  if ($('.rb-aside .page-aside').length > 0) {
+  if ($('#asideFilters, #asideWidgets').length > 0) {
     $('.side-toggle').click(() => {
       let el = $('.rb-aside').toggleClass('rb-aside-collapsed')
-      $storage.set('rb-aside-collapsed', el.hasClass('rb-aside-collapsed'))
+      $.cookie('rb.asideCollapsed', el.hasClass('rb-aside-collapsed'), { expires: 180 })
     })
-    // 默认不展开
-    if ($storage.get('rb-aside-collapsed') === 'false') $('.rb-aside').removeClass('rb-aside-collapsed')
+    // 默认不展开（由后台处理，避免页面闪动）
+    // if ($.cookie('rb.asideCollapsed') === 'false') $('.rb-aside').removeClass('rb-aside-collapsed')
 
     let $content = $('.page-aside .tab-content')
     let hold = window.resize_handler
