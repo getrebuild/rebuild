@@ -11,7 +11,7 @@
     "scripts": {
         "build": "babel js/es6 -d js/es5"
     },
-    "devDependencies": {
+    "dependencies": {
         "@babel/cli": "^7.6.4",
         "@babel/core": "^7.6.4",
         "@babel/plugin-proposal-class-properties": "^7.5.5",
