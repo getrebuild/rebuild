@@ -651,16 +651,17 @@ const AdvFilters = {
     } else {
       this.current = id
       this.__getFilter(id, (res) => {
-        renderRbcomp(<AdvFilter {...props} title="修改查询条件" filter={res.filter} filterName={res.name} shareToAll={res.shareTo === 'ALL'} />)
+        renderRbcomp(<AdvFilter {...props} title="修改查询条件" filter={res.filter} filterName={res.name} shareTo={res.shareTo} />)
       })
     }
   },
 
-  saveFilter(filter, name, toAll) {
+  saveFilter(filter, name, shareTo) {
     if (!filter) return
     let that = AdvFilters
-    let url = `${rb.baseUrl}/app/${that.__entity}/advfilter/post?id=${that.current || ''}&toAll=${toAll}`
+    let url = `${rb.baseUrl}/app/${that.__entity}/advfilter/post?id=${that.current || ''}`
     if (name) url += '&name=' + $encode(name)
+    if (shareTo) url += '&shareTo=' + $encode(shareTo)
     $.post(url, JSON.stringify(filter), (res) => {
       if (res.error_code === 0) that.loadFilters()
       else RbHighbar.error(res.error_msg)

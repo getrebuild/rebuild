@@ -28,18 +28,19 @@ class Share2 extends _ChangeHandler {
   render() {
     if (!rb.isAdminUser) return null
     return <React.Fragment>
-      <div className="float-left">
-        <div className="btn-group">
-          <button type="button" className="btn btn-link" data-toggle="dropdown"><i className="zmdi zmdi-settings icon"></i></button>
-          <div className="dropdown-menu">
-            <a className="dropdown-item" href={`?id=NEW&entity=${this.props.entity || ''}`}>添加{this.props.title || '配置'}</a>
-            <a className="dropdown-item" onClick={this.showSwitch}>切换{this.props.title || '配置'}</a>
+      {this.props.noSwitch !== true &&
+        <div className="float-left">
+          <div className="btn-group">
+            <button type="button" className="btn btn-link" data-toggle="dropdown"><i className="zmdi zmdi-settings icon"></i></button>
+            <div className="dropdown-menu">
+              <a className="dropdown-item" href={`?id=NEW&entity=${this.props.entity || ''}`}>添加{this.props.title || '配置'}</a>
+              <a className="dropdown-item" onClick={this.showSwitch}>切换{this.props.title || '配置'}</a>
+            </div>
           </div>
-        </div>
-      </div>
-      <label className="custom-control custom-checkbox custom-control-inline">
+        </div>}
+      <label className="custom-control custom-checkbox custom-control-inline custom-control-sm">
         <input className="custom-control-input" type="checkbox" checked={this.state.shared === true} name="shared" onChange={this.handleChange} />
-        {(this.state.shareTo && this.state.shareTo.length > 10) ?
+        {(this.state.shareTo && this.state.shareTo.length >= 20) ?
           <span className="custom-control-label">共享给 <a href="#" onClick={this.showSettings}>指定用户({this.state.shareTo.split(',').length})</a></span>
           :
           <span className="custom-control-label">共享给全部用户或 <a href="#" onClick={this.showSettings}>指定用户</a></span>
@@ -58,7 +59,7 @@ class Share2 extends _ChangeHandler {
     event.preventDefault()
     let that = this
     if (that.__settings) that.__settings.show()
-    else renderRbcomp(<Share2Settings configName={this.props.configName} shareTo={this.props.shareTo} call={this.showSettingsCall} id={this.props.id} />, null, function () { that.__settings = this })
+    else renderRbcomp(<Share2Settings configName={this.props.configName} shareTo={this.props.shareTo} call={this.showSettingsCall} id={this.props.id} noName={this.props.noSwitch} />, null, function () { that.__settings = this })
     return false
   }
   showSettingsCall = (data) => {
@@ -128,9 +129,10 @@ class Share2Settings extends Share2Switch {
         <label className="text-bold">共享给</label>
         <UserSelector ref={(c) => this._selector = c} selected={this.state.selected} />
       </div>
-      <div className="form-group">
-        <input type="text" className="form-control form-control-sm" placeholder="输入共享名称" value={this.state.configName || ''} name="configName" onChange={this.handleChange} />
-      </div>
+      {this.props.noName !== true &&
+        <div className="form-group">
+          <input type="text" className="form-control form-control-sm" placeholder="输入共享名称" value={this.state.configName || ''} name="configName" onChange={this.handleChange} />
+        </div>}
       <div className="form-group mb-1">
         <button className="btn btn-primary btn-space" type="button" onClick={this.checkData}>确定</button>
         {this.props.id && <button className="btn btn-danger bordered btn-space" type="button" onClick={this.delete}><i className="zmdi zmdi-delete icon" /> 删除</button>}

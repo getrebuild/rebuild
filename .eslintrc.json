@@ -82,7 +82,8 @@
         "ConfigFormDlg": true,
         "RbPreview": true,
         "$countdownButton": true,
-        "ChartSelect": true
+        "ChartSelect": true,
+        "Share2": true
     },
     "rules": {
         "strict": 0,

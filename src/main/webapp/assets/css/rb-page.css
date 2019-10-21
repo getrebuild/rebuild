@@ -1567,9 +1567,15 @@ i.split.ui-draggable-dragging {
 }
 
 .adv-filter .dialog-footer .form-control-sm.text {
-    width: 200px;
+    width: 180px;
     height: 34px !important;
     margin-top: 2px;
+}
+
+.adv-filter .dialog-footer .custom-control {
+    cursor: default;
+    margin-top: 10px;
+    margin-left: 10px;
 }
 
 .adv-filter .item.dialog-footer {
@@ -2553,7 +2559,7 @@ form {
 
 .shareTo--wrap .custom-control {
     margin-bottom: 0;
-    margin-top: 7px;
+    margin-top: 9px;
     cursor: default;
 }
 

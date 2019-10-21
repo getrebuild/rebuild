@@ -105,5 +105,6 @@ window.__PageConfig = {
 <script src="${baseUrl}/assets/js/rb-approval.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/lib/charts/echarts.min.js"></script>
 <script src="${baseUrl}/assets/js/charts/charts.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/settings-share2.jsx" type="text/babel"></script>
 </body>
 </html>

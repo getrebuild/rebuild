@@ -47,7 +47,7 @@ $(document).ready(function () {
     if (dash_editable !== true) $('.J_dash-edit, .J_chart-adds').remove()
 
     $('.J_dash-new').click(() => dlgShow('DlgDashAdd'))
-    $('.J_dash-edit').click(() => dlgShow('DlgDashSettings', { title: d[4], shareToAll: d[1] === 'ALL' }))
+    $('.J_dash-edit').click(() => dlgShow('DlgDashSettings', { title: d[4], shareTo: d[1] }))
     $('.J_chart-new').click(() => dlgShow('DlgAddChart'))
     $('.J_dash-select').click(() => dlgShow('DashSelect', { dashList: dash_list }))
     let dlgChartSelect
@@ -232,10 +232,9 @@ class DlgDashSettings extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right"></label>
             <div className="col-sm-7">
-              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0">
-                <input className="custom-control-input" type="checkbox" checked={this.state.shareToAll === true} data-id="shareToAll" onChange={this.handleChange} />
-                <span className="custom-control-label">共享此仪表盘给全部用户</span>
-              </label>
+              <div className="shareTo--wrap">
+                <Share2 ref={(c) => this._shareTo = c} noSwitch={true} shareTo={this.props.shareTo} />
+              </div>
             </div>
           </div>
         }
@@ -249,7 +248,7 @@ class DlgDashSettings extends RbFormHandler {
     </RbModal>)
   }
   save() {
-    let _data = { shareTo: this.state.shareToAll === true ? 'ALL' : 'SELF', title: this.state.title || '默认仪表盘' }
+    let _data = { shareTo: this._shareTo.getData().shareTo, title: this.state.title || '默认仪表盘' }
     _data.metadata = { id: this.props.dashid, entity: 'DashboardConfig' }
     $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {

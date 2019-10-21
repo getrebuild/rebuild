@@ -61,11 +61,7 @@ class AdvFilter extends React.Component {
                 <div className="float-left input">
                   <input className="form-control form-control-sm text" maxLength="20" value={this.state.filterName || ''} data-id="filterName" onChange={this.handleChange} placeholder="输入名称保存" />
                 </div>
-                {rb.isAdminUser !== true ? null :
-                  <label className="custom-control custom-control-sm custom-checkbox custom-control-inline ml-4 mt-2">
-                    <input className="custom-control-input" type="checkbox" checked={this.state.shareToAll === true} data-id="shareToAll" onChange={this.handleChange} />
-                    <span className="custom-control-label">共享给全部用户</span>
-                  </label>}
+                {rb.isAdminUser && <Share2 ref={(c) => this._shareTo = c} noSwitch={true} shareTo={this.props.shareTo} />}
               </div>
               {operBtns}
               <div className="clearfix" />
@@ -105,8 +101,6 @@ class AdvFilter extends React.Component {
     const id = e.target.dataset.id
     if (id === 'enableEquation') {
       this.setState({ enableEquation: this.state.enableEquation !== true })
-    } else if (id === 'shareToAll') {
-      this.setState({ shareToAll: this.state.shareToAll !== true })
     } else {
       let state = {}
       state[id] = val
@@ -195,7 +189,7 @@ class AdvFilter extends React.Component {
     let adv = this.toFilterJson(this.props.canNoFilters)
     if (!adv) return
     else if (this.props.confirm) {
-      this.props.confirm(adv, this.state.filterName, this.state.shareToAll)
+      this.props.confirm(adv, this.state.filterName, this._shareTo ? this._shareTo.getData().shareTo : null)
     }
     if (this.props.inModal) this._dlg.hide()
     this.setState({ filterName: null })
