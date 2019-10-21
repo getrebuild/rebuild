@@ -22,7 +22,7 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
-import com.rebuild.server.configuration.portals.NavManager;
+import com.rebuild.server.configuration.portals.ShareToManager;
 import com.rebuild.server.service.BaseService;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.bizz.UserHelper;
@@ -66,7 +66,7 @@ public abstract class ConfigurationService extends BaseService {
 	protected void throwIfNotSelf(ID cfgid) {
 		ID user = Application.getCurrentUser();
 		if (UserHelper.isAdmin(user)) return;
-		if (!NavManager.instance.isSelf(user, cfgid)) {
+		if (!ShareToManager.isSelf(user, cfgid)) {
 			throw new DataSpecificationException("无权操作他人配置");
 		}
 	}

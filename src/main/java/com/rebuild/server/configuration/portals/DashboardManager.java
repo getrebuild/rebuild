@@ -79,6 +79,6 @@ public class DashboardManager extends ShareToManager<ID> {
 
 	@Override
 	public void clean(ID cacheKey) {
-		Application.getCommonCache().evict("DashboardConfig-null-null");
+		Application.getCommonCache().evict(formatCacheKey(null, null));
 	}
 }

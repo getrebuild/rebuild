@@ -24,6 +24,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
+import com.rebuild.server.configuration.portals.ShareToManager;
 import com.rebuild.server.configuration.portals.WidgetManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.configuration.WidgetConfigService;
@@ -53,7 +54,7 @@ public class WidgetControll extends BaseControll implements PortalsConfiguration
         ID user = getRequestUser(request);
         JSON config = ServletUtils.getRequestJson(request);
         ID cfgid = getIdParameter(request, "id");
-        if (cfgid != null && !WidgetManager.instance.isSelf(user, cfgid)) {
+        if (cfgid != null && !ShareToManager.isSelf(user, cfgid)) {
             cfgid = null;
         }
 

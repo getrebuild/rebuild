@@ -18,25 +18,26 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.admin;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
-import com.rebuild.server.Application;
-import com.rebuild.server.service.bizz.privileges.User;
-import com.rebuild.web.BasePageControll;
-import com.rebuild.web.RequestWatchHandler;
-
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
+import com.rebuild.server.helper.cache.EhcacheTemplate;
+import com.rebuild.server.helper.cache.JedisCacheTemplate;
+import com.rebuild.server.service.bizz.privileges.User;
+import com.rebuild.web.BasePageControll;
+import com.rebuild.web.RequestWatchHandler;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+import redis.clients.jedis.Jedis;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * @author devezhao
@@ -81,6 +82,8 @@ public class AdminEntryControll extends BasePageControll {
 			writeFailure(response, "密码不正确");
 		}
 	}
+
+	// ----
 	
 	private static final String KEY_VERIFIED = WebUtils.KEY_PREFIX + "-AdminVerified";
 	/**
@@ -98,4 +101,26 @@ public class AdminEntryControll extends BasePageControll {
 	public static void cleanAdminVerified(HttpServletRequest request) {
 		ServletUtils.setSessionAttribute(request, KEY_VERIFIED, null);
 	}
+
+	// ---- CLI
+
+	@RequestMapping("/admin/cli/{command}")
+	public void adminCLI(@PathVariable String command,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		// 清缓存
+		if ("CLEANCACHE".equals(command)) {
+			if (Application.getCommonCache().isUseRedis()) {
+				try (Jedis jedis = ((JedisCacheTemplate) Application.getCommonCache().getCacheTemplate()).getJedisPool().getResource()) {
+					jedis.flushAll();
+				}
+			} else {
+				((EhcacheTemplate) Application.getCommonCache().getCacheTemplate()).cache().clear();
+			}
+			ServletUtils.write(response, "command:CLEANCACHE");
+		}
+		else {
+			response.sendRedirect("../systems");
+		}
+	}
+
 }

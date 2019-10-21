@@ -59,11 +59,7 @@ public class AdvFilterControll extends BaseControll implements PortalsConfigurat
 		ID user = getRequestUser(request);
 		ID filterId = getIdParameter(request, "id");
 		String filterName = getParameter(request, "name");
-		if (filterId != null
-				&& (!(UserHelper.isAdmin(user) || AdvFilterManager.instance.isSelf(user, filterId)))) {
-//			writeFailure(response, "无权修改");
-//			return;
-			
+		if (filterId != null && (!(UserHelper.isAdmin(user) || ShareToManager.isSelf(user, filterId)))) {
 			// 不是自己的就另存为
 			if (StringUtils.isBlank(filterName)) {
 				ConfigEntry o = AdvFilterManager.instance.getAdvFilter(filterId);

@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
@@ -26,6 +27,7 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserHelper;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -75,8 +77,7 @@ public abstract class ShareToManager<T> implements ConfigManager<T> {
         String ql = String.format("select belongEntity%s from %s where configId = ?", (hasApplyType ? ",applyType" : ""), getConfigEntity());
         Object[] c = Application.createQueryNoFilter(ql).setParameter(1, cfgid).unique();
         if (c != null) {
-            String cacheKey = String.format("%s-%s-%s", getConfigEntity(), (hasApplyType ? c[1] : null), c[0]);
-            Application.getCommonCache().evict(cacheKey);
+            Application.getCommonCache().evict(formatCacheKey((String) c[0], hasApplyType ? (String) c[1] : null));
         }
     }
 
@@ -140,9 +141,8 @@ public abstract class ShareToManager<T> implements ConfigManager<T> {
      * @return
      */
     protected Object[][] getAllConfig(String belongEntity, String applyType) {
-        String cacheKey = String.format("%s-%s-%s", getConfigEntity(), applyType, belongEntity);
+        String cacheKey = formatCacheKey(belongEntity, applyType);
         Object[][] cached = (Object[][]) Application.getCommonCache().getx(cacheKey);
-//        cached = null;
         if (cached == null) {
             List<String> sqlWhere = new ArrayList<>();
             if (belongEntity != null) {
@@ -160,7 +160,16 @@ public abstract class ShareToManager<T> implements ConfigManager<T> {
             cached = Application.createQueryNoFilter(ql).array();
             Application.getCommonCache().putx(cacheKey, cached);
         }
-        return cached == null ? new Object[0][] : cached;
+
+        if (cached == null) {
+            return new Object[0][];
+        }
+
+        Object[][] clone = new Object[cached.length][];
+        for (int i = 0; i < cached.length; i++) {
+            clone[i] = (Object[]) ObjectUtils.clone(cached[i]);
+        }
+        return clone;
     }
 
     /**
@@ -183,13 +192,24 @@ public abstract class ShareToManager<T> implements ConfigManager<T> {
     }
 
     /**
+     * @param belongEntity
+     * @param applyType
+     * @return
+     */
+    final protected String formatCacheKey(String belongEntity, String applyType) {
+        return String.format("%s-%s-%s.V6", getConfigEntity(), belongEntity, applyType).toUpperCase();
+    }
+
+    // --
+
+    /**
      * 是否是自己的配置（不是自己的只读）
      *
      * @param user
      * @param configOrUser 配置ID 或 用戶ID
      * @return
      */
-    public boolean isSelf(ID user, ID configOrUser) {
+    public static boolean isSelf(ID user, ID configOrUser) {
         if (configOrUser.getEntityCode() != EntityHelper.User) {
             configOrUser = getCreatedBy(configOrUser);
         }
@@ -200,17 +220,16 @@ public abstract class ShareToManager<T> implements ConfigManager<T> {
 
     private static final Map<ID, ID> CREATEDBYs = new HashMap<>();
     /**
-     * 配置的创建人（所属人）
-     *
      * @param configId
      * @return
      */
-    private ID getCreatedBy(ID configId) {
+    static ID getCreatedBy(ID configId) {
         if (CREATEDBYs.containsKey(configId)) {
             return CREATEDBYs.get(configId);
         }
 
-        String ql = String.format("select createdBy from %s where configId = ?", MetadataHelper.getEntityName(configId));
+        Entity e = MetadataHelper.getEntity(configId.getEntityCode());
+        String ql = String.format("select createdBy from %s where %s = ?", e.getName(), e.getPrimaryField().getName());
         Object[] c = Application.createQueryNoFilter(ql).setParameter(1, configId).unique();
         if (c == null) {
             throw new RebuildException("No config found : " + configId);

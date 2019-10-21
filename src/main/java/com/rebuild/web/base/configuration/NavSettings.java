@@ -25,6 +25,7 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.BaseLayoutManager;
 import com.rebuild.server.configuration.portals.NavManager;
+import com.rebuild.server.configuration.portals.ShareToManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.RoleService;
 import com.rebuild.server.service.bizz.privileges.ZeroEntry;
@@ -62,7 +63,7 @@ public class NavSettings extends BaseControll implements PortalsConfiguration {
 
 		JSON config = ServletUtils.getRequestJson(request);
 		ID cfgid = getIdParameter(request, "id");
-		if (cfgid != null && !NavManager.instance.isSelf(user, cfgid)) {
+		if (cfgid != null && !ShareToManager.isSelf(user, cfgid)) {
 			cfgid = null;
 		}
 		

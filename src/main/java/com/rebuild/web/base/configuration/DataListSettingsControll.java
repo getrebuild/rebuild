@@ -30,6 +30,7 @@ import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.portals.BaseLayoutManager;
 import com.rebuild.server.configuration.portals.DataListManager;
 import com.rebuild.server.configuration.portals.FieldPortalAttrs;
+import com.rebuild.server.configuration.portals.ShareToManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
@@ -74,7 +75,7 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 
 		JSON config = ServletUtils.getRequestJson(request);
 		ID cfgid = getIdParameter(request, "id");
-		if (cfgid != null && !DataListManager.instance.isSelf(user, cfgid)) {
+		if (cfgid != null && !ShareToManager.isSelf(user, cfgid)) {
 			cfgid = null;
 		}
 		
