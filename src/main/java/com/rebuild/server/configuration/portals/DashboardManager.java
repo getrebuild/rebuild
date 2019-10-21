@@ -74,6 +74,8 @@ public class DashboardManager extends ShareToManager<ID> {
 			canUses[i][3] = charts;
 			canUses[i][2] = isSelf(user, (ID) canUses[i][2]);
 		}
+
+		sort(canUses, 4);
 		return (JSON) JSON.toJSON(canUses);
 	}
 

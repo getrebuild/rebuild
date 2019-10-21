@@ -65,9 +65,9 @@ public class DataReportManager implements ConfigManager<Entity> {
      */
     public ConfigEntry[] getReportsRaw(Entity entity) {
         final String cKey = "DataReportManager-" + entity.getName();
-        ConfigEntry[] reports = (ConfigEntry[]) Application.getCommonCache().getx(cKey);
-        if (reports != null) {
-            return reports;
+        ConfigEntry[] cached = (ConfigEntry[]) Application.getCommonCache().getx(cKey);
+        if (cached != null) {
+            return cached;
         }
 
         Object[][] array = Application.createQueryNoFilter(
@@ -85,9 +85,9 @@ public class DataReportManager implements ConfigManager<Entity> {
             list.add(e);
         }
 
-        reports = list.toArray(new ConfigEntry[0]);
-        Application.getCommonCache().putx(cKey, reports);
-        return reports;
+        cached = list.toArray(new ConfigEntry[0]);
+        Application.getCommonCache().putx(cKey, cached);
+        return cached;
     }
 
     /**
@@ -110,7 +110,7 @@ public class DataReportManager implements ConfigManager<Entity> {
 
         File file = SysConfiguration.getFileOfData(template);
         if (!file.exists()) {
-            throw new ConfigurationException("Template file not extsts : " + file);
+            throw new ConfigurationException("File of template not extsts : " + file);
         }
         return file;
     }

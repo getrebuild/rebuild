@@ -33,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -198,6 +199,14 @@ public abstract class ShareToManager<T> implements ConfigManager<T> {
      */
     final protected String formatCacheKey(String belongEntity, String applyType) {
         return String.format("%s-%s-%s.V6", getConfigEntity(), belongEntity, applyType).toUpperCase();
+    }
+
+    /**
+     * @param array
+     * @param useIndex
+     */
+    protected void sort(Object[][] array, int useIndex) {
+        Arrays.sort(array, (foo, bar) -> ObjectUtils.compare((Comparable) foo[useIndex], (Comparable) bar[useIndex]));
     }
 
     // --
