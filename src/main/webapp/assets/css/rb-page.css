@@ -1312,11 +1312,11 @@ i.split.ui-draggable-dragging {
     font-size: 1rem;
     background-color: #fff;
     width: auto;
-    left: 0;
+    left: 10px;
     margin: -11px 0 0;
-    padding: 3px 6px 3px 0;
-    cursor: pointer;
-    color: #777;
+    padding: 3px 5px 3px 5px;
+    color: #444;
+    cursor: default;
 }
 
 .form-line fieldset legend:hover {
@@ -2767,6 +2767,7 @@ form {
     .rb-aside .page-aside.widgets {
         display: none !important;
     }
+
     .rb-aside.rb-aside-collapsed .main-content {
         margin-left: 0;
     }

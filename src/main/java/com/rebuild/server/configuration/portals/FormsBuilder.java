@@ -197,11 +197,12 @@ public class FormsBuilder extends FormsManager {
 			JSONObject el = (JSONObject) iter.next();
 			String fieldName = el.getString("field");
 			
-			// 分割线表单页暂不支持
-			if (fieldName.equalsIgnoreCase(DIVIDER_LINE) && !viewMode) {
-				iter.remove();
+			if (fieldName.equalsIgnoreCase(DIVIDER_LINE)) {
+				// 分割线表单页暂不支持
+				if (!viewMode) iter.remove();
 				continue;
 			}
+
 			// 已删除字段
 			if (!MetadataHelper.checkAndWarnField(entityMeta, fieldName)) {
 				iter.remove();
