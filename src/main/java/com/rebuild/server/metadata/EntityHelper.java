@@ -180,6 +180,4 @@ public class EntityHelper {
 	public static final int RecycleBin = 33;
 	public static final int RevisionHistory = 34;
 
-	public static final int WidgetConfig = 35;
-
 }

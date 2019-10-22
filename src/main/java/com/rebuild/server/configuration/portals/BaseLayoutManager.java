@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.configuration.portals;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
 import com.rebuild.server.configuration.ConfigEntry;
@@ -46,6 +47,8 @@ public class BaseLayoutManager extends ShareToManager<ID> {
 	public static final String TYPE_TAB = "TAB";
 	// 视图-新建相关
 	public static final String TYPE_ADD = "ADD";
+	// 列表-图表 of Widget
+	public static final String TYPE_WCHARTS = "WCHARTS";
 
 	@Override
 	protected String getConfigEntity() {
@@ -69,7 +72,21 @@ public class BaseLayoutManager extends ShareToManager<ID> {
 	public ConfigEntry getLayoutOfDatalist(ID user, String entity) {
 		return getLayout(user, entity, TYPE_DATALIST);
 	}
-	
+
+	/**
+	 * @param user
+	 * @param entity
+	 * @return
+	 */
+	public ConfigEntry getWidgetOfCharts(ID user, String entity) {
+		ConfigEntry e = getLayout(user, entity, TYPE_WCHARTS);
+		// 补充图表信息
+		JSONArray charts = (JSONArray) e.getJSON("config");
+		ChartManager.instance.richingCharts(charts);
+		return e.set("config", charts)
+				.set("shareTo", null);
+	}
+
 	/**
 	 * @param user
 	 * @return

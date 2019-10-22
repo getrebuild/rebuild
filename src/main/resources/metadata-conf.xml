@@ -315,13 +315,4 @@
 		<index field-list="recordId,channelWith" />
 	</entity>
 
-	<entity name="WidgetConfig" type-code="035" name-field="title" description="页面部件">
-		<field name="configId" type="primary" />
-		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="所属实体" />
-		<field name="applyType" type="string" max-length="20" nullable="false" updatable="false" description="应用在哪里" />
-		<field name="config" type="text" description="JSON格式配置" nullable="false" />
-		<field name="shareTo" type="string" max-length="420" default-value="SELF" description="共享给哪些人, 可选值: ALL/SELF/$MemberID(U/D/R)" />
-		<field name="configName" type="string" max-length="100" />
-	</entity>
-
 </metadata-config>

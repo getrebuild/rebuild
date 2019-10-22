@@ -24,10 +24,10 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
+import com.rebuild.server.configuration.portals.BaseLayoutManager;
 import com.rebuild.server.configuration.portals.ShareToManager;
-import com.rebuild.server.configuration.portals.WidgetManager;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.configuration.WidgetConfigService;
+import com.rebuild.server.service.configuration.LayoutConfigService;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.PortalsConfiguration;
 import org.springframework.stereotype.Controller;
@@ -60,16 +60,16 @@ public class WidgetControll extends BaseControll implements PortalsConfiguration
 
         Record record;
         if (cfgid == null) {
-            record = EntityHelper.forNew(EntityHelper.WidgetConfig, user);
+            record = EntityHelper.forNew(EntityHelper.LayoutConfig, user);
             record.setString("belongEntity", entity);
-            record.setString("applyType", WidgetManager.TYPE_DATALIST);
-            record.setString("shareTo", WidgetManager.SHARE_SELF);
+            record.setString("applyType", BaseLayoutManager.TYPE_WCHARTS);
+            record.setString("shareTo", BaseLayoutManager.SHARE_SELF);
         } else {
             record = EntityHelper.forUpdate(cfgid, user);
         }
         record.setString("config", config.toJSONString());
         putCommonsFields(request, record);
-        record = Application.getBean(WidgetConfigService.class).createOrUpdate(record);
+        record = Application.getBean(LayoutConfigService.class).createOrUpdate(record);
 
         writeSuccess(response, record.getPrimary());
     }
@@ -79,11 +79,7 @@ public class WidgetControll extends BaseControll implements PortalsConfiguration
     public void gets(@PathVariable String entity,
                      HttpServletRequest request, HttpServletResponse response) throws IOException {
         ID user = getRequestUser(request);
-        ConfigEntry config = WidgetManager.instance.getDataListChart(user, entity);
-        if (config == null) {
-            writeSuccess(response);
-        } else {
-            writeSuccess(response, config.toJSON());
-        }
+        ConfigEntry config = BaseLayoutManager.instance.getWidgetOfCharts(user, entity);
+        writeSuccess(response, config == null ? null : config.toJSON());
     }
 }
