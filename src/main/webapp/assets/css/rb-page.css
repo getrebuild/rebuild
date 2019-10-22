@@ -190,8 +190,7 @@ a.btn {
 }
 
 .alert-icon.min>.message {
-    padding: 0.8rem;
-    padding-left: 1.3rem;
+    padding: 0.8rem 0.8rem 0.8rem 1.3rem;
 }
 
 .alert.min .close {
@@ -424,12 +423,9 @@ body.dialog .main-content {
 
 .dialog-footer {
     border-top: 1px solid #eee;
-    margin: 0 -15px;
-    margin-bottom: -5px;
-    padding: 17px 30px;
-    padding-bottom: 0;
+    padding: 17px 30px 0;
     text-align: right;
-    margin-top: 15px;
+    margin: 15px -15px -5px;
 }
 
 .dialog-footer .btn {
@@ -437,8 +433,7 @@ body.dialog .main-content {
 }
 
 .dialog-footer>.float-left>.custom-control {
-    margin: 0;
-    margin-top: 4px
+    margin: 4px 0 0;
 }
 
 body.dialog .main-content .footer,
@@ -527,8 +522,7 @@ a {
 }
 
 .rbform-alert {
-    margin: -20px;
-    margin-bottom: 20px;
+    margin: -20px -20px 20px;
     text-align: center;
     padding: 0.5em;
     border-radius: 0;
@@ -548,8 +542,7 @@ a {
 }
 
 .form-group.row.type-BOOL {
-    padding: 7px 0;
-    padding-bottom: 0;
+    padding: 7px 0 0;
 }
 
 .rbform .type-BOOL .mt-1 {
@@ -596,8 +589,7 @@ a {
 }
 
 .type-MULTISELECT .form-control-plaintext {
-    padding: 5px 0;
-    padding-bottom: 3px;
+    padding: 5px 0 3px;
     margin-left: -2px;
     font-size: 0;
 }
@@ -732,8 +724,7 @@ a {
 }
 
 .file-field .img-thumbnail>i.file-icon::after {
-    padding: 0;
-    padding-left: 2px
+    padding: 0 0 0 2px;
 }
 
 .file-field .img-thumbnail>span {
@@ -856,8 +847,7 @@ a {
 }
 
 .list-nodata p {
-    margin: 0;
-    margin-top: 9px;
+    margin: 9px 0 0;
     color: #666;
     font-size: 1.1rem;
     font-weight: 300;
@@ -1270,11 +1260,10 @@ i.split.ui-draggable-dragging {
 }
 
 .modal.rbview .modal-dialog .modal-content {
-    margin: 0;
     border-radius: 0;
     max-width: 100%;
     width: 1220px;
-    margin-right: -1301px;
+    margin: 0 -1301px 0 0;
     float: right;
     position: relative;
     height: 100%;
@@ -1321,13 +1310,11 @@ i.split.ui-draggable-dragging {
 .form-line fieldset legend {
     position: absolute;
     font-size: 1rem;
-    margin: 0;
     background-color: #fff;
     width: auto;
     left: 0;
-    margin-top: -11px;
-    padding: 3px 6px;
-    padding-left: 0;
+    margin: -11px 0 0;
+    padding: 3px 6px 3px 0;
     cursor: pointer;
     color: #777;
 }
@@ -1579,8 +1566,7 @@ i.split.ui-draggable-dragging {
 }
 
 .adv-filter .item.dialog-footer {
-    margin: 0 -30px;
-    margin-bottom: -5px;
+    margin: 0 -30px -5px;
     padding-top: 20px;
 }
 
@@ -1705,7 +1691,7 @@ form.simple {
 
 .mw-auto {
     min-width: auto;
-    max-width: auto;
+    max-width: none;
 }
 
 .cl-base {
@@ -1727,8 +1713,7 @@ form.simple {
 }
 
 .modal.selector .modal-content .modal-body {
-    padding: 20px 30px;
-    padding-top: 10px;
+    padding: 10px 30px 20px;
 }
 
 .modal.selector .modal-content .modal-body>div {
@@ -1746,8 +1731,7 @@ form {
 }
 
 .rbs-indexes>div {
-    padding: 15px;
-    padding-bottom: 13px;
+    padding: 15px 15px 13px;
     border-radius: 3px;
     background-color: #eee;
 }
@@ -1759,8 +1743,7 @@ form {
 .rbs-indexes>div h5 {
     font-size: 1rem;
     font-weight: bold;
-    margin: 0;
-    margin-bottom: 6px;
+    margin: 0 0 6px;
 }
 
 .rbs-indexes>div .text-muted,
@@ -1802,14 +1785,12 @@ form {
 }
 
 .user-selector .select2-selection__choice.abtn {
-    padding: 0 9px;
     display: inline-block;
     background-color: rgba(66, 133, 244, 0.1);
     color: #4285f4;
     position: relative;
-    padding-left: 22px;
     height: 26px;
-    padding-top: 5px;
+    padding: 5px 9px 0 22px;
     margin-bottom: 4px;
     cursor: pointer;
 }
@@ -2018,8 +1999,7 @@ form {
 }
 
 .card.ph>.card-body>.ph-item {
-    padding: 20px 10px;
-    padding-bottom: 5px;
+    padding: 20px 10px 5px;
     margin: 0;
     border: 0 none;
 }
@@ -2672,7 +2652,7 @@ form {
     display: block;
 }
 
-.rb-aside.rb-aside-collapsed .page-aside {
+.rb-aside.rb-aside-collapsed .page-aside.widgets {
     width: 50px;
 }
 
@@ -2685,7 +2665,7 @@ form {
     transform: rotate(180deg);
 }
 
-.rb-aside.rb-aside-collapsed .page-aside .tab-container {
+.rb-aside.rb-aside-collapsed .page-aside.widgets .tab-container {
     display: none;
 }
 
@@ -2693,11 +2673,11 @@ form {
     margin-left: 50px;
 }
 
-.rb-animate .rb-aside .page-aside {
+.rb-animate .rb-aside .page-aside.widgets {
     transition: width .35s ease;
 }
 
-.rb-animate .rb-aside.rb-aside-collapsed .page-aside {
+.rb-animate .rb-aside.rb-aside-collapsed .page-aside.widgets {
     transition: width .35s ease;
 }
 
@@ -2781,4 +2761,13 @@ form {
 
 #asideWidgets .charts-wrap .ui-sortable-helper {
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1), 0 16px 24px 0 rgba(81, 129, 228, .1);
+}
+
+@media screen and (max-width: 767px) {
+    .rb-aside .page-aside.widgets {
+        display: none !important;
+    }
+    .rb-aside.rb-aside-collapsed .main-content {
+        margin-left: 0;
+    }
 }

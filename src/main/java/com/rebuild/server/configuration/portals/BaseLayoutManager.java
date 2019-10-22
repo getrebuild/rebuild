@@ -80,6 +80,8 @@ public class BaseLayoutManager extends ShareToManager<ID> {
 	 */
 	public ConfigEntry getWidgetOfCharts(ID user, String entity) {
 		ConfigEntry e = getLayout(user, entity, TYPE_WCHARTS);
+		if (e == null) return null;
+
 		// 补充图表信息
 		JSONArray charts = (JSONArray) e.getJSON("config");
 		ChartManager.instance.richingCharts(charts);
