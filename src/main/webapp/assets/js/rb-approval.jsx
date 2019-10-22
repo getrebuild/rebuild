@@ -298,6 +298,9 @@ class ApprovalStepViewer extends React.Component {
         <div className="timeline-avatar"><img src={`${rb.baseUrl}/account/user-avatar/${s.submitter}`} /></div>
         <div className="timeline-header">
           <p className="timeline-activity">由 {s.submitter === rb.currentUser ? '你' : s.submitterName} 提交审批</p>
+          <blockquote className="blockquote timeline-blockquote mb-0">
+            <p><a target="_blank" href={`${rb.baseUrl}/app/RobotApprovalConfig/view/${s.approvalId}`}><i className="zmdi zmdi-usb zmdi-hc-rotate-180"></i> {s.approvalName}</a></p>
+          </blockquote>
         </div>
       </div>
     </li>
@@ -317,9 +320,7 @@ class ApprovalStepViewer extends React.Component {
             <div className="timeline-avatar"><img src={`${rb.baseUrl}/account/user-avatar/${item.approver}`} /></div>
             <div className="timeline-header">
               <p className="timeline-activity">{aMsg}</p>
-              {item.remark && <blockquote className="blockquote timeline-blockquote mb-0">
-                <p>{item.remark}</p>
-              </blockquote>}
+              {item.remark && <blockquote className="blockquote timeline-blockquote mb-0"><p>{item.remark}</p></blockquote>}
             </div>
           </div>
         </li>

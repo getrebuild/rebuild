@@ -2143,6 +2143,7 @@ form {
     top: 16px;
     left: 100px;
     border-color: #f7b904;
+    background-color: #fff;
 }
 
 .timeline.approved-steps .timeline-item.state0:before {

@@ -301,7 +301,7 @@ public class ApprovalProcessor {
 	 */
 	public JSONArray getWorkedSteps() {
 		Object[][] array = Application.createQueryNoFilter(
-				"select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode from RobotApprovalStep" +
+				"select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode,approvalId,approvalId.name from RobotApprovalStep" +
 						" where recordId = ? and isCanceled = 'F' and isWaiting = 'F' order by createdOn")
 				.setParameter(1, this.record)
 				.array();
@@ -320,11 +320,11 @@ public class ApprovalProcessor {
 			List<Object[]> stepGroup = stepGroupMap.computeIfAbsent(prevNode, k -> new ArrayList<>());
 			stepGroup.add(o);
 		}
-		
+
 		JSONArray steps = new JSONArray();
 		JSONObject submitter = JSONUtils.toJSONObject(
-				new String[] { "submitter", "submitterName", "createdOn" },
-				new Object[] { firstStep[5], UserHelper.getName((ID) firstStep[5]), CalendarUtils.getUTCDateTimeFormat().format(firstStep[4]) });
+				new String[] { "submitter", "submitterName", "createdOn", "approvalId", "approvalName" },
+				new Object[] { firstStep[5], UserHelper.getName((ID) firstStep[5]), CalendarUtils.getUTCDateTimeFormat().format(firstStep[4]), firstStep[8], firstStep[9] });
 		steps.add(submitter);
 		
 		String next = FlowNode.ROOT;

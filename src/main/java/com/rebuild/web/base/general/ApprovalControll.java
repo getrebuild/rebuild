@@ -187,7 +187,7 @@ public class ApprovalControll extends BasePageControll {
 				.setParameter(1, approvalId)
 				.unique();
 		if (belongEntity == null) {
-			writeFailure(response, "无效审批流程");
+			writeFailure(response, "无效审批流程，可能已被删除");
 			return;
 		}
 		

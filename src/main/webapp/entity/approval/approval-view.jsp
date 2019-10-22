@@ -34,6 +34,10 @@ $(document).ready(function() {
     else $('.J_close').remove()
 
 	$.get(rb.baseUrl + '/app/entity/approval/flow-definition?id=' + window.__PageConfig.id, function(res) {
+		if (res.error_code !== 0) {
+			RbHighbar.error(res.error_msg)
+			return
+		}
 		wpc = { ...res.data, preview: true }
 		renderRbcomp(<RbFlowCanvas />, 'rbflow', function() {
             ph && ph.hideLoading()
