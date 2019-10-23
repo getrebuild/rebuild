@@ -20262,7 +20262,8 @@ fieldset[disabled] .btn-color.btn-evernote:hover {
 }
 
 .dropdown-menu>.dropdown-item:hover {
-    background-color: #f5f5f5
+    background-color: #f5f5f5;
+    background-color: #eee;
 }
 
 .dropdown-menu .btn-group .btn {

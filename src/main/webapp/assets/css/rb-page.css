@@ -20,14 +20,20 @@ html.admin .admin-show.row {
     border-radius: 0;
 }
 
-.dropdown-menu>.dropdown-item:hover,
-.dropdown-menu>a.dropdown-item:hover {
-    background-color: #478af4;
+.dropdown-menu.primary>.dropdown-item:hover,
+.dropdown-menu.primary>a.dropdown-item:hover {
+    background-color: #4285f4;
     color: #fff;
 }
 
-.dropdown-menu>.dropdown-item:hover .icon {
+.dropdown-menu.primary>.dropdown-item:hover .icon {
     color: #fff;
+}
+
+.dropdown-item.disabled .icon,
+.dropdown-item:disabled .icon,
+.dropdown-item[disabled] .icon {
+    color: #878787 !important;
 }
 
 .dropdown-submenu {
@@ -55,7 +61,7 @@ html.admin .admin-show.row {
 .dropdown-submenu.disabled>.dropdown-item {
     color: #878787 !important;
     background-color: transparent !important;
-    cursor: not-allowed !important;
+    cursor: default !important;
 }
 
 .dropdown-submenu>a:after {
@@ -527,8 +533,7 @@ a {
 /* FormPage */
 
 .rbform>form>.alert {
-    margin: 20px;
-    margin-bottom: 0;
+    margin: 20px 20px 0;
 }
 
 .rbform-alert {
@@ -969,10 +974,10 @@ i.split.ui-draggable-dragging {
 .data-list .table td,
 .data-list .table td>div {
     white-space: nowrap;
-    max-width: 100%;
     text-overflow: ellipsis;
     overflow: hidden;
     clear: both;
+    max-width: 100%;
     max-width: 800px;
     white-space: nowrap;
 }
@@ -1006,11 +1011,11 @@ i.split.ui-draggable-dragging {
 
 .column-imgs>a {
     display: inline-block;
-    height: 100%;
     font-size: 0;
     line-height: 1;
-    cursor: default;
+    height: 100%;
     height: 30px;
+    cursor: default;
     cursor: zoom-in;
 }
 
@@ -1049,7 +1054,7 @@ i.split.ui-draggable-dragging {
 
 .column-checkbox>div {
     width: 18px;
-    padding-left: 0px;
+    padding-left: 0;
 }
 
 .column-checkbox .custom-control-label::after {
@@ -1224,7 +1229,6 @@ i.split.ui-draggable-dragging {
 .sortable-box .unset-list .dd-handle::before {
     content: '\f278';
     font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
-    float: right;
     font-size: 1.6rem;
     color: #999;
     float: right;
@@ -2483,8 +2487,8 @@ form {
 .preview-modal .preview-body .op-box span {
     text-align: center;
     display: inline-block;
-    line-height: 1;
     height: 48px;
+    line-height: 1;
     line-height: 48px;
 }
 

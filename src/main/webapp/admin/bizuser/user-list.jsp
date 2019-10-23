@@ -99,7 +99,7 @@ $(document).ready(function(){
 	$('.J_new').click(function(){ formPostType = 1 })
 	$('.J_new-dept').click(function(){
 		formPostType = 2
-		rb.RbFormModal({ title: '新建部门', entity: 'Department', icon: 'accounts' })
+		RbFormModal.create({ title: '新建部门', entity: 'Department', icon: 'accounts' })
 	})
 })
 clickDept = function(depts) {

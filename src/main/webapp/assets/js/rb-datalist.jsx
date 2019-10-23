@@ -86,7 +86,7 @@ class RbList extends React.Component {
     const scroller = $(this.refs['rblist-scroller'])
     scroller.perfectScrollbar()
 
-    if (FIXED_FOOTER) {
+    if (FIXED_FOOTER && $('.main-content').width() > 998) {
       $('.main-content').addClass('pb-0')
       let hold = window.resize_handler
       window.resize_handler = function () {
