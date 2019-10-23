@@ -169,7 +169,7 @@ class SelectReport extends React.Component {
             </div>
             <div className="modal-body">
               <h5 className="mt-0 text-bold">选择报表</h5>
-              {(this.state.reports && this.state.reports.length === 0) && <p className="text-danger">无可用报表，请联系管理员配置</p>}
+              {(this.state.reports && this.state.reports.length === 0) && <p className="text-muted">无可用报表 {rb.isAdminUser && <a className="icon-link ml-1" target="_blank" href={`${rb.baseUrl}/admin/datas/data-reports`}><i className="zmdi zmdi-settings"></i> 点击配置</a>}</p>}
               <div>
                 <ul className="list-unstyled">
                   {(this.state.reports || []).map((item) => {

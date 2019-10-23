@@ -279,6 +279,7 @@ public class ApprovalProcessor {
 	 * @return
 	 */
 	private FlowParser getFlowParser() {
+		Assert.notNull(approval, "[approval] not be null");
 		if (flowParser != null) {
 			return flowParser;
 		}
@@ -306,7 +307,7 @@ public class ApprovalProcessor {
 		
 		JSONArray state = new JSONArray();
 		for (Object[] o : array) {
-			state.add(this.formatStep(o));
+			state.add(this.formatStep(o, null));
 		}
 		return state;
 	}
@@ -317,9 +318,12 @@ public class ApprovalProcessor {
 	 * @return returns [ [S,S], [S], [SSS], [S] ]
 	 */
 	public JSONArray getWorkedSteps() {
+		final Object[] status = ApprovalHelper.getApprovalStatus(this.record);
+		this.approval = (ID) status[0];
+
 		Object[][] array = Application.createQueryNoFilter(
-				"select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode,approvalId,approvalId.name from RobotApprovalStep" +
-						" where recordId = ? and isWaiting = 'F' order by createdOn")
+				"select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode from RobotApprovalStep" +
+				" where recordId = ? and isWaiting = 'F' and isCanceled = 'F' order by createdOn")
 				.setParameter(1, this.record)
 				.array();
 		if (array.length == 0) {
@@ -343,16 +347,19 @@ public class ApprovalProcessor {
 
 		JSONArray steps = new JSONArray();
 		JSONObject submitter = JSONUtils.toJSONObject(
-				new String[] { "submitter", "submitterName", "createdOn", "approvalId", "approvalName" },
-				new Object[] { firstStep[5], UserHelper.getName((ID) firstStep[5]), CalendarUtils.getUTCDateTimeFormat().format(firstStep[4]), firstStep[8], firstStep[9] });
+				new String[] { "submitter", "submitterName", "createdOn", "approvalId", "approvalName", "approvalState" },
+				new Object[] { firstStep[5], UserHelper.getName((ID) firstStep[5]), CalendarUtils.getUTCDateTimeFormat().format(firstStep[4]),
+						status[0], status[1], status[2] });
 		steps.add(submitter);
-		
+
+
 		String next = FlowNode.NODE_ROOT;
 		while (next != null) {
 			List<Object[]> group = stepGroupMap.get(next);
 			if (group == null) {
 				break;
 			}
+			next = (String) group.get(0)[6];
 
 			// 按审批时间排序
 			group.sort((o1, o2) -> {
@@ -360,13 +367,18 @@ public class ApprovalProcessor {
 				Date t2 = (Date) (o2[3] == null ? o2[4] : o2[3]);
 				return t1.compareTo(t2);
 			});
-			
+
+			String signMode = null;
+			try {
+				signMode = getFlowParser().getNode(next).getSignMode();
+			} catch (ApprovalException ignored) {
+			}
+
 			JSONArray state = new JSONArray();
 			for (Object[] o : group) {
-				state.add(formatStep(o));
+				state.add(formatStep(o, signMode));
 			}
 			steps.add(state);
-			next = (String) group.get(0)[6];
 		}
 		return steps;
 	}
@@ -374,14 +386,14 @@ public class ApprovalProcessor {
 	/**
 	 * @param step
 	 */
-	private JSONObject formatStep(Object[] step) {
+	private JSONObject formatStep(Object[] step, String signMode) {
 		ID approver = (ID) step[0];
 		return JSONUtils.toJSONObject(
-				new String[] { "approver", "approverName", "state", "remark", "approvedTime", "createdOn" }, 
+				new String[] { "approver", "approverName", "state", "remark", "approvedTime", "createdOn", "signMode" },
 				new Object[] {
-						approver, UserHelper.getName(approver), 
+						approver, UserHelper.getName(approver),
 						step[1], step[2],
 						step[3] != null ? CalendarUtils.getUTCDateTimeFormat().format(step[3]) : null,
-						CalendarUtils.getUTCDateTimeFormat().format(step[4]) });
+						CalendarUtils.getUTCDateTimeFormat().format(step[4]), signMode });
 	}
 }

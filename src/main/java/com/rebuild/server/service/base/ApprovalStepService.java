@@ -33,8 +33,11 @@ import com.rebuild.server.service.notification.MessageBuilder;
 import java.util.Set;
 
 /**
- * 审批流程
- * 
+ * 审批流程。
+ *
+ * isWaiting - 因为会签的关系还不能进入下一步审批，因此需要等待。待会签完毕，此值将更新为 true
+ * isCanceled - 是否作废。例如或签中，一人同意其他即作废
+ *
  * @author devezhao
  * @since 07/11/2019
  */
@@ -60,8 +63,8 @@ public class ApprovalStepService extends BaseService {
 		final ID approvalId = mainRecord.getID(EntityHelper.ApprovalId);
 		
 		// 作废之前的步骤（若有）
-		cancelAliveSteps(recordId, approvalId, null, null, false);
-		
+		cancelAliveSteps(recordId, null, null, null, false);
+
 		super.update(mainRecord);
 		
 		String entityLabel = EasyMeta.getLabel(mainRecord.getEntity());
@@ -230,8 +233,6 @@ public class ApprovalStepService extends BaseService {
 		Record main = EntityHelper.forUpdate(recordId, canceller);
 		main.setInt(EntityHelper.ApprovalState, ApprovalState.CANCELED.getState());
 		super.update(main);
-
-		this.cancelAliveSteps(recordId, approvalId, null, null, false);
 	}
 	
 	/**
@@ -278,17 +279,13 @@ public class ApprovalStepService extends BaseService {
 	 * @param onlyDarft
 	 */
 	private void cancelAliveSteps(ID recordId, ID approvalId, String node, ID excludeStep, boolean onlyDarft) {
-		String sql = "select stepId from RobotApprovalStep where recordId = ? and approvalId = ? and isCanceled = 'F'";
-		if (node != null) {
-			sql += " and node = '" + node + "'";
-		}
-		if (onlyDarft) {
-			sql += " and state = " + ApprovalState.DRAFT.getState();
-		}
+		String sql = "select stepId from RobotApprovalStep where recordId = ? and isCanceled = 'F'";
+		if (approvalId != null) sql += " and approvalId = '" + approvalId + "'";
+		if (node != null) sql += " and node = '" + node + "'";
+		if (onlyDarft) sql += " and state = " + ApprovalState.DRAFT.getState();
 
 		Object[][] cancelled = Application.createQueryNoFilter(sql)
 				.setParameter(1, recordId)
-				.setParameter(2, approvalId)
 				.array();
 
 		for (Object[] o : cancelled) {

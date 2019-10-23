@@ -37,6 +37,26 @@ public class ApprovalHelper {
      */
     public static ID getSubmitter(ID record) {
         Object[] approvalId = Application.getQueryFactory().uniqueNoFilter(record, EntityHelper.ApprovalId);
-        return Application.getBean(ApprovalStepService.class).findSubmitter(record, (ID) approvalId[0]);
+        return getSubmitter(record, (ID) approvalId[0]);
+    }
+
+    /**
+     * 获取提交人
+     *
+     * @param record
+     * @param approval
+     * @return
+     */
+    public static ID getSubmitter(ID record, ID approval) {
+        return Application.getBean(ApprovalStepService.class).findSubmitter(record, approval);
+    }
+
+    /**
+     * @param record
+     * @return returns [ApprovalId, ApprovalName, ApprovalState]
+     */
+    public static Object[] getApprovalStatus(ID record) {
+        return Application.getQueryFactory().uniqueNoFilter(record,
+                EntityHelper.ApprovalId, EntityHelper.ApprovalId + ".name", EntityHelper.ApprovalState);
     }
 }

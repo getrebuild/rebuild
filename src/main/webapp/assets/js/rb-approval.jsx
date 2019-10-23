@@ -175,7 +175,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
         <div className="form-group">
           <label>选择审批流程</label>
           <div className="approval-list">
-            {!this.state.approvals && <p className="text-muted">无适用流程</p>}
+            {!this.state.approvals && <p className="text-muted">无适用流程 {rb.isAdminUser && <a className="icon-link ml-1" target="_blank" href={`${rb.baseUrl}/admin/robot/approvals`}><i className="zmdi zmdi-settings"></i> 点击配置</a>}</p>}
             {(this.state.approvals || []).map((item) => {
               return (<div key={'A' + item.id}>
                 <label className="custom-control custom-control-sm custom-radio mb-0">
@@ -283,14 +283,7 @@ class ApprovalStepViewer extends React.Component {
 
   render() {
     let stateLast = 0
-    if (this.state.steps) {
-      let last = this.state.steps[this.state.steps.length - 1]
-      $(last).each(function () {
-        stateLast = this.state
-        if (stateLast >= 10) return false
-      })
-    }
-
+    if (this.state.steps) stateLast = this.state.steps[0].approvalState
     return (
       <div className="modal" ref={(c) => this._dlg = c} tabIndex="-1">
         <div className="modal-dialog modal-dialog-centered">
@@ -302,7 +295,7 @@ class ApprovalStepViewer extends React.Component {
               {!this.state.steps && <RbSpinner fully={true} />}
               <ul className="timeline approved-steps">
                 {(this.state.steps || []).map((item, idx) => {
-                  return idx === 0 ? this.renderSubmitter(item, idx) : this.renderApprovers(item, idx)
+                  return idx === 0 ? this.renderSubmitter(item, idx) : this.renderApprovers(item, idx, stateLast)
                 })}
                 {stateLast >= 10 && <li className="timeline-item last"><span>结束</span></li>}
               </ul>
@@ -327,27 +320,36 @@ class ApprovalStepViewer extends React.Component {
       </div>
     </li>
   }
-  renderApprovers(s, idx) {
+  renderApprovers(s, idx, lastState) {
     let k = 'step-' + idx + '-'
-    return <div key={k} className={s.length > 1 ? 'joint0' : ''}>
-      {s.map((item, idx2) => {
-        let approverName = item.approver === rb.currentUser ? '你' : item.approverName
-        let aMsg = `等待 ${approverName} 审批`
-        if (item.state >= 10) aMsg = `由 ${approverName} ${STATE_NAMES[item.state]}`
+    let sss = []
+    s.forEach(item => {
+      // if (lastState >= 10 && item.state < 10 && false) {
+      //   // 结束态不显示未处理的
+      // } else {
+      let approverName = item.approver === rb.currentUser ? '你' : item.approverName
+      let aMsg = `等待 ${approverName} 审批`
+      if (item.state >= 10) aMsg = `由 ${approverName} ${STATE_NAMES[item.state]}`
+      if (lastState >= 10 && item.state < 10) aMsg = `${approverName} 未进行审批`
 
-        return <li className={'timeline-item state' + item.state} key={k + idx2}>
-          {this.__formatTime(item.approvedTime || item.createdOn)}
-          <div className="timeline-date">{}</div>
-          <div className="timeline-content">
-            <div className="timeline-avatar"><img src={`${rb.baseUrl}/account/user-avatar/${item.approver}`} /></div>
-            <div className="timeline-header">
-              <p className="timeline-activity">{aMsg}</p>
-              {item.remark && <blockquote className="blockquote timeline-blockquote mb-0"><p>{item.remark}</p></blockquote>}
-            </div>
+      sss.push(<li className={'timeline-item state' + item.state} key={k + sss.length}>
+        {this.__formatTime(item.approvedTime || item.createdOn)}
+        <div className="timeline-content">
+          <div className="timeline-avatar"><img src={`${rb.baseUrl}/account/user-avatar/${item.approver}`} /></div>
+          <div className="timeline-header">
+            <p className="timeline-activity">{aMsg}</p>
+            {item.remark && <blockquote className="blockquote timeline-blockquote mb-0"><p>{item.remark}</p></blockquote>}
           </div>
-        </li>
-      })}
-    </div>
+        </div>
+      </li>)
+      // }
+    })
+    if (sss.length < 2) return sss
+
+    let clazz = 'joint0'
+    if (s[0].signMode === 'OR') clazz = 'joint or'
+    else if (s[0].signMode === 'AND') clazz = 'joint'
+    return <div key={k} className={clazz}>{sss}</div>
   }
 
   __formatTime(time) {

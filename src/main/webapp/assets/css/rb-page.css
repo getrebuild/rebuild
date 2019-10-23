@@ -2050,6 +2050,7 @@ form {
     min-height: 0;
     min-width: 78px;
     margin-top: 8px;
+    box-shadow: 0 0 0 #fff;
 }
 
 .approval-pane .alert .close.btn+.btn {
@@ -2130,22 +2131,23 @@ form {
 
 .timeline.approved-steps>div.joint {
     border-right: 3px solid #409EFF;
-    border-radius: 9px;
-    margin-right: 39px;
+    border-radius: 6px;
+    margin-right: 30px;
+    position: relative;
+}
+
+.timeline.approved-steps>div.joint:empty {
+    display: none;
 }
 
 .timeline.approved-steps>div.joint::after {
     position: absolute;
     content: '会签';
-    right: 0;
+    right: -35px;
     top: 50%;
     margin-top: -10px;
-    background-color: #409EFF;
-    color: #fff;
-    border-radius: 99px;
-    padding: 3px 5px;
-    line-height: 1;
     font-size: 12px;
+    color: #777;
 }
 
 .timeline.approved-steps>div.joint.or::after {
@@ -2219,7 +2221,9 @@ form {
 
 .timeline.approved-steps .timeline-item.last {
     position: relative;
-    min-height: 20px;
+    min-height: 30px;
+    margin-top: -7px;
+    margin-bottom: 5px;
 }
 
 .timeline.approved-steps .timeline-item.last>span {
@@ -2813,4 +2817,16 @@ form {
     .rb-aside.rb-aside-collapsed .main-content {
         margin-left: 0;
     }
+}
+
+a.icon-link {
+    position: relative;
+    padding-left: 16px;
+}
+
+a.icon-link>.zmdi {
+    position: absolute;
+    font-size: 1.231rem;
+    margin-top: 2px;
+    left: 0;
 }
