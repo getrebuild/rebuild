@@ -111,12 +111,14 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 			}
 			
 			FlowParser flowParser = def.createFlowParser();
-			FlowNode root = flowParser.getNode("ROOT");
+			FlowNode root = flowParser.getNode("ROOT");  // 发起人节点
 			
 			// 发起人匹配
 			JSONArray users = root.getDataMap().getJSONArray("users");
-			if (users == null || users.isEmpty() 
-					|| FlowNode.USER_ALL.equals(users.getString(0))
+			if (users == null || users.isEmpty()) {
+				users = JSON.parseArray("['OWNS']");
+			}
+			if (FlowNode.USER_ALL.equals(users.getString(0))
 					|| (FlowNode.USER_OWNS.equals(users.getString(0)) && owning.equals(user))
 					|| UserHelper.parseUsers(users, record).contains(user)) {
 				workable.add(def);

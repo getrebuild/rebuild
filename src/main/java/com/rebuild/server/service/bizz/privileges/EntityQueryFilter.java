@@ -18,14 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.bizz.privileges;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-
-import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.MetadataHelper;
-
 import cn.devezhao.bizz.privileges.DepthEntry;
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.Privileges;
@@ -36,6 +28,12 @@ import cn.devezhao.bizz.security.member.BusinessUnit;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Filter;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 查询过滤器
@@ -138,9 +136,7 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 		
 		if (de == BizzDepthEntry.LOCAL) {
 			return appendShareFilter(entity, toMasterField, deptSql);
-		}
-		
-		if (de == BizzDepthEntry.DEEPDOWN) {
+		} else if (de == BizzDepthEntry.DEEPDOWN) {
 			Set<String> sqls = new HashSet<>();
 			sqls.add(deptSql);
 			

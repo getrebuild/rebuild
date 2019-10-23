@@ -24,6 +24,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.RebuildException;
 import com.rebuild.server.configuration.FlowDefinition;
 import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
@@ -92,7 +93,7 @@ public class ApprovalProcessor {
 			throw new ApprovalException("当前记录已经" + (currentState == ApprovalState.PROCESSING.getState() ? "提交审批" : "审批完成"));
 		}
 		
-		FlowNodeGroup nextNodes = getNextNodes(FlowNode.ROOT);
+		FlowNodeGroup nextNodes = getNextNodes(FlowNode.NODE_ROOT);
 		if (!nextNodes.isValid()) {
 			LOG.warn("No next-node be found");
 			return false;
@@ -165,7 +166,23 @@ public class ApprovalProcessor {
 		Application.getBean(ApprovalStepService.class)
 				.txApprove(approvedStep, currentNode.getSignMode(), ccs, nextApprovers, nextNode);
 	}
-	
+
+	/**
+	 * 撤销
+	 *
+	 * @param remark
+	 * @throws ApprovalException
+	 */
+	public void cancel(String remark) throws ApprovalException {
+		Object[] state = Application.getQueryFactory().unique(this.record, EntityHelper.ApprovalState, EntityHelper.ApprovalId);
+		Integer currentState = (Integer) state[0];
+		if ((Integer) state[0] != ApprovalState.PROCESSING.getState()) {
+			throw new ApprovalException("已" + ApprovalState.valueOf(currentState).getName() + "审批不能撤销");
+		}
+
+		Application.getBean(ApprovalStepService.class).txCancel(this.record, (ID) state[1], getCurrentNodeId());
+	}
+
 	/**
 	 * @return
 	 * @see #getNextNode(String)
@@ -302,7 +319,7 @@ public class ApprovalProcessor {
 	public JSONArray getWorkedSteps() {
 		Object[][] array = Application.createQueryNoFilter(
 				"select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode,approvalId,approvalId.name from RobotApprovalStep" +
-						" where recordId = ? and isCanceled = 'F' and isWaiting = 'F' order by createdOn")
+						" where recordId = ? and isWaiting = 'F' order by createdOn")
 				.setParameter(1, this.record)
 				.array();
 		if (array.length == 0) {
@@ -313,12 +330,15 @@ public class ApprovalProcessor {
 		Map<String, List<Object[]>> stepGroupMap = new HashMap<>();
 		for (Object[] o : array) {
 			String prevNode = (String) o[7];
-			if (firstStep == null && FlowNode.ROOT.equals(prevNode)) {
+			if (firstStep == null && FlowNode.NODE_ROOT.equals(prevNode)) {
 				firstStep = o;
 			}
 
 			List<Object[]> stepGroup = stepGroupMap.computeIfAbsent(prevNode, k -> new ArrayList<>());
 			stepGroup.add(o);
+		}
+		if (firstStep == null) {
+			throw new RebuildException("无效审批记录 : " + this.record);
 		}
 
 		JSONArray steps = new JSONArray();
@@ -327,7 +347,7 @@ public class ApprovalProcessor {
 				new Object[] { firstStep[5], UserHelper.getName((ID) firstStep[5]), CalendarUtils.getUTCDateTimeFormat().format(firstStep[4]), firstStep[8], firstStep[9] });
 		steps.add(submitter);
 		
-		String next = FlowNode.ROOT;
+		String next = FlowNode.NODE_ROOT;
 		while (next != null) {
 			List<Object[]> group = stepGroupMap.get(next);
 			if (group == null) {
@@ -350,7 +370,7 @@ public class ApprovalProcessor {
 		}
 		return steps;
 	}
-	
+
 	/**
 	 * @param step
 	 */

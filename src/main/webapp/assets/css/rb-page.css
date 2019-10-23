@@ -20,6 +20,16 @@ html.admin .admin-show.row {
     border-radius: 0;
 }
 
+.dropdown-menu>.dropdown-item:hover,
+.dropdown-menu>a.dropdown-item:hover {
+    background-color: #478af4;
+    color: #fff;
+}
+
+.dropdown-menu>.dropdown-item:hover .icon {
+    color: #fff;
+}
+
 .dropdown-submenu {
     position: relative;
 }
@@ -1076,6 +1086,10 @@ i.split.ui-draggable-dragging {
     line-height: 1.5;
 }
 
+.data-list .table td div .badge.badge-default {
+    line-height: 1.3334;
+}
+
 .column-state .badge {
     border-radius: 99px;
 }
@@ -2042,6 +2056,10 @@ form {
     margin-right: 88px;
 }
 
+.approval-pane .alert .close.btn+.btn+.btn {
+    margin-right: 176px;
+}
+
 .form.approval-form {
     margin: 0 -5px;
 }
@@ -2161,6 +2179,11 @@ form {
     background-color: #ea3f30;
 }
 
+.timeline.approved-steps .timeline-item.state12:before {
+    border-color: #f7b904;
+    background-color: #f7b904;
+}
+
 .timeline.approved-steps .timeline-content {
     padding: 8px 15px;
     min-height: 48px;
@@ -2192,6 +2215,24 @@ form {
 .timeline.approved-steps .timeline-header>.blockquote {
     margin-top: 5px;
     padding: 2px 10px;
+}
+
+.timeline.approved-steps .timeline-item.last {
+    position: relative;
+    min-height: 20px;
+}
+
+.timeline.approved-steps .timeline-item.last>span {
+    position: absolute;
+    background-color: #eee;
+    color: #777;
+    border-radius: 2px;
+    padding: 2px 6px;
+    width: 40px;
+    font-size: 12px;
+    margin-left: -52px;
+    margin-top: 8px;
+    text-align: center;
 }
 
 .notification-type {

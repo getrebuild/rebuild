@@ -72,7 +72,7 @@ public class ApprovalStepService extends BaseService {
 		step.setID("recordId", recordId);
 		step.setID("approvalId", approvalId);
 		step.setString("node", mainRecord.getString(EntityHelper.ApprovalStepNode));
-		step.setString("prevNode", FlowNode.ROOT);
+		step.setString("prevNode", FlowNode.NODE_ROOT);
 		for (ID a : nextApprovers) {
 			Record clone = step.clone();
 			clone.setID("approver", a);
@@ -209,6 +209,30 @@ public class ApprovalStepService extends BaseService {
 			}
 		}
 	}
+
+	/**
+	 * @param recordId
+	 * @param approvalId
+	 * @param currentNode
+	 */
+	public void txCancel(ID recordId, ID approvalId, String currentNode) {
+		final ID canceller = Application.getCurrentUser();
+
+		Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, canceller);
+		step.setID("recordId", recordId);
+		step.setID("approvalId", approvalId);
+		step.setID("approver", canceller);
+		step.setInt("state", ApprovalState.CANCELED.getState());
+		step.setString("node", FlowNode.NODE_CANCELED);
+		step.setString("prevNode", currentNode);
+		super.create(step);
+
+		Record main = EntityHelper.forUpdate(recordId, canceller);
+		main.setInt(EntityHelper.ApprovalState, ApprovalState.CANCELED.getState());
+		super.update(main);
+
+		this.cancelAliveSteps(recordId, approvalId, null, null, false);
+	}
 	
 	/**
 	 * @param recordId
@@ -279,18 +303,18 @@ public class ApprovalStepService extends BaseService {
 	
 	/**
 	 * 审批提交人
-	 * 
+	 *
 	 * @param recordId
 	 * @param approvalId
 	 * @return
 	 */
-	private ID findSubmitter(ID recordId, ID approvalId) {
+	public ID findSubmitter(ID recordId, ID approvalId) {
 		String cKey = "ApprovalSubmitter" + recordId + approvalId;
 		ID submitter = (ID) Application.getCommonCache().getx(cKey);
 		if (submitter != null) {
 			return submitter;
 		}
-		
+
 		// 第一个创建步骤的人为提交人
 		Object[] firstStep = Application.createQueryNoFilter(
 				"select createdBy from RobotApprovalStep where recordId = ? and approvalId = ? and isCanceled = 'F' order by createdOn asc")
