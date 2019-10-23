@@ -154,14 +154,14 @@ public class NavManager extends BaseLayoutManager {
 			}
 		}
 		
-		String navHtml = "<li id='%s' class='%s'><a href='%s' target='%s'><i class='icon zmdi zmdi-%s'></i><span>%s</span></a>";
+		String navHtml = "<li id='%s' class='%s'><a href='%s'%s><i class='icon zmdi zmdi-%s'></i><span>%s</span></a>";
 		String clazz = navName.equals(activeNav) ? "active " : "";
 		if (subHas) {
 			clazz += "parent";
 			isUrlType = false;
-			navUrl = "javascript:;";
+			navUrl = "#";
 		}
-		navHtml = String.format(navHtml, navName, clazz, navUrl, isUrlType ? "_blank" : "_self", navIcon, navText);
+		navHtml = String.format(navHtml, navName, clazz, navUrl, isUrlType ? "target='_blank' rel='noopener noreferrer'" : "", navIcon, navText);
 		
 		if (subHas) {
 			StringBuilder subHtml = new StringBuilder(

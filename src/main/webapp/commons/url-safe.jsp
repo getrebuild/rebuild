@@ -55,7 +55,7 @@
                         <span class="text">${outerUrl}</span>
                     </div>
                     <div class="clearfix"></div>
-                    <a class="btn btn-danger bordered" href="${outerUrl}" rel="noopener">继续访问</a>
+                    <a class="btn btn-danger bordered" href="${outerUrl}" rel="noopener noreferrer">继续访问</a>
                     <a class="btn btn-link" onclick="window.close()">关闭</a>
                 </div>
             </div>

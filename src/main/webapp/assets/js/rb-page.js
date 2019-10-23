@@ -90,6 +90,7 @@ var __initNavs = function () {
   // SubNavs
   var currsntSubnav
   $('.sidebar-elements li.parent').click(function (e) {
+    e.preventDefault()
     var _this = $(this)
     _this.toggleClass('open')
     var $sub = _this.find('.sub-menu')
@@ -99,8 +100,6 @@ var __initNavs = function () {
     //   $sub.animate({ height: subHeight + 22 }, 200)
     // }
     $sub.toggleClass('visible')
-
-    e.stopPropagation()
     currsntSubnav = _this
     _this.find('a').eq(0).tooltip('hide')
     $('.left-sidebar-scroll').perfectScrollbar('update')
