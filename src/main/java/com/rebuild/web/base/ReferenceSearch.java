@@ -183,10 +183,8 @@ public class ReferenceSearch extends BaseControll {
 			if (!ID.isId(id)) {
 				continue;
 			}
-			String label = FieldValueWrapper.getLabel(ID.valueOf(id));
-			if (label != null) {
-				labels.put(id, label);
-			}
+			String label = FieldValueWrapper.getLabelNotry(ID.valueOf(id));
+			labels.put(id, label);
 		}
 		writeSuccess(response, labels);
 	}

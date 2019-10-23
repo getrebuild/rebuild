@@ -89,6 +89,12 @@ public class ApprovalList extends ChartData implements BuiltinChart {
                 continue;
             }
 
+            Object[] status = ApprovalHelper.getApprovalStatus((ID) o[2]);
+            if ((Integer) status[2] == ApprovalState.CANCELED.getState()) {
+                deleted++;
+                continue;
+            }
+
             ID s = ApprovalHelper.getSubmitter((ID) o[2], (ID) o[3]);
             rearray.add(new Object[] {
                     s,
