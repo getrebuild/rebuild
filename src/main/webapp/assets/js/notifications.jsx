@@ -35,7 +35,7 @@ class MessageList extends React.Component {
         <div className="notification-page">
           <ul className="pagination pagination-rounded mb-0">
             <li className="page-item"><a onClick={() => this.gotoPage(-1)} className="page-link"><i className="icon zmdi zmdi-chevron-left" /></a></li>
-            <li><span>{this.state.page}</span></li>
+            <li className="page-no"><span>{this.state.page}</span></li>
             <li className="page-item"><a onClick={() => this.gotoPage(1)} className="page-link"><i className="icon zmdi zmdi-chevron-right" /></a></li>
           </ul>
         </div>}

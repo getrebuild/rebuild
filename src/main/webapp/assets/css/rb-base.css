@@ -22542,6 +22542,13 @@ address {
     line-height: 14px
 }
 
+.pagination-rounded .page-no {
+    height: 35px;
+    line-height: 35px;
+    padding: 0 10px;
+    font-weight: bold;
+}
+
 .form-control {
     border-width: 1px;
     border-top-color: #bdc0c7;
