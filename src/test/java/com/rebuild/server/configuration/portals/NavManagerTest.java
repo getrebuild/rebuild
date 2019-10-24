@@ -57,7 +57,7 @@ public class NavManagerTest extends TestSupport {
 		
 		if (!((JSONArray) navForPortal).isEmpty()) {
 			JSONObject firstNav = (JSONObject) ((JSONArray) navForPortal).get(0);
-			String navHtml = NavManager.instance.renderNavItem(firstNav, "home", true);
+			String navHtml = NavManager.instance.renderNavItem(firstNav, "home");
 			System.out.println(navHtml);
 		}
 	}

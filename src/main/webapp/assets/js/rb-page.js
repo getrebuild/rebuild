@@ -91,6 +91,7 @@ var __initNavs = function () {
   var currsntSubnav
   $('.sidebar-elements li.parent').click(function (e) {
     e.preventDefault()
+    e.stopPropagation()
     var _this = $(this)
     _this.toggleClass('open')
     var $sub = _this.find('.sub-menu')
@@ -119,7 +120,7 @@ var __initNavs = function () {
   })
 
   var activeNav = $('.sidebar-elements li.active')
-  if (activeNav.parents('li.parent').length > 0) {
+  if (!(activeNav.attr('class') || '').contains('nav_entity-') && activeNav.parents('li.parent').length > 0) {
     activeNav.parents('li.parent').addClass('active').first().trigger('click')
     $(document.body).trigger('click')
   }
@@ -144,7 +145,7 @@ var __initNavs = function () {
   }
 }
 
-// Check notification
+// Notification
 var __checkMessage__state = 0
 var __checkMessage = function () {
   $.get(rb.baseUrl + '/notification/check-state', function (res) {
@@ -200,12 +201,11 @@ var __showNotification = function () {
   }
 }
 
-// Global search
+// Global searchs
 var __globalSearch = function () {
   $('.sidebar-elements li').each(function (idx, item) {
     if (idx > 40) return false
-    var id = $(item).attr('id')
-    if (id && id.startsWith('nav_entity-') && id !== 'nav_entity-$PARENT$') {
+    if (($(item).attr('class') || '').contains('nav_entity-')) {
       var $a = $(item).find('a')
       $('<a class="text-truncate" data-url="' + $a.attr('href') + '">' + $a.text() + '</a>').appendTo('.search-models')
     }
