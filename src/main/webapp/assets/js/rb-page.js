@@ -205,7 +205,7 @@ var __showNotification = function () {
 var __globalSearch = function () {
   $('.sidebar-elements li').each(function (idx, item) {
     if (idx > 40) return false
-    if (($(item).attr('class') || '').contains('nav_entity-')) {
+    if (!$(item).hasClass('parent') && ($(item).attr('class') || '').contains('nav_entity-')) {
       var $a = $(item).find('a')
       $('<a class="text-truncate" data-url="' + $a.attr('href') + '">' + $a.text() + '</a>').appendTo('.search-models')
     }

@@ -154,8 +154,6 @@ public class NavManager extends BaseLayoutManager {
 			subNavs = item.getJSONArray("sub");
 			if (subNavs == null || subNavs.isEmpty()) {
 				subNavs = null;
-			} else {
-				navName = "nav_parent";
 			}
 		}
 
