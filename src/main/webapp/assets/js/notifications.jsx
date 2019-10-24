@@ -31,14 +31,14 @@ class MessageList extends React.Component {
         {this.state.list && list.length === 0 &&
           <div className="list-nodata"><span className="zmdi zmdi-notifications"></span><p>暂无通知</p></div>}
       </div>
-      {this.state.page > 1 || list.length >= 40 &&
+      {(this.state.page > 1 || list.length >= 40) &&
         <div className="notification-page">
           <ul className="pagination pagination-rounded mb-0">
             <li className="page-item"><a onClick={() => this.gotoPage(-1)} className="page-link"><i className="icon zmdi zmdi-chevron-left" /></a></li>
+            <li><span>{this.state.page}</span></li>
             <li className="page-item"><a onClick={() => this.gotoPage(1)} className="page-link"><i className="icon zmdi zmdi-chevron-right" /></a></li>
           </ul>
         </div>}
-
     </div>)
   }
 
@@ -62,7 +62,7 @@ class MessageList extends React.Component {
       page: page || this.state.page,
       type: type || this.state.type
     }, () => {
-      $.get(`${rb.baseUrl}/notification/messages?type=${this.state.type}&page=${this.state.page || 1}`, (res) => {
+      $.get(`${rb.baseUrl}/notification/messages?type=${this.state.type}&page=${this.state.page}`, (res) => {
         this.setState({ list: res.data || [] })
       })
     })

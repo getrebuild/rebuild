@@ -295,7 +295,7 @@ class ApprovalStepViewer extends React.Component {
               {!this.state.steps && <RbSpinner fully={true} />}
               <ul className="timeline approved-steps">
                 {(this.state.steps || []).map((item, idx) => {
-                  return idx === 0 ? this.renderSubmitter(item, idx) : this.renderApprovers(item, idx, stateLast)
+                  return idx === 0 ? this.renderSubmitter(item, idx) : this.renderApprovers(item, idx)
                 })}
                 {stateLast >= 10 && <li className="timeline-item last"><span>结束</span></li>}
               </ul>
@@ -320,14 +320,21 @@ class ApprovalStepViewer extends React.Component {
       </div>
     </li>
   }
-  renderApprovers(s, idx, lastState) {
+  renderApprovers(s, idx) {
     let k = 'step-' + idx + '-'
     let sss = []
+    let completeState = 0
+    if (s[0].signMode === 'OR') {
+      s.forEach(item => {
+        if (item.state >= 10) completeState = item.state
+      })
+    }
+
     s.forEach(item => {
       let approverName = item.approver === rb.currentUser ? '你' : item.approverName
       let aMsg = `等待 ${approverName} 审批`
       if (item.state >= 10) aMsg = `由 ${approverName} ${STATE_NAMES[item.state]}`
-      if (lastState >= 10 && item.state < 10) aMsg = `${approverName} 未进行审批`
+      if (completeState >= 10 && item.state < 10) aMsg = `${approverName} 未进行审批`
 
       sss.push(<li className={'timeline-item state' + item.state} key={k + sss.length}>
         {this.__formatTime(item.approvedTime || item.createdOn)}

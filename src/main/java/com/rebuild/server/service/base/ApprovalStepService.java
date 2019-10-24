@@ -151,7 +151,7 @@ public class ApprovalStepService extends BaseService {
 		
 		// 或签。一人通过其他作废
 		if (FlowNode.SIGN_OR.equals(signMode)) {
-			cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, false);
+//			cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, false);
 		}
 		// 会签。检查是否都签了
 		else {
@@ -245,10 +245,11 @@ public class ApprovalStepService extends BaseService {
 	 */
 	private ID createStepIfNeed(ID recordId, ID approvalId, String node, ID approver, boolean isWaiting, String prevNode) {
 		Object[] hadApprover = Application.createQueryNoFilter(
-				"select stepId from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and isCanceled = 'F'")
+				"select stepId from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and approver = ? and isCanceled = 'F'")
 				.setParameter(1, recordId)
 				.setParameter(2, approvalId)
 				.setParameter(3, node)
+				.setParameter(4, approver)
 				.unique();
 		if (hadApprover != null) {
 			return null;
