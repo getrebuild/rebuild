@@ -324,9 +324,6 @@ class ApprovalStepViewer extends React.Component {
     let k = 'step-' + idx + '-'
     let sss = []
     s.forEach(item => {
-      // if (lastState >= 10 && item.state < 10 && false) {
-      //   // 结束态不显示未处理的
-      // } else {
       let approverName = item.approver === rb.currentUser ? '你' : item.approverName
       let aMsg = `等待 ${approverName} 审批`
       if (item.state >= 10) aMsg = `由 ${approverName} ${STATE_NAMES[item.state]}`
@@ -338,11 +335,10 @@ class ApprovalStepViewer extends React.Component {
           <div className="timeline-avatar"><img src={`${rb.baseUrl}/account/user-avatar/${item.approver}`} /></div>
           <div className="timeline-header">
             <p className="timeline-activity">{aMsg}</p>
-            {item.remark && <blockquote className="blockquote timeline-blockquote mb-0"><p>{item.remark}</p></blockquote>}
+            {item.remark && <blockquote className="blockquote timeline-blockquote mb-0"><p className="text-wrap">{item.remark}</p></blockquote>}
           </div>
         </div>
       </li>)
-      // }
     })
     if (sss.length < 2) return sss
 

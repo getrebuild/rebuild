@@ -114,6 +114,18 @@ html.admin .admin-show.row {
     font-style: italic;
 }
 
+.text-dots,
+.text-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.text-wrap {
+    word-break: break-all;
+    word-wrap: break-word;
+}
+
 .badge.text-id {
     font-weight: normal;
     color: #777;
@@ -1105,12 +1117,6 @@ i.split.ui-draggable-dragging {
 
 .column-multi .badge+.badge {
     margin-left: 1px;
-}
-
-.text-3dot {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 .unselect {

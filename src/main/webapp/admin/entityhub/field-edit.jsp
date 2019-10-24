@@ -285,7 +285,7 @@
 </div>
 <script type="text/plain" id="picklist-tmpl">
 <li class="dd-item dd3-item">
-	<div class="dd3-content text-3dot">HOLD</div>
+	<div class="dd3-content text-dots">HOLD</div>
 	<div class="dd-handle dd3-handle"></div>
 	<div class="dd3-action"><a href="javascript:;" class="J_default" title="设为默认">[默认]</a></div>
 </li>
