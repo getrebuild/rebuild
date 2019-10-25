@@ -41,8 +41,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
+ * 字段归集可能存在的问题。
+ * - 目标记录可能不允许修改（如审批已完成），此时会抛出异常
+ *
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/29
+ *
+ * @see com.rebuild.server.business.trigger.RobotTriggerObserver
  */
 public class FieldAggregation implements TriggerAction {
 	
@@ -55,6 +60,9 @@ public class FieldAggregation implements TriggerAction {
 	private static final int MAX_DEPTH = 5;
 	
 	final private ActionContext context;
+
+	// 允许无权限更新
+	private boolean allowNoPermissionUpdate;
 	
 	private Entity sourceEntity;
 	private Entity targetEntity;
@@ -62,11 +70,13 @@ public class FieldAggregation implements TriggerAction {
 	private String followSourceField;
 	private ID targetRecordId;
 
-	// 允许无权限更新
-	final private boolean allowNoPermissionUpdate = true;
-
 	public FieldAggregation(ActionContext context) {
+		this(context, Boolean.TRUE);
+	}
+
+	public FieldAggregation(ActionContext context, boolean allowNoPermissionUpdate) {
 		this.context = context;
+		this.allowNoPermissionUpdate = allowNoPermissionUpdate;
 	}
 	
 	@Override

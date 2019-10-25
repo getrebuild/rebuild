@@ -33,6 +33,7 @@ import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.business.dataimport.DataImporter;
 import com.rebuild.server.business.recyclebin.RecycleStore;
 import com.rebuild.server.business.series.SeriesGeneratorFactory;
+import com.rebuild.server.business.trigger.RobotTriggerObserver;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
@@ -405,10 +406,10 @@ public class GeneralEntityService extends ObservableService  {
 		Entity checkEntity = entity.getMasterEntity() != null ? entity.getMasterEntity() : entity;
 		if (checkEntity.containsField(EntityHelper.ApprovalId)) {
 			// 需要验证主记录
-			String masterType = "";
+			String recordType = StringUtils.EMPTY;
 			if (entity.getMasterEntity() != null) {
 				recordId = getMasterId(entity, recordId);
-				masterType = "主";
+				recordType = "主";
 			}
 
 			ApprovalState state = null;
@@ -418,10 +419,13 @@ public class GeneralEntityService extends ObservableService  {
 				return false;
 			}
 
-			String actionType = action == BizzPermission.UPDATE ? "修改" : "删除";
 			if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
+				String actionType = action == BizzPermission.UPDATE ? "修改" : "删除";
 				String stateType = state == ApprovalState.APPROVED ? "已完成审批" : "正在审批中";
-				throw new DataSpecificationException(masterType + "记录" + stateType + "，不能" + actionType);
+				if (RobotTriggerObserver.getTriggerSource() != null) {
+					recordType = "关联" + recordType;
+				}
+				throw new DataSpecificationException(recordType + "记录" + stateType + "，不能" + actionType);
 			}
 		}
 
