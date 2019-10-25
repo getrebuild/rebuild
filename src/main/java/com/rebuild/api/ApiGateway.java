@@ -39,6 +39,7 @@ import org.springframework.cglib.core.ReflectUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -215,6 +216,13 @@ public class ApiGateway extends Controll {
 		Application.getCommonService().create(record);
 	}
 
+    @RequestMapping("/gw/api-list")
+    public ModelAndView apiList(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        ModelAndView mv = new ModelAndView("/api-list.jsp");
+        mv.getModelMap().put("list", API_CLASSES.keySet());
+        return mv;
+    }
+
 	// -- 注册 API
 
 	private static final Map<String, Class<? extends BaseApi>> API_CLASSES = new HashMap<>();
@@ -235,5 +243,6 @@ public class ApiGateway extends Controll {
 
 	static {
 		registerApi(SystemTime.class);
+		registerApi(LoginToken.class);
 	}
 }

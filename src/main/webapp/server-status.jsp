@@ -17,7 +17,7 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-base.css">
 <title>系统状态</title>
 <style type="text/css">
-.block{margin:0 auto;max-width:1000px;padding:0 14px;margin-top:30px;}
+.block{max-width:1000px;padding:0 14px;margin:30px auto 0;}
 .error{background-color:#ea4335;color:#fff;padding:18px 0;}
 .error a{color:#fff;text-decoration:underline;}
 </style>
