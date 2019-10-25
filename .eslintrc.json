@@ -83,7 +83,8 @@
         "RbPreview": true,
         "$countdownButton": true,
         "ChartSelect": true,
-        "Share2": true
+        "Share2": true,
+        "$pgt": true
     },
     "rules": {
         "strict": 0,

@@ -87,7 +87,7 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script>
 window.__PageConfig = {
-	type: 'RecordView',
+	type: $pgt.RecordView,
 	entity: ['${entityName}','${entityLabel}','${entityIcon}'],
 	privileges: ${entityPrivileges},
 	viewTabs: ${ViewTabs},

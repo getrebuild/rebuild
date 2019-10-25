@@ -91,7 +91,7 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script>
 window.__PageConfig = {
-	type: 'SlaveList',
+	type: $pgt.SlaveList,
 	entity: ['${entityName}','${entityLabel}','${entityIcon}'],
 	privileges: ${entityPrivileges},
 	listConfig: ${DataListConfig},

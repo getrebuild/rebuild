@@ -45,7 +45,7 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script>
 window.__PageConfig = {
-	type: 'RecordView',
+	type: $pgt.RecordView,
 	entity: ['Department','${entityLabel}','${entityIcon}'],
 	recordId: '${id}'
 }

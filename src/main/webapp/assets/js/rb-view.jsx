@@ -21,8 +21,9 @@ class RbViewForm extends React.Component {
       }
 
       let hadApproval = res.data.hadApproval
-      if (wpc.type === 'SlaveView') {
-        if (hadApproval === 2 || hadApproval === 10) $('.J_edit,.J_delete').attr('disabled', true)
+      if (wpc.type === $pgt.SlaveView) {
+        if (hadApproval === 2) $('.J_edit,.J_delete').attr('disabled', true)
+        else if (hadApproval === 10) $('.J_edit,.J_delete').remove()
         hadApproval = null
       }
 
@@ -236,7 +237,7 @@ const RbViewPage = {
 
     $('.J_delete').click(function () {
       if ($(this).attr('disabled')) return
-      let needEntity = (wpc.type === 'SlaveList' || wpc.type === 'SlaveView') ? null : entity[0]
+      let needEntity = (wpc.type === $pgt.SlaveList || wpc.type === $pgt.SlaveView) ? null : entity[0]
       renderRbcomp(<DeleteConfirm id={that.__id} entity={needEntity} deleteAfter={() => that.hide(true)} />)
     })
     $('.J_edit').click(() => RbFormModal.create({ id: id, title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] }))

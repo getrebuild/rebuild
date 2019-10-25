@@ -432,3 +432,11 @@ var $countdownButton = function (btn, seconds) {
     }
   }, 1000)
 }
+
+// 页面类型
+var $pgt = {
+  RecordView: 'RecordView',
+  RecordList: 'RecordList',
+  SlaveView: 'SlaveView',
+  SlaveList: 'SlaveList'
+}
