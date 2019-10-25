@@ -92,7 +92,7 @@
 				</div>
 				<div class="splash-footer">
 					<div class="copyright">
-						<span>&copy; 2019 <a href="https://getrebuild.com/" target="_blank">REBUILD</a></span>
+						<span>&copy; 2019 <a href="https://getrebuild.com/" target="_blank">${appName}</a></span>
 						<div class="dev-show" style="font-size:11px">Built on <%=ServerListener.getStartupTime()%> (<%=Application.VER%>)</div>
 					</div>
 				</div>
