@@ -52,7 +52,7 @@ public class DepartmentControll extends BaseEntityControll {
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
 		ID user = getRequestUser(request);
 		ModelAndView mv = createModelAndView("/admin/bizuser/dept-list.jsp", "Department", user);
-		JSON config = DataListManager.instance.getColumnLayout("Department", user);
+		JSON config = DataListManager.instance.getFieldsLayout("Department", user);
 		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
 		return mv;
 	}

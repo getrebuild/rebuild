@@ -30,6 +30,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.business.charts.ChartsFactory;
 import com.rebuild.server.business.charts.builtin.BuiltinChart;
 import com.rebuild.server.configuration.portals.DashboardManager;
+import com.rebuild.server.configuration.portals.ShareToManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
@@ -87,22 +88,18 @@ public class DashboardControll extends BasePageControll {
 		if (dashCopy != null) {
 			for (Object o : dashCopy) {
 				JSONObject item = (JSONObject) o;
-				String chartId = item.getString("chart");
-				if (!ID.isId(chartId)) {
-					continue;
-				}
-				
 				Record chart = Application.createQueryNoFilter(
 						"select config,belongEntity,chartType,title,createdBy from ChartConfig where chartId = ?")
-						.setParameter(1, ID.valueOf(chartId))
+						.setParameter(1, ID.valueOf(item.getString("chart")))
 						.record();
-				// 自己的直接使用
-				ID createdBy = chart.getID("createdBy");
-				if (user.equals(createdBy)
-						|| (UserHelper.isAdmin(createdBy) && UserHelper.isAdmin(user))) {
+				if (chart == null) {
 					continue;
 				}
-				
+				// 自己的直接使用
+				if (ShareToManager.isSelf(user, chart.getID("createdBy"))) {
+					continue;
+				}
+
 				chart.removeValue("createdBy");
 				Record chartRecord = EntityHelper.forNew(EntityHelper.ChartConfig, user);
 				for (Iterator<String> iter = chart.getAvailableFieldIterator(); iter.hasNext(); ) {

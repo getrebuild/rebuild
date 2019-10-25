@@ -282,7 +282,7 @@ public abstract class ChartData implements ChartSpec {
 		
 		String label;
 		if (axisType == DisplayType.REFERENCE) {
-			label = FieldValueWrapper.getLabel((ID) value);
+			label = FieldValueWrapper.getLabelNotry((ID) value);
 		} else if (axisType == DisplayType.BOOL
 				|| axisType == DisplayType.PICKLIST 
 				|| axisType == DisplayType.CLASSIFICATION

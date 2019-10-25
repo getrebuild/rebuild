@@ -117,9 +117,9 @@ public class PickListManager implements ConfigManager<Object> {
 	 */
 	public String getLabel(ID itemId) {
 		final String ckey = "PickListLABEL-" + itemId;
-		String cval = Application.getCommonCache().get(ckey);
-		if (cval != null) {
-			return cval;
+		String cached = Application.getCommonCache().get(ckey);
+		if (cached != null) {
+			return cached;
 		}
 		
 		Object[] o = Application.createQueryNoFilter(
@@ -127,10 +127,10 @@ public class PickListManager implements ConfigManager<Object> {
 				.setParameter(1, itemId)
 				.unique();
 		if (o != null) {
-			cval = (String) o[0];
+			cached = (String) o[0];
 		}
-		Application.getCommonCache().put(ckey, cval);
-		return cval;
+		Application.getCommonCache().put(ckey, cached);
+		return cached;
 	}
 	
 	/**

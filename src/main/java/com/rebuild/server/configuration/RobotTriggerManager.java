@@ -135,9 +135,9 @@ public class RobotTriggerManager implements ConfigManager<Entity> {
 	@SuppressWarnings("unchecked")
 	protected List<ConfigEntry> getConfig(Entity entity) {
 		final String cKey = "RobotTriggerManager-" + entity.getName();
-		Object cVal = Application.getCommonCache().getx(cKey);
-		if (cVal != null) {
-			return (List<ConfigEntry>) cVal;
+		Object cached = Application.getCommonCache().getx(cKey);
+		if (cached != null) {
+			return (List<ConfigEntry>) cached;
 		}
 		
 		Object[][] array = Application.createQueryNoFilter(

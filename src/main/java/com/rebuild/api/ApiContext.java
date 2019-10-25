@@ -21,6 +21,8 @@ package com.rebuild.api;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.service.bizz.UserService;
+import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.Map;
 
@@ -38,16 +40,24 @@ public class ApiContext {
 	final private JSON postData;
 
 	/**
-	 * @param appId
-	 * @param bindUser
 	 * @param reqParams
 	 * @param postData
 	 */
-	public ApiContext(String appId, ID bindUser, Map<String, String> reqParams, JSON postData) {
-		this.appId = appId;
-		this.bindUser = bindUser;
+	public ApiContext(Map<String, String> reqParams, JSON postData) {
+		this(reqParams, postData, null, UserService.SYSTEM_USER);
+	}
+
+	/**
+	 * @param reqParams
+	 * @param postData
+	 * @param appId
+	 * @param bindUser
+	 */
+	public ApiContext(Map<String, String> reqParams, JSON postData, String appId, ID bindUser) {
 		this.reqParams = reqParams;
 		this.postData = postData;
+		this.appId = appId;
+		this.bindUser = bindUser;
 	}
 
 	/**
@@ -68,16 +78,33 @@ public class ApiContext {
 	}
 
 	/**
+	 * 获取 URL 请求参数
+	 *
 	 * @return
 	 */
-	public Map<String, String> getReqParams() {
+	public Map<String, String> getParameterMap() {
 		return reqParams;
 	}
 
 	/**
+	 * @param name
+	 * @return
+	 * @throws ApiInvokeException
+	 */
+	public String getParameterNotBlank(String name) throws ApiInvokeException {
+		String value = getParameterMap().get(name);
+		if (StringUtils.isBlank(value)) {
+			throw new ApiInvokeException(ApiInvokeException.ERR_BADPARAMS, "Parameter [" + name + "] cannot be empty");
+		}
+		return value;
+	}
+
+	/**
+	 * 获取 POST 数据
+	 *
 	 * @return
 	 */
 	public JSON getPostData() {
-		return postData;
+		return postData == null ? JSONUtils.EMPTY_OBJECT : postData;
 	}
 }

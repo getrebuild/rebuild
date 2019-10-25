@@ -21,8 +21,9 @@ class RbViewForm extends React.Component {
       }
 
       let hadApproval = res.data.hadApproval
-      if (wpc.type === 'SlaveView') {
-        if (hadApproval === 2 || hadApproval === 10) $('.J_edit,.J_delete').attr('disabled', true)
+      if (wpc.type === $pgt.SlaveView) {
+        if (hadApproval === 2) $('.J_edit,.J_delete').attr('disabled', true)
+        else if (hadApproval === 10) $('.J_edit,.J_delete').remove()
         hadApproval = null
       }
 
@@ -169,7 +170,7 @@ class SelectReport extends React.Component {
             </div>
             <div className="modal-body">
               <h5 className="mt-0 text-bold">选择报表</h5>
-              {(this.state.reports && this.state.reports.length === 0) && <p className="text-danger">无可用报表，请联系管理员配置</p>}
+              {(this.state.reports && this.state.reports.length === 0) && <p className="text-muted">无可用报表 {rb.isAdminUser && <a className="icon-link ml-1" target="_blank" href={`${rb.baseUrl}/admin/datas/data-reports`}><i className="zmdi zmdi-settings"></i> 点击配置</a>}</p>}
               <div>
                 <ul className="list-unstyled">
                   {(this.state.reports || []).map((item) => {
@@ -236,7 +237,7 @@ const RbViewPage = {
 
     $('.J_delete').click(function () {
       if ($(this).attr('disabled')) return
-      let needEntity = (wpc.type === 'SlaveList' || wpc.type === 'SlaveView') ? null : entity[0]
+      let needEntity = (wpc.type === $pgt.SlaveList || wpc.type === $pgt.SlaveView) ? null : entity[0]
       renderRbcomp(<DeleteConfirm id={that.__id} entity={needEntity} deleteAfter={() => that.hide(true)} />)
     })
     $('.J_edit').click(() => RbFormModal.create({ id: id, title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] }))

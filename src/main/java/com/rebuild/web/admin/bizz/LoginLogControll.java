@@ -43,7 +43,7 @@ public class LoginLogControll extends BaseEntityControll {
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
 		ID user = getRequestUser(request);
 		ModelAndView mv = createModelAndView("/admin/bizuser/login-logs.jsp", "LoginLog", user);
-		JSON config = DataListManager.instance.getColumnLayout("LoginLog", user);
+		JSON config = DataListManager.instance.getFieldsLayout("LoginLog", user);
 		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
 		return mv;
 	}

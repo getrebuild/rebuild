@@ -90,6 +90,8 @@ var __initNavs = function () {
   // SubNavs
   var currsntSubnav
   $('.sidebar-elements li.parent').click(function (e) {
+    e.preventDefault()
+    e.stopPropagation()
     var _this = $(this)
     _this.toggleClass('open')
     var $sub = _this.find('.sub-menu')
@@ -99,8 +101,6 @@ var __initNavs = function () {
     //   $sub.animate({ height: subHeight + 22 }, 200)
     // }
     $sub.toggleClass('visible')
-
-    e.stopPropagation()
     currsntSubnav = _this
     _this.find('a').eq(0).tooltip('hide')
     $('.left-sidebar-scroll').perfectScrollbar('update')
@@ -120,32 +120,32 @@ var __initNavs = function () {
   })
 
   var activeNav = $('.sidebar-elements li.active')
-  if (activeNav.parents('li.parent').length > 0) {
+  if (!(activeNav.attr('class') || '').contains('nav_entity-') && activeNav.parents('li.parent').length > 0) {
     activeNav.parents('li.parent').addClass('active').first().trigger('click')
     $(document.body).trigger('click')
-  }
-
-  // When small-width
-  $('.left-sidebar-toggle').click(function () {
-    $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
-    $('.left-sidebar-spacer').toggleClass('open')
-  }).text($('.rb-right-navbar .page-title').text())
-
-  // aside
-  var aside = $('.page-aside')
-  if (aside.length > 0) {
-    $('.page-aside .aside-header').click(function () {
-      $(this).toggleClass('collapsed')
-      $('.page-aside .aside-nav').toggleClass('show')
-    })
   }
 
   $('.nav-settings').click(function () {
     RbModal.create(rb.baseUrl + '/p/commons/nav-settings', '设置导航菜单')
   })
+
+  // WHEN SMALL-WIDTH
+  {
+    $('.left-sidebar-toggle').click(function () {
+      $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
+      $('.left-sidebar-spacer').toggleClass('open')
+    }).text($('.rb-right-navbar .page-title').text())
+
+    if ($('.page-aside .aside-header').length > 0) {
+      $('.page-aside .aside-header').click(function () {
+        $(this).toggleClass('collapsed')
+        $('.page-aside .aside-nav').toggleClass('show')
+      })
+    }
+  }
 }
 
-// Check notification
+// Notification
 var __checkMessage__state = 0
 var __checkMessage = function () {
   $.get(rb.baseUrl + '/notification/check-state', function (res) {
@@ -201,12 +201,11 @@ var __showNotification = function () {
   }
 }
 
-// Global search
+// Global searchs
 var __globalSearch = function () {
   $('.sidebar-elements li').each(function (idx, item) {
     if (idx > 40) return false
-    var id = $(item).attr('id')
-    if (id && id.startsWith('nav_entity-') && id !== 'nav_entity-$PARENT$') {
+    if (!$(item).hasClass('parent') && ($(item).attr('class') || '').contains('nav_entity-')) {
       var $a = $(item).find('a')
       $('<a class="text-truncate" data-url="' + $a.attr('href') + '">' + $a.text() + '</a>').appendTo('.search-models')
     }
@@ -432,4 +431,12 @@ var $countdownButton = function (btn, seconds) {
       btn.text(text + ' (' + seconds + ')')
     }
   }, 1000)
+}
+
+// 页面类型
+var $pgt = {
+  RecordView: 'RecordView',
+  RecordList: 'RecordList',
+  SlaveView: 'SlaveView',
+  SlaveList: 'SlaveList'
 }

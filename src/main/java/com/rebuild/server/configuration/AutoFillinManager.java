@@ -174,9 +174,9 @@ public class AutoFillinManager implements ConfigManager<Field> {
 	@SuppressWarnings("unchecked")
 	private List<ConfigEntry> getConfig(Field field) {
 		final String cKey = "AutoFillinManager-" + field.getOwnEntity().getName() + "." + field.getName();
-		Object cVal = Application.getCommonCache().getx(cKey);
-		if (cVal != null) {
-			return (List<ConfigEntry>) cVal;
+		Object cached = Application.getCommonCache().getx(cKey);
+		if (cached != null) {
+			return (List<ConfigEntry>) cached;
 		}
 		
 		Object[][] array = Application.createQueryNoFilter(

@@ -16,32 +16,25 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.service.configuration;
+package com.rebuild.utils;
 
-import cn.devezhao.persist4j.PersistManagerFactory;
-import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.server.configuration.portals.WidgetManager;
-import com.rebuild.server.metadata.EntityHelper;
+import cn.devezhao.commons.ThreadPool;
+import org.junit.Test;
 
 /**
- * 页面部件
- *
- * @author devezhao
- * @since 2019/10/18
+ * @author devezhao-mbp zhaofang123@gmail.com
+ * @since 2019/10/25
  */
-public class WidgetConfigService extends ConfigurationService {
+public class RequestFrequencyCounterTest {
 
-    protected WidgetConfigService(PersistManagerFactory aPMFactory) {
-        super(aPMFactory);
-    }
-
-    @Override
-    public int getEntityCode() {
-        return EntityHelper.WidgetConfig;
-    }
-
-    @Override
-    protected void cleanCache(ID configId) {
-        WidgetManager.instance.clean(configId);
+    @Test
+    public void times() {
+        RequestFrequencyCounter counter = new RequestFrequencyCounter();
+        for (int i = 0; i < 20; i++) {
+            System.out.println(counter.add().seconds(3).times());
+            ThreadPool.waitFor(10);
+        }
+        ThreadPool.waitFor(3000);
+        System.out.println("Last : " + counter.times());
     }
 }

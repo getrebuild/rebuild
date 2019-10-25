@@ -68,21 +68,21 @@ public abstract class Controll {
 		}
 		return map;
 	}
-	
+
 	/**
 	 * @param errorMsg
 	 * @return
 	 */
 	protected JSONObject formatFailure(String errorMsg) {
-		return formatFailure(CODE_ERROR, errorMsg);
+		return formatFailure(errorMsg, CODE_ERROR);
 	}
-	
+
 	/**
-	 * @param errorCode
 	 * @param errorMsg
+	 * @param errorCode
 	 * @return
 	 */
-	protected JSONObject formatFailure(int errorCode, String errorMsg) {
+	protected JSONObject formatFailure(String errorMsg, int errorCode) {
 		JSONObject map = new JSONObject();
 		map.put("error_code", errorCode);
 		map.put("error_msg", StringUtils.defaultIfBlank(errorMsg, "系統繁忙，请稍后重试"));

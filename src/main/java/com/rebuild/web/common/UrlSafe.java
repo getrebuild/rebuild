@@ -19,7 +19,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.web.common;
 
 import com.alibaba.fastjson.JSONArray;
-import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.web.BasePageControll;
 import org.springframework.stereotype.Controller;
@@ -69,7 +68,7 @@ public class UrlSafe extends BasePageControll {
      */
 	public static boolean isTrusted(String url) {
         url = url.split("\\?")[0];
-        if (url.contains(SysConfiguration.get(ConfigurableItem.HomeURL))) {
+        if (url.contains(SysConfiguration.getHomeUrl())) {
             return true;
         }
 

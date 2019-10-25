@@ -118,7 +118,7 @@ public class SignUpControll extends BasePageControll {
 		try {
 			Application.getBean(UserService.class).txSignUp(userNew);
 			
-			String homeUrl = SysConfiguration.get(ConfigurableItem.HomeURL);
+			String homeUrl = SysConfiguration.getHomeUrl();
 			String content = String.format(MSG_PENDING, 
 					fullName, loginName, passwd, homeUrl, homeUrl);
 			SMSender.sendMail(email, "管理员正在审核你的注册信息", content);

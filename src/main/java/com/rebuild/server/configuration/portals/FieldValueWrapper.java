@@ -306,8 +306,11 @@ public class FieldValueWrapper {
 			throw new NoRecordFoundException("No label found by ID : " + id);
 		}
 		
-		Object labelVal = FieldValueWrapper.instance.wrapFieldValue(label[0], nameField);
-		return labelVal == null ? null : labelVal.toString();
+		Object labelValue = FieldValueWrapper.instance.wrapFieldValue(label[0], nameField);
+		if (labelValue == null || StringUtils.isBlank(labelValue.toString())) {
+			return NO_LABEL_PREFIX + id.toLiteral().toUpperCase();
+		}
+		return labelValue.toString();
 	}
 
 	/**
@@ -316,11 +319,7 @@ public class FieldValueWrapper {
 	 */
 	public static String getLabelNotry(ID id) {
 		try {
-			String label = FieldValueWrapper.getLabel(id);
-			if (StringUtils.isBlank(label)) {
-			    label = NO_LABEL_PREFIX + id.toLiteral().toUpperCase();
-            }
-			return label;
+			return FieldValueWrapper.getLabel(id);
 		} catch (MetadataException | NoRecordFoundException ex) {
 			return MISS_REF_PLACE;
 		}

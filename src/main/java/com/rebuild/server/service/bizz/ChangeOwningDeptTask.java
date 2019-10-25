@@ -18,15 +18,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.bizz;
 
-import java.text.MessageFormat;
-
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.engine.ID;
+import java.text.MessageFormat;
 
 /**
  * 用户变更部门后，该用户的业务记录中的所属部门也需要变更
@@ -50,10 +49,11 @@ public class ChangeOwningDeptTask extends HeavyTask<Integer> {
 	
 	@Override
 	public Integer exec() throws Exception {
+		LOG.info("Start modifying the `OwningDept` ... " + this.user);
 		this.setTotal(MetadataHelper.getEntities().length);
-		
-		String updeptSql = "update `{0}` set OWNING_DEPT = ''%s'' where OWNING_USER = ''%s''";
-		updeptSql = String.format(updeptSql, deptNew.toLiteral(), user.toLiteral());
+
+		final String updeptSql = String.format(
+				"update `{0}` set `{1}` = ''%s'' where `{2}` = ''%s''", deptNew.toLiteral(), user.toLiteral());
 		int changed = 0;
 		for (Entity e : MetadataHelper.getEntities()) {
 			if (this.isInterrupt()) {
@@ -61,14 +61,20 @@ public class ChangeOwningDeptTask extends HeavyTask<Integer> {
 				LOG.error("Task interrupted : " + user + " > " + deptNew);
 				break;
 			}
-			
-			if (EntityHelper.hasPrivilegesField(e)) {
-				String sql = MessageFormat.format(updeptSql, e.getPhysicalName());
-				Application.getSQLExecutor().execute(sql, 60 * 10);
+			if (!EntityHelper.hasPrivilegesField(e)) {
 				this.addCompleted();
-				changed++;
+				continue;
 			}
+
+			String sql = MessageFormat.format(updeptSql,
+					e.getPhysicalName(),
+					e.getField(EntityHelper.OwningDept).getPhysicalName(),
+					e.getField(EntityHelper.OwningUser).getPhysicalName());
+			Application.getSQLExecutor().execute(sql, 600);
+			this.addCompleted();
+			changed++;
 		}
+		LOG.info("Modify the `OwningDept` to complete : " + this.user + " > " +  changed);
 		return changed;
 	}
 }

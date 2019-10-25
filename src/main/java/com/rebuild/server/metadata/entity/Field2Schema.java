@@ -221,7 +221,8 @@ public class Field2Schema {
 		Record recordOfField = EntityHelper.forNew(EntityHelper.MetaField, user);
 		recordOfField.setString("belongEntity", entity.getName());
 		recordOfField.setString("fieldName", fieldName);
-		String physicalName = fieldName.toUpperCase();
+//		String physicalName = fieldName.toUpperCase();
+		String physicalName = StringHelper.hyphenate(fieldName).toUpperCase();
 		recordOfField.setString("physicalName", physicalName);
 		recordOfField.setString("fieldLabel", fieldLabel);
 		recordOfField.setString("displayType", dt.name());

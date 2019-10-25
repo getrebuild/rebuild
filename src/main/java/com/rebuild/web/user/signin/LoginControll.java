@@ -20,7 +20,6 @@ package com.rebuild.web.user.signin;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.web.ServletUtils;
@@ -28,6 +27,7 @@ import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.LoginToken;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.VCode;
@@ -35,7 +35,6 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.bizz.privileges.User;
-import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.utils.AES;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BasePageControll;
@@ -59,18 +58,37 @@ import java.io.IOException;
 public class LoginControll extends BasePageControll {
 	
 	public static final String CK_AUTOLOGIN = "rb.alt";
-	
+
 	public static final String SK_LOGINID = WebUtils.KEY_PREFIX + ".LOGINID";
-	
+
 	private static final String NEED_VCODE = "needLoginVCode";
-	
+
+	private static final String DEFAULT_HOME = "../dashboard/home";
+
 	@RequestMapping("login")
 	public ModelAndView checkLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		if (AppUtils.getRequestUser(request) != null) {
-			response.sendRedirect("../dashboard/home");
+			response.sendRedirect(DEFAULT_HOME);
 			return null;
 		}
-		
+
+		// API 登录
+		String token = getParameter(request, "token");
+		if (StringUtils.isNotBlank(token)) {
+			ID tokenUser = LoginToken.verifyToken(token);
+			if (tokenUser != null) {
+				loginSuccessed(request, response, tokenUser, false);
+
+				String nexturl = StringUtils.defaultIfBlank(request.getParameter("nexturl"), DEFAULT_HOME);
+				response.sendRedirect(CodecUtils.urlDecode(nexturl));
+				return null;
+			} else {
+				// 显示验证码
+				ServletUtils.setSessionAttribute(request, NEED_VCODE, true);
+			}
+		}
+
+		// Cookie 记住登录
 		String alt = ServletUtils.readCookie(request, CK_AUTOLOGIN);
 		if (StringUtils.isNotBlank(alt)) {
 			ID altUser = null;
@@ -94,16 +112,16 @@ public class LoginControll extends BasePageControll {
 			if (altUser != null && Application.getUserStore().exists(altUser)) {
 				loginSuccessed(request, response, altUser, true);
 				
-				String nexturl = StringUtils.defaultIfBlank(request.getParameter("nexturl"), "../dashboard/home");
-				nexturl = CodecUtils.urlDecode(nexturl);
-				response.sendRedirect(nexturl);
+				String nexturl = StringUtils.defaultIfBlank(request.getParameter("nexturl"), DEFAULT_HOME);
+				response.sendRedirect(CodecUtils.urlDecode(nexturl));
 				return null;
 			} else {
-				// 无效 token 也显示验证码
+				// 显示验证码
 				ServletUtils.setSessionAttribute(request, NEED_VCODE, true);
 			}
 		}
-		
+
+		// 登录页
 		return createModelAndView("/user/login.jsp");
 	}
 	
@@ -118,7 +136,7 @@ public class LoginControll extends BasePageControll {
 		}
 		
 		final String user = getParameterNotNull(request, "user");
-		final String passwd = getParameterNotNull(request, "passwd");
+		final String password = getParameterNotNull(request, "passwd");
 		
 		int retry = getLoginRetryTimes(user, 1);
 		if (retry > 3 && StringUtils.isBlank(vcode)) {
@@ -126,33 +144,16 @@ public class LoginControll extends BasePageControll {
 			writeFailure(response, "VCODE");
 			return;
 		}
-		
-		if (!Application.getUserStore().exists(user)) {
-			writeFailure(response, "用户名或密码错误");
+
+		String hasError = LoginToken.checkUser(user, password);
+		if (hasError != null) {
+			writeFailure(response, hasError);
 			return;
 		}
-		
-		Object[] foundUser = Application.createQueryNoFilter(
-				"select userId,password from User where loginName = ?")
-				.setParameter(1, user)
-				.unique();
-		if (!foundUser[1].equals(EncryptUtils.toSHA256Hex(passwd))) {
-			writeFailure(response, "用户名或密码错误");
-			return;
-		}
-		
-		User loginUser = Application.getUserStore().getUser((ID) foundUser[0]);
-		if (!loginUser.isActive()) {
-			writeFailure(response, "用户未激活");
-			return;
-		}
-		if (!Application.getSecurityManager().allowed(loginUser.getId(), ZeroEntry.AllowLogin)) {
-			writeFailure(response, "用户无登录权限");
-			return;
-		}
-		
-		loginSuccessed(request, response, (ID) foundUser[0], getBoolParameter(request, "autoLogin", false));
-		
+
+		User loginUser = Application.getUserStore().getUser(user);
+		loginSuccessed(request, response, loginUser.getId(), getBoolParameter(request, "autoLogin", false));
+
 		// 清理
 		getLoginRetryTimes(user, -1);
 		ServletUtils.setSessionAttribute(request, NEED_VCODE, null);

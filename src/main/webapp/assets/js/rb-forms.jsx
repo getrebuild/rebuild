@@ -154,7 +154,7 @@ class RbForm extends React.Component {
           })}
           {this.renderFormAction()}
         </div>
-      </div >
+      </div>
     )
   }
   renderFormAction() {
@@ -969,9 +969,16 @@ class RbFormDivider extends React.Component {
   }
   render() {
     let label = this.props.label || ''
-    if (label === '分栏') label = null
-    if (this.props.onView === true) return <div className="form-line"><fieldset>{label ? (<legend>{label}</legend>) : null}</fieldset></div>
+    if (label === '分栏线') label = null
+    if (this.props.onView === true) return <div className="form-line" ref={(c) => this._element = c}><fieldset>{label && <legend onClick={this.toggleNexts}>{label}</legend>}</fieldset></div>
     else return <div />  // TODO 编辑页暂无分割线
+  }
+  toggleNexts = () => {
+    // let $next = $(this._element).parent()
+    // while (($next = $next.next()).length > 0) {
+    //   if ($next.find('>.form-line').length > 0) break
+    //   $next.toggleClass('hide')
+    // }
   }
 }
 
@@ -1276,7 +1283,7 @@ class RepeatedViewer extends RbModalHandler {
         return <td key={`col-${idx}-${i}`}>{o || <span className="text-muted">无</span>}</td>
       })}
       <td className="actions"><a className="icon" title="查看详情" onClick={() => this.openView(item[0])}><i className="zmdi zmdi-open-in-new" /></a></td>
-    </tr >
+    </tr>
   }
 
   openView(id) {

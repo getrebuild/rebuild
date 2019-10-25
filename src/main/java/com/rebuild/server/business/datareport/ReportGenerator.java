@@ -163,7 +163,7 @@ public class ReportGenerator {
             }
 
             if (easyMeta.getDisplayType() == DisplayType.REFERENCE && fieldValue instanceof ID) {
-                fieldValue = FieldValueWrapper.getLabel((ID) fieldValue);
+                fieldValue = FieldValueWrapper.getLabelNotry((ID) fieldValue);
             } else {
                 fieldValue = FieldValueWrapper.instance.wrapFieldValue(fieldValue, easyMeta);
             }

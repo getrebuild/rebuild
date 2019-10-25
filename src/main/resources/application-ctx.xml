@@ -174,9 +174,6 @@
 	<bean class="com.rebuild.server.service.configuration.DataReportConfigService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
-	<bean class="com.rebuild.server.service.configuration.WidgetConfigService">
-		<constructor-arg index="0" ref="persistManagerFactory" />
-	</bean>
 
 	<bean class="com.rebuild.server.service.base.ApprovalStepService">
 		<constructor-arg index="0" ref="persistManagerFactory" />

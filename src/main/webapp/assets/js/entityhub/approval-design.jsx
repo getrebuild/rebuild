@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-let __debug = false
 var wpc = window.__PageConfig
 let activeNode
 $(document).ready(() => {
@@ -166,7 +165,7 @@ class Node extends NodeSpec {
     if (this.nodeType === 'approver') users += ' ' + (data.signMode === 'AND' ? '会签' : (data.signMode === 'ALL' ? '依次审批' : '或签'))
 
     return (<div className="node-wrap">
-      <div className={`node-wrap-box animated fadeIn ${NT[0]}-node ${this.state.hasError ? 'error' : ''} ${this.state.active ? 'active' : ''}`}>
+      <div className={`node-wrap-box animated fadeIn ${NT[0]}-node ${this.state.hasError ? 'error' : ''} ${this.state.active ? 'active' : ''}`} title={rb.env === 'dev' ? this.props.nodeId : null}>
         <div className="title">
           <span>{data.nodeName || NT[1]}</span>
           {this.props.nodeId !== 'ROOT' && <i className="zmdi zmdi-close aclose" title="移除" onClick={this.removeNodeQuick} />}
@@ -258,7 +257,7 @@ class ConditionBranch extends NodeGroupSpec {
       {this.state.isFirst && <div className="top-left-cover-line"></div>}
       {this.state.isFirst && <div className="bottom-left-cover-line"></div>}
       <div className="condition-node">
-        <div className="condition-node-box animated fadeIn" title={__debug ? this.props.nodeId : null}>
+        <div className="condition-node-box animated fadeIn" title={rb.env === 'dev' ? this.props.nodeId : null}>
           <div className={`auto-judge ${this.state.hasError ? 'error' : ''} ${this.state.active ? 'active' : ''}`} onClick={this.openConfig}>
             <div className="title-wrapper">
               <span className="editable-title float-left">{data.nodeName || '分支条件'}</span>

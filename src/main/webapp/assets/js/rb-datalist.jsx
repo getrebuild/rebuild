@@ -86,7 +86,7 @@ class RbList extends React.Component {
     const scroller = $(this.refs['rblist-scroller'])
     scroller.perfectScrollbar()
 
-    if (FIXED_FOOTER) {
+    if (FIXED_FOOTER && $('.main-content').width() > 998) {
       $('.main-content').addClass('pb-0')
       let hold = window.resize_handler
       window.resize_handler = function () {
@@ -486,7 +486,7 @@ const RbListPage = {
       let deleteAfter = function () {
         that._RbList.reload()
       }
-      const needEntity = (wpc.type === 'SlaveList' || wpc.type === 'SlaveView') ? null : entity[0]
+      const needEntity = (wpc.type === $pgt.SlaveList || wpc.type === $pgt.SlaveView) ? null : entity[0]
       renderRbcomp(<DeleteConfirm ids={ids} entity={needEntity} deleteAfter={deleteAfter} />)
     })
     $('.J_view').click(() => {
@@ -598,7 +598,7 @@ const AdvFilters = {
       })
 
       // ASIDE
-      if ($('.rb-aside .page-aside').length > 0) {
+      if ($('#asideFilters').length > 0) {
         let ghost = $('.adv-search .dropdown-menu').clone()
         ghost.removeAttr('class')
         ghost.removeAttr('style')
@@ -651,16 +651,17 @@ const AdvFilters = {
     } else {
       this.current = id
       this.__getFilter(id, (res) => {
-        renderRbcomp(<AdvFilter {...props} title="修改查询条件" filter={res.filter} filterName={res.name} shareToAll={res.shareTo === 'ALL'} />)
+        renderRbcomp(<AdvFilter {...props} title="修改查询条件" filter={res.filter} filterName={res.name} shareTo={res.shareTo} />)
       })
     }
   },
 
-  saveFilter(filter, name, toAll) {
+  saveFilter(filter, name, shareTo) {
     if (!filter) return
     let that = AdvFilters
-    let url = `${rb.baseUrl}/app/${that.__entity}/advfilter/post?id=${that.current || ''}&toAll=${toAll}`
+    let url = `${rb.baseUrl}/app/${that.__entity}/advfilter/post?id=${that.current || ''}`
     if (name) url += '&name=' + $encode(name)
+    if (shareTo) url += '&shareTo=' + $encode(shareTo)
     $.post(url, JSON.stringify(filter), (res) => {
       if (res.error_code === 0) that.loadFilters()
       else RbHighbar.error(res.error_msg)
@@ -883,7 +884,7 @@ const ChartsWidget = {
 $(document).ready(() => {
   // 自动打开 View
   let viewHash = location.hash
-  if (viewHash && viewHash.startsWith('#!/View/') && (wpc.type === 'RecordList' || wpc.type === 'SlaveList')) {
+  if (viewHash && viewHash.startsWith('#!/View/') && (wpc.type === $pgt.RecordList || wpc.type === $pgt.SlaveList)) {
     viewHash = viewHash.split('/')
     if (viewHash.length === 4 && viewHash[3].length === 20) {
       setTimeout(() => {
@@ -893,13 +894,13 @@ $(document).ready(() => {
   }
 
   // ASIDE
-  if ($('.rb-aside .page-aside').length > 0) {
+  if ($('#asideFilters, #asideWidgets').length > 0) {
     $('.side-toggle').click(() => {
       let el = $('.rb-aside').toggleClass('rb-aside-collapsed')
-      $storage.set('rb-aside-collapsed', el.hasClass('rb-aside-collapsed'))
+      $.cookie('rb.asideCollapsed', el.hasClass('rb-aside-collapsed'), { expires: 180 })
     })
-    // 默认不展开
-    if ($storage.get('rb-aside-collapsed') === 'false') $('.rb-aside').removeClass('rb-aside-collapsed')
+    // 默认不展开（由后台处理，避免页面闪动）
+    // if ($.cookie('rb.asideCollapsed') === 'false') $('.rb-aside').removeClass('rb-aside-collapsed')
 
     let $content = $('.page-aside .tab-content')
     let hold = window.resize_handler

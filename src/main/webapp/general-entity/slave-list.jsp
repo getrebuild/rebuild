@@ -7,7 +7,7 @@
 <title>${entityLabel}列表</title>
 </head>
 <body>
-<div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-aside-collapsed">
+<div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside ${asideCollapsed ? 'rb-aside-collapsed' : ''}">
 	<jsp:include page="/_include/NavTop.jsp">
 		<jsp:param value="${entityLabel}列表" name="pageTitle"/>
 	</jsp:include>
@@ -91,7 +91,7 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script>
 window.__PageConfig = {
-	type: 'SlaveList',
+	type: $pgt.SlaveList,
 	entity: ['${entityName}','${entityLabel}','${entityIcon}'],
 	privileges: ${entityPrivileges},
 	listConfig: ${DataListConfig},
@@ -105,5 +105,6 @@ window.__PageConfig = {
 <script src="${baseUrl}/assets/js/rb-approval.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/lib/charts/echarts.min.js"></script>
 <script src="${baseUrl}/assets/js/charts/charts.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/settings-share2.jsx" type="text/babel"></script>
 </body>
 </html>

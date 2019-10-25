@@ -20,6 +20,22 @@ html.admin .admin-show.row {
     border-radius: 0;
 }
 
+.dropdown-menu.primary>.dropdown-item:hover,
+.dropdown-menu.primary>a.dropdown-item:hover {
+    background-color: #4285f4;
+    color: #fff;
+}
+
+.dropdown-menu.primary>.dropdown-item:hover .icon {
+    color: #fff;
+}
+
+.dropdown-item.disabled .icon,
+.dropdown-item:disabled .icon,
+.dropdown-item[disabled] .icon {
+    color: #878787 !important;
+}
+
 .dropdown-submenu {
     position: relative;
 }
@@ -45,7 +61,7 @@ html.admin .admin-show.row {
 .dropdown-submenu.disabled>.dropdown-item {
     color: #878787 !important;
     background-color: transparent !important;
-    cursor: not-allowed !important;
+    cursor: default !important;
 }
 
 .dropdown-submenu>a:after {
@@ -96,6 +112,18 @@ html.admin .admin-show.row {
 
 .text-italic {
     font-style: italic;
+}
+
+.text-dots,
+.text-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.text-wrap {
+    word-break: break-all;
+    word-wrap: break-word;
 }
 
 .badge.text-id {
@@ -190,8 +218,7 @@ a.btn {
 }
 
 .alert-icon.min>.message {
-    padding: 0.8rem;
-    padding-left: 1.3rem;
+    padding: 0.8rem 0.8rem 0.8rem 1.3rem;
 }
 
 .alert.min .close {
@@ -424,12 +451,9 @@ body.dialog .main-content {
 
 .dialog-footer {
     border-top: 1px solid #eee;
-    margin: 0 -15px;
-    margin-bottom: -5px;
-    padding: 17px 30px;
-    padding-bottom: 0;
+    padding: 17px 30px 0;
     text-align: right;
-    margin-top: 15px;
+    margin: 15px -15px -5px;
 }
 
 .dialog-footer .btn {
@@ -437,8 +461,7 @@ body.dialog .main-content {
 }
 
 .dialog-footer>.float-left>.custom-control {
-    margin: 0;
-    margin-top: 4px
+    margin: 4px 0 0;
 }
 
 body.dialog .main-content .footer,
@@ -522,13 +545,11 @@ a {
 /* FormPage */
 
 .rbform>form>.alert {
-    margin: 20px;
-    margin-bottom: 0;
+    margin: 20px 20px 0;
 }
 
 .rbform-alert {
-    margin: -20px;
-    margin-bottom: 20px;
+    margin: -20px -20px 20px;
     text-align: center;
     padding: 0.5em;
     border-radius: 0;
@@ -548,8 +569,7 @@ a {
 }
 
 .form-group.row.type-BOOL {
-    padding: 7px 0;
-    padding-bottom: 0;
+    padding: 7px 0 0;
 }
 
 .rbform .type-BOOL .mt-1 {
@@ -596,8 +616,7 @@ a {
 }
 
 .type-MULTISELECT .form-control-plaintext {
-    padding: 5px 0;
-    padding-bottom: 3px;
+    padding: 5px 0 3px;
     margin-left: -2px;
     font-size: 0;
 }
@@ -708,7 +727,6 @@ a {
     max-width: 100%;
     margin-right: 5px;
     margin-bottom: 1px;
-    overflow: hidden;
     position: relative;
     overflow: hidden;
     border: 0 none;
@@ -733,16 +751,14 @@ a {
 }
 
 .file-field .img-thumbnail>i.file-icon::after {
-    padding: 0;
-    padding-left: 2px
+    padding: 0 0 0 2px;
 }
 
 .file-field .img-thumbnail>span {
     margin-left: 30px;
     word-break: break-all;
     height: 30px;
-    padding: 1px 4px;
-    padding-left: 6px;
+    padding: 1px 4px 1px 6px;
     line-height: 15px;
     line-height: 1.15rem;
     overflow: hidden;
@@ -858,8 +874,7 @@ a {
 }
 
 .list-nodata p {
-    margin: 0;
-    margin-top: 9px;
+    margin: 9px 0 0;
     color: #666;
     font-size: 1.1rem;
     font-weight: 300;
@@ -971,10 +986,10 @@ i.split.ui-draggable-dragging {
 .data-list .table td,
 .data-list .table td>div {
     white-space: nowrap;
-    max-width: 100%;
     text-overflow: ellipsis;
     overflow: hidden;
     clear: both;
+    max-width: 100%;
     max-width: 800px;
     white-space: nowrap;
 }
@@ -1008,11 +1023,11 @@ i.split.ui-draggable-dragging {
 
 .column-imgs>a {
     display: inline-block;
-    height: 100%;
     font-size: 0;
     line-height: 1;
-    cursor: default;
+    height: 100%;
     height: 30px;
+    cursor: default;
     cursor: zoom-in;
 }
 
@@ -1051,7 +1066,7 @@ i.split.ui-draggable-dragging {
 
 .column-checkbox>div {
     width: 18px;
-    padding-left: 0px;
+    padding-left: 0;
 }
 
 .column-checkbox .custom-control-label::after {
@@ -1088,6 +1103,10 @@ i.split.ui-draggable-dragging {
     line-height: 1.5;
 }
 
+.data-list .table td div .badge.badge-default {
+    line-height: 1.3334;
+}
+
 .column-state .badge {
     border-radius: 99px;
 }
@@ -1098,12 +1117,6 @@ i.split.ui-draggable-dragging {
 
 .column-multi .badge+.badge {
     margin-left: 1px;
-}
-
-.text-3dot {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 .unselect {
@@ -1222,7 +1235,6 @@ i.split.ui-draggable-dragging {
 .sortable-box .unset-list .dd-handle::before {
     content: '\f278';
     font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
-    float: right;
     font-size: 1.6rem;
     color: #999;
     float: right;
@@ -1272,11 +1284,10 @@ i.split.ui-draggable-dragging {
 }
 
 .modal.rbview .modal-dialog .modal-content {
-    margin: 0;
     border-radius: 0;
     max-width: 100%;
     width: 1220px;
-    margin-right: -1301px;
+    margin: 0 -1301px 0 0;
     float: right;
     position: relative;
     height: 100%;
@@ -1323,15 +1334,13 @@ i.split.ui-draggable-dragging {
 .form-line fieldset legend {
     position: absolute;
     font-size: 1rem;
-    margin: 0;
     background-color: #fff;
     width: auto;
-    left: 0;
-    margin-top: -11px;
-    padding: 3px 6px;
-    padding-left: 0;
-    cursor: pointer;
-    color: #777;
+    left: 10px;
+    margin: -11px 0 0;
+    padding: 3px 5px 3px 5px;
+    color: #444;
+    cursor: default;
 }
 
 .form-line fieldset legend:hover {
@@ -1358,7 +1367,7 @@ i.split.ui-draggable-dragging {
 }
 
 .dept-tree .config-title {
-    margin-bottom: 17px;
+    margin-bottom: 16px;
     margin-top: 17px;
     border-bottom: 1px solid #eee;
     padding-bottom: 10px;
@@ -1379,7 +1388,7 @@ i.split.ui-draggable-dragging {
 
 .dept-tree li>a {
     display: block;
-    padding: 7px 7px;
+    padding: 7px 10px;
     cursor: pointer;
     color: #444;
 }
@@ -1425,13 +1434,11 @@ i.split.ui-draggable-dragging {
     text-align: center;
     font-size: 1.2rem;
     color: #fff !important;
-    background-color: rgba(0, 0, 0, 0.1);
     margin-left: 1px;
-    border-radius: 2px;
 }
 
 .dept-tree li>div.action a:hover {
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgba(0, 0, 0, 0.2);
 }
 
 .dept-tree ul>li.active:hover>div.action,
@@ -1439,12 +1446,9 @@ i.split.ui-draggable-dragging {
     display: block;
 }
 
-.adv-search .dropdown-item div.action {}
-
 .adv-search .dropdown-item div.action a {
     height: 34px;
     line-height: 34px;
-    background-color: #eee;
     color: #aaa !important;
     border-radius: 0;
 }
@@ -1476,9 +1480,8 @@ i.split.ui-draggable-dragging {
 
 .adv-filter .item.plus a {
     display: inline-block;
-    padding: 3px;
     position: relative;
-    padding-left: 24px;
+    padding: 3px 3px 3px 24px;
 }
 
 .adv-filter .item.plus a .icon {
@@ -1575,14 +1578,19 @@ i.split.ui-draggable-dragging {
 }
 
 .adv-filter .dialog-footer .form-control-sm.text {
-    width: 200px;
+    width: 180px;
     height: 34px !important;
     margin-top: 2px;
 }
 
+.adv-filter .dialog-footer .custom-control {
+    cursor: default;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
 .adv-filter .item.dialog-footer {
-    margin: 0 -30px;
-    margin-bottom: -5px;
+    margin: 0 -30px -5px;
     padding-top: 20px;
 }
 
@@ -1707,7 +1715,7 @@ form.simple {
 
 .mw-auto {
     min-width: auto;
-    max-width: auto;
+    max-width: none;
 }
 
 .cl-base {
@@ -1729,8 +1737,7 @@ form.simple {
 }
 
 .modal.selector .modal-content .modal-body {
-    padding: 20px 30px;
-    padding-top: 10px;
+    padding: 10px 30px 20px;
 }
 
 .modal.selector .modal-content .modal-body>div {
@@ -1748,8 +1755,7 @@ form {
 }
 
 .rbs-indexes>div {
-    padding: 15px;
-    padding-bottom: 13px;
+    padding: 15px 15px 13px;
     border-radius: 3px;
     background-color: #eee;
 }
@@ -1761,8 +1767,7 @@ form {
 .rbs-indexes>div h5 {
     font-size: 1rem;
     font-weight: bold;
-    margin: 0;
-    margin-bottom: 6px;
+    margin: 0 0 6px;
 }
 
 .rbs-indexes>div .text-muted,
@@ -1804,14 +1809,12 @@ form {
 }
 
 .user-selector .select2-selection__choice.abtn {
-    padding: 0 9px;
     display: inline-block;
     background-color: rgba(66, 133, 244, 0.1);
     color: #4285f4;
     position: relative;
-    padding-left: 22px;
     height: 26px;
-    padding-top: 5px;
+    padding: 5px 9px 0 22px;
     margin-bottom: 4px;
     cursor: pointer;
 }
@@ -2020,8 +2023,7 @@ form {
 }
 
 .card.ph>.card-body>.ph-item {
-    padding: 20px 10px;
-    padding-bottom: 5px;
+    padding: 20px 10px 5px;
     margin: 0;
     border: 0 none;
 }
@@ -2058,10 +2060,15 @@ form {
     min-height: 0;
     min-width: 78px;
     margin-top: 8px;
+    box-shadow: 0 0 0 #fff;
 }
 
 .approval-pane .alert .close.btn+.btn {
     margin-right: 88px;
+}
+
+.approval-pane .alert .close.btn+.btn+.btn {
+    margin-right: 176px;
 }
 
 .form.approval-form {
@@ -2134,22 +2141,23 @@ form {
 
 .timeline.approved-steps>div.joint {
     border-right: 3px solid #409EFF;
-    border-radius: 9px;
-    margin-right: 39px;
+    border-radius: 6px;
+    margin-right: 30px;
+    position: relative;
+}
+
+.timeline.approved-steps>div.joint:empty {
+    display: none;
 }
 
 .timeline.approved-steps>div.joint::after {
     position: absolute;
     content: '会签';
-    right: 0;
+    right: -35px;
     top: 50%;
     margin-top: -10px;
-    background-color: #409EFF;
-    color: #fff;
-    border-radius: 99px;
-    padding: 3px 5px;
-    line-height: 1;
     font-size: 12px;
+    color: #777;
 }
 
 .timeline.approved-steps>div.joint.or::after {
@@ -2165,6 +2173,7 @@ form {
     top: 16px;
     left: 100px;
     border-color: #f7b904;
+    background-color: #fff;
 }
 
 .timeline.approved-steps .timeline-item.state0:before {
@@ -2180,6 +2189,11 @@ form {
 .timeline.approved-steps .timeline-item.state11:before {
     border-color: #ea3f30;
     background-color: #ea3f30;
+}
+
+.timeline.approved-steps .timeline-item.state12:before {
+    border-color: #f7b904;
+    background-color: #f7b904;
 }
 
 .timeline.approved-steps .timeline-content {
@@ -2215,8 +2229,30 @@ form {
     padding: 2px 10px;
 }
 
+.timeline.approved-steps .timeline-item.last {
+    position: relative;
+    min-height: 30px;
+    margin-top: -7px;
+    margin-bottom: 5px;
+}
+
+.timeline.approved-steps .timeline-item.last>span {
+    position: absolute;
+    background-color: #dbdbdb;
+    color: #777;
+    border-radius: 50px;
+    padding: 2px 6px;
+    width: 40px;
+    font-size: 12px;
+    margin-left: -52px;
+    margin-top: 8px;
+    text-align: center;
+}
+
 .notification-type {
-    min-height: 198px
+    min-height: 198px;
+    position: sticky;
+    top: 61px;
 }
 
 .notification-type .list-group-item {
@@ -2459,8 +2495,8 @@ form {
 .preview-modal .preview-body .op-box span {
     text-align: center;
     display: inline-block;
-    line-height: 1;
     height: 48px;
+    line-height: 1;
     line-height: 48px;
 }
 
@@ -2561,7 +2597,7 @@ form {
 
 .shareTo--wrap .custom-control {
     margin-bottom: 0;
-    margin-top: 7px;
+    margin-top: 9px;
     cursor: default;
 }
 
@@ -2654,8 +2690,8 @@ form {
 
 .page-aside.widgets .side-toggle {
     position: absolute;
-    right: 0px;
-    top: 0px;
+    right: 0;
+    top: 0;
     font-size: 1.4rem;
     width: 50px;
     height: 44px;
@@ -2674,7 +2710,7 @@ form {
     display: block;
 }
 
-.rb-aside.rb-aside-collapsed .page-aside {
+.rb-aside.rb-aside-collapsed .page-aside.widgets {
     width: 50px;
 }
 
@@ -2687,7 +2723,7 @@ form {
     transform: rotate(180deg);
 }
 
-.rb-aside.rb-aside-collapsed .page-aside .tab-container {
+.rb-aside.rb-aside-collapsed .page-aside.widgets .tab-container {
     display: none;
 }
 
@@ -2695,11 +2731,11 @@ form {
     margin-left: 50px;
 }
 
-.rb-animate .rb-aside .page-aside {
+.rb-animate .rb-aside .page-aside.widgets {
     transition: width .35s ease;
 }
 
-.rb-animate .rb-aside.rb-aside-collapsed .page-aside {
+.rb-animate .rb-aside.rb-aside-collapsed .page-aside.widgets {
     transition: width .35s ease;
 }
 
@@ -2708,7 +2744,7 @@ form {
 }
 
 #asideFilters .dropdown-item {
-    padding: 8px 7px;
+    padding: 8px 10px;
     border-radius: 2px;
     font-size: 1rem;
     cursor: pointer;
@@ -2783,4 +2819,26 @@ form {
 
 #asideWidgets .charts-wrap .ui-sortable-helper {
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1), 0 16px 24px 0 rgba(81, 129, 228, .1);
+}
+
+@media screen and (max-width: 767px) {
+    .rb-aside .page-aside.widgets {
+        display: none !important;
+    }
+
+    .rb-aside.rb-aside-collapsed .main-content {
+        margin-left: 0;
+    }
+}
+
+a.icon-link {
+    position: relative;
+    padding-left: 16px;
+}
+
+a.icon-link>.zmdi {
+    position: absolute;
+    font-size: 1.231rem;
+    margin-top: 2px;
+    left: 0;
 }

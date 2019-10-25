@@ -14,6 +14,7 @@ class ApprovalProcessor extends React.Component {
       {this.state.state === 2 && this.renderStateProcessing()}
       {this.state.state === 10 && this.renderStateApproved()}
       {this.state.state === 11 && this.renderStateRejected()}
+      {this.state.state === 12 && this.renderStateCanceled()}
     </div>)
   }
 
@@ -35,6 +36,7 @@ class ApprovalProcessor extends React.Component {
     }
     return (<div className="alert alert-warning shadow-sm">
       <button className="close btn btn-secondary" onClick={this.viewSteps}>详情</button>
+      {this.state.canCancel && <button className="close btn btn-secondary" onClick={this.cancel}>撤销</button>}
       {(this.state.imApprover && this.state.imApproveSatate === 1) && <button className="close btn btn-secondary" onClick={this.approve}>审批</button>}
       <div className="icon"><span className="zmdi zmdi-hourglass-alt"></span></div>
       <div className="message">{aMsg}</div>
@@ -42,7 +44,7 @@ class ApprovalProcessor extends React.Component {
   }
 
   renderStateApproved() {
-    $('.J_edit,.J_delete,.J_add-slave').attr('disabled', true)
+    $('.J_edit,.J_delete,.J_add-slave').remove()
     return (<div className="alert alert-success shadow-sm">
       <button className="close btn btn-secondary" onClick={this.viewSteps}>详情</button>
       <div className="icon"><span className="zmdi zmdi-check"></span></div>
@@ -56,6 +58,15 @@ class ApprovalProcessor extends React.Component {
       <button className="close btn btn-secondary" onClick={this.submit}>再次提交</button>
       <div className="icon"><span className="zmdi zmdi-close-circle-o"></span></div>
       <div className="message">审批被驳回，可在信息完善后再次提交</div>
+    </div>)
+  }
+
+  renderStateCanceled() {
+    return (<div className="alert alert-warning shadow-sm">
+      <button className="close btn btn-secondary" onClick={this.viewSteps}>详情</button>
+      <button className="close btn btn-secondary" onClick={this.submit}>再次提交</button>
+      <div className="icon"><span className="zmdi zmdi-rotate-left"></span></div>
+      <div className="message">审批已撤销，请在信息完善后再次提交</div>
     </div>)
   }
 
@@ -74,6 +85,19 @@ class ApprovalProcessor extends React.Component {
     let that = this
     if (this._approveForm) this._approveForm.show()
     else renderRbcomp(<ApprovalApproveForm id={this.props.id} approval={this.state.approvalId} />, null, function () { that._approveForm = this })
+  }
+  cancel = () => {
+    let that = this
+    RbAlert.create('确认撤销当前审批？', {
+      confirm: function () {
+        this.disabled(true)
+        $.post(`${rb.baseUrl}/app/entity/approval/cancel?record=${that.props.id}`, (res) => {
+          if (res.error_code > 0) RbHighbar.error(res.error_msg)
+          else _reload(this, '审批已撤销')
+          this.disabled()
+        })
+      }
+    })
   }
   viewSteps = () => {
     let that = this
@@ -151,7 +175,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
         <div className="form-group">
           <label>选择审批流程</label>
           <div className="approval-list">
-            {!this.state.approvals && <p className="text-danger">无可用流程，请联系管理员配置</p>}
+            {!this.state.approvals && <p className="text-muted">无适用流程 {rb.isAdminUser && <a className="icon-link ml-1" target="_blank" href={`${rb.baseUrl}/admin/robot/approvals`}><i className="zmdi zmdi-settings"></i> 点击配置</a>}</p>}
             {(this.state.approvals || []).map((item) => {
               return (<div key={'A' + item.id}>
                 <label className="custom-control custom-control-sm custom-radio mb-0">
@@ -190,7 +214,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
 
   post() {
     if (!this.state.useApproval) {
-      RbHighbar.create('无可用流程，请联系管理员配置')
+      RbHighbar.create('请选择审批流程')
       return
     }
     let selectUsers = this.getSelectUsers()
@@ -199,15 +223,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
     this.disabled(true)
     $.post(`${rb.baseUrl}/app/entity/approval/submit?record=${this.props.id}&approval=${this.state.useApproval}`, JSON.stringify(selectUsers), (res) => {
       if (res.error_code > 0) RbHighbar.error(res.error_msg)
-      else {
-        RbHighbar.success('审批已提交')
-        this.hide()
-        setTimeout(() => {
-          if (window.RbViewPage) window.RbViewPage.reload()
-          if (window.RbListPage) window.RbListPage.reload()
-          else if (parent.RbListPage) parent.RbListPage.reload()
-        }, 1000)
-      }
+      else _reload(this, '审批已提交')
       this.disabled()
     })
   }
@@ -249,19 +265,15 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     $.post(`${rb.baseUrl}/app/entity/approval/approve?record=${this.props.id}&state=${state}`, JSON.stringify(pdata), (res) => {
       if (res.error_code > 0) RbHighbar.error(res.error_msg)
       else {
-        RbHighbar.success('审批已' + (state === 10 ? '同意' : '驳回'))
+        _reload(this, '审批已' + (state === 10 ? '同意' : '驳回'))
         typeof this.props.call === 'function' && this.props.call()
-        setTimeout(() => {
-          if (window.RbViewPage) window.RbViewPage.reload()
-          if (window.RbListPage) window.RbListPage.reload()
-          else if (parent.RbListPage) parent.RbListPage.reload()
-        }, 1000)
       }
       this.disabled()
     })
   }
 }
 
+const STATE_NAMES = { 10: '审批同意', 11: '驳回审批', 12: '撤销审批' }
 // 已审批步骤查看
 class ApprovalStepViewer extends React.Component {
   constructor(props) {
@@ -270,6 +282,8 @@ class ApprovalStepViewer extends React.Component {
   }
 
   render() {
+    let stateLast = 0
+    if (this.state.steps) stateLast = this.state.steps[0].approvalState
     return (
       <div className="modal" ref={(c) => this._dlg = c} tabIndex="-1">
         <div className="modal-dialog modal-dialog-centered">
@@ -281,8 +295,9 @@ class ApprovalStepViewer extends React.Component {
               {!this.state.steps && <RbSpinner fully={true} />}
               <ul className="timeline approved-steps">
                 {(this.state.steps || []).map((item, idx) => {
-                  return idx === 0 ? this.renderSubmitter(item, idx) : this.renderApprovers(item, idx)
+                  return idx === 0 ? this.renderSubmitter(item, idx) : this.renderApprovers(item, idx, stateLast)
                 })}
+                {stateLast >= 10 && <li className="timeline-item last"><span>结束</span></li>}
               </ul>
             </div>
           </div>
@@ -298,33 +313,46 @@ class ApprovalStepViewer extends React.Component {
         <div className="timeline-avatar"><img src={`${rb.baseUrl}/account/user-avatar/${s.submitter}`} /></div>
         <div className="timeline-header">
           <p className="timeline-activity">由 {s.submitter === rb.currentUser ? '你' : s.submitterName} 提交审批</p>
+          {s.approvalName && <blockquote className="blockquote timeline-blockquote mb-0">
+            <p><a target="_blank" href={`${rb.baseUrl}/app/RobotApprovalConfig/view/${s.approvalId}`}><i className="zmdi zmdi-usb zmdi-hc-rotate-180"></i> {s.approvalName}</a></p>
+          </blockquote>}
         </div>
       </div>
     </li>
   }
-  renderApprovers(s, idx) {
+  renderApprovers(s, idx, lastState) {
     let k = 'step-' + idx + '-'
-    return <div key={k} className={s.length > 1 ? 'joint0' : ''}>
-      {s.map((item, idx2) => {
-        let approverName = item.approver === rb.currentUser ? '你' : item.approverName
-        let aMsg = `等待 ${approverName} 审批`
-        if (item.state >= 10) aMsg = `由 ${approverName} ${item.state === 10 ? '审批同意' : '驳回审批'}`
+    let sss = []
+    let nodeState = 0
+    if (s[0].signMode === 'OR') {
+      s.forEach(item => {
+        if (item.state >= 10) nodeState = item.state
+      })
+    }
 
-        return <li className={'timeline-item state' + item.state} key={k + idx2}>
-          {this.__formatTime(item.approvedTime || item.createdOn)}
-          <div className="timeline-date">{}</div>
-          <div className="timeline-content">
-            <div className="timeline-avatar"><img src={`${rb.baseUrl}/account/user-avatar/${item.approver}`} /></div>
-            <div className="timeline-header">
-              <p className="timeline-activity">{aMsg}</p>
-              {item.remark && <blockquote className="blockquote timeline-blockquote mb-0">
-                <p>{item.remark}</p>
-              </blockquote>}
-            </div>
+    s.forEach(item => {
+      let approverName = item.approver === rb.currentUser ? '你' : item.approverName
+      let aMsg = `等待 ${approverName} 审批`
+      if (item.state >= 10) aMsg = `由 ${approverName} ${STATE_NAMES[item.state]}`
+      if ((nodeState >= 10 || lastState >= 10) && item.state < 10) aMsg = `${approverName} 未进行审批`
+
+      sss.push(<li className={'timeline-item state' + item.state} key={k + sss.length}>
+        {this.__formatTime(item.approvedTime || item.createdOn)}
+        <div className="timeline-content">
+          <div className="timeline-avatar"><img src={`${rb.baseUrl}/account/user-avatar/${item.approver}`} /></div>
+          <div className="timeline-header">
+            <p className="timeline-activity">{aMsg}</p>
+            {item.remark && <blockquote className="blockquote timeline-blockquote mb-0"><p className="text-wrap">{item.remark}</p></blockquote>}
           </div>
-        </li>
-      })}
-    </div>
+        </div>
+      </li>)
+    })
+    if (sss.length < 2) return sss
+
+    let clazz = 'joint0'
+    if (s[0].signMode === 'OR') clazz = 'joint or'
+    else if (s[0].signMode === 'AND') clazz = 'joint'
+    return <div key={k} className={clazz}>{sss}</div>
   }
 
   __formatTime(time) {
@@ -350,4 +378,14 @@ class ApprovalStepViewer extends React.Component {
       this.hide()
     } else $(this._dlg).modal({ show: true, keyboard: true })
   }
+}
+
+const _reload = function (a, msg) {
+  msg && RbHighbar.success(msg)
+  a && a.hide()
+  setTimeout(() => {
+    if (window.RbViewPage) window.RbViewPage.reload()
+    if (window.RbListPage) window.RbListPage.reload()
+    else if (parent.RbListPage) parent.RbListPage.reload()
+  }, 1000)
 }

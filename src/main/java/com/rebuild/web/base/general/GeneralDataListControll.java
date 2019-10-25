@@ -72,10 +72,15 @@ public class GeneralDataListControll extends BaseEntityControll {
 			mv = createModelAndView("/general-entity/record-list.jsp", entity, user);
 		}
 		
-		JSON config = DataListManager.instance.getColumnLayout(entity, getRequestUser(request));
+		JSON config = DataListManager.instance.getFieldsLayout(entity, getRequestUser(request));
 		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
 		mv.getModel().put(ZeroEntry.AllowCustomDataList.name(),
 				Application.getSecurityManager().allowed(user, ZeroEntry.AllowCustomDataList));
+
+		String asideCollapsed = ServletUtils.readCookie(request, "rb.asideCollapsed");
+		if (!"false".equals(asideCollapsed)) {
+			mv.getModel().put("asideCollapsed", true);
+		}
 
 		return mv;
 	}

@@ -18,6 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.bizz.privileges;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 import com.rebuild.server.Application;
@@ -50,7 +52,9 @@ import cn.devezhao.persist4j.engine.ID;
  * @see BizzDepthEntry
  */
 public class SecurityManager {
-	
+
+	private static final Log LOG = LogFactory.getLog(SecurityManager.class);
+
 	final private UserStore theUserStore;
 	final private RecordOwningCache theRecordOwning;
 
@@ -303,7 +307,7 @@ public class SecurityManager {
 			return false;
 		}
 		
-		DepthEntry depth = ep.superlative(action);
+		final DepthEntry depth = ep.superlative(action);
 		
 		if (BizzDepthEntry.NONE.equals(depth)) {
 			return false;
@@ -312,6 +316,9 @@ public class SecurityManager {
 		}
 		
 		ID targetUserId = theRecordOwning.getOwningUser(target);
+		if (targetUserId == null) {
+			return false;
+		}
 		
 		if (BizzDepthEntry.PRIVATE.equals(depth)) {
 			allowed = user.equals(targetUserId);
@@ -331,9 +338,7 @@ public class SecurityManager {
 				return allowedViaShare(user, target, action);
 			}
 			return true;
-		}
-		
-		if (BizzDepthEntry.DEEPDOWN.equals(depth)) {
+		} else if (BizzDepthEntry.DEEPDOWN.equals(depth)) {
 			if (accessUserDept.equals(targetUser.getOwningDept())) {
 				return true;
 			}

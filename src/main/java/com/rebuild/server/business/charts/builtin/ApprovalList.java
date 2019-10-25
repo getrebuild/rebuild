@@ -18,14 +18,17 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts.builtin;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.momentjava.Moment;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.business.approval.ApprovalHelper;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.business.charts.ChartData;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
+import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
@@ -72,26 +75,51 @@ public class ApprovalList extends ChartData implements BuiltinChart {
                         "where isCanceled = 'F' and isWaiting = 'F' and approver = ? and state = ? order by modifiedOn desc")
                 .setParameter(1, this.getUser())
                 .setParameter(2, ApprovalState.DRAFT.getState())
-                .setLimit(100)
+                .setLimit(200)
                 .array();
 
         List<Object> rearray = new ArrayList<>();
+        int deleted = 0;
         for (Object[] o : array) {
+            String label = null;
+            try {
+                label = FieldValueWrapper.getLabel((ID) o[2]);
+            } catch (NoRecordFoundException ignored) {
+                deleted++;
+                continue;
+            }
+
+            Object[] status = ApprovalHelper.getApprovalStatus((ID) o[2]);
+            if ((Integer) status[2] == ApprovalState.CANCELED.getState()) {
+                deleted++;
+                continue;
+            }
+
+            ID s = ApprovalHelper.getSubmitter((ID) o[2], (ID) o[3]);
             rearray.add(new Object[] {
-                    o[0],
-                    UserHelper.getName((ID) o[0]),
+                    s,
+                    UserHelper.getName(s),
                     Moment.moment((Date) o[1]).fromNow(),
                     o[2],
-                    FieldValueWrapper.getLabelNotry((ID) o[2]),
+                    label,
                     o[3],
                     MetadataHelper.getEntityLabel((ID) o[2])
             });
         }
 
         Object[][] stats = Application.createQueryNoFilter("select state,count(state) from RobotApprovalStep " +
-                "where isCanceled = 'F' and isWaiting = 'F' and approver = ? group by state")
+                "where isCanceled = 'F' and isWaiting = 'F' and approver = ? and state <> ? group by state")
                 .setParameter(1, this.getUser())
+                .setParameter(2, ApprovalState.CANCELED.getState())
                 .array();
+        if (deleted > 0) {
+            for (Object[] o : stats) {
+                if ((Integer) o[0] == ApprovalState.DRAFT.getState()) {
+                    o[1] = ObjectUtils.toInt(o[1]) - deleted;
+                    if ((Integer) o[1] < 0) o[1] = 0;
+                }
+            }
+        }
 
         Map<String, Object> ret = new HashMap<>();
         ret.put("data", rearray);

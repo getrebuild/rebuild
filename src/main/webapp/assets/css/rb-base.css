@@ -15678,7 +15678,7 @@ li.L9 {
 
 .timeline-header {
     display: block;
-    padding: 7px 0 0 46px
+    padding: 6px 0 0 46px
 }
 
 @media (max-width:767.98px) {
@@ -20262,7 +20262,8 @@ fieldset[disabled] .btn-color.btn-evernote:hover {
 }
 
 .dropdown-menu>.dropdown-item:hover {
-    background-color: #f5f5f5
+    background-color: #f5f5f5;
+    background-color: #eee;
 }
 
 .dropdown-menu .btn-group .btn {
@@ -22539,6 +22540,13 @@ address {
     height: 35px;
     text-align: center;
     line-height: 14px
+}
+
+.pagination-rounded .page-no {
+    height: 35px;
+    line-height: 35px;
+    padding: 0 10px;
+    font-weight: bold;
 }
 
 .form-control {

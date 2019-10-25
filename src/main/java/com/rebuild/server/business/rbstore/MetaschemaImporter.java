@@ -28,7 +28,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.configuration.portals.SharableManager;
+import com.rebuild.server.configuration.portals.ShareToManager;
 import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -285,16 +285,16 @@ public class MetaschemaImporter extends HeavyTask<String> {
 		record.setString("belongEntity", entity);
 		record.setString("applyType", type);
 		record.setString("config", config.toJSONString());
-		record.setString("shareTo", SharableManager.SHARE_ALL);
+		record.setString("shareTo", ShareToManager.SHARE_ALL);
 		Application.getBean(LayoutConfigService.class).create(record);
 	}
-	
+
 	private void performFilter(String entity, String filterName, JSON config) {
 		Record record = EntityHelper.forNew(EntityHelper.FilterConfig, user);
 		record.setString("belongEntity", entity);
 		record.setString("filterName", filterName);
 		record.setString("config", config.toJSONString());
-		record.setString("shareTo", SharableManager.SHARE_ALL);
-		Application.getBean(AdvFilterService.class).create(record);	
+		record.setString("shareTo", ShareToManager.SHARE_ALL);
+		Application.getBean(AdvFilterService.class).create(record);
 	}
 }

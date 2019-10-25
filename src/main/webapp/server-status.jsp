@@ -17,7 +17,7 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-base.css">
 <title>系统状态</title>
 <style type="text/css">
-.block{margin:0 auto;max-width:1000px;padding:0 14px;margin-top:30px;}
+.block{max-width:1000px;padding:0 14px;margin:30px auto 0;}
 .error{background-color:#ea4335;color:#fff;padding:18px 0;}
 .error a{color:#fff;text-decoration:underline;}
 </style>
@@ -59,8 +59,8 @@
 	<table class="table table-bordered table-sm table-hover">
 	<tbody>
 		<tr>
-			<th width="30%">Application Version</th>
-			<td><a href="https://github.com/getrebuild/rebuild/releases"><%=Application.VER%></a></td>
+			<th width="30%">App Version</th>
+			<td><%=Application.VER%></td>
 		</tr>
 		<tr>
 			<th>Startup Time</th>
@@ -92,7 +92,7 @@
 <% } %>
 <div class="block">
 	<div class="text-muted">
-		&copy; 2019 <a href="https://getrebuild.com/?utm_source=rebuild">REBUILD</a>
+		&copy; 2019 <a href="https://getrebuild.com/?utm_source=rebuild">${appName}</a>
 		<% if (AppUtils.getRequestUser(request) != null) { %>
 		&nbsp;·&nbsp;
 		<a href="server-status.json">Status Api</a>

@@ -77,7 +77,7 @@ public class DataListTest extends TestSupport {
 	
 	@Test
 	public void testColumnLayout() throws Exception {
-		JSON layout = DataListManager.instance.getColumnLayout("Account999", SIMPLE_USER);
+		JSON layout = DataListManager.instance.getFieldsLayout("Account999", SIMPLE_USER);
 		System.out.println(layout);
 	}
 }

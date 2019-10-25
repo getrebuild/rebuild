@@ -33,9 +33,7 @@ public enum ApprovalState implements StateSpec {
 	PROCESSING(2, "审批中"),
 	APPROVED(10, "通过"),
 	REJECTED(11, "驳回"),
-	
-	// 暂未用
-	CANCELED(12, "撤回"),
+	CANCELED(12, "撤销"),
 	
 	;
 	

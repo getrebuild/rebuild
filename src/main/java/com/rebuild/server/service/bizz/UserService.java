@@ -184,8 +184,8 @@ public class UserService extends SystemEntityService {
 		String content = String.format(MSG_NEWUSER,
 				SysConfiguration.get(ConfigurableItem.AppName),
 				newUser.getString("loginName"), passwd,
-				SysConfiguration.get(ConfigurableItem.HomeURL),
-				SysConfiguration.get(ConfigurableItem.HomeURL));
+				SysConfiguration.getHomeUrl(),
+				SysConfiguration.getHomeUrl());
 
 		SMSender.sendMail(newUser.getString("email"), subject, content);
 		return true;

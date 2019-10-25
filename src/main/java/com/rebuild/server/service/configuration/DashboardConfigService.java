@@ -18,14 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.configuration;
 
-import com.rebuild.server.Application;
+import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.configuration.portals.DashboardManager;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.DataSpecificationException;
-
-import cn.devezhao.persist4j.PersistManagerFactory;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
 
 /**
  * @author devezhao-mbp zhaofang123@gmail.com
@@ -41,25 +37,7 @@ public class DashboardConfigService extends ConfigurationService {
 	public int getEntityCode() {
 		return EntityHelper.DashboardConfig;
 	}
-	
-	@Override
-	public int delete(ID recordId) {
-		ID user = Application.getCurrentUser();
-		if (!DashboardManager.instance.isEditable(user, recordId)) {
-			throw new DataSpecificationException("无权删除他人的仪表盘");
-		}
-		return super.delete(recordId);
-	}
-	
-	@Override
-	public Record update(Record record) {
-		ID user = Application.getCurrentUser();
-		if (!DashboardManager.instance.isEditable(user, record.getPrimary())) {
-			throw new DataSpecificationException("无权修改他人的仪表盘");
-		}
-		return super.update(record);
-	}
-	
+
 	@Override
 	protected void cleanCache(ID configId) {
 		DashboardManager.instance.clean(configId);

@@ -13,14 +13,12 @@ body {
 }
 
 .tab-content {
-	padding: 0;
 	margin: 0;
-	padding-top: 13px
+	padding: 13px 0 0;
 }
 
 .view-header {
 	padding: 15px 20px;
-	height: 60px;
 	height: 61px;
 	border-bottom: 1px solid #e6e6e6;
 	position: absolute;
@@ -48,9 +46,8 @@ body {
 	font-size: 1.638rem;
 	opacity: .6;
 	padding: 1rem;
-	margin: -1rem -1rem -1rem auto;
 	height: 40px;
-	margin-top: -10px;
+	margin: -10px -1rem -1rem auto;
 }
 
 .view-header>span>.close.sm {
@@ -77,7 +74,6 @@ body {
 }
 
 .rbview-form .form-control-plaintext:hover {
-	background-color: #f8f8f8;
 	background-color: #fff;
 }
 
@@ -108,7 +104,6 @@ body {
 	position: absolute;
 	right: 0;
 	top: 4px;
-	display: inline-block;
 	padding: 9px 8px;
 	font-size: 15px;
 	opacity: 0.6;
@@ -196,7 +191,7 @@ body {
 }
 
 .view-operating>div.view-user {
-	margin-bottom: 0px !important;
+	margin-bottom: 0 !important;
 }
 
 .view-user .row .col-md-8 {
@@ -221,9 +216,7 @@ body {
 }
 
 .sharing-list ul {
-	margin: 10px;
-	margin-right: 0;
-	margin-bottom: 21px;
+	margin: 10px 0 21px 10px;
 }
 
 .sharing-list ul>li {
@@ -231,14 +224,14 @@ body {
 }
 
 .sharing-list ul>li>div {
-	border: 1px solid #eee;
-	padding: 6px 10px;
+	border: 1px solid #f7f7f7;
+	background-color: #f7f7f7;
+	padding: 6px 6px;
 	border-radius: 2px;
 	width: 150px;
 	cursor: pointer;
 	position: relative;
 	height: 44px;
-	background-color: #eee;
 }
 
 .sharing-list ul>li>div:hover {
@@ -247,11 +240,10 @@ body {
 
 .sharing-list ul>li>div .zmdi {
 	position: absolute;
-	right: 8px;
+	right: 6px;
 	top: 12px;
 	font-size: 1.3rem;
 	color: #4285f4;
-	color: #ea4335;
 }
 
 .sharing-list ul>li>div .user-show .name {
@@ -284,8 +276,7 @@ body {
 .load-mores>div {
 	width: 180px;
 	background-color: #fff;
-	margin: 0 auto;
-	margin-top: -1.4rem;
+	margin: -1.4rem auto 0;
 }
 
 .load-mores>.btn {

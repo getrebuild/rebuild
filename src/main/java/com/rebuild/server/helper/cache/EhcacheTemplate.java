@@ -18,18 +18,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.cache;
 
-import java.io.Serializable;
-
+import com.rebuild.server.Application;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.ehcache.EhCacheCacheManager;
 import org.springframework.util.Assert;
 
-import com.rebuild.server.Application;
-
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
+import java.io.Serializable;
 
 /**
  * Ehcache
@@ -97,7 +95,7 @@ public class EhcacheTemplate<V extends Serializable> implements CacheTemplate<V>
 	/**
 	 * @return
 	 */
-	protected Cache cache() {
+	public Cache cache() {
 		return ehcacheManager.getCache("rebuild");
 	}
 	

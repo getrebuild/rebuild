@@ -32,11 +32,13 @@ public class ApiInvokeException extends RebuildException {
 	// 内部错误
     public static final int ERR_SERVER = 500;
     // 业务错误
-    public static final int ERR_BIZ = 400;
+    public static final int ERR_BIZ = Controll.CODE_ERROR;
     // 鉴权错误
     public static final int ERR_BADAUTH = 401;
     // 无效API
     public static final int ERR_BADAPI = 402;
+    // 超出请求频率
+    public static final int ERR_FREQUENCY = 403;
     // 参数错误
     public static final int ERR_BADPARAMS = 410;
     // 违反数据约束

@@ -12,7 +12,7 @@ $(document).ready(function () {
   $.get(rb.baseUrl + '/dashboard/dash-gets', ((res) => {
     dash_list = res.data
     let d = dash_list[0]  // default
-    if (res.data.length > 1) {
+    if (dash_list.length > 1) {
       let dset = $storage.get('DashDefault')
       if (dset) {
         for (let i = 0; i < res.data.length; i++) {
@@ -25,9 +25,9 @@ $(document).ready(function () {
     }
 
     dashid = d[0]
-    dash_editable = d[3]
-    render_dashboard(d[2])
-    $('.dash-list h4').text(d[1])
+    dash_editable = d[2]
+    render_dashboard(d[3])
+    $('.dash-list h4').text(d[4])
 
     if (location.hash && location.hash.length > 20) {
       if (location.hash.substr(0, 5) === '#del=') {
@@ -47,7 +47,7 @@ $(document).ready(function () {
     if (dash_editable !== true) $('.J_dash-edit, .J_chart-adds').remove()
 
     $('.J_dash-new').click(() => dlgShow('DlgDashAdd'))
-    $('.J_dash-edit').click(() => dlgShow('DlgDashSettings', { title: d[1], shareToAll: d[4] === 'ALL' }))
+    $('.J_dash-edit').click(() => dlgShow('DlgDashSettings', { title: d[4], shareTo: d[1] }))
     $('.J_chart-new').click(() => dlgShow('DlgAddChart'))
     $('.J_dash-select').click(() => dlgShow('DashSelect', { dashList: dash_list }))
     let dlgChartSelect
@@ -232,10 +232,9 @@ class DlgDashSettings extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right"></label>
             <div className="col-sm-7">
-              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0">
-                <input className="custom-control-input" type="checkbox" checked={this.state.shareToAll === true} data-id="shareToAll" onChange={this.handleChange} />
-                <span className="custom-control-label">共享此仪表盘给全部用户</span>
-              </label>
+              <div className="shareTo--wrap">
+                <Share2 ref={(c) => this._shareTo = c} noSwitch={true} shareTo={this.props.shareTo} />
+              </div>
             </div>
           </div>
         }
@@ -249,7 +248,7 @@ class DlgDashSettings extends RbFormHandler {
     </RbModal>)
   }
   save() {
-    let _data = { shareTo: this.state.shareToAll === true ? 'ALL' : 'SELF', title: this.state.title || '默认仪表盘' }
+    let _data = { shareTo: this._shareTo.getData().shareTo, title: this.state.title || '默认仪表盘' }
     _data.metadata = { id: this.props.dashid, entity: 'DashboardConfig' }
     $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
@@ -338,7 +337,7 @@ class DashSelect extends React.Component {
               <div>
                 <ul className="list-unstyled">
                   {(this.props.dashList || []).map((item) => {
-                    return <li key={'dash-' + item[0]}><a href={'?d=' + item[0]}>{item[1]}<i className="icon zmdi zmdi-arrow-right"></i></a></li>
+                    return <li key={'dash-' + item[0]}><a href={'?d=' + item[0]}>{item[4]}<i className="icon zmdi zmdi-arrow-right"></i></a></li>
                   })}
                 </ul>
               </div>

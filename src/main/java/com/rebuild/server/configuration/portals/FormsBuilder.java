@@ -23,6 +23,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.dialect.editor.BoolEditor;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -197,11 +198,12 @@ public class FormsBuilder extends FormsManager {
 			JSONObject el = (JSONObject) iter.next();
 			String fieldName = el.getString("field");
 			
-			// 分割线表单页暂不支持
-			if (fieldName.equalsIgnoreCase(DIVIDER_LINE) && !viewMode) {
-				iter.remove();
+			if (fieldName.equalsIgnoreCase(DIVIDER_LINE)) {
+				// 分割线表单页暂不支持
+				if (!viewMode) iter.remove();
 				continue;
 			}
+
 			// 已删除字段
 			if (!MetadataHelper.checkAndWarnField(entityMeta, fieldName)) {
 				iter.remove();
@@ -288,6 +290,8 @@ public class FormsBuilder extends FormsManager {
 					}
 				} else if (dt == DisplayType.SERIES) {
 					el.put("value", "自动值 (自动编号)");
+				} else if (dt == DisplayType.BOOL) {
+					el.put("value", BoolEditor.FALSE);
 				} else {
 					String defVal = DefaultValueHelper.exprDefaultValueToString(fieldMeta);
 					if (defVal != null) {
