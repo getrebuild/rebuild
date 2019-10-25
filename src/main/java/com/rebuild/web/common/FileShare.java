@@ -20,7 +20,6 @@ package com.rebuild.web.common;
 
 import cn.devezhao.commons.CodecUtils;
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.utils.JSONUtils;
@@ -69,7 +68,7 @@ public class FileShare extends BasePageControll {
         String shareKey = CodecUtils.randomCode(40);
         Application.getCommonCache().put(shareKey, fileUrl, minte * 60);
 
-        String shareUrl = SysConfiguration.get(ConfigurableItem.HomeURL) + "s/" + shareKey;
+        String shareUrl = SysConfiguration.getHomeUrl("s/" + shareKey);
         writeSuccess(response, JSONUtils.toJSONObject("shareUrl", shareUrl));
     }
 
