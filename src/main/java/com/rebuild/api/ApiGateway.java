@@ -39,7 +39,6 @@ import org.springframework.cglib.core.ReflectUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -67,8 +66,8 @@ public class ApiGateway extends Controll {
 		final Date reuqestTime = CalendarUtils.now();
 		final String remoteIp = ServletUtils.getRemoteAddr(request);
 
-		int errorCode = 0;
-		String errorMsg = null;
+		int errorCode;
+		String errorMsg;
 
 		ApiContext context = null;
 		try {
@@ -146,7 +145,7 @@ public class ApiGateway extends Controll {
 				.append('.')
 				.append(apiConfig.getString("appSecret"));
 
-		String sign2sign = null;
+		String sign2sign;
 		if ("MD5".equals(signType)) {
 			sign2sign = EncryptUtils.toMD5Hex(sign2.toString());
 		} else if ("SHA1".equals(signType)) {
@@ -161,8 +160,7 @@ public class ApiGateway extends Controll {
 
 		JSON postJson = post != null ? (JSON) JSON.parse(post) : null;
 		ID bindUser = apiConfig.getID("bindUser");
-		ApiContext context = new ApiContext(sortedMap, postJson, appid, bindUser);
-		return context;
+        return new ApiContext(sortedMap, postJson, appid, bindUser);
 	}
 
 	/**
@@ -215,13 +213,6 @@ public class ApiGateway extends Controll {
 		record.setDate("responseTime", CalendarUtils.now());
 		Application.getCommonService().create(record);
 	}
-
-    @RequestMapping("/gw/api-list")
-    public ModelAndView apiList(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        ModelAndView mv = new ModelAndView("/api-list.jsp");
-        mv.getModelMap().put("list", API_CLASSES.keySet());
-        return mv;
-    }
 
 	// -- 注册 API
 
