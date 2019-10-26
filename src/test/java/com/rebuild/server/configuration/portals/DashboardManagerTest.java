@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
+import com.rebuild.server.Application;
 import org.junit.Test;
 
 import com.alibaba.fastjson.JSON;
@@ -32,7 +33,12 @@ public class DashboardManagerTest extends TestSupport {
 
 	@Test
 	public void testGetList() throws Exception {
-		JSON dashs = DashboardManager.instance.getDashList(UserService.ADMIN_USER);
-		System.out.println(dashs.toJSONString());
+	    try {
+	        Application.getSessionStore().set(UserService.SYSTEM_USER);
+		    JSON dashs = DashboardManager.instance.getDashList(UserService.ADMIN_USER);
+		    System.out.println(dashs.toJSONString());
+        } finally {
+            Application.getSessionStore().clean();
+        }
 	}
 }
