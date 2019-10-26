@@ -412,7 +412,7 @@ public class GeneralEntityService extends ObservableService  {
 				recordType = "主";
 			}
 
-			ApprovalState state = null;
+			ApprovalState state;
 			try {
 				state = getApprovalState(recordId);
 			} catch (NoRecordFoundException ignored) {
@@ -586,7 +586,6 @@ public class GeneralEntityService extends ObservableService  {
 		for (String field : norepeatFields) {
 			query.setParameter(index++, record.getObjectValue(field));
 		}
-		List<Record> repeated = query.setLimit(100).list();
-		return repeated;
+        return query.setLimit(100).list();
 	}
 }
