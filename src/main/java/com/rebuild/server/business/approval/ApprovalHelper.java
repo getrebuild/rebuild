@@ -22,6 +22,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.base.ApprovalStepService;
+import org.springframework.util.Assert;
 
 /**
  * @author devezhao
@@ -37,6 +38,7 @@ public class ApprovalHelper {
      */
     public static ID getSubmitter(ID record) {
         Object[] approvalId = Application.getQueryFactory().uniqueNoFilter(record, EntityHelper.ApprovalId);
+        Assert.notNull(approvalId, "Couldn't found approval of record : " + record);
         return getSubmitter(record, (ID) approvalId[0]);
     }
 

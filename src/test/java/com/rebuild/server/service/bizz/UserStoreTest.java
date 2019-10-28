@@ -25,7 +25,6 @@ import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
 /**
- * 
  * @author devezhao
  * @since 01/04/2019
  */

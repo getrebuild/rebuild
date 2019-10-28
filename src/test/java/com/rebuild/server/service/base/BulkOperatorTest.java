@@ -29,7 +29,7 @@ import org.junit.Test;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/06/04
  */
-public class BulkShareTest extends TestSupportWithUser {
+public class BulkOperatorTest extends TestSupportWithUser {
 
 	@Override
 	public ID getSessionUser() {
@@ -37,7 +37,7 @@ public class BulkShareTest extends TestSupportWithUser {
 	}
 
 	@Test
-	public void bulk() throws Exception {
+	public void share() throws Exception {
 		// 测试记录
 		addExtTestEntities(false);
 		ID recordNew = addRecordOfTestAllFields();
@@ -47,9 +47,24 @@ public class BulkShareTest extends TestSupportWithUser {
 				UserService.ADMIN_USER, BizzPermission.SHARE, SIMPLE_USER, null, new ID[] { recordNew });
 		Application.getGeneralEntityService().bulk(contextOfShare);
 
-		// 删除测试记录
-		BulkContext contextOfDelete = new BulkContext(
-				UserService.ADMIN_USER, BizzPermission.DELETE, null, null, new ID[] { recordNew });
-		Application.getGeneralEntityService().bulk(contextOfDelete);
+        // 清理
+        Application.getGeneralEntityService().delete(recordNew);
+	}
+
+	@Test
+	public void assign() throws Exception {
+		// 测试记录
+		addExtTestEntities(false);
+		ID recordNew = addRecordOfTestAllFields();
+
+		// 共享
+		BulkContext contextOfAssign = new BulkContext(
+				UserService.ADMIN_USER, BizzPermission.ASSIGN, SIMPLE_USER, null, new ID[] { recordNew });
+		Application.getGeneralEntityService().bulk(contextOfAssign);
+
+        // 删除
+        BulkContext contextOfDelete = new BulkContext(
+                UserService.ADMIN_USER, BizzPermission.DELETE, null, null, new ID[] { recordNew });
+        Application.getGeneralEntityService().bulk(contextOfDelete);
 	}
 }
