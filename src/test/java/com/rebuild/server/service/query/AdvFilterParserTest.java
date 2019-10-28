@@ -18,13 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.query;
 
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.Application;
-import com.rebuild.server.TestSupport;
-import org.junit.After;
-import org.junit.Before;
+import com.rebuild.server.TestSupportWithUser;
 import org.junit.Test;
 
 /**
@@ -32,15 +30,11 @@ import org.junit.Test;
  * @author devezhao
  * @since 01/04/2019
  */
-public class AdvFilterParserTest extends TestSupport {
+public class AdvFilterParserTest extends TestSupportWithUser {
 
-	@Before
-	public void setUp() {
-		Application.getSessionStore().set(SIMPLE_USER);
-	}
-	@After
-	public void setDown() {
-		Application.getSessionStore().clean();
+	@Override
+	protected ID getSessionUser() {
+		return SIMPLE_USER;
 	}
 
 	@Test

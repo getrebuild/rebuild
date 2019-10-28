@@ -25,14 +25,14 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.rebuild.server.service.bizz.UserService;
-import com.rebuild.web.MvcTestSupport;
+import com.rebuild.web.TestSupportWithMVC;
 
 /**
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/22
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-public class ChartDesignControllTest extends MvcTestSupport {
+public class ChartDesignControllTest extends TestSupportWithMVC {
 
 	@Test
 	public void testDesignPage() throws Exception {

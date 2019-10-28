@@ -32,7 +32,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.web.MvcResponse;
-import com.rebuild.web.MvcTestSupport;
+import com.rebuild.web.TestSupportWithMVC;
 
 import cn.devezhao.persist4j.engine.ID;
 
@@ -43,14 +43,10 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class GeneralOperatingControllTest extends MvcTestSupport {
+public class GeneralOperatingControllTest extends TestSupportWithMVC {
 
 	private static ID lastSaveId = ID.newId(999);  // It's fake
-	
-	static {
-		Application.getSessionStore().set(UserService.ADMIN_USER);
-	}
-	
+
 	@Test
 	public void test1Save() throws Exception {
 		JSONObject fromJson = JSON.parseObject("{ TestAllFieldsName:'Name" + System.currentTimeMillis() + "', metadata:{ entity:'TestAllFields' } }");

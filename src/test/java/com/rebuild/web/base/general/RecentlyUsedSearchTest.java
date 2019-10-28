@@ -21,7 +21,7 @@ package com.rebuild.web.base.general;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.web.MvcResponse;
-import com.rebuild.web.MvcTestSupport;
+import com.rebuild.web.TestSupportWithMVC;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +34,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
  * @since 2019/04/25
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-public class RecentlyUsedSearchTest extends MvcTestSupport {
+public class RecentlyUsedSearchTest extends TestSupportWithMVC {
 
 	@Test
 	public void testAdd() throws Exception {

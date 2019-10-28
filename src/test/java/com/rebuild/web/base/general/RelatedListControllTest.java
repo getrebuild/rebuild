@@ -28,14 +28,14 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import com.rebuild.server.service.bizz.DepartmentService;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.web.MvcResponse;
-import com.rebuild.web.MvcTestSupport;
+import com.rebuild.web.TestSupportWithMVC;
 
 /**
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/09
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-public class RelatedListControllTest extends MvcTestSupport {
+public class RelatedListControllTest extends TestSupportWithMVC {
 
 	@Test
 	public void testrRelatedList() throws Exception {

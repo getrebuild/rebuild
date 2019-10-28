@@ -27,7 +27,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.web.MvcResponse;
-import com.rebuild.web.MvcTestSupport;
+import com.rebuild.web.TestSupportWithMVC;
 
 import cn.devezhao.commons.web.WebUtils;
 
@@ -36,7 +36,7 @@ import cn.devezhao.commons.web.WebUtils;
  * @since 2019/03/09
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-public class FormDesignControllTest extends MvcTestSupport {
+public class FormDesignControllTest extends TestSupportWithMVC {
 
 	@Test
 	public void testPage() throws Exception {

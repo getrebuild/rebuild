@@ -18,6 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web;
 
+import cn.devezhao.commons.web.WebUtils;
+import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.TestSupport;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,11 +39,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.rebuild.server.TestSupport;
-
-import cn.devezhao.commons.web.WebUtils;
-import cn.devezhao.persist4j.engine.ID;
-
 /**
  * Controll 测试基类
  *
@@ -49,16 +47,17 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @ContextConfiguration("classpath:application-web.xml")
 @WebAppConfiguration
-public class MvcTestSupport extends TestSupport {
+public abstract class TestSupportWithMVC extends TestSupport {
 
     public static final String UA_WIN10_CHROME = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36";
 
     @Autowired
     private WebApplicationContext context;
+
     protected MockMvc springMVC;
 
     @Before
-    public void setup() {
+    public void setUp() {
         springMVC = MockMvcBuilders.webAppContextSetup(context)
                 .alwaysDo(MockMvcResultHandlers.print())
                 .build();

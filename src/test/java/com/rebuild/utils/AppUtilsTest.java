@@ -25,14 +25,14 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import com.rebuild.web.MvcTestSupport;
+import com.rebuild.web.TestSupportWithMVC;
 
 /**
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/22
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-public class AppUtilsTest extends MvcTestSupport {
+public class AppUtilsTest extends TestSupportWithMVC {
 	
 	@Test
 	public void testGetErrorMessage() throws Exception {

@@ -18,41 +18,38 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.base;
 
-import org.junit.Test;
-
-import com.rebuild.server.Application;
-import com.rebuild.server.TestSupport;
-import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.bizz.UserService;
-
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
+import com.rebuild.server.TestSupportWithUser;
+import com.rebuild.server.service.bizz.UserService;
+import org.junit.Test;
 
 /**
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/06/04
  */
-public class BulkShareTest extends TestSupport {
+public class BulkShareTest extends TestSupportWithUser {
+
+	@Override
+	public ID getSessionUser() {
+		return UserService.ADMIN_USER;
+	}
 
 	@Test
-	public void testBulkShare() throws Exception {
+	public void bulk() throws Exception {
+		// 测试记录
 		addExtTestEntities(false);
-		Application.getSessionStore().set(UserService.ADMIN_USER);
-		
-		try {
-			Entity entity = MetadataHelper.getEntity("Account999");
-			Record record = EntityHelper.forNew(entity.getEntityCode(), UserService.ADMIN_USER);
-			record.setString("accountName", "NAME" + System.currentTimeMillis());
-			record = Application.getGeneralEntityService().create(record);
-			
-			BulkContext context = new BulkContext(
-					UserService.ADMIN_USER, BizzPermission.SHARE, SIMPLE_USER, null, new ID[] { record.getPrimary() });
-			Application.getGeneralEntityService().bulk(context);
-		} finally {
-			Application.getSessionStore().clean();
-		}
+		ID recordNew = addRecordOfTestAllFields();
+
+		// 共享
+		BulkContext contextOfShare = new BulkContext(
+				UserService.ADMIN_USER, BizzPermission.SHARE, SIMPLE_USER, null, new ID[] { recordNew });
+		Application.getGeneralEntityService().bulk(contextOfShare);
+
+		// 删除测试记录
+		BulkContext contextOfDelete = new BulkContext(
+				UserService.ADMIN_USER, BizzPermission.DELETE, null, null, new ID[] { recordNew });
+		Application.getGeneralEntityService().bulk(contextOfDelete);
 	}
 }

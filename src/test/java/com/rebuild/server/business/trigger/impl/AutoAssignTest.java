@@ -21,7 +21,7 @@ package com.rebuild.server.business.trigger.impl;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
-import com.rebuild.server.TestSupport;
+import com.rebuild.server.TestSupportWithUser;
 import com.rebuild.server.business.trigger.ActionType;
 import com.rebuild.server.business.trigger.TriggerWhen;
 import com.rebuild.server.metadata.EntityHelper;
@@ -34,32 +34,34 @@ import org.junit.Test;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/08/27
  */
-public class AutoAssignTest extends TestSupport {
+public class AutoAssignTest extends TestSupportWithUser {
+
+    @Override
+    protected ID getSessionUser() {
+        return UserService.ADMIN_USER;
+    }
 
     @Test
     public void execute() throws Exception {
         addExtTestEntities(false);
-        Application.getSessionStore().set(UserService.ADMIN_USER);
 
         // 添加配置
         Application.getSQLExecutor().execute("delete from robot_trigger_config where BELONG_ENTITY = '" + TEST_ENTITY + "'");
 
-        Record autoshareConfig = EntityHelper.forNew(EntityHelper.RobotTriggerConfig, UserService.SYSTEM_USER);
-        autoshareConfig.setString("belongEntity", TEST_ENTITY);
-        autoshareConfig.setInt("when", TriggerWhen.CREATE.getMaskValue());
-        autoshareConfig.setString("actionType", ActionType.AUTOASSIGN.name());
+        Record triggerConfig = EntityHelper.forNew(EntityHelper.RobotTriggerConfig, UserService.SYSTEM_USER);
+        triggerConfig.setString("belongEntity", TEST_ENTITY);
+        triggerConfig.setInt("when", TriggerWhen.CREATE.getMaskValue());
+        triggerConfig.setString("actionType", ActionType.AUTOASSIGN.name());
         String content = "{cascades:null, assignRule:1, assignTo:['" + SIMPLE_USER.toLiteral() + "']}";
-        autoshareConfig.setString("actionContent", content);
-        Application.getBean(RobotTriggerConfigService.class).create(autoshareConfig);
+        triggerConfig.setString("actionContent", content);
+        Application.getBean(RobotTriggerConfigService.class).create(triggerConfig);
 
         // 测试执行
-        try {
-            ID testId = addRecordOfTestAllFields();
-            ID owningUser = Application.getRecordOwningCache().getOwningUser(testId);
-            Assert.assertEquals(SIMPLE_USER, owningUser);
-        } finally {
-            Application.getBean(RobotTriggerConfigService.class).delete(autoshareConfig.getPrimary());
-            Application.getSessionStore().clean();
-        }
+        ID testId = addRecordOfTestAllFields();
+        ID owningUser = Application.getRecordOwningCache().getOwningUser(testId);
+        Assert.assertEquals(SIMPLE_USER, owningUser);
+
+        // 清理
+        Application.getBean(RobotTriggerConfigService.class).delete(triggerConfig.getPrimary());
     }
 }

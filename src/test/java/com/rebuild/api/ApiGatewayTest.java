@@ -20,7 +20,7 @@ package com.rebuild.api;
 
 import com.rebuild.api.sdk.OpenApiSDK;
 import com.rebuild.web.MvcResponse;
-import com.rebuild.web.MvcTestSupport;
+import com.rebuild.web.TestSupportWithMVC;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -35,7 +35,7 @@ import java.util.Map;
  * @since 2019/7/23
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-public class ApiGatewayTest extends MvcTestSupport {
+public class ApiGatewayTest extends TestSupportWithMVC {
 
     @Test
     public void testSimple() throws Exception {

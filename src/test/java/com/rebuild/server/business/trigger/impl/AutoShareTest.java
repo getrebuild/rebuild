@@ -22,7 +22,7 @@ import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
-import com.rebuild.server.TestSupport;
+import com.rebuild.server.TestSupportWithUser;
 import com.rebuild.server.business.trigger.ActionType;
 import com.rebuild.server.business.trigger.TriggerWhen;
 import com.rebuild.server.metadata.EntityHelper;
@@ -35,32 +35,34 @@ import org.junit.Test;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/08/27
  */
-public class AutoShareTest extends TestSupport {
+public class AutoShareTest extends TestSupportWithUser {
+
+    @Override
+    protected ID getSessionUser() {
+        return UserService.ADMIN_USER;
+    }
 
     @Test
     public void execute() throws Exception {
         addExtTestEntities(false);
-        Application.getSessionStore().set(UserService.ADMIN_USER);
 
         // 添加配置
         Application.getSQLExecutor().execute("delete from robot_trigger_config where BELONG_ENTITY = '" + TEST_ENTITY + "'");
 
-        Record autoshareConfig = EntityHelper.forNew(EntityHelper.RobotTriggerConfig, UserService.SYSTEM_USER);
-        autoshareConfig.setString("belongEntity", TEST_ENTITY);
-        autoshareConfig.setInt("when", TriggerWhen.CREATE.getMaskValue());
-        autoshareConfig.setString("actionType", ActionType.AUTOSHARE.name());
+        Record triggerConfig = EntityHelper.forNew(EntityHelper.RobotTriggerConfig, UserService.SYSTEM_USER);
+        triggerConfig.setString("belongEntity", TEST_ENTITY);
+        triggerConfig.setInt("when", TriggerWhen.CREATE.getMaskValue());
+        triggerConfig.setString("actionType", ActionType.AUTOSHARE.name());
         String content = "{shareTo:['" + SIMPLE_USER.toLiteral() + "']}";
-        autoshareConfig.setString("actionContent", content);
-        Application.getBean(RobotTriggerConfigService.class).create(autoshareConfig);
+        triggerConfig.setString("actionContent", content);
+        Application.getBean(RobotTriggerConfigService.class).create(triggerConfig);
 
         // 测试执行
-        try {
-            ID testId = addRecordOfTestAllFields();
-            boolean allowed = Application.getSecurityManager().allowedViaShare(SIMPLE_USER, testId, BizzPermission.READ);
-            Assert.assertTrue(allowed);
-        } finally {
-            Application.getBean(RobotTriggerConfigService.class).delete(autoshareConfig.getPrimary());
-            Application.getSessionStore().clean();
-        }
+        ID testId = addRecordOfTestAllFields();
+        boolean allowed = Application.getSecurityManager().allowedViaShare(SIMPLE_USER, testId, BizzPermission.READ);
+        Assert.assertTrue(allowed);
+
+        // 清理
+        Application.getBean(RobotTriggerConfigService.class).delete(triggerConfig.getPrimary());
     }
 }
