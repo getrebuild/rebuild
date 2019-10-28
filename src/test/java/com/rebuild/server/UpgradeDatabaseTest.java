@@ -18,12 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server;
 
-import java.util.Map;
-
+import com.rebuild.server.helper.upgrade.DbScriptsReader;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 
-import com.rebuild.server.helper.upgrade.DbScriptsReader;
+import java.util.Map;
 
 /**
  * @author devezhao zhaofang123@gmail.com

@@ -18,16 +18,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
-
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.engine.ID;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * 分类数据

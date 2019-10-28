@@ -18,10 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
-import com.rebuild.server.metadata.EntityHelper;
-
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
+import com.rebuild.server.metadata.EntityHelper;
 
 /**
  * 字段的前台显示属性

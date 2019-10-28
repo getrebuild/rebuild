@@ -18,18 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.bizz.privileges;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
-
-import com.rebuild.server.Application;
-import com.rebuild.server.helper.cache.NoRecordFoundException;
-import com.rebuild.server.helper.cache.RecordOwningCache;
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.EntityService;
-import com.rebuild.server.service.bizz.RoleService;
-import com.rebuild.server.service.bizz.UserService;
-
 import cn.devezhao.bizz.privileges.DepthEntry;
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.Privileges;
@@ -40,6 +28,16 @@ import cn.devezhao.bizz.security.member.Role;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Filter;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
+import com.rebuild.server.helper.cache.NoRecordFoundException;
+import com.rebuild.server.helper.cache.RecordOwningCache;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.EntityService;
+import com.rebuild.server.service.bizz.RoleService;
+import com.rebuild.server.service.bizz.UserService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 
 /**
  * 实体安全/权限 管理

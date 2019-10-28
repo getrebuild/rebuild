@@ -18,13 +18,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
 import com.rebuild.server.configuration.ConfigEntry;
-
-import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 基础布局管理

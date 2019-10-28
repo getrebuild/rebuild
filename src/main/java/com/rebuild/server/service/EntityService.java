@@ -18,12 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service;
 
-import com.rebuild.server.helper.task.TaskExecutors;
-import com.rebuild.server.service.base.BulkContext;
-
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.helper.task.TaskExecutors;
+import com.rebuild.server.service.base.BulkContext;
 
 /**
  * 业务实体用

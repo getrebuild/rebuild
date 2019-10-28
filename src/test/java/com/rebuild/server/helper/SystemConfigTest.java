@@ -18,9 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper;
 
-import org.junit.Test;
-
 import com.rebuild.server.TestSupport;
+import org.junit.Test;
 
 /**
  * @author devezhao zhaofang123@gmail.com

@@ -18,14 +18,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
-import org.junit.Test;
-
-import com.rebuild.server.TestSupport;
-import com.rebuild.server.metadata.MetadataHelper;
-
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.TestSupport;
+import com.rebuild.server.metadata.MetadataHelper;
+import org.junit.Test;
 
 /**
  * @author devezhao-mbp zhaofang123@gmail.com

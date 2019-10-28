@@ -18,12 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.bizz;
 
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
 import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
+import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * 

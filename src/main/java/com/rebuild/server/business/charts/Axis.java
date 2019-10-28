@@ -18,11 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
-import org.apache.commons.lang.StringUtils;
-
-import com.rebuild.server.metadata.entity.EasyMeta;
-
 import cn.devezhao.persist4j.Field;
+import com.rebuild.server.metadata.entity.EasyMeta;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * 轴

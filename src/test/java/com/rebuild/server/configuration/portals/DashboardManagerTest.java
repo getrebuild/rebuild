@@ -18,12 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
-import com.rebuild.server.Application;
-import org.junit.Test;
-
 import com.alibaba.fastjson.JSON;
+import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.service.bizz.UserService;
+import org.junit.Test;
 
 /**
  * @author devezhao zhaofang123@gmail.com

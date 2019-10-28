@@ -18,13 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.query;
 
-import org.apache.commons.lang.StringUtils;
-import org.springframework.util.Assert;
-
-import com.rebuild.server.Application;
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.bizz.privileges.EntityQueryFilter;
-
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Filter;
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -32,8 +25,11 @@ import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.query.NativeQuery;
-
-import java.util.Objects;
+import com.rebuild.server.Application;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.bizz.privileges.EntityQueryFilter;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
 
 /**
  * 查询服务

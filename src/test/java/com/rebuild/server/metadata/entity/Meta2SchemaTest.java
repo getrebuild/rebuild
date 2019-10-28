@@ -20,11 +20,9 @@ package com.rebuild.server.metadata.entity;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.server.Application;
 import com.rebuild.server.TestSupportWithUser;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserService;
-import org.junit.Before;
 import org.junit.Test;
 
 /**

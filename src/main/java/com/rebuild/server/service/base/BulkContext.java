@@ -18,15 +18,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.base;
 
-import org.apache.commons.lang.ArrayUtils;
-
-import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.RebuildException;
-import com.rebuild.server.metadata.MetadataHelper;
-
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.RebuildException;
+import com.rebuild.server.metadata.MetadataHelper;
+import org.apache.commons.lang.ArrayUtils;
 
 /**
  * 批量操作上下文

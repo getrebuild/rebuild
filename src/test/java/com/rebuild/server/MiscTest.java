@@ -18,14 +18,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server;
 
-import java.util.Date;
-
+import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.alibaba.fastjson.JSON;
-
-import cn.devezhao.persist4j.engine.ID;
+import java.util.Date;
 
 /**
  * 

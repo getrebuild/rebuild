@@ -21,7 +21,8 @@ package com.rebuild.web.common;
 import com.rebuild.server.TestSupport;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author devezhao zhaofang123@gmail.com

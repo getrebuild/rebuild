@@ -18,11 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service;
 
-import org.springframework.util.Assert;
-
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import org.springframework.util.Assert;
 
 /**
  * 记录操作上下文

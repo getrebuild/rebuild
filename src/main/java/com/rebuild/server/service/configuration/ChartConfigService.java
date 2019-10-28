@@ -18,11 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.configuration;
 
-import com.rebuild.server.configuration.portals.ChartManager;
-import com.rebuild.server.metadata.EntityHelper;
-
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.configuration.portals.ChartManager;
+import com.rebuild.server.metadata.EntityHelper;
 
 /**
  * @author devezhao-mbp zhaofang123@gmail.com

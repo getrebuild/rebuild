@@ -18,11 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service;
 
-import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.base.QuickCodeReindexTask;
-
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.base.QuickCodeReindexTask;
 
 /**
  * 系统实体用

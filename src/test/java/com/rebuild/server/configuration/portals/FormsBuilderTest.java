@@ -20,15 +20,14 @@ package com.rebuild.server.configuration.portals;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.TestSupport;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.utils.JSONUtils;
 import org.junit.Test;
-
-import com.alibaba.fastjson.JSON;
-import com.rebuild.server.TestSupport;
-import com.rebuild.server.service.bizz.UserService;
 
 /**
  * @author devezhao zhaofang123@gmail.com

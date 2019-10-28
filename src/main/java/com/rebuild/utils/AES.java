@@ -18,14 +18,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.utils;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
-
+import com.rebuild.server.Application;
+import com.rebuild.server.RebuildException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 
-import com.rebuild.server.Application;
-import com.rebuild.server.RebuildException;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * AES 加/解密

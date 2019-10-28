@@ -18,14 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.configuration;
 
-import org.junit.Test;
-import org.springframework.util.StopWatch;
-
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
-import com.rebuild.server.service.configuration.ClassificationService;
-
-import cn.devezhao.persist4j.engine.ID;
+import org.junit.Test;
+import org.springframework.util.StopWatch;
 
 /**
  * @author devezhao-mbp zhaofang123@gmail.com

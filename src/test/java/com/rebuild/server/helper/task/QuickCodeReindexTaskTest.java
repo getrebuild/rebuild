@@ -18,13 +18,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.task;
 
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.base.QuickCodeReindexTask;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * 

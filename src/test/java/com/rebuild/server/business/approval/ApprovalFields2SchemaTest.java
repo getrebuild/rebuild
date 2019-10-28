@@ -18,13 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.approval;
 
-import org.junit.Test;
-
+import cn.devezhao.persist4j.Entity;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserService;
-
-import cn.devezhao.persist4j.Entity;
+import org.junit.Test;
 
 /**
  * @author devezhao-mbp zhaofang123@gmail.com

@@ -18,10 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.utils.JSONUtils;
-
-import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 表单布局管理
