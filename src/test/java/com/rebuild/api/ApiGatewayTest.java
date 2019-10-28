@@ -42,7 +42,7 @@ public class ApiGatewayTest extends TestSupportWithMVC {
         String apiUrl = "/gw/api/system-time?";
         Map<String, Object> bizParams = new HashMap<>();
 
-        apiUrl += new OpenApiSDK("230853256", "LA31SVGBqxUT5ncjgfDItPMP7yh9bJJ4eyCjGmG0")
+        apiUrl += new OpenApiSDK("230853250", "LA31SVGBqxUT5ncjgfDItPMP7yh9bJJ4eyCjGmG0")
                 .signMD5(bizParams);
         System.out.println("Request API : " + apiUrl);
 

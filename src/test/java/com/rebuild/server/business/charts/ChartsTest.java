@@ -61,6 +61,11 @@ public class ChartsTest extends TestSupport {
 				"{'entity':'testallfields','title':'折线图','type':'LINE','axis':{'dimension':[{'field':'createdOn','sort':'NONE','label':'','calc':'H'}],'numerical':[{'field':'testallfieldsName','sort':'NONE','label':'','calc':'COUNT'}]},'option':{}}");
 		ChartData line = ChartsFactory.create(config, UserService.ADMIN_USER);
 		System.out.println(line.build());
+
+		// BAR
+		config.put("type", "BAR");
+		ChartData bar = ChartsFactory.create(config, UserService.ADMIN_USER);
+		System.out.println(bar.build());
 	}
 	
 	@Test
@@ -77,5 +82,12 @@ public class ChartsTest extends TestSupport {
 				"{'entity':'testallfields','title':'漏斗图','type':'FUNNEL','axis':{'dimension':[{'field':'picklist','sort':'NONE','label':''}],'numerical':[{'field':'testallfieldsName','sort':'NONE','label':'','calc':'COUNT'}]},'option':{}}");
 		ChartData line = ChartsFactory.create(config, UserService.ADMIN_USER);
 		System.out.println(line.build());
+	}
+
+	@Test(expected = ChartsException.class)
+	public void testBadChart() {
+		JSONObject config = JSON.parseObject(
+				"{'entity':'testallfields','title':'无效图表','type':'abc'}");
+		ChartsFactory.create(config, UserService.ADMIN_USER);
 	}
 }
