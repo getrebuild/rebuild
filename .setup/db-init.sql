@@ -140,12 +140,15 @@ create table if not exists `pick_list` (
   `SEQ`                int(11) default '0' comment '排序, 小到大',
   `IS_DEFAULT`         char(1) default 'F',
   `IS_HIDE`            char(1) default 'F',
-  `MODIFIED_BY`        char(20) not null comment '修改人',
-  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `MASK_VALUE`         bigint(20) default '0' comment 'MultiSelect专用',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `CREATED_BY`         char(20) not null comment '创建人',
+  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
   primary key  (`ITEM_ID`)
 )Engine=InnoDB;
+alter table `pick_list`
+  add index `IX1_pick_list` (`BELONG_ENTITY`, `BELONG_FIELD`);
 
 -- ************ Entity [LayoutConfig] DDL ************
 create table if not exists `layout_config` (
@@ -153,7 +156,8 @@ create table if not exists `layout_config` (
   `CONFIG`             text(21845) not null comment 'JSON格式配置',
   `SHARE_TO`           varchar(420) default 'SELF' comment '共享给哪些人, 可选值: ALL/SELF/$MemberID(U/D/R)',
   `BELONG_ENTITY`      varchar(100) not null,
-  `APPLY_TYPE`         varchar(20) not null comment 'FORM,DATALIST,NAVI,TBA,ADD',
+  `APPLY_TYPE`         varchar(20) not null comment 'FORM,DATALIST,NAV,TBA,ADD',
+  `CONFIG_NAME`        varchar(100),
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
@@ -508,4 +512,4 @@ INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version
 INSERT INTO `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`) 
-  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 12);
+  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 15);

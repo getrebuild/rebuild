@@ -18,27 +18,24 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.metadata.entity;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import com.rebuild.server.Application;
-import com.rebuild.server.TestSupport;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.TestSupportWithUser;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserService;
-
-import cn.devezhao.persist4j.Entity;
+import org.junit.Test;
 
 /**
  * @author zhaofang123@gmail.com
  * @since 08/03/2018
  */
-public class Meta2SchemaTest extends TestSupport {
-	
-	@Before
-	public void setUp() {
-		Application.getSessionStore().set(UserService.ADMIN_USER);
+public class Meta2SchemaTest extends TestSupportWithUser {
+
+	@Override
+	protected ID getSessionUser() {
+		return UserService.ADMIN_USER;
 	}
-	
+
 	@Test
 	public void testCreateEntity() throws Exception {
 		String newEntityName = new Entity2Schema(UserService.ADMIN_USER).createEntity("测试实体", null, null, false);

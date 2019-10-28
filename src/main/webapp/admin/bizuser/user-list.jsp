@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -76,7 +76,7 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script>
 window.__PageConfig = {
-	type: 'RecordList',
+	type: $pgt.RecordList,
 	entity: ['User','${entityLabel}','${entityIcon}'],
 	privileges: ${entityPrivileges},
 	listConfig: ${DataListConfig},
@@ -99,7 +99,7 @@ $(document).ready(function(){
 	$('.J_new').click(function(){ formPostType = 1 })
 	$('.J_new-dept').click(function(){
 		formPostType = 2
-		rb.RbFormModal({ title: '新建部门', entity: 'Department', icon: 'accounts' })
+		RbFormModal.create({ title: '新建部门', entity: 'Department', icon: 'accounts' })
 	})
 })
 clickDept = function(depts) {

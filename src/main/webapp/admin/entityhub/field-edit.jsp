@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html>
@@ -7,15 +7,71 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>字段信息</title>
 <style type="text/css">
-.sortable-box{height:208px}
-.sortable-box .dd-list{height:200px}
-.sortable-box .dd-list .dd-item, .sortable-box .dd-list .dd-handle{background-color:#fff !important;color:#404040 !important}
-.sortable-box .no-item{padding:9px;text-align:center;color:#999}
-.sortable-box.autoh,.sortable-box.autoh .dd-list{height:auto;}
-.sortable-box .default .dd-handle{background-color:#dedede !important}
-.form-text.help code{cursor:help;font-weight:bold;}
-.calc-expr{border-radius:3px;padding:10px 0;background-color:#eee}
-.calc-expr .col-4{padding-left:10px;padding-right:10px;}
+.sortable-box {
+	height: 208px;
+	max-width: 300px;
+}
+.sortable-box .dd-list {
+	height: 200px
+}
+.sortable-box .dd-list .dd-item, .sortable-box .dd-list .dd-handle {
+	background-color: #fff !important;
+	color: #404040 !important;
+	border-color: #dedede !important;
+}
+.sortable-box .no-item {
+	padding: 9px;
+	text-align: center;
+	color: #999
+}
+.sortable-box.autoh, .sortable-box.autoh .dd-list {
+	height: auto;
+}
+.sortable-box .default .dd-handle {
+	background-color: #dedede !important
+}
+.sortable-box .default .dd-handle::before {
+	color: #4285f4;
+}
+.dt-MULTISELECT .dd-handle, .dt-PICKLIST .dd-handle {
+	padding-left: 31px !important;
+}
+.dt-MULTISELECT .dd-handle::before, .dt-PICKLIST .dd-handle::before {
+	position: absolute;
+	font-family: 'Material-Design-Iconic-Font';
+	font-size: 20px;
+	color: #bbb;
+	left: 10px;
+	content: '\f279';
+}
+.dt-MULTISELECT .default .dd-handle::before {
+	content: '\f26a';
+}
+.dt-PICKLIST .dd-handle::before {
+	content: '\f273';
+	font-size: 17px;
+	font-weight: bold;
+}
+.dt-PICKLIST .default .dd-handle::before {
+	content: '\f26b';
+}
+.form-text.help code {
+	cursor: help;
+	font-weight: bold;
+}
+.calc-expr {
+	border-radius: 3px;
+	padding: 10px 0;
+	background-color: #eee
+}
+.calc-expr .col-4 {
+	padding-left: 10px;
+	padding-right: 10px;
+}
+#stateClass:empty::before {
+	content: '无效状态类';
+	color: #ea4335;
+}
 </style>
 </head>
 <body>
@@ -120,20 +176,20 @@
 						</div>
 						<div class="form-group row J_for-IMAGE J_for-FILE hide">
 							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">允许上传数量</label>
-							<div class="col-md-12 col-xl-6 col-lg-8" style="padding-top:6px">
+							<div class="col-md-12 col-xl-6 col-lg-8 pt-1">
 								<input class="bslider form-control" id="uploadNumber" type="text" data-slider-value="[0,9]" data-slider-step="1" data-slider-max="9" data-slider-min="0" data-slider-tooltip="show">
 								<div class="form-text J_minmax">最少上传 <b>0</b> 个，最多上传 <b>9</b> 个</div>
 							</div>
 						</div>
-						<div class="form-group row J_for-PICKLIST hide">
-							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">列表选项</label>
+						<div class="form-group row J_for-PICKLIST J_for-MULTISELECT hide">
+							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">选项列表</label>
 							<div class="col-md-12 col-xl-6 col-lg-8">
-								<div class="rb-scroller sortable-box autoh">
+								<div class="rb-scroller sortable-box autoh dt-${fieldType}">
 									<ol class="dd-list" id="picklist-items">
 										<li class="no-item">加载中</li>
 									</ol>
 								</div>
-								<button type="button" class="btn btn-secondary btn-sm J_picklist-edit" style="line-height:28px"><i class="zmdi zmdi-settings"></i> 添加/编辑选项</button>
+								<button type="button" class="btn btn-secondary btn-sm J_picklist-edit"><i class="zmdi zmdi-settings"></i> 配置选项</button>
 							</div>
 						</div>
 						<div class="J_for-SERIES hide">
@@ -229,7 +285,7 @@
 </div>
 <script type="text/plain" id="picklist-tmpl">
 <li class="dd-item dd3-item">
-	<div class="dd3-content text-3dot">HOLD</div>
+	<div class="dd3-content text-dots">HOLD</div>
 	<div class="dd-handle dd3-handle"></div>
 	<div class="dd3-action"><a href="javascript:;" class="J_default" title="设为默认">[默认]</a></div>
 </li>

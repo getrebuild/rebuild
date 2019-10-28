@@ -10,7 +10,7 @@ const loadRules = () => {
     let tbody = $('#dataList tbody').empty()
     $(res.data).each(function () {
       let tr = $('<tr></tr>').appendTo(tbody)
-      $('<td>' + this.targetFieldLabel + '</div></td>').appendTo(tr)
+      $('<td><div>' + this.targetFieldLabel + '</div></td>').appendTo(tr)
       $('<td>' + this.sourceFieldLabel + '</div></td>').appendTo(tr)
       let extc = this.extConfig
       let extcLabel = []

@@ -18,66 +18,60 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.datalist;
 
-import com.rebuild.server.Application;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.TestSupport;
+import com.rebuild.server.TestSupportWithUser;
 import com.rebuild.server.configuration.portals.DataListManager;
 import com.rebuild.server.service.bizz.UserService;
+import org.junit.Test;
 
 /**
  * @author zhaofang123@gmail.com
  * @since Jan 6, 2019
  */
-public class DataListTest extends TestSupport {
+public class DataListTest extends TestSupportWithUser {
 
-	@Before
-	public void setUp() {
-		Application.getSessionStore().set(SIMPLE_USER);
-	}
-	@After
-	public void setDown() {
-		Application.getSessionStore().clean();
-	}
+    @Override
+    protected ID getSessionUser() {
+        return SIMPLE_USER;
+    }
 
-	private static JSONObject queryExpr = null;
-	static {
-		queryExpr = JSON.parseObject("{ entity:'User' }");
-		JSON fields = JSON.parseArray("[ 'userId', 'loginName', 'createdOn', 'createdBy', 'createdBy.fullName', 'modifiedBy.fullName' ]");
-		queryExpr.put("fields", fields);
-		JSON filter = JSON.parseObject("{ entity:'User', type:'QUICK', values:{ 1:'admin' } }");
-		queryExpr.put("filter", filter);
-		queryExpr.put("sort", "createdOn:desc");
-		queryExpr.put("pageNo", 1);
-		queryExpr.put("pageSize", 100);
-	}
+    private static JSONObject queryExpr = null;
 
-	@Test
-	public void testQueryParser() throws Exception {
-		QueryParser queryParser = new QueryParser(queryExpr);
-		System.out.println(queryParser.toSql());
-		System.out.println(queryParser.toCountSql());
-	}
-	
-	@Test
-	public void testQuery() throws Exception {
-		DataList dlc = new DefaultDataList(queryExpr, UserService.ADMIN_USER);
-		System.out.println(dlc.getJSONResult());
-	}
-	
-	@Test
-	public void testJoinFields() throws Exception {
-		QueryParser queryParser = new QueryParser(queryExpr);
-		System.out.println(queryParser.getQueryJoinFields());
-	}
-	
-	@Test
-	public void testColumnLayout() throws Exception {
-		JSON layout = DataListManager.instance.getColumnLayout("Account999", SIMPLE_USER);
-		System.out.println(layout);
-	}
+    static {
+        queryExpr = JSON.parseObject("{ entity:'User' }");
+        JSON fields = JSON.parseArray("[ 'userId', 'loginName', 'createdOn', 'createdBy', 'createdBy.fullName', 'modifiedBy.fullName' ]");
+        queryExpr.put("fields", fields);
+        JSON filter = JSON.parseObject("{ entity:'User', type:'QUICK', values:{ 1:'admin' } }");
+        queryExpr.put("filter", filter);
+        queryExpr.put("sort", "createdOn:desc");
+        queryExpr.put("pageNo", 1);
+        queryExpr.put("pageSize", 100);
+    }
+
+    @Test
+    public void testQueryParser() throws Exception {
+        QueryParser queryParser = new QueryParser(queryExpr);
+        System.out.println(queryParser.toSql());
+        System.out.println(queryParser.toCountSql());
+    }
+
+    @Test
+    public void testQuery() throws Exception {
+        DataList dlc = new DefaultDataList(queryExpr, UserService.ADMIN_USER);
+        System.out.println(dlc.getJSONResult());
+    }
+
+    @Test
+    public void testJoinFields() throws Exception {
+        QueryParser queryParser = new QueryParser(queryExpr);
+        System.out.println(queryParser.getQueryJoinFields());
+    }
+
+    @Test
+    public void testColumnLayout() throws Exception {
+        JSON layout = DataListManager.instance.getFieldsLayout("Account999", SIMPLE_USER);
+        System.out.println(layout);
+    }
 }

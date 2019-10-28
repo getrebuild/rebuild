@@ -71,16 +71,12 @@ public class AutoFillinManager implements ConfigManager<Field> {
 		Set<String> sourceFields = new HashSet<>();
 		for (ConfigEntry e : config) {
 			String sourceField = e.getString("source");
-			if (!sourceEntity.containsField(sourceField)) {
-				LOG.warn("Unknow field '" + sourceField + "' in '" + sourceEntity.getName() + "'");
-				continue;
-			}
 			String targetField = e.getString("target");
-			if (!targetEntity.containsField(targetField)) {
-				LOG.warn("Unknow field '" + targetField + "' in '" + targetEntity.getName() + "'");
+			if (!MetadataHelper.checkAndWarnField(sourceEntity, sourceField)
+					|| !MetadataHelper.checkAndWarnField(targetEntity, targetField)) {
 				continue;
 			}
-			
+
 			Field sourceFieldMeta = sourceEntity.getField(sourceField);
 			if (EasyMeta.getDisplayType(sourceFieldMeta) == DisplayType.REFERENCE) {
 				sourceFields.add("&" + sourceField);
@@ -116,7 +112,7 @@ public class AutoFillinManager implements ConfigManager<Field> {
 				continue;
 			}
 			
-			ConfigEntry clone = e.clone().set("value", value == null ? StringUtils.EMPTY : value);
+			ConfigEntry clone = e.clone().set("value", value);
 			clone.set("source", null);
 			fillin.add(clone.toJSON());
 		}
@@ -178,9 +174,9 @@ public class AutoFillinManager implements ConfigManager<Field> {
 	@SuppressWarnings("unchecked")
 	private List<ConfigEntry> getConfig(Field field) {
 		final String cKey = "AutoFillinManager-" + field.getOwnEntity().getName() + "." + field.getName();
-		Object cVal = Application.getCommonCache().getx(cKey);
-		if (cVal != null) {
-			return (List<ConfigEntry>) cVal;
+		Object cached = Application.getCommonCache().getx(cKey);
+		if (cached != null) {
+			return (List<ConfigEntry>) cached;
 		}
 		
 		Object[][] array = Application.createQueryNoFilter(

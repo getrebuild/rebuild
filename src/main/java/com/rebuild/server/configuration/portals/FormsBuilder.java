@@ -23,6 +23,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.dialect.editor.BoolEditor;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -46,6 +47,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 表单构造
@@ -120,8 +122,7 @@ public class FormsBuilder extends FormsManager {
 		final Entity masterEntity = entityMeta.getMasterEntity();
 		// 审批流程（状态）
 		ApprovalState approvalState = null;
-		boolean turnApproval = true;
-		
+
 		// 判断表单权限
 		
 		// 新建
@@ -133,7 +134,7 @@ public class FormsBuilder extends FormsManager {
 				approvalState = getHadApproval(entityMeta, null);
 				MASTERID4NEWSLAVE.set(null);
 				
-				if (turnApproval && approvalState != null) {
+				if (approvalState != null) {
 					if (approvalState == ApprovalState.PROCESSING || approvalState == ApprovalState.APPROVED) {
 						String stateType = approvalState == ApprovalState.APPROVED ? "已完成审批" : "正在审批中";
 						return formatModelError("主记录" + stateType + "，不能添加明细");
@@ -168,7 +169,7 @@ public class FormsBuilder extends FormsManager {
 			}
 			
 			approvalState = getHadApproval(entityMeta, record);
-			if (turnApproval && approvalState != null) {
+			if (approvalState != null) {
 				String masterType = masterEntity == null ? "" : "主";
 				if (approvalState == ApprovalState.APPROVED) {
 					return formatModelError(masterType + "记录已完成审批，不能编辑");
@@ -197,20 +198,18 @@ public class FormsBuilder extends FormsManager {
 			JSONObject el = (JSONObject) iter.next();
 			String fieldName = el.getString("field");
 			
-			// 分割线
 			if (fieldName.equalsIgnoreCase(DIVIDER_LINE)) {
-				if (!viewMode) {  // 表单页暂不支持
-					iter.remove();
-				}
+				// 分割线表单页暂不支持
+				if (!viewMode) iter.remove();
 				continue;
 			}
+
 			// 已删除字段
-			if (!entityMeta.containsField(fieldName)) {
-				LOG.warn("Unknow field '" + fieldName + "' in '" + entity + "'");
+			if (!MetadataHelper.checkAndWarnField(entityMeta, fieldName)) {
 				iter.remove();
 				continue;
 			}
-			
+
 			Field fieldMeta = entityMeta.getField(fieldName);
 			EasyMeta easyField = new EasyMeta(fieldMeta);
 			el.put("label", easyField.getLabel());
@@ -243,6 +242,10 @@ public class FormsBuilder extends FormsManager {
 				JSONArray options = StateManager.instance.getStateOptions(fieldMeta);
 				el.put("options", options);
 			}
+			else if (dt == DisplayType.MULTISELECT) {
+				JSONArray options = MultiSelectManager.instance.getSelectList(fieldMeta);
+				el.put("options", options);
+			}
 			else if (dt == DisplayType.DATETIME) {
 				if (!el.containsKey("datetimeFormat")) {
 					el.put("datetimeFormat", DisplayType.DATETIME.getDefaultFormat());
@@ -263,9 +266,6 @@ public class FormsBuilder extends FormsManager {
 			if (data != null) {
 				Object value = wrapFieldValue(data, easyField, viewMode);
 				if (value != null) {
-					if (dt == DisplayType.BOOL && !viewMode) {
-						value = "是".equals(value) ? "T" : "F";
-					}
 					el.put("value", value);
 				}
 			}
@@ -288,17 +288,10 @@ public class FormsBuilder extends FormsManager {
 					} else {
 						el.put("value", "自动值 (审批流程)");
 					}
-				} else if (dt == DisplayType.PICKLIST || dt == DisplayType.STATE) {
-					JSONArray options = el.getJSONArray("options");
-					for (Object o : options) {
-						JSONObject item = (JSONObject) o;
-						if (item.getBooleanValue("default")) {
-							el.put("value", item.getString("id"));
-							break;
-						}
-					}
 				} else if (dt == DisplayType.SERIES) {
 					el.put("value", "自动值 (自动编号)");
+				} else if (dt == DisplayType.BOOL) {
+					el.put("value", BoolEditor.FALSE);
 				} else {
 					String defVal = DefaultValueHelper.exprDefaultValueToString(fieldMeta);
 					if (defVal != null) {
@@ -408,9 +401,9 @@ public class FormsBuilder extends FormsManager {
 
 		ID masterRecordId = MASTERID4NEWSLAVE.get();
 		if (masterRecordId == null) {
-			Field stmField = MetadataHelper.getSlaveToMasterField(entity);
+			Field stm = MetadataHelper.getSlaveToMasterField(entity);
 			String sql = String.format("select %s from %s where %s = ?",
-					stmField.getName(), entity.getName(), entity.getPrimaryField().getName());
+					Objects.requireNonNull(stm).getName(), entity.getName(), entity.getPrimaryField().getName());
 			Object o[] = Application.createQueryNoFilter(sql).setParameter(1, recordId).unique();
 			masterRecordId = (ID) o[0];
 		}
@@ -429,53 +422,48 @@ public class FormsBuilder extends FormsManager {
 	 * @see #findRecord(ID, ID, JSONArray)
 	 */
 	protected Object wrapFieldValue(Record data, EasyMeta field, boolean viewMode) {
-		String fieldName = field.getName();
+		final String fieldName = field.getName();
+
+		// No value
 		if (!data.hasValue(fieldName)) {
 			if (EntityHelper.ApprovalId.equalsIgnoreCase(fieldName)) {
 				return viewMode ? FieldValueWrapper.APPROVAL_UNSUBMITTED
-						: new String[] { null, FieldValueWrapper.APPROVAL_UNSUBMITTED };
+								: new String[] { null, FieldValueWrapper.APPROVAL_UNSUBMITTED };
+			} else {
+				return null;
 			}
-			return null;
 		}
 
-		Object value = data.getObjectValue(fieldName);
-		DisplayType dt = field.getDisplayType();
-		if (dt == DisplayType.PICKLIST) {
-			ID pickValue = (ID) value;
-			if (viewMode) {
-				return StringUtils.defaultIfBlank(
-						PickListManager.instance.getLabel(pickValue), FieldValueWrapper.MISS_REF_PLACE);
-			} else {
-				return pickValue.toLiteral();
-			}
+		final DisplayType dt = field.getDisplayType();
+		final Object fieldValue = data.getObjectValue(fieldName);
+
+		// 编辑模式下原值返回
+		if (!viewMode && (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST || dt == DisplayType.STATE
+				|| dt == DisplayType.BOOL || dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL)) {
+			return fieldValue.toString();
 		}
-		else if (dt == DisplayType.STATE && !viewMode && !EntityHelper.ApprovalState.equalsIgnoreCase(fieldName)) {
-			return value;
+
+		if (dt == DisplayType.PICKLIST) {
+			String wrapped = PickListManager.instance.getLabel((ID) fieldValue);
+			return wrapped == null ? FieldValueWrapper.MISS_REF_PLACE : wrapped;
 		}
 		else if (dt == DisplayType.CLASSIFICATION) {
-			ID itemValue = (ID) value;
-			String itemName = ClassificationManager.instance.getFullName(itemValue);
-			itemName = StringUtils.defaultIfBlank(itemName, FieldValueWrapper.MISS_REF_PLACE);
-			return viewMode ? itemName : new String[] { itemValue.toLiteral(), itemName };
+			String wrapped = ClassificationManager.instance.getFullName((ID) fieldValue);
+			if (wrapped == null) {
+				wrapped = FieldValueWrapper.MISS_REF_PLACE;
+			}
+			return viewMode ? wrapped : new String[] { fieldValue.toString(), wrapped };
 		}
-		else if (value instanceof ID) {
-			ID idValue = (ID) value;
+		else if (fieldValue instanceof ID) {
+			ID idValue = (ID) fieldValue;
 			String idLabel = idValue.getLabel();
 			if (idLabel == null) {
 				idLabel = '[' + idValue.toLiteral().toUpperCase() + ']';
 			}
+			return new String[] { idValue.toLiteral(), idLabel, MetadataHelper.getEntityName(idValue) };
+		}
 
-			String belongEntity = MetadataHelper.getEntityName(idValue);
-			return new String[] { idValue.toLiteral(), idLabel, belongEntity };
-		}
-		else {
-			Object ret = FieldValueWrapper.instance.wrapFieldValue(value, field);
-			// 编辑记录时要去除千分位
-			if (!viewMode && (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL)) {
-				ret = ret.toString().replace(",", "");
-			}
-			return ret;
-		}
+		return FieldValueWrapper.instance.wrapFieldValue(fieldValue, field);
 	}
 	
 	// -- 主/明细实体权限处理
@@ -533,7 +521,7 @@ public class FormsBuilder extends FormsManager {
 				Object idLabel[] = readyReferenceValue(value);
 				if (idLabel != null) {
 					Field stm = MetadataHelper.getSlaveToMasterField(entity);
-					initialValReady.put(stm.getName(), idLabel);
+					initialValReady.put(Objects.requireNonNull(stm).getName(), idLabel);
 				}
 			}
 			else if (entity.containsField(field)) {

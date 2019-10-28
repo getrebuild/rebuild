@@ -48,7 +48,7 @@ import java.util.List;
 public class SysConfiguration {
 	
 	private static final Log LOG = LogFactory.getLog(SysConfiguration.class);
-	
+
 	/**
 	 * 获取数据目录下的文件（或目录）
 	 * 
@@ -61,7 +61,9 @@ public class SysConfiguration {
 		if (d != null) {
 			dir = new File(d);
 			if (!dir.exists()) {
-				dir.mkdirs();
+			    if (!dir.mkdirs()) {
+			        LOG.error("Couldn't mkdirs for data : " + dir);
+                }
 			}
 		}
 
@@ -69,11 +71,13 @@ public class SysConfiguration {
 			dir = FileUtils.getUserDirectory();
 			dir = new File(dir, ".rebuild");
 			if (!dir.exists()) {
-				dir.mkdirs();
+				if (!dir.mkdirs()) {
+                    LOG.error("Couldn't mkdirs for data : " + dir);
+                }
 			}
 		}
 
-		if (dir == null || !dir.exists()) {
+		if (!dir.exists()) {
 			dir = FileUtils.getTempDirectory();
 		}
 
@@ -110,7 +114,7 @@ public class SysConfiguration {
 			throw new IllegalArgumentException("Bad file path or name : " + file);
 		}
 	}
-	
+
 	/**
 	 * 云存储地址
 	 * 
@@ -159,6 +163,25 @@ public class SysConfiguration {
 	public static String[] getSmsAccount() {
 		return getsNoUnset(true,
 				ConfigurableItem.SmsUser, ConfigurableItem.SmsPassword, ConfigurableItem.SmsSign);
+	}
+
+	/**
+	 * 获取首页 URL
+	 *
+	 * @param path 可带有路径，会自动拼接
+	 * @return
+	 */
+	public static String getHomeUrl(String...path) {
+		String homeUrl = get(ConfigurableItem.HomeURL);
+		if (!homeUrl.endsWith("/")) {
+			homeUrl += "/";
+		}
+
+		if (path.length > 0) {
+			if (path[0].startsWith("/")) path[0] = path[0].substring(1);
+			return homeUrl + path[0];
+		}
+		return homeUrl;
 	}
 
 	/**
@@ -252,7 +275,7 @@ public class SysConfiguration {
 				.setParameter(1, key)
 				.unique();
 
-		Record record = null;
+		Record record;
 		if (exists == null) {
 			record = EntityHelper.forNew(EntityHelper.SystemConfig, UserService.SYSTEM_USER);
 			record.setString("item", key);

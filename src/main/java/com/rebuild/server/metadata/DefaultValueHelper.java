@@ -22,6 +22,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
+import com.rebuild.server.configuration.portals.MultiSelectManager;
 import com.rebuild.server.configuration.portals.PickListManager;
 import com.rebuild.server.helper.state.StateHelper;
 import com.rebuild.server.helper.state.StateSpec;
@@ -75,29 +76,31 @@ public class DefaultValueHelper {
      * @return
      */
     public static Object exprDefaultValue(Field field, String valueExpr) {
-        // PICKLIST 特殊处理
-        if (field.getType() == FieldType.REFERENCE
-                && field.getReferenceEntity().getEntityCode() == EntityHelper.PickList) {
+        final DisplayType dt = EasyMeta.getDisplayType(field);
+
+        if (dt == DisplayType.PICKLIST) {
             return PickListManager.instance.getDefaultItem(field);
-        } else if (EasyMeta.getDisplayType(field) == DisplayType.STATE) {
+        } else if (dt == DisplayType.STATE) {
             Class<?> stateClass;
             try {
                 stateClass = StateHelper.getSatetClass(field);
             } catch (IllegalArgumentException ex) {
-                LOG.error("Bad field: " + field, ex);
+                LOG.error("Bad field of state: " + field);
                 return null;
             }
 
             for (Object c : stateClass.getEnumConstants()) {
                 if (((StateSpec) c).isDefault()) return ((StateSpec) c).getState();
             }
+        } else if (dt == DisplayType.MULTISELECT) {
+            return MultiSelectManager.instance.getDefaultValue(field);
         }
 
         if (StringUtils.isBlank(valueExpr)) {
             return null;
         }
 
-        if (field.getType() == FieldType.TIMESTAMP || field.getType() == FieldType.DATE) {
+        if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
             if ("{NOW}".equals(valueExpr)) {
                 return CalendarUtils.now();
             }
@@ -130,9 +133,10 @@ public class DefaultValueHelper {
                 String format = "yyyy-MM-dd HH:mm:ss".substring(0, valueExpr.length());
                 return CalendarUtils.parse(valueExpr, format);
             }
-        } else if (field.getType() == FieldType.DECIMAL) {
+
+        } else if (dt == DisplayType.DECIMAL) {
             return BigDecimal.valueOf(NumberUtils.toDouble(valueExpr));
-        } else if (field.getType() == FieldType.LONG) {
+        } else if (dt == DisplayType.NUMBER) {
             return NumberUtils.toLong(valueExpr);
         }
         else {

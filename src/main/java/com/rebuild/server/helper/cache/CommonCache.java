@@ -18,11 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.cache;
 
-import java.io.Serializable;
-
 import org.springframework.cache.CacheManager;
-
 import redis.clients.jedis.JedisPool;
+
+import java.io.Serializable;
 
 /**
  * Cache for all

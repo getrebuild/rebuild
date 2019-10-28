@@ -18,6 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.configuration;
 
+import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalFields2Schema;
 import com.rebuild.server.business.approval.ApprovalState;
@@ -26,12 +31,6 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.bizz.privileges.AdminGuard;
-
-import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.PersistManagerFactory;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 审批流程

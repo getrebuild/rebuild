@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <div class="rb-left-sidebar">
 <div class="left-sidebar-wrapper">
 	<a class="left-sidebar-toggle">MIN</a>
@@ -18,7 +18,7 @@
 										<ul>
 											<li class="${param['activeNav'] == 'integration-storage' ? 'active' : ''}"><a href="${baseUrl}/admin/integration/storage">云存储</a></li>
 											<li class="${param['activeNav'] == 'integration-submail' ? 'active' : ''}"><a href="${baseUrl}/admin/integration/submail">短信/邮件</a></li>
-											<li class="${param['activeNav'] == 'integration-cache' ? 'active' : ''} bosskey-show"><a href="${baseUrl}/admin/integration/cache">缓存系统</a></li>
+											<li class="${param['activeNav'] == 'integration-cache' ? 'active' : ''}"><a href="${baseUrl}/admin/integration/cache">缓存系统</a></li>
 										</ul>
 									</div>
 								</div>

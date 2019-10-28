@@ -48,10 +48,7 @@
     }
   })
 
-  $.cookie.defaults = {
-    expires: 14,
-    path: '/'
-  }
+  $.cookie.defaults = { expires: 14, path: '/' }
 
   $.fn.select2.defaults.set('width', '100%')
   $.fn.select2.defaults.set('language', 'zh-CN')
@@ -66,7 +63,7 @@
     else if (v === 'false') v = false
     window.rb[k] = v
   })
-  if (window.rb.appName) document.title = document.title + ' · ' + window.rb.appName
+  if (rb.appName && rb.appName !== document.title) document.title = document.title + ' · ' + rb.appName
 
   setTimeout(function () {
     if (rb.env === 'dev') $('html').addClass('dev')
@@ -304,5 +301,6 @@ var $same = function (a, b) {
       b = b.join(',')
     }
   }
-  return a === b
+  // eslint-disable-next-line eqeqeq
+  return a == b
 }

@@ -66,8 +66,8 @@ public class ApiGateway extends Controll {
 		final Date reuqestTime = CalendarUtils.now();
 		final String remoteIp = ServletUtils.getRemoteAddr(request);
 
-		int errorCode = 0;
-		String errorMsg = null;
+		int errorCode;
+		String errorMsg;
 
 		ApiContext context = null;
 		try {
@@ -96,7 +96,7 @@ public class ApiGateway extends Controll {
 			Application.getSessionStore().clean();
 		}
 
-		JSON err = formatFailure(errorCode, errorMsg == null ? "服务内部错误" : errorMsg);
+		JSON err = formatFailure(errorMsg == null ? "Server Internal Error" : errorMsg, errorCode);
 		ServletUtils.writeJson(response, err.toJSONString());
 		logRequestAsync(reuqestTime, remoteIp, apiName, context, err);
 	}
@@ -119,13 +119,13 @@ public class ApiGateway extends Controll {
 		String appid = getParameterNotNull(sortedMap,"appid");
 		ConfigEntry apiConfig = RebuildApiManager.instance.getApp(appid);
 		if (apiConfig == null) {
-			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "无效 appid=" + appid);
+			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid appid=" + appid);
 		}
 
 		String timestamp = getParameterNotNull(sortedMap,"timestamp");
 		long systemTime = System.currentTimeMillis() / 1000;
 		if (Math.abs(systemTime - ObjectUtils.toLong(timestamp)) > (AppUtils.devMode() ? 100 : 10)) {
-			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "无效 timestamp=" + appid);
+			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid timestamp=" + appid);
 		}
 
 		// 验证签名
@@ -145,23 +145,22 @@ public class ApiGateway extends Controll {
 				.append('.')
 				.append(apiConfig.getString("appSecret"));
 
-		String sign2sign = null;
+		String sign2sign;
 		if ("MD5".equals(signType)) {
 			sign2sign = EncryptUtils.toMD5Hex(sign2.toString());
 		} else if ("SHA1".equals(signType)) {
 			sign2sign = EncryptUtils.toSHA1Hex(sign2.toString());
 		} else {
-			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "无效 sign_type=" + signType);
+			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid sign_type=" + signType);
 		}
 
 		if (!sign.equals(sign2sign)) {
-			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "无效签名 sign=" + sign);
+			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid sign=" + sign);
 		}
 
 		JSON postJson = post != null ? (JSON) JSON.parse(post) : null;
 		ID bindUser = apiConfig.getID("bindUser");
-		ApiContext context = new ApiContext(appid, bindUser, sortedMap, postJson);
-		return context;
+        return new ApiContext(sortedMap, postJson, appid, bindUser);
 	}
 
 	/**
@@ -169,10 +168,10 @@ public class ApiGateway extends Controll {
 	 * @param name
 	 * @return
 	 */
-	private String getParameterNotNull(Map<String, String> params, String name) {
+	protected String getParameterNotNull(Map<String, String> params, String name) {
 		String v = params.get(name);
 		if (StringUtils.isBlank(v)) {
-			throw new ApiInvokeException(ApiInvokeException.ERR_BADPARAMS, "参数 [" + name + "] 不能为空");
+			throw new ApiInvokeException(ApiInvokeException.ERR_BADPARAMS, "Parameter [" + name + "] cannot be empty");
 		}
 		return v;
 	}
@@ -183,7 +182,7 @@ public class ApiGateway extends Controll {
 	 */
 	protected BaseApi createApi(String apiName) {
 		if (!API_CLASSES.containsKey(apiName)) {
-			throw new ApiInvokeException(ApiInvokeException.ERR_BADAPI, "无效 API : " + apiName);
+			throw new ApiInvokeException(ApiInvokeException.ERR_BADAPI, "Unknown API : " + apiName);
 		}
 		return (BaseApi) ReflectUtils.newInstance(API_CLASSES.get(apiName));
 	}
@@ -205,7 +204,7 @@ public class ApiGateway extends Controll {
 		Record record = EntityHelper.forNew(EntityHelper.RebuildApiRequest, UserService.SYSTEM_USER);
 		record.setString("appId", context.getAppId());
 		record.setString("remoteIp", remoteIp);
-		record.setString("requestUrl", apiName + " " + context.getReqParams());
+		record.setString("requestUrl", apiName + " " + context.getParameterMap());
 		if (context.getPostData() != null) {
 			record.setString("requestBody", context.getPostData().toJSONString());
 		}
@@ -235,5 +234,6 @@ public class ApiGateway extends Controll {
 
 	static {
 		registerApi(SystemTime.class);
+		registerApi(LoginToken.class);
 	}
 }

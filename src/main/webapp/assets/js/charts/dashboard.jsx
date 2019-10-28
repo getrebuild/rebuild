@@ -12,7 +12,7 @@ $(document).ready(function () {
   $.get(rb.baseUrl + '/dashboard/dash-gets', ((res) => {
     dash_list = res.data
     let d = dash_list[0]  // default
-    if (res.data.length > 1) {
+    if (dash_list.length > 1) {
       let dset = $storage.get('DashDefault')
       if (dset) {
         for (let i = 0; i < res.data.length; i++) {
@@ -25,9 +25,9 @@ $(document).ready(function () {
     }
 
     dashid = d[0]
-    dash_editable = d[3]
-    render_dashboard(d[2])
-    $('.dash-list h4').text(d[1])
+    dash_editable = d[2]
+    render_dashboard(d[3])
+    $('.dash-list h4').text(d[4])
 
     if (location.hash && location.hash.length > 20) {
       if (location.hash.substr(0, 5) === '#del=') {
@@ -46,24 +46,31 @@ $(document).ready(function () {
 
     if (dash_editable !== true) $('.J_dash-edit, .J_chart-adds').remove()
 
-    $('.J_dash-new').click(() => { dlgShow('DlgDashAdd') })
-    $('.J_dash-edit').click(() => { dlgShow('DlgDashSettings', { title: d[1], shareToAll: d[4] === 'ALL' }) })
-    $('.J_chart-new').click(() => { dlgShow('DlgAddChart') })
-    $('.J_dash-select').click(() => { dlgShow('DashSelect', { dashList: dash_list }) })
+    $('.J_dash-new').click(() => dlgShow('DlgDashAdd'))
+    $('.J_dash-edit').click(() => dlgShow('DlgDashSettings', { title: d[4], shareTo: d[1] }))
+    $('.J_chart-new').click(() => dlgShow('DlgAddChart'))
+    $('.J_dash-select').click(() => dlgShow('DashSelect', { dashList: dash_list }))
     let dlgChartSelect
     $('.J_chart-select').click(() => {
-      if (dlgChartSelect) dlgChartSelect.show()
-      else {
-        renderRbcomp(<ChartSelect key="ChartSelect" />, null, function () {
-          dlgChartSelect = this
-          let appended = []
-          $('.grid-stack-item-content').each(function () {
-            let chid = $(this).attr('id').substr(6)
-            appended.push(chid)
-          })
-          this.setState({ appended: appended })
-        })
+      let appended = []
+      $('.grid-stack-item-content').each(function () {
+        appended.push($(this).attr('id').substr(6))
+      })
+
+      if (dlgChartSelect) {
+        dlgChartSelect.show()
+        dlgChartSelect.setState({ appended: appended })
+        return
       }
+
+      let select = function (chart) {
+        chart.w = chart.h = 4
+        add_widget(chart)
+      }
+      renderRbcomp(<ChartSelect key="ChartSelect" select={select} />, null, function () {
+        dlgChartSelect = this
+        this.setState({ appended: appended })
+      })
     })
   }))
 
@@ -164,7 +171,7 @@ let save_dashboard = function () {
   $setTimeout(() => {
     $.post(rb.baseUrl + '/dashboard/dash-config?id=' + dashid, JSON.stringify(gridstack_serialize), () => {
       // eslint-disable-next-line no-console
-      console.log('Saved dashboard: ' + JSON.stringify(gridstack_serialize))
+      if (rb.env === 'dev') console.log('Saved dashboard: ' + JSON.stringify(gridstack_serialize))
     })
   }, 500, 'save-dashboard')
 }
@@ -193,7 +200,7 @@ class DlgAddChart extends RbFormHandler {
   }
   componentDidMount() {
     let entity_el = $(this.refs['entity'])
-    $.get(rb.baseUrl + '/commons/metadata/entities', (res) => {
+    $.get(rb.baseUrl + '/commons/metadata/entities?slave=true', (res) => {
       $(res.data).each(function () {
         $('<option value="' + this.name + '">' + this.label + '</option>').appendTo(entity_el)
       })
@@ -225,10 +232,9 @@ class DlgDashSettings extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right"></label>
             <div className="col-sm-7">
-              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0">
-                <input className="custom-control-input" type="checkbox" checked={this.state.shareToAll === true} data-id="shareToAll" onChange={this.handleChange} />
-                <span className="custom-control-label">共享此仪表盘给全部用户</span>
-              </label>
+              <div className="shareTo--wrap">
+                <Share2 ref={(c) => this._shareTo = c} noSwitch={true} shareTo={this.props.shareTo} />
+              </div>
             </div>
           </div>
         }
@@ -239,10 +245,10 @@ class DlgDashSettings extends RbFormHandler {
           </div>
         </div>
       </div>
-    </RbModal >)
+    </RbModal>)
   }
   save() {
-    let _data = { shareTo: this.state.shareToAll === true ? 'ALL' : 'SELF', title: this.state.title || '默认仪表盘' }
+    let _data = { shareTo: this._shareTo.getData().shareTo, title: this.state.title || '默认仪表盘' }
     _data.metadata = { id: this.props.dashid, entity: 'DashboardConfig' }
     $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
@@ -255,8 +261,11 @@ class DlgDashSettings extends RbFormHandler {
     })
   }
   delete() {
-    RbAlert.create('确认删除此仪表盘？', {
+    RbAlert.create('确认删除此仪表盘吗？', {
+      type: 'danger',
+      confirmText: '删除',
       confirm: function () {
+        this.disabled(true)
         $.post(rb.baseUrl + '/app/entity/record-delete?id=' + dashid, function (res) {
           // if (res.error_code === 0) location.replace('home#del=' + dashid)  // Chrome no refresh?
           if (res.error_code === 0) location.reload()
@@ -318,17 +327,17 @@ class DashSelect extends React.Component {
   }
   render() {
     return (
-      <div className={'modal ' + (this.props.dlgClazz || 'dlg-dash-select')} ref="dlg" tabIndex="-1">
+      <div className="modal select-list" ref={(c) => this._dlg = c} tabIndex="-1">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
+              <button className="close" type="button" onClick={this.hide}><span className="zmdi zmdi-close" /></button>
             </div>
             <div className="modal-body">
-              <div ref={s => this._scrollbar = s}>
+              <div>
                 <ul className="list-unstyled">
                   {(this.props.dashList || []).map((item) => {
-                    return <li key={'dash-' + item[0]}><a href={'?d=' + item[0]}>{item[1]}<i className="icon zmdi zmdi-arrow-right"></i></a></li>
+                    return <li key={'dash-' + item[0]}><a href={'?d=' + item[0]}>{item[4]}<i className="icon zmdi zmdi-arrow-right"></i></a></li>
                   })}
                 </ul>
               </div>
@@ -338,54 +347,7 @@ class DashSelect extends React.Component {
       </div>
     )
   }
-  componentDidMount() {
-    this.show()
-  }
-  hide() {
-    $(this.refs['dlg']).modal('hide')
-  }
-  show() {
-    $(this.refs['dlg']).modal({ show: true, keyboard: true })
-  }
-}
-
-// 从已有图表中选择图表
-// 添加的图表会在多个仪表盘共享（本身就是一个），修改时会同步修改
-class ChartSelect extends RbModalHandler {
-  constructor(props) {
-    super(props)
-    this.state = { chartList: [], appended: props.appended || [] }
-  }
-  render() {
-    return (<RbModal ref={(c) => this._dlg = c} title="添加已有图表">
-      <div className="chart-list">
-        {this.state.chartList.map((item) => {
-          return (<div key={'k-' + item[0]}>
-            <span className="float-left chart-icon"><i className={item[2]}></i></span>
-            <span className="float-left title">
-              <strong>{item[1]}</strong>
-              <p className="text-muted fs-12">{item[3]}</p>
-            </span>
-            <span className="float-right">
-              {this.state.appended.contains(item[0])
-                ? <a className='btn disabled' data-id={item[0]}>已添加</a>
-                : <a className='btn' onClick={() => this.chartAppend(item)} >添加</a>}
-            </span>
-            <div className="clearfix"></div>
-          </div>)
-        })}
-      </div>
-    </RbModal>)
-  }
-  componentDidMount() {
-    $.get(rb.baseUrl + '/dashboard/chart-list', (res) => {
-      this.setState({ chartList: res.data })
-    })
-  }
-  chartAppend(item) {
-    add_widget({ chart: item[0], title: item[1], type: item[2], w: 4, h: 4 })
-    let s = this.state.appended
-    s.push(item[0])
-    this.setState({ appended: s })
-  }
+  componentDidMount = () => $(this._dlg).modal({ show: true, keyboard: true })
+  hide = () => $(this._dlg).modal('hide')
+  show = () => $(this._dlg).modal('show')
 }

@@ -26,6 +26,8 @@ import cn.devezhao.persist4j.metadata.MetadataException;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -38,6 +40,8 @@ import java.util.List;
  * @since 08/13/2018
  */
 public class MetadataHelper {
+
+	private static final Log LOG = LogFactory.getLog(MetadataHelper.class);
 
 	/**
 	 * 元数据
@@ -118,8 +122,16 @@ public class MetadataHelper {
 	 * @return
 	 */
 	public static String getEntityName(ID record) {
-		return getMetadataFactory().getEntity(record.getEntityCode()).getName();
+		return getEntity(record.getEntityCode()).getName();
 	}
+
+    /**
+     * @param record
+     * @return
+     */
+    public static String getEntityLabel(ID record) {
+	    return EasyMeta.getLabel(getEntity(record.getEntityCode()));
+    }
 
 	/**
 	 * @param entityName
@@ -352,5 +364,34 @@ public class MetadataHelper {
 			}
 		}
 		return lastField;
+	}
+
+	/**
+	 * 检查字段有效性（无效会 LOG）
+	 *
+	 * @param entity
+	 * @param fieldName
+	 * @return
+	 */
+	public static boolean checkAndWarnField(Entity entity, String fieldName) {
+		if (entity.containsField(fieldName)) {
+			return true;
+		}
+		LOG.warn("Unknow field '" + fieldName + "' in '" + entity + "'");
+		return false;
+	}
+
+	/**
+	 * 检查字段有效性（无效会 LOG）
+	 *
+	 * @param entityName
+	 * @param fieldName
+	 * @return
+	 */
+	public static boolean checkAndWarnField(String entityName, String fieldName) {
+		if (!containsEntity(entityName)) {
+			return false;
+		}
+		return checkAndWarnField(getEntity(entityName), fieldName);
 	}
 }

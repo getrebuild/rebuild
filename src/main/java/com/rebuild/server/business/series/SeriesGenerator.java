@@ -18,18 +18,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.series;
 
+import cn.devezhao.persist4j.Field;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.metadata.entity.DisplayType;
+import com.rebuild.server.metadata.entity.EasyMeta;
+import org.apache.commons.lang.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang.StringUtils;
-
-import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.metadata.entity.DisplayType;
-import com.rebuild.server.metadata.entity.EasyMeta;
-
-import cn.devezhao.persist4j.Field;
 
 /**
  * 自动编号

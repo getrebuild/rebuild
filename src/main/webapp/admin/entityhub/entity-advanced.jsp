@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -98,16 +98,20 @@ $(document).ready(function(){
 	let btnDrop = $('.J_drop-confirm').click(() => {
 		if ($('.J_drop-check').prop('checked') == false) return
 		if (!window.__PageConfig.isSuperAdmin){ RbHighbar.error('仅超级管理员可删除实体'); return }
-		RbAlert.create('实体删除后将无法恢复，请务必谨慎操作！确认删除吗？', '删除实体', { type: 'danger', confirmText: '删除', confirm: function () {
-			btnDrop.button('loading')
-			this.disabled(true)
-			$.post('../entity-drop?id=' + metaId + '&force=' + $('.J_drop-force').prop('checked'), (res) => {
-				if (res.error_code == 0) {
-					RbHighbar.success('实体已删除')
-					setTimeout(function() { location.replace('../../entities') }, 1500)
-				} else RbHighbar.error(res.error_msg)
-			})
-		} })
+
+		let alertExt = { type: 'danger', confirmText: '删除' }
+        alertExt.confirm = function() {
+            btnDrop.button('loading')
+            this.disabled(true)
+            $.post('../entity-drop?id=' + metaId + '&force=' + $('.J_drop-force').prop('checked'), (res) => {
+                if (res.error_code == 0) {
+                    RbHighbar.success('实体已删除')
+                    setTimeout(function() { location.replace('../../entities') }, 1500)
+                } else RbHighbar.error(res.error_msg)
+            })
+        }
+        alertExt.call = function () { $countdownButton($(this._dlg).find('.btn-danger')) }
+		RbAlert.create('实体删除后将无法恢复，请务必谨慎操作。确认删除吗？', '删除实体', alertExt)
 	})
 })
 </script>

@@ -18,14 +18,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.charts;
 
-import java.text.MessageFormat;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
 
-import cn.devezhao.persist4j.engine.ID;
+import java.text.MessageFormat;
 
 /**
  * 饼图
@@ -35,8 +33,8 @@ import cn.devezhao.persist4j.engine.ID;
  */
 public class PieChart extends ChartData {
 
-	protected PieChart(JSONObject config, ID user) {
-		super(config, user);
+	protected PieChart(JSONObject config) {
+		super(config);
 	}
 
 	@Override

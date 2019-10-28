@@ -42,12 +42,11 @@ public abstract class BaseCacheTemplate<V extends Serializable> implements Cache
 	 * @param keyPrefix
 	 */
 	protected BaseCacheTemplate(JedisPool jedisPool, CacheManager backup, String keyPrefix) {
-		if (testJedisPool(jedisPool)) {
+		this.useRedis = testJedisPool(jedisPool);
+		if (this.useRedis) {
 			this.delegate = new JedisCacheTemplate<>(jedisPool, keyPrefix);
-			this.useRedis = true;
 		} else {
 			this.delegate = new EhcacheTemplate<>(backup, keyPrefix);
-			this.useRedis = false;
 		}
 	}
 	

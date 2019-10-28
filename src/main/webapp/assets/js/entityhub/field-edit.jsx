@@ -67,14 +67,14 @@ $(document).ready(function () {
     }
   }
 
-  if (dt === 'PICKLIST') {
+  if (dt === 'PICKLIST' || dt === 'MULTISELECT') {
     $.get(`${rb.baseUrl}/admin/field/picklist-gets?entity=${wpc.entityName}&field=${wpc.fieldName}&isAll=false`, function (res) {
       if (res.data.length === 0) { $('#picklist-items li').text('请添加选项'); return }
       $('#picklist-items').empty()
       $(res.data).each(function () { picklistItemRender(this) })
       if (res.data.length > 5) $('#picklist-items').parent().removeClass('autoh')
     })
-    $('.J_picklist-edit').click(() => RbModal.create(`${rb.baseUrl}/admin/p/entityhub/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}`, '配置列表选项'))
+    $('.J_picklist-edit').click(() => RbModal.create(`${rb.baseUrl}/admin/p/entityhub/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}&multi=${dt === 'MULTISELECT'}`, '配置选项'))
   }
   else if (dt === 'SERIES') {
     $('#defaultValue').parents('.form-group').remove()
@@ -156,7 +156,8 @@ $(document).ready(function () {
         } else RbHighbar.error(res.error_msg)
       })
     }
-    RbAlert.create('字段删除后将无法恢复，请务必谨慎操作！确认删除吗？', '删除字段', alertExt)
+    alertExt.call = function () { $countdownButton($(this._dlg).find('.btn-danger')) }
+    RbAlert.create('字段删除后将无法恢复，请务必谨慎操作。确认删除吗？', '删除字段', alertExt)
   })
 })
 

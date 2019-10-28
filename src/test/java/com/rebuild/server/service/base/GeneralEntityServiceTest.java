@@ -23,7 +23,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
-import com.rebuild.server.TestSupport;
+import com.rebuild.server.TestSupportWithUser;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.ServiceSpec;
 import com.rebuild.server.service.bizz.UserService;
@@ -33,40 +33,45 @@ import org.junit.Test;
 import java.util.List;
 
 /**
- * 
  * @author devezhao
  * @since 01/04/2019
  */
-public class GeneralEntityServiceTest extends TestSupport {
-	
+public class GeneralEntityServiceTest extends TestSupportWithUser {
+
+	@Override
+	public ID getSessionUser() {
+		return UserService.ADMIN_USER;
+	}
+
 	@Test
-	public void testGetEntityService() throws Exception {
+	public void getServiceSpec() throws Exception {
 		ServiceSpec ies = Application.getService(EntityHelper.User);
 		Assert.assertEquals(ies.getEntityCode(), EntityHelper.User);
 	}
 
 	@Test
 	public void testCRUD() throws Exception {
-		Application.getSessionStore().set(UserService.ADMIN_USER);
-		
+		// 新建
 		Record record = EntityHelper.forNew(EntityHelper.Role, UserService.ADMIN_USER);
 		record.setString("name", "测试角色");
 		record = Application.getService(EntityHelper.Role).create(record);
 		
 		ID roleId = record.getPrimary();
 		System.out.println(Application.getUserStore().getRole(roleId).getName());
-		
+
+		// 更新
 		record = EntityHelper.forUpdate(roleId, UserService.ADMIN_USER);
 		record.setString("name", "测试角色-2");
 		record = Application.getService(EntityHelper.Role).createOrUpdate(record);
 		
 		System.out.println(Application.getUserStore().getRole(roleId).getName());
-		
+
+		// 删除
 		Application.getService(EntityHelper.Role).delete(roleId);
 	}
 	
 	@Test
-	public void testGetRecordsOfCascaded() throws Exception {
+	public void getRecordsOfCascaded() throws Exception {
 		Application.getSessionStore().set(SIMPLE_USER);
 		Application.getGeneralEntityService().getRecordsOfCascaded(
 				SIMPLE_USER,
@@ -81,5 +86,10 @@ public class GeneralEntityServiceTest extends TestSupport {
 
 		List<Record> repeated = Application.getGeneralEntityService().checkRepeated(record);
 		System.out.println(JSON.toJSONString(repeated));
+	}
+
+	@Test
+	public void bulk() {
+
 	}
 }

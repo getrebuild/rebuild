@@ -109,7 +109,7 @@ class DlgEnableUser extends RbModalHandler {
           </div>
         </div>
       </div>
-    </RbModal >)
+    </RbModal>)
   }
   componentDidMount() {
     if (this._deptNew) this.__s2dept = this.__initSelect2(this._deptNew, ['Department', '部门'])

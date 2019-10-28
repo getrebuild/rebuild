@@ -18,16 +18,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.approval;
 
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.metadata.CascadeModel;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.Field2Schema;
 import com.rebuild.server.metadata.entity.ModifiyMetadataException;
-
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.persist4j.metadata.CascadeModel;
 
 /**
  * 审批流程字段

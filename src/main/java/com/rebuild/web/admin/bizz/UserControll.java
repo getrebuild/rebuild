@@ -26,11 +26,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.DataListManager;
-import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.bizz.DepartmentService;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.bizz.privileges.Department;
 import com.rebuild.server.service.bizz.privileges.User;
@@ -62,7 +60,7 @@ public class UserControll extends BaseEntityControll {
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
 		ID user = getRequestUser(request);
 		ModelAndView mv = createModelAndView("/admin/bizuser/user-list.jsp", "User", user);
-		JSON config = DataListManager.instance.getColumnLayout("User", user);
+		JSON config = DataListManager.instance.getFieldsLayout("User", user);
 		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
 		return mv;
 	}
@@ -127,7 +125,7 @@ public class UserControll extends BaseEntityControll {
 					.setParameter(1, u.getId())
 					.unique();
 			if (did == null) {
-				String homeUrl = SysConfiguration.get(ConfigurableItem.HomeURL);
+				String homeUrl = SysConfiguration.getHomeUrl();
 				String content = String.format(MSG_ENABLED, u.getFullName(), homeUrl, homeUrl);
 				SMSender.sendMailAsync(u.getEmail(), "你的账户已激活", content);
 			}

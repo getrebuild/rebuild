@@ -18,18 +18,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.admin.bizz;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-
+import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.web.BaseEntityControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.rebuild.web.BaseEntityControll;
-
-import cn.devezhao.persist4j.engine.ID;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 /**
  * URL-Rewrite

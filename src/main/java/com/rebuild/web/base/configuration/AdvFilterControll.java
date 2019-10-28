@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.base.general;
+package com.rebuild.web.base.configuration;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
@@ -26,9 +26,8 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.portals.AdvFilterManager;
-import com.rebuild.server.configuration.portals.SharableManager;
+import com.rebuild.server.configuration.portals.ShareToManager;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.configuration.AdvFilterService;
 import com.rebuild.server.service.query.AdvFilterParser;
 import com.rebuild.web.BaseControll;
@@ -59,28 +58,19 @@ public class AdvFilterControll extends BaseControll implements PortalsConfigurat
 		ID user = getRequestUser(request);
 		ID filterId = getIdParameter(request, "id");
 		String filterName = getParameter(request, "name");
-		if (filterId != null
-				&& (!(UserHelper.isAdmin(user) || AdvFilterManager.instance.isSelf(user, filterId)))) {
-//			writeFailure(response, "无权修改");
-//			return;
-			
-			// 不是自己的就另存为
+
+        // 不是自己的就另存为
+		if (filterId != null && !ShareToManager.isSelf(user, filterId)) {
 			if (StringUtils.isBlank(filterName)) {
 				ConfigEntry o = AdvFilterManager.instance.getAdvFilter(filterId);
 				if (o != null) {
-					filterName = o.getString("name") + "-副本";
+					filterName = o.getString("name") + "-复制";
 				}
 			}
 			filterId = null;
 		}
 		
 		JSON filter = ServletUtils.getRequestJson(request);
-		
-		boolean toAll = getBoolParameter(request, "toAll", false);
-		if (toAll) {
-			toAll = UserHelper.isAdmin(user);
-		}
-		
 		Record record;
 		if (filterId == null) {
 			record = EntityHelper.forNew(EntityHelper.FilterConfig, user);
@@ -92,12 +82,11 @@ public class AdvFilterControll extends BaseControll implements PortalsConfigurat
 			record = EntityHelper.forUpdate(filterId, user);
 		}
 		
-		if (StringUtils.isNotBlank(filterName)) {
-			record.setString("filterName", filterName);
-		}
-		
 		record.setString("config", filter.toJSONString());
-		record.setString("shareTo", toAll ? SharableManager.SHARE_ALL : SharableManager.SHARE_SELF);
+		putCommonsFields(request, record);
+        if (StringUtils.isNotBlank(filterName)) {
+            record.setString("filterName", filterName);
+        }
 		Application.getBean(AdvFilterService.class).createOrUpdate(record);
 		
 		writeSuccess(response);

@@ -18,11 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper;
 
-import org.apache.commons.lang.math.RandomUtils;
-
-import com.rebuild.server.Application;
-
 import cn.devezhao.commons.CodecUtils;
+import com.rebuild.server.Application;
+import org.apache.commons.lang.math.RandomUtils;
 
 /**
  * 验证码

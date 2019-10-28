@@ -12493,7 +12493,7 @@ a.avatar.x48 img {
 
 .rb-notifications .rb-scroller {
     position: relative;
-    max-height: 219px;
+    max-height: 380px;
 }
 
 .rb-notifications .rb-scroller>.content>ul {
@@ -13806,7 +13806,7 @@ a.avatar.x48 img {
     border-right: 1px solid #e6e6e6;
     margin-top: 61px;
     padding-bottom: 61px;
-    color: #404040
+    color: #404040;
 }
 
 .rb-collapsible-sidebar-collapsed .page-aside {
@@ -15127,424 +15127,6 @@ a.avatar.x48 img {
     border-color: #e82e1e
 }
 
-.widget {
-    background-color: #fff;
-    padding: 20px;
-    margin-bottom: 25px;
-    border-radius: 3px
-}
-
-.widget.widget-fullwidth {
-    padding: 0
-}
-
-.widget.widget-fullwidth .widget-head {
-    padding: 20px 20px 10px;
-    margin-bottom: 0
-}
-
-@media (max-width:575.98px) {
-    .widget.widget-fullwidth .widget-head {
-        padding-left: 15px;
-        padding-left: 15px
-    }
-}
-
-.widget.widget-fullwidth .widget-chart-container .counter {
-    left: 20px
-}
-
-.widget.widget-fullwidth .chart-table table {
-    margin-bottom: 0
-}
-
-.widget.widget-small {
-    margin-bottom: 20px
-}
-
-.widget.widget-small.widget-fullwidth>.widget-head {
-    padding: 20px 15px 10px
-}
-
-.widget th {
-    border-top: 0
-}
-
-.widget-head {
-    margin-bottom: 20px;
-    display: block;
-    border-radius: 3px 3px 0 0
-}
-
-.widget-head::after {
-    display: block;
-    clear: both;
-    content: ""
-}
-
-.widget-head .title {
-    display: block;
-    font-size: 1.385rem;
-    font-weight: 300
-}
-
-.widget-head .description {
-    display: block;
-    color: #9e9e9e;
-    line-height: 22px;
-    font-weight: 300
-}
-
-.widget-head .tools {
-    float: right;
-    margin-left: 10px
-}
-
-.widget-head .tools .icon {
-    display: inline-block;
-    font-size: 1.538rem;
-    line-height: 25px;
-    vertical-align: middle;
-    cursor: pointer;
-    color: #bababa;
-    min-width: 1.538rem;
-    text-align: center
-}
-
-.widget-head .tools .icon+.icon {
-    margin-left: 2px
-}
-
-.widget-head .tools .icon:hover {
-    color: #a6a6a6
-}
-
-.widget-head .tools .value {
-    font-size: 1.846rem;
-    line-height: 22px
-}
-
-.widget-head .tools .dropdown {
-    display: inline-block
-}
-
-.widget-head .tools .dropdown-menu {
-    right: 0;
-    left: auto
-}
-
-.widget-head .button-toolbar {
-    float: right
-}
-
-@media (max-width:767.98px) {
-    .widget-head .button-toolbar .btn-group {
-        margin-bottom: 5px
-    }
-}
-
-.widget-head .button-toolbar .btn-group+* {
-    margin-left: 7px
-}
-
-.widget-head .button-toolbar .dropdown-menu {
-    right: 0;
-    left: auto
-}
-
-.widget-chart-container {
-    position: relative
-}
-
-.widget-chart-container .counter {
-    min-height: auto;
-    top: 0;
-    left: 0;
-    position: absolute;
-    z-index: 2
-}
-
-.widget-chart-container .counter-inline {
-    position: relative;
-    display: inline-block
-}
-
-.widget-chart-container .counter .value {
-    font-size: 1.846rem
-}
-
-.widget-chart-container .counter .desc {
-    text-transform: uppercase;
-    font-size: .8462rem;
-    color: #9d9d9d
-}
-
-.widget-chart-container .counter-big .value {
-    display: block;
-    font-size: 2.077rem;
-    line-height: 2.077rem;
-    font-weight: 300;
-    margin-bottom: 5px
-}
-
-.widget-chart-container .indicator-equal .icon {
-    color: #4285f4
-}
-
-.widget-chart-container .indicator-positive .icon {
-    color: #34a853
-}
-
-.widget-chart-container .indicator-negative .icon {
-    color: #ea4335
-}
-
-.widget-chart-container .indicator .icon {
-    font-size: 1.923rem;
-    margin-right: 7px;
-    line-height: 24px;
-    vertical-align: middle
-}
-
-.widget-chart-container .indicator .number {
-    font-size: 1.538rem;
-    vertical-align: middle
-}
-
-.widget-chart-info::after {
-    display: block;
-    clear: both;
-    content: ""
-}
-
-@media (max-width:767.98px) {
-    .widget-chart-info+.widget-counter-group {
-        margin-top: 15px
-    }
-}
-
-.widget-fullwidth .widget-chart-info {
-    padding: 9px 20px 0
-}
-
-.widget-counter-group {
-    padding: 0 20px 10px
-}
-
-.widget-counter-group-right {
-    text-align: right
-}
-
-.widget-counter-group .counter {
-    position: static;
-    display: inline-block
-}
-
-.widget-counter-group .counter+.counter {
-    margin-left: 20px
-}
-
-.chart-legend table {
-    width: 100%
-}
-
-.chart-legend table tr td {
-    padding: 6px 0;
-    vertical-align: middle
-}
-
-.chart-legend-color>span {
-    display: block;
-    background-color: #f2f2f2;
-    height: 10px;
-    width: 10px
-}
-
-.chart-legend-value {
-    text-align: right
-}
-
-.chart-legend-horizontal {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    line-height: 14px
-}
-
-.chart-legend-horizontal>li {
-    display: inline-block
-}
-
-.chart-legend-horizontal>li+li {
-    margin-left: 14px
-}
-
-.chart-legend-horizontal>li>span {
-    display: inline-block;
-    height: 10px;
-    width: 10px;
-    border-radius: 50%;
-    background-color: #f2f2f2;
-    margin-right: 2px
-}
-
-.chart-pie-counter {
-    display: block;
-    position: absolute;
-    top: 50%;
-    width: 100%;
-    text-align: center;
-    line-height: 3.846rem;
-    margin-top: -1.923rem;
-    font-size: 3.846rem;
-    font-weight: 300
-}
-
-.clr-primary {
-    background-color: #4285f4
-}
-
-.clr-success {
-    background-color: #34a853
-}
-
-.clr-warning {
-    background-color: #fbbc05
-}
-
-.clr-danger {
-    background-color: #ea4335
-}
-
-.clr-grey {
-    background-color: #ccc
-}
-
-.bs-grid-block {
-    border: 2px dashed #c3c3c3;
-    font-weight: 300;
-    font-size: 1.538rem;
-    color: #807e7e;
-    display: table;
-    table-layout: fixed;
-    width: 100%;
-    margin-bottom: 40px
-}
-
-.bs-grid-block .content {
-    display: table-cell;
-    height: 177px;
-    text-align: center;
-    vertical-align: middle
-}
-
-.bs-grid-block .content .size {
-    display: block
-}
-
-.bs-grid-block .content .device {
-    line-height: 0
-}
-
-.bs-grid-block .content .device:after {
-    font-size: 1.154rem;
-    content: 'Large Desktop';
-    color: #4285f4
-}
-
-@media (max-width:1199.98px) {
-    .bs-grid-block .content .device:after {
-        content: 'Desktop';
-        color: #4285f4
-    }
-}
-
-@media (max-width:991.98px) {
-    .bs-grid-block .content .device:after {
-        content: 'Laptop';
-        color: #4285f4
-    }
-}
-
-@media (max-width:767.98px) {
-    .bs-grid-block .content .device:after {
-        content: 'Tablet';
-        color: #34a853
-    }
-}
-
-@media (max-width:575.98px) {
-    .bs-grid-block .content .device:after {
-        content: 'Phone';
-        color: #34a853
-    }
-}
-
-.icon-container {
-    background-color: #fff;
-    padding: 20px;
-    cursor: default
-}
-
-.icon-container .icon {
-    -webkit-transition: background-color .3s ease-in-out;
-    transition: background-color .3s ease-in-out;
-    background-color: #f5f5f5;
-    border-radius: 50%;
-    display: inline-block;
-    height: 50px;
-    width: 50px;
-    margin-right: 8px;
-    padding: 12px;
-    padding: 13px;
-    text-align: center;
-    vertical-align: middle
-}
-
-.icon-container .icon span {
-    -webkit-transition: color .3s ease-in-out;
-    transition: color .3s ease-in-out;
-    font-size: 1.923rem;
-    color: #696767
-}
-
-.icon-container .icon:hover {
-    background-color: #4285f4
-}
-
-.icon-container .icon:hover span {
-    color: #fff
-}
-
-.icon-container .icon-class {
-    -webkit-transition: color .3s ease-in-out;
-    transition: color .3s ease-in-out;
-    font-size: 1.385rem;
-    font-weight: 300;
-    vertical-align: middle;
-    color: #696767
-}
-
-.icon-container:hover .icon {
-    background-color: #4285f4
-}
-
-.icon-container:hover .icon span {
-    color: #fff
-}
-
-.icon-container:hover .icon-class {
-    color: #4285f4
-}
-
-.rb-icons-list.hide-icons .icon-category .row>div {
-    display: none
-}
-
-.rb-icons-list.hide-icons .icon-category .row>div.icon-visible {
-    display: block
-}
-
 .rb-loading {
     position: relative;
 }
@@ -16096,7 +15678,7 @@ li.L9 {
 
 .timeline-header {
     display: block;
-    padding: 7px 0 0 46px
+    padding: 6px 0 0 46px
 }
 
 @media (max-width:767.98px) {
@@ -20680,7 +20262,8 @@ fieldset[disabled] .btn-color.btn-evernote:hover {
 }
 
 .dropdown-menu>.dropdown-item:hover {
-    background-color: #f5f5f5
+    background-color: #f5f5f5;
+    background-color: #eee;
 }
 
 .dropdown-menu .btn-group .btn {
@@ -22957,6 +22540,13 @@ address {
     height: 35px;
     text-align: center;
     line-height: 14px
+}
+
+.pagination-rounded .page-no {
+    height: 35px;
+    line-height: 35px;
+    padding: 0 10px;
+    font-weight: bold;
 }
 
 .form-control {

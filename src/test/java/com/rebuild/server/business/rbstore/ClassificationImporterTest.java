@@ -18,6 +18,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.rbstore;
 
+import cn.devezhao.commons.web.WebUtils;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.bizz.UserService;
+import com.rebuild.web.TestSupportWithMVC;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,27 +33,14 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import com.rebuild.server.Application;
-import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.bizz.UserService;
-import com.rebuild.web.MvcTestSupport;
-
-import cn.devezhao.commons.web.WebUtils;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
-
 /**
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/04/08
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class ClassificationImporterTest extends MvcTestSupport {
-	
-	static {
-		Application.getSessionStore().set(UserService.ADMIN_USER);
-	}
-	
+public class ClassificationImporterTest extends TestSupportWithMVC {
+
 	@Test
 	public void test0ListPage() throws Exception {
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders

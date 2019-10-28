@@ -24,6 +24,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.RebuildException;
 import com.rebuild.server.configuration.FlowDefinition;
 import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
@@ -92,7 +93,7 @@ public class ApprovalProcessor {
 			throw new ApprovalException("当前记录已经" + (currentState == ApprovalState.PROCESSING.getState() ? "提交审批" : "审批完成"));
 		}
 		
-		FlowNodeGroup nextNodes = getNextNodes(FlowNode.ROOT);
+		FlowNodeGroup nextNodes = getNextNodes(FlowNode.NODE_ROOT);
 		if (!nextNodes.isValid()) {
 			LOG.warn("No next-node be found");
 			return false;
@@ -165,7 +166,23 @@ public class ApprovalProcessor {
 		Application.getBean(ApprovalStepService.class)
 				.txApprove(approvedStep, currentNode.getSignMode(), ccs, nextApprovers, nextNode);
 	}
-	
+
+	/**
+	 * 撤销
+	 *
+	 * @param remark
+	 * @throws ApprovalException
+	 */
+	public void cancel(String remark) throws ApprovalException {
+		Object[] state = Application.getQueryFactory().unique(this.record, EntityHelper.ApprovalState, EntityHelper.ApprovalId);
+		Integer currentState = (Integer) state[0];
+		if ((Integer) state[0] != ApprovalState.PROCESSING.getState()) {
+			throw new ApprovalException("已" + ApprovalState.valueOf(currentState).getName() + "审批不能撤销");
+		}
+
+		Application.getBean(ApprovalStepService.class).txCancel(this.record, (ID) state[1], getCurrentNodeId());
+	}
+
 	/**
 	 * @return
 	 * @see #getNextNode(String)
@@ -262,6 +279,7 @@ public class ApprovalProcessor {
 	 * @return
 	 */
 	private FlowParser getFlowParser() {
+		Assert.notNull(approval, "[approval] not be null");
 		if (flowParser != null) {
 			return flowParser;
 		}
@@ -289,7 +307,7 @@ public class ApprovalProcessor {
 		
 		JSONArray state = new JSONArray();
 		for (Object[] o : array) {
-			state.add(this.formatStep(o));
+			state.add(this.formatStep(o, null));
 		}
 		return state;
 	}
@@ -300,9 +318,12 @@ public class ApprovalProcessor {
 	 * @return returns [ [S,S], [S], [SSS], [S] ]
 	 */
 	public JSONArray getWorkedSteps() {
+		final Object[] status = ApprovalHelper.getApprovalStatus(this.record);
+		this.approval = (ID) status[0];
+
 		Object[][] array = Application.createQueryNoFilter(
 				"select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode from RobotApprovalStep" +
-						" where recordId = ? and isCanceled = 'F' and isWaiting = 'F' order by createdOn")
+				" where recordId = ? and isWaiting = 'F' and isCanceled = 'F' order by createdOn")
 				.setParameter(1, this.record)
 				.array();
 		if (array.length == 0) {
@@ -313,26 +334,32 @@ public class ApprovalProcessor {
 		Map<String, List<Object[]>> stepGroupMap = new HashMap<>();
 		for (Object[] o : array) {
 			String prevNode = (String) o[7];
-			if (firstStep == null && FlowNode.ROOT.equals(prevNode)) {
+			if (firstStep == null && FlowNode.NODE_ROOT.equals(prevNode)) {
 				firstStep = o;
 			}
 
 			List<Object[]> stepGroup = stepGroupMap.computeIfAbsent(prevNode, k -> new ArrayList<>());
 			stepGroup.add(o);
 		}
-		
+		if (firstStep == null) {
+			throw new RebuildException("无效审批记录 : " + this.record);
+		}
+
 		JSONArray steps = new JSONArray();
 		JSONObject submitter = JSONUtils.toJSONObject(
-				new String[] { "submitter", "submitterName", "createdOn" },
-				new Object[] { firstStep[5], UserHelper.getName((ID) firstStep[5]), CalendarUtils.getUTCDateTimeFormat().format(firstStep[4]) });
+				new String[] { "submitter", "submitterName", "createdOn", "approvalId", "approvalName", "approvalState" },
+				new Object[] { firstStep[5], UserHelper.getName((ID) firstStep[5]), CalendarUtils.getUTCDateTimeFormat().format(firstStep[4]),
+						status[0], status[1], status[2] });
 		steps.add(submitter);
-		
-		String next = FlowNode.ROOT;
+
+
+		String next = FlowNode.NODE_ROOT;
 		while (next != null) {
 			List<Object[]> group = stepGroupMap.get(next);
 			if (group == null) {
 				break;
 			}
+			next = (String) group.get(0)[6];
 
 			// 按审批时间排序
 			group.sort((o1, o2) -> {
@@ -340,28 +367,33 @@ public class ApprovalProcessor {
 				Date t2 = (Date) (o2[3] == null ? o2[4] : o2[3]);
 				return t1.compareTo(t2);
 			});
-			
+
+			String signMode = null;
+			try {
+				signMode = getFlowParser().getNode(next).getSignMode();
+			} catch (ApprovalException ignored) {
+			}
+
 			JSONArray state = new JSONArray();
 			for (Object[] o : group) {
-				state.add(formatStep(o));
+				state.add(formatStep(o, signMode));
 			}
 			steps.add(state);
-			next = (String) group.get(0)[6];
 		}
 		return steps;
 	}
-	
+
 	/**
 	 * @param step
 	 */
-	private JSONObject formatStep(Object[] step) {
+	private JSONObject formatStep(Object[] step, String signMode) {
 		ID approver = (ID) step[0];
 		return JSONUtils.toJSONObject(
-				new String[] { "approver", "approverName", "state", "remark", "approvedTime", "createdOn" }, 
+				new String[] { "approver", "approverName", "state", "remark", "approvedTime", "createdOn", "signMode" },
 				new Object[] {
-						approver, UserHelper.getName(approver), 
+						approver, UserHelper.getName(approver),
 						step[1], step[2],
 						step[3] != null ? CalendarUtils.getUTCDateTimeFormat().format(step[3]) : null,
-						CalendarUtils.getUTCDateTimeFormat().format(step[4]) });
+						CalendarUtils.getUTCDateTimeFormat().format(step[4]), signMode });
 	}
 }

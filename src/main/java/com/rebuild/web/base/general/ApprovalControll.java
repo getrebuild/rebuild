@@ -25,6 +25,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalException;
+import com.rebuild.server.business.approval.ApprovalHelper;
 import com.rebuild.server.business.approval.ApprovalProcessor;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.business.approval.FlowNodeGroup;
@@ -98,6 +99,14 @@ public class ApprovalControll extends BasePageControll {
 						data.put("imApproveSatate", step.getInteger("state"));
 						break;
 					}
+				}
+			}
+
+			// 审批中提交人可撤销
+			if (stateVal == ApprovalState.PROCESSING.getState()) {
+				ID submitter = ApprovalHelper.getSubmitter(recordId);
+				if (user.equals(submitter)) {
+					data.put("canCancel", true);
 				}
 			}
 		}
@@ -178,6 +187,19 @@ public class ApprovalControll extends BasePageControll {
 			writeFailure(response, ex.getMessage());
 		}
 	}
+
+	@RequestMapping("cancel")
+	public void doCancel(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getRequestUser(request);
+		ID recordId = getIdParameterNotNull(request, "record");
+
+		try {
+			new ApprovalProcessor(user, recordId).cancel(null);
+			writeSuccess(response);
+		} catch (ApprovalException ex) {
+			writeFailure(response, ex.getMessage());
+		}
+	}
 	
 	@RequestMapping("flow-definition")
 	public void getFlowDefinition(HttpServletRequest request, HttpServletResponse response) {
@@ -187,7 +209,7 @@ public class ApprovalControll extends BasePageControll {
 				.setParameter(1, approvalId)
 				.unique();
 		if (belongEntity == null) {
-			writeFailure(response, "无效审批流程");
+			writeFailure(response, "无效审批流程，可能已被删除");
 			return;
 		}
 		

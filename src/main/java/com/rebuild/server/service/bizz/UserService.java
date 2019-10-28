@@ -18,6 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.bizz;
 
+import cn.devezhao.bizz.security.member.User;
+import cn.devezhao.commons.EncryptUtils;
+import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.BlackList;
 import com.rebuild.server.helper.ConfigurableItem;
@@ -31,12 +36,6 @@ import com.rebuild.server.service.notification.Message;
 import com.rebuild.server.service.notification.MessageBuilder;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
-
-import cn.devezhao.bizz.security.member.User;
-import cn.devezhao.commons.EncryptUtils;
-import cn.devezhao.persist4j.PersistManagerFactory;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
 
 /**
  * for User
@@ -184,8 +183,8 @@ public class UserService extends SystemEntityService {
 		String content = String.format(MSG_NEWUSER,
 				SysConfiguration.get(ConfigurableItem.AppName),
 				newUser.getString("loginName"), passwd,
-				SysConfiguration.get(ConfigurableItem.HomeURL),
-				SysConfiguration.get(ConfigurableItem.HomeURL));
+				SysConfiguration.getHomeUrl(),
+				SysConfiguration.getHomeUrl());
 
 		SMSender.sendMail(newUser.getString("email"), subject, content);
 		return true;

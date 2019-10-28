@@ -18,8 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.base;
 
-import java.util.Set;
-
+import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.business.approval.FlowNode;
@@ -29,13 +30,14 @@ import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.BaseService;
 import com.rebuild.server.service.notification.MessageBuilder;
 
-import cn.devezhao.persist4j.PersistManagerFactory;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
+import java.util.Set;
 
 /**
- * 审批流程
- * 
+ * 审批流程。
+ *
+ * isWaiting - 因为会签的关系还不能进入下一步审批，因此需要等待。待会签完毕，此值将更新为 true
+ * isCanceled - 是否作废。例如或签中，一人同意其他即作废
+ *
  * @author devezhao
  * @since 07/11/2019
  */
@@ -61,8 +63,8 @@ public class ApprovalStepService extends BaseService {
 		final ID approvalId = mainRecord.getID(EntityHelper.ApprovalId);
 		
 		// 作废之前的步骤（若有）
-		cancelAliveSteps(recordId, approvalId, null, null, false);
-		
+		cancelAliveSteps(recordId, null, null, null, false);
+
 		super.update(mainRecord);
 		
 		String entityLabel = EasyMeta.getLabel(mainRecord.getEntity());
@@ -73,7 +75,7 @@ public class ApprovalStepService extends BaseService {
 		step.setID("recordId", recordId);
 		step.setID("approvalId", approvalId);
 		step.setString("node", mainRecord.getString(EntityHelper.ApprovalStepNode));
-		step.setString("prevNode", FlowNode.ROOT);
+		step.setString("prevNode", FlowNode.NODE_ROOT);
 		for (ID a : nextApprovers) {
 			Record clone = step.clone();
 			clone.setID("approver", a);
@@ -149,7 +151,7 @@ public class ApprovalStepService extends BaseService {
 		
 		// 或签。一人通过其他作废
 		if (FlowNode.SIGN_OR.equals(signMode)) {
-			cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, false);
+//			cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, false);
 		}
 		// 会签。检查是否都签了
 		else {
@@ -166,8 +168,8 @@ public class ApprovalStepService extends BaseService {
 				}
 			}
 			
-			// 更新下一步审批人可以开始了
-			if (goNextNode) {
+			// 更新下一步审批人可以开始了（若有）
+			if (goNextNode && nextNode != null) {
 				Object[][] nextNodeApprovers = Application.createQueryNoFilter(
 						"select stepId,approver from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and isWaiting = 'T'")
 						.setParameter(1, recordId)
@@ -210,6 +212,28 @@ public class ApprovalStepService extends BaseService {
 			}
 		}
 	}
+
+	/**
+	 * @param recordId
+	 * @param approvalId
+	 * @param currentNode
+	 */
+	public void txCancel(ID recordId, ID approvalId, String currentNode) {
+		final ID canceller = Application.getCurrentUser();
+
+		Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, canceller);
+		step.setID("recordId", recordId);
+		step.setID("approvalId", approvalId);
+		step.setID("approver", canceller);
+		step.setInt("state", ApprovalState.CANCELED.getState());
+		step.setString("node", FlowNode.NODE_CANCELED);
+		step.setString("prevNode", currentNode);
+		super.create(step);
+
+		Record main = EntityHelper.forUpdate(recordId, canceller);
+		main.setInt(EntityHelper.ApprovalState, ApprovalState.CANCELED.getState());
+		super.update(main);
+	}
 	
 	/**
 	 * @param recordId
@@ -221,10 +245,11 @@ public class ApprovalStepService extends BaseService {
 	 */
 	private ID createStepIfNeed(ID recordId, ID approvalId, String node, ID approver, boolean isWaiting, String prevNode) {
 		Object[] hadApprover = Application.createQueryNoFilter(
-				"select stepId from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and isCanceled = 'F'")
+				"select stepId from RobotApprovalStep where recordId = ? and approvalId = ? and node = ? and approver = ? and isCanceled = 'F'")
 				.setParameter(1, recordId)
 				.setParameter(2, approvalId)
 				.setParameter(3, node)
+				.setParameter(4, approver)
 				.unique();
 		if (hadApprover != null) {
 			return null;
@@ -236,7 +261,7 @@ public class ApprovalStepService extends BaseService {
 		step.setString("node", node);
 		step.setID("approver", approver);
 		if (isWaiting) {
-			step.setBoolean("isWaiting", isWaiting);
+			step.setBoolean("isWaiting", true);
 		}
 		if (prevNode != null) {
 			step.setString("prevNode", prevNode);
@@ -255,17 +280,13 @@ public class ApprovalStepService extends BaseService {
 	 * @param onlyDarft
 	 */
 	private void cancelAliveSteps(ID recordId, ID approvalId, String node, ID excludeStep, boolean onlyDarft) {
-		String sql = "select stepId from RobotApprovalStep where recordId = ? and approvalId = ? and isCanceled = 'F'";
-		if (node != null) {
-			sql += " and node = '" + node + "'";
-		}
-		if (onlyDarft) {
-			sql += " and state = " + ApprovalState.DRAFT.getState();
-		}
+		String sql = "select stepId from RobotApprovalStep where recordId = ? and isCanceled = 'F'";
+		if (approvalId != null) sql += " and approvalId = '" + approvalId + "'";
+		if (node != null) sql += " and node = '" + node + "'";
+		if (onlyDarft) sql += " and state = " + ApprovalState.DRAFT.getState();
 
 		Object[][] cancelled = Application.createQueryNoFilter(sql)
 				.setParameter(1, recordId)
-				.setParameter(2, approvalId)
 				.array();
 
 		for (Object[] o : cancelled) {
@@ -280,18 +301,18 @@ public class ApprovalStepService extends BaseService {
 	
 	/**
 	 * 审批提交人
-	 * 
+	 *
 	 * @param recordId
 	 * @param approvalId
 	 * @return
 	 */
-	private ID findSubmitter(ID recordId, ID approvalId) {
+	public ID findSubmitter(ID recordId, ID approvalId) {
 		String cKey = "ApprovalSubmitter" + recordId + approvalId;
 		ID submitter = (ID) Application.getCommonCache().getx(cKey);
 		if (submitter != null) {
 			return submitter;
 		}
-		
+
 		// 第一个创建步骤的人为提交人
 		Object[] firstStep = Application.createQueryNoFilter(
 				"select createdBy from RobotApprovalStep where recordId = ? and approvalId = ? and isCanceled = 'F' order by createdOn asc")

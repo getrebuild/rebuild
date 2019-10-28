@@ -50,11 +50,11 @@ public class RebuildApiManager implements ConfigManager<String> {
             return null;
         }
 
-        config = new ConfigEntry();
-        config.set("appId", appid);
-        config.set("appSecret", o[0]);
-        config.set("bindUser", o[1]);
-        config.set("bindIps", o[2]);
+        config = new ConfigEntry()
+                .set("appId", appid)
+                .set("appSecret", o[0])
+                .set("bindUser", o[1])
+                .set("bindIps", o[2]);
         Application.getCommonCache().putx(cKey, config);
         return config;
     }

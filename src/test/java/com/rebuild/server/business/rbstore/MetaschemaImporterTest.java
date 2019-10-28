@@ -18,13 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.rbstore;
 
-import java.io.File;
-import java.net.URL;
-
-import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
@@ -32,6 +25,12 @@ import com.rebuild.server.TestSupport;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.Entity2Schema;
 import com.rebuild.server.service.bizz.UserService;
+import org.apache.commons.io.FileUtils;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.File;
+import java.net.URL;
 
 /**
  * @author devezhao-mbp zhaofang123@gmail.com

@@ -18,9 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.utils;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author devezhao zhaofang123@gmail.com

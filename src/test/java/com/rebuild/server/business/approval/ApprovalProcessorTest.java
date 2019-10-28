@@ -18,97 +18,68 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.approval;
 
-import java.io.IOException;
-
-import org.junit.Test;
-
-import com.rebuild.server.Application;
-import com.rebuild.server.TestSupport;
-import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.bizz.UserService;
-import com.rebuild.server.service.configuration.RobotApprovalConfigService;
-
-import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
+import com.rebuild.server.TestSupportWithUser;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.bizz.UserService;
+import com.rebuild.server.service.configuration.RobotApprovalConfigService;
+import org.junit.Test;
+
+import java.io.IOException;
 
 /**
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/07/16
  */
-public class ApprovalProcessorTest extends TestSupport {
+public class ApprovalProcessorTest extends TestSupportWithUser {
 
-	@Test
-	public void testFlowGroup() throws Exception {
-		Application.getSessionStore().set(UserService.ADMIN_USER);
-		ID approvalId = null;
-		try {
-			approvalId = addApprovalConfig();
-			ID recordId = addTestRecord();
-			ApprovalProcessor processor = new ApprovalProcessor(UserService.ADMIN_USER, recordId, approvalId);
-			System.out.println("NextNode : " + processor.getNextNode());
-			System.out.println("NextNodes : " + processor.getNextNodes());
-		} finally {
-			if (approvalId != null) {
-				Application.getBean(RobotApprovalConfigService.class).delete(approvalId);
-			}
-			Application.getSessionStore().clean();
-		}
-	}
-	
-	@Test
-	public void testApprove() throws Exception {
-		Application.getSessionStore().set(UserService.ADMIN_USER);
-		ID approvalId = null;
-		try {
-			approvalId = addApprovalConfig();
-			ID recordId = addTestRecord();
-			ApprovalProcessor processor = new ApprovalProcessor(UserService.ADMIN_USER, recordId, approvalId);
-			
-			// 提交
-			processor.submit(null);
-			
-			// 审批
-			processor.approve(UserService.ADMIN_USER, ApprovalState.REJECTED, null, null);
-			
-			// 当前节点
-			System.out.println("CurrentStep : " + processor.getCurrentStep());
-			
-			// 已审批
-			System.out.println("WorkedSteps : " + processor.getWorkedSteps());
-			
-		} finally {
-			if (approvalId != null) {
-				Application.getBean(RobotApprovalConfigService.class).delete(approvalId);
-			}
-			Application.getSessionStore().clean();
-		}
-	}
-	
-	
-	
-	/**
-	 * @return
-	 * @throws IOException
-	 */
-	static ID addApprovalConfig() throws IOException {
-		FlowParser flowParser = FlowParserTest.createFlowParser(0);
-		Record record = EntityHelper.forNew(EntityHelper.RobotApprovalConfig, UserService.ADMIN_USER);
-		record.setString("name", "ApprovalProcessorTest");
-		record.setString("belongEntity", TEST_ENTITY);
-		record.setString("flowDefinition", flowParser.getFlowDefinition().toJSONString());
-		record = Application.getBean(RobotApprovalConfigService.class).create(record);
-		return record.getPrimary();
-	}
-	
-	/**
-	 * @return
-	 */
-	static ID addTestRecord() {
-		Entity test = MetadataHelper.getEntity(TEST_ENTITY);
-		Record record = EntityHelper.forNew(test.getEntityCode(), UserService.ADMIN_USER);
-		record = Application.getGeneralEntityService().create(record);
-		return record.getPrimary();
-	}
+    @Override
+    protected ID getSessionUser() {
+        return UserService.ADMIN_USER;
+    }
+
+    @Test
+    public void testFlowGroup() throws Exception {
+		final ID recordNew = addRecordOfTestAllFields();
+		final ID approvalId = addApprovalConfig();
+        ApprovalProcessor processor = new ApprovalProcessor(UserService.ADMIN_USER, recordNew, approvalId);
+
+        System.out.println("NextNode : " + processor.getNextNode());
+        System.out.println("NextNodes : " + processor.getNextNodes());
+
+        Application.getBean(RobotApprovalConfigService.class).delete(approvalId);
+    }
+
+    @Test
+    public void testApprove() throws Exception {
+        final ID recordNew = addRecordOfTestAllFields();
+		final ID approvalId = addApprovalConfig();
+        ApprovalProcessor processor = new ApprovalProcessor(UserService.ADMIN_USER, recordNew, approvalId);
+
+        // 提交
+        processor.submit(null);
+
+        // 审批
+        processor.approve(UserService.ADMIN_USER, ApprovalState.REJECTED, null, null);
+
+        // 当前节点
+        System.out.println("CurrentStep : " + processor.getCurrentStep());
+
+        // 已审批
+        System.out.println("WorkedSteps : " + processor.getWorkedSteps());
+
+        Application.getBean(RobotApprovalConfigService.class).delete(approvalId);
+    }
+
+    private ID addApprovalConfig() throws IOException {
+        FlowParser flowParser = FlowParserTest.createFlowParser(0);
+        Record record = EntityHelper.forNew(EntityHelper.RobotApprovalConfig, UserService.ADMIN_USER);
+        record.setString("name", "ApprovalProcessorTest");
+        record.setString("belongEntity", TEST_ENTITY);
+        record.setString("flowDefinition", flowParser.getFlowDefinition().toJSONString());
+        record = Application.getBean(RobotApprovalConfigService.class).create(record);
+        return record.getPrimary();
+    }
 }

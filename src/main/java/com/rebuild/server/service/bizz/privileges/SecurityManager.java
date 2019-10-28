@@ -18,16 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.bizz.privileges;
 
-import org.springframework.util.Assert;
-
-import com.rebuild.server.Application;
-import com.rebuild.server.helper.cache.NoRecordFoundException;
-import com.rebuild.server.helper.cache.RecordOwningCache;
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.EntityService;
-import com.rebuild.server.service.bizz.RoleService;
-import com.rebuild.server.service.bizz.UserService;
-
 import cn.devezhao.bizz.privileges.DepthEntry;
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.Privileges;
@@ -38,6 +28,16 @@ import cn.devezhao.bizz.security.member.Role;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Filter;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
+import com.rebuild.server.helper.cache.NoRecordFoundException;
+import com.rebuild.server.helper.cache.RecordOwningCache;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.EntityService;
+import com.rebuild.server.service.bizz.RoleService;
+import com.rebuild.server.service.bizz.UserService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 
 /**
  * 实体安全/权限 管理
@@ -50,7 +50,9 @@ import cn.devezhao.persist4j.engine.ID;
  * @see BizzDepthEntry
  */
 public class SecurityManager {
-	
+
+	private static final Log LOG = LogFactory.getLog(SecurityManager.class);
+
 	final private UserStore theUserStore;
 	final private RecordOwningCache theRecordOwning;
 
@@ -229,13 +231,9 @@ public class SecurityManager {
 	 * @return
 	 */
 	public boolean allowed(ID user, int entity, Permission action) {
-		if (UserService.ADMIN_USER.equals(user)) {
-			return true;
-		}
-		if (!theUserStore.getUser(user).isActive()) {
-			return false;
-		}
-		
+		Boolean a = allowedUser(user);
+		if (a != null) return a;
+
 		Role role = theUserStore.getUser(user).getOwningRole();
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
 			return true;
@@ -274,13 +272,9 @@ public class SecurityManager {
 	 * @return
 	 */
 	public boolean allowed(ID user, ID target, Permission action) {
-		if (UserService.ADMIN_USER.equals(user)) {
-			return true;
-		}
-		if (!theUserStore.getUser(user).isActive()) {
-			return false;
-		}
-		 
+		Boolean a = allowedUser(user);
+		if (a != null) return a;
+
 		Role role = theUserStore.getUser(user).getOwningRole();
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
 			return true;
@@ -311,7 +305,7 @@ public class SecurityManager {
 			return false;
 		}
 		
-		DepthEntry depth = ep.superlative(action);
+		final DepthEntry depth = ep.superlative(action);
 		
 		if (BizzDepthEntry.NONE.equals(depth)) {
 			return false;
@@ -320,6 +314,9 @@ public class SecurityManager {
 		}
 		
 		ID targetUserId = theRecordOwning.getOwningUser(target);
+		if (targetUserId == null) {
+			return false;
+		}
 		
 		if (BizzDepthEntry.PRIVATE.equals(depth)) {
 			allowed = user.equals(targetUserId);
@@ -339,9 +336,7 @@ public class SecurityManager {
 				return allowedViaShare(user, target, action);
 			}
 			return true;
-		}
-		
-		if (BizzDepthEntry.DEEPDOWN.equals(depth)) {
+		} else if (BizzDepthEntry.DEEPDOWN.equals(depth)) {
 			if (accessUserDept.equals(targetUser.getOwningDept())) {
 				return true;
 			}
@@ -459,13 +454,9 @@ public class SecurityManager {
 	 * @see ZeroPermission
 	 */
 	public boolean allowed(ID user, ZeroEntry entry) {
-		if (UserService.ADMIN_USER.equals(user)) {
-			return true;
-		}
-		if (!theUserStore.getUser(user).isActive()) {
-			return false;
-		}
-		 
+		Boolean a = allowedUser(user);
+		if (a != null) return a;
+
 		Role role = theUserStore.getUser(user).getOwningRole();
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
 			return true;
@@ -475,5 +466,19 @@ public class SecurityManager {
 			return role.getPrivileges(entry.name()).allowed(ZeroPermission.ZERO);
 		}
 		return entry.getDefaultVal();
+	}
+
+	/**
+	 * @param user
+	 * @return
+	 */
+	private Boolean allowedUser(ID user) {
+		if (UserService.ADMIN_USER.equals(user)) {
+			return true;
+		}
+		if (!theUserStore.getUser(user).isActive()) {
+			return false;
+		}
+		return null;
 	}
 }

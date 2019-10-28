@@ -28,9 +28,8 @@ $(function () {
       })
     })
     __initNavs()
+    setTimeout(__globalSearch, 200)
   }
-
-  setTimeout(__globalSearch, 200)
 
   if (rb.isAdminUser === true) {
     $('html').addClass('admin')
@@ -77,8 +76,7 @@ var __initNavs = function () {
   } else {
     $('.rb-toggle-left-sidebar').click(function () {
       var el = $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
-      var collapsed = el.hasClass('rb-collapsible-sidebar-collapsed')
-      $storage.set('rb-sidebar-collapsed', collapsed)
+      $storage.set('rb-sidebar-collapsed', el.hasClass('rb-collapsible-sidebar-collapsed'))
       $('.sidebar-elements>li>a').tooltip('toggleEnabled')
       $(window).trigger('resize')
     })
@@ -92,17 +90,17 @@ var __initNavs = function () {
   // SubNavs
   var currsntSubnav
   $('.sidebar-elements li.parent').click(function (e) {
+    e.preventDefault()
+    e.stopPropagation()
     var _this = $(this)
     _this.toggleClass('open')
-    let $sub = _this.find('.sub-menu')
+    var $sub = _this.find('.sub-menu')
     // if (!$sub.hasClass('visible')) {
-    //   let subHeight = $sub.height()
+    //   var subHeight = $sub.height()
     //   $sub.css({ height: 0, overflow: 'hidden' })
     //   $sub.animate({ height: subHeight + 22 }, 200)
     // }
     $sub.toggleClass('visible')
-
-    e.stopPropagation()
     currsntSubnav = _this
     _this.find('a').eq(0).tooltip('hide')
     $('.left-sidebar-scroll').perfectScrollbar('update')
@@ -122,32 +120,32 @@ var __initNavs = function () {
   })
 
   var activeNav = $('.sidebar-elements li.active')
-  if (activeNav.parents('li.parent').length > 0) {
+  if (!(activeNav.attr('class') || '').contains('nav_entity-') && activeNav.parents('li.parent').length > 0) {
     activeNav.parents('li.parent').addClass('active').first().trigger('click')
     $(document.body).trigger('click')
-  }
-
-  // When small-width
-  $('.left-sidebar-toggle').click(function () {
-    $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
-    $('.left-sidebar-spacer').toggleClass('open')
-  }).text($('.rb-right-navbar .page-title').text())
-
-  // aside
-  var aside = $('.page-aside')
-  if (aside.length > 0) {
-    $('.page-aside .aside-header').click(function () {
-      $(this).toggleClass('collapsed')
-      $('.page-aside .aside-nav').toggleClass('show')
-    })
   }
 
   $('.nav-settings').click(function () {
     RbModal.create(rb.baseUrl + '/p/commons/nav-settings', '设置导航菜单')
   })
+
+  // WHEN SMALL-WIDTH
+  {
+    $('.left-sidebar-toggle').click(function () {
+      $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
+      $('.left-sidebar-spacer').toggleClass('open')
+    }).text($('.rb-right-navbar .page-title').text())
+
+    if ($('.page-aside .aside-header').length > 0) {
+      $('.page-aside .aside-header').click(function () {
+        $(this).toggleClass('collapsed')
+        $('.page-aside .aside-nav').toggleClass('show')
+      })
+    }
+  }
 }
 
-// Check notification
+// Notification
 var __checkMessage__state = 0
 var __checkMessage = function () {
   $.get(rb.baseUrl + '/notification/check-state', function (res) {
@@ -158,7 +156,8 @@ var __checkMessage = function () {
 
     if (__checkMessage__state !== res.data.unread) {
       if (__checkMessage__state > 0) {
-        document.title = `(${__checkMessage__state}) ${document.title}`
+        if (!window.__doctitle) window.__doctitle = document.title
+        document.title = '(' + __checkMessage__state + ') ' + window.__doctitle
         // __showNotification()
       }
       __loadMessages__state = 0
@@ -193,7 +192,7 @@ var __loadMessages = function () {
 var __showNotification = function () {
   if (window.Notification) {
     if (window.Notification.permission === 'granted') {
-      var n = new Notification(`你有 ${__checkMessage__state} 条未读消息`, {
+      var n = new Notification('你有 ' + __checkMessage__state + ' 条未读消息', {
         tag: 'rbNotification'
       })
     } else {
@@ -202,32 +201,31 @@ var __showNotification = function () {
   }
 }
 
-// Global search
+// Global searchs
 var __globalSearch = function () {
-  $('.sidebar-elements li').each((idx, item) => {
+  $('.sidebar-elements li').each(function (idx, item) {
     if (idx > 40) return false
-    let id = $(item).attr('id')
-    if (id && id.startsWith('nav_entity-') && id !== 'nav_entity-$PARENT$') {
-      let $a = $(item).find('a')
+    if (!$(item).hasClass('parent') && ($(item).attr('class') || '').contains('nav_entity-')) {
+      var $a = $(item).find('a')
       $('<a class="text-truncate" data-url="' + $a.attr('href') + '">' + $a.text() + '</a>').appendTo('.search-models')
     }
   })
 
-  let activeModel
-  let aModels = $('.search-models a').click(function () {
-    let s = $('.search-input').val()
+  var activeModel
+  var aModels = $('.search-models a').click(function () {
+    var s = $('.search-input').val()
     location.href = $(this).data('url') + '#gs=' + $encode(s)
   })
   if (aModels.length === 0) return
   activeModel = aModels.eq(0).addClass('active')
 
-  $(document).click((e) => {
+  $(document).click(function (e) {
     if ($(e.target).parents('.search-container').length === 0) $('.search-models').hide()
   })
-  $('.search-container input').on('focus', (e) => {
+  $('.search-container input').on('focus', function (e) {
     $('.search-models').show()
-  }).on('keydown', (e) => {
-    let s = $('.search-input').val()
+  }).on('keydown', function (e) {
+    var s = $('.search-input').val()
     if (e.keyCode === 13 && s) location.href = activeModel.data('url') + '#gs=' + $encode(s)
   })
 }
@@ -251,14 +249,16 @@ var $cleanMenu = function (mbg) {
 }
 
 var $fileCutName = function (fileName) {
+  fileName = fileName.split('?')[0]
   fileName = fileName.split('/')
   fileName = fileName[fileName.length - 1]
   return fileName.substr(fileName.indexOf('__') + 2)
 }
 var $fileExtName = function (fileName) {
   fileName = (fileName || '').toLowerCase()
+  fileName = fileName.split('?')[0]
   fileName = fileName.split('.')
-  return fileName[fileName.length - 1] || ''
+  return fileName[fileName.length - 1] || '*'
 }
 
 var $gotoSection = function (top, target) {
@@ -411,9 +411,32 @@ var $initUserSelect2 = function (el, multiple) {
 // 保持模态窗口（如果需要）
 var $keepModalOpen = function () {
   if ($('.rbmodal.show, .rbview.show').length > 0) {
-    let $body = $(document.body)
+    var $body = $(document.body)
     if (!$body.hasClass('modal-open')) $body.addClass('modal-open').css({ 'padding-right': 17 })
     return true
   }
   return false
+}
+
+// 禁用按钮 X 秒，用在一些危险操作上
+var $countdownButton = function (btn, seconds) {
+  seconds = seconds || 5
+  var text = btn.attr('disabled', true).text()
+  btn.text(text + ' (' + seconds + ')')
+  var timer = setInterval(function () {
+    if (--seconds === 0) {
+      clearInterval(timer)
+      btn.attr('disabled', false).text(text)
+    } else {
+      btn.text(text + ' (' + seconds + ')')
+    }
+  }, 1000)
+}
+
+// 页面类型
+var $pgt = {
+  RecordView: 'RecordView',
+  RecordList: 'RecordList',
+  SlaveView: 'SlaveView',
+  SlaveList: 'SlaveList'
 }

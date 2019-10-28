@@ -61,11 +61,7 @@ class AdvFilter extends React.Component {
                 <div className="float-left input">
                   <input className="form-control form-control-sm text" maxLength="20" value={this.state.filterName || ''} data-id="filterName" onChange={this.handleChange} placeholder="输入名称保存" />
                 </div>
-                {rb.isAdminUser !== true ? null :
-                  <label className="custom-control custom-control-sm custom-checkbox custom-control-inline ml-4 mt-2">
-                    <input className="custom-control-input" type="checkbox" checked={this.state.shareToAll === true} data-id="shareToAll" onChange={this.handleChange} />
-                    <span className="custom-control-label">共享给全部用户</span>
-                  </label>}
+                {rb.isAdminUser && <Share2 ref={(c) => this._shareTo = c} noSwitch={true} shareTo={this.props.shareTo} />}
               </div>
               {operBtns}
               <div className="clearfix" />
@@ -105,8 +101,6 @@ class AdvFilter extends React.Component {
     const id = e.target.dataset.id
     if (id === 'enableEquation') {
       this.setState({ enableEquation: this.state.enableEquation !== true })
-    } else if (id === 'shareToAll') {
-      this.setState({ shareToAll: this.state.shareToAll !== true })
     } else {
       let state = {}
       state[id] = val
@@ -195,9 +189,10 @@ class AdvFilter extends React.Component {
     let adv = this.toFilterJson(this.props.canNoFilters)
     if (!adv) return
     else if (this.props.confirm) {
-      this.props.confirm(adv, this.state.filterName, this.state.shareToAll)
+      this.props.confirm(adv, this.state.filterName, this._shareTo ? this._shareTo.getData().shareTo : null)
     }
     if (this.props.inModal) this._dlg.hide()
+    this.setState({ filterName: null })
   }
 
   show(state) {
@@ -264,7 +259,7 @@ class FilterItem extends React.Component {
       op = ['TDA', 'YTA', 'TTA', 'GT', 'LT', 'EQ', 'BW', 'RED', 'REM', 'BFD', 'BFM', 'AFD', 'AFM']
     } else if (fieldType === 'FILE' || fieldType === 'IMAGE') {
       op = []
-    } else if (fieldType === 'PICKLIST' || fieldType === 'STATE') {
+    } else if (fieldType === 'PICKLIST' || fieldType === 'STATE' || fieldType === 'MULTISELECT') {
       op = ['IN', 'NIN']
     } else if (fieldType === 'CLASSIFICATION') {
       op = ['LK', 'NLK']
@@ -298,15 +293,16 @@ class FilterItem extends React.Component {
           <span>起</span>
           <span className="end">止</span>
         </div>)
-    } else if (this.state.type === 'PICKLIST' || this.state.type === 'STATE') {
+    } else if (this.state.type === 'PICKLIST' || this.state.type === 'STATE' || this.state.type === 'MULTISELECT') {
       val = (
-        <select className="form-control form-control-sm" multiple="true" ref={(c) => this._filterVal = c}>
+        <select className="form-control form-control-sm" multiple ref={(c) => this._filterVal = c}>
           {(this.state.options || []).map((item) => {
-            return <option value={item.id} key={'val-' + item.id}>{item.text}</option>
+            let id = item.id || item.mask
+            return <option value={id} key={'id-' + id}>{item.text}</option>
           })}
         </select>)
     } else if (this.isBizzField()) {
-      val = <select className="form-control form-control-sm" multiple="true" ref={(c) => this._filterVal = c} />
+      val = <select className="form-control form-control-sm" multiple ref={(c) => this._filterVal = c} />
     } else if (this.state.type === 'BOOL') {
       val = (
         <select className="form-control form-control-sm" ref={(c) => this._filterVal = c}>
@@ -386,9 +382,9 @@ class FilterItem extends React.Component {
     let lastType = this.__lastType
     this.__lastType = state.type
 
-    if (state.type === 'PICKLIST' || state.type === 'STATE') {
+    if (state.type === 'PICKLIST' || state.type === 'STATE' || state.type === 'MULTISELECT') {
       this.renderPickList(state.field)
-    } else if (lastType === 'PICKLIST' || lastType === 'STATE') {
+    } else if (lastType === 'PICKLIST' || lastType === 'STATE' || lastType === 'MULTISELECT') {
       this.removePickList()
     }
 
@@ -454,13 +450,14 @@ class FilterItem extends React.Component {
   // 列表
 
   renderPickList(field) {
-    const plKey = this.props.$$$parent.props.entity + '.' + field
+    const entity = this.props.$$$parent.props.entity
+    const plKey = entity + '.' + field
     if (PICKLIST_CACHE[plKey]) {
       this.setState({ options: PICKLIST_CACHE[plKey] }, () => {
         this.renderPickListAfter()
       })
     } else {
-      $.get(`${rb.baseUrl}/commons/metadata/field-options?entity=${this.props.$$$parent.props.entity}&field=${field}`, (res) => {
+      $.get(`${rb.baseUrl}/commons/metadata/field-options?entity=${entity}&field=${field}`, (res) => {
         if (res.error_code === 0) {
           PICKLIST_CACHE[plKey] = res.data
           this.setState({ options: PICKLIST_CACHE[plKey] }, () => {
@@ -476,8 +473,7 @@ class FilterItem extends React.Component {
     let that = this
     let s2val = $(this._filterVal).select2({
     }).on('change.select2', function () {
-      let val = s2val.val()
-      that.setState({ value: val.join('|') })
+      that.setState({ value: s2val.val().join('|') })
     })
     this.__select2_PickList = s2val
 

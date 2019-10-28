@@ -154,7 +154,7 @@ class RbForm extends React.Component {
           })}
           {this.renderFormAction()}
         </div>
-      </div >
+      </div>
     )
   }
   renderFormAction() {
@@ -381,7 +381,7 @@ class RbFormReadonly extends RbFormElement {
   renderElement() {
     let text = this.props.value
     if (this.props.type === 'REFERENCE' && text) text = text[1]
-    return <input className="form-control form-control-sm" type="text" readOnly="true" value={text} />
+    return <input className="form-control form-control-sm" type="text" readOnly value={text} />
   }
   setValue() {
     // DO NOTING
@@ -693,10 +693,11 @@ class RbFormPickList extends RbFormElement {
     }
   }
   renderElement() {
+    let name = this.state.field + '-opt'
     return (
       <select ref="field-value" className="form-control form-control-sm" value={this.state.value || ''} onChange={this.handleChange}>
         {this.props.options.map((item) => {
-          return (<option key={`${this.state.field}-opt${item.id}`} value={item.id}>{item.text}</option>)
+          return (<option key={`${name}:${item.id}`} value={item.id}>{item.text}</option>)
         })}
       </select>
     )
@@ -705,15 +706,15 @@ class RbFormPickList extends RbFormElement {
     super.componentDidMount()
     if (this.state.viewMode === true) return
 
-    const s2 = $(this.refs['field-value']).select2({
+    this.__select2 = $(this.refs['field-value']).select2({
       placeholder: '选择' + this.props.label
     })
-    this.__select2 = s2
 
     let that = this
+    let s2 = this.__select2
     $setTimeout(function () {
       // No value
-      if (that.props.$$$parent.isNew === false && !that.props.value) {
+      if (!that.props.$$$parent.isNew && !that.props.value) {
         s2.val(null)
       }
       s2.on('change', function (e) {
@@ -744,7 +745,7 @@ class RbFormReference extends RbFormElement {
   }
   renderElement() {
     return (
-      <select ref={(c) => this._fvalue = c} className="form-control form-control-sm" multiple="multiple" />
+      <select ref={(c) => this._fvalue = c} className="form-control form-control-sm" />
     )
   }
   renderViewElement() {
@@ -760,9 +761,9 @@ class RbFormReference extends RbFormElement {
     if (this.state.viewMode === true) return
 
     const entity = this.props.$$$parent.props.entity
-    let that = this
+    const field = this.props.field
     let search_input = null
-    const s2 = $(this._fvalue).select2({
+    this.__select2 = $(this._fvalue).select2({
       placeholder: '选择' + this.props.label,
       minimumInputLength: 0,
       maximumSelectionLength: 1,
@@ -770,13 +771,8 @@ class RbFormReference extends RbFormElement {
         url: rb.baseUrl + '/commons/search/reference',
         delay: 300,
         data: function (params) {
-          let query = {
-            entity: entity,
-            field: that.props.field,
-            q: params.term
-          }
           search_input = params.term
-          return query
+          return { entity: entity, field: field, q: params.term }
         },
         processResults: function (data) {
           return { results: data.data }
@@ -789,8 +785,9 @@ class RbFormReference extends RbFormElement {
         maximumSelected: () => { return '只能选择 1 项' }
       }
     })
-    this.__select2 = s2
 
+    let that = this
+    let s2 = this.__select2
     $setTimeout(function () {
       let val = that.props.value
       if (val) {
@@ -802,6 +799,7 @@ class RbFormReference extends RbFormElement {
         let v = e.target.value
         if (v) {
           $.post(`${rb.baseUrl}/commons/search/recently-add?id=${v}`)
+          // 字段回填
           $.post(`${rb.baseUrl}/app/entity/extras/fillin-value?entity=${entity}&field=${that.props.field}&source=${v}`, (res) => {
             if (res.error_code === 0 && res.data.length > 0) that.props.$$$parent.setAutoFillin(res.data)
           })
@@ -836,7 +834,6 @@ class RbFormReference extends RbFormElement {
 class RbFormClassification extends RbFormElement {
   constructor(props) {
     super(props)
-    // TODO histroy values?
   }
   renderElement() {
     return (
@@ -851,8 +848,31 @@ class RbFormClassification extends RbFormElement {
   componentDidMount() {
     super.componentDidMount()
     if (this.state.viewMode === true) return
+
+    const entity = this.props.$$$parent.props.entity
+    const field = this.props.field
+    let search_input = null
     this.__select2 = $(this._fvalue).select2({
-      placeholder: '选择' + this.props.label
+      placeholder: '选择' + this.props.label,
+      minimumInputLength: 0,
+      maximumSelectionLength: 1,
+      ajax: {
+        url: rb.baseUrl + '/commons/search/classification',
+        delay: 300,
+        data: function (params) {
+          search_input = params.term
+          return { entity: entity, field: field, q: params.term }
+        },
+        processResults: function (data) {
+          return { results: data.data }
+        }
+      },
+      language: {
+        noResults: () => { return (search_input || '').length > 0 ? '未找到结果' : '输入关键词搜索' },
+        inputTooShort: () => { return '输入关键词搜索' },
+        searching: () => { return '搜索中...' },
+        maximumSelected: () => { return '只能选择 1 项' }
+      }
     })
 
     // In edits
@@ -860,7 +880,9 @@ class RbFormClassification extends RbFormElement {
     if (iv) this.giveValue({ id: iv[0], text: iv[1] })
 
     this.__select2.on('change', () => {
-      this.handleChange({ target: { value: this.__select2.val() } }, true)
+      let v = this.__select2.val()
+      if (v) $.post(`${rb.baseUrl}/commons/search/recently-add?id=${v}&type=d${this.props.classification}`)
+      this.handleChange({ target: { value: v } }, true)
     })
   }
   componentWillUnmount() {
@@ -903,6 +925,43 @@ class RbFormClassification extends RbFormElement {
   }
 }
 
+// 多选
+class RbFormMultiSelect extends RbFormElement {
+  constructor(props) {
+    super(props)
+    this.changeValue = this.changeValue.bind(this)
+  }
+  renderElement() {
+    let name = 'checkbox-' + this.props.field
+    return (
+      <div className="mt-1" ref={(c) => this._checkboxes = c}>
+        {(this.props.options || []).length === 0 && <div className="text-danger">未配置选项</div>}
+        {(this.props.options || []).map((item) => {
+          return <label key={name + ':' + item.mask} className="custom-control custom-control-sm custom-checkbox  custom-control-inline">
+            <input className="custom-control-input" name={name} type="checkbox" checked={(this.state.value & item.mask) !== 0} value={item.mask} onChange={this.changeValue} />
+            <span className="custom-control-label">{item.text}</span>
+          </label>
+        })}
+      </div>
+    )
+  }
+  changeValue(e) {
+    let maskValue = 0
+    $(this._checkboxes).find('input:checked').each(function () {
+      maskValue += ~~$(this).val()
+    })
+    this.handleChange({ target: { value: maskValue === 0 ? null : maskValue } }, true)
+  }
+  renderViewElement() {
+    if (!this.state.value) return super.renderViewElement()
+    return <div className="form-control-plaintext">
+      {this.state.value.split(' / ').map((item) => {
+        return <span key={'opt-' + item} className="badge">{item}</span>
+      })}
+    </div>
+  }
+}
+
 // 分割线
 class RbFormDivider extends React.Component {
   constructor(props) {
@@ -910,9 +969,16 @@ class RbFormDivider extends React.Component {
   }
   render() {
     let label = this.props.label || ''
-    if (label === '分栏') label = null
-    if (this.props.onView === true) return <div className="form-line"><fieldset>{label ? (<legend>{label}</legend>) : null}</fieldset></div>
+    if (label === '分栏线') label = null
+    if (this.props.onView === true) return <div className="form-line" ref={(c) => this._element = c}><fieldset>{label && <legend onClick={this.toggleNexts}>{label}</legend>}</fieldset></div>
     else return <div />  // TODO 编辑页暂无分割线
+  }
+  toggleNexts = () => {
+    // let $next = $(this._element).parent()
+    // while (($next = $next.next()).length > 0) {
+    //   if ($next.find('>.form-line').length > 0) break
+    //   $next.toggleClass('hide')
+    // }
   }
 }
 
@@ -970,6 +1036,8 @@ const detectElement = function (item) {
     return <RbFormReference {...item} />
   } else if (item.type === 'CLASSIFICATION') {
     return <RbFormClassification {...item} />
+  } else if (item.type === 'MULTISELECT') {
+    return <RbFormMultiSelect {...item} />
   } else if (item.field === '$LINE$' || item.field === '$DIVIDER$') {
     return <RbFormDivider {...item} />
   } else {
@@ -1124,7 +1192,7 @@ class DeleteConfirm extends RbAlert {
                       <span className="custom-control-label"> 同时删除关联记录</span>
                     </label>
                     <div className={' ' + (this.state.enableCascade ? '' : 'hide')}>
-                      <select className="form-control form-control-sm" ref={(c) => this._cascades = c} multiple="multiple">
+                      <select className="form-control form-control-sm" ref={(c) => this._cascades = c} multiple>
                         {(this.state.cascadesEntity || []).map((item) => {
                           return <option key={'option-' + item[0]} value={item[0]}>{item[1]}</option>
                         })}
@@ -1179,143 +1247,6 @@ class DeleteConfirm extends RbAlert {
   }
 }
 
-// ~~ 图片/文档预览
-const TYPE_DOCS = ['.doc', '.docx', '.rtf', '.xls', '.xlsx', '.ppt', '.pptx', '.pdf']
-const TYPE_IMGS = ['.jpg', '.jpeg', '.gif', '.png', '.bmp']
-class RbPreview extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = { currentIndex: props.currentIndex || 0, inLoad: true }
-  }
-
-  render() {
-    let currentUrl = this.props.urls[this.state.currentIndex]
-    let fileName = $fileCutName(currentUrl)
-    let downloadUrl = `${rb.baseUrl}/filex/download/${currentUrl}?attname=${fileName}`
-
-    let previewContent = null
-    if (this.__isimg(currentUrl)) previewContent = this.renderImgs()
-    else if (this.__isdoc(currentUrl)) previewContent = this.renderDocs()
-
-    // Has error
-    if (this.state.errorMsg || !previewContent) {
-      previewContent = <div className="unsupports shadow-lg rounded bg-light" onClick={this.__stopEvent}>
-        <h4>{this.state.errorMsg || '暂不支持此类型文件的预览'}</h4>
-        <a className="link" target="_blank" rel="noopener noreferrer" href={downloadUrl}>下载此文件</a>
-      </div>
-    }
-
-    return <React.Fragment>
-      <div className={`preview-modal ${this.state.inLoad ? 'hide' : ''}`} ref={(c) => this._dlg = c}>
-        <div className="preview-header">
-          <div className="float-left"><h5>{fileName}</h5></div>
-          <div className="float-right">
-            <a target="_blank" rel="noopener noreferrer" href={downloadUrl}><i className="zmdi zmdi-download"></i></a>
-            <a onClick={this.hide}><i className="zmdi zmdi-close"></i></a>
-          </div>
-          <div className="clearfix"></div>
-        </div>
-        <div className="preview-body" onClick={this.hide}>
-          {previewContent}
-        </div>
-      </div>
-    </React.Fragment>
-  }
-  renderDocs() {
-    return (<div className="container">
-      <div className="iframe" onClick={this.__stopEvent}>
-        <iframe frameBorder="0" scrolling="no" src={this.state.previewUrl || ''}></iframe>
-      </div>
-    </div>)
-  }
-  renderImgs() {
-    return (<React.Fragment>
-      <div className="img-zoom">
-        <div className="must-center" onClick={this.__stopEvent}>
-          <img src={`${rb.baseUrl}/filex/img/${this.props.urls[this.state.currentIndex]}?imageView2/2/w/1000/interlace/1/q/100`} />
-        </div>
-      </div>
-      {this.props.urls.length > 1 && <div className="op-box" onClick={this.__stopEvent}>
-        <a className="arrow float-left" onClick={this.__previmg}><i className="zmdi zmdi-chevron-left" /></a>
-        <span>{this.state.currentIndex + 1} / {this.props.urls.length}</span>
-        <a className="arrow float-right" onClick={this.__nextimg}><i className="zmdi zmdi-chevron-right" /></a>
-      </div>
-      }
-    </React.Fragment>)
-  }
-
-  componentDidMount() {
-    this.__modalOpen = $(document.body).hasClass('modal-open')
-    if (!this.__modalOpen) $(document.body).addClass('modal-open')
-    this.setState({ inLoad: false })
-
-    let currentUrl = this.props.urls[this.state.currentIndex]
-    if (this.__isdoc(currentUrl)) {
-      $.get(`${rb.baseUrl}/filex/make-url?url=${currentUrl}`, (res) => {
-        if (res.error_code > 0) {
-          this.setState({ errorMsg: res.error_msg })
-        } else {
-          // view.aspx
-          let previewUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${$encode(res.data.private_url)}`
-          // PDF
-          if (currentUrl.toLowerCase().endsWith('.pdf')) previewUrl = res.data.private_url
-          this.setState({ previewUrl: previewUrl, errorMsg: null })
-        }
-      })
-    }
-
-    let that = this
-    $(document).unbind('keyup').keyup(function (event) { if (event.keyCode === 27) that.hide() })
-  }
-  componentWillUnmount() {
-    if (!this.__modalOpen) $(document.body).removeClass('modal-open')
-  }
-
-  __isimg(url) {
-    url = url.toLowerCase()
-    for (let i = 0; i < TYPE_IMGS.length; i++) {
-      if (url.endsWith(TYPE_IMGS[i])) return true
-    }
-    return false
-  }
-  __isdoc(url) {
-    url = url.toLowerCase()
-    for (let i = 0; i < TYPE_DOCS.length; i++) {
-      if (url.endsWith(TYPE_DOCS[i])) return true
-    }
-    return false
-  }
-  __previmg = (e) => {
-    this.__stopEvent(e)
-    let ci = this.state.currentIndex
-    if (ci <= 0) ci = this.props.urls.length
-    this.setState({ currentIndex: ci - 1 })
-  }
-  __nextimg = (e) => {
-    this.__stopEvent(e)
-    let ci = this.state.currentIndex
-    if (ci + 1 >= this.props.urls.length) ci = -1
-    this.setState({ currentIndex: ci + 1 })
-  }
-  __stopEvent = (e) => {
-    e.stopPropagation()
-  }
-
-  hide = () => {
-    $unmount($(this._dlg).parent(), 1)
-  }
-
-  /**
-   * @param {*} urls string or array of URL
-   * @param {*} index 
-   */
-  static create(urls, index) {
-    if (!urls) return
-    if (typeof urls === 'string') urls = [urls]
-    renderRbcomp(<RbPreview urls={urls} currentIndex={index || 0} />)
-  }
-}
-
 // ~ 重复记录查看
 class RepeatedViewer extends RbModalHandler {
   constructor(props) {
@@ -1352,7 +1283,7 @@ class RepeatedViewer extends RbModalHandler {
         return <td key={`col-${idx}-${i}`}>{o || <span className="text-muted">无</span>}</td>
       })}
       <td className="actions"><a className="icon" title="查看详情" onClick={() => this.openView(item[0])}><i className="zmdi zmdi-open-in-new" /></a></td>
-    </tr >
+    </tr>
   }
 
   openView(id) {

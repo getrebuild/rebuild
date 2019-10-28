@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,6 +7,11 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/charts/gridstack.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/charts.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/dashboard.css">
+<style type="text/css">
+.shareTo--wrap .custom-control {
+    margin-top: 0;
+}
+</style>
 </head>
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo">
@@ -56,6 +61,8 @@
 <script src="${baseUrl}/assets/lib/charts/gridstack.all.js"></script>
 <script src="${baseUrl}/assets/lib/charts/echarts.min.js"></script>
 <script src="${baseUrl}/assets/js/charts/charts.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-approval.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/charts/dashboard.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/settings-share2.jsx" type="text/babel"></script>
 </body>
 </html>

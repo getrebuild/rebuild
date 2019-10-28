@@ -18,18 +18,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.query;
 
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.rebuild.server.Application;
-import com.rebuild.server.TestSupport;
-import com.rebuild.server.metadata.MetadataHelper;
-
 import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Filter;
 import cn.devezhao.persist4j.dialect.FieldType;
+import com.rebuild.server.Application;
+import com.rebuild.server.TestSupport;
+import com.rebuild.server.metadata.MetadataHelper;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * 

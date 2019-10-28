@@ -31,6 +31,9 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Iterator;
@@ -45,19 +48,27 @@ public class NavManager extends BaseLayoutManager {
 
 	public static final NavManager instance = new NavManager();
 	private NavManager() { }
-	
+
 	/**
 	 * @param user
 	 * @return
 	 */
-	public JSON getNav(ID user) {
+	public JSON getNavLayout(ID user) {
 		ConfigEntry config = getLayoutOfNav(user);
-		if (config == null) {
-			return null;
-		}
-		return config.toJSON();
+		return config == null ? null : config.toJSON();
 	}
-	
+
+	/**
+	 * @param cfgid
+	 * @return
+	 */
+	public JSON getNavLayoutById(ID cfgid) {
+		ConfigEntry config = getLayoutById(cfgid);
+		return config == null ? null : config.toJSON();
+	}
+
+	// ----
+
 	/**
 	 * @param request
 	 * @return
@@ -117,60 +128,69 @@ public class NavManager extends BaseLayoutManager {
 		}
 		return false;
 	}
-	
-	// --
-	
+
 	/**
+	 * 渲染導航菜單
+	 *
 	 * @param item
 	 * @param activeNav
-	 * @param isTop
 	 * @return
 	 */
-	public String renderNavItem(JSONObject item, String activeNav, boolean isTop) {
+	public String renderNavItem(JSONObject item, String activeNav) {
 		String navName = "nav_entity-" + item.getString("value");
 		boolean isUrlType = "URL".equals(item.getString("type"));
 		String navUrl = item.getString("value");
-		if (!isUrlType) {
-			navUrl = ServerListener.getContextPath() + "/app/" + navUrl + "/list";
-		} else {
+		if (isUrlType) {
 			navName = "nav_url-" + navName.hashCode();
 			navUrl = ServerListener.getContextPath() + "/commons/url-safe?url=" + CodecUtils.urlEncode(navUrl);
+		} else {
+			navUrl = ServerListener.getContextPath() + "/app/" + navUrl + "/list";
 		}
 		String navIcon = StringUtils.defaultIfBlank(item.getString("icon"), "texture");
 		String navText = item.getString("text");
 		
-		boolean subHas = false;
 		JSONArray subNavs = null;
-		if (isTop) {
+		if (activeNav != null) {
 			subNavs = item.getJSONArray("sub");
-			if (subNavs != null && !subNavs.isEmpty()) {
-				subHas = true;
+			if (subNavs == null || subNavs.isEmpty()) {
+				subNavs = null;
 			}
 		}
-		
-		String navHtml = "<li id='%s' class='%s'><a href='%s' target='%s'><i class='icon zmdi zmdi-%s'></i><span>%s</span></a>";
-		String clazz = navName.equals(activeNav) ? "active " : "";
-		if (subHas) {
-			clazz += "parent";
-			isUrlType = false;
-			navUrl = "javascript:;";
-		}
-		navHtml = String.format(navHtml, navName, clazz, navUrl, isUrlType ? "_blank" : "_self", navIcon, navText);
-		
-		if (subHas) {
-			StringBuilder subHtml = new StringBuilder(
-			        "<ul class='sub-menu'><li class='title'>%s</li><li class='nav-items'><div class='content'><ul>");
-			subHtml = new StringBuilder(String.format(subHtml.toString(), navText));
-			
+
+		StringBuilder navHtml = new StringBuilder()
+				.append(String.format("<li class='%s'><a href='%s'%s><i class='icon zmdi zmdi-%s'></i><span>%s</span></a>",
+						navName + (subNavs == null ? StringUtils.EMPTY : " parent"),
+						subNavs == null ? navUrl : "#",
+						isUrlType ? " target='_blank' rel='noopener noreferrer'" : StringUtils.EMPTY,
+						navIcon, navText));
+		if (subNavs != null) {
+			StringBuilder subHtml = new StringBuilder()
+					.append("<ul class='sub-menu'><li class='title'>")
+					.append(navText)
+					.append("</li><li class='nav-items'><div class='content'><ul class='sub-menu-ul'>");
+
 			for (Object o : subNavs) {
 				JSONObject subNav = (JSONObject) o;
-				subHtml.append(renderNavItem(subNav, activeNav, false));
+				subHtml.append(renderNavItem(subNav, null));
 			}
 			subHtml.append("</ul></div></li></ul>");
-			navHtml += subHtml;
+			navHtml.append(subHtml);
 		}
-		
-		navHtml += "</li>";
-		return navHtml;
+		navHtml.append("</li>");
+
+		if (activeNav != null) {
+			Document navBody = Jsoup.parseBodyFragment(navHtml.toString());
+			for (Element nav : navBody.select("." + activeNav)) {
+				nav.addClass("active");
+				if (activeNav.startsWith("nav_entity-")) {
+					Element navParent = nav.parent();
+					if (navParent != null && navParent.hasClass("sub-menu-ul")) {
+						navParent.parent().parent().parent().parent().addClass("open active");
+					}
+				}
+			}
+			return navBody.selectFirst("li").outerHtml();
+		}
+		return navHtml.toString();
 	}
 }

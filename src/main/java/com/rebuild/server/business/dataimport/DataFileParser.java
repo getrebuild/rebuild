@@ -20,16 +20,9 @@ package com.rebuild.server.business.dataimport;
 
 import cn.devezhao.commons.excel.CSVReader;
 import cn.devezhao.commons.excel.Cell;
-import com.alibaba.excel.context.AnalysisContext;
-import com.alibaba.excel.event.AnalysisEventListener;
-import com.alibaba.excel.metadata.Sheet;
-import com.rebuild.server.RebuildException;
+import com.rebuild.utils.CommonsUtils;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,35 +84,9 @@ public class DataFileParser {
     public List<Cell[]> parse(int maxRows) {
         if (sourceFile.getName().endsWith(".csv")) {
             return parseCsv(maxRows);
+        } else {
+            return CommonsUtils.readExcel(this.sourceFile, maxRows, true);
         }
-
-        final List<Cell[]> rows = new ArrayList<>();
-        try (InputStream is = new FileInputStream(this.sourceFile)) {
-            try (BufferedInputStream bis = new BufferedInputStream(is)) {
-                new com.alibaba.excel.ExcelReader(bis, null, new AnalysisEventListener<Object>() {
-                    @Override
-                    public void invoke(Object object, AnalysisContext context) {
-                        if (rows.size() >= maxRows) {
-                            return;
-                        }
-
-                        List<Cell> row = new ArrayList<>();
-                        for (Object c : (List<?>) object) {
-                            row.add(new Cell(c));
-                        }
-                        rows.add(row.toArray(new Cell[0]));
-                    }
-
-                    @Override
-                    public void doAfterAllAnalysed(AnalysisContext context) {
-                    }
-                }, true).read(new Sheet(1, 0));
-            }
-
-        } catch (IOException e) {
-            throw new RebuildException(e);
-        }
-        return rows;
     }
 
     /**
@@ -131,6 +98,9 @@ public class DataFileParser {
         try (CSVReader csvReader = new CSVReader(this.sourceFile, this.encoding)) {
             while (csvReader.hasNext()) {
                 rows.add(csvReader.next());
+                if (rows.size() >= maxRows) {
+                    break;
+                }
             }
         }
         return rows;

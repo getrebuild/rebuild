@@ -18,9 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.trigger;
 
-import com.rebuild.server.service.EntityService;
-
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import com.rebuild.server.service.EntityService;
 
 /**
  * 动作类型

@@ -18,16 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.notification;
 
-import java.io.IOException;
-import java.util.Date;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
+import cn.devezhao.momentjava.Moment;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.metadata.EntityHelper;
@@ -35,10 +28,14 @@ import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.notification.MessageBuilder;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
-import cn.devezhao.momentjava.Moment;
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Date;
 
 /**
  * 系统通知
@@ -99,7 +96,7 @@ public class NotificationControll extends BasePageControll {
 	public void listMessage(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
 		int pn = getIntParameter(request, "page", 1);
-		int ps = getIntParameter(request, "pageSize", 10);
+		int ps = getIntParameter(request, "pageSize", 40);
 		int type = getIntParameter(request, "type", 0);
 
 		String sql = "select fromUser,message,createdOn,unread,messageId from Notification where toUser = ? and (1=1) order by createdOn desc";

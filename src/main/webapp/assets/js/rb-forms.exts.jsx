@@ -4,7 +4,10 @@
 class RbFormBool extends RbFormElement {
   constructor(props) {
     super(props)
-    this.state.value = props.value || 'F'
+    if (!props.onView) {
+      if (props.value === true || props.value === 'true') this.state.value = 'T'
+      else if (props.value === false || props.value === 'false') this.state.value = 'F'
+    }
     this.changeValue = this.changeValue.bind(this)
   }
   renderElement() {

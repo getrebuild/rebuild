@@ -18,12 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
-import org.junit.Test;
-
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
-
-import cn.devezhao.persist4j.engine.ID;
+import org.junit.Test;
 
 /**
  * @author devezhao zhaofang123@gmail.com

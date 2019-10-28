@@ -80,7 +80,7 @@ public class Field2Schema {
 	 * @return
 	 */
 	public String createField(Entity entity, String fieldLabel, DisplayType type, String comments, String refEntity, JSON extConfig) {
-		long count = 0;
+		long count;
 		if ((count = checkRecordCount(entity)) > 100000) {
 			throw new ModifiyMetadataException("本实体记录过大，增加字段可能导致表损坏 (记录数: " + count + ")");
 		}
@@ -99,7 +99,7 @@ public class Field2Schema {
 		
 		boolean schemaReady = schema2Database(entity, new Field[] { field });
 		if (!schemaReady) {
-			Application.getCommonService().delete(tempMetaId.toArray(new ID[tempMetaId.size()]));
+			Application.getCommonService().delete(tempMetaId.toArray(new ID[0]));
 			throw new ModifiyMetadataException("无法创建字段到数据库");
 		}
 		
@@ -111,7 +111,7 @@ public class Field2Schema {
 	 * @param field
 	 * @return
 	 */
-	public boolean dropField(Field field) {
+    public boolean dropField(Field field) {
 		return dropField(field, false);
 	}
 	
@@ -133,7 +133,7 @@ public class Field2Schema {
 		}
 		
 		if (!force) {
-			long count = 0;
+			long count;
 			if ((count = checkRecordCount(entity)) > 100000) {
 				throw new ModifiyMetadataException("本实体记录过大，删除字段可能导致表损坏 (" + entity.getName() + "=" + count + ")");
 			}
@@ -167,7 +167,7 @@ public class Field2Schema {
 	 * @param fields
 	 * @return
 	 */
-	protected boolean schema2Database(Entity entity, Field fields[]) {
+	protected boolean schema2Database(Entity entity, Field[] fields) {
 		Dialect dialect = Application.getPersistManagerFactory().getDialect();
 		Table table = new Table(entity, dialect);
 		StringBuilder ddl = new StringBuilder("alter table `" + entity.getPhysicalName() + "`");
@@ -193,7 +193,7 @@ public class Field2Schema {
 	 * @param entity
 	 * @param fieldName
 	 * @param fieldLabel
-	 * @param displayType
+	 * @param dt
 	 * @param nullable
 	 * @param creatable
 	 * @param updatable
@@ -206,10 +206,10 @@ public class Field2Schema {
 	 * @return
 	 * @see #createField(Entity, String, DisplayType, String, String, JSON)
 	 */
-	public Field createUnsafeField(Entity entity, String fieldName, String fieldLabel, DisplayType displayType,
+	public Field createUnsafeField(Entity entity, String fieldName, String fieldLabel, DisplayType dt,
 			boolean nullable, boolean creatable, boolean updatable, boolean repeatable, String comments, String refEntity, CascadeModel cascade,
 			JSON extConfig, Object defaultValue) {
-		if (displayType == DisplayType.SERIES) {
+		if (dt == DisplayType.SERIES) {
 			nullable = false;
 			creatable = false;
 			updatable = false;
@@ -221,10 +221,11 @@ public class Field2Schema {
 		Record recordOfField = EntityHelper.forNew(EntityHelper.MetaField, user);
 		recordOfField.setString("belongEntity", entity.getName());
 		recordOfField.setString("fieldName", fieldName);
-		String physicalName = fieldName.toUpperCase();
+//		String physicalName = fieldName.toUpperCase();
+		String physicalName = StringHelper.hyphenate(fieldName).toUpperCase();
 		recordOfField.setString("physicalName", physicalName);
 		recordOfField.setString("fieldLabel", fieldLabel);
-		recordOfField.setString("displayType", displayType.name());
+		recordOfField.setString("displayType", dt.name());
 		recordOfField.setBoolean("nullable", nullable);
 		recordOfField.setBoolean("creatable", creatable);
 		recordOfField.setBoolean("updatable", updatable);
@@ -236,9 +237,9 @@ public class Field2Schema {
 			recordOfField.setString("defaultValue", defaultValue.toString());
 		}
 		
-		if (displayType == DisplayType.PICKLIST) {
+		if (dt == DisplayType.PICKLIST) {
 			refEntity = "PickList";
-		} else if (displayType == DisplayType.CLASSIFICATION) {
+		} else if (dt == DisplayType.CLASSIFICATION) {
 			refEntity = "ClassificationData";
 		}
 
@@ -259,13 +260,13 @@ public class Field2Schema {
 			}
 		}
 		
-		int maxLength = displayType.getMaxLength();
+		int maxLength = dt.getMaxLength();
 		if (EntityHelper.QuickCode.equalsIgnoreCase(fieldName)) {
 			maxLength = 70;
 		}
 		recordOfField.setInt("maxLength", maxLength);
 		
-		if (displayType == DisplayType.REFERENCE && StringUtils.isBlank(refEntity)) {
+		if (dt == DisplayType.REFERENCE && StringUtils.isBlank(refEntity)) {
 			throw new ModifiyMetadataException("引用字段必须指定引用实体");
 		}
 		
@@ -279,15 +280,16 @@ public class Field2Schema {
 			defaultValue = ApprovalState.DRAFT.getState();
 		}
 
-		if (MetadataHelper.isCommonsField(fieldName)
-				&& !(MetadataHelper.isApprovalField(fieldName) || fieldName.equalsIgnoreCase(EntityHelper.QuickCode))) {
-			nullable = false;
-		} else {
-			nullable = true;
-		}
+		// 系统级字段非空
+        if (MetadataHelper.isCommonsField(fieldName)
+                && !(MetadataHelper.isApprovalField(fieldName) || fieldName.equalsIgnoreCase(EntityHelper.QuickCode))) {
+            nullable = false;
+        } else {
+            nullable = true;
+        }
 
 		Field unsafeField = new FieldImpl(
-				fieldName, physicalName, fieldLabel, entity, displayType.getFieldType(), CascadeModel.Ignore, maxLength, 
+				fieldName, physicalName, fieldLabel, entity, dt.getFieldType(), CascadeModel.Ignore, maxLength,
 				nullable, creatable, updatable, repeatable, DECIMAL_SCALE, defaultValue, autoValue);
 		if (entity instanceof UnsafeEntity) {
 			((UnsafeEntity) entity).addField(unsafeField);

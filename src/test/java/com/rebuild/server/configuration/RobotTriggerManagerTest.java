@@ -18,14 +18,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration;
 
-import org.junit.Test;
-
+import cn.devezhao.persist4j.Entity;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.business.trigger.TriggerAction;
 import com.rebuild.server.business.trigger.TriggerWhen;
 import com.rebuild.server.metadata.MetadataSorter;
-
-import cn.devezhao.persist4j.Entity;
+import org.junit.Test;
 
 /**
  * @author devezhao zhaofang123@gmail.com

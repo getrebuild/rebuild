@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.rebuild.utils.AppUtils"%>
 <%@ page import="com.rebuild.server.helper.SysConfiguration"%>
 <%@ page import="org.apache.commons.lang.SystemUtils"%>
@@ -13,11 +13,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<link rel="shortcut icon" href="${pageContext.request.contextPath}/assets/img/favicon.png">
-<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/css/rb-base.css">
+<link rel="shortcut icon" href="${baseUrl}/assets/img/favicon.png">
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-base.css">
 <title>系统状态</title>
 <style type="text/css">
-.block{margin:0 auto;max-width:1000px;padding:0 14px;margin-top:30px;}
+.block{max-width:1000px;padding:0 14px;margin:30px auto 0;}
 .error{background-color:#ea4335;color:#fff;padding:18px 0;}
 .error a{color:#fff;text-decoration:underline;}
 </style>
@@ -26,7 +26,7 @@
 <% if (!ServerStatus.isStatusOK()) { %>
 <div class="error">
 <div class="block mt-0">
-	<h4 class="mt-0">系统故障</h4>
+	<h2 class="mt-0">系统故障</h2>
 	<div>部分服务未能正常启动，请通过快速检查列表排除故障，故障排除后建议重启服务。你也可以获取 <a href="https://getrebuild.com/contact?sn=#tech-supports">技术支持</a></div>
 </div>
 </div>
@@ -59,8 +59,8 @@
 	<table class="table table-bordered table-sm table-hover">
 	<tbody>
 		<tr>
-			<th width="30%">Application Version</th>
-			<td><a href="https://github.com/getrebuild/rebuild/releases"><%=Application.VER%></a></td>
+			<th width="30%">App Version</th>
+			<td><%=Application.VER%></td>
 		</tr>
 		<tr>
 			<th>Startup Time</th>
@@ -92,7 +92,7 @@
 <% } %>
 <div class="block">
 	<div class="text-muted">
-		&copy; 2019 <a href="https://getrebuild.com/?utm_source=rebuild">REBUILD</a>
+		&copy; 2019 <a href="https://getrebuild.com/?utm_source=rebuild">${appName}</a>
 		<% if (AppUtils.getRequestUser(request) != null) { %>
 		&nbsp;·&nbsp;
 		<a href="server-status.json">Status Api</a>

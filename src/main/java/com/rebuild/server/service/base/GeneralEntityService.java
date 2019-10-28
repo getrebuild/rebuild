@@ -33,6 +33,7 @@ import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.business.dataimport.DataImporter;
 import com.rebuild.server.business.recyclebin.RecycleStore;
 import com.rebuild.server.business.series.SeriesGeneratorFactory;
+import com.rebuild.server.business.trigger.RobotTriggerObserver;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
@@ -61,6 +62,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Observer;
 import java.util.Set;
 
@@ -116,7 +118,9 @@ public class GeneralEntityService extends ObservableService  {
 
 	@Override
 	public Record update(Record record) {
-		checkModifications(record.getPrimary(), BizzPermission.UPDATE);
+		if (!checkModifications(record.getPrimary(), BizzPermission.UPDATE)) {
+			return record;
+		}
 		return super.update(record);
 	}
 
@@ -183,7 +187,9 @@ public class GeneralEntityService extends ObservableService  {
 	 * @throws DataSpecificationException
 	 */
 	private int deleteInternal(ID record) throws DataSpecificationException {
-		checkModifications(record, BizzPermission.DELETE);
+		if (!checkModifications(record, BizzPermission.DELETE)) {
+			return 0;
+		}
 		return super.delete(record);
 	}
 	
@@ -338,18 +344,18 @@ public class GeneralEntityService extends ObservableService  {
 		for (String cas : cascadeEntities) {
 			Entity casEntity = MetadataHelper.getEntity(cas);
 			
-			String sql = "select %s from %s where ( ";
-			sql = String.format(sql, casEntity.getPrimaryField().getName(), casEntity.getName());
-			
+			StringBuilder sql = new StringBuilder(
+					String.format("select %s from %s where ( ", casEntity.getPrimaryField().getName(), casEntity.getName()));
+
 			Field[] reftoFields = MetadataHelper.getReferenceToFields(mainEntity, casEntity);
 			for (Field field : reftoFields) {
-				sql += field.getName() + " = '" + recordMaster + "' or ";
+				sql.append(field.getName()).append(" = '").append(recordMaster).append("' or ");
 			}
-			sql = sql.substring(0, sql.length() - 4);  // remove last ' or '
-			sql += " )";
+			// remove last ' or '
+			sql.replace(sql.length() - 4, sql.length(), " )");
 
 			Filter filter = Application.getSecurityManager().createQueryFilter(Application.getCurrentUser(), action);
-			Object[][] array = Application.getQueryFactory().createQuery(sql, filter).array();
+			Object[][] array = Application.getQueryFactory().createQuery(sql.toString(), filter).array();
 			
 			Set<ID> records = new HashSet<>();
 			for (Object[] o : array) {
@@ -380,33 +386,46 @@ public class GeneralEntityService extends ObservableService  {
 	}
 
 	/**
-	 * 系统相关约束检查
+	 * 系统相关约束检查。此方法有 3 种结果：
+	 * 1. true - 检查通过
+	 * 2. false - 检查不通过，但可以忽略的错误（如删除一条不存在的记录）
+	 * 3. 抛出异常 - 不可忽略的错误
 	 *
 	 * @param recordId
 	 * @param action [UPDATE|DELDETE]
 	 * @return
 	 * @throws DataSpecificationException
+	 *
+	 * @see #checkModifications(Record, Permission)
 	 */
 	protected boolean checkModifications(ID recordId, Permission action) throws DataSpecificationException {
-		Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
-		Entity checkEntity = entity.getMasterEntity() != null ? entity.getMasterEntity() : entity;
+		final Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 
 		// 验证审批状态
+		// 需要检查主实体
+		Entity checkEntity = entity.getMasterEntity() != null ? entity.getMasterEntity() : entity;
 		if (checkEntity.containsField(EntityHelper.ApprovalId)) {
 			// 需要验证主记录
-			String masterType = "";
+			String recordType = StringUtils.EMPTY;
 			if (entity.getMasterEntity() != null) {
 				recordId = getMasterId(entity, recordId);
-				entity = entity.getMasterEntity();
-				masterType = "主";
+				recordType = "主";
 			}
 
-			ApprovalState state = getApprovalState(recordId);
-			String actionType = action == BizzPermission.UPDATE ? "修改" : "删除";
-			if (state == ApprovalState.APPROVED) {
-				throw new DataSpecificationException(masterType + "记录已完成审批，不能" + actionType);
-			} else if (state == ApprovalState.PROCESSING) {
-				throw new DataSpecificationException(masterType + "记录正在审批中，不能" + actionType);
+			ApprovalState state;
+			try {
+				state = getApprovalState(recordId);
+			} catch (NoRecordFoundException ignored) {
+				return false;
+			}
+
+			if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
+				String actionType = action == BizzPermission.UPDATE ? "修改" : "删除";
+				String stateType = state == ApprovalState.APPROVED ? "已完成审批" : "正在审批中";
+				if (RobotTriggerObserver.getTriggerSource() != null) {
+					recordType = "关联" + recordType;
+				}
+				throw new DataSpecificationException(recordType + "记录" + stateType + "，不能" + actionType);
 			}
 		}
 
@@ -422,16 +441,14 @@ public class GeneralEntityService extends ObservableService  {
 	 * @throws DataSpecificationException
 	 */
 	protected boolean checkModifications(Record newRecord, Permission action) throws DataSpecificationException {
-		Entity entity = newRecord.getEntity();
+		final Entity entity = newRecord.getEntity();
 
 		// 验证审批状态
 		// 验证新建明细（相当于更新主记录）
 		Entity masterEntity = entity.getMasterEntity();
 		if (masterEntity != null && masterEntity.containsField(EntityHelper.ApprovalId)) {
-			Field stmField = MetadataHelper.getSlaveToMasterField(entity);
-			ID masterId = newRecord.getID(stmField.getName());
-
-			ApprovalState state = getApprovalState(masterId);
+			Field smt = MetadataHelper.getSlaveToMasterField(entity);
+			ApprovalState state = getApprovalState(newRecord.getID(Objects.requireNonNull(smt).getName()));
 			if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
 				String stateType = state == ApprovalState.APPROVED ? "已完成审批" : "正在审批中";
 				throw new DataSpecificationException("主记录" + stateType + "，不能添加明细");
@@ -448,6 +465,7 @@ public class GeneralEntityService extends ObservableService  {
 	 */
 	protected void appendDefaultValue(Record recordOfNew) {
 		Assert.isNull(recordOfNew.getPrimary(), "Must be new record");
+
 		Entity entity = recordOfNew.getEntity();
 		if (MetadataHelper.isBizzEntity(entity.getEntityCode())
 				|| !MetadataHelper.hasPrivilegesField(entity)) {
@@ -489,12 +507,11 @@ public class GeneralEntityService extends ObservableService  {
 	 * @param slaveEntity
 	 * @param slaveId
 	 * @return
+	 * @throws NoRecordFoundException
 	 */
-	private ID getMasterId(Entity slaveEntity, ID slaveId) {
-		Field stmField = MetadataHelper.getSlaveToMasterField(slaveEntity);
-		String sql = String.format("select %s from %s where %s = ?",
-				stmField.getName(), slaveEntity.getName(), slaveEntity.getPrimaryField().getName());
-		Object[] o = Application.createQueryNoFilter(sql).setParameter(1, slaveId).unique();
+	private ID getMasterId(Entity slaveEntity, ID slaveId) throws NoRecordFoundException {
+		Field stm = MetadataHelper.getSlaveToMasterField(slaveEntity);
+		Object[] o = Application.getQueryFactory().uniqueNoFilter(slaveId, Objects.requireNonNull(stm).getName());
 		if (o == null) {
 			throw new NoRecordFoundException(slaveId);
 		}
@@ -502,17 +519,14 @@ public class GeneralEntityService extends ObservableService  {
 	}
 
 	/**
-	 * 审批状态
+	 * 获取审批状态
 	 *
 	 * @param recordId
 	 * @return
+	 * @throws NoRecordFoundException
 	 */
-	private ApprovalState getApprovalState(ID recordId) {
-		if (recordId == null) {
-			throw new NoRecordFoundException();
-		}
-
-		Object[] o = Application.getQueryFactory().unique(recordId, EntityHelper.ApprovalState);
+	private ApprovalState getApprovalState(ID recordId) throws NoRecordFoundException {
+		Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, EntityHelper.ApprovalState);
 		if (o == null) {
 			throw new NoRecordFoundException(recordId);
 		}
@@ -572,7 +586,6 @@ public class GeneralEntityService extends ObservableService  {
 		for (String field : norepeatFields) {
 			query.setParameter(index++, record.getObjectValue(field));
 		}
-		List<Record> repeated = query.setLimit(100).list();
-		return repeated;
+        return query.setLimit(100).list();
 	}
 }

@@ -18,10 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service;
 
-import com.rebuild.server.Application;
-
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
 
 /**
  * 业务对象基础服务类定义

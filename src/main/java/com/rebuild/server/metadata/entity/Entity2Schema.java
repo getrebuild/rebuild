@@ -18,16 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.metadata.entity;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.RandomUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.rebuild.server.Application;
-import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.bizz.UserService;
-
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -36,6 +26,14 @@ import cn.devezhao.persist4j.dialect.Dialect;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.CascadeModel;
 import cn.devezhao.persist4j.util.support.Table;
+import com.rebuild.server.Application;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.bizz.UserService;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * 创建实体
@@ -157,6 +155,7 @@ public class Entity2Schema extends Field2Schema {
 				createBuiltinField(tempEntity, EntityHelper.OwningDept, "所属部门", DisplayType.REFERENCE, null, "Department", null);
 			}
 		} catch (Throwable ex) {
+		    LOG.error(null, ex);
 			Application.getCommonService().delete(tempMetaId.toArray(new ID[0]));
 			return null;
 		}

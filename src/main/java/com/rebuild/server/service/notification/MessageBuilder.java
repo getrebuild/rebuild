@@ -18,20 +18,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.notification;
 
-import java.text.MessageFormat;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
-import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.MarkdownUtils;
 
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.engine.ID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -129,16 +124,9 @@ public class MessageBuilder {
 				return "[无效用户]";
 			}
 		}
-		
-		Entity entity = MetadataHelper.getEntity(thatId.getEntityCode());
-		String recordLabel = null;
-		try {
-			recordLabel = FieldValueWrapper.getLabel(thatId);
-		} catch (NoRecordFoundException ex) {
-			recordLabel = "[无效记录]";
-		}
-		
-		String aLink = AppUtils.getContextPath() + MessageFormat.format("/app/{0}/list#!/View/{0}/{1}", entity.getName(), thatId);
-		return String.format("[%s](%s)", recordLabel, aLink);
+
+        String recordLabel = FieldValueWrapper.getLabelNotry(thatId);
+		String recordUrl = AppUtils.getContextPath() + "/app/list-and-view?id=" + thatId;
+		return String.format("[%s](%s)", recordLabel, recordUrl);
 	}
 }

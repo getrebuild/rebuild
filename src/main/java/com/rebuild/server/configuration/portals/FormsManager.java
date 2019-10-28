@@ -18,10 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.utils.JSONUtils;
-
-import cn.devezhao.persist4j.engine.ID;
 
 /**
  * 表单布局管理
@@ -33,7 +32,7 @@ public class FormsManager extends BaseLayoutManager {
 
 	public static final FormsManager instance = new FormsManager();
 	protected FormsManager() { }
-	
+
 	/**
 	 * @param entity
 	 * @param user
@@ -45,15 +44,10 @@ public class FormsManager extends BaseLayoutManager {
 			entry = new ConfigEntry()
 					.set("elements", JSONUtils.EMPTY_ARRAY);
 		} else {
-			entry.set("elements", entry.getJSON("config"));
-			entry.set("config", null);
-			entry.set("shareTo", null);
+			entry.set("elements", entry.getJSON("config"))
+					.set("config", null)
+					.set("shareTo", null);
 		}
 		return entry.set("entity", entity);
-	}
-	
-	@Override
-	protected boolean isSingleConfig() {
-		return true;
 	}
 }

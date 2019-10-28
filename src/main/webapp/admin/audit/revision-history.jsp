@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -44,7 +44,7 @@
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="dataTables_oper">
-                                <button class="btn btn-space btn-secondary J_details"><i class="icon zmdi zmdi-flip"></i> 详情</button>
+                                <button class="btn btn-space btn-secondary J_details"><i class="icon zmdi zmdi-search-in-file"></i> 详情</button>
                             </div>
                         </div>
                     </div>

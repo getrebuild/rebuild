@@ -5,9 +5,11 @@
         "**/.settings": true,
         "**/.factorypath": true,
         "target/**": true,
-        ".github/**": true,
-        ".production/**": true,
-        ".eclipse/**": true
+        ".eclipse/**": true,
+        ".idea/**": true,
+        ".production/build/**": true,
+        ".production/_temp/**": true,
+        ".production/node_modules/**": true
     },
     "editor.fontSize": 12,
     "editor.tabSize": 2,

@@ -18,12 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -33,10 +30,11 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.StringUtils;
 
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.engine.ID;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 数据列表
@@ -50,39 +48,48 @@ public class DataListManager extends BaseLayoutManager {
 	private DataListManager() { }
 	
 	/**
-	 * @param belongEntity
+	 * @param entity
 	 * @param user
 	 * @return
 	 */
-	public JSON getColumnLayout(String belongEntity, ID user) {
-		return getColumnLayout(belongEntity, user, true);
+	public JSON getFieldsLayout(String entity, ID user) {
+		return getFieldsLayout(entity, user, true);
 	}
 
 	/**
-	 * @param belongEntity
+	 * @param entity
 	 * @param user
 	 * @param filter 过滤无读取权限的字段
 	 * @return
 	 */
-	public JSON getColumnLayout(String belongEntity, ID user, boolean filter) {
-		ConfigEntry config = getLayoutOfDatalist(user, belongEntity);
-		
+	public JSON getFieldsLayout(String entity, ID user, boolean filter) {
+		return formatFieldsLayout(entity, user, filter, getLayoutOfDatalist(user, entity));
+	}
+
+	/**
+	 * @param entity
+	 * @param user
+	 * @param filter 过滤无读取权限的字段
+	 * @param config
+	 * @return
+	 */
+	public JSON formatFieldsLayout(String entity, ID user, boolean filter, ConfigEntry config) {
 		List<Map<String, Object>> columnList = new ArrayList<>();
-		Entity entityMeta = MetadataHelper.getEntity(belongEntity);
+		Entity entityMeta = MetadataHelper.getEntity(entity);
 		Field namedField = MetadataHelper.getNameField(entityMeta);
 		
 		// 默认配置
 		if (config == null) {
-			columnList.add(formatColumn(namedField));
+			columnList.add(formatField(namedField));
 			
 			String namedFieldName = namedField.getName();
 			if (!StringUtils.equalsIgnoreCase(namedFieldName, EntityHelper.CreatedBy)
 					&& entityMeta.containsField(EntityHelper.CreatedBy)) {
-				columnList.add(formatColumn(entityMeta.getField(EntityHelper.CreatedBy)));
+				columnList.add(formatField(entityMeta.getField(EntityHelper.CreatedBy)));
 			}
 			if (!StringUtils.equalsIgnoreCase(namedFieldName, EntityHelper.CreatedOn)
 					&& entityMeta.containsField(EntityHelper.CreatedOn)) {
-				columnList.add(formatColumn(entityMeta.getField(EntityHelper.CreatedOn)));
+				columnList.add(formatField(entityMeta.getField(EntityHelper.CreatedOn)));
 			}
 		} else {
 			for (Object o : (JSONArray) config.getJSON("config")) {
@@ -90,23 +97,23 @@ public class DataListManager extends BaseLayoutManager {
 				String field = item.getString("field");
 				Field lastField = MetadataHelper.getLastJoinField(entityMeta, field);
 				if (lastField == null) {
-					LOG.warn("Unknow field '" + field + "' in '" + belongEntity + "'");
+					LOG.warn("Unknow field '" + field + "' in '" + entity + "'");
 					continue;
 				}
 				
 				String fieldPath[] = field.split("\\.");
 				Map<String, Object> formatted = null;
 				if (fieldPath.length == 1) {
-					formatted = formatColumn(lastField);
+					formatted = formatField(lastField);
 				} else {
 					
 					// 如果没有引用实体的读权限，则直接过滤掉字段
 					
 					Field parentField = entityMeta.getField(fieldPath[0]);
 					if (!filter) {
-						formatted = formatColumn(lastField, parentField);
+						formatted = formatField(lastField, parentField);
 					} else if (Application.getSecurityManager().allowedR(user, lastField.getOwnEntity().getEntityCode())) {
-						formatted = formatColumn(lastField, parentField);
+						formatted = formatField(lastField, parentField);
 					}
 				}
 				
@@ -122,15 +129,15 @@ public class DataListManager extends BaseLayoutManager {
 		
 		return JSONUtils.toJSONObject(
 				new String[] { "entity", "nameField", "fields" },
-				new Object[] { belongEntity, namedField.getName(), columnList });
+				new Object[] { entity, namedField.getName(), columnList });
 	}
 	
 	/**
 	 * @param field
 	 * @return
 	 */
-	public Map<String, Object> formatColumn(Field field) {
-		return formatColumn(field, null);
+	public Map<String, Object> formatField(Field field) {
+		return formatField(field, null);
 	}
 	
 	/**
@@ -138,7 +145,7 @@ public class DataListManager extends BaseLayoutManager {
 	 * @param parent
 	 * @return
 	 */
-	public Map<String, Object> formatColumn(Field field, Field parent) {
+	public Map<String, Object> formatField(Field field, Field parent) {
 		String parentField = parent == null ? "" : (parent.getName() + ".");
 		String parentLabel = parent == null ? "" : (EasyMeta.getLabel(parent) + ".");
 		EasyMeta easyField = new EasyMeta(field);

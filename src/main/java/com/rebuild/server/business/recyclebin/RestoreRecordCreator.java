@@ -48,12 +48,12 @@ public class RestoreRecordCreator extends JsonRecordCreator {
 
         for (Map.Entry<String, Object> e : source.entrySet()) {
             String fileName = e.getKey();
-            Field field = entity.getField(fileName);
-            if (field == null) {
+            if (!entity.containsField(fileName)) {
                 LOG.warn("Unable found field [ " + entity.getName() + '#' + fileName + " ], will ignore");
                 continue;
             }
 
+            Field field = entity.getField(fileName);
             Object value = e.getValue();
             if (ignoreNullValue && (value == null || StringUtils.isEmpty(value.toString()))) {
                 continue;

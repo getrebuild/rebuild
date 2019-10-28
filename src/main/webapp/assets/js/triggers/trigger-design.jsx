@@ -54,7 +54,7 @@ const saveFilter = function (res) {
 // 组件复写
 var renderContentComp = function (props) {
   // eslint-disable-next-line no-console
-  console.log(props)
+  if (rb.env === 'dev') console.log(props)
 }
 
 // 用户选择器

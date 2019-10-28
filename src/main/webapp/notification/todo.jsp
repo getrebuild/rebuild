@@ -1,9 +1,17 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <title>待办</title>
+<style type="text/css">
+.notification-info .badge {
+    border-radius: 99px;
+    font-weight: normal;
+    font-size: 12px;
+    line-height: 1.5;
+}
+</style>
 </head>
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-offcanvas-menu">

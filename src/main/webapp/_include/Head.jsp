@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="cn.devezhao.persist4j.engine.ID"%>
 <%@ page import="com.rebuild.utils.AppUtils"%>
 <meta charset="utf-8">
@@ -29,7 +29,7 @@ if (currentUser != null) {
 <%}}%>
 <%if (AppUtils.isLessIE11(request)){%>
 <script>window.lessIE11 = true</script>
-<script src="${baseUrl}/assets/lib/react/polyfill.min.js"></script>
+<script src="${baseUrl}/assets/lib/react/polyfill.min.js?v=7.6.0"></script>
 <!--[if lt IE 10]>
 <script>location.href='${baseUrl}/error/unsupported-browser'</script>
 <![endif]-->

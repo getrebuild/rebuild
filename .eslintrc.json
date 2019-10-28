@@ -21,7 +21,7 @@
     },
     "settings": {
         "react": {
-            "version": "16.4.0"
+            "version": "16.10.2"
         }
     },
     "globals": {
@@ -80,7 +80,11 @@
         "ApprovalSubmitForm": true,
         "ConfigList": true,
         "ConfigFormDlg": true,
-        "RbPreview": true
+        "RbPreview": true,
+        "$countdownButton": true,
+        "ChartSelect": true,
+        "Share2": true,
+        "$pgt": true
     },
     "rules": {
         "strict": 0,

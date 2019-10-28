@@ -13,7 +13,7 @@ class AppList extends React.Component {
     return <React.Fragment>
       {(this.state.list || []).map((item) => {
         let secret = item[2].substr(0, 8) + '...' + item[2].substr(32)
-        secret = <a href="javascript:;" title="点击显示" onClick={() => this.showSecret(item[2])}>{secret}</a>
+        secret = <a href="#" title="点击显示" onClick={() => this.showSecret(item[2])}>{secret}</a>
         if (this.state.secretShows.contains(item[2])) secret = item[2]
 
         return <tr key={'api-' + item[0]}>
@@ -39,6 +39,7 @@ class AppList extends React.Component {
   }
 
   showSecret(s) {
+    event.preventDefault()
     let shows = this.state.secretShows
     shows.push(s)
     this.setState({ secretShows: shows })

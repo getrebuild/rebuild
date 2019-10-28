@@ -20,8 +20,7 @@ package com.rebuild.api;
 
 import com.rebuild.api.sdk.OpenApiSDK;
 import com.rebuild.web.MvcResponse;
-import com.rebuild.web.MvcTestSupport;
-import org.junit.Assert;
+import com.rebuild.web.TestSupportWithMVC;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -36,23 +35,19 @@ import java.util.Map;
  * @since 2019/7/23
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-public class ApiGatewayTest extends MvcTestSupport {
+public class ApiGatewayTest extends TestSupportWithMVC {
 
     @Test
     public void testSimple() throws Exception {
         String apiUrl = "/gw/api/system-time?";
         Map<String, Object> bizParams = new HashMap<>();
 
-        apiUrl += new OpenApiSDK("230853256", "LA31SVGBqxUT5ncjgfDItPMP7yh9bJJ4eyCjGmG0")
+        apiUrl += new OpenApiSDK("230853250", "LA31SVGBqxUT5ncjgfDItPMP7yh9bJJ4eyCjGmG0")
                 .signMD5(bizParams);
         System.out.println("Request API : " + apiUrl);
 
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get(apiUrl);
         MvcResponse resp = perform(builder, null);
         System.out.println(resp);
-
-//        Assert.assertTrue(resp.isSuccess());
-        // No appId
-        Assert.assertFalse(resp.isSuccess());
     }
 }

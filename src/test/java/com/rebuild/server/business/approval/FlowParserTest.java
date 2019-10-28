@@ -18,14 +18,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.approval;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-
-import org.junit.Test;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 
 /**
  * @author devezhao-mbp zhaofang123@gmail.com

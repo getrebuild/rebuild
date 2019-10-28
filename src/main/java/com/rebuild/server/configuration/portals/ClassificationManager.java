@@ -18,16 +18,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
-
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.engine.ID;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * 分类数据
@@ -72,9 +70,9 @@ public class ClassificationManager implements ConfigManager<ID> {
 	 */
 	private String[] getItemNames(ID itemId) {
 		final String ckey = "ClassificationNAME-" + itemId;
-		String[] cval = (String[]) Application.getCommonCache().getx(ckey);
-		if (cval != null) {
-			return cval;
+		String[] cached = (String[]) Application.getCommonCache().getx(ckey);
+		if (cached != null) {
+			return cached;
 		}
 		
 		Object[] o = Application.createQueryNoFilter(
@@ -82,10 +80,10 @@ public class ClassificationManager implements ConfigManager<ID> {
 				.setParameter(1, itemId)
 				.unique();
 		if (o != null) {
-			cval = new String[] { (String) o[0], (String) o[1] };
-			Application.getCommonCache().putx(ckey, cval);
+			cached = new String[] { (String) o[0], (String) o[1] };
+			Application.getCommonCache().putx(ckey, cached);
 		}
-		return cval;
+		return cached;
 	}
 	
 	/**

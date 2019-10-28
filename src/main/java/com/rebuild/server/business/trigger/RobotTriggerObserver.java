@@ -18,10 +18,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.trigger;
 
+import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
 import com.rebuild.server.configuration.RobotTriggerManager;
+import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.OperatingObserver;
+import com.rebuild.server.service.TransactionManual;
+import org.springframework.transaction.TransactionStatus;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -73,10 +78,44 @@ public class RobotTriggerObserver extends OperatingObserver {
 
         try {
             for (TriggerAction action : actions) {
-                try {
-                    action.execute(context);
-                } catch (Exception ex) {
-                    LOG.error("Executing trigger failed : " + action, ex);
+
+                if (action.useAsync()) {
+                    final ID currentUser = Application.getCurrentUser();
+                    ThreadPool.exec(new Runnable() {
+                        @Override
+                        public void run() {
+                            Application.getSessionStore().set(currentUser);
+                            try {
+                                action.execute(context);
+                            } catch (Exception ex) {
+                                LOG.error("Failed Trigger : " + action + " << " + context, ex);
+                            } finally {
+                                Application.getSessionStore().clean();
+                            }
+                        }
+                    });
+
+                } else if (action.useNewTransaction()) {
+                    // 手动开启一个新事物
+                    TransactionStatus tx = TransactionManual.newTransaction();
+                    try {
+                        action.execute(context);
+                        TransactionManual.commit(tx);
+                    } catch (Exception ex) {
+                        TransactionManual.rollback(tx);
+                        LOG.error("Failed Trigger : " + action + " << " + context, ex);
+                    }
+
+                } else {
+                    try {
+                        action.execute(context);
+                    } catch (DataSpecificationException ex) {
+                        LOG.error("Failed Trigger : " + action + " << " + context, ex);
+                        throw ex;
+                    } catch (Exception ex) {
+                        LOG.error("Failed Trigger : " + action + " << " + context, ex);
+                    }
+
                 }
             }
         } finally {

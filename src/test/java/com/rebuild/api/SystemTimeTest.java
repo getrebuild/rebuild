@@ -18,9 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.api;
 
-import org.junit.Test;
-
 import com.alibaba.fastjson.JSON;
+import org.junit.Test;
 
 /**
  * 

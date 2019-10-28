@@ -18,16 +18,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.cache;
 
-import org.springframework.cache.CacheManager;
-
-import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.MetadataHelper;
-
 import cn.devezhao.bizz.privileges.PrivilegesException;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.cache.CacheManager;
 import redis.clients.jedis.JedisPool;
 
 /**
@@ -37,6 +37,8 @@ import redis.clients.jedis.JedisPool;
  * @since 10/12/2018
  */
 public class RecordOwningCache extends BaseCacheTemplate<ID> {
+
+	private static final Log LOG = LogFactory.getLog(RecordOwningCache.class);
 
 	final private PersistManagerFactory aPMFactory;
 	
@@ -77,14 +79,14 @@ public class RecordOwningCache extends BaseCacheTemplate<ID> {
 		}
 		sql = String.format(sql, entity.getName(), entity.getPrimaryField().getName(), record.toLiteral());
 		
-		Object[] owning = aPMFactory.createQuery(sql).unique();
-		if (owning == null) {
+		Object[] owningUser = aPMFactory.createQuery(sql).unique();
+		if (owningUser == null || owningUser[0] == null) {
+			LOG.warn("No Record found : " + record);
 			return null;
 		}
-		
-		ID owningUser = (ID) owning[0];
-		putx(recordKey, owningUser);
-		return owningUser;
+
+		putx(recordKey, (ID) owningUser[0]);
+		return (ID) owningUser[0];
 	}
 	
 	/**

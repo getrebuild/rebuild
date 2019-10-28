@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.utils;
 
+import com.rebuild.web.TestSupportWithMVC;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -25,14 +26,12 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import com.rebuild.web.MvcTestSupport;
-
 /**
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/22
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-public class AppUtilsTest extends MvcTestSupport {
+public class AppUtilsTest extends TestSupportWithMVC {
 	
 	@Test
 	public void testGetErrorMessage() throws Exception {

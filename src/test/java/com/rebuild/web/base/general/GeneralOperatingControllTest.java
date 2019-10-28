@@ -18,6 +18,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.base.general;
 
+import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
+import com.rebuild.server.service.bizz.UserService;
+import com.rebuild.web.MvcResponse;
+import com.rebuild.web.TestSupportWithMVC;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -27,15 +34,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.Application;
-import com.rebuild.server.service.bizz.UserService;
-import com.rebuild.web.MvcResponse;
-import com.rebuild.web.MvcTestSupport;
-
-import cn.devezhao.persist4j.engine.ID;
-
 /**
  * 
  * @author devezhao
@@ -43,14 +41,10 @@ import cn.devezhao.persist4j.engine.ID;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class GeneralOperatingControllTest extends MvcTestSupport {
+public class GeneralOperatingControllTest extends TestSupportWithMVC {
 
 	private static ID lastSaveId = ID.newId(999);  // It's fake
-	
-	static {
-		Application.getSessionStore().set(UserService.ADMIN_USER);
-	}
-	
+
 	@Test
 	public void test1Save() throws Exception {
 		JSONObject fromJson = JSON.parseObject("{ TestAllFieldsName:'Name" + System.currentTimeMillis() + "', metadata:{ entity:'TestAllFields' } }");

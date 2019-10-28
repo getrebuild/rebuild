@@ -18,14 +18,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.bizz.privileges;
 
-import org.apache.commons.lang.StringUtils;
-
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.service.bizz.RoleService;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.utils.AppUtils;
-
-import cn.devezhao.persist4j.engine.ID;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * 用户

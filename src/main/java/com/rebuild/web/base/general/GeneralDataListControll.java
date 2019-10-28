@@ -28,6 +28,7 @@ import com.rebuild.server.configuration.portals.DataListManager;
 import com.rebuild.server.helper.datalist.DataList;
 import com.rebuild.server.helper.datalist.DefaultDataList;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.web.BaseEntityControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +38,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.text.MessageFormat;
 
 /**
  * 数据列表
@@ -45,10 +47,10 @@ import java.io.IOException;
  * @since 08/22/2018
  */
 @Controller
-@RequestMapping("/app/{entity}/")
+@RequestMapping("/app/")
 public class GeneralDataListControll extends BaseEntityControll {
 
-	@RequestMapping("list")
+	@RequestMapping("{entity}/list")
 	public ModelAndView pageList(@PathVariable String entity, 
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		final ID user = getRequestUser(request);
@@ -70,13 +72,20 @@ public class GeneralDataListControll extends BaseEntityControll {
 			mv = createModelAndView("/general-entity/record-list.jsp", entity, user);
 		}
 		
-		JSON config = DataListManager.instance.getColumnLayout(entity, getRequestUser(request));
+		JSON config = DataListManager.instance.getFieldsLayout(entity, getRequestUser(request));
 		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
-		
+		mv.getModel().put(ZeroEntry.AllowCustomDataList.name(),
+				Application.getSecurityManager().allowed(user, ZeroEntry.AllowCustomDataList));
+
+		String asideCollapsed = ServletUtils.readCookie(request, "rb.asideCollapsed");
+		if (!"false".equals(asideCollapsed)) {
+			mv.getModel().put("asideCollapsed", true);
+		}
+
 		return mv;
 	}
 	
-	@RequestMapping("data-list")
+	@RequestMapping("{entity}/data-list")
 	public void dataList(@PathVariable String entity,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		JSONObject query = (JSONObject) ServletUtils.getRequestJson(request);
@@ -89,4 +98,12 @@ public class GeneralDataListControll extends BaseEntityControll {
 		JSON result = control.getJSONResult();
 		writeSuccess(response, result);
 	}
+
+    @RequestMapping("list-and-view")
+    public void quickPageList(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	    ID id = getIdParameterNotNull(request, "id");
+	    String entity = MetadataHelper.getEntityName(id);
+	    String url = MessageFormat.format("{0}/list#!/View/{0}/{1}", entity, id);
+	    response.sendRedirect(url);
+    }
 }

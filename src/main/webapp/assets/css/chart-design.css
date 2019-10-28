@@ -247,7 +247,7 @@ a.ui-draggable.ui-draggable-dragging {
 
 .input .form-control[disabled] {
 	background-color: rgba(255, 255, 255, .6) !important;
-	cursor: not-allowed;
+	cursor: default;
 }
 
 a.ui-draggable.ui-draggable-dragging {
@@ -284,9 +284,8 @@ a.ui-draggable.ui-draggable-dragging {
 	width: 40px;
 	height: 40px;
 	padding: 4px;
-	margin: 4px 0;
-	margin-left: 6px;
-	cursor: default;
+    margin: 4px 0 4px 6px;
+    cursor: default;
 	cursor: not-allowed;
 }
 

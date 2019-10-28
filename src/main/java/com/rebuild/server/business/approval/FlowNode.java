@@ -39,9 +39,12 @@ import java.util.Set;
  * @since 2019/07/06
  */
 public class FlowNode {
-	
-	public static final String ROOT = "ROOT";
-	
+
+	// 特殊节点
+
+	public static final String NODE_ROOT = "ROOT";
+	public static final String NODE_CANCELED = "CANCELED";
+
 	// 节点类型
 	
 	public static final String TYPE_START = "start";

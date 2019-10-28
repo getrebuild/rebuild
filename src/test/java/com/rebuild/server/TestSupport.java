@@ -49,7 +49,7 @@ public class TestSupport {
 	
 	protected static final Log LOG = LogFactory.getLog(TestSupport.class);
 	
-	// 测试实体
+	// 测试专用实体
 	protected static final String TEST_ENTITY = "TestAllFields";
 	
 	// 示例用户
@@ -75,13 +75,9 @@ public class TestSupport {
 		Application.getSessionStore().clean();
 		LOG.warn("TESTING Shutdown ...");
 	}
-	
-	/**
-	 * 初始化测试实体
-	 * 
-	 * @param dropExists
-	 * @see DisplayType
-	 */
+
+	// 初始化测试实体
+	// @see DisplayType
 	private static void addTestEntityIfNeed(boolean dropExists) {
 		if (MetadataHelper.containsEntity(TEST_ENTITY)) {
 			if (dropExists) {
@@ -117,6 +113,16 @@ public class TestSupport {
 			}
 		}
 	}
+
+	/**
+	 * 获取测试类
+	 *
+	 * @return
+	 */
+	protected Entity getTestEntity() {
+		addTestEntityIfNeed(false);
+		return MetadataHelper.getEntity(TEST_ENTITY);
+	}
 	
 	/**
 	 * @param dropExists
@@ -124,7 +130,7 @@ public class TestSupport {
 	 * @see MetaschemaImporter
 	 * @see Entity2Schema
 	 */
-	protected static void addExtTestEntities(boolean dropExists) throws Exception {
+	protected void addExtTestEntities(boolean dropExists) throws Exception {
 		final String SalesOrderItem = "SalesOrderItem999";
 		final String SalesOrder = "SalesOrder999";
 		final String Account = "Account999";
@@ -159,7 +165,7 @@ public class TestSupport {
 	 *
 	 * @return
 	 */
-	protected static ID addRecordOfTestAllFields() {
+	protected ID addRecordOfTestAllFields() {
 		final ID opUser = UserService.ADMIN_USER;
 		Entity test = MetadataHelper.getEntity(TEST_ENTITY);
 		Record record = EntityHelper.forNew(test.getEntityCode(), opUser);

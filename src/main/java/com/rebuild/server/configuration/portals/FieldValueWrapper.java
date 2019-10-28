@@ -22,6 +22,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.metadata.MetadataException;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
@@ -114,7 +115,9 @@ public class FieldValueWrapper {
 			return wrapClassification(value, field);
 		} else if (dt == DisplayType.STATE) {
 		    return wrapState(value, field);
-        } else {
+        } else if (dt == DisplayType.MULTISELECT) {
+			return wrapMultiSelect(value, field);
+		} else {
 			return wrapSimple(value, field);
 		}
 	}
@@ -226,6 +229,20 @@ public class FieldValueWrapper {
         String stateClass = field.getFieldExtConfig().getString("stateClass");
         return StateHelper.valueOf(stateClass, (Integer) state).getName();
     }
+
+	/**
+	 * @param item
+	 * @param field
+	 * @return
+	 * @see PickListManager
+	 */
+	public String wrapMultiSelect(Object item, EasyMeta field) {
+		if ((Long) item <= 0) {
+			return StringUtils.EMPTY;
+		}
+		String[] multiLabel = MultiSelectManager.instance.getLabel((Long) item, (Field) field.getBaseMeta());
+		return StringUtils.join(multiLabel, " / ");
+	}
 	
 	/**
 	 * @param simple
@@ -289,7 +306,22 @@ public class FieldValueWrapper {
 			throw new NoRecordFoundException("No label found by ID : " + id);
 		}
 		
-		Object labelVal = FieldValueWrapper.instance.wrapFieldValue(label[0], nameField);
-		return labelVal == null ? null : labelVal.toString();
+		Object labelValue = FieldValueWrapper.instance.wrapFieldValue(label[0], nameField);
+		if (labelValue == null || StringUtils.isBlank(labelValue.toString())) {
+			return NO_LABEL_PREFIX + id.toLiteral().toUpperCase();
+		}
+		return labelValue.toString();
+	}
+
+	/**
+	 * @param id
+	 * @return
+	 */
+	public static String getLabelNotry(ID id) {
+		try {
+			return FieldValueWrapper.getLabel(id);
+		} catch (MetadataException | NoRecordFoundException ex) {
+			return MISS_REF_PLACE;
+		}
 	}
 }

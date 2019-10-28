@@ -18,6 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.base.general;
 
+import com.rebuild.server.service.bizz.DepartmentService;
+import com.rebuild.server.service.bizz.UserService;
+import com.rebuild.web.MvcResponse;
+import com.rebuild.web.TestSupportWithMVC;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,17 +29,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import com.rebuild.server.service.bizz.DepartmentService;
-import com.rebuild.server.service.bizz.UserService;
-import com.rebuild.web.MvcResponse;
-import com.rebuild.web.MvcTestSupport;
-
 /**
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/09
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-public class RelatedListControllTest extends MvcTestSupport {
+public class RelatedListControllTest extends TestSupportWithMVC {
 
 	@Test
 	public void testrRelatedList() throws Exception {

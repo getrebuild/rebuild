@@ -18,9 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.datalist;
 
-import com.alibaba.fastjson.JSON;
-
 import cn.devezhao.persist4j.Entity;
+import com.alibaba.fastjson.JSON;
 
 /**
  * @author Zhao Fangfang

@@ -1,7 +1,8 @@
 {
   "recommendations": [
     "hookyqr.beautify",
-    "dbaeumer.vscode-eslint"
+    "dbaeumer.vscode-eslint",
+    "alefragnani.bookmarks"
   ],
   "unwantedRecommendations": []
 }

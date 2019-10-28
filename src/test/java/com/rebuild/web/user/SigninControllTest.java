@@ -18,13 +18,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.user;
 
+import com.rebuild.web.TestSupportWithMVC;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
-import com.rebuild.web.MvcTestSupport;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 /**
@@ -32,7 +31,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
  * @since 01/14/2019
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-public class SigninControllTest extends MvcTestSupport {
+public class SigninControllTest extends TestSupportWithMVC {
 
 	@Test
 	public void testLogin() throws Exception {

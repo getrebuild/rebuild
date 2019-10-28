@@ -18,10 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.notification;
 
-import org.junit.Test;
-
 import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
+import org.junit.Test;
 
 /**
  * @author devezhao-mac zhaofang123@gmail.com

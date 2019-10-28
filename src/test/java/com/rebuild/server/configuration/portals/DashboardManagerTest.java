@@ -18,11 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration.portals;
 
-import org.junit.Test;
-
 import com.alibaba.fastjson.JSON;
+import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.service.bizz.UserService;
+import org.junit.Test;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -32,7 +32,12 @@ public class DashboardManagerTest extends TestSupport {
 
 	@Test
 	public void testGetList() throws Exception {
-		JSON dashs = DashboardManager.instance.getDashList(UserService.ADMIN_USER);
-		System.out.println(dashs.toJSONString());
+	    try {
+	        Application.getSessionStore().set(UserService.SYSTEM_USER);
+		    JSON dashs = DashboardManager.instance.getDashList(UserService.ADMIN_USER);
+		    System.out.println(dashs.toJSONString());
+        } finally {
+            Application.getSessionStore().clean();
+        }
 	}
 }

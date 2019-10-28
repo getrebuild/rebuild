@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -18,32 +18,23 @@
 			<label class="col-sm-3 col-form-label text-sm-right">字段类型</label>
 			<div class="col-sm-7">
 				<select class="form-control form-control-sm" id="type">
-					<optgroup label="文本">
-						<option value="TEXT">文本</option>
-						<option value="NTEXT">大文本</option>
-						<option value="PHONE">电话</option>
-						<option value="EMAIL">邮箱</option>
-						<option value="URL">链接</option>
-						<option value="SERIES">自动编号</option>
-						<option value="PICKLIST">列表</option>
-					</optgroup>
-					<optgroup label="数字">
-						<option value="NUMBER">整数</option>
-						<option value="DECIMAL">货币</option>
-					</optgroup>
-					<optgroup label="日期">
-						<option value="DATE">日期</option>
-						<option value="DATETIME">日期时间</option>
-					</optgroup>
-					<optgroup label="媒体">
-						<option value="FILE">文件</option>
-						<option value="IMAGE">图片</option>
-						<option value="AVATAR">头像</option>
-					</optgroup>
-					<optgroup label="关系">
-						<option value="REFERENCE">引用</option>
-						<option value="CLASSIFICATION">分类</option>
-					</optgroup>
+                    <option value="TEXT">文本</option>
+                    <option value="NTEXT">多行文本</option>
+                    <option value="PHONE">电话</option>
+                    <option value="EMAIL">邮箱</option>
+                    <option value="URL">链接</option>
+                    <option value="SERIES">自动编号</option>
+                    <option value="PICKLIST">列表</option>
+                    <option value="CLASSIFICATION">分类</option>
+                    <option value="MULTISELECT">多选</option>
+                    <option value="NUMBER">整数</option>
+                    <option value="DECIMAL">货币 (带小数)</option>
+                    <option value="DATE">日期</option>
+                    <option value="DATETIME">日期时间</option>
+                    <option value="FILE">文件</option>
+                    <option value="IMAGE">图片</option>
+                    <option value="AVATAR">头像</option>
+                    <option value="REFERENCE">引用</option>
 					<optgroup label="保留类型" class="bosskey-show">
 						<option value="BOOL">布尔</option>
 						<option value="STATE">状态</option>
