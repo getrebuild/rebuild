@@ -13,6 +13,7 @@
 <script src="${baseUrl}/assets/lib/react/react.development.js?v=16.10.2"></script>
 <script src="${baseUrl}/assets/lib/react/react-dom.development.js?v=16.10.2"></script>
 <script src="${baseUrl}/assets/js/rb-components.jsx" type="text/babel"></script>
+<script src="${baseUrl}/language/bundle?v=1.7.0"></script>
 <script src="${baseUrl}/assets/js/rb-base.js"></script>
 <script src="${baseUrl}/assets/js/rb-page.js"></script>
 <script src="${baseUrl}/assets/js/file-preview.jsx" type="text/babel"></script>

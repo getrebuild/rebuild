@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web;
 
+import com.rebuild.server.helper.language.Languages;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
@@ -33,6 +34,8 @@ public abstract class BasePageControll extends BaseControll {
 	 * @return
 	 */
 	protected ModelAndView createModelAndView(String page) {
-		return new ModelAndView(page);
+		ModelAndView mv = new ModelAndView(page);
+		mv.getModel().put("bundle", Languages.instance.getDefaultBundle());
+		return mv;
 	}
 }

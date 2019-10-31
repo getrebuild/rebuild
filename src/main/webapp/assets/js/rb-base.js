@@ -304,3 +304,17 @@ var $same = function (a, b) {
   // eslint-disable-next-line eqeqeq
   return a == b
 }
+
+/**
+ * 获取语言
+ */
+var $lang = function () {
+  var langs = []
+  $(arguments).each(function () { langs.push(_$lang(this)) })
+  return langs.join('')
+}
+var _$lang = function (key) {
+  var lang = window.__LANG__[key]
+  if (!lang) lang = '[' + key.toUpperCase() + ']'
+  return lang
+}

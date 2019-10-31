@@ -47,7 +47,7 @@
 	z-index: 2;
 }
 </style>
-<title>登录</title>
+<title>${bundle.lang("Login")}</title>
 </head>
 <body class="rb-splash-screen">
 <div class="rb-wrapper rb-login">
@@ -60,32 +60,32 @@
 					<div class="card-body">
 						<form id="login-form">
 						<div class="form-group">
-							<input class="form-control" id="user" type="text" placeholder="用户名 (或邮箱)">
+							<input class="form-control" id="user" type="text" placeholder="${bundle.lang("NameOrEmail")}">
 						</div>
 						<div class="form-group">
-							<input class="form-control" id="passwd" type="password" placeholder="登录密码">
+							<input class="form-control" id="passwd" type="password" placeholder="${bundle.lang("Password")}">
 						</div>
 						<div class="form-group row pt-0 hide vcode-row" data-state="${sessionScope.needLoginVCode}">
 							<div class="col-6 pr-0">
-								<input class="form-control" type="text" placeholder="输入右侧验证码">
+								<input class="form-control" type="text" placeholder="${bundle.lang("InputRightVCode")}">
 							</div>
 							<div class="col-6 text-right pl-0 pr-0">
-								<img style="max-width:100%;margin-right:-15px" alt="验证码" title="点击刷新">
+								<img style="max-width:100%;margin-right:-15px" title="${bundle.lang("ClickRefresh")}">
 							</div>
 						</div>
 						<div class="form-group row login-tools">
 							<div class="col-6 login-remember">
 								<label class="custom-control custom-checkbox custom-control-inline mb-0">
-									<input class="custom-control-input" type="checkbox" id="autoLogin"><span class="custom-control-label"> 记住登录</span>
+									<input class="custom-control-input" type="checkbox" id="autoLogin"><span class="custom-control-label"> ${bundle.lang("RememberLogin")}</span>
 								</label>
 							</div>
 							<div class="col-6 login-forgot-password">
-								<a href="forgot-passwd">找回密码</a>
+								<a href="forgot-passwd">${bundle.lang("ForgotPassword")}</a>
 							</div>
 						</div>
 						<div class="form-group login-submit">
-							<button class="btn btn-primary btn-xl" type="submit" data-loading-text="登录中">登录</button>
-							<div class="mt-4 text-center">还没有账号？<a href="signup">立即注册</a></div>
+							<button class="btn btn-primary btn-xl" type="submit">${bundle.lang("Login")}</button>
+							<div class="mt-4 text-center">${bundle.lang("NoAccountYet")} <a href="signup">${bundle.lang("SignupNow")}</a></div>
 						</div>
 						</form>
 					</div>
@@ -108,7 +108,7 @@ useLiveWallpaper = <%=SysConfiguration.getBool(ConfigurableItem.LiveWallpaper)%>
 <script type="text/babel">
 $(document).ready(function() {
 	if (top != self) { parent.location.reload(); return }
-	if ($urlp('t') == 99) RbHighbar.create('注册申请已提交，请等待管理员审核', 'success', { timeout: 999999 })
+	if ($urlp('t') == 99) RbHighbar.create($lang('SignupSubmitted'), 'success', { timeout: 999999 })
 
 	$('.vcode-row img').click(function(){
 		$(this).attr('src', rb.baseUrl + '/user/captcha?' + $random())
@@ -124,9 +124,9 @@ $(document).ready(function() {
 		let user = $val('#user'), 
 			passwd = $val('#passwd'),
 			vcode = $val('.vcode-row input')
-		if (!user || !passwd){ RbHighbar.create('请输入用户名和密码'); return }
-		if (vcodeState && !vcode){ RbHighbar.create('请输入验证码'); return }
-		
+		if (!user || !passwd){ RbHighbar.create($lang('PleaseType', 'NameAndPassword')); return }
+		if (vcodeState && !vcode){ RbHighbar.create($lang('PleaseType', 'VCode')); return }
+
 		let btn = $('.login-submit button').button('loading')
 		let url = rb.baseUrl + '/user/user-login?user=' + $encode(user) + '&passwd=' + $encode(passwd) + '&autoLogin=' + $val('#autoLogin')
 		if (!!vcode) url += '&vcode=' + vcode
@@ -139,7 +139,7 @@ $(document).ready(function() {
 				btn.button('reset')
 			} else {
 				$('.vcode-row img').trigger('click')
-				RbHighbar.create(res.error_msg || '登录失败，请稍后重试')
+				RbHighbar.create(res.error_msg || $lang('ErrorRetryWhile'))
 				btn.button('reset')
 			}
 		})
