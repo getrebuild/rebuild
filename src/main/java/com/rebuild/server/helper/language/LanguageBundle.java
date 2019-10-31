@@ -21,6 +21,8 @@ package com.rebuild.server.helper.language;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONable;
+import org.apache.commons.lang.CharUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * 语言包
@@ -54,15 +56,15 @@ public class LanguageBundle implements JSONable {
     }
 
     /**
-     * @param key
      * @param keys
      * @return
      */
-    public String lang(String key, String...keys) {
+    public String lang(String... keys) {
+        if (keys.length == 1) return getLang(keys[0]);
+
         StringBuilder langs = new StringBuilder();
-        langs.append(lang((key)));
-        for (String k : keys) {
-            langs.append(lang((k)));
+        for (int i = 0; i < keys.length; i++) {
+            langs.append(capLetter(getLang(keys[i]), i == 0));
         }
         return langs.toString();
     }
@@ -71,12 +73,12 @@ public class LanguageBundle implements JSONable {
      * @param key
      * @return
      */
-    public String lang(String key) {
+    private String getLang(String key) {
         String t = bundle.getString(key);
         if (t == null) {
             String d = String.format("[%s]", key.toUpperCase());
             if (langs != null) {
-                return langs.getDefaultBundle().lang(key, d);
+                return langs.getDefaultBundle().getLang(key, d);
             } else {
                 return d;
             }
@@ -86,12 +88,12 @@ public class LanguageBundle implements JSONable {
 
     /**
      * @param key
-     * @param defaultLang
+     * @param defaultt
      * @return
      */
-    protected String lang(String key, String defaultLang) {
+    private String getLang(String key, String defaultt) {
         String t = bundle.getString(key);
-        return t == null ? defaultLang : t;
+        return StringUtils.defaultIfEmpty(t, defaultt);
     }
 
     /**
@@ -109,5 +111,22 @@ public class LanguageBundle implements JSONable {
     @Override
     public String toString() {
         return super.toString() + "#" + locale() + ":" + bundle.size();
+    }
+
+    /**
+     * @param letter
+     * @param first
+     * @return
+     */
+    private String capLetter(String letter, boolean first) {
+        if (!locale.startsWith("en")) return letter;
+        char[] cs = letter.toCharArray();
+        if (first) {
+            if (CharUtils.isAsciiAlphaLower(cs[0])) cs[0] -= 32;
+            return String.valueOf(cs);
+        } else {
+            if (CharUtils.isAsciiAlphaUpper(cs[0])) cs[0] += 32;
+            return " " + String.valueOf(cs);
+        }
     }
 }

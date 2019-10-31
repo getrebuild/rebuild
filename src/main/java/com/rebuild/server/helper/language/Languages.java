@@ -20,6 +20,7 @@ package com.rebuild.server.helper.language;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.ResourceUtils;
@@ -43,10 +44,20 @@ public class Languages {
     private static final Log LOG = LogFactory.getLog(Languages.class);
 
     public static final Languages instance = new Languages();
+    private Languages() {
+        this.reset();
+    }
+
+    /**
+     * 默认语言
+     */
+    public static final String DEFAULT_LOCALE = "zh_CN";
 
     private Map<String, LanguageBundle> bundleMap = new HashMap<>();
 
-    private Languages() {
+    /**
+     */
+    public void reset() {
         try {
             File[] files = ResourceUtils.getFile("classpath:locales/")
                     .listFiles((dir, name) -> name.startsWith("language-") && name.endsWith(".json"));
@@ -57,6 +68,7 @@ public class Languages {
                 try (InputStream is = new FileInputStream(file)) {
                     LOG.info("Loading language-bundle : " + locale);
                     JSONObject o = JSON.parseObject(is, null);
+                    bundleMap.remove(locale);
                     bundleMap.put(locale, new LanguageBundle(locale, o, this));
                 }
             }
@@ -86,10 +98,29 @@ public class Languages {
     }
 
     /**
+     * 默认语言包
+     *
      * @return
      */
     public LanguageBundle getDefaultBundle() {
-        return bundleMap.get("zh_CN");  // default
+        return getBundle(DEFAULT_LOCALE);
+    }
+
+    /**
+     * 当前用户语言包
+     *
+     * @return
+     */
+    public LanguageBundle getCurrentBundle() {
+        return getBundle(Application.getSessionStore().getLocale());
+    }
+
+    /**
+     * @param locale
+     * @return
+     */
+    public boolean isAvailable(String locale) {
+        return bundleMap.containsKey(locale);
     }
 
     /**
@@ -107,5 +138,15 @@ public class Languages {
      */
     public String getLang(String key, Locale locale) {
         return getBundle(locale).lang(key);
+    }
+
+    // -- Quick Methods
+
+    /**
+     * @param keys
+     * @return
+     */
+    public static String lang(String...keys) {
+        return instance.getCurrentBundle().lang(keys);
     }
 }

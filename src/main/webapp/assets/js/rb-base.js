@@ -310,11 +310,21 @@ var $same = function (a, b) {
  */
 var $lang = function () {
   var langs = []
-  $(arguments).each(function () { langs.push(_$lang(this)) })
+  var then = arguments.length > 1
+  $(arguments).each(function (idx) {
+    var lang = __$lang(this)
+    if (then) lang = __$capLetter(lang, idx === 0)
+    langs.push(lang)
+  })
   return langs.join('')
 }
-var _$lang = function (key) {
+var __$lang = function (key, first) {
   var lang = window.__LANG__[key]
   if (!lang) lang = '[' + key.toUpperCase() + ']'
   return lang
+}
+var __$capLetter = function (letter, first) {
+  if (rb.locale.substr(0, 2) !== 'en') return letter
+  if (first) return letter.substr(0, 1).toUpperCase() + letter.substr(1)
+  else return ' ' + letter.substr(0, 1).toLowerCase() + letter.substr(1)
 }

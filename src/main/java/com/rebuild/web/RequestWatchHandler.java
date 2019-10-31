@@ -61,13 +61,19 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
 			Object handler) throws Exception {
 		response.setCharacterEncoding("utf-8");
-		
+
+		// for Language
+		String locale = AppUtils.getLocale(request);
+		Application.getSessionStore().setLocale(locale);
+
+		// for Cache
 		final String requestUrl = request.getRequestURI();
 		if (noCache && !(ServletUtils.isAjaxRequest(request) 
 				|| requestUrl.contains("/filex/img/") || requestUrl.contains("/account/user-avatar/"))) {
 			ServletUtils.setNoCacheHeaders(response);
 		}
-		
+
+		// Check status
 		// If server status is not passed
 		if (!Application.serversReady()) {
 			LOG.error("Server Unavailable : " + requestUrl);

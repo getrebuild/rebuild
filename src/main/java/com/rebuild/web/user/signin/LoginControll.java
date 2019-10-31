@@ -38,6 +38,7 @@ import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.utils.AES;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BasePageControll;
+import com.rebuild.web.common.LanguageControll;
 import com.wf.captcha.utils.CaptchaUtil;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.apache.commons.lang.StringUtils;
@@ -61,12 +62,15 @@ public class LoginControll extends BasePageControll {
 
 	public static final String SK_LOGINID = WebUtils.KEY_PREFIX + ".LOGINID";
 
-	private static final String NEED_VCODE = "needLoginVCode";
+	private static final String AK_NEED_VCODE = "needLoginVCode";
 
 	private static final String DEFAULT_HOME = "../dashboard/home";
 
 	@RequestMapping("login")
 	public ModelAndView checkLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	    String locale = getParameter(request,"locale");
+	    if (locale != null) LanguageControll.setLanguage(request);
+
 		if (AppUtils.getRequestUser(request) != null) {
 			response.sendRedirect(DEFAULT_HOME);
 			return null;
@@ -84,7 +88,7 @@ public class LoginControll extends BasePageControll {
 				return null;
 			} else {
 				// 显示验证码
-				ServletUtils.setSessionAttribute(request, NEED_VCODE, true);
+				ServletUtils.setSessionAttribute(request, AK_NEED_VCODE, true);
 			}
 		}
 
@@ -94,7 +98,7 @@ public class LoginControll extends BasePageControll {
 			ID altUser = null;
 			try {
 				alt = AES.decrypt(alt);
-				String alts[] = alt.split(",");
+				String[] alts = alt.split(",");
 				altUser = ID.isId(alts[0]) ? ID.valueOf(alts[0]) : null;
 
 				// 最大一个月有效期
@@ -117,7 +121,7 @@ public class LoginControll extends BasePageControll {
 				return null;
 			} else {
 				// 显示验证码
-				ServletUtils.setSessionAttribute(request, NEED_VCODE, true);
+				ServletUtils.setSessionAttribute(request, AK_NEED_VCODE, true);
 			}
 		}
 
@@ -128,10 +132,10 @@ public class LoginControll extends BasePageControll {
 	@RequestMapping("user-login")
 	public void userLogin(HttpServletRequest request, HttpServletResponse response) {
 		String vcode = getParameter(request, "vcode");
-		Boolean needVcode = (Boolean) ServletUtils.getSessionAttribute(request, NEED_VCODE);
+		Boolean needVcode = (Boolean) ServletUtils.getSessionAttribute(request, AK_NEED_VCODE);
 		if (needVcode != null && needVcode
 				&& (StringUtils.isBlank(vcode) || !CaptchaUtil.ver(vcode, request))) {
-			writeFailure(response, "验证码错误");
+			writeFailure(response, getBundle(request).lang("VCode", "Wrong"));
 			return;
 		}
 		
@@ -140,7 +144,7 @@ public class LoginControll extends BasePageControll {
 		
 		int retry = getLoginRetryTimes(user, 1);
 		if (retry > 3 && StringUtils.isBlank(vcode)) {
-			ServletUtils.setSessionAttribute(request, NEED_VCODE, true);
+			ServletUtils.setSessionAttribute(request, AK_NEED_VCODE, true);
 			writeFailure(response, "VCODE");
 			return;
 		}
@@ -156,7 +160,7 @@ public class LoginControll extends BasePageControll {
 
 		// 清理
 		getLoginRetryTimes(user, -1);
-		ServletUtils.setSessionAttribute(request, NEED_VCODE, null);
+		ServletUtils.setSessionAttribute(request, AK_NEED_VCODE, null);
 		
 		writeSuccess(response);
 	}
@@ -172,7 +176,7 @@ public class LoginControll extends BasePageControll {
 			Application.getCommonCache().evict(key);
 			return 0;
 		}
-		
+
 		Integer retry = (Integer) Application.getCommonCache().getx(key);
 		retry = retry == null ? 0 : retry;
 		if (state == 1) {
@@ -237,10 +241,10 @@ public class LoginControll extends BasePageControll {
 		response.sendRedirect("login");
 	}
 	
-	// --
+	// -- 找回密码
 	
 	@RequestMapping("forgot-passwd")
-	public ModelAndView forgotPasswd(HttpServletRequest request, HttpServletResponse response) {
+	public ModelAndView forgotPasswd() {
 		return createModelAndView("/user/forgot-passwd.jsp");
 	}
 	
@@ -267,17 +271,17 @@ public class LoginControll extends BasePageControll {
 		}
 	}
 	
-	@RequestMapping("user-confirm-passwd")
+	@SuppressWarnings("DuplicatedCode")
+    @RequestMapping("user-confirm-passwd")
 	public void userConfirmPasswd(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
-		
 		String email = data.getString("email");
 		String vcode = data.getString("vcode");
 		if (!VCode.verfiy(email, vcode, true)) {
 			writeFailure(response, "验证码无效");
 			return;
 		}
-		
+
 		String newpwd = data.getString("newpwd");
 		User user = Application.getUserStore().getUserByEmail(email);
 		Record record = EntityHelper.forUpdate(user.getId(), user.getId());

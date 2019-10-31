@@ -18,6 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web;
 
+import com.rebuild.server.Application;
+import com.rebuild.server.helper.language.LanguageBundle;
 import com.rebuild.server.helper.language.Languages;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -35,7 +37,10 @@ public abstract class BasePageControll extends BaseControll {
 	 */
 	protected ModelAndView createModelAndView(String page) {
 		ModelAndView mv = new ModelAndView(page);
-		mv.getModel().put("bundle", Languages.instance.getDefaultBundle());
+
+		String locale = Application.getSessionStore().getLocale();
+        LanguageBundle bundle = Languages.instance.getBundle(locale);
+		mv.getModel().put("bundle", bundle);
 		return mv;
 	}
 }

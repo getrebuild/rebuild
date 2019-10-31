@@ -19,7 +19,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.web.common;
 
 import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.commons.web.WebUtils;
 import com.rebuild.server.helper.language.Languages;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,10 +38,29 @@ import java.io.IOException;
 @Controller
 public class LanguageControll extends BaseControll {
 
+    public static final String SK_LOCALE = WebUtils.KEY_PREFIX + ".LOCALE";
+
     @RequestMapping(value = "language/bundle", method = RequestMethod.GET)
     public void getLanguageBundle(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String bundle = Languages.instance.getDefaultBundle().toJSON().toJSONString();
+        String bundle = getBundle(request).toJSON().toJSONString();
         response.setContentType(ServletUtils.CT_JS);
         ServletUtils.write(response, "__LANG__ = " + bundle);
+    }
+
+    @RequestMapping("language/select")
+    public void selectLanguage(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        setLanguage(request);
+        writeSuccess(response);
+    }
+
+    /**
+     * @param request
+     */
+    public static void setLanguage(HttpServletRequest request) {
+        String locale = request.getParameter("locale");
+        if (locale != null && Languages.instance.isAvailable(locale)) {
+            if (AppUtils.devMode()) Languages.instance.reset();
+            ServletUtils.setSessionAttribute(request, SK_LOCALE, locale);
+        }
     }
 }

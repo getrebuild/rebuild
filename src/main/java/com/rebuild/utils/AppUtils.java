@@ -28,6 +28,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.web.admin.AdminEntryControll;
+import com.rebuild.web.common.LanguageControll;
 import eu.bitwalker.useragentutils.Browser;
 import org.apache.commons.lang.StringUtils;
 
@@ -169,4 +170,16 @@ public class AppUtils {
 	public static boolean allowed(HttpServletRequest request, ZeroEntry entry) {
 		return Application.getSecurityManager().allowed(getRequestUser(request), entry);
 	}
+
+    /**
+     * @param request
+     * @return
+     */
+	public static String getLocale(HttpServletRequest request) {
+        String locale = (String) ServletUtils.getSessionAttribute(request, LanguageControll.SK_LOCALE);
+        if (locale == null) {
+            locale = request.getLocale().toString();
+        }
+        return locale;
+    }
 }

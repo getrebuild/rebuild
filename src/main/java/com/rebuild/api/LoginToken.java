@@ -24,6 +24,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.server.helper.language.Languages;
 import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.utils.JSONUtils;
@@ -91,13 +92,13 @@ public class LoginToken extends BaseApi {
      */
     public static String checkUser(String user, String password) {
         if (!Application.getUserStore().exists(user)) {
-            return "用户名或密码错误";
+            return Languages.lang("NameOrPassword", "Wrong");
         }
 
         User loginUser = Application.getUserStore().getUser(user);
         if (!loginUser.isActive()
                 || !Application.getSecurityManager().allowed(loginUser.getId(), ZeroEntry.AllowLogin)) {
-            return "用户未激活或不允许登录";
+            return Languages.lang("UserInactiveTips");
         }
 
         Object[] foundUser = Application.createQueryNoFilter(
@@ -107,7 +108,7 @@ public class LoginToken extends BaseApi {
                 .unique();
         if (foundUser == null
                 || !foundUser[0].equals(EncryptUtils.toSHA256Hex(password))) {
-            return "用户名或密码错误";
+            return Languages.lang("NameOrPassword", "Wrong");
         }
 
         return null;

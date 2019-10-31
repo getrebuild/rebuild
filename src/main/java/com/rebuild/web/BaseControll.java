@@ -22,6 +22,8 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.api.Controll;
+import com.rebuild.server.helper.language.LanguageBundle;
+import com.rebuild.server.helper.language.Languages;
 import com.rebuild.utils.AppUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -49,6 +51,15 @@ public abstract class BaseControll extends Controll {
 		}
 		return userId;
 	}
+
+    /**
+     * @param request
+     * @return
+     */
+	protected LanguageBundle getBundle(HttpServletRequest request) {
+        String locale = AppUtils.getLocale(request);
+	    return Languages.instance.getBundle(locale);
+    }
 	
 	/**
 	 * @param response
@@ -89,7 +100,7 @@ public abstract class BaseControll extends Controll {
 			throw new IllegalArgumentException();
 		}
 		
-		String aJsonString = null;
+		String aJsonString;
 		if (aJson instanceof String) {
 			aJsonString = (String) aJson;
 		} else {

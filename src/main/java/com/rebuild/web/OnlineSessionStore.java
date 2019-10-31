@@ -23,10 +23,12 @@ import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.language.Languages;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.CurrentCaller;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.web.user.signin.LoginControll;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
@@ -53,7 +55,9 @@ public class OnlineSessionStore extends CurrentCaller implements HttpSessionList
 	
 	private static final Set<HttpSession> ONLINE_SESSIONS = new CopyOnWriteArraySet<>();
 	private static final Map<ID, HttpSession> ONLINE_USERS = new ConcurrentHashMap<>();
-	
+
+    private static final ThreadLocal<String> LOCALE = new ThreadLocal<>();
+
 	@Override
 	public void sessionCreated(HttpSessionEvent event) {
 		if (LOG.isDebugEnabled()) {
@@ -88,8 +92,6 @@ public class OnlineSessionStore extends CurrentCaller implements HttpSessionList
 			Application.getCommonService().update(logout);
 		}
 	}
-	
-	// --
 	
 	/**
 	 * 最近访问时间
@@ -131,4 +133,33 @@ public class OnlineSessionStore extends CurrentCaller implements HttpSessionList
 		ONLINE_SESSIONS.remove(s);
 		ONLINE_USERS.put((ID) loginUser, s);
 	}
+
+    /**
+     * @param locale
+     */
+    public void setLocale(String locale) {
+        LOCALE.set(locale);
+    }
+
+    /**
+     * @return Returns default if unset
+     */
+    public String getLocale() {
+        return StringUtils.defaultIfEmpty(LOCALE.get(), Languages.DEFAULT_LOCALE);
+    }
+
+    @Override
+    public void clean() {
+        super.clean();
+        LOCALE.remove();
+    }
+
+    /**
+     * @param caller
+     * @param locale
+     */
+    public void set(ID caller, String locale) {
+        super.set(caller);
+        this.setLocale(locale);
+    }
 }
