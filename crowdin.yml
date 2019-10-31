@@ -1,0 +1,3 @@
+files:
+  - source: /src/main/resources/locales/zh_CN.json
+    translation: /src/main/resources/locales/language_%locale%.json
