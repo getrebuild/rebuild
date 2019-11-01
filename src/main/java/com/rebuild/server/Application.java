@@ -65,7 +65,7 @@ public final class Application {
 	
 	/** Rebuild Version
 	 */
-	public static final String VER = "1.6.0";
+	public static final String VER = "1.6.1";
 	
 	/** Logging for Global
 	 */
@@ -134,9 +134,7 @@ public final class Application {
 			ServiceSpec ss = e.getValue();
 			if (ss.getEntityCode() > 0) {
 				SSS.put(ss.getEntityCode(), ss);
-				if (devMode()) {
-					LOG.info("Service specification : " + ss);
-				}
+				LOG.info("Service specification : " + ss);
 			}
 		}
 
