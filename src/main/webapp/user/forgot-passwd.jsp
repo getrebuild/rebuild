@@ -31,7 +31,7 @@
 									<button type="button" class="btn btn-primary bordered J_vcode-resend" style="height:41px;width:100%">${bundle.lang("Get", "VCode")}</button>
 								</div>
 							</div>
-							<p class="form-text">${bundle.lang("VCodeSentMail")} <b class="J_email"></b></p>
+							<p class="form-text">${bundle.lang("VCodeSentMail")}  <b class="J_email"></b></p>
 						</div>
 						<div class="form-group">
 							<input class="form-control" id="newpwd" type="password" placeholder="${bundle.lang("NewPassword")}" autocomplete="off">

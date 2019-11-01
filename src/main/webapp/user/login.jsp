@@ -46,6 +46,10 @@
 .rb-content {
 	z-index: 2;
 }
+.select-lang a {
+	display: inline-block;
+	padding: 3px;
+}
 </style>
 <title>${bundle.lang("Login")}</title>
 </head>
@@ -59,34 +63,39 @@
 					<div class="card-header"><a class="logo-img"></a></div>
 					<div class="card-body">
 						<form id="login-form">
-						<div class="form-group">
-							<input class="form-control" id="user" type="text" placeholder="${bundle.lang("NameOrEmail")}">
-						</div>
-						<div class="form-group">
-							<input class="form-control" id="passwd" type="password" placeholder="${bundle.lang("Password")}">
-						</div>
-						<div class="form-group row pt-0 hide vcode-row" data-state="${sessionScope.needLoginVCode}">
-							<div class="col-6 pr-0">
-								<input class="form-control" type="text" placeholder="${bundle.lang("InputRightVCode")}">
+							<div class="form-group">
+								<input class="form-control" id="user" type="text" placeholder="${bundle.lang("NameOrEmail")}">
 							</div>
-							<div class="col-6 text-right pl-0 pr-0">
-								<img style="max-width:100%;margin-right:-15px" title="${bundle.lang("ClickRefresh")}">
+							<div class="form-group">
+								<input class="form-control" id="passwd" type="password" placeholder="${bundle.lang("Password")}">
 							</div>
-						</div>
-						<div class="form-group row login-tools">
-							<div class="col-6 login-remember">
-								<label class="custom-control custom-checkbox custom-control-inline mb-0">
-									<input class="custom-control-input" type="checkbox" id="autoLogin"><span class="custom-control-label"> ${bundle.lang("RememberLogin")}</span>
-								</label>
+							<div class="form-group row pt-0 hide vcode-row" data-state="${sessionScope.needLoginVCode}">
+								<div class="col-6 pr-0">
+									<input class="form-control" type="text" placeholder="${bundle.lang("InputRightVCode")}">
+								</div>
+								<div class="col-6 text-right pl-0 pr-0">
+									<img style="max-width:100%;margin-right:-15px" title="${bundle.lang("ClickRefresh")}">
+								</div>
 							</div>
-							<div class="col-6 login-forgot-password">
-								<a href="forgot-passwd">${bundle.lang("ForgotPassword")}</a>
+							<div class="form-group row login-tools">
+								<div class="col-6 login-remember">
+									<label class="custom-control custom-checkbox custom-control-inline mb-0">
+										<input class="custom-control-input" type="checkbox" id="autoLogin"><span class="custom-control-label"> ${bundle.lang("RememberLogin")}</span>
+									</label>
+								</div>
+								<div class="col-6 login-forgot-password">
+									<a href="forgot-passwd">${bundle.lang("ForgotPassword")}</a>
+								</div>
 							</div>
-						</div>
-						<div class="form-group login-submit">
-							<button class="btn btn-primary btn-xl" type="submit">${bundle.lang("Login")}</button>
-							<div class="mt-4 text-center">${bundle.lang("NoAccountYet")} <a href="signup">${bundle.lang("SignupNow")}</a></div>
-						</div>
+							<div class="form-group login-submit">
+								<button class="btn btn-primary btn-xl" type="submit">${bundle.lang("Login")}</button>
+								<div class="mt-4 text-center">${bundle.lang("NoAccountYet")} <a href="signup">${bundle.lang("SignupNow")}</a></div>
+							</div>
+							<div class="select-lang text-center mb-1">
+								<a href="?locale=zh_CN" title="中文"><img src="${baseUrl}/assets/img/flag/cn.png" /></a>
+								<a href="?locale=en_US" title="English"><img src="${baseUrl}/assets/img/flag/us.png" /></a>
+								<a href="?locale=ja_JP" title="日本語"><img src="${baseUrl}/assets/img/flag/jp.png" /></a>
+							</div>
 						</form>
 					</div>
 				</div>

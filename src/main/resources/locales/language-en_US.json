@@ -24,5 +24,17 @@
   "ErrorRetryWhile": "Oops! Please try again later",
   "Wrong": "Wrong",
   "UserInactiveTips": "User is not activated or is not allowed to log in",
-  "Get": "获取"
+  "Get": "Send",
+  "Reget": "Resent",
+  "VCodeSentMail": "The verification code has been sent to the mailbox",
+  "NewPassword": "New password",
+  "RepeatNewPassword": "Repeat new password",
+  "ConfirmReset": "Confirm reset",
+  "ReturnLogin": "Return Login",
+  "PasswordRepeatWrong": "The new password entered twice is inconsistent",
+  "Successed": "Successed",
+  "Invalid": "Invalid",
+  "EmailAccountUnsetTips": "The mail service account is not configured, please contact the administrator to configure",
+  "UnsendEmailVCodeTips": "Unable to send verification code. Please try again later",
+  "YourResetPasswordVCodeIs": "Your reset password verification code is"
 }

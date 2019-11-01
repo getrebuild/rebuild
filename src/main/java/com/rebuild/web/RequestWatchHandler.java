@@ -24,8 +24,10 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
+import com.rebuild.server.helper.language.Languages;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.admin.AdminEntryControll;
+import com.rebuild.web.common.LanguageControll;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -63,6 +65,10 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 		response.setCharacterEncoding("utf-8");
 
 		// for Language
+		String localeInUrl = request.getParameter("locale");
+		if (localeInUrl != null && Languages.instance.isAvailable(localeInUrl)) {
+			ServletUtils.setSessionAttribute(request, LanguageControll.SK_LOCALE, localeInUrl);
+		}
 		String locale = AppUtils.getLocale(request);
 		Application.getSessionStore().setLocale(locale);
 

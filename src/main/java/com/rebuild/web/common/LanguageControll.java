@@ -49,18 +49,11 @@ public class LanguageControll extends BaseControll {
 
     @RequestMapping("language/select")
     public void selectLanguage(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        setLanguage(request);
-        writeSuccess(response);
-    }
-
-    /**
-     * @param request
-     */
-    public static void setLanguage(HttpServletRequest request) {
         String locale = request.getParameter("locale");
         if (locale != null && Languages.instance.isAvailable(locale)) {
             if (AppUtils.devMode()) Languages.instance.reset();
             ServletUtils.setSessionAttribute(request, SK_LOCALE, locale);
         }
+        writeSuccess(response);
     }
 }

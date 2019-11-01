@@ -32,5 +32,9 @@
   "ConfirmReset": "确认重置",
   "ReturnLogin": "返回登录",
   "PasswordRepeatWrong": "两次输入的新密码不一致",
-  "Successed": "成功"
+  "Successed": "成功",
+  "Invalid": "无效",
+  "EmailAccountUnsetTips": "邮件服务账户未配置，请联系管理员配置",
+  "UnsendEmailVCodeTips": "无法发送验证码，请稍后重试",
+  "YourResetPasswordVCodeIs": "你的重置密码验证码是"
 }
