@@ -180,4 +180,9 @@ public class EntityHelper {
 	public static final int RecycleBin = 33;
 	public static final int RevisionHistory = 34;
 
+	public static final int Feeds = 40;
+	public static final int FeedsComment = 41;
+	public static final int FeedsLike = 42;
+	public static final int FeedsGroup = 43;
+
 }

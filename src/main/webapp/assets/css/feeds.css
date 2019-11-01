@@ -1,0 +1,13 @@
+.feeds-container {
+    max-width: 1001px;
+}
+
+.feeds-container .contents {
+}
+.feeds-container .tools {
+    background-color: #f5f5f5;
+}
+
+.postbox {
+    margin: 20px;
+}
