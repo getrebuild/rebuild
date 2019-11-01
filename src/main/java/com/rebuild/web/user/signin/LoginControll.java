@@ -267,10 +267,10 @@ public class LoginControll extends BasePageControll {
 		}
 	}
 	
+	@SuppressWarnings("DuplicatedCode")
 	@RequestMapping("user-confirm-passwd")
 	public void userConfirmPasswd(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
-		
 		String email = data.getString("email");
 		String vcode = data.getString("vcode");
 		if (!VCode.verfiy(email, vcode, true)) {
@@ -283,11 +283,15 @@ public class LoginControll extends BasePageControll {
 		Record record = EntityHelper.forUpdate(user.getId(), user.getId());
 		record.setString("password", newpwd);
 		try {
+			Application.getSessionStore().set(user.getId());
+
 			Application.getBean(UserService.class).update(record);
 			writeSuccess(response);
 			VCode.clean(email);
 		} catch (DataSpecificationException ex) {
 			writeFailure(response, ex.getLocalizedMessage());
+		} finally {
+			Application.getSessionStore().clean();
 		}
 	}
 }
