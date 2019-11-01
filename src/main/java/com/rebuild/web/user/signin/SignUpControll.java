@@ -93,7 +93,8 @@ public class SignUpControll extends BasePageControll {
 			writeFailure(response, "无法发送验证码，请稍后重试");
 		}
 	}
-	
+
+	@SuppressWarnings("DuplicatedCode")
 	@RequestMapping("signup-confirm")
 	public void signupConfirm(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
