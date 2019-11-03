@@ -24,6 +24,6 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/js/feeds.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/feeds/feeds.jsx/js/feeds.jsx" type="text/babel"></script>
 </body>
 </html>
