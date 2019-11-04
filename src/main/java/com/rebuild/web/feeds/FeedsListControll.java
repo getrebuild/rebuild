@@ -37,7 +37,9 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * TODO
@@ -66,7 +68,7 @@ public class FeedsListControll extends BasePageControll {
         int pageNo = getIntParameter(request, "page", 1);
         int pageSize = 20;
 
-        String sql = "select feedsId,createdBy,createdBy,createdOn,modifiedOn,content,scope,type,relatedRecord,attachment from Feeds";
+        String sql = "select feedsId,createdBy,createdOn,modifiedOn,content,scope,type,relatedRecord,attachment from Feeds";
         if (sqlWhere != null) {
             sql += " where " + sqlWhere;
         }
@@ -74,15 +76,24 @@ public class FeedsListControll extends BasePageControll {
         Object[][] array = Application.getQueryFactory().createQuery(sql)
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
                 .array();
+
+        List<JSON> ret = new ArrayList<>();
         for (Object[] o : array) {
-            o[4] = ((Date) o[4]).getTime() == ((Date) o[3]).getTime();
-            o[3] = Moment.moment((Date) o[3]).fromNow();
-            o[2] = UserHelper.getName((ID) o[2]);
+            JSONObject item = new JSONObject();
+            item.put("id", o[0]);
+            item.put("createdBy", new Object[] { o[1], UserHelper.getName((ID) o[1]) });
+            item.put("createdOn", Moment.moment((Date) o[2]).fromNow());
+            item.put("content", o[4]);
+            item.put("scope", FeedsScope.parse((String) o[5]).getName());
+            item.put("type", FeedsType.parse((Integer) o[6]).getName());
+            item.put("releated", o[7]);
+            item.put("attachment", o[8]);
 
-            o[6] = FeedsScope.parse((String) o[6]).getName();
-            o[7] = FeedsType.parse((Integer) o[7]).getName();
+            item.put("numLike", 0);
+            item.put("numComments", 0);
+
+            ret.add(item);
         }
-
-        writeSuccess(response, array);
+        writeSuccess(response, ret);
     }
 }

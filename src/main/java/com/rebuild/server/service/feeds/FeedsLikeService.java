@@ -1,6 +1,6 @@
 /*
 rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (C) 2018-2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,19 +23,19 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.BaseService;
 
 /**
- * 动态
+ * 喜欢
  *
- * @author devezhao
+ * @author ZHAO
  * @since 2019/11/4
  */
-public class FeedsService extends BaseService {
+public class FeedsLikeService extends BaseService {
 
-    protected FeedsService(PersistManagerFactory aPMFactory) {
+    protected FeedsLikeService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
     }
 
     @Override
     public int getEntityCode() {
-        return EntityHelper.Feeds;
+        return EntityHelper.FeedsLike;
     }
 }

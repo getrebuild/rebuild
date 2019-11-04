@@ -18,19 +18,22 @@
 		<div class="main-content container feeds-container">
 			<div class="row">
 				<div class="col-md-8 col-12 p-0">
+                    <div class="rb-loading rb-loading-active">
+                        <%@ include file="/_include/spinner.jsp"%>
+                    </div>
                     <div id="feedsPost"></div>
                     <div id="feedsList"></div>
 				</div>
-				<div class="col-md-4 col-12 bg-dark">
+				<div class="col-md-4 col-12 pr-0">
 					<div class="side-wrapper">
 						<div>
-							User Profile
+							<h5 class="mt-0">User Profile</h5>
 						</div>
 						<div>
-							我加入的组
+							<h5>群组</h5>
 						</div>
 						<div>
-							搜索：时间/人员
+							<h5>人员</h5>
 						</div>
 					</div>
                 </div>

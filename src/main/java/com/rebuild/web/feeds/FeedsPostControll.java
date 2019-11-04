@@ -25,7 +25,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.feeds.FeedsService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import org.springframework.stereotype.Controller;
@@ -36,8 +35,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * TODO
- *
  * @author devezhao
  * @since 2019/11/1
  */
@@ -45,23 +42,35 @@ import java.io.IOException;
 @RequestMapping("/feeds/post/")
 public class FeedsPostControll extends BaseControll {
 
-    @RequestMapping("publish")
+    @RequestMapping({"publish", "comment"})
     public void publish(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ID user = getRequestUser(request);
         JSON formJson = ServletUtils.getRequestJson(request);
         Record record = EntityHelper.parse((JSONObject) formJson, user);
 
-        record = Application.getBean(FeedsService.class).create(record);
-
+        Application.getService(record.getEntity().getEntityCode()).create(record);
         JSON ret = JSONUtils.toJSONObject("id", record.getPrimary());
         writeSuccess(response, ret);
     }
 
-    @RequestMapping("comment")
-    public void comment(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    }
-
     @RequestMapping("like")
     public void like(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ID user = getRequestUser(request);
+        ID feedsId = getIdParameterNotNull(request, "feeds");
+
+        Object[] liked = Application.createQueryNoFilter(
+                "select likeId from FeedsLike where feedsId = ? and createdBy = ?")
+                .setParameter(1, feedsId)
+                .setParameter(2, user)
+                .unique();
+        if (liked == null) {
+            Record record = EntityHelper.forNew(EntityHelper.FeedsLike, user);
+            record.setID("feedsId", feedsId);
+            Application.getCommonService().create(record);
+        } else {
+            Application.getCommonService().delete((ID) liked[0]);
+        }
+
+        writeSuccess(response, liked == null);
     }
 }
