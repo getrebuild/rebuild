@@ -178,7 +178,7 @@ public class NavManager extends BaseLayoutManager {
 		StringBuilder navHtml = new StringBuilder()
 				.append(String.format("<li class='%s'><a href='%s'%s><i class='icon zmdi zmdi-%s'></i><span>%s</span></a>",
 						navName + (subNavs == null ? StringUtils.EMPTY : " parent"),
-						subNavs == null ? navUrl : "#",
+						subNavs == null ? navUrl : "###",
 						isUrlType ? " target='_blank' rel='noopener noreferrer'" : StringUtils.EMPTY,
 						navIcon, navText));
 		if (subNavs != null) {

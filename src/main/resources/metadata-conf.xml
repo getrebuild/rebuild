@@ -322,6 +322,8 @@
 		<field name="attachment" type="string" max-length="700" description="附件(多个逗号分隔)" />
 		<field name="relatedRecord" type="any-reference" description="相关业务记录" />
 		<field name="scope" type="string" max-length="20" default-value="ALL" description="哪些人可见, 可选值: ALL/SELF/$GroupID" />
+		<index field-list="createdOn,createdBy,type,scope" />
+		<index field-list="relatedRecord" />
 	</entity>
 
 	<entity name="FeedsComment" type-code="041" description="动态评论">
@@ -329,11 +331,13 @@
 		<field name="feedsId" type="reference" ref-entity="Feeds" nullable="false" updatable="false" description="哪个动态" />
 		<field name="content" type="text" nullable="false" max-length="10000" description="内容" />
 		<field name="attachment" type="string" max-length="700" description="附件(多个逗号分隔)" />
+		<index field-list="feedsId" />
 	</entity>
 
 	<entity name="FeedsLike" type-code="042" description="动态点赞">
 		<field name="likeId" type="primary" />
 		<field name="feedsId" type="reference" ref-entity="Feeds" nullable="false" updatable="false" description="哪个动态" />
+		<index field-list="feedsId" />
 	</entity>
 
 	<entity name="FeedsGroup" type-code="043" description="动态组">

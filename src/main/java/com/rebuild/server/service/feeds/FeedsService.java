@@ -16,51 +16,37 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.feeds;
+package com.rebuild.server.service.feeds;
+
+import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.Record;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.BaseService;
 
 /**
- * 动态类型
+ * TODO
  *
  * @author devezhao
- * @since 2019/11/1
+ * @since 2019/11/4
  */
-public enum FeedsType {
+public class FeedsService extends BaseService {
 
-    ACTIVITY(1, "动态"),
-    FOLLOWUP(2, "跟进"),
-
-    ;
-
-    final private int mask;
-    final private String name;
-
-    FeedsType(int mask, String name) {
-        this.mask = mask;
-        this.name = name;
+    protected FeedsService(PersistManagerFactory aPMFactory) {
+        super(aPMFactory);
     }
 
-    /**
-     * @return
-     */
-    public int getMask() {
-        return mask;
+    @Override
+    public int getEntityCode() {
+        return EntityHelper.Feeds;
     }
 
-    /**
-     * @return
-     */
-    public String getName() {
-        return name;
+    @Override
+    public Record create(Record record) {
+        return super.create(record);
     }
 
-    /**
-     * @param typeMask
-     * @return
-     */
-    public static FeedsType parse(int typeMask) {
-        for (FeedsType t : values()) {
-            if (t.getMask() == typeMask) return t;
-        }
-        throw new IllegalArgumentException("Unknow mask : " + typeMask);
+    @Override
+    public Record update(Record record) {
+        return super.update(record);
     }
 }

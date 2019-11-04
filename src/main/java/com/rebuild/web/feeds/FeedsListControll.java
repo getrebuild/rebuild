@@ -18,6 +18,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.feeds;
 
+import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.momentjava.Moment;
+import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
+import com.rebuild.server.business.feeds.FeedsScope;
+import com.rebuild.server.business.feeds.FeedsType;
+import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.query.AdvFilterParser;
 import com.rebuild.web.BasePageControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +37,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
 
 /**
  * TODO
@@ -47,7 +58,31 @@ public class FeedsListControll extends BasePageControll {
         return mv;
     }
 
-    @RequestMapping("/feeds/list-data")
+    @RequestMapping("/feeds/data-list")
     public void fetchData(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        JSON filter = ServletUtils.getRequestJson(request);
+        String sqlWhere = new AdvFilterParser((JSONObject) filter).toSqlWhere();
+
+        int pageNo = getIntParameter(request, "page", 1);
+        int pageSize = 20;
+
+        String sql = "select feedsId,createdBy,createdBy,createdOn,modifiedOn,content,scope,type,relatedRecord,attachment from Feeds";
+        if (sqlWhere != null) {
+            sql += " where " + sqlWhere;
+        }
+        sql += " order by createdOn desc";
+        Object[][] array = Application.getQueryFactory().createQuery(sql)
+                .setLimit(pageSize, pageNo * pageSize - pageSize)
+                .array();
+        for (Object[] o : array) {
+            o[4] = ((Date) o[4]).getTime() == ((Date) o[3]).getTime();
+            o[3] = Moment.moment((Date) o[3]).fromNow();
+            o[2] = UserHelper.getName((ID) o[2]);
+
+            o[6] = FeedsScope.parse((String) o[6]).getName();
+            o[7] = FeedsType.parse((Integer) o[7]).getName();
+        }
+
+        writeSuccess(response, array);
     }
 }

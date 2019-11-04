@@ -18,32 +18,26 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.feeds;
 
+import cn.devezhao.persist4j.engine.ID;
+
 /**
- * 动态类型
+ * 可见范围
  *
  * @author devezhao
- * @since 2019/11/1
+ * @since 2019/11/4
  */
-public enum FeedsType {
+public enum FeedsScope {
 
-    ACTIVITY(1, "动态"),
-    FOLLOWUP(2, "跟进"),
+    ALL("公开"),
+    SELF("私有"),
+    GROUP("群组"),
 
     ;
 
-    final private int mask;
     final private String name;
 
-    FeedsType(int mask, String name) {
-        this.mask = mask;
+    FeedsScope(String name) {
         this.name = name;
-    }
-
-    /**
-     * @return
-     */
-    public int getMask() {
-        return mask;
     }
 
     /**
@@ -54,13 +48,16 @@ public enum FeedsType {
     }
 
     /**
-     * @param typeMask
+     * @param any
      * @return
      */
-    public static FeedsType parse(int typeMask) {
-        for (FeedsType t : values()) {
-            if (t.getMask() == typeMask) return t;
+    public static FeedsScope parse(String any) {
+        if (ID.isId(any)) {
+            return GROUP;
         }
-        throw new IllegalArgumentException("Unknow mask : " + typeMask);
+        for (FeedsScope s : values()) {
+            if (any.equalsIgnoreCase(s.name())) return s;
+        }
+        throw new IllegalArgumentException("Unknow scope : " + any);
     }
 }

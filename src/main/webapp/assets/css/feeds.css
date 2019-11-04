@@ -1,13 +1,159 @@
 .feeds-container {
     max-width: 1024px;
+    max-width: 1160px;
 }
 
-.feeds-container .contents {
-}
-.feeds-container .tools {
-    background-color: #f5f5f5;
+.feeds-post {
+    padding: 20px;
+    background-color: #fff;
 }
 
-.post-box {
-    margin: 20px;
+.feeds-post textarea {
+    resize: none;
+    min-height: 50px;
+}
+
+.btn.btn-scope {
+    width: auto;
+    min-width: 0;
+    padding: 0;
+    box-shadow: 0 0 0 #fff !important;
+    border: 0 none !important;
+    background-color: #fff;
+    color: #4285f4;
+    margin-top: 2px;
+    padding-left: 20px;
+}
+
+.btn.btn-scope>.zmdi {
+    margin-top: 6px;
+}
+
+.search-bar {
+    border-top: 10px solid #eee;
+    background-color: #fff;
+    margin-bottom: 10px;
+}
+
+.search-bar .nav-tabs {
+    border-color: #fff;
+    position: relative;
+}
+
+.search-bar .nav-tabs>li.nav-item a.nav-link {
+    padding-top: 12px;
+    padding-bottom: 9px;
+}
+
+.search-bar .nav-tabs>li.nav-item a.nav-link.active {
+    color: #4285f4;
+}
+
+.search-bar .nav-tabs .search-btn {
+    position: absolute;
+    right: 0;
+    margin-top: 12px;
+    margin-right: 20px;
+    color: #888;
+}
+
+.search-bar .nav-tabs .search-btn:hover,
+.search-bar .nav-tabs .search-btn.active {
+    color: #4285f4;
+}
+
+.feeds-list>div {
+    padding: 12px 20px;
+    padding-bottom: 6px;
+    margin: 5px 0;
+    background-color: #fff;
+}
+
+.feeds-list>div:last-child {
+    margin-bottom: 0;
+}
+
+.feeds-list .feeds {
+    display: flex;
+}
+
+.feeds-list .feeds>.user {
+    min-width: 54px;
+    width: 54px;
+    font-size: 0;
+    line-height: 1;
+}
+
+.feeds-list .feeds>.user .avatar {
+    width: 36px;
+    height: 36px;
+}
+
+.feeds-list .feeds>.content {
+    flex-grow: 1;
+}
+
+.feeds-list .feeds>.content .meta .badge {
+    color: #aaa;
+    font-weight: normal;
+    border-radius: 99px;
+    line-height: 1.4;
+}
+
+
+.feeds-list .feeds>.content .rich {
+    font-size: 1.1rem;
+    padding: 5px 0;
+    line-height: 1.5;
+}
+
+
+.feeds-list .actions {
+    margin-top: 6px;
+    padding-top: 5px;
+    border-top: 1px solid #eee;
+    text-align: right;
+}
+
+.feeds-list .actions li {
+    padding: 0 3px;
+    margin: 0;
+}
+
+.feeds-list .actions li a {
+    display: inline-block;
+    padding: 6px 10px;
+    padding-left: 26px;
+    color: #888;
+}
+
+.feeds-list .actions li a:hover,
+.feeds-list .actions li a.active {
+    color: #4285f4;
+}
+
+.feeds-list .actions li a>.zmdi {
+    left: 6px;
+}
+
+
+.side-wrapper {
+    position: sticky;
+    top: 60px
+}
+
+.fixed-icon {
+    position: relative;
+    padding-left: 18px;
+}
+
+.fixed-icon>.zmdi {
+    font-size: 1.2rem;
+    position: absolute;
+    left: 0;
+    margin-top: 2px;
+}
+
+.box-hover {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(0, 132, 255, .3);
 }

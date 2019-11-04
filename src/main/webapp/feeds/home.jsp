@@ -17,31 +17,30 @@
 	<div class="rb-content">
 		<div class="main-content container feeds-container">
 			<div class="row">
-				<div class="col-md-8 col-12 bg-white contents">
+				<div class="col-md-8 col-12 p-0">
                     <div id="feedsPost"></div>
-                    <div id="feedsList">
-                        <div class="bg-grey">
-                            动态列表：快速搜索/列表/分页
-                        </div>
-                    </div>
+                    <div id="feedsList"></div>
 				</div>
-				<div class="col-md-4 col-12 tools bg-grey">
-                    <div class="bg-grey">
-                        User Profile
-                    </div>
-                    <div>
-                        我加入的组
-                    </div>
-                    <div>
-                        搜索：时间/人员
-                    </div>
+				<div class="col-md-4 col-12 bg-dark">
+					<div class="side-wrapper">
+						<div>
+							User Profile
+						</div>
+						<div>
+							我加入的组
+						</div>
+						<div>
+							搜索：时间/人员
+						</div>
+					</div>
                 </div>
 			</div>
 		</div>
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/js/feeds/feeds.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/feeds/feeds-post.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/feeds/feeds-list.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/feeds/feeds.jsx" type="text/babel"></script>
 </body>
 </html>

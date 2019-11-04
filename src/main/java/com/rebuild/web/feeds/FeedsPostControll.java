@@ -19,7 +19,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.web.feeds;
 
 import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.feeds.FeedsService;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,9 +47,14 @@ public class FeedsPostControll extends BaseControll {
 
     @RequestMapping("publish")
     public void publish(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        JSON reqJson = ServletUtils.getRequestJson(request);
+        ID user = getRequestUser(request);
+        JSON formJson = ServletUtils.getRequestJson(request);
+        Record record = EntityHelper.parse((JSONObject) formJson, user);
 
+        record = Application.getBean(FeedsService.class).create(record);
 
+        JSON ret = JSONUtils.toJSONObject("id", record.getPrimary());
+        writeSuccess(response, ret);
     }
 
     @RequestMapping("comment")
