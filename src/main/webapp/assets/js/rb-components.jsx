@@ -380,7 +380,7 @@ class UserSelector extends React.Component {
           </div>
         </span>
       </span>
-    </div >
+    </div>
   }
 
   componentDidMount() {
@@ -445,9 +445,7 @@ class UserSelector extends React.Component {
       return true
     })
 
-    if (exists === false) {
-      ns.push({ id: id, text: $(e.target).text() })
-    }
+    if (exists === false) ns.push({ id: id, text: $(e.target).text() })
     this.setState({ selected: ns, dropdownOpen: this.props.closeOnSelect !== true })
   }
 

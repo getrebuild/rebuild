@@ -184,5 +184,6 @@ public class EntityHelper {
 	public static final int FeedsComment = 41;
 	public static final int FeedsLike = 42;
 	public static final int FeedsGroup = 43;
+	public static final int FeedsInvolve = 44;
 
 }

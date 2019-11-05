@@ -60,34 +60,36 @@ public class FeedsListControll extends BasePageControll {
         return mv;
     }
 
-    @RequestMapping("/feeds/data-list")
-    public void fetchData(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    @RequestMapping("/feeds/feeds-list")
+    public void fetchFeeds(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        final ID user = getRequestUser(request);
+
         JSON filter = ServletUtils.getRequestJson(request);
         String sqlWhere = new AdvFilterParser((JSONObject) filter).toSqlWhere();
 
-        int pageNo = getIntParameter(request, "page", 1);
-        int pageSize = 20;
+        int pageNo = getIntParameter(request, "pageNo", 1);
+        int pageSize = getIntParameter(request, "pageSize", 20);
+        String sort = getParameter(request,"sort");
 
-        String sql = "select feedsId,createdBy,createdOn,modifiedOn,content,scope,type,relatedRecord,attachment from Feeds";
+        String sql = "select feedsId,createdBy,createdOn,modifiedOn,content,attachment,scope,type,relatedRecord from Feeds";
         if (sqlWhere != null) {
             sql += " where " + sqlWhere;
         }
-        sql += " order by createdOn desc";
+        if ("older".equalsIgnoreCase(sort)) sql += " order by createdOn asc";
+        else if ("modified".equalsIgnoreCase(sort)) sql += " order by modifiedOn desc";
+        else sql += " order by createdOn desc";
+
         Object[][] array = Application.getQueryFactory().createQuery(sql)
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
                 .array();
 
         List<JSON> ret = new ArrayList<>();
         for (Object[] o : array) {
-            JSONObject item = new JSONObject();
-            item.put("id", o[0]);
-            item.put("createdBy", new Object[] { o[1], UserHelper.getName((ID) o[1]) });
-            item.put("createdOn", Moment.moment((Date) o[2]).fromNow());
-            item.put("content", o[4]);
-            item.put("scope", FeedsScope.parse((String) o[5]).getName());
-            item.put("type", FeedsType.parse((Integer) o[6]).getName());
-            item.put("releated", o[7]);
-            item.put("attachment", o[8]);
+            JSONObject item = buildBase(o, user);
+
+            item.put("scope", FeedsScope.parse((String) o[6]).getName());
+            item.put("type", FeedsType.parse((Integer) o[7]).getName());
+            item.put("releated", o[8]);
 
             item.put("numLike", 0);
             item.put("numComments", 0);
@@ -95,5 +97,40 @@ public class FeedsListControll extends BasePageControll {
             ret.add(item);
         }
         writeSuccess(response, ret);
+    }
+
+    @RequestMapping("/feeds/comments-list")
+    public void fetchComments(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        final ID user = getRequestUser(request);
+
+        int pageNo = getIntParameter(request, "pageNo", 1);
+        int pageSize = getIntParameter(request, "pageSize", 20);
+
+        String sql = "select commentId,createdBy,createdOn,modifiedOn,content,attachment from FeedsComment order by createdOn desc";
+        Object[][] array = Application.getQueryFactory().createQuery(sql)
+                .setLimit(pageSize, pageNo * pageSize - pageSize)
+                .array();
+
+        List<JSON> ret = new ArrayList<>();
+        for (Object[] o : array) {
+            ret.add(buildBase(o, user));
+        }
+        writeSuccess(response, ret);
+    }
+
+    /**
+     * @param o
+     * @param user
+     * @return
+     */
+    private JSONObject buildBase(Object[] o, ID user) {
+        JSONObject item = new JSONObject();
+        item.put("id", o[0]);
+        item.put("self", o[1].equals(user));
+        item.put("createdBy", new Object[] { o[1], UserHelper.getName((ID) o[1]) });
+        item.put("createdOn", Moment.moment((Date) o[2]).fromNow());
+        item.put("content", o[4]);
+        item.put("attachment", o[5]);
+        return item;
     }
 }

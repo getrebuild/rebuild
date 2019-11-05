@@ -94,6 +94,11 @@ html.admin .admin-show.row {
     border-radius: 6px 0 6px 6px;
 }
 
+.zmdi-hc-rotate-45 {
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
 
 .text-disabled {
     color: #aaa;
@@ -1705,7 +1710,15 @@ form.simple {
     font-size: 14px;
 }
 
+.fs-15 {
+    font-size: 15px;
+}
+
 .fs-16 {
+    font-size: 16px;
+}
+
+.fs-17 {
     font-size: 16px;
 }
 
@@ -1899,6 +1912,11 @@ form {
     float: right;
     margin-top: 2px;
     font-weight: bold;
+}
+
+.user-selector .dropdown-wrapper ol,
+.user-selector .dropdown-wrapper ul {
+    padding-left: 0;
 }
 
 

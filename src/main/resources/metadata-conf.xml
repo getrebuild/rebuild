@@ -346,4 +346,12 @@
 		<field name="members" type="string" max-length="420" description="组成员($MemberID(U/D/R))" />
 	</entity>
 
+	<entity name="FeedsInvolve" type-code="044" description="用户引用">
+		<field name="involveId" type="primary" />
+		<field name="feeds" type="reference" ref-entity="Feeds" nullable="false" updatable="false" description="哪个动态" />
+		<field name="user" type="reference" ref-entity="User" nullable="false" updatable="false" description="哪个用户" />
+		<field name="type" type="int" default-value="1" description="类型" />
+		<index field-list="type,feeds,user" />
+	</entity>
+
 </metadata-config>

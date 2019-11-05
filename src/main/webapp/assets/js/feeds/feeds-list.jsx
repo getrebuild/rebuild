@@ -1,12 +1,18 @@
+/* eslint-disable react/jsx-no-undef */
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
+
+const FeedsSortTypes = { newer: '最近发布', older: '较早发布', modified: '最近修改' }
 
 // ~ 动态列表
 class FeedsList extends React.Component {
 
   constructor(props) {
     super(props)
-    this.state = { ...props }
+    this.state = { ...props, page: 1 }
+
+    this.state.sort = $storage.get('Feeds-sort')
+    this._lastFilter = { entity: 'Feeds', items: [] }
   }
 
   render() {
@@ -15,17 +21,26 @@ class FeedsList extends React.Component {
         <ul className="nav nav-tabs">
           <li className="nav-item"><a className="nav-link text-bold active">全部</a></li>
           <li className="nav-item"><a className="nav-link text-bold">@我的</a></li>
+          <li className="nav-item"><a className="nav-link text-bold">我发布的</a></li>
           <li className="nav-item"><a className="nav-link text-bold">我评论的</a></li>
-          <li className="nav-item"><a className="nav-link text-bold">私密</a></li>
-          <a className="search-btn fixed-icon"><i className="zmdi zmdi-search"></i>筛选</a>
+          <li className="nav-item"><a className="nav-link text-bold">我点赞的</a></li>
+          <span className="float-right">
+            <div className="btn-group">
+              <button type="button" className="btn btn-link pr-0 text-right" data-toggle="dropdown">{FeedsSortTypes[this.state.sort] || '默认排序'} <i className="icon zmdi zmdi-chevron-down"></i></button>
+              <div className="dropdown-menu dropdown-menu-right">
+                <a className="dropdown-item" data-sort="newer" onClick={this._sortFeeds}>最近发布</a>
+                <a className="dropdown-item" data-sort="modified" onClick={this._sortFeeds}>最近修改</a>
+                <a className="dropdown-item" data-sort="older" onClick={this._sortFeeds}>较早发布</a>
+              </div>
+            </div>
+          </span>
         </ul>
       </div>
       <div className="feeds-list">
-        {(this.state.list || []).length === 0 &&
-          <div className="list-nodata pt-8 pb-8">
-            <i className="zmdi zmdi-chart-donut"></i>
-            <p>暂无动态</p>
-          </div>
+        {(this.state.list && this.state.list.length === 0) && <div className="list-nodata pt-8 pb-8">
+          <i className="zmdi zmdi-chart-donut"></i>
+          <p>暂无动态</p>
+        </div>
         }
         {(this.state.list || []).map((item) => {
           return <div key={`feeds-${item.id}`}>
@@ -56,12 +71,12 @@ class FeedsList extends React.Component {
                 </li>
                 <li className="list-inline-item">
                   <a href="#comment" onClick={() => this._toggleComment(item.id)} className={`fixed-icon ${item.showComments && 'text-primary'}`}>
-                    <i className="zmdi zmdi-comment-outline"></i>评论 {item.numComments > 0 && <span>({item.numComments})</span>}
+                    <i className="zmdi zmdi-comment-outline"></i>回复 {item.numComments > 0 && <span>({item.numComments})</span>}
                   </a>
                 </li>
               </ul>
             </div>
-            {item.showComments && <FeedsComments feeds={item.id} />}
+            <span className={`${item.showComments ? '' : 'hide'}`}>{item.showCommentsReal && <FeedsComments feeds={item.id} />}</span>
           </div>
         })}
       </div>
@@ -80,15 +95,21 @@ class FeedsList extends React.Component {
     </div>)
   }
 
-  componentDidMount = () => this._fetchFeeds()
-  _fetchFeeds(filter) {
-    filter = filter || this._lastFilter
-    if (!filter) filter = { entity: 'Feeds', items: [] }
-    this._lastFilter = filter
-
-    $.post(`${rb.baseUrl}/feeds/data-list?page=${this.state.page || 1}`, JSON.stringify(filter), (res) => {
+  componentDidMount = () => this.fetchFeeds()
+  /**
+   * 加载数据
+   * @param {*} filter AdvFilter
+   */
+  fetchFeeds(filter) {
+    this._lastFilter = filter = filter || this._lastFilter
+    $.post(`${rb.baseUrl}/feeds/feeds-list?pageNo=${this.state.page}&sort=${this.state.sort}`, JSON.stringify(filter), (res) => {
       this.setState({ list: res.data })
     })
+  }
+  _sortFeeds = (e) => {
+    let s = e.target.dataset.sort
+    $storage.set('Feeds-sort', s)
+    this.setState({ sort: s }, () => this.fetchFeeds())
   }
 
   _handleLike(feeds) {
@@ -106,27 +127,34 @@ class FeedsList extends React.Component {
     event.preventDefault()
     let list = this.state.list
     list.forEach((item) => {
-      if (feeds === item.id) item.showComments = !item.showComments
+      if (feeds === item.id) {
+        item.showComments = !item.showComments
+        item.showCommentsReal = true
+      }
     })
     this.setState({ list: list })
   }
 }
 
-// ~ 评论
+// ~ 回复
 class FeedsComments extends React.Component {
 
   constructor(props) {
     super(props)
-    this.state = { ...props }
+    this.state = { ...props, openReply: false }
   }
 
   render() {
     return (<div className="comments">
-      <div>
-        <textarea className={`form-control form-control-sm ${this.state.badContent ? 'is-invalid' : ''}`} name="content" onInput={this._changeValue} placeholder="输入评论"></textarea>
-        <div className="mt-2 text-right">
-          <button className="btn btn-primary" ref={(c) => this._btn = c} onClick={this._post}>评论</button>
-        </div>
+      <div className="comment-reply">
+        <div onClick={() => this._replyState(true)} className={`reply-mask ${this.state.openReply ? 'hide' : ''}`}>添加回复</div>
+        <span className={`${this.state.openReply ? '' : 'hide'}`}>
+          <FeedsRichInput placeholder="添加回复" ref={(c) => this._input = c} />
+          <div className="mt-2 text-right">
+            <button onClick={() => this._replyState(false)} className="btn btn-sm btn-link">取消</button>
+            <button className="btn btn-sm btn-primary" ref={(c) => this._btn = c} onClick={this._post}>回复</button>
+          </div>
+        </span>
       </div>
       <div className="comment-list">
         {(this.state.comments || []).map((item) => {
@@ -140,17 +168,15 @@ class FeedsComments extends React.Component {
   _fetchComments() {
   }
 
-  _changeValue = (e) => {
-    let target = e.target
-    let s = {}
-    s[target.name] = target.value
-    this.setState(s)
+  _replyState = (state) => {
+    this.setState({ openReply: state }, () => {
+      if (this.state.openReply) this._input.focus()
+    })
   }
 
   _post = () => {
-    let data = { content: this.state.content, feedsId: this.props.feeds }
-    if (!data.content) { this.setState({ badContent: true }); return }
-    else this.setState({ badContent: false })
+    let data = { content: this._input.val(), feedsId: this.props.feeds }
+    if (!data.content) return
     data.metadata = { entity: 'FeedsComment' }
 
     let btn = $(this._btn).button('loading')

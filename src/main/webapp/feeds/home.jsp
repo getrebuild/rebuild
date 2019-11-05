@@ -18,11 +18,9 @@
 		<div class="main-content container feeds-container">
 			<div class="row">
 				<div class="col-md-8 col-12 p-0">
-                    <div class="rb-loading rb-loading-active">
+                    <div class="rb-loading rb-loading-active" id="rb-feeds">
                         <%@ include file="/_include/spinner.jsp"%>
                     </div>
-                    <div id="feedsPost"></div>
-                    <div id="feedsList"></div>
 				</div>
 				<div class="col-md-4 col-12 pr-0">
 					<div class="side-wrapper">
@@ -30,11 +28,15 @@
 							<h5 class="mt-0">User Profile</h5>
 						</div>
 						<div>
+							<h5>筛选</h5>
+						</div>
+						<div>
 							<h5>群组</h5>
 						</div>
 						<div>
 							<h5>人员</h5>
 						</div>
+
 					</div>
                 </div>
 			</div>
@@ -42,6 +44,7 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
+<script src="${baseUrl}/assets/lib/jquery.textarea.js"></script>
 <script src="${baseUrl}/assets/js/feeds/feeds-post.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/feeds/feeds-list.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/feeds/feeds.jsx" type="text/babel"></script>
