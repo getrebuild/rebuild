@@ -146,6 +146,18 @@ a.badge.text-id:hover {
     border-color: #4285f4;
 }
 
+.up-1 {
+    transform: translateY(-1px);
+}
+
+.up-2 {
+    transform: translateY(-2px);
+}
+
+.up-3 {
+    transform: translateY(-3px);
+}
+
 .btn {
     min-height: 2.8rem;
     min-width: 98px;

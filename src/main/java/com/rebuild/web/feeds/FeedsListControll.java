@@ -103,11 +103,14 @@ public class FeedsListControll extends BasePageControll {
     public void fetchComments(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final ID user = getRequestUser(request);
 
+        ID feeds = getIdParameterNotNull(request, "feeds");
         int pageNo = getIntParameter(request, "pageNo", 1);
         int pageSize = getIntParameter(request, "pageSize", 20);
 
-        String sql = "select commentId,createdBy,createdOn,modifiedOn,content,attachment from FeedsComment order by createdOn desc";
-        Object[][] array = Application.getQueryFactory().createQuery(sql)
+        Object[][] array = Application.getQueryFactory().createQuery(
+                "select commentId,createdBy,createdOn,modifiedOn,content,attachment from FeedsComment" +
+                        " where feedsId = ? order by createdOn desc")
+                .setParameter(1, feeds)
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
                 .array();
 

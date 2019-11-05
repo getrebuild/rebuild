@@ -18,7 +18,7 @@ class FeedsPost extends React.Component {
           <a onClick={() => this.setState({ type: 2 })} className={`${this.state.type === 2 && 'text-primary'}`}>跟进</a>
         </li>
       </ul>
-      <div className={`arrow_box ${this.state.type === 2 && 'index2'}`}></div>
+      <div className="arrow_box" style={{ marginLeft: this.state.type === 2 ? 53 : 8 }}></div>
       <div>
         <FeedsRichInput ref={(c) => this._input = c} />
       </div>
@@ -28,11 +28,11 @@ class FeedsPost extends React.Component {
         </div>
         <div className="float-right mr-4">
           <div className="btn-group" style={{ border: '0 none' }}>
-            <button className="btn btn-scope fixed-icon" data-toggle="dropdown" ref={(c) => this._scopeBtn = c}><i className="zmdi zmdi-chart-donut"></i>公开</button>
+            <button className="btn btn-scope btn-link" data-toggle="dropdown" ref={(c) => this._scopeBtn = c}><i className="icon up-1 zmdi zmdi-chart-donut" />公开</button>
             <div className="dropdown-menu dropdown-menu-right">
-              <a className="dropdown-item" onClick={this._selectScope} data-scope="ALL" title="全部可见"><i className="icon zmdi zmdi-chart-donut"></i>公开</a>
-              <a className="dropdown-item" onClick={this._selectScope} data-scope="SELF" title="仅自己可见"><i className="icon zmdi zmdi-lock"></i>私密</a>
-              <a className="dropdown-item" onClick={this._selectScope} data-scope="GROUP" title="群组内可见"><i className="icon zmdi zmdi-accounts"></i>群组</a>
+              <a className="dropdown-item" onClick={this._selectScope} data-scope="ALL" title="全部可见"><i className="icon up-1 zmdi zmdi-chart-donut" />公开</a>
+              <a className="dropdown-item" onClick={this._selectScope} data-scope="SELF" title="仅自己可见"><i className="icon up-1 zmdi zmdi-lock" />私密</a>
+              <a className="dropdown-item" onClick={this._selectScope} data-scope="GROUP" title="群组内可见"><i className="icon up-1 zmdi zmdi-accounts" />群组</a>
             </div>
           </div>
         </div>
@@ -92,8 +92,10 @@ class FeedsRichInput extends React.Component {
   }
 
   render() {
-    return (<div className="rich-input active">
-      <textarea ref={(c) => this._input = c} placeholder={this.props.placeholder}></textarea>
+    return (<div className={`rich-input ${this.state.focus && 'active'}`}>
+      <textarea ref={(c) => this._input = c} placeholder={this.props.placeholder}
+        onFocus={() => this.setState({ focus: true })}
+        onBlur={() => this.setState({ focus: false })} />
       <div className="action-btns">
         <ul className="list-unstyled list-inline m-0 p-0">
           <li className="list-inline-item">

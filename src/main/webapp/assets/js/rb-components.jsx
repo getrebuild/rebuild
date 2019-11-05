@@ -341,6 +341,7 @@ class UserSelector extends React.Component {
     if (!this.state.items) noResult = noResult = <li className="select2-results__option un-hover text-muted">搜索中...</li>
     else if (this.state.items.length === 0) noResult = <li className="select2-results__option un-hover">未找到结果</li>
 
+    // select2-container--above
     return <div className="user-selector">
       <span className="select2 select2-container select2-container--default select2-container--below">
         <span className="selection">
