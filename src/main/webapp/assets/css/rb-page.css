@@ -100,6 +100,10 @@ html.admin .admin-show.row {
     transform: rotate(45deg);
 }
 
+.pagination.pagination-sm .page-link {
+    min-width: 28px;
+}
+
 .text-disabled {
     color: #aaa;
     font-style: italic;
@@ -192,6 +196,10 @@ a.btn {
     color: #4285f4 !important;
     line-height: 2.8rem;
     text-decoration: none !important;
+}
+
+.btn.btn-link.btn-sm {
+    line-height: 30px;
 }
 
 .btn.btn-link:hover {

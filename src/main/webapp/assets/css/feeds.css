@@ -214,7 +214,6 @@
   display: inline-block;
   padding: 6px 10px 6px 26px;
   padding-right: 0;
-  color: #888;
 }
 
 .feeds-list .actions li>a:hover,
@@ -226,10 +225,29 @@
   left: 6px;
 }
 
+.feeds-pages {
+  margin-top: 10px;
+}
+
+.feeds-pages .float-left>p {
+  margin: 0;
+  margin-top: 9px;
+}
+
+.feeds-pages .pagination {
+  margin-bottom: 0;
+}
+
 .comments {
   margin-left: 56px;
   margin-top: 4px;
   margin-bottom: 10px;
+}
+
+.comments .comment-reply {
+  background-color: #f5f5f5;
+  padding: 15px;
+  margin-bottom: 15px;
 }
 
 .comments .rich-input {
@@ -244,11 +262,10 @@
   border: 1px solid #eee;
   border-radius: 2px;
   background-color: #fff;
-  height: 40px;
+  height: 39px;
   color: #aaa;
   padding: 9px 10px;
   cursor: text;
-  margin-bottom: 15px;
 }
 
 .comments .reply-mask:hover {
@@ -257,7 +274,9 @@
 
 .comment-list>div {
   padding: 8px 0;
-  border-bottom: 1px dotted #ddd;
+  border-bottom: 1px dotted #eee;
+  margin: 0;
+  margin-top: 5px;
 }
 
 .comment-list .feeds>.content .rich {
@@ -290,6 +309,10 @@
   right: 0;
 }
 
+.comments .feeds-pages .float-left>p {
+  margin-top: 3px;
+}
+
 .side-wrapper {
   position: sticky;
   top: 60px;
@@ -300,7 +323,7 @@
 .fixed-icon {
   position: relative;
   padding-left: 17px;
-  color: #888;
+  color: #777;
 }
 
 .fixed-icon>.zmdi {

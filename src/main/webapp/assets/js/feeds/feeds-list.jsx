@@ -30,7 +30,7 @@ class FeedsList extends React.Component {
               <div className="dropdown-menu dropdown-menu-right">
                 <a className="dropdown-item" data-sort="newer" onClick={this._sortFeeds}>最近发布</a>
                 <a className="dropdown-item" data-sort="modified" onClick={this._sortFeeds}>最近修改</a>
-                <a className="dropdown-item" data-sort="older" onClick={this._sortFeeds}>较早发布</a>
+                <a className="dropdown-item" data-sort="older" onClick={this._sortFeeds}>最早发布</a>
               </div>
             </div>
           </span>
@@ -84,18 +84,7 @@ class FeedsList extends React.Component {
           </div>
         })}
       </div>
-      <div className="mt-2">
-        <div className="float-left">
-          <p className="m-0 text-muted mt-1">共 0 条数据</p>
-        </div>
-        <div className="float-right">
-          <ul className="pagination mb-0">
-            <li className="paginate_button page-item active"><a className="page-link">1</a></li>
-            <li className="paginate_button page-item"><a className="page-link">2</a></li>
-            <li className="paginate_button page-item"><a className="page-link">3</a></li>
-          </ul>
-        </div>
-      </div>
+      <Pagination rowsTotal={1} call={this.gotoPage} />
     </div>)
   }
 
@@ -106,7 +95,7 @@ class FeedsList extends React.Component {
    */
   fetchFeeds(filter) {
     this._lastFilter = filter = filter || this._lastFilter
-    $.post(`${rb.baseUrl}/feeds/feeds-list?pageNo=${this.state.page}&sort=${this.state.sort}`, JSON.stringify(filter), (res) => {
+    $.post(`${rb.baseUrl}/feeds/feeds-list?pageNo=${this.state.pageNo}&sort=${this.state.sort}`, JSON.stringify(filter), (res) => {
       this.setState({ list: res.data })
     })
   }
@@ -138,6 +127,10 @@ class FeedsList extends React.Component {
     })
     this.setState({ list: list })
   }
+
+  gotoPage = (pageNo) => {
+    this.setState({ pageNo: pageNo }, () => this.fetchFeeds())
+  }
 }
 
 // ~ 评论
@@ -145,7 +138,7 @@ class FeedsComments extends React.Component {
 
   constructor(props) {
     super(props)
-    this.state = { ...props, openReply: false, page: 1 }
+    this.state = { ...props, openReply: false, pageNo: 1 }
   }
 
   render() {
@@ -188,12 +181,13 @@ class FeedsComments extends React.Component {
           </div>
         })}
       </div>
+      <Pagination rowsTotal={1} call={this.gotoPage} comment={true} />
     </div>)
   }
 
   componentDidMount = () => this._fetchComments()
   _fetchComments() {
-    $.get(`${rb.baseUrl}/feeds/comments-list?feeds=${this.props.feeds}&pageNo=${this.state.page}`, (res) => {
+    $.get(`${rb.baseUrl}/feeds/comments-list?feeds=${this.props.feeds}&pageNo=${this.state.pageNo}`, (res) => {
       this.setState({ comments: res.data })
     })
   }
@@ -213,6 +207,60 @@ class FeedsComments extends React.Component {
     $.post(`${rb.baseUrl}/feeds/post/publish`, JSON.stringify(data), (res) => {
       btn.button('reset')
       this._fetchComments()
+    })
+  }
+
+  gotoPage = (pageNo) => {
+    this.setState({ pageNo: pageNo }, () => this._fetchComments())
+  }
+}
+
+// ~ 分页
+class Pagination extends React.Component {
+
+  constructor(props) {
+    super(props)
+    this.state = { ...props, pageSize: props.pageSize || 40, pageNo: props.pageNo || 1 }
+  }
+
+  render() {
+    if (!this.state.rowsTotal) return null
+
+    this.__pageTotal = Math.ceil(this.state.rowsTotal / this.state.pageSize)
+    if (this.__pageTotal <= 0) this.__pageTotal = 1
+    let pages = this.__pageTotal <= 1 ? [1] : $pages(this.__pageTotal, this.state.pageNo)
+
+    return <div className="feeds-pages">
+      <div className="float-left">
+        <p className="text-muted">共 {this.state.rowsTotal} 条数据</p>
+      </div>
+      <div className="float-right">
+        <ul className={`pagination ${this.props.comment && 'pagination-sm'}`}>
+          {this.state.pageNo > 1
+            && <li className="paginate_button page-item"><a className="page-link" onClick={this._prev}><span className="icon zmdi zmdi-chevron-left"></span></a></li>}
+          {pages.map((item) => {
+            if (item === '.') return <li key={'page-' + item} className="paginate_button page-item disabled"><a className="page-link">...</a></li>
+            else return <li key={'page-' + item} className={'paginate_button page-item ' + (this.state.pageNo === item && 'active')}><a className="page-link" onClick={() => this._goto(item)}>{item}</a></li>
+          })}
+          {this.state.pageNo !== this.__pageTotal
+            && <li className="paginate_button page-item"><a className="page-link" onClick={this._next}><span className="icon zmdi zmdi-chevron-right"></span></a></li>}
+        </ul>
+      </div>
+      <div className="clearfix"></div>
+    </div>
+  }
+
+  _prev = () => {
+    if (this.state.pageNo === 1) return
+    this._goto(this.state.pageNo - 1)
+  }
+  _next = () => {
+    if (this.state.pageNo === this.__pageTotal) return
+    this._goto(this.state.pageNo + 1)
+  }
+  _goto = (pageNo) => {
+    this.setState({ pageNo: pageNo }, () => {
+      typeof this.props.call === 'function' && this.props.call(pageNo)
     })
   }
 }

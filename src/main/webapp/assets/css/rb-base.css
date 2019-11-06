@@ -5541,6 +5541,11 @@ input[type=submit].btn-block {
 
 .page-link .icon {
     font-size: 1.2rem;
+    transform: translateY(1px);
+}
+
+.pagination-sm .page-link .icon {
+    transform: translateY(2px);
 }
 
 .page-link:hover {
