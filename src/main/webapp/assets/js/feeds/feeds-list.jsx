@@ -96,18 +96,18 @@ class FeedsList extends React.Component {
     this._lastFilter = filter = filter || this._lastFilter
     $.post(`${rb.baseUrl}/feeds/feeds-list?pageNo=${this.state.pageNo}&sort=${this.state.sort}&type=${this.state.tabType}`, JSON.stringify(filter), (res) => {
       let _data = res.data || { data: [], total: 0 }
-      this.state.pageNo === 1 && this._pagination.setState({ rowsTotal: _data.total })
+      this.state.pageNo === 1 && this._pagination.setState({ rowsTotal: _data.total, pageNo: 1 })
       this.setState({ data: _data.data })
     })
   }
 
   _switchTab(t) {
-    this.setState({ tabType: t }, () => this.fetchFeeds())
+    this.setState({ tabType: t, pageNo: 1 }, () => this.fetchFeeds())
   }
   _sortFeeds = (e) => {
     let s = e.target.dataset.sort
     $storage.set('Feeds-sort', s)
-    this.setState({ sort: s }, () => this.fetchFeeds())
+    this.setState({ sort: s, pageNo: 1 }, () => this.fetchFeeds())
   }
 
   _toggleComment(feeds) {
@@ -233,7 +233,7 @@ class FeedsComments extends React.Component {
   _fetchComments() {
     $.get(`${rb.baseUrl}/feeds/comments-list?feeds=${this.props.feeds}&pageNo=${this.state.pageNo}`, (res) => {
       let _data = res.data || {}
-      this.state.pageNo === 1 && this._pagination.setState({ rowsTotal: _data.total })
+      this.state.pageNo === 1 && this._pagination.setState({ rowsTotal: _data.total, pageNo: 1 })
       this.setState({ data: _data.data })
     })
   }

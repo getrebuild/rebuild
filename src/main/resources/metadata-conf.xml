@@ -348,12 +348,11 @@
 		<index field-list="createdBy,source" />
 	</entity>
 
-	<entity name="FeedsInvolve" type-code="044" description="用户引用" parent="false">
-		<field name="involveId" type="primary" />
-		<field name="feeds" type="reference" ref-entity="Feeds" nullable="false" updatable="false" description="哪个动态/评论" />
+	<entity name="FeedsMention" type-code="044" description="用户提及" parent="false">
+		<field name="mentionId" type="primary" />
+		<field name="source" type="any-reference" ref-entity="Feeds,FeedsComment" nullable="false" updatable="false" description="哪个动态/评论" />
 		<field name="user" type="reference" ref-entity="User" nullable="false" updatable="false" description="哪个用户" />
-		<field name="type" type="small-int" default-value="1" description="1=@我,2=我评论,3=我点赞" />
-		<index field-list="user,type" />
+		<index field-list="user,source" />
 	</entity>
 
 </metadata-config>

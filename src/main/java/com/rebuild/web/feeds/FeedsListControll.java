@@ -75,8 +75,12 @@ public class FeedsListControll extends BasePageControll {
         int type = getIntParameter(request, "type", 0);
         if (type == 10) {
             sqlWhere += String.format(" and createdBy ='%s'", user);
-        } else if (type >= 1 && type <= 3) {
-            sqlWhere += String.format(" and feedsId in (select feeds from FeedsInvolve where user = '%s' and type = %d)", user, type);
+        } else if (type == 2) {
+            sqlWhere += String.format(" and feedsId in (select feedsId from FeedsComment where createdBy = '%s')", user);
+        } else if (type == 3) {
+            sqlWhere += String.format(" and feedsId in (select source from FeedsLike where createdBy = '%s')", user);
+        } else if (type == 1) {
+            sqlWhere += String.format(" and feedsId in (select source from FeedsMention where user = '%s')", user);
         }
 
         int pageNo = getIntParameter(request, "pageNo", 1);

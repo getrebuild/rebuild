@@ -51,7 +51,7 @@ public class SchemaGen {
 //		gen(EntityHelper.FeedsComment);
 		gen(EntityHelper.FeedsGroup);
 		gen(EntityHelper.FeedsLike);
-		gen(EntityHelper.FeedsInvolve);
+		gen(EntityHelper.FeedsMention);
 
 		System.exit(0);
 	}
