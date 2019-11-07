@@ -21,6 +21,13 @@ package com.rebuild.server.business.feeds;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
+import com.rebuild.server.service.bizz.UserHelper;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * TODO 缓存
@@ -52,5 +59,45 @@ public class FeedsHelper {
                 .setParameter(1, feedsId)
                 .unique();
         return ObjectUtils.toInt(c[0]);
+    }
+
+    /**
+     * @param content
+     * @return
+     *
+     * @see #findMentionsMap(String)
+     */
+    public static ID[] findMentions(String content) {
+        Set<ID> set = new HashSet<>(findMentionsMap(content).values());
+        return set.toArray(new ID[0]);
+    }
+
+    /**
+     * @param content
+     * @return
+     */
+    public static Map<String, ID> findMentionsMap(String content) {
+        Map<String, ID> found = new HashMap<>();
+        for (String ats : content.split("@")) {
+            if (StringUtils.isBlank(ats)) continue;
+            String[] atss = ats.split(" ");
+
+            String fullName = atss[0];
+            ID user = UserHelper.findUserByFullName(fullName);
+            if (user == null && atss.length >= 2) {
+                fullName = atss[0] + " " + atss[1];
+                user = UserHelper.findUserByFullName(fullName);
+
+                if (user == null && atss.length >= 3) {
+                    fullName = atss[0] + " " + atss[1] + " " + atss[2];
+                    user = UserHelper.findUserByFullName(fullName);
+                }
+            }
+
+            if (user != null) {
+                found.put(fullName, user);
+            }
+        }
+        return found;
     }
 }

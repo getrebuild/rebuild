@@ -66,8 +66,6 @@ class FeedsPost extends React.Component {
   }
 }
 
-const EMOJI = [['赞', 'fs_zan.png'], ['握手', 'fs_woshou.png'], ['耶', 'fs_ye.png'], ['抱拳', 'fs_baoquan.png'], ['OK', 'fs_ok.png'], ['拍手', 'fs_paishou.png'], ['拜托', 'fs_baituo.png'], ['差评', 'fs_chaping.png'], ['微笑', 'fs_weixiao.png'], ['撇嘴', 'fs_piezui.png'], ['花痴', 'fs_huachi.png'], ['发呆', 'fs_fadai.png'], ['得意', 'fs_deyi.png'], ['大哭', 'fs_daku.png'], ['害羞', 'fs_haixiu.png'], ['闭嘴', 'fs_bizui.png'], ['睡着', 'fs_shuizhao.png'], ['敬礼', 'fs_jingli.png'], ['崇拜', 'fs_chongbai.png'], ['抱抱', 'fs_baobao.png'], ['忍住不哭', 'fs_renzhubuku.png'], ['尴尬', 'fs_ganga.png'], ['发怒', 'fs_fanu.png'], ['调皮', 'fs_tiaopi.png'], ['开心', 'fs_kaixin.png'], ['惊讶', 'fs_jingya.png'], ['呵呵', 'fs_hehe.png'], ['思考', 'fs_sikao.png'], ['哭笑不得', 'fs_kuxiaobude.png'], ['抓狂', 'fs_zhuakuang.png'], ['呕吐', 'fs_outu.png'], ['偷笑', 'fs_touxiao.png'], ['笑哭了', 'fs_xiaokule.png'], ['白眼', 'fs_baiyan.png'], ['傲慢', 'fs_aoman.png'], ['饥饿', 'fs_jie.png'], ['困', 'fs_kun.png'], ['吓', 'fs_xia.png'], ['流汗', 'fs_liuhan.png'], ['憨笑', 'fs_hanxiao.png'], ['悠闲', 'fs_youxian.png'], ['奋斗', 'fs_fendou.png'], ['咒骂', 'fs_zhouma.png'], ['疑问', 'fs_yiwen.png'], ['嘘', 'fs_xu.png'], ['晕', 'fs_yun.png'], ['惊恐', 'fs_jingkong.png'], ['衰', 'fs_shuai.png'], ['骷髅', 'fs_kulou.png'], ['敲打', 'fs_qiaoda.png'], ['再见', 'fs_zaijian.png'], ['无语', 'fs_wuyu.png'], ['抠鼻', 'fs_koubi.png'], ['鼓掌', 'fs_guzhang.png'], ['糗大了', 'fs_qiudale.png'], ['猥琐的笑', 'fs_weisuodexiao.png'], ['哼', 'fs_heng.png'], ['不爽', 'fs_bushuang.png'], ['打哈欠', 'fs_dahaqian.png'], ['鄙视', 'fs_bishi.png'], ['委屈', 'fs_weiqu.png'], ['安慰', 'fs_anwei.png'], ['坏笑', 'fs_huaixiao.png'], ['亲亲', 'fs_qinqin.png'], ['冷汗', 'fs_lenghan.png'], ['可怜', 'fs_kelian.png'], ['生病', 'fs_shengbing.png'], ['愉快', 'fs_yukuai.png'], ['幸灾乐祸', 'fs_xingzailehuo.png'], ['大便', 'fs_dabian.png'], ['干杯', 'fs_ganbei.png'], ['钱', 'fs_qian.png']]
-
 // 复写组件
 class UserSelectorExt extends UserSelector {
   constructor(props) {
@@ -92,6 +90,12 @@ class FeedsRichInput extends React.Component {
   }
 
   render() {
+    let es = []
+    for (let k in EMOJIS) {
+      let item = EMOJIS[k]
+      es.push(<a key={`em-${item}`} title={k} onClick={() => this._selectEmoji(k)}><img src={`${rb.baseUrl}/assets/img/emoji/${item}`} /></a>)
+    }
+
     return (<div className={`rich-input ${this.state.focus && 'active'}`}>
       <textarea ref={(c) => this._input = c} placeholder={this.props.placeholder}
         onFocus={() => this.setState({ focus: true })}
@@ -102,13 +106,7 @@ class FeedsRichInput extends React.Component {
           <li className="list-inline-item">
             <a onClick={this._toggleEmoji} title="表情"><i className="zmdi zmdi-mood" /></a>
             <span className={`mount ${this.state.showEmoji ? '' : 'hide'}`} ref={(c) => this._emoji = c}>
-              {this.state.renderEmoji &&
-                <div className="emoji-wrapper">
-                  {EMOJI.map((item) => {
-                    return <a key={`em-${item[1]}`} title={item[0]} onClick={() => this._selectEmoji(item[0])}><img src={`${rb.baseUrl}/assets/img/emoji/${item[1]}`} /></a>
-                  })}
-                </div>
-              }
+              {this.state.renderEmoji && <div className="emoji-wrapper">{es}</div>}
             </span>
           </li>
           <li className="list-inline-item">
@@ -166,4 +164,19 @@ class FeedsRichInput extends React.Component {
   reset() {
     $(this._input).val('')
   }
+}
+
+const EMOJIS = { '赞': 'fs_zan.png', '握手': 'fs_woshou.png', '耶': 'fs_ye.png', '抱拳': 'fs_baoquan.png', 'OK': 'fs_ok.png', '拍手': 'fs_paishou.png', '拜托': 'fs_baituo.png', '差评': 'fs_chaping.png', '微笑': 'fs_weixiao.png', '撇嘴': 'fs_piezui.png', '花痴': 'fs_huachi.png', '发呆': 'fs_fadai.png', '得意': 'fs_deyi.png', '大哭': 'fs_daku.png', '害羞': 'fs_haixiu.png', '闭嘴': 'fs_bizui.png', '睡着': 'fs_shuizhao.png', '敬礼': 'fs_jingli.png', '崇拜': 'fs_chongbai.png', '抱抱': 'fs_baobao.png', '忍住不哭': 'fs_renzhubuku.png', '尴尬': 'fs_ganga.png', '发怒': 'fs_fanu.png', '调皮': 'fs_tiaopi.png', '开心': 'fs_kaixin.png', '惊讶': 'fs_jingya.png', '呵呵': 'fs_hehe.png', '思考': 'fs_sikao.png', '哭笑不得': 'fs_kuxiaobude.png', '抓狂': 'fs_zhuakuang.png', '呕吐': 'fs_outu.png', '偷笑': 'fs_touxiao.png', '笑哭了': 'fs_xiaokule.png', '白眼': 'fs_baiyan.png', '傲慢': 'fs_aoman.png', '饥饿': 'fs_jie.png', '困': 'fs_kun.png', '吓': 'fs_xia.png', '流汗': 'fs_liuhan.png', '憨笑': 'fs_hanxiao.png', '悠闲': 'fs_youxian.png', '奋斗': 'fs_fendou.png', '咒骂': 'fs_zhouma.png', '疑问': 'fs_yiwen.png', '嘘': 'fs_xu.png', '晕': 'fs_yun.png', '惊恐': 'fs_jingkong.png', '衰': 'fs_shuai.png', '骷髅': 'fs_kulou.png', '敲打': 'fs_qiaoda.png', '再见': 'fs_zaijian.png', '无语': 'fs_wuyu.png', '抠鼻': 'fs_koubi.png', '鼓掌': 'fs_guzhang.png', '糗大了': 'fs_qiudale.png', '猥琐的笑': 'fs_weisuodexiao.png', '哼': 'fs_heng.png', '不爽': 'fs_bushuang.png', '打哈欠': 'fs_dahaqian.png', '鄙视': 'fs_bishi.png', '委屈': 'fs_weiqu.png', '安慰': 'fs_anwei.png', '坏笑': 'fs_huaixiao.png', '亲亲': 'fs_qinqin.png', '冷汗': 'fs_lenghan.png', '可怜': 'fs_kelian.png', '生病': 'fs_shengbing.png', '愉快': 'fs_yukuai.png', '幸灾乐祸': 'fs_xingzailehuo.png', '大便': 'fs_dabian.png', '干杯': 'fs_ganbei.png', '钱': 'fs_qian.png' }
+// eslint-disable-next-line no-unused-vars
+const converEmoji = function (text) {
+  let es = text.match(/\[(.+?)\]/g)
+  if (!es) return text
+  es.forEach((e) => {
+    let img = EMOJIS[e.substr(1, e.length - 2)]
+    if (img) {
+      img = `<img class="emoji" src="${rb.baseUrl}/assets/img/emoji/${img}"/>`
+      text = text.replace(e, img)
+    }
+  })
+  return text.replace(/\n/g, '<br/>')
 }

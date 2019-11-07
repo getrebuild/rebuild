@@ -27,6 +27,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -49,6 +50,9 @@ public class FeedsPostControll extends BaseControll {
         ID user = getRequestUser(request);
         JSON formJson = ServletUtils.getRequestJson(request);
         Record record = EntityHelper.parse((JSONObject) formJson, user);
+        String content = record.getString("content");
+        content = content.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+        record.setString("content", content);
 
         Application.getService(record.getEntity().getEntityCode()).create(record);
         JSON ret = JSONUtils.toJSONObject("id", record.getPrimary());

@@ -313,4 +313,19 @@ public class UserHelper {
 		// Use default
 		return new Font("SimHei", Font.BOLD, (int) fs);
 	}
+
+    /**
+     * 通过用户全称找用户
+     *
+     * @param fullName
+     * @return
+     */
+	public static ID findUserByFullName(String fullName) {
+        for (User u : Application.getUserStore().getAllUsers()) {
+            if (fullName.equalsIgnoreCase(u.getFullName())) {
+                return u.getId();
+            }
+        }
+        return null;
+    }
 }

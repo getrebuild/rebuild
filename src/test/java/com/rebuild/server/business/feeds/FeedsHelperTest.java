@@ -1,6 +1,6 @@
 /*
 rebuild - Building your business-systems freely.
-Copyright (C) 2018-2019 devezhao <zhaofang123@gmail.com>
+Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,17 +16,23 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.service.feeds;
+package com.rebuild.server.business.feeds;
+
+import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.TestSupport;
+import org.junit.Test;
+
+import java.util.Map;
 
 /**
- * @author ZHAO
- * @since 2019/11/5
+ * @author devezhao
+ * @since 2019/11/7
  */
-public interface FeedsInvolve {
+public class FeedsHelperTest extends TestSupport {
 
-    /**
-     * 动态变更时，内容中涉及的用户要加入/移除 FeedsInvolve
-     */
-    default void aware() {
+    @Test
+    public void findMentions() {
+        Map<String, ID> map = FeedsHelper.findMentionsMap("@RB示例用户 @超级管理员 @没有 @RB 示例用户 你还的呵呵我复合 @ @  ");
+        System.out.println(map);
     }
 }

@@ -20,7 +20,6 @@ package com.rebuild.server.service.feeds;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.BaseService;
 
 /**
  * 动态
@@ -28,7 +27,7 @@ import com.rebuild.server.service.BaseService;
  * @author devezhao
  * @since 2019/11/4
  */
-public class FeedsService extends BaseService {
+public class FeedsService extends FeedsMentionAware {
 
     protected FeedsService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);

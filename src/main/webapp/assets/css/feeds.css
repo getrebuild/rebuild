@@ -199,6 +199,13 @@
   line-height: 1.5;
 }
 
+.feeds-list .feeds>.content .rich>img.emoji {
+  width: 26px;
+  height: 26px;
+  line-height: 1;
+  font-size: 0;
+}
+
 .feeds-list .actions {
   margin-top: 7px;
   padding-top: 5px;

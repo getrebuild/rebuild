@@ -84,7 +84,11 @@ public class MessageBuilder {
 		return new Message(fromUser, toUser, message, recordId, Message.TYPE_APPROVAL);
 	}
 
-	private static final Pattern AT_PATTERN = Pattern.compile("(\\@[0-9a-z\\-]{20})");
+    /**
+     * Matchs @ID
+     */
+	public static final Pattern AT_PATTERN = Pattern.compile("(\\@[0-9a-z\\-]{20})");
+
 	/**
 	 * 格式化通知消息为 HTML，支持 MD 语法
 	 * 

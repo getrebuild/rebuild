@@ -27,7 +27,9 @@ import com.rebuild.server.Application;
 import com.rebuild.server.business.feeds.FeedsHelper;
 import com.rebuild.server.business.feeds.FeedsScope;
 import com.rebuild.server.business.feeds.FeedsType;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.notification.MessageBuilder;
 import com.rebuild.server.service.query.AdvFilterParser;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
@@ -42,6 +44,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
 
 /**
  * 列表相关
@@ -89,7 +92,8 @@ public class FeedsListControll extends BasePageControll {
 
         long count = -1;
         if (pageNo == 1) {
-            count = queryCount("select count(feedsId) from Feeds where " + sqlWhere);
+            count = (Long) Application.createQueryNoFilter(
+                    "select count(feedsId) from Feeds where " + sqlWhere).unique()[0];
             if (count == 0) {
                 writeSuccess(response);
                 return;
@@ -131,7 +135,8 @@ public class FeedsListControll extends BasePageControll {
 
         long count = -1;
         if (pageNo == 1) {
-            count = queryCount("select count(commentId) from FeedsComment where " + sqlWhere);
+            count = (Long) Application.createQueryNoFilter(
+                    "select count(commentId) from FeedsComment where " + sqlWhere).unique()[0];
             if (count == 0) {
                 writeSuccess(response);
                 return;
@@ -165,16 +170,25 @@ public class FeedsListControll extends BasePageControll {
         item.put("self", o[1].equals(user));
         item.put("createdBy", new Object[] { o[1], UserHelper.getName((ID) o[1]) });
         item.put("createdOn", Moment.moment((Date) o[2]).fromNow());
-        item.put("content", o[4]);
+        item.put("content", formatContent((String) o[4]));
         item.put("attachment", o[5]);
         return item;
     }
 
     /**
-     * @param sql
+     * @param content
      * @return
      */
-    private long queryCount(String sql) {
-        return (Long) Application.createQueryNoFilter(sql).unique()[0];
+    private String formatContent(String content) {
+        Matcher atMatcher = MessageBuilder.AT_PATTERN.matcher(content);
+        while (atMatcher.find()) {
+            String at = atMatcher.group();
+            ID user = ID.valueOf(at.substring(1));
+            if (user.getEntityCode() == EntityHelper.User && Application.getUserStore().exists(user)) {
+                String fullName = Application.getUserStore().getUser(user).getFullName();
+                content = content.replace(at, String.format("<a data-id=\"%s\">@%s</a>", user, fullName));
+            }
+        }
+        return content;
     }
 }

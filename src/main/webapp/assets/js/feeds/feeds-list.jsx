@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable react/jsx-no-undef */
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
@@ -56,7 +57,7 @@ class FeedsList extends React.Component {
                   <a>{item.createdBy[1]}</a>
                   <p className="text-muted fs-12 m-0">{item.createdOn} - {item.scope}</p>
                 </div>
-                <div className="rich">{item.content}</div>
+                <div className="rich" dangerouslySetInnerHTML={{ __html: converEmoji(item.content) }} />
               </div>
             </div>
             <div className="actions">
@@ -84,7 +85,7 @@ class FeedsList extends React.Component {
         })}
       </div>
       <Pagination ref={(c) => this._pagination = c} call={this.gotoPage} pageSize={40} />
-    </div>)
+    </div >)
   }
 
   componentDidMount = () => this.fetchFeeds()
@@ -191,7 +192,7 @@ class FeedsComments extends React.Component {
                 <div className="meta">
                   <a>{item.createdBy[1]}</a>
                 </div>
-                <div className="rich">{item.content}</div>
+                <div className="rich" dangerouslySetInnerHTML={{ __html: converEmoji(item.content) }} />
                 <div className="actions">
                   <div className="float-left text-muted fs-12 time">{item.createdOn}</div>
                   <ul className="list-unstyled m-0">
