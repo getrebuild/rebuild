@@ -328,30 +328,32 @@
 
 	<entity name="FeedsComment" type-code="041" description="动态评论">
 		<field name="commentId" type="primary" />
-		<field name="feedsId" type="reference" ref-entity="Feeds" nullable="false" updatable="false" description="哪个动态" />
+		<field name="feedsId" type="reference" ref-entity="Feeds" nullable="false" updatable="false" cascade="delete" description="哪个动态" />
 		<field name="content" type="text" nullable="false" max-length="10000" description="内容" />
 		<field name="attachment" type="string" max-length="700" description="附件(多个逗号分隔)" />
 		<index field-list="feedsId" />
 	</entity>
 
-	<entity name="FeedsLike" type-code="042" description="动态点赞">
-		<field name="likeId" type="primary" />
-		<field name="feedsId" type="reference" ref-entity="Feeds" nullable="false" updatable="false" description="哪个动态" />
-		<index field-list="feedsId" />
-	</entity>
-
-	<entity name="FeedsGroup" type-code="043" description="动态组">
+	<entity name="FeedsGroup" type-code="042" description="动态群组">
 		<field name="groupId" type="primary" />
 		<field name="name" type="string" max-length="100" nullable="false" description="组名称" />
 		<field name="members" type="string" max-length="420" description="组成员($MemberID(U/D/R))" />
 	</entity>
 
-	<entity name="FeedsInvolve" type-code="044" description="用户引用">
+	<entity name="FeedsLike" type-code="043" description="动态点赞" parent="false">
+		<field name="likeId" type="primary" />
+		<field name="source" type="any-reference" ref-entity="Feeds,FeedsComment" nullable="false" updatable="false" description="哪个动态/评论" />
+		<field name="createdBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="创建人" />
+		<field name="createdOn" type="timestamp" nullable="false" creatable="false" updatable="false" description="创建时间" />
+		<index field-list="createdBy,source" />
+	</entity>
+
+	<entity name="FeedsInvolve" type-code="044" description="用户引用" parent="false">
 		<field name="involveId" type="primary" />
-		<field name="feeds" type="reference" ref-entity="Feeds" nullable="false" updatable="false" description="哪个动态" />
+		<field name="feeds" type="reference" ref-entity="Feeds" nullable="false" updatable="false" description="哪个动态/评论" />
 		<field name="user" type="reference" ref-entity="User" nullable="false" updatable="false" description="哪个用户" />
-		<field name="type" type="int" default-value="1" description="类型" />
-		<index field-list="type,feeds,user" />
+		<field name="type" type="small-int" default-value="1" description="1=@我,2=我评论,3=我点赞" />
+		<index field-list="user,type" />
 	</entity>
 
 </metadata-config>

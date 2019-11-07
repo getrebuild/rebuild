@@ -24,10 +24,12 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.business.feeds.FeedsHelper;
 import com.rebuild.server.business.feeds.FeedsScope;
 import com.rebuild.server.business.feeds.FeedsType;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.query.AdvFilterParser;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,7 +44,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * TODO
+ * 列表相关
  *
  * @author devezhao
  * @since 2019/11/1
@@ -66,37 +68,51 @@ public class FeedsListControll extends BasePageControll {
 
         JSON filter = ServletUtils.getRequestJson(request);
         String sqlWhere = new AdvFilterParser((JSONObject) filter).toSqlWhere();
+        if (sqlWhere == null) {
+            sqlWhere = "(1=1)";
+        }
+
+        int type = getIntParameter(request, "type", 0);
+        if (type == 10) {
+            sqlWhere += String.format(" and createdBy ='%s'", user);
+        } else if (type >= 1 && type <= 3) {
+            sqlWhere += String.format(" and feedsId in (select feeds from FeedsInvolve where user = '%s' and type = %d)", user, type);
+        }
 
         int pageNo = getIntParameter(request, "pageNo", 1);
-        int pageSize = getIntParameter(request, "pageSize", 20);
+        int pageSize = getIntParameter(request, "pageSize", 40);
         String sort = getParameter(request,"sort");
 
-        String sql = "select feedsId,createdBy,createdOn,modifiedOn,content,attachment,scope,type,relatedRecord from Feeds";
-        if (sqlWhere != null) {
-            sql += " where " + sqlWhere;
+        long count = -1;
+        if (pageNo == 1) {
+            count = queryCount("select count(feedsId) from Feeds where " + sqlWhere);
+            if (count == 0) {
+                writeSuccess(response);
+                return;
+            }
         }
+
+        String sql = "select feedsId,createdBy,createdOn,modifiedOn,content,attachment,scope,type,relatedRecord from Feeds where " + sqlWhere;
         if ("older".equalsIgnoreCase(sort)) sql += " order by createdOn asc";
         else if ("modified".equalsIgnoreCase(sort)) sql += " order by modifiedOn desc";
         else sql += " order by createdOn desc";
 
-        Object[][] array = Application.getQueryFactory().createQuery(sql)
+        Object[][] array = Application.createQueryNoFilter(sql)
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
                 .array();
 
-        List<JSON> ret = new ArrayList<>();
+        List<JSON> list = new ArrayList<>();
         for (Object[] o : array) {
             JSONObject item = buildBase(o, user);
-
             item.put("scope", FeedsScope.parse((String) o[6]).getName());
             item.put("type", FeedsType.parse((Integer) o[7]).getName());
             item.put("releated", o[8]);
-
-            item.put("numLike", 0);
-            item.put("numComments", 0);
-
-            ret.add(item);
+            item.put("numLike", FeedsHelper.getNumOfLike((ID) o[0]));
+            item.put("numComments", FeedsHelper.getNumOfComment((ID) o[0]));
+            list.add(item);
         }
-        writeSuccess(response, ret);
+        writeSuccess(response,
+                JSONUtils.toJSONObject(new String[] { "total", "data" }, new Object[] { count, list }));
     }
 
     @RequestMapping("/feeds/comments-list")
@@ -107,18 +123,31 @@ public class FeedsListControll extends BasePageControll {
         int pageNo = getIntParameter(request, "pageNo", 1);
         int pageSize = getIntParameter(request, "pageSize", 20);
 
-        Object[][] array = Application.getQueryFactory().createQuery(
-                "select commentId,createdBy,createdOn,modifiedOn,content,attachment from FeedsComment" +
-                        " where feedsId = ? order by createdOn desc")
-                .setParameter(1, feeds)
+        String sqlWhere = String.format("feedsId = '%s'", feeds);
+
+        long count = -1;
+        if (pageNo == 1) {
+            count = queryCount("select count(commentId) from FeedsComment where " + sqlWhere);
+            if (count == 0) {
+                writeSuccess(response);
+                return;
+            }
+        }
+
+        String sql = "select commentId,createdBy,createdOn,modifiedOn,content,attachment from FeedsComment where " + sqlWhere;
+        sql += " order by createdOn desc";
+        Object[][] array = Application.createQueryNoFilter(sql)
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
                 .array();
 
-        List<JSON> ret = new ArrayList<>();
+        List<JSON> list = new ArrayList<>();
         for (Object[] o : array) {
-            ret.add(buildBase(o, user));
+            JSONObject item = buildBase(o, user);
+            item.put("numLike", FeedsHelper.getNumOfLike((ID) o[0]));
+            list.add(item);
         }
-        writeSuccess(response, ret);
+        writeSuccess(response,
+                JSONUtils.toJSONObject(new String[] { "total", "data" }, new Object[] { count, list }));
     }
 
     /**
@@ -135,5 +164,13 @@ public class FeedsListControll extends BasePageControll {
         item.put("content", o[4]);
         item.put("attachment", o[5]);
         return item;
+    }
+
+    /**
+     * @param sql
+     * @return
+     */
+    private long queryCount(String sql) {
+        return (Long) Application.createQueryNoFilter(sql).unique()[0];
     }
 }

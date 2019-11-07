@@ -136,11 +136,7 @@ public abstract class BaseControll extends Controll {
 	 * @return
 	 */
 	protected Integer getIntParameter(HttpServletRequest req, String name) {
-		String v = req.getParameter(name);
-		if (v == null) {
-			return null;
-		}
-		return NumberUtils.toInt(v);
+		return getIntParameter(req, name, null);
 	}
 	
 	/**
@@ -149,9 +145,12 @@ public abstract class BaseControll extends Controll {
 	 * @param defaultValue
 	 * @return
 	 */
-	protected Integer getIntParameter(HttpServletRequest req, String name, int defaultValue) {
-		Integer v = getIntParameter(req, name);
-		return v == null ? (defaultValue) : v;
+	protected Integer getIntParameter(HttpServletRequest req, String name, Integer defaultValue) {
+		String v = req.getParameter(name);
+		if (v == null) {
+			return defaultValue;
+		}
+		return NumberUtils.toInt(v, defaultValue);
 	}
 	
 	/**

@@ -35,6 +35,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
+ * 操作相关
+ *
  * @author devezhao
  * @since 2019/11/1
  */
@@ -56,21 +58,28 @@ public class FeedsPostControll extends BaseControll {
     @RequestMapping("like")
     public void like(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ID user = getRequestUser(request);
-        ID feedsId = getIdParameterNotNull(request, "feeds");
+        ID source = getIdParameterNotNull(request, "id");
 
         Object[] liked = Application.createQueryNoFilter(
-                "select likeId from FeedsLike where feedsId = ? and createdBy = ?")
-                .setParameter(1, feedsId)
+                "select likeId from FeedsLike where source = ? and createdBy = ?")
+                .setParameter(1, source)
                 .setParameter(2, user)
                 .unique();
         if (liked == null) {
             Record record = EntityHelper.forNew(EntityHelper.FeedsLike, user);
-            record.setID("feedsId", feedsId);
+            record.setID("source", source);
             Application.getCommonService().create(record);
         } else {
             Application.getCommonService().delete((ID) liked[0]);
         }
 
         writeSuccess(response, liked == null);
+    }
+
+    @RequestMapping("delete")
+    public void delete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ID anyId = getIdParameterNotNull(request, "id");
+        Application.getService(anyId.getEntityCode()).delete(anyId);
+        writeSuccess(response);
     }
 }

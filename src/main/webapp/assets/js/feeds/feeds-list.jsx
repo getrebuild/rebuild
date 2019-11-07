@@ -2,14 +2,14 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 
-const FeedsSortTypes = { newer: '最近发布', older: '较早发布', modified: '最近修改' }
+const FeedsSortTypes = { newer: '最近发布', older: '最早发布', modified: '最近修改' }
 
 // ~ 动态列表
 class FeedsList extends React.Component {
 
   constructor(props) {
     super(props)
-    this.state = { ...props, page: 1 }
+    this.state = { ...props, tabType: 0, pageNo: 1 }
 
     this.state.sort = $storage.get('Feeds-sort')
     this._lastFilter = { entity: 'Feeds', items: [] }
@@ -19,11 +19,11 @@ class FeedsList extends React.Component {
     return (<div>
       <div className="search-bar">
         <ul className="nav nav-tabs">
-          <li className="nav-item"><a className="nav-link text-bold active">全部</a></li>
-          <li className="nav-item"><a className="nav-link text-bold">@我的</a></li>
-          <li className="nav-item"><a className="nav-link text-bold">我发布的</a></li>
-          <li className="nav-item"><a className="nav-link text-bold">我评论的</a></li>
-          <li className="nav-item"><a className="nav-link text-bold">我点赞的</a></li>
+          <li className="nav-item"><a onClick={() => this._switchTab(0)} className={`nav-link ${this.state.tabType === 0 && 'active'}`}>全部</a></li>
+          <li className="nav-item"><a onClick={() => this._switchTab(1)} className={`nav-link ${this.state.tabType === 1 && 'active'}`}>@我的</a></li>
+          <li className="nav-item"><a onClick={() => this._switchTab(10)} className={`nav-link ${this.state.tabType === 10 && 'active'}`}>我发布的</a></li>
+          <li className="nav-item"><a onClick={() => this._switchTab(2)} className={`nav-link ${this.state.tabType === 2 && 'active'}`}>我评论的</a></li>
+          <li className="nav-item"><a onClick={() => this._switchTab(3)} className={`nav-link ${this.state.tabType === 3 && 'active'}`}>我点赞的</a></li>
           <span className="float-right">
             <div className="btn-group">
               <button type="button" className="btn btn-link pr-0 text-right" data-toggle="dropdown">{FeedsSortTypes[this.state.sort] || '默认排序'} <i className="icon zmdi zmdi-chevron-down up-1"></i></button>
@@ -37,12 +37,12 @@ class FeedsList extends React.Component {
         </ul>
       </div>
       <div className="feeds-list">
-        {(this.state.list && this.state.list.length === 0) && <div className="list-nodata pt-8 pb-8">
+        {(this.state.data && this.state.data.length === 0) && <div className="list-nodata pt-8 pb-8">
           <i className="zmdi zmdi-chart-donut"></i>
-          <p>暂无动态</p>
+          <p>暂无相关动态</p>
         </div>
         }
-        {(this.state.list || []).map((item) => {
+        {(this.state.data || []).map((item) => {
           return <div key={`feeds-${item.id}`}>
             <div className="feeds">
               <div className="user">
@@ -61,30 +61,29 @@ class FeedsList extends React.Component {
             </div>
             <div className="actions">
               <ul className="list-unstyled m-0">
-                <li className="list-inline-item mr-1">
-                  <a data-toggle="dropdown" href="#mores" className="fixed-icon" title="更多"><i className="zmdi zmdi-more"></i>&nbsp;</a>
-                  <div className="dropdown-menu dropdown-menu-right">
-                    <a className="dropdown-item"><i className="icon zmdi zmdi-edit" /> 编辑</a>
-                    <a className="dropdown-item"><i className="icon zmdi zmdi-delete" />删除</a>
-                  </div>
+                {item.self && <li className="list-inline-item mr-3">
+                  <a href="#delete" onClick={() => this._handleDelete(item.id)} className="hover-show fixed-icon">
+                    <i className="zmdi zmdi-delete"></i>删除
+                  </a>
                 </li>
+                }
                 <li className="list-inline-item mr-3">
-                  <a href="#thumbup" onClick={() => this._handleLike(item.id)} className={`fixed-icon ${item.hasLike && 'text-primary'}`}>
+                  <a href="#thumbup" onClick={() => this._handleLike(item.id)} className={`fixed-icon ${item.hasLike && 'text-danger'}`}>
                     <i className="zmdi zmdi-thumb-up"></i>赞 {item.numLike > 0 && <span>({item.numLike})</span>}
                   </a>
                 </li>
                 <li className="list-inline-item">
-                  <a href="#comment" onClick={() => this._toggleComment(item.id)} className={`fixed-icon ${item.showComments && 'text-primary'}`}>
+                  <a href="#comments" onClick={() => this._toggleComment(item.id)} className={`fixed-icon ${item.shownComments && 'text-primary'}`}>
                     <i className="zmdi zmdi-comment-outline"></i>评论 {item.numComments > 0 && <span>({item.numComments})</span>}
                   </a>
                 </li>
               </ul>
             </div>
-            <span className={`${item.showComments ? '' : 'hide'}`}>{item.showCommentsReal && <FeedsComments feeds={item.id} />}</span>
+            <span className={`${!item.shownComments && 'hide'}`}>{item.shownCommentsReal && <FeedsComments feeds={item.id} />}</span>
           </div>
         })}
       </div>
-      <Pagination rowsTotal={1} call={this.gotoPage} />
+      <Pagination ref={(c) => this._pagination = c} call={this.gotoPage} pageSize={40} />
     </div>)
   }
 
@@ -95,9 +94,15 @@ class FeedsList extends React.Component {
    */
   fetchFeeds(filter) {
     this._lastFilter = filter = filter || this._lastFilter
-    $.post(`${rb.baseUrl}/feeds/feeds-list?pageNo=${this.state.pageNo}&sort=${this.state.sort}`, JSON.stringify(filter), (res) => {
-      this.setState({ list: res.data })
+    $.post(`${rb.baseUrl}/feeds/feeds-list?pageNo=${this.state.pageNo}&sort=${this.state.sort}&type=${this.state.tabType}`, JSON.stringify(filter), (res) => {
+      let _data = res.data || { data: [], total: 0 }
+      this.state.pageNo === 1 && this._pagination.setState({ rowsTotal: _data.total })
+      this.setState({ data: _data.data })
     })
+  }
+
+  _switchTab(t) {
+    this.setState({ tabType: t }, () => this.fetchFeeds())
   }
   _sortFeeds = (e) => {
     let s = e.target.dataset.sort
@@ -105,27 +110,47 @@ class FeedsList extends React.Component {
     this.setState({ sort: s }, () => this.fetchFeeds())
   }
 
-  _handleLike(feeds) {
+  _toggleComment(feeds) {
     event.preventDefault()
-    $.post(`${rb.baseUrl}/feeds/post/like?feeds=${feeds}`, (res) => {
-      let list = this.state.list
-      list.forEach((item) => {
-        if (feeds === item.id) item.numLike += (res.data ? 1 : -1)
+    let _data = this.state.data
+    _data.forEach((item) => {
+      if (feeds === item.id) {
+        item.shownComments = !item.shownComments
+        item.shownCommentsReal = true
+      }
+    })
+    this.setState({ data: _data })
+  }
+
+  _handleLike(id) {
+    event.preventDefault()
+    $.post(`${rb.baseUrl}/feeds/post/like?id=${id}`, (res) => {
+      let _data = this.state.data
+      _data.forEach((item) => {
+        if (id === item.id) item.numLike += (res.data ? 1 : -1)
       })
-      this.setState({ list: list })
+      this.setState({ data: _data })
     })
   }
 
-  _toggleComment(feeds) {
+  _handleEdit(id) {
+    // NOOP
+  }
+
+  _handleDelete(id) {
     event.preventDefault()
-    let list = this.state.list
-    list.forEach((item) => {
-      if (feeds === item.id) {
-        item.showComments = !item.showComments
-        item.showCommentsReal = true
+    let that = this
+    RbAlert.create('确认删除该动态？', {
+      type: 'danger',
+      confirmText: '删除',
+      confirm: function () {
+        this.disabled(true)
+        $.post(`${rb.baseUrl}/feeds/post/delete?id=${id}`, () => {
+          this.hide()
+          that.fetchFeeds()
+        })
       }
     })
-    this.setState({ list: list })
   }
 
   gotoPage = (pageNo) => {
@@ -138,23 +163,23 @@ class FeedsComments extends React.Component {
 
   constructor(props) {
     super(props)
-    this.state = { ...props, openReply: false, pageNo: 1 }
+    this.state = { ...props, pageNo: 1 }
   }
 
   render() {
     return (<div className="comments">
       <div className="comment-reply">
-        <div onClick={() => this._replyState(true)} className={`reply-mask ${this.state.openReply ? 'hide' : ''}`}>添加评论</div>
-        <span className={`${this.state.openReply ? '' : 'hide'}`}>
+        <div onClick={() => this._commentState(true)} className={`reply-mask ${this.state.openComment && 'hide'}`}>添加评论</div>
+        <span className={`${!this.state.openComment && 'hide'}`}>
           <FeedsRichInput placeholder="添加评论" ref={(c) => this._input = c} />
           <div className="mt-2 text-right">
-            <button onClick={() => this._replyState(false)} className="btn btn-sm btn-link">取消</button>
-            <button className="btn btn-sm btn-primary" ref={(c) => this._btn = c} onClick={this._post}>评论</button>
+            <button onClick={() => this._commentState(false)} className="btn btn-sm btn-link">取消</button>
+            <button className="btn btn-sm btn-primary" ref={(c) => this._btn = c} onClick={() => this._post()}>评论</button>
           </div>
         </span>
       </div>
       <div className="feeds-list comment-list">
-        {(this.state.comments || []).map((item) => {
+        {(this.state.data || []).map((item) => {
           return <div key={`comment-${item.id}`}>
             <div className="feeds">
               <div className="user">
@@ -165,48 +190,113 @@ class FeedsComments extends React.Component {
               <div className="content">
                 <div className="meta">
                   <a>{item.createdBy[1]}</a>
-                  <span className="float-right">
-                    <span>{item.createdOn}</span>
-                    <a href="#mores" data-toggle="dropdown" className="fixed-icon"><i className="zmdi zmdi-more"></i></a>
-                    <div className="dropdown-menu dropdown-menu-right">
-                      <a className="dropdown-item"><i className="icon zmdi zmdi-mail-reply" /> 回复</a>
-                      <a className="dropdown-item"><i className="icon zmdi zmdi-edit" /> 编辑</a>
-                      <a className="dropdown-item"><i className="icon zmdi zmdi-delete" />删除</a>
-                    </div>
-                  </span>
                 </div>
                 <div className="rich">{item.content}</div>
+                <div className="actions">
+                  <div className="float-left text-muted fs-12 time">{item.createdOn}</div>
+                  <ul className="list-unstyled m-0">
+                    {item.self && <li className="list-inline-item mr-3">
+                      <a href="#delete" onClick={() => this._handleDelete(item.id)} className="fixed-icon">
+                        <i className="zmdi zmdi-delete"></i>删除
+                      </a>
+                    </li>
+                    }
+                    <li className="list-inline-item mr-3">
+                      <a href="#thumbup" onClick={() => this._handleLike(item.id)} className={`fixed-icon ${item.hasLike && 'text-primary'}`}>
+                        <i className="zmdi zmdi-thumb-up"></i>赞 {item.numLike > 0 && <span>({item.numLike})</span>}
+                      </a>
+                    </li>
+                    <li className="list-inline-item">
+                      <a href="#reply" onClick={() => this._toggleReply(item.id)} className={`fixed-icon ${item.shownReply && 'text-primary'}`}>
+                        <i className="zmdi zmdi-mail-reply"></i>回复
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+                <div className={`comment-reply ${!item.shownReply && 'hide'}`}>
+                  {item.shownReplyReal && <FeedsRichInput placeholder="添加回复" initValue={`回复 @${item.createdBy[1]} : `} ref={(c) => item._input = c} />}
+                  <div className="mt-2 text-right">
+                    <button onClick={() => this._toggleReply(item.id, false)} className="btn btn-sm btn-link">取消</button>
+                    <button className="btn btn-sm btn-primary" ref={(c) => this._btn = c} onClick={() => this._post(item._input)}>回复</button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         })}
       </div>
-      <Pagination rowsTotal={1} call={this.gotoPage} comment={true} />
+      <Pagination ref={(c) => this._pagination = c} call={this.gotoPage} pageSize={20} comment={true} />
     </div>)
   }
 
   componentDidMount = () => this._fetchComments()
   _fetchComments() {
     $.get(`${rb.baseUrl}/feeds/comments-list?feeds=${this.props.feeds}&pageNo=${this.state.pageNo}`, (res) => {
-      this.setState({ comments: res.data })
+      let _data = res.data || {}
+      this.state.pageNo === 1 && this._pagination.setState({ rowsTotal: _data.total })
+      this.setState({ data: _data.data })
     })
   }
 
-  _replyState = (state) => {
-    this.setState({ openReply: state }, () => {
-      if (this.state.openReply) this._input.focus()
-    })
-  }
-
-  _post = () => {
-    let data = { content: this._input.val(), feedsId: this.props.feeds }
+  _post = (whichInput) => {
+    if (!whichInput) whichInput = this._input
+    let data = { content: whichInput.val(), feedsId: this.props.feeds }
     if (!data.content) return
     data.metadata = { entity: 'FeedsComment' }
 
     let btn = $(this._btn).button('loading')
     $.post(`${rb.baseUrl}/feeds/post/publish`, JSON.stringify(data), (res) => {
       btn.button('reset')
+      this._input.reset()
       this._fetchComments()
+    })
+  }
+
+  _commentState = (state) => {
+    this.setState({ openComment: state }, () => {
+      if (this.state.openComment) this._input.focus()
+    })
+  }
+
+  _toggleReply = (id, state) => {
+    event.preventDefault()
+    let _data = this.state.data
+    let itemState
+    _data.forEach((item) => {
+      if (id === item.id) {
+        if (state !== undefined) item.shownReply = state
+        else item.shownReply = !item.shownReply
+        item.shownReplyReal = true
+        if (item.shownReply) setTimeout(() => item._input.focus(), 200)
+      }
+    })
+    this.setState({ data: _data })
+  }
+
+  _handleLike = (id) => {
+    event.preventDefault()
+    $.post(`${rb.baseUrl}/feeds/post/like?id=${id}`, (res) => {
+      let _data = this.state.data
+      _data.forEach((item) => {
+        if (id === item.id) item.numLike += (res.data ? 1 : -1)
+      })
+      this.setState({ data: _data })
+    })
+  }
+
+  _handleDelete = (id) => {
+    event.preventDefault()
+    let that = this
+    RbAlert.create('确认删除该评论？', {
+      type: 'danger',
+      confirmText: '删除',
+      confirm: function () {
+        this.disabled(true)
+        $.post(`${rb.baseUrl}/feeds/post/delete?id=${id}`, () => {
+          this.hide()
+          that._fetchComments()
+        })
+      }
     })
   }
 
@@ -220,7 +310,7 @@ class Pagination extends React.Component {
 
   constructor(props) {
     super(props)
-    this.state = { ...props, pageSize: props.pageSize || 40, pageNo: props.pageNo || 1 }
+    this.state = { ...props, pageSize: props.pageSize || 5, pageNo: props.pageNo || 1 }
   }
 
   render() {
@@ -232,15 +322,15 @@ class Pagination extends React.Component {
 
     return <div className="feeds-pages">
       <div className="float-left">
-        <p className="text-muted">共 {this.state.rowsTotal} 条数据</p>
+        <p className="text-muted">共 {this.state.rowsTotal} 条动态</p>
       </div>
       <div className="float-right">
         <ul className={`pagination ${this.props.comment && 'pagination-sm'}`}>
           {this.state.pageNo > 1
             && <li className="paginate_button page-item"><a className="page-link" onClick={this._prev}><span className="icon zmdi zmdi-chevron-left"></span></a></li>}
-          {pages.map((item) => {
-            if (item === '.') return <li key={'page-' + item} className="paginate_button page-item disabled"><a className="page-link">...</a></li>
-            else return <li key={'page-' + item} className={'paginate_button page-item ' + (this.state.pageNo === item && 'active')}><a className="page-link" onClick={() => this._goto(item)}>{item}</a></li>
+          {pages.map((item, idx) => {
+            if (item === '.') return <li key={`pnx-${idx}`} className="paginate_button page-item disabled"><a className="page-link">...</a></li>
+            else return <li key={`pn-${item}`} className={'paginate_button page-item ' + (this.state.pageNo === item && 'active')}><a className="page-link" onClick={() => this._goto(item)}>{item}</a></li>
           })}
           {this.state.pageNo !== this.__pageTotal
             && <li className="paginate_button page-item"><a className="page-link" onClick={this._next}><span className="icon zmdi zmdi-chevron-right"></span></a></li>}

@@ -406,6 +406,9 @@ class RbListPagination extends React.Component {
     this.__pageTotal = Math.ceil(this.state.rowsTotal / this.state.pageSize)
     if (this.__pageTotal <= 0) this.__pageTotal = 1
     let pages = this.__pageTotal <= 1 ? [1] : $pages(this.__pageTotal, this.state.pageNo)
+
+    console.log('page')
+
     return (
       <div className="row rb-datatable-footer">
         <div className="col-12 col-md-4">
@@ -425,9 +428,9 @@ class RbListPagination extends React.Component {
           <div className="float-right dataTables_paginate paging_simple_numbers">
             <ul className="pagination">
               {this.state.pageNo > 1 && <li className="paginate_button page-item"><a className="page-link" onClick={() => this.prev()}><span className="icon zmdi zmdi-chevron-left"></span></a></li>}
-              {pages.map((item) => {
-                if (item === '.') return <li key={'page-' + item} className="paginate_button page-item disabled"><a className="page-link">...</a></li>
-                else return <li key={'page-' + item} className={'paginate_button page-item ' + (this.state.pageNo === item && 'active')}><a className="page-link" onClick={this.goto.bind(this, item)}>{item}</a></li>
+              {pages.map((item, idx) => {
+                if (item === '.') return <li key={`pnx-${idx}`} className="paginate_button page-item disabled"><a className="page-link">...</a></li>
+                else return <li key={`pn-${item}`} className={'paginate_button page-item ' + (this.state.pageNo === item && 'active')}><a className="page-link" onClick={this.goto.bind(this, item)}>{item}</a></li>
               })}
               {this.state.pageNo !== this.__pageTotal && <li className="paginate_button page-item"><a className="page-link" onClick={() => this.next()}><span className="icon zmdi zmdi-chevron-right"></span></a></li>}
             </ul>
@@ -578,6 +581,7 @@ const AdvFilters = {
           action.find('a:eq(1)').click(function () {
             RbAlert.create('确认删除此查询项吗？', {
               type: 'danger',
+              confirmText: '删除',
               confirm: function () {
                 this.disabled(true)
                 $.post(`${rb.baseUrl}/app/entity/record-delete?id=${_data.id}`, (res) => {

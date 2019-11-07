@@ -143,6 +143,7 @@
 .search-bar .nav-tabs>li.nav-item a.nav-link {
   padding-top: 12px;
   padding-bottom: 9px;
+  font-weight: bold;
 }
 
 .search-bar .nav-tabs>li.nav-item a.nav-link.active {
@@ -238,6 +239,10 @@
   margin-bottom: 0;
 }
 
+.feeds-list .list-nodata {
+  background-color: transparent;
+}
+
 .comments {
   margin-left: 56px;
   margin-top: 4px;
@@ -274,13 +279,9 @@
 
 .comment-list>div {
   padding: 8px 0;
-  border-bottom: 1px dotted #eee;
+  border-bottom: 1px solid #eee;
   margin: 0;
   margin-top: 5px;
-}
-
-.comment-list .feeds>.content .rich {
-  padding: 2px 0;
 }
 
 .comment-list .feeds>.user {
@@ -309,8 +310,23 @@
   right: 0;
 }
 
+.comment-list .actions {
+  border-top: 0 none;
+  padding-top: 0;
+  margin-top: 0;
+}
+
+.comment-list .actions .time {
+  margin-top: 8px;
+}
+
+.comments .feeds-pages {
+  margin-bottom: 15px;
+}
+
 .comments .feeds-pages .float-left>p {
   margin-top: 3px;
+  display: none;
 }
 
 .side-wrapper {

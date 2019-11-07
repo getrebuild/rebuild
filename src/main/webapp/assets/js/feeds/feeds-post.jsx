@@ -95,7 +95,8 @@ class FeedsRichInput extends React.Component {
     return (<div className={`rich-input ${this.state.focus && 'active'}`}>
       <textarea ref={(c) => this._input = c} placeholder={this.props.placeholder}
         onFocus={() => this.setState({ focus: true })}
-        onBlur={() => this.setState({ focus: false })} />
+        onBlur={() => this.setState({ focus: false })}
+        defaultValue={this.props.initValue} />
       <div className="action-btns">
         <ul className="list-unstyled list-inline m-0 p-0">
           <li className="list-inline-item">
@@ -159,7 +160,7 @@ class FeedsRichInput extends React.Component {
   }
 
   focus() {
-    $(this._input).focus()
+    $(this._input).selectRange(9999, 9999)  // Move to last
   }
 
   reset() {
