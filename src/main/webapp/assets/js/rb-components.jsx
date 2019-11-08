@@ -469,6 +469,10 @@ class UserSelector extends React.Component {
     })
     return ids
   }
+
+  val() {
+    return this.getSelected()
+  }
 }
 
 // ~~ 用户显示

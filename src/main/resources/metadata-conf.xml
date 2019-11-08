@@ -322,7 +322,7 @@
 		<field name="attachment" type="string" max-length="700" description="附件(多个逗号分隔)" />
 		<field name="relatedRecord" type="any-reference" description="相关业务记录" />
 		<field name="scope" type="string" max-length="20" default-value="ALL" description="哪些人可见, 可选值: ALL/SELF/$GroupID" />
-		<index field-list="createdOn,createdBy,type,scope" />
+		<index field-list="createdOn,modifiedOn,scope,type,createdBy" />
 		<index field-list="relatedRecord" />
 	</entity>
 
@@ -345,14 +345,15 @@
 		<field name="source" type="any-reference" ref-entity="Feeds,FeedsComment" nullable="false" updatable="false" description="哪个动态/评论" />
 		<field name="createdBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="创建人" />
 		<field name="createdOn" type="timestamp" nullable="false" creatable="false" updatable="false" description="创建时间" />
-		<index field-list="createdBy,source" />
+		<index field-list="source,createdBy" />
 	</entity>
 
 	<entity name="FeedsMention" type-code="044" description="用户提及" parent="false">
 		<field name="mentionId" type="primary" />
-		<field name="source" type="any-reference" ref-entity="Feeds,FeedsComment" nullable="false" updatable="false" description="哪个动态/评论" />
-		<field name="user" type="reference" ref-entity="User" nullable="false" updatable="false" description="哪个用户" />
-		<index field-list="user,source" />
+		<field name="feedsId" type="reference" ref-entity="Feeds" nullable="false" updatable="false" cascade="delete" description="哪个动态" />
+		<field name="commentId" type="reference" ref-entity="FeedsComment" updatable="false" cascade="delete" description="哪个评论" />
+		<field name="user" type="reference" ref-entity="User" nullable="false" updatable="false" cascade="delete" description="哪个用户" />
+		<index field-list="user,feedsId,commentId" />
 	</entity>
 
 </metadata-config>

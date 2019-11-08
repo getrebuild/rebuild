@@ -20,12 +20,15 @@ package com.rebuild.server.business.feeds;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.service.bizz.UserHelper;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -99,5 +102,37 @@ public class FeedsHelper {
             }
         }
         return found;
+    }
+
+    /**
+     * 获取可用群组
+     *
+     * @param user
+     * @param reload
+     * @return
+     */
+    public static FeedsGroup[] findGroups(ID user, boolean reload) {
+        ArrayList<FeedsGroup> groups = reload ? null : (ArrayList<FeedsGroup>) Application.getCommonCache().getx("FeedsGroupV1");
+        if (groups == null) {
+            Object[][] array = Application.createQueryNoFilter("select groupId,name,members from FeedsGroup").array();
+            groups = new ArrayList<>();
+            for (Object[] o : array) {
+                groups.add(new FeedsGroup((ID) o[0], (String) o[1], (JSON) JSON.parse((String) o[2])));
+            }
+            Application.getCommonCache().putx("FeedsGroupV1", groups);
+        }
+
+        // 管理员返回全部
+        if (UserHelper.isAdmin(user)) {
+            return groups.toArray(new FeedsGroup[0]);
+        }
+
+        List<FeedsGroup> inGroups = new ArrayList<>();
+        for (FeedsGroup g : groups) {
+            if (g.getUsers().contains(user)) {
+                inGroups.add(g);
+            }
+        }
+        return inGroups.toArray(new FeedsGroup[0]);
     }
 }

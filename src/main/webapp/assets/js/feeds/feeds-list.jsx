@@ -25,6 +25,7 @@ class FeedsList extends React.Component {
           <li className="nav-item"><a onClick={() => this._switchTab(10)} className={`nav-link ${this.state.tabType === 10 && 'active'}`}>我发布的</a></li>
           <li className="nav-item"><a onClick={() => this._switchTab(2)} className={`nav-link ${this.state.tabType === 2 && 'active'}`}>我评论的</a></li>
           <li className="nav-item"><a onClick={() => this._switchTab(3)} className={`nav-link ${this.state.tabType === 3 && 'active'}`}>我点赞的</a></li>
+          <li className="nav-item"><a onClick={() => this._switchTab(11)} className={`nav-link ${this.state.tabType === 11 && 'active'}`}>私密</a></li>
           <span className="float-right">
             <div className="btn-group">
               <button type="button" className="btn btn-link pr-0 text-right" data-toggle="dropdown">{FeedsSortTypes[this.state.sort] || '默认排序'} <i className="icon zmdi zmdi-chevron-down up-1"></i></button>
@@ -55,7 +56,7 @@ class FeedsList extends React.Component {
                 <div className="meta">
                   <span className="float-right badge">{item.type}</span>
                   <a>{item.createdBy[1]}</a>
-                  <p className="text-muted fs-12 m-0">{item.createdOn} - {item.scope}</p>
+                  <p className="text-muted fs-12 m-0"><span title={item.createdOn}>{item.createdOnFN}</span> - {item.scope}</p>
                 </div>
                 <div className="rich" dangerouslySetInnerHTML={{ __html: converEmoji(item.content) }} />
               </div>
@@ -194,7 +195,9 @@ class FeedsComments extends React.Component {
                 </div>
                 <div className="rich" dangerouslySetInnerHTML={{ __html: converEmoji(item.content) }} />
                 <div className="actions">
-                  <div className="float-left text-muted fs-12 time">{item.createdOn}</div>
+                  <div className="float-left text-muted fs-12 time">
+                    <span title={item.createdOn}>{item.createdOnFN}</span>
+                  </div>
                   <ul className="list-unstyled m-0">
                     {item.self && <li className="list-inline-item mr-3">
                       <a href="#delete" onClick={() => this._handleDelete(item.id)} className="fixed-icon">

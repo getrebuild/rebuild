@@ -19,45 +19,47 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.business.feeds;
 
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.rebuild.server.service.bizz.UserHelper;
+
+import java.util.Set;
 
 /**
- * 可见范围
+ * 群组
  *
  * @author devezhao
- * @since 2019/11/4
+ * @since 2019/11/8
  */
-public enum FeedsScope {
+public class FeedsGroup {
 
-    ALL("公开"),
-    SELF("私密"),
-    GROUP("群组"),
+    private ID id;
+    private String name;
+    private JSON members;
 
-    ;
+    private Set<ID> users;
 
-    final private String name;
-
-    FeedsScope(String name) {
+    protected FeedsGroup(ID id, String name, JSON members) {
+        this.id = id;
         this.name = name;
+        this.members = members;
     }
 
-    /**
-     * @return
-     */
+    public ID getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }
 
-    /**
-     * @param any
-     * @return
-     */
-    public static FeedsScope parse(String any) {
-        if (ID.isId(any)) {
-            return GROUP;
-        }
-        for (FeedsScope s : values()) {
-            if (any.equalsIgnoreCase(s.name())) return s;
-        }
-        throw new IllegalArgumentException("Unknow scope : " + any);
+    public JSON getMembers() {
+        return members;
+    }
+
+    public Set<ID> getUsers() {
+        if (users != null) return users;
+        users = UserHelper.parseUsers((JSONArray) this.members, null);
+        return users;
     }
 }

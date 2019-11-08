@@ -162,6 +162,34 @@ a.badge.text-id:hover {
     transform: translateY(-3px);
 }
 
+.up-4 {
+    transform: translateY(-4px);
+}
+
+.up-5 {
+    transform: translateY(-5px);
+}
+
+.down-1 {
+    transform: translateY(1px);
+}
+
+.down-2 {
+    transform: translateY(2px);
+}
+
+.down-3 {
+    transform: translateY(3px);
+}
+
+.down-4 {
+    transform: translateY(4px);
+}
+
+.down-5 {
+    transform: translateY(5px);
+}
+
 .btn {
     min-height: 2.8rem;
     min-width: 98px;
@@ -1448,6 +1476,7 @@ i.split.ui-draggable-dragging {
     top: 0;
     display: none;
     font-size: 0;
+
 }
 
 .dept-tree li>div.action a,
@@ -1470,6 +1499,8 @@ i.split.ui-draggable-dragging {
 .adv-search .dropdown-item:hover div.action {
     display: block;
 }
+
+.dept-tree li.nodata {}
 
 .adv-search .dropdown-item div.action a {
     height: 34px;

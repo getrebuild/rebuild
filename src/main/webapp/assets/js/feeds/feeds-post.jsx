@@ -53,7 +53,7 @@ class FeedsPost extends React.Component {
   }
 
   _post = () => {
-    let data = { content: this._input.val(), type: this.state.type }
+    let data = { content: this._input.val(), type: this.state.type, scope: this.state.scope }
     if (!data.content) return
     data.metadata = { entity: 'Feeds' }
 

@@ -260,6 +260,7 @@
   background-color: #f5f5f5;
   padding: 15px;
   margin-bottom: 15px;
+  margin-top: 4px;
 }
 
 .comments .rich-input {
@@ -286,6 +287,7 @@
 
 .comment-list>div {
   padding: 8px 0;
+  padding-bottom: 5px;
   border-bottom: 1px solid #eee;
   margin: 0;
   margin-top: 5px;
@@ -340,7 +342,89 @@
   position: sticky;
   top: 60px;
   background-color: #f5f5f5;
-  padding: 20px;
+  padding: 12px;
+}
+
+.side-wrapper h5 {
+  font-weight: normal;
+  margin-top: 20px;
+}
+
+.side-wrapper h5>a {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.side-wrapper .search .input-group-text {
+  width: 70px;
+  text-align: center;
+  padding: 5px;
+  padding-top: 8px;
+  display: inline-block;
+}
+
+.side-wrapper .accordion .card-header button {
+  padding: 5px 10px;
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+.side-wrapper .accordion .card-header button .icon {
+  margin-right: 7px;
+  font-size: 1.7rem;
+  top: 0
+}
+
+.side-wrapper .card {
+  background-color: transparent;
+  box-shadow: 0 0 0 #fff;
+}
+
+.side-wrapper .card .card-body {
+  padding-bottom: 5px;
+}
+
+.side-wrapper .dept-tree {
+  padding: 0;
+  max-height: 240px;
+}
+
+#collapseSearch .card-body {
+  padding-left: 30px;
+}
+
+#collapseSearch .card-body .input-group+.input-group {
+  margin-top: 10px;
+}
+
+#collapseSearch .card-body .input-group>input {
+  padding-right: 50px;
+}
+
+#collapseSearch .card-body .input-group .append {
+  position: absolute;
+  right: 10px;
+  z-index: 3;
+  color: #bbb;
+  font-size: 1.35rem;
+}
+
+#collapseSearch .card-body .input-group .append .icon {
+  margin-top: 10px;
+}
+
+#collapseSearch .card-body .input-group .append>a {
+  display: inline-block;
+  height: 32px;
+  width: 16px;
+  font-size: 1.2rem;
+  transform: translateY(-1px);
+  color: #404040;
+  display: none;
+}
+
+#collapseSearch .card-body .input-group .append>a.show {
+  display: inline-block;
 }
 
 .fixed-icon {

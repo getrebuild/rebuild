@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.feeds;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.momentjava.Moment;
 import cn.devezhao.persist4j.engine.ID;
@@ -76,14 +77,20 @@ public class FeedsListControll extends BasePageControll {
         }
 
         int type = getIntParameter(request, "type", 0);
-        if (type == 10) {
-            sqlWhere += String.format(" and createdBy ='%s'", user);
+        if (type == 1) {
+            sqlWhere += String.format(" and exists (select feedsId from FeedsMention where ^feedsId = feedsId and user = '%s')", user);
         } else if (type == 2) {
-            sqlWhere += String.format(" and feedsId in (select feedsId from FeedsComment where createdBy = '%s')", user);
+            sqlWhere += String.format(" and exists (select feedsId from FeedsComment where ^feedsId = feedsId and createdBy = '%s')", user);
         } else if (type == 3) {
-            sqlWhere += String.format(" and feedsId in (select source from FeedsLike where createdBy = '%s')", user);
-        } else if (type == 1) {
-            sqlWhere += String.format(" and feedsId in (select source from FeedsMention where user = '%s')", user);
+            sqlWhere += String.format(" and exists (select source from FeedsLike where ^feedsId = source and createdBy = '%s')", user);
+        } else if (type == 10) {
+            sqlWhere += String.format(" and createdBy ='%s'", user);
+        }
+
+        if (type == 11) {
+            sqlWhere += String.format(" and createdBy ='%s' and scope = 'SELF'", user);
+        } else {
+            sqlWhere += String.format(" and scope = 'ALL'", user);  // 私密的仅显示在私密标签下
         }
 
         int pageNo = getIntParameter(request, "pageNo", 1);
@@ -169,7 +176,8 @@ public class FeedsListControll extends BasePageControll {
         item.put("id", o[0]);
         item.put("self", o[1].equals(user));
         item.put("createdBy", new Object[] { o[1], UserHelper.getName((ID) o[1]) });
-        item.put("createdOn", Moment.moment((Date) o[2]).fromNow());
+        item.put("createdOnFN", Moment.moment((Date) o[2]).fromNow());
+        item.put("createdOn", CalendarUtils.getUTCDateTimeFormat().format(o[2]));
         item.put("content", formatContent((String) o[4]));
         item.put("attachment", o[5]);
         return item;

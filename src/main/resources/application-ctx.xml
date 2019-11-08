@@ -199,6 +199,9 @@
     <bean class="com.rebuild.server.service.feeds.FeedsCommentService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
+	<bean class="com.rebuild.server.service.feeds.FeedsGroupService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
 
 	<bean name="generalEntityService" class="com.rebuild.server.service.base.GeneralEntityService">
 		<constructor-arg index="0" ref="persistManagerFactory" />

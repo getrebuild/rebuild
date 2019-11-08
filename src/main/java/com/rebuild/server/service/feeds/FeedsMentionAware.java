@@ -66,44 +66,54 @@ public abstract class FeedsMentionAware extends BaseService {
     }
 
     /**
-     * 动态内容中涉及的用户要加入/移除 FeedsMention
+     * 内容中涉及的用户要加入 FeedsMention
      *
      * @param record
      */
     protected void aware(Record record) {
         String content = record.getString("content");
-        if (content == null) {
+        if (content == null || record.getID("feedsId") == null) {
             return;
         }
 
+        this.aware(record.getPrimary());
+
         final Record mention = EntityHelper.forNew(EntityHelper.FeedsMention, UserService.SYSTEM_USER);
-        mention.setID("source", record.getPrimary());
+        mention.setID("feedsId", record.getID("feedsId"));
+        // Can be null
+        if (record.getEntity().containsField("commentId")) {
+            mention.setID("commentId", record.getID("commentId"));
+        }
 
         Matcher atMatcher = MessageBuilder.AT_PATTERN.matcher(content);
         while (atMatcher.find()) {
             String at = atMatcher.group().substring(1);
-            ID user = ID.valueOf(at);
-            if (user.getEntityCode() == EntityHelper.User) {
-                Record clone = mention.clone();
-                clone.setID("user", user);
-                super.create(clone);
-            }
+            ID atUser = ID.valueOf(at);
+            if (atUser.getEntityCode() != EntityHelper.User) continue;
+
+            Record clone = mention.clone();
+            clone.setID("user", atUser);
+            super.create(clone);
         }
     }
 
     /**
-     * 动态内容中涉及的用户要移除 FeedsMention
+     * 内容中涉及的用户要移除 FeedsMention
      *
      * @param deleted
      */
     protected void aware(ID deleted) {
         Entity entity = MetadataHelper.getEntity(EntityHelper.FeedsMention);
+        String whichField = deleted.getEntityCode() == EntityHelper.FeedsComment ? "commentId" : "feedsId";
+
         String dql = String.format("delete from `%s` where `%s` = '%s'",
-                entity.getPhysicalName(), entity.getField("source").getPhysicalName(), deleted);
+                entity.getPhysicalName(), entity.getField(whichField).getPhysicalName(), deleted);
         Application.getSQLExecutor().execute(dql);
     }
 
     /**
+     * 将 @FULL_NAME 转成 @ID
+     *
      * @param record
      * @return
      */

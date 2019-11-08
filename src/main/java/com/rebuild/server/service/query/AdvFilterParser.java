@@ -349,14 +349,18 @@ public class AdvFilterParser {
 				return null;
 			}
 
-			// TIMESTAMP 仅指定了日期值
+			// TIMESTAMP 仅指定了日期值，则补充时间值
 			if (field.getType() == FieldType.TIMESTAMP && StringUtils.length(value) == 10) {
 				if (ParserTokens.GT.equalsIgnoreCase(op)) {
-					value += ParserTokens.FULL_TIME;
+					value += ParserTokens.FULL_TIME;  // 不含当日
 				} else if (ParserTokens.LT.equalsIgnoreCase(op)) {
-					value += ParserTokens.ZERO_TIME;
+					value += ParserTokens.ZERO_TIME;  // 不含当日
+				} else if (ParserTokens.GE.equalsIgnoreCase(op)) {
+					value += ParserTokens.ZERO_TIME;  // 含当日
+				} else if (ParserTokens.LE.equalsIgnoreCase(op)) {
+					value += ParserTokens.FULL_TIME;  // 含当日
 				} else if (ParserTokens.BW.equalsIgnoreCase(op)) {
-					value += (endVal ? ParserTokens.FULL_TIME : ParserTokens.ZERO_TIME);
+					value += (endVal ? ParserTokens.FULL_TIME : ParserTokens.ZERO_TIME);  // 含当日
 				}
 			}
 

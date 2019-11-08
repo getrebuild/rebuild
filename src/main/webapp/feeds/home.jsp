@@ -24,19 +24,75 @@
 				</div>
 				<div class="col-md-4 col-12 pr-0">
 					<div class="side-wrapper">
-						<div>
-							<h5 class="mt-0">User Profile</h5>
+						<div class="accordion m-0">
+							<div class="card">
+								<div class="card-header" id="headingSearch">
+									<button class="btn" data-toggle="collapse" data-target="#collapseSearch" aria-expanded="true"><i class="icon zmdi zmdi-chevron-right"></i> 筛选</button>
+								</div>
+								<div class="collapse show" id="collapseSearch">
+									<div class="card-body">
+										<div class="input-group input-group-sm">
+											<input type="text" class="form-control J_search-key" placeholder="关键词" />
+											<span class="append">
+												<a><i class="icon zmdi zmdi-close"></i></a>
+												<i class="icon zmdi zmdi-search"></i>
+											</span>
+										</div>
+										<div class="input-group input-group-sm">
+											<input type="text" class="form-control J_date-begin" placeholder="发布时间 (起)" />
+											<span class="append">
+												<a><i class="icon zmdi zmdi-close"></i></a>
+												<i class="icon zmdi zmdi-calendar"></i>
+											</span>
+										</div>
+										<div class="input-group input-group-sm">
+											<input type="text" class="form-control J_date-end" placeholder="发布时间 (止)" />
+											<span class="append">
+												<a><i class="icon zmdi zmdi-close"></i></a>
+												<i class="icon zmdi zmdi-calendar"></i>
+											</span>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="card">
+								<div class="card-header" id="headingFeedsType">
+									<button class="btn" data-toggle="collapse" data-target="#collapseFeedsType"><i class="icon zmdi zmdi-chevron-right"></i> 类型</button>
+								</div>
+								<div class="collapse" id="collapseFeedsType">
+									<div class="card-body">
+										<div class="dept-tree">
+											<ul class="list-unstyled">
+												<li><a>动态</a></li>
+												<li><a>跟进</a></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="card">
+								<div class="card-header" id="headingGroup">
+									<button class="btn" data-toggle="collapse" data-target="#collapseGroup"><i class="icon zmdi zmdi-chevron-right"></i> 群组</button>
+								</div>
+								<div class="collapse" id="collapseGroup">
+									<div class="card-body">
+										<div class="dept-tree rb-scroller">
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="card">
+								<div class="card-header" id="headingUser">
+									<button class="btn" data-toggle="collapse" data-target="#collapseUser"><i class="icon zmdi zmdi-chevron-right"></i> 用户</button>
+								</div>
+								<div class="collapse" id="collapseUser">
+									<div class="card-body pb-3">
+										<div class="dept-tree rb-scroller">
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
-						<div>
-							<h5>筛选</h5>
-						</div>
-						<div>
-							<h5>群组</h5>
-						</div>
-						<div>
-							<h5>人员</h5>
-						</div>
-
 					</div>
                 </div>
 			</div>
