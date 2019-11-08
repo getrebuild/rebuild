@@ -66,6 +66,8 @@ public class AdvFilterParser {
 	private JSONObject filterExp;
 	private Entity rootEntity;
 
+	private Set<String> includeFields = new HashSet<>();
+
 	/**
 	 * @param filterExp
 	 */
@@ -163,15 +165,24 @@ public class AdvFilterParser {
 		}
 	}
 
-	/**
+    /**
+     * 过滤器中包含的字段。必须先执行 toSqlWhere 方法
+     *
+     * @return
+     */
+    public Set<String> getIncludeFields() {
+        return includeFields;
+    }
+
+    /**
 	 * @param item
 	 * @param values
 	 * @return
 	 */
 	private String parseItem(JSONObject item, JSONObject values) {
 		String field = item.getString("field");
-		boolean hasAndFlag = field.startsWith("&");
-		if (hasAndFlag) {
+		final boolean hasNameFlag = field.startsWith("&");
+		if (hasNameFlag) {
 			field = field.substring(1);
 		}
 
@@ -182,7 +193,7 @@ public class AdvFilterParser {
 		}
 
 		final DisplayType dt = EasyMeta.getDisplayType(fieldMeta);
-		if (dt == DisplayType.CLASSIFICATION || hasAndFlag) {
+		if (dt == DisplayType.CLASSIFICATION || hasNameFlag) {
 			field = "&" + field;
 		}
 
@@ -229,7 +240,8 @@ public class AdvFilterParser {
 				.append(' ')
 				.append(ParserTokens.convetOperator(op));
 		if (op.equalsIgnoreCase(ParserTokens.NL) || op.equalsIgnoreCase(ParserTokens.NT)) {
-			return sb.toString();
+		    includeFields.add(field);
+			return sb.toString().trim();
 		} else {
 			sb.append(' ');
 		}
@@ -282,7 +294,6 @@ public class AdvFilterParser {
 		// 快速搜索的占位符 {1}
 		if (value.matches("\\{\\d+\\}")) {
 			if (values == null) {
-
 				return null;
 			}
 
@@ -323,6 +334,7 @@ public class AdvFilterParser {
 					.append(" )");
 		}
 
+        includeFields.add(field);
 		return sb.toString().trim();
 	}
 

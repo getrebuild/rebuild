@@ -46,7 +46,8 @@ public class FeedsGroupControll extends BaseControll {
     @RequestMapping({ "list", "group-list" })
     public void groupList(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ID user = getRequestUser(request);
-        FeedsGroup[] groups = FeedsHelper.findGroups(user, false);
+        boolean all = getBoolParameter(request, "all", false);
+        FeedsGroup[] groups = FeedsHelper.findGroups(user, all);
 
         JSONArray ret = new JSONArray();
         for (FeedsGroup g : groups) {

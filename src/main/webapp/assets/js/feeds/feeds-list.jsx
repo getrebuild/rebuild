@@ -18,7 +18,7 @@ class FeedsList extends React.Component {
 
   render() {
     return (<div>
-      <div className="search-bar">
+      <div className="types-bar">
         <ul className="nav nav-tabs">
           <li className="nav-item"><a onClick={() => this._switchTab(0)} className={`nav-link ${this.state.tabType === 0 && 'active'}`}>全部</a></li>
           <li className="nav-item"><a onClick={() => this._switchTab(1)} className={`nav-link ${this.state.tabType === 1 && 'active'}`}>@我的</a></li>
@@ -56,7 +56,11 @@ class FeedsList extends React.Component {
                 <div className="meta">
                   <span className="float-right badge">{item.type}</span>
                   <a>{item.createdBy[1]}</a>
-                  <p className="text-muted fs-12 m-0"><span title={item.createdOn}>{item.createdOnFN}</span> - {item.scope}</p>
+                  <p className="text-muted fs-12 m-0">
+                    <span title={item.createdOn}>{item.createdOnFN}</span>
+                    &nbsp;&nbsp;·&nbsp;&nbsp;
+                    {typeof item.scope === 'string' ? item.scope : <span>{item.scope[1]} <i className="zmdi zmdi-accounts fs-14 down-1"></i></span>}
+                  </p>
                 </div>
                 <div className="rich" dangerouslySetInnerHTML={{ __html: converEmoji(item.content) }} />
               </div>
@@ -86,7 +90,7 @@ class FeedsList extends React.Component {
         })}
       </div>
       <Pagination ref={(c) => this._pagination = c} call={this.gotoPage} pageSize={40} />
-    </div >)
+    </div>)
   }
 
   componentDidMount = () => this.fetchFeeds()
@@ -173,7 +177,7 @@ class FeedsComments extends React.Component {
       <div className="comment-reply">
         <div onClick={() => this._commentState(true)} className={`reply-mask ${this.state.openComment && 'hide'}`}>添加评论</div>
         <span className={`${!this.state.openComment && 'hide'}`}>
-          <FeedsRichInput placeholder="添加评论" ref={(c) => this._input = c} />
+          <FeedsEditor placeholder="添加评论" ref={(c) => this._editor = c} />
           <div className="mt-2 text-right">
             <button onClick={() => this._commentState(false)} className="btn btn-sm btn-link">取消</button>
             <button className="btn btn-sm btn-primary" ref={(c) => this._btn = c} onClick={() => this._post()}>评论</button>
@@ -218,10 +222,10 @@ class FeedsComments extends React.Component {
                   </ul>
                 </div>
                 <div className={`comment-reply ${!item.shownReply && 'hide'}`}>
-                  {item.shownReplyReal && <FeedsRichInput placeholder="添加回复" initValue={`回复 @${item.createdBy[1]} : `} ref={(c) => item._input = c} />}
+                  {item.shownReplyReal && <FeedsEditor placeholder="添加回复" initValue={`回复 @${item.createdBy[1]} : `} ref={(c) => item._editor = c} />}
                   <div className="mt-2 text-right">
                     <button onClick={() => this._toggleReply(item.id, false)} className="btn btn-sm btn-link">取消</button>
-                    <button className="btn btn-sm btn-primary" ref={(c) => this._btn = c} onClick={() => this._post(item._input)}>回复</button>
+                    <button className="btn btn-sm btn-primary" ref={(c) => this._btn = c} onClick={() => this._post(item._editor)}>回复</button>
                   </div>
                 </div>
               </div>
@@ -242,24 +246,25 @@ class FeedsComments extends React.Component {
     })
   }
 
-  _post = (whichInput) => {
-    if (!whichInput) whichInput = this._input
-    let data = { content: whichInput.val(), feedsId: this.props.feeds }
-    if (!data.content) return
-    data.metadata = { entity: 'FeedsComment' }
+  _post = (whichEditor) => {
+    if (!whichEditor) whichEditor = this._editor
+    let _data = whichEditor.vals()
+    if (!_data.content) { RbHighbar.create('请输入评论内容'); return }
+    _data.feedsId = this.props.feeds
+    _data.metadata = { entity: 'FeedsComment' }
 
     let btn = $(this._btn).button('loading')
-    $.post(`${rb.baseUrl}/feeds/post/publish`, JSON.stringify(data), (res) => {
+    $.post(`${rb.baseUrl}/feeds/post/publish`, JSON.stringify(_data), (res) => {
       btn.button('reset')
       if (res.error_msg > 0) { RbHighbar.error(res.error_msg || '评论失败，请稍后重试'); return }
-      this._input.reset()
+      this._editor.reset()
       this._fetchComments()
     })
   }
 
   _commentState = (state) => {
     this.setState({ openComment: state }, () => {
-      if (this.state.openComment) this._input.focus()
+      if (this.state.openComment) this._editor.focus()
     })
   }
 
@@ -272,7 +277,7 @@ class FeedsComments extends React.Component {
         if (state !== undefined) item.shownReply = state
         else item.shownReply = !item.shownReply
         item.shownReplyReal = true
-        if (item.shownReply) setTimeout(() => item._input.focus(), 200)
+        if (item.shownReply) setTimeout(() => item._editor.focus(), 200)
       }
     })
     this.setState({ data: _data })

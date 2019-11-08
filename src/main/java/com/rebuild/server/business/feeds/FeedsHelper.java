@@ -23,6 +23,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.bizz.UserService;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -76,6 +77,8 @@ public class FeedsHelper {
     }
 
     /**
+     * 获取内容中的 @USERID
+     *
      * @param content
      * @return
      */
@@ -105,14 +108,26 @@ public class FeedsHelper {
     }
 
     /**
+     * @param user
+     * @param usesAll
+     * @return
+     * @see #findGroups(ID, boolean, boolean)
+     */
+    public static FeedsGroup[] findGroups(ID user, boolean usesAll) {
+        return findGroups(user, usesAll, false);
+    }
+
+    /**
      * 获取可用群组
      *
      * @param user
+     * @param usesAll 管理员是否返回全部
      * @param reload
      * @return
      */
-    public static FeedsGroup[] findGroups(ID user, boolean reload) {
-        ArrayList<FeedsGroup> groups = reload ? null : (ArrayList<FeedsGroup>) Application.getCommonCache().getx("FeedsGroupV1");
+    public static FeedsGroup[] findGroups(ID user, boolean usesAll, boolean reload) {
+        ArrayList<FeedsGroup> groups = reload ? null
+                : (ArrayList<FeedsGroup>) Application.getCommonCache().getx("FeedsGroupV1");
         if (groups == null) {
             Object[][] array = Application.createQueryNoFilter("select groupId,name,members from FeedsGroup").array();
             groups = new ArrayList<>();
@@ -123,7 +138,7 @@ public class FeedsHelper {
         }
 
         // 管理员返回全部
-        if (UserHelper.isAdmin(user)) {
+        if (usesAll && UserHelper.isAdmin(user)) {
             return groups.toArray(new FeedsGroup[0]);
         }
 
@@ -134,5 +149,18 @@ public class FeedsHelper {
             }
         }
         return inGroups.toArray(new FeedsGroup[0]);
+    }
+
+    /**
+     * @param groupId
+     * @return
+     */
+    public static String getGroupName(ID groupId) {
+        for (FeedsGroup g : findGroups(UserService.SYSTEM_USER, true)) {
+            if (g.getId().equals(groupId)) {
+                return g.getName();
+            }
+        }
+        return FeedsScope.GROUP.getName();
     }
 }

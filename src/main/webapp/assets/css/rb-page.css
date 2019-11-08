@@ -793,6 +793,7 @@ a {
     width: 205px;
     border-radius: 2px;
     max-height: 38px;
+    cursor: default;
 }
 
 .file-field .img-thumbnail:hover {

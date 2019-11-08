@@ -1,6 +1,7 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
+
 // ~ 动态发布
-// eslint-disable-next-line no-unused-vars
 class FeedsPost extends React.Component {
 
   constructor(props) {
@@ -20,7 +21,7 @@ class FeedsPost extends React.Component {
       </ul>
       <div className="arrow_box" style={{ marginLeft: this.state.type === 2 ? 53 : 8 }}></div>
       <div>
-        <FeedsRichInput ref={(c) => this._input = c} />
+        <FeedsEditor ref={(c) => this._editor = c} />
       </div>
       <div className="mt-3">
         <div className="float-right">
@@ -49,19 +50,36 @@ class FeedsPost extends React.Component {
     let target = e.target
     this.setState({ scope: target.dataset.scope }, () => {
       $(this._scopeBtn).html($(target).html())
+      if (this.state.scope === 'GROUP') {
+        if (this.__group) this._renderGroupScope(this.__group)
+        let that = this
+        if (this.__selectGroup) this.__selectGroup.show()
+        else renderRbcomp(<SelectGroup call={this._renderGroupScope} />, null, function () { that.__selectGroup = this })
+      }
     })
+  }
+  _renderGroupScope = (item) => {
+    if (!item) return
+    $(this._scopeBtn).html(`<i class="icon up-1 zmdi zmdi-accounts"></i>${item.name}`)
+    this.__group = item
   }
 
   _post = () => {
-    let data = { content: this._input.val(), type: this.state.type, scope: this.state.scope }
-    if (!data.content) return
-    data.metadata = { entity: 'Feeds' }
+    let _data = this._editor.vals()
+    if (!_data.content) { RbHighbar.create('请输入动态内容'); return }
+    _data.scope = this.state.scope
+    if (_data.scope === 'GROUP') {
+      if (!this.__group) { RbHighbar.create('请选择群组'); return }
+      _data.scope = this.__group.id
+    }
+    _data.type = this.state.type
+    _data.metadata = { entity: 'Feeds', id: this.props.id }
 
     let btn = $(this._btn).button('loading')
-    $.post(`${rb.baseUrl}/feeds/post/publish`, JSON.stringify(data), (res) => {
+    $.post(`${rb.baseUrl}/feeds/post/publish`, JSON.stringify(_data), (res) => {
       btn.button('reset')
       if (res.error_msg > 0) { RbHighbar.error(res.error_msg || '发布失败，请稍后重试'); return }
-      this._input.reset()
+      this._editor.reset()
       typeof this.props.call === 'function' && this.props.call()
     })
   }
@@ -82,8 +100,8 @@ class UserSelectorExt extends UserSelector {
   }
 }
 
-// ~ 输入框
-class FeedsRichInput extends React.Component {
+// ~ 动态编辑框
+class FeedsEditor extends React.Component {
 
   constructor(props) {
     super(props)
@@ -97,40 +115,95 @@ class FeedsRichInput extends React.Component {
       es.push(<a key={`em-${item}`} title={k} onClick={() => this._selectEmoji(k)}><img src={`${rb.baseUrl}/assets/img/emoji/${item}`} /></a>)
     }
 
-    return (<div className={`rich-input ${this.state.focus && 'active'}`}>
-      <textarea ref={(c) => this._input = c} placeholder={this.props.placeholder}
-        onFocus={() => this.setState({ focus: true })}
-        onBlur={() => this.setState({ focus: false })}
-        defaultValue={this.props.initValue} />
-      <div className="action-btns">
-        <ul className="list-unstyled list-inline m-0 p-0">
-          <li className="list-inline-item">
-            <a onClick={this._toggleEmoji} title="表情"><i className="zmdi zmdi-mood" /></a>
-            <span className={`mount ${this.state.showEmoji ? '' : 'hide'}`} ref={(c) => this._emoji = c}>
-              {this.state.renderEmoji && <div className="emoji-wrapper">{es}</div>}
-            </span>
-          </li>
-          <li className="list-inline-item">
-            <a onClick={this._toggleAtUser} title="@用户"><i className="zmdi at-text">@</i></a>
-            <span className={`mount ${this.state.showAtUser ? '' : 'hide'}`} ref={(c) => this._atUser = c}>
-              <UserSelectorExt hideDepartment={true} hideRole={true} ref={(c) => this._UserSelector = c} call={this._selectAtUser} />
-            </span>
-          </li>
-          <li className="list-inline-item"><a title="图片"><i className="zmdi zmdi-image-o" /></a></li>
-          <li className="list-inline-item"><a title="附件"><i className="zmdi zmdi-attachment-alt zmdi-hc-rotate-45" /></a></li>
-        </ul>
+    return (<React.Fragment>
+      <div className={`rich-input ${this.state.focus && 'active'}`}>
+        <textarea ref={(c) => this._editor = c} placeholder={this.props.placeholder}
+          onFocus={() => this.setState({ focus: true })}
+          onBlur={() => this.setState({ focus: false })}
+          defaultValue={this.props.initValue} />
+        <div className="action-btns">
+          <ul className="list-unstyled list-inline m-0 p-0">
+            <li className="list-inline-item">
+              <a onClick={this._toggleEmoji} title="表情"><i className="zmdi zmdi-mood" /></a>
+              <span className={`mount ${this.state.showEmoji ? '' : 'hide'}`} ref={(c) => this._emoji = c}>
+                {this.state.renderEmoji && <div className="emoji-wrapper">{es}</div>}
+              </span>
+            </li>
+            <li className="list-inline-item">
+              <a onClick={this._toggleAtUser} title="@用户"><i className="zmdi at-text">@</i></a>
+              <span className={`mount ${this.state.showAtUser ? '' : 'hide'}`} ref={(c) => this._atUser = c}>
+                <UserSelectorExt hideDepartment={true} hideRole={true} ref={(c) => this._UserSelector = c} call={this._selectAtUser} />
+              </span>
+            </li>
+            <li className="list-inline-item">
+              <a title="图片" onClick={() => this._imageInput.click()}><i className="zmdi zmdi-image-o" /></a>
+            </li>
+            <li className="list-inline-item">
+              <a title="附件" onClick={() => this._fileInput.click()}><i className="zmdi zmdi-attachment-alt zmdi-hc-rotate-45" /></a>
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>)
+      {((this.state.images || []).length > 0 || (this.state.files || []).length > 0) && <div className="attachment">
+        <div className="img-field">
+          {(this.state.images || []).map((item) => {
+            return (<span key={'img-' + item}>
+              <a title={$fileCutName(item)} className="img-thumbnail img-upload">
+                <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />
+                <b title="移除" onClick={() => this._removeImage(item)}><span className="zmdi zmdi-close"></span></b>
+              </a>
+            </span>)
+          })}
+        </div>
+        <div className="file-field">
+          {(this.state.files || []).map((item) => {
+            let fileName = $fileCutName(item)
+            return (<div key={'file-' + item} className="img-thumbnail" title={fileName}>
+              <i className="file-icon" data-type={$fileExtName(fileName)} />
+              <span>{fileName}</span>
+              <b title="移除" onClick={() => this._removeFile(item)}><span className="zmdi zmdi-close"></span></b>
+            </div>)
+          })}
+        </div>
+      </div>
+      }
+      <span className="hide">
+        <input type="file" ref={(c) => this._fileInput = c} />
+        <input type="file" ref={(c) => this._imageInput = c} accept="image/*" />
+      </span>
+    </React.Fragment>)
   }
 
   componentDidMount() {
     $(document.body).click((e) => {
+      if (this.__unmount) return
       if (e.target && $(e.target).parents('li.list-inline-item').length > 0) return
       this.setState({ showEmoji: false, showAtUser: false })
     })
     // eslint-disable-next-line no-undef
-    autosize(this._input)
+    autosize(this._editor)
+
+    let mp
+    $createUploader(this._imageInput, (res) => {
+      if (!mp) mp = new Mprogress({ template: 1, start: true })
+      mp.set(res.percent / 100)
+    }, (res) => {
+      if (mp) mp.end()
+      let images = this.state.images || []
+      images.push(res.key)
+      this.setState({ images: images })
+    })
+    $createUploader(this._fileInput, (res) => {
+      if (!mp) mp = new Mprogress({ template: 1, start: true })
+      mp.set(res.percent / 100)
+    }, (res) => {
+      if (mp) mp.end()
+      let files = this.state.files || []
+      files.push(res.key)
+      this.setState({ files: files })
+    })
   }
+  componentWillUnmount = () => this.__unmount = true
 
   _toggleEmoji = () => {
     this.setState({ renderEmoji: true, showEmoji: !this.state.showEmoji }, () => {
@@ -146,24 +219,83 @@ class FeedsRichInput extends React.Component {
     })
   }
   _selectEmoji(emoji) {
-    $(this._input).insertAtCursor(`[${emoji}]`)
+    $(this._editor).insertAtCursor(`[${emoji}]`)
     this.setState({ showEmoji: false })
   }
   _selectAtUser = (id, name) => {
-    $(this._input).insertAtCursor(`@${name} `)
+    $(this._editor).insertAtCursor(`@${name} `)
     this.setState({ showAtUser: false })
   }
 
-  val() {
-    return $(this._input).val()
+  _removeImage(image) {
+    let images = this.state.images
+    images.remove(image)
+    this.setState({ images: images })
+  }
+  _removeFile(file) {
+    let files = this.state.files
+    files.remove(file)
+    this.setState({ files: files })
   }
 
-  focus() {
-    $(this._input).selectRange(9999, 9999)  // Move to last
+  val() { return $(this._editor).val() }
+  vals() {
+    return {
+      content: this.val(),
+      images: (this.state.images || []).join(','),
+      attachments: (this.state.files || []).join(',')
+    }
+  }
+  focus = () => $(this._editor).selectRange(9999, 9999)  // Move to last
+  reset = () => {
+    $(this._editor).val('')
+    this.setState({ files: null, images: null })
+  }
+}
+
+// ~ 选择群组
+class SelectGroup extends React.Component {
+
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
   }
 
-  reset() {
-    $(this._input).val('')
+  render() {
+    return (
+      <div className="modal select-list" ref={(c) => this._dlg = c} tabIndex="-1">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header pb-0">
+              <button className="close" type="button" onClick={this.hide}><i className="zmdi zmdi-close" /></button>
+            </div>
+            <div className="modal-body">
+              <h5 className="mt-0 text-bold">选择群组</h5>
+              {(this.state.groups && this.state.groups.length === 0) && <p className="text-muted">你未加入任何群组</p>}
+              <div>
+                <ul className="list-unstyled">
+                  {(this.state.groups || []).map((item) => {
+                    return <li key={'g-' + item.id}><a className="text-truncate" onClick={() => this._handleClick(item)}>{item.name}<i className="zmdi zmdi-check"></i></a></li>
+                  })}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    $.get(`${rb.baseUrl}/feeds/group/group-list`, (res) => this.setState({ groups: res.data }))
+    $(this._dlg).modal({ show: true, keyboard: true })
+  }
+  hide = () => $(this._dlg).modal('hide')
+  show = () => $(this._dlg).modal('show')
+
+  _handleClick = (item) => {
+    this.hide()
+    this.props.call && this.props.call(item)
   }
 }
 
@@ -179,5 +311,5 @@ const converEmoji = function (text) {
       text = text.replace(e, img)
     }
   })
-  return text.replace(/\n/g, '<br/>')
+  return text.replace(/\n/g, '<br />')
 }

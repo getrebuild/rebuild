@@ -62,7 +62,7 @@ class FeedsGroup extends RbFormHandler {
     $(this._btn).button('loading')
     $.post(`${rb.baseUrl}/app/entity/record-save`, JSON.stringify(data), (res) => {
       this.hide()
-      groupList.loadData()
+      rbGroupList.loadData()
       typeof this.props.call === 'function' && this.props.call(res.data)
     })
   }
@@ -80,7 +80,7 @@ class GroupList extends React.Component {
       {!this.state.list && <li className="nodata">加载中</li>}
       {(this.state.list && this.state.list.length === 0) && <li className="nodata">暂无群组</li>}
       {(this.state.list || []).map((item) => {
-        return <li key={'item-' + item.id} data-id={item.id} className={item.active ? 'active' : ''}>
+        return <li key={'item-' + item.id} data-id={item.id} className={this.state.active === item.id ? 'active' : ''}>
           <a className="text-truncate" onClick={() => this._handleActive(item.id)}>{item.name}</a>
           {(rb.isAdminUser && this.props.hasAction) && <div className="action">
             <a className="J_edit" onClick={() => this._handleEdit(item)}><i className="zmdi zmdi-edit"></i></a>
@@ -93,19 +93,12 @@ class GroupList extends React.Component {
   }
 
   loadData() {
-    $.get(`${rb.baseUrl}/feeds/group/group-list`, (res) => {
-      this.setState({ list: res.data || [] })
-    })
+    $.get(`${rb.baseUrl}/feeds/group/group-list?all=true`, (res) => this.setState({ list: res.data || [] }))
   }
 
   _handleActive(id) {
-    if (this.__currentActive === id) id = this.__currentActive = 'CancelActive'
-    let _list = this.state.list
-    _list.forEach((item) => {
-      item.active = item.id === id
-      if (item.active) this.__currentActive = id
-    })
-    this.setState({ list: _list }, () => execFilter())
+    if (this.state.active === id) id = null
+    this.setState({ active: id }, () => execFilter())
   }
 
   _handleEdit(item) {
@@ -128,8 +121,7 @@ class GroupList extends React.Component {
   }
 
   val() {
-    let active = (this.state.list || []).find((item) => { return item.active })
-    if (active) return active.id
+    return this.state.active
   }
 }
 

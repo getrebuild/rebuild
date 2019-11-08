@@ -46,21 +46,21 @@ public class FeedsGroupService extends BaseService {
     @Override
     public Record create(Record record) {
         record = super.create(record);
-        FeedsHelper.findGroups(UserService.SYSTEM_USER, true);
+        FeedsHelper.findGroups(UserService.SYSTEM_USER, true, true);
         return record;
     }
 
     @Override
     public Record update(Record record) {
         record = super.update(record);
-        FeedsHelper.findGroups(UserService.SYSTEM_USER, true);
+        FeedsHelper.findGroups(UserService.SYSTEM_USER, true, true);
         return record;
     }
 
     @Override
     public int delete(ID recordId) {
         int del = super.delete(recordId);
-        FeedsHelper.findGroups(UserService.SYSTEM_USER, true);
+        FeedsHelper.findGroups(UserService.SYSTEM_USER, true,true);
         return del;
     }
 }

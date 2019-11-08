@@ -123,34 +123,49 @@
 }
 
 .btn.btn-scope>.zmdi {
-  margin-right: 6px;
+  margin-right: 4px;
 }
 
-.search-bar {
+.attachment {
+  margin-top: 11px;
+}
+
+.attachment .file-field {
+  margin-left: -0.5%;
+  margin-right: -0.5%;
+}
+
+.attachment .file-field .img-thumbnail {
+  width: 49%;
+  margin-left: 0.5%;
+  margin-right: 0.5%;
+}
+
+.types-bar {
   background-color: #fff;
-  margin-bottom: 5px;
   margin-top: 15px;
   position: sticky;
   top: 60px;
   z-index: 1;
 }
 
-.search-bar .nav-tabs {
+.types-bar .nav-tabs {
   border-color: #fff;
   position: relative;
+  border-bottom: 1px solid #eee;
 }
 
-.search-bar .nav-tabs>li.nav-item a.nav-link {
+.types-bar .nav-tabs>li.nav-item a.nav-link {
   padding-top: 12px;
   padding-bottom: 9px;
   font-weight: bold;
 }
 
-.search-bar .nav-tabs>li.nav-item a.nav-link.active {
+.types-bar .nav-tabs>li.nav-item a.nav-link.active {
   color: #4285f4;
 }
 
-.search-bar span.float-right {
+.types-bar span.float-right {
   position: absolute;
   right: 20px;
   margin-top: 3px;
@@ -220,7 +235,7 @@
 
 .feeds-list .actions li>a {
   display: inline-block;
-  padding: 6px 10px 6px 26px;
+  padding: 6px 10px 6px 24px;
   padding-right: 0;
 }
 

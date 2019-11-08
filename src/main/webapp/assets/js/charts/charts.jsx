@@ -434,7 +434,7 @@ class ApprovalList extends BaseChart {
           })}
         </tbody>
       </table>
-    </div >
+    </div>
     if (data.data.length === 0) table = <div className="chart-undata must-center"><i className="zmdi zmdi-check icon text-success"></i> 你已完成所有审批</div>
 
     let chartdata = <div className="chart ApprovalList">

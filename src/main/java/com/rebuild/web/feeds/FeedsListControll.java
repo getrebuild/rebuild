@@ -25,6 +25,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.business.feeds.FeedsGroup;
 import com.rebuild.server.business.feeds.FeedsHelper;
 import com.rebuild.server.business.feeds.FeedsScope;
 import com.rebuild.server.business.feeds.FeedsType;
@@ -34,6 +35,7 @@ import com.rebuild.server.service.notification.MessageBuilder;
 import com.rebuild.server.service.query.AdvFilterParser;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -71,7 +73,8 @@ public class FeedsListControll extends BasePageControll {
         final ID user = getRequestUser(request);
 
         JSON filter = ServletUtils.getRequestJson(request);
-        String sqlWhere = new AdvFilterParser((JSONObject) filter).toSqlWhere();
+        final AdvFilterParser parser = new AdvFilterParser((JSONObject) filter);
+        String sqlWhere = parser.toSqlWhere();
         if (sqlWhere == null) {
             sqlWhere = "(1=1)";
         }
@@ -87,11 +90,19 @@ public class FeedsListControll extends BasePageControll {
             sqlWhere += String.format(" and createdBy ='%s'", user);
         }
 
+        // 私密的仅显示在私密标签下
         if (type == 11) {
             sqlWhere += String.format(" and createdBy ='%s' and scope = 'SELF'", user);
-        } else {
-            sqlWhere += String.format(" and scope = 'ALL'", user);  // 私密的仅显示在私密标签下
+        } else if (!parser.getIncludeFields().contains("scope")) {
+            FeedsGroup[] fgs = FeedsHelper.findGroups(user, false);
+            List<String> in = new ArrayList<>();
+            in.add("scope = 'ALL'");
+            for (FeedsGroup g : fgs) {
+                in.add(String.format("scope = '%s'", g.getId()));
+            }
+            sqlWhere += " and ( " + StringUtils.join(in, " or ") + " )";
         }
+        System.out.println(sqlWhere);
 
         int pageNo = getIntParameter(request, "pageNo", 1);
         int pageSize = getIntParameter(request, "pageSize", 40);
@@ -107,7 +118,7 @@ public class FeedsListControll extends BasePageControll {
             }
         }
 
-        String sql = "select feedsId,createdBy,createdOn,modifiedOn,content,attachment,scope,type,relatedRecord from Feeds where " + sqlWhere;
+        String sql = "select feedsId,createdBy,createdOn,modifiedOn,content,images,attachments,scope,type,relatedRecord from Feeds where " + sqlWhere;
         if ("older".equalsIgnoreCase(sort)) sql += " order by createdOn asc";
         else if ("modified".equalsIgnoreCase(sort)) sql += " order by modifiedOn desc";
         else sql += " order by createdOn desc";
@@ -119,9 +130,14 @@ public class FeedsListControll extends BasePageControll {
         List<JSON> list = new ArrayList<>();
         for (Object[] o : array) {
             JSONObject item = buildBase(o, user);
-            item.put("scope", FeedsScope.parse((String) o[6]).getName());
-            item.put("type", FeedsType.parse((Integer) o[7]).getName());
-            item.put("releated", o[8]);
+            FeedsScope scope = FeedsScope.parse((String) o[7]);
+            if (scope == FeedsScope.GROUP) {
+                item.put("scope", new Object[] { o[7], FeedsHelper.getGroupName(ID.valueOf((String) o[7])) });
+            } else {
+                item.put("scope", scope.getName());
+            }
+            item.put("type", FeedsType.parse((Integer) o[8]).getName());
+            item.put("releated", o[9]);
             item.put("numLike", FeedsHelper.getNumOfLike((ID) o[0]));
             item.put("numComments", FeedsHelper.getNumOfComment((ID) o[0]));
             list.add(item);
@@ -150,7 +166,7 @@ public class FeedsListControll extends BasePageControll {
             }
         }
 
-        String sql = "select commentId,createdBy,createdOn,modifiedOn,content,attachment from FeedsComment where " + sqlWhere;
+        String sql = "select commentId,createdBy,createdOn,modifiedOn,content,images,attachments from FeedsComment where " + sqlWhere;
         sql += " order by createdOn desc";
         Object[][] array = Application.createQueryNoFilter(sql)
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
@@ -176,10 +192,15 @@ public class FeedsListControll extends BasePageControll {
         item.put("id", o[0]);
         item.put("self", o[1].equals(user));
         item.put("createdBy", new Object[] { o[1], UserHelper.getName((ID) o[1]) });
-        item.put("createdOnFN", Moment.moment((Date) o[2]).fromNow());
         item.put("createdOn", CalendarUtils.getUTCDateTimeFormat().format(o[2]));
+        item.put("createdOnFN", Moment.moment((Date) o[2]).fromNow());
         item.put("content", formatContent((String) o[4]));
-        item.put("attachment", o[5]);
+        if (o[5] != null) {
+            item.put("images", ((String) o[5]).split(","));
+        }
+        if (o[6] != null) {
+            item.put("attachments", ((String) o[6]).split(","));
+        }
         return item;
     }
 
