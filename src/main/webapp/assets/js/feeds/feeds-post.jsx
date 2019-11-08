@@ -60,8 +60,9 @@ class FeedsPost extends React.Component {
     let btn = $(this._btn).button('loading')
     $.post(`${rb.baseUrl}/feeds/post/publish`, JSON.stringify(data), (res) => {
       btn.button('reset')
+      if (res.error_msg > 0) { RbHighbar.error(res.error_msg || '发布失败，请稍后重试'); return }
       this._input.reset()
-      typeof this.props.call === 'function' && this.props.call(res.data)
+      typeof this.props.call === 'function' && this.props.call()
     })
   }
 }

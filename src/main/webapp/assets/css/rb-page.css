@@ -288,6 +288,11 @@ a.btn {
     border-radius: 2px;
 }
 
+.form-control.search {
+    border-color: #d5d8de;
+}
+
+.form-control.search:focus,
 .input-search input:focus {
     border-color: #bababa;
 }
@@ -1500,7 +1505,10 @@ i.split.ui-draggable-dragging {
     display: block;
 }
 
-.dept-tree li.nodata {}
+.dept-tree li.nodata {
+    padding-left: 10px;
+    color: #999;
+}
 
 .adv-search .dropdown-item div.action a {
     height: 34px;

@@ -49,8 +49,8 @@ public class SchemaGen {
 //		genAll();
 //		gen(EntityHelper.Feeds);
 //		gen(EntityHelper.FeedsComment);
-		gen(EntityHelper.FeedsGroup);
-		gen(EntityHelper.FeedsLike);
+//		gen(EntityHelper.FeedsGroup);
+//		gen(EntityHelper.FeedsLike);
 		gen(EntityHelper.FeedsMention);
 
 		System.exit(0);

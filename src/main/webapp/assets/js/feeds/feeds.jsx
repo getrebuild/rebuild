@@ -22,7 +22,7 @@ class FeedsGroup extends RbFormHandler {
   }
 
   render() {
-    return (<RbModal title={`${this.props.id ? '修改' : '添加'}群组`} ref={(c) => this._dlg = c}>
+    return (<RbModal title={`${this.props.id ? '修改' : '添加'}群组`} ref={(c) => this._dlg = c} disposeOnHide={true}>
       <div className="form">
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">群组名称</label>
@@ -92,15 +92,14 @@ class GroupList extends React.Component {
     )
   }
 
-  componentDidMount = () => this.loadData()
   loadData() {
-    $.get(`${rb.baseUrl}/feeds/group/list`, (res) => {
+    $.get(`${rb.baseUrl}/feeds/group/group-list`, (res) => {
       this.setState({ list: res.data || [] })
     })
   }
 
   _handleActive(id) {
-    if (this.__currentActive === id) id = 'UnActive'
+    if (this.__currentActive === id) id = this.__currentActive = 'CancelActive'
     let _list = this.state.list
     _list.forEach((item) => {
       item.active = item.id === id
@@ -129,9 +128,7 @@ class GroupList extends React.Component {
   }
 
   val() {
-    let active = (this.state.list || []).find((item) => {
-      return item.active
-    })
+    let active = (this.state.list || []).find((item) => { return item.active })
     if (active) return active.id
   }
 }
@@ -150,16 +147,17 @@ class UserList extends GroupList {
 }
 
 let rbFeeds
-let groupList
-let userList
+let rbGroupList
+let rbUserList
 
 // 构建搜索条件
 const execFilter = function () {
-  let group = groupList.val()
-  let user = userList.val()
+  let group = rbGroupList.val()
+  let user = rbUserList.val()
   let key = $('.J_search-key').val()
   let date1 = $('.J_date-begin').val()
   let date2 = $('.J_date-end').val()
+  let type = ~~$('#collapseFeedsType li.active').data('type')
 
   let items = []
   if (group) items.push({ field: 'scope', op: 'EQ', value: group })
@@ -167,6 +165,7 @@ const execFilter = function () {
   if (key) items.push({ field: 'content', op: 'LK', value: key })
   if (date1) items.push({ field: 'createdOn', op: 'GE', value: date1 })
   if (date2) items.push({ field: 'createdOn', op: 'LE', value: date2 })
+  if (type > 0) items.push({ field: 'type', op: 'EQ', value: type })
 
   rbFeeds.search({ entity: 'Feeds', equation: 'AND', items: items })
 }
@@ -174,8 +173,19 @@ const execFilter = function () {
 $(document).ready(function () {
   renderRbcomp(<RbFeeds />, 'rb-feeds', function () { rbFeeds = this })
 
-  renderRbcomp(<GroupList hasAction={true} />, $('#collapseGroup .dept-tree'), function () { groupList = this })
-  renderRbcomp(<UserList />, $('#collapseUser .dept-tree'), function () { userList = this })
+  renderRbcomp(<GroupList hasAction={true} />, $('#collapseGroup .dept-tree'), function () { rbGroupList = this })
+  renderRbcomp(<UserList />, $('#collapseUser .dept-tree'), function () { rbUserList = this })
+
+  let rbGroupListLoaded = false,
+    rbUserListLoaded = false
+  $('#headingGroup').click(() => {
+    if (!rbGroupListLoaded) rbGroupList.loadData()
+    rbGroupListLoaded = true
+  })
+  $('#headingUser').click(() => {
+    if (!rbUserListLoaded) rbUserList.loadData()
+    rbUserListLoaded = true
+  })
 
   function __clear(el) {
     $setTimeout(() => {
@@ -190,7 +200,7 @@ $(document).ready(function () {
     setTimeout(execFilter, 100)
   })
 
-  if (rb.isAdminUser) $('.J_add-group').click(() => renderRbcomp(<FeedsGroup />))
+  if (rb.isAdminUser) $('.add-group').click(() => renderRbcomp(<FeedsGroup />))
   $('.J_search-key').keydown(function (e) {
     __clear(this)
     if (e.keyCode === 13) execFilter()
@@ -209,6 +219,19 @@ $(document).ready(function () {
   }
   $('.J_date-begin, .J_date-end').datetimepicker(dpcfg).on('changeDate', function () {
     __clear(this)
+    execFilter()
+  })
+
+  let lastType = 0
+  $('#collapseFeedsType li>a').click(function () {
+    $('#collapseFeedsType li').removeClass('active')
+    let $li = $(this).parent()
+    if (~~$li.data('type') === lastType) {
+      lastType = 0
+    } else {
+      $li.addClass('active')
+      lastType = ~~$li.data('type')
+    }
     execFilter()
   })
 })

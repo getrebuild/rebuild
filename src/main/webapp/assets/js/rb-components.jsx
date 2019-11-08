@@ -358,7 +358,7 @@ class UserSelector extends React.Component {
         <span className={'dropdown-wrapper ' + (this.state.dropdownOpen === false && 'hide')}>
           <div className="selector-search">
             <div>
-              <input type="search" className="form-control" placeholder="输入关键词搜索" value={this.state.query || ''} onChange={(e) => this.searchItems(e)} />
+              <input type="search" className="form-control search" placeholder="输入关键词搜索" value={this.state.query || ''} onChange={(e) => this.searchItems(e)} />
             </div>
           </div>
           <div className="tab-container">

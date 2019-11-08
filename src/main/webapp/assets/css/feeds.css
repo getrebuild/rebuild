@@ -6,7 +6,7 @@
 
 .feeds-container .rb-loading {
   background-color: #fff;
-  min-height: 300px;
+  min-height: 327px;
   width: 100%;
 }
 
@@ -345,16 +345,6 @@
   padding: 12px;
 }
 
-.side-wrapper h5 {
-  font-weight: normal;
-  margin-top: 20px;
-}
-
-.side-wrapper h5>a {
-  font-size: 12px;
-  margin-top: 4px;
-}
-
 .side-wrapper .search .input-group-text {
   width: 70px;
   text-align: center;
@@ -372,7 +362,8 @@
 .side-wrapper .accordion .card-header button .icon {
   margin-right: 7px;
   font-size: 1.7rem;
-  top: 0
+  top: 0;
+  width: 10px;
 }
 
 .side-wrapper .card {
@@ -421,10 +412,19 @@
   transform: translateY(-1px);
   color: #404040;
   display: none;
+  text-align: center;
 }
 
 #collapseSearch .card-body .input-group .append>a.show {
   display: inline-block;
+}
+
+.side-wrapper .add-group {
+  font-size: 12px;
+  position: absolute;
+  right: 14px;
+  top: 4px;
+  padding: 6px;
 }
 
 .fixed-icon {

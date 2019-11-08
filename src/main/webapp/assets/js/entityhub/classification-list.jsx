@@ -62,7 +62,7 @@ class DlgEdit extends RbFormHandler {
     this.state = { ...props }
   }
   render() {
-    return (<RbModal title={(this.props.id ? '编辑' : '添加') + '分类'} ref={(c) => this._dlg = c}>
+    return (<RbModal title={(this.props.id ? '修改' : '添加') + '分类'} ref={(c) => this._dlg = c}>
       <div className="form">
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">分类名称</label>

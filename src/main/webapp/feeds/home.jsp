@@ -32,21 +32,21 @@
 								<div class="collapse show" id="collapseSearch">
 									<div class="card-body">
 										<div class="input-group input-group-sm">
-											<input type="text" class="form-control J_search-key" placeholder="关键词" />
+											<input type="text" class="form-control search J_search-key" placeholder="关键词" />
 											<span class="append">
 												<a><i class="icon zmdi zmdi-close"></i></a>
 												<i class="icon zmdi zmdi-search"></i>
 											</span>
 										</div>
 										<div class="input-group input-group-sm">
-											<input type="text" class="form-control J_date-begin" placeholder="发布时间 (起)" />
+											<input type="text" class="form-control search J_date-begin" placeholder="发布时间 (起)" />
 											<span class="append">
 												<a><i class="icon zmdi zmdi-close"></i></a>
 												<i class="icon zmdi zmdi-calendar"></i>
 											</span>
 										</div>
 										<div class="input-group input-group-sm">
-											<input type="text" class="form-control J_date-end" placeholder="发布时间 (止)" />
+											<input type="text" class="form-control search J_date-end" placeholder="发布时间 (止)" />
 											<span class="append">
 												<a><i class="icon zmdi zmdi-close"></i></a>
 												<i class="icon zmdi zmdi-calendar"></i>
@@ -61,10 +61,10 @@
 								</div>
 								<div class="collapse" id="collapseFeedsType">
 									<div class="card-body">
-										<div class="dept-tree">
+										<div class="dept-tree rb-scroller">
 											<ul class="list-unstyled">
-												<li><a>动态</a></li>
-												<li><a>跟进</a></li>
+												<li data-type="1"><a>动态</a></li>
+												<li data-type="2"><a>跟进</a></li>
 											</ul>
 										</div>
 									</div>
@@ -73,6 +73,7 @@
 							<div class="card">
 								<div class="card-header" id="headingGroup">
 									<button class="btn" data-toggle="collapse" data-target="#collapseGroup"><i class="icon zmdi zmdi-chevron-right"></i> 群组</button>
+                                    <a class="add-group admin-show" href="javascript:;"><i class="icon zmdi zmdi-plus"></i> 添加</a>
 								</div>
 								<div class="collapse" id="collapseGroup">
 									<div class="card-body">
