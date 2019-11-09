@@ -20,16 +20,12 @@ package com.rebuild.server.business.feeds;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.ID;
-import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.service.bizz.UserHelper;
-import com.rebuild.server.service.bizz.UserService;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,9 +35,25 @@ import java.util.Set;
  * @author devezhao
  * @since 2019/11/7
  */
-public class FeedsHelper {
+public class FeedsHelper extends FeedsGroupHelper {
 
     /**
+     * 评论数
+     *
+     * @param feedsId
+     * @return
+     */
+    public static int getNumOfComment(ID feedsId) {
+        Object[] c = Application.createQueryNoFilter(
+                "select count(commentId) from FeedsComment where feedsId = ?")
+                .setParameter(1, feedsId)
+                .unique();
+        return ObjectUtils.toInt(c[0]);
+    }
+
+    /**
+     * 点赞数
+     *
      * @param source
      * @return
      */
@@ -54,15 +66,19 @@ public class FeedsHelper {
     }
 
     /**
-     * @param feedsId
+     * 指定用户是否点赞
+     *
+     * @param source
+     * @param my 指定用户
      * @return
      */
-    public static int getNumOfComment(ID feedsId) {
+    public static boolean isMyLike(ID source, ID my) {
         Object[] c = Application.createQueryNoFilter(
-                "select count(commentId) from FeedsComment where feedsId = ?")
-                .setParameter(1, feedsId)
+                "select likeId from FeedsLike where source = ? and createdBy = ?")
+                .setParameter(1, source)
+                .setParameter(2, my)
                 .unique();
-        return ObjectUtils.toInt(c[0]);
+        return c != null;
     }
 
     /**
@@ -105,62 +121,5 @@ public class FeedsHelper {
             }
         }
         return found;
-    }
-
-    /**
-     * @param user
-     * @param usesAll
-     * @return
-     * @see #findGroups(ID, boolean, boolean)
-     */
-    public static FeedsGroup[] findGroups(ID user, boolean usesAll) {
-        return findGroups(user, usesAll, false);
-    }
-
-    /**
-     * 获取可用群组
-     *
-     * @param user
-     * @param usesAll 管理员是否返回全部
-     * @param reload
-     * @return
-     */
-    public static FeedsGroup[] findGroups(ID user, boolean usesAll, boolean reload) {
-        ArrayList<FeedsGroup> groups = reload ? null
-                : (ArrayList<FeedsGroup>) Application.getCommonCache().getx("FeedsGroupV1");
-        if (groups == null) {
-            Object[][] array = Application.createQueryNoFilter("select groupId,name,members from FeedsGroup").array();
-            groups = new ArrayList<>();
-            for (Object[] o : array) {
-                groups.add(new FeedsGroup((ID) o[0], (String) o[1], (JSON) JSON.parse((String) o[2])));
-            }
-            Application.getCommonCache().putx("FeedsGroupV1", groups);
-        }
-
-        // 管理员返回全部
-        if (usesAll && UserHelper.isAdmin(user)) {
-            return groups.toArray(new FeedsGroup[0]);
-        }
-
-        List<FeedsGroup> inGroups = new ArrayList<>();
-        for (FeedsGroup g : groups) {
-            if (g.getUsers().contains(user)) {
-                inGroups.add(g);
-            }
-        }
-        return inGroups.toArray(new FeedsGroup[0]);
-    }
-
-    /**
-     * @param groupId
-     * @return
-     */
-    public static String getGroupName(ID groupId) {
-        for (FeedsGroup g : findGroups(UserService.SYSTEM_USER, true)) {
-            if (g.getId().equals(groupId)) {
-                return g.getName();
-            }
-        }
-        return FeedsScope.GROUP.getName();
     }
 }

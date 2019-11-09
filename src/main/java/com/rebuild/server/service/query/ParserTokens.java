@@ -53,6 +53,7 @@ public class ParserTokens {
     public static final String TTA = "TTA";
     public static final String BAND = "BAND";
     public static final String NBAND = "NBAND";
+    public static final String FT = "FT";
 
     /**
      * @param token
@@ -86,6 +87,7 @@ public class ParserTokens {
         else if (TTA.equalsIgnoreCase(token)) return "=";
         else if (BAND.equalsIgnoreCase(token)) return "&&";
         else if (NBAND.equalsIgnoreCase(token)) return "!&";
+        else if (FT.equalsIgnoreCase(token)) return "match";
         throw new UnsupportedOperationException("Unsupported token of operator : " + token);
     }
 

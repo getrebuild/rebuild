@@ -63,7 +63,7 @@ class FeedsList extends React.Component {
                     {typeof item.scope === 'string' ? item.scope : <span>{item.scope[1]} <i className="zmdi zmdi-accounts fs-14 down-1"></i></span>}
                   </p>
                 </div>
-                {renderRichContent(item)}
+                {_renderRichContent(item)}
               </div>
             </div>
             <div className="actions">
@@ -75,7 +75,7 @@ class FeedsList extends React.Component {
                 </li>
                 }
                 <li className="list-inline-item mr-3">
-                  <a href="#thumbup" onClick={() => this._handleLike(item.id)} className={`fixed-icon ${item.hasLike && 'text-danger'}`}>
+                  <a href="#thumbup" onClick={() => this._handleLike(item.id)} className={`fixed-icon ${item.myLike && 'text-primary'}`}>
                     <i className="zmdi zmdi-thumb-up"></i>赞 {item.numLike > 0 && <span>({item.numLike})</span>}
                   </a>
                 </li>
@@ -129,21 +129,11 @@ class FeedsList extends React.Component {
     this.setState({ data: _data })
   }
 
-  _handleLike(id) {
-    event.preventDefault()
-    $.post(`${rb.baseUrl}/feeds/post/like?id=${id}`, (res) => {
-      let _data = this.state.data
-      _data.forEach((item) => {
-        if (id === item.id) item.numLike += (res.data ? 1 : -1)
-      })
-      this.setState({ data: _data })
-    })
-  }
-
   _handleEdit() {
     // NOOP
   }
 
+  _handleLike = (id) => _handleLike(id, this)
   _handleDelete(id) {
     event.preventDefault()
     let that = this
@@ -204,7 +194,7 @@ class FeedsComments extends React.Component {
                 <div className="meta">
                   <a>{item.createdBy[1]}</a>
                 </div>
-                {renderRichContent(item)}
+                {_renderRichContent(item)}
                 <div className="actions">
                   <div className="float-left text-muted fs-12 time">
                     <span title={item.createdOn}>{item.createdOnFN}</span>
@@ -217,7 +207,7 @@ class FeedsComments extends React.Component {
                     </li>
                     }
                     <li className="list-inline-item mr-3">
-                      <a href="#thumbup" onClick={() => this._handleLike(item.id)} className={`fixed-icon ${item.hasLike && 'text-primary'}`}>
+                      <a href="#thumbup" onClick={() => this._handleLike(item.id)} className={`fixed-icon ${item.myLike && 'text-primary'}`}>
                         <i className="zmdi zmdi-thumb-up"></i>赞 {item.numLike > 0 && <span>({item.numLike})</span>}
                       </a>
                     </li>
@@ -290,15 +280,7 @@ class FeedsComments extends React.Component {
     this.setState({ data: _data })
   }
 
-  _handleLike = (id) => {
-    event.preventDefault()
-    $.post(`${rb.baseUrl}/feeds/post/like?id=${id}`, (res) => {
-      let _data = this.state.data
-      _data.forEach((item) => { if (id === item.id) item.numLike += (res.data ? 1 : -1) })
-      this.setState({ data: _data })
-    })
-  }
-
+  _handleLike = (id) => _handleLike(id, this)
   _handleDelete = (id) => {
     event.preventDefault()
     let that = this
@@ -374,7 +356,8 @@ class Pagination extends React.Component {
   }
 }
 
-function renderRichContent(e) {
+// 渲染动态内容
+function _renderRichContent(e) {
   return <div className="rich-content">
     <div className="texts"
       dangerouslySetInnerHTML={{ __html: converEmoji(e.content) }}
@@ -399,4 +382,19 @@ function renderRichContent(e) {
     </div>
     }
   </div>
+}
+
+// 点赞
+function _handleLike(id, comp) {
+  event.preventDefault()
+  $.post(`${rb.baseUrl}/feeds/post/like?id=${id}`, (res) => {
+    let _data = comp.state.data
+    _data.forEach((item) => {
+      if (id === item.id) {
+        item.numLike += (res.data ? 1 : -1)
+        item.myLike = res.data
+      }
+    })
+    comp.setState({ data: _data })
+  })
 }

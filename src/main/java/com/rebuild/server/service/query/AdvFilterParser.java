@@ -89,7 +89,7 @@ public class AdvFilterParser {
 	 * @return
 	 */
 	public String toSqlWhere() {
-		// 快速过滤模式，自动确定查询项
+		// 快速搜索模式，自动确定查询项
 		if ("QUICK".equalsIgnoreCase(filterExp.getString("type"))) {
 			JSONArray items = buildQuickFilterItems(filterExp.getString("qfields"));
 			this.filterExp.put("items", items);
@@ -239,12 +239,13 @@ public class AdvFilterParser {
 		StringBuilder sb = new StringBuilder(field)
 				.append(' ')
 				.append(ParserTokens.convetOperator(op));
+		// 无需值
 		if (op.equalsIgnoreCase(ParserTokens.NL) || op.equalsIgnoreCase(ParserTokens.NT)) {
 		    includeFields.add(field);
-			return sb.toString().trim();
-		} else {
-			sb.append(' ');
+			return sb.toString();
 		}
+
+		sb.append(' ');
 
 		// TODO 自定义函数
 
@@ -309,7 +310,7 @@ public class AdvFilterParser {
 		}
 
 		// 区间
-		boolean isBetween = op.equalsIgnoreCase(ParserTokens.BW);
+		final boolean isBetween = op.equalsIgnoreCase(ParserTokens.BW);
 		if (isBetween && valueEnd == null) {
 			valueEnd = parseValue(item.getString("value2"), op, fieldMeta, true);
 			if (valueEnd == null) {
@@ -335,7 +336,7 @@ public class AdvFilterParser {
 		}
 
         includeFields.add(field);
-		return sb.toString().trim();
+		return sb.toString();
 	}
 
 	/**

@@ -325,6 +325,7 @@
 		<field name="scope" type="string" max-length="20" default-value="ALL" description="哪些人可见, 可选值: ALL/SELF/$GroupID" />
 		<index field-list="createdOn,modifiedOn,scope,type,createdBy" />
 		<index field-list="relatedRecord" />
+		<index field-list="content" type="fulltext" />
 	</entity>
 
 	<entity name="FeedsComment" type-code="041" description="动态评论">
@@ -334,6 +335,7 @@
 		<field name="images" type="string" max-length="700" description="图片(多个逗号分隔)" />
 		<field name="attachments" type="string" max-length="700" description="附件(多个逗号分隔)" />
 		<index field-list="feedsId" />
+		<index field-list="content" type="fulltext" />
 	</entity>
 
 	<entity name="FeedsGroup" type-code="042" description="动态群组">

@@ -138,7 +138,6 @@ public class FeedsListControll extends BasePageControll {
             }
             item.put("type", FeedsType.parse((Integer) o[8]).getName());
             item.put("releated", o[9]);
-            item.put("numLike", FeedsHelper.getNumOfLike((ID) o[0]));
             item.put("numComments", FeedsHelper.getNumOfComment((ID) o[0]));
             list.add(item);
         }
@@ -175,7 +174,6 @@ public class FeedsListControll extends BasePageControll {
         List<JSON> list = new ArrayList<>();
         for (Object[] o : array) {
             JSONObject item = buildBase(o, user);
-            item.put("numLike", FeedsHelper.getNumOfLike((ID) o[0]));
             list.add(item);
         }
         writeSuccess(response,
@@ -200,6 +198,12 @@ public class FeedsListControll extends BasePageControll {
         }
         if (o[6] != null) {
             item.put("attachments", ((String) o[6]).split(","));
+        }
+
+        int numLike = FeedsHelper.getNumOfLike((ID) o[0]);
+        item.put("numLike", numLike);
+        if (numLike > 0) {
+            item.put("myLike", FeedsHelper.isMyLike((ID) o[0], user));
         }
         return item;
     }

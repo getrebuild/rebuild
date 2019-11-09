@@ -154,7 +154,7 @@ const execFilter = function () {
   let items = []
   if (group) items.push({ field: 'scope', op: 'EQ', value: group })
   if (user) items.push({ field: 'createdBy', op: 'EQ', value: user })
-  if (key) items.push({ field: 'content', op: 'LK', value: key })
+  if (key) items.push({ field: 'content', op: 'FT', value: key })
   if (date1) items.push({ field: 'createdOn', op: 'GE', value: date1 })
   if (date2) items.push({ field: 'createdOn', op: 'LE', value: date2 })
   if (type > 0) items.push({ field: 'type', op: 'EQ', value: type })
