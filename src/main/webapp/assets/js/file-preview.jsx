@@ -133,7 +133,7 @@ class RbPreview extends React.Component {
   __buildAbsoluteUrl(url, params) {
     if (!url) url = this.props.urls[this.state.currentIndex]
     if (!(url.startsWith('http://') || url.startsWith('https://'))) {
-      url = `${rb.baseUrl}/filex/download/${url}`
+      url = `${rb.baseUrl}/filex/${(params || '').includes('imageView2') ? 'img' : 'download'}/${url}`
     }
     if (params) {
       url += (url.contains('?') ? '&' : '?')
@@ -189,7 +189,7 @@ class RbPreview extends React.Component {
 }
 
 // ~ 共享
-const EXPIRES_TIME = [[5, '5分钟'], [30, '半小时'], [60, '1小时'], [360, '6小时'], [720, '12小时'], [1440, '1天']]
+const EXPIRES_TIME = [[5, '5分钟'], [30, '半小时'], [60, '1小时'], [360, '6小时'], [720, '12小时'], [1440, '1天'], [4320, '3天']]
 class FileShare extends RbModalHandler {
 
   constructor(props) {

@@ -2635,7 +2635,7 @@ form {
 }
 
 .file-share .expires ul li.active a::after {
-    content: '有效期';
+    content: '有效';
 }
 
 .file-share .form-control {

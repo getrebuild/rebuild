@@ -44,7 +44,9 @@ class FeedsList extends React.Component {
         </div>
         }
         {(this.state.data || []).map((item) => {
-          return <div key={`feeds-${item.id}`}>
+          if (item.deleted) return null
+          let id = `feeds-${item.id}`
+          return <div key={id} id={id}>
             <div className="feeds">
               <div className="user">
                 <a className="user-show">
@@ -152,7 +154,11 @@ class FeedsList extends React.Component {
         this.disabled(true)
         $.post(`${rb.baseUrl}/feeds/post/delete?id=${id}`, () => {
           this.hide()
-          that.fetchFeeds()
+          $(`#feeds-${id}`).animate({ opacity: 0 }, 600, 'swing', () => {
+            let _data = that.state.data
+            _data.forEach((item) => { if (id === item.id) item.deleted = true })
+            that.setState({ data: _data })
+          })
         })
       }
     })
@@ -185,7 +191,9 @@ class FeedsComments extends React.Component {
       </div>
       <div className="feeds-list comment-list">
         {(this.state.data || []).map((item) => {
-          return <div key={`comment-${item.id}`}>
+          if (item.deleted) return null
+          let id = `comment-${item.id}`
+          return <div key={id} id={id}>
             <div className="feeds">
               <div className="user">
                 <a className="user-show">
@@ -257,6 +265,7 @@ class FeedsComments extends React.Component {
       btn.button('reset')
       if (res.error_msg > 0) { RbHighbar.error(res.error_msg || '评论失败，请稍后重试'); return }
       this._editor.reset()
+      this._commentState(false)
       this._fetchComments()
     })
   }
@@ -285,9 +294,7 @@ class FeedsComments extends React.Component {
     event.preventDefault()
     $.post(`${rb.baseUrl}/feeds/post/like?id=${id}`, (res) => {
       let _data = this.state.data
-      _data.forEach((item) => {
-        if (id === item.id) item.numLike += (res.data ? 1 : -1)
-      })
+      _data.forEach((item) => { if (id === item.id) item.numLike += (res.data ? 1 : -1) })
       this.setState({ data: _data })
     })
   }
@@ -302,7 +309,11 @@ class FeedsComments extends React.Component {
         this.disabled(true)
         $.post(`${rb.baseUrl}/feeds/post/delete?id=${id}`, () => {
           this.hide()
-          that._fetchComments()
+          $(`#comment-${id}`).animate({ opacity: 0 }, 600, 'swing', () => {
+            let _data = that.state.data
+            _data.forEach((item) => { if (id === item.id) item.deleted = true })
+            that.setState({ data: _data })
+          })
         })
       }
     })
