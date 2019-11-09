@@ -1,7 +1,7 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 
 // ~ 动态发布
+// eslint-disable-next-line no-unused-vars
 class FeedsPost extends React.Component {
 
   constructor(props) {
@@ -21,7 +21,7 @@ class FeedsPost extends React.Component {
       </ul>
       <div className="arrow_box" style={{ marginLeft: this.state.type === 2 ? 53 : 8 }}></div>
       <div>
-        <FeedsEditor ref={(c) => this._editor = c} />
+        <FeedsEditor ref={(c) => this._editor = c} type={this.state.type} />
       </div>
       <div className="mt-3">
         <div className="float-right">
@@ -102,11 +102,7 @@ class UserSelectorExt extends UserSelector {
 
 // ~ 动态编辑框
 class FeedsEditor extends React.Component {
-
-  constructor(props) {
-    super(props)
-    this.state = { ...props }
-  }
+  state = { ...this.props }
 
   render() {
     let es = []
@@ -144,6 +140,7 @@ class FeedsEditor extends React.Component {
           </ul>
         </div>
       </div>
+      {this.state.type === 2 && <SelectReleated ref={(c) => this._selectReleated = c} />}
       {((this.state.images || []).length > 0 || (this.state.files || []).length > 0) && <div className="attachment">
         <div className="img-field">
           {(this.state.images || []).map((item) => {
@@ -173,6 +170,7 @@ class FeedsEditor extends React.Component {
       </span>
     </React.Fragment>)
   }
+  UNSAFE_componentWillReceiveProps = (props) => this.setState(props)
 
   componentDidMount() {
     $(document.body).click((e) => {
@@ -243,23 +241,21 @@ class FeedsEditor extends React.Component {
     return {
       content: this.val(),
       images: (this.state.images || []).join(','),
-      attachments: (this.state.files || []).join(',')
+      attachments: (this.state.files || []).join(','),
+      relatedRecord: this.state.type === 2 ? this._selectReleated.val() : null
     }
   }
   focus = () => $(this._editor).selectRange(9999, 9999)  // Move to last
   reset = () => {
     $(this._editor).val('')
+    if (this._selectReleated) this._selectReleated.reset()
     this.setState({ files: null, images: null })
   }
 }
 
 // ~ 选择群组
 class SelectGroup extends React.Component {
-
-  constructor(props) {
-    super(props)
-    this.state = { ...props }
-  }
+  state = { ...this.props }
 
   render() {
     return (
@@ -297,6 +293,77 @@ class SelectGroup extends React.Component {
     this.hide()
     this.props.call && this.props.call(item)
   }
+}
+
+// ~ 选择相关记录
+class SelectReleated extends React.Component {
+  state = { ...this.props }
+
+  render() {
+    return (<div className="releated-select">
+      <div className="row">
+        <div className="col-2 pr-0">
+          <p className="m-0 text-muted mt-2 up-3">相关记录</p>
+        </div>
+        <div className="col-3 p-0">
+          <select className="form-control form-control-sm" ref={(c) => this._entity = c}>
+            {(this.state.entities || []).length === 0 && <option>无可用实体</option>}
+            {(this.state.entities || []).map((item) => {
+              return <option key={item.name} value={item.name}>{item.label}</option>
+            })}
+          </select>
+        </div>
+        <div className="col-7">
+          <select className="form-control form-control-sm" ref={(c) => this._record = c} />
+        </div>
+      </div>
+    </div>)
+  }
+
+  componentDidMount() {
+    $.get(`${rb.baseUrl}/commons/metadata/entities`, (res) => {
+      if (!res.data || res.data.length === 0) {
+        $(this._entity).attr('disabled', true)
+        $(this._record).attr('disabled', true)
+        return
+      }
+      this.setState({ entities: res.data }, () => {
+        $(this._entity).select2({
+          allowClear: false,
+        }).on('change', () => {
+          $(this._record).val(null).trigger('change')
+        })
+      })
+    })
+
+    let that = this
+    let search_input = null
+    $(this._record).select2({
+      placeholder: '(可选)',
+      minimumInputLength: 0,
+      maximumSelectionLength: 1,
+      ajax: {
+        url: rb.baseUrl + '/commons/search/search',
+        delay: 300,
+        data: function (params) {
+          search_input = params.term
+          return { entity: $(that._entity).val(), q: params.term }
+        },
+        processResults: function (data) {
+          return { results: data.data }
+        }
+      },
+      language: {
+        noResults: () => { return (search_input || '').length > 0 ? '未找到结果' : '输入关键词搜索' },
+        inputTooShort: () => { return '输入关键词搜索' },
+        searching: () => { return '搜索中...' },
+        maximumSelected: () => { return '只能选择 1 项' }
+      }
+    })
+  }
+
+  val() { return $(this._record).val() }
+  reset = () => $(this._record).val(null).trigger('change')
 }
 
 const EMOJIS = { '赞': 'fs_zan.png', '握手': 'fs_woshou.png', '耶': 'fs_ye.png', '抱拳': 'fs_baoquan.png', 'OK': 'fs_ok.png', '拍手': 'fs_paishou.png', '拜托': 'fs_baituo.png', '差评': 'fs_chaping.png', '微笑': 'fs_weixiao.png', '撇嘴': 'fs_piezui.png', '花痴': 'fs_huachi.png', '发呆': 'fs_fadai.png', '得意': 'fs_deyi.png', '大哭': 'fs_daku.png', '害羞': 'fs_haixiu.png', '闭嘴': 'fs_bizui.png', '睡着': 'fs_shuizhao.png', '敬礼': 'fs_jingli.png', '崇拜': 'fs_chongbai.png', '抱抱': 'fs_baobao.png', '忍住不哭': 'fs_renzhubuku.png', '尴尬': 'fs_ganga.png', '发怒': 'fs_fanu.png', '调皮': 'fs_tiaopi.png', '开心': 'fs_kaixin.png', '惊讶': 'fs_jingya.png', '呵呵': 'fs_hehe.png', '思考': 'fs_sikao.png', '哭笑不得': 'fs_kuxiaobude.png', '抓狂': 'fs_zhuakuang.png', '呕吐': 'fs_outu.png', '偷笑': 'fs_touxiao.png', '笑哭了': 'fs_xiaokule.png', '白眼': 'fs_baiyan.png', '傲慢': 'fs_aoman.png', '饥饿': 'fs_jie.png', '困': 'fs_kun.png', '吓': 'fs_xia.png', '流汗': 'fs_liuhan.png', '憨笑': 'fs_hanxiao.png', '悠闲': 'fs_youxian.png', '奋斗': 'fs_fendou.png', '咒骂': 'fs_zhouma.png', '疑问': 'fs_yiwen.png', '嘘': 'fs_xu.png', '晕': 'fs_yun.png', '惊恐': 'fs_jingkong.png', '衰': 'fs_shuai.png', '骷髅': 'fs_kulou.png', '敲打': 'fs_qiaoda.png', '再见': 'fs_zaijian.png', '无语': 'fs_wuyu.png', '抠鼻': 'fs_koubi.png', '鼓掌': 'fs_guzhang.png', '糗大了': 'fs_qiudale.png', '猥琐的笑': 'fs_weisuodexiao.png', '哼': 'fs_heng.png', '不爽': 'fs_bushuang.png', '打哈欠': 'fs_dahaqian.png', '鄙视': 'fs_bishi.png', '委屈': 'fs_weiqu.png', '安慰': 'fs_anwei.png', '坏笑': 'fs_huaixiao.png', '亲亲': 'fs_qinqin.png', '冷汗': 'fs_lenghan.png', '可怜': 'fs_kelian.png', '生病': 'fs_shengbing.png', '愉快': 'fs_yukuai.png', '幸灾乐祸': 'fs_xingzailehuo.png', '大便': 'fs_dabian.png', '干杯': 'fs_ganbei.png', '钱': 'fs_qian.png' }

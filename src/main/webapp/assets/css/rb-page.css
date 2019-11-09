@@ -822,7 +822,6 @@ a {
     word-break: break-all;
     height: 30px;
     padding: 1px 4px 1px 6px;
-    line-height: 15px;
     line-height: 1.15rem;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -2610,8 +2609,7 @@ form {
 
 .preview-modal .preview-body .unsupports {
     max-width: 400px;
-    margin: 0 auto;
-    margin-top: 15%;
+    margin: 15% auto 0;
     text-align: center;
     padding: 30px;
     height: auto;

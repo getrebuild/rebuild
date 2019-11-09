@@ -102,7 +102,6 @@ public class FeedsListControll extends BasePageControll {
             }
             sqlWhere += " and ( " + StringUtils.join(in, " or ") + " )";
         }
-        System.out.println(sqlWhere);
 
         int pageNo = getIntParameter(request, "pageNo", 1);
         int pageSize = getIntParameter(request, "pageSize", 40);

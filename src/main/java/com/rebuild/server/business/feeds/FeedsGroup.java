@@ -23,6 +23,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.service.bizz.UserHelper;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
@@ -31,7 +32,8 @@ import java.util.Set;
  * @author devezhao
  * @since 2019/11/8
  */
-public class FeedsGroup {
+public class FeedsGroup implements Serializable {
+    private static final long serialVersionUID = 3572724577440501196L;
 
     private ID id;
     private String name;
