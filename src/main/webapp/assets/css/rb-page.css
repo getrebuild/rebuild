@@ -796,6 +796,10 @@ a {
     cursor: default;
 }
 
+.file-field a.img-thumbnail {
+    cursor: pointer;
+}
+
 .file-field .img-thumbnail:hover {
     border-color: #4285f4;
 }
@@ -2473,35 +2477,40 @@ form {
 }
 
 .preview-modal {
-    position: absolute;
+    position: fixed;
     height: 100%;
     width: 100%;
     top: 0;
     left: 0;
     z-index: 1099;
-    background-color: rgba(0, 0, 0, 0.2)
+    background-color: rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
 }
 
 .preview-modal .preview-header {
     background: rgba(0, 0, 0, 0.9);
     color: #fff;
     padding: 0 25px;
-    position: absolute;
-    width: 100%;
-    top: 0;
-    left: 0;
+    height: 60px;
+}
+
+.preview-modal .preview-body {
+    flex-grow: 1;
+    position: relative;
+    overflow: hidden;
 }
 
 .preview-modal .preview-header .float-left>h5,
 .preview-modal .preview-header .float-right a {
     margin: 0;
-    height: 48px;
-    line-height: 48px;
+    height: 60px;
+    line-height: 60px;
 }
 
 .preview-modal .preview-header .float-right a {
     display: inline-block;
-    width: 48px;
+    width: 56px;
     font-size: 18px;
     font-weight: normal;
     text-align: center;
@@ -2512,22 +2521,21 @@ form {
     background: rgba(255, 255, 255, .3);
 }
 
-.preview-modal .preview-body,
-.preview-modal .preview-body>div,
+.preview-modal .preview-body .container,
 .preview-modal .container .iframe,
-.preview-modal .preview-body iframe {
+.preview-modal .container iframe {
     height: 100%;
 }
 
-.preview-modal .preview-body iframe {
+.preview-modal .preview-body .iframe {
+    background: #fff
+}
+
+.preview-modal .container iframe {
     width: 100%;
     border: 0;
     margin: 0;
     padding: 0;
-}
-
-.preview-modal .preview-body {
-    padding-top: 48px;
 }
 
 @media (max-width:768px) {
@@ -2535,7 +2543,7 @@ form {
         padding: 0 12px;
     }
 
-    .preview-modal .preview-body .container {
+    .preview-modal .container .container {
         padding-left: 0;
         padding-right: 0;
         max-width: 768px !important;
@@ -2543,18 +2551,24 @@ form {
 }
 
 .preview-modal .preview-body .img-zoom {
-    text-align: center;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
 }
 
 .preview-modal .preview-body .img-zoom img {
-    max-width: 100%;
-    max-height: 100%;
-    vertical-align: middle;
-    display: inline-block;
+    max-height: 98%;
+    max-width: 98%;
+    position: absolute;
+    top: 49%;
+    left: 49%;
+    transform: translate(-49%, -49%);
     font-size: 0;
+    display: inline-block;
 }
 
-.preview-modal .preview-body .op-box {
+.preview-modal .preview-body .oper-box {
     position: absolute;
     bottom: 25px;
     width: 160px;
@@ -2569,8 +2583,8 @@ form {
     user-select: none;
 }
 
-.preview-modal .preview-body .op-box a.arrow,
-.preview-modal .preview-body .op-box span {
+.preview-modal .preview-body .oper-box a.arrow,
+.preview-modal .preview-body .oper-box span {
     text-align: center;
     display: inline-block;
     height: 48px;
@@ -2578,17 +2592,17 @@ form {
     line-height: 48px;
 }
 
-.preview-modal .preview-body .op-box a.arrow {
+.preview-modal .preview-body .oper-box a.arrow {
     width: 48px;
     font-size: 21px;
     font-weight: lighter;
 }
 
-.preview-modal .preview-body .op-box a.arrow:hover {
+.preview-modal .preview-body .oper-box a.arrow:hover {
     background-color: rgba(0, 0, 0, 0.9);
 }
 
-.preview-modal .preview-body .op-box span {
+.preview-modal .preview-body .oper-box span {
     font-size: 1rem;
     color: #fff;
     width: 64px;

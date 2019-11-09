@@ -116,7 +116,7 @@ class FeedsEditor extends React.Component {
     }
 
     return (<React.Fragment>
-      <div className={`rich-input ${this.state.focus && 'active'}`}>
+      <div className={`rich-editor ${this.state.focus && 'active'}`}>
         <textarea ref={(c) => this._editor = c} placeholder={this.props.placeholder}
           onFocus={() => this.setState({ focus: true })}
           onBlur={() => this.setState({ focus: false })}

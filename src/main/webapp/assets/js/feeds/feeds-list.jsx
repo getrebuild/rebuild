@@ -1,11 +1,10 @@
-/* eslint-disable no-undef */
-/* eslint-disable react/jsx-no-undef */
 /* eslint-disable react/prop-types */
-/* eslint-disable no-unused-vars */
+/* global converEmoji, FeedsEditor */
 
 const FeedsSortTypes = { newer: '最近发布', older: '最早发布', modified: '最近修改' }
 
 // ~ 动态列表
+// eslint-disable-next-line no-unused-vars
 class FeedsList extends React.Component {
 
   constructor(props) {
@@ -62,7 +61,7 @@ class FeedsList extends React.Component {
                     {typeof item.scope === 'string' ? item.scope : <span>{item.scope[1]} <i className="zmdi zmdi-accounts fs-14 down-1"></i></span>}
                   </p>
                 </div>
-                <div className="rich" dangerouslySetInnerHTML={{ __html: converEmoji(item.content) }} />
+                {renderRichContent(item)}
               </div>
             </div>
             <div className="actions">
@@ -139,7 +138,7 @@ class FeedsList extends React.Component {
     })
   }
 
-  _handleEdit(id) {
+  _handleEdit() {
     // NOOP
   }
 
@@ -197,7 +196,7 @@ class FeedsComments extends React.Component {
                 <div className="meta">
                   <a>{item.createdBy[1]}</a>
                 </div>
-                <div className="rich" dangerouslySetInnerHTML={{ __html: converEmoji(item.content) }} />
+                {renderRichContent(item)}
                 <div className="actions">
                   <div className="float-left text-muted fs-12 time">
                     <span title={item.createdOn}>{item.createdOnFN}</span>
@@ -271,7 +270,6 @@ class FeedsComments extends React.Component {
   _toggleReply = (id, state) => {
     event.preventDefault()
     let _data = this.state.data
-    let itemState
     _data.forEach((item) => {
       if (id === item.id) {
         if (state !== undefined) item.shownReply = state
@@ -363,4 +361,31 @@ class Pagination extends React.Component {
       typeof this.props.call === 'function' && this.props.call(pageNo)
     })
   }
+}
+
+function renderRichContent(e) {
+  return <div className="rich-content">
+    <div className="texts"
+      dangerouslySetInnerHTML={{ __html: converEmoji(e.content) }}
+    />
+    {(e.images || []).length > 0 && <div className="img-field">
+      ${e.images.map((item, idx) => {
+        return (<span key={'img-' + item}>
+          <a title={$fileCutName(item)} onClick={() => RbPreview.create(e.images, idx)} className="img-thumbnail img-upload zoom-in">
+            <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />
+          </a>
+        </span>)
+      })}
+    </div>
+    }
+    {(e.attachments || []).length > 0 && <div className="file-field">
+      {e.attachments.map((item) => {
+        let fileName = $fileCutName(item)
+        return (<a key={'file-' + item} title={fileName} onClick={() => RbPreview.create(item)} className="img-thumbnail">
+          <i className="file-icon" data-type={$fileExtName(fileName)} /><span>{fileName}</span>
+        </a>)
+      })}
+    </div>
+    }
+  </div>
 }

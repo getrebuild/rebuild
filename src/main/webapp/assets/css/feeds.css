@@ -10,7 +10,7 @@
   width: 100%;
 }
 
-.rich-input {
+.rich-editor {
   border: 1px solid #eee;
   border-radius: 2px;
   line-height: 1;
@@ -18,11 +18,11 @@
   margin-top: -1px;
 }
 
-.rich-input.active {
+.rich-editor.active {
   border-color: #ddd;
 }
 
-.rich-input textarea {
+.rich-editor textarea {
   width: 100%;
   padding: 8px 10px;
   padding-bottom: 6px;
@@ -35,13 +35,13 @@
   height: 55px;
 }
 
-.rich-input .action-btns {
+.rich-editor .action-btns {
   background-color: #f5f5f5;
   padding: 0 4px;
   padding-top: 1px;
 }
 
-.rich-input .action-btns li>a {
+.rich-editor .action-btns li>a {
   display: inline-block;
   padding: 7px 5px;
   font-size: 19px;
@@ -51,7 +51,7 @@
   position: relative;
 }
 
-.rich-input .action-btns li>a .zmdi.at-text {
+.rich-editor .action-btns li>a .zmdi.at-text {
   font-weight: 600;
   font-size: 18px;
   transform: translateY(-1px);
@@ -130,17 +130,6 @@
   margin-top: 11px;
 }
 
-.attachment .file-field {
-  margin-left: -0.5%;
-  margin-right: -0.5%;
-}
-
-.attachment .file-field .img-thumbnail {
-  width: 49%;
-  margin-left: 0.5%;
-  margin-right: 0.5%;
-}
-
 .types-bar {
   background-color: #fff;
   margin-top: 15px;
@@ -208,21 +197,49 @@
   line-height: 1.4;
 }
 
-.feeds-list .feeds>.content .rich {
+.feeds-list .feeds>.content .rich-content {
   font-size: 1.1rem;
-  padding: 5px 0;
+  padding-top: 5px;
   line-height: 1.5;
 }
 
-.feeds-list .feeds>.content .rich>img.emoji {
+.rich-content>.texts {
+  margin-bottom: 6px;
+}
+
+.rich-content>.texts img.emoji {
   width: 26px;
   height: 26px;
   line-height: 1;
   font-size: 0;
 }
 
+.rich-content>.img-field {
+  margin-bottom: 8px;
+}
+
+.rich-content>.file-field {
+  margin-bottom: 5px;
+}
+
+.attachment>.file-field .img-thumbnail,
+.rich-content>.file-field .img-thumbnail {
+  width: 49.5%;
+  margin-right: 1%;
+}
+
+.attachment>.file-field .img-thumbnail:nth-child(even),
+.rich-content>.file-field .img-thumbnail:nth-child(even) {
+  margin-right: 0
+}
+
+.rich-content>.img-field .img-thumbnail:hover,
+.rich-content>.file-field .img-thumbnail:hover {
+  opacity: 0.8;
+}
+
 .feeds-list .actions {
-  margin-top: 7px;
+  margin-top: 5px;
   padding-top: 5px;
   border-top: 1px solid #eee;
   text-align: right;
@@ -278,11 +295,11 @@
   margin-top: 4px;
 }
 
-.comments .rich-input {
+.comments .rich-editor {
   margin-top: 0;
 }
 
-.comments .rich-input textarea {
+.comments .rich-editor textarea {
   height: 36px;
 }
 
@@ -358,6 +375,13 @@
   top: 60px;
   background-color: #f5f5f5;
   padding: 12px;
+}
+
+@media (max-width:992px) {
+  .side-wrapper-parent {
+    padding-left: 0;
+    margin-top: 25px;
+  }
 }
 
 .side-wrapper .search .input-group-text {

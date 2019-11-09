@@ -17,12 +17,12 @@
 	<div class="rb-content">
 		<div class="main-content container feeds-container">
 			<div class="row">
-				<div class="col-md-8 col-12 p-0">
+				<div class="col-lg-8 col-12 p-0">
                     <div class="rb-loading rb-loading-active" id="rb-feeds">
                         <%@ include file="/_include/spinner.jsp"%>
                     </div>
 				</div>
-				<div class="col-md-4 col-12 pr-0">
+				<div class="col-lg-4 col-12 pr-0 side-wrapper-parent">
 					<div class="side-wrapper">
 						<div class="accordion m-0">
 							<div class="card">
