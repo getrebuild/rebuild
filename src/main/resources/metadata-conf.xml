@@ -173,7 +173,7 @@
 		<index type="unique" field-list="item" />
 	</entity>
 
-	<entity name="Notification" type-code="022" description="通知消息">
+	<entity name="Notification" type-code="022" description="消息通知">
 		<field name="messageId" type="primary" />
 		<field name="fromUser" type="reference" ref-entity="User" nullable="false" updatable="false" />
 		<field name="toUser" type="reference" ref-entity="User" nullable="false" updatable="false" />

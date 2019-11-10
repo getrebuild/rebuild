@@ -1,18 +1,17 @@
+/* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable react/prop-types */
 /* global converEmoji, FeedsEditor */
 
 const FeedsSortTypes = { newer: '最近发布', older: '最早发布', modified: '最近修改' }
-
 // ~ 动态列表
 // eslint-disable-next-line no-unused-vars
 class FeedsList extends React.Component {
 
   constructor(props) {
     super(props)
-    this.state = { ...props, tabType: 0, pageNo: 1 }
+    this.state = { ...props, tabType: 0, pageNo: 1, sort: $storage.get('Feeds-sort') }
 
-    this.state.sort = $storage.get('Feeds-sort')
-    this._lastFilter = { entity: 'Feeds', items: [] }
+    this.__lastFilter = { entity: 'Feeds', items: [] }
   }
 
   render() {
@@ -100,7 +99,7 @@ class FeedsList extends React.Component {
    * @param {*} filter AdvFilter
    */
   fetchFeeds(filter) {
-    this._lastFilter = filter = filter || this._lastFilter
+    this.__lastFilter = filter = filter || this.__lastFilter
     $.post(`${rb.baseUrl}/feeds/feeds-list?pageNo=${this.state.pageNo}&sort=${this.state.sort}&type=${this.state.tabType}`, JSON.stringify(filter), (res) => {
       let _data = res.data || { data: [], total: 0 }
       this.state.pageNo === 1 && this._pagination.setState({ rowsTotal: _data.total, pageNo: 1 })
@@ -161,11 +160,7 @@ class FeedsList extends React.Component {
 
 // ~ 评论
 class FeedsComments extends React.Component {
-
-  constructor(props) {
-    super(props)
-    this.state = { ...props, pageNo: 1 }
-  }
+  state = { ...this.props, pageNo: 1 }
 
   render() {
     return (<div className="comments">
@@ -308,10 +303,10 @@ class FeedsComments extends React.Component {
 
 // ~ 分页
 class Pagination extends React.Component {
-
-  constructor(props) {
-    super(props)
-    this.state = { ...props, pageSize: props.pageSize || 5, pageNo: props.pageNo || 1 }
+  state = {
+    ...this.props,
+    pageSize: this.props.pageSize || 5,
+    pageNo: this.props.pageNo || 1
   }
 
   render() {
@@ -362,6 +357,14 @@ function _renderRichContent(e) {
     <div className="texts"
       dangerouslySetInnerHTML={{ __html: converEmoji(e.content) }}
     />
+    {e.releated && <div style={{ marginBottom: 6 }}>
+      <a target="_blank" href={`${rb.baseUrl}/app/list-and-view?id=${e.releated[0]}`} className="link" title="相关记录">
+        <span><i className={`icon zmdi zmdi-${e.releated[3]}`}></i> {e.releated[2]}</span>
+        &nbsp;-&nbsp;
+        <span>{e.releated[1]}</span>
+      </a>
+    </div>
+    }
     {(e.images || []).length > 0 && <div className="img-field">
       ${e.images.map((item, idx) => {
         return (<span key={'img-' + item}>

@@ -29,7 +29,10 @@ import com.rebuild.server.business.feeds.FeedsGroup;
 import com.rebuild.server.business.feeds.FeedsHelper;
 import com.rebuild.server.business.feeds.FeedsScope;
 import com.rebuild.server.business.feeds.FeedsType;
+import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.notification.MessageBuilder;
 import com.rebuild.server.service.query.AdvFilterParser;
@@ -136,8 +139,14 @@ public class FeedsListControll extends BasePageControll {
                 item.put("scope", scope.getName());
             }
             item.put("type", FeedsType.parse((Integer) o[8]).getName());
-            item.put("releated", o[9]);
             item.put("numComments", FeedsHelper.getNumOfComment((ID) o[0]));
+
+            ID releated = (ID) o[9];
+            if (releated != null && MetadataHelper.containsEntity(releated.getEntityCode())) {
+                EasyMeta entity = EasyMeta.valueOf(releated.getEntityCode());
+                String recordLabel = FieldValueWrapper.getLabelNotry(releated);
+                item.put("releated", new Object[] { releated, recordLabel, entity.getLabel(), entity.getIcon() });
+            }
             list.add(item);
         }
         writeSuccess(response,

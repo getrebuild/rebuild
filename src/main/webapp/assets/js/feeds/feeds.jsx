@@ -2,9 +2,8 @@
 /* eslint-disable react/jsx-no-undef */
 
 class RbFeeds extends React.Component {
-  constructor(props) {
-    super(props)
-  }
+  state = { ...this.props }
+
   render() {
     return <React.Fragment>
       <FeedsPost ref={(c) => this._post = c} call={this.search} />
@@ -16,10 +15,7 @@ class RbFeeds extends React.Component {
 
 // ~ 群组
 class FeedsGroup extends RbFormHandler {
-
-  constructor(props) {
-    super(props)
-  }
+  state = { ...this.props }
 
   render() {
     return (<RbModal title={`${this.props.id ? '修改' : '添加'}群组`} ref={(c) => this._dlg = c} disposeOnHide={true}>
@@ -69,11 +65,7 @@ class FeedsGroup extends RbFormHandler {
 }
 
 class GroupList extends React.Component {
-
-  constructor(props) {
-    super(props)
-    this.state = { ...props }
-  }
+  state = { ...this.props }
 
   render() {
     return (<ul className="list-unstyled">
@@ -126,10 +118,7 @@ class GroupList extends React.Component {
 }
 
 class UserList extends GroupList {
-
-  constructor(props) {
-    super(props)
-  }
+  state = { ...this.props }
 
   loadData() {
     $.get(`${rb.baseUrl}/feeds/group/user-list`, (res) => {

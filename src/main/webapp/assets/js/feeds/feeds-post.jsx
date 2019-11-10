@@ -3,11 +3,7 @@
 // ~ 动态发布
 // eslint-disable-next-line no-unused-vars
 class FeedsPost extends React.Component {
-
-  constructor(props) {
-    super(props)
-    this.state = { ...props, type: 1 }
-  }
+  state = { ...this.props, type: 1 }
 
   render() {
     return (<div className="feeds-post">
@@ -87,12 +83,15 @@ class FeedsPost extends React.Component {
 
 // 复写组件
 class UserSelectorExt extends UserSelector {
+
   constructor(props) {
     super(props)
   }
+
   componentDidMount() {
     $(this._scroller).perfectScrollbar()
   }
+
   clickItem(e) {
     let id = e.target.dataset.id
     let name = $(e.target).text()
@@ -300,12 +299,9 @@ class SelectReleated extends React.Component {
   state = { ...this.props }
 
   render() {
-    return (<div className="releated-select">
+    return (<div className="releated-select p-1">
       <div className="row">
-        <div className="col-2 pr-0">
-          <p className="m-0 text-muted mt-2 up-3">相关记录</p>
-        </div>
-        <div className="col-3 p-0">
+        <div className="col-4 pr-0">
           <select className="form-control form-control-sm" ref={(c) => this._entity = c}>
             {(this.state.entities || []).length === 0 && <option>无可用实体</option>}
             {(this.state.entities || []).map((item) => {
@@ -313,7 +309,7 @@ class SelectReleated extends React.Component {
             })}
           </select>
         </div>
-        <div className="col-7">
+        <div className="col-8 pl-1">
           <select className="form-control form-control-sm" ref={(c) => this._record = c} />
         </div>
       </div>
@@ -339,7 +335,7 @@ class SelectReleated extends React.Component {
     let that = this
     let search_input = null
     $(this._record).select2({
-      placeholder: '(可选)',
+      placeholder: '选择相关记录 (可选)',
       minimumInputLength: 0,
       maximumSelectionLength: 1,
       ajax: {

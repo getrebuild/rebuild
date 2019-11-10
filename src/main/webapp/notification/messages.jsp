@@ -3,12 +3,12 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>通知</title>
+<title>消息通知</title>
 </head>
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-offcanvas-menu">
 	<jsp:include page="/_include/NavTop.jsp">
-		<jsp:param value="通知" name="pageTitle"/>
+		<jsp:param value="消息通知" name="pageTitle"/>
 	</jsp:include>
 	<jsp:include page="/_include/NavLeft.jsp">
 		<jsp:param value="notifications" name="activeNav"/>
@@ -18,7 +18,7 @@
 			<div class="tab-container">
 				<ul class="nav nav-tabs nav-tabs-classic notification-tab">
 					<li class="nav-item">
-						<a class="nav-link active" href="notifications"><span class="icon zmdi zmdi-notifications"></span> 通知</a>
+						<a class="nav-link active" href="notifications"><span class="icon zmdi zmdi-notifications"></span> 消息</a>
 					</li>
 					<li class="nav-item">
 						<a class="nav-link" href="notifications/todo"><span class="icon zmdi zmdi-alarm-check"></span> 待办</a>
@@ -37,13 +37,13 @@
 										<span class="text">已读</span>
 									</a>
 									<a href="#assigns" data-type="10" class="list-group-item d-flex list-group-item-action">
-										<span class="text">分派/共享通知</span>
+										<span class="text">分派/共享消息</span>
 									</a>
 									<a href="#approval" data-type="20" class="list-group-item d-flex list-group-item-action">
-										<span class="text">审批通知</span>
+										<span class="text">审批消息</span>
 									</a>
 									<a href="#all" data-type="3" class="list-group-item d-flex list-group-item-action">
-										<span class="text">全部通知</span>
+										<span class="text">全部消息</span>
 									</a>
 								</div>
 							</div>
