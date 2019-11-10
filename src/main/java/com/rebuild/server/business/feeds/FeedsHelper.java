@@ -30,8 +30,6 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * TODO 缓存
- *
  * @author devezhao
  * @since 2019/11/7
  */
@@ -39,6 +37,7 @@ public class FeedsHelper extends FeedsGroupHelper {
 
     /**
      * 评论数
+     * TODO 缓存
      *
      * @param feedsId
      * @return
@@ -53,6 +52,7 @@ public class FeedsHelper extends FeedsGroupHelper {
 
     /**
      * 点赞数
+     * TODO 缓存
      *
      * @param source
      * @return
@@ -82,6 +82,8 @@ public class FeedsHelper extends FeedsGroupHelper {
     }
 
     /**
+     * 获取内容中的 @USERID
+     *
      * @param content
      * @return
      *
@@ -96,7 +98,7 @@ public class FeedsHelper extends FeedsGroupHelper {
      * 获取内容中的 @USERID
      *
      * @param content
-     * @return
+     * @return Returns Map<@NAME, @ID>
      */
     public static Map<String, ID> findMentionsMap(String content) {
         Map<String, ID> found = new HashMap<>();

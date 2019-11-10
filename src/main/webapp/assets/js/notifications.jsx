@@ -1,5 +1,5 @@
 $(document).ready(() => {
-  let mList = <MessageList type="1" />
+  let mList = <MessageList lazy={true} />
   if (window.__PageConfig && window.__PageConfig.type === 'Approval') mList = <ApprovalList />
   renderRbcomp(mList, 'message-list', function () { mList = this })
 
@@ -8,6 +8,11 @@ $(document).ready(() => {
     $(this).addClass('active')
     mList.fetchList(1, $(this).data('type'))
   })
+
+  let ntype = location.hash || '#unread'
+  ntype = $('.notification-type a[href="' + ntype + '"]')
+  if (ntype.length === 0) ntype = $('.notification-type a[href="#unread"]')
+  ntype.trigger('click')
 })
 
 // 消息列表
@@ -36,18 +41,27 @@ class MessageList extends React.Component {
   }
 
   renderItem(item) {
-    return <li className={`notification ${item[3] ? 'notification-unread' : ''}`} key={item[4]} onClick={() => this.makeRead(item[4])}><a>
+    let append = item[5] === 30
+    return <li className={`notification ${item[3] ? 'notification-unread' : ''} ${append ? 'append' : ''}`} key={item[4]} onClick={item[3] ? () => this._makeRead(item[4]) : null}><a>
       <div className="image"><img src={`${rb.baseUrl}/account/user-avatar/${item[0][0]}`} title={item[0][1]} alt="Avatar" /></div>
       <div className="notification-info">
         <div className="text" dangerouslySetInnerHTML={{ __html: item[1] }}></div>
         <div className="date">{item[2]}</div>
+        {this.__renderAppend(item)}
       </div>
     </a></li>
   }
+  // 特殊消息类型渲染额外元素
+  __renderAppend(item) {
+    // eslint-disable-next-line react/jsx-no-target-blank
+    if (item[5] === 30) return <a className="badge link" href={`${rb.baseUrl}/feeds/home#gs=${item[6]}`} target="_blank">查看</a>
+    return null
+  }
 
   componentDidMount() {
-    this.fetchList()
-    $('.read-all').click(() => this.makeRead('ALL'))
+    // eslint-disable-next-line react/prop-types
+    if (this.props.lazy !== true) this.fetchList()
+    $('.read-all').click(() => this._makeRead('ALL'))
   }
 
   fetchList(page, type) {
@@ -55,7 +69,7 @@ class MessageList extends React.Component {
       page: page || this.state.page,
       type: type || this.state.type
     }, () => {
-      $.get(`${rb.baseUrl}/notification/messages?type=${this.state.type}&page=${this.state.page}`, (res) => {
+      $.get(`${rb.baseUrl}/notification/messages?type=${this.state.type}&pageNo=${this.state.page}`, (res) => {
         this.setState({ list: res.data || [] }, () => this.__setLink())
       })
     })
@@ -68,8 +82,9 @@ class MessageList extends React.Component {
     this.fetchList(this.state.page + p, null)
   }
 
-  makeRead(id) {
-    $.post(`${rb.baseUrl}/notification/make-read?id=${id || 'ALL'}`, () => {
+  _makeRead(id) {
+    if (!id) return
+    $.post(`${rb.baseUrl}/notification/make-read?id=${id}`, () => {
       let list = (this.state.list || []).map((item) => {
         if (item[4] === id || id === 'ALL') item[3] = false
         return item
@@ -92,14 +107,14 @@ class ApprovalList extends MessageList {
     this.setState({
       page: page || this.state.page
     }, () => {
-      $.get(`${rb.baseUrl}/notification/approvals?page=${this.state.page || 1}`, (res) => {
+      $.get(`${rb.baseUrl}/notification/approvals?pageNo=${this.state.page || 1}`, (res) => {
         this.setState({ list: res.data || [] }, () => this.__setLink())
       })
     })
   }
 
   renderItem(item) {
-    return <li className="notification approval" key={item[4]}><a>
+    return <li className="notification append" key={item[4]}><a>
       <div className="image"><img src={`${rb.baseUrl}/account/user-avatar/${item[0][0]}`} title={item[0][1]} alt="Avatar" /></div>
       <div className="notification-info">
         <div className="text" dangerouslySetInnerHTML={{ __html: item[1] }}></div>

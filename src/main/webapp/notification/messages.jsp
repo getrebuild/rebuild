@@ -30,18 +30,21 @@
 						<div class="row">
 							<div class="col-md-3 col-12">
 								<div class="list-group notification-type">
-									<a href="#unread" data-type="1" class="list-group-item d-flex list-group-item-action active">
-										<span class="text">未读</span>
+									<a href="#unread" data-type="1" class="list-group-item d-flex list-group-item-action">
+										<span class="text">未读消息</span>
 									</a>
 									<a href="#read" data-type="2" class="list-group-item d-flex list-group-item-action">
-										<span class="text">已读</span>
+										<span class="text">已读消息</span>
 									</a>
-									<a href="#assigns" data-type="10" class="list-group-item d-flex list-group-item-action">
-										<span class="text">分派/共享消息</span>
-									</a>
+                                    <a href="#feeds" data-type="30" class="list-group-item d-flex list-group-item-action">
+                                        <span class="text">动态</span>
+                                    </a>
 									<a href="#approval" data-type="20" class="list-group-item d-flex list-group-item-action">
-										<span class="text">审批消息</span>
+										<span class="text">审批</span>
 									</a>
+                                    <a href="#assigns" data-type="10" class="list-group-item d-flex list-group-item-action">
+                                        <span class="text">分派/共享</span>
+                                    </a>
 									<a href="#all" data-type="3" class="list-group-item d-flex list-group-item-action">
 										<span class="text">全部消息</span>
 									</a>

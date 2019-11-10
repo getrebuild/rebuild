@@ -174,7 +174,7 @@ var __loadMessages = function () {
   if (dest.find('li').length === 0) {
     $('<li class="text-center mt-3 mb-3"><i class="zmdi zmdi-refresh zmdi-hc-spin fs-18"></i></li>').appendTo(dest)
   }
-  $.get(rb.baseUrl + '/notification/messages?pageSize=10', function (res) {
+  $.get(rb.baseUrl + '/notification/messages?pageSize=10&preview=true', function (res) {
     dest.empty()
     $(res.data).each(function (idx, item) {
       var o = $('<li class="notification"></li>').appendTo(dest)

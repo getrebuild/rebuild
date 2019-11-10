@@ -11,11 +11,16 @@ class FeedsList extends React.Component {
     super(props)
     this.state = { ...props, tabType: 0, pageNo: 1, sort: $storage.get('Feeds-sort') }
 
+    this.__gs = $urlp('gs', location.hash)
     this.__lastFilter = { entity: 'Feeds', items: [] }
   }
 
   render() {
     return (<div>
+      {this.__gs && <div className="alert alert-warning alert-icon min mt-3">
+        <div className="icon"><i className="zmdi zmdi-info-outline"></i></div>
+        <div className="message">当前显示指定动态，点击 <a href="home">查看全部</a></div>
+      </div>}
       <div className="types-bar">
         <ul className="nav nav-tabs">
           <li className="nav-item"><a onClick={() => this._switchTab(0)} className={`nav-link ${this.state.tabType === 0 && 'active'}`}>全部</a></li>
@@ -62,7 +67,7 @@ class FeedsList extends React.Component {
                     {typeof item.scope === 'string' ? item.scope : <span>{item.scope[1]} <i className="zmdi zmdi-accounts fs-14 down-1"></i></span>}
                   </p>
                 </div>
-                {_renderRichContent(item)}
+                {__renderRichContent(item)}
               </div>
             </div>
             <div className="actions">
@@ -100,6 +105,11 @@ class FeedsList extends React.Component {
    */
   fetchFeeds(filter) {
     this.__lastFilter = filter = filter || this.__lastFilter
+    if (this.__gs) {
+      filter = { ...filter }  // Use clone
+      if (!filter.items) filter.items = []
+      filter.items.push({ field: 'feedsId', op: 'eq', value: this.__gs })
+    }
     $.post(`${rb.baseUrl}/feeds/feeds-list?pageNo=${this.state.pageNo}&sort=${this.state.sort}&type=${this.state.tabType}`, JSON.stringify(filter), (res) => {
       let _data = res.data || { data: [], total: 0 }
       this.state.pageNo === 1 && this._pagination.setState({ rowsTotal: _data.total, pageNo: 1 })
@@ -189,7 +199,7 @@ class FeedsComments extends React.Component {
                 <div className="meta">
                   <a>{item.createdBy[1]}</a>
                 </div>
-                {_renderRichContent(item)}
+                {__renderRichContent(item)}
                 <div className="actions">
                   <div className="float-left text-muted fs-12 time">
                     <span title={item.createdOn}>{item.createdOnFN}</span>
@@ -352,7 +362,7 @@ class Pagination extends React.Component {
 }
 
 // 渲染动态内容
-function _renderRichContent(e) {
+function __renderRichContent(e) {
   return <div className="rich-content">
     <div className="texts"
       dangerouslySetInnerHTML={{ __html: converEmoji(e.content) }}

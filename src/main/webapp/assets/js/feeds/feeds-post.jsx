@@ -38,9 +38,7 @@ class FeedsPost extends React.Component {
     </div>)
   }
 
-  componentDidMount() {
-    $('#rb-feeds').attr('class', '')
-  }
+  componentDidMount = () => $('#rb-feeds').attr('class', '')
 
   _selectScope = (e) => {
     let target = e.target
@@ -237,12 +235,13 @@ class FeedsEditor extends React.Component {
 
   val() { return $(this._editor).val() }
   vals() {
-    return {
+    let vals = {
       content: this.val(),
       images: (this.state.images || []).join(','),
-      attachments: (this.state.files || []).join(','),
-      relatedRecord: this.state.type === 2 ? this._selectReleated.val() : null
+      attachments: (this.state.files || []).join(',')
     }
+    if (this.state.type === 2 && this._selectReleated) vals.releatedRecord = this._selectReleated.val()
+    return vals
   }
   focus = () => $(this._editor).selectRange(9999, 9999)  // Move to last
   reset = () => {

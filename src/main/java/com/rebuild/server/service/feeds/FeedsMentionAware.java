@@ -28,10 +28,13 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.BaseService;
 import com.rebuild.server.service.bizz.UserService;
+import com.rebuild.server.service.notification.Message;
 import com.rebuild.server.service.notification.MessageBuilder;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 
 /**
@@ -47,14 +50,14 @@ public abstract class FeedsMentionAware extends BaseService {
     @Override
     public Record create(Record record) {
         record = super.create(converContent(record));
-        aware(record);
+        aware(record, true);
         return record;
     }
 
     @Override
     public Record update(Record record) {
         record = super.update(converContent((record)));
-        aware(record);
+        aware(record, false);
         return record;
     }
 
@@ -70,13 +73,15 @@ public abstract class FeedsMentionAware extends BaseService {
      *
      * @param record
      */
-    protected void aware(Record record) {
+    protected void aware(Record record, boolean isNew) {
         String content = record.getString("content");
         if (content == null || record.getID("feedsId") == null) {
             return;
         }
 
-        this.aware(record.getPrimary());
+        if (!isNew) {
+            this.aware(record.getPrimary());
+        }
 
         final Record mention = EntityHelper.forNew(EntityHelper.FeedsMention, UserService.SYSTEM_USER);
         mention.setID("feedsId", record.getID("feedsId"));
@@ -85,6 +90,7 @@ public abstract class FeedsMentionAware extends BaseService {
             mention.setID("commentId", record.getID("commentId"));
         }
 
+        Set<ID> atUsers = new HashSet<>();
         Matcher atMatcher = MessageBuilder.AT_PATTERN.matcher(content);
         while (atMatcher.find()) {
             String at = atMatcher.group().substring(1);
@@ -94,6 +100,24 @@ public abstract class FeedsMentionAware extends BaseService {
             Record clone = mention.clone();
             clone.setID("user", atUser);
             super.create(clone);
+            atUsers.add(atUser);
+        }
+        if (atUsers.isEmpty()) return;
+
+        // 发送通知
+        String messageContent = String.format("@%s 在%s中提到了你",
+                record.getEditor(),
+                record.getEntity().getEntityCode() == EntityHelper.Feeds ? "动态" : "评论");
+        messageContent += "\n> " + content;
+        ID releated = record.getPrimary();
+        if (releated.getEntityCode() == EntityHelper.FeedsComment) {
+            releated = record.getID("feedsId");
+        }
+
+        for (ID to : atUsers) {
+            Message message = new Message(
+                    null, to, messageContent, releated, Message.TYPE_FEEDS);
+            Application.getNotifications().send(message);
         }
     }
 
