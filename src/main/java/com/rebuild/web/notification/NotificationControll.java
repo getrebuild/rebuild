@@ -100,7 +100,7 @@ public class NotificationControll extends BasePageControll {
 		int type = getIntParameter(request, "type", 0);
 		boolean preview = getBoolParameter(request, "preview");
 
-		String sql = "select fromUser,message,createdOn,unread,messageId,type,relatedRecord from Notification" +
+		String sql = "select fromUser,message,createdOn,unread,messageId,relatedRecord,type from Notification" +
                 " where toUser = ? and (1=1) order by createdOn desc";
 		if (type == 1) {
             sql = sql.replace("(1=1)", "unread = 'T'");

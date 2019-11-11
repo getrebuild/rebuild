@@ -1,10 +1,5 @@
-.feeds-container {
-  max-width: 1160px;
-  padding-left: 40px;
-  padding-right: 40px;
-}
-
-.feeds-container .rb-loading {
+.container-smart .rb-loading {
+  height: 100%;
   background-color: #fff;
   min-height: 327px;
   width: 100%;
@@ -96,10 +91,6 @@
 
 .emoji-wrapper>a:hover {
   background-color: #ebeff2
-}
-
-.feeds-container>.rb-loading {
-  height: 100%;
 }
 
 .feeds-post {
@@ -374,7 +365,6 @@
 
 @media (max-width:992px) {
   .side-wrapper-parent {
-    padding-left: 0;
     margin-top: 25px;
   }
 }

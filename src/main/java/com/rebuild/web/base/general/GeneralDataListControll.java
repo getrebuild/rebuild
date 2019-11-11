@@ -27,9 +27,11 @@ import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.DataListManager;
 import com.rebuild.server.helper.datalist.DataList;
 import com.rebuild.server.helper.datalist.DefaultDataList;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.web.BaseEntityControll;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -102,8 +104,20 @@ public class GeneralDataListControll extends BaseEntityControll {
     @RequestMapping("list-and-view")
     public void quickPageList(HttpServletRequest request, HttpServletResponse response) throws IOException {
 	    ID id = getIdParameterNotNull(request, "id");
-	    String entity = MetadataHelper.getEntityName(id);
-	    String url = MessageFormat.format("{0}/list#!/View/{0}/{1}", entity, id);
-	    response.sendRedirect(url);
+	    String url = null;
+	    if (MetadataHelper.containsEntity(id.getEntityCode())) {
+	    	Entity entity = MetadataHelper.getEntity(id.getEntityCode());
+	    	if (MetadataHelper.hasPrivilegesField(entity)) {
+				url = MessageFormat.format("{0}/list#!/View/{0}/{1}", entity, id);
+			} else if (entity.getEntityCode() == EntityHelper.Feeds) {
+				url = "../feeds/home#gs=" + id;
+			}
+		}
+
+	    if (url != null) {
+	    	response.sendRedirect(url);
+		} else {
+	    	response.sendError(HttpStatus.NOT_FOUND.value());
+		}
     }
 }

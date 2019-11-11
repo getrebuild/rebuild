@@ -41,21 +41,15 @@ class MessageList extends React.Component {
   }
 
   renderItem(item) {
-    let append = item[5] === 30
+    const append = item[6] === 30
     return <li className={`notification ${item[3] ? 'notification-unread' : ''} ${append ? 'append' : ''}`} key={item[4]} onClick={item[3] ? () => this._makeRead(item[4]) : null}><a>
       <div className="image"><img src={`${rb.baseUrl}/account/user-avatar/${item[0][0]}`} title={item[0][1]} alt="Avatar" /></div>
       <div className="notification-info">
         <div className="text" dangerouslySetInnerHTML={{ __html: item[1] }}></div>
         <div className="date">{item[2]}</div>
-        {this.__renderAppend(item)}
+        {append && <a className="badge link" href={`${rb.baseUrl}/app/list-and-view?id=${item[5]}`}>查看</a>}
       </div>
     </a></li>
-  }
-  // 特殊消息类型渲染额外元素
-  __renderAppend(item) {
-    // eslint-disable-next-line react/jsx-no-target-blank
-    if (item[5] === 30) return <a className="badge link" href={`${rb.baseUrl}/feeds/home#gs=${item[6]}`} target="_blank">查看</a>
-    return null
   }
 
   componentDidMount() {

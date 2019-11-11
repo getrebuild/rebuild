@@ -15,14 +15,14 @@
 		<jsp:param value="nav_entity-Feeds" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
-		<div class="main-content container feeds-container">
+		<div class="main-content container container-smart">
 			<div class="row">
-				<div class="col-lg-8 col-12 p-0">
+				<div class="col-lg-8 col-12">
                     <div class="rb-loading rb-loading-active" id="rb-feeds">
                         <%@ include file="/_include/spinner.jsp"%>
                     </div>
 				</div>
-				<div class="col-lg-4 col-12 pr-0 side-wrapper-parent">
+				<div class="col-lg-4 col-12 side-wrapper-parent pl-lg-0">
 					<div class="side-wrapper">
 						<div class="accordion m-0">
 							<div class="card">
