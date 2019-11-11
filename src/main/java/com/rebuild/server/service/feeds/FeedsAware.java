@@ -179,8 +179,8 @@ public abstract class FeedsAware extends BaseService {
      */
     private Record getBeforeRecord(ID recordId) {
         Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
-        String sql = String.format("select images,attachments from %s where %s = ?",
-                entity.getName(), entity.getPrimaryField().getName());
+        String primary = entity.getPrimaryField().getName();
+        String sql = String.format("select images,attachments,%s from %s where %s = ?", primary, entity.getName(), primary);
         return Application.createQueryNoFilter(sql).setParameter(1, recordId).record();
     }
 }

@@ -47,7 +47,7 @@ public class FeedsHelper extends FeedsGroupHelper {
                 "select count(commentId) from FeedsComment where feedsId = ?")
                 .setParameter(1, feedsId)
                 .unique();
-        return ObjectUtils.toInt(c[0]);
+        return c == null ? 0 : ObjectUtils.toInt(c[0]);
     }
 
     /**
@@ -62,7 +62,7 @@ public class FeedsHelper extends FeedsGroupHelper {
                 "select count(likeId) from FeedsLike where source = ?")
                 .setParameter(1, source)
                 .unique();
-        return ObjectUtils.toInt(c[0]);
+        return c == null ? 0 : ObjectUtils.toInt(c[0]);
     }
 
     /**

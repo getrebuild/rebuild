@@ -18,8 +18,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.feeds;
 
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.server.TestSupport;
+import com.rebuild.server.Application;
+import com.rebuild.server.TestSupportWithUser;
+import com.rebuild.server.metadata.EntityHelper;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Map;
@@ -28,11 +32,34 @@ import java.util.Map;
  * @author devezhao
  * @since 2019/11/7
  */
-public class FeedsHelperTest extends TestSupport {
+public class FeedsHelperTest extends TestSupportWithUser {
 
     @Test
     public void findMentions() {
         Map<String, ID> map = FeedsHelper.findMentionsMap("@RB示例用户 @超级管理员 @没有 @RB 示例用户 你还的呵呵我复合 @ @  ");
         System.out.println(map);
+    }
+
+    @Test
+    public void getNumOfComment() {
+        ID feedsId = createFeeds();
+        createComment(feedsId);
+
+        int num = FeedsHelper.getNumOfComment(feedsId);
+        Assert.assertTrue(num == 1);
+        Application.getService(EntityHelper.Feeds).delete(feedsId);
+    }
+
+    private ID createFeeds() {
+        Record feeds = EntityHelper.forNew(EntityHelper.Feeds, SIMPLE_USER);
+        feeds.setString("content", "你好，测试动态 @RB示例用户 @admin");
+        return Application.getService(EntityHelper.Feeds).create(feeds).getPrimary();
+    }
+
+    private ID createComment(ID feedsId) {
+        Record comment = EntityHelper.forNew(EntityHelper.FeedsComment, SIMPLE_USER);
+        comment.setString("content", "你好，测试评论");
+        comment.setID("feedsId", feedsId);
+        return Application.getService(EntityHelper.FeedsComment).create(comment).getPrimary();
     }
 }

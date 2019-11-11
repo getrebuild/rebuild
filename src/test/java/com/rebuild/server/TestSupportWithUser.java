@@ -49,5 +49,7 @@ public abstract class TestSupportWithUser extends TestSupport {
      *
      * @return
      */
-    abstract protected ID getSessionUser();
+    protected ID getSessionUser() {
+        return SIMPLE_USER;
+    }
 }
