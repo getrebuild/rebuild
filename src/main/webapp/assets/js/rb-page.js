@@ -130,18 +130,16 @@ var __initNavs = function () {
   })
 
   // WHEN SMALL-WIDTH
-  {
-    $('.left-sidebar-toggle').click(function () {
-      $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
-      $('.left-sidebar-spacer').toggleClass('open')
-    }).text($('.rb-right-navbar .page-title').text())
+  $('.left-sidebar-toggle').click(function () {
+    $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
+    $('.left-sidebar-spacer').toggleClass('open')
+  }).text($('.rb-right-navbar .page-title').text())
 
-    if ($('.page-aside .aside-header').length > 0) {
-      $('.page-aside .aside-header').click(function () {
-        $(this).toggleClass('collapsed')
-        $('.page-aside .aside-nav').toggleClass('show')
-      })
-    }
+  if ($('.page-aside .aside-header').length > 0) {
+    $('.page-aside .aside-header').click(function () {
+      $(this).toggleClass('collapsed')
+      $('.page-aside .aside-nav').toggleClass('show')
+    })
   }
 }
 

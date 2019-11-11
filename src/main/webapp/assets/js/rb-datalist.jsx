@@ -407,8 +407,6 @@ class RbListPagination extends React.Component {
     if (this.__pageTotal <= 0) this.__pageTotal = 1
     let pages = this.__pageTotal <= 1 ? [1] : $pages(this.__pageTotal, this.state.pageNo)
 
-    console.log('page')
-
     return (
       <div className="row rb-datatable-footer">
         <div className="col-12 col-md-4">

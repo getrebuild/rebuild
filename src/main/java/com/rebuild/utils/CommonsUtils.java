@@ -28,8 +28,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -53,8 +51,6 @@ import java.util.regex.Pattern;
  * @since 01/31/2019
  */
 public class CommonsUtils {
-
-	private static final Log LOG = LogFactory.getLog(CommonsUtils.class);
 
 	private static final Pattern PLAIN_PATTERN = Pattern.compile("[A-Za-z0-9_\\-\\u4e00-\\u9fa5]+");
 	/**
@@ -178,7 +174,7 @@ public class CommonsUtils {
 				try (BufferedInputStream bis = new BufferedInputStream(is)) {
 					try (OutputStream os = new FileOutputStream(dest)) {
 						byte[] chunk = new byte[1024];
-						int count = 0;
+						int count;
 						while ((count = bis.read(chunk)) != -1) {
 							os.write(chunk, 0, count);
 						}
