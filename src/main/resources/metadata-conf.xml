@@ -319,8 +319,8 @@
 		<field name="feedsId" type="primary" />
 		<field name="type" type="small-int" nullable="false" updatable="false" default-value="1" description="类型" />
 		<field name="content" type="text" nullable="false" max-length="3000" description="内容" />
-        <field name="images" type="string" max-length="700" description="图片(多个逗号分隔)" />
-        <field name="attachments" type="string" max-length="700" description="附件(多个逗号分隔)" />
+        <field name="images" type="string" max-length="700" description="图片" extra-attrs="{displayType:'IMAGE'}" />
+        <field name="attachments" type="string" max-length="700" description="附件" extra-attrs="{displayType:'FILE'}" />
 		<field name="relatedRecord" type="any-reference" description="相关业务记录" />
 		<field name="scope" type="string" max-length="20" default-value="ALL" description="哪些人可见, 可选值: ALL/SELF/$GroupID" />
 		<index field-list="createdOn,scope,type,createdBy" />
@@ -332,8 +332,8 @@
 		<field name="commentId" type="primary" />
 		<field name="feedsId" type="reference" ref-entity="Feeds" nullable="false" updatable="false" cascade="delete" description="哪个动态" />
 		<field name="content" type="text" nullable="false" max-length="3000" description="内容" />
-		<field name="images" type="string" max-length="700" description="图片(多个逗号分隔)" />
-		<field name="attachments" type="string" max-length="700" description="附件(多个逗号分隔)" />
+		<field name="images" type="string" max-length="700" description="图片" extra-attrs="{displayType:'IMAGE'}" />
+		<field name="attachments" type="string" max-length="700" description="附件" extra-attrs="{displayType:'FILE'}" />
 		<index field-list="feedsId" />
 	</entity>
 

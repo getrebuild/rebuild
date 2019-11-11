@@ -126,7 +126,7 @@ public class AttchementAwareObserver extends OperatingObserver {
 			return;
 		}
 		
-		Application.getCommonService().createOrUpdate(
+		Application.getCommonService().createOrUpdateAndDelete(
 				createWill.toArray(new Record[0]), deleteWill.toArray(new ID[0]));
 	}
 	

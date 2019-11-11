@@ -27,7 +27,7 @@ import com.rebuild.server.metadata.EntityHelper;
  * @author devezhao
  * @since 2019/11/4
  */
-public class FeedsService extends FeedsMentionAware {
+public class FeedsService extends FeedsAware {
 
     protected FeedsService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);

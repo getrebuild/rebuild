@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.feeds;
 
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
@@ -27,6 +28,8 @@ import com.rebuild.server.business.feeds.FeedsHelper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.BaseService;
+import com.rebuild.server.service.OperatingContext;
+import com.rebuild.server.service.base.AttchementAwareObserver;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.notification.Message;
 import com.rebuild.server.service.notification.MessageBuilder;
@@ -41,30 +44,38 @@ import java.util.regex.Matcher;
  * @author ZHAO
  * @since 2019/11/5
  */
-public abstract class FeedsMentionAware extends BaseService {
+public abstract class FeedsAware extends BaseService {
 
-    protected FeedsMentionAware(PersistManagerFactory aPMFactory) {
+    protected FeedsAware(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
     }
 
     @Override
     public Record create(Record record) {
         record = super.create(converContent(record));
-        aware(record, true);
+
+        awareMention(record, true);
+        awareAttchement(OperatingContext.create(Application.getCurrentUser(), BizzPermission.CREATE, null, record));
         return record;
     }
 
     @Override
     public Record update(Record record) {
+        final Record before = getBeforeRecord(record.getPrimary());
         record = super.update(converContent((record)));
-        aware(record, false);
+
+        awareMention(record, false);
+        awareAttchement(OperatingContext.create(Application.getCurrentUser(), BizzPermission.UPDATE, before, record));
         return record;
     }
 
     @Override
     public int delete(ID recordId) {
+        final Record before = getBeforeRecord(recordId);
         int del = super.delete(recordId);
-        aware(recordId);
+
+        awareMention(recordId);
+        awareAttchement(OperatingContext.create(Application.getCurrentUser(), BizzPermission.DELETE, before, null));
         return del;
     }
 
@@ -73,14 +84,14 @@ public abstract class FeedsMentionAware extends BaseService {
      *
      * @param record
      */
-    protected void aware(Record record, boolean isNew) {
+    protected void awareMention(Record record, boolean isNew) {
         String content = record.getString("content");
         if (content == null || record.getID("feedsId") == null) {
             return;
         }
 
         if (!isNew) {
-            this.aware(record.getPrimary());
+            this.awareMention(record.getPrimary());
         }
 
         final Record mention = EntityHelper.forNew(EntityHelper.FeedsMention, UserService.SYSTEM_USER);
@@ -126,7 +137,7 @@ public abstract class FeedsMentionAware extends BaseService {
      *
      * @param deleted
      */
-    protected void aware(ID deleted) {
+    protected void awareMention(ID deleted) {
         Entity entity = MetadataHelper.getEntity(EntityHelper.FeedsMention);
         String whichField = deleted.getEntityCode() == EntityHelper.FeedsComment ? "commentId" : "feedsId";
 
@@ -141,7 +152,7 @@ public abstract class FeedsMentionAware extends BaseService {
      * @param record
      * @return
      */
-    protected Record converContent(Record record) {
+    private Record converContent(Record record) {
         String content = record.getString("content");
         if (StringUtils.isBlank(content)) return record;
 
@@ -151,5 +162,25 @@ public abstract class FeedsMentionAware extends BaseService {
         }
         record.setString("content", content);
         return record;
+    }
+
+    /**
+     * 进入附件表
+     *
+     * @param context
+     */
+    protected void awareAttchement(OperatingContext context) {
+        new AttchementAwareObserver().update(null, context);
+    }
+
+    /**
+     * @param recordId
+     * @return
+     */
+    private Record getBeforeRecord(ID recordId) {
+        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+        String sql = String.format("select images,attachments from %s where %s = ?",
+                entity.getName(), entity.getPrimaryField().getName());
+        return Application.createQueryNoFilter(sql).setParameter(1, recordId).record();
     }
 }

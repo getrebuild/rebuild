@@ -234,8 +234,8 @@ class FeedsEditor extends React.Component {
   vals() {
     let vals = {
       content: this.val(),
-      images: (this.state.images || []).join(','),
-      attachments: (this.state.files || []).join(',')
+      images: this.state.images,
+      attachments: this.state.files
     }
     if (this.state.type === 2 && this._selectRelated) vals.relatedRecord = this._selectRelated.val()
     return vals

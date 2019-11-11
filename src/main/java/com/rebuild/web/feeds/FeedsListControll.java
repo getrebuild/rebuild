@@ -202,10 +202,10 @@ public class FeedsListControll extends BasePageControll {
         item.put("modifedOn", CalendarUtils.getUTCDateTimeFormat().format(o[3]));
         item.put("content", formatContent((String) o[4]));
         if (o[5] != null) {
-            item.put("images", ((String) o[5]).split(","));
+            item.put("images", JSON.parse((String) o[5]));
         }
         if (o[6] != null) {
-            item.put("attachments", ((String) o[6]).split(","));
+            item.put("attachments", JSON.parse((String) o[6]));
         }
 
         int numLike = FeedsHelper.getNumOfLike((ID) o[0]);
