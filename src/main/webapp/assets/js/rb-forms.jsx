@@ -1292,6 +1292,6 @@ class RepeatedViewer extends RbModalHandler {
 
   openView(id) {
     if (window.RbViewModal) window.RbViewModal.create({ id: id, entity: this.props.entity })
-    else window.open(`${rb.baseUrl}/app/${this.props.entity}/list#!/View/${this.props.entity}/${id}`)
+    else window.open(`${rb.baseUrl}/app/list-and-view?id=${id}`)
   }
 }
