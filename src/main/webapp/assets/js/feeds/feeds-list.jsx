@@ -10,16 +10,14 @@ class FeedsList extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props, tabType: 0, pageNo: 1, sort: $storage.get('Feeds-sort') }
-
-    this.__gs = $urlp('gs', location.hash)
     this.__lastFilter = { entity: 'Feeds', items: [] }
   }
 
   render() {
     return (<div>
-      {this.__gs && <div className="alert alert-warning alert-icon min mt-3">
+      {this.state.specFilter && <div className="alert alert-warning alert-icon min mt-3">
         <div className="icon"><i className="zmdi zmdi-info-outline"></i></div>
-        <div className="message">当前显示指定动态，点击 <a href="home">查看全部</a></div>
+        <div className="message">当前显示指定动态，点击 <a href="#no-gs" onClick={this._cleanSpecFilter}>查看全部</a></div>
       </div>}
       <div className="types-bar">
         <ul className="nav nav-tabs">
@@ -105,16 +103,22 @@ class FeedsList extends React.Component {
    */
   fetchFeeds(filter) {
     this.__lastFilter = filter = filter || this.__lastFilter
-    if (this.__gs) {
-      filter = { ...filter }  // Use clone
+    if (this.state.specFilter) {
+      filter = JSON.parse(JSON.stringify(filter))  // Use clone
       if (!filter.items) filter.items = []
-      filter.items.push({ field: 'feedsId', op: 'eq', value: this.__gs })
+      filter.items.push(this.state.specFilter)
     }
+
     $.post(`${rb.baseUrl}/feeds/feeds-list?pageNo=${this.state.pageNo}&sort=${this.state.sort}&type=${this.state.tabType}`, JSON.stringify(filter), (res) => {
       let _data = res.data || { data: [], total: 0 }
       this.state.pageNo === 1 && this._pagination.setState({ rowsTotal: _data.total, pageNo: 1 })
       this.setState({ data: _data.data })
     })
+  }
+
+  _cleanSpecFilter = (e) => {
+    e.preventDefault()
+    this.setState({ specFilter: null }, () => this.fetchFeeds())
   }
 
   _switchTab(t) {

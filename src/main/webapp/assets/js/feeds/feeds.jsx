@@ -5,9 +5,12 @@ class RbFeeds extends React.Component {
   state = { ...this.props }
 
   render() {
+    let gs = $urlp('gs', location.hash)
+    if (gs && gs.length === 20) gs = { field: 'feedsId', op: 'eq', value: gs }
+    else gs = null
     return <React.Fragment>
       <FeedsPost ref={(c) => this._post = c} call={this.search} />
-      <FeedsList ref={(c) => this._list = c} />
+      <FeedsList ref={(c) => this._list = c} specFilter={gs} />
     </React.Fragment>
   }
   search = (filter) => this._list.fetchFeeds(filter)
