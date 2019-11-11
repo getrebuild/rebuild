@@ -109,14 +109,14 @@ public abstract class FeedsMentionAware extends BaseService {
                 record.getEditor(),
                 record.getEntity().getEntityCode() == EntityHelper.Feeds ? "动态" : "评论");
         messageContent += "\n> " + content;
-        ID releated = record.getPrimary();
-        if (releated.getEntityCode() == EntityHelper.FeedsComment) {
-            releated = record.getID("feedsId");
+        ID related = record.getPrimary();
+        if (related.getEntityCode() == EntityHelper.FeedsComment) {
+            related = record.getID("feedsId");
         }
 
         for (ID to : atUsers) {
             Message message = new Message(
-                    null, to, messageContent, releated, Message.TYPE_FEEDS);
+                    null, to, messageContent, related, Message.TYPE_FEEDS);
             Application.getNotifications().send(message);
         }
     }

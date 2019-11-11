@@ -28,7 +28,6 @@ import com.rebuild.server.Application;
 import com.rebuild.server.business.feeds.FeedsGroup;
 import com.rebuild.server.business.feeds.FeedsHelper;
 import com.rebuild.server.business.feeds.FeedsScope;
-import com.rebuild.server.business.feeds.FeedsType;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -138,14 +137,14 @@ public class FeedsListControll extends BasePageControll {
             } else {
                 item.put("scope", scope.getName());
             }
-            item.put("type", FeedsType.parse((Integer) o[8]).getName());
+            item.put("type", o[8]);
             item.put("numComments", FeedsHelper.getNumOfComment((ID) o[0]));
 
-            ID releated = (ID) o[9];
-            if (releated != null && MetadataHelper.containsEntity(releated.getEntityCode())) {
-                EasyMeta entity = EasyMeta.valueOf(releated.getEntityCode());
-                String recordLabel = FieldValueWrapper.getLabelNotry(releated);
-                item.put("releated", new Object[] { releated, recordLabel, entity.getLabel(), entity.getIcon() });
+            ID related = (ID) o[9];
+            if (related != null && MetadataHelper.containsEntity(related.getEntityCode())) {
+                EasyMeta entity = EasyMeta.valueOf(related.getEntityCode());
+                String recordLabel = FieldValueWrapper.getLabelNotry(related);
+                item.put("related", new Object[] { related, recordLabel, entity.getLabel(), entity.getIcon(), entity.getName() });
             }
             list.add(item);
         }
@@ -200,6 +199,7 @@ public class FeedsListControll extends BasePageControll {
         item.put("createdBy", new Object[] { o[1], UserHelper.getName((ID) o[1]) });
         item.put("createdOn", CalendarUtils.getUTCDateTimeFormat().format(o[2]));
         item.put("createdOnFN", Moment.moment((Date) o[2]).fromNow());
+        item.put("modifedOn", CalendarUtils.getUTCDateTimeFormat().format(o[3]));
         item.put("content", formatContent((String) o[4]));
         if (o[5] != null) {
             item.put("images", ((String) o[5]).split(","));

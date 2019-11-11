@@ -459,10 +459,15 @@
   padding: 6px;
 }
 
-.releated-select {
+.related-select {
   background-color: #f5f5f5;
   border-radius: 2px;
   margin-top: 10px;
+}
+
+.dialog-footer.feeds {
+  margin: 15px -20px 0;
+  margin-top: 30px;
 }
 
 .fixed-icon {

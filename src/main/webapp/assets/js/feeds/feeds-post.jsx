@@ -74,22 +74,19 @@ class FeedsPost extends React.Component {
       btn.button('reset')
       if (res.error_msg > 0) { RbHighbar.error(res.error_msg || '发布失败，请稍后重试'); return }
       this._editor.reset()
-      typeof this.props.call === 'function' && this.props.call()
+      this.props.call && this.props.call()
     })
   }
 }
 
 // 复写组件
 class UserSelectorExt extends UserSelector {
-
   constructor(props) {
     super(props)
   }
-
   componentDidMount() {
     $(this._scroller).perfectScrollbar()
   }
-
   clickItem(e) {
     let id = e.target.dataset.id
     let name = $(e.target).text()
@@ -137,7 +134,7 @@ class FeedsEditor extends React.Component {
           </ul>
         </div>
       </div>
-      {this.state.type === 2 && <SelectReleated ref={(c) => this._selectReleated = c} />}
+      {this.state.type === 2 && <SelectRelated ref={(c) => this._selectRelated = c} initValue={this.props.related} />}
       {((this.state.images || []).length > 0 || (this.state.files || []).length > 0) && <div className="attachment">
         <div className="img-field">
           {(this.state.images || []).map((item) => {
@@ -240,13 +237,13 @@ class FeedsEditor extends React.Component {
       images: (this.state.images || []).join(','),
       attachments: (this.state.files || []).join(',')
     }
-    if (this.state.type === 2 && this._selectReleated) vals.releatedRecord = this._selectReleated.val()
+    if (this.state.type === 2 && this._selectRelated) vals.relatedRecord = this._selectRelated.val()
     return vals
   }
   focus = () => $(this._editor).selectRange(9999, 9999)  // Move to last
   reset = () => {
     $(this._editor).val('')
-    if (this._selectReleated) this._selectReleated.reset()
+    if (this._selectRelated) this._selectRelated.reset()
     this.setState({ files: null, images: null })
   }
 }
@@ -294,11 +291,11 @@ class SelectGroup extends React.Component {
 }
 
 // ~ 选择相关记录
-class SelectReleated extends React.Component {
+class SelectRelated extends React.Component {
   state = { ...this.props }
 
   render() {
-    return (<div className="releated-select p-1">
+    return (<div className="related-select p-1">
       <div className="row">
         <div className="col-4 pr-0">
           <select className="form-control form-control-sm" ref={(c) => this._entity = c}>
@@ -328,6 +325,13 @@ class SelectReleated extends React.Component {
         }).on('change', () => {
           $(this._record).val(null).trigger('change')
         })
+
+        // 编辑时
+        if (this.props.initValue) {
+          $(this._entity).val(this.props.initValue[4]).trigger('change')
+          let option = new Option(this.props.initValue[1], this.props.initValue[0], true, true)
+          $(this._record).append(option)
+        }
       })
     })
 
@@ -374,4 +378,43 @@ const converEmoji = function (text) {
     }
   })
   return text.replace(/\n/g, '<br />')
+}
+
+// ~~ 编辑动态
+// eslint-disable-next-line no-unused-vars
+class FeedsEditDlg extends RbModalHandler {
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+    let _data = {
+      initValue: this.props.content.replace(/<\/?.+?>/g, ''),
+      type: this.props.type,
+      images: this.props.images,
+      files: this.props.attachments,
+      related: this.props.related
+    }
+    return <RbModal ref={(c) => this._dlg = c} title="编辑动态" disposeOnHide={true}>
+      <div className="m-1"><FeedsEditor ref={(c) => this._editor = c} {..._data} /></div>
+      <div className="mt-3 text-right" ref={(c) => this._btns = c}>
+        <button className="btn btn-primary btn-space" type="button" onClick={this._post}>保存</button>
+        <button className="btn btn-secondary btn-space" type="button" onClick={this.hide}>取消</button>
+      </div>
+    </RbModal>
+  }
+
+  _post = () => {
+    let _data = this._editor.vals()
+    if (!_data.content) { RbHighbar.create('请输入动态内容'); return }
+    _data.metadata = { entity: 'Feeds', id: this.props.id }
+
+    let btns = $(this._btns).find('.btn').button('loading')
+    $.post(`${rb.baseUrl}/feeds/post/publish`, JSON.stringify(_data), (res) => {
+      btns.button('reset')
+      if (res.error_msg > 0) { RbHighbar.error(res.error_msg || '保存失败，请稍后重试'); return }
+      this.hide()
+      this.props.call && this.props.call()
+    })
+  }
 }

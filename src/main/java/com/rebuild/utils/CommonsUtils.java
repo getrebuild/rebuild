@@ -244,4 +244,15 @@ public class CommonsUtils {
 		}
 		return rows;
 	}
+
+	/**
+	 * 只转义 &gt; &lt;
+	 *
+	 * @param text
+	 * @return
+	 */
+	public static String escapeHtml(String text) {
+		if (StringUtils.isBlank(text)) return text;
+		return text.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+	}
 }

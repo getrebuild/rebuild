@@ -2,7 +2,9 @@
 /* eslint-disable react/prop-types */
 /* global converEmoji, FeedsEditor */
 
-const FeedsSortTypes = { newer: '最近发布', older: '最早发布', modified: '最近修改' }
+const FeedsSorts = { newer: '最近发布', older: '最早发布', modified: '最近修改' }
+const FeedsTypes = { 1: '动态', 2: '跟进' }
+
 // ~ 动态列表
 // eslint-disable-next-line no-unused-vars
 class FeedsList extends React.Component {
@@ -29,7 +31,7 @@ class FeedsList extends React.Component {
           <li className="nav-item"><a onClick={() => this._switchTab(11)} className={`nav-link ${this.state.tabType === 11 && 'active'}`}>私密</a></li>
           <span className="float-right">
             <div className="btn-group">
-              <button type="button" className="btn btn-link pr-0 text-right" data-toggle="dropdown">{FeedsSortTypes[this.state.sort] || '默认排序'} <i className="icon zmdi zmdi-chevron-down up-1"></i></button>
+              <button type="button" className="btn btn-link pr-0 text-right" data-toggle="dropdown">{FeedsSorts[this.state.sort] || '默认排序'} <i className="icon zmdi zmdi-chevron-down up-1"></i></button>
               <div className="dropdown-menu dropdown-menu-right">
                 <a className="dropdown-item" data-sort="newer" onClick={this._sortFeeds}>最近发布</a>
                 <a className="dropdown-item" data-sort="modified" onClick={this._sortFeeds}>最近修改</a>
@@ -57,12 +59,14 @@ class FeedsList extends React.Component {
               </div>
               <div className="content">
                 <div className="meta">
-                  <span className="float-right badge">{item.type}</span>
+                  <span className="float-right badge">{FeedsTypes[item.type] || '动态'}</span>
                   <a>{item.createdBy[1]}</a>
                   <p className="text-muted fs-12 m-0">
-                    <span title={item.createdOn}>{item.createdOnFN}</span>
+                    <span title={item.createdOn}>{item.createdOnFN}{item.createdOn !== item.modifedOn && <span className="text-danger" title={`编辑于 ${item.modifedOn}`}> (已编辑)</span>}</span>
                     &nbsp;&nbsp;·&nbsp;&nbsp;
                     {typeof item.scope === 'string' ? item.scope : <span>{item.scope[1]} <i className="zmdi zmdi-accounts fs-14 down-1"></i></span>}
+                    &nbsp;&nbsp;·&nbsp;&nbsp;
+                    <span>来自网页</span>
                   </p>
                 </div>
                 {__renderRichContent(item)}
@@ -70,10 +74,12 @@ class FeedsList extends React.Component {
             </div>
             <div className="actions">
               <ul className="list-unstyled m-0">
-                {item.self && <li className="list-inline-item mr-3">
-                  <a href="#delete" onClick={() => this._handleDelete(item.id)} className="hover-show fixed-icon">
-                    <i className="zmdi zmdi-delete"></i>删除
-                  </a>
+                {item.self && <li className="list-inline-item mr-2">
+                  <a data-toggle="dropdown" href="#mores" className="fixed-icon" title="更多"><i className="zmdi zmdi-more"></i>&nbsp;</a>
+                  <div className="dropdown-menu dropdown-menu-right">
+                    <a className="dropdown-item" onClick={() => this._handleEdit(item)}><i className="icon zmdi zmdi-edit" /> 编辑</a>
+                    <a className="dropdown-item" onClick={() => this._handleDelete(item.id)}><i className="icon zmdi zmdi-delete" />删除</a>
+                  </div>
                 </li>
                 }
                 <li className="list-inline-item mr-3">
@@ -142,10 +148,8 @@ class FeedsList extends React.Component {
     this.setState({ data: _data })
   }
 
-  _handleEdit() {
-    // NOOP
-  }
-
+  // eslint-disable-next-line react/jsx-no-undef
+  _handleEdit = (item) => renderRbcomp(<FeedsEditDlg {...item} call={() => this.fetchFeeds()} />)
   _handleLike = (id) => _handleLike(id, this)
   _handleDelete(id) {
     event.preventDefault()
@@ -157,7 +161,7 @@ class FeedsList extends React.Component {
         this.disabled(true)
         $.post(`${rb.baseUrl}/feeds/post/delete?id=${id}`, () => {
           this.hide()
-          $(`#feeds-${id}`).animate({ opacity: 0 }, 600, 'swing', () => {
+          $(`#feeds-${id}`).animate({ opacity: 0, height: 0 }, 600, () => {
             let _data = that.state.data
             _data.forEach((item) => { if (id === item.id) item.deleted = true })
             that.setState({ data: _data })
@@ -209,10 +213,11 @@ class FeedsComments extends React.Component {
                     <span title={item.createdOn}>{item.createdOnFN}</span>
                   </div>
                   <ul className="list-unstyled m-0">
-                    {item.self && <li className="list-inline-item mr-3">
-                      <a href="#delete" onClick={() => this._handleDelete(item.id)} className="fixed-icon">
-                        <i className="zmdi zmdi-delete"></i>删除
-                      </a>
+                    {item.self && <li className="list-inline-item mr-2">
+                      <a data-toggle="dropdown" href="#mores" className="fixed-icon" title="更多"><i className="zmdi zmdi-more"></i>&nbsp;</a>
+                      <div className="dropdown-menu dropdown-menu-right">
+                        <a className="dropdown-item" onClick={() => this._handleDelete(item.id)}><i className="icon zmdi zmdi-delete" />删除</a>
+                      </div>
                     </li>
                     }
                     <li className="list-inline-item mr-3">
@@ -300,7 +305,7 @@ class FeedsComments extends React.Component {
         this.disabled(true)
         $.post(`${rb.baseUrl}/feeds/post/delete?id=${id}`, () => {
           this.hide()
-          $(`#comment-${id}`).animate({ opacity: 0 }, 600, 'swing', () => {
+          $(`#comment-${id}`).animate({ opacity: 0, height: 0 }, 600, () => {
             let _data = that.state.data
             _data.forEach((item) => { if (id === item.id) item.deleted = true })
             that.setState({ data: _data })
@@ -371,11 +376,11 @@ function __renderRichContent(e) {
     <div className="texts"
       dangerouslySetInnerHTML={{ __html: converEmoji(e.content) }}
     />
-    {e.releated && <div style={{ marginBottom: 6 }}>
-      <a target="_blank" href={`${rb.baseUrl}/app/list-and-view?id=${e.releated[0]}`} className="link" title="相关记录">
-        <span><i className={`icon zmdi zmdi-${e.releated[3]}`}></i> {e.releated[2]}</span>
+    {e.related && <div style={{ marginBottom: 6 }}>
+      <a target="_blank" href={`${rb.baseUrl}/app/list-and-view?id=${e.related[0]}`} className="link" title="相关记录">
+        <span><i className={`icon zmdi zmdi-${e.related[3]}`}></i> {e.related[2]}</span>
         &nbsp;-&nbsp;
-        <span>{e.releated[1]}</span>
+        <span>{e.related[1]}</span>
       </a>
     </div>
     }

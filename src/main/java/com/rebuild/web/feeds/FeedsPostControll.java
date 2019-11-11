@@ -25,9 +25,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -51,10 +51,9 @@ public class FeedsPostControll extends BaseControll {
         JSON formJson = ServletUtils.getRequestJson(request);
         Record record = EntityHelper.parse((JSONObject) formJson, user);
         String content = record.getString("content");
-        content = content.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-        record.setString("content", content);
+        record.setString("content", CommonsUtils.escapeHtml(content));
 
-        Application.getService(record.getEntity().getEntityCode()).create(record);
+        Application.getService(record.getEntity().getEntityCode()).createOrUpdate(record);
         JSON ret = JSONUtils.toJSONObject("id", record.getPrimary());
         writeSuccess(response, ret);
     }
