@@ -21,7 +21,6 @@ package com.rebuild.web.feeds;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.Application;
 import com.rebuild.server.business.feeds.FeedsGroup;
 import com.rebuild.server.business.feeds.FeedsHelper;
 import com.rebuild.server.service.bizz.UserHelper;
@@ -43,7 +42,7 @@ import java.io.IOException;
 @RequestMapping("/feeds/group/")
 public class FeedsGroupControll extends BaseControll {
 
-    @RequestMapping({ "list", "group-list" })
+    @RequestMapping("group-list")
     public void groupList(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ID user = getRequestUser(request);
         boolean all = getBoolParameter(request, "all", false);
@@ -63,8 +62,10 @@ public class FeedsGroupControll extends BaseControll {
     @RequestMapping("user-list")
     public void userList(HttpServletRequest request, HttpServletResponse response) throws IOException {
         JSONArray ret = new JSONArray();
-        for (User u : Application.getUserStore().getAllUsers()) {
-            JSONObject o = JSONUtils.toJSONObject(new String[] { "id", "name" }, new Object[] { u.getId(), u.getFullName() });
+        for (User u : UserHelper.sortUsers()) {
+            JSONObject o = JSONUtils.toJSONObject(
+                    new String[] { "id", "name" },
+                    new Object[] { u.getId(), u.getFullName() });
             ret.add(o);
         }
         writeSuccess(response, ret);

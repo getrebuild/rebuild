@@ -107,7 +107,13 @@ public class FeedsHelper extends FeedsGroupHelper {
             String[] atss = ats.split(" ");
 
             String fullName = atss[0];
+            // 全名
             ID user = UserHelper.findUserByFullName(fullName);
+            // 用户名
+            if (user == null && Application.getUserStore().existsName(fullName)) {
+                user = Application.getUserStore().getUser(fullName).getId();
+            }
+
             if (user == null && atss.length >= 2) {
                 fullName = atss[0] + " " + atss[1];
                 user = UserHelper.findUserByFullName(fullName);

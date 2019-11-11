@@ -80,7 +80,7 @@
 		<jsp:param value="user-account" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
-		<div class="main-content container container-smart">
+		<div class="main-content container">
 			<div class="card">
 				<div class="card-body">
 					<div class="tab-container">

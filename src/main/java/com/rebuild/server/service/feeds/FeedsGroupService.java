@@ -21,9 +21,11 @@ package com.rebuild.server.service.feeds;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
 import com.rebuild.server.business.feeds.FeedsHelper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.BaseService;
+import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.bizz.UserService;
 
 /**
@@ -59,6 +61,14 @@ public class FeedsGroupService extends BaseService {
 
     @Override
     public int delete(ID recordId) {
+        Object[] used = Application.createQueryNoFilter(
+                "select feedsId from Feeds where scope = ?")
+                .setParameter(1, recordId.toLiteral())
+                .unique();
+        if (used != null) {
+            throw new DataSpecificationException("群组已被使用，不能删除");
+        }
+
         int del = super.delete(recordId);
         FeedsHelper.findGroups(UserService.SYSTEM_USER, true,true);
         return del;

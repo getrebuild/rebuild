@@ -14,7 +14,7 @@
 		<jsp:param value="notifications" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
-		<div class="main-content container container-smart">
+		<div class="main-content container">
 			<div class="tab-container">
 				<ul class="nav nav-tabs nav-tabs-classic notification-tab">
 					<li class="nav-item">

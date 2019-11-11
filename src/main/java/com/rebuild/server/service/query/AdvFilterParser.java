@@ -41,6 +41,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -66,7 +67,7 @@ public class AdvFilterParser {
 	private JSONObject filterExp;
 	private Entity rootEntity;
 
-	private Set<String> includeFields = new HashSet<>();
+	private Set<String> includeFields = null;
 
 	/**
 	 * @param filterExp
@@ -94,6 +95,7 @@ public class AdvFilterParser {
 			JSONArray items = buildQuickFilterItems(filterExp.getString("qfields"));
 			this.filterExp.put("items", items);
 		}
+        this.includeFields = new HashSet<>();
 
 		JSONArray items = filterExp.getJSONArray("items");
 		JSONObject values = filterExp.getJSONObject("values");
@@ -171,6 +173,7 @@ public class AdvFilterParser {
      * @return
      */
     public Set<String> getIncludeFields() {
+        Assert.notNull(includeFields, "Calls #toSqlWhere first");
         return includeFields;
     }
 

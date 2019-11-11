@@ -41,6 +41,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 
 /**
+ * 从动态/评论中提取 at 用户，以及将文件放置在福建表
+ *
  * @author ZHAO
  * @since 2019/11/5
  */

@@ -65,7 +65,7 @@
 								<optgroup label="业务实体"></optgroup>
 								<optgroup label="其他">
 									<option value="$FEEDS$" data-icon="chart-donut">动态</option>
-									<option value="$FILEMRG$" data-icon="folder">文件</option>
+<%--									<option value="$FILEMRG$" data-icon="folder">文件</option>--%>
 									<option value="$PARENT$" data-icon="menu">父级菜单</option>
 								</optgroup>
 							</select>
