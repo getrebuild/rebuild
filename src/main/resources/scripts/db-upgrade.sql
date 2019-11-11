@@ -1,6 +1,73 @@
 -- Database upgrade scripts for rebuild 1.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #16 Feeds
+-- ************ Entity [Feeds] DDL ************
+create table if not exists `feeds` (
+  `FEEDS_ID`           char(20) not null,
+  `TYPE`               smallint(6) not null default '1' comment '类型',
+  `CONTENT`            text(3000) not null comment '内容',
+  `IMAGES`             varchar(700) comment '图片',
+  `ATTACHMENTS`        varchar(700) comment '附件',
+  `RELATED_RECORD`     char(20) comment '相关业务记录',
+  `SCOPE`              varchar(20) default 'ALL' comment '哪些人可见, 可选值: ALL/SELF/$GroupID',
+  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  primary key  (`FEEDS_ID`)
+)Engine=InnoDB;
+alter table `feeds`
+  add index `IX1_feeds` (`CREATED_ON`, `SCOPE`, `TYPE`, `CREATED_BY`),
+  add index `IX2_feeds` (`RELATED_RECORD`),
+  add fulltext index `FIX3_feeds` (`CONTENT`);
+-- ************ Entity [FeedsComment] DDL ************
+create table if not exists `feeds_comment` (
+  `COMMENT_ID`         char(20) not null,
+  `FEEDS_ID`           char(20) not null comment '哪个动态',
+  `CONTENT`            text(3000) not null comment '内容',
+  `IMAGES`             varchar(700) comment '图片',
+  `ATTACHMENTS`        varchar(700) comment '附件',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  primary key  (`COMMENT_ID`)
+)Engine=InnoDB;
+alter table `feeds_comment`
+  add index `IX1_feeds_comment` (`FEEDS_ID`);
+-- ************ Entity [FeedsGroup] DDL ************
+create table if not exists `feeds_group` (
+  `GROUP_ID`           char(20) not null,
+  `NAME`               varchar(100) not null comment '组名称',
+  `MEMBERS`            varchar(420) comment '组成员($MemberID(U/D/R))',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  primary key  (`GROUP_ID`)
+)Engine=InnoDB;
+-- ************ Entity [FeedsLike] DDL ************
+create table if not exists `feeds_like` (
+  `LIKE_ID`            char(20) not null,
+  `SOURCE`             char(20) not null comment '哪个动态/评论',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  primary key  (`LIKE_ID`)
+)Engine=InnoDB;
+alter table `feeds_like`
+  add index `IX1_feeds_like` (`SOURCE`, `CREATED_BY`);
+-- ************ Entity [FeedsMention] DDL ************
+create table if not exists `feeds_mention` (
+  `MENTION_ID`         char(20) not null,
+  `FEEDS_ID`           char(20) not null comment '哪个动态',
+  `COMMENT_ID`         char(20) comment '哪个评论',
+  `USER`               char(20) not null comment '哪个用户',
+  primary key  (`MENTION_ID`)
+)Engine=InnoDB;
+alter table `feeds_mention`
+  add index `IX1_feeds_mention` (`USER`, `FEEDS_ID`, `COMMENT_ID`);
+
 -- #15 Widget in page (v1.6)
 -- UNDO
 

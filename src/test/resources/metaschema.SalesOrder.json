@@ -13,7 +13,7 @@
 			"seriesFormat": "{YYYYMMDD}-{0000}"
 		}
 	}, {
-		"field": "releatedAccount",
+		"field": "relatedAccount",
 		"fieldLabel": "相关客户",
 		"displayType": "REFERENCE",
 		"nullable": false,
@@ -35,7 +35,7 @@
 			"field": "orderNumber",
 			"isFull": true
 		}, {
-			"field": "releatedAccount",
+			"field": "relatedAccount",
 			"isFull": false
 		}, {
 			"field": "totalAmount",
@@ -64,29 +64,29 @@
 		}, {
 			"field": "owningDept"
 		}, {
-			"field": "releatedAccount.owningDept"
+			"field": "relatedAccount.owningDept"
 		}, {
-			"field": "releatedAccount"
+			"field": "relatedAccount"
 		}, {
-			"field": "releatedAccount.accountName"
+			"field": "relatedAccount.accountName"
 		}, {
-			"field": "releatedAccount.accountNumber"
+			"field": "relatedAccount.accountNumber"
 		}, {
-			"field": "releatedAccount.location"
+			"field": "relatedAccount.location"
 		}, {
-			"field": "releatedAccount.source"
+			"field": "relatedAccount.source"
 		}, {
-			"field": "releatedAccount.leijichengjiaojine"
+			"field": "relatedAccount.leijichengjiaojine"
 		}, {
-			"field": "releatedAccount.modifiedBy"
+			"field": "relatedAccount.modifiedBy"
 		}, {
-			"field": "releatedAccount.modifiedOn"
+			"field": "relatedAccount.modifiedOn"
 		}, {
-			"field": "releatedAccount.createdBy"
+			"field": "relatedAccount.createdBy"
 		}, {
-			"field": "releatedAccount.createdOn"
+			"field": "relatedAccount.createdOn"
 		}, {
-			"field": "releatedAccount.owningUser"
+			"field": "relatedAccount.owningUser"
 		}]
 	},
 	"filters": {

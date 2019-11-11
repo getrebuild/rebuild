@@ -35,7 +35,7 @@ public class MessageBuilderTest extends TestSupport {
 		String raw = "@" + UserService.ADMIN_USER + " 你好，这是一条消息，用户ID会特殊解析。"
 				+ "这是一条实体记录 @" + DepartmentService.ROOT_DEPT
 				+ " 可以多条，不信你看  @" + RoleService.ADMIN_ROLE;
-		String ff = MessageBuilder.toHTML(raw);
+		String ff = MessageBuilder.formatMessage(raw);
 		System.out.println("> " + raw + " \n> " + ff);
 	}
 }

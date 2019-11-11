@@ -567,9 +567,12 @@ class RbFormImage extends RbFormElement {
     return (
       <div className="img-field">
         {this.state.value.map((item) => {
-          let itemUrl = rb.baseUrl + '/filex/img/' + item
-          let fileName = $fileCutName(item)
-          return (<span key={'file-' + item}><a title={fileName} className="img-thumbnail img-upload"><img src={itemUrl + '?imageView2/2/w/100/interlace/1/q/100'} /><b title="移除" onClick={() => this.removeItem(item)}><span className="zmdi zmdi-close"></span></b></a></span>)
+          return (<span key={'img-' + item}>
+            <a title={$fileCutName(item)} className="img-thumbnail img-upload">
+              <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />
+              <b title="移除" onClick={() => this.removeItem(item)}><span className="zmdi zmdi-close"></span></b>
+            </a>
+          </span>)
         })}
         {this.state.showUploader === false ? null :
           <span title={'上传图片。需要 ' + this.__minUpload + '~' + this.__maxUpload + ' 张'}>
@@ -588,9 +591,11 @@ class RbFormImage extends RbFormElement {
     }
     return (<div className="img-field">
       {value.map((item, idx) => {
-        let itemUrl = rb.baseUrl + '/filex/img/' + item
-        let fileName = $fileCutName(item)
-        return <span key={'img-' + item}><a title={fileName} onClick={() => (parent || window).RbPreview.create(value, idx)} className="img-thumbnail img-upload zoom-in"><img src={itemUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a></span>
+        return (<span key={'img-' + item}>
+          <a title={$fileCutName(item)} onClick={() => (parent || window).RbPreview.create(value, idx)} className="img-thumbnail img-upload zoom-in">
+            <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />
+          </a>
+        </span>)
       })}
     </div>)
   }
@@ -642,9 +647,8 @@ class RbFormFile extends RbFormImage {
       <div className="file-field">
         {this.state.value.map((item) => {
           let fileName = $fileCutName(item)
-          let fileExt = $fileExtName(fileName)
           return (<div key={'file-' + item} className="img-thumbnail" title={fileName}>
-            <i className="file-icon" data-type={fileExt} /><span>{fileName}</span>
+            <i className="file-icon" data-type={$fileExtName(fileName)} /><span>{fileName}</span>
             <b title="移除" onClick={() => this.removeItem(item)}><span className="zmdi zmdi-close"></span></b>
           </div>)
         })}
@@ -667,9 +671,9 @@ class RbFormFile extends RbFormImage {
     return (<div className="file-field">
       {this.state.value.map((item) => {
         let fileName = $fileCutName(item)
-        return <a key={'file-' + item} title={fileName} onClick={() => (parent || window).RbPreview.create(item)} className="img-thumbnail">
+        return (<a key={'file-' + item} title={fileName} onClick={() => (parent || window).RbPreview.create(item)} className="img-thumbnail">
           <i className="file-icon" data-type={$fileExtName(fileName)} /><span>{fileName}</span>
-        </a>
+        </a>)
       })}
     </div>)
   }
@@ -1288,6 +1292,6 @@ class RepeatedViewer extends RbModalHandler {
 
   openView(id) {
     if (window.RbViewModal) window.RbViewModal.create({ id: id, entity: this.props.entity })
-    else window.open(`${rb.baseUrl}/app/${this.props.entity}/list#!/View/${this.props.entity}/${id}`)
+    else window.open(`${rb.baseUrl}/app/list-and-view?id=${id}`)
   }
 }

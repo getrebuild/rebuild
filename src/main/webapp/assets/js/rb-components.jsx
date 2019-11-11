@@ -341,6 +341,7 @@ class UserSelector extends React.Component {
     if (!this.state.items) noResult = noResult = <li className="select2-results__option un-hover text-muted">搜索中...</li>
     else if (this.state.items.length === 0) noResult = <li className="select2-results__option un-hover">未找到结果</li>
 
+    // select2-container--above
     return <div className="user-selector">
       <span className="select2 select2-container select2-container--default select2-container--below">
         <span className="selection">
@@ -357,7 +358,7 @@ class UserSelector extends React.Component {
         <span className={'dropdown-wrapper ' + (this.state.dropdownOpen === false && 'hide')}>
           <div className="selector-search">
             <div>
-              <input type="search" className="form-control" placeholder="输入关键词搜索" value={this.state.query || ''} onChange={(e) => this.searchItems(e)} />
+              <input type="search" className="form-control search" placeholder="输入关键词搜索" value={this.state.query || ''} onChange={(e) => this.searchItems(e)} />
             </div>
           </div>
           <div className="tab-container">
@@ -380,7 +381,7 @@ class UserSelector extends React.Component {
           </div>
         </span>
       </span>
-    </div >
+    </div>
   }
 
   componentDidMount() {
@@ -445,9 +446,7 @@ class UserSelector extends React.Component {
       return true
     })
 
-    if (exists === false) {
-      ns.push({ id: id, text: $(e.target).text() })
-    }
+    if (exists === false) ns.push({ id: id, text: $(e.target).text() })
     this.setState({ selected: ns, dropdownOpen: this.props.closeOnSelect !== true })
   }
 
@@ -469,6 +468,10 @@ class UserSelector extends React.Component {
       ids.push(item.id)
     })
     return ids
+  }
+
+  val() {
+    return this.getSelected()
   }
 }
 

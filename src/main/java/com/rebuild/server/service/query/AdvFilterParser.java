@@ -41,6 +41,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -66,6 +67,8 @@ public class AdvFilterParser {
 	private JSONObject filterExp;
 	private Entity rootEntity;
 
+	private Set<String> includeFields = null;
+
 	/**
 	 * @param filterExp
 	 */
@@ -87,11 +90,12 @@ public class AdvFilterParser {
 	 * @return
 	 */
 	public String toSqlWhere() {
-		// 快速过滤模式，自动确定查询项
+		// 快速搜索模式，自动确定查询项
 		if ("QUICK".equalsIgnoreCase(filterExp.getString("type"))) {
 			JSONArray items = buildQuickFilterItems(filterExp.getString("qfields"));
 			this.filterExp.put("items", items);
 		}
+        this.includeFields = new HashSet<>();
 
 		JSONArray items = filterExp.getJSONArray("items");
 		JSONObject values = filterExp.getJSONObject("values");
@@ -163,15 +167,25 @@ public class AdvFilterParser {
 		}
 	}
 
-	/**
+    /**
+     * 过滤器中包含的字段。必须先执行 toSqlWhere 方法
+     *
+     * @return
+     */
+    public Set<String> getIncludeFields() {
+        Assert.notNull(includeFields, "Calls #toSqlWhere first");
+        return includeFields;
+    }
+
+    /**
 	 * @param item
 	 * @param values
 	 * @return
 	 */
 	private String parseItem(JSONObject item, JSONObject values) {
 		String field = item.getString("field");
-		boolean hasAndFlag = field.startsWith("&");
-		if (hasAndFlag) {
+		final boolean hasNameFlag = field.startsWith("&");
+		if (hasNameFlag) {
 			field = field.substring(1);
 		}
 
@@ -182,7 +196,7 @@ public class AdvFilterParser {
 		}
 
 		final DisplayType dt = EasyMeta.getDisplayType(fieldMeta);
-		if (dt == DisplayType.CLASSIFICATION || hasAndFlag) {
+		if (dt == DisplayType.CLASSIFICATION || hasNameFlag) {
 			field = "&" + field;
 		}
 
@@ -228,11 +242,13 @@ public class AdvFilterParser {
 		StringBuilder sb = new StringBuilder(field)
 				.append(' ')
 				.append(ParserTokens.convetOperator(op));
+		// 无需值
 		if (op.equalsIgnoreCase(ParserTokens.NL) || op.equalsIgnoreCase(ParserTokens.NT)) {
+		    includeFields.add(field);
 			return sb.toString();
-		} else {
-			sb.append(' ');
 		}
+
+		sb.append(' ');
 
 		// TODO 自定义函数
 
@@ -282,7 +298,6 @@ public class AdvFilterParser {
 		// 快速搜索的占位符 {1}
 		if (value.matches("\\{\\d+\\}")) {
 			if (values == null) {
-
 				return null;
 			}
 
@@ -298,7 +313,7 @@ public class AdvFilterParser {
 		}
 
 		// 区间
-		boolean isBetween = op.equalsIgnoreCase(ParserTokens.BW);
+		final boolean isBetween = op.equalsIgnoreCase(ParserTokens.BW);
 		if (isBetween && valueEnd == null) {
 			valueEnd = parseValue(item.getString("value2"), op, fieldMeta, true);
 			if (valueEnd == null) {
@@ -323,7 +338,8 @@ public class AdvFilterParser {
 					.append(" )");
 		}
 
-		return sb.toString().trim();
+        includeFields.add(field);
+		return sb.toString();
 	}
 
 	/**
@@ -349,14 +365,18 @@ public class AdvFilterParser {
 				return null;
 			}
 
-			// TIMESTAMP 仅指定了日期值
+			// TIMESTAMP 仅指定了日期值，则补充时间值
 			if (field.getType() == FieldType.TIMESTAMP && StringUtils.length(value) == 10) {
 				if (ParserTokens.GT.equalsIgnoreCase(op)) {
-					value += ParserTokens.FULL_TIME;
+					value += ParserTokens.FULL_TIME;  // 不含当日
 				} else if (ParserTokens.LT.equalsIgnoreCase(op)) {
-					value += ParserTokens.ZERO_TIME;
+					value += ParserTokens.ZERO_TIME;  // 不含当日
+				} else if (ParserTokens.GE.equalsIgnoreCase(op)) {
+					value += ParserTokens.ZERO_TIME;  // 含当日
+				} else if (ParserTokens.LE.equalsIgnoreCase(op)) {
+					value += ParserTokens.FULL_TIME;  // 含当日
 				} else if (ParserTokens.BW.equalsIgnoreCase(op)) {
-					value += (endVal ? ParserTokens.FULL_TIME : ParserTokens.ZERO_TIME);
+					value += (endVal ? ParserTokens.FULL_TIME : ParserTokens.ZERO_TIME);  // 含当日
 				}
 			}
 

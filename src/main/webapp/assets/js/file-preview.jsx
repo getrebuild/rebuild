@@ -5,9 +5,12 @@ const TYPE_DOCS = ['.doc', '.docx', '.rtf', '.xls', '.xlsx', '.ppt', '.pptx', '.
 const TYPE_IMGS = ['.jpg', '.jpeg', '.gif', '.png', '.bmp']
 const TYPE_AUDIOS = ['.mp3', '.wav', '.ogg', '.acc']
 const TYPE_VIDEOS = ['.mp4', '.webm']
+// 点击遮罩关闭预览
+const hideOnClick = false
 
 // eslint-disable-next-line no-unused-vars
 class RbPreview extends React.Component {
+
   constructor(props) {
     super(props)
     this.state = { currentIndex: props.currentIndex || 0, inLoad: true }
@@ -37,13 +40,13 @@ class RbPreview extends React.Component {
         <div className="preview-header">
           <div className="float-left"><h5>{fileName}</h5></div>
           <div className="float-right">
-            <a onClick={this.share}><i className="zmdi zmdi-share fs-17"></i></a>
-            <a target="_blank" rel="noopener noreferrer" href={downloadUrl}><i className="zmdi zmdi-download"></i></a>
-            {!this.props.unclose && <a onClick={this.hide}><i className="zmdi zmdi-close"></i></a>}
+            <a onClick={this.share} title="分享"><i className="zmdi zmdi-share fs-17"></i></a>
+            <a title="下载" target="_blank" rel="noopener noreferrer" href={downloadUrl}><i className="zmdi zmdi-download"></i></a>
+            {!this.props.unclose && <a title="关闭 (ESC)" onClick={this.hide}><i className="zmdi zmdi-close"></i></a>}
           </div>
           <div className="clearfix"></div>
         </div>
-        <div className="preview-body" onClick={this.hide}>
+        <div className="preview-body" onClick={hideOnClick ? this.hide : () => { /*NOOP*/ }}>
           {previewContent}
         </div>
       </div>
@@ -53,11 +56,10 @@ class RbPreview extends React.Component {
   renderImgs() {
     return (<React.Fragment>
       <div className="img-zoom">
-        <div className="must-center" onClick={this.__stopEvent}>
-          <img alt="图片" src={this.__buildAbsoluteUrl(null, 'imageView2/2/w/1000/interlace/1/q/100')} />
-        </div>
+        {!this.state.imgRendered && <div className="must-center"><RbSpinner fully={true} /></div>}
+        <img className={!this.state.imgRendered ? 'hide' : ''} src={this.__buildAbsoluteUrl(null, 'imageView2/2/w/1000/interlace/1/q/100')} onLoad={() => this.setState({ imgRendered: true })} alt="图片" />
       </div>
-      {this.props.urls.length > 1 && <div className="op-box" onClick={this.__stopEvent}>
+      {this.props.urls.length > 1 && <div className="oper-box" onClick={this.__stopEvent}>
         <a className="arrow float-left" onClick={this.__previmg}><i className="zmdi zmdi-chevron-left" /></a>
         <span>{this.state.currentIndex + 1} / {this.props.urls.length}</span>
         <a className="arrow float-right" onClick={this.__nextimg}><i className="zmdi zmdi-chevron-right" /></a>
@@ -69,7 +71,8 @@ class RbPreview extends React.Component {
   renderDoc() {
     return (<div className="container">
       <div className="iframe" onClick={this.__stopEvent}>
-        <iframe frameBorder="0" scrolling="no" src={this.state.previewUrl || ''}></iframe>
+        {!this.state.docRendered && <div className="must-center"><RbSpinner fully={true} /></div>}
+        <iframe className={!this.state.docRendered ? 'hide' : ''} src={this.state.previewUrl || ''} onLoad={() => this.setState({ docRendered: true })} frameBorder="0" scrolling="no"></iframe>
       </div>
     </div>)
   }
@@ -130,7 +133,7 @@ class RbPreview extends React.Component {
   __buildAbsoluteUrl(url, params) {
     if (!url) url = this.props.urls[this.state.currentIndex]
     if (!(url.startsWith('http://') || url.startsWith('https://'))) {
-      url = `${rb.baseUrl}/filex/download/${url}`
+      url = `${rb.baseUrl}/filex/${(params || '').includes('imageView2') ? 'img' : 'download'}/${url}`
     }
     if (params) {
       url += (url.contains('?') ? '&' : '?')
@@ -139,18 +142,10 @@ class RbPreview extends React.Component {
     return url
   }
 
-  __isImg(url) {
-    return this.__isType(url, TYPE_IMGS)
-  }
-  __isDoc(url) {
-    return this.__isType(url, TYPE_DOCS)
-  }
-  __isAudio(url) {
-    return this.__isType(url, TYPE_AUDIOS)
-  }
-  __isVideo(url) {
-    return this.__isType(url, TYPE_VIDEOS)
-  }
+  __isImg(url) { return this.__isType(url, TYPE_IMGS) }
+  __isDoc(url) { return this.__isType(url, TYPE_DOCS) }
+  __isAudio(url) { return this.__isType(url, TYPE_AUDIOS) }
+  __isVideo(url) { return this.__isType(url, TYPE_VIDEOS) }
   __isType(url, types) {
     url = url.toLowerCase()
     for (let i = 0; i < types.length; i++) {
@@ -163,17 +158,15 @@ class RbPreview extends React.Component {
     this.__stopEvent(e)
     let ci = this.state.currentIndex
     if (ci <= 0) ci = this.props.urls.length
-    this.setState({ currentIndex: ci - 1 })
+    this.setState({ currentIndex: ci - 1, imgRendered: false })
   }
   __nextimg = (e) => {
     this.__stopEvent(e)
     let ci = this.state.currentIndex
     if (ci + 1 >= this.props.urls.length) ci = -1
-    this.setState({ currentIndex: ci + 1 })
+    this.setState({ currentIndex: ci + 1, imgRendered: false })
   }
-  __stopEvent = (e) => {
-    e.stopPropagation()
-  }
+  __stopEvent = (e) => e.stopPropagation()
 
   hide = () => {
     if (!this.props.unclose) $unmount($(this._dlg).parent(), 1)
@@ -196,11 +189,13 @@ class RbPreview extends React.Component {
 }
 
 // ~ 共享
-const EXPIRES_TIME = [[5, '5分钟'], [30, '半小时'], [60, '1小时'], [360, '6小时'], [720, '12小时'], [1440, '1天']]
+const EXPIRES_TIME = [[5, '5分钟'], [30, '半小时'], [60, '1小时'], [360, '6小时'], [720, '12小时'], [1440, '1天'], [4320, '3天']]
 class FileShare extends RbModalHandler {
+
   constructor(props) {
     super(props)
   }
+
   render() {
     return <RbModal ref={(c) => this._dlg = c} title="分享文件" disposeOnHide="true">
       <div className="file-share">

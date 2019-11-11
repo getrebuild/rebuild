@@ -155,6 +155,10 @@ const ECHART_AxisLabel = {
     fontWeight: '400'
   }
 }
+const isMobile = navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i)
+const ECHART_RenderOpt = {
+  renderer: isMobile ? 'svg' : 'canvas'
+}
 
 // 折线图
 class ChartLine extends BaseChart {
@@ -205,7 +209,7 @@ class ChartLine extends BaseChart {
       opt.tooltip.formatter = '<b>{b}</b> <br> ' + formatter.join(' <br> ')
       opt.tooltip.trigger = 'axis'
 
-      let c = echarts.init(document.getElementById(elid), 'light')
+      let c = echarts.init(document.getElementById(elid), 'light', ECHART_RenderOpt)
       c.setOption(opt)
       that.__echarts = c
     })
@@ -261,7 +265,7 @@ class ChartBar extends BaseChart {
       opt.tooltip.formatter = '<b>{b}</b> <br> ' + formatter.join(' <br> ')
       opt.tooltip.trigger = 'axis'
 
-      let c = echarts.init(document.getElementById(elid), 'light')
+      let c = echarts.init(document.getElementById(elid), 'light', ECHART_RenderOpt)
       c.setOption(opt)
       that.__echarts = c
     })
@@ -288,7 +292,7 @@ class ChartPie extends BaseChart {
       opt.tooltip.formatter = '<b>{b}</b> <br/> {a} : {c} ({d}%)'
       // opt.label = { formatter: '{b} {c}' }
 
-      let c = echarts.init(document.getElementById(elid), 'light')
+      let c = echarts.init(document.getElementById(elid), 'light', ECHART_RenderOpt)
       c.setOption(opt)
       that.__echarts = c
     })
@@ -325,7 +329,7 @@ class ChartFunnel extends BaseChart {
       }
       // opt.label = { formatter: '{b} {c}' }
 
-      let c = echarts.init(document.getElementById(elid), 'light')
+      let c = echarts.init(document.getElementById(elid), 'light', ECHART_RenderOpt)
       c.setOption(opt)
       that.__echarts = c
     })
@@ -368,7 +372,7 @@ class ChartTreemap extends BaseChart {
         }
       }
 
-      let c = echarts.init(document.getElementById(elid), 'light')
+      let c = echarts.init(document.getElementById(elid), 'light', ECHART_RenderOpt)
       c.setOption(opt)
       that.__echarts = c
     })
@@ -430,7 +434,7 @@ class ApprovalList extends BaseChart {
           })}
         </tbody>
       </table>
-    </div >
+    </div>
     if (data.data.length === 0) table = <div className="chart-undata must-center"><i className="zmdi zmdi-check icon text-success"></i> 你已完成所有审批</div>
 
     let chartdata = <div className="chart ApprovalList">

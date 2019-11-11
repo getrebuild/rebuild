@@ -23,6 +23,7 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.PersistManagerFactoryImpl;
 import cn.devezhao.persist4j.metadata.impl.ConfigurationMetadataFactory;
 import cn.devezhao.persist4j.util.support.Table;
+import com.rebuild.server.metadata.EntityHelper;
 import org.dom4j.Element;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -38,15 +39,19 @@ public class SchemaGen {
 	private static ApplicationContext CTX;
 	private static PersistManagerFactory PMF;
 
-	private static boolean hasDrop = false;
-	private static boolean tempstampZero = false;
+	private static boolean DROP_EXISTS = true;
+	private static boolean TEMPSTAMP_ZERO = false;
 
 	public static void main(String[] args) {
 		CTX = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml", });
 		PMF = CTX.getBean(PersistManagerFactoryImpl.class);
 		
 //		genAll();
-//		gen(EntityHelper.WidgetConfig);
+		gen(EntityHelper.Feeds);
+		gen(EntityHelper.FeedsComment);
+		gen(EntityHelper.FeedsGroup);
+		gen(EntityHelper.FeedsLike);
+		gen(EntityHelper.FeedsMention);
 
 		System.exit(0);
 	}
@@ -65,15 +70,12 @@ public class SchemaGen {
 				PMF.getDialect(),
 				root.selectSingleNode("//entity[@name='" + entity.getName() + "']").selectNodes("index"));
 		
-		String[] ddl = table.generateDDL(false, false);
+		String[] ddl = table.generateDDL(DROP_EXISTS, false);
 		
 		StringBuffer sb = new StringBuffer();
 		sb.append("-- ************ Entity [" + entity.getName() + "] DDL ************\n");
 		for (String d : ddl) {
-			if (!hasDrop && d.startsWith("drop ")) {
-				d = "" + d;
-			}
-			if (!tempstampZero) {
+			if (!TEMPSTAMP_ZERO) {
 				d = d.replace(" default '0000-00-00 00:00:00'", " default current_timestamp");
 			}
 			sb.append(d).append("\n");

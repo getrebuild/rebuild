@@ -29,6 +29,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * 消息构建
+ *
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/07/12
  */
@@ -43,17 +45,7 @@ public class MessageBuilder {
 		return new Message(null, toUser, message, null, Message.TYPE_DEFAULT);
 	}
 
-	/**
-	 * @param fromUser
-	 * @param toUser
-	 * @param message
-	 * @return
-	 */
-	public static Message createMessage(ID fromUser, ID toUser, String message) {
-		return new Message(fromUser, toUser, message, null, Message.TYPE_DEFAULT);
-	}
-
-	/**
+    /**
 	 * @param fromUser
 	 * @param toUser
 	 * @param message
@@ -84,49 +76,68 @@ public class MessageBuilder {
 		return new Message(fromUser, toUser, message, recordId, Message.TYPE_APPROVAL);
 	}
 
-	private static final Pattern AT_PATTERN = Pattern.compile("(\\@[0-9a-z\\-]{20})");
-	/**
-	 * 格式化通知消息为 HTML，支持 MD 语法
-	 * 
-	 * @param message
-	 * @return
-	 * @see MarkdownUtils
-	 */
-	public static String toHTML(String message) {
+	// --
+
+    /**
+     * Matchs @ID
+     */
+    public static final Pattern AT_PATTERN = Pattern.compile("(\\@[0-9a-z\\-]{20})");
+
+    /**
+     * 格式化消息
+     *
+     * @param message
+     * @return
+     */
+	public static String formatMessage(String message) {
+	   return formatMessage(message, true);
+    }
+
+    /**
+     * 格式化消息，支持转换 MD 语法
+     *
+     * @param message
+     * @param md2html
+     * @return
+     * @see MarkdownUtils
+     */
+	public static String formatMessage(String message, boolean md2html) {
 		// 匹配 `@ID`
 		Matcher atMatcher = AT_PATTERN.matcher(message);
 		while (atMatcher.find()) {
-			String atId = atMatcher.group();
-			String atText = parseAtId(atId.substring(1));
-			if (atText != null && !atText.equals(atId)) {
-				message = message.replace(atId, atText);
+			String at = atMatcher.group();
+			String atLabel = parseAtId(at.substring(1));
+			if (atLabel != null && !atLabel.equals(at)) {
+				message = message.replace(at, atLabel);
 			}
 		}
-		
-		message = MarkdownUtils.parse(message);
+
+		if (md2html) {
+    		message = MarkdownUtils.parse(message);
+        }
 		return message;
 	}
 	
 	/**
-	 * @param atId
+	 * @param atid
 	 * @return
 	 */
-	private static String parseAtId(String atId) {
-		if (!ID.isId(atId)) {
-			return atId;
+	static String parseAtId(String atid) {
+		if (!ID.isId(atid)) {
+			return atid;
 		}
-		
-		ID thatId = ID.valueOf(atId);
-		if (thatId.getEntityCode() == EntityHelper.User) {
-			if (Application.getUserStore().exists(thatId)) {
-				return Application.getUserStore().getUser(thatId).getFullName();
+
+		final ID id = ID.valueOf(atid);
+		if (id.getEntityCode() == EntityHelper.User) {
+			if (Application.getUserStore().exists(id)) {
+				return Application.getUserStore().getUser(id).getFullName();
 			} else {
 				return "[无效用户]";
 			}
 		}
 
-        String recordLabel = FieldValueWrapper.getLabelNotry(thatId);
-		String recordUrl = AppUtils.getContextPath() + "/app/list-and-view?id=" + thatId;
+        String recordLabel = FieldValueWrapper.getLabelNotry(id);
+		String recordUrl = AppUtils.getContextPath() + "/app/list-and-view?id=" + id;
 		return String.format("[%s](%s)", recordLabel, recordUrl);
 	}
 }

@@ -22,8 +22,8 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.SysConfiguration;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.util.Assert;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -67,38 +67,40 @@ public class IncreasingVar extends SeriesVar {
 			return StringUtils.leftPad("1", getSymbols().length(), '0');
 		}
 		
-		final String key = theCacheKey();
+		final String nameKey = String.format("Series-%s.%s", field.getOwnEntity().getName(), field.getName());
 		Object keyLock = null;
 		synchronized (LOCKs) {
-			keyLock = LOCKs.computeIfAbsent(key, k -> new Object());
+			keyLock = LOCKs.computeIfAbsent(nameKey, k -> new Object());
 		}
-		
-		int autoVal = 1;
+
+		int nextValue = 1;
 		synchronized (keyLock) {
-			Object val = Application.getCommonCache().getx(key);
+			Object val = SysConfiguration.getCustomValue(nameKey);
 			if (val != null) {
-				autoVal = ObjectUtils.toInt(val);
+				nextValue = ObjectUtils.toInt(val);
 			} else {
-				autoVal = countFromDb();
+				nextValue = countFromDb();
 			}
-			autoVal += 1;
-			Application.getCommonCache().putx(key, autoVal);
+			nextValue += 1;
+			// TODO 使用缓存，避免频繁更新数据库
+			SysConfiguration.setCustomValue(nameKey, nextValue);
 		}
-		return StringUtils.leftPad(autoVal + "", getSymbols().length(), '0');
+		return StringUtils.leftPad(nextValue + "", getSymbols().length(), '0');
 	}
 	
 	/**
 	 * 清空序号缓存
 	 */
 	protected void clean() {
-		final String key = theCacheKey();
+		if (this.field == null) return;
+
+		final String nameKey = String.format("Series-%s.%s", field.getOwnEntity().getName(), field.getName());
 		Object keyLock = null;
 		synchronized (LOCKs) {
-			keyLock = LOCKs.computeIfAbsent(key, k -> new Object());
+			keyLock = LOCKs.computeIfAbsent(nameKey, k -> new Object());
 		}
-		
 		synchronized (keyLock) {
-			Application.getCommonCache().evict(key);
+			SysConfiguration.setCustomValue(nameKey, 0);
 		}
 	}
 	
@@ -127,15 +129,5 @@ public class IncreasingVar extends SeriesVar {
 		String sql = String.format("select count(%s) from %s where %s", field.getName(), field.getOwnEntity().getName(), dateLimit);
 		Object[] count = Application.createQueryNoFilter(sql).unique();
 		return ObjectUtils.toInt(count[0]);
-	}
-	
-	/**
-	 * 缓存Key
-	 * 
-	 * @return
-	 */
-	private String theCacheKey() {
-		Assert.notNull(field, "'field' not be null");
-		return String.format("SERIES-%s-%s", field.getOwnEntity().getName(), field.getName());
 	}
 }

@@ -35,7 +35,7 @@ $(function () {
     $('html').addClass('admin')
     if (rb.isAdminVerified !== true) $('.admin-verified').remove()
     if (location.href.indexOf('/admin/') > -1) $('.admin-settings').remove()
-    else if (rb.isAdminVerified === true) $('.admin-settings a i').addClass('text-primary')
+    else if (rb.isAdminVerified === true) $('.admin-settings a i').addClass('text-danger')
   } else {
     $('.admin-show').remove()
   }
@@ -130,18 +130,16 @@ var __initNavs = function () {
   })
 
   // WHEN SMALL-WIDTH
-  {
-    $('.left-sidebar-toggle').click(function () {
-      $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
-      $('.left-sidebar-spacer').toggleClass('open')
-    }).text($('.rb-right-navbar .page-title').text())
+  $('.left-sidebar-toggle').click(function () {
+    $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
+    $('.left-sidebar-spacer').toggleClass('open')
+  }).text($('.rb-right-navbar .page-title').text())
 
-    if ($('.page-aside .aside-header').length > 0) {
-      $('.page-aside .aside-header').click(function () {
-        $(this).toggleClass('collapsed')
-        $('.page-aside .aside-nav').toggleClass('show')
-      })
-    }
+  if ($('.page-aside .aside-header').length > 0) {
+    $('.page-aside .aside-header').click(function () {
+      $(this).toggleClass('collapsed')
+      $('.page-aside .aside-nav').toggleClass('show')
+    })
   }
 }
 
@@ -174,7 +172,7 @@ var __loadMessages = function () {
   if (dest.find('li').length === 0) {
     $('<li class="text-center mt-3 mb-3"><i class="zmdi zmdi-refresh zmdi-hc-spin fs-18"></i></li>').appendTo(dest)
   }
-  $.get(rb.baseUrl + '/notification/messages?pageSize=10', function (res) {
+  $.get(rb.baseUrl + '/notification/messages?pageSize=10&preview=true', function (res) {
     dest.empty()
     $(res.data).each(function (idx, item) {
       var o = $('<li class="notification"></li>').appendTo(dest)

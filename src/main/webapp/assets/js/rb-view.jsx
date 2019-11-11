@@ -162,11 +162,11 @@ class SelectReport extends React.Component {
   }
   render() {
     return (
-      <div className="modal select-list" ref={(c) => this._dlg = c} tabIndex="-1" >
+      <div className="modal select-list" ref={(c) => this._dlg = c} tabIndex="-1">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={() => this.hide()}><i className="zmdi zmdi-close" /></button>
+              <button className="close" type="button" onClick={this.hide}><i className="zmdi zmdi-close" /></button>
             </div>
             <div className="modal-body">
               <h5 className="mt-0 text-bold">选择报表</h5>
@@ -182,21 +182,18 @@ class SelectReport extends React.Component {
             </div>
           </div>
         </div>
-      </div >
+      </div>
     )
   }
+
   componentDidMount() {
     $.get(`${rb.baseUrl}/app/entity/available-reports?entity=${this.props.entity}`, (res) => {
       this.setState({ reports: res.data })
     })
-    this.show()
-  }
-  hide() {
-    $(this._dlg).modal('hide')
-  }
-  show() {
     $(this._dlg).modal({ show: true, keyboard: true })
   }
+  hide = () => $(this._dlg).modal('hide')
+  show = () => $(this._dlg).modal('show')
 
   /**
    * @param {*} entity 
