@@ -108,7 +108,7 @@ public class GeneralDataListControll extends BaseEntityControll {
 	    if (MetadataHelper.containsEntity(id.getEntityCode())) {
 	    	Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 	    	if (MetadataHelper.hasPrivilegesField(entity)) {
-				url = MessageFormat.format("{0}/list#!/View/{0}/{1}", entity, id);
+				url = MessageFormat.format("{0}/list#!/View/{0}/{1}", entity.getName(), id);
 			} else if (entity.getEntityCode() == EntityHelper.Feeds) {
 				url = "../feeds/home#gs=" + id;
 			}

@@ -69,6 +69,7 @@ gulp.task('xjsp', () => {
                 if (file.includes('.development.js')) file = file.replace('.development.js', '.production.min.js')
                 return '<script src="' + file + '"></script>'
             } else {
+                if (file.includes('/js/feeds.jsx')) file = file.replace('/js/feeds.jsx', '')
                 file = file.replace('.jsx', '.js').split('?')[0]
                 console.log(p + ' >> ' + file)
                 file += '?v=' + fileHex(file)
