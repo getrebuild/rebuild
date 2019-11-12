@@ -25,11 +25,13 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.business.files.FilesHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -37,7 +39,9 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * TODO
@@ -77,10 +81,29 @@ public class FileListControll extends BasePageControll {
         int pageNo = getIntParameter(request, "pageNo", 1);
         int pageSize = getIntParameter(request, "pageSize", 40);
 
-        int belongEntity = getIntParameter(request, "entity", 0);
+        int entity = getIntParameter(request, "entity", 0);
         ID inFolder = getIdParameter(request, "folder");
 
-        String sql = "select attachmentId,filePath,fileType,fileSize,createdBy,modifiedOn from Attachment order by modifiedOn desc";
+        List<String> sqlWhere = new ArrayList<>();
+        // 附件
+        if (entity > 0) {
+            if (entity > 1) sqlWhere.add("belongEntity = " + entity);
+            else sqlWhere.add("belongEntity > 0");
+        }
+        // 文档
+        else {
+            sqlWhere.add("belongEntity = 0");
+            if (inFolder != null) sqlWhere.add("inFolder = '" + inFolder + "'");
+        }
+
+        String sql = "select attachmentId,filePath,fileType,fileSize,createdBy,modifiedOn from Attachment where (1=1)";
+        sql = sql.replace("(1=1)", StringUtils.join(sqlWhere.iterator(), " and "));
+        if ("older".equals(sort)) {
+            sql += " order by createdOn asc";
+        } else {
+            sql += " order by modifiedOn desc";
+        }
+        System.out.println(sql);
         Object[][] array = Application.createQueryNoFilter(sql)
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
                 .array();
@@ -102,6 +125,9 @@ public class FileListControll extends BasePageControll {
     // 文档目录
     @RequestMapping("list-folder")
     public void listFolder(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ID user = getRequestUser(request);
+        JSONArray folders = FilesHelper.getFolders(user);
+        writeSuccess(response, folders);
     }
 
     // 附件实体
@@ -113,7 +139,7 @@ public class FileListControll extends BasePageControll {
         for (Entity e : MetadataSorter.sortEntities(user)) {
             JSONObject item = JSONUtils.toJSONObject(
                     new String[] { "id", "text" },
-                    new Object[] { e.getName(), EasyMeta.getLabel(e) });
+                    new Object[] { e.getEntityCode(), EasyMeta.getLabel(e) });
             ret.add(item);
         }
         writeSuccess(response, ret);

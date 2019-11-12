@@ -1,9 +1,10 @@
 // 附件
 
 let filesList
+
 $(document).ready(() => {
   let clickNav = function (item) {
-    filesList && filesList.search(item)
+    filesList && filesList.loadFiles(item.id)
     $('.file-path .active').text(item.text)
   }
 

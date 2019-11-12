@@ -1,9 +1,11 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 
-// ~ 目录导航
+var __NavTreeData = []
+
+// ~ 目录树
 class NavTree extends React.Component {
-  state = { ...this.props, activeItem: '$ALL$' }
+  state = { activeItem: 1, ...this.props }
 
   render() {
     return <div className="dept-tree p-0">
@@ -12,9 +14,10 @@ class NavTree extends React.Component {
       </ul>
     </div>
   }
+
   _renderItem(item) {
     return <li key={`xd-${item.id}`} className={this.state.activeItem === item.id ? 'active' : ''}>
-      <a onClick={() => this._clickItem(item)} href={`#!/${item.text}`}>{item.text}</a>
+      <a data-id={item.id} onClick={() => this._clickItem(item)} href={`#!/${item.id}`}>{item.text}</a>
       {item.children && <ul className="list-unstyled">
         {item.children.map((item) => { return this._renderItem(item) })}
       </ul>}
@@ -26,11 +29,12 @@ class NavTree extends React.Component {
     })
   }
 
-  componentDidMount() {
+  componentDidMount = () => this.loadData()
+  loadData() {
     $.get(this.props.dataUrl, (res) => {
       let _list = res.data || []
-      _list.unshift({ id: '$ALL$', text: '全部' })
-      this.setState({ list: _list })
+      _list.unshift({ id: 1, text: '全部' })
+      this.setState({ list: _list }, () => __NavTreeData = _list)
     })
   }
 }
@@ -47,29 +51,35 @@ class FilesList extends React.Component {
           <span className="on">{item.uploadOn}</span>
           <span className="by">{item.uploadBy[1]}</span>
           <div className="detail">
-            <a title="点击查看文件" onClick={() => this._preview(item.filePath)}>{$fileCutName(item.filePath)}</a>
-            <div>
-              <span>{item.uploadBy[1]}</span>
-            </div>
+            <a title="点击查看文件" onClick={() => previewFile(item.filePath)}>{$fileCutName(item.filePath)}</a>
+            <div className="extra">{this.renderExtras(item)}</div>
           </div>
         </div>
       })}
+      {(this.state.files && this.state.files.length === 0) && <div className="list-nodata pt-8 pb-8">
+        <i className="zmdi zmdi-folder-outline"></i>
+        <p>暂无相关文件</p>
+      </div>}
     </div>
   }
 
-  componentDidMount = () => this._loadFiles()
-  _loadFiles() {
-    $.get(`${rb.baseUrl}/files/list-file`, (res) => {
+  renderExtras(item) {
+    return <span>{((item.fileSize || 1) / 1024).toFixed(2)} KB</span>
+  }
+
+  componentDidMount = () => this.loadFiles()
+  loadFiles(type) {
+    $.get(this.buildDataUrl(type), (res) => {
       this.setState({ files: res.data || [] })
     })
   }
 
-  preview(path) {
-    RbPreview.create(path)
-    // TODO 检查权限
+  buildDataUrl(type) {
+    return `${rb.baseUrl}/files/list-file?entity=${type || 1}`
   }
+}
 
-  search = () => {
-    this._loadFiles()
-  }
+// 文件预览
+const previewFile = function (path) {
+  RbPreview.create(path)
 }

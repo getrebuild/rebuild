@@ -14,6 +14,15 @@
   font-size: 1rem;
   margin: 0;
   background-color: #eee;
+  cursor: default;
+}
+
+.file-header .file-path .breadcrumb>.active {
+  color: #888;
+}
+
+.file-header .file-path .breadcrumb-item+.breadcrumb-item::before {
+  color: #aaa;
 }
 
 .file-header .file-operator {
@@ -77,4 +86,26 @@
   color: #999;
   font-size: 12px;
   margin-top: 1px;
+}
+
+.upload-box {
+  display: block;
+  border: 1px dotted #ccc;
+  border-radius: 2px;
+  padding: 9px;
+  color: #aaa;
+  text-align: center;
+  cursor: pointer;
+  font-size: 12px;
+  min-height: 37px;
+  margin: 0;
+}
+
+.upload-box:hover {
+  background-color: #eee;
+}
+
+.file-field.files .img-thumbnail {
+  width: 100%;
+  margin-right: 0;
 }

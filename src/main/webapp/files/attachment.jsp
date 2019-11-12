@@ -40,8 +40,7 @@
 			<div class="file-header">
 				<div class="file-path">
 					<ol class="breadcrumb">
-						<li class="breadcrumb-item"><a href="#!/">附件</a></li>
-						<li class="breadcrumb-item active">全部</li>
+						<li class="breadcrumb-item active">全部附件</li>
 					</ol>
 				</div>
 				<div class="file-operator">

@@ -40,7 +40,7 @@
 			<div class="file-header">
 				<div class="file-path">
 					<ol class="breadcrumb">
-						<li class="breadcrumb-item active"><a href="#!/">全部文档</a></li>
+						<li class="breadcrumb-item active">全部文档</li>
 					</ol>
 				</div>
 				<div class="file-operator">
@@ -52,10 +52,10 @@
 					</div>
 					<div class="float-right">
 						<div class="btn-group btn-space mb-0">
-							<button class="btn btn-primary" type="button"><i class="icon zmdi zmdi-upload"></i> 上传文件${entityLabel}</button>
+							<button class="btn btn-primary J_upload-file" type="button"><i class="icon zmdi zmdi-upload"></i> 上传文件${entityLabel}</button>
 							<button class="btn btn-primary dropdown-toggle auto" type="button" data-toggle="dropdown"><span class="icon zmdi zmdi-chevron-down"></span></button>
 							<div class="dropdown-menu dropdown-menu-primary dropdown-menu-right">
-								<a class="dropdown-item"><i class="icon zmdi zmdi-folder"></i> 新建目录</a>
+								<a class="dropdown-item J_add-folder"><i class="icon zmdi zmdi-folder"></i> 新建目录</a>
 								<div class="dropdown-divider"></div>
 								<a class="dropdown-item"><i class="icon zmdi zmdi-delete"></i> 删除</a>
 							</div>
