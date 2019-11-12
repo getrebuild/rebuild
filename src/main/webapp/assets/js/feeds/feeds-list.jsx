@@ -161,7 +161,7 @@ class FeedsList extends React.Component {
         this.disabled(true)
         $.post(`${rb.baseUrl}/feeds/post/delete?id=${id}`, () => {
           this.hide()
-          $(`#feeds-${id}`).animate({ opacity: 0, height: 0 }, 600, () => {
+          $(`#feeds-${id}`).animate({ opacity: 0 }, 600, () => {
             let _data = that.state.data
             _data.forEach((item) => { if (id === item.id) item.deleted = true })
             that.setState({ data: _data })
@@ -305,7 +305,7 @@ class FeedsComments extends React.Component {
         this.disabled(true)
         $.post(`${rb.baseUrl}/feeds/post/delete?id=${id}`, () => {
           this.hide()
-          $(`#comment-${id}`).animate({ opacity: 0, height: 0 }, 600, () => {
+          $(`#comment-${id}`).animate({ opacity: 0 }, 600, () => {
             let _data = that.state.data
             _data.forEach((item) => { if (id === item.id) item.deleted = true })
             that.setState({ data: _data })
@@ -372,9 +372,11 @@ class Pagination extends React.Component {
 
 // 渲染动态内容
 function __renderRichContent(e) {
+  // 表情和换行不在后台转换，因为不同客户端所需的格式不同
+  const contentHtml = converEmoji(e.content || '').replace(/\n/g, '<br>')
   return <div className="rich-content">
     <div className="texts"
-      dangerouslySetInnerHTML={{ __html: converEmoji(e.content) }}
+      dangerouslySetInnerHTML={{ __html: contentHtml }}
     />
     {e.related && <div style={{ marginBottom: 6 }}>
       <a target="_blank" href={`${rb.baseUrl}/app/list-and-view?id=${e.related[0]}`} className="link" title="相关记录">
