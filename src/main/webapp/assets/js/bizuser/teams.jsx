@@ -7,10 +7,10 @@ class MemberAddDlg extends RbFormHandler {
   }
 
   render() {
-    return <RbModal ref={(c) => this._dlg = c} title="添加成员">
+    return <RbModal ref={(c) => this._dlg = c} title="添加成员" disposeOnHide={true}>
       <div className="form">
         <div className="form-group row">
-          <label className="col-sm-3 col-form-label text-sm-right">选择成员用户</label>
+          <label className="col-sm-3 col-form-label text-sm-right">选择用户</label>
           <div className="col-sm-7">
             <UserSelector ref={(c) => this._userSelector = c} />
           </div>
@@ -26,12 +26,15 @@ class MemberAddDlg extends RbFormHandler {
 
   _post = () => {
     let users = this._userSelector.val()
-    if (users.length < 1) { RbHighbar.create('请选择成员用户'); return }
+    if (users.length < 1) { RbHighbar.create('请选择用户'); return }
 
     this.disabled(true)
-    $.post(`${rb.baseUrl}/admin/bizuser/team-members-add?team=${this.props.id}`, JSON.stringify(users), () => {
-      this.hide()
-      this.props.call && this.props.call()
+    $.post(`${rb.baseUrl}/admin/bizuser/team-members-add?team=${this.props.id}`, JSON.stringify(users), (res) => {
+      if (res.error_code === 0) {
+        RbHighbar.success('成员已添加')
+        this.hide()
+        this.props.call && this.props.call()
+      } else RbHighbar.error(res.error_msg)
     })
   }
 }
@@ -67,12 +70,15 @@ class MemberList extends React.Component {
 
   _removeMember(user) {
     let that = this
-    RbAlert.create('确认将用户移出当前团队？', {
+    RbAlert.create('确认将用户移出当前用户组？', {
       confirm: function () {
         this.disabled(true)
-        $.post(`${rb.baseUrl}/admin/bizuser/team-members-del?team=${that.props.id}&user=${user}`, () => {
-          this.hide()
-          that.loadMembers()
+        $.post(`${rb.baseUrl}/admin/bizuser/team-members-del?team=${that.props.id}&user=${user}`, (res) => {
+          if (res.error_code === 0) {
+            RbHighbar.success('成员已移出')
+            this.hide()
+            that.loadMembers()
+          } else RbHighbar.error(res.error_msg)
         })
       }
     })
@@ -80,11 +86,25 @@ class MemberList extends React.Component {
 }
 
 let memberList
-
 $(document).ready(() => {
   const teamId = window.__PageConfig.recordId
   $('.nav-tabs a:eq(1)').click(() => {
     if (!memberList) renderRbcomp(<MemberList id={teamId} />, 'tab-members', function () { memberList = this })
   })
   $('.J_add-slave').off('click').click(() => renderRbcomp(<MemberAddDlg id={teamId} call={() => memberList && memberList.loadMembers()} />))
+  $('.J_delete').off('click').click(() => {
+    RbAlert.create('如果此用户组已被使用则不允许被删除', '删除用户组', {
+      type: 'danger',
+      confirmText: '删除',
+      confirm: function () {
+        this.disabled(true)
+        $.post(`${rb.baseUrl}/app/entity/record-delete?id=${teamId}`, (res) => {
+          if (res.error_code === 0) {
+            parent.location.hash = '!/View/'
+            parent.location.reload()
+          } else RbHighbar.error(res.error_msg)
+        })
+      }
+    })
+  })
 })

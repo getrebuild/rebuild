@@ -1,6 +1,35 @@
 -- Database upgrade scripts for rebuild 1.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #17 Team
+-- ************ Entity [Team] DDL ************
+create table if not exists `team` (
+  `TEAM_ID`            char(20) not null,
+  `NAME`               varchar(100) not null comment '用户组名称',
+  `PRINCIPAL_ID`       char(20) comment '负责人',
+  `IS_DISABLED`        char(1) default 'F' comment '是否停用',
+  `QUICK_CODE`         varchar(70),
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  primary key  (`TEAM_ID`)
+)Engine=InnoDB;
+-- ************ Entity [TeamMember] DDL ************
+create table if not exists `team_member` (
+  `MEMBER_ID`          char(20) not null,
+  `TEAM_ID`            char(20) not null,
+  `USER_ID`            char(20) not null,
+  primary key  (`MEMBER_ID`),
+  unique index `UIX1_team_member` (`TEAM_ID`, `USER_ID`)
+)Engine=InnoDB;
+INSERT INTO `layout_config` (`CONFIG_ID`, `BELONG_ENTITY`, `CONFIG`, `APPLY_TYPE`, `SHARE_TO`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`)
+  VALUES
+  (CONCAT('013-',SUBSTRING(MD5(RAND()),1,16)), 'Team', '[{"field":"name","isFull":false},{"field":"isDisabled","isFull":false}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001');
+-- Principal
+alter table `department`
+  add column `PRINCIPAL_ID` char(20) comment '负责人';
+
 -- #16 Feeds
 -- ************ Entity [Feeds] DDL ************
 create table if not exists `feeds` (

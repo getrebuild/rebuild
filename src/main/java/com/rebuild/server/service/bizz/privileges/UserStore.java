@@ -354,7 +354,7 @@ public class UserStore {
  	 		}
  		}
 
-		for (Principal u : role.getMembers()) {
+		for (Principal u : toMemberArray(role)) {
 			role.removeMember(u);
 		}
  		ROLEs.remove(roleId);
@@ -432,7 +432,7 @@ public class UserStore {
 		if (dept.getParent() != null) {
 			dept.getParent().removeChild(dept);
 		}
-		for (Principal u : dept.getMembers()) {
+		for (Principal u : toMemberArray(dept)) {
 			dept.removeMember(u);
 		}
 		DEPTs.remove(deptId);
@@ -474,7 +474,7 @@ public class UserStore {
 	 */
 	public void removeTeam(ID teamId) {
 		final Team team = getTeam(teamId);
-		for (Principal u : team.getMembers()) {
+		for (Principal u : toMemberArray(team)) {
 			team.removeMember(u);
 		}
 		TEAMs.remove(teamId);
@@ -533,7 +533,7 @@ public class UserStore {
 
 		LOG.info("Loaded [ " + DEPTs.size() + " ] departments.");
 
-		// 团队
+		// 用户组&团队
 
 		array = aPMFactory.createQuery("select teamId from Team").array();
 		for (Object[] o : array) {

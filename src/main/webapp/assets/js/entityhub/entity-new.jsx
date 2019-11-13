@@ -97,7 +97,7 @@ class MetaschemaList extends React.Component {
           if (res.error_code === 0) {
             RbHighbar.success('导入完成')
             setTimeout(() => { parent.location.href = `../../entity/${res.data}/base` }, 1500)
-          } else RbHighbar.error(res.error_msg || '导入失败')
+          } else RbHighbar.error(res.error_msg)
         })
       }
     })

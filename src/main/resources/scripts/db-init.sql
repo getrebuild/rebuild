@@ -42,6 +42,7 @@ create table if not exists `department` (
   `DEPT_ID`            char(20) not null,
   `NAME`               varchar(100) not null comment '部门名称',
   `PARENT_DEPT`        char(20) comment '父级部门',
+  `PRINCIPAL_ID`       char(20) comment '负责人',
   `IS_DISABLED`        char(1) default 'F' comment '是否停用',
   `QUICK_CODE`         varchar(70),
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
@@ -78,9 +79,33 @@ create table if not exists `role_privileges` (
 -- ************ Entity [RoleMember] DDL ************
 create table if not exists `role_member` (
   `MEMBER_ID`          char(20) not null,
-  `ROLE_ID`            char(20),
-  `USER_ID`            char(20),
-  primary key  (`MEMBER_ID`)
+  `ROLE_ID`            char(20) not null,
+  `USER_ID`            char(20) not null,
+  primary key  (`MEMBER_ID`),
+  unique index `UIX1_role_member` (`ROLE_ID`, `USER_ID`)
+)Engine=InnoDB;
+
+-- ************ Entity [Team] DDL ************
+create table if not exists `team` (
+  `TEAM_ID`            char(20) not null,
+  `NAME`               varchar(100) not null comment '用户组名称',
+  `PRINCIPAL_ID`       char(20) comment '负责人',
+  `IS_DISABLED`        char(1) default 'F' comment '是否停用',
+  `QUICK_CODE`         varchar(70),
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  primary key  (`TEAM_ID`)
+)Engine=InnoDB;
+
+-- ************ Entity [TeamMember] DDL ************
+create table if not exists `team_member` (
+  `MEMBER_ID`          char(20) not null,
+  `TEAM_ID`            char(20) not null,
+  `USER_ID`            char(20) not null,
+  primary key  (`MEMBER_ID`),
+  unique index `UIX1_team_member` (`TEAM_ID`, `USER_ID`)
 )Engine=InnoDB;
 
 -- ************ Entity [MetaEntity] DDL ************
@@ -572,6 +597,7 @@ INSERT INTO `layout_config` (`CONFIG_ID`, `BELONG_ENTITY`, `CONFIG`, `APPLY_TYPE
   (CONCAT('013-',SUBSTRING(MD5(RAND()),1,16)), 'Department', '[{"field":"name","isFull":false},{"field":"parentDept","isFull":false},{"field":"isDisabled","isFull":false}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
   (CONCAT('013-',SUBSTRING(MD5(RAND()),1,16)), 'User', '[{"field":"fullName","isFull":false},{"field":"email","isFull":false},{"field":"loginName","isFull":false},{"field":"password","isFull":false},{"field":"$DIVIDER$","isFull":true,"label":"分栏"},{"field":"deptId","isFull":false},{"field":"roleId","isFull":false},{"field":"isDisabled","isFull":false}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
   (CONCAT('013-',SUBSTRING(MD5(RAND()),1,16)), 'Role', '[{"field":"name","isFull":false},{"field":"isDisabled","isFull":false}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
+  (CONCAT('013-',SUBSTRING(MD5(RAND()),1,16)), 'Team', '[{"field":"name","isFull":false},{"field":"isDisabled","isFull":false}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
   (CONCAT('013-',SUBSTRING(MD5(RAND()),1,16)), 'LoginLog', '[{"field":"user"},{"field":"loginTime"},{"field":"userAgent"},{"field":"ipAddr"},{"field":"logoutTime"}]', 'DATALIST', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001');
 
 -- Classifications (No data)
@@ -582,4 +608,4 @@ INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version
 INSERT INTO `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`) 
-  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 16);
+  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 17);

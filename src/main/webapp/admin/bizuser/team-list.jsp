@@ -14,20 +14,6 @@
 		<jsp:param value="teams" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
-		<aside class="page-aside">
-			<div class="rb-scroller">
-				<div class="dept-tree">
-					<div class="ph-item rb">
-						<div class="ph-col-12 p-0">
-							<div class="ph-row">
-								<div class="ph-col-12 big"></div>
-								<div class="ph-col-12 big"></div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</aside>
 		<div class="main-content container-fluid">
 			<div class="card card-table">
 				<div class="card-body">
@@ -76,7 +62,5 @@ window.__PageConfig = {
 <script src="${baseUrl}/assets/js/rb-datalist.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms.exts.jsx" type="text/babel"></script>
-<script type="text/babel">
-</script>
 </body>
 </html>

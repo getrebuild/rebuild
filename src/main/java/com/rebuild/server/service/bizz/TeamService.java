@@ -31,7 +31,7 @@ import java.security.Principal;
 import java.util.Collection;
 
 /**
- * 团队/群组
+ * 用户组&团队
  *
  * @author devezhao
  * @since 2019/11/13
