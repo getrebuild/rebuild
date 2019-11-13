@@ -22,6 +22,7 @@ import cn.devezhao.bizz.privileges.Privileges;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.bizz.security.EntityPrivileges;
 import cn.devezhao.bizz.security.member.BusinessUnit;
+import cn.devezhao.bizz.security.member.MemberGroup;
 import cn.devezhao.bizz.security.member.NoMemberFoundException;
 import cn.devezhao.bizz.security.member.Role;
 import cn.devezhao.bizz.security.member.Team;
@@ -44,7 +45,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 
+ * 用户体系缓存
+ *
  * @author zhaofang123@gmail.com
  * @since 09/16/2018
  */
@@ -234,70 +236,50 @@ public class UserStore {
 	}
 	
 	/**
-	 * 刷新用户缓存
+	 * 刷新用户
 	 * 
 	 * @param userId
-	 * @return
 	 */
-	public User refreshUser(ID userId) {
-		final boolean ifExists = exists(userId);
-		
-		// OLD , CLEAN , HOLD
-		
-		final User oldUser = !ifExists ? null : getUser(userId);
-		final Role oldRole = oldUser == null ? null : oldUser.getOwningRole();
-		if (oldRole != null) {
-			oldRole.removeMember(oldUser);
-		}
-		final Department oldDept = oldUser == null ? null : oldUser.getOwningDept();
-		if (oldDept != null) {
-			oldDept.removeMember(oldUser);
-		}
-		
-		Object[] u = Application.createQueryNoFilter(
-				"select " + USER_FS + " from User where userId = ?")
+	public void refreshUser(ID userId) {
+		Object[] o = Application.createQueryNoFilter("select " + USER_FS + " from User where userId = ?")
 				.setParameter(1, userId)
 				.unique();
-		User newUser = new User(
-				userId, (String) u[1], (String) u[2], (String) u[3], (String) u[4], (Boolean) u[5]);
-		
-		String oldEmail = ifExists ? normalIdentifier(oldUser.getEmail()) : null;
-		if (oldEmail != null) {
-			USERs_MAIL2ID.remove(oldEmail);
+		final User newUser = new User(
+				userId, (String) o[1], (String) o[2], (String) o[3], (String) o[4], (Boolean) o[5]);
+
+		final User oldUser = exists(userId) ? getUser(userId) : null;
+		if (oldUser != null) {
+			Role role = oldUser.getOwningRole();
+			if (role != null) {
+				role.removeMember(oldUser);
+				role.addMember(newUser);
+			}
+			Department dept = oldUser.getOwningDept();
+			if (dept != null) {
+				dept.removeMember(oldUser);
+				dept.addMember(newUser);
+			}
+			for (Team team : oldUser.getOwningTeams()) {
+				team.removeMember(oldUser);
+				team.addMember(newUser);
+			}
+
+			// 邮箱可更改
+			if (oldUser.getEmail() != null) {
+				USERs_MAIL2ID.remove(normalIdentifier(oldUser.getEmail()));
+			}
 		}
-		
+
 		store(newUser);
-		
-		// ROLE
-		
-		ID newRoleId = (ID) u[7];
-		if (!(newRoleId == null && oldRole == null)) {
-			if (oldRole == null || !oldRole.getIdentity().equals(newRoleId)) {
-				getRole(newRoleId).addMember(newUser);
-			} else {
-				oldRole.addMember(newUser);
-			}
-		}
-		
-		// DEPT
-		
-		ID newDeptId = (ID) u[6];
-		if (!(newDeptId == null && oldDept == null)) {
-			if (oldDept == null || !oldDept.getIdentity().equals(newDeptId)) {
-				getDepartment(newDeptId).addMember(newUser);
-			} else {
-				oldDept.addMember(newUser);
-			}
-		}
-		
-		return getUser(userId);
 	}
 
 	/**
+	 * 移除用户
+	 *
 	 * @param userId
 	 */
 	public void removeUser(ID userId) {
-		User oldUser = getUser(userId);
+		final User oldUser = getUser(userId);
 
 		// 移除成员
 		if (oldUser.getOwningDept() != null) {
@@ -305,6 +287,9 @@ public class UserStore {
 		}
 		if (oldUser.getOwningRole() != null) {
 			oldUser.getOwningRole().removeMember(oldUser);
+		}
+		for (Team team : oldUser.getOwningTeams()) {
+			team.removeMember(oldUser);
 		}
 
 		// 移除缓存
@@ -324,79 +309,93 @@ public class UserStore {
 	}
 	
 	/**
-	 * 刷新角色缓存
+	 * 刷新角色
 	 * 
 	 * @param roleId
-	 * @param reloadPrivileges
 	 */
-	public void refreshRole(ID roleId, boolean reloadPrivileges) {
+	public void refreshRole(ID roleId) {
 		final Role oldRole = ROLEs.get(roleId);
-		
-		Object[] o = aPMFactory.createQuery(
-				"select roleId,name,isDisabled from Role where roleId = ?")
+		if (oldRole != null) {
+			for (Principal u : toMemberArray(oldRole)) {
+				oldRole.removeMember(u);
+			}
+		}
+
+		Object[] o = aPMFactory.createQuery("select roleId,name,isDisabled from Role where roleId = ?")
 				.setParameter(1, roleId)
 				.unique();
-		Role role = new Role(roleId, (String) o[1], (Boolean) o[2]);
-		
-		if (!reloadPrivileges) {
-			if (oldRole != null) {
-				for (Privileges priv : oldRole.getAllPrivileges()) {
-					role.addPrivileges(priv);
-				}
-			}
-			store(role);
-			return;
+		final Role newRole = new Role(roleId, (String) o[1], (Boolean) o[2]);
+
+		// Members
+		Object[][] array = aPMFactory.createQuery("select userId from User where roleId = ?")
+				.setParameter(1, roleId)
+				.array();
+		for (Object[] member : array) {
+			newRole.addMember(getUser((ID) member[0]));
 		}
-		
-		loadPrivileges(role);
-		store(role);
+
+		loadPrivileges(newRole);
+		ROLEs.put(roleId, newRole);
 	}
 	
 	/**
+	 * 移除角色
+	 *
 	 * @param roleId
 	 * @param transferTo
 	 */
 	public void removeRole(ID roleId, ID transferTo) {
-		Role role = getRole(roleId);
-		Principal[] users = role.getMembers().toArray(new Principal[0]);
-		
+		final Role role = getRole(roleId);
+		// 转至新角色
 		if (transferTo != null) {
  			Role transferToRole = getRole(transferTo);
- 			for (Principal user : users) {
+ 			for (Principal user : role.getMembers()) {
  				transferToRole.addMember(user);
  	 		}
  		}
-		
-		for (Principal u : users) {
+
+		for (Principal u : role.getMembers()) {
 			role.removeMember(u);
 		}
  		ROLEs.remove(roleId);
 	}
 	
 	/**
-	 * 刷新部门缓存
+	 * 刷新部门
 	 * 
 	 * @param deptId
 	 */
 	public void refreshDepartment(ID deptId) {
-		Object[] o = aPMFactory.createQuery(
-				"select name,isDisabled,parentDept from Department where deptId = ?")
+		final Department oldDept = DEPTs.get(deptId);
+		if (oldDept != null) {
+			for (Principal u : toMemberArray(oldDept)) {
+				oldDept.removeMember(u);
+			}
+		}
+
+		Object[] o = aPMFactory.createQuery("select name,isDisabled,parentDept from Department where deptId = ?")
 				.setParameter(1, deptId)
 				.unique();
-		Department newDept = new Department(deptId, (String) o[0], (Boolean) o[1]);
-		ID parent = (ID) o[2];
-		
-		Department oldDept = DEPTs.get(deptId);
-		// 重新组织父子级部门关系
+		final Department newDept = new Department(deptId, (String) o[0], (Boolean) o[1]);
+
+		// Members
+		Object[][] array = aPMFactory.createQuery("select userId from User where deptId = ?")
+				.setParameter(1, deptId)
+				.array();
+		for (Object[] member : array) {
+			newDept.addMember(getUser((ID) member[0]));
+		}
+
+		// 组织父子级部门关系
+		final ID newParent = (ID) o[2];
 		if (oldDept != null) {
 			BusinessUnit oldParent = oldDept.getParent();
 			if (oldParent != null) {
 				oldParent.removeChild(oldDept);
-				
-				if (oldParent.getIdentity().equals(parent)) {
+				if (oldParent.getIdentity().equals(newParent)) {
 					oldParent.addChild(newDept);
-				} else if (parent != null) {
-					getDepartment(parent).addChild(newDept);
+				} else if (newParent != null) {
+					getDepartment(newParent).addChild(newDept);
 				}
 			}
 			
@@ -404,54 +403,81 @@ public class UserStore {
 				oldDept.removeChild(child);
 				newDept.addChild(child);
 			}
-			
-			store(newDept);
-			
 		} else {
-			store(newDept);
-			if (parent != null) {
-				getDepartment(parent).addChild(newDept);
+			if (newParent != null
+					&& DEPTs.get(newParent) != null /* On init's */) {
+				getDepartment(newParent).addChild(newDept);
 			}
 		}
+
+		DEPTs.put(deptId, newDept);
 	}
 	
 	/**
+	 * 移除部门
+	 *
 	 * @param deptId
 	 * @param transferTo
 	 */
 	public void removeDepartment(ID deptId, ID transferTo) {
-		Department dept = getDepartment(deptId);
-		Principal[] users = dept.getMembers().toArray(new Principal[0]);
-		
+		final Department dept = getDepartment(deptId);
+		// 转至新部门
 		if (transferTo != null) {
  			Department transferToDept = getDepartment(transferTo);
- 			for (Principal user : users) {
+ 			for (Principal user : dept.getMembers()) {
  				transferToDept.addMember(user);
  	 		}
  		}
-		
+
 		if (dept.getParent() != null) {
 			dept.getParent().removeChild(dept);
 		}
-		
-		for (Principal u : users) {
+		for (Principal u : dept.getMembers()) {
 			dept.removeMember(u);
 		}
 		DEPTs.remove(deptId);
 	}
 
 	/**
-	 * 刷新团队缓存
+	 * 刷新团队
 	 *
 	 * @param teamId
 	 */
 	public void refreshTeam(ID teamId) {
+		final Team oldTeam = TEAMs.get(teamId);
+		if (oldTeam != null) {
+			for (Principal u : toMemberArray(oldTeam)) {
+				oldTeam.removeMember(u);
+			}
+		}
+
+		Object[] o = aPMFactory.createQuery("select teamId,name,isDisabled from Team where teamId = ?")
+				.setParameter(1, teamId)
+				.unique();
+		final Team newTeam = new Team(teamId, (String) o[1], (Boolean) o[2]);
+
+		// Members
+		Object[][] array = aPMFactory.createQuery("select userId from TeamMember where teamId = ?")
+				.setParameter(1, teamId)
+				.array();
+		for (Object[] member : array) {
+			newTeam.addMember(getUser((ID) member[0]));
+		}
+
+		TEAMs.put(teamId, newTeam);
 	}
 
 	/**
+	 * 移除团队
+	 *
 	 * @param teamId
 	 */
 	public void removeTeam(ID teamId) {
+		final Team team = getTeam(teamId);
+		for (Principal u : team.getMembers()) {
+			team.removeMember(u);
+		}
+		TEAMs.remove(teamId);
 	}
 
 	private static final String USER_FS = "userId,loginName,email,fullName,avatarUrl,isDisabled,deptId,roleId";
@@ -460,77 +486,43 @@ public class UserStore {
 	 * 
 	 * @throws Exception
 	 */
-	synchronized 
+	@SuppressWarnings("DuplicatedCode")
+	synchronized
 	protected void init() throws Exception {
-		// User
-		
-		final Map<ID, Set<ID>> roleOfUserMap = new HashMap<>();
-		final Map<ID, Set<ID>> deptOfUserMap = new HashMap<>();
+		// 用户
 		
 		Object[][] array = aPMFactory.createQuery("select " + USER_FS + " from User").array();
 		for (Object[] o : array) {
 			ID userId = (ID) o[0];
 			User user = new User(
 					userId, (String) o[1], (String) o[2], (String) o[3], (String) o[4], (Boolean) o[5]);
-			
-			ID roleId = (ID) o[7];
-			if (roleId != null) {
-				Set<ID> roleOfUser = roleOfUserMap.computeIfAbsent(roleId, k -> new HashSet<>());
-				roleOfUser.add(userId);
-			}
-			ID deptId = (ID) o[6];
-			if (deptId != null) {
-				Set<ID> deptOfUser = deptOfUserMap.computeIfAbsent(deptId, k -> new HashSet<>());
-				deptOfUser.add(userId);
-			}
-			
 			store(user);
 		}
 		LOG.info("Loaded [ " + USERs.size() + " ] users.");
+
+		// 角色
 		
-		// ROLE
-		
-		array = aPMFactory.createQuery("select roleId,name,isDisabled from Role").array();
+		array = aPMFactory.createQuery("select roleId from Role").array();
 		for (Object[] o : array) {
-			ID roleId = (ID) o[0];
-			Role role = new Role(roleId, (String) o[1], (Boolean) o[2]);
-			loadPrivileges(role);
-			
-			Set<ID> roleOfUser = roleOfUserMap.get(roleId);
-			if (roleOfUser != null) {
-				for (ID userId : roleOfUser) {
-					role.addMember(getUser(userId));
-				}
-			}
-			
-			store(role);
+			this.refreshRole((ID) o[0]);
 		}
 		LOG.info("Loaded [ " + ROLEs.size() + " ] roles.");
 		
-		// DEPT
+		// 部门
 		
-		array = aPMFactory.createQuery("select deptId,name,isDisabled,parentDept from Department").array();
+		array = aPMFactory.createQuery("select deptId,parentDept from Department").array();
 		Map<ID, Set<ID>> parentTemp = new HashMap<>();
 		for (Object[] o : array) {
 			ID deptId = (ID) o[0];
-			Department dept = new Department(deptId, (String) o[1], (Boolean) o[2]);
-			
-			Set<ID> deptOfUser = deptOfUserMap.get(deptId);
-			if (deptOfUser != null) {
-				for (ID userId : deptOfUser) {
-					dept.addMember(getUser(userId));
-				}
-			}
-			
-			ID parent = (ID) o[3];
+			this.refreshDepartment(deptId);
+
+			ID parent = (ID) o[1];
 			if (parent != null) {
 				Set<ID> child = parentTemp.computeIfAbsent(parent, k -> new HashSet<>());
 				child.add(deptId);
 			}
-			
-			store(dept);
 		}
-		
+
 		// 组织关系
 		for (Map.Entry<ID, Set<ID>> e : parentTemp.entrySet()) {
 			BusinessUnit parent = getDepartment(e.getKey());
@@ -538,47 +530,39 @@ public class UserStore {
 				parent.addChild(getDepartment(child));
 			}
 		}
-		
+
 		LOG.info("Loaded [ " + DEPTs.size() + " ] departments.");
+
+		// 团队
+
+		array = aPMFactory.createQuery("select teamId from Team").array();
+		for (Object[] o : array) {
+			this.refreshTeam((ID) o[0]);
+		}
+		LOG.info("Loaded [ " + TEAMs.size() + " ] teams.");
 	}
 	
 	/**
 	 * @param user
 	 */
 	private void store(User user) {
-		USERs.put((ID) user.getIdentity(), user);
-		USERs_NAME2ID.put(normalIdentifier(user.getName()), (ID) user.getIdentity());
+		USERs.put(user.getId(), user);
+		USERs_NAME2ID.put(normalIdentifier(user.getName()), user.getId());
 		if (user.getEmail() != null) {
-			USERs_MAIL2ID.put(normalIdentifier(user.getEmail()), (ID) user.getIdentity());
+			USERs_MAIL2ID.put(normalIdentifier(user.getEmail()), user.getId());
 		}
 	}
-	
-	/**
-	 * @param role
-	 */
-	private void store(Role role) {
-		Role old = ROLEs.get(role.getIdentity());
-		if (old != null) {
-			for (Principal user : old.getMembers()) {
-				role.addMember(user);
-			}
-		}
-		ROLEs.put((ID) role.getIdentity(), role);
+
+	// 统一化 Key
+	private String normalIdentifier(String ident) {
+		return StringUtils.defaultIfEmpty(ident, "").toLowerCase();
 	}
-	
-	/**
-	 * @param dept
-	 */
-	private void store(Department dept) {
-		Department old = DEPTs.get(dept.getIdentity());
-		if (old != null) {
-			for (Principal user : old.getMembers()) {
-				dept.addMember(user);
-			}
-		}
-		DEPTs.put((ID) dept.getIdentity(), dept);
+
+	// Fix: ConcurrentModificationException
+	private Principal[] toMemberArray(MemberGroup group) {
+		return group.getMembers().toArray(new Principal[0]);
 	}
-	
+
 	/**
 	 * @param role
 	 */
@@ -599,12 +583,7 @@ public class UserStore {
 			}
 		}
 	}
-	
-	// 统一化 Key
-	private String normalIdentifier(String ident) {
-		return StringUtils.defaultIfEmpty(ident, "").toLowerCase();
-	}
-	
+
 	/**
 	 * 转换成 bizz 能识别的权限定义
 	 * 
@@ -613,7 +592,7 @@ public class UserStore {
 	 * @see EntityPrivileges
 	 * @see BizzPermission
 	 */
-	static private String converEntityPrivilegesDefinition(String definition) {
+	private String converEntityPrivilegesDefinition(String definition) {
 		JSONObject defJson = JSON.parseObject(definition);
 		int C = defJson.getIntValue("C");
 		int D = defJson.getIntValue("D");

@@ -54,6 +54,7 @@
 		<field name="memberId" type="primary" />
 		<field name="roleId" type="reference" ref-entity="Role" />
 		<field name="userId" type="reference" ref-entity="User" />
+		<index field-list="roleId,userId" type="unique"/>
 	</entity>
 
 	<entity name="Team" type-code="006" description="团队" name-field="name" extra-attrs="{icon:'case'}">
@@ -67,6 +68,7 @@
 		<field name="memberId" type="primary" />
 		<field name="teamId" type="reference" ref-entity="Team" />
 		<field name="userId" type="reference" ref-entity="User" />
+		<index field-list="teamId,userId" type="unique"/>
 	</entity>
 
 	<entity name="MetaEntity" type-code="010" name-field="entityName">

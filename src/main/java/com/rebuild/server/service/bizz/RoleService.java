@@ -55,14 +55,14 @@ public class RoleService extends SystemEntityService implements AdminGuard {
 	@Override
 	public Record create(Record record) {
 		record = super.create(record);
-		Application.getUserStore().refreshRole(record.getPrimary(), false);
+		Application.getUserStore().refreshRole(record.getPrimary());
 		return record;
 	}
 	
 	@Override
 	public Record update(Record record) {
 		record = super.update(record);
-		Application.getUserStore().refreshRole(record.getPrimary(), false);
+		Application.getUserStore().refreshRole(record.getPrimary());
 		return record;
 	}
 	
@@ -109,7 +109,6 @@ public class RoleService extends SystemEntityService implements AdminGuard {
 		allPrivileges.putAll(zeroPrivileges);
 		zeroPrivileges.clear();
 		
-		boolean privilegesChanged = false;
 		for (Map.Entry<String, Object> e : allPrivileges.entrySet()) {
 			String name = e.getKey();
 			String def = e.getValue().toString();
@@ -123,8 +122,6 @@ public class RoleService extends SystemEntityService implements AdminGuard {
 				Record privileges = EntityHelper.forUpdate((ID) exists[0], user);
 				privileges.setString("definition", def);
 				super.update(privileges);
-				privilegesChanged = true;
-				
 			} else {
 				Record privileges = EntityHelper.forNew(EntityHelper.RolePrivileges, user);
 				privileges.setID("roleId", roleId);
@@ -136,10 +133,9 @@ public class RoleService extends SystemEntityService implements AdminGuard {
 				}
 				privileges.setString("definition", def);
 				super.create(privileges);
-				privilegesChanged = true;
 			}
 		}
 		
-		Application.getUserStore().refreshRole(roleId, privilegesChanged);
+		Application.getUserStore().refreshRole(roleId);
 	}
 }
