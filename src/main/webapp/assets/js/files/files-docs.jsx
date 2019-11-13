@@ -23,17 +23,9 @@ class FolderEditDlg extends RbFormHandler {
     return <RbModal title={`${this.props.id ? '修改' : '新建'}目录`} ref={(c) => this._dlg = c} disposeOnHide={true}>
       <div className="form">
         <div className="form-group row">
-          <label className="col-sm-3 col-form-label text-sm-right">名称</label>
+          <label className="col-sm-3 col-form-label text-sm-right">目录名称</label>
           <div className="col-sm-7">
             <input type="text" className="form-control form-control-sm" name="name" value={this.state.name || ''} onChange={this.handleChange} />
-          </div>
-        </div>
-        <div className="form-group row">
-          <label className="col-sm-3 col-form-label text-sm-right">上级目录</label>
-          <div className="col-sm-7">
-            <select className="form-control form-control-sm" name="parent" defaultValue={this.props.parent} onChange={this.handleChange}>
-              {__NavTreeData.map((item) => { return _renderOption(item) })}
-            </select>
           </div>
         </div>
         <div className="form-group row">
@@ -41,12 +33,20 @@ class FolderEditDlg extends RbFormHandler {
           <div className="col-sm-7 pt-1 down-1">
             <label className="custom-control custom-control-sm custom-radio custom-control-inline">
               <input className="custom-control-input" type="radio" name="scope" checked={this.state.scope === 'ALL'} value="ALL" onChange={this.handleChange} />
-              <span className="custom-control-label">公开</span>
+              <span className="custom-control-label">公共</span>
             </label>
             <label className="custom-control custom-control-sm custom-radio custom-control-inline">
               <input className="custom-control-input" type="radio" name="scope" checked={this.state.scope === 'SELF'} value="SELF" onChange={this.handleChange} />
               <span className="custom-control-label">私有 (仅自己可见)</span>
             </label>
+          </div>
+        </div>
+        <div className="form-group row pt-1">
+          <label className="col-sm-3 col-form-label text-sm-right">上级目录</label>
+          <div className="col-sm-7">
+            <select className="form-control form-control-sm" name="parent" defaultValue={this.props.parent} onChange={this.handleChange}>
+              {__NavTreeData.map((item) => { return _renderOption(item) })}
+            </select>
           </div>
         </div>
         <div className="form-group row footer">
