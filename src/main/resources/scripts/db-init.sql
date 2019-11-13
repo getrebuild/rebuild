@@ -310,12 +310,15 @@ create table if not exists `attachment_folder` (
   `FOLDER_ID`          char(20) not null,
   `NAME`               varchar(100) not null,
   `PARENT`             char(20),
+  `SCOPE`              varchar(20) default 'ALL' comment '哪些人可见, 可选值: ALL/SELF/$TeamID',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `CREATED_BY`         char(20) not null comment '创建人',
   primary key  (`FOLDER_ID`)
 )Engine=InnoDB;
+alter table `attachment_folder`
+  add index `IX1_attachment_folder` (`SCOPE`, `CREATED_BY`);
 
 -- ************ Entity [LoginLog] DDL ************
 create table if not exists `login_log` (
@@ -582,4 +585,4 @@ INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version
 INSERT INTO `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`) 
-  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 16);
+  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 18);

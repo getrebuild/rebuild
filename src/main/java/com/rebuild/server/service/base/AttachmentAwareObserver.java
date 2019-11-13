@@ -24,13 +24,11 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
-import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.OperatingObserver;
 import com.rebuild.utils.JSONUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -43,9 +41,9 @@ import java.util.List;
  * @author devezhao
  * @since 12/25/2018
  */
-public class AttchementAwareObserver extends OperatingObserver {
+public class AttachmentAwareObserver extends OperatingObserver {
 	
-	public AttchementAwareObserver() {
+	public AttachmentAwareObserver() {
 		super();
 	}
 	
@@ -62,7 +60,8 @@ public class AttchementAwareObserver extends OperatingObserver {
 			if (record.hasValue(field.getName())) {
 				JSONArray filesJson = parseFilesJson(record.getString(field.getName()));
 				for (Object file : filesJson) {
-					Record att = createAttachment(context, field, (String) file);
+					Record att = createAttachment(
+					        field, context.getAfterRecord().getPrimary(), (String) file, context.getOperator());
 					createWill.add(att);
 				}
 			}
@@ -117,7 +116,8 @@ public class AttchementAwareObserver extends OperatingObserver {
 				}
 				
 				for (Object o : afterFiles) {
-					Record att = createAttachment(context, field, (String) o);
+					Record att = createAttachment(
+					        field, context.getAfterRecord().getPrimary(), (String) o, context.getOperator());
 					createWill.add(att);
 				}
 			}
@@ -153,34 +153,18 @@ public class AttchementAwareObserver extends OperatingObserver {
 		Application.getCommonService().delete(deleteWill.toArray(new ID[0]));
 	}
 	
-	/**
-	 * @param files
-	 * @return
-	 */
 	private JSONArray parseFilesJson(String files) {
 		if (StringUtils.isBlank(files)) {
 			return JSONUtils.EMPTY_ARRAY;
 		}
 		return JSON.parseArray(files);
 	}
-	
-	/**
-	 * @param context
-	 * @param field
-	 * @param filePath
-	 * @return
-	 */
-	private Record createAttachment(OperatingContext context, Field field, String filePath) {
-		Record record = context.getAfterRecord();
-		Record att = EntityHelper.forNew(EntityHelper.Attachment, context.getOperator());
-		att.setInt("belongEntity", record.getEntity().getEntityCode());
-		att.setString("belongField", field.getName());
-		att.setID("relatedRecord", record.getPrimary());
-		att.setString("filePath", filePath);
-		String ext = FilenameUtils.getExtension(filePath);
-		if (StringUtils.isNotBlank(ext)) {
-			att.setString("fileType", ext);
-		}
-		return att;
+
+	private Record createAttachment(Field field, ID recordId, String filePath, ID user) {
+		Record attach = AttachmentHelper.createAttachment(filePath, user);
+		attach.setInt("belongEntity", field.getOwnEntity().getEntityCode());
+		attach.setString("belongField", field.getName());
+		attach.setID("relatedRecord", recordId);
+		return attach;
 	}
 }

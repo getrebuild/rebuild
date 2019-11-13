@@ -17,7 +17,7 @@ class NavTree extends React.Component {
 
   _renderItem(item) {
     return <li key={`xd-${item.id}`} className={this.state.activeItem === item.id ? 'active' : ''}>
-      <a data-id={item.id} onClick={() => this._clickItem(item)} href={`#!/${item.id}`}>{item.text}</a>
+      <a data-id={item.id} onClick={() => this._clickItem(item)} href={`#!/Folder/${item.id}`}>{item.text}</a>
       {item.children && <ul className="list-unstyled">
         {item.children.map((item) => { return this._renderItem(item) })}
       </ul>}
@@ -64,11 +64,11 @@ class FilesList extends React.Component {
   }
 
   renderExtras(item) {
-    return <span>{((item.fileSize || 1) / 1024).toFixed(2)} KB</span>
+    return <span>{item.fileSize}</span>
   }
 
-  componentDidMount = () => this.loadFiles()
-  loadFiles(type) {
+  componentDidMount = () => this.loadData()
+  loadData(type) {
     $.get(this.buildDataUrl(type), (res) => {
       this.setState({ files: res.data || [] })
     })

@@ -203,6 +203,8 @@
 		<field name="folderId" type="primary" />
 		<field name="name" type="string" max-length="100" nullable="false" />
 		<field name="parent" type="reference" ref-entity="AttachmentFolder" />
+        <field name="scope" type="string" max-length="20" default-value="ALL" description="哪些人可见, 可选值: ALL/SELF/$TeamID" />
+        <index field-list="scope,createdBy" />
 	</entity>
 
 	<entity name="LoginLog" type-code="025" parent="false" description="登陆日志">

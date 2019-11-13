@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.files;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.momentjava.Moment;
 import cn.devezhao.persist4j.Entity;
@@ -31,6 +32,7 @@ import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -114,7 +116,7 @@ public class FileListControll extends BasePageControll {
             item.put("id", o[0]);
             item.put("filePath", o[1]);
             item.put("fileType", o[2]);
-            item.put("fileSize", o[3]);
+            item.put("fileSize", FileUtils.byteCountToDisplaySize(ObjectUtils.toLong(o[3])));
             item.put("uploadBy", new Object[] { o[4], UserHelper.getName((ID) o[4]) });
             item.put("uploadOn", Moment.moment((Date) o[5]).fromNow());
             files.add(item);

@@ -18,9 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.common;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.server.service.base.AttachmentHelper;
 import com.rebuild.utils.AppUtils;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
@@ -28,6 +30,7 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
@@ -65,7 +68,7 @@ public class FileUploader {
 				}
 
 				uploadName = QiniuCloud.formatFileKey(uploadName);
-				File file = null;
+				File file;
 				// 上传临时文件
 				if (BooleanUtils.toBoolean(request.getParameter("temp"))) {
 					uploadName = uploadName.split("/")[2];
@@ -95,6 +98,17 @@ public class FileUploader {
 			ServletUtils.writeJson(response, AppUtils.formatControllMsg(1000, "上传失败"));
 		}
 	}
+
+    @RequestMapping("store-filesize")
+    public void storeFilesize(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	    long fileSize = ObjectUtils.toLong(request.getParameter("fs"));
+	    if (fileSize < 1) return;
+
+	    String filePath = request.getParameter("fp");
+	    if (StringUtils.isNotBlank(filePath)) {
+            AttachmentHelper.storeFileSize(filePath, (int) fileSize);
+        }
+    }
 
 	// ----
 	

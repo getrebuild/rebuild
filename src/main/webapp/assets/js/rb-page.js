@@ -281,9 +281,7 @@ var $createUploader = function (input, next, complete, error) {
         var o = qiniu.upload(file, res.data.key, res.data.token, putExtra)
         o.subscribe({
           next: function (res) {
-            typeof next === 'function' && next({
-              percent: res.total.percent
-            })
+            typeof next === 'function' && next({ percent: res.total.percent })
           },
           error: function (err) {
             var msg = (err.message || 'UnknowError').toUpperCase()
@@ -294,15 +292,12 @@ var $createUploader = function (input, next, complete, error) {
               RbHighbar.create('超出文件大小限制 (20M)')
               return false
             }
-            if (error) error({
-              error: msg
-            })
+            if (error) error({ error: msg })
             else RbHighbar.error('上传失败: ' + msg)
           },
           complete: function (res) {
-            typeof complete === 'function' && complete({
-              key: res.key
-            })
+            $.post(rb.baseUrl + '/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(res.key))
+            typeof complete === 'function' && complete({ key: res.key })
           }
         })
       })
@@ -326,25 +321,19 @@ var $createUploader = function (input, next, complete, error) {
           percent: e.loaded * 100 / e.total
         })
       },
-      onSuccess: function (d) {
-        d = $.parseJSON(d.currentTarget.response)
-        if (d.error_code === 0) {
-          complete({
-            key: d.data
-          })
+      onSuccess: function (e, file) {
+        e = $.parseJSON(e.currentTarget.response)
+        if (e.error_code === 0) {
+          complete({ key: e.data })
         } else {
-          var msg = d.error_msg || '上传失败，请稍后重试'
-          if (error) error({
-            error: msg
-          })
+          var msg = e.error_msg || '上传失败，请稍后重试'
+          if (error) error({ error: msg })
           else RbHighbar.error(msg)
         }
       },
       onClientError: function (e, file) {
         var msg = '上传失败，请稍后重试'
-        if (error) error({
-          error: msg
-        })
+        if (error) error({ error: msg })
         else RbHighbar.error(msg)
       }
     })

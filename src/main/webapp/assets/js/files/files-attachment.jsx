@@ -4,7 +4,7 @@ let filesList
 
 $(document).ready(() => {
   let clickNav = function (item) {
-    filesList && filesList.loadFiles(item.id)
+    filesList && filesList.loadData(item.id)
     $('.file-path .active').text(item.text)
   }
 

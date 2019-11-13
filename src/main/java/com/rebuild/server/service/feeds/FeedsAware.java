@@ -29,7 +29,7 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.BaseService;
 import com.rebuild.server.service.OperatingContext;
-import com.rebuild.server.service.base.AttchementAwareObserver;
+import com.rebuild.server.service.base.AttachmentAwareObserver;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.notification.Message;
 import com.rebuild.server.service.notification.MessageBuilder;
@@ -57,7 +57,7 @@ public abstract class FeedsAware extends BaseService {
         record = super.create(converContent(record));
 
         awareMention(record, true);
-        awareAttchement(OperatingContext.create(Application.getCurrentUser(), BizzPermission.CREATE, null, record));
+        awareAttachment(OperatingContext.create(Application.getCurrentUser(), BizzPermission.CREATE, null, record));
         return record;
     }
 
@@ -67,7 +67,7 @@ public abstract class FeedsAware extends BaseService {
         record = super.update(converContent((record)));
 
         awareMention(record, false);
-        awareAttchement(OperatingContext.create(Application.getCurrentUser(), BizzPermission.UPDATE, before, record));
+        awareAttachment(OperatingContext.create(Application.getCurrentUser(), BizzPermission.UPDATE, before, record));
         return record;
     }
 
@@ -77,7 +77,7 @@ public abstract class FeedsAware extends BaseService {
         int del = super.delete(recordId);
 
         awareMention(recordId);
-        awareAttchement(OperatingContext.create(Application.getCurrentUser(), BizzPermission.DELETE, before, null));
+        awareAttachment(OperatingContext.create(Application.getCurrentUser(), BizzPermission.DELETE, before, null));
         return del;
     }
 
@@ -171,8 +171,8 @@ public abstract class FeedsAware extends BaseService {
      *
      * @param context
      */
-    protected void awareAttchement(OperatingContext context) {
-        new AttchementAwareObserver().update(null, context);
+    protected void awareAttachment(OperatingContext context) {
+        new AttachmentAwareObserver().update(null, context);
     }
 
     /**

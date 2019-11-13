@@ -1,6 +1,11 @@
 -- Database upgrade scripts for rebuild 1.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #18 Folder scope
+alter table `attachment_folder`
+  add column `SCOPE` varchar(20) default 'ALL' comment '哪些人可见, 可选值: ALL/SELF/$TeamID',
+  add index `IX1_attachment_folder` (`SCOPE`, `CREATED_BY`);
+
 -- #16 Feeds
 -- ************ Entity [Feeds] DDL ************
 create table if not exists `feeds` (
