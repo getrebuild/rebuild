@@ -24,6 +24,7 @@ import cn.devezhao.bizz.security.EntityPrivileges;
 import cn.devezhao.bizz.security.member.BusinessUnit;
 import cn.devezhao.bizz.security.member.NoMemberFoundException;
 import cn.devezhao.bizz.security.member.Role;
+import cn.devezhao.bizz.security.member.Team;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -54,7 +55,8 @@ public class UserStore {
 	final private Map<ID, User> USERs = new ConcurrentHashMap<>();
 	final private Map<ID, Role> ROLEs = new ConcurrentHashMap<>();
 	final private Map<ID, Department> DEPTs = new ConcurrentHashMap<>();
-	
+	final private Map<ID, Team> TEAMs = new ConcurrentHashMap<>();
+
 	final private Map<String, ID> USERs_NAME2ID = new ConcurrentHashMap<>();
 	final private Map<String, ID> USERs_MAIL2ID = new ConcurrentHashMap<>();
 	
@@ -209,6 +211,26 @@ public class UserStore {
 	 */
 	public Role[] getAllRoles() {
 		return ROLEs.values().toArray(new Role[0]);
+	}
+
+	/**
+	 * @param teamId
+	 * @return
+	 * @throws NoMemberFoundException
+	 */
+	public Team getTeam(ID teamId) throws NoMemberFoundException {
+		Team t = TEAMs.get(teamId);
+		if (t == null) {
+			throw new NoMemberFoundException("No Team found: " + teamId);
+		}
+		return t;
+	}
+
+	/**
+	 * @return
+	 */
+	public Team[] getAllTeams() {
+		return TEAMs.values().toArray(new Team[0]);
 	}
 	
 	/**
@@ -417,7 +439,21 @@ public class UserStore {
 		}
 		DEPTs.remove(deptId);
 	}
-	
+
+	/**
+	 * 刷新团队缓存
+	 *
+	 * @param teamId
+	 */
+	public void refreshTeam(ID teamId) {
+	}
+
+	/**
+	 * @param teamId
+	 */
+	public void removeTeam(ID teamId) {
+	}
+
 	private static final String USER_FS = "userId,loginName,email,fullName,avatarUrl,isDisabled,deptId,roleId";
 	/**
 	 * 初始化

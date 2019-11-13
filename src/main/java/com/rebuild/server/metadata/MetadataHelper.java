@@ -267,7 +267,8 @@ public class MetadataHelper {
 	 * @return
 	 */
 	public static boolean isBizzEntity(int entityCode) {
-		return entityCode == EntityHelper.User || entityCode == EntityHelper.Department || entityCode == EntityHelper.Role;
+		return entityCode == EntityHelper.User || entityCode == EntityHelper.Department
+				|| entityCode == EntityHelper.Role || entityCode == EntityHelper.Team;
 	}
 
 	/**
@@ -277,7 +278,8 @@ public class MetadataHelper {
 	 * @return
 	 */
 	public static boolean isBizzEntity(String entityName) {
-		return "User".equalsIgnoreCase(entityName) || "Role".equalsIgnoreCase(entityName) || "Department".equalsIgnoreCase(entityName);
+		return "User".equalsIgnoreCase(entityName) || "Department".equalsIgnoreCase(entityName)
+				|| "Role".equalsIgnoreCase(entityName) || "Team".equalsIgnoreCase(entityName);
 	}
 
 	/**

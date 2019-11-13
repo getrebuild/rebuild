@@ -50,9 +50,22 @@
 		<index type="unique" field-list="roleId,entity,zeroKey" />
 	</entity>
 
-	<entity name="RoleMember" type-code="005" parent="false">
+	<entity name="RoleMember" type-code="005" parent="false" description="多角色(预留)">
 		<field name="memberId" type="primary" />
 		<field name="roleId" type="reference" ref-entity="Role" />
+		<field name="userId" type="reference" ref-entity="User" />
+	</entity>
+
+	<entity name="Team" type-code="006" description="团队" name-field="name" extra-attrs="{icon:'case'}">
+		<field name="teamId" type="primary" />
+		<field name="name" type="string" max-length="100" nullable="false" description="团队名称" />
+		<field name="isDisabled" type="bool" default-value="F" description="是否停用" />
+		<field name="quickCode" type="string" max-length="70" />
+	</entity>
+
+	<entity name="TeamMember" type-code="007" parent="false">
+		<field name="memberId" type="primary" />
+		<field name="teamId" type="reference" ref-entity="Team" />
 		<field name="userId" type="reference" ref-entity="User" />
 	</entity>
 

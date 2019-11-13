@@ -151,6 +151,8 @@ public class EntityHelper {
 	public static final int Role = 3;
 	public static final int RolePrivileges = 4;
 	public static final int RoleMember = 5;
+	public static final int Team = 6;
+	public static final int TeamMember = 7;
 
 	public static final int MetaEntity = 10;
 	public static final int MetaField = 11;
@@ -171,15 +173,11 @@ public class EntityHelper {
 	public static final int RobotTriggerConfig = 27;
 	public static final int RobotApprovalConfig = 28;
 	public static final int RobotApprovalStep = 29;
-
 	public static final int RebuildApi = 30;
 	public static final int RebuildApiRequest = 31;
-
 	public static final int DataReportConfig = 32;
-
 	public static final int RecycleBin = 33;
 	public static final int RevisionHistory = 34;
-
 	public static final int Feeds = 40;
 	public static final int FeedsComment = 41;
 	public static final int FeedsGroup = 42;
