@@ -3,8 +3,8 @@
 -- ONLY_FULL_GROUP_BY
 
 -- #1 database/user
--- UNCOMMENT IF YOU NEEDED DB AND USER
-/* 
+-- 首次使用请移除以下注释以创建数据库和用户
+/*
 CREATE DATABASE rebuild10 COLLATE utf8mb4_general_ci;
 CREATE USER 'rebuild'@'127.0.0.1' IDENTIFIED BY 'rebuild';
 GRANT ALL PRIVILEGES ON rebuild10.* TO 'rebuild'@'127.0.0.1';
