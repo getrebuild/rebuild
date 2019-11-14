@@ -22,6 +22,8 @@ import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -55,5 +57,16 @@ public class UserStoreTest extends TestSupport {
 	public void testExists() throws Exception {
 		assertTrue(Application.getUserStore().exists("admin"));
 		assertTrue(!Application.getUserStore().exists("not_exists"));
+	}
+
+	@Test
+	public void testMemberToTeam() {
+		Application.getSessionStore().set(SIMPLE_USER);
+		try {
+			Application.getBean(TeamService.class).createMembers(SIMPLE_TEAM, Arrays.asList(SIMPLE_USER));
+			Application.getBean(TeamService.class).deleteMembers(SIMPLE_TEAM, Arrays.asList(SIMPLE_USER));
+		} finally {
+			Application.getSessionStore().clean();
+		}
 	}
 }
