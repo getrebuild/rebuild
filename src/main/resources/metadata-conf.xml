@@ -16,7 +16,7 @@
 		<field name="password" type="string" max-length="100" nullable="false" updatable="false" description="登录密码" />
 		<field name="email" type="string" max-length="100" description="邮箱" repeatable="false" extra-attrs="{displayType:'EMAIL'}" />
 		<field name="fullName" type="string" max-length="100" description="姓名" />
-		<field name="avatarUrl" type="string" max-length="300" description="头像" extra-attrs="{displayType:'AVATAR'}" />
+		<field name="avatarUrl" type="string" max-length="200" description="头像" extra-attrs="{displayType:'AVATAR'}" />
 		<field name="jobTitle" type="string" max-length="100" description="职务" />
 		<field name="deptId" type="reference" ref-entity="Department" updatable="false" description="部门" />
 		<field name="roleId" type="reference" ref-entity="Role" updatable="false" description="角色" />
@@ -30,9 +30,10 @@
 		<field name="deptId" type="primary" />
 		<field name="name" type="string" max-length="100" nullable="false" description="部门名称" />
 		<field name="parentDept" type="reference" ref-entity="Department" description="父级部门" />
-		<field name="isDisabled" type="bool" default-value="F" description="是否停用" />
-		<field name="quickCode" type="string" max-length="70" />
-	</entity>
+        <field name="principalId" type="reference" ref-entity="User" description="负责人" />
+        <field name="isDisabled" type="bool" default-value="F" description="是否停用" />
+        <field name="quickCode" type="string" max-length="70" />
+    </entity>
 
 	<entity name="Role" type-code="003" description="角色" name-field="name" extra-attrs="{icon:'lock'}">
 		<field name="roleId" type="primary" />
@@ -50,10 +51,26 @@
 		<index type="unique" field-list="roleId,entity,zeroKey" />
 	</entity>
 
-	<entity name="RoleMember" type-code="005" parent="false">
+	<entity name="RoleMember" type-code="005" parent="false" description="多角色(预留)">
 		<field name="memberId" type="primary" />
-		<field name="roleId" type="reference" ref-entity="Role" />
-		<field name="userId" type="reference" ref-entity="User" />
+		<field name="roleId" type="reference" ref-entity="Role" cascade="delete" nullable="false" />
+		<field name="userId" type="reference" ref-entity="User" cascade="delete" nullable="false" />
+		<index field-list="roleId,userId" type="unique"/>
+	</entity>
+
+	<entity name="Team" type-code="006" description="用户组" name-field="name" extra-attrs="{icon:'case'}">
+		<field name="teamId" type="primary" />
+		<field name="name" type="string" max-length="100" nullable="false" description="组名称" />
+        <field name="principalId" type="reference" ref-entity="User" description="负责人" />
+		<field name="isDisabled" type="bool" default-value="F" description="是否停用" />
+		<field name="quickCode" type="string" max-length="70" />
+	</entity>
+
+	<entity name="TeamMember" type-code="007" parent="false">
+		<field name="memberId" type="primary" />
+		<field name="teamId" type="reference" ref-entity="Team" cascade="delete" nullable="false" />
+		<field name="userId" type="reference" ref-entity="User" cascade="delete" nullable="false" />
+		<index field-list="teamId,userId" type="unique"/>
 	</entity>
 
 	<entity name="MetaEntity" type-code="010" name-field="entityName">
@@ -177,7 +194,7 @@
 		<field name="messageId" type="primary" />
 		<field name="fromUser" type="reference" ref-entity="User" nullable="false" updatable="false" />
 		<field name="toUser" type="reference" ref-entity="User" nullable="false" updatable="false" />
-		<field name="message" type="string" max-length="1000" updatable="false" />
+		<field name="message" type="string" max-length="3000" updatable="false" />
 		<field name="unread" type="bool" default-value="T" />
 		<field name="type" type="small-int" updatable="false" default-value="0" description="消息分类" />
 		<field name="relatedRecord" type="any-reference" updatable="false" description="相关业务记录" />
@@ -192,7 +209,7 @@
 		<field name="relatedRecord" type="any-reference" updatable="false" description="相关业务记录" />
 		<field name="filePath" type="string" max-length="200" nullable="false" />
 		<field name="fileType" type="string" max-length="20" />
-		<field name="fileSize" type="int" default-value="0" description="in KB" />
+		<field name="fileSize" type="int" default-value="0" description="in bytes" />
 		<field name="inFolder" type="reference" ref-entity="AttachmentFolder"/>
 		<index field-list="belongEntity,belongField,filePath" />
 		<index field-list="relatedRecord" />
@@ -209,7 +226,7 @@
 		<field name="logId" type="primary" />
 		<field name="user" type="reference" ref-entity="User" nullable="false" updatable="false" description="登陆用户" />
 		<field name="ipAddr" type="string" max-length="100" description="IP地址" />
-		<field name="userAgent" type="string" max-length="100" description="客户端" />
+		<field name="userAgent" type="string" max-length="200" description="客户端" />
 		<field name="loginTime" type="timestamp" nullable="false" updatable="false" description="登陆时间" />
 		<field name="logoutTime" type="timestamp" description="退出时间" />
 		<index field-list="user,loginTime" />
