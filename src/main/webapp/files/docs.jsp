@@ -57,7 +57,8 @@
 							<div class="dropdown-menu dropdown-menu-primary dropdown-menu-right">
 								<a class="dropdown-item J_add-folder"><i class="icon zmdi zmdi-folder"></i> 新建目录</a>
 								<div class="dropdown-divider"></div>
-								<a class="dropdown-item"><i class="icon zmdi zmdi-delete"></i> 删除</a>
+								<a class="dropdown-item J_move"><i class="icon zmdi zmdi-swap"></i> 更改目录</a>
+								<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除文件</a>
 							</div>
 						</div>
 						<div class="btn-group btn-space mb-0 mr-0 J_sort">

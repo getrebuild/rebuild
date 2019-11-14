@@ -1,10 +1,11 @@
 /* eslint-disable react/prop-types */
-/* global filesList, currentSort */
+/* global filesList */
 // 文档
 
+const __DEFAULT_ALL = 'ALL'
 let __FolderData = []
 
-// 渲染目录树
+// 渲染目录
 const _renderOption = function (item, idx, disabledItem) {
   idx = idx || 0
   if (item.id === 1) item = { text: '无' }
@@ -22,6 +23,7 @@ const _renderOption = function (item, idx, disabledItem) {
 // ~ 目录
 class FolderEditDlg extends RbFormHandler {
   state = { scope: 'ALL', ...this.props }
+
   render() {
     return <RbModal title={`${this.props.id ? '修改' : '新建'}目录`} ref={(c) => this._dlg = c} disposeOnHide={true}>
       <div className="form">
@@ -79,6 +81,7 @@ class FolderEditDlg extends RbFormHandler {
 // ～ 上传
 class FileUploadDlg extends RbFormHandler {
   state = { ...this.props }
+
   render() {
     return <RbModal title="上传文件" ref={(c) => this._dlg = c} disposeOnHide={true}>
       <div className="form">
@@ -150,9 +153,45 @@ class FileUploadDlg extends RbFormHandler {
   }
 }
 
+// ～ 移动目录
+class FileMoveDlg extends RbFormHandler {
+  state = { ...this.props }
+
+  render() {
+    return <RbModal title="更改目录" ref={(c) => this._dlg = c} disposeOnHide={true}>
+      <div className="form">
+        <div className="form-group row">
+          <label className="col-sm-3 col-form-label text-sm-right">更改至新目录</label>
+          <div className="col-sm-7">
+            <select className="form-control form-control-sm" name="inFolder" onChange={this.handleChange}>
+              {__FolderData.map((item) => { return _renderOption(item) })}
+            </select>
+          </div>
+        </div>
+        <div className="form-group row footer">
+          <div className="col-sm-7 offset-sm-3" ref={(c) => this._btns = c}>
+            <button className="btn btn-primary" type="button" onClick={this._post}>确定</button>
+            <a className="btn btn-link" onClick={this.hide}>取消</a>
+          </div>
+        </div>
+      </div>
+    </RbModal>
+  }
+
+  _post = () => {
+    this.disabled(true)
+    $.post(`${rb.baseUrl}/files/move-files?folder=${this.state.inFolder || ''}&ids=${this.props.files.join(',')}`, (res) => {
+      if (res.error_code === 0) {
+        this.hide()
+        this.props.call && this.props.call()
+      } else RbHighbar.error(res.error_msg)
+    })
+  }
+}
+
 // ~ 目录树
 class FolderTree extends React.Component {
-  state = { activeItem: 1, ...this.props }
+  state = { activeItem: __DEFAULT_ALL, ...this.props }
 
   render() {
     return <div className="dept-tree p-0">
@@ -174,6 +213,7 @@ class FolderTree extends React.Component {
       </ul>}
     </li>
   }
+
   _clickItem(item) {
     this.setState({ activeItem: item.id }, () => {
       this.props.call && this.props.call(item)
@@ -207,7 +247,7 @@ class FolderTree extends React.Component {
   loadData() {
     $.get(`${rb.baseUrl}/files/list-folder`, (res) => {
       let _list = res.data || []
-      _list.unshift({ id: 1, text: '全部' })
+      _list.unshift({ id: __DEFAULT_ALL, text: '全部' })
       this.setState({ list: _list })
       __FolderData = _list
     })
@@ -216,15 +256,8 @@ class FolderTree extends React.Component {
 
 // eslint-disable-next-line no-undef
 class FilesList2 extends FilesList {
-  constructor(props) {
-    super(props)
-  }
-  loadData(folder) {
-    this.__lastFolder = folder = folder || this.__lastFolder
-    $.get(`${rb.baseUrl}/files/list-file?folder=${(!folder || folder === 1) ? '' : folder}&sort=${currentSort || ''}`, (res) => {
-      this.setState({ files: res.data || [] })
-    })
-  }
+  state = { ...this.props }
+  __lastEntry = __DEFAULT_ALL
 }
 
 const __findPaths = function (active, push) {
@@ -258,4 +291,26 @@ $(document).ready(() => {
 
   $('.J_add-folder').click(() => renderRbcomp(<FolderEditDlg call={() => filesNav && filesNav.loadData()} />))
   $('.J_upload-file').click(() => renderRbcomp(<FileUploadDlg call={() => filesList && filesList.loadData()} inFolder={currentFolder} />))
+
+  $('.J_delete').click(() => {
+    let s = filesList.getSelected()
+    if (!s) return
+    RbAlert.create('确认删除选中的文件吗？', {
+      type: 'danger',
+      confirmText: '删除',
+      confirm: function () {
+        this.disabled(true)
+        $.post(`${rb.baseUrl}/app/entity/record-delete?id=${s}`, (res) => {
+          if (res.error_code > 0) RbHighbar.error(res.error_msg)
+          this.hide()
+          filesList.loadData()
+        })
+      }
+    })
+  })
+  $('.J_move').click(() => {
+    let s = filesList.getSelected()
+    if (!s) return
+    renderRbcomp(<FileMoveDlg files={[s]} call={() => filesList && filesList.loadData()} />)
+  })
 })

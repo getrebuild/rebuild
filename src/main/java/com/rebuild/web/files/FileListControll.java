@@ -37,7 +37,9 @@ import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -81,18 +83,29 @@ public class FileListControll extends BasePageControll {
     @RequestMapping("list-file")
     public void listFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final ID user = getRequestUser(request);
-        String sort = getParameter(request, "sort");
         int pageNo = getIntParameter(request, "pageNo", 1);
         int pageSize = getIntParameter(request, "pageSize", 100);
 
-        int entity = getIntParameter(request, "entity", 0);
-        ID inFolder = getIdParameter(request, "folder");
+        String sort = getParameter(request, "sort");
+        String q = getParameter(request, "q");
 
-        // 附件还是文档
-        final boolean isAttachment = entity > 0;
+        // Entity or Folder
+        String entry = getParameter(request, "entry");
+        int entity = 0;
+        ID inFolder = null;
+        if (NumberUtils.isNumber(entry)) {
+            entity = NumberUtils.toInt(entry);
+        } else if (ID.isId(entry)) {
+            inFolder = ID.valueOf(entry);
+        }
 
         List<String> sqlWhere = new ArrayList<>();
-        if (isAttachment) {
+        if (StringUtils.isNotBlank(q)) {
+            sqlWhere.add(String.format("filePath like '%%%s%%'", StringEscapeUtils.escapeSql(q)));
+        }
+
+        // 附件还是文档
+        if (entity > 0) {
             sqlWhere.add("belongEntity > 0");
             if (entity == EntityHelper.Feeds) {
                 sqlWhere.add(String.format("(belongEntity = %d or belongEntity = %d)", entity, EntityHelper.FeedsComment));

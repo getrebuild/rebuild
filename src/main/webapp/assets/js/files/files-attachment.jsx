@@ -2,6 +2,8 @@
 /* global filesList */
 // 附件
 
+const __DEFAULT_ALL = 1
+
 // ~ 实体树
 class EntityTree extends React.Component {
   state = { activeItem: 1, ...this.props }
@@ -28,7 +30,7 @@ class EntityTree extends React.Component {
   loadData() {
     $.get(`${rb.baseUrl}/files/list-entity`, (res) => {
       let _list = res.data || []
-      _list.unshift({ id: 1, text: '全部' })
+      _list.unshift({ id: __DEFAULT_ALL, text: '全部' })
       this.setState({ list: _list })
     })
   }

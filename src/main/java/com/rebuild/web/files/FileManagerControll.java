@@ -24,6 +24,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.files.FilesHelper;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.web.BaseControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,6 +54,29 @@ public class FileManagerControll extends BaseControll {
         for (Object o : files) {
             Record r = FilesHelper.createAttachment((String) o, user);
             if (inFolder != null) {
+                r.setID("inFolder", inFolder);
+            }
+            fileRecords.add(r);
+        }
+        Application.getCommonService().createOrUpdate(fileRecords.toArray(new Record[0]), false);
+
+        writeSuccess(response);
+    }
+
+    @RequestMapping("move-files")
+    public void moveFiles(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        ID user = getRequestUser(request);
+        ID inFolder = getIdParameter(request, "folder");
+        String[] files = getParameter(request, "ids", "").split(",");
+
+        List<Record> fileRecords = new ArrayList<>();
+        for (String file : files) {
+            if (!ID.isId(file)) continue;
+            Record r = EntityHelper.forUpdate(ID.valueOf(file), user);
+            if (inFolder == null) {
+                r.setNull("inFolder");
+            } else {
                 r.setID("inFolder", inFolder);
             }
             fileRecords.add(r);

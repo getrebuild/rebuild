@@ -5,6 +5,7 @@
 // ~ 文件列表
 class FilesList extends React.Component {
   state = { ...this.props }
+  __lastEntry = 1
 
   render() {
     return <div className="file-list">
@@ -47,11 +48,17 @@ class FilesList extends React.Component {
   }
 
   componentDidMount = () => this.loadData()
-  loadData(entity) {
-    this.__lastEntity = entity = entity || this.__lastEntity
-    $.get(`${rb.baseUrl}/files/list-file?entity=${entity || 1}&sort=${currentSort || ''}`, (res) => {
+  loadData(entry) {
+    this.__lastEntry = entry = entry || this.__lastEntry
+    $.get(`${rb.baseUrl}/files/list-file?entry=${entry}&sort=${currentSort || ''}&q=${$encode(currentSearch || '')}`, (res) => {
       this.setState({ files: res.data || [] })
     })
+  }
+
+  getSelected() {
+    let s = this.state.currentActive
+    if (!s) RbHighbar.create('未选中任何文件')
+    else return s
   }
 }
 
@@ -65,6 +72,7 @@ const previewFile = function (path, checkId) {
   } else RbPreview.create(path)
 }
 
+var currentSearch
 var currentSort
 var filesList
 
@@ -77,4 +85,9 @@ $(document).ready(() => {
     $('.J_sort > .btn').find('span').text($this.text())
     filesList && filesList.loadData()
   })
+  let btn = $('.input-search .btn').click(() => {
+    currentSearch = $('.input-search input').val()
+    filesList && filesList.loadData()
+  })
+  $('.input-search input').keydown((event) => { if (event.which === 13) btn.trigger('click') })
 })
