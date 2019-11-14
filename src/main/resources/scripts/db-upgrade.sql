@@ -23,9 +23,13 @@ create table if not exists `team_member` (
   primary key  (`MEMBER_ID`),
   unique index `UIX1_team_member` (`TEAM_ID`, `USER_ID`)
 )Engine=InnoDB;
+INSERT INTO `team` (`TEAM_ID`, `NAME`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`, `QUICK_CODE`)
+  VALUES
+  ('006-9000000000000001', 'RB示例用户组', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'RBSLYHZ');
 INSERT INTO `layout_config` (`CONFIG_ID`, `BELONG_ENTITY`, `CONFIG`, `APPLY_TYPE`, `SHARE_TO`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`)
   VALUES
   (CONCAT('013-',SUBSTRING(MD5(RAND()),1,16)), 'Team', '[{"field":"name","isFull":false},{"field":"isDisabled","isFull":false}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001');
+
 -- Principal
 alter table `department`
   add column `PRINCIPAL_ID` char(20) comment '负责人';
