@@ -32,78 +32,84 @@
 }
 
 .file-viewport {
-  background-color: #fff;
+  margin: 0;
+  padding: 0;
 }
 
 .file-list .file-list-item {
+  background-color: #fff;
   border-bottom: 1px solid #e6e6e6;
   padding: 10px 20px;
-  position: relative;
-  clear: both;
+  display: table;
+  width: 100%;
   cursor: default;
+  position: relative;
 }
 
-.file-list .file-list-item:hover {
+.file-list .file-list-item:hover,
+.file-list-item.active {
   background-color: #f5f5f5;
 }
 
-.file-list-item>.detail {
-  padding-left: 40px;
-  margin-right: 200px;
+.file-list-item>div {
+  display: table-cell;
+  vertical-align: top;
+  margin: 0;
 }
 
-.file-list-item>.detail>a {
-  color: #444;
-  cursor: pointer;
+.file-list-item>div.info {
+  color: #aaa;
+  font-size: 12px;
+  text-align: right;
+  width: 100px;
 }
 
-.file-list-item>.detail a:hover {
-  text-decoration: underline;
+.file-list-item>div.check,
+.file-list-item>div.type {
+  width: 40px;
+  vertical-align: middle;
 }
 
-.file-list-item>.detail .extras {
+.file-list-item>div.type {
+  transform: translateY(2px);
+}
+
+.file-list-item>div.type .file-icon::before {
+  border-top-color: #fff;
+  border-right-color: #fff;
+}
+
+.file-list-item:hover>div.type .file-icon::before {
+  border-top-color: #f5f5f5;
+  border-right-color: #f5f5f5;
+}
+
+.file-list-item>div.detail {
+  width: auto;
+}
+
+.file-list-item>div.detail>.extras {
   margin-top: 1px;
 }
 
-.file-list-item>.detail .extras>span {
+.file-list-item>div.detail>.extras>span {
   display: inline-block;
   font-size: 12px;
   line-height: 1;
 }
 
-.file-list-item>.detail .extras>span,
-.file-list-item>.detail .extras>span>a {
+.file-list-item>div.detail .extras>span,
+.file-list-item>div.detail .extras>span>a {
   color: #777;
 }
 
-.file-list-item>.detail .extras>span+span::before {
+.file-list-item>div.detail .extras>span+span::before {
   content: '·';
   margin: 0 7px;
 }
 
-.file-list-item>.type {
-  float: left;
-  padding-top: 3px;
-}
-
-.file-list-item>.type .file-icon::before {
-  border-top-color: #fff;
-  border-right-color: #fff;
-}
-
-.file-list-item:hover>.type .file-icon::before {
-  border-top-color: #f5f5f5;
-  border-right-color: #f5f5f5;
-}
-
-.file-list-item>.by,
-.file-list-item>.on {
-  float: right;
-  width: 100px;
-  text-align: right;
-  color: #999;
-  font-size: 12px;
-  margin-top: 1px;
+.file-list-item>div.detail a:hover {
+  text-decoration: underline;
 }
 
 .upload-box {

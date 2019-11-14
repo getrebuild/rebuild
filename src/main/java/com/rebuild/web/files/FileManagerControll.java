@@ -61,4 +61,13 @@ public class FileManagerControll extends BaseControll {
 
         writeSuccess(response);
     }
+
+    @RequestMapping("check-readable")
+    public void checkReadable(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        ID user = getRequestUser(request);
+        ID record = getIdParameterNotNull(request, "id");
+        boolean OK = Application.getSecurityManager().allowedR(user, record);
+        writeSuccess(response, OK);
+    }
 }

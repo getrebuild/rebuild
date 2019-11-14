@@ -83,7 +83,7 @@ public class FileListControll extends BasePageControll {
         final ID user = getRequestUser(request);
         String sort = getParameter(request, "sort");
         int pageNo = getIntParameter(request, "pageNo", 1);
-        int pageSize = getIntParameter(request, "pageSize", 40);
+        int pageSize = getIntParameter(request, "pageSize", 100);
 
         int entity = getIntParameter(request, "entity", 0);
         ID inFolder = getIdParameter(request, "folder");
@@ -106,7 +106,14 @@ public class FileListControll extends BasePageControll {
             }
         } else {
             sqlWhere.add("belongEntity = 0");
-            if (inFolder != null) sqlWhere.add("inFolder = '" + inFolder + "'");
+            if (inFolder != null) {
+                sqlWhere.add("inFolder = '" + inFolder + "'");
+            } else {
+                ID[] ps = FilesHelper.getPrivateFolders(user);
+                if (ps.length > 0) {
+                    sqlWhere.add(String.format("inFolder not in ('%s')", StringUtils.join(ps,"','")));
+                }
+            }
         }
 
         String sql = "select attachmentId,filePath,fileType,fileSize,createdBy,modifiedOn,inFolder,relatedRecord from Attachment where (1=1)";

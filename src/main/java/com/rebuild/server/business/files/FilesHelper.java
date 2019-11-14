@@ -29,6 +29,10 @@ import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * 文件&附件帮助类
  *
@@ -57,6 +61,8 @@ public class FilesHelper {
     }
 
     /**
+     * Create Record of Attachment
+     *
      * @param filePath
      * @param user
      * @return
@@ -75,7 +81,7 @@ public class FilesHelper {
     }
 
     /**
-     * 获取目录
+     * 获取可用目录
      *
      * @param user
      * @return
@@ -85,15 +91,15 @@ public class FilesHelper {
     }
 
     /**
-     * 获取目录，可指定父级目录
+     * 获取可用目录，可指定父级目录
      *
      * @param user
      * @param parent
      * @return
      */
-    public static JSONArray getFolders(ID user, ID parent) {
+    protected static JSONArray getFolders(ID user, ID parent) {
         String sql = "select folderId,name,scope,createdBy,parent from AttachmentFolder" +
-                " where (scope = 'ALL' or (createdBy = ? and scope = 'SELF')) and ";
+                " where (scope = '" + SCOPE_ALL + "' or (createdBy = ? and scope = '" + SCOPE_SELF + "')) and ";
         if (parent == null) {
             sql += "parent is null";
         } else {
@@ -115,6 +121,49 @@ public class FilesHelper {
             folders.add(folder);
         }
         return folders;
+    }
+
+    /**
+     * 获取所有私有目录 ID
+     *
+     * @param user 排除指定用户
+     * @return
+     */
+    public static ID[] getPrivateFolders(ID user) {
+        Object[][] array = Application.createQueryNoFilter(
+                "select folderId,createdBy from AttachmentFolder where scope = '" + SCOPE_SELF + "'")
+                .array();
+        Set<ID> set = new HashSet<>();
+        for (Object[] o : array) {
+            if (user == null || !user.equals(o[1])) {
+                set.add((ID) o[0]);
+                set.addAll(getChildFolders((ID) o[0]));
+            }
+        }
+        return set.toArray(new ID[0]);
+    }
+
+    /**
+     * 获取子目录
+     *
+     * @param parent
+     * @return
+     */
+    private static Set<ID> getChildFolders(ID parent) {
+        Object[][] array = Application.createQueryNoFilter(
+                "select folderId,createdBy from AttachmentFolder where parent = ?")
+                .setParameter(1, parent)
+                .array();
+        if (array.length == 0) {
+            return Collections.emptySet();
+        }
+
+        Set<ID> set = new HashSet<>();
+        for (Object[] o : array) {
+            set.add((ID) o[0]);
+            set.addAll(getChildFolders((ID) o[0]));
+        }
+        return set;
     }
 
     /**
