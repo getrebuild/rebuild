@@ -23,7 +23,6 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.PersistManagerFactoryImpl;
 import cn.devezhao.persist4j.metadata.impl.ConfigurationMetadataFactory;
 import cn.devezhao.persist4j.util.support.Table;
-import com.rebuild.server.metadata.EntityHelper;
 import org.dom4j.Element;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -39,15 +38,14 @@ public class SchemaGen {
 	private static ApplicationContext CTX;
 	private static PersistManagerFactory PMF;
 
-	private static boolean DROP_EXISTS = true;
+	private static boolean DROP_EXISTS = false;
 	private static boolean TEMPSTAMP_ZERO = false;
 
 	public static void main(String[] args) {
 		CTX = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml", });
 		PMF = CTX.getBean(PersistManagerFactoryImpl.class);
 		
-//		genAll();
-		gen(EntityHelper.AttachmentFolder);
+		genAll();
 
 		System.exit(0);
 	}

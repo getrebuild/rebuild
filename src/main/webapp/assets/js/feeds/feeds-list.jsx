@@ -267,7 +267,7 @@ class FeedsComments extends React.Component {
     let btn = $(this._btn).button('loading')
     $.post(`${rb.baseUrl}/feeds/post/publish`, JSON.stringify(_data), (res) => {
       btn.button('reset')
-      if (res.error_msg > 0) { RbHighbar.error(res.error_msg || '评论失败，请稍后重试'); return }
+      if (res.error_msg > 0) { RbHighbar.error(res.error_msg); return }
       this._editor.reset()
       this._commentState(false)
       this._fetchComments()

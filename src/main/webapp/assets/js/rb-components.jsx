@@ -361,7 +361,7 @@ class UserSelector extends React.Component {
               <input type="search" className="form-control search" placeholder="输入关键词搜索" value={this.state.query || ''} onChange={(e) => this.searchItems(e)} />
             </div>
           </div>
-          <div className="tab-container">
+          <div className="tab-container m-0">
             <ul className="nav nav-tabs nav-tabs-classic">
               {this.tabTypes.map((item) => {
                 return <li className="nav-item" key={'t-' + item[0]}><a onClick={() => this.switchTab(item[0])} className={'nav-link' + (this.state.tabType === item[0] ? ' active' : '')}>{item[1]}</a></li>

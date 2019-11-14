@@ -72,7 +72,7 @@ class FeedsPost extends React.Component {
     let btn = $(this._btn).button('loading')
     $.post(`${rb.baseUrl}/feeds/post/publish`, JSON.stringify(_data), (res) => {
       btn.button('reset')
-      if (res.error_msg > 0) { RbHighbar.error(res.error_msg || '发布失败，请稍后重试'); return }
+      if (res.error_msg > 0) { RbHighbar.error(res.error_msg); return }
       this._editor.reset()
       this.props.call && this.props.call()
     })
@@ -412,7 +412,7 @@ class FeedsEditDlg extends RbModalHandler {
     let btns = $(this._btns).find('.btn').button('loading')
     $.post(`${rb.baseUrl}/feeds/post/publish`, JSON.stringify(_data), (res) => {
       btns.button('reset')
-      if (res.error_msg > 0) { RbHighbar.error(res.error_msg || '保存失败，请稍后重试'); return }
+      if (res.error_msg > 0) { RbHighbar.error(res.error_msg); return }
       this.hide()
       this.props.call && this.props.call()
     })
