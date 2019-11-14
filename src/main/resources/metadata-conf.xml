@@ -16,7 +16,7 @@
 		<field name="password" type="string" max-length="100" nullable="false" updatable="false" description="登录密码" />
 		<field name="email" type="string" max-length="100" description="邮箱" repeatable="false" extra-attrs="{displayType:'EMAIL'}" />
 		<field name="fullName" type="string" max-length="100" description="姓名" />
-		<field name="avatarUrl" type="string" max-length="300" description="头像" extra-attrs="{displayType:'AVATAR'}" />
+		<field name="avatarUrl" type="string" max-length="200" description="头像" extra-attrs="{displayType:'AVATAR'}" />
 		<field name="jobTitle" type="string" max-length="100" description="职务" />
 		<field name="deptId" type="reference" ref-entity="Department" updatable="false" description="部门" />
 		<field name="roleId" type="reference" ref-entity="Role" updatable="false" description="角色" />
@@ -194,7 +194,7 @@
 		<field name="messageId" type="primary" />
 		<field name="fromUser" type="reference" ref-entity="User" nullable="false" updatable="false" />
 		<field name="toUser" type="reference" ref-entity="User" nullable="false" updatable="false" />
-		<field name="message" type="string" max-length="1000" updatable="false" />
+		<field name="message" type="string" max-length="3000" updatable="false" />
 		<field name="unread" type="bool" default-value="T" />
 		<field name="type" type="small-int" updatable="false" default-value="0" description="消息分类" />
 		<field name="relatedRecord" type="any-reference" updatable="false" description="相关业务记录" />
@@ -209,7 +209,7 @@
 		<field name="relatedRecord" type="any-reference" updatable="false" description="相关业务记录" />
 		<field name="filePath" type="string" max-length="200" nullable="false" />
 		<field name="fileType" type="string" max-length="20" />
-		<field name="fileSize" type="int" default-value="0" description="in KB" />
+		<field name="fileSize" type="int" default-value="0" description="in bytes" />
 		<field name="inFolder" type="reference" ref-entity="AttachmentFolder"/>
 		<index field-list="belongEntity,belongField,filePath" />
 		<index field-list="relatedRecord" />
@@ -226,7 +226,7 @@
 		<field name="logId" type="primary" />
 		<field name="user" type="reference" ref-entity="User" nullable="false" updatable="false" description="登陆用户" />
 		<field name="ipAddr" type="string" max-length="100" description="IP地址" />
-		<field name="userAgent" type="string" max-length="100" description="客户端" />
+		<field name="userAgent" type="string" max-length="200" description="客户端" />
 		<field name="loginTime" type="timestamp" nullable="false" updatable="false" description="登陆时间" />
 		<field name="logoutTime" type="timestamp" description="退出时间" />
 		<index field-list="user,loginTime" />
