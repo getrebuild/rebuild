@@ -102,6 +102,7 @@ class GroupList extends React.Component {
   }
 
   _handleDelete(id) {
+    let that = this
     RbAlert.create('如果此群组已被使用则不允许被删除。确认删除？', {
       type: 'danger',
       confirmText: '删除',
@@ -110,7 +111,7 @@ class GroupList extends React.Component {
         $.post(`${rb.baseUrl}/app/entity/record-delete?id=${id}`, (res) => {
           if (res.error_code > 0) RbHighbar.error(res.error_msg)
           this.hide()
-          this.loadData()
+          that.loadData()
         })
       }
     })

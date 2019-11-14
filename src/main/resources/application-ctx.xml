@@ -178,6 +178,10 @@
 	<bean class="com.rebuild.server.service.base.ApprovalStepService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
+
+	<bean class="com.rebuild.server.service.base.AttachmentFolderService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
 	
 	<bean class="com.rebuild.server.service.bizz.UserService">
 		<constructor-arg index="0" ref="persistManagerFactory" />

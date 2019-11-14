@@ -60,11 +60,11 @@
 								<a class="dropdown-item"><i class="icon zmdi zmdi-delete"></i> 删除</a>
 							</div>
 						</div>
-						<div class="btn-group btn-space mb-0 mr-0">
-							<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">排序 <i class="icon zmdi zmdi-chevron-down up-1"></i></button>
+						<div class="btn-group btn-space mb-0 mr-0 J_sort">
+							<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span>默认排序</span> <i class="icon zmdi zmdi-chevron-down up-1"></i></button>
 							<div class="dropdown-menu dropdown-menu-right">
-								<a class="dropdown-item"> 最近上传</a>
-								<a class="dropdown-item"> 最早上传</a>
+								<a class="dropdown-item" data-sort="newer">最近上传</a>
+								<a class="dropdown-item" data-sort="older">最早上传</a>
 							</div>
 						</div>
 					</div>

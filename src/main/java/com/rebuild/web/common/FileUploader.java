@@ -20,9 +20,9 @@ package com.rebuild.web.common;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
+import com.rebuild.server.business.files.FilesHelper;
 import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.helper.SysConfiguration;
-import com.rebuild.server.service.base.AttachmentHelper;
 import com.rebuild.utils.AppUtils;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
@@ -99,14 +99,16 @@ public class FileUploader {
 		}
 	}
 
+	/**
+	 * @see FilesHelper#storeFileSize(String, int)
+	 */
     @RequestMapping("store-filesize")
     public void storeFilesize(HttpServletRequest request, HttpServletResponse response) throws IOException {
-	    long fileSize = ObjectUtils.toLong(request.getParameter("fs"));
+	    int fileSize = ObjectUtils.toInt(request.getParameter("fs"));
 	    if (fileSize < 1) return;
-
 	    String filePath = request.getParameter("fp");
 	    if (StringUtils.isNotBlank(filePath)) {
-            AttachmentHelper.storeFileSize(filePath, (int) fileSize);
+            FilesHelper.storeFileSize(filePath, fileSize);
         }
     }
 

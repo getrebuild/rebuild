@@ -51,12 +51,11 @@
 						</div>
 					</div>
 					<div class="float-right">
-						<div class="btn-group btn-space mb-0 mr-0">
-							<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">默认排序 <i class="icon zmdi zmdi-chevron-down"></i></button>
+						<div class="btn-group btn-space mb-0 mr-0 J_sort">
+							<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span>默认排序</span> <i class="icon zmdi zmdi-chevron-down"></i></button>
 							<div class="dropdown-menu dropdown-menu-right">
-								<a class="dropdown-item"> 最近上传</a>
-								<a class="dropdown-item"> 最近修改</a>
-								<a class="dropdown-item"> 最早上传</a>
+								<a class="dropdown-item" data-sort="newer">最近上传</a>
+								<a class="dropdown-item" data-sort="older">最早上传</a>
 							</div>
 						</div>
 					</div>

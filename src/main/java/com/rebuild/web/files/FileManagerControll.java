@@ -23,7 +23,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
-import com.rebuild.server.service.base.AttachmentHelper;
+import com.rebuild.server.business.files.FilesHelper;
 import com.rebuild.web.BaseControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,8 +35,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * TODO
- *
  * @author devezhao
  * @since 2019/11/12
  */
@@ -53,7 +51,7 @@ public class FileManagerControll extends BaseControll {
 
         List<Record> fileRecords = new ArrayList<>();
         for (Object o : files) {
-            Record r = AttachmentHelper.createAttachment((String) o, user);
+            Record r = FilesHelper.createAttachment((String) o, user);
             if (inFolder != null) {
                 r.setID("inFolder", inFolder);
             }

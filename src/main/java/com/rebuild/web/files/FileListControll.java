@@ -22,12 +22,16 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.momentjava.Moment;
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.files.FilesHelper;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
+import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
@@ -46,8 +50,6 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * TODO
- *
  * @author devezhao
  * @since 2019/11/12
  */
@@ -86,19 +88,28 @@ public class FileListControll extends BasePageControll {
         int entity = getIntParameter(request, "entity", 0);
         ID inFolder = getIdParameter(request, "folder");
 
+        // 附件还是文档
+        final boolean isAttachment = entity > 0;
+
         List<String> sqlWhere = new ArrayList<>();
-        // 附件
-        if (entity > 0) {
-            if (entity > 1) sqlWhere.add("belongEntity = " + entity);
-            else sqlWhere.add("belongEntity > 0");
-        }
-        // 文档
-        else {
+        if (isAttachment) {
+            sqlWhere.add("belongEntity > 0");
+            if (entity == EntityHelper.Feeds) {
+                sqlWhere.add(String.format("(belongEntity = %d or belongEntity = %d)", entity, EntityHelper.FeedsComment));
+            } else if (entity > 1) {
+                Entity entityMeta = MetadataHelper.getEntity(entity);
+                if (entityMeta.getSlaveEntity() != null) {
+                    sqlWhere.add(String.format("(belongEntity = %d or belongEntity = %d)", entity, entityMeta.getSlaveEntity().getEntityCode()));
+                } else {
+                    sqlWhere.add("belongEntity = " + entity);
+                }
+            }
+        } else {
             sqlWhere.add("belongEntity = 0");
             if (inFolder != null) sqlWhere.add("inFolder = '" + inFolder + "'");
         }
 
-        String sql = "select attachmentId,filePath,fileType,fileSize,createdBy,modifiedOn from Attachment where (1=1)";
+        String sql = "select attachmentId,filePath,fileType,fileSize,createdBy,modifiedOn,inFolder,relatedRecord from Attachment where (1=1)";
         sql = sql.replace("(1=1)", StringUtils.join(sqlWhere.iterator(), " and "));
         if ("older".equals(sort)) {
             sql += " order by createdOn asc";
@@ -119,6 +130,14 @@ public class FileListControll extends BasePageControll {
             item.put("fileSize", FileUtils.byteCountToDisplaySize(ObjectUtils.toLong(o[3])));
             item.put("uploadBy", new Object[] { o[4], UserHelper.getName((ID) o[4]) });
             item.put("uploadOn", Moment.moment((Date) o[5]).fromNow());
+            item.put("inFolder", o[6]);
+
+            ID relatedRecord = (ID) o[7];
+            if (relatedRecord != null && MetadataHelper.containsEntity(relatedRecord.getEntityCode())) {
+                Entity belongEntity = MetadataHelper.getEntity(relatedRecord.getEntityCode());
+                item.put("relatedRecord", new Object[] { relatedRecord, EasyMeta.getLabel(belongEntity) });
+            }
+
             files.add(item);
         }
         writeSuccess(response, files);
@@ -138,12 +157,34 @@ public class FileListControll extends BasePageControll {
         ID user = getRequestUser(request);
 
         JSONArray ret = new JSONArray();
+        // 动态
+        ret.add(toEntityJson(MetadataHelper.getEntity(EntityHelper.Feeds)));
         for (Entity e : MetadataSorter.sortEntities(user)) {
-            JSONObject item = JSONUtils.toJSONObject(
-                    new String[] { "id", "text" },
-                    new Object[] { e.getEntityCode(), EasyMeta.getLabel(e) });
-            ret.add(item);
+            // 明细实体会合并到主实体显示
+            if (MetadataHelper.isSlaveEntity(e.getEntityCode())) {
+                continue;
+            }
+
+            // 有附件字段的实体才显示
+            if (hasAttachmentFields(e)
+                    || (e.getSlaveEntity() != null && hasAttachmentFields(e.getSlaveEntity()))) {
+                ret.add(toEntityJson(e));
+            }
         }
         writeSuccess(response, ret);
+    }
+
+    private JSONObject toEntityJson(Entity entity) {
+        return JSONUtils.toJSONObject(
+                new String[] { "id", "text" },
+                new Object[] { entity.getEntityCode(), EasyMeta.getLabel(entity) });
+    }
+
+    private boolean hasAttachmentFields(Entity entity) {
+        for (Field field : entity.getFields()) {
+            DisplayType dt = EasyMeta.getDisplayType(field);
+            if (dt == DisplayType.FILE || dt == DisplayType.IMAGE) return true;
+        }
+        return false;
     }
 }

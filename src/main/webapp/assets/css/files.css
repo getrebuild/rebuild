@@ -53,14 +53,32 @@
 }
 
 .file-list-item>.detail>a {
-  color: #555;
+  color: #444;
   cursor: pointer;
 }
 
-.file-list-item>.detail>div {
+.file-list-item>.detail a:hover {
+  text-decoration: underline;
+}
+
+.file-list-item>.detail .extras {
   margin-top: 1px;
-  color: #999;
+}
+
+.file-list-item>.detail .extras>span {
+  display: inline-block;
   font-size: 12px;
+  line-height: 1;
+}
+
+.file-list-item>.detail .extras>span,
+.file-list-item>.detail .extras>span>a {
+  color: #777;
+}
+
+.file-list-item>.detail .extras>span+span::before {
+  content: '·';
+  margin: 0 7px;
 }
 
 .file-list-item>.type {
@@ -108,4 +126,15 @@
 .file-field.files .img-thumbnail {
   width: 100%;
   margin-right: 0;
+}
+
+.dept-tree li>a>.icon {
+  font-size: 12px;
+  color: #aaa;
+  margin-left: 6px;
+  cursor: help;
+}
+
+.dept-tree li.active>a>.icon {
+  color: #fff;
 }

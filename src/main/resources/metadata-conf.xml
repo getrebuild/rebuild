@@ -334,7 +334,7 @@
 		<index field-list="recordId,channelWith" />
 	</entity>
 
-	<entity name="Feeds" type-code="040" description="动态(消息聚合)">
+	<entity name="Feeds" type-code="040" description="动态" name-field="content">
 		<field name="feedsId" type="primary" />
 		<field name="type" type="small-int" nullable="false" updatable="false" default-value="1" description="类型" />
 		<field name="content" type="text" nullable="false" max-length="3000" description="内容" />
@@ -347,7 +347,7 @@
 		<index field-list="content" type="fulltext" />
 	</entity>
 
-	<entity name="FeedsComment" type-code="041" description="动态评论">
+	<entity name="FeedsComment" type-code="041" description="动态评论" name-field="content">
 		<field name="commentId" type="primary" />
 		<field name="feedsId" type="reference" ref-entity="Feeds" nullable="false" updatable="false" cascade="delete" description="哪个动态" />
 		<field name="content" type="text" nullable="false" max-length="3000" description="内容" />

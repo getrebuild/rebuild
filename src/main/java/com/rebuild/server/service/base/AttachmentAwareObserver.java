@@ -24,6 +24,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
+import com.rebuild.server.business.files.FilesHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.service.OperatingContext;
@@ -161,7 +162,7 @@ public class AttachmentAwareObserver extends OperatingObserver {
 	}
 
 	private Record createAttachment(Field field, ID recordId, String filePath, ID user) {
-		Record attach = AttachmentHelper.createAttachment(filePath, user);
+		Record attach = FilesHelper.createAttachment(filePath, user);
 		attach.setInt("belongEntity", field.getOwnEntity().getEntityCode());
 		attach.setString("belongField", field.getName());
 		attach.setID("relatedRecord", recordId);

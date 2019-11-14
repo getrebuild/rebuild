@@ -1,16 +1,19 @@
-/* global __NavTreeData */
+/* eslint-disable react/prop-types */
+/* global filesList, currentSort */
 // 文档
 
+let __FolderData = []
+
 // 渲染目录树
-const _renderOption = function (item, idx) {
+const _renderOption = function (item, idx, disabledItem) {
   idx = idx || 0
   if (item.id === 1) item = { text: '无' }
-  let options = [<option key={`opt-${item.id}`} value={item.id}
+  let options = [<option key={`opt-${item.id}`} value={item.id || ''} disabled={disabledItem && item.id === disabledItem}
     dangerouslySetInnerHTML={{ __html: idx === 0 ? item.text : `${'&nbsp;'.repeat(idx * 3)}${item.text}` }}
   />]
   if (item.children) {
     item.children.forEach((item) => {
-      options = options.concat(_renderOption(item, idx + 1))
+      options = options.concat(_renderOption(item, idx + 1, disabledItem))
     })
   }
   return options
@@ -31,21 +34,22 @@ class FolderEditDlg extends RbFormHandler {
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">可见范围</label>
           <div className="col-sm-7 pt-1 down-1">
-            <label className="custom-control custom-control-sm custom-radio custom-control-inline">
+            <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
               <input className="custom-control-input" type="radio" name="scope" checked={this.state.scope === 'ALL'} value="ALL" onChange={this.handleChange} />
               <span className="custom-control-label">公共</span>
             </label>
-            <label className="custom-control custom-control-sm custom-radio custom-control-inline">
+            <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
               <input className="custom-control-input" type="radio" name="scope" checked={this.state.scope === 'SELF'} value="SELF" onChange={this.handleChange} />
               <span className="custom-control-label">私有 (仅自己可见)</span>
             </label>
+            <div className="form-text mb-1">目录可见范围将影响子目录以及目录内的文件</div>
           </div>
         </div>
         <div className="form-group row pt-1">
           <label className="col-sm-3 col-form-label text-sm-right">上级目录</label>
           <div className="col-sm-7">
-            <select className="form-control form-control-sm" name="parent" defaultValue={this.props.parent} onChange={this.handleChange}>
-              {__NavTreeData.map((item) => { return _renderOption(item) })}
+            <select className="form-control form-control-sm" name="parent" onChange={this.handleChange}>
+              {__FolderData.map((item) => { return _renderOption(item, 0, this.props.id) })}
             </select>
           </div>
         </div>
@@ -61,7 +65,9 @@ class FolderEditDlg extends RbFormHandler {
 
   _post = () => {
     let _data = { name: this.state.name, parent: this.state.parent, scope: this.state.scope }
-    _data.metadata = { entity: 'AttachmentFolder' }
+    if (!_data.name) { RbHighbar.create('请输入目录名称'); return }
+    _data.metadata = { entity: 'AttachmentFolder', id: this.props.id || null }
+
     this.disabled(true)
     $.post(`${rb.baseUrl}/app/entity/record-save`, JSON.stringify(_data), () => {
       this.hide()
@@ -79,8 +85,8 @@ class FileUploadDlg extends RbFormHandler {
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">上传目录</label>
           <div className="col-sm-7">
-            <select className="form-control form-control-sm" name="inFolder" value={this.state.inFolder || ''} onChange={this.handleChange}>
-              {__NavTreeData.map((item) => { return _renderOption(item) })}
+            <select className="form-control form-control-sm" name="inFolder" defaultValue={this.props.inFolder} onChange={this.handleChange}>
+              {__FolderData.map((item) => { return _renderOption(item) })}
             </select>
           </div>
         </div>
@@ -134,7 +140,6 @@ class FileUploadDlg extends RbFormHandler {
 
   _post = () => {
     if ((this.state.files || []).length === 0) return
-
     this.disabled(true)
     $.post(`${rb.baseUrl}/files/post-files?folder=${this.state.inFolder || ''}`, JSON.stringify(this.state.files), (res) => {
       if (res.error_code === 0) {
@@ -145,15 +150,80 @@ class FileUploadDlg extends RbFormHandler {
   }
 }
 
+// ~ 目录树
+class FolderTree extends React.Component {
+  state = { activeItem: 1, ...this.props }
+
+  render() {
+    return <div className="dept-tree p-0">
+      <ul className="list-unstyled">
+        {(this.state.list || []).map((item) => { return this._renderItem(item) })}
+      </ul>
+    </div>
+  }
+
+  _renderItem(item) {
+    return <li key={`folder-${item.id}`} className={this.state.activeItem === item.id ? 'active' : ''}>
+      <a data-id={item.id} onClick={() => this._clickItem(item)} href={`#!/Folder/${item.id}`}>{item.text}{item.private && <i title="私有" className="icon zmdi zmdi-lock" />}</a>
+      {item.self && <div className="action">
+        <a onClick={() => this._handleEdit(item)}><i className="zmdi zmdi-edit"></i></a>
+        <a onClick={() => this._handleDelete(item.id)}><i className="zmdi zmdi-delete"></i></a>
+      </div>}
+      {item.children && <ul className="list-unstyled">
+        {item.children.map((item) => { return this._renderItem(item) })}
+      </ul>}
+    </li>
+  }
+  _clickItem(item) {
+    this.setState({ activeItem: item.id }, () => {
+      this.props.call && this.props.call(item)
+    })
+  }
+
+  _handleEdit(item) {
+    event.preventDefault()
+    renderRbcomp(<FolderEditDlg call={() => filesNav && filesNav.loadData()}
+      id={item.id} name={item.text} scope={item.private ? 'SELF' : 'ALL'} parent={item.parent} />)
+  }
+
+  _handleDelete(id) {
+    event.preventDefault()
+    let that = this
+    RbAlert.create('目录内有文件或子目录则不允许删除。确认删除吗？', {
+      type: 'danger',
+      confirmText: '删除',
+      confirm: function () {
+        this.disabled(true)
+        $.post(`${rb.baseUrl}/app/entity/record-delete?id=${id}`, (res) => {
+          if (res.error_code > 0) RbHighbar.error(res.error_msg)
+          this.hide()
+          that.loadData()
+        })
+      }
+    })
+  }
+
+  componentDidMount = () => this.loadData()
+  loadData() {
+    $.get(`${rb.baseUrl}/files/list-folder`, (res) => {
+      let _list = res.data || []
+      _list.unshift({ id: 1, text: '全部' })
+      this.setState({ list: _list })
+      __FolderData = _list
+    })
+  }
+}
+
 // eslint-disable-next-line no-undef
 class FilesList2 extends FilesList {
-
   constructor(props) {
     super(props)
   }
-
-  buildDataUrl(folder) {
-    return `${rb.baseUrl}/files/list-file?folder=${folder === 1 ? '' : folder}`
+  loadData(folder) {
+    this.__lastFolder = folder = folder || this.__lastFolder
+    $.get(`${rb.baseUrl}/files/list-file?folder=${(!folder || folder === 1) ? '' : folder}&sort=${currentSort || ''}`, (res) => {
+      this.setState({ files: res.data || [] })
+    })
   }
 }
 
@@ -164,14 +234,13 @@ const __findPaths = function (active, push) {
   if (li.length > 0) __findPaths(li, push)
 }
 
-let filesList
 let filesNav
-let currentFolderId
+let currentFolder
 
 $(document).ready(() => {
   let clickNav = function (item) {
     filesList && filesList.loadData(item.id)
-    currentFolderId = item.id
+    currentFolder = item.id
 
     let paths = []
     __findPaths($('#navTree li.active'), paths)
@@ -183,11 +252,10 @@ $(document).ready(() => {
       else $(`<a href="#!/Folder/${item[1]}">${item[0]}</a>`).appendTo(li)
     })
   }
-
-  // eslint-disable-next-line react/jsx-no-undef
-  renderRbcomp(<NavTree call={clickNav} dataUrl={`${rb.baseUrl}/files/list-folder`} />, 'navTree', function () { filesNav = this })
+  renderRbcomp(<FolderTree call={clickNav} />, 'navTree', function () { filesNav = this })
+  // eslint-disable-next-line no-global-assign
   renderRbcomp(<FilesList2 />, $('.file-viewport'), function () { filesList = this })
 
   $('.J_add-folder').click(() => renderRbcomp(<FolderEditDlg call={() => filesNav && filesNav.loadData()} />))
-  $('.J_upload-file').click(() => renderRbcomp(<FileUploadDlg call={() => filesList && filesList.loadData()} inFolder={currentFolderId} />))
+  $('.J_upload-file').click(() => renderRbcomp(<FileUploadDlg call={() => filesList && filesList.loadData()} inFolder={currentFolder} />))
 })

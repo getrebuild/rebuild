@@ -1,15 +1,45 @@
+/* eslint-disable react/prop-types */
+/* global filesList */
 // 附件
 
-let filesList
+// ~ 实体树
+class EntityTree extends React.Component {
+  state = { activeItem: 1, ...this.props }
+
+  render() {
+    return <div className="dept-tree p-0">
+      <ul className="list-unstyled">
+        {(this.state.list || []).map((item) => {
+          return <li key={`entity-${item.id}`} className={this.state.activeItem === item.id ? 'active' : ''}>
+            <a onClick={() => this._clickItem(item)} href={`#!/Entity/${item.id}`}>{item.text}</a>
+          </li>
+        })}
+      </ul>
+    </div>
+  }
+
+  _clickItem(item) {
+    this.setState({ activeItem: item.id }, () => {
+      this.props.call && this.props.call(item)
+    })
+  }
+
+  componentDidMount = () => this.loadData()
+  loadData() {
+    $.get(`${rb.baseUrl}/files/list-entity`, (res) => {
+      let _list = res.data || []
+      _list.unshift({ id: 1, text: '全部' })
+      this.setState({ list: _list })
+    })
+  }
+}
 
 $(document).ready(() => {
   let clickNav = function (item) {
     filesList && filesList.loadData(item.id)
     $('.file-path .active').text(item.text)
   }
-
-  // eslint-disable-next-line react/jsx-no-undef
-  renderRbcomp(<NavTree call={clickNav} dataUrl={`${rb.baseUrl}/files/list-entity`} />, 'navTree')
-  // eslint-disable-next-line react/jsx-no-undef
+  renderRbcomp(<EntityTree call={clickNav} />, 'navTree')
+  // eslint-disable-next-line no-global-assign, react/jsx-no-undef
   renderRbcomp(<FilesList />, $('.file-viewport'), function () { filesList = this })
 })
