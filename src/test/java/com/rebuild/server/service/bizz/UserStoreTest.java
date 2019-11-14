@@ -35,10 +35,12 @@ public class UserStoreTest extends TestSupport {
 		Application.getUserStore().getAllUsers();
 		Application.getUserStore().getAllDepartments();
 		Application.getUserStore().getAllRoles();
+		Application.getUserStore().getAllTeams();
 		
 		Application.getUserStore().getUser(UserService.ADMIN_USER);
 		Application.getUserStore().getDepartment(DepartmentService.ROOT_DEPT);
 		Application.getUserStore().getRole(RoleService.ADMIN_ROLE);
+		Application.getUserStore().getTeam(SIMPLE_TEAM);
 	}
 	
 	@Test
@@ -46,6 +48,7 @@ public class UserStoreTest extends TestSupport {
 		Application.getUserStore().refreshUser(UserService.ADMIN_USER);
 		Application.getUserStore().refreshDepartment(DepartmentService.ROOT_DEPT);
 		Application.getUserStore().refreshRole(RoleService.ADMIN_ROLE);
+		Application.getUserStore().refreshRole(SIMPLE_TEAM);
 	}
 	
 	@Test
