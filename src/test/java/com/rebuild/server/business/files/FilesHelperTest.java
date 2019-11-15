@@ -34,9 +34,10 @@ public class FilesHelperTest extends TestSupportWithUser {
     public void getFolders() {
         Record folder = EntityHelper.forNew(EntityHelper.AttachmentFolder, getSessionUser());
         folder.setString("name", "123456");
-        Application.getService(EntityHelper.AttachmentFolder).create(folder);
+        folder = Application.getService(EntityHelper.AttachmentFolder).create(folder);
 
         System.out.println(FilesHelper.getFolders(getSessionUser()));
+        Application.getService(EntityHelper.AttachmentFolder).delete(folder.getPrimary());
     }
 
     @Test
@@ -44,8 +45,9 @@ public class FilesHelperTest extends TestSupportWithUser {
         Record folder = EntityHelper.forNew(EntityHelper.AttachmentFolder, getSessionUser());
         folder.setString("name", "abcdef");
         folder.setString("scope", FilesHelper.SCOPE_SELF);
-        Application.getService(EntityHelper.AttachmentFolder).create(folder);
+        folder = Application.getService(EntityHelper.AttachmentFolder).create(folder);
 
         System.out.println(FilesHelper.getPrivateFolders(getSessionUser()));
+        Application.getService(EntityHelper.AttachmentFolder).delete(folder.getPrimary());
     }
 }
