@@ -23,6 +23,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
+import com.rebuild.server.business.feeds.FeedsHelper;
 import com.rebuild.server.business.files.FilesHelper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
@@ -117,7 +118,13 @@ public class FileManagerControll extends BaseControll {
             throws IOException {
         ID user = getRequestUser(request);
         ID record = getIdParameterNotNull(request, "id");
-        boolean OK = Application.getSecurityManager().allowedR(user, record);
+
+        boolean OK = false;
+        if (record.getEntityCode() == EntityHelper.Feeds || record.getEntityCode() == EntityHelper.FeedsComment) {
+            OK = FeedsHelper.checkReadable(record, user);
+        } else {
+            OK = Application.getSecurityManager().allowedR(user, record);
+        }
         writeSuccess(response, OK);
     }
 

@@ -341,7 +341,7 @@
         <field name="images" type="string" max-length="700" description="图片" extra-attrs="{displayType:'IMAGE'}" />
         <field name="attachments" type="string" max-length="700" description="附件" extra-attrs="{displayType:'FILE'}" />
 		<field name="relatedRecord" type="any-reference" description="相关业务记录" />
-		<field name="scope" type="string" max-length="20" default-value="ALL" description="哪些人可见, 可选值: ALL/SELF/$GroupID" />
+		<field name="scope" type="string" max-length="20" default-value="ALL" description="哪些人可见, 可选值: ALL/SELF/$TeamID" />
 		<index field-list="createdOn,scope,type,createdBy" />
 		<index field-list="relatedRecord" />
 		<index field-list="content" type="fulltext" />
@@ -356,13 +356,7 @@
 		<index field-list="feedsId" />
 	</entity>
 
-	<entity name="FeedsGroup" type-code="042" description="动态群组">
-		<field name="groupId" type="primary" />
-		<field name="name" type="string" max-length="100" nullable="false" description="组名称" />
-		<field name="members" type="string" max-length="420" description="组成员($MemberID(U/D/R))" />
-	</entity>
-
-	<entity name="FeedsLike" type-code="043" description="动态点赞" parent="false">
+	<entity name="FeedsLike" type-code="042" description="动态点赞" parent="false">
 		<field name="likeId" type="primary" />
 		<field name="source" type="any-reference" ref-entity="Feeds,FeedsComment" nullable="false" updatable="false" description="哪个动态/评论" />
 		<field name="createdBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="创建人" />
@@ -370,7 +364,7 @@
 		<index field-list="source,createdBy" />
 	</entity>
 
-	<entity name="FeedsMention" type-code="044" description="用户提及" parent="false">
+	<entity name="FeedsMention" type-code="043" description="用户提及" parent="false">
 		<field name="mentionId" type="primary" />
 		<field name="feedsId" type="reference" ref-entity="Feeds" nullable="false" updatable="false" cascade="delete" description="哪个动态" />
 		<field name="commentId" type="reference" ref-entity="FeedsComment" updatable="false" cascade="delete" description="哪个评论" />

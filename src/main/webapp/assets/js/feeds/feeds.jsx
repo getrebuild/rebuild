@@ -16,72 +16,16 @@ class RbFeeds extends React.Component {
   search = (filter) => this._list.fetchFeeds(filter)
 }
 
-// ~ 群组
-class FeedsGroup extends RbFormHandler {
-  state = { ...this.props }
-
-  render() {
-    return (<RbModal title={`${this.props.id ? '修改' : '添加'}群组`} ref={(c) => this._dlg = c} disposeOnHide={true}>
-      <div className="form">
-        <div className="form-group row">
-          <label className="col-sm-3 col-form-label text-sm-right">群组名称</label>
-          <div className="col-sm-7">
-            <input type="text" className="form-control form-control-sm" name="name" value={this.state.name || ''} onChange={this.handleChange} />
-          </div>
-        </div>
-        <div className="form-group row">
-          <label className="col-sm-3 col-form-label text-sm-right">成员</label>
-          <div className="col-sm-7">
-            <UserSelector ref={(c) => this._userSelector = c} selected={this.state.selectedUsers} />
-            <div className="form-text">发布到群组内的动态仅成员可见</div>
-          </div>
-        </div>
-        <div className="form-group row footer">
-          <div className="col-sm-7 offset-sm-3">
-            <button className="btn btn-primary" type="button" onClick={() => this._post()}>确定</button>
-            <a className="btn btn-link" onClick={this.hide}>取消</a>
-          </div>
-        </div>
-      </div>
-    </RbModal>)
-  }
-
-  componentDidMount() {
-    if (this.props.members) {
-      $.post(`${rb.baseUrl}/commons/search/user-selector`, JSON.stringify(this.props.members), (res) => {
-        if (res.data.length > 0) this.setState({ selectedUsers: res.data })
-      })
-    }
-  }
-
-  _post() {
-    let data = { name: this.state.name, members: this._userSelector.val() }
-    if (!data.name || !data.members || data.members.length === 0) return
-    data.metadata = { entity: 'FeedsGroup', id: this.props.id || null }
-
-    $(this._btn).button('loading')
-    $.post(`${rb.baseUrl}/app/entity/record-save`, JSON.stringify(data), (res) => {
-      this.hide()
-      rbGroupList.loadData()
-      typeof this.props.call === 'function' && this.props.call(res.data)
-    })
-  }
-}
-
 class GroupList extends React.Component {
   state = { ...this.props }
 
   render() {
     return (<ul className="list-unstyled">
       {!this.state.list && <li className="nodata">加载中</li>}
-      {(this.state.list && this.state.list.length === 0) && <li className="nodata">暂无群组</li>}
+      {(this.state.list && this.state.list.length === 0) && <li className="nodata">暂无团队</li>}
       {(this.state.list || []).map((item) => {
         return <li key={'item-' + item.id} data-id={item.id} className={this.state.active === item.id ? 'active' : ''}>
           <a className="text-truncate" onClick={() => this._handleActive(item.id)}>{item.name}</a>
-          {(rb.isAdminUser && this.props.hasAction) && <div className="action">
-            <a className="J_edit" onClick={() => this._handleEdit(item)}><i className="zmdi zmdi-edit"></i></a>
-            <a className="J_del" onClick={() => this._handleDelete(item.id)}><i className="zmdi zmdi-delete"></i></a>
-          </div>}
         </li>
       })}
     </ul>
@@ -97,26 +41,6 @@ class GroupList extends React.Component {
     this.setState({ active: id }, () => execFilter())
   }
 
-  _handleEdit(item) {
-    renderRbcomp(<FeedsGroup id={item.id} name={item.name} members={item.members} call={() => this.loadData()} />)
-  }
-
-  _handleDelete(id) {
-    let that = this
-    RbAlert.create('如果此群组已被使用则不允许被删除。确认删除？', {
-      type: 'danger',
-      confirmText: '删除',
-      confirm: function () {
-        this.disabled(true)
-        $.post(`${rb.baseUrl}/app/entity/record-delete?id=${id}`, (res) => {
-          if (res.error_code > 0) RbHighbar.error(res.error_msg)
-          this.hide()
-          that.loadData()
-        })
-      }
-    })
-  }
-
   val() {
     return this.state.active
   }
@@ -124,7 +48,6 @@ class GroupList extends React.Component {
 
 class UserList extends GroupList {
   state = { ...this.props }
-
   loadData() {
     $.get(`${rb.baseUrl}/feeds/group/user-list`, (res) => {
       this.setState({ list: res.data || [] })
@@ -186,7 +109,6 @@ $(document).ready(function () {
     setTimeout(execFilter, 100)
   })
 
-  if (rb.isAdminUser) $('.add-group').click(() => renderRbcomp(<FeedsGroup />))
   $('.J_search-key').keydown(function (e) {
     __clear(this)
     if (e.keyCode === 13) execFilter()

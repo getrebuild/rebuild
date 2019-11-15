@@ -441,11 +441,16 @@
 }
 
 .side-wrapper .add-group {
-  font-size: 12px;
+  font-size: 14px;
   position: absolute;
   right: 14px;
   top: 4px;
   padding: 6px;
+  display: none !important;
+}
+
+#headingGroup:hover .add-group {
+  display: block !important;
 }
 
 .related-select {

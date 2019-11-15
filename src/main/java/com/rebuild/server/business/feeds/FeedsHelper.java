@@ -18,9 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.feeds;
 
+import cn.devezhao.bizz.security.member.Team;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
 import org.apache.commons.lang.StringUtils;
 
@@ -33,7 +35,7 @@ import java.util.Set;
  * @author devezhao
  * @since 2019/11/7
  */
-public class FeedsHelper extends FeedsGroupHelper {
+public class FeedsHelper {
 
     /**
      * 评论数
@@ -129,5 +131,30 @@ public class FeedsHelper extends FeedsGroupHelper {
             }
         }
         return found;
+    }
+
+    /**
+     * 用户对指定动态是否可读
+     *
+     * @param feedsOrComment
+     * @param user
+     * @return
+     */
+    public static boolean checkReadable(ID feedsOrComment, ID user) {
+        String sql = "select scope,createdBy from Feeds where feedsId = ?";
+        if (feedsOrComment.getEntityCode() == EntityHelper.FeedsComment) {
+            sql = "select feedsId.scope,feedsId.createdBy from FeedsComment where feedsId = ?";
+        }
+
+        Object[] o = Application.createQueryNoFilter(sql).setParameter(1, feedsOrComment).unique();
+        if (o == null) return false;
+        if (o[1].equals(user) || o[0].equals(FeedsScope.ALL.name())) return true;  // 自己 & 公开
+
+        // 团队
+        if (ID.isId(o[0])) {
+            Team team = Application.getUserStore().getTeam(ID.valueOf((String) o[0]));
+            return team.isMember(user);
+        }
+        return false;
     }
 }

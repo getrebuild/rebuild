@@ -106,7 +106,6 @@ public class FileListControll extends BasePageControll {
 
         // 附件还是文档
         if (entity > 0) {
-            sqlWhere.add("belongEntity > 0");
             if (entity == EntityHelper.Feeds) {
                 sqlWhere.add(String.format("(belongEntity = %d or belongEntity = %d)", entity, EntityHelper.FeedsComment));
             } else if (entity > 1) {
@@ -116,6 +115,8 @@ public class FileListControll extends BasePageControll {
                 } else {
                     sqlWhere.add("belongEntity = " + entity);
                 }
+            } else {
+                sqlWhere.add("belongEntity > 0");
             }
         } else {
             sqlWhere.add("belongEntity = 0");
@@ -124,7 +125,7 @@ public class FileListControll extends BasePageControll {
             } else {
                 ID[] ps = FilesHelper.getPrivateFolders(user);
                 if (ps.length > 0) {
-                    sqlWhere.add(String.format("inFolder not in ('%s')", StringUtils.join(ps,"','")));
+                    sqlWhere.add(String.format("(inFolder is null or inFolder not in ('%s'))", StringUtils.join(ps,"','")));
                 }
             }
         }
@@ -136,6 +137,7 @@ public class FileListControll extends BasePageControll {
         } else {
             sql += " order by modifiedOn desc";
         }
+        System.out.println(sql);
         Object[][] array = Application.createQueryNoFilter(sql)
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
                 .array();

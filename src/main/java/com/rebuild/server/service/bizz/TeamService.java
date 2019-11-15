@@ -25,9 +25,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.SystemEntityService;
-import com.rebuild.server.service.bizz.privileges.User;
 
-import java.security.Principal;
 import java.util.Collection;
 
 /**
@@ -78,19 +76,11 @@ public class TeamService extends SystemEntityService {
     public int createMembers(ID teamId, Collection<ID> members) {
         int added = 0;
         Team team = Application.getUserStore().getTeam(teamId);
-        for (ID m : members) {
-            boolean has = false;
-            for (Principal u : team.getMembers()) {
-                if (((User) u).getId().equals(m)) {
-                    has = true;
-                    break;
-                }
-            }
-            if (has) continue;
-
+        for (ID user : members) {
+            if (team.isMember(user)) continue;
             Record record = EntityHelper.forNew(EntityHelper.TeamMember, Application.getCurrentUser());
             record.setID("teamId", teamId);
-            record.setID("userId", m);
+            record.setID("userId", user);
             super.create(record);
             added++;
         }
