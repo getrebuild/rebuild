@@ -57,7 +57,9 @@ class RbPreview extends React.Component {
     return (<React.Fragment>
       <div className="img-zoom">
         {!this.state.imgRendered && <div className="must-center"><RbSpinner fully={true} /></div>}
-        <img className={!this.state.imgRendered ? 'hide' : ''} src={this.__buildAbsoluteUrl(null, 'imageView2/2/w/1000/interlace/1/q/100')} onLoad={() => this.setState({ imgRendered: true })} alt="图片" />
+        <img className={!this.state.imgRendered ? 'hide' : ''}
+          src={this.__buildAbsoluteUrl(null, 'imageView2/2/w/1000/interlace/1/q/100')}
+          onLoad={() => this.setState({ imgRendered: true })} alt="图片" />
       </div>
       {this.props.urls.length > 1 && <div className="oper-box" onClick={this.__stopEvent}>
         <a className="arrow float-left" onClick={this.__previmg}><i className="zmdi zmdi-chevron-left" /></a>
@@ -72,7 +74,9 @@ class RbPreview extends React.Component {
     return (<div className="container">
       <div className="iframe" onClick={this.__stopEvent}>
         {!this.state.docRendered && <div className="must-center"><RbSpinner fully={true} /></div>}
-        <iframe className={!this.state.docRendered ? 'hide' : ''} src={this.state.previewUrl || ''} onLoad={() => this.setState({ docRendered: true })} frameBorder="0" scrolling="no"></iframe>
+        <iframe className={!this.state.docRendered ? 'hide' : ''}
+          src={this.state.previewUrl || ''}
+          onLoad={() => this.setState({ docRendered: true })} frameBorder="0" scrolling="no" />
       </div>
     </div>)
   }
@@ -80,9 +84,7 @@ class RbPreview extends React.Component {
   renderAudio() {
     return (<div className="container">
       <div className="audio must-center" onClick={this.__stopEvent}>
-        <audio src={this.__buildAbsoluteUrl()} controls>
-          您的浏览器不支持此功能
-        </audio>
+        <audio src={this.__buildAbsoluteUrl()} controls>您的浏览器不支持此功能</audio>
       </div>
     </div>)
   }
@@ -90,9 +92,7 @@ class RbPreview extends React.Component {
   renderVideo() {
     return (<div className="container">
       <div className="video must-center" onClick={this.__stopEvent}>
-        <video src={this.__buildAbsoluteUrl()} height="500" controls>
-          您的浏览器不支持此功能
-        </video >
+        <video src={this.__buildAbsoluteUrl()} height="500" controls>您的浏览器不支持此功能</video>
       </div>
     </div>)
   }

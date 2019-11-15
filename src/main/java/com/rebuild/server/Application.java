@@ -286,6 +286,8 @@ public final class Application {
 	}
 	
 	/**
+	 * 业务实体服务专用
+	 *
 	 * @param entityCode
 	 * @return
 	 * @see #getGeneralEntityService()

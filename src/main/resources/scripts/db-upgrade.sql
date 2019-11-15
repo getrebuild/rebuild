@@ -1,11 +1,16 @@
 -- Database upgrade scripts for rebuild 1.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #18 Folder scope
+alter table `attachment_folder`
+  add column `SCOPE` varchar(20) default 'ALL' comment '哪些人可见, 可选值: ALL/SELF/$TeamID',
+  add index `IX1_attachment_folder` (`SCOPE`, `CREATED_BY`);
+  
 -- #17 Team
 -- ************ Entity [Team] DDL ************
 create table if not exists `team` (
   `TEAM_ID`            char(20) not null,
-  `NAME`               varchar(100) not null comment '用户组名称',
+  `NAME`               varchar(100) not null comment '团队名称',
   `PRINCIPAL_ID`       char(20) comment '负责人',
   `IS_DISABLED`        char(1) default 'F' comment '是否停用',
   `QUICK_CODE`         varchar(70),
@@ -25,7 +30,7 @@ create table if not exists `team_member` (
 )Engine=InnoDB;
 INSERT INTO `team` (`TEAM_ID`, `NAME`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`, `QUICK_CODE`)
   VALUES
-  ('006-9000000000000001', 'RB示例用户组', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'RBSLYHZ');
+  ('006-9000000000000001', 'RB示例团队', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'RBSLTD');
 INSERT INTO `layout_config` (`CONFIG_ID`, `BELONG_ENTITY`, `CONFIG`, `APPLY_TYPE`, `SHARE_TO`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`)
   VALUES
   (CONCAT('013-',SUBSTRING(MD5(RAND()),1,16)), 'Team', '[{"field":"name","isFull":false},{"field":"isDisabled","isFull":false}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001');
@@ -43,7 +48,7 @@ create table if not exists `feeds` (
   `IMAGES`             varchar(700) comment '图片',
   `ATTACHMENTS`        varchar(700) comment '附件',
   `RELATED_RECORD`     char(20) comment '相关业务记录',
-  `SCOPE`              varchar(20) default 'ALL' comment '哪些人可见, 可选值: ALL/SELF/$GroupID',
+  `SCOPE`              varchar(20) default 'ALL' comment '哪些人可见, 可选值: ALL/SELF/$TeamID',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
@@ -69,17 +74,6 @@ create table if not exists `feeds_comment` (
 )Engine=InnoDB;
 alter table `feeds_comment`
   add index `IX1_feeds_comment` (`FEEDS_ID`);
--- ************ Entity [FeedsGroup] DDL ************
-create table if not exists `feeds_group` (
-  `GROUP_ID`           char(20) not null,
-  `NAME`               varchar(100) not null comment '组名称',
-  `MEMBERS`            varchar(420) comment '组成员($MemberID(U/D/R))',
-  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
-  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
-  `CREATED_BY`         char(20) not null comment '创建人',
-  `MODIFIED_BY`        char(20) not null comment '修改人',
-  primary key  (`GROUP_ID`)
-)Engine=InnoDB;
 -- ************ Entity [FeedsLike] DDL ************
 create table if not exists `feeds_like` (
   `LIKE_ID`            char(20) not null,

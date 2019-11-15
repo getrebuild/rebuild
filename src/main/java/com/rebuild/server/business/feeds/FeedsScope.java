@@ -30,7 +30,7 @@ public enum FeedsScope {
 
     ALL("公开"),
     SELF("私密"),
-    GROUP("群组"),
+    GROUP("团队"),
 
     ;
 

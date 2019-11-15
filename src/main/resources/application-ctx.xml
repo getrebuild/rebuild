@@ -178,6 +178,10 @@
 	<bean class="com.rebuild.server.service.base.ApprovalStepService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
+
+	<bean class="com.rebuild.server.service.base.AttachmentFolderService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
 	
 	<bean class="com.rebuild.server.service.bizz.UserService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
@@ -202,9 +206,6 @@
     <bean class="com.rebuild.server.service.feeds.FeedsCommentService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
-	<bean class="com.rebuild.server.service.feeds.FeedsGroupService">
-		<constructor-arg index="0" ref="persistManagerFactory" />
-	</bean>
 
 	<bean name="generalEntityService" class="com.rebuild.server.service.base.GeneralEntityService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
@@ -212,7 +213,7 @@
 			<list>
 				<bean class="com.rebuild.server.service.notification.NotificationObserver" />
 				<bean class="com.rebuild.server.service.base.RevisionHistoryObserver" />
-				<bean class="com.rebuild.server.service.base.AttchementAwareObserver" />
+				<bean class="com.rebuild.server.service.base.AttachmentAwareObserver" />
 				<bean class="com.rebuild.server.business.trigger.RobotTriggerObserver" />
 			</list>
 		</constructor-arg>

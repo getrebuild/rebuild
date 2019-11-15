@@ -58,7 +58,7 @@ public class TestSupport {
 	protected static final ID SIMPLE_DEPT = ID.valueOf("002-9000000000000001");
 	// 示例角色（无任何权限）
 	protected static final ID SIMPLE_ROLE = ID.valueOf("003-9000000000000001");
-	// 示例用户组
+	// 示例团队
 	protected static final ID SIMPLE_TEAM = ID.valueOf("006-9000000000000001");
 	
 	@BeforeClass

@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.feeds;
 
+import cn.devezhao.bizz.security.member.Team;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.momentjava.Moment;
@@ -25,7 +26,6 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.business.feeds.FeedsGroup;
 import com.rebuild.server.business.feeds.FeedsHelper;
 import com.rebuild.server.business.feeds.FeedsScope;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 
 /**
@@ -96,11 +97,11 @@ public class FeedsListControll extends BasePageControll {
         if (type == 11) {
             sqlWhere += String.format(" and createdBy ='%s' and scope = 'SELF'", user);
         } else if (!parser.getIncludeFields().contains("scope")) {
-            FeedsGroup[] fgs = FeedsHelper.findGroups(user, false);
+            Set<Team> teams = Application.getUserStore().getUser(user).getOwningTeams();
             List<String> in = new ArrayList<>();
             in.add("scope = 'ALL'");
-            for (FeedsGroup g : fgs) {
-                in.add(String.format("scope = '%s'", g.getId()));
+            for (Team t : teams) {
+                in.add(String.format("scope = '%s'", t.getIdentity()));
             }
             sqlWhere += " and ( " + StringUtils.join(in, " or ") + " )";
         }
@@ -133,7 +134,8 @@ public class FeedsListControll extends BasePageControll {
             JSONObject item = buildBase(o, user);
             FeedsScope scope = FeedsScope.parse((String) o[7]);
             if (scope == FeedsScope.GROUP) {
-                item.put("scope", new Object[] { o[7], FeedsHelper.getGroupName(ID.valueOf((String) o[7])) });
+                Team team = Application.getUserStore().getTeam(ID.valueOf((String) o[7]));
+                item.put("scope", new Object[] { team.getIdentity(), team.getName() });
             } else {
                 item.put("scope", scope.getName());
             }

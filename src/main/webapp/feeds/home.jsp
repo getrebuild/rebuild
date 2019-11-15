@@ -72,8 +72,8 @@
 							</div>
 							<div class="card">
 								<div class="card-header" id="headingGroup">
-									<button class="btn" data-toggle="collapse" data-target="#collapseGroup"><i class="icon zmdi zmdi-chevron-right"></i> 群组</button>
-                                    <a class="add-group admin-show" href="javascript:;"><i class="icon zmdi zmdi-plus"></i> 添加</a>
+									<button class="btn" data-toggle="collapse" data-target="#collapseGroup"><i class="icon zmdi zmdi-chevron-right"></i> 团队</button>
+									<a class="add-group admin-show" href="${baseUrl}/admin/bizuser/teams" target="_blank" title="管理团队"><i class="icon zmdi zmdi-settings"></i></a>
 								</div>
 								<div class="collapse" id="collapseGroup">
 									<div class="card-body">

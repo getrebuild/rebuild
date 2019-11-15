@@ -29,7 +29,7 @@ class FeedsPost extends React.Component {
             <div className="dropdown-menu dropdown-menu-right">
               <a className="dropdown-item" onClick={this._selectScope} data-scope="ALL" title="全部可见"><i className="icon up-1 zmdi zmdi-chart-donut" />公开</a>
               <a className="dropdown-item" onClick={this._selectScope} data-scope="SELF" title="仅自己可见"><i className="icon up-1 zmdi zmdi-lock" />私密</a>
-              <a className="dropdown-item" onClick={this._selectScope} data-scope="GROUP" title="群组内可见"><i className="icon up-1 zmdi zmdi-accounts" />群组</a>
+              <a className="dropdown-item" onClick={this._selectScope} data-scope="GROUP" title="团队成员可见"><i className="icon up-1 zmdi zmdi-accounts" />团队</a>
             </div>
           </div>
         </div>
@@ -63,7 +63,7 @@ class FeedsPost extends React.Component {
     if (!_data.content) { RbHighbar.create('请输入动态内容'); return }
     _data.scope = this.state.scope
     if (_data.scope === 'GROUP') {
-      if (!this.__group) { RbHighbar.create('请选择群组'); return }
+      if (!this.__group) { RbHighbar.create('请选择团队'); return }
       _data.scope = this.__group.id
     }
     _data.type = this.state.type
@@ -248,7 +248,7 @@ class FeedsEditor extends React.Component {
   }
 }
 
-// ~ 选择群组
+// ~ 选择团队
 class SelectGroup extends React.Component {
   state = { ...this.props }
 
@@ -261,8 +261,8 @@ class SelectGroup extends React.Component {
               <button className="close" type="button" onClick={this.hide}><i className="zmdi zmdi-close" /></button>
             </div>
             <div className="modal-body">
-              <h5 className="mt-0 text-bold">选择群组</h5>
-              {(this.state.groups && this.state.groups.length === 0) && <p className="text-muted">你未加入任何群组</p>}
+              <h5 className="mt-0 text-bold">选择团队</h5>
+              {(this.state.groups && this.state.groups.length === 0) && <p className="text-muted">你未加入任何团队</p>}
               <div>
                 <ul className="list-unstyled">
                   {(this.state.groups || []).map((item) => {

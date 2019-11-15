@@ -335,12 +335,15 @@ create table if not exists `attachment_folder` (
   `FOLDER_ID`          char(20) not null,
   `NAME`               varchar(100) not null,
   `PARENT`             char(20),
+  `SCOPE`              varchar(20) default 'ALL' comment '哪些人可见, 可选值: ALL/SELF/$TeamID',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `CREATED_BY`         char(20) not null comment '创建人',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
-  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   primary key  (`FOLDER_ID`)
 )Engine=InnoDB;
+alter table `attachment_folder`
+  add index `IX1_attachment_folder` (`SCOPE`, `CREATED_BY`);
 
 -- ************ Entity [LoginLog] DDL ************
 create table if not exists `login_log` (
@@ -509,7 +512,7 @@ create table if not exists `feeds` (
   `IMAGES`             varchar(700) comment '图片',
   `ATTACHMENTS`        varchar(700) comment '附件',
   `RELATED_RECORD`     char(20) comment '相关业务记录',
-  `SCOPE`              varchar(20) default 'ALL' comment '哪些人可见, 可选值: ALL/SELF/$GroupID',
+  `SCOPE`              varchar(20) default 'ALL' comment '哪些人可见, 可选值: ALL/SELF/$TeamID',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
@@ -536,18 +539,6 @@ create table if not exists `feeds_comment` (
 )Engine=InnoDB;
 alter table `feeds_comment`
   add index `IX1_feeds_comment` (`FEEDS_ID`);
-
--- ************ Entity [FeedsGroup] DDL ************
-create table if not exists `feeds_group` (
-  `GROUP_ID`           char(20) not null,
-  `NAME`               varchar(100) not null comment '组名称',
-  `MEMBERS`            varchar(420) comment '组成员($MemberID(U/D/R))',
-  `MODIFIED_BY`        char(20) not null comment '修改人',
-  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
-  `CREATED_BY`         char(20) not null comment '创建人',
-  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
-  primary key  (`GROUP_ID`)
-)Engine=InnoDB;
 
 -- ************ Entity [FeedsLike] DDL ************
 create table if not exists `feeds_like` (
@@ -593,7 +584,7 @@ INSERT INTO `role` (`ROLE_ID`, `NAME`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`
 -- Team
 INSERT INTO `team` (`TEAM_ID`, `NAME`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`, `QUICK_CODE`)
   VALUES
-  ('006-9000000000000001', 'RB示例用户组', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'RBSLYHZ');
+  ('006-9000000000000001', 'RB示例团队', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'RBSLTD');
 
 -- Layouts
 INSERT INTO `layout_config` (`CONFIG_ID`, `BELONG_ENTITY`, `CONFIG`, `APPLY_TYPE`, `SHARE_TO`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`)
@@ -612,4 +603,4 @@ INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version
 INSERT INTO `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`) 
-  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 17);
+  VALUES (CONCAT('021-',SUBSTRING(MD5(RAND()),1,16)), 'DBVer', 18);

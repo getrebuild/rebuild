@@ -103,6 +103,7 @@ public class SMSender {
 			String eHTML = mailbody.html();
 			// 处理变量
 			eHTML = eHTML.replace("%TO%", to);
+			eHTML = eHTML.replace("%APPNAME%", SysConfiguration.get(ConfigurableItem.AppName));
 
 			params.put("html", eHTML);
 		} else {

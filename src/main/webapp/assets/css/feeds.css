@@ -19,8 +19,7 @@
 
 .rich-editor textarea {
   width: 100%;
-  padding: 8px 10px;
-  padding-bottom: 6px;
+  padding: 8px 10px 6px;
   border: 0 none;
   outline: none;
   resize: none;
@@ -442,11 +441,16 @@
 }
 
 .side-wrapper .add-group {
-  font-size: 12px;
+  font-size: 15px;
   position: absolute;
   right: 14px;
-  top: 4px;
+  top: 3px;
   padding: 6px;
+  display: none !important;
+}
+
+#headingGroup:hover .add-group {
+  display: block !important;
 }
 
 .related-select {
@@ -456,8 +460,7 @@
 }
 
 .dialog-footer.feeds {
-  margin: 15px -20px 0;
-  margin-top: 30px;
+  margin: 30px -20px 0;
 }
 
 .fixed-icon {

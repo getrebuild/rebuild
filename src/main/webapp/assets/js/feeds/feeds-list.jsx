@@ -64,9 +64,7 @@ class FeedsList extends React.Component {
                   <p className="text-muted fs-12 m-0">
                     <span title={item.createdOn}>{item.createdOnFN}{item.createdOn !== item.modifedOn && <span className="text-danger" title={`编辑于 ${item.modifedOn}`}> (已编辑)</span>}</span>
                     &nbsp;&nbsp;·&nbsp;&nbsp;
-                    {typeof item.scope === 'string' ? item.scope : <span>{item.scope[1]} <i className="zmdi zmdi-accounts fs-14 down-1"></i></span>}
-                    &nbsp;&nbsp;·&nbsp;&nbsp;
-                    <span>来自网页</span>
+                    {typeof item.scope === 'string' ? item.scope : <span>{item.scope[1]} <i title="团队成员可见" className="zmdi zmdi-accounts fs-14 down-1"></i></span>}
                   </p>
                 </div>
                 {__renderRichContent(item)}
@@ -161,7 +159,7 @@ class FeedsList extends React.Component {
         this.disabled(true)
         $.post(`${rb.baseUrl}/feeds/post/delete?id=${id}`, () => {
           this.hide()
-          $(`#feeds-${id}`).animate({ opacity: 0, height: 0 }, 600, () => {
+          $(`#feeds-${id}`).animate({ opacity: 0 }, 600, () => {
             let _data = that.state.data
             _data.forEach((item) => { if (id === item.id) item.deleted = true })
             that.setState({ data: _data })
@@ -305,7 +303,7 @@ class FeedsComments extends React.Component {
         this.disabled(true)
         $.post(`${rb.baseUrl}/feeds/post/delete?id=${id}`, () => {
           this.hide()
-          $(`#comment-${id}`).animate({ opacity: 0, height: 0 }, 600, () => {
+          $(`#comment-${id}`).animate({ opacity: 0 }, 600, () => {
             let _data = that.state.data
             _data.forEach((item) => { if (id === item.id) item.deleted = true })
             that.setState({ data: _data })
@@ -372,9 +370,11 @@ class Pagination extends React.Component {
 
 // 渲染动态内容
 function __renderRichContent(e) {
+  // 表情和换行不在后台转换，因为不同客户端所需的格式不同
+  const contentHtml = converEmoji(e.content || '').replace(/\n/g, '<br>')
   return <div className="rich-content">
     <div className="texts"
-      dangerouslySetInnerHTML={{ __html: converEmoji(e.content) }}
+      dangerouslySetInnerHTML={{ __html: contentHtml }}
     />
     {e.related && <div style={{ marginBottom: 6 }}>
       <a target="_blank" href={`${rb.baseUrl}/app/list-and-view?id=${e.related[0]}`} className="link" title="相关记录">

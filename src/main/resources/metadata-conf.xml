@@ -58,7 +58,7 @@
 		<index field-list="roleId,userId" type="unique"/>
 	</entity>
 
-	<entity name="Team" type-code="006" description="用户组" name-field="name" extra-attrs="{icon:'case'}">
+	<entity name="Team" type-code="006" description="团队" name-field="name" extra-attrs="{icon:'case'}">
 		<field name="teamId" type="primary" />
 		<field name="name" type="string" max-length="100" nullable="false" description="组名称" />
         <field name="principalId" type="reference" ref-entity="User" description="负责人" />
@@ -220,6 +220,8 @@
 		<field name="folderId" type="primary" />
 		<field name="name" type="string" max-length="100" nullable="false" />
 		<field name="parent" type="reference" ref-entity="AttachmentFolder" />
+        <field name="scope" type="string" max-length="20" default-value="ALL" description="哪些人可见, 可选值: ALL/SELF/$TeamID" />
+        <index field-list="scope,createdBy" />
 	</entity>
 
 	<entity name="LoginLog" type-code="025" parent="false" description="登陆日志">
@@ -332,20 +334,20 @@
 		<index field-list="recordId,channelWith" />
 	</entity>
 
-	<entity name="Feeds" type-code="040" description="动态(消息聚合)">
+	<entity name="Feeds" type-code="040" description="动态" name-field="content">
 		<field name="feedsId" type="primary" />
 		<field name="type" type="small-int" nullable="false" updatable="false" default-value="1" description="类型" />
 		<field name="content" type="text" nullable="false" max-length="3000" description="内容" />
         <field name="images" type="string" max-length="700" description="图片" extra-attrs="{displayType:'IMAGE'}" />
         <field name="attachments" type="string" max-length="700" description="附件" extra-attrs="{displayType:'FILE'}" />
 		<field name="relatedRecord" type="any-reference" description="相关业务记录" />
-		<field name="scope" type="string" max-length="20" default-value="ALL" description="哪些人可见, 可选值: ALL/SELF/$GroupID" />
+		<field name="scope" type="string" max-length="20" default-value="ALL" description="哪些人可见, 可选值: ALL/SELF/$TeamID" />
 		<index field-list="createdOn,scope,type,createdBy" />
 		<index field-list="relatedRecord" />
 		<index field-list="content" type="fulltext" />
 	</entity>
 
-	<entity name="FeedsComment" type-code="041" description="动态评论">
+	<entity name="FeedsComment" type-code="041" description="动态评论" name-field="content">
 		<field name="commentId" type="primary" />
 		<field name="feedsId" type="reference" ref-entity="Feeds" nullable="false" updatable="false" cascade="delete" description="哪个动态" />
 		<field name="content" type="text" nullable="false" max-length="3000" description="内容" />
@@ -354,13 +356,7 @@
 		<index field-list="feedsId" />
 	</entity>
 
-	<entity name="FeedsGroup" type-code="042" description="动态群组">
-		<field name="groupId" type="primary" />
-		<field name="name" type="string" max-length="100" nullable="false" description="组名称" />
-		<field name="members" type="string" max-length="420" description="组成员($MemberID(U/D/R))" />
-	</entity>
-
-	<entity name="FeedsLike" type-code="043" description="动态点赞" parent="false">
+	<entity name="FeedsLike" type-code="042" description="动态点赞" parent="false">
 		<field name="likeId" type="primary" />
 		<field name="source" type="any-reference" ref-entity="Feeds,FeedsComment" nullable="false" updatable="false" description="哪个动态/评论" />
 		<field name="createdBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="创建人" />
@@ -368,7 +364,7 @@
 		<index field-list="source,createdBy" />
 	</entity>
 
-	<entity name="FeedsMention" type-code="044" description="用户提及" parent="false">
+	<entity name="FeedsMention" type-code="043" description="用户提及" parent="false">
 		<field name="mentionId" type="primary" />
 		<field name="feedsId" type="reference" ref-entity="Feeds" nullable="false" updatable="false" cascade="delete" description="哪个动态" />
 		<field name="commentId" type="reference" ref-entity="FeedsComment" updatable="false" cascade="delete" description="哪个评论" />
