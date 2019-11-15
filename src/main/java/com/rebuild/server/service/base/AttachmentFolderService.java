@@ -24,6 +24,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.SystemEntityService;
+import com.rebuild.server.service.bizz.UserHelper;
 
 /**
  * 文件目录
@@ -51,12 +52,24 @@ public class AttachmentFolderService extends SystemEntityService {
         if (inFolder != null) {
             throw new DataSpecificationException("目录内有文件不能删除");
         }
+
         Object parent = Application.createQueryNoFilter(
                 "select parent from AttachmentFolder where parent = ?")
                 .setParameter(1, recordId)
                 .unique();
         if (parent != null) {
             throw new DataSpecificationException("目录内有子目录不能删除");
+        }
+
+        ID user = Application.getCurrentUser();
+        if (!UserHelper.isAdmin(user)) {
+            Object[] createdBy = Application.createQueryNoFilter(
+                    "select createdBy from AttachmentFolder where folderId = ?")
+                    .setParameter(1, recordId)
+                    .unique();
+            if (!user.equals(createdBy[0])) {
+                throw new DataSpecificationException("无权删除他人目录");
+            }
         }
 
         return super.delete(recordId);

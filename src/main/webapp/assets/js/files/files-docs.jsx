@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable react/prop-types */
 /* global filesList */
 // 文档
@@ -258,6 +259,21 @@ class FolderTree extends React.Component {
 class FilesList2 extends FilesList {
   state = { ...this.props }
   __lastEntry = __DEFAULT_ALL
+
+  renderExtras(item) {
+    return <React.Fragment>
+      {super.renderExtras(item)}
+      <span className="op">
+        <a title="下载" onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank"><i className="icon zmdi zmdi-download fs-15 down-2"></i></a>
+        <a title="分享" onClick={(e) => this._share(item, e)}><span><i className="icon zmdi zmdi-share fs-14 down-1"></i></span></a>
+      </span>
+    </React.Fragment>
+  }
+  _share(item, e) {
+    $stopEvent(e)
+    // eslint-disable-next-line react/jsx-no-undef
+    renderRbcomp(<FileShare file={item.filePath} />)
+  }
 }
 
 const __findPaths = function (active, push) {
@@ -300,7 +316,7 @@ $(document).ready(() => {
       confirmText: '删除',
       confirm: function () {
         this.disabled(true)
-        $.post(`${rb.baseUrl}/app/entity/record-delete?id=${s}`, (res) => {
+        $.post(`${rb.baseUrl}/files/delete-files?ids=${s}`, (res) => {
           if (res.error_code > 0) RbHighbar.error(res.error_msg)
           this.hide()
           filesList.loadData()

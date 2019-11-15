@@ -79,6 +79,7 @@
   border-right-color: #fff;
 }
 
+.file-list-item.active>div.type .file-icon::before,
 .file-list-item:hover>div.type .file-icon::before {
   border-top-color: #f5f5f5;
   border-right-color: #f5f5f5;
@@ -90,12 +91,31 @@
 
 .file-list-item>div.detail>.extras {
   margin-top: 1px;
+  overflow: hidden;
 }
 
 .file-list-item>div.detail>.extras>span {
   display: inline-block;
   font-size: 12px;
   line-height: 1;
+}
+
+.file-list-item>div.detail>.extras>span.op {
+  display: none;
+}
+
+.file-list-item:hover>div.detail>.extras>span.op {
+  display: inline-block;
+}
+
+.file-list-item>div.detail>.extras>span.op>a {
+  color: #999;
+  display: inline-block;
+  padding: 0 8px;
+}
+
+.file-list-item>div.detail>.extras>span.op>a:hover {
+  color: #555;
 }
 
 .file-list-item>div.detail .extras>span,

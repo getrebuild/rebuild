@@ -25,6 +25,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.files.FilesHelper;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.web.BaseControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,7 +34,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author devezhao
@@ -63,6 +66,27 @@ public class FileManagerControll extends BaseControll {
         writeSuccess(response);
     }
 
+    @RequestMapping("delete-files")
+    public void deleteFiles(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        ID user = getRequestUser(request);
+        String[] files = getParameter(request, "ids", "").split(",");
+
+        Set<ID> willDeletes = new HashSet<>();
+        for (String file : files) {
+            if (!ID.isId(file)) continue;
+            ID fileId = ID.valueOf(file);
+            if (!checkAllow(user, fileId)) {
+                writeFailure(response, "无权删除他人文件");
+                return;
+            }
+
+            willDeletes.add(fileId);
+        }
+        Application.getCommonService().delete(willDeletes.toArray(new ID[0]));
+        writeSuccess(response);
+    }
+
     @RequestMapping("move-files")
     public void moveFiles(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
@@ -73,16 +97,18 @@ public class FileManagerControll extends BaseControll {
         List<Record> fileRecords = new ArrayList<>();
         for (String file : files) {
             if (!ID.isId(file)) continue;
-            Record r = EntityHelper.forUpdate(ID.valueOf(file), user);
-            if (inFolder == null) {
-                r.setNull("inFolder");
-            } else {
-                r.setID("inFolder", inFolder);
+            ID fileId = ID.valueOf(file);
+            if (!checkAllow(user, fileId)) {
+                writeFailure(response, "无权更改他人文件");
+                return;
             }
+
+            Record r = EntityHelper.forUpdate(fileId, user);
+            if (inFolder == null) r.setNull("inFolder");
+            else r.setID("inFolder", inFolder);
             fileRecords.add(r);
         }
         Application.getCommonService().createOrUpdate(fileRecords.toArray(new Record[0]), false);
-
         writeSuccess(response);
     }
 
@@ -93,5 +119,18 @@ public class FileManagerControll extends BaseControll {
         ID record = getIdParameterNotNull(request, "id");
         boolean OK = Application.getSecurityManager().allowedR(user, record);
         writeSuccess(response, OK);
+    }
+
+    // 是否允许操作指定文件（管理员总是允许）
+    private boolean checkAllow(ID user, ID file) {
+        if (UserHelper.isAdmin(user)) {
+            return true;
+        }
+
+        Object[] o = Application.createQueryNoFilter(
+                "select createdBy from Attachment where attachmentId = ?")
+                .setParameter(1, file)
+                .unique();
+        return o != null && o[0].equals(user);
     }
 }

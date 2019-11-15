@@ -304,3 +304,13 @@ var $same = function (a, b) {
   // eslint-disable-next-line eqeqeq
   return a == b
 }
+
+/**
+ * 停止事件传播
+ * @param {Event} e
+ */
+var $stopEvent = function (e) {
+  if (e && e.stopPropagation) e.stopPropagation()
+  if (e && e.nativeEvent) e.nativeEvent.stopImmediatePropagation()
+  return false
+}

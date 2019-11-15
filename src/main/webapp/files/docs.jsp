@@ -43,14 +43,14 @@
 						<li class="breadcrumb-item active">全部文档</li>
 					</ol>
 				</div>
-				<div class="file-operator">
-					<div class="float-left">
+				<div class="file-operator row">
+					<div class="col-lg-6 col-12">
 						<div class="input-group input-search">
 							<input class="form-control" type="text" placeholder="搜索 ..." maxlength="40">
 							<span class="input-group-btn"><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button></span>
 						</div>
 					</div>
-					<div class="float-right">
+					<div class="col-lg-6 col-12 text-lg-right mt-lg-0 mt-md-2 mt-sm-2">
 						<div class="btn-group btn-space mb-0">
 							<button class="btn btn-primary J_upload-file" type="button"><i class="icon zmdi zmdi-upload"></i> 上传文件${entityLabel}</button>
 							<button class="btn btn-primary dropdown-toggle auto" type="button" data-toggle="dropdown"><span class="icon zmdi zmdi-chevron-down"></span></button>
@@ -69,7 +69,6 @@
 							</div>
 						</div>
 					</div>
-					<div class="clearfix"></div>
 				</div>
 			</div>
 			<div class="file-viewport">
