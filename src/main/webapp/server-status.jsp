@@ -92,7 +92,7 @@
 <% } %>
 <div class="block">
 	<div class="text-muted">
-		&copy; 2019 <a href="https://getrebuild.com/?utm_source=rebuild">${appName}</a>
+		&copy; 2019 <a href="https://getrebuild.com/?utm_source=rebuild">REBUILD</a>
 		<% if (AppUtils.getRequestUser(request) != null) { %>
 		&nbsp;·&nbsp;
 		<a href="server-status.json">Status Api</a>
