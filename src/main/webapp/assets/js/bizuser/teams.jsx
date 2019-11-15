@@ -70,7 +70,7 @@ class MemberList extends React.Component {
 
   _removeMember(user) {
     let that = this
-    RbAlert.create('确认将用户移出当前用户组？', {
+    RbAlert.create('确认将用户移出当前团队？', {
       confirm: function () {
         this.disabled(true)
         $.post(`${rb.baseUrl}/admin/bizuser/team-members-del?team=${that.props.id}&user=${user}`, (res) => {
@@ -93,7 +93,7 @@ $(document).ready(() => {
   })
   $('.J_add-slave').off('click').click(() => renderRbcomp(<MemberAddDlg id={teamId} call={() => memberList && memberList.loadMembers()} />))
   $('.J_delete').off('click').click(() => {
-    RbAlert.create('如果此用户组已被使用则不允许被删除', '删除用户组', {
+    RbAlert.create('如果此团队已被使用则不允许被删除', '删除团队', {
       type: 'danger',
       confirmText: '删除',
       confirm: function () {

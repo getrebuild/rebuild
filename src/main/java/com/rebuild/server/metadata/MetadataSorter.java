@@ -67,29 +67,29 @@ public class MetadataSorter {
 	 * @return
 	 */
 	public static Entity[] sortEntities(ID user, boolean containsBizz) {
+		List<Entity> list = new ArrayList<>();
+
+		// 排序在前
+		if (containsBizz) {
+			list.add(MetadataHelper.getEntity(EntityHelper.User));
+			list.add(MetadataHelper.getEntity(EntityHelper.Department));
+			list.add(MetadataHelper.getEntity(EntityHelper.Role));
+			list.add(MetadataHelper.getEntity(EntityHelper.Team));
+		}
+
 		Entity[] entities = MetadataHelper.getEntities();
 		sortBaseMeta(entities);
-		
-		List<Entity> list = new ArrayList<>();
 		for (Entity entity : entities) {
-			if (EasyMeta.valueOf(entity).isBuiltin()) {
-				if (containsBizz && MetadataHelper.isBizzEntity(entity.getEntityCode())) {
-					list.add(entity);
-				}
-			} else if (user == null) {
+			if (EasyMeta.valueOf(entity).isBuiltin() && !MetadataHelper.hasPrivilegesField(entity)) {
+				continue;
+			}
+
+			if (user == null) {
 				list.add(entity);
 			} else if (Application.getSecurityManager().allowedR(user, entity.getEntityCode())) {
 				list.add(entity);
 			}
 		}
-
-		// 内建业务实体
-		for (Entity entity : entities) {
-			if (EasyMeta.valueOf(entity).isBuiltin() && MetadataHelper.hasPrivilegesField(entity)) {
-				list.add(entity);
-			}
-		}
-
 		return list.toArray(new Entity[0]);
 	}
 	
@@ -118,7 +118,7 @@ public class MetadataSorter {
 		for (Field field : fields) {
 			if (MetadataHelper.isApprovalField(field.getName())) {
 				approvalFields.add(field);
-			} else if (EasyMeta.valueOf(field).isBuiltin()) {
+			} else if (MetadataHelper.isCommonsField(field)) {
 				commonsFields.add(field);
 			} else {
 				othersFields.add(field);

@@ -58,7 +58,7 @@
 		<index field-list="roleId,userId" type="unique"/>
 	</entity>
 
-	<entity name="Team" type-code="006" description="用户组" name-field="name" extra-attrs="{icon:'case'}">
+	<entity name="Team" type-code="006" description="团队" name-field="name" extra-attrs="{icon:'case'}">
 		<field name="teamId" type="primary" />
 		<field name="name" type="string" max-length="100" nullable="false" description="组名称" />
         <field name="principalId" type="reference" ref-entity="User" description="负责人" />

@@ -533,7 +533,7 @@ public class UserStore {
 
 		LOG.info("Loaded [ " + DEPTs.size() + " ] departments.");
 
-		// 用户组&团队
+		// 团队
 
 		array = aPMFactory.createQuery("select teamId from Team").array();
 		for (Object[] o : array) {

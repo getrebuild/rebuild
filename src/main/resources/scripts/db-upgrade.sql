@@ -10,7 +10,7 @@ alter table `attachment_folder`
 -- ************ Entity [Team] DDL ************
 create table if not exists `team` (
   `TEAM_ID`            char(20) not null,
-  `NAME`               varchar(100) not null comment '用户组名称',
+  `NAME`               varchar(100) not null comment '团队名称',
   `PRINCIPAL_ID`       char(20) comment '负责人',
   `IS_DISABLED`        char(1) default 'F' comment '是否停用',
   `QUICK_CODE`         varchar(70),
@@ -30,7 +30,7 @@ create table if not exists `team_member` (
 )Engine=InnoDB;
 INSERT INTO `team` (`TEAM_ID`, `NAME`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`, `QUICK_CODE`)
   VALUES
-  ('006-9000000000000001', 'RB示例用户组', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'RBSLYHZ');
+  ('006-9000000000000001', 'RB示例团队', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', 'RBSLTD');
 INSERT INTO `layout_config` (`CONFIG_ID`, `BELONG_ENTITY`, `CONFIG`, `APPLY_TYPE`, `SHARE_TO`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`)
   VALUES
   (CONCAT('013-',SUBSTRING(MD5(RAND()),1,16)), 'Team', '[{"field":"name","isFull":false},{"field":"isDisabled","isFull":false}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001');
