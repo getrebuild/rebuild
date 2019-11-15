@@ -236,9 +236,10 @@ class FolderTree extends React.Component {
       confirm: function () {
         this.disabled(true)
         $.post(`${rb.baseUrl}/app/entity/record-delete?id=${id}`, (res) => {
-          if (res.error_code > 0) RbHighbar.error(res.error_msg)
-          this.hide()
-          that.loadData()
+          if (res.error_code === 0) {
+            this.hide()
+            that.loadData()
+          } else RbHighbar.error(res.error_msg)
         })
       }
     })
@@ -295,10 +296,11 @@ $(document).ready(() => {
     __findPaths($('#navTree li.active'), paths)
     let ol = $('.file-path ol').empty()
     $(paths).each((idx, item) => {
-      let active = idx === paths.length - 1
-      let li = $(`<li class="breadcrumb-item ${active ? 'active' : ''}"></li>`).appendTo(ol)
-      if (active) li.text(item[0])
-      else $(`<a href="#!/Folder/${item[1]}">${item[0]}</a>`).appendTo(li)
+      // let active = idx === paths.length - 1
+      // let li = $(`<li class="breadcrumb-item ${active ? 'active' : ''}"></li>`).appendTo(ol)
+      // if (active) li.text(item[0])
+      // else $(`<a href="#!/Folder/${item[1]}">${item[0]}</a>`).appendTo(li)
+      $(`<li class="breadcrumb-item active">${item[0]}</li>`).appendTo(ol)
     })
   }
   renderRbcomp(<FolderTree call={clickNav} />, 'navTree', function () { filesNav = this })
@@ -317,9 +319,11 @@ $(document).ready(() => {
       confirm: function () {
         this.disabled(true)
         $.post(`${rb.baseUrl}/files/delete-files?ids=${s}`, (res) => {
-          if (res.error_code > 0) RbHighbar.error(res.error_msg)
-          this.hide()
-          filesList.loadData()
+          if (res.error_code === 0) {
+            this.hide()
+            filesList.loadData()
+          } RbHighbar.error(res.error_msg)
+
         })
       }
     })
