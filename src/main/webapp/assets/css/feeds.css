@@ -441,10 +441,10 @@
 }
 
 .side-wrapper .add-group {
-  font-size: 14px;
+  font-size: 15px;
   position: absolute;
   right: 14px;
-  top: 4px;
+  top: 3px;
   padding: 6px;
   display: none !important;
 }

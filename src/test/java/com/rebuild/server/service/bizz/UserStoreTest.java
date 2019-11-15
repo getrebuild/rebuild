@@ -20,6 +20,7 @@ package com.rebuild.server.service.bizz;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
+import com.rebuild.server.service.bizz.privileges.User;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -64,7 +65,14 @@ public class UserStoreTest extends TestSupport {
 		Application.getSessionStore().set(SIMPLE_USER);
 		try {
 			Application.getBean(TeamService.class).createMembers(SIMPLE_TEAM, Arrays.asList(SIMPLE_USER));
+			User user = Application.getUserStore().getUser(SIMPLE_USER);
+			System.out.println(user.getOwningTeams());
+
+			assertTrue(!user.getOwningTeams().isEmpty());
+			assertTrue(Application.getUserStore().getTeam(SIMPLE_TEAM).isMember(SIMPLE_USER));
+
 			Application.getBean(TeamService.class).deleteMembers(SIMPLE_TEAM, Arrays.asList(SIMPLE_USER));
+			System.out.println(user.getOwningTeams());
 		} finally {
 			Application.getSessionStore().clean();
 		}

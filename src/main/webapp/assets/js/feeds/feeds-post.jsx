@@ -29,7 +29,7 @@ class FeedsPost extends React.Component {
             <div className="dropdown-menu dropdown-menu-right">
               <a className="dropdown-item" onClick={this._selectScope} data-scope="ALL" title="全部可见"><i className="icon up-1 zmdi zmdi-chart-donut" />公开</a>
               <a className="dropdown-item" onClick={this._selectScope} data-scope="SELF" title="仅自己可见"><i className="icon up-1 zmdi zmdi-lock" />私密</a>
-              <a className="dropdown-item" onClick={this._selectScope} data-scope="GROUP" title="团队内可见"><i className="icon up-1 zmdi zmdi-accounts" />团队</a>
+              <a className="dropdown-item" onClick={this._selectScope} data-scope="GROUP" title="团队成员可见"><i className="icon up-1 zmdi zmdi-accounts" />团队</a>
             </div>
           </div>
         </div>

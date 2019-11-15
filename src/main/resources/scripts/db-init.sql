@@ -512,7 +512,7 @@ create table if not exists `feeds` (
   `IMAGES`             varchar(700) comment '图片',
   `ATTACHMENTS`        varchar(700) comment '附件',
   `RELATED_RECORD`     char(20) comment '相关业务记录',
-  `SCOPE`              varchar(20) default 'ALL' comment '哪些人可见, 可选值: ALL/SELF/$GroupID',
+  `SCOPE`              varchar(20) default 'ALL' comment '哪些人可见, 可选值: ALL/SELF/$TeamID',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
@@ -539,18 +539,6 @@ create table if not exists `feeds_comment` (
 )Engine=InnoDB;
 alter table `feeds_comment`
   add index `IX1_feeds_comment` (`FEEDS_ID`);
-
--- ************ Entity [FeedsGroup] DDL ************
-create table if not exists `feeds_group` (
-  `GROUP_ID`           char(20) not null,
-  `NAME`               varchar(100) not null comment '组名称',
-  `MEMBERS`            varchar(420) comment '组成员($MemberID(U/D/R))',
-  `MODIFIED_BY`        char(20) not null comment '修改人',
-  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
-  `CREATED_BY`         char(20) not null comment '创建人',
-  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
-  primary key  (`GROUP_ID`)
-)Engine=InnoDB;
 
 -- ************ Entity [FeedsLike] DDL ************
 create table if not exists `feeds_like` (

@@ -64,9 +64,7 @@ class FeedsList extends React.Component {
                   <p className="text-muted fs-12 m-0">
                     <span title={item.createdOn}>{item.createdOnFN}{item.createdOn !== item.modifedOn && <span className="text-danger" title={`编辑于 ${item.modifedOn}`}> (已编辑)</span>}</span>
                     &nbsp;&nbsp;·&nbsp;&nbsp;
-                    {typeof item.scope === 'string' ? item.scope : <span>{item.scope[1]} <i className="zmdi zmdi-accounts fs-14 down-1"></i></span>}
-                    &nbsp;&nbsp;·&nbsp;&nbsp;
-                    <span>来自网页</span>
+                    {typeof item.scope === 'string' ? item.scope : <span>{item.scope[1]} <i title="团队成员可见" className="zmdi zmdi-accounts fs-14 down-1"></i></span>}
                   </p>
                 </div>
                 {__renderRichContent(item)}

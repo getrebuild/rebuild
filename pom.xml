@@ -111,7 +111,7 @@
 		<dependency>
 			<groupId>com.github.devezhao</groupId>
 			<artifactId>bizz</artifactId>
-			<version>2ce3070846</version>
+			<version>2956bc39e6</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.devezhao</groupId>
