@@ -43,7 +43,7 @@ class FilesList extends React.Component {
   renderExtras(item) {
     return <React.Fragment >
       <span>{item.fileSize}</span>
-      {item.relatedRecord && <span><a target="_blank" title="点击查看相关记录" href={`${rb.baseUrl}/app/list-and-view?id=${item.relatedRecord[0]}`}>{item.relatedRecord[1]}</a></span>}
+      {item.relatedRecord && <span><a target="_blank" title="点击查看相关记录" onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/app/list-and-view?id=${item.relatedRecord[0]}`}>{item.relatedRecord[1]}</a></span>}
     </React.Fragment>
   }
 

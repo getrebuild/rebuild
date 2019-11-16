@@ -137,7 +137,6 @@ public class FileListControll extends BasePageControll {
         } else {
             sql += " order by modifiedOn desc";
         }
-        System.out.println(sql);
         Object[][] array = Application.createQueryNoFilter(sql)
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
                 .array();
