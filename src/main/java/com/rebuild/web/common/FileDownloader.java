@@ -25,6 +25,7 @@ import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.web.BaseControll;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -117,11 +118,6 @@ public class FileDownloader extends BaseControll {
 	public static boolean writeLocalFile(String filePath, boolean temp, HttpServletResponse response) throws IOException {
 		filePath = CodecUtils.urlDecode(filePath);
 		File file = temp ? SysConfiguration.getFileOfTemp(filePath) : SysConfiguration.getFileOfData(filePath);
-		if (!file.exists()) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
-			return false;
-		}
-
 		return writeLocalFile(file, response);
 	}
 
@@ -134,6 +130,12 @@ public class FileDownloader extends BaseControll {
 	 * @throws IOException
 	 */
 	public static boolean writeLocalFile(File file, HttpServletResponse response) throws IOException {
+        if (!file.exists()) {
+            response.setHeader("Content-Disposition", StringUtils.EMPTY);  // Clean download
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return false;
+        }
+
 		long size = FileUtils.sizeOf(file);
 		response.setHeader("Content-Length", String.valueOf(size));
 
@@ -152,6 +154,8 @@ public class FileDownloader extends BaseControll {
 	}
 
 	/**
+     * 设置下载 Header
+     *
 	 * @param response
 	 * @param attname
 	 */

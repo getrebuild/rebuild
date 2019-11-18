@@ -18,27 +18,50 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.base.general;
 
+import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
+import com.rebuild.server.business.dataimport.DataExporter;
+import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.web.BaseControll;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 
 /**
- * TODO
- *
  * @author ZHAO
  * @since 2019/11/18
  */
 @Controller
-@RequestMapping("/app/")
 public class DataExportControll extends BaseControll {
 
-    @RequestMapping("/{entity}/data-export-submit")
-    public void export(@PathVariable String entity,
-                       HttpServletRequest request, HttpServletResponse response) throws IOException {
+    @RequestMapping("/app/entity/data-export-submit")
+    public void export(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ID user = getRequestUser(request);
+        Assert.isTrue(Application.getSecurityManager().allowed(user, ZeroEntry.AllowDataExport), "没有权限");
+
+        int dataRange = getIntParameter(request, "dr", 2);
+        JSONObject query = (JSONObject) ServletUtils.getRequestJson(request);
+        if (query == null) {
+            query = new JSONObject();
+        }
+
+        if (dataRange == 3 || dataRange == 2) {
+            query.put("pageSize", 65535);  // Max rows
+            query.put("pageNo", 1);
+        }
+
+        try {
+            File file = new DataExporter(query).setUser(user).export();
+            writeSuccess(response, file.getName());
+        } catch (Exception ex) {
+            writeFailure(response, ex.getLocalizedMessage());
+        }
     }
 }

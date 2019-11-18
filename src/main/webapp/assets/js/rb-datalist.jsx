@@ -6,6 +6,7 @@ const COLUMN_MIN_WIDTH = 30
 const COLUMN_MAX_WIDTH = 800
 const FIXED_FOOTER = true
 class RbList extends React.Component {
+
   constructor(props) {
     super(props)
 
@@ -32,6 +33,7 @@ class RbList extends React.Component {
 
     this.toggleAllRow = this.toggleAllRow.bind(this)
   }
+
   render() {
     let that = this
     const lastIndex = this.state.fields.length
@@ -64,24 +66,31 @@ class RbList extends React.Component {
                     let rowKey = 'row-' + lastGhost[0]
                     return (<tr key={rowKey} className={lastGhost[3] ? 'active' : ''} onClick={this.clickRow.bind(this, index, false)}>
                       {this.props.uncheckbox !== true && <td key={rowKey + '-checkbox'} className="column-checkbox">
-                        <div><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={lastGhost[3]} onClick={this.clickRow.bind(this, index, true)} readOnly /><span className="custom-control-label"></span></label></div>
+                        <div>
+                          <label className="custom-control custom-control-sm custom-checkbox">
+                            <input className="custom-control-input" type="checkbox" checked={lastGhost[3]} onClick={this.clickRow.bind(this, index, true)} readOnly />
+                            <span className="custom-control-label"></span>
+                          </label>
+                        </div>
                       </td>}
-                      {item.map((cell, index) => {
-                        return that.renderCell(cell, index, lastGhost)
-                      })}
+                      {item.map((cell, index) => { return that.renderCell(cell, index, lastGhost) })}
                       <td className="column-empty"></td>
                     </tr>)
                   })}
                 </tbody>
               </table>
-              {this.state.inLoad === false && this.state.rowsData.length === 0 ? <div className="list-nodata"><span className="zmdi zmdi-info-outline" /><p>暂无数据</p></div> : null}
+              {this.state.inLoad === false && this.state.rowsData.length === 0
+                ? <div className="list-nodata"><span className="zmdi zmdi-info-outline" /><p>暂无数据</p></div>
+                : null}
             </div>
           </div>
         </div>
-        {this.state.rowsData.length > 0 && <RbListPagination ref="pagination" rowsTotal={this.state.rowsTotal} pageSize={this.pageSize} $$$parent={this} />}
+        {this.state.rowsData.length > 0
+          && <RbListPagination ref={(c) => this._pagination = c} rowsTotal={this.state.rowsTotal} pageSize={this.pageSize} $$$parent={this} />}
         {this.state.inLoad === true && <RbSpinner />}
       </React.Fragment>)
   }
+
   componentDidMount() {
     const scroller = $(this.refs['rblist-scroller'])
     scroller.perfectScrollbar()
@@ -121,6 +130,7 @@ class RbList extends React.Component {
     // 首次由 AdvFilter 加载
     if (wpc.advFilter !== true) this.fetchList(this.__buildQuick($('.input-search')))
   }
+
   componentDidUpdate() {
     let that = this
     this.__selectedRows = []
@@ -156,6 +166,7 @@ class RbList extends React.Component {
       sort: field_sort,
       reload: this.pageNo === 1
     }
+    this.__lastQueryEntry = query
 
     let loadingTimer = setTimeout(() => {
       this.setState({ inLoad: true })
@@ -173,7 +184,7 @@ class RbList extends React.Component {
         }
 
         this.setState({ rowsData: rowsdata, inLoad: false }, () => RbList.renderAfter())
-        if (res.data.total > 0) this.refs['pagination'].setState({ rowsTotal: res.data.total })
+        if (res.data.total > 0) this._pagination.setState({ rowsTotal: res.data.total })
 
       } else {
         RbHighbar.error(res.error_msg)
@@ -215,6 +226,7 @@ class RbList extends React.Component {
     this.setState({ checkedAll: checked, rowsData: rowsdata })
     return false
   }
+
   clickRow(rowIndex, holdOthers, e) {
     if (e.target.tagName === 'SPAN') return false
     e.stopPropagation()
@@ -267,6 +279,7 @@ class RbList extends React.Component {
     }
     this.fetchList()
   }
+
   setAdvFilter(id) {
     this.advFilter = id
     this.fetchList()
@@ -274,13 +287,24 @@ class RbList extends React.Component {
     if (id) $storage.set(this.__defaultFilterKey, id)
     else $storage.remove(this.__defaultFilterKey)
   }
+
   getSelectedRows() {
     return this.__selectedRows
   }
+
   getSelectedIds() {
     if (!this.__selectedRows || this.__selectedRows.length < 1) { RbHighbar.create('未选中任何记录'); return [] }
     return this.__selectedRows.map((item) => { return item[0] })
   }
+
+  getQueryedTotal() {
+    return this._pagination.state.rowsTotal
+  }
+
+  getLastQueryEntry() {
+    return this.__lastQueryEntry
+  }
+
   search(filter, fromAdv) {
     let afHold = this.advFilter
     if (fromAdv === true) this.advFilter = null
@@ -296,11 +320,13 @@ class RbList extends React.Component {
   searchQuick(el) {
     this.search(this.__buildQuick(el))
   }
+
   __buildQuick(el) {
     let q = el.find('input').val()
     if (!q && !this.lastFilter) return null
     return { entity: this.props.config.entity, type: 'QUICK', values: { 1: q }, qfields: el.data('qfields') }
   }
+
   reload() {
     this.fetchList()
   }
@@ -456,6 +482,53 @@ class RbListPagination extends React.Component {
   }
 }
 
+// 导出列表数据
+class DataExport extends RbFormHandler {
+
+  constructor(props) {
+    super(props)
+    this.state.dataRange = '2'
+  }
+
+  render() {
+    let _list = this.props.listRef
+    return <RbModal ref={(c) => this._dlg = c} title="数据导出" disposeOnHide={true} width="420">
+      <div className="pl-2 mb-4">
+        <label className="custom-control custom-control-sm custom-radio">
+          <input className="custom-control-input" name="dataRange" type="radio" checked={this.state.dataRange === '1'} value="1" onChange={this.handleChange} />
+          <span className="custom-control-label">当前页的数据 ({_list.state.rowsData.length}条)</span>
+        </label>
+        <label className="custom-control custom-control-sm custom-radio">
+          <input className="custom-control-input" name="dataRange" type="radio" checked={this.state.dataRange === '2'} value="2" onChange={this.handleChange} />
+          <span className="custom-control-label">查询后的数据 ({_list.getQueryedTotal()}条)</span>
+        </label>
+        <label className="custom-control custom-control-sm custom-radio">
+          <input className="custom-control-input" name="dataRange" type="radio" checked={this.state.dataRange === '3'} value="3" onChange={this.handleChange} />
+          <span className="custom-control-label">全部数据</span>
+        </label>
+      </div>
+      <div className="dialog-footer" ref={(c) => this._btns = c}>
+        <a className="btn btn-link btn-space" onClick={this.hide}>取消</a>
+        <button className="btn btn-primary btn-space" type="button" data-loading-text="请稍后" onClick={this._export}>确定</button>
+      </div>
+    </RbModal>
+  }
+
+  _export = () => {
+    let dr = ~~this.state.dataRange
+    let filter = dr < 3 ? this.props.listRef.getLastQueryEntry() : {}
+
+    this.disabled(true)
+    $.post(`${rb.baseUrl}/app/entity/data-export-submit?dr=${dr}`, JSON.stringify(filter), (res) => {
+      if (res.error_code === 0) {
+        this.hide()
+        let url = `${rb.baseUrl}/filex/download/${$encode(res.data)}?temp=yes`
+        window.open(url)
+      } else RbHighbar.error(res.error_msg)
+    })
+  }
+}
+
 // 列表页操作类
 const RbListPage = {
   _RbList: null,
@@ -507,6 +580,7 @@ const RbListPage = {
       ids.length > 0 && DlgUnshare.create({ entity: entity[0], ids: ids })
     })
     $('.J_columns').click(() => RbModal.create(`${rb.baseUrl}/p/general-entity/show-fields?entity=${entity[0]}`, '设置列显示'))
+    $('.J_export').click(() => renderRbcomp(<DataExport listRef={RbListPage._RbList} />))
 
     // Privileges
     if (ep) {
@@ -519,15 +593,13 @@ const RbListPage = {
     }
 
     // Quick search
-    let btn = $('.input-search .btn'),
-      input = $('.input-search input')
-    btn.click(() => this._RbList.searchQuick($('.input-search')))
-    input.keydown((event) => { if (event.which === 13) btn.trigger('click') })
+    const $btn = $('.input-search .btn'),
+      $input = $('.input-search input')
+    $btn.click(() => this._RbList.searchQuick($('.input-search')))
+    $input.keydown((event) => { if (event.which === 13) $btn.trigger('click') })
   },
 
-  reload() {
-    this._RbList.reload()
-  }
+  reload() { this._RbList.reload() }
 }
 
 // 高级查询操作类

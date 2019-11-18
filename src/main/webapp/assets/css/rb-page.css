@@ -527,6 +527,15 @@ body.dialog .main-content {
     margin: 4px 0 0;
 }
 
+.modal-body>.dialog-footer {
+    margin-left: -20px;
+    margin-right: -20px;
+}
+
+.modal-body>.dialog-footer>.btn-space:last-child {
+    margin-right: 0;
+}
+
 body.dialog .main-content .footer,
 .rbform .footer {
     padding-bottom: 4px;

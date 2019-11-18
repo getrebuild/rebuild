@@ -16,48 +16,38 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.business.dataimport;
+package com.rebuild.server.helper;
 
-import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.helper.SetUser;
-import com.rebuild.server.helper.SysConfiguration;
-
-import java.io.File;
+import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
 
 /**
- * 数据导出
+ * Set call user
  *
  * @author ZHAO
- * @since 2019/11/18
+ * @since 2019/11/19
  */
-public class DataExporter extends SetUser<DataExporter> {
+public abstract class SetUser<T extends SetUser> {
 
-    private JSONObject query;
+    private ID user;
 
     /**
-     * @param query
+     * 设置用户
+     *
+     * @param user
+     * @return
      */
-    public DataExporter(JSONObject query) {
-        this.query = query;
+    public T setUser(ID user) {
+        this.user = user;
+        return (T) this;
     }
 
     /**
-     * 导出
+     * 获取用户，未设置则返回当前线程用户
      *
      * @return
      */
-    public File export() {
-        File tmp = SysConfiguration.getFileOfTemp(String.format("导出-%d.xls", System.currentTimeMillis()));
-        export(tmp);
-        return tmp;
-    }
-
-    /**
-     * 导出到指定文件
-     *
-     * @param dest
-     */
-    public void export(File dest) {
-        System.out.println(query);
+    public ID getUser() {
+        return user != null ? user : Application.getCurrentUser();
     }
 }

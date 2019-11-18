@@ -76,9 +76,14 @@ public class GeneralDataListControll extends BaseEntityControll {
 		
 		JSON config = DataListManager.instance.getFieldsLayout(entity, getRequestUser(request));
 		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
+
+		// 列表相关权限
 		mv.getModel().put(ZeroEntry.AllowCustomDataList.name(),
 				Application.getSecurityManager().allowed(user, ZeroEntry.AllowCustomDataList));
+		mv.getModel().put(ZeroEntry.AllowDataExport.name(),
+				Application.getSecurityManager().allowed(user, ZeroEntry.AllowDataExport));
 
+		// 展开 WIDGET 面板
 		String asideCollapsed = ServletUtils.readCookie(request, "rb.asideCollapsed");
 		if (!"false".equals(asideCollapsed)) {
 			mv.getModel().put("asideCollapsed", true);
