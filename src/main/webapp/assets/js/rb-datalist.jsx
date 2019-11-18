@@ -88,15 +88,12 @@ class RbList extends React.Component {
 
     if (FIXED_FOOTER && $('.main-content').width() > 998) {
       $('.main-content').addClass('pb-0')
-      let hold = window.resize_handler
-      window.resize_handler = function () {
-        typeof hold === 'function' && hold()
-        let maxHeight = $(window).height() - 214
-        if ($('.main-content>.nav-tabs-classic').length > 0) maxHeight -= 42  // Has tab
-        scroller.css({ maxHeight: maxHeight })
+      $addResizeHandler(() => {
+        let mh = $(window).height() - 214
+        if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 42  // Has tab
+        scroller.css({ maxHeight: mh })
         scroller.perfectScrollbar('update')
-      }
-      window.resize_handler()
+      })()
     }
 
     let that = this
@@ -904,14 +901,11 @@ $(document).ready(() => {
     // 默认不展开（由后台处理，避免页面闪动）
     // if ($.cookie('rb.asideCollapsed') === 'false') $('.rb-aside').removeClass('rb-aside-collapsed')
 
-    let $content = $('.page-aside .tab-content')
-    let hold = window.resize_handler
-    window.resize_handler = function () {
-      typeof hold === 'function' && hold()
+    const $content = $('.page-aside .tab-content')
+    $addResizeHandler(() => {
       $content.height($(window).height() - 147)
       $content.perfectScrollbar('update')
-    }
-    window.resize_handler()
+    })()
     ChartsWidget.init()
   }
 })

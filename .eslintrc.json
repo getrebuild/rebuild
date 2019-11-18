@@ -85,7 +85,8 @@
         "ChartSelect": true,
         "Share2": true,
         "$pgt": true,
-        "$stopEvent": true
+        "$stopEvent": true,
+        "$addResizeHandler": true
     },
     "rules": {
         "strict": 0,

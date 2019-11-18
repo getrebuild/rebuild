@@ -1,6 +1,6 @@
 /*
 rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (C) 2018-2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,37 +16,21 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.service.bizz.privileges;
+package com.rebuild.server.business.dataimport;
+
+import java.io.File;
 
 /**
- * 扩权限项
- * 
- * @author devezhao zhaofang123@gmail.com
- * @since 2019/04/13
+ * 数据导出
+ *
+ * @author ZHAO
+ * @since 2019/11/18
  */
-public enum ZeroEntry {
+public class DataExporter {
 
-	AllowLogin(true),
-	AllowBatchUpdate(false),
-	AllowDataImport(false),
-	AllowDataExport(false),
-    AllowCustomNav(true),
-    AllowCustomDataList(true),
+    public DataExporter() {
+    }
 
-	;
-	
-	private boolean defaultVal;
-	
-	ZeroEntry(boolean defaultVal) {
-		this.defaultVal = defaultVal;
-	}
-	
-	/**
-	 * 默认值
-	 * 
-	 * @return
-	 */
-	public boolean getDefaultVal() {
-		return defaultVal;
-	}
+    public void export(File dest) {
+    }
 }

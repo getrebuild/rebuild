@@ -139,12 +139,12 @@
 								<td class="text-center"><i data-action="Z" class="priv R0"></i></td>
 								<td colspan="5">需具备相应实体的创建权限</td>
 							</tr>
+							-->
 							<tr>
-								<td class="name"><a data-name="AllowDataOutput">允许导出数据</a></td>
+								<td class="name"><a data-name="AllowDataExport">允许导出数据</a></td>
 								<td class="text-center"><i data-action="Z" class="priv R0"></i></td>
 								<td colspan="5">需具备相应实体的读取权限</td>
 							</tr>
-							-->
 						</tbody>
 						</table>
 						<div class="legend-wrap">
