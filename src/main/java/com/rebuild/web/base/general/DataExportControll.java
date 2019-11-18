@@ -55,6 +55,7 @@ public class DataExportControll extends BaseControll {
         if (dataRange == 3 || dataRange == 2) {
             query.put("pageSize", 65535);  // Max rows
             query.put("pageNo", 1);
+            query.put("reload", false);
         }
 
         try {

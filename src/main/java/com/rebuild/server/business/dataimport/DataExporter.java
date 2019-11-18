@@ -18,9 +18,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.dataimport;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.helper.SetUser;
 import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.server.helper.datalist.DataList;
+import com.rebuild.server.helper.datalist.DefaultDataList;
 
 import java.io.File;
 
@@ -29,6 +32,7 @@ import java.io.File;
  *
  * @author ZHAO
  * @since 2019/11/18
+ * @see com.rebuild.server.helper.datalist.DefaultDataList
  */
 public class DataExporter extends SetUser<DataExporter> {
 
@@ -58,6 +62,9 @@ public class DataExporter extends SetUser<DataExporter> {
      * @param dest
      */
     public void export(File dest) {
-        System.out.println(query);
+        DataList control = new DefaultDataList(query, getUser());
+        JSON data = control.getJSONResult();
+
+        System.out.println(data);
     }
 }
