@@ -157,13 +157,18 @@
 }
 
 .chart-box.ApprovalList .progress-wrap {
-	margin: 10px 25px;
-	margin-bottom: 15px;
-	border-radius: 2px;
+	padding: 10px 25px;
+	padding-bottom: 15px;
+	background-color: #fff;
+}
+
+.chart-box.ApprovalList .progress-wrap.sticky {
+	position: sticky;
+	top: 0;
 }
 
 .chart-box.ApprovalList .progress-wrap .progress-bar:hover {
-	cursor: help;
+	cursor: pointer;
 	opacity: 0.8;
 }
 
@@ -191,7 +196,7 @@
 
 .chart.ApprovalList .table tr th:last-child,
 .chart.ApprovalList .table tr td:last-child {
-	padding-right: 18px;
+	padding-right: 23px;
 }
 
 .chart-select-wrap {}

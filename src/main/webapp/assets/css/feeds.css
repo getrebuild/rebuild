@@ -190,6 +190,7 @@
   font-size: 1.1rem;
   padding-top: 5px;
   line-height: 1.5;
+  overflow: hidden;
 }
 
 .rich-content>.texts {
@@ -201,6 +202,10 @@
   height: 26px;
   line-height: 1;
   font-size: 0;
+}
+
+.rich-content>.related {
+  margin-bottom: 6px;
 }
 
 .rich-content>.img-field {

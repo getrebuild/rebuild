@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable react/prop-types */
 class BaseChart extends React.Component {
   constructor(props) {
@@ -36,12 +37,15 @@ class BaseChart extends React.Component {
 
   loadChartData() {
     this.setState({ chartdata: null })
-    let url = this.state.id ? ('/dashboard/chart-data?id=' + this.state.id) : '/dashboard/chart-preview'
     let that = this
-    $.post(rb.baseUrl + url, JSON.stringify(this.state.config || {}), (res) => {
+    $.post(this.buildDataUrl(), JSON.stringify(this.state.config || {}), (res) => {
       if (res.error_code === 0) that.renderChart(res.data)
       else that.renderError(res.error_msg)
     })
+  }
+
+  buildDataUrl() {
+    return rb.baseUrl + (this.state.id ? '/dashboard/chart-data' : '/dashboard/chart-preview') + '?id=' + (this.state.id || '')
   }
 
   resize() {
@@ -387,18 +391,25 @@ class ApprovalList extends BaseChart {
   constructor(props) {
     super(props)
     this.__approvalForms = {}
+    this.state.viewState = 1
   }
 
   renderChart(data) {
     let statsTotal = 0
-    data.stats.forEach((item) => statsTotal += item[1])
-    let stats = <div className="progress-wrap">
+    this.__lastStats = this.__lastStats || data.stats
+    this.__lastStats.forEach((item) => statsTotal += item[1])
+
+    let stats = <div className="progress-wrap sticky">
       <div className="progress">
-        {data.stats.map((item) => {
+        {this.__lastStats.map((item) => {
           let s = APPROVAL_STATES[item[0]]
           if (!s || s[1] <= 0) return null
           let sp = (item[1] * 100 / statsTotal).toFixed(2) + '%'
-          return <div key={`state-${s[0]}`} className={`progress-bar bg-${s[0]}`} title={`${s[1]} : ${item[1]} (${sp})`} style={{ width: sp }}>{s[1]}</div>
+          return <div key={`state-${s[0]}`}
+            className={`progress-bar bg-${s[0]} ${this.state.viewState === item[0] ? 'text-bold' : ''}`}
+            title={`${s[1]} : ${item[1]} (${sp})`}
+            style={{ width: sp }}
+            onClick={() => this._changeState(item[0])}>{s[1]}</div>
         })}
       </div>
       <p className="m-0 mt-1 fs-11 text-muted text-right hide">审批统计</p>
@@ -412,7 +423,7 @@ class ApprovalList extends BaseChart {
           <tr>
             <th style={{ minWidth: 150 }}>提交人</th>
             <th style={{ minWidth: 150 }}>审批记录</th>
-            <th width="40"></th>
+            <th width="90"></th>
           </tr>
         </thead>
         <tbody>
@@ -424,11 +435,13 @@ class ApprovalList extends BaseChart {
                 <span className="cell-detail-description">{item[2]}</span>
               </td>
               <td className="cell-detail">
-                <a href={`${rb.baseUrl}/app/list-and-view?id=${item[3]}`}>{item[4]}</a>
+                <a href={`${rb.baseUrl}/app/list-and-view?id=${item[3]}`} target="_blank">{item[4]}</a>
                 <span className="cell-detail-description">{item[6]}</span>
               </td>
-              <td className="actions">
-                <a className="icon" href="#" onClick={() => this.approve(item[3], item[5])} title="审批"><i className="zmdi zmdi-more-vert"></i></a>
+              <td className="actions text-right">
+                {this.state.viewState === 1 && <button className="btn btn-secondary btn-sm" onClick={() => this.approve(item[3], item[5])}>审批</button>}
+                {this.state.viewState === 10 && <span className="text-success">通过</span>}
+                {this.state.viewState === 11 && <span className="text-danger">驳回</span>}
               </td>
             </tr>
           })}
@@ -443,8 +456,7 @@ class ApprovalList extends BaseChart {
     </div>
     this.setState({ chartdata: chartdata }, () => {
       let tb = $(this._body)
-      tb.find('.ApprovalList').css('height', tb.height() - 5)
-        .perfectScrollbar()
+      tb.find('.ApprovalList').css('height', tb.height() - 5).perfectScrollbar()
       this.__tb = tb
     })
   }
@@ -466,6 +478,14 @@ class ApprovalList extends BaseChart {
       // eslint-disable-next-line react/jsx-no-undef
       renderRbcomp(<ApprovalApproveForm id={record} approval={approval} call={close} />, null, function () { that.__approvalForms[record] = this })
     }
+  }
+
+  _changeState(state) {
+    this.setState({ viewState: state }, () => this.loadChartData())
+  }
+
+  buildDataUrl() {
+    return super.buildDataUrl() + '&state=' + this.state.viewState
   }
 }
 

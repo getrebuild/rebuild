@@ -91,13 +91,30 @@ gulp.task('xjsp', () => {
         .pipe(gulp.dest('./build'))
 })
 
+// MVN 编译&打包
+gulp.task('maven', () => {
+    const pomfile = `${__dirname}`.replace('.production', 'pom.xml')
+    console.log('Using pom.xml : ' + pomfile)
+    const mvn = require('child_process').spawnSync(
+        process.platform === 'win32' ? 'mvn.cmd' : 'mvn',
+        ['clean', 'package', '-f', pomfile],
+        { stdio: 'inherit' })
 
-gulp.task('clear', () => {
+    if (mvn.status != 0) {
+        process.stderr.write(mvn.stderr)
+        process.exit(mvn.status)
+    }
+})
+
+
+gulp.task('clean', () => {
     del(['./_temp', './build'])
 })
+
+const DEPLOY_HOME = '/data/rebuild47070/webapps/ROOT'
 gulp.task('cp2server', () => {
     gulp.src('./build/**')
-        .pipe(gulp.dest('/data/rebuild47070/webapps/ROOT'))
+        .pipe(gulp.dest(DEPLOY_HOME))
 })
 gulp.task('cp2target', () => {
     gulp.src('./build/**')
@@ -106,4 +123,4 @@ gulp.task('cp2target', () => {
 
 gulp.task('default', gulpSequence(['xjs', 'xcss'], 'xjsp'))
 gulp.task('d', gulpSequence(['xjs', 'xcss'], 'xjsp', 'cp2server'))  // deploy
-gulp.task('p', gulpSequence(['xjs', 'xcss'], 'xjsp', 'cp2target'))  // package for release
+gulp.task('p', gulpSequence('maven', ['xjs', 'xcss'], 'xjsp', 'cp2target'))  // package

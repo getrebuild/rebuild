@@ -376,12 +376,9 @@ function __renderRichContent(e) {
     <div className="texts"
       dangerouslySetInnerHTML={{ __html: contentHtml }}
     />
-    {e.related && <div style={{ marginBottom: 6 }}>
-      <a target="_blank" href={`${rb.baseUrl}/app/list-and-view?id=${e.related[0]}`} className="link" title="相关记录">
-        <span><i className={`icon zmdi zmdi-${e.related[3]}`}></i> {e.related[2]}</span>
-        &nbsp;-&nbsp;
-        <span>{e.related[1]}</span>
-      </a>
+    {e.related && <div className="related">
+      <span className="text-muted"><i className={`icon zmdi zmdi-${e.related[3]}`}></i> {e.related[2]} - </span>
+      <a target="_blank" href={`${rb.baseUrl}/app/list-and-view?id=${e.related[0]}`}>{e.related[1]}</a>
     </div>
     }
     {(e.images || []).length > 0 && <div className="img-field">
