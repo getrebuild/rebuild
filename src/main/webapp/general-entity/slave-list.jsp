@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -73,7 +74,11 @@
 										<div class="dropdown-menu dropdown-menu-right">
 											<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
 											<div class="dropdown-divider"></div>
+											<c:if test="${AllowCustomDataList}">
 											<a class="dropdown-item J_columns"><i class="icon zmdi zmdi-code-setting"></i> 列显示</a>
+											</c:if><c:if test="${AllowDataExport}">
+											<a class="dropdown-item J_export"><i class="icon zmdi zmdi-cloud-download"></i> 导出</a>
+											</c:if>
 										</div>
 									</div>
 								</div>

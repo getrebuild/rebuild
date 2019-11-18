@@ -254,11 +254,6 @@ body {
 	white-space: nowrap;
 }
 
-.sharing-list .dialog-footer {
-	margin-left: -20px;
-	margin-right: -25px;
-}
-
 .load-mores {
 	border-top: 1px solid #eee;
 	height: 34px;
