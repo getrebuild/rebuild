@@ -20,8 +20,12 @@ package com.rebuild.server.business.charts;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.TestSupport;
+import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.business.charts.builtin.ApprovalList;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author ZHAO
@@ -31,7 +35,9 @@ public class BuiltinChartsTest extends TestSupport {
 
     @Test
     public void testApprovalList() throws Exception {
-        JSON ret = new ApprovalList().setUser(SIMPLE_USER).build();
+        Map<String, Object> params = new HashMap<>();
+        params.put("state", ApprovalState.APPROVED.getState());
+        JSON ret = new ApprovalList().setUser(SIMPLE_USER).setExtraParams(params).build();
         System.out.println(ret);
     }
 }

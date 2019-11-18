@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable react/prop-types */
 class BaseChart extends React.Component {
   constructor(props) {
@@ -434,7 +435,7 @@ class ApprovalList extends BaseChart {
                 <span className="cell-detail-description">{item[2]}</span>
               </td>
               <td className="cell-detail">
-                <a href={`${rb.baseUrl}/app/list-and-view?id=${item[3]}`}>{item[4]}</a>
+                <a href={`${rb.baseUrl}/app/list-and-view?id=${item[3]}`} target="_blank">{item[4]}</a>
                 <span className="cell-detail-description">{item[6]}</span>
               </td>
               <td className="actions text-right">
