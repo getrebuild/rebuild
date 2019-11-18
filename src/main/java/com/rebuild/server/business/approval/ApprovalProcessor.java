@@ -318,8 +318,8 @@ public class ApprovalProcessor {
 	 * @return returns [ [S,S], [S], [SSS], [S] ]
 	 */
 	public JSONArray getWorkedSteps() {
-		final Object[] status = ApprovalHelper.getApprovalStatus(this.record);
-		this.approval = (ID) status[0];
+		final Object[] states = ApprovalHelper.getApprovalStates(this.record);
+		this.approval = (ID) states[0];
 
 		Object[][] array = Application.createQueryNoFilter(
 				"select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode from RobotApprovalStep" +
@@ -349,7 +349,7 @@ public class ApprovalProcessor {
 		JSONObject submitter = JSONUtils.toJSONObject(
 				new String[] { "submitter", "submitterName", "createdOn", "approvalId", "approvalName", "approvalState" },
 				new Object[] { firstStep[5], UserHelper.getName((ID) firstStep[5]), CalendarUtils.getUTCDateTimeFormat().format(firstStep[4]),
-						status[0], status[1], status[2] });
+						states[0], states[1], states[2] });
 		steps.add(submitter);
 
 

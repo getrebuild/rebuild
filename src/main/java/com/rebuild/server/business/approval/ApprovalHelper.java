@@ -57,7 +57,7 @@ public class ApprovalHelper {
      * @param record
      * @return returns [ApprovalId, ApprovalName, ApprovalState]
      */
-    public static Object[] getApprovalStatus(ID record) {
+    public static Object[] getApprovalStates(ID record) {
         return Application.getQueryFactory().uniqueNoFilter(record,
                 EntityHelper.ApprovalId, EntityHelper.ApprovalId + ".name", EntityHelper.ApprovalState);
     }

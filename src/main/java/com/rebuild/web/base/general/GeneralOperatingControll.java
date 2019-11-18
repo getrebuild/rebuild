@@ -348,7 +348,7 @@ public class GeneralOperatingControll extends BaseControll {
 					"select shareTo from ShareAccess where belongEntity = ? and recordId = ?")
 					.setParameter(1, entity.getName())
 					.setParameter(2, id)
-					.setLimit(9)
+					.setLimit(100)  // 最多显示
 					.array();
 			sharingList = new ArrayList<>();
 			for (Object[] st : shareTo) {

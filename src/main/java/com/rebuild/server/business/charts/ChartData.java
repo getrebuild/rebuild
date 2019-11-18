@@ -39,8 +39,10 @@ import org.apache.commons.lang.StringUtils;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -55,7 +57,9 @@ public abstract class ChartData implements ChartSpec {
 
 	private ID user;
 	private boolean fromPreview = false;
-	
+	// 额外的图表参数
+	private Map<String, Object> extraParams;
+
 	/**
 	 * @param config
 	 */
@@ -79,7 +83,22 @@ public abstract class ChartData implements ChartSpec {
         return this;
     }
 
-    /**
+	/**
+	 * @return
+	 */
+	public Map<String, Object> getExtraParams() {
+		return extraParams == null ? Collections.emptyMap() : extraParams;
+	}
+
+	/**
+	 * @param extraParams
+	 */
+	public ChartData setExtraParams(Map<String, Object> extraParams) {
+		this.extraParams = extraParams;
+		return this;
+	}
+
+	/**
 	 * 预览模式
 	 *
 	 * @return

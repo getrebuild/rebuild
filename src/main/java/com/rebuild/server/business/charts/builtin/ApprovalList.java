@@ -47,6 +47,9 @@ import java.util.Map;
  */
 public class ApprovalList extends ChartData implements BuiltinChart {
 
+    // 虚拟ID
+    public static final ID MYID = ID.valueOf("017-9000000000000001");
+
     public ApprovalList() {
         super(null);
         this.config = getChartConfig();
@@ -54,8 +57,7 @@ public class ApprovalList extends ChartData implements BuiltinChart {
 
     @Override
     public ID getChartId() {
-        // 虚拟ID
-        return ID.valueOf("017-9000000000000001");
+        return MYID;
     }
 
     @Override
@@ -70,32 +72,36 @@ public class ApprovalList extends ChartData implements BuiltinChart {
 
     @Override
     public JSON build() {
+        final int viewState = ObjectUtils.toInt(getExtraParams().get("state"), ApprovalState.DRAFT.getState());
+        final String baseWhere = "where isCanceled = 'F' and isWaiting = 'F' and approver = ? and approvalId <> '' and approvalId is not null and ";
+
         Object[][] array = Application.createQueryNoFilter(
                 "select createdBy,modifiedOn,recordId,approvalId from RobotApprovalStep " +
-                        "where isCanceled = 'F' and isWaiting = 'F' and approver = ? and state = ? order by modifiedOn desc")
+                        baseWhere + " state = ? order by modifiedOn desc")
                 .setParameter(1, this.getUser())
-                .setParameter(2, ApprovalState.DRAFT.getState())
-                .setLimit(200)
+                .setParameter(2, viewState)
+                .setLimit(500)  // 最多显示
                 .array();
 
         List<Object> rearray = new ArrayList<>();
         int deleted = 0;
         for (Object[] o : array) {
+            final ID recordId = (ID) o[2];
             String label = null;
             try {
-                label = FieldValueWrapper.getLabel((ID) o[2]);
+                label = FieldValueWrapper.getLabel(recordId);
             } catch (NoRecordFoundException ignored) {
                 deleted++;
                 continue;
             }
 
-            Object[] status = ApprovalHelper.getApprovalStatus((ID) o[2]);
-            if ((Integer) status[2] == ApprovalState.CANCELED.getState()) {
+            Object[] states = ApprovalHelper.getApprovalStates(recordId);
+            if ((Integer) states[2] == ApprovalState.CANCELED.getState()) {
                 deleted++;
                 continue;
             }
 
-            ID s = ApprovalHelper.getSubmitter((ID) o[2], (ID) o[3]);
+            ID s = ApprovalHelper.getSubmitter(recordId, (ID) o[3]);
             rearray.add(new Object[] {
                     s,
                     UserHelper.getName(s),
@@ -103,18 +109,19 @@ public class ApprovalList extends ChartData implements BuiltinChart {
                     o[2],
                     label,
                     o[3],
-                    MetadataHelper.getEntityLabel((ID) o[2])
+                    MetadataHelper.getEntityLabel(recordId)
             });
         }
 
-        Object[][] stats = Application.createQueryNoFilter("select state,count(state) from RobotApprovalStep " +
-                "where isCanceled = 'F' and isWaiting = 'F' and approver = ? and state <> ? group by state")
+        Object[][] stats = Application.createQueryNoFilter(
+                "select state,count(state) from RobotApprovalStep " + baseWhere + " state <> ? group by state")
                 .setParameter(1, this.getUser())
                 .setParameter(2, ApprovalState.CANCELED.getState())
                 .array();
+        // 排除删除的（可能导致不同状态下数据不一致）
         if (deleted > 0) {
             for (Object[] o : stats) {
-                if ((Integer) o[0] == ApprovalState.DRAFT.getState()) {
+                if ((Integer) o[0] == viewState) {
                     o[1] = ObjectUtils.toInt(o[1]) - deleted;
                     if ((Integer) o[1] < 0) o[1] = 0;
                 }
