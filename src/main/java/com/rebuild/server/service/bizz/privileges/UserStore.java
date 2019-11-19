@@ -268,7 +268,14 @@ public class UserStore {
 			if (oldUser.getEmail() != null) {
 				USERs_MAIL2ID.remove(normalIdentifier(oldUser.getEmail()));
 			}
-		}
+        } else {
+		    if (o[6] != null) {
+		        getDepartment((ID) o[6]).addMember(newUser);
+            }
+		    if (o[7] != null) {
+		        getRole((ID) o[7]).addMember(newUser);
+            }
+        }
 
 		store(newUser);
 	}

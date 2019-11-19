@@ -236,10 +236,10 @@ class DlgShareManager extends RbModalHandler {
             </li>)
           })}
         </ul>
-        <div className="dialog-footer" ref={(c) => this._btns = c}>
-          {this.props.unshare === true && <button className="btn btn-primary btn-space" type="button" onClick={() => this.post()}>取消共享</button>}
-          <button className="btn btn-secondary btn-space" type="button" onClick={() => this.hide()}>取消</button>
-        </div>
+      </div>
+      <div className="dialog-footer" ref={(c) => this._btns = c}>
+        {this.props.unshare === true && <button className="btn btn-primary btn-space" type="button" onClick={() => this.post()}>取消共享</button>}
+        <button className="btn btn-secondary btn-space" type="button" onClick={() => this.hide()}>取消</button>
       </div>
     </RbModal>)
   }

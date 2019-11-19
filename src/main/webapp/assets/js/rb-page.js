@@ -53,14 +53,24 @@ $(function () {
     }
   })
 
+  // Trigger on window.onresize
   $(window).on('resize', function () {
-    $setTimeout(resize_handler, 100, 'resize-window')
+    $setTimeout(function () { $addResizeHandler()() }, 120, 'resize-window')
   })
 })
 // @t - trigger times
 var command_exec = function (t) { }
-// Trigger on window.onresize
-var resize_handler = function () { }
+
+var __RESIZE_CALLS = []
+var $addResizeHandler = function (call) {
+  (typeof call === 'function' && __RESIZE_CALLS) && __RESIZE_CALLS.push(call)
+  return function () {
+    if (!__RESIZE_CALLS || __RESIZE_CALLS.length === 0) return
+    // eslint-disable-next-line no-console
+    if (rb.env === 'dev') console.log('Calls ' + __RESIZE_CALLS.length + ' handlers of resize ...')
+    __RESIZE_CALLS.forEach(function (call) { call() })
+  }
+}
 
 // MainNav
 var __initNavs = function () {

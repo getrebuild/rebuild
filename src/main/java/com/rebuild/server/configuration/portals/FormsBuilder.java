@@ -157,7 +157,7 @@ public class FormsBuilder extends FormsManager {
 		// 查看（视图）
 		else if (viewMode) {
 			if (!Application.getSecurityManager().allowedR(user, record)) {
-				return formatModelError("你没有读取此记录的权限");
+				return formatModelError("你无权读取此记录或记录已被删除");
 			}
 			
 			approvalState = getHadApproval(entityMeta, record);

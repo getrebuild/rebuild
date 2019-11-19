@@ -78,14 +78,12 @@ var filesList
 
 $(document).ready(() => {
   $('.side-toggle').click(() => $('.rb-aside').toggleClass('rb-aside-collapsed'))
-  let $content = $('.page-aside .tab-content')
-  let hold = window.resize_handler
-  window.resize_handler = function () {
-    typeof hold === 'function' && hold()
+
+  const $content = $('.page-aside .tab-content')
+  $addResizeHandler(() => {
     $content.height($(window).height() - 147)
     $content.perfectScrollbar('update')
-  }
-  window.resize_handler()
+  })()
 
   $('.J_sort .dropdown-item').click(function () {
     let $this = $(this)

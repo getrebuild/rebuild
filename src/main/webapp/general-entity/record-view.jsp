@@ -63,11 +63,11 @@
 				<div class="form-line"><fieldset><legend>用户</legend></fieldset></div>
 				<dl class="row">
 					<dt class="col-12 col-md-4 pr-0">所属用户</dt>
-					<dd class="col-12 col-md-8 pl-0 J_owningUser"></dd>
+					<dd class="col-12 col-md-8 pl-0 pr-0 J_owningUser"></dd>
 				</dl>
 				<dl class="row">
 					<dt class="col-12 col-md-4 pr-0">共享用户</dt>
-					<dd class="col-12 col-md-8 pl-0 J_sharingList"></dd>
+					<dd class="col-12 col-md-8 pl-0 pr-0 J_sharingList"></dd>
 				</dl>
 			</div>
 			<div class="view-date">

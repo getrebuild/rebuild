@@ -25,8 +25,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.DataListManager;
-import com.rebuild.server.helper.datalist.DataList;
-import com.rebuild.server.helper.datalist.DefaultDataList;
+import com.rebuild.server.helper.datalist.DataListControl;
+import com.rebuild.server.helper.datalist.DefaultDataListControl;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.privileges.ZeroEntry;
@@ -76,9 +76,14 @@ public class GeneralDataListControll extends BaseEntityControll {
 		
 		JSON config = DataListManager.instance.getFieldsLayout(entity, getRequestUser(request));
 		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
+
+		// 列表相关权限
 		mv.getModel().put(ZeroEntry.AllowCustomDataList.name(),
 				Application.getSecurityManager().allowed(user, ZeroEntry.AllowCustomDataList));
+		mv.getModel().put(ZeroEntry.AllowDataExport.name(),
+				Application.getSecurityManager().allowed(user, ZeroEntry.AllowDataExport));
 
+		// 展开 WIDGET 面板
 		String asideCollapsed = ServletUtils.readCookie(request, "rb.asideCollapsed");
 		if (!"false".equals(asideCollapsed)) {
 			mv.getModel().put("asideCollapsed", true);
@@ -92,7 +97,7 @@ public class GeneralDataListControll extends BaseEntityControll {
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		JSONObject query = (JSONObject) ServletUtils.getRequestJson(request);
 
-        DataList control = new DefaultDataList(query, getRequestUser(request));
+        DataListControl control = new DefaultDataListControl(query, getRequestUser(request));
 		if ("TheSpecEntity".equalsIgnoreCase(entity)) {
 		    // Use spec
         }

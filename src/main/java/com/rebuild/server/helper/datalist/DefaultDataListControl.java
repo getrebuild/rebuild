@@ -35,7 +35,7 @@ import com.rebuild.server.service.bizz.UserService;
  * @author Zhao Fangfang
  * @since 1.0, 2013-6-20
  */
-public class DefaultDataList implements DataList {
+public class DefaultDataListControl implements DataListControl {
 
 	private Entity entity;
 	private QueryParser queryParser;
@@ -45,7 +45,7 @@ public class DefaultDataList implements DataList {
 	 * @param query
 	 * @param user
 	 */
-	public DefaultDataList(JSONObject query, ID user) {
+	public DefaultDataListControl(JSONObject query, ID user) {
 		this.entity = MetadataHelper.getEntity(query.getString("entity"));
 		this.queryParser = new QueryParser(query, this);
 		this.user = user;
@@ -56,12 +56,18 @@ public class DefaultDataList implements DataList {
 		return entity;
 	}
 
+	/**
+	 * @return
+	 */
+	public QueryParser getQueryParser() {
+		return queryParser;
+	}
+
 	@Override
 	public String getDefaultFilter() {
-
 		// 列表默认过滤
 		int ec = queryParser.getEntity().getEntityCode();
-		
+
 		if (ec == EntityHelper.User) {
 			return String.format("userId <> '%s'", UserService.SYSTEM_USER);
 		}
@@ -79,8 +85,8 @@ public class DefaultDataList implements DataList {
 		Query query = Application.getQueryFactory().createQuery(queryParser.toSql(), user);
 		int[] limits = queryParser.getSqlLimit();
 		Object[][] array = query.setLimit(limits[0], limits[1]).array();
-		
-		DataWrapper wrapper = new DataWrapper(
+
+		DataListWrapper wrapper = new DataListWrapper(
 				totalRows, array, query.getSelectItems(), query.getRootEntity());
 		wrapper.setPrivilegesFilter(user, queryParser.getQueryJoinFields());
 		return wrapper.toJson();

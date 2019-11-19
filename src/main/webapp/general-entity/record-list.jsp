@@ -79,9 +79,11 @@
 											<a class="dropdown-item J_assign"><i class="icon zmdi zmdi-mail-reply-all"></i> 分派</a>
 											<a class="dropdown-item J_share"><i class="icon zmdi zmdi-portable-wifi"></i> 共享</a>
 											<a class="dropdown-item J_unshare"><i class="icon zmdi zmdi-portable-wifi-off"></i> 取消共享</a>
-											<c:if test="${AllowCustomDataList}">
 											<div class="dropdown-divider"></div>
+											<c:if test="${AllowCustomDataList}">
 											<a class="dropdown-item J_columns"><i class="icon zmdi zmdi-code-setting"></i> 列显示</a>
+											</c:if><c:if test="${AllowDataExport}">
+											<a class="dropdown-item J_export"><i class="icon zmdi zmdi-cloud-download"></i> 导出</a>
 											</c:if>
 										</div>
 									</div>

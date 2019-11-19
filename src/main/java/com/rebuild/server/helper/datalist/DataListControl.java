@@ -1,6 +1,6 @@
 /*
 rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,37 +16,33 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.service.bizz.privileges;
+package com.rebuild.server.helper.datalist;
+
+import cn.devezhao.persist4j.Entity;
+import com.alibaba.fastjson.JSON;
 
 /**
- * 扩权限项
- * 
- * @author devezhao zhaofang123@gmail.com
- * @since 2019/04/13
+ * @author Zhao Fangfang
+ * @since 1.0, 2013-6-20
  */
-public enum ZeroEntry {
-
-	AllowLogin(true),
-	AllowBatchUpdate(false),
-	AllowDataImport(false),
-	AllowDataExport(false),
-    AllowCustomNav(true),
-    AllowCustomDataList(true),
-
-	;
-	
-	private boolean defaultVal;
-	
-	ZeroEntry(boolean defaultVal) {
-		this.defaultVal = defaultVal;
-	}
+public interface DataListControl {
 	
 	/**
-	 * 默认值
+	 * @return
+	 */
+	Entity getEntity();
+	
+	/**
+	 * 默认过滤条件
 	 * 
 	 * @return
 	 */
-	public boolean getDefaultVal() {
-		return defaultVal;
-	}
+	String getDefaultFilter();
+	
+	/**
+	 * JSON 结果集
+	 * 
+	 * @return
+	 */
+	JSON getJSONResult();
 }
