@@ -326,7 +326,7 @@ public class EasyMeta implements BaseMeta {
 		
 		Entity refEntity = firstField.getReferenceEntity();
 		Field secondField = refEntity.getField(fieldPath[1]);
-		return String.format("%s.%s", getLabel(refEntity), getLabel(secondField));
+		return String.format("%s.%s", getLabel(firstField), getLabel(secondField));
 	}
 	
 	/**

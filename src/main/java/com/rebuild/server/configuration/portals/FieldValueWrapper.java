@@ -26,7 +26,7 @@ import cn.devezhao.persist4j.metadata.MetadataException;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
-import com.rebuild.server.helper.datalist.DataWrapper;
+import com.rebuild.server.helper.datalist.DataListWrapper;
 import com.rebuild.server.helper.state.StateHelper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -45,7 +45,7 @@ import java.text.DecimalFormat;
  * @since 09/23/2018
  * 
  * @see FormsManager
- * @see DataWrapper
+ * @see DataListWrapper
  */
 public class FieldValueWrapper {
 

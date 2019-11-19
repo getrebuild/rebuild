@@ -237,7 +237,9 @@ public class QiniuCloud {
 	public static String parseFileName(String filePath) {
 		String filePath_s[] = filePath.split("/");
 		String fileName = filePath_s[filePath_s.length - 1];
-		fileName = fileName.substring(fileName.indexOf("__") + 2);
+		if (fileName.contains("__")) {
+			fileName = fileName.substring(fileName.indexOf("__") + 2);
+		}
 		return fileName;
 	}
 	

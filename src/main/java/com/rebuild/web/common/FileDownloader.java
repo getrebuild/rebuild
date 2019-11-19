@@ -22,6 +22,7 @@ import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseControll;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.BooleanUtils;
@@ -38,6 +39,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 
 /**
  * 文件下载/查看
@@ -95,7 +97,7 @@ public class FileDownloader extends BaseControll {
 
 		// Local storage || temp
 		if (!QiniuCloud.instance().available() || temp) {
-			setDownloadHeaders(response, fileName);
+			setDownloadHeaders(request, response, fileName);
 			writeLocalFile(filePath, temp, response);
 		} else {
 			String privateUrl = QiniuCloud.instance().url(filePath);
@@ -162,5 +164,25 @@ public class FileDownloader extends BaseControll {
 	public static void setDownloadHeaders(HttpServletResponse response, String attname) {
 		response.setHeader("Content-Disposition", "attachment;filename=" + attname);
 		response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+	}
+
+	/**
+	 * 设置下载 Header
+	 *
+	 * @param request
+	 * @param response
+	 * @param attname
+	 */
+	public static void setDownloadHeaders(HttpServletRequest request, HttpServletResponse response, String attname) {
+		// 火狐中文名乱码问题
+		if (AppUtils.isFirefox(request)) {
+			attname = CodecUtils.urlDecode(attname);
+			try {
+				attname = new String(attname.getBytes("utf-8"), "iso-8859-1");
+			} catch (UnsupportedEncodingException ignored) {
+				// NOOP
+			}
+		}
+		setDownloadHeaders(response, attname);
 	}
 }

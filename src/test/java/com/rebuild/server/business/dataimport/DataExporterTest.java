@@ -48,6 +48,6 @@ public class DataExporterTest extends TestSupport {
         query.put("fields", fields);
 
         File file = new DataExporter(query).setUser(UserService.ADMIN_USER).export();
-        System.out.println(fields);
+        System.out.println(file);
     }
 }

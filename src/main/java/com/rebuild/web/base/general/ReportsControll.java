@@ -89,7 +89,7 @@ public class ReportsControll extends BasePageControll {
                 attname = report.getName();
             }
 
-            FileDownloader.setDownloadHeaders(response, attname);
+            FileDownloader.setDownloadHeaders(request, response, attname);
             FileDownloader.writeLocalFile(report, response);
         }
     }

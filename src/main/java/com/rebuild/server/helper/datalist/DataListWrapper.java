@@ -42,11 +42,14 @@ import java.util.Map;
  * @author Zhao Fangfang
  * @since 1.0, 2013-6-20
  */
-public class DataWrapper {
+public class DataListWrapper {
 	
-	private static final Log LOG = LogFactory.getLog(DataWrapper.class);
-	
-	private static final String NO_READ_PRIVILEGES = "$NOPRIVILEGES$";
+	private static final Log LOG = LogFactory.getLog(DataListWrapper.class);
+
+	/**
+	 * 无权限标识
+	 */
+	public static final String NO_READ_PRIVILEGES = "$NOPRIVILEGES$";
 
 	private int total;
 	private Object[][] data;
@@ -64,7 +67,7 @@ public class DataWrapper {
 	 * @param selectFields
 	 * @param entity
 	 */
-	public DataWrapper(int total, Object[][] data, SelectItem[] selectFields, Entity entity) {
+	public DataListWrapper(int total, Object[][] data, SelectItem[] selectFields, Entity entity) {
 		this.total = total;
 		this.data = data;
 		this.selectFields = selectFields;

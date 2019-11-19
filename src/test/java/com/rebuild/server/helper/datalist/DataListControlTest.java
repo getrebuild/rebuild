@@ -30,7 +30,7 @@ import org.junit.Test;
  * @author zhaofang123@gmail.com
  * @since Jan 6, 2019
  */
-public class DataListTest extends TestSupportWithUser {
+public class DataListControlTest extends TestSupportWithUser {
 
     @Override
     protected ID getSessionUser() {
@@ -59,7 +59,7 @@ public class DataListTest extends TestSupportWithUser {
 
     @Test
     public void testQuery() throws Exception {
-        DataList dlc = new DefaultDataList(queryExpr, UserService.ADMIN_USER);
+        DataListControl dlc = new DefaultDataListControl(queryExpr, UserService.ADMIN_USER);
         System.out.println(dlc.getJSONResult());
     }
 

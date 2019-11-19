@@ -28,7 +28,6 @@ import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.web.admin.AdminEntryControll;
-import eu.bitwalker.useragentutils.Browser;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -156,15 +155,29 @@ public class AppUtils {
 	 * @return
 	 */
 	public static boolean isLessIE11(HttpServletRequest request) {
-		String userAgent = request.getHeader("user-agent");
-		Browser browser = Browser.parseUserAgentString(userAgent);
-		return browser == Browser.IE6 || browser == Browser.IE7 || browser == Browser.IE8 || browser == Browser.IE9 || browser == Browser.IE10;
+		String UA = request.getHeader("user-agent").toUpperCase();
+		return UA.contains("MSIE") &&
+				(UA.contains("MSIE 6") || UA.contains("MSIE 7") || UA.contains("MSIE 8") || UA.contains("MSIE 9") || UA.contains("MSIE 10"));
 	}
 
 	/**
+	 * 是否火狐
+	 *
+	 * @param request
+	 * @return
+	 */
+	public static boolean isFirefox(HttpServletRequest request) {
+		String UA = request.getHeader("user-agent").toUpperCase();
+		return UA.contains("FIREFOX");
+	}
+
+	/**
+	 * 权限判断
+	 *
 	 * @param request
 	 * @param entry
 	 * @return
+	 * @see com.rebuild.server.service.bizz.privileges.SecurityManager
 	 */
 	public static boolean allowed(HttpServletRequest request, ZeroEntry entry) {
 		return Application.getSecurityManager().allowed(getRequestUser(request), entry);

@@ -492,7 +492,7 @@ class DataExport extends RbFormHandler {
 
   render() {
     let _list = this.props.listRef
-    return <RbModal ref={(c) => this._dlg = c} title="数据导出" disposeOnHide={true} width="420">
+    return <RbModal ref={(c) => this._dlg = c} title="数据导出" disposeOnHide={true} width="480">
       <div className="pl-2 mb-4">
         <label className="custom-control custom-control-sm custom-radio">
           <input className="custom-control-input" name="dataRange" type="radio" checked={this.state.dataRange === '1'} value="1" onChange={this.handleChange} />
@@ -522,7 +522,7 @@ class DataExport extends RbFormHandler {
     $.post(`${rb.baseUrl}/app/entity/data-export-submit?dr=${dr}`, JSON.stringify(filter), (res) => {
       if (res.error_code === 0) {
         this.hide()
-        let url = `${rb.baseUrl}/filex/download/${$encode(res.data)}?temp=yes`
+        let url = `${rb.baseUrl}/filex/download/${res.data}?temp=yes`
         window.open(url)
       } else RbHighbar.error(res.error_msg)
     })

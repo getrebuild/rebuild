@@ -31,8 +31,10 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -45,7 +47,7 @@ import java.util.Set;
 public class QueryParser {
 	
 	private JSONObject queryExpr;
-	private DataList dataListControl;
+	private DataListControl dataListControl;
 	
 	private Entity entity;
 	
@@ -53,8 +55,12 @@ public class QueryParser {
 	private String countSql;
 	private int[] limit;
 	private boolean reload;
-	
+
+	// 连接字段（跨实体查询的字段）
 	private Map<String, Integer> queryJoinFields;
+
+	// 查询字段
+	private List<String> queryFields = new ArrayList<>();
 	
 	/**
 	 * @param queryExpr
@@ -67,7 +73,7 @@ public class QueryParser {
 	 * @param queryExpr
 	 * @param dataListControl
 	 */
-	public QueryParser(JSONObject queryExpr, DataList dataListControl) {
+	public QueryParser(JSONObject queryExpr, DataListControl dataListControl) {
 		this.queryExpr = queryExpr;
 		this.dataListControl = dataListControl;
 		this.entity = dataListControl != null ? 
@@ -93,10 +99,20 @@ public class QueryParser {
 	/**
 	 * @return
 	 */
-	protected Entity getEntity() {
+	public Entity getEntity() {
 		return entity;
 	}
-	
+
+	/**
+	 * 获取查询字段
+	 *
+	 * @return
+	 */
+	public List<String> getQueryFields() {
+		doParseIfNeed();
+		return queryFields;
+	}
+
 	/**
 	 * @return
 	 */
@@ -120,7 +136,7 @@ public class QueryParser {
 		doParseIfNeed();
 		return queryJoinFields;
 	}
-	
+
 	/**
 	 * 解析 SQL
 	 */
@@ -143,14 +159,16 @@ public class QueryParser {
 			if (field.split("\\.").length > 1) {
 				queryJoinFields.add(field.split("\\.")[0]);
 			}
+
+			this.queryFields.add(field);
 		}
 		
 		// 最后增加一个主键列
 		String pkName = entity.getPrimaryField().getName();
 		sqlBase.append(pkName);
 		fieldIndex++;
-		
-		// 查询关联项 ID 以验证权限
+
+		// NOTE 查询出关联记录 ID 以便验证权限
 		if (!queryJoinFields.isEmpty()) {
 			this.queryJoinFields = new HashMap<>();
 			for (String field : queryJoinFields) {

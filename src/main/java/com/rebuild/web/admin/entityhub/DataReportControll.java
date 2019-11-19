@@ -121,7 +121,7 @@ public class DataReportControll extends BasePageControll {
         File template = DataReportManager.instance.getTemplateFile(entity, reportId);
         File file = new ReportGenerator(template, (ID) random[0]).generate();
 
-        FileDownloader.setDownloadHeaders(response, file.getName());
+        FileDownloader.setDownloadHeaders(request, response, file.getName());
         FileDownloader.writeLocalFile(file, response);
     }
 
