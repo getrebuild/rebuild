@@ -161,17 +161,6 @@ public class AppUtils {
 	}
 
 	/**
-	 * 是否火狐
-	 *
-	 * @param request
-	 * @return
-	 */
-	public static boolean isFirefox(HttpServletRequest request) {
-		String UA = request.getHeader("user-agent").toUpperCase();
-		return UA.contains("FIREFOX");
-	}
-
-	/**
 	 * 权限判断
 	 *
 	 * @param request
