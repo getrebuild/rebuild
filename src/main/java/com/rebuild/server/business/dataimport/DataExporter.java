@@ -164,7 +164,7 @@ public class DataExporter extends SetUser<DataExporter> {
      */
     protected HorizontalCellStyleStrategy buildStyle() {
         WriteFont baseFont = new WriteFont();
-        baseFont.setFontHeightInPoints((short) 10);
+        baseFont.setFontHeightInPoints((short) 12);
         baseFont.setColor(IndexedColors.BLACK.getIndex());
 
         // 头
