@@ -27,6 +27,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
 import com.rebuild.server.configuration.DataReportManager;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
+import com.rebuild.server.helper.SetUser;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
@@ -53,12 +54,10 @@ import java.util.Map;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/08/13
  */
-public class ReportGenerator {
+public class ReportGenerator extends SetUser<ReportGenerator> {
 
     private File template;
     private ID record;
-
-    private ID user;
 
     /**
      * @param reportId
@@ -75,13 +74,6 @@ public class ReportGenerator {
     public ReportGenerator(File template, ID record) {
         this.template = template;
         this.record = record;
-    }
-
-    /**
-     * @param user
-     */
-    public void setUser(ID user) {
-        this.user = user;
     }
 
     /**
@@ -133,8 +125,7 @@ public class ReportGenerator {
         String sql = String.format("select %s from %s where %s = ?",
                 StringUtils.join(validFields, ","), entity.getName(), entity.getPrimaryField().getName());
 
-        Query query = this.user == null ?  Application.createQuery(sql)
-                : Application.getQueryFactory().createQuery(sql, this.user);
+        Query query = Application.getQueryFactory().createQuery(sql, this.getUser());
         Record record = query.setParameter(1, this.record).record();
 
         for (Iterator<String> iter = record.getAvailableFieldIterator(); iter.hasNext(); ) {
