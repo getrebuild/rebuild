@@ -252,7 +252,8 @@ public class UserService extends SystemEntityService {
 		
 		// 改变记录的所属部门
 		if (deptOld != null) {
-			TaskExecutors.submit(new ChangeOwningDeptTask(user, deptNew));
+			TaskExecutors.submit(
+					new ChangeOwningDeptTask(user, deptNew), Application.getCurrentUser());
 		}
 	}
 	

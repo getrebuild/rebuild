@@ -171,7 +171,7 @@ public class DataImportControll extends BasePageControll {
 		if (getBoolParameter(request, "preview")) {
 			// TODO 导入预览
 		} else {
-			String taskid = TaskExecutors.submit(importer);
+			String taskid = TaskExecutors.submit(importer, getRequestUser(request));
 			JSON ret = JSONUtils.toJSONObject("taskid", taskid);
 			writeSuccess(response, ret);
 		}

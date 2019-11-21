@@ -41,9 +41,7 @@ public class LoginTokenTest extends TestSupport {
 
         JSONObject ret = (JSONObject) new LoginToken().execute(apiContext);
         System.out.println(ret);
-
-        String loginToken = ret.getJSONObject("data").getString("login_token");
-        Assert.assertTrue(LoginToken.verifyToken(loginToken) != null);
+        Assert.assertTrue(ret.get("error_code") != null);
     }
 
     @Test

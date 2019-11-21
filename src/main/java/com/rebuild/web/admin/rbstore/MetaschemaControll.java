@@ -20,6 +20,7 @@ package com.rebuild.web.admin.rbstore;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.business.rbstore.MetaschemaImporter;
+import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.web.BaseControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,15 +43,15 @@ public class MetaschemaControll extends BaseControll {
 		ID user = getRequestUser(request);
 		String fileUrl = getParameterNotNull(request, "file");
 		
-		MetaschemaImporter importer = new MetaschemaImporter(user, fileUrl);
+		MetaschemaImporter importer = new MetaschemaImporter(fileUrl);
 		try {
 			String hasError = importer.verfiy();
 			if (hasError != null) {
 				writeFailure(response, hasError);
 				return;
 			}
-			
-			Object entityName = importer.exec();
+
+			Object entityName = TaskExecutors.exec(importer);
 			writeSuccess(response, entityName);
 		} catch (Exception ex) {
 			writeFailure(response, ex.getLocalizedMessage());

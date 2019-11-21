@@ -33,6 +33,7 @@ import com.hankcs.hanlp.HanLP;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.helper.BlackList;
+import com.rebuild.server.helper.SetUser;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserHelper;

@@ -73,19 +73,20 @@ public class DataImporter extends HeavyTask<Integer> {
 	
 	/**
 	 * @param rule
-	 * @param user
+	 * @param owningUser
 	 */
-	public DataImporter(ImportRule rule, ID user) {
+	public DataImporter(ImportRule rule, ID owningUser) {
 		this.rule = rule;
-		this.owningUser = rule.getDefaultOwningUser() == null ? user : rule.getDefaultOwningUser();
+		this.owningUser = rule.getDefaultOwningUser() == null ? owningUser : rule.getDefaultOwningUser();
 	}
 	
 	@Override
-	public Integer exec() throws Exception {
+	protected Integer exec() throws Exception {
 		try {
 			DataFileParser fileParser = new DataFileParser(rule.getSourceFile());
 			this.setTotal(fileParser.getRowsCount() - 1);
-			
+
+			// 指定所属用户
 			setThreadUser(this.owningUser);
 			IN_IMPORTING.set(owningUser);
 

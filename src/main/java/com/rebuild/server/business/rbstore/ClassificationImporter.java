@@ -39,7 +39,6 @@ import org.apache.commons.lang.StringUtils;
  */
 public class ClassificationImporter extends HeavyTask<Integer> {
 	
-	final private ID user;
 	final private ID dest;
 	final private String fileUrl;
 	
@@ -48,12 +47,10 @@ public class ClassificationImporter extends HeavyTask<Integer> {
 	private int affected = 0;
 	
 	/**
-	 * @param user
 	 * @param dest
 	 * @param fileUrl
 	 */
-	public ClassificationImporter(ID user, ID dest, String fileUrl) {
-		this.user = user;
+	public ClassificationImporter(ID dest, String fileUrl) {
 		this.dest = dest;
 		this.fileUrl = fileUrl;
 	}
@@ -63,7 +60,7 @@ public class ClassificationImporter extends HeavyTask<Integer> {
 	}
 	
 	@Override
-	public Integer exec() throws Exception {
+	protected Integer exec() throws Exception {
 		final JSONArray data = (JSONArray) RBStore.fetchClassification(fileUrl);
 		
 		Object[][] exists = Application.createQueryNoFilter(
@@ -83,7 +80,6 @@ public class ClassificationImporter extends HeavyTask<Integer> {
 			}
 		}
 		
-		this.setThreadUser(user);
 		this.setTotal(data.size());
 		
 		for (Object o : data) {
@@ -97,7 +93,7 @@ public class ClassificationImporter extends HeavyTask<Integer> {
 		String code = node.getString("code");
 		String name = node.getString("name");
 		
-		Record item = EntityHelper.forNew(EntityHelper.ClassificationData, this.user);
+		Record item = EntityHelper.forNew(EntityHelper.ClassificationData, this.getThreadUser());
 		item.setString("name", name);
 		if (StringUtils.isNotBlank(code)) {
 			item.setString("code", code);

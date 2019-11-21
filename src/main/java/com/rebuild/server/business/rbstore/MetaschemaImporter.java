@@ -22,7 +22,6 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.Dialect;
-import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.util.support.Table;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -60,29 +59,23 @@ public class MetaschemaImporter extends HeavyTask<String> {
 	
 	private static final Log LOG = LogFactory.getLog(MetaschemaImporter.class);
 	
-	final private ID user;
-	
 	final private String fileUrl;
 	private JSONObject remoteData;
 	
 	private List<Object[]> picklistHolders = new ArrayList<>();
 	
 	/**
-	 * @param user
 	 * @param fileUrl
 	 */
-	public MetaschemaImporter(ID user, String fileUrl) {
-		this.user = user;
+	public MetaschemaImporter(String fileUrl) {
 		this.fileUrl = fileUrl;
 		this.remoteData = null;
 	}
 	
 	/**
-	 * @param user
 	 * @param data
 	 */
-	public MetaschemaImporter(ID user, JSONObject data) {
-		this.user = user;
+	public MetaschemaImporter(JSONObject data) {
 		this.fileUrl = null;
 		this.remoteData = data;
 	}
@@ -134,11 +127,10 @@ public class MetaschemaImporter extends HeavyTask<String> {
 	}
 	
 	@Override
-	public String exec() throws Exception {
+	protected String exec() throws Exception {
 		this.readyRemoteData();
 		setTotal(100);
-		setThreadUser(this.user);
-		
+
 		String entityName = performEntity(remoteData, null);
 		Entity createdEntity = MetadataHelper.getEntity(entityName);
 		setCompleted(45);
@@ -150,7 +142,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 				setCompleted(90);
 			} catch (ModifiyMetadataException ex) {
 				// 出现异常，删除主实体
-				new Entity2Schema(this.user).dropEntity(createdEntity, true);
+				new Entity2Schema(this.getThreadUser()).dropEntity(createdEntity, true);
 				
 				throw ex;
 			}
@@ -174,7 +166,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 		String entityName = schemaEntity.getString("entity");
 		String entityLabel = schemaEntity.getString("entityLabel");
 		
-		Entity2Schema entity2Schema = new Entity2Schema(this.user);
+		Entity2Schema entity2Schema = new Entity2Schema(this.getThreadUser());
 		entity2Schema.createEntity(
 				entityName, entityLabel, schemaEntity.getString("comments"), masterEntityName, false);
 		Entity entity = MetadataHelper.getEntity(entityName);
@@ -218,7 +210,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 		String nameField = schemaEntity.getString("nameField");
 		if (nameField != null) {
 			EasyMeta easyMeta = EasyMeta.valueOf(entity);
-			Record updateNameField = EntityHelper.forUpdate(easyMeta.getMetaId(), this.user, false);
+			Record updateNameField = EntityHelper.forUpdate(easyMeta.getMetaId(), this.getThreadUser(), false);
 			updateNameField.setString("nameField", nameField);
 			Application.getCommonService().update(updateNameField);
 		}
@@ -248,7 +240,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 		JSON extConfig = schemaField.getJSONObject("extConfig");
 		
 		DisplayType dt = DisplayType.valueOf(displayType);
-		Field unsafeField = new Field2Schema(this.user).createUnsafeField(
+		Field unsafeField = new Field2Schema(this.getThreadUser()).createUnsafeField(
 				belong, fieldName, fieldLabel, dt,
 				schemaField.getBooleanValue("nullable"),
 				true,
@@ -281,7 +273,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 	}
 	
 	private void performLayout(String entity, String type, JSON config) {
-		Record record = EntityHelper.forNew(EntityHelper.LayoutConfig, user);
+		Record record = EntityHelper.forNew(EntityHelper.LayoutConfig, getThreadUser());
 		record.setString("belongEntity", entity);
 		record.setString("applyType", type);
 		record.setString("config", config.toJSONString());
@@ -290,7 +282,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 	}
 
 	private void performFilter(String entity, String filterName, JSON config) {
-		Record record = EntityHelper.forNew(EntityHelper.FilterConfig, user);
+		Record record = EntityHelper.forNew(EntityHelper.FilterConfig, getThreadUser());
 		record.setString("belongEntity", entity);
 		record.setString("filterName", filterName);
 		record.setString("config", config.toJSONString());

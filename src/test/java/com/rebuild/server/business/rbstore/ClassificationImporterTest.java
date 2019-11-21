@@ -22,6 +22,7 @@ import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.web.TestSupportWithMVC;
@@ -59,9 +60,8 @@ public class ClassificationImporterTest extends TestSupportWithMVC {
 	
 	@Test
 	public void test1Import() throws Exception {
-		ClassificationImporter importer = new ClassificationImporter(
-				UserService.ADMIN_USER, getClassification(), "CHINA-ICNEA.json");
-		importer.run();
+		ClassificationImporter importer = new ClassificationImporter(getClassification(), "CHINA-ICNEA.json");
+		TaskExecutors.run(importer.setThreadUser(UserService.SYSTEM_USER));
 		System.out.println("ClassificationImporter : " + importer.getTotal());
 	}
 	

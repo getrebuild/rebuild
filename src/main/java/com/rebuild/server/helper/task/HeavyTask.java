@@ -21,7 +21,7 @@ package com.rebuild.server.helper.task;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
-import com.rebuild.server.service.bizz.CurrentCaller;
+import com.rebuild.server.helper.SetUser;
 import com.rebuild.web.OnlineSessionStore;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,10 +30,13 @@ import java.util.Date;
 
 /**
  * 耗时操作可通过此类进行，例如大批量删除/修改等。此类提供了进度相关的约定，如总计执行条目，已完成条目/百分比。
- * 集成此类应该处理线程的 <code>isInterrupted</code> 方法，以便任务可以被终止 
- * 
+ * 集成此类应该处理线程的 <code>isInterrupted</code> 方法，以便任务可以被终止。
+ * 使用此类应该总是使用 TaskExecutors 调用。
+ *
  * @author devezhao
  * @since 09/29/2018
+ *
+ * @see TaskExecutors
  */
 public abstract class HeavyTask<T> implements Runnable {
 	
@@ -63,13 +66,24 @@ public abstract class HeavyTask<T> implements Runnable {
 	 * 
 	 * @param user
 	 * 
-	 * @see CurrentCaller
 	 * @see OnlineSessionStore
+	 * @see TaskExecutors#submit(HeavyTask, ID)
 	 * @see #completedAfter()
 	 */
-	protected void setThreadUser(ID user) {
+	public HeavyTask setThreadUser(ID user) {
 		this.userInThread = user;
 		Application.getSessionStore().set(user);
+		return this;
+	}
+
+	/**
+	 * 获取当前线程用户
+	 *
+	 * @return
+	 * @see SetUser#getUser()
+	 */
+	protected ID getThreadUser() {
+		return this.userInThread != null ? this.userInThread : Application.getCurrentUser();
 	}
 	
 	/**
@@ -93,7 +107,7 @@ public abstract class HeavyTask<T> implements Runnable {
 	}
 
 	/**
-	 * 子类应该在执行完毕后调用此方法。任何清空下，都应保证此方法被调用！
+	 * 子类应该在执行完毕后调用此方法。任何情况下，都应保证此方法被调用！
 	 */
 	protected void completedAfter() {
 		this.completedTime = CalendarUtils.now();
@@ -211,7 +225,7 @@ public abstract class HeavyTask<T> implements Runnable {
 	 * @return
 	 * @throws Exception
 	 */
-	abstract public T exec() throws Exception;
+	abstract protected T exec() throws Exception;
 	
 	/**
 	 * @return

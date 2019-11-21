@@ -312,7 +312,7 @@ public class GeneralEntityService extends ObservableService  {
 	public int bulk(BulkContext context) {
 		BulkOperator operator = buildBulkOperator(context);
 		try {
-			return operator.exec();
+			return (int) TaskExecutors.exec(operator);
 		} catch (RebuildException ex) {
 			throw ex;
 		} catch (Exception ex) {
@@ -323,7 +323,7 @@ public class GeneralEntityService extends ObservableService  {
 	@Override
 	public String bulkAsync(BulkContext context) {
 		BulkOperator operator = buildBulkOperator(context);
-		return TaskExecutors.submit(operator);
+		return TaskExecutors.submit(operator, context.getOpUser());
 	}
 	
 	/**
