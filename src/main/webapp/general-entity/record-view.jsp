@@ -22,7 +22,7 @@
 		<div class="col-sm-9 pr-0">
 			<div class="tab-container">
 				<ul class="nav nav-tabs">
-					<li class="nav-item"><a class="nav-link active" href="#tab-rbview">视图</a></li>
+					<li class="nav-item"><a class="nav-link active" href="#tab-rbview" data-toggle="tab">视图</a></li>
 					<a class="vtab-settings admin-show J_view-addons" data-type="TAB" title="配置显示项"><i class="zmdi zmdi-settings"></i></a>
 				</ul>
 				<div class="tab-content">

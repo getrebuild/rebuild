@@ -205,9 +205,52 @@ class SelectReport extends React.Component {
       return
     }
     let that = this
-    renderRbcomp(<SelectReport entity={entity} id={id} />, null, function () {
-      that.__cached = this
+    renderRbcomp(<SelectReport entity={entity} id={id} />, null, function () { that.__cached = this })
+  }
+}
+
+// ~ 相关项列表
+class RelatedList extends React.Component {
+  state = { ...this.props }
+
+  render() {
+    let _list = this.state.list || []
+    return <div className={`related-list ${!this.state.list ? 'rb-loading rb-loading-active' : ''}`}>
+      {!this.state.list && <RbSpinner />}
+      {(this.state.list && this.state.list.length === 0) && <div className="list-nodata"><span className="zmdi zmdi-info-outline" /><p>暂无相关数据</p></div>}
+      {_list.map((item) => {
+        return <div className="card" key={`rr-${item[0]}`}>
+          <div className="row">
+            <div className="col-10">
+              <a href={`#!/View/${this.props.entity}/${item[0]}`} onClick={this._handleView}>{item[1]}</a>
+            </div>
+            <div className="col-2 text-right">
+              <span className="fs-12 text-muted" title="最后修改时间">{item[2]}</span>
+            </div>
+          </div>
+        </div>
+      })}
+      {this.state.showMores
+        && <div className="text-center load-mores"><div><button type="button" className="btn btn-secondary" onClick={() => this.loadList(1)}>加载更多</button></div></div>}
+    </div>
+  }
+
+  componentDidMount = () => this.loadList()
+  loadList(plus) {
+    this.__pageNo = this.__pageNo || 1
+    if (plus) this.__pageNo += plus
+    const pageSize = 20
+    $.get(`${rb.baseUrl}/app/entity/related-list?masterId=${this.props.master}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}`, (res) => {
+      let _data = res.data.data || []
+      let _list = this.state.list || []
+      _list = _list.concat(_data)
+      this.setState({ list: _list, showMores: _data.length >= pageSize })
     })
+  }
+
+  _handleView = (e) => {
+    e.preventDefault()
+    RbViewPage.clickView(e.currentTarget)
   }
 }
 
@@ -296,90 +339,48 @@ const RbViewPage = {
   },
 
   // 相关项
+
+  // 列表
   initVTabs(config) {
     let that = this
-    let rs = []
+    that.__vtabEntities = []
     $(config).each(function () {
       let entity = this[0]
-      $('<li class="nav-item"><a class="nav-link" href="#tab-' + entity + '">' + this[1] + '</a></li>').appendTo('.nav-tabs')
-      let rl = $('<div class="tab-pane" id="tab-' + entity + '"><div class="related-list rb-loading rb-loading-active"></div></div>').appendTo('.tab-content')
-      rs.push(this[0])
-
-      let mores = $('<div class="text-center load-mores hide"><div><button type="button" class="btn btn-secondary">加载更多</button></div></div>').appendTo(rl)
-      rl = rl.find('.related-list')
-      mores.find('.btn').on('click', function () {
-        let pno = ~~($(this).attr('data-pno') || 1) + 1
-        $(this).attr('data-pno', pno)
-        that.renderRelatedGrid(rl, entity, pno)
+      that.__vtabEntities.push(entity)
+      let tabId = 'tab-' + entity
+      let tabNav = $('<li class="nav-item"><a class="nav-link" href="#' + tabId + '" data-toggle="tab">' + this[1] + '</a></li>').appendTo('.nav-tabs')
+      let tabPane = $('<div class="tab-pane" id="' + tabId + '"></div>').appendTo('.tab-content')
+      tabNav.find('a').click(function () {
+        tabPane.find('.related-list').length === 0 && renderRbcomp(<RelatedList entity={entity} master={that.__id} />, tabPane)
       })
     })
-    this.__vtab_es = rs
-
-    $('.nav-tabs li>a').on('click', function (e) {
-      e.preventDefault()
-      let $this = $(this)
-      let clickAgent = $this.attr('href') !== '#tab-rbview' && $(this).hasClass('show')
-      clickAgent = false
-      $this.tab('show')
-
-      let pane = $($this.attr('href')).find('.related-list')
-      if (pane.hasClass('rb-loading-active') || clickAgent) {
-        ReactDOM.render(<RbSpinner />, pane[0])
-        that.renderRelatedGrid(pane, $this.attr('href').substr(5))
-      }
-    })
-
-    $('.J_view-addons').click(function () {
-      let type = $(this).data('type')
-      RbModal.create(`${rb.baseUrl}/p/admin/entityhub/view-addons?entity=${that.__entity[0]}&type=${type}`, '配置' + (type === 'TAB' ? '显示项' : '新建项'))
-    })
-
     this.updateVTabs()
-  },
 
-  // 更新相关项记录数量
-  updateVTabs(es) {
-    es = es || this.__vtab_es
-    if (!es || es.length === 0) return
-    $.get(rb.baseUrl + '/app/entity/related-counts?masterId=' + this.__id + '&relateds=' + es.join(','), function (res) {
-      for (let k in res.data) {
-        if (~~res.data[k] > 0) {
-          let tab = $('.nav-tabs a[href="#tab-' + k + '"]')
-          if (tab.find('.badge').length > 0) tab.find('.badge').text(res.data[k])
-          else $('<span class="badge badge-pill badge-primary">' + res.data[k] + '</span>').appendTo(tab)
-        }
-      }
-    })
-  },
-
-  // 加载相关项
-  renderRelatedGrid(el, related, page) {
-    page = page || 1
-    let psize = 20
-    $.get(rb.baseUrl + '/app/entity/related-list?masterId=' + this.__id + '&related=' + related + '&pageNo=' + page + '&pageSize=' + psize, function (res) {
-      el.removeClass('rb-loading-active')
-      let _data = res.data.data
-      if (page === 1) {
-        el = el[0]
-        ReactDOM.unmountComponentAtNode(el)
-        if (!_data || _data.length === 0) {
-          ReactDOM.render(<div className="list-nodata"><span className="zmdi zmdi-info-outline" /><p>暂无数据</p></div>, el)
-          return
-        }
-      }
-
-      $(_data).each(function () {
-        let h = '#!/View/' + related + '/' + this[0]
-        $('<div class="card"><div class="float-left"><a href="' + h + '" onclick="RbViewPage.clickView(this)">' + this[1] + '</a></div><div class="float-right" title="最后修改时间">' + this[2] + '</div><div class="clearfix"></div></div>').appendTo(el)
+    // for Admin
+    if (rb.isAdminUser) {
+      $('.J_view-addons').click(function () {
+        let type = $(this).data('type')
+        RbModal.create(`${rb.baseUrl}/p/admin/entityhub/view-addons?entity=${that.__entity[0]}&type=${type}`, '配置' + (type === 'TAB' ? '显示项' : '新建项'))
       })
+    }
+  },
 
-      let mores = $(el).next('.load-mores')
-      if (_data.length >= psize) mores.removeClass('hide')
-      else mores.find('.btn').attr({ disabled: true }).text('已加载全部')
+  // 记录数量
+  updateVTabs(specEntities) {
+    specEntities = specEntities || this.__vtabEntities
+    if (!specEntities || specEntities.length === 0) return
+    $.get(`${rb.baseUrl}/app/entity/related-counts?masterId=${this.__id}&relateds=${specEntities.join(',')}`, function (res) {
+      for (let k in (res.data || {})) {
+        if (~~res.data[k] > 0) {
+          let tabNav = $('.nav-tabs a[href="#tab-' + k + '"]')
+          if (tabNav.find('.badge').length > 0) tabNav.find('.badge').text(res.data[k])
+          else $('<span class="badge badge-pill badge-primary">' + res.data[k] + '</span>').appendTo(tabNav)
+        }
+      }
     })
   },
 
-  // 新建相关
+  // 新建
   initVAdds(config) {
     let that = this
     $(config).each(function () {

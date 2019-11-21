@@ -46,7 +46,12 @@ class RbList extends React.Component {
                 <thead>
                   <tr>
                     {this.props.uncheckbox !== true && <th className="column-checkbox">
-                      <div><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={this.state.checkedAll} onClick={this.toggleAllRow} readOnly /><span className="custom-control-label"></span></label></div>
+                      <div>
+                        <label className="custom-control custom-control-sm custom-checkbox">
+                          <input className="custom-control-input" type="checkbox" checked={this.state.checkedAll} onClick={this.toggleAllRow} readOnly />
+                          <span className="custom-control-label"></span>
+                        </label>
+                      </div>
                     </th>}
                     {this.state.fields.map((item) => {
                       let cWidth = (item.width || that.__defaultColumnWidth)

@@ -334,7 +334,7 @@
 		<index field-list="recordId,channelWith" />
 	</entity>
 
-	<entity name="Feeds" type-code="040" description="动态" name-field="content">
+	<entity name="Feeds" type-code="040" description="动态" name-field="content" extra-attrs="{icon:'chart-donut'}">
 		<field name="feedsId" type="primary" />
 		<field name="type" type="small-int" nullable="false" updatable="false" default-value="1" description="类型" />
 		<field name="content" type="text" nullable="false" max-length="3000" description="内容" />
