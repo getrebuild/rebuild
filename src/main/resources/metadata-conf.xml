@@ -60,7 +60,7 @@
 
 	<entity name="Team" type-code="006" description="团队" name-field="name" extra-attrs="{icon:'case'}">
 		<field name="teamId" type="primary" />
-		<field name="name" type="string" max-length="100" nullable="false" description="组名称" />
+		<field name="name" type="string" max-length="100" nullable="false" description="团队名称" />
         <field name="principalId" type="reference" ref-entity="User" description="负责人" />
 		<field name="isDisabled" type="bool" default-value="F" description="是否停用" />
 		<field name="quickCode" type="string" max-length="70" />
