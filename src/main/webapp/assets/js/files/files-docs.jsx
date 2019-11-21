@@ -286,8 +286,8 @@ class FilesList2 extends FilesList {
     return <React.Fragment>
       {super.renderExtras(item)}
       <span className="op">
-        <a title="下载" onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank"><i className="icon zmdi zmdi-download fs-15 down-3"></i></a>
-        <a title="分享" onClick={(e) => this._share(item, e)}><span><i className="icon zmdi zmdi-share fs-14 down-2"></i></span></a>
+        <a title="下载" onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank"><i className="icon zmdi zmdi-download fs-15 down-2"></i></a>
+        <a title="分享" onClick={(e) => this._share(item, e)}><span><i className="icon zmdi zmdi-share fs-14 down-1"></i></span></a>
       </span>
     </React.Fragment>
   }

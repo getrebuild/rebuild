@@ -21,8 +21,8 @@
 						<div class="row rb-datatable-header">
 							<div class="col-12 col-md-6">
 								<div class="dataTables_filter">
-									<div class="input-group input-search" data-qfields="&user,user.loginName,user.email,ipAddr">
-										<input class="form-control" type="text" placeholder="查询${entityLabel}" maxlength="40">
+									<div class="input-group input-search">
+										<input class="form-control" type="text" placeholder="查询${entityLabel}" maxlength="40" data-fields="&user,user.loginName,user.email,ipAddr">
 										<span class="input-group-btn"><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button></span>
 									</div>
 								</div>

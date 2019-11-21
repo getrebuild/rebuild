@@ -100,7 +100,7 @@ class FeedsList extends React.Component {
     </div>)
   }
 
-  componentDidMount = () => this.fetchFeeds()
+  componentDidMount = () => this.props.fetchNow && this.fetchFeeds()
   /**
    * 加载数据
    * @param {*} filter AdvFilter
@@ -371,7 +371,7 @@ class Pagination extends React.Component {
 // 渲染动态内容
 function __renderRichContent(e) {
   // 表情和换行不在后台转换，因为不同客户端所需的格式不同
-  const contentHtml = converEmoji(e.content || '').replace(/\n/g, '<br>')
+  const contentHtml = converEmoji(e.content.replace(/\n/g, '<br>'))
   return <div className="rich-content">
     <div className="texts"
       dangerouslySetInnerHTML={{ __html: contentHtml }}
