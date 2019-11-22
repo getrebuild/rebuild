@@ -47,7 +47,7 @@ $(document).ready(function () {
       $('#logs tbody>tr').each(function () {
         let ipAddr = $(this).find('td:eq(3)')
         let ip = ipAddr.text()
-        $.get(rb.baseUrl + '/admin/bizuser/ip-location?ip=' + ip, (res) => {
+        $.get(rb.baseUrl + '/commons/ip-location?ip=' + ip, (res) => {
           if (res.error_code === 0 && res.data.country !== 'N') {
             let L = res.data.country === 'R' ? '局域网' : [res.data.region, res.data.country].join(', ')
             ipAddr.text(ip + ' (' + L + ')')
