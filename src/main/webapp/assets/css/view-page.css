@@ -137,10 +137,6 @@ body {
 	margin-bottom: 9px;
 }
 
-.view-operating {
-	padding-left: 30px;
-}
-
 .view-operating>div {
 	margin-bottom: 15px !important;
 }
@@ -189,15 +185,37 @@ body {
 	margin-bottom: 0 !important;
 }
 
-.view-user .row .col-md-8 {
+.view-date .col-lg-4,
+.view-user .col-lg-4 {
+	padding-right: 0;
+	color: #222;
+}
+
+.view-user .col-lg-8 {
 	min-height: 30px;
 	margin-top: -6px;
 	margin-bottom: 0;
+	padding-right: 0;
+	padding-left: 0;
+}
+
+.view-date .col-lg-8 {
+	padding-right: 0;
+	padding-left: 0;
+}
+
+@media screen and (max-width: 991px) {
+
+	.view-user .col-lg-8,
+	.view-date .col-lg-8 {
+		padding-left: 15px;
+		margin-top: 5px;
+	}
 }
 
 .view-user .row ul>li {
-	margin-bottom: 6px;
-	margin-right: 6px;
+	margin-bottom: 4.5px;
+	margin-right: 4.5px;
 }
 
 .view-user .row ul>li:last-child {

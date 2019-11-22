@@ -19,7 +19,7 @@
 </div>
 <div class="main-content container-fluid">
 	<div class="row">
-		<div class="col-sm-9 pr-0">
+		<div class="col-12 col-md-9">
 			<div class="tab-container">
 				<ul class="nav nav-tabs">
 					<li class="nav-item"><a class="nav-link active" href="#tab-rbview" data-toggle="tab">视图</a></li>
@@ -30,7 +30,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-sm-3 view-operating">
+		<div class="col-12 col-md-3 view-operating">
 			<div class="view-action row">
 				<div class="col-12 col-lg-6">
 					<button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
@@ -62,23 +62,23 @@
 			<div class="view-user">
 				<div class="form-line"><fieldset><legend>用户</legend></fieldset></div>
 				<dl class="row">
-					<dt class="col-12 col-md-4 pr-0">所属用户</dt>
-					<dd class="col-12 col-md-8 pl-0 pr-0 J_owningUser"></dd>
+					<dt class="col-12 col-lg-4">所属用户</dt>
+					<dd class="col-12 col-lg-8 J_owningUser"></dd>
 				</dl>
 				<dl class="row">
-					<dt class="col-12 col-md-4 pr-0">共享用户</dt>
-					<dd class="col-12 col-md-8 pl-0 pr-0 J_sharingList"></dd>
+					<dt class="col-12 col-lg-4">共享用户</dt>
+					<dd class="col-12 col-lg-8 J_sharingList"></dd>
 				</dl>
 			</div>
 			<div class="view-date">
 				<div class="form-line"><fieldset><legend>日期</legend></fieldset></div>
 				<dl class="row">
-					<dt class="col-12 col-md-4 pr-0">创建时间</dt>
-					<dd class="col-12 col-md-8 pl-0 J_createdOn"></dd>
+					<dt class="col-12 col-lg-4">创建时间</dt>
+					<dd class="col-12 col-lg-8 J_createdOn"></dd>
 				</dl>
 				<dl class="row">
-					<dt class="col-12 col-md-4 pr-0">修改时间</dt>
-					<dd class="col-12 col-md-8 pl-0 J_modifiedOn"></dd>
+					<dt class="col-12 col-lg-4">修改时间</dt>
+					<dd class="col-12 col-lg-8 J_modifiedOn"></dd>
 				</dl>
 			</div>
 		</div>

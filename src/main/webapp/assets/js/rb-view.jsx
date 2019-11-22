@@ -296,7 +296,7 @@ const RbViewPage = {
       if (ep.U === false) $('.J_edit, .J_add-slave').remove()
       if (ep.A === false) $('.J_assign').remove()
       if (ep.S === false) $('.J_share').remove()
-      that.__cleanButton()
+      that.cleanViewActionButton()
     }
   },
 
@@ -393,7 +393,7 @@ const RbViewPage = {
       })
       $('.J_adds .dropdown-divider').before(item)
     })
-    this.__cleanButton()
+    this.cleanViewActionButton()
   },
 
   // 通过父级页面打开
@@ -411,13 +411,14 @@ const RbViewPage = {
     return false
   },
 
-  __cleanButton() {
+  // 清理操作按钮
+  cleanViewActionButton() {
     $setTimeout(() => {
       $cleanMenu('.view-action .J_mores')
       $cleanMenu('.view-action .J_adds')
       $('.view-action .col-lg-6').each(function () { if ($(this).children().length === 0) $(this).remove() })
       if ($('.view-action').children().length === 0) $('.view-action').addClass('empty').empty()
-    }, 100, '__cleanButton')
+    }, 100, 'cleanViewActionButton')
   },
 
   // 隐藏划出的 View

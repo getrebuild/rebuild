@@ -45,6 +45,8 @@ class ApprovalProcessor extends React.Component {
 
   renderStateApproved() {
     $('.J_edit,.J_delete,.J_add-slave').remove()
+    window.RbViewPage && window.RbViewPage.cleanViewActionButton()
+
     return (<div className="alert alert-success shadow-sm">
       <button className="close btn btn-secondary" onClick={this.viewSteps}>详情</button>
       <div className="icon"><span className="zmdi zmdi-check"></span></div>
