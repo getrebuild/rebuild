@@ -41,13 +41,14 @@ class MessageList extends React.Component {
   }
 
   renderItem(item) {
-    const append = item[6] === 30
+    // const append = item[6] === 30
+    const append = item[5] && ~~item[5].substr(0, 3) !== 29  // 过滤审批步骤ID
     return <li className={`notification ${item[3] ? 'notification-unread' : ''} ${append ? 'append' : ''}`} key={item[4]} onClick={item[3] ? () => this._makeRead(item[4]) : null}><a>
       <div className="image"><img src={`${rb.baseUrl}/account/user-avatar/${item[0][0]}`} title={item[0][1]} alt="Avatar" /></div>
       <div className="notification-info">
         <div className="text" dangerouslySetInnerHTML={{ __html: item[1] }}></div>
         <div className="date">{item[2]}</div>
-        {append && <a className="badge link" href={`${rb.baseUrl}/app/list-and-view?id=${item[5]}`}>查看</a>}
+        {append && <a title="查看相关记录" className="badge link" href={`${rb.baseUrl}/app/list-and-view?id=${item[5]}`}>查看</a>}
       </div>
     </a></li>
   }
