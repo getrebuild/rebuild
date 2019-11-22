@@ -35,11 +35,14 @@ public class CommonCache extends BaseCacheTemplate<Serializable> {
 	 * 1小时缓存
 	 */
 	public static final int TS_HOUR = 60 * 60;
-
 	/**
 	 * 1天缓存
 	 */
-	public static final int TS_DAY = 24 * 60 * 60;
+	public static final int TS_DAY = 24 * TS_HOUR;
+	/**
+	 * 7天缓存
+	 */
+	public static final int TS_WEEK = 7 * TS_DAY;
 
 	protected CommonCache(JedisPool jedisPool, CacheManager cacheManager) {
 		super(jedisPool, cacheManager, "rb.");

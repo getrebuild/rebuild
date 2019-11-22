@@ -139,7 +139,7 @@ public class UserService extends SystemEntityService {
             throw new DataSpecificationException("密码不能小于6位");
         }
 
-        int policy = (int) SysConfiguration.getLong(ConfigurableItem.PasswordPolicy);
+        int policy = SysConfiguration.getInt(ConfigurableItem.PasswordPolicy);
         if (policy <= 1) {
             return;
         }

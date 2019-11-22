@@ -31,6 +31,7 @@ import com.rebuild.api.LoginToken;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.VCode;
+import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.bizz.UserService;
@@ -177,7 +178,7 @@ public class LoginControll extends BasePageControll {
 		retry = retry == null ? 0 : retry;
 		if (state == 1) {
 			retry += 1;
-			Application.getCommonCache().putx(key, retry, 60 * 30);  // cache 30 minutes
+			Application.getCommonCache().putx(key, retry, CommonCache.TS_HOUR);
 		}
 		return retry;
 	}

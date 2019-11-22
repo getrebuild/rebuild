@@ -28,6 +28,7 @@ import com.rebuild.server.metadata.MetadataHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.cache.CacheManager;
+import org.springframework.util.Assert;
 import redis.clients.jedis.JedisPool;
 
 /**
