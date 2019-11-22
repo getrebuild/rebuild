@@ -68,12 +68,7 @@ public class RobotTriggerObserver extends OperatingObserver {
      * @param when
      */
     protected void execAction(OperatingContext context, TriggerWhen when) {
-        ID effectId = context.getAnyRecord().getPrimary();
-        if (effectId.getEntityCode() == EntityHelper.ShareAccess) {
-            effectId = context.getAnyRecord().getID("recordId");
-        }
-
-        TriggerAction[] actions = RobotTriggerManager.instance.getActions(effectId, when);
+        TriggerAction[] actions = RobotTriggerManager.instance.getActions(getEffectId(context), when);
         if (actions.length == 0) {
             return;
         }
@@ -88,25 +83,22 @@ public class RobotTriggerObserver extends OperatingObserver {
         final ID currentUser = Application.getCurrentUser();
         try {
             for (TriggerAction action : actions) {
-                // 异步执行
-                if (action.useAsync()) {
 
-                    ThreadPool.exec(new Runnable() {
-                        @Override
-                        public void run() {
-                            Application.getSessionStore().set(currentUser);
-                            try {
-                                action.execute(context);
-                            } catch (Exception ex) {
-                                LOG.error("Failed Trigger : " + action + " << " + context, ex);
-                            } finally {
-                                Application.getSessionStore().clean();
-                            }
+                if (action.useAsync()) {
+                    // 异步执行
+
+                    ThreadPool.exec(() -> {
+                        Application.getSessionStore().set(currentUser);
+                        try {
+                            action.execute(context);
+                        } catch (Exception ex) {
+                            LOG.error("Failed Trigger : " + action + " << " + context, ex);
+                        } finally {
+                            Application.getSessionStore().clean();
                         }
                     });
-                }
-                // 手动开启一个新事物，不影响当前事物
-                else if (action.useNewTransaction()) {
+                } else if (action.useNewTransaction()) {
+                    // 手动开启一个新事物，不影响当前事物
 
                     TransactionStatus tx = TransactionManual.newTransaction();
                     try {
@@ -116,8 +108,8 @@ public class RobotTriggerObserver extends OperatingObserver {
                         TransactionManual.rollback(tx);
                         LOG.error("Failed Trigger : " + action + " << " + context, ex);
                     }
-
                 } else {
+
                     try {
                         action.execute(context);
                     } catch (DataSpecificationException ex) {
@@ -134,6 +126,20 @@ public class RobotTriggerObserver extends OperatingObserver {
                 setTriggerSource(null);
             }
         }
+    }
+
+    /**
+     * 获取实际影响的记录。
+     * 例如在共享时传入的 Record 是 ShareAccess，而实际影响的是其中的 recordId 记录
+     *
+     * @return
+     */
+    protected ID getEffectId(OperatingContext context) {
+        ID effectId = context.getAnyRecord().getPrimary();
+        if (effectId.getEntityCode() == EntityHelper.ShareAccess) {
+            effectId = context.getAnyRecord().getID("recordId");
+        }
+        return effectId;
     }
 
     // 删除做特殊处理
