@@ -54,7 +54,10 @@ public class ClassificationImporter extends HeavyTask<Integer> {
 		this.dest = dest;
 		this.fileUrl = fileUrl;
 	}
-	
+
+    /**
+     * @param forceClean
+     */
 	public void setForceClean(boolean forceClean) {
 		this.forceClean = forceClean;
 	}
@@ -93,7 +96,7 @@ public class ClassificationImporter extends HeavyTask<Integer> {
 		String code = node.getString("code");
 		String name = node.getString("name");
 		
-		Record item = EntityHelper.forNew(EntityHelper.ClassificationData, this.getThreadUser());
+		Record item = EntityHelper.forNew(EntityHelper.ClassificationData, this.getUser());
 		item.setString("name", name);
 		if (StringUtils.isNotBlank(code)) {
 			item.setString("code", code);

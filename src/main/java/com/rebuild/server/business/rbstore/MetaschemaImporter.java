@@ -142,7 +142,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 				setCompleted(90);
 			} catch (ModifiyMetadataException ex) {
 				// 出现异常，删除主实体
-				new Entity2Schema(this.getThreadUser()).dropEntity(createdEntity, true);
+				new Entity2Schema(this.getUser()).dropEntity(createdEntity, true);
 				
 				throw ex;
 			}
@@ -166,7 +166,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 		String entityName = schemaEntity.getString("entity");
 		String entityLabel = schemaEntity.getString("entityLabel");
 		
-		Entity2Schema entity2Schema = new Entity2Schema(this.getThreadUser());
+		Entity2Schema entity2Schema = new Entity2Schema(this.getUser());
 		entity2Schema.createEntity(
 				entityName, entityLabel, schemaEntity.getString("comments"), masterEntityName, false);
 		Entity entity = MetadataHelper.getEntity(entityName);
@@ -210,7 +210,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 		String nameField = schemaEntity.getString("nameField");
 		if (nameField != null) {
 			EasyMeta easyMeta = EasyMeta.valueOf(entity);
-			Record updateNameField = EntityHelper.forUpdate(easyMeta.getMetaId(), this.getThreadUser(), false);
+			Record updateNameField = EntityHelper.forUpdate(easyMeta.getMetaId(), this.getUser(), false);
 			updateNameField.setString("nameField", nameField);
 			Application.getCommonService().update(updateNameField);
 		}
@@ -240,7 +240,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 		JSON extConfig = schemaField.getJSONObject("extConfig");
 		
 		DisplayType dt = DisplayType.valueOf(displayType);
-		Field unsafeField = new Field2Schema(this.getThreadUser()).createUnsafeField(
+		Field unsafeField = new Field2Schema(this.getUser()).createUnsafeField(
 				belong, fieldName, fieldLabel, dt,
 				schemaField.getBooleanValue("nullable"),
 				true,
@@ -273,7 +273,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 	}
 	
 	private void performLayout(String entity, String type, JSON config) {
-		Record record = EntityHelper.forNew(EntityHelper.LayoutConfig, getThreadUser());
+		Record record = EntityHelper.forNew(EntityHelper.LayoutConfig, getUser());
 		record.setString("belongEntity", entity);
 		record.setString("applyType", type);
 		record.setString("config", config.toJSONString());
@@ -282,7 +282,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 	}
 
 	private void performFilter(String entity, String filterName, JSON config) {
-		Record record = EntityHelper.forNew(EntityHelper.FilterConfig, getThreadUser());
+		Record record = EntityHelper.forNew(EntityHelper.FilterConfig, getUser());
 		record.setString("belongEntity", entity);
 		record.setString("filterName", filterName);
 		record.setString("config", config.toJSONString());

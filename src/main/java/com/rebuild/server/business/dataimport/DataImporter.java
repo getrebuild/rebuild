@@ -86,8 +86,8 @@ public class DataImporter extends HeavyTask<Integer> {
 			DataFileParser fileParser = new DataFileParser(rule.getSourceFile());
 			this.setTotal(fileParser.getRowsCount() - 1);
 
-			// 指定所属用户
-			setThreadUser(this.owningUser);
+			// 指定的所属用户
+			setUser(this.owningUser);
 			IN_IMPORTING.set(owningUser);
 
 			int rowLine = 0;
@@ -324,7 +324,7 @@ public class DataImporter extends HeavyTask<Integer> {
 			return null;
 		}
 		
-		Query query = null;
+		Query query;
 		if (oEntity.getEntityCode() == EntityHelper.User) {
 			String sql = MessageFormat.format(
 					"select userId from User where loginName = ''{0}'' or email = ''{0}'' or fullName = ''{0}''",

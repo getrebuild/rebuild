@@ -154,13 +154,13 @@ public class TestSupport {
 		if (!MetadataHelper.containsEntity(Account)) {
 			URL url = TestSupport.class.getClassLoader().getResource("metaschema.Account.json");
 			String content = FileUtils.readFileToString(new File(url.toURI()));
-			TaskExecutors.exec(new MetaschemaImporter(JSON.parseObject(content)).setThreadUser(UserService.SYSTEM_USER));
+			TaskExecutors.exec(new MetaschemaImporter(JSON.parseObject(content)).setUser(UserService.SYSTEM_USER));
 		}
 		
 		if (!MetadataHelper.containsEntity(SalesOrder)) {
 			URL url = TestSupport.class.getClassLoader().getResource("metaschema.SalesOrder.json");
 			String content = FileUtils.readFileToString(new File(url.toURI()));
-			TaskExecutors.exec(new MetaschemaImporter(JSON.parseObject(content)).setThreadUser(UserService.SYSTEM_USER));
+			TaskExecutors.exec(new MetaschemaImporter(JSON.parseObject(content)).setUser(UserService.SYSTEM_USER));
 		}
 	}
 

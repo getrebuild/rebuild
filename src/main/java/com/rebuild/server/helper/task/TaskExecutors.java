@@ -51,7 +51,7 @@ public class TaskExecutors extends QuartzJobBean {
 	 * 提交给任务调度（异步执行）
 	 *
 	 * @param task
-	 * @param execUser 执行用户。因为实在线程中执行，所以必须指定
+	 * @param execUser 执行用户。因为是在线程中执行，所以必须指定
 	 * @return 任务 ID，可通过任务ID获取任务对象，或取消任务
 	 */
 	public static String submit(HeavyTask<?> task, ID execUser) {
@@ -62,7 +62,7 @@ public class TaskExecutors extends QuartzJobBean {
 		}
 		
 		String taskid = task.getClass().getSimpleName() + "-" + CodecUtils.randomCode(20);
-		task.setThreadUser(execUser);
+		task.setUser(execUser);
 		EXECS.execute(task);
 		TASKS.put(taskid, task);
 		return taskid;

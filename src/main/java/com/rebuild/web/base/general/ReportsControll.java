@@ -28,6 +28,7 @@ import com.rebuild.server.business.datareport.ReportGenerator;
 import com.rebuild.server.configuration.DataReportManager;
 import com.rebuild.server.configuration.portals.FormsBuilder;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 import com.rebuild.web.common.FileDownloader;
@@ -62,6 +63,7 @@ public class ReportsControll extends BasePageControll {
         mv.getModel().put("contentBody", model);
         mv.getModel().put("recordId", recordId);
         mv.getModel().put("printTime", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
+        mv.getModel().put("printUser", UserHelper.getName(user));
         return mv;
     }
 

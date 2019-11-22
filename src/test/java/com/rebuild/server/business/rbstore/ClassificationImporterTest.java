@@ -61,7 +61,7 @@ public class ClassificationImporterTest extends TestSupportWithMVC {
 	@Test
 	public void test1Import() throws Exception {
 		ClassificationImporter importer = new ClassificationImporter(getClassification(), "CHINA-ICNEA.json");
-		TaskExecutors.run(importer.setThreadUser(UserService.SYSTEM_USER));
+		TaskExecutors.run(importer.setUser(UserService.SYSTEM_USER));
 		System.out.println("ClassificationImporter : " + importer.getTotal());
 	}
 	

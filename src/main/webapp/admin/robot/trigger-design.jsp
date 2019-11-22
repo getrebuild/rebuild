@@ -29,14 +29,14 @@
 						<div class="timeline-content">
 						<form class="simple">
 							<div class="form-group row">
-								<label class="col-md-12 col-lg-3 col-form-label text-lg-right">源实体</label>
-								<div class="col-md-12 col-lg-9">
+								<label class="col-12 col-lg-3 col-form-label text-lg-right">源实体</label>
+								<div class="col-12 col-lg-9">
 									<div class="form-control-plaintext text-bold">${sourceEntityLabel}</div>
 								</div>
 							</div>
 							<div class="form-group row pt-0 pb-0">
-								<label class="col-md-12 col-lg-3 col-form-label text-lg-right">触发动作</label>
-								<div class="col-md-12 col-lg-9 pt-1 J_when">
+								<label class="col-12 col-lg-3 col-form-label text-lg-right">触发动作</label>
+								<div class="col-12 col-lg-9 pt-1 J_when">
 									<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
 										<input class="custom-control-input" type="checkbox" value="1">
 										<span class="custom-control-label"> 新建时</span>
@@ -76,8 +76,8 @@
 								</div>
 							</div>
 							<div class="form-group row">
-								<label class="col-md-12 col-lg-3 col-form-label text-lg-right">附加过滤条件</label>
-								<div class="col-md-12 col-lg-9 J_whenFilter">
+								<label class="col-12 col-lg-3 col-form-label text-lg-right">附加过滤条件</label>
+								<div class="col-12 col-lg-9 J_whenFilter">
 									<a class="btn btn-link pl-0 text-left">点击设置</a>
 									<p class="form-text mb-0 mt-0">符合过滤条件的数据才会被触发</p>
 								</div>
@@ -90,20 +90,20 @@
 						<div class="timeline-content">
 						<form class="simple">
 							<div class="form-group row">
-								<label class="col-md-12 col-lg-3 col-form-label text-lg-right">执行操作</label>
-								<div class="col-md-12 col-lg-9">
+								<label class="col-12 col-lg-3 col-form-label text-lg-right">执行操作</label>
+								<div class="col-12 col-lg-9">
 									<div class="form-control-plaintext text-bold">${actionTypeLabel}</div>
 								</div>
 							</div>
 							<div class="form-group row">
-								<label class="col-md-12 col-lg-3 col-form-label text-lg-right">操作内容</label>
-								<div class="col-md-12 col-lg-9">
+								<label class="col-12 col-lg-3 col-form-label text-lg-right">操作内容</label>
+								<div class="col-12 col-lg-9">
 									<div id="react-content">加载中...</div>
 								</div>
 							</div>
 							<div class="form-group row">
-								<label class="col-md-12 col-lg-3 col-form-label text-lg-right">执行优先级</label>
-								<div class="col-md-12 col-lg-9">
+								<label class="col-12 col-lg-3 col-form-label text-lg-right">执行优先级</label>
+								<div class="col-12 col-lg-9">
 									<input type="number" class="form-control form-control-sm" id="priority" value="${priority}" data-o="${priority}" style="max-width:200px" />
 									<p class="form-text mb-0">优先级高的会被先执行</p>
 								</div>
@@ -115,8 +115,8 @@
 						<div class="timeline-content">
 						<form class="simple">
 							<div class="form-group row footer">
-								<label class="col-md-12 col-lg-3 col-form-label text-lg-right"></label>
-								<div class="col-md-12 col-lg-9">
+								<label class="col-12 col-lg-3 col-form-label text-lg-right"></label>
+								<div class="col-12 col-lg-9">
 									<button class="btn btn-primary J_save" type="button">保存</button>
 								</div>
 							</div>

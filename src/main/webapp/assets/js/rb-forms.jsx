@@ -379,15 +379,31 @@ class RbFormReadonly extends RbFormElement {
     super(props)
   }
   renderElement() {
-    let text = this.props.value
-    if (this.props.type === 'REFERENCE' && text) text = text[1]
-    return <input className="form-control form-control-sm" type="text" readOnly value={text} />
+    let texted = this.props.value
+    if (texted) {
+      let type = this.props.type
+      if (type === 'REFERENCE') texted = texted[1]
+      else if (type === 'PICKLIST' || type === 'STATE') texted = this.__textedOptionValue(this.props.options, texted)
+    }
+    return <input className="form-control form-control-sm" type="text" readOnly value={texted} />
   }
   setValue() {
-    // DO NOTING
+    // NOOP
   }
   getValue() {
     return this.props.value
+  }
+
+  __textedOptionValue(options, value) {
+    let texted = null
+    $(options).each(function () {
+      // eslint-disable-next-line eqeqeq
+      if (this.id == value) {
+        texted = this.text
+        return false
+      }
+    })
+    return texted || `[${value.toUpperCase()}]`
   }
 }
 
