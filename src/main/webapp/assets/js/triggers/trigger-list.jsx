@@ -4,7 +4,7 @@ $(document).ready(function () {
   renderRbcomp(<TriggerList />, 'dataList')
 })
 
-const WHENS = { 1: '新建', 4: '更新', 2: '删除', 16: '分派', 32: '共享', 64: '取消共享', 128: '审核通过时', 256: '撤回重审时' }
+const WHENS = { 1: '新建', 4: '更新', 2: '删除', 16: '分派', 32: '共享', 64: '取消共享', 128: '审核通过', 256: '撤回重审' }
 const formatWhen = function (maskVal) {
   let as = []
   for (let k in WHENS) {
@@ -86,7 +86,8 @@ class TriggerEdit extends ConfigFormDlg {
       <div className="form-group row">
         <label className="col-sm-3 col-form-label text-sm-right">名称 (可选)</label>
         <div className="col-sm-7">
-          <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
+          <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''}
+            placeholder={`${this.props.id ? '未命名' : ''}`} />
         </div>
       </div>
       {this.props.id && <div className="form-group row">

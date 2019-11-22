@@ -197,7 +197,7 @@ public class FormsBuilder extends FormsManager {
 		}
 
 		// 自动只读字段
-		Set<String> autoReadonlyByTriggers = RobotTriggerManager.instance.getFieldsOfAutoReadonly(entityMeta);
+		Set<String> autoReadonlyByTriggers = RobotTriggerManager.instance.getAutoReadonlyFields(entity);
 		
 		// Check and clean
 		for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {

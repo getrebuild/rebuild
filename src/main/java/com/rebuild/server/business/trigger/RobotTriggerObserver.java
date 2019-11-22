@@ -22,6 +22,7 @@ import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.RobotTriggerManager;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.OperatingObserver;
@@ -67,7 +68,12 @@ public class RobotTriggerObserver extends OperatingObserver {
      * @param when
      */
     protected void execAction(OperatingContext context, TriggerWhen when) {
-        TriggerAction[] actions = RobotTriggerManager.instance.getActions(context.getAnyRecord().getPrimary(), when);
+        ID effectId = context.getAnyRecord().getPrimary();
+        if (effectId.getEntityCode() == EntityHelper.ShareAccess) {
+            effectId = context.getAnyRecord().getID("recordId");
+        }
+
+        TriggerAction[] actions = RobotTriggerManager.instance.getActions(effectId, when);
         if (actions.length == 0) {
             return;
         }

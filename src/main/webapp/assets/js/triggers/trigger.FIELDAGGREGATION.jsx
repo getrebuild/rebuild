@@ -74,18 +74,28 @@ class ContentFieldAggregation extends ActionContentSpec {
             </div>
           </div>
         </div>
-        <div className="form-group row">
+        <div className="form-group row pb-0">
           <label className="col-md-12 col-lg-3 col-form-label text-lg-right"></label>
           <div className="col-md-12 col-lg-9">
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
               <input className="custom-control-input" type="checkbox" ref={(c) => this._readonlyFields = c} />
-              <span className="custom-control-label text-bold">自动设置目标字段为只读</span>
+              <span className="custom-control-label">自动设置目标字段为只读</span>
             </label>
+          </div>
+        </div>
+        <div className="form-group row">
+          <label className="col-md-12 col-lg-3 col-form-label text-lg-right">聚合数据条件</label>
+          <div className="col-md-12 col-lg-9">
+            <a className="btn btn-sm btn-link pl-0 text-left down-2" onClick={this._dataAdvFilter}>
+              {this.state.dataFilterItems ? `已设置条件 (${this.state.dataFilterItems})` : '点击设置'}
+            </a>
+            <p className="form-text mb-0 mt-0">仅会聚合符合过滤条件的数据</p>
           </div>
         </div>
       </form>
     </div>
   }
+
   componentDidMount() {
     this.__select2 = []
     $.get(`${rb.baseUrl}/admin/robot/trigger/field-aggregation-entities?source=${this.props.sourceEntity}`, (res) => {
@@ -107,8 +117,12 @@ class ContentFieldAggregation extends ActionContentSpec {
       })
     })
 
-    $(this._readonlyFields).attr('checked', (this.props.content || {}).readonlyFields === true)
+    if (this.props.content) {
+      $(this._readonlyFields).attr('checked', this.props.content.readonlyFields === true)
+      this._saveAdvFilter(this.props.content.dataFilter)
+    }
   }
+
   __changeTargetEntity() {
     // 清空现有规则
     this.setState({ items: [] })
@@ -173,10 +187,29 @@ class ContentFieldAggregation extends ActionContentSpec {
   }
 
   buildContent() {
-    let _data = { targetEntity: $(this._targetEntity).val(), items: this.state.items, readonlyFields: $(this._readonlyFields).prop('checked') }
+    let _data = {
+      targetEntity: $(this._targetEntity).val(),
+      items: this.state.items,
+      readonlyFields: $(this._readonlyFields).prop('checked'),
+      dataFilter: this._advFilter__data
+    }
     if (!_data.targetEntity) { RbHighbar.create('请选择聚合目标实体'); return false }
     if (_data.items.length === 0) { RbHighbar.create('请至少添加 1 个聚合规则'); return false }
     return _data
+  }
+
+  _dataAdvFilter = () => {
+    let that = this
+    if (that._advFilter) that._advFilter.show()
+    else renderRbcomp(<AdvFilter title="数据过滤条件" inModal={true} canNoFilters={true}
+      entity={this.props.sourceEntity}
+      filter={that._advFilter__data}
+      confirm={that._saveAdvFilter} />, null, function () { that._advFilter = this })
+  }
+  _saveAdvFilter = (filter) => {
+    this._advFilter__data = filter
+    let num = filter && filter.items ? filter.items.length : 0
+    this.setState({ dataFilterItems: num })
   }
 }
 
