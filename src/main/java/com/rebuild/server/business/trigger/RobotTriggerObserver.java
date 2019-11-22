@@ -68,6 +68,9 @@ public class RobotTriggerObserver extends OperatingObserver {
      */
     protected void execAction(OperatingContext context, TriggerWhen when) {
         TriggerAction[] actions = RobotTriggerManager.instance.getActions(context.getAnyRecord().getPrimary(), when);
+        if (actions.length == 0) {
+            return;
+        }
 
         boolean cleanSource = true;
         if (getTriggerSource() != null) {
@@ -76,11 +79,12 @@ public class RobotTriggerObserver extends OperatingObserver {
             setTriggerSource(context);
         }
 
+        final ID currentUser = Application.getCurrentUser();
         try {
             for (TriggerAction action : actions) {
-
+                // 异步执行
                 if (action.useAsync()) {
-                    final ID currentUser = Application.getCurrentUser();
+
                     ThreadPool.exec(new Runnable() {
                         @Override
                         public void run() {
@@ -94,9 +98,10 @@ public class RobotTriggerObserver extends OperatingObserver {
                             }
                         }
                     });
+                }
+                // 手动开启一个新事物，不影响当前事物
+                else if (action.useNewTransaction()) {
 
-                } else if (action.useNewTransaction()) {
-                    // 手动开启一个新事物
                     TransactionStatus tx = TransactionManual.newTransaction();
                     try {
                         action.execute(context);

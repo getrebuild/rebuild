@@ -38,23 +38,39 @@
 								<label class="col-md-12 col-lg-3 col-form-label text-lg-right">触发动作</label>
 								<div class="col-md-12 col-lg-9 pt-1 J_when">
 									<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-										<input class="custom-control-input" type="checkbox" value="1"><span class="custom-control-label"> 新建时</span>
+										<input class="custom-control-input" type="checkbox" value="1">
+										<span class="custom-control-label"> 新建时</span>
 									</label>
 									<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-										<input class="custom-control-input" type="checkbox" value="4"><span class="custom-control-label"> 更新时</span>
+										<input class="custom-control-input" type="checkbox" value="4">
+										<span class="custom-control-label"> 更新时</span>
 									</label>
 									<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-										<input class="custom-control-input" type="checkbox" value="2"><span class="custom-control-label"> 删除时</span>
+										<input class="custom-control-input" type="checkbox" value="2">
+										<span class="custom-control-label"> 删除时</span>
 									</label>
 									<div class="mt-1">
 										<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-											<input class="custom-control-input" type="checkbox" value="16" ><span class="custom-control-label"> 分派时</span>
+											<input class="custom-control-input" type="checkbox" value="16">
+											<span class="custom-control-label"> 分派时</span>
 										</label>
 										<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-											<input class="custom-control-input" type="checkbox" value="32"><span class="custom-control-label"> 共享时</span>
+											<input class="custom-control-input" type="checkbox" value="32">
+											<span class="custom-control-label"> 共享时</span>
 										</label>
 										<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-											<input class="custom-control-input" type="checkbox" value="64"><span class="custom-control-label"> 取消共享时</span>
+											<input class="custom-control-input" type="checkbox" value="64">
+											<span class="custom-control-label"> 取消共享时</span>
+										</label>
+									</div>
+									<div class="mt-1">
+										<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+											<input class="custom-control-input" type="checkbox" value="128">
+											<span class="custom-control-label"> 审批通过时</span>
+										</label>
+										<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 hide">
+											<input class="custom-control-input" type="checkbox" value="256">
+											<span class="custom-control-label"> 撤回重审时 <i class="zmdi zmdi-help zicon down-1" title="审批通过后管理员可以撤回" data-toggle="tooltip"></i></span>
 										</label>
 									</div>
 								</div>

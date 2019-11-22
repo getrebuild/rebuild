@@ -39,7 +39,7 @@
 }
 
 #react-content {
-  background-color: #eee;
+  background-color: #f7f7f7;
   border-radius: 3px;
   padding: 20px;
 }
@@ -112,4 +112,8 @@
 .auto-share .select2-selection__rendered {
   display: block !important;
   padding: 0 8px !important;
+}
+
+.J_when label.custom-control {
+  min-width: 100px;
 }

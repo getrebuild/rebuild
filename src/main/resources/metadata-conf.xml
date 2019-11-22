@@ -202,7 +202,7 @@
 		<index field-list="toUser,type,createdOn" />
 	</entity>
 
-	<entity name="Attachment" type-code="023" description="附件">
+	<entity name="Attachment" type-code="023" description="附件" extra-attrs="{icon:'folder'}">
 		<field name="attachmentId" type="primary" />
 		<field name="belongEntity" type="small-int" default-value="0" updatable="false" />
 		<field name="belongField" type="string" max-length="100" updatable="false" />

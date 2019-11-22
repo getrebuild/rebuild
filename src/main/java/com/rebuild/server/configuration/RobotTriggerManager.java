@@ -25,6 +25,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.trigger.ActionContext;
 import com.rebuild.server.business.trigger.ActionFactory;
+import com.rebuild.server.business.trigger.ActionType;
 import com.rebuild.server.business.trigger.TriggerAction;
 import com.rebuild.server.business.trigger.TriggerWhen;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -33,7 +34,9 @@ import org.apache.commons.lang.StringUtils;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 触发器管理
@@ -165,5 +168,23 @@ public class RobotTriggerManager implements ConfigManager<Entity> {
 	public void clean(Entity cacheKey) {
 		final String cKey = "RobotTriggerManager-" + cacheKey.getName();
 		Application.getCommonCache().evict(cKey);
+	}
+
+	/**
+	 * 获取触发器中涉及的自动只读字段
+	 *
+	 * @param entity
+	 * @return
+	 */
+	public Set<String> getFieldsOfAutoReadonly(Entity entity) {
+		Set<String> fields = new HashSet<>();
+		for (ConfigEntry ce : getConfig(entity)) {
+			if (!ActionType.FIELDAGGREGATION.name().equalsIgnoreCase(ce.getString("actionType"))) {
+				continue;
+			}
+
+			// TODO System.out.println(ce.getJSON("actionContent"));
+		}
+		return fields;
 	}
 }

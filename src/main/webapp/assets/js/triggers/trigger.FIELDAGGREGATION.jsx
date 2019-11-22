@@ -21,6 +21,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                 </select>
               </div>
             </div>
+            {this.state.hadApproval && <div className="form-text text-danger"><i className="zmdi zmdi-alert-triangle fs-16 down-1"></i> 目标实体已启用审批流程，可能影响源实体操作（触发动作）</div>}
           </div>
         </div>
         <div className="form-group row">
@@ -69,8 +70,17 @@ class ContentFieldAggregation extends ActionContentSpec {
               </div>
             </div>
             <div className="mt-1">
-              <button type="button" className="btn btn-primary bordered" onClick={() => this.addItem()}>添加</button>
+              <button type="button" className="btn btn-primary btn-sm bordered" onClick={() => this.addItem()}>添加</button>
             </div>
+          </div>
+        </div>
+        <div className="form-group row">
+          <label className="col-md-12 col-lg-3 col-form-label text-lg-right"></label>
+          <div className="col-md-12 col-lg-9">
+            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+              <input className="custom-control-input" type="checkbox" ref={(c) => this._readonlyFields = c} />
+              <span className="custom-control-label text-bold">自动设置目标字段为只读</span>
+            </label>
           </div>
         </div>
       </form>
@@ -96,6 +106,8 @@ class ContentFieldAggregation extends ActionContentSpec {
         this.__select2.push(s2te)
       })
     })
+
+    $(this._readonlyFields).attr('checked', (this.props.content || {}).readonlyFields === true)
   }
   __changeTargetEntity() {
     // 清空现有规则
@@ -105,9 +117,9 @@ class ContentFieldAggregation extends ActionContentSpec {
     if (!te) return
     te = te.split('.')[1]
     $.get(`${rb.baseUrl}/admin/robot/trigger/field-aggregation-fields?source=${this.props.sourceEntity}&target=${te}`, (res) => {
+      this.setState({ hadApproval: res.data.hadApproval })
       if (this.state.targetFields) {
-        this.setState({ targetFields: res.data.target }, () => {
-        })
+        this.setState({ targetFields: res.data.target })
       } else {
         this.setState({ sourceFields: res.data.source, targetFields: res.data.target }, () => {
           let s2sf = $(this._sourceField).select2({ placeholder: '选择源字段' })
@@ -161,7 +173,7 @@ class ContentFieldAggregation extends ActionContentSpec {
   }
 
   buildContent() {
-    let _data = { targetEntity: $(this._targetEntity).val(), items: this.state.items }
+    let _data = { targetEntity: $(this._targetEntity).val(), items: this.state.items, readonlyFields: $(this._readonlyFields).prop('checked') }
     if (!_data.targetEntity) { RbHighbar.create('请选择聚合目标实体'); return false }
     if (_data.items.length === 0) { RbHighbar.create('请至少添加 1 个聚合规则'); return false }
     return _data

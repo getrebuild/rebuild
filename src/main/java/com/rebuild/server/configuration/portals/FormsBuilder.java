@@ -32,6 +32,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.RobotApprovalManager;
+import com.rebuild.server.configuration.RobotTriggerManager;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.helper.state.StateManager;
 import com.rebuild.server.metadata.DefaultValueHelper;
@@ -48,6 +49,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * 表单构造
@@ -192,6 +194,9 @@ public class FormsBuilder extends FormsManager {
 				return formatModelError("此记录已被删除，或你对此记录没有读取权限");
 			}
 		}
+
+		// 自动只读字段
+		Set<String> autoReadonlyByTriggers = RobotTriggerManager.instance.getFieldsOfAutoReadonly(entityMeta);
 		
 		// Check and clean
 		for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
@@ -217,12 +222,13 @@ public class FormsBuilder extends FormsManager {
 			el.put("type", dt.name());
 			el.put("nullable", fieldMeta.isNullable());
 			el.put("readonly", false);
-			
+
+			final boolean triggersReadonly = autoReadonlyByTriggers.contains(fieldName);
 			// 不可更新字段
-			if (data != null && !fieldMeta.isUpdatable()) {
+			if ((data != null && !fieldMeta.isUpdatable()) || triggersReadonly) {
 				el.put("readonly", true);
 			}
-			
+
 			// 针对字段的配置
 			
 			JSONObject fieldExt = easyField.getFieldExtConfig();
@@ -292,6 +298,8 @@ public class FormsBuilder extends FormsManager {
 					el.put("value", "自动值 (自动编号)");
 				} else if (dt == DisplayType.BOOL) {
 					el.put("value", BoolEditor.FALSE);
+				} else if (triggersReadonly) {
+					el.put("value", "自动值 (触发器)");
 				} else {
 					String defVal = DefaultValueHelper.exprDefaultValueToString(fieldMeta);
 					if (defVal != null) {

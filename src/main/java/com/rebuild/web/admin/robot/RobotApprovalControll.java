@@ -80,7 +80,7 @@ public class RobotApprovalControll extends BasePageControll {
 		String q = getParameter(request, "q");
 		String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn from RobotApprovalConfig" +
 				" where (1=1) and (2=2)" +
-				" order by name, modifiedOn desc";
+				" order by modifiedOn desc, name";
 
 		Object[][] array = DataReportControll.queryListOfConfig(sql, belongEntity, q);
 		writeSuccess(response, array);

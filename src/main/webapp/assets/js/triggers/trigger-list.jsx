@@ -4,7 +4,7 @@ $(document).ready(function () {
   renderRbcomp(<TriggerList />, 'dataList')
 })
 
-const WHENS = { 1: '新建', 4: '更新', 2: '删除', 16: '分派', 32: '共享', 64: '取消共享' }
+const WHENS = { 1: '新建', 4: '更新', 2: '删除', 16: '分派', 32: '共享', 64: '取消共享', 128: '审核通过时', 256: '撤回重审时' }
 const formatWhen = function (maskVal) {
   let as = []
   for (let k in WHENS) {

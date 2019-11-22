@@ -177,7 +177,7 @@ public class ApprovalControll extends BasePageControll {
 		String remark = post.getString("remark");
 		
 		try {
-			new ApprovalProcessor(approver, recordId)
+			new ApprovalProcessor(recordId)
 					.approve(approver, (ApprovalState) ApprovalState.valueOf(state), remark, selectUsers);
 			writeSuccess(response);
 		} catch (ApprovalException ex) {
