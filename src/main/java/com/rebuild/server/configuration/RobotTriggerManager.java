@@ -202,7 +202,7 @@ public class RobotTriggerManager implements ConfigManager<Entity> {
         CaseInsensitiveMap<String, Set<String>> fieldsMap = new CaseInsensitiveMap<>();
         for (Object[] o : array) {
             JSONObject content = JSON.parseObject((String) o[0]);
-            if (!content.getBoolean("readonlyFields")) continue;
+            if (content == null || !content.getBooleanValue("readonlyFields")) continue;
 
             String targetEntity = content.getString("targetEntity");
             targetEntity = targetEntity.split("\\.")[1];  // Field.Entity

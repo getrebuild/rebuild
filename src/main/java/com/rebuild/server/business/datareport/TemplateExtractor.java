@@ -24,7 +24,6 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
-import com.rebuild.utils.CellExt;
 import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -77,11 +76,11 @@ public class TemplateExtractor {
         int rowNum = 0;
         for (Cell[] row : rows) {
             for (Cell cell : row) {
-                String cellValue = cell.asString();
-                if (cellValue != null && cellValue.matches(regex)) {
-                    cellValue = cellValue.substring(2, cellValue.length() - 1);  // remove `${}`
-                    vars.add(cellValue);
-                    varsList.add(new CellExt(cellValue, ((CellExt) cell).getRowNo(), ((CellExt) cell).getColumnNo()));
+                if (!cell.isEmpty() && cell.asString().matches(regex)) {
+                    String varValue = cell.asString();
+                    varValue = varValue.substring(2, varValue.length() - 1);  // remove `${}`
+                    vars.add(varValue);
+                    varsList.add(new Cell(varValue, cell.getRowNo(), cell.getColumnNo()));
                 }
             }
             rowNum++;
