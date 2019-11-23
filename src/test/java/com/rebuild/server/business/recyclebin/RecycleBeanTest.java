@@ -20,27 +20,19 @@ package com.rebuild.server.business.recyclebin;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
-import com.rebuild.server.Application;
-import com.rebuild.server.TestSupport;
-import com.rebuild.server.service.bizz.UserService;
+import com.rebuild.server.TestSupportWithUser;
 import org.junit.Test;
 
 /**
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/08/21
  */
-public class RecycleBeanTest extends TestSupport {
+public class RecycleBeanTest extends TestSupportWithUser {
 
     @Test
     public void serialize() {
-        try {
-            Application.getSessionStore().set(UserService.ADMIN_USER);
-
-            ID test = addRecordOfTestAllFields();
-            JSON s = new RecycleBean(test).serialize();
-            System.out.println(s);
-        } finally {
-            Application.getSessionStore().clean();
-        }
+        ID test = addRecordOfTestAllFields();
+        JSON s = new RecycleBean(test).serialize();
+        System.out.println(s);
     }
 }
