@@ -63,6 +63,8 @@ public class MetaschemaImporter extends HeavyTask<String> {
 	private JSONObject remoteData;
 	
 	private List<Object[]> picklistHolders = new ArrayList<>();
+
+	private String finalEntityName = null;
 	
 	/**
 	 * @param fileUrl
@@ -152,10 +154,18 @@ public class MetaschemaImporter extends HeavyTask<String> {
 			Application.getBean(PickListService.class).updateBatch((Field) picklist[0], (JSONObject) picklist[1]);
 		}
 		setCompleted(100);
-		
+
+		this.finalEntityName = entityName;
 		return entityName;
 	}
-	
+
+	/**
+	 * @return
+	 */
+	public String getFinalEntityName() {
+		return finalEntityName;
+	}
+
 	/**
 	 * @param schemaEntity
 	 * @param masterEntityName

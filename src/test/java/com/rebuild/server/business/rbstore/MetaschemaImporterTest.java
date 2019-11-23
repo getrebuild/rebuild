@@ -50,7 +50,7 @@ public class MetaschemaImporterTest extends TestSupport {
 		}
 		
 		MetaschemaImporter importer = new MetaschemaImporter(data);
-		Object finalName = TaskExecutors.exec(importer.setUser(UserService.ADMIN_USER));
-		System.out.println("IMPORTED ... " + finalName);
+		TaskExecutors.run(importer.setUser(UserService.ADMIN_USER));
+		System.out.println("IMPORTED ... " + importer.getFinalEntityName());
 	}
 }

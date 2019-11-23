@@ -101,9 +101,11 @@ public class TaskExecutors extends QuartzJobBean {
 	}
 
 	/**
-	 * 直接执行此方法（同步方式）。有返回值，需要自行处理异常
+	 * 直接执行此方法（同步方式），有返回值。
+	 * 需要自行处理异常、需自行处理线程用户问题
 	 *
 	 * @param task
+	 * @see HeavyTask#run()
 	 */
 	public static Object exec(HeavyTask<?> task) throws Exception {
 		return task.exec();

@@ -164,7 +164,8 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask> implements Runnabl
 	}
 	
 	/**
-	 * 子类复写此方法进行实际的任务执行
+	 * 子类复写此方法进行实际的任务执行。
+	 * 不建议直接调用此方法，如直接调用请处理好线程用户问题
 	 * 
 	 * @return
 	 * @throws Exception
