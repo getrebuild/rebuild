@@ -19,19 +19,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server;
 
 import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.business.rbstore.MetaschemaImporter;
 import com.rebuild.server.helper.task.TaskExecutors;
-import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.Entity2Schema;
 import com.rebuild.server.metadata.entity.Field2Schema;
 import com.rebuild.server.service.bizz.UserService;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.AfterClass;
@@ -154,26 +151,25 @@ public class TestSupport {
 		if (!MetadataHelper.containsEntity(Account)) {
 			URL url = TestSupport.class.getClassLoader().getResource("metaschema.Account.json");
 			String content = FileUtils.readFileToString(new File(url.toURI()));
-			TaskExecutors.run(new MetaschemaImporter(JSON.parseObject(content)).setUser(UserService.ADMIN_USER));
+
+			MetaschemaImporter importer = new MetaschemaImporter(JSON.parseObject(content));
+			if (this instanceof  TestSupportWithUser) {
+				TaskExecutors.exec(importer);
+			} else {
+				TaskExecutors.run(importer.setUser(UserService.ADMIN_USER));
+			}
 		}
 		
 		if (!MetadataHelper.containsEntity(SalesOrder)) {
 			URL url = TestSupport.class.getClassLoader().getResource("metaschema.SalesOrder.json");
 			String content = FileUtils.readFileToString(new File(url.toURI()));
-			TaskExecutors.run(new MetaschemaImporter(JSON.parseObject(content)).setUser(UserService.ADMIN_USER));
-		}
-	}
 
-	/**
-	 * 添加一条测试记录。注意调用前设置线程用户 {@link Application#getSessionStore()}
-	 *
-	 * @return
-	 */
-	protected ID addRecordOfTestAllFields() {
-		final ID opUser = UserService.ADMIN_USER;
-		Entity test = MetadataHelper.getEntity(TEST_ENTITY);
-		Record record = EntityHelper.forNew(test.getEntityCode(), opUser);
-		record.setString("text", "TEXT-" + RandomUtils.nextLong());
-		return Application.getGeneralEntityService().create(record).getPrimary();
+			MetaschemaImporter importer = new MetaschemaImporter(JSON.parseObject(content));
+			if (this instanceof  TestSupportWithUser) {
+				TaskExecutors.exec(importer);
+			} else {
+				TaskExecutors.run(importer.setUser(UserService.ADMIN_USER));
+			}
+		}
 	}
 }

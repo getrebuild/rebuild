@@ -18,7 +18,7 @@ services:
 #    - master
 
 before_script:
-  - mysql -e "CREATE DATABASE rebuild10 DEFAULT CHARSET utf8 COLLATE utf8_general_ci;"
+  - mysql -e "CREATE DATABASE rebuild10 COLLATE utf8mb4_general_ci;"
   - mysql -e "CREATE USER 'rebuild'@'127.0.0.1' IDENTIFIED BY 'rebuild'; GRANT ALL PRIVILEGES ON rebuild10.* TO 'rebuild'@'127.0.0.1'; FLUSH PRIVILEGES;"
   - mysql -D rebuild10 < src/main/resources/scripts/db-init.sql
 
