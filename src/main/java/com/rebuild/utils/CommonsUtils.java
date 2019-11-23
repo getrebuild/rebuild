@@ -221,10 +221,11 @@ public class CommonsUtils {
 							return;
 						}
 
+						@SuppressWarnings("unchecked")
 						Map<Integer, String> dataMap = (Map<Integer, String>) data;
 						List<Cell> row = new ArrayList<>();
 						for (int i = 0; i < dataMap.size(); i++) {
-							row.add(new CellExt(dataMap.get(i), rowNo.get(), i));
+							row.add(new Cell(dataMap.get(i), rowNo.get(), i));
 						}
 						rows.add(row.toArray(new Cell[0]));
 						rowNo.incrementAndGet();

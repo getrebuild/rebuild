@@ -22,7 +22,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.server.helper.KVStorage;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.HashMap;
@@ -75,15 +75,16 @@ public class IncreasingVar extends SeriesVar {
 
 		int nextValue = 1;
 		synchronized (keyLock) {
-			Object val = SysConfiguration.getCustomValue(nameKey);
+			String val = KVStorage.getCustomValue(nameKey);
 			if (val != null) {
 				nextValue = ObjectUtils.toInt(val);
 			} else {
 				nextValue = countFromDb();
 			}
 			nextValue += 1;
+
 			// TODO 使用缓存，避免频繁更新数据库
-			SysConfiguration.setCustomValue(nameKey, nextValue);
+			KVStorage.setCustomValue(nameKey, nextValue);
 		}
 		return StringUtils.leftPad(nextValue + "", getSymbols().length(), '0');
 	}
@@ -100,7 +101,7 @@ public class IncreasingVar extends SeriesVar {
 			keyLock = LOCKs.computeIfAbsent(nameKey, k -> new Object());
 		}
 		synchronized (keyLock) {
-			SysConfiguration.setCustomValue(nameKey, 0);
+			KVStorage.setCustomValue(nameKey, 0);
 		}
 	}
 	

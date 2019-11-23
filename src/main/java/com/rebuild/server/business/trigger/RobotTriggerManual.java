@@ -1,6 +1,6 @@
 /*
 rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (C) 2018-2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,32 +16,33 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.utils;
+package com.rebuild.server.business.trigger;
 
-import cn.devezhao.commons.excel.Cell;
+import com.rebuild.server.service.OperatingContext;
 
 /**
- * 带行列索引的 Cell
+ * 手动触发，而非通过 ObservableService 规范触发
  *
  * @author devezhao
- * @since 2019/9/30
+ * @since 2019/11/22
  */
-public class CellExt extends Cell {
+public class RobotTriggerManual extends RobotTriggerObserver {
 
-    final private int rowNo;
-    final private int columnNo;
-
-    public CellExt(String cell, int rowNo, int columnNo) {
-        super(cell);
-        this.rowNo = rowNo;
-        this.columnNo = columnNo;
+    /**
+     * 审批通过触发
+     *
+     * @param context
+     */
+    public void onApproved(OperatingContext context) {
+        execAction(context, TriggerWhen.APPROVED);
     }
 
-    public int getRowNo() {
-        return rowNo;
-    }
-
-    public int getColumnNo() {
-        return columnNo;
+    /**
+     * 撤回重审触发
+     *
+     * @param context
+     */
+    public void onReapproval(OperatingContext context) {
+        execAction(context, TriggerWhen.REAPPROVAL);
     }
 }

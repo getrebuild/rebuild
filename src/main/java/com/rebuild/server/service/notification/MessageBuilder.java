@@ -45,6 +45,16 @@ public class MessageBuilder {
 		return new Message(null, toUser, message, null, Message.TYPE_DEFAULT);
 	}
 
+	/**
+	 * @param toUser
+	 * @param message
+	 * @param recordId
+	 * @return
+	 */
+	public static Message createMessage(ID toUser, String message, ID recordId) {
+		return new Message(null, toUser, message, recordId, Message.TYPE_DEFAULT);
+	}
+
     /**
 	 * @param fromUser
 	 * @param toUser

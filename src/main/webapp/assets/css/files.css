@@ -149,6 +149,10 @@
   background-color: #eee;
 }
 
+.upload-box.active {
+  background-color: #fff7c5;
+}
+
 .file-field.files .img-thumbnail {
   width: 100%;
   margin-right: 0;

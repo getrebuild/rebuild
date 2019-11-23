@@ -44,7 +44,7 @@ public class ApprovalProcessorTest extends TestSupportWithUser {
     public void testFlowGroup() throws Exception {
 		final ID recordNew = addRecordOfTestAllFields();
 		final ID approvalId = addApprovalConfig();
-        ApprovalProcessor processor = new ApprovalProcessor(UserService.ADMIN_USER, recordNew, approvalId);
+        ApprovalProcessor processor = new ApprovalProcessor(recordNew, approvalId);
 
         System.out.println("NextNode : " + processor.getNextNode());
         System.out.println("NextNodes : " + processor.getNextNodes());
@@ -56,7 +56,7 @@ public class ApprovalProcessorTest extends TestSupportWithUser {
     public void testApprove() throws Exception {
         final ID recordNew = addRecordOfTestAllFields();
 		final ID approvalId = addApprovalConfig();
-        ApprovalProcessor processor = new ApprovalProcessor(UserService.ADMIN_USER, recordNew, approvalId);
+        ApprovalProcessor processor = new ApprovalProcessor(recordNew, approvalId);
 
         // 提交
         processor.submit(null);

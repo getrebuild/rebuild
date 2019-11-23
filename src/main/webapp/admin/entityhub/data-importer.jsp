@@ -142,7 +142,7 @@
 											<div class="col-6 text-right text-muted">耗时 <span class="J_import_time">00:00:00</span></div>
 										</div>
 										<div class="progress">
-											<div class="progress-bar progress-bar-animated J_import-bar" style="width:0"></div>
+											<div class="progress-bar progress-bar-striped progress-bar-animated J_import-bar" style="width:0"></div>
 										</div>
 										<div class="mt-3">
 											<button class="btn btn-danger J_step3-cancel" type="button">终止导入</button>

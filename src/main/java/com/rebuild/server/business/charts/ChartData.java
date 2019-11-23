@@ -28,6 +28,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
+import com.rebuild.server.helper.SetUser;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
@@ -51,11 +52,10 @@ import java.util.Set;
  * @author devezhao
  * @since 12/14/2018
  */
-public abstract class ChartData implements ChartSpec {
+public abstract class ChartData extends SetUser<ChartData> implements ChartSpec {
 	
 	protected JSONObject config;
 
-	private ID user;
 	private boolean fromPreview = false;
 	// 额外的图表参数
 	private Map<String, Object> extraParams;
@@ -66,22 +66,6 @@ public abstract class ChartData implements ChartSpec {
 	protected ChartData(JSONObject config) {
 		this.config = config;
 	}
-
-    /**
-     * @return
-     */
-    protected ID getUser() {
-        return user == null ? Application.getCurrentUser() : user;
-    }
-
-    /**
-     * @param user
-     * @return
-     */
-    public ChartData setUser(ID user) {
-        this.user = user;
-        return this;
-    }
 
 	/**
 	 * @return

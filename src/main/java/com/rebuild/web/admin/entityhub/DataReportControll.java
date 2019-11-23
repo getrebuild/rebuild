@@ -128,6 +128,8 @@ public class DataReportControll extends BasePageControll {
     // --
 
     /**
+     * 查询配置列表
+     *
      * @param sql
      * @param belongEntity
      * @param q

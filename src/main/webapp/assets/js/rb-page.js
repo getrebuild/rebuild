@@ -221,7 +221,7 @@ var __globalSearch = function () {
 
   var activeModel
   var aModels = $('.search-models a').click(function () {
-    var s = $('.search-input').val()
+    var s = $('.search-input-gs').val()
     location.href = $(this).data('url') + '#gs=' + $encode(s)
   })
   if (aModels.length === 0) return
@@ -233,7 +233,7 @@ var __globalSearch = function () {
   $('.search-container input').on('focus', function (e) {
     $('.search-models').show()
   }).on('keydown', function (e) {
-    var s = $('.search-input').val()
+    var s = $('.search-input-gs').val()
     if (e.keyCode === 13 && s) location.href = activeModel.data('url') + '#gs=' + $encode(s)
   })
 }

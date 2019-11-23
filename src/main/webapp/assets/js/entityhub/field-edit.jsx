@@ -18,7 +18,7 @@ $(document).ready(function () {
     if (dv) {
       if (checkDefaultValue(dv, dt) === false) return
       else _data.defaultValue = dv
-    }
+    } else if (dv === '') _data.defaultValue = dv
 
     let extConfig = {}
     $(`.J_for-${dt} .form-control, .J_for-${dt} .custom-control-input`).each(function () {

@@ -51,7 +51,7 @@ public class UserStoreTest extends TestSupport {
 		Application.getUserStore().refreshUser(UserService.ADMIN_USER);
 		Application.getUserStore().refreshDepartment(DepartmentService.ROOT_DEPT);
 		Application.getUserStore().refreshRole(RoleService.ADMIN_ROLE);
-		Application.getUserStore().refreshRole(SIMPLE_TEAM);
+		Application.getUserStore().refreshTeam(SIMPLE_TEAM);
 	}
 	
 	@Test

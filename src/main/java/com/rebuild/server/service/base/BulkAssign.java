@@ -41,7 +41,7 @@ public class BulkAssign extends BulkOperator {
 	}
 
 	@Override
-	public Integer exec() {
+	protected Integer exec() {
 		ID[] records = prepareRecords();
 		this.setTotal(records.length);
 		

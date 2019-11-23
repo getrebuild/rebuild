@@ -22,6 +22,7 @@ import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.RobotTriggerManager;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.OperatingObserver;
@@ -67,7 +68,10 @@ public class RobotTriggerObserver extends OperatingObserver {
      * @param when
      */
     protected void execAction(OperatingContext context, TriggerWhen when) {
-        TriggerAction[] actions = RobotTriggerManager.instance.getActions(context.getAnyRecord().getPrimary(), when);
+        TriggerAction[] actions = RobotTriggerManager.instance.getActions(getEffectId(context), when);
+        if (actions.length == 0) {
+            return;
+        }
 
         boolean cleanSource = true;
         if (getTriggerSource() != null) {
@@ -76,27 +80,26 @@ public class RobotTriggerObserver extends OperatingObserver {
             setTriggerSource(context);
         }
 
+        final ID currentUser = Application.getCurrentUser();
         try {
             for (TriggerAction action : actions) {
 
                 if (action.useAsync()) {
-                    final ID currentUser = Application.getCurrentUser();
-                    ThreadPool.exec(new Runnable() {
-                        @Override
-                        public void run() {
-                            Application.getSessionStore().set(currentUser);
-                            try {
-                                action.execute(context);
-                            } catch (Exception ex) {
-                                LOG.error("Failed Trigger : " + action + " << " + context, ex);
-                            } finally {
-                                Application.getSessionStore().clean();
-                            }
+                    // 异步执行
+
+                    ThreadPool.exec(() -> {
+                        Application.getSessionStore().set(currentUser);
+                        try {
+                            action.execute(context);
+                        } catch (Exception ex) {
+                            LOG.error("Failed Trigger : " + action + " << " + context, ex);
+                        } finally {
+                            Application.getSessionStore().clean();
                         }
                     });
-
                 } else if (action.useNewTransaction()) {
-                    // 手动开启一个新事物
+                    // 手动开启一个新事物，不影响当前事物
+
                     TransactionStatus tx = TransactionManual.newTransaction();
                     try {
                         action.execute(context);
@@ -105,8 +108,8 @@ public class RobotTriggerObserver extends OperatingObserver {
                         TransactionManual.rollback(tx);
                         LOG.error("Failed Trigger : " + action + " << " + context, ex);
                     }
-
                 } else {
+
                     try {
                         action.execute(context);
                     } catch (DataSpecificationException ex) {
@@ -123,6 +126,20 @@ public class RobotTriggerObserver extends OperatingObserver {
                 setTriggerSource(null);
             }
         }
+    }
+
+    /**
+     * 获取实际影响的记录。
+     * 例如在共享时传入的 Record 是 ShareAccess，而实际影响的是其中的 recordId 记录
+     *
+     * @return
+     */
+    protected ID getEffectId(OperatingContext context) {
+        ID effectId = context.getAnyRecord().getPrimary();
+        if (effectId.getEntityCode() == EntityHelper.ShareAccess) {
+            effectId = context.getAnyRecord().getID("recordId");
+        }
+        return effectId;
     }
 
     // 删除做特殊处理

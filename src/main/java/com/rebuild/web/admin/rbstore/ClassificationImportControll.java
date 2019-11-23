@@ -46,8 +46,8 @@ public class ClassificationImportControll extends BaseControll {
 		ID dest = getIdParameterNotNull(request, "dest");
 		String fileUrl = getParameterNotNull(request, "file");
 		
-		ClassificationImporter importer = new ClassificationImporter(user, dest, fileUrl);
-		String taskid = TaskExecutors.submit(importer);
+		ClassificationImporter importer = new ClassificationImporter(dest, fileUrl);
+		String taskid = TaskExecutors.submit(importer, user);
 		writeSuccess(response, taskid);
 	}
 }

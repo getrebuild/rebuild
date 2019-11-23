@@ -114,8 +114,6 @@ public class AdvFilterParser {
 			String itemSql = parseItem(jo, values);
 			if (itemSql != null) {
 				indexItemSqls.put(index, itemSql.trim());
-			} else {
-				LOG.warn("Bad item of AdvFilter : " + jo.toJSONString());
 			}
 		}
 		if (indexItemSqls.isEmpty()) {
@@ -292,12 +290,13 @@ public class AdvFilterParser {
 		}
 
 		if (StringUtils.isBlank(value)) {
+		    LOG.warn("No search value defined");
 			return null;
 		}
 
 		// 快速搜索的占位符 {1}
 		if (value.matches("\\{\\d+\\}")) {
-			if (values == null) {
+			if (values == null || values.isEmpty()) {
 				return null;
 			}
 

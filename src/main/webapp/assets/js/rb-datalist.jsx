@@ -46,7 +46,12 @@ class RbList extends React.Component {
                 <thead>
                   <tr>
                     {this.props.uncheckbox !== true && <th className="column-checkbox">
-                      <div><label className="custom-control custom-control-sm custom-checkbox"><input className="custom-control-input" type="checkbox" checked={this.state.checkedAll} onClick={this.toggleAllRow} readOnly /><span className="custom-control-label"></span></label></div>
+                      <div>
+                        <label className="custom-control custom-control-sm custom-checkbox">
+                          <input className="custom-control-input" type="checkbox" checked={this.state.checkedAll} onClick={this.toggleAllRow} readOnly />
+                          <span className="custom-control-label"></span>
+                        </label>
+                      </div>
                     </th>}
                     {this.state.fields.map((item) => {
                       let cWidth = (item.width || that.__defaultColumnWidth)
@@ -128,7 +133,7 @@ class RbList extends React.Component {
     })
 
     // 首次由 AdvFilter 加载
-    if (wpc.advFilter !== true) this.fetchList(this.__buildQuick($('.input-search')))
+    if (wpc.advFilter !== true) this.fetchList(this.__buildQuick())
   }
 
   componentDidUpdate() {
@@ -282,7 +287,7 @@ class RbList extends React.Component {
 
   setAdvFilter(id) {
     this.advFilter = id
-    this.fetchList()
+    this.fetchList(this.__buildQuick())
 
     if (id) $storage.set(this.__defaultFilterKey, id)
     else $storage.remove(this.__defaultFilterKey)
@@ -317,14 +322,13 @@ class RbList extends React.Component {
     }
   }
   // @el - search element
-  searchQuick(el) {
-    this.search(this.__buildQuick(el))
-  }
+  searchQuick = (el) => this.search(this.__buildQuick(el))
 
   __buildQuick(el) {
-    let q = el.find('input').val()
+    el = $(el || '.input-search>input')
+    let q = el.val()
     if (!q && !this.lastFilter) return null
-    return { entity: this.props.config.entity, type: 'QUICK', values: { 1: q }, qfields: el.data('qfields') }
+    return { entity: this.props.config.entity, type: 'QUICK', values: { 1: q }, qfields: el.data('fields') }
   }
 
   reload() {
@@ -595,7 +599,7 @@ const RbListPage = {
     // Quick search
     const $btn = $('.input-search .btn'),
       $input = $('.input-search input')
-    $btn.click(() => this._RbList.searchQuick($('.input-search')))
+    $btn.click(() => this._RbList.searchQuick())
     $input.keydown((event) => { if (event.which === 13) $btn.trigger('click') })
   },
 
@@ -749,9 +753,9 @@ const AdvFilters = {
 // Init
 $(document).ready(() => {
   let gs = $urlp('gs', location.hash)
-  if (gs) $('.search-input, .input-search>input').val($decode(gs))
+  if (gs) $('.search-input-gs, .input-search>input').val($decode(gs))
   if (wpc.entity) {
-    RbListPage.init(wpc.listConfig, wpc.entity, wpc.privileges, gs)
+    RbListPage.init(wpc.listConfig, wpc.entity, wpc.privileges)
     if (!(wpc.advFilter === false)) AdvFilters.init('.adv-search', wpc.entity[0])
   }
 })

@@ -1,3 +1,4 @@
+/* global RbFormPickList, RbFormReadonly */
 // 内部用/暂未开放
 
 // 布尔 是/否
@@ -64,7 +65,7 @@ class RbFormAvatar extends RbFormElement {
       if (!mp) mp = new Mprogress({ template: 1, start: true })
       mp.set(res.percent / 100)  // 0.x
     }, function (res) {
-      if (mp) mp.end()
+      mp && mp.end()
       that.handleChange({ target: { value: res.key } }, true)
     })
   }
@@ -74,14 +75,12 @@ class RbFormAvatar extends RbFormElement {
 }
 
 // 状态
-// eslint-disable-next-line no-undef
 class RbFormState extends RbFormPickList {
   constructor(props) {
     super(props)
   }
 }
 // 审批状态
-// eslint-disable-next-line no-undef
 class RbApprovalState extends RbFormReadonly {
   constructor(props) {
     super(props)
@@ -95,7 +94,8 @@ var detectElementExt = function (item) {
   } else if (item.type === 'AVATAR') {
     return <RbFormAvatar {...item} />
   } else if (item.type === 'STATE') {
-    return item.field === 'approvalState' ? <RbApprovalState {...item} /> : <RbFormState {...item} />
+    if (item.field === 'approvalState') return <RbApprovalState {...item} />
+    else return item.readonly ? <RbFormReadonly {...item} /> : <RbFormState {...item} />
   }
   return null
 }

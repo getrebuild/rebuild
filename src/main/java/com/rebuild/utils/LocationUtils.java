@@ -95,7 +95,7 @@ public class LocationUtils {
             result.put("country", "N");
         }
 
-        Application.getCommonCache().putx("IPLocation2" + ip, result, CommonCache.TS_DAY * 7);
+        Application.getCommonCache().putx("IPLocation2" + ip, result, CommonCache.TS_WEEK);
         return result;
     }
 

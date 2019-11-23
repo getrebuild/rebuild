@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.user.account;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -109,4 +110,21 @@ public class AccountControll extends BaseEntityControll {
 		Application.getBean(UserService.class).update(record);
 		writeSuccess(response);
 	}
+
+    @RequestMapping("/settings/login-logs")
+    public void loginLogs(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ID user = getRequestUser(request);
+        Object[][] logs = Application.createQueryNoFilter(
+                "select loginTime,userAgent,ipAddr,logoutTime from LoginLog where user = ? order by loginTime desc")
+                .setParameter(1, user)
+                .setLimit(100)
+                .array();
+        for (Object[] o : logs) {
+            o[0] = CalendarUtils.getUTCDateTimeFormat().format(o[0]);
+            if (o[3] != null) {
+                o[3] = CalendarUtils.getUTCDateTimeFormat().format(o[3]);
+            }
+        }
+        writeSuccess(response, logs);
+    }
 }

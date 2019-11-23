@@ -5,12 +5,13 @@ class RbFeeds extends React.Component {
   state = { ...this.props }
 
   render() {
-    let gs = $urlp('gs', location.hash)
-    if (gs && gs.length === 20) gs = { field: 'feedsId', op: 'eq', value: gs }
-    else gs = null
+    let s = $urlp('s', location.hash)
+    if (s && s.length === 20) s = { field: 'feedsId', op: 'eq', value: s }
+    else s = null
+
     return <React.Fragment>
       <FeedsPost ref={(c) => this._post = c} call={this.search} />
-      <FeedsList ref={(c) => this._list = c} specFilter={gs} />
+      <FeedsList ref={(c) => this._list = c} specFilter={s} />
     </React.Fragment>
   }
   search = (filter) => this._list.fetchFeeds(filter)
@@ -80,8 +81,10 @@ const execFilter = function () {
 }
 
 $(document).ready(function () {
-  renderRbcomp(<RbFeeds />, 'rb-feeds', function () { rbFeeds = this })
+  let gs = $urlp('gs', location.hash)
+  if (gs) $('.search-input-gs, .J_search-key').val($decode(gs))
 
+  renderRbcomp(<RbFeeds />, 'rb-feeds', function () { rbFeeds = this })
   renderRbcomp(<GroupList hasAction={true} />, $('#collapseGroup .dept-tree'), function () { rbGroupList = this })
   renderRbcomp(<UserList />, $('#collapseUser .dept-tree'), function () { rbUserList = this })
 
@@ -142,5 +145,7 @@ $(document).ready(function () {
     }
     execFilter()
   })
+
+  execFilter()
 })
 

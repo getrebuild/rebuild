@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.helper.task;
 
 import cn.devezhao.commons.ThreadPool;
+import com.rebuild.server.service.bizz.UserService;
 import org.junit.Test;
 
 import java.util.concurrent.RejectedExecutionException;
@@ -32,10 +33,10 @@ public class HeavyTaskTest {
 
 	@Test
 	public void testTask() throws Exception {
-		String taskid1 = TaskExecutors.submit(new TestTask("testTask1", 5));
+		String taskid1 = TaskExecutors.submit(new TestTask("testTask1", 5), UserService.SYSTEM_USER);
 		System.out.println("Submit Task1 : " + taskid1);
 		
-		String taskid2 = TaskExecutors.submit(new TestTask("testTask2", 5));
+		String taskid2 = TaskExecutors.submit(new TestTask("testTask2", 5), UserService.SYSTEM_USER);
 		System.out.println("Submit Task2 : " + taskid2);
 		
 		ThreadPool.waitFor(1000);
@@ -52,7 +53,7 @@ public class HeavyTaskTest {
 	@Test(expected=RejectedExecutionException.class)
 	public void testRejected() throws Exception {
 		for (int i = 0; i < 30; i++) {
-			TaskExecutors.submit(new TestTask("testRejected", 2));
+			TaskExecutors.submit(new TestTask("testRejected", 2), UserService.SYSTEM_USER);
 		}
 	}
 	
@@ -60,7 +61,7 @@ public class HeavyTaskTest {
 	public void testCancel() throws Exception {
 		ThreadPool.waitFor(1000);  // Wait testRejected
 		
-		String taskid = TaskExecutors.submit(new TestTask("testCancel", 100));
+		String taskid = TaskExecutors.submit(new TestTask("testCancel", 100), UserService.SYSTEM_USER);
 		System.out.println("Submit Task : " + taskid);
 		
 		ThreadPool.waitFor(1000);

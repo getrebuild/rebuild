@@ -144,7 +144,7 @@ const step_mapping = () => {
     btn.button('reset')
     if (res.error_code > 0) { RbHighbar.create(res.error_msg); return }
     let _data = res.data
-    if (_data.count < 2 || _data.preview.length < 2 || _data.preview[0].length === 0) { RbHighbar.create('上传的文件无有效数据'); return }
+    if (_data.preview.length < 2 || _data.preview[0].length === 0) { RbHighbar.create('上传的文件无有效数据'); return }
 
     render_fieldsMapping(_data.preview[0], fields_cached)
     $('.steps li, .step-content .step-pane').removeClass('active complete')
@@ -236,6 +236,7 @@ const import_cancel = () => {
   })
 }
 
+// 渲染字段映射
 const render_fieldsMapping = (columns, fields) => {
   let fields_map = {}
   let fields_select = $('<select><option value="">无</option></select>')

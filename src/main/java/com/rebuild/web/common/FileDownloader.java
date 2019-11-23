@@ -22,7 +22,6 @@ import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.helper.SysConfiguration;
-import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseControll;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.BooleanUtils;
@@ -174,8 +173,9 @@ public class FileDownloader extends BaseControll {
 	 * @param attname
 	 */
 	public static void setDownloadHeaders(HttpServletRequest request, HttpServletResponse response, String attname) {
-		// 火狐中文名乱码问题
-		if (AppUtils.isFirefox(request)) {
+		// 火狐 Safari 中文名乱码问题
+        String UA = request.getHeader("user-agent").toUpperCase();
+		if (UA.contains("FIREFOX") || UA.contains("SAFARI")) {
 			attname = CodecUtils.urlDecode(attname);
 			try {
 				attname = new String(attname.getBytes("utf-8"), "iso-8859-1");

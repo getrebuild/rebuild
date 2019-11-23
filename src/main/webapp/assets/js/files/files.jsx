@@ -20,7 +20,7 @@ class FilesList extends React.Component {
           </div>
           <div className="type"><i className="file-icon" data-type={item.fileType}></i></div>
           <div className="detail">
-            <a title="点击查看文件" onClick={() => previewFile(item.filePath, item.relatedRecord ? item.relatedRecord[0] : null)}>{$fileCutName(item.filePath)}</a>
+            <a onClick={(e) => previewFile(e, item.filePath, item.relatedRecord ? item.relatedRecord[0] : null)}>{$fileCutName(item.filePath)}</a>
             <div className="extras">{this.renderExtras(item)}</div>
           </div>
           <div className="info">{item.uploadOn}</div>
@@ -63,7 +63,8 @@ class FilesList extends React.Component {
 }
 
 // 文件预览
-const previewFile = function (path, checkId) {
+const previewFile = function (e, path, checkId) {
+  $stopEvent(e)
   if (checkId) {
     $.get(`${rb.baseUrl}/files/check-readable?id=${checkId}`, (res) => {
       if (res.data) RbPreview.create(path)
@@ -84,6 +85,12 @@ $(document).ready(() => {
     $content.height($(window).height() - 147)
     $content.perfectScrollbar('update')
   })()
+
+  let gs = $urlp('gs', location.hash)
+  if (gs) {
+    currentSearch = $decode(gs)
+    $('.search-input-gs, .input-search input').val(currentSearch)
+  }
 
   $('.J_sort .dropdown-item').click(function () {
     let $this = $(this)

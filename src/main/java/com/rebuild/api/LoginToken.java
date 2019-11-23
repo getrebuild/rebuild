@@ -42,6 +42,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class LoginToken extends BaseApi {
 
+    // 有效期
     private static final int TOKEN_EXPIRES = 60;
 
     private static final RequestFrequencyCounter COUNTER = new RequestFrequencyCounter();

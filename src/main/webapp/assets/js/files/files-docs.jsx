@@ -85,7 +85,7 @@ class FileUploadDlg extends RbFormHandler {
 
   render() {
     return <RbModal title="上传文件" ref={(c) => this._dlg = c} disposeOnHide={true}>
-      <div className="form">
+      <div className="form" ref={(c) => this._dropArea = c}>
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">上传目录</label>
           <div className="col-sm-7">
@@ -133,6 +133,27 @@ class FileUploadDlg extends RbFormHandler {
       let files = this.state.files || []
       files.push(res.key)
       this.setState({ files: files })
+    })
+
+    // 拖拽上传
+    const $da = $(this._dropArea)
+    $da.on('dragenter', (e) => e.preventDefault())
+    $da.on('dragleave', (e) => {
+      e.preventDefault()
+      $da.find('.upload-box').removeClass('active')
+    })
+    $da.on('dragover', (e) => {
+      e.preventDefault()
+      $da.find('.upload-box').addClass('active')
+    })
+    let that = this
+    $da.on('drop', function (e) {
+      e.preventDefault()
+      let files = e.originalEvent.dataTransfer.files
+      if (!files || files.length === 0) return false
+      that._upload.files = files
+      $(that._upload).trigger('change')
+      $da.find('.upload-box').removeClass('active')
     })
   }
 
@@ -265,8 +286,8 @@ class FilesList2 extends FilesList {
     return <React.Fragment>
       {super.renderExtras(item)}
       <span className="op">
-        <a title="下载" onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank"><i className="icon zmdi zmdi-download fs-15 down-3"></i></a>
-        <a title="分享" onClick={(e) => this._share(item, e)}><span><i className="icon zmdi zmdi-share fs-14 down-2"></i></span></a>
+        <a title="下载" onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank"><i className="icon zmdi zmdi-download fs-15 down-2"></i></a>
+        <a title="分享" onClick={(e) => this._share(item, e)}><span><i className="icon zmdi zmdi-share fs-14 down-1"></i></span></a>
       </span>
     </React.Fragment>
   }

@@ -37,6 +37,7 @@ import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.bizz.privileges.PrivilegesGuardInterceptor;
+import com.rebuild.server.service.query.AdvFilterParser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -112,10 +113,17 @@ public class FieldAggregation implements TriggerAction {
 				return;
 			}
 		}
-		
+
+		// 聚合数据过滤
+        JSONObject dataFilter = ((JSONObject) context.getActionContent()).getJSONObject("dataFilter");
+		String dataFilterWhere = null;
+		if (dataFilter != null && !dataFilter.isEmpty()) {
+            dataFilterWhere = new AdvFilterParser(dataFilter).toSqlWhere();
+        }
+
 		// 更新目标
 		Record targetRecord = EntityHelper.forUpdate(targetRecordId, UserService.SYSTEM_USER, false);
-		
+
 		JSONArray items = ((JSONObject) context.getActionContent()).getJSONArray("items");
 		for (Object o : items) {
 			JSONObject item = (JSONObject) o;
@@ -126,12 +134,16 @@ public class FieldAggregation implements TriggerAction {
 				continue;
 			}
 
-			// 直接利用SQL计算结果
+			// 直接利用 SQL 函数计算结果
 			String calcMode = item.getString("calcMode");
 			String calcField = "COUNT".equalsIgnoreCase(calcMode) ? sourceEntity.getPrimaryField().getName() : sourceField;
 			
 			String sql = String.format("select %s(%s) from %s where %s = ?", 
 					calcMode, calcField, sourceEntity.getName(), followSourceField);
+            if (dataFilterWhere != null) {
+                sql += " and " + dataFilterWhere;
+            }
+
 			Object[] result = Application.createQueryNoFilter(sql).setParameter(1, targetRecordId).unique();
 			double calcValue = result == null || result[0] == null ? 0d : ObjectUtils.toDouble(result[0]);
 			

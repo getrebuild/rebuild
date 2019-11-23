@@ -18,19 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper;
 
-import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
-import com.rebuild.server.helper.cache.CommonCache;
-import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.bizz.UserService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
@@ -45,9 +36,7 @@ import java.util.List;
  * @since 10/14/2018
  * @see ConfigurableItem
  */
-public class SysConfiguration {
-	
-	private static final Log LOG = LogFactory.getLog(SysConfiguration.class);
+public final class SysConfiguration extends KVStorage {
 
 	/**
 	 * 获取数据目录下的文件（或目录）
@@ -102,7 +91,7 @@ public class SysConfiguration {
 	}
 	
 	/**
-	 * 获取配置文件 
+	 * 获取 classpath 下的配置文件
 	 * 
 	 * @param file
 	 * @return
@@ -166,7 +155,7 @@ public class SysConfiguration {
 	}
 
 	/**
-	 * 获取首页 URL
+	 * 获取绝对 URL
 	 *
 	 * @param path 可带有路径，会自动拼接
 	 * @return
@@ -203,8 +192,6 @@ public class SysConfiguration {
 		return list.toArray(new String[0]);
 	}
 
-	// --
-
 	/**
 	 * @param name
 	 * @return
@@ -226,9 +213,9 @@ public class SysConfiguration {
 	 * @param name
 	 * @return
 	 */
-	public static long getLong(ConfigurableItem name) {
+	public static int getInt(ConfigurableItem name) {
 		String s = get(name);
-		return s == null ? (Long) name.getDefaultValue() : NumberUtils.toLong(s);
+		return s == null ? (Integer) name.getDefaultValue() : NumberUtils.toInt(s);
 	}
 	
 	/**
@@ -247,85 +234,5 @@ public class SysConfiguration {
 	 */
 	public static void set(ConfigurableItem name, Object value) {
 		setValue(name.name(), value);
-	}
-
-	/**
-	 * @param key 会自动加 `custom.` 前缀
-	 * @return
-	 */
-	public static String getCustomValue(String key) {
-		return getValue("custom." + key, false, null);
-	}
-
-	/**
-	 * @param key 会自动加 `custom.` 前缀
-	 * @param value
-	 */
-	public static void setCustomValue(String key, Object value) {
-		setValue("custom." + key, value);
-	}
-	
-	/**
-	 * @param key
-	 * @param value
-	 */
-	private static void setValue(final String key, Object value) {
-		Object[] exists = Application.createQueryNoFilter(
-				"select configId from SystemConfig where item = ?")
-				.setParameter(1, key)
-				.unique();
-
-		Record record;
-		if (exists == null) {
-			record = EntityHelper.forNew(EntityHelper.SystemConfig, UserService.SYSTEM_USER);
-			record.setString("item", key);
-		} else {
-			record = EntityHelper.forUpdate((ID) exists[0], UserService.SYSTEM_USER);
-		}
-		record.setString("value", value.toString());
-
-		Application.getCommonService().createOrUpdate(record);
-		Application.getCommonCache().evict(key);
-	}
-
-	/**
-	 * @param key
-	 * @param reload
-	 * @param defaultValue
-	 * @return
-	 */
-	private static String getValue(final String key, boolean reload, Object defaultValue) {
-		if (!Application.serversReady()) {
-			return defaultValue == null ? null : defaultValue.toString();
-		}
-
-		String s = Application.getCommonCache().get(key);
-		if (s != null && !reload) {
-			return s;
-		}
-
-		// 1. 首先从数据库
-		Object[] fromDb = Application.createQueryNoFilter(
-				"select value from SystemConfig where item = ?")
-				.setParameter(1, key)
-				.unique();
-		s = fromDb == null ? null : StringUtils.defaultIfBlank((String) fromDb[0], null);
-
-		// 2. 从配置文件加载
-		if (s == null) {
-			s = Application.getBean(AesPreferencesConfigurer.class).getItem(key);
-		}
-
-		// 3. 默认值
-		if (s == null && defaultValue != null) {
-			s = defaultValue.toString();
-		}
-
-		if (s == null) {
-			Application.getCommonCache().evict(key);
-		} else {
-			Application.getCommonCache().put(key, s, CommonCache.TS_DAY);
-		}
-		return s;
 	}
 }

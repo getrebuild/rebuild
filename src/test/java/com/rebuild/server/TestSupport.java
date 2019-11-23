@@ -23,6 +23,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.business.rbstore.MetaschemaImporter;
+import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
@@ -45,6 +46,7 @@ import java.net.URL;
  * @author devezhao
  * @since 01/03/2019
  */
+@SuppressWarnings({"SameParameterValue", "ConstantConditions"})
 public class TestSupport {
 	
 	protected static final Log LOG = LogFactory.getLog(TestSupport.class);
@@ -152,13 +154,13 @@ public class TestSupport {
 		if (!MetadataHelper.containsEntity(Account)) {
 			URL url = TestSupport.class.getClassLoader().getResource("metaschema.Account.json");
 			String content = FileUtils.readFileToString(new File(url.toURI()));
-			new MetaschemaImporter(UserService.ADMIN_USER, JSON.parseObject(content)).exec();
+			TaskExecutors.run(new MetaschemaImporter(JSON.parseObject(content)).setUser(UserService.ADMIN_USER));
 		}
 		
 		if (!MetadataHelper.containsEntity(SalesOrder)) {
 			URL url = TestSupport.class.getClassLoader().getResource("metaschema.SalesOrder.json");
 			String content = FileUtils.readFileToString(new File(url.toURI()));
-			new MetaschemaImporter(UserService.ADMIN_USER, JSON.parseObject(content)).exec();
+			TaskExecutors.run(new MetaschemaImporter(JSON.parseObject(content)).setUser(UserService.ADMIN_USER));
 		}
 	}
 

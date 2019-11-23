@@ -25,15 +25,21 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.trigger.ActionContext;
 import com.rebuild.server.business.trigger.ActionFactory;
+import com.rebuild.server.business.trigger.ActionType;
 import com.rebuild.server.business.trigger.TriggerAction;
 import com.rebuild.server.business.trigger.TriggerWhen;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.query.AdvFilterParser;
+import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang.StringUtils;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 触发器管理
@@ -165,5 +171,50 @@ public class RobotTriggerManager implements ConfigManager<Entity> {
 	public void clean(Entity cacheKey) {
 		final String cKey = "RobotTriggerManager-" + cacheKey.getName();
 		Application.getCommonCache().evict(cKey);
+		Application.getCommonCache().evict(CKEY_TARF);
 	}
+
+    private static final String CKEY_TARF = "TriggersAutoReadonlyFields";
+	/**
+	 * 获取触发器中涉及的自动只读字段
+	 *
+	 * @param entity
+	 * @return
+	 */
+	public Set<String> getAutoReadonlyFields(String entity) {
+        @SuppressWarnings("unchecked")
+        Map<String, Set<String>> fieldsMap = (Map<String, Set<String>>) Application.getCommonCache().getx(CKEY_TARF);
+	    if (fieldsMap == null) {
+            fieldsMap = this.initAutoReadonlyFields();
+        }
+	    return fieldsMap.getOrDefault(entity, Collections.emptySet());
+	}
+
+    /**
+     * @return
+     */
+	private Map<String, Set<String>> initAutoReadonlyFields() {
+        Object[][] array = Application.createQueryNoFilter(
+                "select actionContent from RobotTriggerConfig where actionType = ? and isDisabled = 'F'")
+                .setParameter(1, ActionType.FIELDAGGREGATION.name())
+                .array();
+
+        CaseInsensitiveMap<String, Set<String>> fieldsMap = new CaseInsensitiveMap<>();
+        for (Object[] o : array) {
+            JSONObject content = JSON.parseObject((String) o[0]);
+            if (content == null || !content.getBooleanValue("readonlyFields")) continue;
+
+            String targetEntity = content.getString("targetEntity");
+            targetEntity = targetEntity.split("\\.")[1];  // Field.Entity
+
+            Set<String> fields = fieldsMap.computeIfAbsent(targetEntity, k -> new HashSet<>());
+            for (Object item : content.getJSONArray("items")) {
+                String targetField = ((JSONObject) item).getString("targetField");
+                fields.add(targetField);
+            }
+        }
+
+        Application.getCommonCache().putx(CKEY_TARF, fieldsMap);
+        return fieldsMap;
+    }
 }

@@ -20,6 +20,7 @@ package com.rebuild.server.helper.task;
 
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ThreadPool;
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
 import org.quartz.JobExecutionContext;
@@ -45,14 +46,15 @@ public class TaskExecutors extends QuartzJobBean {
 	private static final ExecutorService EXECS = Executors.newFixedThreadPool(EXECS_MAX);
 	
 	private static final Map<String, HeavyTask<?>> TASKS = new ConcurrentHashMap<>();
-	
+
 	/**
 	 * 提交给任务调度（异步执行）
-	 * 
+	 *
 	 * @param task
-	 * @return 任务 ID
+	 * @param execUser 执行用户。因为是在线程中执行，所以必须指定
+	 * @return 任务 ID，可通过任务ID获取任务对象，或取消任务
 	 */
-	public static String submit(HeavyTask<?> task) {
+	public static String submit(HeavyTask<?> task, ID execUser) {
 		ThreadPoolExecutor tpe = (ThreadPoolExecutor) EXECS;
 		int queueSize = tpe.getQueue().size();
 		if (queueSize > EXECS_MAX * 5) {
@@ -60,6 +62,7 @@ public class TaskExecutors extends QuartzJobBean {
 		}
 		
 		String taskid = task.getClass().getSimpleName() + "-" + CodecUtils.randomCode(20);
+		task.setUser(execUser);
 		EXECS.execute(task);
 		TASKS.put(taskid, task);
 		return taskid;
@@ -79,22 +82,33 @@ public class TaskExecutors extends QuartzJobBean {
 		ThreadPool.waitFor(500);
 		return task.isInterrupted();
 	}
-	
-	/**
-	 * 直接执行此方法（同步方式）
-	 * 
-	 * @param task
-	 */
-	public static void run(HeavyTask<?> task) {
-		task.run();
-	}
-	
+
 	/**
 	 * @param taskid
 	 * @return
 	 */
 	public static HeavyTask<?> getTask(String taskid) {
 		return TASKS.get(taskid);
+	}
+
+	/**
+	 * 直接执行此方法（同步方式）
+	 *
+	 * @param task
+	 */
+	public static void run(HeavyTask<?> task) {
+		task.run();
+	}
+
+	/**
+	 * 直接执行此方法（同步方式），有返回值。
+	 * 需要自行处理异常、需自行处理线程用户问题
+	 *
+	 * @param task
+	 * @see HeavyTask#run()
+	 */
+	public static Object exec(HeavyTask<?> task) throws Exception {
+		return task.exec();
 	}
 	
 	// --

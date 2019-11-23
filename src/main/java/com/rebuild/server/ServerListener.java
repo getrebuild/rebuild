@@ -47,8 +47,8 @@ public class ServerListener extends ContextLoaderListener {
 	@Override
 	public void contextInitialized(ServletContextEvent event) {
 		long at = System.currentTimeMillis();
-		LOG.info("Rebuild Booting ...");
-		
+		LOG.info("Rebuild Booting (" + Application.VER + ") ...");
+
 		CONTEXT_PATH = event.getServletContext().getContextPath();
 		LOG.debug("Detecting Rebuild context-path '" + CONTEXT_PATH + "'");
 
@@ -78,6 +78,7 @@ public class ServerListener extends ContextLoaderListener {
 	// --
 	
 	/**
+	 * WEB 相对路径
 	 * @return
 	 */
 	public static String getContextPath() {
@@ -85,6 +86,7 @@ public class ServerListener extends ContextLoaderListener {
 	}
 	
 	/**
+	 * 启动时间
 	 * @return
 	 */
 	public static Date getStartupTime() {

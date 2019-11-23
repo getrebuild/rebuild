@@ -74,7 +74,7 @@ public class SendNotification implements TriggerAction {
 		String message = content.getString("content");
 		message = formatMessage(message, context.getSourceRecord());
 		for (ID user : toUsers) {
-			Message m = MessageBuilder.createMessage(user, message);
+			Message m = MessageBuilder.createMessage(user, message, context.getSourceRecord());
 			Application.getNotifications().send(m);
 		}
 	}
@@ -91,7 +91,8 @@ public class SendNotification implements TriggerAction {
 	 */
 	private String formatMessage(String message, ID recordId) {
 		// TODO 处理变量
-		return message + " @" + recordId;
+//		return message + " @" + recordId;
+        return message;
 	}
 
 	@Override
