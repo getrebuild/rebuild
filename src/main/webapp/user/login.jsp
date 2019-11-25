@@ -92,14 +92,13 @@
 				</div>
 				<div class="splash-footer">
 					<div class="copyright">
-						<span>&copy; 2019 <a href="https://getrebuild.com/" target="_blank">${appName}</a></span>
+						<span>&copy; 2019 <a href="https://getrebuild.com/" target="_blank">REBUILD</a></span>
 						<div class="fs-12">Built on <%=ServerListener.getStartupTime()%> (<%=Application.VER%>)</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script>

@@ -196,6 +196,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 
 		reqUrl = reqUrl.replaceFirst(ServerListener.getContextPath(), "");
 		return reqUrl.startsWith("/gw/") || reqUrl.startsWith("/assets/") || reqUrl.startsWith("/error/")
-                || reqUrl.startsWith("/t/") || reqUrl.startsWith("/s/");
+                || reqUrl.startsWith("/t/") || reqUrl.startsWith("/s/")
+				|| reqUrl.startsWith("/setup/");
 	}
 }

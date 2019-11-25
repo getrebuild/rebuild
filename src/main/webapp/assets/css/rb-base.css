@@ -22947,36 +22947,6 @@ select.form-control-xs:not([size]):not([multiple]) {
     }
 }
 
-.splash-container.sign-up {
-    max-width: 433px;
-    margin: 10px auto
-}
-
-.splash-container.sign-up .card .card-header {
-    margin-bottom: 0
-}
-
-.signup-password.row {
-    padding: 0;
-    margin-bottom: 1.3842rem
-}
-
-.signup-password .btn {
-    width: 100%
-}
-
-.signup-password>div:first-child {
-    padding-right: 10px
-}
-
-.signup-password>div:last-child {
-    padding-left: 10px
-}
-
-.splash-container.forgot-password .card .card-header {
-    margin-bottom: 5px
-}
-
 .gallery-container .item {
     width: 25%;
     margin-bottom: 20px;
