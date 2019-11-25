@@ -20,6 +20,9 @@ package com.rebuild.web.setup;
 
 import cn.devezhao.commons.web.ServletUtils;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
+import com.rebuild.server.helper.setup.Installer;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,9 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
 
 /**
  * TODO
@@ -45,22 +46,28 @@ import java.util.Properties;
 public class InstallControll extends BasePageControll {
 
     @RequestMapping("install")
-    public ModelAndView pageIndex(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView pageIndex(HttpServletResponse response) throws IOException {
+        if (Application.serversReady()) {
+            response.sendError(404);
+            return null;
+        }
         return createModelAndView("/setup/install.jsp");
     }
 
     @RequestMapping("test-connection")
     public void testConnection(HttpServletRequest request, HttpServletResponse response) throws IOException {
         JSONObject dbProps = (JSONObject) ServletUtils.getRequestJson(request);
-        Properties props = new Installer(null).buildConnectionProps(dbProps, false);
 
-        try (Connection conn = DriverManager.getConnection(
-                props.getProperty("db.url"), props.getProperty("db.user"), props.getProperty("db.passwd"))) {
+        try (Connection conn = new Installer(JSONUtils.toJSONObject("databaseProps", dbProps)).getConnection(null)) {
             DatabaseMetaData dmd = conn.getMetaData();
             String msg = String.format("连接成功 : %s %s", dmd.getDatabaseProductName(), dmd.getDatabaseProductVersion());
             writeSuccess(response, msg);
         } catch (SQLException e) {
-            writeFailure(response, "连接错误 : " + e.getLocalizedMessage());
+            if (e.getLocalizedMessage().contains("Unknown database")) {
+                writeSuccess(response, "连接成功 : 数据库不存在，将自动创建");
+            } else {
+                writeFailure(response, "连接错误 : " + e.getLocalizedMessage());
+            }
         }
     }
 

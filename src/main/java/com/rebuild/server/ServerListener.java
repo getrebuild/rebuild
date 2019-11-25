@@ -21,14 +21,15 @@ package com.rebuild.server;
 import cn.devezhao.commons.CalendarUtils;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.server.helper.setup.Installer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 import java.util.Date;
 
 /**
@@ -37,46 +38,57 @@ import java.util.Date;
  * @author devezhao
  * @since 10/13/2018
  */
-public class ServerListener extends ContextLoaderListener {
+public class ServerListener implements ServletContextListener {
 
 	private static final Log LOG = LogFactory.getLog(ServerListener.class);
 
 	private static String CONTEXT_PATH = "";
 	private static Date STARTUP_TIME = CalendarUtils.now();
-	
+
+	private static ServletContextEvent eventHold;
+
 	@Override
 	public void contextInitialized(ServletContextEvent event) {
+	    if (event == null) event = eventHold;
+	    if (event == null) throw new IllegalStateException();
+
 		long at = System.currentTimeMillis();
 		LOG.info("Rebuild Booting (" + Application.VER + ") ...");
 
-		CONTEXT_PATH = event.getServletContext().getContextPath();
-		LOG.debug("Detecting Rebuild context-path '" + CONTEXT_PATH + "'");
+        CONTEXT_PATH = event.getServletContext().getContextPath();
+        LOG.debug("Detecting Rebuild context-path '" + CONTEXT_PATH + "'");
+        event.getServletContext().setAttribute("baseUrl", CONTEXT_PATH);
 
-		LOG.info("Initializing Spring context ...");
 		try {
-			super.contextInitialized(event);
-			WebApplicationContext wac = WebApplicationContextUtils.getWebApplicationContext(event.getServletContext());
-			new Application(wac).init(at);
+            if (!Installer.checkInstall()) {
+                eventHold = event;
+                LOG.warn(Application.formatFailure("REBUILD IS WAITING FOR INSTALL ..."));
+                return;
+            }
+
+            LOG.info("Initializing Spring context ...");
+            ApplicationContext ctx = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml" });
+            new Application(ctx).init(at);
 			STARTUP_TIME = CalendarUtils.now();
 
-			// 全局 EL 变量
-			event.getServletContext().setAttribute("baseUrl", CONTEXT_PATH);
 			event.getServletContext().setAttribute("appName", SysConfiguration.get(ConfigurableItem.AppName));
 			event.getServletContext().setAttribute("storageUrl", StringUtils.defaultIfEmpty(SysConfiguration.getStorageUrl(), ""));
 
+            eventHold = null;
+
 		} catch (Throwable ex) {
-			LOG.fatal("Rebuild Booting failure!!!", ex);
+		    ex.printStackTrace();
+            LOG.fatal(Application.formatFailure("REBUILD BOOTING FAILURE!!!"));
 		}
 	}
 
 	@Override
 	public void contextDestroyed(ServletContextEvent event) {
 		LOG.info("Rebuild shutdown ...");
-		super.contextDestroyed(event);
 	}
 	
 	// --
-	
+
 	/**
 	 * WEB 相对路径
 	 * @return

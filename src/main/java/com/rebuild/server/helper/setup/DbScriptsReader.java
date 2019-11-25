@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.helper.upgrade;
+package com.rebuild.server.helper.setup;
 
 import cn.devezhao.commons.ObjectUtils;
 import org.apache.commons.io.IOUtils;

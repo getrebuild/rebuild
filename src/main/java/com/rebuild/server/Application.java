@@ -32,6 +32,7 @@ import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.helper.cache.EhcacheTemplate;
 import com.rebuild.server.helper.cache.RecentlyUsedCache;
 import com.rebuild.server.helper.cache.RecordOwningCache;
+import com.rebuild.server.helper.setup.UpgradeDatabase;
 import com.rebuild.server.metadata.DynamicMetadataFactory;
 import com.rebuild.server.service.CommonService;
 import com.rebuild.server.service.EntityService;
@@ -45,6 +46,7 @@ import com.rebuild.utils.RbDateCodec;
 import com.rebuild.utils.RbRecordCodec;
 import com.rebuild.web.OnlineSessionStore;
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -74,7 +76,7 @@ public final class Application {
 	// 调试模式
 	private static boolean debugMode = false;
 	// 服务启动正常
-	private static boolean serverReady = false;
+	private static boolean serversReady = false;
 	
 	// SPRING
 	private static ApplicationContext APPLICATION_CTX;
@@ -96,16 +98,16 @@ public final class Application {
 	 */
 	synchronized
 	protected void init(long startAt) throws Exception {
-		serverReady = ServerStatus.checkAll();
-		if (!serverReady) {
-			LOG.fatal("\n###################################################################\n"
-					+ "\n  REBUILD BOOTING FAILURE DURING THE STATUS CHECKS."
-					+ "\n  PLEASE VIEW BOOTING LOGS."
-					+ "\n  Version : " + VER
-					+ "\n  OS      : " + SystemUtils.OS_NAME + " " + SystemUtils.OS_ARCH
-					+ "\n  Report an issue : "
-					+ "\n  https://github.com/getrebuild/rebuild/issues/new?title=error-boot"
-					+ "\n\n###################################################################");
+		serversReady = ServerStatus.checkAll();
+		if (!serversReady) {
+		    LOG.fatal(formatFailure(
+		            "REBUILD BOOTING FAILURE DURING THE STATUS CHECKS.",
+                    "PLEASE VIEW BOOTING LOGS.",
+                    "Version : " + VER,
+                    "OS      : " + SystemUtils.OS_NAME + " " + SystemUtils.OS_ARCH,
+                    "Report an issue :",
+                    "https://github.com/getrebuild/rebuild/issues/new?title=error-boot"
+            ));
 			return;
 		}
 
@@ -152,12 +154,25 @@ public final class Application {
 		LOG.info("Rebuild Boot successful in " + (System.currentTimeMillis() - startAt) + " ms");
 	}
 
+    /**
+     * 格式化重大消息
+     *
+     * @param msgs
+     * @return
+     */
+    protected static String formatFailure(String...msgs) {
+        return "\n###################################################################\n\n  "
+                + StringUtils.join(msgs, "\n  ") +
+                "\n\n###################################################################";
+    }
+
 	/**
 	 * FOR TESTING ONLY
 	 *
 	 * @return
 	 * @throws Exception
 	 */
+	synchronized
 	protected static ApplicationContext debug() throws Exception {
 		if (APPLICATION_CTX == null) {
 			debugMode = true;
@@ -183,8 +198,9 @@ public final class Application {
 	 * 
 	 * @return
 	 */
-	public static boolean serversReady() {
-		return serverReady;
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public static boolean serversReady() {
+		return serversReady;
 	}
 	
 	/**

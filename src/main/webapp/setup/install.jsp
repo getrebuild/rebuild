@@ -1,5 +1,4 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="com.rebuild.server.Application" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,8 +14,17 @@
 	padding-bottom: 15px;
 	text-align: left;
 }
-.card-body {
-	min-height: 242px;
+.splash-footer .btn.btn-link {
+    color: #555;
+}
+.splash-container .card .card-header {
+    padding: 30px 0;
+}
+.card-body h3 {
+    text-align: center;
+    color: #666;
+    margin: 30px 0;
+    padding: 0;
 }
 .rb-welcome li>a {
 	display: block;
@@ -29,29 +37,31 @@
 	outline: 1px solid #4285f4;
 }
 .rb-finish {
-	padding-top: 40px;
+	padding: 40px 0;
 }
 .rb-finish .zmdi.icon {
 	font-size: 48px;
 	color: #999;
 }
 </style>
-<title>安装程序</title>
+<title>REBUILD 安装程序</title>
 </head>
 <body class="rb-splash-screen">
 <div class="rb-wrapper">
 	<div class="rb-content">
 		<div class="main-content container-fluid">
 			<div class="splash-container rb-install">
-				<div class="card border-danger">
-					<div class="card-header"><a class="logo-img"></a></div>
+				<div class="card shadow-lg">
+					<div class="card-header bg-primary m-0"><a class="logo-img white"></a></div>
 					<div class="card-body pt-0">
-						<div class="rb-loading rb-loading-active must-center">
-							<jsp:include page="../_include/spinner.jsp"/>
-						</div>
+						<h2 class="text-center text-muted">请稍后 ...</h2>
 					</div>
 				</div>
-				<div class="copyright">&copy; 2019 <a href="https://getrebuild.com/" target="_blank">REBUILD</a> (<%=Application.VER%>)</div>
+				<div class="copyright">
+                    &copy; 2019 REBUILD
+                    &nbsp;·&nbsp;
+                    <a href="https://getrebuild.com/report-issue" target="_blank">安装遇到问题?</a>
+                </div>
 			</div>
 		</div>
 	</div>

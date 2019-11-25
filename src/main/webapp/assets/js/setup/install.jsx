@@ -17,13 +17,15 @@ class Setup extends React.Component {
       {this.state.stepNo === 3 && <SystemConf {...this.state.systemProps} $$$parent={this} />}
       {this.state.stepNo === 4 && <AdminConf {...this.state.adminProps} $$$parent={this} />}
       {this.state.stepNo === 10 && <div>
-        <div className="rb-finish">
-          <div className="text-center"><i className={`zmdi icon ${state[0]}`}></i></div>
-          <h2 className="text-center mb-5">{state[1]}</h2>
-          {(this.state.installState === 12 && this.state.installError) && <div className="alert alert-danger alert-icon alert-icon-border alert-sm">
-            <div className="icon"><span className="zmdi zmdi-close-circle-o"></span></div>
-            <div className="message">{this.state.installError}</div>
-          </div>}
+        <div className="rb-finish text-center">
+          <div><i className={`zmdi icon ${state[0]}`}></i></div>
+          <h2 className="mb-0">{state[1]}</h2>
+          {this.state.installState === 11 && <a className="btn btn-secondary mt-3" href="../user/login">立即登录</a>}
+          {(this.state.installState === 12 && this.state.installError) &&
+            <div className="alert alert-danger alert-icon alert-icon-border alert-sm mt-5 mb-0 text-left">
+              <div className="icon"><span className="zmdi zmdi-close-circle-o"></span></div>
+              <div className="message">{this.state.installError}</div>
+            </div>}
         </div>
       </div>}
     </div>
@@ -46,7 +48,7 @@ class RbWelcome extends React.Component {
   state = { ...this.props }
   render() {
     return <div className="rb-welcome pb-1">
-      <h2 className="text-center mb-5">选择安装模式</h2>
+      <h3>选择安装模式</h3>
       <ul className="list-unstyled">
         <li>
           <a onClick={() => this.props.$$$parent.setState({ installType: 1, stepNo: 2 })}>
@@ -57,7 +59,7 @@ class RbWelcome extends React.Component {
         <li>
           <a onClick={() => this.props.$$$parent.setState({ installType: 2, stepNo: 10 })}>
             <h5 className="m-0 text-bold">快速安装</h5>
-            <p className="m-0 mt-1 text-muted">将使用内建数据库执行默认安装，仅用于评估演示</p>
+            <p className="m-0 mt-1 text-muted">将使用内建数据库执行安装，仅用于评估演示</p>
           </a>
         </li>
       </ul>
@@ -69,9 +71,9 @@ class DatabaseConf extends React.Component {
   state = { ...this.props }
   render() {
     return <div className="rb-database">
-      <h2 className="text-center mb-5">设置数据库</h2>
+      <h3>设置数据库</h3>
       <form>
-        <div className="form-group row">
+        <div className="form-group row pt-0">
           <div className="col-sm-3 col-form-label text-sm-right">数据库类型</div>
           <div className="col-sm-7">
             <select className="form-control form-control-sm" name="dbType">
@@ -171,7 +173,7 @@ class SystemConf extends DatabaseConf {
   state = { ...this.props }
   render() {
     return <div className="rb-systems">
-      <h2 className="text-center mb-5">设置系统参数</h2>
+      <h3>设置系统参数</h3>
       <form>
         <div className="form-group row">
           <div className="col-sm-3 col-form-label text-sm-right">标题</div>
@@ -230,9 +232,9 @@ class AdminConf extends DatabaseConf {
   state = { ...this.props }
   render() {
     return <div className="rb-systems">
-      <h2 className="text-center mb-5">设置超级管理员</h2>
+      <h3>设置超级管理员</h3>
       <form>
-        <div className="form-group row">
+        <div className="form-group row pt-0">
           <div className="col-sm-3 col-form-label text-sm-right">管理员密码</div>
           <div className="col-sm-7">
             <input type="text" className="form-control form-control-sm" name="adminPasswd" value={this.state.adminPasswd || ''} onChange={this.handleValue} placeholder="admin" />

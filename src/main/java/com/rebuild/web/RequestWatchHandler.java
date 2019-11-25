@@ -24,6 +24,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
+import com.rebuild.server.helper.setup.Installer;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.admin.AdminEntryControll;
 import org.apache.commons.lang.StringUtils;
@@ -70,16 +71,21 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 		
 		// If server status is not passed
 		if (!Application.serversReady()) {
-			LOG.error("Server Unavailable : " + requestUrl);
-			
-			if (!requestUrl.contains("/gw/server-status")) {
-				response.sendRedirect(ServerListener.getContextPath() + "/gw/server-status?s=" + CodecUtils.urlEncode(requestUrl));
-				return false;
-			} 
-		}
-		
-		Application.getSessionStore().storeLastActive(request);
-		
+		    if (Installer.checkInstall()) {
+                LOG.error("Server Unavailable : " + requestUrl);
+
+                if (!requestUrl.contains("/gw/server-status")) {
+                    response.sendRedirect(ServerListener.getContextPath() + "/gw/server-status?s=" + CodecUtils.urlEncode(requestUrl));
+		            return false;
+                }
+            } else if (!requestUrl.contains("/setup/")) {
+		        response.sendRedirect(ServerListener.getContextPath() + "/setup/install");
+		        return false;
+            }
+		} else {
+            Application.getSessionStore().storeLastActive(request);
+        }
+
 		boolean chain = super.preHandle(request, response, handler);
 		if (chain) {
 			return verfiyPass(request, response);
@@ -95,8 +101,8 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 			HttpServletResponse response, Object handler, Exception exception)
 			throws Exception {
 		super.afterCompletion(request, response, handler, exception);
-		
-		final ID caller = Application.getSessionStore().get(true);
+
+		final ID caller = Application.serversReady() ? Application.getSessionStore().get(true) : null;
 		if (caller != null) {
 			Application.getSessionStore().clean();
 		}

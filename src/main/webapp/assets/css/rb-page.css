@@ -276,9 +276,14 @@ a.btn {
     font-size: 1.6rem
 }
 
+.alert-sm.alert-icon>.icon:after {
+    right: -7px;
+}
+
 .alert-sm>.message,
 .alert-icon.min>.message {
     padding: 0.8rem 0.8rem 0.8rem 1.3rem;
+    line-height: 20px;
 }
 
 .alert-sm .close,

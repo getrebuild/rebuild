@@ -1,6 +1,6 @@
 /*
 rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.web.setup;
+package com.rebuild.server.helper.setup;
 
 import com.rebuild.server.TestSupport;
 import org.junit.Test;
@@ -27,7 +27,7 @@ import static org.junit.Assert.*;
  * @author devezhao
  * @since 11/25/2019
  */
-public class InstallerTest  {
+public class InstallerTest extends TestSupport {
 
     @Test
     public void installScheme() throws Exception {

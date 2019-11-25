@@ -5,13 +5,8 @@
                       http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" version="3.1">
                       
 	<display-name>REBUILD</display-name>
-	<description>Building your business-systems freely</description>
-	
-	<context-param>
-		<param-name>contextConfigLocation</param-name>
-		<param-value>classpath:application-ctx.xml</param-value>
-	</context-param>
-	
+	<description>Building your business-systems freely!</description>
+
 	<listener>
 		<listener-class>com.rebuild.server.ServerListener</listener-class>
 	</listener>

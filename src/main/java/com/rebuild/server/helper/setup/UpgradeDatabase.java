@@ -16,12 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server;
+package com.rebuild.server.helper.setup;
 
 import cn.devezhao.commons.ObjectUtils;
+import com.rebuild.server.Application;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
-import com.rebuild.server.helper.upgrade.DbScriptsReader;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,8 +33,6 @@ import java.util.Map;
  * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/22
- * 
- * @see DbScriptsReader
  */
 public final class UpgradeDatabase {
 	
@@ -45,7 +43,7 @@ public final class UpgradeDatabase {
 	 * 
 	 * @throws Exception
 	 */
-	protected void upgrade() throws Exception {
+    public void upgrade() throws Exception {
 		final Map<Integer, String[]> scripts = new DbScriptsReader().read();
 		final int dbVer = getDbVer();
 		
@@ -77,7 +75,7 @@ public final class UpgradeDatabase {
 	 * 
 	 * @see #upgrade()
 	 */
-	protected void upgradeQuietly() {
+    public void upgradeQuietly() {
 		try {
 			upgrade();
 		} catch (Exception ex) {
