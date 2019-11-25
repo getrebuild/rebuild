@@ -18,22 +18,41 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.setup;
 
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.TestSupport;
+import com.rebuild.utils.JSONUtils;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 
 /**
  * @author devezhao
  * @since 11/25/2019
  */
-public class InstallerTest extends TestSupport {
+public class InstallerTest {
+
+    static final JSONObject USE_H2 = JSONUtils.toJSONObject("installType", 2);
 
     @Test
-    public void installScheme() throws Exception {
+    public void getDbInitScript() throws Exception {
         String[] scripts = new Installer(null).getDbInitScript();
         for (String s : scripts) {
             System.out.println(s);
         }
+    }
+
+    @Test
+    public void getConnection() throws Exception {
+        try (Connection conn = new Installer(USE_H2).getConnection(null)) {
+            DatabaseMetaData dmd = conn.getMetaData();
+            System.out.println(dmd.getDatabaseProductName() + " " + dmd.getDatabaseProductVersion());
+        }
+    }
+
+    @Test
+    public void installScheme() throws Exception {
+        new Installer(USE_H2).installScheme();
+//        new Installer(USE_H2).install();
     }
 }

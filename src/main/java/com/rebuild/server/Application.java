@@ -106,7 +106,7 @@ public final class Application {
                     "Version : " + VER,
                     "OS      : " + SystemUtils.OS_NAME + " " + SystemUtils.OS_ARCH,
                     "Report an issue :",
-                    "https://github.com/getrebuild/rebuild/issues/new?title=error-boot"
+                    "https://getrebuild.com/report-issue?title=error-boot"
             ));
 			return;
 		}

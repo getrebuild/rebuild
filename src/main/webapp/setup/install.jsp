@@ -60,7 +60,7 @@
 				<div class="copyright">
                     &copy; 2019 REBUILD
                     &nbsp;·&nbsp;
-                    <a href="https://getrebuild.com/report-issue" target="_blank">安装遇到问题?</a>
+                    <a href="https://getrebuild.com/report-issue?title=install" target="_blank">安装遇到问题?</a>
                 </div>
 			</div>
 		</div>

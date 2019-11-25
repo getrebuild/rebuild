@@ -60,19 +60,21 @@ public class Installer {
     private static final String INSTALL_FILE = ".installed";
 
     private JSONObject installProps;
+    final private boolean UseH2;
 
     /**
      * @param installProps
      */
     public Installer(JSONObject installProps) {
         this.installProps = installProps;
+        this.UseH2 = installProps.getIntValue("installType") == 2;
     }
 
     /**
      * 执行安装
      */
     public void install() {
-        this.installDatabase();
+        this.installScheme();
         this.installAdmin();
 
         // Save .installed
@@ -101,7 +103,7 @@ public class Installer {
      */
     public Connection getConnection(String dbName) throws SQLException {
         try {
-            Class.forName(Driver.class.getName());
+            Class.forName(UseH2 ? org.h2.Driver.class.getName() : Driver.class.getName());
         } catch (ClassNotFoundException e) {
             throw new RebuildException(e);
         }
@@ -116,6 +118,17 @@ public class Installer {
      * @return
      */
     protected Properties buildConnectionProps(String dbName) {
+        if (UseH2) {
+            Properties props = new Properties();
+            File dbFile = SysConfiguration.getFileOfData("rebuild10.h2");
+            if (dbFile.exists()) FileUtils.deleteQuietly(dbFile);
+            props.put("db.url",
+                    String.format("jdbc:h2:file:%s;MODE=MYSQL;DATABASE_TO_LOWER=TRUE;IGNORECASE=TRUE;DB_CLOSE_DELAY=-1", dbFile.getAbsolutePath()));
+            props.put("db.user", "sa");
+            props.put("db.passwd", "sa");
+            return props;
+        }
+
         JSONObject dbProps = installProps.getJSONObject("databaseProps");
         String dbUrl = String.format(
                 "jdbc:mysql://%s:%d/%s?useUnicode=true&characterEncoding=UTF8&zeroDateTimeBehavior=convertToNull&useSSL=false&sessionVariables=default_storage_engine=InnoDB",
@@ -136,7 +149,7 @@ public class Installer {
     /**
      * 数据库
      */
-    protected void installDatabase() {
+    protected void installScheme() {
         // 创建数据库
         //noinspection EmptyTryBlock
         try (Connection ignored = getConnection(null)) {
@@ -188,9 +201,12 @@ public class Installer {
         StringBuilder SQL = new StringBuilder();
         boolean ignoreMode = false;
         for (Object L : LS) {
-            String L2 = L.toString();
+            String L2 = L.toString().trim();
+
+            boolean H2Unsupports = UseH2
+                    && (L2.startsWith("alter table") || L2.startsWith("add index") || L2.startsWith("add fulltext"));
             // Ignore comments and line of blank
-            if (StringUtils.isEmpty(L2) || L2.startsWith("--")) continue;
+            if (StringUtils.isEmpty(L2) || L2.startsWith("--") || H2Unsupports) continue;
             if (L2.startsWith("/*") || L2.endsWith("*/")) {
                 ignoreMode = L2.startsWith("/*");
                 continue;
@@ -198,7 +214,7 @@ public class Installer {
                 continue;
             }
 
-            SQL.append(L2);
+            SQL.append(L2).append('\n');
             if (L2.endsWith(";")) {  // SQL ends
                 SQLS.add(SQL.toString());
                 SQL = new StringBuilder();
@@ -212,6 +228,7 @@ public class Installer {
      */
     protected void installAdmin() {
         JSONObject adminProps = installProps.getJSONObject("adminProps");
+        if (adminProps == null) return;
         String adminPasswd = adminProps.getString("adminPasswd");
         String adminMail = adminProps.getString("adminMail");
 
@@ -257,7 +274,16 @@ public class Installer {
                 }
 
                 for (Map.Entry<Object, Object> e : dbProps.entrySet()) {
-                    System.setProperty((String) e.getKey(), (String) e.getValue());
+                    String key = (String) e.getKey();
+                    String val = (String) e.getValue();
+                    System.setProperty(key, val);
+                    if (key.equals("db.url") && val.contains("jdbc:h2")) {
+                        try {
+                            Class.forName(org.h2.Driver.class.getName());
+                        } catch (ClassNotFoundException h2ex) {
+                            throw new RebuildException(h2ex);
+                        }
+                    }
                 }
 
             } catch (IOException e) {
