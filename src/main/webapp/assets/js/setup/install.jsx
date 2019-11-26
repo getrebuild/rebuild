@@ -53,13 +53,13 @@ class RbWelcome extends React.Component {
         <li>
           <a onClick={() => this.props.$$$parent.setState({ installType: 1, stepNo: 2 })}>
             <h5 className="m-0 text-bold">标准安装</h5>
-            <p className="m-0 mt-1 text-muted">以产品形式安装，用于真实生产环境。全功能支持</p>
+            <p className="m-0 mt-1 text-muted">以产品形式安装，用于真实生产环境</p>
           </a>
         </li>
         <li>
           <a onClick={this._quick}>
             <h5 className="m-0 text-bold">快速安装</h5>
-            <p className="m-0 mt-1 text-muted">将使用内建数据库执行安装，仅用于评估演示。部分功能受限</p>
+            <p className="m-0 mt-1 text-muted">将使用内建数据库执行安装，仅用于评估演示（部分功能受限）</p>
           </a>
         </li>
       </ul>

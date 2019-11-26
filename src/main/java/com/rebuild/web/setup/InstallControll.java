@@ -36,8 +36,6 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
 /**
- * TODO
- *
  * @author devezhao
  * @since 2019/11/25
  */

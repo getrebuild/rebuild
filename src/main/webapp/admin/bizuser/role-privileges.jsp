@@ -47,7 +47,7 @@
 			</div>
 		</aside>
 		<div class="main-content container-fluid">
-			<div class="alert alert-warning alert-icon alert-dismissible min hide J_tips">
+			<div class="alert alert-warning alert-icon alert-dismissible alert-sm hide J_tips">
 				<div class="icon"><span class="zmdi zmdi-info-outline"></span></div>
 				<div class="message"><a class="close" data-dismiss="alert"><span class="zmdi zmdi-close"></span></a><p>1</p></div>
 			</div>

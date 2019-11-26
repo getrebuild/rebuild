@@ -314,7 +314,7 @@ function RbSpinner(props) {
 function RbAlertBox(props) {
   let icon = props.type === 'success' ? 'check' : 'info-outline'
   if (props.type === 'danger') icon = 'close-circle-o'
-  return (<div className={'alert alert-icon alert-dismissible min alert-' + (props.type || 'warning')}>
+  return (<div className={'alert alert-icon alert-dismissible alert-sm alert-' + (props.type || 'warning')}>
     <div className="icon"><span className={'zmdi zmdi-' + icon} /></div>
     <div className="message">
       <a className="close" data-dismiss="alert"><span className="zmdi zmdi-close" /></a>

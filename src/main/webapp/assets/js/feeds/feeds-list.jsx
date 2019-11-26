@@ -17,7 +17,7 @@ class FeedsList extends React.Component {
 
   render() {
     return (<div>
-      {this.state.specFilter && <div className="alert alert-warning alert-icon min mt-3">
+      {this.state.specFilter && <div className="alert alert-warning alert-icon alert-sm alert-icon-border mt-3">
         <div className="icon"><i className="zmdi zmdi-info-outline"></i></div>
         <div className="message">当前显示指定动态，点击 <a href="#no-gs" onClick={this._cleanSpecFilter}>查看全部</a></div>
       </div>}

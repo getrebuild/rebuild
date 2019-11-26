@@ -57,7 +57,7 @@ public class Installer {
 
     private static final Log LOG = LogFactory.getLog(Installer.class);
 
-    private static final String INSTALL_FILE = ".installed";
+    private static final String INSTALL_FILE = ".rebuild";
 
     private JSONObject installProps;
     final private boolean UseH2;
@@ -77,14 +77,15 @@ public class Installer {
         this.installScheme();
         this.installAdmin();
 
-        // Save .installed
+        // Save install state
         File dest = SysConfiguration.getFileOfData(INSTALL_FILE);
         Properties dbProps = buildConnectionProps(null);
         dbProps.put("db.passwd.aes", AES.encrypt(dbProps.getProperty("db.passwd")));
+        dbProps.remove("db.passwd");
         try {
             FileUtils.deleteQuietly(dest);
             try (OutputStream os = new FileOutputStream(dest)) {
-                dbProps.store(os, ".installed for REBUILD");
+                dbProps.store(os, "Install file for REBUILD");
                 LOG.warn("Stored install file : " + dest);
             }
 
@@ -92,7 +93,7 @@ public class Installer {
             throw new RebuildException(e);
         }
 
-        // init
+        // init again
         new ServerListener().contextInitialized(null);
     }
 
@@ -120,7 +121,7 @@ public class Installer {
     protected Properties buildConnectionProps(String dbName) {
         if (UseH2) {
             Properties props = new Properties();
-            File dbFile = SysConfiguration.getFileOfData("rebuild10.h2");
+            File dbFile = SysConfiguration.getFileOfData("H2DB");
             if (dbFile.exists()) FileUtils.deleteQuietly(dbFile);
             props.put("db.url",
                     String.format("jdbc:h2:file:%s;MODE=MYSQL;DATABASE_TO_LOWER=TRUE;IGNORECASE=TRUE;DB_CLOSE_DELAY=-1", dbFile.getAbsolutePath()));
@@ -228,7 +229,8 @@ public class Installer {
      */
     protected void installAdmin() {
         JSONObject adminProps = installProps.getJSONObject("adminProps");
-        if (adminProps == null) return;
+        if (adminProps == null || adminProps.isEmpty()) return;
+
         String adminPasswd = adminProps.getString("adminPasswd");
         String adminMail = adminProps.getString("adminMail");
 
@@ -261,6 +263,8 @@ public class Installer {
      * @return
      */
     public static boolean checkInstall() {
+//        if (Application.devMode()) return true;  // for dev
+
         File file = SysConfiguration.getFileOfData(INSTALL_FILE);
         if (file.exists()) {
             try (InputStream is = new FileInputStream(file)) {

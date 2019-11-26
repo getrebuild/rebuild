@@ -31,10 +31,11 @@
 	border: 1px solid #eee;
 	padding: 15px 20px;
 	margin-bottom: 10px;
+	border-radius: 2px;
 }
 .rb-welcome li>a:hover {
 	border: 1px solid #4285f4;
-	outline: 1px solid #4285f4;
+	background-color: #E6EFF8;
 }
 .rb-finish {
 	padding: 40px 0;
