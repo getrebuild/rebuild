@@ -19,7 +19,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.helper.setup;
 
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.TestSupport;
 import com.rebuild.utils.JSONUtils;
 import org.junit.Test;
 
@@ -32,7 +31,7 @@ import java.sql.DatabaseMetaData;
  */
 public class InstallerTest {
 
-    static final JSONObject USE_H2 = JSONUtils.toJSONObject("installType", 2);
+    private static final JSONObject USE_H2 = JSONUtils.toJSONObject("installType", 99);
 
     @Test
     public void getDbInitScript() throws Exception {
@@ -51,8 +50,10 @@ public class InstallerTest {
     }
 
     @Test
-    public void installScheme() throws Exception {
-        new Installer(USE_H2).installScheme();
-//        new Installer(USE_H2).install();
+    public void install() throws Exception {
+        Installer installer = new Installer(USE_H2);
+        installer.installDatabase();
+        installer.installSystem();
+        installer.installAdmin();
     }
 }

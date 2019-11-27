@@ -27,7 +27,7 @@
 <div class="error">
 <div class="block mt-0">
 	<h2 class="mt-0">系统故障</h2>
-	<div>部分服务未能正常启动，请通过快速检查列表排除故障，故障排除后建议重启服务。你也可以获取 <a href="https://getrebuild.com/contact?sn=#tech-supports">技术支持</a></div>
+	<div>部分服务未能正常启动，请通过快速检查列表排除故障，故障排除后重启服务。你也可以获取 <a href="https://getrebuild.com/">技术支持</a></div>
 </div>
 </div>
 <% } %>

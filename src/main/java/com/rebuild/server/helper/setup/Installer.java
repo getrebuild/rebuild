@@ -19,23 +19,30 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.helper.setup;
 
 import cn.devezhao.commons.EncryptUtils;
+import cn.devezhao.commons.sql.SqlBuilder;
+import cn.devezhao.commons.sql.builder.InsertBuilder;
+import cn.devezhao.commons.sql.builder.UpdateBuilder;
+import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.mysql.jdbc.Driver;
-import com.rebuild.server.RebuildException;
+import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
+import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.Lisence;
 import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.utils.AES;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -60,41 +67,44 @@ public class Installer {
     private static final String INSTALL_FILE = ".rebuild";
 
     private JSONObject installProps;
-    final private boolean UseH2;
+    // 快速安装模式
+    private boolean quickMode;
 
     /**
      * @param installProps
      */
     public Installer(JSONObject installProps) {
         this.installProps = installProps;
-        this.UseH2 = installProps.getIntValue("installType") == 2;
+        this.quickMode = installProps.getIntValue("installType") == 99;
     }
 
     /**
      * 执行安装
      */
     public void install() {
-        this.installScheme();
+        this.installDatabase();
+        this.installSystem();
         this.installAdmin();
 
         // Save install state
         File dest = SysConfiguration.getFileOfData(INSTALL_FILE);
         Properties dbProps = buildConnectionProps(null);
-        dbProps.put("db.passwd.aes", AES.encrypt(dbProps.getProperty("db.passwd")));
-        dbProps.remove("db.passwd");
+        dbProps.put("db.passwd.aes", AES.encrypt((String) dbProps.remove("db.passwd")));
         try {
             FileUtils.deleteQuietly(dest);
             try (OutputStream os = new FileOutputStream(dest)) {
-                dbProps.store(os, "Install file for REBUILD");
+                dbProps.store(os, "INSTALL FILE FOR REBUILD. DON'T DELETE OR MODIFY IT!!!");
                 LOG.warn("Stored install file : " + dest);
             }
 
         } catch (IOException e) {
-            throw new RebuildException(e);
+            throw new SetupException(e);
         }
 
         // init again
         new ServerListener().contextInitialized(null);
+        // Gen SN
+        Lisence.SN();
     }
 
     /**
@@ -104,9 +114,9 @@ public class Installer {
      */
     public Connection getConnection(String dbName) throws SQLException {
         try {
-            Class.forName(UseH2 ? org.h2.Driver.class.getName() : Driver.class.getName());
+            Class.forName(quickMode ? org.h2.Driver.class.getName() : Driver.class.getName());
         } catch (ClassNotFoundException e) {
-            throw new RebuildException(e);
+            throw new SetupException(e);
         }
 
         Properties props = this.buildConnectionProps(dbName);
@@ -119,7 +129,7 @@ public class Installer {
      * @return
      */
     protected Properties buildConnectionProps(String dbName) {
-        if (UseH2) {
+        if (quickMode) {
             Properties props = new Properties();
             File dbFile = SysConfiguration.getFileOfData("H2DB");
             if (dbFile.exists()) FileUtils.deleteQuietly(dbFile);
@@ -150,27 +160,30 @@ public class Installer {
     /**
      * 数据库
      */
-    protected void installScheme() {
-        // 创建数据库
-        //noinspection EmptyTryBlock
-        try (Connection ignored = getConnection(null)) {
-            // NOOP
-        } catch (SQLException e) {
-            if (!e.getLocalizedMessage().contains("Unknown database")) {
-                throw new RebuildException(e);
-            }
+    protected void installDatabase() {
+        if (!quickMode) {
 
-            // 创建数据库
-            String createDb = String.format("CREATE DATABASE `%s` COLLATE utf8mb4_general_ci",
-                    installProps.getJSONObject("databaseProps").getString("dbName"));
-            try (Connection conn = getConnection("mysql")) {
-                try (Statement stmt = conn.createStatement()) {
-                    stmt.executeUpdate(createDb);
-                    LOG.warn("Database created : " + createDb);
+            // 创建数据库（如果需要）
+            // noinspection EmptyTryBlock
+            try (Connection ignored = getConnection(null)) {
+                // NOOP
+            } catch (SQLException e) {
+                if (!e.getLocalizedMessage().contains("Unknown database")) {
+                    throw new SetupException(e);
                 }
 
-            } catch (SQLException sqlex) {
-                throw new RebuildException(sqlex);
+                // 创建
+                String createDb = String.format("CREATE DATABASE `%s` COLLATE utf8mb4_general_ci",
+                        installProps.getJSONObject("databaseProps").getString("dbName"));
+                try (Connection conn = getConnection("mysql")) {
+                    try (Statement stmt = conn.createStatement()) {
+                        stmt.executeUpdate(createDb);
+                        LOG.warn("Database created : " + createDb);
+                    }
+
+                } catch (SQLException sqlex) {
+                    throw new SetupException(sqlex);
+                }
             }
         }
 
@@ -186,7 +199,7 @@ public class Installer {
             }
 
         } catch (SQLException | IOException e) {
-            throw new RebuildException(e);
+            throw new SetupException(e);
         }
     }
 
@@ -204,7 +217,7 @@ public class Installer {
         for (Object L : LS) {
             String L2 = L.toString().trim();
 
-            boolean H2Unsupports = UseH2
+            boolean H2Unsupports = quickMode
                     && (L2.startsWith("alter table") || L2.startsWith("add index") || L2.startsWith("add fulltext"));
             // Ignore comments and line of blank
             if (StringUtils.isEmpty(L2) || L2.startsWith("--") || H2Unsupports) continue;
@@ -225,6 +238,18 @@ public class Installer {
     }
 
     /**
+     * 系统参数
+     */
+    protected void installSystem() {
+        JSONObject systemProps = installProps.getJSONObject("systemProps");
+        if (systemProps == null || systemProps.isEmpty()) return;
+
+        insertSystemProp(ConfigurableItem.DataDirectory, systemProps.getString("dataDirectory"));
+        insertSystemProp(ConfigurableItem.AppName, systemProps.getString("appName"));
+        insertSystemProp(ConfigurableItem.HomeURL, systemProps.getString("homeUrl"));
+    }
+
+    /**
      * 管理员
      */
     protected void installAdmin() {
@@ -234,24 +259,37 @@ public class Installer {
         String adminPasswd = adminProps.getString("adminPasswd");
         String adminMail = adminProps.getString("adminMail");
 
-        List<String> sets = new ArrayList<>();
+        UpdateBuilder ub = SqlBuilder.buildUpdate("user");
         if (StringUtils.isNotBlank(adminPasswd)) {
-            sets.add(String.format("`PASSWORD` = '%s'", EncryptUtils.toSHA256Hex(adminPasswd)));
+            ub.addColumn("PASSWORD", EncryptUtils.toSHA256Hex(adminPasswd));
         }
         if (StringUtils.isNotBlank(adminMail)) {
-            sets.add(String.format("`EMAIL` = '%s'", adminMail));
+            ub.addColumn("EMAIL", adminMail);
         }
-        if (sets.isEmpty()) return;
+        if (!ub.hasColumn()) return;
 
-        String uql = String.format("update `user` set %s where `LOGIN_NAME` = 'admin'",
-                StringUtils.join(sets.iterator(), ", "));
+        ub.setWhere("LOGIN_NAME = 'admin'");
+        executeSql(ub.toSql());
+    }
+
+    private void insertSystemProp(ConfigurableItem item, String value) {
+        if (StringUtils.isBlank(value)) return;
+
+        InsertBuilder ib = SqlBuilder.buildInsert("system_config")
+                .addColumn("CONFIG_ID", ID.newId(EntityHelper.SystemConfig))
+                .addColumn("ITEM", item.name())
+                .addColumn("VALUE", value);
+        executeSql(ib.toSql());
+    }
+
+    private void executeSql(String sql) {
         try (Connection conn = getConnection(null)) {
             try (Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate(uql);
+                stmt.execute(sql);
             }
 
-        } catch (SQLException e) {
-            LOG.error("Couldn't update `admin` user! Use default.", e);
+        } catch (SQLException sqlex) {
+            LOG.error("Couldn't execute SQL : " + sql, sqlex);
         }
     }
 
@@ -263,36 +301,31 @@ public class Installer {
      * @return
      */
     public static boolean checkInstall() {
-//        if (Application.devMode()) return true;  // for dev
+        if (Application.devMode()) return true;  // for dev
 
         File file = SysConfiguration.getFileOfData(INSTALL_FILE);
         if (file.exists()) {
-            try (InputStream is = new FileInputStream(file)) {
-                Properties dbProps = new Properties();
-                dbProps.load(is);
-
-                String dbPasswd = dbProps.getProperty("db.passwd.aes");
+            try {
+                Properties dbProps = PropertiesLoaderUtils.loadProperties(new FileSystemResource(file));
+                String dbPasswd = (String) dbProps.remove("db.passwd.aes");
                 if (dbPasswd != null) {
                     dbProps.put("db.passwd", AES.decrypt(dbPasswd));
-                    dbProps.remove("db.passwd.aes");
                 }
 
                 for (Map.Entry<Object, Object> e : dbProps.entrySet()) {
-                    String key = (String) e.getKey();
-                    String val = (String) e.getValue();
-                    System.setProperty(key, val);
-                    if (key.equals("db.url") && val.contains("jdbc:h2")) {
+                    System.setProperty((String) e.getKey(), (String) e.getValue());
+                    if (e.getKey().equals("db.url") && ((String) e.getValue()).contains("jdbc:h2:")) {
                         try {
                             Class.forName(org.h2.Driver.class.getName());
                         } catch (ClassNotFoundException h2ex) {
-                            throw new RebuildException(h2ex);
+                            throw new SetupException(h2ex);
                         }
                     }
                 }
-
             } catch (IOException e) {
-                throw new RebuildException(e);
+                throw new SetupException(e);
             }
+
             return true;
         }
         return false;

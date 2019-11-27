@@ -26,7 +26,6 @@ import cn.devezhao.persist4j.query.QueryedRecord;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.rebuild.server.helper.ConfigurableItem;
-import com.rebuild.server.helper.Lisence;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.helper.cache.EhcacheTemplate;
@@ -45,6 +44,7 @@ import com.rebuild.server.service.query.QueryFactory;
 import com.rebuild.utils.RbDateCodec;
 import com.rebuild.utils.RbRecordCodec;
 import com.rebuild.web.OnlineSessionStore;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
@@ -53,8 +53,10 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -73,7 +75,7 @@ public final class Application {
 	 */
 	public static final Log LOG = LogFactory.getLog(Application.class);
 	
-	// 调试模式
+	// 调试模式/开发模式
 	private static boolean debugMode = false;
 	// 服务启动正常
 	private static boolean serversReady = false;
@@ -100,14 +102,7 @@ public final class Application {
 	protected void init(long startAt) throws Exception {
 		serversReady = ServerStatus.checkAll();
 		if (!serversReady) {
-		    LOG.fatal(formatFailure(
-		            "REBUILD BOOTING FAILURE DURING THE STATUS CHECKS.",
-                    "PLEASE VIEW BOOTING LOGS.",
-                    "Version : " + VER,
-                    "OS      : " + SystemUtils.OS_NAME + " " + SystemUtils.OS_ARCH,
-                    "Report an issue :",
-                    "https://getrebuild.com/report-issue?title=error-boot"
-            ));
+		    LOG.fatal(formatFailure("REBUILD BOOTING FAILURE DURING THE STATUS CHECK.", "PLEASE VIEW LOGS FOR MORE DETAILS."));
 			return;
 		}
 
@@ -117,8 +112,7 @@ public final class Application {
 		SerializeConfig.getGlobalInstance().put(StandardRecord.class, RbRecordCodec.instance);
 		SerializeConfig.getGlobalInstance().put(QueryedRecord.class, RbRecordCodec.instance);
 
-		Lisence.SN();
-		// 更新刷新配置缓存
+		// 刷新配置缓存
 		for (ConfigurableItem item : ConfigurableItem.values()) {
 			SysConfiguration.get(item, true);
 		}
@@ -161,8 +155,15 @@ public final class Application {
      * @return
      */
     protected static String formatFailure(String...msgs) {
+		List<String> msgsList = new ArrayList<>();
+		CollectionUtils.addAll(msgsList, msgs);
+		msgsList.add("\n  Version : " + VER);
+		msgsList.add("OS      : " + SystemUtils.OS_NAME + " " + SystemUtils.OS_ARCH);
+		msgsList.add("Report an issue :");
+		msgsList.add("https://getrebuild.com/report-issue?title=failure");
+
         return "\n###################################################################\n\n  "
-                + StringUtils.join(msgs, "\n  ") +
+                + StringUtils.join(msgsList, "\n  ") +
                 "\n\n###################################################################";
     }
 

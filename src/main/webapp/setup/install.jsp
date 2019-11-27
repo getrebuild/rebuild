@@ -67,7 +67,13 @@
 		</div>
 	</div>
 </div>
-<%@ include file="/_include/Foot.jsp"%>
+<%@ include file="/_include/Foot.jsp"%><script>
+window.__PageConfig = {
+	defaultDataDirectory: '${defaultDataDirectory}',
+	defaultAppName: '${defaultAppName}',
+	defaultHomeURL: '${defaultHomeURL}'
+}
+</script>
 <script src="${baseUrl}/assets/js/setup/install.jsx" type="text/babel"></script>
 </body>
 </html>

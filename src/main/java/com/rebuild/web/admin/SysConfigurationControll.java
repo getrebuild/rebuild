@@ -20,6 +20,7 @@ package com.rebuild.web.admin;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.Lisence;
 import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.utils.CommonsUtils;
@@ -27,6 +28,9 @@ import com.rebuild.web.BasePageControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * 系统配置
@@ -37,7 +41,7 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @Controller
 @RequestMapping("/admin/")
-public class SysConfigControll extends BasePageControll {
+public class SysConfigurationControll extends BasePageControll {
 
 	@RequestMapping("systems")
 	public ModelAndView pageSystems() {
@@ -66,7 +70,7 @@ public class SysConfigControll extends BasePageControll {
 		return mv;
 	}
 	
-	@RequestMapping("integration/submail")
+	@RequestMapping("systems/submail")
 	public ModelAndView pageIntegrationSubmail() {
 		ModelAndView mv = createModelAndView("/admin/integration/submail.jsp");
 		mv.getModel().put("smsAccount", 
@@ -75,12 +79,12 @@ public class SysConfigControll extends BasePageControll {
 				starsAccount(SysConfiguration.getMailAccount(), 1));
 		return mv;
 	}
-	
-	/**
-	 * @param account
-	 * @param index
-	 * @return
-	 */
+
+	@RequestMapping("systems/query-authority")
+	public void queryAuthority(HttpServletResponse response) throws IOException {
+		writeSuccess(response, Lisence.queryAuthority());
+	}
+
 	private String[] starsAccount(String[] account, int ...index) {
 		if (account == null) {
 			return null;

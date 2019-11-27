@@ -77,8 +77,8 @@ public class ServerListener implements ServletContextListener {
             eventHold = null;
 
 		} catch (Throwable ex) {
-		    ex.printStackTrace();
             LOG.fatal(Application.formatFailure("REBUILD BOOTING FAILURE!!!"));
+			ex.printStackTrace();
 		}
 	}
 

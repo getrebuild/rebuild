@@ -21,6 +21,7 @@ class Setup extends React.Component {
           <div><i className={`zmdi icon ${state[0]}`}></i></div>
           <h2 className="mb-0">{state[1]}</h2>
           {this.state.installState === 11 && <a className="btn btn-secondary mt-3" href="../user/login">立即登录</a>}
+          {this.state.installState === 12 && <a className="btn btn-secondary mt-3" href="install">重试</a>}
           {(this.state.installState === 12 && this.state.installError) &&
             <div className="alert alert-danger alert-icon alert-icon-border alert-sm mt-5 mb-0 text-left">
               <div className="icon"><span className="zmdi zmdi-close-circle-o"></span></div>
@@ -32,18 +33,21 @@ class Setup extends React.Component {
   }
 
   install = () => {
-    let _data = {
-      installType: this.state.installType,
+    let data = {
+      installType: this.state.installType || 1,
       databaseProps: this.state.databaseProps || {},
+      systemProps: this.state.systemProps || {},
       adminProps: this.state.adminProps || {},
     }
+
     this.setState({ installState: 10 })
-    $.post(`${rb.baseUrl}/setup/install-rebuild`, JSON.stringify(_data), (res) => {
+    $.post(`${rb.baseUrl}/setup/install-rebuild`, JSON.stringify(data), (res) => {
       this.setState({ installState: res.error_code === 0 ? 11 : 12, installError: res.error_msg })
     })
   }
 }
 
+// ~
 class RbWelcome extends React.Component {
   state = { ...this.props }
   render() {
@@ -59,18 +63,18 @@ class RbWelcome extends React.Component {
         <li>
           <a onClick={this._quick}>
             <h5 className="m-0 text-bold">快速安装</h5>
-            <p className="m-0 mt-1 text-muted">将使用内建数据库执行安装，仅用于评估演示（部分功能受限）</p>
+            <p className="m-0 mt-1 text-muted">将使用内建数据库执行安装，仅用于评估演示（部分功能可能无法使用）</p>
           </a>
         </li>
       </ul>
     </div>
   }
 
-  _quick = () => {
-    this.props.$$$parent.setState({ installType: 2, stepNo: 10 }, () => this.props.$$$parent.install())
-  }
+  // 快速安装
+  _quick = () => this.props.$$$parent.setState({ installType: 99, stepNo: 4 })
 }
 
+// ~
 class DatabaseConf extends React.Component {
   state = { ...this.props }
   render() {
@@ -132,7 +136,7 @@ class DatabaseConf extends React.Component {
         </div>
         <div className="clearfix"></div>
       </div>
-    </div >
+    </div>
   }
 
   handleValue = (e) => {
@@ -142,8 +146,8 @@ class DatabaseConf extends React.Component {
     this.setState(s)
   }
 
-  _buildParams(check) {
-    let _data = {
+  _buildProps(check) {
+    let ps = {
       dbType: 'mysql',
       dbHost: this.state.dbHost || '127.0.0.1',
       dbPort: this.state.dbPort || 3306,
@@ -151,87 +155,94 @@ class DatabaseConf extends React.Component {
       dbUser: this.state.dbUser || 'rebuild',
       dbPassword: this.state.dbPassword || 'rebuild'
     }
-    if (check && isNaN(_data.dbPort)) { RbHighbar.create('无效端口'); return null }
-    return _data
+    if (check && isNaN(ps.dbPort)) { RbHighbar.create('无效端口'); return }
+    return ps
   }
 
   _testConnection = (call) => {
-    let ps = this._buildParams()
+    if (this.state.inTest) return
+    let ps = this._buildProps()
     if (!ps) return
+
     this.setState({ inTest: true })
     $.post(`${rb.baseUrl}/setup/test-connection`, JSON.stringify(ps), (res) => {
       this.setState({ inTest: false, testState: res.error_code === 0, testMessage: res.data || res.error_msg }, () => typeof call === 'function' && call(ps, res))
     })
   }
 
-  _prev = () => this.props.$$$parent.setState({ stepNo: null, databaseProps: this._buildParams() })
+  _prev = () => this.props.$$$parent.setState({ stepNo: 0, databaseProps: this._buildProps() })
   _next = () => {
     this._testConnection((ps, res) => {
       if (res.error_code !== 0) return
-      this.props.$$$parent.setState({ stepNo: 4, databaseProps: ps })
+      this.props.$$$parent.setState({ stepNo: 3, databaseProps: ps })
     })
   }
 }
 
+// ~
 class SystemConf extends DatabaseConf {
   state = { ...this.props }
   render() {
+    const wpc = window.__PageConfig
     return <div className="rb-systems">
       <h3>设置系统参数</h3>
       <form>
         <div className="form-group row">
-          <div className="col-sm-3 col-form-label text-sm-right">标题</div>
+          <div className="col-sm-3 col-form-label text-sm-right">数据目录</div>
           <div className="col-sm-7">
-            <input type="text" className="form-control form-control-sm" name="appName" value={this.state.appName || ''} onChange={this.handleValue} placeholder="REBUILD" />
+            <input type="text" className="form-control form-control-sm" name="dataDirectory" value={this.state.dataDirectory || ''} onChange={this.handleValue} placeholder={wpc.defaultDataDirectory.replace('\\', '/')} />
           </div>
         </div>
         <div className="form-group row">
-          <div className="col-sm-3 col-form-label text-sm-right">域名/主页地址</div>
+          <div className="col-sm-3 col-form-label text-sm-right">标题</div>
           <div className="col-sm-7">
-            <input type="text" className="form-control form-control-sm" name="homeUrl" value={this.state.homeUrl || ''} onChange={this.handleValue} placeholder="http://127.0.0.1:18080/" />
+            <input type="text" className="form-control form-control-sm" name="appName" value={this.state.appName || ''} onChange={this.handleValue} placeholder={wpc.defaultAppName} />
           </div>
         </div>
-        <div className="form-group row pt-1">
-          <div className="col-sm-3 col-form-label text-sm-right">公开注册</div>
+        <div className="form-group row">
+          <div className="col-sm-3 col-form-label text-sm-right">主页地址/域名</div>
           <div className="col-sm-7">
-            <label className="custom-control custom-checkbox custom-control-inline mb-0 mt-1">
-              <input className="custom-control-input" type="checkbox" name="openSignup" checked={this.state.openSignup || false} onChange={this.handleValue} />
-              <span className="custom-control-label">是 (需管理员审核)</span>
-            </label>
+            <input type="text" className="form-control form-control-sm" name="homeUrl" value={this.state.homeUrl || ''} onChange={this.handleValue} placeholder={wpc.defaultHomeURL} />
           </div>
         </div>
       </form>
       <div className="splash-footer">
-        <div className="alert alert-primary alert-icon alert-icon-border text-left alert-sm">
-          <div className="icon"><span className="zmdi zmdi-info-outline"></span></div>
-          <div className="message">可在安装程序完成后修改或设置更多系统参数</div>
-        </div>
         <button className="btn btn-link float-left text-left pl-0" onClick={this._prev}>设置数据库</button>
         <div className="float-right">
-          <button className="btn btn-secondary" onClick={this._finish}>完成</button>
+          <button className="btn btn-secondary" onClick={this._next}>下一步</button>
         </div>
         <div className="clearfix"></div>
       </div>
     </div >
   }
 
-  _buildParams() {
-    let _data = {
-      appName: this.state.dbHost || 'REBUILD',
-      homeUrl: this.state.dbPort || 'http://127.0.0.1:18080/',
-      openSignup: this.state.dbName || false
+  _buildProps(check) {
+    let ps = {
+      dataDirectory: this.state.dataDirectory,
+      appName: this.state.appName,
+      homeUrl: this.state.homeUrl
     }
-    return _data
+    if (ps.dataDirectory) ps.dataDirectory = ps.dataDirectory.replace(/\\/g, '/')
+    if (check && ps.homeUrl && !$regex.isUrl(ps.homeUrl)) { RbHighbar.create('无效主页地址'); return }
+    return ps
   }
 
-  _prev = () => this.props.$$$parent.setState({ stepNo: 2, systemProps: this._buildParams() })
-  _finish = () => {
-    let ps = this._buildParams(false)
+  _prev = () => this.props.$$$parent.setState({ stepNo: 2, systemProps: this._buildProps() })
+  _next = () => {
+    let ps = this._buildProps(true)
     if (!ps) return
-    this.props.$$$parent.setState({ stepNo: 10, systemProps: ps })
+    if (ps.dataDirectory) {
+      $.post(`${rb.baseUrl}/setup/test-directory?dir=${$encode(ps.dataDirectory)}`, (res) => {
+        if (res.error_code === 0) this.props.$$$parent.setState({ stepNo: 4, systemProps: ps })
+        else RbHighbar.create('无效数据目录')
+      })
+    } else {
+      this.props.$$$parent.setState({ stepNo: 4, systemProps: ps })
+    }
   }
 }
 
+// ~
 class AdminConf extends DatabaseConf {
   state = { ...this.props }
   render() {
@@ -239,7 +250,7 @@ class AdminConf extends DatabaseConf {
       <h3>设置超级管理员</h3>
       <form>
         <div className="form-group row pt-0">
-          <div className="col-sm-3 col-form-label text-sm-right">管理员密码</div>
+          <div className="col-sm-3 col-form-label text-sm-right">登录密码</div>
           <div className="col-sm-7">
             <input type="text" className="form-control form-control-sm" name="adminPasswd" value={this.state.adminPasswd || ''} onChange={this.handleValue} placeholder="admin" />
             <div className="form-text">默认用户名/密码均为 <code className="text-danger">admin</code></div>
@@ -254,32 +265,31 @@ class AdminConf extends DatabaseConf {
         </div>
       </form>
       <div className="splash-footer">
-        <button className="btn btn-link float-left text-left pl-0" onClick={this._prev}>设置数据库</button>
+        {this.props.$$$parent.state.installType === 1 && <button className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(3)}>设置系统参数</button>}
+        {this.props.$$$parent.state.installType === 99 && <button className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(0)}>选择安装模式</button>}
         <div className="float-right">
-          <button className="btn btn-secondary" onClick={this._finish}>完成</button>
+          <button className="btn btn-primary" onClick={this._next}>完成安装</button>
         </div>
         <div className="clearfix"></div>
       </div>
     </div >
   }
 
-  _buildParams(check) {
-    let _data = {
-      adminPasswd: this.state.adminPasswd || 'admin',
+  _buildProps(check) {
+    let ps = {
+      adminPasswd: this.state.adminPasswd,
       adminMail: this.state.adminMail
     }
-    if (check && _data.adminMail && !$regex.isMail(_data.adminMail)) { RbHighbar.create('管理员邮箱无效'); return }
-    return _data
+    if (check && ps.adminMail && !$regex.isMail(ps.adminMail)) { RbHighbar.create('管理员邮箱无效'); return }
+    return ps
   }
 
-  _prev = () => this.props.$$$parent.setState({ stepNo: 2, adminProps: this._buildParams(false) })
-  _finish = () => {
-    let ps = this._buildParams(true)
+  _prev = (stepNo) => this.props.$$$parent.setState({ stepNo: stepNo || 0, adminProps: this._buildProps() })
+  _next = () => {
+    let ps = this._buildProps(true)
     if (!ps) return
     this.props.$$$parent.setState({ stepNo: 10, adminProps: ps }, () => this.props.$$$parent.install())
   }
 }
 
-$(document).ready(() => {
-  renderRbcomp(<Setup />, $('.card-body'))
-})
+$(document).ready(() => renderRbcomp(<Setup />, $('.card-body')))

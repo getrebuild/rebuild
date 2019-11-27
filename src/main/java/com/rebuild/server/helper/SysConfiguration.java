@@ -46,31 +46,30 @@ public final class SysConfiguration extends KVStorage {
 	 */
 	public static File getFileOfData(String file) {
 		String d = get(ConfigurableItem.DataDirectory);
-		File dir = null;
+		File data = null;
 		if (d != null) {
-			dir = new File(d);
-			if (!dir.exists()) {
-			    if (!dir.mkdirs()) {
-			        LOG.error("Couldn't mkdirs for data : " + dir);
+			data = new File(d);
+			if (!data.exists()) {
+			    if (!data.mkdirs()) {
+			        LOG.error("Couldn't mkdirs for data : " + data);
                 }
 			}
 		}
 
-		if (dir == null || !dir.exists()) {
-			dir = FileUtils.getUserDirectory();
-			dir = new File(dir, ".rebuild");
-			if (!dir.exists()) {
-				if (!dir.mkdirs()) {
-                    LOG.error("Couldn't mkdirs for data : " + dir);
+		if (data == null || !data.exists()) {
+			data = FileUtils.getUserDirectory();
+			data = new File(data, ".rebuild");
+			if (!data.exists()) {
+				if (!data.mkdirs()) {
+                    LOG.error("Couldn't mkdirs for data : " + data);
                 }
 			}
 		}
 
-		if (!dir.exists()) {
-			dir = FileUtils.getTempDirectory();
+		if (!data.exists()) {
+			data = FileUtils.getTempDirectory();
 		}
-
-		return new File(dir, file);
+		return file == null ? data : new File(data, file);
 	}
 	
 	/**
@@ -81,13 +80,13 @@ public final class SysConfiguration extends KVStorage {
 	 * @see #getFileOfData(String)
 	 */
 	public static File getFileOfTemp(String file) {
-		File tFile = getFileOfData("temp");
-		if (!tFile.exists()) {
-			if (!tFile.mkdirs()) {
-				throw new RebuildException("Couldn't mkdirs : " + tFile);
+		File temp = getFileOfData("temp");
+		if (!temp.exists()) {
+			if (!temp.mkdirs()) {
+				throw new RebuildException("Couldn't mkdirs : " + temp);
 			}
 		}
-		return new File(tFile, file);
+		return file == null ? temp : new File(temp, file);
 	}
 	
 	/**

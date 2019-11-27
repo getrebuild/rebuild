@@ -21,15 +21,19 @@ package com.rebuild.web.setup;
 import cn.devezhao.commons.web.ServletUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.setup.Installer;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
+import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -49,7 +53,12 @@ public class InstallControll extends BasePageControll {
             response.sendError(404);
             return null;
         }
-        return createModelAndView("/setup/install.jsp");
+
+        ModelAndView mv = createModelAndView("/setup/install.jsp");
+        mv.getModel().put("defaultDataDirectory", SysConfiguration.getFileOfData(null).getAbsolutePath().replace("\\", "/"));
+        mv.getModel().put("defaultAppName", SysConfiguration.get(ConfigurableItem.AppName));
+        mv.getModel().put("defaultHomeURL", SysConfiguration.get(ConfigurableItem.HomeURL));
+        return mv;
     }
 
     @RequestMapping("test-connection")
@@ -69,6 +78,32 @@ public class InstallControll extends BasePageControll {
         }
     }
 
+    @RequestMapping("test-directory")
+    public void testDirectory(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String dir = getParameterNotNull(request, "dir");
+        File file = new File(dir);
+        if (file.exists()) {
+            if (!file.isDirectory()) file = null;
+        } else {
+            try {
+                FileUtils.forceMkdir(file);
+                if (file.exists()) {
+                    FileUtils.deleteDirectory(file);
+                } else {
+                    file = null;
+                }
+            } catch (IOException ex) {
+                file = null;
+            }
+        }
+
+        if (file == null) {
+            writeFailure(response);
+        } else {
+            writeSuccess(response, file.getAbsolutePath());
+        }
+    }
+
     @RequestMapping("install-rebuild")
     public void installExec(HttpServletRequest request, HttpServletResponse response) throws IOException {
         JSONObject installProps = (JSONObject) ServletUtils.getRequestJson(request);
@@ -76,6 +111,7 @@ public class InstallControll extends BasePageControll {
             new Installer(installProps).install();
             writeSuccess(response);
         } catch (Exception e) {
+            e.printStackTrace();
             writeFailure(response, "出现错误 : " + e.getLocalizedMessage());
         }
     }
