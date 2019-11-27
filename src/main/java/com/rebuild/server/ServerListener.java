@@ -27,9 +27,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.web.context.ContextCleanupListener;
 
 import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
 import java.util.Date;
 
 /**
@@ -38,7 +38,7 @@ import java.util.Date;
  * @author devezhao
  * @since 10/13/2018
  */
-public class ServerListener implements ServletContextListener {
+public class ServerListener extends ContextCleanupListener {
 
 	private static final Log LOG = LogFactory.getLog(ServerListener.class);
 
@@ -85,6 +85,8 @@ public class ServerListener implements ServletContextListener {
 	@Override
 	public void contextDestroyed(ServletContextEvent event) {
 		LOG.info("Rebuild shutdown ...");
+        super.contextDestroyed(event);
+        ((ClassPathXmlApplicationContext) Application.getApplicationContext()).close();
 	}
 	
 	// --
