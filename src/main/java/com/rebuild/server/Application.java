@@ -31,6 +31,7 @@ import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.helper.cache.EhcacheTemplate;
 import com.rebuild.server.helper.cache.RecentlyUsedCache;
 import com.rebuild.server.helper.cache.RecordOwningCache;
+import com.rebuild.server.helper.setup.Installer;
 import com.rebuild.server.helper.setup.UpgradeDatabase;
 import com.rebuild.server.metadata.DynamicMetadataFactory;
 import com.rebuild.server.service.CommonService;
@@ -178,6 +179,8 @@ public final class Application {
 		if (APPLICATION_CTX == null) {
 			debugMode = true;
 			LOG.info("Rebuild Booting in DEBUG mode ...");
+			Installer.checkInstall();
+
 			long at = System.currentTimeMillis();
 			ApplicationContext ctx = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml" });
 			new Application(ctx).init(at);

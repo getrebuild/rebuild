@@ -57,18 +57,23 @@ public class MetaEntityService extends BaseService implements AdminGuard {
 		// 删除此实体的相关配置记录
 		String whoUsed[] = new String[] {
 				"MetaField", "PickList", "LayoutConfig", "FilterConfig", "ShareAccess", "ChartConfig", 
-				"Attachment", "AutoFillinConfig", "RobotTriggerConfig", "RobotApprovalConfig"
+				"Attachment", "AutoFillinConfig", "RobotTriggerConfig", "RobotApprovalConfig",
+				"DataReportConfig",
 		};
 		int del = 0;
 		for (String who : whoUsed) {
-			Entity whoEntity = MetadataHelper.getEntity(who);
-			if (!whoEntity.containsField("belongEntity")) {
+			Entity whichEntity = MetadataHelper.getEntity(who);
+			if (!whichEntity.containsField("belongEntity")) {
 				continue;
 			}
-			
-			String sql = String.format("select %s from %s where belongEntity = '%s'", 
-					whoEntity.getPrimaryField().getName(), whoEntity.getName(), entity.getName());
-			Object[][] usedArray = getPMFactory().createQuery(sql).array();
+
+			String ql = String.format("select %s from %s where belongEntity = '%s'",
+					whichEntity.getPrimaryField().getName(), whichEntity.getName(), entity.getName());
+			if (whichEntity.getEntityCode() == EntityHelper.Attachment) {
+				ql = ql.split(" belongEntity ")[0] + " belongEntity = " + whichEntity.getEntityCode();
+			}
+
+			Object[][] usedArray = getPMFactory().createQuery(ql).array();
 			for (Object[] used : usedArray) {
 				if ("MetaField".equalsIgnoreCase(who)) {
 					del += Application.getBean(MetaFieldService.class).delete((ID) used[0]);

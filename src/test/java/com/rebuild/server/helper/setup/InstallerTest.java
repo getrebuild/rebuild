@@ -35,7 +35,7 @@ public class InstallerTest {
 
     @Test
     public void getDbInitScript() throws Exception {
-        String[] scripts = new Installer(null).getDbInitScript();
+        String[] scripts = new Installer(USE_H2).getDbInitScript();
         for (String s : scripts) {
             System.out.println(s);
         }

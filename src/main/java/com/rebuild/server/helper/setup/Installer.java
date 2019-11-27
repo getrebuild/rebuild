@@ -25,7 +25,6 @@ import cn.devezhao.commons.sql.builder.UpdateBuilder;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.mysql.jdbc.Driver;
-import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.Lisence;
@@ -217,10 +216,8 @@ public class Installer {
         for (Object L : LS) {
             String L2 = L.toString().trim();
 
-            boolean H2Unsupports = quickMode
-                    && (L2.startsWith("alter table") || L2.startsWith("add index") || L2.startsWith("add fulltext"));
             // Ignore comments and line of blank
-            if (StringUtils.isEmpty(L2) || L2.startsWith("--") || H2Unsupports) continue;
+            if (StringUtils.isEmpty(L2) || L2.startsWith("--")) continue;
             if (L2.startsWith("/*") || L2.endsWith("*/")) {
                 ignoreMode = L2.startsWith("/*");
                 continue;
@@ -301,7 +298,7 @@ public class Installer {
      * @return
      */
     public static boolean checkInstall() {
-        if (Application.devMode()) return true;  // for dev
+//        if (Application.devMode()) return true;  // for dev
 
         File file = SysConfiguration.getFileOfData(INSTALL_FILE);
         if (file.exists()) {
@@ -315,6 +312,7 @@ public class Installer {
                 for (Map.Entry<Object, Object> e : dbProps.entrySet()) {
                     System.setProperty((String) e.getKey(), (String) e.getValue());
                     if (e.getKey().equals("db.url") && ((String) e.getValue()).contains("jdbc:h2:")) {
+                        LOG.warn("Using QuickMode with H2 database!");
                         try {
                             Class.forName(org.h2.Driver.class.getName());
                         } catch (ClassNotFoundException h2ex) {

@@ -27,6 +27,7 @@ import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.CascadeModel;
 import cn.devezhao.persist4j.util.support.Table;
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.AesPreferencesConfigurer;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserService;
@@ -34,6 +35,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 创建实体
@@ -258,13 +262,40 @@ public class Entity2Schema extends Field2Schema {
 	private boolean schema2Database(Entity entity) {
 		Dialect dialect = Application.getPersistManagerFactory().getDialect();
 		Table table = new Table(entity, dialect);
-		String ddl[] = table.generateDDL(false, false);
+		String ddls[] = table.generateDDL(false, false);
+		ddls = reformatForH2(ddls);
 		try {
-			Application.getSQLExecutor().executeBatch(ddl);
+			Application.getSQLExecutor().executeBatch(ddls);
 		} catch (Throwable ex) {
-			LOG.error("DDL Error : \n" + StringUtils.join(ddl, "\n"), ex);
+			LOG.error("DDL Error : \n" + StringUtils.join(ddls, "\n"), ex);
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * 去除 H2 不支持的语句
+	 * @param ddls
+	 * @return
+	 */
+	private String[] reformatForH2(String[] ddls) {
+		String dbUrl = Application.getBean(AesPreferencesConfigurer.class).getItem("db.url");
+		if (!dbUrl.contains("jdbc:h2:")) return ddls;
+
+		for (int i = 0; i < ddls.length; i++) {
+			List<String> ddl = new ArrayList<>();
+			for (String L2 : ddls[i].split("\n")) {
+				L2 = L2.trim();
+				if (L2.startsWith("index") || L2.startsWith("fulltext") || L2.startsWith("unique")) {
+					continue;
+				}
+				if (L2.startsWith("primary") && L2.endsWith(",")) {
+					L2 = L2.substring(0, L2.length() - 1);
+				}
+				ddl.add(L2);
+			}
+			ddls[i] = StringUtils.join(ddl, "\n");
+		}
+		return ddls;
 	}
 }
