@@ -259,7 +259,7 @@ public class UserStore {
 				dept.removeMember(oldUser);
 				dept.addMember(newUser);
 			}
-			for (Team team : oldUser.getOwningTeams()) {
+			for (Team team : oldUser.getOwningTeams().toArray(new Team[0])) {
 				team.removeMember(oldUser);
 				team.addMember(newUser);
 			}

@@ -15,8 +15,8 @@ create table if not exists `team` (
   `IS_DISABLED`        char(1) default 'F' comment '是否停用',
   `QUICK_CODE`         varchar(70),
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
-  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   primary key  (`TEAM_ID`)
 )Engine=InnoDB;
@@ -26,7 +26,7 @@ create table if not exists `team_member` (
   `TEAM_ID`            char(20) not null,
   `USER_ID`            char(20) not null,
   primary key  (`MEMBER_ID`),
-  unique index `UIX1_team_member` (`TEAM_ID`, `USER_ID`)
+  unique index UIX0_team_member (`TEAM_ID`, `USER_ID`)
 )Engine=InnoDB;
 INSERT INTO `team` (`TEAM_ID`, `NAME`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`, `QUICK_CODE`)
   VALUES
@@ -49,14 +49,14 @@ create table if not exists `feeds` (
   `ATTACHMENTS`        varchar(700) comment '附件',
   `RELATED_RECORD`     char(20) comment '相关业务记录',
   `SCOPE`              varchar(20) default 'ALL' comment '哪些人可见, 可选值: ALL/SELF/$TeamID',
-  `MODIFIED_BY`        char(20) not null comment '修改人',
-  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `CREATED_BY`         char(20) not null comment '创建人',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   primary key  (`FEEDS_ID`),
-  index `IX1_feeds` (`CREATED_ON`, `SCOPE`, `TYPE`, `CREATED_BY`),
-  index `IX2_feeds` (`RELATED_RECORD`),
-  fulltext index `FIX3_feeds` (`CONTENT`)
+  index IX0_feeds (`CREATED_ON`, `SCOPE`, `TYPE`, `CREATED_BY`),
+  index IX1_feeds (`RELATED_RECORD`),
+  fulltext index FIX2_feeds (`CONTENT`)
 )Engine=InnoDB;
 -- ************ Entity [FeedsComment] DDL ************
 create table if not exists `feeds_comment` (
@@ -65,12 +65,12 @@ create table if not exists `feeds_comment` (
   `CONTENT`            text(3000) not null comment '内容',
   `IMAGES`             varchar(700) comment '图片',
   `ATTACHMENTS`        varchar(700) comment '附件',
-  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
-  `CREATED_BY`         char(20) not null comment '创建人',
-  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `CREATED_BY`         char(20) not null comment '创建人',
   primary key  (`COMMENT_ID`),
-  index `IX1_feeds_comment` (`FEEDS_ID`)
+  index IX0_feeds_comment (`FEEDS_ID`)
 )Engine=InnoDB;
 -- ************ Entity [FeedsLike] DDL ************
 create table if not exists `feeds_like` (
@@ -79,7 +79,7 @@ create table if not exists `feeds_like` (
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   primary key  (`LIKE_ID`),
-  index `IX1_feeds_like` (`SOURCE`, `CREATED_BY`)
+  index IX0_feeds_like (`SOURCE`, `CREATED_BY`)
 )Engine=InnoDB;
 -- ************ Entity [FeedsMention] DDL ************
 create table if not exists `feeds_mention` (
@@ -88,7 +88,7 @@ create table if not exists `feeds_mention` (
   `COMMENT_ID`         char(20) comment '哪个评论',
   `USER`               char(20) not null comment '哪个用户',
   primary key  (`MENTION_ID`),
-  index `IX1_feeds_mention` (`USER`, `FEEDS_ID`, `COMMENT_ID`)
+  index IX0_feeds_mention (`USER`, `FEEDS_ID`, `COMMENT_ID`)
 )Engine=InnoDB;
 
 -- #15 Widget in page (v1.6)
@@ -119,8 +119,8 @@ create table if not exists `recycle_bin` (
   `DELETED_ON`         timestamp not null default current_timestamp comment '删除时间',
   `CHANNEL_WITH`       char(20) comment '删除渠道(空为直接删除，否则为关联删除)',
   primary key  (`RECYCLE_ID`),
-  index `IX1_recycle_bin` (`BELONG_ENTITY`, `RECORD_NAME`, `DELETED_BY`, `DELETED_ON`),
-  index `IX2_recycle_bin` (`RECORD_ID`, `CHANNEL_WITH`)
+  index IX0_recycle_bin (`BELONG_ENTITY`, `RECORD_NAME`, `DELETED_BY`, `DELETED_ON`),
+  index IX1_recycle_bin (`RECORD_ID`, `CHANNEL_WITH`)
 )Engine=InnoDB;
 -- ************ Entity [RevisionHistory] DDL ************
 create table if not exists `revision_history` (
@@ -133,8 +133,8 @@ create table if not exists `revision_history` (
   `REVISION_ON`        timestamp not null default current_timestamp comment '操作时间',
   `CHANNEL_WITH`       char(20) comment '变更渠道(空为直接，否则为关联)',
   primary key  (`REVISION_ID`),
-  index `IX1_revision_history` (`BELONG_ENTITY`, `REVISION_TYPE`, `REVISION_BY`, `REVISION_ON`),
-  index `IX2_revision_history` (`RECORD_ID`, `CHANNEL_WITH`)
+  index IX0_revision_history (`BELONG_ENTITY`, `REVISION_TYPE`, `REVISION_BY`, `REVISION_ON`),
+  index IX1_revision_history (`RECORD_ID`, `CHANNEL_WITH`)
 )Engine=InnoDB;
 
 -- #10 Reports (v1.5)
@@ -146,10 +146,10 @@ create table if not exists `data_report_config` (
   `TEMPLATE_FILE`      varchar(200) comment '模板文件',
   `TEMPLATE_CONTENT`   text(20000) comment '模板内容',
   `IS_DISABLED`        char(1) default 'F' comment '是否停用',
-  `MODIFIED_BY`        char(20) not null comment '修改人',
-  `CREATED_BY`         char(20) not null comment '创建人',
-  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `CREATED_BY`         char(20) not null comment '创建人',
   primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 
@@ -166,12 +166,12 @@ create table if not exists `rebuild_api` (
   `APP_SECRET`         varchar(60) not null comment 'APPSECRET',
   `BIND_USER`          char(20) comment '绑定用户(权限)',
   `BIND_IPS`           varchar(300) comment 'IP白名单',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `CREATED_BY`         char(20) not null comment '创建人',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
-  `MODIFIED_BY`        char(20) not null comment '修改人',
   primary key  (`UNIQUE_ID`),
-  unique index `UIX1_rebuild_api` (`APP_ID`)
+  unique index UIX0_rebuild_api (`APP_ID`)
 )Engine=InnoDB;
 -- ************ Entity [RebuildApiRequest] DDL ************
 create table if not exists `rebuild_api_request` (
@@ -184,7 +184,7 @@ create table if not exists `rebuild_api_request` (
   `REQUEST_TIME`       timestamp not null default current_timestamp comment '请求时间',
   `RESPONSE_TIME`      timestamp not null default current_timestamp comment '响应时间',
   primary key  (`REQUEST_ID`),
-  index `IX1_rebuild_api_request` (`APP_ID`, `REMOTE_IP`, `REQUEST_URL`, `REQUEST_TIME`)
+  index IX0_rebuild_api_request (`APP_ID`, `REMOTE_IP`, `REQUEST_URL`, `REQUEST_TIME`)
 )Engine=InnoDB;
 
 -- #7 Type of Notification
@@ -200,10 +200,10 @@ create table if not exists `robot_approval_config` (
   `NAME`               varchar(100) not null comment '流程名称',
   `FLOW_DEFINITION`    text(21845) comment '流程定义',
   `IS_DISABLED`        char(1) default 'F' comment '是否停用',
-  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `CREATED_BY`         char(20) not null comment '创建人',
-  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
+  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 -- ************ Entity [RobotApprovalStep] DDL ************
@@ -219,12 +219,12 @@ create table if not exists `robot_approval_step` (
   `PREV_NODE`          varchar(100) not null comment '上一审批节点',
   `IS_CANCELED`        char(1) default 'F' comment '是否取消',
   `IS_WAITING`         char(1) default 'F' comment '是否生效',
-  `MODIFIED_BY`        char(20) not null comment '修改人',
-  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `CREATED_BY`         char(20) not null comment '创建人',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   primary key  (`STEP_ID`),
-  index `IX1_robot_approval_step` (`RECORD_ID`, `APPROVAL_ID`, `NODE`, `IS_CANCELED`, `IS_WAITING`)
+  index IX0_robot_approval_step (`RECORD_ID`, `APPROVAL_ID`, `NODE`, `IS_CANCELED`, `IS_WAITING`)
 )Engine=InnoDB;
 
 -- #5 Classification better (v1.3)
@@ -241,25 +241,25 @@ create table if not exists `auto_fillin_config` (
   `SOURCE_FIELD`       varchar(100) not null comment '引用实体的字段',
   `TARGET_FIELD`       varchar(100) not null comment '当前实体的字段',
   `EXT_CONFIG`         varchar(700) comment '更多扩展配置, JSON格式KV',
-  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `CREATED_BY`         char(20) not null comment '创建人',
-  `MODIFIED_BY`        char(20) not null comment '修改人',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
   primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 -- ************ Entity [RobotTriggerConfig] DDL ************
 create table if not exists `robot_trigger_config` (
   `CONFIG_ID`          char(20) not null,
   `BELONG_ENTITY`      varchar(100) not null,
-  `WHEN`               int(11) default '0' comment '动作 (累加值)',
+  `WHEN`               int(11) default '0' comment '动作(累加值)',
   `WHEN_FILTER`        text(21845) comment '附加过滤器',
   `ACTION_TYPE`        varchar(50) not null comment '预定义的触发操作类型',
   `ACTION_CONTENT`     text(21845) comment '预定义的触发操作类型, JSON KV 对',
   `PRIORITY`           int(11) default '1' comment '执行优先级, 越大越高(越先执行)',
   `NAME`               varchar(100) comment '触发器名称',
   `IS_DISABLED`        char(1) default 'F' comment '是否停用',
-  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `CREATED_BY`         char(20) not null comment '创建人',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   primary key  (`CONFIG_ID`)
@@ -282,9 +282,9 @@ create table if not exists `classification` (
   `IS_DISABLED`        char(1) default 'F',
   `OPEN_LEVEL`         smallint(6) default '0',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
-  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `CREATED_BY`         char(20) not null comment '创建人',
   `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   primary key  (`DATA_ID`)
 )Engine=InnoDB;
 -- ************ Entity [ClassificationData] DDL ************
@@ -297,13 +297,13 @@ create table if not exists `classification_data` (
   `CODE`               varchar(50),
   `LEVEL`              smallint(6) default '0',
   `IS_HIDE`            char(1) default 'F',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `CREATED_BY`         char(20) not null comment '创建人',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
-  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   primary key  (`ITEM_ID`),
-  index `IX1_classification_data` (`DATA_ID`, `PARENT`),
-  index `IX2_classification_data` (`DATA_ID`, `FULL_NAME`)
+  index IX0_classification_data (`DATA_ID`, `PARENT`),
+  index IX1_classification_data (`DATA_ID`, `FULL_NAME`)
 )Engine=InnoDB;
 INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `IS_DISABLED`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`) 
   VALUES
@@ -320,7 +320,7 @@ create table if not exists `login_log` (
   `LOGIN_TIME`         timestamp not null default current_timestamp comment '登陆时间',
   `LOGOUT_TIME`        timestamp null default null comment '退出时间',
   primary key  (`LOG_ID`),
-  index `IX1_login_log` (`USER`, `LOGIN_TIME`)
+  index IX0_login_log (`USER`, `LOGIN_TIME`)
 )Engine=InnoDB;
 INSERT INTO `layout_config` (`CONFIG_ID`, `BELONG_ENTITY`, `CONFIG`, `APPLY_TYPE`, `SHARE_TO`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`)
   VALUES ('013-9000000000000005', 'LoginLog', '[{"field":"user"},{"field":"loginTime"},{"field":"userAgent"},{"field":"ipAddr"},{"field":"logoutTime"}]', 'DATALIST', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001');

@@ -25,7 +25,9 @@ import cn.devezhao.commons.sql.builder.UpdateBuilder;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.mysql.jdbc.Driver;
+import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
+import com.rebuild.server.helper.AesPreferencesConfigurer;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.Lisence;
 import com.rebuild.server.helper.SysConfiguration;
@@ -48,7 +50,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -128,23 +129,29 @@ public class Installer {
      * @return
      */
     protected Properties buildConnectionProps(String dbName) {
+        final JSONObject dbProps = installProps.getJSONObject("databaseProps");
+        if (dbName == null) {
+            dbName = dbProps == null ? null : dbProps.getString("dbName");
+        }
+
         if (quickMode) {
             Properties props = new Properties();
-            File dbFile = SysConfiguration.getFileOfData("H2DB");
-            if (dbFile.exists()) FileUtils.deleteQuietly(dbFile);
-            props.put("db.url",
-                    String.format("jdbc:h2:file:%s;MODE=MYSQL;DATABASE_TO_LOWER=TRUE;IGNORECASE=TRUE;DB_CLOSE_DELAY=-1", dbFile.getAbsolutePath()));
-            props.put("db.user", "sa");
-            props.put("db.passwd", "sa");
+            dbName = StringUtils.defaultIfBlank(dbName, "H2DB");
+            File dbFile = SysConfiguration.getFileOfData(dbName);
+            LOG.info("Use H2 database : " + dbFile);
+
+            props.put("db.url", String.format("jdbc:h2:file:%s;MODE=MYSQL;DATABASE_TO_LOWER=TRUE;IGNORECASE=TRUE",
+                    dbFile.getAbsolutePath()));
+            props.put("db.user", "rebuild");
+            props.put("db.passwd", "rebuild");
             return props;
         }
 
-        JSONObject dbProps = installProps.getJSONObject("databaseProps");
         String dbUrl = String.format(
                 "jdbc:mysql://%s:%d/%s?useUnicode=true&characterEncoding=UTF8&zeroDateTimeBehavior=convertToNull&useSSL=false&sessionVariables=default_storage_engine=InnoDB",
                 dbProps.getString("dbHost"),
                 dbProps.getIntValue("dbPort"),
-                StringUtils.defaultIfBlank(dbName, dbProps.getString("dbName")));
+                dbName);
         String dbUser = dbProps.getString("dbUser");
         String dbPassword = dbProps.getString("dbPassword");
 
@@ -161,7 +168,6 @@ public class Installer {
      */
     protected void installDatabase() {
         if (!quickMode) {
-
             // 创建数据库（如果需要）
             // noinspection EmptyTryBlock
             try (Connection ignored = getConnection(null)) {
@@ -188,14 +194,12 @@ public class Installer {
 
         // 初始化数据库
         try (Connection conn = getConnection(null)) {
-            try (Statement stmt = conn.createStatement()) {
-                for (String s : getDbInitScript()) {
-                    stmt.addBatch(s);
+            for (String sql : getDbInitScript()) {
+                try (Statement stmt = conn.createStatement()) {
+                    stmt.execute(sql);
                 }
-
-                int[] affected = stmt.executeBatch();
-                LOG.warn("Database successed : " + Arrays.toString(affected));
             }
+            LOG.warn("Database schemes successed.");
 
         } catch (SQLException | IOException e) {
             throw new SetupException(e);
@@ -212,23 +216,28 @@ public class Installer {
 
         List<String> SQLS = new ArrayList<>();
         StringBuilder SQL = new StringBuilder();
-        boolean ignoreMode = false;
+        boolean ignoreTerms = false;
         for (Object L : LS) {
             String L2 = L.toString().trim();
 
+            // double 字段也不支持
+            boolean H2Supported = quickMode && L2.startsWith("fulltext");
+
             // Ignore comments and line of blank
-            if (StringUtils.isEmpty(L2) || L2.startsWith("--")) continue;
+            if (StringUtils.isEmpty(L2) || L2.startsWith("--") || H2Supported) continue;
             if (L2.startsWith("/*") || L2.endsWith("*/")) {
-                ignoreMode = L2.startsWith("/*");
+                ignoreTerms = L2.startsWith("/*");
                 continue;
-            } else if (ignoreMode) {
+            } else if (ignoreTerms) {
                 continue;
             }
 
-            SQL.append(L2).append('\n');
+            SQL.append(L2);
             if (L2.endsWith(";")) {  // SQL ends
-                SQLS.add(SQL.toString());
+                SQLS.add(SQL.toString().replace(",\n)Engine=", "\n)Engine="));
                 SQL = new StringBuilder();
+            } else {
+                SQL.append('\n');
             }
         }
         return SQLS.toArray(new String[0]);
@@ -298,7 +307,7 @@ public class Installer {
      * @return
      */
     public static boolean checkInstall() {
-//        if (Application.devMode()) return true;  // for dev
+        if (Application.devMode()) return true;  // for dev
 
         File file = SysConfiguration.getFileOfData(INSTALL_FILE);
         if (file.exists()) {
@@ -327,5 +336,15 @@ public class Installer {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 使用 H2 数据库
+     *
+     * @return
+     */
+    public static boolean isUseH2() {
+        String dbUrl = Application.getBean(AesPreferencesConfigurer.class).getItem("db.url");
+        return dbUrl.contains("jdbc:h2:");
     }
 }

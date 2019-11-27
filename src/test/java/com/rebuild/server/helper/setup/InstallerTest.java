@@ -18,8 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.setup;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.utils.JSONUtils;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -31,7 +31,9 @@ import java.sql.DatabaseMetaData;
  */
 public class InstallerTest {
 
-    private static final JSONObject USE_H2 = JSONUtils.toJSONObject("installType", 99);
+    private static final JSONObject USE_H2 = JSON.parseObject(String.format(
+            "{installType:99, databaseProps:{dbName:'H2DB-%d'}, systemProps:{appName:'RB999'},adminPasswd:'admin9'}",
+            System.currentTimeMillis()));
 
     @Test
     public void getDbInitScript() throws Exception {

@@ -22,15 +22,11 @@ import cn.devezhao.persist4j.DataAccessException;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.JdbcSupport;
 import cn.devezhao.persist4j.engine.StatementCallback;
-import cn.devezhao.persist4j.util.SqlHelper;
-import org.springframework.jdbc.datasource.DataSourceUtils;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -81,35 +77,7 @@ public class SQLExecutor {
 			throw new DataAccessException("SQL#: " + sql, ex);
 		}
 	}
-	
-	/**
-	 * @param sql
-	 * @return
-	 */
-	public long executeInsert(String sql) {
-		Connection connect = DataSourceUtils.getConnection(aPMFactory.getDataSource());
-		
-		PreparedStatement pstmt = null;
-		ResultSet keyRs = null;
-		try {
-			pstmt = connect.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-			pstmt.executeUpdate();
-			keyRs = pstmt.getGeneratedKeys();
-			
-			if (keyRs.next()) {
-				return keyRs.getLong(1);
-			} else {
-				return 0;
-			}
-		} catch (Exception ex) {
-			throw new DataAccessException("SQL#: " + sql, ex);
-		} finally {
-			SqlHelper.close(keyRs);
-			SqlHelper.close(pstmt);
-			SqlHelper.close(connect, aPMFactory.getDataSource());
-		}
-	}
-	
+
 	/**
 	 * @param sqls
 	 * @return
@@ -124,35 +92,36 @@ public class SQLExecutor {
 	 * @return
 	 */
 	public int executeBatch(String[] sqls, int timeout) {
-	    int execTotal = 0;
+	    int affected = 0;
         List<String> tmp = new ArrayList<>();
-        for (String s : sqls) {
-            tmp.add(s);
+        for (String sql : sqls) {
+            tmp.add(sql);
             if (tmp.size() == MAX_BATCH_SIZE) {
-                try {
-                    final JdbcSupport jdbcSupport = (JdbcSupport) aPMFactory.createPersistManager();
-                    jdbcSupport.setTimeout(timeout);
-                    
-                    int[] exec = jdbcSupport.executeBatch(tmp.toArray(new String[0]));
-                    for (int a : exec) execTotal += a;
-                } catch (Exception ex) {
-                    throw new DataAccessException("Batch SQL Error! #", ex);
-                }
+                affected += this.executeBatchInternal(tmp, timeout);
                 tmp.clear();
             }
         }
-        
-        if (!tmp.isEmpty()) {
-            try {
-                final JdbcSupport jdbcSupport = (JdbcSupport) aPMFactory.createPersistManager();
-                jdbcSupport.setTimeout(timeout);
-                
-                int[] exec = jdbcSupport.executeBatch(tmp.toArray(new String[0]));
-                for (int a : exec) execTotal += a;
-            } catch (Exception ex) {
-                throw new DataAccessException("Batch SQL Error! #", ex);
-            }
-        }
-        return execTotal;
+
+        if (!tmp.isEmpty()) affected += this.executeBatchInternal(tmp, timeout);
+        return affected;
 	}
+
+    /**
+     * @param sqls
+     * @param timeout
+     * @return
+     */
+	private int executeBatchInternal(Collection<String> sqls, int timeout) {
+	    int affected = 0;
+        try {
+            final JdbcSupport jdbcSupport = (JdbcSupport) aPMFactory.createPersistManager();
+            jdbcSupport.setTimeout(timeout);
+
+            int[] exec = jdbcSupport.executeBatch(sqls.toArray(new String[0]));
+            for (int a : exec) affected += a;
+        } catch (Exception ex) {
+            throw new DataAccessException("Batch SQL Error! #", ex);
+        }
+        return affected;
+    }
 }
