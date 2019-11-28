@@ -57,7 +57,7 @@ public final class Lisence {
      * @return
      */
     public static JSON queryAuthority() {
-        String queryUrl = "https://getrebuild.com/authority/query?k=IjkMHgq94T7s7WkP&sn=" + SN();
+        String queryUrl = "https://getrebuild.com/api/authority/query?k=IjkMHgq94T7s7WkP&sn=" + SN();
         try {
             String result = CommonsUtils.get(queryUrl);
             if (StringUtils.isNotBlank(result) && JSONUtils.wellFormat(result)) {
