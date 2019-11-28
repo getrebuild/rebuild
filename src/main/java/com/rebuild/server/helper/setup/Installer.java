@@ -39,6 +39,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
+import org.springframework.util.Assert;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
@@ -68,7 +69,7 @@ public class Installer {
 
     private JSONObject installProps;
     // 快速安装模式
-    private boolean quickMode;
+    final private boolean quickMode;
 
     /**
      * @param installProps
@@ -128,7 +129,7 @@ public class Installer {
      * @param dbName
      * @return
      */
-    protected Properties buildConnectionProps(String dbName) {
+    private Properties buildConnectionProps(String dbName) {
         final JSONObject dbProps = installProps.getJSONObject("databaseProps");
         if (dbName == null) {
             dbName = dbProps == null ? null : dbProps.getString("dbName");
@@ -138,7 +139,7 @@ public class Installer {
             Properties props = new Properties();
             dbName = StringUtils.defaultIfBlank(dbName, "H2DB");
             File dbFile = SysConfiguration.getFileOfData(dbName);
-            LOG.info("Use H2 database : " + dbFile);
+            LOG.warn("Use H2 database : " + dbFile);
 
             props.put("db.url", String.format("jdbc:h2:file:%s;MODE=MYSQL;DATABASE_TO_LOWER=TRUE;IGNORECASE=TRUE",
                     dbFile.getAbsolutePath()));
@@ -147,6 +148,7 @@ public class Installer {
             return props;
         }
 
+        Assert.notNull(dbProps, "[databaseProps] must be null");
         String dbUrl = String.format(
                 "jdbc:mysql://%s:%d/%s?useUnicode=true&characterEncoding=UTF8&zeroDateTimeBehavior=convertToNull&useSSL=false&sessionVariables=default_storage_engine=InnoDB",
                 dbProps.getString("dbHost"),
@@ -194,12 +196,14 @@ public class Installer {
 
         // 初始化数据库
         try (Connection conn = getConnection(null)) {
+            int affetced = 0;
             for (String sql : getDbInitScript()) {
                 try (Statement stmt = conn.createStatement()) {
                     stmt.execute(sql);
+                    affetced++;
                 }
             }
-            LOG.warn("Database schemes successed.");
+            LOG.info("Schemes of database created : " + affetced);
 
         } catch (SQLException | IOException e) {
             throw new SetupException(e);
