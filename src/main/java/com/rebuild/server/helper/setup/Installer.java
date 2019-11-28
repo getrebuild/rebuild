@@ -24,7 +24,6 @@ import cn.devezhao.commons.sql.builder.InsertBuilder;
 import cn.devezhao.commons.sql.builder.UpdateBuilder;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
-import com.mysql.jdbc.Driver;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.helper.AesPreferencesConfigurer;
@@ -114,12 +113,6 @@ public class Installer {
      * @throws SQLException
      */
     public Connection getConnection(String dbName) throws SQLException {
-        try {
-            Class.forName(quickMode ? org.h2.Driver.class.getName() : Driver.class.getName());
-        } catch (ClassNotFoundException e) {
-            throw new SetupException(e);
-        }
-
         Properties props = this.buildConnectionProps(dbName);
         return DriverManager.getConnection(
                 props.getProperty("db.url"), props.getProperty("db.user"), props.getProperty("db.passwd"));
@@ -338,11 +331,6 @@ public class Installer {
                     System.setProperty((String) e.getKey(), (String) e.getValue());
                     if ("db.url".equals(e.getKey()) && ((String) e.getValue()).contains("jdbc:h2:")) {
                         LOG.warn("Using QuickMode with H2 database!");
-                        try {
-                            Class.forName(org.h2.Driver.class.getName());
-                        } catch (ClassNotFoundException h2ex) {
-                            throw new SetupException(h2ex);
-                        }
                     }
                 }
             } catch (IOException e) {

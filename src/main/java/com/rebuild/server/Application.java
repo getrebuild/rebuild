@@ -51,6 +51,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.h2.Driver;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -75,6 +76,22 @@ public final class Application {
 	/** Logging for Global
 	 */
 	public static final Log LOG = LogFactory.getLog(Application.class);
+
+	static {
+		// Driver for DB
+		try {
+			Class.forName(com.mysql.jdbc.Driver.class.getName());
+			Class.forName(Driver.class.getName());
+		} catch (ClassNotFoundException ex) {
+			throw new RebuildException(ex);
+		}
+
+		// for fastjson Serialize
+		SerializeConfig.getGlobalInstance().put(ID.class, ToStringSerializer.instance);
+		SerializeConfig.getGlobalInstance().put(Date.class, RbDateCodec.instance);
+		SerializeConfig.getGlobalInstance().put(StandardRecord.class, RbRecordCodec.instance);
+		SerializeConfig.getGlobalInstance().put(QueryedRecord.class, RbRecordCodec.instance);
+	}
 	
 	// 调试模式/开发模式
 	private static boolean debugMode = false;
@@ -106,12 +123,6 @@ public final class Application {
 		    LOG.fatal(formatFailure("REBUILD BOOTING FAILURE DURING THE STATUS CHECK.", "PLEASE VIEW LOGS FOR MORE DETAILS."));
 			return;
 		}
-
-		// for fastjson Serialize
-		SerializeConfig.getGlobalInstance().put(ID.class, ToStringSerializer.instance);
-		SerializeConfig.getGlobalInstance().put(Date.class, RbDateCodec.instance);
-		SerializeConfig.getGlobalInstance().put(StandardRecord.class, RbRecordCodec.instance);
-		SerializeConfig.getGlobalInstance().put(QueryedRecord.class, RbRecordCodec.instance);
 
 		// 刷新配置缓存
 		for (ConfigurableItem item : ConfigurableItem.values()) {

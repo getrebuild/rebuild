@@ -92,13 +92,7 @@ public final class ServerStatus {
 		}
 		return isStatusOK();
 	}
-	
-	static {
-		try {
-			Class.forName(com.mysql.jdbc.Driver.class.getName());
-		} catch (ClassNotFoundException ignored) {
-		}
-	}
+
 	/**
 	 * 数据库连接
 	 * 
