@@ -379,13 +379,13 @@ class RbFormReadonly extends RbFormElement {
     super(props)
   }
   renderElement() {
-    let texted = this.props.value
-    if (texted) {
+    let text = this.props.value
+    if (text) {
       let type = this.props.type
-      if (type === 'REFERENCE') texted = texted[1]
-      else if (type === 'PICKLIST' || type === 'STATE') texted = this.__textedOptionValue(this.props.options, texted)
+      if (type === 'REFERENCE') text = text[1]
+      else if (type === 'PICKLIST' || type === 'STATE') text = this.getOptionText(this.props.options, text)
     }
-    return <input className="form-control form-control-sm" type="text" readOnly value={texted} />
+    return <input className="form-control form-control-sm" type="text" readOnly value={text} />
   }
   setValue() {
     // NOOP
@@ -394,9 +394,10 @@ class RbFormReadonly extends RbFormElement {
     return this.props.value
   }
 
-  __textedOptionValue(options, value) {
+  // 获取选项显示值
+  getOptionText(options, value) {
     let texted = null
-    $(options).each(function () {
+    $(options || []).each(function () {
       // eslint-disable-next-line eqeqeq
       if (this.id == value) {
         texted = this.text

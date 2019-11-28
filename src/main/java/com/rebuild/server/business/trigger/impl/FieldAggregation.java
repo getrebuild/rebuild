@@ -94,10 +94,10 @@ public class FieldAggregation implements TriggerAction {
 	public void execute(OperatingContext operatingContext) throws TriggerException {
 		Integer depth = CALL_CHAIN_DEPTH.get();
 		if (depth == null) {
-			depth = 0;
+			depth = 1;
 		}
-		if (depth >= MAX_DEPTH) {
-			throw new TriggerException("Too many call-chain with triggers");
+		if (depth > MAX_DEPTH) {
+			throw new TriggerException("Too many call-chain with triggers : " + depth);
 		}
 		
 		this.prepare(operatingContext);
@@ -160,8 +160,9 @@ public class FieldAggregation implements TriggerAction {
 				PrivilegesGuardInterceptor.setNoPermissionPassOnce(targetRecordId);
 			}
 
-			Application.getEntityService(targetEntity.getEntityCode()).update(targetRecord);
+			// 会关联触发下一触发器（如有）
 			CALL_CHAIN_DEPTH.set(depth + 1);
+			Application.getEntityService(targetEntity.getEntityCode()).update(targetRecord);
 		}
 	}
 
@@ -191,5 +192,10 @@ public class FieldAggregation implements TriggerAction {
 		if (o != null && o[0] != null && o[1] != null) {
 			this.targetRecordId = (ID) o[0];
 		}
+	}
+
+	@Override
+	public void clean() {
+		CALL_CHAIN_DEPTH.remove();
 	}
 }
