@@ -33,7 +33,7 @@ import java.sql.DatabaseMetaData;
 public class InstallerTest {
 
     private static final JSONObject USE_H2 = JSON.parseObject(String.format(
-            "{installType:99, databaseProps:{dbName:'H2DB-%d'}, systemProps:{appName:'RB999'},adminPasswd:'admin9'}",
+            "{installType:99, databaseProps:{dbName:'H2DB-%d'}, systemProps:{appName:'RB999'}, adminProps:{adminPasswd:'admin999'}}",
             System.currentTimeMillis()));
 
     @Test

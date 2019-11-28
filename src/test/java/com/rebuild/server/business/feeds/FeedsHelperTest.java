@@ -48,6 +48,10 @@ public class FeedsHelperTest extends TestSupportWithUser {
         int num = FeedsHelper.getNumOfComment(feedsId);
         Assert.assertTrue(num == 1);
         Application.getService(EntityHelper.Feeds).delete(feedsId);
+
+        FeedsHelper.isMyLike(feedsId, SIMPLE_USER);
+        FeedsHelper.getNumOfLike(feedsId);
+        FeedsHelper.checkReadable(feedsId, SIMPLE_USER);
     }
 
     private ID createFeeds() {
