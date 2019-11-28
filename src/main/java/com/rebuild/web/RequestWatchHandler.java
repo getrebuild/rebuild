@@ -40,7 +40,7 @@ import java.io.IOException;
 
 /**
  * Controll 请求拦截
- * 
+ *
  * @author Zhao Fangfang
  * @since 1.0, 2013-6-24
  */
@@ -61,42 +61,40 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	}
 
 	@Override
-	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+	public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
+			Object handler) throws Exception {
 		response.setCharacterEncoding("utf-8");
 
-		// for Language
-		String localeInUrl = request.getParameter("locale");
-		if (localeInUrl != null && Languages.instance.isAvailable(localeInUrl)) {
-			ServletUtils.setSessionAttribute(request, LanguageControll.SK_LOCALE, localeInUrl);
-		}
-		String locale = AppUtils.getLocale(request);
-		Application.getSessionStore().setLocale(locale);
+        // for Language
+        String localeInUrl = request.getParameter("locale");
+        if (localeInUrl != null && Languages.instance.isAvailable(localeInUrl)) {
+            ServletUtils.setSessionAttribute(request, LanguageControll.SK_LOCALE, localeInUrl);
+        }
+        String locale = AppUtils.getLocale(request);
+        Application.getSessionStore().setLocale(locale);
 
-		// for Cache
 		final String requestUrl = request.getRequestURI();
-		if (noCache && !(ServletUtils.isAjaxRequest(request) || requestUrl.contains("/filex/img/")
-				|| requestUrl.contains("/account/user-avatar/"))) {
+		if (noCache && !(ServletUtils.isAjaxRequest(request)
+				|| requestUrl.contains("/filex/img/") || requestUrl.contains("/account/user-avatar/"))) {
 			ServletUtils.setNoCacheHeaders(response);
 		}
 
-		// Check status
 		// If server status is not passed
 		if (!Application.serversReady()) {
-			if (Installer.checkInstall()) {
-				LOG.error("Server Unavailable : " + requestUrl);
+		    if (Installer.checkInstall()) {
+                LOG.error("Server Unavailable : " + requestUrl);
 
-				if (!requestUrl.contains("/gw/server-status")) {
-					response.sendRedirect(
-							ServerListener.getContextPath() + "/gw/server-status?s=" + CodecUtils.urlEncode(requestUrl));
-					return false;
-				}
-			} else if (!requestUrl.contains("/setup/")) {
-				response.sendRedirect(ServerListener.getContextPath() + "/setup/install");
-				return false;
-			}
+                if (!requestUrl.contains("/gw/server-status")) {
+                    response.sendRedirect(ServerListener.getContextPath() + "/gw/server-status?s=" + CodecUtils.urlEncode(requestUrl));
+		            return false;
+                }
+            } else if (!requestUrl.contains("/setup/")) {
+		        response.sendRedirect(ServerListener.getContextPath() + "/setup/install");
+		        return false;
+            }
 		} else {
-			Application.getSessionStore().storeLastActive(request);
-		}
+            Application.getSessionStore().storeLastActive(request);
+        }
 
 		boolean chain = super.preHandle(request, response, handler);
 		if (chain) {
@@ -109,8 +107,9 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	 * @see RebuildExceptionResolver
 	 */
 	@Override
-	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,
-			Exception exception) throws Exception {
+	public void afterCompletion(HttpServletRequest request,
+			HttpServletResponse response, Object handler, Exception exception)
+			throws Exception {
 		super.afterCompletion(request, response, handler, exception);
 
 		final ID caller = Application.serversReady() ? Application.getSessionStore().get(true) : null;
@@ -124,20 +123,20 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 			Throwable rootCause = ThrowableUtils.getRootCause(exception);
 			StringBuffer sb = new StringBuffer()
 					.append("\n++ EXECUTE REQUEST ERROR(s) TRACE +++++++++++++++++++++++++++++++++++++++++++++")
-					.append("\nUser      : ").append(caller == null ? "-" : caller).append("\nHandler   : ")
-					.append(request.getRequestURI()).append(" [ ").append(handler).append(" ]").append("\nIP        : ")
-					.append(ServletUtils.getRemoteAddr(request)).append("\nReferer   : ")
-					.append(StringUtils.defaultIfEmpty(ServletUtils.getReferer(request), "-")).append("\nUserAgent : ")
-					.append(StringUtils.defaultIfEmpty(request.getHeader("user-agent"), "-")).append("\nCause     : ")
-					.append(rootCause.getClass().getName()).append("\nMessage   : ")
-					.append(StringUtils.defaultIfBlank(rootCause.getLocalizedMessage(), "-"));
+					.append("\nUser      : ").append(caller == null ? "-" : caller)
+					.append("\nHandler   : ").append(request.getRequestURI()).append(" [ ").append(handler).append(" ]")
+					.append("\nIP        : ").append(ServletUtils.getRemoteAddr(request))
+					.append("\nReferer   : ").append(StringUtils.defaultIfEmpty(ServletUtils.getReferer(request), "-"))
+					.append("\nUserAgent : ").append(StringUtils.defaultIfEmpty(request.getHeader("user-agent"), "-"))
+					.append("\nCause     : ").append(rootCause.getClass().getName())
+					.append("\nMessage   : ").append(StringUtils.defaultIfBlank(rootCause.getLocalizedMessage(), "-"));
 			LOG.error(sb, rootCause);
 		}
 	}
 
 	/**
 	 * 打印处理时间
-	 * 
+	 *
 	 * @param request
 	 */
 	private void logProgressTime(HttpServletRequest request) {
@@ -149,8 +148,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 			if (qstr != null) {
 				url += '?' + qstr;
 			}
-			LOG.warn("Method handle time " + startTime + " ms. Request URL [ " + url + " ] from [ "
-					+ StringUtils.defaultIfEmpty(ServletUtils.getReferer(request), "-") + " ]");
+			LOG.warn("Method handle time " + startTime + " ms. Request URL [ " + url + " ] from [ " + StringUtils.defaultIfEmpty(ServletUtils.getReferer(request), "-") + " ]");
 		}
 	}
 
@@ -184,21 +182,18 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 				if (ServletUtils.isAjaxRequest(request)) {
 					ServletUtils.writeJson(response, AppUtils.formatControllMsg(403, "请验证管理员访问权限"));
 				} else {
-					response.sendRedirect(
-							ServerListener.getContextPath() + "/user/admin-entry?nexturl=" + CodecUtils.urlEncode(requestUrl));
+					response.sendRedirect(ServerListener.getContextPath() + "/user/admin-entry?nexturl=" + CodecUtils.urlEncode(requestUrl));
 				}
 				return false;
 			}
 
 		} else {
 			if (!inIgnoreRes(requestUrl)) {
-				LOG.warn("Unauthorized access [ " + requestUrl + " ] from [ "
-						+ StringUtils.defaultIfBlank(ServletUtils.getReferer(request), "<unknow>") + " ]");
+				LOG.warn("Unauthorized access [ " + requestUrl + " ] from [ " + StringUtils.defaultIfBlank(ServletUtils.getReferer(request), "<unknow>") + " ]");
 				if (ServletUtils.isAjaxRequest(request)) {
 					ServletUtils.writeJson(response, AppUtils.formatControllMsg(403, "未授权访问"));
 				} else {
-					response.sendRedirect(
-							ServerListener.getContextPath() + "/user/login?nexturl=" + CodecUtils.urlEncode(requestUrl));
+					response.sendRedirect(ServerListener.getContextPath() + "/user/login?nexturl=" + CodecUtils.urlEncode(requestUrl));
 				}
 				return false;
 			}
@@ -208,7 +203,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 
 	/**
 	 * 是否忽略用户验证
-	 * 
+	 *
 	 * @param reqUrl
 	 * @return
 	 */
@@ -220,6 +215,6 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 		reqUrl = reqUrl.replaceFirst(ServerListener.getContextPath(), "");
 		return reqUrl.startsWith("/gw/") || reqUrl.startsWith("/assets/") || reqUrl.startsWith("/error/")
                 || reqUrl.startsWith("/t/") || reqUrl.startsWith("/s/")
-                || reqUrl.startsWith("/language/") || reqUrl.startsWith("/setup/");
+				|| reqUrl.startsWith("/setup/") || reqUrl.startsWith("/language/");
 	}
 }
