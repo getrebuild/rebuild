@@ -135,7 +135,9 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 		if (startTime > 500) {
 			String url = request.getRequestURI();
 			String qstr = request.getQueryString();
-			if (qstr != null) url += '?' + qstr;
+			if (qstr != null) {
+				url += '?' + qstr;
+			}
 			LOG.warn("Method handle time " + startTime + " ms. Request URL [ " + url + " ] from [ " + StringUtils.defaultIfEmpty(ServletUtils.getReferer(request), "-") + " ]");
 		}
 	}

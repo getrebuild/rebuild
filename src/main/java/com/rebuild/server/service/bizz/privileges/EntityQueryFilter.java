@@ -48,7 +48,8 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 	 * 总是拒绝 */
 	public static final Filter DENIED = new EntityQueryFilter() {
 		private static final long serialVersionUID = -1841438304452108874L;
-		public String evaluate(Entity entity) {
+		@Override
+        public String evaluate(Entity entity) {
 			return "( 1 = 0 )";
 		}
 	};
@@ -57,7 +58,8 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 	 * 总是允许 */
 	public static final Filter ALLOWED = new EntityQueryFilter() {
 		private static final long serialVersionUID = -1300184338130890817L;
-		public String evaluate(Entity entity) {
+		@Override
+        public String evaluate(Entity entity) {
 			return "( 1 = 1 )";
 		}
 	};

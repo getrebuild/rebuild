@@ -58,7 +58,7 @@ public class JSONUtils {
      */
     public static JSONObject toJSONObject(String[] keys, Object[] values) {
         Assert.isTrue(keys.length <= values.length, "K/V 长度不匹配");
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>(keys.length);
         for (int i = 0; i < keys.length; i++) {
             map.put(keys[i], values[i]);
         }
@@ -73,7 +73,7 @@ public class JSONUtils {
     public static JSONArray toJSONArray(String[] keys, Object[][] valuesArray) {
         List<Map<String, Object>> array = new ArrayList<>();
         for (Object[] o : valuesArray) {
-            Map<String, Object> map = new HashMap<>();
+            Map<String, Object> map = new HashMap<>(keys.length);
             for (int i = 0; i < keys.length; i++) {
                 map.put(keys[i], o[i]);
             }

@@ -1,6 +1,6 @@
 /*
 rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (C) 2018-2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,47 +19,28 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.business.feeds;
 
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.metadata.EntityHelper;
+import org.junit.Test;
 
 /**
- * 可见范围
- *
- * @author devezhao
- * @since 2019/11/4
+ * @author ZHAO
+ * @since 2019/11/28
  */
-public enum FeedsScope {
+public class FeedsConstantTest {
 
-    ALL("公开"),
-    SELF("私密"),
-    GROUP("团队"),
-
-    ;
-
-    final private String name;
-
-    FeedsScope(String name) {
-        this.name = name;
+    @Test
+    public void testFeedsScope() {
+        System.out.println(FeedsScope.parse("SELF"));
+        System.out.println(FeedsScope.parse(ID.newId(EntityHelper.Team).toLiteral()));
     }
 
-    /**
-     * @return
-     */
-    public String getName() {
-        return name;
+    @Test
+    public void testFeedsType() {
+        System.out.println(FeedsType.parse(1));
     }
 
-    /**
-     * @param any
-     * @return
-     */
-    public static FeedsScope parse(String any) {
-        if (ID.isId(any)) {
-            return GROUP;
-        }
-        for (FeedsScope s : values()) {
-            if (any.equalsIgnoreCase(s.name())) {
-                return s;
-            }
-        }
-        throw new IllegalArgumentException("Unknow scope : " + any);
+    @Test(expected = IllegalArgumentException.class)
+    public void testFeedsType2() {
+        System.out.println(FeedsType.parse(111));
     }
 }

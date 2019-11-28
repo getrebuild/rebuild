@@ -30,9 +30,9 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 任务执行调度/管理
@@ -41,9 +41,11 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @since 09/29/2018
  */
 public class TaskExecutors extends QuartzJobBean {
-	
-	private static final int EXECS_MAX = 4;
-	private static final ExecutorService EXECS = Executors.newFixedThreadPool(EXECS_MAX);
+
+	private static final int MAX_TASK = Runtime.getRuntime().availableProcessors() / 2;
+	private static final int MAX_QUEUE = MAX_TASK * 10;
+	private static final ExecutorService EXECS = new ThreadPoolExecutor(
+			MAX_TASK, MAX_TASK, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(MAX_QUEUE));
 	
 	private static final Map<String, HeavyTask<?>> TASKS = new ConcurrentHashMap<>();
 
@@ -55,12 +57,6 @@ public class TaskExecutors extends QuartzJobBean {
 	 * @return 任务 ID，可通过任务ID获取任务对象，或取消任务
 	 */
 	public static String submit(HeavyTask<?> task, ID execUser) {
-		ThreadPoolExecutor tpe = (ThreadPoolExecutor) EXECS;
-		int queueSize = tpe.getQueue().size();
-		if (queueSize > EXECS_MAX * 5) {
-			throw new RejectedExecutionException("Too many task : " + tpe.getTaskCount());
-		}
-		
 		String taskid = task.getClass().getSimpleName() + "-" + CodecUtils.randomCode(20);
 		task.setUser(execUser);
 		EXECS.execute(task);

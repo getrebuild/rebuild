@@ -77,7 +77,9 @@ public class TeamService extends SystemEntityService {
         int added = 0;
         Team team = Application.getUserStore().getTeam(teamId);
         for (ID user : members) {
-            if (team.isMember(user)) continue;
+            if (team.isMember(user)) {
+                continue;
+            }
             Record record = EntityHelper.forNew(EntityHelper.TeamMember, Application.getCurrentUser());
             record.setID("teamId", teamId);
             record.setID("userId", user);

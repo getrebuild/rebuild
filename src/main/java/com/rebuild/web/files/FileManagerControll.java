@@ -75,7 +75,9 @@ public class FileManagerControll extends BaseControll {
 
         Set<ID> willDeletes = new HashSet<>();
         for (String file : files) {
-            if (!ID.isId(file)) continue;
+            if (!ID.isId(file)) {
+                continue;
+            }
             ID fileId = ID.valueOf(file);
             if (!checkAllow(user, fileId)) {
                 writeFailure(response, "无权删除他人文件");
@@ -97,7 +99,9 @@ public class FileManagerControll extends BaseControll {
 
         List<Record> fileRecords = new ArrayList<>();
         for (String file : files) {
-            if (!ID.isId(file)) continue;
+            if (!ID.isId(file)) {
+                continue;
+            }
             ID fileId = ID.valueOf(file);
             if (!checkAllow(user, fileId)) {
                 writeFailure(response, "无权更改他人文件");
@@ -105,8 +109,11 @@ public class FileManagerControll extends BaseControll {
             }
 
             Record r = EntityHelper.forUpdate(fileId, user);
-            if (inFolder == null) r.setNull("inFolder");
-            else r.setID("inFolder", inFolder);
+            if (inFolder == null) {
+                r.setNull("inFolder");
+            } else {
+                r.setID("inFolder", inFolder);
+            }
             fileRecords.add(r);
         }
         Application.getCommonService().createOrUpdate(fileRecords.toArray(new Record[0]), false);

@@ -51,18 +51,19 @@ public class MetaFieldService extends BaseService implements AdminGuard {
 		final Field field = MetadataHelper.getField((String) fieldRecord[0], (String) fieldRecord[1]);
 		
 		// 删除此字段的相关配置记录
-		String whoUsed[] = new String[] {
+		// Field: belongEntity, belongField
+		String[] whoUsed = new String[] {
 				"PickList", "AutoFillinConfig"
 		};
 		int del = 0;
 		for (String who : whoUsed) {
-			Entity whoEntity = MetadataHelper.getEntity(who);
-			if (!(whoEntity.containsField("belongEntity") || whoEntity.containsField("belongField"))) {
+			Entity whichEntity = MetadataHelper.getEntity(who);
+			if (!whichEntity.containsField("belongEntity") || !whichEntity.containsField("belongField")) {
 				continue;
 			}
-			
-			String sql = String.format("select %s from %s where belongEntity = '%s' and belongField = '%s'", 
-					whoEntity.getPrimaryField().getName(), whoEntity.getName(), field.getOwnEntity().getName(), field.getName());
+
+			String sql = String.format("select %s from %s where belongEntity = '%s' and belongField = '%s'",
+					whichEntity.getPrimaryField().getName(), whichEntity.getName(), field.getOwnEntity().getName(), field.getName());
 			Object[][] usedArray = getPMFactory().createQuery(sql).array();
 			for (Object[] used : usedArray) {
 				del += super.delete((ID) used[0]);

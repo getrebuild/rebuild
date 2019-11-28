@@ -80,10 +80,15 @@ class RbFormState extends RbFormPickList {
     super(props)
   }
 }
+
 // 审批状态
 class RbApprovalState extends RbFormReadonly {
   constructor(props) {
     super(props)
+  }
+  getOptionText(options, value) {
+    if (this.props.$$$parent.isNew) return value
+    else return super.getOptionText(options, value)
   }
 }
 

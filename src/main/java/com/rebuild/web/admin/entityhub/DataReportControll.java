@@ -112,7 +112,7 @@ public class DataReportControll extends BasePageControll {
 
         String sql = String.format("select %s from %s order by modifiedOn desc",
                 entity.getPrimaryField().getName(), entity.getName());
-        Object random[] = Application.createQueryNoFilter(sql).unique();
+        Object[] random = Application.createQueryNoFilter(sql).unique();
         if (random == null) {
             response.sendError(400, "无法预览。未找到可用记录");
             return;

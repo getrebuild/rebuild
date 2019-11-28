@@ -139,7 +139,7 @@ public class UserAvatar extends BaseControll {
 	 * @throws IOException
 	 */
 	private String avatarCrop(File avatar, String params) throws IOException {
-		String xywh[] = params.split(",");
+		String[] xywh = params.split(",");
 		BufferedImage bi = ImageIO.read(avatar);
 		int x = Integer.parseInt(xywh[0]);
 		int y = Integer.parseInt(xywh[1]);

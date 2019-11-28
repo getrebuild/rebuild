@@ -56,13 +56,13 @@ public class FeedsHelper {
      * 点赞数
      * TODO 缓存
      *
-     * @param source
+     * @param feedsOrComment
      * @return
      */
-    public static int getNumOfLike(ID source) {
+    public static int getNumOfLike(ID feedsOrComment) {
         Object[] c = Application.createQueryNoFilter(
                 "select count(likeId) from FeedsLike where source = ?")
-                .setParameter(1, source)
+                .setParameter(1, feedsOrComment)
                 .unique();
         return c == null ? 0 : ObjectUtils.toInt(c[0]);
     }
@@ -70,15 +70,15 @@ public class FeedsHelper {
     /**
      * 指定用户是否点赞
      *
-     * @param source
-     * @param my 指定用户
+     * @param feedsOrComment
+     * @param user 指定用户
      * @return
      */
-    public static boolean isMyLike(ID source, ID my) {
+    public static boolean isMyLike(ID feedsOrComment, ID user) {
         Object[] c = Application.createQueryNoFilter(
                 "select likeId from FeedsLike where source = ? and createdBy = ?")
-                .setParameter(1, source)
-                .setParameter(2, my)
+                .setParameter(1, feedsOrComment)
+                .setParameter(2, user)
                 .unique();
         return c != null;
     }
@@ -105,7 +105,9 @@ public class FeedsHelper {
     public static Map<String, ID> findMentionsMap(String content) {
         Map<String, ID> found = new HashMap<>();
         for (String ats : content.split("@")) {
-            if (StringUtils.isBlank(ats)) continue;
+            if (StringUtils.isBlank(ats)) {
+                continue;
+            }
             String[] atss = ats.split(" ");
 
             String fullName = atss[0];
@@ -147,8 +149,12 @@ public class FeedsHelper {
         }
 
         Object[] o = Application.createQueryNoFilter(sql).setParameter(1, feedsOrComment).unique();
-        if (o == null) return false;
-        if (o[1].equals(user) || o[0].equals(FeedsScope.ALL.name())) return true;  // 自己 & 公开
+        if (o == null) {
+            return false;
+        }
+        if (o[1].equals(user) || o[0].equals(FeedsScope.ALL.name())) {
+            return true;  // 自己 & 公开
+        }
 
         // 团队
         if (ID.isId(o[0])) {

@@ -95,7 +95,7 @@ public class LoginControll extends BasePageControll {
 			ID altUser = null;
 			try {
 				alt = AES.decrypt(alt);
-				String alts[] = alt.split(",");
+				String[] alts = alt.split(",");
 				altUser = ID.isId(alts[0]) ? ID.valueOf(alts[0]) : null;
 
 				// 最大一个月有效期

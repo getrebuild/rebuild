@@ -123,7 +123,9 @@ public class ApprovalList extends ChartData implements BuiltinChart {
             for (Object[] o : stats) {
                 if ((Integer) o[0] == viewState) {
                     o[1] = ObjectUtils.toInt(o[1]) - deleted;
-                    if ((Integer) o[1] < 0) o[1] = 0;
+                    if ((Integer) o[1] < 0) {
+                        o[1] = 0;
+                    }
                 }
             }
         }

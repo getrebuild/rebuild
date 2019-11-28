@@ -79,7 +79,9 @@ public class BaseLayoutManager extends ShareToManager<ID> {
 	 */
 	public ConfigEntry getWidgetOfCharts(ID user, String entity) {
 		ConfigEntry e = getLayout(user, entity, TYPE_WCHARTS);
-		if (e == null) return null;
+		if (e == null) {
+            return null;
+        }
 
 		// 补充图表信息
 		JSONArray charts = (JSONArray) e.getJSON("config");
@@ -110,7 +112,9 @@ public class BaseLayoutManager extends ShareToManager<ID> {
 
 		Object[][] cached = getAllConfig(belongEntity, applyType);
 		for (Object[] c : cached) {
-			if (!c[0].equals(detected)) continue;
+			if (!c[0].equals(detected)) {
+                continue;
+            }
 			return new ConfigEntry()
 					.set("id", c[0])
 					.set("shareTo", c[1])
@@ -134,7 +138,9 @@ public class BaseLayoutManager extends ShareToManager<ID> {
 
 		Object[][] cached = getAllConfig((String) o[0], (String) o[1]);
 		for (Object[] c : cached) {
-			if (!c[0].equals(cfgid)) continue;
+			if (!c[0].equals(cfgid)) {
+                continue;
+            }
 			return new ConfigEntry()
 					.set("id", c[0])
 					.set("shareTo", c[1])

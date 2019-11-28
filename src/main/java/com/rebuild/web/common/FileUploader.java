@@ -105,7 +105,9 @@ public class FileUploader {
     @RequestMapping("store-filesize")
     public void storeFilesize(HttpServletRequest request, HttpServletResponse response) throws IOException {
 	    int fileSize = ObjectUtils.toInt(request.getParameter("fs"));
-	    if (fileSize < 1) return;
+	    if (fileSize < 1) {
+            return;
+        }
 	    String filePath = request.getParameter("fp");
 	    if (StringUtils.isNotBlank(filePath)) {
             FilesHelper.storeFileSize(filePath, fileSize);

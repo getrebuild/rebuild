@@ -49,8 +49,12 @@ public class ServerListener extends ContextCleanupListener {
 
 	@Override
 	public void contextInitialized(ServletContextEvent event) {
-	    if (event == null) event = eventHold;
-	    if (event == null) throw new IllegalStateException();
+	    if (event == null) {
+            event = eventHold;
+        }
+	    if (event == null) {
+            throw new IllegalStateException();
+        }
 
 		long at = System.currentTimeMillis();
 		LOG.info("Rebuild Booting (" + Application.VER + ") ...");

@@ -93,7 +93,9 @@ public class IncreasingVar extends SeriesVar {
 	 * 清空序号缓存
 	 */
 	protected void clean() {
-		if (this.field == null) return;
+		if (this.field == null) {
+            return;
+        }
 
 		final String nameKey = String.format("Series-%s.%s", field.getOwnEntity().getName(), field.getName());
 		Object keyLock = null;

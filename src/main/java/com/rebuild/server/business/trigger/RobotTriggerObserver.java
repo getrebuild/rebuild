@@ -73,10 +73,9 @@ public class RobotTriggerObserver extends OperatingObserver {
             return;
         }
 
-        boolean cleanSource = true;
-        if (getTriggerSource() != null) {
-            cleanSource = false;
-        } else {
+        final boolean cleanSource = getTriggerSource() == null;
+        // 设置原始触发源
+        if (cleanSource) {
             setTriggerSource(context);
         }
 
@@ -117,6 +116,10 @@ public class RobotTriggerObserver extends OperatingObserver {
                         throw ex;
                     } catch (Exception ex) {
                         LOG.error("Failed Trigger : " + action + " << " + context, ex);
+                    } finally {
+                        if (cleanSource) {
+                            action.clean();
+                        }
                     }
 
                 }
@@ -196,7 +199,7 @@ public class RobotTriggerObserver extends OperatingObserver {
     }
 
     /**
-     * 获取当前（线程）触发源（如有）
+     * 获取当前（线程）触发源（如有），即原始触发记录
      *
      * @return
      */

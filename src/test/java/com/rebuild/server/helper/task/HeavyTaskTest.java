@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.helper.task;
 
 import cn.devezhao.commons.ThreadPool;
+import com.rebuild.server.TestSupport;
 import com.rebuild.server.service.bizz.UserService;
 import org.junit.Test;
 
@@ -29,7 +30,7 @@ import java.util.concurrent.RejectedExecutionException;
  * @author devezhao
  * @since 01/04/2019
  */
-public class HeavyTaskTest {
+public class HeavyTaskTest extends TestSupport {
 
 	@Test
 	public void testTask() throws Exception {
@@ -50,9 +51,9 @@ public class HeavyTaskTest {
 		new TaskExecutors().executeInternal(null);
 	}
 	
-	@Test(expected=RejectedExecutionException.class)
+	@Test(expected= RejectedExecutionException.class)
 	public void testRejected() throws Exception {
-		for (int i = 0; i < 30; i++) {
+		for (int i = 0; i < 50; i++) {
 			TaskExecutors.submit(new TestTask("testRejected", 2), UserService.SYSTEM_USER);
 		}
 	}

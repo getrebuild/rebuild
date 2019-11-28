@@ -163,7 +163,17 @@ public class FlowNode {
 		}
 		return string;
 	}
-	
+
+	@Override
+	public int hashCode() {
+		return this.nodeId.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return obj.hashCode() == this.hashCode();
+	}
+
 	// --
 
 	/**

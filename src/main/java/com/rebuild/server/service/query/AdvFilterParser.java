@@ -151,7 +151,7 @@ public class AdvFilterParser {
                 if (NumberUtils.isDigits(token)) {
                     String itemSql = StringUtils.defaultIfBlank(indexItemSqls.get(Integer.valueOf(token)), "(9=9)");
                     itemSqls.add(itemSql);
-                } else if (token.equals("(") || token.equals(")") || token.equals("or") || token.equals("and")) {
+                } else if ("(".equals(token) || ")".equals(token) || "or".equals(token) || "and".equals(token)) {
                     itemSqls.add(token);
                 } else {
                     LOG.warn("Invalid equation token : " + token);

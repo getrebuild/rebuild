@@ -72,7 +72,7 @@ public class UserControll extends BaseEntityControll {
 		
 		Map<String, Object> ret = new HashMap<>();
 		ret.put("active", checkedUser.isActive());
-		ret.put("system", checkedUser.getName().equals("system") || checkedUser.getName().equals("admin"));
+		ret.put("system", "system".equals(checkedUser.getName()) || "admin".equals(checkedUser.getName()));
 		
 		ret.put("disabled", checkedUser.isDisabled());
 		if (checkedUser.getOwningRole() != null) {

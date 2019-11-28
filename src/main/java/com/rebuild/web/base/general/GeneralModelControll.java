@@ -92,13 +92,17 @@ public class GeneralModelControll extends BaseEntityControll {
 				}
 			}
 		}
-		
-		JSON model = FormsBuilder.instance.buildForm(entity, user, record);
-		// 填充前端设定的初始值
-		if (record == null && initialVal != null) {
-			FormsBuilder.instance.setFormInitialValue(MetadataHelper.getEntity(entity), model, (JSONObject) initialVal);
+
+		try {
+			JSON model = FormsBuilder.instance.buildForm(entity, user, record);
+			// 填充前端设定的初始值
+			if (record == null && initialVal != null) {
+				FormsBuilder.instance.setFormInitialValue(MetadataHelper.getEntity(entity), model, (JSONObject) initialVal);
+			}
+			writeSuccess(response, model);
+		} finally {
+			FormsBuilder.setCurrentMasterId(null);
 		}
-		writeSuccess(response, model);
 	}
 	
 	@RequestMapping("view-model")

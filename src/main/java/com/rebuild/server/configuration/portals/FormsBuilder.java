@@ -206,7 +206,9 @@ public class FormsBuilder extends FormsManager {
 			
 			if (fieldName.equalsIgnoreCase(DIVIDER_LINE)) {
 				// NOTE 分割线表单页暂不支持
-				if (!viewMode) iter.remove();
+				if (!viewMode) {
+                    iter.remove();
+                }
 				continue;
 			}
 
@@ -491,7 +493,11 @@ public class FormsBuilder extends FormsManager {
 	 * @param masterId
 	 */
 	public static void setCurrentMasterId(ID masterId) {
-		MASTERID4NEWSLAVE.set(masterId);
+		if (masterId == null) {
+			MASTERID4NEWSLAVE.remove();
+		} else {
+			MASTERID4NEWSLAVE.set(masterId);
+		}
 	}
 
 
