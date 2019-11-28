@@ -130,7 +130,8 @@ public class LoginControll extends BasePageControll {
 	public void userLogin(HttpServletRequest request, HttpServletResponse response) {
 		String vcode = getParameter(request, "vcode");
 		Boolean needVcode = (Boolean) ServletUtils.getSessionAttribute(request, AK_NEED_VCODE);
-		if (needVcode != null && needVcode && (StringUtils.isBlank(vcode) || !CaptchaUtil.ver(vcode, request))) {
+		if (needVcode != null && needVcode
+				&& (StringUtils.isBlank(vcode) || !CaptchaUtil.ver(vcode, request))) {
 			writeFailure(response, getBundle(request).lang("VCode", "Wrong"));
 			return;
 		}
@@ -184,7 +185,7 @@ public class LoginControll extends BasePageControll {
 
 	/**
 	 * 登录成功
-	 * 
+	 *
 	 * @param request
 	 * @param response
 	 * @param user
@@ -209,7 +210,7 @@ public class LoginControll extends BasePageControll {
 
 	/**
 	 * 创建登陆日志
-	 * 
+	 *
 	 * @param request
 	 * @param user
 	 * @return
@@ -218,8 +219,8 @@ public class LoginControll extends BasePageControll {
 		String ipAddr = ServletUtils.getRemoteAddr(request);
 		String userAgent = request.getHeader("user-agent");
 		UserAgent ua = UserAgent.parseUserAgentString(userAgent);
-		String uaClean = String.format("%s-%s (%s)", ua.getBrowser(), ua.getBrowserVersion().getMajorVersion(),
-				ua.getOperatingSystem());
+		String uaClean = String.format("%s-%s (%s)", ua.getBrowser(),
+				ua.getBrowserVersion().getMajorVersion(), ua.getOperatingSystem());
 
 		Record record = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
 		record.setID("user", user);
@@ -237,10 +238,10 @@ public class LoginControll extends BasePageControll {
 		response.sendRedirect("login");
 	}
 
-	// -- 找回密码
+	// --
 
 	@RequestMapping("forgot-passwd")
-	public ModelAndView forgotPasswd() {
+	public ModelAndView forgotPasswd(HttpServletRequest request, HttpServletResponse response) {
 		return createModelAndView("/user/forgot-passwd.jsp");
 	}
 
@@ -258,8 +259,8 @@ public class LoginControll extends BasePageControll {
 		}
 
 		String vcode = VCode.generate(email, 2);
-		String content = String.format("<p>%s <b>%s</b><p>", getBundle(request).lang("YourResetPasswordVCodeIs"), vcode);
-		String sentid = SMSender.sendMail(email, getBundle(request).lang("ResetPassword"), content);
+        String content = String.format("<p>%s <b>%s</b><p>", getBundle(request).lang("YourResetPasswordVCodeIs"), vcode);
+        String sentid = SMSender.sendMail(email, getBundle(request).lang("ResetPassword"), content);
 		if (sentid != null) {
 			writeSuccess(response);
 		} else {
