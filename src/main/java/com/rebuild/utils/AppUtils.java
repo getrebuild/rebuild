@@ -36,7 +36,7 @@ import java.nio.file.AccessDeniedException;
 
 /**
  * 封裝一些有用的工具方法
- * 
+ *
  * @author zhaofang123@gmail.com
  * @since 05/19/2018
  */
@@ -60,7 +60,7 @@ public class AppUtils {
 
 	/**
 	 * 获取当前请求用户
-	 * 
+	 *
 	 * @param request
 	 * @return null or UserID
 	 */
@@ -91,7 +91,7 @@ public class AppUtils {
 
 	/**
 	 * 格式化标准的客户端消息
-	 * 
+	 *
 	 * @param errorCode
 	 * @param errorMsg
 	 * @return
@@ -112,7 +112,7 @@ public class AppUtils {
 
 	/**
 	 * 获取后台抛出的错误消息
-	 * 
+	 *
 	 * @param request
 	 * @param exception
 	 * @return
@@ -151,14 +151,14 @@ public class AppUtils {
 
 	/**
 	 * 是否低于 IE11
-	 * 
+	 *
 	 * @param request
 	 * @return
 	 */
 	public static boolean isLessIE11(HttpServletRequest request) {
 		String UA = request.getHeader("user-agent").toUpperCase();
-		return UA.contains("MSIE") && (UA.contains("MSIE 6") || UA.contains("MSIE 7") || UA.contains("MSIE 8")
-				|| UA.contains("MSIE 9") || UA.contains("MSIE 10"));
+		return UA.contains("MSIE") &&
+				(UA.contains("MSIE 6") || UA.contains("MSIE 7") || UA.contains("MSIE 8") || UA.contains("MSIE 9") || UA.contains("MSIE 10"));
 	}
 
 	/**
@@ -173,15 +173,15 @@ public class AppUtils {
 		return Application.getSecurityManager().allowed(getRequestUser(request), entry);
 	}
 
-	/**
-	 * @param request
-	 * @return
-	 */
-	public static String getLocale(HttpServletRequest request) {
-		String locale = (String) ServletUtils.getSessionAttribute(request, LanguageControll.SK_LOCALE);
-		if (locale == null) {
-			locale = request.getLocale().toString();
-		}
-		return locale;
-	}
+    /**
+     * @param request
+     * @return
+     */
+    public static String getLocale(HttpServletRequest request) {
+        String locale = (String) ServletUtils.getSessionAttribute(request, LanguageControll.SK_LOCALE);
+        if (locale == null) {
+            locale = request.getLocale().toString();
+        }
+        return locale;
+    }
 }
