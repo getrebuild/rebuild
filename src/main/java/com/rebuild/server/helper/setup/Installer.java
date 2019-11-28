@@ -228,7 +228,9 @@ public class Installer {
             boolean H2Supported = quickMode && L2.startsWith("fulltext");
 
             // Ignore comments and line of blank
-            if (StringUtils.isEmpty(L2) || L2.startsWith("--") || H2Supported) continue;
+            if (StringUtils.isEmpty(L2) || L2.startsWith("--") || H2Supported) {
+                continue;
+            }
             if (L2.startsWith("/*") || L2.endsWith("*/")) {
                 ignoreTerms = L2.startsWith("/*");
                 continue;
@@ -252,7 +254,9 @@ public class Installer {
      */
     protected void installSystem() {
         JSONObject systemProps = installProps.getJSONObject("systemProps");
-        if (systemProps == null || systemProps.isEmpty()) return;
+        if (systemProps == null || systemProps.isEmpty()) {
+            return;
+        }
 
         insertSystemProp(ConfigurableItem.DataDirectory, systemProps.getString("dataDirectory"));
         insertSystemProp(ConfigurableItem.AppName, systemProps.getString("appName"));
@@ -264,7 +268,9 @@ public class Installer {
      */
     protected void installAdmin() {
         JSONObject adminProps = installProps.getJSONObject("adminProps");
-        if (adminProps == null || adminProps.isEmpty()) return;
+        if (adminProps == null || adminProps.isEmpty()) {
+            return;
+        }
 
         String adminPasswd = adminProps.getString("adminPasswd");
         String adminMail = adminProps.getString("adminMail");
@@ -276,14 +282,18 @@ public class Installer {
         if (StringUtils.isNotBlank(adminMail)) {
             ub.addColumn("EMAIL", adminMail);
         }
-        if (!ub.hasColumn()) return;
+        if (!ub.hasColumn()) {
+            return;
+        }
 
         ub.setWhere("LOGIN_NAME = 'admin'");
         executeSql(ub.toSql());
     }
 
     private void insertSystemProp(ConfigurableItem item, String value) {
-        if (StringUtils.isBlank(value)) return;
+        if (StringUtils.isBlank(value)) {
+            return;
+        }
 
         InsertBuilder ib = SqlBuilder.buildInsert("system_config")
                 .addColumn("CONFIG_ID", ID.newId(EntityHelper.SystemConfig))
@@ -311,7 +321,9 @@ public class Installer {
      * @return
      */
     public static boolean checkInstall() {
-        if (Application.devMode()) return true;  // for dev
+        if (Application.devMode()) {
+            return true;  // for dev
+        }
 
         File file = SysConfiguration.getFileOfData(INSTALL_FILE);
         if (file.exists()) {
@@ -324,7 +336,7 @@ public class Installer {
 
                 for (Map.Entry<Object, Object> e : dbProps.entrySet()) {
                     System.setProperty((String) e.getKey(), (String) e.getValue());
-                    if (e.getKey().equals("db.url") && ((String) e.getValue()).contains("jdbc:h2:")) {
+                    if ("db.url".equals(e.getKey()) && ((String) e.getValue()).contains("jdbc:h2:")) {
                         LOG.warn("Using QuickMode with H2 database!");
                         try {
                             Class.forName(org.h2.Driver.class.getName());

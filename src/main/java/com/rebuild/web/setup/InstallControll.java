@@ -83,7 +83,9 @@ public class InstallControll extends BasePageControll {
         String dir = getParameterNotNull(request, "dir");
         File file = new File(dir);
         if (file.exists()) {
-            if (!file.isDirectory()) file = null;
+            if (!file.isDirectory()) {
+                file = null;
+            }
         } else {
             try {
                 FileUtils.forceMkdir(file);

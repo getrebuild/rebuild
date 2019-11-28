@@ -203,7 +203,9 @@ public class FileListControll extends BasePageControll {
     private boolean hasAttachmentFields(Entity entity) {
         for (Field field : entity.getFields()) {
             DisplayType dt = EasyMeta.getDisplayType(field);
-            if (dt == DisplayType.FILE || dt == DisplayType.IMAGE) return true;
+            if (dt == DisplayType.FILE || dt == DisplayType.IMAGE) {
+                return true;
+            }
         }
         return false;
     }

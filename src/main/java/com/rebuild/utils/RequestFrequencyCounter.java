@@ -109,7 +109,9 @@ public class RequestFrequencyCounter implements Serializable {
         int c = 0;
         long ctm = System.currentTimeMillis() - (this.seconds * 1000);
         for (Long t : requestCounter) {
-            if (t < ctm) break;
+            if (t < ctm) {
+                break;
+            }
             c++;
         }
         return c;

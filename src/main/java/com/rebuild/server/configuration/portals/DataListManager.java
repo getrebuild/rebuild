@@ -101,7 +101,7 @@ public class DataListManager extends BaseLayoutManager {
 					continue;
 				}
 				
-				String fieldPath[] = field.split("\\.");
+				String[] fieldPath = field.split("\\.");
 				Map<String, Object> formatted = null;
 				if (fieldPath.length == 1) {
 					formatted = formatField(lastField);

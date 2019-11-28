@@ -292,9 +292,15 @@ public class ApprovalStepService extends BaseService {
 	 */
 	private void cancelAliveSteps(ID recordId, ID approvalId, String node, ID excludeStep, boolean onlyDarft) {
 		String sql = "select stepId from RobotApprovalStep where recordId = ? and isCanceled = 'F'";
-		if (approvalId != null) sql += " and approvalId = '" + approvalId + "'";
-		if (node != null) sql += " and node = '" + node + "'";
-		if (onlyDarft) sql += " and state = " + ApprovalState.DRAFT.getState();
+		if (approvalId != null) {
+            sql += " and approvalId = '" + approvalId + "'";
+        }
+		if (node != null) {
+            sql += " and node = '" + node + "'";
+        }
+		if (onlyDarft) {
+            sql += " and state = " + ApprovalState.DRAFT.getState();
+        }
 
 		Object[][] cancelled = Application.createQueryNoFilter(sql)
 				.setParameter(1, recordId)

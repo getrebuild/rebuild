@@ -50,7 +50,7 @@ public final class UpgradeDatabase {
 		int upgradeVer = dbVer;
 		try {
 			while (true) {
-				String sql[] = scripts.get(upgradeVer + 1);
+				String[] sql = scripts.get(upgradeVer + 1);
 				if (sql == null) {
 					break;
 				} else if (sql.length == 0) {

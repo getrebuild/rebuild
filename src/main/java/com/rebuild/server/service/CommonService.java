@@ -153,7 +153,7 @@ public class CommonService extends BaseService {
 	 * @param records
 	 * @param deletes
 	 */
-	public void createOrUpdateAndDelete(Record[] records, ID deletes[]) {
+	public void createOrUpdateAndDelete(Record[] records, ID[] deletes) {
 		createOrUpdateAndDelete(records, deletes, true);
 	}
 
@@ -164,7 +164,7 @@ public class CommonService extends BaseService {
 	 * @param deletes
 	 * @param strictMode
 	 */
-	public void createOrUpdateAndDelete(Record[] records, ID deletes[], boolean strictMode) {
+	public void createOrUpdateAndDelete(Record[] records, ID[] deletes, boolean strictMode) {
 		createOrUpdate(records, strictMode);
 		delete(deletes, strictMode);
 	}

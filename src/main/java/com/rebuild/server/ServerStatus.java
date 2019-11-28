@@ -168,8 +168,11 @@ public final class ServerStatus {
 		final public String error;
 		@Override
 		public String toString() {
-			if (success) return String.format("%s : [ OK ]", name);
-			else return String.format("%s : [ ERROR ] %s", name, error);
+			if (success) {
+                return String.format("%s : [ OK ]", name);
+            } else {
+                return String.format("%s : [ ERROR ] %s", name, error);
+            }
 		}
 		public JSON toJson() {
 			return JSONUtils.toJSONObject(name, success ? true : error);

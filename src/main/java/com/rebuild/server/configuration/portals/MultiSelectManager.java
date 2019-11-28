@@ -44,7 +44,7 @@ public class MultiSelectManager extends PickListManager {
      * @return
      */
     public JSONArray getSelectList(Field field) {
-        ConfigEntry entries[] = getPickListRaw(field, false);
+        ConfigEntry[] entries = getPickListRaw(field, false);
         for (ConfigEntry e : entries) {
             e.set("hide", null);
             e.set("id", null);
@@ -63,7 +63,7 @@ public class MultiSelectManager extends PickListManager {
         }
 
         List<String> labels = new ArrayList<>();
-        ConfigEntry entries[] = getPickListRaw(field, false);
+        ConfigEntry[] entries = getPickListRaw(field, false);
         for (ConfigEntry e : entries) {
             long m = e.get("mask", Long.class);
             if ((maskValue & m) != 0) {

@@ -105,7 +105,9 @@ public class FeedsHelper {
     public static Map<String, ID> findMentionsMap(String content) {
         Map<String, ID> found = new HashMap<>();
         for (String ats : content.split("@")) {
-            if (StringUtils.isBlank(ats)) continue;
+            if (StringUtils.isBlank(ats)) {
+                continue;
+            }
             String[] atss = ats.split(" ");
 
             String fullName = atss[0];
@@ -147,8 +149,12 @@ public class FeedsHelper {
         }
 
         Object[] o = Application.createQueryNoFilter(sql).setParameter(1, feedsOrComment).unique();
-        if (o == null) return false;
-        if (o[1].equals(user) || o[0].equals(FeedsScope.ALL.name())) return true;  // 自己 & 公开
+        if (o == null) {
+            return false;
+        }
+        if (o[1].equals(user) || o[0].equals(FeedsScope.ALL.name())) {
+            return true;  // 自己 & 公开
+        }
 
         // 团队
         if (ID.isId(o[0])) {

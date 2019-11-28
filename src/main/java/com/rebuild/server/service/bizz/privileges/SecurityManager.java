@@ -232,7 +232,9 @@ public class SecurityManager {
 	 */
 	public boolean allowed(ID user, int entity, Permission action) {
 		Boolean a = allowedUser(user);
-		if (a != null) return a;
+		if (a != null) {
+            return a;
+        }
 
 		Role role = theUserStore.getUser(user).getOwningRole();
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
@@ -273,7 +275,9 @@ public class SecurityManager {
 	 */
 	public boolean allowed(ID user, ID target, Permission action) {
 		Boolean a = allowedUser(user);
-		if (a != null) return a;
+		if (a != null) {
+            return a;
+        }
 
 		Role role = theUserStore.getUser(user).getOwningRole();
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
@@ -455,7 +459,9 @@ public class SecurityManager {
 	 */
 	public boolean allowed(ID user, ZeroEntry entry) {
 		Boolean a = allowedUser(user);
-		if (a != null) return a;
+		if (a != null) {
+            return a;
+        }
 
 		Role role = theUserStore.getUser(user).getOwningRole();
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {

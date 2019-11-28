@@ -126,7 +126,7 @@ public final class Application {
 		((DynamicMetadataFactory) APPLICATION_CTX.getBean(PersistManagerFactory.class).getMetadataFactory()).refresh(false);
 
 		// 实体对应的服务类
-		SSS = new HashMap<>();
+		SSS = new HashMap<>(16);
 		for (Map.Entry<String, ServiceSpec> e : APPLICATION_CTX.getBeansOfType(ServiceSpec.class).entrySet()) {
 			ServiceSpec ss = e.getValue();
 			if (ss.getEntityCode() > 0) {

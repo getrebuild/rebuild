@@ -65,7 +65,9 @@ public abstract class ConfigurationService extends BaseService {
 	 */
 	protected void throwIfNotSelf(ID cfgid) {
 		ID user = Application.getCurrentUser();
-		if (UserHelper.isAdmin(user)) return;
+		if (UserHelper.isAdmin(user)) {
+            return;
+        }
 		if (!ShareToManager.isSelf(user, cfgid)) {
 			throw new DataSpecificationException("无权操作他人配置");
 		}

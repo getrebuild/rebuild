@@ -84,7 +84,7 @@ public class NotificationObserver extends OperatingObserver {
 	 * @param shareType
 	 * @return
 	 */
-	private String makeMessage(ID affected[], ID related, boolean shareType) {
+	private String makeMessage(ID[] affected, ID related, boolean shareType) {
 		String msg = "@{0} 共享了 {1} 条{2}记录给你";
 		if (affected.length > 1) {
 			for (ID id : affected) {

@@ -97,7 +97,9 @@ public class CommonsUtils {
 	 */
 	public static boolean isSpecialChar(char ch) {
 		for (char c : SPECIAL_CHARS) {
-			if (c == ch) return true;
+			if (c == ch) {
+				return true;
+			}
 		}
 		return false;
 	}
@@ -251,7 +253,9 @@ public class CommonsUtils {
 	 * @return
 	 */
 	public static String escapeHtml(String text) {
-		if (StringUtils.isBlank(text)) return text;
+		if (StringUtils.isBlank(text)) {
+			return text;
+		}
 		return text.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 	}
 }

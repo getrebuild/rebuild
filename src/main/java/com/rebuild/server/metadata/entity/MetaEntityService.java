@@ -55,7 +55,8 @@ public class MetaEntityService extends BaseService implements AdminGuard {
 		final Entity entity = MetadataHelper.getEntity((String) entityRecord[0]);
 		
 		// 删除此实体的相关配置记录
-		String whoUsed[] = new String[] {
+		// Field: belongEntity
+		String[] whoUsed = new String[] {
 				"MetaField", "PickList", "LayoutConfig", "FilterConfig", "ShareAccess", "ChartConfig", 
 				"Attachment", "AutoFillinConfig", "RobotTriggerConfig", "RobotApprovalConfig",
 				"DataReportConfig",

@@ -102,7 +102,9 @@ public class SQLExecutor {
             }
         }
 
-        if (!tmp.isEmpty()) affected += this.executeBatchInternal(tmp, timeout);
+        if (!tmp.isEmpty()) {
+            affected += this.executeBatchInternal(tmp, timeout);
+        }
         return affected;
 	}
 
@@ -118,7 +120,9 @@ public class SQLExecutor {
             jdbcSupport.setTimeout(timeout);
 
             int[] exec = jdbcSupport.executeBatch(sqls.toArray(new String[0]));
-            for (int a : exec) affected += a;
+            for (int a : exec) {
+                affected += a;
+            }
         } catch (Exception ex) {
             throw new DataAccessException("Batch SQL Error! #", ex);
         }

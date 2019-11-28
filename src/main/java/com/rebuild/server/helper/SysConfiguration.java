@@ -166,7 +166,9 @@ public final class SysConfiguration extends KVStorage {
 		}
 
 		if (path.length > 0) {
-			if (path[0].startsWith("/")) path[0] = path[0].substring(1);
+			if (path[0].startsWith("/")) {
+                path[0] = path[0].substring(1);
+            }
 			return homeUrl + path[0];
 		}
 		return homeUrl;

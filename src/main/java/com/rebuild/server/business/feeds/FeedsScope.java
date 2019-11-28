@@ -52,9 +52,13 @@ public enum FeedsScope {
      * @return
      */
     public static FeedsScope parse(String any) {
-        if (ID.isId(any)) return GROUP;
+        if (ID.isId(any)) {
+            return GROUP;
+        }
         for (FeedsScope s : values()) {
-            if (any.equalsIgnoreCase(s.name())) return s;
+            if (any.equalsIgnoreCase(s.name())) {
+                return s;
+            }
         }
         throw new IllegalArgumentException("Unknow scope : " + any);
     }

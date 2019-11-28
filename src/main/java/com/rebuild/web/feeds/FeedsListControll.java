@@ -121,9 +121,13 @@ public class FeedsListControll extends BasePageControll {
         }
 
         String sql = "select feedsId,createdBy,createdOn,modifiedOn,content,images,attachments,scope,type,relatedRecord from Feeds where " + sqlWhere;
-        if ("older".equalsIgnoreCase(sort)) sql += " order by createdOn asc";
-        else if ("modified".equalsIgnoreCase(sort)) sql += " order by modifiedOn desc";
-        else sql += " order by createdOn desc";
+        if ("older".equalsIgnoreCase(sort)) {
+            sql += " order by createdOn asc";
+        } else if ("modified".equalsIgnoreCase(sort)) {
+            sql += " order by modifiedOn desc";
+        } else {
+            sql += " order by createdOn desc";
+        }
 
         Object[][] array = Application.createQueryNoFilter(sql)
                 .setLimit(pageSize, pageNo * pageSize - pageSize)

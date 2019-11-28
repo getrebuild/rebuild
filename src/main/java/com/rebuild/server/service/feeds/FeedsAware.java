@@ -108,14 +108,18 @@ public abstract class FeedsAware extends BaseService {
         while (atMatcher.find()) {
             String at = atMatcher.group().substring(1);
             ID atUser = ID.valueOf(at);
-            if (atUser.getEntityCode() != EntityHelper.User) continue;
+            if (atUser.getEntityCode() != EntityHelper.User) {
+                continue;
+            }
 
             Record clone = mention.clone();
             clone.setID("user", atUser);
             super.create(clone);
             atUsers.add(atUser);
         }
-        if (atUsers.isEmpty()) return;
+        if (atUsers.isEmpty()) {
+            return;
+        }
 
         // 发送通知
         String messageContent = String.format("@%s 在%s中提到了你",
@@ -156,7 +160,9 @@ public abstract class FeedsAware extends BaseService {
      */
     private Record converContent(Record record) {
         String content = record.getString("content");
-        if (StringUtils.isBlank(content)) return record;
+        if (StringUtils.isBlank(content)) {
+            return record;
+        }
 
         Map<String, ID> map = FeedsHelper.findMentionsMap(content);
         for (Map.Entry<String, ID> e : map.entrySet()) {

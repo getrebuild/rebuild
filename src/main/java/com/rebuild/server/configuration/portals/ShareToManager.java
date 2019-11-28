@@ -225,7 +225,9 @@ public abstract class ShareToManager<T> implements ConfigManager<T> {
             configOrUser = getCreatedBy(configOrUser);
         }
         boolean s = user.equals(configOrUser);
-        if (s) return true;
+        if (s) {
+            return true;
+        }
         return UserHelper.isAdmin(user) && UserHelper.isAdmin(configOrUser);
     }
 

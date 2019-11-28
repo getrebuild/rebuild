@@ -59,7 +59,9 @@ public enum FeedsType {
      */
     public static FeedsType parse(int typeMask) {
         for (FeedsType t : values()) {
-            if (t.getMask() == typeMask) return t;
+            if (t.getMask() == typeMask) {
+                return t;
+            }
         }
         throw new IllegalArgumentException("Unknow mask : " + typeMask);
     }

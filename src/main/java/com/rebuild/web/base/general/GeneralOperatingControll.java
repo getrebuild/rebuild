@@ -410,7 +410,9 @@ public class GeneralOperatingControll extends BaseControll {
 		Set<ID> idList = new HashSet<>();
 		int sameEntityCode = 0;
 		for (String id : ids.split(",")) {
-			if (!ID.isId(id)) continue;
+			if (!ID.isId(id)) {
+                continue;
+            }
 			ID id0 = ID.valueOf(id);
 			if (sameEntityCode == 0) {
 				sameEntityCode = id0.getEntityCode();

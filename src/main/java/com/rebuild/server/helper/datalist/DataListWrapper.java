@@ -179,7 +179,7 @@ public class DataListWrapper {
 			return true;
 		}
 		
-		String fieldPath[] = field.getFieldPath().split("\\.");
+		String[] fieldPath = field.getFieldPath().split("\\.");
 		if (fieldPath.length == 1) {
 			return true;
 		}

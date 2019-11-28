@@ -65,34 +65,63 @@ public class ParserTokens {
      * @return
      */
     protected static String convetOperator(String token) {
-        if (EQ.equalsIgnoreCase(token)) return "=";
-        else if (NEQ.equalsIgnoreCase(token)) return "<>";
-        else if (GT.equalsIgnoreCase(token)) return ">";
-        else if (LT.equalsIgnoreCase(token)) return "<";
-        else if (GE.equalsIgnoreCase(token)) return ">=";
-        else if (LE.equalsIgnoreCase(token)) return "<=";
-        else if (NL.equalsIgnoreCase(token)) return "is null";
-        else if (NT.equalsIgnoreCase(token)) return "is not null";
-        else if (LK.equalsIgnoreCase(token)) return "like";
-        else if (NLK.equalsIgnoreCase(token)) return "not like";
-        else if (IN.equalsIgnoreCase(token)) return "in";
-        else if (NIN.equalsIgnoreCase(token)) return "not in";
-        else if (BW.equalsIgnoreCase(token)) return "between";
-        else if (BFD.equalsIgnoreCase(token)) return "<=";  // "$before_day(%d)";
-        else if (BFM.equalsIgnoreCase(token)) return "<=";  // "$before_month(%d)";
-        else if (AFD.equalsIgnoreCase(token)) return ">=";  // "$after_day(%d)";
-        else if (AFM.equalsIgnoreCase(token)) return ">=";  // "$after_month(%d)";
-        else if (RED.equalsIgnoreCase(token)) return ">";   // "$recent_day(%d)";
-        else if (REM.equalsIgnoreCase(token)) return ">";   // "$recent_month(%d)";
-        else if (SFU.equalsIgnoreCase(token)) return "=";
-        else if (SFB.equalsIgnoreCase(token)) return "=";
-        else if (SFD.equalsIgnoreCase(token)) return "in";
-        else if (YTA.equalsIgnoreCase(token)) return "=";
-        else if (TDA.equalsIgnoreCase(token)) return "=";
-        else if (TTA.equalsIgnoreCase(token)) return "=";
-        else if (BAND.equalsIgnoreCase(token)) return "&&";
-        else if (NBAND.equalsIgnoreCase(token)) return "!&";
-        else if (FT.equalsIgnoreCase(token)) return "match";
+        if (EQ.equalsIgnoreCase(token)) {
+            return "=";
+        } else if (NEQ.equalsIgnoreCase(token)) {
+            return "<>";
+        } else if (GT.equalsIgnoreCase(token)) {
+            return ">";
+        } else if (LT.equalsIgnoreCase(token)) {
+            return "<";
+        } else if (GE.equalsIgnoreCase(token)) {
+            return ">=";
+        } else if (LE.equalsIgnoreCase(token)) {
+            return "<=";
+        } else if (NL.equalsIgnoreCase(token)) {
+            return "is null";
+        } else if (NT.equalsIgnoreCase(token)) {
+            return "is not null";
+        } else if (LK.equalsIgnoreCase(token)) {
+            return "like";
+        } else if (NLK.equalsIgnoreCase(token)) {
+            return "not like";
+        } else if (IN.equalsIgnoreCase(token)) {
+            return "in";
+        } else if (NIN.equalsIgnoreCase(token)) {
+            return "not in";
+        } else if (BW.equalsIgnoreCase(token)) {
+            return "between";
+        } else if (BFD.equalsIgnoreCase(token)) {
+            return "<=";  // "$before_day(%d)";
+        } else if (BFM.equalsIgnoreCase(token)) {
+            return "<=";  // "$before_month(%d)";
+        } else if (AFD.equalsIgnoreCase(token)) {
+            return ">=";  // "$after_day(%d)";
+        } else if (AFM.equalsIgnoreCase(token)) {
+            return ">=";  // "$after_month(%d)";
+        } else if (RED.equalsIgnoreCase(token)) {
+            return ">";   // "$recent_day(%d)";
+        } else if (REM.equalsIgnoreCase(token)) {
+            return ">";   // "$recent_month(%d)";
+        } else if (SFU.equalsIgnoreCase(token)) {
+            return "=";
+        } else if (SFB.equalsIgnoreCase(token)) {
+            return "=";
+        } else if (SFD.equalsIgnoreCase(token)) {
+            return "in";
+        } else if (YTA.equalsIgnoreCase(token)) {
+            return "=";
+        } else if (TDA.equalsIgnoreCase(token)) {
+            return "=";
+        } else if (TTA.equalsIgnoreCase(token)) {
+            return "=";
+        } else if (BAND.equalsIgnoreCase(token)) {
+            return "&&";
+        } else if (NBAND.equalsIgnoreCase(token)) {
+            return "!&";
+        } else if (FT.equalsIgnoreCase(token)) {
+            return "match";
+        }
         throw new UnsupportedOperationException("Unsupported token of operator : " + token);
     }
 

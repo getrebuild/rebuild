@@ -622,30 +622,70 @@ public class UserStore {
 			deepG += BizzPermission.CREATE.getMask();
 		}
 		
-		if (D >= 1) deepP += BizzPermission.DELETE.getMask();
-		if (D >= 2) deepL += BizzPermission.DELETE.getMask();
-		if (D >= 3) deepD += BizzPermission.DELETE.getMask();
-		if (D >= 4) deepG += BizzPermission.DELETE.getMask();
+		if (D >= 1) {
+            deepP += BizzPermission.DELETE.getMask();
+        }
+		if (D >= 2) {
+            deepL += BizzPermission.DELETE.getMask();
+        }
+		if (D >= 3) {
+            deepD += BizzPermission.DELETE.getMask();
+        }
+		if (D >= 4) {
+            deepG += BizzPermission.DELETE.getMask();
+        }
 		
-		if (U >= 1) deepP += BizzPermission.UPDATE.getMask();
-		if (U >= 2) deepL += BizzPermission.UPDATE.getMask();
-		if (U >= 3) deepD += BizzPermission.UPDATE.getMask();
-		if (U >= 4) deepG += BizzPermission.UPDATE.getMask();
+		if (U >= 1) {
+            deepP += BizzPermission.UPDATE.getMask();
+        }
+		if (U >= 2) {
+            deepL += BizzPermission.UPDATE.getMask();
+        }
+		if (U >= 3) {
+            deepD += BizzPermission.UPDATE.getMask();
+        }
+		if (U >= 4) {
+            deepG += BizzPermission.UPDATE.getMask();
+        }
 		
-		if (R >= 1) deepP += BizzPermission.READ.getMask();
-		if (R >= 2) deepL += BizzPermission.READ.getMask();
-		if (R >= 3) deepD += BizzPermission.READ.getMask();
-		if (R >= 4) deepG += BizzPermission.READ.getMask();
+		if (R >= 1) {
+            deepP += BizzPermission.READ.getMask();
+        }
+		if (R >= 2) {
+            deepL += BizzPermission.READ.getMask();
+        }
+		if (R >= 3) {
+            deepD += BizzPermission.READ.getMask();
+        }
+		if (R >= 4) {
+            deepG += BizzPermission.READ.getMask();
+        }
 		
-		if (A >= 1) deepP += BizzPermission.ASSIGN.getMask();
-		if (A >= 2) deepL += BizzPermission.ASSIGN.getMask();
-		if (A >= 3) deepD += BizzPermission.ASSIGN.getMask();
-		if (A >= 4) deepG += BizzPermission.ASSIGN.getMask();
+		if (A >= 1) {
+            deepP += BizzPermission.ASSIGN.getMask();
+        }
+		if (A >= 2) {
+            deepL += BizzPermission.ASSIGN.getMask();
+        }
+		if (A >= 3) {
+            deepD += BizzPermission.ASSIGN.getMask();
+        }
+		if (A >= 4) {
+            deepG += BizzPermission.ASSIGN.getMask();
+        }
 		
-		if (S >= 1) deepP += BizzPermission.SHARE.getMask();
-		if (S >= 2) deepL += BizzPermission.SHARE.getMask();
-		if (S >= 3) deepD += BizzPermission.SHARE.getMask();
-		if (S >= 4) deepG += BizzPermission.SHARE.getMask();
+		if (S >= 1) {
+            deepP += BizzPermission.SHARE.getMask();
+        }
+		if (S >= 2) {
+            deepL += BizzPermission.SHARE.getMask();
+        }
+		if (S >= 3) {
+            deepD += BizzPermission.SHARE.getMask();
+        }
+		if (S >= 4) {
+            deepG += BizzPermission.SHARE.getMask();
+        }
 		
 		return "1:" + deepP + ",2:" + deepL + ",3:" + deepD + ",4:" + deepG;
 	}
