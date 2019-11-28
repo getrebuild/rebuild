@@ -99,7 +99,7 @@ public class RecentlyUsedCache {
 		
 		if (!missed.isEmpty()) {
 			exists.removeAll(missed);
-			cacheManager.putx(key, exists, Integer.MAX_VALUE);
+			cacheManager.putx(key, exists);
 		}
 		
 		return data.toArray(new ID[0]);
@@ -130,7 +130,7 @@ public class RecentlyUsedCache {
 			exists.removeLast();
 		}
 		exists.addFirst(id);
-		cacheManager.putx(key, exists, Integer.MAX_VALUE);
+		cacheManager.putx(key, exists);
 	}
 	
 	/**

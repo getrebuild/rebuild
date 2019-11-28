@@ -302,6 +302,7 @@ class DlgDashAdd extends RbFormHandler {
         <div className="form-group row footer">
           <div className="col-sm-7 offset-sm-3">
             <button className="btn btn-primary" type="button" onClick={this.save}>确定</button>
+            <a className="btn btn-link" onClick={this.hide}>取消</a>
           </div>
         </div>
       </div>

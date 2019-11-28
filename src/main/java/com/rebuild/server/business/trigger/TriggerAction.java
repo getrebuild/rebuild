@@ -61,7 +61,7 @@ public interface TriggerAction {
 	void prepare(OperatingContext operatingContext) throws TriggerException;
 
 	/**
-	 * 异步执行（异步执行会开启新事物）
+	 * 异步执行（异步执行会开启新事物）。一般耗时较长的任务可以设为异步
 	 *
 	 * @return
 	 * @see #useNewTransaction()
@@ -78,4 +78,9 @@ public interface TriggerAction {
 	default boolean useNewTransaction() {
 		return false;
 	}
+
+	/**
+	 * 执行后进行清理工作。注意：只有同步任务并且不是用新事物的任务才会触发
+	 */
+	default void clean() {}
 }

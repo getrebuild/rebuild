@@ -46,7 +46,7 @@ public class RecycleBinCleanerJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
-        int keepingDays = (int) SysConfiguration.getLong(ConfigurableItem.RecycleBinKeepingDays);
+        int keepingDays = SysConfiguration.getInt(ConfigurableItem.RecycleBinKeepingDays);
         LOG.info("RecycleBinCleanerJob running ... " + keepingDays);
         if (keepingDays > 9999) {
             return;

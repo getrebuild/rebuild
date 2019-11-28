@@ -112,7 +112,7 @@ public class DataReportControll extends BasePageControll {
 
         String sql = String.format("select %s from %s order by modifiedOn desc",
                 entity.getPrimaryField().getName(), entity.getName());
-        Object random[] = Application.createQueryNoFilter(sql).unique();
+        Object[] random = Application.createQueryNoFilter(sql).unique();
         if (random == null) {
             response.sendError(400, "无法预览。未找到可用记录");
             return;
@@ -121,13 +121,15 @@ public class DataReportControll extends BasePageControll {
         File template = DataReportManager.instance.getTemplateFile(entity, reportId);
         File file = new ReportGenerator(template, (ID) random[0]).generate();
 
-        FileDownloader.setDownloadHeaders(response, file.getName());
+        FileDownloader.setDownloadHeaders(request, response, file.getName());
         FileDownloader.writeLocalFile(file, response);
     }
 
     // --
 
     /**
+     * 查询配置列表
+     *
      * @param sql
      * @param belongEntity
      * @param q

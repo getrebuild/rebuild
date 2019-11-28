@@ -5541,6 +5541,11 @@ input[type=submit].btn-block {
 
 .page-link .icon {
     font-size: 1.2rem;
+    transform: translateY(1px);
+}
+
+.pagination-sm .page-link .icon {
+    transform: translateY(2px);
 }
 
 .page-link:hover {
@@ -5574,7 +5579,7 @@ input[type=submit].btn-block {
 }
 
 .page-item.active .page-link {
-    z-index: 1;
+    /* z-index: 1; */
     color: #fff !important;
     background-color: #4285f4;
     border-color: #4285f4;
@@ -11725,7 +11730,7 @@ canvas {
     }
 }
 
-.rb-top-header .search-input {
+.rb-top-header .search-input-gs {
     color: #404040;
     border-radius: 99px;
     background: #f7f7f7;
@@ -11735,12 +11740,12 @@ canvas {
     text-align: left;
 }
 
-.rb-top-header .search-input::placeholder {
+.rb-top-header .search-input-gs::placeholder {
     color: #aaa;
     text-align: center;
 }
 
-.rb-top-header .search-input:focus::placeholder {
+.rb-top-header .search-input-gs:focus::placeholder {
     text-align: left !important
 }
 
@@ -22531,7 +22536,7 @@ address {
 }
 
 .page-link>span {
-    line-height: 12px
+    line-height: 10px
 }
 
 .pagination-rounded .page-link {
@@ -22940,36 +22945,6 @@ select.form-control-xs:not([size]):not([multiple]) {
     .rb-error-404 .error-container .error-number {
         font-size: 3.077rem
     }
-}
-
-.splash-container.sign-up {
-    max-width: 433px;
-    margin: 10px auto
-}
-
-.splash-container.sign-up .card .card-header {
-    margin-bottom: 0
-}
-
-.signup-password.row {
-    padding: 0;
-    margin-bottom: 1.3842rem
-}
-
-.signup-password .btn {
-    width: 100%
-}
-
-.signup-password>div:first-child {
-    padding-right: 10px
-}
-
-.signup-password>div:last-child {
-    padding-left: 10px
-}
-
-.splash-container.forgot-password .card .card-header {
-    margin-bottom: 5px
 }
 
 .gallery-container .item {
@@ -23932,7 +23907,7 @@ fieldset[disabled] .full-calendar .fc-button:hover {
     border-color: #4285f4
 }
 
-.ms-container .search-input {
+.ms-container .search-input-gs {
     height: 30px;
     margin-bottom: 10px
 }

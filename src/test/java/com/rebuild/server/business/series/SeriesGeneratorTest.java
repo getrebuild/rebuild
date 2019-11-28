@@ -59,7 +59,7 @@ public class SeriesGeneratorTest extends TestSupport {
 	public void testIncrementVarNThreads() throws Exception {
 		final IncreasingVar var = new IncreasingVar("0000", getSeriesField(), "Y");
 		final Set<String> set = Collections.synchronizedSet(new HashSet<>());
-		final int N = 200;
+		final int N = 100;
 		for (int i = 0; i < N; i++) {
 			ThreadPool.exec(() -> {
 				String s = var.generate();
@@ -67,9 +67,8 @@ public class SeriesGeneratorTest extends TestSupport {
 				System.out.print(s + " ");
 			});
 		}
-		ThreadPool.waitFor(200);
-		System.out.println();
-		Assert.assertTrue(set.size() == N);
+		ThreadPool.waitFor(2000);
+		Assert.assertEquals(set.size(), N);
 	}
 	
 	@Test

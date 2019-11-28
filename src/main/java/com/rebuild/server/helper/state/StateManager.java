@@ -98,7 +98,9 @@ public class StateManager {
     public String getName(Field stateField, int state) {
         Class<?> stateClass = StateHelper.getSatetClass(stateField);
         for (Object c : stateClass.getEnumConstants()) {
-            if (((StateSpec) c).getState() == state) return ((StateSpec) c).getName();
+            if (((StateSpec) c).getState() == state) {
+                return ((StateSpec) c).getName();
+            }
         }
         return null;
     }
@@ -112,7 +114,9 @@ public class StateManager {
         Class<?> stateClass = StateHelper.getSatetClass(stateField);
         for (Object c : stateClass.getEnumConstants()) {
             StateSpec s = (StateSpec) c;
-            if (s.getName().equalsIgnoreCase(name) || ((Enum<?>) s).name().equalsIgnoreCase(name)) return s.getState();
+            if (s.getName().equalsIgnoreCase(name) || ((Enum<?>) s).name().equalsIgnoreCase(name)) {
+                return s.getState();
+            }
         }
         return null;
     }

@@ -36,10 +36,9 @@ import java.io.IOException;
  * @since 2019/02/16
  */
 @Controller
-@RequestMapping("/admin/bizuser/")
 public class LoginLogControll extends BaseEntityControll {
 
-	@RequestMapping("login-logs")
+	@RequestMapping("/admin/bizuser/login-logs")
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
 		ID user = getRequestUser(request);
 		ModelAndView mv = createModelAndView("/admin/bizuser/login-logs.jsp", "LoginLog", user);
@@ -48,10 +47,14 @@ public class LoginLogControll extends BaseEntityControll {
 		return mv;
 	}
 
-	@RequestMapping("ip-location")
+	@RequestMapping("/commons/ip-location")
 	public void getIpLocation(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String ip = getParameterNotNull(request, "ip");
-		JSON location = LocationUtils.getLocation(ip);
-		writeSuccess(response, location);
+		try {
+			JSON location = LocationUtils.getLocation(ip);
+			writeSuccess(response, location);
+		} catch (Exception ex) {
+			writeFailure(response);
+		}
 	}
 }

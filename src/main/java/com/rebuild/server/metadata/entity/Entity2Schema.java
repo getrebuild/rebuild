@@ -94,14 +94,14 @@ public class Entity2Schema extends Field2Schema {
 		
 		String physicalName = "T__" + entityName.toUpperCase();
 		
-		Object maxTypeCode[] = Application.createQueryNoFilter(
+		Object[] maxTypeCode = Application.createQueryNoFilter(
 				"select min(typeCode) from MetaEntity").unique();
 		int typeCode = maxTypeCode == null || ObjectUtils.toInt(maxTypeCode[0]) == 0 
 				? 999 : (ObjectUtils.toInt(maxTypeCode[0]) - 1);
-		if (typeCode <= 200) {
+		if (typeCode <= 900) {
 			throw new ModifiyMetadataException("Entity code exceeds system limit : " + typeCode);
 		}
-		
+
 		// 名称字段
 		String nameFiled = EntityHelper.CreatedOn;
 		if (haveNameField) {
@@ -205,7 +205,7 @@ public class Entity2Schema extends Field2Schema {
 				}
 			}
 
-			long count = 0;
+			long count;
 			if ((count = checkRecordCount(entity)) > 0) {
 				throw new ModifiyMetadataException("不能删除有数据的实体 (数量: " + count + ")");
 			}
@@ -258,11 +258,11 @@ public class Entity2Schema extends Field2Schema {
 	private boolean schema2Database(Entity entity) {
 		Dialect dialect = Application.getPersistManagerFactory().getDialect();
 		Table table = new Table(entity, dialect);
-		String ddl[] = table.generateDDL(false, false);
+		String[] ddls = table.generateDDL(false, false);
 		try {
-			Application.getSQLExecutor().executeBatch(ddl);
+			Application.getSQLExecutor().executeBatch(ddls);
 		} catch (Throwable ex) {
-			LOG.error("DDL Error : \n" + StringUtils.join(ddl, "\n"), ex);
+			LOG.error("DDL Error : \n" + StringUtils.join(ddls, "\n"), ex);
 			return false;
 		}
 		return true;

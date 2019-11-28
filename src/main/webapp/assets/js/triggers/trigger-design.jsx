@@ -4,7 +4,7 @@ $(document).ready(() => {
   $.fn.select2.defaults.set('allowClear', false)
 
   if (wpc.when > 0) {
-    $([1, 2, 4, 16, 32, 64]).each(function () {
+    $([1, 2, 4, 16, 32, 64, 128, 256]).each(function () {
       let mask = this
       // eslint-disable-next-line eqeqeq
       if ((wpc.when & mask) != 0) $('.J_when input[value=' + mask + ']').prop('checked', true)
@@ -14,7 +14,10 @@ $(document).ready(() => {
   let advFilter
   $('.J_whenFilter .btn').click(() => {
     if (advFilter) advFilter.show()
-    else renderRbcomp(<AdvFilter title="设置过滤条件" entity={wpc.sourceEntity} filter={wpc.whenFilter} inModal={true} confirm={saveFilter} canNoFilters={true} />, null, function () { advFilter = this })
+    else renderRbcomp(<AdvFilter title="附加过滤条件" inModal={true} canNoFilters={true}
+      entity={wpc.sourceEntity}
+      filter={wpc.whenFilter}
+      confirm={saveFilter} />, null, function () { advFilter = this })
   })
   saveFilter(wpc.whenFilter)
 
@@ -38,7 +41,7 @@ $(document).ready(() => {
 
     _btn.button('loading')
     $.post(`${rb.baseUrl}/app/entity/record-save`, JSON.stringify(_data), (res) => {
-      if (res.error_code === 0) location.href = '../triggers'
+      if (res.error_code === 0) rb.env === 'dev' ? location.reload() : location.href = '../triggers'
       else RbHighbar.error(res.error_msg)
       _btn.button('reset')
     })

@@ -89,7 +89,7 @@ public class ApprovalControll extends BasePageControll {
 			data.put("approvalId", useApproval);
 			// 当前审批步骤
 			if (stateVal < ApprovalState.APPROVED.getState()) {
-				JSONArray current = new ApprovalProcessor(user, recordId, useApproval).getCurrentStep();
+				JSONArray current = new ApprovalProcessor(recordId, useApproval).getCurrentStep();
 				data.put("currentStep", current);
 				
 				for (Object o : current) {
@@ -119,7 +119,7 @@ public class ApprovalControll extends BasePageControll {
 		ID approvalId = getIdParameterNotNull(request, "approval");
 		ID user = getRequestUser(request);
 		
-		ApprovalProcessor approvalProcessor = new ApprovalProcessor(user, recordId, approvalId);
+		ApprovalProcessor approvalProcessor = new ApprovalProcessor(recordId, approvalId);
 		FlowNodeGroup nextNodes = approvalProcessor.getNextNodes();
 		
 		JSONArray approverList = new JSONArray();
@@ -144,21 +144,18 @@ public class ApprovalControll extends BasePageControll {
 	@RequestMapping("fetch-workedsteps")
 	public void fetchWorkedSteps(HttpServletRequest request, HttpServletResponse response) {
 		ID recordId = getIdParameterNotNull(request, "record");
-		ID user = getRequestUser(request);
-		
-		JSONArray allSteps = new ApprovalProcessor(user, recordId).getWorkedSteps();
+		JSONArray allSteps = new ApprovalProcessor(recordId).getWorkedSteps();
 		writeSuccess(response, allSteps);
 	}
 	
 	@RequestMapping("submit")
 	public void doSubmit(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getRequestUser(request);
 		ID recordId = getIdParameterNotNull(request, "record");
 		ID approvalId = getIdParameterNotNull(request, "approval");
 		JSONObject selectUsers = (JSONObject) ServletUtils.getRequestJson(request);
 		
 		try {
-			boolean success = new ApprovalProcessor(user, recordId, approvalId).submit(selectUsers);
+			boolean success = new ApprovalProcessor(recordId, approvalId).submit(selectUsers);
 			if (success) {
 				writeSuccess(response);
 			} else {
@@ -180,7 +177,7 @@ public class ApprovalControll extends BasePageControll {
 		String remark = post.getString("remark");
 		
 		try {
-			new ApprovalProcessor(approver, recordId)
+			new ApprovalProcessor(recordId)
 					.approve(approver, (ApprovalState) ApprovalState.valueOf(state), remark, selectUsers);
 			writeSuccess(response);
 		} catch (ApprovalException ex) {
@@ -190,11 +187,10 @@ public class ApprovalControll extends BasePageControll {
 
 	@RequestMapping("cancel")
 	public void doCancel(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getRequestUser(request);
 		ID recordId = getIdParameterNotNull(request, "record");
 
 		try {
-			new ApprovalProcessor(user, recordId).cancel(null);
+			new ApprovalProcessor(recordId).cancel(null);
 			writeSuccess(response);
 		} catch (ApprovalException ex) {
 			writeFailure(response, ex.getMessage());

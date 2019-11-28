@@ -70,7 +70,7 @@ public class DepartmentControll extends BaseEntityControll {
 				.array();
 		
 		JSONArray roots = new JSONArray();
-		for (Object dept[] : rootDepts) {
+		for (Object[] dept : rootDepts) {
 			Department root = Application.getUserStore().getDepartment((ID) dept[0]);
 			roots.add(recursiveDeptTree(root));
 		}

@@ -21,6 +21,7 @@ package com.rebuild.web.admin.robot;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSON;
+import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entity.DisplayType;
@@ -54,6 +55,10 @@ public class FieldAggregationControll extends BaseControll {
 		List<String[]> entities = new ArrayList<>();
 		Map<String, Integer> hasMany = new HashMap<>();
 		for (Field refField : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
+			if (MetadataHelper.isApprovalField(refField.getName())) {
+				continue;
+			}
+
 			Entity refEntity = refField.getReferenceEntity();
 			String entityLabel = EasyMeta.getLabel(refEntity) + " (" + EasyMeta.getLabel(refField) + ")";
 			entities.add(new String[] { refEntity.getName(), entityLabel, refField.getName() });
@@ -65,8 +70,8 @@ public class FieldAggregationControll extends BaseControll {
 			hasMany.put(refEntity.getName(), many + 1);
 		}
 		
-		// 会出现一个实体的多个字段引用同一实体的情况
-		// 只有一个引用则不现实字段
+		// 会出现同实体中多个字段引用同一实体的情况
+		// 只有一个引用则不显示字段名称
 		for (Map.Entry<String, Integer> e : hasMany.entrySet()) {
 			if (e.getValue() == 1) {
 				String entityName = e.getKey();
@@ -97,10 +102,15 @@ public class FieldAggregationControll extends BaseControll {
 				targetFields.add(new String[] { field.getName(), EasyMeta.getLabel(field) });
 			}
 		}
+
+		boolean hadApproval = RobotApprovalManager.instance.hadApproval(targetEntity, null) != null;
 		
 		JSON data = JSONUtils.toJSONObject(
-				new String[] { "source", "target" }, 
-				new Object[] { sourceFields.toArray(new String[sourceFields.size()][]), targetFields.toArray(new String[targetFields.size()][]) });
+				new String[] { "source", "target", "hadApproval" },
+				new Object[] {
+						sourceFields.toArray(new String[sourceFields.size()][]),
+						targetFields.toArray(new String[targetFields.size()][]),
+						hadApproval});
 		writeSuccess(response, data);
 	}
 }

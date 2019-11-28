@@ -79,7 +79,7 @@ public class SMSender {
 	 * @throws ConfigurationException If mail-account unset
 	 */
 	public static String sendMail(String to, String subject, String content, boolean useTemplate) throws ConfigurationException {
-		String account[] = SysConfiguration.getMailAccount();
+		String[] account = SysConfiguration.getMailAccount();
 		Assert.notNull(account, "邮箱账户未配置");
 		
 		Map<String, Object> params = new HashMap<>();
@@ -103,6 +103,7 @@ public class SMSender {
 			String eHTML = mailbody.html();
 			// 处理变量
 			eHTML = eHTML.replace("%TO%", to);
+			eHTML = eHTML.replace("%APPNAME%", SysConfiguration.get(ConfigurableItem.AppName));
 
 			params.put("html", eHTML);
 		} else {
@@ -149,7 +150,7 @@ public class SMSender {
 	 * @throws ConfigurationException If sms-account unset
 	 */
 	public static String sendSMS(String to, String content) throws ConfigurationException {
-		String account[] = SysConfiguration.getSmsAccount();
+		String[] account = SysConfiguration.getSmsAccount();
 		Assert.notNull(account, "短信账户未配置");
 		
 		Map<String, Object> params = new HashMap<>();

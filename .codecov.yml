@@ -9,6 +9,10 @@ coverage:
     changes: no
 
 ignore:
-  - "src/test/**/*"
-  - "src/main/webapp/**/*"
-  - "src/main/java/com/rebuild/web/**/*"
+  - ".github/.*"
+  - ".vscode/.*"
+  - ".setup/.*"
+  - ".production/.*"
+  - "src/test/.*"
+  - "src/main/webapp/.*"
+  - "src/main/java/com/rebuild/web/.*"

@@ -35,8 +35,7 @@ class ContentAutoShare extends ActionContentSpec {
   componentDidMount() {
     $('.J_when').find('.custom-control-input').each(function () {
       let v = ~~$(this).val()
-      if (!(v == 1 || v == 4)) $(this).attr('disabled', true)
-      // if (!(v == 1 || v == 4)) $(this).parent().remove()
+      if (!(v == 1 || v == 4 || v >= 128)) $(this).attr('disabled', true)
     })
 
     if (this.props.content && this.props.content.shareTo) {

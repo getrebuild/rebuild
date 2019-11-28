@@ -28,7 +28,7 @@ import com.rebuild.server.business.trigger.ActionContext;
 import com.rebuild.server.business.trigger.ActionType;
 import com.rebuild.server.business.trigger.TriggerAction;
 import com.rebuild.server.business.trigger.TriggerException;
-import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.server.helper.KVStorage;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.bizz.UserHelper;
@@ -93,7 +93,7 @@ public class AutoAssign implements TriggerAction {
         final boolean orderedAssign = ((JSONObject) context.getActionContent()).getIntValue("assignRule") == 1;
         final String orderedAssignKey = "AutoAssignLastAssignTo" + context.getConfigId();
         if (orderedAssign) {
-            String lastAssignTo = SysConfiguration.getCustomValue(orderedAssignKey);
+            String lastAssignTo = KVStorage.getCustomValue(orderedAssignKey);
             ID lastAssignToUser = ID.isId(lastAssignTo) ? ID.valueOf(lastAssignTo) : null;
 
             ID firstUser = null;
@@ -138,7 +138,7 @@ public class AutoAssign implements TriggerAction {
 
         // 当前分派人
         if (orderedAssign) {
-            SysConfiguration.setCustomValue(orderedAssignKey, toUser.toLiteral());
+            KVStorage.setCustomValue(orderedAssignKey, toUser);
         }
     }
 

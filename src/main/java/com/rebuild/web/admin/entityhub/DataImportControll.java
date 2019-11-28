@@ -85,18 +85,17 @@ public class DataImportControll extends BasePageControll {
 		}
 		
 		DataFileParser parser = null;
-		int count = 0;
+		int count = -1;
 		List<Cell[]> preview = null;
 		try {
 			parser = new DataFileParser(tmp);
-			count = parser.getRowsCount();
-			preview = parser.parse(10);
+			preview = parser.parse(11);
 		} catch (Exception ex) {
 			LOG.error("Parse excel error : " + file, ex);
 			writeFailure(response, "无法解析数据，请检查数据文件格式");
 			return;
 		}
-		
+
 		JSON ret = JSONUtils.toJSONObject(
 				new String[] { "count", "preview" }, new Object[] { count, preview });
 		writeSuccess(response, ret);
@@ -171,7 +170,7 @@ public class DataImportControll extends BasePageControll {
 		if (getBoolParameter(request, "preview")) {
 			// TODO 导入预览
 		} else {
-			String taskid = TaskExecutors.submit(importer);
+			String taskid = TaskExecutors.submit(importer, getRequestUser(request));
 			JSON ret = JSONUtils.toJSONObject("taskid", taskid);
 			writeSuccess(response, ret);
 		}

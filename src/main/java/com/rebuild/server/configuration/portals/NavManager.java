@@ -46,6 +46,13 @@ import java.util.Iterator;
  */
 public class NavManager extends BaseLayoutManager {
 
+	// 父菜单
+	public static final String NAV_PARENT = "$PARENT$";
+	// 动态
+	public static final String NAV_FEEDS = "$FEEDS$";
+	// 文件
+	public static final String NAV_FILEMRG = "$FILEMRG$";
+
 	public static final NavManager instance = new NavManager();
 	private NavManager() { }
 
@@ -116,13 +123,15 @@ public class NavManager extends BaseLayoutManager {
 		String type = nav.getString("type");
 		if ("ENTITY".equalsIgnoreCase(type)) {
 			String entity = nav.getString("value");
-			if ("$PARENT$".equals(entity)) {
+			if (NAV_PARENT.equals(entity)) {
 				return true;
+			} else if (NAV_FEEDS.equals(entity) || NAV_FILEMRG.equals(entity)) {
+				return false;
 			} else if (!MetadataHelper.containsEntity(entity)) {
 				LOG.warn("Unknow entity in nav : " + entity);
 				return true;
 			}
-			
+
 			Entity entityMeta = MetadataHelper.getEntity(entity);
             return !Application.getSecurityManager().allowedR(user, entityMeta.getEntityCode());
 		}
@@ -137,15 +146,24 @@ public class NavManager extends BaseLayoutManager {
 	 * @return
 	 */
 	public String renderNavItem(JSONObject item, String activeNav) {
-		String navName = "nav_entity-" + item.getString("value");
-		boolean isUrlType = "URL".equals(item.getString("type"));
+		final boolean isUrlType = "URL".equals(item.getString("type"));
+		String navName = item.getString("value");
 		String navUrl = item.getString("value");
+
 		if (isUrlType) {
 			navName = "nav_url-" + navName.hashCode();
 			navUrl = ServerListener.getContextPath() + "/commons/url-safe?url=" + CodecUtils.urlEncode(navUrl);
+		} else if (NAV_FEEDS.equals(navName)) {
+			navName = "nav_entity-Feeds";
+			navUrl = ServerListener.getContextPath() + "/feeds/home";
+		} else if (NAV_FILEMRG.equals(navName)) {
+			navName = "nav_entity-Attachment";
+			navUrl = ServerListener.getContextPath() + "/files/home";
 		} else {
+			navName = "nav_entity-" + navName;
 			navUrl = ServerListener.getContextPath() + "/app/" + navUrl + "/list";
 		}
+
 		String navIcon = StringUtils.defaultIfBlank(item.getString("icon"), "texture");
 		String navText = item.getString("text");
 		
@@ -160,7 +178,7 @@ public class NavManager extends BaseLayoutManager {
 		StringBuilder navHtml = new StringBuilder()
 				.append(String.format("<li class='%s'><a href='%s'%s><i class='icon zmdi zmdi-%s'></i><span>%s</span></a>",
 						navName + (subNavs == null ? StringUtils.EMPTY : " parent"),
-						subNavs == null ? navUrl : "#",
+						subNavs == null ? navUrl : "###",
 						isUrlType ? " target='_blank' rel='noopener noreferrer'" : StringUtils.EMPTY,
 						navIcon, navText));
 		if (subNavs != null) {

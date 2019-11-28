@@ -27,11 +27,9 @@ package com.rebuild.server.service.bizz.privileges;
 public enum ZeroEntry {
 
 	AllowLogin(true),
-
 	AllowBatchUpdate(false),
 	AllowDataImport(false),
-	AllowDataOutput(false),
-
+	AllowDataExport(false),
     AllowCustomNav(true),
     AllowCustomDataList(true),
 

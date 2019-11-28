@@ -51,17 +51,19 @@ public class RecordOwningCache extends BaseCacheTemplate<ID> {
 	 * 获取记录的所属人。若是明细实体则获取其主记录的所属人
 	 * 
 	 * @param record
+	 * @param tryIfNotExists 记录不存在是否抛出异常
 	 * @return
 	 * @throws PrivilegesException
+	 * @throws NoRecordFoundException
 	 */
-	public ID getOwningUser(ID record) throws PrivilegesException {
+	public ID getOwningUser(ID record, boolean tryIfNotExists) throws PrivilegesException, NoRecordFoundException {
 		final String recordKey = record.toLiteral();
-		
+
 		ID hits = getx(recordKey);
 		if (hits != null) {
 			return hits;
 		}
-		
+
 		Entity entity = MetadataHelper.getEntity(record.getEntityCode());
 		Entity useMaster = null;
 		if (!EntityHelper.hasPrivilegesField(entity)) {
@@ -70,7 +72,7 @@ public class RecordOwningCache extends BaseCacheTemplate<ID> {
 				throw new PrivilegesException("Non privileges entity : " + entity.getName());
 			}
 		}
-		
+
 		String sql = "select owningUser from %s where %s = '%s'";
 		// 使用主记录
 		if (useMaster != null) {
@@ -78,17 +80,32 @@ public class RecordOwningCache extends BaseCacheTemplate<ID> {
 			sql = sql.replaceFirst("owningUser", stm.getName() + ".owningUser");
 		}
 		sql = String.format(sql, entity.getName(), entity.getPrimaryField().getName(), record.toLiteral());
-		
+
 		Object[] owningUser = aPMFactory.createQuery(sql).unique();
 		if (owningUser == null || owningUser[0] == null) {
-			LOG.warn("No Record found : " + record);
-			return null;
+			String error = "No Record found : " + record;
+			if (tryIfNotExists) {
+				throw new NoRecordFoundException(error);
+			} else {
+				LOG.warn(error);
+				return null;
+			}
 		}
 
 		putx(recordKey, (ID) owningUser[0]);
 		return (ID) owningUser[0];
 	}
-	
+
+	/**
+	 * @param record
+	 * @return
+	 * @throws PrivilegesException
+	 * @see #getOwningUser(ID, boolean)
+	 */
+	public ID getOwningUser(ID record) throws PrivilegesException {
+		return getOwningUser(record, Boolean.FALSE);
+	}
+
 	/**
 	 * @param record
 	 */

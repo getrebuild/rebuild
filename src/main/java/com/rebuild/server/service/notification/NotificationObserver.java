@@ -50,7 +50,7 @@ public class NotificationObserver extends OperatingObserver {
 		String content = makeMessage(context.getAffected(), related, false);
 		content = MessageFormat.format(content, from, context.getAffected().length, getLabel(related));
 		Application.getNotifications().send(
-				MessageBuilder.createMessage(from, to, content, Message.TYPE_SAHRE));
+				MessageBuilder.createMessage(from, to, content, Message.TYPE_ASSIGN));
 	}
 	
 	@Override
@@ -84,7 +84,7 @@ public class NotificationObserver extends OperatingObserver {
 	 * @param shareType
 	 * @return
 	 */
-	private String makeMessage(ID affected[], ID related, boolean shareType) {
+	private String makeMessage(ID[] affected, ID related, boolean shareType) {
 		String msg = "@{0} 共享了 {1} 条{2}记录给你";
 		if (affected.length > 1) {
 			for (ID id : affected) {

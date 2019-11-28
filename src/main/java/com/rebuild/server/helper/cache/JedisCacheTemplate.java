@@ -42,7 +42,8 @@ public class JedisCacheTemplate<V extends Serializable> implements CacheTemplate
 		this.keyPrefix = keyPrefix == null ? "" : keyPrefix;
 	}
 
-	public String get(String key) {
+	@Override
+    public String get(String key) {
 		String ckey = unityKey(key);
 		Jedis jedis = null;
 		try {
@@ -79,7 +80,7 @@ public class JedisCacheTemplate<V extends Serializable> implements CacheTemplate
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
-			byte bs[] = jedis.get(ckey.getBytes());
+			byte[] bs = jedis.get(ckey.getBytes());
 			if (bs == null || bs.length == 0) {
 				return null;
 			}

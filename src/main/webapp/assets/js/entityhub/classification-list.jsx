@@ -62,7 +62,7 @@ class DlgEdit extends RbFormHandler {
     this.state = { ...props }
   }
   render() {
-    return (<RbModal title={(this.props.id ? '编辑' : '添加') + '分类'} ref={(c) => this._dlg = c}>
+    return (<RbModal title={(this.props.id ? '修改' : '添加') + '分类'} ref={(c) => this._dlg = c}>
       <div className="form">
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">分类名称</label>
@@ -83,6 +83,7 @@ class DlgEdit extends RbFormHandler {
         <div className="form-group row footer">
           <div className="col-sm-7 offset-sm-3">
             <button className="btn btn-primary" type="button" onClick={this.save}>确定</button>
+            <a className="btn btn-link" onClick={this.hide}>取消</a>
           </div>
         </div>
       </div>

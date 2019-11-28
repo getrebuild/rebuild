@@ -10,11 +10,11 @@
 	<div class="rb-content">
 		<div class="main-content container-fluid">
 			<div class="splash-container">
-				<div class="card card-border-color card-border-color-primary">
+				<div class="card card-border-color card-border-color-warning">
 					<div class="card-header"><a class="logo-img"></a></div>
 					<div class="card-body">
 						<div class="form-group">
-							<input class="form-control" id="sFullName" type="text" placeholder="姓名" autocomplete="off">
+							<input class="form-control" id="sFullName" type="text" placeholder="你的姓名" autocomplete="off">
 						</div>
 						<div class="form-group">
 							<input class="form-control" id="sName" type="text" placeholder="用户名" autocomplete="off">
@@ -31,7 +31,8 @@
 							</div>
 						</div>
 						<div class="form-group login-submit">
-							<button class="btn btn-primary btn-xl J_confirm-btn" type="button">注册</button>
+							<button class="btn btn-primary btn-xl J_confirm-btn" type="button">提交注册</button>
+							<div class="text-muted mt-2 text-center">需管理员审核通过后方可登录使用</div>
 						</div>
 					</div>
 				</div>

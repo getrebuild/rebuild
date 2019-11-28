@@ -68,6 +68,7 @@ public class DefaultValueHelper {
         }
     }
 
+    private static final Pattern EXPR_PATTERN = Pattern.compile("\\{NOW([-+])([0-9]{1,9})([YMDH])\\}");
     /**
      * 获取字段默认值，可指定表达式
      *
@@ -90,7 +91,9 @@ public class DefaultValueHelper {
             }
 
             for (Object c : stateClass.getEnumConstants()) {
-                if (((StateSpec) c).isDefault()) return ((StateSpec) c).getState();
+                if (((StateSpec) c).isDefault()) {
+                    return ((StateSpec) c).getState();
+                }
             }
         } else if (dt == DisplayType.MULTISELECT) {
             return MultiSelectManager.instance.getDefaultValue(field);
@@ -105,8 +108,7 @@ public class DefaultValueHelper {
                 return CalendarUtils.now();
             }
 
-            Pattern exprPattern = Pattern.compile("\\{NOW([-+])([0-9]{1,9})([YMDH])\\}");
-            Matcher exprMatcher = exprPattern.matcher(StringUtils.remove(valueExpr, " "));
+            Matcher exprMatcher = EXPR_PATTERN.matcher(StringUtils.remove(valueExpr, " "));
             if (exprMatcher.matches()) {
                 String op = exprMatcher.group(1);
                 String num = exprMatcher.group(2);

@@ -27,6 +27,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
 import com.rebuild.server.configuration.FlowDefinition;
 import com.rebuild.server.configuration.RobotApprovalManager;
+import com.rebuild.server.helper.SetUser;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -51,31 +52,29 @@ import java.util.Set;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/06/24
  */
-public class ApprovalProcessor {
+public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 
 	private  static final Log LOG = LogFactory.getLog(ApprovalProcessor.class);
 
-	final private ID user;
 	final private ID record;
-	
+
+	// 如未传递，会在需要时根据 record 确定
 	private ID approval;
+	// 流程定义
 	private FlowParser flowParser;
 	
 	/**
-	 * @param user
 	 * @param record
 	 */
-	public ApprovalProcessor(ID user, ID record) {
-		this(user, record, null);
+	public ApprovalProcessor(ID record) {
+		this(record, null);
 	}
 	
 	/**
-	 * @param user
 	 * @param record
 	 * @param approval
 	 */
-	public ApprovalProcessor(ID user, ID record, ID approval) {
-		this.user = user;
+	public ApprovalProcessor(ID record, ID approval) {
 		this.record = record;
 		this.approval = approval;
 	}
@@ -83,11 +82,11 @@ public class ApprovalProcessor {
 	/**
 	 * 提交
 	 * 
-	 * @param selectUsers
+	 * @param selectNextUsers
 	 * @return
 	 * @throws ApprovalException
 	 */
-	public boolean submit(JSONObject selectUsers) throws ApprovalException {
+	public boolean submit(JSONObject selectNextUsers) throws ApprovalException {
 		Integer currentState = (Integer) Application.getQueryFactory().unique(this.record, EntityHelper.ApprovalState)[0];
 		if (currentState == ApprovalState.PROCESSING.getState() || currentState == ApprovalState.APPROVED.getState()) {
 			throw new ApprovalException("当前记录已经" + (currentState == ApprovalState.PROCESSING.getState() ? "提交审批" : "审批完成"));
@@ -99,31 +98,31 @@ public class ApprovalProcessor {
 			return false;
 		}
 
-		Set<ID> ccs = nextNodes.getCcUsers(this.user, this.record, selectUsers);
-		Set<ID> nextApprovers = nextNodes.getApproveUsers(this.user, this.record, selectUsers);
+		Set<ID> ccs = nextNodes.getCcUsers(this.getUser(), this.record, selectNextUsers);
+		Set<ID> nextApprovers = nextNodes.getApproveUsers(this.getUser(), this.record, selectNextUsers);
 		if (nextApprovers.isEmpty()) {
 			LOG.warn("No any approvers special");
 			return false;
 		}
 		
-		Record mainRecord = EntityHelper.forUpdate(this.record, this.user, false);
+		Record mainRecord = EntityHelper.forUpdate(this.record, this.getUser(), false);
 		mainRecord.setID(EntityHelper.ApprovalId, this.approval);
 		mainRecord.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
 		mainRecord.setString(EntityHelper.ApprovalStepNode, nextNodes.getApprovalNode().getNodeId());
 		Application.getBean(ApprovalStepService.class).txSubmit(mainRecord, ccs, nextApprovers);
 		return true;
 	}
-	
+
 	/**
 	 * 审批
-	 * 
+	 *
 	 * @param approver
 	 * @param state
 	 * @param remark
-	 * @param selectUsers
+	 * @param selectNextUsers
 	 * @throws ApprovalException
 	 */
-	public void approve(ID approver, ApprovalState state, String remark, JSONObject selectUsers) throws ApprovalException {
+	public void approve(ID approver, ApprovalState state, String remark, JSONObject selectNextUsers) throws ApprovalException {
 		Integer currentState = (Integer) Application.getQueryFactory().unique(this.record, EntityHelper.ApprovalState)[0];
 		if (currentState != ApprovalState.PROCESSING.getState()) {
 			throw new ApprovalException("当前记录已经" + (currentState == ApprovalState.APPROVED.getState() ? "审批完成" : "驳回审批"));
@@ -149,11 +148,11 @@ public class ApprovalProcessor {
 		this.approval = (ID) stepApprover[3];
 		FlowNodeGroup nextNodes = getNextNodes((String) stepApprover[2]);
 		
-		Set<ID> ccs = nextNodes.getCcUsers(this.user, this.record, selectUsers);
+		Set<ID> ccs = nextNodes.getCcUsers(this.getUser(), this.record, selectNextUsers);
 		Set<ID> nextApprovers = null;
 		String nextNode = null;
 		if (!nextNodes.isLastStep()) {
-			nextApprovers = nextNodes.getApproveUsers(this.user, this.record, selectUsers);
+			nextApprovers = nextNodes.getApproveUsers(this.getUser(), this.record, selectNextUsers);
 			if (nextApprovers.isEmpty()) {
 				throw new ApprovalException("无下一步审批人可用，请联系管理员配置");
 			}
@@ -187,7 +186,7 @@ public class ApprovalProcessor {
 	 * @return
 	 * @see #getNextNode(String)
 	 */
-	public FlowNode getNextNode() {
+	protected FlowNode getNextNode() {
 		return getNextNode(getCurrentNodeId());
 	}
 	
@@ -197,7 +196,7 @@ public class ApprovalProcessor {
 	 * @param currentNode
 	 * @return
 	 */
-	public FlowNode getNextNode(String currentNode) {
+	protected FlowNode getNextNode(String currentNode) {
 		Assert.notNull(currentNode, "[currentNode] not be null");
 		
 		List<FlowNode> nextNodes = getFlowParser().getNextNodes(currentNode);
@@ -239,7 +238,7 @@ public class ApprovalProcessor {
 	 * @param currentNode
 	 * @return
 	 */
-	public FlowNodeGroup getNextNodes(String currentNode) {
+	protected FlowNodeGroup getNextNodes(String currentNode) {
 		Assert.notNull(currentNode, "[currentNode] not be null");
 		
 		FlowNodeGroup nodes = new FlowNodeGroup();
@@ -259,6 +258,8 @@ public class ApprovalProcessor {
 	}
 	
 	/**
+	 * 获取当前审批节点 ID
+	 *
 	 * @return
 	 */
 	private String getCurrentNodeId() {
@@ -318,8 +319,8 @@ public class ApprovalProcessor {
 	 * @return returns [ [S,S], [S], [SSS], [S] ]
 	 */
 	public JSONArray getWorkedSteps() {
-		final Object[] status = ApprovalHelper.getApprovalStatus(this.record);
-		this.approval = (ID) status[0];
+		final Object[] states = ApprovalHelper.getApprovalStates(this.record);
+		this.approval = (ID) states[0];
 
 		Object[][] array = Application.createQueryNoFilter(
 				"select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode from RobotApprovalStep" +
@@ -349,7 +350,7 @@ public class ApprovalProcessor {
 		JSONObject submitter = JSONUtils.toJSONObject(
 				new String[] { "submitter", "submitterName", "createdOn", "approvalId", "approvalName", "approvalState" },
 				new Object[] { firstStep[5], UserHelper.getName((ID) firstStep[5]), CalendarUtils.getUTCDateTimeFormat().format(firstStep[4]),
-						status[0], status[1], status[2] });
+						states[0], states[1], states[2] });
 		steps.add(submitter);
 
 

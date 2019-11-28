@@ -18,16 +18,19 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.base;
 
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.business.approval.FlowNode;
+import com.rebuild.server.business.trigger.RobotTriggerManual;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.BaseService;
+import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.notification.MessageBuilder;
 
 import java.util.Set;
@@ -135,7 +138,7 @@ public class ApprovalStepService extends BaseService {
 			cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, true);
 
 			// 更新主记录
-			Record main = EntityHelper.forUpdate(recordId, Application.getCurrentUser(), false);
+			Record main = EntityHelper.forUpdate(recordId, approver, false);
 			main.setInt(EntityHelper.ApprovalState, ApprovalState.REJECTED.getState());
 			super.update(main);
 			
@@ -185,11 +188,19 @@ public class ApprovalStepService extends BaseService {
 			}
 		}
 
-		// 最终状态了
+		// 最终状态
 		if (goNextNode && (nextApprovers == null || nextNode == null)) {
-			Record main = EntityHelper.forUpdate(recordId, Application.getCurrentUser(), false);
+			// 审批通过
+			Record main = EntityHelper.forUpdate(recordId, approver, false);
 			main.setInt(EntityHelper.ApprovalState, ApprovalState.APPROVED.getState());
 			super.update(main);
+
+			// 触发器
+			Record after = main;
+			Record before = after.clone();
+			before.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
+			new RobotTriggerManual().onApproved(OperatingContext.create(approver, BizzPermission.UPDATE, before, after));
+
 			return;
 		}
 		
@@ -281,9 +292,15 @@ public class ApprovalStepService extends BaseService {
 	 */
 	private void cancelAliveSteps(ID recordId, ID approvalId, String node, ID excludeStep, boolean onlyDarft) {
 		String sql = "select stepId from RobotApprovalStep where recordId = ? and isCanceled = 'F'";
-		if (approvalId != null) sql += " and approvalId = '" + approvalId + "'";
-		if (node != null) sql += " and node = '" + node + "'";
-		if (onlyDarft) sql += " and state = " + ApprovalState.DRAFT.getState();
+		if (approvalId != null) {
+            sql += " and approvalId = '" + approvalId + "'";
+        }
+		if (node != null) {
+            sql += " and node = '" + node + "'";
+        }
+		if (onlyDarft) {
+            sql += " and state = " + ApprovalState.DRAFT.getState();
+        }
 
 		Object[][] cancelled = Application.createQueryNoFilter(sql)
 				.setParameter(1, recordId)

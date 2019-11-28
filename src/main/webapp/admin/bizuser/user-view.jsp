@@ -16,12 +16,12 @@
 	</span>
 </div>
 <div class="main-content container-fluid">
-	<div class="alert alert-warning alert-icon alert-dismissible min hide J_tips">
+	<div class="alert alert-warning alert-icon alert-dismissible alert-sm hide J_tips">
 		<div class="icon"><span class="zmdi zmdi-info-outline"></span></div>
 		<div class="message"><a class="close" data-dismiss="alert"><span class="zmdi zmdi-close"></span></a><p></p></div>
 	</div>
 	<div class="row">
-		<div class="col-sm-9 pr-0">
+		<div class="col-12 col-md-9">
 			<div class="tab-container">
 				<ul class="nav nav-tabs">
 					<li class="nav-item"><a class="nav-link active" href="#tab-rbview" data-toggle="tab">${entityLabel}信息</a></li>
@@ -31,7 +31,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-sm-3 view-operating">
+		<div class="col-12 col-md-3 view-operating">
 			<div class="view-action row admin-show admin-verified">
 				<div class="col-12 col-lg-6">
 					<button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>

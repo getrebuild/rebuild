@@ -39,10 +39,7 @@ import org.springframework.util.Assert;
  */
 public class CommonService extends BaseService {
 
-	/**
-	 * @param aPMFactory
-	 */
-	public CommonService(PersistManagerFactory aPMFactory) {
+	protected CommonService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
 	}
 
@@ -131,44 +128,45 @@ public class CommonService extends BaseService {
 	/**
 	 * 批量删除
 	 *
-	 * @param deleted
+	 * @param deletes
 	 */
-	public void delete(ID[] deleted) {
-		delete(deleted, true);
+	public void delete(ID[] deletes) {
+		delete(deletes, true);
 	}
 
 	/**
 	 * 批量删除
 	 *
-	 * @param deleted
+	 * @param deletes
 	 * @param strictMode
 	 */
-	public void delete(ID[] deleted, boolean strictMode) {
-		Assert.notNull(deleted, "[deleted] cannot be null");
-		for (ID id : deleted) {
+	public void delete(ID[] deletes, boolean strictMode) {
+		Assert.notNull(deletes, "[deleted] cannot be null");
+		for (ID id : deletes) {
 			delete(id, strictMode);
 		}
 	}
 
 	/**
-	 * 批量新建/更新
+	 * 批量新建/更新、删除
 	 *
 	 * @param records
+	 * @param deletes
 	 */
-	public void createOrUpdate(Record[] records, ID deleted[]) {
-		createOrUpdate(records, deleted, true);
+	public void createOrUpdateAndDelete(Record[] records, ID[] deletes) {
+		createOrUpdateAndDelete(records, deletes, true);
 	}
 
 	/**
-	 * 批量新建/更新
+	 * 批量新建/更新、删除
 	 *
 	 * @param records
-	 * @param deleted
+	 * @param deletes
 	 * @param strictMode
 	 */
-	public void createOrUpdate(Record[] records, ID deleted[], boolean strictMode) {
+	public void createOrUpdateAndDelete(Record[] records, ID[] deletes, boolean strictMode) {
 		createOrUpdate(records, strictMode);
-		delete(deleted, strictMode);
+		delete(deletes, strictMode);
 	}
 
 	/**

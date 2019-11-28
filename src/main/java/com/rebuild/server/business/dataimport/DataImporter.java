@@ -44,6 +44,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -73,29 +74,30 @@ public class DataImporter extends HeavyTask<Integer> {
 	
 	/**
 	 * @param rule
-	 * @param user
+	 * @param owningUser
 	 */
-	public DataImporter(ImportRule rule, ID user) {
+	public DataImporter(ImportRule rule, ID owningUser) {
 		this.rule = rule;
-		this.owningUser = rule.getDefaultOwningUser() == null ? user : rule.getDefaultOwningUser();
+		this.owningUser = rule.getDefaultOwningUser() == null ? owningUser : rule.getDefaultOwningUser();
 	}
 	
 	@Override
-	public Integer exec() throws Exception {
+	protected Integer exec() throws Exception {
 		try {
-			DataFileParser fileParser = new DataFileParser(rule.getSourceFile());
-			this.setTotal(fileParser.getRowsCount() - 1);
-			
-			setThreadUser(this.owningUser);
+			final List<Cell[]> rows = new DataFileParser(rule.getSourceFile()).parse();
+			this.setTotal(rows.size() - 1);
+
+			// 指定的所属用户
+			setUser(this.owningUser);
 			IN_IMPORTING.set(owningUser);
 
-			int rowLine = 0;
-			for (final Cell[] row : fileParser.parse()) {
+			int rowNo = 0;
+			for (final Cell[] row : rows) {
 				if (isInterrupt()) {
 					this.setInterrupted();
 					break;
 				}
-				if (rowLine++ == 0 || row == null) {
+				if (rowNo++ == 0 || row == null) {
 					continue;
 				}
 
@@ -104,11 +106,11 @@ public class DataImporter extends HeavyTask<Integer> {
 					if (record != null) {
 						record = Application.getEntityService(rule.getToEntity().getEntityCode()).createOrUpdate(record);
 						this.successed++;
-						iLogging.put(rowLine, record.getPrimary());
+						iLogging.put(rowNo, record.getPrimary());
 					}
 				} catch (Exception ex) {
-					iLogging.put(rowLine, ex.getLocalizedMessage());
-					LOG.warn(rowLine + " > " + ex);
+					iLogging.put(rowNo, ex.getLocalizedMessage());
+					LOG.warn(rowNo + " > " + ex);
 				} finally {
 					this.addCompleted();
 				}
@@ -144,9 +146,13 @@ public class DataImporter extends HeavyTask<Integer> {
 			int cellIndex = e.getValue();
 			if (cells.length > cellIndex) {
 				Field field = e.getKey();
-				Object value = checkoutFieldValue(field, cells[cellIndex], true);
+				Cell cellValue = cells[cellIndex];
+				Object value = checkoutFieldValue(field, cellValue, true);
+
 				if (value != null) {
 					recordNew.setObjectValue(field.getName(), value);
+				} else if (cellValue != Cell.NULL && !cellValue.isEmpty()) {
+					LOG.warn("Invalid value of cell : " + cellValue + " > " + field.getName());
 				}
 			}
 		}
@@ -323,7 +329,7 @@ public class DataImporter extends HeavyTask<Integer> {
 			return null;
 		}
 		
-		Query query = null;
+		Query query;
 		if (oEntity.getEntityCode() == EntityHelper.User) {
 			String sql = MessageFormat.format(
 					"select userId from User where loginName = ''{0}'' or email = ''{0}'' or fullName = ''{0}''",

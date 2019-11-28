@@ -28,6 +28,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
+import com.rebuild.server.helper.SetUser;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
@@ -39,8 +40,10 @@ import org.apache.commons.lang.StringUtils;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -49,13 +52,14 @@ import java.util.Set;
  * @author devezhao
  * @since 12/14/2018
  */
-public abstract class ChartData implements ChartSpec {
+public abstract class ChartData extends SetUser<ChartData> implements ChartSpec {
 	
 	protected JSONObject config;
 
-	private ID user;
 	private boolean fromPreview = false;
-	
+	// 额外的图表参数
+	private Map<String, Object> extraParams;
+
 	/**
 	 * @param config
 	 */
@@ -63,23 +67,22 @@ public abstract class ChartData implements ChartSpec {
 		this.config = config;
 	}
 
-    /**
-     * @return
-     */
-    protected ID getUser() {
-        return user == null ? Application.getCurrentUser() : user;
-    }
+	/**
+	 * @return
+	 */
+	public Map<String, Object> getExtraParams() {
+		return extraParams == null ? Collections.emptyMap() : extraParams;
+	}
 
-    /**
-     * @param user
-     * @return
-     */
-    public ChartData setUser(ID user) {
-        this.user = user;
-        return this;
-    }
+	/**
+	 * @param extraParams
+	 */
+	public ChartData setExtraParams(Map<String, Object> extraParams) {
+		this.extraParams = extraParams;
+		return this;
+	}
 
-    /**
+	/**
 	 * 预览模式
 	 *
 	 * @return

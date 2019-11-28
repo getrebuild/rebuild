@@ -314,7 +314,7 @@ function RbSpinner(props) {
 function RbAlertBox(props) {
   let icon = props.type === 'success' ? 'check' : 'info-outline'
   if (props.type === 'danger') icon = 'close-circle-o'
-  return (<div className={'alert alert-icon alert-dismissible min alert-' + (props.type || 'warning')}>
+  return (<div className={'alert alert-icon alert-dismissible alert-sm alert-' + (props.type || 'warning')}>
     <div className="icon"><span className={'zmdi zmdi-' + icon} /></div>
     <div className="message">
       <a className="close" data-dismiss="alert"><span className="zmdi zmdi-close" /></a>
@@ -341,6 +341,7 @@ class UserSelector extends React.Component {
     if (!this.state.items) noResult = noResult = <li className="select2-results__option un-hover text-muted">搜索中...</li>
     else if (this.state.items.length === 0) noResult = <li className="select2-results__option un-hover">未找到结果</li>
 
+    // select2-container--above
     return <div className="user-selector">
       <span className="select2 select2-container select2-container--default select2-container--below">
         <span className="selection">
@@ -357,10 +358,10 @@ class UserSelector extends React.Component {
         <span className={'dropdown-wrapper ' + (this.state.dropdownOpen === false && 'hide')}>
           <div className="selector-search">
             <div>
-              <input type="search" className="form-control" placeholder="输入关键词搜索" value={this.state.query || ''} onChange={(e) => this.searchItems(e)} />
+              <input type="search" className="form-control search" placeholder="输入关键词搜索" value={this.state.query || ''} onChange={(e) => this.searchItems(e)} />
             </div>
           </div>
-          <div className="tab-container">
+          <div className="tab-container m-0">
             <ul className="nav nav-tabs nav-tabs-classic">
               {this.tabTypes.map((item) => {
                 return <li className="nav-item" key={'t-' + item[0]}><a onClick={() => this.switchTab(item[0])} className={'nav-link' + (this.state.tabType === item[0] ? ' active' : '')}>{item[1]}</a></li>
@@ -380,7 +381,7 @@ class UserSelector extends React.Component {
           </div>
         </span>
       </span>
-    </div >
+    </div>
   }
 
   componentDidMount() {
@@ -445,9 +446,7 @@ class UserSelector extends React.Component {
       return true
     })
 
-    if (exists === false) {
-      ns.push({ id: id, text: $(e.target).text() })
-    }
+    if (exists === false) ns.push({ id: id, text: $(e.target).text() })
     this.setState({ selected: ns, dropdownOpen: this.props.closeOnSelect !== true })
   }
 
@@ -469,6 +468,10 @@ class UserSelector extends React.Component {
       ids.push(item.id)
     })
     return ids
+  }
+
+  val() {
+    return this.getSelected()
   }
 }
 

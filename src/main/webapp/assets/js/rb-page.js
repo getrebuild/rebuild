@@ -35,7 +35,7 @@ $(function () {
     $('html').addClass('admin')
     if (rb.isAdminVerified !== true) $('.admin-verified').remove()
     if (location.href.indexOf('/admin/') > -1) $('.admin-settings').remove()
-    else if (rb.isAdminVerified === true) $('.admin-settings a i').addClass('text-primary')
+    else if (rb.isAdminVerified === true) $('.admin-settings a i').addClass('text-danger')
   } else {
     $('.admin-show').remove()
   }
@@ -53,14 +53,24 @@ $(function () {
     }
   })
 
+  // Trigger on window.onresize
   $(window).on('resize', function () {
-    $setTimeout(resize_handler, 100, 'resize-window')
+    $setTimeout(function () { $addResizeHandler()() }, 120, 'resize-window')
   })
 })
 // @t - trigger times
 var command_exec = function (t) { }
-// Trigger on window.onresize
-var resize_handler = function () { }
+
+var __RESIZE_CALLS = []
+var $addResizeHandler = function (call) {
+  (typeof call === 'function' && __RESIZE_CALLS) && __RESIZE_CALLS.push(call)
+  return function () {
+    if (!__RESIZE_CALLS || __RESIZE_CALLS.length === 0) return
+    // eslint-disable-next-line no-console
+    if (rb.env === 'dev') console.log('Calls ' + __RESIZE_CALLS.length + ' handlers of resize ...')
+    __RESIZE_CALLS.forEach(function (call) { call() })
+  }
+}
 
 // MainNav
 var __initNavs = function () {
@@ -130,18 +140,16 @@ var __initNavs = function () {
   })
 
   // WHEN SMALL-WIDTH
-  {
-    $('.left-sidebar-toggle').click(function () {
-      $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
-      $('.left-sidebar-spacer').toggleClass('open')
-    }).text($('.rb-right-navbar .page-title').text())
+  $('.left-sidebar-toggle').click(function () {
+    $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
+    $('.left-sidebar-spacer').toggleClass('open')
+  }).text($('.rb-right-navbar .page-title').text())
 
-    if ($('.page-aside .aside-header').length > 0) {
-      $('.page-aside .aside-header').click(function () {
-        $(this).toggleClass('collapsed')
-        $('.page-aside .aside-nav').toggleClass('show')
-      })
-    }
+  if ($('.page-aside .aside-header').length > 0) {
+    $('.page-aside .aside-header').click(function () {
+      $(this).toggleClass('collapsed')
+      $('.page-aside .aside-nav').toggleClass('show')
+    })
   }
 }
 
@@ -174,7 +182,7 @@ var __loadMessages = function () {
   if (dest.find('li').length === 0) {
     $('<li class="text-center mt-3 mb-3"><i class="zmdi zmdi-refresh zmdi-hc-spin fs-18"></i></li>').appendTo(dest)
   }
-  $.get(rb.baseUrl + '/notification/messages?pageSize=10', function (res) {
+  $.get(rb.baseUrl + '/notification/messages?pageSize=10&preview=true', function (res) {
     dest.empty()
     $(res.data).each(function (idx, item) {
       var o = $('<li class="notification"></li>').appendTo(dest)
@@ -213,7 +221,7 @@ var __globalSearch = function () {
 
   var activeModel
   var aModels = $('.search-models a').click(function () {
-    var s = $('.search-input').val()
+    var s = $('.search-input-gs').val()
     location.href = $(this).data('url') + '#gs=' + $encode(s)
   })
   if (aModels.length === 0) return
@@ -225,7 +233,7 @@ var __globalSearch = function () {
   $('.search-container input').on('focus', function (e) {
     $('.search-models').show()
   }).on('keydown', function (e) {
-    var s = $('.search-input').val()
+    var s = $('.search-input-gs').val()
     if (e.keyCode === 13 && s) location.href = activeModel.data('url') + '#gs=' + $encode(s)
   })
 }
@@ -283,9 +291,7 @@ var $createUploader = function (input, next, complete, error) {
         var o = qiniu.upload(file, res.data.key, res.data.token, putExtra)
         o.subscribe({
           next: function (res) {
-            typeof next === 'function' && next({
-              percent: res.total.percent
-            })
+            typeof next === 'function' && next({ percent: res.total.percent })
           },
           error: function (err) {
             var msg = (err.message || 'UnknowError').toUpperCase()
@@ -296,15 +302,12 @@ var $createUploader = function (input, next, complete, error) {
               RbHighbar.create('超出文件大小限制 (20M)')
               return false
             }
-            if (error) error({
-              error: msg
-            })
+            if (error) error({ error: msg })
             else RbHighbar.error('上传失败: ' + msg)
           },
           complete: function (res) {
-            typeof complete === 'function' && complete({
-              key: res.key
-            })
+            $.post(rb.baseUrl + '/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(res.key))
+            typeof complete === 'function' && complete({ key: res.key })
           }
         })
       })
@@ -328,25 +331,20 @@ var $createUploader = function (input, next, complete, error) {
           percent: e.loaded * 100 / e.total
         })
       },
-      onSuccess: function (d) {
-        d = $.parseJSON(d.currentTarget.response)
-        if (d.error_code === 0) {
-          complete({
-            key: d.data
-          })
+      onSuccess: function (e, file) {
+        e = $.parseJSON(e.currentTarget.response)
+        if (e.error_code === 0) {
+          $.post(rb.baseUrl + '/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data))
+          complete({ key: e.data })
         } else {
-          var msg = d.error_msg || '上传失败，请稍后重试'
-          if (error) error({
-            error: msg
-          })
+          var msg = e.error_msg || '上传失败，请稍后重试'
+          if (error) error({ error: msg })
           else RbHighbar.error(msg)
         }
       },
       onClientError: function (e, file) {
         var msg = '上传失败，请稍后重试'
-        if (error) error({
-          error: msg
-        })
+        if (error) error({ error: msg })
         else RbHighbar.error(msg)
       }
     })

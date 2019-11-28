@@ -33,7 +33,7 @@
 						<table class="table">
 						<tbody>
 							<tr>
-								<td width="40%">名称<p>这将完全替换 REBUILD 的品牌名称</p></td>
+								<td width="40%">名称</td>
 								<td>${appName}</td>
 							</tr>
 							<tr>
@@ -44,7 +44,7 @@
 								</td>
 							</tr>
 							<tr>
-								<td>域名/主页地址</td>
+								<td>主页地址/域名<p>基础 URL 所有链接将以此作为前缀</p></td>
 								<td><a href="${HomeURL}" class="link" target="_blank">${HomeURL}</a></td>
 							</tr>
 							<tr>
@@ -84,14 +84,14 @@
 					<div class="card-header card-header-divider">关于 REBUILD</div>
 					<div class="card-body">
 						<p class="mb-1">系统版本 <a class="link" target="_blank" href="https://getrebuild.com/download?v=<%=Application.VER%>"><%=Application.VER%></a></p>
-						<p class="mb-2">许可类型 <a class="link" target="_blank" href="https://getrebuild.com/authority?sn=${SN}">开源社区版</a></p>
+						<p class="mb-2">许可类型 <a class="link" target="_blank" href="https://getrebuild.com/authority?sn=${SN}" id="authType">开源社区版</a></p>
 						<ul style="line-height:2">
 							<li><a class="link" target="_blank" href="${baseUrl}/gw/server-status">系统状态</a></li>
 							<li><a class="link" target="_blank" href="https://getrebuild.com/docs/">帮助文档</a></li>
 							<li><a class="link" target="_blank" href="https://getrebuild.com/">技术支持</a></li>
 						</ul>
 						<div class="text-muted">
-							&copy; REBUILD 使用开源 <a class="link" href="https://raw.githubusercontent.com/getrebuild/rebuild/master/LICENSE" target="_blank">GPL3.0</a> 和 <a class="link" href="https://raw.githubusercontent.com/getrebuild/rebuild/master/COMMERCIAL" target="_blank">商用</a> 双重授权许可，请遵守许可协议。
+							&copy; REBUILD 使用开源 <a class="link" href="https://raw.githubusercontent.com/getrebuild/rebuild/master/LICENSE" target="_blank">GPL-3.0</a> 和 <a class="link" href="https://raw.githubusercontent.com/getrebuild/rebuild/master/COMMERCIAL" target="_blank">商用</a> 双重授权许可，请遵守许可协议。
 						</div>
 					</div>
 				</div>
@@ -101,5 +101,10 @@
 </div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
+<script>
+$(document).ready(function () {
+	$.get('systems/query-authority', function (res) { $('#authType').text(res.data.authType) })
+})
+</script>
 </body>
 </html>

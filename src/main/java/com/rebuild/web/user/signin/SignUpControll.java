@@ -74,16 +74,16 @@ public class SignUpControll extends BasePageControll {
 		}
 		
 		String email = getParameterNotNull(request, "email");
+
 		if (!RegexUtils.isEMail(email)) {
 			writeFailure(response, "无效邮箱");
 			return;
-		}
-		if (Application.getUserStore().existsEmail(email)) {
+		} else if (Application.getUserStore().existsEmail(email)) {
 			writeFailure(response, "注册邮箱已存在");
 			return;
 		}
-		
-		String vcode = VCode.generate(email, 2);
+
+		String vcode = VCode.generate(email, 1);
 		String content = String.format(MSG_VCODE, vcode);
 		String sentid = SMSender.sendMail(email, "注册验证码", content);
 		LOG.warn(email + " >> " + content);
@@ -93,7 +93,8 @@ public class SignUpControll extends BasePageControll {
 			writeFailure(response, "无法发送验证码，请稍后重试");
 		}
 	}
-	
+
+	@SuppressWarnings("DuplicatedCode")
 	@RequestMapping("signup-confirm")
 	public void signupConfirm(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);

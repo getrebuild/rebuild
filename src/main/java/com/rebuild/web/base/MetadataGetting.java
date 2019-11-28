@@ -228,7 +228,7 @@ public class MetadataGetting extends BaseControll {
 		sql += " order by code, name";
 		Object[][] data = Application.createQueryNoFilter(sql)
 				.setParameter(1, useClassification)
-				.setLimit(200)
+				.setLimit(500)  // 最多显示
 				.array();
 		writeSuccess(response, data);
 	}

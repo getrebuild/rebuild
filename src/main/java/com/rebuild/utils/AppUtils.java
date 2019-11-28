@@ -29,7 +29,6 @@ import com.rebuild.server.ServerListener;
 import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.web.admin.AdminEntryControll;
 import com.rebuild.web.common.LanguageControll;
-import eu.bitwalker.useragentutils.Browser;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,7 +41,7 @@ import java.nio.file.AccessDeniedException;
  * @since 05/19/2018
  */
 public class AppUtils {
-	
+
 	/**
 	 * @return
 	 * @see Application#devMode()
@@ -50,7 +49,7 @@ public class AppUtils {
 	public static boolean devMode() {
 		return Application.devMode();
 	}
-	
+
 	/**
 	 * @return
 	 * @see ServerListener#getContextPath()
@@ -69,7 +68,7 @@ public class AppUtils {
 		Object user = request.getSession(true).getAttribute(WebUtils.CURRENT_USER);
 		return user == null ? null : (ID) user;
 	}
-	
+
 	/**
 	 * @param request
 	 * @return
@@ -81,7 +80,7 @@ public class AppUtils {
 		}
 		return Application.getUserStore().getUser(uid).isAdmin();
 	}
-	
+
 	/**
 	 * @param request
 	 * @return
@@ -89,7 +88,7 @@ public class AppUtils {
 	public static boolean isAdminVerified(HttpServletRequest request) {
 		return AdminEntryControll.isAdminVerified(request);
 	}
-	
+
 	/**
 	 * 格式化标准的客户端消息
 	 * 
@@ -110,7 +109,7 @@ public class AppUtils {
 		}
 		return map.toJSONString();
 	}
-	
+
 	/**
 	 * 获取后台抛出的错误消息
 	 * 
@@ -123,7 +122,7 @@ public class AppUtils {
 		if (StringUtils.isNotBlank(errorMsg)) {
 			return errorMsg;
 		}
-		
+
 		Throwable ex = (Throwable) request.getAttribute(ServletUtils.ERROR_EXCEPTION);
 		if (ex == null) {
 			ex = (Throwable) request.getAttribute(ServletUtils.JSP_JSP_EXCEPTION);
@@ -134,7 +133,7 @@ public class AppUtils {
 		if (ex != null) {
 			ex = ThrowableUtils.getRootCause(ex);
 		}
-		
+
 		if (ex == null) {
 			Integer state = (Integer) request.getAttribute(ServletUtils.ERROR_STATUS_CODE);
 			if (state != null && state == 404) {
@@ -145,11 +144,11 @@ public class AppUtils {
 		} else if (ex instanceof AccessDeniedException) {
 			return "权限不足，访问被阻止";
 		}
-		
+
 		errorMsg = StringUtils.defaultIfBlank(ex.getLocalizedMessage(), "未知错误，请稍后重试");
 		return ex.getClass().getSimpleName() + " : " + errorMsg;
 	}
-	
+
 	/**
 	 * 是否低于 IE11
 	 * 
@@ -157,29 +156,32 @@ public class AppUtils {
 	 * @return
 	 */
 	public static boolean isLessIE11(HttpServletRequest request) {
-		String userAgent = request.getHeader("user-agent");
-		Browser browser = Browser.parseUserAgentString(userAgent);
-		return browser == Browser.IE6 || browser == Browser.IE7 || browser == Browser.IE8 || browser == Browser.IE9 || browser == Browser.IE10;
+		String UA = request.getHeader("user-agent").toUpperCase();
+		return UA.contains("MSIE") && (UA.contains("MSIE 6") || UA.contains("MSIE 7") || UA.contains("MSIE 8")
+				|| UA.contains("MSIE 9") || UA.contains("MSIE 10"));
 	}
 
 	/**
+	 * 权限判断
+	 *
 	 * @param request
 	 * @param entry
 	 * @return
+	 * @see com.rebuild.server.service.bizz.privileges.SecurityManager
 	 */
 	public static boolean allowed(HttpServletRequest request, ZeroEntry entry) {
 		return Application.getSecurityManager().allowed(getRequestUser(request), entry);
 	}
 
-    /**
-     * @param request
-     * @return
-     */
+	/**
+	 * @param request
+	 * @return
+	 */
 	public static String getLocale(HttpServletRequest request) {
-        String locale = (String) ServletUtils.getSessionAttribute(request, LanguageControll.SK_LOCALE);
-        if (locale == null) {
-            locale = request.getLocale().toString();
-        }
-        return locale;
-    }
+		String locale = (String) ServletUtils.getSessionAttribute(request, LanguageControll.SK_LOCALE);
+		if (locale == null) {
+			locale = request.getLocale().toString();
+		}
+		return locale;
+	}
 }

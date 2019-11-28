@@ -328,3 +328,13 @@ var __$capLetter = function (letter, first) {
   if (first) return letter.substr(0, 1).toUpperCase() + letter.substr(1)
   else return ' ' + letter.substr(0, 1).toLowerCase() + letter.substr(1)
 }
+
+/**
+ * 停止事件传播
+ * @param {Event} e
+ */
+var $stopEvent = function (e) {
+  if (e && e.stopPropagation) e.stopPropagation()
+  if (e && e.nativeEvent) e.nativeEvent.stopImmediatePropagation()
+  return false
+}

@@ -139,7 +139,7 @@ public class UserService extends SystemEntityService {
             throw new DataSpecificationException("密码不能小于6位");
         }
 
-        int policy = (int) SysConfiguration.getLong(ConfigurableItem.PasswordPolicy);
+        int policy = SysConfiguration.getInt(ConfigurableItem.PasswordPolicy);
         if (policy <= 1) {
             return;
         }
@@ -252,7 +252,8 @@ public class UserService extends SystemEntityService {
 		
 		// 改变记录的所属部门
 		if (deptOld != null) {
-			TaskExecutors.submit(new ChangeOwningDeptTask(user, deptNew));
+			TaskExecutors.submit(
+					new ChangeOwningDeptTask(user, deptNew), Application.getCurrentUser());
 		}
 	}
 	

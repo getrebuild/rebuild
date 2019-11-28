@@ -31,6 +31,7 @@ import com.rebuild.api.LoginToken;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.VCode;
+import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.bizz.UserService;
@@ -56,7 +57,7 @@ import java.io.IOException;
 @Controller
 @RequestMapping("/user/")
 public class LoginControll extends BasePageControll {
-	
+
 	public static final String CK_AUTOLOGIN = "rb.alt";
 
 	public static final String SK_LOGINID = WebUtils.KEY_PREFIX + ".LOGINID";
@@ -108,10 +109,10 @@ public class LoginControll extends BasePageControll {
 			} catch (Exception ex) {
 				LOG.error("Can't decode User from alt : " + alt, ex);
 			}
-			
+
 			if (altUser != null && Application.getUserStore().exists(altUser)) {
 				loginSuccessed(request, response, altUser, true);
-				
+
 				String nexturl = StringUtils.defaultIfBlank(request.getParameter("nexturl"), DEFAULT_HOME);
 				response.sendRedirect(CodecUtils.urlDecode(nexturl));
 				return null;
@@ -124,20 +125,19 @@ public class LoginControll extends BasePageControll {
 		// 登录页
 		return createModelAndView("/user/login.jsp");
 	}
-	
+
 	@RequestMapping("user-login")
 	public void userLogin(HttpServletRequest request, HttpServletResponse response) {
 		String vcode = getParameter(request, "vcode");
 		Boolean needVcode = (Boolean) ServletUtils.getSessionAttribute(request, AK_NEED_VCODE);
-		if (needVcode != null && needVcode
-				&& (StringUtils.isBlank(vcode) || !CaptchaUtil.ver(vcode, request))) {
+		if (needVcode != null && needVcode && (StringUtils.isBlank(vcode) || !CaptchaUtil.ver(vcode, request))) {
 			writeFailure(response, getBundle(request).lang("VCode", "Wrong"));
 			return;
 		}
-		
+
 		final String user = getParameterNotNull(request, "user");
 		final String password = getParameterNotNull(request, "passwd");
-		
+
 		int retry = getLoginRetryTimes(user, 1);
 		if (retry > 3 && StringUtils.isBlank(vcode)) {
 			ServletUtils.setSessionAttribute(request, AK_NEED_VCODE, true);
@@ -157,10 +157,10 @@ public class LoginControll extends BasePageControll {
 		// 清理
 		getLoginRetryTimes(user, -1);
 		ServletUtils.setSessionAttribute(request, AK_NEED_VCODE, null);
-		
+
 		writeSuccess(response);
 	}
-	
+
 	/**
 	 * @param user
 	 * @param state
@@ -177,11 +177,11 @@ public class LoginControll extends BasePageControll {
 		retry = retry == null ? 0 : retry;
 		if (state == 1) {
 			retry += 1;
-			Application.getCommonCache().putx(key, retry, 60 * 30);  // cache 30 minutes
+			Application.getCommonCache().putx(key, retry, CommonCache.TS_HOUR);
 		}
 		return retry;
 	}
-	
+
 	/**
 	 * 登录成功
 	 * 
@@ -199,14 +199,14 @@ public class LoginControll extends BasePageControll {
 		} else {
 			ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
 		}
-		
+
 		ID loginId = loginLog(request, user);
 		ServletUtils.setSessionAttribute(request, SK_LOGINID, loginId);
-		
+
 		ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, user);
-		Application.getSessionStore().storeLoginSuccessed(request);	
+		Application.getSessionStore().storeLoginSuccessed(request);
 	}
-	
+
 	/**
 	 * 创建登陆日志
 	 * 
@@ -218,9 +218,9 @@ public class LoginControll extends BasePageControll {
 		String ipAddr = ServletUtils.getRemoteAddr(request);
 		String userAgent = request.getHeader("user-agent");
 		UserAgent ua = UserAgent.parseUserAgentString(userAgent);
-		String uaClean = String.format("%s-%s (%s)", ua.getBrowser(),
-				ua.getBrowserVersion().getMajorVersion(), ua.getOperatingSystem());
-		
+		String uaClean = String.format("%s-%s (%s)", ua.getBrowser(), ua.getBrowserVersion().getMajorVersion(),
+				ua.getOperatingSystem());
+
 		Record record = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
 		record.setID("user", user);
 		record.setString("ipAddr", ipAddr);
@@ -229,21 +229,21 @@ public class LoginControll extends BasePageControll {
 		record = Application.getCommonService().create(record);
 		return record.getPrimary();
 	}
-	
+
 	@RequestMapping("logout")
 	public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
 		ServletUtils.getSession(request).invalidate();
 		response.sendRedirect("login");
 	}
-	
+
 	// -- 找回密码
-	
+
 	@RequestMapping("forgot-passwd")
 	public ModelAndView forgotPasswd() {
 		return createModelAndView("/user/forgot-passwd.jsp");
 	}
-	
+
 	@RequestMapping("user-forgot-passwd")
 	public void userForgotPasswd(HttpServletRequest request, HttpServletResponse response) {
 		if (!SMSender.availableMail()) {
@@ -256,7 +256,7 @@ public class LoginControll extends BasePageControll {
 			writeFailure(response, getBundle(request).lang("Invalid", "Email"));
 			return;
 		}
-		
+
 		String vcode = VCode.generate(email, 2);
 		String content = String.format("<p>%s <b>%s</b><p>", getBundle(request).lang("YourResetPasswordVCodeIs"), vcode);
 		String sentid = SMSender.sendMail(email, getBundle(request).lang("ResetPassword"), content);
@@ -266,9 +266,9 @@ public class LoginControll extends BasePageControll {
 			writeFailure(response, getBundle(request).lang("UnsendEmailVCodeTips"));
 		}
 	}
-	
+
 	@SuppressWarnings("DuplicatedCode")
-    @RequestMapping("user-confirm-passwd")
+	@RequestMapping("user-confirm-passwd")
 	public void userConfirmPasswd(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
 		String email = data.getString("email");
@@ -283,11 +283,15 @@ public class LoginControll extends BasePageControll {
 		Record record = EntityHelper.forUpdate(user.getId(), user.getId());
 		record.setString("password", newpwd);
 		try {
+			Application.getSessionStore().set(user.getId());
+
 			Application.getBean(UserService.class).update(record);
 			writeSuccess(response);
 			VCode.clean(email);
 		} catch (DataSpecificationException ex) {
 			writeFailure(response, ex.getLocalizedMessage());
+		} finally {
+			Application.getSessionStore().clean();
 		}
 	}
 }

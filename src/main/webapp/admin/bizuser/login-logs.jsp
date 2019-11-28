@@ -21,8 +21,8 @@
 						<div class="row rb-datatable-header">
 							<div class="col-12 col-md-6">
 								<div class="dataTables_filter">
-									<div class="input-group input-search" data-qfields="&user,user.loginName,user.email,ipAddr">
-										<input class="form-control" type="text" placeholder="查询${entityLabel}" maxlength="40">
+									<div class="input-group input-search">
+										<input class="form-control" type="text" placeholder="查询${entityLabel}" maxlength="40" data-fields="&user,user.loginName,user.email,ipAddr">
 										<span class="input-group-btn"><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button></span>
 									</div>
 								</div>
@@ -74,7 +74,7 @@ RbList.renderAfter = function() {
     $('.rb-datatable-body tbody>tr').each(function() {
         let ipAddr = $(this).find('td:eq(' + ipAddrIndex + ') div')
         let ip = (ipAddr.text() || '').split('(')[0].trim()
-		$.get(rb.baseUrl + '/admin/bizuser/ip-location?ip=' + ip, (res) => {
+		$.get(rb.baseUrl + '/commons/ip-location?ip=' + ip, (res) => {
 			if (res.error_code === 0 && res.data.country !== 'N') {
 				let L = res.data.country === 'R' ? '局域网' : [res.data.region, res.data.country].join(', ')
 				ipAddr.text(ip + ' (' + L + ')')

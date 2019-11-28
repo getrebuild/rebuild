@@ -19,36 +19,36 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.business.recyclebin;
 
 import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.server.Application;
-import com.rebuild.server.TestSupport;
-import com.rebuild.server.service.bizz.UserService;
+import com.alibaba.fastjson.JSON;
+import com.rebuild.server.TestSupportWithUser;
 import org.junit.Test;
 
 /**
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/08/21
  */
-public class RecycleStoreTest extends TestSupport {
+public class RecycleStoreTest extends TestSupportWithUser {
+
+    @Test
+    public void serialize() {
+        ID test = addRecordOfTestAllFields();
+        JSON s = new RecycleBean(test).serialize();
+        System.out.println(s);
+    }
 
     @Test
     public void store() {
-        try {
-            Application.getSessionStore().set(UserService.ADMIN_USER);
+        ID test1 = addRecordOfTestAllFields();
+        ID test2 = addRecordOfTestAllFields();
 
-            ID test1 = addRecordOfTestAllFields();
-            ID test2 = addRecordOfTestAllFields();
+        RecycleStore recycleStore = new RecycleStore(getSessionUser());
+        recycleStore.add(test1);
+        recycleStore.add(test2);
+        recycleStore.removeLast();
 
-            RecycleStore recycleStore = new RecycleStore(UserService.ADMIN_USER);
-            recycleStore.add(test1);
-            recycleStore.add(test2);
-            recycleStore.removeLast();
+        recycleStore.add(test2, test1);
 
-            recycleStore.add(test2, test1);
-
-            int s = recycleStore.store();
-            System.out.println(s);
-        } finally {
-            Application.getSessionStore().clean();
-        }
+        int s = recycleStore.store();
+        System.out.println(s);
     }
 }

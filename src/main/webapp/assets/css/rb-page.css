@@ -13,6 +13,11 @@ html.admin .admin-show.row {
     display: flex;
 }
 
+/* 1280 */
+.container-smart {
+    max-width: 1160px;
+}
+
 .dropdown-menu {
     box-shadow: 0 0 6px 0 rgba(0, 0, 0, .1), 0 10px 12px 0 rgba(170, 182, 206, .36);
     box-shadow: 0 3px .3077rem rgba(0, 0, 0, .1);
@@ -94,6 +99,15 @@ html.admin .admin-show.row {
     border-radius: 6px 0 6px 6px;
 }
 
+.zmdi-hc-rotate-45 {
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
+.pagination.pagination-sm .page-link {
+    min-width: 28px;
+}
 
 .text-disabled {
     color: #aaa;
@@ -141,6 +155,46 @@ a.badge.text-id:hover {
     border-color: #4285f4;
 }
 
+.up-1 {
+    transform: translateY(-1px);
+}
+
+.up-2 {
+    transform: translateY(-2px);
+}
+
+.up-3 {
+    transform: translateY(-3px);
+}
+
+.up-4 {
+    transform: translateY(-4px);
+}
+
+.up-5 {
+    transform: translateY(-5px);
+}
+
+.down-1 {
+    transform: translateY(1px);
+}
+
+.down-2 {
+    transform: translateY(2px);
+}
+
+.down-3 {
+    transform: translateY(3px);
+}
+
+.down-4 {
+    transform: translateY(4px);
+}
+
+.down-5 {
+    transform: translateY(5px);
+}
+
 .btn {
     min-height: 2.8rem;
     min-width: 98px;
@@ -175,6 +229,10 @@ a.btn {
     color: #4285f4 !important;
     line-height: 2.8rem;
     text-decoration: none !important;
+}
+
+.btn.btn-link.btn-sm {
+    line-height: 30px;
 }
 
 .btn.btn-link:hover {
@@ -212,15 +270,23 @@ a.btn {
     background-image: url(../img/logo-white.png);
 }
 
+.alert-sm>.icon,
 .alert-icon.min>.icon {
     width: 42px;
     font-size: 1.6rem
 }
 
-.alert-icon.min>.message {
-    padding: 0.8rem 0.8rem 0.8rem 1.3rem;
+.alert-sm.alert-icon>.icon:after {
+    right: -7px;
 }
 
+.alert-sm>.message,
+.alert-icon.min>.message {
+    padding: 0.8rem 0.8rem 0.8rem 1.3rem;
+    line-height: 22px;
+}
+
+.alert-sm .close,
 .alert.min .close {
     padding: 0.95rem 0;
 }
@@ -235,6 +301,11 @@ a.btn {
     border-radius: 2px;
 }
 
+.form-control.search {
+    border-color: #d5d8de;
+}
+
+.form-control.search:focus,
 .input-search input:focus {
     border-color: #bababa;
 }
@@ -462,6 +533,15 @@ body.dialog .main-content {
 
 .dialog-footer>.float-left>.custom-control {
     margin: 4px 0 0;
+}
+
+.modal-body>.dialog-footer {
+    margin-left: -20px;
+    margin-right: -20px;
+}
+
+.modal-body>.dialog-footer>.btn-space:last-child {
+    margin-right: 0;
 }
 
 body.dialog .main-content .footer,
@@ -735,6 +815,11 @@ a {
     width: 205px;
     border-radius: 2px;
     max-height: 38px;
+    cursor: default;
+}
+
+.file-field a.img-thumbnail {
+    cursor: pointer;
 }
 
 .file-field .img-thumbnail:hover {
@@ -759,7 +844,6 @@ a {
     word-break: break-all;
     height: 30px;
     padding: 1px 4px 1px 6px;
-    line-height: 15px;
     line-height: 1.15rem;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1423,6 +1507,7 @@ i.split.ui-draggable-dragging {
     top: 0;
     display: none;
     font-size: 0;
+
 }
 
 .dept-tree li>div.action a,
@@ -1444,6 +1529,11 @@ i.split.ui-draggable-dragging {
 .dept-tree ul>li.active:hover>div.action,
 .adv-search .dropdown-item:hover div.action {
     display: block;
+}
+
+.dept-tree li.nodata {
+    padding-left: 10px;
+    color: #999;
 }
 
 .adv-search .dropdown-item div.action a {
@@ -1705,7 +1795,15 @@ form.simple {
     font-size: 14px;
 }
 
+.fs-15 {
+    font-size: 15px;
+}
+
 .fs-16 {
+    font-size: 16px;
+}
+
+.fs-17 {
     font-size: 16px;
 }
 
@@ -1797,6 +1895,14 @@ form {
 .rb-notifications .notification>a .notification-info .text>p,
 .card-body.rb-notifications .notification>a .text>p {
     margin: 0;
+}
+
+.notification-info blockquote {
+    font-size: 1rem;
+    border-left: 3px solid #ccc;
+    padding-left: 6px;
+    margin: 4px 0 6px 1px;
+    color: #777
 }
 
 .user-selector .select2-selection {
@@ -1899,6 +2005,11 @@ form {
     float: right;
     margin-top: 2px;
     font-weight: bold;
+}
+
+.user-selector .dropdown-wrapper ol,
+.user-selector .dropdown-wrapper ul {
+    padding-left: 0;
 }
 
 
@@ -2295,20 +2406,28 @@ form {
 }
 
 .notification-list .notification.notification-unread>a:after {
-    top: 14px;
+    top: 17px;
     background-color: #4285f4 !important
 }
 
-.notification-list .notification.approval {
+.notification-list .notification.append {
     position: relative;
     padding-right: 80px;
 }
 
-.notification-list .notification.approval .badge {
+.notification-list .notification.append .badge {
     position: absolute;
     right: 15px;
-    top: 14px;
+    top: 10px;
     font-weight: normal;
+}
+
+.notification-list .notification.notification-unread.append .badge {
+    right: 25px;
+}
+
+.rb-notifications .notification.notification-unread.append>a {
+    position: static;
 }
 
 .notification-page {
@@ -2395,35 +2514,40 @@ form {
 }
 
 .preview-modal {
-    position: absolute;
+    position: fixed;
     height: 100%;
     width: 100%;
     top: 0;
     left: 0;
     z-index: 1099;
-    background-color: rgba(0, 0, 0, 0.2)
+    background-color: rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
 }
 
 .preview-modal .preview-header {
     background: rgba(0, 0, 0, 0.9);
     color: #fff;
     padding: 0 25px;
-    position: absolute;
-    width: 100%;
-    top: 0;
-    left: 0;
+    height: 60px;
+}
+
+.preview-modal .preview-body {
+    flex-grow: 1;
+    position: relative;
+    overflow: hidden;
 }
 
 .preview-modal .preview-header .float-left>h5,
 .preview-modal .preview-header .float-right a {
     margin: 0;
-    height: 48px;
-    line-height: 48px;
+    height: 60px;
+    line-height: 60px;
 }
 
 .preview-modal .preview-header .float-right a {
     display: inline-block;
-    width: 48px;
+    width: 56px;
     font-size: 18px;
     font-weight: normal;
     text-align: center;
@@ -2434,22 +2558,21 @@ form {
     background: rgba(255, 255, 255, .3);
 }
 
-.preview-modal .preview-body,
-.preview-modal .preview-body>div,
+.preview-modal .preview-body .container,
 .preview-modal .container .iframe,
-.preview-modal .preview-body iframe {
+.preview-modal .container iframe {
     height: 100%;
 }
 
-.preview-modal .preview-body iframe {
+.preview-modal .preview-body .iframe {
+    background: #fff
+}
+
+.preview-modal .container iframe {
     width: 100%;
     border: 0;
     margin: 0;
     padding: 0;
-}
-
-.preview-modal .preview-body {
-    padding-top: 48px;
 }
 
 @media (max-width:768px) {
@@ -2457,7 +2580,7 @@ form {
         padding: 0 12px;
     }
 
-    .preview-modal .preview-body .container {
+    .preview-modal .container .container {
         padding-left: 0;
         padding-right: 0;
         max-width: 768px !important;
@@ -2465,18 +2588,24 @@ form {
 }
 
 .preview-modal .preview-body .img-zoom {
-    text-align: center;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
 }
 
 .preview-modal .preview-body .img-zoom img {
-    max-width: 100%;
-    max-height: 100%;
-    vertical-align: middle;
-    display: inline-block;
+    max-height: 98%;
+    max-width: 98%;
+    position: absolute;
+    top: 49%;
+    left: 49%;
+    transform: translate(-49%, -49%);
     font-size: 0;
+    display: inline-block;
 }
 
-.preview-modal .preview-body .op-box {
+.preview-modal .preview-body .oper-box {
     position: absolute;
     bottom: 25px;
     width: 160px;
@@ -2491,8 +2620,8 @@ form {
     user-select: none;
 }
 
-.preview-modal .preview-body .op-box a.arrow,
-.preview-modal .preview-body .op-box span {
+.preview-modal .preview-body .oper-box a.arrow,
+.preview-modal .preview-body .oper-box span {
     text-align: center;
     display: inline-block;
     height: 48px;
@@ -2500,17 +2629,17 @@ form {
     line-height: 48px;
 }
 
-.preview-modal .preview-body .op-box a.arrow {
+.preview-modal .preview-body .oper-box a.arrow {
     width: 48px;
     font-size: 21px;
     font-weight: lighter;
 }
 
-.preview-modal .preview-body .op-box a.arrow:hover {
+.preview-modal .preview-body .oper-box a.arrow:hover {
     background-color: rgba(0, 0, 0, 0.9);
 }
 
-.preview-modal .preview-body .op-box span {
+.preview-modal .preview-body .oper-box span {
     font-size: 1rem;
     color: #fff;
     width: 64px;
@@ -2518,8 +2647,7 @@ form {
 
 .preview-modal .preview-body .unsupports {
     max-width: 400px;
-    margin: 0 auto;
-    margin-top: 15%;
+    margin: 15% auto 0;
     text-align: center;
     padding: 30px;
     height: auto;
@@ -2543,7 +2671,7 @@ form {
 }
 
 .file-share .expires ul li.active a::after {
-    content: '有效期';
+    content: '有效';
 }
 
 .file-share .form-control {

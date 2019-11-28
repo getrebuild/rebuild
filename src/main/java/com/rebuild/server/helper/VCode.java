@@ -20,6 +20,7 @@ package com.rebuild.server.helper;
 
 import cn.devezhao.commons.CodecUtils;
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.cache.CommonCache;
 import org.apache.commons.lang.math.RandomUtils;
 
 /**
@@ -54,7 +55,7 @@ public class VCode {
 			vcode = vcode.substring(0, 6);
 		}
 		
-		Application.getCommonCache().put("VCode-" + key, vcode, 10 * 60);
+		Application.getCommonCache().put("VCode-" + key, vcode, CommonCache.TS_HOUR / 6);
 		return vcode;
 	}
 	
