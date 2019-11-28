@@ -270,15 +270,23 @@ a.btn {
     background-image: url(../img/logo-white.png);
 }
 
+.alert-sm>.icon,
 .alert-icon.min>.icon {
     width: 42px;
     font-size: 1.6rem
 }
 
-.alert-icon.min>.message {
-    padding: 0.8rem 0.8rem 0.8rem 1.3rem;
+.alert-sm.alert-icon>.icon:after {
+    right: -7px;
 }
 
+.alert-sm>.message,
+.alert-icon.min>.message {
+    padding: 0.8rem 0.8rem 0.8rem 1.3rem;
+    line-height: 22px;
+}
+
+.alert-sm .close,
 .alert.min .close {
     padding: 0.95rem 0;
 }

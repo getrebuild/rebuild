@@ -36,7 +36,7 @@
 					<li class="divider">用户</li>
 					<li class="${param['activeNav'] == 'users' ? 'active' : ''}"><a href="${baseUrl}/admin/bizuser/users"><i class="icon zmdi zmdi-accounts"></i><span>部门用户</span></a></li>
 					<li class="${param['activeNav'] == 'role-privileges' ? 'active' : ''}"><a href="${baseUrl}/admin/bizuser/role-privileges"><i class="icon zmdi zmdi-lock"></i><span>角色权限</span></a></li>
-					<li class="${param['activeNav'] == 'teams' ? 'active' : ''}"><a href="${baseUrl}/admin/bizuser/teams"><i class="icon zmdi zmdi-case"></i><span>团队</span></a></li>
+					<li class="${param['activeNav'] == 'teams' ? 'active' : ''}"><a href="${baseUrl}/admin/bizuser/teams"><i class="icon zmdi zmdi-case"></i><span>业务团队</span></a></li>
 					<li class="divider">数据审计</li>
 					<li class="${param['activeNav'] == 'revision-history' ? 'active' : ''}"><a href="${baseUrl}/admin/audit/revision-history"><i class="icon zmdi zmdi-wrap-text"></i><span>变更历史</span></a></li>
 					<li class="${param['activeNav'] == 'recycle-bin' ? 'active' : ''}"><a href="${baseUrl}/admin/audit/recycle-bin"><i class="icon zmdi zmdi-delete fs-16"></i><span>回收站</span></a></li>

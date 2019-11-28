@@ -34,7 +34,7 @@ if (ServletUtils.isAjaxRequest(request)) {
 					<a class="btn btn-xl btn-space btn-secondary" href="${baseUrl}/dashboard/home">返回首页</a>
 					<a class="btn btn-xl btn-space btn-primary" href="javascript:;" onclick="location.reload(true)">重试</a>
 					<div class="mt-4">
-						<a href="https://github.com/getrebuild/rebuild/issues/new?title=error-500" target="_blank">报告此问题</a>
+						<a href="https://getrebuild.com/report-issue?title=error-500" target="_blank">报告此问题</a>
 					</div>
 				</div>
 			</div>

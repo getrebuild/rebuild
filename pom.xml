@@ -116,7 +116,7 @@
 		<dependency>
 			<groupId>com.github.devezhao</groupId>
 			<artifactId>commons</artifactId>
-			<version>30aa3ba397</version>
+			<version>30e0c600fc</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>httpclient</artifactId>
@@ -127,7 +127,7 @@
 		<dependency>
 			<groupId>com.github.devezhao</groupId>
 			<artifactId>persist4j</artifactId>
-			<version>246d24811b</version>
+			<version>5422daff8e</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -138,7 +138,7 @@
 		<dependency>
 			<groupId>com.alibaba</groupId>
 			<artifactId>druid</artifactId>
-			<version>1.1.20</version>
+			<version>1.1.21</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -311,5 +311,10 @@
 			<artifactId>poi-ooxml</artifactId>
 			<version>4.1.0</version>
 		</dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.200</version>
+        </dependency>
 	</dependencies>
 </project>

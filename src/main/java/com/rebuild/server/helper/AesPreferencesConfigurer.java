@@ -60,7 +60,8 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer {
 				props.put(cleanKey, valInCL);
 			}
 		}
-		
+
+		// PRIVATE
 		String mysqlPort = System.getProperty("mysql.port");
 		if (StringUtils.isNotBlank(mysqlPort)) {
 			String dbUrl = props.getProperty("db.url");

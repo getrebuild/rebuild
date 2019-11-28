@@ -18,6 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper;
 
+import com.alibaba.fastjson.JSON;
+import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Locale;
@@ -32,7 +35,7 @@ import java.util.UUID;
 public final class Lisence {
 
     /**
-     * SN 码
+     * 授权码/SN
      *
      * @return
      */
@@ -40,11 +43,28 @@ public final class Lisence {
         String SN = SysConfiguration.get(ConfigurableItem.SN, true);
         if (SN == null) {
             SN = String.format("ZR%s%s-%s",
-                    "105", // v1.5
+                    "107",
                     StringUtils.leftPad(Locale.getDefault().getCountry(), 3, "0"),
                     UUID.randomUUID().toString().replace("-", "").substring(0, 15).toUpperCase());
             SysConfiguration.set(ConfigurableItem.SN, SN);
         }
         return SN;
+    }
+
+    /**
+     * 查询授权信息
+     *
+     * @return
+     */
+    public static JSON queryAuthority() {
+        String queryUrl = "https://getrebuild.com/authority/query?k=IjkMHgq94T7s7WkP&sn=" + SN();
+        try {
+            String result = CommonsUtils.get(queryUrl);
+            if (StringUtils.isNotBlank(result) && JSONUtils.wellFormat(result)) {
+                return JSON.parseObject(result);
+            }
+        } catch (Exception ignored) {
+        }
+        return JSONUtils.toJSONObject(new String[]{"sn", "authType"}, new String[]{SN(), "开源社区版"});
     }
 }

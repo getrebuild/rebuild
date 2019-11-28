@@ -16,9 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server;
+package com.rebuild.server.helper.setup;
 
-import com.rebuild.server.helper.upgrade.DbScriptsReader;
+import com.rebuild.server.TestSupport;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 
@@ -28,12 +28,10 @@ import java.util.Map;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/22
  */
-public class UpgradeDatabaseTest {
-	
+public class UpgradeDatabaseTest extends TestSupport {
+
 	@Test
 	public void testUpgrade() throws Exception {
-		Application.debug();
-		
 		// It's okay
 		UpgradeDatabase.getInstance().upgrade();
 		// It's okay too
