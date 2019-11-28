@@ -180,7 +180,7 @@ public class LoginControll extends BasePageControll {
 			retry += 1;
 			Application.getCommonCache().putx(key, retry, CommonCache.TS_HOUR);
 		}
-		return retry.intValue();
+		return retry;
 	}
 	
 	/**
