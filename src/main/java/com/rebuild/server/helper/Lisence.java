@@ -65,6 +65,6 @@ public final class Lisence {
             }
         } catch (Exception ignored) {
         }
-        return JSONUtils.toJSONObject("authType", "开源社区版");
+        return JSONUtils.toJSONObject(new String[]{"sn", "authType"}, new String[]{SN(), "开源社区版"});
     }
 }
