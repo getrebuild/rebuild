@@ -289,13 +289,15 @@ class RbHighbar extends React.Component {
    * @param {*} message 
    */
   static success(message) {
-    RbHighbar.create(message || '操作成功', 'success', { timeout: 2000 })
+    if (!message) message = $lang('ActionSuccess')
+    RbHighbar.create(message, 'success', { timeout: 2000 })
   }
   /**
    * @param {*} message 
    */
   static error(message) {
-    RbHighbar.create(message || '系统繁忙，请稍后重试', 'danger', { timeout: 5000 })
+    if (!message) message = $lang('SystemBusy')
+    RbHighbar.create(message, 'danger', { timeout: 5000 })
   }
 }
 

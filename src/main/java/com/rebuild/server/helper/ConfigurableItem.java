@@ -30,7 +30,8 @@ public enum ConfigurableItem {
 
 	// 通用
 	AppName("REBUILD"),
-	LOGO, LOGOWhite,
+	LOGO,
+    LOGOWhite,
 	HomeURL("https://nightly.getrebuild.com/"),
 	OpenSignUp(false),
 

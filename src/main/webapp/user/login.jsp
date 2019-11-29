@@ -51,7 +51,7 @@
 	padding: 3px;
 }
 </style>
-<title>${bundle.lang("Login")}</title>
+<title>${bundle.lang('UserLogin')}</title>
 </head>
 <body class="rb-splash-screen">
 <div class="rb-wrapper rb-login">

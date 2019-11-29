@@ -22829,8 +22829,8 @@ select.form-control-xs:not([size]):not([multiple]) {
 }
 
 .row.login-tools {
-    padding: 15px 0 0;
-    margin-bottom: 16px
+    padding: 10px 0 0;
+    margin-bottom: 10px
 }
 
 .login-forgot-password {

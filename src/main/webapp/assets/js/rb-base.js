@@ -318,10 +318,12 @@ var $stopEvent = function (e) {
 /**
  * 获取语言
  */
-var $lang = function (key, insideLangs) {
-  var lang = __getLang(key)
-  if (typeof insideLangs === 'object') {
-    for (var k in insideLangs) lang = lang.replace('{' + k + '}', insideLangs[k])
+var $lang = function () {
+  var lang = __getLang(arguments[0])
+  if (arguments.length < 2) return lang
+  for (var i = 1; i < arguments.length; i++) {
+    var iLang = __getLang(arguments[i])
+    lang = lang.replace('{' + (i - 1) + '}', iLang)
   }
   return lang
 }

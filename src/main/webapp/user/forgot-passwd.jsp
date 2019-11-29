@@ -10,7 +10,7 @@
 	<div class="rb-content">
 		<div class="main-content container-fluid">
 			<div class="splash-container">
-				<div class="card card-border-color card-border-color-primary">
+				<div class="card card-border-color card-border-color-danger">
 					<div class="card-header"><a class="logo-img"></a></div>
 					<div class="card-body J_step1">
 						<div class="form-group">
@@ -32,7 +32,7 @@
 									<input class="form-control" id="vcode" type="text" placeholder="${bundle.lang('InputVcodePls')}" autocomplete="off">
 								</div>
 								<div class="col-5 pl-0">
-									<button type="button" class="btn btn-primary bordered J_vcode-resend" style="height:41px;width:100%">${bundle.lang('GetVcode')}</button>
+									<button type="button" class="btn btn-secondary J_vcode-resend" style="height:41px;width:100%">${bundle.lang('GetVcode')}</button>
 								</div>
 							</div>
 						</div>
@@ -48,7 +48,7 @@
 					</div>
 				</div>
 				<div class="splash-footer">
-					<span><a href="login">${bundle.lang('ReturnHome')}</a></span>
+					<span><a href="login">${bundle.lang('ReturnLogin')}</a></span>
 				</div>
 			</div>
 		</div>
