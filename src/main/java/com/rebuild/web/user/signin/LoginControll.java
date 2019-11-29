@@ -82,6 +82,7 @@ public class LoginControll extends BasePageControll {
 		if (StringUtils.isNotBlank(locale) && Languages.instance.isAvailable(locale)) {
 		    String storeLocale = Application.getSessionStore().getLocale();
 		    if (!locale.equalsIgnoreCase(storeLocale)) {
+                if (AppUtils.devMode()) Languages.instance.reset();
                 ServletUtils.setSessionAttribute(request, SK_LOCALE, locale);
                 response.sendRedirect("login?locale=" + locale);
                 return null;

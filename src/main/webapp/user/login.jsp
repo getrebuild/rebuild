@@ -46,9 +46,15 @@
 .rb-content {
 	z-index: 2;
 }
-.select-lang a {
+.select-lang>a {
 	display: inline-block;
-	padding: 3px;
+	padding: 5px 4px;
+    font-size: 0;
+    line-height: 1;
+    border-radius: 2px;
+}
+.select-lang>a:hover {
+    background-color: #E6EFF8;
 }
 </style>
 <title>${bundle.lang('UserLogin')}</title>
