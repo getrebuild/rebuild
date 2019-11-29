@@ -32,6 +32,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.VCode;
 import com.rebuild.server.helper.cache.CommonCache;
+import com.rebuild.server.helper.language.Languages;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.bizz.UserService;
@@ -51,6 +52,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import static com.rebuild.server.helper.language.Languages.lang;
+import static com.rebuild.utils.AppUtils.SK_LOCALE;
 
 /**
  * @author zhaofang123@gmail.com
@@ -74,6 +76,17 @@ public class LoginControll extends BasePageControll {
 			response.sendRedirect(DEFAULT_HOME);
 			return null;
 		}
+
+		// 切换语言
+		String locale = getParameter(request, "locale");
+		if (StringUtils.isNotBlank(locale) && Languages.instance.isAvailable(locale)) {
+		    String storeLocale = Application.getSessionStore().getLocale();
+		    if (!locale.equalsIgnoreCase(storeLocale)) {
+                ServletUtils.setSessionAttribute(request, SK_LOCALE, locale);
+                response.sendRedirect("login?locale=" + locale);
+                return null;
+            }
+        }
 
 		// API 登录
 		String token = getParameter(request, "token");

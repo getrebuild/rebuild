@@ -87,7 +87,7 @@
 								<a href="forgot-passwd">${bundle.lang('ForgotPassword')}</a>
 							</div>
 						</div>
-						<div class="form-group login-submit">
+						<div class="form-group login-submit" style="margin-bottom:1.15rem">
 							<button class="btn btn-primary btn-xl" type="submit">${bundle.lang('Login')}</button>
 							<div class="mt-4 text-center">${bundle.lang('NoAccountYet')}&nbsp;<a href="signup">${bundle.lang('SignupNow')}</a></div>
 						</div>
@@ -167,11 +167,11 @@ $(document).ready(function() {
 		}).fail(function () { /* NOOP */ })
 	}
 
-	$('.select-lang>a').click(function (event) {
-		event.preventDefault()
-		let locale = $(this).attr('href')
-		$.post(rb.baseUrl + '/language/select' + locale, ()=> location.replace(locale))
-	})
+	// $('.select-lang>a').click(function (event) {
+	// 	event.preventDefault()
+	// 	let locale = $(this).attr('href')
+	// 	$.post(rb.baseUrl + '/language/select' + locale, ()=> location.replace(locale))
+	// })
 })
 </script>
 </body>
