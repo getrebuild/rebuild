@@ -21,7 +21,7 @@
 							<button class="btn btn-primary btn-xl J_forgot-btn">${bundle.lang('ResetPassword')}</button>
 						</div>
 					</div>
-					<div class="card-body J_step2 ">
+					<div class="card-body J_step2 hide">
 						<div class="alert alert-warning alert-icon alert-icon-border alert-sm">
 							<div class="icon"><span class="zmdi zmdi-info-outline"></span></div>
 							<div class="message"><p>${bundle.lang('VcodeEmailSent')} <b class="J_email ml-1"></b></p></div>
