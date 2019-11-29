@@ -62,6 +62,10 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
 			Object handler) throws Exception {
 		response.setCharacterEncoding("utf-8");
+		request.getSession(true);
+
+		// for Language
+		Application.getSessionStore().setLocale(AppUtils.getLocale(request));
 		
 		final String requestUrl = request.getRequestURI();
 		if (noCache && !(ServletUtils.isAjaxRequest(request) 
@@ -205,6 +209,6 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 		reqUrl = reqUrl.replaceFirst(ServerListener.getContextPath(), "");
 		return reqUrl.startsWith("/gw/") || reqUrl.startsWith("/assets/") || reqUrl.startsWith("/error/")
                 || reqUrl.startsWith("/t/") || reqUrl.startsWith("/s/")
-				|| reqUrl.startsWith("/setup/");
+				|| reqUrl.startsWith("/setup/") || reqUrl.startsWith("/language/");
 	}
 }

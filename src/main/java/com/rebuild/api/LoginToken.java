@@ -24,6 +24,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.server.helper.language.Languages;
 import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.utils.JSONUtils;
@@ -53,7 +54,7 @@ public class LoginToken extends BaseApi {
         String password = context.getParameterNotBlank("password");
 
         if (COUNTER.counter(user).add().seconds(30).than(3)) {
-            return formatFailure("超出请求频率", ApiInvokeException.ERR_FREQUENCY);
+            return formatFailure("Request frequency exceeded", ApiInvokeException.ERR_FREQUENCY);
         }
 
         String hasError = checkUser(user, password);
@@ -92,13 +93,13 @@ public class LoginToken extends BaseApi {
      */
     public static String checkUser(String user, String password) {
         if (!Application.getUserStore().exists(user)) {
-            return "用户名或密码错误";
+            return Languages.lang("InputWrong", "UsernameOrPassword");
         }
 
         User loginUser = Application.getUserStore().getUser(user);
         if (!loginUser.isActive()
                 || !Application.getSecurityManager().allowed(loginUser.getId(), ZeroEntry.AllowLogin)) {
-            return "用户未激活或不允许登录";
+            return Languages.lang("UnactiveUserTip");
         }
 
         Object[] foundUser = Application.createQueryNoFilter(
@@ -108,7 +109,7 @@ public class LoginToken extends BaseApi {
                 .unique();
         if (foundUser == null
                 || !foundUser[0].equals(EncryptUtils.toSHA256Hex(password))) {
-            return "用户名或密码错误";
+            return Languages.lang("InputWrong", "UsernameOrPassword");
         }
 
         return null;

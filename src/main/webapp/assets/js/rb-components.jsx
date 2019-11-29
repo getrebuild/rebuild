@@ -12,7 +12,7 @@ class RbModal extends React.Component {
       <div className="modal-dialog" style={{ maxWidth: (this.props.width || 680) + 'px' }}>
         <div className="modal-content">
           <div className="modal-header modal-header-colored">
-            <h3 className="modal-title">{this.props.title || '无标题'}</h3>
+            <h3 className="modal-title">{this.props.title || 'UNTITLED'}</h3>
             <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
           </div>
           <div className={'modal-body' + (inFrame ? ' iframe rb-loading' : '') + (inFrame && this.state.frameLoad !== false ? ' rb-loading-active' : '')}>
@@ -183,7 +183,7 @@ class RbAlert extends React.Component {
     let type = this.props.type || 'primary'
     let content = this.props.htmlMessage ?
       <div className="mt-3" style={{ lineHeight: 1.8 }} dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} />
-      : <p>{this.props.message || '提示内容'}</p>
+      : <p>{this.props.message || 'INMESSAGE'}</p>
 
     let cancel = (this.props.cancel || this.hide).bind(this)
     let confirm = (this.props.confirm || this.hide).bind(this)

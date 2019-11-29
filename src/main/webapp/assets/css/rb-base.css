@@ -22834,7 +22834,7 @@ select.form-control-xs:not([size]):not([multiple]) {
 }
 
 .login-forgot-password {
-    line-height: 2.1;
+    line-height: 1.92;
     text-align: right
 }
 

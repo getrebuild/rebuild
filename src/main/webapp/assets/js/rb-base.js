@@ -39,7 +39,7 @@
     complete: function (xhr) {
       // eslint-disable-next-line no-empty
       if (xhr.status === 200 || xhr.status === 0) { } // That's OK
-      else if (xhr.status === 403 || xhr.status === 401) RbHighbar.error(xhr.responseText || '未授权访问')
+      else if (xhr.status === 403 || xhr.status === 401) RbHighbar.error(xhr.responseText || 'Unauthorized access')
       else {
         var error = xhr.responseText
         if (rb.env !== 'dev' && error && error.contains('Exception : ')) error = error.split('Exception : ')[1]
@@ -313,4 +313,18 @@ var $stopEvent = function (e) {
   if (e && e.stopPropagation) e.stopPropagation()
   if (e && e.nativeEvent) e.nativeEvent.stopImmediatePropagation()
   return false
+}
+
+/**
+ * 获取语言
+ */
+var $lang = function (key, insideLangs) {
+  var lang = __getLang(key)
+  if (typeof insideLangs === 'object') {
+    for (var k in insideLangs) lang = lang.replace('{' + k + '}', insideLangs[k])
+  }
+  return lang
+}
+var __getLang = function (key) {
+  return (window.__LANGBUNDLE__ || {})[key] || '[' + key.toUpperCase() + ']'
 }

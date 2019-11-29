@@ -46,8 +46,12 @@
 .rb-content {
 	z-index: 2;
 }
+.select-lang a {
+	display: inline-block;
+	padding: 3px;
+}
 </style>
-<title>登录</title>
+<title>${bundle.lang("Login")}</title>
 </head>
 <body class="rb-splash-screen">
 <div class="rb-wrapper rb-login">
@@ -60,32 +64,37 @@
 					<div class="card-body">
 						<form id="login-form">
 						<div class="form-group">
-							<input class="form-control" id="user" type="text" placeholder="用户名 (或邮箱)">
+							<input class="form-control" id="user" type="text" placeholder="${bundle.lang('UsernameOrEmail')}">
 						</div>
 						<div class="form-group">
-							<input class="form-control" id="passwd" type="password" placeholder="登录密码">
+							<input class="form-control" id="passwd" type="password" placeholder="${bundle.lang('LoginPassword')}">
 						</div>
-						<div class="form-group row pt-0 hide vcode-row" data-state="${sessionScope.needLoginVCode}">
+						<div class="form-group row pt-0 mb-3 hide vcode-row" data-state="${sessionScope.needLoginVCode}">
 							<div class="col-6 pr-0">
-								<input class="form-control" type="text" placeholder="输入右侧验证码">
+								<input class="form-control" type="text" placeholder="${bundle.lang('InputCaptcha')}">
 							</div>
 							<div class="col-6 text-right pl-0 pr-0">
-								<img style="max-width:100%;margin-right:-15px" alt="验证码" title="点击刷新">
+								<img style="max-width:100%;margin-right:-15px" alt="${bundle.lang('Captcha')}" title="${bundle.lang('ClickReload')}">
 							</div>
 						</div>
 						<div class="form-group row login-tools">
 							<div class="col-6 login-remember">
 								<label class="custom-control custom-checkbox custom-control-inline mb-0">
-									<input class="custom-control-input" type="checkbox" id="autoLogin"><span class="custom-control-label"> 记住登录</span>
+									<input class="custom-control-input" type="checkbox" id="autoLogin"><span class="custom-control-label"> ${bundle.lang('RememberMe')}</span>
 								</label>
 							</div>
 							<div class="col-6 login-forgot-password">
-								<a href="forgot-passwd">找回密码</a>
+								<a href="forgot-passwd">${bundle.lang('ForgotPassword')}</a>
 							</div>
 						</div>
 						<div class="form-group login-submit">
-							<button class="btn btn-primary btn-xl" type="submit" data-loading-text="登录中">登录</button>
-							<div class="mt-4 text-center">还没有账号？<a href="signup">立即注册</a></div>
+							<button class="btn btn-primary btn-xl" type="submit">${bundle.lang('Login')}</button>
+							<div class="mt-4 text-center">${bundle.lang('NoAccountYet')}&nbsp;<a href="signup">${bundle.lang('SignupNow')}</a></div>
+						</div>
+						<div class="select-lang text-center mb-2">
+							<a href="?locale=zh_CN" title="中文"><img src="${baseUrl}/assets/img/flag/zh-CN.png" /></a>
+							<a href="?locale=en_US" title="English"><img src="${baseUrl}/assets/img/flag/en-US.png" /></a>
+							<a href="?locale=ja_JP" title="日本語"><img src="${baseUrl}/assets/img/flag/ja-JP.png" /></a>
 						</div>
 						</form>
 					</div>
@@ -107,7 +116,6 @@ useLiveWallpaper = <%=SysConfiguration.getBool(ConfigurableItem.LiveWallpaper)%>
 <script type="text/babel">
 $(document).ready(function() {
 	if (top != self) { parent.location.reload(); return }
-	if ($urlp('t') == 99) RbHighbar.create('注册申请已提交，请等待管理员审核', 'success', { timeout: 999999 })
 
 	$('.vcode-row img').click(function(){
 		$(this).attr('src', rb.baseUrl + '/user/captcha?' + $random())
@@ -123,9 +131,9 @@ $(document).ready(function() {
 		let user = $val('#user'), 
 			passwd = $val('#passwd'),
 			vcode = $val('.vcode-row input')
-		if (!user || !passwd){ RbHighbar.create('请输入用户名和密码'); return }
-		if (vcodeState && !vcode){ RbHighbar.create('请输入验证码'); return }
-		
+		if (!user || !passwd){ RbHighbar.create($lang('InputUserOrPasswordPls')); return }
+		if (vcodeState && !vcode){ RbHighbar.create($lang('InputCaptchaPls')); return }
+
 		let btn = $('.login-submit button').button('loading')
 		let url = rb.baseUrl + '/user/user-login?user=' + $encode(user) + '&passwd=' + $encode(passwd) + '&autoLogin=' + $val('#autoLogin')
 		if (!!vcode) url += '&vcode=' + vcode
@@ -138,7 +146,7 @@ $(document).ready(function() {
 				btn.button('reset')
 			} else {
 				$('.vcode-row img').trigger('click')
-				RbHighbar.create(res.error_msg || '登录失败，请稍后重试')
+				RbHighbar.create(res.error_msg)
 				btn.button('reset')
 			}
 		})
@@ -154,10 +162,16 @@ $(document).ready(function() {
 				setTimeout(() => {
 					$('.rb-bgimg').css('background-image', 'url(' + res.url + ')').animate({ opacity: 1 })
 				}, 400)
-				if (res.copyright) $('.rb-bgimg').attr('title', res.copyright + ' (' + res.source + ')')
+				if (res.copyright) $('.rb-bgimg').attr('alt', res.copyright + ' (' + res.source + ')')
 			}
 		}).fail(function () { /* NOOP */ })
 	}
+
+	$('.select-lang>a').click(function (event) {
+		event.preventDefault()
+		let locale = $(this).attr('href')
+		$.post(rb.baseUrl + '/language/select' + locale, ()=> location.replace(locale))
+	})
 })
 </script>
 </body>

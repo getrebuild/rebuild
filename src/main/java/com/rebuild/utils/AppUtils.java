@@ -171,4 +171,17 @@ public class AppUtils {
 	public static boolean allowed(HttpServletRequest request, ZeroEntry entry) {
 		return Application.getSecurityManager().allowed(getRequestUser(request), entry);
 	}
+
+	public static final String SK_LOCALE = WebUtils.KEY_PREFIX + ".LOCALE";
+	/**
+	 * @param request
+	 * @return
+	 */
+	public static String getLocale(HttpServletRequest request) {
+		String locale = (String) ServletUtils.getSessionAttribute(request, SK_LOCALE);
+		if (locale == null) {
+			locale = request.getLocale().toString();
+		}
+		return locale;
+	}
 }

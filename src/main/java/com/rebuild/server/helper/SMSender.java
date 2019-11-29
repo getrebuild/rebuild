@@ -138,8 +138,8 @@ public class SMSender {
 	 * @throws IOException
 	 */
 	protected static Element getMailTemplate() throws IOException {
-		File temp = SysConfiguration.getFileOfRes("locales/mail-notify.html");
-		Document html = Jsoup.parse(temp, "utf-8");
+		File tmp = SysConfiguration.getFileOfRes("locales/email_zh-CN.html");
+		Document html = Jsoup.parse(tmp, "utf-8");
 		return html.body();
 	}
 	
