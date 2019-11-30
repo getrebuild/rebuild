@@ -20,6 +20,7 @@ package com.rebuild.web.common;
 
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
+import com.rebuild.server.Application;
 import com.rebuild.server.helper.language.LanguageBundle;
 import com.rebuild.server.helper.language.Languages;
 import com.rebuild.utils.AppUtils;
@@ -45,30 +46,68 @@ import static com.rebuild.utils.AppUtils.SK_LOCALE;
 @RequestMapping("/language/")
 public class LanguagesControll extends BaseControll {
 
+    private static final String HEADER_ETAG = "ETag";
+    private static final String HEADER_IF_NONE_MATCH = "If-None-Match";
+    private static final String HEADER_CACHE_CONTROL = "Cache-Control";
+    private static final String DIRECTIVE_NO_STORE = "no-store";
+
+    // Support Etag
+    // see org.springframework.web.filter.ShallowEtagHeaderFilter
     @RequestMapping(value = "bundle", method = RequestMethod.GET)
     public void getLanguageBundle(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        final LanguageBundle bundle = getBundle(request);
-        // HTTP Headers
-        response.addHeader("Cache-Control", "max-age=60, must-revalidate");
-        response.addHeader("ETag", "W/" + bundle.getBundleHash());
         response.setContentType(ServletUtils.CT_JS);
+        final LanguageBundle bundle = getBundle(request);
 
-        ServletUtils.write(response, "__LANGBUNDLE__ = " + bundle.toJSON().toJSONString());
+        // whether the generated ETag should be weak
+        // SPEC: length of W/ + " + 0 + 32bits md5 hash + "
+        String responseETag = String.format("W/\"0%s\"", bundle.getBundleHash());
+        response.setHeader(HEADER_ETAG, responseETag);
+
+        // 无缓存
+        String cacheControl = response.getHeader(HEADER_CACHE_CONTROL);
+        if (cacheControl != null && cacheControl.contains(DIRECTIVE_NO_STORE)) {
+            ServletUtils.write(response, "__LANGBUNDLE__ = " + bundle.toJSON().toJSONString());
+            return;
+        }
+
+        String requestETag = request.getHeader(HEADER_IF_NONE_MATCH);
+        if (requestETag != null && ("*".equals(requestETag) || responseETag.equals(requestETag) ||
+                responseETag.replaceFirst("^W/", "").equals(requestETag.replaceFirst("^W/", "")))) {
+            response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+        } else {
+            ServletUtils.write(response, "__LANGBUNDLE__ = " + bundle.toJSON().toJSONString());
+        }
     }
 
     @RequestMapping("select")
     public void selectLanguage(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String locale = request.getParameter("locale");
-        if (locale != null && Languages.instance.isAvailable(locale)) {
-            if (AppUtils.devMode()) Languages.instance.reset();
-            ServletUtils.setSessionAttribute(request, SK_LOCALE, locale);
-        }
-
+        switchLanguage(request);
         if (ServletUtils.isAjaxRequest(request)) {
             writeSuccess(response);
         } else {
             String nexturl = StringUtils.defaultIfBlank(request.getParameter("nexturl"), AppUtils.getContextPath());
             response.sendRedirect(CodecUtils.urlDecode(nexturl));
         }
+    }
+
+    /**
+     * 切换语言，通过 `locale` 参数
+     *
+     * @param request
+     * @return
+     */
+    public static boolean switchLanguage(HttpServletRequest request) {
+        String locale = request.getParameter("locale");
+        if (locale == null || !Languages.instance.isAvailable(locale)) {
+            return false;
+        }
+
+        String storeLocale = Application.getSessionStore().getLocale();
+        if (!locale.equalsIgnoreCase(storeLocale)) {
+            if (AppUtils.devMode()) Languages.instance.reset();
+            ServletUtils.setSessionAttribute(request, SK_LOCALE, locale);
+            return true;
+        }
+        return false;
     }
 }

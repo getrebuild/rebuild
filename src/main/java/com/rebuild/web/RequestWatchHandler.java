@@ -57,7 +57,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	public boolean isNoCache() {
 		return noCache;
 	}
-	
+
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
 			Object handler) throws Exception {
@@ -66,13 +66,14 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 
 		// for Language
 		Application.getSessionStore().setLocale(AppUtils.getLocale(request));
-		
+
 		final String requestUrl = request.getRequestURI();
-		if (noCache && !(ServletUtils.isAjaxRequest(request) 
-				|| requestUrl.contains("/filex/img/") || requestUrl.contains("/account/user-avatar/"))) {
-			ServletUtils.setNoCacheHeaders(response);
-		}
-		
+
+		// 无缓存
+        if (isNoCache() && !isSpecCache(requestUrl)) {
+            ServletUtils.setNoCacheHeaders(response);
+        }
+
 		// If server status is not passed
 		if (!Application.serversReady()) {
 		    if (Installer.checkInstall()) {
@@ -211,4 +212,16 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
                 || reqUrl.startsWith("/t/") || reqUrl.startsWith("/s/")
 				|| reqUrl.startsWith("/setup/") || reqUrl.startsWith("/language/");
 	}
+
+    /**
+     * 是否特定缓存策略
+     *
+     * @param reqUrl
+     * @return
+     */
+	private static boolean isSpecCache(String reqUrl) {
+        reqUrl = reqUrl.replaceFirst(ServerListener.getContextPath(), "");
+        return reqUrl.startsWith("/filex/img/") || reqUrl.startsWith("/account/user-avatar/")
+                || reqUrl.startsWith("/language/");
+    }
 }

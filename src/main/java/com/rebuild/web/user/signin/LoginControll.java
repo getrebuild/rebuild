@@ -32,7 +32,6 @@ import com.rebuild.server.Application;
 import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.VCode;
 import com.rebuild.server.helper.cache.CommonCache;
-import com.rebuild.server.helper.language.Languages;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.bizz.UserService;
@@ -40,6 +39,7 @@ import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.utils.AES;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BasePageControll;
+import com.rebuild.web.common.LanguagesControll;
 import com.wf.captcha.utils.CaptchaUtil;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.apache.commons.lang.StringUtils;
@@ -52,7 +52,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import static com.rebuild.server.helper.language.Languages.lang;
-import static com.rebuild.utils.AppUtils.SK_LOCALE;
 
 /**
  * @author zhaofang123@gmail.com
@@ -78,15 +77,9 @@ public class LoginControll extends BasePageControll {
 		}
 
 		// 切换语言
-		String locale = getParameter(request, "locale");
-		if (StringUtils.isNotBlank(locale) && Languages.instance.isAvailable(locale)) {
-		    String storeLocale = Application.getSessionStore().getLocale();
-		    if (!locale.equalsIgnoreCase(storeLocale)) {
-                if (AppUtils.devMode()) Languages.instance.reset();
-                ServletUtils.setSessionAttribute(request, SK_LOCALE, locale);
-                response.sendRedirect("login?locale=" + locale);
-                return null;
-            }
+        if (LanguagesControll.switchLanguage(request)) {
+            response.sendRedirect("login?locale=" + getParameter(request, "locale"));
+            return null;
         }
 
 		// API 登录
