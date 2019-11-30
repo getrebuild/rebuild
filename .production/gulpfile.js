@@ -68,6 +68,9 @@ gulp.task('xjsp', () => {
                 if (file.includes('babel')) return '<!-- No Babel -->'
                 if (file.includes('.development.js')) file = file.replace('.development.js', '.production.min.js')
                 return '<script src="' + file + '"></script>'
+            } else if (file.includes('/language/')) {
+                console.warn('Ignore file : ' + file)
+                return '<script src="' + file + '"></script>'
             } else {
                 file = file.replace('.jsx', '.js').split('?')[0]
                 console.log(p + ' >> ' + file)

@@ -26,6 +26,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.Controll;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
+import com.rebuild.server.helper.language.Languages;
 import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.web.admin.AdminEntryControll;
 import org.apache.commons.lang.StringUtils;
@@ -136,15 +137,16 @@ public class AppUtils {
 		if (ex == null) {
 			Integer state = (Integer) request.getAttribute(ServletUtils.ERROR_STATUS_CODE);
 			if (state != null && state == 404) {
-				return "访问的地址/资源不存在";
+				return Languages.lang("Error404");
 			} else {
-				return "未知错误，请稍后重试";
+				return Languages.lang("ErrorUnknow");
 			}
 		} else if (ex instanceof AccessDeniedException) {
-			return "权限不足，访问被阻止";
+			return Languages.lang("Error403");
 		}
 		
-		errorMsg = StringUtils.defaultIfBlank(ex.getLocalizedMessage(), "未知错误，请稍后重试");
+		errorMsg = StringUtils.defaultIfBlank(
+		        ex.getLocalizedMessage(), Languages.lang("ErrorUnknow"));
 		return ex.getClass().getSimpleName() + " : " + errorMsg;
 	}
 	
@@ -170,5 +172,18 @@ public class AppUtils {
 	 */
 	public static boolean allowed(HttpServletRequest request, ZeroEntry entry) {
 		return Application.getSecurityManager().allowed(getRequestUser(request), entry);
+	}
+
+	public static final String SK_LOCALE = WebUtils.KEY_PREFIX + ".LOCALE";
+	/**
+	 * @param request
+	 * @return
+	 */
+	public static String getLocale(HttpServletRequest request) {
+		String locale = (String) ServletUtils.getSessionAttribute(request, SK_LOCALE);
+		if (locale == null) {
+			locale = request.getLocale().toString();
+		}
+		return locale;
 	}
 }

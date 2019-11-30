@@ -1,7 +1,7 @@
 $(document).ready(function () {
   $('.J_vcode-btn').click(function () {
     let email = $val('#sEmail')
-    if (!email) { RbHighbar.create('请输入注册邮箱'); return }
+    if (!email) { RbHighbar.create($lang('InputPls', 'Email')); return }
 
     let _btn = $(this).button('loading')
     $.post(rb.baseUrl + '/user/signup-email-vcode?email=' + $encode(email), function (res) {
@@ -26,17 +26,17 @@ $(document).ready(function () {
       name = $val('#sName'),
       email = $val('#sEmail'),
       vcode = $val('#sVcode')
-    if (!fullName) { RbHighbar.create('请输入姓名'); return }
-    if (!name) { RbHighbar.create('请输入登录名'); return }
-    if (!email) { RbHighbar.create('请输入注册邮箱'); return }
-    if (!vcode) { RbHighbar.create('请输入邮箱验证码'); return }
+    if (!fullName) { RbHighbar.create($lang('InputPls', 'FullName')); return }
+    if (!name) { RbHighbar.create($lang('InputPls', 'Username')); return }
+    if (!email) { RbHighbar.create($lang('InputPls', 'Email')); return }
+    if (!vcode) { RbHighbar.create($lang('InputPls', 'Vcode')); return }
     let _data = { loginName: name, fullName: fullName, email: email, vcode: vcode }
 
     let _btn = $(this).button('loading')
     $.post(rb.baseUrl + '/user/signup-confirm', JSON.stringify(_data), function (res) {
       if (res.error_code === 0) {
-        _btn.text('注册成功')
-        setTimeout(function () { location.href = './login?t=99' }, 1000)
+        _btn.text($lang('Successful', 'Signup'))
+        $('.alert.hide').removeClass('hide')
       } else {
         RbHighbar.create(res.error_msg)
         _btn.button('reset')
@@ -52,9 +52,9 @@ let resend_countdown = function (first) {
     if (countdown_timer) clearTimeout(countdown_timer)
     countdown_seconds = 60
   }
-  $('.J_vcode-btn').text('重新获取 (' + (--countdown_seconds) + ')')
+  $('.J_vcode-btn').text($lang('GetVcode2') + ' (' + (--countdown_seconds) + ')')
   if (countdown_seconds === 0) {
-    $('.J_vcode-btn').attr('disabled', false).text('重新获取')
+    $('.J_vcode-btn').attr('disabled', false).text($lang('GetVcode2'))
   } else {
     countdown_timer = setTimeout(resend_countdown, 1000)
   }

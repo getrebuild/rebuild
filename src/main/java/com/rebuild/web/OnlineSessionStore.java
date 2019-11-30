@@ -23,10 +23,14 @@ import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.server.helper.language.Languages;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.CurrentCaller;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.web.user.signin.LoginControll;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
@@ -53,6 +57,8 @@ public class OnlineSessionStore extends CurrentCaller implements HttpSessionList
 	
 	private static final Set<HttpSession> ONLINE_SESSIONS = new CopyOnWriteArraySet<>();
 	private static final Map<ID, HttpSession> ONLINE_USERS = new ConcurrentHashMap<>();
+
+	private static final ThreadLocal<String> LOCALE = new ThreadLocal<>();
 	
 	@Override
 	public void sessionCreated(HttpSessionEvent event) {
@@ -89,8 +95,6 @@ public class OnlineSessionStore extends CurrentCaller implements HttpSessionList
 		}
 	}
 	
-	// --
-	
 	/**
 	 * 最近访问时间
 	 */
@@ -126,9 +130,40 @@ public class OnlineSessionStore extends CurrentCaller implements HttpSessionList
 	public void storeLoginSuccessed(HttpServletRequest request) {
 		HttpSession s = request.getSession();
 		Object loginUser = s.getAttribute(WebUtils.CURRENT_USER);
-		Assert.notNull(loginUser, "No login user found");
+		Assert.notNull(loginUser, "No login user found in session!");
 
 		ONLINE_SESSIONS.remove(s);
 		ONLINE_USERS.put((ID) loginUser, s);
+	}
+
+	/**
+	 * @param locale
+	 */
+	public void setLocale(String locale) {
+		LOCALE.set(locale);
+	}
+
+	/**
+	 * @return Returns default if unset
+	 * @see Languages
+	 */
+	public String getLocale() {
+		return StringUtils.defaultIfEmpty(LOCALE.get(), SysConfiguration.get(ConfigurableItem.DefaultLanguage));
+	}
+
+	/**
+	 * @param caller
+	 * @param locale
+	 * @see #set(ID)
+	 */
+	public void set(ID caller, String locale) {
+		super.set(caller);
+		this.setLocale(locale);
+	}
+
+	@Override
+	public void clean() {
+		super.clean();
+		LOCALE.remove();
 	}
 }

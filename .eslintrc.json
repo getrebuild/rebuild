@@ -86,7 +86,8 @@
         "Share2": true,
         "$pgt": true,
         "$stopEvent": true,
-        "$addResizeHandler": true
+        "$addResizeHandler": true,
+        "$lang": true
     },
     "rules": {
         "strict": 0,

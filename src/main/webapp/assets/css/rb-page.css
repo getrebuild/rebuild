@@ -13,6 +13,12 @@ html.admin .admin-show.row {
     display: flex;
 }
 
+html,
+body {
+    min-width: 340px;
+    overflow: auto;
+}
+
 /* 1280 */
 .container-smart {
     max-width: 1160px;
@@ -899,7 +905,7 @@ a {
 
 .rbhighbar {
     position: fixed;
-    min-width: 420px;
+    min-width: 421px;
     top: 0;
     left: 50%;
     margin-left: -210px;
@@ -913,8 +919,10 @@ a {
 
 @media (max-width:440px) {
     .rbhighbar {
-        min-width: 320px;
-        margin-left: -160px;
+        min-width: auto;
+        margin: 0;
+        left: 10px;
+        right: 10px;
     }
 }
 

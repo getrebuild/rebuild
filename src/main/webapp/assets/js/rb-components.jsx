@@ -12,7 +12,7 @@ class RbModal extends React.Component {
       <div className="modal-dialog" style={{ maxWidth: (this.props.width || 680) + 'px' }}>
         <div className="modal-content">
           <div className="modal-header modal-header-colored">
-            <h3 className="modal-title">{this.props.title || '无标题'}</h3>
+            <h3 className="modal-title">{this.props.title || 'UNTITLED'}</h3>
             <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
           </div>
           <div className={'modal-body' + (inFrame ? ' iframe rb-loading' : '') + (inFrame && this.state.frameLoad !== false ? ' rb-loading-active' : '')}>
@@ -183,7 +183,7 @@ class RbAlert extends React.Component {
     let type = this.props.type || 'primary'
     let content = this.props.htmlMessage ?
       <div className="mt-3" style={{ lineHeight: 1.8 }} dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} />
-      : <p>{this.props.message || '提示内容'}</p>
+      : <p>{this.props.message || 'INMESSAGE'}</p>
 
     let cancel = (this.props.cancel || this.hide).bind(this)
     let confirm = (this.props.confirm || this.hide).bind(this)
@@ -289,13 +289,15 @@ class RbHighbar extends React.Component {
    * @param {*} message 
    */
   static success(message) {
-    RbHighbar.create(message || '操作成功', 'success', { timeout: 2000 })
+    if (!message) message = $lang('ActionSuccess')
+    RbHighbar.create(message, 'success', { timeout: 2000 })
   }
   /**
    * @param {*} message 
    */
   static error(message) {
-    RbHighbar.create(message || '系统繁忙，请稍后重试', 'danger', { timeout: 5000 })
+    if (!message) message = $lang('SystemBusy')
+    RbHighbar.create(message, 'danger', { timeout: 5000 })
   }
 }
 
