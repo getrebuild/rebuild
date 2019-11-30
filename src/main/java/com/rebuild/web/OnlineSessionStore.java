@@ -23,6 +23,8 @@ import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.language.Languages;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.CurrentCaller;
@@ -146,7 +148,7 @@ public class OnlineSessionStore extends CurrentCaller implements HttpSessionList
 	 * @see Languages
 	 */
 	public String getLocale() {
-		return StringUtils.defaultIfEmpty(LOCALE.get(), Languages.DEFAULT_LOCALE);
+		return StringUtils.defaultIfEmpty(LOCALE.get(), SysConfiguration.get(ConfigurableItem.DefaultLanguage));
 	}
 
 	/**

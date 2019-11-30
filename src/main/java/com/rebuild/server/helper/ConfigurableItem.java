@@ -33,37 +33,51 @@ public enum ConfigurableItem {
 	LOGO,
     LOGOWhite,
 	HomeURL("https://nightly.getrebuild.com/"),
-	OpenSignUp(false),
 
-	// 数据目录
-	DataDirectory,
-	
 	// 云存储
 	StorageURL, StorageApiKey, StorageApiSecret, StorageBucket,
-	
+
 	// 缓存服务
 	CacheHost, CachePort, CacheUser, CachePassword,
-	
+
 	// 邮件
 	MailUser, MailPassword, MailAddr, MailName(AppName),
-	
+
 	// 短信
 	SmsUser, SmsPassword, SmsSign(AppName),
-	
-	// Database schema version
+
+	/**
+	 * 开放注册
+	 */
+	OpenSignUp(false),
+	/**
+	 * 数据目录
+	 */
+	DataDirectory,
+	/**
+	 * 数据库版本
+	 */
 	DBVer(0L),
-	
-	// 启用最近搜素缓存
+	/**
+	 * 启用最近搜素缓存
+	 */
 	EnableRecentlyUsed(true),
-
-	// 登录背景图
+	/**
+	 * 登录背景图
+	 */
 	LiveWallpaper(true),
-
-	// 回收站数据保留天数（0为禁用回收站）
+	/**
+	 * 回收站数据保留天数（0为禁用回收站）
+	 */
 	RecycleBinKeepingDays(30),
-
-	// 密码策略，1-3
+	/**
+	 * 密码策略，1-3
+	 */
 	PasswordPolicy(1),
+	/**
+	 * 默认语言
+	 */
+	DefaultLanguage("zh-CN")
 
 	;
 	
