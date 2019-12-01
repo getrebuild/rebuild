@@ -566,13 +566,13 @@ const RbListPage = {
     })
     $('.J_columns').click(() => RbModal.create(`${rb.baseUrl}/p/general-entity/show-fields?entity=${entity[0]}`, '设置列显示'))
     $('.J_export').click(() => renderRbcomp(<DataExport listRef={RbListPage._RbList} />))
-    $('.J_batch').click(() => renderRbcomp(<BatchUpdate listRef={RbListPage._RbList} />))
+    $('.J_batch').click(() => renderRbcomp(<BatchUpdate listRef={RbListPage._RbList} entity={entity[0]} />))
 
     // Privileges
     if (ep) {
       if (ep.C === false) $('.J_new').remove()
       if (ep.D === false) $('.J_delete').remove()
-      if (ep.U === false) $('.J_edit').remove()
+      if (ep.U === false) $('.J_edit, .J_batch').remove()
       if (ep.A === false) $('.J_assign').remove()
       if (ep.S === false) $('.J_share, .J_unshare').remove()
       $cleanMenu('.J_action')
@@ -979,7 +979,7 @@ class BatchOperator extends RbFormHandler {
     const selectedRows = _listRef.getSelectedRows().length
     const pageRows = _listRef.state.rowsData.length
     const queryRows = _listRef.getLastQueryTotal()
-    return <RbModal title={this.state.title} disposeOnHide={true} width="600" ref={(c) => this._dlg = c}>
+    return <RbModal title={this.state.title} disposeOnHide={true} ref={(c) => this._dlg = c}>
       <div className="form batch-form">
         <div className="form-group">
           <label className="text-bold">选择数据范围</label>
@@ -1042,6 +1042,8 @@ class DataExport extends BatchOperator {
   }
 }
 
+const MOP_TYPE = { 'SET': '修改为', 'NULL': '置空' }
+
 // ~ 批量修改
 class BatchUpdate extends BatchOperator {
   constructor(props) {
@@ -1049,17 +1051,104 @@ class BatchUpdate extends BatchOperator {
     this.state.title = '批量修改'
   }
 
-  renderOperator() {
+  componentDidMount() {
+    $.get(`${rb.baseUrl}/app/entity/batch-update/fields?entity=${this.props.entity}`, (res) => {
+      this.setState({ fieldsMeta: res.data }, () => {
+        this.__fieldNames = {}
+        res.data.forEach((item) => this.__fieldNames[item.name] = item.label)
+
+        let fieldS2 = $(this._mfield).select2({
+          allowClear: false
+        })
+        let opS2 = $(this._mop).select2({
+          allowClear: false
+        })
+        this.__select2 = [fieldS2, opS2]
+      })
+    })
+  }
+
+  componentWillUnmount() {
+    this.__select2.forEach((item) => { item.select2('destroy') })
+    this.__select2 = null
+  }
+
+  renderOperator = () => {
     return <div className="form-group">
       <label className="text-bold">修改内容</label>
       <div>
-        <button className="btn btn-sm btn-secondary">添加</button>
+        <div className="batch-contents">
+          {(this.state.updateContents || []).map((item) => {
+            return <div className="rounded" key={`update-${item.field}`}>
+              <div className="row">
+                <div className="col-4">
+                  <span className="badge badge-light">{this.__fieldNames[item.field]}</span>
+                </div>
+                <div className="col-2 pl-0 pr-0">
+                  <span className="badge badge-warning">{MOP_TYPE[item.op]}</span>
+                </div>
+                <div className="col-6">
+                  {item.op !== 'NULL' && <span className="badge badge-warning">{item.value}</span>}
+                  <a className="del"><i className="zmdi zmdi-close"></i></a>
+                </div>
+              </div>
+            </div>
+          })}
+        </div>
+        <div className="p-1 bg-eee rounded">
+          <div className="row">
+            <div className="col-4">
+              <select className="form-control form-control-sm" ref={(c) => this._mfield = c}>
+                {(this.state.fieldsMeta || []).map((item) => {
+                  return <option value={item.name} key={`field-${item.name}`}>{item.label}</option>
+                })}
+              </select>
+            </div>
+            <div className="col-2 pl-0 pr-0">{this.renderOp()}</div>
+            <div className="col-6">{this.renderValue()}</div>
+          </div>
+          <div className="mt-1">
+            <button className="btn btn-primary btn-sm bordered" onClick={this.addItem}>添加</button>
+          </div>
+        </div>
       </div>
     </div>
+  }
+  renderOp() {
+    return <select className="form-control form-control-sm" ref={(c) => this._mop = c}>
+      <option value="SET">修改为</option>
+      <option value="NULL">置空</option>
+    </select>
+  }
+  renderValue() {
+    return <input className="form-control form-control-sm" ref={(c) => this._mvalue = c} />
+  }
+
+  addItem = () => {
+    let item = { field: $(this._mfield).val(), op: $(this._mop).val(), value: $(this._mvalue).val() }
+    if (item.op !== 'NULL' && !item.value) {
+      RbHighbar.create('修改值不能为空')
+      return
+    }
+
+    let contents = this.state.updateContents || []
+    $(contents).each(function () {
+      if (item.field === this.field) {
+        RbHighbar.create('修改字段已经存在')
+        item = null
+        return false
+      }
+    })
+    if (!item) return
+
+    contents.push(item)
+    this.setState({ updateContents: contents })
   }
 
   confirm = () => {
     let queryData = this.getQueryData()
-    console.log(JSON.stringify(queryData))
+    // eslint-disable-next-line no-console
+    if (rb.env === 'dev') console.log(JSON.stringify(queryData))
+
   }
 }

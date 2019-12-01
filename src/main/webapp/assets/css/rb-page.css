@@ -141,9 +141,14 @@ body {
     white-space: nowrap;
 }
 
-.text-wrap {
+.text-wrap,
+.text-break {
     word-break: break-all;
     word-wrap: break-word;
+}
+
+.text-overflow {
+    overflow: hidden;
 }
 
 .badge.text-id {
@@ -159,6 +164,10 @@ a.badge.text-id {
 
 a.badge.text-id:hover {
     border-color: #4285f4;
+}
+
+.bg-eee {
+    background-color: #eee;
 }
 
 .up-1 {
@@ -1219,7 +1228,33 @@ i.split.ui-draggable-dragging {
     margin-bottom: 0;
 }
 
-/* ends */
+.batch-contents .badge {
+    font-size: 1rem;
+    font-weight: normal;
+    padding: 3px 10px;
+    cursor: default;
+}
+
+.batch-contents>div {
+    position: relative;
+    padding: 3px .384615rem;
+}
+
+.batch-contents>div:last-child {
+    margin-bottom: .384615rem;
+}
+
+.batch-contents>div a.del {
+    float: right;
+    font-size: 1.2rem;
+    padding: 3px 10px;
+    padding-left: 5px;
+    margin-right: -5px;
+    color: #999;
+    font-weight: bold;
+}
+
+/* DataList ends */
 
 .unselect {
     -webkit-touch-callout: none;
