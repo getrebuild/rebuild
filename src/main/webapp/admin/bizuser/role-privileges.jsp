@@ -128,12 +128,12 @@
 								<td class="text-center"><i data-action="Z" class="priv R4"></i></td>
 								<td colspan="5" class="text-muted">需具备相应实体的读取权限</td>
 							</tr>
-							<!--
 							<tr>
 								<td class="name"><a data-name="AllowBatchUpdate">允许批量修改</a></td>
 								<td class="text-center"><i data-action="Z" class="priv R0"></i></td>
 								<td colspan="5">需具备相应实体的修改权限</td>
 							</tr>
+							<!--
 							<tr>
 								<td class="name"><a data-name="AllowDataImport">允许导入数据</a></td>
 								<td class="text-center"><i data-action="Z" class="priv R0"></i></td>

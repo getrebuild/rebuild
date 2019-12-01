@@ -1211,6 +1211,16 @@ i.split.ui-draggable-dragging {
     margin-left: 1px;
 }
 
+.form.batch-form {
+    padding: 5px 10px;
+}
+
+.form.batch-form .form-group:last-child {
+    margin-bottom: 0;
+}
+
+/* ends */
+
 .unselect {
     -webkit-touch-callout: none;
     -webkit-user-select: none;

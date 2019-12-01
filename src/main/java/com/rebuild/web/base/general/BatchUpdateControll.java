@@ -32,30 +32,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
 
 /**
+ * TODO 批量修改
+ *
  * @author ZHAO
- * @since 2019/11/18
+ * @since 2019/12/1
  */
 @Controller
-public class DataExportControll extends BaseControll {
+public class BatchUpdateControll extends BaseControll {
 
-    @RequestMapping("/app/entity/data-export-submit")
-    public void export(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    @RequestMapping("/app/entity/batch-update-submit")
+    public void update(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ID user = getRequestUser(request);
-        Assert.isTrue(Application.getSecurityManager().allowed(user, ZeroEntry.AllowDataExport), "没有权限");
+        Assert.isTrue(Application.getSecurityManager().allowed(user, ZeroEntry.AllowBatchUpdate), "没有权限");
 
         int dataRange = getIntParameter(request, "dr", 2);
         JSONObject queryData = (JSONObject) ServletUtils.getRequestJson(request);
         queryData = new BatchOperatorQuery(dataRange, queryData).wrapQueryData(DataExporter.MAX_ROWS);
 
-        try {
-            File file = new DataExporter(queryData).setUser(user).export();
-            writeSuccess(response, file.getName());
-        } catch (Exception ex) {
-            writeFailure(response, ex.getLocalizedMessage());
-        }
+        writeFailure(response);
     }
 }

@@ -51,16 +51,20 @@ import java.util.List;
  */
 public class DataExporter extends SetUser<DataExporter> {
 
-    private JSONObject query;
+    /**
+     * 最大行数
+     */
+    public static final int MAX_ROWS = 65535 - 1;
 
+    final private JSONObject queryData;
     // 字段
     private List<Field> headFields = new ArrayList<>();
 
     /**
-     * @param query
+     * @param queryData
      */
-    public DataExporter(JSONObject query) {
-        this.query = query;
+    public DataExporter(JSONObject queryData) {
+        this.queryData = queryData;
     }
 
     /**
@@ -80,7 +84,7 @@ public class DataExporter extends SetUser<DataExporter> {
      * @param dest
      */
     public void export(File dest) {
-        DefaultDataListControl control = new DefaultDataListControl(query, getUser());
+        DefaultDataListControl control = new DefaultDataListControl(queryData, getUser());
         EasyExcel.write(dest)
                 .registerWriteHandler(new ColumnWidthStrategy())
                 .registerWriteHandler(this.buildStyle())
@@ -106,7 +110,7 @@ public class DataExporter extends SetUser<DataExporter> {
     }
 
     /**
-     * 数据
+     * 构建数据
      *
      * @param control
      * @return
