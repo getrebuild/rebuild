@@ -1042,8 +1042,6 @@ class DataExport extends BatchOperator {
   }
 }
 
-const MOP_TYPE = { 'SET': '修改为', 'NULL': '置空' }
-
 // ~ 批量修改
 class BatchUpdate extends BatchOperator {
   constructor(props) {
@@ -1052,25 +1050,7 @@ class BatchUpdate extends BatchOperator {
   }
 
   componentDidMount() {
-    $.get(`${rb.baseUrl}/app/entity/batch-update/fields?entity=${this.props.entity}`, (res) => {
-      this.setState({ fieldsMeta: res.data }, () => {
-        this.__fieldNames = {}
-        res.data.forEach((item) => this.__fieldNames[item.name] = item.label)
-
-        let fieldS2 = $(this._mfield).select2({
-          allowClear: false
-        })
-        let opS2 = $(this._mop).select2({
-          allowClear: false
-        })
-        this.__select2 = [fieldS2, opS2]
-      })
-    })
-  }
-
-  componentWillUnmount() {
-    this.__select2.forEach((item) => { item.select2('destroy') })
-    this.__select2 = null
+    $.get(`${rb.baseUrl}/app/entity/batch-update/fields?entity=${this.props.entity}`, (res) => this.setState({ fields: res.data }))
   }
 
   renderOperator = () => {
@@ -1079,13 +1059,13 @@ class BatchUpdate extends BatchOperator {
       <div>
         <div className="batch-contents">
           {(this.state.updateContents || []).map((item) => {
-            return <div className="rounded" key={`update-${item.field}`}>
+            return <div key={`update-${item.field}`}>
               <div className="row">
                 <div className="col-4">
-                  <span className="badge badge-light">{this.__fieldNames[item.field]}</span>
+                  <span className="badge badge-light">{this._fieldLabel(item.field)}</span>
                 </div>
                 <div className="col-2 pl-0 pr-0">
-                  <span className="badge badge-warning">{MOP_TYPE[item.op]}</span>
+                  <span className="badge badge-warning">{BUE_OPTYPES[item.op]}</span>
                 </div>
                 <div className="col-6">
                   {item.op !== 'NULL' && <span className="badge badge-warning">{item.value}</span>}
@@ -1095,41 +1075,21 @@ class BatchUpdate extends BatchOperator {
             </div>
           })}
         </div>
-        <div className="p-1 bg-eee rounded">
-          <div className="row">
-            <div className="col-4">
-              <select className="form-control form-control-sm" ref={(c) => this._mfield = c}>
-                {(this.state.fieldsMeta || []).map((item) => {
-                  return <option value={item.name} key={`field-${item.name}`}>{item.label}</option>
-                })}
-              </select>
-            </div>
-            <div className="col-2 pl-0 pr-0">{this.renderOp()}</div>
-            <div className="col-6">{this.renderValue()}</div>
-          </div>
-          <div className="mt-1">
-            <button className="btn btn-primary btn-sm bordered" onClick={this.addItem}>添加</button>
-          </div>
+        {this.state.fields && <BatchUpdateEditor ref={(c) => this._editor = c} fields={this.state.fields} />}
+        <div className="mt-1">
+          <button className="btn btn-primary btn-sm bordered" onClick={this.addItem}>添加</button>
         </div>
       </div>
     </div>
   }
-  renderOp() {
-    return <select className="form-control form-control-sm" ref={(c) => this._mop = c}>
-      <option value="SET">修改为</option>
-      <option value="NULL">置空</option>
-    </select>
-  }
-  renderValue() {
-    return <input className="form-control form-control-sm" ref={(c) => this._mvalue = c} />
+
+  _fieldLabel(name) {
+    return this.state.fields.find((item) => { return name === item.name }).label
   }
 
   addItem = () => {
-    let item = { field: $(this._mfield).val(), op: $(this._mop).val(), value: $(this._mvalue).val() }
-    if (item.op !== 'NULL' && !item.value) {
-      RbHighbar.create('修改值不能为空')
-      return
-    }
+    let item = this._editor.buildItem()
+    if (!item) return
 
     let contents = this.state.updateContents || []
     $(contents).each(function () {
@@ -1150,5 +1110,96 @@ class BatchUpdate extends BatchOperator {
     // eslint-disable-next-line no-console
     if (rb.env === 'dev') console.log(JSON.stringify(queryData))
 
+  }
+}
+
+const BUE_OPTYPES = { 'SET': '修改为', 'NULL': '置空', 'PREFIX': '前添加', 'SUFFIX': '后添加', 'PLUS': '加上', 'MINUS': '减去' }
+// ~ 批量修改编辑器
+class BatchUpdateEditor extends React.Component {
+  state = { ...this.props, selectOp: 'SET' }
+
+  componentDidMount() {
+    let fieldS2 = $(this._field).select2({
+      allowClear: false
+    }).on('change', () => {
+      this.setState({ selectField: fieldS2.val() })
+    })
+    let opS2 = $(this._op).select2({
+      allowClear: false
+    }).on('change', () => {
+      this.setState({ selectOp: opS2.val() })
+    })
+    fieldS2.trigger('change')
+    this.__select2 = [fieldS2, opS2]
+  }
+
+  componentWillUnmount() {
+    this.__select2.forEach((item) => { item.select2('destroy') })
+    this.__select2 = null
+    if (this.__lastSelect2) {
+      this.__lastSelect2('destory')
+      this.__lastSelect2 = null
+    }
+  }
+
+  render() {
+    return <div className="row">
+      <div className="col-4">
+        <select className="form-control form-control-sm" ref={(c) => this._field = c}>
+          {this.props.fields.map((item) => {
+            return <option value={item.name} key={`field-${item.name}`}>{item.label}</option>
+          })}
+        </select>
+      </div>
+      <div className="col-2 pl-0 pr-0">{this.renderOp()}</div>
+      <div className="col-6">{(this.state.selectField && this.state.selectOp) && this.renderValue()}</div>
+    </div>
+  }
+
+  renderOp() {
+    return <select className="form-control form-control-sm" ref={(c) => this._op = c}>
+      <option value="SET">修改为</option>
+      <option value="NULL">置空</option>
+    </select>
+  }
+
+  renderValue() {
+    if (this.state.selectOp === 'NULL') return
+    let field = this.props.fields.find((item) => { return this.state.selectField === item.name })
+    if (field.type === 'PICKLIST' || field.type === 'STATE' || field.type === 'MULTISELECT' || field.type === 'BOOL'
+      || field.type === 'REFERENCE' || field.type === 'CLASSIFICATION') {
+      return <select className="form-control form-control-sm" multiple={field.type === 'MULTISELECT'} ref={(c) => this._value = c}>
+        {(field.options || []).map((item) => {
+          return <option key={`opt-${item.id}`} value={item.id}>{item.text}</option>
+        })}
+      </select>
+    } else {
+      return <input className="form-control form-control-sm" ref={(c) => this._value = c} />
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    // Unchanged
+    if (prevState.selectField === this.state.selectField && prevState.selectOp === this.state.selectOp) return
+
+    if ($(this._value).prop('tagName') === 'SELECT') {
+      this.__lastSelect2 = $(this._value).select2({
+        allowClear: false
+      })
+    } else if (this.__lastSelect2) {
+      this.__lastSelect2.select2('destroy')
+      this.__lastSelect2 = null
+    }
+  }
+
+  buildItem() {
+    let item = { field: this.state.selectField, op: this.state.selectOp }
+    if (item.op === 'NULL') return item
+    item.value = $(this._value).val()
+    if (!item.value || item.value.length === 0) {
+      RbHighbar.create('修改值不能为空')
+      return null
+    }
+    return item
   }
 }

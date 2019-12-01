@@ -22,15 +22,20 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.dataimport.DataExporter;
+import com.rebuild.server.configuration.portals.MultiSelectManager;
+import com.rebuild.server.configuration.portals.PickListManager;
 import com.rebuild.server.helper.datalist.BatchOperatorQuery;
+import com.rebuild.server.helper.state.StateManager;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.privileges.ZeroEntry;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.base.MetadataGetting;
 import org.springframework.stereotype.Controller;
@@ -82,8 +87,34 @@ public class BatchUpdateControll extends BaseControll {
                 continue;
             }
 
-            updatableFields.add(MetadataGetting.buildField(field));
+            updatableFields.add(this.buildField(field, dt));
         }
         writeSuccess(response, updatableFields);
+    }
+
+    /**
+     * @param field
+     * @param dt
+     * @return
+     */
+    private Map<String, Object> buildField(Field field, DisplayType dt) {
+        Map<String, Object> map = MetadataGetting.buildField(field);
+
+        // 字段选项
+        if (dt == DisplayType.PICKLIST) {
+            map.put("options", PickListManager.instance.getPickList(field));
+        } else if (dt == DisplayType.STATE) {
+            map.put("options", StateManager.instance.getStateOptions(field));
+        } else if (dt == DisplayType.MULTISELECT) {
+            map.put("options", MultiSelectManager.instance.getSelectList(field));
+        } else if (dt == DisplayType.BOOL) {
+            JSONArray options = new JSONArray();
+            options.add(JSONUtils.toJSONObject(new String[] { "id", "text" }, new Object[] { true, "是"}));
+            options.add(JSONUtils.toJSONObject(new String[] { "id", "text" }, new Object[] { false, "否"}));
+            map.put("options", options);
+        } else if (dt == DisplayType.CLASSIFICATION) {
+        }
+        
+        return map;
     }
 }

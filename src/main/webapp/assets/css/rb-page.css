@@ -1231,13 +1231,13 @@ i.split.ui-draggable-dragging {
 .batch-contents .badge {
     font-size: 1rem;
     font-weight: normal;
-    padding: 3px 10px;
+    padding: 2px 10px;
     cursor: default;
 }
 
 .batch-contents>div {
     position: relative;
-    padding: 3px .384615rem;
+    margin-bottom: 5px;
 }
 
 .batch-contents>div:last-child {
