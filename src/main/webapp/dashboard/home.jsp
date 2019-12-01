@@ -7,11 +7,6 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/charts/gridstack.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/charts.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/dashboard.css">
-<style type="text/css">
-.shareTo--wrap .custom-control {
-    margin-top: 0;
-}
-</style>
 </head>
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo">

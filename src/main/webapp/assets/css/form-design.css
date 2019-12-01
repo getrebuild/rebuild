@@ -1,9 +1,10 @@
 .rb-content .main-content {
-	margin-right: 300px;
+	margin-right: 280px;
 }
 
 .rb-right-sidebar.field-aside {
-	width: 300px;
+	width: 280px;
+	z-index: 1;
 }
 
 .readonly {

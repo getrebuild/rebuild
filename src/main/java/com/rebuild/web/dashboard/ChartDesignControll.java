@@ -107,7 +107,8 @@ public class ChartDesignControll extends BaseEntityControll {
 		for (Field field : MetadataSorter.sortFields(entityMeta)) {
 			EasyMeta easy = EasyMeta.valueOf(field);
 			DisplayType dt = easy.getDisplayType();
-			if (dt == DisplayType.IMAGE || dt == DisplayType.FILE || dt == DisplayType.ANYREFERENCE) {
+			if (dt == DisplayType.IMAGE || dt == DisplayType.FILE || dt == DisplayType.ANYREFERENCE
+                || dt == DisplayType.AVATAR || dt == DisplayType.LOCATION || dt == DisplayType.MULTISELECT) {
 				continue;
 			}
 			String type = "text";

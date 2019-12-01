@@ -20,7 +20,7 @@
 			<div class="tab-container">
 				<ul class="nav nav-tabs">
 					<li class="nav-item"><a class="nav-link active" href="attachment">附件</a></li>
-					<li class="nav-item"><a class="nav-link" href="docs">文件</a></li>
+					<li class="nav-item"><a class="nav-link" href="docs">文档</a></li>
 				</ul>
 				<div class="tab-content rb-scroller">
 					<div class="tab-pane active" id="navTree">

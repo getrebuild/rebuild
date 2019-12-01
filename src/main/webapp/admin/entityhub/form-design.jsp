@@ -40,7 +40,7 @@
         	<div class="rb-content">
 	        	<div class="field-head">
 		        	<h4 class="float-left">字段列表</h4>
-		        	<div class="float-right"><span class="not-nullable">必填字段</span><span class="readonly">只读字段</span></div>
+		        	<div class="float-right"><span class="not-nullable">必填</span><span class="readonly">只读</span></div>
 				</div>
 	        	<div class="rb-scroller">
 	        		<div class="field-list dd-list">
