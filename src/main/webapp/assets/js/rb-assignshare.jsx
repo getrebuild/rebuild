@@ -11,7 +11,7 @@ class DlgAssign extends RbModalHandler {
     return (<RbModal title={this.types[1]} ref={(c) => this._dlg = c}>
       <div className="form">
         {this.onView === true ? null : (
-          <div className="form-group row">
+          <div className="form-group row pb-0">
             <label className="col-sm-3 col-form-label text-sm-right">{this.types[1]}哪些记录</label>
             <div className="col-sm-7">
               <div className="form-control-plaintext">{'选中的记录 (' + this.state.ids.length + '条)'}</div>
@@ -141,21 +141,18 @@ class DlgUnshare extends RbModalHandler {
           <label className="col-sm-3 col-form-label text-sm-right">取消哪些用户</label>
           <div className="col-sm-7">
             <div className="mt-1">
-              <label className="custom-control custom-control-sm custom-radio custom-control-inline">
+              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
                 <input className="custom-control-input" name="whichUsers" type="radio" checked={this.state.whichUsers === 'ALL'} onChange={() => this.whichMode(true)} />
                 <span className="custom-control-label">全部用户</span>
               </label>
-              <label className="custom-control custom-control-sm custom-radio custom-control-inline">
+              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
                 <input className="custom-control-input" name="whichUsers" type="radio" checked={this.state.whichUsers === 'SPEC'} onChange={() => this.whichMode()} />
                 <span className="custom-control-label">指定用户</span>
               </label>
             </div>
-          </div>
-        </div>
-        <div className={'form-group row pt-0 ' + (this.state.whichUsers === 'ALL' ? 'hide' : '')}>
-          <label className="col-sm-3 col-form-label text-sm-right"></label>
-          <div className="col-sm-7">
-            <select className="form-control form-control-sm" ref={(c) => this._toUser = c} />
+            <div className={'mb-2 ' + (this.state.whichUsers === 'ALL' ? 'hide' : '')}>
+              <select className="form-control form-control-sm" ref={(c) => this._toUser = c} />
+            </div>
           </div>
         </div>
         <div className="form-group row footer">
