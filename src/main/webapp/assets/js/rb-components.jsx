@@ -251,25 +251,23 @@ class RbHighbar extends React.Component {
   render() {
     let icon = this.props.type === 'success' ? 'check' : 'info-outline'
     icon = this.props.type === 'danger' ? 'close-circle-o' : icon
-    let content = this.props.htmlMessage ? <div className="message" dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} /> : <div className="message">{this.props.message}</div>
-    return (<div ref={(c) => this._rbhighbar = c} className={'rbhighbar animated faster ' + this.state.animatedClass}>
-      <div className={'alert alert-dismissible alert-' + (this.props.type || 'warning')}>
-        <button className="close" type="button" onClick={() => this.close()}><span className="zmdi zmdi-close" /></button>
-        <div className="icon"><span className={'zmdi zmdi-' + icon} /></div>
+    let content = this.props.htmlMessage
+      ? <div className="message pl-0" dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} />
+      : <div className="message pl-0">{this.props.message}</div>
+
+    return (<div ref={(c) => this._rbhighbar = c} className={`rbhighbar animated faster ${this.state.animatedClass}`}>
+      <div className={`alert alert-dismissible alert-${(this.props.type || 'warning')}`}>
+        <button className="close" type="button" onClick={this.close}><i className="zmdi zmdi-close" /></button>
+        <div className="icon"><i className={`zmdi zmdi-${icon}`} /></div>
         {content}
       </div>
     </div>)
   }
 
   componentDidMount() {
-    setTimeout(() => { this.close() }, this.props.timeout || 3000)
+    setTimeout(() => this.close(), this.props.timeout || 3000)
   }
-
-  close() {
-    this.setState({ animatedClass: 'fadeOut' }, () => {
-      $unmount($(this._rbhighbar).parent())
-    })
-  }
+  close = () => this.setState({ animatedClass: 'fadeOut' }, () => $unmount($(this._rbhighbar).parent()))
 
   // -- Usage
   /**

@@ -924,11 +924,12 @@ a {
 
 .rbhighbar {
     position: fixed;
-    min-width: 421px;
     top: 0;
-    left: 50%;
-    margin-left: -210px;
+    left: 0;
+    right: 0;
+    width: 100%;
     z-index: 1099;
+    text-align: center;
 }
 
 .rbhighbar.faster {
@@ -936,16 +937,26 @@ a {
     animation-duration: 200ms
 }
 
+.rbhighbar>.alert {
+    display: inline-block;
+    width: auto;
+    max-width: 80%;
+    min-width: 421px;
+    text-align: left;
+}
+
 @media (max-width:440px) {
     .rbhighbar {
-        min-width: auto;
-        margin: 0;
-        left: 10px;
-        right: 10px;
+        padding: 0 10px;
+    }
+
+    .rbhighbar>.alert {
+        max-width: 100%;
+        min-width: 100%;
     }
 }
 
-.rbhighbar a {
+.rbhighbar>.alert>.message a {
     color: #fff
 }
 
