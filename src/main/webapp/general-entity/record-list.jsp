@@ -71,7 +71,7 @@
 								<div class="dataTables_oper">
 									<button class="btn btn-space btn-secondary J_view" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> 打开</button>
 									<button class="btn btn-space btn-secondary J_edit" disabled="disabled"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
-									<button class="btn btn-space btn-primary J_new" data-url="${baseUrl}/entity/${entity}/new"><i class="icon zmdi zmdi-plus"></i> 新建</button>
+									<button class="btn btn-space btn-primary J_new"><i class="icon zmdi zmdi-plus"></i> 新建</button>
 									<div class="btn-group btn-space J_action">
 										<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-more-vert"></i></button>
 										<div class="dropdown-menu dropdown-menu-right">
@@ -81,6 +81,7 @@
 											<a class="dropdown-item J_unshare"><i class="icon zmdi zmdi-portable-wifi-off"></i> 取消共享</a>
 											<div class="dropdown-divider"></div>
                                             <c:if test="${AllowDataExport}"><a class="dropdown-item J_export"><i class="icon zmdi zmdi-cloud-download"></i> 数据导出</a></c:if>
+                                            <a class="dropdown-item admin-show" href="${baseUrl}/admin/datas/data-importer?entity=${entityName}" target="_blank"><i class="icon zmdi zmdi-cloud-upload"></i> 数据导入</a>
                                             <c:if test="${AllowBatchUpdate}"><a class="dropdown-item J_batch"><i class="icon zmdi zmdi-flash"></i> 批量修改</a></c:if>
                                             <c:if test="${AllowCustomDataList}"><a class="dropdown-item J_columns"><i class="icon zmdi zmdi-code-setting"></i> 列显示</a></c:if>
 										</div>

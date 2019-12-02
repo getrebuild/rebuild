@@ -32,16 +32,19 @@ $(document).ready(() => {
       ientry.entity = entity
     })
   }
-  $.get(`${rb.baseUrl}/commons/metadata/entities`, (res) => {
+  $.get(`${rb.baseUrl}/commons/metadata/entities?slave=true`, (res) => {
     $(res.data).each(function () {
       $('<option value="' + this.name + '">' + this.label + '</option>').appendTo('#toEntity')
     })
-    $('#toEntity').select2({
+
+    let entityS2 = $('#toEntity').select2({
       allowClear: false
     }).on('change', function () {
       fileds_render($(this).val())
       check_ouser()
-    }).trigger('change')
+    })
+    if ($urlp('entity')) entityS2.val($urlp('entity'))
+    entityS2.trigger('change')
   })
 
   $('input[name=repeatOpt]').click(function () {

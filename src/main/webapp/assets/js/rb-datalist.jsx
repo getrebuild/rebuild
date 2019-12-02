@@ -1019,7 +1019,7 @@ class BatchOperator extends RbFormHandler {
 
   // 子类复写
 
-  renderOperator = () => { }
+  renderOperator() { }
   confirm = () => { }
 }
 
@@ -1053,7 +1053,7 @@ class BatchUpdate extends BatchOperator {
     $.get(`${rb.baseUrl}/app/entity/batch-update/fields?entity=${this.props.entity}`, (res) => this.setState({ fields: res.data }))
   }
 
-  renderOperator = () => {
+  renderOperator() {
     return <div className="form-group">
       <label className="text-bold">修改内容</label>
       <div>
@@ -1068,23 +1068,26 @@ class BatchUpdate extends BatchOperator {
                   <span className="badge badge-warning">{BUE_OPTYPES[item.op]}</span>
                 </div>
                 <div className="col-6">
-                  {item.op !== 'NULL' && <span className="badge badge-warning">{item.value}</span>}
-                  <a className="del"><i className="zmdi zmdi-close"></i></a>
+                  {item.op !== 'NULL' && <span className="badge badge-light">{item.text || item.value}</span>}
+                  <a className="del" onClick={() => this.removeItem(item.field)}><i className="zmdi zmdi-close"></i></a>
                 </div>
               </div>
             </div>
           })}
         </div>
-        {this.state.fields && <BatchUpdateEditor ref={(c) => this._editor = c} fields={this.state.fields} />}
-        <div className="mt-1">
-          <button className="btn btn-primary btn-sm bordered" onClick={this.addItem}>添加</button>
+        <div className="mt-2">
+          {this.state.fields && <BatchUpdateEditor ref={(c) => this._editor = c} fields={this.state.fields} entity={this.props.entity} />}
+          <div className="mt-1">
+            <button className="btn btn-primary btn-sm bordered" onClick={this.addItem}>添加</button>
+          </div>
         </div>
       </div>
     </div>
   }
 
-  _fieldLabel(name) {
-    return this.state.fields.find((item) => { return name === item.name }).label
+  _fieldLabel(fieldName) {
+    let field = this.state.fields.find((item) => { return fieldName === item.name })
+    return field ? field.label : `[${fieldName}.toUpperCase()]`
   }
 
   addItem = () => {
@@ -1105,11 +1108,24 @@ class BatchUpdate extends BatchOperator {
     this.setState({ updateContents: contents })
   }
 
-  confirm = () => {
-    let queryData = this.getQueryData()
-    // eslint-disable-next-line no-console
-    if (rb.env === 'dev') console.log(JSON.stringify(queryData))
+  removeItem(fieldName) {
+    let contents = []
+    this.state.updateContents.forEach((item) => {
+      if (fieldName !== item.field) contents.push(item)
+    })
+    this.setState({ updateContents: contents })
+  }
 
+  confirm = () => {
+    if (!this.state.updateContents || this.state.updateContents.length === 0) { RbHighbar.create('请添加修改内容'); return }
+    let _data = { queryData: this.getQueryData(), updateContents: this.state.updateContents }
+    // eslint-disable-next-line no-console
+    if (rb.env === 'dev') console.log(JSON.stringify(_data))
+
+    this.disabled(true)
+    $.post(`${rb.baseUrl}/app/entity/batch-update/submit?dr=${this.state.dataRange}`, JSON.stringify(_data), (res) => {
+      this.disabled(false)
+    })
   }
 }
 
@@ -1136,10 +1152,7 @@ class BatchUpdateEditor extends React.Component {
   componentWillUnmount() {
     this.__select2.forEach((item) => { item.select2('destroy') })
     this.__select2 = null
-    if (this.__lastSelect2) {
-      this.__lastSelect2('destory')
-      this.__lastSelect2 = null
-    }
+    this.__destroyLastValueComp()
   }
 
   render() {
@@ -1152,7 +1165,9 @@ class BatchUpdateEditor extends React.Component {
         </select>
       </div>
       <div className="col-2 pl-0 pr-0">{this.renderOp()}</div>
-      <div className="col-6">{(this.state.selectField && this.state.selectOp) && this.renderValue()}</div>
+      <div className="col-6">
+        {(this.state.selectField || this.state.selectOp) && this.renderValue()}
+      </div>
     </div>
   }
 
@@ -1164,41 +1179,117 @@ class BatchUpdateEditor extends React.Component {
   }
 
   renderValue() {
-    if (this.state.selectOp === 'NULL') return
-    let field = this.props.fields.find((item) => { return this.state.selectField === item.name })
+    if (this.state.selectOp === 'NULL' || !this.state.selectField) return  // set Null
+    this.__destroyLastValueComp()
+
+    const field = this.props.fields.find((item) => { return this.state.selectField === item.name })
+    const fieldKey = `fv-${field.name}`
     if (field.type === 'PICKLIST' || field.type === 'STATE' || field.type === 'MULTISELECT' || field.type === 'BOOL'
       || field.type === 'REFERENCE' || field.type === 'CLASSIFICATION') {
-      return <select className="form-control form-control-sm" multiple={field.type === 'MULTISELECT'} ref={(c) => this._value = c}>
+      return <select className="form-control form-control-sm" multiple={field.type === 'MULTISELECT'} ref={(c) => this._value = c} key={fieldKey}>
         {(field.options || []).map((item) => {
-          return <option key={`opt-${item.id}`} value={item.id}>{item.text}</option>
+          let itemId = item.id || item.mask
+          if (item.id === false) itemId = 'false'  // for BOOL
+          return <option key={`value-${itemId}`} value={itemId}>{item.text}</option>
         })}
       </select>
     } else {
-      return <input className="form-control form-control-sm" ref={(c) => this._value = c} />
+      return <input className="form-control form-control-sm" placeholder={`输入${field.label}`} ref={(c) => this._value = c} key={fieldKey} />
+    }
+  }
+
+  __destroyLastValueComp() {
+    if (this.__lastSelect2) {
+      this.__lastSelect2.select2('destroy')
+      this.__lastSelect2 = null
+    }
+    if (this.__lastDatetimepicker) {
+      this.__lastDatetimepicker.datetimepicker('remove')
+      this.__lastDatetimepicker = null
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
     // Unchanged
     if (prevState.selectField === this.state.selectField && prevState.selectOp === this.state.selectOp) return
+    if (this.state.selectOp === 'NULL') return
 
-    if ($(this._value).prop('tagName') === 'SELECT') {
-      this.__lastSelect2 = $(this._value).select2({
-        allowClear: false
+    const field = this.props.fields.find((item) => { return this.state.selectField === item.name })
+    if (this._value.tagName === 'SELECT') {
+      if (field.type === 'REFERENCE' || field.type === 'CLASSIFICATION') {
+        this.__lastSelect2 = $initReferenceSelect2(this._value, {
+          name: field.name,
+          label: field.label,
+          entity: this.props.entity,
+          searchType: field.type === 'CLASSIFICATION' ? 'classification' : null
+        })
+      } else {
+        this.__lastSelect2 = $(this._value).select2({
+          placeholder: `选择${field.label}`
+        })
+      }
+      this.__lastSelect2.val(null).trigger('change')
+
+    } else if (field.type === 'DATE' || field.type === 'DATETIME') {
+      this.__lastDatetimepicker = $(this._value).datetimepicker({
+        componentIcon: 'zmdi zmdi-calendar',
+        navIcons: { rightIcon: 'zmdi zmdi-chevron-right', leftIcon: 'zmdi zmdi-chevron-left' },
+        format: field.type === 'DATE' ? 'yyyy-mm-dd' : 'yyyy-mm-dd hh:ii:ss',
+        minView: field.type === 'DATE' ? 'month' : 0,
+        weekStart: 1,
+        autoclose: true,
+        language: 'zh',
+        todayHighlight: true,
+        showMeridian: false,
+        keyboardNavigation: false,
+        minuteStep: 5
       })
-    } else if (this.__lastSelect2) {
-      this.__lastSelect2.select2('destroy')
-      this.__lastSelect2 = null
     }
   }
 
   buildItem() {
     let item = { field: this.state.selectField, op: this.state.selectOp }
     if (item.op === 'NULL') return item
+
     item.value = $(this._value).val()
     if (!item.value || item.value.length === 0) {
       RbHighbar.create('修改值不能为空')
       return null
+    }
+
+    const field = this.props.fields.find((item) => { return this.state.selectField === item.name })
+    if (field.type === 'MULTISELECT') {
+      let maskTotal = 0
+      item.value.forEach((mask) => maskTotal += ~~mask)
+      item.value = maskTotal
+    } else if (field.type === 'NUMBER' || field.type === 'DECIMAL') {
+      if (isNaN(item.value)) {
+        RbHighbar.create('修改值无效')
+        return null
+      }
+    } else if (field.type === 'EMAIL') {
+      if (!$regex.isMail(item.value)) {
+        RbHighbar.create('修改值无效')
+        return null
+      }
+    } else if (field.type === 'URL') {
+      if (!$regex.isUrl(item.value)) {
+        RbHighbar.create('修改值无效')
+        return null
+      }
+    } else if (field.type === 'PHONE') {
+      if (!$regex.isTel(item.value)) {
+        RbHighbar.create('修改值无效')
+        return null
+      }
+    }
+
+    if (this._value.tagName === 'SELECT') {
+      let texts = $(this._value).select2('data').map((o) => { return o.text })
+      item.text = texts.join(', ')
+      $(this._value).val(null).trigger('change')
+    } else {
+      $(this._value).val('')
     }
     return item
   }

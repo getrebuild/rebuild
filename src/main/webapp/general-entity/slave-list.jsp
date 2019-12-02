@@ -74,8 +74,9 @@
 										<div class="dropdown-menu dropdown-menu-right">
 											<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
 											<div class="dropdown-divider"></div>
-                                            <c:if test="${AllowDataExport}"><a class="dropdown-item J_export"><i class="icon zmdi zmdi-cloud-download"></i> 数据导出</a></c:if>
-                                            <c:if test="${AllowBatchUpdate}"><a class="dropdown-item J_batch"><i class="icon zmdi zmdi-flash"></i> 批量修改</a></c:if>
+											<c:if test="${AllowDataExport}"><a class="dropdown-item J_export"><i class="icon zmdi zmdi-cloud-download"></i> 数据导出</a></c:if>
+											<a class="dropdown-item admin-show" href="${baseUrl}/admin/datas/data-importer?entity=${entityName}" target="_blank"><i class="icon zmdi zmdi-cloud-upload"></i> 数据导入</a>
+											<c:if test="${AllowBatchUpdate}"><a class="dropdown-item J_batch"><i class="icon zmdi zmdi-flash"></i> 批量修改</a></c:if>
 											<c:if test="${AllowCustomDataList}"><a class="dropdown-item J_columns"><i class="icon zmdi zmdi-code-setting"></i> 列显示</a></c:if>
 										</div>
 									</div>

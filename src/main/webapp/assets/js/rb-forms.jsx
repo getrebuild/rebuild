@@ -783,40 +783,22 @@ class RbFormReference extends RbFormElement {
 
     const entity = this.props.$$$parent.props.entity
     const field = this.props.field
-    let search_input = null
-    this.__select2 = $(this._fvalue).select2({
-      placeholder: '选择' + this.props.label,
-      minimumInputLength: 0,
-      maximumSelectionLength: 1,
-      ajax: {
-        url: rb.baseUrl + '/commons/search/reference',
-        delay: 300,
-        data: function (params) {
-          search_input = params.term
-          return { entity: entity, field: field, q: params.term }
-        },
-        processResults: function (data) {
-          return { results: data.data }
-        }
-      },
-      language: {
-        noResults: () => { return (search_input || '').length > 0 ? '未找到结果' : '输入关键词搜索' },
-        inputTooShort: () => { return '输入关键词搜索' },
-        searching: () => { return '搜索中...' },
-        maximumSelected: () => { return '只能选择 1 项' }
-      }
+
+    this.__select2 = $initReferenceSelect2(this._fvalue, {
+      name: field,
+      label: this.props.label,
+      entity: entity
     })
 
-    let that = this
-    let s2 = this.__select2
-    $setTimeout(function () {
-      let val = that.props.value
+    const that = this
+    $setTimeout(() => {
+      let val = this.props.value
       if (val) {
         let o = new Option(val[1], val[0], true, true)
-        s2.append(o).trigger('change')
+        this.__select2.append(o).trigger('change')
       }
 
-      s2.on('change', function (e) {
+      this.__select2.on('change', function (e) {
         let v = e.target.value
         if (v) {
           $.post(`${rb.baseUrl}/commons/search/recently-add?id=${v}`)
@@ -870,30 +852,11 @@ class RbFormClassification extends RbFormElement {
     super.componentDidMount()
     if (this.state.viewMode === true) return
 
-    const entity = this.props.$$$parent.props.entity
-    const field = this.props.field
-    let search_input = null
-    this.__select2 = $(this._fvalue).select2({
-      placeholder: '选择' + this.props.label,
-      minimumInputLength: 0,
-      maximumSelectionLength: 1,
-      ajax: {
-        url: rb.baseUrl + '/commons/search/classification',
-        delay: 300,
-        data: function (params) {
-          search_input = params.term
-          return { entity: entity, field: field, q: params.term }
-        },
-        processResults: function (data) {
-          return { results: data.data }
-        }
-      },
-      language: {
-        noResults: () => { return (search_input || '').length > 0 ? '未找到结果' : '输入关键词搜索' },
-        inputTooShort: () => { return '输入关键词搜索' },
-        searching: () => { return '搜索中...' },
-        maximumSelected: () => { return '只能选择 1 项' }
-      }
+    this.__select2 = $initReferenceSelect2(this._fvalue, {
+      name: this.props.field,
+      label: this.props.label,
+      entity: this.props.$$$parent.props.entity,
+      searchType: 'classification'
     })
 
     // In edits

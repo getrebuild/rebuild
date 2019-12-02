@@ -25,10 +25,8 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.business.dataimport.DataExporter;
 import com.rebuild.server.configuration.portals.MultiSelectManager;
 import com.rebuild.server.configuration.portals.PickListManager;
-import com.rebuild.server.helper.datalist.BatchOperatorQuery;
 import com.rebuild.server.helper.state.StateManager;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
@@ -65,8 +63,8 @@ public class BatchUpdateControll extends BaseControll {
         Assert.isTrue(Application.getSecurityManager().allowed(user, ZeroEntry.AllowBatchUpdate), "没有权限");
 
         int dataRange = getIntParameter(request, "dr", 2);
-        JSONObject queryData = (JSONObject) ServletUtils.getRequestJson(request);
-        queryData = new BatchOperatorQuery(dataRange, queryData).wrapQueryData(DataExporter.MAX_ROWS);
+        JSONObject requestData = (JSONObject) ServletUtils.getRequestJson(request);
+        System.out.println(requestData);
 
         writeFailure(response);
     }

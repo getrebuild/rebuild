@@ -60,8 +60,6 @@
 }
 
 .chart-grid {
-    overflow: scroll;
-    overflow-x: hidden;
     padding: 2px 15px 25px 15px;
     margin-top: 8px;
     min-height: 300px;

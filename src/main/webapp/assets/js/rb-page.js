@@ -406,6 +406,33 @@ var $initUserSelect2 = function (el, multiple) {
   return s
 }
 
+// 初始化引用字段搜索
+var $initReferenceSelect2 = function (el, field) {
+  var search_input = null
+  return $(el).select2({
+    placeholder: '选择' + field.label,
+    minimumInputLength: 0,
+    maximumSelectionLength: 1,
+    ajax: {
+      url: rb.baseUrl + '/commons/search/' + (field.searchType || 'reference'),
+      delay: 300,
+      data: function (params) {
+        search_input = params.term
+        return { entity: field.entity, field: field.name, q: params.term }
+      },
+      processResults: function (data) {
+        return { results: data.data }
+      }
+    },
+    language: {
+      noResults: function () { return (search_input || '').length > 0 ? '未找到结果' : '输入关键词搜索' },
+      inputTooShort: function () { return '输入关键词搜索' },
+      searching: function () { return '搜索中...' },
+      maximumSelected: function () { return '只能选择 1 项' }
+    }
+  })
+}
+
 // 保持模态窗口（如果需要）
 var $keepModalOpen = function () {
   if ($('.rbmodal.show, .rbview.show').length > 0) {
