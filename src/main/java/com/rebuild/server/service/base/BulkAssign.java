@@ -25,6 +25,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.notification.NotificationObserver;
+import com.rebuild.server.service.notification.NotificationOnce;
 
 import java.util.Set;
 
@@ -47,7 +48,7 @@ public class BulkAssign extends BulkOperator {
 		
 		int assigned = 0;
 		ID firstAssigned = null;
-		BulkOperatorTx.begin();
+        NotificationOnce.begin();
 		for (ID id : records) {
 			if (Application.getSecurityManager().allowedA(context.getOpUser(), id)) {
 				int a = ges.assign(id, context.getToUser(), context.getCascades());
@@ -63,9 +64,9 @@ public class BulkAssign extends BulkOperator {
 			this.addCompleted();
 		}
 		
-		Set<ID> affected = BulkOperatorTx.getInTxSet();
-		BulkOperatorTx.end();
-		
+        Set<ID> affected = NotificationOnce.end();
+
+		// 合并通知发送
 		if (firstAssigned != null && !affected.isEmpty()) {
 			Record notificationNeeds = EntityHelper.forUpdate(firstAssigned, context.getOpUser());
 			notificationNeeds.setID(EntityHelper.OwningUser, context.getToUser());

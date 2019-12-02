@@ -25,6 +25,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.notification.NotificationObserver;
+import com.rebuild.server.service.notification.NotificationOnce;
 
 import java.util.Set;
 
@@ -47,7 +48,7 @@ public class BulkShare extends BulkOperator {
 		
 		int shared = 0;
 		ID firstShared = null;
-		BulkOperatorTx.begin();
+        NotificationOnce.begin();
 		for (ID id : records) {
 			if (Application.getSecurityManager().allowedS(context.getOpUser(), id)) {
 				int a = ges.share(id, context.getToUser(), context.getCascades());
@@ -62,10 +63,10 @@ public class BulkShare extends BulkOperator {
 			}
 			this.addCompleted();
 		}
-		
-		Set<ID> affected = BulkOperatorTx.getInTxSet();
-		BulkOperatorTx.end();
-		
+
+        Set<ID> affected = NotificationOnce.end();
+
+		// 合并通知发送
 		if (firstShared != null && !affected.isEmpty()) {
 			Record notificationNeeds = EntityHelper.forNew(EntityHelper.ShareAccess, context.getOpUser());
 			notificationNeeds.setID("shareTo", context.getToUser());
