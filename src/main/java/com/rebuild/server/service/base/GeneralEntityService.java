@@ -381,7 +381,9 @@ public class GeneralEntityService extends ObservableService  {
 			return new BulkShare(context, this);
 		} else if (context.getAction() == UNSHARE) {
 			return new BulkUnshare(context, this);
-		}
+		} else if (context.getAction() == BizzPermission.UPDATE) {
+		    return new BulkBacthUpdate(context, this);
+        }
 		throw new UnsupportedOperationException("Unsupported bulk action : " + context.getAction());
 	}
 

@@ -197,8 +197,9 @@ public class EasyMeta implements BaseMeta {
 	
 	/**
 	 * 字段扩展配置
-	 * 
+     *
 	 * @return
+     * @see FieldExtConfigProps
 	 */
 	public JSONObject getFieldExtConfig() {
 		if (!isField()) {
@@ -212,6 +213,19 @@ public class EasyMeta implements BaseMeta {
 		}
 		return JSON.parseObject((String) ext[3]);
 	}
+
+    /**
+     * 字段扩展配置
+     *
+     * @param name
+     * @return
+     *
+     * @see #getFieldExtConfig()
+     * @see FieldExtConfigProps
+     */
+	public Object getPropOfFieldExtConfig(String name) {
+	    return getFieldExtConfig().get(name);
+    }
 	
 	private boolean isField() {
 		return baseMeta instanceof Field;

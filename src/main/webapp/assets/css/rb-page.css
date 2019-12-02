@@ -254,6 +254,16 @@ a.btn {
     color: #0d5bdd !important;
 }
 
+.btn-link.disabled,
+.btn-link.disabled:hover,
+.btn-link.disabled:active,
+.btn-link[disabled],
+.btn-link[disabled]:hover,
+.btn-link[disabled]:active {
+    color: #aaa !important;
+    cursor: default;
+}
+
 .btn .icon.x14 {
     font-size: 1.431rem
 }

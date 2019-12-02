@@ -19,17 +19,23 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.service.base;
 
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.util.support.QueryHelper;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
 import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.query.AdvFilterParser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * 批量操作
- * 
+ *
  * @author devezhao
  * @since 10/16/2018
  */
@@ -67,17 +73,32 @@ public abstract class BulkOperator extends HeavyTask<Integer> {
 			setTotal(this.records.length);
 			return this.records;
 		}
-		
-		JSONObject filterExp = context.getFilterExp();
-		
-		AdvFilterParser filterParser = new AdvFilterParser(filterExp);
+
+		JSONObject asFilterExp = context.getCustomData();
+		AdvFilterParser filterParser = new AdvFilterParser(asFilterExp);
 		String sqlWhere = filterParser.toSqlWhere();
 
-		Entity entity = MetadataHelper.getEntity(filterExp.getString("entity"));
+		Entity entity = MetadataHelper.getEntity(asFilterExp.getString("entity"));
 		String sql = "select %s from %s where (1=1) and " + sqlWhere;
 		sql = String.format(sql, entity.getPrimaryField().getName(), entity.getName());
-		
-		// TODO 解析过滤并查询结果
-		throw new UnsupportedOperationException();
+        return readIDArray(sql, context.getOpUser());
 	}
+
+    /**
+     * 读取 ID[]
+     *
+     * @param sql
+     * @param user
+     * @return
+     */
+	public static ID[] readIDArray(String sql, ID user) {
+        Query query = Application.getQueryFactory().createQuery(sql, user);
+        Object[][] array = QueryHelper.readArray(query);
+
+        Set<ID> ids = new HashSet<>();
+        for (Object[] o : array) {
+            ids.add((ID) o[0]);
+        }
+        return ids.toArray(new ID[0]);
+    }
 }

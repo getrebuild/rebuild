@@ -191,7 +191,7 @@ public class QueryParser {
 		
 		// 过滤器
 		
-		StringBuilder sqlWhere = new StringBuilder(" where (1=1)");
+		StringBuilder sqlWhere = new StringBuilder("(1=1)");
 		
 		// Default
 		String defaultFilter = dataListControl == null ? null : dataListControl.getDefaultFilter();
@@ -217,7 +217,7 @@ public class QueryParser {
 				sqlWhere.append(" and ").append(where);
 			}
 		}
-		fullSql.append(sqlWhere);
+		fullSql.append(" where ").append(sqlWhere);
 		
 		// 排序
 		
@@ -240,6 +240,7 @@ public class QueryParser {
 				.append("count(").append(pkName).append(')')
 				.append(" from ")
 				.append(entity.getName())
+                .append(" where ")
 				.append(sqlWhere)
 				.toString();
 		this.whereSql = sqlWhere.toString();

@@ -43,8 +43,8 @@ public class HeavyTaskControll extends BaseControll {
 		String taskid = getParameterNotNull(request, "taskid");
 		HeavyTask<?> task = TaskExecutors.getTask(taskid);
 		JSON ret = JSONUtils.toJSONObject(
-				new String[] { "taskid", "completed", "hasError" },
-				new Object[] { taskid, task.getCompletedPercent(), task.getErrorMessage() });
+				new String[] { "taskid", "progress", "hasError", "completed" },
+				new Object[] { taskid, task.getCompletedPercent(), task.getErrorMessage(), task.getCompleted() });
 		writeSuccess(response, ret);
 	}
 }

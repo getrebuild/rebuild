@@ -19,14 +19,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.helper.datalist;
 
 import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.engine.ID;
-import cn.devezhao.persist4j.util.support.QueryHelper;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.Application;
 import com.rebuild.server.helper.SetUser;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.base.BulkOperator;
 import com.rebuild.server.service.query.ParserTokens;
 
 import java.util.HashSet;
@@ -43,19 +41,19 @@ public class BatchOperatorQuery extends SetUser<BatchOperatorQuery> {
     /**
      * 选中数据
      */
-    static final int DR_SELECTED = 1;
+    private static final int DR_SELECTED = 1;
     /**
      * 当前页数据
      */
-    static final int DR_PAGED = 2;
+    private static final int DR_PAGED = 2;
     /**
      * 查询后数据
      */
-    static final int DR_QUERYED = 3;
+    private static final int DR_QUERYED = 3;
     /**
      * 全部数据
      */
-    static final int DR_ALL = 4;
+    private static final int DR_ALL = 4;
 
     private int dataRange;
     private JSONObject queryData;
@@ -105,6 +103,7 @@ public class BatchOperatorQuery extends SetUser<BatchOperatorQuery> {
      * 获取查询 SQL-where
      *
      * @return
+     * @see QueryParser
      */
     public String getFilterSql() {
         QueryParser queryParser = new QueryParser(wrapQueryData(Integer.MAX_VALUE));
@@ -112,9 +111,10 @@ public class BatchOperatorQuery extends SetUser<BatchOperatorQuery> {
     }
 
     /**
-     * 直接获取记录 ID
+     * 直接获取记录 ID[]
      *
      * @return
+     * @see BulkOperator#readIDArray(String, ID)
      */
     public ID[] getQueryedRecords() {
         if (this.dataRange == DR_SELECTED) {
@@ -132,14 +132,7 @@ public class BatchOperatorQuery extends SetUser<BatchOperatorQuery> {
         Entity entity = getEntity();
         String sql = String.format("select %s from %s where %s",
                 entity.getPrimaryField().getName(), entity.getName(), getFilterSql());
-        Query query = Application.getQueryFactory().createQuery(sql, getUser());
-        Object[][] array = QueryHelper.readArray(query);
-
-        Set<ID> ids = new HashSet<>();
-        for (Object[] o : array) {
-            ids.add((ID) o[0]);
-        }
-        return ids.toArray(new ID[0]);
+        return BulkOperator.readIDArray(sql, getUser());
     }
 
     /**

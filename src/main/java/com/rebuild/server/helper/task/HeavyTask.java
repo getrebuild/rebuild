@@ -37,15 +37,18 @@ import java.util.Date;
  *
  * @see TaskExecutors
  */
-public abstract class HeavyTask<T> extends SetUser<HeavyTask> implements Runnable {
+public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runnable {
 	
 	protected static final Log LOG = LogFactory.getLog(HeavyTask.class);
 	
 	volatile private boolean interrupt = false;
 	volatile private boolean interruptState = false;
 
+    /**
+     * @see SetUser
+     */
 	private ID threadUser;
-	
+
 	private int total = -1;
 	private int completed = 0;
 	
@@ -59,7 +62,7 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask> implements Runnabl
 	}
 
     @Override
-    public HeavyTask setUser(ID user) {
+    public HeavyTask<T> setUser(ID user) {
 	    this.threadUser = user;
         return super.setUser(user);
     }
@@ -76,13 +79,9 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask> implements Runnabl
 		this.completed++;
 	}
 
-	protected Date getBeginTime() {
-		return beginTime;
-	}
-	
-	protected Date getCompletedTime() {
-		return completedTime;
-	}
+    protected Date getCompletedTime() {
+        return completedTime;
+    }
 
     /**
      * 任务已耗时（ms）
@@ -90,14 +89,16 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask> implements Runnabl
      * @return
      */
     public long getElapsedTime() {
-        if (getCompletedTime() != null) {
-            return getCompletedTime().getTime() - getBeginTime().getTime();
+        if (completedTime != null) {
+            return completedTime.getTime() - beginTime.getTime();
         } else {
-            return CalendarUtils.now().getTime() - getBeginTime().getTime();
+            return CalendarUtils.now().getTime() - beginTime.getTime();
         }
     }
 
     /**
+     * 总计数量
+     *
      * @return
      */
 	public int getTotal() {
@@ -105,6 +106,8 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask> implements Runnabl
 	}
 
     /**
+     * 已完成数量
+     *
      * @return
      */
 	public int getCompleted() {
@@ -112,6 +115,8 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask> implements Runnabl
 	}
 
     /**
+     * 进度百分比
+     *
      * @return
      */
 	public double getCompletedPercent() {
@@ -125,11 +130,22 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask> implements Runnabl
 	}
 
     /**
+     * 是否完成
+     *
      * @return
      */
 	public boolean isCompleted() {
 		return completedTime != null || (total != -1 && getCompleted() >= getTotal());
 	}
+
+    /**
+     * 错误消息（如有）
+     *
+     * @return
+     */
+    public String getErrorMessage() {
+        return errorMessage;
+    }
 	
 	// 中断处理。是否允许中断由子类决定
 	
@@ -181,18 +197,4 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask> implements Runnabl
             Application.getSessionStore().clean();
         }
     }
-
-	/**
-	 * @return
-	 */
-	public String getErrorMessage() {
-		return errorMessage;
-	}
-	
-	/**
-	 * @return
-	 */
-	public boolean hasError() {
-		return errorMessage != null;
-	}
 }

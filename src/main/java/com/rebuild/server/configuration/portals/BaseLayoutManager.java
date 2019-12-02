@@ -111,16 +111,7 @@ public class BaseLayoutManager extends ShareToManager<ID> {
 		}
 
 		Object[][] cached = getAllConfig(belongEntity, applyType);
-		for (Object[] c : cached) {
-			if (!c[0].equals(detected)) {
-                continue;
-            }
-			return new ConfigEntry()
-					.set("id", c[0])
-					.set("shareTo", c[1])
-					.set("config", JSON.parse((String) c[3]));
-		}
-		return null;
+		return findEntry(cached, detected);
 	}
 
 	/**
@@ -137,17 +128,26 @@ public class BaseLayoutManager extends ShareToManager<ID> {
 		}
 
 		Object[][] cached = getAllConfig((String) o[0], (String) o[1]);
-		for (Object[] c : cached) {
-			if (!c[0].equals(cfgid)) {
+		return findEntry(cached, cfgid);
+	}
+
+    /**
+     * @param cached
+     * @param cfgid
+     * @return
+     */
+	private ConfigEntry findEntry(Object[][] cached, ID cfgid) {
+        for (Object[] c : cached) {
+            if (!c[0].equals(cfgid)) {
                 continue;
             }
-			return new ConfigEntry()
-					.set("id", c[0])
-					.set("shareTo", c[1])
-					.set("config", JSON.parse((String) c[3]));
-		}
-		return null;
-	}
+            return new ConfigEntry()
+                    .set("id", c[0])
+                    .set("shareTo", c[1])
+                    .set("config", JSON.parse((String) c[3]));
+        }
+        return null;
+    }
 
 	@Override
 	public void clean(ID cacheKey) {

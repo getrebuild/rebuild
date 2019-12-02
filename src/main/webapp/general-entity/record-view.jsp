@@ -42,7 +42,7 @@
 						<a class="dropdown-item J_assign"><i class="icon zmdi zmdi-mail-reply-all"></i> 分派</a>
 						<a class="dropdown-item J_share"><i class="icon zmdi zmdi-portable-wifi"></i> 共享</a>
 						<div class="dropdown-divider"></div>
-						<a class="dropdown-item J_print" target="_blank" href="${baseUrl}/app/entity/print?id=${id}"><i class="icon zmdi zmdi-print"></i> 打印</a>
+						<a class="dropdown-item J_print" target="_blank" href="${baseUrl}/app/${entityName}/print?id=${id}"><i class="icon zmdi zmdi-print"></i> 打印</a>
 						<a class="dropdown-item J_report"><i class="icon zmdi zmdi-map"></i> 报表</a>
 					</div>
 				</div>

@@ -8,7 +8,7 @@
     'button': function (state) {
       return this.each(function () {
         var el = $(this)
-        if (el.prop('nodeName') !== 'BUTTON') return
+        if (!(el.prop('nodeName') === 'BUTTON' || el.prop('nodeName') === 'A')) return
         if (state === 'loading') {
           el.attr('disabled', true)
           var loadingText = el.data('loading-text')

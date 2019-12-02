@@ -28,6 +28,7 @@ import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.web.BaseControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,8 +43,9 @@ import java.io.IOException;
 @Controller
 public class DataExportControll extends BaseControll {
 
-    @RequestMapping("/app/entity/data-export-submit")
-    public void export(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    @RequestMapping("/app/{entity}/data-export/submit")
+    public void export(@PathVariable String entity,
+                       HttpServletRequest request, HttpServletResponse response) throws IOException {
         ID user = getRequestUser(request);
         Assert.isTrue(Application.getSecurityManager().allowed(user, ZeroEntry.AllowDataExport), "没有权限");
 

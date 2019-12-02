@@ -18,8 +18,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.base;
 
+import cn.devezhao.commons.ThreadPool;
+import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.helper.datalist.BatchOperatorQuery;
+
 /**
- * 批量更新
+ * 批量修改
  *
  * @author devezhao
  * @since 2019/12/2
@@ -32,6 +38,28 @@ public class BulkBacthUpdate extends BulkOperator {
 
     @Override
     protected Integer exec() throws Exception {
-        return null;
+        final ID[] willUpdates = prepareRecords();
+        this.setTotal(willUpdates.length);
+
+        JSONArray updateContents = context.getCustomData().getJSONArray("updateContents");
+        System.out.println(updateContents);
+
+        int updates = 0;
+        for (ID id : willUpdates) {
+            ThreadPool.waitFor(500);
+            this.addCompleted();
+            updates++;
+        }
+
+        this.setCompleted(willUpdates.length);
+        return updates;
+    }
+
+    @Override
+    protected ID[] prepareRecords() {
+        JSONObject customData = context.getCustomData();
+        int dataRange = customData.getIntValue("_dataRange");
+        BatchOperatorQuery query = new BatchOperatorQuery(dataRange, customData.getJSONObject("queryData"));
+        return query.getQueryedRecords();
     }
 }

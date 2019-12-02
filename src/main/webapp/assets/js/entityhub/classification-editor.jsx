@@ -322,7 +322,7 @@ class DlgImports extends RbModalHandler {
           return
         }
 
-        let cp = res.data.completed
+        let cp = res.data.progress
         if (cp >= 1) {
           RbHighbar.success('导入完成')
           this.__mpro.end()

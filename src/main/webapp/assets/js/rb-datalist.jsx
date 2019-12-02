@@ -565,7 +565,7 @@ const RbListPage = {
       ids.length > 0 && DlgUnshare.create({ entity: entity[0], ids: ids })
     })
     $('.J_columns').click(() => RbModal.create(`${rb.baseUrl}/p/general-entity/show-fields?entity=${entity[0]}`, '设置列显示'))
-    $('.J_export').click(() => renderRbcomp(<DataExport listRef={RbListPage._RbList} />))
+    $('.J_export').click(() => renderRbcomp(<DataExport listRef={RbListPage._RbList} entity={entity[0]} />))
     $('.J_batch').click(() => renderRbcomp(<BatchUpdate listRef={RbListPage._RbList} entity={entity[0]} />))
 
     // Privileges
@@ -1032,12 +1032,15 @@ class DataExport extends BatchOperator {
 
   confirm = () => {
     this.disabled(true)
-    $.post(`${rb.baseUrl}/app/entity/data-export-submit?dr=${this.state.dataRange}`, JSON.stringify(this.getQueryData()), (res) => {
+    $.post(`${rb.baseUrl}/app/${this.props.entity}/data-export/submit?dr=${this.state.dataRange}`, JSON.stringify(this.getQueryData()), (res) => {
       if (res.error_code === 0) {
         this.hide()
         let url = `${rb.baseUrl}/filex/download/${res.data}?temp=yes`
         window.open(url)
-      } else RbHighbar.error(res.error_msg)
+      } else {
+        this.disabled(false)
+        RbHighbar.error(res.error_msg)
+      }
     })
   }
 }
@@ -1050,7 +1053,7 @@ class BatchUpdate extends BatchOperator {
   }
 
   componentDidMount() {
-    $.get(`${rb.baseUrl}/app/entity/batch-update/fields?entity=${this.props.entity}`, (res) => this.setState({ fields: res.data }))
+    $.get(`${rb.baseUrl}/app/${this.props.entity}/batch-update/fields`, (res) => this.setState({ fields: res.data }))
   }
 
   renderOperator() {
@@ -1122,9 +1125,43 @@ class BatchUpdate extends BatchOperator {
     // eslint-disable-next-line no-console
     if (rb.env === 'dev') console.log(JSON.stringify(_data))
 
-    this.disabled(true)
-    $.post(`${rb.baseUrl}/app/entity/batch-update/submit?dr=${this.state.dataRange}`, JSON.stringify(_data), (res) => {
-      this.disabled(false)
+    let that = this
+    RbAlert.create('请再次确认修改数据范围和修改内容。开始修改吗？', {
+      confirm: function () {
+        this.hide()
+        that.disabled(true)
+        $.post(`${rb.baseUrl}/app/${that.props.entity}/batch-update/submit?dr=${that.state.dataRange}`, JSON.stringify(_data), (res) => {
+          if (res.error_code === 0) {
+            let mp = new Mprogress({ template: 2, start: true, parent: '.rbmodal .modal-body' })
+            that.__checkState(res.data, mp)
+          } else {
+            that.disabled(false)
+            RbHighbar.error(res.error_msg)
+          }
+        })
+      }
+    })
+  }
+
+  __checkState(taskid, mp) {
+    $.get(`${rb.baseUrl}/commons/task/state?taskid=${taskid}`, (res) => {
+      if (res.error_code === 0) {
+        if (res.data.hasError) {
+          mp && mp.end()
+          RbHighbar.error(res.data.hasError)
+          return
+        }
+
+        let cp = res.data.progress
+        if (cp >= 1) {
+          mp && mp.end()
+          $(this._btns).find('.btn-primary').text('修改成功')
+          RbHighbar.success(`成功修改 ${res.data.completed} 条记录`)
+        } else {
+          mp && mp.set(cp)
+          setTimeout(() => { this.__checkState(taskid, mp) }, 1000)
+        }
+      }
     })
   }
 }
@@ -1166,7 +1203,9 @@ class BatchUpdateEditor extends React.Component {
       </div>
       <div className="col-2 pl-0 pr-0">{this.renderOp()}</div>
       <div className="col-6">
-        {(this.state.selectField || this.state.selectOp) && this.renderValue()}
+        <div className={`${this.state.selectOp === 'NULL' ? 'hide' : ''}`}>
+          {(this.state.selectField && this.state.selectOp) && this.renderValue()}
+        </div>
       </div>
     </div>
   }
@@ -1179,8 +1218,7 @@ class BatchUpdateEditor extends React.Component {
   }
 
   renderValue() {
-    if (this.state.selectOp === 'NULL' || !this.state.selectField) return  // set Null
-    this.__destroyLastValueComp()
+    if (this.state.selectOp === 'NULL' || !this.state.selectField) return null // set Null
 
     const field = this.props.fields.find((item) => { return this.state.selectField === item.name })
     const fieldKey = `fv-${field.name}`
@@ -1213,6 +1251,7 @@ class BatchUpdateEditor extends React.Component {
     // Unchanged
     if (prevState.selectField === this.state.selectField && prevState.selectOp === this.state.selectOp) return
     if (this.state.selectOp === 'NULL') return
+    this.__destroyLastValueComp()
 
     const field = this.props.fields.find((item) => { return this.state.selectField === item.name })
     if (this._value.tagName === 'SELECT') {
@@ -1249,7 +1288,15 @@ class BatchUpdateEditor extends React.Component {
 
   buildItem() {
     let item = { field: this.state.selectField, op: this.state.selectOp }
-    if (item.op === 'NULL') return item
+    const field = this.props.fields.find((item) => { return this.state.selectField === item.name })
+    if (item.op === 'NULL') {
+      if (!field.nullable) {
+        RbHighbar.create(`${field.label}不允许为空`)
+        return null
+      } else {
+        return item
+      }
+    }
 
     item.value = $(this._value).val()
     if (!item.value || item.value.length === 0) {
@@ -1257,29 +1304,32 @@ class BatchUpdateEditor extends React.Component {
       return null
     }
 
-    const field = this.props.fields.find((item) => { return this.state.selectField === item.name })
+
     if (field.type === 'MULTISELECT') {
       let maskTotal = 0
       item.value.forEach((mask) => maskTotal += ~~mask)
       item.value = maskTotal
     } else if (field.type === 'NUMBER' || field.type === 'DECIMAL') {
       if (isNaN(item.value)) {
-        RbHighbar.create('修改值无效')
+        RbHighbar.create(`${field.label}格式不正确`)
+        return null
+      } else if (field.notNegative === 'true' && ~~item.value < 0) {
+        RbHighbar.create(`${field.label}不允许为负数`)
         return null
       }
     } else if (field.type === 'EMAIL') {
       if (!$regex.isMail(item.value)) {
-        RbHighbar.create('修改值无效')
+        RbHighbar.create(`${field.label}格式不正确`)
         return null
       }
     } else if (field.type === 'URL') {
       if (!$regex.isUrl(item.value)) {
-        RbHighbar.create('修改值无效')
+        RbHighbar.create(`${field.label}格式不正确`)
         return null
       }
     } else if (field.type === 'PHONE') {
       if (!$regex.isTel(item.value)) {
-        RbHighbar.create('修改值无效')
+        RbHighbar.create(`${field.label}格式不正确`)
         return null
       }
     }

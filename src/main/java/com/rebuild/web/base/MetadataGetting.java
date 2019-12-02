@@ -153,6 +153,7 @@ public class MetadataGetting extends BaseControll {
         map.put("name", field.getName());
         map.put("label", easyMeta.getLabel());
         map.put("type", easyMeta.getDisplayType().name());
+        map.put("nullable", field.isNullable());
         map.put("creatable", field.isCreatable());
         map.put("updatable", field.isUpdatable());
         return map;

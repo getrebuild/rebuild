@@ -174,7 +174,7 @@ class SelectReport extends React.Component {
               <div>
                 <ul className="list-unstyled">
                   {(this.state.reports || []).map((item) => {
-                    let reportUrl = `${rb.baseUrl}/app/entity/report-export?report=${item.id}&record=${this.props.id}`
+                    let reportUrl = `${rb.baseUrl}/app/${this.props.entity}/reports/export?report=${item.id}&record=${this.props.id}`
                     return <li key={'r-' + item.id}><a target="_blank" href={reportUrl} className="text-truncate">{item.name}<i className="zmdi zmdi-download"></i></a></li>
                   })}
                 </ul>
@@ -187,9 +187,7 @@ class SelectReport extends React.Component {
   }
 
   componentDidMount() {
-    $.get(`${rb.baseUrl}/app/entity/available-reports?entity=${this.props.entity}`, (res) => {
-      this.setState({ reports: res.data })
-    })
+    $.get(`${rb.baseUrl}/app/${this.props.entity}/reports/available`, (res) => this.setState({ reports: res.data }))
     $(this._dlg).modal({ show: true, keyboard: true })
   }
   hide = () => $(this._dlg).modal('hide')
