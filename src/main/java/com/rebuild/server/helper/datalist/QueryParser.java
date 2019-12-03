@@ -53,7 +53,6 @@ public class QueryParser {
 	
 	private String sql;
 	private String countSql;
-	private String whereSql;
 	private int[] limit;
 	private boolean reload;
 
@@ -97,14 +96,6 @@ public class QueryParser {
 		return countSql;
 	}
 
-    /**
-     * @return
-     */
-	protected String toWhereSql() {
-	    doParseIfNeed();
-	    return whereSql;
-    }
-	
 	/**
 	 * @return
 	 */
@@ -243,8 +234,7 @@ public class QueryParser {
                 .append(" where ")
 				.append(sqlWhere)
 				.toString();
-		this.whereSql = sqlWhere.toString();
-		
+
 		int pageNo = NumberUtils.toInt(queryExpr.getString("pageNo"), 1);
 		int pageSize = NumberUtils.toInt(queryExpr.getString("pageSize"), 20);
 		this.limit = new int[] { pageSize, pageNo * pageSize - pageSize };

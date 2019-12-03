@@ -94,7 +94,12 @@ public class BatchUpdateControll extends BaseControll {
                 continue;
             }
 
-            DisplayType dt = EasyMeta.getDisplayType(field);
+            EasyMeta easyMeta = EasyMeta.valueOf(field);
+            if (!easyMeta.isUpdatable()) {
+                continue;
+            }
+
+            DisplayType dt = easyMeta.getDisplayType();
             // 不支持的字段
             if (dt == DisplayType.FILE || dt == DisplayType.IMAGE || dt == DisplayType.AVATAR
                     || dt == DisplayType.LOCATION || dt == DisplayType.SERIES || dt == DisplayType.ANYREFERENCE

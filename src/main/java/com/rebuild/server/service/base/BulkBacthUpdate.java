@@ -40,11 +40,11 @@ public class BulkBacthUpdate extends BulkOperator {
     /**
      * 修改为
      */
-    private static final String OP_SET = "SET";
+    public static final String OP_SET = "SET";
     /**
      * 置空
      */
-    private static final String OP_NULL = "NULL";
+    public static final String OP_NULL = "NULL";
 
     protected BulkBacthUpdate(BulkContext context, GeneralEntityService ges) {
         super(context, ges);

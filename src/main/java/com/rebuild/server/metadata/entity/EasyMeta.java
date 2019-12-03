@@ -27,10 +27,14 @@ import cn.devezhao.persist4j.metadata.BaseMeta;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.RebuildException;
+import com.rebuild.server.configuration.RobotTriggerManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
+
+import java.util.Set;
 
 /**
  * 元数据元素封装
@@ -104,10 +108,7 @@ public class EasyMeta implements BaseMeta {
 	 * @return
 	 */
 	public DisplayType getDisplayType() {
-		if (!isField()) {
-			throw new UnsupportedOperationException("Field only");
-		}
-		
+        Assert.isTrue(isField(), "Field supports only");
 		Object[] ext = getMetaExt();
 		if (ext != null) {
 			return (DisplayType) ext[2];
@@ -180,10 +181,7 @@ public class EasyMeta implements BaseMeta {
 	 * @return
 	 */
 	public String getIcon() {
-		if (isField()) {
-			throw new UnsupportedOperationException("Entity only");
-		}
-		
+        Assert.isTrue(!isField(), "Entity supports only");
 		String customIcon = null;
 		Object[] ext = getMetaExt();
 		if (ext != null) {
@@ -202,10 +200,7 @@ public class EasyMeta implements BaseMeta {
      * @see FieldExtConfigProps
 	 */
 	public JSONObject getFieldExtConfig() {
-		if (!isField()) {
-			throw new UnsupportedOperationException("Field only");
-		}
-		
+        Assert.isTrue(isField(), "Field supports only");
 		Object[] ext = getMetaExt();
 		if (ext == null || StringUtils.isBlank((String) ext[3])) {
 			JSONObject extConfig = getExtraAttrsJson().getJSONObject("extConfig");
@@ -226,11 +221,35 @@ public class EasyMeta implements BaseMeta {
 	public Object getPropOfFieldExtConfig(String name) {
 	    return getFieldExtConfig().get(name);
     }
-	
+
+    /**
+     * 此方法除了判断元实体，还会判断其他业务规则
+     *
+     * @return
+     * @see Field#isUpdatable()
+     * @see RobotTriggerManager#getAutoReadonlyFields(String)
+     */
+    public boolean isUpdatable() {
+        Assert.isTrue(isField(), "Field supports only");
+        final Field field = (Field) baseMeta;
+        if (!field.isUpdatable()) {
+            return false;
+        }
+
+        Set<String> set = RobotTriggerManager.instance.getAutoReadonlyFields(field.getOwnEntity().getName());
+        return set.contains(field.getName()) ? false : true;
+    }
+
+    /**
+     * @return
+     */
 	private boolean isField() {
 		return baseMeta instanceof Field;
 	}
-	
+
+    /**
+     * @return
+     */
 	private Object[] getMetaExt() {
 		Object[] ext;
 		if (isField()) {
@@ -240,13 +259,21 @@ public class EasyMeta implements BaseMeta {
 		}
 		return ext;
 	}
-	
+
+    /**
+     * @return
+     */
 	private JSONObject getExtraAttrsJson() {
 		return StringUtils.isBlank(getExtraAttrs())
 				? JSONUtils.EMPTY_OBJECT : JSON.parseObject(getExtraAttrs());
 	}
 
-	// 将字段类型转成 DisplayType
+    /**
+     * 将字段类型转成 DisplayType
+     *
+     * @param field
+     * @return
+     */
 	private DisplayType converBuiltinFieldType(Field field) {
 		Type ft = field.getType();
 		if (ft == FieldType.PRIMARY) {
@@ -327,24 +354,26 @@ public class EasyMeta implements BaseMeta {
 	}
 	
 	/**
+     * 获取字段 Label（支持两级字段，如 owningUser.fullName）
+     *
 	 * @param entity
-	 * @param joinFields
+	 * @param fieldPath
 	 * @return
 	 */
-	public static String getLabel(Entity entity, String joinFields) {
-		String[] fieldPath = joinFields.split("\\.");
-		Field firstField = entity.getField(fieldPath[0]);
-		if (fieldPath.length == 1) {
+	public static String getLabel(Entity entity, String fieldPath) {
+		String[] fieldPathSplit = fieldPath.split("\\.");
+		Field firstField = entity.getField(fieldPathSplit[0]);
+		if (fieldPathSplit.length == 1) {
 			return getLabel(firstField);
 		}
-		
+
 		Entity refEntity = firstField.getReferenceEntity();
-		Field secondField = refEntity.getField(fieldPath[1]);
+		Field secondField = refEntity.getField(fieldPathSplit[1]);
 		return String.format("%s.%s", getLabel(firstField), getLabel(secondField));
 	}
 	
 	/**
-	 * @return [Name, Label, Icon]
+	 * @return returns [Name, Label, Icon]
 	 */
 	public static String[] getEntityShow(Entity entity) {
 		EasyMeta em = valueOf(entity);

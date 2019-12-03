@@ -70,7 +70,7 @@ public class JSONUtils {
      * @param valuesArray
      * @return
      */
-    public static JSONArray toJSONArray(String[] keys, Object[][] valuesArray) {
+    public static JSONArray toJSONObjectArray(String[] keys, Object[][] valuesArray) {
         List<Map<String, Object>> array = new ArrayList<>();
         for (Object[] o : valuesArray) {
             Map<String, Object> map = new HashMap<>(keys.length);

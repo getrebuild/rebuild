@@ -96,18 +96,20 @@ public class BatchOperatorQuery extends SetUser<BatchOperatorQuery> {
         }
 
         queryData.put("reload", Boolean.FALSE);
+        queryData.put("fields", new String[] { getEntity().getPrimaryField().getName() });
         return queryData;
     }
 
     /**
-     * 获取查询 SQL-where
+     * 获取 SQL from 后面的子句（含 from）
      *
      * @return
      * @see QueryParser
      */
-    public String getFilterSql() {
+    protected String getFromClauseSql() {
         QueryParser queryParser = new QueryParser(wrapQueryData(Integer.MAX_VALUE));
-        return queryParser.toWhereSql();
+        String fullSql = queryParser.toSql();
+        return fullSql.substring(fullSql.indexOf(" from ")).trim();
     }
 
     /**
@@ -128,9 +130,8 @@ public class BatchOperatorQuery extends SetUser<BatchOperatorQuery> {
             return ids.toArray(new ID[0]);
         }
 
-        Entity entity = getEntity();
-        String sql = String.format("select %s from %s where %s",
-                entity.getPrimaryField().getName(), entity.getName(), getFilterSql());
+        String sql = String.format("select %s %s",
+                getEntity().getPrimaryField().getName(), getFromClauseSql());
         int pageNo = queryData.getIntValue("pageNo");
         int pageSize = queryData.getIntValue("pageSize");
 
