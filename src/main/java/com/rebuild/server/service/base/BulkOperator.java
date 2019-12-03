@@ -24,7 +24,6 @@ import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.util.support.QueryHelper;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.RebuildException;
 import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.query.AdvFilterParser;
@@ -67,7 +66,7 @@ public abstract class BulkOperator extends HeavyTask<Integer> {
 	/**
 	 * @return
 	 */
-	protected int getSucceeded() {
+	public int getSucceeded() {
 		return succeeded;
 	}
 
@@ -96,8 +95,9 @@ public abstract class BulkOperator extends HeavyTask<Integer> {
 		JSONObject asFilterExp = context.getCustomData();
 		AdvFilterParser filterParser = new AdvFilterParser(asFilterExp);
 		String sqlWhere = filterParser.toSqlWhere();
+		// `(1=1)`.length < 10
 		if (sqlWhere.length() < 10) {
-			throw new RebuildException("Must have some filters : " + sqlWhere);
+		    throw new SecurityException("Must specify filter items : " + sqlWhere);
 		}
 
 		Entity entity = MetadataHelper.getEntity(asFilterExp.getString("entity"));

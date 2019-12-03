@@ -223,7 +223,7 @@ public class EasyMeta implements BaseMeta {
     }
 
     /**
-     * 此方法除了判断元实体，还会判断其他业务规则
+     * 此方法除了判断元数据，还会判断其他业务规则
      *
      * @return
      * @see Field#isUpdatable()

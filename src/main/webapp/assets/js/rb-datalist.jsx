@@ -1156,7 +1156,7 @@ class BatchUpdate extends BatchOperator {
         if (cp >= 1) {
           mp && mp.end()
           $(this._btns).find('.btn-primary').text('修改成功')
-          RbHighbar.success(`成功修改 ${res.data.completed} 条记录`)
+          RbHighbar.success(`成功修改 ${res.data.succeeded} 条记录`)
           setTimeout(() => {
             this.hide()
             window.RbListPage && window.RbListPage.reload()

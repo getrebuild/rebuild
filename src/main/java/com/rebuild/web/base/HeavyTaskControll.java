@@ -21,6 +21,7 @@ package com.rebuild.web.base;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.helper.task.TaskExecutors;
+import com.rebuild.server.service.base.BulkOperator;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import org.springframework.stereotype.Controller;
@@ -42,9 +43,11 @@ public class HeavyTaskControll extends BaseControll {
 	public void checkState(HttpServletRequest request, HttpServletResponse response) {
 		String taskid = getParameterNotNull(request, "taskid");
 		HeavyTask<?> task = TaskExecutors.getTask(taskid);
+
+		int succeeded = task instanceof BulkOperator ? ((BulkOperator) task).getSucceeded() : task.getCompleted();
 		JSON ret = JSONUtils.toJSONObject(
-				new String[] { "taskid", "progress", "hasError", "completed" },
-				new Object[] { taskid, task.getCompletedPercent(), task.getErrorMessage(), task.getCompleted() });
+				new String[] { "taskid", "progress", "hasError", "completed", "succeeded" },
+				new Object[] { taskid, task.getCompletedPercent(), task.getErrorMessage(), task.getCompleted(), "succeeded" });
 		writeSuccess(response, ret);
 	}
 }

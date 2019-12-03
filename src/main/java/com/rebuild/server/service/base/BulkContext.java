@@ -49,6 +49,7 @@ public class BulkContext {
 	private String[] cascades;
 
     // [特定数据] 默认为高级查询表达式
+    // 如果为查询条件，其必须含有查询项，否则将抛出异常
     private JSONObject customData;
 
     final private Entity mainEntity;
