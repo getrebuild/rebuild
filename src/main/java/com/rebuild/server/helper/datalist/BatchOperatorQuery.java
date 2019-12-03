@@ -22,9 +22,9 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
 import com.rebuild.server.helper.SetUser;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.base.BulkOperator;
 import com.rebuild.server.service.query.ParserTokens;
 
 import java.util.HashSet;
@@ -41,19 +41,19 @@ public class BatchOperatorQuery extends SetUser<BatchOperatorQuery> {
     /**
      * 选中数据
      */
-    private static final int DR_SELECTED = 1;
+    public static final int DR_SELECTED = 1;
     /**
      * 当前页数据
      */
-    private static final int DR_PAGED = 2;
+    public static final int DR_PAGED = 2;
     /**
      * 查询后数据
      */
-    private static final int DR_QUERYED = 3;
+    public static final int DR_QUERYED = 3;
     /**
      * 全部数据
      */
-    private static final int DR_ALL = 4;
+    public static final int DR_ALL = 4;
 
     private int dataRange;
     private JSONObject queryData;
@@ -114,7 +114,6 @@ public class BatchOperatorQuery extends SetUser<BatchOperatorQuery> {
      * 直接获取记录 ID[]
      *
      * @return
-     * @see BulkOperator#readIDArray(String, ID)
      */
     public ID[] getQueryedRecords() {
         if (this.dataRange == DR_SELECTED) {
@@ -132,12 +131,21 @@ public class BatchOperatorQuery extends SetUser<BatchOperatorQuery> {
         Entity entity = getEntity();
         String sql = String.format("select %s from %s where %s",
                 entity.getPrimaryField().getName(), entity.getName(), getFilterSql());
-        return BulkOperator.readIDArray(sql, getUser());
+        int pageNo = queryData.getIntValue("pageNo");
+        int pageSize = queryData.getIntValue("pageSize");
+
+        Object[][] array = Application.getQueryFactory().createQuery(sql, getUser())
+                .setLimit(pageSize, pageNo * pageSize - pageSize)
+                .setTimeout(60)
+                .array();
+
+        Set<ID> ids = new HashSet<>();
+        for (Object[] o : array) {
+            ids.add((ID) o[0]);
+        }
+        return ids.toArray(new ID[0]);
     }
 
-    /**
-     * @return
-     */
     private Entity getEntity() {
         String entityName = queryData.getString("entity");
         return MetadataHelper.getEntity(entityName);

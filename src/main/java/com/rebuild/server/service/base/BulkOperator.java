@@ -24,6 +24,7 @@ import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.util.support.QueryHelper;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.RebuildException;
 import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.query.AdvFilterParser;
@@ -45,9 +46,14 @@ public abstract class BulkOperator extends HeavyTask<Integer> {
 	
 	final protected BulkContext context;
 	final protected GeneralEntityService ges;
-	
+
 	private ID[] records;
-	
+
+	/**
+	 * 成功的
+	 */
+	private int succeeded = 0;
+
 	/**
 	 * @param context
 	 * @param ges 可避免多次经由拦截器检查
@@ -57,7 +63,20 @@ public abstract class BulkOperator extends HeavyTask<Integer> {
 		this.context = context;
 		this.ges = ges;
 	}
-	
+
+	/**
+	 * @return
+	 */
+	protected int getSucceeded() {
+		return succeeded;
+	}
+
+	/**
+	 */
+	protected void addSucceeded() {
+		succeeded++;
+	}
+
 	/**
 	 * 获取待操作记录
 	 * 
@@ -77,28 +96,21 @@ public abstract class BulkOperator extends HeavyTask<Integer> {
 		JSONObject asFilterExp = context.getCustomData();
 		AdvFilterParser filterParser = new AdvFilterParser(asFilterExp);
 		String sqlWhere = filterParser.toSqlWhere();
+		if (sqlWhere.length() < 10) {
+			throw new RebuildException("Must have some filters : " + sqlWhere);
+		}
 
 		Entity entity = MetadataHelper.getEntity(asFilterExp.getString("entity"));
-		String sql = "select %s from %s where (1=1) and " + sqlWhere;
-		sql = String.format(sql, entity.getPrimaryField().getName(), entity.getName());
-        return readIDArray(sql, context.getOpUser());
+		String sql = String.format("select %s from %s where (1=1) and %s",
+				entity.getPrimaryField().getName(), entity.getName(), sqlWhere);
+
+		// NOTE 注意没有分页
+		Query query = Application.getQueryFactory().createQuery(sql, context.getOpUser());
+		Object[][] array = QueryHelper.readArray(query);
+		Set<ID> ids = new HashSet<>();
+		for (Object[] o : array) {
+			ids.add((ID) o[0]);
+		}
+		return ids.toArray(new ID[0]);
 	}
-
-    /**
-     * 读取 ID[]
-     *
-     * @param sql
-     * @param user
-     * @return
-     */
-	public static ID[] readIDArray(String sql, ID user) {
-        Query query = Application.getQueryFactory().createQuery(sql, user);
-        Object[][] array = QueryHelper.readArray(query);
-
-        Set<ID> ids = new HashSet<>();
-        for (Object[] o : array) {
-            ids.add((ID) o[0]);
-        }
-        return ids.toArray(new ID[0]);
-    }
 }

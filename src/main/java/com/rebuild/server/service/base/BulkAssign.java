@@ -37,23 +37,22 @@ import java.util.Set;
  */
 public class BulkAssign extends BulkOperator {
 
-	public BulkAssign(BulkContext context, GeneralEntityService ges) {
+	protected BulkAssign(BulkContext context, GeneralEntityService ges) {
 		super(context, ges);
 	}
 
 	@Override
 	protected Integer exec() {
-		ID[] records = prepareRecords();
+		final ID[] records = prepareRecords();
 		this.setTotal(records.length);
 		
-		int assigned = 0;
 		ID firstAssigned = null;
         NotificationOnce.begin();
 		for (ID id : records) {
 			if (Application.getSecurityManager().allowedA(context.getOpUser(), id)) {
 				int a = ges.assign(id, context.getToUser(), context.getCascades());
 				if (a > 0) {
-					assigned += a;
+					this.addSucceeded();
 					if (firstAssigned == null) {
 						firstAssigned = id;
 					}
@@ -64,9 +63,8 @@ public class BulkAssign extends BulkOperator {
 			this.addCompleted();
 		}
 		
-        Set<ID> affected = NotificationOnce.end();
-
 		// 合并通知发送
+        Set<ID> affected = NotificationOnce.end();
 		if (firstAssigned != null && !affected.isEmpty()) {
 			Record notificationNeeds = EntityHelper.forUpdate(firstAssigned, context.getOpUser());
 			notificationNeeds.setID(EntityHelper.OwningUser, context.getToUser());
@@ -76,6 +74,6 @@ public class BulkAssign extends BulkOperator {
 			new NotificationObserver().update(null, operatingContext);
 		}
 		
-		return assigned;
+		return getSucceeded();
 	}
 }
