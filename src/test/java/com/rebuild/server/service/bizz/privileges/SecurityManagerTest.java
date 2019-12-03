@@ -38,17 +38,17 @@ public class SecurityManagerTest extends TestSupport {
 	public void testEntityPrivileges() throws Exception {
 		int entity = MetadataHelper.getEntity(TEST_ENTITY).getEntityCode();
 		
-		Application.getSecurityManager().allowed(SIMPLE_USER, entity, BizzPermission.CREATE);
-		Application.getSecurityManager().allowed(SIMPLE_USER, entity, BizzPermission.DELETE);
-		Application.getSecurityManager().allowed(SIMPLE_USER, entity, BizzPermission.UPDATE);
-		Application.getSecurityManager().allowed(SIMPLE_USER, entity, BizzPermission.READ);
-		Application.getSecurityManager().allowed(SIMPLE_USER, entity, BizzPermission.ASSIGN);
-		Application.getSecurityManager().allowed(SIMPLE_USER, entity, BizzPermission.SHARE);
+		Application.getSecurityManager().allow(SIMPLE_USER, entity, BizzPermission.CREATE);
+		Application.getSecurityManager().allow(SIMPLE_USER, entity, BizzPermission.DELETE);
+		Application.getSecurityManager().allow(SIMPLE_USER, entity, BizzPermission.UPDATE);
+		Application.getSecurityManager().allow(SIMPLE_USER, entity, BizzPermission.READ);
+		Application.getSecurityManager().allow(SIMPLE_USER, entity, BizzPermission.ASSIGN);
+		Application.getSecurityManager().allow(SIMPLE_USER, entity, BizzPermission.SHARE);
 	}
 	
 	@Test
 	public void testZero() throws Exception {
-		Application.getSecurityManager().allowed(SIMPLE_USER, ZeroEntry.AllowLogin);
+		Application.getSecurityManager().allow(SIMPLE_USER, ZeroEntry.AllowLogin);
 	}
 	
 	@Test
@@ -56,11 +56,11 @@ public class SecurityManagerTest extends TestSupport {
 		addExtTestEntities(false);
 		
 		Entity test = MetadataHelper.getEntity("Account999");
-		boolean allowAccount = Application.getSecurityManager().allowed(SIMPLE_USER, ID.newId(test.getEntityCode()), BizzPermission.READ);
+		boolean allowAccount = Application.getSecurityManager().allow(SIMPLE_USER, ID.newId(test.getEntityCode()), BizzPermission.READ);
 		assertTrue(!allowAccount);
 		
 		test = MetadataHelper.getEntity("SalesOrderItem999");
-		boolean allowSalesOrderItem = Application.getSecurityManager().allowed(SIMPLE_USER, ID.newId(test.getEntityCode()), BizzPermission.READ);
+		boolean allowSalesOrderItem = Application.getSecurityManager().allow(SIMPLE_USER, ID.newId(test.getEntityCode()), BizzPermission.READ);
 		assertTrue(!allowSalesOrderItem);
 	}
 }

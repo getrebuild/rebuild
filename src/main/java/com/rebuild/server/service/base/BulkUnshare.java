@@ -41,7 +41,7 @@ public class BulkUnshare extends BulkOperator {
 		final ID realTarget = context.getTargetRecord();
 
 		// 只需要验证主记录权限
-		if (!Application.getSecurityManager().allowedS(context.getOpUser(), realTarget)) {
+		if (!Application.getSecurityManager().allowShare(context.getOpUser(), realTarget)) {
 			this.setCompleted(records.length);
 			return 0;
 		}

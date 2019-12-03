@@ -78,7 +78,7 @@ public class BulkBacthUpdate extends BulkOperator {
         }
 
         for (ID id : willUpdates) {
-            if (Application.getSecurityManager().allowedU(context.getOpUser(), id)) {
+            if (Application.getSecurityManager().allowUpdate(context.getOpUser(), id)) {
                 // 更新记录
                 formJson.getJSONObject(JsonRecordCreator.META_FIELD).put("id", id.toLiteral());
 

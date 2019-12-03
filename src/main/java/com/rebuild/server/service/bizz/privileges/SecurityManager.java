@@ -35,8 +35,6 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.bizz.RoleService;
 import com.rebuild.server.service.bizz.UserService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 /**
@@ -51,10 +49,8 @@ import org.springframework.util.Assert;
  */
 public class SecurityManager {
 
-	private static final Log LOG = LogFactory.getLog(SecurityManager.class);
-
 	final private UserStore theUserStore;
-	final private RecordOwningCache theRecordOwning;
+	final private RecordOwningCache theRecordOwningCache;
 
 	/**
 	 * @param us
@@ -62,7 +58,7 @@ public class SecurityManager {
 	 */
 	protected SecurityManager(UserStore us, RecordOwningCache roc) {
 		this.theUserStore = us;
-		this.theRecordOwning = roc;
+		this.theRecordOwningCache = roc;
 	}
 	
 	/**
@@ -70,7 +66,7 @@ public class SecurityManager {
 	 * @return
 	 */
 	public ID getOwningUser(ID record) {
-		return theRecordOwning.getOwningUser(record);
+		return theRecordOwningCache.getOwningUser(record);
 	}
 	
 	/**
@@ -108,8 +104,8 @@ public class SecurityManager {
 	 * @param entity
 	 * @return
 	 */
-	public boolean allowedC(ID user, int entity) {
-		return allowed(user, entity, BizzPermission.CREATE);
+	public boolean allowCreate(ID user, int entity) {
+		return allow(user, entity, BizzPermission.CREATE);
 	}
 	
 	/**
@@ -119,8 +115,8 @@ public class SecurityManager {
 	 * @param entity
 	 * @return
 	 */
-	public boolean allowedD(ID user, int entity) {
-		return allowed(user, entity, BizzPermission.DELETE);
+	public boolean allowDelete(ID user, int entity) {
+		return allow(user, entity, BizzPermission.DELETE);
 	}
 	
 	/**
@@ -130,8 +126,8 @@ public class SecurityManager {
 	 * @param entity
 	 * @return
 	 */
-	public boolean allowedU(ID user, int entity) {
-		return allowed(user, entity, BizzPermission.UPDATE);
+	public boolean allowUpdate(ID user, int entity) {
+		return allow(user, entity, BizzPermission.UPDATE);
 	}
 	
 	/**
@@ -141,8 +137,8 @@ public class SecurityManager {
 	 * @param entity
 	 * @return
 	 */
-	public boolean allowedR(ID user, int entity) {
-		return allowed(user, entity, BizzPermission.READ);
+	public boolean allowRead(ID user, int entity) {
+		return allow(user, entity, BizzPermission.READ);
 	}
 	
 	/**
@@ -152,8 +148,8 @@ public class SecurityManager {
 	 * @param entity
 	 * @return
 	 */
-	public boolean allowedA(ID user, int entity) {
-		return allowed(user, entity, BizzPermission.ASSIGN);
+	public boolean allowAssign(ID user, int entity) {
+		return allow(user, entity, BizzPermission.ASSIGN);
 	}
 	
 	/**
@@ -163,8 +159,8 @@ public class SecurityManager {
 	 * @param entity
 	 * @return
 	 */
-	public boolean allowedS(ID user, int entity) {
-		return allowed(user, entity, BizzPermission.SHARE);
+	public boolean allowShare(ID user, int entity) {
+		return allow(user, entity, BizzPermission.SHARE);
 	}
 	
 	/**
@@ -174,8 +170,8 @@ public class SecurityManager {
 	 * @param target
 	 * @return
 	 */
-	public boolean allowedD(ID user, ID target) {
-		return allowed(user, target, BizzPermission.DELETE);
+	public boolean allowDelete(ID user, ID target) {
+		return allow(user, target, BizzPermission.DELETE);
 	}
 	
 	/**
@@ -185,8 +181,8 @@ public class SecurityManager {
 	 * @param target
 	 * @return
 	 */
-	public boolean allowedU(ID user, ID target) {
-		return allowed(user, target, BizzPermission.UPDATE);
+	public boolean allowUpdate(ID user, ID target) {
+		return allow(user, target, BizzPermission.UPDATE);
 	}
 	
 	/**
@@ -196,8 +192,8 @@ public class SecurityManager {
 	 * @param target
 	 * @return
 	 */
-	public boolean allowedR(ID user, ID target) {
-		return allowed(user, target, BizzPermission.READ);
+	public boolean allowRead(ID user, ID target) {
+		return allow(user, target, BizzPermission.READ);
 	}
 	
 	/**
@@ -207,8 +203,8 @@ public class SecurityManager {
 	 * @param target
 	 * @return
 	 */
-	public boolean allowedA(ID user, ID target) {
-		return allowed(user, target, BizzPermission.ASSIGN);
+	public boolean allowAssign(ID user, ID target) {
+		return allow(user, target, BizzPermission.ASSIGN);
 	}
 	
 	/**
@@ -218,8 +214,8 @@ public class SecurityManager {
 	 * @param target
 	 * @return
 	 */
-	public boolean allowedS(ID user, ID target) {
-		return allowed(user, target, BizzPermission.SHARE);
+	public boolean allowShare(ID user, ID target) {
+		return allow(user, target, BizzPermission.SHARE);
 	}
 	
 	/**
@@ -230,8 +226,8 @@ public class SecurityManager {
 	 * @param action 权限动作
 	 * @return
 	 */
-	public boolean allowed(ID user, int entity, Permission action) {
-		Boolean a = allowedUser(user);
+	public boolean allow(ID user, int entity, Permission action) {
+		Boolean a = userAllow(user);
 		if (a != null) {
             return a;
         }
@@ -273,8 +269,8 @@ public class SecurityManager {
 	 * @param action 权限动作
 	 * @return
 	 */
-	public boolean allowed(ID user, ID target, Permission action) {
-		Boolean a = allowedUser(user);
+	public boolean allow(ID user, ID target, Permission action) {
+		Boolean a = userAllow(user);
 		if (a != null) {
             return a;
         }
@@ -317,7 +313,7 @@ public class SecurityManager {
 			return true;
 		}
 		
-		ID targetUserId = theRecordOwning.getOwningUser(target);
+		ID targetUserId = theRecordOwningCache.getOwningUser(target);
 		if (targetUserId == null) {
 			return false;
 		}
@@ -325,7 +321,7 @@ public class SecurityManager {
 		if (BizzDepthEntry.PRIVATE.equals(depth)) {
 			allowed = user.equals(targetUserId);
 			if (!allowed) {
-				return allowedViaShare(user, target, action);
+				return allowViaShare(user, target, action);
 			}
 			return true;
 		}
@@ -337,7 +333,7 @@ public class SecurityManager {
 		if (BizzDepthEntry.LOCAL.equals(depth)) {
 			allowed = accessUserDept.equals(targetUser.getOwningDept());
 			if (!allowed) {
-				return allowedViaShare(user, target, action);
+				return allowViaShare(user, target, action);
 			}
 			return true;
 		} else if (BizzDepthEntry.DEEPDOWN.equals(depth)) {
@@ -347,7 +343,7 @@ public class SecurityManager {
 			
 			allowed = accessUserDept.isChildrenAll(targetUser.getOwningDept());
 			if (!allowed) {
-				return allowedViaShare(user, target, action);
+				return allowViaShare(user, target, action);
 			}
 			return true;
 		}
@@ -363,7 +359,7 @@ public class SecurityManager {
 	 * @param action
 	 * @return
 	 */
-	public boolean allowedViaShare(ID user, ID target, Permission action) {
+	public boolean allowViaShare(ID user, ID target, Permission action) {
 		
 		// TODO 目前只共享了读取权限
 		// TODO 性能优化-缓存
@@ -447,18 +443,18 @@ public class SecurityManager {
 		}
 		return new EntityQueryFilter(theUser, action);
 	}
-	
+
 	/**
 	 * 扩展权限
-	 * 
+	 *
 	 * @param user
 	 * @param entry
 	 * @return
 	 * @see ZeroPrivileges
 	 * @see ZeroPermission
 	 */
-	public boolean allowed(ID user, ZeroEntry entry) {
-		Boolean a = allowedUser(user);
+	public boolean allow(ID user, ZeroEntry entry) {
+		Boolean a = userAllow(user);
 		if (a != null) {
             return a;
         }
@@ -467,7 +463,7 @@ public class SecurityManager {
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
 			return true;
 		}
-		
+
 		if (role.hasPrivileges(entry.name())) {
 			return role.getPrivileges(entry.name()).allowed(ZeroPermission.ZERO);
 		}
@@ -476,9 +472,9 @@ public class SecurityManager {
 
 	/**
 	 * @param user
-	 * @return
+	 * @returny
 	 */
-	private Boolean allowedUser(ID user) {
+	private Boolean userAllow(ID user) {
 		if (UserService.ADMIN_USER.equals(user)) {
 			return true;
 		}

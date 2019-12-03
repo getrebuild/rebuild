@@ -47,7 +47,7 @@ public class DataExportControll extends BaseControll {
     public void export(@PathVariable String entity,
                        HttpServletRequest request, HttpServletResponse response) throws IOException {
         ID user = getRequestUser(request);
-        Assert.isTrue(Application.getSecurityManager().allowed(user, ZeroEntry.AllowDataExport), "没有权限");
+        Assert.isTrue(Application.getSecurityManager().allow(user, ZeroEntry.AllowDataExport), "没有权限");
 
         int dataRange = getIntParameter(request, "dr", 2);
         JSONObject queryData = (JSONObject) ServletUtils.getRequestJson(request);

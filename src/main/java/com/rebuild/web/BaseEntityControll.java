@@ -100,7 +100,7 @@ public abstract class BaseEntityControll extends BasePageControll {
 			};
 			Map<String, Boolean> actionMap = new HashMap<>();
 			for (Permission act : actions) {
-				actionMap.put(act.getName(), Application.getSecurityManager().allowed(user, record, act));
+				actionMap.put(act.getName(), Application.getSecurityManager().allow(user, record, act));
 			}
 			mv.getModel().put("entityPrivileges", JSON.toJSONString(actionMap));
 		} else {

@@ -49,7 +49,7 @@ public class BulkShare extends BulkOperator {
 		ID firstShared = null;
         NotificationOnce.begin();
 		for (ID id : records) {
-			if (Application.getSecurityManager().allowedS(context.getOpUser(), id)) {
+			if (Application.getSecurityManager().allowShare(context.getOpUser(), id)) {
 				int a = ges.share(id, context.getToUser(), context.getCascades());
 				if (a > 0) {
 					this.addSucceeded();

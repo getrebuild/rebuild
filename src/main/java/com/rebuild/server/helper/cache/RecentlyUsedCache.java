@@ -83,7 +83,7 @@ public class RecentlyUsedCache {
 		List<ID> data = new ArrayList<>();
 		for (int i = 0; i < limit && i < exists.size(); i++) {
 			final ID raw = exists.get(i);
-			if (!Application.getSecurityManager().allowedR(user, raw)) {
+			if (!Application.getSecurityManager().allowRead(user, raw)) {
 				continue;
 			}
 			

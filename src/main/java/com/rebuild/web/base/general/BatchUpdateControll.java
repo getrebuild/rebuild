@@ -67,7 +67,7 @@ public class BatchUpdateControll extends BaseControll {
     public void submit(@PathVariable String entity,
                        HttpServletRequest request, HttpServletResponse response) throws IOException {
         ID user = getRequestUser(request);
-        Assert.isTrue(Application.getSecurityManager().allowed(user, ZeroEntry.AllowBatchUpdate), "没有权限");
+        Assert.isTrue(Application.getSecurityManager().allow(user, ZeroEntry.AllowBatchUpdate), "没有权限");
 
         JSONObject requestData = (JSONObject) ServletUtils.getRequestJson(request);
 

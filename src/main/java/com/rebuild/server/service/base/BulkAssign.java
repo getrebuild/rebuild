@@ -49,7 +49,7 @@ public class BulkAssign extends BulkOperator {
 		ID firstAssigned = null;
         NotificationOnce.begin();
 		for (ID id : records) {
-			if (Application.getSecurityManager().allowedA(context.getOpUser(), id)) {
+			if (Application.getSecurityManager().allowAssign(context.getOpUser(), id)) {
 				int a = ges.assign(id, context.getToUser(), context.getCascades());
 				if (a > 0) {
 					this.addSucceeded();

@@ -170,8 +170,8 @@ public class AppUtils {
 	 * @return
 	 * @see com.rebuild.server.service.bizz.privileges.SecurityManager
 	 */
-	public static boolean allowed(HttpServletRequest request, ZeroEntry entry) {
-		return Application.getSecurityManager().allowed(getRequestUser(request), entry);
+	public static boolean allow(HttpServletRequest request, ZeroEntry entry) {
+		return Application.getSecurityManager().allow(getRequestUser(request), entry);
 	}
 
 	public static final String SK_LOCALE = WebUtils.KEY_PREFIX + ".LOCALE";

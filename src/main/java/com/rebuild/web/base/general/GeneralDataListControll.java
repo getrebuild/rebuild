@@ -62,7 +62,7 @@ public class GeneralDataListControll extends BaseEntityControll {
 		}
 		
 		Entity thatEntity = MetadataHelper.getEntity(entity);
-		if (!Application.getSecurityManager().allowedR(user, thatEntity.getEntityCode())) {
+		if (!Application.getSecurityManager().allowRead(user, thatEntity.getEntityCode())) {
 			response.sendError(403, "你没有访问此实体的权限");
 			return null;
 		}
@@ -79,11 +79,11 @@ public class GeneralDataListControll extends BaseEntityControll {
 
 		// 列表相关权限
 		mv.getModel().put(ZeroEntry.AllowCustomDataList.name(),
-				Application.getSecurityManager().allowed(user, ZeroEntry.AllowCustomDataList));
+				Application.getSecurityManager().allow(user, ZeroEntry.AllowCustomDataList));
 		mv.getModel().put(ZeroEntry.AllowDataExport.name(),
-				Application.getSecurityManager().allowed(user, ZeroEntry.AllowDataExport));
+				Application.getSecurityManager().allow(user, ZeroEntry.AllowDataExport));
 		mv.getModel().put(ZeroEntry.AllowBatchUpdate.name(),
-				Application.getSecurityManager().allowed(user, ZeroEntry.AllowBatchUpdate));
+				Application.getSecurityManager().allow(user, ZeroEntry.AllowBatchUpdate));
 
 		// 展开 WIDGET 面板
 		String asideCollapsed = ServletUtils.readCookie(request, "rb.asideCollapsed");

@@ -86,7 +86,7 @@ public class MetadataSorter {
 
 			if (user == null) {
 				list.add(entity);
-			} else if (Application.getSecurityManager().allowedR(user, entity.getEntityCode())) {
+			} else if (Application.getSecurityManager().allowRead(user, entity.getEntityCode())) {
 				list.add(entity);
 			}
 		}

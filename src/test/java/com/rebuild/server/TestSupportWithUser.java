@@ -67,7 +67,7 @@ public abstract class TestSupportWithUser extends TestSupport {
     protected ID addRecordOfTestAllFields() {
         Entity testEntity = MetadataHelper.getEntity(TEST_ENTITY);
         // 自动添加权限
-        if (!Application.getSecurityManager().allowedC(getSessionUser(), testEntity.getEntityCode())) {
+        if (!Application.getSecurityManager().allowCreate(getSessionUser(), testEntity.getEntityCode())) {
             Record p = EntityHelper.forNew(EntityHelper.RolePrivileges, UserService.SYSTEM_USER);
             p.setID("roleId", SIMPLE_ROLE);
             p.setInt("entity", testEntity.getEntityCode());

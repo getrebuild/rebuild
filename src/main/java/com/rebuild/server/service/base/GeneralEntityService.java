@@ -151,7 +151,7 @@ public class GeneralEntityService extends ObservableService  {
 			}
 
 			for (ID id : e.getValue()) {
-				if (Application.getSecurityManager().allowedD(currentUser, id)) {
+				if (Application.getSecurityManager().allowDelete(currentUser, id)) {
 					if (recycleBin != null) {
 						recycleBin.add(id, record);
 					}

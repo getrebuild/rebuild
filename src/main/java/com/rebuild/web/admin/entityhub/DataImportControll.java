@@ -107,8 +107,8 @@ public class DataImportControll extends BasePageControll {
 		String entity = getParameterNotNull(request, "entity");
 		
 		Entity entityMeta = MetadataHelper.getEntity(entity);
-		boolean canCreated = Application.getSecurityManager().allowedC(ouser, entityMeta.getEntityCode());
-		boolean canUpdated = Application.getSecurityManager().allowedU(ouser, entityMeta.getEntityCode());
+		boolean canCreated = Application.getSecurityManager().allowCreate(ouser, entityMeta.getEntityCode());
+		boolean canUpdated = Application.getSecurityManager().allowUpdate(ouser, entityMeta.getEntityCode());
 		
 		JSON ret = JSONUtils.toJSONObject(
 				new String[] { "canCreate", "canUpdate" }, new Object[] { canCreated, canUpdated });

@@ -40,7 +40,7 @@ public class BulkDelete extends BulkOperator {
 		this.setTotal(records.length);
 		
 		for (ID id : records) {
-			if (Application.getSecurityManager().allowedD(context.getOpUser(), id)) {
+			if (Application.getSecurityManager().allowDelete(context.getOpUser(), id)) {
 				try {
 					ges.delete(id, context.getCascades());
 					this.addSucceeded();
