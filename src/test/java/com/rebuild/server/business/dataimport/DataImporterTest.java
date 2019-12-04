@@ -58,7 +58,8 @@ public class DataImporterTest extends TestSupport {
 		JSONObject rule = JSON.parseObject("{ file:'dataimports-test.xlsx', entity:'TestAllFields', repeat_opt:2, repeat_fields:['TestAllFieldsName'], owning_user:'001-0000000000000001', fields_mapping:{TestAllFieldsName:5} }");
 		ImportRule importsEnter = ImportRule.parse(rule);
 		
-		DataImporter dataImports = new DataImporter(importsEnter, UserService.ADMIN_USER);
+		DataImporter dataImports = new DataImporter(importsEnter);
+		dataImports.setUser(UserService.ADMIN_USER);
 		dataImports.run();
 	}
 }

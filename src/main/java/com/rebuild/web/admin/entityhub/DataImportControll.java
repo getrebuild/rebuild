@@ -114,10 +114,10 @@ public class DataImportControll extends BasePageControll {
 		List<Map<String, Object>> list = new ArrayList<>();
 		for (Field field : MetadataSorter.sortFields(entityBase)) {
 			String fieldName = field.getName();
-			if (EntityHelper.OwningDept.equals(fieldName)) {
+			if (EntityHelper.OwningDept.equals(fieldName)
+					|| MetadataHelper.isApprovalField(fieldName) || MetadataHelper.isSystemField(fieldName)) {
 				continue;
 			}
-			
 			EasyMeta easyMeta = new EasyMeta(field);
 			if (easyMeta.getDisplayType() == DisplayType.FILE || easyMeta.getDisplayType() == DisplayType.IMAGE) {
 				continue;
@@ -127,7 +127,7 @@ public class DataImportControll extends BasePageControll {
 			map.put("name", fieldName);
 			map.put("label", easyMeta.getLabel());
 			map.put("type", easyMeta.getDisplayType().getDisplayName());
-			map.put("isNullable", field.isNullable());
+			map.put("nullable", field.isNullable());
 			
 			String defaultValue = null;
 			if (EntityHelper.CreatedOn.equals(fieldName) || EntityHelper.ModifiedOn.equals(fieldName)) {
@@ -157,7 +157,7 @@ public class DataImportControll extends BasePageControll {
 			return;
 		}
 		
-		DataImporter importer = new DataImporter(irule, getRequestUser(request));
+		DataImporter importer = new DataImporter(irule);
 		if (getBoolParameter(request, "preview")) {
 			// TODO 导入预览
 		} else {

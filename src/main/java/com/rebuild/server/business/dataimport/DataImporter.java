@@ -28,6 +28,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.ExtRecordCreator;
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.utils.JSONUtils;
 
@@ -50,7 +51,7 @@ public class DataImporter extends HeavyTask<Integer> {
 	private static final ThreadLocal<ID> IN_IMPORTING = new ThreadLocal<>();
 	
 	final private ImportRule rule;
-	final private ID owningUser;
+	private ID owningUser;
 
 	// 记录每一行的错误日志
 	private Map<Integer, Object> eachLogs = new LinkedHashMap<>();
@@ -59,16 +60,7 @@ public class DataImporter extends HeavyTask<Integer> {
 	 * @param rule
 	 */
 	public DataImporter(ImportRule rule) {
-		this(rule, Application.getCurrentUser());
-	}
-	
-	/**
-	 * @param rule
-	 * @param owningUser
-	 */
-	public DataImporter(ImportRule rule, ID owningUser) {
 		this.rule = rule;
-		this.owningUser = rule.getDefaultOwningUser() == null ? owningUser : rule.getDefaultOwningUser();
 	}
 	
 	@Override
@@ -76,8 +68,7 @@ public class DataImporter extends HeavyTask<Integer> {
 		final List<Cell[]> rows = new DataFileParser(rule.getSourceFile()).parse();
 		this.setTotal(rows.size() - 1);
 
-		// 指定的所属用户
-		setUser(this.owningUser);
+		owningUser = rule.getDefaultOwningUser() != null ? rule.getDefaultOwningUser() : getUser();
 		IN_IMPORTING.set(owningUser);
 
 		for (final Cell[] row : rows) {
@@ -146,9 +137,7 @@ public class DataImporter extends HeavyTask<Integer> {
 				record = EntityHelper.forUpdate(repeat, this.owningUser);
 				for (Iterator<String> iter = recordNew.getAvailableFieldIterator(); iter.hasNext(); ) {
 					String field = iter.next();
-					if (EntityHelper.OwningUser.equals(field) || EntityHelper.OwningDept.equals(field)
-							|| EntityHelper.CreatedBy.equals(field) || EntityHelper.CreatedOn.equals(field)
-							|| EntityHelper.ModifiedBy.equals(field) || EntityHelper.ModifiedOn.equals(field)) {
+					if (MetadataHelper.isCommonsField(field)) {
 						continue;
 					}
 					record.setObjectValue(field, recordNew.getObjectValue(field));

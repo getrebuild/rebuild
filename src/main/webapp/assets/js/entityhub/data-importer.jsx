@@ -164,7 +164,7 @@ const step_import = () => {
     if (field) fm[field] = col
   })
   $(fields_cached).each((idx, item) => {
-    if (item.isNullable === true || !!item.defaultValue) {
+    if (item.nullable === true || !!item.defaultValue) {
       // Not be must
     } else if (fm[item.name] === undefined) {
       RbHighbar.create(item.label + ' 为必填字段，请选择')
@@ -250,7 +250,7 @@ const render_fieldsMapping = (columns, fields) => {
   let fields_map = {}
   let fields_select = $('<select><option value="">无</option></select>')
   $(fields).each((idx, item) => {
-    let canNull = item.isNullable === false ? ' [必填]' : ''
+    let canNull = item.nullable === false ? ' [必填]' : ''
     if (item.defaultValue) canNull = ''
     $('<option value="' + item.name + '">' + item.label + canNull + '</option>').appendTo(fields_select)
     fields_map[item.name] = item

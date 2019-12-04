@@ -53,7 +53,7 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runn
 	private int completed = 0;
 	private int succeeded = 0;
 
-	private Date beginTime;
+	final private Date beginTime;
 	private Date completedTime;
 	
 	private String errorMessage;
@@ -94,8 +94,8 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runn
      * @return
      */
     public long getElapsedTime() {
-        if (completedTime != null) {
-            return completedTime.getTime() - beginTime.getTime();
+        if (getCompletedTime() != null) {
+            return getCompletedTime().getTime() - beginTime.getTime();
         } else {
             return CalendarUtils.now().getTime() - beginTime.getTime();
         }
@@ -140,7 +140,7 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runn
      * @return
      */
 	public boolean isCompleted() {
-		return completedTime != null || (total != -1 && getCompleted() >= getTotal());
+		return getCompletedTime() != null || (total != -1 && getCompleted() >= getTotal());
 	}
 
 	/**
