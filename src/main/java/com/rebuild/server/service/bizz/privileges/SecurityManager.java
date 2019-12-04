@@ -26,6 +26,7 @@ import cn.devezhao.bizz.privileges.impl.BizzDepthEntry;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.bizz.security.member.Role;
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Filter;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
@@ -83,18 +84,7 @@ public class SecurityManager {
 		} else if (u.isAdmin()) {
 			return Privileges.ROOT;
 		}
-		return u.getOwningRole().getPrivileges(entity);
-	}
-	
-	/**
-	 * 获取真实的权限实体
-	 * 
-	 * @param entity
-	 * @return
-	 */
-	public int getPrivilegesEntity(int entity) {
-		Entity em = MetadataHelper.getEntity(entity);
-		return em.getMasterEntity() == null ? entity : em.getMasterEntity().getEntityCode();
+		return u.getOwningRole().getPrivileges(convert2MasterEntity(entity));
 	}
 	
 	/**
@@ -257,7 +247,7 @@ public class SecurityManager {
 			action = convert2MasterAction(action);
 		}
 		
-		Privileges ep = role.getPrivileges(getPrivilegesEntity(entity));
+		Privileges ep = role.getPrivileges(convert2MasterEntity(entity));
 		return ep.allowed(action);
 	}
 	
@@ -298,7 +288,7 @@ public class SecurityManager {
 			action = convert2MasterAction(action);
 		}
 		
-		Privileges ep = role.getPrivileges(getPrivilegesEntity(entity));
+		Privileges ep = role.getPrivileges(convert2MasterEntity(entity));
 		
 		boolean allowed = ep.allowed(action);
 		if (!allowed) {
@@ -388,6 +378,17 @@ public class SecurityManager {
 		int rightsVal = rights == null ? 0 : (int) rights[0];
 		return (rightsVal & BizzPermission.READ.getMask()) != 0;
 	}
+
+	/**
+	 * 获取真实的权限实体。如明细的权限依赖主实体
+	 *
+	 * @param entity
+	 * @return
+	 */
+	private int convert2MasterEntity(int entity) {
+		Entity em = MetadataHelper.getEntity(entity);
+		return em.getMasterEntity() == null ? entity : em.getMasterEntity().getEntityCode();
+	}
 	
 	/**
 	 * 转换明细实体的权限。<tt>删除/新建/更新</tt>明细记录，等于修改主实体，因此要转换成<tt>更新</tt>权限
@@ -410,13 +411,51 @@ public class SecurityManager {
 	 */
 	private ID getMasterRecordId(ID slaveId) {
 		Entity entity = MetadataHelper.getEntity(slaveId.getEntityCode());
-		Entity masterEntity = entity.getMasterEntity();
-		Assert.isTrue(masterEntity != null, "Non slave entty : " + slaveId);
-		
-		String sql = "select %s from %s where %s = '%s'";
-		sql = String.format(sql, masterEntity.getPrimaryField().getName(), entity.getName(), entity.getPrimaryField().getName(), slaveId.toLiteral());
-		Object[] primary = Application.getQueryFactory().createQueryNoFilter(sql).unique();
+		Field stmField = MetadataHelper.getSlaveToMasterField(entity);
+		Assert.isTrue(stmField != null, "Non slave entty : " + slaveId);
+
+		Object[] primary = Application.getQueryFactory().uniqueNoFilter(slaveId, stmField.getName());
 		return primary == null ? null : (ID) primary[0];
+	}
+
+	/**
+	 * 扩展权限
+	 *
+	 * @param user
+	 * @param entry
+	 * @return
+	 * @see ZeroPrivileges
+	 * @see ZeroPermission
+	 */
+	public boolean allow(ID user, ZeroEntry entry) {
+		Boolean a = userAllow(user);
+		if (a != null) {
+			return a;
+		}
+
+		Role role = theUserStore.getUser(user).getOwningRole();
+		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
+			return true;
+		}
+
+		if (role.hasPrivileges(entry.name())) {
+			return role.getPrivileges(entry.name()).allowed(ZeroPermission.ZERO);
+		}
+		return entry.getDefaultVal();
+	}
+
+	/**
+	 * @param user
+	 * @returny
+	 */
+	private Boolean userAllow(ID user) {
+		if (UserService.ADMIN_USER.equals(user)) {
+			return true;
+		}
+		if (!theUserStore.getUser(user).isActive()) {
+			return false;
+		}
+		return null;
 	}
 	
 	/**
@@ -442,45 +481,5 @@ public class SecurityManager {
 			return EntityQueryFilter.ALLOWED;
 		}
 		return new EntityQueryFilter(theUser, action);
-	}
-
-	/**
-	 * 扩展权限
-	 *
-	 * @param user
-	 * @param entry
-	 * @return
-	 * @see ZeroPrivileges
-	 * @see ZeroPermission
-	 */
-	public boolean allow(ID user, ZeroEntry entry) {
-		Boolean a = userAllow(user);
-		if (a != null) {
-            return a;
-        }
-
-		Role role = theUserStore.getUser(user).getOwningRole();
-		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
-			return true;
-		}
-
-		if (role.hasPrivileges(entry.name())) {
-			return role.getPrivileges(entry.name()).allowed(ZeroPermission.ZERO);
-		}
-		return entry.getDefaultVal();
-	}
-
-	/**
-	 * @param user
-	 * @returny
-	 */
-	private Boolean userAllow(ID user) {
-		if (UserService.ADMIN_USER.equals(user)) {
-			return true;
-		}
-		if (!theUserStore.getUser(user).isActive()) {
-			return false;
-		}
-		return null;
 	}
 }

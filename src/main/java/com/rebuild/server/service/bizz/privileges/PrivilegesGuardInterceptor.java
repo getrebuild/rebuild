@@ -75,7 +75,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		if (AdminGuard.class.isAssignableFrom(invocationClass) && !UserHelper.isAdmin(caller)) {
 			throw new AccessDeniedException("非法操作请求 (E" + ((ServiceSpec) invocation.getThis()).getEntityCode() + ")");
 		}
-		// 仅 EntityService 或子类需要继续验证角色权限
+		// 仅 EntityService 或子类会验证角色权限
 		if (!EntityService.class.isAssignableFrom(invocationClass)) {
 			return;
 		}
@@ -88,7 +88,6 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 			}
 			
 			BulkContext context = (BulkContext) first;
-			
 			Entity entity = context.getMainEntity();
 			if (!Application.getSecurityManager().allow(caller, entity.getEntityCode(), context.getAction())) {
 				LOG.error("User [ " + caller + " ] not allowed execute action [ " + context.getAction() + " ]. Entity : " + context.getMainEntity());
@@ -114,18 +113,20 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		
 		Permission action = getPermissionByMethod(invocation.getMethod(), recordId == null);
 		
-		boolean isAllowed = false;
+		boolean allowed = false;
 		if (action == BizzPermission.CREATE) {
 			// 明细实体
 			if (entity.getMasterEntity() != null) {
 				Field field = MetadataHelper.getSlaveToMasterField(entity);
+				Assert.notNull(field, "No STM field found : " + entity);
+
 				ID masterId = ((Record) idOrRecord).getID(field.getName());
 				if (masterId == null || !Application.getSecurityManager().allowUpdate(caller, masterId)) {
 					throw new AccessDeniedException("你没有添加明细的权限");
 				}
-				isAllowed = true;
+				allowed = true;
 			} else {
-				isAllowed = Application.getSecurityManager().allow(caller, entity.getEntityCode(), action);
+				allowed = Application.getSecurityManager().allow(caller, entity.getEntityCode(), action);
 			}
 			
 		} else {
@@ -133,17 +134,17 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 			    throw new IllegalArgumentException("No primary in record!");
 			}
 			
-			isAllowed = Application.getSecurityManager().allow(caller, recordId, action);
+			allowed = Application.getSecurityManager().allow(caller, recordId, action);
 		}
 
 		// 无权限操作
-		if (!isAllowed && IN_NOPERMISSION_PASS.get() != null) {
-			isAllowed = true;
+		if (!allowed && IN_NOPERMISSION_PASS.get() != null) {
+			allowed = true;
 			IN_NOPERMISSION_PASS.remove();
 			LOG.warn("Allow no permission passed : " + recordId);
 		}
 
-		if (!isAllowed) {
+		if (!allowed) {
 			LOG.error("User [ " + caller + " ] not allowed execute action [ " + action + " ]. " + (recordId == null ? "Entity : " + entity : "Record : " + recordId));
 		    throw new AccessDeniedException(formatHumanMessage(action, entity, recordId));
 		}

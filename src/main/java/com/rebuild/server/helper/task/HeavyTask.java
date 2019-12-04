@@ -51,7 +51,8 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runn
 
 	private int total = -1;
 	private int completed = 0;
-	
+	private int succeeded = 0;
+
 	private Date beginTime;
 	private Date completedTime;
 	
@@ -83,6 +84,10 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runn
         return completedTime;
     }
 
+	protected void addSucceeded() {
+		succeeded++;
+	}
+
     /**
      * 任务已耗时（ms）
      *
@@ -106,7 +111,7 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runn
 	}
 
     /**
-     * 已完成数量
+     * 完成数量
      *
      * @return
      */
@@ -115,7 +120,7 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runn
 	}
 
     /**
-     * 进度百分比
+     * 完成进度百分比
      *
      * @return
      */
@@ -136,6 +141,15 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runn
      */
 	public boolean isCompleted() {
 		return completedTime != null || (total != -1 && getCompleted() >= getTotal());
+	}
+
+	/**
+	 * 成功数量
+	 *
+	 * @return
+	 */
+	public int getSucceeded() {
+		return succeeded;
 	}
 
     /**

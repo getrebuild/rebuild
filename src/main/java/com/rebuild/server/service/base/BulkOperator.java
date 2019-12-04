@@ -49,11 +49,6 @@ public abstract class BulkOperator extends HeavyTask<Integer> {
 	private ID[] records;
 
 	/**
-	 * 成功的
-	 */
-	private int succeeded = 0;
-
-	/**
 	 * @param context
 	 * @param ges 可避免多次经由拦截器检查
 	 */
@@ -61,19 +56,6 @@ public abstract class BulkOperator extends HeavyTask<Integer> {
 		super();
 		this.context = context;
 		this.ges = ges;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getSucceeded() {
-		return succeeded;
-	}
-
-	/**
-	 */
-	protected void addSucceeded() {
-		succeeded++;
 	}
 
 	/**

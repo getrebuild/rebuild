@@ -469,9 +469,7 @@ public class GeneralEntityService extends ObservableService  {
 		Assert.isNull(recordOfNew.getPrimary(), "Must be new record");
 
 		Entity entity = recordOfNew.getEntity();
-		if (MetadataHelper.isBizzEntity(entity.getEntityCode())
-				|| !MetadataHelper.hasPrivilegesField(entity)) {
-			LOG.warn("Could't append Bizz and non-business entities : " + entity.getName());
+		if (MetadataHelper.isBizzEntity(entity.getEntityCode()) || !MetadataHelper.hasPrivilegesField(entity)) {
 			return;
 		}
 
@@ -496,7 +494,7 @@ public class GeneralEntityService extends ObservableService  {
 		Field[] seriesFields = MetadataSorter.sortFields(record.getEntity(), DisplayType.SERIES);
 		for (Field field : seriesFields) {
 			// 导入模式，不强制生成
-			if (record.hasValue(field.getName()) && DataImporter.isInImporting()) {
+			if (record.hasValue(field.getName()) && DataImporter.inImportingState()) {
 				continue;
 			}
 			record.setString(field.getName(), SeriesGeneratorFactory.generate(field));

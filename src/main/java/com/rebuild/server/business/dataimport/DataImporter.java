@@ -18,7 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.dataimport;
 
-import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.excel.Cell;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -26,21 +25,12 @@ import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
-import com.rebuild.server.configuration.portals.ClassificationManager;
-import com.rebuild.server.configuration.portals.PickListManager;
-import com.rebuild.server.helper.state.StateManager;
 import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.ExtRecordCreator;
 import com.rebuild.server.metadata.entity.DisplayType;
-import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.utils.JSONUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
 
-import java.text.MessageFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -61,9 +51,9 @@ public class DataImporter extends HeavyTask<Integer> {
 	
 	final private ImportRule rule;
 	final private ID owningUser;
-	
-	private int successed = 0;
-	private Map<Integer, Object> iLogging = new LinkedHashMap<>();
+
+	// 记录每一行的错误日志
+	private Map<Integer, Object> eachLogs = new LinkedHashMap<>();
 	
 	/**
 	 * @param rule
@@ -83,82 +73,65 @@ public class DataImporter extends HeavyTask<Integer> {
 	
 	@Override
 	protected Integer exec() throws Exception {
-		try {
-			final List<Cell[]> rows = new DataFileParser(rule.getSourceFile()).parse();
-			this.setTotal(rows.size() - 1);
+		final List<Cell[]> rows = new DataFileParser(rule.getSourceFile()).parse();
+		this.setTotal(rows.size() - 1);
 
-			// 指定的所属用户
-			setUser(this.owningUser);
-			IN_IMPORTING.set(owningUser);
+		// 指定的所属用户
+		setUser(this.owningUser);
+		IN_IMPORTING.set(owningUser);
 
-			int rowNo = 0;
-			for (final Cell[] row : rows) {
-				if (isInterrupt()) {
-					this.setInterrupted();
-					break;
-				}
-				if (rowNo++ == 0 || row == null) {
-					continue;
-				}
-
-				try {
-					Record record = checkoutRecord(row);
-					if (record != null) {
-						record = Application.getEntityService(rule.getToEntity().getEntityCode()).createOrUpdate(record);
-						this.successed++;
-						iLogging.put(rowNo, record.getPrimary());
-					}
-				} catch (Exception ex) {
-					iLogging.put(rowNo, ex.getLocalizedMessage());
-					LOG.warn(rowNo + " > " + ex);
-				} finally {
-					this.addCompleted();
-				}
+		for (final Cell[] row : rows) {
+			if (isInterrupt()) {
+				this.setInterrupted();
+				break;
 			}
-		} finally {
-			IN_IMPORTING.remove();
+
+			Cell firstCell = row == null || row.length == 0 ? null : row[0];
+			if (firstCell == null || firstCell.getRowNo() == 0) {
+				continue;
+			}
+
+			try {
+				Record record = checkoutRecord(row);
+				if (record != null) {
+					record = Application.getEntityService(rule.getToEntity().getEntityCode()).createOrUpdate(record);
+					this.addSucceeded();
+					eachLogs.put(firstCell.getRowNo(), record.getPrimary());
+				}
+			} catch (Exception ex) {
+				eachLogs.put(firstCell.getRowNo(), ex.getLocalizedMessage());
+				LOG.error(firstCell.getRowNo() + " > " + ex);
+			}
+			this.addCompleted();
 		}
-		return this.successed;
+
+		return this.getSucceeded();
 	}
-	
-	/**
-	 * @return
-	 */
-	public int getSuccessed() {
-		return successed;
+
+	@Override
+	protected void completedAfter() {
+		super.completedAfter();
+		IN_IMPORTING.remove();
 	}
 
 	/**
+	 * 获取错误日志（按错误行）
+	 *
 	 * @return
 	 */
-	public Map<Integer, Object> getLogging() {
-		return iLogging;
+	public Map<Integer, Object> getEachLogs() {
+		return eachLogs;
 	}
 	
 	/**
-	 * @param cells
+	 * @param row
 	 * @return
 	 */
-	protected Record checkoutRecord(Cell[] cells) {
+	protected Record checkoutRecord(Cell[] row) {
 		Record recordNew = EntityHelper.forNew(rule.getToEntity().getEntityCode(), this.owningUser);
-		
-		for (Map.Entry<Field, Integer> e : rule.getFiledsMapping().entrySet()) {
-			int cellIndex = e.getValue();
-			if (cells.length > cellIndex) {
-				Field field = e.getKey();
-				Cell cellValue = cells[cellIndex];
-				Object value = checkoutFieldValue(field, cellValue, true);
-
-				if (value != null) {
-					recordNew.setObjectValue(field.getName(), value);
-				} else if (cellValue != Cell.NULL && !cellValue.isEmpty()) {
-					LOG.warn("Invalid value of cell : " + cellValue + " > " + field.getName());
-				}
-			}
-		}
 
 		// 新建
-		Record record = recordNew;
+		Record record = new RecordCheckout(rule.getFiledsMapping()).checkout(recordNew, row);
 		
 		// 检查重复
 		if (rule.getRepeatOpt() < ImportRule.REPEAT_OPT_IGNORE) {
@@ -189,182 +162,6 @@ public class DataImporter extends HeavyTask<Integer> {
 			verifier.verify(record, true);
 		}
 		return record;
-	}
-	
-	/**
-	 * @param field
-	 * @param cell
-	 * @param validate
-	 * @return
-	 */
-	protected Object checkoutFieldValue(Field field, Cell cell, boolean validate) {
-		final DisplayType dt = EasyMeta.getDisplayType(field);
-		if (dt == DisplayType.NUMBER) {
-			return cell.asLong();
-		} else if (dt == DisplayType.DECIMAL) {
-			return cell.asDouble();
-		} else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
-			return checkoutDateValue(field, cell);
-		} else if (dt == DisplayType.PICKLIST) {
-			return checkoutPickListValue(field, cell);
-		} else if (dt == DisplayType.CLASSIFICATION) {
-			return checkoutClassificationValue(field, cell);
-		} else if (dt == DisplayType.REFERENCE) {
-			return checkoutReferenceValue(field, cell);
-		} else if (dt == DisplayType.BOOL) {
-			return cell.asBool();
-		} else if (dt == DisplayType.STATE) {
-			return checkoutStateValue(field, cell);
-		}
-		
-		// 格式验证
-		if (validate) {
-			if (dt == DisplayType.EMAIL) {
-				String email = cell.asString();
-				return RegexUtils.isEMail(email) ? email : null;
-			} else if (dt == DisplayType.URL) {
-				String url = cell.asString();
-				return RegexUtils.isUrl(url) ? url : null;
-			} else if (dt == DisplayType.PHONE) {
-				String tel = cell.asString();
-				return RegexUtils.isCNMobile(tel) || RegexUtils.isTel(tel)? tel : null;
-			}
-		}
-		return cell.asString();
-	}
-	
-	/**
-	 * @param field
-	 * @param cell
-	 * @return
-	 */
-	private ID checkoutPickListValue(Field field, Cell cell) {
-		String val = cell.asString();
-		if (StringUtils.isBlank(val)) {
-			return null;
-		}
-		
-		// 支持ID
-		if (ID.isId(val) && ID.valueOf(val).getEntityCode() == EntityHelper.PickList) {
-			ID iid = ID.valueOf(val);
-			if (PickListManager.instance.getLabel(iid) != null) {
-				return iid;
-			} else {
-				LOG.warn("No item of PickList found by ID : " + iid);
-				return null;
-			}
-		} else {
-			return PickListManager.instance.findItemByLabel(val, field);
-		}
-	}
-
-	/**
-	 * @param field
-	 * @param cell
-	 * @return
-	 */
-	private Integer checkoutStateValue(Field field, Cell cell) {
-		final String val = cell.asString();
-		if (StringUtils.isBlank(val)) {
-			return null;
-		}
-
-		Integer state = StateManager.instance.getState(field, val);
-		if (state != null) {
-			return state;
-		}
-
-		// 兼容状态值
-		if (NumberUtils.isNumber(val)) {
-			return NumberUtils.toInt(val);
-		}
-		return null;
-	}
-
-	/**
-	 * @param field
-	 * @param cell
-	 * @return
-	 */
-	private ID checkoutClassificationValue(Field field, Cell cell) {
-		String val = cell.asString();
-		if (StringUtils.isBlank(val)) {
-			return null;
-		}
-		
-		// 支持ID
-		if (ID.isId(val) && ID.valueOf(val).getEntityCode() == EntityHelper.ClassificationData) {
-			ID iid = ID.valueOf(val);
-			if (ClassificationManager.instance.getName(iid) != null) {
-				return iid;
-			} else {
-				LOG.warn("No item of Classification found by ID : " + iid);
-				return null;
-			}
-		} else {
-			return ClassificationManager.instance.findItemByName(val, field);
-		}
-	}
-	
-	/**
-	 * @param field
-	 * @param cell
-	 * @return
-	 */
-	private ID checkoutReferenceValue(Field field, Cell cell) {
-		String val = cell.asString();
-		if (StringUtils.isBlank(val)) {
-			return null;
-		}
-		
-		Entity oEntity = field.getReferenceEntity();
-		
-		// 支持ID导入
-		if (ID.isId(val) && ID.valueOf(val).getEntityCode().intValue() == oEntity.getEntityCode()) {
-			return ID.valueOf(val);
-		}
-		
-		Object textVal = checkoutFieldValue(oEntity.getNameField(), cell, false);
-		if (textVal == null) {
-			return null;
-		}
-		
-		Query query;
-		if (oEntity.getEntityCode() == EntityHelper.User) {
-			String sql = MessageFormat.format(
-					"select userId from User where loginName = ''{0}'' or email = ''{0}'' or fullName = ''{0}''",
-					StringEscapeUtils.escapeSql(textVal.toString()));
-			query = Application.createQueryNoFilter(sql);
-		} else {
-			String sql = String.format("select %s from %s where %s = ?",
-					oEntity.getPrimaryField().getName(), oEntity.getName(), oEntity.getNameField().getName());
-			query = Application.createQueryNoFilter(sql).setParameter(1, textVal);
-		}
-
-		Object[] found = query.unique();
-		return found != null ? (ID) found[0] : null;
-	}
-	
-	/**
-	 * @param field
-	 * @param cell
-	 * @return
-	 */
-	private Date checkoutDateValue(Field field, Cell cell) {
-		Date date = cell.asDate();
-		if (date != null) {
-			return date;
-		}
-		if (cell.isEmpty()) {
-			return null;
-		}
-		
-		String date2str = cell.asString();
-		// 2017/11/19 11:07
-		if (date2str.contains("/")) {
-			return cell.asDate(new String[] { "yyyy/M/d H:m:s", "yyyy/M/d H:m", "yyyy/M/d" });
-		}
-		return null;
 	}
 	
 	/**
@@ -405,11 +202,11 @@ public class DataImporter extends HeavyTask<Integer> {
 	// --
 	
 	/**
-	 * 是否导入模式
+	 * 是否为导入状态
 	 * 
 	 * @return
 	 */
-	public static boolean isInImporting() {
+	public static boolean inImportingState() {
 		return IN_IMPORTING.get() != null;
 	}
 }
