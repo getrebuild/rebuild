@@ -1974,8 +1974,7 @@ form {
     z-index: 1090;
 }
 
-.rb-notifications .notification>a .notification-info .text>p,
-.card-body.rb-notifications .notification>a .text>p {
+.rb-notifications .notification .text>p {
     margin: 0;
 }
 
@@ -2456,7 +2455,7 @@ form {
     padding-top: 45px
 }
 
-.notification-list .notification>a {
+.notification-list .notification>.a {
     cursor: default;
     padding-left: 10px;
 }
@@ -2535,6 +2534,11 @@ form {
     right: 0
 }
 
+@media (max-width:768px) {
+    .float-right .rb-notifications {
+        right: 0;
+    }
+}
 
 .select2-sm .select2-container--default .select2-selection--single,
 .select2-sm .select2-container--default .select2-selection--multiple {

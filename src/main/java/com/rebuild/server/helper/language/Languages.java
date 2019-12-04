@@ -138,8 +138,27 @@ public class Languages {
      * @param key
      * @param insideKeys
      * @return
+     * @see #currentBundle()
      */
     public static String lang(String key, String...insideKeys) {
-        return instance.getCurrentBundle().lang(key, insideKeys);
+        return currentBundle().lang(key, insideKeys);
+    }
+
+    /**
+     * 当前用户语言
+     *
+     * @return
+     */
+    public static LanguageBundle currentBundle() {
+        return instance.getCurrentBundle();
+    }
+
+    /**
+     * 默认语言
+     *
+     * @return
+     */
+    public static LanguageBundle defaultBundle() {
+        return instance.getDefaultBundle();
     }
 }

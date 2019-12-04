@@ -53,36 +53,6 @@ window.__PageConfig = {
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms.exts.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>
-<script type="text/babel">
-let RbForm_postAfter = RbForm.postAfter
-RbForm.postAfter = function() {
-	RbForm_postAfter()
-	if (parent && parent.loadDeptTree) parent.loadDeptTree()
-}
-$(document).ready(function() {
-	$('.J_delete').off('click').click(function() {
-		$.get(rb.baseUrl + '/admin/bizuser/delete-checks?id=${id}', function(res) {
-			if (res.data.hasMember == 0 && res.data.hasChild == 0){
-				RbAlert.create('此部门可以被安全的删除', '删除部门', { type: 'danger', confirmText: '删除', confirm: function(){ deleteDept(this) } })
-			} else {
-				let msg = '此部门下有 '
-				if (res.data.hasMember > 0) msg += '<b>' + res.data.hasMember + '</b> 个用户' + (res.data.hasMember > 0 ? '和 ' : ' ')
-				if (res.data.hasMember > 0) msg += '<b>' + res.data.hasMember + '</b> 个子部门'
-				msg += '<br>需要先将他们转移至其他部门，然后才能安全删除'
-				RbAlert.create(msg, '无法删除', { type: 'warning', html: true })
-			}
-		})
-	})
-})
-let deleteDept = function(dlg){
-	dlg.disabled(true)
-	$.post(rb.baseUrl + '/admin/bizuser/dept-delete?transfer=&id=${id}', function(res){
-		if (res.error_code == 0) {
-			parent.location.hash = '!/View/'
-			parent.location.reload()
-		} else RbHighbar.error(res.error_msg)
-	})
-}
-</script>
+<script src="${baseUrl}/assets/js/bizuser/dept-view.jsx" type="text/babel"></script>
 </body>
 </html>

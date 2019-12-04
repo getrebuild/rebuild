@@ -113,6 +113,17 @@ public class LanguageBundle implements JSONable {
 
     /**
      * @param key
+     * @param args
+     * @return
+     * @see String#format(String, Object...)
+     */
+    public String formatLang(String key, Object... args) {
+        String lang = lang(key);
+        return String.format(lang, args);
+    }
+
+    /**
+     * @param key
      * @return
      */
     private String getLang(String key) {

@@ -26,7 +26,7 @@
   "ReturnHome": "Go Home",
   "ReportIssue": "Report an issue",
   "SignupNotOpenTip": "Administrator has not opened public signup",
-  "UnsetEmailTip": "If you forgot or did not configure your email, please contact the administrator to reset your password",
+  "UnsetEmailTip": "If you forgot or unfilled email, please contact your administrator to reset your password",
   "InputEmailPls": "Please enter email",
   "InputNewPasswordPls": "Enter new password",
   "PasswordNotMatch": "The new password not match.",

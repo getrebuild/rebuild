@@ -4,30 +4,36 @@ $(document).ready(function () {
     $.get(rb.baseUrl + '/admin/bizuser/delete-checks?id=' + user_id, function (res) {
       if (res.data.hasMember === 0) {
         RbAlert.create('此用户可以被安全的删除', '删除用户', {
+          icon: 'alert-circle-o',
           type: 'danger',
           confirmText: '删除',
           confirm: function () { deleteUser(user_id, this) }
         })
       } else {
         RbAlert.create('此用户已被使用过，因此不能删除。建议你可以将其停用', '无法删除', {
-          type: 'warning',
+          icon: 'alert-circle-o',
+          type: 'danger',
           confirmText: '停用',
-          confirm: () => { toggleDisabled(true) }
+          confirm: function () { toggleDisabled(true, this) }
         })
       }
     })
   })
 
   $('.J_disable').click(() => {
-    RbAlert.create('确定要停用此用户吗？', { type: 'warning', confirm: () => { toggleDisabled(true) } })
+    RbAlert.create('确定要停用此用户吗？', {
+      confirmText: '停用',
+      confirm: function () { toggleDisabled(true, this) }
+    })
   })
-  $('.J_enable').click(() => { toggleDisabled(false) })
+  $('.J_enable').click(() => toggleDisabled(false))
 
   $('.J_changeRole').click(() => { renderRbcomp(<DlgEnableUser user={user_id} role={true} />) })
   $('.J_changeDept').click(() => { renderRbcomp(<DlgEnableUser user={user_id} dept={true} />) })
 
   if (rb.isAdminVerified === true) {
     $.get(rb.baseUrl + '/admin/bizuser/check-user-status?id=' + user_id, (res) => {
+      if (res.error_code > 0) return
       if (res.data.system === true && rb.isAdminVerified === true) {
         $('.J_tips').removeClass('hide').find('.message p').text('系统内建超级管理员，不允许修改。此用户拥有最高级系统权限，请谨慎使用')
         $('.view-action').remove()
@@ -57,19 +63,20 @@ $(document).ready(function () {
 })
 
 // 启用/禁用
-const toggleDisabled = function (disabled) {
+const toggleDisabled = function (disabled, alert) {
+  alert && alert.disabled(true)
   let _data = { user: user_id, enable: !disabled }
   $.post(rb.baseUrl + '/admin/bizuser/enable-user', JSON.stringify(_data), (res) => {
     if (res.error_code === 0) {
-      RbHighbar.create('用户已' + (disabled ? '停用' : '启用'), 'success')
-      setTimeout(() => { location.reload() }, 500)
-    }
+      RbHighbar.success('用户已' + (disabled ? '停用' : '启用'))
+      setTimeout(() => location.reload(), 500)
+    } else RbHighbar.error(res.error_msg)
   })
 }
 
 // 删除用户
-const deleteUser = function (id, dlg) {
-  dlg.disabled(true)
+const deleteUser = function (id, alert) {
+  alert && alert.disabled(true)
   $.post(rb.baseUrl + '/admin/bizuser/user-delete?id=' + id, (res) => {
     if (res.error_code === 0) {
       parent.location.hash = '!/View/'

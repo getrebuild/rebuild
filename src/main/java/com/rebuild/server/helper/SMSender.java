@@ -195,6 +195,8 @@ public class SMSender {
 	}
 	
 	/**
+     * 短信服务可用
+     *
 	 * @return
 	 */
 	public static boolean availableSMS() {
@@ -202,6 +204,8 @@ public class SMSender {
 	}
 	
 	/**
+     * 邮件服务可用
+     *
 	 * @return
 	 */
 	public static boolean availableMail() {

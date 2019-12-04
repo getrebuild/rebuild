@@ -118,7 +118,9 @@ public class GeneralDataListControll extends BaseEntityControll {
 				url = MessageFormat.format("{0}/list#!/View/{0}/{1}", entity.getName(), id);
 			} else if (entity.getEntityCode() == EntityHelper.Feeds) {
 				url = "../feeds/home#s=" + id;
-			}
+			} else if (entity.getEntityCode() == EntityHelper.User) {
+                url = MessageFormat.format("../admin/bizuser/users#!/View/{0}/{1}", entity.getName(), id);
+            }
 		}
 
 	    if (url != null) {
