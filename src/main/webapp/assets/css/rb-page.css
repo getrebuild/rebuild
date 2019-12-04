@@ -277,6 +277,15 @@ a.btn {
     opacity: 0.8;
 }
 
+.rb-left-sidebar .sidebar-elements a>.icon.zmdi-layers {
+    font-size: 22px;
+    margin-top: 0;
+}
+
+.rb-left-sidebar .sidebar-elements a>.icon.zmdi-puzzle-piece {
+    font-size: 18px;
+}
+
 .rb-color-header .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar .icon {
     color: rgba(255, 255, 255, .6)
 }
@@ -1852,11 +1861,6 @@ form.simple {
     max-width: 900px;
 }
 
-.rb-left-sidebar .sidebar-elements>li>a .icon.x21,
-.rb-left-sidebar .sidebar-elements .sub-menu li>a .icon.x21 {
-    font-size: 21px;
-}
-
 .fs-0 {
     font-size: 0;
 }
@@ -3047,4 +3051,21 @@ a.icon-link>.zmdi {
     font-size: 1.231rem;
     margin-top: 2px;
     left: 0;
+}
+
+.syscfg h5 {
+    background-color: #eee;
+    margin: 0;
+    padding: 10px;
+}
+
+.syscfg .table td {
+    padding: 10px;
+}
+
+.syscfg .table td p {
+    margin: 0;
+    color: #999;
+    font-weight: normal;
+    font-size: 12px;
 }

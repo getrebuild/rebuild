@@ -5,11 +5,6 @@
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <title>云存储配置</title>
-<style type="text/css">
-.syscfg h5{background-color:#eee;margin:0;padding:10px;}
-.syscfg .table td{padding:10px;}
-.syscfg .table td p{margin:0;color:#999;font-weight:normal;font-size:12px;}
-</style>
 </head>
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header">
@@ -48,10 +43,10 @@
 							</tbody>
 							</table>
 							<c:if test="${!storageStatus}">
-								<div class="alert alert-warning alert-icon mt-6">
-									<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
-									<div class="message">七牛云存储账户配置有误，当前已启用本地文件存储</div>
-								</div>
+                            <div class="alert alert-warning alert-icon mt-6">
+                                <div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
+                                <div class="message">七牛云存储账户未配置或配置有误，当前已启用本地文件存储</div>
+                            </div>
 							</c:if>
 						</div>
 					</div>

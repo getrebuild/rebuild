@@ -13,7 +13,7 @@
 	<div class="tab-container">
 		<ul class="nav nav-tabs">
 			<li class="nav-item"><a class="nav-link active" href="#MANUAL" data-toggle="tab">手动</a></li>
-			<li class="nav-item"><a class="nav-link J_imports" href="#IMPORTS" data-toggle="tab">导入公共数据</a></li>
+			<li class="nav-item"><a class="nav-link J_imports" href="#IMPORTS" data-toggle="tab"><i class="icon zmdi zmdi-cloud-outline-alt"></i> 从 RB 仓库导入</a></li>
 		</ul>
 		<div class="tab-content m-0 pb-0">
 			<div class="tab-pane active" id="MANUAL">

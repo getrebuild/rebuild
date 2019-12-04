@@ -70,7 +70,7 @@ public class SysConfigurationControll extends BasePageControll {
 		return mv;
 	}
 	
-	@RequestMapping("systems/submail")
+	@RequestMapping("integration/submail")
 	public ModelAndView pageIntegrationSubmail() {
 		ModelAndView mv = createModelAndView("/admin/integration/submail.jsp");
 		mv.getModel().put("smsAccount", 
