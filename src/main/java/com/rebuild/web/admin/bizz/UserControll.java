@@ -28,6 +28,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.DataListManager;
 import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.server.helper.language.Languages;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.bizz.privileges.Department;
@@ -53,8 +54,6 @@ import java.util.Map;
 @Controller
 @RequestMapping("/admin/bizuser/")
 public class UserControll extends BaseEntityControll {
-	
-	private static final String MSG_ENABLED = "<p>%s 你的账户已激活！现在你可以登陆并使用系统。</p><div style='margin:10px 0'>登录地址 <a href='%s'>%s</a></div><p>首次登陆，建议你立即修改密码！如有任何登陆或使用问题，请与系统管理员联系。</p>";
 	
 	@RequestMapping("users")
 	public ModelAndView pageList(HttpServletRequest request) throws IOException {
@@ -98,7 +97,7 @@ public class UserControll extends BaseEntityControll {
 		
 		ID user = ID.valueOf(data.getString("user"));
 		User u = Application.getUserStore().getUser(user);
-		final boolean isDisabled = u.isDisabled();
+		final boolean beforeDisabled = u.isDisabled();
 		
 		ID deptNew = null;
 		ID roleNew = null;
@@ -122,17 +121,19 @@ public class UserControll extends BaseEntityControll {
 		
 		Application.getBean(UserService.class).updateEnableUser(user, deptNew, roleNew, enableNew);
 	
-		// 是否发送激活通知
+		// 是否需要发送激活通知
 		u = Application.getUserStore().getUser(user);
-		if (isDisabled && u.isActive() && SMSender.availableMail()) {
+		if (beforeDisabled && u.isActive() && SMSender.availableMail() && u.getEmail() != null) {
 			Object did = Application.createQuery(
 					"select logId from LoginLog where user = ?")
 					.setParameter(1, u.getId())
 					.unique();
 			if (did == null) {
 				String homeUrl = SysConfiguration.getHomeUrl();
-				String content = String.format(MSG_ENABLED, u.getFullName(), homeUrl, homeUrl);
-				SMSender.sendMailAsync(u.getEmail(), "你的账户已激活", content);
+				String content = Languages.defaultBundle().formatLang("NewUserAccountActive",
+                        u.getFullName(), homeUrl, homeUrl);
+				SMSender.sendMailAsync(u.getEmail(),
+                        Languages.defaultBundle().lang("YourAccountActive"), content);
 			}
 		}
 		
@@ -161,7 +162,8 @@ public class UserControll extends BaseEntityControll {
 			hasMember = ObjectUtils.toInt(hasLogin[0]);
 		}
 
-		JSONObject ret = JSONUtils.toJSONObject(new String[] { "hasMember", "hasChild" },
+		JSONObject ret = JSONUtils.toJSONObject(
+		        new String[] { "hasMember", "hasChild" },
 				new Object[] { hasMember, hasChild });
 		writeSuccess(response, ret);
 	}
