@@ -85,7 +85,7 @@ public class RBStore {
 		}
 		
 		if (d == null) {
-			throw new RebuildException("无法读取远程数据");
+			throw new RebuildException("无法读取 RB 仓库数据");
 		}
 		return d;
 	}
