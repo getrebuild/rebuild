@@ -92,7 +92,7 @@ public class MetadataGetting extends BaseControll {
 				int entityCode = field.getReferenceEntity().getEntityCode();
 				if (!(MetadataHelper.isBizzEntity(entityCode) || entityCode == EntityHelper.RobotApprovalConfig)) {
 					// 父级引用字段
-					list.add(this.buildField(field));
+					list.add(buildField(field));
 					// 引用实体字段
 					putFields(list, field.getReferenceEntity(), false, easyField, fromType);
 				}
@@ -116,7 +116,7 @@ public class MetadataGetting extends BaseControll {
 				continue;
 			}
 			
-			Map<String, Object> map = this.buildField(field);
+			Map<String, Object> map = buildField(field);
 			// 引用字段处理
 			if (EasyMeta.getDisplayType(field) == DisplayType.REFERENCE) {
 				Entity refEntity = field.getReferenceEntity();
