@@ -224,17 +224,16 @@ class RbAlert extends React.Component {
   // -- Usage
   /**
    * @param {*} message 
-   * @param {*} titleExt 
+   * @param {*} titleOrExt 
    * @param {*} ext 
    */
-  static create(message, titleExt, ext) {
-    let title = titleExt
-    if ($.type(titleExt) === 'object') {
-      title = null
-      ext = titleExt
+  static create(message, titleOrExt, ext) {
+    if (typeof titleOrExt === 'object') {
+      ext = titleOrExt
+      titleOrExt = null
     }
     ext = ext || {}
-    let props = { ...ext, title: title }
+    let props = { ...ext, title: titleOrExt }
     if (ext.html === true) props.htmlMessage = message
     else props.message = message
     renderRbcomp(<RbAlert {...props} />, null, ext.call)
@@ -300,7 +299,7 @@ class RbHighbar extends React.Component {
   }
 }
 
-// ~~ 加载界面
+// ~~ 加载动画
 function RbSpinner(props) {
   let spinner = <div className="rb-spinner">
     <svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">

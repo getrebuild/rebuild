@@ -164,7 +164,7 @@ const step_import = () => {
     if (field) fm[field] = col
   })
   $(fields_cached).each((idx, item) => {
-    if (item.isNullable === true || !!item.defaultValue) {
+    if (item.nullable === true || !!item.defaultValue) {
       // Not be must
     } else if (fm[item.name] === undefined) {
       RbHighbar.create(item.label + ' 为必填字段，请选择')
@@ -175,14 +175,20 @@ const step_import = () => {
   if (!fm) return
   ientry.fields_mapping = fm
 
-  step_import_show()
-  $.post(`${rb.baseUrl}/admin/datas/data-importer/import-submit`, JSON.stringify(ientry), function (res) {
-    if (res.error_code === 0) {
-      import_inprogress = true
-      import_taskid = res.data.taskid
-      location.hash = '#task=' + import_taskid
-      import_state(import_taskid)
-    } else RbHighbar.error(res.error_msg)
+  RbAlert.create('请再次确认导入选项和字段映射。开始导入吗？', {
+    confirm: function () {
+      this.disabled(true)
+      $.post(`${rb.baseUrl}/admin/datas/data-importer/import-submit`, JSON.stringify(ientry), (res) => {
+        if (res.error_code === 0) {
+          this.hide()
+          step_import_show()
+          import_inprogress = true
+          import_taskid = res.data.taskid
+          location.hash = '#task=' + import_taskid
+          import_state(import_taskid)
+        } else RbHighbar.error(res.error_msg)
+      })
+    }
   })
 }
 const step_import_show = () => {
@@ -191,7 +197,7 @@ const step_import_show = () => {
   $('.steps li[data-step=3], .step-content .step-pane[data-step=3]').addClass('active')
 }
 const import_state = (taskid, inLoad) => {
-  $.get(`${rb.baseUrl}/admin/datas/data-importer/import-state?taskid=${taskid}`, (res) => {
+  $.get(`${rb.baseUrl}/commons/task/state?taskid=${taskid}`, (res) => {
     if (res.error_code !== 0) {
       if (inLoad === true) step_upload()
       else RbHighbar.error(res.error_msg)
@@ -199,7 +205,7 @@ const import_state = (taskid, inLoad) => {
       return
     }
     if (!res.data) {
-      setTimeout(() => { import_state(taskid) }, 1000)
+      setTimeout(() => import_state(taskid), 1000)
       return
     }
 
@@ -208,9 +214,9 @@ const import_state = (taskid, inLoad) => {
 
     if (_data.isCompleted === true) {
       $('.J_import-bar').css('width', '100%')
-      $('.J_import_state').text('导入完成。共成功导入 ' + _data.success + ' 条数据')
+      $('.J_import_state').text('导入完成。共成功导入 ' + _data.succeeded + ' 条数据')
     } else if (_data.isInterrupted === true) {
-      $('.J_import_state').text('导入被终止。已成功导入 ' + _data.success + ' 条数据')
+      $('.J_import_state').text('导入被终止。已成功导入 ' + _data.succeeded + ' 条数据')
     }
     if (_data.isCompleted === true || _data.isInterrupted === true) {
       $('.J_step3-cancel').attr('disabled', true).text('导入完成')
@@ -220,18 +226,18 @@ const import_state = (taskid, inLoad) => {
     }
 
     if (_data.total > -1) {
-      $('.J_import_state').text('正在导入 ... ' + _data.complete + ' / ' + _data.total)
-      $('.J_import-bar').css('width', (_data.complete * 100 / _data.total) + '%')
+      $('.J_import_state').text('正在导入 ... ' + _data.completed + ' / ' + _data.total)
+      $('.J_import-bar').css('width', (_data.progress * 100) + '%')
     }
     setTimeout(() => { import_state(taskid) }, 500)
   })
 }
 const import_cancel = () => {
-  RbAlert.create('确认要终止导入？请注意已导入数据无法自动删除', {
+  RbAlert.create('确认终止导入？请注意已导入数据无法自动删除', {
     type: 'danger',
     confirmText: '确认终止',
     confirm: function () {
-      $.post(`${rb.baseUrl}/admin/datas/data-importer/import-cancel?taskid=${import_taskid}`, (res) => {
+      $.post(`${rb.baseUrl}/commons/task/cancel?taskid=${import_taskid}`, (res) => {
         if (res.error_code > 0) RbHighbar.error(res.error_msg)
       })
       this.hide()
@@ -244,7 +250,7 @@ const render_fieldsMapping = (columns, fields) => {
   let fields_map = {}
   let fields_select = $('<select><option value="">无</option></select>')
   $(fields).each((idx, item) => {
-    let canNull = item.isNullable === false ? ' [必填]' : ''
+    let canNull = item.nullable === false ? ' [必填]' : ''
     if (item.defaultValue) canNull = ''
     $('<option value="' + item.name + '">' + item.label + canNull + '</option>').appendTo(fields_select)
     fields_map[item.name] = item

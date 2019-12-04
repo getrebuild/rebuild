@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server;
 
+import cn.devezhao.commons.excel.Cell;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.engine.ID;
@@ -91,6 +92,7 @@ public final class Application {
 		SerializeConfig.getGlobalInstance().put(Date.class, RbDateCodec.instance);
 		SerializeConfig.getGlobalInstance().put(StandardRecord.class, RbRecordCodec.instance);
 		SerializeConfig.getGlobalInstance().put(QueryedRecord.class, RbRecordCodec.instance);
+		SerializeConfig.getGlobalInstance().put(Cell.class, ToStringSerializer.instance);
 	}
 	
 	// 调试模式/开发模式

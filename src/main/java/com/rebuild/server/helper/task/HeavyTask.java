@@ -51,8 +51,9 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runn
 
 	private int total = -1;
 	private int completed = 0;
-	
-	private Date beginTime;
+	private int succeeded = 0;
+
+	final private Date beginTime;
 	private Date completedTime;
 	
 	private String errorMessage;
@@ -83,14 +84,18 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runn
         return completedTime;
     }
 
+	protected void addSucceeded() {
+		succeeded++;
+	}
+
     /**
      * 任务已耗时（ms）
      *
      * @return
      */
     public long getElapsedTime() {
-        if (completedTime != null) {
-            return completedTime.getTime() - beginTime.getTime();
+        if (getCompletedTime() != null) {
+            return getCompletedTime().getTime() - beginTime.getTime();
         } else {
             return CalendarUtils.now().getTime() - beginTime.getTime();
         }
@@ -106,7 +111,7 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runn
 	}
 
     /**
-     * 已完成数量
+     * 完成数量
      *
      * @return
      */
@@ -115,7 +120,7 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runn
 	}
 
     /**
-     * 进度百分比
+     * 完成进度百分比
      *
      * @return
      */
@@ -135,7 +140,16 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runn
      * @return
      */
 	public boolean isCompleted() {
-		return completedTime != null || (total != -1 && getCompleted() >= getTotal());
+		return getCompletedTime() != null || (total != -1 && getCompleted() >= getTotal());
+	}
+
+	/**
+	 * 成功数量
+	 *
+	 * @return
+	 */
+	public int getSucceeded() {
+		return succeeded;
 	}
 
     /**
