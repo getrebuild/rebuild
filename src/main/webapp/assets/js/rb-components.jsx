@@ -299,6 +299,19 @@ class RbHighbar extends React.Component {
   }
 }
 
+// ~~ 提示条
+function RbAlertBox(props) {
+  let type = (props || {}).type || 'warning'
+  let icon = type === 'success' ? 'check' : (type === 'danger' ? 'close-circle-o' : 'info-outline')
+  return <div className={`alert alert-icon alert-icon-border alert-dismissible alert-sm alert-${type}`}>
+    <div className="icon"><i className={`zmdi zmdi-${icon}`} /></div>
+    <div className="message">
+      <a className="close" data-dismiss="alert"><i className="zmdi zmdi-close" /></a>
+      <p>{props.message || 'INMESSAGE'}</p>
+    </div>
+  </div>
+}
+
 // ~~ 加载动画
 function RbSpinner(props) {
   let spinner = <div className="rb-spinner">
@@ -308,19 +321,6 @@ function RbSpinner(props) {
   </div>
   if (props && props.fully === true) return <div className="rb-loading rb-loading-active">{spinner}</div>
   return spinner
-}
-
-// ~~ 提示条幅
-function RbAlertBox(props) {
-  let icon = props.type === 'success' ? 'check' : 'info-outline'
-  if (props.type === 'danger') icon = 'close-circle-o'
-  return (<div className={'alert alert-icon alert-dismissible alert-sm alert-' + (props.type || 'warning')}>
-    <div className="icon"><span className={'zmdi zmdi-' + icon} /></div>
-    <div className="message">
-      <a className="close" data-dismiss="alert"><span className="zmdi zmdi-close" /></a>
-      <p>{props.message}</p>
-    </div>
-  </div>)
 }
 
 // ~~ 用户选择器

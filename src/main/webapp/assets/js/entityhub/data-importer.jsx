@@ -41,7 +41,7 @@ $(document).ready(() => {
       allowClear: false
     }).on('change', function () {
       fileds_render($(this).val())
-      check_ouser()
+      check_user()
     })
     if ($urlp('entity')) entityS2.val($urlp('entity'))
     entityS2.trigger('change')
@@ -74,7 +74,7 @@ $(document).ready(() => {
     }
   }).on('change', function () {
     ientry.owning_user = $(this).val() || null
-    check_ouser()
+    check_user()
   })
 
   $('.J_step1-btn').click(step_mapping)
@@ -110,25 +110,18 @@ const init_upload = () => {
   })
 }
 
-const check_ouser = () => {
-  $setTimeout(check_ouser0, 200, 'check_ouser')
-}
-const check_ouser0 = () => {
-  if (!(ientry.entity && ientry.owning_user)) return
-  $.get(`${rb.baseUrl}/admin/datas/data-importer/check-user-privileges?ouser=${ientry.owning_user}&entity=${ientry.entity}`, (res) => {
+// 检查所属用户权限
+const check_user = () => $setTimeout(check_user0, 200, 'check_user')
+const check_user0 = () => {
+  if (!ientry.entity || !ientry.owning_user) return
+  $.get(`${rb.baseUrl}/admin/datas/data-importer/check-user?user=${ientry.owning_user}&entity=${ientry.entity}`, (res) => {
     let hasError = []
     if (res.data.canCreate !== true) hasError.push('新建')
     if (res.data.canUpdate !== true) hasError.push('更新')
-    if (hasError.length >= 2) {
-      $('.J_step1-btn').attr('disabled', true)
-      renderRbcomp(<RbAlertBox type="danger" message={'选择的用户无' + hasError.join('及') + '权限，请选择其他用户'} />, 'ouser-warn')
+    if (hasError.length > 0) {
+      renderRbcomp(<RbAlertBox message={`选择的用户无 ${hasError.join('/')} 权限。但作为管理员，你可以强制导入`} />, 'user-warn')
     } else {
-      $('.J_step1-btn').attr('disabled', false)
-      if (hasError.length > 0) {
-        renderRbcomp(<RbAlertBox message={'选择的用户无' + hasError.join('/') + '权限，可能导致部分数据导入失败'} />, 'ouser-warn')
-      } else {
-        $('#ouser-warn').empty()
-      }
+      $('#user-warn').empty()
     }
   })
 }

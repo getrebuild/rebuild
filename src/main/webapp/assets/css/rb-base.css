@@ -5795,8 +5795,8 @@ input[type=submit].btn-block {
     font-weight: 700
 }
 
-.alert-dismissible {
-    padding-right: 4.27rem
+.alert-dismissible .message>p {
+    padding-right: 2.4rem
 }
 
 .alert-dismissible .close {

@@ -98,8 +98,8 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		
 		Object idOrRecord = invocation.getArguments()[0];
 		
-		ID recordId = null;
-		Entity entity = null;
+		ID recordId;
+		Entity entity;
 		
 		if (idOrRecord instanceof Record) {
 			recordId = ((Record) idOrRecord).getPrimary();
@@ -113,7 +113,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		
 		Permission action = getPermissionByMethod(invocation.getMethod(), recordId == null);
 		
-		boolean allowed = false;
+		boolean allowed;
 		if (action == BizzPermission.CREATE) {
 			// 明细实体
 			if (entity.getMasterEntity() != null) {

@@ -61,7 +61,7 @@ import java.util.Map;
 public class DataImportControll extends BasePageControll {
 
 	@RequestMapping("/data-importer")
-	public ModelAndView pageDataImports(HttpServletRequest request) {
+	public ModelAndView pageDataImports() {
 		return createModelAndView("/admin/entityhub/data-importer.jsp");
 	}
 	
@@ -75,9 +75,9 @@ public class DataImportControll extends BasePageControll {
 			return;
 		}
 		
-		DataFileParser parser = null;
+		DataFileParser parser;
 		int count = -1;
-		List<Cell[]> preview = null;
+		List<Cell[]> preview;
 		try {
 			parser = new DataFileParser(tmp);
 			preview = parser.parse(11);
@@ -91,15 +91,16 @@ public class DataImportControll extends BasePageControll {
 				new String[] { "count", "preview" }, new Object[] { count, preview });
 		writeSuccess(response, ret);
 	}
-	
-	@RequestMapping("/data-importer/check-user-privileges")
+
+	// 检查所属用户权限
+	@RequestMapping("/data-importer/check-user")
 	public void checkUserPrivileges(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID ouser = getIdParameterNotNull(request, "ouser");
+		ID user = getIdParameterNotNull(request, "user");
 		String entity = getParameterNotNull(request, "entity");
 		
 		Entity entityMeta = MetadataHelper.getEntity(entity);
-		boolean canCreated = Application.getSecurityManager().allowCreate(ouser, entityMeta.getEntityCode());
-		boolean canUpdated = Application.getSecurityManager().allowUpdate(ouser, entityMeta.getEntityCode());
+		boolean canCreated = Application.getSecurityManager().allowCreate(user, entityMeta.getEntityCode());
+		boolean canUpdated = Application.getSecurityManager().allowUpdate(user, entityMeta.getEntityCode());
 		
 		JSON ret = JSONUtils.toJSONObject(
 				new String[] { "canCreate", "canUpdate" }, new Object[] { canCreated, canUpdated });
@@ -149,7 +150,7 @@ public class DataImportControll extends BasePageControll {
 	@RequestMapping("/data-importer/import-submit")
 	public void importSubmit(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		JSONObject idata = (JSONObject) ServletUtils.getRequestJson(request);
-		ImportRule irule = null;
+		ImportRule irule;
 		try {
 			irule = ImportRule.parse(idata);
 		} catch (IllegalArgumentException ex) {
