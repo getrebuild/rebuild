@@ -130,7 +130,7 @@ public class FileManagerControll extends BaseControll {
         if (record.getEntityCode() == EntityHelper.Feeds || record.getEntityCode() == EntityHelper.FeedsComment) {
             OK = FeedsHelper.checkReadable(record, user);
         } else {
-            OK = Application.getSecurityManager().allowedR(user, record);
+            OK = Application.getSecurityManager().allowRead(user, record);
         }
         writeSuccess(response, OK);
     }

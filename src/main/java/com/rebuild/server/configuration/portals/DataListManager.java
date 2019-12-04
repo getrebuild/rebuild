@@ -112,7 +112,7 @@ public class DataListManager extends BaseLayoutManager {
 					Field parentField = entityMeta.getField(fieldPath[0]);
 					if (!filter) {
 						formatted = formatField(lastField, parentField);
-					} else if (Application.getSecurityManager().allowedR(user, lastField.getOwnEntity().getEntityCode())) {
+					} else if (Application.getSecurityManager().allowRead(user, lastField.getOwnEntity().getEntityCode())) {
 						formatted = formatField(lastField, parentField);
 					}
 				}

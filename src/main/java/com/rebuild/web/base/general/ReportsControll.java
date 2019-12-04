@@ -33,6 +33,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 import com.rebuild.web.common.FileDownloader;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -42,22 +43,21 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * 视图打印
+ * 报表/打印
  *
  * @author devezhao
  * @since 2019/8/3
  */
 @Controller
-@RequestMapping("/app/entity/")
+@RequestMapping("/app/{entity}/")
 public class ReportsControll extends BasePageControll {
 
     @RequestMapping("print")
-    public ModelAndView printPreview(HttpServletRequest request) {
+    public ModelAndView printPreview(@PathVariable String entity, HttpServletRequest request) {
         ID user = getRequestUser(request);
         ID recordId = getIdParameterNotNull(request, "id");
-        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 
-        JSON model = FormsBuilder.instance.buildView(entity.getName(), user, recordId);
+        JSON model = FormsBuilder.instance.buildView(entity, user, recordId);
 
         ModelAndView mv = createModelAndView("/general-entity/print-preview.jsp");
         mv.getModel().put("contentBody", model);
@@ -67,17 +67,16 @@ public class ReportsControll extends BasePageControll {
         return mv;
     }
 
-    @RequestMapping("available-reports")
-    public void availableReports(HttpServletRequest request, HttpServletResponse response) {
-        String entity = getParameterNotNull(request, "entity");
+    @RequestMapping("reports/available")
+    public void availableReports(@PathVariable String entity, HttpServletResponse response) {
         Entity entityMeta = MetadataHelper.getEntity(entity);
-
         JSONArray reports = DataReportManager.instance.getReports(entityMeta);
         writeSuccess(response, reports);
     }
 
-    @RequestMapping({ "report-generate", "report-export" })
-    public void reportGenerate(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    @RequestMapping({ "reports/generate", "reports/export" })
+    public void reportGenerate(@PathVariable String entity,
+                               HttpServletRequest request, HttpServletResponse response) throws IOException {
         ID reportId = getIdParameterNotNull(request, "report");
         ID recordId = getIdParameterNotNull(request, "record");
 

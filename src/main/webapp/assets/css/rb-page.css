@@ -141,9 +141,14 @@ body {
     white-space: nowrap;
 }
 
-.text-wrap {
+.text-wrap,
+.text-break {
     word-break: break-all;
     word-wrap: break-word;
+}
+
+.text-overflow {
+    overflow: hidden;
 }
 
 .badge.text-id {
@@ -159,6 +164,10 @@ a.badge.text-id {
 
 a.badge.text-id:hover {
     border-color: #4285f4;
+}
+
+.bg-eee {
+    background-color: #eee;
 }
 
 .up-1 {
@@ -245,6 +254,16 @@ a.btn {
     color: #0d5bdd !important;
 }
 
+.btn-link.disabled,
+.btn-link.disabled:hover,
+.btn-link.disabled:active,
+.btn-link[disabled],
+.btn-link[disabled]:hover,
+.btn-link[disabled]:active {
+    color: #aaa !important;
+    cursor: default;
+}
+
 .btn .icon.x14 {
     font-size: 1.431rem
 }
@@ -256,6 +275,15 @@ a.btn {
 .navbar-nav .dropdown>.nav-link:hover>.icon,
 .bottom-widget>a:hover>.icon {
     opacity: 0.8;
+}
+
+.rb-left-sidebar .sidebar-elements a>.icon.zmdi-layers {
+    font-size: 22px;
+    margin-top: 0;
+}
+
+.rb-left-sidebar .sidebar-elements a>.icon.zmdi-puzzle-piece {
+    font-size: 18px;
 }
 
 .rb-color-header .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar .icon {
@@ -905,11 +933,12 @@ a {
 
 .rbhighbar {
     position: fixed;
-    min-width: 421px;
     top: 0;
-    left: 50%;
-    margin-left: -210px;
+    left: 0;
+    right: 0;
+    width: 100%;
     z-index: 1099;
+    text-align: center;
 }
 
 .rbhighbar.faster {
@@ -917,16 +946,26 @@ a {
     animation-duration: 200ms
 }
 
+.rbhighbar>.alert {
+    display: inline-block;
+    width: auto;
+    max-width: 80%;
+    min-width: 421px;
+    text-align: left;
+}
+
 @media (max-width:440px) {
     .rbhighbar {
-        min-width: auto;
-        margin: 0;
-        left: 10px;
-        right: 10px;
+        padding: 0 10px;
+    }
+
+    .rbhighbar>.alert {
+        max-width: 100%;
+        min-width: 100%;
     }
 }
 
-.rbhighbar a {
+.rbhighbar>.alert>.message a {
     color: #fff
 }
 
@@ -1210,6 +1249,46 @@ i.split.ui-draggable-dragging {
 .column-multi .badge+.badge {
     margin-left: 1px;
 }
+
+.form.batch-form {
+    padding: 5px 10px;
+}
+
+.form.batch-form .form-group:last-child {
+    margin-bottom: 0;
+}
+
+.batch-contents>div {
+    position: relative;
+    margin-bottom: 5px;
+}
+
+.batch-contents>div .badge {
+    font-size: 1rem;
+    font-weight: normal;
+    padding: 1px 10px;
+    cursor: default;
+}
+
+.batch-contents>div .badge.badge-warning {
+    border: 1px solid #fbbc05
+}
+
+.batch-contents>div a.del {
+    float: right;
+    font-size: 1.2rem;
+    padding: 1px 5px;
+    margin-right: -5px;
+    color: #999;
+    font-weight: bold;
+    display: none;
+}
+
+.batch-contents>div:hover a.del {
+    display: block;
+}
+
+/* DataList ends */
 
 .unselect {
     -webkit-touch-callout: none;
@@ -1779,12 +1858,7 @@ form.dropzone .note {
 }
 
 form.simple {
-    max-width: 888px;
-}
-
-.rb-left-sidebar .sidebar-elements>li>a .icon.x21,
-.rb-left-sidebar .sidebar-elements .sub-menu li>a .icon.x21 {
-    font-size: 21px;
+    max-width: 900px;
 }
 
 .fs-0 {
@@ -2977,4 +3051,21 @@ a.icon-link>.zmdi {
     font-size: 1.231rem;
     margin-top: 2px;
     left: 0;
+}
+
+.syscfg h5 {
+    background-color: #eee;
+    margin: 0;
+    padding: 10px;
+}
+
+.syscfg .table td {
+    padding: 10px;
+}
+
+.syscfg .table td p {
+    margin: 0;
+    color: #999;
+    font-weight: normal;
+    font-size: 12px;
 }

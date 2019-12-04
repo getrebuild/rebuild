@@ -20,7 +20,7 @@
 				<div class="page-head-title">分类数据<span class="sub-title">${name}</span></div>
 			</div>
 			<div class="float-right pt-1">
-				<button class="btn btn-secondary J_imports" type="button"><i class="zmdi zmdi-cloud-download"></i> 导入公共数据</button>
+				<button class="btn btn-secondary J_imports" type="button"><i class="icon zmdi zmdi-cloud-outline-alt"></i> 从 RB 仓库导入</button>
 			</div>
 			<div class="clearfix"></div>
 		</div>

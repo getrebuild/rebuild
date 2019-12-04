@@ -30,21 +30,20 @@ import com.rebuild.server.service.DataSpecificationException;
  */
 public class BulkDelete extends BulkOperator {
 
-	public BulkDelete(BulkContext context, GeneralEntityService ges) {
+	protected BulkDelete(BulkContext context, GeneralEntityService ges) {
 		super(context, ges);
 	}
 
 	@Override
 	protected Integer exec() {
-		ID[] records = prepareRecords();
+		final ID[] records = prepareRecords();
 		this.setTotal(records.length);
 		
-		int affected = 0;
 		for (ID id : records) {
-			if (Application.getSecurityManager().allowedD(context.getOpUser(), id)) {
+			if (Application.getSecurityManager().allowDelete(context.getOpUser(), id)) {
 				try {
-					int a = ges.delete(id, context.getCascades());
-					affected += (a > 0 ? 1 : 0);
+					ges.delete(id, context.getCascades());
+					this.addSucceeded();
 				} catch (DataSpecificationException ex) {
 					LOG.warn("Couldn't delete : " + id + " Ex : " + ex);
 				}
@@ -53,8 +52,7 @@ public class BulkDelete extends BulkOperator {
 			}
 			this.addCompleted();
 		}
-		
-		this.completedAfter();
-		return affected;
+
+		return getSucceeded();
 	}
 }

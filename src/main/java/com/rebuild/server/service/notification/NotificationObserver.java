@@ -24,7 +24,6 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.OperatingObserver;
-import com.rebuild.server.service.base.BulkOperatorTx;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -39,8 +38,8 @@ public class NotificationObserver extends OperatingObserver {
 	@Override
 	public void onAssign(OperatingContext context) {
 		final ID related = context.getAfterRecord().getPrimary();
-		if (BulkOperatorTx.isInTx()) {
-			BulkOperatorTx.getInTxSet().add(related);
+		if (NotificationOnce.didBegin()) {
+            NotificationOnce.getMergeSet().add(related);
 			return;
 		}
 		
@@ -56,8 +55,8 @@ public class NotificationObserver extends OperatingObserver {
 	@Override
 	public void onShare(OperatingContext context) {
 		final ID related = context.getAfterRecord().getID("recordId");
-		if (BulkOperatorTx.isInTx()) {
-			BulkOperatorTx.getInTxSet().add(related);
+		if (NotificationOnce.didBegin()) {
+            NotificationOnce.getMergeSet().add(related);
 			return;
 		}
 		

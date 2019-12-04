@@ -47,7 +47,7 @@
 			</div>
 		</aside>
 		<div class="main-content container-fluid">
-			<div class="alert alert-warning alert-icon alert-dismissible alert-sm hide J_tips">
+			<div class="alert alert-warning alert-icon alert-icon-border alert-dismissible alert-sm hide J_tips">
 				<div class="icon"><span class="zmdi zmdi-info-outline"></span></div>
 				<div class="message"><a class="close" data-dismiss="alert"><span class="zmdi zmdi-close"></span></a><p>1</p></div>
 			</div>
@@ -128,16 +128,16 @@
 								<td class="text-center"><i data-action="Z" class="priv R4"></i></td>
 								<td colspan="5" class="text-muted">需具备相应实体的读取权限</td>
 							</tr>
-							<!--
 							<tr>
 								<td class="name"><a data-name="AllowBatchUpdate">允许批量修改</a></td>
 								<td class="text-center"><i data-action="Z" class="priv R0"></i></td>
-								<td colspan="5">需具备相应实体的修改权限</td>
+								<td colspan="5" class="text-muted">需具备相应实体的修改权限</td>
 							</tr>
+							<!--
 							<tr>
 								<td class="name"><a data-name="AllowDataImport">允许导入数据</a></td>
 								<td class="text-center"><i data-action="Z" class="priv R0"></i></td>
-								<td colspan="5">需具备相应实体的创建权限</td>
+								<td colspan="5" class="text-muted">需具备相应实体的创建权限</td>
 							</tr>
 							-->
 							<tr>

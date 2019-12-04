@@ -133,7 +133,7 @@ public class NavManager extends BaseLayoutManager {
 			}
 
 			Entity entityMeta = MetadataHelper.getEntity(entity);
-            return !Application.getSecurityManager().allowedR(user, entityMeta.getEntityCode());
+            return !Application.getSecurityManager().allowRead(user, entityMeta.getEntityCode());
 		}
 		return false;
 	}

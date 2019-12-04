@@ -22,7 +22,9 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.engine.NullValue;
 import cn.devezhao.persist4j.record.JsonRecordCreator;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
@@ -31,26 +33,48 @@ import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.bizz.privileges.User;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 /**
+ * 标准 Record 解析
+ *
  * @author Zhao Fangfang
  * @since 1.0, 2013-6-26
  */
 public class ExtRecordCreator extends JsonRecordCreator {
-	
+
+    private static final Log LOG = LogFactory.getLog(ExtRecordCreator.class);
+
+    /**
+     * 更新时。是移除不允许更新的字段还是抛出异常
+     */
+    private boolean strictMode;
+
 	/**
 	 * @param entity
 	 * @param source
 	 * @param editor
 	 */
 	public ExtRecordCreator(Entity entity, JSONObject source, ID editor) {
-		super(entity, source, editor);
+		this(entity, source, editor, false);
 	}
-	
+
+    /**
+     * @param entity
+     * @param source
+     * @param editor
+     * @param strictMode
+     */
+    public ExtRecordCreator(Entity entity, JSONObject source, ID editor, boolean strictMode) {
+        super(entity, source, editor);
+        this.strictMode = strictMode;
+    }
+
 	@Override
 	protected void afterCreate(Record record, boolean isNew) {
 		super.afterCreate(record, isNew);
@@ -93,29 +117,52 @@ public class ExtRecordCreator extends JsonRecordCreator {
 	
 	@Override
 	public void verify(Record record, boolean isNew) {
-		if (!isNew) {
-			return;
+        List<String> notAllowed = new ArrayList<>();
+        // 新建
+        if (isNew) {
+            for (Field field : entity.getFields()) {
+                if (MetadataHelper.isSystemField(field)) {
+                    continue;
+                }
+                EasyMeta easy = EasyMeta.valueOf(field);
+                if (easy.getDisplayType() == DisplayType.SERIES) {
+                    continue;
+                }
+
+                Object hasVal = record.getObjectValue(field.getName());
+                if ((hasVal == null || NullValue.is(hasVal)) && !field.isNullable()) {
+                    notAllowed.add(easy.getLabel());
+                }
+            }
+
+            if (!notAllowed.isEmpty()) {
+                throw new DataSpecificationException(StringUtils.join(notAllowed, "/") + " 不允许为空");
+            }
 		}
-		
-		List<String> notNulls = new ArrayList<>();
-		for (Field field : entity.getFields()) {
-			if (MetadataHelper.isSystemField(field)) {
-				continue;
-			}
-			EasyMeta easy = EasyMeta.valueOf(field);
-			if (easy.getDisplayType() == DisplayType.SERIES) {
-				continue;
-			}
-			
-			Object hasVal = record.getObjectValue(field.getName());
-			if (hasVal == null && !field.isNullable()) {
-				notNulls.add(easy.getLabel());
-			}
-		}
-		
-		if (notNulls.isEmpty()) {
-			return;
-		}
-		throw new DataSpecificationException(StringUtils.join(notNulls, "/") + " 不能为空");
+        // 更新
+        else {
+            for (String fieldName : record.getAvailableFields()) {
+                Field field = record.getEntity().getField(fieldName);
+                if (EntityHelper.ModifiedOn.equalsIgnoreCase(fieldName)
+                    || EntityHelper.ModifiedBy.equalsIgnoreCase(fieldName)
+                    || field.getType() == FieldType.PRIMARY) {
+                    continue;
+                }
+
+                EasyMeta easy = EasyMeta.valueOf(field);
+                if (!easy.isUpdatable()) {
+                    if (strictMode) {
+                        notAllowed.add(easy.getLabel());
+                    } else {
+                        record.removeValue(fieldName);
+                        LOG.warn("Remove non-updatable field : " + fieldName);
+                    }
+                }
+            }
+
+            if (!notAllowed.isEmpty()) {
+                throw new DataSpecificationException(StringUtils.join(notAllowed, "/") + " 不允许修改");
+            }
+        }
 	}
 }

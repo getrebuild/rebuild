@@ -82,9 +82,9 @@ let rendered_charts = []
 let win_resize = function (t) {
   if (on_resizestart === true) return
   $setTimeout(() => {
-    let cg = $('.chart-grid')
-    if ($(window).width() >= 768) cg.height($(window).height() - 142)
-    else cg.height('auto')
+    // let cg = $('.chart-grid')
+    // if ($(window).width() >= 768) cg.height($(window).height() - 142)
+    // else cg.height('auto')
     $(rendered_charts).each((idx, item) => { item.resize() })
   }, t || 400, 'resize-charts')
 }

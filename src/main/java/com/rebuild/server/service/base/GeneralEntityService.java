@@ -151,7 +151,7 @@ public class GeneralEntityService extends ObservableService  {
 			}
 
 			for (ID id : e.getValue()) {
-				if (Application.getSecurityManager().allowedD(currentUser, id)) {
+				if (Application.getSecurityManager().allowDelete(currentUser, id)) {
 					if (recycleBin != null) {
 						recycleBin.add(id, record);
 					}
@@ -381,7 +381,9 @@ public class GeneralEntityService extends ObservableService  {
 			return new BulkShare(context, this);
 		} else if (context.getAction() == UNSHARE) {
 			return new BulkUnshare(context, this);
-		}
+		} else if (context.getAction() == BizzPermission.UPDATE) {
+		    return new BulkBacthUpdate(context, this);
+        }
 		throw new UnsupportedOperationException("Unsupported bulk action : " + context.getAction());
 	}
 
@@ -467,9 +469,7 @@ public class GeneralEntityService extends ObservableService  {
 		Assert.isNull(recordOfNew.getPrimary(), "Must be new record");
 
 		Entity entity = recordOfNew.getEntity();
-		if (MetadataHelper.isBizzEntity(entity.getEntityCode())
-				|| !MetadataHelper.hasPrivilegesField(entity)) {
-			LOG.warn("Could't append Bizz and non-business entities : " + entity.getName());
+		if (MetadataHelper.isBizzEntity(entity.getEntityCode()) || !MetadataHelper.hasPrivilegesField(entity)) {
 			return;
 		}
 
@@ -494,7 +494,7 @@ public class GeneralEntityService extends ObservableService  {
 		Field[] seriesFields = MetadataSorter.sortFields(record.getEntity(), DisplayType.SERIES);
 		for (Field field : seriesFields) {
 			// 导入模式，不强制生成
-			if (record.hasValue(field.getName()) && DataImporter.isInImporting()) {
+			if (record.hasValue(field.getName()) && DataImporter.inImportingState()) {
 				continue;
 			}
 			record.setString(field.getName(), SeriesGeneratorFactory.generate(field));

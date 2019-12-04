@@ -85,7 +85,7 @@ public class RolePrivilegesControll extends BaseEntityControll {
 	@RequestMapping("role-list")
 	public void roleList(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		Object[][] array = Application.createQuery("select roleId,name,isDisabled from Role").array();
-		JSON retJson = JSONUtils.toJSONArray(new String[] { "id", "name", "disabled" }, array);
+		JSON retJson = JSONUtils.toJSONObjectArray(new String[] { "id", "name", "disabled" }, array);
 		writeSuccess(response, retJson);
 	}
 	
@@ -107,7 +107,7 @@ public class RolePrivilegesControll extends BaseEntityControll {
 			}
 		}
 		
-		JSON retJson = JSONUtils.toJSONArray(new String[] { "name", "definition" }, array);
+		JSON retJson = JSONUtils.toJSONObjectArray(new String[] { "name", "definition" }, array);
 		writeSuccess(response, retJson);
 	}
 	

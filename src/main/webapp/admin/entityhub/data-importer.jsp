@@ -5,13 +5,43 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>数据导入</title>
 <style type="text/css">
-.fuelux .wizard .step-content{padding:30px}
-.fuelux .wizard>.steps-container>.steps li.complete:hover{cursor:default;}
-#fieldsMapping th, #fieldsMapping td{padding:6px 0;vertical-align:middle;border-bottom:1px dotted #dee2e6;border-top:0 none;}
-#fieldsMapping thead th{border-bottom:1px solid #dee2e6;padding-top:9px;}
-#fieldsMapping td>em{font-style:normal;background-color:#eee;display:inline-block;min-width:30px;font-size:12px;text-align:center;margin-right:4px;padding-top:1px;color:#777}
-#fieldsMapping td>i.zmdi{float:right;color:#aaa;font-size:1.4rem;margin-right:10px}
-#ouser-warn .alert{margin-top:10px;margin-bottom:0}
+.fuelux .wizard .step-content {
+    padding: 30px
+}
+.fuelux .wizard > .steps-container > .steps li.complete:hover {
+    cursor: default;
+}
+#fieldsMapping th, #fieldsMapping td {
+    padding: 6px 0;
+    vertical-align: middle;
+    border-bottom: 1px dotted #dee2e6;
+    border-top: 0 none;
+}
+#fieldsMapping thead th {
+    border-bottom: 1px solid #dee2e6;
+    padding-top: 9px;
+}
+#fieldsMapping td > em {
+    font-style: normal;
+    background-color: #eee;
+    display: inline-block;
+    min-width: 30px;
+    font-size: 12px;
+    text-align: center;
+    margin-right: 4px;
+    padding-top: 1px;
+    color: #777
+}
+#fieldsMapping td > i.zmdi {
+    float: right;
+    color: #aaa;
+    font-size: 1.4rem;
+    margin-right: 10px
+}
+#user-warn .alert {
+    margin-top: 10px;
+    margin-bottom: 0
+}
 </style>
 </head>
 <body>
@@ -55,16 +85,15 @@
 														<label for="upload-input" class="btn-secondary"><i class="zmdi zmdi-upload"></i><span>选择文件</span></label>
 													</div>
 												</div>
-												<div class="float-left ml-2" style="padding-top:7px">
+												<div class="float-left ml-2 pt-1">
 													<div class="text-bold text-italic J_upload-input"></div>
 												</div>
 												<div class="clearfix"></div>
 								                <div class="form-text mb-0">
 									                <ul class="mb-0 pl-4">
-														<li>支持上传 Excel/CSV 文件，文件大小不超过 20M</li>
 														<li>有合并单元格的数据请处理过后再上传，否则可能出现表头识别有误</li>
 														<li>系统默认仅识别第一个 SHEET，且会将首行识别为表头</li>
-														<li>更多导入帮助请 <a href="https://getrebuild.com/docs/admin/data-import" target="_blank">参考文档</a></li>
+														<li>更多导入帮助请 <a href="https://getrebuild.com/docs/admin/data-import" target="_blank" class="link">参考文档</a></li>
 													</ul>
 								                </div>
 											</div>
@@ -72,7 +101,7 @@
 										<div class="form-group row">
 											<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">遇到重复记录时</label>
 											<div class="col-md-12 col-xl-6 col-lg-8">
-												<div style="margin-top:6px;">
+												<div class="mt-1">
 													<label class="custom-control custom-control-sm custom-radio custom-control-inline">
 														<input class="custom-control-input" type="radio" name="repeatOpt" value="1" checked="checked"><span class="custom-control-label">覆盖 (更新)</span>
 													</label>
@@ -95,15 +124,13 @@
 											<div class="col-md-12 col-xl-6 col-lg-8">
 												<select class="form-control form-control-sm" id="toUser">
 												</select>
-												<div class="form-text mb-0">
-													不选择则默认为当前用户，如字段映射中指定了用户则以映射为准
-								                </div>
-								                <div id="ouser-warn"></div>
+												<div class="form-text mb-0">不选择则默认为当前用户，如字段映射中指定了用户则以映射为准</div>
+								                <div id="user-warn"></div>
 											</div>
 										</div>
 										<div class="form-group row footer">
 											<div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
-												<button class="btn btn-primary J_step1-btn" type="button" data-loading-text="正在预处理">下一步</button>
+												<button class="btn btn-primary btn-space J_step1-btn" type="button" data-loading-text="正在预处理">下一步</button>
 											</div>
 										</div>
 									</form>
@@ -128,9 +155,8 @@
 										</div>
 										<div class="form-group row footer">
 											<div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
-												<button class="btn btn-primary J_step2-btn" type="button">开始导入</button>
-												&nbsp;&nbsp;
-												<button class="btn btn-link J_step2-return" type="button">返回上一步</button>
+												<button class="btn btn-primary btn-space J_step2-btn" type="button">开始导入</button>
+												<button class="btn btn-link btn-space J_step2-return" type="button">返回上一步</button>
 											</div>
 										</div>
 									</form>
@@ -142,11 +168,9 @@
 											<div class="col-6 text-right text-muted">耗时 <span class="J_import_time">00:00:00</span></div>
 										</div>
 										<div class="progress">
-											<div class="progress-bar progress-bar-striped progress-bar-animated J_import-bar" style="width:0"></div>
-										</div>
 										<div class="mt-3">
-											<button class="btn btn-danger J_step3-cancel" type="button">终止导入</button>
-											<a class="btn btn-link J_step3-logs hide" href="data-importer">继续导入</a>
+											<button class="btn btn-danger btn-space J_step3-cancel" type="button">终止导入</button>
+											<a class="btn btn-link btn-space J_step3-logs hide" href="data-importer">继续导入</a>
 										</div>
 									</form>
 								</div>

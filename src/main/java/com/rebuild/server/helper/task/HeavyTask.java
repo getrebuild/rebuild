@@ -28,8 +28,8 @@ import org.apache.commons.logging.LogFactory;
 import java.util.Date;
 
 /**
- * 耗时操作可通过此类进行，例如大批量删除/修改等。此类提供了进度相关的约定，如总计执行条目，已完成条目/百分比。
- * 集成此类应该处理线程的 <code>isInterrupted</code> 方法，以便任务可以被终止。
+ * 耗时操作可通过此类进行，例如大批量删除/修改等。此类提供了进度相关的约定，如总计执行条目，已完成条目/百分比等。
+ * 继承此类应该处理线程的 <code>isInterrupted</code> 方法，以便任务可以被终止。
  * 使用此类应该总是使用 TaskExecutors 调用。
  *
  * @author devezhao
@@ -37,19 +37,23 @@ import java.util.Date;
  *
  * @see TaskExecutors
  */
-public abstract class HeavyTask<T> extends SetUser<HeavyTask> implements Runnable {
+public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runnable {
 	
 	protected static final Log LOG = LogFactory.getLog(HeavyTask.class);
 	
 	volatile private boolean interrupt = false;
 	volatile private boolean interruptState = false;
 
+    /**
+     * @see SetUser
+     */
 	private ID threadUser;
-	
+
 	private int total = -1;
 	private int completed = 0;
-	
-	private Date beginTime;
+	private int succeeded = 0;
+
+	final private Date beginTime;
 	private Date completedTime;
 	
 	private String errorMessage;
@@ -59,7 +63,7 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask> implements Runnabl
 	}
 
     @Override
-    public HeavyTask setUser(ID user) {
+    public HeavyTask<T> setUser(ID user) {
 	    this.threadUser = user;
         return super.setUser(user);
     }
@@ -76,12 +80,12 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask> implements Runnabl
 		this.completed++;
 	}
 
-	protected Date getBeginTime() {
-		return beginTime;
-	}
-	
-	protected Date getCompletedTime() {
-		return completedTime;
+    protected Date getCompletedTime() {
+        return completedTime;
+    }
+
+	protected void addSucceeded() {
+		succeeded++;
 	}
 
     /**
@@ -91,13 +95,15 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask> implements Runnabl
      */
     public long getElapsedTime() {
         if (getCompletedTime() != null) {
-            return getCompletedTime().getTime() - getBeginTime().getTime();
+            return getCompletedTime().getTime() - beginTime.getTime();
         } else {
-            return CalendarUtils.now().getTime() - getBeginTime().getTime();
+            return CalendarUtils.now().getTime() - beginTime.getTime();
         }
     }
 
     /**
+     * 总计数量
+     *
      * @return
      */
 	public int getTotal() {
@@ -105,6 +111,8 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask> implements Runnabl
 	}
 
     /**
+     * 完成数量
+     *
      * @return
      */
 	public int getCompleted() {
@@ -112,6 +120,8 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask> implements Runnabl
 	}
 
     /**
+     * 完成进度百分比
+     *
      * @return
      */
 	public double getCompletedPercent() {
@@ -125,11 +135,31 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask> implements Runnabl
 	}
 
     /**
+     * 是否完成
+     *
      * @return
      */
 	public boolean isCompleted() {
-		return completedTime != null || (total != -1 && getCompleted() >= getTotal());
+		return getCompletedTime() != null || (total != -1 && getCompleted() >= getTotal());
 	}
+
+	/**
+	 * 成功数量
+	 *
+	 * @return
+	 */
+	public int getSucceeded() {
+		return succeeded;
+	}
+
+    /**
+     * 错误消息（如有）
+     *
+     * @return
+     */
+    public String getErrorMessage() {
+        return errorMessage;
+    }
 	
 	// 中断处理。是否允许中断由子类决定
 	
@@ -181,18 +211,4 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask> implements Runnabl
             Application.getSessionStore().clean();
         }
     }
-
-	/**
-	 * @return
-	 */
-	public String getErrorMessage() {
-		return errorMessage;
-	}
-	
-	/**
-	 * @return
-	 */
-	public boolean hasError() {
-		return errorMessage != null;
-	}
 }

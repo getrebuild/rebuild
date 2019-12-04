@@ -39,7 +39,7 @@ import javax.servlet.http.HttpServletResponse;
  * @since 09/20/2018
  */
 @Controller
-public class MiscPagesForward extends BasePageControll {
+public class PagesForward extends BasePageControll {
 
 	@RequestMapping(value={ "/p/**/*", "/admin/p/**/*" }, method = RequestMethod.GET)
 	public ModelAndView page(HttpServletRequest request) {

@@ -112,7 +112,8 @@ class RbModalHandler extends React.Component {
     if (state && $.type(state) === 'object') this.setState(state, callback)
     else callback()
   }
-  hide = () => {
+  hide = (e) => {
+    if (e && e.target && $(e.target).attr('disabled')) return
     // eslint-disable-next-line react/no-string-refs
     let dlg = this._dlg || this.refs['dlg']
     if (dlg) dlg.hide()
@@ -223,17 +224,16 @@ class RbAlert extends React.Component {
   // -- Usage
   /**
    * @param {*} message 
-   * @param {*} titleExt 
+   * @param {*} titleOrExt 
    * @param {*} ext 
    */
-  static create(message, titleExt, ext) {
-    let title = titleExt
-    if ($.type(titleExt) === 'object') {
-      title = null
-      ext = titleExt
+  static create(message, titleOrExt, ext) {
+    if (typeof titleOrExt === 'object') {
+      ext = titleOrExt
+      titleOrExt = null
     }
     ext = ext || {}
-    let props = { ...ext, title: title }
+    let props = { ...ext, title: titleOrExt }
     if (ext.html === true) props.htmlMessage = message
     else props.message = message
     renderRbcomp(<RbAlert {...props} />, null, ext.call)
@@ -250,25 +250,23 @@ class RbHighbar extends React.Component {
   render() {
     let icon = this.props.type === 'success' ? 'check' : 'info-outline'
     icon = this.props.type === 'danger' ? 'close-circle-o' : icon
-    let content = this.props.htmlMessage ? <div className="message" dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} /> : <div className="message">{this.props.message}</div>
-    return (<div ref={(c) => this._rbhighbar = c} className={'rbhighbar animated faster ' + this.state.animatedClass}>
-      <div className={'alert alert-dismissible alert-' + (this.props.type || 'warning')}>
-        <button className="close" type="button" onClick={() => this.close()}><span className="zmdi zmdi-close" /></button>
-        <div className="icon"><span className={'zmdi zmdi-' + icon} /></div>
+    let content = this.props.htmlMessage
+      ? <div className="message pl-0" dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} />
+      : <div className="message pl-0">{this.props.message}</div>
+
+    return (<div ref={(c) => this._rbhighbar = c} className={`rbhighbar animated faster ${this.state.animatedClass}`}>
+      <div className={`alert alert-dismissible alert-${(this.props.type || 'warning')}`}>
+        <button className="close" type="button" onClick={this.close}><i className="zmdi zmdi-close" /></button>
+        <div className="icon"><i className={`zmdi zmdi-${icon}`} /></div>
         {content}
       </div>
     </div>)
   }
 
   componentDidMount() {
-    setTimeout(() => { this.close() }, this.props.timeout || 3000)
+    setTimeout(() => this.close(), this.props.timeout || 3000)
   }
-
-  close() {
-    this.setState({ animatedClass: 'fadeOut' }, () => {
-      $unmount($(this._rbhighbar).parent())
-    })
-  }
+  close = () => this.setState({ animatedClass: 'fadeOut' }, () => $unmount($(this._rbhighbar).parent()))
 
   // -- Usage
   /**
@@ -301,7 +299,20 @@ class RbHighbar extends React.Component {
   }
 }
 
-// ~~ 加载界面
+// ~~ 提示条
+function RbAlertBox(props) {
+  let type = (props || {}).type || 'warning'
+  let icon = type === 'success' ? 'check' : (type === 'danger' ? 'close-circle-o' : 'info-outline')
+  return <div className={`alert alert-icon alert-icon-border alert-dismissible alert-sm alert-${type}`}>
+    <div className="icon"><i className={`zmdi zmdi-${icon}`} /></div>
+    <div className="message">
+      <a className="close" data-dismiss="alert"><i className="zmdi zmdi-close" /></a>
+      <p>{props.message || 'INMESSAGE'}</p>
+    </div>
+  </div>
+}
+
+// ~~ 加载动画
 function RbSpinner(props) {
   let spinner = <div className="rb-spinner">
     <svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
@@ -310,19 +321,6 @@ function RbSpinner(props) {
   </div>
   if (props && props.fully === true) return <div className="rb-loading rb-loading-active">{spinner}</div>
   return spinner
-}
-
-// ~~ 提示条幅
-function RbAlertBox(props) {
-  let icon = props.type === 'success' ? 'check' : 'info-outline'
-  if (props.type === 'danger') icon = 'close-circle-o'
-  return (<div className={'alert alert-icon alert-dismissible alert-sm alert-' + (props.type || 'warning')}>
-    <div className="icon"><span className={'zmdi zmdi-' + icon} /></div>
-    <div className="message">
-      <a className="close" data-dismiss="alert"><span className="zmdi zmdi-close" /></a>
-      <p>{props.message}</p>
-    </div>
-  </div>)
 }
 
 // ~~ 用户选择器

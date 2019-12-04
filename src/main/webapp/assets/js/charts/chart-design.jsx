@@ -220,10 +220,10 @@ let render_option = (() => {
 
   const ct = select.data('type')
   // Option
-  $('.chart-option>div').removeClass('active')
+  $('.chart-option>div').addClass('hide')
   let ctOpt = $('.J_opt-' + ct)
-  if (ctOpt.length === 0) $('.chart-option>.J_opt-UNDEF').addClass('active')
-  else ctOpt.addClass('active')
+  if (ctOpt.length === 0) $('.J_opt-UNDEF').removeClass('hide')
+  else ctOpt.removeClass('hide')
 
   // Sort
   let sorts = $('.axis-editor .J_sort').removeClass('disabled')

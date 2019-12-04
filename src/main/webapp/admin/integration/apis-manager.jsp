@@ -4,11 +4,6 @@
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <title>API 秘钥管理</title>
-<style type="text/css">
-.syscfg h5{background-color:#eee;margin:0;padding:10px;}
-.syscfg .table td{padding:10px;}
-.syscfg .table td p{margin:0;color:#999;font-weight:normal;font-size:12px;}
-</style>
 </head>
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header">

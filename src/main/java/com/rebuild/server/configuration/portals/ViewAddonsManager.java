@@ -93,7 +93,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
 				if (e.getMasterEntity() != null) {
 					continue;
 				}
-				if (Application.getSecurityManager().allowed(user, e.getEntityCode(), useAction)) {
+				if (Application.getSecurityManager().allow(user, e.getEntityCode(), useAction)) {
 					refs.add(EasyMeta.getEntityShow(e));
 				}
 			}
@@ -105,7 +105,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
 			String e = (String) o;
 			if (MetadataHelper.containsEntity(e)) {
 				Entity entityMeta = MetadataHelper.getEntity(e);
-				if (Application.getSecurityManager().allowed(user, entityMeta.getEntityCode(), useAction)) {
+				if (Application.getSecurityManager().allow(user, entityMeta.getEntityCode(), useAction)) {
 					addons.add(EasyMeta.getEntityShow(entityMeta));
 				}
 			}

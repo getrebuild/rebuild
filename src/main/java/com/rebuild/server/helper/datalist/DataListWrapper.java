@@ -186,6 +186,6 @@ public class DataListWrapper {
 		
 		int fieldIndex = queryJoinFields.get(fieldPath[0]);
 		Object check = original[fieldIndex];
-		return check == null || Application.getSecurityManager().allowedR(user, (ID) check);
+		return check == null || Application.getSecurityManager().allowRead(user, (ID) check);
 	}
 }

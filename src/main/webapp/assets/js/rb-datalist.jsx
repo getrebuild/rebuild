@@ -1,10 +1,12 @@
 const wpc = window.__PageConfig || {}
 /* eslint-disable react/no-string-refs */
 /* eslint-disable react/prop-types */
+
 // ~~ 数据列表
 const COLUMN_MIN_WIDTH = 30
 const COLUMN_MAX_WIDTH = 800
 const FIXED_FOOTER = true
+
 class RbList extends React.Component {
 
   constructor(props) {
@@ -145,9 +147,9 @@ class RbList extends React.Component {
     })
 
     let oper = $('.dataTables_oper')
-    oper.find('.J_delete, .J_view, .J_edit').attr('disabled', true)
+    oper.find('.J_delete, .J_view, .J_edit, .J_assign, .J_share, .J_unshare').attr('disabled', true)
     let len = this.__selectedRows.length
-    if (len > 0) oper.find('.J_delete').attr('disabled', false)
+    if (len > 0) oper.find('.J_delete, .J_assign, .J_share, .J_unshare').attr('disabled', false)
     if (len === 1) oper.find('.J_view, .J_edit').attr('disabled', false)
   }
 
@@ -276,6 +278,9 @@ class RbList extends React.Component {
 
   // 外部接口
 
+  /**
+   * 分页设置
+   */
   setPage(pageNo, pageSize) {
     this.pageNo = pageNo || this.pageNo
     if (pageSize) {
@@ -285,6 +290,9 @@ class RbList extends React.Component {
     this.fetchList()
   }
 
+  /**
+   * 设置高级过滤器ID
+   */
   setAdvFilter(id) {
     this.advFilter = id
     this.fetchList(this.__buildQuick())
@@ -293,23 +301,39 @@ class RbList extends React.Component {
     else $storage.remove(this.__defaultFilterKey)
   }
 
+  /**
+   * 获取选中行
+   */
   getSelectedRows() {
-    return this.__selectedRows
+    return this.__selectedRows || []
   }
 
+  /**
+   * 获取选中 ID[]
+   */
   getSelectedIds() {
-    if (!this.__selectedRows || this.__selectedRows.length < 1) { RbHighbar.create('未选中任何记录'); return [] }
-    return this.__selectedRows.map((item) => { return item[0] })
+    let ids = this.getSelectedRows().map((item) => { return item[0] })
+    if (ids.length < 1) RbHighbar.create('未选中任何记录')
+    return ids
   }
 
-  getQueryedTotal() {
-    return this._pagination.state.rowsTotal
+  /**
+   * 获取最后查询记录熟虑
+   */
+  getLastQueryTotal() {
+    return this._pagination ? this._pagination.state.rowsTotal : 0
   }
 
-  getLastQueryEntry() {
-    return this.__lastQueryEntry
+  /**
+   * 获取最后查询过滤数据
+   */
+  getLastQueryData() {
+    return JSON.parse(JSON.stringify(this.__lastQueryEntry))
   }
 
+  /**
+   * 搜索
+   */
   search(filter, fromAdv) {
     let afHold = this.advFilter
     if (fromAdv === true) this.advFilter = null
@@ -321,18 +345,16 @@ class RbList extends React.Component {
       this.lastFilter = null
     }
   }
+
+  reload = () => this.fetchList()
+
   // @el - search element
   searchQuick = (el) => this.search(this.__buildQuick(el))
-
   __buildQuick(el) {
     el = $(el || '.input-search>input')
     let q = el.val()
     if (!q && !this.lastFilter) return null
     return { entity: this.props.config.entity, type: 'QUICK', values: { 1: q }, qfields: el.data('fields') }
-  }
-
-  reload() {
-    this.fetchList()
   }
 
   // 渲染完成后回调
@@ -343,18 +365,22 @@ class RbList extends React.Component {
 // 列表（单元格）渲染
 var CellRenders = {
   __renders: {},
+
   addRender(type, func) {
     this.__renders[type] = func
   },
+
   clickView(v) {
     RbViewModal.create({ id: v[0], entity: v[2][0] })
     return false
   },
+
   render(value, type, width, key) {
     let style = { width: (width || COLUMN_MIN_WIDTH) + 'px' }
     if (!value) return this.renderSimple(value, style, key)
     else return (this.__renders[type] || this.renderSimple)(value, style, key)
   },
+
   /**
    * @param {*} v 值
    * @param {*} s 样式
@@ -419,7 +445,7 @@ CellRenders.addRender('MULTISELECT', function (v, s, k) {
   </div></td>
 })
 
-// 分页组件
+// ～分页组件
 class RbListPagination extends React.Component {
   constructor(props) {
     super(props)
@@ -486,57 +512,9 @@ class RbListPagination extends React.Component {
   }
 }
 
-// 导出列表数据
-class DataExport extends RbFormHandler {
-
-  constructor(props) {
-    super(props)
-    this.state.dataRange = '2'
-  }
-
-  render() {
-    let _list = this.props.listRef
-    return <RbModal ref={(c) => this._dlg = c} title="数据导出" disposeOnHide={true} width="480">
-      <div className="pl-2 mb-4">
-        <label className="custom-control custom-control-sm custom-radio">
-          <input className="custom-control-input" name="dataRange" type="radio" checked={this.state.dataRange === '1'} value="1" onChange={this.handleChange} />
-          <span className="custom-control-label">当前页的数据 ({_list.state.rowsData.length}条)</span>
-        </label>
-        <label className="custom-control custom-control-sm custom-radio">
-          <input className="custom-control-input" name="dataRange" type="radio" checked={this.state.dataRange === '2'} value="2" onChange={this.handleChange} />
-          <span className="custom-control-label">查询后的数据 ({_list.getQueryedTotal()}条)</span>
-        </label>
-        <label className="custom-control custom-control-sm custom-radio">
-          <input className="custom-control-input" name="dataRange" type="radio" checked={this.state.dataRange === '3'} value="3" onChange={this.handleChange} />
-          <span className="custom-control-label">全部数据</span>
-        </label>
-      </div>
-      <div className="dialog-footer" ref={(c) => this._btns = c}>
-        <a className="btn btn-link btn-space" onClick={this.hide}>取消</a>
-        <button className="btn btn-primary btn-space" type="button" data-loading-text="请稍后" onClick={this._export}>确定</button>
-      </div>
-    </RbModal>
-  }
-
-  _export = () => {
-    let dr = ~~this.state.dataRange
-    let filter = dr < 3 ? this.props.listRef.getLastQueryEntry() : {}
-
-    this.disabled(true)
-    $.post(`${rb.baseUrl}/app/entity/data-export-submit?dr=${dr}`, JSON.stringify(filter), (res) => {
-      if (res.error_code === 0) {
-        this.hide()
-        let url = `${rb.baseUrl}/filex/download/${res.data}?temp=yes`
-        window.open(url)
-      } else RbHighbar.error(res.error_msg)
-    })
-  }
-}
-
 // 列表页操作类
 const RbListPage = {
   _RbList: null,
-
   /**
    * @param {*} config DataList config
    * @param {*} entity [Name, Label, Icon]
@@ -572,25 +550,29 @@ const RbListPage = {
       }
     })
     $('.J_assign').click(() => {
+      if ($('.J_assign').attr('disabled')) return
       let ids = this._RbList.getSelectedIds()
       ids.length > 0 && DlgAssign.create({ entity: entity[0], ids: ids })
     })
     $('.J_share').click(() => {
+      if ($('.J_share').attr('disabled')) return
       let ids = this._RbList.getSelectedIds()
       ids.length > 0 && DlgShare.create({ entity: entity[0], ids: ids })
     })
     $('.J_unshare').click(() => {
+      if ($('.J_unshare').attr('disabled')) return
       let ids = this._RbList.getSelectedIds()
       ids.length > 0 && DlgUnshare.create({ entity: entity[0], ids: ids })
     })
     $('.J_columns').click(() => RbModal.create(`${rb.baseUrl}/p/general-entity/show-fields?entity=${entity[0]}`, '设置列显示'))
-    $('.J_export').click(() => renderRbcomp(<DataExport listRef={RbListPage._RbList} />))
+    $('.J_export').click(() => renderRbcomp(<DataExport listRef={RbListPage._RbList} entity={entity[0]} />))
+    $('.J_batch').click(() => renderRbcomp(<BatchUpdate listRef={RbListPage._RbList} entity={entity[0]} />))
 
     // Privileges
     if (ep) {
       if (ep.C === false) $('.J_new').remove()
       if (ep.D === false) $('.J_delete').remove()
-      if (ep.U === false) $('.J_edit').remove()
+      if (ep.U === false) $('.J_edit, .J_batch').remove()
       if (ep.A === false) $('.J_assign').remove()
       if (ep.S === false) $('.J_share, .J_unshare').remove()
       $cleanMenu('.J_action')
@@ -608,7 +590,6 @@ const RbListPage = {
 
 // 高级查询操作类
 const AdvFilters = {
-
   /**
    * @param {*} el 控件
    * @param {*} entity 实体
@@ -985,3 +966,385 @@ $(document).ready(() => {
     ChartsWidget.init()
   }
 })
+
+// ~~列表记录批量操作
+class BatchOperator extends RbFormHandler {
+  constructor(props) {
+    super(props)
+    this.state.dataRange = 2
+  }
+
+  render() {
+    const _listRef = this.props.listRef
+    const selectedRows = _listRef.getSelectedRows().length
+    const pageRows = _listRef.state.rowsData.length
+    const queryRows = _listRef.getLastQueryTotal()
+    return <RbModal title={this.state.title} disposeOnHide={true} ref={(c) => this._dlg = c}>
+      <div className="form batch-form">
+        <div className="form-group">
+          <label className="text-bold">选择数据范围</label>
+          <div>
+            {selectedRows > 0 && <label className="custom-control custom-control-sm custom-radio mb-2">
+              <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 1} value="1" onChange={this.handleChange} />
+              <span className="custom-control-label">选中的数据 ({selectedRows}条)</span>
+            </label>}
+            <label className="custom-control custom-control-sm custom-radio mb-2">
+              <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 2} value="2" onChange={this.handleChange} />
+              <span className="custom-control-label">当前页的数据 ({pageRows}条)</span>
+            </label>
+            <label className="custom-control custom-control-sm custom-radio mb-2">
+              <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 3} value="3" onChange={this.handleChange} />
+              <span className="custom-control-label">查询后的数据 ({queryRows}条)</span>
+            </label>
+            <label className="custom-control custom-control-sm custom-radio mb-1">
+              <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 10} value="10" onChange={this.handleChange} />
+              <span className="custom-control-label">全部数据</span>
+            </label>
+          </div>
+        </div>
+        {this.renderOperator()}
+      </div>
+      <div className="dialog-footer" ref={(c) => this._btns = c}>
+        <a className="btn btn-link btn-space" onClick={this.hide}>取消</a>
+        <button className="btn btn-primary btn-space" type="button" data-loading-text="请稍后" onClick={this.confirm}>确定</button>
+      </div>
+    </RbModal>
+  }
+
+  getQueryData() {
+    let qd = this.props.listRef.getLastQueryData()
+    if (~~this.state.dataRange === 1) qd._selected = this.props.listRef.getSelectedIds().join('|')
+    return qd
+  }
+
+  // 子类复写
+
+  renderOperator() { }
+  confirm = () => { }
+}
+
+// ~ 数据导出
+class DataExport extends BatchOperator {
+  constructor(props) {
+    super(props)
+    this.state.title = '数据导出'
+  }
+
+  confirm = () => {
+    this.disabled(true)
+    $.post(`${rb.baseUrl}/app/${this.props.entity}/data-export/submit?dr=${this.state.dataRange}`, JSON.stringify(this.getQueryData()), (res) => {
+      if (res.error_code === 0) {
+        this.hide()
+        let url = `${rb.baseUrl}/filex/download/${res.data}?temp=yes`
+        window.open(url)
+      } else {
+        this.disabled(false)
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+}
+
+// ~ 批量修改
+class BatchUpdate extends BatchOperator {
+  constructor(props) {
+    super(props)
+    this.state.title = '批量修改'
+  }
+
+  componentDidMount() {
+    $.get(`${rb.baseUrl}/app/${this.props.entity}/batch-update/fields`, (res) => this.setState({ fields: res.data }))
+  }
+
+  renderOperator() {
+    return <div className="form-group">
+      <label className="text-bold">修改内容</label>
+      <div>
+        <div className="batch-contents">
+          {(this.state.updateContents || []).map((item) => {
+            return <div key={`update-${item.field}`}>
+              <div className="row">
+                <div className="col-4">
+                  <span className="badge badge-light">{this._fieldLabel(item.field)}</span>
+                </div>
+                <div className="col-2 pl-0 pr-0">
+                  <span className="badge badge-warning">{BUE_OPTYPES[item.op]}</span>
+                </div>
+                <div className="col-6">
+                  {item.op !== 'NULL' && <span className="badge badge-light">{item.text || item.value}</span>}
+                  <a className="del" onClick={() => this.removeItem(item.field)}><i className="zmdi zmdi-close"></i></a>
+                </div>
+              </div>
+            </div>
+          })}
+        </div>
+        <div className="mt-2">
+          {this.state.fields && <BatchUpdateEditor ref={(c) => this._editor = c} fields={this.state.fields} entity={this.props.entity} />}
+          <div className="mt-1">
+            <button className="btn btn-primary btn-sm bordered" onClick={this.addItem}>添加</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  _fieldLabel(fieldName) {
+    let field = this.state.fields.find((item) => { return fieldName === item.name })
+    return field ? field.label : `[${fieldName}.toUpperCase()]`
+  }
+
+  addItem = () => {
+    let item = this._editor.buildItem()
+    if (!item) return
+
+    let contents = this.state.updateContents || []
+    $(contents).each(function () {
+      if (item.field === this.field) {
+        RbHighbar.create('修改字段已经存在')
+        item = null
+        return false
+      }
+    })
+    if (!item) return
+
+    contents.push(item)
+    this.setState({ updateContents: contents })
+  }
+
+  removeItem(fieldName) {
+    let contents = []
+    this.state.updateContents.forEach((item) => {
+      if (fieldName !== item.field) contents.push(item)
+    })
+    this.setState({ updateContents: contents })
+  }
+
+  confirm = () => {
+    if (!this.state.updateContents || this.state.updateContents.length === 0) { RbHighbar.create('请添加修改内容'); return }
+    let _data = { queryData: this.getQueryData(), updateContents: this.state.updateContents }
+    // eslint-disable-next-line no-console
+    if (rb.env === 'dev') console.log(JSON.stringify(_data))
+
+    let that = this
+    RbAlert.create('请再次确认修改数据范围和修改内容。开始修改吗？', {
+      confirm: function () {
+        this.hide()
+        that.disabled(true)
+        $.post(`${rb.baseUrl}/app/${that.props.entity}/batch-update/submit?dr=${that.state.dataRange}`, JSON.stringify(_data), (res) => {
+          if (res.error_code === 0) {
+            let mp = new Mprogress({ template: 2, start: true, parent: '.rbmodal .modal-body' })
+            that.__checkState(res.data, mp)
+          } else {
+            that.disabled(false)
+            RbHighbar.error(res.error_msg)
+          }
+        })
+      }
+    })
+  }
+
+  __checkState(taskid, mp) {
+    $.get(`${rb.baseUrl}/commons/task/state?taskid=${taskid}`, (res) => {
+      if (res.error_code === 0) {
+        if (res.data.hasError) {
+          mp && mp.end()
+          RbHighbar.error(res.data.hasError)
+          return
+        }
+
+        let cp = res.data.progress
+        if (cp >= 1) {
+          mp && mp.end()
+          $(this._btns).find('.btn-primary').text('修改成功')
+          RbHighbar.success(`成功修改 ${res.data.succeeded} 条记录`)
+          setTimeout(() => {
+            this.hide()
+            window.RbListPage && window.RbListPage.reload()
+          }, 500)
+        } else {
+          mp && mp.set(cp)
+          setTimeout(() => { this.__checkState(taskid, mp) }, 1000)
+        }
+      }
+    })
+  }
+}
+
+const BUE_OPTYPES = { 'SET': '修改为', 'NULL': '置空', 'PREFIX': '前添加', 'SUFFIX': '后添加', 'PLUS': '加上', 'MINUS': '减去' }
+// ~ 批量修改编辑器
+class BatchUpdateEditor extends React.Component {
+  state = { ...this.props, selectOp: 'SET' }
+
+  componentDidMount() {
+    let fieldS2 = $(this._field).select2({
+      allowClear: false
+    }).on('change', () => {
+      this.setState({ selectField: fieldS2.val() })
+    })
+    let opS2 = $(this._op).select2({
+      allowClear: false
+    }).on('change', () => {
+      this.setState({ selectOp: opS2.val() })
+    })
+    fieldS2.trigger('change')
+    this.__select2 = [fieldS2, opS2]
+  }
+
+  componentWillUnmount() {
+    this.__select2.forEach((item) => { item.select2('destroy') })
+    this.__select2 = null
+    this.__destroyLastValueComp()
+  }
+
+  render() {
+    return <div className="row">
+      <div className="col-4">
+        <select className="form-control form-control-sm" ref={(c) => this._field = c}>
+          {this.props.fields.map((item) => {
+            return <option value={item.name} key={`field-${item.name}`}>{item.label}</option>
+          })}
+        </select>
+      </div>
+      <div className="col-2 pl-0 pr-0">{this.renderOp()}</div>
+      <div className="col-6">
+        <div className={`${this.state.selectOp === 'NULL' ? 'hide' : ''}`}>
+          {(this.state.selectField && this.state.selectOp) && this.renderValue()}
+        </div>
+      </div>
+    </div>
+  }
+
+  renderOp() {
+    return <select className="form-control form-control-sm" ref={(c) => this._op = c}>
+      <option value="SET">修改为</option>
+      <option value="NULL">置空</option>
+    </select>
+  }
+
+  renderValue() {
+    if (this.state.selectOp === 'NULL' || !this.state.selectField) return null // set Null
+
+    const field = this.props.fields.find((item) => { return this.state.selectField === item.name })
+    const fieldKey = `fv-${field.name}`
+    if (field.type === 'PICKLIST' || field.type === 'STATE' || field.type === 'MULTISELECT' || field.type === 'BOOL'
+      || field.type === 'REFERENCE' || field.type === 'CLASSIFICATION') {
+      return <select className="form-control form-control-sm" multiple={field.type === 'MULTISELECT'} ref={(c) => this._value = c} key={fieldKey}>
+        {(field.options || []).map((item) => {
+          let itemId = item.id || item.mask
+          if (item.id === false) itemId = 'false'  // for BOOL
+          return <option key={`value-${itemId}`} value={itemId}>{item.text}</option>
+        })}
+      </select>
+    } else {
+      return <input className="form-control form-control-sm" placeholder={`输入${field.label}`} ref={(c) => this._value = c} key={fieldKey} />
+    }
+  }
+
+  __destroyLastValueComp() {
+    if (this.__lastSelect2) {
+      this.__lastSelect2.select2('destroy')
+      this.__lastSelect2 = null
+    }
+    if (this.__lastDatetimepicker) {
+      this.__lastDatetimepicker.datetimepicker('remove')
+      this.__lastDatetimepicker = null
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    // Unchanged
+    if (prevState.selectField === this.state.selectField && prevState.selectOp === this.state.selectOp) return
+    if (this.state.selectOp === 'NULL') return
+    this.__destroyLastValueComp()
+
+    const field = this.props.fields.find((item) => { return this.state.selectField === item.name })
+    if (this._value.tagName === 'SELECT') {
+      if (field.type === 'REFERENCE' || field.type === 'CLASSIFICATION') {
+        this.__lastSelect2 = $initReferenceSelect2(this._value, {
+          name: field.name,
+          label: field.label,
+          entity: this.props.entity,
+          searchType: field.type === 'CLASSIFICATION' ? 'classification' : null
+        })
+      } else {
+        this.__lastSelect2 = $(this._value).select2({
+          placeholder: `选择${field.label}`
+        })
+      }
+      this.__lastSelect2.val(null).trigger('change')
+
+    } else if (field.type === 'DATE' || field.type === 'DATETIME') {
+      this.__lastDatetimepicker = $(this._value).datetimepicker({
+        componentIcon: 'zmdi zmdi-calendar',
+        navIcons: { rightIcon: 'zmdi zmdi-chevron-right', leftIcon: 'zmdi zmdi-chevron-left' },
+        format: field.type === 'DATE' ? 'yyyy-mm-dd' : 'yyyy-mm-dd hh:ii:ss',
+        minView: field.type === 'DATE' ? 'month' : 0,
+        weekStart: 1,
+        autoclose: true,
+        language: 'zh',
+        todayHighlight: true,
+        showMeridian: false,
+        keyboardNavigation: false,
+        minuteStep: 5
+      })
+    }
+  }
+
+  buildItem() {
+    let item = { field: this.state.selectField, op: this.state.selectOp }
+    const field = this.props.fields.find((item) => { return this.state.selectField === item.name })
+    if (item.op === 'NULL') {
+      if (!field.nullable) {
+        RbHighbar.create(`${field.label}不允许为空`)
+        return null
+      } else {
+        return item
+      }
+    }
+
+    item.value = $(this._value).val()
+    if (!item.value || item.value.length === 0) {
+      RbHighbar.create('修改值不能为空')
+      return null
+    }
+
+
+    if (field.type === 'MULTISELECT') {
+      let maskTotal = 0
+      item.value.forEach((mask) => maskTotal += ~~mask)
+      item.value = maskTotal
+    } else if (field.type === 'NUMBER' || field.type === 'DECIMAL') {
+      if (isNaN(item.value)) {
+        RbHighbar.create(`${field.label}格式不正确`)
+        return null
+      } else if (field.notNegative === 'true' && ~~item.value < 0) {
+        RbHighbar.create(`${field.label}不允许为负数`)
+        return null
+      }
+    } else if (field.type === 'EMAIL') {
+      if (!$regex.isMail(item.value)) {
+        RbHighbar.create(`${field.label}格式不正确`)
+        return null
+      }
+    } else if (field.type === 'URL') {
+      if (!$regex.isUrl(item.value)) {
+        RbHighbar.create(`${field.label}格式不正确`)
+        return null
+      }
+    } else if (field.type === 'PHONE') {
+      if (!$regex.isTel(item.value)) {
+        RbHighbar.create(`${field.label}格式不正确`)
+        return null
+      }
+    }
+
+    if (this._value.tagName === 'SELECT') {
+      let texts = $(this._value).select2('data').map((o) => { return o.text })
+      item.text = texts.join(', ')
+      $(this._value).val(null).trigger('change')
+    } else {
+      $(this._value).val('')
+    }
+    return item
+  }
+}

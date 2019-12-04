@@ -3,13 +3,13 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>文件管理</title>
+<title>文档管理</title>
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/files.css">
 </head>
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside">
 	<jsp:include page="/_include/NavTop.jsp">
-		<jsp:param value="文件管理" name="pageTitle"/>
+		<jsp:param value="文档管理" name="pageTitle"/>
 	</jsp:include>
 	<jsp:include page="/_include/NavLeft.jsp">
 		<jsp:param value="nav_entity-Attachment" name="activeNav"/>
@@ -20,7 +20,7 @@
 			<div class="tab-container">
 				<ul class="nav nav-tabs">
 					<li class="nav-item"><a class="nav-link" href="attachment">附件</a></li>
-					<li class="nav-item"><a class="nav-link active" href="docs">文件</a></li>
+					<li class="nav-item"><a class="nav-link active" href="docs">文档</a></li>
 				</ul>
 				<div class="tab-content rb-scroller">
 					<div class="tab-pane active" id="navTree">
@@ -40,7 +40,7 @@
 			<div class="file-header">
 				<div class="file-path">
 					<ol class="breadcrumb">
-						<li class="breadcrumb-item active">全部文件</li>
+						<li class="breadcrumb-item active">全部文档</li>
 					</ol>
 				</div>
 				<div class="file-operator row">

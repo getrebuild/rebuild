@@ -96,7 +96,7 @@ public class ChartDesignControll extends BaseEntityControll {
 			throw new IllegalParameterException("无效图表参数");
 		}
 		
-		if (!Application.getSecurityManager().allowedR(getRequestUser(request), entityMeta.getEntityCode())) {
+		if (!Application.getSecurityManager().allowRead(getRequestUser(request), entityMeta.getEntityCode())) {
 			response.sendError(403, "你没有读取 [" + EasyMeta.getLabel(entityMeta) + "] 的权限，因此无法设计此图表");
 			return null;
 		}
@@ -107,7 +107,8 @@ public class ChartDesignControll extends BaseEntityControll {
 		for (Field field : MetadataSorter.sortFields(entityMeta)) {
 			EasyMeta easy = EasyMeta.valueOf(field);
 			DisplayType dt = easy.getDisplayType();
-			if (dt == DisplayType.IMAGE || dt == DisplayType.FILE || dt == DisplayType.ANYREFERENCE) {
+			if (dt == DisplayType.IMAGE || dt == DisplayType.FILE || dt == DisplayType.ANYREFERENCE
+                || dt == DisplayType.AVATAR || dt == DisplayType.LOCATION || dt == DisplayType.MULTISELECT) {
 				continue;
 			}
 			String type = "text";

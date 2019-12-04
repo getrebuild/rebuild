@@ -5795,8 +5795,8 @@ input[type=submit].btn-block {
     font-weight: 700
 }
 
-.alert-dismissible {
-    padding-right: 4.27rem
+.alert-dismissible .message>p {
+    padding-right: 2.4rem
 }
 
 .alert-dismissible .close {
@@ -20258,6 +20258,7 @@ fieldset[disabled] .btn-color.btn-evernote:hover {
     margin-right: 8px;
     color: #696969;
     width: 14px;
+    text-align: center;
 }
 
 .dropdown-menu>.dropdown-item:active,

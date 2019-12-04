@@ -361,11 +361,3 @@ a.ui-draggable.ui-draggable-dragging {
 .chart-type>a.active>i.C370 {
 	background-position: -864px -1520px;
 }
-
-.chart-option>div {
-	display: none;
-}
-
-.chart-option>div.active {
-	display: block;
-}

@@ -13,7 +13,7 @@ final User currentUser = Application.getUserStore().getUser(AppUtils.getRequestU
 			<a class="rb-toggle-left-sidebar" title="展开/收缩导航菜单"><span class="icon zmdi zmdi-menu"></span></a>
 		</div>
         <div class="search-container">
-            <input class="form-control form-control-sm search-input-gs" type="text" name="search" maxlength="100" placeholder="搜索" />
+            <input class="form-control form-control-sm search-input-gs" type="text" name="search" maxlength="100" placeholder="搜索" autocomplete="off" />
             <div class="search-models animated fadeIn faster"></div>
         </div>
 		<div class="rb-right-navbar">
