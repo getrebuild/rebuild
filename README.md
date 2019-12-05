@@ -9,7 +9,7 @@
 
 ## 快速开始
 
-- 在线试用（用户名密码均为 admin）https://nightly.getrebuild.com/
+- 在线试用（用户名密码均为 `admin`）https://nightly.getrebuild.com/
 - 快速搭建开发环境 https://getrebuild.com/docs/dev/
 - 访问 RB 官网了解更多 https://getrebuild.com/
 
