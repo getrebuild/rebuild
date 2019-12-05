@@ -14,14 +14,21 @@
 - 访问 RB 官网了解更多 https://getrebuild.com/
 
 
-### Quick start
+### QUICK START
 
 - Trial nightly build (username and password are both `admin`) https://nightly.getrebuild.com/
 - Build development environment https://getrebuild.com/docs/dev/
 - Visit the RB website to learn more https://getrebuild.com/
 
 
-### NOTICE
+### 关于 ABOUT
+
+> REBUILD 是一款真正的生产级项目，对安全性、高并发、高可用及可扩展性都有充分考虑，绝非一般项目可比。作者从事企业产品研发10年以上，深度了解企业核心需求，现任国内某软件公司 CTO，2017 年荣获国家高级软件架构师认证。
+
+> REBUILD is a real project for production environments, which fully considers security, high concurrency, high availability, and scalability, and is not comparable to general projects. The author has more than 10 years of enterprise product research and development, and has a deep understanding of the core needs of the enterprise. He is currently the CTO of a software company. In 2017, he was awarded the senior software architect certification.
+
+
+### 注意 NOTICE
 
 > REBUILD 使用 [开源 GPL-3.0](https://raw.githubusercontent.com/getrebuild/rebuild/master/LICENSE) 和 [商用](https://raw.githubusercontent.com/getrebuild/rebuild/master/COMMERCIAL) 双重授权许可，您应当认真阅读许可内容。使用 REBUILD 即表示您完全同意许可内容/条款。感谢支持！
 
