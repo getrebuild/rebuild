@@ -23,9 +23,9 @@
 
 ## 关于 ABOUT
 
-REBUILD 是一款真正的生产级项目，对安全性、高并发、高可用及可扩展性都有充分考虑，绝非一般项目可比。作者从事企业产品研发10年以上，深度了解企业核心需求，现任国内某软件公司 CTO，2017 年荣获国家高级软件架构师认证。
+REBUILD 是一款真正的生产级项目，对安全性、健壮性、高并发、高可用及可扩展性都有充分考虑，绝非一般项目可比。作者从事企业产品研发 10 年以上，深度了解企业核心需求，现任国内某软件公司 CTO，2017 年获得国家高级软件架构师认证。
 
-REBUILD is a real project for production environments, which fully considers security, high concurrency, high availability, and scalability, and is not comparable to general projects. The author has more than 10 years of enterprise product research and development, and has a deep understanding of the core needs of the enterprise. He is currently the CTO of a software company. In 2017, he was awarded the senior software architect certification.
+REBUILD is a true production-grade project that fully considers security, robustness, high concurrency, high availability, and scalability. The author has worked in enterprise product research and development for more than 10 years and has a deep understanding of the core needs of the enterprise. He is currently the CTO of a software company. In 2017, he obtained the national senior software architect certification.
 
 
 ## 注意 NOTICE
