@@ -86,7 +86,8 @@
 						<div class="form-group row login-tools">
 							<div class="col-6 login-remember">
 								<label class="custom-control custom-checkbox custom-control-inline mb-0">
-									<input class="custom-control-input" type="checkbox" id="autoLogin"><span class="custom-control-label"> ${bundle.lang('RememberMe')}</span>
+									<input class="custom-control-input" type="checkbox" id="autoLogin">
+                                    <span class="custom-control-label"> ${bundle.lang('RememberMe')}</span>
 								</label>
 							</div>
 							<div class="col-6 login-forgot-password">
@@ -172,12 +173,6 @@ $(document).ready(function() {
 			}
 		}).fail(function () { /* NOOP */ })
 	}
-
-	// $('.select-lang>a').click(function (event) {
-	// 	event.preventDefault()
-	// 	let locale = $(this).attr('href')
-	// 	$.post(rb.baseUrl + '/language/select' + locale, ()=> location.replace(locale))
-	// })
 })
 </script>
 </body>

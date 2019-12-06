@@ -54,7 +54,7 @@ public class BatchOperatorQuery extends SetUser<BatchOperatorQuery> {
     /**
      * 全部数据
      */
-    public static final int DR_ALL = 4;
+    public static final int DR_ALL = 10;
 
     private int dataRange;
     private JSONObject queryData;
