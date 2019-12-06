@@ -24,7 +24,7 @@ class RbList extends React.Component {
       if (sort[0] === fields[i].field) fields[i].sort = sort[1]
     }
     props.config.fields = null
-    this.state = { ...props, fields: fields, rowsData: [], pageNo: 1, pageSize: 20, inLoad: true, checkedAll: false }
+    this.state = { ...props, fields: fields, rowsData: [], pageNo: 1, pageSize: 20, inLoad: true, checkedAll: false, checkeds: [] }
 
     this.__defaultColumnWidth = $('#react-list').width() / 10
     if (this.__defaultColumnWidth < 130) this.__defaultColumnWidth = 130
@@ -33,11 +33,11 @@ class RbList extends React.Component {
     this.pageSize = $storage.get('ListPageSize') || 20
     this.advFilter = $storage.get(this.__defaultFilterKey)
 
-    this.toggleAllRow = this.toggleAllRow.bind(this)
+    this.toggleRows = this.toggleRows.bind(this)
   }
 
   render() {
-    let that = this
+    const that = this
     const lastIndex = this.state.fields.length
     return (
       <React.Fragment>
@@ -50,7 +50,7 @@ class RbList extends React.Component {
                     {this.props.uncheckbox !== true && <th className="column-checkbox">
                       <div>
                         <label className="custom-control custom-control-sm custom-checkbox">
-                          <input className="custom-control-input" type="checkbox" checked={this.state.checkedAll} onClick={this.toggleAllRow} readOnly />
+                          <input className="custom-control-input" type="checkbox" checked={this.state.checkedAll} onChange={this.toggleRows} />
                           <span className="custom-control-label"></span>
                         </label>
                       </div>
@@ -61,34 +61,39 @@ class RbList extends React.Component {
                       let clazz = 'unselect' + (item.unsort ? '' : ' sortable')
                       let click = item.unsort ? function () { } : this.sortField.bind(this, item.field)
                       return (<th key={'column-' + item.field} style={styles} className={clazz} onClick={click} data-field={item.field}>
-                        <div style={styles}><span style={{ width: (cWidth - 8) + 'px' }}>{item.label}</span><i className={'zmdi ' + (item.sort || '')} /><i className="split" /></div>
+                        <div style={styles}>
+                          <span style={{ width: (cWidth - 8) + 'px' }}>{item.label}</span>
+                          <i className={'zmdi ' + (item.sort || '')} />
+                          <i className="split" />
+                        </div>
                       </th>)
                     })}
                     <th className="column-empty"></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {this.state.rowsData.map((item, index) => {
-                    let lastGhost = item[lastIndex]
-                    let rowKey = 'row-' + lastGhost[0]
-                    return (<tr key={rowKey} className={lastGhost[3] ? 'active' : ''} onClick={this.clickRow.bind(this, index, false)}>
+                  {this.state.rowsData.map((item) => {
+                    const lastPrimary = item[lastIndex]
+                    const checked = this.state.checkeds.contains(lastPrimary.id)
+                    const rowKey = 'row-' + lastPrimary.id
+                    return <tr key={rowKey} className={`${checked ? 'active' : ''}`} onClick={() => this.clickRowUnhold(lastPrimary.id)}>
                       {this.props.uncheckbox !== true && <td key={rowKey + '-checkbox'} className="column-checkbox">
                         <div>
                           <label className="custom-control custom-control-sm custom-checkbox">
-                            <input className="custom-control-input" type="checkbox" checked={lastGhost[3]} onClick={this.clickRow.bind(this, index, true)} readOnly />
-                            <span className="custom-control-label"></span>
+                            <input className="custom-control-input" type="checkbox" checked={checked} readOnly />
+                            <span className="custom-control-label" onClick={(e) => this.clickRow(lastPrimary.id, e)}></span>
                           </label>
                         </div>
-                      </td>}
-                      {item.map((cell, index) => { return that.renderCell(cell, index, lastGhost) })}
+                      </td>
+                      }
+                      {item.map((cell, index) => { return that.renderCell(cell, index, lastPrimary) })}
                       <td className="column-empty"></td>
-                    </tr>)
+                    </tr>
                   })}
                 </tbody>
               </table>
-              {this.state.inLoad === false && this.state.rowsData.length === 0
-                ? <div className="list-nodata"><span className="zmdi zmdi-info-outline" /><p>暂无数据</p></div>
-                : null}
+              {this.state.inLoad === false && this.state.rowsData.length === 0 &&
+                <div className="list-nodata"><span className="zmdi zmdi-info-outline" /><p>暂无数据</p></div>}
             </div>
           </div>
         </div>
@@ -139,18 +144,11 @@ class RbList extends React.Component {
   }
 
   componentDidUpdate() {
-    let that = this
-    this.__selectedRows = []
-    this.state.rowsData.forEach((item) => {
-      let lastGhost = item[that.state.fields.length]
-      if (lastGhost[3] === true) that.__selectedRows.push(lastGhost)
-    })
-
     let oper = $('.dataTables_oper')
     oper.find('.J_delete, .J_view, .J_edit, .J_assign, .J_share, .J_unshare').attr('disabled', true)
-    let len = this.__selectedRows.length
-    if (len > 0) oper.find('.J_delete, .J_assign, .J_share, .J_unshare').attr('disabled', false)
-    if (len === 1) oper.find('.J_view, .J_edit').attr('disabled', false)
+    const length = this.state.checkeds.length
+    if (length > 0) oper.find('.J_delete, .J_assign, .J_share, .J_unshare').attr('disabled', false)
+    if (length === 1) oper.find('.J_view, .J_edit').attr('disabled', false)
   }
 
   fetchList(filter) {
@@ -181,18 +179,8 @@ class RbList extends React.Component {
     }, 400)
     $.post(`${rb.baseUrl}/app/${entity}/data-list`, JSON.stringify(query), (res) => {
       if (res.error_code === 0) {
-        let rowsdata = res.data.data || []
-        if (rowsdata.length > 0) {
-          let lastIndex = rowsdata[0].length - 1
-          rowsdata = rowsdata.map((item) => {
-            item[lastIndex][3] = false  // Checked?
-            return item
-          })
-        }
-
-        this.setState({ rowsData: rowsdata, inLoad: false }, () => RbList.renderAfter())
+        this.setState({ rowsData: res.data.data || [], inLoad: false }, () => RbList.renderAfter())
         if (res.data.total > 0) this._pagination.setState({ rowsTotal: res.data.total })
-
       } else {
         RbHighbar.error(res.error_msg)
       }
@@ -204,55 +192,45 @@ class RbList extends React.Component {
 
   // 渲染表格及相关事件处理
 
-  renderCell(cellVal, index, lastGhost) {
+  renderCell(cellVal, index, lastPrimary) {
     if (this.state.fields.length === index) return null
     const field = this.state.fields[index]
     if (!field) return null
 
-    const cellKey = 'row-' + lastGhost[0] + '-' + index
+    const cellKey = 'row-' + lastPrimary.id + '-' + index
     if (cellVal === '$NOPRIVILEGES$') {
       return <td key={cellKey}><div className="column-nopriv" title="你无权读取此项数据">[无权限]</div></td>
     } else {
       let w = this.state.fields[index].width || this.__defaultColumnWidth
       let t = field.type
       if (field.field === this.props.config.nameField) {
-        cellVal = lastGhost
+        cellVal = lastPrimary
         t = '$NAME$'
       }
       return CellRenders.render(cellVal, t, w, cellKey + '.' + field.field)
     }
   }
 
-  toggleAllRow() {
-    let checked = this.state.checkedAll === false
-    let rowsdata = this.state.rowsData
-    rowsdata = rowsdata.map((item) => {
-      item[item.length - 1][3] = checked  // Checked?
-      return item
-    })
-    this.setState({ checkedAll: checked, rowsData: rowsdata })
-    return false
+  // 全选
+  toggleRows() {
+    let checkeds = []
+    if (!this.state.checkedAll) {
+      this.state.rowsData.forEach((item) => checkeds.push(item[item.length - 1].id))
+    }
+    this.setState({ checkeds: checkeds, checkedAll: !this.state.checkedAll })
   }
 
-  clickRow(rowIndex, holdOthers, e) {
-    if (e.target.tagName === 'SPAN') return false
-    e.stopPropagation()
-    e.nativeEvent.stopImmediatePropagation()
-
-    let rowsdata = this.state.rowsData
-    let lastIndex = rowsdata[0].length - 1
-    if (holdOthers === true) {
-      let item = rowsdata[rowIndex]
-      item[lastIndex][3] = item[lastIndex][3] === false  // Checked?
-      rowsdata[rowIndex] = item
-    } else {
-      rowsdata = rowsdata.map((item, index) => {
-        item[lastIndex][3] = index === rowIndex
-        return item
-      })
-    }
-    this.setState({ rowsData: rowsdata })
-    return false
+  // 单选
+  clickRowUnhold(clickId) {
+    if (event && event.target.tagName === 'INPUT') return
+    this.setState({ checkeds: [clickId] })
+  }
+  clickRow(clickId, e) {
+    let checkeds = this.state.checkeds
+    if (checkeds.contains(clickId)) checkeds.remove(clickId)
+    else checkeds.push(clickId)
+    this.setState({ checkeds: checkeds })
+    $stopEvent(e)
   }
 
   sortField(field, e) {
@@ -296,25 +274,16 @@ class RbList extends React.Component {
   setAdvFilter(id) {
     this.advFilter = id
     this.fetchList(this.__buildQuick())
-
     if (id) $storage.set(this.__defaultFilterKey, id)
     else $storage.remove(this.__defaultFilterKey)
   }
 
   /**
-   * 获取选中行
-   */
-  getSelectedRows() {
-    return this.__selectedRows || []
-  }
-
-  /**
    * 获取选中 ID[]
    */
-  getSelectedIds() {
-    let ids = this.getSelectedRows().map((item) => { return item[0] })
-    if (ids.length < 1) RbHighbar.create('未选中任何记录')
-    return ids
+  getSelectedIds(noWarn) {
+    if (this.state.checkeds.length === 0 && noWarn !== true) RbHighbar.create('未选中任何记录')
+    return this.state.checkeds
   }
 
   /**
@@ -363,7 +332,7 @@ class RbList extends React.Component {
 }
 
 // 列表（单元格）渲染
-var CellRenders = {
+const CellRenders = {
   __renders: {},
 
   addRender(type, func) {
@@ -371,7 +340,7 @@ var CellRenders = {
   },
 
   clickView(v) {
-    RbViewModal.create({ id: v[0], entity: v[2][0] })
+    RbViewModal.create({ id: v.id, entity: v.entity })
     return false
   },
 
@@ -391,9 +360,11 @@ var CellRenders = {
     return <td key={k}><div style={s}>{v || ''}</div></td>
   }
 }
+
 CellRenders.addRender('$NAME$', function (v, s, k) {
-  return <td key={k}><div style={s}><a href={'#!/View/' + v[2][0] + '/' + v[0]} onClick={() => CellRenders.clickView(v)} className="column-main">{v[1]}</a></div></td>
+  return <td key={k}><div style={s}><a href={'#!/View/' + v.entity + '/' + v.id} onClick={() => CellRenders.clickView(v)} className="column-main">{v.text}</a></div></td>
 })
+
 CellRenders.addRender('IMAGE', function (v, s, k) {
   v = JSON.parse(v || '[]')
   return <td key={k} className="td-min">
@@ -405,6 +376,7 @@ CellRenders.addRender('IMAGE', function (v, s, k) {
         return <a key={'k-' + item} title={imgName} onClick={() => RbPreview.create(v, idx)}><img alt="图片" src={imgUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a>
       })}</div></td>
 })
+
 CellRenders.addRender('FILE', function (v, s, k) {
   v = JSON.parse(v || '[]')
   return <td key={k} className="td-min"><div style={s} className="column-files">
@@ -417,15 +389,19 @@ CellRenders.addRender('FILE', function (v, s, k) {
     </ul>
   </div></td>
 })
+
 CellRenders.addRender('REFERENCE', function (v, s, k) {
-  return <td key={k}><div style={s}><a href={'#!/View/' + v[2][0] + '/' + v[0]} onClick={() => CellRenders.clickView(v)}>{v[1]}</a></div></td>
+  return <td key={k}><div style={s}><a href={'#!/View/' + v.entity + '/' + v.id} onClick={() => CellRenders.clickView(v)}>{v.text}</a></div></td>
 })
+
 CellRenders.addRender('URL', function (v, s, k) {
   return <td key={k}><div style={s}><a href={rb.baseUrl + '/commons/url-safe?url=' + $encode(v)} className="column-url" target="_blank" rel="noopener noreferrer">{v}</a></div></td>
 })
+
 CellRenders.addRender('EMAIL', function (v, s, k) {
   return <td key={k}><div style={s}><a href={'mailto:' + v} className="column-url">{v}</a></div></td>
 })
+
 const APPROVAL_STATE_CLAZZs = { '审批中': 'warning', '驳回': 'danger', '通过': 'success' }
 CellRenders.addRender('STATE', function (v, s, k) {
   if (k.endsWith('.approvalState')) {
@@ -433,10 +409,12 @@ CellRenders.addRender('STATE', function (v, s, k) {
     return <td key={k} className="td-min column-state"><div style={s}><span className={badge ? 'badge badge-' + badge : ''}>{v}</span></div></td>
   } else return CellRenders.renderSimple(v, s, k)
 })
+
 CellRenders.addRender('DECIMAL', function (v, s, k) {
   if ((v + '').substr(0, 1) === '-') return <td key={k}><div style={s} className="text-danger">{v}</div></td>
   else return CellRenders.renderSimple(v, s, k)
 })
+
 CellRenders.addRender('MULTISELECT', function (v, s, k) {
   return <td key={k} className="td-min column-multi"><div style={s}>
     {v.split(' / ').map((item) => {
@@ -976,7 +954,7 @@ class BatchOperator extends RbFormHandler {
 
   render() {
     const _listRef = this.props.listRef
-    const selectedRows = _listRef.getSelectedRows().length
+    const selectedRows = _listRef.getSelectedIds(true).length
     const pageRows = _listRef.state.rowsData.length
     const queryRows = _listRef.getLastQueryTotal()
     return <RbModal title={this.state.title} disposeOnHide={true} ref={(c) => this._dlg = c}>
@@ -1013,7 +991,7 @@ class BatchOperator extends RbFormHandler {
 
   getQueryData() {
     let qd = this.props.listRef.getLastQueryData()
-    if (~~this.state.dataRange === 1) qd._selected = this.props.listRef.getSelectedIds().join('|')
+    if (~~this.state.dataRange === 1) qd._selected = this.props.listRef.getSelectedIds(true).join('|')
     return qd
   }
 

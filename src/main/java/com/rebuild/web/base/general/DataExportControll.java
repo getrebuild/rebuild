@@ -51,7 +51,7 @@ public class DataExportControll extends BaseControll {
 
         int dataRange = getIntParameter(request, "dr", 2);
         JSONObject queryData = (JSONObject) ServletUtils.getRequestJson(request);
-        queryData = new BatchOperatorQuery(dataRange, queryData).wrapQueryData(DataExporter.MAX_ROWS);
+        queryData = new BatchOperatorQuery(dataRange, queryData).wrapQueryData(DataExporter.MAX_ROWS, false);
 
         try {
             File file = new DataExporter(queryData).setUser(user).export();

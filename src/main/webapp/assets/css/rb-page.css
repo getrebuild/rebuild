@@ -393,6 +393,12 @@ a.btn {
 }
 */
 
+.custom-radio.custom-control-sm .custom-control-input:checked~.custom-control-label::after {
+    font-size: 12px;
+    margin-left: 0;
+    margin-top: 2px;
+}
+
 .badge.thin {
     font-weight: normal;
     font-style: normal;

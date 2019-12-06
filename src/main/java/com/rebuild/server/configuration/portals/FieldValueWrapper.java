@@ -299,23 +299,23 @@ public class FieldValueWrapper {
 	public static String getLabel(ID id) throws NoRecordFoundException {
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		Field nameField = MetadataHelper.getNameField(entity);
-		String sql = "select %s from %s where %s = '%s'";
-		sql = String.format(sql, nameField.getName(), entity.getName(), entity.getPrimaryField().getName(), id.toLiteral());
-		Object[] label = Application.getQueryFactory().createQueryNoFilter(sql).unique();
-		if (label == null) {
-			throw new NoRecordFoundException("No label found by ID : " + id);
-		}
-		
-		Object labelValue = FieldValueWrapper.instance.wrapFieldValue(label[0], nameField);
-		if (labelValue == null || StringUtils.isBlank(labelValue.toString())) {
+
+		Object[] nameValue = Application.getQueryFactory().uniqueNoFilter(id, nameField.getName());
+		if (nameValue == null) {
+            throw new NoRecordFoundException("No record found by ID : " + id);
+        }
+
+		Object nameLabel = FieldValueWrapper.instance.wrapFieldValue(nameValue[0], nameField);
+		if (nameLabel == null || StringUtils.isBlank(nameLabel.toString())) {
 			return NO_LABEL_PREFIX + id.toLiteral().toUpperCase();
 		}
-		return labelValue.toString();
+		return nameLabel.toString();
 	}
 
 	/**
 	 * @param id
 	 * @return
+     * @see #getLabel(ID)
 	 */
 	public static String getLabelNotry(ID id) {
 		try {
