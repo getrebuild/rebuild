@@ -141,9 +141,9 @@ $(document).ready(function() {
 		if (vcodeState && !vcode){ RbHighbar.create($lang('InputCaptchaPls')); return }
 
 		let btn = $('.login-submit button').button('loading')
-		let url = rb.baseUrl + '/user/user-login?user=' + $encode(user) + '&passwd=' + $encode(passwd) + '&autoLogin=' + $val('#autoLogin')
+		let url = rb.baseUrl + '/user/user-login?user=' + $encode(user) + '&passwd=******&autoLogin=' + $val('#autoLogin')
 		if (!!vcode) url += '&vcode=' + vcode
-		$.post(url, function(res) {
+		$.post(url, $encode(passwd), function(res) {
 			if (res.error_code == 0){
 				location.replace($decode($urlp('nexturl') || '../dashboard/home'))
 			} else if (res.error_msg == 'VCODE') {
