@@ -382,6 +382,7 @@ a.btn {
     padding-left: 1.9377rem;
 }
 
+/*
 .custom-radio.custom-control-sm .custom-control-input:checked~.custom-control-label::after {
     font-size: 13px;
     padding-top: 0.15rem;
@@ -390,6 +391,7 @@ a.btn {
 .custom-radio .custom-control-input:checked~.custom-control-label::after {
     content: "\f26b";
 }
+*/
 
 .badge.thin {
     font-weight: normal;
@@ -687,7 +689,7 @@ a {
 }
 
 .rbform .type-BOOL .mt-1 {
-    margin-top: .46rem !important;
+    margin-top: .25rem !important;
 }
 
 .rbform .select2-container--default .select2-selection--multiple .select2-selection__clear {
@@ -714,6 +716,10 @@ a {
 .type-MULTISELECT {
     padding-bottom: 6px !important;
     overflow: hidden;
+}
+
+.type-MULTISELECT .mt-1 {
+    margin-top: 0.25rem !important;
 }
 
 .type-MULTISELECT .custom-checkbox {

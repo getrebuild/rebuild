@@ -61,6 +61,7 @@ body {
 
 .rbview-form .form-group.row {
 	padding: 3px 0;
+	position: relative;
 }
 
 .rbview-form .img-field .img-thumbnail:hover,
@@ -290,4 +291,20 @@ body {
 .load-mores>.btn {
 	display: inline-block;
 	margin-top: -1.4rem;
+}
+
+.rbview-form .form-group.row>div::after {
+	font-family: 'Material-Design-Iconic-Font';
+	content: '\f158';
+	position: absolute;
+	color: #aaa;
+	font-size: 15px;
+	right: 0;
+	top: 50%;
+	margin-top: -10px;
+	display: none;
+}
+
+.rbview-form .form-group.row>div:hover::after {
+	display: block;
 }
