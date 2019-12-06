@@ -284,6 +284,7 @@ class RbFormElement extends React.Component {
 
     this.handleChange = this.handleChange.bind(this)
     this.handleClear = this.handleClear.bind(this)
+    this.handleEdit = this.handleEdit.bind(this)
     this.checkValue = this.checkValue.bind(this)
   }
 
@@ -303,17 +304,20 @@ class RbFormElement extends React.Component {
     </div>
   }
 
-
   // 渲染表单
-  renderElement(readonlyValue) {
-    const value = (readonlyValue || this.state.value) || ''
-    return <input ref={(c) => this._fieldValue = c} className={`form-control form-control-sm ${this.state.hasError ? 'is-invalid' : ''}`} title={this.state.hasError} type="text" value={value}
+  renderElement(forceValue) {
+    const value = forceValue || this.state.value
+    return <input ref={(c) => this._fieldValue = c} className={`form-control form-control-sm ${this.state.hasError ? 'is-invalid' : ''}`} title={this.state.hasError} type="text" value={value || ''}
       onChange={this.handleChange} onBlur={this.checkValue} readOnly={this.props.readonly} />
   }
 
   // 渲染视图
-  renderViewElement() {
-    return <div className="form-control-plaintext">{this.state.value || (<span className="text-muted">无</span>)}</div>
+  renderViewElement(forceText) {
+    const text = forceText || this.state.value
+    return <React.Fragment>
+      <div className="form-control-plaintext">{text || (<span className="text-muted">无</span>)}</div>
+      {!this.props.readonly && <a className="editable hide" title="编辑" onClick={this.handleEdit} />}
+    </React.Fragment>
   }
 
   componentDidMount() {
@@ -336,6 +340,11 @@ class RbFormElement extends React.Component {
     this.setState({ value: '' }, () => { this.checkValue() })
   }
 
+  // 编辑值
+  handleEdit() {
+    this.setState({ viewMode: false })
+  }
+
   // 检查值
   checkValue() {
     if (this.isValueUnchanged()) {
@@ -348,6 +357,8 @@ class RbFormElement extends React.Component {
     let errMsg = err ? (this.props.label + err) : null
     this.props.$$$parent.setFieldValue(this.props.field, this.state.value, errMsg)
   }
+
+  // 无效值检查
   isValueError() {
     if (this.props.nullable === false) {
       let v = this.state.value
@@ -355,6 +366,8 @@ class RbFormElement extends React.Component {
       else return !v ? '不能为空' : null
     }
   }
+
+  // 未修改
   isValueUnchanged() {
     return $same(this.props.value || '', this.state.value || '')
   }
@@ -682,6 +695,10 @@ class RbFormPickList extends RbFormElement {
     </select>
   }
 
+  renderViewElement() {
+    return super.renderViewElement(__findOptionText(this.state.options, this.props.value))
+  }
+
   componentDidMount() {
     super.componentDidMount()
     if (this.state.viewMode || this.props.readonly) return
@@ -734,6 +751,7 @@ class RbFormReference extends RbFormElement {
     if (!value) return super.renderViewElement()
 
     if (typeof value === 'string') return <div className="form-control-plaintext">{value}</div>
+    if (!value.id) return <div className="form-control-plaintext">{value.text}</div>
     return <div className="form-control-plaintext">
       <a href={`#!/View/${value.entity}/${value.id}`} onClick={() => window.RbViewPage && window.RbViewPage.clickView(this)}>{value.text}</a>
     </div>
@@ -810,6 +828,10 @@ class RbFormClassification extends RbFormElement {
     </div>
   }
 
+  renderViewElement() {
+    return super.renderViewElement(this.props.value ? this.props.value.text : null)
+  }
+
   componentDidMount() {
     super.componentDidMount()
     if (this.state.viewMode || this.props.readonly) return
@@ -875,7 +897,6 @@ class RbFormClassification extends RbFormElement {
 class RbFormMultiSelect extends RbFormElement {
   constructor(props) {
     super(props)
-    this.changeValue = this.changeValue.bind(this)
   }
 
   renderElement() {
@@ -892,33 +913,27 @@ class RbFormMultiSelect extends RbFormElement {
     </div>
   }
 
-  changeValue() {
-    let maskValue = 0
-    $(this._fieldValue__wrap).find('input:checked').each(function () { maskValue += ~~$(this).val() })
-    this.handleChange({ target: { value: maskValue === 0 ? null : maskValue } }, true)
-  }
-
   renderViewElement() {
     const value = this.state.value
     if (!value) return super.renderViewElement()
 
     return <div className="form-control-plaintext">
-      {value.split(' / ').map((item) => {
-        return <span key={'opt-' + item} className="badge">{item}</span>
+      {__findMultiTexts(this.props.options, value).map((item) => {
+        return <span key={'m-' + item} className="badge">{item}</span>
       })}
     </div>
+  }
+
+  changeValue = () => {
+    let maskValue = 0
+    $(this._fieldValue__wrap).find('input:checked').each(function () { maskValue += ~~$(this).val() })
+    this.handleChange({ target: { value: maskValue === 0 ? null : maskValue } }, true)
   }
 }
 
 class RbFormBool extends RbFormElement {
   constructor(props) {
     super(props)
-
-    if (!props.onView) {
-      if (props.value === true || props.value === 'true') this.state.value = 'T'
-      else if (props.value === false || props.value === 'false') this.state.value = 'F'
-    }
-    this.changeValue = this.changeValue.bind(this)
   }
 
   renderElement() {
@@ -936,7 +951,12 @@ class RbFormBool extends RbFormElement {
     </div>
   }
 
-  changeValue(e) {
+  renderViewElement() {
+    let options = { 'T': '是', 'F': '否' }
+    return super.renderViewElement(this.state.value ? options[this.state.value] : null)
+  }
+
+  changeValue = (e) => {
     let val = e.target.dataset.value
     this.handleChange({ target: { value: val } }, true)
   }
@@ -966,10 +986,9 @@ class RbFormDivider extends React.Component {
   render() {
     // TODO 编辑页暂无分割线
     if (!this.props.onView) return null
-
-    let label = this.props.label || ''
-    if (label === '分栏线') label = null
-    return <div className="form-line" ref={(c) => this._element = c}><fieldset>{label && <legend onClick={this.toggle}>{label}</legend>}</fieldset></div>
+    return <div className="form-line" ref={(c) => this._element = c}>
+      <fieldset>{this.props.label && <legend onClick={this.toggle}>{this.props.label}</legend>}</fieldset>
+    </div>
   }
 
   toggle = () => {
@@ -1044,6 +1063,15 @@ const __findOptionText = function (options, value) {
     }
   })
   return text || `[${value.toUpperCase()}]`
+}
+
+// 多选文本
+const __findMultiTexts = function (options, maskValue) {
+  let texts = []
+  options.map((item) => {
+    if ((maskValue & item.mask) !== 0) texts.push(item.text)
+  })
+  return texts
 }
 
 // 分类数据选择

@@ -156,7 +156,6 @@ public class FormsBuilder extends FormsManager {
 			} else {
 				approvalState = getHadApproval(entityMeta, null);
 			}
-			
 		}
 		// 查看（视图）
 		else if (viewMode) {
@@ -274,7 +273,7 @@ public class FormsBuilder extends FormsManager {
 
 			// 编辑/视图
 			if (data != null) {
-				Object value = wrapFieldValue(data, easyField, viewMode);
+				Object value = wrapFieldValue(data, easyField);
 				if (value != null) {
 					el.put("value", value);
 				}
@@ -432,23 +431,21 @@ public class FormsBuilder extends FormsManager {
 	 * 
 	 * @param data
 	 * @param field
-	 * @param viewMode
 	 * @return
 	 * 
 	 * @see FieldValueWrapper
 	 * @see #findRecord(ID, ID, JSONArray)
 	 */
-	protected Object wrapFieldValue(Record data, EasyMeta field, boolean viewMode) {
+	protected Object wrapFieldValue(Record data, EasyMeta field) {
 		final String fieldName = field.getName();
 
 		// No value
-		if (!data.hasValue(fieldName)) {
+		if (!data.hasValue(fieldName, false)) {
 			if (EntityHelper.ApprovalId.equalsIgnoreCase(fieldName)) {
 				return mixFieldValue(FieldValueWrapper.APPROVAL_UNSUBMITTED);
-			} else {
-				return null;
 			}
-		}
+            return null;
+        }
 
 		final DisplayType dt = field.getDisplayType();
 		final Object fieldValue = data.getObjectValue(fieldName);
@@ -465,17 +462,14 @@ public class FormsBuilder extends FormsManager {
 				idLabel = FieldValueWrapper.NO_LABEL_PREFIX + idValue.toLiteral().toUpperCase();
 			}
 			return mixFieldValue(idValue, idLabel, true);
-		}
-
-		// 编辑模式下原值返回
-		if (!viewMode && (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST || dt == DisplayType.STATE
-				|| dt == DisplayType.BOOL || dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL
-				|| dt == DisplayType.IMAGE || dt == DisplayType.AVATAR || dt == DisplayType.FILE
-				|| dt == DisplayType.LOCATION)) {
-			return fieldValue.toString();
-		}
-		// 因为这里返回的会进行格式化
-		return FieldValueWrapper.instance.wrapFieldValue(fieldValue, field);
+		} else if (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST || dt == DisplayType.STATE
+                || dt == DisplayType.IMAGE || dt == DisplayType.FILE || dt == DisplayType.AVATAR || dt == DisplayType.LOCATION) {
+		    return fieldValue.toString();
+        } else if (dt == DisplayType.BOOL) {
+		    return (Boolean) fieldValue ? BoolEditor.TRUE : BoolEditor.FALSE;
+        } else {
+            return FieldValueWrapper.instance.wrapFieldValue(fieldValue, field);
+        }
 	}
 
 	/**

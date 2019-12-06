@@ -8,9 +8,11 @@ class RbViewForm extends React.Component {
     super(props)
     this.state = { ...props }
   }
+
   render() {
     return <div className="rbview-form" ref={(c) => this._viewForm = c}>{this.state.formComponent}</div>
   }
+
   componentDidMount() {
     $.get(`${rb.baseUrl}/app/${this.props.entity}/view-model?id=${this.props.id}`, (res) => {
       // 有错误
@@ -30,15 +32,17 @@ class RbViewForm extends React.Component {
       let vform = (<div>
         {hadApproval && <ApprovalProcessor id={this.props.id} />}
         <div className="row">
-          {res.data.elements.map((item) => { return detectViewElement(item) })}
+          {res.data.elements.map((item) => {
+            item.$$$parent = this
+            return detectViewElement(item)
+          })}
         </div>
       </div>)
-      this.setState({ formComponent: vform }, () => {
-        this.hideLoading()
-      })
+      this.setState({ formComponent: vform }, () => this.hideLoading())
       this.__lastModified = res.data.lastModified || 0
     })
   }
+
   renderViewError(message) {
     let error = <div className="alert alert-danger alert-icon mt-5 w-75" style={{ margin: '0 auto' }}>
       <div className="icon"><i className="zmdi zmdi-alert-triangle"></i></div>
@@ -56,10 +60,8 @@ class RbViewForm extends React.Component {
     $(this._viewForm).find('.type-NTEXT .form-control-plaintext').perfectScrollbar()
   }
 
+  showAgain = (handle) => this.checkDrityData(handle)
   // 脏数据检查
-  showAgain(handle) {
-    this.checkDrityData(handle)
-  }
   checkDrityData(handle) {
     if (!this.__lastModified || !this.state.id) return
     $.get(`${rb.baseUrl}/app/entity/record-lastModified?id=${this.state.id}`, (res) => {
@@ -74,6 +76,14 @@ class RbViewForm extends React.Component {
       }
     })
   }
+
+  // 修改值
+  setFieldValue() {
+    console.log('setFieldValue - ' + arguments)
+  }
+  setFieldUnchanged() {
+    console.log('setFieldUnchanged - ' + arguments)
+  }
 }
 
 const detectViewElement = function (item) {
@@ -81,85 +91,12 @@ const detectViewElement = function (item) {
   item.onView = true
   item.viewMode = true
   item.key = 'col-' + (item.field === '$DIVIDER$' ? $random() : item.field)
-  return (<div className={'col-12 col-sm-' + (item.isFull ? 12 : 6)} key={item.key}>{window.detectElement(item)}</div>)
+  return <div className={`col-12 col-sm-${item.isFull ? 12 : 6}`} key={item.key}>{window.detectElement(item)}</div>
 }
-
-// // ~~ 动作
-// class RbViewAction extends React.Component {
-//   constructor(props) {
-//     super(props)
-//   }
-//   render() {
-//     const ep = this.props.ep || {}  // Privileges of current entity/record
-//     const viewAdds = wpc.viewAdds || []
-//     return <React.Fragment>
-//       {ep.U && <div className="col-12 col-lg-6">
-//         <button className="btn btn-secondary" type="button" onClick={this.edit}><i className="icon zmdi zmdi-border-color"></i> 编辑</button>
-//       </div>}
-//       <div className="col-12 col-lg-6 btn-group">
-//         <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i className="icon zmdi zmdi-more-vert"></i></button>
-//         <div className="dropdown-menu dropdown-menu-right">
-//           {ep.D && <a className="dropdown-item" onClick={this.delete}><i className="icon zmdi zmdi-delete"></i> 删除</a>}
-//           {ep.A && <a className="dropdown-item" onClick={this.assign}><i className="icon zmdi zmdi-mail-reply-all"></i> 分派</a>}
-//           {ep.S && <a className="dropdown-item" onClick={this.share}><i className="icon zmdi zmdi-portable-wifi"></i> 共享</a>}
-//           {(ep.D || ep.A || ep.S) && <div className="dropdown-divider"></div>}
-//           <a className="dropdown-item" target="_blank" href={`${rb.baseUrl}/app/entity/print?id=${this.props.id}`}><i className="icon zmdi zmdi-print"></i> 打印</a>
-//           <a className="dropdown-item" onClick={this.showReports}><i className="icon zmdi zmdi-map"></i> 报表</a>
-//         </div>
-//       </div>
-//       {(wpc.slaveEntity && wpc.slaveEntity[0]) && <div className="col-12 col-lg-6">
-//         <button className="btn btn-secondary" type="button" onClick={() => this.slaveAdd(wpc.slaveEntity)}><i className="icon x14 zmdi zmdi-playlist-plus"></i> 添加明细</button>
-//       </div>}
-//       {(viewAdds.length > 0 || rb.isAdminUser) && <div className="col-12 col-lg-6 btn-group">
-//         <button className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i className="icon zmdi zmdi-plus"></i> 新建相关</button>
-//         <div className="dropdown-menu dropdown-menu-right">
-//           {viewAdds.map((item) => {
-//             return <a key={`vadd-${item[0]}`} className="dropdown-item" onClick={() => this.relatedAdd(item)}><i className={`icon zmdi zmdi-${item[2]}`}></i>新建{item[1]}</a>
-//           })}
-//           {viewAdds.length > 0 && <div className="dropdown-divider"></div>}
-//           <a className="dropdown-item" onClick={() => this.relatedSet()}><i className="icon zmdi zmdi-settings"></i> 配置新建项</a>
-//         </div>
-//       </div>}
-//     </React.Fragment>
-//   }
-//   componentDidMount() {
-//   }
-//   edit = () => {
-//     const entity = this.props.entity
-//     RbFormModal.create({ id: this.props.id, title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] })
-//   }
-//   delete = () => {
-//     const entity = this.props.entity
-//     let needEntity = (wpc.type === 'SlaveList' || wpc.type === 'SlaveView') ? null : entity[0]
-//     renderRbcomp(<DeleteConfirm id={this.props.id} entity={needEntity} deleteAfter={() => RbViewPage.hide(true)} />)
-//   }
-//   assign = () => {
-//     DlgAssign.create({ entity: this.props.entity[0], ids: [this.props.id] })
-//   }
-//   share = () => {
-//     DlgShare.create({ entity: this.props.entity[0], ids: [this.props.id] })
-//   }
-//   slaveAdd(entity) {
-//     let iv = { '$MASTER$': this.props.id }
-//     RbFormModal.create({ title: '添加明细', entity: entity[0], icon: entity[2], initialValue: iv })
-//   }
-//   releateAdd(entity) {
-//     let iv = {}
-//     iv['&' + entity[0]] = this.props.id
-//     RbFormModal.create({ title: `新建${entity[1]}`, entity: entity[0], icon: entity[2], initialValue: iv })
-//   }
-//   relatedSet() {
-//   }
-//   showReports() {
-//   }
-// }
 
 // 选择报表
 class SelectReport extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = { ...props }
-  }
+  state = { ...this.props }
   render() {
     return (
       <div className="modal select-list" ref={(c) => this._dlg = c} tabIndex="-1">
@@ -210,7 +147,6 @@ class SelectReport extends React.Component {
 // ~ 相关项列表
 class RelatedList extends React.Component {
   state = { ...this.props }
-
   render() {
     let _list = this.state.list || []
     return <div className={`related-list ${!this.state.list ? 'rb-loading rb-loading-active' : ''}`}>
@@ -435,7 +371,7 @@ const RbViewPage = {
   }
 }
 
-// Init
+// init
 $(document).ready(function () {
   if (wpc.entity) {
     RbViewPage.init(wpc.recordId, wpc.entity, wpc.privileges)
