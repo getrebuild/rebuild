@@ -333,6 +333,7 @@ const RbViewPage = {
   // 通过父级页面打开
 
   clickView(el) {
+    // Must use parent's
     if (parent && parent.RbViewModal) {
       let viewUrl = $(el).attr('href')
       viewUrl = viewUrl.split('/')

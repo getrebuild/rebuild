@@ -753,9 +753,10 @@ class RbFormReference extends RbFormElement {
     if (typeof value === 'string') return <div className="form-control-plaintext">{value}</div>
     if (!value.id) return <div className="form-control-plaintext">{value.text}</div>
     return <div className="form-control-plaintext">
-      <a href={`#!/View/${value.entity}/${value.id}`} onClick={() => window.RbViewPage && window.RbViewPage.clickView(this)}>{value.text}</a>
+      <a href={`#!/View/${value.entity}/${value.id}`} onClick={this._clickView}>{value.text}</a>
     </div>
   }
+  _clickView = (e) => window.RbViewPage && window.RbViewPage.clickView(e.target)
 
   componentDidMount() {
     super.componentDidMount()

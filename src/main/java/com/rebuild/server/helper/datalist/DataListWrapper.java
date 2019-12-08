@@ -164,8 +164,8 @@ public class DataListWrapper {
 
 		nameVal = FieldValueWrapper.instance.wrapFieldValue(nameVal, new EasyMeta(nameField));
         return JSONUtils.toJSONObject(
-                new String[] { "id", "text", "entity", "icon" },
-                new Object[] { idVal, nameVal, entity.getName(), EasyMeta.valueOf(entity).getIcon() });
+                new String[] { "id", "text", "entity" },
+                new Object[] { idVal, nameVal, entity.getName() });
 	}
 	
 	/**
