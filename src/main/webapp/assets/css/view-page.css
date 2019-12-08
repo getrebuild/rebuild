@@ -61,7 +61,10 @@ body {
 
 .rbview-form .form-group.row {
 	padding: 3px 0;
-	position: relative;
+}
+
+.rbview-form .form-control-plaintext {
+	min-height: 37px;
 }
 
 .rbview-form .img-field .img-thumbnail:hover,
@@ -72,10 +75,6 @@ body {
 .rbview-form .file-field .img-thumbnail {
 	width: 100%;
 	margin: 0;
-}
-
-.rbview-form .form-control-plaintext:hover {
-	background-color: #fff;
 }
 
 .rbview-form .type-NTEXT .form-control-plaintext {
@@ -293,11 +292,7 @@ body {
 	margin-top: -1.4rem;
 }
 
-.rbview-form .form-group.row>div {
-	position: relative;
-}
-
-.rbview-form .form-group.row>div>a.editable {
+.rbview-form .form-group.row.editable a.edit {
 	position: absolute;
 	right: 15px;
 	top: 0;
@@ -311,17 +306,21 @@ body {
 	display: none;
 }
 
-.rbview-form .form-group.row>div>a.editable::before {
+.rbview-form .form-group.row.editable a.edit::before {
 	font-family: 'Material-Design-Iconic-Font';
 	content: '\f158';
 	font-size: 14px;
 	display: inline-block;
 }
 
-.rbview-form .form-group.row>div:hover>a.editable {
-	display: block;
+.rbview-form .form-group.row.editable a.edit:hover {
+	color: gray;
 }
 
-.rbview-form .form-group.row>div:hover>a.editable:hover {
-	color: gray;
+.rbview-form .form-group.row.editable>div {
+	position: relative;
+}
+
+.rbview-form .form-group.row.editable>div:hover>a.edit {
+	display: block;
 }

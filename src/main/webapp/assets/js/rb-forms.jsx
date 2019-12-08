@@ -295,11 +295,13 @@ class RbFormElement extends React.Component {
       colWidths[0] = 4
       if (props.isFull === true) colWidths = [2, 10]
     }
-    return <div className={`form-group row type-${props.type}`} data-field={props.field}>
+    const editable = props.onView && !props.readonly
+    return <div className={`form-group row type-${props.type} ${editable ? 'editable' : ''}`} data-field={props.field}>
       <label ref={(c) => this._fieldLabel = c} className={`col-12 col-form-label text-sm-right col-sm-${colWidths[0]} ${!props.onView && !props.nullable && 'required'}`}>{props.label}</label>
       <div className={'col-12 col-sm-' + colWidths[1]}>
         {this.state.viewMode ? this.renderViewElement() : this.renderElement()}
-        {(!props.onView && props.tip) && <p className="form-text">{props.tip}</p>}
+        {!props.onView && props.tip && <p className="form-text">{props.tip}</p>}
+        {editable && <a className="edit hide" title="编辑" onClick={this.handleEdit} />}
       </div>
     </div>
   }
@@ -313,10 +315,10 @@ class RbFormElement extends React.Component {
 
   // 渲染视图
   renderViewElement(forceText) {
-    const text = forceText || this.state.value
+    let text = forceText || this.state.value
+    if (typeof text === 'object' && text.length === 0) text = null
     return <React.Fragment>
       <div className="form-control-plaintext">{text || (<span className="text-muted">无</span>)}</div>
-      {!this.props.readonly && <a className="editable hide" title="编辑" onClick={this.handleEdit} />}
     </React.Fragment>
   }
 

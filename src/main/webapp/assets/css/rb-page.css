@@ -754,6 +754,12 @@ a {
     margin-left: 2px !important;
 }
 
+.type-MULTISELECT .form-control-plaintext>.text-muted {
+    font-size: 1rem;
+    margin: 4px 0px 5px;
+    display: inline-block;
+}
+
 .img-field {
     line-height: 1;
     font-size: 0;
