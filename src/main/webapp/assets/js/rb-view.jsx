@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable react/prop-types */
+/* global RepeatedViewer */
 const wpc = window.__PageConfig || {}
 
 //~~ 视图
@@ -7,6 +8,7 @@ class RbViewForm extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
+    this.__FormData = {}
   }
 
   render() {
@@ -68,7 +70,7 @@ class RbViewForm extends React.Component {
       if (res.error_code === 0) {
         if (res.data.lastModified !== this.__lastModified) {
           handle && handle.showLoading()
-          setTimeout(() => { location.reload() }, window.VIEW_LOAD_DELAY || 200)
+          setTimeout(() => location.reload(), window.VIEW_LOAD_DELAY || 200)
         }
       } else if (res.error_msg === 'NO_EXISTS') {
         this.renderViewError('此记录已被删除')
@@ -77,12 +79,46 @@ class RbViewForm extends React.Component {
     })
   }
 
-  // 修改值
-  setFieldValue() {
-    console.log('setFieldValue - ' + arguments)
+  // see RbForm in `rb-forms.jsx`
+
+  setFieldValue(field, value, error) {
+    this.__FormData[field] = { value: value, error: error }
+    // eslint-disable-next-line no-console
+    if (rb.env === 'dev') console.log('FV ... ' + JSON.stringify(this.__FormData))
   }
-  setFieldUnchanged() {
-    console.log('setFieldUnchanged - ' + arguments)
+  setFieldUnchanged(field) {
+    delete this.__FormData[field]
+    // eslint-disable-next-line no-console
+    if (rb.env === 'dev') console.log('FV ... ' + JSON.stringify(this.__FormData))
+  }
+
+  // 保存单个字段值
+  saveSingleFieldValue(fieldComp) { setTimeout(() => this._saveSingleFieldValue(fieldComp), 30) }
+  _saveSingleFieldValue(fieldComp) {
+    const fieldName = fieldComp.props.field
+    let val = this.__FormData[fieldName]
+    // Unchanged
+    if (!val) {
+      fieldComp.toggleEdit(true)
+      return
+    }
+    if (val.error) {
+      RbHighbar.create(val.error)
+      return
+    }
+
+    let _data = { metadata: { entity: this.props.entity, id: this.props.id } }
+    _data[fieldName] = val.value
+
+    $.post(`${rb.baseUrl}/app/entity/record-save?single=true`, JSON.stringify(_data), (res) => {
+      if (res.error_code === 0) {
+        this.setFieldUnchanged(fieldName)
+        let newValue = (res.data || {})[fieldName] || fieldComp.state.value || null
+        fieldComp.toggleEdit(true, newValue)
+      }
+      else if (res.error_code === 499) renderRbcomp(<RepeatedViewer entity={this.props.entity} data={res.data} />)
+      else RbHighbar.error(res.error_msg)
+    })
   }
 }
 
@@ -356,16 +392,20 @@ const RbViewPage = {
 
   // 隐藏划出的 View
   hide(reload) {
-    (parent && parent.RbViewModal) && parent.RbViewModal.holder(this.__id, 'HIDE')
-    if (reload === true) {
-      if (parent.RbListPage) parent.RbListPage.reload()
-      else setTimeout(() => parent.location.reload(), 200)
+    if (parent && parent !== window) {
+      parent && parent.RbViewModal && parent.RbViewModal.holder(this.__id, 'HIDE')
+      if (reload === true) {
+        if (parent.RbListPage) parent.RbListPage.reload()
+        else setTimeout(() => parent.location.reload(), 200)
+      }
+    } else {
+      window.close()  // Maybe unclose
     }
   },
 
   // 重新加載
   reload() {
-    (parent && parent.RbViewModal) && parent.RbViewModal.holder(this.__id, 'LOADING')
+    parent && parent.RbViewModal && parent.RbViewModal.holder(this.__id, 'LOADING')
     setTimeout(() => location.reload(), 20)
   }
 }

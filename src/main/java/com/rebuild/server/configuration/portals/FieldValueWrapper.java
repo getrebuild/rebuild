@@ -23,6 +23,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MetadataException;
+import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
@@ -103,10 +104,6 @@ public class FieldValueWrapper {
 			return wrapDecimal(value, field);
 		} else if (dt == DisplayType.REFERENCE) {
 			return wrapReference(value, field);
-		} else if (dt == DisplayType.IMAGE || dt == DisplayType.AVATAR
-				|| dt == DisplayType.FILE || dt == DisplayType.LOCATION) {
-			// 无需处理
-			return value;
 		} else if (dt == DisplayType.BOOL) {
 			return wrapBool(value, field);
 		} else if (dt == DisplayType.PICKLIST) {
@@ -117,7 +114,11 @@ public class FieldValueWrapper {
 		    return wrapState(value, field);
         } else if (dt == DisplayType.MULTISELECT) {
 			return wrapMultiSelect(value, field);
-		} else {
+		} else if (dt == DisplayType.IMAGE || dt == DisplayType.FILE) {
+            return JSON.parseArray(value.toString());
+        } else if (dt == DisplayType.AVATAR || dt == DisplayType.LOCATION) {
+            return value;
+        } else {
 			return wrapSimple(value, field);
 		}
 	}

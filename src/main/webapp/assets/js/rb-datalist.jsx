@@ -159,9 +159,9 @@ class RbList extends React.Component {
       if (item.sort) field_sort = item.field + ':' + item.sort.replace('sort-', '')
     })
 
-    let entity = this.props.config.entity
+    const entity = this.props.config.entity
     this.lastFilter = filter || this.lastFilter
-    let query = {
+    const query = {
       entity: entity,
       fields: fields,
       pageNo: this.pageNo,
@@ -179,7 +179,7 @@ class RbList extends React.Component {
     }, 400)
     $.post(`${rb.baseUrl}/app/${entity}/data-list`, JSON.stringify(query), (res) => {
       if (res.error_code === 0) {
-        this.setState({ rowsData: res.data.data || [], inLoad: false }, () => RbList.renderAfter())
+        this.setState({ rowsData: res.data.data || [], inLoad: false, checkeds: [] }, () => RbList.renderAfter())
         if (res.data.total > 0) this._pagination.setState({ rowsTotal: res.data.total })
       } else {
         RbHighbar.error(res.error_msg)
@@ -362,11 +362,13 @@ const CellRenders = {
 }
 
 CellRenders.addRender('$NAME$', function (v, s, k) {
-  return <td key={k}><div style={s}><a href={'#!/View/' + v.entity + '/' + v.id} onClick={() => CellRenders.clickView(v)} className="column-main">{v.text}</a></div></td>
+  return <td key={k}><div style={s}>
+    <a href={'#!/View/' + v.entity + '/' + v.id} onClick={() => CellRenders.clickView(v)} className="column-main">{v.text}</a>
+  </div></td>
 })
 
 CellRenders.addRender('IMAGE', function (v, s, k) {
-  v = JSON.parse(v || '[]')
+  v = v || []
   return <td key={k} className="td-min">
     <div style={s} className="column-imgs" title={'共 ' + v.length + ' 个图片'}>
       {v.map((item, idx) => {
@@ -378,24 +380,29 @@ CellRenders.addRender('IMAGE', function (v, s, k) {
 })
 
 CellRenders.addRender('FILE', function (v, s, k) {
-  v = JSON.parse(v || '[]')
-  return <td key={k} className="td-min"><div style={s} className="column-files">
-    <ul className="list-unstyled" title={'共 ' + v.length + ' 个文件'}>
-      {v.map((item, idx) => {
-        if (idx > 0) return null
-        let fileName = $fileCutName(item)
-        return <li key={'k-' + item} className="text-truncate"><a title={fileName} onClick={() => RbPreview.create(item)}>{fileName}</a></li>
-      })}
-    </ul>
-  </div></td>
+  v = v || []
+  return <td key={k} className="td-min">
+    <div style={s} className="column-files">
+      <ul className="list-unstyled" title={'共 ' + v.length + ' 个文件'}>
+        {v.map((item, idx) => {
+          if (idx > 0) return null
+          let fileName = $fileCutName(item)
+          return <li key={'k-' + item} className="text-truncate"><a title={fileName} onClick={() => RbPreview.create(item)}>{fileName}</a></li>
+        })}
+      </ul>
+    </div></td>
 })
 
 CellRenders.addRender('REFERENCE', function (v, s, k) {
-  return <td key={k}><div style={s}><a href={'#!/View/' + v.entity + '/' + v.id} onClick={() => CellRenders.clickView(v)}>{v.text}</a></div></td>
+  return <td key={k}><div style={s}>
+    <a href={'#!/View/' + v.entity + '/' + v.id} onClick={() => CellRenders.clickView(v)}>{v.text}</a>
+  </div></td>
 })
 
 CellRenders.addRender('URL', function (v, s, k) {
-  return <td key={k}><div style={s}><a href={rb.baseUrl + '/commons/url-safe?url=' + $encode(v)} className="column-url" target="_blank" rel="noopener noreferrer">{v}</a></div></td>
+  return <td key={k}><div style={s}>
+    <a href={rb.baseUrl + '/commons/url-safe?url=' + $encode(v)} className="column-url" target="_blank" rel="noopener noreferrer">{v}</a>
+  </div></td>
 })
 
 CellRenders.addRender('EMAIL', function (v, s, k) {

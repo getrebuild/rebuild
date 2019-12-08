@@ -436,7 +436,7 @@ public class FormsBuilder extends FormsManager {
 	 * @see FieldValueWrapper
 	 * @see #findRecord(ID, ID, JSONArray)
 	 */
-	protected Object wrapFieldValue(Record data, EasyMeta field) {
+	public Object wrapFieldValue(Record data, EasyMeta field) {
 		final String fieldName = field.getName();
 
 		// No value
@@ -463,7 +463,7 @@ public class FormsBuilder extends FormsManager {
 			}
 			return mixFieldValue(idValue, idLabel, true);
 		} else if (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST || dt == DisplayType.STATE
-                || dt == DisplayType.IMAGE || dt == DisplayType.FILE || dt == DisplayType.AVATAR || dt == DisplayType.LOCATION) {
+                 || dt == DisplayType.AVATAR || dt == DisplayType.LOCATION) {
 		    return fieldValue.toString();
         } else if (dt == DisplayType.BOOL) {
 		    return (Boolean) fieldValue ? BoolEditor.TRUE : BoolEditor.FALSE;

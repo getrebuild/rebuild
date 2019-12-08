@@ -284,7 +284,7 @@ var $pages = function (tp, cp) {
 }
 
 /**
- * 可以比较对象或数组
+ * 是否相同。兼容对象或数组
  * @param {*} a 
  * @param {*} b 
  */
@@ -303,6 +303,18 @@ var $same = function (a, b) {
   }
   // eslint-disable-next-line eqeqeq
   return a == b
+}
+
+/**
+ * 是否为空。兼容对象或数组
+ * @param {*} a 
+ */
+var $empty = function (a) {
+  if (a === undefined || a === null || a === '') return true
+  let type = $.type(a)
+  if (type === 'array' && a.length === 0) return true
+  else if (type === 'object' && Object.keys(a).length === 0) return true
+  else return false
 }
 
 /**

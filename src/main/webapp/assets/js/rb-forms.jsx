@@ -193,6 +193,19 @@ class RbForm extends React.Component {
     }
   }
 
+  // 表单回填
+  setAutoFillin(data) {
+    if (!data || data.length === 0) return
+    data.forEach((item) => {
+      // eslint-disable-next-line react/no-string-refs
+      let ref = this.refs['reffield-' + item.field]
+      if (ref) {
+        if (item.fillinForce !== true && !!ref.getValue()) return
+        if ((this.isNew === true && item.whenCreate === true) || (this.isNew !== true && item.whenUpdate === true)) ref.setValue(item.value)
+      }
+    })
+  }
+
   // 设置字段值
   setFieldValue(field, value, error) {
     this.__FormData[field] = { value: value, error: error }
@@ -206,30 +219,23 @@ class RbForm extends React.Component {
     if (rb.env === 'dev') console.log('FV ... ' + JSON.stringify(this.__FormData))
   }
 
-  // 设置表单回填
-  setAutoFillin(data) {
-    data.forEach((item) => {
-      // eslint-disable-next-line react/no-string-refs
-      let ref = this.refs['reffield-' + item.field]
-      if (ref) {
-        if (item.fillinForce !== true && !!ref.getValue()) return
-        if ((this.isNew === true && item.whenCreate === true) || (this.isNew !== true && item.whenUpdate === true)) ref.setValue(item.value)
-      }
-    })
-  }
-
+  // 保存并继续添加
+  static __NEXT_ADD = 101
+  // 保存并添加明细
+  static __NEXT_ADDSLAVE = 102
+  // 保存并提交审批
+  static __NEXT_APPROVAL = 103
   /**
    * @next {Number}
    */
-  post(next) {
-    next = next || 100
+  post(next) { setTimeout(() => this._post(next), 30) }
+  _post(next) {
     let _data = {}
     for (let k in this.__FormData) {
       let err = this.__FormData[k].error
       if (err) { RbHighbar.create(err); return }
       else _data[k] = this.__FormData[k].value
     }
-
     _data.metadata = { entity: this.state.entity, id: this.state.id }
     if (RbForm.postBefore(_data) === false) return
 
@@ -242,24 +248,22 @@ class RbForm extends React.Component {
           this.props.$$$parent.hide(true)
           RbForm.postAfter(res.data, next)
 
-          if (next === 101) {
+          if (next === RbForm.__NEXT_ADD) {
             let pstate = this.props.$$$parent.state
             RbFormModal.create({ title: pstate.title, entity: pstate.entity, icon: pstate.icon, initialValue: pstate.initialValue })
-          } else if (next === 102) {
+          } else if (next === RbForm.__NEXT_ADDSLAVE) {
             let iv = { '$MASTER$': res.data.id }
             let sm = this.props.$$$parent.state.__formModel.slaveMeta
             RbFormModal.create({ title: `添加${sm[1]}`, entity: sm[0], icon: sm[2], initialValue: iv })
-          } else if (next === 103) {
+          } else if (next === RbForm.__NEXT_APPROVAL) {
             renderRbcomp(<ApprovalSubmitForm id={res.data.id} disposeOnHide={true} />)
           }
         }, 100)
-
-      } else if (res.error_code === 499) {
-        renderRbcomp(<RepeatedViewer entity={this.state.entity} data={res.data} />)
-      } else {
-        RbHighbar.error(res.error_msg)
       }
+      else if (res.error_code === 499) renderRbcomp(<RepeatedViewer entity={this.state.entity} data={res.data} />)
+      else RbHighbar.error(res.error_msg)
     })
+    return true
   }
 
   // 保存前调用，返回 false 则不继续保存
@@ -284,7 +288,6 @@ class RbFormElement extends React.Component {
 
     this.handleChange = this.handleChange.bind(this)
     this.handleClear = this.handleClear.bind(this)
-    this.handleEdit = this.handleEdit.bind(this)
     this.checkValue = this.checkValue.bind(this)
   }
 
@@ -301,7 +304,11 @@ class RbFormElement extends React.Component {
       <div className={'col-12 col-sm-' + colWidths[1]}>
         {this.state.viewMode ? this.renderViewElement() : this.renderElement()}
         {!props.onView && props.tip && <p className="form-text">{props.tip}</p>}
-        {editable && <a className="edit hide" title="编辑" onClick={this.handleEdit} />}
+        {editable && this.state.viewMode && <a className="edit" title="编辑" onClick={() => this.toggleEdit(false)} />}
+        {editable && !this.state.viewMode && <div className="edit-oper">
+          <button className="btn btn-secondary" onClick={this.handleEdit}><i className="icon zmdi zmdi-check"></i></button>
+          <button className="btn btn-secondary" onClick={() => this.toggleEdit(true)}><i className="icon zmdi zmdi-close"></i></button>
+        </div>}
       </div>
     </div>
   }
@@ -315,8 +322,8 @@ class RbFormElement extends React.Component {
 
   // 渲染视图
   renderViewElement(forceText) {
-    let text = forceText || this.state.value
-    if (typeof text === 'object' && text.length === 0) text = null
+    let text = forceText === undefined ? this.state.value : forceText
+    if ($.type(text) === 'array' && text.length === 0) text = null
     return <React.Fragment>
       <div className="form-control-plaintext">{text || (<span className="text-muted">无</span>)}</div>
     </React.Fragment>
@@ -332,19 +339,29 @@ class RbFormElement extends React.Component {
   }
 
   // 修改值（表单组件（字段）值变化应调用此方法）
-  handleChange(event, checkValue) {
-    let val = event.target.value
-    this.setState({ value: val }, () => { checkValue === true && this.checkValue() })
+  handleChange(e, checkValue) {
+    let val = e.target.value
+    this.setState({ value: val }, () => checkValue === true && this.checkValue())
   }
 
   // 清空值
   handleClear() {
-    this.setState({ value: '' }, () => { this.checkValue() })
+    this.setState({ value: '' }, () => this.checkValue())
   }
 
   // 编辑值
-  handleEdit() {
-    this.setState({ viewMode: false })
+  toggleEdit(viewMode, newValue) {
+    this.setState({ viewMode: viewMode }, () => {
+      if (this.state.viewMode) {
+        if (newValue === undefined) {
+          newValue = this.state.newValue === undefined ? this.props.value : this.state.newValue
+        }
+        this.setState({ value: newValue, newValue: newValue })
+      }
+    })
+  }
+  handleEdit = () => {
+    this.props.$$$parent.saveSingleFieldValue && this.props.$$$parent.saveSingleFieldValue(this)
   }
 
   // 检查值
@@ -371,7 +388,9 @@ class RbFormElement extends React.Component {
 
   // 未修改
   isValueUnchanged() {
-    return $same(this.props.value || '', this.state.value || '')
+    debugger
+    let propValue = this.state.newValue === undefined ? this.props.value : this.state.newValue
+    return $same(propValue || '', this.state.value || '')
   }
 
   // Getter / Setter
@@ -542,7 +561,7 @@ class RbFormImage extends RbFormElement {
   constructor(props) {
     super(props)
 
-    this.state.value = JSON.parse(props.value || '[]')
+    if (props.value) this.state.value = [...props.value]  // clone
     if (this.props.uploadNumber) {
       this.__minUpload = ~~(this.props.uploadNumber.split(',')[0] || 0)
       this.__maxUpload = ~~(this.props.uploadNumber.split(',')[1] || 9)
@@ -553,9 +572,10 @@ class RbFormImage extends RbFormElement {
   }
 
   renderElement() {
-    let showUpload = (this.state.value || []).length < this.__maxUpload && !this.props.readonly
+    const value = this.state.value || []
+    const showUpload = value.length < this.__maxUpload && !this.props.readonly
     return <div className="img-field">
-      {this.state.value.map((item) => {
+      {value.map((item) => {
         return <span key={'img-' + item}>
           <a title={$fileCutName(item)} className="img-thumbnail img-upload">
             <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />
@@ -568,7 +588,7 @@ class RbFormImage extends RbFormElement {
         <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload"><span className="zmdi zmdi-image-alt"></span></label>
       </span>
       }
-      <input ref={(c) => this._fieldValue = c} type="hidden" value={this.state.value} />
+      <input ref={(c) => this._fieldValue = c} type="hidden" value={value} />
     </div>
   }
 
@@ -597,14 +617,14 @@ class RbFormImage extends RbFormElement {
       mp.set(res.percent / 100)  // 0.x
     }, (res) => {
       mp.end()
-      let paths = this.state.value
+      let paths = this.state.value || []
       paths.push(res.key)
       this.handleChange({ target: { value: paths } }, true)
     })
   }
 
   removeItem(item) {
-    let paths = this.state.value
+    let paths = this.state.value || []
     paths.remove(item)
     this.handleChange({ target: { value: paths } }, true)
   }
@@ -629,9 +649,10 @@ class RbFormFile extends RbFormImage {
   }
 
   renderElement() {
-    let showUpload = (this.state.value || []).length < this.__maxUpload && !this.props.readonly
+    const value = this.state.value || []
+    const showUpload = value.length < this.__maxUpload && !this.props.readonly
     return <div className="file-field">
-      {this.state.value.map((item) => {
+      {value.map((item) => {
         let fileName = $fileCutName(item)
         return <div key={'file-' + item} className="img-thumbnail" title={fileName}>
           <i className="file-icon" data-type={$fileExtName(fileName)} /><span>{fileName}</span>
@@ -646,7 +667,7 @@ class RbFormFile extends RbFormImage {
         </label>
       </div>
       }
-      <input ref={(c) => this._fieldValue = c} type="hidden" value={this.state.value} />
+      <input ref={(c) => this._fieldValue = c} type="hidden" value={value} />
     </div>
   }
 
