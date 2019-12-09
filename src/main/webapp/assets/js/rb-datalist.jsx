@@ -56,7 +56,7 @@ class RbList extends React.Component {
                       </div>
                     </th>}
                     {this.state.fields.map((item) => {
-                      let cWidth = (item.width || that.__defaultColumnWidth)
+                      let cWidth = item.width || that.__defaultColumnWidth
                       let styles = { width: cWidth + 'px' }
                       let clazz = 'unselect' + (item.unsort ? '' : ' sortable')
                       let click = item.unsort ? function () { } : this.sortField.bind(this, item.field)
@@ -74,7 +74,7 @@ class RbList extends React.Component {
                 <tbody>
                   {this.state.rowsData.map((item) => {
                     const lastPrimary = item[lastIndex]
-                    const checked = this.state.checkeds.contains(lastPrimary.id)
+                    const checked = this.state.checkeds.includes(lastPrimary.id)
                     const rowKey = 'row-' + lastPrimary.id
                     return <tr key={rowKey} className={`${checked ? 'active' : ''}`} onClick={() => this.clickRowUnhold(lastPrimary.id)}>
                       {this.props.uncheckbox !== true && <td key={rowKey + '-checkbox'} className="column-checkbox">
@@ -227,7 +227,7 @@ class RbList extends React.Component {
   }
   clickRow(clickId, e) {
     let checkeds = this.state.checkeds
-    if (checkeds.contains(clickId)) checkeds.remove(clickId)
+    if (checkeds.includes(clickId)) checkeds.remove(clickId)
     else checkeds.push(clickId)
     this.setState({ checkeds: checkeds })
     $stopEvent(e)

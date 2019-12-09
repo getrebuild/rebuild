@@ -88,7 +88,7 @@ class AdvFilter extends React.Component {
 
       if (this.__items) {
         $(this.__items).each((idx, item) => {
-          if (valideFs.contains(item.field)) this.addItem(item)
+          if (valideFs.includes(item.field)) this.addItem(item)
         })
       }
     })
@@ -243,7 +243,7 @@ class FilterItem extends React.Component {
             })}
           </select>
         </div>
-        <div className={'col-sm-5 val' + (OP_NOVALUE.contains(this.state.op) ? ' hide' : '')}>
+        <div className={'col-sm-5 val' + (OP_NOVALUE.includes(this.state.op) ? ' hide' : '')}>
           {this.renderValue()}
         </div>
       </div>
@@ -328,7 +328,7 @@ class FilterItem extends React.Component {
   isNumberValue() {
     if (this.state.type === 'NUMBER' || this.state.type === 'DECIMAL') {
       return true
-    } else if (this.state.type === 'DATE' && OP_DATE_NOPICKER.contains(this.state.op)) {
+    } else if (this.state.type === 'DATE' && OP_DATE_NOPICKER.includes(this.state.op)) {
       return true
     }
     return false
@@ -390,7 +390,7 @@ class FilterItem extends React.Component {
 
     if (state.type === 'DATE') {
       this.removeDatepicker()
-      if (OP_DATE_NOPICKER.contains(state.op)) {
+      if (OP_DATE_NOPICKER.includes(state.op)) {
         // 无需日期组件
       } else {
         this.renderDatepicker()
@@ -408,7 +408,7 @@ class FilterItem extends React.Component {
 
     if (state.type === 'BOOL') {
       this.removeBool()
-      if (!OP_NOVALUE.contains(state.op)) this.renderBool()
+      if (!OP_NOVALUE.includes(state.op)) this.renderBool()
     } else if (lastType === 'BOOL') {
       this.removeBool()
     }
@@ -611,12 +611,12 @@ class FilterItem extends React.Component {
   getFilterJson() {
     let s = this.state
     if (!s.value) {
-      if (OP_NOVALUE.contains(s.op)) {
+      if (OP_NOVALUE.includes(s.op)) {
         // 允许无值
       } else {
         return
       }
-    } else if (OP_NOVALUE.contains(s.op)) {
+    } else if (OP_NOVALUE.includes(s.op)) {
       s.value = null
     }
 

@@ -164,7 +164,7 @@ class DlgRuleEdit extends RbFormHandler {
       if (!this.creatable || this.name === wpc.fieldName) return
       if (source.type === 'FILE' && this.type !== 'FILE') return
       if (source.type === 'IMAGE' && this.type !== 'IMAGE') return
-      if (source.type === this.type || canFillinByType.contains(this.type)) {
+      if (source.type === this.type || canFillinByType.includes(this.type)) {
         if (this.ref) {  // reference field
           if (source.type === 'REFERENCE' && source.ref[0] === this.ref[0]) {
             tFields.push(this)

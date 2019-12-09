@@ -5,7 +5,7 @@ $(document).ready(function () {
     $(wpc.formConfig.elements).each(function () { configFields.push(this.field) })
     $(res.data).each(function () {
       validFields[this.fieldName] = this
-      if (configFields.contains(this.fieldName) === false) render_unset(this, '.field-list')
+      if (configFields.includes(this.fieldName) === false) render_unset(this, '.field-list')
     })
 
     $(wpc.formConfig.elements).each(function () {
