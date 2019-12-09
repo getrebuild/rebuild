@@ -299,7 +299,7 @@ body {
 	color: #aaa;
 	width: 20px;
 	height: 20px;
-	margin-top: 8px;
+	margin-top: 7px;
 	text-align: center;
 	border-radius: 2px;
 	background-color: #eee;
@@ -329,14 +329,43 @@ body {
 	text-align: right;
 }
 
-.rbview-form .form-group.row.editable>div .edit-oper>.btn {
-	width: 26px;
-	height: 26px;
+.rbview-form .form-group.row.editable>div .edit-oper .btn {
+	width: 28px;
+	height: 28px;
 	overflow: hidden;
 	line-height: 1.1;
 	padding: 0;
 	min-width: 0;
 	min-height: 0;
 	font-weight: bold;
-	margin-left: -1px;
+}
+
+.type-AVATAR .edit-oper,
+.type-BOOL .edit-oper,
+.type-FILE .edit-oper,
+.type-MULTISELECT .edit-oper,
+.type-IMAGE .edit-oper {
+	border-top: 1px solid #dbdbdb;
+}
+
+.type-AVATAR .edit-oper {
+	margin-top: 7px;
+}
+
+.type-IMAGE .edit-oper {
+	margin-top: -2px;
+}
+
+.type-BOOL .edit-oper {
+	margin-top: -8px;
+}
+
+.type-MULTISELECT .edit-oper {
+	margin-top: -1px;
+}
+
+.rbview-form.readonly .form-group.row.editable a.edit {
+	display: none !important;
+	width: 0 !important;
+	height: 0 !important;
 }

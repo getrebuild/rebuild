@@ -288,7 +288,6 @@ class RbList extends React.Component {
       if ($this.prop('checked')) selected.push($this.parents('tr').data('id'))
     })
     if (selected.length === 0 && noWarn !== true) RbHighbar.create('未选中任何记录')
-    console.log(selected)
     return selected
   }
 

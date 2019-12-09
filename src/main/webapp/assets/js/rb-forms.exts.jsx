@@ -9,7 +9,9 @@ class RbFormAvatar extends RbFormElement {
     let aUrl = rb.baseUrl + (this.state.value ? `/filex/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
     return <div className="img-field avatar">
       <span title={this.props.readonly ? null : '选择头像'}>
-        {!this.props.readonly && <input ref={(c) => this._fieldValue__input = c} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/png,image/jpeg,image/gif" />}
+        {!this.props.readonly &&
+          <input ref={(c) => this._fieldValue__input = c} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/png,image/jpeg,image/gif" />
+        }
         <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload"><img src={aUrl} alt="头像" /></label>
       </span>
     </div>
@@ -20,18 +22,19 @@ class RbFormAvatar extends RbFormElement {
     return <div className="img-field avatar"><a className="img-thumbnail img-upload"><img src={aUrl} /></a></div>
   }
 
-  componentDidMount() {
-    super.componentDidMount()
-    if (this.state.viewMode === true || this.props.readonly) return
-
-    let mp
-    $createUploader(this._fieldValue__input, (res) => {
-      if (!mp) mp = new Mprogress({ template: 1, start: true })
-      mp.set(res.percent / 100)  // 0.x
-    }, (res) => {
-      mp.end()
-      this.handleChange({ target: { value: res.key } }, true)
-    })
+  onEditModeChanged(destroy) {
+    if (destroy) {
+      // NOOP
+    } else {
+      let mp
+      $createUploader(this._fieldValue__input, (res) => {
+        if (!mp) mp = new Mprogress({ template: 1, start: true })
+        mp.set(res.percent / 100)  // 0.x
+      }, (res) => {
+        mp.end()
+        this.handleChange({ target: { value: res.key } }, true)
+      })
+    }
   }
 
   // Not implemented

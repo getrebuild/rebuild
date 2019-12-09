@@ -88,7 +88,8 @@
         "$pgt": true,
         "$stopEvent": true,
         "$addResizeHandler": true,
-        "$lang": true
+        "$lang": true,
+        "$empty": true
     },
     "rules": {
         "strict": 0,

@@ -59,7 +59,6 @@ class RbViewForm extends React.Component {
   hideLoading() {
     let ph = (parent && parent.RbViewModal) ? parent.RbViewModal.holder(this.state.id) : null
     ph && ph.hideLoading()
-    $(this._viewForm).find('.type-NTEXT .form-control-plaintext').perfectScrollbar()
   }
 
   showAgain = (handle) => this.checkDrityData(handle)
@@ -96,10 +95,10 @@ class RbViewForm extends React.Component {
   saveSingleFieldValue(fieldComp) { setTimeout(() => this._saveSingleFieldValue(fieldComp), 30) }
   _saveSingleFieldValue(fieldComp) {
     const fieldName = fieldComp.props.field
-    let val = this.__FormData[fieldName]
+    const val = this.__FormData[fieldName]
     // Unchanged
     if (!val) {
-      fieldComp.toggleEdit(true)
+      fieldComp.toggleEditMode(false)
       return
     }
     if (val.error) {
@@ -110,11 +109,12 @@ class RbViewForm extends React.Component {
     let _data = { metadata: { entity: this.props.entity, id: this.props.id } }
     _data[fieldName] = val.value
 
+    const btns = $(fieldComp._fieldText).find('.edit-oper .btn').button('loading')
     $.post(`${rb.baseUrl}/app/entity/record-save?single=true`, JSON.stringify(_data), (res) => {
+      btns.button('reset')
       if (res.error_code === 0) {
         this.setFieldUnchanged(fieldName)
-        let newValue = (res.data || {})[fieldName] || fieldComp.state.value || null
-        fieldComp.toggleEdit(true, newValue)
+        fieldComp.toggleEditMode(false, res.data[fieldName])
       }
       else if (res.error_code === 499) renderRbcomp(<RepeatedViewer entity={this.props.entity} data={res.data} />)
       else RbHighbar.error(res.error_msg)
@@ -125,7 +125,7 @@ class RbViewForm extends React.Component {
 const detectViewElement = function (item) {
   if (!window.detectElement) throw 'detectElement undef'
   item.onView = true
-  item.viewMode = true
+  item.editMode = false
   item.key = 'col-' + (item.field === '$DIVIDER$' ? $random() : item.field)
   return <div className={`col-12 col-sm-${item.isFull ? 12 : 6}`} key={item.key}>{window.detectElement(item)}</div>
 }
@@ -407,6 +407,13 @@ const RbViewPage = {
   reload() {
     parent && parent.RbViewModal && parent.RbViewModal.holder(this.__id, 'LOADING')
     setTimeout(() => location.reload(), 20)
+  },
+
+  // 记录只读
+  setReadonly() {
+    $(this._RbViewForm._viewForm).addClass('readonly')
+    $('.J_edit, .J_delete, .J_add-slave').remove()
+    this.cleanViewActionButton()
   }
 }
 
