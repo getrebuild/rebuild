@@ -459,7 +459,7 @@ public class FormsBuilder extends FormsManager {
 			ID idValue = (ID) fieldValue;
 			String idLabel = idValue.getLabel();
 			if (idLabel == null) {
-				idLabel = FieldValueWrapper.NO_LABEL_PREFIX + idValue.toLiteral().toUpperCase();
+			    idLabel = FieldValueWrapper.getLabelNotry(idValue);
 			}
 			return mixFieldValue(idValue, idLabel, true);
 		} else if (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST || dt == DisplayType.STATE

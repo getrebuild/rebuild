@@ -28,6 +28,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.exception.jdbc.GenericJdbcException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -54,6 +55,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.DataTruncation;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -104,7 +106,14 @@ public class GeneralOperatingControll extends BaseControll {
 		} catch (AccessDeniedException | DataSpecificationException know) {
 			writeFailure(response, know.getLocalizedMessage());
 			return;
-		}
+		} catch (GenericJdbcException ex) {
+		    if (ex.getCause() instanceof DataTruncation) {
+                writeFailure(response, "字段长度超过限制");
+            } else {
+                writeFailure(response, ex.getLocalizedMessage());
+            }
+		    return;
+        }
 
 		// 单字段修改
 		boolean fromSingle = getBoolParameter(request, "single");

@@ -319,15 +319,15 @@ class RbFormElement extends React.Component {
   }
 
   // 渲染表单
-  renderElement(forceValue) {
-    const value = forceValue || this.state.value
+  renderElement() {
+    const value = arguments.length > 0 ? arguments[0] : this.state.value
     return <input ref={(c) => this._fieldValue = c} className={`form-control form-control-sm ${this.state.hasError ? 'is-invalid' : ''}`} title={this.state.hasError} type="text" value={value || ''}
       onChange={this.handleChange} onBlur={this.checkValue} readOnly={this.props.readonly} />
   }
 
   // 渲染视图
   renderViewElement() {
-    let text = arguments.length > 0 ? arguments[0] : this.state.value  // use `forceText`
+    let text = arguments.length > 0 ? arguments[0] : this.state.value
     if (text && $empty(text)) text = null
     return <React.Fragment>
       <div className="form-control-plaintext">{text || (<span className="text-muted">无</span>)}</div>
@@ -408,8 +408,8 @@ class RbFormElement extends React.Component {
 
   // 未修改
   isValueUnchanged() {
-    let propValue = this.state.newValue === undefined ? this.props.value : this.state.newValue
-    return $same(propValue || '', this.state.value || '')
+    let oldv = this.state.newValue === undefined ? this.props.value : this.state.newValue
+    return $same(oldv, this.state.value)
   }
 
   // Getter / Setter
@@ -484,23 +484,31 @@ class RbFormNumber extends RbFormText {
     let err = super.isValueError()
     if (err) return err
     if (!!this.state.value && $regex.isNumber(this.state.value) === false) return '整数格式不正确'
-    // eslint-disable-next-line eqeqeq
-    if (!!this.state.value && this.props.notNegative === true && parseFloat(this.state.value) < 0) return '不允许为负数'
+    if (!!this.state.value && this.props.notNegative === 'true' && parseFloat(this.state.value) < 0) return '不允许为负数'
     return null
+  }
+  _isValueError() {
+    return super.isValueError()
+  }
+
+  renderElement() {
+    let value = arguments.length > 0 ? arguments[0] : this.state.value
+    if (value) value = (value + '').replace(/,/g, '')  // 移除千分为位
+    return <input ref={(c) => this._fieldValue = c} className={`form-control form-control-sm ${this.state.hasError ? 'is-invalid' : ''}`} title={this.state.hasError} type="text" value={value || ''}
+      onChange={this.handleChange} onBlur={this.checkValue} readOnly={this.props.readonly} maxLength="30" />
   }
 }
 
-class RbFormDecimal extends RbFormText {
+class RbFormDecimal extends RbFormNumber {
   constructor(props) {
     super(props)
   }
 
   isValueError() {
-    let err = super.isValueError()
+    let err = super._isValueError()
     if (err) return err
     if (!!this.state.value && $regex.isDecimal(this.state.value) === false) return '货币格式不正确'
-    // eslint-disable-next-line eqeqeq
-    if (!!this.state.value && this.props.notNegative == true && parseFloat(this.state.value) < 0) return '不允许为负数'
+    if (!!this.state.value && this.props.notNegative === 'true' && parseFloat(this.state.value) < 0) return '不允许为负数'
     return null
   }
 }
@@ -559,7 +567,9 @@ class RbFormDateTime extends RbFormElement {
     } else {
       const format = (this.props.datetimeFormat || this.props.dateFormat).replace('mm', 'ii').toLowerCase()
       let minView = 0
-      if (format.length === 7) minView = 'year'
+      let startView = 'month'
+      if (format.length === 4) minView = startView = 'decade'
+      else if (format.length === 7) minView = startView = 'year'
       else if (format.length === 10) minView = 'month'
 
       const that = this
@@ -568,7 +578,7 @@ class RbFormDateTime extends RbFormElement {
         navIcons: { rightIcon: 'zmdi zmdi-chevron-right', leftIcon: 'zmdi zmdi-chevron-left' },
         format: format || 'yyyy-mm-dd hh:ii:ss',
         minView: minView,
-        startView: minView === 'year' ? 'year' : 'month',
+        startView: startView,
         weekStart: 1,
         autoclose: true,
         language: 'zh',
@@ -805,32 +815,30 @@ class RbFormReference extends RbFormElement {
         entity: entity
       })
 
-      $setTimeout(() => {
-        const val = this.props.value
-        if (val) {
-          let o = new Option(val.text, val.id, true, true)
-          this.__select2.append(o).trigger('change')
-        }
+      const val = this.state.value
+      if (val) {
+        let o = new Option(val.text, val.id, true, true)
+        this.__select2.append(o).trigger('change')
+      }
 
-        const that = this
-        this.__select2.on('change', function (e) {
-          let v = e.target.value
-          if (v) {
-            $.post(`${rb.baseUrl}/commons/search/recently-add?id=${v}`)
-            // 字段回填
-            $.post(`${rb.baseUrl}/app/entity/extras/fillin-value?entity=${entity}&field=${that.props.field}&source=${v}`, (res) => {
-              res.error_code === 0 && res.data.length > 0 && that.props.$$$parent.setAutoFillin(res.data)
-            })
-          }
-          that.handleChange({ target: { value: v } }, true)
-        })
-      }, 100)
+      const that = this
+      this.__select2.on('change', function (e) {
+        let v = e.target.value
+        if (v) {
+          $.post(`${rb.baseUrl}/commons/search/recently-add?id=${v}`)
+          // 字段回填
+          $.post(`${rb.baseUrl}/app/entity/extras/fillin-value?entity=${entity}&field=${that.props.field}&source=${v}`, (res) => {
+            res.error_code === 0 && res.data.length > 0 && that.props.$$$parent.setAutoFillin(res.data)
+          })
+        }
+        that.handleChange({ target: { value: v } }, true)
+      })
     }
   }
 
   isValueUnchanged() {
-    let oldv = this.props.value ? this.props.value.id : ''
-    return $same(oldv, this.state.value || '')
+    let oldv = this.state.newValue === undefined ? (this.props.value || {}).id : (this.state.newValue || {}).id
+    return $same(oldv, this.state.value)
   }
 
   setValue(val) {
@@ -877,7 +885,7 @@ class RbFormClassification extends RbFormElement {
         searchType: 'classification'
       })
 
-      const value = this.state.newValue === undefined ? this.props.value : this.state.newValue
+      const value = this.state.value
       value && this.setClassificationValue(value)
 
       this.__select2.on('change', () => {
@@ -889,8 +897,8 @@ class RbFormClassification extends RbFormElement {
   }
 
   isValueUnchanged() {
-    let oldv = this.props.value ? this.props.value.id : ''
-    return $same(oldv, this.state.value || '')
+    let oldv = this.state.newValue === undefined ? (this.props.value || {}).id : (this.state.newValue || {}).id
+    return $same(oldv, this.state.value)
   }
 
   setValue(val) {
