@@ -1132,6 +1132,10 @@ i.split.ui-draggable-dragging {
     border-bottom: 1px solid #dee2e6;
 }
 
+.data-list .table .custom-checkbox .custom-control-label::before {
+    border-radius: 2px;
+}
+
 .data-list .table td,
 .data-list .table td>div {
     white-space: nowrap;

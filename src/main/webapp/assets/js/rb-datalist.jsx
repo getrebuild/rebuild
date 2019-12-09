@@ -24,7 +24,7 @@ class RbList extends React.Component {
       if (sort[0] === fields[i].field) fields[i].sort = sort[1]
     }
     props.config.fields = null
-    this.state = { ...props, fields: fields, rowsData: [], pageNo: 1, pageSize: 20, inLoad: true, checkedAll: false, checkeds: [] }
+    this.state = { ...props, fields: fields, rowsData: [], pageNo: 1, pageSize: 20, inLoad: true }
 
     this.__defaultColumnWidth = $('#react-list').width() / 10
     if (this.__defaultColumnWidth < 130) this.__defaultColumnWidth = 130
@@ -32,8 +32,6 @@ class RbList extends React.Component {
     this.pageNo = 1
     this.pageSize = $storage.get('ListPageSize') || 20
     this.advFilter = $storage.get(this.__defaultFilterKey)
-
-    this.toggleRows = this.toggleRows.bind(this)
   }
 
   render() {
@@ -43,14 +41,14 @@ class RbList extends React.Component {
       <React.Fragment>
         <div className="row rb-datatable-body">
           <div className="col-sm-12">
-            <div className="rb-scroller" ref="rblist-scroller">
+            <div className="rb-scroller" ref={(c) => this._rblistScroller = c}>
               <table className="table table-hover table-striped">
-                <thead>
+                <thead ref={(c) => this._rblistHead = c}>
                   <tr>
                     {this.props.uncheckbox !== true && <th className="column-checkbox">
                       <div>
                         <label className="custom-control custom-control-sm custom-checkbox">
-                          <input className="custom-control-input" type="checkbox" checked={this.state.checkedAll} onChange={this.toggleRows} />
+                          <input className="custom-control-input" type="checkbox" onChange={(e) => this.toggleRows(e)} />
                           <span className="custom-control-label"></span>
                         </label>
                       </div>
@@ -71,17 +69,16 @@ class RbList extends React.Component {
                     <th className="column-empty"></th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody ref={(c) => this._rblistBody = c}>
                   {this.state.rowsData.map((item) => {
                     const lastPrimary = item[lastIndex]
-                    const checked = this.state.checkeds.includes(lastPrimary.id)
                     const rowKey = 'row-' + lastPrimary.id
-                    return <tr key={rowKey} className={`${checked ? 'active' : ''}`} onClick={() => this.clickRowUnhold(lastPrimary.id)}>
+                    return <tr key={rowKey} data-id={lastPrimary.id} onClick={(e) => this.clickRow(e, true)}>
                       {this.props.uncheckbox !== true && <td key={rowKey + '-checkbox'} className="column-checkbox">
                         <div>
                           <label className="custom-control custom-control-sm custom-checkbox">
-                            <input className="custom-control-input" type="checkbox" checked={checked} readOnly />
-                            <span className="custom-control-label" onClick={(e) => this.clickRow(lastPrimary.id, e)}></span>
+                            <input className="custom-control-input" type="checkbox" onChange={(e) => this.clickRow(e)} />
+                            <span className="custom-control-label"></span>
                           </label>
                         </div>
                       </td>
@@ -104,7 +101,7 @@ class RbList extends React.Component {
   }
 
   componentDidMount() {
-    const scroller = $(this.refs['rblist-scroller'])
+    const scroller = $(this._rblistScroller)
     scroller.perfectScrollbar()
 
     if (FIXED_FOOTER && $('.main-content').width() > 998) {
@@ -144,11 +141,12 @@ class RbList extends React.Component {
   }
 
   componentDidUpdate() {
-    let oper = $('.dataTables_oper')
+    const oper = $('.dataTables_oper')
     oper.find('.J_delete, .J_view, .J_edit, .J_assign, .J_share, .J_unshare').attr('disabled', true)
-    const length = this.state.checkeds.length
-    if (length > 0) oper.find('.J_delete, .J_assign, .J_share, .J_unshare').attr('disabled', false)
-    if (length === 1) oper.find('.J_view, .J_edit').attr('disabled', false)
+    const selected = this.getSelectedIds(true).length
+    if (selected > 0) oper.find('.J_delete, .J_assign, .J_share, .J_unshare').attr('disabled', false)
+    else $(this._rblistHead).find('.custom-control-input').prop('checked', false)
+    if (selected === 1) oper.find('.J_view, .J_edit').attr('disabled', false)
   }
 
   fetchList(filter) {
@@ -179,7 +177,7 @@ class RbList extends React.Component {
     }, 400)
     $.post(`${rb.baseUrl}/app/${entity}/data-list`, JSON.stringify(query), (res) => {
       if (res.error_code === 0) {
-        this.setState({ rowsData: res.data.data || [], inLoad: false, checkeds: [] }, () => RbList.renderAfter())
+        this.setState({ rowsData: res.data.data || [], inLoad: false }, () => RbList.renderAfter())
         if (res.data.total > 0) this._pagination.setState({ rowsTotal: res.data.total })
       } else {
         RbHighbar.error(res.error_msg)
@@ -212,25 +210,27 @@ class RbList extends React.Component {
   }
 
   // 全选
-  toggleRows() {
-    let checkeds = []
-    if (!this.state.checkedAll) {
-      this.state.rowsData.forEach((item) => checkeds.push(item[item.length - 1].id))
-    }
-    this.setState({ checkeds: checkeds, checkedAll: !this.state.checkedAll })
+  toggleRows(e) {
+    const body = $(this._rblistBody)
+    if (e.target.checked) body.find('>tr').addClass('active').find('.custom-control-input').prop('checked', true)
+    else body.find('>tr').removeClass('active').find('.custom-control-input').prop('checked', false)
+    this.setState({ checkedChanged: true })
   }
 
   // 单选
-  clickRowUnhold(clickId) {
-    if (event && event.target.tagName === 'INPUT') return
-    this.setState({ checkeds: [clickId] })
-  }
-  clickRow(clickId, e) {
-    let checkeds = this.state.checkeds
-    if (checkeds.includes(clickId)) checkeds.remove(clickId)
-    else checkeds.push(clickId)
-    this.setState({ checkeds: checkeds })
-    $stopEvent(e)
+  clickRow(e, unhold) {
+    if (e.target.matches('span.custom-control-label')) return
+    if (e.target.matches('input.custom-control-input') && unhold) return
+
+    const tr = $(e.target).parents('tr')
+    if (unhold) {
+      this.toggleRows({ target: { checked: false } })
+      tr.addClass('active').find('.custom-control-input').prop('checked', true)
+    } else {
+      if (e.target.checked) tr.addClass('active')
+      else tr.removeClass('active')
+    }
+    this.setState({ checkedChanged: true })
   }
 
   sortField(field, e) {
@@ -282,8 +282,14 @@ class RbList extends React.Component {
    * 获取选中 ID[]
    */
   getSelectedIds(noWarn) {
-    if (this.state.checkeds.length === 0 && noWarn !== true) RbHighbar.create('未选中任何记录')
-    return this.state.checkeds
+    let selected = []
+    $(this._rblistBody).find('>tr .custom-control-input').each(function () {
+      let $this = $(this)
+      if ($this.prop('checked')) selected.push($this.parents('tr').data('id'))
+    })
+    if (selected.length === 0 && noWarn !== true) RbHighbar.create('未选中任何记录')
+    console.log(selected)
+    return selected
   }
 
   /**
