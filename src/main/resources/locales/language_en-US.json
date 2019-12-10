@@ -62,5 +62,14 @@
   "Retry": "Try again",
   "ErrorUnknow": "Unknow error, please try again later",
   "Error404": "The resource you requested does not exist",
-  "Error403": "Insufficient permissions, access blocked"
+  "Error403": "Insufficient permissions, access blocked",
+  "NewUserAddedNotify": "<p>The system administrator has opened a %s account for you! The following is your login information, please keep it in a safe place.</p><div style='margin:10px 0'>Username <b>%s</b><br>Login password <b>%s</b><br>Login address <a href='%s'>%s</a></div><p>The first time you login, we recommend that you change your login password immediately!</p>",
+  "YourAccountReady": "Your %s account is ready",
+  "NewUserSignupNotify": "User @%s submitted a signup request. Please verify the validity of the user and enable and specify the department and role for the user to login. If this is an invalid application, please ignore it. [Click here to activate] (%s)",
+  "YourAccountActive": "Your account is activated",
+  "NewUserAccountActive": "<p>%s Your account is activated! Now you can login and use the system.</p><div style='margin:10px 0'>Login address <a href='%s'>%s</a></div><p>For the first time, you are advised to change your password immediately! If you have any login or usage problems, please contact your system administrator.</p>",
+  "PasswordLevel1Tip": "Password must be at least 6 characters",
+  "PasswordLevel2Tip": "Password must contain numbers and uppercase and lowercase letters",
+  "PasswordLevel3Tip": "Password must be at least 8 characters and must contain special characters",
+  "Repeated": "{0} is duplicated"
 }
